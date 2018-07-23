@@ -43,26 +43,27 @@
 #include "tauEvent/TauJet.h"
 #include "JetEvent/JetCollection.h"
 #include "Particle/TrackParticleContainer.h"
-#include "TrkTrack/TrackCollection.h" 
 #include "TrkTrack/Track.h" 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "AnalysisTriggerEvent/LVL1_ROI.h" 
 #include "AnalysisTriggerEvent/EmTau_ROI.h"
-#include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCellLinkContainer.h"
 #include "CaloEvent/CaloCellLink.h"
-#include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
+
+// Needed for the pixel clusters
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+//
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelCluster.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
-#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleCollection.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
+//
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
@@ -70,7 +71,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
-#include "Identifier/IdentifierHash.h"
+
 
 
 // Needed for deltaR calculation (really?)
@@ -2109,7 +2110,7 @@ StatusCode ThinContainers::thinPixels(const InDet::PixelClusterContainer* pixelC
       ++nTotal;
       ATH_MSG_DEBUG( "There are " << (*pixelItr)->size() 
                      << " entries in the PixelClusterContainer!" );
-      const PixelClusterCollection *colNext = (*pixelItr);
+      const InDet::PixelClusterCollection *colNext = (*pixelItr);
       
       if (!colNext){ continue; }
 
@@ -2190,7 +2191,7 @@ StatusCode ThinContainers::thinSCTClusters(const InDet::SCT_ClusterContainer* sc
       ++nTotal;
       ATH_MSG_DEBUG( "There are " << (*sctItr)->size() 
                      << " entries in the SCT_ClusterContainer!" );
-      const SCT_ClusterCollection *colNext = (*sctItr);
+      const InDet::SCT_ClusterCollection *colNext = (*sctItr);
       
       if (!colNext){ continue; }
       
@@ -2276,7 +2277,7 @@ StatusCode ThinContainers::thinTRTDriftCircles(const InDet::TRT_DriftCircleConta
       ++nTotal;
       ATH_MSG_DEBUG( "There are " << (*trtItr)->size() 
                      << " entries in the TRT_DriftCircleContainer!" );
-      const TRT_DriftCircleCollection *colNext = (*trtItr);
+      const InDet::TRT_DriftCircleCollection *colNext = (*trtItr);
       
       if (!colNext){ continue; }
       

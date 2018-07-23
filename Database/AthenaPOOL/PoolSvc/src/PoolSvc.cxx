@@ -10,6 +10,7 @@
 #include "PoolSvc.h"
 
 #include "GaudiKernel/IIoComponentMgr.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -198,9 +199,17 @@ StatusCode PoolSvc::setupPersistencySvc() {
    // Setup a persistency services
    m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).release()); // Read Service
    m_pers_mut.push_back(new CallMutex);
-   if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("MultiThreaded", true)) {
-      ATH_MSG_FATAL("Failed to enable multithreaded ROOT via PersistencySvc.");
+   if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("ENABLE_THREADSAFETY", true)) {
+      ATH_MSG_FATAL("Failed to enable thread safety in ROOT via PersistencySvc.");
       return(StatusCode::FAILURE);
+   }
+   // Switiching on ROOT implicit multi threading for AthenaMT
+   if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
+
+      if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("ENABLE_IMPLICITMT", true)) {
+         ATH_MSG_FATAL("Failed to enable implicit multithreading in ROOT via PersistencySvc.");
+         return(StatusCode::FAILURE);
+      }
    }
    m_contextMaxFile.insert(std::pair<unsigned int, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
    if (!connect(pool::ITransaction::READ).isSuccess()) {

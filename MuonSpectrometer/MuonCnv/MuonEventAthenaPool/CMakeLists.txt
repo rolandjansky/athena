@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonRDO
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
+                          Control/CxxUtils
                           PRIVATE
                           AtlasTest/TestTools
                           Control/AthenaKernel

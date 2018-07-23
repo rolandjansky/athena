@@ -10,7 +10,7 @@
                                                                                                        
 class InDetSimData_p2 {
  public:
-  InDetSimData_p2()  {};
+  InDetSimData_p2():m_word(0), m_links{}, m_enDeposits{}  {};
 // List of Cnv classes that convert this into SimData objects
   friend class InDetSimDataCnv_p2;
  private:

@@ -157,5 +157,5 @@ def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+RPC_DIGITS")
-    kwargs.setdefault("OutputSDOsName",overlayFlags.evtStore()+"+RPC_SDO")
+    kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+RPC_SDO")
     return RpcDigitizationTool(name, **kwargs)

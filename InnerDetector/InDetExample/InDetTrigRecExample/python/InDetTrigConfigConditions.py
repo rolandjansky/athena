@@ -551,11 +551,12 @@ class TRTConditionsServicesSetup:
       conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className='TRTCond::RtRelationMultChanContainer')
       # not needed anymore conddb.addOverride('/TRT/Onl/Calib/errors','TrtCalibErrorsOnl-ErrorVal-00-00')
 
-    if not (conddb.folderRequested('/TRT/Calib/ToTCalib') or conddb.folderRequested('/TRT/Onl/Calib/ToTCalib')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
+    if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className='CondAttrListCollection')
 
-    if not (conddb.folderRequested('/TRT/Calib/HTCalib') or conddb.folderRequested('/TRT/Onl/Calib/HTCalib')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib")
+    if not conddb.folderRequested('/TRT/Calib/HTCalib'):
+      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className='CondAttrListCollection')
+
 
     # Calibration DB Service
     from AthenaCommon.AppMgr import ServiceMgr
@@ -566,30 +567,19 @@ class TRTConditionsServicesSetup:
     if self._print:
         print InDetTRTCalDbSvc
 
-
     # Dead/Noisy Straw Lists
-    if not (conddb.folderRequested('/TRT/Cond/Status') or conddb.folderRequested('/TRT/Onl/Cond/Status')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status", "/TRT/Cond/Status")
-    #there used to be an additional tag here!
-    #conddb.addFolder("TRT","/TRT/Cond/StatusPermanent<tag>TrtStrawStatusPermanent-01</tag>")
-    if not (conddb.folderRequested('/TRT/Cond/StatusPermanent') or conddb.folderRequested('/TRT/Onl/Cond/StatusPermanent')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent", "/TRT/Cond/StatusPermanent")
+    if not conddb.folderRequested('/TRT/Cond/Status'):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status",className='TRTCond::StrawStatusMultChanContainer')
+    if not conddb.folderRequested('/TRT/Cond/StatusPermanent'):
+       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent",className='TRTCond::StrawStatusMultChanContainer')
 
-    #high threshold capabilities
-    if not (conddb.folderRequested('/TRT/Cond/StatusHT') or conddb.folderRequested('/TRT/Onl/Cond/StatusHT')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT", "/TRT/Cond/StatusHT")
+    # Argon straw list
+    if not conddb.folderRequested('/TRT/Cond/StatusHT'):
+      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
 
-    # DCS Data Folders
+
     from AthenaCommon.GlobalFlags import globalflags
-    if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
-      if self.useDCS and not self.onlineMode:
-        if not conddb.folderRequested('/TRT/DCS/HV/BARREL <cache>600</cache>'):
-          conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>")
-        if not conddb.folderRequested('/TRT/DCS/HV/ENDCAPA <cache>600</cache>'):
-          conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>")
-        if not conddb.folderRequested('/TRT/DCS/HV/ENDCAPC <cache>600</cache>'):
-          conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>")
     
     # TRT PID tools
     if not (conddb.folderRequested('/TRT/Calib/PID') or conddb.folderRequested('/TRT/Onl/Calib/PID')):

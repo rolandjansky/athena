@@ -44,7 +44,6 @@ class LArFebErrorSummaryMaker : public AthAlgorithm
 
  private:
 
-  int m_nwarns; //counter for warnings
   int m_missingFebsWarns; //counter for missing FEB warnings
   std::vector<int> m_errors;  //error types accumulator
   std::set<unsigned int> m_all_febs ; 

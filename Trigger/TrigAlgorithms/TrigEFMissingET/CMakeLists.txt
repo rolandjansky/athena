@@ -65,3 +65,9 @@ atlas_add_component( TrigEFMissingET
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py )
+
+atlas_add_test( METFexes
+                SCRIPT test/test_met_fexes.sh
+                PROPERTIES TIMEOUT 500
+                )

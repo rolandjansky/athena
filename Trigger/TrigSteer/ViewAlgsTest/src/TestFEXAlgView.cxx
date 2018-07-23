@@ -47,11 +47,7 @@ StatusCode TestFEXAlgView::execute() {
   m_outputProxyContainerAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
   m_outputProxyContainer->setStore(m_outputProxyContainerAux.ptr());
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
 
   // collect RoIs
   // do reco and produce (say clusters - that part is missing in this example)

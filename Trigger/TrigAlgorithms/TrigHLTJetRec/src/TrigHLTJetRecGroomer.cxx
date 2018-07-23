@@ -47,14 +47,14 @@ HLT::ErrorCode TrigHLTJetRecGroomer::hltInitialize()
 
 //const xAOD::JetContainer* TrigHLTJetRecGroomer::build() const
 HLT::ErrorCode
-TrigHLTJetRecGroomer::build(ClusterSequence*& cs,
-                            JetContainer*& trimmedJets) const{
+TrigHLTJetRecGroomer::build(fastjet::ClusterSequence*& cs,
+                            xAOD::JetContainer*& trimmedJets) const{
   
   ATH_MSG_VERBOSE("Preparing to groom jets...");
   
   // get the ungroomed jet collection
   ATH_MSG_VERBOSE("Building ungroomed input jet container");
-  JetContainer* ungroomedJets = new JetContainer;
+  xAOD::JetContainer* ungroomedJets = new xAOD::JetContainer;
   // auto ungroomedJets =
   HLT::ErrorCode status =
     TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild(cs,

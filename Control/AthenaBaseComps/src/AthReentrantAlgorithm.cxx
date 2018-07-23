@@ -14,52 +14,13 @@
 #include "AthAlgorithmDHUpdate.h"
 
 // Framework includes
-#include "GaudiKernel/Property.h"
-#ifndef REENTRANT_GAUDI
 #include "GaudiKernel/ThreadLocalContext.h"
-#endif
 
-
-#include "./VHKASupport.h"
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
 AthReentrantAlgorithm::AthReentrantAlgorithm( const std::string& name, 
 			    ISvcLocator* pSvcLocator,
 			    const std::string& version ) : 
-  ::ReEntAlgorithm   ( name, pSvcLocator, version ),
-  m_evtStore    ( "StoreGateSvc/StoreGateSvc",  name ),
-  m_detStore    ( "StoreGateSvc/DetectorStore", name ),
-  m_varHandleArraysDeclared (false)
+  ::AthCommonDataStore<AthCommonMsg<ReEntAlgorithm>>   ( name, pSvcLocator, version )
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-  setUpMessaging();
-  auto props = getProperties();
-  for( Property* prop : props ) {
-    if( prop->name() == "OutputLevel" ) {
-      // prop->declareUpdateHandler
-      //   (&AthReentrantAlgorithm::msg_update_handler, this);
-    } else if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
-      prop->declareUpdateHandler
-        (&AthReentrantAlgorithm::extraDeps_update_handler, this);
-    }
-  }
-
-  declareProperty( "EvtStore",
-                   m_evtStore = StoreGateSvc_t ("StoreGateSvc", name),
-                   "Handle to a StoreGateSvc instance: it will be used to "
-                   "retrieve data during the course of the job" );
-
-  declareProperty( "DetStore",
-                   m_detStore = StoreGateSvc_t ("StoreGateSvc/DetectorStore", name),
-                   "Handle to a StoreGateSvc/DetectorStore instance: it will be used to "
-                   "retrieve data during the course of the job" );
 
   // Set up to run AthAlgorithmDHUpdate in sysInitialize before
   // merging depedency lists.  This extends the output dependency
@@ -75,66 +36,6 @@ AthReentrantAlgorithm::AthReentrantAlgorithm( const std::string& name,
 AthReentrantAlgorithm::~AthReentrantAlgorithm()
 { 
   ATH_MSG_DEBUG ("Calling destructor");
-}
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-void 
-AthReentrantAlgorithm::msg_update_handler( Property& outputLevel ) 
-{
-   // We can't just rely on the return value of msgLevel() here. Since it's
-   // not well defined whether the base class gets updated with the new
-   // output level first, or this class. So by default just use the property
-   // itself. The fallback is only there in case Gaudi changes its property
-   // type at one point, to be able to fall back on something.
-   IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
-   if( iprop ) {
-     msgStream().setLevel( static_cast<MSG::Level> (iprop->value()) );
-   } else {
-     msgStream().setLevel( msgLevel() );
-   }
-}
-
-/**
- * @brief Add StoreName to extra input/output deps as needed
- *
- * use the logic of the VarHandleKey to parse the DataObjID keys
- * supplied via the ExtraInputs and ExtraOuputs Properties to add
- * the StoreName if it's not explicitly given
- */
-void 
-AthReentrantAlgorithm::extraDeps_update_handler( Property& ExtraDeps ) 
-{  
-  DataObjIDColl newColl;
-  Gaudi::Property<DataObjIDColl> *prop = dynamic_cast<Gaudi::Property<DataObjIDColl>*> (&ExtraDeps);
-  if ( prop ) {
-    for (auto id : prop->value()) {
-      SG::VarHandleKey vhk(id.clid(), id.key(), Gaudi::DataHandle::Reader);
-      id.updateKey( vhk.objKey() );
-      newColl.emplace( id );
-    }
-    if (newColl.size() != 0) prop->setValue( newColl );
-  } else {
-    ATH_MSG_ERROR("unable to dcast ExtraInput/Output Property");
-  }
 }
 
 #ifndef REENTRANT_GAUDI
@@ -168,89 +69,34 @@ unsigned int AthReentrantAlgorithm::cardinality() const
   return 0;
 }
 
-
 /**
- * @brief Perform system initialization for an algorithm.
+ * @brief Return the current event context.
  *
- * We override this to declare all the elements of handle key arrays
- * at the end of initialization.
- * See comments on updateVHKA.
+ * Override this because the base class version won't work correctly
+ * for reentrant algorithms.  (We shouldn't really be using this
+ * for reentrant algorithms, but just in case.).
  */
-StatusCode AthReentrantAlgorithm::sysInitialize()
+const EventContext& AthReentrantAlgorithm::getContext() const
 {
-  ATH_CHECK( ReEntAlgorithm::sysInitialize() );
-
-  for ( SG::VarHandleKeyArray* a: m_vhka ) {
-    a->declare( this );
-  }
-  m_varHandleArraysDeclared = true;
-
-  return StatusCode::SUCCESS;
-}
-
-
-/**
- * @brief Handle START transition.
- *
- * We override this in order to make sure that conditions handle keys
- * can cache a pointer to the conditions container.
- */
-StatusCode AthReentrantAlgorithm::sysStart()
-{
-  ATH_CHECK( ReEntAlgorithm::sysStart() );
-
-  // Call start() on all input handles.
-  // This allows CondHandleKeys to cache pointers to their conditions containers.
-  // (CondInputLoader makes the containers that it creates during start(),
-  // so initialize() is too early for this.)
-  for (Gaudi::DataHandle* h : inputHandles()) {
-    if (h->isCondition()) {
-      if (SG::VarHandleKey* k = dynamic_cast<SG::VarHandleKey*> (h)) {
-        ATH_CHECK( k->start() );
-      }
-    }
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
-
-void AthReentrantAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
-  vh.renounce();
+  return Gaudi::Hive::currentContext();
 }
 
 /**
- * @brief Return this algorithm's input handles.
+ * @brief Execute an algorithm.
  *
- * We override this to include handle instances from key arrays
- * if they have not yet been declared.
- * See comments on updateVHKA.
+ * We override this in order to work around an issue with the Algorithm
+ * base class storing the event context in a member variable that can
+ * cause crashes in MT jobs.
  */
-std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::inputHandles() const
+StatusCode AthReentrantAlgorithm::sysExecute (const EventContext& ctx)
 {
-  std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::inputHandles();
-  if (!m_varHandleArraysDeclared) {
-    VHKASupport::insertInput( m_vhka, v );
-  }  
-  return v;
-}
-
-
-/**
- * @brief Return this algorithm's output handles.
- *
- * We override this to include handle instances from key arrays
- * if they have not yet been declared.
- * See comments on updateVHKA.
- */
-std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::outputHandles() const
-{
-  std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::outputHandles();
-  if (!m_varHandleArraysDeclared) {
-    VHKASupport::insertOutput( m_vhka, v );
-  }  
-
-  return v;
+  EventContext ctx2 = ctx;
+  // sysExecute will assign the context we pass in to a member variable of 
+  // the algorithm.  If the context is referencing any dynamic memory,
+  // then we can end up with a double-delete.  So clear out any extension ---
+  // we won't actually use the context we pass to here for anything anyway.
+  ctx2.setExtension (boost::any());
+  return ::ReEntAlgorithm::sysExecute (ctx2);
 }
 
 

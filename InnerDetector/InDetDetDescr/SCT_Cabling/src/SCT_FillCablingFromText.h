@@ -59,7 +59,7 @@ class SCT_FillCablingFromText: virtual public ISCT_FillCabling, public AthServic
   /**Fill the cabling maps
    * @param[in] @c ISCT_CablingSvc& , reference to the underlying data service
    */
-  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling);
+  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling) const;
   
   /**Report whether the map was filled
    * @return @c bool
@@ -71,8 +71,8 @@ class SCT_FillCablingFromText: virtual public ISCT_FillCabling, public AthServic
    */
   virtual bool canFillDuringInitialize() const {return true;}
  private:
-  StatusCode readDataFromFile(ISCT_CablingSvc* cabling);
-  bool m_filled;
+  StatusCode readDataFromFile(ISCT_CablingSvc* cabling) const;
+  mutable bool m_filled;
   std::string m_source;
 };//end of class
 

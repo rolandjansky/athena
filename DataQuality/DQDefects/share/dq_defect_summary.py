@@ -79,8 +79,8 @@ def main():
     add_group = parser.add_argument_group
 
     # Specify range to process
-    a("-p", "--project", default="data12_8TeV",
-      help="Data project (default: data12_8TeV)")
+    a("-p", "--project", default="data15_13TeV",
+      help="Data project (default: data15_13TeV)")
     a("-P", "--period", default=None, nargs="*", help="Data period(s)")
     a("-r", "--run", default=None, nargs="*", help="Run number(s) to process")
     a("-R", "--range", help="Inclusive run range: e.g. 150000-151000")

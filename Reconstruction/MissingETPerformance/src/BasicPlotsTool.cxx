@@ -598,6 +598,3 @@ StatusCode BasicPlotsTool::basicPlots(MissingETData *data) {
 StatusCode BasicPlotsTool::finalize() {
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-BasicPlotsTool::~BasicPlotsTool() {}

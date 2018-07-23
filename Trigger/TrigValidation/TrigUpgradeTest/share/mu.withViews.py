@@ -52,6 +52,8 @@ ServiceMgr.StoreGateSvc.Dump=True
  
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
+from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
+
  
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
@@ -66,6 +68,12 @@ from AthenaCommon import CfgMgr
 doL2SA=True
 doL2CB=True
 doEFSA=True
+
+#TriggerFlags.doID=False
+
+ ### muon thresholds ###
+testChains = ["HLT_mu6", "HLT_2mu6"]
+
 
 
 # ===============================================================================================
@@ -111,23 +119,14 @@ if TriggerFlags.doMuon:
   from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
   if doL2SA:
-    l2MuViewNode = AthSequencer("l2MuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
-    l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
-    l2MuViewsMaker.ViewFallThrough = True
- 
-    l2MuViewsMaker.InputMakerInputDecisions = ["MURoIDecisions"]
-    l2MuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutput"]
-    l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
-    l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
-    l2MuViewsMaker.Views = "MUViewRoIs"
-    l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
-
+    l2MuViewNode = seqAND("l2MuViewNode")
+   
   if doEFSA:
 
-    efMuViewNode = AthSequencer("efMuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
+    efMuViewNode = seqAND("efMuViewNode")
     efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
     efMuViewsMaker.ViewFallThrough = True
- 
+    # probably wrong input to the EVMaker
     efMuViewsMaker.InputMakerInputDecisions = ["MURoIDecisions"]
     efMuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutputEF"]
     efMuViewsMaker.RoIsLink = "initialRoI" # -||-
@@ -318,16 +317,7 @@ if TriggerFlags.doMuon:
         efMuViewNode += MuonClusterAlg 
 
 
-  ### muon thresholds ###
-  testChains = ["HLT_mu6", "HLT_2mu6"]
-
-  ### set up L1RoIsFilter ###
-  from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-  filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-  filterL1RoIsAlg.Input = ["MURoIDecisions"]
-  filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
-  filterL1RoIsAlg.Chains = testChains
-  filterL1RoIsAlg.OutputLevel = DEBUG
+ 
 
 
 # ===============================================================================================
@@ -335,38 +325,52 @@ if TriggerFlags.doMuon:
 # ===============================================================================================
  
   if doL2SA:
+
+    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
+
+    ### set up L1RoIsFilter ###
+    filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
+    filterL1RoIsAlg.Input = ["MURoIDecisions"]
+    filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
+    filterL1RoIsAlg.Chains = testChains
+    filterL1RoIsAlg.OutputLevel = DEBUG
+
+    # set the EVCreator
+    l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
+    l2MuViewsMaker.ViewFallThrough = True
+    l2MuViewsMaker.InputMakerInputDecisions = filterL1RoIsAlg.Output 
+    l2MuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutput"]
+    l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
+    l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+    l2MuViewsMaker.Views = "MUViewRoIs"
+    l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
+
     ### set up MuFastSteering ###
     from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
     muFastAlg = TrigL2MuonSAMTConfig("Muon")
     muFastAlg.OutputLevel = DEBUG
-
-    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
-
-    l2MuViewNode += muFastAlg
-
     muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
     muFastAlg.RecMuonRoI = "RecMURoIs"
     muFastAlg.MuonL2SAInfo = "MuonL2SAInfo"
     muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
     muFastAlg.forID = "forID"
     muFastAlg.forMS = "forMS"
-
+    l2MuViewNode += muFastAlg
+    
     # set up MuFastHypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
     trigMufastHypo = TrigMufastHypoConfig("L2MufastHypoAlg")
     trigMufastHypo.OutputLevel = DEBUG
-
-    trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastAlg.MuonL2SAInfo
-    trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
-    trigMufastHypo.Decisions = "L2MuonFastDecisions"
-    trigMufastHypo.L1Decisions = l2MuViewsMaker.InputMakerInputDecisions[0]
-
+    trigMufastHypo.HypoOutputDecisions = "L2MuonFastDecisions"
+    trigMufastHypo.HypoInputDecisions = l2MuViewsMaker.InputMakerOutputDecisions[0]
     trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
 
-    muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
-    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode, trigMufastHypo ])
+    # set the dumper
+    muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.HypoOutputDecisions )
 
+    # make sequences
+    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode, trigMufastHypo ])
     muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2muFastSequence,  muFastDecisionsDumper ] )
 
 
@@ -377,8 +381,8 @@ if TriggerFlags.doMuon:
   if doL2CB:
     ### RoRSeqFilter step2 ###
     filterL2SAAlg = RoRSeqFilter("filterL2SAAlg")
-    filterL2SAAlg.Input = [trigMufastHypo.Decisions]
-    filterL2SAAlg.Output = ["Filtered"+trigMufastHypo.Decisions]
+    filterL2SAAlg.Input = [trigMufastHypo.HypoOutputDecisions]
+    filterL2SAAlg.Output = ["Filtered"+trigMufastHypo.HypoOutputDecisions]
     filterL2SAAlg.Chains = testChains
     filterL2SAAlg.OutputLevel = DEBUG
 
@@ -420,16 +424,14 @@ if TriggerFlags.doMuon:
     ### set up muCombHypo algorithm ###
     from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoConfig
     trigmuCombHypo = TrigmuCombHypoConfig("L2muCombHypoAlg")
-    trigmuCombHypo.OutputLevel = DEBUG
-  
-    trigmuCombHypo.Decisions = "MuonL2CBDecisions"
-    trigmuCombHypo.L2MuonFastDecisions = trigMufastHypo.Decisions
-    trigmuCombHypo.ViewRoIs = l2muCombViewsMaker.Views
+    trigmuCombHypo.OutputLevel = DEBUG 
+    trigmuCombHypo.HypoOutputDecisions = "MuonL2CBDecisions"
+    trigmuCombHypo.HypoInputDecisions = l2muCombViewsMaker.InputMakerOutputDecisions[0]
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName 
-  
     trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( "L2muCombHypoTool", c ) for c in testChains ] 
   
-    muCombDecisionsDumper = DumpDecisions("muCombDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuCombHypo.Decisions )
+    # set the dumper
+    muCombDecisionsDumper = DumpDecisions("muCombDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuCombHypo.HypoOutputDecisions )
  
     ### Define a Sequence to run for muComb ### 
     l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, l2muCombViewNode, trigmuCombHypo ] )
@@ -443,8 +445,8 @@ if TriggerFlags.doMuon:
   if doEFSA:
  ### RoRSeqFilter step2 ###
     filterEFSAAlg = RoRSeqFilter("filterEFSAAlg")
-    filterEFSAAlg.Input = [trigmuCombHypo.Decisions]
-    filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.Decisions]
+    filterEFSAAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
+    filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.HypoOutputDecisions]
     filterEFSAAlg.Chains = testChains
     filterEFSAAlg.OutputLevel = DEBUG
     
@@ -566,14 +568,14 @@ if TriggerFlags.doMuon==True:
   if doL2SA==True and doL2CB==False and doEFSA==False:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMufastHypo.Decisions ]
+    summary.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMufastHypo.Decisions, "WhateverElse" ] 
+    mon.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
@@ -601,7 +603,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigmuCombHypo.Decisions ]
+    summary.FinalDecisions = [ trigmuCombHypo.HypoOutputDecisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     step1 = parOR("step1", [ muCombStep ] )
@@ -609,7 +611,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigmuCombHypo.Decisions, "WhateverElse" ] 
+    mon.FinalDecisions = [ trigmuCombHypo.HypoOutputDecisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )

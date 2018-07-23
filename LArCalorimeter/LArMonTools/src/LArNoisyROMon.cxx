@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArMonTools/LArNoisyROMon.h"
+#include "LArNoisyROMon.h"
+#include "LArOnlineIDStrHelper.h"
 
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "LWHists/TH1I_LW.h"

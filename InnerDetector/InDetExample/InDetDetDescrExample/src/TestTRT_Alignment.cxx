@@ -147,7 +147,7 @@ TestTRT_Alignment::addShiftModule(int bec, int phiMod, int layer, const Amg::Tra
 void
 TestTRT_Alignment::addShift(int level, const Identifier & id, const Amg::Transform3D & transform) 
 {
-  m_manager->setAlignableTransformDelta(level, id, transform, InDetDD::other);
+  m_manager->setAlignableTransformDelta(level, id, transform, InDetDD::other, nullptr);
 } 
 
 

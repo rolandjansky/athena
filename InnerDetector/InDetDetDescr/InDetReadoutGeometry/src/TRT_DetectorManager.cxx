@@ -444,7 +444,8 @@ namespace InDetDD {
     bool TRT_DetectorManager::setAlignableTransformDelta(int level, 
                                                          const Identifier & id, 
                                                          const Amg::Transform3D & delta,
-                                                         FrameType frame) const
+                                                         FrameType frame,
+                                                         GeoVAlignmentStore* alignStore) const
     {
         if (level == 0) {
       // Nothing implemented. Reserved in case we want alignable straws
@@ -459,14 +460,15 @@ namespace InDetDD {
             iter = m_alignableTransforms[index].find(id);
             if (iter == m_alignableTransforms[index].end()) return false;          
 
-            return setAlignableTransformAnyFrameDelta(iter->second, delta, frame);
+            return setAlignableTransformAnyFrameDelta(iter->second, delta, frame, alignStore);
 
         }
     }
 
     bool TRT_DetectorManager::setAlignableTransformAnyFrameDelta(ExtendedAlignableTransform * extXF, 
                                                                  const Amg::Transform3D & delta,
-                                                                 FrameType frame) const
+                                                                 FrameType frame,
+                                                                 GeoVAlignmentStore* /*alignStore*/) const
     {
     //---------------------
     // For Local:
@@ -644,7 +646,8 @@ namespace InDetDD {
     }
 
   // New global alignment filders
-  bool TRT_DetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame) const
+  bool TRT_DetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame,
+                                                   const CondAttrListCollection* /*obj*/, GeoVAlignmentStore* alignStore) const
   {
 
     bool alignmentChange = false;
@@ -684,7 +687,8 @@ namespace InDetDD {
         bool status = setAlignableTransformDelta(level,
                                                  ident,
                                                  Amg::CLHEPTransformToEigen(newtransform),
-                                                 frame);
+                                                 frame,
+                                                 alignStore);
 
         if (!status) {
           if (msgLvl(MSG::DEBUG)) {

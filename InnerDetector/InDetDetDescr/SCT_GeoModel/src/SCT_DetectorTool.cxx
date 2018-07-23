@@ -66,22 +66,6 @@ SCT_DetectorTool::~SCT_DetectorTool()
 }
 
 //
-// Initialize
-//
-StatusCode
-SCT_DetectorTool::initialize()
-{
-  // LorentzAngleTool
-  if (not m_lorentzAngleTool.empty()) {
-    ATH_CHECK(m_lorentzAngleTool.retrieve());
-  } else {
-    m_lorentzAngleTool.disable();
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-//
 // Create the Geometry via the factory corresponding to this tool
 //
 
@@ -162,15 +146,9 @@ SCT_DetectorTool::create()
     m_athenaComps.setGeoDbTagSvc(&*m_geoDbTagSvc);
     m_athenaComps.setGeometryDBSvc(&*m_geometryDBSvc);
     m_athenaComps.setRDBAccessSvc(&*m_rdbAccessSvc);
-    m_athenaComps.setLorentzAngleTool(m_lorentzAngleTool.get());
     const SCT_ID* idHelper{nullptr};
     ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
     m_athenaComps.setIdHelper(idHelper);
-
-    //
-    // LorentzAngleTool
-    //
-    ATH_MSG_DEBUG("Lorentz angle service passed to InDetReadoutGeometry with name: " << m_lorentzAngleTool.name());
 
     //
     // This strange way of casting is to avoid an
@@ -199,12 +177,6 @@ SCT_DetectorTool::create()
     // Create a symLink to the SiDetectorManager base class
     const SiDetectorManager* siDetManager{m_manager};
     ATH_CHECK(detStore()->symLink(m_manager, siDetManager));
-
-    // LorentzAngleTool
-    if (m_lorentzAngleTool.get()) {
-      // SCT_DetectorManager is not available at initialize of m_lorentzAngleTool
-      ATH_CHECK(m_lorentzAngleTool->retrieveDetectorManager());
-    }
   }
 
   // Delete unneeded singleton objects

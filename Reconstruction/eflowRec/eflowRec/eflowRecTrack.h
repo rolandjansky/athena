@@ -39,6 +39,9 @@ class eflowTrackExtrapolatorBaseAlgTool;
 class IMessageSvc;
 class ISvcLocator;
 
+/**
+This class extends the information about a xAOD::Track. It stores an ElementLink to a track, a raw pointer to that track, the expected energy deposit (mean and width of the reference distribution) of the track in the calorimeter, the pull15 variable (used to decide whether to run the charged shower subtraction or not), a bool to tag whether this track is in an energy dense calorimeter environment (if it is, then the charged shower subtraction is not run for that track), a bool to signify if the track has already had its shower removed from the calorimeter clusters and a bool to signify if we found a reference e/p bin (which depends on the track eta,pt and LHED). In addition to these variables we store a pointer to an eflowTrackCaloPoints object, a reference to an eflowRingSubtractionManager object and a vector of pointers to eflowTrackClusterLink. There is also an option to store additional vectors in a map using a string as a key (this allows us to store sets of eflowTrackClusterLink for multiple track-cluster matching schemes).
+*/
 class eflowRecTrack {
 public:
   eflowRecTrack(const ElementLink<xAOD::TrackParticleContainer>& trackElemLink,
@@ -153,6 +156,10 @@ public:
     }
   };
 };
+
+/**
+This class, which inherits from the pure virtual ITrack,  stores a pointer to an eflowRecTrack and has an interface which returns an eflowEtaPhiPosition (representing the track eta, phi coordinates in the requested calorimeter layer)
+*/
 class eflowRecMatchTrack: public PFMatch::ITrack {
 public:
   eflowRecMatchTrack(const eflowRecTrack* efRecTrack): m_efRecTrack(efRecTrack) { assert(m_efRecTrack); }

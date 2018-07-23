@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class IMCTruthClassifier;

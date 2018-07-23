@@ -15,7 +15,8 @@ void test1() {
 
   std::cout << "test1\n";
 
-  TileCablingSvc::init_idhelpers();
+  IdDictParser parser;
+  TileCablingSvc::init_idhelpers (parser);
 
   TileCablingService* cabling = TileCablingService::getInstance();
 
@@ -141,6 +142,7 @@ int main(int /*argc*/, char** argv) {
 
   Athena_test::setupStoreGate (argv[0]);
 
+  std::cout << "TileCablingService_test\n";
   test1();
 
   return 0;

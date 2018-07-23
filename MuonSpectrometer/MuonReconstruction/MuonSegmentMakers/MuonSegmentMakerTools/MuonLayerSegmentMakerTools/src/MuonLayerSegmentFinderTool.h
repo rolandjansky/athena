@@ -5,6 +5,7 @@
 #ifndef MUON_MUONLAYERSEGMENTFINDERTOOL_H
 #define MUON_MUONLAYERSEGMENTFINDERTOOL_H
 
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonLayerSegmentFinderTool.h"
 
 #include <vector>
@@ -26,6 +27,7 @@ namespace Muon {
   class IMuonPRDSelectionTool;
   class IMuonSegmentMaker;
   class IMuonClusterSegmentFinder;
+  class IMuonClusterSegmentFinderTool;
   class IMuonRecoValidationTool;
   class MuonLayerHoughTool;
   class MdtDriftCircleOnTrack;
@@ -72,6 +74,7 @@ namespace Muon {
     ToolHandle<ICscSegmentFinder>                     m_csc2dSegmentFinder;
     ToolHandle<ICscSegmentFinder>                     m_csc4dSegmentFinder;
     ToolHandle<IMuonClusterSegmentFinder>             m_clusterSegmentFinder;
+    ToolHandle<IMuonClusterSegmentFinderTool>         m_clusterSegMakerNSW;
     ToolHandle<MuonLayerHoughTool>                    m_layerHoughTool;
     mutable ToolHandle<IMuonRecoValidationTool>               m_recoValidationTool;
     MuonSectorMapping                                 m_muonSectorMapping;

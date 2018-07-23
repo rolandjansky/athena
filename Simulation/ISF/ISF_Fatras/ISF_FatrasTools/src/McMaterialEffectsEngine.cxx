@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/McMaterialEffectsEngine.h"
+#include "McMaterialEffectsEngine.h"
 
 // Gaudi Kernel
 #include "GaudiKernel/DataSvc.h"
@@ -80,6 +80,11 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
   m_particleBroker("ISF_ParticleParticleBroker", n),
   m_truthRecordSvc("ISF_TruthRecordSvc", n),
   m_oneOverThree(1./3.),
+  m_isp(nullptr),
+  m_layer(nullptr),
+  m_matProp(nullptr),    
+  m_thicknessInX0(0.),
+  m_thicknessInL0(0.),     
   m_projectionFactor(sqrt(2.)/2.)
 {
   // steering of the screen outoput (SOP)

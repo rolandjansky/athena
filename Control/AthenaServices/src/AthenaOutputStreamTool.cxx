@@ -164,9 +164,9 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
 
    // Remove DataHeader with same key if it exists
    if (m_store->contains<DataHeader>(m_dataHeaderKey)) {
-      const DataHandle<DataHeader> preDh;
+      const DataHeader* preDh = nullptr;
       if (m_store->retrieve(preDh, m_dataHeaderKey).isSuccess()) {
-         if (m_store->removeDataAndProxy(preDh.cptr()).isFailure()) {
+         if (m_store->removeDataAndProxy(preDh).isFailure()) {
             ATH_MSG_ERROR("Unable to get proxy for the DataHeader with key " << m_dataHeaderKey);
             return(StatusCode::FAILURE);
          }
@@ -179,18 +179,20 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
    m_dataHeader->setProcessTag(m_processTag);
 
    // Retrieve all existing DataHeaders from StroreGate
-   const DataHandle<DataHeader> dh;
+   const DataHeader* dh = nullptr;
    std::vector<std::string> dhKeys;
    m_store->keys<DataHeader>(dhKeys);
    for (std::vector<std::string>::const_iterator dhKey = dhKeys.begin(), dhKeyEnd = dhKeys.end();
 	   dhKey != dhKeyEnd; dhKey++) {
-      if (!m_store->transientContains<DataHeader>(*dhKey)) { // Do not retrieve BackNavigation DataHeader
-         continue;
+      bool primaryDH = false;
+      if (!m_store->transientContains<DataHeader>(*dhKey)) {
+         if (*dhKey == "EventSelector") primaryDH = true;
+         ATH_MSG_DEBUG("No transientContains DataHeader with key " << *dhKey);
       }
       if (m_store->retrieve(dh, *dhKey).isFailure()) {
          ATH_MSG_DEBUG("Unable to retrieve the DataHeader with key " << *dhKey);
       }
-      if (dh->checkStatus(DataHeader::Primary)) {
+      if (dh->checkStatus(DataHeader::Primary) || primaryDH) {
          // Add DataHeader token to new DataHeader
          if (m_extendProvenanceRecord) {
             std::string pTag;
@@ -203,7 +205,7 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
                }
             }
             // Update dhTransAddr to handle fast merged files.
-            SG::DataProxy* dhProxy = m_store->proxy(dh.operator->());
+            SG::DataProxy* dhProxy = m_store->proxy(dh);
             if (dhProxy != 0 && dhProxy->address() != 0) {
               delete dhTransAddr; dhTransAddr = 0;
               m_dataHeader->insertProvenance(DataHeaderElement(dhProxy,
@@ -228,7 +230,7 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
       attrListKey = outputConnectionString.substr(pos + 18, outputConnectionString.find("]", pos + 18) - pos - 18);
    }
    if (!attrListKey.empty()) {
-      const DataHandle<AthenaAttributeList> attrList;
+      const AthenaAttributeList* attrList = nullptr;
       if (m_store->retrieve(attrList, attrListKey).isFailure()) {
          ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << attrListKey);
       } else {
@@ -422,7 +424,8 @@ StatusCode AthenaOutputStreamTool::fillObjectRefs(const DataObjectVec& dataObjec
 //__________________________________________________________________________
 StatusCode AthenaOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenFromTool) {
    const std::string hltKey = "HLTAutoKey";
-   const DataHandle<DataHeader> beg, ending;
+   SG::ConstIterator<DataHeader> beg;
+   SG::ConstIterator<DataHeader> ending;
    if (m_store->retrieve(beg, ending).isFailure() || beg == ending) {
       ATH_MSG_DEBUG("No DataHeaders present in StoreGate");
    } else {

@@ -22,6 +22,9 @@ CREATED:  24th January, 2005
 
 class eflowTrackCaloPoints;
 
+/*
+Pure virtual base class, inherits from IAlgTool. Defines execute method which takes xAOD::Track pointer and returns eflowTrackCaloPoints pointer. 
+*/
 class eflowTrackExtrapolatorBaseAlgTool : virtual public IAlgTool {
  public:
   virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track) const = 0;

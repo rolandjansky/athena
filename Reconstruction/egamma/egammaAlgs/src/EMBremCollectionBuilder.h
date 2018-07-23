@@ -7,7 +7,7 @@
 /**
   @class EMBremCollectionBuilder
   Algorithm which creates new brem-refitted tracks
-*/
+  */
 
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
@@ -23,119 +23,85 @@
 
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
-#include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-
-
-class CaloCluster;
 
 class EMBremCollectionBuilder : public AthAlgorithm 
 {
+  /*Helper struct, 
+   * added here mainly for
+   * scopping
+   */
+
+  struct localCounter{
+    unsigned int failedFitTracks{0}; 
+    unsigned int refittedTracks{0};
+    unsigned int failedSiliconRequirFit{0};
+  };
+
 public:
-    /** @brief Default constructor*/
-    EMBremCollectionBuilder(const std::string& name, ISvcLocator* pSvcLocator);
+  /** @brief Default constructor*/
+  EMBremCollectionBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode execute();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
+  virtual StatusCode execute() override final;
+
 private:
-    //------------------------------------------------------------------------
-    //      methods
-    //------------------------------------------------------------------------
-    //
-    
-    /** @brief Refit of track */
-    StatusCode refitTrack(const xAOD::TrackParticle* tmpTrkPart , 
+
+  /** @brief Refit of track */
+  StatusCode refitTrack(const xAOD::TrackParticle* tmpTrkPart , 
                         TrackCollection* finalTracks, 
-                        xAOD::TrackParticleContainer* finalTrkPartContainer);
-    
-    /** @brief broad track selection */
-    bool Select(const xAOD::CaloCluster* cluster,
-                bool trkTRT,
-                const xAOD::TrackParticle* track) const;
-    //------------------------------------------------------------------------
-    //      configurable data members
-    //------------------------------------------------------------------------       
-    /** @brief The track refitter */
-    ToolHandle<IegammaTrkRefitterTool>  m_trkRefitTool {this,
-        "TrackRefitTool", "ElectronRefitterTool", "Track refitter tool"};
+                        xAOD::TrackParticleContainer* finalTrkPartContainer,
+                        localCounter& counter) const;
 
-    /** @brief Tool to create track particle */
-    ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool {this,
-        "TrackParticleCreatorTool", 
-        "TrackParticleCreatorTool", 
-        "TrackParticle creator tool"};
+  /** @brief The track refitter */
+  ToolHandle<IegammaTrkRefitterTool>  m_trkRefitTool {this,
+    "TrackRefitTool", "ElectronRefitterTool", "Track refitter tool"};
 
-    /** @brief Tool to slim tracks  */
-    ToolHandle<Trk::ITrackSlimmingTool>  m_slimTool {this,
-        "TrackSlimmingTool", "TrkTrackSlimmingTool", "Track slimming tool"};
+  /** @brief Tool to create track particle */
+  ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool {this,
+    "TrackParticleCreatorTool", 
+    "TrackParticleCreatorTool", 
+    "TrackParticle creator tool"};
 
-    /** @brief Tool for Track summary  */
-    ToolHandle<Trk::ITrackSummaryTool>   m_summaryTool {this,
-        "TrackSummaryTool", "InDetTrackSummaryTool", "Track summary tool"};
+  /** @brief Tool to slim tracks  */
+  ToolHandle<Trk::ITrackSlimmingTool>  m_slimTool {this,
+    "TrackSlimmingTool", "TrkTrackSlimmingTool", "Track slimming tool"};
 
-    /** @brief Tool for extrapolation */
-    ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
-        "ExtrapolationTool", "EMExtrapolationTools", "Extrapolation tool"};
+  /** @brief Tool for Track summary  */
+  ToolHandle<Trk::ITrackSummaryTool>   m_summaryTool {this,
+    "TrackSummaryTool", "InDetTrackSummaryTool", "Track summary tool"};
 
-    /** @brier Option to do truth*/
-    Gaudi::Property<bool> m_doTruth {this, "DoTruth", false, "do truth"};
+  /** @brief Tool for extrapolation */
+  ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
+    "ExtrapolationTool", "EMExtrapolationTools", "Extrapolation tool"};
 
-    /** @brief Names of input output collections */
-    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_clusterContainerKey {this,
-        "ClusterContainerName", "LArClusterEM", "Input calo cluster for seeding"};
+  /** @brier Option to do truth*/
+  Gaudi::Property<bool> m_doTruth {this, "DoTruth", false, "do truth"};
 
-    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
-        "TrackParticleContainerName", "InDetTrackParticles", 
-        "Input TrackParticles to refit"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
+    "TrackParticleContainerName", "InDetTrackParticles", 
+    "Input InDet TrackParticles"};
 
-    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_OutputTrkPartContainerKey {this,
-        "OutputTrkPartContainerName", "GSFTrackParticles", 
-        "Output refitted TrackParticles"};
+  /** @brief Names of input output collections */
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_selectedTrackParticleContainerKey {this,
+    "SelectedTrackParticleContainerName", "egammaSelectedTrackParticles", 
+    "Input of Selected TrackParticles to refit"};
 
-    SG::WriteHandleKey<TrackCollection> m_OutputTrackContainerKey {this,
-        "OutputTrackContainerName", "GSFTracks", "Output refitted Trk::Tracks"};
+  SG::WriteHandleKey<xAOD::TrackParticleContainer> m_OutputTrkPartContainerKey {this,
+    "OutputTrkPartContainerName", "GSFTrackParticles", 
+    "Output refitted TrackParticles"};
 
-    /** @Cut on minimum silicon hits*/
-    Gaudi::Property<int> m_MinNoSiHits {this, "minNoSiHits", 4, 
-        "Minimum number of silicon hits on track before it is allowed to be refitted"};
+  SG::WriteHandleKey<TrackCollection> m_OutputTrackContainerKey {this,
+    "OutputTrackContainerName", "GSFTracks", "Output refitted Trk::Tracks"};
 
-    /** @brief broad cut on deltaEta*/
-    Gaudi::Property<double> m_broadDeltaEta {this, "broadDeltaEta", 0.1,
-        "Value of broad cut for delta eta, it is mult by 2"};
+  /** @Cut on minimum silicon hits*/
+  Gaudi::Property<int> m_MinNoSiHits {this, "minNoSiHits", 4, 
+    "Minimum number of silicon hits on track before it is allowed to be refitted"};
 
-    /** @brief broad cut on deltaPhi*/
-    Gaudi::Property<double> m_broadDeltaPhi {this, "broadDeltaPhi", 0.15,
-        "Value of broad cut for delta phi, it is mult by 2"};
-
-    /** @narrow windows*/
-    Gaudi::Property<double> m_narrowDeltaEta {this, "narrowDeltaEta", 0.05,
-        "Value of narrow cut for delta eta"};
-
-    Gaudi::Property<double> m_narrowDeltaPhi {this, "narrowDeltaPhi", 0.05,
-        "Value of narrow cut for delta phi"};
-
-    Gaudi::Property<double> m_narrowDeltaPhiBrem {this, "narrowDeltaPhiBrem", 0.15,
-        "Value of the narrow cut for delta phi in the brem direction"};
-
-    Gaudi::Property<double> m_narrowRescale {this, "narrowDeltaPhiRescale", 0.05,
-        "Value of the narrow cut for delta phi Rescale"};
-
-    Gaudi::Property<double> m_narrowRescaleBrem {this, "narrowDeltaPhiRescaleBrem", 0.1,
-        "Value of the narrow cut for delta phi Rescale Brem"};
-
-    //counters
-    unsigned int m_AllClusters;
-    unsigned int m_AllTracks;
-    unsigned int m_AllTRTTracks;
-    unsigned int m_AllSiTracks;
-    unsigned int m_SelectedTracks;
-    unsigned int m_SelectedTRTTracks;
-    unsigned int m_SelectedSiTracks;
-    unsigned int m_FailedFitTracks;
-    unsigned int m_FailedSiliconRequirFit;
-    unsigned int m_RefittedTracks;
-    //------------------------------------------------------------------------
+  //counters
+  mutable std::atomic_uint m_FailedFitTracks{0};
+  mutable std::atomic_uint m_RefittedTracks{0};
+  mutable std::atomic_uint m_FailedSiliconRequirFit{0};  
 
 };
 #endif //

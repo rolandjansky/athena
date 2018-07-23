@@ -196,7 +196,6 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
   m_trtcaldbSvc("TRT_CalDbSvc",name),
   m_hWeightInFile(0),
   m_etapTWeight(0)
-
 {
 	m_iUpdator               = ToolHandle<Trk::IUpdator>("Trk::KalmanUpdator");
 	m_propagator             = ToolHandle<Trk::IPropagator>("Trk::RungeKuttaPropagator");
@@ -206,6 +205,7 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_hitQualityTool       = ToolHandle<IInDetAlignHitQualSelTool>("");
 	m_trt_b_hist  = new TRTBarrelHistograms();
 	m_trt_ec_hist = new TRTEndcapHistograms();
+	
 	m_tracksName  = "ExtendedTracks";
 	m_triggerChainName = "NoTriggerSelection";
 	m_z_fix = 366.5; // IBL Stave fixing screw position [mm]
@@ -2836,7 +2836,11 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Entering True Unbiased loop." << endmsg;
     // check if other module side was also hit and try to remove other hit as well
     const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
-    const Identifier& OtherModuleSideID = m_SCT_Mgr->getDetectorElement(surfaceID)->otherSide()->identify();
+    const Identifier waferID = m_sctID->wafer_id(surfaceID);
+    const IdentifierHash waferHash = m_sctID->wafer_hash(waferID);
+    IdentifierHash otherSideHash;
+    m_sctID->get_other_side(waferHash, otherSideHash);
+    const Identifier OtherModuleSideID = m_sctID->wafer_id(otherSideHash);
 
     for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
 

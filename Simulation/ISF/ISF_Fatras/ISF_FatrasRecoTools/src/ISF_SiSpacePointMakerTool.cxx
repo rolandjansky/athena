@@ -9,7 +9,6 @@
 #include "ISF_FatrasRecoTools/ISF_SiSpacePointMakerTool.h"
 
 // Space points
-#include "SiSpacePoint/SCT_SpacePoint.h"
 #include "SiSpacePoint/PixelSpacePoint.h"
 
 namespace iFatras{

@@ -24,6 +24,7 @@ class StatusCode;
 class PixelMonModules {
  public:
   // PixelMonModules();
+  virtual ~PixelMonModules() {}
   virtual void formatHist(std::string) = 0;  // pass the bin labels here if needed
   virtual void reset() = 0;
   virtual StatusCode regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run) = 0;

@@ -44,13 +44,6 @@ class iGeant4:
     svcMgr += Geant4SimService
     self.__simSvc__ = Geant4SimService
 
-    ##FIXME: ISF_ParticleFinalStateFilter is configured in
-    ##ISF_HepMC_ToolsConfig.py and is only used by ISF_StackFiller
-    ##which is also configured in ISF_HepMC_ToolsConfig.py.
-    finalStateFilter = getPublicTool("ISF_ParticleFinalStateFilter")
-    finalStateFilter.CheckGenSimStable = False
-    finalStateFilter.CheckGenInteracting = False
-
     ####################################
     ##
     ## the G4 Python part:

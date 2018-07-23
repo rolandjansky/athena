@@ -240,7 +240,7 @@ TH1D* TFCS1DFunctionHistogram::smart_rebin(TH1D* h_input)
   
 }
 
-double TFCS1DFunctionHistogram::rnd_to_fct(double rnd)
+double TFCS1DFunctionHistogram::rnd_to_fct(double rnd) const
 {
   
   double value2=get_inverse(rnd);
@@ -250,7 +250,7 @@ double TFCS1DFunctionHistogram::rnd_to_fct(double rnd)
 }
 
 
-double TFCS1DFunctionHistogram::linear(double y1,double y2,double x1,double x2,double y)
+double TFCS1DFunctionHistogram::linear(double y1,double y2,double x1,double x2,double y) const
 {
   double x=-1;
 
@@ -266,7 +266,7 @@ double TFCS1DFunctionHistogram::linear(double y1,double y2,double x1,double x2,d
   return x;
 }
 
-double TFCS1DFunctionHistogram::non_linear(double y1,double y2,double x1,double x2,double y)
+double TFCS1DFunctionHistogram::non_linear(double y1,double y2,double x1,double x2,double y) const
 {
   double x=-1;
   double eps=0.0000000001;
@@ -281,7 +281,7 @@ double TFCS1DFunctionHistogram::non_linear(double y1,double y2,double x1,double 
 }
 
 
-double TFCS1DFunctionHistogram::get_inverse(double rnd)
+double TFCS1DFunctionHistogram::get_inverse(double rnd) const
 {
   
   double value = 0.;
@@ -298,7 +298,7 @@ double TFCS1DFunctionHistogram::get_inverse(double rnd)
   else
   {
    //find the first HistoContent element that is larger than rnd:
-   vector<float>::iterator larger_element = std::upper_bound(m_HistoContents.begin(), m_HistoContents.end(), rnd);
+   vector<float>::const_iterator larger_element = std::upper_bound(m_HistoContents.begin(), m_HistoContents.end(), rnd);
    int index=larger_element-m_HistoContents.begin();
    double y=m_HistoContents[index];
    double x1=m_HistoBorders[index];

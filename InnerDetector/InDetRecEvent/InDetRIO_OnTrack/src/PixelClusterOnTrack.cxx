@@ -6,13 +6,11 @@
 // PixelClusterOnTrack.cxx, (c) ATLAS Detector Software
 ///////////////////////////////////////////////////////////////////
 
-#include <new>
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "GaudiKernel/MsgStream.h"
 #include <ostream>
-#include <typeinfo>
 
 
 // Constructor with parameters - no global position specified
@@ -31,7 +29,6 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack(
   m_energyLoss(RIO->energyLoss()),
   m_detEl( RIO->detectorElement() )
 {
-  //m_rio = ElementLinkToIDCPixelClusterContainer("PixelClusters", RIO->getHashAndIndex().hashAndIndex(), RIO);
   m_rio.setElement(RIO);
 }
 
@@ -52,7 +49,6 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack(
     m_energyLoss(RIO->energyLoss()),
     m_detEl( RIO->detectorElement() )
 {
-  //m_rio = ElementLinkToIDCPixelClusterContainer("PixelClusters", RIO->getHashAndIndex().hashAndIndex(), RIO);
   m_rio.setElement(RIO);
 }
 
@@ -93,29 +89,7 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack()
     m_detEl(0)
 {}
 
-// copy constructor:
-InDet::PixelClusterOnTrack::PixelClusterOnTrack( const InDet::PixelClusterOnTrack& rot)
-    :
-    InDet::SiClusterOnTrack(rot),
-    m_rio(rot.m_rio),
-    m_hasClusterAmbiguity(rot.m_hasClusterAmbiguity),
-    m_isFake(rot.m_isFake),
-    m_energyLoss(rot.m_energyLoss),
-    m_detEl(rot.m_detEl)
-{}
 
-// assignment operator:
-InDet::PixelClusterOnTrack& InDet::PixelClusterOnTrack::operator=( const InDet::PixelClusterOnTrack& rot){
-    if ( &rot != this) {
-          InDet::SiClusterOnTrack::operator=(rot);//base class ass. op.
-      m_rio                 = rot.m_rio;
-      m_hasClusterAmbiguity = rot.m_hasClusterAmbiguity;
-      m_detEl               = rot.m_detEl;
-      m_isFake              = rot.m_isFake;
-      m_energyLoss          = rot.m_energyLoss;
-    }
-    return *this;
-}
 
 
 const Trk::Surface& InDet::PixelClusterOnTrack::associatedSurface() const
@@ -124,7 +98,6 @@ const Trk::Surface& InDet::PixelClusterOnTrack::associatedSurface() const
               
 void InDet::PixelClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* /*prd*/)
 {
-    //m_rio   = dynamic_cast< const PixelCluster* >(prd);//should check this really.
     m_detEl = dynamic_cast< const InDetDD::SiDetectorElement* >(detEl);
 }
 

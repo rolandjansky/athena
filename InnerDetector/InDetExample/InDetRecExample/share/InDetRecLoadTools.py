@@ -5,6 +5,9 @@
 #
 # ------------------------------------------------------------
 
+from InDetRecExample.TrackingCommon import createAndAddCondAlg
+from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,getEventInfoKey, getTRT_DriftCircleOnTrackTool
+
 use_broad_cluster_any = InDetFlags.useBroadClusterErrors() and (not InDetFlags.doDBMstandalone())
 use_broad_cluster_pix = InDetFlags.useBroadPixClusterErrors() and (not InDetFlags.doDBMstandalone())
 use_broad_cluster_sct = InDetFlags.useBroadSCTClusterErrors() and (not InDetFlags.doDBMstandalone())
@@ -173,11 +176,16 @@ if InDetFlags.loadRotCreator():
         PixelClusterOnTrackToolDigital = None
 
     if DetFlags.haveRIO.SCT_on():
+        # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
         SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetSCT_ClusterOnTrackTool",
                                                                 #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                 CorrectionStrategy = 0,  # do correct position bias
-                                                                ErrorStrategy      = 2)  # do use phi dependent errors
+                                                                ErrorStrategy      = 2,  # do use phi dependent errors
+                                                                LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
         ToolSvc += SCT_ClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
             print SCT_ClusterOnTrackTool
@@ -252,6 +260,10 @@ if InDetFlags.loadRotCreator():
         BroadPixelClusterOnTrackTool = None
     
     if DetFlags.haveRIO.SCT_on():
+        # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         #
         # tool to always make conservative sct cluster errors
         #
@@ -259,7 +271,8 @@ if InDetFlags.loadRotCreator():
         BroadSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetBroadSCT_ClusterOnTrackTool",
                                                                      #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                      CorrectionStrategy = 0,  # do correct position bias
-                                                                     ErrorStrategy      = 0)  # do use broad errors
+                                                                     ErrorStrategy      = 0,  # do use broad errors
+                                                                     LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
         ToolSvc += BroadSCT_ClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
             print BroadSCT_ClusterOnTrackTool
@@ -305,10 +318,7 @@ if InDetFlags.loadRotCreator():
     #
     # --- load error scaling
     #
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "/Indet/TrkErrorScaling" ):
-        #conddb.addFolder("INDET","/Indet/TrkErrorScaling")
-        conddb.addFolderSplitOnline('INDET','/Indet/Onl/TrkErrorScaling','/Indet/TrkErrorScaling')
+    createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
     #
     # --- smart ROT creator in case we do the TRT LR in the refit
     #
@@ -319,9 +329,10 @@ if InDetFlags.loadRotCreator():
         if DetFlags.haveRIO.TRT_on():
             from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import InDet__TRT_DriftCircleOnTrackUniversalTool
 
-            # --- this is the cut for making a TRT hit a tube hit (biases the distribution)  
+            # --- this is the cut for making a TRT hit a tube hit (biases the distribution)
 
             TRT_RefitRotCreator = InDet__TRT_DriftCircleOnTrackUniversalTool(name                = 'InDetTRT_RefitRotCreator',
+                                                                             RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(),
                                                                              RIOonTrackToolTube  = BroadTRT_DriftCircleOnTrackTool,
                                                                              ScaleHitUncertainty = ScaleHitUncertainty) # fix from Thijs
             ToolSvc += TRT_RefitRotCreator
@@ -892,9 +903,19 @@ if InDetFlags.loadSummaryTool():
     if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() \
             and not InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used byt the TRT_LocalOccupancy tool) are not present in ESD
 
+        isMC = False
+        if globalflags.DataSource == "geant4" :
+            isMC = True
+
+        from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
+        InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(       name   = "InDetTRT_DriftFunctionTool",
+                                                                  IsMC   = isMC )
+        ToolSvc += InDetTRT_DriftFunctionTool
+
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
         InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(	  name 				="InDet_TRT_LocalOccupancy",
                                                                   isTrigger			= False, 
+                                                                  TRTDriftFunctionTool          = InDetTRT_DriftFunctionTool
         )
         ToolSvc += InDetTRT_LocalOccupancy
         if (InDetFlags.doPrintConfigurables()):

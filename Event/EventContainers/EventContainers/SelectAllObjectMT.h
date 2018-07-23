@@ -109,7 +109,7 @@ SKIPNEXT:
 
     };
 
-    SelectAllObjectMT(const DCC* dcc) : m_dcc(dcc), m_hashes(dcc->GetAllCurrentHashs())
+    SelectAllObjectMT(const DCC* dcc) : m_dcc(dcc), m_hashes(dcc->GetAllCurrentHashes())
     { }
 
     SelectAllObjectMT( ) = delete;

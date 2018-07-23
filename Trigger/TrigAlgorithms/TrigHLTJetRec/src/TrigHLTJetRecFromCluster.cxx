@@ -171,7 +171,7 @@ TrigHLTJetRecFromCluster::~TrigHLTJetRecFromCluster(){}
 //PS 3/4/18}
 
 HLT::ErrorCode
-TrigHLTJetRecFromCluster::build(ClusterSequence*& cs,
-                                JetContainer*& jc) const{
+TrigHLTJetRecFromCluster::build(fastjet::ClusterSequence*& cs,
+                                xAOD::JetContainer*& jc) const{
   return TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild(cs, jc);
 }

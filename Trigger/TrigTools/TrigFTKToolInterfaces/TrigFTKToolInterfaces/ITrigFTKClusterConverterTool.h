@@ -28,13 +28,11 @@ class StoreGateSvc;
 
 class AtlasDetectorID;
 class PixelID;
-class SCT_ID;
 class Identifier;
 class IdentifierHash;
 
 namespace InDetDD {
   class PixelDetectorManager;
-  class SCT_DetectorManager;
 }
 
 namespace InDet {

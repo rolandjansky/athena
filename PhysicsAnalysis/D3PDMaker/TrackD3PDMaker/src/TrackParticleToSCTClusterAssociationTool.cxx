@@ -169,7 +169,6 @@ StatusCode TrackParticleToSCTClusterAssociationTool::reset (const  Rec::TrackPar
 
 
   std::vector< Identifier> sctClusterIdentifier;  
-  std::vector<Identifier>::iterator posItr;
 
   const DataVector<const Trk::TrackStateOnSurface>* trackHits = track->trackStateOnSurfaces();
   

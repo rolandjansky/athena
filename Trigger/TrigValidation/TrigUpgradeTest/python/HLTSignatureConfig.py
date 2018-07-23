@@ -50,7 +50,7 @@ def MuStep2HypoTool():
 
 muIM= InputMakerAlg(name="Step1MuInputMaker")
 muIM.Output='muIM_out'
-print "CACCA"
+
 print muIM
 muAlg = muMSRecAlg(name="muMSRecAlg", FileName="msmu.dat")
 muAlg.Output='muAlg_out'

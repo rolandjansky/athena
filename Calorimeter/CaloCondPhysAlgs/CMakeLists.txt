@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArCabling
                           LArCalorimeter/LArElecCalib
                           LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRecUtils
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
                           Calorimeter/CaloConditions
@@ -44,10 +43,9 @@ atlas_add_component( CaloCondPhysAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier LArRecUtilsLib TrigDecisionToolLib CaloConditions CaloEvent CaloUtilsLib AthenaPoolUtilities Identifier EventInfo xAODEventInfo LArHV LArReadoutGeometry LArSimEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier TrigDecisionToolLib CaloConditions CaloEvent CaloUtilsLib AthenaPoolUtilities Identifier EventInfo xAODEventInfo LArHV LArReadoutGeometry LArSimEvent )
 
 # Install files from the package:
-atlas_install_headers( CaloCondPhysAlgs )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/CaloRescaleNoiseHV.sh share/CaloNoise_fillDB.py share/CaloPedestalShift.sh share/CaloPedestal_fillDB.py )

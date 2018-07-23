@@ -115,23 +115,13 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   
-  if (isRODSimulatedData()) return false;
+  //  if (isRODSimulatedData()) return false;
   
   bool result{true};
 
-  const std::vector<SCT_ByteStreamErrors::errorTypes> errorsToBeChecked{
-      SCT_ByteStreamErrors::TimeOutError,
-      SCT_ByteStreamErrors::BCIDError,
-      SCT_ByteStreamErrors::LVL1IDError,
-      SCT_ByteStreamErrors::MaskedLink,
-      SCT_ByteStreamErrors::ROBFragmentError,
-      SCT_ByteStreamErrors::MissingLinkHeaderError,
-      SCT_ByteStreamErrors::HeaderTrailerLimitError,
-      SCT_ByteStreamErrors::MaskedROD,
-      SCT_ByteStreamErrors::TruncatedROD};
-  for (unsigned int i{0}; i<errorsToBeChecked.size(); i++) {
-    const std::set<IdentifierHash>& errorSet{getErrorSet(errorsToBeChecked[i], ctx)};
-    result = (std::find(errorSet.begin(), errorSet.end(), elementIdHash) == errorSet.end());
+  for (SCT_ByteStreamErrors::errorTypes badError: SCT_ByteStreamErrors::BadErrors) {
+    const std::set<IdentifierHash>& errorSet{getErrorSet(badError, ctx)};
+    result = (errorSet.count(elementIdHash)==0);
     if (not result) return result;
   }
   
@@ -160,7 +150,7 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   
-  if (isRODSimulatedData()) return false;
+  //  if (isRODSimulatedData()) return false;
 
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};

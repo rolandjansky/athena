@@ -31,7 +31,7 @@ TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type,
 						     const std::string& name,
 						     const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_mdtCalibrationSvc(0)
+   m_mdtCalibrationSvc( "MdtCalibrationSvc", name )
 {
    declareInterface<TrigL2MuonSA::MuFastPatternFinder>(this);
 }
@@ -56,24 +56,16 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
    }
    
    // retrieve the mdtidhelper  
-   StoreGateSvc* detStore(0);                                                                                                                     sc = serviceLocator()->service("DetectorStore", detStore); 
-   if (sc.isFailure()) { 
-     ATH_MSG_ERROR("Could not retrieve DetectorStore."); 
-     return sc;
-   } 
+   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
+   ATH_CHECK( detStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved DetectorStore.");
    const MuonGM::MuonDetectorManager* muonMgr;                                                                 
-   sc = detStore->retrieve( muonMgr,"Muon" ); 
-   if (sc.isFailure()) return sc; 
+   ATH_CHECK( detStore->retrieve( muonMgr,"Muon" ) ); 
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore."); 
-   m_mdtIdHelper = muonMgr->mdtIdHelper();                                                                                                    
+   m_mdtIdHelper = muonMgr->mdtIdHelper();                                                   
 
    // Locate MDT calibration service
-   sc = serviceLocator()->service("MdtCalibrationSvc", m_mdtCalibrationSvc );
-   if(sc.isFailure()) {
-     ATH_MSG_WARNING("Unable to retrieve the MDT calibration Service");
-     ATH_MSG_WARNING("Proceed using dummy calibration for MDT");
-   }
+   ATH_CHECK( m_mdtCalibrationSvc.retrieve() );
    
    // 
    return StatusCode::SUCCESS; 

@@ -6,7 +6,6 @@
 //  BCM_RawContByteStreamCnv.cxx
 //   Implementation file for class BCM_RawContByteStreamCnv
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // classID() - returning BCM_RDO_Container ID
 // createRep() - convert BCM_RawData in the container into ByteStream
@@ -27,14 +26,19 @@
 ////////////////////////
 // constructor
 ////////////////////////
-BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc):Converter(ByteStream_StorageType, classID(),svcloc) {
+BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc):Converter(ByteStream_StorageType, classID(),svcloc),
+  m_BCMRawContBSTool{},
+  m_ByteStreamEventAccess{},
+  m_StoreGate{},
+  m_ChronoStat{} {
+  //nop
 }
 
-////////////////////////
-// destructor
-////////////////////////
-BCM_RawContByteStreamCnv::~BCM_RawContByteStreamCnv() {
-}
+// ////////////////////////
+// // destructor
+// ////////////////////////
+// BCM_RawContByteStreamCnv::~BCM_RawContByteStreamCnv() {
+// }
 
 ////////////////////////
 // initialize()

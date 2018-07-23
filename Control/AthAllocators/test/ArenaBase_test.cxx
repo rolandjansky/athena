@@ -117,19 +117,17 @@ public:
 
 
 private:
-  int m_iworker;
   SG::ArenaBase& m_b;
   size_t m_ialloc1;
   size_t m_ialloc2;
 };
 
 
-TestThread::TestThread (int iworker,
+TestThread::TestThread (int /*iworker*/,
                         SG::ArenaBase& b,
                         size_t ialloc1,
                         size_t ialloc2)
-  : m_iworker (iworker),
-    m_b (b),
+  : m_b (b),
     m_ialloc1 (ialloc1),
     m_ialloc2 (ialloc2)
 {

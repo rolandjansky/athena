@@ -25,13 +25,21 @@ if InDetFlags.doPRDFormation():
    
    if DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on():
       #
+      # --- SiLorentzAngleTool for SCT
+      #
+      if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+
+      #
       # --- ClusterMakerTool (public), needed by Pixel and SCT Clusterization
       #
       from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
       InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
                                                       PixelCalibSvc        = None,
                                                       PixelOfflineCalibSvc = None,
-                                                      UsePixelCalibCondDB  = False)
+                                                      UsePixelCalibCondDB  = False,
+                                                      SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
 
       if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline() or InDetFlags.doSLHC()):
          InDetClusterMakerTool.PixelCalibSvc        = InDetPixelCalibSvc

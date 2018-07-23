@@ -17,6 +17,8 @@
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 
+#include "TrkRIO_OnTrack/check_cast.h"
+
 using CLHEP::micrometer;
 using CLHEP::deg;
 
@@ -27,9 +29,7 @@ using CLHEP::deg;
 FTK_SCTClusterOnTrackTool::FTK_SCTClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   AthAlgTool(t, n, p),
-  m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool", this),
   m_distortionsTool("SCT_DistortionsTool", this),
-  m_scaleSctCov(false),
   m_option_make2dimBarrelClusters(false),
   m_doDistortions(false),
   m_option_errorStrategy(-1),
@@ -37,8 +37,6 @@ FTK_SCTClusterOnTrackTool::FTK_SCTClusterOnTrackTool
   // declareInterface<FTK_SCTClusterOnTrackTool>(this);
   declareInterface<IRIO_OnTrackCreator>(this);
 
-  declareProperty("ErrorScalingTool", m_errorScalingTool,
-                  "The toolhandle for central error scaling");
   declareProperty("MakeTwoDimBarrelClusters", m_option_make2dimBarrelClusters,
                   "flag if strip length should be part of the measurement");
   declareProperty("ErrorStrategy", m_option_errorStrategy,
@@ -88,15 +86,9 @@ FTK_SCTClusterOnTrackTool::initialize() {
     msg(MSG::INFO) << "SCT cluster positions will be corrected" << endmsg;
   }
 
-  if (m_errorScalingTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endmsg;
-    m_scaleSctCov = m_errorScalingTool->needToScaleSct();
-    if (m_scaleSctCov) {
-      msg(MSG::DEBUG) << "Detected need for scaling SCT errors." << endmsg;
-    }
+  if (!m_sctErrorScalingKey.key().empty()) {
+    ATH_CHECK(m_sctErrorScalingKey.initialize());
+    ATH_MSG_DEBUG("Detected need for scaling sct errors.");
   }
 
   // Get ISCT_ModuleDistortionsTool
@@ -104,6 +96,8 @@ FTK_SCTClusterOnTrackTool::initialize() {
     msg(MSG::FATAL) << "Could not retrieve distortions tool: " << m_distortionsTool.name() << endmsg;
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
 
   return sc;
 }
@@ -157,7 +151,7 @@ FTK_SCTClusterOnTrackTool::correct
   if (m_option_errorStrategy == 2 || m_option_correctionStrategy == 0) {
     double pNormal = trackPar.momentum().dot(EL->normal());
     double pPhi = trackPar.momentum().dot(Amg::AngleAxis3D(asin(-sinAlpha), Amg::Vector3D::UnitZ()) * EL->phiAxis());
-    dphi = atan(pPhi / pNormal) - atan(EL->getTanLorentzAnglePhi());
+    dphi = atan(pPhi / pNormal) - atan(m_lorentzAngleTool->getTanLorentzAngle(iH));
   }
 
   // SCT_ClusterOnTrack production
@@ -223,26 +217,18 @@ FTK_SCTClusterOnTrackTool::correct
       cov(0, 0) = oldcov(0, 0);
     }
 
-    if (m_scaleSctCov) {
-      Amg::MatrixX *newCov = m_errorScalingTool->createScaledSctCovariance(cov, false, 0.0);
-      if (!newCov) {
-        ATH_MSG_WARNING("Failed to create scaled error for SCT");
-        return 0;
-      }
-      cov = *newCov;
-      delete newCov;
+    if (!m_sctErrorScalingKey.key().empty()) {
+      //SG::ReadCondHandle<SCTRIO_OnTrackErrorScaling> error_scaling( m_sctErrorScalingKey );
+      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_sctErrorScalingKey );
+      cov = check_cast<SCTRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov,  false, 0.0);
     }
   }else {                                           // endcap
     locpar = Trk::LocalParameters(SC->localPosition());
-    if (m_scaleSctCov) {
-      Amg::MatrixX *newCov = m_errorScalingTool->createScaledSctCovariance(cov, true,
-                                                                           EL->sinStereoLocal(SC->localPosition()));
-      if (!newCov) {
-        ATH_MSG_WARNING("Failed to create scaled error for SCT");
-        return 0;
-      }
-      cov = *newCov;
-      delete newCov;
+    if (!m_sctErrorScalingKey.key().empty()) {
+      //      SG::ReadCondHandle<SCTRIO_OnTrackErrorScaling> error_scaling( m_sctErrorScalingKey );
+      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_sctErrorScalingKey );
+      cov = check_cast<SCTRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov,   true,
+                                                EL->sinStereoLocal(SC->localPosition()));
     }
     double Sn = EL->sinStereoLocal(SC->localPosition());
     double Sn2 = Sn * Sn;

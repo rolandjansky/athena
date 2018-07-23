@@ -52,11 +52,6 @@ namespace met {
     declareProperty( "TimingDetail",       m_timedetail = 0      );
   }
 
-  // Destructor
-  ///////////////
-  METAssociationTool::~METAssociationTool()
-  {}
-
   // Athena algtool's Hooks
   ////////////////////////////
   StatusCode METAssociationTool::initialize()

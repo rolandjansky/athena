@@ -220,7 +220,6 @@ void TrkVKalVrtFitter::makeSimpleCascade(std::vector< std::vector<int> > & vrtDe
                                          std::vector< std::vector<int> > & cascadeDef)
 {
     int iv,ip,it, nVAdd, iva;
-    std::vector<int>::iterator  iter;
     vrtDef.clear();
     cascadeDef.clear();
     int NVC=m_cascadeVList.size();
@@ -747,7 +746,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
 //
 //---- Save and clean
-       delete tmpVTAV;delete tmpRecV;         //Mandatory cleaning
+       delete tmpVTAV;delete tmpRecV; delete fullDeriv;   //Mandatory cleaning
     }
 //
 //  Save momenta of all particles including combined at vertex positions

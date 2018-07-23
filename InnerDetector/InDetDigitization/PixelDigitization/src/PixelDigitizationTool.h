@@ -22,6 +22,7 @@
 
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "SensorSimTool.h"

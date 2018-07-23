@@ -43,7 +43,7 @@ class TriggerJetBuildTool :
   // Set EDM inputs for jet finding
   virtual void prime(const xAOD::IParticleContainer*) override;
 
-  virtual int build(ClusterSequence*&, JetContainer*&) const override;
+  virtual int build(fastjet::ClusterSequence*&, xAOD::JetContainer*&) const override;
   
   virtual std::string toString(int verbosity) const override;
   void print() const override;
@@ -59,16 +59,11 @@ private:
 
 
   //IParticles 
-  const xAOD::IParticleContainer* m_jetFinderInputs{nullptr};
-
   ToolHandle<IJetFinder> m_finder;
   ToolHandleArray<IJetModifier> m_modifiers;
 
 
   std::string m_concreteTypeStr; // determines m_concreteType
-
-  // m_inputType - updated from m_concreteTypeStr
-  xAOD::JetInput::Type m_inputType{xAOD::JetInput::Uncategorized};
 
   // m_concreteType -  affects IParticle->PseudoJet 
   xAOD::JetInput::Type m_concreteType{xAOD::JetInput::Uncategorized};

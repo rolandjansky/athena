@@ -74,6 +74,12 @@ atlas_add_test( egammaRunData
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
               )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonRunData )
+atlas_add_test( photonRunData
+ 		SCRIPT test/test_photon_run_data.sh
+                 PROPERTIES TIMEOUT 500
+ 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonRunData               )
+
 #		EXTRA_PATTERNS "TriggerSummary"
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )
 atlas_add_test( egammaMenu
@@ -81,12 +87,26 @@ atlas_add_test( egammaMenu
                 PROPERTIES TIMEOUT 500 
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu
               )
-#		EXTRA_PATTERNS "TriggerSummary"
+
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muRunData )
 atlas_add_test( muRunData
 		SCRIPT test/test_mu_run_data.sh		
                 PROPERTIES TIMEOUT 500 
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muRunData
+              )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu )
+atlas_add_test( muMenu
+		SCRIPT test/test_mu_menu.sh     
+		PROPERTIES TIMEOUT 500 
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
+              )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMuMenu )
+atlas_add_test( egammaMuMenu
+		SCRIPT test/test_egamma_mu_menu.sh	
+                PROPERTIES TIMEOUT 500 
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMuMenu
               )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_idCaloRunData )
@@ -115,3 +135,4 @@ atlas_add_test( NewJO
 
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
+atlas_install_scripts( test/test*.sh )

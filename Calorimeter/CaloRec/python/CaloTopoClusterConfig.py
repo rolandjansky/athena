@@ -17,11 +17,12 @@ def CaloTopoClusterCfg(configFlags):
     from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot #, CaloClusterLockVars, CaloClusterPrinter
 
     
-    result.addConfig(LArGMCfg,configFlags)
-    result.addConfig(TileGMCfg,configFlags)    
-    result.addConfig(CaloNoiseToolCfg,configFlags)
+    result.merge(LArGMCfg(configFlags))
+    result.merge(TileGMCfg(configFlags))
 
-    theCaloNoiseTool=result.getPublicTool("CaloNoiseTool")
+    #Get CaloNoiseTool
+    acc,theCaloNoiseTool=CaloNoiseToolCfg(configFlags)
+    result.merge(acc)
 
     # maker tools
     TopoMaker = CaloTopoClusterMaker("TopoMaker")
@@ -94,13 +95,15 @@ def CaloTopoClusterCfg(configFlags):
     CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"   
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
-            
-    result.addEventAlgo(CaloTopoCluster)
-    return result
+    
+    return result,CaloTopoCluster
 
 
 
 if __name__=="__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -114,10 +117,14 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.addConfig(PoolReadCfg,ConfigFlags)
+    cfg.merge(PoolReadCfg(ConfigFlags))
     
-    cfg.addConfig(CaloTopoClusterCfg,ConfigFlags)
-    cfg.getEventAlgo("CaloTopoCluster").ClustersOutputName="CaloCalTopoClustersNew" 
+    topoAcc,topoAlg=CaloTopoClusterCfg(ConfigFlags)
+    topoAlg.ClustersOutputName="CaloCalTopoClustersNew" 
+    
+    cfg.merge(topoAcc)
+    cfg.addEventAlgo(topoAlg)
+              
 
     f=open("CaloTopoCluster.pkl","w")
     cfg.store(f)

@@ -6,7 +6,6 @@
 #define TRT_ELECTRON_MONITORING_TOOL_H
 
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -25,15 +24,12 @@
 
 
 #include <vector>
-#include <sstream>
-#include <stdlib.h>
 #include <string>
-#include "TF1.h"
-#include "TMath.h"
-#include "TProfile.h"
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-#include "LWHists/TProfile_LW.h"
+
+
+class TH1F_LW;
+class TH2F_LW;
+class TProfile_LW;
 
 
 
@@ -135,20 +131,20 @@ public:
 
 private:
 
-	const DataVector<xAOD::TrackParticle> *m_trkpCollection;
+	const DataVector<xAOD::TrackParticle> *m_trkpCollection{};
 	std::string m_tracksName;
 
-	const xAOD::ElectronContainer* m_electronContainer;
+	const xAOD::ElectronContainer* m_electronContainer{};
 	std::string m_electronsName;
 
-	const xAOD::MuonContainer* m_muonContainer;
+	const xAOD::MuonContainer* m_muonContainer{};
 	std::string m_muonsName;
 
-	const xAOD::VertexContainer* m_conversionContainer;
+	const xAOD::VertexContainer* m_conversionContainer{};
 	std::string m_conversionName;
 
 	std::string m_isEMFlag;
-	myIsEMType m_isEMType;
+	myIsEMType m_isEMType{ISEMLOOSE};
 
 	bool m_doTracksMon;
 	bool m_doElectronMon;

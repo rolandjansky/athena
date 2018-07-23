@@ -50,6 +50,9 @@ StatusCode FastSCT_RodDecoder::initialize() {
   }  
 
   m_cntx_sct = m_sct_id->wafer_context();
+
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -64,6 +67,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 					std::vector<bool>& listOfIds, FastSCT_Clusterization* pClusterization) 
 {
   m_pClusterization=pClusterization;
+  m_pClusterization->setLorentzAngleTool(m_lorentzAngleTool.get());
   m_cablingSvc=cablingSvc;
 
   // get the ROD version. It could be used to decode the data in one way or another

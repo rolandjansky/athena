@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCellRec/LArCellBuilderFromLArHitTool.h"
+#include "LArCellBuilderFromLArHitTool.h"
 
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"

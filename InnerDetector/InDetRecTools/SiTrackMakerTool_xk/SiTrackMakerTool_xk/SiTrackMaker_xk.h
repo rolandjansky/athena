@@ -15,8 +15,6 @@
 #ifndef SiTrackMaker_xk_H
 #define SiTrackMaker_xk_H
 
-#include <list>
-#include <map>
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -27,10 +25,14 @@
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
+#include <list>
+#include <map>
+#include <iosfwd>
+
 class MsgStream;
+class IBeamCondSvc;
 
 namespace InDet{
 
@@ -96,18 +98,18 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle  ;
-      MagField::IMagFieldSvc*                m_fieldService        ;
+      MagField::IMagFieldSvc*                m_fieldService  {}      ;
       ToolHandle<InDet::ISiDetElementsRoadMaker>     m_roadmaker   ;
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder;
       ToolHandle<InDet::ISeedToTrackConversionTool>  m_seedtrack   ;
-      IBeamCondSvc*                                  m_beam        ;
+      IBeamCondSvc*                                  m_beam  {}      ;
 
-      int                            m_nprint        ;  // Kind output information
-      int                            m_inputseeds    ;  // Number input seeds
-      int                            m_goodseeds     ;  // Number good  seeds
-      int                            m_findtracks    ;  // Numbe found tracks
-      int                            m_seedsfilter   ;  // Level of seeds filer
-      unsigned int                   m_wrongcluster  ;  // Max lentgh of thtrack
+      int                            m_nprint{}        ;  // Kind output information
+      int                            m_inputseeds{}    ;  // Number input seeds
+      int                            m_goodseeds{}     ;  // Number good  seeds
+      int                            m_findtracks{}    ;  // Numbe found tracks
+      int                            m_seedsfilter{}   ;  // Level of seeds filer
+      unsigned int                   m_wrongcluster{}  ;  // Max lentgh of thtrack
       std::string                    m_fieldmode     ;  // Mode of magnetic field
       std::string                    m_patternName   ;  // Name of the pattern recognition
 //      std::string         m_inputClusterContainerName;
@@ -116,36 +118,36 @@ namespace InDet{
       SG::ReadHandleKey<CaloClusterROI_Collection> m_caloHad;
       std::string                    m_beamconditions;
       Trk::TrackInfo                 m_trackinfo     ;
-      bool                           m_pix           ;
-      bool                           m_sct           ;
-      bool                           m_dbm           ;
-      bool                           m_usePix        ; //flags to set whether to use pixel/sct cluster, irrespective of what is in event
-      bool                           m_useSct        ;
-      bool                           m_useassoTool   ; // Use prd-track association tool
-      bool                           m_cosmicTrack   ; // Is it cosmic track
-      bool                           m_simpleTrack   ; // Is it simple output track
-      bool                           m_multitracks   ;
-      bool                           m_useBremModel  ;
-      bool                           m_useCaloSeeds  ;
-      bool                           m_useSSSfilter  ;
-      bool                           m_useHClusSeed  ; // Hadronic Calorimeter Seeds 
-      bool                           m_sss           ; // True if SSS seed without filter 
-      bool                           m_ITKGeomtry    ; // ITK geometry
-      bool                        m_seedsegmentsWrite; // Call seed to track conversion
-      bool                           m_heavyion      ; // Is it heavy ion events
+      bool                           m_pix{}           ;
+      bool                           m_sct{}           ;
+      bool                           m_dbm{}           ;
+      bool                           m_usePix {}       ; //flags to set whether to use pixel/sct cluster, irrespective of what is in event
+      bool                           m_useSct {}       ;
+      bool                           m_useassoTool{}   ; // Use prd-track association tool
+      bool                           m_cosmicTrack{}   ; // Is it cosmic track
+      bool                           m_simpleTrack{}   ; // Is it simple output track
+      bool                           m_multitracks{}   ;
+      bool                           m_useBremModel{}  ;
+      bool                           m_useCaloSeeds{}  ;
+      bool                           m_useSSSfilter{}  ;
+      bool                           m_useHClusSeed{}  ; // Hadronic Calorimeter Seeds 
+      bool                           m_sss{}           ; // True if SSS seed without filter 
+      bool                           m_ITKGeomtry{}    ; // ITK geometry
+      bool                        m_seedsegmentsWrite{}; // Call seed to track conversion
+      bool                           m_heavyion{}      ; // Is it heavy ion events
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
-      double                         m_xi2max        ; // max Xi2 for updators
-      double                         m_xi2maxNoAdd   ; // max Xi2 for clusters
-      double                         m_xi2maxlink    ; // max Xi2 for clusters
-      double                         m_pTmin         ; // min pT
-      double                         m_pTminBrem     ; // min pT for Brem mode
-      double                         m_pTminSSS      ; // min pT for SSS filtering
-      double                         m_distmax       ; // 
-      double                         m_xi2multitracks; // max Xi2 for multi tracks
-      int                            m_nholesmax     ; // Max number holes
-      int                            m_dholesmax     ; // Max holes gap
-      int                            m_nclusmin      ; // Min number clusters
-      int                            m_nwclusmin     ; // Min umber weighted clusters(pix=2 sct=1)
+      double                         m_xi2max{}        ; // max Xi2 for updators
+      double                         m_xi2maxNoAdd{}   ; // max Xi2 for clusters
+      double                         m_xi2maxlink{}    ; // max Xi2 for clusters
+      double                         m_pTmin{}         ; // min pT
+      double                         m_pTminBrem{}     ; // min pT for Brem mode
+      double                         m_pTminSSS{}      ; // min pT for SSS filtering
+      double                         m_distmax {}      ; // 
+      double                         m_xi2multitracks{}; // max Xi2 for multi tracks
+      int                            m_nholesmax {}    ; // Max number holes
+      int                            m_dholesmax {}    ; // Max holes gap
+      int                            m_nclusmin {}     ; // Min number clusters
+      int                            m_nwclusmin {}    ; // Min umber weighted clusters(pix=2 sct=1)
       InDet::TrackQualityCuts        m_trackquality  ;
       std::list<Trk::Track*>         m_tracks        ; // List found tracks
       std::multimap<const Trk::PrepRawData*,const Trk::Track*> m_clusterTrack;
@@ -155,8 +157,8 @@ namespace InDet{
       std::list<double>              m_hadF          ;
       std::list<double>              m_hadR          ;
       std::list<double>              m_hadZ          ;
-      double m_phiWidth                              ;
-      double m_etaWidth                              ;
+      double m_phiWidth  {}                            ;
+      double m_etaWidth  {}                            ;
       double m_p[9]                                  ;
       double m_xybeam[2]                             ;
 

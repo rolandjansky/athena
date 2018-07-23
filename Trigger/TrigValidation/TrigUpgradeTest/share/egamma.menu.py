@@ -3,179 +3,10 @@
 #
 
 include("TrigUpgradeTest/testHLT_MT.py")
-
-#workaround to prevent online trigger folders to be enabled
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
-
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-# PixelLorentzAngleSvc and SCTLorentzAngleSvc
-include("InDetRecExample/InDetRecConditionsAccess.py")
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-
-from InDetRecExample.InDetKeys import InDetKeys
-
 # provide a minimal menu information
 if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
-
-
-# menu components   
-from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
-from TrigUpgradeTest.MenuComponents import HLTRecoSequence, MenuSequence, Chain, ChainStep
-
-# ===============================================================================================
-#      L2 Calo
-# ===============================================================================================
-
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
-theFastCaloAlgo.OutputLevel=VERBOSE
-theFastCaloAlgo.ClustersName="L2CaloClusters"
-svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-
- 
-from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
-trigL2CaloRingerFexMT = init_ringer()
-trigL2CaloRingerFexMT.OutputLevel = DEBUG    
-
-
-
-from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-
-fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
-
-
-
-fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
-fastCaloViewsMaker.ViewFallThrough = True
-fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
-fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
-fastCaloViewsMaker.Views = "EMCaloViews"
-fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgs"
-theFastCaloAlgo.RoIs = fastCaloViewsMaker.InViewRoIs
-
-# are these needed?
-CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
-CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
-
-
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-theFastCaloHypo = TrigL2CaloHypoAlgMT("L2CaloHypo")
-theFastCaloHypo.OutputLevel = DEBUG
-theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
-
-
-fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
-
-fastCalo_HLTSequence = HLTRecoSequence("fastCalo_HLTSequence",
-                                         Sequence=fastCaloSequence,
-                                         Maker=fastCaloViewsMaker,                                         
-                                         Seed="L1EM")
-
-fastCaloSequence = MenuSequence("egammaCaloStep",
-                                    recoSeqList=[fastCalo_HLTSequence],
-                                    Hypo=theFastCaloHypo,
-                                    HypoToolClassName="TrigL2CaloHypoToolConf",)
-
-#########################################
-# second step:  tracking.....
-#########################################
-#
-
-
-from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-
-(viewAlgs, eventAlgs) = makeInDetAlgs()
-from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
-
-theFTF = TrigFastTrackFinder_eGamma()
-theFTF.isRoI_Seeded = True
-viewAlgs.append(theFTF)
-
-
-# A simple algorithm to confirm that data has been inherited from parent view
-# Required to satisfy data dependencies
-ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
-ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloClusters')]
-ViewVerify.OutputLevel = DEBUG
-viewAlgs.append(ViewVerify)
-
-TrackParticlesName = ""
-for viewAlg in viewAlgs:
-  if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-    TrackParticlesName = viewAlg.TrackParticlesName
-    
-
-from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
-theElectronFex= L2ElectronFex_1()
-theElectronFex.TrigEMClusterName = theFastCaloAlgo.ClustersName
-theElectronFex.TrackParticlesName = TrackParticlesName
-theElectronFex.ElectronsName="Electrons"
-theElectronFex.OutputLevel=VERBOSE
-
-
-l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
-l2ElectronViewsMaker.RoIsLink = "roi" # -||-
-l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
-l2ElectronViewsMaker.Views = "EMElectronViews"
-l2ElectronViewsMaker.ViewFallThrough = True
-
-
-for viewAlg in viewAlgs:
-  if viewAlg.properties().has_key("RoIs"):
-    viewAlg.RoIs = l2ElectronViewsMaker.InViewRoIs
-  if viewAlg.properties().has_key("roiCollectionName"):
-    viewAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
-theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs    
-
-electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
-
-l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
-
-
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
-theElectronHypo = TrigL2ElectronHypoAlgMT()
-theElectronHypo.Electrons = theElectronFex.ElectronsName
-theElectronHypo.RunInView=True
-theElectronHypo.OutputLevel = VERBOSE
-
-# this needs to be added:
-#electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.Output )    
-
-electronSequence = seqAND("electronSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
-
-electron_HLTSequence = HLTRecoSequence("electron_HLTSequence",
-                                       Maker=l2ElectronViewsMaker,                                        
-                                       Sequence=electronSequence,
-                                       Seed="L1EM")
-
-
-electronSequence = MenuSequence("electronStep",
-                                    recoSeqList=[electron_HLTSequence],
-                                    Hypo=theElectronHypo,
-                                    HypoToolClassName="TrigL2ElectronHypoToolConf")
-
-##########################################
-# menu
-##########################################
 
 # map L1 decisions for menu
 for unpack in topSequence.L1DecoderTest.roiUnpackers:
@@ -196,7 +27,12 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
         unpack.SourceDecisions="L1MU"
 
 
-# menu        
+
+##########################################
+# menu
+##########################################
+from TrigUpgradeTest.MenuComponents import Chain, ChainStep
+from TrigUpgradeTest.egammaMenuDefs import fastCaloSequence, electronSequence
 
 testChains  = [
    Chain(name='HLT_e3_etcut', Seed="L1_EM3",   \
@@ -211,69 +47,22 @@ testChains  = [
     ]
     
 topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
- 
-
 
 ##########################################
 # CF construction
 ##########################################
-from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 
-from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
-summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
-summary.InputDecision = "HLTChains"
-summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-edmCreator = HLTEDMCreator()
-edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
-summary.OutputTools = [ edmCreator ]
-summary.OutputLevel = DEBUG
+##### Make all HLT #######
+from TrigUpgradeTest.HLTCFConfig import makeHLTTree
+makeHLTTree(testChains)
 
-steps = seqAND("EgammaMenu_HLTSteps"  )
-decisionTree_From_Chains(steps, testChains)
-steps += summary
-
-from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
-mon = TrigSignatureMoniMT()
-mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
-from TrigUpgradeTest.TestUtils import MenuTest
-mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
-mon.OutputLevel = DEBUG
-
-import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-StreamESD.OutputLevel=VERBOSE
-topSequence.remove( StreamESD )
-def addTC(name):   
-   StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
-
-for tc in edmCreator.TrigCompositeContainer:
-   addTC( tc )
-
-addTC("HLTSummary")
-
-print "ESD file content " 
-print StreamESD.ItemList
-
-
-hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
-topSequence += hltTop
 
 
 ##########################################  
-
-
-  
+# Some debug
+##########################################  
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
 
-print "Now some debug"
-print theElectronFex
-#print fastCaloSequence
-print theFastCaloHypo
-print fastCaloViewsMaker
-print l2ElectronViewsMaker
-print ViewVerify
 
 

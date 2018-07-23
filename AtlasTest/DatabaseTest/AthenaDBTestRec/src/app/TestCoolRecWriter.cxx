@@ -578,12 +578,18 @@ bool TestCoolRecWriter::setupPool() {
   policy.setWriteModeForNonExisting(pool::DatabaseConnectionPolicy::CREATE);
   policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
   m_persistencySvc->session().setDefaultConnectionPolicy(policy);
-  m_persistencySvc->session().transaction().start(pool::ITransaction::UPDATE);
+  if (!m_persistencySvc->session().transaction().start(pool::ITransaction::UPDATE)) {
+     std::cout << "TestCollRecWriter::setupPool: start fails." << std::endl;
+     return false;
+  }
   return true;
 }
 
 bool TestCoolRecWriter::finalizePool() {
-   m_persistencySvc->session().transaction().commit();
+   if (!m_persistencySvc->session().transaction().commit()) {
+     std::cout << "TestCollRecWriter::finalizePool: commit fails." << std::endl;
+     return false;
+   }
    m_persistencySvc->session().disconnectAll();
    m_poolcat->commit();
    m_poolcat->disconnect();
@@ -605,6 +611,7 @@ void TestCoolRecWriter::setPoolPayload(const FolderInfo* folderi,
    Token *tok = m_persistencySvc->registerForWrite(*(folderi->poolplace()), data, pool::DbReflex::forTypeInfo(typeid(TestCoolRecPoolData)) );
    // set payload data for COOL to Pool object reference
    payload["PoolRef"].setValue<std::string>( tok->toString() );
+   delete tok;
 }
 
 

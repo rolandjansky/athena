@@ -36,6 +36,9 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   void clean();
   
   void Print(Option_t *option = "") const;
+  
+  int                       do_rescale;
+  
  private:
   
   std::vector<int>          m_RelevantLayers;
@@ -45,7 +48,6 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   std::vector<TVectorD*>    m_SigmaValues;
   std::vector<TVectorD*>    m_Gauss_means;
   std::vector<TVectorD*>    m_Gauss_rms;
-  std::vector<TVectorD*>    m_LowerBounds;
   std::vector<std::vector<TFCS1DFunction*> > m_cumulative;
   
   int m_numberpcabins;

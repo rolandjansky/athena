@@ -38,7 +38,6 @@ namespace {
 	const int invalidInput{-1};
 	const int maxPossiblePhiModule{9};
 	const int maxPossibleModule{3};
-	const int maxPossibleStrawNumber{999};
 	const int maxPossibleBufferLocation{2000};
 }
 

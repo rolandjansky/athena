@@ -4,9 +4,8 @@ from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def LArBadChannelCfg(configFlags):
-    result=ComponentAccumulator()
 
-    result.addConfig(LArOnOffIdMappingCfg,configFlags)
+    result=LArOnOffIdMappingCfg(configFlags)[0]
     
     if configFlags.get("global.isOnline") or configFlags.get("global.isMC"):
         foldername="/LAR/BadChannels/BadChannels"
@@ -19,10 +18,11 @@ def LArBadChannelCfg(configFlags):
     else:
         dbname="LAR_OFL"
 
-    result.addConfig(addFolders,configFlags,foldername,detDb=dbname,className="CondAttrListCollection")
-
-    result.addCondAlgo(LArBadChannelCondAlg(ReadKey=foldername))
-    return result
+    result.merge(addFolders(configFlags,foldername,detDb=dbname,className="CondAttrListCollection")[0])
+    
+    theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=foldername)
+    result.addCondAlgo(theLArBadChannelCondAlgo)
+    return result,None
 
 
 def LArBadFebCfg(configFlags):
@@ -39,21 +39,16 @@ def LArBadFebCfg(configFlags):
     else:
         dbname="LAR_OFL"
 
-    result.addConfig(addFolders,configFlags,foldername,detDb=dbname,className="AthenaAttributeList")
-
+    result.merge(addFolders(configFlags,foldername,detDb=dbname,className="AthenaAttributeList")[0])
     result.addCondAlgo(LArBadFebCondAlg(ReadKey=foldername))
-    return result
+    return result,None
 
 
-def LArBadChannelMaskerCfg(configFlags,problemsToMask,doMasking=True,
-                           ToolName="LArBadChannelMasker"):
-     result=ComponentAccumulator()
-     result.addConfig(LArBadChannelCfg,configFlags)
+def LArBadChannelMaskerCfg(configFlags,problemsToMask,doMasking=True,ToolName="LArBadChannelMasker"):
+    result=LArBadChannelCfg(configFlags)[0]
      
-     result.addAlgTool(LArBadChannelMasker(ToolName,ProblemsToMask=problemsToMask,
-                                           DoMasking=doMasking))
-
-     return result
+    bcMasker=LArBadChannelMasker(ToolName,ProblemsToMask=problemsToMask, DoMasking=doMasking)
+    return result,bcMasker
                     
 
 
@@ -62,6 +57,8 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
     log.setLevel(DEBUG)
 
     ConfigFlags.set("global.isMC",False)
@@ -70,9 +67,10 @@ if __name__=="__main__":
 
     cfg=ComponentAccumulator()
     
-    cfg.addConfig(LArBadChannelCfg,ConfigFlags)
-    cfg.addConfig(LArBadFebCfg,ConfigFlags)
-    cfg.addConfig(LArBadChannelMaskerCfg,ConfigFlags,["allDead",])
+    cfg.merge(LArBadChannelCfg(ConfigFlags))
+    cfg.merge(LArBadFebCfg(ConfigFlags))
+    acc,privTool=LArBadChannelMaskerCfg(ConfigFlags,["allDead",])
+    cfg.merge(acc)
     f=open("LArBCCondAlgos.pkl","w")
     cfg.store(f)
     f.close()

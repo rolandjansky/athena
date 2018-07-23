@@ -231,7 +231,6 @@ bool HLTObjectsInRoI::isInSameRoI(const HLT::TriggerElement* te,
 				  HLT::NavigationCore* /*navitool*/) const {
   bool status=false;
   std::vector<const HLT::TriggerElement*>::const_iterator p_roi;
-  std::vector<HLT::TriggerElement*>::const_iterator p;
 
   std::list<const HLT::TriggerElement*> tes;
   std::list<const HLT::TriggerElement*>::iterator p_te;

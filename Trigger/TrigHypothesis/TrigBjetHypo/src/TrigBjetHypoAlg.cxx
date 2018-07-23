@@ -9,7 +9,7 @@ using namespace TrigCompositeUtils;
 
 TrigBjetHypoAlg::TrigBjetHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
-  ::AthReentrantAlgorithm( name, pSvcLocator ) {}
+  ::HypoBase( name, pSvcLocator ) {}
 
 TrigBjetHypoAlg::~TrigBjetHypoAlg()
 {}

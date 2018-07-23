@@ -38,13 +38,11 @@ class Lvl1ResultCnv : public Lvl1ResultCnvBase {
 
   friend class CnvFactory< Lvl1ResultCnv >;
 
- protected:
-
 public:
   Lvl1ResultCnv (ISvcLocator* svcloc);
-protected:
-
   ~Lvl1ResultCnv();
+
+protected:
 
   virtual Lvl1Result_PERS* createPersistent (LVL1CTP::Lvl1Result* transCont);
 

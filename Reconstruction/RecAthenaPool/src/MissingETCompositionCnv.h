@@ -27,9 +27,9 @@ class MissingETCompositionCnv : public MissingETCompositionCnvBase
     , m_TPconverter_p2(0)
     { };
 
- protected:
   virtual ~MissingETCompositionCnv() { delete m_TPconverter_p2; };
 
+ protected:
   virtual MissingETComposition_PERS*   createPersistent (MissingETComposition* transObj);
   virtual MissingETComposition*        createTransient ();
   

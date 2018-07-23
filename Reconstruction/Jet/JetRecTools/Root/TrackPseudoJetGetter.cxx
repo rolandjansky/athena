@@ -14,6 +14,10 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
+
+using fastjet::PseudoJet;
+
+
 TrackPseudoJetGetter::TrackPseudoJetGetter(const std::string &name) 
   : PseudoJetGetter(name) , m_inTVA("JetTrackVtxAssoc") {
   declareProperty("TrackVertexAssociation", m_inTVA, "SG key for the TrackVertexAssociation object");

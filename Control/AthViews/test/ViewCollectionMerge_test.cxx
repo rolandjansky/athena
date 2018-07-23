@@ -94,6 +94,9 @@ protected:
 
     m_jobOptionsSvc = m_svcLoc->service("JobOptionsSvc");
     ASSERT_TRUE( m_jobOptionsSvc.isValid() );
+
+    m_sg = nullptr;
+    ASSERT_TRUE( m_svcLoc->service ("StoreGateSvc", m_sg).isSuccess() );
   }
 
   void TearDownGaudi() {
@@ -105,6 +108,11 @@ protected:
     Gaudi::setInstance( static_cast<IAppMgrUI*>(nullptr) );
   }
 
+  StoreGateSvc* evtStore()
+  {
+    return m_sg;
+  }
+
   // protected member variables for Core Gaudi components
   IAppMgrUI*               m_appMgr = nullptr;
   SmartIF<ISvcLocator>     m_svcLoc;
@@ -112,6 +120,7 @@ protected:
   SmartIF<IJobOptionsSvc>  m_jobOptionsSvc;
   SmartIF<IToolSvc>        m_toolSvc;
   SmartIF<IProperty>       m_propMgr;
+  StoreGateSvc*            m_sg;
 };
 
 
@@ -393,8 +402,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkRemapTest ) {
   ASSERT_TRUE( outputDataHandle2.isValid() );
 
   // Declare remapping
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  storeGate->remap( ClassID_traits< DataVector< int > >::ID(), DATA_NAME, DATA_NAME + "2", 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), DATA_NAME, DATA_NAME + "2", 0 );
 
   // Test the link again - should not have changed
   ASSERT_TRUE( dataLink.isValid() );
@@ -447,8 +455,7 @@ TEST_F( ViewCollectionMerge_test, elementLinkViewRemapTest ) {
   ASSERT_TRUE( outputDataHandle2.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  storeGate->remap( ClassID_traits< DataVector< int > >::ID(), "testView_" + DATA_NAME, "testView_" + DATA_NAME + "2", 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView_" + DATA_NAME, "testView_" + DATA_NAME + "2", 0 );
 
   // Test the link again - should not have changed
   ASSERT_TRUE( dataLink.isValid() );
@@ -537,9 +544,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapTest ) {
   ASSERT_TRUE( outputDataHandle.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  storeGate->remap( ClassID_traits< DataVector< int > >::ID(), "testView1_" + DATA_NAME, DATA_NAME, 0 );
-  storeGate->remap( ClassID_traits< DataVector< int > >::ID(), "testView2_" + DATA_NAME, DATA_NAME, 1 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView1_" + DATA_NAME, DATA_NAME, 0 );
+  evtStore()->remap( ClassID_traits< DataVector< int > >::ID(), "testView2_" + DATA_NAME, DATA_NAME, 1 );
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );
@@ -638,9 +644,8 @@ TEST_F( ViewCollectionMerge_test, elementLinkMergeRemapBookkeepTest ) {
   ASSERT_TRUE( auxHandle.isValid() );
 
   // Declare remapping - pretty hacky, have to specify view object names explicitly
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  storeGate->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView1_" + DATA_NAME, DATA_NAME, 0 );
-  storeGate->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView2_" + DATA_NAME, DATA_NAME, 1 );
+  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView1_" + DATA_NAME, DATA_NAME, 0 );
+  evtStore()->remap( ClassID_traits< DataVector< DummyData > >::ID(), "testView2_" + DATA_NAME, DATA_NAME, 1 );
 
   // Element link should still be pointing to view container
   ASSERT_TRUE( dataLink.isValid() );
@@ -667,8 +672,7 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
 
   // Make a dummy event context
   EventContext dummyContext( 0, 0 );
-  StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( m_svcLoc->service( "StoreGateSvc" ).get() );
-  dummyContext.setExtension( Atlas::ExtendedEventContext( storeGate, 0 ) );
+  dummyContext.setExtension( Atlas::ExtendedEventContext( evtStore(), 0 ) );
 
   // Parcel the view data
   auto viewData = std::vector< DataVector< DummyData > >( 2 );
@@ -707,7 +711,7 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
   inputDataHandleKey.initialize();
   
   MsgStream log(Athena::getMessageSvc(), "ViewCollectionMerge_test");
-  ViewHelper::ViewMerger merger( storeGate,  log);
+  ViewHelper::ViewMerger merger( evtStore(),  log);
   ASSERT_TRUE( merger.mergeViewCollection( *inputViewsHandle, inputDataHandleKey, dummyContext, *mergedData ).isSuccess() );
 
   // Verify merging

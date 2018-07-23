@@ -19,7 +19,7 @@
 /////////////////////////////////////////////////////////////////////
 
 LArFebErrorSummaryMaker::LArFebErrorSummaryMaker(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),m_nwarns(0),m_missingFebsWarns(0),
+  AthAlgorithm(name, pSvcLocator),m_missingFebsWarns(0),
   m_isHec(false), m_isFcal(false), m_isEmb(false), m_isEmec(false),
   m_isEmPS(false), m_isAside(false), m_isCside(false),
   m_onlineHelper(nullptr),

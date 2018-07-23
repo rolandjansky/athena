@@ -18,6 +18,9 @@ CREATED:  23rd August, 2005
 //C++ Headers
 #include <vector>
 
+/**
+Stores calorimeter cell eta and phi widths, a X0 per unit length in the EM and HAD calorimeters.
+*/
 class eflowDatabase  {
 
  public:

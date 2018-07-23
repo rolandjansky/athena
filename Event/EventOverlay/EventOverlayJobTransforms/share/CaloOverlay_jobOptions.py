@@ -1,4 +1,3 @@
-
 include.block ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 
 from AthenaCommon.Resilience import treatException,protectedInclude
@@ -16,13 +15,13 @@ if overlayFlags.doBkg==True:
        from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
        job += DeepCopyObjects("BkgRdo3")
        job.BkgRdo3.TileObjects = True
-                               
-                            
+
+
 if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
 
    jobproperties.Digitization.doCaloNoise=False
 
-   if isRealData:
+   if overlayFlags.isDataOverlay():
       include("LArConditionsCommon/LArIdMap_comm_jobOptions.py")
       include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
    else:
@@ -34,45 +33,44 @@ if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
 
 if DetFlags.overlay.LAr_on():
 
-    from AthenaCommon.GlobalFlags import GlobalFlags
-    
     # FIXME this is for doing Overlay with MC RDO + MC hits
     #   real data RDO will require some changes in the setup for proper db acces
     #include( "LArDetDescr/LArDetDescr_joboptions.py" )
     #include( "LArAthenaPool/LArAthenaPool_joboptions.py" )
     # We also need the conditions svc for MC constants:
-    if readBS and isRealData:
+    if overlayFlags.isDataOverlay():
        theApp.Dlls += [ "LArByteStream"]
        LArDigitKey = "FREE"
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/"+LArDigitKey]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames+=["LArDigitContainer/LArDigitContainer_MC"]
-   
+
     from LArROD.LArRawChannelGetter import LArRawChannelGetter
     LArRawChannelGetter()
-    
+
     from LArROD.LArDigits import DefaultLArDigitThinner
     LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
-    if isRealData:
+    if overlayFlags.isDataOverlay():
+       job.LArDigitThinner.InputContainerName = overlayFlags.dataStore()+"+FREE"
        job.LArDigitThinner.RawChannelContainerName = "LArRawChannels_FromDigits"
        #job.digitmaker1.LArPileUpTool.OutputLevel=DEBUG
        #MessageSvc.debugLimit = 100000
        #job.digitmaker1.LArPileUpTool.useLArFloat=False
-       job.digitmaker1.LArPileUpTool.PedestalKey = "Pedestal"
+       job.digitmaker1.LArPileUpTool.PedestalKey = "LArPedestal"
        job.LArRawChannelBuilder.DataLocation = "LArDigitContainer_MC"
 
 #----------------------------------------------------------------
 if DetFlags.overlay.Tile_on():
 
     include( "TileIdCnv/TileIdCnv_jobOptions.py" )
-    include( "TileConditions/TileConditions_jobOptions.py" )        
+    include( "TileConditions/TileConditions_jobOptions.py" )
 
     include( "TileSimAlgs/TileDigitization_jobOptions.py" )
     include( "TileL2Algs/TileL2Algs_jobOptions.py" )
 
     job.TileHitVecToCnt.DigitizationTool.RndmEvtOverlay = True
     theTileDigitsMaker.RndmEvtOverlay = True
-    if readBS and isRealData:
+    if overlayFlags.isDataOverlay():
        theApp.Dlls += [ "TileByteStream"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileBeamElemContainer/TileBeamElemCnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/TileRawChannelCnt"]
@@ -81,4 +79,3 @@ if DetFlags.overlay.Tile_on():
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileLaserObject/TileLaserObj"]
 
 #--------------------
-

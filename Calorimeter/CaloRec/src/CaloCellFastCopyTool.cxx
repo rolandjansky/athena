@@ -29,16 +29,12 @@
 
 CaloCellFastCopyTool::CaloCellFastCopyTool(const std::string& type,
     const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent)
-  , m_copyCells(nullptr)
-  , m_copyConstCells(nullptr)
+    : base_class(type, name, parent)
   , m_srcCellContainerKey("AllCalo")
   , m_avoidDuplicates(false)
   , m_isFindCellFast(false)
   , m_caloID(0)
 {
-  declareInterface<ICaloCellMakerTool>(this);
-  declareInterface<ICaloConstCellMakerTool>(this);
   declareProperty("InputName", m_srcCellContainerKey);
   declareProperty("IncludeSamplings", m_acceptedSampleNames);
   declareProperty("AvoidDuplicates", m_avoidDuplicates);
@@ -108,9 +104,6 @@ StatusCode CaloCellFastCopyTool::initialize() {
   ATH_MSG_DEBUG( "Number of accepted hashes: " << m_acceptedCellHashes.size() );
 
 
-  m_copyCells = &CaloCellFastCopyTool::dispatchCopy;
-  m_copyConstCells = &CaloCellFastCopyTool::dispatchCopyConst;
-
   return StatusCode::SUCCESS;
 }
 
@@ -120,7 +113,7 @@ StatusCode CaloCellFastCopyTool::process(CaloCellContainer* theCont)
   // Retrieve source cell container
   SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey);
 
-  ATH_CHECK( (this->*m_copyCells)(srcCont.cptr(), theCont) );
+  ATH_CHECK( dispatchCopy (srcCont.cptr(), theCont) );
 
   std::vector<CaloCell_ID::SUBCALO>::const_iterator it = m_acceptedCalos.begin();
   for (; it != m_acceptedCalos.end(); ++it) {
@@ -136,7 +129,7 @@ StatusCode CaloCellFastCopyTool::process(CaloConstCellContainer* theCont)
   // Retrieve source cell container
   SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey);
 
-  ATH_CHECK( (this->*m_copyConstCells)(srcCont.cptr(), theCont) );
+  ATH_CHECK( dispatchCopyConst (srcCont.cptr(), theCont) );
 
   std::vector<CaloCell_ID::SUBCALO>::const_iterator it = m_acceptedCalos.begin();
   for (; it != m_acceptedCalos.end(); ++it) {
@@ -149,7 +142,7 @@ StatusCode CaloCellFastCopyTool::process(CaloConstCellContainer* theCont)
 
 StatusCode CaloCellFastCopyTool::viewNotAvoidingDuplicatesFindCellIsFast
   (const CaloCellContainer* srcCont,
-   CaloConstCellContainer* destCont)
+   CaloConstCellContainer* destCont) const
 {
   const CaloCell* cell;
   std::vector<IdentifierHash>::const_iterator it = m_acceptedCellHashes.begin();
@@ -164,7 +157,7 @@ StatusCode CaloCellFastCopyTool::viewNotAvoidingDuplicatesFindCellIsFast
 
 StatusCode CaloCellFastCopyTool::viewAvoidingDuplicatesFindCellIsFast
   (const CaloCellContainer* srcCont,
-   CaloConstCellContainer* destCont)
+   CaloConstCellContainer* destCont) const
 {
   std::vector<bool> notInContainer(m_hashMax, true);
   CaloCellContainer::const_iterator itCell = destCont->begin();
@@ -187,7 +180,7 @@ StatusCode CaloCellFastCopyTool::viewAvoidingDuplicatesFindCellIsFast
 
 StatusCode CaloCellFastCopyTool::viewNotAvoidingDuplicatesFindCellIsNotFast
   (const CaloCellContainer* srcCont,
-   CaloConstCellContainer* destCont)
+   CaloConstCellContainer* destCont) const
 {
   IdentifierHash cellHash;
   const CaloCell* cell;
@@ -204,7 +197,7 @@ StatusCode CaloCellFastCopyTool::viewNotAvoidingDuplicatesFindCellIsNotFast
 
 StatusCode CaloCellFastCopyTool::viewAvoidingDuplicatesFindCellIsNotFast
   (const CaloCellContainer* srcCont,
-   CaloConstCellContainer* destCont)
+   CaloConstCellContainer* destCont) const
 {
   std::vector<bool> notInContainer(m_hashMax, true);
   CaloCellContainer::const_iterator itCell = destCont->begin();
@@ -229,7 +222,7 @@ StatusCode CaloCellFastCopyTool::viewAvoidingDuplicatesFindCellIsNotFast
 template <class CONTAINER>
 StatusCode CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsFast
   (const CaloCellContainer* srcCont,
-   CONTAINER* destCont)
+   CONTAINER* destCont) const
 {
   const CaloCell* cell;
   std::vector<IdentifierHash>::const_iterator it = m_acceptedCellHashes.begin();
@@ -245,7 +238,7 @@ StatusCode CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsFast
 template <class CONTAINER>
 StatusCode CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsFast
   (const CaloCellContainer* srcCont,
-   CONTAINER* destCont)
+   CONTAINER* destCont) const
 {
 
   std::vector<bool> notInContainer(m_hashMax, true);
@@ -270,7 +263,7 @@ StatusCode CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsFast
 template <class CONTAINER>
 StatusCode CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsNotFast
   (const CaloCellContainer* srcCont,
-   CONTAINER* destCont)
+   CONTAINER* destCont) const
 {
   IdentifierHash cellHash;
   const CaloCell* cell;
@@ -289,7 +282,7 @@ StatusCode CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsNotFast
 template <class CONTAINER>
 StatusCode CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsNotFast
   (const CaloCellContainer* srcCont,
-   CONTAINER* destCont)
+   CONTAINER* destCont) const
 {
   std::vector<bool> notInContainer(m_hashMax, true);
   CaloCellContainer::const_iterator itCell = destCont->begin();
@@ -313,11 +306,15 @@ StatusCode CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsNotFast
 
 
 StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer* srcCont,
-                                              CaloCellContainer* destCont)
+                                              CaloCellContainer* destCont) const
 {
+  typedef StatusCode (CaloCellFastCopyTool::*COPY_CELLS)(const CaloCellContainer* srcCont
+                                                         , CaloCellContainer* destCont) const;
+
+  COPY_CELLS copyCells;
   if (m_isFindCellFast) {
     if (destCont->ownPolicy() == SG::OWN_ELEMENTS) {
-      m_copyCells = (m_avoidDuplicates) ?
+      copyCells = (m_avoidDuplicates) ?
         (&CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsFast<CaloCellContainer>) :
         (&CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsFast<CaloCellContainer>);
     }
@@ -328,7 +325,7 @@ StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer* srcCont,
   }
   else {
     if (destCont->ownPolicy() == SG::OWN_ELEMENTS) {
-      m_copyCells = (m_avoidDuplicates) ?
+      copyCells = (m_avoidDuplicates) ?
         (&CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsNotFast<CaloCellContainer>) :
         (&CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsNotFast<CaloCellContainer>);
     }
@@ -338,35 +335,39 @@ StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer* srcCont,
     }
   }
 
-  return (this->*m_copyCells)(srcCont, destCont);
+  return (this->*copyCells)(srcCont, destCont);
 }
 
 
 StatusCode
 CaloCellFastCopyTool::dispatchCopyConst (const CaloCellContainer* srcCont,
-                                         CaloConstCellContainer* destCont)
+                                         CaloConstCellContainer* destCont) const
 {
+  typedef StatusCode (CaloCellFastCopyTool::*COPY_CONST_CELLS)(const CaloCellContainer* srcCont
+                                                               , CaloConstCellContainer* destCont) const;
+
+  COPY_CONST_CELLS copyConstCells;
   if (m_isFindCellFast) {
     if (destCont->ownPolicy() == SG::OWN_ELEMENTS) {
-      m_copyConstCells = (m_avoidDuplicates) ?
+      copyConstCells = (m_avoidDuplicates) ?
         (&CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsFast<CaloConstCellContainer>) :
         (&CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsFast<CaloConstCellContainer>);
     } else {
-      m_copyConstCells = (m_avoidDuplicates) ? 
+      copyConstCells = (m_avoidDuplicates) ? 
         (&CaloCellFastCopyTool::viewAvoidingDuplicatesFindCellIsFast) :
         (&CaloCellFastCopyTool::viewNotAvoidingDuplicatesFindCellIsFast);
     }
   } else {
     if (destCont->ownPolicy() == SG::OWN_ELEMENTS) {
-      m_copyConstCells = (m_avoidDuplicates) ?
+      copyConstCells = (m_avoidDuplicates) ?
         (&CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsNotFast<CaloConstCellContainer>) :
         (&CaloCellFastCopyTool::cloneNotAvoidingDuplicatesFindCellIsNotFast<CaloConstCellContainer>);
     } else {
-      m_copyConstCells = (m_avoidDuplicates) ?
+      copyConstCells = (m_avoidDuplicates) ?
         (&CaloCellFastCopyTool::viewAvoidingDuplicatesFindCellIsNotFast) :
         (&CaloCellFastCopyTool::viewNotAvoidingDuplicatesFindCellIsNotFast);
     }
   }
 
-  return (this->*m_copyConstCells)(srcCont, destCont);
+  return (this->*copyConstCells)(srcCont, destCont);
 }

@@ -124,7 +124,6 @@ StatusCode RoILinksCnvTool::beginRun() {
 
   log() << MSG::INFO << "List of triggers to check" << endmsg;
 
-  vector<string>::const_iterator p2;
   vector<string> cg_chains;
 
 //   log() << MSG::DEBUG << "Now checking all L2 triggers" << endmsg;

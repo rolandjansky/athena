@@ -8,6 +8,7 @@
 # art-output: *.root
 # art-output: *.xml
 # art-output: dcube
+# art-output: *.png
 
 fileList="['${ArtInFile//,/', '}']"
 echo "List of files = ", $fileList
@@ -28,3 +29,6 @@ bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName InDetStanda
 bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube "Pi1" "InDetStandardPlots-SinglePi1000.root"
 echo  "art-result: $? plot"
 
+plotmacro="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/scripts/makeplots.C"
+root -b -q $plotmacro
+echo "art-result: $? root"

@@ -18,10 +18,11 @@ namespace TrigL2MuonSA{
 const InterfaceID& CscRegDict :: interfaceID(){ return IID_CscRegDict; }
 
 
-  CscRegDict :: CscRegDict(const std::string &type, const std::string &name, const IInterface *parent): AthAlgTool(type,name,parent),m_util(0){
+CscRegDict :: CscRegDict(const std::string &type, const std::string &name, const IInterface *parent)
+  : AthAlgTool(type,name,parent),
+    m_util(0)
+{
   declareInterface<TrigL2MuonSA::CscRegDict>(this);
-  declareProperty("MCFlag", m_isMC=true);
-
 }
 
 

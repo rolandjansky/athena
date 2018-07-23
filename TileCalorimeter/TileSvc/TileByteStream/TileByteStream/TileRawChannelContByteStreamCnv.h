@@ -13,6 +13,8 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthMessaging.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <vector>
 

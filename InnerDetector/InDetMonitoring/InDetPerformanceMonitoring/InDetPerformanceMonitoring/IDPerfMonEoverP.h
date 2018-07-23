@@ -138,7 +138,7 @@ class IDPerfMonEoverP : public AthAlgorithm
   /** @brief Primary vertex input name*/
   std::string m_primaryVertexCollection;
 
-  /** @brief Name of outpu of Refitted Inner Detector Tracks*/
+  /** @brief Name of output of Refitted Inner Detector Tracks*/
   std::string                 m_OutputTrackCollectionName_no1;
   std::string                 m_OutputTrackCollectionName_no2;
 

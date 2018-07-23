@@ -100,7 +100,7 @@ _add_test( AthenaPoolExample_ReadBN
 # Read all output w/o BackNavigation
 _add_test( AthenaPoolExample_ReadNoBN
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadNoBNJobOptions.py"
-   EXTRA_PATTERNS "BYTES_READ|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO"
+   EXTRA_PATTERNS "BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
 
 # Copy 'Hits' file without extending provenance

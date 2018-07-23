@@ -6,7 +6,6 @@
 // PixelFastDigitizationTool.h
 //   Header file for class PixelFastDigitizationTool
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Top algorithm class for Pixel fast digitization
 ///////////////////////////////////////////////////////////////////
@@ -15,52 +14,39 @@
 #define FASTSIDIGITIZATION_PIXELFASTDIGITIZATIONTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
+#include "FastSiDigitization/IPixelFastDigitizationTool.h"
+#include "HitManagement/TimedHitCollection.h"
+#include "InDetSimEvent/SiHit.h"
+#include "InDetSimEvent/SiHitCollection.h" // cannot fwd declare
+#include "InDetPrepRawData/PixelClusterContainer.h" //typedef, cannot fwd declare
+#include "InDetPrepRawData/PixelGangedClusterAmbiguities.h" //typedef, cannot fwd declare
+#include "SiClusterizationTool/ClusterMakerTool.h"
+#include "PileUpTools/PileUpMergeSvc.h"
+
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/AlgTool.h"
-//#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
-#include "PixelConditionsTools/IModuleDistortionsTool.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEventInfo/EventAuxInfo.h"
-#include "InDetSimData/InDetSimDataCollection.h"
-#include "FastSiDigitization/IPixelFastDigitizationTool.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+
 #include <string>
-
-#include "HitManagement/TimedHitCollection.h"
-#include "InDetSimEvent/SiHit.h"
-#include "InDetSimEvent/SiHitCollection.h"
-
-#include "SiClusterizationTool/IPixelClusteringTool.h"
-#include "SiClusterizationTool/PixelClusteringToolBase.h"
-#include "SiClusterizationTool/ClusterMakerTool.h"
-
-#include "InDetPrepRawData/PixelClusterContainer.h"
-
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
-
-#include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
-#include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
-
+#include <vector>
+#include <list>
+#include <map>
 
 
 class PixelID;
 class IModuleDistortionsTool;
-//class IInDetConditionsSvc;
+class PRD_MultiTruthCollection;
+class IAtRndmGenSvc;
 
-namespace InDetDD{class SiDetectorElement;}
+namespace InDetDD{
+  class SiDetectorElement;
+  class PixelDetectorManager;
+}
 namespace CLHEP {class HepRandomEngine;}
 
 namespace InDet {
-  class MergedPixelsTool;
-  class ClusterMakerTool;
   class PixelCluster;
-  class IPixelClusteringTool;
   class PixelGangedAmbiguitiesFinder;
-  class PrepRawData;
 }
 
 class PixelFastDigitizationTool :

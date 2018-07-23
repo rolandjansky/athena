@@ -2,7 +2,7 @@
 include.block ( "EventOverlayJobTransforms/Level1Overlay_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
-from Digitization.DigitizationFlags import jobproperties
+from Digitization.DigitizationFlags import digitizationFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 if DetFlags.overlay.LVL1_on():
@@ -12,7 +12,7 @@ if DetFlags.overlay.LVL1_on():
        job += DeepCopyObjects("BkgRdo5")
        job.BkgRdo5.Level1Objects = True
           
-    if readBS and isRealData:
+    if overlayFlags.isDataOverlay():
        include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
        #include ("MuonCommRecExample/ReadMuCTPI_jobOptions.py")
 
@@ -29,7 +29,7 @@ if DetFlags.overlay.LVL1_on():
     if DetFlags.simulateLVL1.LAr_on():
         include( "LArL1Sim/LArL1Sim_G4_jobOptions.py" )
         # Noise 
-        if not jobproperties.Digitization.doCaloNoise.get_Value():
+        if not digitizationFlags.doCaloNoise.get_Value():
             job.LArTTL1Maker.NoiseOnOff= False #(default:True) 
         # PileUp
         job.LArTTL1Maker.PileUp = True
@@ -100,8 +100,8 @@ if DetFlags.overlay.LVL1_on():
        #--------------------------------------------------------------
        # TGC stuff
        #--------------------------------------------------------------
-       if DetFlags.simulateLVL1.TGC_on():
-          import TrigT1TGC.TrigT1TGCConfig
+       #if DetFlags.simulateLVL1.TGC_on():
+       #   import TrigT1TGC.TrigT1TGCConfig
 
        #--------------------------------------------------------------
        # TrigT1Muctpi Algos
@@ -115,9 +115,10 @@ if DetFlags.overlay.LVL1_on():
        #-------------------------------------------------------
        if DetFlags.simulateLVL1.Calo_on():
           if DetFlags.simulateLVL1.LAr_on() and DetFlags.simulateLVL1.Tile_on():
-             protectedInclude( "TrigT1CaloSim/TrigT1CaloSimJobOptions_TTL1_NoCalib.py" ) #switched to NoCalib
-             job.TriggerTowerMaker.DoOverlay = True
-             job.TriggerTowerMaker.OverlayPedestal = 40.
+             from TriggerJobOpts.Lvl1TriggerGetter import Lvl1SimulationGetter
+             lvl1 = Lvl1SimulationGetter()
+             protectedInclude( "TrigT1CaloCalibConditions/L1CaloCalibConditions_Overlay.py" )
+             job.Run2TriggerTowerMaker.DoOverlay = True
           else:
              log.warning("NOT SIMULATING L1CALO!")
              log.warning("If only one of LAr and Tile LVL1 digitzation is set on then the L1Calo will NOT be simulated.")
@@ -127,9 +128,9 @@ if DetFlags.overlay.LVL1_on():
        #-------------------------------------------------------
        # TrigT1MBTS Alg
        #-------------------------------------------------------
-       if DetFlags.simulateLVL1.Calo_on():
-          from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
-          job += LVL1__TrigT1MBTS()
+       #if DetFlags.simulateLVL1.Calo_on():
+       #   from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
+       #   job += LVL1__TrigT1MBTS()
 
        #-------------------------------------------------------
        # TrigT1BCM Alg
@@ -148,12 +149,12 @@ if DetFlags.overlay.LVL1_on():
        #-------------------------------------------------------
        # TrigT1CTP Algos
        #-------------------------------------------------------
-       from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInDigi
-       job += CTPSimulationInDigi()
+       #from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInDigi
+       #job += CTPSimulationInDigi()
 
        #-------------------------------------------------------
        # TrigT1RoIB Algos
        #-------------------------------------------------------
-       from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilderInDigi
-       job += RoIBuilderInDigi("RoIBuilder")
+       #from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilderInDigi
+       #job += RoIBuilderInDigi("RoIBuilder")
     

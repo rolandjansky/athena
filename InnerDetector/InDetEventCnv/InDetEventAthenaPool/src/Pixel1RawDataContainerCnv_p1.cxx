@@ -64,6 +64,7 @@ void Pixel1RawDataContainerCnv_p1::transToPers(const PixelRDO_Container* transCo
         for (unsigned int i = 0; i < collection.size(); ++i) {
             InDetRawData_p1* pchan = &(persCont->m_rawdata[i + chanBegin]);
             const Pixel1RawData* chan = dynamic_cast<const Pixel1RawData*>(collection[i]);
+            if (not chan) continue;
             chanCnv.transToPers(chan, pchan, log);
         }
     }

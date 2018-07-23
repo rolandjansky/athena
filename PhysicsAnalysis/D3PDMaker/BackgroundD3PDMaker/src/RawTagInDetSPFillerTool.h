@@ -17,7 +17,7 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-class RawInfoSummaryForTag;
+#include "TagEvent/RawInfoSummaryForTag.h"
 
 
 namespace D3PD {

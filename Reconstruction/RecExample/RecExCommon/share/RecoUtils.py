@@ -160,11 +160,6 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
         ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
         ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_LEVEL = '1'" ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'" ]
-        # Switch on splitting for the 4 largest container (default off)
-        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetSimDataCollection_p1/PixelSDO_Map)'; CONTAINER_SPLITLEVEL = '99'" ]
-        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetSimDataCollection_p1/SCT_SDO_Map)'; CONTAINER_SPLITLEVEL = '99'" ]
-        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetSimDataCollection_p1/TRT_SDO_Map)'; CONTAINER_SPLITLEVEL = '99'" ]
-        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(LArRawChannelContainer_p4/LArRawChannels)'; CONTAINER_SPLITLEVEL = '99'" ]
 
     if rec.doWriteESD():
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -172,36 +167,14 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; COMPRESSION_LEVEL = '1'" ]
         # Optimize Basket Sizes to store data for 10 entries/events
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '10'" ]
-        # Switch on splitting for the largest container (default off)
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree(Trk::TrackCollection_tlp3/Tracks)'; CONTAINER_SPLITLEVEL = '99'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree(Trk::TrackCollection_tlp3/CombinedInDetTracks)'; CONTAINER_SPLITLEVEL = '99'" ]
-        # Increase basket size for largest auxiliary containers and switch off basket optimization
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'CollectionTreeAnalysis::JetTagInfo_tlp3'; BRANCH_BASKET_SIZE = '256000'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'CollectionTreeAnalysis::JetTagInfo_tlp3'; TREE_AUTO_FLUSH = '0'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'CollectionTreeAnalysis::JetTagInfo_tlp3'; BRANCH_COMPRESSION_LEVEL = '1'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'CollectionTreeInDet::Track_tlp1'; BRANCH_BASKET_SIZE = '256000'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'CollectionTreeInDet::Track_tlp1'; TREE_AUTO_FLUSH = '0'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'CollectionTreeInDet::Track_tlp1'; BRANCH_COMPRESSION_LEVEL = '1'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'CollectionTreeTPCnv::MuonMeasurements_tlp2'; TREE_AUTO_FLUSH = '0'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'CollectionTreeTPCnv::MuonMeasurements_tlp2'; BRANCH_COMPRESSION_LEVEL = '1'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'CollectionTreeMuonCaloEnergyContainer_tlp1'; TREE_AUTO_FLUSH = '0'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'CollectionTreeMuonCaloEnergyContainer_tlp1'; BRANCH_COMPRESSION_LEVEL = '1'" ]
 
     if rec.doWriteAOD():
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_LEVEL = '1'" ]
         # Optimize Basket Sizes to store data for 100 entries/events
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100';"]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100'"]
 
-	# Switch on splitting for the 2-3 largest container (default off)
-        if rec.doTruth():
-            svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(TruthParticlesAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
-
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetTrackParticlesAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(CaloCalTopoClustersAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
-
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'CollectionTreeInDet::Track_tlp2'; TREE_AUTO_FLUSH = '0'" ]
         # Base the xAOD branch names just on the SG keys:
         StreamAOD.WritingTool.SubLevelBranchName = "<key>"
 

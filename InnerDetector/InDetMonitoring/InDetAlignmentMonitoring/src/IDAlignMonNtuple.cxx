@@ -60,7 +60,6 @@ IDAlignMonNtuple::IDAlignMonNtuple( const std::string & type, const std::string 
   :ManagedMonitorToolBase( type, name, parent ),
    m_doPulls(false),
    m_idHelper(0),
-   m_SCT_Mgr(0),
    m_pixelID(0),
    m_sctID(0),
    m_ntupleSvc(0),
@@ -831,7 +830,11 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Entering True Unbiased loop." << endmsg;
     // check if other module side was also hit and try to remove other hit as well
     const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
-    const Identifier& OtherModuleSideID = m_SCT_Mgr->getDetectorElement(surfaceID)->otherSide()->identify();
+    const Identifier waferID = m_sctID->wafer_id(surfaceID);
+    const IdentifierHash waferHash = m_sctID->wafer_hash(waferID);
+    IdentifierHash otherSideHash;
+    m_sctID->get_other_side(waferHash, otherSideHash);
+    const Identifier OtherModuleSideID = m_sctID->wafer_id(otherSideHash);
       
     for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
         
@@ -976,14 +979,6 @@ StatusCode IDAlignMonNtuple::setupTools()
     return StatusCode::FAILURE;
   }
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTIDHelper" << endmsg;
-
-  // Get the SCT manager from the detector store
-  sc = detStore()->retrieve(m_SCT_Mgr, "SCT");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get SCT_Manager !" << endmsg;
-    return sc;
-  }
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialized SCTManager" << endmsg;
 
   //ID Helper
   sc = detStore()->retrieve(m_idHelper, "AtlasID" );

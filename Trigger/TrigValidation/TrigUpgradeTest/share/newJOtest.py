@@ -7,6 +7,10 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
+
+from AthenaCommon.Configurable import Configurable
+Configurable.configurableRun3Behavior=1
+
 #theApp.setup()
 
 flags = ConfigFlags
@@ -42,24 +46,25 @@ inputLoader = SGInputLoader(DetStore = 'StoreGateSvc/DetectorStore',
                             Load = [],
                             NeededResources = [])
 
-acc.addEventAlgo( inputLoader, sequence='AthAlgSeq' )
+acc.addEventAlgo( inputLoader)
 
 from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-acc.addConfig( TrigBSReadCfg, flags )
+acc.merge(TrigBSReadCfg(flags ))
 
-from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-acc.addConfig( GeoModelCfg, flags )
+#from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+#acc.merge(GeoModelCfg(flags ))
 
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
-acc.addConfig( TriggerHistSvcConfig, flags )
+acc.merge(TriggerHistSvcConfig(flags ))
 
 acc.addSequence( seqOR( "hltTop") )
 
 from L1Decoder.L1DecoderConfig import L1DecoderCfg
-acc.addConfig( L1DecoderCfg, flags, sequence="hltTop" )
-l1 = acc.getEventAlgo( "L1Decoder" )
+accL1,l1=L1DecoderCfg(flags)# sequenc="hltTop" )
 from TrigUpgradeTest.TestUtils import applyMenu
 applyMenu( l1 )
+acc.merge(accL1)
+acc.addEventAlgo(l1,"hltTop")
 
 from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
 tagInfoMgr = TagInfoMgr()
@@ -77,17 +82,20 @@ athenaPoolSvcSvc.PoolAttributes = ["DEFAULT_SPLITLEVEL ='0'", "STREAM_MEMBER_WIS
 acc.addService( athenaPoolSvcSvc )
 acc.getService("EventPersistencySvc").CnvServices += [ athenaPoolSvcSvc.getName() ]
 
-acc.addSequence( seqAND("hltSteps"), sequence="hltTop" )
-acc.addSequence( parOR("hltStep_1"), sequence="hltSteps" )
-acc.addSequence( parOR("hltStep_2"), sequence="hltSteps" )
+acc.addSequence( seqAND("hltSteps"), parentName="hltTop" )
+acc.addSequence( parOR("hltStep_1"), parentName="hltSteps" )
+acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
 
 # setup algorithm sequences here, need few additional components
 from TrigUpgradeTest.RegSelConfig import RegSelConfig
-acc.addConfig( RegSelConfig, flags )
+acc.merge(RegSelConfig(flags ))
 
 
 from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
-acc.addConfig( EgammaCaloMod, flags, sequence="hltStep_1" )
+accECM,seqECM=EgammaCaloMod(flags)
+
+acc.merge(accECM)
+acc.addSequence(seqECM, parentName="hltStep_1" )
 
 # adding calo requires  more infrastructure than we actually have
 #from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod

@@ -15,7 +15,7 @@
 class MioctTopoCellGeometry {
    public:
       MioctTopoCellGeometry();
-      ~MioctTopoCellGeometry();
+      virtual ~MioctTopoCellGeometry();
      
       // getters
     float        eta()     const{ return m_eta; };

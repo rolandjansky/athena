@@ -4,7 +4,7 @@
 #include <map>
 #include "GaudiKernel/Property.h"
 #include "TrigL2ElectronHypoAlgMT.h"
-
+#include "AthViews/ViewHelper.h"
 
 
 using TrigCompositeUtils::DecisionContainer;
@@ -58,8 +58,10 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
   std::map<const xAOD::TrigEMCluster*, size_t> clusterToIndexMap;
   size_t clusterCounter = 0;
   for ( auto previousDecision : *previousDecisionsHandle){
-    ElementLink<xAOD::TrigEMClusterContainer> clusterLink;
-    recursivelyFindFeature(previousDecision, clusterLink);
+    TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer> linkInfo = 
+      TrigCompositeUtils::findLink<xAOD::TrigEMClusterContainer>(previousDecision, "feature");
+    ElementLink<xAOD::TrigEMClusterContainer> clusterLink = linkInfo.link;
+
     ATH_CHECK( clusterLink.isValid() );    
     const xAOD::TrigEMCluster* cluster = *clusterLink;
     clusterToIndexMap.insert( std::make_pair( cluster, clusterCounter ) );
@@ -74,19 +76,16 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
       // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     CHECK( viewEL.isValid() );
-    const SG::View* view_const = *viewEL;
-    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
 
     // get electron from that view:
     size_t electronCounter = 0;
-    auto electronsHandle = SG::makeHandle( m_electronsKey, context );  
-    CHECK( electronsHandle.setProxyDict( view ) );
-    CHECK( electronsHandle.isValid() );
+    auto electronsHandle = ViewHelper::makeHandle( *viewEL, m_electronsKey, context );
+    ATH_CHECK( electronsHandle.isValid() );
     ATH_MSG_DEBUG ( "electron handle size: " << electronsHandle->size() << "..." );
 
     for ( auto electronIter = electronsHandle->begin(); electronIter != electronsHandle->end(); ++electronIter, electronCounter++ ) {
       auto d = newDecisionIn( decisions.get() );
-      d->setObjectLink( "feature", ElementLink<xAOD::TrigElectronContainer>( view->name()+"_"+m_electronsKey.key(), electronCounter ) );
+      d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigElectronContainer>( *viewEL, electronsHandle, electronCounter ) );
       
       auto clusterPtr = (*electronIter)->emCluster();
       CHECK( clusterPtr != nullptr );
@@ -132,18 +131,6 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
   return StatusCode::SUCCESS;
 }
 
-bool TrigL2ElectronHypoAlgMT::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const{
-    //recursively find in the seeds
-    if ( start->hasObjectLink( "feature" ) ) {
-      clusterlink=start->objectLink<xAOD::TrigEMClusterContainer>( "feature" );
-      return true;
-    }
-    if  (TrigCompositeUtils::hasLinkToPrevious(start) ){
-      auto thelinkToPrevious =TrigCompositeUtils::linkToPrevious( start);      
-      return recursivelyFindFeature( *thelinkToPrevious, clusterlink);
-    }
-    return false;
-  }
 
 
 

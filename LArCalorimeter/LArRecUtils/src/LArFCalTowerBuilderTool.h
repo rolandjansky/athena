@@ -18,12 +18,11 @@
 
 */
 
-#include "LArRecUtils/LArFCalTowerStore.h"
+#include "LArFCalTowerStore.h"
 #include "CaloUtils/CaloTowerBuilderToolBase.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include <list>
 
 class LArFCalTowerStore;
 
@@ -48,7 +47,19 @@ class LArFCalTowerBuilderTool : public CaloTowerBuilderToolBase
 
   virtual StatusCode execute(CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
-                             const CaloTowerSeg::SubSeg* subseg = 0) override;
+                             const CaloTowerSeg::SubSeg* subseg = 0) const override;
+
+
+  /**
+   * @brief Run tower building and add results to the tower container.
+   * @param theContainer The tower container to fill.
+   *
+   * If the segmentation hasn't been set, take it from the tower container.
+   * This is for use by converters.
+   */
+  virtual StatusCode execute (CaloTowerContainer* theContainer) override;
+
+
   virtual void handle(const Incident&) override;
 
 private:
@@ -61,21 +72,26 @@ private:
 
   void addTower (const tower_iterator& t,
                  const CaloCellContainer* cells,
-                 CaloTower* tower);
+                 CaloTower* tower) const;
   void iterateFull (CaloTowerContainer* towers,
-                    const CaloCellContainer* cells);
+                    const CaloCellContainer* cells) const;
   void iterateSubSeg (CaloTowerContainer* towers,
                       const CaloCellContainer* cells,
-                      const CaloTowerSeg::SubSeg* subseg);
+                      const CaloTowerSeg::SubSeg* subseg) const;
+
+
+  /**
+   * @brief Rebuild the cell lookup table.
+   */
+  StatusCode rebuildLookup();
+
 
   /**
    * @brief Mark that cached data are invalid.
    *
    * Called when calibrations are updated.
    */
-  virtual void invalidateCache() override;
-
-  bool m_cacheValid;
+  virtual StatusCode invalidateCache() override;
 
   // FCal only
   static CaloCell_ID::SUBCALO m_caloIndex;

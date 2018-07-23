@@ -674,34 +674,6 @@ uint64_t crc64 (const CRCTable& table,
 }
 
 
-/**
- * @brief Find the CRC-64 of a string, using a vectorized algorithm,
- *        with the default CRC.
- * @param table Precomputed CRC tables and constants.
- * @param data Pointer to the string to hash.
- * @param data_len Length of the string to hash, in bytes.
- */
-__attribute__ ((target ("pclmul")))
-uint64_t crc64 (const char* data,
-                size_t data_len)
-{
-  return crc64 (defaultCRCTable, data, data_len);
-}
-
-
-/**
- * @brief Find the CRC-64 of a string, using the default polynomial.
- * @param str The string to hash.
- *
- * This is the vectorized implementation, used on platforms with pclmul.
- */
-__attribute__ ((target ("pclmul")))
-uint64_t crc64 (const std::string& s)
-{
-  return crc64 (defaultCRCTable, s.data(), s.size());
-}
-
-
 #endif // ATH_CRC64_VEC
 
 
@@ -728,12 +700,7 @@ uint64_t crc64 (const CRCTable& table,
  * @brief Find the CRC-64 of a string, with the default CRC.
  * @param data Pointer to the string to hash.
  * @param data_len Length of the string to hash, in bytes.
- *
- * This is the default implementation, used on platforms without pclmul.
  */
-#if ATH_CRC64_VEC
-__attribute__ ((target ("default")))
-#endif
 uint64_t crc64 (const char* data,
                 size_t data_len)
 {
@@ -744,12 +711,7 @@ uint64_t crc64 (const char* data,
 /**
  * @brief Find the CRC-64 of a string, using the default polynomial.
  * @param str The string to hash.
- *
- * This is the default implementation, used on platforms without pclmul.
  */
-#if ATH_CRC64_VEC
-__attribute__ ((target ("default")))
-#endif
 uint64_t crc64 (const std::string& s)
 {
   return crc64 (defaultCRCTable, s.data(), s.size());

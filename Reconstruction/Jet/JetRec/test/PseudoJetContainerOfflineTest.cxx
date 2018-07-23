@@ -18,6 +18,9 @@
 #include <iostream>
 #include <sstream>
 
+#include "./testHelpers.h"
+
+
 using ::testing::Return;
 using ::testing::_;
 using ::testing::SetArgReferee;
@@ -29,9 +32,6 @@ using xAOD::IParticle;
 using xAOD::JetContainer;
 using xAOD::Jet;
 using xAOD::JetFourMom_t;
-
-
-#include "./testHelpers.h"
 
 
 class PseudoJetContainerOfflineTest: public ::testing::Test {

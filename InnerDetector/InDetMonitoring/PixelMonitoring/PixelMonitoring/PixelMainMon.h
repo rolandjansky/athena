@@ -6,8 +6,8 @@
 #define PIXMAINMON_H_
 
 #include <stdint.h>
-#include <string.h>
-#include <time.h>
+#include <string>
+#include <ctime>
 #include <map>
 #include <vector>
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -398,8 +398,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile* m_hiteff_lastXlb_mod[PixLayer::COUNT];
   
   // npixhits/track/lumi
-  TH2F_LW* m_npixhits_per_track_lumi;
-  TH2F* m_npixhits_per_track_lastXlb;
+  TH2F_LW* m_npixhits_per_track_lumi{};
+  TH2F* m_npixhits_per_track_lastXlb{};
 
   // cluster size
   TH1F_LW* m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
@@ -478,8 +478,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_bitstr_occ_errors;
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_bitstr_occ_tot;
-  TProfile_LW* m_errhist_bitstr_occ_errors_avg[PixLayerIBL2D3D::COUNT];
-  TProfile_LW* m_errhist_bitstr_occ_tot_avg[PixLayerIBL2D3D::COUNT];
+  TProfile_LW* m_errhist_bitstr_occ_errors_avg[PixLayerIBL2D3D::COUNT]{};
+  TProfile_LW* m_errhist_bitstr_occ_tot_avg[PixLayerIBL2D3D::COUNT] {};
 
   // Histograms in 'ErrorsExpert' folder
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
@@ -580,7 +580,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile2D_LW* m_hist_LB_staveID_thermalFigureMerit;
 
   std::vector<std::string> m_atrcollist;
-  int m_currentLumiBlockNumber;
+  int m_currentLumiBlockNumber{};
 
   class dcsDataHolder {
    public:

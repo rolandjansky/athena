@@ -14,13 +14,16 @@
 #include "AthenaKernel/CondCont.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/random.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/Service.h"
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
 #include <cassert>
 #include <iostream>
+#include <atomic>
 
 
 namespace SG {
@@ -53,6 +56,46 @@ public:
 
   Athena::IRCUObject* m_removed = nullptr;
 };
+
+
+class ConditionsCleanerTest
+  : public extends<Service, Athena::IConditionsCleanerSvc>
+{
+public:
+  ConditionsCleanerTest (const std::string& name,
+                         ISvcLocator* svcloc)
+    : base_class (name, svcloc)
+  {}
+  virtual StatusCode event (const EventContext& ctx,
+                            bool allowAsync) override;
+  virtual StatusCode condObjAdded (const EventContext& ctx,
+                                   CondContBase& cc) override;
+
+  virtual StatusCode printStats() const override
+  { std::abort(); }
+
+  static std::atomic<int> s_nobj;
+};
+
+std::atomic<int> ConditionsCleanerTest::s_nobj;
+
+
+StatusCode ConditionsCleanerTest::event (const EventContext& /*ctx*/,
+                                         bool /*allowAsync*/)
+{
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode ConditionsCleanerTest::condObjAdded (const EventContext& /*ctx*/,
+                                                CondContBase& /*cc*/)
+{
+  ++s_nobj;
+  return StatusCode::SUCCESS;
+}
+
+
+DECLARE_COMPONENT( ConditionsCleanerTest )
 
 
 class B
@@ -111,6 +154,7 @@ const EventIDRange r3 (timestamp (123), timestamp (456));
 template <class T>
 void fillit (CondCont<T>& cc, std::vector<T*> & ptrs)
 {
+  int nsave = ConditionsCleanerTest::s_nobj;
   assert (cc.entries() == 0);
   assert (cc.entriesTimestamp() == 0);
   assert (cc.entriesRunLBN() == 0);
@@ -156,6 +200,7 @@ RE: [0]\n");
 
   auto t4 = std::make_unique<T> (4);
   assert( ! cc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(t4)).isSuccess() );
+  assert (ConditionsCleanerTest::s_nobj - nsave == 3);
 }
 
 
@@ -465,8 +510,10 @@ void test3 (TestRCUSvc& rcusvc)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
+  CondContBase::setCleanerSvcName ("ConditionsCleanerTest");
+
   // Verify that B is indeed offset in D, so we get to test a nontrivial conversion.
   {
     D d(0);

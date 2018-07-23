@@ -234,6 +234,14 @@ FillAlignTrkInfo = FillAlignTrkInfo ( name = 'FillAlignTrkInfo',
 ToolSvc += FillAlignTrkInfo
 print      FillAlignTrkInfo
 
+from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
+InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
+                                                   TRTCalDbTool=TRTCalibDBSvc,
+                                                   IsMC=(globalflags.DataSource == 'geant4'))
+
+ToolSvc += InDetTRT_DriftFunctionTool
+print InDetTRT_DriftFunctionTool
+
 from TRT_CalibTools.TRT_CalibToolsConf import FillAlignTRTHits 
 FillAlignTRTHits = FillAlignTRTHits (   name = 'FillAlignTRTHits',
                                         minTimebinsOverThreshold=0, 

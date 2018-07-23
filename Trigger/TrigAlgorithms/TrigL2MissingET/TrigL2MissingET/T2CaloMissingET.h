@@ -29,12 +29,13 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArReadoutModuleService.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "TrigT2CaloCommon/ITrigDataAccess.h"
+#include "TrigTimeAlgs/ITrigTimerSvc.h"
 
 #include "xAODTrigMissingET/TrigMissingET.h"
 
 #include <vector>
 
-class ITrigDataAccess;
 class MsgStream;
 class TrigTimerSvc;
 

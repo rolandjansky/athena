@@ -95,15 +95,15 @@ namespace InDet {
     int                     m_nZvtx;        // Number z vertices
     int                     m_nDetElPixel;  //Number of pixel det elements
     int                     m_nDetElSCT;    //Number of SCT det elements
-    int                     m_nBadSeeds;    // number of bad seeds found
-    int                     m_nGoodSeeds;    // number of good seeds found
+    int                     m_nBadSeeds{};    // number of bad seeds found
+    int                     m_nGoodSeeds{};    // number of good seeds found
     int                     m_nfreeCut;     // Min number free clusters
     double                  m_AvtimeGoodSeeds; //average processing time for good seeds
     double                  m_AvtimeBadSeeds; //average processing time for bad seeds
     double                  m_timeGoodSeeds; //processing time for good seeds
     double                  m_timeBadSeeds; //processing time for bad seeds
-    double                  m_timeGoodSeedsTotal; //processing time for good seeds
-    double                  m_timeBadSeedsTotal; //processing time for bad seeds
+    double                  m_timeGoodSeedsTotal{}; //processing time for good seeds
+    double                  m_timeBadSeedsTotal{}; //processing time for bad seeds
     double                  m_RoIEta;      
     double                  m_RoIPhi;
 

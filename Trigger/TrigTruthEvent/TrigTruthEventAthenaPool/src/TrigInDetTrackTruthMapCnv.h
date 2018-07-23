@@ -42,13 +42,11 @@ class TrigInDetTrackTruthMapCnv : public TrigInDetTrackTruthMapCnvBase
 
   virtual StatusCode initialize();
 
- protected:
-
 public:
   TrigInDetTrackTruthMapCnv(ISvcLocator* svcloc);
-protected:
   ~TrigInDetTrackTruthMapCnv();
 
+protected:
   virtual TrigInDetTrackTruthMap_PERS*  createPersistent(TrigInDetTrackTruthMap* transObj);
   virtual TrigInDetTrackTruthMap*       createTransient ();
 

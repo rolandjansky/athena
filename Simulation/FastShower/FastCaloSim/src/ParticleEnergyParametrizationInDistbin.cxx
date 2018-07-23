@@ -12,6 +12,11 @@ ParticleEnergyParametrizationInDistbin::ParticleEnergyParametrizationInDistbin()
   for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) m_ElayerProp[i]=0;
 }
 
+ParticleEnergyParametrizationInDistbin::~ParticleEnergyParametrizationInDistbin()
+{
+  for(auto &el : m_ElayerProp) delete el;
+}
+
 void ParticleEnergyParametrizationInDistbin::SetNoDirectoryHisto()
 {
   for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) if(m_ElayerProp[i]) {

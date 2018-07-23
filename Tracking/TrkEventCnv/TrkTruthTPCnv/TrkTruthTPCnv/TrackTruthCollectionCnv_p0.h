@@ -11,11 +11,12 @@
 #define TRACKTRUTHCOLLECTIONCNV_P0_H 
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
+#include "TrkTruthTPCnv/TrackTruthCollection_p0.h"
 
 class StoreGateSvc;
 class MsgStream;
 class TrackTruthCollection;
-class TrackTruthVector;
+// class TrackTruthVector;
 
 namespace Trk {
   typedef TrackTruthVector  TrackTruthCollection_p0;

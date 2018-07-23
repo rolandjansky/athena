@@ -31,6 +31,8 @@
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"  
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
+
 #include <deque>
 
 class FastSCT_Clusterization;
@@ -63,6 +65,7 @@ public:
   IdContext m_cntx_sct; 
   FastSCT_Clusterization* m_pClusterization;
   ISCT_CablingSvc* m_cablingSvc;
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 };
 
 #endif

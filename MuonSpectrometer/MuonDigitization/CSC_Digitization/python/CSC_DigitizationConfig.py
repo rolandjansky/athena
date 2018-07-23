@@ -53,3 +53,11 @@ def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
         kwargs.setdefault("IncludePileUpTruth", False)
 
     return CfgMgr.CscDigitizationTool(name, **kwargs)
+
+def Csc_OverlayDigitizationTool(name="Csc_OverlayDigitizationTool",**kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+CSC_DIGITS")
+    if not overlayFlags.isDataOverlay():
+        kwargs.setdefault("CSCSimDataCollectionOutputName",overlayFlags.evtStore()+"+CSC_SDO")
+    return CscDigitizationTool(name,**kwargs)

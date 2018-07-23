@@ -7,9 +7,8 @@ atlas_subdir( TrkRoad )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           PRIVATE
@@ -25,6 +24,6 @@ atlas_add_library( TrkRoad
                    PUBLIC_HEADERS TrkRoad
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} DataModel SGTools GeoPrimitives EventPrimitives
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers GeoPrimitives EventPrimitives
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 

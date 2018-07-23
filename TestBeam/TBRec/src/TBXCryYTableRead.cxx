@@ -4,15 +4,9 @@
 
 // class TBXCryYTableRead 
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
+#include "TBXCryYTableRead.h"
 #include "PathResolver/PathResolver.h"
-#include "StoreGate/StoreGate.h" 
 #include "TBEvent/TBEventInfo.h"
-#include "TBRec/TBXCryYTableRead.h"
 #include <fstream>
 
 TBXCryYTableRead::TBXCryYTableRead(const std::string& name, 
