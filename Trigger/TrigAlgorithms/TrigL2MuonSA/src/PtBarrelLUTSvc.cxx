@@ -15,8 +15,6 @@ TrigL2MuonSA::PtBarrelLUTSvc::PtBarrelLUTSvc(const std::string& name,ISvcLocator
   AthService(name,sl),
   m_ptBarrelLUT("TrigL2MuonSA::PtBarrelLUT")
 {
-  declareProperty( "LUTfile", m_lut_fileName="pt_barrel.lut" );
-  declareProperty( "SP_LUTfile", m_lutSP_fileName="pt_barrelSP_new.lut" );
 }
 
 // --------------------------------------------------------------------------------

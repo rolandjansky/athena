@@ -14,10 +14,6 @@
 class StoreGateSvc;
 class SCT_ID;
 
-namespace InDetDD {
-   class SCT_DetectorManager;
-}
-
 #include "SCT_ClusterContainerCnv_p0.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_tlp1.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p3.h"

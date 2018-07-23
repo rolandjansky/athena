@@ -45,6 +45,7 @@ LArSCHitFillerTool::LArSCHitFillerTool
      const IInterface* parent)
       : BlockFillerTool<LArHitContainer> (type, name, parent), 
         m_larCablingSvc("LArCablingService"),
+        m_dd_fSampl (nullptr),
 	m_caloEtaSelection( false ),
 	m_caloPhiSelection( false ),
 	m_caloLayerSelection( false ),

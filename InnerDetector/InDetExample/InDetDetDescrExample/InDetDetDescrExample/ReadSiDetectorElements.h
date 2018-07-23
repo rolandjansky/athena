@@ -10,8 +10,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "InDetReadoutGeometry/SiCellId.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "SiPropertiesSvc/ISiPropertiesTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 
@@ -41,11 +43,12 @@ public:
   StatusCode finalize();
 
   void testElement(const Identifier & id, 
-       const std::vector<InDetDD::SiCellId> & cellIdVec, 
-       const std::vector<Amg::Vector2D> & positionsVec) const;
+                   const std::vector<InDetDD::SiCellId> & cellIdVec,
+                   const std::vector<Amg::Vector2D> & positionsVec,
+                   const InDetDD::SiDetectorElementCollection* elements=nullptr) const;
   std::string printElementId(const InDetDD::SiDetectorElement * element) const;
-  void printAllElements();
-  void printRandomAccess();
+  void printAllElements(const bool accessDuringInitialization);
+  void printRandomAccess(const bool accessDuringInitialization);
 
  private:
   // Job properties
@@ -60,6 +63,8 @@ public:
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Silicon conditions tool"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Silicon properties tool"};
   ToolHandle<ISiLorentzAngleTool> m_siLorentzAngleTool{this, "SiLorentzAngleTool", "SiLorentzAngleTool", "Silicon Lorentz anglet tool"};
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey{this, "DetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection"};
 
   // Other
   const InDetDD::SiDetectorManager * m_manager;

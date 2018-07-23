@@ -98,7 +98,7 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
    ATH_MSG_DEBUG("In connectOutput");
 
    // Get the EventInfo obj for run/event number
-   const DataHandle<EventInfo> d;
+   const EventInfo* d = nullptr;
    StoreGate::instance().retrieve(d);
    if (d == 0) {
       ATH_MSG_ERROR("Cannot retrieve EventInfo");
@@ -135,7 +135,7 @@ StatusCode ByteStreamCnvSvc::commitOutput(const std::string& outputConnection, b
    writeFEA();
 
    // Get the EventInfo obj for trigger info
-   const DataHandle<EventInfo> evt;
+   const EventInfo* evt = nullptr;
    StoreGate::instance().retrieve(evt);
    if (evt == 0) {
       ATH_MSG_ERROR("Cannot retrieve EventInfo");

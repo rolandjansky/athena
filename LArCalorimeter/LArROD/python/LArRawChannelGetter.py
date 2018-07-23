@@ -130,7 +130,7 @@ class LArRawChannelGetter ( Configured )  :
                 # main method from database
                 from LArROD.LArRODConf import LArRawChannelBuilderPedestalDataBase
                 theLArRawChannelBuilderPedestalDataBase=LArRawChannelBuilderPedestalDataBase()
-                theLArRawChannelBuilderPedestalDataBase.LArPedestalKey = "Pedestal"
+                theLArRawChannelBuilderPedestalDataBase.LArPedestalKey = "LArPedestal"
                 theLArRawChannelBuilder.PedestalTools  = [theLArRawChannelBuilderPedestalDataBase]
                 theLArRawChannelBuilder += theLArRawChannelBuilderPedestalDataBase 
                 

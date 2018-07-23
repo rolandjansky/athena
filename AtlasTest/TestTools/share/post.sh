@@ -1,4 +1,7 @@
 #!/bin/sh
+#
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available).
@@ -6,10 +9,33 @@
 #
 # @author Scott Snyder <snyder@fnal.gov> - ATLAS Collaboration.
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
-# $Id: post.sh,v 1.23 2007-11-10 00:00:07 calaf Exp $
 # **/
+
+usage() {
+    cat <<EOF
+Syntax: post.sh TESTNAME [EXTRAPATTERNS] [-s PATTERNS]
+    TESTNAME       name of unit test
+    EXTRAPATTERNS  additional regex patterns to exlude in diff
+    -s             use PATTERNS to select lines for diff
+EOF
+}
+
+if [ "$#" -lt 1 ]; then
+    usage
+    exit 1
+fi
+
 test=$1
-extrapatterns="$2"
+
+# When used from cmake $2 and $3 will arrive as a single quoted argument, i.e. $2.
+# Concatenate them here so the same code works also from the command line.
+pat="$2 $3"
+if [[ "$pat" = "-s "* ]]; then
+    selectpatterns=`echo "$pat" | sed 's/-s\s*//'`
+else
+    extrapatterns="$pat"
+fi
+
 #verbose="1"
 if [ "$POST_SH_NOCOLOR" = "" ]; then
  GREEN="[92;1m"
@@ -223,16 +249,22 @@ else
            fi
        fi
 
-       if [ -r $reflog ]
-           then
-	   jobrep=${joblog}-rep
-	   sed -r "$II" $joblog > $jobrep
-	   refrep=`basename ${reflog}`-rep
-	   sed -r "$II" $reflog > $refrep
+       if [ -r $reflog ]; then
+	       jobrep=${joblog}-rep
+	       sed -r "$II" $joblog > $jobrep
+	       refrep=`basename ${reflog}`-rep
+	       sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
-           egrep -a -v "$PP" < $jobrep > $jobdiff
-           egrep -a -v "$PP" < $refrep > $refdiff
+
+           # We either exclude or select lines for the diff
+           if [ -z "$selectpatterns" ]; then
+               egrep -a -v "$PP" < $jobrep > $jobdiff
+               egrep -a -v "$PP" < $refrep > $refdiff
+           else
+               egrep -a "$selectpatterns" < $jobrep > $jobdiff
+               egrep -a "$selectpatterns" < $refrep > $refdiff
+           fi
            diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
@@ -241,7 +273,7 @@ else
                exit 1
            else
                if [ "$verbose" != "" ]; then
-                 echo "$GREEN post.sh> OK: $joblog and $reflog identical $RESET"
+                   echo "$GREEN post.sh> OK: $joblog and $reflog identical $RESET"
                fi
            fi
        else

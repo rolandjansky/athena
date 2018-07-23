@@ -14,6 +14,8 @@
 #include "G4ChordFinder.hh"
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
+#include "G4Version.hh"
+#include "G4MagIntegratorDriver.hh"
 
 //-----------------------------------------------------------------------------
 // Tool constructor
@@ -67,7 +69,16 @@ StatusCode DetectorFieldManagerTool::initializeField()
 
     // Construct the stepper
     auto stepper = getStepper(m_integratorStepper, field);
-    fieldMgr->GetChordFinder()->GetIntegrationDriver()->RenewStepperAndAdjust(stepper);
+
+    G4MagInt_Driver* magDriver = nullptr;
+
+#if G4VERSION_NUMBER < 1040
+    magDriver = fieldMgr->GetChordFinder()->GetIntegrationDriver();
+#else
+    magDriver = static_cast<G4MagInt_Driver*>(fieldMgr->GetChordFinder()->GetIntegrationDriver());
+#endif
+
+    magDriver->RenewStepperAndAdjust(stepper);
 
     // Assign the field manager to volumes
     auto logVolStore = G4LogicalVolumeStore::GetInstance();
