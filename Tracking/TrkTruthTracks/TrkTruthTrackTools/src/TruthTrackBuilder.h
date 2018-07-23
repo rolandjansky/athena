@@ -13,10 +13,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/IPartPropSvc.h"
 // Trk includes
 #include "TrkTruthTrackInterfaces/ITruthTrackBuilder.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
-class IPartPropSvc;
 class AtlasDetectorID;
 
 namespace HepPDT{
@@ -26,9 +29,6 @@ namespace HepPDT{
 namespace Trk {
  
   class Track;
-  class ITrackFitter;
-  class IExtrapolator;
-  class IRIO_OnTrackCreator;
    
   /**
    @class ITruthTrackBuilder

@@ -33,8 +33,6 @@ public:
      {}
   
 protected:
-
-  ~CMXJetHitsCollectionCnv() {}
   
   virtual CMXJetHitsCollection_PERS*   createPersistent (CMXJetHitsCollection* transCont);
   virtual CMXJetHitsCollection*        createTransient ();

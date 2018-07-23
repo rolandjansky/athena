@@ -22,6 +22,8 @@
 
 #include "PixelConditionsTools/IPixelDCSConditionsTool.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "PixelConditionsServices/IPixelCalibSvc.h"
 
 #include <string>
 
@@ -30,8 +32,6 @@ class SiHit;
 class InDetSimDataCollection;
 
 class IdentifierHash;
-class IPixelCalibSvc;
-class IPixelByteStreamErrorsSvc;
 
 namespace InDet
 {

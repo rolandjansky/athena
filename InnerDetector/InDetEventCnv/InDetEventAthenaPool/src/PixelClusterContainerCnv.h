@@ -50,7 +50,6 @@ protected:
 public:
   PixelClusterContainerCnv (ISvcLocator* svcloc);
 protected:
-  ~PixelClusterContainerCnv();
   virtual PixelClusterContainer_PERS*   createPersistent (InDet::PixelClusterContainer* transCont);
   virtual InDet::PixelClusterContainer* createTransient ();
 

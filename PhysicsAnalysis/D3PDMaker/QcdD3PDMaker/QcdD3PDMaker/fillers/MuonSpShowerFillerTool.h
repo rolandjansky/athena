@@ -17,10 +17,7 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "StoreGate/StoreGateSvc.h"
-
-namespace Rec{
-class MuonSpShower;
-}
+#include "muonEvent/MuonSpShower.h"
 
 namespace QcdD3PD {
 

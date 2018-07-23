@@ -64,9 +64,6 @@ StatusCode UserAnalysisOverlapCheckingTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-//------------------------------------------------------------------------------
-UserAnalysisOverlapCheckingTool::~UserAnalysisOverlapCheckingTool()
-{}
 
 
 

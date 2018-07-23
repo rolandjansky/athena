@@ -15,8 +15,8 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
-
-class IPixelByteStreamErrorsSvc;
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
 namespace InDetDD
 {

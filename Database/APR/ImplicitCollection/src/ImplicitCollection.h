@@ -26,7 +26,7 @@ namespace pool {
   class ImplicitCollection : virtual public ICollection
   {
   public:
-    typedef Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;  
+    typedef Gaudi::PluginService::Factory<ICollection*( const ICollectionDescription*, ICollection::OpenMode, ISession*)> Factory;  
 
     /** Constructor - old style
        Throws POOL exception.

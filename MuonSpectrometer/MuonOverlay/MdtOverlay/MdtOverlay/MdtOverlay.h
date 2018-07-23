@@ -23,9 +23,9 @@
 
 #include "MuonOverlayBase/MuonOverlayBase.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
+#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 class MdtIdHelper;
-class IMuonDigitizationTool;
 
 
 class MdtOverlay : public MuonOverlayBase  {

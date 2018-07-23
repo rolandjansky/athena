@@ -16,6 +16,9 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
+#include "InDetCondServices/ISiLorentzAngleSvc.h"
+#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 
 #include <vector>
 

@@ -76,7 +76,5 @@ StatusCode HeavyIonPhysTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-HeavyIonPhysTagTool::~HeavyIonPhysTagTool() {}
 
 

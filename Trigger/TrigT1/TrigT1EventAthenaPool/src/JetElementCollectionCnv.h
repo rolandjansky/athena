@@ -33,9 +33,7 @@ public:
      {}
 
 protected:
-  
-  ~JetElementCollectionCnv() {}
-  
+
   virtual JetElementCollection_PERS*   createPersistent (JetElementCollection* transCont);
   virtual JetElementCollection*        createTransient ();
 

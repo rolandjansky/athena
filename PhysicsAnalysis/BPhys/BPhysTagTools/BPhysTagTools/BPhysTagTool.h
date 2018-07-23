@@ -39,10 +39,6 @@ public:
   virtual StatusCode execute(TagFragmentCollection&, const int);
   virtual StatusCode finalize();
 
-protected:
-
-  // Standard destructor
-  virtual ~BPhysTagTool();
 
 };
 

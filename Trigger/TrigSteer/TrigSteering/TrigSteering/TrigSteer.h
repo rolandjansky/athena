@@ -31,6 +31,7 @@
 #include "TrigTimeAlgs/CookTimer.h"
 
 #include "TrigConfHLTData/HLTSequence.h"
+#include "TrigNavigation/Navigation.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"

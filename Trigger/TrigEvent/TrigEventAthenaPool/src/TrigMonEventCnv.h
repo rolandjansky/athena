@@ -23,9 +23,9 @@ class TrigMonEventCnv : public T_AthenaPoolCustomCnv<TrigMonEvent, TrigMonEvent_
   
 public:
   TrigMonEventCnv(ISvcLocator* svcloc);
-protected:
   virtual ~TrigMonEventCnv();
 
+protected:
   TrigMonEvent_PERS*  createPersistent(TrigMonEvent* transObj);  
   TrigMonEvent*       createTransient ();
 

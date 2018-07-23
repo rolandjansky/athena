@@ -40,11 +40,6 @@ public:
   virtual StatusCode execute(TagFragmentCollection& tauIdTagCol, const int max);
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~TauIdentificationTagTool( );
-
 private:
 
   /** Properties */

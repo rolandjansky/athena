@@ -20,6 +20,9 @@
 #include "InDetSimEvent/SiHitCollection.h" // cannot fwd declare
 #include "InDetPrepRawData/PixelClusterContainer.h" //typedef, cannot fwd declare
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h" //typedef, cannot fwd declare
+#include "SiClusterizationTool/ClusterMakerTool.h"
+#include "PileUpTools/PileUpMergeSvc.h"
+
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -44,7 +47,6 @@ namespace InDetDD{
 namespace CLHEP {class HepRandomEngine;}
 
 namespace InDet {
-  class ClusterMakerTool;
   class PixelCluster;
   class PixelGangedAmbiguitiesFinder;
 }

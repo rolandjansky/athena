@@ -13,6 +13,7 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 
 #include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
 #include "Identifier/IdContext.h" 
@@ -23,7 +24,6 @@
 
 class FastSCT_Clusterization;
 class ISCT_CablingSvc;
-class ISCT_RodDecoder;
 class TrigTimer;
 
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ;
