@@ -323,8 +323,8 @@ void ByteStreamEventStorageOutputSvc::checkForUserMetadata(EventStorage::freeMet
 
    ServiceHandle<StoreGateSvc> ds("DetectorStore", name());
    if (ds.retrieve().isSuccess()) {
-      const DataHandle<ByteStream::FreeMetadata> userfmdF;
-      const DataHandle<ByteStream::FreeMetadata> userfmdL;
+      SG::ConstIterator<ByteStream::FreeMetadata> userfmdF;
+      SG::ConstIterator<ByteStream::FreeMetadata> userfmdL;
       StatusCode sc = ds->retrieve( userfmdF, userfmdL);
       if (sc.isSuccess() && userfmdF != userfmdL) {
          ATH_MSG_DEBUG("Found ByteStreamUserMetadata in DetectorStore");

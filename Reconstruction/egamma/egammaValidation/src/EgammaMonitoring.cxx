@@ -57,7 +57,6 @@ StatusCode EgammaMonitoring :: initialize ()
 
     evtNmb->SetBins(2000, 85000, 87000);
 
-    ssp_fe.initializePlots();
     ep_a.initializePlots(); ep_L.initializePlots(); ep_M.initializePlots(); ep_T.initializePlots();
     
     CHECK(rootHistSvc->regHist("/MONITORING/All/pT_prtcl" , ep_a.pT_prtcl ));
@@ -80,17 +79,6 @@ StatusCode EgammaMonitoring :: initialize ()
     CHECK(rootHistSvc->regHist("/MONITORING/TLH/phi_prtcl", ep_T.phi_prtcl));
     CHECK(rootHistSvc->regHist("/MONITORING/TLH/TrkToEl"  , ep_T.TrkToEl  ));
     
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/hadleak", ssp_fe.hadleak));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/reta"   , ssp_fe.reta   ));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/rphi"   , ssp_fe.rphi   ));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/weta2"  , ssp_fe.weta2  ));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/eratio" , ssp_fe.eratio ));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/deltae" , ssp_fe.deltae ));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/f1"     , ssp_fe.f1     ));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/fside"  , ssp_fe.fside  ));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/wtots1" , ssp_fe.wtots1 ));
-    CHECK(rootHistSvc->regHist("/MONITORING/FrwdEl_ShowerShapes/ws3"    , ssp_fe.ws3    ));
-
     CHECK(rootHistSvc->regHist("/MONITORING/Eff_ID/LLH_pT_Eff", Eff_ID.LLH_pT_Eff));
     CHECK(rootHistSvc->regHist("/MONITORING/Eff_ID/MLH_pT_Eff", Eff_ID.MLH_pT_Eff));
     CHECK(rootHistSvc->regHist("/MONITORING/Eff_ID/TLH_pT_Eff", Eff_ID.TLH_pT_Eff));
@@ -113,7 +101,7 @@ StatusCode EgammaMonitoring :: initialize ()
     
     pp_truthConvPhoton.initializePlots(); pp_truthConvRecoConv.initializePlots(); pp_truthConvRecoConv1Si.initializePlots(); pp_truthConvRecoConv1TRT.initializePlots(); pp_truthConvRecoConv2Si.initializePlots(); pp_truthConvRecoConv2TRT.initializePlots(); pp_truthConvRecoConv2SiTRT.initializePlots(); pp_truthConvRecoUnconv.initializePlots(); 
 
-    pp_truthUnconvPhoton.initializePlots(); pp_truthUnconvRecoConv.initializePlots(); pp_truthUnconvRecoConv1Si.initializePlots(); pp_truthUnconvRecoConv1TRT.initializePlots(); pp_truthUnconvRecoConv2Si.initializePlots(); pp_truthUnconvRecoConv2TRT.initializePlots(); pp_truthUnconvRecoConv2SiTRT.initializePlots(); pp_truthUnconvRecoUnconv.initializePlots();
+    pp_truthUnconvPhoton.initializePlots(); pp_truthUnconvRecoConv.initializePlots(); pp_truthUnconvRecoUnconv.initializePlots();
 
     Eff_Reco.initializePlots();
 
@@ -183,40 +171,6 @@ StatusCode EgammaMonitoring :: initialize ()
     CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv/convRadius", pp_truthUnconvRecoConv.convRadius));
     CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv/mu"        , pp_truthUnconvRecoConv.mu));
 
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1Si/pT_prtcl"  , pp_truthUnconvRecoConv1Si.pT_prtcl  ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1Si/eta_prtcl" , pp_truthUnconvRecoConv1Si.eta_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1Si/phi_prtcl" , pp_truthUnconvRecoConv1Si.phi_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1Si/convRadius", pp_truthUnconvRecoConv1Si.convRadius));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1Si/mu"        , pp_truthUnconvRecoConv1Si.mu));
-
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1TRT/pT_prtcl"  , pp_truthUnconvRecoConv1TRT.pT_prtcl  ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1TRT/eta_prtcl" , pp_truthUnconvRecoConv1TRT.eta_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1TRT/phi_prtcl" , pp_truthUnconvRecoConv1TRT.phi_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1TRT/convRadius", pp_truthUnconvRecoConv1TRT.convRadius));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv1TRT/mu"        , pp_truthUnconvRecoConv1TRT.mu));
-
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2Si/pT_prtcl"  , pp_truthUnconvRecoConv2Si.pT_prtcl  ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2Si/eta_prtcl" , pp_truthUnconvRecoConv2Si.eta_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2Si/phi_prtcl" , pp_truthUnconvRecoConv2Si.phi_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2Si/convRadius", pp_truthUnconvRecoConv2Si.convRadius));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2Si/mu"        , pp_truthUnconvRecoConv2Si.mu));
-
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2TRT/pT_prtcl"  , pp_truthUnconvRecoConv2TRT.pT_prtcl  ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2TRT/eta_prtcl" , pp_truthUnconvRecoConv2TRT.eta_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2TRT/phi_prtcl" , pp_truthUnconvRecoConv2TRT.phi_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2TRT/convRadius", pp_truthUnconvRecoConv2TRT.convRadius));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2TRT/mu"        , pp_truthUnconvRecoConv2TRT.mu));
-
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2SiTRT/pT_prtcl"  , pp_truthUnconvRecoConv2SiTRT.pT_prtcl  ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2SiTRT/eta_prtcl" , pp_truthUnconvRecoConv2SiTRT.eta_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2SiTRT/phi_prtcl" , pp_truthUnconvRecoConv2SiTRT.phi_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2SiTRT/convRadius", pp_truthUnconvRecoConv2SiTRT.convRadius));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoConv2SiTRT/mu"        , pp_truthUnconvRecoConv2SiTRT.mu));
-
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoUnconv/pT_prtcl"  , pp_truthUnconvRecoUnconv.pT_prtcl  ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoUnconv/eta_prtcl" , pp_truthUnconvRecoUnconv.eta_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoUnconv/phi_prtcl" , pp_truthUnconvRecoUnconv.phi_prtcl ));
-    CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoUnconv/convRadius", pp_truthUnconvRecoUnconv.convRadius));
     CHECK(rootHistSvc->regHist("/MONITORING/truthUnconvRecoUnconv/mu"        , pp_truthUnconvRecoUnconv.mu));
 
     CHECK(rootHistSvc->regHist("/MONITORING/Efficiency_Reco/tConvRConv_pT_Eff"   , Eff_Reco.tConvRConv_pT_Eff   ));
@@ -371,21 +325,6 @@ StatusCode EgammaMonitoring :: execute ()
       return StatusCode::FAILURE;
     }
 
-    // Retrieve forward electrons
-    /*
-    const xAOD::ElectronContainer* ElectronsFrwd = evtStore()->retrieve<const xAOD::ElectronContainer>("FwdElectrons");
-    if(!ElectronsFrwd ) {
-      ATH_MSG_ERROR("Failed to retrieve forward electron container. Exiting.");
-      return StatusCode::FAILURE;
-    }
-    
-    const xAOD::ElectronContainer* ElectronsFrwd = nullptr;
-    if( !evtStore()->retrieve(ElectronsFrwd, "ForwardElectrons").isSuccess()) {
-      ATH_MSG_ERROR("Failed to retrieve forward electron container. Exiting.");
-      return StatusCode::FAILURE;
-    }
-    */
-
     for(auto elrec : *RecoEl) {
 
       if(!elrec) continue;
@@ -398,15 +337,9 @@ StatusCode EgammaMonitoring :: execute ()
       
       ssp.fill(*elrec);      
       if((elrec->pt())/1000. > 10.) ssp_10cut.fill(*elrec);
-      if(xAOD::EgammaHelpers::isFwdElectron(elrec)) ssp_fe.fill(*elrec);
       
     } // RecoEl Loop
 
-    /*
-    for(auto frwdelectron : *ElectronsFrwd){
-      if(frwdelectron && frwdelectron->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) ssp_fe.fill(*frwdelectron);
-    } // ElectronsFrwd Loop
-    */
 
   } // if electron
 
@@ -470,11 +403,6 @@ StatusCode EgammaMonitoring :: execute ()
 
 	  pp_truthUnconvRecoConv.fill(*egtruth, mu);
 	  
-	  if(convType == xAOD::EgammaParameters::singleSi   ) pp_truthUnconvRecoConv1Si   .fill(*egtruth, mu);
-	  if(convType == xAOD::EgammaParameters::singleTRT  ) pp_truthUnconvRecoConv1TRT  .fill(*egtruth, mu);
-	  if(convType == xAOD::EgammaParameters::doubleSi   ) pp_truthUnconvRecoConv2Si   .fill(*egtruth, mu);
-	  if(convType == xAOD::EgammaParameters::doubleTRT  ) pp_truthUnconvRecoConv2TRT  .fill(*egtruth, mu);
-	  if(convType == xAOD::EgammaParameters::doubleSiTRT) pp_truthUnconvRecoConv2SiTRT.fill(*egtruth, mu);
 	  
 	} // isRecoConv
 	else {
@@ -554,44 +482,10 @@ StatusCode EgammaMonitoring :: finalize ()
     Eff_Reco.divide("tConvRUnconv_CR" , pp_truthConvRecoUnconv.convRadius    , pp_truthConvPhoton.convRadius);
     
     Eff_Reco.divide("tUnconvRConv_pT"   , pp_truthUnconvRecoConv.pT_prtcl      , pp_truthUnconvPhoton.pT_prtcl);
-    Eff_Reco.divide("tUnconvRC1Si_pT"   , pp_truthUnconvRecoConv1Si.pT_prtcl   , pp_truthUnconvPhoton.pT_prtcl);
-    Eff_Reco.divide("tUnconvRC1TRT_pT"  , pp_truthUnconvRecoConv1TRT.pT_prtcl  , pp_truthUnconvPhoton.pT_prtcl);
-    Eff_Reco.divide("tUnconvRC2Si_pT"   , pp_truthUnconvRecoConv2Si.pT_prtcl   , pp_truthUnconvPhoton.pT_prtcl);
-    Eff_Reco.divide("tUnconvRC2TRT_pT"  , pp_truthUnconvRecoConv2TRT.pT_prtcl  , pp_truthUnconvPhoton.pT_prtcl);
-    Eff_Reco.divide("tUnconvRC2SiTRT_pT", pp_truthUnconvRecoConv2SiTRT.pT_prtcl, pp_truthUnconvPhoton.pT_prtcl);
-    Eff_Reco.divide("tUnconvRUnconv_pT" , pp_truthUnconvRecoUnconv.pT_prtcl    , pp_truthUnconvPhoton.pT_prtcl);
-    
     Eff_Reco.divide("tUnconvRConv_eta"   , pp_truthUnconvRecoConv.eta_prtcl      , pp_truthUnconvPhoton.eta_prtcl);
-    Eff_Reco.divide("tUnconvRC1Si_eta"   , pp_truthUnconvRecoConv1Si.eta_prtcl   , pp_truthUnconvPhoton.eta_prtcl);
-    Eff_Reco.divide("tUnconvRC1TRT_eta"  , pp_truthUnconvRecoConv1TRT.eta_prtcl  , pp_truthUnconvPhoton.eta_prtcl);
-    Eff_Reco.divide("tUnconvRC2Si_eta"   , pp_truthUnconvRecoConv2Si.eta_prtcl   , pp_truthUnconvPhoton.eta_prtcl);
-    Eff_Reco.divide("tUnconvRC2TRT_eta"  , pp_truthUnconvRecoConv2TRT.eta_prtcl  , pp_truthUnconvPhoton.eta_prtcl);
-    Eff_Reco.divide("tUnconvRC2SiTRT_eta", pp_truthUnconvRecoConv2SiTRT.eta_prtcl, pp_truthUnconvPhoton.eta_prtcl);
-    Eff_Reco.divide("tUnconvRUnconv_eta" , pp_truthUnconvRecoUnconv.eta_prtcl    , pp_truthUnconvPhoton.eta_prtcl);
-    
     Eff_Reco.divide("tUnconvRConv_phi"   , pp_truthUnconvRecoConv.phi_prtcl      , pp_truthUnconvPhoton.phi_prtcl);
-    Eff_Reco.divide("tUnconvRC1Si_phi"   , pp_truthUnconvRecoConv1Si.phi_prtcl   , pp_truthUnconvPhoton.phi_prtcl);
-    Eff_Reco.divide("tUnconvRC1TRT_phi"  , pp_truthUnconvRecoConv1TRT.phi_prtcl  , pp_truthUnconvPhoton.phi_prtcl);
-    Eff_Reco.divide("tUnconvRC2Si_phi"   , pp_truthUnconvRecoConv2Si.phi_prtcl   , pp_truthUnconvPhoton.phi_prtcl);
-    Eff_Reco.divide("tUnconvRC2TRT_phi"  , pp_truthUnconvRecoConv2TRT.phi_prtcl  , pp_truthUnconvPhoton.phi_prtcl);
-    Eff_Reco.divide("tUnconvRC2SiTRT_phi", pp_truthUnconvRecoConv2SiTRT.phi_prtcl, pp_truthUnconvPhoton.phi_prtcl);
-    Eff_Reco.divide("tUnconvRUnconv_phi" , pp_truthUnconvRecoUnconv.phi_prtcl    , pp_truthUnconvPhoton.phi_prtcl);
-    
     Eff_Reco.divide("tUnconvRConv_mu"   , pp_truthUnconvRecoConv.mu      , pp_truthUnconvPhoton.mu);
-    Eff_Reco.divide("tUnconvRC1Si_mu"   , pp_truthUnconvRecoConv1Si.mu   , pp_truthUnconvPhoton.mu);
-    Eff_Reco.divide("tUnconvRC1TRT_mu"  , pp_truthUnconvRecoConv1TRT.mu  , pp_truthUnconvPhoton.mu);
-    Eff_Reco.divide("tUnconvRC2Si_mu"   , pp_truthUnconvRecoConv2Si.mu   , pp_truthUnconvPhoton.mu);
-    Eff_Reco.divide("tUnconvRC2TRT_mu"  , pp_truthUnconvRecoConv2TRT.mu  , pp_truthUnconvPhoton.mu);
-    Eff_Reco.divide("tUnconvRC2SiTRT_mu", pp_truthUnconvRecoConv2SiTRT.mu, pp_truthUnconvPhoton.mu);
-    Eff_Reco.divide("tUnconvRUnconv_mu" , pp_truthUnconvRecoUnconv.mu    , pp_truthUnconvPhoton.mu);
-    
     Eff_Reco.divide("tUnconvRConv_CR"   , pp_truthUnconvRecoConv.convRadius      , pp_truthUnconvPhoton.convRadius);
-    Eff_Reco.divide("tUnconvRC1Si_CR"   , pp_truthUnconvRecoConv1Si.convRadius   , pp_truthUnconvPhoton.convRadius);
-    Eff_Reco.divide("tUnconvRC1TRT_CR"  , pp_truthUnconvRecoConv1TRT.convRadius  , pp_truthUnconvPhoton.convRadius);
-    Eff_Reco.divide("tUnconvRC2Si_CR"   , pp_truthUnconvRecoConv2Si.convRadius   , pp_truthUnconvPhoton.convRadius);
-    Eff_Reco.divide("tUnconvRC2TRT_CR"  , pp_truthUnconvRecoConv2TRT.convRadius  , pp_truthUnconvPhoton.convRadius);
-    Eff_Reco.divide("tUnconvRC2SiTRT_CR", pp_truthUnconvRecoConv2SiTRT.convRadius, pp_truthUnconvPhoton.convRadius);
-    Eff_Reco.divide("tUnconvRUnconv_CR" , pp_truthUnconvRecoUnconv.convRadius    , pp_truthUnconvPhoton.convRadius);
 
   } // if gamma sampleType
 

@@ -77,21 +77,17 @@ StatusCode MergeCalibHitsTool::processBunchXing(int bunchXing,
       ++iEvt;
       continue;
     }
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
+
     // loop over containers
     for (unsigned int iHitContainer=0;iHitContainer<m_CalibrationHitContainer.size();++iHitContainer) {
       ATH_MSG_VERBOSE ( " Bunch Crossing: " <<bunchXing << ". Process CalibrationHit container " << m_CalibrationHitContainer[iHitContainer] );
       const CaloCalibrationHitContainer* hitCont;
-      // if container not there, do nothing
-      if (seStore.contains<CaloCalibrationHitContainer>(m_CalibrationHitContainer[iHitContainer])) {
-        if( !seStore.retrieve(hitCont, m_CalibrationHitContainer[iHitContainer]).isSuccess()) {
-          ATH_MSG_ERROR ( " Failed to retrieve CalibrationHitContainer called " << m_CalibrationHitContainer[iHitContainer] );
-        }
+      if (!m_pMergeSvc->retrieveSingleSubEvtData(m_CalibrationHitContainer[iHitContainer], hitCont,
+						 bunchXing, iEvt).isSuccess()){
+	ATH_MSG_ERROR("CaloCalibrationHitContainer not found for event key " << m_CalibrationHitContainer[iHitContainer]);
+	return StatusCode::FAILURE;
       }
-      else {
-        ATH_MSG_VERBOSE ( " Cannot find CalibrationHitContainer called " << m_CalibrationHitContainer[iHitContainer] );
-        continue;
-      }
+
       //if this is the first SubEvent for this Event then create the hitContainers;
       if(m_firstSubEvent) {
         m_outputContainers[iHitContainer] = new CaloCalibrationHitContainer(m_CalibrationHitContainer[iHitContainer]);

@@ -31,7 +31,7 @@ class EFMissingETFromCellsMT: public extends<AthAlgTool, IMissingETTool> {
 
   virtual ~EFMissingETFromCellsMT(){}
 
-  virtual StatusCode  initialize();
+  virtual StatusCode  initialize() override;
 
   virtual StatusCode update( xAOD::TrigMissingET *met,
 			     TrigEFMissingEtHelper *metHelper ) const override;

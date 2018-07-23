@@ -11,7 +11,6 @@
 
 // Base classes
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetPrepRawData/PixelCluster.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
 // for ElementLink to IdentifiableContainer PixelClusterContainer
@@ -19,6 +18,8 @@
 #include "AthLinks/ElementLink.h"
 
 class FakeTrackBuilder;
+class PixelCluster;
+
 namespace Trk {
   class Surface;
   class TrkDetElementBase;
@@ -48,13 +49,14 @@ namespace InDet {
 
     public:
       friend class  Trk::ITrkEventCnvTool;
-      /**Default constructor - needed for POOL */
+      ///Default constructor - needed for POOL 
       PixelClusterOnTrack();
-      /**Copy constructor */
-      PixelClusterOnTrack(const PixelClusterOnTrack &);
-      /**Assignment operator*/
-      PixelClusterOnTrack &operator=(const PixelClusterOnTrack &);
-
+      ///Copy constructor 
+      PixelClusterOnTrack(const PixelClusterOnTrack &) = default;
+      ///Assignment operator
+      PixelClusterOnTrack &operator=(const PixelClusterOnTrack &) = default;
+      ///Move assignment 
+      PixelClusterOnTrack &operator=(PixelClusterOnTrack &&) = default;
       /** Constructor with parameters :
       RIO/PrepRawData pointer, LocalPosition&, LocalErrorMatrix&, idDE&
       Everything else is owned elsewhere. */
@@ -147,7 +149,6 @@ namespace InDet {
 
       /** PixelCluster - the RIO (PRD, PrepRawData)*/
       ElementLinkToIDCPixelClusterContainer m_rio;
-//       mutable const PixelCluster*   m_rio;
     
       /** records whether there is an ambiguity about this cluster*/
       bool                          m_hasClusterAmbiguity;   

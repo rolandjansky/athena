@@ -7,7 +7,6 @@
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
-//#include "VxVertex/VxContainer.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
@@ -15,7 +14,6 @@
 #include "IRegionSelector/IRegSelSvc.h"
 #include <sstream>
 #include <TLorentzVector.h>
-//#include "xAODTracking/Vertex.h"
 #include "xAODBase/IParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -378,84 +376,61 @@ namespace InDet {
 
     m_secVertexInfoContainer = new Trk::VxSecVertexInfoContainer;
     m_secVertexInfo = 0;
-
     for(; itSecVtxFinders != itSecVtxFindersEnd; ++itSecVtxFinders) {
-
       std::string vxAuthor = (*itSecVtxFinders).name();
-
       if(*itSecVtxFinders != 0) {
-	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Running " << vxAuthor << endmsg;
-
-	xAOD::Vertex* vertex = new xAOD::Vertex();
-	vertex->makePrivateStore();
-	vertex->setPosition(bestFitPriVertex->position());
-	vertex->setCovariancePosition(bestFitPriVertex->covariancePosition());
-	vertex->setFitQuality(bestFitPriVertex->chiSquared(), bestFitPriVertex->numberDoF () ); 
-
-	std::vector<const xAOD::IParticle*> inputIParticles;
-	
-	xAOD::TrackParticleContainer::const_iterator trackIt = trackTES->begin();
-	xAOD::TrackParticleContainer::const_iterator lastTrackIt = trackTES->end();	
-	
-	for(; trackIt != lastTrackIt; ++trackIt)
-	  inputIParticles.push_back(*trackIt);
-	
-	m_secVertexInfo = (*itSecVtxFinders)->findSecVertex(*vertex, *m_jetDirection, inputIParticles);
-
-	delete vertex;
-
-	if(m_secVertexInfo == 0) {
-	  if(outputLevel <= MSG::DEBUG)
-	    msg() << MSG::DEBUG << vxAuthor << " returned null pointer (no vertex)" << endmsg;
-	  continue;
-	}
-	else {
-	  if (m_secVertexInfo->vertices().size()) {
-	    m_secVertexInfo->vertices().front()->setVertexType((xAOD::VxType::VertexType)2);
-	  }
-	  m_secVertexInfoContainer->push_back(const_cast<Trk::VxSecVertexInfo*>(m_secVertexInfo));
-	  m_secVertexInfoContainer->back()->getSVOwnership(true);
-	  m_nVxSecVertexInfo++;
-	}
-
-	if(outputLevel <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << vxAuthor << " returned " << m_secVertexInfo->vertices().size() << " vertices" << endmsg;
-	}
-    
-	//* for monitoring *//
-
-	const Trk::VxSecVKalVertexInfo* secVKalVertexInfo = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(m_secVertexInfo);
-	const std::vector<xAOD::Vertex_v1*> & myVertices = secVKalVertexInfo->vertices();
-	if(myVertices.size()>0) {
-	  m_secVtx_twoTrkTot = secVKalVertexInfo->n2trackvertices();
-	  m_secVtx_mass      = secVKalVertexInfo->mass();
-	  m_secVtx_energy    = secVKalVertexInfo->energyFraction();
-
-	  std::vector<xAOD::Vertex_v1*>::const_iterator verticesIt=myVertices.begin();
-	  std::vector<xAOD::Vertex_v1*>::const_iterator verticesEnd=myVertices.end();
-
-	  for( ; verticesIt!=verticesEnd ; ++verticesIt) {
-
-	    if(!(*verticesIt)) {
-	      msg() << MSG::DEBUG << "Secondary vertex from InDetVKalVxInJet has zero pointer. Skipping this vtx.." << endmsg;
-	      continue;
-	    }
-	
-	    msg() << MSG::DEBUG << "xAOD::Vertex at ("
-		  << (*verticesIt)->position().x() << ","
-		  << (*verticesIt)->position().y() << ","
-		  << (*verticesIt)->position().z() << endmsg;
-
-	    std::vector<Trk::VxTrackAtVertex> tracksAtVertex = (*verticesIt)->vxTrackAtVertex();
-	  
-	    if(tracksAtVertex.size())
-	      m_secVtx_numTrkSV = tracksAtVertex.size();
-	  }
-	}
-
-	//std::vector<xAOD::Vertex*>::const_iterator vertexIt     = m_secVertexInfo->vertices().begin();
-	//std::vector<xAOD::Vertex*>::const_iterator lastVertexIt = m_secVertexInfo->vertices().end();
+        if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Running " << vxAuthor << endmsg;
+        xAOD::Vertex* vertex = new xAOD::Vertex();
+        vertex->makePrivateStore();
+        vertex->setPosition(bestFitPriVertex->position());
+        vertex->setCovariancePosition(bestFitPriVertex->covariancePosition());
+        vertex->setFitQuality(bestFitPriVertex->chiSquared(), bestFitPriVertex->numberDoF () ); 
+        std::vector<const xAOD::IParticle*> inputIParticles;
+        xAOD::TrackParticleContainer::const_iterator trackIt = trackTES->begin();
+        xAOD::TrackParticleContainer::const_iterator lastTrackIt = trackTES->end();	
+        for(; trackIt != lastTrackIt; ++trackIt) inputIParticles.push_back(*trackIt);
+        m_secVertexInfo = (*itSecVtxFinders)->findSecVertex(*vertex, *m_jetDirection, inputIParticles);
+        delete vertex;
+        if(m_secVertexInfo == 0) {
+          if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << vxAuthor << " returned null pointer (no vertex)" << endmsg;
+          continue;
+        } else {
+          if (m_secVertexInfo->vertices().size()) {
+            m_secVertexInfo->vertices().front()->setVertexType((xAOD::VxType::VertexType)2);
+          }
+          m_secVertexInfoContainer->push_back(const_cast<Trk::VxSecVertexInfo*>(m_secVertexInfo));
+          m_secVertexInfoContainer->back()->getSVOwnership(true);
+          m_nVxSecVertexInfo++;
+        }
+        if(outputLevel <= MSG::DEBUG) {
+          msg() << MSG::DEBUG << vxAuthor << " returned " << m_secVertexInfo->vertices().size() << " vertices" << endmsg;
+        }
+        //
+        //* for monitoring *//
+        const Trk::VxSecVKalVertexInfo* secVKalVertexInfo = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(m_secVertexInfo);
+        if (secVKalVertexInfo){
+          const std::vector<xAOD::Vertex_v1*> & myVertices = secVKalVertexInfo->vertices();
+          if(not myVertices.empty()) {
+            m_secVtx_twoTrkTot = secVKalVertexInfo->n2trackvertices();
+            m_secVtx_mass      = secVKalVertexInfo->mass();
+            m_secVtx_energy    = secVKalVertexInfo->energyFraction();
+            std::vector<xAOD::Vertex_v1*>::const_iterator verticesIt=myVertices.begin();
+            std::vector<xAOD::Vertex_v1*>::const_iterator verticesEnd=myVertices.end();
+            for( ; verticesIt!=verticesEnd ; ++verticesIt) {
+              if(!(*verticesIt)) {
+                msg() << MSG::DEBUG << "Secondary vertex from InDetVKalVxInJet has zero pointer. Skipping this vtx.." << endmsg;
+                continue;
+              }
+              msg() << MSG::DEBUG << "xAOD::Vertex at ("
+              << (*verticesIt)->position().x() << ","
+              << (*verticesIt)->position().y() << ","
+              << (*verticesIt)->position().z() << endmsg;
+              std::vector<Trk::VxTrackAtVertex> tracksAtVertex = (*verticesIt)->vxTrackAtVertex();
+              if(not tracksAtVertex.empty())
+                m_secVtx_numTrkSV = tracksAtVertex.size();
+            }
+          }
+        }
       }
     }
     

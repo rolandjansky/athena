@@ -27,6 +27,7 @@ namespace Athena_test {
 
     MyPackageAlgTest() 
     //  : InitGaudiGoogleTest( MSG::INFO ) // get usual message blurb
+      : myAlg(nullptr)
     {}
 
     virtual void SetUp() override {

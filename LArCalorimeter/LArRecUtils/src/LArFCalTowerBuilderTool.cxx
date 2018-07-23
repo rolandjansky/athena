@@ -3,7 +3,8 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
+#include "LArFCalTowerBuilderTool.h"
+#include "LArFCalTowerStore.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -15,9 +16,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloTower.h"
 #include "CaloEvent/CaloTowerContainer.h"
-
-#include "LArRecUtils/LArFCalTowerStore.h"
-#include "LArFCalTowerBuilderTool.h"
 
 #include <string>
 #include <cmath>

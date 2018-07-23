@@ -82,7 +82,6 @@ ReadPixelElements.SiPropertiesTool   = pixelSiPropertiesTool
 ReadPixelElements.SiConditionsTool   = None
 
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleTool=lorentzAngleSvc.pixel
-
 #
 # SCT
 #
@@ -106,8 +105,7 @@ ReadSCTElements.UseConditionsTools = True
 ReadSCTElements.SiLorentzAngleTool = lorentzAngleSvc.sct
 ReadSCTElements.SiPropertiesTool = sctSiPropertiesTool
 ReadSCTElements.SiConditionsTool = sctSiliconConditionsTool
-
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleTool=lorentzAngleSvc.sct
+ReadSCTElements.DetEleCollKey = "SCT_DetectorElementCollection"
 
 print ReadPixelElements
 print lorentzAngleSvc.pixel

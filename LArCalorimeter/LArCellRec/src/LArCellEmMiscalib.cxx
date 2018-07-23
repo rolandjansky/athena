@@ -14,7 +14,7 @@ CREATED:  25 October 2006
 PURPOSE:  applies miscalibration in EM calorimeter
 
 ********************************************************************/
-#include "LArCellRec/LArCellEmMiscalib.h"
+#include "LArCellEmMiscalib.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -205,7 +205,8 @@ int LArCellEmMiscalib::region(int barrelec, double eta, double phi)
 /////////////////////////////////////////////////////////////////////
 
 
-void  LArCellEmMiscalib::MakeCorrection(CaloCell * theCell )
+void  LArCellEmMiscalib::MakeCorrection (CaloCell * theCell,
+                                         const EventContext& /*ctx*/) const
 {
 
   

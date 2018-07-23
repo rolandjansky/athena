@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/McMaterialEffectsUpdator.h"
+#include "McMaterialEffectsUpdator.h"
 
 // Gaudi Kernel
 #include "GaudiKernel/IRndmGenSvc.h"

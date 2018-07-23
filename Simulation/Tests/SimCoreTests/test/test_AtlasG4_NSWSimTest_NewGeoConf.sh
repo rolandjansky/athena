@@ -17,7 +17,8 @@ AtlasG4_tf.py \
 --conditionsTag 'OFLCOND-RUN12-SDR-25' \
 --physicsList 'FTFP_BERT' \
 --postInclude 'G4AtlasTests/postInclude.DCubeTest.py,PyJobTransforms/UseFrontier.py' \
---preExec 'simFlags.ReleaseGeoModel=False;'
+--preExec 'simFlags.ReleaseGeoModel=False;' \
+--imf False
 
 echo  "art-result: $? simulation"
 

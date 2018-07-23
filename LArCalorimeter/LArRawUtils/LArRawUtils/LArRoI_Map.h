@@ -20,8 +20,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <map> 
 
-class LArCablingService; 
-class CaloTriggerTowerService;
+#include "LArCabling/LArCablingService.h" 
+#include "CaloTriggerTool/CaloTriggerTowerService.h" 
+
 class LArOnlineID ; 
 class LArEM_ID ; 
 class LArHEC_ID ; 
@@ -109,8 +110,9 @@ class LArRoI_Map : public AthAlgTool,
   ONLMAP m_onlmap; 
   ROIMAP m_roimap; 
  
-  LArCablingService* m_cablingSvc; 
-  CaloTriggerTowerService* m_ttSvc; 
+
+  ToolHandle<LArCablingService> m_cablingSvc{ this, "CablingSvc", "LArCablingService", "LAr cabling tool"};
+  ToolHandle<CaloTriggerTowerService> m_ttSvc{ this, "TriggerTowerSvc", "CaloTriggerTowerService", "Towers tool"};   
 
   bool m_print; 
   bool m_loadAtBegin;
@@ -121,7 +123,6 @@ class LArRoI_Map : public AthAlgTool,
   const LArEM_ID*  m_em_id   ; 
   const LArHEC_ID* m_hec_id  ; 
   const LArFCAL_ID* m_fcal_id; 
-
 };
 
   

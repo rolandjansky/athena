@@ -14,7 +14,7 @@
 
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
+#include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
@@ -99,10 +99,10 @@ public:
                                                            const Trk::TrackParameters&) const;
 
   virtual const InDet::PixelClusterOnTrack* correctNN(const Trk::PrepRawData&, const Trk::TrackParameters&) const;
-	
+        
   virtual bool getErrorsDefaultAmbi( const InDet::PixelCluster*, const Trk::TrackParameters&, 
                            Amg::Vector2D&,  Amg::MatrixX&) const;
-													 
+                                                                                                         
   virtual bool getErrorsTIDE_Ambi( const InDet::PixelCluster*, const Trk::TrackParameters&,  
                         Amg::Vector2D&,  Amg::MatrixX&) const;
 
@@ -131,7 +131,6 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
-  ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
@@ -148,7 +147,9 @@ public:
 
   //! toolhandle for central error scaling
   //! flag storing if errors need scaling or should be kept nominal
-  bool                               m_scalePixelCov     ;
+  SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_pixelErrorScalingKey
+    {this,"PixelErrorScalingKey", "" /* "/Indet/TrkErrorScalingPixel" */, "Key for pixel error scaling conditions data. No error scaling if empty"};
+
   bool                               m_disableDistortions;
   bool                               m_rel13like         ;
   int                                m_positionStrategy  ;
@@ -173,8 +174,8 @@ public:
   /** Enable NN based calibration (do only if NN calibration is applied) **/
   mutable bool                      m_applyNNcorrection;
   mutable bool                      m_applydRcorrection;
-  bool				    m_NNIBLcorrection;
-  bool				    m_IBLAbsent;
+  bool                              m_NNIBLcorrection;
+  bool                              m_IBLAbsent;
   
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<InDet::NnClusterizationFactory>                   m_NnClusterizationFactory;
@@ -187,8 +188,8 @@ public:
   
   bool                                                  m_doNotRecalibrateNN;
   bool                                                  m_noNNandBroadErrors;
-	
-	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
+        
+        /** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
   std::string m_splitClusterMapName; //no longer used
   mutable std::vector< std::vector<float> > m_fX, m_fY, m_fB, m_fC, m_fD;

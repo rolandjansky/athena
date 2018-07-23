@@ -12,17 +12,11 @@
 //# Last Modofied: Nov 18/2004                        #
 //##################################################### 
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/AlgTool.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/Property.h"
+#include "TBBeamQualityMuonToolH6.h"
 
 // TRIGGERS
 #include "TBEvent/TBTriggerPatternUnit.h"
 
-#include "TBRec/TBBeamQualityMuonToolH6.h"
 
 #include <string>
 #include <ios>

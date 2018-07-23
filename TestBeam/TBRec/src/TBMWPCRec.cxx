@@ -3,17 +3,7 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/Property.h"
-
-#include "TBRec/TBMWPCRec.h"
-
-// static const AlgFactory<TBMWPCRec> s_factory;
-// const IAlgFactory& TBMWPCRecFactory = s_factory;
-
-
-
+#include "TBMWPCRec.h"
 
 
 TBMWPCRec::TBMWPCRec(const std::string& name,

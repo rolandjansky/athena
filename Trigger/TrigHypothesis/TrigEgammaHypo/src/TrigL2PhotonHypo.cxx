@@ -1,5 +1,4 @@
 // -*- C++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -321,8 +320,6 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
   if ( EmET < m_eTthr[etaBin]) return HLT::OK;
   m_PassedCuts++;
-
-  
   // ET_had
   // find which ET_had to apply	: this depends on the ET_em and the eta bin
   float hadET_cut=-1;

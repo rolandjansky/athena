@@ -28,6 +28,7 @@
 #include "TrkSurfaces/CylinderBounds.h"
 
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
+#include <iosfwd>
 
 class MsgStream;
 class IMagFieldAthenaSvc;
@@ -98,19 +99,19 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-      MagField::IMagFieldSvc*                m_fieldService      ;
+      MagField::IMagFieldSvc*                m_fieldService{}      ;
       ToolHandle<Trk::IPropagator>           m_proptool          ;  // Propagator     tool
 
-      bool                                 m_usePIX   ;
-      bool                                 m_useSCT   ;
-      bool                                 m_test     ;
-      int                                  m_outputlevel;
-      int                                  m_nprint   ;
-      int                                  m_sizeroad ;
-      double                               m_zfield   ;
-      float                                m_width    ;  // Width of the road
-      double                               m_step     ;  // Max step allowed
-      Trk::CylinderBounds                  m_bounds   ;  //  
+      bool                                 m_usePIX{}   ;
+      bool                                 m_useSCT{}   ;
+      bool                                 m_test{}     ;
+      int                                  m_outputlevel{};
+      int                                  m_nprint{}   ;
+      int                                  m_sizeroad{} ;
+      double                               m_zfield{}   ;
+      float                                m_width{}    ;  // Width of the road
+      double                               m_step {}    ;  // Max step allowed
+      Trk::CylinderBounds                  m_bounds{}   ;  //  
       int                                  m_map  [3] ;
       std::vector<SiDetElementsLayer_xk>   m_layer[3] ;  // Layers
       std::string                          m_pix      ;  // PIX manager   location

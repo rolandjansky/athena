@@ -60,18 +60,18 @@ class TrigL2PhotonHypoTool : virtual public ::AthAlgTool
 
   Gaudi::Property<bool>  m_respectPreviousDecision{ this, "RespectPreviousDecision", false, "If false, ( do not even check ), the decision made for the cluster" };
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
-  Gaudi::Property<bool>  m_etCutOnly{ this, "EtCutOnly", false, "" };
-  Gaudi::Property< std::vector<double> >  m_etabin{ this,  "EtaBins", {}, "Eta bins" };
+  Gaudi::Property<bool>  m_etCutOnly{ this, "EtCutOnly", true, "" };
+  Gaudi::Property< std::vector<double> >  m_etabin{ this,  "EtaBins", {0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47}, "Eta bins" };
 
-  Gaudi::Property< std::vector<double> >  m_detacluster{ this,  "dETACLUSTERthr", {0.2}, "Delta Eta to Cluster" };
-  Gaudi::Property< std::vector<double> >  m_dphicluster{ this,  "dPHICLUSTERthr", {0.2}, "Delta Phi to Cluster" };
-  Gaudi::Property< std::vector<double> >  m_F1thr{ this,  "F1thr", {}, "F1 Threshold" };
-  Gaudi::Property< std::vector<std::vector<double>> > m_eTthr{this, "m_eTthr", {{}}, "et threshold"};
-  Gaudi::Property< std::vector<std::vector<double>> >  m_eT2thr{this, "m_eT2thr", {{}}, "eT2 threshold"};
-  Gaudi::Property< std::vector<std::vector<double>> >  m_hadeTthr{this, "m_hadeTthr", {{}}, "hadet threshold"};
-  Gaudi::Property< std::vector<std::vector<double>> >  m_hadeT2thr{this, "m_hadeT2thr", {{}}, "hadet2 threshold"};
-  Gaudi::Property< std::vector<std::vector<double>> >  m_carcorethr{this, "m_carcorethr", {{}}, "car core threshold"};
-  Gaudi::Property< std::vector<std::vector<double>> >  m_caeratiothr{this, "m_caeratiothr", {{}}, " cera ratio threshold"};
+  Gaudi::Property< std::vector<double> >  m_detacluster{ this,  "dETACLUSTERthr", {0.1}, "Delta Eta to Cluster" };
+  Gaudi::Property< std::vector<double> >  m_dphicluster{ this,  "dPHICLUSTERthr", {0.1}, "Delta Phi to Cluster" };
+  Gaudi::Property< std::vector<double> >  m_F1thr{ this,  "F1thr", {0.005}, "F1 Threshold" };
+  Gaudi::Property< std::vector<std::vector<double>> > m_eTthr{this, "ETthr", {{0.*CLHEP::GeV}}, "et threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_eT2thr{this, "ET2thr", {{90.0*CLHEP::GeV}}, "eT2 threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_hadeTthr{this, "HADETthr", {{0.}}, "hadet threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_hadeT2thr{this, "HADET2thr", {{0.}}, "hadet2 threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_carcorethr{this, "CARCOREthr", {{0.}}, "car core threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_caeratiothr{this, "CAERATIOthr", {{0.}}, " cera ratio threshold"};
 
   
   size_t m_multiplicity = 1;

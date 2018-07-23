@@ -109,9 +109,9 @@ def CreateEgammaRotCreator():
                                          Mode             = 'indet')
   ToolSvc += egRotCreator
   # load error scaling
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested('Indet/TrkErrorScaling'):
-    conddb.addFolderSplitOnline('INDET','/Indet/Onl/TrkErrorScaling','/Indet/TrkErrorScaling') 
+  # load error scaling
+  from InDetRecExample.TrackingCommon import createAndAddCondAlg, getRIO_OnTrackErrorScalingCondAlg
+  createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
 
   return egRotCreator
 

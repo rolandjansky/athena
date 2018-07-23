@@ -3,6 +3,7 @@ include.block ( "EventOverlayJobTransforms/OverlayOutputItemList_jobOptions.py" 
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.DetFlags import DetFlags
 from Digitization.DigitizationFlags import digitizationFlags
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 # The output - overlay
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -15,7 +16,7 @@ outStream.ItemList += [ "EventInfo#*", "PileUpEventInfo#*" ]
 outStream.ItemList += [ "LumiBlockCollection#*" ]
 
 # timings
-if not isRealData:
+if not overlayFlags.isDataOverlay():
     outStream.ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
     outStream.ItemList += ["RecoTimingObj#HITStoRDO_timings"]
 
@@ -42,7 +43,7 @@ if DetFlags.overlay.Truth_on():
    if DetFlags.overlay.TRT_on():
       outStream.ItemList += [ "InDetSimDataCollection#TRT_SDO_Map" ]
    if DetFlags.overlay.BCM_on():
-      outStream.ItemList += [ "InDetSimDataCollection#BCM_SDO_Map" ] 
+      outStream.ItemList += [ "InDetSimDataCollection#BCM_SDO_Map" ]
 
 if DetFlags.overlay.pixel_on():
    outStream.ItemList += ["PixelRDO_Container#*"]
@@ -63,7 +64,7 @@ if DetFlags.overlay.LAr_on():
    outStream.ItemList+=["LArFebErrorSummary#*"]
 if DetFlags.overlay.Tile_on():
    outStream.ItemList += [ "TileRawChannelContainer#*" ]
-   if isRealData or 'AddCaloDigi' in digitizationFlags.experimentalDigi():
+   if overlayFlags.isDataOverlay() or 'AddCaloDigi' in digitizationFlags.experimentalDigi():
        outStream.ItemList += [ "TileDigitsContainer#*" ]
    else:
        outStream.ItemList += [ "TileDigitsContainer#TileDigitsFlt" ]
@@ -110,5 +111,3 @@ if DetFlags.overlay.LVL1_on():
                            "DataVector<LVL1::JEMRoI>#*",
                            "DataVector<LVL1::JEMEtSums>#*",
                            "LVL1::CMMRoI#*"]
-
-

@@ -5,16 +5,13 @@
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include  "AnalysisUtils/AnalysisMisc.h"
-//#include <iostream>
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+
+#include "TH1F.h"
+
 //-------------------------------------------------
 namespace InDet{
 
-//double getConeSize(double pt){   //Variable cone size from b-tagging for reference
-//  double  m_coneSizeFitPar1 = +0.239;
-//  double  m_coneSizeFitPar2 = -1.220;
-//  double  m_coneSizeFitPar3 = -1.64e-5;
-//  return (m_coneSizeFitPar1 + exp(m_coneSizeFitPar2 + m_coneSizeFitPar3*pt));
-//}
 
 
   StatusCode InDetVKalVxInJetTool::CutTrk(double PInvVert,double ThetaVert, 
@@ -25,9 +22,7 @@ namespace InDet{
      double Pt = sin(ThetaVert)/fabs(PInvVert);
 //- Track quality
      if(Pt               < m_CutPt) 			return StatusCode::FAILURE;
-//std::cout<<" ZVert="<<ZVert<<", "<<sin(ThetaVert)<<'\n';
-//std::cout<<" Chi2="<<Chi2<<'\n';
-//std::cout<<" A0Vert="<<A0Vert<<'\n';
+
      if(!m_MultiWithPrimary){           //Must not be used for primary vertex search
        if(fabs(ZVert)      > m_CutZVrt/sin(ThetaVert))	return StatusCode::FAILURE;
      }

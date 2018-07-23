@@ -3,7 +3,7 @@
 */
 
 
-#include "LArCellRec/LArNoisyROAlg.h"
+#include "LArNoisyROAlg.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"

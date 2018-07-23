@@ -17,19 +17,17 @@ atlas_depends_on_subdirs( PUBLIC
 			  Control/AthenaBaseComps
                           Control/AthAnalysisBaseComps
                           Control/AthToolSupport/AsgTools
+                          Event/xAOD/xAODJet
+                          AtlasTest/GoogleTestTools
                           TestPolicy )
 
 # Libraries in the package:
 atlas_add_library( AthAsgExUnittestLib
                    MyPackage/*.h src/*.cxx
-                   src/components/*.cxx
                    Root/*.cxx
-                   PUBLIC_HEADERS MyPackage
                    LINK_LIBRARIES GaudiKernel AsgTools AthAnalysisBaseCompsLib )
 atlas_add_component( AthAsgExUnittest
-                     MyPackage/*.h src/*.cxx
                      src/components/*.cxx
-                     Root/*.cxx
                      LINK_LIBRARIES GaudiKernel AsgTools AthAsgExUnittestLib )
 
 # Add tests:

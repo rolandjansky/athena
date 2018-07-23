@@ -8,7 +8,7 @@ if not 'vp1ALFA' in dir(): vp1ALFA=False
 if not 'vp1ForwardRegion' in dir(): vp1ForwardRegion=False
 if not 'vp1ZDC' in dir(): vp1ZDC=False
 if not 'vp1Extrapolator' in dir(): vp1Extrapolator=True
-if not 'vp1Fitter' in dir(): vp1Fitter=False
+# if not 'vp1Fitter' in dir(): vp1Fitter=False
 if not 'vp1Fatras' in dir(): vp1Fatras=False
 if not 'vp1FatrasMuon' in dir(): vp1FatrasMuon=(vp1Fatras and vp1Muon)
 if not 'vp1FatrasCalo' in dir(): vp1FatrasCalo=(vp1Fatras and vp1Calo)
@@ -252,18 +252,7 @@ else:          DetFlags.ZDC_setOff()
 if (vp1NSW): 
     DetFlags.Micromegas_setOn()
     DetFlags.sTGC_setOn()
-    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-    GeoModelSvc = GeoModelSvc()
-    GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.08.01-NSW"
     
-    from MuonAGDD.MuonAGDDConf import NSWAGDDTool
-    nTool=NSWAGDDTool('NewSmallWheel')
-    nTool.ReadAGDD=False
-    nTool.XMLFiles += ["stations.v2.03.xml"]
-    nTool.DefaultDetector="Muon"
-    nTool.Locked=False
-    nTool.Volumes += ["NewSmallWheel"]
-    ToolSvc+=nTool
     
 DetFlags.Print()
 
@@ -284,7 +273,25 @@ if vp1Cavern:
 if (vp1Muon):
     if (vp1NSW): 
       #DetDescrVersion="ATLAS-GEO-21-00-01"
-      include('MuonGeoModelTest/NSWGeoSetup.py')
+      # include('MuonGeoModelTest/NSWGeoSetup.py')
+      from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+      GeoModelSvc = GeoModelSvc()
+      GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.08.01-NSW"
+    
+      from MuonAGDD.MuonAGDDConf import NSWAGDDTool
+      nTool=NSWAGDDTool('NewSmallWheel')
+      nTool.ReadAGDD=False
+      nTool.XMLFiles += ["stations.v2.03.xml"]
+      nTool.DefaultDetector="Muon"
+      nTool.Locked=False
+      nTool.Volumes += ["NewSmallWheel"]
+      ToolSvc+=nTool
+    
+      from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+      Agdd2Geo=AGDDtoGeoSvc()
+      Agdd2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
+      theApp.CreateSvc += ["AGDDtoGeoSvc"]
+      svcMgr += Agdd2Geo
     
     from AtlasGeoModel import Agdd2Geo
     
@@ -326,39 +333,6 @@ if (vp1InputFiles != []):
     import AthenaPoolCnvSvc.ReadAthenaPool
 
     if (vp1ID):
-        from InDetRecExample.InDetJobProperties import InDetFlags
-        InDetFlags.loadTools               = (vp1Extrapolator or vp1SpacePoints)
-        InDetFlags.preProcessing           = vp1SpacePoints
-        InDetFlags.doPRDFormation          = False
-        InDetFlags.doSpacePointFormation   = vp1SpacePoints
-        InDetFlags.doNewTracking           = False
-        InDetFlags.doiPatRec               = False
-        InDetFlags.doxKalman               = False
-        InDetFlags.doLowPt                 = False
-        InDetFlags.doLowBetaFinder         = False
-        InDetFlags.doBackTracking          = False
-        InDetFlags.doTRTStandalone         = False
-        InDetFlags.doTrtSegments           = False
-        InDetFlags.postProcessing          = False
-        InDetFlags.doSlimming              = False
-        InDetFlags.doVertexFinding         = False
-        InDetFlags.doParticleCreation      = False
-        InDetFlags.doConversions           = False
-        InDetFlags.doSecVertexFinder       = False
-        InDetFlags.doV0Finder              = False
-        InDetFlags.doTrkNtuple             = False
-        InDetFlags.doPixelTrkNtuple        = False
-        InDetFlags.doSctTrkNtuple          = False
-        InDetFlags.doTrtTrkNtuple          = False
-        InDetFlags.doVtxNtuple             = False
-        InDetFlags.doConvVtxNtuple         = False
-        InDetFlags.doV0VtxNtuple           = False
-        InDetFlags.doRefit                 = False
-
-        InDetFlags.doStatistics            = False
-        InDetFlags.useDCS                  = False
-        include( "InDetRecExample/InDetRec_jobOptions.py" )
-
         if (vp1Fatras and vp1FatrasTruthKey!=""):
             from FatrasExample.FatrasKeys import FatrasKeyFlags
             FatrasKeyFlags.InputMcEventCollection.set_Value(vp1FatrasTruthKey)
@@ -452,111 +426,111 @@ if vp1Extrapolator and (vp1ID or vp1Muon):
     os.putenv("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS","Trk::Extrapolator/"+VP1ExtraPolatorName)
 
 #Fitter:
-if vp1Fitter and vp1Extrapolator and (vp1ID or vp1Muon):
-    VP1TrkInitializer.ForceFitterTools = True
-    os.putenv("VP1_DEVEL_ENABLEREFIT","1")
-    ##########################################################
-    # The Extrapolator
-    include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
-
-    from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
-    VP1Propagator = Propagator(name = 'VP1Propagator')
-    ToolSvc += VP1Propagator
-
-    # the Navigator has to get this one
-    from TrkExTools.TrkExToolsConf import Trk__Navigator
-    VP1Navigator = Trk__Navigator(name = 'VP1Navigator')
-    VP1Navigator.TrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
-    ToolSvc += VP1Navigator
-
-    from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MatUpdator
-    VP1MaterialUpdator = MatUpdator(name='VP1MaterialEffectsUpdator')
-    ToolSvc += VP1MaterialUpdator
-
-    from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
-    VP1Updator = Trk__KalmanUpdator_xk(name = 'VP1Updator')
-    ToolSvc += VP1Updator
-
-    from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
-    VP1DNAdjustor = Trk__InDetDynamicNoiseAdjustment(name    = 'VP1DNAdjustor')
-                                                               #yminmax = 100.0)
-    ToolSvc += VP1DNAdjustor
-    from TrkKalmanFitter.TrkKalmanFitterConf import Trk__ForwardKalmanFitter as PublicFKF
-    VP1FKF = PublicFKF(name                  = 'VP1FKF',
-                        StateChi2PerNDFPreCut = 25.0)
-    ToolSvc += VP1FKF
-
-    from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother as PublicBKS
-    VP1BKS = PublicBKS(name                        = 'VP1BKS',
-                      InitialCovarianceSeedFactor = 200.)
-    ToolSvc += VP1BKS
-
-    from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierLogic as PublicKOL
-    VP1KOL = PublicKOL(name               = 'VP1KOL',
-                      StateChi2PerNDFCut = 12.5)
-    ToolSvc += VP1KOL
-
-    #FIXME! Only do this for Muons?
-    from MuonRecExample import MuonRecTools
-    MdtTubeHitOnTrackCreator      = MuonRecTools.getPublicTool("MdtTubeHitOnTrackCreator")
-
-    from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
-    VP1RotCreator = Trk__RIO_OnTrackCreator(name = 'VP1RotCreator',
-       ToolMuonDriftCircle = MdtTubeHitOnTrackCreator ,
-                                                 Mode = 'all')
-    ToolSvc += VP1RotCreator
-    print VP1RotCreator
-    print MdtTubeHitOnTrackCreator
-
-    from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
-    VP1KalmanFitter = ConfiguredKalmanFitter(name                           = 'VP1KalmanFitter',
-                                             ExtrapolatorHandle             = VP1Extrapolator,
-                                             RIO_OnTrackCreatorHandle       = VP1RotCreator,
-                                             MeasurementUpdatorHandle       = VP1Updator,
-                                             ForwardKalmanFitterHandle      = VP1FKF,
-                                             KalmanSmootherHandle           = VP1BKS,
-                                             KalmanOutlierLogicHandle       = VP1KOL,
-                                             DynamicNoiseAdjustorHandle     = None,
-                                             AlignableSurfaceProviderHandle = None)
-
-    ToolSvc += VP1KalmanFitter
-
-    print VP1KalmanFitter
-    os.putenv("VP1_JOBCFG_EXTRA_VP1_FITTERS",VP1KalmanFitter.name())
-
-
-    VP1KalmanFitterDNA = ConfiguredKalmanFitter(name                        = 'VP1KalmanFitterDNA',
-                                             ExtrapolatorHandle             = VP1Extrapolator,
-                                             RIO_OnTrackCreatorHandle       = VP1RotCreator,
-                                             MeasurementUpdatorHandle       = VP1Updator,
-                                             ForwardKalmanFitterHandle      = VP1FKF,
-                                             KalmanSmootherHandle           = VP1BKS,
-                                             KalmanOutlierLogicHandle       = VP1KOL,
-                                             DynamicNoiseAdjustorHandle     = VP1DNAdjustor,
-                                             AlignableSurfaceProviderHandle = None)
-
-    ToolSvc += VP1KalmanFitterDNA
-    os.putenv("VP1_JOBCFG_EXTRA_VP1_FITTERS",VP1KalmanFitterDNA.name())
-
-
-    from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
-    VP1GlobalChi2Fitter = Trk__GlobalChi2Fitter(name               = 'VP1GlobalChi2Fitter',
-                                             ExtrapolationTool     = VP1Extrapolator,
-                                             NavigatorTool         = VP1Navigator,
-                                             PropagatorTool        = VP1Propagator,
-                                             RotCreatorTool        = VP1RotCreator,
-                                             MeasurementUpdateTool = VP1Updator,
-                                             StraightLine          = False,
-                                             OutlierCut            = 3.0,
-                                             SignedDriftRadius     = True,
-                                             RecalculateDerivatives= True
-                                             )
-    print VP1GlobalChi2Fitter
-    ToolSvc += VP1GlobalChi2Fitter
-
-    VP1GlobalChi2Fitter.OutputLevel=DEBUG
-
-    os.putenv("VP1_JOBCFG_EXTRA_VP1_FITTERS","Trk::KalmanFitter/"+VP1KalmanFitter.name()+";"+"Trk::KalmanFitter/"+VP1KalmanFitterDNA.name()+";"+"Trk::GlobalChi2Fitter/"+VP1GlobalChi2Fitter.name())
+# if vp1Fitter and vp1Extrapolator and (vp1ID or vp1Muon):
+#     VP1TrkInitializer.ForceFitterTools = True
+#     os.putenv("VP1_DEVEL_ENABLEREFIT","1")
+#     ##########################################################
+#     # The Extrapolator
+#     include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
+#
+#     from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
+#     VP1Propagator = Propagator(name = 'VP1Propagator')
+#     ToolSvc += VP1Propagator
+#
+#     # the Navigator has to get this one
+#     from TrkExTools.TrkExToolsConf import Trk__Navigator
+#     VP1Navigator = Trk__Navigator(name = 'VP1Navigator')
+#     VP1Navigator.TrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
+#     ToolSvc += VP1Navigator
+#
+#     from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MatUpdator
+#     VP1MaterialUpdator = MatUpdator(name='VP1MaterialEffectsUpdator')
+#     ToolSvc += VP1MaterialUpdator
+#
+#     from TrkMeasurementUpdator_xk.TrkMeasurementUpdator_xkConf import Trk__KalmanUpdator_xk
+#     VP1Updator = Trk__KalmanUpdator_xk(name = 'VP1Updator')
+#     ToolSvc += VP1Updator
+#
+#     from TrkDynamicNoiseAdjustor.TrkDynamicNoiseAdjustorConf import Trk__InDetDynamicNoiseAdjustment
+#     VP1DNAdjustor = Trk__InDetDynamicNoiseAdjustment(name    = 'VP1DNAdjustor')
+#                                                                #yminmax = 100.0)
+#     ToolSvc += VP1DNAdjustor
+#     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__ForwardKalmanFitter as PublicFKF
+#     VP1FKF = PublicFKF(name                  = 'VP1FKF',
+#                         StateChi2PerNDFPreCut = 25.0)
+#     ToolSvc += VP1FKF
+#
+#     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanSmoother as PublicBKS
+#     VP1BKS = PublicBKS(name                        = 'VP1BKS',
+#                       InitialCovarianceSeedFactor = 200.)
+#     ToolSvc += VP1BKS
+#
+#     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanOutlierLogic as PublicKOL
+#     VP1KOL = PublicKOL(name               = 'VP1KOL',
+#                       StateChi2PerNDFCut = 12.5)
+#     ToolSvc += VP1KOL
+#
+#     #FIXME! Only do this for Muons?
+#     from MuonRecExample import MuonRecTools
+#     MdtTubeHitOnTrackCreator      = MuonRecTools.getPublicTool("MdtTubeHitOnTrackCreator")
+#
+#     from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
+#     VP1RotCreator = Trk__RIO_OnTrackCreator(name = 'VP1RotCreator',
+#        ToolMuonDriftCircle = MdtTubeHitOnTrackCreator ,
+#                                                  Mode = 'all')
+#     ToolSvc += VP1RotCreator
+#     print VP1RotCreator
+#     print MdtTubeHitOnTrackCreator
+#
+#     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
+#     VP1KalmanFitter = ConfiguredKalmanFitter(name                           = 'VP1KalmanFitter',
+#                                              ExtrapolatorHandle             = VP1Extrapolator,
+#                                              RIO_OnTrackCreatorHandle       = VP1RotCreator,
+#                                              MeasurementUpdatorHandle       = VP1Updator,
+#                                              ForwardKalmanFitterHandle      = VP1FKF,
+#                                              KalmanSmootherHandle           = VP1BKS,
+#                                              KalmanOutlierLogicHandle       = VP1KOL,
+#                                              DynamicNoiseAdjustorHandle     = None,
+#                                              AlignableSurfaceProviderHandle = None)
+#
+#     ToolSvc += VP1KalmanFitter
+#
+#     print VP1KalmanFitter
+#     os.putenv("VP1_JOBCFG_EXTRA_VP1_FITTERS",VP1KalmanFitter.name())
+#
+#
+#     VP1KalmanFitterDNA = ConfiguredKalmanFitter(name                        = 'VP1KalmanFitterDNA',
+#                                              ExtrapolatorHandle             = VP1Extrapolator,
+#                                              RIO_OnTrackCreatorHandle       = VP1RotCreator,
+#                                              MeasurementUpdatorHandle       = VP1Updator,
+#                                              ForwardKalmanFitterHandle      = VP1FKF,
+#                                              KalmanSmootherHandle           = VP1BKS,
+#                                              KalmanOutlierLogicHandle       = VP1KOL,
+#                                              DynamicNoiseAdjustorHandle     = VP1DNAdjustor,
+#                                              AlignableSurfaceProviderHandle = None)
+#
+#     ToolSvc += VP1KalmanFitterDNA
+#     os.putenv("VP1_JOBCFG_EXTRA_VP1_FITTERS",VP1KalmanFitterDNA.name())
+#
+#
+#     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
+#     VP1GlobalChi2Fitter = Trk__GlobalChi2Fitter(name               = 'VP1GlobalChi2Fitter',
+#                                              ExtrapolationTool     = VP1Extrapolator,
+#                                              NavigatorTool         = VP1Navigator,
+#                                              PropagatorTool        = VP1Propagator,
+#                                              RotCreatorTool        = VP1RotCreator,
+#                                              MeasurementUpdateTool = VP1Updator,
+#                                              StraightLine          = False,
+#                                              OutlierCut            = 3.0,
+#                                              SignedDriftRadius     = True,
+#                                              RecalculateDerivatives= True
+#                                              )
+#     print VP1GlobalChi2Fitter
+#     ToolSvc += VP1GlobalChi2Fitter
+#
+#     VP1GlobalChi2Fitter.OutputLevel=DEBUG
+#
+#     os.putenv("VP1_JOBCFG_EXTRA_VP1_FITTERS","Trk::KalmanFitter/"+VP1KalmanFitter.name()+";"+"Trk::KalmanFitter/"+VP1KalmanFitterDNA.name()+";"+"Trk::GlobalChi2Fitter/"+VP1GlobalChi2Fitter.name())
 
 #On a machine where the hostname does not indicate domain, pool will
 #fail if trying to find nearest replica. In any case, dblookup.xml

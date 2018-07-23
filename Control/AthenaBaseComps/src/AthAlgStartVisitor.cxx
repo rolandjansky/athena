@@ -10,8 +10,26 @@
  */
 
 
-#include "AthAlgStartVisitor.h"
+#include "AthenaBaseComps/AthAlgStartVisitor.h"
 #include "StoreGate/VarHandleKey.h"
+#include "GaudiKernel/IAlgorithm.h"
+
+/**
+ * @brief Figure out where we're called from. Only want to process holders
+ *        recursively if caller is a real Algorithm. If it's an AlgTool, don't
+ *        recurse. If it's a Sequence, don't do anything.
+ * @param n back pointer to parent
+ */
+AthAlgStartVisitor::AthAlgStartVisitor(INamedInterface *n) {
+  // only do recursive traversal if we are called from a real Algorithm
+  IAlgorithm* ia = dynamic_cast<IAlgorithm*>(n);
+  if ( ia == nullptr) {
+    m_recursive = false;
+  } else if ( ia->isSequence() ) {
+    m_recursive = false;
+    m_ignore = true;
+  }
+}
 
 
 /**
@@ -20,6 +38,8 @@
  */
 void AthAlgStartVisitor::visit (const IDataHandleHolder* holder)
 {
+  if (m_ignore) return;
+
   // Make sure we process a component only once.
   if (m_seen.insert (holder).second) {
     // Call start() on all read conditions handle keys.
@@ -30,6 +50,8 @@ void AthAlgStartVisitor::visit (const IDataHandleHolder* holder)
         }
       }
     }
-    holder->acceptDHVisitor (this);
+    if (m_recursive) {
+      holder->acceptDHVisitor (this);
+    }
   }
 }

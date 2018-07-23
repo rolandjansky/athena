@@ -18,11 +18,11 @@ def CaloLUMIBCIDTool( flags, name='CaloLumiBCIDToolDefault' ):
 
           
       if flags.get('global.isOnline'):
-          acc.addConfig(addFolders, flags, ['/LAR/LArPileup/LArPileupShape<key>LArShape32</key>', 
-                                           '/LAR/LArPileup/LArPileupAverage'], 'LAR_ONL')
+          acc.merge(addFolders(flags, ['/LAR/LArPileup/LArPileupShape<key>LArShape32</key>', 
+                                       '/LAR/LArPileup/LArPileupAverage'], 'LAR_ONL'))
       else:
-          acc.addConfig( addFolders, flags, ['/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>',
-                                             '/LAR/ElecCalibOfl/LArPileupAverage'], 'LAR_OFL') 
+          acc.merge(addFolders(flags, ['/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>',
+                                       '/LAR/ElecCalibOfl/LArPileupAverage'], 'LAR_OFL'))
       theTool = CaloLumiBCIDTool(name, 
                                  isMC=False, 
                                  LumiTool=theLumiTool, keyShape='LArShape32')
@@ -35,8 +35,8 @@ def CaloLUMIBCIDTool( flags, name='CaloLumiBCIDToolDefault' ):
       from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
       theBunchCrossingTool = BunchCrossingTool()
       
-      acc.addConfig( addFolders, flags, ['/LAR/ElecCalibMC/Shape',
-                                         '/LAR/ElecCalibMC/LArPileupAverage'], 'LAR_OFL')
+      acc.merge(addFolders(flags, ['/LAR/ElecCalibMC/Shape',
+                                   '/LAR/ElecCalibMC/LArPileupAverage'], 'LAR_OFL'))
       theTool = CaloLumiBCIDTool(name,
                                  isMC=True,
                                  LArOFCTool = theOFCTool, BunchCrossingTool = theBunchCrossingTool)
@@ -59,7 +59,7 @@ def TileCond( flags ):
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     def __addFolder(f):        
-        acc.addConfig( addFolders, flags, '%s <key>%s</key>' %(f,f),   'TILE_OFL' if '/OFL' in f else 'TILE_ONL')
+        acc.merge(addFolders(flags, '%s <key>%s</key>' %(f,f),   'TILE_OFL' if '/OFL' in f else 'TILE_ONL'))
 
     tool.ProxyOflCes    = TileCondProxyCoolFlt('TileCondProxyCool_OflCes',    Source = '/TILE/OFL02/CALIB/CES') 
     tool.ProxyOflCisLin = TileCondProxyCoolFlt('TileCondProxyCool_OflCisLin', Source = '/TILE/OFL02/CALIB/CIS/LIN') 
@@ -109,8 +109,8 @@ def TileCond( flags ):
     __addFolder( '/TILE/ONL01/STATUS/ADC' )
     acc.addPublicTool( badChanTool )
 
-    acc.addConfig( addFolders, flags, ['/LAR/BadChannelsOfl/BadChannels <key>/LAR/BadChannels/BadChannels</key>', 
-                                       '/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>'], 'LAR_OFL')
+    acc.merge( addFolders(flags, ['/LAR/BadChannelsOfl/BadChannels <key>/LAR/BadChannels/BadChannels</key>', 
+                                  '/LAR/BadChannelsOfl/MissingFEBs<key>/LAR/BadChannels/MissingFEBs</key>'], 'LAR_OFL'))
     
 
 
@@ -133,21 +133,21 @@ def TrigCaloDataAccessConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc                      = ComponentAccumulator()
-    acc.addConfig(CaloLUMIBCIDTool, flags)
+    acc.merge(CaloLUMIBCIDTool(flags))
     from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigDataAccess
     da                       = TrigDataAccess()
     # ??? so we do not need the tools (quick hack)
     da.ApplyOffsetCorrection = False 
     
     # ??? does not realy belong here
-    acc.addConfig( addFolders, flags, ['/LAR/Identifier/OnOffIdMap', '/LAR/Identifier/CalibIdMap', 
-                                       '/LAR/Identifier/LArTTCellMapAtlas'], 'LAR')
+    acc.merge(addFolders(flags, ['/LAR/Identifier/OnOffIdMap', '/LAR/Identifier/CalibIdMap', 
+                                 '/LAR/Identifier/LArTTCellMapAtlas'], 'LAR'))
 
-    acc.addConfig( addFolders, flags, ['/CALO/Identifier/CaloTTOnOffIdMapAtlas', '/CALO/Identifier/CaloTTOnAttrIdMapAtlas',
-                                       '/CALO/Identifier/CaloTTPpmRxIdMapAtlas'], 'CALO')
+    acc.merge(addFolders(flags, ['/CALO/Identifier/CaloTTOnOffIdMapAtlas', '/CALO/Identifier/CaloTTOnAttrIdMapAtlas',
+                                       '/CALO/Identifier/CaloTTPpmRxIdMapAtlas'], 'CALO'))
     # ??? should be moved to tile domain
     
-    acc.addConfig( TileCond, flags )
+    acc.merge(TileCond(flags ))
 
     acc.addPublicTool( da )
 
@@ -165,19 +165,20 @@ def EgammaCaloMod( flags ):
     # load Calo geometry
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     from TileGeoModel.TileGMConfig import TileGMCfg    
-    acc.addConfig( LArGMCfg,  flags )
-    acc.addConfig( TileGMCfg, flags )
+    acc.merge(LArGMCfg( flags ))
+    acc.merge(TileGMCfg( flags ))
     acc.getService('GeoModelSvc').DetectorTools['TileDetectorTool'].GeometryConfig = 'RECO'
 
     # ??? likely should be elsewhere
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.addConfig( addFolders, flags, ['/LAR/Identifier/FebRodMap'], 'LAR' )
+    acc.merge( addFolders(flags, ['/LAR/Identifier/FebRodMap'], 'LAR' ))
 
-    acc.addConfig( TrigCaloDataAccessConfig, flags )
+    acc.merge(TrigCaloDataAccessConfig(flags ))
 
 
     # setup algorithms
-    acc.addSequence( seqAND('L2CaloEgamma') )
+    #acc.addSequence( seqAND('L2CaloEgamma'), parentName=parentSeq )
+    mainSeq=seqAND('L2CaloEgamma')
     from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
     filterL1RoIsAlg             = RoRSeqFilter('filterL1RoIsAlg')
     filterL1RoIsAlg.Input       = ['EMRoIDecisions']
@@ -186,7 +187,8 @@ def EgammaCaloMod( flags ):
     filterL1RoIsAlg.Chains      = [ m.split(':')[1].strip() for m in MenuTest.EMThresholdToChainMapping ]
     filterL1RoIsAlg.OutputLevel = DEBUG
 
-    acc.addEventAlgo( filterL1RoIsAlg, sequence='L2CaloEgamma' )
+    #acc.addEventAlgo( filterL1RoIsAlg, sequenceName='L2CaloEgamma' )
+    mainSeq+=filterL1RoIsAlg
     inViewAlgsSeqName = 'fastCaloInViewAlgs'
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
@@ -201,8 +203,8 @@ def EgammaCaloMod( flags ):
 
     fastCaloViewsMaker.ViewNodeName = inViewAlgsSeqName
 
-    acc.addEventAlgo( fastCaloViewsMaker, sequence='L2CaloEgamma' )
-
+    #acc.addEventAlgo( fastCaloViewsMaker, sequenceName='L2CaloEgamma' )
+    mainSeq+=fastCaloViewsMaker
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerFexConfig
     ringer = RingerFexConfig('RingsMaker')
     ringer.RingsKey='CaloRings'
@@ -228,8 +230,9 @@ def EgammaCaloMod( flags ):
 
     __fex_tools = [ samp2, samp1, sampe, samph, ring ]
 
-    acc.addSequence( seqAND( inViewAlgsSeqName ),  sequence='L2CaloEgamma' )
-    
+    #acc.addSequence( seqAND( inViewAlgsSeqName ),  parentName='L2CaloEgamma' )
+    inViewSeq=seqAND( inViewAlgsSeqName )
+    mainSeq+=inViewSeq
 
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo
     fastCalo                         = T2CaloEgammaFastAlgo( 'FastCaloAlgo' )
@@ -245,6 +248,8 @@ def EgammaCaloMod( flags ):
     accessTool                       = TrigDataAccess()
     accessTool.ApplyOffsetCorrection = False
 
+    acc.addPublicTool(accessTool)
+    
     fastCalo.IAlgToolList = __fex_tools
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
@@ -267,8 +272,8 @@ def EgammaCaloMod( flags ):
     #[ acc.addAlgTool( t ) for t in __endcapTools ]
     fastCalo.CalibListEndcap= __endcapTools
 
-    acc.addEventAlgo( fastCalo, sequence=inViewAlgsSeqName )
-
+    #acc.addEventAlgo( fastCalo, sequenceName=inViewAlgsSeqName )
+    inViewSeq+=fastCalo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
     hypo                     = TrigL2CaloHypoAlgMT( 'L2CaloHypo' )
     hypo.HypoInputDecisions  = fastCaloViewsMaker.InputMakerOutputDecisions[0]
@@ -289,15 +294,20 @@ def EgammaCaloMod( flags ):
 
     from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
     hypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in chains ]
-    acc.addEventAlgo( hypo, sequence = 'L2CaloEgamma' )
 
-    return acc,accessTool
+    #acc.addEventAlgo( hypo, sequenceName = 'L2CaloEgamma' )
+    mainSeq+=hypo
+
+    return acc,mainSeq
 
 
 if __name__ == '__main__':
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.set( "global.InputFiles",
+                     ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] )
     ConfigFlags.lock()
-
-    acc = EgammaCaloMod( ConfigFlags )
+    acc,seq = EgammaCaloMod( ConfigFlags )
     acc.printConfig()
     print 'All ok'

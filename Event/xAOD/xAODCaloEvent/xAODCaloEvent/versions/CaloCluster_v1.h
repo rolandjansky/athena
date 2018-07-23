@@ -577,6 +577,8 @@ namespace xAOD {
      /// @name Athena-only methods, used during building stage
      /// @{
      /// Set up an ElementLink to a CaloClusterCellLink object
+     /// Takes ownership of CCCL.
+     /// Deprecated; use the unique_ptr version for new code.
      void addCellLink(CaloClusterCellLink* CCCL) {
        if (m_ownCellLinks && m_cellLinks) {
 	 //Delete link if there is one
@@ -584,6 +586,17 @@ namespace xAOD {
        }
 
        m_cellLinks=CCCL;
+       m_ownCellLinks=true;
+     }
+
+     /// Set up an ElementLink to a CaloClusterCellLink object
+     void addCellLink(std::unique_ptr<CaloClusterCellLink> CCCL) {
+       if (m_ownCellLinks && m_cellLinks) {
+	 //Delete link if there is one
+	 delete m_cellLinks;
+       }
+
+       m_cellLinks=CCCL.release();
        m_ownCellLinks=true;
      }
      /**@brief Set up an ElementLink to a CaloClusterCellLink object
@@ -606,7 +619,7 @@ namespace xAOD {
       */  
      const CaloClusterCellLink* getCellLinks() const;
 
-     /**@brief Get a pointer to the CaloClusterCellLink object (const version)
+     /**@brief Get a pointer to the CaloClusterCellLink object (non-const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid link
       */ 
      CaloClusterCellLink* getCellLinks() {

@@ -148,7 +148,7 @@ void test1 (const IDHelpers& helpers)
 
       coll->push_back (std::move (clus));
     }
-    trans1.addCollection (coll.release(), wafer_hash, true);
+    trans1.addCollection (coll.release(), wafer_hash);
   }
 
 #if 0  
@@ -182,7 +182,7 @@ void test1 (const IDHelpers& helpers)
 
       coll->push_back (std::move (clus));
     }
-    trans1.addCollection (coll.release(), wafer_hash, true);
+    trans1.addCollection (coll.release(), wafer_hash);
   }
 #endif
     

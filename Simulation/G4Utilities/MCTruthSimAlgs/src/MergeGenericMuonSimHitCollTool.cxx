@@ -52,21 +52,16 @@ StatusCode MergeGenericMuonSimHitCollTool::processBunchXing(int bunchXing,
   ATH_MSG_VERBOSE ( "processBunchXing()" );
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
     // loop over containers
     for (unsigned int iHitContainer=0;iHitContainer<m_SimHitContainerNames.size();++iHitContainer) {
       ATH_MSG_VERBOSE ( " Bunch Crossing: " <<bunchXing << ". Process GenericMuonSimHitCollection " << m_SimHitContainerNames[iHitContainer] );
       const GenericMuonSimHitCollection* hitCont;
-      // if container not there, do nothing
-      if (seStore.contains<GenericMuonSimHitCollection>(m_SimHitContainerNames[iHitContainer])) {
-        if( !seStore.retrieve(hitCont, m_SimHitContainerNames[iHitContainer]).isSuccess()) {
-          ATH_MSG_ERROR ( " Failed to retrieve GenericMuonSimHitCollection called " << m_SimHitContainerNames[iHitContainer] );
-        }
+      if (!m_pMergeSvc->retrieveSingleSubEvtData(m_SimHitContainerNames[iHitContainer], hitCont,
+						 bunchXing, iEvt).isSuccess()){
+	ATH_MSG_ERROR("GenericMuonSimHitCollection not found for event key " << m_SimHitContainerNames[iHitContainer]);
+	return StatusCode::FAILURE;
       }
-      else {
-        ATH_MSG_VERBOSE ( " Cannot find GenericMuonSimHitCollection called " << m_SimHitContainerNames[iHitContainer] );
-        continue;
-      }
+
       //if this is the first SubEvent for this Event then create the hitContainers;
       if(m_firstSubEvent) {
         m_outputContainers[iHitContainer] = new GenericMuonSimHitCollection(m_SimHitContainerNames[iHitContainer]);

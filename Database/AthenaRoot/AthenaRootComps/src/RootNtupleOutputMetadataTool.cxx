@@ -157,13 +157,13 @@ RootNtupleOutputMetadataTool::handle(const Incident& inc)
   ATH_MSG_DEBUG("handle() incident type: " << inc.type());
   if (inc.type()=="BeginInputFile") {
     // Have to clean out any previous file metadata trees 
-    const DataHandle<TransferTree> titer; 
-    const DataHandle<TransferTree> tend; 
+    SG::ConstIterator<TransferTree> titer; 
+    SG::ConstIterator<TransferTree> tend; 
     StatusCode pc = m_ometaStore->retrieve(titer,tend); 
     if (pc.isSuccess()) { 
       for (; titer != tend; titer++) { 
-        if (titer.cptr()!=0) { 
-          if (m_ometaStore->removeDataAndProxy(titer.cptr()).isFailure()) { 
+        if (titer.isValid()) { 
+          if (m_ometaStore->removeDataAndProxy(&*titer).isFailure()) { 
             ATH_MSG_ERROR("Unable to remove TransferTree after writing"); 
           } 
         } 
@@ -195,8 +195,8 @@ RootNtupleOutputMetadataTool::writeMetadata()
   }
   if (!m_metaWritten) {
     // Write the strings
-    const DataHandle<std::string> iter;
-    const DataHandle<std::string> end;
+    SG::ConstIterator<std::string> iter;
+    SG::ConstIterator<std::string> end;
     StatusCode pc = m_ometaStore->retrieve(iter,end);
     bool failure = false; 
     if (pc.isSuccess()) {
@@ -211,16 +211,16 @@ RootNtupleOutputMetadataTool::writeMetadata()
     }
     m_metaWritten = true;
   }
-  const DataHandle<TransferTree> titer;
-  const DataHandle<TransferTree> tend;
+  SG::ConstIterator<TransferTree> titer;
+  SG::ConstIterator<TransferTree> tend;
   StatusCode pc = m_ometaStore->retrieve(titer,tend);
   bool failure = false; 
   if (pc.isSuccess()) {
     for (; titer != tend; titer++) {
       std::string key = titer.key();
       if (m_treesWritten.find(key) == m_treesWritten.end()) {
-        if (titer.cptr()!=0) {
-          const TTree* x = (TTree*)titer.cptr()->tree(); 
+        if (titer.isValid()) {
+          const TTree* x = (TTree*)titer->tree(); 
           try { 
             if (this->addMetadata(key,x,typeid(TTree)).isFailure()) failure=true; 
           } 
@@ -245,8 +245,8 @@ RootNtupleOutputMetadataTool::writeMetadata()
 StatusCode
 RootNtupleOutputMetadataTool::copyMetadata() 
 {
-  const DataHandle<std::string> iter;
-  const DataHandle<std::string> end;
+  SG::ConstIterator<std::string> iter;
+  SG::ConstIterator<std::string> end;
   StatusCode pc = m_imetaStore->retrieve(iter,end);
   bool failure = false; 
   if (pc.isSuccess()) {
@@ -261,13 +261,13 @@ RootNtupleOutputMetadataTool::copyMetadata()
     ATH_MSG_ERROR("Problem copying metadata");
     return StatusCode::FAILURE;
   }
-  const DataHandle<TransferTree> titer;
-  const DataHandle<TransferTree> tend;
+  SG::ConstIterator<TransferTree> titer;
+  SG::ConstIterator<TransferTree> tend;
   pc = m_imetaStore->retrieve(titer,tend);
   failure = false; 
   if (pc.isSuccess()) {
     for (; titer != tend; titer++) {
-      if (titer.cptr()!=0) {
+      if (titer.isValid()) {
         auto toCopy = std::make_unique<TransferTree>(*titer);
         if (!m_ometaStore->contains<TransferTree>(titer.key())) {
           if (m_ometaStore->record(std::move(toCopy),titer.key()).isFailure()) failure=true;

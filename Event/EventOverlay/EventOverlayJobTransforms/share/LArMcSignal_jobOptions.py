@@ -38,7 +38,7 @@ if DetFlags.overlay.LAr_on():
    theLArPileUpTool.NoiseOnOff = False
    theLArPileUpTool.RecordMap = False
    
-   if isRealData:
+   if overlayFlags.isDataOverlay():
       theLArPileUpTool.PedestalKey = job.digitmaker1.LArPileUpTool.PedestalKey
 
    theLArPileUpTool.ADC2MeVTool = job.digitmaker1.LArPileUpTool.ADC2MeVTool

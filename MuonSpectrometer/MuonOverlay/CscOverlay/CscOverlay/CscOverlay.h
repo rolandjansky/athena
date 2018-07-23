@@ -82,16 +82,19 @@ private:
   //Whether the data needs to be fliped by 49-strip for bug#56002
   bool needtoflip(const int address) const;
 
-  // ----------------------------------------------------------------
+  // Copying CscRawDataCollection properties
+  void copyCscRawDataCollectionProperties(const CscRawDataCollection& sourceColl, CscRawDataCollection& outColl) const;
 
-  ServiceHandle<StoreGateSvc> m_storeGateTemp;
+  // ----------------------------------------------------------------
  
   // jO controllable properties.
   // "Main" containers are read, have data from "overlay" containers added,
   // and written out with the original SG keys.
-  std::string m_mainInputCSC_Name;
-  std::string m_overlayInputCSC_Name;
+  SG::ReadHandleKey<CscRawDataContainer> m_inputDataRDOKey{this,"InputDataRDOKey","OriginalEvent_SG+CSCRDO",""};
+  SG::ReadHandleKey<CscRawDataContainer> m_inputOverlayRDOKey{this,"InputOverlayRDOKey","BkgEvent_0_SG+CSCRDO",""};
+  SG::WriteHandleKey<CscRawDataContainer> m_outputContainerKey{this,"OutputContainerKey","StoreGateSvc+CSCRDO",""};
   std::string m_sdo;
+
 
   const CscIdHelper   * m_cscHelper;
   ToolHandle<ICscCalibTool> m_cscCalibTool;
@@ -100,7 +103,6 @@ private:
   ToolHandle<IMuonDigitizationTool> m_rdoTool4;
   ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
   bool m_copySDO;
-  bool m_isByteStream;
 
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization

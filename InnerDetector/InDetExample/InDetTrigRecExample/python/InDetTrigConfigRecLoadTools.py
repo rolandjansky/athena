@@ -192,20 +192,20 @@ if InDetTrigFlags.loadRotCreator():
     print InDetTrigBroadInDetRotCreator
 
   # load error scaling
-  from IOVDbSvc.CondDB import conddb
-  if not (conddb.folderRequested( "/Indet/TrkErrorScaling" ) or \
-            conddb.folderRequested( "/Indet/Onl/TrkErrorScaling" )):
-    conddb.addFolderSplitOnline("INDET", "/Indet/Onl/TrkErrorScaling", "/Indet/TrkErrorScaling" )
+  from InDetRecExample.TrackingCommon import createAndAddCondAlg, getRIO_OnTrackErrorScalingCondAlg
+  createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
 
   #
   # smart ROT creator in case we do the TRT LR in the refit
   #
   if InDetTrigFlags.redoTRT_LR():
 
+    from InDetRecExample.TrackingCommon import getTRT_DriftCircleOnTrackTool
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import \
         InDet__TRT_DriftCircleOnTrackUniversalTool
     InDetTrigTRT_RefitRotCreator = \
         InDet__TRT_DriftCircleOnTrackUniversalTool(name  = 'InDetTrigTRT_RefitRotCreator',
+                                                   RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
                                                    ScaleHitUncertainty = 2.5) # fix from Thijs
 #    if InDetTrigFlags.doCommissioning():    #introduced for cosmics do not use for collisions
 #      InDetTrigTRT_RefitRotCreator.ScaleHitUncertainty = 5.

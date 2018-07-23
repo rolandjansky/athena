@@ -17,8 +17,6 @@
 
 #include <string>
 
-#include "HepPDT/ParticleDataTable.hh"
-
 #include "TrkTrack/TrackCollection.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -26,20 +24,20 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "InDetAlignGenTools/IInDetAlignFillTrack.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 
 
 namespace Trk {
   class Track;
   class ITruthToTrack; //!< Produces perigee track parameters from generated parameters
+  class IExtrapolator;
 }
 
-namespace HepMC {
+namespace HepPDT {
   class ParticleDataTable;
 }
 
 class INTupleSvc;
-class IExtrapolator;
+
 
 class InDetAlignFillTrack: virtual public IInDetAlignFillTrack, public AthAlgTool {
  public:

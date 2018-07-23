@@ -2,7 +2,7 @@
 include.block ( "EventOverlayJobTransforms/Level1Overlay_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
-from Digitization.DigitizationFlags import jobproperties
+from Digitization.DigitizationFlags import digitizationFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 if DetFlags.overlay.LVL1_on():
@@ -12,7 +12,7 @@ if DetFlags.overlay.LVL1_on():
        job += DeepCopyObjects("BkgRdo5")
        job.BkgRdo5.Level1Objects = True
           
-    if readBS and isRealData:
+    if overlayFlags.isDataOverlay():
        include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
        #include ("MuonCommRecExample/ReadMuCTPI_jobOptions.py")
 
@@ -29,7 +29,7 @@ if DetFlags.overlay.LVL1_on():
     if DetFlags.simulateLVL1.LAr_on():
         include( "LArL1Sim/LArL1Sim_G4_jobOptions.py" )
         # Noise 
-        if not jobproperties.Digitization.doCaloNoise.get_Value():
+        if not digitizationFlags.doCaloNoise.get_Value():
             job.LArTTL1Maker.NoiseOnOff= False #(default:True) 
         # PileUp
         job.LArTTL1Maker.PileUp = True

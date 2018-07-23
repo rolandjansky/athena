@@ -36,7 +36,7 @@ StatusCode SCTRawDataProviderTool::initialize()
 /// -------------------------------------------------------
 /// convert method
 
-void SCTRawDataProviderTool::BeginNewEvent() {
+void SCTRawDataProviderTool::beginNewEvent() {
    /** reset list of known robIds */
    m_robIdSet.clear(); 
 }
@@ -48,7 +48,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 {
   if(vecRobs.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
-  static int DecodeErrCount{0};
+  static int decodeErrCount{0};
 
   /**  are we working on a new event ? */
   std::vector<const ROBFragment*>::const_iterator rob_it{vecRobs.begin()};
@@ -68,12 +68,12 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     } else {
       sc = m_decoder->fillCollection(**rob_it, rdoIdc, errs, bsFracCont);
       if (sc==StatusCode::FAILURE) {
-        if (DecodeErrCount < 100) {
+        if (decodeErrCount < 100) {
           ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
-          DecodeErrCount++;
-        } else if (100 == DecodeErrCount) {
+          decodeErrCount++;
+        } else if (100 == decodeErrCount) {
           ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.  ");
-          DecodeErrCount++;
+          decodeErrCount++;
         }
       }
     }

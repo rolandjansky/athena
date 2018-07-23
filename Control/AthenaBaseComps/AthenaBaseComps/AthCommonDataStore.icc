@@ -1,0 +1,103 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+/** @class  AthCommonDataStore
+ *  @file   AthenaBaseComps/AthCommonDataStore.icc
+ *  @author Charles Leggett
+ *  @date   June 2018
+ *  @brief  Templated class that provides access to Athena event stores
+ *          and ability to set data dependencies via Properites.
+ *          Implemented to reduce code duplication in AthAlgorithm, 
+ *          AthAlgTool, and AthReEntrantAlgorithm
+ */
+
+#ifndef ATHENABASECOMPS_ATHCOMMONDATASTORE_ICC
+#define ATHENABASECOMPS_ATHCOMMONDATASTORE_ICC
+
+#include "AthenaBaseComps/VHKASupport.h"
+#include "AthenaBaseComps/AthAlgStartVisitor.h"
+
+template <class PBASE>
+void AthCommonDataStore<PBASE>::extraDeps_update_handler( Property& ExtraDeps ) 
+  {
+    DataObjIDColl newColl;
+    Gaudi::Property<DataObjIDColl> *prop = dynamic_cast<Gaudi::Property<DataObjIDColl>*> (&ExtraDeps);
+    if ( prop ) {
+      for (auto id : prop->value()) {
+        SG::VarHandleKey vhk(id.clid(), id.key(), Gaudi::DataHandle::Reader);
+        id.updateKey( vhk.objKey() );
+        newColl.emplace( id );
+      }
+      if (newColl.size() != 0) prop->setValue( newColl );
+    } else {
+      ATH_MSG_ERROR("unable to dcast ExtraInput/Output Property");
+    }
+  }
+
+/**
+ * @brief Perform system initialization for an algorithm.
+ */
+template <class PBASE>
+StatusCode AthCommonDataStore<PBASE>::sysInitialize() {
+  ATH_CHECK( PBASE::sysInitialize() );
+  
+  for ( SG::VarHandleKeyArray* a: m_vhka ) {
+    a->declare( this );
+  }
+  
+  m_varHandleArraysDeclared = true;
+  
+  return StatusCode::SUCCESS;
+}
+
+/**
+ * @brief Handle START transition.
+ */
+template <class PBASE>
+StatusCode AthCommonDataStore<PBASE>::sysStart() {
+  ATH_CHECK( PBASE::sysStart() );
+  
+  // Call start() on all input handles.
+  // This allows CondHandleKeys to cache pointers to their conditions containers.
+  // (CondInputLoader makes the containers that it creates during start(),
+  // so initialize() is too early for this.)
+  
+  AthAlgStartVisitor visitor(this);
+  this->acceptDHVisitor (&visitor);
+
+  return StatusCode::SUCCESS;
+}
+
+/**
+ * @brief Return this algorithm's input handles.
+ */
+template <class PBASE>
+std::vector<Gaudi::DataHandle*> AthCommonDataStore<PBASE>::inputHandles() const
+{
+  std::vector<Gaudi::DataHandle*> v = PBASE::inputHandles();
+
+  if (!m_varHandleArraysDeclared) {
+    VHKASupport::insertInput( m_vhka, v );
+  }
+
+  return v;
+}
+
+/**
+ * @brief Return this algorithm's output handles.
+ */
+template <class PBASE>
+std::vector<Gaudi::DataHandle*> AthCommonDataStore<PBASE>::outputHandles() const
+{
+  std::vector<Gaudi::DataHandle*> v = PBASE::outputHandles();
+
+  if (!m_varHandleArraysDeclared) {    
+    VHKASupport::insertOutput( m_vhka, v );
+  }
+
+  return v;
+}
+
+
+#endif
