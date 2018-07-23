@@ -41,11 +41,6 @@ parent);
   virtual StatusCode execute(TagFragmentCollection& exoticTagCol, const int max);
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~ExoticPhysTagTool( );
-
 private:
 
   /** Properties */

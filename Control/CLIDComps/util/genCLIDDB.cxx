@@ -103,6 +103,7 @@ int main(int argc, char* argv[]) {
       return gaudiError("clidDB_gen can not run");
     }  
   }
+
   if ( 0 == pSvcLoc ) {
     return gaudiError( "NULL pointer to ISvcLocator" );
   }
@@ -114,8 +115,9 @@ int main(int argc, char* argv[]) {
   IClassIDSvc* pClassIDSvc(0);
   if (!(pSvcLoc->service("ClassIDSvc", pClassIDSvc, true).isSuccess())) {
     cerr << "can not get ClassIDSvc, no clid.db will be generated" << endl;
-    return 0;
+    return 1;
   }
+
   if ( 0 == pClassIDSvc ) {
     return gaudiError("NULL pointer to IClassIDSvc");
   }

@@ -17,6 +17,7 @@
 #include "ZDC_SimEvent/ZDC_SimStripHit.h"
 #include "ZDC_SimEvent/ZDC_SimPixelHit.h"
 #include "ZdcEvent/ZdcDigitsCollection.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 #include <string>
 #include <fstream> 
 
@@ -24,7 +25,6 @@
 #include <utility> /* pair */
 
 class IAtRndmGenSvc;
-class PileUpMergeSvc;
 
 class ZDC_PileUpTool: public PileUpToolBase {
 

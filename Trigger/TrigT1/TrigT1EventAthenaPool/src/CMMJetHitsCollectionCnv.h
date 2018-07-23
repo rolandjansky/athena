@@ -32,8 +32,6 @@ public:
      {}
   
 protected:
-
-  ~CMMJetHitsCollectionCnv() {}
   
   virtual CMMJetHitsCollection_PERS*   createPersistent (CMMJetHitsCollection* transCont);
   virtual CMMJetHitsCollection*        createTransient ();

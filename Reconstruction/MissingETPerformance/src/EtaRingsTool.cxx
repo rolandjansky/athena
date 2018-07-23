@@ -635,6 +635,3 @@ StatusCode EtaRingsTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-EtaRingsTool::~EtaRingsTool() {}

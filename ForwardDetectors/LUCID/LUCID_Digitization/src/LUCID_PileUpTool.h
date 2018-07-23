@@ -15,6 +15,8 @@
 #include "xAODEventInfo/EventInfo.h"   // SubEventIterator
 #include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
 
+#include "PileUpTools/PileUpMergeSvc.h"
+
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -23,7 +25,7 @@
 
 class StoreGateSvc;
 class IAtRndmGenSvc;
-class PileUpMergeSvc;
+//class PileUpMergeSvc;
 class IHistSvc;
 
 class LUCID_PileUpTool: public PileUpToolBase, public LUCID_DigitizationToolBox {

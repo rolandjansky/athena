@@ -176,6 +176,3 @@ StatusCode  EventInfoAttListTool::finalize() {
   ATH_MSG_DEBUG("in finalize()");
   return AthAlgTool::finalize();
 }
-
-/** destructor */
-EventInfoAttListTool::~EventInfoAttListTool() {}

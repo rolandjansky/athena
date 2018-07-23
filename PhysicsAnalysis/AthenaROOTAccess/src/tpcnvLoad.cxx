@@ -48,7 +48,7 @@ Registry::instance()
 ITPCnvBase* 
 Registry::load_tpcnv(const std::string& cls)
 {
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create (cls);
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create (cls).release();
   if (cnv == 0) {
     ::Warning("tpcnvLoad", 
               "could not load class [%s] via Reflex::PluginService",
@@ -65,9 +65,9 @@ Registry::load_tpcnv(const std::string& cls)
 ITPCnvBase*
 Registry::p2t_cnv(const std::string& persClassName)
 {
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_ARA_PERS_" + persClassName);
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_ARA_PERS_" + persClassName).release();
   if (!cnv)
-    cnv = ITPCnvBase::Factory::create ("_PERS_" + persClassName);
+    cnv = ITPCnvBase::Factory::create ("_PERS_" + persClassName).release();
   if (cnv == 0) {
     ::Warning("tpcnvLoad", 
               "could not load converter for persistent class [%s]",
@@ -84,9 +84,9 @@ Registry::p2t_cnv(const std::string& persClassName)
 ITPCnvBase*
 Registry::t2p_cnv(const std::string& transClassName)
 {
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_ARA_TRANS_" + transClassName);
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_ARA_TRANS_" + transClassName).release();
   if (!cnv)
-    cnv = ITPCnvBase::Factory::create ("_TRANS_" + transClassName);
+    cnv = ITPCnvBase::Factory::create ("_TRANS_" + transClassName).release();
   if (cnv == 0) {
     ::Warning("tpcnvLoad", 
               "could not load converter for transient class [%s]",
@@ -104,9 +104,9 @@ Registry::t2p_cnv(const std::string& transClassName)
 std::string Registry::p2t_name(const std::string& persClassName)
 {
   std::string out;
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_ARA_PERS_" + persClassName);
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_ARA_PERS_" + persClassName).release();
   if (!cnv)
-    cnv = ITPCnvBase::Factory::create ("_PERS_" + persClassName);
+    cnv = ITPCnvBase::Factory::create ("_PERS_" + persClassName).release();
   if (cnv != 0) {
     out = SG::normalizedTypeinfoName (cnv->transientTInfo());
     delete cnv;

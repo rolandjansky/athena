@@ -29,12 +29,11 @@ typedef T_AthenaPoolCustomCnv<TrigHisto2D, TrigHisto2D_PERS > TrigHisto2DCnvBase
 class TrigHisto2DCnv : public TrigHisto2DCnvBase {
   friend class CnvFactory<TrigHisto2DCnv>;
   
- protected:
 public:
   TrigHisto2DCnv(ISvcLocator* svcloc);
-protected:
   ~TrigHisto2DCnv();
   
+protected:
   TrigHisto2D_PERS* createPersistent(TrigHisto2D* transObj);
   TrigHisto2D* createTransient();
 };

@@ -28,12 +28,12 @@
 typedef  InDetRawDataCollection<TRT_RDORawData> TRT_RDO_Collection;
 
 #include "InDetSimData/InDetSimDataCollection.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 
 class StoreGateSvc;
 class SCT_ID;
 class TRT_ID;
-class IAtRndmGenSvc;
 
 namespace CLHEP {
   class HepRandomEngine;

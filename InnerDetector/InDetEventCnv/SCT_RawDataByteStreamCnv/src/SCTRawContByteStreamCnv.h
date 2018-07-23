@@ -15,9 +15,9 @@
 
 // Athena
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 
 class DataObject;
-class IByteStreamEventAccess;
 class ISCTRawContByteStreamTool;
 
 /** Externals */ 
@@ -32,7 +32,6 @@ extern long ByteStream_StorageType;
  * to do the actual converting. */
 
 class SCTRawContByteStreamCnv: public Converter {
-  virtual ~SCTRawContByteStreamCnv() = default;
 
  public:
   SCTRawContByteStreamCnv(ISvcLocator* svcloc);

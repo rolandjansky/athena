@@ -10,14 +10,11 @@
 
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
 #include <string>
 #include <vector>
-
-namespace TrigConf{
-  class ILVL1ConfigSvc;
-}
-class ITRT_StrawNeighbourSvc;
 
 namespace LVL1 {
   class TrigT1TRT : public AthAlgorithm {

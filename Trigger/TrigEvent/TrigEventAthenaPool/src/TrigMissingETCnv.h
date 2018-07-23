@@ -38,9 +38,9 @@ class TrigMissingETCnv : public TrigMissingETCnvBase {
  protected:
 public:
   TrigMissingETCnv(ISvcLocator *svcloc);
-protected:
   ~TrigMissingETCnv();
 
+protected:
   virtual TrigMissingET_PERS  *createPersistent(TrigMissingET *transObj);
   virtual TrigMissingET       *createTransient();
 };

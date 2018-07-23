@@ -14,6 +14,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
+#include "TileG4Interfaces/ITileCalculator.h"
 
 #include <map>
 #include <vector>
@@ -29,8 +31,6 @@ class LArMiniFCAL_ID;
 class TileID;
 class CaloDetDescrManager;
 
-class ILArCalculatorSvc;
-class ITileCalculator;
 class LArHitContainer;
 
 class StoreGateSvc;

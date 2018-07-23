@@ -25,6 +25,7 @@
 #include "InDetSimEvent/SiHitCollection.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 // Gaudi headers
 #include "GaudiKernel/ToolHandle.h"

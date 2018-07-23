@@ -48,10 +48,9 @@ class TrigL2BphysContainerCnv : public TrigL2BphysContainerCnvBase
    
 public:
   TrigL2BphysContainerCnv( ISvcLocator *svcloc );
-protected:
-
   ~TrigL2BphysContainerCnv();
  
+protected:
    
    virtual TrigL2BphysContainer_PERS *createPersistent( TrigL2BphysContainer *transObj);
    virtual TrigL2BphysContainer      *createTransient();
