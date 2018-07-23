@@ -139,8 +139,6 @@ bool PixelConditionsSummarySvc::isActive(const Identifier & elementId, const InD
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(moduleHash);
 
-    std::cout << "STSTST PixelConditionsSummarySvc::isActive 1 " << dcsState << std::endl;
-
     for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
       if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
@@ -186,8 +184,6 @@ bool PixelConditionsSummarySvc::isActive(const IdentifierHash & elementHash) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
 
-    std::cout << "STSTST PixelConditionsSummarySvc::isActive 2 " << dcsState << std::endl;
-
     for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
       if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
@@ -211,8 +207,6 @@ bool PixelConditionsSummarySvc::isActive(const IdentifierHash & elementHash, con
   if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
-
-    std::cout << "STSTST PixelConditionsSummarySvc::isActive 3 " << dcsState << std::endl;
 
     for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
       if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
@@ -243,8 +237,6 @@ double PixelConditionsSummarySvc::activeFraction(const IdentifierHash & elementH
   if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
-
-    std::cout << "STSTST PixelConditionsSummarySvc::activeFraction " << dcsState << std::endl;
 
     for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
       if (m_isActiveStates[istate]==dcsState) { isDCSActive = true; }
@@ -305,8 +297,6 @@ bool PixelConditionsSummarySvc::isGood(const Identifier & elementId, const InDet
     bool isDCSGood = false;
     std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(moduleHash);
 
-    std::cout << "STSTST PixelConditionsSummarySvc::isGood 1 " << dcsState << " " << dcsStatus << std::endl;
-
     for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
       if (m_isActiveStates[istate]==dcsState) { isDCSActive = true; }
     }
@@ -362,8 +352,6 @@ bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash) {
     bool isDCSGood = false;
     std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
 
-    std::cout << "STSTST PixelConditionsSummarySvc::isGood 2 " << dcsState << " " << dcsStatus << std::endl;
-
     for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
       if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
@@ -392,8 +380,6 @@ bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash, const
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
     bool isDCSGood = false;
     std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
-
-    std::cout << "STSTST PixelConditionsSummarySvc::isGood 3 " << dcsState << " " << dcsStatus << std::endl;
 
     for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
       if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
@@ -429,8 +415,6 @@ double PixelConditionsSummarySvc::goodFraction(const IdentifierHash & elementHas
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
     bool isDCSGood = false;
     std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
-
-    std::cout << "STSTST PixelConditionsSummarySvc::goodFraction " << dcsState << " " << dcsStatus << std::endl;
 
     for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
       if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
