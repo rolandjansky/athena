@@ -63,6 +63,7 @@ class StatusCode;
   XYZ(TempMaskedChip5)         \
   XYZ(ABCDError_Error7)        \
   XYZ(ABCDError_Invalid)       \
+  XYZ(RODSimulatedData)        \
   XYZ(NUM_ERROR_TYPES) // always have this one last, so we can use it as a loop index
 #endif // SCT_ERRORTYPELIST
 
@@ -104,9 +105,7 @@ public:
   
   virtual std::set<IdentifierHash>* getErrorSet(int errorType)=0;
 
-  virtual void setRODSimulatedData()=0;
-
-  virtual bool isRODSimulatedData()=0;
+  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash) const =0;
 
   virtual void addError(IdentifierHash id, int errorType)=0;
   virtual void addErrorCount(int errorType)=0;
