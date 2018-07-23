@@ -25,7 +25,7 @@
 
 /** @class SCTRawDataProviderTool
  *
- * @breif Athena Algorithm Tool to fill Collections of SCT RDO Containers.
+ * @brief Athena Algorithm Tool to fill Collections of SCT RDO Containers.
  *
  * The class inherits from AthAlgTool and ISCTRawDataProviderTool.
  *
