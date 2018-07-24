@@ -105,6 +105,32 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer3TGCHoles );
         DEFINE_ACCESSOR( uint8_t, etaLayer4TGCHoles );
 
+        // New Small Wheel
+        // STGC
+        DEFINE_ACCESSOR( uint8_t, phiLayer1STGCHits );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2STGCHits );
+
+        DEFINE_ACCESSOR( uint8_t, etaLayer1STGCHits );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2STGCHits );
+        
+        DEFINE_ACCESSOR( uint8_t, phiLayer1STGCHoles );
+        DEFINE_ACCESSOR( uint8_t, phiLayer2STGCHoles );
+        
+        DEFINE_ACCESSOR( uint8_t, etaLayer1STGCHoles );
+        DEFINE_ACCESSOR( uint8_t, etaLayer2STGCHoles );
+
+        // MM
+        DEFINE_ACCESSOR( uint8_t, MMHits );
+        DEFINE_ACCESSOR( uint8_t, MMHoles );
+        // Note: there is currently no MuonStationIndex for the two MM layers
+        // In the future it might be needed to add them in order to have 
+        // separate counters as follows
+        // DEFINE_ACCESSOR( uint8_t, Layer1MMHits );
+        // DEFINE_ACCESSOR( uint8_t, Layer2MMHits );
+        // DEFINE_ACCESSOR( uint8_t, Layer1MMHoles );
+        // DEFINE_ACCESSOR( uint8_t, Layer2MMHoles );
+
+
 	DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
 	DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
 	DEFINE_ACCESSOR( uint8_t, outerClosePrecisionHits );
@@ -121,6 +147,7 @@ namespace xAOD {
 	DEFINE_ACCESSOR( uint8_t, isSmallGoodSectors );
 
 	DEFINE_ACCESSOR( uint8_t, cscEtaHits );
+    
 	DEFINE_ACCESSOR( uint8_t, cscUnspoiledEtaHits );
 
       default:                  
