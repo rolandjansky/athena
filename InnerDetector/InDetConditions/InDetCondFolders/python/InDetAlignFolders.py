@@ -49,23 +49,18 @@ if useDynamicAlignFolders:
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/AlignL1/TRT","/TRT/AlignL1/TRT")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/AlignL2","/TRT/AlignL2")
 else:
-    if DetFlags.simulate.any_on():
-        # Simulation does not use condition algorithms for alignment
-        conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align")
-    else:
-        conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer")
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Align","/TRT/Align")
 
-# Condition algorithms for ID alignment only for non-simulation jobs
-if not DetFlags.simulate.any_on():
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    if not hasattr(condSeq, "SCT_AlignCondAlg"):
-        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-        condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
-                                    UseDynamicAlignFolders = useDynamicAlignFolders)
-    if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
-        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
-        condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
+# Condition algorithms for ID alignment
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "SCT_AlignCondAlg"):
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
+    condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
+                                UseDynamicAlignFolders = useDynamicAlignFolders)
+if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
+    from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+    condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
 
 del useDynamicAlignFolders #tidy up
