@@ -108,6 +108,48 @@ for k in jtm.jetrecs :
 AppendOutputList(jetFlags.jetAODList)
 JetAlgFromTools(jtm.HIJetRecs,suffix="HI",persistify=True)
 
+# code cloned from BTagging_jobOptions.py
+# to allow b-tagging over HI jets
 
+if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec people can test setting this all up from their side.
+  #
+  # ========== Load and configure everything
+  #
 
+  from BTagging.BTaggingConfiguration import getConfiguration
+  ConfInstance = getConfiguration()
 
+  if ConfInstance.checkFlagsUsingBTaggingFlags():
+
+    #Jet collections
+    JetCollectionList = ['AntiKt4HIJets']
+    from JetRec.JetRecFlags import jetFlags
+
+    BTaggingFlags.Jets = [ name[:-4] for name in JetCollectionList]
+
+    #BTagging list
+    btag = ConfInstance.getOutputFilesPrefix() #BTaggingFlags.OutputFilesBTag #"BTagging_"
+
+    #TODO define name author (now BTagging_AntiKt4LCTopo)
+    AuthorSubString = [ btag+name[:-4] for name in JetCollectionList]
+
+    NotInJetToolManager = [] # For jet collections
+    from JetRec.JetRecStandard import jtm
+    for i, jet in enumerate(JetCollectionList):
+        try:
+          btagger = ConfInstance.setupJetBTaggerTool(ToolSvc, jet) #The [:-4] is not needed here; this function automatically removes trailing 'jets' or 'Jets'.
+          if btagger is None:
+            continue
+          jet = jet.replace("Track", "PV0Track")
+          jetname = getattr(jtm, jet)
+          jetname.unlock()
+          jetname.JetModifiers += [ btagger ]
+          jetname.lock()
+          if BTaggingFlags.OutputLevel < 3:
+            print ConfInstance.getJetCollectionTool(jet[:-4])
+        except AttributeError as error:
+          print '#BTAG# --> ' + str(error)
+          NotInJetToolManager.append(AuthorSubString[i])
+
+    if len(NotInJetToolManager) > 0:
+        AuthorSubString = list(set(AuthorSubString) - set(NotInJetToolManager))

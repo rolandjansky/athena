@@ -82,6 +82,7 @@ namespace xAOD {
       EMPFlowVor,
       EMPFlowCSSK,
       EMPFlowVorSK,
+      HI,
       TruthCharged, // Truth jets with only charged particles
       Other = 100,
       Uncategorized= 1000
