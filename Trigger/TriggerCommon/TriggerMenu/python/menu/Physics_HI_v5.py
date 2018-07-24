@@ -391,13 +391,13 @@ def setupMenu():
         #['hi_th3_ucc_L1TE14000',    'L1_TE14000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
 
 	#backup (ATR-12547)
-	    ['hi_th1_zdcpu_ucc_L1TE10000',    'L1_TE10000',   [], [UCCStream, 'express'],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-        ['hi_th2_zdcpu_ucc_L1TE10000',    'L1_TE10000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-        ['hi_th3_zdcpu_ucc_L1TE10000',    'L1_TE10000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+	    #['hi_th1_zdcpu_ucc_L1TE10000',    'L1_TE10000',   [], [UCCStream, 'express'],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        #['hi_th2_zdcpu_ucc_L1TE10000',    'L1_TE10000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        #['hi_th3_zdcpu_ucc_L1TE10000',    'L1_TE10000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
 
-        ['hi_th1_zdcpu_ucc_L1TE12000',    'L1_TE12000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-        ['hi_th2_zdcpu_ucc_L1TE12000',    'L1_TE12000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-        ['hi_th3_zdcpu_ucc_L1TE12000',    'L1_TE12000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        #['hi_th1_zdcpu_ucc_L1TE12000',    'L1_TE12000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        #['hi_th2_zdcpu_ucc_L1TE12000',    'L1_TE12000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        #['hi_th3_zdcpu_ucc_L1TE12000',    'L1_TE12000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
     
         #['hi_th1_zdcpu_ucc_L1TE14000',    'L1_TE14000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         #['hi_th2_zdcpu_ucc_L1TE14000',    'L1_TE14000',   [], [UCCStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
@@ -407,8 +407,8 @@ def setupMenu():
 	    ['hi_perf_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
 	    ['hi_perf_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         ['hi_perf_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-        ['hi_perfzdc_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-        ['hi_perfzdc_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        #['hi_perfzdc_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        #['hi_perfzdc_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         
 	#ultra-peripheral
         ['hi_loose_upc_L1ZDC_A_C_VTE50',     'L1_ZDC_A_C_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
@@ -458,10 +458,10 @@ def setupMenu():
 	['mb_sptrk_ion_L1ZDC_A_C_VTE50_OVERLAY',  'L1_ZDC_A_C_VTE50_OVERLAY', [], ['MinBiasOverlay'],["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
 
         #Zdc
-	['mb_lg_zdcperf_L1All',  '', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-        ['mb_lg_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-        ['mb_hg_zdcperf_L1All',  '', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
-        ['mb_hg_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+	#['mb_lg_zdcperf_L1All',  '', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        #['mb_lg_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        #['mb_hg_zdcperf_L1All',  '', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        #['mb_hg_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 
 	#UPC ATR-10574
 	#['mb_sptrk_vetombts2in_L1MU0_VTE50',                 'L1_MU0_VTE50',   [], [UPCStream, 'express'], ["BW:UPC", "RATE:UPC"], -1],
