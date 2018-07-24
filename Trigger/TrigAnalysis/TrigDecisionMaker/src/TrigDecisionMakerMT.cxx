@@ -42,8 +42,6 @@ StatusCode TrigDecisionMakerMT::initialize()
   ATH_CHECK( m_HLTSummaryKeyIn.initialize() );
   ATH_CHECK( m_ROIBResultKeyIn.initialize() );
   ATH_CHECK( m_EventInfoKeyIn.initialize() );
-  ATH_CHECK( m_L1ResultKeyIn.initialize() );
-  renounce(m_L1ResultKeyIn); // This is an optional input. We can re-create it via m_ROIBResultKeyIn
 
   ATH_CHECK( m_trigDecisionKeyOut.initialize() );
 
@@ -77,11 +75,15 @@ StatusCode TrigDecisionMakerMT::execute_r(const EventContext& context) const
   const LVL1CTP::Lvl1Result* l1Result = nullptr;
   if (m_doL1) {
     ATH_CHECK(getL1Result(l1Result, context));
-    if (l1Result->isAccepted()) ++m_l1Passed;
+    if (l1Result->isAccepted()) {
+      ++m_l1Passed;
+    }
   }
 
   const TrigCompositeUtils::DecisionContainer* hltResult = nullptr;
-  if (m_doHLT) ATH_CHECK(getHLTResult(hltResult, context));
+  if (m_doHLT) {
+    ATH_CHECK(getHLTResult(hltResult, context));
+  }
 
   std::unique_ptr<xAOD::TrigDecision>        trigDec    = std::make_unique<xAOD::TrigDecision>();
   std::unique_ptr<xAOD::TrigDecisionAuxInfo> trigDecAux = std::make_unique<xAOD::TrigDecisionAuxInfo>();
@@ -104,7 +106,9 @@ StatusCode TrigDecisionMakerMT::execute_r(const EventContext& context) const
       // Collect all decisions (IDs of passed chains) from decisionObject into allPassedSet
       TrigCompositeUtils::decisionIDs(decisionObject, allPassedSet);
     }
-    if (allPassedSet.size()) ++m_hltPassed;
+    if (allPassedSet.size()) {
+      ++m_hltPassed;
+    }
     std::vector<TrigCompositeUtils::DecisionID> toRecordPassed(allPassedSet.begin(), allPassedSet.end());
     trigDec->setChainMTPassedRaw(toRecordPassed);
   }
@@ -114,12 +118,7 @@ StatusCode TrigDecisionMakerMT::execute_r(const EventContext& context) const
   // TODO resurrected
 
   // get the bunch crossing id
-  auto eventInfoHandle = SG::makeHandle(m_EventInfoKeyIn, context);
-  if (!eventInfoHandle.isValid()) {
-    ATH_MSG_ERROR("Cannot read " << m_EventInfoKeyIn.key());
-    return StatusCode::FAILURE;
-  }
-  const xAOD::EventInfo* eventInfo = eventInfoHandle.get();
+  const xAOD::EventInfo* eventInfo = SG::get(m_EventInfoKeyIn, context);
   const char bgByte = getBGByte(eventInfo->bcid());
   trigDec->setBGCode(bgByte);
   ATH_MSG_DEBUG ( "Run '" << eventInfo->runNumber()
@@ -138,32 +137,19 @@ StatusCode TrigDecisionMakerMT::execute_r(const EventContext& context) const
 
 StatusCode TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result*& result, const EventContext& context) const
 {
-  auto l1ResultHandle = SG::makeHandle(m_L1ResultKeyIn, context);
-  auto roibResultHandle = SG::makeHandle(m_ROIBResultKeyIn, context);
+  const ROIB::RoIBResult* roIBResult = SG::get(m_ROIBResultKeyIn, context);
 
-  if (!roibResultHandle.isValid() && !l1ResultHandle.isValid()) {
-    ATH_MSG_ERROR("Cannot read " << m_ROIBResultKeyIn.key() << " or " << m_ROIBResultKeyIn.key());
+  ATH_CHECK(m_lvl1Tool->updateItemsConfigOnly());
+
+  if (roIBResult && (roIBResult->cTPResult()).isComplete()) {  
+    m_lvl1Tool->createL1Items(*roIBResult, true);
+    result = m_lvl1Tool->getLvl1Result();
+    ATH_MSG_DEBUG ( "Built LVL1CTP::Lvl1Result from valid CTPResult.");
+  }
+
+  if (result == nullptr) {
+    ATH_MSG_DEBUG ( "Could not construct L1 result from roIBResult");
     return StatusCode::FAILURE;
-  }
-
-  // Prefer to remake from RoIB Result
-  if (roibResultHandle.isValid()) {
-    const ROIB::RoIBResult* roIBResult = roibResultHandle.get();
-
-    ATH_CHECK(m_lvl1Tool->updateItemsConfigOnly());
-
-    if (roIBResult && (roIBResult->cTPResult()).isComplete()) {  
-      m_lvl1Tool->createL1Items(*roIBResult, true);
-      result = m_lvl1Tool->getLvl1Result();
-      ATH_MSG_DEBUG ( "Build LVL1CTP::Lvl1Result from valid CTPResult.");
-    } else {
-      ATH_MSG_DEBUG ( "No LVL1CTP::Lvl1Result built since no valid CTPResult is available.");
-    }
-  }
-
-  if (result == nullptr && roibResultHandle.isValid()) {
-    ATH_MSG_DEBUG("Cannot read " << m_ROIBResultKeyIn.key() << " Fall back to Lvl1Result");
-    result = l1ResultHandle.get();
   }
 
   return StatusCode::SUCCESS;
@@ -172,24 +158,18 @@ StatusCode TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result*& result, 
 
 StatusCode TrigDecisionMakerMT::getHLTResult(const TrigCompositeUtils::DecisionContainer*& result, const EventContext& context) const
 {
-  auto hltResultHandle = SG::makeHandle(m_HLTSummaryKeyIn, context);
-  if (!hltResultHandle.isValid()) {
-    ATH_MSG_ERROR("Cannot read " << m_HLTSummaryKeyIn.key());
-    return StatusCode::FAILURE;
-  }
-  result = hltResultHandle.get();
-
+  result = SG::get(m_HLTSummaryKeyIn, context);
   return StatusCode::SUCCESS;
 }
 
 
 char TrigDecisionMakerMT::getBGByte(int BCId) const {
   const TrigConf::BunchGroupSet* bgs = m_trigConfigSvc->bunchGroupSet();
-  if(!bgs) {
+  if (!bgs) {
     ATH_MSG_WARNING ("Could not get BunchGroupSet to calculate BGByte");
     return 0;
   }
-  if((unsigned int)BCId >= bgs->bgPattern().size()) {
+  if ((unsigned int)BCId >= bgs->bgPattern().size()) {
     ATH_MSG_WARNING ("Could not return BGCode for BCid " << BCId << ", since size of BGpattern is " <<  bgs->bgPattern().size() ) ;
     return 0;
   }

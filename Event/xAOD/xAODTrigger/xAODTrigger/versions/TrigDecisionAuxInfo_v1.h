@@ -75,7 +75,7 @@ namespace xAOD {
       // typedef unsigned int DecisionID;
       std::vector< ::TrigCompositeUtils::DecisionID > chainMTPassedRaw;
       std::vector< ::TrigCompositeUtils::DecisionID > chainMTPrescaled;
-      std::vector< ::TrigCompositeUtils::DecisionID > chainMTResurrected;
+      std::vector< ::TrigCompositeUtils::DecisionID > chainMTRerun;
       /// @}
 
    }; // class TrigDecisionAuxInfo_v1

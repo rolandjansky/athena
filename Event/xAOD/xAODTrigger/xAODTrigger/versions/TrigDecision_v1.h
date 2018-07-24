@@ -163,26 +163,26 @@ namespace xAOD {
       /// Get the passed-raw chains
       const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTPassedRaw() const;
       /// Set the EF passed-raw items
-      void setChainMTPassedRaw( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
-      /// Basic access modes
+      void setChainMTPassedRaw( std::vector< ::TrigCompositeUtils::DecisionID > value );
+      /// Basic access modes. Performs binary search for id on ordered vector of DecisionIDs
       bool isPassed( ::TrigCompositeUtils::DecisionID id ) const;
       bool isPassed( const std::string& hltChainName ) const;
 
       /// Get the EF prescaled items
       const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTPrescaled() const;
       /// Set the EF prescaled items
-      void setChainMTPrescaled( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
-      /// Basic access modes
+      void setChainMTPrescaled( std::vector< ::TrigCompositeUtils::DecisionID > value );
+      /// Basic access modes. Performs binary search for id on ordered vector of DecisionIDs
       bool isPrescaled( ::TrigCompositeUtils::DecisionID id ) const;
       bool isPrescaled( const std::string& hltChainName ) const;
 
       /// Get the EF resurrected items
-      const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTResurrected() const;
+      const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTRerun() const;
       /// Set the EF resurrected items
-      void setChainMTResurrected( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
-      /// Basic access modes
-      bool isResurrected( ::TrigCompositeUtils::DecisionID id ) const;
-      bool isResurrected( const std::string& hltChainName ) const;
+      void setChainMTRerun( std::vector< ::TrigCompositeUtils::DecisionID > value );
+      /// Basic access modes. Performs binary search for id on ordered vector of DecisionIDs
+      bool isRerun( ::TrigCompositeUtils::DecisionID id ) const;
+      bool isRerun( const std::string& hltChainName ) const;
 
       /// @}
 
@@ -191,7 +191,6 @@ namespace xAOD {
 } // namespace xAOD
 
 std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td);
-
 
 // Declare the inheritance of the type:
 #include "xAODCore/BaseInfo.h"

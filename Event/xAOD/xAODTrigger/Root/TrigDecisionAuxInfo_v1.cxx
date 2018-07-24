@@ -40,7 +40,7 @@ namespace xAOD {
       // Extended July 2018
       AUX_VARIABLE( chainMTPassedRaw );
       AUX_VARIABLE( chainMTPrescaled );
-      AUX_VARIABLE( chainMTResurrected );
+      AUX_VARIABLE( chainMTRerun );
    }
 
 } // namespace xAOD
