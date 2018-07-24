@@ -166,7 +166,7 @@ private:
   StatusCode createEventContext(EventContext*& eventContext) const;
 
   /// Drain the scheduler from all actions that may be queued
-  int drainScheduler() const;
+  int drainScheduler();
 
   /// Clear an event slot in the whiteboard
   StatusCode clearWBSlot(int evtSlot) const;
@@ -245,6 +245,8 @@ private:
 
   /// Vector of event start-processing time stamps in each slot
   std::vector<std::chrono::steady_clock::time_point> m_eventTimerStartPoint;
+  /// Vector of flags to tell if a slot is idle or processing
+  std::vector<bool> m_isSlotProcessing; // be aware of vector<bool> specialisation
   /// Timeout mutex
   std::mutex m_timeoutMutex;
   /// Timeout condition variable

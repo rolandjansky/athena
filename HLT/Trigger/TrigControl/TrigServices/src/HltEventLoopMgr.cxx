@@ -519,6 +519,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
     std::unique_lock<std::mutex> lock(m_timeoutMutex);
     m_eventTimerStartPoint.clear();
     m_eventTimerStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::time_point());
+    m_isSlotProcessing.resize(m_whiteboard->getNumberOfStores(), false);
     m_timeoutCond.notify_all();
   }
 
@@ -653,6 +654,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       {
         std::unique_lock<std::mutex> lock(m_timeoutMutex);
         m_eventTimerStartPoint[evtContext->slot()] = std::chrono::steady_clock::now();
+        m_isSlotProcessing[evtContext->slot()] = true;
         resetTimeout(Athena::Timeout::instance(*evtContext));
         m_timeoutCond.notify_all();
       }
@@ -1150,6 +1152,7 @@ void HltEventLoopMgr::runEventTimer()
     auto now=std::chrono::steady_clock::now();
     for (size_t i=0; i<m_eventTimerStartPoint.size(); ++i) {
       // iterate over all slots and check for timeout
+      if (!m_isSlotProcessing.at(i)) continue;
       if (now > m_eventTimerStartPoint.at(i) + softDuration) {
         EventContext ctx(i,0); // we only need the slot number for Athena::Timeout instance
         // don't duplicate the actions if the timeout was already reached
@@ -1184,7 +1187,7 @@ StatusCode HltEventLoopMgr::createEventContext(EventContext*& evtContext) const
 }
 
 // ==============================================================================
-int HltEventLoopMgr::drainScheduler() const
+int HltEventLoopMgr::drainScheduler()
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
@@ -1274,6 +1277,14 @@ int HltEventLoopMgr::drainScheduler() const
     eventDone(hltrFragment);
     // should we delete hltrFragment now?
 
+    { // flag idle slot to the timeout thread and reset the timer
+      std::unique_lock<std::mutex> lock(m_timeoutMutex);
+      m_eventTimerStartPoint[thisFinishedEvtContext->slot()] = std::chrono::steady_clock::now();
+      m_isSlotProcessing[thisFinishedEvtContext->slot()] = false;
+      resetTimeout(Athena::Timeout::instance(*thisFinishedEvtContext));
+      m_timeoutCond.notify_all();
+    }
+
     ATH_MSG_DEBUG("Clearing slot " << thisFinishedEvtContext->slot()
                   << " (event " << thisFinishedEvtContext->evt() << ") of the whiteboard");
 
@@ -1284,6 +1295,7 @@ int HltEventLoopMgr::drainScheduler() const
       delete thisFinishedEvtContext;
       continue;
     }
+
 /*
     finishedEvts++;
 
