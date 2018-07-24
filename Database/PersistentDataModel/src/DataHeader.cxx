@@ -210,19 +210,15 @@ DataHeader& DataHeader::operator=(const DataHeader& rhs) {
    return(*this);
 }
 //______________________________________________________________________________
-void DataHeader::setStatus(statusFlag status) const {
+void DataHeader::setStatus(statusFlag status) {
    m_status = status;
 }
 //______________________________________________________________________________
-bool DataHeader::checkStatus(statusFlag status) const {
-   return(m_status == status);
-}
-//______________________________________________________________________________
 bool DataHeader::isInput() const {
-   return(m_status == statusFlag(Primary) || m_status == statusFlag(Input));
+   return(m_status == statusFlag(Input));
 }
 //______________________________________________________________________________
-void DataHeader::setProcessTag(const std::string& processTag) const {
+void DataHeader::setProcessTag(const std::string& processTag) {
    m_processTag = processTag;
 }
 //______________________________________________________________________________

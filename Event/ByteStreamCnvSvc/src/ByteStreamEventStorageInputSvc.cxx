@@ -519,7 +519,7 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
       }
     }
     // Declare header primary
-    Dh->setStatus(DataHeader::Primary);
+    Dh->setStatus(DataHeader::Input);
     //add the Dhe self reference to the object vector
     Dh->insert(Dhe);
 
