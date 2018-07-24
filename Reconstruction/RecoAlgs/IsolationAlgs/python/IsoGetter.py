@@ -73,6 +73,8 @@ def configureEDCorrection(tool):
   try:
     from AthenaCommon.AppMgr import ToolSvc
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
     if not hasattr(topSequence,'EDtpIsoCentralAlg'):
       tccc = configEventDensityTool("EDtpIsoCentralTool",
                                     inputlabel = jtm.emget.Label,
