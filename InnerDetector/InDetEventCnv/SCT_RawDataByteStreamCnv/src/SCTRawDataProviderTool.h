@@ -47,6 +47,8 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   
   // bookkeeping if we have decoded a ROB already
   std::set<uint32_t> m_robIdSet;
+
+  int m_decodeErrCount;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H
