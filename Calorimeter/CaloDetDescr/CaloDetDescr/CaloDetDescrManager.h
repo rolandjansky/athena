@@ -386,8 +386,14 @@ class CaloDetDescrManager_Base
    */
   void add(CaloDetDescrElement* element);
   /** @brief add new LAr descriptor to the descriptors vector
+   *         Takes ownership of the object.
+   *         For new code, prefer the next version that takes
+   *         a unique_ptr.
    */
   void add(CaloDetDescriptor* descr);
+  /** @brief add new LAr descriptor to the descriptors vector
+   */
+  void add(std::unique_ptr<CaloDetDescriptor> descr);
   /** @brief add tile descriptor to the tile descriptors vector
    */
   void add_tile(CaloDetDescriptor* descr);

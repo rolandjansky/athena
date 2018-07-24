@@ -12,7 +12,6 @@
 #ifndef INDETSIMEVENT_SIHIT_H
 #define INDETSIMEVENT_SIHIT_H
 
-#include <iostream>
 // Data members classes
 #include "CLHEP/Geometry/Point3D.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -69,6 +68,13 @@ public:
 
   // Destructor:
   virtual ~SiHit(); //temporary make it virtual for Pool!
+  
+  //move assignment defaulted
+  SiHit & operator = (SiHit &&) = default;
+  //assignment defaulted
+  SiHit & operator = (const SiHit &) = default;
+  //copy c'tor defaulted
+  SiHit(const SiHit &) = default;
 
   ///////////////////////////////////////////////////////////////////
   // Const methods:
@@ -137,14 +143,11 @@ public:
   ///////////////////////////////////////////////////////////////////
 private:
 
-  //  HepGeom::Point3D<double> m_localStartPosition; // local start position of the hit
-  //  HepGeom::Point3D<double> m_localEndPosition; // local end position of the hit
   float m_stX, m_stY, m_stZ;
   float m_enX, m_enY, m_enZ;
   float m_energyLoss; // deposited energy
   float m_meanTime; // time of energy deposition
   HepMcParticleLink m_partLink;
-  //   int m_trackNumber; // number of track which released this energy
   unsigned int m_ID;
 public:
   enum

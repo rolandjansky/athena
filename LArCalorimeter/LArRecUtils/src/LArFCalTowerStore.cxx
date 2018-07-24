@@ -15,10 +15,8 @@ PURPOSE:  Intermediate store for cell/tower maps
 Updated:  
 
 ********************************************************************/
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include "LArFCalTowerStore.h"
+
 // include header files
 #include "Identifier/IdentifierHash.h"
 
@@ -30,8 +28,8 @@ Updated:
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 #include "CaloEvent/CaloTowerContainer.h"
-
-#include "LArRecUtils/LArFCalTowerStore.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/Service.h"
 
 #include <cmath>
 

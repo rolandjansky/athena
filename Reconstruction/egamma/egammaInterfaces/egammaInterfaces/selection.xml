@@ -19,7 +19,6 @@
   <class name="IegammaTrkRefitterTool" />
   <class name="Iegammaqweta1c" />
   <class name="Iegammaqweta2c" />
-  <class name="IelectronSuperClusterBuilder" />
-  <class name="IphotonSuperClusterBuilder" />
+  <class name="IegammaMVASvc" />
 </lcgdict>
 

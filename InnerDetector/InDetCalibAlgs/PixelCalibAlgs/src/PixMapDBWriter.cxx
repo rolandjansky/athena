@@ -64,7 +64,7 @@ PixMapDBWriter::~PixMapDBWriter(){}
 
 StatusCode PixMapDBWriter::initialize(){
 
-  ATH_MSG_INFO( "Initializing PixMapDBWriter" );
+  ATH_MSG_DEBUG( "Initializing PixMapDBWriter" );
 
   StatusCode sc = m_specialPixelMapSvc.retrieve();
   if( !sc.isSuccess() ){
@@ -242,14 +242,15 @@ StatusCode PixMapDBWriter::finalize(){
   ////////////////////////////////////////////////////////////////////////////////////////////
 
 
- char* tmppath = std::getenv("DATAPATH");
+  char* tmppath = std::getenv("DATAPATH");
   const unsigned int maxPathStringLength{3000};
   if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
-      ATH_MSG_ERROR( "FATAL: Unable to retrieve environmental DATAPATH" );
+      ATH_MSG_FATAL( "Unable to retrieve environmental DATAPATH" );
       return StatusCode::FAILURE;
   }
-  tmppath=strdup(tmppath);
-  std::string cmtpath(tmppath); 
+  std::stringstream tmpSstr{};
+  tmpSstr<<tmppath;
+  std::string cmtpath(tmpSstr.str());
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
   for (const auto& x : paths){
@@ -321,7 +322,7 @@ StatusCode PixMapDBWriter::finalize(){
    
     }
     if ( specialPixelHistograms.find(std::string(onlineID)) == specialPixelHistograms.end() ) {
-      std::cout << "DEBUG: onlineID " << onlineID << " is not found in the specialPixelHistograms" << std::endl;
+      ATH_MSG_DEBUG("onlineID " << onlineID << " is not found in the specialPixelHistograms" );
       continue;
     }
     TH2C* specialPixelHistogram = specialPixelHistograms[std::string(onlineID)];
@@ -453,10 +454,10 @@ StatusCode PixMapDBWriter::finalize(){
           if (pixelStatus1 != 0)
           {
 
-            std::cout << "barrel, layer, module_phi, module_eta, pixel_eta, pixel_phi, mchips, pixelID\n"
+            ATH_MSG_DEBUG( "barrel, layer, module_phi, module_eta, pixel_eta, pixel_phi, mchips, pixelID\n"
                       << " = " << barrel << ", " << layer << ", " << module_phi << ", " << module_eta
-                      << ", " << pixel_eta << ", " << pixel_phi << ", " << mchips << ", " << pixelID << std::endl;
-            std::cout << "pixelStatus1, pixelStatus2 = " << pixelStatus1 << ", " << pixelStatus2 << std::endl;
+                      << ", " << pixel_eta << ", " << pixel_phi << ", " << mchips << ", " << pixelID 
+                      << "\npixelStatus1, pixelStatus2 = " << pixelStatus1 << ", " << pixelStatus2 );
           }
 
           if( (pixelStatus1 & m_pixelStatus) == m_pixelStatus ){
@@ -676,7 +677,7 @@ StatusCode PixMapDBWriter::finalize(){
 std::string PixMapDBWriter::getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
   for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
     if (m_pixelMapping[ii].second.size() != 4) {
-      std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
+      ATH_MSG_WARNING( "getDCSIDFromPosition: Vector size is not 4!" );
       return std::string("Error!");
     }
     if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
@@ -685,7 +686,7 @@ std::string PixMapDBWriter::getDCSIDFromPosition (int barrel_ec, int layer, int 
     if (m_pixelMapping[ii].second[3] != module_eta) continue;
     return m_pixelMapping[ii].first;
   }
-  std::cout << "Not found!" << std::endl;
+  ATH_MSG_WARNING( "Not found!" );
   return std::string("Error!");
 }
 
@@ -694,7 +695,7 @@ std::vector<int> PixMapDBWriter::getPositionFromDCSID (std::string DCSID){
     if (m_pixelMapping[ii].first == DCSID)
     return m_pixelMapping[ii].second;
   }
-  std::cout << "Not found!" << std::endl;
+  ATH_MSG_WARNING( "Not found!" );
   std::vector<int> void_vec;
   return void_vec;
 }

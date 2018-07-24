@@ -15,7 +15,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "SCT_Cabling/ISCT_CablingSvc.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 ///Read Handle
@@ -25,15 +24,12 @@
 SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   base_class(type, name, parent),
   m_sct_id{nullptr},
-  m_pManager{nullptr},
   m_tempMaskedChips{},
   m_abcdErrorChips{},
   m_mutex{},
   m_cache{},
   m_nRetrievalFailure{0}
 {
-  declareProperty("ContainerName", m_bsErrContainerName=std::string{"SCT_ByteStreamErrs"});
-  declareProperty("FracContainerName", m_bsFracContainerName=std::string{"SCT_ByteStreamFrac"});
 }
 
 /** Initialize */
@@ -58,11 +54,10 @@ SCT_ByteStreamErrorsTool::initialize() {
     return StatusCode::FAILURE;
   } 
   
-  ATH_CHECK(detStore()->retrieve(m_pManager, "SCT"));
-
-  // Read Handle Key
+  // Read (Cond)Handle Keys
   ATH_CHECK(m_bsErrContainerName.initialize());
   ATH_CHECK(m_bsFracContainerName.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return sc;
 }
@@ -115,23 +110,13 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   
-  if (isRODSimulatedData()) return false;
+  //  if (isRODSimulatedData()) return false;
   
   bool result{true};
 
-  const std::vector<SCT_ByteStreamErrors::errorTypes> errorsToBeChecked{
-      SCT_ByteStreamErrors::TimeOutError,
-      SCT_ByteStreamErrors::BCIDError,
-      SCT_ByteStreamErrors::LVL1IDError,
-      SCT_ByteStreamErrors::MaskedLink,
-      SCT_ByteStreamErrors::ROBFragmentError,
-      SCT_ByteStreamErrors::MissingLinkHeaderError,
-      SCT_ByteStreamErrors::HeaderTrailerLimitError,
-      SCT_ByteStreamErrors::MaskedROD,
-      SCT_ByteStreamErrors::TruncatedROD};
-  for (unsigned int i{0}; i<errorsToBeChecked.size(); i++) {
-    const std::set<IdentifierHash>& errorSet{getErrorSet(errorsToBeChecked[i], ctx)};
-    result = (std::find(errorSet.begin(), errorSet.end(), elementIdHash) == errorSet.end());
+  for (SCT_ByteStreamErrors::errorTypes badError: SCT_ByteStreamErrors::BadErrors) {
+    const std::set<IdentifierHash>& errorSet{getErrorSet(badError, ctx)};
+    result = (errorSet.count(elementIdHash)==0);
     if (not result) return result;
   }
   
@@ -160,7 +145,7 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   
-  if (isRODSimulatedData()) return false;
+  //  if (isRODSimulatedData()) return false;
 
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
@@ -219,7 +204,9 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
 
 int
 SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId) const {
-  const InDetDD::SiDetectorElement* siElement{m_pManager->getDetectorElement(stripId)};
+  const Identifier waferId{m_sct_id->wafer_id(stripId)};
+  const IdentifierHash waferHash{m_sct_id->wafer_hash(waferId)};
+  const InDetDD::SiDetectorElement* siElement{getDetectorElement(waferHash)};
   if (siElement==nullptr) {
     ATH_MSG_DEBUG ("InDetDD::SiDetectorElement is not obtained from stripId " << stripId);
     return -1;
@@ -419,6 +406,27 @@ const SCT_ByteStreamFractionContainer* SCT_ByteStreamErrorsTool::getFracData() c
     return nullptr;
   }
   return fracCont.ptr();
+}
+
+const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(const IdentifierHash& waferHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheElements.size()) {
+    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheElements[slot]!=evt) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_detectorElements.set(*condData);
+    m_cacheElements[slot] = evt;
+  }
+  return m_detectorElements->getDetectorElement(waferHash);
 }
 
 const std::set<IdentifierHash>& SCT_ByteStreamErrorsTool::getErrorSet(SCT_ByteStreamErrors::errorTypes errorType, const EventContext& ctx) const {

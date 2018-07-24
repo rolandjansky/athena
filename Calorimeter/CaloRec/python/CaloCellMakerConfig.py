@@ -11,26 +11,31 @@ def CaloCellMakerCfg(configFlags):
    
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     from TileGeoModel.TileGMConfig import TileGMCfg
-    result.addConfig(LArGMCfg,configFlags)
-    result.addConfig(TileGMCfg,configFlags)    
+    
+    result.merge(LArGMCfg(configFlags))
+    result.merge(TileGMCfg(configFlags))
 
-    theLArCellMaker=result.addConfig(LArCellBuilderCfg,configFlags)
+    acc,theLArCellMaker=LArCellBuilderCfg(configFlags)
+    result.merge(acc)
 
-    theLArCellCorrectors=result.addConfig(LArCellCorrectorCfg,configFlags)
+    acc,theLArCellCorrectors=LArCellCorrectorCfg(configFlags)
+    result.merge(acc)
 
     theTileCellBuilder = TileCellBuilder()
-    result.addEventAlgo(CaloCellMaker(CaloCellMakerToolNames=theLArCellMaker+
-                                                             [CaloCellContainerFinalizerTool(),]+theLArCellCorrectors,
-                                      CaloCellsOutputName="AllCalo"))
-    return result
+    cellAlgo=(CaloCellMaker(CaloCellMakerToolNames=[theLArCellMaker,CaloCellContainerFinalizerTool()]+theLArCellCorrectors,
+                            CaloCellsOutputName="AllCalo"))
+    return result,cellAlgo
 
 
                                       
 if __name__=="__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
-
     log.setLevel(DEBUG)
+
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     ConfigFlags.set("global.InputFiles",["myRDO.pool.root"])
@@ -39,11 +44,14 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.addConfig(PoolReadCfg,ConfigFlags)
+    cfg.merge(PoolReadCfg(ConfigFlags))
     
-    cfg.addConfig(CaloCellMakerCfg,ConfigFlags)
-    cfg.getEventAlgo("CaloCellMaker").CaloCellsOutputName="AllCaloNew"
+    acc,cellMakerAlg=CaloCellMakerCfg(ConfigFlags)
+    cfg.merge(acc)
 
+    cellMakerAlg.CaloCellsOutputName="AllCaloNew"
+    cfg.addEventAlgo(cellMakerAlg)
+    
     f=open("CaloCellMaker.pkl","w")
     cfg.store(f)
     f.close()

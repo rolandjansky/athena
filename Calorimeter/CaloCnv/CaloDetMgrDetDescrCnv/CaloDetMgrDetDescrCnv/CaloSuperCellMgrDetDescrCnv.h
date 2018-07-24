@@ -20,11 +20,13 @@
 
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CaloDetDescr/ICaloSuperCellAlignTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
+
+
 class CaloSuperCellDetDescrManager;
 class CaloDetDescrManager;
 class CaloDetDescrElement;
-class ICaloSuperCellIDTool;
-class ICaloSuperCellAlignTool;
 
 
 /**

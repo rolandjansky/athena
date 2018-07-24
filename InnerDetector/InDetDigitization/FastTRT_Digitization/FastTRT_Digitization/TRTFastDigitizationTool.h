@@ -40,13 +40,13 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "StoreGate/WriteHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include <utility>
 #include <vector>
 #include <map>
 #include <cmath>
 
-class PileUpMergeSvc;
 class IAtRndmGenSvc;
 class TRT_ID;
 class TRTUncompressedHit;

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/PhotonConversionTool.h"
+#include "PhotonConversionTool.h"
 
 // Gaudi Kernel
 #include "GaudiKernel/RndmGenerators.h"

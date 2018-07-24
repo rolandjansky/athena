@@ -3,18 +3,10 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/Property.h"
-
-#include "TBRec/TBScintillatorRec.h"
+#include "TBScintillatorRec.h"
 
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBScintillatorRawCont.h"
-
-// static const AlgFactory<TBScintillatorRec> s_factory;
-// const IAlgFactory& TBScintillatorRecFactory = s_factory;
-
 
 
 TBScintillatorRec::TBScintillatorRec(const std::string& name,

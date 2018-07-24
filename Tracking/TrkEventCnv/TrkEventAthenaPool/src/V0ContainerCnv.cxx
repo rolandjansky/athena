@@ -21,12 +21,6 @@ V0ContainerCnv::V0ContainerCnv( ISvcLocator *svcloc ):
                            m_msgSvc( msgSvc() ),
                            m_log( m_msgSvc, "V0ContainerCnv" )
  {}
- 
-//-----------------------------------------------------------------------------
-// Destructor
-//-----------------------------------------------------------------------------
-V0ContainerCnv::~V0ContainerCnv()
-{}
 
 //-----------------------------------------------------------------------------
 // Initializer

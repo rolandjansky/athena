@@ -8,23 +8,17 @@
 // author: A.Minaenko
 // date:  08/05/2008
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
+#include "TBNoiseWrite.h"
 
 #include "PathResolver/PathResolver.h"
 
 #include <TFile.h>
 #include <TTree.h>
 
-#include "StoreGate/StoreGate.h" 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 
 #include "TBEvent/TBEventInfo.h"
-
-#include "TBRec/TBNoiseWrite.h"
 
 #include <fstream>
 

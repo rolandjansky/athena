@@ -41,11 +41,6 @@ parent);
   virtual StatusCode execute(TagFragmentCollection& dataQualityTagCol);  
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~RawInfoSummaryForTagTool( );
-
 private:
 
   /** Properties */

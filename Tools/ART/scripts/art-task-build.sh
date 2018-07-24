@@ -21,7 +21,7 @@ else
 fi
 
 export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"
-# shellcheck source=/dev/null
+# shellcheck source=/dev/null 
 source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet
 if [ "${BRANCH}" == "master" ]; then
    lsetup -a testing asetup
@@ -48,7 +48,10 @@ ART_DIRECTORY=$(command -v art.py)
 ART_VERSION=$(art.py --version)
 echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
 
-# configure MGM_URL
+# automatic clean-up build-output EOS area
+art-clean.py --eos --release --base-dir=/eos/atlas/atlascerngroupdisk/data-art/build-output --delete "${AtlasBuildBranch}" "${AtlasProject}" "${PLATFORM}" || true &
+
+# configure EOS_MGM_URL
 if [ -z "${EOS_MGM_URL}" ]; then
   echo "WARNING: EOS_MGM_URL variable is empty, setting it to root://eosatlas.cern.ch"
   export EOS_MGM_URL="root://eosatlas.cern.ch"

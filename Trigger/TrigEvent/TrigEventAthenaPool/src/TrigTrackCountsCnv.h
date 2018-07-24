@@ -33,12 +33,11 @@ class TrigTrackCountsCnv : public TrigTrackCountsCnvBase {
 
   friend class CnvFactory<TrigTrackCountsCnv>;
 
- protected:
 public:
   TrigTrackCountsCnv(ISvcLocator *svcloc);
-protected:
   ~TrigTrackCountsCnv();
 
+protected:
   virtual TrigTrackCounts_PERS  *createPersistent(TrigTrackCounts *transObj);
   virtual TrigTrackCounts       *createTransient();
 };

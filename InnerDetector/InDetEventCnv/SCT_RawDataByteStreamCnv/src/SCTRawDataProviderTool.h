@@ -39,7 +39,7 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
                              InDetBSErrContainer* errs,
                              SCT_ByteStreamFractionContainer* bsFracCont) override;
 
-  virtual void BeginNewEvent() override;
+  virtual void beginNewEvent() override;
 
  private: 
   

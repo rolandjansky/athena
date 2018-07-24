@@ -25,9 +25,11 @@
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 /** Forward declarations*/
 class IInterface;
@@ -46,10 +48,6 @@ class StatusCode;
 class SCT_ID;
 class SCT_ModuleStatistics;
 class TString;
-namespace InDetDD
-{
-  class SCT_DetectorManager;
-}
 
 ///Concrete monitoring tool derived from MonitorToolBase
 class SCTErrMonTool : public ManagedMonitorToolBase
@@ -278,8 +276,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   void fillModule( moduleGeo_t module,  TH2F* histo );
   double calculateDetectorCoverage(const TH2F * histo );
 
-  const InDetDD::SCT_DetectorManager * m_sctManager;
-
   geoContainerPure_t m_disabledGeoSCT;
   geoContainer_t m_errorGeoSCT;
 
@@ -297,6 +293,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile * m_TotalDetectorCoverageVsLB;
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_sctDetEleCollKey{this, "SctDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 };
 
 #endif

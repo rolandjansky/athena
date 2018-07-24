@@ -21,6 +21,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 
+#include "StoreGate/ReadHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
 
@@ -45,6 +46,9 @@ EventCount::EventCount(const std::string& name, ISvcLocator* pSvcLocator) :
 {
    // Declare the properties
    declareProperty("Dump", m_dump,"Bool of whether to dump object summary");
+   declareProperty("EventInfoKey",
+                   m_eventInfoKey = "EventInfo",
+                   "Key to read EventInfo.");
 }
 
 EventCount::~EventCount()
@@ -63,7 +67,9 @@ StatusCode EventCount::initialize()
 
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
    ATH_CHECK( incSvc.retrieve() );
-   incSvc->addListener(this, "BeginInputFile", 100); 
+   incSvc->addListener(this, "BeginInputFile", 100);
+
+   ATH_CHECK( m_eventInfoKey.initialize() );
 
    return StatusCode::SUCCESS;
 }
@@ -92,8 +98,7 @@ StatusCode EventCount::execute()
 
    // Get the event header, print out event and run number
    //ATH_MSG_INFO ( evtStore()->dump() );
-   const DataHandle<xAOD::EventInfo> evt;
-   ATH_CHECK( evtStore()->retrieve(evt) );
+   SG::ReadHandle<xAOD::EventInfo> evt (m_eventInfoKey);
    if (!evt.isValid()) {
       ATH_MSG_FATAL ( "Could not find event" );
       return(StatusCode::FAILURE);
@@ -155,8 +160,8 @@ StatusCode EventCount::execute()
    // Now check what objects are in storegate
    //
    //if (m_dump) {
-       const DataHandle<DataHeader> beg; 
-       const DataHandle<DataHeader> ending; 
+       SG::ConstIterator<DataHeader> beg; 
+       SG::ConstIterator<DataHeader> ending; 
        StatusCode status = evtStore()->retrieve(beg,ending);
        if (status.isFailure() || beg==ending) {
      	 ATH_MSG_DEBUG ( "No DataHeaders present in StoreGate" );

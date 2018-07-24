@@ -208,7 +208,7 @@ public:
     PseudoView(int s, int r, EventContainers::IdentifiableCache<MyCollection>* inIDC, int i) : IDC(inIDC), RoIStart(s), RoIEnd(r),
         threads(i), c()   {}
 
-
+  virtual ~PseudoView() {}
 };
 
 class PseudoViewNoLock : public PseudoView {
@@ -256,9 +256,8 @@ public:
 
         for(size_t i =RoIStart ; i < RoIEnd; i++) {
             c.fills++;
-            MyCollectionContainer::IDC_Lock lock;
-            bool cacheh = container.tryFetch(i, lock);
-            if(cacheh) {
+            MyCollectionContainer::IDC_WriteHandle lock = container.getWriteHandle(i);
+            if(lock.alreadyPresent()) {
                 c.cachehit++;
                 continue;
             }
@@ -272,7 +271,7 @@ public:
                continue;
             }
             bool deleted = false;
-            StatusCode x = container.addOrDelete(std::move(dcoll), IdentifierHash(i), deleted);
+            StatusCode x = lock.addOrDelete(std::move(dcoll), deleted);
             if(x.isFailure()) {
                 std::cout << "failure in addOrDelete" << std::endl;
                 std::abort();

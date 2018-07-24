@@ -27,6 +27,7 @@ namespace Athena_test {
 
     MyPackageAlgTest() 
     //  : InitGaudiGoogleTest( MSG::INFO ) // get usual message blurb
+      : myAlg(nullptr)
     {}
 
     virtual void SetUp() override {
@@ -44,7 +45,7 @@ namespace Athena_test {
 						     Gaudi::Utils::toString( 42.0 ) ) );
       IAlgorithm* ialg= Algorithm::Factory::create( "MyPackageAlg",
 						    "MyPackageAlg",
-						    Gaudi::svcLocator() );
+						    Gaudi::svcLocator() ).release();
       myAlg= dynamic_cast<Algorithm*>( ialg );
 
     }

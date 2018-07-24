@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <iomanip>
 
 #include "TrkSurfaces/PerigeeSurface.h" 
 #include "TrkSurfaces/AnnulusBounds.h" 
@@ -15,6 +13,8 @@
 
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
+#include <stdexcept>
+#include <math.h>//for sincos function
 
 ///////////////////////////////////////////////////////////////////
 // Set trajectory element
@@ -28,7 +28,8 @@ bool InDet::SiTrajectoryElement_xk::set
  const InDet::SiCluster*                           si
  )
 {
-  m_fieldMode    = false; if(m_tools->fieldTool().magneticFieldMode()!=0) m_fieldMode = true;
+  m_fieldMode    = false; 
+  if(m_tools->fieldTool().magneticFieldMode()!=0) m_fieldMode = true;
   m_status       = 0                       ;
   m_detstatus    = st                      ;
   m_ndist        = 0                       ;
@@ -1457,18 +1458,16 @@ double InDet::SiTrajectoryElement_xk::quality(int& holes) const
 // to PlaneSurface Ta->pSu = Tb with step to surface calculation
 /////////////////////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrajectoryElement_xk::propagate
-(Trk::PatternTrackParameters  & Ta,
+bool 
+InDet::SiTrajectoryElement_xk::propagate(Trk::PatternTrackParameters  & Ta,
  Trk::PatternTrackParameters  & Tb,
- double                       & S ) 
-{
-  bool useJac = true; if(!Ta.iscovariance()) useJac = false;
-
-  double P[64]; transformPlaneToGlobal(useJac,Ta,P);
-
+ double & S ) {
+  bool useJac = true; 
+  if(!Ta.iscovariance()) useJac = false;
+  double P[64]; 
+  transformPlaneToGlobal(useJac,Ta,P);
   if( m_fieldMode) {if(!rungeKuttaToPlane      (useJac,P)) return false;}
   else             {if(!straightLineStepToPlane(useJac,P)) return false;} 
-
   S = P[45]; return transformGlobalToPlane(useJac,P,Ta,Tb);
 }
 
@@ -1477,32 +1476,36 @@ bool InDet::SiTrajectoryElement_xk::propagate
 // to PlaneSurface Ta->pSu = Tb with step to surface calculation
 /////////////////////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrajectoryElement_xk::propagateParameters
-(Trk::PatternTrackParameters  & Ta,
- Trk::PatternTrackParameters  & Tb,
- double                       & S ) 
-{
+bool 
+InDet::SiTrajectoryElement_xk::propagateParameters(Trk::PatternTrackParameters  & Ta,
+ Trk::PatternTrackParameters  & Tb, double  & S ) {
   bool useJac = false;
-
-  double P[64]; transformPlaneToGlobal(useJac,Ta,P);
-
-  if( m_fieldMode) {if(!rungeKuttaToPlane      (useJac,P)) return false;}
-  else             {if(!straightLineStepToPlane(useJac,P)) return false;} 
-
-  S = P[45]; return transformGlobalToPlane(useJac,P,Ta,Tb);
+  double P[64]; 
+  transformPlaneToGlobal(useJac,Ta,P);
+  if( m_fieldMode) {
+    if(!rungeKuttaToPlane (useJac,P)) return false;
+    } else {
+    if(!straightLineStepToPlane(useJac,P)) return false;
+  } 
+  S = P[45]; 
+  return transformGlobalToPlane(useJac,P,Ta,Tb);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
 // Tramsform from plane to global
 /////////////////////////////////////////////////////////////////////////////////
 
-void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal
-(bool useJac,Trk::PatternTrackParameters& Tp,double* P) 
-{
-  double Sf,Cf,Ce,Se;   sincos(Tp.par()[2],&Sf,&Cf);  sincos(Tp.par()[3],&Se,&Ce);
-
-  const Amg::Transform3D& T  = Tp.associatedSurface()->transform();
-
+void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
+ Trk::PatternTrackParameters& Tp,double* P) {
+  double Sf,Cf,Ce,Se;   
+  sincos(Tp.par()[2],&Sf,&Cf);  
+  sincos(Tp.par()[3],&Se,&Ce);
+  const auto pSurface=Tp.associatedSurface();
+  if (not pSurface){
+    throw(std::runtime_error("TrackParameters associated surface is null pointer in InDet::SiTrajectoryElement_xk::transformPlaneToGlobal"));
+  }
+  const Amg::Transform3D& T  = pSurface->transform();
+ 
   double Ax[3] = {T(0,0),T(1,0),T(2,0)};
   double Ay[3] = {T(0,1),T(1,1),T(2,1)};
 

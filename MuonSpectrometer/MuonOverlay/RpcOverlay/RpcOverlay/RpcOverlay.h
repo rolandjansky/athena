@@ -23,9 +23,10 @@
 
 #include "MuonOverlayBase/IDC_MultiHitOverlayBase.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
+#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 class RpcIdHelper;
-class IMuonDigitizationTool;
+// class IMuonDigitizationTool;
 
 class RpcOverlay : public IDC_MultiHitOverlayBase  {
 public:

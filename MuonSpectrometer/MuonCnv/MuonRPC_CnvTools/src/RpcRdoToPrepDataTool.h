@@ -15,6 +15,7 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
+#include "MuonCondInterface/IRPCConditionsSvc.h"
 
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPadContainer.h"
@@ -38,7 +39,6 @@ class RpcPadIdHash;
 class IdentifierHash;
 class RpcPad;
 class RpcPadContainer;
-class IRPCConditionsSvc;
 
 
 namespace Muon {

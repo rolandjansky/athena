@@ -8,7 +8,7 @@ atlas_subdir( TrkTrackSummaryTool )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           GaudiKernel
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrackSummary
@@ -29,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrkTrackSummaryTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps DataModel GaudiKernel TrkParameters TrkTrackSummary TrkToolInterfaces AtlasDetDescr Identifier TrkDetElementBase TrkGeometry TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMeasurementBase TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps AthContainers GaudiKernel TrkParameters TrkTrackSummary TrkToolInterfaces AtlasDetDescr Identifier TrkDetElementBase TrkGeometry TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMeasurementBase TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( TrkTrackSummaryTool )

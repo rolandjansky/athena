@@ -20,7 +20,11 @@ if hasattr(runArgs,"preInclude"):
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-athenaCommonFlags.FilesInput = runArgs.inputRDO_FTKFile
+if hasattr(runArgs,"inputRDO_FTKFile"):
+    athenaCommonFlags.FilesInput = runArgs.inputRDO_FTKFile
+
+elif hasattr(runArgs,"inputBS_FTKFile"):
+    athenaCommonFlags.FilesInput = runArgs.inputBS_FTKFile
 
 if hasattr(runArgs,"maxEvents"):
     ftkLog.info("Setting number of events: %d" % runArgs.maxEvents)

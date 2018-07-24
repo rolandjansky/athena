@@ -12,14 +12,10 @@
  */
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef INDETTRIGTRACKSLIMMER_H
-#define INDETTRIGTRACKSLIMMER_H
+#ifndef TrigTrackResidualMonitor_H
+#define TrigTrackResidualMonitor_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "AthContainers/DataVector.h"
-#include "GaudiKernel/ITHistSvc.h"
-
 
 //typedef
 #include "TrkTrack/TrackCollection.h"
@@ -27,21 +23,6 @@
 
 //!< Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "TrkEventPrimitives/TrackStateDefs.h"
-#include "TrkEventPrimitives/FitQualityOnSurface.h"
-#include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkValEvent/TrackStateData.h"
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
-#include "InDetPrepRawData/PixelClusterCollection.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"  
-#include "InDetReadoutGeometry/PixelDetectorManager.h"  
-#include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
 
@@ -55,7 +36,6 @@ class StoreGateSvc;
 class SCT_NeighboursTable;
 
 namespace InDetDD{
-  class SCT_DetectorManager;
   class PixelDetectorManager;
 }
 
@@ -104,10 +84,10 @@ namespace InDet
 
     // tools    
     
-    const AtlasDetectorID*   m_idHelper;
+    const AtlasDetectorID*   m_idHelper{};
     
-    const PixelID*           m_idHelperPixel;
-    const SCT_ID*            m_idHelperSCT;
+    const PixelID*           m_idHelperPixel{};
+    const SCT_ID*            m_idHelperSCT{};
     
  
     
@@ -129,8 +109,7 @@ namespace InDet
     ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator;
     
     
-    const InDetDD::SCT_DetectorManager    *m_SCT_Manager;
-    const InDetDD::PixelDetectorManager   *m_Pixel_Manager;
+    const InDetDD::PixelDetectorManager   *m_Pixel_Manager{};
 
 
 

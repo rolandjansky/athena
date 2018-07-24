@@ -45,7 +45,7 @@ namespace Athena_test {
 						     Gaudi::Utils::toString( 42.0 ) ) );
       IAlgorithm* ialg= Algorithm::Factory::create( "AthExUnittestAlg",
 						    "AthExUnittestAlg",
-						    Gaudi::svcLocator() );
+						    Gaudi::svcLocator() ).release();
       myAlg= dynamic_cast<Algorithm*>( ialg );
 
     }

@@ -12,9 +12,8 @@
 //
 // ****************************************************************************************
 
-#include "CaloCellCorrection/CaloCellMBAverageCorr.h"
+#include "CaloCellMBAverageCorr.h"
 #include "CaloEvent/CaloCell.h"
-#include "GaudiKernel/MsgStream.h"
 
 
 // ======================================================

@@ -28,14 +28,15 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 //for vertexTool
 #include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
 
-#include "StoreGate/ReadHandle.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 
 // Forward declarations
@@ -101,7 +102,7 @@ private:
   //@}
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName;
-
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_sctDetEleCollKey{this, "SctDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   //@name Service members
   //@{
@@ -110,8 +111,6 @@ private:
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
-  //SCT Detector Manager
-  const InDetDD::SCT_DetectorManager* m_sctmgr;
   //@}
   //@name  Histograms related methods
   //@{
@@ -123,7 +122,7 @@ private:
   //@name Service methods
   //@{
   // Calculate the local angle of incidence
-  int findAnglesToWaferSurface ( const float (&vec)[3], const float &sinAlpha, const Identifier &id, float &theta, float &phi );
+  int findAnglesToWaferSurface ( const float (&vec)[3], const float &sinAlpha, const Identifier &id, const InDetDD::SiDetectorElementCollection* elements, float &theta, float &phi );
 
   ///Factory + register for the 2D profiles, returns whether successfully registered
   Prof_t  pFactory(const std::string & name, const std::string & title, int nbinsx, float xlow, float xhigh, MonGroup & registry, int& iflag);

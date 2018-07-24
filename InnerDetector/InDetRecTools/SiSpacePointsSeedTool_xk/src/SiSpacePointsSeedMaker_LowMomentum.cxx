@@ -12,11 +12,13 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include <ostream>
 #include <iomanip>
 
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_LowMomentum.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
+
 
 ///////////////////////////////////////////////////////////////////
 // Constructor

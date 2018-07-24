@@ -34,8 +34,6 @@ public:
   
 protected:
 
-  ~TriggerTowerCollectionCnv() {}
-  
   virtual TriggerTowerCollection_PERS*   createPersistent (TriggerTowerCollection* transCont);
   virtual TriggerTowerCollection*        createTransient ();
 

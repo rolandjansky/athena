@@ -23,10 +23,7 @@
 
 
 namespace Root {
-  // this ought to be deprecated, but we have so many clients, that we
-  // are not doing it yet.
-  //class [[deprecated("do not use for multi-threaded code")]] TCalculatorToolBase
-  class TCalculatorToolBase
+  class [[deprecated("do not use for multi-threaded code")]] TCalculatorToolBase
   {
 
   public: 

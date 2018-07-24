@@ -18,12 +18,11 @@
 
 */
 
-#include "LArRecUtils/LArFCalTowerStore.h"
+#include "LArFCalTowerStore.h"
 #include "CaloUtils/CaloTowerBuilderToolBase.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include <list>
 
 class LArFCalTowerStore;
 

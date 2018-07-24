@@ -20,11 +20,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "TrigNavigation/Navigation.h"
 
 namespace HLT {
   class HLTResult;
-  class Navigation;
 }
 
 

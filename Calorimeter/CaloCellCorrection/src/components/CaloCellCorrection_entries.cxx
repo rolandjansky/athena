@@ -1,10 +1,10 @@
-#include "CaloCellCorrection/CaloCellPedestalCorr.h"
-#include "CaloCellCorrection/CaloCellMBAverageCorr.h"
-#include "CaloCellCorrection/CaloCellNeighborsAverageCorr.h"
-#include "CaloCellCorrection/CaloCellRandomizer.h"
-#include "CaloCellCorrection/CaloCellRescaler.h"
-#include "CaloCellCorrection/CaloCellEnergyRescaler.h"
-#include "CaloCellCorrection/CaloCellTimeCorrTool.h"
+#include "../CaloCellPedestalCorr.h"
+#include "../CaloCellMBAverageCorr.h"
+#include "../CaloCellNeighborsAverageCorr.h"
+#include "../CaloCellRandomizer.h"
+#include "../CaloCellRescaler.h"
+#include "../CaloCellEnergyRescaler.h"
+#include "../CaloCellTimeCorrTool.h"
 
 
 DECLARE_COMPONENT( CaloCellPedestalCorr )

@@ -23,8 +23,6 @@
 // in LazyOfflineSpacePointTool in a trigger package (T.L.)
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
-//class PixelConditionsSummarySvc;
-//template <class T> class ServiceHandle;
 
 class PixelID;
 

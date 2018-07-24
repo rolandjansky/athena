@@ -22,6 +22,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
 #include "StoreGate/DataHandle.h"
@@ -29,7 +30,6 @@
 
 // Forward declarations
 class SCT_ID;
-namespace InDetDD { class SCT_DetectorManager; }
 
 /**
  * @class SCT_ConfigurationConditionsTool
@@ -79,12 +79,15 @@ private:
   mutable std::mutex m_mutex;
   // Cache to store events for slots
   mutable std::vector<EventContext::ContextEvt_t> m_cache;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
   // Pointer of SCT_MonitorConditionsCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ConfigurationCondData> m_condData;
+  // Pointer of InDetDD::SiDetectorElementCollection
+  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
   SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey{this, "CondKey", "SCT_ConfigurationCondData", "SCT DAQ configuration"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   const SCT_ID*                         m_pHelper;                  //!< ID helper for SCT
-  const InDetDD::SCT_DetectorManager*   m_pManager;                 //!< SCT detector manager
   bool                                  m_checkStripsInsideModules; //!< Do we want to check if a strip is bad because it is inside a bad module
 
   /** Is a strip within a bad module*/
@@ -99,6 +102,7 @@ private:
   enum {stripsPerChip=128, lastStrip=767, invalidChipNumber=-1};
 
   const SCT_ConfigurationCondData* getCondData(const EventContext& ctx) const;
+  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash) const;
 };
 
 #endif // SCT_ConfigurationConditionsTool_h

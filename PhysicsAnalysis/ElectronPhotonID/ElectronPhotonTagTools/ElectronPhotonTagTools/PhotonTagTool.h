@@ -48,11 +48,6 @@ public:
   virtual StatusCode execute(TagFragmentCollection& photonTagCol, const int& max); 
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~PhotonTagTool( );
-
 private:
 
   /** Properties */

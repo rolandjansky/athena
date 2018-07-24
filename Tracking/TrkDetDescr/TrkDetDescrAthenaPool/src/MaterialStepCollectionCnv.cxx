@@ -21,12 +21,6 @@ MaterialStepCollectionCnv::MaterialStepCollectionCnv( ISvcLocator *svcloc ) :
  {}
  
 //-----------------------------------------------------------------------------
-// Destructor
-//-----------------------------------------------------------------------------
-MaterialStepCollectionCnv::~MaterialStepCollectionCnv()
-{}
-
-//-----------------------------------------------------------------------------
 // Initializer
 //-----------------------------------------------------------------------------
 StatusCode MaterialStepCollectionCnv::initialize()

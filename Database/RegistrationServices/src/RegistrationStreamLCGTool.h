@@ -26,6 +26,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaKernel/IRegistrationStreamTool.h"
+#include "PoolSvc/IPoolSvc.h"
 
 #include <map>
 
@@ -33,7 +34,6 @@
 
 class IAddressCreator;
 class StoreGateSvc;
-class IPoolSvc;
 namespace pool
 {
     class ICollection;
@@ -87,10 +87,10 @@ public:
    /// REQUIRED INTERFACE METHOD
    void setCollMetadataKeys(const std::vector<std::string>& keys);
 
-protected:
-
-   /// Standard Destructor
+  /// Standard Destructor
    virtual ~RegistrationStreamLCGTool();
+
+protected:
 
    /// Dump values from AttributeList for DEBUG
    virtual const CLID& attListID();

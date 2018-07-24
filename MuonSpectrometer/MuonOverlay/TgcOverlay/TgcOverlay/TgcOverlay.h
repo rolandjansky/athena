@@ -23,9 +23,9 @@
 
 #include "MuonOverlayBase/IDC_MultiHitOverlayBase.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
+#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 class TgcIdHelper;
-class IMuonDigitizationTool;
 
 class TgcOverlay : public IDC_MultiHitOverlayBase  {
 public:

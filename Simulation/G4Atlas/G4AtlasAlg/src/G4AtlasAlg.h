@@ -85,6 +85,9 @@ public:
 
 private:
 
+  /// This command prints a message about a G4Command depending on its returnCode
+  void commandLog(int returnCode, const std::string& commandString) const;
+
   /// Releases the GeoModel geometry from memory once it has been used
   /// to build the G4 geometry and is no-longer required
   void releaseGeoModel();

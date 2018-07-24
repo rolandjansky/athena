@@ -7,8 +7,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
-class IPileUpTool;
 
 /** @class MergeMcEventCollection
  *  @brief an algorithm to merge MC truth collection in the overlay store

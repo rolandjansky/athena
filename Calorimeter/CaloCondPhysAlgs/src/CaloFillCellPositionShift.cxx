@@ -29,10 +29,10 @@ StatusCode CaloFillCellPositionShift::initialize()
 {
   ATH_MSG_DEBUG ("CaloFillCellPositionShift initialize()" );
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
+  m_calo_id      = mgr->getCaloCell_ID();
 
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
   ATH_MSG_INFO ( " end of CaloFillCellPositionShift::initialize " );
   return StatusCode::SUCCESS; 
 
@@ -58,11 +58,14 @@ StatusCode CaloFillCellPositionShift::stop()
 
   ATH_CHECK( detStore()->record(m_cellPos,m_key) );
 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
       IdentifierHash idHash=i+emmin;
       Identifier id=m_calo_id->cell_id(idHash);
-      const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
+      const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(id);
 
       //float eta = calodde->eta();
       float phi = calodde->phi();

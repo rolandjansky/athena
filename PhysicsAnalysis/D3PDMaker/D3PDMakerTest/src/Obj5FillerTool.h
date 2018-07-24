@@ -17,12 +17,10 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-
+#include "D3PDMakerTest/Obj5.h"
 
 namespace D3PDTest {
 
-
-class Obj5;
 
 
 /**

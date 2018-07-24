@@ -318,7 +318,8 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     msg() << MSG::DEBUG << "TrigPhoton: ET_em=" << EmET
 	  << " cut in etaBin " << etaBin << " is ET_em >= " << m_eTthr[etaBin] << endmsg;
   }
-  if ( EmET < m_eTthr[etaBin]) return HLT::OK;  m_PassedCuts++;
+  if ( EmET < m_eTthr[etaBin]) return HLT::OK;
+  m_PassedCuts++;
   // ET_had
   // find which ET_had to apply	: this depends on the ET_em and the eta bin
   float hadET_cut=-1;

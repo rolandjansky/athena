@@ -86,7 +86,7 @@ private:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(SpacePointContainer,1273119430,1)
 
 

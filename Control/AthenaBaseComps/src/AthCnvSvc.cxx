@@ -478,17 +478,16 @@ AthCnvSvc::createConverter (long typ,
                             const CLID& clid, 
                             const ICnvFactory* /*fac*/)
 {
-  IConverter *cnv = 0;
 
-  cnv = Gaudi::PluginService::Factory<IConverter*, ISvcLocator*>::create
-    (ConverterID(typ,clid), serviceLocator().get() );
+  std::unique_ptr<IConverter> cnv{Converter::Factory::create
+    (ConverterID(typ,clid), serviceLocator().get() )};
 
-  if (0==cnv) {
+  if (!cnv) {
     typ = (typ<0xFF) ? typ : typ&0xFFFFFF00;
-    cnv = Gaudi::PluginService::Factory<IConverter*, ISvcLocator*>::create
-       (ConverterID(typ,clid), serviceLocator().get() );
+    cnv = Converter::Factory::create
+      (ConverterID(typ,clid), serviceLocator().get() );
   }
-  return cnv;
+  return cnv.release();
 
 }
 

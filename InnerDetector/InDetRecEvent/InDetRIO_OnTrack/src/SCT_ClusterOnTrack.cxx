@@ -6,10 +6,10 @@
 // SCT_ClusterOnTrack.cxx, (c) ATLAS Detector Software
 ///////////////////////////////////////////////////////////////////
 
-#include <new>
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
-#include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetPrepRawData/SCT_Cluster.h"
+
 #include "GaudiKernel/MsgStream.h"
 #include <ostream>
 #include <limits>
@@ -24,7 +24,6 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
            bool isbroad) : 
   SiClusterOnTrack(locpars, locerr, idDE, RIO->identify(),isbroad) //call base class constructor
 {
-  //m_rio = ElementLinkToIDCSCT_ClusterContainer("SCT_Clusters", RIO->getHashAndIndex().hashAndIndex(), RIO);
   m_detEl=nullptr;
   m_positionAlongStrip=std::numeric_limits<double>::quiet_NaN();
   m_rio.setElement(RIO);
@@ -77,24 +76,6 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack():
   m_positionAlongStrip(std::numeric_limits<double>::quiet_NaN())
 {}
 
-// copy constructor:
-InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const InDet::SCT_ClusterOnTrack& rot):
-  SiClusterOnTrack(rot),
-  m_rio(rot.m_rio),
-  m_detEl(rot.m_detEl),
-  m_positionAlongStrip(rot.m_positionAlongStrip)
-{}
-
-// assignment operator:
-InDet::SCT_ClusterOnTrack& InDet::SCT_ClusterOnTrack::operator=( const InDet::SCT_ClusterOnTrack& rot){
-  if ( &rot != this) {
-    InDet::SiClusterOnTrack::operator=(rot);//base class ass. op.
-    m_rio                 = rot.m_rio;
-    m_detEl               = rot.m_detEl;
-    m_positionAlongStrip  = rot.m_positionAlongStrip;
-  }
-  return *this;
-}
 
 const Trk::Surface& InDet::SCT_ClusterOnTrack::associatedSurface() const
 { 

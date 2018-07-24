@@ -25,9 +25,6 @@ DPDTagTool::DPDTagTool(const std::string& type, const std::string& name, const I
 
 }
 
-DPDTagTool::~DPDTagTool() {}
-
-
 StatusCode DPDTagTool::initialize() {
 
   ATH_MSG_DEBUG("in initialize()");
