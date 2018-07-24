@@ -157,15 +157,12 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   for getter in jtm.allGetters:
     job += PseudoJetAlgorithm("pjalg_"+getter.Label,PJGetter=getter)
 
-  if separateJetAlgs:
+  # Then, add all event shape tools in separate algs
+  for evstool in evstools:
+    from EventShapeTools.EventShapeToolsConf import EventDensityAthAlg
+    job += EventDensityAthAlg("edalg_"+evstool.OutputContainer,EventDensityTool=evstool)
 
-    jtm += JetToolRunner("jetevs",
-                         EventShapeTools=evstools,
-                         Tools=[],
-                         Timer=jetFlags.timeJetToolRunner()
-                         )
-    job += JetAlgorithm("jetalgEventShape",
-                        Tools = [jtm.jetevs])
+  if separateJetAlgs:
 
     for t in jtm.jetrecs:
       jalg = JetAlgorithm("jetalg"+t.name(),
@@ -175,7 +172,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   else:
     from JetRec.JetRecConf import JetToolRunner
     jtm += JetToolRunner("jetrun",
-                         EventShapeTools=evstools,
+                         EventShapeTools=[],
                          Tools=rtools+jtm.jetrecs,
                          Timer=jetFlags.timeJetToolRunner()
                          )
