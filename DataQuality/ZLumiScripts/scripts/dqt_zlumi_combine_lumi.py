@@ -109,7 +109,7 @@ for entry, entryval in sorted(entrydict.items()):
         efferr = 1/entryval['rollefferrsq']**.5
         #print 'LIVETIME2', entryval['livetime']
         entryval['zrate'] = entryval['zcount']/eff/entryval['livetime']
-        entryval['zratestat'] = (entryval['zcounterrsq']/eff + (entryval['zcount']/eff**2*efferr)**2)**.5/entryval['livetime']
+        entryval['zratestat'] = (entryval['zcounterrsq']/eff/eff + (entryval['zcount']/eff**2*efferr)**2)**.5/entryval['livetime']
         o_run[0], o_lb[0] = entry
         o_lbwhen[0], o_lbwhen[1] = entryval['lbwhen']
         o_zrate[0] = entryval['zrate']
