@@ -2,6 +2,13 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+///////////////////////////////////////////////////////////////////
+// SCTRawDataProviderTool.h
+//   Header file for class SCTRawDataProviderTool
+///////////////////////////////////////////////////////////////////
+// (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H
 
@@ -16,38 +23,58 @@
 
 #include <set>
 
+/** @class SCTRawDataProviderTool
+ *
+ * @brief Athena Algorithm Tool to fill Collections of SCT RDO Containers.
+ *
+ * The class inherits from AthAlgTool and ISCTRawDataProviderTool.
+ *
+ * Contains a convert method that fills the SCT RDO Collection.
+ */
 class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderTool>
 {
 
  public:
    
-  //! constructor
+  /** Constructor */
   SCTRawDataProviderTool(const std::string& type, const std::string& name,
                          const IInterface* parent);
 
-  //! destructor 
+  /** Destructor */
   virtual ~SCTRawDataProviderTool() = default;
 
-  //! initialize
+  /** Initialize */
   virtual StatusCode initialize() override;
 
-  //! finalize is empty, unnecessary to override
-  
-  //! this is the main decoding method
+  // finalize is empty, unnecessary to override
+ 
+  /** @brief Main decoding method.
+   *
+   * Loops over ROB fragments, get ROB/ROD ID, then decode if not allready decoded.
+   *
+   * @param vecRobs Vector containing ROB framgents.
+   * @param rdoIdc RDO ID Container to be filled.
+   * @param errs Byte stream error container.
+   * @param bsFracCont Byte stream fraction container.
+   *  */
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
                              ISCT_RDO_Container& rdoIdc,
                              InDetBSErrContainer* errs,
                              SCT_ByteStreamFractionContainer* bsFracCont) override;
 
+  /** Reset list of known ROB IDs */
   virtual void beginNewEvent() override;
 
  private: 
-  
+
+  /** Algorithm Tool to decode ROD byte stream into RDO. */
   ToolHandle<ISCT_RodDecoder> m_decoder{this, "Decoder", "SCT_RodDecoder", "Decoder"};
   
-  // bookkeeping if we have decoded a ROB already
+  /** For bookkeeping of decoded ROBs */
   std::set<uint32_t> m_robIdSet;
 
+  /** Number of decode errors encountered in decoding. 
+   * Turning off error message after 100 errors are counted */
   int m_decodeErrCount;
 };
 
