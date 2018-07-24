@@ -40,6 +40,8 @@ elif [ "$type" == "HLT_physicsV6" ]; then
   stump="Physics_pp_v6"
 elif [ "$type" == "HLT_physicsV7" ]; then
   stump="Physics_pp_v7"
+elif [ "$type" == "HLT_HIV5" ]; then
+  stump="Physics_HI_v5"
 else 
   stump=""
 fi
