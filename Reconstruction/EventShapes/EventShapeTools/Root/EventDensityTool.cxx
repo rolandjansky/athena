@@ -24,9 +24,6 @@ using fastjet::VoronoiAreaSpec;
 EventDensityTool::EventDensityTool(const std::string& name)
   : asg::AsgTool(name),
   m_useAreaFourMom(true),
-  m_rhoDec(""), 
-  m_sigmaDec(""), 
-  m_areaDec("") {  
   declareProperty("JetAlgorithm",    m_jetalg  = "Kt");
   declareProperty("JetRadius",       m_jetrad  = 0.4);
   declareProperty("AbsRapidityMin",  m_rapmin  = 0.0);
@@ -99,10 +96,6 @@ StatusCode EventDensityTool::initialize() {
   ATH_MSG_INFO("    Fastjet jet selector: " << m_fjselector.description());
   ATH_MSG_INFO("  Use area four-momentum: " << m_useAreaFourMom);
 
-  // Fill the EventShape object
-  m_rhoDec   = SG::AuxElement::Accessor<float>("Density");
-  m_sigmaDec = SG::AuxElement::Accessor<float>("DensitySigma");
-  m_areaDec  = SG::AuxElement::Accessor<float>("DensityArea");
   // Input sources
   if(!m_inPJKey.key().empty() && m_trigPJGet.empty()) {
     ATH_CHECK( m_inPJKey.initialize() );
@@ -210,9 +203,14 @@ fillEventShape( xAOD::EventShape* pevs, const PseudoJetVector& pjv) const {
   ATH_MSG_DEBUG(" calculated rho="<< rho);
 
   // Record rho.
-  m_rhoDec(*pevs) = rho;
-  m_sigmaDec(*pevs) = sigma;
-  m_areaDec(*pevs) = area;
+
+  // Fill the EventShape object
+  const static SG::AuxElement::Accessor<float> rhoDec("Density");
+  const static SG::AuxElement::Accessor<float> sigmaDec("DensitySigma");
+  const static SG::AuxElement::Accessor<float> areaDec("DensityArea");
+  rhoDec(*pevs) = rho;
+  sigmaDec(*pevs) = sigma;
+  areaDec(*pevs) = area;
 
   ATH_MSG_DEBUG("Recorded event density:  = " << 0.001*rho << " GeV");
 

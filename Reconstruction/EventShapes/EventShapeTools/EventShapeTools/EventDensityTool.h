@@ -89,11 +89,6 @@ private:
   fastjet::Selector m_fjselector;
   bool m_useAreaFourMom;
 
-  // For now we use decorators, and test before to overwrite.
-  SG::AuxElement::Accessor< float > m_rhoDec; 
-  SG::AuxElement::Accessor< float > m_sigmaDec;
-  SG::AuxElement::Accessor< float > m_areaDec;
-
 }; 
 
 #endif
