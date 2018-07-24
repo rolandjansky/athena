@@ -36,7 +36,9 @@ class sTGCSDOVariables : public ValAlgVariables
     m_NSWsTGC_sdo_globalPosZ(0),
     m_NSWsTGC_sdo_globaltime(0),
     m_NSWsTGC_sdo_E(0),
-    m_NSWsTGC_sdo_tof(0)
+    m_NSWsTGC_sdo_tof(0),
+    m_NSWsTGC_sdo_localPosX(0),
+    m_NSWsTGC_sdo_localPosY(0)
   {
     setHelper(idhelper);
   }
@@ -82,6 +84,9 @@ class sTGCSDOVariables : public ValAlgVariables
 
   std::vector<double> *m_NSWsTGC_sdo_E;
   std::vector<double> *m_NSWsTGC_sdo_tof;
+
+  std::vector<double> *m_NSWsTGC_sdo_localPosX;
+  std::vector<double> *m_NSWsTGC_sdo_localPosY;
 
 };
 
