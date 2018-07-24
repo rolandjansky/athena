@@ -181,8 +181,6 @@ SUSY4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY4Sk
 
 ToolSvc += SUSY4SkimmingTool
 
-from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
-
 #====================================================================
 # ISOLATION TOOL 
 #====================================================================
