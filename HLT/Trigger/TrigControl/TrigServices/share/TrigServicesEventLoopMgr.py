@@ -139,6 +139,11 @@ if not hasattr(svcMgr, 'AthenaSealSvc'):
     svcMgr += AthenaServicesConf.AthenaSealSvc()
 theApp.CreateSvc += [svcMgr.AthenaSealSvc.getFullJobOptName()]
 
+# ==============================================================================
+#  Message format
+# ==============================================================================
+msgFmt = "% F%40W%S %4W%e%s %7W%R %T %0W%M"
+svcMgr.MessageSvc.Format = msgFmt
 
 # ==============================================================================
 # General setup

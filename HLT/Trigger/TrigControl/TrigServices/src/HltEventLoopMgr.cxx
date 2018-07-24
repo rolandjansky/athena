@@ -7,18 +7,19 @@
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigKernel/HltExceptions.h"
 #include "TrigSORFromPtreeHelper.h"
+#include "TrigSteeringEvent/HLTResult.h"
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
-#include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 // Gaudi includes
+#include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
@@ -55,6 +56,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_THistSvc("THistSvc", name),
   m_evtSelector("EvtSel", name),
   m_coolHelper("TrigCOOLUpdateHelper", this),
+  m_eventInfoCnvTool("xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_nevt(0),
   m_threadPoolSize(-1),
@@ -71,12 +73,14 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
   declareProperty("EvtSel",                   m_evtSelector);
   declareProperty("CoolUpdateTool",           m_coolHelper);
+  declareProperty("EventInfoCnvTool",         m_eventInfoCnvTool);
   declareProperty("SchedulerSvc",             m_schedulerName="ForwardSchedulerSvc",
                   "Name of the scheduler to be used");
   declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
                   "Name of the Whiteboard to be used");
   declareProperty("TopAlg",                   m_topAlgNames={},
                   "List of top level algorithms names");
+  declareProperty("xEventInfoWHKey",          m_xEventInfoWHKey="EventInfo");
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
@@ -263,6 +267,12 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_coolHelper.retrieve());
 
   //----------------------------------------------------------------------------
+  // Setup the EventInfo conversion tool and WriteHandleKey
+  //----------------------------------------------------------------------------
+  ATH_CHECK(m_eventInfoCnvTool.retrieve());
+  ATH_CHECK(m_xEventInfoWHKey.initialize());
+
+  //----------------------------------------------------------------------------
   // Setup the HLT Histogram Service when configured
   //----------------------------------------------------------------------------
   if ( &*m_THistSvc ) {
@@ -361,6 +371,12 @@ StatusCode HltEventLoopMgr::finalize()
     ATH_MSG_WARNING("Failed to release service " << m_inputMetaDataStore.typeAndName());
   if (m_THistSvc.release().isFailure())
     ATH_MSG_WARNING("Failed to release service " << m_THistSvc.typeAndName());
+
+  // Release tool handles
+  if (m_coolHelper.release().isFailure())
+    ATH_MSG_WARNING("Failed to release service " << m_coolHelper.typeAndName());
+  if (m_eventInfoCnvTool.release().isFailure())
+    ATH_MSG_WARNING("Failed to release service " << m_eventInfoCnvTool.typeAndName());
 
   // Release SmartIFs
   m_whiteboard.reset();
@@ -629,7 +645,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         ATH_MSG_ERROR("Failed to get the next event");
         // we called getNext and some failure happened, but we don't know the event number
         // should we return anything to the DataCollector?
-        failedEvent(evtContext,nullptr);
+        failedEvent(evtContext);
         continue;
       }
 
@@ -646,7 +662,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         ATH_MSG_ERROR("Could not create an IOpaqueAddress");
         // we cannot get the EventInfo, so we don't know the event number
         // should we return anything to the DataCollector?
-        failedEvent(evtContext,nullptr);
+        failedEvent(evtContext);
         continue;
       }
 
@@ -657,7 +673,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
           ATH_MSG_WARNING("Failed to record IOpaqueAddress in the event store");
           // we cannot get the EventInfo, so we don't know the event number
           // should we return anything to the DataCollector?
-          // failedEvent(evtContext,nullptr);
+          // failedEvent(evtContext);
         }
         */
         sc = m_evtStore->loadEventProxies();
@@ -665,25 +681,52 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
           ATH_MSG_ERROR("Failed to load event proxies");
           // we cannot get the EventInfo, so we don't know the event number
           // should we return anything to the DataCollector?
-          failedEvent(evtContext,nullptr);
+          failedEvent(evtContext);
         }
       }
 
-      const EventInfo* eventInfo = nullptr;
-      sc = m_evtStore->retrieve(eventInfo);
+      const EventInfo* oldEventInfo = nullptr;
+      sc = m_evtStore->retrieve(oldEventInfo);
       if (sc.isFailure()) {
-        ATH_MSG_ERROR("Failed to retrieve event info");
+        ATH_MSG_ERROR("Failed to retrieve EventInfo");
         // we cannot get the EventInfo, so we don't know the event number
         // should we return anything to the DataCollector?
-        failedEvent(evtContext,eventInfo);
+        failedEvent(evtContext);
       }
 
-      ATH_MSG_DEBUG("Retrieved event info for the new event " << *(eventInfo->event_ID()));
+      // convert EventInfo to xAOD::EventInfo using a cnv tool explicitly, like in EventInfoCnvAlg
+      // - this should be done by an automatic conversion through proxy in the future,
+      // replacing the code above and below
+      SG::WriteHandle<xAOD::EventInfo> eventInfoWH(m_xEventInfoWHKey, *evtContext);
+      if (eventInfoWH.record(
+        std::make_unique<xAOD::EventInfo>(),
+        std::make_unique<xAOD::EventAuxInfo>()
+      ).isFailure()) {
+        ATH_MSG_ERROR("Failed to record xAOD::EventInfo in event store");
+        failedEvent(evtContext);
+      }
 
-      evtContext->setEventID( *static_cast<EventIDBase*>(eventInfo->event_ID()) );
+      xAOD::EventInfo* eventInfo = eventInfoWH.ptr();
+      if (m_eventInfoCnvTool->convert(oldEventInfo, eventInfo).isFailure()) {
+        ATH_MSG_ERROR("Failed to convert EventInfo to xAOD::EventInfo");
+        failedEvent(evtContext);
+      }
+
+      ATH_MSG_DEBUG("Retrieved event info for the new event " << *eventInfo);
+
+      // create EventIDBase for the EventContext
+      EventIDBase eid(eventInfo->runNumber(),
+                      eventInfo->eventNumber(),
+                      eventInfo->timeStamp(),
+                      eventInfo->timeStampNSOffset(),
+                      eventInfo->lumiBlock(),
+                      eventInfo->bcid());
+      evtContext->setEventID(eid);
+
+      // set run number for conditions
       evtContext->template getExtension<Atlas::ExtendedEventContext>()->setConditionsRun(m_currentRun);
 
-      // not sure if needed again
+      // update thread-local EventContext after setting EventID and conditions runNumber
       Gaudi::Hive::setCurrentContext(*evtContext);
 
       // Record EventContext in current whiteboard
@@ -989,15 +1032,34 @@ void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStrea
 }
 
 // ==============================================================================
-void HltEventLoopMgr::failedEvent(EventContext* eventContext, const EventInfo* eventInfo) const
+void HltEventLoopMgr::failedEvent(EventContext* eventContext,
+                                  const xAOD::EventInfo* eventInfo,
+                                  HLT::HLTResult* hltResult) const
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  if (eventContext && !eventInfo) {
+  // in case EventInfo is unavailable we try to make a temporary one just to build the HLT result
+  // - this unique_ptr deletes it when going out of scope
+  std::unique_ptr<xAOD::EventInfo> tmpEventInfo;
+
+  if (eventContext) {
     // try to retrieve the event info from event store
     if (m_whiteboard->selectStore(eventContext->slot()).isSuccess()) {
-      if (m_evtStore->retrieve(eventInfo).isFailure()) {
-        ATH_MSG_DEBUG("Failed to retrieve event info");
+      if (!eventInfo && m_evtStore->retrieve(eventInfo).isFailure()) {
+        EventIDBase eid = eventContext->eventID();
+        ATH_MSG_WARNING("Failed to retrieve event info. Will try to build one from EventContext (" << *eventContext
+                        << ") with eventID = " << eid);
+        tmpEventInfo = std::make_unique<xAOD::EventInfo>();
+        tmpEventInfo->setRunNumber(eid.run_number());
+        tmpEventInfo->setEventNumber(eid.event_number());
+        tmpEventInfo->setTimeStamp(eid.time_stamp());
+        tmpEventInfo->setTimeStampNSOffset(eid.time_stamp_ns_offset());
+        tmpEventInfo->setLumiBlock(eid.lumi_block());
+        tmpEventInfo->setBCID(eid.bunch_crossing_id());
+        eventInfo = tmpEventInfo.get();
+      }
+      if (!hltResult && m_evtStore->retrieve(hltResult).isFailure()) {
+        ATH_MSG_DEBUG("Failed to retrieve HLT result");
       }
     }
     else {
@@ -1005,9 +1067,9 @@ void HltEventLoopMgr::failedEvent(EventContext* eventContext, const EventInfo* e
     }
   }
 
-  if (!eventInfo) {
-    ATH_MSG_WARNING("Failure occurred while we don't have an EventInfo, so don't know which event was being processed."
-                    << " No result will be produced for this event.");
+  if (!eventContext && !eventInfo) {
+    ATH_MSG_ERROR("Failure occurred while we don't have either EventContext or EventInfo, so don't know which event "
+                    << "was being processed. No result will be produced for this event.");
     return;
   }
 
@@ -1017,7 +1079,7 @@ void HltEventLoopMgr::failedEvent(EventContext* eventContext, const EventInfo* e
 
   // need to create and return a result with debug stream flags
   // for now, only creating a dummy result
-  eformat::write::FullEventFragment* hltrFragment = HltResult(eventInfo);
+  eformat::write::FullEventFragment* hltrFragment = fullHltResult(eventInfo,hltResult);
 
   // serialize and send the result
   eventDone(hltrFragment);
@@ -1027,20 +1089,34 @@ void HltEventLoopMgr::failedEvent(EventContext* eventContext, const EventInfo* e
 }
 
 // ==============================================================================
-eformat::write::FullEventFragment* HltEventLoopMgr::HltResult(const EventInfo* eventInfo) const
+eformat::write::FullEventFragment* HltEventLoopMgr::fullHltResult(const xAOD::EventInfo* eventInfo,
+                                                                  HLT::HLTResult* hltResult) const
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  ATH_MSG_DEBUG("Creating an HLT result for event " << *(eventInfo->event_ID()));
+  ATH_MSG_DEBUG("Creating an HLT result for event " << *eventInfo);
   eformat::write::FullEventFragment* hltrFragment = new eformat::write::FullEventFragment;
-  hltrFragment->global_id(eventInfo->event_ID()->event_number());
-  hltrFragment->bc_time_seconds(eventInfo->event_ID()->time_stamp());
-  hltrFragment->bc_time_nanoseconds(eventInfo->event_ID()->time_stamp_ns_offset());
-  hltrFragment->run_no(eventInfo->event_ID()->run_number());
-  hltrFragment->bc_id(eventInfo->event_ID()->bunch_crossing_id());
-  hltrFragment->lvl1_id(eventInfo->trigger_info()->extendedLevel1ID());
-  hltrFragment->lvl1_trigger_type(eventInfo->trigger_info()->level1TriggerType());
+
+  // need to handle eventInfo==nullptr here?
+
+  //----------------------------------------------------------------------------
+  // Fill header data from EventInfo
+  //----------------------------------------------------------------------------
+  hltrFragment->global_id(eventInfo->eventNumber());
+  hltrFragment->bc_time_seconds(eventInfo->timeStamp());
+  hltrFragment->bc_time_nanoseconds(eventInfo->timeStampNSOffset());
+  hltrFragment->run_no(eventInfo->runNumber());
+  hltrFragment->bc_id(eventInfo->bcid());
+  hltrFragment->lvl1_id(eventInfo->extendedLevel1ID());
+  hltrFragment->lvl1_trigger_type(eventInfo->level1TriggerType());
+  /* not available in xAOD::EventInfo
   hltrFragment->lvl1_trigger_info(eventInfo->trigger_info()->level1TriggerInfo().size(),
                                   eventInfo->trigger_info()->level1TriggerInfo().data());
+  */
+
+  // need to handle hltResult==nullptr here?
+
+  ATH_MSG_DEBUG("Event " << eventInfo->eventNumber() << " is "
+                << (hltResult->accepted() ? "accepted" : "rejected"));
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return hltrFragment;
@@ -1055,7 +1131,7 @@ void HltEventLoopMgr::eventDone(eformat::write::FullEventFragment* hltrFragment)
   auto hltrPtr = std::make_unique<uint32_t[]>(hltrFragmentSize);
   auto copiedSize = eformat::write::copy(*top,hltrPtr.get(),hltrFragmentSize);
   if(copiedSize!=hltrFragmentSize){
-    ATH_MSG_ERROR("HLT result serialization failed");
+    ATH_MSG_ERROR("HLT result FullEventFragment serialization failed");
     // missing error handling
   }
   ATH_MSG_DEBUG("Sending the HLT result to DataCollector");
@@ -1162,16 +1238,20 @@ int HltEventLoopMgr::drainScheduler() const
     // EventID::number_type n_run(0);
     // EventID::number_type n_evt(0);
 
-    const EventInfo* pEvent = nullptr;
+    const xAOD::EventInfo* eventInfo = nullptr;
+    HLT::HLTResult* hltResult = nullptr;
     if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
-      if (m_evtStore->retrieve(pEvent).isFailure()) {
-        ATH_MSG_ERROR("DrainSched: unable to get EventInfo obj");
+      if (m_evtStore->retrieve(eventInfo).isFailure()) {
+        ATH_MSG_ERROR(__FUNCTION__ << ": Failed to retrieve EventInfo");
         delete thisFinishedEvtContext;
         fail = true;
         continue;
       } else {
-        // n_run = pEvent->event_ID()->run_number();
-        // n_evt = pEvent->event_ID()->event_number();
+        // n_run = eventInfo->runNumber();
+        // n_evt = eventInfo->eventNumber();
+        if (m_evtStore->retrieve(hltResult).isFailure()) {
+          ATH_MSG_ERROR(__FUNCTION__ << ": Failed to retrieve HltResult");
+        }
       }
     } else {
       ATH_MSG_ERROR("DrainSched: unable to select store " << thisFinishedEvtContext->slot());
@@ -1183,8 +1263,13 @@ int HltEventLoopMgr::drainScheduler() const
     // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
     // 					 *thisFinishedEvtContext ));
 
+    if (!hltResult) {
+      failedEvent(thisFinishedEvtContext,eventInfo);
+      continue;
+    }
+
     // create HLT result FullEventFragment
-    eformat::write::FullEventFragment* hltrFragment = HltResult(pEvent);
+    eformat::write::FullEventFragment* hltrFragment = fullHltResult(eventInfo,hltResult);
     // serialize and send the result
     eventDone(hltrFragment);
     // should we delete hltrFragment now?

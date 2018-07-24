@@ -14,6 +14,8 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/Timeout.h"
 #include "EventInfo/EventID.h" // number_type
+#include "StoreGate/WriteHandle.h"
+#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 
 // Gaudi includes
 #include "GaudiKernel/IEventProcessor.h"
@@ -31,14 +33,11 @@
 #include <thread>
 
 // Forward declarations
-namespace coral {
-  class AttributeList;
-}
 class CondAttrListCollection;
-class EventInfo;
 class IAlgExecStateSvc;
 class IAlgorithm;
 class IAlgResourcePool;
+// class IEventInfoCnvTool;
 class IHiveWhiteBoard;
 class IIncidentSvc;
 class IROBDataProviderSvc;
@@ -46,6 +45,12 @@ class IScheduler;
 class ITHistSvc;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
+namespace coral {
+  class AttributeList;
+}
+namespace HLT {
+  class HLTResult;
+}
 
 
 class HltEventLoopMgr : public extends2<AthService, ITrigEventLoopMgr, IEventProcessor>,
@@ -142,10 +147,13 @@ private:
   void printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const;
 
   /// Handle a failure to process an event
-  void failedEvent(EventContext* eventContext, const EventInfo* eventInfo) const;
+  void failedEvent(EventContext* eventContext,
+                   const xAOD::EventInfo* eventInfo=nullptr,
+                   HLT::HLTResult* hltResult=nullptr) const;
 
   // Build an HLT result FullEventFragment
-  eformat::write::FullEventFragment* HltResult(const EventInfo* eventInfo) const;
+  eformat::write::FullEventFragment* fullHltResult(const xAOD::EventInfo* eventInfo,
+                                                   HLT::HLTResult* hltResult) const;
 
   /// Send an HLT result FullEventFragment to the DataCollector
   void eventDone(eformat::write::FullEventFragment* hltrFragment) const;
@@ -183,6 +191,9 @@ private:
 
   /// Helper tool for COOL updates
   ToolHandle<TrigCOOLUpdateHelper> m_coolHelper;
+
+  /// EventInfo -> xAOD::EventInfo conversion tool
+  ToolHandle<xAODMaker::IEventInfoCnvTool> m_eventInfoCnvTool;
 
   // ------------------------- Optional services/tools -------------------------
   /// Reference to a THistSvc which implements also the Hlt additions
@@ -244,6 +255,9 @@ private:
   int m_softTimeoutValue;
   /// Flag set to false if timer thread should be stopped
   std::atomic<bool> m_runEventTimer;
+
+  /// StoreGate key for xAOD::EventInfo WriteHandle (needed for manual conversion from old EventInfo)
+  SG::WriteHandleKey<xAOD::EventInfo> m_xEventInfoWHKey;
 };
 
 //==============================================================================

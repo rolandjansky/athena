@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamData
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODCnvInterfaces
                           GaudiKernel
                           HLT/Trigger/TrigControl/TrigKernel
                           Trigger/TrigDataAccess/TrigDataAccessMonitoring
