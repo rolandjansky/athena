@@ -91,3 +91,4 @@ elif ( DetFlags.detdescr.ID_on() ):
 
     # Make alignable
     from InDetCondFolders import InDetAlignFolders
+

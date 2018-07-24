@@ -205,81 +205,53 @@ SCT_DetectorTool::registerCallback()
 {
   StatusCode sc{StatusCode::FAILURE};
   if (m_alignable) {
-    if (detStore()->contains<CondAttrListCollection>(m_run2L1Folder)) {
-      ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L1Folder);
-      const DataHandle<CondAttrListCollection> calc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L1Folder));
-      sc = StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L1Folder);
-    }
-
     if (m_useDynamicAlignFolders) {
-      std::string folderName = "/Indet/AlignL1/ID";
-      if (detStore->contains<CondAttrListCollection>(folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
-	const DataHandle<CondAttrListCollection> calc;
-	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
-	// We don't expect this to fail as we have already checked that the detstore contains the object.                          
-	if (ibltmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
-	} else {
-	  sc =  StatusCode::SUCCESS;
-	}
-      } else {
-        msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
-        //return StatusCode::FAILURE; 
-      }
 
-      folderName = "/Indet/AlignL2/SCT";
-      if (detStore->contains<CondAttrListCollection>(folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+      if (detStore()->contains<CondAttrListCollection>(m_run2L1Folder)) {
+	ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L1Folder);
 	const DataHandle<CondAttrListCollection> calc;
-	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
-	// We don't expect this to fail as we have already checked that the detstore contains the object.                          
-	if (ibltmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
-	} else {
-	  sc =  StatusCode::SUCCESS;
-	}
+	ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L1Folder));
+	sc = StatusCode::SUCCESS;
       } else {
-	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
-        //return StatusCode::FAILURE;  
+	ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L1Folder);
+	return StatusCode::FAILURE; 
       }
+    
 
-      folderName = "/Indet/AlignL3";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+      if (detStore()->contains<CondAttrListCollection>(m_run2L2Folder)) {
+	ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L2Folder);
+	const DataHandle<CondAttrListCollection> calc;
+	ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L2Folder));
+	sc = StatusCode::SUCCESS;
+      } else {
+	ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L2Folder);
+	return StatusCode::FAILURE; 
+      }
+      
+      
+      if (detStore()->contains<AlignableTransformContainer>(m_run2L3Folder)) {
+	ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run2L3Folder);
 	const DataHandle<AlignableTransformContainer> atc;
-	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-	if(sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
-	} else {
-        sc =  StatusCode::SUCCESS;
-	}
+	ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, m_run2L3Folder));
+	sc = StatusCode::SUCCESS;
+      } else {
+	ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder " << m_run2L3Folder);
+	return StatusCode::FAILURE;  
       }
-      else {
-	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
-			<< folderName << endreq;
-	//return StatusCode::FAILURE;                                                         
-      }
+      
     }
 
     else {
-      std::string folderName = "/Indet/Align";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+
+      if (detStore()->contains<AlignableTransformContainer>(m_run1Folder)) {
+	ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run1Folder);
 	const DataHandle<AlignableTransformContainer> atc;
-	StatusCode sctmp =  detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-	if(sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
-	} else {
-	  sc =  StatusCode::SUCCESS;
-	}
+	ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, m_run1Folder));
+	sc = StatusCode::SUCCESS;
       } else {
-	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " 
-			<< folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endreq;
-	//return StatusCode::FAILURE; 
+	ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder "
+			<< m_run1Folder << ", Alignment disabled (only if no Run2 scheme is loaded)!");
+	return StatusCode::FAILURE; 
       }
     }
 
