@@ -114,8 +114,33 @@ namespace xAOD {
         AUX_VARIABLE( etaLayer3TGCHoles );
         AUX_VARIABLE( etaLayer4TGCHoles );
 
-	AUX_VARIABLE( cscEtaHits );
-	AUX_VARIABLE( cscUnspoiledEtaHits );
+        // New Small Wheel
+        // STGC
+        AUX_VARIABLE( phiLayer1STGCHits );
+        AUX_VARIABLE( phiLayer2STGCHits );
+
+        AUX_VARIABLE( etaLayer1STGCHits );
+        AUX_VARIABLE( etaLayer2STGCHits );
+
+        AUX_VARIABLE( phiLayer1STGCHoles );
+        AUX_VARIABLE( phiLayer2STGCHoles );
+
+        AUX_VARIABLE( etaLayer1STGCHoles );
+        AUX_VARIABLE( etaLayer2STGCHoles );
+
+        // MM
+        AUX_VARIABLE( MMHits );
+        AUX_VARIABLE( MMHoles );
+        // Note: there is currently no MuonStationIndex for the two MM layers
+        // In the future it might be needed to add them in order to have 
+        // separate counters as follows
+        // AUX_VARIABLE( Layer1MMHits );
+        // AUX_VARIABLE( Layer2MMHits );
+        // AUX_VARIABLE( Layer1MMHoles );
+        // AUX_VARIABLE( Layer2MMHoles );
+
+        AUX_VARIABLE( cscEtaHits );
+        AUX_VARIABLE( cscUnspoiledEtaHits );
 
         // Isolation
         AUX_VARIABLE( etcone20 );
