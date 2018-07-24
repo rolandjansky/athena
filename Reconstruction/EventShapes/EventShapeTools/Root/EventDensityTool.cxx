@@ -23,7 +23,8 @@ using fastjet::VoronoiAreaSpec;
 
 EventDensityTool::EventDensityTool(const std::string& name)
   : asg::AsgTool(name),
-  m_useAreaFourMom(true),
+  m_useAreaFourMom(true)
+{
   declareProperty("JetAlgorithm",    m_jetalg  = "Kt");
   declareProperty("JetRadius",       m_jetrad  = 0.4);
   declareProperty("AbsRapidityMin",  m_rapmin  = 0.0);
