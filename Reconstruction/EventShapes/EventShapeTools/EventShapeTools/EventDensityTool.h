@@ -32,9 +32,16 @@
 #include "fastjet/AreaDefinition.hh"
 #include "fastjet/Selector.hh"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
 #include "JetRec/PseudoJetContainer.h"
 #include "EventShapeInterface/IEventShapeTool.h"
 #include "xAODEventShape/EventShape.h"
+
+// Temporarily included until trigger jet-finding properly moves to DH
+// Unfortunately, depending on the trigger PJG interface introduces
+// a circular dependency, so we have to depend on the basic class and
+// rely on the member & property names to discourage use of other PJGs
+#include "JetInterface/IPseudoJetGetter.h"
 
 class EventDensityTool :
   public asg::AsgTool,  
@@ -61,6 +68,9 @@ protected:
   StatusCode fillEventShape(xAOD::EventShape *es , const PseudoJetVector& input  ) const ;
   
 private: 
+  // Temporarily included until trigger jet-finding properly moves to DH
+  ToolHandle<IPseudoJetGetter> m_trigPJGet{""};
+
   // DataHandles
   SG::ReadHandleKey<PseudoJetContainer> m_inPJKey{this, "InputContainer", "", "ReadHandleKey for input PseudoJetVector"};
   SG::WriteHandleKey<xAOD::EventShape> m_outEDKey{this, "OutputContainer", "GenericEventDensity", "WriteHandleKey for output EventDensity"};

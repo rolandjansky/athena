@@ -33,7 +33,8 @@ EventDensityTool::EventDensityTool(const std::string& name)
   declareProperty("AbsRapidityMax",  m_rapmax  = 2.0);
   declareProperty("AreaDefinition",  m_areadef = "Voronoi");
   declareProperty("VoronoiRfact",    m_vrfact  = 1.0);
-  declareProperty("UseFourMomArea", m_useAreaFourMom);
+  declareProperty("UseFourMomArea",  m_useAreaFourMom);
+  declareProperty("TrigPseudoJetGetter", m_trigPJGet);
 }
 
 //**********************************************************************
@@ -82,7 +83,11 @@ StatusCode EventDensityTool::initialize() {
   ATH_MSG_INFO("Configured properties:");
   ATH_MSG_INFO("     JetAlgorithm: " << m_jetalg);
   ATH_MSG_INFO("        JetRadius: " << m_jetrad);
-  ATH_MSG_INFO("         JetInput: " << m_inPJKey.key());
+  if(!m_inPJKey.key().empty()) {
+    ATH_MSG_INFO("   InputContainer: " << m_inPJKey.key());
+  } else {
+    ATH_MSG_INFO("     TrigPJGetter: " << m_trigPJGet.name());
+  }
   ATH_MSG_INFO("   AbsRapidityMin: " << m_rapmin);
   ATH_MSG_INFO("   AbsRapidityMax: " << m_rapmax);
   ATH_MSG_INFO("   AreaDefinition: " << m_areadef);
@@ -98,9 +103,23 @@ StatusCode EventDensityTool::initialize() {
   m_rhoDec   = SG::AuxElement::Accessor<float>("Density");
   m_sigmaDec = SG::AuxElement::Accessor<float>("DensitySigma");
   m_areaDec  = SG::AuxElement::Accessor<float>("DensityArea");
+  // Input sources
+  if(!m_inPJKey.key().empty() && m_trigPJGet.empty()) {
+    ATH_CHECK( m_inPJKey.initialize() );
+  }
+  // { FIXME: To be removed when trigger moves to DataHandles fully
+  else if(m_inPJKey.key().empty() && !m_trigPJGet.empty()) {
+    ATH_CHECK( m_trigPJGet.retrieve() );
+  }
+  // } FIXME
+  else {
+    ATH_MSG_ERROR( "Inconsistent/ambiguous input setup."
+		   << " InPJKey: " << m_inPJKey.key() 
+		   << " TrigPJGetter: " << m_trigPJGet.name() );
+    return StatusCode::FAILURE;
+  }
 
-  // DataHandles
-  ATH_CHECK( m_inPJKey.initialize() );
+  // Initialise output handle
   ATH_CHECK( m_outEDKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -135,18 +154,36 @@ StatusCode EventDensityTool::fillEventShape() const {
 //**********************************************************************
 StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
 
-  auto h_in = makeHandle(m_inPJKey);
+  ATH_MSG_INFO( "In fillEventShape, inPJKey = \"" << m_inPJKey.key() << "\", trigPJGet = \"" << m_trigPJGet.name() << "\"" );
 
-  // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
-  ATH_MSG_DEBUG("Input PseudoJetContainer size = " << h_in->size());
-  if ( h_in->size() == 0 ) {
-    ATH_MSG_WARNING( "Input PseudoJetContainer size()=0 for pseudojets from "<< m_inPJKey.key() );
-    //return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Retrieved input pseudojets " << m_inPJKey.key() << " , count: " <<  h_in->size());
+  if(!m_inPJKey.key().empty() && m_trigPJGet.empty()) {
+    ATH_MSG_INFO(" Getting pseudojets from handle " << m_inPJKey.key());
+    auto h_in = makeHandle(m_inPJKey);
+    // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
+    if ( h_in->size() == 0 ) {
+      ATH_MSG_WARNING( "Input PseudoJetContainer size()=0 for pseudojets from "<< m_inPJKey.key() );
+      //return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Retrieved input pseudojets " << m_inPJKey.key() << " , count: " <<  h_in->size());
+    }
+    return fillEventShape(pevs, *(h_in->casVectorPseudoJet()));
   }
-
-  return fillEventShape(pevs, *h_in->casVectorPseudoJet());
+  // { FIXME: To be removed when trigger moves to DataHandles fully
+  else if(m_inPJKey.key().empty() && !m_trigPJGet.empty()) {
+    ATH_MSG_INFO(" Getting pseudojets from getter " << m_trigPJGet.name());
+    const PseudoJetVector& ppjv = *(m_trigPJGet->get());
+    // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
+    if ( ppjv.size() == 0 ) {
+      ATH_MSG_WARNING( "Input PseudoJetVector size()=0 for pseudojets from "<< m_trigPJGet.name() );
+      //return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Retrieved input pseudojets " << m_trigPJGet.name() << " , count: " <<  ppjv.size());
+    }
+    return fillEventShape(pevs, ppjv);
+  }
+  // } FIXME
+  
+  return StatusCode::FAILURE;
 }
 
 //**********************************************************************
