@@ -36,11 +36,6 @@ StatusCode SCTRawDataProviderTool::initialize()
 /// -------------------------------------------------------
 /// convert method
 
-void SCTRawDataProviderTool::beginNewEvent() {
-   /** reset list of known robIds */
-   m_robIdSet.clear(); 
-}
-
 StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs,
                                            ISCT_RDO_Container& rdoIdc,
                                            InDetBSErrContainer* errs,
@@ -85,4 +80,12 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   }
 
   return sc;
+}
+
+/// -------------------------------------------------------
+/// beginNewEvent method
+
+void SCTRawDataProviderTool::beginNewEvent() {
+   /** reset list of known robIds */
+   m_robIdSet.clear(); 
 }
