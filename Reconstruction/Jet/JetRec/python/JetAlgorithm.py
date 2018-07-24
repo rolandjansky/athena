@@ -54,7 +54,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
 
 
   # Event shape tools.
-  evstools = []
   evsDict = {
     "emtopo"   : ("EMTopoEventShape",   jtm.emget),
     "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
@@ -77,7 +76,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
         jetlog.info( myname + "Adding event shape " + evskey )
         if not IsInInputFile("xAOD::EventShape",toolname):
           jtm += configEventDensityTool(toolname, getter.Label, 0.4)
-          evstools += [jtm.tools[toolname]]
+          jtm.allEDTools += [jtm.tools[toolname]]
     else:
       jetlog.info( myname + "Invalid event shape key: " + evskey )
       raise Exception
@@ -158,7 +157,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     job += PseudoJetAlgorithm("pjalg_"+getter.Label,PJGetter=getter)
 
   # Then, add all event shape tools in separate algs
-  for evstool in evstools:
+  for evstool in jtm.allEDTools:
     from EventShapeTools.EventShapeToolsConf import EventDensityAthAlg
     job += EventDensityAthAlg("edalg_"+evstool.OutputContainer,EventDensityTool=evstool)
 
