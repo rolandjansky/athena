@@ -76,7 +76,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
       else:
         jetlog.info( myname + "Adding event shape " + evskey )
         if not IsInInputFile("xAOD::EventShape",toolname):
-          jtm += configEventDensityTool(toolname, getter, 0.4)
+          jtm += configEventDensityTool(toolname, getter.label, 0.4)
           evstools += [jtm.tools[toolname]]
     else:
       jetlog.info( myname + "Invalid event shape key: " + evskey )

@@ -335,7 +335,8 @@ if  rec.doTruth():
     # Compute the truth-particle-level energy density in the central eta region
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
     from JetRec.JetRecStandard import jtm
-    tc=configEventDensityTool("EDTruthCentralTool", jtm.truthget,
+    tc=configEventDensityTool("EDTruthCentralTool",
+                              inputlabel = jtm.truthget.Label,
                               0.5,
                               AbsRapidityMax      = 1.5,
                               OutputContainer     = "TruthIsoCentralEventShape",
@@ -344,7 +345,8 @@ if  rec.doTruth():
     ToolSvc += tc
 
     # Compute the truth-particle-level energy density in the forward eta region
-    tf=configEventDensityTool("EDTruthForwardTool", jtm.truthget,
+    tf=configEventDensityTool("EDTruthForwardTool",
+                              inputlabel = jtm.truthget.Label,
                               0.5,
                               AbsRapidityMin      = 1.5,
                               AbsRapidityMax      = 3.0,

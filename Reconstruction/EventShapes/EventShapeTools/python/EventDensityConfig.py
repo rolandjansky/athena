@@ -4,19 +4,19 @@ from EventShapeTools.EventShapeToolsConf import EventDensityTool, EventShapeCopi
 import logging
 edLogger = logging.getLogger( "EventDensityConfig" )   
 
-def configEventDensityTool( name, pjGetter, radius, **options ):
+def configEventDensityTool( name, inputlabel, radius, **options ):
     """ options can be used to pass any EventDensityTool properties 
     """
     # Set default and passed properties for the EventDensityTool
     toolProperties = dict(
         JetAlgorithm        = "Kt",
         JetRadius           = radius,
-        InputContainer      = pjGetter.OutputContainer,
+        InputContainer      = "PseudoJet"+inputlabel,
         AbsRapidityMin      = 0.0,
         AbsRapidityMax      = 2.0,
         AreaDefinition      = "Voronoi",
         VoronoiRfact        = 0.9,
-        OutputContainer     = "Kt"+str(int(10*radius))+pjGetter.Label + "EventShape",
+        OutputContainer     = "Kt"+str(int(10*radius))+inputlabel + "EventShape",
         UseFourMomArea      = True,
         )
     # Override properties with user-supplied options.
