@@ -77,18 +77,13 @@ TrigL2BMuMuHypo::~TrigL2BMuMuHypo()
 HLT::ErrorCode TrigL2BMuMuHypo::hltInitialize()
 {
 
-  if(msgLvl() <= MSG::DEBUG) {
-
-    msg() << MSG::DEBUG << "AcceptAll            = "
-        << (m_acceptAll==true ? "True" : "False") << endmsg;
-    msg() << MSG::DEBUG << "OppositeCharge       = "
-        << (m_oppositeCharge==true ? "True" : "False") << endmsg;
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
-    msg() << MSG::DEBUG << "ApplyUpperMassCut         = " << m_ApplyupperMassCut << endmsg;
-    msg() << MSG::DEBUG << "ApplyChi2Cut         = " << m_ApplyChi2Cut << endmsg;
-    msg() << MSG::DEBUG << "Chi2Cut         = " << m_Chi2VtxCut << endmsg;
-  }
+  ATH_MSG_DEBUG("AcceptAll            = " << (m_acceptAll==true ? "True" : "False"));
+  ATH_MSG_DEBUG("OppositeCharge       = " << (m_oppositeCharge==true ? "True" : "False"));
+  ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassCut);
+  ATH_MSG_DEBUG("UpperMassCut         = " << m_upperMassCut);
+  ATH_MSG_DEBUG("ApplyUpperMassCut         = " << m_ApplyupperMassCut);
+  ATH_MSG_DEBUG("ApplyChi2Cut         = " << m_ApplyChi2Cut);
+  ATH_MSG_DEBUG("Chi2Cut         = " << m_Chi2VtxCut);
 
   m_lastEvent = -1;
   m_lastEventPassed = -1;
@@ -99,24 +94,23 @@ HLT::ErrorCode TrigL2BMuMuHypo::hltInitialize()
   m_countPassedBsMass =0;
   m_countPassedChi2Cut =0;
 
-    if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
-        return HLT::BAD_JOB_SETUP;
-    } else {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
-    }
-
+  if (m_bphysHelperTool.retrieve().isFailure()) {
+     ATH_MSG_ERROR("Can't find TrigBphysHelperUtilsTool");
+     return HLT::BAD_JOB_SETUP;
+  } else {
+     ATH_MSG_DEBUG("TrigBphysHelperUtilsTool found");
+  }
     
   return HLT::OK;
 }
 
 HLT::ErrorCode TrigL2BMuMuHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigL2BMuMuHypo -------------|" << endmsg;
-  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
-  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
-  msg() << MSG::INFO << "RoIs Passed BsMass: "  << m_countPassedBsMass << endmsg;
+  ATH_MSG_INFO("in finalize()");
+  ATH_MSG_INFO("|----------------------- SUMMARY FROM TrigL2BMuMuHypo -------------|");
+  ATH_MSG_INFO("Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI);
+  ATH_MSG_INFO("Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs);
+  ATH_MSG_INFO("RoIs Passed BsMass: "  << m_countPassedBsMass);
 
   return HLT::OK;
 }
@@ -140,7 +134,7 @@ HLT::ErrorCode TrigL2BMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     // event info
     uint32_t runNumber(0), evtNumber(0), lbBlock(0);
     if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
-        msg() << MSG::ERROR << "Error retriving EventInfo" << endmsg;
+        ATH_MSG_ERROR("Error retriving EventInfo");
     }
     //IdRun = runNumber;
     IdEvent = evtNumber;
@@ -157,15 +151,8 @@ HLT::ErrorCode TrigL2BMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     pass = true;
     //return HLT::OK;
   }
-  if(msgLvl() <= MSG::DEBUG) {
-    if (m_acceptAll) {
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"
-          << endmsg;
-    } else {
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-          << endmsg;
-    }
-  }
+  ATH_MSG_DEBUG("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));
+
     //  create vector for TrigL2Bphys particles
     // const TrigL2BphysContainer* trigBphysColl = 0;
     const xAOD::TrigBphysContainer* trigBphysColl(nullptr);
@@ -173,35 +160,23 @@ HLT::ErrorCode TrigL2BMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, "L2BMuMuFex");
 
   if ( status != HLT::OK ) {
-    if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endmsg;
-    }
-
-    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " End of HLTexecute, pass= " << pass << endmsg;
-    return HLT::OK;
+      ATH_MSG_WARNING("Failed to get TrigBphysics collection");
+      ATH_MSG_DEBUG(" End of HLTexecute, pass= " << pass);
+      return HLT::OK;
   }
 
-  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Retrieved Bphys collection  trigBphysColl = " << trigBphysColl << endmsg;
+  ATH_MSG_DEBUG(" Retrieved Bphys collection  trigBphysColl = " << trigBphysColl);
   if ( trigBphysColl == 0 ) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
-
-    return HLT::OK;
+      ATH_MSG_DEBUG("No Bphys particles to analyse, leaving!");
+      return HLT::OK;
   }
-
-  if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size()
-        << " TrigBphys particles " << endmsg;
-  }
+  ATH_MSG_DEBUG("Got TrigBphys collection with " << trigBphysColl->size() << " TrigBphys particles ");
 
   // if no Bphys particles were found, just leave TrigBphysColl. empty and leave
   if ( trigBphysColl->size() == 0 ) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
-
-    return HLT::OK;
+      ATH_MSG_DEBUG("No Bphys particles to analyse, leaving!");
+      return HLT::OK;
   }
-
 
   m_mon_cutCounter = 0;
 
@@ -212,15 +187,14 @@ HLT::ErrorCode TrigL2BMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     for (xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
         
         if ((*bphysIter)->particleType() == xAOD::TrigBphys::BMUMU ) {
-            if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got Bphys partcile with mass " <<  (*bphysIter)->mass() << " and chi2 " <<
-                (*bphysIter)->fitchi2() << endmsg;
+            ATH_MSG_DEBUG("Got Bphys partcile with mass " <<  (*bphysIter)->mass() << " and chi2 " << (*bphysIter)->fitchi2());
             
             if(m_acceptSameMuon && (*bphysIter)->mass() < 0.) {
               PassedBsMass = true;
               PassedChi2Cut = true;
               //HLT::markPassing(bits, *bphysIter, trigBphysColl);
               xBits->markPassing((*bphysIter),trigBphysColl,true);
-              if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Candidate with mass " <<  (*bphysIter)->mass() << " accepted as AcceptSameMuon is set" << endmsg;
+              ATH_MSG_DEBUG("Candidate with mass " <<  (*bphysIter)->mass() << " accepted as AcceptSameMuon is set");
             }
             
             float BsMass = (*bphysIter)->mass();
@@ -272,12 +246,8 @@ HLT::ErrorCode TrigL2BMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   }
 
   // store result
-  //if ( attachBits(outputTE, bits) != HLT::OK ) {
-  //  msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endmsg;
-  //}
   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
       ATH_MSG_ERROR("Could not store TrigPassBits! ");
-  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "End of hltExecute, passMass, passChi2, pass= " <<  PassedBsMass << "  " << PassedChi2Cut << "  " << pass << endmsg;
-
-  return HLT::OK;
+      ATH_MSG_DEBUG("End of hltExecute, passMass, passChi2, pass= " <<  PassedBsMass << "  " << PassedChi2Cut << "  " << pass);
+      return HLT::OK;
 }

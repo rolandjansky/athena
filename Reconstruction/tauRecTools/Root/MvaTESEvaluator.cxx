@@ -94,8 +94,8 @@ StatusCode MvaTESEvaluator::initialize(){
     m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ClustersMeanSecondLambda", &second_lambda) );
     m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ClustersMeanPresamplerFrac", &presampler_frac) );
     m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ClustersMeanEMProbability", &em_probability) );
-    m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.lead_cluster_Efrac", &lead_cluster_frac) );
-    m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.upsilon_clusters", &upsilon_cluster) );
+    m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.LeadClusterFrac", &lead_cluster_frac) );
+    m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.UpsilonCluster", &upsilon_cluster) );
     m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ptDetectorAxis", &ptDetectorAxis) );
     m_availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.etaDetectorAxis", &etaDetectorAxis) );
   }
