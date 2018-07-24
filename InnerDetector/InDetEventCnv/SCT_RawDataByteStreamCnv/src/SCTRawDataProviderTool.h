@@ -7,12 +7,12 @@
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 
-#include "GaudiKernel/ToolHandle.h"
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "ByteStreamData/RawEvent.h"
-#include "InDetRawData/SCT_RDO_Container.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
+#include "InDetRawData/SCT_RDO_Container.h"
+#include "ByteStreamData/RawEvent.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
+#include "GaudiKernel/ToolHandle.h"
 
 #include <set>
 
