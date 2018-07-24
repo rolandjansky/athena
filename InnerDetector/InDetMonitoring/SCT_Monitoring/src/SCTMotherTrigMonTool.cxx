@@ -57,9 +57,7 @@ SCTMotherTrigMonTool::checkTriggers() {
 StatusCode
 SCTMotherTrigMonTool::printTriggers() const {
   for (int i(0); i != N_TRIGGER_TYPES; ++i) {
-    if (msgLvl(MSG::INFO)) {
-      msg(MSG::INFO) << std::setw(7) << m_triggerNames[i] << " : " << m_firedTriggers.test(i) << endmsg;
-    }
+    ATH_MSG_INFO(std::setw(7) << m_triggerNames[i] << " : " << m_firedTriggers.test(i));
   }
   return StatusCode::SUCCESS;
 }
@@ -78,16 +76,13 @@ SCTMotherTrigMonTool::isCalibrationNoise(const std::string &L1_Item) {
 
 bool
 SCTMotherTrigMonTool::isStream(const std::string &StreamName) {
-  if (evtStore()->contains<EventInfo>(m_eventInfoKey.key())) {
-    SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
-
+  SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+  if (evtInfo.isValid()) {
     m_isStream = false;
 
     for (unsigned int i = 0; i < evtInfo->trigger_info()->streamTags().size(); ++i) {
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << " i " << i << " Stream-Name " << evtInfo->trigger_info()->streamTags()[i].name()
-                        << " type " << evtInfo->trigger_info()->streamTags()[i].type() << endmsg;
-      }
+      ATH_MSG_DEBUG(" i " << i << " Stream-Name " << evtInfo->trigger_info()->streamTags()[i].name()
+                    << " type " << evtInfo->trigger_info()->streamTags()[i].type());
 
       if (evtInfo->trigger_info()->streamTags()[i].name().find(StreamName) != std::string::npos) {
         m_isStream = true;
@@ -96,9 +91,7 @@ SCTMotherTrigMonTool::isStream(const std::string &StreamName) {
   }
 
   if (m_isStream == true) {
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Found " << StreamName << " Calibration Stream Event" << endmsg;
-    }
+    ATH_MSG_DEBUG("Found " << StreamName << " Calibration Stream Event");
   }
 
   return m_isStream;
