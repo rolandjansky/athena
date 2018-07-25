@@ -12,7 +12,7 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
   TCalculatorToolBase(name),
   TSelectorToolBase(name),
   asg::AsgMessaging(std::string(name)),
-  doPileupTransform(false),
+  doPileupCorrection(false),
   VariableNames(""),
   OperatingPoint(),
   PdfFileName(""),
@@ -256,8 +256,8 @@ const Root::TAccept& Root::TForwardElectronLikelihoodTool::accept( LikeEnumForwa
     
     cutDiscriminant = CutLikelihood[ibin_combined];
 
-    // If doPileupTransform, then correct the discriminant itself instead of the cut value
-    if (doPileupTransform) { // PS: but this is opposite of what PU transform means in the central ele tool, you're doing the so-called LikelihoodPileupCorrection
+    // If doPileupCorrection, then correct the discriminant itself instead of the cut value
+    if (doPileupCorrection) {
       cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrectionA[ibin_combined]+CutLikelihoodPileupCorrectionB[ibin_combined];
     }
     

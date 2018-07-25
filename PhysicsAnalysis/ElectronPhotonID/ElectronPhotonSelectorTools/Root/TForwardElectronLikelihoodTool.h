@@ -205,8 +205,8 @@ namespace Root {
     bool useOneExtraHighETLHBin;
     /** @brief do pileup-dependent transform on discriminant value*/
    
-    /** @brief do pileup-dependent transform on discriminant value*/
-    bool doPileupTransform;
+    /** @brief do pileup-dependent correction on discriminant value*/
+    bool doPileupCorrection;
     /** @brief cut on likelihood output*/
     std::vector<double> CutLikelihood;
     std::vector<double> CutLikelihoodA;

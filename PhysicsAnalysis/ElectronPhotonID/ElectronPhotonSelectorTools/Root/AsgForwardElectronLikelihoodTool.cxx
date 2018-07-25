@@ -74,8 +74,8 @@ AsgForwardElectronLikelihoodTool::AsgForwardElectronLikelihoodTool(std::string m
  declareProperty("DiscCutForPileupTransform",m_rootForwardTool->CutLikelihoodPileupCorrectionB,"Reference disc used by pileup transform");
  declareProperty("DiscCutSlopeForPileupTransform",m_rootForwardTool->CutLikelihoodPileupCorrectionA,"Reference slope used by pileup transform");
   
-  // do pileup-dependent transform on discriminant value
-  declareProperty("doPileupTransform",m_rootForwardTool->doPileupTransform,"Do pileup-dependent transform on discriminant value");
+  // do pileup-dependent discriminant cut
+  declareProperty("doPileupCorrection",m_rootForwardTool->doPileupCorrection,"Do pileup-dependent discriminant cut");
 
 }
 
