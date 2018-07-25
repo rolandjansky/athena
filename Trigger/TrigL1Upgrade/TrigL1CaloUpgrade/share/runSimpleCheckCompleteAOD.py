@@ -39,13 +39,10 @@ except Exception:
   print 'Did not work from LArCabling, will try something else'
 ToolSvc+=LArSuperCellCablingTool()
 from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import SimpleLArDigitsChecks
-from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import TrigT1CaloEFex
-from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import TrigT1CaloTauFex
-#from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import EFexAnalysis
-#from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import DumpAll
-from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import LArFex
-#from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import LArFexAnalysis
-#from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import CaloBandwidth
+from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import EFexAnalysis
+from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import DumpAll
+from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import LArFexAnalysis
+from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import CaloBandwidth
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool=CaloNoiseToolDefault()
@@ -53,28 +50,20 @@ ToolSvc+=theCaloNoiseTool
 
 a=SimpleSuperCellChecks()
 a1=SimpleLArDigitsChecks()
-b=TrigT1CaloEFex(EnableMonitoring=True)
-b1=TrigT1CaloEFex(name="TrigT1CaloEFexCl",EnableMonitoring=True,CleanCellContainer=True,OutputClusterName="SClusterCl")
-c=TrigT1CaloTauFex()
 d=EFexAnalysis(EnableMonitoring=True)
 d1=EFexAnalysis(name="EFexAnalysisCl",EnableMonitoring=True,InputClusterName="SClusterCl")
 topSequence+=a
 topSequence+=a1
-topSequence+=b
-topSequence+=b1
-topSequence+=c
 topSequence+=d
 topSequence+=d1
-theLArFex=LArFex(EtInSigma=3.0,CaloNoiseTool=theCaloNoiseTool)
-topSequence+=theLArFex
 topSequence+=LArFexAnalysis()
 topSequence+=DumpAll()
 topSequence+=DumpAll(name="DumpAllCl",InputClusterName="SClusterCl")
-topSequence+=LArFex(name="1Sig",EtInSigma=3.0,CaloNoiseTool=theCaloNoiseTool,EtInSigmaSelect=1.0,OutputClusterName="LArLayer1Vars1Sig")
+#topSequence+=LArFex(name="1Sig",EtInSigma=3.0,CaloNoiseTool=theCaloNoiseTool,EtInSigmaSelect=1.0,OutputClusterName="LArLayer1Vars1Sig")
 topSequence+=DumpAll(name="DumpAllCl1Sig",InputClusterName="SClusterCl",InputLArFexName="LArLayer1Vars1Sig",SaveLayer1Cells=False)
-topSequence+=LArFex(name="2Sig",EtInSigma=3.0,CaloNoiseTool=theCaloNoiseTool,EtInSigmaSelect=2.0,OutputClusterName="LArLayer1Vars2Sig")
+#topSequence+=LArFex(name="2Sig",EtInSigma=3.0,CaloNoiseTool=theCaloNoiseTool,EtInSigmaSelect=2.0,OutputClusterName="LArLayer1Vars2Sig")
 topSequence+=DumpAll(name="DumpAllCl2Sig",InputClusterName="SClusterCl",InputLArFexName="LArLayer1Vars2Sig",SaveLayer1Cells=False)
-topSequence+=LArFex(name="3Sig",EtInSigma=3.0,CaloNoiseTool=theCaloNoiseTool,EtInSigmaSelect=3.0,OutputClusterName="LArLayer1Vars3Sig")
+#topSequence+=LArFex(name="3Sig",EtInSigma=3.0,CaloNoiseTool=theCaloNoiseTool,EtInSigmaSelect=3.0,OutputClusterName="LArLayer1Vars3Sig")
 topSequence+=DumpAll(name="DumpAllCl3Sig",InputClusterName="SClusterCl",InputLArFexName="LArLayer1Vars3Sig",SaveLayer1Cells=False)
 topSequence+=CaloBandwidth(EtInSigma=2.0,CaloNoiseTool=theCaloNoiseTool)
 
