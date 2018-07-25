@@ -12,13 +12,17 @@ namespace DerivationFramework {
 
 TopHeavyFlavorFilterAugmentation::TopHeavyFlavorFilterAugmentation(const std::string& t, const std::string& n, const IInterface* p):
   AthAlgTool(t,n,p),
-  m_filterTool("")
+  m_BfilterTool(""),
+  m_BBfilterTool(""),
+  m_CfilterTool("")
 {
 
     declareInterface<DerivationFramework::IAugmentationTool>(this);
 
     declareProperty("EventInfoName",m_eventInfoName="EventInfo");
-    declareProperty("FilterTool",m_filterTool);
+    declareProperty("BFilterTool", m_BfilterTool);
+    declareProperty("BBFilterTool",m_BBfilterTool);
+    declareProperty("CFilterTool", m_CfilterTool);
 
 
 }
@@ -34,8 +38,16 @@ StatusCode TopHeavyFlavorFilterAugmentation::initialize(){
   ATH_MSG_INFO("Initialize " );
 
 
-  if(m_filterTool.retrieve().isFailure()){
-    ATH_MSG_ERROR("unable to retrieve filter tool " <<m_filterTool);
+  if(m_BfilterTool.retrieve().isFailure()){
+    ATH_MSG_ERROR("unable to retrieve filter tool " <<m_BfilterTool);
+    return StatusCode::FAILURE;
+  }
+  if(m_BBfilterTool.retrieve().isFailure()){
+    ATH_MSG_ERROR("unable to retrieve filter tool " <<m_BBfilterTool);
+    return StatusCode::FAILURE;
+  }
+  if(m_CfilterTool.retrieve().isFailure()){
+    ATH_MSG_ERROR("unable to retrieve filter tool " <<m_CfilterTool);
     return StatusCode::FAILURE;
   }
 
@@ -62,12 +74,23 @@ StatusCode TopHeavyFlavorFilterAugmentation::addBranches() const{
     return StatusCode::FAILURE;
   }
 
-  int flavortype=m_filterTool->filterFlag();
+  bool passB =m_BfilterTool->filterDecision();
+  bool passBB=m_BBfilterTool->filterDecision();
+  bool passC =m_CfilterTool->filterDecision();
+
+  int flag = 0;
+
+  if (passB)
+      flag |= 1 << 0;
+  if (passBB)
+      flag |= 1 << 1;
+  if (passC)
+      flag |= 1 << 2;
 
 
   static SG::AuxElement::Decorator<int> decoration("TopHeavyFlavorFilterFlag");
 
-  decoration(*eventInfo) = flavortype;
+  decoration(*eventInfo) = flag;
 
  return StatusCode::SUCCESS;
 

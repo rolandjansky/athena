@@ -80,13 +80,35 @@ def setup(ToolSvc):
   #==============================================================================
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
+  # these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
-  TOPQtthffiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("TOPQTTbarPlusHeavyFlavorFilterTool")
-  ToolSvc += TOPQtthffiltertool
+
+  TOPQttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("TOPQTTbarPlusBFilterTool")
+  TOPQttbarBfiltertool.SelectB = True
+  TOPQttbarBfiltertool.BpTMinCut = 5000
+  TOPQttbarBfiltertool.BMultiplicityCut = 1 # >=
+  ToolSvc += TOPQttbarBfiltertool
+
+  TOPQttbarBBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("TOPQTTbarPlusBBFilterTool")
+  TOPQttbarBBfiltertool.SelectB = True
+  TOPQttbarBBfiltertool.BpTMinCut = 15000
+  TOPQttbarBBfiltertool.BMultiplicityCut = 2 # >=
+  ToolSvc += TOPQttbarBBfiltertool
+
+  TOPQttbarCfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("TOPQTTbarPlusCFilterTool")
+  TOPQttbarCfiltertool.SelectC = True
+  TOPQttbarCfiltertool.CpTMinCut = 15000
+  TOPQttbarCfiltertool.CMultiplicityCut = 1 # >=
+  # these two are the default values, no need to specify them
+  #TOPQttbarCfiltertool.BpTMinCut = 5000
+  #TOPQttbarCfiltertool.BMultiplicityCut = 1 # >=
+  ToolSvc += TOPQttbarCfiltertool
 
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation
   TOPQTopHFFilterAugmentation = DerivationFramework__TopHeavyFlavorFilterAugmentation(name = "TOPQTopHFFilterAugmentation")
-  TOPQTopHFFilterAugmentation.FilterTool = TOPQtthffiltertool
+  TOPQTopHFFilterAugmentation.BFilterTool = TOPQttbarBfiltertool
+  TOPQTopHFFilterAugmentation.BBFilterTool = TOPQttbarBBfiltertool
+  TOPQTopHFFilterAugmentation.CFilterTool = TOPQttbarCfiltertool
   ToolSvc += TOPQTopHFFilterAugmentation
   augmentationTools.append(TOPQTopHFFilterAugmentation)
   print "TOPQTopHFFilterAugmentationTool: ", TOPQTopHFFilterAugmentation
