@@ -130,8 +130,18 @@ class AnaAlgSequence( AlgSequence ):
                     # all of the outputs.
                     for label in inName.keys():
                         if label in inputRegex.keys():
-                            inputRegex[ outputLabel ] += \
-                              '|%s' % inputRegex[ label ]
+                            # If it starts with '(^$)' (it should), then remove
+                            # that for the following operations.
+                            pattern = inputRegex[ label ]
+                            if pattern.find( '(^$)|' ) == 0:
+                                pattern = pattern[ 5 : ]
+                                pass
+                            # Check that we don't have this already in the
+                            # regular expression.
+                            if inputRegex[ outputLabel ].find( pattern ) == -1:
+                                # If we don't, then let's add it now.
+                                inputRegex[ outputLabel ] += '|%s' % pattern
+                                pass
                             pass
                         pass
 
@@ -141,12 +151,7 @@ class AnaAlgSequence( AlgSequence ):
                         inputRegex[ outputLabel ] += '|%s' % syst[ outputLabel ]
                         pass
 
-                    # Remove any possible duplicate '(^$)' entries from the
-                    # regex list.
-                    inputRegex[ outputLabel ] = re.sub( '\|\(\^\$\)', '',
-                                                        inputRegex[ outputLabel ] )
                     pass
-
                 pass
 
             # Set up the systematic behaviour of the algorithm:
