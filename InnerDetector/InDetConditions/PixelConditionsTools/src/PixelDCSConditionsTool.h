@@ -39,7 +39,6 @@ class PixelDCSConditionsTool: public extends<AthAlgTool, IPixelDCSConditionsTool
     virtual std::string PixelFSMStatus(const IdentifierHash& elementHash) const override;
 
   private:
-    const InDetDD::PixelDetectorManager* m_pixman;
     const PixelID* m_pixid;
 
     bool m_useDB;
