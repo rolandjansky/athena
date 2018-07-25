@@ -9,7 +9,8 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODJet
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface )
+   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
+   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency )
 
 # Component(s) in the package:
 atlas_add_library( FTagAnalysisInterfacesLib

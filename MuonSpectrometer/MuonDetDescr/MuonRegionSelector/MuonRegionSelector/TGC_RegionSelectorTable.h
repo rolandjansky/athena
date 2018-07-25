@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TGC_RegionSelectorTable.h        
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TGC_RegionSelectorTable.h, v0.0   Tue  4 Aug 2009 16:34:52 BST sutt $
 

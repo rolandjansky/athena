@@ -1378,6 +1378,45 @@ class WriteDAOD_EXOT23Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT23Stream)
 listAODtoDPD.append(WriteDAOD_EXOT23Stream.StreamName)
 
+class WriteDAOD_EXOT24Stream(JobProperty):
+    """EXOT24: 0L for monoHbb analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT24'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT24.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT24Stream)
+listAODtoDPD.append(WriteDAOD_EXOT24Stream.StreamName)
+
+class WriteDAOD_EXOT25Stream(JobProperty):
+    """EXOT25: 1L for monoHbb analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT25'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT25.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT25Stream)
+listAODtoDPD.append(WriteDAOD_EXOT25Stream.StreamName)
+
+class WriteDAOD_EXOT26Stream(JobProperty):
+    """EXOT26: 2L for monoHbb analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT26'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT26.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT26Stream)
+listAODtoDPD.append(WriteDAOD_EXOT26Stream.StreamName)
+
 #################################
 # Defined by the Jet/MET group
 #################################
@@ -1538,6 +1577,18 @@ class WriteDAOD_JETM12Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM12Stream)
 listAODtoDPD.append(WriteDAOD_JETM12Stream.StreamName)
 
+class WriteDAOD_JETM13Stream(JobProperty):
+    """JETM13: jet/MET constituent studies"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_JETM13'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkJetEtMiss/JETM13.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM13Stream)
+listAODtoDPD.append(WriteDAOD_JETM13Stream.StreamName)
 
 #####################################
 # Defined by the inner tracking group
@@ -1922,6 +1973,21 @@ class WriteDAOD_BPHY12Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY12Stream)
 listAODtoDPD.append(WriteDAOD_BPHY12Stream.StreamName)
 
+class WriteDAOD_BPHY14Stream (JobProperty):
+    """BPHY14 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_BPHY14'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkBPhys/BPHY14.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY14Stream)
+listAODtoDPD.append(WriteDAOD_BPHY14Stream.StreamName)
+
+
+
 class WriteDAOD_BPHY15Stream (JobProperty):
      """BPHY15: Bc->J/psi D"""
      statusOn = True
@@ -1934,6 +2000,19 @@ class WriteDAOD_BPHY15Stream (JobProperty):
      pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY15Stream)
 listAODtoDPD.append(WriteDAOD_BPHY15Stream.StreamName)
+
+class WriteDAOD_BPHY16Stream (JobProperty):
+     """BPHY16: Upsilon +2Muons"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_BPHY16'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkBPhys/BPHY16.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY16Stream)
+listAODtoDPD.append(WriteDAOD_BPHY16Stream.StreamName)
 
 ######################################
 # Defined by the MCP group
@@ -2004,6 +2083,18 @@ class WriteDAOD_MUON4Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON4Stream)
 listAODtoDPD.append(WriteDAOD_MUON4Stream.StreamName)
 
+class WriteDAOD_MUON5Stream (JobProperty):
+     """MUON5: MC only"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_MUON5'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkMuons/MUON5.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON5Stream)
+listAODtoDPD.append(WriteDAOD_MUON5Stream.StreamName)
 
 #############################
 # Defined by the L1Calo group

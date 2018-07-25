@@ -18,6 +18,9 @@
 // Local include(s):
 #include "xAODTruth/TruthVertexContainerFwd.h"
 
+#include "xAODTruth/TruthParticleContainerFwd.h"
+template struct DataVector_detail::DVLEltBaseInit< xAOD::TruthParticle_v1>;
+
 namespace xAOD {
 
    /// Class describing a truth particle in the MC record

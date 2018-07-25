@@ -112,6 +112,7 @@ private:
   int n_ca_subjets(std::vector<fastjet::PseudoJet> vClusters);
   void mass_drop(const xAOD::DiTauJet& xDiTau, std::vector<fastjet::PseudoJet> vClusters) const;
   float f_clusters(const xAOD::DiTauJet& xDiTau, std::vector<fastjet::PseudoJet> vClusters) const;
+  int subjetLeadElectronID(const xAOD::DiTauJet& XDiTau, int iSubjet) const;
 
   // steering variables
   float m_dMaxDeltaR;
@@ -119,6 +120,8 @@ private:
   std::string m_DiTauContainerNameAux;
   bool m_bCalcCluserVariables;
   bool m_bMuonTrackRemoval;
+  bool m_bRecalcStandardID;
+  bool m_bCalcSubjetLeadElectronID;
   std::string m_sTruthTauContainerName;
   std::string m_sDecayChannel;
   enum DecayChannel{ HadHad, HadEl, HadMu, Default };
@@ -142,6 +145,9 @@ private:
   asg::AnaToolHandle<ITauToolBase> m_muonTrackRemoval;
   asg::AnaToolHandle<ITauToolBase> m_tauSubstructureVariables;
   asg::AnaToolHandle<ITauToolBase> m_tauCommonCalcVars;
+  asg::AnaToolHandle<ITauToolBase> m_tauJetBDTEvaluator_1P;
+  asg::AnaToolHandle<ITauToolBase> m_tauJetBDTEvaluator_3P;
+  asg::AnaToolHandle<ITauToolBase> m_tauWPDecorator;
   
   StatusCode decorNtracks (const xAOD::DiTauJet& xDiTau);
   TauEventData m_data;

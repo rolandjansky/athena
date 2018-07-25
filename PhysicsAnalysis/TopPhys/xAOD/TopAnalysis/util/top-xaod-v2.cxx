@@ -512,9 +512,12 @@ std::shared_ptr<top::ObjectCollectionMaker> CreateObjectCollectionMaker(std::sha
 
 std::shared_ptr<top::TopObjectSelection> CreateTopObjectSelection(std::shared_ptr<top::TopConfig> topConfig){
 
-  // Setup object definitions
-  std::shared_ptr<top::TopObjectSelection> objectSelection(top::loadObjectSelection(topConfig));
-  objectSelection->print(std::cout);
+  // Setup object definitions - not needed by HLUpgrade code
+  std::shared_ptr<top::TopObjectSelection> objectSelection;
+  if(!topConfig->HLLHC()) {
+    objectSelection.reset(top::loadObjectSelection(topConfig));
+    objectSelection->print(std::cout);
+  }
   return objectSelection;
 }
 

@@ -37,8 +37,8 @@ namespace LVL1MUCTPI {
   StatusCode LUTBBOverlapCalculator::initialize( const xercesc::DOMNode* bbnode, bool dumpLut,const std::string& runPeriod ) {
 
      if( runPeriod == "RUN2" ){
-       setMaximumThreshold( 3 );
-       REPORT_VERBOSE_MSG( "RunPeriod=" << runPeriod << " setMaximumThreshold to 3" );
+       setMaximumThreshold( 6 );
+       REPORT_VERBOSE_MSG( "RunPeriod=" << runPeriod << " setMaximumThreshold to 6" );
      }
 
       // Clear the internal LUT:

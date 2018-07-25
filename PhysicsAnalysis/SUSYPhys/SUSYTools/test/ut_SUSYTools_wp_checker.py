@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import unittest
 import ROOT
@@ -102,7 +102,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true

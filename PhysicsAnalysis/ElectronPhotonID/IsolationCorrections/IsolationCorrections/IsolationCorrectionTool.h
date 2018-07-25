@@ -56,12 +56,14 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         virtual float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
 	virtual float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) const override;
         virtual float GetDDCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
+	void setDDVer(std::string a) { m_ddVersion = a; }; //temporary for test
 
     private:
 	StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) ;
         float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
 
         std::string m_corr_file;
+        std::string m_corr_ddshift_file;
         std::string m_corr_ddshift_2015_2016_file;
         std::string m_corr_ddshift_2017_file;
         std::string m_corr_ddsmearing_file;

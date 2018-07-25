@@ -6,6 +6,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
@@ -32,6 +33,7 @@ EXOT9Stream.AcceptAlgs(["EXOT9Kernel"])
 #thinning helper
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT9ThinningHelper = ThinningHelper( "EXOT9ThinningHelper" )
+EXOT9ThinningHelper.TriggerChains = '^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*'
 EXOT9ThinningHelper.AppendToStream( EXOT9Stream )
 
 thinningTools = []
@@ -42,7 +44,7 @@ EXOT9MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name   
                                                                          ThinningService         = EXOT9ThinningHelper.ThinningSvc(),
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                         ConeSize                =  0.4)
+                                                                         ConeSize                =  0.0)
 ToolSvc += EXOT9MuonTPThinningTool
 thinningTools.append(EXOT9MuonTPThinningTool)
 
@@ -52,7 +54,7 @@ EXOT9ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
                                                                                ThinningService         = EXOT9ThinningHelper.ThinningSvc(),
                                                                                SGKey                   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                               ConeSize                =  0.4)
+                                                                               ConeSize                =  0.0)
 ToolSvc += EXOT9ElectronTPThinningTool
 thinningTools.append(EXOT9ElectronTPThinningTool)
 
@@ -62,7 +64,7 @@ EXOT9PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(nam
                                                                              ThinningService         = EXOT9ThinningHelper.ThinningSvc(),
                                                                              SGKey                   = "Photons",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                             ConeSize                =  0.4)
+                                                                             ConeSize                =  0.0)
 ToolSvc += EXOT9PhotonTPThinningTool
 thinningTools.append(EXOT9PhotonTPThinningTool)
 
@@ -143,7 +145,9 @@ EXOT9SlimmingHelper = SlimmingHelper("EXOT9SlimmingHelper")
 EXOT9SlimmingHelper.StaticContent = EXOT9Content
 EXOT9SlimmingHelper.AllVariables = EXOT9AllVariables
 EXOT9SlimmingHelper.SmartCollections = EXOT9SmartCollections
+EXOT9SlimmingHelper.ExtraVariables += EXOT9Extravariables
+EXOT9SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 EXOT9SlimmingHelper.IncludeEGammaTriggerContent = True
-EXOT9SlimmingHelper.IncludeMuonTriggerContent = True
+EXOT9SlimmingHelper.IncludeMuonTriggerContent = False
 addMETOutputs(EXOT9SlimmingHelper, ["EXOT9", "Track"], ["AntiKt4EMTopo"])
 EXOT9SlimmingHelper.AppendContentToStream(EXOT9Stream)

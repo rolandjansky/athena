@@ -20,6 +20,8 @@
 #include "xAODTau/DiTauJetAuxContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include "xAODEgamma/ElectronContainer.h"
 
 #include "xAODMuon/MuonContainer.h"
@@ -38,6 +40,8 @@
 #include "tauRecTools/MuonTrackRemoval.h"
 #include "tauRecTools/TauSubstructureVariables.h"
 #include "tauRecTools/TauCommonCalcVars.h"
+#include "tauRecTools/TauJetBDTEvaluator.h"
+#include "tauRecTools/TauWPDecorator.h"
 
 #include "PATCore/TResult.h"
 // fastjet
@@ -88,12 +92,17 @@ DiTauIDVarCalculator::DiTauIDVarCalculator( const std::string& name )
   , m_muonTrackRemoval                       ("MuonTrackRemoval")
   , m_tauSubstructureVariables               ("TauSubstructureVaribales")
   , m_tauCommonCalcVars                      ("TauCommonCalcVars")
+  , m_tauJetBDTEvaluator_1P                  ("TauJetBDTEvaluator_1P")
+  , m_tauJetBDTEvaluator_3P                  ("TauJetBDTEvaluator_3P")
+  , m_tauWPDecorator                         ("TauWPDecorator")
 {
   declareProperty( "DefaultValue", m_dDefault = 0);
   declareProperty( "DiTauContainerName", m_sDiTauContainerName = "DiTauJets");
   declareProperty( "doCalcCluserVariables", m_bCalcCluserVariables = false);
   declareProperty( "DiTauDecayChannel", m_sDecayChannel = "HadHad");
   declareProperty( "MuonTrackRemoval", m_bMuonTrackRemoval = true);
+  declareProperty( "RecalcStandardID", m_bRecalcStandardID = false);
+  declareProperty( "doCalcSubjetLeadElectronID", m_bCalcSubjetLeadElectronID = false);
 }
 
 //______________________________________________________________________________
@@ -169,9 +178,31 @@ StatusCode DiTauIDVarCalculator::initialize()
 
         ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauCommonCalcVars, TauCommonCalcVars));
         ATH_CHECK(m_tauCommonCalcVars.initialize());
+
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauJetBDTEvaluator_1P, TauJetBDTEvaluator));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("weightsFile", "tauRecTools/00-02-00/vars2016_pt_gamma_1p_isofix.root"));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("minNTracks", 0));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("maxNTracks", 1));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("outputVarName", "BDTScoreRecalc"));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.initialize());
+
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauJetBDTEvaluator_3P, TauJetBDTEvaluator));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.setProperty("weightsFile", "tauRecTools/00-02-00/vars2016_pt_gamma_3p_isofix.root"));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.setProperty("minNTracks", 2));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.setProperty("maxNTracks", 1000));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.setProperty("outputVarName", "BDTScoreRecalc"));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.initialize());
+        
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauWPDecorator, TauWPDecorator));
+        ATH_CHECK(m_tauWPDecorator.setProperty("flatteningFile1Prong", "tauRecTools/00-02-00/FlatJetBDT1Pv2.root"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("flatteningFile3Prong", "tauRecTools/00-02-00/FlatJetBDT3Pv2.root"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("ScoreName", "BDTScoreRecalc"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("NewScoreName", "BDTScoreFlatRecalc"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("DefineWPs", false));
+        ATH_CHECK(m_tauWPDecorator.initialize());
       }
   }
-  if(m_eDecayChannel == DecayChannel::HadEl){
+  if(m_eDecayChannel == DecayChannel::HadEl || m_eDecayChannel == DecayChannel::HadHad){
     std::string confDir = "ElectronPhotonSelectorTools/offline/mc16_20170828/";
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_electronLikeliHoodTool_medium, AsgElectronLikelihoodTool));
     ATH_CHECK(m_electronLikeliHoodTool_medium.setProperty("ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"));
@@ -262,6 +293,12 @@ StatusCode DiTauIDVarCalculator::calculateHadHadIDVariables(const xAOD::DiTauJet
   xDiTau.auxdecor< float >( "d0_leadtrack_subl") = d0_leadtrack(xDiTau, 1);
   xDiTau.auxdecor< float >( "f_isotracks" ) = f_isotracks(xDiTau);
   xDiTau.auxdecor< int >( "n_iso_ellipse" ) = n_iso_ellipse(xDiTau);
+  if (m_bCalcSubjetLeadElectronID)
+  {
+    xDiTau.auxdecor< int >( "leadjet_elid" ) = subjetLeadElectronID(xDiTau, 0);
+    xDiTau.auxdecor< int >( "subleadjet_elid" ) = subjetLeadElectronID(xDiTau, 1);
+  }
+
   
   if (m_bCalcCluserVariables)
   {
@@ -299,7 +336,10 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::ConstAccessor<float>  acc_trFlightPathSig    ("trFlightPathSig")   ;
   static const SG::AuxElement::ConstAccessor<float>  acc_massTrkSys         ("massTrkSys")        ;
   static const SG::AuxElement::ConstAccessor<float>  acc_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
-  
+
+  static const SG::AuxElement::ConstAccessor<float>  acc_BDTScoreRecalc     ("BDTScoreRecalc");
+  static const SG::AuxElement::ConstAccessor<float>  acc_BDTScoreFlatRecalc ("BDTScoreFlatRecalc");
+
   static const SG::AuxElement::Decorator<float>  dec_centFrac           ("centFrac")          ;
   static const SG::AuxElement::Decorator<float>  dec_massTrkSys         ("massTrkSys")        ;
   static const SG::AuxElement::Decorator<float>  dec_etOverPtLeadTrk    ("etOverPtLeadTrk")   ;
@@ -313,6 +353,9 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::Decorator<float>  dec_trFlightPathSig    ("trFlightPathSig")   ;
   static const SG::AuxElement::Decorator<float>  dec_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
 
+  static const SG::AuxElement::Decorator<float>  dec_BDTScoreRecalc     ("TauJetBDTScoreRecalc");
+  static const SG::AuxElement::Decorator<float>  dec_BDTScoreFlatRecalc ("TauJetBDTScoreFlatRecalc");
+  
   static const SG::AuxElement::Decorator<int>    dec_tau_ntrack         ("tau_ntrack");
   
   static const SG::AuxElement::Decorator<char>   acc_mu_isoGL     ("mu_isoGL");
@@ -334,7 +377,8 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::Decorator<int>   acc_MuonQuality   ("MuonQuality");
   static const SG::AuxElement::Decorator<int>   acc_MuonType      ("MuonType");
   static const SG::AuxElement::Decorator<char>  acc_validMuon     ("validMuon");
- 
+
+
   const xAOD::TauJet* pTau  = *acc_tauLink(xDiTau);
   const xAOD::Muon*   pMuon = *acc_muonLink(xDiTau);
   std::unique_ptr<xAOD::TauJet> pTauCopy;
@@ -344,8 +388,44 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
     pTauCopy->makePrivateStore(*pTau);
     m_data.clear();
     ATH_CHECK(m_muonTrackRemoval->execute(*pTauCopy));
+
+    // set variables to default values, if last track of tau was removed
+    if (pTauCopy->nTracks() == 0) {
+      pTauCopy->setDetail( xAOD::TauJetParameters::etOverPtLeadTrk, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::dRmax, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::massTrkSys, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::innerTrkAvgDist, static_cast<float>( -1111 ) );
+    }
+    
     ATH_CHECK(m_tauSubstructureVariables->execute(*pTauCopy));
     ATH_CHECK(m_tauCommonCalcVars->execute(*pTauCopy));
+
+    if(m_bRecalcStandardID){
+      // recalculate and decorate output of standard Tau ID after muon track removal:
+      // set some input variables for standard Tau ID:
+      
+      static const SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
+      acc_numTrack(*pTauCopy) = pTauCopy->nTracks();
+      const xAOD::EventInfo* xEventInfo;
+      static const SG::AuxElement::Accessor<float> acc_mu("MU");
+      ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
+
+      static const SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK");
+      
+      if(pTauCopy->nTracks()>0)
+        acc_absEtaLead(*pTauCopy) = pTauCopy->track(0)->eta();
+      else
+        acc_absEtaLead(*pTauCopy) = 0;
+      
+      acc_mu(*pTauCopy) = xEventInfo->averageInteractionsPerCrossing();
+      
+      ATH_CHECK(m_tauJetBDTEvaluator_1P->execute(*pTauCopy));
+      ATH_CHECK(m_tauJetBDTEvaluator_3P->execute(*pTauCopy));
+      ATH_CHECK(m_tauWPDecorator->execute(*pTauCopy));
+    
+      dec_BDTScoreRecalc    (xDiTau) = acc_BDTScoreRecalc    (*pTauCopy);
+      dec_BDTScoreFlatRecalc(xDiTau) = acc_BDTScoreFlatRecalc(*pTauCopy);
+    }
     pTau = &*pTauCopy;
   }
     
@@ -680,6 +760,50 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   }
 
   return StatusCode::SUCCESS;
+}
+
+int DiTauIDVarCalculator::subjetLeadElectronID(const xAOD::DiTauJet& xDiTau, int iSubjet) const {
+  if(xDiTau.auxdata<int>("n_subjets") < iSubjet)
+    return -1;
+  
+  const xAOD::ElectronContainer* electrons = evtStore()->retrieve<const xAOD::ElectronContainer>("Electrons");
+  
+  TLorentzVector p4LeadElectron;
+  p4LeadElectron.SetPtEtaPhiM(5000,0,0,0);
+  const xAOD::Electron* leadElectron = nullptr;
+  
+  TLorentzVector p4Subjet;
+  p4Subjet.SetPtEtaPhiE(xDiTau.subjetPt(iSubjet),
+                        xDiTau.subjetEta(iSubjet),
+                        xDiTau.subjetPhi(iSubjet),
+                        xDiTau.subjetE(iSubjet));
+  
+  for(auto electron : *electrons){
+    TLorentzVector p4Electron = electron->p4();
+    if(p4Subjet.DeltaR(p4Electron) < 0.1){
+      if(p4Electron.Pt() > p4LeadElectron.Pt()){
+        p4LeadElectron = p4Electron;
+        leadElectron = electron;
+      }
+    }
+  }
+  
+  int IDSelection = -1;
+  
+  if(leadElectron){
+    if(m_electronLikeliHoodTool_veryloose->accept(leadElectron))
+      IDSelection++;
+    if(m_electronLikeliHoodTool_loose->accept(leadElectron))
+      IDSelection++;
+    if(m_electronLikeliHoodTool_loose_CutBL->accept(leadElectron))
+      IDSelection++;
+    if(m_electronLikeliHoodTool_medium->accept(leadElectron))
+      IDSelection++;
+    if(m_electronLikeliHoodTool_tight->accept(leadElectron))
+      IDSelection++;
+  }
+  
+  return IDSelection;
 }
 
 std::string DiTauIDVarCalculator::getDecayMode(){

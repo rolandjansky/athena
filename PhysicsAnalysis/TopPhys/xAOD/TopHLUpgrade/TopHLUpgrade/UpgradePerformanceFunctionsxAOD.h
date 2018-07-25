@@ -10,6 +10,7 @@
 #include "TRandom3.h"
 
 #include "xAODTruth/TruthParticle.h"
+#include "xAODEgamma/Electron.h"
 #include "xAODJet/Jet.h"
 
 /*!
@@ -20,7 +21,7 @@
  *
  * @author Mark Owen <markowen@cern.ch>
  */
-class UpgradePerformanceFunctionsxAOD : public UpgradePerformanceFunctions {
+class UpgradePerformanceFunctionsxAOD : public Upgrade::UpgradePerformanceFunctions {
 
  public:
 
@@ -36,11 +37,25 @@ class UpgradePerformanceFunctionsxAOD : public UpgradePerformanceFunctions {
   /// Smear an Electron
   void smearElectron(xAOD::TruthParticle& electron);
 
+  /// Get smeared fake electron from truth jet
+  void smearFakeElectron(xAOD::TruthParticle& electron, xAOD::Jet& jet);
+  void smearFakeElectron(xAOD::TruthParticle& electron, TLorentzVector& jet);
+
   /// Smear a Muon
   void smearMuon(xAOD::TruthParticle& muon);
 
   /// Smear a Jet
   void smearJet(xAOD::Jet& jet);
+
+  /// Smear a fat jet
+  void smearFatJet(xAOD::Jet& jet);
+
+  /// Smear a Photon
+  void smearPhoton(xAOD::TruthParticle& photon);
+
+  /// Get smeared fake photon from truth jet
+  void smearFakePhoton(xAOD::TruthParticle& photon, xAOD::Jet& jet);
+  void smearFakePhoton(xAOD::TruthParticle& photon, TLorentzVector& jet);
 
   /// Access to random number generator
   inline TRandom3* getRandom3() {return &m_randgen;}

@@ -9,9 +9,9 @@
 #define JET_ANALYSIS_ALGORITHMS__JVT_EFFICIENCY_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <JetJvtEfficiency/IJetJvtEfficiency.h>
+#include <JetAnalysisInterfaces/IJetJvtEfficiency.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
-#include <SelectionHelpers/SelectionHelpers.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -49,13 +49,17 @@ namespace CP
     SysCopyHandle<xAOD::JetContainer> m_jetHandle {
       this, "jets", "AntiKt4EMTopoJets", "the jet collection to run on"};
 
+    /// \brief the truth jet collection to use
+  private:
+    std::string m_truthJetsName;
+
     /// \brief the decoration for the JVT selection
   private:
     std::string m_selection;
 
     /// \brief the accessor for \ref m_selection
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> > m_selectionAccessor;
+    std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
 
     /// \brief the decoration for the JVT efficiency
   private:

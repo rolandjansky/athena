@@ -43,18 +43,20 @@ EGAM4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 
 
 #====================================================================
-# mumugamma selection for photon studies, single & di-muon triggers
+# mumugamma and mumue selection for photon studies, single & di-muon triggers
 # two opposite-sign muons, pT>15 GeV, |eta|<2.5, mmumu>40 GeV
 # gamma: reco, ET>10 GeV, |eta|<2.5
+# mumueegamma: one reco photon, ET>10 GeV< |eta|<2.5
+# mumue: one reco electron, pT>10 GeV
 #====================================================================
 
 #requirement = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon'
-requirement = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonMuonsPreselection'
+requirementMuons = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonMuonsPreselection'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM4_MuMuMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM4_MuMuMassTool",
-                                                               Object1Requirements = requirement,
-                                                               Object2Requirements = requirement,
+                                                               Object1Requirements = requirementMuons,
+                                                               Object2Requirements = requirementMuons,
                                                                StoreGateEntryName = "EGAM4_DiMuonMass",
                                                                Mass1Hypothesis = 105*MeV,
                                                                Mass2Hypothesis = 105*MeV,
@@ -66,17 +68,21 @@ EGAM4_MuMuMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM4_MuM
 ToolSvc += EGAM4_MuMuMassTool
 print EGAM4_MuMuMassTool
 
+skimmingExpression1a = 'count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM4_DiMuonMass > 40.0*GeV)>=1'
+skimmingExpression1b = 'count(Electrons.pt>9.5*GeV)>=1 && count(EGAM4_DiMuonMass > 40.0*GeV)>=1'
+
 
 #====================================================================
 # SKIMMING TOOL
 #====================================================================
 
-expression = 'count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM4_DiMuonMass > 40.0*GeV)>=1'
+skimmingExpression = skimmingExpression1a + ' || ' + skimmingExpression1b
+print "EGAM4 skimming expression: ", skimmingExpression
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EGAM4_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM4_SkimmingTool",
-                                                                 expression = expression)
+                                                                 expression = skimmingExpression)
 ToolSvc += EGAM4_SkimmingTool
-print "EGAM4 skimming tool:", EGAM4_SkimmingTool
+print "EGAM4 skimming tool: ", EGAM4_SkimmingTool
 
 
 #====================================================================

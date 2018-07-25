@@ -11,6 +11,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import ElectronsCPDetailedContent
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -150,6 +151,8 @@ if isMC:
 
 triggers = [
             # Standard large-R jet support triggers (bootstrap, etc)
+            "HLT_j110_a10_lcw_subjes_L1J30", # new to 2018
+            "HLT_j175_a10_lcw_subjes_L1J50", # new to 2018
             "HLT_j260_a10_lcw_L1J75",
             "HLT_j260_a10_lcw_nojcalib_L1J75",
             "HLT_j260_a10_nojcalib_L1J75",
@@ -172,18 +175,49 @@ triggers = [
             "HLT_j460_a10_nojcalib_L1J100",
             "HLT_j460_a10_lcw_nojcalib_L1J100",
             "HLT_j460_a10_lcw_sub_L1J100",
-            "HLT_j480_a10_lcw_subjes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            "HLT_j480_a10_lcw_subjes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu) and 2018
+            "HLT_j500_a10_lcw_subjes_L1J100", # backup, 2018
+            "HLT_j520_a10_lcw_subjes_L1J100", # backup, 2018
+            "HLT_j540_a10_lcw_subjes_L1J100", # backup, 2018
             # Trimmed large-R jet primary triggers (new 2017 nominal)
             "HLT_j460_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
-            "HLT_j480_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            "HLT_j480_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu) and 2018
+            "HLT_j500_a10t_lcw_jes_L1J100", # backup, 2018
+            "HLT_j520_a10t_lcw_jes_L1J100", # backup, 2018
+            "HLT_j540_a10t_lcw_jes_L1J100", # backup, 2018
             # Trimmed large-R jets, with 1xmass cuts (substructure-enriched triggers)
+            "HLT_j390_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
             "HLT_j420_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
             "HLT_j440_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_j390_a10t_lcw_jes_30smcINF_L1J100", # unprescaled for 99% of 2017
+            "HLT_j420_a10t_lcw_jes_35smcINF_L1J100", # lowest unprescaled, 2018
             "HLT_j420_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
+            "HLT_j440_a10t_lcw_jes_35smcINF_L1J100", # backup, 2018
             "HLT_j440_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
             # Trimmed large-R jets, with 2xmass cuts (substructure-enriched triggers)
             "HLT_2j330_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_2j330_a10t_lcw_jes_L1SC111", # prescaled, for mass bootstrap, 2018, L1Topo
+            "HLT_2j330_a10t_lcw_jes_30smcINF_L1J100", # unprescaled for 99% of 2017
+            "HLT_2j330_a10t_lcw_jes_35smcINF_L1J100", # lowest unprescaled, 2018
+            "HLT_2j330_a10t_lcw_jes_35smcINF_L1SC111", # lowest unprescaled, 2018, L1Topo
             "HLT_2j330_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (1.7e34 and 2.0e34 menus)
+            "HLT_2j340_a10t_lcw_jes_35smcINF_L1J100", # backup, 2018
+            "HLT_2j340_a10t_lcw_jes_35smcINF_L1SC111", # backup, 2018, L1Topo
+            "HLT_2j340_a10t_lcw_jes_40smcINF_L1J100", # backup, 2018
+            "HLT_2j350_a10t_lcw_jes_35smcINF_L1J100", # backup, 2018
+            "HLT_2j350_a10t_lcw_jes_35smcINF_L1SC111", # backup, 2018, L1Topo
+            "HLT_2j350_a10t_lcw_jes_40smcINF_L1J100", # backup, 2018
+            # Trimmed large-R jets, with two ET cuts and one mass cut (1x substructure + ISR triggers)
+            "HLT_j310_a10t_lcw_jes_60smcINF_j310_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j325_a10t_lcw_jes_60smcINF_j325_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j340_a10t_lcw_jes_60smcINF_j340_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j360_a10t_lcw_jes_60smcINF_j360_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j370_a10t_lcw_jes_35smcINF_j370_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j370_a10t_lcw_jes_40smcINF_j370_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j370_a10t_lcw_jes_50smcINF_j370_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j370_a10t_lcw_jes_60smcINF_j370_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j380_a10t_lcw_jes_40smcINF_j380_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j380_a10t_lcw_jes_50smcINF_j380_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
             # Reclustered large-R jet support triggers
             "HLT_j260_a10r_L1J75",
             "HLT_j300_a10r_L1J75",
@@ -194,7 +228,10 @@ triggers = [
             "HLT_j420_a10r_L1J100", # lowest unprescaled, 2016
             "HLT_j440_a10r_L1J100",
             "HLT_j460_a10r_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
-            "HLT_j480_a10r_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            "HLT_j480_a10r_L1J100", # lowest unprescaled, 2017 (2.0e34 menu) and 2018
+            "HLT_j500_a10r_L1J100", # backup, 2018
+            "HLT_j520_a10r_L1J100", # backup, 2018
+            "HLT_j540_a10r_L1J100", # backup, 2018
             # HT triggers
             "HLT_ht850_L1J75",
             "HLT_ht850_L1J100",
@@ -327,11 +364,20 @@ addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet"
 # use alias for VR jets
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = exot3Seq)
 
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
+
+#================================================================
+# Add Hbb tagger
+#================================================================
+
+addHbbTagger(exot3Seq, ToolSvc)
+addHbbTagger(
+    exot3Seq, ToolSvc,
+    nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
+    nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS
@@ -355,6 +401,7 @@ EXOT3SlimmingHelper = SlimmingHelper("EXOT3SlimmingHelper")
 # /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
 EXOT3SlimmingHelper.SmartCollections = EXOT3SmartContent
 EXOT3SlimmingHelper.ExtraVariables = EXOT3ExtraVariables
+EXOT3SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
 # Keep all variables for containers which we don't want to smart slim and were
 # not created in the derivation
@@ -388,7 +435,10 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
-    "LCOriginTopoClusters.calEta.calPhi"
+    "LCOriginTopoClusters.calEta.calPhi",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
+    "Muons.EnergyLoss.energyLossType"
 ]
 
 if globalflags.DataSource()=='geant4':

@@ -106,6 +106,13 @@ jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
 # Special jets
 #====================================================================
 
+# Create TCC objects
+from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+# Set up geometry and BField
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(jetm1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+
 OutputJets["JETM1"] = []
 
 #=======================================
@@ -118,6 +125,18 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
+addTCCTrimmedJets(jetm1Seq,"JETM1")
+
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=0.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=0.5, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
+
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm1Seq, "JETM1", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+
 
 # Add jets with constituent-level pileup suppression
 addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",
@@ -135,29 +154,57 @@ if DerivationFrameworkIsMonteCarlo:
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMPFlow", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4EMPFlowLowPt", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4EMTopoCSSK",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
-    addJetPtAssociation(jetalg="AntiKt4EMPFlowCSSK", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgLowPt")
+    addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgLowPt")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlowLowPt", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgLowPt")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoCSSK",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlowCSSK", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlgCSSK")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
+JETM1SlimmingHelper.AppendToDictionary = {
+    "AntiKt10LCTopoCSSKSoftDropBeta0Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta0Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10TruthSoftDropBeta0Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta0Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10TruthSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+
+}
+
 JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                                         "BTagging_AntiKt4EMTopo",
                                         "BTagging_AntiKt2Track",
                                         ]
+
+# Add all variabless for VR track-jets
+JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta0Zcut10Jets"]
+JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"]
+JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+
+if DerivationFrameworkIsMonteCarlo:
+
+  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta0Zcut10Jets"]
+  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta50Zcut10Jets"]
+  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
+
 JETM1SlimmingHelper.AllVariables = [ "MuonTruthParticles", "egammaTruthParticles",
                                      "TruthParticles", "TruthEvents", "TruthVertices",
                                      "MuonSegments",
                                      "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                      ]
-#JETM1SlimmingHelper.ExtraVariables = []
 
 # Trigger content
 JETM1SlimmingHelper.IncludeJetTriggerContent = True

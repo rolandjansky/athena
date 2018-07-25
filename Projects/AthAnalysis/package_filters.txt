@@ -60,6 +60,7 @@
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
++ PhysicsAnalysis/AnalysisCommon/ThinningUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/D3PDTools/SampleHandler
@@ -112,6 +113,9 @@
 + Trigger/TrigConfiguration/TrigConfInterfaces
 + Trigger/TrigConfiguration/TrigConfL1Data
 + Trigger/TrigConfiguration/TrigConfxAOD
++ Trigger/TrigCost/EnhancedBiasWeighter
++ Trigger/TrigCost/RatesAnalysis
++ Trigger/TrigCost/RatesAnalysisExamplesXAOD
 + Trigger/TrigEvent/TrigDecisionInterface
 + Trigger/TrigEvent/TrigNavStructure
 + Trigger/TrigEvent/TrigRoiConversion

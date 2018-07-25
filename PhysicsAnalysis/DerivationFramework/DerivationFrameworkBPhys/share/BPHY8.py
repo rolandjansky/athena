@@ -1,6 +1,6 @@
 #====================================================================
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #   
 # @file   BPHY8.py
 #
@@ -73,11 +73,11 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 #====================================================================
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
-BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300432,300433,300434,300446,300447]
+BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300446,300447]
 BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300997,300999,300404,300405,300406,300437]
 BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300401,300438,300448,300449]
 BPHY8cf.mcBplusJpsiPiplus = [300406,300437]
-BPHY8cf.mcBhh             = [300431]
+BPHY8cf.mcBhh             = [300431,300432,300433,300434]
 BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
 
 #====================================================================
@@ -104,8 +104,10 @@ BPHY8cf.BlindingKey     = "0b04087bdac4564252fd778ac351"
 # 0 - simple vertex thinning using Thin_vtxTrk.
 # 1 - thinning subdecay vertex candidates using Thin_vtxTrk.
 # 2 - thinning subdecay vertex candidates using BmumuThinningTool.
+# 3 - thinning subdecay vertex candidates using BmumuThinningTool,
+#     but keeping all PVs and refittedPVs
 #
-BPHY8cf.thinLevel = 2
+BPHY8cf.thinLevel = 3
 #
 # Track particle collection
 BPHY8cf.TrkPartContName = "InDetTrackParticles"
@@ -199,6 +201,19 @@ else:
         BPHY8cf.McstSagittaCorr           = False
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
         BPHY8cf.McstDoSagittaMCDistortion = False
+#
+# data 18
+#
+# w.w., 2018-05-05
+# These are the data17 settings for now.  Just to make ART happy.
+#
+    if BPHY8cf.projectTag.startswith("data18"):
+        BPHY8cf.McstYear                  = "Data17";
+        BPHY8cf.McstRelease               = "Recs2017_08_02"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = False
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
+        BPHY8cf.McstDoSagittaMCDistortion = False
 
 # wide mumu mass range?
 BPHY8cf.doUseWideMuMuMassRange = False
@@ -226,6 +241,9 @@ BPHY8cf.doVertexType   = 8  # only Z0_BA
 
 # minimum number of tracks in PV considered for PV association
 BPHY8cf.minNTracksInPV = 3
+
+# add 3-dimensional proper time information?
+BPHY8cf.do3dProperTime = True
 
 # use invariant mass based on combined muon track information in mass cuts?
 BPHY8cf.useMuCalcMass = True
@@ -698,6 +716,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+"DiMuonRefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -710,6 +729,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+BPHY8_reco+"RefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -722,6 +742,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+BPHY8_reco+"RefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -1213,6 +1234,7 @@ if "Bsmumu" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         BlindMassMin           = BPHY8cf.GlobalBlindLowerCut,
         BlindMassMax           = BPHY8cf.GlobalBlindUpperCut,
         DoBlinding             = BPHY8cf.doBmumuBlinding,
@@ -1231,6 +1253,7 @@ if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi"]]:
         MassMax                = BPHY8cf.GlobalJpsiMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
 # c) for BJpsiK
@@ -1246,6 +1269,7 @@ if "BJpsiK" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut3Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1264,6 +1288,7 @@ if "BsJpsiPhi" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut4Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1282,6 +1307,7 @@ if "BJpsiPi" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut3Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1300,6 +1326,7 @@ if "Bhh" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
   
@@ -1552,8 +1579,8 @@ if BPHY8cf.thinLevel > 1:
         ThinMuons                  = True,
         CloseTrackBranchPrefixes   = BPHY8cf.BranchPrefixes,
         CloseTrackBranchBaseName   = BPHY8_IsoTools["TrackVtxCt"].BranchBaseName,
-        ThinPVs                    = True,
-        ThinRefittedPVs            = True,
+        ThinPVs                    = (BPHY8cf.thinLevel == 2),
+        ThinRefittedPVs            = (BPHY8cf.thinLevel == 2),
         ThinTracks                 = True,
         KeepTracksForSelectedPVs   = False,
         OutputLevel                = INFO)
@@ -1611,6 +1638,9 @@ BPHY8_SmartCollections += [BPHY8cf.PVContName]
 ## BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName
 ##                            + ".chiSquared.numberDoF.sumPt2"
 ##                         + ".trackParticleLinks.trackWeights.neutralWeights"]
+#
+# 2018-05-04: The covariance matrix is occasionally used by the NtupleMaker
+BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName ]
 
 for BPHY8_reco in BPHY8_recoList:
     BPHY8_StaticContent \

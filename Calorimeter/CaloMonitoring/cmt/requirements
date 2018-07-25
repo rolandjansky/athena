@@ -13,6 +13,8 @@ use AthenaMonitoring    AthenaMonitoring-*       Control
 use LWHists             LWHists-*                Tools
 
 use TrigDecisionTool    TrigDecisionTool-*       Trigger/TrigAnalysis
+use TrigAnalysisInterfaces      TrigAnalysisInterfaces-* Trigger/TrigAnalysis
+
 
 use CaloEvent           CaloEvent-*         	 Calorimeter
 use xAODCaloEvent       xAODCaloEvent-*          Event/xAOD

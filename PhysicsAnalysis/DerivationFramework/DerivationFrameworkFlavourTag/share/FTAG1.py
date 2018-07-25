@@ -3,7 +3,7 @@
 # It requires the reductionConf flag FTAG1 in Reco_tf.py
 #====================================================================
 
-# Set up common services and job object. 
+# Set up common services and job object.
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
@@ -40,7 +40,7 @@ FTAG1Seq = CfgMgr.AthSequencer("FTAG1Sequence")
 #====================================================================
 
 # triggers used for skimming:
-triggers_jX = ["HLT_j[0-9]*"] 
+triggers_jX = ["HLT_j[0-9]*"]
 triggers_bperf = ["HLT_j[1-9][0-9]*_b.*perf.*"]
 triggersSkim = triggers_jX + triggers_bperf
 
@@ -61,13 +61,13 @@ if globalflags.DataSource()!='data':
     addStandardTruthContents()
     addHFAndDownstreamParticles()
 
-#====================================================================                                                                                                                   
+#====================================================================
 # AUGMENTATION TOOLS
 # ( AUGMENTATION = adding information to the output DxAOD that is not found in the input file )
 # Create DStar vertexing tool, and create + add kernel to sequence
-#====================================================================  
+#====================================================================
 
-#add D0 augmentation 
+#add D0 augmentation
 FTAG1DstarAug="D0VxAug"
 FTAG1DstarVertexing = DstarVertexing( name = "FTAG1DstarVertexing",
                                       OutputLevel = INFO,
@@ -96,30 +96,56 @@ FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1AugmentKernel",
 #print FTAG1TrackToVertexWrapper
 
 #====================================================================
-# Basic Jet Collections 
+# Basic Jet Collections
 #====================================================================
 
 #put custom jet names here
 OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
-                       "AntiKt4EMTopoJets"]
+                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
+                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
+                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets",
+                       "AntiKt4EMTopoJets",
+                       ]
+
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10LCTopoJets",
-                  "AntiKt4TruthJets"] 
-replaceAODReducedJets(reducedJetList,FTAG1Seq,"FTAG1")
+                  "AntiKt4TruthJets"]
+
+extendedFlag = 1 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
+
+replaceAODReducedJets(reducedJetList,FTAG1Seq,"FTAG1", extendedFlag)
 
 addDefaultTrimmedJets(FTAG1Seq,"FTAG1",dotruth=True)
+#
+# Adding ExKt and ExCoM sub-jets for each trimmed large-R jet
+#
+ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+ExKtJetCollection__SubJet = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
+ExKtJetCollection__SubJet3 = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 3, False)
+ExCoMJetCollection__SubJet = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False, subjetAlgName = "CoM")
+
+
+BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+
 
 #===================================================================
-# Variable Radius (VR) Jets 
+# Add Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(FTAG1Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+addExKtDoubleTaggerRCJets(FTAG1Seq, ToolSvc)
+
+#===================================================================
+# Variable Radius (VR) Jets
+#===================================================================
+
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
+addVRJets(FTAG1Seq)
+# Also add Hbb Tagger
+addHbbTagger(FTAG1Seq, ToolSvc)
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -131,13 +157,13 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG1Seq)
 
 #====================================================================
-# Add sequence (with all kernels needed) to DerivationFrameworkJob 
+# Add sequence (with all kernels needed) to DerivationFrameworkJob
 #====================================================================
 
 DerivationFrameworkJob += FTAG1Seq
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 
 # The base name (DAOD_FTAG1 here) must match the string in
@@ -157,11 +183,23 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "PrimaryVertices",
                                         "InDetTrackParticles",
                                         "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4EMTopo"]
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "AntiKt8EMTopoJets",
+                                        "AntiKt8EMTopoExKt2SubJets",
+                                        "AntiKt8EMTopoExKt3SubJets",
+                                        "BTagging_AntiKt8EMTopoExKt2Sub",
+                                        "BTagging_AntiKt8EMTopoExKt3Sub",
+                                         ]
 
 FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJFVtx",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJFVtx",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt2Track",
                                     "BTagging_AntiKt4EMTopoJFVtx",
@@ -203,14 +241,16 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-                                       #"InDetTrackParticles.FTAG1_unbiased_d0.FTAG1_unbiased_z0.FTAG1_unbiased_d0Sigma.FTAG1_unbiased_z0Sigma", 
+                                       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx.-vxTrackAtVertex",
+                                       #"InDetTrackParticles.FTAG1_unbiased_d0.FTAG1_unbiased_z0.FTAG1_unbiased_d0Sigma.FTAG1_unbiased_z0Sigma",
                                        "CaloCalTopoClusters.calM.calE.calEta.calPhi",
                                        "PrimaryVertices.x.y.trackParticleLinks.vertexType.neutralParticleLinks",
                                        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF.vz",
                                        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bjet_FTF.vz",
-                                       "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bjet_IDTrig.vz",                        
-                                       FTAG1DstarAug+".-vxTrackAtVertex"
-]
+                                       "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Bjet_IDTrig.vz",
+                                       FTAG1DstarAug+".-vxTrackAtVertex"]
 
 for FT1_bjetTriggerTracks in FTExtraVars_bjetTriggerTracks:
     FTAG1SlimmingHelper.ExtraVariables.append(FT1_bjetTriggerTracks)
@@ -234,6 +274,40 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt2TrackJFVtxAux"                  :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt2TrackSecVtx"                    :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKt2TrackSecVtxAux"                 :   "xAOD::VertexAuxContainer",
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"                 :   "xAOD::JetContainer"        ,
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub"            :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets"                 :   "xAOD::JetContainer"        ,
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub"            :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 :   "xAOD::JetContainer"        ,
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
+  "AntiKt8EMTopoJets"                              :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoJetsAux"                           :   "xAOD::JetAuxContainer"     ,
+  "AntiKt8EMTopoExKt2SubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoExKt2SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMTopoExKt2Sub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMTopoExKt2SubAux"              :   "xAOD::BTaggingAuxContainer",
+  "AntiKt8EMTopoExKt3SubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMTopoExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMTopoExKt3SubAux"              :   "xAOD::BTaggingAuxContainer"
   }
 #----------------------------------------------------------------------
 

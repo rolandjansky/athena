@@ -24,11 +24,13 @@ namespace CP
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
     , m_efficiencyTool ("", this)
+    , m_truthJetsName("AntiKt4TruthJets")
   {
     declareProperty ("efficiencyTool", m_efficiencyTool, "the efficiency tool we apply");
     declareProperty ("selection", m_selection, "the decoration for the JVT selection");
     declareProperty ("efficiency", m_efficiency, "the decoration for the JVT efficiency");
     declareProperty ("skipBadEfficiency", m_skipBadEfficiency, "whether to skip efficiency calculation if the selection failed");
+    declareProperty ("truthJetCollection", m_truthJetsName, "the truth jet collection to use for truth tagging");
   }
 
 
@@ -43,7 +45,7 @@ namespace CP
     ANA_CHECK (m_outOfValidity.initialize());
 
     if (!m_selection.empty())
-      m_selectionAccessor = std::make_unique<SG::AuxElement::Accessor<SelectionType> > (m_selection);
+      ANA_CHECK (makeSelectionAccessor (m_selection, m_selectionAccessor));
 
     if (!m_efficiency.empty())
       m_efficiencyAccessor = std::make_unique<SG::AuxElement::Accessor<float> > (m_efficiency);
@@ -60,6 +62,13 @@ namespace CP
         ANA_CHECK (m_efficiencyTool->applySystematicVariation (sys));
         xAOD::JetContainer *jets = nullptr;
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
+
+        const xAOD::JetContainer *truthjets = nullptr;
+	if(!m_truthJetsName.empty()) {
+	  ANA_CHECK(evtStore()->retrieve(truthjets,m_truthJetsName));
+	  ANA_CHECK(m_efficiencyTool->tagTruth(jets,truthjets));
+	}
+
         for (xAOD::Jet *jet : *jets)
         {
           bool goodJet = true;
@@ -67,7 +76,7 @@ namespace CP
           {
             goodJet = m_efficiencyTool->passesJvtCut (*jet);
             if (m_selectionAccessor)
-              (*m_selectionAccessor) (*jet) = selectionFromBool (goodJet);
+              m_selectionAccessor->setBool (*jet, goodJet);
           }
           if (m_efficiencyAccessor && (goodJet || !m_skipBadEfficiency))
           {

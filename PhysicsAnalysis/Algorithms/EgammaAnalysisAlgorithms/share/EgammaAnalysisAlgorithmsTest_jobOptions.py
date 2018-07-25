@@ -2,63 +2,64 @@
 #
 # @author Nils Krumnack
 
-
+# Set up the reading of the input file:
 import AthenaRootComps.ReadAthenaxAODHybrid
-
 theApp.EvtMax = 500
 testFile = os.getenv ('ASG_TEST_FILE_DATA')
 svcMgr.EventSelector.InputCollections = [testFile]
 
-algSeq = CfgMgr.AthSequencer("AthAlgSeq")
-
-from AnaAlgorithm.DualUseConfig import setCfgMgr
-
-setCfgMgr (CfgMgr)
+# Access the main algorithm sequence of the job:
+from AthenaCommon.AlgSequence import AlgSequence
+algSeq = AlgSequence()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
 dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
-electronContainer = "Electrons"
 
+# Set up the systematics loader/handler algorithm:
+sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
+sysLoader.sigmaRecommended = 1
+algSeq += sysLoader
 
+# Include, and then set up the pileup analysis sequence:
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+    makePileupAnalysisSequence
+pileupSequence = makePileupAnalysisSequence( dataType )
+pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+print( pileupSequence ) # For debugging
 
-from AsgAnalysisAlgorithms.PileupAnalysisSequence import makePileupAnalysisSequence
+# Add the pileup sequence to the job:
+algSeq += pileupSequence
 
-sequence = makePileupAnalysisSequence (dataType=dataType)
+# Include, and then set up the electron analysis sequence:
+from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
+    makeElectronAnalysisSequence
+electronSequence = makeElectronAnalysisSequence( dataType, recomputeLikelihood=True )
+electronSequence.configure( inputName = 'Electrons',
+                            outputName = 'AnalysisElectrons' )
+print( electronSequence ) # For debugging
 
+# Add the electron sequence to the job:
+algSeq += electronSequence
 
-from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
+# Include, and then set up the photon analysis sequence:
+from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
+    makePhotonAnalysisSequence
+photonSequence = makePhotonAnalysisSequence( dataType, recomputeIsEM=True )
+photonSequence.configure( inputName = 'Photons',
+                          outputName = 'AnalysisPhotons' )
+print( photonSequence ) # For debugging
 
-sequencePostConfiguration (sequence, "EventInfo")
+# Add the photon sequence to the job:
+algSeq += photonSequence
 
-for alg in sequence :
-    config = alg["alg"]
+# Set up a histogram output file for the job:
+ServiceMgr += CfgMgr.THistSvc()
+ServiceMgr.THistSvc.Output += [
+    "ANALYSIS DATAFILE='EgammaAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    ]
 
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    algSeq += config
-    pass
-
-
-from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import makeElectronAnalysisSequence
-
-sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dataType=dataType)
-
-
-sequencePostConfiguration (sequence, electronContainer)
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    algSeq += config
-    pass
-
-
-# optional include for reducing printout from athena
-include("AthAnalysisBaseComps/SuppressLogging.py")
+# Reduce the printout from Athena:
+include( "AthAnalysisBaseComps/SuppressLogging.py" )

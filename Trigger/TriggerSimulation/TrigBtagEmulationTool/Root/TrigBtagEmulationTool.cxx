@@ -123,23 +123,10 @@ StatusCode TrigBtagEmulationTool::initialize() {
   
   ATH_MSG_INFO( "Initialising tool " << name() );
 
-  // RETRIEVE SERVICES
-  // Retrieve StoreGate service
-  StatusCode sc;
-
 #if !defined( XAOD_STANDALONE )
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Could not retrieve StoreGateSvc!" );
-    return sc;
-  }
-
-  // Retrieve TrigDecisionTool
-  sc = m_trigDec.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Could not retrieve TrigDecisionTool!" );
-    return sc;
-  }
+  // RETRIEVE SERVICES
+  ANA_CHECK( retrieveTool( m_storeGate ) );
+  ANA_CHECK( retrieveTool( m_trigDec ) );
 #else
 
   if ( asg::ToolStore::contains<Trig::TrigDecisionTool>( m_TrigDecToolName.c_str() ) )
@@ -167,31 +154,13 @@ StatusCode TrigBtagEmulationTool::initialize() {
 
 #if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
   // RETRIEVE OFFLINE TOOLS
-
-  // Retrieve the offline track association tool
   if (!m_bTagTrackAssocTool.empty()) {
-    if (m_bTagTrackAssocTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "Failed to locate tool " << m_bTagTrackAssocTool );
-      return StatusCode::FAILURE;
-    } else
-      ATH_MSG_INFO( "Retrieved tool " << m_bTagTrackAssocTool );
+    ANA_CHECK( retrieveTool( m_bTagTrackAssocTool ) );
   } else
     ATH_MSG_DEBUG( "No track association tool to retrieve" );
 
-  // Retrieve the bTagSecVtxTool
-  if (m_bTagSecVtxTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to locate tool " << m_bTagSecVtxTool );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO( "Retrieved tool " << m_bTagSecVtxTool );
-
-  // Retrieve the main BTagTool
-  if (m_bTagTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to locate tool " << m_bTagTool );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO( "Retrieved tool " << m_bTagTool );
-
+  ANA_CHECK( retrieveTool( m_bTagSecVtxTool ) );
+  ANA_CHECK( retrieveTool( m_bTagTool ) );
 #endif
 
 
@@ -200,9 +169,11 @@ StatusCode TrigBtagEmulationTool::initialize() {
     ATH_MSG_ERROR( "Could not initialize lowest unprescaled Trigger Chains!" );
     return StatusCode::FAILURE;
   }
-  if (m_autoconfiguredMenu == "2015Menu" || m_autoconfiguredMenu == "2016Menu" || m_autoconfiguredMenu == "2017Menu" ||
-      m_autoconfiguredMenu == "2015+2016Menu" ||  m_autoconfiguredMenu == "2015+2017Menu" || m_autoconfiguredMenu == "2016+2017Menu" ||
-      m_autoconfiguredMenu == "2015+2016+2017Menu" ) {
+
+  if ( m_autoconfiguredMenu.find("2015") != std::string::npos || 
+       m_autoconfiguredMenu.find("2016") != std::string::npos ||
+       m_autoconfiguredMenu.find("2017") != std::string::npos || 
+       m_autoconfiguredMenu.find("2018") != std::string::npos ) {
     ATH_MSG_INFO( "Automatic configuration of Trigger Chains for " << m_autoconfiguredMenu );
     ATH_MSG_INFO( "For full list of trigger chains automatically loaded look here : 'https://twiki.cern.ch/twiki/bin/view/Atlas/TrigBjetEmulation'" );
     this->addEmulatedChain( m_autoconfiguredMenu );
@@ -222,6 +193,8 @@ StatusCode TrigBtagEmulationTool::initialize() {
 	triggerSubComponents = std::get< TriggerMenu::YEAR_2016 >( m_triggerMenus ).at( chainDefinition.at(0) );
       else if ( std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).find( chainDefinition.at(0) ) != std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).end() )
 	triggerSubComponents = std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).at( chainDefinition.at(0) );
+      else if ( std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).find( chainDefinition.at(0) ) != std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).end() )
+	triggerSubComponents = std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).at( chainDefinition.at(0) );
 
       std::istringstream sname( triggerSubComponents );
       std::string token;
@@ -229,21 +202,41 @@ StatusCode TrigBtagEmulationTool::initialize() {
 	chainDefinition.push_back( Form("EMUL_%s",token.c_str()) );
     }
 
-    TrigBtagEmulationChain chain(TrigBtagEmulationChain(chainDefinition,m_trigDec));
-
-    if ( chain.isAutoConfigured() ) {
-      ATH_MSG_INFO( "AUTOMATIC PARSER has been activated for trigger chain : " << chain.getName() );
-      std::vector< std::string > subChains = chain.retrieveAutoConfiguration();
-      ATH_MSG_INFO("This trigger has been configured as the logical AND of the folowing triggers : ");
-      for (unsigned int i=0; i<subChains.size(); i++) 
-	ATH_MSG_INFO( "  -- " << subChains.at(i) );
+    // We have to massage the definition so that it is accepted by the TrigBtagEmulationChain class
+    std::vector< std::vector< std::string > > logicalDefinition(1);
+    for ( unsigned int i(1); i < chainDefinition.size(); i++ ) {
+      std::string chainComponent = chainDefinition.at(i);
+      if ( chainComponent == "AND" ) continue;
+      if ( chainComponent == "OR" ) {
+	logicalDefinition.push_back( std::vector< std::string >() );
+	continue;
+      }
+      logicalDefinition.at( logicalDefinition.size() - 1 ).push_back( chainComponent );
     }
-    if ( !chain.isCorrectlyConfigured() ) {
-      ATH_MSG_FATAL("NOT correct Configuration for Trigger Chain : " << chain.getName() << ".");
+
+    std::unique_ptr< TrigBtagEmulationChain > chain;
+    if ( chainDefinition.size() == 1 ) chain = std::unique_ptr< TrigBtagEmulationChain >( new TrigBtagEmulationChain( msg(),chainDefinition.at(0),m_trigDec ) );
+    else chain = std::unique_ptr< TrigBtagEmulationChain >( new TrigBtagEmulationChain( msg(),chainDefinition.at(0),logicalDefinition,m_trigDec ) );
+
+    if ( chain->isAutoConfigured() ) {
+      ATH_MSG_INFO( "AUTOMATIC PARSER has been activated for trigger chain : " << chain->name() );
+
+      std::vector< std::vector< std::string > > subChains = chain->definition();
+      ATH_MSG_INFO("This trigger has been configured as follows : ");
+      for (unsigned int i(0); i<subChains.size(); i++) { 
+	if ( i != 0 ) ATH_MSG_INFO("  __OR__ ");
+	for (unsigned int j(0); j<subChains.at(i).size(); j++) 
+	  ATH_MSG_INFO( "  -- AND :: " << subChains.at(i).at(j) );
+      }
+
+    }
+    if ( !chain->isCorrectlyConfigured() ) {
+      ATH_MSG_FATAL("NOT correct Configuration for Trigger Chain : " << chain->name() << ".");
       return StatusCode::FAILURE;
     }
 
-    m_emulatedChains.insert( std::make_pair( chain.getName(),std::move(chain) ) );
+    std::string chainNameToBeSaved = chain->name();
+    m_emulatedChains.insert( std::make_pair( chainNameToBeSaved,*chain.release() ) );
   }
 
   // Jet Managers
@@ -290,7 +283,7 @@ StatusCode TrigBtagEmulationTool::initialize() {
   JetManager::m_bTagSecVtxTool = &m_bTagSecVtxTool;
 #endif
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -343,10 +336,10 @@ StatusCode TrigBtagEmulationTool::execute() {
   // BACKUP NON-CENTRAL JET INFO FOR SPLIT CHAINS  
   m_manager_ef->merge( m_manager_split );
   m_manager_split->merge( m_manager_ef );
-  m_manager_ef->merge( m_manager_HT ); 
-  m_manager_split->merge( m_manager_HT ); 
+  m_manager_ef->merge( m_manager_HT );
+  m_manager_split->merge( m_manager_HT );
 
-  if ( this->hasGSC() ) m_manager_split_gsc->merge( m_manager_HT ); 
+  if ( this->hasGSC() ) m_manager_split_gsc->merge( m_manager_HT,15 * 1e3 ); 
 
 
   // Clearing jets
@@ -360,9 +353,11 @@ StatusCode TrigBtagEmulationTool::execute() {
   if ( this->hasGSC() ) BaseTrigBtagEmulationChainJetIngredient::addJet( "SPLIT_GSC" ,m_manager_split_gsc->getJets() );
 
   // EVALUATE EMULATED CHAINS
-  for (auto & emulatedChain : m_emulatedChains) 
-    emulatedChain.second.evaluate();
+  TrigBtagEmulationChain::clear();
+  TrigBtagEmulationChain::evaluate();
 
+  //  for (auto & emulatedChain : m_emulatedChains) 
+    //    emulatedChain.second.evaluate();
 
   if (m_verbosity > 0) {
     // DUMP L1 JETS
@@ -388,6 +383,7 @@ StatusCode TrigBtagEmulationTool::execute() {
     // DUMP SPLIT JETS
     ATH_MSG_INFO ("SPLIT jets");
     for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_split->getJets()) {
+      if ( jet->pt()*1e-3 < 15 ) continue;
       ATH_MSG_INFO ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi());
       for (auto & weight : jet->weights())
 	ATH_MSG_INFO ("      " << weight.first << " " << weight.second);
@@ -396,6 +392,7 @@ StatusCode TrigBtagEmulationTool::execute() {
     // DUMP GSC JETS
     ATH_MSG_INFO ("GSC jets");
     for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_gsc->getJets()) {
+      if ( jet->pt()*1e-3 < 15 ) continue;
       ATH_MSG_INFO ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta());
       for (auto & weight : jet->weights())
 	ATH_MSG_INFO ("      " << weight.first << " " << weight.second);
@@ -404,7 +401,7 @@ StatusCode TrigBtagEmulationTool::execute() {
     // DUMP EMULATED DECISIONS
     ATH_MSG_INFO ("Emulated decisions");
     for (auto& emulatedChain : m_emulatedChains) {
-      if (m_verbosity > 1) emulatedChain.second.Print();
+      if (m_verbosity > 1) emulatedChain.second.print();
       ATH_MSG_INFO ("  Chain --- name=" << emulatedChain.first << " result=" << (int)emulatedChain.second.isPassed());
     }
     
@@ -428,23 +425,41 @@ StatusCode TrigBtagEmulationTool::addEmulatedChain(const std::vector<std::string
   checkTriggerChain(chainDescription);
 
   // Create chain and add it to the list
-  TrigBtagEmulationChain chain(TrigBtagEmulationChain(chainDescription,m_trigDec));
-  // Check it has been auto configured
+  std::string triggerName = chainDescription.at(0);
+  std::vector< std::vector< std::string > > defToBeAdded(1);
+  for ( unsigned int i(1); i<chainDescription.size(); i++ ) {
+    std::string chainComponent = chainDescription.at(i);
+    if ( chainComponent == "AND" ) continue;
+    if ( chainComponent == "OR" ) {
+      defToBeAdded.push_back( std::vector< std::string >() );
+      continue;
+    }
+    defToBeAdded.at( defToBeAdded.size() - 1 ).push_back( chainComponent );
+  }
 
-  if ( chain.isAutoConfigured() ) {
-    ATH_MSG_INFO( "AUTOMATIC PARSER has been activated for trigger chain : " << chain.getName() );
-    std::vector< std::string > subChains = chain.retrieveAutoConfiguration();
-    ATH_MSG_INFO("This trigger has been configured as the logical AND of the folowing triggers : ");
-    for (unsigned int i=0; i<subChains.size(); i++)
-      ATH_MSG_INFO( "  -- " << subChains.at(i) );
+  std::unique_ptr< TrigBtagEmulationChain > chain;
+  if ( chainDescription.size() == 1 ) chain = std::unique_ptr< TrigBtagEmulationChain >( new TrigBtagEmulationChain( msg(),triggerName,m_trigDec ) );
+  else chain = std::unique_ptr< TrigBtagEmulationChain >( new TrigBtagEmulationChain( msg(),triggerName,defToBeAdded,m_trigDec ) );
+
+  // Check it has been auto configured
+  if ( chain->isAutoConfigured() ) {
+    ATH_MSG_INFO( "AUTOMATIC PARSER has been activated for trigger chain : " << chain->name() );
+    std::vector< std::vector< std::string > > subChains = chain->definition();
+    ATH_MSG_INFO("This trigger has been configured as follows : ");
+    for (unsigned int i(0); i<subChains.size(); i++) {
+      if ( i != 0 ) ATH_MSG_INFO("  __OR__ ");
+      for (unsigned int j(0); j<subChains.at(i).size(); j++)
+	ATH_MSG_INFO( "  -- AND :: " << subChains.at(i).at(j) );
+    }
   }
   // Check it has been conrrectyle configured
-  if ( !chain.isCorrectlyConfigured() ) {
-    ATH_MSG_FATAL("NOT correct Configuration for Trigger Chain : " << chain.getName() << "." );
+  if ( not chain->isCorrectlyConfigured() ) {
+    ATH_MSG_FATAL("NOT correct Configuration for Trigger Chain : " << chain->name() << "." );
     return StatusCode::FAILURE;
   }
 
-  m_emulatedChains.insert( std::make_pair( chain.getName(),std::move(chain) ) );
+  std::string chainNameToBeSaved = chain->name();
+  m_emulatedChains.insert( std::make_pair( chainNameToBeSaved,*chain.release() ) );
   return StatusCode::SUCCESS;
 }
 
@@ -454,6 +469,7 @@ StatusCode TrigBtagEmulationTool::initTriggerChainsMenu() {
   if ( initTriggerChainsMenu( 2015 ).isFailure() ) return StatusCode::FAILURE;
   if ( initTriggerChainsMenu( 2016 ).isFailure() ) return StatusCode::FAILURE;
   if ( initTriggerChainsMenu( 2017 ).isFailure() ) return StatusCode::FAILURE;
+  if ( initTriggerChainsMenu( 2018 ).isFailure() ) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 
@@ -480,6 +496,8 @@ StatusCode TrigBtagEmulationTool::initTriggerChainsMenu(const int year) {
       std::get< TriggerMenu::YEAR_2016 >( m_triggerMenus ).insert( std::make_pair(chainName,chainComponents) );
     else if (year == 2017)
       std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).insert( std::make_pair(chainName,chainComponents) );
+    else if (year == 2018)
+      std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).insert( std::make_pair(chainName,chainComponents) );
   }
   file.close();
 
@@ -500,6 +518,9 @@ std::vector<std::string> TrigBtagEmulationTool::addEmulatedChain(const std::stri
   if ( triggerMenu.find("2017")!=std::string::npos )
     configuration.insert( std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).begin(),
 			  std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).end() );
+  if ( triggerMenu.find("2018")!=std::string::npos )
+    configuration.insert( std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).begin(),
+			  std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).end() );
 
   // Load specific chains in the menus
   if ( configuration.size() == 0 ) {
@@ -509,6 +530,8 @@ std::vector<std::string> TrigBtagEmulationTool::addEmulatedChain(const std::stri
       configuration[ triggerMenu ] = std::get< TriggerMenu::YEAR_2016 >( m_triggerMenus ).at( triggerMenu );
     else if ( std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).find(triggerMenu) != std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).end() )
       configuration[ triggerMenu ] = std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).at( triggerMenu );
+    else if ( std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).find(triggerMenu) != std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).end() )
+      configuration[ triggerMenu ] = std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).at( triggerMenu );
   }
   
   std::vector<std::string> output;
@@ -623,6 +646,14 @@ const xAOD::JetContainer* TrigBtagEmulationTool::retaggedJets(const std::string 
   return output_jets;
 }
 
+std::vector< std::vector< std::string > > TrigBtagEmulationTool::definition(const std::string& chainName) const {
+  if ( m_emulatedChains.find( chainName ) != m_emulatedChains.end() )
+    return m_emulatedChains.at( chainName ).definition();
+  ATH_MSG_WARNING( "Trying to retrieve trigger definition for a non-existent chain : '" << chainName << "'" );
+  ATH_MSG_WARNING( "Returning empty definition" );
+  return std::vector< std::vector< std::string > >();
+}
+
 // ******
 
 bool TrigBtagEmulationTool::checkTriggerChain(const std::vector<std::string>& toBeEmulatedChain) {
@@ -684,3 +715,12 @@ StatusCode TrigBtagEmulationTool::retrieve( std::unique_ptr< Trig::JetManager >&
 }
 
 
+template<typename T> StatusCode TrigBtagEmulationTool::retrieveTool(T& myTool) {
+  if (myTool.retrieve().isFailure()) {
+    ATH_MSG_FATAL( "Failed to locate tool " << myTool );
+    return StatusCode::FAILURE;
+  } 
+
+  ATH_MSG_INFO( "Retrieved tool " << myTool );
+  return StatusCode::SUCCESS;
+}

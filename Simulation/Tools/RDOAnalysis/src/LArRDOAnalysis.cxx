@@ -36,21 +36,21 @@ LArRDOAnalysis::LArRDOAnalysis(const std::string& name, ISvcLocator* pSvcLocator
   , m_digiGain(0)
   , m_digiSamples(0)
 
-  , h_larID(0)
-  , h_energy(0)
-  , h_time(0)
-  , h_qual(0)
-  , h_prov(0)
-  , h_gain(0)
-  , h_hadOnID(0)
-  , h_hadOffID(0)
-  , h_hadSamples(0)
-  , h_emOnID(0)
-  , h_emOffID(0)
-  , h_emSamples(0)
-  , h_digiID(0)
-  , h_digiGain(0)
-  , h_digiSamples(0)
+  , m_h_larID(0)
+  , m_h_energy(0)
+  , m_h_time(0)
+  , m_h_qual(0)
+  , m_h_prov(0)
+  , m_h_gain(0)
+  , m_h_hadOnID(0)
+  , m_h_hadOffID(0)
+  , m_h_hadSamples(0)
+  , m_h_emOnID(0)
+  , m_h_emOffID(0)
+  , m_h_emSamples(0)
+  , m_h_digiID(0)
+  , m_h_digiGain(0)
+  , m_h_digiSamples(0)
 
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
@@ -106,65 +106,65 @@ StatusCode LArRDOAnalysis::initialize() {
     ATH_MSG_ERROR("No tree found!");
   }
 
-  h_larID = new TH1F("h_larID", "LAr ID", 100, 0, 5e18);
-  h_larID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_larID->GetName(), h_larID));
+  m_h_larID = new TH1F("h_larID", "LAr ID", 100, 0, 5e18);
+  m_h_larID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_larID->GetName(), m_h_larID));
 
-  h_energy = new TH1F("h_energy", "LAr energy", 100, -1e5, 5e5);
-  h_energy->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_energy->GetName(), h_energy));
+  m_h_energy = new TH1F("h_energy", "LAr energy", 100, -1e5, 5e5);
+  m_h_energy->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_energy->GetName(), m_h_energy));
 
-  h_time = new TH1F("h_time", "LAr time", 100, -1e7, 1e7);
-  h_time->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_time->GetName(), h_time));
+  m_h_time = new TH1F("h_time", "LAr time", 100, -1e7, 1e7);
+  m_h_time->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_time->GetName(), m_h_time));
 
-  h_qual = new TH1F("h_qual", "LAr quality", 100, 0, 70000);
-  h_qual->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_qual->GetName(), h_qual));
+  m_h_qual = new TH1F("h_qual", "LAr quality", 100, 0, 70000);
+  m_h_qual->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_qual->GetName(), m_h_qual));
 
-  h_prov = new TH1F("h_prov", "LAr provenance", 100, 0, 9000);
-  h_prov->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_prov->GetName(), h_prov));
+  m_h_prov = new TH1F("h_prov", "LAr provenance", 100, 0, 9000);
+  m_h_prov->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_prov->GetName(), m_h_prov));
 
-  h_gain = new TH1F("h_gain", "LAr gain", 100, 0, 5);
-  h_gain->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_gain->GetName(), h_gain));
+  m_h_gain = new TH1F("h_gain", "LAr gain", 100, 0, 5);
+  m_h_gain->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_gain->GetName(), m_h_gain));
 
-  h_hadOnID = new TH1F("h_hadOnID", "Had LAr TTL1 online ID", 100, 0, 3e19);
-  h_hadOnID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_hadOnID->GetName(), h_hadOnID));
+  m_h_hadOnID = new TH1F("h_hadOnID", "Had LAr TTL1 online ID", 100, 0, 3e19);
+  m_h_hadOnID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_hadOnID->GetName(), m_h_hadOnID));
 
-  h_hadOffID = new TH1F("h_hadOffID", "Had LAr TTL1 offline ID", 100, 0, 3e19);
-  h_hadOffID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_hadOffID->GetName(), h_hadOffID));
+  m_h_hadOffID = new TH1F("h_hadOffID", "Had LAr TTL1 offline ID", 100, 0, 3e19);
+  m_h_hadOffID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_hadOffID->GetName(), m_h_hadOffID));
 
-  h_hadSamples = new TH1F("h_hadSamples", "Had LAr TTL1 sample values", 100, -15000, 35000);
-  h_hadSamples->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_hadSamples->GetName(), h_hadSamples));
+  m_h_hadSamples = new TH1F("h_hadSamples", "Had LAr TTL1 sample values", 100, -15000, 35000);
+  m_h_hadSamples->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_hadSamples->GetName(), m_h_hadSamples));
 
-  h_emOnID = new TH1F("h_emOnID", "EM LAr TTL1 online ID", 100, 0, 3e19);
-  h_emOnID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_emOnID->GetName(), h_emOnID));
+  m_h_emOnID = new TH1F("h_emOnID", "EM LAr TTL1 online ID", 100, 0, 3e19);
+  m_h_emOnID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_emOnID->GetName(), m_h_emOnID));
 
-  h_emOffID = new TH1F("h_emOffID", "EM LAr TTL1 offline ID", 100, 0, 3e19);
-  h_emOffID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_emOffID->GetName(), h_emOffID));
+  m_h_emOffID = new TH1F("h_emOffID", "EM LAr TTL1 offline ID", 100, 0, 3e19);
+  m_h_emOffID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_emOffID->GetName(), m_h_emOffID));
 
-  h_emSamples = new TH1F("h_emSamples", "EM LAr TTL1 sample values", 100, -1e5, 3.5e5);
-  h_emSamples->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_emSamples->GetName(), h_emSamples));
+  m_h_emSamples = new TH1F("h_emSamples", "EM LAr TTL1 sample values", 100, -1e5, 3.5e5);
+  m_h_emSamples->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_emSamples->GetName(), m_h_emSamples));
 
-  h_digiID = new TH1F("h_digiID", "LAr digit ID", 100, 0, 5e18);
-  h_digiID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_digiID->GetName(), h_digiID));
+  m_h_digiID = new TH1F("h_digiID", "LAr digit ID", 100, 0, 5e18);
+  m_h_digiID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_digiID->GetName(), m_h_digiID));
 
-  h_digiGain = new TH1F("h_digiGain", "LAr digit gain", 100, 0, 5);
-  h_digiGain->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_digiGain->GetName(), h_digiGain));
+  m_h_digiGain = new TH1F("h_digiGain", "LAr digit gain", 100, 0, 5);
+  m_h_digiGain->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_digiGain->GetName(), m_h_digiGain));
 
-  h_digiSamples = new TH1F("h_digiSamples", "LAr digit sample values", 100, 0, 5000);
-  h_digiSamples->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_digiSamples->GetName(), h_digiSamples));
+  m_h_digiSamples = new TH1F("h_digiSamples", "LAr digit sample values", 100, 0, 5000);
+  m_h_digiSamples->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_digiSamples->GetName(), m_h_digiSamples));
 
   return StatusCode::SUCCESS;
 }
@@ -211,12 +211,12 @@ StatusCode LArRDOAnalysis::execute() {
       m_prov->push_back(rawProv);
       m_gain->push_back(larGain_int);
 
-      h_larID->Fill(larID_int);
-      h_energy->Fill(rawEnergy);
-      h_time->Fill(rawTime);
-      h_qual->Fill(rawQual);
-      h_prov->Fill(rawProv);
-      h_gain->Fill(larGain_int);
+      m_h_larID->Fill(larID_int);
+      m_h_energy->Fill(rawEnergy);
+      m_h_time->Fill(rawTime);
+      m_h_qual->Fill(rawQual);
+      m_h_prov->Fill(rawProv);
+      m_h_gain->Fill(larGain_int);
     }
   }
 
@@ -237,11 +237,11 @@ StatusCode LArRDOAnalysis::execute() {
       m_hadOffID->push_back(hadOffID_int);
       for (std::vector<float>::size_type i = 0; i != hadSamples.size(); ++i) {
         m_hadSamples->push_back(hadSamples.at(i));
-        h_hadSamples->Fill(hadSamples.at(i));
+        m_h_hadSamples->Fill(hadSamples.at(i));
       }
 
-      h_hadOnID->Fill(hadOnID_int);
-      h_hadOffID->Fill(hadOffID_int);
+      m_h_hadOnID->Fill(hadOnID_int);
+      m_h_hadOffID->Fill(hadOffID_int);
     }
   }
 
@@ -261,11 +261,11 @@ StatusCode LArRDOAnalysis::execute() {
       m_emOffID->push_back(emOffID_int);
       for (std::vector<float>::size_type j = 0; j != emSamples.size(); ++j) {
         m_emSamples->push_back(emSamples.at(j));
-        h_emSamples->Fill(emSamples.at(j));
+        m_h_emSamples->Fill(emSamples.at(j));
       }
 
-      h_emOnID->Fill(emOnID_int);
-      h_emOffID->Fill(emOffID_int);
+      m_h_emOnID->Fill(emOnID_int);
+      m_h_emOffID->Fill(emOffID_int);
     }
   }
 
@@ -286,11 +286,11 @@ StatusCode LArRDOAnalysis::execute() {
       m_digiGain->push_back(digiGain_int);
       for (std::vector<short>::size_type k = 0; k != digiSamples.size(); ++k) {
         m_digiSamples->push_back(digiSamples.at(k));
-        h_digiSamples->Fill(digiSamples.at(k));
+        m_h_digiSamples->Fill(digiSamples.at(k));
       }
 
-      h_digiID->Fill(digiID_int);
-      h_digiGain->Fill(digiGain_int);
+      m_h_digiID->Fill(digiID_int);
+      m_h_digiGain->Fill(digiGain_int);
     }
   }
 

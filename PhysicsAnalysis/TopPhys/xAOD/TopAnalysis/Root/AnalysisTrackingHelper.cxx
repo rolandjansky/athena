@@ -160,7 +160,7 @@ void AnalysisTrackingHelper::finish() {
             if (boost::regex_match(line.c_str(), m, reLine)) {
                std::string const & path = m[1];
                size_t i = path.rfind('/');
-               assert(i != string::npos);
+               assert(i != std::string::npos);
                std::string const & basename = path.substr(i + 1);
                if (boost::starts_with(basename, "lib")) {
                   std::string dirpath = path.substr(0, (i ? i : 1));

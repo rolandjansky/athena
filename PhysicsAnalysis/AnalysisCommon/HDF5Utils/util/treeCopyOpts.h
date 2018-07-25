@@ -8,6 +8,8 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <string>
 #include <vector>
 
+#include "TTreeFormula.h"
+
 namespace H5Utils {
 
   const size_t CHUNK_SIZE = 128;
@@ -20,6 +22,7 @@ namespace H5Utils {
     size_t n_entries;
     bool verbose;
     int print_interval;
+    std::string selection;
   };
 
   struct IOOpts

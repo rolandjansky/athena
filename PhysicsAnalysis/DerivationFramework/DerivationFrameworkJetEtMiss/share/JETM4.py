@@ -30,6 +30,11 @@ JETM4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM4Sk
                                                                     expression = expression)
 ToolSvc += JETM4SkimmingTool
 
+#Trigger matching decorations
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM4",
+                                                 PhotonTriggers=TriggerLists.single_photon_Trig())
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -134,7 +139,8 @@ DerivationFrameworkJob += jetm4Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
                                                          SkimmingTools = [JETM4SkimmingTool],
-                                                         ThinningTools = thinningTools)
+                                                         ThinningTools = thinningTools,
+                                                         AugmentationTools = [TrigMatchAug])
 #====================================================================
 # Special jets
 #====================================================================
@@ -153,6 +159,12 @@ replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
+
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=True)
+
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm4Seq, "JETM4", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
@@ -186,7 +198,7 @@ JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-#JETM4SlimmingHelper.ExtraVariables = []
+JETM4SlimmingHelper.ExtraVariables = ["Photons."+NewTrigVars["Photons"]]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
@@ -196,6 +208,19 @@ for truthc in [
     ]:
     JETM4SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
     JETM4SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
+
+JETM4SlimmingHelper.AppendToDictionary = {
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,  
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+}
+JETM4SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+
+if DerivationFrameworkIsMonteCarlo:
+  JETM4SlimmingHelper.AppendToDictionary = {
+    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+  }
+  JETM4SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
 
 # Trigger content
 JETM4SlimmingHelper.IncludeEGammaTriggerContent = True

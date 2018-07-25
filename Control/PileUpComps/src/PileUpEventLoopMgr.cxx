@@ -56,6 +56,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
     m_evtStore("StoreGateSvc/StoreGateSvc",  name),
     //m_nInputs(0), m_nStores(0),
     m_origSel("EventSelector", name),
+    m_signalSel("", name),
     m_caches(this),
     m_maxCollPerXing(23.0),
     m_xingFreq(25), m_firstXing(-2), m_lastXing(+1),
@@ -77,6 +78,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
 {
   declareProperty("MaxBunchCrossingPerOrbit", m_maxBunchCrossingPerOrbit, "The number of slots in each LHC beam. Default: 3564.");
   declareProperty("OrigSelector", m_origSel, "EventSelector for original (physics) events stream" );
+  declareProperty("SignalSelector", m_signalSel, "EventSelector for signal (hard-scatter) events stream" );
   declareProperty("XingFrequency", m_xingFreq, "ns");
   declareProperty("firstXing", m_firstXing, "time of first xing / XingFrequency (0th xing is 1st after trigger)");
   declareProperty("lastXing", m_lastXing, "time of last xing / XingFrequency (0th xing is 1st after trigger)");
@@ -87,7 +89,6 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   declareProperty("XingByXing", m_xingByXing, "if set to true we will not cache bkg events from one xing to then next. This greatly increases the amount of I/O and greatly reduces the memory required to run a job");
   declareProperty("IsEventOverlayJob", m_isEventOverlayJob, "if set to true will prevent the BCID from being overridden.");
   declareProperty("IsEventOverlayJobMC", m_isEventOverlayJobMC, "if set to true events will be marked as simulation");
-  declareProperty("mcRunNumber", m_mcRunNumber=99, "the run number from an EVNT file, used to set the mc_channel_number, for overlay");
   declareProperty("FailureMode", m_failureMode,
                   "Controls behaviour of event loop depending on return code of"
                   " Algorithms. 0: all non-SUCCESSes terminate job. "
@@ -220,6 +221,9 @@ StatusCode PileUpEventLoopMgr::finalize()
 
   //and to clean up the store the stream owns
   CHECK(m_origStream.finalize());
+  if (m_isEventOverlayJob) {
+    CHECK(m_signalStream.finalize());
+  }
 
   return MinimalEventLoopMgr::finalize();
 }
@@ -285,6 +289,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     }
 
   const EventInfo* pEvent(0);
+  const EventInfo* pEventSignal(0);
   // loop over events if the maxevt (received as input) is different from -1.
   // if evtmax is -1 it means infinite loop (till time limit that is)
   bool noTimeLimit(false);
@@ -292,6 +297,10 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
          (noTimeLimit = (m_timeKeeper.empty() || m_timeKeeper->nextIter()) )  &&
          0 != (pEvent = m_origStream.nextEventPre()) ) //FIXME this call has to be able to cope with xAOD::EventInfo rather than EventInfo being in m_origStream
     {
+      if (m_isEventOverlayJob) {
+        pEventSignal = m_signalStream.nextEventPre();
+      }
+
       // Check if there is a scheduled stop issued by some algorithm/sevice
       if ( m_scheduledStop )
         {
@@ -320,27 +329,43 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
           t0BCID = m_beamInt->getCurrentT0BunchCrossing();
           pOvrID->set_bunch_crossing_id(t0BCID);
         }
+      else if (m_isEventOverlayJobMC)
+        {
+          pOvrID->set_event_number(pEventSignal->event_ID()->event_number());
+        }
       ATH_MSG_VERBOSE ( "BCID =" << pOvrID->bunch_crossing_id() );
       EventType *pOvrEt = new EventType(); //FIXME
       pOvrEt->set_user_type("Overlaid"); //FIXME
-      pOvrEt->set_mc_channel_number(pEvent->event_type()->mc_channel_number());
-      pOvrEt->set_mc_event_number(pEvent->event_type()->mc_event_number());
-      const unsigned int nWeights(pEvent->event_type()->n_mc_event_weights());
-      for (unsigned int iWeight(0); iWeight<nWeights; ++iWeight)
-        {
-          pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight(iWeight),iWeight);
-        }
       if (m_isEventOverlayJob)
         {
-          pOvrEt->set_mc_channel_number(m_mcRunNumber);
-          ATH_MSG_DEBUG ( "pOvrEt set_mc_channel_number: " << m_mcRunNumber );
+          ATH_MSG_INFO ( "nextEvent(): using signal event " <<
+                         pEventSignal->event_type()->mc_channel_number() << '/' <<
+                         pEventSignal->event_type()->mc_event_number() );
 
-          if (m_isEventOverlayJobMC){
-            pOvrEt->add_type(EventType::IS_SIMULATION);
-          }
+          pOvrEt->set_mc_channel_number(pEventSignal->event_type()->mc_channel_number());
+          pOvrEt->set_mc_event_number(pEventSignal->event_type()->mc_event_number());
+          const unsigned int nWeights(pEventSignal->event_type()->n_mc_event_weights());
+          for (unsigned int iWeight(0); iWeight<nWeights; ++iWeight)
+            {
+              pOvrEt->set_mc_event_weight(pEventSignal->event_type()->mc_event_weight(iWeight),iWeight);
+            }
+
+          // MC+MC overlay should always be marked as simulation
+          if (m_isEventOverlayJobMC)
+            {
+              pOvrEt->add_type(EventType::IS_SIMULATION);
+            }
         }
       else
         {
+          pOvrEt->set_mc_channel_number(pEvent->event_type()->mc_channel_number());
+          pOvrEt->set_mc_event_number(pEvent->event_type()->mc_event_number());
+          const unsigned int nWeights(pEvent->event_type()->n_mc_event_weights());
+          for (unsigned int iWeight(0); iWeight<nWeights; ++iWeight)
+            {
+              pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight(iWeight),iWeight);
+            }
+
           // Overlay RDO files should be treated like data for reco
           // purposes, so only set this for SimHit level pile-up.
           pOvrEt->add_type(EventType::IS_SIMULATION);
@@ -352,7 +377,21 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
           pOverEvent->setActualInteractionsPerCrossing(pEvent->actualInteractionsPerCrossing());
           pOverEvent->setAverageInteractionsPerCrossing(pEvent->averageInteractionsPerCrossing());
         }
+      if(m_isEventOverlayJob)
+        {
+          // Propagate core event flags
+          pOverEvent->setEventFlags(EventInfo::Core, (pEventSignal->eventFlags(EventInfo::Core) | pEvent->eventFlags(EventInfo::Core)));
+          pOverEvent->setErrorState(EventInfo::Core, std::max(pEventSignal->errorState(EventInfo::Core), pEvent->errorState(EventInfo::Core)));
+        }
       ATH_MSG_VERBOSE ( "BCID =" << pOverEvent->event_ID()->bunch_crossing_id() );
+
+      // when doing overlay add the hard-scatter event as sub-event
+      if (m_isEventOverlayJob)
+        {
+          pOverEvent->addSubEvt(0, PileUpTimeEventIndex::Signal,
+                                pEventSignal, &m_signalStream.store());
+        }
+
       //  register as sub event of the overlaid
       bool addpEvent(true);
       if(m_isEmbedding || m_isEventOverlayJobMC)
@@ -362,7 +401,15 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
             {
               PileUpEventInfo::SubEvent::const_iterator it  = pOldEvent->beginSubEvt();
               PileUpEventInfo::SubEvent::const_iterator end = pOldEvent->endSubEvt();
-              if (it != end) { addpEvent=false; }
+              if (m_isEventOverlayJobMC)
+                {
+                  // we can skip the first sub-event when doing MC+MC overlay
+                  ++it;
+                }
+              else
+                {
+                  if (it != end) { addpEvent=false; }
+                }
               for (; it != end; ++it)
                 {
                   const EventInfo* sevt = (*it).pSubEvt;
@@ -627,6 +674,18 @@ PileUpEventLoopMgr::setupStreams()
     {
       ATH_MSG_ERROR ( "Can not setup original evt store " << m_origSel );
       return StatusCode::FAILURE;
+    }
+    
+  if (m_isEventOverlayJob)
+    {
+      CHECK(m_signalSel.retrieve());
+
+      m_signalStream = PileUpStream("BkgEvent_0", serviceLocator(), &*m_signalSel);
+      if (!m_signalStream.setupStore())
+        {
+          ATH_MSG_ERROR("Can not setup signal evt store " << m_signalSel);
+          return StatusCode::FAILURE;
+        }
     }
 
   //now get the bkg stream caches, and set them up

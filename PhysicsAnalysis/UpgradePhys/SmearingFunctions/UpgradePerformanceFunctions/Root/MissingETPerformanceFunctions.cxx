@@ -6,25 +6,15 @@
 #define MISSINGETPERFORMANCEFUNCTIONS_CXX
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
+#include "PathResolver/PathResolver.h"
+
 #include "TFile.h"
 
-#ifdef XAOD_STANDALONE
-// Framework include(s):
-#include "PathResolver/PathResolver.h"
-#endif // XAOD_STANDALONE
+namespace Upgrade {
 
-void UpgradePerformanceFunctions::setMETRandomSeed(unsigned seed) {
-  m_METRandom.SetSeed(seed);
-}
-
-void UpgradePerformanceFunctions::loadMETHistograms(TString filename) {
-  ATH_MSG_INFO("Loading Missing ET histogram file " << filename);
-  std::string METFile = filename.Data();
-#ifdef XAOD_STANDALONE
-// Get file from data path
-  METFile = PathResolverFindCalibFile(METFile);
-  ATH_MSG_INFO("Found Missing ET histogram file: " << METFile);
-#endif // XAOD_STANDALONE
+StatusCode UpgradePerformanceFunctions::loadMETHistograms() {
+  ATH_MSG_INFO("Loading Missing ET histogram file");
+  std::string METFile = PathResolverFindCalibFile(m_METFilename);
 
   TFile *m_infile=new TFile(METFile.c_str(),"READ");
   if(m_layout!=run2){  //upgrade settings
@@ -68,11 +58,13 @@ void UpgradePerformanceFunctions::loadMETHistograms(TString filename) {
     //https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PLOTS/JETM-2017-001/fig_03.png
     //https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PLOTS/JETM-2017-001/fig_05.png
 
-    m_met_resoperp  = dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_perpendicular_reso2") ); //MT: it's squared!
-    m_met_resopara  = dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_parallel_reso2") );      //MT: it's squared!
-    m_met_shiftpara = dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_parallel_scale") );
+    m_met_resoperp.reset(dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_perpendicular_reso2") ) ); //MT: it's squared!
+    m_met_resopara.reset(dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_parallel_reso2") ) );      //MT: it's squared!
+    m_met_shiftpara.reset(dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_parallel_scale") ) );
 
   }
+
+  return StatusCode::SUCCESS;
 }
 
 UpgradePerformanceFunctions::MET UpgradePerformanceFunctions::getMETSmeared(float truthSumEtMeV, float METxMeV, float METyMeV, METSyst systValue) {
@@ -213,4 +205,7 @@ TVector3 UpgradePerformanceFunctions::getTSTsmearing(TVector3 pthard) { //input 
   return (para+perp);  //in MeV
   
 }
+
+}
+
 #endif

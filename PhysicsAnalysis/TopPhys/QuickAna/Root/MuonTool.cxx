@@ -46,7 +46,8 @@ namespace ana
   MuonToolCorrect ::
   MuonToolCorrect (const std::string& name)
     : AsgTool (name), AnaToolCorrect<xAOD::MuonContainer> (name),
-      m_calib_smear ("MuonCalibrationAndSmearingTool", this)
+      m_calib_smear_16 ("MuonCalibrationAndSmearingTool_16", nullptr),
+      m_calib_smear_17 ("MuonCalibrationAndSmearingTool_17", nullptr)
   {
   }
 
@@ -56,10 +57,16 @@ namespace ana
   initialize()
   {
     ATH_MSG_DEBUG("initialize");
-    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calib_smear, CP::MuonCalibrationAndSmearingTool));
-    // Take the default properties
-    ATH_CHECK (m_calib_smear.initialize());
-    registerTool (&*m_calib_smear);
+
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calib_smear_16, CP::MuonCalibrationAndSmearingTool));
+    ATH_CHECK (m_calib_smear_16.setProperty ("SagittaCorr", true));
+    ATH_CHECK (m_calib_smear_16.initialize());
+    registerTool (&*m_calib_smear_16);
+
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calib_smear_17, CP::MuonCalibrationAndSmearingTool));
+    ATH_CHECK (m_calib_smear_17.setProperty ("Year", "Data17"));
+    ATH_CHECK (m_calib_smear_17.initialize());
+    registerTool (&*m_calib_smear_17);
 
     registerCut (SelectionStep::MET, "calib_tool", cut_calib_tool);
 
@@ -72,8 +79,21 @@ namespace ana
   correctObject (xAOD::Muon& muon)
   {
     ATH_MSG_DEBUG("correctObject");
+    const xAOD::EventInfo* eventInfo = 0;
+    ATH_CHECK (evtStore()->retrieve( eventInfo, "EventInfo"));
+
+    unsigned int run = 0;
+    if ( eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) 
+       run = eventInfo->auxdata<unsigned int>( "RandomRunNumber" );
+    else 
+       run = eventInfo->runNumber();
+
     // Apply the CP calibration
-    QA_CHECK_CUT (cut_calib_tool, m_calib_smear->applyCorrection (muon));
+    if(run>320000) 
+      QA_CHECK_CUT (cut_calib_tool, m_calib_smear_17->applyCorrection (muon));
+    
+    if(run<320000)
+      QA_CHECK_CUT (cut_calib_tool, m_calib_smear_16->applyCorrection (muon));
 
     return StatusCode::SUCCESS;
   }

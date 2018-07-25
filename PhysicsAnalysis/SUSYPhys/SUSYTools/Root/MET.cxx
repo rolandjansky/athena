@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -146,9 +146,8 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
 
   ATH_MSG_VERBOSE("Build MET sum");
   ATH_CHECK( m_metMaker->buildMETSum(m_outMETTerm, &met, met[softTerm]->source()) );
-  ATH_MSG_VERBOSE( "Done rebuilding MET." );
-
   ATH_MSG_VERBOSE( "Rebuilt MET: Missing Et (x,y): (" << met[m_outMETTerm]->mpx() << "," <<  met[m_outMETTerm]->mpy() << ")");
+  ATH_MSG_VERBOSE( "Done rebuilding MET." );
 
   return StatusCode::SUCCESS;
 
@@ -205,11 +204,19 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
   ATH_CHECK( m_metMaker->rebuildTrackMET(m_jetTerm, softTerm, &met, jet, metcore, metMap, true) );
 
   if (!isData()) {
-    ATH_MSG_VERBOSE("Apply MET systematics");
-    if ( m_metSystTool->applyCorrection(*met[softTerm],
-                                        metMap) != CP::CorrectionCode::Ok ) {
-      ATH_MSG_WARNING("GetMET: Failed to apply MET track systematics.");
+
+    if (m_trkMETsyst) {
+      ATH_MSG_VERBOSE("Apply trkMET systematics");
+      if ( m_metSystTool->applyCorrection(*met[softTerm],metMap) != CP::CorrectionCode::Ok )
+	ATH_MSG_WARNING("GetMET: Failed to apply MET track (PVSoftTrk) systematics.");
     }
+
+    if (m_trkJetsyst) {
+      ATH_MSG_VERBOSE("Apply Ref Jet trkMET systematics");
+      if ( m_metSystTool->applyCorrection(*met[m_jetTerm],metMap) != CP::CorrectionCode::Ok )
+	ATH_MSG_WARNING("GetMET: Failed to apply MET track (RefJet) systematics.");
+    }
+
   }
 
   ATH_MSG_VERBOSE("Build MET sum");
@@ -223,15 +230,9 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
 }
 
 StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
-                                   double &metSignificance, 
-				   const xAOD::JetContainer* jet,
-                                   const xAOD::ElectronContainer* elec,
-                                   const xAOD::MuonContainer* muon,
-                                   const xAOD::PhotonContainer* gamma,
-                                   const xAOD::TauJetContainer* taujet,
-                                   bool doTST, bool doJVTCut,
-      			           const xAOD::IParticleContainer* invis) {
-  
+                                      double &metSignificance, 
+                                      bool doTST, bool doJVTCut) {
+
   std::string softTerm = "SoftClus";
   if (doTST) {
     softTerm = "PVSoftTrk";
@@ -239,7 +240,6 @@ StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
     ATH_MSG_WARNING( "Requested CST MET and a JVT cut.  This is not a recommended configuration - please consider switching to TST." );
   }
 
-  ATH_CHECK( this->GetMET( met, jet, elec, muon, gamma, taujet, false, false, invis ) );
   ATH_CHECK( m_metSignif->varianceMET( &met, m_jetTerm, softTerm, m_outMETTerm) );
   metSignificance = m_metSignif->GetSignificance();
   ATH_MSG_VERBOSE( "Obtained MET Significance: " << metSignificance  );

@@ -89,20 +89,22 @@ mc15_13TeV.407046.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttbarHT1k_1k5_nonAH.ev
 mc15_13TeV.407047.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttbarHT6c_1k_nonAH.evgen.EVNT.e5747
 mc15_13TeV.407048.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttbarMET200_nonAH.evgen.EVNT.e5747
 
-mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.merge.EVNT.e6337_e5984
-mc16_13TeV.410471.PhPy8EG_A14_ttbar_hdamp258p75_allhad.merge.EVNT.e6337_e5984
-mc16_13TeV.410472.PhPy8EG_A14_ttbar_hdamp258p75_dil.merge.EVNT.e6348_e5984
+mc15_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.evgen.EVNT.e6337
+mc15_13TeV.410471.PhPy8EG_A14_ttbar_hdamp258p75_allhad.evgen.EVNT.e6337
+mc15_13TeV.410472.PhPy8EG_A14_ttbar_hdamp258p75_dil.evgen.EVNT.e6348
 
-#mc16_13TeV.410442.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttbar_dil.merge.EVNT.e6407_e5984_tid12741511_00
+mc15_13TeV.410480.PhPy8EG_A14_ttbar_hdamp517p5_SingleLep.evgen.EVNT.e6454
+
+mc15_13TeV.410442.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttbar_dil.evgen.EVNT.e6407
 
 mc15_13TeV.410424.Sherpa_224_NNPDF30NNLO_ttbar_dilepton_MEPS_NLO.evgen.EVNT.e6404
 
-mc16_13TeV.407343.PhPy8EG_A14_ttbarHT1k_1k5_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
-mc16_13TeV.407344.PhPy8EG_A14_ttbarHT6c_1k_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
-mc16_13TeV.407345.PhPy8EG_A14_ttbarMET200_300_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
-mc16_13TeV.407346.PhPy8EG_A14_ttbarMET300_400_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
-mc16_13TeV.407342.PhPy8EG_A14_ttbarHT1k5_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
-mc16_13TeV.407347.PhPy8EG_A14_ttbarMET400_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984 
+mc15_13TeV.407342.PhPy8EG_A14_ttbarHT1k5_hdamp258p75_nonallhad.evgen.EVNT.e6414
+mc15_13TeV.407343.PhPy8EG_A14_ttbarHT1k_1k5_hdamp258p75_nonallhad.evgen.EVNT.e6414
+mc15_13TeV.407344.PhPy8EG_A14_ttbarHT6c_1k_hdamp258p75_nonallhad.evgen.EVNT.e6414
+mc15_13TeV.407345.PhPy8EG_A14_ttbarMET200_300_hdamp258p75_nonallhad.evgen.EVNT.e6414
+mc15_13TeV.407346.PhPy8EG_A14_ttbarMET300_400_hdamp258p75_nonallhad.evgen.EVNT.e6414
+mc15_13TeV.407347.PhPy8EG_A14_ttbarMET400_hdamp258p75_nonallhad.evgen.EVNT.e6414
 
 ################################################################################################################
 # single top
@@ -145,7 +147,7 @@ mc15_13TeV.410026.PowhegPythiaEvtGen_P2012_SingleTopSchan_noAllHad_antitop.evgen
 mc15_13TeV.410050.MadGraphPythiaEvtGen_P2012_tZ_4fl_tchan_noAllHad.evgen.EVNT.e4279
 mc15_13TeV.410560.MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_noAllHad.evgen.EVNT.e5803
 mc15_13TeV.410049.MadGraphPythiaEvtGen_P2012_tZ_4fl_tchan_trilepton.evgen.EVNT.e4440
-mc16_13TeV.410550.MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_trilepton.merge.EVNT.e5803_e5984
+mc15_13TeV.410550.MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_trilepton.evgen.EVNT.e5803
 
 mc15_13TeV.410064.PowhegPythiaEvtGen_P2012_Wt_DS_dilepton_top.evgen.EVNT.e4132
 mc15_13TeV.410065.PowhegPythiaEvtGen_P2012_Wt_DS_dilepton_antitop.evgen.EVNT.e4132
@@ -184,6 +186,15 @@ mc15_13TeV.410110.PowhegPythiaEvtGen_P2012radLo_SingleTopSchan_lept_antitop.evge
 
 mc15_13TeV.410178.MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET200.evgen.EVNT.e5264
 mc15_13TeV.410179.MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET60_200.evgen.EVNT.e5264
+
+mc15_13TeV.410642.PhPy8EG_A14_tchan_lept_top.evgen.EVNT.e6536
+mc15_13TeV.410643.PhPy8EG_A14_tchan_lept_antitop.evgen.EVNT.e6536
+mc15_13TeV.410644.PowhegPythia8EvtGen_A14_singletop_schan_lept_top.evgen.EVNT.e6527
+mc15_13TeV.410645.PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop.evgen.EVNT.e6527
+mc15_13TeV.410646.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top.evgen.EVNT.e6552
+mc15_13TeV.410647.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_antitop.evgen.EVNT.e6552
+mc15_13TeV.410658.PhPy8EG_A14_tchan_BW50_lept_top.evgen.EVNT.e6671
+mc15_13TeV.410659.PhPy8EG_A14_tchan_BW50_lept_antitop.evgen.EVNT.e6671
 
 ################################################################################################################
 # WWbb LO
@@ -224,6 +235,25 @@ mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.evgen.EVNT.e3601
 # Powheg Pythia8 Low mass DY
 # From https://twiki.cern.ch/twiki/bin/view/AtlasProtected/XsecSummaryZjetsPowPy8Slice
 
+mc15_13TeV.301020.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_120M180.evgen.EVNT.e3649
+mc15_13TeV.301021.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_180M250.evgen.EVNT.e3649
+mc15_13TeV.301022.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_250M400.evgen.EVNT.e3649
+mc15_13TeV.301023.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_400M600.evgen.EVNT.e3649
+mc15_13TeV.301024.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_600M800.evgen.EVNT.e3649
+mc15_13TeV.301025.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_800M1000.evgen.EVNT.e3649
+mc15_13TeV.301026.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1000M1250.evgen.EVNT.e3649
+mc15_13TeV.301027.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1250M1500.evgen.EVNT.e3649
+mc15_13TeV.301028.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1500M1750.evgen.EVNT.e3649
+mc15_13TeV.301029.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1750M2000.evgen.EVNT.e3649
+mc15_13TeV.301030.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2000M2250.evgen.EVNT.e3649
+mc15_13TeV.301031.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2250M2500.evgen.EVNT.e3649
+mc15_13TeV.301032.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2500M2750.evgen.EVNT.e3649
+mc15_13TeV.301033.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2750M3000.evgen.EVNT.e3649
+mc15_13TeV.301034.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_3000M3500.evgen.EVNT.e3649
+mc15_13TeV.301035.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_3500M4000.evgen.EVNT.e3649
+mc15_13TeV.301036.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_4000M4500.evgen.EVNT.e3649
+mc15_13TeV.301037.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_4500M5000.evgen.EVNT.e3649
+mc15_13TeV.301038.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_5000M.evgen.EVNT.e3649
 mc15_13TeV.361664.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYee_6M10.evgen.EVNT.e4770
 mc15_13TeV.361665.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYee_10M60.evgen.EVNT.e4770
 mc15_13TeV.361666.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_6M10.evgen.EVNT.e4770
@@ -261,6 +291,24 @@ mc15_13TeV.361308.Sherpa_CT10_Wenu_Pt140_280_BFilter.evgen.EVNT.e3651
 mc15_13TeV.361309.Sherpa_CT10_Wenu_Pt280_500_CVetoBVeto.evgen.EVNT.e4133
 mc15_13TeV.361310.Sherpa_CT10_Wenu_Pt280_500_CFilterBVeto.evgen.EVNT.e4133
 mc15_13TeV.361311.Sherpa_CT10_Wenu_Pt280_500_BFilter.evgen.EVNT.e4133
+mc15_13TeV.361312.Sherpa_CT10_Wenu_Pt500_700_CVetoBVeto.evgen.EVNT.e4133
+mc15_13TeV.361313.Sherpa_CT10_Wenu_Pt500_700_CFilterBVeto.evgen.EVNT.e4133
+mc15_13TeV.361314.Sherpa_CT10_Wenu_Pt500_700_BFilter.evgen.EVNT.e4133
+mc15_13TeV.361315.Sherpa_CT10_Wenu_Pt700_1000_CVetoBVeto.evgen.EVNT.e4133
+mc15_13TeV.361316.Sherpa_CT10_Wenu_Pt700_1000_CFilterBVeto.evgen.EVNT.e4133
+mc15_13TeV.361317.Sherpa_CT10_Wenu_Pt700_1000_BFilter.evgen.EVNT.e4133
+mc15_13TeV.361318.Sherpa_CT10_Wenu_Pt1000_2000_CVetoBVeto.evgen.EVNT.e4133
+mc15_13TeV.361319.Sherpa_CT10_Wenu_Pt1000_2000_CFilterBVeto.evgen.EVNT.e4133
+mc15_13TeV.361320.Sherpa_CT10_Wenu_Pt1000_2000_BFilter.evgen.EVNT.e4133
+mc15_13TeV.361321.Sherpa_CT10_Wenu_Pt2000_E_CMS_CVetoBVeto.evgen.EVNT.e4133
+mc15_13TeV.361322.Sherpa_CT10_Wenu_Pt2000_E_CMS_CFilterBVeto.evgen.EVNT.e4133
+mc15_13TeV.361323.Sherpa_CT10_Wenu_Pt2000_E_CMS_BFilter.evgen.EVNT.e4133
+mc15_13TeV.361324.Sherpa_CT10_Wmunu_Pt0_70_CVetoBVeto.evgen.EVNT.e3651
+mc15_13TeV.361325.Sherpa_CT10_Wmunu_Pt0_70_CFilterBVeto.evgen.EVNT.e3651
+mc15_13TeV.361326.Sherpa_CT10_Wmunu_Pt0_70_BFilter.evgen.EVNT.e3651
+mc15_13TeV.361327.Sherpa_CT10_Wmunu_Pt70_140_CVetoBVeto.evgen.EVNT.e3651
+mc15_13TeV.361328.Sherpa_CT10_Wmunu_Pt70_140_CFilterBVeto.evgen.EVNT.e3651
+mc15_13TeV.361329.Sherpa_CT10_Wmunu_Pt70_140_BFilter.evgen.EVNT.e3651
 mc15_13TeV.361312.Sherpa_CT10_Wenu_Pt500_700_CVetoBVeto.evgen.EVNT.e4133
 mc15_13TeV.361313.Sherpa_CT10_Wenu_Pt500_700_CFilterBVeto.evgen.EVNT.e4133
 mc15_13TeV.361314.Sherpa_CT10_Wenu_Pt500_700_BFilter.evgen.EVNT.e4133
@@ -750,10 +798,14 @@ mc15_13TeV.364145.Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV70_140_CVetoBVeto.evgen.E
 mc15_13TeV.364148.Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5308
 mc15_13TeV.364151.Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV280_500_CVetoBVeto.evgen.EVNT.e5308
 
-mc16_13TeV.364220.Sherpa_221_NNPDF30NNLO_Ztautau_PTV500_1000.merge.EVNT.e5626_e5984
-mc16_13TeV.364221.Sherpa_221_NNPDF30NNLO_Ztautau_PTV1000_E_CMS.merge.EVNT.e5626_e5984
-mc16_13TeV.364222.Sherpa_221_NNPDF30NNLO_Znunu_PTV500_1000.merge.EVNT.e5626_e5984
-mc16_13TeV.364223.Sherpa_221_NNPDF30NNLO_Znunu_PTV1000_E_CMS.merge.EVNT.e5626_e5984
+mc15_13TeV.364216.Sherpa_221_NNPDF30NNLO_Zmumu_PTV500_1000.evgen.EVNT.e5626
+mc15_13TeV.364217.Sherpa_221_NNPDF30NNLO_Zmumu_PTV1000_E_CMS.evgen.EVNT.e5626
+mc15_13TeV.364218.Sherpa_221_NNPDF30NNLO_Zee_PTV500_1000.evgen.EVNT.e5626
+mc15_13TeV.364219.Sherpa_221_NNPDF30NNLO_Zee_PTV1000_E_CMS.evgen.EVNT.e5626
+mc15_13TeV.364220.Sherpa_221_NNPDF30NNLO_Ztautau_PTV500_1000.evgen.EVNT.e5626
+mc15_13TeV.364221.Sherpa_221_NNPDF30NNLO_Ztautau_PTV1000_E_CMS.evgen.EVNT.e5626
+mc15_13TeV.364222.Sherpa_221_NNPDF30NNLO_Znunu_PTV500_1000.evgen.EVNT.e5626
+mc15_13TeV.364223.Sherpa_221_NNPDF30NNLO_Znunu_PTV1000_E_CMS.evgen.EVNT.e5626
 
 mc15_13TeV.308092.Sherpa_221_NNPDF30NNLO_Zee2jets_Min_N_TChannel.evgen.EVNT.e5767
 mc15_13TeV.308093.Sherpa_221_NNPDF30NNLO_Zmm2jets_Min_N_TChannel.evgen.EVNT.e5767
@@ -1466,12 +1518,6 @@ mc15_13TeV.361488.Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BVeto.evgen.EVNT.e4198
 mc15_13TeV.361489.Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BFilter.evgen.EVNT.e4198
 mc15_13TeV.361490.Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BVeto.evgen.EVNT.e4198
 mc15_13TeV.361491.Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BFilter.evgen.EVNT.e4198
-mc16_13TeV.364358.Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV70_140.merge.EVNT.e6544_e5984
-mc16_13TeV.364359.Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV70_140.merge.EVNT.e6544_e5984
-mc16_13TeV.364360.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV70_140.merge.EVNT.e6544_e5984
-mc16_13TeV.364361.Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV140_280.merge.EVNT.e6544_e5984
-mc16_13TeV.364362.Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV140_280.merge.EVNT.e6544_e5984
-mc16_13TeV.364363.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV140_280.merge.EVNT.e6544_e5984
 
 ################################################################################################################
 # Sherpa 2.2.1 Low Mass DY (from XsecSummaryZjetsOther 17.1.17, 364207 from AMI)
@@ -1493,12 +1539,14 @@ mc15_13TeV.364212.Sherpa_221_NN30NNLO_Ztt_Mll10_40_MAXHTPTV70_280_BVeto.evgen.EV
 mc15_13TeV.364213.Sherpa_221_NN30NNLO_Ztt_Mll10_40_MAXHTPTV70_280_BFilter.evgen.EVNT.e5421
 mc15_13TeV.364214.Sherpa_221_NN30NNLO_Ztt_Mll10_40_MAXHTPTV280_E_CMS_BVeto.evgen.EVNT.e5421
 mc15_13TeV.364215.Sherpa_221_NN30NNLO_Ztt_Mll10_40_MAXHTPTV280_E_CMS_BFilter.evgen.EVNT.e5421
-mc16_13TeV.364216.Sherpa_221_NNPDF30NNLO_Zmumu_PTV500_1000.merge.EVNT.e5626_e5984
-mc16_13TeV.364217.Sherpa_221_NNPDF30NNLO_Zmumu_PTV1000_E_CMS.merge.EVNT.e5626_e5984
-mc16_13TeV.364218.Sherpa_221_NNPDF30NNLO_Zee_PTV500_1000.merge.EVNT.e5626_e5984
-mc16_13TeV.364219.Sherpa_221_NNPDF30NNLO_Zee_PTV1000_E_CMS.merge.EVNT.e5626_e5984
 
 # Even lower mass DY
+mc15_13TeV.364358.Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV70_140.evgen.EVNT.e6544
+mc15_13TeV.364359.Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV70_140.evgen.EVNT.e6544
+mc15_13TeV.364360.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV70_140.evgen.EVNT.e6544
+mc15_13TeV.364361.Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV140_280.evgen.EVNT.e6544
+mc15_13TeV.364362.Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV140_280.evgen.EVNT.e6544
+mc15_13TeV.364363.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV140_280.evgen.EVNT.e6544
 mc15_13TeV.364280.Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV280_E_CMS.evgen.EVNT.e6037
 mc15_13TeV.364281.Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV280_E_CMS.evgen.EVNT.e6037
 mc15_13TeV.364282.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV280_E_CMS.evgen.EVNT.e6037
@@ -1792,24 +1840,6 @@ mc15_13TeV.361743.AlpgenPythiaEvtGen_P2012_ZmumubbNp3Incl.evgen.EVNT.e4915
 mc15_13TeV.361745.AlpgenPythiaEvtGen_P2012_ZmumuccNp0.evgen.EVNT.e4915
 mc15_13TeV.361746.AlpgenPythiaEvtGen_P2012_ZmumuccNp1.evgen.EVNT.e4915
 mc15_13TeV.361747.AlpgenPythiaEvtGen_P2012_ZmumuccNp2.evgen.EVNT.e4915
-mc15_13TeV.361748.AlpgenPythiaEvtGen_P2012_ZmumuccNp3Incl.evgen.EVNT.e4915
-mc15_13TeV.361750.AlpgenPythiaEvtGen_P2012_ZtautaubbNp0.evgen.EVNT.e4915
-mc15_13TeV.361751.AlpgenPythiaEvtGen_P2012_ZtautaubbNp1.evgen.EVNT.e4915
-mc15_13TeV.361752.AlpgenPythiaEvtGen_P2012_ZtautaubbNp2.evgen.EVNT.e4915
-mc15_13TeV.361753.AlpgenPythiaEvtGen_P2012_ZtautaubbNp3Incl.evgen.EVNT.e4915
-mc15_13TeV.361755.AlpgenPythiaEvtGen_P2012_ZtautauccNp0.evgen.EVNT.e4915
-mc15_13TeV.361756.AlpgenPythiaEvtGen_P2012_ZtautauccNp1.evgen.EVNT.e4915
-mc15_13TeV.361757.AlpgenPythiaEvtGen_P2012_ZtautauccNp2.evgen.EVNT.e4915
-mc15_13TeV.361758.AlpgenPythiaEvtGen_P2012_ZtautauccNp3Incl.evgen.EVNT.e4915
-
-# Additional HT-filtered samples - taking the same k-factor as above, no reason for a difference
-mc15_13TeV.407084.AlpgenPythiaEvtGen_P2012_ZeeNp1_HT250.evgen.EVNT.e5223
-mc15_13TeV.407085.AlpgenPythiaEvtGen_P2012_ZeeNp2_HT475.evgen.EVNT.e5223
-mc15_13TeV.407086.AlpgenPythiaEvtGen_P2012_ZeeNp3_HT500.evgen.EVNT.e5223
-mc15_13TeV.407087.AlpgenPythiaEvtGen_P2012_ZeeNp4_HT500.evgen.EVNT.e5223
-mc15_13TeV.407088.AlpgenPythiaEvtGen_P2012_ZeeNp5_HT500.evgen.EVNT.e5223
-mc15_13TeV.407089.AlpgenPythiaEvtGen_P2012_ZmumuNp1_HT250.evgen.EVNT.e5223
-mc15_13TeV.407090.AlpgenPythiaEvtGen_P2012_ZmumuNp2_HT475.evgen.EVNT.e5223
 mc15_13TeV.407091.AlpgenPythiaEvtGen_P2012_ZmumuNp3_HT500.evgen.EVNT.e5223
 mc15_13TeV.407092.AlpgenPythiaEvtGen_P2012_ZmumuNp4_HT500.evgen.EVNT.e5223
 mc15_13TeV.407093.AlpgenPythiaEvtGen_P2012_ZmumuNp5_HT500.evgen.EVNT.e5223
@@ -1817,6 +1847,7 @@ mc15_13TeV.407093.AlpgenPythiaEvtGen_P2012_ZmumuNp5_HT500.evgen.EVNT.e5223
 
 ################################################################################################################
 # Pythia8 DY 
+
 mc15_13TeV.301540.Pythia8EvtGen_A14NNPDF23LO_DYee_70M120.evgen.EVNT.e3882
 mc15_13TeV.301541.Pythia8EvtGen_A14NNPDF23LO_DYee_120M180.evgen.EVNT.e3882
 mc15_13TeV.301542.Pythia8EvtGen_A14NNPDF23LO_DYee_180M250.evgen.EVNT.e3882
@@ -1862,6 +1893,24 @@ mc15_13TeV.303438.Pythia8EvtGen_A14NNPDF23LO_DYtautau_180M250.evgen.EVNT.e4213
 mc15_13TeV.303439.Pythia8EvtGen_A14NNPDF23LO_DYtautau_250M400.evgen.EVNT.e4213
 mc15_13TeV.303440.Pythia8EvtGen_A14NNPDF23LO_DYtautau_400M600.evgen.EVNT.e4213
 mc15_13TeV.303441.Pythia8EvtGen_A14NNPDF23LO_DYtautau_600M800.evgen.EVNT.e4213
+mc15_13TeV.301567.Pythia8EvtGen_A14NNPDF23LO_DYmumu_1000M1250.evgen.EVNT.e3882
+mc15_13TeV.301568.Pythia8EvtGen_A14NNPDF23LO_DYmumu_1250M1500.evgen.EVNT.e3882
+mc15_13TeV.301569.Pythia8EvtGen_A14NNPDF23LO_DYmumu_1500M1750.evgen.EVNT.e3882
+mc15_13TeV.301570.Pythia8EvtGen_A14NNPDF23LO_DYmumu_1750M2000.evgen.EVNT.e3882
+mc15_13TeV.301571.Pythia8EvtGen_A14NNPDF23LO_DYmumu_2000M2250.evgen.EVNT.e3882
+mc15_13TeV.301572.Pythia8EvtGen_A14NNPDF23LO_DYmumu_2250M2500.evgen.EVNT.e3882
+mc15_13TeV.301573.Pythia8EvtGen_A14NNPDF23LO_DYmumu_2500M2750.evgen.EVNT.e3882
+mc15_13TeV.301574.Pythia8EvtGen_A14NNPDF23LO_DYmumu_2750M3000.evgen.EVNT.e3882
+mc15_13TeV.301575.Pythia8EvtGen_A14NNPDF23LO_DYmumu_3000M3500.evgen.EVNT.e3882
+mc15_13TeV.301576.Pythia8EvtGen_A14NNPDF23LO_DYmumu_3500M4000.evgen.EVNT.e3882
+mc15_13TeV.301577.Pythia8EvtGen_A14NNPDF23LO_DYmumu_4000M4500.evgen.EVNT.e3882
+mc15_13TeV.301578.Pythia8EvtGen_A14NNPDF23LO_DYmumu_4500M5000.evgen.EVNT.e3882
+mc15_13TeV.301579.Pythia8EvtGen_A14NNPDF23LO_DYmumu_5000M.evgen.EVNT.e3882
+mc15_13TeV.303437.Pythia8EvtGen_A14NNPDF23LO_DYtautau_120M180.evgen.EVNT.e4213
+mc15_13TeV.303438.Pythia8EvtGen_A14NNPDF23LO_DYtautau_180M250.evgen.EVNT.e4213
+mc15_13TeV.303439.Pythia8EvtGen_A14NNPDF23LO_DYtautau_250M400.evgen.EVNT.e4213
+mc15_13TeV.303440.Pythia8EvtGen_A14NNPDF23LO_DYtautau_400M600.evgen.EVNT.e4213
+mc15_13TeV.303441.Pythia8EvtGen_A14NNPDF23LO_DYtautau_600M800.evgen.EVNT.e4213
 mc15_13TeV.303442.Pythia8EvtGen_A14NNPDF23LO_DYtautau_800M1000.evgen.EVNT.e4213
 mc15_13TeV.303443.Pythia8EvtGen_A14NNPDF23LO_DYtautau_1000M1250.evgen.EVNT.e4213
 mc15_13TeV.303444.Pythia8EvtGen_A14NNPDF23LO_DYtautau_1250M1500.evgen.EVNT.e4213
@@ -1878,28 +1927,9 @@ mc15_13TeV.303454.Pythia8EvtGen_A14NNPDF23LO_DYtautau_4500M5000.evgen.EVNT.e4213
 mc15_13TeV.303455.Pythia8EvtGen_A14NNPDF23LO_DYtautau_5000M.evgen.EVNT.e4213
 mc15_13TeV.305785.Pythia8EvtGen_A14NNPDF23LO_DYtautau_70M120.evgen.EVNT.e5200
 										
-mc16_13TeV.301020.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_120M180.merge.EVNT.e3649_e5984
-mc16_13TeV.301021.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_180M250.merge.EVNT.e3649_e5984
-mc16_13TeV.301022.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_250M400.merge.EVNT.e3649_e5984
-mc16_13TeV.301023.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_400M600.merge.EVNT.e3649_e5984
-mc16_13TeV.301024.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_600M800.merge.EVNT.e3649_e5984
-mc16_13TeV.301025.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_800M1000.merge.EVNT.e3649_e5984
-mc16_13TeV.301026.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1000M1250.merge.EVNT.e3649_e5984
-mc16_13TeV.301027.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1250M1500.merge.EVNT.e3649_e5984
-mc16_13TeV.301028.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1500M1750.merge.EVNT.e3649_e5984
-mc16_13TeV.301029.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1750M2000.merge.EVNT.e3649_e5984
-mc16_13TeV.301030.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2000M2250.merge.EVNT.e3649_e5984
-mc16_13TeV.301031.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2250M2500.merge.EVNT.e3649_e5984
-mc16_13TeV.301032.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2500M2750.merge.EVNT.e3649_e5984
-mc16_13TeV.301033.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2750M3000.merge.EVNT.e3649_e5984
-mc16_13TeV.301034.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_3000M3500.merge.EVNT.e3649_e5984
-mc16_13TeV.301035.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_3500M4000.merge.EVNT.e3649_e5984
-mc16_13TeV.301036.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_4000M4500.merge.EVNT.e3649_e5984
-mc16_13TeV.301037.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_4500M5000.merge.EVNT.e3649_e5984
-mc16_13TeV.301038.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_5000M.merge.EVNT.e3649_e5984
-
 ################################################################################################################
 # Pythia8 Filtered W/Z->Hadrons	
+
 mc15_13TeV.304623.Pythia8EvtGen_A14NNPDF23LO_WHad_280_500.evgen.EVNT.e4581
 mc15_13TeV.304624.Pythia8EvtGen_A14NNPDF23LO_WHad_500_700.evgen.EVNT.e4581
 mc15_13TeV.304625.Pythia8EvtGen_A14NNPDF23LO_WHad_700_1000.evgen.EVNT.e4581
@@ -1912,15 +1942,30 @@ mc15_13TeV.304630.Pythia8EvtGen_A14NNPDF23LO_ZHad_700_1000.evgen.EVNT.e4581
 mc15_13TeV.304631.Pythia8EvtGen_A14NNPDF23LO_ZHad_1000_1400.evgen.EVNT.e4581
 mc15_13TeV.304632.Pythia8EvtGen_A14NNPDF23LO_ZHad_1400.evgen.EVNT.e4581
 
+
+################################################################################################################
+# Herwig++ Filtered W/Z->Hadrons	
+
+mc15_13TeV.304673.Herwigpp_UEEE5CTEQ6L1_Wjhadronic_280_500.evgen.EVNT.e4571                    
+mc15_13TeV.304674.Herwigpp_UEEE5CTEQ6L1_Wjhadronic_500_700.evgen.EVNT.e4571                    
+mc15_13TeV.304675.Herwigpp_UEEE5CTEQ6L1_Wjhadronic_700_1000.evgen.EVNT.e4571                   
+mc15_13TeV.304676.Herwigpp_UEEE5CTEQ6L1_Wjhadronic_1000_1400.evgen.EVNT.e4571                  
+mc15_13TeV.304677.Herwigpp_UEEE5CTEQ6L1_Wjhadronic_1400.evgen.EVNT.e4571                       
+mc15_13TeV.304678.Herwigpp_UEEE5CTEQ6L1_Zjhadronic_280_500.evgen.EVNT.e4571                    
+mc15_13TeV.304679.Herwigpp_UEEE5CTEQ6L1_Zjhadronic_500_700.evgen.EVNT.e4571                    
+mc15_13TeV.304680.Herwigpp_UEEE5CTEQ6L1_Zjhadronic_700_1000.evgen.EVNT.e4571          
+mc15_13TeV.304681.Herwigpp_UEEE5CTEQ6L1_Zjhadronic_1000_1400.evgen.EVNT.e4571         
+mc15_13TeV.304682.Herwigpp_UEEE5CTEQ6L1_Zjhadronic_1400.evgen.EVNT.e4571              
+
 ##########################################################################################################################
 # sherpa 2.1 hadronic V+jets samples
 
-mc16_13TeV.304307.Sherpa_CT10_Wqq_Pt280_500.merge.EVNT.e4692_e5984
-mc16_13TeV.304308.Sherpa_CT10_Wqq_Pt500_1000.merge.EVNT.e4692_e5984
-mc16_13TeV.304309.Sherpa_CT10_Wqq_Pt1000.merge.EVNT.e4692_e5984
-mc16_13TeV.304707.Sherpa_CT10_Zqq_Pt280_500.merge.EVNT.e4692_e5984
-mc16_13TeV.304708.Sherpa_CT10_Zqq_Pt500_1000.merge.EVNT.e4692_e5984
-mc16_13TeV.304709.Sherpa_CT10_Zqq_Pt1000.merge.EVNT.e4692_e5984
+mc15_13TeV.304307.Sherpa_CT10_Wqq_Pt280_500.evgen.EVNT.e4692
+mc15_13TeV.304308.Sherpa_CT10_Wqq_Pt500_1000.evgen.EVNT.e4692
+mc15_13TeV.304309.Sherpa_CT10_Wqq_Pt1000.evgen.EVNT.e4692
+mc15_13TeV.304707.Sherpa_CT10_Zqq_Pt280_500.evgen.EVNT.e4692
+mc15_13TeV.304708.Sherpa_CT10_Zqq_Pt500_1000.evgen.EVNT.e4692
+mc15_13TeV.304709.Sherpa_CT10_Zqq_Pt1000.evgen.EVNT.e4692
 
 ################################################################################################################
 # Sherpa gamma+jet
@@ -2178,22 +2223,22 @@ mc15_13TeV.423111.Pythia8EvtGen_A14NNPDF23LO_gammajet_DP2500_3000.evgen.EVNT.e44
 
 mc15_13TeV.407013.Sherpa_CT10_2DP50_DirectPhotonFilter.evgen.EVNT.e3784
 
-mc16_13TeV.303727.Sherpa_CT10_2DP20_myy_0_55.merge.EVNT.e4331_e5984
-mc16_13TeV.303728.Sherpa_CT10_2DP20_myy_55_100.merge.EVNT.e4331_e5984
-mc16_13TeV.303729.Sherpa_CT10_2DP20_myy_100_160.merge.EVNT.e4331_e5984
-mc16_13TeV.303730.Sherpa_CT10_2DP20_myy_160_250.merge.EVNT.e4331_e5984
-mc16_13TeV.303731.Sherpa_CT10_2DP20_myy_250_400.merge.EVNT.e4331_e5984
-mc16_13TeV.303732.Sherpa_CT10_2DP20_myy_400_650.merge.EVNT.e4331_e5984
-mc16_13TeV.303733.Sherpa_CT10_2DP20_myy_650_1000.merge.EVNT.e4331_e5984
-mc16_13TeV.303734.Sherpa_CT10_2DP20_myy_1000_1500.merge.EVNT.e4331_e5984
-mc16_13TeV.303735.Sherpa_CT10_2DP20_myy_1500_2000.merge.EVNT.e4331_e5984
-mc16_13TeV.303736.Sherpa_CT10_2DP20_myy_2000_2500.merge.EVNT.e4331_e5984
-mc16_13TeV.303737.Sherpa_CT10_2DP20_myy_2500_3000.merge.EVNT.e4331_e5984
-mc16_13TeV.303738.Sherpa_CT10_2DP20_myy_3000_3500.merge.EVNT.e4331_e5984
-mc16_13TeV.303739.Sherpa_CT10_2DP20_myy_3500_4000.merge.EVNT.e4331_e5984
-mc16_13TeV.303740.Sherpa_CT10_2DP20_myy_4000_4500.merge.EVNT.e4331_e5984
-mc16_13TeV.303741.Sherpa_CT10_2DP20_myy_4500_5000.merge.EVNT.e4331_e5984
-mc16_13TeV.303742.Sherpa_CT10_2DP20_myy_5000_inf.merge.EVNT.e4331_e5984
+mc15_13TeV.303727.Sherpa_CT10_2DP20_myy_0_55.evgen.EVNT.e4331
+mc15_13TeV.303728.Sherpa_CT10_2DP20_myy_55_100.evgen.EVNT.e4331
+mc15_13TeV.303729.Sherpa_CT10_2DP20_myy_100_160.evgen.EVNT.e4331
+mc15_13TeV.303730.Sherpa_CT10_2DP20_myy_160_250.evgen.EVNT.e4331
+mc15_13TeV.303731.Sherpa_CT10_2DP20_myy_250_400.evgen.EVNT.e4331
+mc15_13TeV.303732.Sherpa_CT10_2DP20_myy_400_650.evgen.EVNT.e4331
+mc15_13TeV.303733.Sherpa_CT10_2DP20_myy_650_1000.evgen.EVNT.e4331
+mc15_13TeV.303734.Sherpa_CT10_2DP20_myy_1000_1500.evgen.EVNT.e4331
+mc15_13TeV.303735.Sherpa_CT10_2DP20_myy_1500_2000.evgen.EVNT.e4331
+mc15_13TeV.303736.Sherpa_CT10_2DP20_myy_2000_2500.evgen.EVNT.e4331
+mc15_13TeV.303737.Sherpa_CT10_2DP20_myy_2500_3000.evgen.EVNT.e4331
+mc15_13TeV.303738.Sherpa_CT10_2DP20_myy_3000_3500.evgen.EVNT.e4331
+mc15_13TeV.303739.Sherpa_CT10_2DP20_myy_3500_4000.evgen.EVNT.e4331
+mc15_13TeV.303740.Sherpa_CT10_2DP20_myy_4000_4500.evgen.EVNT.e4331
+mc15_13TeV.303741.Sherpa_CT10_2DP20_myy_4500_5000.evgen.EVNT.e4331
+mc15_13TeV.303742.Sherpa_CT10_2DP20_myy_5000_inf.evgen.EVNT.e4331
 
 ################################################################################################################
 # PowhegPythia8 ZZ
@@ -2435,14 +2480,19 @@ mc15_13TeV.364252.Sherpa_222_NNPDF30NNLO_llll_m4l300.evgen.EVNT.e5894
 mc15_13TeV.364253.Sherpa_222_NNPDF30NNLO_lllv.evgen.EVNT.e5916
 mc15_13TeV.364254.Sherpa_222_NNPDF30NNLO_llvv.evgen.EVNT.e5916
 mc15_13TeV.364255.Sherpa_222_NNPDF30NNLO_lvvv.evgen.EVNT.e5916
-mc16_13TeV.364261.Sherpa_222_NNPDF30NNLO_lllv_3lepfilter.merge.EVNT.e5951_e5984
+mc15_13TeV.364261.Sherpa_222_NNPDF30NNLO_lllv_3lepfilter.evgen.EVNT.e5951
 mc15_13TeV.364283.Sherpa_222_NNPDF30NNLO_lllljj_EW6.evgen.EVNT.e6055
 mc15_13TeV.364284.Sherpa_222_NNPDF30NNLO_lllvjj_EW6.evgen.EVNT.e6055
 mc15_13TeV.364285.Sherpa_222_NNPDF30NNLO_llvvjj_EW6.evgen.EVNT.e6055
-mc16_13TeV.364286.Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW4.merge.EVNT.e6055_e5984
+mc15_13TeV.364286.Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW4.evgen.EVNT.e6055
 mc15_13TeV.364287.Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW6.evgen.EVNT.e6055
+
+mc15_13TeV.364336.Sherpa_222_NNPDF30NNLO_WpWpWn_sslvlvjj_EW6.evgen.EVNT.e6377
+mc15_13TeV.364337.Sherpa_222_NNPDF30NNLO_WnWnWp_sslvlvjj_EW6.evgen.EVNT.e6377
+mc15_13TeV.364338.Sherpa_222_NNPDF30NNLO_WpWpWn_oslvlvjj_EW6.evgen.EVNT.e6377
+mc15_13TeV.364339.Sherpa_222_NNPDF30NNLO_WnWnWp_oslvlvjj_EW6.evgen.EVNT.e6377
  
-mc15_13TeV.363507.Sherpa_222_NNPDF30NNLO_WWZ_3l1v2j_EW6.evgen.EVNT.e6412
+mc15_13TeV.363507.Sherpa_222_NNPDF30NNLO_WWZ_3l1v2j_EW6.evgen.EVNT.e6379
 mc15_13TeV.363508.Sherpa_222_NNPDF30NNLO_WZZ_4l2j_EW6.evgen.EVNT.e6412
 mc15_13TeV.363509.Sherpa_222_NNPDF30NNLO_WZZ_3l1v2j_EW6.evgen.EVNT.e6412
 
@@ -2453,8 +2503,8 @@ mc15_13TeV.364305.Sherpa_222_NNPDF30NNLO_ggWplvWmqq.evgen.EVNT.e6273
 mc15_13TeV.345705.Sherpa_222_NNPDF30NNLO_ggllll_0M4l130.evgen.EVNT.e6213
 mc15_13TeV.345706.Sherpa_222_NNPDF30NNLO_ggllll_130M4l.evgen.EVNT.e6213
 mc15_13TeV.345723.Sherpa_222_NNPDF30NNLO_ggllvvZZ.evgen.EVNT.e6213
-mc16_13TeV.345715.Sherpa_222_NNPDF30NNLO_ggllvvInt.merge.EVNT.e6525_e5984
-mc16_13TeV.345718.Sherpa_222_NNPDF30NNLO_ggllvvWW.merge.EVNT.e6525_e5984
+mc15_13TeV.345715.Sherpa_222_NNPDF30NNLO_ggllvvInt.evgen.EVNT.e6525
+mc15_13TeV.345718.Sherpa_222_NNPDF30NNLO_ggllvvWW.evgen.EVNT.e6525
 
 # Very low mll
 mc15_13TeV.364288.Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement.evgen.EVNT.e6096
@@ -2558,6 +2608,38 @@ mc15_13TeV.407027.Sherpa_CT10_ZtautaugammagammaPt50GeV.evgen.EVNT.e3992
 mc15_13TeV.407028.Sherpa_CT10_ZnunugammagammaPt50GeV.evgen.EVNT.e3992
 
 ################################################################################################################
+# Sherpa 2.2.2 Vgammagamma
+
+mc15_13TeV.364550.Sherpa_222_NNPDF30NNLO_eegammagamma_pty_17_myy_80.evgen.EVNT.e6618
+mc15_13TeV.364555.Sherpa_222_NNPDF30NNLO_mumugammagamma_pty_17_myy_80.evgen.EVNT.e6612
+mc15_13TeV.364560.Sherpa_222_NNPDF30NNLO_tautaugammagamma_pty_17_myy_80.evgen.EVNT.e6612
+mc15_13TeV.364565.Sherpa_222_NNPDF30NNLO_nunugammagamma_pty_17_myy_80.evgen.EVNT.e6612
+mc15_13TeV.364570.Sherpa_222_NNPDF30NNLO_enugammagamma_pty_17_myy_80.evgen.EVNT.e6612
+mc15_13TeV.364575.Sherpa_222_NNPDF30NNLO_munugammagamma_pty_17_myy_80.evgen.EVNT.e6612
+mc15_13TeV.364580.Sherpa_222_NNPDF30NNLO_taunugammagamma_pty_17_myy_80.evgen.EVNT.e6612
+mc15_13TeV.364552.Sherpa_222_NNPDF30NNLO_eegammagamma_pty_35_70.evgen.EVNT.e6333
+mc15_13TeV.364553.Sherpa_222_NNPDF30NNLO_eegammagamma_pty_70_140.evgen.EVNT.e6333
+mc15_13TeV.364554.Sherpa_222_NNPDF30NNLO_eegammagamma_pty_140_E_CMS.evgen.EVNT.e6333
+mc15_13TeV.364557.Sherpa_222_NNPDF30NNLO_mumugammagamma_pty_35_70.evgen.EVNT.e6333
+mc15_13TeV.364558.Sherpa_222_NNPDF30NNLO_mumugammagamma_pty_70_140.evgen.EVNT.e6335
+mc15_13TeV.364559.Sherpa_222_NNPDF30NNLO_mumugammagamma_pty_140_E_CMS.evgen.EVNT.e6333
+mc15_13TeV.364562.Sherpa_222_NNPDF30NNLO_tautaugammagamma_pty_35_70.evgen.EVNT.e6333
+mc15_13TeV.364563.Sherpa_222_NNPDF30NNLO_tautaugammagamma_pty_70_140.evgen.EVNT.e6333
+mc15_13TeV.364564.Sherpa_222_NNPDF30NNLO_tautaugammagamma_pty_140_E_CMS.evgen.EVNT.e6333
+mc15_13TeV.364567.Sherpa_222_NNPDF30NNLO_nunugammagamma_pty_35_70.evgen.EVNT.e6333
+mc15_13TeV.364568.Sherpa_222_NNPDF30NNLO_nunugammagamma_pty_70_140.evgen.EVNT.e6333
+mc15_13TeV.364569.Sherpa_222_NNPDF30NNLO_nunugammagamma_pty_140_E_CMS.evgen.EVNT.e6333
+mc15_13TeV.364572.Sherpa_222_NNPDF30NNLO_enugammagamma_pty_35_70.evgen.EVNT.e6333
+mc15_13TeV.364573.Sherpa_222_NNPDF30NNLO_enugammagamma_pty_70_140.evgen.EVNT.e6333
+mc15_13TeV.364574.Sherpa_222_NNPDF30NNLO_enugammagamma_pty_140_E_CMS.evgen.EVNT.e6333
+mc15_13TeV.364577.Sherpa_222_NNPDF30NNLO_munugammagamma_pty_35_70.evgen.EVNT.e6333
+mc15_13TeV.364578.Sherpa_222_NNPDF30NNLO_munugammagamma_pty_70_140.evgen.EVNT.e6333
+mc15_13TeV.364579.Sherpa_222_NNPDF30NNLO_munugammagamma_pty_140_E_CMS.evgen.EVNT.e6333
+mc15_13TeV.364582.Sherpa_222_NNPDF30NNLO_taunugammagamma_pty_35_70.evgen.EVNT.e6333
+mc15_13TeV.364583.Sherpa_222_NNPDF30NNLO_taunugammagamma_pty_70_140.evgen.EVNT.e6333
+mc15_13TeV.364584.Sherpa_222_NNPDF30NNLO_taunugammagamma_pty_140_E_CMS.evgen.EVNT.e6333
+
+################################################################################################################
 # Pythia8 dijet
 
 mc15_13TeV.361000.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ0.evgen.EVNT.e3569
@@ -2608,10 +2690,29 @@ mc15_13TeV.426007.PowhegPythia8EvtGen_A14_NNPDF23LO_CT10ME_jetjet_JZ7.evgen.EVNT
 mc15_13TeV.426008.PowhegPythia8EvtGen_A14_NNPDF23LO_CT10ME_jetjet_JZ8.evgen.EVNT.e3788
 mc15_13TeV.426009.PowhegPythia8EvtGen_A14_NNPDF23LO_CT10ME_jetjet_JZ9.evgen.EVNT.e3788
 
+
+################################################################################################################
+# Sherpa dijet
+
+mc15_13TeV.426131.Sherpa_CT10_jets_JZ1.evgen.EVNT.e4355
+mc15_13TeV.426132.Sherpa_CT10_jets_JZ2.evgen.EVNT.e4355
+mc15_13TeV.426133.Sherpa_CT10_jets_JZ3.evgen.EVNT.e4355
+mc15_13TeV.426134.Sherpa_CT10_jets_JZ4.evgen.EVNT.e4355
+mc15_13TeV.426135.Sherpa_CT10_jets_JZ5.evgen.EVNT.e4355
+mc15_13TeV.426136.Sherpa_CT10_jets_JZ6.evgen.EVNT.e4355
+mc15_13TeV.426137.Sherpa_CT10_jets_JZ7.evgen.EVNT.e4635
+mc15_13TeV.426138.Sherpa_CT10_jets_JZ8.evgen.EVNT.e4635
+mc15_13TeV.426139.Sherpa_CT10_jets_JZ9.evgen.EVNT.e4635
+mc15_13TeV.426140.Sherpa_CT10_jets_JZ10.evgen.EVNT.e4635
+mc15_13TeV.426141.Sherpa_CT10_jets_JZ11.evgen.EVNT.e4635
+mc15_13TeV.426142.Sherpa_CT10_jets_JZ12.evgen.EVNT.e4635
+
 ################################################################################################################
 # Higgs
 
-mc16_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.merge.EVNT.e6281_e5984
+mc15_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.evgen.EVNT.e6281
+mc15_13TeV.309451.Pythia8EvtGen_A14NNPDF23LO_WH125_bb_fj350.evgen.EVNT.e6282
+mc15_13TeV.309452.Pythia8EvtGen_A14NNPDF23LO_ZH125_bb_fj350.evgen.EVNT.e6282
 mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam.evgen.EVNT.e3806
 mc15_13TeV.341001.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_gamgam.evgen.EVNT.e3806
 mc15_13TeV.341067.Pythia8EvtGen_A14NNPDF23LO_WH125_gamgam.evgen.EVNT.e3796
@@ -2670,6 +2771,7 @@ mc15_13TeV.341455.PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_veveWWlvlv_VpT.evg
 mc15_13TeV.341456.PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_veveWWlvqq_VpT.evgen.EVNT.e4212
 mc15_13TeV.341457.PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_vmuvmuWWlvlv_VpT.evgen.EVNT.e4212
 mc15_13TeV.341458.PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_vmuvmuWWlvqq_VpT.evgen.EVNT.e4212
+mc15_13TeV.341459.PowhegPy8EG_CT10_AZNLO_ZH125J_MINLO_vtauvtauWWlvlv_VpT.evgen.EVNT.e4377
 mc15_13TeV.341463.Pythia8EvtGen_A14NNPDF23LO_ZH125_Zllgam.evgen.EVNT.e3918
 mc15_13TeV.341471.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_ZZ4lep.evgen.EVNT.e3951
 mc15_13TeV.341488.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_ZZ4lep.evgen.EVNT.e3951
@@ -2682,7 +2784,6 @@ mc15_13TeV.341947.Pythia8EvtGen_A14NNPDF23LO_ZH125_ZZ4l.evgen.EVNT.e4161
 mc15_13TeV.341964.Pythia8EvtGen_A14NNPDF23LO_WH125_ZZ4l.evgen.EVNT.e4161
 mc15_13TeV.341974.Pythia8EvtGen_A14NNPDF23LO_ZH125_ZZllvv.evgen.EVNT.e4161
 mc15_13TeV.341975.Pythia8EvtGen_A14NNPDF23LO_ZllH125_ZZ4l.evgen.EVNT.e4161
-mc15_13TeV.341454.PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_tautauWWlvqq_VpT.evgen.EVNT.e4212
 mc15_13TeV.342097.aMcAtNloPythia8EvtGen_A14NNPDF23LO_bbH125_yb2_gamgam.evgen.EVNT.e4149
 mc15_13TeV.342098.aMcAtNloPythia8EvtGen_A14NNPDF23LO_bbH125_ybyt_gamgam.evgen.EVNT.e4149
 mc15_13TeV.342178.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_ee.evgen.EVNT.e4158
@@ -2697,6 +2798,7 @@ mc15_13TeV.342288.aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_ttH125_Zgam.evgen.
 mc15_13TeV.343365.aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_dilep.evgen.EVNT.e4706
 mc15_13TeV.343366.aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_semilep.evgen.EVNT.e4706
 mc15_13TeV.343367.aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_allhad.evgen.EVNT.e4706
+mc15_13TeV.343981.PowhegPythia8EvtGen_NNLOPS_nnlo_30_ggH125_gamgam.evgen.EVNT.e5607
 mc15_13TeV.344376.PowhegPythia8EvtGen_CT10_AZNLO_ggZH125_eeWWlvlv.evgen.EVNT.e5174
 mc15_13TeV.344377.PowhegPythia8EvtGen_CT10_AZNLO_ggZH125_eeWWlvqq.evgen.EVNT.e5174
 mc15_13TeV.344378.PowhegPythia8EvtGen_CT10_AZNLO_ggZH125_mumuWWlvlv.evgen.EVNT.e5174
@@ -2709,29 +2811,34 @@ mc15_13TeV.344384.PowhegPythia8EvtGen_CT10_AZNLO_ggZH125_vmuvmuWWlvlv.evgen.EVNT
 mc15_13TeV.344385.PowhegPythia8EvtGen_CT10_AZNLO_ggZH125_vmuvmuWWlvqq.evgen.EVNT.e5174
 mc15_13TeV.344386.PowhegPythia8EvtGen_CT10_AZNLO_ggZH125_vtauvtauWWlvlv.evgen.EVNT.e5174
 mc15_13TeV.344387.PowhegPythia8EvtGen_CT10_AZNLO_ggZH125_vtauvtauWWlvqq.evgen.EVNT.e5174
-mc16_13TeV.345053.PowhegPythia8EvtGen_NNPDF3_AZNLO_WmH125J_MINLO_lvbb_VpT.merge.EVNT.e5706_e5984
-mc16_13TeV.345054.PowhegPythia8EvtGen_NNPDF3_AZNLO_WpH125J_MINLO_lvbb_VpT.merge.EVNT.e5706_e5984
-mc16_13TeV.345055.PowhegPythia8EvtGen_NNPDF3_AZNLO_ZH125J_MINLO_llbb_VpT.merge.EVNT.e5706_e5984
-mc16_13TeV.345056.PowhegPythia8EvtGen_NNPDF3_AZNLO_ZH125J_MINLO_vvbb_VpT.merge.EVNT.e5706_e5984
-mc16_13TeV.345057.PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_llbb.merge.EVNT.e5706_e5984
-mc16_13TeV.345058.PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_vvbb.merge.EVNT.e6004_e5984
-mc16_13TeV.345073.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaul13l7.merge.EVNT.e5822_e5984
+mc15_13TeV.345041.PowhegPythia8EvtGen_NNPDF30_AZNLOCTEQ6L1_VBFH125_gamgam.evgen.EVNT.e5720
+mc15_13TeV.345053.PowhegPythia8EvtGen_NNPDF3_AZNLO_WmH125J_MINLO_lvbb_VpT.evgen.EVNT.e5706
+mc15_13TeV.345054.PowhegPythia8EvtGen_NNPDF3_AZNLO_WpH125J_MINLO_lvbb_VpT.evgen.EVNT.e5706
+mc15_13TeV.345055.PowhegPythia8EvtGen_NNPDF3_AZNLO_ZH125J_MINLO_llbb_VpT.evgen.EVNT.e5706
+mc15_13TeV.345056.PowhegPythia8EvtGen_NNPDF3_AZNLO_ZH125J_MINLO_vvbb_VpT.evgen.EVNT.e5706
+mc15_13TeV.345057.PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_llbb.evgen.EVNT.e5706
+mc15_13TeV.345058.PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_vvbb.evgen.EVNT.e5706
+mc15_13TeV.345061.PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_HgamgamZinc.evgen.EVNT.e5762
+mc15_13TeV.345073.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaul13l7.evgen.EVNT.e5822
 mc15_13TeV.345074.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaulm15hp20.evgen.EVNT.e5822
 mc15_13TeV.345075.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaulp15hm20.evgen.EVNT.e5822
 mc15_13TeV.345076.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautauh30h20.evgen.EVNT.e5822
-mc16_13TeV.345097.PowhegPythia8EvtGen_NNLOPS_nnlo_30_ggH125_mumu.merge.EVNT.e5732_e5984
-mc16_13TeV.345106.PowhegPythia8EvtGen_NNPDF30_AZNLOCTEQ6L1_VBFH125_mumu.merge.EVNT.e5733_e5984
-mc16_13TeV.345120.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaul13l7.merge.EVNT.e5814_e5984
+mc15_13TeV.345097.PowhegPythia8EvtGen_NNLOPS_nnlo_30_ggH125_mumu.evgen.EVNT.e5732
+mc15_13TeV.345106.PowhegPythia8EvtGen_NNPDF30_AZNLOCTEQ6L1_VBFH125_mumu.evgen.EVNT.e5733
+mc15_13TeV.345120.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaul13l7.evgen.EVNT.e5814
 mc15_13TeV.345121.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaulm15hp20.evgen.EVNT.e5814
 mc15_13TeV.345122.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaulp15hm20.evgen.EVNT.e5814
 mc15_13TeV.345123.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautauh30h20.evgen.EVNT.e5814
-mc16_13TeV.345317.PowhegPythia8EvtGen_NNPDF30_AZNLO_WmH125J_Hyy_Wincl_MINLO.merge.EVNT.e5734_e5984
-mc16_13TeV.345318.PowhegPythia8EvtGen_NNPDF30_AZNLO_WpH125J_Hyy_Wincl_MINLO.merge.EVNT.e5734_e5984
-mc16_13TeV.345319.PowhegPythia8EvtGen_NNPDF30_AZNLO_ZH125J_Hyy_Zincl_MINLO.merge.EVNT.e5743_e5984
-mc16_13TeV.345323.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv.merge.EVNT.e5901_e5984
-mc16_13TeV.345324.PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5.merge.EVNT.e5769_e5984
-mc16_13TeV.345338.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.merge.EVNT.e5684_e5984
-mc16_13TeV.345342.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb.merge.EVNT.e5739_e5984
+mc15_13TeV.345315.PowhegPythia8EvtGen_A14NNPDF23LO_bbHyy.evgen.EVNT.e6050
+mc15_13TeV.345317.PowhegPythia8EvtGen_NNPDF30_AZNLO_WmH125J_Hyy_Wincl_MINLO.evgen.EVNT.e5734
+mc15_13TeV.345318.PowhegPythia8EvtGen_NNPDF30_AZNLO_WpH125J_Hyy_Wincl_MINLO.evgen.EVNT.e5734
+mc15_13TeV.345319.PowhegPythia8EvtGen_NNPDF30_AZNLO_ZH125J_Hyy_Zincl_MINLO.evgen.EVNT.e5743
+mc15_13TeV.345323.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv.evgen.EVNT.e5901
+mc15_13TeV.345324.PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5.evgen.EVNT.e5769
+mc15_13TeV.345338.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.evgen.EVNT.e5684
+mc15_13TeV.345342.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb.evgen.EVNT.e5739
+mc15_13TeV.345863.PowhegPythia8EvtGen_A14NNPDF23_NNPDF30ME_ttH125_gamgam.evgen.EVNT.e6503
+mc15_13TeV.345931.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.evgen.EVNT.e6597
 
 ################################################################################################################
 # Madgraph ttbar+X
@@ -2773,13 +2880,14 @@ mc15_13TeV.410397.MadGraphPythia8EvtGen_ttbar_wbee_MEN30LO_A14N23LO.evgen.EVNT.e
 mc15_13TeV.410398.MadGraphPythia8EvtGen_ttbar_wbmumu_MEN30LO_A14N23LO.evgen.EVNT.e6086
 mc15_13TeV.410399.MadGraphPythia8EvtGen_ttbar_wbtautau_MEN30LO_A14N23LO.evgen.EVNT.e6086
 
+mc15_13TeV.410408.aMcAtNloPythia8EvtGen_tWZ_Ztoll_minDR1.evgen.EVNT.e6423
+
 ################################################################################################################
 # Sherpa 2.2.0 ttV
 
 mc15_13TeV.410142.Sherpa_NNPDF30NNLO_ttll_mll5.evgen.EVNT.e4686
 mc15_13TeV.410143.Sherpa_NNPDF30NNLO_ttZnnqq.evgen.EVNT.e4686
 mc15_13TeV.410144.Sherpa_NNPDF30NNLO_ttW.evgen.EVNT.e4686
-
 
 ################################################################################################################
 # Madgraph multi-top
@@ -2806,8 +2914,15 @@ mc15_13TeV.410088.MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma4080_allhad.evgen.EV
 mc15_13TeV.410089.MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma80_allhad.evgen.EVNT.e4418
 
 ################################################################################################################
-# aMcAtNloPythia8EvtGen ttbar+gamma (NLO)
+# Madgraph ttbar+gamgam
+mc15_13TeV.345868.MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamgam_noallhad.evgen.EVNT.e6542
 
-mc15_13TeV.407320.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_tta140.evgen.EVNT.e5587
+################################################################################################################
+# non-SUSY signals
+ 
+mc15_13TeV.309721.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp25_gSp25.evgen.EVNT.e6584
+mc15_13TeV.309720.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp25_gSp25.evgen.EVNT.e6584
+mc15_13TeV.309722.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp3_gSp25.evgen.EVNT.e6584
+mc15_13TeV.309723.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp3_gSp25.evgen.EVNT.e6584
 
 ################################################################################################################

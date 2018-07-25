@@ -212,6 +212,7 @@ class EFBMuMuXFex_FTK (EFBMuMuXFex_1):
         
         # FTK
         self.DoFTK = True
+        self.TrackCollection = "InDetTrigTrackingxAODCnv_BeamSpot_FTK"
         
 
 

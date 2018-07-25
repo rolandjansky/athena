@@ -20,11 +20,10 @@ for l in out.splitlines():
     if len(myOutput) > 0 :
         digitizationFlags.simRunNumber = int(myOutput)
         ServiceMgr.EventSelector.RunNumber=digitizationFlags.simRunNumber.get_Value()
-        pileUpEventLoopMgr.mcRunNumber=digitizationFlags.simRunNumber.get_Value()
+        # pileUpEventLoopMgr.mcRunNumber=digitizationFlags.simRunNumber.get_Value()
     else :
         print "Failed to find Run Number in hits file metadata."
 
 print "simRunNumber: "
 print ServiceMgr.EventSelector
 print pileUpEventLoopMgr
-

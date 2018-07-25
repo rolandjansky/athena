@@ -15,23 +15,29 @@
 #include "TLorentzVector.h"
 
 namespace Upgrade {
-  class Jet : public TLorentzVector {
-  public:
-    Jet() { }
-    Jet(const TLorentzVector &tlv):TLorentzVector(tlv) { } 
-    bool truthIsHS    = true;  // true for HS, false for PU
-    int  truthFlavour = -99;   // truth label: HadronConeExclTruthLabelID
-    bool isBtagged    = false; // whether it's b-tagged
+class Jet : public TLorentzVector {
+public:
+	Jet() { }
+	Jet(const TLorentzVector &tlv): TLorentzVector(tlv) { }
+	bool truthIsHS    = true;  // true for HS, false for PU
+	int  truthFlavour = -99;   // truth label: HadronConeExclTruthLabelID
+	bool isBtagged    = false; // whether it's b-tagged
 
-    // Prints information about this jet to the screen
-    void print(TString msg="") {
-      printf(" Jet (pT,eta,phi,m) = (%6.1f GeV,%5.2f,%5.2f,%5.1f GeV), Truth %s jet, flav=%3i %sb-tagged. %s\n",
-	     Pt()/1000,Eta(),Phi(),M()/1000,truthIsHS?"HS":"PU",truthFlavour,isBtagged?"":"not ",msg.Data());
-    }
-  };
+	// Prints information about this jet to the screen
+	void print(TString msg = "") {
+		printf(" Jet (pT,eta,phi,m) = (%6.1f GeV,%5.2f,%5.2f,%5.1f GeV), Truth %s jet, flav=%3i %sb-tagged. %s\n",
+		       Pt() / 1000, Eta(), Phi(), M() / 1000, truthIsHS ? "HS" : "PU", truthFlavour, isBtagged ? "" : "not ", msg.Data());
+	}
+};
 
-  typedef std::vector<Jet> Jets;
+typedef std::vector<Jet> Jets;
+
+/*
+namespace PileupEff {
+	static const unsigned int HS = 1001;
+	static const unsigned int PU = 1002;
 }
+*/
 
 class IUpgradePerformanceFunctions : public virtual asg::IAsgTool {
 public:
@@ -42,19 +48,20 @@ public:
 	enum PhotonCutLevel {loosePhoton, tightPhoton};
 	enum MuonCutLevel {looseMuon, tightMuon, highPtMuon};
 	enum METSyst {nominal, process, thresholdUp, thresholdDown, resoUp, resoDown};
-	enum PileupEff {HS, PU};
 	enum FatJetType {QCD, Top, WZ, NUM_FAT_JET_TYPES};
 	enum LargeRjetTopology { Multijet, Wprime, Zprime };
 	enum JetAlgorithm { TopoEM, PFlow };
+	enum PileupEff { HS, PU };
 
-	virtual void setLayout(UpgradeLayout layout) = 0;
-	virtual void setAvgMu(double avgMu) = 0;
+#ifdef XAOD_STANDALONE
 	virtual UpgradeLayout getLayout() = 0;
+#else
+	virtual int getLayout() = 0;
+#endif
+
 	virtual double getAvgMu() = 0;
 
 	// Electron performance functions
-	virtual void setElectronWorkingPoint(ElectronCutLevel cutLevel) = 0;
-	virtual void setElectronRandomSeed(unsigned seed) = 0;
 	virtual float getElectronEfficiency(float ptMeV, float eta) = 0;
 	virtual float getElectronFakeRate(float ptMeV, float eta) = 0;
 	virtual float getElectronEnergyResolution(float eMeV, float eta) = 0;
@@ -65,10 +72,7 @@ public:
 	virtual float interpolateElectronResolutionMap(float *ptEtaMap, float pT, float eta) = 0;
 
 	// Photon performance functions
-	virtual void setPhotonWorkingPoint(PhotonCutLevel cutLevel) = 0;
-	virtual void initPhotonFakeHistograms(TString PhotonFakePath) = 0;
-	virtual void setPhotonRandomSeed(unsigned seed) = 0;
-	virtual void setPhotonNoiseScaling(float scale) = 0;
+	virtual StatusCode initPhotonFakeHistograms() = 0;
 	virtual float getPhotonEfficiency(float ptMeV) = 0;
 	virtual float getPhotonFakeRate(float ptMeV) = 0; // jet faking photon
 	virtual float getPhotonPileupFakeRate(float ptMeV) = 0;// pileup jet faking photon
@@ -81,8 +85,6 @@ public:
 	virtual float getPhotonPileupFakeRescaledET(float eMeV) = 0;
 
 	// Muon performance functions
-	virtual void setMuonWorkingPoint(MuonCutLevel cutLevel) = 0;
-	virtual void setMuonHighEtaTagger(bool useIt) = 0;
 	virtual float getMuonEfficiencyFallback(float ptMeV, float eta) = 0;
 	virtual float getMuonEfficiency(float ptMeV, float eta, float phi = 0) = 0;
 	// These interface functions support phi for future updates.
@@ -100,15 +102,10 @@ public:
 	virtual float getTrackPtRelativeResolution(float ptMeV, float eta) = 0;
 
 	// Tau performance functions
-	virtual void setTauRandomSeed(unsigned seed) = 0;
 	virtual float getTauEfficiency(float etMeV, float eta, short prong, short wp) = 0;
 	virtual float getTauFakeRate(float etMeV, float eta, short prong, short wp) = 0;
 	virtual float getTauEnergyResolution(float eMeV, float eta, short prong) = 0;
 	virtual float getTauSmearedEnergy(float eMeV, float eta, short prong) = 0;
-
-	/// Jet performance functions
-	// Random seed affect both smearing and track confirmation (JVT)
-	virtual void setJetRandomSeed(unsigned seed) = 0;
 
 	// dump jet smearing settings to screen
 	virtual void printJetSmearingSettings() = 0;
@@ -165,8 +162,7 @@ public:
 	virtual float getJetSmearedMass(float ptMeV, float massMeV, FatJetType jetType) = 0;
 
 	// Missing ET performance functions
-	virtual void setMETRandomSeed(unsigned seed) = 0;
-	virtual void loadMETHistograms(TString filename) = 0;
+	virtual StatusCode loadMETHistograms() = 0;
 	typedef std::pair<double, double> MET;
 	virtual MET getMETSmeared(float truthSumEtMeV, float METxMeV, float METyMeV, METSyst systValue = nominal) = 0;
 	virtual float getMETResolution(float sumEtMeV, METSyst systValue = nominal) = 0;
@@ -174,7 +170,6 @@ public:
 	virtual TVector3 getTSTsmearing(TVector3 pthard) = 0;
 
 	// Flavour-tagging performance functions
-	virtual void setFlavourTaggingCalibrationFilename(TString flavourTaggingCalibrationFilename) = 0;
 	virtual float getFlavourTagEfficiency(float ptMeV, float eta, char flavour, TString tagger = "mv1", int operating_point = 70, bool track_confirmation = false) = 0;
 
 	// Trigger performance functions
@@ -195,13 +190,7 @@ public:
 	virtual float getJetEtmissTriggerEfficiency(float smearedJetEtMeV, float jetEta, float smearedEtmissMeV) = 0;
 
 	// Pile-up overlay functions
-	virtual void setPileupRandomSeed(unsigned seed) = 0;
-	virtual void setPileupEfficiencyScheme(PileupEff puscheme) = 0;
-	virtual void setPileupEff(float hseff = 0.9) = 0; // set efficiency either for HS or PU depending on your scheme
-	virtual void setPileupUseTrackConf(bool usetr = false) = 0; // TC yes/no - user's choice
-	virtual void setPileupJetPtThresholdMeV(float ptThresholdMeV = 30000.) = 0; // default approved minimum of 30 GeV
-	virtual void setPileupTemplatesPath(TString pileupTemplateFilenamePath) = 0; // user provides folder with PULibraries
-
+	virtual std::string setPileupTemplatesPath() = 0; // user provides folder with PULibraries
 	virtual bool getPileupTrackConfSetting() = 0;
 	virtual float getPileupJetPtThresholdMeV() = 0;
 	virtual std::vector<TLorentzVector> getPileupJets() = 0;
@@ -215,16 +204,18 @@ public:
 	virtual double getJVTeff_HSjet(double ptMeV, double eta) = 0;
 	virtual double getJVTeff_PUjet(double ptMeV, double eta) = 0;
 
-
 	// HGTD setters
-	virtual void setUseHGTD0(bool usehgtd0 = false) = 0; // turn on the HGTD in the forward region for eta 2.4 - 4.3
-	virtual void setUseHGTD1(bool usehgtd1 = false) = 0; // turn on the HGTD in the forward region for eta 0.0 - 4.3
 	virtual float getHGTDMinEta() = 0; // returns minimum eta for the HGTD depending on the scenario (0/1)
 	virtual float getHGTDMaxEta() = 0; // returns maximum eta for the HGTD, currently 4.3
 	virtual void extendJetTrigger(bool exttrig = false) = 0; // nominal = 3.2, exttrig = true => 3.8
 
-	virtual void setChargeFlipRateFilename(TString chargeFlipFleName) = 0;
+	virtual float muonEtaTriggerEfficiency(float eta) = 0;
+	virtual StatusCode initializePileupTemplates() = 0; // needs to be called by "setAvgMu" - PU Libraries only for mu 140 and 200 so far
+	virtual bool setupMuonResProvider() = 0;
+	virtual bool setupMuonEffProvider() = 0;
 
 };
+
+} // namespace Upgrade
 
 #endif //> !UPGRADEPERFORMANCEFUNCTIONS_IUPGRADEPERFORMANCEFUNCTIONS_H

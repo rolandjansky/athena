@@ -375,7 +375,12 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 	}
 	if(success)
 	{
-		m_periods.emplace_back(boundaries, std::move(helper.m_func));
+		if(m_parent->m_validTrigMatchTool)
+		{
+			if(!data.adaptTriggerListForTriggerMatching(triggers)) return false;
+			m_periods.emplace_back(boundaries, std::move(helper.m_func), std::move(triggers));
+		}
+		else m_periods.emplace_back(boundaries, std::move(helper.m_func));
 	}
 	else
 	{
@@ -384,18 +389,106 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 	return success;
 }
 
-bool Calculator::compute(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber, Efficiencies& efficiencies)
+const Calculator::Period* Calculator::getPeriod(unsigned runNumber) const
 {
-	m_parent = &parent;
-	auto period = std::find_if(m_periods.begin(), m_periods.end(),
+	auto period = std::find_if(m_periods.cbegin(), m_periods.cend(),
 		[=](const Period& p) { return runNumber>=p.m_boundaries.first && runNumber<=p.m_boundaries.second; });
 	if(period == m_periods.end())
 	{
 		ATH_MSG_ERROR("No trigger combination has been specified for run " << runNumber);
-		return false;
+		return nullptr;
 	}
+	return &*period;
+}
+
+bool Calculator::compute(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber, Efficiencies& efficiencies)
+{
+	m_parent = &parent;
+	auto period = getPeriod(runNumber);
+	if(!period) return false;
 	m_cachedEfficiencies.clear();
 	return period->m_formula && period->m_formula(this, leptons, runNumber, efficiencies);
+}
+
+bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent, bool& matched, const LeptonList& leptons, unsigned runNumber)
+{
+	matched = false;
+	m_parent = &parent;
+	auto period = getPeriod(runNumber);
+	if(!period) return false;
+	if(!period->m_triggers.size())
+	{
+		ATH_MSG_ERROR("Empty list of triggers for run number " << runNumber);
+		return false;
+	}
+	auto& trigMatchTool = m_parent->m_trigMatchTool;
+	
+	/// First, for each lepton, list the trigger leg(s) it is allowed to fire (depends on pT and selection tags)
+	const unsigned nLep = leptons.size();
+	std::vector<flat_set<std::size_t> > validLegs(leptons.size());
+	for(unsigned i=0;i<nLep;++i)
+	{
+		if(!fillListOfLegsFor(leptons[i], period->m_triggers, validLegs[i])) return false;
+	}
+	
+	/// Then for each trigger, call trigger matching tool for all possible (valid) lepton combinations
+	std::vector<flat_set<std::size_t> > firedLegs;
+	std::vector<const xAOD::IParticle*> trigLeptons;
+	const std::size_t magicWordHLT = 0xf7b8b87ef2917d66;
+
+	for(auto& trig : period->m_triggers)
+	{
+		/// Get trigger chain name with a "HLT_" prefix
+		auto itr = m_parent->m_dictionary.find(trig.name ^ magicWordHLT);
+		if(itr == m_parent->m_dictionary.end())
+		{
+			itr = m_parent->m_dictionary.emplace(trig.name ^ magicWordHLT, "HLT_" + m_parent->m_dictionary.at(trig.name)).first;
+		}
+		const std::string& chain = itr->second;
+		
+		unsigned nLegs = 0;
+		if(trig.type & TT_SINGLELEPTON_FLAG) nLegs = 1;
+		else if(trig.type & TT_DILEPTON_FLAG) nLegs = 2;
+		else if(trig.type & TT_TRILEPTON_FLAG) nLegs = 3;
+		else
+		{
+			ATH_MSG_ERROR("Unsupported trigger (type = " << std::hex << trig.type << std::dec << ") " << chain );
+			return false;
+		}
+		firedLegs.resize(nLegs);
+		trigLeptons.resize(nLegs);
+		for(unsigned i0=0;i0<nLep;++i0)
+		{
+			firedLegs[0].swap(validLegs[i0]); /// borrow the set of legs that can be fired by that lepton
+			trigLeptons[0] = leptons[i0].particle();
+			if(nLegs == 1)
+			{
+				if(canTriggerBeFired(trig, firedLegs) /// enough lepton(s) on trigger plateau?
+					&& trigMatchTool->match(trigLeptons, chain)) return (matched = true);
+			}
+			else for(unsigned i1=i0+1;i1<nLep;++i1)
+			{
+				firedLegs[1].swap(validLegs[i1]);
+				trigLeptons[1] = leptons[i1].particle();
+				if(nLegs == 2)
+				{
+					if(canTriggerBeFired(trig, firedLegs)
+						&& trigMatchTool->match(trigLeptons, chain)) return (matched = true);
+				}
+				else for(unsigned i2=i1+1;i2<nLep;++i2)
+				{
+					firedLegs[2].swap(validLegs[i2]);
+					trigLeptons[2] = leptons[i2].particle();
+					if(canTriggerBeFired(trig, firedLegs)
+						&& trigMatchTool->match(trigLeptons, chain)) return (matched = true);
+					firedLegs[2].swap(validLegs[i2]);
+				}
+				firedLegs[1].swap(validLegs[i1]);
+			}
+			firedLegs[0].swap(validLegs[i0]); /// return the set of legs back to the main container
+		}
+	}
+	return true;
 }
 
 Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned /* runNumber */, std::size_t leg, bool& success)
@@ -1098,6 +1191,127 @@ auto Calculator::globalEfficiency_Two3L(const LeptonList& leptons, unsigned runN
 	return success;
 }
 
+bool Calculator::fillListOfLegsFor(const Lepton& lepton, const std::vector<TrigDef>& triggers, flat_set<std::size_t>& validLegs) const
+{
+	validLegs.clear();
+	for(auto& trig : triggers)
+	{
+		bool success = true;
+		if(lepton.type() == xAOD::Type::Electron)
+		{
+			switch(trig.type)
+			{
+			case TT_3E_ASYM:
+				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
+			case TT_2E_ASYM: case TT_2E_MU_ASYM: case TT_3E_HALFSYM:
+				if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
+			case TT_SINGLE_E: case TT_2E_SYM: case TT_EMU: case TT_3E_SYM: 
+			case TT_2E_MU_SYM: case TT_E_2MU_SYM: case TT_E_2MU_ASYM:
+				if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
+				break;
+			default:
+				if(trig.type&TT_ELECTRON_FLAG) success = false;
+			}
+		}
+		else if(lepton.type() == xAOD::Type::Muon)
+		{
+			switch(trig.type)
+			{
+			case TT_3MU_ASYM: 
+				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
+			case TT_2MU_ASYM: case TT_3MU_HALFSYM:
+				if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
+			case TT_SINGLE_MU: case TT_2MU_SYM: case TT_3MU_SYM: 
+				if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
+				break;
+			case TT_E_2MU_ASYM:
+				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
+			case TT_EMU: case TT_E_2MU_SYM: 
+				if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]);
+				break;
+			case TT_2E_MU_SYM: case TT_2E_MU_ASYM: 
+				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]);
+				break;
+			default:
+				if(trig.type&TT_MUON_FLAG) success = false;
+			}
+		}
+		else if(lepton.type() == xAOD::Type::Photon)
+		{
+			switch(trig.type)
+			{
+			case TT_3PH_ASYM:
+				if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
+			case TT_2PH_ASYM: case TT_2E_MU_ASYM: case TT_3E_HALFSYM:
+				if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
+			case TT_SINGLE_PH: case TT_2PH_SYM: case TT_3PH_SYM:
+				if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
+				break;
+			default:
+				if(trig.type&TT_PHOTON_FLAG) success = false;
+			}
+		}
+		else
+		{
+			ATH_MSG_ERROR("Unknown lepton type");
+			return false;
+		}
+		if(!success)
+		{
+			ATH_MSG_ERROR("Unrecognized trigger type " << trig.type);
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Calculator::canTriggerBeFired(const TrigDef& trig, const std::vector<flat_set<std::size_t> >& firedLegs) const
+{
+	static_assert(std::tuple_size<decltype(trig.leg)>::value == 3, "extend Calculator::canTriggerBeFired() implementation to support triggers with >= 4 legs");
+	int n0=0, n1=0, n0min = 1 + (trig.leg[1]!=0)*(trig.leg[0]!=trig.leg[1]?-5:1) + (trig.leg[2]!=0)*(trig.leg[0]!=trig.leg[2]?-9:1);
+	if(n0min>0 || !trig.leg[2])
+	{
+		for(auto& legs : firedLegs)
+		{
+			bool fire0 = legs.count(trig.leg[0]);
+			if(n0min <= 0) /// Asymmetric dilepton triggers
+			{
+				if(n1 && fire0) return true;
+				if(legs.count(trig.leg[1]))
+				{
+					if(n0) return true;
+					++n1;
+				}
+				if(fire0) ++n0;
+			}
+			else if(fire0 && ++n0>=n0min) return true; /// Single-lepton and symmetric di/trilepton triggers 
+		}
+	}
+	else /// Trilepton triggers (except fully-symmetric ones that are addressed above)
+	{
+		auto end = firedLegs.end();
+		for(auto legs0=firedLegs.begin();legs0!=end;++legs0)
+		{
+			for(int i=0;i<3;++i)
+			{
+				if(!legs0->count(trig.leg[i])) continue;
+				for(auto legs1=legs0+1;legs1!=end;++legs1)
+				{
+					for(int j=1;j<3;++j)
+					{
+						if(!legs1->count(trig.leg[(i+j)%3])) continue;
+						for(auto legs2=legs1+1;legs2!=end;++legs2)
+						{
+							if(legs2->count(trig.leg[(i+3-j)%3])) return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNumber, 
 	const std::vector<TrigDef>& triggers, Efficiencies& globalEfficiencies)
 {
@@ -1112,74 +1326,7 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 	for(auto& lepton : leptons)
 	{
 		flat_set<std::size_t> validLegs;
-		for(auto& trig : triggers)
-		{
-			bool success = true;
-			if(lepton.type() == xAOD::Type::Electron)
-			{
-				switch(trig.type)
-				{
-				case TT_3E_ASYM:
-					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-				case TT_2E_ASYM: case TT_2E_MU_ASYM: case TT_3E_HALFSYM:
-					if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
-				case TT_SINGLE_E: case TT_2E_SYM: case TT_EMU: case TT_3E_SYM: 
-				case TT_2E_MU_SYM: case TT_E_2MU_SYM: case TT_E_2MU_ASYM:
-					if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
-					break;
-				default:
-					if(trig.type&TT_ELECTRON_FLAG) success = false;
-				}
-			}
-			else if(lepton.type() == xAOD::Type::Muon)
-			{
-				switch(trig.type)
-				{
-				case TT_3MU_ASYM: 
-					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-				case TT_2MU_ASYM: case TT_3MU_HALFSYM:
-					if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
-				case TT_SINGLE_MU: case TT_2MU_SYM: case TT_3MU_SYM: 
-					if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
-					break;
-				case TT_E_2MU_ASYM:
-					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-				case TT_EMU: case TT_E_2MU_SYM: 
-					if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]);
-					break;
-				case TT_2E_MU_SYM: case TT_2E_MU_ASYM: 
-					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]);
-					break;
-				default:
-					if(trig.type&TT_MUON_FLAG) success = false;
-				}
-			}
-			else if(lepton.type() == xAOD::Type::Photon)
-			{
-				switch(trig.type)
-				{
-				case TT_3PH_ASYM:
-					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-				case TT_2PH_ASYM: case TT_2E_MU_ASYM: case TT_3E_HALFSYM:
-					if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
-				case TT_SINGLE_PH: case TT_2PH_SYM: case TT_3PH_SYM:
-					if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
-					break;
-				default:
-					if(trig.type&TT_PHOTON_FLAG) success = false;
-				}
-			}
-			else
-			{
-				ATH_MSG_ERROR("Unknown lepton type");
-				return false;
-			}
-			if(!success)
-			{
-				ATH_MSG_ERROR("Unrecognized trigger type " << trig.type);
-				return false;
-			}
-		}
+		if(!fillListOfLegsFor(lepton, triggers, validLegs)) return false;
 		auto& efficiencies = leptonEfficiencies[&lepton];
 		const int nLegs = validLegs.size();
 		if(nLegs)
@@ -1204,114 +1351,32 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 	else seed = m_parent->m_seed++;
 	std::mt19937_64 randomEngine(seed);
 	std::uniform_real_distribution<double> uniformPdf(0., 1.);
-	std::map<std::size_t, std::vector<unsigned char> > firingLeptonsData, firingLeptonsMC;
-	for(auto& trig : triggers)
-	{
-		firingLeptonsData[trig.leg[0]];
-		firingLeptonsMC[trig.leg[0]];
-		firingLeptonsData[trig.leg[1]];
-		firingLeptonsMC[trig.leg[1]];
-		firingLeptonsData[trig.leg[2]];
-		firingLeptonsMC[trig.leg[2]];		
-	}
-
-	unsigned long nPassedData = 0, nPassedMC = 0;
+	std::vector<flat_set<std::size_t> > firedLegs(leptonEfficiencies.size());
+	unsigned long nPassed[2] = {0, 0};
 	for(unsigned long toy=0;toy<m_parent->m_numberOfToys;++toy)
 	{
-		for(auto& kv : firingLeptonsData) kv.second.clear();
-		for(auto& kv : firingLeptonsMC) kv.second.clear();
-		unsigned char j = 0;
-		for(auto& kv : leptonEfficiencies)
+		for(int step=0;step<2;++step) /// 0 = data, 1 = MC
 		{
-			double x = uniformPdf(randomEngine);
-			for(auto& p : kv.second)
+			auto legs = firedLegs.begin();
+			for(auto& kv : leptonEfficiencies)
 			{
-				if(x<p.second.data()) firingLeptonsData[p.first].push_back(j);
-				if(x<p.second.mc()) firingLeptonsMC[p.first].push_back(j);
+				legs->clear();
+				double x = uniformPdf(randomEngine);
+				for(auto& p : kv.second)
+				{
+					if(x < (step? p.second.mc(): p.second.data())) legs->emplace(p.first);
+				}
+				++legs;
 			}
-			++j;
-		}
-		bool passedData = false, passedMC = false;
-		for(auto& trig : triggers)
-		{
-			auto& data0 = firingLeptonsData.at(trig.leg[0]);
-			auto& mc0 = firingLeptonsMC.at(trig.leg[0]);
-			auto& data1 = firingLeptonsData.at(trig.leg[1]);
-			auto& mc1 = firingLeptonsMC.at(trig.leg[1]);
-			auto& data2 = firingLeptonsData.at(trig.leg[2]);
-			auto& mc2 = firingLeptonsMC.at(trig.leg[2]);
-			switch(trig.type)
+			for(auto& trig : triggers)
 			{
-			case TT_SINGLE_E: case TT_SINGLE_MU: case TT_SINGLE_PH:
-				passedData = passedData || (data0.size()>=1);
-				passedMC = passedMC || (mc0.size()>=1);
+				if(!canTriggerBeFired(trig, firedLegs)) continue;
+				++nPassed[step];
 				break;
-			 case TT_EMU:
-				passedData = passedData || (data0.size()>=1 && data1.size()>=1);
-				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=1);
-				break;
-			case TT_2E_SYM: case TT_2MU_SYM: case TT_2PH_SYM:
-				passedData = passedData || (data0.size()>=2);
-				passedMC = passedMC || (mc0.size()>=2);
-				break;
-			case TT_2E_ASYM: case TT_2MU_ASYM: case TT_2PH_ASYM:
-				passedData = passedData || (data0.size()>=1 && data1.size()>=1 && (data0.size()>=2 || data1.size()>=2 || data0[0]!=data1[0]));
-				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=1 && (mc0.size()>=2 || mc1.size()>=2 || mc0[0]!=mc1[0]));
-				break;
-			case TT_3E_SYM: case TT_3MU_SYM: case TT_3PH_SYM:
-				passedData = passedData || (data0.size()>=3);
-				passedMC = passedMC || (mc0.size()>=3);
-				break;
-			case TT_2E_MU_SYM:
-				passedData = passedData || (data0.size()>=2 && data2.size()>=1);
-				passedMC = passedMC || (mc0.size()>=2 && mc2.size()>=1);
-				break;
-			case TT_E_2MU_SYM:
-				passedData = passedData || (data0.size()>=1 && data1.size()>=2);
-				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=2);
-				break;
-			case TT_2E_MU_ASYM:
-				passedData = passedData || (data0.size()>=1 && data1.size()>=1 && data2.size()>=1 && (data0.size()>=2 || data1.size()>=2 ||data0[0]!=data1[0]));
-				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=1 && mc2.size()>=1 && (mc0.size()>=2 || mc1.size()>=2 ||mc0[0]!=mc1[0]));
-				break;
-			case TT_E_2MU_ASYM:
-				passedData = passedData || (data0.size()>=1 && data1.size()>=1 && data2.size()>=1 && (data1.size()>=2 || data2.size()>=2 ||data1[0]!=data2[0]));
-				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=1 && mc2.size()>=1 && (mc1.size()>=2 || mc2.size()>=2 || mc1[0]!=mc2[0]));
-				break;
-			case TT_3E_ASYM: case TT_3MU_ASYM: case TT_3PH_ASYM: case TT_3E_HALFSYM: case TT_3MU_HALFSYM: case TT_3PH_HALFSYM:
-				if(!passedData)
-				{
-					for(int i0 : data0) for(int i1 : data1) for(int i2 : data2)
-					{
-						if(i0!=i1 && i1!=i2 && i2!=i0)
-						{
-							passedData = true;
-							break;
-						}
-					}
-				}
-				if(!passedMC)
-				{
-					for(int i0 : mc0) for(int i1 : mc1) for(int i2 : mc2)
-					{
-						if(i0!=i1 && i1!=i2 && i2!=i0)
-						{
-							passedMC = true;
-							break;
-						}
-					}
-				}
-				break;
-			default:
-				ATH_MSG_ERROR("Unknown trigger type");
-				return false;
 			}
-			if(passedData && passedMC) break;
 		}
-		if(passedData) ++nPassedData;
-		if(passedMC) ++nPassedMC;
 	}
-	globalEfficiencies.data() = double(nPassedData) / double(m_parent->m_numberOfToys);
-	globalEfficiencies.mc() = double(nPassedMC) / double(m_parent->m_numberOfToys);
+	globalEfficiencies.data() = double(nPassed[0]) / double(m_parent->m_numberOfToys);
+	globalEfficiencies.mc() = double(nPassed[1]) / double(m_parent->m_numberOfToys);
 	return true;
 }

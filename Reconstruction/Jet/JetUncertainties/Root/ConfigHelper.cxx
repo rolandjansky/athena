@@ -53,6 +53,7 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     TAMassTerm  = settings.GetValue(compPrefix+"TAMassTerm","");
     caloMassDef = settings.GetValue(compPrefix+"CaloMassDef","");
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
+    truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
     
 
     // Get enums where appropriate
@@ -67,6 +68,7 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     interpolate     = utils::getTypeObjFromString<bool>(interpolStr);
     uncNames        = utils::vectorize<TString>(uncNameList,", ");
     subComps        = utils::vectorize<TString>(subCompList,", ");
+    truthLabels     = utils::vectorize<int>(truthLabelStr,", ");
 }
 
 

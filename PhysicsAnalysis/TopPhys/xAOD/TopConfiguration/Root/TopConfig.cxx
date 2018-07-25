@@ -60,6 +60,10 @@ namespace top{
     m_isMC(false),
     // Is AFII
     m_isAFII(false),
+    // Generators
+    m_generators("SetMe"),
+    // AMITag
+    m_AMITag("SetMe"),
     // Is Primary xAOD
     m_isPrimaryxAOD(false),
     // Is Truth xAOD
@@ -113,6 +117,7 @@ namespace top{
     m_KLFitterLH("SetMe"),
     m_KLFitterTopMassFixed(true),
     m_KLFitterSaveAllPermutations(false),
+    m_KLFitterFailOnLessThanXJets(false),
 
     // PseudoTop
     m_doPseudoTop(false),
@@ -159,6 +164,8 @@ namespace top{
     m_electronPtcut(25000.),
     m_electronIsolation("SetMe"),
     m_electronIsolationLoose("SetMe"),
+    m_electronIsolationSF("SetMe"),
+    m_electronIsolationSFLoose("SetMe"),
     m_electronIsoSFs(true),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
@@ -170,6 +177,8 @@ namespace top{
     m_muonQualityLoose("SetMe"),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
+    m_muonIsolationSF("SetMe"),
+    m_muonIsolationSFLoose("SetMe"),
 
     // Jet configuration
     m_jetPtcut(25000.),
@@ -178,6 +187,7 @@ namespace top{
     m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
+    m_jetUncertainties_QGHistPatterns(),
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetCalibSequence("GSC"),
@@ -554,11 +564,20 @@ namespace top{
 	  bool aodMetaDataIsAFII = m_aodMetaData->isAFII();
 	  std::cout << "AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " << aodMetaDataIsAFII << std::endl;
 	  this->setIsAFII(aodMetaDataIsAFII);
+	  auto generatorsName     = m_aodMetaData->get("/TagInfo","generators");
+	  std::cout << "AodMetaData :: Generators Type " << generatorsName << std::endl;
+	  this->setGenerators(generatorsName);
+	  auto AMITagName     = m_aodMetaData->get("/TagInfo","AMITag");
+	  std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
+	  this->setAMITag(AMITagName);
 	}
 	catch(std::logic_error aodMetaDataError){
 	  std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
 	  std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
 	  this->ReadIsAFII(settings);
+	  std::cout << "Unfortunately, we can not read MC generators and AMITag without valid MetaData." << std::endl;
+          this->setGenerators("unknown");
+          this->setAMITag("unknown");
 	}
       }
       else{
@@ -631,16 +650,24 @@ namespace top{
     this->egammaSystematicModel( settings->value("EgammaSystematicModel") );
     this->electronID( settings->value("ElectronID") );
     this->electronIDLoose( settings->value("ElectronIDLoose") );
-    this->electronIsolation( settings->value("ElectronIsolation") );
-    this->electronIsolationLoose( settings->value("ElectronIsolationLoose") );
+    {
+      std::string const & cut_wp = settings->value("ElectronIsolation");
+      std::string const & sf_wp = settings->value("ElectronIsolationSF");
+      this->electronIsolation(cut_wp);
+      this->electronIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
+    }
+    {
+      std::string const & cut_wp = settings->value("ElectronIsolationLoose");
+      std::string const & sf_wp = settings->value("ElectronIsolationSFLoose");
+      this->electronIsolationLoose(cut_wp);
+      this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+    }
     // Print out a warning for FixedCutHighPtCaloOnly
     if (this->electronIsolation() == "FixedCutHighPtCaloOnly" || this->electronIsolationLoose() == "FixedCutHighPtCaloOnly"){
       std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
     }
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
-    if( settings->value("ElectronIsoSFs") == "False" )
-      this->m_electronIsoSFs = false;
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
@@ -660,8 +687,18 @@ namespace top{
     this->muonEtacut( std::stof(settings->value("MuonEta")) );
     this->muonQuality( settings->value("MuonQuality") );
     this->muonQualityLoose( settings->value("MuonQualityLoose") );
-    this->muonIsolation( settings->value("MuonIsolation") );
-    this->muonIsolationLoose( settings->value("MuonIsolationLoose") );
+    {
+      std::string const & cut_wp = settings->value("MuonIsolation");
+      std::string const & sf_wp = settings->value("MuonIsolationSF");
+      this->muonIsolation(cut_wp);
+      this->muonIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
+    }
+    {
+      std::string const & cut_wp = settings->value("MuonIsolationLoose");
+      std::string const & sf_wp = settings->value("MuonIsolationSFLoose");
+      this->muonIsolationLoose(cut_wp);
+      this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+    }
 
     if (settings->value("UseAntiMuons") == "True")
       this->m_useAntiMuons = true;
@@ -686,6 +723,7 @@ namespace top{
     this->jetUncertainties_BunchSpacing( settings->value("JetUncertainties_BunchSpacing") );
     this->jetUncertainties_NPModel( settings->value("JetUncertainties_NPModel") );
     this->jetUncertainties_QGFracFile( settings->value("JetUncertainties_QGFracFile") );
+    this->jetUncertainties_QGHistPatterns( settings->value("JetUncertainties_QGHistPatterns") );
     this->jetJERSmearingModel( settings->value("JetJERSmearingModel") );
     this->jetCalibSequence( settings->value("JetCalibSequence") );
     this->doJVTinMET( (settings->value("JVTinMETCalculation") == "True" ? true : false) );
@@ -784,7 +822,13 @@ namespace top{
     // -----------------------------------------------]]]
 
     // Upgrade studies
-    if(settings->value("HLLHC")=="True") this->HLLHC( true );
+    if(settings->value("HLLHC")=="True"){
+       this->HLLHC( true );
+       if(settings->value("TDPPath").compare("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data")==0){
+          std::cout<<"TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default "<<settings->value("TDPPath")<<". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data"<<std::endl;
+          this->setTDPPath("dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
+       }
+    }
     if(settings->value("HLLHCFakes")=="True") this->HLLHCFakes( true );
 
     // LHAPDF Reweighting configuration
@@ -985,10 +1029,20 @@ namespace top{
         m_KLFitterSaveAllPermutations = true;
     if (settings->value( "KLFitterSaveAllPermutations" ) == "False")
         m_KLFitterSaveAllPermutations = false;
+    if (settings->value( "KLFitterFailOnLessThanXJets" ) == "True")
+        m_KLFitterFailOnLessThanXJets = true;
+    if (settings->value( "KLFitterFailOnLessThanXJets" ) == "False")
+        m_KLFitterFailOnLessThanXJets = false;
 
+    //--- Check for configuration on the global lepton triggers ---//
+    if (settings->value( "UseGlobalLeptonTriggerSF" ) == "True"){
+      m_trigGlobalConfiguration.isActivated = true;
+      m_trigGlobalConfiguration.electron_trigger       = settings->value( "ElectronTriggers" );
+      m_trigGlobalConfiguration.electron_trigger_loose = settings->value( "ElectronTriggersLoose" );
+      m_trigGlobalConfiguration.muon_trigger           = settings->value( "MuonTriggers" );
+      m_trigGlobalConfiguration.muon_trigger_loose     = settings->value( "MuonTriggersLoose" );
+    }
     
-
-
   }
 
   void TopConfig::setGrlDir( const std::string& s )
@@ -1035,6 +1089,26 @@ namespace top{
   {
     if (!m_configFixed) {
       m_jetUncertainties_QGFracFile = s;
+    }
+  }
+ 
+  void TopConfig::jetUncertainties_QGHistPatterns( const std::string& s )
+  {
+    if (!m_configFixed) {
+        std::vector<std::string> outVector;
+        if( s.find(" ") != std::string::npos ){
+            throw std::runtime_error{"TopConfig: jetUncertainties_QGHistPatterns string can't contain white spaces"};
+        }
+        if (s != "None") {
+            tokenize(s,outVector,","); // list of DSIDs separated by commas
+            if (outVector.size()!=1) // if size is !=1, we need to check if these are DSIDs
+                for (auto s : outVector) {
+                    int i = std::atoi(s.c_str());
+                    if (i<300000 || i>=1000000)
+                        throw std::runtime_error{"TopConfig: jetUncertainties_QGHistPatterns string doesn't look like a list of DISDs! You can either specify a single string pattern or a list of DSIDs separated by commas."};
+                }
+        }
+        m_jetUncertainties_QGHistPatterns = outVector;
     }
   }
 
@@ -2615,7 +2689,15 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     return "ERROR";
   }
 
-
+  void TopConfig::setGlobalTriggerConfiguration(std::vector<std::string> electron_trigger_systematics, std::vector<std::string> muon_trigger_systematics, std::vector<std::string> electron_tool_names, std::vector<std::string> muon_tool_names){
+    m_trigGlobalConfiguration.electron_trigger_systematics = electron_trigger_systematics;
+    m_trigGlobalConfiguration.muon_trigger_systematics     = muon_trigger_systematics;
+    m_trigGlobalConfiguration.electron_trigger_tool_names  = electron_tool_names;
+    m_trigGlobalConfiguration.muon_trigger_tool_names      = muon_tool_names;
+    m_trigGlobalConfiguration.isConfigured                 = true;
+    return;
+  }
+  
 }
 
 std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)

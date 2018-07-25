@@ -37,10 +37,9 @@ class trfArgsUnitTests(unittest.TestCase):
     def test_argsbad(self):
         myParser = trfArgParser(description='Test parser for argsbad, %s' % __name__)
         addStandardTrfArgs(myParser)
-        args = ['--verbose', '--outputFile', 'someFile', '--runNumber', '1234', 
-                '--unknownoption', 'what']
+        args = ['--verbose', '--outputFile', 'someFile', '--runNumber', '1234', '--unknownoption', 'what']
         self.assertRaises(SystemExit, myParser.parse_args, args)
-        
+
     @silent
     def test_help(self):
         myParser = trfArgParser(description='Test parser for trf help, %s' % __name__)
@@ -105,14 +104,19 @@ class trfFloatArgsUnitTests(unittest.TestCase):
 class configureFromJSON(unittest.TestCase):
     def setUp(self):
         with open('argdict.json', 'w') as argdict:
-            argdict.write('''{"conditionsTag": {  "all": "CONDBR2-BLKPA-2015-05"  },  "geometryVersion": {  "all": "ATLAS-R2-2015-03-01-00"  },  "preExec": {  "athena": [  "print 'Python says hi!'"  ]  },  "skipEvents": {  "first": 10  },  "testFloat": 4.67,  "testInt": 5 }''')
+            argdict.write('''{"conditionsTag": {"all": "CONDBR2-BLKPA-2015-05"},
+                              "geometryVersion": {"all": "ATLAS-R2-2015-03-01-00"},
+                              "preExec": {"athena": ["print 'Python says hi!'"]},
+                              "skipEvents": {"first": 10},
+                              "testFloat": 4.67,
+                              "testInt": 5}''')
     
     def tearDown(self):
         for f in 'argdict.json', 'rewrite.json':
             try:
                 os.unlink(f)
             except OSError:
-                pass 
+                pass
 
     def test_configFromJSON(self):
         if 'ATN_PACKAGE' in os.environ:
@@ -120,12 +124,22 @@ class configureFromJSON(unittest.TestCase):
             cmd = [path.join(os.environ['ATN_PACKAGE'], 'scripts', 'Athena_tf.py')]
         else:
             cmd = ['Athena_tf.py']
+
         cmd.extend(['--argJSON', 'argdict.json', '--dumpJSON', 'rewrite.json'])
         self.assertEqual(subprocess.call(cmd), 0)
-        self.maxDiff = None
         with open('rewrite.json') as rewritten_json:
             rewrite = json.load(rewritten_json)
-        self.assertEqual(rewrite, {u'argJSON': u'argdict.json', u"conditionsTag": {  u"all": u"CONDBR2-BLKPA-2015-05"  },  u"geometryVersion": {  u"all": u"ATLAS-R2-2015-03-01-00"  },  u"preExec": {  u"athena": [  u"print 'Python says hi!'"  ]  },  u"skipEvents": {  u"first": 10  },  u"testFloat": 4.67,  u"testInt": 5 })
+
+        expectedDictionary = {u'argJSON': u'argdict.json',
+                              u"conditionsTag": {u"all": u"CONDBR2-BLKPA-2015-05"},
+                              u"geometryVersion": {u"all": u"ATLAS-R2-2015-03-01-00"},
+                              u"preExec": {u"athena": [u"print 'Python says hi!'"]},
+                              u"skipEvents": {u"first": 10},
+                              u"testFloat": 4.67,
+                              u"testInt": 5}
+
+        self.assertDictEqual(rewrite, expectedDictionary)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -152,7 +152,7 @@ int main( int argc, char* argv[] ) {
   m_Tagger.setTypeAndName("HbbTaggerDNN","HbbTaggerDNN");
 
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "neuralNetworkFile",   "HbbNetwork.json");
+  m_Tagger.setProperty( "neuralNetworkFile","BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json");
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
     return 1;

@@ -4,6 +4,7 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #include "TrigBtagEmulationTool/BaseTrigBtagEmulationChainJetIngredient.h"
 #include "TVector2.h"
+#include "regex"
 
 using namespace Trig;
 
@@ -14,14 +15,15 @@ using namespace Trig;
 std::map< std::string,std::vector< std::unique_ptr< TrigBtagEmulationJet > > > BaseTrigBtagEmulationChainJetIngredient::m_jetCollection = std::map< std::string,std::vector< std::unique_ptr< TrigBtagEmulationJet > > >();
 
 
-BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient(std::string triggerName,std::string jetCollection)
+BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient(MsgStream &msg,std::string triggerName,std::string jetCollection)
   : m_triggerName(triggerName), 
     m_min_pt(0), 
     m_min_eta(0), 
     m_max_eta(0),
     m_min_mult(0),
     m_count(0),
-    m_neededJetCollection(jetCollection) {}
+    m_neededJetCollection(jetCollection),
+    m_msg( msg ) {}
 BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient(const BaseTrigBtagEmulationChainJetIngredient& other)
   : m_triggerName(other.m_triggerName), 
     m_min_pt(other.m_min_pt), 
@@ -29,7 +31,8 @@ BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient
     m_max_eta(other.m_max_eta), 
     m_min_mult(other.m_min_mult), 
     m_count(other.m_count),
-    m_neededJetCollection(other.m_neededJetCollection)
+    m_neededJetCollection(other.m_neededJetCollection),
+    m_msg( other.m_msg )
 {
   std::map< std::string,std::unique_ptr<TriggerFeature> >::const_iterator it = other.m_type_THRESHOLD_features.begin();
   for ( ; it != other.m_type_THRESHOLD_features.end(); it++ ) 
@@ -38,6 +41,9 @@ BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient
     m_type_SELECTION_features[ it->first.c_str() ] = it->second->uniqueClone();
 }
 BaseTrigBtagEmulationChainJetIngredient::~BaseTrigBtagEmulationChainJetIngredient() {}
+
+MsgStream& BaseTrigBtagEmulationChainJetIngredient::msg() const { return m_msg; }
+MsgStream& BaseTrigBtagEmulationChainJetIngredient::msg( const MSG::Level lvl ) const { return msg() << lvl; }
 
 // =================================================== //
 
@@ -145,8 +151,8 @@ int BaseTrigBtagEmulationChainJetIngredient::getMulteplicity() const { return m_
 // *** L1
 //**********************************************************************
 
-TrigBtagEmulationChainJetIngredient_L1::TrigBtagEmulationChainJetIngredient_L1(std::string triggerName)
-  : BaseTrigBtagEmulationChainJetIngredient(triggerName,"LVL1") { m_max_eta = 3.1; } 
+TrigBtagEmulationChainJetIngredient_L1::TrigBtagEmulationChainJetIngredient_L1(MsgStream &msg,std::string triggerName)
+  : BaseTrigBtagEmulationChainJetIngredient(msg,triggerName,"LVL1") { m_max_eta = 3.1; } 
 TrigBtagEmulationChainJetIngredient_L1::TrigBtagEmulationChainJetIngredient_L1(const TrigBtagEmulationChainJetIngredient_L1& other)
   : BaseTrigBtagEmulationChainJetIngredient(other) {}
 TrigBtagEmulationChainJetIngredient_L1::~TrigBtagEmulationChainJetIngredient_L1() {}
@@ -158,7 +164,7 @@ void TrigBtagEmulationChainJetIngredient_L1::initialize() {
   else input = m_triggerName.substr( 3 , m_triggerName.length() - 3);
 
   std::vector< std::unique_ptr< TriggerFeature > > m_features;
-  // MJJ triggers are ALWAYS L1_MJJ-XXX
+  // MJJ triggers are ALWAYS L1_MJJ-XXX-KKK
   if ( input.find("MJJ")!=std::string::npos ) {
     m_features.push_back( this->setINVM( input ) );
     input = "";
@@ -206,8 +212,8 @@ std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_L1::setHT(
   int m_ht = 0;
   this->extract(input,"HT",m_ht);
 
-  if ( input.find("s5")!=std::string::npos ) return std::unique_ptr< TriggerFeature >( new TriggerFeatureHtTop("L1","HT",m_ht,5) );
-  else return std::unique_ptr< TriggerFeature >( new TriggerFeatureHt("L1","HT",m_ht) );
+  if ( input.find("s5")!=std::string::npos ) return std::unique_ptr< TriggerFeature >( new TriggerFeatureHtTop(msg(),"L1","HT",m_ht,5) );
+  else return std::unique_ptr< TriggerFeature >( new TriggerFeatureHt(msg(),"L1","HT",m_ht) );
 }
 std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_L1::setINVM(const std::string& input) { 
   m_max_eta=4.9; 
@@ -215,16 +221,17 @@ std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_L1::setINV
   int min_invm = 0;
   this->extract(input,"MJJ-",min_invm);
 
-  if ( input.find("CF")==std::string::npos ) return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvm("L1","MJJ",min_invm) );
-  else return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvmCF("L1","MJJ",min_invm) );
+  if ( input.find("CF")!=std::string::npos ) return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvmCF(msg(),"L1","MJJ",min_invm) );
+  else if ( input.find("NFF")!=std::string::npos ) return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvmNFF(msg(),"L1","MJJ",min_invm) );
+  else return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvm(msg(),"L1","MJJ",min_invm) );
 }
 
 //**********************************************************************
 // *** L1_JJ
 //**********************************************************************
 
-TrigBtagEmulationChainJetIngredient_L1_JJ::TrigBtagEmulationChainJetIngredient_L1_JJ(std::string triggerName)
-  : TrigBtagEmulationChainJetIngredient_L1(triggerName) {
+TrigBtagEmulationChainJetIngredient_L1_JJ::TrigBtagEmulationChainJetIngredient_L1_JJ(MsgStream &msg,std::string triggerName)
+  : TrigBtagEmulationChainJetIngredient_L1(msg,triggerName) {
   m_neededJetCollection = "LVL1_JJ"; }
 TrigBtagEmulationChainJetIngredient_L1_JJ::TrigBtagEmulationChainJetIngredient_L1_JJ(const TrigBtagEmulationChainJetIngredient_L1_JJ& other)
   : TrigBtagEmulationChainJetIngredient_L1(other) {}
@@ -234,8 +241,8 @@ TrigBtagEmulationChainJetIngredient_L1_JJ::~TrigBtagEmulationChainJetIngredient_
 // *** HLT
 //**********************************************************************
 
-TrigBtagEmulationChainJetIngredient_HLT::TrigBtagEmulationChainJetIngredient_HLT(std::string triggerName)
-  : BaseTrigBtagEmulationChainJetIngredient(triggerName, triggerName.find("split") != std::string::npos ? "SPLIT" : "EF") {
+TrigBtagEmulationChainJetIngredient_HLT::TrigBtagEmulationChainJetIngredient_HLT(MsgStream &msg,std::string triggerName)
+  : BaseTrigBtagEmulationChainJetIngredient(msg,triggerName, triggerName.find("split") != std::string::npos ? "SPLIT" : "EF") {
   m_max_eta = 3.20;
 }
 TrigBtagEmulationChainJetIngredient_HLT::TrigBtagEmulationChainJetIngredient_HLT(const TrigBtagEmulationChainJetIngredient_HLT& other) : BaseTrigBtagEmulationChainJetIngredient(other) {}
@@ -258,8 +265,8 @@ void TrigBtagEmulationChainJetIngredient_HLT::initialize() {
     if (subString.find("b")!=std::string::npos) this->setBTAG( subString );     
     else if (subString.find("ht")!=std::string::npos) m_features.push_back( this->setHT( subString ) );
     else if (subString.find("eta")!=std::string::npos) this->setEta( subString );
-    else if (subString.find("j")!=std::string::npos) this->setPT( subString );
     else if (subString.find("invm")!=std::string::npos) m_features.push_back( this->setINVM( subString ) );
+    else if (subString.find("j")!=std::string::npos) this->setPT( subString );
 
   }
 
@@ -271,13 +278,24 @@ void TrigBtagEmulationChainJetIngredient_HLT::initialize() {
 }
 
 bool TrigBtagEmulationChainJetIngredient_HLT::overlaps(const TrigBtagEmulationChainJetIngredient_HLT& other) const {
-  bool isOnlyHT_this  = m_min_pt == 0 && hasFeature("HT") && !hasFeature("INVM");
-  bool isOnlyHT_other = other.m_min_pt == 0 && other.hasFeature("HT") && !other.hasFeature("INVM");
+  if ( m_min_pt == 0 || other.m_min_pt == 0 ) return false;
 
-  if (isOnlyHT_this || isOnlyHT_other) return false;
-  if (other.m_min_eta > this->m_min_eta && other.m_min_eta < this->m_max_eta) return true;
-  if (other.m_max_eta > this->m_min_eta && other.m_max_eta < this->m_max_eta) return true;
-  if (other.m_min_eta < this->m_min_eta && other.m_max_eta > this->m_max_eta) return true;
+  bool overlapping = false;
+  if (other.m_min_eta >= this->m_min_eta && other.m_min_eta < this->m_max_eta) overlapping = true;
+  else if (other.m_max_eta > this->m_min_eta && other.m_max_eta <= this->m_max_eta) overlapping = true;
+  else if (other.m_min_eta <= this->m_min_eta && other.m_max_eta >= this->m_max_eta) overlapping = true;
+
+  if ( !overlapping ) return false;
+
+  double min_btag_this  = this->hasFeature("BTAG") ? m_type_THRESHOLD_features.at( "BTAG" )->getCut() : -1;
+  double max_btag_this  = this->hasFeature("ANTI-BTAG") ? m_type_THRESHOLD_features.at( "ANTI-BTAG" )->getCut() : 1;
+  double min_btag_other = other.hasFeature("BTAG") ? other.m_type_THRESHOLD_features.at( "BTAG" )->getCut() : -1;
+  double max_btag_other = other.hasFeature("ANTI-BTAG") ? other.m_type_THRESHOLD_features.at( "ANTI-BTAG" )->getCut() : 1;
+
+  if (min_btag_other >= min_btag_this && min_btag_other < max_btag_this) return true;
+  if (max_btag_other > min_btag_this && max_btag_other <= max_btag_this) return true;
+  if (min_btag_other <= min_btag_this && max_btag_other >= max_btag_this) return true;
+
   return false;
 }
 bool TrigBtagEmulationChainJetIngredient_HLT::contains(const TrigBtagEmulationChainJetIngredient_HLT& other) const {
@@ -300,6 +318,62 @@ bool TrigBtagEmulationChainJetIngredient_HLT::contains(const TrigBtagEmulationCh
   return true;
 }
 bool TrigBtagEmulationChainJetIngredient_HLT::isContained(const TrigBtagEmulationChainJetIngredient_HLT& other) const { return other.contains( *this ); }
+
+std::vector< std::vector< std::string > > TrigBtagEmulationChainJetIngredient_HLT::resolveConflict( const TrigBtagEmulationChainJetIngredient_HLT& other ) const {
+  std::vector< std::vector< std::string > > output;
+  if ( not this->hasFeature("BTAG") && not other.hasFeature("BTAG") ) return output;
+
+  // Retrieve b-tagging weight 
+  double this__btag = this->hasFeature("BTAG") ? m_type_THRESHOLD_features.at( "BTAG" )->getCut() : -1; 
+  double other_btag = other.hasFeature("BTAG") ? other.m_type_THRESHOLD_features.at( "BTAG" )->getCut() : -1; 
+
+  const TrigBtagEmulationChainJetIngredient_HLT &trig_A = this__btag > other_btag ? other : *this;
+  const TrigBtagEmulationChainJetIngredient_HLT &trig_B = this__btag > other_btag ? *this : other;
+  
+  // Conflict can be resolved with use b-tag regions
+  const std::string trigA_name = trig_A.getName();
+  const std::string trigB_name = trig_B.getName();
+
+  // Extract b-tagging
+  std::regex btagExtractor(".*_(?:ANTI)?b([^_]*)(?:_split)?");
+  std::smatch match_A;
+  std::smatch match_B;
+  std::regex_search(trigA_name.begin(), trigA_name.end(), match_A, btagExtractor);
+  std::regex_search(trigB_name.begin(), trigB_name.end(), match_B, btagExtractor);
+
+  std::string trigA_btagging = match_A[1].str();
+  std::string trigB_btagging = match_B[1].str();
+
+  int trigA_mult = trig_A.getMulteplicityThreshold();
+  int trigB_mult = trig_B.getMulteplicityThreshold();
+
+  // newTrigA_name_p1 b-tagging changes with the inclusive one   
+  std::string newTrigA_name_p1 = trigA_name.find("b") != std::string::npos ?
+    std::regex_replace( trigA_name,std::regex("(b[^_]*)(_split)?"),"b"+trigB_btagging+"$2" ) :
+    std::regex_replace( trigA_name,std::regex("HLT_([^_]*(?:_gsc[0-9]+)?)(_split)?"),"HLT_$1_b"+trigB_btagging+(trigB_name.find("_split")!=std::string::npos?"_split":"") ) ;
+  // newTrigB_name_p1 changes multeplicity
+  std::string newTrigB_name_p1 = std::regex_replace( trigB_name,std::regex("([0-9]*)(j[0-9]+)"),std::to_string( trigA_mult + trigB_mult )+"$2" );
+  // newTrigA_name_p2 requires the anti-b-tagging 
+  std::string newTrigA_name_p2 = trigA_name.find("b") != std::string::npos ?
+    std::regex_replace( trigA_name,std::regex("(b[^_]*)(_split)?"),
+			trigA_name.find("boffperf") != std::string::npos ? "ANTIb"+trigB_btagging+"$2" : 
+			"$1_ANTIb"+trigB_btagging+"$2" ) : 
+    std::regex_replace( trigA_name,std::regex("HLT_([^_]*(?:_gsc[0-9]+)?)(_split)?"),"HLT_$1_ANTIb"+trigB_btagging+(trigB_name.find("_split")!=std::string::npos?"_split":"") ) ;
+  // newTrigB_name_p2 does not change 
+  std::string newTrigB_name_p2 = trigB_name;
+
+  output.push_back( std::vector< std::string >() );
+  output.push_back( std::vector< std::string >() );
+
+  output.at(0).push_back( newTrigA_name_p1 );
+  output.at(0).push_back( newTrigB_name_p1 );
+
+  output.at(1).push_back( newTrigA_name_p2 );
+  output.at(1).push_back( newTrigB_name_p2 );
+
+  return output;
+}
+
 void TrigBtagEmulationChainJetIngredient_HLT::addJetsMulteplicity(const TrigBtagEmulationChainJetIngredient_HLT& other) {
 
   m_min_mult += other.m_min_mult;
@@ -324,12 +398,16 @@ void TrigBtagEmulationChainJetIngredient_HLT::setEta(const std::string& input)  
 std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_HLT::setHT(const std::string& input) { 
   int m_ht = 0;
   this->extract(input,"ht",m_ht);
-  return std::unique_ptr< TriggerFeature >( new TriggerFeatureHt("HLT","HT",m_ht *1e3 ) );
+  return std::unique_ptr< TriggerFeature >( new TriggerFeatureHt(msg(),"HLT","HT",m_ht *1e3 ) );
 }
 std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_HLT::setINVM(const std::string& input) { 
   int min_invm = 0;
+  int min_pTlist = 0;
+
+  if ( input.find("j") != std::string::npos ) this->extract(input,"j",min_pTlist);
   this->extract(input,"invm",min_invm);
-  return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvm("HLT","INVM",min_invm * 1e3) );
+
+  return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvm(msg(),"HLT","INVM",min_invm * 1e3,min_pTlist * 1e3) );
 }
 void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(const std::string& input) {
 
@@ -346,7 +424,7 @@ void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(const std::string& input) 
   if ( input.find("bcombloose")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BCOMBLOOSE ;
   else if ( input.find("bcombmedium")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BCOMBMEDIUM ;
   else if ( input.find("bcombtight")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BCOMBTIGHT ;
-  else if ( input.find("bloose")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BMEDIUM ;
+  else if ( input.find("bloose")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BLOOSE ;
   else if ( input.find("bmedium")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BMEDIUM ;
   else if ( input.find("btight")!=std::string::npos ) m_btag = Trig::TriggerFeatureBtag::BTIGHT ;
   // MV2c20 Tagger
@@ -375,11 +453,11 @@ void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(const std::string& input) 
 
   if (m_weight != -1000) {
     featureName = "BTAG";
-    toBeAdded = std::unique_ptr< TriggerFeature >( new TriggerFeatureBtag( m_bjetTagger.c_str(),m_weight) );
+    toBeAdded = std::unique_ptr< TriggerFeature >( new TriggerFeatureBtag( msg(),m_bjetTagger.c_str(),m_weight) );
   }
   if (m_ANTIweight != 1000) {
     featureName = "ANTI-BTAG";
-    toBeAdded =std::unique_ptr< TriggerFeature >( new TriggerFeatureAntiBtag( m_bjetTagger.c_str(),m_ANTIweight) );
+    toBeAdded =std::unique_ptr< TriggerFeature >( new TriggerFeatureAntiBtag( msg(),m_bjetTagger.c_str(),m_ANTIweight) );
   }
   
   this->addFeature( featureName, toBeAdded );
@@ -389,8 +467,8 @@ void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(const std::string& input) 
 // *** GSC
 //**********************************************************************
 
-TrigBtagEmulationChainJetIngredient_GSC::TrigBtagEmulationChainJetIngredient_GSC(std::string triggerName)
-  : TrigBtagEmulationChainJetIngredient_HLT(triggerName),
+TrigBtagEmulationChainJetIngredient_GSC::TrigBtagEmulationChainJetIngredient_GSC(MsgStream &msg,std::string triggerName)
+  : TrigBtagEmulationChainJetIngredient_HLT(msg,triggerName),
     m_min_gsc(0),
     m_min_mult_gsc(0),
     m_count_gsc(0),
@@ -513,68 +591,64 @@ int TrigBtagEmulationChainJetIngredient_GSC::getMulteplicityGsc() const { return
 
 void BaseTrigBtagEmulationChainJetIngredient::printFeatures() const {
   if ( m_type_THRESHOLD_features.size() == 0 && m_type_SELECTION_features.size() == 0 ) return;
-  std::cout<<"   : Features\n";
+  ATH_MSG_INFO( "   : Features" );
 
   std::map< std::string,std::unique_ptr<TriggerFeature> >::const_iterator it=m_type_THRESHOLD_features.begin();
   for ( ; it != m_type_THRESHOLD_features.end(); it++ ) {
-    std::cout<<"          : ["<< (it->first) << "] ";
-    it->second->Print();
-    std::cout<<"\n";
+    it->second->print();
   }
 
   for ( it = m_type_SELECTION_features.begin(); it != m_type_SELECTION_features.end(); it++ ) {
-    std::cout<<"          : ["<< (it->first) << "] ";
-    it->second->Print();
-    std::cout<<"\n";
+    it->second->print();
   }
 }
 
-void TrigBtagEmulationChainJetIngredient_L1::Print() const {
+void TrigBtagEmulationChainJetIngredient_L1::print() const {
   TrigBtagEmulationChainJetIngredient_L1 emul = *this;
 
-  std::cout<<"### L1 Trigger ["<< getName() <<"]"<<std::endl;  
-  std::cout<<"   : min_pt  ="<< getPtThreshold() <<" [GeV]\n";
-  std::cout<<"   : min_eta ="<< getMinEtaThreshold() <<"\n";
-  std::cout<<"   : max_eta ="<< getMaxEtaThreshold() <<"\n";
-  std::cout<<"   : mult    ="<< getMulteplicity() <<"/"<< getMulteplicityThreshold() <<"\n";
+  ATH_MSG_INFO( "### L1 Trigger ["<< getName() <<"]" );
+  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
 
-void TrigBtagEmulationChainJetIngredient_L1_JJ::Print() const {
+void TrigBtagEmulationChainJetIngredient_L1_JJ::print() const {
   TrigBtagEmulationChainJetIngredient_L1 emul = *this;
 
-  std::cout<<"### L1 JJ Trigger ["<< getName() <<"]"<<std::endl;
-  std::cout<<"   : min_pt  ="<< getPtThreshold() <<" [GeV]\n";
-  std::cout<<"   : min_eta ="<< getMinEtaThreshold() <<"\n";
-  std::cout<<"   : max_eta ="<< getMaxEtaThreshold() <<"\n";
-  std::cout<<"   : mult    ="<< getMulteplicity() <<"/"<< getMulteplicityThreshold() <<"\n";
+  ATH_MSG_INFO( "### L1 JJ Trigger ["<< getName() <<"]" );
+  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
 
-void TrigBtagEmulationChainJetIngredient_HLT::Print() const {
+void TrigBtagEmulationChainJetIngredient_HLT::print() const {
   TrigBtagEmulationChainJetIngredient_HLT emul = *this;
 
-  std::cout<<"### HLT Trigger ["<< getName() <<"]"<<std::endl;
-  std::cout<<"   : min_pt  ="<< getPtThreshold() <<" [GeV]\n";
-  std::cout<<"   : min_eta ="<< getMinEtaThreshold() <<"\n";
-  std::cout<<"   : max_eta ="<< getMaxEtaThreshold() <<"\n";
-  std::cout<<"   : mult    ="<< getMulteplicity() <<"/"<< getMulteplicityThreshold() <<"\n";
+  ATH_MSG_INFO( "### HLT Trigger ["<< getName() <<"]" );
+  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]"  );
+  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
 
-void TrigBtagEmulationChainJetIngredient_GSC::Print() const {
+void TrigBtagEmulationChainJetIngredient_GSC::print() const {
   TrigBtagEmulationChainJetIngredient_GSC emul = *this;
 
-  std::cout<<"### GSC Trigger ["<< getName() <<"]"<<std::endl;
-  std::cout<<"   : min_pt  ="<< getPtThreshold() <<" [GeV]\n";
-  std::cout<<"   : min_gsc ="<< getGscThreshold() <<"\n";
-  std::cout<<"   : min_eta ="<< getMinEtaThreshold() <<"\n";
-  std::cout<<"   : max_eta ="<< getMaxEtaThreshold() <<"\n";
-  std::cout<<"   : mult    ="<< getMulteplicity() <<"/"<< getMulteplicityThreshold() <<"\n";
-  std::cout<<"   : mult_gsc="<< getMulteplicityGsc() <<"/"<< getMulteplicityThreshold() <<"\n";
+  ATH_MSG_INFO( "### GSC Trigger ["<< getName() <<"]" );
+  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_INFO( "   : min_gsc = "<< getGscThreshold() );
+  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_INFO( "   : mult_gsc= "<< getMulteplicityGsc() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }

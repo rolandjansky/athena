@@ -42,6 +42,8 @@ if hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+    rec.doAODMerging.set_Value_and_Lock(True)
+    rec.doApplyAODFix.set_Value_and_Lock(False)
 
 if hasattr(runArgs,"inputESDFile"):
     rec.readESD.set_Value_and_Lock( True )
@@ -67,6 +69,7 @@ if hasattr(runArgs,"preInclude"):
 #Lock doAOD/ESD before starting RecExCommon, so they are not overwritten by the auto-configuration
 rec.doAOD.lock()
 rec.doESD.lock()
+
 
 include( "RecExCommon/RecExCommon_topOptions.py" )
 

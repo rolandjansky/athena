@@ -310,6 +310,8 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
   "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.mEM",
   "AntiKt4EMTopoJets.SumPtTrkPt1000.SumPtTrkPt500.NumTrkPt500.NumTrkPt1000",
   "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
+  "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE",
+  "Photons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.deltaEta1.deltaPhiRescaled2.wtots1.e277.f1.weta1.fracs1.DeltaE",
 ]
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll

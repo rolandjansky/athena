@@ -8,28 +8,36 @@ using namespace Trig;
 
 //**********************************************************************
 
-TrigBtagEmulationJet::TrigBtagEmulationJet()
+TrigBtagEmulationJet::TrigBtagEmulationJet(MsgStream &msg)
   : m_pt( 0 ),
     m_eta( 0 ),
-    m_phi( 0 ) {}
-TrigBtagEmulationJet::TrigBtagEmulationJet(const xAOD::Jet *jet)
+    m_phi( 0 ),
+    m_msg( msg ) {}
+TrigBtagEmulationJet::TrigBtagEmulationJet(MsgStream &msg,const xAOD::Jet *jet)
   : m_jet( new xAOD::Jet( *jet ) ),
     m_pt( jet->p4().Et() ),
     m_eta( jet->eta() ),
-    m_phi( jet->phi() ) {}
-TrigBtagEmulationJet::TrigBtagEmulationJet(const xAOD::JetRoI *jetRoI,bool isJJ)
+    m_phi( jet->phi() ),
+    m_msg( msg ) {}
+TrigBtagEmulationJet::TrigBtagEmulationJet(MsgStream &msg,const xAOD::JetRoI *jetRoI,bool isJJ)
   : m_jetRoI( new xAOD::JetRoI( *jetRoI ) ),
     m_pt( isJJ ? jetRoI->et4x4() * 0.001 : jetRoI->et8x8() * 0.001 ),
     m_eta( jetRoI->eta() ),
-    m_phi( jetRoI->phi() ) {}
+    m_phi( jetRoI->phi() ),
+    m_msg( msg ) {}
 TrigBtagEmulationJet::TrigBtagEmulationJet(const TrigBtagEmulationJet& other)
   : m_jet( other.m_jet ? new xAOD::Jet( *other.m_jet ) : nullptr ),
     m_jetRoI( other.m_jetRoI ? new xAOD::JetRoI( *other.m_jetRoI ) : nullptr ),
     m_pt( other.m_pt ),
     m_eta( other.m_eta ),
     m_phi( other.m_phi ),
-    m_weights( other.m_weights.begin(),other.m_weights.end() ) {}
+    m_weights( other.m_weights.begin(),other.m_weights.end() ),
+    m_msg( other.m_msg ) {}
 TrigBtagEmulationJet::~TrigBtagEmulationJet() {}
+
+MsgStream& TrigBtagEmulationJet::msg() const { return m_msg; }
+MsgStream& TrigBtagEmulationJet::msg( const MSG::Level lvl ) const { return msg() << lvl; }
+
 
 double TrigBtagEmulationJet::pt() const { return m_pt; }
 double TrigBtagEmulationJet::eta() const { return m_eta; }

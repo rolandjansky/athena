@@ -53,7 +53,7 @@ iPatGlobalFitter::DerivMatrix() const
     int numberParameters	= 5;
     if (m_allParameters) numberParameters = m_parameters->numberParameters();
     int rows	= 0;
-    for (std::list<FitMeasurement*>::iterator m = m_measurements->begin();
+    for (std::vector<FitMeasurement*>::iterator m = m_measurements->begin();
          m != m_measurements->end();
 	 ++m)
     {
@@ -68,7 +68,7 @@ iPatGlobalFitter::DerivMatrix() const
     
     m_derivativeMatrix = new Amg::MatrixX(rows,numberParameters);
     int row	= 0;
-    for (std::list<FitMeasurement*>::iterator m = m_measurements->begin();
+    for (std::vector<FitMeasurement*>::iterator m = m_measurements->begin();
          m != m_measurements->end();
 	 ++m)
     {

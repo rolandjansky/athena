@@ -39,6 +39,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "EventKernel/PdtPdg.h"
 
 namespace Analysis {
     

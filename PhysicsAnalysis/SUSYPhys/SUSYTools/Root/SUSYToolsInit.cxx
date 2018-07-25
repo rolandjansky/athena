@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -26,7 +26,7 @@ using namespace ST;
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
@@ -153,6 +153,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet calibration tool
 
+  // pick the right config file for the JES tool : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
   std::string jetname("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
   std::string jetcoll(jetname + "Jets");
   std::string calibArea("00-04-81");
@@ -160,45 +161,48 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetCalibTool.isUserConfigured()) {
     toolName = "JetCalibTool_" + jetname;
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
+    std::string JES_config_file, calibseq; 
 
-    // pick the right config file for the JES tool : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
-    std::string JES_config_file(m_jesConfig);
-    // form the string describing the calibration sequence to use
-    std::string calibseq(m_jesCalibSeq);
-    if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
-      JES_config_file = m_jesConfigJMS;
-      calibseq = m_jesCalibSeqJMS;
+    if (m_jetInputType == xAOD::JetInput::EMTopo) {
+      JES_config_file = m_jesConfig;
+      calibseq = m_jesCalibSeq;
+    } else if (m_jetInputType == xAOD::JetInput::EMPFlow) {
+      JES_config_file = m_jesConfigEMPFlow;
+      calibseq = m_jesCalibSeqEMPFlow;
+    } else if (m_jetInputType == xAOD::JetInput::LCTopo){
+      ATH_MSG_WARNING("LCTopo jets are not fully supported in R21 (no in-situ calibration). Please use either PFlow or EMTopo jets.");
+      JES_config_file = "JES_MC16Recommendation_28Nov2017.config"; // old config, thus hard-coded
+      calibseq = m_jesCalibSeq; // no in-situ calibration for data
+    } else {
+      ATH_MSG_ERROR("Unknown (unsupported) jet collection is used, (m_jetInputType = " << m_jetInputType << ")");
+      return StatusCode::FAILURE;
     }
 
     if (isAtlfast()) {
-      if (m_jetInputType == xAOD::JetInput::EMTopo || m_jetInputType == xAOD::JetInput::LCTopo) { // only supported ones for AF-II
+      if (m_jetInputType == xAOD::JetInput::EMTopo) {
         JES_config_file = m_jesConfigAFII;
         calibseq = m_jesCalibSeqAFII;
+      } else if (m_jetInputType == xAOD::JetInput::EMPFlow) {
+        JES_config_file = m_jesConfigEMPFlowAFII;
+        calibseq = m_jesCalibSeqEMPFlowAFII;
       } else {
-        ATH_MSG_ERROR("JES recommendations only exist for EMTopo jets in AF-II samples (m_jetInputType = " << m_jetInputType << ")");
+        ATH_MSG_ERROR("JES recommendations only exist for EMTopo and PFlow jets in AF-II samples (m_jetInputType = " << m_jetInputType << ")");
         return StatusCode::FAILURE;
       }
+    }
 
-      if(!m_JMScalib.empty()){
+    if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
+      JES_config_file = m_jesConfigJMS;
+      calibseq = m_jesCalibSeqJMS;
+      if (m_jetInputType == xAOD::JetInput::EMPFlow) {
+        ATH_MSG_ERROR("JMS calibration is not supported for EMPFlow jets. Please modify your settings.");
+        return StatusCode::FAILURE;
+      }
+      if (isAtlfast()) {
         ATH_MSG_ERROR("JMS calibration is not supported for AF-II samples. Please modify your settings.");
         return StatusCode::FAILURE;
       }
     }
-
-    // finally, PFlow jets need special care
-    if (m_jetInputType == xAOD::JetInput::EMPFlow) {
-      JES_config_file = m_jesConfigEMPFlow;
-      calibseq = m_jesCalibSeqEMPFlow;
-
-      if(!m_JMScalib.empty()){
-        ATH_MSG_ERROR("JMS calibration is not supported for EMPFlow jets. Please modify your settings.");
-        return StatusCode::FAILURE;
-      }
-    }
-
-    //check isData parameter (no in-situ calibration for LCTopo yet) //MT : revise when it becomes available!
-    //    bool data_par = (( m_jetInputType == xAOD::JetInput::LCTopo) ? false : isData());
-    bool data_par = isData();
 
     // remove Insitu if it's in the string and not running on data
     if (!isData()) {
@@ -211,7 +215,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibSequence", calibseq) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibArea", calibArea) );
-    ATH_CHECK( m_jetCalibTool.setProperty("IsData", data_par) );
+    ATH_CHECK( m_jetCalibTool.setProperty("IsData", isData()) );
     ATH_CHECK( m_jetCalibTool.retrieve() );
   }
 
@@ -277,9 +281,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_jetUncertaintiesTool.isUserConfigured()) {
     std::string jetdef("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
-    // Until uncertainties provided for other collections
-    if(jetdef != "AntiKt4EMTopo"){
-      ATH_MSG_WARNING("  *** HACK *** Treating " << jetdef << " jets as EMTopo -- use at your own risk!");
+
+    if(jetdef != "AntiKt4EMTopo" && jetdef !="AntiKt4EMPFlow"){
+      ATH_MSG_WARNING("Jet Uncertaintes recommendations only exist for EMTopo and PFlow jets, falling back to AntiKt4EMTopo");
       jetdef = "AntiKt4EMTopo";
     }
     toolName = "JetUncertaintiesTool_" + jetdef;
@@ -297,11 +301,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     m_jetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
 
-    if(isAtlfast()) ATH_MSG_WARNING("MCType for AFII is not supported for JetUncertainties yet. This will be treated as MC16, but will be an under-estimate. See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR for details.");
-
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
-    //ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
-    ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", "MC16") );
+    ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) ); 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
@@ -626,9 +627,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if ( !m_elecEfficiencySFTool_iso.isUserConfigured() ) {
       m_elecEfficiencySFTool_iso.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
 
-      // New isolation recommendations are in the release - no need to update the map file by hand
-      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty ("MapFilePath", m_eleEffMapFilePath) );
-
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_eleIso_WP) );
       if (!isData()) {
@@ -636,6 +634,21 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("CorrelationModel", m_EG_corrModel) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.initialize() );
+    }
+
+    // electron iso high-pt
+    toolName = "AsgElectronEfficiencyCorrectionTool_isoHigPt_" + m_eleId + m_eleIsoHighPt_WP;
+    // can't do the iso tool via the macro, it needs two properties set
+    if ( !m_elecEfficiencySFTool_isoHighPt.isUserConfigured() ) {
+      m_elecEfficiencySFTool_isoHighPt.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
+
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IdKey", eleId) );
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", m_eleIsoHighPt_WP) );
+      if (!isData()) {
+        ATH_CHECK (m_elecEfficiencySFTool_isoHighPt.setProperty("ForceDataType", (int) data_type) );
+      }
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("CorrelationModel", m_EG_corrModel) );
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.initialize() );
     }
 
     // electron ChargeID (NEW) (doesn't support keys yet . and only Medium ChIDWP )
@@ -662,14 +675,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       triggerEleIso   = m_eleIso_WP;
     }
     else{
-      // Many iso WPs are still missing, we need to update this when the trigger map is updated with more iso WP /KY as of Mar12
+      // LooseBLayer_Loose WP is still missing /KY as of June23 2018
       if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringSingle+"_"+eleId+"_"+"GradientLoose") != eSF_keys.end()){
         ATH_MSG_WARNING("The electron trigger SF is not supported for the Iso WP you picked (" << m_eleIso_WP << "). Falling to 'GradientLoose'");
         triggerEleIso   = "GradientLoose";
-      } else if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringSingle+"_"+eleId+"_"+"FixedCutLoose") != eSF_keys.end()){
-        ATH_MSG_WARNING("The electron trigger SF is not supported for the Iso WP you picked (" << m_eleIso_WP << "). Falling to 'FixedCutLoose'");
-        triggerEleIso   = "FixedCutLoose";
-      } else{
+      } else {
         ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringSingle << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << ") ***");
         return StatusCode::FAILURE;
       }
@@ -678,7 +688,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_singleLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trig_singleLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trig_singleLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("TriggerKey", m_electronTriggerSFStringSingle) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IsoKey", triggerEleIso) );
@@ -692,7 +701,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_singleLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trigEff_singleLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trigEff_singleLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringSingle) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("IsoKey", triggerEleIso) );
@@ -710,7 +718,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       {"e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", m_electronTriggerSFStringSingle},
       {"e12_lhloose_L1EM10VH","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
       {"e17_lhvloose_nod0","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
-      {"e24_lhvloose_nod0_L1EM20VH","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
+      {"e24_lhvloose_nod0","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
       {"e17_lhloose","MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0"},
       {"e17_lhloose_nod0","MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0"},
       {"e12_lhloose","MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0"},
@@ -727,14 +735,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         triggerMixedEleIso = m_eleIso_WP;
       }
       else{
-        // Many iso WPs are still missing, we need to update this when the trigger map is updated with more iso WP /KY as of Mar12
+        // Many WPs are still missing /KY as of June23 2018
         if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_"+"GradientLoose") != eSF_keys.end()){
             ATH_MSG_WARNING("The electron trigger SF is not supported for the Iso WP you picked (" << m_eleIso_WP << "). Falling to 'GradientLoose'");
             triggerMixedEleIso = "GradientLoose";
         } else if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_"+"FixedCutLoose") != eSF_keys.end()){
             ATH_MSG_WARNING("The electron trigger SF is not supported for the Iso WP you picked (" << m_eleIso_WP << "). Falling to 'FixedCutLoose'");
             triggerMixedEleIso = "FixedCutLoose";
-        } else{
+        } else {
           ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << item.second << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
           return StatusCode::FAILURE;
         }
@@ -744,7 +752,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + item.first + m_eleId;
       auto t_sf = m_elecEfficiencySFTool_trig_mixLep.emplace(m_elecEfficiencySFTool_trig_mixLep.end(), "AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( t_sf->setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( t_sf->setProperty("TriggerKey", item.second) );
       ATH_CHECK( t_sf->setProperty("IdKey", eleId) );
       ATH_CHECK( t_sf->setProperty("IsoKey", triggerMixedEleIso) );
@@ -762,7 +769,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
       toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_" + item.first + m_eleId;
       auto t_eff = m_elecEfficiencySFTool_trigEff_mixLep.emplace(m_elecEfficiencySFTool_trigEff_mixLep.end(), "AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( t_eff->setProperty("MapFilePath", m_eleEffMapFilePath) );
       ATH_CHECK( t_eff->setProperty("TriggerKey", "Eff_"+item.second) );
       ATH_CHECK( t_eff->setProperty("IdKey", eleId) );
       ATH_CHECK( t_eff->setProperty("IsoKey", triggerMixedEleIso) );
@@ -828,7 +834,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING( "No Photon efficiency available for " << m_photonId << ", using Tight instead..." );  
     }
 
-    ATH_CHECK( m_photonEfficiencySFTool.setProperty("MapFilePath", m_photonEffMapFilePath) );
     ATH_CHECK( m_photonEfficiencySFTool.setProperty("ForceDataType", 1) ); // Set data type: 1 for FULLSIM, 3 for AF2
     ATH_CHECK( m_photonEfficiencySFTool.retrieve() );
   }
@@ -840,7 +845,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING( "No Photon efficiency available for " << m_photonIso_WP);
     }
 
-    ATH_CHECK( m_photonIsolationSFTool.setProperty("MapFilePath", m_photonEffMapFilePath));
     ATH_CHECK( m_photonIsolationSFTool.setProperty("IsoKey", m_photonIso_WP.substr(8) ));    // Set isolation WP: Loose,Tight,TightCaloOnly 
     ATH_CHECK( m_photonIsolationSFTool.setProperty("ForceDataType", 1) ); // Set data type: 1 for FULLSIM, 3 for AF2
     ATH_CHECK( m_photonIsolationSFTool.retrieve() );
@@ -855,8 +859,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING( "No Photon trigger efficiency available for " << m_photonTriggerName);
     }
 
-    ATH_CHECK( m_photonTriggerSFTool.setProperty("MapFilePath", m_photonEffMapFilePath));
-    
     if (m_photonIso_WP == "FixedCutTight") {
       ATH_MSG_WARNING( "No Photon trigger SF available for " << m_photonIso_WP << ", using TightCaloOnly instead...Use at your own risk" );  
       ATH_CHECK( m_photonTriggerSFTool.setProperty("IsoKey", "TightCaloOnly" ));    // Set isolation WP: Loose,TightCaloOnly 
@@ -1113,6 +1115,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_metMaker.setProperty("DoRemoveMuonJets", m_metDoRemoveMuonJets) );
     ATH_CHECK( m_metMaker.setProperty("UseGhostMuons", m_metUseGhostMuons) );
     ATH_CHECK( m_metMaker.setProperty("DoMuonEloss", m_metDoMuonEloss) );
+    ATH_CHECK( m_metMaker.setProperty("GreedyPhotons", m_metGreedyPhotons) );
+    ATH_CHECK( m_metMaker.setProperty("VeryGreedyPhotons", m_metVeryGreedyPhotons) );
 
     // set the jet selection if default empty string is overridden through config file
     if (m_metJetSelection.size())
@@ -1156,6 +1160,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         ATH_CHECK( m_metSystTool.setProperty("JetConstitScaleMom","JetLCScaleMomentum") );
       }
     }
+ 
+    if (m_trkJetsyst) {
+      ATH_CHECK( m_metSystTool.setProperty("ConfigJetTrkFile", "JetTrackSyst.config") );
+    }
+
     ATH_CHECK( m_metSystTool.retrieve());
   }
 
@@ -1199,6 +1208,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2015", m_trig2015combination_diLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2016", m_trig2016combination_diLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2017", m_trig2017combination_diLep) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerMatchingTool", m_trigMatchingTool.getHandle()) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("ListOfLegsPerTool", m_legsPerTool) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("NumberOfToys", 250) );
     ATH_CHECK( m_trigGlobalEffCorrTool_diLep.initialize() );
@@ -1210,14 +1220,14 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("ElectronScaleFactorTools", m_elecTrigSFTools) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("MuonTools", m_muonTrigSFTools) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2015", m_trig2015combination_multiLep) );
-    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2016", m_trig2015combination_multiLep) );
-    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2017", m_trig2015combination_multiLep) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2016", m_trig2016combination_multiLep) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2017", m_trig2017combination_multiLep) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerMatchingTool", m_trigMatchingTool.getHandle()) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("ListOfLegsPerTool", m_legsPerTool) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("NumberOfToys", 250) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.initialize() );
   }
 
-// /////////////////////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise Isolation Correction Tool
 
@@ -1282,6 +1292,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     orFlags.bJetLabel      = bJetLabel;
     orFlags.boostedLeptons = (m_orDoBoostedElectron || m_orDoBoostedMuon);
     orFlags.outputPassValue = true;
+    orFlags.linkOverlapObjects = m_orLinkOverlapObjects;
     orFlags.doEleEleOR = false;
     orFlags.doElectrons = true;
     orFlags.doMuons = true;

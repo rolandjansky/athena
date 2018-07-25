@@ -1222,7 +1222,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     
 
 
-    //    std::cout << "a0t " << a0t << std::endl;;
+    //    std::cout << "a0t " << a0t << std::endl;
 
     rChi2prob->Fill( pTt, TMath::Prob(reftracks[i]->chi2(),reftracks[i]->dof()) ); 
     rChi2->Fill( pTt, reftracks[i]->chi2() ); 

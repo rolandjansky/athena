@@ -96,6 +96,7 @@
 + Event/NavFourMom
 - Event/xAOD/xAODMissingETCnv
 + Event/xAOD/.*
++ Event/PyDumper
 
 # External package(s):
 + External/AtlasDataArea
@@ -120,6 +121,7 @@
 + Generators/TruthConverters
 + Generators/TruthRivetTools
 + Generators/TruthUtils
++ Generators/McEventSelector
 
 # Inner detector package(s):
 + InnerDetector/InDetConditions/InDetBeamSpotService
@@ -215,6 +217,7 @@
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/CommonTools/ExpressionEvaluation
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
 + PhysicsAnalysis/DerivationFramework/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
@@ -231,6 +234,7 @@
 + PhysicsAnalysis/JetTagging/JetTagNonPromptLepton
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/.*
 + PhysicsAnalysis/JetTagging/JetTagTools
++ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/JpsiUpsilonTools
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
@@ -307,6 +311,7 @@
 + Reconstruction/RecTPCnv
 + Reconstruction/RecAthenaPool
 + Reconstruction/MissingETEvent
++ Reconstruction/VKalVrt/VrtSecInclusive
 
 # Simulation package(s):
 + Simulation/G4Sim/TrackRecord
@@ -324,6 +329,7 @@
 - TileCalorimeter/TileSvc/TileByteStream
 + TileCalorimeter/TileSvc/.*
 + TileCalorimeter/TileTrackingGeometry
++ TileCalorimeter/TileRecUtils
 
 # Tool package(s):
 + Tools/ART
@@ -370,6 +376,7 @@
 + Trigger/TriggerCommon/TriggerJobOpts
 + Trigger/TriggerCommon/TrigTier0
 + Trigger/TriggerCommon/TriggerMenu
++ Trigger/TrigCost/EnhancedBiasWeighter
 + Trigger/TrigDataAccess/TrigSerialize.*
 + Trigger/TrigEvent/Trig.*Event
 + Trigger/TrigEvent/Trig.*TPCnv

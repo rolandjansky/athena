@@ -123,6 +123,12 @@ namespace Analysis {
 
     fill_arbitrary_aux_data(inputs, BTag);
 
+    if (msgLvl(MSG::VERBOSE)) {
+      for (const auto& input: inputs) {
+        ATH_MSG_VERBOSE("  " << input.first << ": " << input.second);
+      }
+    }
+
     ATH_MSG_DEBUG(" #BTAG# Retrieving of inputs successfull" );
 
     /* ----------------------------------------------------------------------------------- */
@@ -827,18 +833,18 @@ namespace Analysis {
       }
       // note: we should extend this to data types beyond double at
       // some point
-      std::string valid_key = key + "IsValid";
-      if ( ! BTag->isAvailable<double>(key) ) {
-        ATH_MSG_WARNING("aux data '" + key + "' is missing,"
+      std::string valid_key = raw_key + "IsValid";
+      if ( ! BTag->isAvailable<double>(raw_key) ) {
+        ATH_MSG_WARNING("aux data '" + raw_key + "' is missing,"
                         " tagger inputs may be incomplete");
       } else if (!BTag->isAvailable<char>(valid_key)) {
         ATH_MSG_WARNING("no key '" + valid_key + "' found, invalid inputs"
                         " may be interperated incorrectly");
-        inputs[key] = BTag->auxdata<double>(key);
+        inputs[key] = BTag->auxdata<double>(raw_key);
       } else if (!BTag->auxdata<char>(valid_key)) {
         inputs[key] = NAN;
       } else {
-        inputs[key] = BTag->auxdata<double>(key);
+        inputs[key] = BTag->auxdata<double>(raw_key);
       }
     }
 

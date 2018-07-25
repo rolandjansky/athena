@@ -19,10 +19,18 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODMissingET
                           xAODTracking
                           TopConfiguration
-                          TopPartons )
+                          TopPartons
+			  JetAnalysisInterfaces
+                          JetSubStructureMomentTools
+                          JetSubStructureUtils
+                          JetReclustering )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
+
+# Need fast jet for the RC jet substructure code
+find_package( FastJet COMPONENTS fastjetplugins fastjettools )
+find_package( FastJetContrib COMPONENTS EnergyCorrelator Nsubjettiness )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopEvent _cintDictSource
@@ -49,6 +57,12 @@ atlas_add_library( TopEvent Root/*.cxx Root/*.h Root/*.icc
                                   xAODTracking
                                   TopConfiguration
                                   TopPartons
+				  JetAnalysisInterfacesLib
+                                  JetSubStructureMomentToolsLib
+                                  JetSubStructureUtils
+                                  JetReclusteringLib
+				  ${FASTJET_LIBRARIES}
+                                  ${FASTJETCONTRIB_LIBRARIES}
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

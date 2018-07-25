@@ -321,6 +321,7 @@ namespace TauJetParameters
       nIsolatedTracks=110,
       nModifiedIsolationTracks=111,//no static variable for now
 
+
       //Tau/Ele BDTVars
 
     };

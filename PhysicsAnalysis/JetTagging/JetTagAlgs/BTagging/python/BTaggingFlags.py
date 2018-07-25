@@ -11,7 +11,8 @@ class _BTaggingFlags:
     ExpertTaggers = \
       StandardTaggers + \
       [ 'SV1Flip', 'JetFitterNNFlip', 'IP2DNeg', 'IP3DNeg',
-        'MV2c10Flip', 'MV2c100Flip', 'DL1Flip' ]
+        'MV2c10Flip', 'MV2c100Flip', 'DL1Flip', 'RNNIPFlip', 'RNNIPNeg',
+        'DL1rnnFlip', 'MV2c10rnnFlip']
       # do we have these already?
       # 'DL1muFlip', 'RNNIPFlip', 'DL1rnnFlip'
 
@@ -354,7 +355,7 @@ class _BTaggingFlags:
         setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip','JetProb','JetProbFlip'])
 
       for attr in self._TriggerTaggers:
-        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c10','MV2c20'])
+        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c00','MV2c10','MV2c20'])
 
       for attr in self._jetFinderBasedOn:
         setattr(self, attr, 'Cells')

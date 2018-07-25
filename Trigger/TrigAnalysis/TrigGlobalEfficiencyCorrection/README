@@ -24,4 +24,5 @@ o) Contents:
  -- Example 4: usage of the static helper method suggestElectronMapKeys()
  -- Example 5a: photon triggers, simplest example (symmetric diphoton trigger)
  -- Example 5b: photon triggers, more complex (asymmetric diphoton trigger)
+ -- Example 06: trigger matching
 o) More details in the comments of each source file

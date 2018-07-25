@@ -66,9 +66,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     // Interface - Use specific systematic
     virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
     // Interface - get the expected resolution of the muon
-    virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
+    virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const;
     // Interface - get the expected resolution of the muon
-    virtual double expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const;
+    virtual double expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const;
 
   public:
     // InfoHelper is intended to be used to ease the passing of information between internal
@@ -108,8 +108,8 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual StatusCode initialize();
 
-    double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
-    double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc ) const;
+    double ExpectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const;
+    double ExpectedResolution( const int DetType, const xAOD::Muon& mu, const bool mc ) const;
 
     // Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
     virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType ) const;

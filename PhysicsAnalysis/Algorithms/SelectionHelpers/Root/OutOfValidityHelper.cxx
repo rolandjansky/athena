@@ -26,13 +26,10 @@ namespace CP
   {
     if (!m_decorationName.empty())
     {
-      m_accessor = std::make_unique<const SG::AuxElement::Accessor<SelectionType> >
-        (m_decorationName);
+      ANA_CHECK (makeSelectionAccessor (m_decorationName, m_accessor));
     }
       
-#ifndef NDEBUG
     m_isInitialized = true;
-#endif
     return StatusCode::SUCCESS;
   }
 
@@ -47,12 +44,12 @@ namespace CP
     switch (code)
     {
     case CP::CorrectionCode::Ok:
-      if (m_accessor) (*m_accessor) (particle) = selectionAccept();
+      if (m_accessor) m_accessor->setBool (particle, true);
       return StatusCode::SUCCESS;
     case CP::CorrectionCode::Error:
       return StatusCode::FAILURE;
     case CP::CorrectionCode::OutOfValidityRange:
-      if (m_accessor) (*m_accessor) (particle) = selectionReject();
+      if (m_accessor) m_accessor->setBool (particle, false);
       switch (OutOfValidityAction (m_action))
       {
       case OutOfValidityAction::ABORT:

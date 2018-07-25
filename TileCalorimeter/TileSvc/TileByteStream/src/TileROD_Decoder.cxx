@@ -138,7 +138,7 @@ void TileROD_Decoder::printWarningCounter(bool printIfNoWarning) {
 
 void TileROD_Decoder::printErrorCounter(bool printIfNoError) {
   if (printIfNoError || m_ErrorCounter > 0) {
-    ATH_MSG_ERROR( "Found " << m_ErrorCounter << " errors in decoding words");
+    ATH_MSG_WARNING( "Found " << m_ErrorCounter << " errors in decoding words");
   }
 }
 
@@ -248,7 +248,7 @@ bool TileROD_Decoder::checkBit(const uint32_t* p, int chan) const {
  * Assume that mode (calib/normal) is the same
  * for every invocation.
  */
-void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec & pDigits) const {
+void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec & pDigits) {
   int gain = 0;
   int n;
   
@@ -485,9 +485,11 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   
   // check size of fragment - we expect 2 extra words (DMU mask and CRC) or more!
   if (extra < 2) {
-    ATH_MSG_WARNING( "Too short fragment ! Expected at least " << MSG::dec << (data - p)
-                    << " data words, while size from header is " << size
-                    << " data words (plus " << m_sizeOverhead << " words overhead)" );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( "Too short fragment ! Expected at least " << MSG::dec << (data - p)
+                      << " data words, while size from header is " << size
+                      << " data words (plus " << m_sizeOverhead << " words overhead)" );
+    }
   }
   
   if (msgLvl(MSG::VERBOSE)) {
@@ -543,7 +545,7 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
 }
 
 void TileROD_Decoder::unpack_frag1(uint32_t /* version */, const uint32_t* p,
-                                   pDigiVec & pDigits) const {
+                                   pDigiVec & pDigits) {
   // first word is full frag size, first two words are not data
   int size = *(p) - m_sizeOverhead;
   // second word is frag ID (0x100-0x4ff) and frag1 type (old and new version).
@@ -565,10 +567,12 @@ void TileROD_Decoder::unpack_frag1(uint32_t /* version */, const uint32_t* p,
     int nchan = 2 * size / words_per_chan;
     
     if (2 * size != nchan * words_per_chan || nchan <= 0 || nchan > 48) {
-      ATH_MSG_ERROR( "Digi frag type=1 fragId=0x" << MSG::hex << frag << MSG::dec
-                    << " Nsamp=" << nsamp
-                    << " Nchan=" << nchan
-                    << " Wrong Size=" << size );
+      if ((m_ErrorCounter++) < m_maxErrorPrint) {
+        ATH_MSG_WARNING( "Digi frag type=1 fragId=0x" << MSG::hex << frag << MSG::dec
+                         << " Nsamp=" << nsamp
+                         << " Nchan=" << nchan
+                         << " Wrong Size=" << size );
+      }
       return;
     }
     
@@ -594,10 +598,12 @@ void TileROD_Decoder::unpack_frag1(uint32_t /* version */, const uint32_t* p,
         TileDigits * td = new TileDigits(adcID, digiVec);
         pDigits.push_back(td);
       } else {
-        ATH_MSG_ERROR( "Digi frag type=1 fragId=0x" << MSG::hex << frag << MSG::dec
-                      << " CHind=" << ch
-                      << " channel=" << channel
-                      << " nsamp=" << nsamp1 << "/" << nsamp );
+        if ((m_ErrorCounter++) < m_maxErrorPrint) {
+          ATH_MSG_WARNING( "Digi frag type=1 fragId=0x" << MSG::hex << frag << MSG::dec
+                           << " CHind=" << ch
+                           << " channel=" << channel
+                           << " nsamp=" << nsamp1 << "/" << nsamp );
+        }
       }
       
       if (msgLvl(MSG::VERBOSE)) {
@@ -627,12 +633,14 @@ void TileROD_Decoder::unpack_frag1(uint32_t /* version */, const uint32_t* p,
     int nchan = nbchanformat1 + nbchanformat2;
     
     if ((nchan) > 48 || ((nbchanformat1 * 3) + (nbchanformat2 * 5) > SizeOfFrag1)) {
-      ATH_MSG_ERROR( "Digi frag type=1 fragId=0x" << MSG::hex << frag << MSG::dec
-                    << " frag1Version=" << frag1version
-                    << " Nsamp=" << nsamp
-                    << " NchanFormat1=" << nbchanformat1
-                    << " NchanFormat2=" << nbchanformat2
-                    << " Wrong Size=" << size);
+      if ((m_ErrorCounter++) < m_maxErrorPrint) {
+        ATH_MSG_WARNING( "Digi frag type=1 fragId=0x" << MSG::hex << frag << MSG::dec
+                         << " frag1Version=" << frag1version
+                         << " Nsamp=" << nsamp
+                         << " NchanFormat1=" << nbchanformat1
+                         << " NchanFormat2=" << nbchanformat2
+                         << " Wrong Size=" << size);
+      }
       return;
     }
     
@@ -764,7 +772,7 @@ void TileROD_Decoder::unpack_frag1(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
-                                   pRwChVec & pChannel) const {
+                                   pRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -812,8 +820,10 @@ void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
   
   if (wc != count) {
     // check word count
-    ATH_MSG_ERROR( "unpack_frag2 => Incorrect word count: "
-                  << wc << " != " << count );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( "unpack_frag2 => Incorrect word count: "
+                       << wc << " != " << count );
+    }
     assert(0);
     // return;
   }
@@ -822,7 +832,7 @@ void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag3(uint32_t /* version */, const uint32_t* p,
-                                   pRwChVec & pChannel) const {
+                                   pRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -875,8 +885,10 @@ void TileROD_Decoder::unpack_frag3(uint32_t /* version */, const uint32_t* p,
   }
   if (wc16 != 2 * count) {
     // check word count
-    ATH_MSG_ERROR( "unpack_frag3 => Incorrect word count: "
-                  << wc16 << " != 2*" << count );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( "unpack_frag3 => Incorrect word count: "
+                       << wc16 << " != 2*" << count );
+    }
     assert(0);
     // return;
   }
@@ -885,7 +897,7 @@ void TileROD_Decoder::unpack_frag3(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
-                                   pRwChVec & pChannel) const {
+                                   pRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -940,8 +952,10 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
 
   if (wc > count) {
     // check word count
-    ATH_MSG_ERROR( "unpack_frag4 => Incorrect word count: "
-                  << wc << " != " << count );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( "unpack_frag4 => Incorrect word count: "
+                       << wc << " != " << count );
+    }
     assert(0);
     // return;
     //  } else if (wc < count) {
@@ -1005,22 +1019,26 @@ void TileROD_Decoder::unpack_frag5(uint32_t /* version */, const uint32_t* p, pD
   wc += (bc + 3) / 4;
   if (wc > count) {
     // check word count
-    ATH_MSG_ERROR( " unpack_frag5 => Incorrect word count: "
-                  << wc << " != " << count );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( " unpack_frag5 => Incorrect word count: "
+                       << wc << " != " << count );
+    }
     assert(0);
     // return;
   } else if (wc < count) {
-    ATH_MSG_WARNING( "unpack_frag5 => extra " << count - wc
-                    << " words in frag" );
-    ATH_MSG_WARNING( " count = " << count
-                    << " wc = " << wc
-                    << " bc = " << bc
-                    << " words in frag" );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( "unpack_frag5 => extra " << count - wc
+                      << " words in frag" );
+      ATH_MSG_WARNING( " count = " << count
+                      << " wc = " << wc
+                      << " bc = " << bc
+                      << " words in frag" );
+    }
   }
   return;
 }
 
-void TileROD_Decoder::unpack_frag6(uint32_t /*version*/, const uint32_t* p, pDigiVec & pDigits) const {
+void TileROD_Decoder::unpack_frag6(uint32_t /*version*/, const uint32_t* p, pDigiVec & pDigits) {
 
 
   int size = *(p) - m_sizeOverhead;
@@ -1924,7 +1942,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   } else {
     errorFlag = true;
     if (m_ErrorCounter <= m_maxErrorPrint)
-      ATH_MSG_ERROR( "In decoding word 20" );
+      ATH_MSG_WARNING( "In decoding word 20" );
   }
   
   ++pData;
@@ -1940,7 +1958,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   } else {
     errorFlag = true;
     if (m_ErrorCounter <= m_maxErrorPrint)
-      ATH_MSG_ERROR( "In decoding word 21" );
+      ATH_MSG_WARNING( "In decoding word 21" );
   }
   
   ++pData;
@@ -1964,7 +1982,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   } else {
     errorFlag = true;
     if (m_ErrorCounter <= m_maxErrorPrint)
-      ATH_MSG_ERROR( "In decoding word 22" );
+      ATH_MSG_WARNING( "In decoding word 22" );
     
   }
   
@@ -1990,7 +2008,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   } else {
     errorFlag = true;
     if (m_ErrorCounter <= m_maxErrorPrint)
-      ATH_MSG_ERROR( "In decoding word 23" );
+      ATH_MSG_WARNING( "In decoding word 23" );
   }
   
   ++pData;
@@ -2006,7 +2024,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   } else {
     errorFlag = true;
     if (m_ErrorCounter <= m_maxErrorPrint)
-      ATH_MSG_ERROR( "In decoding word 24" );
+      ATH_MSG_WARNING( "In decoding word 24" );
   }
   
   ++pData;
@@ -2022,7 +2040,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   } else {
     errorFlag = true;
     if (m_ErrorCounter <= m_maxErrorPrint)
-      ATH_MSG_ERROR( "In decoding word 25" );
+      ATH_MSG_WARNING( "In decoding word 25" );
   }
   
   ++pData;
@@ -2038,7 +2056,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   } else {
     errorFlag = true;
     if (m_ErrorCounter <= m_maxErrorPrint)
-      ATH_MSG_ERROR( "In decoding word 26" );
+      ATH_MSG_WARNING( "In decoding word 26" );
   }
   
   ++pData;
@@ -2054,7 +2072,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   } else {
     errorFlag = true;
     if (m_ErrorCounter <= m_maxErrorPrint)
-      ATH_MSG_ERROR( "In decoding word 27" );
+      ATH_MSG_WARNING( "In decoding word 27" );
   }
   
   ++pData;
@@ -2750,7 +2768,7 @@ void TileROD_Decoder::unpack_brod(uint32_t /* version */, const uint32_t* p,
           pBeam.push_back(rc);
         }
       } else {
-        ATH_MSG_ERROR("unpack_brod => Unexpected Adders size: " << MSG::dec << datasize );
+        ATH_MSG_WARNING("unpack_brod => Unexpected Adders size: " << MSG::dec << datasize );
         return;
       }
     }
@@ -2900,12 +2918,12 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
         }
       }
       if ((m_ErrorCounter++) < m_maxErrorPrint) {
-        msg(MSG::ERROR) << "Frag " << MSG::hex << "0x" << frag
+        msg(MSG::WARNING) << "Frag " << MSG::hex << "0x" << frag
         << MSG::dec << " has unexpected size: " << count;
         if (wc < size) {
-          msg(MSG::ERROR) << "  skipping " << cnt << " words to the next frag" << endmsg;
+          msg(MSG::WARNING) << "  skipping " << cnt << " words to the next frag" << endmsg;
         } else {
-          msg(MSG::ERROR) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
+          msg(MSG::WARNING) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
         }
       }
       continue;
@@ -2950,7 +2968,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
           
         default:
           int frag = *(p + 1) & 0xFFFF;
-          ATH_MSG_ERROR( "Unknown frag type=" << type << " for frag=" << frag );
+          ATH_MSG_WARNING( "Unknown frag type=" << type << " for frag=" << frag );
           assert(0);
           break;
       }
@@ -2963,7 +2981,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
   if (wc != size) {
     // check word count
     if ((m_ErrorCounter++) < m_maxErrorPrint) {
-      ATH_MSG_ERROR( "Incorrect ROD size: " << wc << " words instead of " << size );
+      ATH_MSG_WARNING( "Incorrect ROD size: " << wc << " words instead of " << size );
     }
     assert(0);
     // return;
@@ -3112,12 +3130,12 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
         }
       }
       if ((m_ErrorCounter++) < m_maxErrorPrint) {
-        msg(MSG::ERROR) << "Frag: " << MSG::hex << "0x" << frag << MSG::dec
+        msg(MSG::WARNING) << "Frag: " << MSG::hex << "0x" << frag << MSG::dec
         << " has unexpected size: " << count;
         if (wc < size) {
-          msg(MSG::ERROR) << "  skiping " << cnt << " words to the next frag" << endmsg;
+          msg(MSG::WARNING) << "  skiping " << cnt << " words to the next frag" << endmsg;
         } else {
-          msg(MSG::ERROR) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
+          msg(MSG::WARNING) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
         }
       }
       continue;
@@ -3155,7 +3173,7 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
   if (wc != size) {
     // check word count
     if ((m_ErrorCounter++) < m_maxErrorPrint) {
-      ATH_MSG_ERROR("Incorrect ROD size: " << wc << " words instead of " << size );
+      ATH_MSG_WARNING("Incorrect ROD size: " << wc << " words instead of " << size );
     }
     assert(0);
     // return;
@@ -3227,12 +3245,12 @@ void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection 
         }
       }
       if ((m_ErrorCounter++) < m_maxErrorPrint) {
-        msg(MSG::ERROR) << "Frag: " << MSG::hex << "0x" << frag << MSG::dec
+        msg(MSG::WARNING) << "Frag: " << MSG::hex << "0x" << frag << MSG::dec
         << " has unexpected size: " << count;
         if (wc < size) {
-          msg(MSG::ERROR) << "  skipping " << cnt << " words to the next frag" << endmsg;
+          msg(MSG::WARNING) << "  skipping " << cnt << " words to the next frag" << endmsg;
         } else {
-          msg(MSG::ERROR) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
+          msg(MSG::WARNING) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
         }
       }
       m_error |= 0x10000;
@@ -3540,7 +3558,7 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
 }
 
 void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */, const uint32_t* p,
-                                      pFRwChVec & pChannel) const {
+                                      pFRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   
@@ -3567,7 +3585,9 @@ void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */, const uint32_t* p,
   
   if (wc != count) {
     // check word count
-    ATH_MSG_ERROR("Incorrect word count: " << wc << " != " << count );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING("Incorrect word count: " << wc << " != " << count );
+    }
     assert(0);
     // return;
   }
@@ -3576,7 +3596,7 @@ void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */, const uint32_t* p,
-                                      pFRwChVec & pChannel) const {
+                                      pFRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3626,8 +3646,10 @@ void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */, const uint32_t* p,
   }
   if (wc16 != 2 * count) {
     // check word count
-    ATH_MSG_ERROR( "unpack_frag3HLT => Incorrect wordcount: "
-                  << wc16 << " != 2*" << count );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( "unpack_frag3HLT => Incorrect wordcount: "
+                       << wc16 << " != 2*" << count );
+    }
     assert(0);
     // return;
   }
@@ -3636,7 +3658,7 @@ void TileROD_Decoder::unpack_frag3HLT(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */, const uint32_t* p,
-                                      pFRwChVec & pChannel) const {
+                                      pFRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3661,8 +3683,10 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */, const uint32_t* p,
   
   if (wc > count) {
     // check word count
-    ATH_MSG_ERROR( "unpack_frag4HLT => Incorrect word count: "
-                  << wc << " != " << count );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( "unpack_frag4HLT => Incorrect word count: "
+                       << wc << " != " << count );
+    }
     assert(0);
     // return;
   }
@@ -3671,7 +3695,7 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */, const uint32_t* p,
 }
 
 void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */, const uint32_t* p,
-                                      pFRwChVec & pChannel) const {
+                                      pFRwChVec & pChannel) {
   // first word is frag size
   int count = *(p);
   // second word is frag ID and frag type
@@ -3713,8 +3737,10 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */, const uint32_t* p,
   
   if (wc > count) {
     // check word count
-    ATH_MSG_ERROR( "unpack_frag5HLT => Incorrect word count: "
-                  << wc << " != " << count );
+    if ((m_ErrorCounter++) < m_maxErrorPrint) {
+      ATH_MSG_WARNING( "unpack_frag5HLT => Incorrect word count: "
+                       << wc << " != " << count );
+    }
     assert(0);
     // return;
   }
@@ -3837,7 +3863,7 @@ bool TileROD_Decoder::unpack_frag5L2(uint32_t /* version */, const uint32_t* p,
     case TileHWID::BARREL_NEG: m_L2Builder->MTagLB(ros,drawer,E_MeV,Gain,bad,EtaMuons,EMuons0,EMuons1,EMuons2,qf,word); break;
     case TileHWID::EXTBAR_POS: m_L2Builder->MTagEB(ros,drawer,E_MeV,Gain,bad,EtaMuons,EMuons0,EMuons1,EMuons2,qf,word); break;
     case TileHWID::EXTBAR_NEG: m_L2Builder->MTagEB(ros,drawer,E_MeV,Gain,bad,EtaMuons,EMuons0,EMuons1,EMuons2,qf,word); break;
-    default: ATH_MSG_ERROR( "unpack_frag5L2: incorrect ros value: " << ros );
+    default: ATH_MSG_WARNING( "unpack_frag5L2: incorrect ros value: " << ros );
   }
   
   (*pL2[m_hashFunc(frag)]).setMu(EtaMuons, EMuons0, EMuons1, EMuons2, qf, word);
@@ -4308,7 +4334,9 @@ void TileROD_Decoder::unpack_frag40(uint32_t collid, uint32_t version, const uin
                     << " version: " << version << endmsg;
 
     int pos = coll.size() - nchan;
-    const char * strchannel[5] = { " d5L ", " d5R ", " d6L ", " d6R ", " xxx " };
+    const char * strchannel[13] = { " d5L ", " d5R ", " d6L ", " d6R ",
+                                    " xxx ", " d0x ", " d1L ", " d1R ", " d2L ", " d2R ", " d3L ", " d3R ", " xxx " };
+    int nchmax = (ros > 2) ? 4 : 8;
     for (int i = 0; i < nchan; ++i) {
       const std::vector<float> & sample = coll.at(pos + i)->samples();
       std::stringstream ss;
@@ -4317,7 +4345,7 @@ void TileROD_Decoder::unpack_frag40(uint32_t collid, uint32_t version, const uin
       }
       msg(MSG::DEBUG) << " ros:" << ros
                       << " drawer:" << drawer
-                      << " ch:" << i << strchannel[std::min(i, 4)] << ss.str() << endmsg;
+                      << " ch:" << i << strchannel[std::min(i, nchmax)+nchmax-4] << ss.str() << endmsg;
     }
   }
 
@@ -4383,11 +4411,13 @@ void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const ui
     int nbits = (version == 0) ? 32 : 16;
     msg(MSG::DEBUG) << " position of " << nbits << "-bit word inside sub-fragment 0x41: " << wpos << endmsg;
     int pos = coll.size() - nchan;
-    const char * strchannel[5] = { " d5L ", " d5R ", " d6L ", " d6R ", " xxx " };
+    const char * strchannel[13] = { " d5L ", " d5R ", " d6L ", " d6R ",
+                                    " xxx ", " d0x ", " d1L ", " d1R ", " d2L ", " d2R ", " d3L ", " d3R ", " xxx " };
+    int nchmax = (ros > 2) ? 4 : 8;
     for (int i = 0; i < nchan; ++i) {
       msg(MSG::DEBUG) << " ros:" << ros
                       << " drawer:" << drawer
-                      << " ch:" << i << strchannel[std::min(i, 4)] << coll.at(pos + i)->amplitude() << endmsg;
+                      << " ch:" << i << strchannel[std::min(i, nchmax)+nchmax-4] << coll.at(pos + i)->amplitude() << endmsg;
     }
   }
 

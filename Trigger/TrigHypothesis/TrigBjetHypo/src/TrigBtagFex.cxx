@@ -84,6 +84,7 @@ TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
   declareMonitoredVariable("tag_IP3DSV1", m_mon_tag_IP3DSV1, AutoClear);
   declareMonitoredVariable("tag_MV2c00",  m_mon_tag_MV2c00,  AutoClear);
   declareMonitoredVariable("tag_MV2c10",  m_mon_tag_MV2c10,  AutoClear);
+  declareMonitoredVariable("tag_MV2c10_hybrid",  m_mon_tag_MV2c10_hybrid,  AutoClear);
   declareMonitoredVariable("tag_MV2c20",  m_mon_tag_MV2c20,  AutoClear);
   declareMonitoredVariable("tag_IP2_c",   m_mon_tag_IP2_c,   AutoClear);
   declareMonitoredVariable("tag_IP2_cu",  m_mon_tag_IP2_cu,  AutoClear);
@@ -265,8 +266,12 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(&jet);
       ATH_MSG_VERBOSE( "#BTAG# Track association tool is not empty" );
+
+      ATH_MSG_WARNING( "#BTAG# YOU ARE RUNNING THE BJET TRIGGER WHICH HAS A BROKEN TRACK ASSOCIATION!!!!" );
+      ATH_MSG_WARNING( "#BTAG# THIS WILL NOT WORK!!!!" );
+
       // We must pass the tracks explicitly to the track associator
-      jetIsAssociated = m_bTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList, tracks);
+      jetIsAssociated = m_bTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList);
 
       if ( jetIsAssociated.isFailure() ) {
 	ATH_MSG_DEBUG( "#BTAG# Failed to associate tracks to jet" );
@@ -291,7 +296,9 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   }
 
   // Fill monitoring variables
-
+  float sv_check;
+  float sv_mass_check;
+  
   sv_mass_check = 0.0 ; 
   
   trigBTagging->variable<float>("SV1", "masssvx",  sv_mass_check);
@@ -331,6 +338,11 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       m_mon_tag_SV1= -999;
     } //set default values for jets that SV is not found
 
+  /// @brief JetFitter : Delta eta between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
+  float m_mon_jf_deta; 
+  /// @brief JetFitter : Delta phi between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
+  float m_mon_jf_dphi;
+  float jf_check;
   
   //Check JetFitter algorithm
   m_mon_jf_deta = -10.;
@@ -377,6 +389,9 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   m_mon_tag_IP3DSV1 = trigBTagging->SV1plusIP3D_discriminant();
   m_mon_tag_MV2c00  = trigBTagging->auxdata<double>("MV2c00_discriminant");
   m_mon_tag_MV2c10  = trigBTagging->auxdata<double>("MV2c10_discriminant");
+  // Temporary use mv2c00 for hybrid tuning
+  //  m_mon_tag_MV2c10_hybrid  = trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant");
+  m_mon_tag_MV2c10_hybrid  = trigBTagging->auxdata<double>("MV2c00_discriminant");
   m_mon_tag_MV2c20  = trigBTagging->auxdata<double>("MV2c20_discriminant");
   if( trigBTagging->IP2D_pc() != 0 && trigBTagging->IP2D_pb() != 0 ) m_mon_tag_IP2_c   = log(( trigBTagging->IP2D_pb() )/( trigBTagging->IP2D_pc() ));
   else m_mon_tag_IP2_c   = -999.;
@@ -396,7 +411,9 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 		 << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
 		 << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
 		 << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
-		 << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant") );
+		 << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant")
+       // Temporary use mv2c00 for hybrid tuning
+       << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c00_discriminant"));
 
   // ATTACH FEATURES AND CLEAR TEMPORARY OBJECTS
 

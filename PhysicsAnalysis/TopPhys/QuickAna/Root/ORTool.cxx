@@ -175,6 +175,7 @@ namespace ana
     //
     SG::AuxElement::Accessor<SelectType> selectAcc(m_anaSelectionName);
     SG::AuxElement::ConstAccessor<SelectType> overlapAcc(m_orFlags.outputLabel);
+    SG::AuxElement::Accessor<SelectType> orPassAcc("OR_pass");
 
     // List of containers to process.
     std::vector< xAOD::IParticleContainer* > containers {
@@ -188,7 +189,9 @@ namespace ana
         for (auto par : *contPtr) {
           if (overlapAcc(*par)) {
             selectAcc(*par) = false;
-          }
+            orPassAcc(*par) = false;
+          }else
+            orPassAcc(*par) = true;
         }
       }
     }
@@ -242,6 +245,7 @@ namespace
   QUICK_ANA_OR_DEFINITION_MAKER( "boostedHF_JVT", makeORTool(args, "bjet_OR", "both", true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "boostedMuHF_JVT", makeORTool(args, "bjet_OR", "muon", true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv", makeORTool(args, "", "", true, true) )
+  QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv_nojvt", makeORTool(args, "", "", false, true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllll", makeORTool(args, "", "", true, true, true) )
 
 } // anonymous namespace

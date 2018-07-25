@@ -17,7 +17,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
-#include "TopParticleLevel/ParticleLevelRCJetObjectLoader.h"
 
 #include "TopFakes/TopFakesMMWeightCalculator.h"
 
@@ -69,6 +68,14 @@ namespace top {
         m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN(0.),
         m_weight_leptonSF_MU_SF_TTVA_SYST_UP(0.),
         m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN(0.),
+	// Special global lepton trigger SF + systematics
+	m_weight_globalLeptonTriggerSF(0.),
+	m_weight_globalLeptonTriggerSF_EL_Trigger_UP(0.),
+	m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN(0.),
 
         // individual components electrons
         m_weight_indiv_SF_EL_Trigger(0.),
@@ -169,9 +176,15 @@ namespace top {
         return m_particleLevelTreeManager;
     }
 
-    std::shared_ptr<top::ScaleFactorRetriever> EventSaverFlatNtuple::scaleFactorRetriever()
+  //std::shared_ptr<top::ScaleFactorRetriever> EventSaverFlatNtuple::scaleFactorRetriever()
+    top::ScaleFactorRetriever* EventSaverFlatNtuple::scaleFactorRetriever()
     {
         return m_sfRetriever;
+    }
+
+    std::shared_ptr<top::TreeManager> EventSaverFlatNtuple::upgradeTreeManager()
+    {
+        return m_upgradeTreeManager;
     }
 
     std::vector<top::TreeManager::BranchFilter> & EventSaverFlatNtuple::branchFilters()
@@ -187,38 +200,24 @@ namespace top {
 
 
 	// fixed-R re-clustering (RC)
-	if (config->useRCJets() == true){
+	if (config->useRCJets()){
 	  m_makeRCJets = true;
-
-	  if (config->useRCJetSubstructure() == true)
-	    m_useRCJSS = true;
+	  m_useRCJSS = config->useRCJetSubstructure();
 	  
-	  m_rc = std::unique_ptr<RCJetMC15> ( new RCJetMC15( "RCJetMC15" ) );
-	  top::check(m_rc->setProperty( "config" , config ) , "Failed to set config property of RCJetMC15");
-	  top::check(m_rc->initialize(),"Failed to initialize RCJetMC15");
 	}
 
 	// variable-R re-clustering (VarRC)
-	if (config->useVarRCJets() == true){
+	if (config->useVarRCJets()){
 	  m_makeVarRCJets = true;
 	  m_VarRCjetBranches.clear();    // clear map of branches just in case
 	  m_VarRCjetsubBranches.clear();
+	  m_VarRCjetBranchesParticle.clear();
+	  m_VarRCjetsubBranchesParticle.clear();
+	  
 
 	  boost::split(m_VarRCJetRho, config->VarRCJetRho(), boost::is_any_of(","));
 	  boost::split(m_VarRCJetMassScale, config->VarRCJetMassScale(), boost::is_any_of(","));
 
-	  for (auto& rho : m_VarRCJetRho){
-            for (auto& mass_scale : m_VarRCJetMassScale){
-	      std::replace( rho.begin(), rho.end(), '.', '_');
-	      std::string name = rho+mass_scale;
-	      m_VarRC[name] = std::unique_ptr<RCJetMC15> ( new RCJetMC15( "VarRCJetMC15_"+name ) );
-	      top::check(m_VarRC[name]->setProperty( "config" , config ) , "Failed to set config property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->setProperty( "VarRCjets", true ) , "Failed to set VarRCjets property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->setProperty( "VarRCjets_rho",  rho ) , "Failed to set VarRCjets rho property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->setProperty( "VarRCjets_mass_scale", mass_scale ) , "Failed to set VarRCjets mass scale property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->initialize(),"Failed to initialize VarRCJetMC15");
-            } // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
-	  } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
 	} // end make VarRC jets
 
 
@@ -247,7 +246,15 @@ namespace top {
         // Truth tree
         if (m_config->isMC()) {
 
-            m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( m_config ) );
+	    if(asg::ToolStore::contains<ScaleFactorRetriever>("top::ScaleFactorRetriever")){
+	      m_sfRetriever = asg::ToolStore::get<ScaleFactorRetriever>("top::ScaleFactorRetriever");
+	    }
+	    else{
+	      top::ScaleFactorRetriever* topSFR = new top::ScaleFactorRetriever("top::ScaleFactorRetriever");
+	      top::check(asg::setProperty(topSFR, "config", m_config), "Failed to set config");
+	      top::check(topSFR->initialize(), "Failed to initalialise");
+	      m_sfRetriever = topSFR;
+	    }
 
             m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector() ) );
             m_truthTreeManager->branchFilters() = branchFilters();
@@ -346,6 +353,9 @@ namespace top {
                   systematicTree->makeOutputVariable(m_weight_tauSF,
                                                      "weight_tauSF");
 
+		if(m_config->useGlobalTriggerConfiguration())
+		  systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF,                      "weight_globalLeptonTriggerSF");
+
                 // nominal b-tagging SFs
                 for( auto& tagWP : m_config -> bTagWP_available()){
                   // skip uncalibrated though available WPs
@@ -405,8 +415,16 @@ namespace top {
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN,    "weight_leptonSF_MU_SF_TTVA_STAT_DOWN");
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_SYST_UP,      "weight_leptonSF_MU_SF_TTVA_SYST_UP");
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN,    "weight_leptonSF_MU_SF_TTVA_SYST_DOWN");
-
-
+		    // Special global lepton trigger SF when requested
+		    if(m_config->useGlobalTriggerConfiguration()){
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_EL_Trigger_UP,        "weight_globalLeptonTriggerSF_EL_Trigger_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN,      "weight_globalLeptonTriggerSF_EL_Trigger_DOWN");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP,   "weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN, "weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP,   "weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN, "weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN");
+		    }
+		    
                     // write also out the individual components:
 
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger,         "weight_indiv_SF_EL_Trigger");
@@ -758,6 +776,22 @@ namespace top {
 		systematicTree->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
 		systematicTree->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
 		systematicTree->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+
+		systematicTree->makeOutputVariable(m_rcjet_gECF332_clstr,  "rcjet_gECF332_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF461_clstr,  "rcjet_gECF461_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF322_clstr,  "rcjet_gECF322_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF331_clstr,  "rcjet_gECF331_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF422_clstr,  "rcjet_gECF422_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF441_clstr,  "rcjet_gECF441_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF212_clstr,  "rcjet_gECF212_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF321_clstr,  "rcjet_gECF321_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF311_clstr,  "rcjet_gECF311_clstr");
+
+		systematicTree->makeOutputVariable(m_rcjet_L1_clstr,    "rcjet_L1_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_L2_clstr,    "rcjet_L2_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_L3_clstr,    "rcjet_L3_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_L4_clstr,    "rcjet_L4_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_L5_clstr,    "rcjet_L5_clstr");
 	      }
 	    }
 	    // vRC branches
@@ -797,11 +831,13 @@ namespace top {
                 // If FULL information is requested
                 if( m_config->KLFitterOutput() == "FULL"){
                   /// Debugging information
+                  systematicTree->makeOutputVariable(m_klfitter_selection,"klfitter_selection");
                   systematicTree->makeOutputVariable(m_klfitter_minuitDidNotConverge,"klfitter_minuitDidNotConverge");
                   systematicTree->makeOutputVariable(m_klfitter_fitAbortedDueToNaN,"klfitter_fitAbortedDueToNaN");
                   systematicTree->makeOutputVariable(m_klfitter_atLeastOneFitParameterAtItsLimit,"klfitter_atLeastOneFitParameterAtItsLimit");
                   systematicTree->makeOutputVariable(m_klfitter_invalidTransferFunctionAtConvergence,"klfitter_invalidTransferFunctionAtConvergence");
                   /// Global
+                  systematicTree->makeOutputVariable(m_klfitter_parameters_size,"klfitter_parameters_size");
                   systematicTree->makeOutputVariable(m_klfitter_parameters,"klfitter_parameters");
                   systematicTree->makeOutputVariable(m_klfitter_parameterErrors,"klfitter_parameterErrors");
                   systematicTree->makeOutputVariable(m_klfitter_bestPermutation,"klfitter_bestPermutation");
@@ -1019,6 +1055,7 @@ namespace top {
 
         m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
+        m_particleLevelTreeManager->branchFilters() = branchFilters();
         m_particleLevelTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
         //event info
@@ -1106,10 +1143,7 @@ namespace top {
 
         // RC branches
         if (m_makeRCJets){
-          // first initialise the ParticleLevelRCJetObjectLoader
-          m_rcjet_particle = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
-          top::check(m_rcjet_particle->initialize(),"Failed to initialize ParticleLevelRCJetObjectLoader");
-          // then create the branches
+          // create the branches
           m_particleLevelTreeManager->makeOutputVariable(m_rcjet_pt,     "rcjet_pt");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjet_eta,    "rcjet_eta");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjet_phi,    "rcjet_phi");
@@ -1122,7 +1156,69 @@ namespace top {
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_e,   "rcjetsub_e");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_BHadron_Final_Count, "rcjetsub_nGhosts_bHadron");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_CHadron_Final_Count, "rcjetsub_nGhosts_cHadron");
+	  
+	  if (m_useRCJSS){
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_pt,     "rrcjet_pt");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_eta,    "rrcjet_eta");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_phi,    "rrcjet_phi");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_e,      "rrcjet_e");
+ 
+		// RCJet SS from Clusters
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau32_clstr,  "rcjet_tau32_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau21_clstr,  "rcjet_tau21_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau3_clstr,  "rcjet_tau3_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau2_clstr,  "rcjet_tau2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau1_clstr,  "rcjet_tau1_clstr");
+ 
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_D2_clstr,    "rcjet_D2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF1_clstr,  "rcjet_ECF1_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF2_clstr,  "rcjet_ECF2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF3_clstr,  "rcjet_ECF3_clstr");
+ 
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF332_clstr,  "rcjet_gECF332_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF461_clstr,  "rcjet_gECF461_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF322_clstr,  "rcjet_gECF322_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF331_clstr,  "rcjet_gECF331_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF422_clstr,  "rcjet_gECF422_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF441_clstr,  "rcjet_gECF441_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF212_clstr,  "rcjet_gECF212_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF321_clstr,  "rcjet_gECF321_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF311_clstr,  "rcjet_gECF311_clstr");
+
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L1_clstr,    "rcjet_L1_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L2_clstr,    "rcjet_L2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L3_clstr,    "rcjet_L3_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L4_clstr,    "rcjet_L4_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L5_clstr,    "rcjet_L5_clstr");
+	      }
+
+	  
         }
+
+	if (m_makeVarRCJets){
+	  std::string VarRC = "vrcjet";
+
+	  for (auto& rho : m_VarRCJetRho){
+	    for (auto& mass_scale : m_VarRCJetMassScale){
+	      std::replace( rho.begin(), rho.end(), '.', '_');
+	      std::string name = rho+mass_scale;
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_pt"], VarRC+"_"+name+"_pt");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_eta"],VarRC+"_"+name+"_eta");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_phi"],VarRC+"_"+name+"_phi");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_e"],  VarRC+"_"+name+"_e");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d12"],VarRC+"_"+name+"_d12"); // requires >= 2 subjets
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d23"],VarRC+"_"+name+"_d23"); // requires >= 3 subjets
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_pt"],  VarRC+"sub_"+name+"_pt");  // vector of vectors for subjet info
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"], VarRC+"sub_"+name+"_eta");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"], VarRC+"sub_"+name+"_phi");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"],   VarRC+"sub_"+name+"_e");
+	    } // end loop over mass parameters
+	  } // end loop over multipliers for mass scale
+	} // end if VarRC jets
 
         //met
         if ( m_config->useTruthMET() ){
@@ -1182,6 +1278,10 @@ namespace top {
 
         m_upgradeTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
+        if (m_config->doMCGeneratorWeights()) {
+            m_upgradeTreeManager->makeOutputVariable(m_mc_generator_weights, "mc_generator_weights");
+	}
+
         //event info
         m_upgradeTreeManager->makeOutputVariable(m_eventNumber, "eventNumber");
         m_upgradeTreeManager->makeOutputVariable(m_runNumber, "runNumber");
@@ -1194,6 +1294,12 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_el_phi, "el_phi");
        m_upgradeTreeManager->makeOutputVariable(m_el_e, "el_e");
        m_upgradeTreeManager->makeOutputVariable(m_el_charge, "el_charge");
+       m_upgradeTreeManager->makeOutputVariable(m_el_true_type,      "el_true_type");
+       m_upgradeTreeManager->makeOutputVariable(m_el_true_origin,    "el_true_origin");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
+       if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_el_faketype, "el_faketype"); // 0 true 2 hfake
 
        // muons
        m_upgradeTreeManager->makeOutputVariable(m_mu_pt, "mu_pt");
@@ -1201,6 +1307,11 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_mu_phi, "mu_phi");
        m_upgradeTreeManager->makeOutputVariable(m_mu_e, "mu_e");
        m_upgradeTreeManager->makeOutputVariable(m_mu_charge, "mu_charge");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_type,   "mu_true_type");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_z, "mu_prodVtx_z");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_perp, "mu_prodVtx_perp");
 
        // jets
        m_upgradeTreeManager->makeOutputVariable(m_jet_pt, "jet_pt");
@@ -1229,11 +1340,23 @@ namespace top {
            m_upgradeTreeManager->makeOutputVariable(m_ph_eta, "ph_eta");
            m_upgradeTreeManager->makeOutputVariable(m_ph_phi, "ph_phi");
            m_upgradeTreeManager->makeOutputVariable(m_ph_e, "ph_e");
+	   m_upgradeTreeManager->makeOutputVariable(m_ph_true_type,      "ph_true_type");
+	   m_upgradeTreeManager->makeOutputVariable(m_ph_true_origin,    "ph_true_origin");
+	   if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_ph_faketype,       "ph_faketype"); // 0 true 1 efake 2 hfake
        }
 
        // MET
        m_upgradeTreeManager->makeOutputVariable(m_met_met, "met_met");
        m_upgradeTreeManager->makeOutputVariable(m_met_phi, "met_phi");
+
+        m_upgrade_SelectionDecisions.reserve( m_extraBranches.size() );
+        for ( const auto & selection : m_extraBranches ){
+            m_upgrade_SelectionDecisions.push_back( std::make_pair( selection, int() ) );
+        }
+
+        for ( auto & selectionDecision : m_upgrade_SelectionDecisions ){
+            m_upgradeTreeManager->makeOutputVariable( selectionDecision.second, selectionDecision.first );
+        }
    }//setupUpgradeTreeManager
 
     void EventSaverFlatNtuple::recordSelectionDecision(const top::Event& event) {
@@ -1295,6 +1418,9 @@ namespace top {
             if (m_config->usePhotons())
               m_weight_photonSF = m_sfRetriever->photonSF(event, top::topSFSyst::nominal);
 
+	    if(m_config->useGlobalTriggerConfiguration())
+	      m_weight_globalLeptonTriggerSF = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::nominal);
+
             for( auto& tagWP : m_config -> bTagWP_available()) {
 	      if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
               m_weight_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP);
@@ -1352,8 +1478,16 @@ namespace top {
                 m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_STAT_DOWN);
                 m_weight_leptonSF_MU_SF_TTVA_SYST_UP   = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_UP);
                 m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_DOWN);
-
-
+		// Special global lepton trigger SF systematics if requested
+		if(m_config->useGlobalTriggerConfiguration()){
+		  m_weight_globalLeptonTriggerSF_EL_Trigger_UP        = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::EL_SF_Trigger_UP);
+		  m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN      = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP   = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP   = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
+		}
+		
                 m_weight_indiv_SF_EL_Trigger      = m_sfRetriever -> triggerSF(event,top::topSFSyst::nominal);
                 m_weight_indiv_SF_EL_Trigger_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_UP);
                 m_weight_indiv_SF_EL_Trigger_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_DOWN);
@@ -1681,12 +1815,10 @@ namespace top {
                   static SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
                   m_mu_true_type[i]=0;
                   m_mu_true_origin[i]=0;
-                  const xAOD::TrackParticle* mutrack = muPtr->primaryTrackParticle();
-                  if (mutrack!=nullptr) {
-                      if (acc_mctt.isAvailable(*mutrack)) m_mu_true_type[i] = acc_mctt(*mutrack);
-                      if (acc_mcto.isAvailable(*mutrack)) m_mu_true_origin[i] = acc_mcto(*mutrack);
-		      m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
-                  }
+		  if (acc_mctt.isAvailable(*muPtr)) m_mu_true_type[i] = acc_mctt(*muPtr);
+		  if (acc_mcto.isAvailable(*muPtr)) m_mu_true_origin[i] = acc_mcto(*muPtr);
+		  m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
+
                 }
                 ++i;
             }
@@ -1996,16 +2128,6 @@ namespace top {
         }
 
 	if (m_makeRCJets){
-	  // Execute the re-clustering code
-	  // - make jet container of small-r jets in the event, put it in TStore, do re-clustering
-	  top::check(m_rc->execute(event),"Failed to execute RCJetMC15 container");
-
-	  // Get the name of the container of re-clustered jets in TStore
-	  m_RCJetContainer = m_rc->rcjetContainerName(event.m_hashValue,event.m_isLoose);
-
-	  // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
-	  const xAOD::JetContainer* rc_jets(nullptr);
-	  top::check(evtStore()->retrieve(rc_jets,m_RCJetContainer),"Failed to retrieve RC JetContainer");
 
 	  // re-clustered jet substructure
 	  static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
@@ -2026,6 +2148,21 @@ namespace top {
  	  static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
  	  static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
  	  static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+
+	  static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
 	  // store also the jet that is rebuilt to calculate the JSS
  	  static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
  	  static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
@@ -2033,7 +2170,7 @@ namespace top {
  	  static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
 	  
 	  // Initialize the vectors to be saved as branches
-	  unsigned int sizeOfRCjets(rc_jets->size());
+	  unsigned int sizeOfRCjets(event.m_RCJets.size());
 
 	  m_rcjet_pt.clear();
 	  m_rcjet_eta.clear();
@@ -2066,7 +2203,20 @@ namespace top {
 	  m_rcjet_d12_clstr.clear();
 	  m_rcjet_d23_clstr.clear();    
 	  m_rcjet_Qw_clstr.clear();
-
+	  m_rcjet_gECF332_clstr.clear();
+	  m_rcjet_gECF461_clstr.clear();
+	  m_rcjet_gECF322_clstr.clear();
+	  m_rcjet_gECF331_clstr.clear();
+	  m_rcjet_gECF422_clstr.clear();
+	  m_rcjet_gECF441_clstr.clear();
+	  m_rcjet_gECF212_clstr.clear();
+	  m_rcjet_gECF321_clstr.clear();
+	  m_rcjet_gECF311_clstr.clear();
+	  m_rcjet_L1_clstr.clear();
+	  m_rcjet_L2_clstr.clear();
+	  m_rcjet_L3_clstr.clear();
+	  m_rcjet_L4_clstr.clear();
+	  m_rcjet_L5_clstr.clear();
 
 	  m_rcjet_pt.resize(sizeOfRCjets,-999.);
 	  m_rcjet_eta.resize(sizeOfRCjets,-999.);
@@ -2100,13 +2250,28 @@ namespace top {
 	    m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
 	    m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
 	    m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+
+	    m_rcjet_gECF332_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF461_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF322_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF331_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF422_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF441_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF212_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF321_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF311_clstr.resize(sizeOfRCjets,-999.);
+
+	    m_rcjet_L1_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_L2_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_L3_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_L4_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_L5_clstr.resize(sizeOfRCjets,-999.);
 	  }
 	  unsigned int i = 0;
-	  for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr) {
+	  for (auto jet_itr = event.m_RCJets.begin(); jet_itr != event.m_RCJets.end(); ++jet_itr) {
+	    
 	    const xAOD::Jet* rc_jet = *jet_itr;
 
-            if (!m_rc->passSelection(*rc_jet))
-	      continue;
 
             m_rcjet_pt[i]   = rc_jet->pt();
             m_rcjet_eta[i]  = rc_jet->eta();
@@ -2134,6 +2299,23 @@ namespace top {
 	      m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
 	      m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
 	      m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+
+	      m_rcjet_gECF332_clstr[i] = (gECF332_clstr.isAvailable(*rc_jet)) ? gECF332_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF461_clstr[i] = (gECF461_clstr.isAvailable(*rc_jet)) ? gECF461_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF322_clstr[i] = (gECF322_clstr.isAvailable(*rc_jet)) ? gECF322_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF331_clstr[i] = (gECF331_clstr.isAvailable(*rc_jet)) ? gECF331_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF422_clstr[i] = (gECF422_clstr.isAvailable(*rc_jet)) ? gECF422_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF441_clstr[i] = (gECF441_clstr.isAvailable(*rc_jet)) ? gECF441_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF212_clstr[i] = (gECF212_clstr.isAvailable(*rc_jet)) ? gECF212_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF321_clstr[i] = (gECF321_clstr.isAvailable(*rc_jet)) ? gECF321_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF311_clstr[i] = (gECF311_clstr.isAvailable(*rc_jet)) ? gECF311_clstr(*rc_jet) : -999.;
+
+	      m_rcjet_L1_clstr[i] = (L1_clstr.isAvailable(*rc_jet)) ? L1_clstr(*rc_jet) : -999.;
+	      m_rcjet_L2_clstr[i] = (L2_clstr.isAvailable(*rc_jet)) ? L2_clstr(*rc_jet) : -999.;
+	      m_rcjet_L3_clstr[i] = (L3_clstr.isAvailable(*rc_jet)) ? L3_clstr(*rc_jet) : -999.;
+	      m_rcjet_L4_clstr[i] = (L4_clstr.isAvailable(*rc_jet)) ? L4_clstr(*rc_jet) : -999.;
+	      m_rcjet_L5_clstr[i] = (L5_clstr.isAvailable(*rc_jet)) ? L5_clstr(*rc_jet) : -999.;
+
 	    }
 	    
             // loop over subjets
@@ -2167,68 +2349,28 @@ namespace top {
             ++i;
 	  } // end for-loop over re-clustered jets
 
-	  m_rcjet_pt.resize(i);
-	  m_rcjet_eta.resize(i);
-	  m_rcjet_phi.resize(i);
-	  m_rcjet_e.resize(i);
-	  m_rcjet_d12.resize(i);
-	  m_rcjet_d23.resize(i);
-	  m_rcjetsub_pt.resize(i, std::vector<float>());
-	  m_rcjetsub_eta.resize(i, std::vector<float>());
-	  m_rcjetsub_phi.resize(i, std::vector<float>());
-	  m_rcjetsub_e.resize(i, std::vector<float>());
-	  m_rcjetsub_mv2c10.resize(i, std::vector<float>());
-
-	  if (m_useRCJSS){
-	    m_rrcjet_pt.resize(i);
-	    m_rrcjet_eta.resize(i);
-	    m_rrcjet_phi.resize(i);
-	    m_rrcjet_e.resize(i);
-
-	    m_rcjet_tau21_clstr.resize(i);
-	    m_rcjet_tau32_clstr.resize(i);
-	    m_rcjet_tau1_clstr.resize(i);
-	    m_rcjet_tau2_clstr.resize(i);
-	    m_rcjet_tau3_clstr.resize(i);
- 	  
-	    m_rcjet_D2_clstr.resize(i);
-	    m_rcjet_ECF1_clstr.resize(i);
-	    m_rcjet_ECF2_clstr.resize(i);
-	    m_rcjet_ECF3_clstr.resize(i);
- 
-	    m_rcjet_d12_clstr.resize(i);
-	    m_rcjet_d23_clstr.resize(i);
-	    m_rcjet_Qw_clstr.resize(i);
-	  }
+	  
 	} // end if make rcjets
 	// end re-clustered jets
 
 	/**********************************/
 	// VarRC jets
 	if (m_makeVarRCJets){
-	  // Execute the re-clustering code
-          // - make jet container, put it in TStore, do re-clustering
           std::string VarRC = "vrcjet";
+	  std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > VarRCJets=event.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
 	      std::string name = rho+mass_scale;
-
-	      top::check(m_VarRC[name]->execute(event),"Failed to execute RCJetMC15 container");
-
-	      // Get the name of the container of re-clustered jets in TStore
-              m_RCJetContainer = m_VarRC[name]->rcjetContainerName(event.m_hashValue,event.m_isLoose);
-
-	      // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
-              const xAOD::JetContainer* vrc_jets(nullptr);
-	      top::check(evtStore()->retrieve(vrc_jets,m_RCJetContainer),"Failed to retrieve RC JetContainer");
 
 	      // re-clustered jet substructure
               static SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
 	      static SG::AuxElement::ConstAccessor<float> VarRCSplit23("Split23");
 
 	      // Initialize the vectors to be saved as branches
-              unsigned int sizeOfRCjets(vrc_jets->size());
+	      
+	      xAOD::JetContainer* vrc_jets = VarRCJets[name].get();
+              unsigned int sizeOfRCjets = vrc_jets->size();
 	      m_VarRCjetBranches[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_phi"].resize(sizeOfRCjets,-999.);
@@ -2242,12 +2384,10 @@ namespace top {
 	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_mv2c10"].resize(sizeOfRCjets, std::vector<float>());
 
 	      unsigned int i = 0;
-	      for (xAOD::JetContainer::const_iterator jet_itr = vrc_jets->begin(); jet_itr != vrc_jets->end(); ++jet_itr) {
-		const xAOD::Jet* rc_jet = *jet_itr;
-
-		if (!m_VarRC[name]->passSelection(*rc_jet))
-		  continue;
-
+	      
+	      for (auto jet_ptr : *vrc_jets) {
+		const xAOD::Jet* rc_jet = jet_ptr;
+		
 		m_VarRCjetBranches[VarRC+"_"+name+"_pt"][i]   = rc_jet->pt();
 		m_VarRCjetBranches[VarRC+"_"+name+"_eta"][i]  = rc_jet->eta();
 		m_VarRCjetBranches[VarRC+"_"+name+"_phi"][i]  = rc_jet->phi();
@@ -2287,17 +2427,6 @@ namespace top {
 
 	      } // end for-loop over re-clustered jets
 
-	      m_VarRCjetBranches[VarRC+"_"+name+"_pt"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_eta"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_phi"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_e"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_d12"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_d23"].resize(i);
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_pt"].resize(i, std::vector<float>());
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_eta"].resize(i, std::vector<float>());
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_phi"].resize(i, std::vector<float>());
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_e"].resize(i, std::vector<float>());
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_mv2c10"].resize(i, std::vector<float>());
 	    } // end loop over mass parameters
 	  } // end loop over multipliers for mass scale
 	} // end if make VarRC jets
@@ -2319,6 +2448,7 @@ namespace top {
                 nPermutations = event.m_KLFitterResults->size();
             }
 
+            m_klfitter_selection.resize(nPermutations);
             m_klfitter_minuitDidNotConverge.resize(nPermutations);
             m_klfitter_fitAbortedDueToNaN.resize(nPermutations);
             m_klfitter_atLeastOneFitParameterAtItsLimit.resize(nPermutations);
@@ -2328,6 +2458,7 @@ namespace top {
             m_klfitter_bestPermutation.resize(nPermutations);
             m_klfitter_logLikelihood.resize(nPermutations);
             m_klfitter_eventProbability.resize(nPermutations);
+            m_klfitter_parameters_size.resize(nPermutations);
             m_klfitter_parameters.resize(nPermutations);
             m_klfitter_parameterErrors.resize(nPermutations);
 
@@ -2439,6 +2570,14 @@ namespace top {
 
             if (validKLFitter) {
                 for (const auto* const klPtr : *event.m_KLFitterResults) {
+                    m_klfitter_selection[iPerm] = "unknown";
+                    std::hash<std::string> st_hash;
+                    for(unsigned int s=0; s<m_config->allSelectionNames()->size(); ++s){
+                       if(st_hash(m_config->allSelectionNames()->at(s))==klPtr->selectionCode()){
+                          m_klfitter_selection[iPerm] = m_config->allSelectionNames()->at(s);
+                          break;
+                       }
+                    }
                     m_klfitter_minuitDidNotConverge[iPerm] = klPtr->minuitDidNotConverge();
                     m_klfitter_fitAbortedDueToNaN[iPerm] = klPtr->fitAbortedDueToNaN();
                     m_klfitter_atLeastOneFitParameterAtItsLimit[iPerm] = klPtr->atLeastOneFitParameterAtItsLimit();
@@ -2451,6 +2590,7 @@ namespace top {
                     }
                     m_klfitter_logLikelihood[iPerm] = klPtr->logLikelihood();
                     m_klfitter_eventProbability[iPerm] = klPtr->eventProbability();
+                    m_klfitter_parameters_size[iPerm] = klPtr->parameters().size();
                     m_klfitter_parameters[iPerm] = klPtr->parameters();
                     m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 
@@ -2910,8 +3050,15 @@ namespace top {
                 m_jet_phi[i] = jetPtr->phi();
                 m_jet_e[i] = jetPtr->e();
 
-                m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
-                m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+                try {
+                  m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+                  m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+                } catch (SG::ExcBadAuxVar e) {
+                  //didn't find any ghost b-hadron info, have to assume it's a light jet
+                  ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+                  m_jet_Ghosts_BHadron_Final_Count[i] = 0;
+                  m_jet_Ghosts_CHadron_Final_Count[i] = 0;
+                }
 
                 ++i;
             }
@@ -2933,31 +3080,62 @@ namespace top {
                 m_ljet_phi[i] = jetPtr->phi();
                 m_ljet_e[i] = jetPtr->e();
 
-                m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
-                m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+                try {
+                  m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+                  m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+                } catch (SG::ExcBadAuxVar e) {
+                  //didn't find any ghost b-hadron info, have to assume it's a light jet
+                  ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+                  m_ljet_Ghosts_BHadron_Final_Count[i] = 0;
+                  m_ljet_Ghosts_CHadron_Final_Count[i] = 0;
+                }
 
                 ++i;
             }
         }
 
         if(m_makeRCJets){
-            // Execute the re-clustering code
-            // - make jet container of small-r jets in the event, put it in TStore, do re-clustering
-            top::check(m_rcjet_particle->execute(plEvent),"Failed to execute ParticleLevelRCJetObjectLoader container");
-
-            // Get the name of the container of re-clustered jets
-            m_RCJetContainerParticle = m_rcjet_particle->rcjetContainerName();
-
-            // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
-            const xAOD::JetContainer* rc_jets_particle(nullptr);
-            top::check(evtStore()->retrieve(rc_jets_particle,m_RCJetContainerParticle),"Failed to retrieve particle RC JetContainer");
-
+            
             // re-clustered jet substructure
             static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
             static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
 
+	    // re-clustered jet substructure from clusters
+	    static SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
+	    static SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
+	    static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
+	    static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
+	    // store also the jet that is rebuilt to calculate the JSS
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
+
+	  
             // Initialize the vectors to be saved as branches
-            unsigned int sizeOfRCjets(rc_jets_particle->size());
+            unsigned int sizeOfRCjets(plEvent.m_RCJets.size());
 
             m_rcjet_pt.clear();
             m_rcjet_eta.clear();
@@ -2972,6 +3150,35 @@ namespace top {
             m_rcjetsub_Ghosts_BHadron_Final_Count.clear();
             m_rcjetsub_Ghosts_CHadron_Final_Count.clear();
 
+     
+	    m_rcjet_tau32_clstr.clear();
+	    m_rcjet_tau21_clstr.clear();
+	    m_rcjet_tau3_clstr.clear();
+	    m_rcjet_tau2_clstr.clear();
+	    m_rcjet_tau1_clstr.clear();
+	    m_rcjet_D2_clstr.clear();
+	    m_rcjet_ECF1_clstr.clear();
+	    m_rcjet_ECF2_clstr.clear();
+	    m_rcjet_ECF3_clstr.clear();
+	    m_rcjet_d12_clstr.clear();
+	    m_rcjet_d23_clstr.clear();    
+	    m_rcjet_Qw_clstr.clear();
+	    
+	    m_rcjet_gECF332_clstr.clear();
+	    m_rcjet_gECF461_clstr.clear();
+	    m_rcjet_gECF322_clstr.clear();
+	    m_rcjet_gECF331_clstr.clear();
+	    m_rcjet_gECF422_clstr.clear();
+	    m_rcjet_gECF441_clstr.clear();
+	    m_rcjet_gECF212_clstr.clear();
+	    m_rcjet_gECF321_clstr.clear();
+	    m_rcjet_gECF311_clstr.clear();
+	    m_rcjet_L1_clstr.clear();
+	    m_rcjet_L2_clstr.clear();
+	    m_rcjet_L3_clstr.clear();
+	    m_rcjet_L4_clstr.clear();
+	    m_rcjet_L5_clstr.clear();
+	  
             m_rcjet_pt.resize(sizeOfRCjets,-999.);
             m_rcjet_eta.resize(sizeOfRCjets,-999.);
             m_rcjet_phi.resize(sizeOfRCjets,-999.);
@@ -2985,16 +3192,47 @@ namespace top {
             m_rcjetsub_Ghosts_BHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
             m_rcjetsub_Ghosts_CHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
 
+	    if (m_useRCJSS){
+	      m_rrcjet_pt.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_eta.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_phi.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_e.resize(sizeOfRCjets,-999.);
+     
+	      m_rcjet_tau32_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau21_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau1_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau3_clstr.resize(sizeOfRCjets,-999.);
+ 	  
+	      m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF1_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF3_clstr.resize(sizeOfRCjets,-999.);
+ 
+	      m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+
+	      m_rcjet_gECF332_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF461_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF322_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF331_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF422_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF441_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF212_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF321_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF311_clstr.resize(sizeOfRCjets,-999.);
+
+	      m_rcjet_L1_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_L2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_L3_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_L4_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_L5_clstr.resize(sizeOfRCjets,-999.);
+
+	    }
             unsigned int i = 0;
-            std::vector<int> rc_particle_selected_jets;
-            rc_particle_selected_jets.clear();
-
-            for (xAOD::JetContainer::const_iterator jet_itr = rc_jets_particle->begin(); jet_itr != rc_jets_particle->end(); ++jet_itr) {
-                const xAOD::Jet* rc_jet = *jet_itr;
-                if (!m_rcjet_particle->passSelection(*rc_jet))
-                    continue;
-
-                rc_particle_selected_jets.push_back(rc_jet->index());
+            for( auto rc_jet : plEvent.m_RCJets){
+	      
 
                 m_rcjet_pt[i]   = rc_jet->pt();
                 m_rcjet_eta[i]  = rc_jet->eta();
@@ -3004,6 +3242,44 @@ namespace top {
                 m_rcjet_d12[i] = (RCSplit12.isAvailable(*rc_jet)) ? RCSplit12(*rc_jet) : -999.;
                 m_rcjet_d23[i] = (RCSplit23.isAvailable(*rc_jet)) ? RCSplit23(*rc_jet) : -999.;
 
+		if (m_useRCJSS){
+		  m_rrcjet_pt[i]   =  (RRCJet_pt.isAvailable(*rc_jet))  ? RRCJet_pt(*rc_jet) : -999.;
+		  m_rrcjet_eta[i]  =  (RRCJet_eta.isAvailable(*rc_jet)) ? RRCJet_eta(*rc_jet) : -999.;
+		  m_rrcjet_phi[i]  =  (RRCJet_phi.isAvailable(*rc_jet)) ? RRCJet_phi(*rc_jet) : -999.;
+		  m_rrcjet_e[i]    =  (RRCJet_e.isAvailable(*rc_jet))   ? RRCJet_e(*rc_jet) : -999.;
+
+		  m_rcjet_tau32_clstr[i] = (Tau32_clstr.isAvailable(*rc_jet)) ? Tau32_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau21_clstr[i] = (Tau21_clstr.isAvailable(*rc_jet)) ? Tau21_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau3_clstr[i] = (Tau3_clstr.isAvailable(*rc_jet)) ? Tau3_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau2_clstr[i] = (Tau2_clstr.isAvailable(*rc_jet)) ? Tau2_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau1_clstr[i] = (Tau1_clstr.isAvailable(*rc_jet)) ? Tau1_clstr(*rc_jet) : -999.;
+		  m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF1_clstr[i] = (ECF1_clstr.isAvailable(*rc_jet)) ? ECF1_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF2_clstr[i] = (ECF2_clstr.isAvailable(*rc_jet)) ? ECF2_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF3_clstr[i] = (ECF3_clstr.isAvailable(*rc_jet)) ? ECF3_clstr(*rc_jet) : -999.;
+		  m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
+		  m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
+		  m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+
+		  m_rcjet_gECF332_clstr[i] = (gECF332_clstr.isAvailable(*rc_jet)) ? gECF332_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF461_clstr[i] = (gECF461_clstr.isAvailable(*rc_jet)) ? gECF461_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF322_clstr[i] = (gECF322_clstr.isAvailable(*rc_jet)) ? gECF322_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF331_clstr[i] = (gECF331_clstr.isAvailable(*rc_jet)) ? gECF331_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF422_clstr[i] = (gECF422_clstr.isAvailable(*rc_jet)) ? gECF422_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF441_clstr[i] = (gECF441_clstr.isAvailable(*rc_jet)) ? gECF441_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF212_clstr[i] = (gECF212_clstr.isAvailable(*rc_jet)) ? gECF212_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF321_clstr[i] = (gECF321_clstr.isAvailable(*rc_jet)) ? gECF321_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF311_clstr[i] = (gECF311_clstr.isAvailable(*rc_jet)) ? gECF311_clstr(*rc_jet) : -999.;
+		  
+		  m_rcjet_L1_clstr[i] = (L1_clstr.isAvailable(*rc_jet)) ? L1_clstr(*rc_jet) : -999.;
+		  m_rcjet_L2_clstr[i] = (L2_clstr.isAvailable(*rc_jet)) ? L2_clstr(*rc_jet) : -999.;
+		  m_rcjet_L3_clstr[i] = (L3_clstr.isAvailable(*rc_jet)) ? L3_clstr(*rc_jet) : -999.;
+		  m_rcjet_L4_clstr[i] = (L4_clstr.isAvailable(*rc_jet)) ? L4_clstr(*rc_jet) : -999.;
+		  m_rcjet_L5_clstr[i] = (L5_clstr.isAvailable(*rc_jet)) ? L5_clstr(*rc_jet) : -999.;
+
+
+		}
+	    
                 // loop over subjets
                 m_rcjetsub_pt[i].clear();     // clear the vector size (otherwise it grows out of control!)
                 m_rcjetsub_eta[i].clear();
@@ -3017,27 +3293,123 @@ namespace top {
                     m_rcjetsub_eta[i].push_back(subjet->eta());
                     m_rcjetsub_phi[i].push_back(subjet->phi());
                     m_rcjetsub_e[i].push_back(subjet->e());
-                    m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostBHadronsFinalCount" ));
-                    m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostCHadronsFinalCount" ));
+                    try {
+                      m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostBHadronsFinalCount" ));
+                      m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostCHadronsFinalCount" ));
+                    } catch (SG::ExcBadAuxVar e) {
+                      //didn't find any ghost b-hadron info, have to assume it's a light jet
+                      ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+                      m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(0);
+                      m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(0);
+                    }
                 } // end for-loop over subjets
                 ++i;
             } // end for-loop over re-clustered jets
-	    // we resized earlier to the size of rc_jets_particle container, but then only stored a sub-set
-	    // so have to resize again to shrink to correct size incase some jets were not stored
-            m_rcjet_pt.resize(i,-999);
-            m_rcjet_eta.resize(i,-999.);
-            m_rcjet_phi.resize(i,-999.);
-            m_rcjet_e.resize(i,-999.);
-            m_rcjet_d12.resize(i,-999.);
-            m_rcjet_d23.resize(i,-999.);
-            m_rcjetsub_pt.resize(i, std::vector<float>());
-            m_rcjetsub_eta.resize(i, std::vector<float>());
-            m_rcjetsub_phi.resize(i, std::vector<float>());
-            m_rcjetsub_e.resize(i, std::vector<float>());
-            m_rcjetsub_Ghosts_BHadron_Final_Count.resize(i, std::vector<int>());
-            m_rcjetsub_Ghosts_CHadron_Final_Count.resize(i, std::vector<int>());
 
+	    if (m_useRCJSS){
+	      m_rrcjet_pt.resize(i);
+	      m_rrcjet_eta.resize(i);
+	      m_rrcjet_phi.resize(i);
+	      m_rrcjet_e.resize(i);
+
+	      m_rcjet_tau21_clstr.resize(i);
+	      m_rcjet_tau32_clstr.resize(i);
+	      m_rcjet_tau1_clstr.resize(i);
+	      m_rcjet_tau2_clstr.resize(i);
+	      m_rcjet_tau3_clstr.resize(i);
+ 	  
+	      m_rcjet_D2_clstr.resize(i);
+	      m_rcjet_ECF1_clstr.resize(i);
+	      m_rcjet_ECF2_clstr.resize(i);
+	      m_rcjet_ECF3_clstr.resize(i);
+ 
+	      m_rcjet_d12_clstr.resize(i);
+	      m_rcjet_d23_clstr.resize(i);
+	      m_rcjet_Qw_clstr.resize(i);
+
+	      m_rcjet_gECF332_clstr.resize(i);
+	      m_rcjet_gECF461_clstr.resize(i);
+	      m_rcjet_gECF322_clstr.resize(i);
+	      m_rcjet_gECF331_clstr.resize(i);
+	      m_rcjet_gECF422_clstr.resize(i);
+	      m_rcjet_gECF441_clstr.resize(i);
+	      m_rcjet_gECF212_clstr.resize(i);
+	      m_rcjet_gECF321_clstr.resize(i);
+	      m_rcjet_gECF311_clstr.resize(i);
+	      m_rcjet_L1_clstr.resize(i);
+	      m_rcjet_L2_clstr.resize(i);
+	      m_rcjet_L3_clstr.resize(i);
+	      m_rcjet_L4_clstr.resize(i);
+	      m_rcjet_L5_clstr.resize(i);
+	    }
+	    
         }
+
+	// VarRC jets
+	if (m_makeVarRCJets){
+          std::string VarRC = "vrcjet";
+	  std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > VarRCJets=plEvent.m_VarRCJets;
+	  for (auto& rho : m_VarRCJetRho){
+            for (auto& mass_scale : m_VarRCJetMassScale){
+	      std::replace( rho.begin(), rho.end(), '.', '_');
+	      std::string name = rho+mass_scale;
+
+	      // re-clustered jet substructure
+              static SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
+	      static SG::AuxElement::ConstAccessor<float> VarRCSplit23("Split23");
+
+	      // Initialize the vectors to be saved as branches
+	      
+	      xAOD::JetContainer* vrc_jets = VarRCJets[name].get();
+              unsigned int sizeOfRCjets = vrc_jets->size();
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_phi"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_e"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d12"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d23"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_pt"].resize(sizeOfRCjets, std::vector<float>());
+	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"].resize(sizeOfRCjets, std::vector<float>());
+	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"].resize(sizeOfRCjets, std::vector<float>());
+	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"].resize(sizeOfRCjets, std::vector<float>());
+
+	      unsigned int i = 0;
+	      
+	      for (auto jet_ptr : *vrc_jets) {
+		const xAOD::Jet* rc_jet = jet_ptr;
+
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_pt"][i]   = rc_jet->pt();
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_eta"][i]  = rc_jet->eta();
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_phi"][i]  = rc_jet->phi();
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_e"][i]    = rc_jet->e();
+
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d12"][i] = (VarRCSplit12.isAvailable(*rc_jet)) ? VarRCSplit12(*rc_jet) : -999.;
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d23"][i] = (VarRCSplit23.isAvailable(*rc_jet)) ? VarRCSplit23(*rc_jet) : -999.;
+
+		// loop over subjets
+                const xAOD::Jet* subjet(nullptr);
+		m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_pt"][i].clear();     // clear the vector size (otherwise it grows out of control!)
+		m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"][i].clear();
+		m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"][i].clear();
+		m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"][i].clear();
+		for(auto rc_jet_subjet : rc_jet->getConstituents()){
+		  subjet = static_cast<const xAOD::Jet*>(rc_jet_subjet->rawConstituent());
+
+		  m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_pt"][i].push_back(subjet->pt());
+		  m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"][i].push_back(subjet->eta());
+		  m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"][i].push_back(subjet->phi());
+		  m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"][i].push_back(subjet->e());
+		} // end for-loop over subjets
+		++i;
+
+	      } // end for-loop over re-clustered jets
+
+	    } // end loop over mass parameters
+	  } // end loop over multipliers for mass scale
+	} // end if make VarRC jets
+	// end VarRC jets
+	
+	
 
         //met
         if ( m_config->useTruthMET() ){
@@ -3120,6 +3492,9 @@ namespace top {
     }
 
     void EventSaverFlatNtuple::calculateUpgradeEvent(const top::ParticleLevelEvent& upgradeEvent) {
+        for ( auto & selectionDecision : m_upgrade_SelectionDecisions ){
+            selectionDecision.second = upgradeEvent.m_selectionDecisions[ selectionDecision.first ];
+        }
 
         // to get the fixed mc weight
         const xAOD::TruthEventContainer * truthEvent(nullptr);
@@ -3143,6 +3518,12 @@ namespace top {
        m_el_phi.resize(upgradeEvent.m_electrons->size());
        m_el_e.resize(upgradeEvent.m_electrons->size());
        m_el_charge.resize(upgradeEvent.m_electrons->size());
+       m_el_true_type.resize(upgradeEvent.m_electrons->size());
+       m_el_true_origin.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_firstEgMotherTruthOrigin.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_firstEgMotherTruthType.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_isPrompt.resize(upgradeEvent.m_electrons->size());
+       if (m_config->HLLHCFakes()) m_el_faketype.resize(upgradeEvent.m_electrons->size());
 
        for (const auto  elPtr : * upgradeEvent.m_electrons) {
          m_el_pt[i] = elPtr->pt();
@@ -3150,6 +3531,73 @@ namespace top {
          m_el_phi[i] = elPtr->phi();
          m_el_e[i] = elPtr->e();
          m_el_charge[i] = elPtr->charge();
+
+	 m_el_true_type[i] = 0;
+	 m_el_true_origin[i] = 0;
+	 //m_el_true_firstEgMotherTruthType[i] = 0;
+	 //m_el_true_firstEgMotherTruthOrigin[i] = 0;
+	 //m_el_true_isPrompt[i] = 0;
+	 if (!m_config->HLLHCFakes()) {
+	     if (elPtr->isAvailable<unsigned int>("particleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("classifierParticleType");
+	     } else {
+	         top::check(false, "Could not obtain truth Type decoration for electron!");
+	     }
+	     if (elPtr->isAvailable<unsigned int>("particleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("particleOrigin");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	     } else {
+	         top::check(false, "Could not obtain truth Origin decoration for electron!");
+	     }
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthType")) {
+	     //    m_el_true_firstEgMotherTruthType[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthType");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Type decoration for electron!");
+	     //}
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthOrigin")) {
+	     //    m_el_true_firstEgMotherTruthOrigin[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthOrigin");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Origin decoration for electron!");
+	     //}
+	     //m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+	 } else {
+	   if (elPtr->isAvailable<int>("FakeType")) {
+	     m_el_faketype[i] = elPtr->auxdata<int>("FakeType");
+	   } else {
+	     top::check(false, "Could not obtain FakeType decoration for electron!");
+	   }
+	   if (m_el_faketype[i] == 0) { // truthType/Origin only available for true electron (also for electron fake, but we are not interested in its truth info)
+	     if (elPtr->isAvailable<unsigned int>("particleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("classifierParticleType");
+	     } else {
+	         top::check(false, "Could not obtain truth Type decoration for electron!");
+	     }
+	     if (elPtr->isAvailable<unsigned int>("particleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("particleOrigin");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	     } else {
+	         top::check(false, "Could not obtain truth Origin decoration for electron!");
+	     }
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthType")) {
+	     //    m_el_true_firstEgMotherTruthType[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthType");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Type decoration for electron!");
+	     //}
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthOrigin")) {
+	     //    m_el_true_firstEgMotherTruthOrigin[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthOrigin");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Origin decoration for electron!");
+	     //}
+	     //m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+	   }
+	 }
+
          ++i;
        }
 
@@ -3160,6 +3608,11 @@ namespace top {
        m_mu_phi.resize(upgradeEvent.m_muons->size());
        m_mu_e.resize(upgradeEvent.m_muons->size());
        m_mu_charge.resize(upgradeEvent.m_muons->size());
+       m_mu_true_type.resize(upgradeEvent.m_muons->size());
+       m_mu_true_origin.resize(upgradeEvent.m_muons->size());
+       m_mu_true_isPrompt.resize(upgradeEvent.m_muons->size());
+       m_mu_prodVtx_z.resize(upgradeEvent.m_muons->size());
+       m_mu_prodVtx_perp.resize(upgradeEvent.m_muons->size());
 
        for (const auto  muPtr : * upgradeEvent.m_muons) {
          m_mu_pt[i] = muPtr->pt();
@@ -3167,6 +3620,34 @@ namespace top {
          m_mu_phi[i] = muPtr->phi();
          m_mu_e[i] = muPtr->e();
          m_mu_charge[i] = muPtr->charge();
+
+	 m_mu_true_type[i] = 0;
+	 m_mu_true_origin[i] = 0;
+	 m_mu_true_isPrompt[i] = 0;
+         m_mu_prodVtx_z[i] = -999;
+         m_mu_prodVtx_perp[i] = -999;
+	 if (muPtr->isAvailable<unsigned int>("particleType")) {
+	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("particleType");
+	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("classifierParticleType");
+	 } else {
+	     top::check(false, "Could not obtain truth Type decoration for muon!");
+	 }
+	 if (muPtr->isAvailable<unsigned int>("particleOrigin")) {
+	     m_mu_true_origin[i] = muPtr->auxdata<unsigned int>("particleOrigin");
+	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	     m_mu_true_origin[i] = muPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	 } else {
+	     top::check(false, "Could not obtain truth Origin decoration for muon!");
+	 }
+	 m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
+         if (muPtr->isAvailable<float>("prodVtx_z")) {
+           m_mu_prodVtx_z[i] = muPtr->auxdata<float>("prodVtx_z");
+         }
+         if (muPtr->isAvailable<float>("prodVtx_perp")) {
+           m_mu_prodVtx_perp[i] = muPtr->auxdata<float>("prodVtx_perp");
+         }
+
          ++i;
        }
 
@@ -3190,8 +3671,16 @@ namespace top {
 
          if(jetPtr->auxdata<int>("pileUp")==0) {
            m_jet_isPileup[i]=0;
-           m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
-           m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+           try {
+             m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+             m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+           } catch (SG::ExcBadAuxVar e) {
+             //didn't find any ghost b-hadron info, have to assume it's a light jet
+             ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+             m_jet_Ghosts_BHadron_Final_Count[i] = 0;
+             m_jet_Ghosts_CHadron_Final_Count[i] = 0;
+           }
+
          } else {
            m_jet_isPileup[i]=1;
            m_jet_Ghosts_BHadron_Final_Count[i] = 0;
@@ -3217,8 +3706,12 @@ namespace top {
                m_ljet_phi[i] = jetPtr->phi();
                m_ljet_e[i] = jetPtr->e();
 
-               m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+              if (jetPtr->isAvailable<int>("GhostBHadronsFinalCount")) {
+                m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+              }
+              if (jetPtr->isAvailable<int>("GhostCHadronsFinalCount")) {
                m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+              }
 
                ++i;
            }
@@ -3231,11 +3724,53 @@ namespace top {
             m_ph_eta.resize(upgradeEvent.m_photons->size());
             m_ph_phi.resize(upgradeEvent.m_photons->size());
             m_ph_e.resize(upgradeEvent.m_photons->size());
+            m_ph_true_type.resize(upgradeEvent.m_photons->size());
+            m_ph_true_origin.resize(upgradeEvent.m_photons->size());
+            if (m_config->HLLHCFakes()) m_ph_faketype.resize(upgradeEvent.m_photons->size());
+
             for (const auto* const phPtr : * upgradeEvent.m_photons) {
                 m_ph_pt[i] = phPtr->pt();
                 m_ph_eta[i] = phPtr->eta();
                 m_ph_phi[i] = phPtr->phi();
                 m_ph_e[i] = phPtr->e();
+ 		if (!m_config->HLLHCFakes()) {
+ 		    if (phPtr->isAvailable<unsigned int>("particleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("particleType");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("classifierParticleType");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Type decoration for photon!");
+         	    }
+ 		    if (phPtr->isAvailable<unsigned int>("particleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("particleOrigin");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("classifierParticleOrigin");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Origin decoration for photon!");
+         	    }
+ 		} else {
+ 		  if (phPtr->isAvailable<int>("FakeType")) {
+ 	   	    m_ph_faketype[i] = phPtr->auxdata<int>("FakeType");
+            	  } else {
+            	    top::check(false, "Could not obtain FakeType decoration for photon!");
+            	  }
+ 		  if (m_ph_faketype[i] == 0) { // truthType/Origin only available for true photon (also for electron fake, but we are not interested in its truth info)
+ 		    if (phPtr->isAvailable<unsigned int>("particleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("particleType");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("classifierParticleType");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Type decoration for photon!");
+         	    }
+ 		    if (phPtr->isAvailable<unsigned int>("particleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("particleOrigin");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("classifierParticleOrigin");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Origin decoration for photon!");
+         	    }
+ 		  }
+ 		}
 
                 ++i;
             }
@@ -3244,6 +3779,11 @@ namespace top {
        // MET
        m_met_met = upgradeEvent.m_met->met();
        m_met_phi = upgradeEvent.m_met->phi();
+
+       if (m_config->doMCGeneratorWeights()) {
+           // delegate to helper function.
+           loadMCGeneratorWeights();
+       }
 
     }
 
