@@ -1,9 +1,9 @@
 // TrigT1CaloFexSim includes
 #include "TrigT1CaloFexSim/JGTowerReader.h"
 #include "TrigT1CaloFexSim/JGTower.h"
+#include "TrigT1CaloFexSim/JetAlg.h"
 #include "TSystem.h"
 #include "xAODEventInfo/EventInfo.h"
-
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
@@ -251,11 +251,11 @@ StatusCode JGTowerReader::beginInputFile() {
 StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
 // jet algorithms
-  if(jSeeds->eta.empty()) CHECK(SeedGrid(jTs,jSeeds));
-  CHECK(SeedFinding(jTs,jSeeds,0.2,0.8,jT_noise)); //the diameter of seed, and its range to be local maximum
+  if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds));
+  CHECK(JetAlg::SeedFinding(jTs,jSeeds,0.2,0.8,jT_noise)); //the diameter of seed, and its range to be local maximum
                                           //Careful to ensure the range set to be no tower double counted
-  CHECK(BuildJet(jTs, jT_noise,jSeeds, jL1Jets,0.4)); 
-  CHECK(BuildMET(jTs,jT_noise,jMET));
+  CHECK(JetAlg::BuildJet(jTs, jT_noise,jSeeds, jL1Jets,0.4)); 
+  CHECK(JGTowerReader::BuildMET(jTs,jT_noise,jMET));
 
   return StatusCode::SUCCESS;
 }
@@ -263,17 +263,17 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
 // jet algorithms
-  if(gSeeds->eta.empty()) CHECK(SeedGrid(gTs,gSeeds));
-  CHECK(SeedFinding(gTs,gSeeds,0.4,2.0,gT_noise)); // the diameter of seed, and its range to be local maximum
+ // if(gSeeds->eta.empty()) CHECK(SeedGrid(gTs,gSeeds));
+//  CHECK(SeedFinding(gTs,gSeeds,0.4,2.0,gT_noise)); // the diameter of seed, and its range to be local maximum
                                           // Careful to ensure the range set to be no tower double counted
-  CHECK(BuildJet(gTs,gT_noise,gSeeds,gL1Jets,1.0)); //default gFex jets are cone jets wih radius of 1.0
+ // CHECK(BuildJet(gTs,gT_noise,gSeeds,gL1Jets,1.0)); //default gFex jets are cone jets wih radius of 1.0
   CHECK(BuildMET(gTs,gT_noise,gMET));
 
   return StatusCode::SUCCESS;
 }
 
 //function to build up the location of all seeds
-StatusCode JGTowerReader::SeedGrid(const xAOD::JGTowerContainer*towers, JGTowerReader::Seed*seeds){
+/*StatusCode JGTowerReader::SeedGrid(const xAOD::JGTowerContainer*towers, JGTowerReader::Seed*seeds){
 
 
   std::vector<float> seed_candi_eta;
@@ -448,7 +448,7 @@ StatusCode JGTowerReader::BuildJet(const xAOD::JGTowerContainer*towers,std::vect
   }
   return StatusCode::SUCCESS;
 }
-
+*/
 StatusCode JGTowerReader::BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise, JGTowerReader::MET* met){
   float met_x=0;
   float met_y=0;
@@ -472,13 +472,13 @@ StatusCode JGTowerReader::ProcessObject(){
 
   
   for(unsigned j=0;j<jL1Jets.size();j++  ){
-     JGTowerReader::L1Jet jet = jL1Jets.at(j);
+     JetAlg::L1Jet jet = jL1Jets.at(j);
      hName["jJet_et"]->Fill(jet.et);
      hName["jJet_eta"]->Fill(jet.eta);
      hName["jJet_phi"]->Fill(jet.phi);
   }
   for(unsigned j=0;j<gL1Jets.size();j++  ){
-     JGTowerReader::L1Jet jet = gL1Jets.at(j);
+     JetAlg::L1Jet jet = gL1Jets.at(j);
      hName["gJet_et"]->Fill(jet.et);
      hName["gJet_eta"]->Fill(jet.eta);
      hName["gJet_phi"]->Fill(jet.phi);
