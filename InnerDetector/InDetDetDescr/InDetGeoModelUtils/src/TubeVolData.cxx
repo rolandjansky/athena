@@ -97,9 +97,9 @@ TubeVolData::TubeVolData(const IRDBRecord * record)
       m_shape = TubeVolData::RADIAL;
     } else if (m_rmin1 == m_rmin2  &&  m_rmax1 == m_rmax2 ) {
       if (fullPhiSector) {
-	m_shape = TubeVolData::TUBE;
+        m_shape = TubeVolData::TUBE;
       } else {
-	m_shape = TubeVolData::TUBS;
+        m_shape = TubeVolData::TUBS;
       }
     } else {
       m_shape = TubeVolData::CONS;
@@ -112,4 +112,4 @@ TubeVolData::TubeVolData(const IRDBRecord * record)
 
   
   
-	
+  
