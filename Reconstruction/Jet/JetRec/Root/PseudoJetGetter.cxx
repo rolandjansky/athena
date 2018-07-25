@@ -75,8 +75,6 @@ const PseudoJetVector* PseudoJetGetter::get() const {
 const PseudoJetContainer* PseudoJetGetter::getC() const {
   ATH_MSG_DEBUG("Getting PseudoJetContainer...");
 
-  const PseudoJetContainer * pjcont;
-
   // build and record the container
   const xAOD::IParticleContainer* cont;
   auto handle_in = SG::makeHandle(m_incoll);
@@ -102,15 +100,13 @@ const PseudoJetContainer* PseudoJetGetter::getC() const {
   IParticleExtractor* extractor = new IParticleExtractor(cont,
                                                          m_label,
                                                          isGhost);
-
   // ghostify the pseudojets if necessary
   if(isGhost){
     for(PseudoJet& pj : vpj) {pj *= 1e-40;}
   }
   
   // Put the PseudoJetContainer together :
-  pjcont = new PseudoJetContainer(extractor, vpj);
-  std::unique_ptr<const PseudoJetContainer> pjcont_ptr(pjcont);
+  std::unique_ptr<const PseudoJetContainer> uppjcont(new PseudoJetContainer(extractor, vpj));
 
   // record
   SG::WriteHandle<PseudoJetContainer> handle_out(m_outcoll);
@@ -118,7 +114,8 @@ const PseudoJetContainer* PseudoJetGetter::getC() const {
                 << extractor->toString(0));
   
   // notify
-  if (!handle_out.put(std::move(pjcont_ptr))) {
+  const PseudoJetContainer* ppjcont = handle_out.put(std::move(uppjcont));
+  if (!ppjcont) {
     ATH_MSG_ERROR("Unable to write new PseudoJetContainer to event store: " 
                   << m_outcoll.key());
   } else {
@@ -126,7 +123,7 @@ const PseudoJetContainer* PseudoJetGetter::getC() const {
                   << m_outcoll.key());
   }
 
-  return pjcont;  // used by legacy code, looks wrong....
+  return ppjcont;  // used by legacy code, looks wrong....
 }
 
 
