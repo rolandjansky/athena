@@ -14,16 +14,8 @@
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
-#include "CaloDetDescr/CaloDetectorElements.h"
-#include "CaloDetDescr/CaloDetDescriptor.h"
+#include "CaloEvent/CaloTester.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloIdentifier/LArEM_ID.h"
-#include "CaloIdentifier/LArHEC_ID.h"
-#include "CaloIdentifier/LArFCAL_ID.h"
-#include "CaloIdentifier/LArMiniFCAL_ID.h"
-#include "CaloIdentifier/TileID.h"
-#include "IdDictParser/IdDictParser.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "TestTools/initGaudi.h"
 #include <vector>
 #include <map>
@@ -49,7 +41,7 @@ public:
 };
 
 
-void test_gen (const CaloCell_ID* helper,
+void test_gen (const CaloCell_ID& helper,
                selfcn_t* selfcn,
                const std::vector<CaloCell*>& cells,
                bool total)
@@ -78,7 +70,7 @@ void test_gen (const CaloCell_ID* helper,
 //
 
 
-void test5 (const CaloCell_ID* helper, const std::vector<CaloCell*>& cells)
+void test5 (const CaloCell_ID& helper, const std::vector<CaloCell*>& cells)
 {
   std::cout << "test5\n";
   {
@@ -120,7 +112,7 @@ void test5 (const CaloCell_ID* helper, const std::vector<CaloCell*>& cells)
 //============================================================================
 
 
-void test6(const CaloCell_ID* /*helper*/, const std::vector<CaloCell*>& cells)
+void test6(const CaloCell_ID& /*helper*/, const std::vector<CaloCell*>& cells)
 {
   std::cout << "test6\n";
   CaloCellContainer cont (SG::VIEW_ELEMENTS);
@@ -144,9 +136,9 @@ int main()
     return 0;
   }  
 
-  TileID* tile_helper = new TileID;
-  CaloCell_ID* helper = make_helper (tile_helper);
-  std::vector<CaloCell*> cells = make_cells (helper, tile_helper);
+  CaloTester tester;
+  const CaloCell_ID& helper = tester.caloID();
+  CellVector cells = tester.get_cells();
 
   test1 (helper, cells);
   test2 (helper, cells);
