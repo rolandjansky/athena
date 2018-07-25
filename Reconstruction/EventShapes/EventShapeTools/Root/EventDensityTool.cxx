@@ -148,10 +148,7 @@ StatusCode EventDensityTool::fillEventShape() const {
 //**********************************************************************
 StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
 
-  ATH_MSG_INFO( "In fillEventShape, inPJKey = \"" << m_inPJKey.key() << "\", trigPJGet = \"" << m_trigPJGet.name() << "\"" );
-
   if(!m_inPJKey.key().empty() && m_trigPJGet.empty()) {
-    ATH_MSG_INFO(" Getting pseudojets from handle " << m_inPJKey.key());
     auto h_in = makeHandle(m_inPJKey);
     // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
     if ( h_in->size() == 0 ) {
@@ -164,7 +161,6 @@ StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
   }
   // { FIXME: To be removed when trigger moves to DataHandles fully
   else if(m_inPJKey.key().empty() && !m_trigPJGet.empty()) {
-    ATH_MSG_INFO(" Getting pseudojets from getter " << m_trigPJGet.name());
     const PseudoJetVector& ppjv = *(m_trigPJGet->get());
     // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
     if ( ppjv.size() == 0 ) {
