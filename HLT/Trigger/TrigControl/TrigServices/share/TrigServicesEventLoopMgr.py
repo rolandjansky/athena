@@ -113,7 +113,7 @@ svcMgr += CfgMgr.ProxyProviderSvc()
 # --- ByteStreamAddressProviderSvc configuration
 svcMgr += CfgMgr.ByteStreamAddressProviderSvc()
 svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
-theApp.CreateSvc += [ svcMgr.ByteStreamAddressProviderSvc.getFullName() ]
+#theApp.CreateSvc += [ svcMgr.ByteStreamAddressProviderSvc.getFullName() ]
 
 # Initialization of DetDescrCnvSvc
 svcMgr += CfgMgr.DetDescrCnvSvc(
