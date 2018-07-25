@@ -309,7 +309,6 @@ STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_NewAntiKt4EMPFlowHR'
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_NewAntiKt4EMPFlowHRAux.-ConstitObjectLinks.-ConstitObjectWeights')
 
 
-
 addMETAssocMap(STDM4Sequence,jettype='myPFlowJet',assocname='myAntiKt4EMPFlow',jetcoll='AntiKt4EMPFlowCHSJets',doPflow=True,dorecoil=False,algname='METAssociation')
 MakeMET(STDM4Sequence, assocname='myAntiKt4EMPFlow', jetcoll='AntiKt4EMPFlowCHSJets', setjetminptToinf=False)
 STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_myAntiKt4EMPFlow')
@@ -318,6 +317,17 @@ STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_myAntiKt4EMPFlow')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_myAntiKt4EMPFlowAux.')
 STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_myAntiKt4EMPFlow')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_myAntiKt4EMPFlowAux.-ConstitObjectLinks.-ConstitObjectWeights')
+
+
+#STDM4Stream.AddItem("xAOD::PFOContainer#*ParticleFlowObjects*")
+#STDM4Stream.AddItem("xAOD::PFOAuxContainer#*ParticleFlowObjects*")
+#STDM4Stream.AddItem("xAOD::ShallowAuxContainer#*ParticleFlowObjects*")
+
+
+#STDM4Stream.AddItem("xAOD::PFOContainer#CHSParticleFlowObjects")
+#STDM4Stream.AddItem("xAOD::PFOAuxContainer#CHSParticleFlowObjectsAux.")
+#STDM4Stream.AddItem("xAOD::ShallowAuxContainer#CHSParticleFlowObjectsAux.")
+#STDM4Stream.AddItem("xAOD::PFOAuxContainer#CHSParticleFlowObjectsAux.pt.eta.phi.m")
 
 
 ##############
@@ -391,8 +401,23 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
   "Electrons.f3",
   "Electrons.deltaEta1",
   "Electrons.deltaPhiRescaled2",
-  "Electrons.wtots1"
+  "Electrons.wtots1",
+  "Electrons.NumOfChsPFOsInMaps",     "Electrons.SumOfChsPFOsInMap_Pt",    "Electrons.SumOfChsPFOsInMap_Eta",    "Electrons.SumOfChsPFOsInMap_Phi",    "Electrons.SumOfChsPFOsInMap_E",
+  "Electrons.NumOfChsPFOsAllInEvent", "Electrons.SumChsPFOsAllInEvent_Pt", "Electrons.SumChsPFOsAllInEvent_Eta", "Electrons.SumChsPFOsAllInEvent_Phi", "Electrons.SumChsPFOsAllInEvent_E",
+  "Electrons.NumOfChsPFOsInMaps_neutralPFOsOnly",     "Electrons.SumOfChsPFOsInMap_Pt_neutralPFOsOnly",    "Electrons.SumOfChsPFOsInMap_Eta_neutralPFOsOnly",    "Electrons.SumOfChsPFOsInMap_Phi_neutralPFOsOnly",    "Electrons.SumOfChsPFOsInMap_E_neutralPFOsOnly",
+  "Electrons.NumOfChsPFOsAllInEvent_neutralPFOsOnly", "Electrons.SumChsPFOsAllInEvent_Pt_neutralPFOsOnly", "Electrons.SumChsPFOsAllInEvent_Eta_neutralPFOsOnly", "Electrons.SumChsPFOsAllInEvent_Phi_neutralPFOsOnly", "Electrons.SumChsPFOsAllInEvent_E_neutralPFOsOnly",
+  "Electrons.NumOfChsPFOsInMaps_chargedPFOsOnly",     "Electrons.SumOfChsPFOsInMap_Pt_chargedPFOsOnly",    "Electrons.SumOfChsPFOsInMap_Eta_chargedPFOsOnly",    "Electrons.SumOfChsPFOsInMap_Phi_chargedPFOsOnly",    "Electrons.SumOfChsPFOsInMap_E_chargedPFOsOnly",
+  "Electrons.NumOfChsPFOsAllInEvent_chargedPFOsOnly", "Electrons.SumChsPFOsAllInEvent_Pt_chargedPFOsOnly", "Electrons.SumChsPFOsAllInEvent_Eta_chargedPFOsOnly", "Electrons.SumChsPFOsAllInEvent_Phi_chargedPFOsOnly", "Electrons.SumChsPFOsAllInEvent_E_chargedPFOsOnly",
+  "Muons.NumOfChsPFOsInMaps",     "Muons.SumOfChsPFOsInMap_Pt",    "Muons.SumOfChsPFOsInMap_Eta",    "Muons.SumOfChsPFOsInMap_Phi",    "Muons.SumOfChsPFOsInMap_E",
+  "Muons.NumOfChsPFOsAllInEvent", "Muons.SumChsPFOsAllInEvent_Pt", "Muons.SumChsPFOsAllInEvent_Eta", "Muons.SumChsPFOsAllInEvent_Phi", "Muons.SumChsPFOsAllInEvent_E",
+  "Muons.NumOfChsPFOsInMaps_neutralPFOsOnly",     "Muons.SumOfChsPFOsInMap_Pt_neutralPFOsOnly",    "Muons.SumOfChsPFOsInMap_Eta_neutralPFOsOnly",    "Muons.SumOfChsPFOsInMap_Phi_neutralPFOsOnly",    "Muons.SumOfChsPFOsInMap_E_neutralPFOsOnly",
+  "Muons.NumOfChsPFOsAllInEvent_neutralPFOsOnly", "Muons.SumChsPFOsAllInEvent_Pt_neutralPFOsOnly", "Muons.SumChsPFOsAllInEvent_Eta_neutralPFOsOnly", "Muons.SumChsPFOsAllInEvent_Phi_neutralPFOsOnly", "Muons.SumChsPFOsAllInEvent_E_neutralPFOsOnly",
+  "Muons.NumOfChsPFOsInMaps_chargedPFOsOnly",     "Muons.SumOfChsPFOsInMap_Pt_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_Eta_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_Phi_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_E_chargedPFOsOnly",
+  "Muons.NumOfChsPFOsAllInEvent_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Pt_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Eta_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Phi_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_E_chargedPFOsOnly"
 ]
+
+
+
 
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll

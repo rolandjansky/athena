@@ -44,6 +44,49 @@ namespace met {
   // UE correction for each lepton
   const static SG::AuxElement::Decorator<float> dec_UEcorr("UEcorr_Pt");
 
+  // all PFOs in maps
+  const static SG::AuxElement::Decorator<int>   dec_NchsPFOsInMaps("NumOfChsPFOsInMaps");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Pt("SumOfChsPFOsInMap_Pt");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Eta("SumOfChsPFOsInMap_Eta");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Phi("SumOfChsPFOsInMap_Phi");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_E("SumOfChsPFOsInMap_E");
+
+  // neutral PFOs only in maps
+  const static SG::AuxElement::Decorator<int>   dec_NchsPFOsInMaps_neutral("NumOfChsPFOsInMaps_neutralPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Pt_neutral("SumOfChsPFOsInMap_Pt_neutralPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Eta_neutral("SumOfChsPFOsInMap_Eta_neutralPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Phi_neutral("SumOfChsPFOsInMap_Phi_neutralPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_E_neutral("SumOfChsPFOsInMap_E_neutralPFOsOnly");
+
+  // charged PFOs only in maps
+  const static SG::AuxElement::Decorator<int>   dec_NchsPFOsInMaps_charged("NumOfChsPFOsInMaps_chargedPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Pt_charged("SumOfChsPFOsInMap_Pt_chargedPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Eta_charged("SumOfChsPFOsInMap_Eta_chargedPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_Phi_charged("SumOfChsPFOsInMap_Phi_chargedPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumOfChsPFOsInMap_E_charged("SumOfChsPFOsInMap_E_chargedPFOsOnly");
+
+  // all PFOs in event
+  const static SG::AuxElement::Decorator<int>   dec_NchsPFOsAllInEvent("NumOfChsPFOsAllInEvent");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Pt("SumChsPFOsAllInEvent_Pt");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Eta("SumChsPFOsAllInEvent_Eta");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Phi("SumChsPFOsAllInEvent_Phi");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_E("SumChsPFOsAllInEvent_E");
+
+  // neutral PFOs only in event
+  const static SG::AuxElement::Decorator<int>   dec_NchsPFOsAllInEvent_neutral("NumOfChsPFOsAllInEvent_neutralPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Pt_neutral("SumChsPFOsAllInEvent_Pt_neutralPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Eta_neutral("SumChsPFOsAllInEvent_Eta_neutralPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Phi_neutral("SumChsPFOsAllInEvent_Phi_neutralPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_E_neutral("SumChsPFOsAllInEvent_E_neutralPFOsOnly");
+
+  // charged PFOs only in event
+  const static SG::AuxElement::Decorator<int>   dec_NchsPFOsAllInEvent_charged("NumOfChsPFOsAllInEvent_chargedPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Pt_charged("SumChsPFOsAllInEvent_Pt_chargedPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Eta_charged("SumChsPFOsAllInEvent_Eta_chargedPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_Phi_charged("SumChsPFOsAllInEvent_Phi_chargedPFOsOnly");
+  const static SG::AuxElement::Decorator<float> dec_SumChsPFOsAllInEvent_E_charged("SumChsPFOsAllInEvent_E_chargedPFOsOnly");
+
+
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
@@ -243,8 +286,8 @@ namespace met {
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
 
     // artur
-    std::cout<<std::endl<<std::endl;
-    std::cout<<"------------------- begin HR and random Phi calculation --------------------------"<<std::endl;
+    //std::cout<<std::endl<<std::endl;
+    //std::cout<<"------------------- begin HR and random Phi calculation --------------------------"<<std::endl;
     TLorentzVector HR;
     float UEcorr_Pt = 0.;
     unsigned int lept_count = 0;
@@ -253,9 +296,52 @@ namespace met {
       constlist.clear();
       ATH_CHECK( this->hadrecoil_PFO(hardObjs_tmp, constits, HR, vPhiRnd) );
     }
-    std::cout<<"------------------- end HR and random Phi calculation --------------------------"<<std::endl;
 
-    std::cout<<"------------------- begin loop over leptins --------------------------"<<std::endl;
+    // all pfos in the maps
+    int   N_chsPFOsInMaps = 0;
+    float SumOfChsPFOsInMap_Pt  = 0.;
+    float SumOfChsPFOsInMap_Eta = 0.;
+    float SumOfChsPFOsInMap_Phi = 0.;
+    float SumOfChsPFOsInMap_E   = 0.;
+
+    // neutral pfos in maps
+    int   N_chsPFOsInMaps_neutralPFOsOnly = 0;
+    float SumOfChsPFOsInMap_Pt_neutralPFOsOnly  = 0.;
+    float SumOfChsPFOsInMap_Eta_neutralPFOsOnly = 0.;
+    float SumOfChsPFOsInMap_Phi_neutralPFOsOnly = 0.;
+    float SumOfChsPFOsInMap_E_neutralPFOsOnly   = 0.;
+
+    // charged pfos in maps
+    int   N_chsPFOsInMaps_chargedPFOsOnly = 0;
+    float SumOfChsPFOsInMap_Pt_chargedPFOsOnly  = 0.;
+    float SumOfChsPFOsInMap_Eta_chargedPFOsOnly = 0.;
+    float SumOfChsPFOsInMap_Phi_chargedPFOsOnly = 0.;
+    float SumOfChsPFOsInMap_E_chargedPFOsOnly   = 0.;
+
+    // all pfos in event
+    int   N_chsPFOsAllInEvent      = 0;
+    float SumChsPFOsAllInEvent_Pt  = 0.;
+    float SumChsPFOsAllInEvent_Eta = 0.;
+    float SumChsPFOsAllInEvent_Phi = 0.;
+    float SumChsPFOsAllInEvent_E   = 0.;
+
+    // neutral pfos 
+    int   N_chsPFOsAllInEvent_neutralPFOsOnly      = 0;
+    float SumChsPFOsAllInEvent_Pt_neutralPFOsOnly  = 0.;
+    float SumChsPFOsAllInEvent_Eta_neutralPFOsOnly = 0.;
+    float SumChsPFOsAllInEvent_Phi_neutralPFOsOnly = 0.;
+    float SumChsPFOsAllInEvent_E_neutralPFOsOnly   = 0.;
+
+    // charged pfos
+    int   N_chsPFOsAllInEvent_chargedPFOsOnly      = 0;
+    float SumChsPFOsAllInEvent_Pt_chargedPFOsOnly  = 0.;
+    float SumChsPFOsAllInEvent_Eta_chargedPFOsOnly = 0.;
+    float SumChsPFOsAllInEvent_Phi_chargedPFOsOnly = 0.;
+    float SumChsPFOsAllInEvent_E_chargedPFOsOnly   = 0.;    
+    
+    //std::cout<<"------------------- end HR and random Phi calculation --------------------------"<<std::endl;
+
+    //std::cout<<"------------------- begin loop over leptins --------------------------"<<std::endl;
 
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
@@ -266,31 +352,196 @@ namespace met {
           ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
           return StatusCode::FAILURE;
         }else{
-
           std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
           if(m_recoil){
-            /*
-            std::cout<<"1. METAssociator::fillAssocMap: m_recoil = true, GetPFOWana "<<std::endl;
-            if(obj->type() == xAOD::Type::Muon)
-              std::cout<<"MUON "<<std::endl;
-            else if(obj->type() == xAOD::Type::Electron)
-              std::cout<<"ELECTRON "<<std::endl;
-            else
-              std::cout<<"nor ELECTRON, nor MUON"<<std::endl;
-            */
+            //std::cout<<"METAssociator::fillAssocMap: m_recoil = true, GetPFOWana "<<std::endl;
             UEcorr_Pt = 0.;
-            //std::cout << "vPhiRnd.size()      = " << vPhiRnd.size() << std::endl;
-            std::cout<<"UEcorr_Pt before = "<<UEcorr_Pt<<std::endl;
-            std::cout<<"lept_count before = "<<lept_count<<std::endl;
             
             ATH_CHECK( this->GetPFOWana(obj,constlist,constits,momentumOverride, vPhiRnd, lept_count, UEcorr_Pt) );
-            dec_UEcorr(*obj) = UEcorr_Pt;
+            dec_UEcorr(*obj) = UEcorr_Pt;            
 
-            std::cout<<"UEcorr_Pt = "<<UEcorr_Pt<<std::endl;
-            std::cout<<"lept_count after = "<<lept_count<<std::endl; 
+            // Save numbeer of chsPFOs and all components of 4-vector of the vetro sum of chsPFOs in the MAPs as decorators for each electron
+            N_chsPFOsInMaps       = 0;
+            SumOfChsPFOsInMap_Pt  = 0.;
+            SumOfChsPFOsInMap_Eta = 0.;
+            SumOfChsPFOsInMap_Phi = 0.;
+            SumOfChsPFOsInMap_E   = 0;
+
+            N_chsPFOsInMaps_neutralPFOsOnly = 0;
+            SumOfChsPFOsInMap_Pt_neutralPFOsOnly  = 0.;
+            SumOfChsPFOsInMap_Eta_neutralPFOsOnly = 0.;
+            SumOfChsPFOsInMap_Phi_neutralPFOsOnly = 0.;
+            SumOfChsPFOsInMap_E_neutralPFOsOnly   = 0.;
+        
+            N_chsPFOsInMaps_chargedPFOsOnly = 0;
+            SumOfChsPFOsInMap_Pt_chargedPFOsOnly  = 0.;
+            SumOfChsPFOsInMap_Eta_chargedPFOsOnly = 0.;
+            SumOfChsPFOsInMap_Phi_chargedPFOsOnly = 0.;
+            SumOfChsPFOsInMap_E_chargedPFOsOnly   = 0.;
+            
+            TLorentzVector SumOfAllPFOsInMaps;
+            TLorentzVector SumOfAllPFOsInMaps_neutralPFOsOnly;
+            TLorentzVector SumOfAllPFOsInMaps_chargedPFOsOnly;
+
+            for(const auto& pfo_j : constlist) {
+              const xAOD::PFO* pfo_i = static_cast<const xAOD::PFO*>(pfo_j);
+              TLorentzVector pfoCurrVect;
+              pfoCurrVect.SetPtEtaPhiE( pfo_i->pt(), pfo_i->eta(), pfo_i->phi(), pfo_i->e() );
+              SumOfAllPFOsInMaps += pfoCurrVect;
+              if( fabs(pfo_i->charge()) > FLT_MIN ){ // charged
+                N_chsPFOsInMaps_chargedPFOsOnly++;
+                TLorentzVector pfoCurrVect_chargedPFOsOnly;
+                pfoCurrVect_chargedPFOsOnly.SetPtEtaPhiE( pfo_i->pt(), pfo_i->eta(), pfo_i->phi(), pfo_i->e() );
+                SumOfAllPFOsInMaps_chargedPFOsOnly += pfoCurrVect_chargedPFOsOnly;
+              }
+              else{ // neutral
+                N_chsPFOsInMaps_neutralPFOsOnly++;
+                TLorentzVector pfoCurrVect_neutralPFOsOnly;
+                pfoCurrVect_neutralPFOsOnly.SetPtEtaPhiE( pfo_i->pt(), pfo_i->eta(), pfo_i->phi(), pfo_i->e() );
+                SumOfAllPFOsInMaps_neutralPFOsOnly += pfoCurrVect_neutralPFOsOnly;
+              }
+            }
+
+            N_chsPFOsInMaps       = constlist.size();
+            SumOfChsPFOsInMap_Pt  = SumOfAllPFOsInMaps.Pt();
+            SumOfChsPFOsInMap_Eta = SumOfAllPFOsInMaps.Eta();
+            SumOfChsPFOsInMap_Phi = SumOfAllPFOsInMaps.Phi();
+            SumOfChsPFOsInMap_E   = SumOfAllPFOsInMaps.E();
+
+            SumOfChsPFOsInMap_Pt_chargedPFOsOnly  = SumOfAllPFOsInMaps_chargedPFOsOnly.Pt();
+            SumOfChsPFOsInMap_Eta_chargedPFOsOnly = SumOfAllPFOsInMaps_chargedPFOsOnly.Eta();
+            SumOfChsPFOsInMap_Phi_chargedPFOsOnly = SumOfAllPFOsInMaps_chargedPFOsOnly.Phi();
+            SumOfChsPFOsInMap_E_chargedPFOsOnly   = SumOfAllPFOsInMaps_chargedPFOsOnly.E();
+
+            SumOfChsPFOsInMap_Pt_neutralPFOsOnly  = SumOfAllPFOsInMaps_neutralPFOsOnly.Pt();
+            SumOfChsPFOsInMap_Eta_neutralPFOsOnly = SumOfAllPFOsInMaps_neutralPFOsOnly.Eta();
+            SumOfChsPFOsInMap_Phi_neutralPFOsOnly = SumOfAllPFOsInMaps_neutralPFOsOnly.Phi();
+            SumOfChsPFOsInMap_E_neutralPFOsOnly   = SumOfAllPFOsInMaps_neutralPFOsOnly.E();
+
+            // all PFOs in maps
+            dec_NchsPFOsInMaps(*obj)        = N_chsPFOsInMaps;
+            dec_SumOfChsPFOsInMap_Pt(*obj)  = SumOfChsPFOsInMap_Pt;
+            dec_SumOfChsPFOsInMap_Eta(*obj) = SumOfChsPFOsInMap_Eta;
+            dec_SumOfChsPFOsInMap_Phi(*obj) = SumOfChsPFOsInMap_Phi;
+            dec_SumOfChsPFOsInMap_E(*obj)   = SumOfChsPFOsInMap_E;
+
+            // charged PFOs only in maps
+            dec_NchsPFOsInMaps_charged(*obj) = N_chsPFOsInMaps_chargedPFOsOnly;
+            dec_SumOfChsPFOsInMap_Pt_charged(*obj) = SumOfChsPFOsInMap_Pt_chargedPFOsOnly;
+            dec_SumOfChsPFOsInMap_Eta_charged(*obj) = SumOfChsPFOsInMap_Eta_chargedPFOsOnly;
+            dec_SumOfChsPFOsInMap_Phi_charged(*obj) = SumOfChsPFOsInMap_Phi_chargedPFOsOnly;
+            dec_SumOfChsPFOsInMap_E_charged(*obj) = SumOfChsPFOsInMap_E_chargedPFOsOnly;
+
+            // neutral PFOs only in maps
+            dec_NchsPFOsInMaps_neutral(*obj) = N_chsPFOsInMaps_neutralPFOsOnly;
+            dec_SumOfChsPFOsInMap_Pt_neutral(*obj) = SumOfChsPFOsInMap_Pt_neutralPFOsOnly;
+            dec_SumOfChsPFOsInMap_Eta_neutral(*obj) = SumOfChsPFOsInMap_Eta_neutralPFOsOnly;
+            dec_SumOfChsPFOsInMap_Phi_neutral(*obj) = SumOfChsPFOsInMap_Phi_neutralPFOsOnly;
+            dec_SumOfChsPFOsInMap_E_neutral(*obj) = SumOfChsPFOsInMap_E_neutralPFOsOnly;            
+            /*
+            std::cout<<"!!!!! N_chsPFOsInMaps       = "<<N_chsPFOsInMaps<<std::endl;
+            std::cout<<"!!!!! SumOfChsPFOsInMap_Pt  = "<<SumOfChsPFOsInMap_Pt<<std::endl;
+            std::cout<<"!!!!! SumOfChsPFOsInMap_Eta = "<<SumOfChsPFOsInMap_Eta<<std::endl;
+            std::cout<<"!!!!! SumOfChsPFOsInMap_Phi = "<<SumOfChsPFOsInMap_Phi<<std::endl;
+            std::cout<<"!!!!! SumOfChsPFOsInMap_E   = "<<SumOfChsPFOsInMap_E<<std::endl;
+            */
+            
+            // Save numbeer of chsPFOs and all components of 4-vector of the vetro sum of chsPFOs (all chsPFOs in the cevents -> will be the same for each lepton)
+            N_chsPFOsAllInEvent      = 0; 
+            SumChsPFOsAllInEvent_Pt  = 0.;
+            SumChsPFOsAllInEvent_Eta = 0.;
+            SumChsPFOsAllInEvent_Phi = 0.;
+            SumChsPFOsAllInEvent_E   = 0.;
+
+            // neutral pfos 
+            N_chsPFOsAllInEvent_neutralPFOsOnly      = 0;
+            SumChsPFOsAllInEvent_Pt_neutralPFOsOnly  = 0.;
+            SumChsPFOsAllInEvent_Eta_neutralPFOsOnly = 0.;
+            SumChsPFOsAllInEvent_Phi_neutralPFOsOnly = 0.;
+            SumChsPFOsAllInEvent_E_neutralPFOsOnly   = 0.;
+
+            // charged pfos
+            N_chsPFOsAllInEvent_chargedPFOsOnly      = 0;
+            SumChsPFOsAllInEvent_Pt_chargedPFOsOnly  = 0.;
+            SumChsPFOsAllInEvent_Eta_chargedPFOsOnly = 0.;
+            SumChsPFOsAllInEvent_Phi_chargedPFOsOnly = 0.;
+            SumChsPFOsAllInEvent_E_chargedPFOsOnly   = 0.; 
+
+            TLorentzVector SumOfAllPFOs;
+            TLorentzVector SumOfAllPFOs_neutralPFOsOnly;
+            TLorentzVector SumOfAllPFOs_chargedPFOsOnly;
+
+            for(const auto& pfo_i : *constits.pfoCont){
+              TLorentzVector pfoCurrVect;
+              pfoCurrVect.SetPtEtaPhiE( pfo_i->pt(), pfo_i->eta(), pfo_i->phi(), pfo_i->e() );
+              SumOfAllPFOs += pfoCurrVect;
+              N_chsPFOsAllInEvent++;
+              if( fabs(pfo_i->charge()) > FLT_MIN ){ // charged
+                N_chsPFOsAllInEvent_chargedPFOsOnly++;
+                TLorentzVector pfoCurrVect_chargedPFOsOnly;
+                pfoCurrVect_chargedPFOsOnly.SetPtEtaPhiE( pfo_i->pt(), pfo_i->eta(), pfo_i->phi(), pfo_i->e() );
+                SumOfAllPFOs_chargedPFOsOnly += pfoCurrVect_chargedPFOsOnly;
+              }
+              else{ // neutral
+                N_chsPFOsAllInEvent_neutralPFOsOnly++;
+                TLorentzVector pfoCurrVect_neutralPFOsOnly;
+                pfoCurrVect_neutralPFOsOnly.SetPtEtaPhiE( pfo_i->pt(), pfo_i->eta(), pfo_i->phi(), pfo_i->e() );
+                SumOfAllPFOs_neutralPFOsOnly += pfoCurrVect_neutralPFOsOnly;
+              }
+            }
+
+            // all pfos in event
+            SumChsPFOsAllInEvent_Pt  = SumOfAllPFOs.Pt();
+            SumChsPFOsAllInEvent_Eta = SumOfAllPFOs.Eta();
+            SumChsPFOsAllInEvent_Phi = SumOfAllPFOs.Phi();
+            SumChsPFOsAllInEvent_E   = SumOfAllPFOs.E();
+
+            // charged pfos in maps
+            SumChsPFOsAllInEvent_Pt_chargedPFOsOnly  = SumOfAllPFOs_chargedPFOsOnly.Pt();
+            SumChsPFOsAllInEvent_Eta_chargedPFOsOnly = SumOfAllPFOs_chargedPFOsOnly.Eta();
+            SumChsPFOsAllInEvent_Phi_chargedPFOsOnly = SumOfAllPFOs_chargedPFOsOnly.Phi();
+            SumChsPFOsAllInEvent_E_chargedPFOsOnly   = SumOfAllPFOs_chargedPFOsOnly.E(); 
+
+            // neutral pfos in maps
+            SumChsPFOsAllInEvent_Pt_neutralPFOsOnly  = SumOfAllPFOs_neutralPFOsOnly.Pt();
+            SumChsPFOsAllInEvent_Eta_neutralPFOsOnly = SumOfAllPFOs_neutralPFOsOnly.Eta();
+            SumChsPFOsAllInEvent_Phi_neutralPFOsOnly = SumOfAllPFOs_neutralPFOsOnly.Phi();
+            SumChsPFOsAllInEvent_E_neutralPFOsOnly   = SumOfAllPFOs_neutralPFOsOnly.E();
+
+            // all pfos in event
+            dec_NchsPFOsAllInEvent(*obj)       = N_chsPFOsAllInEvent;
+            dec_SumChsPFOsAllInEvent_Pt(*obj)  = SumChsPFOsAllInEvent_Pt;
+            dec_SumChsPFOsAllInEvent_Eta(*obj) = SumChsPFOsAllInEvent_Eta;
+            dec_SumChsPFOsAllInEvent_Phi(*obj) = SumChsPFOsAllInEvent_Phi;
+            dec_SumChsPFOsAllInEvent_E(*obj)   = SumChsPFOsAllInEvent_E;
+
+            // charged PFOs only in event
+            dec_NchsPFOsAllInEvent_charged(*obj)       = N_chsPFOsAllInEvent_chargedPFOsOnly;
+            dec_SumChsPFOsAllInEvent_Pt_charged(*obj)  = SumChsPFOsAllInEvent_Pt_chargedPFOsOnly;
+            dec_SumChsPFOsAllInEvent_Eta_charged(*obj) = SumChsPFOsAllInEvent_Eta_chargedPFOsOnly;
+            dec_SumChsPFOsAllInEvent_Phi_charged(*obj) = SumChsPFOsAllInEvent_Phi_chargedPFOsOnly;
+            dec_SumChsPFOsAllInEvent_E_charged(*obj)   = SumChsPFOsAllInEvent_E_chargedPFOsOnly;
+   
+            // neutral PFOs only in event
+            dec_NchsPFOsAllInEvent_neutral(*obj)       = N_chsPFOsAllInEvent_neutralPFOsOnly;
+            dec_SumChsPFOsAllInEvent_Pt_neutral(*obj)  = SumChsPFOsAllInEvent_Pt_neutralPFOsOnly;
+            dec_SumChsPFOsAllInEvent_Eta_neutral(*obj) = SumChsPFOsAllInEvent_Eta_neutralPFOsOnly;
+            dec_SumChsPFOsAllInEvent_Phi_neutral(*obj) = SumChsPFOsAllInEvent_Phi_neutralPFOsOnly;
+            dec_SumChsPFOsAllInEvent_E_neutral(*obj)   = SumChsPFOsAllInEvent_E_neutralPFOsOnly;
+            /*
+            std::cout<<"!!!!! N_chsPFOsAllInEvent       = "<<N_chsPFOsAllInEvent<<std::endl;
+            std::cout<<"!!!!! SumChsPFOsAllInEvent_Pt   = "<<SumChsPFOsAllInEvent_Pt<<std::endl;
+            std::cout<<"!!!!! SumChsPFOsAllInEvent_Eta  = "<<SumChsPFOsAllInEvent_Eta<<std::endl;
+            std::cout<<"!!!!! SumChsPFOsAllInEvent_Phi  = "<<SumChsPFOsAllInEvent_Phi<<std::endl;
+            std::cout<<"!!!!! SumChsPFOsAllInEvent_E    = "<<SumChsPFOsAllInEvent_E<<std::endl;            
+            std::cout<<"----------------------------------"<<std::endl;
+            */
+
+            //std::cout<<"UEcorr_Pt = "<<UEcorr_Pt<<std::endl;
+            //std::cout<<"lept_count after = "<<lept_count<<std::endl;
           }
           else{
-            std::cout<<"METAssociator::fillAssocMap: m_recoil = false, extractPFO "<<std::endl;
+            //std::cout<<"METAssociator::fillAssocMap: m_recoil = false, extractPFO "<<std::endl;
             ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
           }
           MissingETComposition::insert(metMap,obj,constlist,momentumOverride);

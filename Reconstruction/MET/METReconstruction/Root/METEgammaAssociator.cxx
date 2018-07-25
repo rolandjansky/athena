@@ -162,6 +162,8 @@ namespace met {
     // will do so for now...
     const xAOD::IParticle* swclus = eg->caloCluster();
 
+    //std::cout<<"!!!!!!!!!! METEgammaAssociator::extractPFO: electrons  --- standard method"<<std::endl;
+
     // Preselect PFOs based on proximity: dR<0.4
     std::vector<const xAOD::PFO*> nearbyPFO;
     nearbyPFO.reserve(20);
@@ -240,7 +242,9 @@ namespace met {
                unsigned int& lept_count,
                float& UEcorr) const
   {
-    std::cout<<"METEgammaAssociator::GetPFOWana: electrons"<<std::endl;
+    //std::cout<<"!!!!!!!!!! METEgammaAssociator::GetPFOWana: electrons --- new method"<<std::endl;
+    //std::cout<<"!!!!!!!!!! METEgammaAssociator::GetPFOWana: m_Drcone = "<<m_Drcone<<std::endl;
+    
 
     // Step 1. Cnstructing association electron-PFO map
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
@@ -250,8 +254,8 @@ namespace met {
     nearbyPFO.reserve(20);
 
     // Preselect charged and neutral PFOs, based on proximity: dR < m_Drcone
-    for(const auto& pfo : *constits.pfoCont) {
-      if(P4Helpers::isInDeltaR(*pfo, *swclus, m_Drcone, m_useRapidity)) {
+    for(const auto& pfo : *constits.pfoCont) { 
+      if(P4Helpers::isInDeltaR(*pfo, *swclus, 0.2, m_useRapidity)) {
         const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
         if( ( fabs(pfo->charge())<FLT_MIN && pfo->e() > FLT_MIN ) ||
         ( fabs(pfo->charge())>FLT_MIN && PVMatchedAcc(*pfo)  && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) ) {
@@ -288,7 +292,7 @@ namespace met {
       eta_rndphi.second = vPhiRnd[lept_count];
       lept_count++;
   
-      std::cout<<"start looping over PFO to calculate correction"<<std::endl;
+      //std::cout<<"start looping over PFO to calculate correction"<<std::endl;
       for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
         if( pfo_itr->e() < 0)
           continue;
@@ -319,7 +323,7 @@ namespace met {
                                                 TLorentzVector& HR,
                                                 std::vector<double>& vPhiRnd) const
   {
-    std::cout << "METEgammaAssociator::hadrecoil_PFO " << std::endl;
+    //std::cout << "METEgammaAssociator::hadrecoil_PFO " << std::endl;
 
     // 1. Summing all PFOs
     for(const auto& pfo_itr : *constits.pfoCont) {
@@ -329,7 +333,7 @@ namespace met {
       pfo_tmp.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
       HR += pfo_tmp;
     }
-    std::cout << "HR->pt() HR->eta() HR->phi() HR->e()          : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
+    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e()          : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
 
     // 2. Subtracting PFOs mathed to electrons from HR 
@@ -385,7 +389,7 @@ namespace met {
           HR -= pfo_curr;
       } // over swclus
     } // over PFOs
-    std::cout << "HR->pt() HR->eta() HR->phi() HR->e() corrected: " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
+    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() corrected: " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
     // 3. Get random phi
     //std::vector<double> vPhiRnd;
@@ -424,7 +428,7 @@ namespace met {
             isNextToPart = true;
         } // swclus_j
       } // while isNextToPart, isNextToHR
-      std::cout << "pushback random : " << Rnd << std::endl;
+      //std::cout << "pushback random : " << Rnd << std::endl;
 
       vPhiRnd.push_back(Rnd);
     } // swclus_i

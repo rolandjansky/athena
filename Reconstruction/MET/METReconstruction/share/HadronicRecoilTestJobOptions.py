@@ -256,7 +256,7 @@ if write_xAOD:
 
 
     # xaodStream.AddAcceptAlgs( "PVSoftTrkTail" )
-theApp.EvtMax = 500
+theApp.EvtMax = 100
 ServiceMgr.EventSelector.SkipEvents = 0
 ServiceMgr.MessageSvc.defaultLimit = 9999
 #ServiceMgr.MessageSvc.defaultLimit = 1
