@@ -99,10 +99,15 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
 	  }
 	}
 
-      m_theModule = new GeoLogVol(logName,gblShape,air);	
+      m_theModule = new GeoLogVol(logName,gblShape,air);
+      m_theModule->ref();	
     }
   }
   
+}
+
+GeoPixelModule::~GeoPixelModule(){
+  m_theModule->unref();
 }
 
 
