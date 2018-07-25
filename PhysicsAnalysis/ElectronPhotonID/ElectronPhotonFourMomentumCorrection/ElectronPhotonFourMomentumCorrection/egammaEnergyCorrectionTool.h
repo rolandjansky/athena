@@ -228,6 +228,7 @@ namespace egEnergyCorr {
     es2017_R21_PRE,         // Pre-recommendations for release 21
 
     es2017_R21_v0,          // Release 21 model with layer calibration corrections from run 2, no global scale correction
+    es2017_R21_v1,          // Release 21 model July 2018 adding forward, AFII, mc16d/reproc data, new mat syst 
     
     UNDEFINED
 
@@ -372,7 +373,7 @@ namespace AtlasRoot {
     /// MC calibration corrections
 
 
-    double applyAFtoG4(double eta, PATCore::ParticleType::Type ptype) const;
+    double applyAFtoG4(double eta, double ptGeV, PATCore::ParticleType::Type ptype) const;
     double applyFStoG4(double eta) const;
 
     // functions for resolution uncertainty evaluation
@@ -470,6 +471,8 @@ namespace AtlasRoot {
     TH1*         m_zeeNom;
     TH1*         m_zeeNom_data2015;
     TH1*         m_zeeNom_data2016;
+    TH1*         m_zeeFwdk;
+    TH1*         m_zeeFwdb;
 
     TH1*         m_zeeSyst;
     TH1*         m_zeePhys;
@@ -570,6 +573,9 @@ namespace AtlasRoot {
     TH1*         m_G4OverAFII_electron;
     TH1*         m_G4OverAFII_converted;
     TH1*         m_G4OverAFII_unconverted;
+    TH2*         m_G4OverAFII_electron_2D;
+    TH2*         m_G4OverAFII_converted_2D;
+    TH2*         m_G4OverAFII_unconverted_2D;
     TH1*         m_G4OverFrSh;
 
     TH2* m_G4OverAFII_resolution_electron;
