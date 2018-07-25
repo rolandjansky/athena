@@ -27,6 +27,7 @@
 #include "CaloLocalHadCalib/GetLCDefs.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloUtils/CaloSamplingHelper.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "AthenaKernel/errorcheck.h"
 
@@ -255,6 +256,8 @@ StatusCode GetLCOutOfCluster::initialize() {
     msg() << " " << *samplingIter;
   msg() << endmsg;
 
+  ATH_CHECK( m_clusterCollName.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -276,23 +279,13 @@ StatusCode GetLCOutOfCluster::finalize()
 
 StatusCode GetLCOutOfCluster::execute()
 {
-  const DataHandle<xAOD::CaloClusterContainer> cc ;
-  StatusCode sc = evtStore()->retrieve(cc,m_clusterCollName);
-
-  if(sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "Could not retrieve ClusterContainer " 
-	<< m_clusterCollName << " from StoreGate" );
-    return sc;
-  }
+  SG::ReadHandle<xAOD::CaloClusterContainer> cc (m_clusterCollName);
 
   // total calib hit energy of all clusters 
   double eCalibTot(0.); 
   double nClusECalibGt0 = 0.0;
 
-  xAOD::CaloClusterContainer::const_iterator clusIter = cc->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = cc->end();
-  for( ;clusIter!=clusIterEnd;clusIter++) {
-    const xAOD::CaloCluster * theCluster = (*clusIter);      
+  for (const xAOD::CaloCluster* theCluster : *cc) {
     double eC=999; 
     if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eC)) {
       ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT" );
@@ -318,9 +311,7 @@ StatusCode GetLCOutOfCluster::execute()
   if ( eCalibTot > 0 ) {
     const double inv_eCalibTot = 1. / eCalibTot;
     const double inv_nClusECalibGt0 = 1. / nClusECalibGt0;
-    clusIter = cc->begin();
-    for( ;clusIter!=clusIterEnd;clusIter++) {
-      const xAOD::CaloCluster * pClus = (*clusIter);
+    for (const xAOD::CaloCluster* pClus : *cc) {
       double eng = pClus->e();
 
       if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {

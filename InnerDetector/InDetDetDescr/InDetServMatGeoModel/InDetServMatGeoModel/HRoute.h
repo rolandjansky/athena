@@ -39,11 +39,11 @@ public:
 
 private:
 
-  double m_radius;
-  double m_zMin;
-  double m_zMax;
-  double m_zExit;
-  Route* m_next;
+  double m_radius{};
+  double m_zMin{};
+  double m_zMax{};
+  double m_zExit{};
+  Route* m_next{};
 
   VolumeContainer m_volumes;
 

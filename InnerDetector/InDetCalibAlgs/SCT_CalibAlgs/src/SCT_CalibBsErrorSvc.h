@@ -29,9 +29,6 @@
 
 //fwd declarations
 template <class TYPE> class SvcFactory;
-namespace InDetDD{
-  class  SCT_DetectorManager;
-}
 class StatusCode;
 class ISvcLocator;
 

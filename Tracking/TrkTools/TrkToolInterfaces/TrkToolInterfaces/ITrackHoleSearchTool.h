@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace Trk
 {

@@ -53,9 +53,6 @@ public:
 
 protected:
 
-  /// Standard Destructor
-  virtual ~RegistrationStreamTrig();
-
   ServiceHandle<StoreGateSvc> m_pOutputStore;
   ServiceHandle<StoreGateSvc> m_pInputStore;
   StringProperty  m_LBColl_name;

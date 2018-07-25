@@ -62,6 +62,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore
         objKeyStore.addStreamESD(self.outputType(),self.outputKey())
+        objKeyStore.addTransient(self.outputType(),self.outputKey())
         
         # now add algorithm to topSequence
         # this should always come at the end

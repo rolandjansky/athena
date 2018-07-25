@@ -19,6 +19,9 @@
 #include "TrkTrack/TrackCollection.h"
 #include "HepMC/GenParticle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkTruthData/TrackTruthCollection.h"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -28,13 +31,6 @@ class PixelID;
 class SCT_ID;
 class AtlasDetectorID;
 class Track;
-class TrackTruthCollection;
-
-namespace Trk
-{
- class ITrackSummaryTool;
-}
-
 
 
 namespace InDet {

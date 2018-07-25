@@ -35,7 +35,8 @@ namespace TrigL2MuonSA {
     virtual StatusCode finalize(void);
 
   private:
-    StringProperty m_lut_fileName;
+    Gaudi::Property< std::string > m_lut_fileName {
+	this, "LUTfile", "dZ_barrel.lut", ""};
 
     ToolHandle<AlignmentBarrelLUT>   m_alignmentBarrelLUT;
     

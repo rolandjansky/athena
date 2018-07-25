@@ -19,11 +19,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-
-namespace Trk {
-
-  class IRIO_OnTrackErrorScalingTool;
-}
+#include "InDetRIO_OnTrack/TRTRIO_OnTrackErrorScaling.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace InDet {
 
@@ -58,9 +55,14 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
+  SG::ReadHandleKey<xAOD::EventInfo>                m_eventInfoKey
+      {this,"EventInfoKey","EventInfo","Key for xAOD::EventInfo"};
 
-  ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool  ;
-  bool                                          m_scaleTrtCov       ;
+  //  SG::ReadCondHandleKey<TRTRIO_OnTrackErrorScaling> m_trtErrorScalingKey
+  SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_trtErrorScalingKey
+      {this,"TRTErrorScalingKey", "/Indet/TrkErrorScalingTRT", "Key for TRT error scaling conditions data."};
+
+
   bool                                          m_useErrorCorrection;
 };
 

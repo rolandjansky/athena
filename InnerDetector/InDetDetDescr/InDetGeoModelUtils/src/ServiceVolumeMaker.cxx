@@ -87,7 +87,7 @@ void ServiceVolumeSchema::setSimpleSchema()
 }
 
 ServiceVolumeMakerMgr::ServiceVolumeMakerMgr(IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
-					     const InDetDD::AthenaComps * athenaComps)
+               const InDetDD::AthenaComps * athenaComps)
   : m_table(table),
     m_schema(schema),
     m_athenaComps(athenaComps)
@@ -249,8 +249,8 @@ std::vector<double> ServiceVolumeMakerMgr::readLayerShift() const
 }
 
 ServiceVolumeMaker::ServiceVolumeMaker(const std::string & label,
-				       IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
-				       const InDetDD::AthenaComps * athenaComps)
+               IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
+               const InDetDD::AthenaComps * athenaComps)
   : m_label(label)
 {
   m_mgr = new ServiceVolumeMakerMgr(table, schema, athenaComps);
@@ -330,15 +330,15 @@ ServiceVolumeMaker::make(int ii)
     
     if (shapeType == "UNKNOWN") {
       if (radialDiv > 0) {
-	shapeType = "RADIAL";
+  shapeType = "RADIAL";
       } else if (param->rmin() == rmin2  &&  param->rmax() == rmax2 ) {
-	if (fullPhiSector) {
-	  shapeType = "TUBE";
-	} else {
-	  shapeType = "TUBS";
-	}
+  if (fullPhiSector) {
+    shapeType = "TUBE";
+  } else {
+    shapeType = "TUBS";
+  }
       } else {
-	shapeType = "CONS";
+  shapeType = "CONS";
       } 
     }
     
@@ -362,17 +362,17 @@ ServiceVolumeMaker::make(int ii)
     } 
     
     if (shapeType == "PGON"  || shapeType == "PGON2" || 
-	shapeType == "CONE"  || shapeType == "CONS" || 
-	shapeType == "PGON3" || shapeType == "PGON4") {
+  shapeType == "CONE"  || shapeType == "CONS" || 
+  shapeType == "PGON3" || shapeType == "PGON4") {
       if ((rmin2 != param->rmin()) || (rmax2 != param->rmax())) {
-	needsRotation = true;
+  needsRotation = true;
       }
     }
     
     int sides = 0;
     int nCopies = 1;
     if (shapeType == "PGON"  || shapeType == "PGON2" ||
-	shapeType == "PGON3" || shapeType == "PGON4") {
+  shapeType == "PGON3" || shapeType == "PGON4") {
       sides = repeat;
     } else {
       nCopies = repeat;
@@ -404,7 +404,7 @@ ServiceVolumeMaker::make(int ii)
   if(std::abs(param->zmin()) < 0.000001) {
     param->setZmin(-param->zmax());
     param->setZsymm(false);
-  }	
+  } 
   
   param->setLabel(m_label, volId); 
   

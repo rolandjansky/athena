@@ -120,7 +120,7 @@ protected:
   SmartIF<IJobOptionsSvc>  m_jobOptionsSvc;
   SmartIF<IToolSvc>        m_toolSvc;
   SmartIF<IProperty>       m_propMgr;
-  StoreGateSvc*            m_sg;
+  StoreGateSvc*            m_sg = nullptr;
 };
 
 

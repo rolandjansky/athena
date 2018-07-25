@@ -19,13 +19,11 @@
 #include "GaudiKernel/PhysicalConstants.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
 
 SCT_ChargeTrappingTool::SCT_ChargeTrappingTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_detManager{nullptr},
   m_isSCT{true},
   m_conditionsToolValid{false},
   m_conditionsToolWarning{false},
@@ -69,9 +67,9 @@ SCT_ChargeTrappingTool::initialize()
     m_siConditionsTool.disable();
     m_conditionsToolWarning = true;
   }
-  
-  // Get the detector manager
-  ATH_CHECK(detStore()->retrieve(m_detManager, m_detectorName));
+
+  // Read CondHandle Key
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   return StatusCode::SUCCESS;
 }
@@ -109,7 +107,7 @@ SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHas
   
   SCT_ChargeTrappingCondData condData;
 
-  const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
+  const InDetDD::SiDetectorElement* element{getDetectorElement(elementHash)};
   
   double temperature{0.};
   double deplVoltage{0.};
@@ -349,4 +347,25 @@ void SCT_ChargeTrappingTool::holeTransport(double& x0, double& y0, double& xfin,
   ATH_MSG_DEBUG("h:qstrip=" << qstrip[0] << " " << qstrip[1] << " " << qstrip[2] << " " << qstrip[3] << " " << qstrip[4]);
   // end of hole tracing 
   return;
+}
+
+const InDetDD::SiDetectorElement* SCT_ChargeTrappingTool::getDetectorElement(const IdentifierHash& waferHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheElements.size()) {
+    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheElements[slot]!=evt) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_detectorElements.set(*condData);
+    m_cacheElements[slot] = evt;
+  }
+  return m_detectorElements->getDetectorElement(waferHash);
 }

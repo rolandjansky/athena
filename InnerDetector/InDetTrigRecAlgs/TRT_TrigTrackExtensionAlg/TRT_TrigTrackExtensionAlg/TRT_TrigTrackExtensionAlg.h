@@ -24,9 +24,11 @@
 #ifndef TRT_TRIGTRACKEXTENSIONALG_H
 #define TRT_TRIGTRACKEXTENSIONALG_H
 
-#include <string>
+
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
+#include <iosfwd>
+#include <string>
 
 class ITRT_TrackExtensionTool;
 class MsgStream;
@@ -69,12 +71,12 @@ namespace InDet {
     //!< Protected data 
     ///////////////////////////////////////////////////////////////////
     
-    int                      m_outputlevel           ;  //!< Print level for debug
-    int                      m_nprint                ;  //!< Kind of  print    
-    int                      m_nTracks               ;  //!< Number input  tracks
-    int                      m_nTracksExtended       ;  //!< Number output tracks
-    int                      m_nTracksTotal          ;  // Number input  tracks
-    int                      m_nTracksExtendedTotal  ;  // Number output tracks
+    int                      m_outputlevel{}           ;  //!< Print level for debug
+    int                      m_nprint{}                ;  //!< Kind of  print    
+    int                      m_nTracks{}               ;  //!< Number input  tracks
+    int                      m_nTracksExtended{}       ;  //!< Number output tracks
+    int                      m_nTracksTotal{}          ;  // Number input  tracks
+    int                      m_nTracksExtendedTotal{}  ;  // Number output tracks
     ToolHandle<ITRT_TrackExtensionTool> m_trtExtension ;  // TRT track extension tool
         
     ///////////////////////////////////////////////////////////////////

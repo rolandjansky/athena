@@ -25,7 +25,7 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/Identifiable.h"
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/DataObject.h"
 //class SpacePoint;
 #include "TrkSpacePoint/SpacePoint.h"
@@ -90,7 +90,7 @@ std::ostream& operator << ( std::ostream& sl, const SpacePointCollection& coll);
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(SpacePointCollection,1156991496,1)
 
 #endif // TRKSPACEPOINT_SPACEPOINTCOLLECTION_H

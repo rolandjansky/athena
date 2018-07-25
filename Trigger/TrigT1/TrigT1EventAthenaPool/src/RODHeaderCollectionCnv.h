@@ -34,8 +34,6 @@ public:
 
 protected:
   
-  ~RODHeaderCollectionCnv() {}
-  
   virtual RODHeaderCollection_PERS*   createPersistent (RODHeaderCollection* transCont);
   virtual RODHeaderCollection*        createTransient ();
 

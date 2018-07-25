@@ -37,10 +37,11 @@
 
 //
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CommissionEvent/ComTime.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "xAODEventInfo/EventInfo.h"
 
 //ROOT
@@ -92,13 +93,12 @@ private:
 
   StatusCode initialize();
 
-  const InDetDD::SCT_DetectorManager * m_mgr;
-
   /** Method to cut on track or hit variables and automatize DEBUG statements */
   StatusCode failCut (Bool_t value, std::string name);
 
   /** Method to compute incident angle of track to wafer */
-  StatusCode findAnglesToWaferSurface (const Amg::Vector3D &mom, Identifier id,
+  StatusCode findAnglesToWaferSurface (const Amg::Vector3D &mom, const Identifier id,
+                                       const InDetDD::SiDetectorElementCollection* elements,
                                        Double_t &theta, Double_t &phi);
 
   /** Method to find the chip just before a given hit */
@@ -124,8 +124,6 @@ private:
                                                 Int_t nbinx, Double_t * xbins,
                                                 Int_t nbiny, Double_t * ybins);
 
-  const SCT_ID*   m_pSCTHelper;
-  const InDetDD::SCT_DetectorManager*   m_pManager;
   SG::ReadHandle<TrackCollection> m_TrackName;
   IChronoStatSvc * m_chrono;
 
@@ -289,6 +287,7 @@ private:
 
   SG::ReadHandleKey<ComTime> m_comTimeName;
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_sctDetEleCollKey{this, "SctDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer
    * Numbering is counter-intuitive, would expect C then B then A; in fact the original ordering was A, C, B

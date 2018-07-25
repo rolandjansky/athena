@@ -162,7 +162,6 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
          }
       }
    }
-   dataHeader->setStatus(DataHeader::Primary);
    ATH_MSG_DEBUG("The current Event contains: " << dataHeader->size() << " objects");
    for (const auto& element : *dataHeader) {
       if (m_dataHeaderIterator) { // Get oid2 (event file entry number) from DataHeader proxy
@@ -178,7 +177,6 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
                }
                delete taddDh; taddDh = 0;
             }
-            dataHeader->setProcessTag(tadd->name());
          }
          delete tadd; tadd = 0;
       } else {

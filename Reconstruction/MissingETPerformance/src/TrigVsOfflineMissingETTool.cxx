@@ -201,13 +201,6 @@ TrigVsOfflineMissingETTool::TrigVsOfflineMissingETTool(const std::string & type,
 
 
 /*-----------------------------------------------------*/
-TrigVsOfflineMissingETTool::~TrigVsOfflineMissingETTool()
-  /*-----------------------------------------------------*/
-{
-}
-
-
-/*-----------------------------------------------------*/
 StatusCode TrigVsOfflineMissingETTool::CBNT_initialize()
   /*-----------------------------------------------------*/
 {

@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # ReadCellNoiseFromCoolCompare.py
 # based on ReadCellNoiseFromCool.py and ReadFromCoolCompare.py
@@ -25,17 +25,19 @@ def usage():
     print "-t2, --tag2=      specify tag2 to use, f.i. UPD1 or UPD4 or tag suffix like 14TeV-N200_dT50-01"
     print "-r2, --run2=      specify 2-nd run number, by default uses latest iov"
     print "-l2, --lumi2=     specify 2-nd lumi block number, default is 0"
-    print "-m,  --maxdiff=        specify an absolute maximal difference to compare constants"
+    print "-m,  --maxdiff=          specify an absolute maximal difference to compare constants"
     print "-m2, --maxdiffpercent=   specify the maximal difference in percents to compare constants"
     print "-n, --channel=  specify cool channel to read (48 by defalt)"
     print "-c, --cell=     specify cell hash (0-5183), default is -1, means all cells"
     print "-g, --gain=     specify gain to print (0-3), default is -1, means all gains"
     print "-i, --index=    specify parameter index (0-4), default is -1, means all parameters"
+    print "-z, --zero=     zero threshold - treat values in DB below this threshold as zeros"
+    print "-w, --wide      wide format - print all values per cell in one line"
     print "-b, --brief     print only numbers without character names"
     print "-d, --double    print values with double precision"
     
-letters = "hs:t:f:r:l:s2:t2:f2:r2:l2:m:m2:n:c:g:i:bd"
-keywords = ["help","schema=","tag=","folder=","run=","lumi=","schema2=","tag2=","folder2=","run2=","lumi2=","maxdiff=","maxdiffpercent=","channel=","cell=","gain=","index=","brief","double"]
+letters = "hs:t:f:r:l:s2:t2:f2:r2:l2:m:m2:n:c:g:i:z:wbd"
+keywords = ["help","schema=","tag=","folder=","run=","lumi=","schema2=","tag2=","folder2=","run2=","lumi2=","maxdiff=","maxdiffpercent=","channel=","cell=","gain=","index=","zero=","wide","brief","double"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -63,6 +65,8 @@ gain   = -1
 index  = -1
 brief  = False
 doubl  = False
+multi  = True
+zthr   = 5e-7
 
 for o, a in opts:
     if o in ("-s","--schema"):
@@ -99,6 +103,10 @@ for o, a in opts:
         maxdiff = float(a)
     elif o in ('--maxdiffpercent'):
         maxdiffpercent = float(a)
+    elif o in ("-z","--zero"):
+        zthr = float(a)
+    elif o in ("-w","--wide"):
+        multi = False
     elif o in ("-b","--brief"):
         brief = True
     elif o in ("-d","--double"):
@@ -128,7 +136,6 @@ import cppyy
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools
-hashMgr=TileCellTools.TileCellHashMgr()
 
 #=== get a logger
 log = CaloCondLogger.getLogger("ReadCellNoise")
@@ -176,6 +183,15 @@ elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
         schema='COOLOFL_TILE/OFLP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
         if tag=='UPD4': tag='IOVDEP-02' # change default to tag used in DC14
+
+if run<222222 or 'COMP200' in schema:
+    cabling = 'RUN1'
+else:
+    if ('OFLP200' in schema and run>=310000) or run>=343000:
+        cabling = 'RUN2a'
+    else:
+        cabling = 'RUN2'
+hashMgr=TileCellTools.TileCellHashMgr(cabling=cabling)
 
 db = CaloCondTools.openDbConn(schema, "READONLY")
 
@@ -298,14 +314,11 @@ log.info("From DB:  ncell: %d ngain %d index nval %d" % (ncell, ngain, nval))
 
 if brief or doubl:
   name1 = ["","","0.0     "]
-  names = []
-
-
+  names = ["S0 ", "Pl ", "S1 ", "S2 ", "Ra "]
   dm=" "
-  for i in xrange(indexmax): names += [""]
 else:
-  name1 = ["Noise cell ", "gain ","0.00"]
-  names = ["RMS ", "pileup ", "RMS1 ", "RMS2 ", "Ratio "]
+  name1 = ["Noise cell ", "gain ","0.00    "]
+  names = ["   RMS ", "pileup ", "  RMS1 ", "  RMS2 ", " Ratio "]
   for i in xrange(len(names),indexmax): names += ["c"+str(i)+" "]
   dm="\t"
 for cell in xrange(cellmin,cellmax):
@@ -313,27 +326,36 @@ for cell in xrange(cellmin,cellmax):
     name1[0] = "%s %6s hash " % hashMgr.getNames(cell) 
   for gain in xrange(gainmin,gainmax):
     msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
+    l0=len(msg)
+    if multi: dm="\n"+msg
     for index in xrange(indexmin,indexmax):
       v=blobFlt.getData(cell, gain, index)
       v2=blobFlt2.getData(cell, gain, index)
-      dv12 = abs(v - v2)
-      if v == 0:
-          dv12percent=0
+      dv12 = v - v2
+      if abs(dv12)<zthr:
+          dv12 = 0
+      if v2 == 0:
+          if v==0: dp12=0
+          else:    dp12=100
       else:
-          dv12percent=dv12*100/v
+          dp12=dv12*100/v2
 
-      #if doubl: msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v),dm)
-      #elif v<5.e-7: msg += "%s%s%s" % (names[index],name1[2],dm)
-      #elif v<1: msg += "%s%8.6f%s" % (names[index],v,dm)
-      #else: msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v),dm)
+      if abs(dv12) > maxdiff and abs(dp12) > maxdiffpercent:
+         if doubl:
+             s1 = "{0:<14.9g}".format(v)    if    v<0 else "{0:<15.10g}".format(v)
+             s2 = "{0:<14.9g}".format(v2)   if   v2<0 else "{0:<15.10g}".format(v2)
+             s3 = "{0:<14.9g}".format(dv12) if dv12<0 else "{0:<15.10g}".format(dv12)
+             s4 = "{0:<14.9g}".format(dp12) if dp12<0 else "{0:<15.10g}".format(dp12)
+             msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1.ljust(15),s2.ljust(15),s3.ljust(15),s4.ljust(15),dm)
+         else:
+             s1 = name1[2] if    abs(v)<zthr else "%8.6f" %    v if    abs(v)<1 else "{0:<8.7g}".format(v).ljust(8)
+             s2 = name1[2] if   abs(v2)<zthr else "%8.6f" %   v2 if   abs(v2)<1 else "{0:<8.7g}".format(v2).ljust(8)
+             s3 = name1[2] if abs(dv12)<zthr else "%8.6f" % dv12 if abs(dv12)<1 else "{0:<8.7g}".format(dv12).ljust(8)
+             s4 = name1[2] if abs(dp12)<zthr else "%8.6f" % dp12 if abs(dp12)<1 else "{0:<8.7g}".format(dp12).ljust(8)
+             msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1[:8],s2[:8],s3[:8],s4[:8],dm)
 
-      if abs(dv12) > maxdiff and abs(dv12percent) > maxdiffpercent:      
-         if doubl: msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],"{0:<15.10g}".format(v),"{0:<15.10g}".format(v2),"{0:<15.10g}".format(dv12),"{0:<15.10g}".format(dv12percent),dm)
-         elif v<5.e-7: msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],name1[2],"{0:<8.7g}".format(v2),"{0:<8.7g}".format(dv12),"{0:<8.7g}".format(dv12percent),dm)
-         elif v<1: msg += "%s v1 %8.6f v2 %8.6f diff %8.6f diffpercent %8.6f%s" % (names[index],v,v2,dv12,dv12percent,dm)
-         else: msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],"{0:<8.7g}".format(v),"{0:<8.7g}".format(v2),"{0:<8.7g}".format(dv12),"{0:<8.7g}".format(dv12percent),dm)
-
-    print msg
+    if len(msg)>l0:
+        print msg[:len(msg)-len(dm)]
 
 #=== close DB
 db.closeDatabase()

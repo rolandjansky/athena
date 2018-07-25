@@ -8,8 +8,9 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "ForwardTransportSvc/IForwardTransportSvc.h"
+#include "GaudiKernel/ITHistSvc.h"
 
-class ITHistSvc;
+// class ITHistSvc;
 class StoreGateSvc;
 class TTree;
 

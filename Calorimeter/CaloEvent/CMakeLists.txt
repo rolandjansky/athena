@@ -101,3 +101,8 @@ atlas_add_test( CaloTowerSeg_test
    SOURCES test/CaloTowerSeg_test.cxx
    LINK_LIBRARIES CaloEvent
    EXTRA_PATTERNS "${_patterns}" )
+
+atlas_add_test( CaloTester_test
+   SOURCES test/CaloTester_test.cxx
+   LINK_LIBRARIES CaloEvent
+   EXTRA_PATTERNS "${_patterns}" )

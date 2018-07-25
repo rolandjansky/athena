@@ -20,6 +20,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IAthenaSelectorTool.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -33,8 +34,6 @@ class ISvcLocator;
 class MixingEventIterator;
 
 class StoreGateSvc;
-
-class IAtRndmGenSvc;
 
 namespace CLHEP {
   class RandFlat;

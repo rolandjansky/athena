@@ -15,12 +15,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
 /**
  * wrapper tool for tau truth matching 
 */
-
-namespace TauAnalysisTools { class ITauTruthMatchingTool; }
 
 namespace DerivationFramework {
 

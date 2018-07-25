@@ -55,6 +55,8 @@
 #include "G4IonTable.hh"
 #include "G4KineticTrack.hh"                                     // Uzhi Oct 2014
 
+#include "G4Version.hh" // For changes to interface pre,post 10.4
+
 //============================================================================
 
 //#define debugFTFmodel
@@ -239,10 +241,18 @@ void G4FTFModel2::Init( const G4Nucleus& aNucleus, const G4DynamicParticle& aPro
   // Init target nucleus
   theParticipants.Init( aNucleus.GetA_asInt(), aNucleus.GetZ_asInt() );
 
+  //BM-Apr-2018 - update interface following G4FTFModel in 10.4
+#if G4VERSION_NUMBER < 1040
   if ( theParameters != 0 ) delete theParameters;
   theParameters = new G4FTFParameters( theProjectile.GetDefinition(), aNucleus.GetA_asInt(),
                                        aNucleus.GetZ_asInt(), PlabPerParticle );
-
+#else
+  // reset/recalculate everything for the new interaction
+  //
+  theParameters->InitForInteraction( theProjectile.GetDefinition(), aNucleus.GetA_asInt(),
+                                     aNucleus.GetZ_asInt(), PlabPerParticle );
+#endif
+  
   //AR-Oct2017 : to switch off projectile and target diffraction.
   if ( isDiffractionSwitchedOff ) {
     //G4cout << " G4FTFModel2::Init(...) : projectile=" << theProjectile.GetDefinition()->GetParticleName() 

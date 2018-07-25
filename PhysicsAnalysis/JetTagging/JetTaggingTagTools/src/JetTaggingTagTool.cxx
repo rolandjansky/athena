@@ -87,8 +87,5 @@ StatusCode JetTaggingTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-JetTaggingTagTool::~JetTaggingTagTool() {}
-
 
 

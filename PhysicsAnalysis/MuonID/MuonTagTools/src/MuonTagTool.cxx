@@ -768,11 +768,6 @@ StatusCode MuonTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-MuonTagTool::~MuonTagTool() { 
-}
- 
-
 /** private function to get impact parameter */
 void MuonTagTool::getMuonImpactParameter (const xAOD::Muon* muon, double& d0, double& z0, double& d0_significance) {
    

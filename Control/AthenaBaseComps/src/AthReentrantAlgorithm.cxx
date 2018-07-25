@@ -82,6 +82,25 @@ const EventContext& AthReentrantAlgorithm::getContext() const
 }
 
 /**
+ * @brief Execute an algorithm.
+ *
+ * We override this in order to work around an issue with the Algorithm
+ * base class storing the event context in a member variable that can
+ * cause crashes in MT jobs.
+ */
+StatusCode AthReentrantAlgorithm::sysExecute (const EventContext& ctx)
+{
+  EventContext ctx2 = ctx;
+  // sysExecute will assign the context we pass in to a member variable of 
+  // the algorithm.  If the context is referencing any dynamic memory,
+  // then we can end up with a double-delete.  So clear out any extension ---
+  // we won't actually use the context we pass to here for anything anyway.
+  ctx2.setExtension (boost::any());
+  return ::ReEntAlgorithm::sysExecute (ctx2);
+}
+
+
+/**
  * @brief Return the list of extra output dependencies.
  *
  * This list is extended to include symlinks implied by inheritance

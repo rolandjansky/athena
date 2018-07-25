@@ -162,8 +162,8 @@ if TriggerFlags.doMuon:
       if doEFSA: 
         efMuViewNode += CscRdoToCscPrepData  
         efMuViewNode += CscClusterBuilder 
-      if doL2SA:
-        l2MuViewNode += CscRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += CscRawDataProvider
    
     ### MDT RDO data ###
     if muonRecFlags.doMDTs():
@@ -199,8 +199,8 @@ if TriggerFlags.doMuon:
                                                     OutputLevel  = INFO)
       if doEFSA:
         efMuViewNode += MdtRdoToMdtPrepData
-      if doL2SA:
-        l2MuViewNode += MdtRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += MdtRawDataProvider
 
     ### RPC RDO data ###
     if muonRecFlags.doRPCs():
@@ -235,8 +235,8 @@ if TriggerFlags.doMuon:
                                                     OutputLevel  = INFO)
       if doEFSA:
         efMuViewNode += RpcRdoToRpcPrepData
-      if doL2SA:
-        l2MuViewNode += RpcRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += RpcRawDataProvider
 
     ### TGC RDO data ###
     if muonRecFlags.doTGCs():
@@ -273,8 +273,8 @@ if TriggerFlags.doMuon:
                                                     OutputLevel  = INFO)
       if doEFSA:
         efMuViewNode += TgcRdoToTgcPrepData
-      if doL2SA:
-        l2MuViewNode += TgcRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += TgcRawDataProvider
 
     
     #Run clustering
@@ -305,8 +305,6 @@ if TriggerFlags.doMuon:
 
     ServiceMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
-    l2MuViewNode += muFastAlg
-
     muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
     muFastAlg.RecMuonRoI = "RecMURoIs"
     muFastAlg.MuonL2SAInfo = "MuonL2SAInfo"
@@ -314,6 +312,47 @@ if TriggerFlags.doMuon:
     muFastAlg.forID = "forID"
     muFastAlg.forMS = "forMS"
 
+    ### To create BS->RDO data ###
+    ### RPCRDO ###
+    if muonRecFlags.doRPCs():
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
+      L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(OutputLevel = DEBUG,
+                                                            RpcPrepDataProvider = RpcRdoToRpcPrepDataTool)
+      ToolSvc += L2RpcDataPreparator
+       
+      muFastAlg.DataPreparator.RPCDataPreparator = L2RpcDataPreparator
+
+    ### TGCRDO ###
+    if muonRecFlags.doTGCs():
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
+      L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(OutputLevel         = DEBUG,
+                                                            TgcPrepDataProvider = TgcRdoToTgcPrepDataTool,
+                                                            TGC_RawDataProvider = MuonTgcRawDataProviderTool)
+      ToolSvc += L2TgcDataPreparator
+       
+      muFastAlg.DataPreparator.TGCDataPreparator = L2TgcDataPreparator
+
+    ### MDTRDO ###
+    if muonRecFlags.doMDTs():
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
+      L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(OutputLevel = DEBUG,
+                                                            MDT_RawDataProvider = MuonMdtRawDataProviderTool,
+                                                            MdtPrepDataProvider = MdtRdoToMdtPrepDataTool)
+      ToolSvc += L2MdtDataPreparator
+      
+      muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
+
+    ### CSCRDO ###
+    if muonRecFlags.doCSCs():
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
+      L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(OutputLevel = DEBUG,
+                                                            CscPrepDataProvider = CscRdoToCscPrepDataTool)
+      ToolSvc += L2CscDataPreparator
+       
+      muFastAlg.DataPreparator.CSCDataPreparator = L2CscDataPreparator
+
+    l2MuViewNode += muFastAlg
+ 
     ### set up MuFastHypo ###
     from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("L2MufastHypoAlg")

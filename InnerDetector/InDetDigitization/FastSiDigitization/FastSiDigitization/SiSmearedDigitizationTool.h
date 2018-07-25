@@ -39,6 +39,7 @@
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "ISF_FatrasDetDescrModel/IdHashDetElementCollection.h"
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -72,7 +73,6 @@ namespace InDetDD
 namespace Trk {
 
   class TrackingGeometry;
-  class ITrackingGeometrySvc;
 
 }
 

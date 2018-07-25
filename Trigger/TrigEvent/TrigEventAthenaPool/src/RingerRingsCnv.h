@@ -35,9 +35,9 @@ class RingerRingsCnv  : public T_AthenaPoolCustomCnv<RingerRings, RingerRings_PE
   
 public:
   RingerRingsCnv(ISvcLocator* svcloc);
-protected:
   ~RingerRingsCnv();
 
+protected:
   RingerRings_PERS*  createPersistent(RingerRings* transCont);
 
   RingerRings*       createTransient ();

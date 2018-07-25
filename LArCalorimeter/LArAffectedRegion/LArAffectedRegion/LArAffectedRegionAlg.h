@@ -23,14 +23,15 @@
 //#include ToolHandle<ILArHVTool> m_hvtool;
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-class LArCablingService;
+#include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
+#include "LArRecConditions/ILArBadChanTool.h"
+#include "LArElecCalib/ILArHVTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+
 class LArOnlineID;
-class CaloDetDescrManager;
-class ILArBadChanTool;
 
 class CaloIdManager;
-class ILArHVTool;
-class IIOVDbMetaDataTool;
 
 class LArAffectedRegionAlg : public AthAlgorithm,virtual public IIncidentListener  {
   //---

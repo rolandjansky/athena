@@ -29,14 +29,13 @@
 #include "AthenaKernel/errorcheck.h"
 #include "Identifier/IdentifierHash.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 // InDet
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 // Conditions
@@ -64,17 +63,6 @@
 using namespace SCT_Monitoring;
 
 
-
-// fwd declares
-namespace Trk {
-  class TrackSummaryTool;
-}
-
-namespace InDetDD {
-  class SiDetectorElement;
-  class SiCellId;
-  class SCT_DetectorManagaer;
-}
 
 namespace {// anonymous namespace for functions at file scope
   const bool testOffline(false);
@@ -128,9 +116,6 @@ using std::string;
 // Constructor with parameters:
 SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const IInterface *parent) :
   ManagedMonitorToolBase(type, name, parent),
-  m_mgr(nullptr),
-  m_pSCTHelper(0),
-  m_pManager(0),
   m_TrackName(std::string("ResolvedSCTTracks")),// original track collection
   m_chrono(nullptr),
   m_badChips(nullptr),
@@ -340,7 +325,6 @@ StatusCode
 SCTHitEffMonTool::initialize() {
   INFO("Initializing SCTHitEffMonTool");
 
-  CHECK(detStore()->retrieve(m_mgr, "SCT"));
   CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
   CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
   CHECK(detStore()->retrieve(m_trtId, "TRT_ID"));
@@ -359,9 +343,6 @@ SCTHitEffMonTool::initialize() {
   CHECK(m_bunchCrossingTool.retrieve());
   INFO("Retrieved BunchCrossing tool " << m_bunchCrossingTool);
 
-
-  detStore()->retrieve(m_pSCTHelper, "SCT_ID");
-  detStore()->retrieve(m_pManager, "SCT");
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
 
   if (m_superDetailed) {
@@ -384,6 +365,8 @@ SCTHitEffMonTool::initialize() {
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_TrackName.initialize() );
   ATH_CHECK( m_sctContainerName.initialize() );
+
+  ATH_CHECK(m_sctDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -1154,6 +1137,13 @@ SCTHitEffMonTool::fillHistograms() {
     }
   }
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+    return StatusCode::FAILURE;
+  }
+
   Int_t nTrk(0), nTrkPars(0), nTrkGood(0);
 
   // Loop over track collection to count tracks
@@ -1390,7 +1380,7 @@ SCTHitEffMonTool::fillHistograms() {
       // Get the track phi; we may cut on it.
       Double_t phiUp(90.);
       Double_t theta(90.);
-      if (trkParamOnSurface and not findAnglesToWaferSurface(trkParamOnSurface->momentum(), surfaceID, theta, phiUp)) {
+      if (trkParamOnSurface and not findAnglesToWaferSurface(trkParamOnSurface->momentum(), surfaceID, elements, theta, phiUp)) {
         WARNING("Error from findAngles");
       }
 
@@ -1665,8 +1655,8 @@ SCTHitEffMonTool::fillHistograms() {
 
       // Check bad chips
       Bool_t nearBadChip(false);
-      IdentifierHash waferHash = m_pSCTHelper->wafer_hash(surfaceID);
-      const InDetDD::SiDetectorElement *pElement = m_pManager->getDetectorElement(waferHash);
+      IdentifierHash waferHash = m_sctId->wafer_hash(surfaceID);
+      const InDetDD::SiDetectorElement *pElement = elements->getDetectorElement(waferHash);
       bool swap = (pElement->swapPhiReadoutDirection()) ? true : false;
       Int_t chipPos(previousChip(xl, side, swap));
       unsigned int status(0);
@@ -1821,6 +1811,13 @@ StatusCode
 SCTHitEffMonTool::procHistograms() {                                                                             // hidetoshi
                                                                                                                  // 14.01.22
   if (m_superDetailed) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+    if (elements==nullptr) {
+      ATH_MSG_FATAL(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+      return StatusCode::FAILURE;
+    }
+
     const std::set<Identifier> *badModules = m_configConditions->badModules();
     INFO("Found " << badModules->size() << " bad modules");
     std::array < std::array < double, N_ENDCAPS >, N_REGIONS > MaxEta;
@@ -1841,7 +1838,8 @@ SCTHitEffMonTool::procHistograms() {                                            
       }
       Int_t isub(bec2Index(m_sctId->barrel_ec(*wafItr)));
       Int_t layer(m_sctId->layer_disk(*wafItr));
-      InDetDD::SiDetectorElement *element = m_mgr->getDetectorElement(*wafItr);
+      IdentifierHash waferHash = m_sctId->wafer_hash(*wafItr);
+      const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
       const Amg::Vector3D position = element->center();
       element->getEtaPhiRegion(0., etaMin, etaMax, phiMin, phiMax, rz);
       etabins[isub][layer].push_back(etaMin);
@@ -1951,7 +1949,8 @@ SCTHitEffMonTool::procHistograms() {                                            
         WARNING("Barrel-or-endcap index is invalid");
         return StatusCode::FAILURE;
       }
-      InDetDD::SiDetectorElement *element = m_mgr->getDetectorElement(surfaceID);
+      IdentifierHash waferHash = m_sctId->wafer_hash(surfaceID);
+      const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
       //      const HepGeom::Point3D<float> position = element->center();
       //      m_accPhysMap[histnumber]->Fill(position.pseudoRapidity(), position.phi(), (1. - bMod->second) * N_CHIPS *
       // 2);
@@ -2007,13 +2006,16 @@ SCTHitEffMonTool::previousChip(Double_t xl, Int_t side, bool swap) {
   return chipPos;
 }
 
-// StatusCode SCTHitEffMonTool::findAnglesToWaferSurface (const Trk::GlobalMomentum &mom, Identifier id, Double_t
-// &theta, Double_t &phi){
 StatusCode
-SCTHitEffMonTool::findAnglesToWaferSurface(const Amg::Vector3D &mom, Identifier id, Double_t &theta, Double_t &phi) {
+SCTHitEffMonTool::findAnglesToWaferSurface(const Amg::Vector3D &mom, const Identifier id, 
+                                           const InDetDD::SiDetectorElementCollection* elements,
+                                           Double_t &theta, Double_t &phi) {
   phi = 90.;
   theta = 90.;
-  InDetDD::SiDetectorElement *element = m_mgr->getDetectorElement(id);
+
+  const Identifier waferId = m_sctId->wafer_id(id);
+  const IdentifierHash waferHash = m_sctId->wafer_hash(waferId);
+  const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
   if (not element) {
     VERBOSE("findAnglesToWaferSurface: failed to find detector element for id = " << m_sctId->print_to_string(id));
     return StatusCode::FAILURE;
