@@ -257,6 +257,7 @@ if TriggerFlags.doMuon:
                                                     ProviderTool = MuonRpcRawDataProviderTool,
                                                     OutputLevel  = INFO)
       if doEFSA:
+        efMuViewNode += RpcRawDataProvider
         efMuViewNode += RpcRdoToRpcPrepData
       #if doL2SA:
       #  l2MuViewNode += RpcRawDataProvider
