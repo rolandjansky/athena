@@ -1471,8 +1471,22 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
           return sc;
         }
 
-	std::string lbCrate_ontrack_histtitle = "OccupancyVsLB_ontrack_"+ecap[iecap]+crate[ilayer];
+
+	std::string perSectors_summary_histtitle = "OccupancyPerSectorVsLB";
+	sc = bookMDTHisto_OccVsLB(mdtoccvslb_summaryPerSector,perSectors_summary_histtitle,"LB","[Phi]",834,1,2502,100,1,100,mg->mongroup_overview_shift);
+	if(sc.isFailure()) {
+	  ATH_MSG_ERROR(" mdtoccvslb_summaryPerSector Failed to register histogram " );
+	  return sc;
+	}
+	mdtoccvslb_summaryPerSector->SetBins(834,1,2502,64,0,64);
+	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(1,"BA");
+	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(17,"BC");
+	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(33,"EA");
+	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(49,"EC");
 	
+
+
+	std::string lbCrate_ontrack_histtitle = "OccupancyVsLB_ontrack_"+ecap[iecap]+crate[ilayer];
 	if(iecap==enumBarrelA){
 	  sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,1,100,m_mg->mongroup_brA_shift);
 	  if(sc.isFailure()) {
@@ -1851,7 +1865,6 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     if(chambername==ch) is_on_track=true;
   }
   bool isBIM = (chambername.at(2)=='M');
-
   float tdc = mdtCollection->tdc()*25.0/32.0;
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
   if(chambername.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
@@ -1902,6 +1915,9 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     // Fill occupancy vs. Lumiblock
     if(ilayer != 3) m_mdtoccvslb[iregion][ilayer]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM));
     else m_mdtoccvslb[iregion][2]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM)); // Put extras in with outer
+
+    mdtoccvslb_summaryPerSector->Fill(m_lumiblock,  stationPhi+iregion*16+1  );
+
     
     //correct readout crate info for BEE,BIS7/8
     int crate_region = iregion;
