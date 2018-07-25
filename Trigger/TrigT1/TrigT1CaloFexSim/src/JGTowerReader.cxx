@@ -267,7 +267,7 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 //  CHECK(SeedFinding(gTs,gSeeds,0.4,2.0,gT_noise)); // the diameter of seed, and its range to be local maximum
                                           // Careful to ensure the range set to be no tower double counted
  // CHECK(BuildJet(gTs,gT_noise,gSeeds,gL1Jets,1.0)); //default gFex jets are cone jets wih radius of 1.0
-  CHECK(BuildMET(gTs,gT_noise,gMET));
+  CHECK(METAlg::BuildMET(gTs,gT_noise,gMET));
 
   return StatusCode::SUCCESS;
 }

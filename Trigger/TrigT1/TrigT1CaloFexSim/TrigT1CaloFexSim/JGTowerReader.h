@@ -28,7 +28,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
-
+#include "TrigT1CaloFexSim/METAlg.h"
 class JGTowerReader: public ::AthAlgorithm { 
  public: 
   JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator );
@@ -96,8 +96,8 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector<float> gT_noise;
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
   JetAlg::Seed*   gSeeds=new JetAlg::Seed;
-  METAlg::MET*    jMET=new  METAlg::JGTowerReader::MET;
-  METAlg::MET*    gMET=new  METAlg::JGTowerReader::MET;
+  METAlg::MET*    jMET=new  METAlg::MET;
+  METAlg::MET*    gMET=new  METAlg::MET;
   std::vector<JetAlg::L1Jet>  jL1Jets;
   std::vector<JetAlg::L1Jet>  gL1Jets;
   std::map<TString, TH1*> hName;

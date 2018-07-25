@@ -1,4 +1,4 @@
-#include "TrigT1CaloFexSim/JetAlg.h"
+#include "TrigT1CaloFexSim/METAlg.h"
 #include "TrigT1CaloFexSim/JGTower.h"
 StatusCode METAlg::BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise, METAlg::MET* met){
   float met_x=0;

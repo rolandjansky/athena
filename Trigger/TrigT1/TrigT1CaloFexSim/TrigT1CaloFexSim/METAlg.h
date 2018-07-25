@@ -13,6 +13,7 @@
 
 class METAlg{
 
+ public:
   struct MET{
     float phi;
     float et;
@@ -20,6 +21,6 @@ class METAlg{
   };
 
 
-  virtual StatusCode BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise,JGTowerReader::MET* met);
+  static StatusCode BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise,METAlg::MET* met);
 
 };
