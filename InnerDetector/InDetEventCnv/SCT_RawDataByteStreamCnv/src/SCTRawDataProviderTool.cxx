@@ -6,8 +6,6 @@
 // SCTRawDataProviderTool.cxx
 //   Implementation file for class SCTRawDataProviderTool
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "SCTRawDataProviderTool.h"
 #include "StoreGate/ReadHandle.h"

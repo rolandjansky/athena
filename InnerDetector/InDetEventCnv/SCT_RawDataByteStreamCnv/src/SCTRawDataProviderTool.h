@@ -6,18 +6,16 @@
 // SCTRawDataProviderTool.h
 //   Header file for class SCTRawDataProviderTool
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "ByteStreamData/RawEvent.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
