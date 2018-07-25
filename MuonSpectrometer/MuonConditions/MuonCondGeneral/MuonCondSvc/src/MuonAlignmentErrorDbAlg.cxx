@@ -10,10 +10,9 @@ MuonAlignmentErrorDbAlg::MuonAlignmentErrorDbAlg(const std::string& name, ISvcLo
 {
 }
 
-StatusCode MuonAlignmentErrorDbAlg::initialize()
-{
+StatusCode MuonAlignmentErrorDbAlg::initialize(){
 
-  ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION  );                
+  ATH_MSG_DEBUG( "initialize " << name() );                
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_writeKey.initialize());
@@ -25,10 +24,9 @@ StatusCode MuonAlignmentErrorDbAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonAlignmentErrorDbAlg::execute()
-{
+StatusCode MuonAlignmentErrorDbAlg::execute(){
   
-  ATH_MSG_VERBOSE( "Execute"  );  
+  ATH_MSG_DEBUG( "execute " << name() );  
   
   // Write Cond Handle
   
@@ -153,9 +151,8 @@ StatusCode MuonAlignmentErrorDbAlg::execute()
 }
 
 
-StatusCode MuonAlignmentErrorDbAlg::finalize()
-{
+StatusCode MuonAlignmentErrorDbAlg::finalize(){
   
-  ATH_MSG_VERBOSE( "Finalize"  );
+  ATH_MSG_DEBUG( "finalize " << name() );
   return StatusCode::SUCCESS;
 }

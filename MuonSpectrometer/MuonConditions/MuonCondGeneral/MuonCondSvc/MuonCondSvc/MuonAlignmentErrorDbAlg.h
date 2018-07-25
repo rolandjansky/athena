@@ -3,7 +3,7 @@
 */
 
 /**
-  MuonAlignmentErrorDbAlg reads raw condition data and writes derived condition data (MuonAlignmentErrorData) to the condition store
+   MuonAlignmentErrorDbAlg reads raw condition data and writes derived condition data (MuonAlignmentErrorData) to the condition store
 */
 
 #ifndef MUONCONDSVC_MUONALIGNMENTERRORDBALG_H
