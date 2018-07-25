@@ -34,9 +34,6 @@ StatusCode TrackPseudoJetGetter::initialize() {
   ATH_CHECK( m_outcoll.initialize() );
   ATH_CHECK( m_inTVA.initialize() );
 
-  m_outcollRead = m_outcoll.key();
-  ATH_CHECK( m_outcollRead.initialize() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -56,15 +53,8 @@ StatusCode TrackPseudoJetGetter::createAndRecord() const {
 const PseudoJetContainer* TrackPseudoJetGetter::getC() const {
 
   ATH_MSG_DEBUG("Getting PseudoJetContainer in TrackPseudoJetGetter ...");
-
-  // check if already exists
-  auto handle_inOut = SG::makeHandle (m_outcollRead);
-  if ( handle_inOut.isValid() ) {
-    ATH_MSG_DEBUG("Fetching existing pseudojets." << m_outcollRead.key());
-    return handle_inOut.cptr();
-  }
   
-  // else we build and record the container
+  // build and record the container
   const xAOD::TrackParticleContainer* cont;
   auto handle_in = SG::makeHandle(m_incolltrk);
   if ( handle_in.isValid() ) {
