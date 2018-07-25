@@ -5,6 +5,7 @@
   <class name="IAsgPhotonIsEMSelector" />
   <class name="IAsgElectronMultiLeptonSelector" /> 
   <class name="IAsgElectronLikelihoodTool" /> 
+  <class name="IAsgForwardElectronLikelihoodTool" /> 
   <class name="IEGammaAmbiguityTool" />
   <class name="IAsgDeadHVCellRemovalTool" /> 
 

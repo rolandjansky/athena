@@ -105,8 +105,8 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
 
   std::string PDFfilename(""); //Default
 
-  if(!m_WorkingPoint.empty()){ // PS: this is still to be implemented in the mapping
-    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::LHPointToConfFile);
+  if(!m_WorkingPoint.empty()){
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::ForwardLHPointToConfFile);
     ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
   }
 
@@ -128,20 +128,17 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
 	ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
 	PDFfilename = m_pdfFileName;
       } else {
-      if (m_configFile.find("dev/") != std::string::npos) {
-
-	// PS: hardcode here proper LH PDFs
-        std::string PDFdevval = env.GetValue("inputPDFFileName", "/hepustc/home/hanlinxuy/HaxuTaP/tP/ElectronPhotonSelectorTools/data/ForwardElectronLikelihoodPdfs.root");
+      if (m_configFile.find("dev/") != std::string::npos) {      
+        std::string PDFdevval = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/offline/mc16_20180716/ForwardElectronLikelihoodPdfs.root"); // this is the first PDF ever released
         PDFfilename = ("dev/"+PDFdevval);
         ATH_MSG_INFO( "Getting the input PDFs from: " << PDFfilename  );
       } else {
-        PDFfilename = env.GetValue("inputPDFFileName", "/hepustc/home/hanlinxuy/HaxuTaP/tP/ElectronPhotonSelectorTools/data/ForwardElectronLikelihoodPdfs.root");
+        PDFfilename = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/offline/mc16_20180716/ForwardElectronLikelihoodPdfs.root");
         ATH_MSG_INFO( "Getting the input PDFs from: " << PDFfilename );
       }
     }
     std::string filename = PathResolverFindCalibFile( PDFfilename );
     
-   
     if (!filename.empty()){
       m_rootForwardTool->setPDFFileName( filename );
     }else{
@@ -151,7 +148,6 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
 
     m_rootForwardTool->VariableNames = env.GetValue("VariableNames","");
     m_rootForwardTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
-    std::cout<<"m_rootForwardTool->CutLikelihood  "<<m_rootForwardTool->CutLikelihood.size()<<std::endl;
     m_rootForwardTool->CutLikelihoodPileupCorrectionA = AsgConfigHelper::HelperDouble("DiscCutSlopeForPileupTransform",env);
     m_rootForwardTool->CutLikelihoodPileupCorrectionB = AsgConfigHelper::HelperDouble("DiscCutForPileupTransform",env);
     m_rootForwardTool->doPileupTransform = env.GetValue("doPileupTransform", false);
@@ -231,7 +227,7 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
   
   const double energy =  cluster->e();
   // const float eta = (cluster->etaBE(2)); 
-  const float eta = (cluster->eta()); // PS the eta variables were inconsistent
+  const float eta = (cluster->eta());
   if ( fabs(eta) > 300.0 )
     {
       ATH_MSG_INFO("Failed, eta range.");
@@ -242,28 +238,8 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
   // transverse energy of the electron (using the track eta) 
   //  const double et = eg->pt(); 
   double et = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
+    double ip(0);
   
-  // PS: I don't understand these lines, we don't need the variales here, only in the calculate function
-  // double secondDensity(0),significance(0),secondLambda(0), lateral(0),  longitudinal(0), fracMax(0), secondR(0), centerLambda(0);
-  double ip(0);
-  
-  // bool allFound = true;
-
-  // // secondLambda
-  // allFound = cluster->retrieveMoment(xAOD::CaloCluster::SECOND_LAMBDA,secondLambda)     && allFound;
-  // // lateral
-  // allFound = cluster->retrieveMoment(xAOD::CaloCluster::LATERAL,lateral) 		&& allFound;
-  // // longitudinal
-  // allFound = cluster->retrieveMoment(xAOD::CaloCluster::LONGITUDINAL, longitudinal) 	&& allFound;
-  // // fracMax
-  // allFound = cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_MAX, fracMax) 		&& allFound;
-  // // secondR
-  // allFound = cluster->retrieveMoment(xAOD::CaloCluster::SECOND_R, secondR)  		&& allFound;
-  // // center lambda
-  // allFound = cluster->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA,centerLambda)  	&& allFound;
-  // allFound = cluster->retrieveMoment(xAOD::CaloCluster::SIGNIFICANCE, significance) 	&& allFound;
-  // allFound = cluster->retrieveMoment(xAOD::CaloCluster::SECOND_ENG_DENS, secondDensity) && allFound;
-    
   // Get the number of primary vertices in this event
   if( mu < 0 ){ // use npv if mu is negative (not given)
     ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
@@ -321,7 +297,6 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::El
     }  
   
   const double energy =  cluster->e();
-  // float eta2 = cluster->etaBE(2); // PS: is inconsitent with above where etaBE2 is used
   const float eta = cluster->eta(); 
   if ( fabs(eta) > 300.0 )
     {
@@ -336,26 +311,51 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::El
   double secondDensity(0),significance(0),secondLambda(0), lateral(0),  longitudinal(0), fracMax(0), secondR(0), centerLambda(0);
 
   bool allFound = true;
+  std::string notFoundList = "";
 
   // secondLambda
-  allFound = cluster->retrieveMoment(xAOD::CaloCluster::SECOND_LAMBDA,secondLambda)     && allFound;
+  if ( !cluster->retrieveMoment(xAOD::CaloCluster::SECOND_LAMBDA,secondLambda) ) {
+    allFound = false;
+    notFoundList += "secondLambda ";
+  }
   // lateral
-  allFound = cluster->retrieveMoment(xAOD::CaloCluster::LATERAL,lateral)	        && allFound;
+  if ( !cluster->retrieveMoment(xAOD::CaloCluster::LATERAL,lateral) ) {
+    allFound = false;
+    notFoundList += "lateral ";
+  }
   // longitudinal
-  allFound = cluster->retrieveMoment(xAOD::CaloCluster::LONGITUDINAL, longitudinal)     && allFound;
+  if ( !cluster->retrieveMoment(xAOD::CaloCluster::LONGITUDINAL, longitudinal) ) {
+    allFound = false;
+    notFoundList += "longitudinal ";
+  }
   // fracMax
-  allFound = cluster->retrieveMoment( xAOD::CaloCluster::ENG_FRAC_MAX, fracMax)         && allFound;
+  if ( !cluster->retrieveMoment( xAOD::CaloCluster::ENG_FRAC_MAX, fracMax) ) {
+    allFound = false;
+    notFoundList += "fracMax ";
+  }
   // secondR
-  allFound = cluster->retrieveMoment( xAOD::CaloCluster::SECOND_R, secondR) 	        && allFound;
+  if ( !cluster->retrieveMoment( xAOD::CaloCluster::SECOND_R, secondR) ) {
+    allFound = false;
+    notFoundList += "secondR ";
+  }
   // centerlambda
-  allFound = cluster->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA,centerLambda)     && allFound;
-  allFound = cluster->retrieveMoment(xAOD::CaloCluster::SECOND_ENG_DENS, secondDensity) && allFound;
-  allFound = cluster->retrieveMoment(xAOD::CaloCluster::SIGNIFICANCE, significance)     && allFound;
-
-
-   // Get the number of primary vertices in this event
+  if ( !cluster->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA,centerLambda)     ) {
+    allFound = false;
+    notFoundList += "centerLambda ";
+  }
+  if ( !cluster->retrieveMoment(xAOD::CaloCluster::SECOND_ENG_DENS, secondDensity) ) {
+    allFound = false;
+    notFoundList += "secondDensity ";
+  }
+  if ( !cluster->retrieveMoment(xAOD::CaloCluster::SIGNIFICANCE, significance)     ) {
+    allFound = false;
+    notFoundList += "significance ";
+  }
+  
+  
+  // Get the number of primary vertices in this event
   double ip = static_cast<double>(m_nPVdefault);
-
+  
   if(mu < 0){ // use npv if mu is negative (not given)
     ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
     }
@@ -369,7 +369,8 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::El
   
   
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing.");
+    ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << notFoundList);
+    return m_resultDummy;
   }
   
   // Get the answer from the underlying ROOT tool

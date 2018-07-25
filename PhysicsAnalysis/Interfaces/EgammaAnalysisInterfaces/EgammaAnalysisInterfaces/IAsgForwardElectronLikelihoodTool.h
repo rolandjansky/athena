@@ -39,37 +39,37 @@ class IAsgForwardElectronLikelihoodTool : virtual public IAsgSelectionTool
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
   /// accept method with pointer to electron 
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
-
-  /// accept method with pointer to electron  when mu not in EventInfo for online 
-  virtual const Root::TAccept& accept( const xAOD::Electron* part, double mu ) const = 0;
+  virtual const Root::TAccept& accept( const xAOD::Electron*  part ) const = 0;
 
   /// accept method with pointer to  egamma 
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part ) const = 0;
+  virtual const Root::TAccept& accept( const xAOD::Egamma*    part ) const = 0;
+
+  /// accept method with pointer to electron  when mu not in EventInfo for online 
+  virtual const Root::TAccept& accept( const xAOD::Electron*  part, double mu ) const = 0;
 
   /// accept method with pointer to egammma when mu not in EventInfo for online 
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part, double mu ) const = 0;
+  virtual const Root::TAccept& accept( const xAOD::Egamma*    part, double mu ) const = 0;
 
   /// TResult method: for pointer to IParticle
-  virtual const Root::TResult& calculate( const xAOD::IParticle* part, int set =4 ) const = 0;
+  virtual const Root::TResult& calculate( const xAOD::IParticle* part, int set = 4 ) const = 0;
 
   /// TResult method: for pointer to electron
-  virtual const Root::TResult& calculate( const xAOD::Electron* eg, int set =4 ) const = 0;
+  virtual const Root::TResult& calculate( const xAOD::Electron*  eg  , int set = 4 ) const = 0;
 
   /// TResult method: for pointer to egamma 
-  virtual const Root::TResult& calculate( const xAOD::Egamma* eg, int set =4 ) const = 0;
+  virtual const Root::TResult& calculate( const xAOD::Egamma*    eg  , int set = 4 ) const = 0;
 
   /// TResult method: for pointer to electron  when mu not in EventInfo for online
-  virtual const Root::TResult& calculate( const xAOD::Electron* eg, double mu, int set =0 ) const = 0;
+  virtual const Root::TResult& calculate( const xAOD::Electron* eg, double mu, int set = 0 ) const = 0;
 
   /// TResult method: for pointer to egamma when mu not in EventInfo for online
-  virtual const Root::TResult& calculate( const xAOD::Egamma* eg, double mu, int set =0 ) const = 0;
+  virtual const Root::TResult& calculate( const xAOD::Egamma*   eg, double mu, int set = 0 ) const = 0;
 
   // Just return the TResult 
-  virtual const Root::TResult& getTResult( ) const=0;
+  virtual const Root::TResult& getTResult( ) const = 0;
 
   ///Method to get the operating point 
-  virtual std::string getOperatingPointName( ) const =0;
+  virtual std::string getOperatingPointName( ) const = 0;
 
   ///@}
 

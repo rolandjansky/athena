@@ -14,6 +14,7 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
   asg::AsgMessaging(std::string(name)),
   doPileupTransform(false),
   VariableNames(""),
+  OperatingPoint(),
   PdfFileName(""),
   m_ipBinning(""),
   m_pdfFile(0),
@@ -21,8 +22,7 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
   m_resultName("likelihood"),
   m_cutPosition_kinematic(-9),
   m_cutPosition_LH(-9),
-  m_resultPosition_LH(-9),
-  OperatingPoint()
+  m_resultPosition_LH(-9)
 {
   for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
     for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
@@ -36,9 +36,6 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
     }
   }
 }
-
-
-
 
 //=============================================================================
 // Destructor
@@ -89,8 +86,8 @@ int Root::TForwardElectronLikelihoodTool::initialize()
   if ( m_cutPosition_kinematic < 0 ) sc = 0;
  
   // Cut position for the likelihood selection - DO NOT CHANGE ORDER!
-   m_cutPosition_LH = m_accept.addCut( "passLH", "pass Likelihood" );
-   m_resultPosition_LH = m_result.addResult("passLH", "pass likelihood" );
+  m_cutPosition_LH = m_accept.addCut( "passLH", "pass Likelihood" );
+  m_resultPosition_LH = m_result.addResult("passLH", "pass likelihood" );
   if ( m_resultPosition_LH < 0 ) sc = 0; // Exceeded the number of allowed results
 
   // Set the result to a defaul value
@@ -172,7 +169,6 @@ int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(std::string vstr,uns
             ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
             return 1;
 	  }
-//  std::cout << pdf << "      "  <<binname << std::endl;
 	  
           // PS: it shouldn't go to the last bin (which is 7000 GeV)
           if ( et > fnEtBinsHistOrig-1 ) {
@@ -207,7 +203,7 @@ const Root::TAccept& Root::TForwardElectronLikelihoodTool::accept( double likeli
 								   double eta, 
 								   double eT,
 								   double ip
-                                                            ) const
+								   ) const
 {
   LikeEnumForward::LHAcceptVars_t vars;
   
@@ -247,9 +243,9 @@ const Root::TAccept& Root::TForwardElectronLikelihoodTool::accept( LikeEnumForwa
   m_accept.setCutResult( m_cutPosition_kinematic, passKine );
   if ( !passKine ){ return m_accept; }
   
-  double cutDiscriminant;
+  double cutDiscriminant = -999.;
   unsigned int ibin_combined = etbin*10+etabin-1;
-//  std::cout<<"ibin_combined    "<<ibin_combined<<std::endl; 
+
   if(CutLikelihood.size()){
     // To protect against a binning mismatch, which should never happen
     if(ibin_combined > CutLikelihood.size()){
@@ -322,8 +318,6 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(LikeEnumFor
   // Reset the results to defaul values
   m_result.setResult( m_resultPosition_LH, -999.0  );
   
-  unsigned int etabin = getLikelihoodEtaBin(vars_struct.eta);
-    
   double arr[] = {vars_struct.secondLambda
 		  ,vars_struct.lateral
                   ,vars_struct.longitudinal
@@ -338,7 +332,6 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(LikeEnumFor
   // Calculate the actual likelihood value and fill the return object
   double lhVal = this->EvaluateLikelihood(vec,vars_struct.eT,vars_struct.eta,vars_struct.ip,vars_struct.set);
   m_result.setResult( m_resultPosition_LH, lhVal  );
-  
   return m_result;
 }
 
@@ -358,13 +351,13 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<floa
 
 double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip,int set) const
 {
-
+  
   // PS: I have no clue what the set is supposed to be, Hanlin please comment
   if( (set>8) || (set<1) ) {
     set=4;
   }
   
-  const double GeV = 1000;
+  // const double GeV = 1000;
   unsigned int etbin = (getLikelihoodEtHistBin(et) > 2) ? (getLikelihoodEtHistBin(et)-2):getLikelihoodEtHistBin(et); // hist binning
   unsigned int etabin = getLikelihoodEtaBin(eta);
   if( (etbin==5) && (etabin==10) ) { // PS: what is this doing? Can't this be fixed in the configs?
@@ -372,9 +365,6 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<doub
   }
   unsigned int ipbin  = getIpBin(ip);
 
-  ATH_MSG_INFO("et: " << et << " eta: " << eta 
-	       << " etbin: " << etbin << " etabin: " << etabin);
-  
   if (etbin >= fnEtBinsHist) {
     ATH_MSG_WARNING("skipping etbin " << etbin << ", et " << et);
     return -999.;
@@ -413,31 +403,11 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<doub
     }
   }
   
-  return TransformLikelihoodOutput( SigmaS, SigmaB, ip, et, eta );
+  return TransformLikelihoodOutput( SigmaS, SigmaB );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // --------------------------------------------
-double Root::TForwardElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double pb, double ip, double et, double eta) const {
+double Root::TForwardElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double pb) const {
   // returns transformed or non-transformed output
   // (Taken mostly from TMVA likelihood code)
   double fEpsilon = 1e-99;
@@ -452,13 +422,9 @@ double Root::TForwardElectronLikelihoodTool::TransformLikelihoodOutput(double ps
   double tau = 15.0;
   disc = - log(1.0/disc - 1.0)*(1./double(tau));
 
-  // here is where you should do the pileup transform
-
-  
   ATH_MSG_DEBUG( "disc is " << disc );
   return disc;
 }
-
 
 
 const double Root::TForwardElectronLikelihoodTool::fIpBounds[IP_FBINS+1] = {0.,500.};
@@ -520,31 +486,6 @@ void Root::TForwardElectronLikelihoodTool::getBinName(char* buffer, int etbin,in
 }
 
 
-// PS: the bitmask is not even used
-// //----------------------------------------------------------------------------------------
-// unsigned int Root::TForwardElectronLikelihoodTool::GetLikelihoodBitmask(std::string vars) const{
-//   unsigned int mask = 0x0;
-//   ATH_MSG_DEBUG ("Variables to be used: ");
-//   for(unsigned int var = 0; var < fnVariables; var++){
-//     if (vars.find(fVariables[var]) != std::string::npos){
-//       ATH_MSG_DEBUG( fVariables[var] );
-//       mask = mask | 0x1 << var;
-//     }
-//   }
-//   ATH_MSG_DEBUG("mask: " << mask);
-//   return mask;
-// }
-//----------------------------------------------------------------------------------------
-// Note that this will only perform the cut interpolation up to ~45 GeV, so 
-// no smoothing is done above this for the high ET LH binning yet
-
-
-//----------------------------------------------------------------------------------------
-// Note that this will only perform the PDF interpolation up to ~45 GeV, so 
-// no smoothing is done above this for the high ET LH binning yet
-
-//----------------------------------------------------------------------------------------
-
 // These are the variables availalble in the likelihood.
 const char* Root::TForwardElectronLikelihoodTool::fVariables[fnVariables] = {"el_secondLambda"
 									     ,"el_lateral"
@@ -554,38 +495,6 @@ const char* Root::TForwardElectronLikelihoodTool::fVariables[fnVariables] = {"el
 									     ,"el_secondR"
 									     ,"el_significance"
 									     ,"el_secondDensity"							     };
-//
-// Cuts definitions
-//
-
-// PS: this stuff is not needed, we work with config files
-// // These are the discriminant values to compare against for various operating points.
-// // Binning : [mu or nvtx][Et][eta]
-// // Note that the second bin is an exact copy of the first, since they are one bin in the pdf histograms.
-
-
-// const double Root::TForwardElectronLikelihoodTool::Disc_Loose[40] = { 0.054,	0.185,	0.328,	-0.324,	-0.516,	-15.197,-15.197,0,	-0.859,	0.104,0.027,	0.197,	0.315,	0.024,	-0.181,	-0.458,	-0.569,	0,	-0.151,	0.079,-0.015,	0.181,	0.335,	0.07,	-0.09,	0.334,	-0.524,	0,	-0.011,	0.105,0.017,	0.07,	0.126,	0.064,	-0.073,	-0.154,	-0.278,	0,	0.038,	0.188};
-
-// const double Root::TForwardElectronLikelihoodTool::Disc_Medium[40] = {  0.275,	0.616,	0.698,	0.438,	0.405,	-0.125,	-0.232,	0,	0.268,	0.897,0.262,	0.634,	0.673,	0.495,	0.433,	0.271,	0.03,	0,	0.322,	0.341,0.219,	0.595,	0.678,	0.504,	0.451,	0.304,	0.042,	0,	0.385,	0.319,0.177,	0.268,	0.358,	0.315,	0.207,	0.232,	0.044,	0,	0.285,	0.349};
-
-// const double Root::TForwardElectronLikelihoodTool::Disc_Tight[40] = { 0.387,	0.797,	0.869,	0.761,	0.756,0,	0.63,	0.309,0.388,	0.813,	0.838,	0.756,	0.752,0	,0.701,	0.358,0.346,	0.76	,0.812,	0.741,	0.735,0,	0.647,	0.328,0.264,	0.362,	0.459	,0.445,	0.375,0,	0.416,	0.186};
-
-
-// //
-// // Vertex-dependent term d = a + bx where x is number of vertices
-// //
-// const double Root::TForwardElectronLikelihoodTool::Disc_Loose_b[40] = { 0.514,	0.605,	0.818,	-0.104,	-0.626,	-15.197,-15.197,0,	-0.389,	0.594,0.327,	0.687,	0.805,	0.514,	0.309,	0.032,	-0.569,	0,	0.279,	0.569,0.195,	0.481,	0.765,	0.54,	0.4,	0.156,	-0.524,	0,	0.399,	0.455,0.127,	0.35,	0.426,	0.394,	0.307,	0.166,	-0.128,	0,	0.368,	0.188};
-// const double Root::TForwardElectronLikelihoodTool::Disc_Medium_b[40] = { 0.705,	1.106,	1.148,	0.778,	0.895,	0.365,	0.128,	0,	0.758,	0.407,0.432,	1.044,	1.013,	0.965,	0.903,	0.721,	0.21,	0,	0.812,	0.801,0.399,	0.825,	0.888,	0.754,	0.791,	0.564,	0.202,	0,	0.765,	0.729,0.267,	0.478,	0.528,	0.565,	0.367,	0.462,	0.234,	0,	0.685,	0.349
-// };
-
-// const double Root::TForwardElectronLikelihoodTool::Disc_Tight_b[40] = {0.687,	1.257,	1.299,	1.251,	1.226,0,	1.12,	0.739,0.628,	1.143,	1.048,1.096,	1.092,0,	0.991,	0.478,0.496,	0.97	,0.972,	0.941,	0.935,0,	0.847,	0.438,0.444,	0.532,	0.569,	0.585,	0.545,0,	0.556,	0.296};
-
-// const double Root::TForwardElectronLikelihoodTool::Disc_Medium_a[40] = { -0.035,	-0.039,	-0.036,	-0.027,	-0.036,	-0.037,	-0.026,	0,	-0.039,	-0.039,-0.015,-0.033,	-0.028,	-0.038,	-0.038,	-0.036,	-0.015,	0,	-0.039,	-0.037,-0.015,	-0.019,	-0.018,	-0.021,	-0.028,	-0.02,	-0.014,	0,	-0.031,	-0.03,-0.007,	-0.017,	-0.014,	-0.021,	-0.014,	-0.018,	-0.016,	0,	-0.032,	0};
-
-// const double Root::TForwardElectronLikelihoodTool::Disc_Tight_a[40] = { -0.025,	-0.037,	-0.035,	-0.039,	-0.038,	0,-0.036,	-0.035,-0.02,	-0.026,	-0.018,	-0.028,	-0.028,	0,-0.024,	-0.011,-0.012,	-0.018,	-0.014,	-0.017,	-0.017,	0,-0.017,	-0.009,-0.014,	-0.015,	-0.009,	-0.012,	-0.015,	0,-0.012,	-0.009};
-// const double Root::TForwardElectronLikelihoodTool::Disc_Loose_a[40] = {-0.037,	-0.034,	-0.039,	-0.018,	-0.01,	0,	    0,	    0,	-0.038,	-0.039,-0.025,	-0.039, -0.039,	-0.039,	-0.037,	-0.039,	0,   	0,	-0.035,	-0.039,-0.017,	-0.025,	-0.033,	-0.038,	-0.037,	-0.039,	0,	    0,	-0.033,	-0.028,-0.009,	-0.023,	-0.025,	-0.026, -0.031,	-0.026,	-0.013,	0,	-0.026,	0};
-
-
 
 //=============================================================================
 // SafeTH1, to allow us to immediately free the ROOT TH1 memory
@@ -594,7 +503,7 @@ const char* Root::TForwardElectronLikelihoodTool::fVariables[fnVariables] = {"el
 Root::TForwardElectronLikelihoodTool::SafeTH1::SafeTH1(TH1F* roothist){
 
   int nbins = roothist->GetNbinsX();
-//  std::cout<<"hehe "<<nbins<<std::endl;
+
   m_binContent.resize(nbins,0); // Note that the PDF over/underflows are unused and thus unrepresented here!
 
   for(int i = 0; i < nbins; ++i){
@@ -619,7 +528,7 @@ int Root::TForwardElectronLikelihoodTool::SafeTH1::GetNbinsX(){
 }
 
 int Root::TForwardElectronLikelihoodTool::SafeTH1::FindBin(double value){
-//std::cout<<"test FindBin"<<std::endl;
+
   if(value < m_firstBinLowEdge){
     return 0; // first bin of m_binContent
   }
