@@ -46,6 +46,10 @@ InDetServMatFactoryDC2::~InDetServMatFactoryDC2()
 //## Other Operations (implementation)
 void InDetServMatFactoryDC2::create(GeoPhysVol *world)
 {
+  if (not world){
+    msg(MSG::FATAL) << "GeoPhysVol pointer 'world' is null" << endmsg;
+    return;
+  }
   // create a new det manager
   m_manager = new InDetDD::InDetServMatManager();
 
