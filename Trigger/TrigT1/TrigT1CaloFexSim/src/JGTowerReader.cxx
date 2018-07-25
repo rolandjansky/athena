@@ -255,7 +255,7 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
   CHECK(JetAlg::SeedFinding(jTs,jSeeds,0.2,0.8,jT_noise)); //the diameter of seed, and its range to be local maximum
                                           //Careful to ensure the range set to be no tower double counted
   CHECK(JetAlg::BuildJet(jTs, jT_noise,jSeeds, jL1Jets,0.4)); 
-  CHECK(JGTowerReader::BuildMET(jTs,jT_noise,jMET));
+  CHECK(METAlg::BuildMET(jTs,jT_noise,jMET));
 
   return StatusCode::SUCCESS;
 }
@@ -449,7 +449,7 @@ StatusCode JGTowerReader::BuildJet(const xAOD::JGTowerContainer*towers,std::vect
   return StatusCode::SUCCESS;
 }
 */
-StatusCode JGTowerReader::BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise, JGTowerReader::MET* met){
+/*StatusCode JGTowerReader::BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise, JGTowerReader::MET* met){
   float met_x=0;
   float met_y=0;
   for(unsigned t=0; t<towers->size(); t++){
@@ -467,7 +467,7 @@ StatusCode JGTowerReader::BuildMET(const xAOD::JGTowerContainer*towers,std::vect
   met->phi=phi_met;
   met->et = et_met;
   return StatusCode::SUCCESS; 
-}
+}*/
 StatusCode JGTowerReader::ProcessObject(){
 
   

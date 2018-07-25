@@ -58,11 +58,11 @@ class JGTowerReader: public ::AthAlgorithm {
   };
 
 */
-  struct MET{
+/*  struct MET{
     float phi;
     float et;
 
-  };
+  };*/
 
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
@@ -88,7 +88,7 @@ class JGTowerReader: public ::AthAlgorithm {
   //virtual StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, JGTowerReader::Seed*seeds, float seed_size,float range, std::vector<float> noise);
 
   //virtual StatusCode BuildJet(const xAOD::JGTowerContainer*towers,std::vector<float> noise, JGTowerReader::Seed*seeds, std::vector<JGTowerReader::L1Jet> &js, float jet_size);
-  virtual StatusCode BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise,JGTowerReader::MET* met);
+//  virtual StatusCode BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise,JGTowerReader::MET* met);
 
   virtual StatusCode ProcessObject();
 
@@ -96,8 +96,8 @@ class JGTowerReader: public ::AthAlgorithm {
   std::vector<float> gT_noise;
   JetAlg::Seed*   jSeeds=new JetAlg::Seed;
   JetAlg::Seed*   gSeeds=new JetAlg::Seed;
-  JGTowerReader::MET*    jMET=new  JGTowerReader::MET;
-  JGTowerReader::MET*    gMET=new  JGTowerReader::MET;
+  METAlg::MET*    jMET=new  METAlg::JGTowerReader::MET;
+  METAlg::MET*    gMET=new  METAlg::JGTowerReader::MET;
   std::vector<JetAlg::L1Jet>  jL1Jets;
   std::vector<JetAlg::L1Jet>  gL1Jets;
   std::map<TString, TH1*> hName;
