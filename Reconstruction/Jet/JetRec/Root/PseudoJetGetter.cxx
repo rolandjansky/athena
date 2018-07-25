@@ -45,9 +45,6 @@ StatusCode PseudoJetGetter::initialize() {
   ATH_CHECK( m_incoll.initialize() );
   ATH_CHECK( m_outcoll.initialize() );
 
-  m_outcollRead = m_outcoll.key();
-  ATH_CHECK( m_outcollRead.initialize() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -80,15 +77,7 @@ const PseudoJetContainer* PseudoJetGetter::getC() const {
 
   const PseudoJetContainer * pjcont;
 
-  // check if the PSeudojet container already exists. Return if so...
-  auto handle_inOut = SG::makeHandle (m_outcollRead);
-  if ( handle_inOut.isValid() ) {
-    ATH_MSG_DEBUG("Fetching existing pseudojets." << m_outcollRead.key());
-    pjcont = handle_inOut.cptr();
-    return pjcont;
-  }
-
-  // ... build and record the container if not
+  // build and record the container
   const xAOD::IParticleContainer* cont;
   auto handle_in = SG::makeHandle(m_incoll);
   if ( handle_in.isValid() ) {
