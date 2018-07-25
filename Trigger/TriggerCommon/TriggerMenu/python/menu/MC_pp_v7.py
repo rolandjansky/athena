@@ -3725,8 +3725,8 @@ if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
 
 Prescales.HLTPrescales_tightperf_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
-Prescales.L1Prescales_CPSampleProd_mc_prescale= deepcopy(Prescales.L1Prescales)
-Prescales.HLTPrescales_CPSampleProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
+Prescales.L1Prescales_TriggerValidation_mc_prescale= deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_TriggerValidation_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
 ######################################################
 # TIGHT mc prescales
 ######################################################
@@ -3739,6 +3739,8 @@ chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # e
 Prescales.HLTPrescales_tight_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 Prescales.L1Prescales_BulkMCProd_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_BulkMCProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tight_mc_prescale)
+Prescales.L1Prescales_CPSampleProd_mc_prescale  = deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_CPSampleProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tight_mc_prescale)
 ######################################################
 
 ######################################################
