@@ -100,7 +100,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
 
    // Retreive PRC raw data provider tool
-   if (m_rawDataProviderTool.retrieve().isFailure()) {
+   ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
+   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
      msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
      return StatusCode::FAILURE;
    } else
@@ -187,10 +188,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, *iroi, rpcRobList);
-
-     if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
-       ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
-     }
      if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
        ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
      }
@@ -204,6 +201,11 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, rpcRobList);
+     if(m_decodeBS) {
+         if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
+             ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
+         }
+     }
      if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
        ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
      }
