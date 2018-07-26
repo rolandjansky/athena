@@ -6,6 +6,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
 #include "TTree.h"
 
@@ -68,18 +69,36 @@ StatusCode sTGCSDOVariables::fillVariables()
     double MuonMCdata_firstentry = deposits[0].second.firstEntry();
     double MuonMCdata_secondentry = deposits[0].second.secondEntry();
 
-    ATH_MSG_DEBUG("MicroMegas SDO barcode=" << barcode);
-    ATH_MSG_DEBUG("MicroMegas SDO localPosX=" << std::setw(9) << std::setprecision(2) << MuonMCdata_firstentry
-                               << ", localPosY=" << std::setw(9) << std::setprecision(2) << MuonMCdata_secondentry);
+    ATH_MSG_DEBUG("sTGC SDO barcode=" << barcode);
+    ATH_MSG_DEBUG("sTGC SDO energy=" << std::setw(9) << std::setprecision(2) << MuonMCdata_firstentry
+                               << ", tof=" << std::setw(9) << std::setprecision(2) << MuonMCdata_secondentry);
 
     m_NSWsTGC_sdo_barcode->push_back( barcode );
     m_NSWsTGC_sdo_E->push_back( MuonMCdata_firstentry );
     m_NSWsTGC_sdo_tof->push_back( MuonMCdata_secondentry );
 
+    // Retrive the detector element and local SDO coordinates
+    bool isSmall = stName[2] == 'S';
+    const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+    
+    if( !rdoEl ){
+      ATH_MSG_WARNING("sTGC geometry, failed to retrieve detector element for: isSmall " << isSmall << " eta " << stationEta
+                      << " phi " << stationPhi << " multiplet " << multiplet );
+    }
+
+    Amg::Vector2D loc_pos(0., 0.);
+    rdoEl->surface(Id).globalToLocal(hit_gpos, Amg::Vector3D(0., 0., 0.), loc_pos);
+
+    ATH_MSG_DEBUG("sTGC SDO local position X=" << std::setw(9) << std::setprecision(2) << loc_pos[0]
+                               << ", local position Y=" << std::setw(9) << std::setprecision(2) << loc_pos[1]);
+
+    m_NSWsTGC_sdo_localPosX->push_back( loc_pos[0] );
+    m_NSWsTGC_sdo_localPosY->push_back( loc_pos[1] );
+
     m_NSWsTGC_nsdo++;
   }
 
-  ATH_MSG_DEBUG("Processed " << m_NSWsTGC_nsdo << " MicroMegas SDOs");
+  ATH_MSG_DEBUG("Processed " << m_NSWsTGC_nsdo << " sTGC SDOs");
   return StatusCode::SUCCESS;
 }
 
@@ -104,6 +123,9 @@ void sTGCSDOVariables::deleteVariables()
   delete m_NSWsTGC_sdo_E;
   delete m_NSWsTGC_sdo_tof;
 
+  delete m_NSWsTGC_sdo_localPosX;
+  delete m_NSWsTGC_sdo_localPosY;
+
   m_NSWsTGC_nsdo    = 0;
   m_NSWsTGC_sdo_stationName  = nullptr;
   m_NSWsTGC_sdo_stationEta   = nullptr;
@@ -122,6 +144,9 @@ void sTGCSDOVariables::deleteVariables()
 
   m_NSWsTGC_sdo_E    = nullptr;
   m_NSWsTGC_sdo_tof  = nullptr;
+
+  m_NSWsTGC_sdo_localPosX = nullptr;
+  m_NSWsTGC_sdo_localPosY = nullptr;
 
   return;
 }
@@ -146,6 +171,8 @@ StatusCode sTGCSDOVariables::clearVariables()
   m_NSWsTGC_sdo_globaltime->clear();
   m_NSWsTGC_sdo_E->clear();
   m_NSWsTGC_sdo_tof->clear();
+  m_NSWsTGC_sdo_localPosX->clear();
+  m_NSWsTGC_sdo_localPosY->clear();
 
   return StatusCode::SUCCESS;
 }
@@ -172,6 +199,9 @@ StatusCode sTGCSDOVariables::initializeVariables()
   m_NSWsTGC_sdo_E    = new std::vector<double>();
   m_NSWsTGC_sdo_tof  = new std::vector<double>();
 
+  m_NSWsTGC_sdo_localPosX = new std::vector<double>;
+  m_NSWsTGC_sdo_localPosY = new std::vector<double>;
+
   if(m_tree) {
     
     m_tree->Branch("SDO_sTGC", &m_NSWsTGC_nsdo, "SDOs_sTGC_n/i");
@@ -191,6 +221,9 @@ StatusCode sTGCSDOVariables::initializeVariables()
     m_tree->Branch("SDO_sTGC_global_time",   &m_NSWsTGC_sdo_globaltime);
     m_tree->Branch("SDO_sTGC_Energy",        &m_NSWsTGC_sdo_E);
     m_tree->Branch("SDO_sTGC_tof",           &m_NSWsTGC_sdo_tof);
+
+    m_tree->Branch("SDO_sTGC_localPosX",     &m_NSWsTGC_sdo_localPosX);
+    m_tree->Branch("SDO_sTGC_localPosY",     &m_NSWsTGC_sdo_localPosY);
 
   }
 
