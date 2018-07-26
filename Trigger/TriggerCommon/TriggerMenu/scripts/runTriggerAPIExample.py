@@ -29,8 +29,8 @@ print "Lowest in at least one period:",TriggerAPI.getLowestUnprescaledAnyPeriod(
 # - retrieve items above a certain live fraction instead of unprescaled
 #   HLT_j225_gsc420_boffperf_split is unprescaled
 #   HLT_j225_gsc400_boffperf_split recorded >95% of the available luminosity
-print TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc")
-print TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc", livefraction=0.95)
+print "Lowest j225_gsc with 100% data:",TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc")
+print "Lowest j225_gsc with  95% data:",TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017periodB, TriggerType.j_single, matchPattern="j225_gsc", livefraction=0.95)
 
 # - combined items with more than 2 types:
 print "Muon+jet+met items:",TriggerAPI.getLowestUnprescaled(337833, TriggerType.mu, [TriggerType.j, TriggerType.xe])
