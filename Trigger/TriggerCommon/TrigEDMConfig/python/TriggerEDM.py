@@ -580,11 +580,11 @@ TriggerHLTList = [
     ('xAOD::JetTrigAuxContainer#HLT_TrigCosmicJetRecAux.',               '',                       'Jet'),
 
     # R=0.4 HI jets
-    ('xAOD::JetContainer#HLT_a4ionemsubjesFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a4ionemsubjesFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a4ionemsubjesISFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4ionemsubjesISFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     # R=0.3 HI jets
-    ('xAOD::JetContainer#HLT_a3ionemsubjesFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a3ionemsubjesISFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesISFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     
     # 2016 EM Calibration
     ('xAOD::JetContainer#HLT_a4tcemsubjesISFS',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
