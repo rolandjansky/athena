@@ -17,6 +17,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
+#include "TrigSteeringEvent/HLTExtraData.h"
 
 // Gaudi includes
 #include "GaudiKernel/EventIDBase.h"
@@ -77,6 +78,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("EvtSel",                   m_evtSelector);
   declareProperty("CoolUpdateTool",           m_coolHelper);
   declareProperty("EventInfoCnvTool",         m_eventInfoCnvTool);
+  declareProperty("HltResultName",            m_HltResultName="HLTResult_HLT");
   declareProperty("SchedulerSvc",             m_schedulerName="AvalancheSchedulerSvc",
                   "Name of the scheduler to be used");
   declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
@@ -622,9 +624,9 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 
       eformat::write::FullEventFragment l1r; // to be removed
 
-      //-----------------------------------------------------------------------
+      //------------------------------------------------------------------------
       // Create new EventContext
-      //-----------------------------------------------------------------------
+      //------------------------------------------------------------------------
       ++m_nevt;
       EventContext* evtContext = nullptr;
       if (createEventContext(evtContext).isFailure()){
@@ -646,9 +648,9 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       // to be read. This is likely also used by other services.
       Gaudi::Hive::setCurrentContext(*evtContext);
 
-      //-----------------------------------------------------------------------
+      //------------------------------------------------------------------------
       // Get the next event
-      //-----------------------------------------------------------------------
+      //------------------------------------------------------------------------
       StatusCode sc = StatusCode::SUCCESS;
       try {
         sc = m_evtSelector->next(*m_evtSelContext);
@@ -675,7 +677,9 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         continue;
       }
 
-      // set event processing start time for timeout monitoring and reset timeout flag
+      //------------------------------------------------------------------------
+      // Set event processing start time for timeout monitoring and reset timeout flag
+      //------------------------------------------------------------------------
       {
         std::unique_lock<std::mutex> lock(m_timeoutMutex);
         m_eventTimerStartPoint[evtContext->slot()] = std::chrono::steady_clock::now();
@@ -684,6 +688,9 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         m_timeoutCond.notify_all();
       }
 
+      //------------------------------------------------------------------------
+      // Set up proxy and get the event info
+      //------------------------------------------------------------------------
       IOpaqueAddress* addr = nullptr;
       if (m_evtSelector->createAddress(*m_evtSelContext, addr).isFailure()) {
         ATH_MSG_ERROR("Could not create an IOpaqueAddress");
@@ -756,13 +763,25 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       // update thread-local EventContext after setting EventID and conditions runNumber
       Gaudi::Hive::setCurrentContext(*evtContext);
 
+      //------------------------------------------------------------------------
       // Record EventContext in current whiteboard
+      //------------------------------------------------------------------------
       if (m_evtStore->record(std::make_unique<EventContext> (*evtContext), "EventContext").isFailure()) {
         ATH_MSG_ERROR("Error recording event context object");
         failedEvent(evtContext,eventInfo);
         continue;
       }
 
+      //------------------------------------------------------------------------
+      // Record an empty HLT Result
+      //------------------------------------------------------------------------
+      auto hltResult = new HLT::HLTResult;
+      hltResult->getExtraData().appName = m_applicationName.value();
+      m_evtStore->record(hltResult, m_HltResultName, /*allowMods=*/ true);
+
+      //------------------------------------------------------------------------
+      // Process the event
+      //------------------------------------------------------------------------
       if (executeEvent(evtContext).isFailure()) {
         ATH_MSG_ERROR("Error processing event");
         failedEvent(evtContext,eventInfo);
@@ -1275,7 +1294,7 @@ int HltEventLoopMgr::drainScheduler()
       } else {
         // n_run = eventInfo->runNumber();
         // n_evt = eventInfo->eventNumber();
-        if (m_evtStore->retrieve(hltResult).isFailure()) {
+        if (m_evtStore->retrieve(hltResult,m_HltResultName).isFailure()) {
           ATH_MSG_ERROR(__FUNCTION__ << ": Failed to retrieve HltResult");
         }
       }
