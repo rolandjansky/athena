@@ -144,7 +144,7 @@ private:
   const coral::AttributeList& getSorAttrList(const CondAttrListCollection* sor) const;
 
   /// Print the SOR record
-  void printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const;
+  void printSORAttrList(const coral::AttributeList& atr) const;
 
   /// Handle a failure to process an event
   void failedEvent(EventContext* eventContext,

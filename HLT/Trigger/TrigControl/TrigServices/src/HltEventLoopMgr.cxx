@@ -35,8 +35,10 @@
 
 // TDAQ includes
 #include "hltinterface/DataCollector.h"
-
 #include "owl/time.h"
+
+// System includes
+#include <sstream>
 
 #define ST_WHERE "HltEventLoopMgr::" << __func__ << "(): "
 
@@ -1018,12 +1020,12 @@ const coral::AttributeList& HltEventLoopMgr::getSorAttrList(const SOR* sor) cons
   }
 
   const auto & soral = sor->begin()->second;
-  printSORAttrList(soral, info());
+  printSORAttrList(soral);
   return soral;
 }
 
 // ==============================================================================
-void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const
+void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr) const
 {
   unsigned long long sorTime_ns(atr["SORTime"].data<unsigned long long>());
 
@@ -1031,29 +1033,27 @@ void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStrea
   time_t sorTime_sec = sorTime_ns/1000000000;
   const auto sorTime_readable = OWLTime(sorTime_sec);
 
-  log << "SOR parameters:" << endmsg;
-  log << "   RunNumber        = "
-      << atr["RunNumber"].data<unsigned int>() << endmsg;
-  log << "   SORTime [ns]     = "
-      << sorTime_ns << " (" << sorTime_readable << ") " << endmsg;
+  ATH_MSG_INFO("SOR parameters:");
+  ATH_MSG_INFO("   RunNumber             = " << atr["RunNumber"].data<unsigned int>());
+  ATH_MSG_INFO("   SORTime [ns]          = " << sorTime_ns << " (" << sorTime_readable << ") ");
 
-  // save current stream flags for later reset
-  // cast needed (stream thing returns long, but doesn't take it back)
-  auto previous_stream_flags = static_cast<std::ios::fmtflags>(log.flags());
+  // Use string stream for fixed-width hex detector mask formatting
   auto dmfst = atr["DetectorMaskFst"].data<unsigned long long>();
   auto dmsnd = atr["DetectorMaskSnd"].data<unsigned long long>();
-  log << MSG::hex << std::setfill('0');
-  log << "   DetectorMaskFst     = 0x" << std::setw(16) << dmfst << endmsg;
-  log << "   DetectorMaskSnd     = 0x" << std::setw(16) << dmsnd << endmsg;
-  log << "   (complete DetectorMask = 0x"
-      << std::setw(16) << dmfst << std::setw(16) << dmsnd << ")" << endmsg;
-  // reset stream flags
-  log.flags(previous_stream_flags);
+  std::ostringstream ss;
+  ss.setf(std::ios_base::hex,std::ios_base::basefield);
+  ss << std::setw(16) << std::setfill('0') << dmfst;
+  ATH_MSG_INFO("   DetectorMaskFst       = 0x" << ss.str());
+  ss.str(""); // reset the string stream
+  ss << std::setw(16) << std::setfill('0') << dmsnd;
+  ATH_MSG_INFO("   DetectorMaskSnd       = 0x" << ss.str());
+  ss.str(""); // reset the string stream
+  ss << std::setw(16) << std::setfill('0') << dmfst;
+  ss << std::setw(16) << std::setfill('0') << dmsnd;
+  ATH_MSG_INFO("   Complete DetectorMask = 0x" << ss.str());
 
-  log << "   RunType          = "
-      << atr["RunType"].data<std::string>() << endmsg;
-  log << "   RecordingEnabled = "
-      << (atr["RecordingEnabled"].data<bool>() ? "true" : "false") << endmsg;
+  ATH_MSG_INFO("   RunType               = " << atr["RunType"].data<std::string>());
+  ATH_MSG_INFO("   RecordingEnabled      = " << (atr["RecordingEnabled"].data<bool>() ? "true" : "false"));
 }
 
 // ==============================================================================
