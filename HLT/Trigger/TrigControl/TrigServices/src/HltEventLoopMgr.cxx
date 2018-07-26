@@ -20,6 +20,7 @@
 
 // Gaudi includes
 #include "GaudiKernel/EventIDBase.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
@@ -74,13 +75,17 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("EvtSel",                   m_evtSelector);
   declareProperty("CoolUpdateTool",           m_coolHelper);
   declareProperty("EventInfoCnvTool",         m_eventInfoCnvTool);
-  declareProperty("SchedulerSvc",             m_schedulerName="ForwardSchedulerSvc",
+  declareProperty("SchedulerSvc",             m_schedulerName="AvalancheSchedulerSvc",
                   "Name of the scheduler to be used");
   declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
                   "Name of the Whiteboard to be used");
   declareProperty("TopAlg",                   m_topAlgNames={},
                   "List of top level algorithms names");
   declareProperty("xEventInfoWHKey",          m_xEventInfoWHKey="EventInfo");
+  declareProperty("HardTimeout",              m_hardTimeout=10*60*1000/*=10min*/,
+                  "Hard event processing timeout in milliseconds");
+  declareProperty("SoftTimeoutFraction",      m_softTimeoutFraction=0.8,
+                  "Fraction of the hard timeout to be set as the soft timeout");
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
@@ -150,14 +155,32 @@ StatusCode HltEventLoopMgr::initialize()
     ATH_MSG_WARNING("Error retrieving IProperty interface of ApplicationMgr" );
   }
 
+  // get JobOptionsSvc to read the configuration of NumConcurrentEvents and NumThreads
+  ServiceHandle<IJobOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
+  if ((jobOptionsSvc.retrieve()).isFailure()) {
+    ATH_MSG_WARNING("Could not find JobOptionsSvc to read configuration");
+  }
+
   // print properties
   ATH_MSG_INFO(" ---> ApplicationName        = " << m_applicationName);
   ATH_MSG_INFO(" ---> PartitionName          = " << m_partitionName);
   ATH_MSG_INFO(" ---> JobOptionsType         = " << m_jobOptionsType);
-
+  ATH_MSG_INFO(" ---> HardTimeout            = " << m_hardTimeout);
+  ATH_MSG_INFO(" ---> SoftTimeoutFraction    = " << m_softTimeoutFraction);
+  if (jobOptionsSvc.isValid()) {
+    const Gaudi::Details::PropertyBase* prop = jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
+    if (prop)
+      ATH_MSG_INFO(" ---> NumConcurrentEvents    = " << *prop);
+    else
+      ATH_MSG_WARNING("Failed to retrieve the job property EventDataSvc.NSlots");
+    prop = jobOptionsSvc->getClientProperty("AvalancheSchedulerSvc","ThreadPoolSize");
+    if (prop)
+      ATH_MSG_INFO(" ---> NumThreads             = " << *prop);
+    else
+      ATH_MSG_WARNING("Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize");
+  }
   ATH_MSG_INFO(" ---> Enabled ROBs: size = " << m_enabledROBs.value().size()
                << (m_enabledROBs.value().size()==0 ? ". No check will be performed" : " "));
-
   ATH_MSG_INFO(" ---> Enabled Sub Detectors: size = " << m_enabledSubDetectors.value().size()
                << (m_enabledSubDetectors.value().size()==0 ? ". No check will be performed" : " "));
 

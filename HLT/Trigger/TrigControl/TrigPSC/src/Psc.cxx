@@ -421,6 +421,9 @@ bool psc::Psc::configure(const ptree& config)
         <<" MuonCalBufferSize = " << m_config->getOption("MUONCALBUFFERSIZE") );
   }
 
+  // Write configuration specific to athena (HltEventLoopMgr)
+  if(!setAthenaProperties()) return false;
+
   if ( !jobOptConfig ) {
     // Run post-command
     std::string cmd = m_config->getOption("POSTCOMMAND");
@@ -986,6 +989,103 @@ bool psc::Psc::setDFProperties(std::map<std::string, std::string> name_tr_table)
     else
       ERS_DEBUG(0,"Wrote configuration for Data Flow in JobOptions Catalogue: "
                   << prop.first << " = " << val);
+  }
+
+  return true;
+}
+
+bool psc::Psc::setAthenaProperties() {
+  // Use the IProperty interface of the ApplicationManager to find the EventLoopMgr name
+  SmartIF<IProperty> propMgr(m_pesaAppMgr);
+  if (!propMgr.isValid()) {
+    ERS_PSC_ERROR("Error retrieving IProperty interface of ApplicationMgr");
+    return false;
+  }
+  std::string eventLoopMgrName;
+  if (propMgr->getProperty("EventLoop", eventLoopMgrName).isFailure()) {
+    ERS_PSC_ERROR("Error while retrieving the property ApplicationMgr.EventLoop");
+    return false;
+  }
+
+  // Use the JobOptionsSvc to write athena-specific options in JobOptions Catalogue of EventLoopMgr
+  ServiceHandle<IJobOptionsSvc> p_jobOptionSvc("JobOptionsSvc","psc::Psc");
+
+  std::string opt = m_config->getOption("HARDTIMEOUT");
+  if (!opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
+      eventLoopMgrName,
+      FloatProperty("HardTimeout",std::stof(opt))
+    );
+    if (sc.isFailure()) {
+      ERS_PSC_ERROR("Error could not write the " << eventLoopMgrName
+                    << ".HardTimeout property in JobOptions Catalogue");
+      p_jobOptionSvc->release();
+      return false;
+    }
+  }
+  else {
+    ERS_PSC_ERROR("Failed to get the HARDTIMEOUT property from the configuration tree");
+    p_jobOptionSvc->release();
+    return false;
+  }
+
+  opt = m_config->getOption("SOFTTIMEOUTFRACTION");
+  if (!opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
+      eventLoopMgrName,
+      FloatProperty("SoftTimeoutFraction",std::stof(opt))
+    );
+    if (sc.isFailure()) {
+      ERS_PSC_ERROR("Error could not write the " << eventLoopMgrName
+                    << ".SoftTimeoutFraction property in JobOptions Catalogue");
+      p_jobOptionSvc->release();
+      return false;
+    }
+  }
+  else {
+    ERS_PSC_ERROR("Failed to get the SOFTTIMEOUTFRACTION property from the configuration tree");
+    p_jobOptionSvc->release();
+    return false;
+  }
+
+  /* The names "EventDataSvc" and "AvalancheSchedulerSvc" are hard-coded below, because it is not possible
+  to retrieve them from HltEventLoopMgr properties before it is initialised. Here we need to set the properties
+  before the services are initialised." */
+
+  opt = m_config->getOption("NEVENTSLOTS");
+  if (!opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
+      "EventDataSvc",
+      IntegerProperty("NSlots",std::stoi(opt))
+    );
+    if (sc.isFailure()) {
+      ERS_PSC_ERROR("Error could not write the EventDataSvc.NSlots property in JobOptions Catalogue");
+      p_jobOptionSvc->release();
+      return false;
+    }
+  }
+  else {
+    ERS_PSC_ERROR("Failed to get the NEVENTSLOTS property from the configuration tree");
+    p_jobOptionSvc->release();
+    return false;
+  }
+
+  opt = m_config->getOption("NTHREADS");
+  if (!opt.empty()) {
+    StatusCode sc = p_jobOptionSvc->addPropertyToCatalogue(
+      "AvalancheSchedulerSvc",
+      IntegerProperty("ThreadPoolSize",std::stoi(opt))
+    );
+    if (sc.isFailure()) {
+      ERS_PSC_ERROR("Error could not write the AvalancheSchedulerSvc.ThreadPoolSize property in JobOptions Catalogue");
+      p_jobOptionSvc->release();
+      return false;
+    }
+  }
+  else {
+    ERS_PSC_ERROR("Failed to get the NTHREADS property from the configuration tree");
+    p_jobOptionSvc->release();
+    return false;
   }
 
   return true;

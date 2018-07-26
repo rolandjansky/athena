@@ -121,6 +121,7 @@ namespace psc {
 
   private:
     bool setDFProperties(std::map<std::string, std::string> name_tr_table);
+    bool setAthenaProperties();
 
     /**
      * Initialize the application manager

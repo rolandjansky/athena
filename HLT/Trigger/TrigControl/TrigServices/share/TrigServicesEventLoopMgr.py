@@ -13,13 +13,13 @@ from AthenaCommon.AppMgr import ToolSvc
 # ==============================================================================
 # Set up from StoreGateHiveExample.py and AthExHiveOpts.py and AtlasThreadedJob.py
 # ==============================================================================
-nThreads = 1
-numStores = 1
-numAlgsInFlight = nThreads
+#nThreads = 1
+#numStores = 1
+#numAlgsInFlight = nThreads
 
-from AthenaCommon.ConcurrencyFlags import jobproperties as jps
-jps.ConcurrencyFlags.NumThreads = nThreads
-jps.ConcurrencyFlags.NumConcurrentEvents = numStores
+#from AthenaCommon.ConcurrencyFlags import jobproperties as jps
+#jps.ConcurrencyFlags.NumThreads = nThreads
+#jps.ConcurrencyFlags.NumConcurrentEvents = numStores
 
 # from GaudiCommonSvc.GaudiCommonSvcConf import AlgContextSvc
 # svcMgr += AlgContextSvc("AlgContextSvc")
@@ -27,16 +27,16 @@ jps.ConcurrencyFlags.NumConcurrentEvents = numStores
 
 from StoreGate.StoreGateConf import SG__HiveMgrSvc
 svcMgr += SG__HiveMgrSvc("EventDataSvc")
-svcMgr.EventDataSvc.NSlots = numStores
-svcMgr.EventDataSvc.OutputLevel = VERBOSE
+#svcMgr.EventDataSvc.NSlots = numStores
+#svcMgr.EventDataSvc.OutputLevel = VERBOSE
 
 from GaudiHive.GaudiHiveConf import AlgResourcePool
-arp=AlgResourcePool( OutputLevel = INFO );
+arp=AlgResourcePool( OutputLevel = INFO )
 arp.TopAlg=["AthMasterSeq"] #this should enable control flow
 svcMgr += arp
 
 from AthenaCommon.AlgScheduler import AlgScheduler
-AlgScheduler.setThreadPoolSize(nThreads)
+#AlgScheduler.setThreadPoolSize(nThreads)
 AlgScheduler.ShowDataDependencies(True)
 AlgScheduler.ShowControlFlow(True)
 AlgScheduler.OutputLevel=VERBOSE
@@ -57,12 +57,12 @@ svcMgr.ThreadPoolSvc.ThreadInitTools = ["ThreadInitTool"]
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-algCardinality = nThreads
+#algCardinality = nThreads
 
-if (algCardinality != 1):
-    for alg in topSequence:
-       name = alg.name()
-       alg.Cardinality = algCardinality
+# if (algCardinality != 1):
+#     for alg in topSequence:
+#        name = alg.name()
+#        alg.Cardinality = algCardinality
 
 from SGComps.SGCompsConf import SGInputLoader
 topSequence += SGInputLoader( FailIfNoProxy=False )

@@ -221,6 +221,14 @@ private:
   /// list of all enabled Sub Detectors which can be retrieved
   Uint32ArrayProperty m_enabledSubDetectors;
 
+  /// Hard event processing timeout
+  FloatProperty m_hardTimeout;
+  /// Hard event processing timeout
+  FloatProperty m_softTimeoutFraction;
+
+  /// StoreGate key for xAOD::EventInfo WriteHandle (needed for manual conversion from old EventInfo)
+  SG::WriteHandleKey<xAOD::EventInfo> m_xEventInfoWHKey;
+
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields
   typedef EventID::number_type numt;
@@ -257,9 +265,6 @@ private:
   int m_softTimeoutValue;
   /// Flag set to false if timer thread should be stopped
   std::atomic<bool> m_runEventTimer;
-
-  /// StoreGate key for xAOD::EventInfo WriteHandle (needed for manual conversion from old EventInfo)
-  SG::WriteHandleKey<xAOD::EventInfo> m_xEventInfoWHKey;
 };
 
 //==============================================================================
