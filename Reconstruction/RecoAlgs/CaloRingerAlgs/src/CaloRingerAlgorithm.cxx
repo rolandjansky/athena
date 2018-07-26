@@ -74,8 +74,8 @@ StatusCode CaloRingerAlgorithm::execute()
   {
     ATH_MSG_DEBUG ("Executing Reader tool " << readerTool.name() << ".");
 
-    // Execute reader 
-    CHECK( readerTool->execute() );
+    // Execute reader
+    ATH_CHECK( readerTool->execute() );
 
   }
 

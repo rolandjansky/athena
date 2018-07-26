@@ -48,7 +48,7 @@ GenericTubeMaker::buildShape()
     break;
   case TubeVolData::CONS :
     shape = new GeoCons(m_volData.rmin(), m_volData.rmin2(), m_volData.rmax(),  m_volData.rmax2(), 
-			0.5*m_volData.length(), m_volData.phiStart(), m_volData.phiDelta());	  
+      0.5*m_volData.length(), m_volData.phiStart(), m_volData.phiDelta());    
     break;
   case TubeVolData::RADIAL :
     // This simulates the radial decrease in density.
@@ -97,7 +97,7 @@ void
 GenericTubeMaker::placeVolume(GeoPhysVol * parent, GeoFullPhysVol * fullparent, GeoVPhysVol * child, double zParent)
 {
   for (int iRepeat = 0; iRepeat < m_volData.nRepeat(); iRepeat++) {
-	
+  
     double phi = m_volData.phiStep() * iRepeat;
 
     GeoTransform * xform = 0;
@@ -118,11 +118,11 @@ GenericTubeMaker::placeVolume(GeoPhysVol * parent, GeoFullPhysVol * fullparent, 
     if (m_volData.bothZ()) {
       GeoTransform * xformNeg = new GeoTransform(HepGeom::RotateY3D(180*CLHEP::deg)*HepGeom::TranslateZ3D(zOffset)*HepGeom::RotateZ3D(phi));
       if (parent) {
-	parent->add(xformNeg);
-	parent->add(child);
+  parent->add(xformNeg);
+  parent->add(child);
       } else {
-	fullparent->add(xformNeg);
-	fullparent->add(child);
+  fullparent->add(xformNeg);
+  fullparent->add(child);
       }
     }
 
@@ -131,24 +131,23 @@ GenericTubeMaker::placeVolume(GeoPhysVol * parent, GeoFullPhysVol * fullparent, 
 
 void
 GenericTubeMaker::placeVolTwoSide(GeoPhysVol * parentPos, GeoPhysVol * parentNeg, 
-				  GeoFullPhysVol * fullparentPos, GeoFullPhysVol * fullparentNeg, 
-				  GeoVPhysVol * child, double zParent)
+          GeoFullPhysVol * fullparentPos, GeoFullPhysVol * fullparentNeg, 
+          GeoVPhysVol * child, double zParent)
 {
   for (int iRepeat = 0; iRepeat < m_volData.nRepeat(); iRepeat++) {
-	
     double phi = m_volData.phiStep() * iRepeat;
-
-    GeoTransform * xform = 0;
     double zOffset = m_volData.zMid()-zParent;
-    if (zOffset != 0 || iRepeat > 0) {
-      xform = new GeoTransform(HepGeom::TranslateZ3D(zOffset)*HepGeom::RotateZ3D(phi));
-    }
- 
+    const bool newXform((zOffset != 0) or (iRepeat > 0));
+    
     if (parentPos) {
-      if (xform) parentPos->add(xform);
+      if (newXform){
+       parentPos->add(new GeoTransform(HepGeom::TranslateZ3D(zOffset)*HepGeom::RotateZ3D(phi)));
+      }
       parentPos->add(child);
     } else if(fullparentPos){
-      if (xform) fullparentPos->add(xform);
+      if (newXform){ 
+        fullparentPos->add(new GeoTransform(HepGeom::TranslateZ3D(zOffset)*HepGeom::RotateZ3D(phi)));
+      }
       fullparentPos->add(child);
     }
 
@@ -156,11 +155,11 @@ GenericTubeMaker::placeVolTwoSide(GeoPhysVol * parentPos, GeoPhysVol * parentNeg
     if (m_volData.bothZ()) {
       GeoTransform * xformNeg = new GeoTransform(HepGeom::RotateY3D(180*CLHEP::deg)*HepGeom::TranslateZ3D(zOffset)*HepGeom::RotateZ3D(phi));
       if (parentNeg) {
-	parentNeg->add(xformNeg);
-	parentNeg->add(child);
+        parentNeg->add(xformNeg);
+        parentNeg->add(child);
       } else {
-	fullparentNeg->add(xformNeg);
-	fullparentNeg->add(child);
+        fullparentNeg->add(xformNeg);
+        fullparentNeg->add(child);
       }
     }
 

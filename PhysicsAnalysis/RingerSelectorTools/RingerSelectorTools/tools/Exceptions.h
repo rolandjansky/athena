@@ -39,45 +39,45 @@ class no_such_type : public std::runtime_error {
         std::string file = ""):
       std::runtime_error(std::string("Could not recognize "
             "PreProcessorTypes(") + std::to_string(int(p)) +
-            "). Make sure to add it to file " + file + 
+            "). Make sure to add it to file " + file +
             " and also add it to getType and toStr functions."){;}
 
     no_such_type(discrEnum_t d,
         std::string file = ""):
       std::runtime_error(std::string("Could not recognize "
             "DiscriminatorTypes(") + std::to_string(int(d)) +
-            "). Make sure to add it to file " + file + " and also " 
+            "). Make sure to add it to file " + file + " and also "
             "add it to getType and toStr functions."){;}
 
     no_such_type(thresEnum_t t,
         std::string file = ""):
       std::runtime_error(std::string("Could not recognize "
             "ThresholdTypes(") + std::to_string(int(t)) +
-            "). Make sure to add it to file " + file + 
+            "). Make sure to add it to file " + file +
             " and also add it to getType and toStr functions."){;}
 
     no_such_type(SegmentationType e, std::string file = ""):
       std::runtime_error(std::string("Could not recognize "
             "EtaDependency(") + std::to_string(int(e)) +
-            "). Make sure to add it to file " + file + 
+            "). Make sure to add it to file " + file +
             " and also add it to getType and toStr functions."){;}
 
     no_such_type(EtaDependency e, std::string file = ""):
       std::runtime_error(std::string("Could not recognize "
             "EtaDependency(") + std::to_string(int(e)) +
-            "). Make sure to add it to file " + file + 
+            "). Make sure to add it to file " + file +
             " and also add it to getType and toStr functions."){;}
 
     no_such_type(EtDependency e, std::string file = ""):
       std::runtime_error(std::string("Could not recognize "
             "EtDependency(") + std::to_string(int(e)) +
-            "). Make sure to add it to file " + file + 
+            "). Make sure to add it to file " + file +
             " and also add it to getType and toStr functions."){;}
 
     no_such_type(Requirement e, std::string file = ""):
       std::runtime_error(std::string("Could not recognize "
             "Requirement(") + std::to_string(int(e)) +
-            "). Make sure to add it to file " + file + 
+            "). Make sure to add it to file " + file +
             " and also add it to getType and toStr functions."){;}
 };
 

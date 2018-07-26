@@ -3,25 +3,20 @@
 */
 
 
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelInterfaces/StoredMaterialManager.h"
+
 #include "Identifier/Identifier.h"
-
-#include "GeoModelKernel/GeoMaterial.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Geometry/Vector3D.h"
-#include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecord.h" //IRDBRecord used in code in the header
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-
+#include "RDBAccessSvc/IRDBAccessSvc.h" //for IRDBRecordset_ptr typedef
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include <string>
-#include <iostream>
-#include <sstream>
-#include <map>
+#include <vector>
 
 class GeoLogVol;
+class GeoVPhysVol;
 class StoredMaterialManager;
 class StoreGateSvc;
 class PixelID;
@@ -45,8 +40,6 @@ class PixelGeometryManager;
 #define GEOVPIXELFACTORY_H
 
 
-// fwd declaration
-//namespace InDetDD {class PixelDetectorManager;}
 
 class GeoVPixelFactory {
  public:
@@ -70,7 +63,6 @@ class GeoVPixelFactory {
 #ifndef GEOPIXELBARREL_H
 #define GEOPIXELBARREL_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
 
 
 class GeoPixelBarrel : public GeoVPixelFactory {
@@ -82,7 +74,6 @@ class GeoPixelBarrel : public GeoVPixelFactory {
 #ifndef GEOPIXELCABLE_H
 #define GEOPIXELCABLE_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
 
 class GeoPixelCable : public GeoVPixelFactory {
  public:
@@ -115,12 +106,11 @@ class GeoPixelChip : public GeoVPixelFactory {
 #ifndef GEOPIXELDISK_H
 #define GEOPIXELDISK_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 
 class GeoPixelDisk : public GeoVPixelFactory {
  public:
   GeoPixelDisk();
+  virtual ~GeoPixelDisk();
   virtual GeoVPhysVol* Build();
   double Thickness();
   double RMax();
@@ -135,8 +125,6 @@ class GeoPixelDisk : public GeoVPixelFactory {
 #ifndef GEOPIXELDISKSUPPORTS_H
 #define GEOPIXELDISKSUPPORTS_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 
 class GeoPixelDiskSupports : public GeoVPixelFactory {
  public:
@@ -157,13 +145,12 @@ class GeoPixelDiskSupports : public GeoVPixelFactory {
 #ifndef GEOPIXELECCABLE_H
 #define GEOPIXELECCABLE_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 
 class GeoPixelECCable : public GeoVPixelFactory {
  public:
   GeoPixelECCable();
   virtual GeoVPhysVol* Build();
+  virtual ~GeoPixelECCable();
  private:
   const GeoLogVol* m_theECCable;
 };
@@ -173,7 +160,6 @@ class GeoPixelECCable : public GeoVPixelFactory {
 #ifndef GEOPIXELENDCAP_H
 #define GEOPIXELENDCAP_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
 
 class GeoPixelEndCap : public GeoVPixelFactory {
  public:
@@ -185,7 +171,6 @@ class GeoPixelEndCap : public GeoVPixelFactory {
 #ifndef GEOPIXELENVELOPE_H
 #define GEOPIXELENVELOPE_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
 
 class GeoPixelEnvelope : public GeoVPixelFactory {
  public:
@@ -197,8 +182,6 @@ class GeoPixelEnvelope : public GeoVPixelFactory {
 #ifndef GEOPIXELHYBRID_H
 #define GEOPIXELHYBRID_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 
 class GeoPixelHybrid : public GeoVPixelFactory {
  public:
@@ -210,13 +193,12 @@ class GeoPixelHybrid : public GeoVPixelFactory {
 #ifndef GEOPIXELLADDER_H
 #define GEOPIXELLADDER_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 class GeoPixelSiCrystal;
 
 class GeoPixelLadder : public GeoVPixelFactory {
  public:
   GeoPixelLadder(GeoPixelSiCrystal& theSensor);
+  virtual ~GeoPixelLadder();
   virtual GeoVPhysVol* Build();
   double Thickness();
  private:
@@ -229,8 +211,7 @@ class GeoPixelLadder : public GeoVPixelFactory {
 #ifndef GEOPIXELLADDERSTRUCT_H
 #define GEOPIXELLADDERSTRUCT_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
+
 
 class GeoPixelLadderStruct : public GeoVPixelFactory {
  public:
@@ -242,7 +223,6 @@ class GeoPixelLadderStruct : public GeoVPixelFactory {
 #ifndef GEOPIXELLAYER_H
 #define GEOPIXELLAYER_h
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
 
 class GeoPixelLayer : public GeoVPixelFactory {
  public:
@@ -253,14 +233,13 @@ class GeoPixelLayer : public GeoVPixelFactory {
 
 #ifndef GEOPIXELMODULE_H
 #define GEOPIXELMODULE_H
-//#include "Identifier/Identifier.h"
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
+
 class GeoPixelSiCrystal;
 
 class GeoPixelModule : public GeoVPixelFactory {
  public:
   GeoPixelModule(GeoPixelSiCrystal &theSensor);
+  virtual ~GeoPixelModule();
   virtual GeoVPhysVol* Build();
   double Thickness();
   double Width();
@@ -276,9 +255,6 @@ class GeoPixelModule : public GeoVPixelFactory {
 
 #ifndef GEOPIXELSERVICES_H
 #define GEOPIXELSERVICES_H
-
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 
 class GeoPixelServices : public GeoVPixelFactory {
  public:
@@ -302,11 +278,7 @@ class GeoPixelServices : public GeoVPixelFactory {
 #ifndef GEOPIXELSICRYSTAL_H
 #define GEOPIXELSICRYSTAL_H
 
-//#include "Identifier/Identifier.h"
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 
-//namespace InDetDD {class SiDetectorDesign;}
 
 class GeoPixelSiCrystal : public GeoVPixelFactory {
  public:
@@ -320,7 +292,7 @@ class GeoPixelSiCrystal : public GeoVPixelFactory {
 };
 //
 // Add this method to store the ID in the factory. This is used by the
-// module factory to pass it to the alignement class.
+// module factory to pass it to the alignment class.
 //
 Identifier GeoPixelSiCrystal::getID() {return m_id;}
 #endif
@@ -328,13 +300,12 @@ Identifier GeoPixelSiCrystal::getID() {return m_id;}
 #ifndef GEOPIXELSUBDISK_H
 #define GEOPIXELSUBDISK_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 class GeoPixelSiCrystal;
 
 class GeoPixelSubDisk : public GeoVPixelFactory {
  public:
   GeoPixelSubDisk(GeoPixelSiCrystal &theSensor);
+  virtual ~GeoPixelSubDisk();
   virtual GeoVPhysVol* Build();
   double Thickness();
   double RMax();
@@ -349,12 +320,11 @@ class GeoPixelSubDisk : public GeoVPixelFactory {
 #ifndef GEOPIXELTUBECABLES_H
 #define GEOPIXELTUBECABLES_H
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-//class GeoLogVol;
 
 class GeoPixelTubeCables : public GeoVPixelFactory {
  public:
   GeoPixelTubeCables();
+  virtual ~GeoPixelTubeCables();
   virtual GeoVPhysVol* Build();
   double Thickness();
  private:
@@ -366,13 +336,6 @@ class GeoPixelTubeCables : public GeoVPixelFactory {
 
 #ifndef PixelGeometryManager_H
 #define PixelGeometryManager_H
-
-// #include <string>
-// #include <iostream>
-// #include <map>
-// #include "GeoModelKernel/GeoMaterial.h"
-// #include "CLHEP/Geometry/Vector3D.h"
-// #include "AthenaKernel/MsgStreamMember.h"
 
 class PixelGeometryManager {
 
@@ -635,21 +598,6 @@ class PixelGeometryManager {
 #ifndef OraclePixelGeoManager_H
 #define OraclePixelGeoManager_H
 
-// #include <string>
-// #include <iostream>
-// #include <sstream>
-// #include <map>
-// #include "GeoModelKernel/GeoMaterial.h"
-// #include "CLHEP/Geometry/Vector3D.h"
-// #include "PixelGeoModel/PixelGeometryManager.h"
-// #include "RDBAccessSvc/IRDBRecord.h"
-// #include "RDBAccessSvc/IRDBRecordset.h"
-
-//class StoredMaterialManager;
-//class StoreGateSvc;
-
-
-
 class OraclePixGeoManager : public PixelGeometryManager {
  private:
   //
@@ -742,7 +690,6 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
   OraclePixGeoManager();
 
-  //PixelGeometryManager::TYPE managerType() {return PixelGeometryManager::Oracle;};
 
   //
   // GET THE OTHER MANAGERS FROM STOREGATE

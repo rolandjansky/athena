@@ -23,23 +23,29 @@
 #include "RingerSelectorTools/tools/cxx/mutable.h"
 
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer {
 
 /**
- * @struct Eta, Et 
- * @brief Dependency variable structure. 
+ * @struct et, eta, pileup_estimation
+ * @brief Extra patterns decribing particle interation process.
  *
- * Holds all possible dependent variables values.
+ * Holds dependent variables values.
  **/
 struct DepVarStruct {
-  const float eta;
+  /// Holds particle transverse energy
   const float et;
-  DepVarStruct(const float eta, const float et):
+  /// Holds eta position
+  const float eta;
+  /// Holds the currently being used pile-up estimation
+  const float pileupEstimation;
+
+  DepVarStruct(const float et, const float eta, const float pileupEstimation = 0.):
+    et(et),
     eta(eta),
-    et(et){;}
+    pileupEstimation(pileupEstimation){;}
 };
 
 //class IVariableDependency
@@ -81,14 +87,14 @@ struct DepVarStruct {
 
 /**
  * @class VariableDependency
- * @brief Interface for possible Eta and Et variable dependency. 
+ * @brief Interface for possible Eta and Et variable dependency.
  **/
 class VariableDependency /*: virtual public IVariableDependency*/
 {
   public:
 
     /**
-     * Ctor for independent 
+     * Ctor for independent
      **/
     VariableDependency()
       : m_etaDependency(EtaDependency::EtaIndependent),
@@ -106,7 +112,7 @@ class VariableDependency /*: virtual public IVariableDependency*/
         m_etDependency(EtDependency::EtIndependent),
         m_etaMin(etaMin),
         m_etaMax(etaMax),
-        m_etMin(0), 
+        m_etMin(0),
         m_etMax(0),
         m_type{""}{;}
 
@@ -143,7 +149,7 @@ class VariableDependency /*: virtual public IVariableDependency*/
     /**
      * Check if eta is within this procedure range
      **/
-    bool isWithinEtaRange(const float eta) const /*ATH_RINGER_OVERRIDE 
+    bool isWithinEtaRange(const float eta) const /*ATH_RINGER_OVERRIDE
       ATH_RINGER_FINAL*/;
 
     /**
@@ -211,8 +217,8 @@ class VariableDependency /*: virtual public IVariableDependency*/
     /**
      * Read variable dependency from directory
      **/
-    static void read(VariableDependency *varDep, 
-        TDirectory *configDir, 
+    static void read(VariableDependency *varDep,
+        TDirectory *configDir,
         unsigned writtenVersion);
 
     /**
@@ -231,14 +237,14 @@ class VariableDependency /*: virtual public IVariableDependency*/
   private:
 
     /// Whether there is eta dependency
-    EtaDependency m_etaDependency; 
+    EtaDependency m_etaDependency;
     /// Whether there is et dependency
     EtDependency m_etDependency;
 
-    /// Eta bounded region where RingerProcedure may be applied 
+    /// Eta bounded region where RingerProcedure may be applied
     float m_etaMin, m_etaMax;
 
-    /// Et bounded region where RingerProcedure may be applied 
+    /// Et bounded region where RingerProcedure may be applied
     float m_etMin, m_etMax;
 
     /// The string holder for type:

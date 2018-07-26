@@ -34,6 +34,8 @@ preProcEnum_t getType(const char* cStr){
     return preProcEnum_t::Spherization;
   } else if ( strType == Norm::MinMax::procType() ){
     return preProcEnum_t::MinMax;
+  } else if ( strType == Norm::ExtraPatternsNorm::procType() ){
+    return preProcEnum_t::ExtraPatternsNorm;
   } else if ( strType == IPreProcessor::procType() ){
     return preProcEnum_t::IPreProcessor;
   } else {
@@ -66,7 +68,9 @@ thresEnum_t getType(const char* cStr){
     return thresEnum_t::IThresholdVarDep;
   } else if ( strType == UniqueThreshold::procType() ){
     return thresEnum_t::UniqueThreshold;
-  } else if ( strType == IDiscriminator::procType() ){
+  } else if ( strType == LinearPileupCorrectionThreshold::procType() ){
+    return thresEnum_t::LinearPileupCorrectionThreshold;
+  } else if ( strType == IThreshold::procType() ){
     return thresEnum_t::IThreshold;
   } else {
     throw Exceptions::no_such_type("ThresholdType",strType,"Types");
@@ -99,6 +103,8 @@ const char* toStr(preProcEnum_t e){
       break;
     case preProcEnum_t::MinMax:
       return Norm::MinMax::procType();
+    case preProcEnum_t::ExtraPatternsNorm:
+      return Norm::ExtraPatternsNorm::procType();
       break;
     case preProcEnum_t::IPreProcessor:
       return IPreProcessor::procType();
@@ -135,6 +141,9 @@ const char* toStr(thresEnum_t t){
       break;
     case thresEnum_t::UniqueThreshold:
       return UniqueThreshold::procType();
+      break;
+    case thresEnum_t::LinearPileupCorrectionThreshold:
+      return LinearPileupCorrectionThreshold::procType();
       break;
     case thresEnum_t::IThreshold:
       return IThreshold::procType();
