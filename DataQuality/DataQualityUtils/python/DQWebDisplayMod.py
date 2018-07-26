@@ -34,10 +34,11 @@ os.chdir(CWD)
 
 parser = OptionParser()
 parser.add_option("--htag", dest="htag",
-                  help='Use configuration from a specified htag')
+                  help='Use configuration from a specified htag ')
 
 (options, args) = parser.parse_args()
 
+os.environ['HTAG'] = options.htag
 
 from DataQualityUtils.handimod import handiWithComparisons
 from DataQualityUtils.handimod import makeCSSFile
@@ -59,7 +60,7 @@ class LockAcquisitionException(Exception):
     def __init__(self, msg):
         super(LockAcquisitionException,self).__init__(msg)
 
-def DQWebDisplay( inputFilePath, runAccumulating, c, htag=None ):
+def DQWebDisplay( inputFilePath, runAccumulating, c ):
     
     print ""
     print "SVN version:"
@@ -765,10 +766,10 @@ def generateDQIndexFiles( server, installPath, project, indexFile, runListFile, 
     print cmd
     return os.system( cmd ) == 0
 
-def importConfiguration(modname, htag=None):
+def importConfiguration(modname):
     from DataQualityConfigurations import getmodule
     print 'getting configuration', modname
-    return getmodule(modname, htag)
+    return getmodule(modname)
 
 def email(msg, subject, whofrom, addressees):
     import smtplib
@@ -804,53 +805,48 @@ def usage():
   print ""
 
 if __name__ == "__main__":
-  if len(args) < 4 or len(args) > 7:
+  if len(sys.argv) < 4 or len(sys.argv) > 7:
     usage()
     sys.exit(0)
   
-  inputFile  = args[0] # data file
+  inputFile  = sys.argv[1] # data file
   runAccumulating = False
-  if len(args) in (6,7):
-    if args[4] == "True" or args[3] == "1":
+  if len(sys.argv) in (6,7):
+    if sys.argv[4] == "True" or sys.argv[4] == "1":
       runAccumulating = True
   
-  if len(args) == 7:
+  if len(sys.argv) == 7:
       ROOT.gSystem.Load('libDataQualityInterfaces')
-      ROOT.dqi.ConditionsSingleton.getInstance().setCondition(args[4])
+      ROOT.dqi.ConditionsSingleton.getInstance().setCondition(sys.argv[5])
 
   configModule = ""
-  
-  if   args[1] == "TEST":
+  if options.htag:
+      configModule = "TestDisplayHTag"
+  elif   sys.argv[2] == "TEST":
     configModule = "TestDisplay"
-  elif args[1] == "RTT":
+  elif sys.argv[2] == "RTT":
     configModule = "RTTDisplay"
-  elif args[1] == "TCT":
+  elif sys.argv[2] == "TCT":
     configModule = "TCTDisplay"
-  elif args[1] == "FDR1":
+  elif sys.argv[2] == "FDR1":
     configModule = "fdr08_run1"
-  elif args[1] == "FDR2" or args[1] == "FDR2a" or args[1] == "FDR2b" or args[1] == "FDR2c":
+  elif sys.argv[2] == "FDR2" or sys.argv[2] == "FDR2a" or sys.argv[2] == "FDR2b" or sys.argv[2] == "FDR2c":
     configModule = "fdr08_run2"
-  elif args[1] == "Cosmics08":
+  elif sys.argv[2] == "Cosmics08":
     configModule = "data08_cos"
-  elif args[1] == "SingleBeam08":
+  elif sys.argv[2] == "SingleBeam08":
     configModule = "data08_1beam"
   else:
-    configModule = args[1]
+    configModule = sys.argv[2]
   
   try:
-    if options.htag:
-      cmod = importConfiguration(configModule, options.htag)
-    else:
-      cmod = importConfiguration(configModule)
+    cmod = importConfiguration(configModule)
   except Exception, e:
     print "Could not import configuration module \'" + configModule + "\'"
     sys.exit(1)
 
   try:
-    if options.htag:
-      config = cmod
-    else:
-      config = cmod.dqconfig
+    config = cmod.dqconfig
   except Exception, e:
     print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
     sys.exit(1)

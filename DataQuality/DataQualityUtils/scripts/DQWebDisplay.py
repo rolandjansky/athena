@@ -31,12 +31,14 @@ parser.add_option("--htag", dest="htag",
 
 (options, args) = parser.parse_args()
 
+os.environ['HTAG'] = options.htag
+
 from DataQualityUtils.DQWebDisplayMod import DQWebDisplay
 
-def importConfiguration(modname, htag=None):
+def importConfiguration(modname):
     from DataQualityConfigurations import getmodule
     print 'getting configuration', modname
-    return getmodule(modname, options.htag)
+    return getmodule(modname)
 
 def usage():
   #cmdi = args[0].rfind("/")
@@ -89,19 +91,13 @@ if __name__ == "__main__":
     configModule = args[1]
   
   try:
-    if options.htag:
-      cmod = importConfiguration(configModule, options.htag)
-    else:
-      cmod = importConfiguration(configModule)  
+    cmod = importConfiguration(configModule)
   except Exception, e:
     print "Could not import configuration module \'" + configModule + "\'"
     sys.exit(1)
 
   try:
-    if options.htag:
-      config = cmod 
-    else:
-      config = cmod.dqconfig
+    config = cmod.dqconfig
   except Exception, e:
     print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
     sys.exit(1)
