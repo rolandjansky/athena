@@ -594,10 +594,6 @@ class FilePeeker(PyAthena.Alg):
         _info('=== [DataHeader#%s] ===', sg_key)
         dh = store.retrieve('DataHeader', sg_key)
         dh_cls = type(dh)
-        if not dh.checkStatus(dh_cls.Primary):
-            _err = 'DataHeader#%s is NOT the primary one !' % (sg_key,)
-            _error(_err)
-            raise RuntimeError(_err)
         
         def _make_item_list(dhe):
             sgkey= dhe.getKey()
