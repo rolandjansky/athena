@@ -171,7 +171,8 @@ sub main(){
 <script type=\"text/javascript\">
 
     google.charts.load('current', {packages: ['corechart', 'line']});
-    google.charts.setOnLoadCallback(drawCrosshairs);
+    google.charts.setOnLoadCallback(drawCrosshairs17000);
+    google.charts.setOnLoadCallback(drawCrosshairs9000);
 
     function drawCrosshairs17000() {
                 var data = new google.visualization.DataTable();
@@ -182,7 +183,7 @@ sub main(){
                         
                         \$nightlies = glob(dirname(__FILE__) . '/../../*');
                         \$nightlies = array_values(\$nightlies);
-                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ATLASros2rob.py');
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_17000/ATLASros2rob2018.py');
                         //echo \$content;
                         preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
                         \$ROSes = array_values(\$ROSes);
@@ -243,7 +244,7 @@ sub main(){
                         
                         \$nightlies = glob(dirname(__FILE__) . '/../../*');
                         \$nightlies = array_values(\$nightlies);
-                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_9000/ATLASros2rob.py');
+                        \$content = file_get_contents(dirname(__FILE__).'/test_HLT_physicsV7_menu_ART_and_ROSsim_build/HLT_physicsV7_ROSsim_9000/ATLASros2rob2018.py');
                         //echo \$content;
                         preg_match_all('/ROS-.[A-Z]+-.[A-Z]+-.[0-9]+/i',\$content,\$ROSes);
                         \$ROSes = array_values(\$ROSes);
@@ -628,8 +629,8 @@ function showBuildFailures(failures,link) {
       print HTMLOUT "</font>";
     }
     print HTMLOUT '<iframe onload="highlightDiffs(false)" id="DiffFrame" style="visibility:hidden;display:none;"></iframe>';
-    print HTMLOUT '<div id="chart_div17000" style="width: 900px; height: 500px"></div>';
-    print HTMLOUT '<div id="chart_div9000"  style="width: 900px; height: 500px"></div>';
+    print HTMLOUT '<div id="chart_div17000" style="float: left; width: 50%; height: 500px"></div>';
+    print HTMLOUT '<div id="chart_div9000"  style="float: right; width: 50%; height: 500px"></div>';
     print HTMLOUT '</body></html>';
     close HTMLOUT;
     
