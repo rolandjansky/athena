@@ -36,6 +36,9 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "SiSpacePointFormation/SiElementPropertiesTable.h"
+
 //!<  Trigger includes
 #include "TrigInterfaces/FexAlgo.h"
 
@@ -54,7 +57,6 @@ class TrigTimer;
 
 namespace InDet{
 
-  class SiElementPropertiesTable;
   class SiSpacePointMakerTool;
   class ITrigSCT_SpacePointTool;
   
@@ -96,6 +98,9 @@ namespace InDet{
     SpacePointContainer* m_SpacePointContainerPixel; 
 
     SpacePointOverlapCollection*    m_spOverlapColl;     
+
+    SG::ReadCondHandleKey<InDet::SiElementPropertiesTable> m_SCTPropertiesKey{this, "SCTPropertiesKey",
+        "SCT_ElementPropertiesTable", "Key of input SiElementPropertiesTable for SCT"};
 
     ToolHandle< ITrigSCT_SpacePointTool > m_trigSpacePointTool;
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
