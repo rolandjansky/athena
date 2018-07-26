@@ -342,6 +342,7 @@ namespace xAOD {
 
 
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
   static SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
      btagAcc1( "btagging" );
   static SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
@@ -373,6 +374,7 @@ namespace xAOD {
      btagAcc2( *this ) = el;
      return;
   }
+#endif //GENERATIONBASE
 #endif //SIMULATIONBASE
 
 //   void Jet_v1::toPersistent() {
@@ -389,10 +391,12 @@ namespace xAOD {
 //     }
 
 // #ifndef SIMULATIONBASE
+// #ifndef GENERATIONBASE
 //     // On a new object we could only create a link with the new name, so:
 //     if( btagAcc2.isAvailableWritable( *this ) ) {
 //       btagAcc2( *this ).toPersistent();
 //     }
+// #endif //GENERATIONBASE
 // #endif //SIMULATIONBASE
 
     

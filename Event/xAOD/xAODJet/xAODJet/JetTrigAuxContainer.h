@@ -7,6 +7,7 @@
 #ifndef XAODJET_JETTRIGAUXCONTAINER_H
 #define XAODJET_JETTRIGAUXCONTAINER_H
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 // Local include(s):
 #include "xAODJet/versions/JetTrigAuxContainer_v2.h"
 
@@ -25,5 +26,6 @@ namespace xAOD {
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::JetTrigAuxContainer, 1285854532, 1 )
 
+#endif //GENERATIONBASE
 #endif //SIMULATIONBASE
 #endif // XAODJET_JETAUXCONTAINER_H

@@ -4,6 +4,7 @@
 
 
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 // Local include(s):
 #include "xAODJet/versions/JetTrigAuxContainer_v2.h"
 
@@ -24,4 +25,6 @@ namespace xAOD {
    }
 
 } // namespace xAOD
+#endif //GENERATIONBASE
 #endif //SIMULATIONBASE
+

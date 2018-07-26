@@ -18,7 +18,7 @@ if( NOT XAOD_STANDALONE )
    set( extra_test_libs SGTools )
 endif()
 
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( extra_deps Event/xAOD/xAODBTagging Event/xAOD/xAODTrigger Event/xAOD/xAODPFlow)
    set( extra_libs xAODBTagging xAODPFlow xAODTrigger )
 endif()
