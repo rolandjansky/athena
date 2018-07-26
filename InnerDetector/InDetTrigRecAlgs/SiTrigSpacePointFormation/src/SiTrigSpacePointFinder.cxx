@@ -271,6 +271,14 @@ namespace InDet{
       //    m_spOverlapColl->addRef();
     }
 
+    if (m_selectSCTs) {
+      // ReadCondHandleKey for SCT alignment conditions
+      if (m_SCTPropertiesKey.initialize().isFailure()) {
+        ATH_MSG_FATAL( "Failed to initialize " << m_SCTPropertiesKey.fullKey() );
+        return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      }
+    }
+
     // initializing the IdentifiableContainers for clusters:
     m_pixelClusterContainer=0;
     m_sctClusterContainer=0;
@@ -430,6 +438,13 @@ namespace InDet{
 
     if (m_selectSCTs &&  doSCT ){ 
 
+      SG::ReadCondHandle<SiElementPropertiesTable> sctProperties(m_SCTPropertiesKey);
+      const SiElementPropertiesTable* properties(sctProperties.retrieve());
+      if (properties==nullptr) {
+        ATH_MSG_FATAL("Pointer of SiElementPropertiesTable (" << m_SCTPropertiesKey.fullKey() << ") could not be retrieved");
+        return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      }
+
       if(!m_doFullScan){
 	//   Get the SCT RDO's:
 	if(doTiming()) m_timerRegSel->resume();
@@ -479,6 +494,7 @@ namespace InDet{
 	  
 	    m_trigSpacePointTool->addSCT_SpacePoints(SCTClusterCollection,
 						     m_sctClusterContainer,
+                                                     properties,
 						     spacepointCollection,
 						     m_spOverlapColl);
 	  }
@@ -529,6 +545,7 @@ namespace InDet{
 
 	    m_trigSpacePointTool->addSCT_SpacePoints(colNext,
 						     m_sctClusterContainer,
+                                                     properties,
 						     spacepointCollection,
 						     m_spOverlapColl);
 	  }

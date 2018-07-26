@@ -275,6 +275,13 @@ if InDetFlags.doSpacePointFormation():
                                                                      ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                      ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
 
+   # Condition algorithm for SiTrackerSpacePointFinder
+   from AthenaCommon.AlgSequence import AthSequencer
+   condSeq = AthSequencer("AthCondSeq")
+   if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+      from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
+
 #   if InDetFlags.doDBM():
 #     InDetSiTrackerSpacePointFinderDBM = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinderDBM",
 #                                                                          SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
