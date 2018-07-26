@@ -7,7 +7,6 @@
 #define CALORINGERTOOLS_CALORINGERREADERUTILS_ICC
 
 #include <vector>
-#include <exception>
 
 // Kernel includes:
 #include "GaudiKernel/StatusCode.h"
@@ -19,36 +18,59 @@
 // xAOD includes:
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloRings/CaloRingsContainer.h"
+#include "xAODCaloRings/RingSetContainer.h"
+#include "xAODCaloRings/CaloRingsAuxContainer.h"
+#include "xAODCaloRings/RingSetAuxContainer.h"
 #include "xAODCaloRings/tools/getCaloRingsDecorator.h"
+
 
 #include "CaloRingerTools/ICaloRingerInputReader.h"
 
 namespace Ringer {
 
 // =====================================================================================
-template<typename particle_t>
-void BuildCaloRingsFctor<particle_t>::displayLoopingMessage() const {
+template<typename container_t>
+StatusCode BuildCaloRingsFctor<container_t>::prepareToLoopFor( std::size_t nParticles ) {
+  // Call overridden method
+  ATH_CHECK( base_t::prepareToLoopFor( nParticles ) );
+  // Make the decorator key
+  m_decor = new decor_t( m_decorKey );
+  return StatusCode::SUCCESS;
+}
+
+// =====================================================================================
+template<typename container_t>
+void BuildCaloRingsFctor<container_t>::checkRelease() const {
+  // Call overridden method
+  base_t::checkRelease();
+  if ( m_part_counter == m_part_size ) {
+    delete m_decor; m_decor = nullptr;
+  }
+}
+
+// =====================================================================================
+template<typename container_t>
+void BuildCaloRingsFctor<container_t>::displayLoopingMessage() const {
   if (m_msg.level() <= MSG::DEBUG ){
     std::string str = ((m_particle_has_cluster)?"(with cluster access)":
                                                 "(without cluster access)");
-    m_msg << MSG::DEBUG << " ---------- Reading " 
+    m_msg << MSG::DEBUG << " ---------- Reading "
         << m_particle_name << " " << str << " candidate "
-        << ++this->m_part_counter << "/" << this->m_part_size
+        << this->m_part_counter << "/" << this->m_part_size
         << " ----------- " << endmsg;
   }
 }
 
 
 // =====================================================================================
-template< typename particle_t >
-void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
+template< typename container_t >
+void BuildCaloRingsFctor<container_t>::operator() ( const particle_t *part ) const
 {
 
-  displayLoopingMessage();
+  incrementCounter(); displayLoopingMessage();
 
   // Retrieve clusters element links:
-  const std::vector< ElementLink< xAOD::CaloClusterContainer > > &clustersLinks = 
-    part->caloClusterLinks();
+  const auto &clustersLinks = part->caloClusterLinks();
 
   // Make CaloRings ElementLink Holder:
   xAOD::CaloRingsLinks clRingsLinks;
@@ -63,7 +85,7 @@ void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
     // Loop over them to build CaloRings:
     for ( const auto& clusLink : clustersLinks) {
 
-      m_msg << MSG::DEBUG << "Reading particle cluster " << ++cl_counter << "/" 
+      m_msg << MSG::DEBUG << "Reading particle cluster " << ++cl_counter << "/"
         << clustersLinks.size() << endmsg;
 
       // This cluster CaloRings:
@@ -92,9 +114,17 @@ void BuildCaloRingsFctor<particle_t>::operator() ( particle_t *part ) const
   }
 
   // Decorate particle with CaloRings:
-  // THIS NEEDS TO BE MIGRATED TO USE A WRITE DECO HANDLE
-  xAOD::getCaloRingsDecorator()->operator()( *part ) = clRingsLinks;
+  m_decor->operator()( *part ) = clRingsLinks;
 
+  checkRelease();
+}
+
+// =====================================================================================
+template<typename container_t>
+StatusCode BuildCaloRingsFctor<container_t>::initialize()
+{
+  ATH_CHECK( m_decorKey.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 
