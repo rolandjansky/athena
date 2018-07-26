@@ -71,6 +71,7 @@ public:
   virtual unsigned int tempMaskedChips(const Identifier& moduleId) const override; // Internally used
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const override; // Internally used
   virtual bool isRODSimulatedData() const override; // Internally used
+  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash) const override;
   virtual bool HVisOn() const override; // Internally used
   virtual bool isCondensedReadout() const override; // Not used
 
@@ -84,6 +85,8 @@ private:
   SG::ReadHandleKey<InDetBSErrContainer> m_bsErrContainerName{this, "ContainerName", "SCT_ByteStreamErrs", "Key of InDetBSErrContainer for SCT"};
   SG::ReadHandleKey<SCT_ByteStreamFractionContainer> m_bsFracContainerName{this, "FracContainerName", "SCT_ByteStreamFrac", "Key of SCT_ByteStreamFractionContainer"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
+  BooleanProperty m_checkRODSimulatedData{this, "CheckRODSimulatedData", true, "Flag to check RODSimulatedData flag."};
 
   mutable std::vector<std::set<IdentifierHash> > m_bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES]; // Used by getErrorSet, addError, resetSets
 
