@@ -497,7 +497,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
   
   /// RPC context
   IdContext rpcContext = m_rpcHelper->module_context();
-  
+
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
   auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
