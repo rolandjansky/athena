@@ -452,6 +452,12 @@ class SlimmingHelper:
                         # all the derivations I see using VR track
                         # jets leave out the "PV0".
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackGhostTagJets"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets"))
