@@ -57,7 +57,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   declareProperty("disableRODs",m_disableRODs=false);
   declareProperty("RODFailureFraction",m_rodFailureFraction=0.1);
   declareProperty("RandomNumberSeed",m_randomSeed=1); // The seed of random numbers for ROD disabling
-  declareProperty("CheckRODSimulatedData",m_checkRODSimulatedData=false);
+  declareProperty("CheckRODSimulatedData",m_checkRODSimulatedData=true);
 
   for(int errorType=0; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
     m_bsErrors[errorType] = 0;
