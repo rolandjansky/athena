@@ -2404,6 +2404,7 @@ ps_calibmon_list=[
     'sct_noise',
     'tilecalib_laser',
     'rpcpeb_L1RD0_EMPTY',
+    'rpcpebsecondaryreadout',
     'idpsl1_L1IDprescaled'
     ]    
 ps_eb_list=[

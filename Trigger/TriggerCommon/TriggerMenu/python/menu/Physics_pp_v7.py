@@ -4252,6 +4252,7 @@ def setupMenu():
         ['calibAFPALFA_L1ALFA_BGT_BGRP1',    'L1_ALFA_BGT_BGRP1',   [],  ['AFPALFA'], ['RATE:CalibrationAFPALFA','BW:Detector'], -1],
 
         ['rpcpeb_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['RPCNoise'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
+        ['rpcpebsecondaryreadout', '', [], ['RPCsecondaryreadout'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
 
         ['idpsl1_L1IDprescaled','', [], ['IDprescaledL1'], ["RATE:SeededStreamers","BW:Other"], -1],
 
