@@ -317,48 +317,11 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
   if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash)) return false;
 
   bool result(true);
-  
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::TimeOutError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::TimeOutError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::TimeOutError]->end());
-  if (!result) return result;
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::BCIDError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::BCIDError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::BCIDError]->end());
-  if (!result) return result;
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::LVL1IDError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::LVL1IDError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::LVL1IDError]->end());
-  if (!result) return result;
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::MaskedLink]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::MaskedLink]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::MaskedLink]->end());
-  if (!result) return result;
 
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::ROBFragmentError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::ROBFragmentError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::ROBFragmentError]->end());
-  if (!result) return result;
-
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::MissingLinkHeaderError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::MissingLinkHeaderError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::MissingLinkHeaderError]->end());
-  if (!result) return result;
-
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::HeaderTrailerLimitError]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::HeaderTrailerLimitError]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::HeaderTrailerLimitError]->end());
-  if (!result) return result;
-
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->end());
-  if (!result) return result;
-
-  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::TruncatedROD]->begin(),
-		      m_bsErrors[SCT_ByteStreamErrors::TruncatedROD]->end(),
-		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::TruncatedROD]->end());
-  if (!result) return result;
+  for (SCT_ByteStreamErrors::errorTypes badError: SCT_ByteStreamErrors::BadErrors) {
+    result = (m_bsErrors[badError]->count(elementIdHash)==0);
+    if (!result) return result;
+  }
 
   // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one. 
   const Identifier wafer_id(m_sct_id->wafer_id(elementIdHash));
