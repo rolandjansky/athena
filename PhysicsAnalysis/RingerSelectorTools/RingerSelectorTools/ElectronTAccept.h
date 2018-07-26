@@ -24,13 +24,17 @@ class BitdefElectron_v1;
  **/
 class ElectronTAccept_v1 {
   public:
-    /** 
+    /**
      * @brief Bit mask word used
      *
      * FIXME: Ask m_nBits to be encapsulated and a similar typedef like this to
-     * be within TAccept 
+     * be within TAccept
      **/
+#ifdef XAOD_ANALYSIS
+    typedef std::bitset<32> bitMskWord;
+#else
     typedef std::bitset<Root::TAccept::NBITS> bitMskWord;
+#endif
 
     // Grant access to m_accept for BitdefElectron_v1
     friend class BitdefElectron_v1;
@@ -40,7 +44,7 @@ class ElectronTAccept_v1 {
     /**
      * @brief Retrieve copy of the ElectronTAccept_v1 template
      **/
-    static unsigned int getAppliedCutMsk(const Requirement cut, 
+    static unsigned int getAppliedCutMsk(const Requirement cut,
         bool withCutIDTrack = false);
     /**
      * @brief Retrieve copy of the ElectronTAccept_v1 template
@@ -91,13 +95,13 @@ class BitdefElectron_v1 {
 /*
  * NOTE:
  *
- *  Should new implementation inherit from this? That is, new bits 
+ *  Should new implementation inherit from this? That is, new bits
  *  can only be defined for positions that weren't yet defined:
  *
  *  Example:
  *
  *  \code
- *  class BitdefElectron_v2 : public BitdefElectron_v2 
+ *  class BitdefElectron_v2 : public BitdefElectron_v2
  *  {
  *    static const int NewBit;
  *  }

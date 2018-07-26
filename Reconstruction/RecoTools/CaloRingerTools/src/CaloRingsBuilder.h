@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <limits>
 
 // Wrap-around phi helper include:
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -27,6 +28,10 @@
 #include "xAODCaloRings/RingSetContainerFwd.h"
 #include "xAODCaloRings/CaloRingsContainerFwd.h"
 #include "xAODCaloRings/tools/AtlasGeoPoint.h"
+
+// StoreGate includes:
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
@@ -62,10 +67,13 @@ class CaloRingsBuilder : public ::AthAlgTool,
      * @brief initialize method
      **/
     virtual StatusCode initialize() ATH_OVERRIDE;
+
     /**
      * @brief method for working on containers
      **/
-    virtual StatusCode contExecute(const size_t nReserve = 0) ATH_OVERRIDE;
+    virtual StatusCode preExecute( xAOD::CaloRingsContainer* crCont
+                                 , xAOD::RingSetContainer* rsCont
+                                 , const std::size_t nReserve = 0) ATH_OVERRIDE;
     /**
      * @brief build CaloRings for IParticle
      **/
@@ -98,6 +106,10 @@ class CaloRingsBuilder : public ::AthAlgTool,
     };
     /// @}
 
+    std::size_t nRingSets() const ATH_OVERRIDE { return m_nRingSets; }
+
+    const SG::WriteHandleKey<xAOD::CaloRingsContainer>& crContName() const ATH_OVERRIDE { return m_crContName; }
+    const SG::WriteHandleKey<xAOD::RingSetContainer>& rsContName() const ATH_OVERRIDE { return m_rsContName; }
 
   protected:
 
@@ -138,39 +150,62 @@ class CaloRingsBuilder : public ::AthAlgTool,
     /**
      * @brief Name of CaloRingsContainer on Event StoreGate
      **/
-    std::string m_crContName;
+    /** @brief electron collection input name*/
+    SG::WriteHandleKey<xAOD::CaloRingsContainer> m_crContName {this,
+      "CaloRingsContainerName",
+      "CaloRings",
+      "Name of the CaloRings container"};
+
     /**
      * @brief Name of RingSetContainer on Event StoreGate
      **/
-    std::string m_rsContName;
+    SG::WriteHandleKey<xAOD::RingSetContainer> m_rsContName {this,
+      "RingSetContainerName",
+      "RingSets",
+      "Name of the RingSets container"};
+
     /**
      * @brief Name of CaloCellContainer
      **/
-    std::string m_cellsContName;
+    SG::ReadHandleKey<CaloCellContainer> m_cellsContName {this,
+      "CellsContainerName",
+      "AllCalo",
+      "Key to obtain the cell container"};
+
     /**
      * @brief Width of the ring in eta
      **/
-    std::vector<float> m_etaWidth;
+    Gaudi::Property<std::vector<float>> m_etaWidth {this,
+          "EtaWidth", {}, "Each RingSet ring eta width."};
     /**
      * @brief Width of the ring in phi
      **/
-    std::vector<float> m_phiWidth;
+    Gaudi::Property<std::vector<float>> m_phiWidth {this,
+          "PhiWidth", {}, "Each RingSet ring phi width."};
     /**
      * @brief Maximum cell distance in eta to seed
      **/
-    float m_cellMaxDEtaDist;
+    Gaudi::Property<float>  m_cellMaxDEtaDist{this,
+          "CellMaxDEtaDist", 0,
+          "Maximum cell distance to the seed in eta."};
     /**
      * @brief Maximum cell distance in phi to seed
      **/
-    float m_cellMaxDPhiDist;
+    Gaudi::Property<float>  m_cellMaxDPhiDist{this,
+          "CellMaxDPhiDist", 0,
+          "Maximum cell distance to the seed in phi."};
     /**
      * @brief Number of rings in a ringset
      **/
-    std::vector<unsigned int> m_nRings;
+    Gaudi::Property<std::vector<unsigned int>>  m_nRings{this,
+          "NRings", {},
+          "Each RingSet number of rings."};
     /**
      *  * @brief Minimum particle energy to build rings (GeV)
      *   **/
-    float m_minEnergy;
+    Gaudi::Property<float>  m_minEnergy{this,
+          "MinPartEnergy", std::numeric_limits<float>::lowest(),
+          "Minimum particle/cluster energy to build rings (GeV)."};
     /**
      *
      * @brief Calorimeter layers in each ringset
@@ -179,18 +214,28 @@ class CaloRingsBuilder : public ::AthAlgTool,
      * std::vector<CaloSampling::CaloSample> m_layersRings;
      *
      **/
-    std::vector<int/*=CaloCell_ID::CaloSample*/> m_layers;
+    Gaudi::Property<std::vector<int/*=CaloCell_ID::CaloSample*/>>
+      m_layers{this,
+          "Layers", {},
+          "Concatenated list of layers which will be used "
+          "to build the RingSets"};
     /**
      * @brief Number of calorimeter layers in each ringset
      **/
-    std::vector<unsigned int> m_nLayers;
+    Gaudi::Property<std::vector<unsigned int>> m_nLayers{this,
+            "RingSetNLayers", {},
+            "Each RingSet number of layers from the Layers "
+            "configurable property to use."};
     /**
      * @brief Switch to use shower barycenter seed for each RingSets.
      *
      * This can be set to false if using cluster information to use the cluster
      * center instead of its layer energy baricenter.
      **/
-    bool m_useShowShapeBarycenter;
+    Gaudi::Property<bool> m_useShowShapeBarycenter{this,
+            "useShowerShapeBarycenter", false,
+            "Switch to use shower barycenter for each layer, "
+            "instead of the cluster center."};
     /// @}
 
     /// Tool props (non configurables):
@@ -204,17 +249,13 @@ class CaloRingsBuilder : public ::AthAlgTool,
      **/
     xAOD::CaloRingsContainer* m_crCont;
     /**
-     * @brief Hold the retrieved cells container.
-     **/
-    const CaloCellContainer* m_cellCont;
-    /**
      * @brief holds each RingSet configuration (filled at initialize)
      **/
     xAOD::RingSetConf::RawConfCollection m_rsRawConfCol;
     /**
      * @brief last valid RingSet seed
      *
-     * Propagate third EM layer position to hadronic layers.
+     * Propagate other layer centroids in case a layer centroid is not valid.
      **/
     AtlasGeoPoint m_lastValidSeed;
     /**
