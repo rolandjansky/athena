@@ -76,7 +76,7 @@ for alg in pileupSequence:
 # Include, and then set up the electron analysis sequence:
 from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
     makeElectronAnalysisSequence
-electronSequence = makeElectronAnalysisSequence( dataType )
+electronSequence = makeElectronAnalysisSequence( dataType, recomputeLikelihood=True )
 electronSequence.configure( inputName = 'Electrons',
                             outputName = 'AnalysisElectrons' )
 print( electronSequence ) # For debugging
@@ -89,7 +89,7 @@ for alg in electronSequence:
 # Include, and then set up the photon analysis sequence:
 from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
     makePhotonAnalysisSequence
-photonSequence = makePhotonAnalysisSequence( dataType )
+photonSequence = makePhotonAnalysisSequence( dataType, recomputeIsEM=True )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons' )
 print( photonSequence ) # For debugging

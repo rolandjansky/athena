@@ -27,6 +27,10 @@
 // Tracking Tool
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+// stand-alone messaging
+#include "AsgTools/MessageCheck.h"
+
+
 // Forward declaration
 
 namespace met {

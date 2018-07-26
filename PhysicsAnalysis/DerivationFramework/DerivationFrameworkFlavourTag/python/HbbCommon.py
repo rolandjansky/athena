@@ -14,9 +14,9 @@ from JetRec.JetRecConf import JetAlgorithm
 #===================================================================
 
 # make exkt subjet finding tool
-def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"] ):
+def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"], min_subjet_pt_mev = 0):
     #
-    # a full list of ExGhostLabels = ["GhostBHadronsFinal", "GhostBHadronsInitial", "GhostBQuarksFinal", "GhostCHadronsFinal", "GhostCHadronsInitial", 
+    # a full list of ExGhostLabels = ["GhostBHadronsFinal", "GhostBHadronsInitial", "GhostBQuarksFinal", "GhostCHadronsFinal", "GhostCHadronsInitial",
     # "GhostCQuarksFinal", "GhostHBosons", "GhostPartons", "GhostTQuarksFinal", "GhostTausFinal", "GhostTruth", "GhostTrack"]
     #
 
@@ -31,9 +31,10 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
       #supported algorithms: Reconstruction/Jet/JetSubStructureUtils/Root/SubjetFinder.cxx
       #algorithms:"ee_kt" or "EEKt" for EE_Kt
       #           "cambridge" or "CamKt" for Cambridge
-      #           "FastJetPlugin" for EECambridge plugin 
+      #           "FastJetPlugin" for EECambridge plugin
       algj = "ee_kt"
 
+    if globalflags.DataSource()=='data': ExGhostLabels = []
     SubjetContainerName = "%sEx%s%iSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet)
     ExKtbbTagToolName = str( "Ex%sbbTagTool%i_%s" % (subjet_mode, nsubjet, JetCollectionName) )
     if hasattr(jtm, ExKtbbTagToolName):
@@ -58,10 +59,10 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 
         from JetTagTools.JetTagToolsConf import Analysis__ExKtbbTagTool
         ExKtbbTagToolInstance = Analysis__ExKtbbTagTool(
-          name = ExKtbbTagToolName, 
+          name = ExKtbbTagToolName,
           JetAlgorithm = algj,
           JetRadius = 10.0,
-          PtMin = 1000,
+          PtMin = min_subjet_pt_mev,
           ExclusiveNJets = nsubjet,
           doTrack = doTrackSubJet,
           InputJetContainerName = JetCollectionName,
@@ -81,177 +82,109 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
     return (ExKtbbTagToolInstance, SubjetContainerName)
 
 #===================================================================
-# Build ExKt Subjets
+# Build ExKt or CoM Subjets, default is ExKt
 #===================================================================
-def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"]):
-    from JetRec.JetRecStandard import jtm
-    ExKtJetCollection__SubJet = []
-    for JetCollectionExKt in ExKtJetCollection__FatJet:
-        # build ExKtbbTagTool instance
-        (ExKtbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExKt, "Kt", nSubjets, doTrackSubJet, ExGhostLabels)
-        ExKtJetCollection__SubJet += [SubjetContainerName]
-
-        exktAlgName = "jfind_%s" % (SubjetContainerName)
-        exktJetRecToolName = "%s" % (SubjetContainerName)
-        exktBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
-
-        if exktAlgName in DFJetAlgs:
-            print " Algorithm ExKt ", exktAlgName, "already built before"
-            if hasattr(sequence, exktAlgName):
-                print " sequence ExKt ", sequence, "already has an instance of algorithm", exktAlgName
-            else:
-                print " Add algorithm ExKt ", exktAlgName, "to sequence", sequence
-                sequence += DFJetAlgs[exktAlgName]
-        else:
-            print " Algorithm ExKt ", exktAlgName, " to be built sequence ", sequence
-            if hasattr(jtm, exktJetRecToolName):
-                jetrec = jtm [ exktJetRecToolName ]
-                print " ExKtJetRecTool ", exktJetRecToolName, " is found in jtm.tools sequence ", sequence
-            else:
-                # build subjet collection through JetRecTool
-                from JetRec.JetRecConf import JetRecTool
-                jetrec = JetRecTool(
-                                     name = exktJetRecToolName,
-                                     OutputContainer = JetCollectionExKt,
-                                     InputContainer = JetCollectionExKt,
-                                     JetModifiers = [ExKtbbTagToolInstance],
-                                   )
-                jtm.add( jetrec )
-                ToolSvc += jetrec
-                print " ExKtJetRecTool ", exktJetRecToolName, " is now built, sequence ", sequence
-
-            exktJetRecBTagToolName = str( "%s_sub"%exktJetRecToolName )
-            if hasattr(jtm, exktJetRecBTagToolName):
-                print " ExKtJetRecBTagTool ", exktJetRecBTagToolName, " is already built, sequence ", sequence
-                jetrec_btagging = jtm [ exktJetRecBTagToolName ]
-            else:
-                from BTagging.BTaggingFlags import BTaggingFlags
-                btag_exkt = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=exktJetRecToolName.replace("Jets", ""), AddToToolSvc=True, Verbose=True,
-                             options={"name"         : exktBTagName.lower(), 
-                                      "BTagName"     : exktBTagName, 
-                                      "BTagJFVtxName": "JFVtx",                  
-                                      "BTagSVName"   : "SecVtx",                 
-                                      },
-                             SetupScheme = "",
-                             TaggerList = BTaggingFlags.StandardTaggers,
-                             )
-                from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
-                mods = [defaultTrackAssoc, defaultMuonAssoc, btag_exkt]
-                jetrec_btagging = JetRecTool( name = exktJetRecBTagToolName,
-                                          InputContainer  = SubjetContainerName,
-                                          OutputContainer = SubjetContainerName,
-                                          JetModifiers    = mods)
-                jtm.add( jetrec_btagging )
-                ToolSvc += jetrec_btagging
-                print " ExKtJetRecBTagTool ", exktJetRecBTagToolName, " is now built, sequence ", sequence
-
-
-            jetalg_exkt = JetAlgorithm(
-                                     name = exktAlgName,
-                                     Tools = [jetrec,jetrec_btagging],
-                                    )
-            sequence += jetalg_exkt
-            DFJetAlgs[exktAlgName] = jetalg_exkt
-
-    return ExKtJetCollection__SubJet
-
-
-#===================================================================
-# Build CoM Subjets
-#===================================================================
-def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"]):
+def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev = 0, subjetAlgName = "Kt"):
+    if(subjetAlgName != "Kt" and subjetAlgName != "CoM"):
+      print "WARNING:  Subjet type must be Kt or CoM.  Using Kt as default!"
+      subjetAlgName = "Kt"
     from JetRec.JetRecStandard import jtm
     ExCoMJetCollection__SubJet = []
-    for JetCollectionExCoM in ExKtJetCollection__FatJet:
-        (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, "CoM", nSubjets, doTrackSubJet, ExGhostLabels)
-        ExCoMJetCollection__SubJet += [SubjetContainerName]
+    
+    (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, subjetAlgName, nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
+
+    ExCoMJetCollection__SubJet += [SubjetContainerName]
 
 
-        excomELresetName = "ELreset_subjet_%s" % (SubjetContainerName.replace("Jets", ""))
-        excomAlgName = "jfind_%s" % (SubjetContainerName)
-        excomJetRecToolName = "%s" % (SubjetContainerName)
-        excomBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
+    excomELresetName = "ELreset_subjet_%s" % (SubjetContainerName.replace("Jets", ""))
+    excomELresetNameLJet = "ELreset_Large_%sjet_%s" % (SubjetContainerName.replace("Jets", ""),JetCollectionExCoM.replace("Jets", ""))
+    excomAlgName = "jfind_%s" % (SubjetContainerName)
+    excomJetRecToolName = "%s" % (SubjetContainerName)
+    excomBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
 
-        if excomAlgName in DFJetAlgs:
-            print " Algorithm ExCoM ", excomAlgName, "already built before sequence ", sequence
+    if excomAlgName in DFJetAlgs:
+        print " Algorithm Ex%s "%subjetAlgName, excomAlgName, "already built before sequence ", sequence
 
-            if hasattr(sequence, excomAlgName):
-                print " sequence ExCoM ", sequence, "already has an instance of algorithm", excomAlgName
-            else:
-                print " Add algorithm ExCoM ", excomAlgName, "to sequence", sequence
-                sequence += DFJetAlgs[excomAlgName]
-                sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetName, SGKeys=[SubjetContainerName+"Aux."])
-                sequence += DFJetAlgs[excomAlgName+"_btag"]
+        if hasattr(sequence, excomAlgName):
+            print " sequence Ex%s "%subjetAlgName, sequence, "already has an instance of algorithm", excomAlgName
         else:
-            print " Algorithm ExCoM ", excomAlgName, " to be built sequence ", sequence
-            if hasattr(jtm, excomJetRecToolName):
-                print " ExCoMJetRecTool ", excomJetRecToolName, " already built sequence ",  sequence
-                jetrec = jtm [ excomJetRecToolName ]
-            else:
-                print " ExCoM tool ", excomJetRecToolName, " to be built sequence ", sequence
-                from JetRec.JetRecConf import JetRecTool
-                jetrec = JetRecTool(
-                                     name = excomJetRecToolName,
-                                     OutputContainer = JetCollectionExCoM,
-                                     InputContainer = JetCollectionExCoM,
-                                     JetModifiers = [ExCoMbbTagToolInstance],
-                                   )
-                jtm.add( jetrec )
-                ToolSvc += jetrec
-
-            excomJetRecBTagToolName = str( "%s_sub"%excomJetRecToolName )
-            if hasattr(jtm, excomJetRecBTagToolName):
-                print " ExCoMJetRecBTagTool ", excomJetRecBTagToolName, " already built sequence ",  sequence
-                jetrec_btagging = jtm [ excomJetRecBTagToolName ]
-            else:
-                print " ExCoMJetRecBTagTool ", excomJetRecBTagToolName, " to be built sequence ",  sequence
-
-                #make the btagging tool for excom jets
-                from BTagging.BTaggingFlags import BTaggingFlags
-                btag_excom = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=excomJetRecToolName.replace("Jets", ""), AddToToolSvc=True, Verbose=True,
-                             options={"name"         : excomBTagName.lower(), 
-                                      "BTagName"     : excomBTagName, 
-                                      "BTagJFVtxName": "JFVtx",                  
-                                      "BTagSVName"   : "SecVtx",                 
-                                      },
-                             SetupScheme = "",
-                             TaggerList = BTaggingFlags.StandardTaggers,
-                             )
-                # running association + b-tagging on subjets now
-                from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc
-                mods = [comTrackAssoc, comMuonAssoc, btag_excom]
-
-                jetrec_btagging = JetRecTool( name = excomJetRecBTagToolName,
-                                          InputContainer  = SubjetContainerName,
-                                          OutputContainer = SubjetContainerName,
-                                          JetModifiers    = mods)
-                jtm.add( jetrec_btagging )
-                ToolSvc += jetrec_btagging
-
-            jetalg_excom = JetAlgorithm(
-                                     name = excomAlgName,
-                                     Tools = [jetrec],
-                                    )
-            sequence += jetalg_excom
-            DFJetAlgs[excomAlgName] = jetalg_excom
-
-            # Reset EL for ExCoM subjets after all of them are built
-            # Otherwise crashing for CoM during TrackToJetAssociation due to failure of finding the large-R parent jet.
+            print " Add algorithm Ex%s "%subjetAlgName, excomAlgName, "to sequence", sequence
+            sequence += DFJetAlgs[excomAlgName]
             sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetName, SGKeys=[SubjetContainerName+"Aux."])
+            sequence += DFJetAlgs[excomAlgName+"_btag"]
+            sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet, SGKeys=[JetCollectionExCoM+"Aux."])
+    else:
+        print " Algorithm Ex%s "%subjetAlgName, excomAlgName, " to be built sequence ", sequence
+        if hasattr(jtm, excomJetRecToolName):
+            print " Ex%sJetRecTool "%subjetAlgName, excomJetRecToolName, " already built sequence ",  sequence
+            jetrec = jtm [ excomJetRecToolName ]
+        else:
+            print " Ex%s tool "%subjetAlgName, excomJetRecToolName, " to be built sequence ", sequence
+            from JetRec.JetRecConf import JetRecTool
+            jetrec = JetRecTool(
+                                 name = excomJetRecToolName,
+                                 OutputContainer = JetCollectionExCoM,
+                                 InputContainer = JetCollectionExCoM,
+                                 JetModifiers = [ExCoMbbTagToolInstance],
+                               )
+            jtm.add( jetrec )
+            ToolSvc += jetrec
 
-            jetalg_excom_btag = JetAlgorithm(
-                                     name = excomAlgName+"_btag",
-                                     Tools = [jetrec_btagging],
-                                    )
-            sequence += jetalg_excom_btag
-            DFJetAlgs[excomAlgName+"_btag"] = jetalg_excom_btag
+        excomJetRecBTagToolName = str( "%s_sub"%excomJetRecToolName )
+        if hasattr(jtm, excomJetRecBTagToolName):
+            print " Ex%sJetRecBTagTool "%subjetAlgName, excomJetRecBTagToolName, " already built sequence ",  sequence
+            jetrec_btagging = jtm [ excomJetRecBTagToolName ]
+        else:
+            print " Ex%sJetRecBTagTool "%subjetAlgName, excomJetRecBTagToolName, " to be built sequence ",  sequence
+
+            #make the btagging tool for excom jets
+            from BTagging.BTaggingFlags import BTaggingFlags
+            btag_excom = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=excomJetRecToolName.replace("Jets", ""), AddToToolSvc=True, Verbose=True,
+                         options={"name"         : excomBTagName.lower(),
+                                  "BTagName"     : excomBTagName,
+                                  "BTagJFVtxName": "JFVtx",
+                                  "BTagSVName"   : "SecVtx",
+                                  },
+                         SetupScheme = "",
+                         TaggerList = BTaggingFlags.StandardTaggers,
+                         )
+            # running association + b-tagging on subjets now
+            from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc, defaultTrackAssoc, defaultMuonAssoc
+            mods = [defaultTrackAssoc, defaultMuonAssoc, btag_excom]
+            if(subjetAlgName=="CoM"): mods = [comTrackAssoc, comMuonAssoc, btag_excom]
+
+            jetrec_btagging = JetRecTool( name = excomJetRecBTagToolName,
+                                      InputContainer  = SubjetContainerName,
+                                      OutputContainer = SubjetContainerName,
+                                      JetModifiers    = mods)
+            jtm.add( jetrec_btagging )
+            ToolSvc += jetrec_btagging
+
+        jetalg_excom = JetAlgorithm(
+                                 name = excomAlgName,
+                                 Tools = [jetrec],
+                                )
+        sequence += jetalg_excom
+        DFJetAlgs[excomAlgName] = jetalg_excom
+
+        # Reset EL for ExCoM subjets after all of them are built
+        # Otherwise crashing for CoM during TrackToJetAssociation due to failure of finding the large-R parent jet.
+        sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetName, SGKeys=[SubjetContainerName+"Aux."])
+
+        jetalg_excom_btag = JetAlgorithm(
+                                 name = excomAlgName+"_btag",
+                                 Tools = [jetrec_btagging],
+                                )
+        sequence += jetalg_excom_btag
+        DFJetAlgs[excomAlgName+"_btag"] = jetalg_excom_btag
+        sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet, SGKeys=[JetCollectionExCoM+"Aux."])
 
     return ExCoMJetCollection__SubJet
 
 ##################################################################
-# Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo 
+# Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
-def addVRJets(sequence, *pos_opts, **opts):
+def addVRJets(sequence, do_ghost=False, *pos_opts, **opts):
     from JetRec.JetRecStandard import jtm
     from AthenaCommon import Logging
 
@@ -273,10 +206,17 @@ def addVRJets(sequence, *pos_opts, **opts):
     VRJetRadius=0.4
     VRJetInputs='pv0track'
     VRJetOptions = dict(
-        ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+        ghostArea = 0 , ptmin = 2000,
         variableRMinRadius = 0.02, variableRMassScale = 30000,
         calibOpt = "none")
 
+    # Change some options if we have do_ghost set to true. Hopefully
+    # this will be the only VR collection in the future.
+    if do_ghost:
+        ghost_suffix = "GhostTag"
+        VRJetName += ghost_suffix
+        VRGhostLabel += ghost_suffix
+        VRJetOptions['ptmin'] = 5000
 
     #==========================================================
     # Build VR jets
@@ -289,16 +229,18 @@ def addVRJets(sequence, *pos_opts, **opts):
     from AthenaCommon.AppMgr import ToolSvc
 
     #make the btagging tool for VR jets
-    btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
-                 options={"name"         : VRJetBTagName.lower(), 
-                          "BTagName"     : VRJetBTagName, 
-                          "BTagJFVtxName": "JFVtx",                  
-                          "BTagSVName"   : "SecVtx",                 
-                          },
-                 SetupScheme = "",
-                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 
-                               'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP']
-                 )
+    btag_vrjets = ConfInst.setupJetBTaggerTool(
+        ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
+        options={"name"         : VRJetBTagName.lower(),
+                 "BTagName"     : VRJetBTagName,
+                 "BTagJFVtxName": "JFVtx",
+                 "BTagSVName"   : "SecVtx",
+        },
+        SetupScheme = "",
+        TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
+                      'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
+        TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
+    )
 
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
 
@@ -328,7 +270,7 @@ def addVRJets(sequence, *pos_opts, **opts):
 
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets]
 
-            if globalflags.DataSource()!='data': 
+            if globalflags.DataSource()!='data':
                 mods.append(jtm.trackjetdrlabeler)
 
             jtm.addJetFinder(
@@ -367,7 +309,7 @@ def addVRJets(sequence, *pos_opts, **opts):
         )
 
     #==========================================================
-    # Re-cluster large-R jet with VR ghost associated on it 
+    # Re-cluster large-R jet with VR ghost associated on it
     # AntiKt10LCTopo hard-coded for now
     #==========================================================
     LargeRJetAlg     = "jfind_akt10lctopo_%s" %(VRJetName.lower())
@@ -391,7 +333,7 @@ def addVRJets(sequence, *pos_opts, **opts):
             print "  Create new ", LargeRJets,"in", sequence
             OutputJets.setdefault("CustomJets" , [] ).append(LargeRJets)
             jtm.gettersMap[newLCTopo] = list(jtm.gettersMap["lctopo"])
-            jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ] 
+            jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ]
             jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , "lctopo_ungroomed",
                              ghostArea = 0 , ptmin = 40000, ptminFilter = 50000,
                              calibOpt = "none")
@@ -411,7 +353,7 @@ def addVRJets(sequence, *pos_opts, **opts):
     applyJetAugmentation('AntiKt10LCTopo', LinkTransferAlg, sequence, jetassoctool)
 
 ##################################################################
-# Build variable-R subjets, recluster AntiKt10TCCjet with ghost VR and copy ghost link to AntiKt10TCC - Copy and pasting this defintion is an ugly temporary solution. We need to properly rewrite this for a more general use and remove the hardcoded jet collection. 
+# Build variable-R subjets, recluster AntiKt10TCCjet with ghost VR and copy ghost link to AntiKt10TCC - Copy and pasting this defintion is an ugly temporary solution. We need to properly rewrite this for a more general use and remove the hardcoded jet collection.
 ##################################################################
 def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", **VRJetOptions):
     from JetRec.JetRecStandard import jtm
@@ -427,13 +369,13 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
 
     #make the btagging tool for VR jets
     btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
-                 options={"name"         : VRJetBTagName.lower(), 
-                          "BTagName"     : VRJetBTagName, 
-                          "BTagJFVtxName": "JFVtx",                  
-                          "BTagSVName"   : "SecVtx",                 
+                 options={"name"         : VRJetBTagName.lower(),
+                          "BTagName"     : VRJetBTagName,
+                          "BTagJFVtxName": "JFVtx",
+                          "BTagSVName"   : "SecVtx",
                           },
                  SetupScheme = "",
-                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 
+                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
                                'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                  )
 
@@ -453,8 +395,8 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
         else:
             print "   Create JetRecTool", VRJetRecToolName
             #can only run trackjetdrlabeler with truth labels, so MC only
-            if globalflags.DataSource()!='data': 
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[trackassoc, muonassc, btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions) 
+            if globalflags.DataSource()!='data':
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[trackassoc, muonassc, btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions)
             else:
                 jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[trackassoc, muonassoc, btag_vrjets], **VRJetOptions)
 
@@ -485,7 +427,7 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
         )
 
     #==========================================================
-    # Re-cluster large-R jet with VR ghost associated on it 
+    # Re-cluster large-R jet with VR ghost associated on it
     # AntiKt10TCC hard-coded for now
     #==========================================================
     LargeRJetAlg     = "jfind_akt10trackcalocluster_%s" %(VRJetName.lower())
@@ -509,7 +451,7 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
             print "  Create new ", LargeRJets,"in", sequence
             OutputJets.setdefault("CustomJets" , [] ).append(LargeRJets)
             jtm.gettersMap[newLCTopo] = list(jtm.gettersMap["tcc"])
-            jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ] 
+            jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ]
             jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , "tcc_ungroomed",
                              ghostArea = 0 , ptmin = 40000, ptminFilter = 50000,
                              calibOpt = "none")
@@ -527,7 +469,7 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
 
     jetassoctool = getJetExternalAssocTool('AntiKt10TrackCaloCluster', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
     applyJetAugmentation('AntiKt10TrackCaloCluster', LinkTransferAlg, sequence, jetassoctool)
-    
+
 ##################################################################
 # Build variable-R calorimeter jets
 ##################################################################
@@ -641,3 +583,47 @@ def addHbbTagger(
         logger.info('{} already scheduled for {}'.format(
             tagger_alg_name, jet_collection))
 
+#====================================================================
+# Large-R RC jets w/ ExKt 2 & 3 subjets
+#===================================================================
+def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
+   DFisMC = (globalflags.DataSource()=='geant4')
+   jetToolName = "DFReclustertingTool"
+   algoName = "DFJetReclusteringAlgo"
+   
+   ExKtJetCollection__FatJet = "AntiKt8EMTopoJets"
+   ExKtJetCollection__SubJet = []
+
+   if jetToolName not in DFJetAlgs:
+     ToolSvc += CfgMgr.JetReclusteringTool(jetToolName,InputJetContainer="AntiKt4EMTopoJets", OutputJetContainer="AntiKt8EMTopoJets")
+     getattr(ToolSvc,jetToolName).ReclusterRadius = 0.8
+     getattr(ToolSvc,jetToolName).InputJetPtMin = 0
+     getattr(ToolSvc,jetToolName).RCJetPtMin = 1
+     getattr(ToolSvc,jetToolName).RCJetPtFrac = 0
+     getattr(ToolSvc,jetToolName).DoArea = False
+     getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
+     getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
+     if(DFisMC):
+       getattr(ToolSvc,jetToolName).GhostTruthInputBContainer = "BHadronsFinal"
+       getattr(ToolSvc,jetToolName).GhostTruthInputCContainer = "CHadronsFinal"
+
+     sequence += CfgMgr.AthJetReclusteringAlgo(algoName, JetReclusteringTool = getattr(ToolSvc,jetToolName))
+     DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
+   
+   # build subjets
+   GhostLabels = ["GhostTrack"]
+   if(DFisMC):
+     GhostLabels += ["GhostBHadronsFinal"]
+     GhostLabels += ["GhostCHadronsFinal"]
+   # N=2 subjets
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True, ExGhostLabels=GhostLabels)
+   # N=3 subjets
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True, ExGhostLabels=GhostLabels)
+
+   sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
+
+   from BTagging.BTaggingFlags import BTaggingFlags
+   BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__FatJet ]
+   BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__SubJet ]
+
+   sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterBtag", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])

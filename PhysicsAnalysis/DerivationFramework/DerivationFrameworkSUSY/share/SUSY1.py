@@ -354,7 +354,7 @@ SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "BTagging_AntiKt2Track",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY1SlimmingHelper.AllVariables = [
-  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
+  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKtVR30Rmax4Rmin02TrackJets",
   #"AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets",
   "MET_Track"
 ]
@@ -362,6 +362,8 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
 				      "Photons.author.Loose.Tight",
 				      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
+                                      "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
+              "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m",
                                       # TODO: .DFCommonJets_Jvt",
 				      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
 				      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",

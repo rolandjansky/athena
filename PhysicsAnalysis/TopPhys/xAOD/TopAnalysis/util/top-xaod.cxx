@@ -273,9 +273,12 @@ int main(int argc, char** argv) {
     if (!topConfig->isTruthDxAOD())
       top::check( systObjMaker->initialize() , "Failed to initialize systObjMaker" );
 
-    //setup object definitions
-    std::unique_ptr<top::TopObjectSelection> objectSelection(top::loadObjectSelection(topConfig));
-    objectSelection->print(std::cout);
+    //setup object definitions - not used in HLUpgrade tools
+    std::unique_ptr<top::TopObjectSelection> objectSelection;
+    if(!topConfig->HLLHC()) {
+      objectSelection.reset(top::loadObjectSelection(topConfig));
+      objectSelection->print(std::cout);
+    }
 
     //setup event-level cuts
     top::EventSelectionManager eventSelectionManager(settings->selections(), outputFile.get(), libraryNames, topConfig);
@@ -333,6 +336,7 @@ int main(int argc, char** argv) {
     // make top::Event objects
     std::unique_ptr<top::TopEventMaker> topEventMaker( new top::TopEventMaker( "top::TopEventMaker" ) );
     top::check(topEventMaker->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopEventMaker");
+    top::check(topEventMaker->initialize(),"Failed to initialize top::TopEventMaker");
     // Debug messages?
     // topEventMaker.msg().setLevel(MSG::DEBUG);
 
@@ -369,10 +373,14 @@ int main(int argc, char** argv) {
     bool recalc_LHE3 = false;
     int dsid = 0;
     int isAFII = topConfig->isAFII();
+    std::string generators = topConfig->getGenerators();
+    std::string AMITag = topConfig->getAMITag();
     ULong64_t totalEvents = 0;
     ULong64_t totalEventsInFiles = 0;
     sumWeights->Branch("dsid", &dsid);
     sumWeights->Branch("isAFII", &isAFII);
+    sumWeights->Branch("generators", &generators);
+    sumWeights->Branch("AMITag", &AMITag);
     sumWeights->Branch("totalEventsWeighted", &totalEventsWeighted);
     if (topConfig->doMCGeneratorWeights()) {// the main problem is that we don't have the list of names a priori
       sumWeights->Branch("totalEventsWeighted_mc_generator_weights", &totalEventsWeighted_LHE3);
@@ -402,7 +410,7 @@ int main(int argc, char** argv) {
 
     unsigned int totalYieldSoFar = 0;
     unsigned int skippedEventsSoFar = 0;
-    unsigned int eventSavedReco(0),eventSavedRecoLoose(0),eventSavedTruth(0),eventSavedParticle(0);
+    unsigned int eventSavedReco(0),eventSavedRecoLoose(0),eventSavedTruth(0),eventSavedParticle(0),eventSavedUpgrade(0);
     for (const auto& filename : filenames) {
         if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun() ) break;
         std::cout << "Opening " << filename << std::endl;
@@ -449,7 +457,7 @@ int main(int argc, char** argv) {
             // skip RDO and ESD numbers, which are nonsense; and
             // skip the derivation number, which is the one after skimming
             // we want the primary xAOD numbers
-            if (cbk->inputStream() == "StreamAOD" && cbk->name() == "AllExecutedEvents") {
+            if ((cbk->inputStream() == "StreamAOD" || (topConfig->HLLHC() && cbk->inputStream() == "StreamDAOD_TRUTH1")) && cbk->name() == "AllExecutedEvents") {
               double sumOfEventWeights = cbk->sumOfEventWeights();
               ULong64_t nEvents = cbk->nAcceptedEvents();
               if (cbk->cycle() > maxCycle) {
@@ -458,7 +466,7 @@ int main(int argc, char** argv) {
                 maxCycle = cbk->cycle();
               }
             }
-            else if (cbk->inputStream() == "StreamAOD" && cbk->name().find("LHE3Weight_") != std::string::npos
+            else if ((cbk->inputStream() == "StreamAOD" || (topConfig->HLLHC() && cbk->inputStream() == "StreamDAOD_TRUTH1")) && cbk->name().find("LHE3Weight_") != std::string::npos
               && topConfig->doMCGeneratorWeights()) {
               double sumOfEventWeights = cbk->sumOfEventWeights();
               std::string name=cbk->name();
@@ -596,6 +604,7 @@ int main(int argc, char** argv) {
 
                   if ( saveEventInOutputFile ) {
                   eventSaver->saveUpgradeEvent( upgradeEvent );
+                  ++eventSavedUpgrade;
                 }
               }
 
@@ -603,7 +612,7 @@ int main(int argc, char** argv) {
 
               // --------------------------------------------------
               // If the truth loader is active, perform truth loading.
-              if ( particleLevelLoader.active() && !topConfig->HLLHC() ){
+              if (particleLevelLoader.active()){
                 // --------------------------------------------------
                 // Get the top::TruthEvent for the current event
                 top::ParticleLevelEvent particleLevelEvent = particleLevelLoader.load();
@@ -893,6 +902,9 @@ int main(int argc, char** argv) {
       std::cout << "Events saved to output file truth tree : "<<eventSavedTruth << "\n";
       if (particleLevelLoader.active()) {
         std::cout << "Events saved to output file particle level tree : "<<eventSavedParticle << "\n";
+      }
+      if (upgradeLoader.active()) {
+        std::cout << "Events saved to output file upgrade tree : "<<eventSavedUpgrade << "\n";
       }
     }
     std::cout << "Total sum-of-weights (for normalization) : " 

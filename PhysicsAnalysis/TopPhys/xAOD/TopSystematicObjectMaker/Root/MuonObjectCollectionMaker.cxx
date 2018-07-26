@@ -7,6 +7,7 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
 
+#include "AthContainers/AuxElement.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -30,8 +31,11 @@ namespace top{
     m_isolationTool_Loose("CP::IsolationTool_Loose"),
     m_isolationTool_Gradient("CP::IsolationTool_Gradient"),
     m_isolationTool_GradientLoose("CP::IsolationTool_GradientLoose"),    
+    m_isolationTool_FixedCutTight("CP::IsolationTool_FixedCutTight"),
     m_isolationTool_FixedCutTightTrackOnly("CP::IsolationTool_FixedCutTightTrackOnly"),
     m_isolationTool_FixedCutLoose("CP::IsolationTool_FixedCutLoose"),
+    m_isolationTool_FixedCutHighMuTight("CP::IsolationTool_FixedCutHighMuTight"),
+    m_isolationTool_FixedCutHighMuLoose("CP::IsolationTool_FixedCutHighMuLoose"),
     m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto")
   {
     declareProperty( "config" , m_config );  
@@ -42,8 +46,11 @@ namespace top{
     declareProperty( "IsolationTool_Loose" ,                  m_isolationTool_Loose );
     declareProperty( "IsolationTool_Gradient" ,               m_isolationTool_Gradient );
     declareProperty( "IsolationTool_GradientLoose" ,          m_isolationTool_GradientLoose );
+    declareProperty( "IsolationTool_FixedCutTight" ,          m_isolationTool_FixedCutTight );
     declareProperty( "IsolationTool_FixedCutTightTrackOnly" , m_isolationTool_FixedCutTightTrackOnly );
     declareProperty( "IsolationTool_FixedCutLoose" ,          m_isolationTool_FixedCutLoose );
+    declareProperty( "IsolationTool_FixedCutHighMuTight" ,    m_isolationTool_FixedCutHighMuTight );
+    declareProperty( "IsolationTool_FixedCutHighMuLoose" ,    m_isolationTool_FixedCutHighMuLoose );
     declareProperty( "MuonSelectionToolVeryLooseVeto" ,       m_muonSelectionToolVeryLooseVeto );
   }
 
@@ -58,8 +65,11 @@ namespace top{
     top::check( m_isolationTool_Loose.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_Gradient.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_GradientLoose.retrieve() , "Failed to retrieve Isolation Tool" );    
+    top::check( m_isolationTool_FixedCutTight.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_FixedCutTightTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_isolationTool_FixedCutLoose.retrieve() , "Failed to retrieve Isolation Tool" );
+    top::check( m_isolationTool_FixedCutHighMuTight.retrieve() , "Failed to retrieve Isolation Tool" );
+    top::check( m_isolationTool_FixedCutHighMuLoose.retrieve() , "Failed to retrieve Isolation Tool" );
     top::check( m_muonSelectionToolVeryLooseVeto.retrieve() , "Failed to retrieve Selection Tool" );
 
     ///-- Set Systematics Information --///
@@ -87,6 +97,10 @@ namespace top{
     
   StatusCode MuonObjectCollectionMaker::execute(bool executeNominal)
   {
+
+    static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt1000("ptvarcone30_TightTTVA_pt1000");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuTight("AnalysisTop_Isol_FixedCutHighMuTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuLoose("AnalysisTop_Isol_FixedCutHighMuLoose");
 
     const xAOD::EventInfo* eventInfo(nullptr);
     top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
@@ -160,10 +174,12 @@ namespace top{
         ///-- Isolation selection --///
         char passIsol_LooseTrackOnly(0),passIsol_Loose(0),passIsol_FixedCutTightTrackOnly(0);
         char passIsol_Gradient(0),passIsol_GradientLoose(0),passIsol_FixedCutLoose(0);
+        char passIsol_FixedCutTight(0);
         if (m_isolationTool_LooseTrackOnly->accept( *muon )) {passIsol_LooseTrackOnly = 1;}
         if (m_isolationTool_Loose->accept( *muon )) {passIsol_Loose = 1;}
         if (m_isolationTool_Gradient->accept( *muon )) {passIsol_Gradient = 1;}
         if (m_isolationTool_GradientLoose->accept( *muon )) {passIsol_GradientLoose = 1;}
+	if (m_isolationTool_FixedCutTight->accept( *muon )) {passIsol_FixedCutTight = 1;}
 	if (m_isolationTool_FixedCutTightTrackOnly->accept( *muon )) {passIsol_FixedCutTightTrackOnly = 1;}
 	if (m_isolationTool_FixedCutLoose->accept( *muon )) {passIsol_FixedCutLoose = 1;}
 
@@ -171,8 +187,15 @@ namespace top{
         muon->auxdecor<char>("AnalysisTop_Isol_Loose") = passIsol_Loose;
         muon->auxdecor<char>("AnalysisTop_Isol_Gradient") = passIsol_Gradient;
         muon->auxdecor<char>("AnalysisTop_Isol_GradientLoose") = passIsol_GradientLoose; 	
+	muon->auxdecor<char>("AnalysisTop_Isol_FixedCutTight") = passIsol_FixedCutTight;
 	muon->auxdecor<char>("AnalysisTop_Isol_FixedCutTightTrackOnly") = passIsol_FixedCutTightTrackOnly;
 	muon->auxdecor<char>("AnalysisTop_Isol_FixedCutLoose") = passIsol_FixedCutLoose;
+
+        if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon)) {
+          AnalysisTop_Isol_FixedCutHighMuTight(*muon) = (m_isolationTool_FixedCutHighMuTight->accept(*muon) ? 1 : 0);
+          AnalysisTop_Isol_FixedCutHighMuLoose(*muon) = (m_isolationTool_FixedCutHighMuLoose->accept(*muon) ? 1 : 0);
+        }
+
 	// PromptLeptonIsolation - Some protection incase things change in R21
 	if(muon->isAvailable<float>("PromptLeptonIso_TagWeight")){
 	  muon->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = (muon->auxdata<float>("PromptLeptonIso_TagWeight") < -0.5) ? 1 : 0;

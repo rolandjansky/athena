@@ -3,7 +3,7 @@ TauSelectionTool
 ================
 
 :authors: Dirk Duschinger, David Kirchmeier
-:contact: dirk.duschinger@cern.ch, david.kirchmeier@cern.ch
+:contact: david.kirchmeier@cern.ch
 
 .. contents:: Table of contents
 
@@ -27,34 +27,6 @@ This creates the tool with the recommended cuts, which are defined in the
 default config file
 /afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/TauAnalysisTools/00-00-30/Selection/recommended_selection_mc15.conf
 (or in newer versions).
-
-------------------
-Release Check
-------------------
-
-**Note:** this release check is not needed in 21 releases anymore. The properties which are discussed below have no effect anymore and will be removed in one of the next updates of TauAnalysisTools. 
-
-Since TauAnalysisTools-00-02-43 an automatic release check is implemented. 
-For samples which are not AODFix (before 20.7.8.5, excluding 20.7.8.2) the electron overlap removal is re-run. For AODFix samples (20.7.8.5 and above)
-the available electron overlap removal is used. One can turn off this release 
-check via::
-   
-   TauSelTool.setProperty("IgnoreAODFixCheck", true);
-
-In that case one can force the electron overlap-removal to be 
-re-calculated via::
-  
-   TauSelTool.setProperty("RecalcEleOLR", true);
-
-**Note:** that in case one wants to use the electron overlap-removal `EleOLR` in
- not AOD fixed samples it
- is recommended to run the `TauOverlappingElectronLLHDecorator
- <README-TauOverlappingElectronLLHDecorator.rst>`_ before calling the *accept*
- function of the TauSelectionTool. However, if this is not done, the tool uses
- the TauOverlappingElectronLLHDecorator internally to decorate the tau with the
- electron likelihood score. In this case it is recommended to call
- intializeEvent() in each new event, otherwise the electron container will be
- retrieved for each tau, which is overhead and much slower.
 
 ------------------
 Tool configuration
@@ -154,23 +126,23 @@ setup:
      - accepting taus with the given track multiplicity
      - if ``NTrack`` is configured, ``NTracks`` configuration wont be considered
 
-   * - ``CutJetBDTScore``
-     - ``JetBDTRegion``
+   * - ``CutJetBDTScoreSigTrans``
+     - ``JetBDTSigTransRegion``
      - ``std::vector<double>``
      - accepting taus within jet BDT score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
-     -
+     - ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
 
    * -
-     - ``JetBDTMin``
+     - ``JetBDTSigTransMin``
      - ``double``
      - accepting taus with a jet BDT score above a lower bound
-     - if ``JetBDTMin`` is configured, ``JetBDTRegion`` configuration wont be considered
+     - if ``JetBDTMin`` is configured, ``JetBDTRegion`` configuration wont be considered. ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
 
    * - 
-     - ``JetBDTMax``
+     - ``JetBDTSigTransMax``
      - ``double``
      - accepting taus with a jet BDT score below an upper bound
-     - if ``JetBDTMax`` is configured, ``JetBDTRegion`` configuration wont be considered
+     - if ``JetBDTMax`` is configured, ``JetBDTRegion`` configuration wont be considered. ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
 
    * - ``CutJetIDWP``
      - ``JetIDWP``

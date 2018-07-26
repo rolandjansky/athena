@@ -38,6 +38,15 @@ namespace CP
                    const std::string& propertyDescription);
 
 
+    /// \brief whether we have a name configured
+  public:
+    bool empty () const noexcept;
+
+    /// \brief !empty()
+  public:
+    explicit operator bool () const noexcept;
+
+
     /// \brief retrieve the object for the given name
   public:
     ::StatusCode getCopy (T*& object,

@@ -49,6 +49,7 @@
 
 #include "TObject.h"
 #include "TTree.h"
+#include "TRegexp.h"
 CLASS_DEF( TObject,    74939790 , 1 )
 #include "AthenaRootComps/TransferTree.h"
 
@@ -287,12 +288,31 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
   declareProperty( "ActiveBranches",
                    m_activeBranchNames,
                    "List of branch names to activate" );
+  
+  declareProperty( "CreateEventInfo", m_createEventInfo=false, "Are EventInfo objects created per event or not? .. there is overhead to their creation" );
+  
+  declareProperty( "IgnoreMissingTrees", m_ignoreMissingTrees=false, "If True, missing trees will not terminate the event loop" );
 }
 
 // Destructor
 ///////////////
 RootNtupleEventSelector::~RootNtupleEventSelector()
 {}
+
+
+void getTreeNames( TList& keys , std::set<std::string>& treeNames, const std::string& path ) {
+  TIter keyIter(&keys);
+  TKey* key;
+  while( (key = (TKey*)keyIter()) ) {
+    if(strcmp(key->GetClassName(),"TTree")==0) {
+      treeNames.insert(path+key->GetName());
+    } else if(strcmp(key->GetClassName(),"TDirectoryFile")==0) {
+      TDirectory* dir = static_cast<TDirectory*>(key->ReadObj());
+      TList* dirKeys = dir->GetListOfKeys();
+      if(dirKeys) getTreeNames( *dirKeys , treeNames, path + key->GetName() + "/" );
+    }
+  }
+}
 
 StatusCode RootNtupleEventSelector::initialize()
 {
@@ -339,6 +359,57 @@ StatusCode RootNtupleEventSelector::initialize()
       ("Selector configured to read [" << nbrInputFiles << "] file(s)..."
        << endmsg
        << "                      TTree [" << m_tupleName.value() << "]");
+  }
+  
+  
+  bool hasWildcards(false);
+  for(auto& tupleName : m_tupleNames) {
+    if(tupleName.find("*")!=std::string::npos) {
+      hasWildcards=true; break;
+    }
+  }
+  
+  if(hasWildcards) {
+    //use the all files to resolve the tree names ...
+
+    std::set<std::string> treeNames;
+    for(unsigned int i=0;i<m_inputCollectionsName.value().size();i++) {
+      std::unique_ptr<TFile> theFile( TFile::Open( m_inputCollectionsName.value()[i].c_str() ) );
+      if(!theFile) {
+        ATH_MSG_FATAL("Could not open the first input file: " << m_inputCollectionsName.value()[i]);
+        return StatusCode::FAILURE;
+      }
+      TList* keys = theFile->GetListOfKeys();
+      if(keys) getTreeNames( *keys, treeNames, "" );
+      theFile->Close();
+    }
+    
+    
+    
+   
+    
+    
+    
+    std::vector<std::string> foundTupleNames;
+    for(auto& tupleName : m_tupleNames) {
+      TRegexp re(tupleName.c_str(),true);
+      for(auto& treeName : treeNames) {
+        Ssiz_t tmp;
+        if(re.Index(treeName,&tmp)==-1) continue;
+        foundTupleNames.push_back(treeName);
+        ATH_MSG_INFO("Will read tree: " << treeName);
+      }
+    }
+    
+    m_tupleNames = foundTupleNames;
+    
+    if ( m_tupleNames.empty() ) {
+      ATH_MSG_ERROR
+        ("No matching trees found");
+      return StatusCode::FAILURE;
+    } 
+    
+    
   }
 
   {
@@ -419,6 +490,12 @@ StatusCode RootNtupleEventSelector::initialize()
   CHECK( ppSvc.retrieve() );
   ppSvc->addProvider( this );
 
+
+  if(!m_createEventInfo) {
+    //ensure the eventloopmgr has the DoLiteLoop property set, since EventInfo objects will not be created ..
+    ServiceHandle<IProperty> evtLoop("AthenaEventLoopMgr",name());
+    CHECK( evtLoop->setProperty( "DoLiteLoop", "True" ) );
+  }
 
 
   return StatusCode::SUCCESS;
@@ -525,6 +602,10 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
         const std::string& fname = fnames[fidx];
         tree = fetchNtuple(fname, m_tupleNames[rctx->tupleIndex()]);
         if (!tree) {
+          if(m_ignoreMissingTrees) {
+            ATH_MSG_WARNING("Unable to get tree: " << m_tupleNames[rctx->tupleIndex()] << " from file: " << fname);
+            fidx++;continue;
+          }
           throw "RootNtupleEventSelector: Unable to get tree";
         }
         rctx->setTree(tree);
@@ -580,31 +661,32 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
 
     // std::cout << "--event-info--" << std::endl;
     // event info
-    EventType* evtType = new EventType;
-    const std::size_t runNbr = 0;
-    EventInfo* evtInfo = new EventInfo(new EventID(runNbr, m_curEvt-1, 0), evtType);
-    if ( !m_dataStore->record( evtInfo, "TTreeEventInfo" ).isSuccess() ) {
-      ATH_MSG_ERROR ("Could not record TTreeEventInfo !");
-      delete evtInfo; evtInfo = 0;
-      return StatusCode::FAILURE;
+    if(m_createEventInfo) {
+        EventType* evtType = new EventType;
+        const std::size_t runNbr = 0;
+        EventInfo* evtInfo = new EventInfo(new EventID(runNbr, m_curEvt-1, 0), evtType);
+        if ( !m_dataStore->record( evtInfo, "TTreeEventInfo" ).isSuccess() ) {
+          ATH_MSG_ERROR ("Could not record TTreeEventInfo !");
+          delete evtInfo; evtInfo = 0;
+          return StatusCode::FAILURE;
+        }
+    
+        {
+          auto ei = std::make_unique<xAOD::EventInfo>();
+          auto ei_store = std::make_unique<xAOD::EventAuxInfo>();
+          ei->setStore (ei_store.get());
+          ei->setRunNumber (runNbr);
+          ei->setEventNumber (global_entry);
+    
+          static const SG::AuxElement::Accessor<std::string> tupleName ("tupleName");
+          static const SG::AuxElement::Accessor<std::string> collName ("collectionName");
+          tupleName(*ei) = m_tupleNames[tupleIdx];
+          collName(*ei) = m_inputCollectionsName.value()[m_collIdx];
+          
+          CHECK( m_dataStore->record (std::move(ei), "EventInfo") );
+          CHECK( m_dataStore->record (std::move(ei_store), "EventInfoAux.") );
+        }
     }
-
-    {
-      auto ei = std::make_unique<xAOD::EventInfo>();
-      auto ei_store = std::make_unique<xAOD::EventAuxInfo>();
-      ei->setStore (ei_store.get());
-      ei->setRunNumber (runNbr);
-      ei->setEventNumber (global_entry);
-
-      static const SG::AuxElement::Accessor<std::string> tupleName ("tupleName");
-      static const SG::AuxElement::Accessor<std::string> collName ("collectionName");
-      tupleName(*ei) = m_tupleNames[tupleIdx];
-      collName(*ei) = m_inputCollectionsName.value()[m_collIdx];
-      
-      CHECK( m_dataStore->record (std::move(ei), "EventInfo") );
-      CHECK( m_dataStore->record (std::move(ei_store), "EventInfoAux.") );
-    }
-
     // now the data has been loaded into the store, we can
     // notify clients and fire the BeginInputFile incident
    //MOVED TO handle method
@@ -1115,7 +1197,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
     }
   }
   if (!f || f->IsZombie()) {
-    ATH_MSG_ERROR("could not open next file in input collection ["
+    if(!m_ignoreMissingTrees) ATH_MSG_ERROR("could not open next file in input collection ["
                   << fname << "]");
     if (f) {
       f->Close();
@@ -1123,9 +1205,9 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
     return tree;
   }
   // std::cout << "::TFile::GetTree(" << m_tupleName << ")..." << std::endl;
-  tree = (TTree*)f->Get(tupleName.c_str());
+  tree = dynamic_cast<TTree*>(f->Get(tupleName.c_str()));
   if (!tree) {
-    ATH_MSG_ERROR("could not retrieve tree [" << tupleName << "]"
+    if(!m_ignoreMissingTrees) ATH_MSG_ERROR("could not retrieve tree [" << tupleName << "]"
                   << " from file [" << fname << "]");
     f->Close();
     return tree;
@@ -1150,7 +1232,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
 
 void RootNtupleEventSelector::addMetadataFromDirectoryName(const std::string &metadirname, TFile *fileObj, const std::string &prefix) const
 {
-  TDirectoryFile *metadir = (TDirectoryFile*)fileObj->Get(metadirname.c_str());
+  TDirectoryFile *metadir = dynamic_cast<TDirectoryFile*>(fileObj->Get(metadirname.c_str()));
   if (!metadir) return;
   addMetadataFromDirectory(metadir, prefix);
 }
@@ -1238,7 +1320,7 @@ RootNtupleEventSelector::do_init_io()
 
   m_tuple = fetchNtuple(m_inputCollectionsName.value()[m_collIdx],
                         m_tupleNames[0]);
-  if (!m_tuple) {
+  if (!m_tuple && !m_ignoreMissingTrees) {
     throw "RootNtupleEventSelector: Unable to fetch Ntuple";
   }
 
@@ -1273,7 +1355,7 @@ RootNtupleEventSelector::find_coll_idx (int evtidx,
       if (itr.min_entries == -1) {
         TTree *tree = fetchNtuple(m_inputCollectionsName.value()[icoll],
                                   m_tupleNames[ituple]);
-        if (tree) {
+        if (tree || m_ignoreMissingTrees) {
           long offset = 0;
           if (icoll > 0) {
             offset = m_collEvts[ituple][icoll-1].max_entries;
@@ -1281,7 +1363,7 @@ RootNtupleEventSelector::find_coll_idx (int evtidx,
           else if (ituple > 0) {
             offset = m_collEvts[ituple-1].back().max_entries;
           }
-          itr.entries = tree->GetEntriesFast();
+          itr.entries = (tree) ? tree->GetEntriesFast() : 0;
           itr.min_entries = offset;
           itr.max_entries = offset + itr.entries;
         } else {

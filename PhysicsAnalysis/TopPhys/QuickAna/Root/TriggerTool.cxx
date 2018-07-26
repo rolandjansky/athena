@@ -356,10 +356,13 @@ namespace ana
                m->pt() > m_TriggerPtThreshold*1000. ){
             my_muons.push_back( m ); // 1.05*online pt requirement
             //// As long as we are here, get the efficiency
-            double trig_eff = 1.;
+            double trig_eff_mc = 1., trig_eff_data = 1.;
             QA_CHECK_WEIGHT
-              ( double , trig_eff, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff,m_muon_trig_str,m_isData) );
-            m->auxdata<double>(m_groupName + "_Mu_TrigEff") = trig_eff;
+              ( double , trig_eff_mc, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff_mc,m_muon_trig_str,false) );
+            m->auxdata<double>(m_groupName + "_Mu_TrigEff_MC") = trig_eff_mc;
+            QA_CHECK_WEIGHT
+              ( double , trig_eff_data, muonSFToolForThisYear(my_runNumber)->getTriggerEfficiency(*m,trig_eff_data,m_muon_trig_str,true) );
+            m->auxdata<double>(m_groupName + "_Mu_TrigEff_Data") = trig_eff_data;
           }
         }
       }

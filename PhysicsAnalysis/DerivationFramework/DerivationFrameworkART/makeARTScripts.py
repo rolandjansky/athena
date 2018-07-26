@@ -16,13 +16,13 @@ formatList = ['PHYSVAL',
               'HIGG8D1',
               'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9',
               'TAUP1', 'TAUP2', 'TAUP3', 'TAUP4',
-              'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY13', 'SUSY14', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18',
+              'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18',
               'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23','EXOT24','EXOT25','EXOT26',
               'JETM1', 'JETM2', 'JETM3', 'JETM4', 'JETM5', 'JETM6', 'JETM7', 'JETM8', 'JETM9', 'JETM10', 'JETM11', 'JETM12', 'JETM13',
               'IDTR1',
               'EGAM1', 'EGAM2', 'EGAM3', 'EGAM4', 'EGAM5', 'EGAM6', 'EGAM7', 'EGAM8', 'EGAM9',
               'FTAG1', 'FTAG2', 'FTAG3', 'FTAG4', 'FTAG5',
-              'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12','BPHY15',
+              'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12', 'BPHY14','BPHY15','BPHY16',
               'MUON0', 'MUON1', 'MUON2', 'MUON3', 'MUON4',
               'TCAL1'
               #'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
@@ -38,12 +38,11 @@ trainList = [
               ["EGAM9","EXOT20","SUSY11","EXOT6","SUSY2","HIGG4D1","BPHY1","BPHY4"],
               ["SUSY12","STDM3","EXOT15","JETM3","EXOT19","HIGG4D6","HIGG6D1","HIGG1D1"],
               ["TAUP1","HIGG4D5","JETM4","TOPQ2","TOPQ5","HIGG4D3","SUSY16","EXOT7"],
-              ["STDM2","SUSY18","EXOT3","EGAM1","EGAM5","EXOT2","SUSY3","EXOT5"],
+              ["STDM2","SUSY18","EXOT3","EGAM1","EGAM5","EXOT2","SUSY3","EXOT5","HIGG6D2"],
               ["EXOT22","SUSY4","JETM11","EXOT21","SUSY1","STDM7","SUSY8","SUSY10"],
               ["EXOT13","SUSY5","SUSY7","EXOT8","EXOT4","HIGG4D2"],
-              ["HIGG8D1","JETM6","MUON1","SUSY6","HIGG2D1","JETM1","MUON0","TOPQ1"],
+              ["HIGG8D1","JETM6","MUON1","SUSY6","HIGG2D1","JETM1","MUON0","TOPQ1","TAUP3"],
               ["JETM9","STDM4","TOPQ4","FTAG4"],
-              ["HIGG6D2","TAUP3"]
               # All FTAG run as singletons
               # Special streams (BLS/ZB) not run as trains
             ]
@@ -54,6 +53,7 @@ truthLabel = "mc15"
 delayedStreamLabel = "data16DELAYED"
 blsStreamLabel = "data17BPHYSLS"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
+mcFileBPHY14 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.13151497._000097.pool.root.1"
 mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000056.DAOD_RPVLL.pool.root"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data18_13TeV.00348403.physics_Main.merge.AOD.f920_m1947._lb0829._0001.1"
@@ -150,6 +150,8 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,mcLabel,mcFile,False,True,"500")
          elif formatName=="BPHY8":
             generateText(formatName,mcLabel,mcFileBPHY8,False,True,"-1")
+         elif formatName=="BPHY14":
+            generateText(formatName,mcLabel,mcFileBPHY14,False,True,"-1")
          else: generateText(formatName,mcLabel,mcFile,False,True,"-1")
 
 if (makeTruthDAODs):

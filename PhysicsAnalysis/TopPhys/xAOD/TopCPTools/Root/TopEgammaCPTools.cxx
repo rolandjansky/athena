@@ -216,8 +216,8 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   electronID.replace(electronID.find("LH"), 2, "LLH");  // that way people do not have to change their cuts file
   std::string electronIDLoose = m_config->electronIDLoose();
   electronIDLoose.replace(electronIDLoose.find("LH"), 2, "LLH"); // that way people do not have to change their cuts file
-  std::string electronIsolation = m_config->electronIsolation();
-  std::string electronIsolationLoose = m_config->electronIsolationLoose();
+  std::string electronIsolation = m_config->electronIsolationSF();
+  std::string electronIsolationLoose = m_config->electronIsolationSFLoose();
 
   // Retrieve full path to maps for different types of tool
   m_electronEffSFRecoFile         = electronSFMapFilePath("reco");
@@ -231,20 +231,6 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   m_electronEffSFTriggerLooseFile = electronSFMapFilePath("trigger");
   m_electronEffTriggerLooseFile   = electronSFMapFilePath("trigger");
   m_electronEffSFIsoLooseFile     = electronSFMapFilePath("isolation");
-
-  // Perform check on the isolation WP and identify if there are cases where the SF is not available
-  if( (electronIsolation != "None" && m_electronEffSFIsoFile == "") || (electronIsolationLoose != "None" && m_electronEffSFIsoLooseFile == "") ){
-    ATH_MSG_WARNING("Electron isolation configuration not found");
-    if (m_config->electronIsoSFs()) {
-      ATH_MSG_WARNING("If you really want to run with this electron "
-                      "ID/Isolation setup then you can add:"
-                      "\tElectronIsoSFs False\tto your config file");
-      return StatusCode::FAILURE;
-    }
-    else{
-      ATH_MSG_INFO("Isolation SFs will be set to 1.0");
-    }
-  }
 
   // Define the trigger string for scale factors
   const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
@@ -395,16 +381,16 @@ std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
 
     std::string file_path;
     if(type == "reco") {
-      file_path = "map5.txt";
+      file_path = "map6.txt";
     }
     else if(type == "ID"){
-      file_path = "map5.txt";
+      file_path = "map6.txt";
     }
     else if(type == "isolation"){
-      file_path = "map5.txt";
+      file_path = "map6.txt";
     }
     else if(type == "trigger"){
-      file_path = "map5.txt";
+      file_path = "map6.txt";
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");

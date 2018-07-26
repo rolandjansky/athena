@@ -42,7 +42,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
   }
 
   m_tagger          = ""; // Extract in the loop
-  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root";
+  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root";
   // This ordering needs to match the indexing in TDP (for missing cases, we use default which gives a MC/MC of 1 as its the same as the eff used in the calibration
   // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1)
   m_efficiency_maps = "default;410558;410501;410250;default";
@@ -247,10 +247,10 @@ StatusCode FlavorTaggingCPTools::initialize() {
         top::check(btagsel->setProperty("OperatingPoint", btagWP),
                   "Failed to set b-tagging selection tool OperatingPoint");
         top::check(btagsel->setProperty("MinPt",
-                                        static_cast<double>(m_config->jetPtcut())),
+                                        static_cast<double>(m_config->trackJetPtcut())),
                   "Failed to set b-tagging selection tool MinPt");
         top::check(btagsel->setProperty("MaxEta",
-                                        static_cast<double>(m_config->jetEtacut())),
+                                        static_cast<double>(m_config->trackJetEtacut())),
                   "Failed to set b-tagging selection tool MaxEta");
         top::check(btagsel->initialize(),
                   "Failed to initialize b-tagging selection tool");

@@ -8,6 +8,7 @@ if not 'TUPLENAME' in dir():
 import AthenaRootComps.ReadAthenaRoot
 svcMgr.EventSelector.InputCollections = FNAMES
 svcMgr.EventSelector.TupleName = TUPLENAME
+svcMgr.EventSelector.CreateEventInfo = True
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
