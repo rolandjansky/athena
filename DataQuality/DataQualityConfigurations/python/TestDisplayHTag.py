@@ -5,7 +5,12 @@ import pyAMI.atlas.api as AtlasAPI
 client = pyAMI.client.Client('atlas')
 AtlasAPI.init()
 
-htag = os.environ['HTAG']
+try:
+    htag = os.environ['HTAG']
+except:
+    print 'No htag specified. Add option --htag'
+    sys.exit(1)
+
 print 'Using htag '+htag+' for config files'
 
 try:

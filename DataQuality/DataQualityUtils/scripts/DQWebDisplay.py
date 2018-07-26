@@ -31,7 +31,8 @@ parser.add_option("--htag", dest="htag",
 
 (options, args) = parser.parse_args()
 
-os.environ['HTAG'] = options.htag
+if options.htag:
+    os.environ['HTAG'] = options.htag
 
 from DataQualityUtils.DQWebDisplayMod import DQWebDisplay
 
