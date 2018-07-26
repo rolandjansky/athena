@@ -333,13 +333,13 @@ useTrackVertexTool = False
 if True == jetFlags.useTrackVertexTool:
   useTrackVertexTool = True
 
-import cppyy
-try: cppyy.loadDictionary('xAODBaseDict')
-except: pass
-from ROOT import xAOD
-
 # Weight tool for charged pflow objects.
 jtm += WeightPFOTool("pflowweighter")
+
+# Trigger xAOD.Type.ObjectType dict entry loading
+import ROOT
+from ROOT import xAOD
+xAOD.Type.ObjectType
 
 # Would go in JetRecToolsConfig but this hits a circular dependency on jtm?
 # this applies four-momentum corrections to PFlow objects:
@@ -702,14 +702,17 @@ jtm += JetOriginCorrectionTool(
   OnlyAssignPV = True,
 )
 
-# Load the xAODCaloEvent dictionary for cluster scale enum
-import cppyy
-try: cppyy.loadDictionary('xAODCaloEventDict')
-except: pass
-from ROOT import xAOD
-# Touch an unrelated class so the dictionary is loaded
-# and therefore the CaloCluster version typedef is recognised
-xAOD.CaloVertexedTopoCluster
+### Not ideal, but because CaloCluster.Scale is an internal class
+### it makes the dict load really slow.
+### So just copy the enum to a dict...
+### Defined in Event/xAOD/xAODCaloEvent/versions/CaloCluster_v1.h
+CaloClusterStates = { 
+  "UNKNOWN"       : -1,
+  "UNCALIBRATED"  :  0,
+  "CALIBRATED"    :  1,
+  "ALTCALIBRATED" :  2,
+  "NSTATES"       :  3
+  }
 
 ### Workaround for inability of Gaudi to parse single-element tuple
 import GaudiPython.Bindings as GPB
@@ -725,7 +728,7 @@ jtm += JetConstitFourMomTool(
   "constitfourmom_lctopo",
   JetScaleNames = ["DetectorEtaPhi"],
   AltConstitColls = ["CaloCalTopoClusters"],
-  AltConstitScales = [xAOD.CaloCluster.CALIBRATED],
+  AltConstitScales = [CaloClusterStates["CALIBRATED"]],
   AltJetScales = [""]
   )
 
@@ -733,7 +736,7 @@ jtm += JetConstitFourMomTool(
   "constitfourmom_emtopo",
   JetScaleNames = ["DetectorEtaPhi","JetLCScaleMomentum"],
   AltConstitColls = ["CaloCalTopoClusters","LCOriginTopoClusters" if jetFlags.useTracks() else "CaloCalTopoClusters"],
-  AltConstitScales = [xAOD.CaloCluster.UNCALIBRATED,xAOD.CaloCluster.CALIBRATED],
+  AltConstitScales = [CaloClusterStates["UNCALIBRATED"],CaloClusterStates["CALIBRATED"]],
   AltJetScales = ["",""]
   )
 

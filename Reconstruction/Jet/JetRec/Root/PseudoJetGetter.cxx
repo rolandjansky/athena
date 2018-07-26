@@ -5,14 +5,13 @@
 // PseudoJetGetter.cxx
 
 #include "JetRec/PseudoJetGetter.h"
+#include "fastjet/PseudoJet.hh"
+#include "JetRec/PseudoJetContainer.h"
 #include "JetEDM/PseudoJetVector.h"
 
-#include "JetRec/PseudoJetContainer.h"
 #include "xAODBase/IParticleContainer.h"
 #include "JetRec/IParticleExtractor.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "fastjet/PseudoJet.hh"
-#include "JetRec/PseudoJetContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 
 using std::string;
