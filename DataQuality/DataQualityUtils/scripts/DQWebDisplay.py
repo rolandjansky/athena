@@ -41,8 +41,8 @@ def importConfiguration(modname):
     return getmodule(modname)
 
 def usage():
-  #cmdi = args[0].rfind("/")
-  #cmd = args[0][cmdi+1:]
+  cmdi = sys.argv[0].rfind("/")
+  cmd = sys.argv[0][cmdi+1:]
   print ""
   print "Usage: DQWebDisplay.py <data_file> <config> <processing_version> [run_accumulating [conditions_string]] [--h htag]"
   print ""
@@ -53,42 +53,42 @@ def usage():
 
 if __name__ == "__main__":
 
-  print len(args)
-  if len(args) < 5 or len(args) > 7:
+  print len(sys.argv)
+  if len(sys.argv) < 5 or len(sys.argv) > 7:
     usage()
     sys.exit(64)
   
-  inputFile  = args[0] # data file
+  inputFile  = sys.argv[1] # data file
   runAccumulating = False
-  if len(args) in (6,7):
-    if args[3] == "True" or args[3] == "1":
+  if len(sys.argv) in (6,7):
+    if sys.argv[4] == "True" or sys.argv[4] == "1":
       runAccumulating = True
   
-  if len(args) == 7:
-      print 'Setting condition', args[4]
+  if len(sys.argv) == 7:
+      print 'Setting condition', sys.argv[5]
       ROOT.gSystem.Load('libDataQualityInterfaces')
-      ROOT.dqi.ConditionsSingleton.getInstance().setCondition(args[4])
+      ROOT.dqi.ConditionsSingleton.getInstance().setCondition(sys.argv[5])
 
   parset = OptionParser
 
   configModule = ""
   
-  if   args[1] == "TEST":
+  if   sys.argv[2] == "TEST":
     configModule = "TestDisplay"
-  elif args[1] == "RTT":
+  elif sys.argv[2] == "RTT":
     configModule = "RTTDisplay"
-  elif args[1] == "TCT":
+  elif sys.argv[2] == "TCT":
     configModule = "TCTDisplay"
-  elif args[1] == "FDR1":
+  elif sys.argv[2] == "FDR1":
     configModule = "fdr08_run1"
-  elif args[1] == "FDR2" or args[2] == "FDR2a" or args[2] == "FDR2b" or args[2] == "FDR2c":
+  elif sys.argv[2] == "FDR2" or sys.argv[2] == "FDR2a" or sys.argv[2] == "FDR2b" or sys.argv[2] == "FDR2c":
     configModule = "fdr08_run2"
-  elif args[1] == "Cosmics08":
+  elif sys.argv[2] == "Cosmics08":
     configModule = "data08_cos"
-  elif args[1] == "SingleBeam08":
+  elif sys.argv[2] == "SingleBeam08":
     configModule = "data08_1beam"
   else:
-    configModule = args[1]
+    configModule = sys.argv[2]
   
   try:
     cmod = importConfiguration(configModule)

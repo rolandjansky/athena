@@ -794,8 +794,8 @@ def addAmiTags(fileList, amitag):
         rf.Close()
 
 def usage():
-  #cmdi = sys.argv[0].rfind("/")
-  #cmd = sys.argv[0][cmdi+1:]
+  cmdi = sys.argv[0].rfind("/")
+  cmd = sys.argv[0][cmdi+1:]
   print ""
   print "Usage: DQWebDisplay.py <data_file> <config> <processing_version> [run_accumulating [conditions_string]]"
   print ""
