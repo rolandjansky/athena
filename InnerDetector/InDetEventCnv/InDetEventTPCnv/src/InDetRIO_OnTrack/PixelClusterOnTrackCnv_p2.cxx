@@ -6,7 +6,9 @@
 #include "InDetEventTPCnv/InDetRIO_OnTrack/PixelClusterOnTrackCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "AthenaKernel/errorcheck.h"
-
+#include "TrkEventTPCnv/TrkEventPrimitives/ErrorMatrixCnv_p1.h"
+#include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"
+#include "InDetIdentifier/PixelID.h"
 
 void PixelClusterOnTrackCnv_p2::persToTrans( const InDet::PixelClusterOnTrack_p2 *persObj,InDet::PixelClusterOnTrack *transObj, MsgStream &log ){
     //std::cout<<"READING PixelClusterOnTrackCnv_p2"<<std::endl;

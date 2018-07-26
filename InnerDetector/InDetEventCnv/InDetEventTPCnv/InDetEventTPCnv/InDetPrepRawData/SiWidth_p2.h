@@ -24,7 +24,7 @@ class SiWidth_p2
     SiWidth_p2() {};
     friend class SiWidthCnv_p2;
   private:
-    unsigned int m_size;
+    unsigned int m_size{};
     Trk::LocalPosition_p1 m_phirzWidth;   
   };
 
