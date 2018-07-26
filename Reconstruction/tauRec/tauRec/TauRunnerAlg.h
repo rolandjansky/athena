@@ -24,6 +24,9 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 
+#include "xAODParticleEvent/ParticleContainer.h"
+#include "xAODParticleEvent/ParticleAuxContainer.h"
+
 /**
  * @brief       Main class for tau candidate processing.
  */
@@ -60,6 +63,7 @@ class TauRunnerAlg: public AthAlgorithm
 	SG::WriteHandleKey<xAOD::PFOContainer> m_hadronicPFOOutputContainer{this,"Key_hadronicPFOOutputContainer", "TauHadronicParticleFlowObjects", "tau hadronic pfo out key"};
 	SG::WriteHandleKey<xAOD::VertexContainer> m_vertexOutputContainer{this,"Key_vertexOutputContainer", "TauSecondaryVertices", "input vertex container key"};
 	SG::WriteHandleKey<xAOD::PFOContainer> m_chargedPFOOutputContainer{this,"Key_chargedPFOOutputContainer", "TauChargedParticleFlowObjects", "tau charged pfo out key"};
+	SG::WriteHandleKey<xAOD::ParticleContainer> m_pi0Container{this,"Key_pi0Container", "finalTauPi0s", "tau final pi0s output"};
 
 	
 };

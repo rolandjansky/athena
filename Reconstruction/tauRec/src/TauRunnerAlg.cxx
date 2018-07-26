@@ -64,6 +64,7 @@ StatusCode TauRunnerAlg::initialize() {
     ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
     ATH_CHECK( m_vertexOutputContainer.initialize() );
     ATH_CHECK( m_chargedPFOOutputContainer.initialize() );
+    ATH_CHECK( m_pi0Container.initialize() );
 
     //-------------------------------------------------------------------------
     // Allocate tools
@@ -168,6 +169,14 @@ StatusCode TauRunnerAlg::execute() {
     SG::WriteHandle<xAOD::PFOContainer> chargedPFOHandle( m_chargedPFOOutputContainer );
     ATH_MSG_DEBUG("  write: " << chargedPFOHandle.key() << " = " << "..." );
     ATH_CHECK(chargedPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{chargedPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{chargedPFOAuxStore}));
+
+    // write pi0 container
+    xAOD::ParticleContainer* pi0Container = new xAOD::ParticleContainer();
+    xAOD::ParticleAuxContainer* pi0AuxStore = new xAOD::ParticleAuxContainer();
+    pi0Container->setStore(pi0AuxStore);
+    SG::WriteHandle<xAOD::ParticleContainer> pi0Handle( m_pi0Container );
+    ATH_MSG_DEBUG("  write: " << pi0Handle.key() << " = " << "..." );
+    ATH_CHECK(pi0Handle.record(std::unique_ptr<xAOD::ParticleContainer>{pi0Container}, std::unique_ptr<xAOD::ParticleAuxContainer>{pi0AuxStore}));
   
     //-------------------------------------------------------------------------
     // Initialize tools for this event

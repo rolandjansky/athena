@@ -27,10 +27,12 @@
 // #include "xAODTau/TauDefs.h"
 
 //! PanTau
-#include "PanTauAlgs/ITool_PanTauTools.h"
+#include "PanTauAlgs/ITool_DetailsArranger.h"
 #include "PanTauAlgs/ITool_InformationStore.h"
 
 #include "PanTauAlgs/TauConstituent.h"
+
+#include "xAODParticleEvent/ParticleContainer.h"
 
 namespace PanTau {
     class PanTauSeed2;
@@ -41,7 +43,7 @@ namespace PanTau {
 //    class TauDetailsContainer;
 //}
 
-class StoreGateSvc;
+//class StoreGateSvc;
 
 
 namespace PanTau {
@@ -51,9 +53,9 @@ namespace PanTau {
         @author Sebastian Fleischmann
         @author Christian Limbach <limbach@physik.uni-bonn.de>
     */
-  class Tool_DetailsArranger : public asg::AsgTool, virtual public PanTau::ITool_PanTauTools {
+  class Tool_DetailsArranger : public asg::AsgTool, virtual public PanTau::ITool_DetailsArranger {
     
-    ASG_TOOL_CLASS1(Tool_DetailsArranger, PanTau::ITool_PanTauTools)
+    ASG_TOOL_CLASS1(Tool_DetailsArranger, PanTau::ITool_DetailsArranger)
     
     public:
         
@@ -69,11 +71,11 @@ namespace PanTau {
         virtual StatusCode initialize();
 //         virtual StatusCode finalize();
         
-        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);//, Analysis::TauDetailsContainer* detailsCont);
+        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed, xAOD::ParticleContainer& pi0Container);//, Analysis::TauDetailsContainer* detailsCont);
         
     protected:
         
-        StoreGateSvc*                                       m_sgSvc;
+        //StoreGateSvc*                                       m_sgSvc;
         
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
 	std::string m_Tool_InformationStoreName;
@@ -83,7 +85,7 @@ namespace PanTau {
                                                             xAOD::TauJetParameters::PanTauDetails  detailEnum,
                                                             PanTauDetailsType                      detailType) const;
 
-        StatusCode                        arrangePFOLinks(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet);
+        StatusCode                        arrangePFOLinks(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, xAOD::ParticleContainer& pi0Container);
 
         void                        SetHLVTau(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string varTypeName_Basic);
 

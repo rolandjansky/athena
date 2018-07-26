@@ -13,6 +13,7 @@
 #include "PanTauAlgs/ITool_ModeDiscriminator.h"
 #include "PanTauAlgs/ITool_TauConstituentGetter.h"
 #include "PanTauAlgs/ITool_TauConstituentSelector.h"
+#include "PanTauAlgs/ITool_DetailsArranger.h"
 
 #include "PanTauAlgs/PanTauProcessor.h"
 #include "PanTauAlgs/Tool_DecayModeDeterminator.h"
@@ -42,6 +43,7 @@
 #pragma link C++ class PanTau::ITool_ModeDiscriminator;
 #pragma link C++ class PanTau::ITool_TauConstituentGetter;
 #pragma link C++ class PanTau::ITool_TauConstituentSelector;
+#pragma link C++ class PanTau::ITool_DetailsArranger;
 
 #pragma link C++ class PanTau::Tool_DecayModeDeterminator;
 #pragma link C++ class PanTau::Tool_DetailsArranger;

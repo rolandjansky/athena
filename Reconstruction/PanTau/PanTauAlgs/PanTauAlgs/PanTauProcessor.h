@@ -23,6 +23,7 @@
 #include "PanTauAlgs/ITool_InformationStore.h"
 #include "PanTauAlgs/ITool_TauConstituentGetter.h"
 #include "PanTauAlgs/ITool_TauConstituentSelector.h"
+#include "PanTauAlgs/ITool_DetailsArranger.h"
 #include "PanTauAlgs/ITool_PanTauTools.h"
 
 //#include "PanTauAlgs/PanTauSeedContainer.h"
@@ -56,13 +57,13 @@ namespace PanTau
 
        virtual StatusCode initialize();
        virtual StatusCode finalize();
-       virtual StatusCode execute(xAOD::TauJet& pTau);
+       virtual StatusCode execute(xAOD::TauJet&) { return StatusCode::SUCCESS; };
        virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
        virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
        virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
        virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
        virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
-       virtual StatusCode executePanTau(xAOD::TauJet&, xAOD::ParticleContainer&) { return StatusCode::SUCCESS; }
+       virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container);
 
        virtual StatusCode eventInitialize();
        virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
@@ -84,7 +85,7 @@ namespace PanTau
         
         //Tools used in seed finalizing
         ToolHandle<PanTau::ITool_PanTauTools>               m_Tool_DecayModeDeterminator;
-        ToolHandle<PanTau::ITool_PanTauTools>               m_Tool_DetailsArranger;
+        ToolHandle<PanTau::ITool_DetailsArranger>           m_Tool_DetailsArranger;
 
         //Tools used in seed building
         std::string          m_Tool_InformationStoreName;
