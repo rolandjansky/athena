@@ -99,9 +99,10 @@ def setup(ToolSvc):
   TOPQttbarCfiltertool.SelectC = True
   TOPQttbarCfiltertool.CpTMinCut = 15000
   TOPQttbarCfiltertool.CMultiplicityCut = 1 # >=
-  # these two are the default values, no need to specify them
-  #TOPQttbarCfiltertool.BpTMinCut = 5000
-  #TOPQttbarCfiltertool.BMultiplicityCut = 1 # >=
+  # these two are the default values
+  # B-hadrons have precedence; if one B is found, it won't pass the CFilter
+  TOPQttbarCfiltertool.BpTMinCut = 5000
+  TOPQttbarCfiltertool.BMultiplicityCut = 1 # >=
   ToolSvc += TOPQttbarCfiltertool
 
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation

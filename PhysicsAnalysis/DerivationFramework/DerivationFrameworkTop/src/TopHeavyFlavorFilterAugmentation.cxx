@@ -80,12 +80,12 @@ StatusCode TopHeavyFlavorFilterAugmentation::addBranches() const{
 
   int flag = 0;
 
-  if (passB)
-      flag |= 1 << 0;
-  if (passBB)
-      flag |= 1 << 1;
-  if (passC)
-      flag |= 1 << 2;
+  if (passBB) // BB and BFilter non-exclusive: BBFilter is tighter than BFilter
+      flag = 1;
+  else if (passB)
+      flag = 2;
+  else if (passC) // CFilter and BFilter are exclusive (B-hadrons have precedence)
+      flag = 3;
 
 
   static SG::AuxElement::Decorator<int> decoration("TopHeavyFlavorFilterFlag");
