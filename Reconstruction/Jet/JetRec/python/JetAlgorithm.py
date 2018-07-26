@@ -54,7 +54,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
 
 
   # Event shape tools.
-  evstools = []
   evsDict = {
     "emtopo"   : ("EMTopoEventShape",   jtm.emget),
     "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
@@ -76,8 +75,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
       else:
         jetlog.info( myname + "Adding event shape " + evskey )
         if not IsInInputFile("xAOD::EventShape",toolname):
-          jtm += configEventDensityTool(toolname, getter, 0.4)
-          evstools += [jtm.tools[toolname]]
+          jtm += configEventDensityTool(toolname, getter.Label, 0.4)
+          jtm.allEDTools += [jtm.tools[toolname]]
     else:
       jetlog.info( myname + "Invalid event shape key: " + evskey )
       raise Exception
@@ -157,15 +156,12 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   for getter in jtm.allGetters:
     job += PseudoJetAlgorithm("pjalg_"+getter.Label,PJGetter=getter)
 
-  if separateJetAlgs:
+  # Then, add all event shape tools in separate algs
+  for evstool in jtm.allEDTools:
+    from EventShapeTools.EventShapeToolsConf import EventDensityAthAlg
+    job += EventDensityAthAlg("edalg_"+evstool.OutputContainer,EventDensityTool=evstool)
 
-    jtm += JetToolRunner("jetevs",
-                         EventShapeTools=evstools,
-                         Tools=[],
-                         Timer=jetFlags.timeJetToolRunner()
-                         )
-    job += JetAlgorithm("jetalgEventShape",
-                        Tools = [jtm.jetevs])
+  if separateJetAlgs:
 
     for t in jtm.jetrecs:
       jalg = JetAlgorithm("jetalg"+t.name(),
@@ -175,7 +171,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   else:
     from JetRec.JetRecConf import JetToolRunner
     jtm += JetToolRunner("jetrun",
-                         EventShapeTools=evstools,
+                         EventShapeTools=[],
                          Tools=rtools+jtm.jetrecs,
                          Timer=jetFlags.timeJetToolRunner()
                          )
