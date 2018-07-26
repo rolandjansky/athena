@@ -152,7 +152,6 @@ SUSY15ThinningHelper.AppendToStream( SUSY15Stream )
 
 ### Thinning for now taken from SUSY 2 with minor modifications as indicated /CO
 
-
 #====================================================================
 # THINNING TOOLS
 #====================================================================
@@ -289,6 +288,21 @@ if DerivationFrameworkIsMonteCarlo:
   # commented out until the problem is fixed
   #ToolSvc += TrkParam4Truth
   #AugmentationTools.append(TrkParam4Truth)
+
+  print "Testing truth kinematics"
+  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
+  TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
+    InputTruthJetContainer = "AntiKt4TruthJets",
+    InputTruthParticleContainer = "TruthParticles",
+    OutputContainer = "AntiKt4CorrTruthJets"
+    CalorimeterRadius = 0.4,
+    DeltaRMatching =  0.3, 
+    LLP_PDGID = 1000022, 
+  )
+  ToolSvc += TruthJetKinematicsTool
+  AugmentationTools.append(TruthJetKinematicsTool)
+
+  print "Testing truth kinematics2"
 
 
 #=============================================================================================
@@ -443,6 +457,9 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant
 SUSY15SlimmingHelper.IncludeMuonTriggerContent = True # needed? /CO
 SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True # can change to photons only? /CO
 SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True # Added /CO
+
+SUSY15Stream.AddItem(       "xAOD::JetContainer#AntiKt4*")
+SUSY15Stream.AddItem("xAOD::JetAuxContainer#AntiKt4*")
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
