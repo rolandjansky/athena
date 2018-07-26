@@ -36,7 +36,6 @@ friend class DataHeaderElementCnv_p4;
    const std::string& token() const;
    unsigned int oid1() const;
    unsigned int oid2() const;
-   void overwriteOid2(unsigned int oid2);
 
 private:
    std::vector<unsigned int> m_clids;

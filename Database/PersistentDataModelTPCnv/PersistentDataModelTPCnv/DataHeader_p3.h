@@ -36,7 +36,6 @@ friend class DataHeaderElementCnv_p3;
    const std::vector<std::string> alias() const;
    unsigned int oid1() const;
    unsigned int oid2() const;
-   void overwriteOid2(unsigned int oid2);
 
 private:
    std::vector<unsigned int> m_clids;
