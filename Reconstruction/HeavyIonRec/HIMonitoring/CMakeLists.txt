@@ -34,7 +34,7 @@ atlas_add_library( HIMonitoringLib
 atlas_add_component( HIMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib xAODEgamma xAODForward xAODHIEvent xAODMuon xAODTracking xAODTrigMinBias GaudiKernel ElectronPhotonSelectorToolsLib LWHists ZDCAnalysisLib HIMonitoringLib )
+		     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib xAODEgamma xAODForward xAODHIEvent xAODMuon xAODTracking xAODTrigMinBias GaudiKernel ElectronPhotonSelectorToolsLib LWHists ZdcAnalysisLib HIMonitoringLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
