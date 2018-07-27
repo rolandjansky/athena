@@ -893,6 +893,13 @@ if InDetTrigFlags.doNewTracking():
                                                                  SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
   ToolSvc += InDetTrigSiComTrackFinder
+  if DetFlags.haveRIO.SCT_on():
+    # Condition algorithm for SiCombinatorialTrackFinder_xk
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+      from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
   #to here
 
 #move 

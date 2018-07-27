@@ -24,10 +24,10 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 ///////////////////////////////////////////////////////////////////
@@ -210,6 +210,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
 
   ATH_CHECK( m_pixcontainerkey.initialize() );
   ATH_CHECK( m_sctcontainerkey.initialize() );
+  ATH_CHECK( m_boundarySCTKey.initialize() );
 
   return sc;
 }
@@ -764,17 +765,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction
     }
   }
 
-  // Get  SCT Detector Manager
-  //
-  const InDetDD::SCT_DetectorManager* sctmgr = 0;
-  if(m_useSCT) {
-    sc = detStore()->retrieve(sctmgr,m_sctm);
-    if (sc.isFailure() || !sctmgr) {
-      msg(MSG::FATAL)<<"Could not get SCT_DetectorManager !"<<endmsg; 
-      return StatusCode::FAILURE;
-    }
-  }
-
   // check if the string is ESD for guaranteeing that misalignment has been introduced already
   //
   bool needsUpdate = false;
@@ -785,27 +775,19 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction
   if(!needsUpdate) return StatusCode::SUCCESS;
 
   m_boundaryPIX.erase(m_boundaryPIX.begin(),m_boundaryPIX.end()); 
-  m_boundarySCT.erase(m_boundarySCT.begin(),m_boundarySCT.end()); 
   
   const PixelID* IDp = 0; 
-  const SCT_ID*  IDs = 0; 
 
   if (m_usePIX && detStore()->retrieve(IDp, "PixelID").isFailure()) {
     msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   
-  if (m_useSCT && detStore()->retrieve(IDs, "SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-   if(!IDs && !IDp) return StatusCode::FAILURE;
+  if(!IDp) return StatusCode::FAILURE;
 
   InDetDD::SiDetectorElementCollection::const_iterator s,se;
 
   unsigned int npix = 0, minpixid = 1000000, maxpixid = 0;
-  unsigned int nsct = 0, minsctid = 1000000, maxsctid = 0;
 
   if(IDp) {
 
@@ -836,34 +818,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction
     }
   }
 
-  if(IDs) {
-
-    std::map<IdentifierHash,const InDetDD::SiDetectorElement*> idd;
-
-    // Loop over each wafer of sct
-    //
-    s  = sctmgr->getDetectorElementBegin();
-    se = sctmgr->getDetectorElementEnd  ();
-
-    for (; s!=se; ++s) {
-
-      const IdentifierHash id = (*s)->identifyHash();
-      ++nsct;
-      if(id > maxsctid) maxsctid = id;
-      if(id < minsctid) minsctid = id;
-      idd.insert(std::make_pair(id,(*s)));
-    }
-    if(idd.size()!= maxsctid+1 || minsctid!=0) return StatusCode::FAILURE;
-    
-    m_boundarySCT.reserve(idd.size());
-    std::map<IdentifierHash,const InDetDD::SiDetectorElement*>::iterator i;
-
-    for(i = idd.begin(); i!=idd.end(); ++i) {
-
-      InDet::SiDetElementBoundaryLink_xk dl((*i).second);
-      m_boundarySCT.push_back(dl);
-    }
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -915,13 +869,19 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 (std::list<const InDetDD::SiDetectorElement*>        & DE,
  std::list<const InDet::SiDetElementBoundaryLink_xk*>& DEL)
 {
+  SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundarySCTHandle(m_boundarySCTKey);
+  const InDet::SiDetElementBoundaryLinks_xk* boundarySCT{*boundarySCTHandle};
+  if (boundarySCT==nullptr) {
+    ATH_MSG_FATAL(m_boundarySCTKey.fullKey() << " returns null pointer");
+  }
+
   std::list<const InDetDD::SiDetectorElement*>::iterator d = DE.begin(),de = DE.end();
  
   for(; d!=de; ++d) {
  
     IdentifierHash id = (*d)->identifyHash();
     if     ((*d)->isPixel() && id < m_boundaryPIX.size()) DEL.push_back(&m_boundaryPIX[id]);
-    else if((*d)->isSCT()   && id < m_boundarySCT.size()) DEL.push_back(&m_boundarySCT[id]);
+    else if((*d)->isSCT()   && boundarySCT && id < boundarySCT->size()) DEL.push_back(&(*boundarySCT)[id]);
   }
 }
 
