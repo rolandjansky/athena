@@ -73,31 +73,9 @@ StoreGateSvc::currentSlot() {
 /////////////////////////////////////////////////////////////////
 
 
-bool 
-StoreGateSvc::newDataObjectsPresent() {
-  _SGXCALL(newDataObjectsPresent, (), false);
-}
-
-StatusCode 
-StoreGateSvc::getNewDataObjects(DataObjIDColl& products) {
-  _SGXCALL(getNewDataObjects, (products), StatusCode::FAILURE);
-}
-
 void
 StoreGateSvc::commitNewDataObjects() {
   _SGVOIDCALL(commitNewDataObjects, ());
-}
-
-///a new object transient object has been recorded
-void 
-StoreGateSvc::addedNewTransObject(CLID clid, const std::string& key) {
-  _SGVOIDCALL(addedNewTransObject, (clid, key));
-}
-
-///a new object persistent object has been recorded
-void 
-StoreGateSvc::addedNewPersObject(CLID clid, SG::DataProxy* dp) {
-  _SGVOIDCALL(addedNewPersObject, (clid, dp));
 }
 
 /// Create a proxy object using an IOpaqueAddress and a transient key

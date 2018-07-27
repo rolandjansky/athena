@@ -538,30 +538,10 @@ public:
   /// @param forceRemove: if true remove proxies ignoring their resetOnly flag
   virtual StatusCode clearStore(bool forceRemove=false) override final;
 
-  /** Get data objects registered in store since last getNewDataObjects call (or since init for 1st call)
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Status code indicating failure or success.
-   */
-  virtual StatusCode getNewDataObjects(DataObjIDColl& products) override final;
-
-  /** Check if something has been added to the store since last getNewDataObjects call
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Boolean indicating the presence of new products
-   */
-  virtual bool newDataObjectsPresent() override final; 
-
-  /** make newly recorded DataObjects know to the WhiteBoard, by copying
-   *    from thread local storage to m_newDataObjects
+  /** Reset handles added since the last call to commit.
    */
   virtual void commitNewDataObjects() override final;
   //@}
-
-  ///a new transient object has been recorded
-  void addedNewTransObject(CLID clid, const std::string& key);
-
-  void addedNewPersObject(CLID clid, SG::DataProxy* dp);
 
   ///set the hive event slot pointer: used by the event loop mgrs
   static void setSlot(SG::HiveEventSlot* pSlot);
