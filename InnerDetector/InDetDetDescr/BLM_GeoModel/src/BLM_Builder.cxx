@@ -251,12 +251,14 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
       int k=i+222;
 
       GeoNameTag* tag = new GeoNameTag("BLM Module");
-      GeoVPhysVol* blmModPhys = blm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
-      Phys->add(tag);
-      Phys->add(new GeoIdentifierTag(k));
-      Phys->add(xform);
-      Phys->add(blmModPhys);
-      ATH_MSG_DEBUG(" --> BUILD MODULE: " << i);
+      if (mat_mgr){
+        GeoVPhysVol* blmModPhys = blm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
+        Phys->add(tag);
+        Phys->add(new GeoIdentifierTag(k));
+        Phys->add(xform);
+        Phys->add(blmModPhys);
+        ATH_MSG_DEBUG(" --> BUILD MODULE: " << i);
+      }
     }
 
   //save Geometry_manager in storegate
