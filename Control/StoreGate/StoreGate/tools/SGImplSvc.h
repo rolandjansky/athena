@@ -36,10 +36,6 @@
 #include <vector>                       
 #include <thread>
 
-#ifndef __CLING__
-#include <tbb/spin_rw_mutex.h>
-#endif
-
 #include "AthenaKernel/StoreID.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
@@ -834,29 +830,10 @@ public:
   /// @param forceRemove: if true remove proxies ignoring their resetOnly flag
   virtual StatusCode clearStore(bool forceRemove=false) override final;
 
-  /** Get data objects registered in store since last getNewDataObjects call (or since init for 1st call)
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Status code indicating failure or success.
-   */
-  virtual StatusCode getNewDataObjects(DataObjIDColl& products) override final;
-
-  /** Check if something has been added to the store since last getNewDataObjects call
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Boolean indicating the presence of new products
-   */
-  virtual bool newDataObjectsPresent() override final; 
-
-  /** make newly recorded DataObjects know to the WhiteBoard, by copying
-   *    from thread local storage to m_newDataObjects
+  /** Reset handles added since the last call to commit.
    */
   virtual void commitNewDataObjects() override final;
   //@}
-  /// a new data object has been retrieved from persistency
-  void addedNewPersObject(CLID clid, SG::DataProxy* dp) const;
-  ///a new object transient object has been recorded
-  void addedNewTransObject(CLID clid, const std::string& key) const;
 
 
   /**
@@ -1089,12 +1066,6 @@ private:
 
   /// Allocation arena to associate with this store.
   SG::Arena m_arena;
-
-  ///list of recently added data objects, needed to implement getNewDataObjects
-  DataObjIDColl m_newDataObjects;
-#ifndef __CLING__
-  tbb::spin_rw_mutex m_newDataLock;
-#endif
 
   /// The Hive slot number for this store, or -1 if this isn't a Hive store.
   int m_slotNumber;
