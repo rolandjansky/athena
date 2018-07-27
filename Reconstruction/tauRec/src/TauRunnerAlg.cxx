@@ -64,7 +64,6 @@ StatusCode TauRunnerAlg::initialize() {
     ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
     ATH_CHECK( m_vertexOutputContainer.initialize() );
     ATH_CHECK( m_chargedPFOOutputContainer.initialize() );
-    ATH_CHECK( m_pi0Container.initialize() );
 
     //-------------------------------------------------------------------------
     // Allocate tools
@@ -169,14 +168,6 @@ StatusCode TauRunnerAlg::execute() {
     SG::WriteHandle<xAOD::PFOContainer> chargedPFOHandle( m_chargedPFOOutputContainer );
     ATH_MSG_DEBUG("  write: " << chargedPFOHandle.key() << " = " << "..." );
     ATH_CHECK(chargedPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{chargedPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{chargedPFOAuxStore}));
-
-    // write pi0 container
-    xAOD::ParticleContainer* pi0Container = new xAOD::ParticleContainer();
-    xAOD::ParticleAuxContainer* pi0AuxStore = new xAOD::ParticleAuxContainer();
-    pi0Container->setStore(pi0AuxStore);
-    SG::WriteHandle<xAOD::ParticleContainer> pi0Handle( m_pi0Container );
-    ATH_MSG_DEBUG("  write: " << pi0Handle.key() << " = " << "..." );
-    ATH_CHECK(pi0Handle.record(std::unique_ptr<xAOD::ParticleContainer>{pi0Container}, std::unique_ptr<xAOD::ParticleAuxContainer>{pi0AuxStore}));
   
     //-------------------------------------------------------------------------
     // Initialize tools for this event
@@ -200,16 +191,20 @@ StatusCode TauRunnerAlg::execute() {
     }
     pTauContainer = tauInputHandle.cptr();
 
-    // create shallow copy, write that
-    std::pair< xAOD::TauJetContainer*, xAOD::ShallowAuxContainer* > taus_shallowCopy = xAOD::shallowCopyContainer( *pTauContainer );
-
+    // Make new container which is deep copy of that
+    xAOD::TauJetContainer* newTauCon = 0;
+    xAOD::TauJetAuxContainer* newTauAuxCon = 0;
+    xAOD::TauJet* tau(0);
+    // See function in header file
+    ATH_CHECK(deepCopy(newTauCon, newTauAuxCon, tau, pTauContainer));
+    // Write final taujets container
     SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_tauOutputContainer);
-    ATH_CHECK( outputTauHandle.record(std::unique_ptr<xAOD::TauJetContainer>(taus_shallowCopy.first), 
-				      std::unique_ptr<xAOD::ShallowAuxContainer>(taus_shallowCopy.second)) );    
+    ATH_CHECK( outputTauHandle.record(std::unique_ptr<xAOD::TauJetContainer>(newTauCon), 
+				      std::unique_ptr<xAOD::TauJetAuxContainer>(newTauAuxCon)) );    
     
-    // iterate over the shallow copy
-    xAOD::TauJetContainer::iterator itTau = (taus_shallowCopy.first)->begin();
-    xAOD::TauJetContainer::iterator itTauE = (taus_shallowCopy.first)->end();
+    // iterate over the copy
+    xAOD::TauJetContainer::iterator itTau = newTauCon->begin();
+    xAOD::TauJetContainer::iterator itTauE = newTauCon->end();
     for (; itTau != itTauE; ++itTau) {
 
       xAOD::TauJet* pTau = (*itTau);
