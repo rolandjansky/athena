@@ -1021,11 +1021,13 @@ sub run_test($){
     my $dataLFN="unknown";
     my $dataPFN="";
     my $numForks=0;
-    my $childLogLFN="unknown"; #runHLTMPPy_athenaHLT
-    my $childNumber=1;         #runHLTMPPy_athenaHLT
+    my $childLogLFN="unknown";   #runHLTMPPy_athenaHLT
+    my $childNumber=1;           #runHLTMPPy_athenaHLT
     my @childrenLog=("");        #runHLTMPPy_athenaHLT
     my @childrenNumber=("");     #runHLTMPPU_athenaHLT
-    my $eventCounter=0;
+    my $eventCounter=0;    
+    my $memUseChild="";          #runHLTMPPU_athenaHLT
+    my $memUsed=0;		 #runHLTMPPU_athenaHLT
     while (my $line = <LOG>){
       if ($line =~ /InputCollections\s+\= \['(.*)'\]/){  # athena
 	$dataLFN=$1;
@@ -1078,39 +1080,36 @@ sub run_test($){
         for (my $i=1; $i<=$numForks; $i++){
             $childLogLFN=$childrenLog[$i];
             $childNumber=$childrenNumber[$i];
+
             open(CHILD, "<$childLogLFN") or die "Couldn't open file, $!";
             while (my $line = <CHILD>){
               if ($line =~ /HltEventLoopMgr\s+INFO\s+Total number of events processed :\s+(.*)/){
                  $eventCounter=$1;
               }
+	      if ($line =~ /Memory Usage:\s+(.*)\s+kb/){
+		 $memUseChild="memuse_child$i.log";
+                 $memUsed=$1;
+	         systemcall("echo $memUsed >> $memUseChild");
+	      }
 	    }
 	    close CHILD;
+
             print "=== Child #$childNumber\n"; 
 	    print "====== Output file $childLogLFN\n";
             print "====== Events processed: $eventCounter\n";
-      #      if ($config{$id}->{'checklog'}){
-      #		my $checklog_opts =  $config{$id}->{'checklog_opts'};
-      #          # ERRORs
-      #          my $logrc = systemcall("check_log.pl $checklog_opts $childLogLFN > $checklogout 2>&1"); #$logfile > $checklogout 2>&1");
-      #          systemcall("cat $checklogout");
-      #          if ($logrc != 0){
-      #            print "=== $name $failkey : problem detected in log file\n";
-      #            print "art-result: 1 $name.CheckLog\n";
-      #            push @statuscodes, 'ATHENA_ERROR_IN_LOG';
-      #        } else {
-      #            print "art-result: 0 $name.CheckLog\n";
-      #          }
-      #          # WARNINGs
-      #          $rc = systemcall("check_log.pl $checklog_opts --noerrors --warnings $childLogLFN > $warnout 2>&1"); #$logfile > $warnout 2>&1");
-      #          # Ignore rc.
-      #      }
-            #make short file with last 600 lines only
+	    print "====== Memory usage: $memUsed kb\n";
+
             my $childfile="child$childNumber.log";
             systemcall("mv $childLogLFN $childfile");
         }
 	my $childrenLog="Children.log";
 	systemcall("cat child*.log > $childrenLog");
 	$logfile=$childrenLog;
+
+	if (length $memUseChild){
+        	my $memUseChildren="memuse_Children.log";
+        	systemcall("cat memuse_child*.log > $memUseChildren");
+	}
     }
     else {
 	# write how many events processed
