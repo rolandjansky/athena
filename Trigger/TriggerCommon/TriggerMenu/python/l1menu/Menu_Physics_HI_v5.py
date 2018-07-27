@@ -448,7 +448,8 @@ def defineMenu():
                        'L1_TE12000',
 		       'L1_TE4',
                        'L1_TE5_NZ',
-               'L1_VTE20',        
+               'L1_VTE20',
+               'L1_VTE50',        
 		       'L1_TE5_VTE200',
 		       'L1_TE5_VTE100',
 		       'L1_TE5_VTE50',
@@ -497,6 +498,7 @@ def defineMenu():
 		       'L1_ZDC_A_VZDC_C_VTE200',
 		       'L1_ZDC_C_VZDC_A_VTE200',
 	           'L1_ZDC_XOR',
+		       'L1_ZDC_XOR_VTE50',
 		       'L1_ZDC_XOR_VTE200',
 	           'L1_ZDC_XOR_TE5_VTE200',
 	           'L1_ZDC_XOR_TE20_VTE200',
@@ -814,6 +816,7 @@ def defineMenu():
         'L1_TE100' : 136,
         'L1_TE200' : 135,
         'L1_VTE20' : 129,
+        'L1_VTE50' : 121,
         'L1_MBTSA3' : 137,
         
         'L1_2J5' : 139,
@@ -1050,6 +1053,7 @@ def defineMenu():
 	'L1_VZDC_A_C_TE5_VTE200' : 496,
 	'L1_VZDC_A_C_TE20_VTE200' : 497,
 	'L1_VZDC_AORC_TE5_VTE200' : 498,
+	'L1_ZDC_XOR_VTE50' : 499,
 	}
 
     Lvl1Flags.prescales = {}
