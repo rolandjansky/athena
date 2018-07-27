@@ -6,8 +6,6 @@
 // Jennifer Roloff, Harvard University
 
 #include "DerivationFrameworkSUSY/LongLivedTruthJetKinematics.h"
-//#include "AthContainers/ConstDataVector.h"
-//#include <string>
 
 namespace DerivationFramework {
 
