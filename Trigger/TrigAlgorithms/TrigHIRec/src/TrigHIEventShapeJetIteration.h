@@ -62,6 +62,13 @@ private:
 
   /// \brief If selected, the jet constituents define the associated clusters
   bool m_exclude_constituents;
+  
+  //Need to be compatible with other jetrecs collections (JetRec_jobOptions.py) to run the trigger in the RAW->ESD step
+  bool m_trigger;
+  
+  //OutputContainer is a string, here used to identify the object in TrigHLTJetRecConfig
+  //need for situation when HI and pp jets are in the same menu and added to jtm.trigjetrec 
+  std::string m_outcoll;
 
   mutable bool m_isInit;
 
