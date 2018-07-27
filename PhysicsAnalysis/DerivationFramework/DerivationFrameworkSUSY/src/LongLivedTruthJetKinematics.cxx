@@ -33,7 +33,7 @@ StatusCode LongLivedTruthJetKinematics::initialize() {
   StatusCode LongLivedTruthJetKinematics::addBranches() const{
   // Create the shallow copy according to the input type
 
-	const xAOD::JetContainer* injets = 0;
+	const xAOD::JetContainer* injets = nullptr;
 	evtStore()->retrieve(injets, m_inputTruthJetContainer);
   std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > newjets = xAOD::shallowCopyContainer(*injets); 
 
@@ -49,15 +49,15 @@ StatusCode LongLivedTruthJetKinematics::initialize() {
   return StatusCode::SUCCESS;
 }
 
-TLorentzVector LongLivedTruthJetKinematics::matchJets(xAOD::Jet* mytruthJet) const{
+TLorentzVector LongLivedTruthJetKinematics::matchJets(const xAOD::Jet* mytruthJet) const{
   	// Looping over all truth jets to see if they match to a LLP decay
     TLorentzVector truthJetTLV(0,0,0,0);
     truthJetTLV.SetPtEtaPhiE(mytruthJet->pt(), mytruthJet->eta(), mytruthJet->phi(), mytruthJet->e());
     double dRMinTruth = m_dR_matching;
-		const xAOD::TruthParticle* matchedSparticle = nullptr;
+    const xAOD::TruthParticle* matchedSparticle = nullptr;
+    const xAOD::TruthParticleContainer* inparts = nullptr;
 
-		const xAOD::TruthParticleContainer* inparts = 0;
-		evtStore()->retrieve(inparts, m_inputParticleContainer);
+    evtStore()->retrieve(inparts, m_inputParticleContainer);
     std::pair< xAOD::TruthParticleContainer*, xAOD::ShallowAuxContainer* > inSparticles = xAOD::shallowCopyContainer(*inparts); 
 
 
@@ -66,7 +66,7 @@ TLorentzVector LongLivedTruthJetKinematics::matchJets(xAOD::Jet* mytruthJet) con
       // Want to make sure this is a long-lived particle, and it's not decaying to itself
       bool isDecay = isDecayParticle(sparticle);
       if(!isDecay) continue;
-  		const xAOD::TruthVertex* vert = sparticle->decayVtx();
+      const xAOD::TruthVertex* vert = sparticle->decayVtx();
 
 			//for(auto quark: vert->OutgoingParticles()){
 			for(unsigned int i=0; i<vert->nOutgoingParticles(); i++){
@@ -98,7 +98,7 @@ TLorentzVector LongLivedTruthJetKinematics::matchJets(xAOD::Jet* mytruthJet) con
 }
 
 // Want to check if the particle has a decay, and that it does not decay to itself
-bool LongLivedTruthJetKinematics::isDecayParticle(xAOD::TruthParticle* sparticle) const{
+bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* sparticle) const{
   if(sparticle->pdgId() != m_llp_pdgid) return false;
   if(sparticle->pdgId() < 1e6) return false;
       
@@ -111,13 +111,13 @@ bool LongLivedTruthJetKinematics::isDecayParticle(xAOD::TruthParticle* sparticle
   }
   const xAOD::TruthVertex* vert = sparticle->decayVtx();
   double radius = sqrt(vert->x() * vert->x() + vert->y() * vert->y() + vert->z() * vert->z());
-	if(radius < 5) isRealDecay = false;
+  if(radius < 5) isRealDecay = false;
 
   return isRealDecay;
 
 }
 
-TLorentzVector LongLivedTruthJetKinematics::getDVKine( TLorentzVector longLivedParticle, TLorentzVector decayProduct, double r_dv, double R_cal) const{
+TLorentzVector LongLivedTruthJetKinematics::getDVKine(const TLorentzVector longLivedParticle, const TLorentzVector decayProduct, double r_dv, double R_cal) const{
   double ph = longLivedParticle.Phi();
   double eta = longLivedParticle.Eta();
   double th = getThetaFromEta(eta);
@@ -127,10 +127,10 @@ TLorentzVector LongLivedTruthJetKinematics::getDVKine( TLorentzVector longLivedP
   double th2 = getThetaFromEta(eta2);
 
   if(r_dv*sin(th) > R_cal) {
-		TLorentzVector dvDecay(0,0,0,0);
-  	dvDecay.SetPtEtaPhiM(decayProduct.Pt(), longLivedParticle.Eta(), longLivedParticle.Phi(), decayProduct.M());
-  	return dvDecay;
-	}
+    TLorentzVector dvDecay(0,0,0,0);
+    dvDecay.SetPtEtaPhiM(decayProduct.Pt(), longLivedParticle.Eta(), longLivedParticle.Phi(), decayProduct.M());
+    return dvDecay;
+  }
 
   double c = (r_dv*sin(th))*(r_dv*sin(th)) - R_cal*R_cal;
   double b = 2*r_dv*sin(th)*sin(th2) * ( cos(ph)*cos(ph2) + sin(ph)*sin(ph2) );
@@ -147,7 +147,7 @@ TLorentzVector LongLivedTruthJetKinematics::getDVKine( TLorentzVector longLivedP
   double etaNew = getEtaFromTheta(theta);
   double phiNew = atan2( y_cal  , x_cal);
 
-	TLorentzVector dvDecay(0,0,0,0);
+  TLorentzVector dvDecay(0,0,0,0);
   dvDecay.SetPtEtaPhiM(decayProduct.Pt(), etaNew, phiNew, decayProduct.M());
   return dvDecay;
 }

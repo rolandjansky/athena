@@ -27,9 +27,9 @@
 namespace DerivationFramework {
 
 class LongLivedTruthJetKinematics: public AthAlgTool, public IAugmentationTool{
-  //ASG_TOOL_CLASS(LongLivedTruthJetKinematics, IAsgTool)
+
   public:
-  LongLivedTruthJetKinematics(const std::string &name); // MEN: constructor 
+    LongLivedTruthJetKinematics(const std::string &name); 
     LongLivedTruthJetKinematics(const std::string& t, const std::string& n, const IInterface* p);
     ~LongLivedTruthJetKinematics(){};
     StatusCode initialize();
@@ -40,15 +40,15 @@ protected:
   std::string m_inputTruthJetContainer = ""; //!
   std::string m_inputParticleContainer = ""; //!
   std::string m_outputTruthJetContainer = ""; //!
-	int m_llp_pdgid; //!
-	double m_caloRad; //!
-	double m_dR_matching; //!
+  int m_llp_pdgid; //!
+  double m_caloRad; //!
+  double m_dR_matching; //!
 
-	double getEtaFromTheta(double theta) const;
-	double getThetaFromEta(double eta) const;
-	TLorentzVector getDVKine( TLorentzVector longLivedParticle, TLorentzVector decayProduct, double r_dv, double R_cal) const;
-	bool isDecayParticle(xAOD::TruthParticle* particle) const;
-	TLorentzVector matchJets(xAOD::Jet* mytruthJet) const;
+  double getEtaFromTheta(double theta) const;
+  double getThetaFromEta(double eta) const;
+  TLorentzVector getDVKine(const TLorentzVector longLivedParticle, const TLorentzVector decayProduct, double r_dv, double R_cal) const;
+  bool isDecayParticle(const xAOD::TruthParticle* particle) const;
+  TLorentzVector matchJets(const xAOD::Jet* mytruthJet) const;
 
 };
 }
