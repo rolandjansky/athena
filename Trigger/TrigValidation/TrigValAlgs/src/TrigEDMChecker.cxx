@@ -1040,7 +1040,7 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 	StatusCode returnsc=StatusCode::SUCCESS;
 
 	for (int itag=0; itag<ntag; itag++){
-		const Rec::TrackParticleContainer*  pTrackParticleC;
+		const Rec::TrackParticleContainer*  pTrackParticleC = nullptr;
 		StatusCode sc = evtStore()->retrieve(pTrackParticleC, trackPtags[itag]);
 		if (sc.isFailure()) {
           ATH_MSG_INFO("REGTEST No TrackParticleContainer found with tag " << trackPtags[itag]);
@@ -2137,7 +2137,7 @@ StatusCode TrigEDMChecker::dumpTrigInDetTrackCollection() {
   ATH_MSG_INFO("REGTEST ==========START of TrigInDetTrackCollection DUMP===========");
 
   for (int iTag=0; iTag < ntag; iTag++) {
-    const TrigInDetTrackCollection* trigInDetTrackCollection;
+    const TrigInDetTrackCollection* trigInDetTrackCollection = nullptr;
     StatusCode sc = evtStore()->retrieve(trigInDetTrackCollection,TrigInDetTrackTags[iTag] );
     if (sc.isFailure()) {
       ATH_MSG_DEBUG("REGTEST No TrigInDetTrackCollection found with key " << TrigInDetTrackTags[iTag]);
