@@ -555,29 +555,6 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 }
 
 // =============================================================================
-// Implementation of ITrigEventLoopMgr::processRoIs
-// DUE TO BE REMOVED
-// =============================================================================
-StatusCode HltEventLoopMgr::processRoIs(
-             const std::vector<eformat::ROBFragment<const uint32_t*> >& /*l1_result*/,
-             hltinterface::HLTResult& /*hlt_result*/,
-             const hltinterface::EventId& /*evId*/)
-{
-  ATH_MSG_VERBOSE("dummy implementation of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
-}
-
-// =============================================================================
-// Implementation of ITrigEventLoopMgr::timeOutReached
-// DUE TO BE REMOVED
-// =============================================================================
-StatusCode HltEventLoopMgr::timeOutReached(const boost::property_tree::ptree& /*pt*/)
-{
-  ATH_MSG_VERBOSE("dummy implementation of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
-}
-
-// =============================================================================
 // Implementation of IEventProcessor::executeRun
 // =============================================================================
 StatusCode HltEventLoopMgr::executeRun(int maxevt)

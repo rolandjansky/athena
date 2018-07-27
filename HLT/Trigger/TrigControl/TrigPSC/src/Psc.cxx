@@ -652,20 +652,6 @@ bool psc::Psc::publishStatistics (const ptree& /*args*/)
   return true;
 }
 
-//--------------------------------------------------------------------------------
-// Time out is reached
-//--------------------------------------------------------------------------------
-void psc::Psc::timeOutReached (uint64_t global_id, const ptree& args)
-{
-  ERS_DEBUG(1, "Time out reached for HLT processing, event global id = " << global_id);
-
-  // bind args to timeOutReached
-  auto tor = [&args](ITrigEventLoopMgr * mgr)
-             {return mgr->timeOutReached(args);};
-  callOnEventLoopMgr<ITrigEventLoopMgr>(tor, "timeOutReached").ignore();
-}
-
-
 
 //--------------------------------------------------------------------------------
 // User command. Can be sent via:
@@ -842,64 +828,6 @@ void psc::Psc::doEventLoop()
     ERS_PSC_ERROR("psc::Psc::doEventLoop failed");
   }
   ERS_LOG("psc::Psc::doEventLoop: end of doEventLoop()");
-}
-
-bool psc::Psc::process(const vector<ROBFragment<const uint32_t*> >& l1r,
-                       hltinterface::HLTResult& hltr,
-                       const hltinterface::EventId& evId)
-{
-  // protect against empty L1 result vector
-  if ( l1r.empty() ) {
-    ERS_PSC_ERROR("psc::Psc::process: Received no L1 Result ROBs.");
-    return false;
-  }
-
-  uint32_t lvl1_id = l1r[0].rod_lvl1_id();
-  ERS_DEBUG(2,"psc::Psc::process: Start process() of event " << lvl1_id);
-
-  //
-  //--- Process Event/RoIs with the event loop manager and fill HLT Decision
-  //
-
-  StatusCode sc;
-  try
-  {
-    // bind l1r, hltr, and evId to processRoIs
-    auto proc = [&](ITrigEventLoopMgr * mgr)
-                {return mgr->processRoIs(l1r, hltr, evId);};
-    sc = callOnEventLoopMgr<ITrigEventLoopMgr>(proc, "processRoIs");
-  }
-  catch(const ers::Issue& e)
-  {
-    ERS_PSC_ERROR("Caught an unexpected ers::Issue: '" << e.what() << "'");
-    sc = StatusCode::FAILURE;
-  }
-  catch(const std::exception& e)
-  {
-    ERS_PSC_ERROR("Caught an unexpected std::exception: '" << e.what() << "'");
-    sc = StatusCode::FAILURE;
-  }
-  catch(...)
-  {
-    ERS_PSC_ERROR("Caught an unknown exception");
-    sc = StatusCode::FAILURE;
-  }
-
-  ERS_DEBUG(2,"psc::Psc::process: Event " << lvl1_id  << " has /n" <<
-      "       # of stream tags        = " << hltr.stream_tag.size()         << " /n"  <<
-      "       # of HLT info words      = " << hltr.trigger_info.size()          << " /n"  <<
-      "       # of PSC error words = " << hltr.psc_errors.size()         << " /n"  <<
-      "       pointer to HLT result    = 0x" << std::hex << hltr.fragment_pointer << std::dec << " /n"
-  );
-
-  if( sc.isSuccess() || sc.isRecoverable() ) {
-    return true;
-  } else {
-    ERS_PSC_ERROR("psc::Psc::process: Error in processing RoIs for Level 1 ID ="
-                  << lvl1_id << " in the EventLoopMgr '"
-                  << m_nameEventLoopMgr << "'.");
-    return false;
-  }
 }
 
 bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)

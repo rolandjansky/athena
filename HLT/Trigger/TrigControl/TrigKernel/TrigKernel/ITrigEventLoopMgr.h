@@ -44,18 +44,6 @@ public:
    * update parameters if necessary after forking workers and issue incident
    */
   virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree &) = 0;
-
-  /**
-   * propagate a processing time out via the HLT framework to the steering/algorithms
-   */
-  virtual StatusCode timeOutReached(const boost::property_tree::ptree&) = 0;
-
-  /// process one event/RoI
-  virtual StatusCode
-  processRoIs(const std::vector<eformat::ROBFragment<const uint32_t*> >&,
-              hltinterface::HLTResult&,
-              const hltinterface::EventId& evId) = 0;
-
 };
 
 inline const InterfaceID& ITrigEventLoopMgr::interfaceID()

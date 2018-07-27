@@ -107,15 +107,6 @@ public:
    */
   virtual StatusCode stopRun();
 
-  [[deprecated]]
-  virtual StatusCode
-  processRoIs(const std::vector<eformat::ROBFragment<const uint32_t*> >& l1_result,
-              hltinterface::HLTResult& hlt_result,
-              const hltinterface::EventId& evId);
-
-  [[deprecated]]
-  virtual StatusCode timeOutReached(const boost::property_tree::ptree& pt);
-
 private:
   // ------------------------- Helper methods ----------------------------------
 
