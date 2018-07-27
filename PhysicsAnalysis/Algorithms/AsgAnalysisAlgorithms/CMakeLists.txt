@@ -46,3 +46,12 @@ endif()
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
+
+if( XAOD_STANDALONE )
+   atlas_add_test( OverlapRemovalTestJob
+      SCRIPT OverlapAlgorithmsTest_eljob.py --unit-test )
+else()
+   atlas_add_test( OverlapRemovalTestJob
+      SCRIPT athena.py
+             AsgAnalysisAlgorithms/OverlapAlgorithmsTest_jobOptions.py )
+endif()
