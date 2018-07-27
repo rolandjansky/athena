@@ -143,8 +143,8 @@ namespace InDet{
       for(; rdoCollections!=rdoCollectionsEnd; ++rdoCollections){
         const COLLECTION* RDO_Collection(*rdoCollections);
         if (!RDO_Collection || RDO_Collection->empty()) continue;
-        if( clusterContainer->tryFetch( rdoCollections.hashId() )) continue;
-
+        PixelClusterContainer::IDC_WriteHandle lock = clusterContainer->getWriteHandle(rdoCollections.hashId());
+        if( lock.alreadyPresent() ) continue;
 
         // Use one of the specific clustering AlgTools to make clusters
         std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
@@ -152,8 +152,7 @@ namespace InDet{
 
           m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
 
-          IdentifierHash hash = clusterCollection->identifyHash();
-          ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), hash ));
+          ATH_CHECK(lock.addOrDelete( std::move(clusterCollection) ));
         }else{
           ATH_MSG_DEBUG("No PixelClusterCollection to write");
         }
@@ -175,12 +174,11 @@ namespace InDet{
         ATH_MSG_VERBOSE( "REGTEST: Pixel : Roi contains " 
 		     << listOfPixIds.size() << " det. Elements" );
         for (unsigned int i=0; i < listOfPixIds.size(); i++) {
-
-          if( clusterContainer->tryFetch( listOfPixIds[i] )) continue;
-
           const InDetRawDataCollection<PixelRDORawData>* RDO_Collection (rdoContainer->indexFindPtr(listOfPixIds[i]));
 
           if (!RDO_Collection) continue;
+          PixelClusterContainer::IDC_WriteHandle lock = clusterContainer->getWriteHandle(listOfPixIds[i]);
+          if( lock.alreadyPresent() ) continue;
 
           // Use one of the specific clustering AlgTools to make clusters
           std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
@@ -188,8 +186,7 @@ namespace InDet{
             ATH_MSG_VERBOSE( "REGTEST: Pixel : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
             m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
-            IdentifierHash hash = clusterCollection->identifyHash();
-            ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), hash ));
+            ATH_CHECK(lock.addOrDelete( std::move(clusterCollection) ));
 
           }else{
             ATH_MSG_DEBUG("No PixelClusterCollection to write");

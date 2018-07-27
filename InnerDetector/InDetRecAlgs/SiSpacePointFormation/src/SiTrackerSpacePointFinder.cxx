@@ -255,7 +255,8 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
       const SCT_ClusterCollection *colNext=&(**it);
       // Create SpacePointCollection
       IdentifierHash idHash = colNext->identifyHash();
-      if(spacePointContainer_SCT->tryFetch(idHash)){
+      SpacePointContainer::IDC_WriteHandle lock = spacePointContainer_SCT->getWriteHandle(idHash);
+      if(lock.alreadyPresent()){
           ATH_MSG_DEBUG("SCT Hash " << idHash << " is already in cache");
           ++sctCacheCount;
           continue; //Skip if already present in cache
@@ -275,7 +276,7 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
         ATH_MSG_VERBOSE( "SiTrackerSpacePointFinder algorithm found no space points" );
       } else {
         //In a MT environment the cache maybe filled by another thread in which case this will delete the duplicate
-        StatusCode sc= spacePointContainer_SCT->addOrDelete( std::move(spacepointCollection), idHash );
+        StatusCode sc= lock.addOrDelete( std::move(spacepointCollection) );
         if (sc.isFailure()){
           ATH_MSG_ERROR( "Failed to add SpacePoints to container" );
           return StatusCode::RECOVERABLE;
@@ -305,8 +306,8 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
     {
       ATH_MSG_VERBOSE( "Collection num " << numColl++ );
       IdentifierHash idHash = (*colNext)->identifyHash();
-
-      if(spacePointContainerPixel->tryFetch(idHash)){
+      SpacePointContainer::IDC_WriteHandle lock = spacePointContainerPixel->getWriteHandle(idHash);
+      if(lock.alreadyPresent()){
           ATH_MSG_DEBUG("pixel Hash " << idHash << " is already in cache");
           ++pixCacheCount;
           continue;
@@ -331,7 +332,7 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
       }
       else
       {
-        StatusCode sc = spacePointContainerPixel->addOrDelete( std::move(spacepointCollection), idHash );
+        StatusCode sc = lock.addOrDelete( std::move(spacepointCollection) );
         if (sc.isFailure())
         {
           ATH_MSG_ERROR( "Failed to add SpacePoints to container" );
