@@ -8,21 +8,17 @@
 // Jennifer Roloff, Harvard University
 // November 2017
 
-#include <string>
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandleArray.h"
 #include "xAODCore/ShallowCopy.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-#include <iostream>
 
 #include "xAODBase/IParticleContainer.h"
-#include "xAODTruth/TruthParticleContainer.h" 
 #include "xAODTruth/TruthParticle.h" 
-#include "xAODTruth/TruthVertexContainer.h" 
 #include "xAODTruth/TruthVertex.h" 
 #include "xAODJet/JetContainer.h" 
-#include "xAODJet/Jet.h" 
+#include <string>
 
 namespace DerivationFramework {
 
@@ -32,8 +28,7 @@ class LongLivedTruthJetKinematics: public AthAlgTool, public IAugmentationTool{
     LongLivedTruthJetKinematics(const std::string &name); 
     LongLivedTruthJetKinematics(const std::string& t, const std::string& n, const IInterface* p);
     ~LongLivedTruthJetKinematics(){};
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize();
     virtual StatusCode addBranches() const;
   
 protected:

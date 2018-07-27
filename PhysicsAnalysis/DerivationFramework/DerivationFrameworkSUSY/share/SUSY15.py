@@ -291,11 +291,7 @@ if DerivationFrameworkIsMonteCarlo:
 
   from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
   TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
-    InputTruthJetContainer = "AntiKt4TruthJets",
-    InputTruthParticleContainer = "TruthParticles",
     OutputContainer = "AntiKt4LLPTruthJets",
-    CalorimeterRadius = 1800,
-    DeltaRMatching =  0.3, 
     LLP_PDGID = 1000022, 
   )
   ToolSvc += TruthJetKinematicsTool

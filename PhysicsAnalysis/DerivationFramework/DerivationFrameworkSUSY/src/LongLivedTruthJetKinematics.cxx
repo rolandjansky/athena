@@ -6,9 +6,8 @@
 // Jennifer Roloff, Harvard University
 
 #include "DerivationFrameworkSUSY/LongLivedTruthJetKinematics.h"
-#include "AthContainers/ConstDataVector.h"
-#include <iostream>
-#include <string>
+//#include "AthContainers/ConstDataVector.h"
+//#include <string>
 
 namespace DerivationFramework {
 
@@ -16,12 +15,12 @@ LongLivedTruthJetKinematics::LongLivedTruthJetKinematics(const std::string& t, c
     AthAlgTool(t,n,p){
   declareInterface<DerivationFramework::IAugmentationTool>(this);
 
-  declareProperty("InputTruthJetContainer", m_inputTruthJetContainer, "The input container for the sequence.");
-  declareProperty("InputTruthParticleContainer", m_inputParticleContainer, "The input container for the sequence.");
-  declareProperty("OutputContainer", m_outputTruthJetContainer, "The output container for the sequence.");
-  declareProperty("CalorimeterRadius", m_caloRad, "The radius of the calorimeter");
-  declareProperty("DeltaRMatching", m_dR_matching, "The maximum deltaR between particle and jet which is considered a match");
-  declareProperty("LLP_PDGID", m_llp_pdgid, "The pdgid of the long-lived particle");
+  declareProperty("InputTruthJetContainer", m_inputTruthJetContainer = "AntiKt4TruthJets", "The input container for the sequence.");
+  declareProperty("InputTruthParticleContainer", m_inputParticleContainer = "TruthParticles", "The input container for the sequence.");
+  declareProperty("OutputContainer", m_outputTruthJetContainer = "AntiKt4LLPTruthJets", "The output container for the sequence.");
+  declareProperty("CalorimeterRadius", m_caloRad = 1800, "The radius of the calorimeter");
+  declareProperty("DeltaRMatching", m_dR_matching = 0.3, "The maximum deltaR between particle and jet which is considered a match");
+  declareProperty("LLP_PDGID", m_llp_pdgid = 1000022, "The pdgid of the long-lived particle");
 }
 
 StatusCode LongLivedTruthJetKinematics::initialize() {
@@ -55,13 +54,12 @@ TLorentzVector LongLivedTruthJetKinematics::matchJets(const xAOD::Jet* mytruthJe
   truthJetTLV.SetPtEtaPhiE(mytruthJet->pt(), mytruthJet->eta(), mytruthJet->phi(), mytruthJet->e());
   double dRMinTruth = m_dR_matching;
   const xAOD::TruthParticle* matchedSparticle = nullptr;
-  const xAOD::TruthParticleContainer* inparts = nullptr;
 
+  const xAOD::TruthParticleContainer* inparts = nullptr;
   evtStore()->retrieve(inparts, m_inputParticleContainer);
-  std::pair< xAOD::TruthParticleContainer*, xAOD::ShallowAuxContainer* > inSparticles = xAOD::shallowCopyContainer(*inparts); 
 
   // Need to find which particle to match to
-  for(auto sparticle: *(inSparticles.first)){
+  for(auto sparticle: *inparts){
     // Want to make sure this is a long-lived particle, and it's not decaying to itself
     bool isDecay = isDecayParticle(sparticle);
     if(!isDecay) continue;
@@ -84,7 +82,6 @@ TLorentzVector LongLivedTruthJetKinematics::matchJets(const xAOD::Jet* mytruthJe
 
   // Only care about jets matched to truth particles from LLP
   if( !matchedSparticle ) return truthJetTLV;
-  if( matchedSparticle == nullptr ) return truthJetTLV;
 
   TLorentzVector sparticleTLV(0,0,0,0);
   sparticleTLV.SetPtEtaPhiM( matchedSparticle->pt(), matchedSparticle->eta(), matchedSparticle->phi(), matchedSparticle->m());
@@ -99,8 +96,6 @@ TLorentzVector LongLivedTruthJetKinematics::matchJets(const xAOD::Jet* mytruthJe
 // Want to check if the particle has a decay, and that it does not decay to itself
 bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* sparticle) const{
   if(sparticle->pdgId() != m_llp_pdgid) return false;
-  if(sparticle->pdgId() < 1e6) return false;
-      
   if(!sparticle->hasDecayVtx()) return false;
 
   bool isRealDecay = true;
