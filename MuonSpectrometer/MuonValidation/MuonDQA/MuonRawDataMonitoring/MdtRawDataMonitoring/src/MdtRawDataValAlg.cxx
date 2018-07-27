@@ -1473,16 +1473,16 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
 
 
 	std::string perSectors_summary_histtitle = "OccupancyPerSectorVsLB";
-	sc = bookMDTHisto_OccVsLB(mdtoccvslb_summaryPerSector,perSectors_summary_histtitle,"LB","[Phi]",834,1,2502,100,1,100,mg->mongroup_overview_shift);
+	sc = bookMDTHisto_OccVsLB(m_mdtoccvslb_summaryPerSector,perSectors_summary_histtitle,"LB","[Phi]",834,1,2502,100,1,100,m_mg->mongroup_overview_shift);
 	if(sc.isFailure()) {
 	  ATH_MSG_ERROR(" mdtoccvslb_summaryPerSector Failed to register histogram " );
 	  return sc;
 	}
-	mdtoccvslb_summaryPerSector->SetBins(834,1,2502,64,0,64);
-	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(1,"BA");
-	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(17,"BC");
-	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(33,"EA");
-	mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(49,"EC");
+	m_mdtoccvslb_summaryPerSector->SetBins(834,1,2502,64,0,64);
+	m_mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(1,"BA");
+	m_mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(17,"BC");
+	m_mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(33,"EA");
+	m_mdtoccvslb_summaryPerSector->GetYaxis()->SetBinLabel(49,"EC");
 	
 
 
@@ -1916,7 +1916,7 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     if(ilayer != 3) m_mdtoccvslb[iregion][ilayer]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM));
     else m_mdtoccvslb[iregion][2]->Fill(m_lumiblock,get_bin_for_LB_hist(iregion,ilayer,stationPhi,stationEta,isBIM)); // Put extras in with outer
 
-    mdtoccvslb_summaryPerSector->Fill(m_lumiblock,  stationPhi+iregion*16+1  );
+    m_mdtoccvslb_summaryPerSector->Fill(m_lumiblock,  stationPhi+iregion*16+1  );
 
     
     //correct readout crate info for BEE,BIS7/8
