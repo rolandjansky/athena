@@ -40,19 +40,29 @@ class AnaAlgSequence( AlgSequence ):
 
         return
 
-    def configure( self, inputName, outputName ):
+    def configure( self, inputName, outputName, affectingSystematics = None ):
         """Perform a post-configuration on the analysis algorithm sequence
 
         This function needs to be called once the sequence is configured to
-        hold the right algorithms, in the right order. It sets the I/O
-        properties of the algorithms to make sure that:
-          - The first one takes the object/container specified
-          - The output of one algorithm is picked up correctly by the next
-          - The last one outputs the object/container specified
+        hold the right algorithms, in the right order, with the right settings.
+        It sets the I/O properties of the algorithms to make sure that they
+        receive the input object(s) specified, and produce the output object(s)
+        requested.
+
+        The arguments can either be simple string names, or dictionaries in the
+        form of { "type" : "key", ... }. The latter is used to describe multiple
+        inputs/outputs to/from a sequence. See the descriptions of the various
+        analysis algorithm sequence setup functions on how their created
+        sequences should be configured by this function.
 
         Keyword arguments:
-          inputName  -- The name of the input object/container to process
-          outputName -- The name of the output object/container to produce
+          inputName  -- The name(s) of the input object(s)/container(s) to
+                        process
+          outputName -- The name(s) of the output object(s)/container(s) to
+                        produce
+          affectingSystematics -- Regular expression(s) describing which
+                                  systematic variation(s) are already affecting
+                                  the input object(s)/container(s)
         """
 
         # Make sure that all internal variables are of the same size:
@@ -76,7 +86,11 @@ class AnaAlgSequence( AlgSequence ):
 
         # Iterate over the algorithms:
         currentInputs = copy.deepcopy( inputNameDict )
-        inputRegex = {}
+        if not affectingSystematics:
+            affectingSystematics = {}
+        elif not isinstance( affectingSystematics, dict ):
+            affectingSustematics = { "default" : affectingSystematics }
+            pass
         tmpIndex = {}
         systematicsUsed = False
         for alg, inName, outName, syst in zip( self, self._inputPropNames,
@@ -90,11 +104,14 @@ class AnaAlgSequence( AlgSequence ):
 
             # Set the input name(s):
             for inputLabel, inputPropName in inName.iteritems():
+                if not inputLabel in currentInputs.keys():
+                    continue
                 setattr( alg, inputPropName, currentInputs[ inputLabel ] )
-                if inputLabel not in inputRegex.keys():
-                    inputRegex[ inputLabel ] = '(^$)'
+                if inputLabel not in affectingSystematics.keys():
+                    affectingSystematics[ inputLabel ] = '(^$)'
                     pass
-                setattr( alg, inputPropName + 'Regex', inputRegex[ inputLabel ] )
+                setattr( alg, inputPropName + 'Regex',
+                         affectingSystematics[ inputLabel ] )
                 pass
 
             # Set up the output name(s):
@@ -122,25 +139,26 @@ class AnaAlgSequence( AlgSequence ):
 
                     # Make sure that this (possibly intermediate) label is known
                     # in the regex dictionary.
-                    if outputLabel not in inputRegex.keys():
-                        inputRegex[ outputLabel ] = '(^$)'
+                    if outputLabel not in affectingSystematics.keys():
+                        affectingSystematics[ outputLabel ] = '(^$)'
                         pass
 
                     # Assume that the variation on *all* of the inputs affect
                     # all of the outputs.
                     for label in inName.keys():
-                        if label in inputRegex.keys():
+                        if label in affectingSystematics.keys():
                             # If it starts with '(^$)' (it should), then remove
                             # that for the following operations.
-                            pattern = inputRegex[ label ]
+                            pattern = affectingSystematics[ label ]
                             if pattern.find( '(^$)|' ) == 0:
                                 pattern = pattern[ 5 : ]
                                 pass
                             # Check that we don't have this already in the
                             # regular expression.
-                            if inputRegex[ outputLabel ].find( pattern ) == -1:
+                            if affectingSystematics[ outputLabel ].find( pattern ) == -1:
                                 # If we don't, then let's add it now.
-                                inputRegex[ outputLabel ] += '|%s' % pattern
+                                affectingSystematics[ outputLabel ] += \
+                                  '|%s' % pattern
                                 pass
                             pass
                         pass
@@ -148,7 +166,8 @@ class AnaAlgSequence( AlgSequence ):
                     # And of course variations applied by this algorithm itself
                     # do affect all outputs.
                     if syst and outputLabel in syst.keys():
-                        inputRegex[ outputLabel ] += '|%s' % syst[ outputLabel ]
+                        affectingSystematics[ outputLabel ] += \
+                          '|%s' % syst[ outputLabel ]
                         pass
 
                     pass
