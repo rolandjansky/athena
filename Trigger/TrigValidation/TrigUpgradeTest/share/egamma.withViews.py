@@ -285,6 +285,8 @@ StreamESD.ItemList += [ "TrigRoiDescriptorCollection#METRoI" ]
 StreamESD.ItemList += [ "TrigRoiDescriptorCollection#MURoIs" ]
 StreamESD.ItemList += [ "TrigRoiDescriptorCollection#TAURoIs" ]
 
+StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
+
 print "ESD file content " 
 print StreamESD.ItemList
 
