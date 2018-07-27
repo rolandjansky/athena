@@ -62,8 +62,13 @@ namespace CP
   private:
     std::vector<SelectionType> m_ignore;
 
+    /// \brief Sort the output (view) container by pT
   private:
     bool m_sortPt {false};
+
+    /// \brief Allow the input container to be missing
+  private:
+    bool m_allowMissing {false};
 
   private:
     std::size_t m_sizeLimit {std::numeric_limits<std::size_t>::max()};
@@ -80,6 +85,10 @@ namespace CP
     /// \brief the version of execute to find the type
   private:
     StatusCode executeFindType (const CP::SystematicSet& sys);
+
+    /// \brief The version of execute for missing input containers
+  private:
+    StatusCode executeMissing (const CP::SystematicSet& sys);
 
   private:
     StatusCode (AsgViewFromSelectionAlg::* m_function) (const CP::SystematicSet& sys) {&AsgViewFromSelectionAlg::executeFindType};
