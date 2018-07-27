@@ -24,6 +24,7 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "LArRecConditions/ILArBadChanTool.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class LArCablingService;
 class StoreGateSvc;
@@ -87,6 +88,7 @@ public:
   */
   //std::string m_larFebErrorSummaryKey;
   SG::ReadHandleKey<LArFebErrorSummary> m_larFebErrorSummaryKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
 
   /** compute bit mask of errors to mask
   */
