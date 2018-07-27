@@ -16,6 +16,7 @@
 
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTruth/TruthParticle.h" 
+#include "xAODTruth/TruthParticleContainer.h" 
 #include "xAODTruth/TruthVertex.h" 
 #include "xAODJet/JetContainer.h" 
 #include <string>
