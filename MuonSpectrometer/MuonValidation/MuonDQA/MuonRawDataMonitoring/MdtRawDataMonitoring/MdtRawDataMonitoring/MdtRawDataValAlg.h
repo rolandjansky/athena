@@ -307,7 +307,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH2* m_mdtoccvslb[4][3];
   TH2* m_mdtoccvslb_by_crate[4][4];
   TH2* m_mdtoccvslb_ontrack_by_crate[4][4];
-
+  TH2* m_mdtoccvslb_summaryPerSector;
 
   /////End from old BS
 
