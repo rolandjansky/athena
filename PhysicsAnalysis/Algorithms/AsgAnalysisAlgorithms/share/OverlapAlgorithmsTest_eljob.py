@@ -51,10 +51,10 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
 # Skip events with no primary vertex:
 from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-#config = AnaAlgorithmConfig( 'CP::VertexSelectionAlg/PrimaryVertexSelectorAlg',
-#                             VertexContainer = 'PrimaryVertices',
-#                             MinVertices = 1 )
-#job.algsAdd( config )
+config = AnaAlgorithmConfig( 'CP::VertexSelectionAlg/PrimaryVertexSelectorAlg',
+                             VertexContainer = 'PrimaryVertices',
+                             MinVertices = 1 )
+job.algsAdd( config )
 
 # Set up the systematics loader/handler algorithm:
 config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
@@ -174,7 +174,7 @@ ntupleMaker.Branches = [
     'EventInfo.runNumber   -> runNumber',
     'EventInfo.eventNumber -> eventNumber',
     'AnalysisElectrons_%SYS%.eta -> el_%SYS%_eta',
-    'AnalysisElectrons_%SYS%.phi -> el_%SYS%phi',
+    'AnalysisElectrons_%SYS%.phi -> el_%SYS%_phi',
     'AnalysisElectrons_%SYS%.pt  -> el_%SYS%_pt',
     'AnalysisElectronsOR_%SYS%.eta -> el_OR_%SYS%_eta',
     'AnalysisElectronsOR_%SYS%.phi -> el_OR_%SYS%_phi',
