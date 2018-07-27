@@ -15,7 +15,6 @@ class TrigCountTrtHitsHypo: public HLT::HypoAlgo {
   ~TrigCountTrtHitsHypo();
     
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun();
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
     

@@ -782,15 +782,4 @@ namespace InDet{
     return HLT::OK;
   }
 
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SiTrigSpacePointFinder::hltEndRun(){
- 
-    // Get the messaging service, print where you are
-    ATH_MSG_INFO( "SiTrigSpacePointFinder::endRun()" );
- 
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
 }

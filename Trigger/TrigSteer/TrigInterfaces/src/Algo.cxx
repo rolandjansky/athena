@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -219,16 +219,6 @@ StatusCode Algo::beginRun()
 }
 
 
-StatusCode Algo::endRun()
-{
-  if (hltEndRun() != HLT::OK ) return StatusCode::FAILURE;
-
-  if ( endRunMonitors().isFailure() ) {
-    ATH_MSG_WARNING ( "Unable to uninitialize at endRun all monitors, continuing anyway");
-  }
-  return StatusCode::SUCCESS;
-}
-
 StatusCode Algo::finalize()
 {
   // call initialize from derived class:
@@ -379,12 +369,6 @@ StatusCode Algo::stopMonitors()
 
 
 StatusCode Algo::beginRunMonitors()
-{
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode Algo::endRunMonitors()
 {
   return StatusCode::SUCCESS;
 }

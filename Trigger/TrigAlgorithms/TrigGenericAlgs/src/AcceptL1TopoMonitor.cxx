@@ -457,9 +457,8 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltBeginRun()
     return HLT::OK;
 }
 //----------------------------------------------------------
-HLT::ErrorCode AcceptL1TopoMonitor::hltEndRun()
+HLT::ErrorCode AcceptL1TopoMonitor::hltStop()
 {
-    ATH_MSG_INFO("endRun");
     ATH_MSG_DEBUG("Error counters:");
     ATH_MSG_DEBUG("GenericRoiError   : "<<m_counterGenericRoiError);
     ATH_MSG_DEBUG("GenericDaqError   : "<<m_counterGenericDaqError);

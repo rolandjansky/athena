@@ -57,13 +57,6 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltInitialize() {
   return HLT::OK;
 }
 
-//---------------------------------------------------------------------------------------------------------------------------------------------
-HLT::ErrorCode TrigCountTrtHitsHypo::hltBeginRun() {
-  // This initialisation has been moved into the event loop.
-  // @see TrigCountTrtHitsHypo::checkDetectorMask
-  ATH_MSG_DEBUG(" TrigCountTrtHitsHypo will be initialized in hltExecute"); 
-  return HLT::OK;
-}
 //-----------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHitsHypo::checkDetectorMask() {

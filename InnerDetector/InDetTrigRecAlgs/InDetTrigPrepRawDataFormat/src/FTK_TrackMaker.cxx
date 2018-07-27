@@ -181,16 +181,6 @@ namespace InDet{
     return HLT::OK;
   }
 
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode FTK_TrackMaker::hltEndRun()
-  {
-    ATH_MSG_INFO( "FTK_TrackMaker::endRun()" );
-
-    //errorSvc statistics
-
-    return HLT::OK;
-  }
-
   //---------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::prepareRobRequests(const HLT::TriggerElement* inputTE){
 

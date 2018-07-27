@@ -34,15 +34,6 @@ namespace PESA
   TrigRoiUpdater::~TrigRoiUpdater()
   {}
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigRoiUpdater::hltBeginRun() {
-    ATH_MSG_DEBUG("TrigRoiUpdater::beginRun()");
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
 
   ///////////////////////////////////////////////////////////////////
   // Initialisation
@@ -224,16 +215,6 @@ namespace PESA
     return HLT::OK;
   }
 
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigRoiUpdater::hltEndRun() {
-   
-    ATH_MSG_DEBUG("TrigRoiUpdater::endRun()");
-   
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
 } // end namespace
 
 

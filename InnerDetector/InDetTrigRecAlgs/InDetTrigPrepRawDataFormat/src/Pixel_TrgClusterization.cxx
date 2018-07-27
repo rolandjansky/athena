@@ -636,19 +636,6 @@ namespace InDet{
 
     return HLT::OK;
   }
-  //----------------------------------  
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode Pixel_TrgClusterization::hltEndRun()
-  {
-
-    ATH_MSG_INFO( "Pixel_TrgClusterization::endRun()" );
-
-    return HLT::OK;
-  }
-
-  //---------------------------------------------------------------------------
-
 
   //-------------------------------------------------------------------------
   HLT::ErrorCode Pixel_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {

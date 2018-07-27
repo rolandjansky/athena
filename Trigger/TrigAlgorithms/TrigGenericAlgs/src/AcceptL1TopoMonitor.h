@@ -67,7 +67,7 @@ public:
     HLT::ErrorCode hltExecute(std::vector<HLT::TEVec>&, unsigned int outputTeType);
     HLT::ErrorCode hltFinalize();
     HLT::ErrorCode hltBeginRun();
-    HLT::ErrorCode hltEndRun();
+    HLT::ErrorCode hltStop();
 private:
     static const unsigned int m_nTopoCTPOutputs = 128; //! Number of CTP outputs, used for histogram ranges and loops
     /**
