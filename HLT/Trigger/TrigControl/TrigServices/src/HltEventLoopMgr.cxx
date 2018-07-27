@@ -345,14 +345,12 @@ StatusCode HltEventLoopMgr::start()
 // =============================================================================
 StatusCode HltEventLoopMgr::stop()
 {
-  ATH_CHECK(AthService::stop());
-
-  // stop top level algorithms
+  // Stop top level algorithms
   for (auto& ita : m_topAlgList) {
     ATH_CHECK(ita->sysStop());
   }
 
-  return StatusCode::SUCCESS;
+  return AthService::stop();
 }
 
 // =============================================================================
@@ -539,6 +537,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   }
 
   // Start the timeout thread
+  ATH_MSG_DEBUG("Starting the timeout thread");
   m_timeoutThread.reset(new std::thread(std::bind(&HltEventLoopMgr::runEventTimer,this)));
 
   // Initialise vector of time points for event timeout monitoring
@@ -547,8 +546,8 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
     m_eventTimerStartPoint.clear();
     m_eventTimerStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::time_point());
     m_isSlotProcessing.resize(m_whiteboard->getNumberOfStores(), false);
-    m_timeoutCond.notify_all();
   }
+  m_timeoutCond.notify_all();
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -568,15 +567,15 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
 
   // do some cleanup here
 
-  // stop the timer thread - this should be in the stop() transition, but it is not called at the moment
+  // Stop the timer thread
   {
     ATH_MSG_DEBUG("Stopping the timeout thread");
     std::unique_lock<std::mutex> lock(m_timeoutMutex);
     m_runEventTimer = false;
-    m_timeoutCond.notify_all();
-    m_timeoutThread->join();
-    ATH_MSG_DEBUG("The timeout thread finished");
   }
+  m_timeoutCond.notify_all();
+  m_timeoutThread->join();
+  ATH_MSG_DEBUG("The timeout thread finished");
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return sc;
@@ -662,8 +661,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         m_eventTimerStartPoint[evtContext->slot()] = std::chrono::steady_clock::now();
         m_isSlotProcessing[evtContext->slot()] = true;
         resetTimeout(Athena::Timeout::instance(*evtContext));
-        m_timeoutCond.notify_all();
       }
+      m_timeoutCond.notify_all();
 
       //------------------------------------------------------------------------
       // Set up proxy and get the event info
@@ -1301,8 +1300,8 @@ int HltEventLoopMgr::drainScheduler()
       m_eventTimerStartPoint[thisFinishedEvtContext->slot()] = std::chrono::steady_clock::now();
       m_isSlotProcessing[thisFinishedEvtContext->slot()] = false;
       resetTimeout(Athena::Timeout::instance(*thisFinishedEvtContext));
-      m_timeoutCond.notify_all();
     }
+    m_timeoutCond.notify_all();
 
     ATH_MSG_DEBUG("Clearing slot " << thisFinishedEvtContext->slot()
                   << " (event " << thisFinishedEvtContext->evt() << ") of the whiteboard");
