@@ -64,10 +64,6 @@ public:
   /// Standard destructor
   virtual ~HltEventLoopMgr();
 
-  /// Override IInterface::queryInterface to handle multiple interfaces properly
-  /// (should be handled by extends2<base, i, i>, but doesn't work)
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
   /// @name Gaudi state transitions (overriden from AthService)
   ///@{
   virtual StatusCode initialize() override;

@@ -102,27 +102,6 @@ HltEventLoopMgr::~HltEventLoopMgr()
 }
 
 // =============================================================================
-// Implementation of IInterface::queryInterface (overriding other implementations)
-// =============================================================================
-StatusCode HltEventLoopMgr::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  if(!ppvInterface)
-      return StatusCode::FAILURE;
-
-  if(ITrigEventLoopMgr::interfaceID().versionMatch(riid))
-    *ppvInterface = static_cast<ITrigEventLoopMgr*>(this);
-  else if(IEventProcessor::interfaceID().versionMatch(riid))
-    *ppvInterface = static_cast<IEventProcessor*>(this);
-  else
-    return base_class::queryInterface(riid, ppvInterface);
-
-  addRef();
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
-}
-
-// =============================================================================
 // Reimplementation of AthService::initalize (IStateful interface)
 // =============================================================================
 StatusCode HltEventLoopMgr::initialize()
