@@ -24,7 +24,6 @@ except:
     sys.exit(1)
     
 from DataQualityUtils.DQWebDisplayConfig import DQWebDisplayConfig
-import os
 from ._resolve_data_path import resolve_data_path
 
 hcfg_dir = ast.literal_eval(AtlasAPI.get_ami_tag(client,htag)[0]['phconfig'])['filepaths']['basename']
