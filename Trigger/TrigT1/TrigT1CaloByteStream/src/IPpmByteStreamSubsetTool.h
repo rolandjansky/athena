@@ -11,7 +11,7 @@
 #include "GaudiKernel/IInterface.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace LVL1 {
   class TriggerTower;
