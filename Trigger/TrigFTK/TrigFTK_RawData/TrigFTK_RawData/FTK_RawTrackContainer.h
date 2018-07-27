@@ -18,8 +18,8 @@ PURPOSE:  A container for a collection of FTK_RawTrack objects.
 **************************************************************/
 
 
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include "TrigFTK_RawData/FTK_RawTrack.h" // Change this once added to svn
 
