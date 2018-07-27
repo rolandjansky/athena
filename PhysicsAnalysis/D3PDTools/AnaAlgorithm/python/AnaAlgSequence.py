@@ -122,16 +122,20 @@ class AnaAlgSequence( AlgSequence ):
                         pass
                     if outputLabel in inputNameDict.keys():
                         currentInputs[ outputLabel ] = \
-                          '%s_tmp%i_%%SYS%%' % ( inputNameDict[ outputLabel ],
-                                                     tmpIndex[ outputLabel ] )
+                          '%s_tmp%i' % ( inputNameDict[ outputLabel ],
+                                         tmpIndex[ outputLabel ] )
                     elif outputLabel in outputNameDict.keys():
                         currentInputs[ outputLabel ] = \
-                          '%s_tmp%i_%%SYS%%' % ( outputNameDict[ outputLabel ],
-                                                     tmpIndex[ outputLabel ] )
+                          '%s_tmp%i' % ( outputNameDict[ outputLabel ],
+                                         tmpIndex[ outputLabel ] )
                     else:
                         currentInputs[ outputLabel ] = \
-                          '%s_tmp%i_%%SYS%%' % ( outputLabel,
-                                                     tmpIndex[ outputLabel ] )
+                          '%s_tmp%i' % ( outputLabel,
+                                         tmpIndex[ outputLabel ] )
+                        pass
+                    if currentInputs[ outputLabel ].find( '%SYS%' ) == -1:
+                        currentInputs[ outputLabel ] = \
+                          '%s_%%SYS%%' % currentInputs[ outputLabel ]
                         pass
 
                     tmpIndex[ outputLabel ] += 1
