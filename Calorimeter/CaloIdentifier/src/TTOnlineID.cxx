@@ -515,13 +515,15 @@ int TTOnlineID::initLevelsFromDict(void)
   log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_channel_index " << endmsg;
   m_channel_impl   = region.m_implementation[m_channel_index];
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] (11) decode index and bit fields for each level: " << endmsg;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > calo          " << m_calo_impl.show_to_string() << endmsg;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > detzside  "  << m_calo_detzside_impl.show_to_string() << endmsg;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > crate         " << m_crate_impl.show_to_string()  << endmsg;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > module        " << m_module_impl.show_to_string() << endmsg;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > submodule     " << m_submodule_impl.show_to_string()  << endmsg;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > channel       " << m_channel_impl.show_to_string()  << endmsg;
+  if (!m_quiet) {
+    log << MSG::DEBUG  << "[initLevelsFromDict] (11) decode index and bit fields for each level: " << endmsg;
+    log << MSG::DEBUG  << "[initLevelsFromDict] > calo          " << m_calo_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG  << "[initLevelsFromDict] > detzside  "  << m_calo_detzside_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG  << "[initLevelsFromDict] > crate         " << m_crate_impl.show_to_string()  << endmsg;
+    log << MSG::DEBUG  << "[initLevelsFromDict] > module        " << m_module_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG  << "[initLevelsFromDict] > submodule     " << m_submodule_impl.show_to_string()  << endmsg;
+    log << MSG::DEBUG  << "[initLevelsFromDict] > channel       " << m_channel_impl.show_to_string()  << endmsg;
+  }
 
   return(0) ;
 }

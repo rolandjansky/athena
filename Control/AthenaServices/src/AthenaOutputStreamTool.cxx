@@ -192,7 +192,7 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
       if (m_store->retrieve(dh, *dhKey).isFailure()) {
          ATH_MSG_DEBUG("Unable to retrieve the DataHeader with key " << *dhKey);
       }
-      if (dh->checkStatus(DataHeader::Primary) || primaryDH) {
+      if (dh->isInput() || primaryDH) {
          // Add DataHeader token to new DataHeader
          if (m_extendProvenanceRecord) {
             std::string pTag;
@@ -435,17 +435,16 @@ StatusCode AthenaOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenFromT
 	            it != itLast; ++it) {
                // Only insert the primary clid, not the ones for the symlinks!
                CLID clid = it->getPrimaryClassID();
-                  std::string typeName;
-                  if (clid != ClassID_traits<DataHeader>::ID()) {
+               if (clid != ClassID_traits<DataHeader>::ID()) {
                   //check the typename is known ... we make an exception if the key contains 'Aux.' ... aux containers may not have their keys known yet in some cases
-		  //see https://its.cern.ch/jira/browse/ATLASG-59 for the solution
+                  //see https://its.cern.ch/jira/browse/ATLASG-59 for the solution
                   std::string typeName;
-                  if( m_clidSvc->getTypeNameOfID(clid,typeName).isFailure() && it->getKey().find("Aux.") == std::string::npos) {
-		    if(m_skippedItems.find(it->getKey()) == m_skippedItems.end()) {
-		      ATH_MSG_WARNING("Skipping " << it->getKey() << " with unknown clid " << clid << " . Further warnings for this item are suppressed" ); 
-		      m_skippedItems.insert(it->getKey()); 
-		    }
-                    continue;
+                  if (m_clidSvc->getTypeNameOfID(clid, typeName).isFailure() && it->getKey().find("Aux.") == std::string::npos) {
+                     if (m_skippedItems.find(it->getKey()) == m_skippedItems.end()) {
+                        ATH_MSG_WARNING("Skipping " << it->getKey() << " with unknown clid " << clid << " . Further warnings for this item are suppressed" );
+                        m_skippedItems.insert(it->getKey());
+                     }
+                     continue;
                   }
                   ATH_MSG_DEBUG("Adding " << typeName << "#" << it->getKey() << " (clid " << clid << ") to itemlist");
                   const std::string keyName = it->getKey();

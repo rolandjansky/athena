@@ -125,8 +125,11 @@ int ID_ContainerTest::initialize()
 } 
 
 // ------ finalize() 
-int ID_ContainerTest::finalize()  
-{ return 0;} 
+int ID_ContainerTest::finalize()
+{
+delete m_container;
+m_container=nullptr;
+return 0;}
 
 //------ execute() 
 

@@ -158,6 +158,11 @@ atlas_add_test( CaloIDHelper_test
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers SGTools AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
                 EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
 
+atlas_add_test( CaloHelpersTest_test
+                SOURCES
+                test/CaloHelpersTest_test.cxx
+                LINK_LIBRARIES CaloIdentifier )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/SuperCaloNeighborsSuperCells-April2014.dat share/FCalSuperCells2DNeighborsNew-April2014.txt share/FCalSuperCells3DNeighborsPrevNew-April2014.txt share/FCalSuperCells3DNeighborsNextNew-April2014.txt share/TileSuperCellNeighbour.txt share/TileNeighbour.txt share/TileNeighbour_reduced.txt share/FCal2DNeighbors.txt share/FCal3DNeighborsPrev.txt share/FCal3DNeighborsNext.txt share/FCal2DNeighbors_H6.txt share/FCal3DNeighborsPrev_H6.txt share/FCal3DNeighborsNext_H6.txt share/SuperCaloNeighbours.dat share/SuperCaloNeighbours_H6.dat share/SuperCaloNeighbours_H8.dat share/FCal2DNeighbors-DC3-05-Comm-01.txt share/FCal3DNeighborsNext-DC3-05-Comm-01.txt share/FCal3DNeighborsPrev-DC3-05-Comm-01.txt share/SuperCaloNeighbours-DC3-05-Comm-01.dat share/FCal2DNeighbors-April2011.txt share/FCal3DNeighborsNext-April2011.txt share/FCal3DNeighborsPrev-April2011.txt share/SuperCaloNeighbours-April2011.dat share/sFCal2DNeighborsNew-Dec2014.txt share/sFCal3DNeighborsNextNew-Dec2014.txt share/sFCal3DNeighborsPrevNew-Dec2014.txt share/SuperCaloNeighbours-sFCal-Dec2014.dat )

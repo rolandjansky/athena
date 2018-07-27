@@ -20,13 +20,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 #include <vector>
 #include <string>
 #include <set>
 #include <map>
-namespace Trig {
-  class TrigDecisionTool;
-}
 class IIncidentSvc;
 
 

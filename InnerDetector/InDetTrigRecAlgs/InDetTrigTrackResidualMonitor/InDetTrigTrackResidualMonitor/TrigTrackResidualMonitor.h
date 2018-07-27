@@ -36,7 +36,6 @@ class StoreGateSvc;
 class SCT_NeighboursTable;
 
 namespace InDetDD{
-  class SCT_DetectorManager;
   class PixelDetectorManager;
 }
 
@@ -110,7 +109,6 @@ namespace InDet
     ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator;
     
     
-    const InDetDD::SCT_DetectorManager    *m_SCT_Manager{};
     const InDetDD::PixelDetectorManager   *m_Pixel_Manager{};
 
 

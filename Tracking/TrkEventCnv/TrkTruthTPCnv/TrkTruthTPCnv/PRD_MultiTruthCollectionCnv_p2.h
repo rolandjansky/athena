@@ -11,10 +11,11 @@
 #define PRD_MULTITRUTHCOLLECTIONCNV_P2_H 
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
+#include "TrkTruthTPCnv/PRD_MultiTruthCollection_p2.h"
 
 class MsgStream;
 class PRD_MultiTruthCollection;
-namespace Trk { class PRD_MultiTruthCollection_p2; }
+// namespace Trk { class PRD_MultiTruthCollection_p2; }
 
 
 class PRD_MultiTruthCollectionCnv_p2 

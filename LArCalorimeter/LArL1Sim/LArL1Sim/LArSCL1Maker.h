@@ -22,13 +22,13 @@
 #include "LArDigitization/LArHitEMap.h"
 #include "LArElecCalib/ILArAutoCorrNoiseTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 
 
 class PileUpMergeSvc;
 class IAtRndmGenSvc;
 class ITriggerTime;
 class CaloCell_SuperCell_ID;
-class ICaloSuperCellIDTool;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;

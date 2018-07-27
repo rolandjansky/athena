@@ -12,8 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
 #include "TrkTruthData/TrackTruthCollection.h"
-
-namespace Trk { class IDetailedTrackTruthSimilarity; }
+#include "TrkToolInterfaces/IDetailedTrackTruthSimilarity.h"
 
 class TrackTruthSimilaritySelector: public AthAlgorithm {
 public:

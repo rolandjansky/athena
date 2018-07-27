@@ -23,7 +23,9 @@
 // 15-05-2015 : Edoardo Farina
 //-----------------------------------------------------------------------------
 #include "G4Version.hh"
-#if G4VERSION_NUMBER > 1009
+#if G4VERSION_NUMBER > 1029
+#define PARTICLEITERATOR (this->GetParticleIterator())
+#elif G4VERSION_NUMBER > 1009
 #define PARTICLEITERATOR aParticleIterator
 #else
 #define PARTICLEITERATOR theParticleIterator

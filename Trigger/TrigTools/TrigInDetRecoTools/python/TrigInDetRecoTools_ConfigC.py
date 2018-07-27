@@ -85,6 +85,14 @@ class FactoryForStrategyC() :
                                                                   PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                   SctSummaryTool = InDetTrigSCTConditionsSummaryTool)
              ToolSvc += TrackFinder_C
+             if DetFlags.haveRIO.SCT_on():
+                 # Condition algorithm for SiCombinatorialTrackFinder_xk
+                 from AthenaCommon.AlgSequence import AthSequencer
+                 condSeq = AthSequencer("AthCondSeq")
+                 if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+                     from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+                     condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
+             
              from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 
              TrackMaker_C = InDet__SiTrackMaker_xk( name = 'InDetTrigSiTrackMaker_C_'+instName,

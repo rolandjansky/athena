@@ -499,6 +499,3 @@ StatusCode TrigMissingETTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-TrigMissingETTool::~TrigMissingETTool() {}

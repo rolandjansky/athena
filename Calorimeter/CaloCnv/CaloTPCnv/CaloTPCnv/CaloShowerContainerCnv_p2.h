@@ -11,11 +11,11 @@
 #include "AthenaKernel/ITPCnvBase.h"
 #include "CaloTPCnv/CaloClusterMomentContainerCnv_p1.h"
 #include "CaloTPCnv/CaloSamplingDataContainerCnv_p1.h"
+#include "CaloTPCnv/CaloShowerContainer_p2.h"
 #include "AthenaPoolCnvSvc/ITPConverter.h"
 #include "GaudiKernel/MsgStream.h"
 
 class CaloShowerContainer;
-class CaloShowerContainer_p2;
 
 class CaloShowerContainerCnv_p2
   : public ITPCnvBase

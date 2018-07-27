@@ -5,7 +5,8 @@
 // This is a test cxx file for IdentifiableContainerMT. 
 //  
 #include "EventContainers/IdentifiableContainerMT.h" 
-#include "EventContainers/SelectAllObjectMT.h" 
+#include "EventContainers/SelectAllObjectMT.h"
+#include "EventContainers/IdentifiableContTemp.h"
 #include "ID_ContainerTest.h" 
 #include "GaudiKernel/System.h" 
 #include "CLIDSvc/CLASS_DEF.h"
@@ -142,9 +143,12 @@ int ID_ContainerTest::initialize()
     return 0;
 } 
 
-// ------ finalize() 
-int ID_ContainerTest::finalize()  
-{ return 0;} 
+// ------ finalize()
+int ID_ContainerTest::finalize()
+{
+delete m_container;
+m_container=nullptr;
+return 0;}
 
 //------ execute() 
 
@@ -597,11 +601,15 @@ int ID_ContainerTest::execute(){
        if(count !=20) std::abort();
     }
     {
-    MyCollectionContainer::IDC_Lock lock;
-    containerOnline->tryFetch(IdentifierHash(50), lock);
+    MyCollectionContainer::IDC_WriteHandle lock;
+    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(50)));
+    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(50)));//Try to break the locks
+    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(60)));
+    lock = containerOnline->getWriteHandle(IdentifierHash(70));
     }
-    delete cache;
+
     delete containerOnline;
+    delete cache;
     std::cout << "MyDigits left undeleted " << MyDigit::s_total << std::endl;    
 }
     return 0;
@@ -616,6 +624,8 @@ int main (int /*argc*/, char** /*argv[]*/)
     test.initialize();
     for (unsigned int i = 0; i < 5; i++) test.execute();
     test.finalize();
+    EventContainers::IdentifiableContTemp<MyCollection> emptyContContainer(10); //Put here to test compilation of IdentifiableContTemp
+    emptyContContainer.cleanup();
     return 0;
 }
 

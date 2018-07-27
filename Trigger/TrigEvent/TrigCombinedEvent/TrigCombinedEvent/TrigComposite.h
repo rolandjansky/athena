@@ -2,14 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigCombinedEvent__TrigComposite_h__
-#define TrigCombinedEvent__TrigComposite_h__
+#ifndef TRIGCOMBINEDEVENT_TRIGCOMPOSITE_H
+#define TRIGCOMBINEDEVENT_TRIGCOMPOSITE_H
 #include <string>
 #include <vector>
 #include <cmath>
 #include <limits>
-#include "CLIDSvc/CLASS_DEF.h"
-//#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/ClassID.h"
 #include "TrigNavigation/TrigFeatureLink.h"
 #include "GaudiKernel/MsgStream.h"

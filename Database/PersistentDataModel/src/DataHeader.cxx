@@ -137,14 +137,7 @@ const Token* DataHeaderElement::getToken() const {
 }
 //_____________________________________________________________________________
 long DataHeaderElement::getStorageType() const {
-   const long technology = m_token->technology();
-   if (technology == POOL_StorageType
-	   || technology == POOL_ROOT_StorageType
-	   || technology == POOL_ROOTKEY_StorageType
-	   || technology == POOL_ROOTTREE_StorageType) {
-      return(POOL_StorageType);
-   }
-   return(TEST_StorageType);
+   return(POOL_StorageType);
 }
 //_____________________________________________________________________________
 const std::vector<unsigned int>& DataHeaderElement::getHashes() const {
@@ -210,19 +203,15 @@ DataHeader& DataHeader::operator=(const DataHeader& rhs) {
    return(*this);
 }
 //______________________________________________________________________________
-void DataHeader::setStatus(statusFlag status) const {
+void DataHeader::setStatus(statusFlag status) {
    m_status = status;
 }
 //______________________________________________________________________________
-bool DataHeader::checkStatus(statusFlag status) const {
-   return(m_status == status);
-}
-//______________________________________________________________________________
 bool DataHeader::isInput() const {
-   return(m_status == statusFlag(Primary) || m_status == statusFlag(Input));
+   return(m_status == statusFlag(Input));
 }
 //______________________________________________________________________________
-void DataHeader::setProcessTag(const std::string& processTag) const {
+void DataHeader::setProcessTag(const std::string& processTag) {
    m_processTag = processTag;
 }
 //______________________________________________________________________________

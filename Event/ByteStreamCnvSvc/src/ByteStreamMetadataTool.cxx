@@ -84,8 +84,7 @@ StatusCode ByteStreamMetadataTool::beginInputFile()
          }
          for (std::list<SG::ObjectWithVersion<ByteStreamMetadata> >::const_iterator versIter =
 		            allVersions.begin(), versEnd = allVersions.end(); versIter != versEnd; versIter++) {
-            const DataHandle<ByteStreamMetadata> bsmd = versIter->dataObject;
-            copy.push_back(new ByteStreamMetadata(*bsmd));
+            copy.push_back(new ByteStreamMetadata(*versIter->dataObject));
          }
       }
       if (m_pInputStore->contains<ByteStreamMetadataContainer>(*keyIter)) {

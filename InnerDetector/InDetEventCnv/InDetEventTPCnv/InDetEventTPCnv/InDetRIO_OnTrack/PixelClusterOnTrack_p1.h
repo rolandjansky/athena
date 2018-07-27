@@ -13,7 +13,6 @@
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 #include "DataModelAthenaPool/ElementLink_p1.h"
-//#include "DataModelAthenaPool/ElementLinkContNames_p2.h"
 
 namespace InDet
 {
@@ -26,9 +25,9 @@ namespace InDet
      TPObjRef			m_RIO;
 //      IdentifierHash::value_type  m_idDE; // is in SiCluster base class
                
-     bool			m_hasClusterAmbiguity;
-     bool			m_isFake;
-     float                      m_energyLoss;     
+     bool			m_hasClusterAmbiguity{};
+     bool			m_isFake{};
+     float                      m_energyLoss{};     
       /** Link to PRD */
       ElementLinkInt_p1  m_prdLink;
    };

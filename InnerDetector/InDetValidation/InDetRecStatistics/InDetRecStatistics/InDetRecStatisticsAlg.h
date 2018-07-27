@@ -17,6 +17,12 @@
 #include "HepPDT/ParticleDataTable.hh"
 #include "InDetRecStatistics/TrackStatHelper.h"
 #include "Identifier/Identifier.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "TrkToolInterfaces/ITruthToTrack.h"
+#include "TrkToolInterfaces/IUpdator.h"
+
 #include <vector>
 
 // forward declarations
@@ -31,14 +37,8 @@ class McEventCollection;
 class GenParticle;
 
 namespace Trk {
-  class ITruthToTrack;
   class ITrackSummaryTool;
   class TrackSummary;
-  class IPRD_AssociationTool;
-  class IUpdator;
-  class IResidualPullCalculator;
-  class ITrackSelectorTool;
-   
 }
 
 namespace InDet {

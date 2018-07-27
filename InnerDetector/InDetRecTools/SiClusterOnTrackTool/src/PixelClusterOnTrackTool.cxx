@@ -13,7 +13,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiClusterOnTrackTool/PixelClusterOnTrackTool.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
@@ -31,12 +30,15 @@
 #include "CoralBase/Attribute.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "StoreGate/ReadCondHandle.h"
 #include <cmath>
+#include "TrkRIO_OnTrack/check_cast.h"
 using CLHEP::mm;
 using CLHEP::micrometer;
 
 //clustermap is most likely to be removed at later date
 #define __clustermap
+
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -70,15 +72,12 @@ namespace
   static double TOPHAT_SIGMA = 1. / std::sqrt(12.);
 }
 
-
 InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
   m_pixDistoTool("PixelDistortionsTool", this),
-  m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool", this),
   m_calibSvc("PixelOfflineCalibSvc", n),
   m_detStore(nullptr),
-  m_scalePixelCov(false),
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
@@ -97,7 +96,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_splitClusterHandle("SplitClusterAmbiguityMap") {
   declareInterface<IRIO_OnTrackCreator>(this);
 
-  declareProperty("ErrorScalingTool", m_errorScalingTool, "The error scaling tool");
   declareProperty("PixelDistortionsTool", m_pixDistoTool, "Tool to retrieve pixel distortions");
   declareProperty("PositionStrategy", m_positionStrategy = 1, "Which calibration of cluster positions");
   declareProperty("ErrorStrategy", m_errorStrategy = 2, "Which calibration of cluster position errors");
@@ -144,13 +142,11 @@ InDet::PixelClusterOnTrackTool::initialize() {
   // get the offline calibration service
   ATH_CHECK( m_calibSvc.retrieve());
   ATH_MSG_DEBUG("Retrieved tool " << m_calibSvc.type());
-  
+
 
   // get the error scaling tool
-  ATH_CHECK(m_errorScalingTool.retrieve());
-  ATH_MSG_DEBUG("Retrieved tool " << m_errorScalingTool);
-  m_scalePixelCov = m_errorScalingTool->needToScalePixel();
-  if (m_scalePixelCov) {
+  if (!m_pixelErrorScalingKey.key().empty()) {
+    ATH_CHECK(m_pixelErrorScalingKey.initialize());
     ATH_MSG_DEBUG("Detected need for scaling Pixel errors.");
   }
 
@@ -325,6 +321,8 @@ InDet::PixelClusterOnTrackTool::correct
     }
   }
 }
+
+
 
 /** The correct method produces a PixelClusterOnTrack using the
  *  measured PixelCluster and the track prediction.
@@ -652,14 +650,10 @@ InDet::PixelClusterOnTrackTool::correctDefault
   ATH_MSG_VERBOSE(" errphi =  " << errphi << " erreta = " << erreta);
 
   // create new copy of error matrix
-  if (m_scalePixelCov) {
-    Amg::MatrixX *newCov = m_errorScalingTool->createScaledPixelCovariance(cov, element->identify());
-    if (!newCov) {
-      ATH_MSG_WARNING("Failed to create scaled error for Pixel");
-      return 0;
-    }
-    cov = *newCov;
-    delete newCov;
+  if (!m_pixelErrorScalingKey.key().empty()) {
+    //SG::ReadCondHandle<PixelRIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
+    SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
+    cov = check_cast<PixelRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov,  *m_pixelid, element->identify() );
   }
   bool isbroad = (m_errorStrategy == 0) ? true : false;
   return new InDet::PixelClusterOnTrack(pix, locpar, cov, iH, glob, pix->gangedPixel(), isbroad);
@@ -740,16 +734,12 @@ InDet::PixelClusterOnTrackTool::correctNN
     Amg::MatrixX cov = pixelPrepCluster->localCovariance();
 
     // create new copy of error matrix
-    if (m_scalePixelCov) {
-      Amg::MatrixX *newCov = m_errorScalingTool->createScaledPixelCovariance(cov, element->identify());
-      if (!newCov) {
-        ATH_MSG_WARNING("Failed to create scaled error for Pixel");
-        return 0;
-      }
-      cov = *newCov;
-
-      delete newCov;
-    }
+    // @TODO error scaling does not seem to be used
+    // if (!m_pixelErrorScalingKey.key().empty()) {
+    //   SG::ReadCondHandle<PixelRIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
+    //   SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
+    //   cov = check_cast<PixelRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov,  *m_pixelid, element->identify() );
+    // }
 
     return new InDet::PixelClusterOnTrack(pixelPrepCluster, locpar, cov, iH, glob,
                                           pixelPrepCluster->gangedPixel(), false);
@@ -795,14 +785,10 @@ InDet::PixelClusterOnTrackTool::correctNN
 
   Amg::MatrixX cov = finalerrormatrix;
   // create new copy of error matrix
-  if (m_scalePixelCov) {
-    Amg::MatrixX *newCov = m_errorScalingTool->createScaledPixelCovariance(cov, element->identify());
-    if (!newCov) {
-      ATH_MSG_WARNING("Failed to create scaled error for Pixel");
-      return 0;
-    }
-    //    cov = *newCov;
-    delete newCov;
+  if (!m_pixelErrorScalingKey.key().empty()) {
+    //    SG::ReadCondHandle<PixelRIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
+    SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_pixelErrorScalingKey );
+    cov = check_cast<PixelRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov,  *m_pixelid, element->identify() );
   }
 
   InDetDD::SiLocalPosition centroid = InDetDD::SiLocalPosition(finalposition[1],

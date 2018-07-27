@@ -23,7 +23,7 @@
 #include "Particle/TrackParticle.h"
 #include "VxVertex/VxCandidate.h"
 // normal includes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"

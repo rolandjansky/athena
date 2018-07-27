@@ -181,6 +181,14 @@ namespace LArG4 {
             sizeof(region030)/sizeof(RegionInfo_t),
             region030 }
         },
+	// ------------- region: warm and cold walls behind HEC, FCAL ----
+	// copy number range (low, high)
+ 	{ 200, 201, // cold back wall of endcap cryostat
+	   // Det  Sub  Typ  Sam
+	   { 10,   4,   1,   3, 
+	     sizeof(region030)/sizeof(RegionInfo_t),
+	     region030 } 
+	},
       };
 
     static const CopyNumberInfo_t info6[] =

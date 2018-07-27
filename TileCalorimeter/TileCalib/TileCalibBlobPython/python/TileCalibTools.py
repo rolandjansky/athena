@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # TileCalibTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 # Carlos Solans <carlos.solans@cern.ch>, 2012-10-19

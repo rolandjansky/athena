@@ -89,7 +89,6 @@ namespace met{
 
     /// Default constructor: 
     METRecoTool();
-    virtual ~METRecoTool();
 
     // Run the MET tools here
     StatusCode buildMET(xAOD::MissingETContainer* metCont, xAOD::MissingETComponentMap* metMap) const;

@@ -223,9 +223,24 @@ float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
   const auto energyVarGeV = (initEnergy / std::cosh(clus->eta())) / CLHEP::GeV;
   const auto etaVar = std::abs(clus->eta());
 
-  const auto bin = m_hPoly->FindBin(etaVar, energyVarGeV) - 1; // poly bins are shifted by one
+  ATH_MSG_DEBUG("Looking at object with initEnergy = " << initEnergy 
+		<< ", energyVarGeV = " <<  energyVarGeV
+		<< ", etaVar = " << etaVar
+		<< ", clus->e() = " << clus->e());
+
+  const int bin = m_hPoly->FindBin(etaVar, energyVarGeV) - 1; // poly bins are shifted by one
 
   ATH_MSG_DEBUG("Using bin: " << bin);
+
+  if (bin < 0) {
+    ATH_MSG_DEBUG("The bin is under/overflow; just return the energy");
+    return clus->e();
+  }
+
+  if (bin >= static_cast<int>(m_BDTs.size())) {
+    ATH_MSG_WARNING("The bin is outside the range, so just return the energy");
+    return clus->e();
+  }
 
   // select the bdt and funcsions. (shifts are done later if needed)
   const auto& bdt = m_BDTs[bin];

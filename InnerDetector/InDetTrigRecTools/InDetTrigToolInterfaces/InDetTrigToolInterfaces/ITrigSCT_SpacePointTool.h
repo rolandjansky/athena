@@ -29,6 +29,7 @@ class SpacePointCollection;
 class SpacePointOverlapCollection;
 
 namespace InDet {
+  class SiElementPropertiesTable;
 
   static const InterfaceID IID_ITrigSCT_SpacePointTool("InDet::ITrigSCT_SpacePointTool",1,0);
 
@@ -42,23 +43,27 @@ namespace InDet {
      * Convert clusters to SpacePoints
      * @param[in]  clusCollection        Cluster collection
      * @param[in]  clusterContainer      Cluster container
+     * @param[in]  properties            SiElementPropertiesTable
      * @param[out] spacepointCollection  SpacePoint collection
      */
     virtual void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
-				     const SCT_ClusterContainer* clusterContainer,
-				     SpacePointCollection* spacepointCollection)=0;
+                                     const SCT_ClusterContainer* clusterContainer,
+                                     const SiElementPropertiesTable* properties,
+                                     SpacePointCollection* spacepointCollection)=0;
 
     /**
      * Convert clusters to SpacePoints
      * @param[in]  clusCollection        Cluster collection
      * @param[in]  clusterContainer      Cluster container
+     * @param[in]  properties            SiElementPropertiesTable
      * @param[out] spacepointCollection  SpacePoint collection
      * @param      overlapColl           collection of SP with overlaps
      */
     virtual void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
-				     const SCT_ClusterContainer* clusterContainer,
-				     SpacePointCollection* spacepointCollection,
-				     SpacePointOverlapCollection* overlapColl)=0;
+                                     const SCT_ClusterContainer* clusterContainer,
+                                     const SiElementPropertiesTable* properties,
+                                     SpacePointCollection* spacepointCollection,
+                                     SpacePointOverlapCollection* overlapColl)=0;
 
     virtual void checkForSCT_Points (const SCT_ClusterCollection* clusters1,
 				     const IdentifierHash& id2, double minDiff, 

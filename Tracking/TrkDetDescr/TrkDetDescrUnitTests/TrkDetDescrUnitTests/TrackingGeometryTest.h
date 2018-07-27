@@ -15,6 +15,7 @@
 // Trk includes
 #include "TrkDetDescrUnitTests/TrkDetDescrUnitTestBase.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkDetDescrInterfaces/IGeometryProcessor.h"
 
 #ifdef TRKDETDESCR_MEMUSAGE
 #include "TrkDetDescrUtils/MemoryLogger.h"
@@ -22,7 +23,6 @@
 
 namespace Trk {
      
-    class IGeometryProcessor;
     class TrackingGeometry;
     class TrackingVolume;
         

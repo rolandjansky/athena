@@ -2836,7 +2836,11 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Entering True Unbiased loop." << endmsg;
     // check if other module side was also hit and try to remove other hit as well
     const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
-    const Identifier& OtherModuleSideID = m_SCT_Mgr->getDetectorElement(surfaceID)->otherSide()->identify();
+    const Identifier waferID = m_sctID->wafer_id(surfaceID);
+    const IdentifierHash waferHash = m_sctID->wafer_hash(waferID);
+    IdentifierHash otherSideHash;
+    m_sctID->get_other_side(waferHash, otherSideHash);
+    const Identifier OtherModuleSideID = m_sctID->wafer_id(otherSideHash);
 
     for (const Trk::TrackStateOnSurface* TempTsos : *trkPnt->trackStateOnSurfaces()) {
 

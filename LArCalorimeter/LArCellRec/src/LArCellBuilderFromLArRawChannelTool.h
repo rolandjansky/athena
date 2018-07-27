@@ -32,11 +32,10 @@
 //#include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "AthAllocators/DataPool.h"
-
+#include "LArCabling/LArOnOffIdMapping.h"
 
 
 class CaloCellContainer ;
-class LArOnOffIdMapping;
 class CaloDetDescrManager ;
 class CaloCell_ID;
 class CaloCellContainer ;

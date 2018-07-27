@@ -24,7 +24,7 @@ class ComponentAccumulator(object):
 
     def __init__(self):        
         self._msg=logging.getLogger('ComponentAccumulator')
-        self._sequence=AthSequencer()    #(Nested) sequence of event processing algorithms per sequence + their private tools 
+        self._sequence=AthSequencer('AthAlgSeq')    #(Nested) sequence of event processing algorithms per sequence + their private tools 
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools 
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
         self._conditionsInput=set()      #List of database folder (as string), eventually passed to IOVDbSvc

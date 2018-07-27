@@ -40,11 +40,6 @@ public:
   virtual StatusCode execute(TagFragmentCollection& smTagCol, const int max);
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~StandardModelPhysTagTool( );
-
 private:
 
   /** Properties */

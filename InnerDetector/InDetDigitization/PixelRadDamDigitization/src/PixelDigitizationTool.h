@@ -20,6 +20,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/WriteHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "PixelProcessorTool.h"

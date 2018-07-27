@@ -49,7 +49,6 @@ class V0ContainerCnv : public V0ContainerCnvBase
 public:
   V0ContainerCnv( ISvcLocator *svcloc );
 protected:
-  ~V0ContainerCnv();
   virtual StatusCode initialize();
   
   virtual V0Container_PERS *createPersistent( V0Container *transCont);

@@ -148,7 +148,7 @@ void test1 (const IDHelpers& helpers)
 
       coll->push_back (std::move (clus));
     }
-    trans1.addCollection (coll.release(), wafer_hash, true);
+    trans1.addCollection (coll.release(), wafer_hash);
   }
 
   {
@@ -181,7 +181,7 @@ void test1 (const IDHelpers& helpers)
 
       coll->push_back (std::move (clus));
     }
-    trans1.addCollection (coll.release(), wafer_hash, true);
+    trans1.addCollection (coll.release(), wafer_hash);
   }
 
   // Run once outside leak checking to get services initialized.

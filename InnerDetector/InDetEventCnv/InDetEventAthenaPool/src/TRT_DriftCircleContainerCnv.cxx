@@ -14,8 +14,6 @@
       m_converter_p0(),
       m_storeGate(nullptr)
   {}
-  TRT_DriftCircleContainerCnv::~TRT_DriftCircleContainerCnv() {} 
-
 
 
 StatusCode TRT_DriftCircleContainerCnv::initialize() {

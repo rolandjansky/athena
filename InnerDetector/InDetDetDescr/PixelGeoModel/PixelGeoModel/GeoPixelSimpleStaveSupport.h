@@ -12,6 +12,7 @@ class GeoPixelSimpleStaveSupport : public GeoPixelStaveSupport {
 
 public:  
   GeoPixelSimpleStaveSupport();
+  virtual ~GeoPixelSimpleStaveSupport();
   virtual GeoVPhysVol* Build();
   virtual GeoVPhysVol* getPhysVol() const {return m_physVol;}
   virtual const HepGeom::Transform3D & transform() const {return m_transform;}

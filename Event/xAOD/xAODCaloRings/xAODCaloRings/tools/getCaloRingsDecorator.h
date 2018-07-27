@@ -12,13 +12,13 @@
 // Local includes:
 #include "xAODCaloRings/CaloRingsContainer.h"
 
+
 namespace xAOD {
 
-/**
- * @brief Get CaloRings decorator with write permissions even on const
- *        containers.
- **/
-caloRingsDeco_t* getCaloRingsDecorator();
+inline
+std::string caloRingsLinksDecorKey(){
+  return "caloRingsLinks";
+}
 
 /**
  * @brief Get CaloRings accessor with read only permissions.

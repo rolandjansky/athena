@@ -20,11 +20,12 @@
 #include "ISF_Interfaces/IParticleHelper.h"
 // Barcode includes
 #include "BarcodeEvent/Barcode.h"
+#include "BarcodeInterfaces/IBarcodeSvc.h"
 
-// forward declarations
-namespace Barcode {
-  class IBarcodeSvc;
-}
+// // forward declarations
+// namespace Barcode {
+//   class IBarcodeSvc;
+// }
 
 namespace ISF {
 

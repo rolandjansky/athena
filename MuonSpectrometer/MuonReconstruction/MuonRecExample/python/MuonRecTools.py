@@ -45,11 +45,21 @@ def MuonClusterOnTrackCreator(name="MuonClusterOnTrackCreator",**kwargs):
 
     return CfgMgr.Muon__MuonClusterOnTrackCreator(name,**kwargs)
 
+def getMuonRIO_OnTrackErrorScalingCondAlg() :
+    error_scaling_def=["CSCRIO_OnTrackErrorScaling:/MUON/TrkErrorScalingCSC"]
+    return getRIO_OnTrackErrorScalingCondAlg( name                = "MuonRIO_OnTrackErrorScalingCondAlg",
+                                              ReadKey             = "/MUON/TrkErrorScaling",
+                                              CondDataAssociation = error_scaling_def)
 
 def CscClusterOnTrackCreator(name="CscClusterOnTrackCreator",**kwargs):
     kwargs.setdefault("CscStripFitter", getPublicTool("CalibCscStripFitter") )
     kwargs.setdefault("CscClusterFitter", getPublicTool("QratCscClusterFitter") )
     kwargs.setdefault("CscClusterUtilTool", getPublicTool("CscClusterUtilTool") )
+    if False  : # enable CscClusterOnTrack error scaling :
+        from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,createAndAddCondAlg
+        createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
+
+        kwargs.setdefault("CSCErrorScalingKey","/MUON/TrkErrorScalingCSC")
 
     if globalflags.DataSource() == 'data': # collisions real data or simulated first data
         # scale CSC and hit errors 

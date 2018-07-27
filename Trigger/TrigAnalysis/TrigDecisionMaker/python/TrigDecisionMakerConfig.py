@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMaker
+from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionMakerMT
 #from TrigDecisionMaker.TrigDecisionMakerConf import TrigDec__TrigDecisionTest
 
 from AthenaCommon.AppMgr import ToolSvc
@@ -19,8 +20,18 @@ class TrigDecisionMaker( TrigDec__TrigDecisionMaker ):
         #handle.OutputLevel = DEBUG
         #return
         
+class TrigDecisionMakerMT( TrigDec__TrigDecisionMakerMT ):
+    __slots__ = []
+    def __init__(self, name = "TrigDecMakerMT"):
+        super( TrigDecisionMakerMT, self ).__init__( name )
 
+        from AthenaCommon.Logging import logging  # loads logger
+        log = logging.getLogger( name )
 
+    def setDefaults(self, handle):
+        pass
+
+# Following not yet ported to the AthenaMT / Run 3 alg
 
 class TrigDecisionStream ( object) :
     def __init__ ( self, streamName = "Stream1", fileName = "HLT.root",

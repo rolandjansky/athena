@@ -333,20 +333,20 @@ if InDetFlags.doStandardPlots():
     from InDetPerformanceRTT.InDetPerformanceRTTConf import IDStandardPerformance as InDetStandardPerformance
 
     # all tracks
-    InDetStandardPerformanceAll = InDetStandardPerformance (name               = "InDetStandardPerformanceAll",
-                                                            tracksName         = InDetKeys.UnslimmedTracks(),
-                                                            tracksTruthName    = InDetKeys.UnslimmedTracksTruth(),
-                                                            SummaryTool        = InDetTrackSummaryToolSharedHits,
-                                                            HoleSearch         = InDetHoleSearchTool,
-                                                            useTrackSelection  = False,
-                                                            HistDirectoryName  = "AllTracks",
-                                                            TruthToTrackTool   = TruthToTrackTool,
-                                                            doUpgrade          = InDetFlags.doSLHC(),
-                                                            DoTruth            = InDetFlags.doTruth())
-
-    if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
-      InDetStandardPerformanceAll.tracksName = InDetKeys.DBMTracks() 
-      InDetStandardPerformanceAll.tracksTruthName = InDetKeys.DBMTracksTruth()
+#    InDetStandardPerformanceAll = InDetStandardPerformance (name               = "InDetStandardPerformanceAll",
+#                                                            tracksName         = InDetKeys.UnslimmedTracks(),
+#                                                            tracksTruthName    = InDetKeys.UnslimmedTracksTruth(),
+#                                                            SummaryTool        = InDetTrackSummaryToolSharedHits,
+#                                                            HoleSearch         = InDetHoleSearchTool,
+#                                                            useTrackSelection  = False,
+#                                                            HistDirectoryName  = "AllTracks",
+#                                                            TruthToTrackTool   = TruthToTrackTool,
+#                                                            doUpgrade          = InDetFlags.doSLHC(),
+#                                                            DoTruth            = InDetFlags.doTruth())#
+#
+#    if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
+#      InDetStandardPerformanceAll.tracksName = InDetKeys.DBMTracks() 
+#      InDetStandardPerformanceAll.tracksTruthName = InDetKeys.DBMTracksTruth()
 
 #    if InDetFlags.doDBM():
 #      InDetStandardPerformanceDBM = InDetStandardPerformance (name               = "InDetStandardPerformanceDBM",
@@ -362,13 +362,13 @@ if InDetFlags.doStandardPlots():
 #      ToolSvc += InDetStandardPerformanceDBM
 #      InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceDBM ]
 
-    ToolSvc += InDetStandardPerformanceAll
-    if (InDetFlags.doPrintConfigurables()):
-      print    InDetStandardPerformanceAll
+#    ToolSvc += InDetStandardPerformanceAll
+#    if (InDetFlags.doPrintConfigurables()):
+#      print    InDetStandardPerformanceAll
 #      if InDetFlags.doDBM():
 #        print InDetStandardPerformanceDBM
         
-    InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceAll ]
+ #   InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceAll ]
         
   #monitoring truth-/pseudo-tracks in particular
     if InDetFlags.doPseudoTracking() :

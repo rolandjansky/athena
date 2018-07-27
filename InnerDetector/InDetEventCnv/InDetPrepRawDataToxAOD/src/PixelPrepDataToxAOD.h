@@ -19,7 +19,9 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "xAODTracking/TrackMeasurementValidation.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
-
+#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "PixelConditionsServices/IPixelDCSSvc.h"
 
 #include <string>
 
@@ -28,9 +30,6 @@ class SiHit;
 class InDetSimDataCollection;
 
 class IdentifierHash;
-class IPixelCalibSvc;
-class IPixelDCSSvc;
-class IPixelByteStreamErrorsSvc;
 class ISiLorentzAngleSvc;
 
 namespace InDet

@@ -7,9 +7,8 @@ atlas_subdir( TrkSpacePoint )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           Event/EventContainers
                           GaudiKernel
@@ -24,6 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrkSpacePoint
                    src/*.cxx
                    PUBLIC_HEADERS TrkSpacePoint
-                   LINK_LIBRARIES DataModel SGTools Identifier GaudiKernel TrkMeasurementBase EventContainers 
+                   LINK_LIBRARIES AthContainers Identifier GaudiKernel TrkMeasurementBase EventContainers 
                    PRIVATE_LINK_LIBRARIES TrkDetElementBase TrkSurfaces TrkEventPrimitives TrkPrepRawData )
 

@@ -112,13 +112,11 @@ bool Token::less(const Token& copy) const {
 }
 
 const std::string Token::toString() const {
-   char text[128];
-   std::string str = "[DB=" + m_dbID.toString() + "][CNT=" + m_cntID + "][CLID=" + m_classID.toString() + "]";
-   sprintf(text, fmt_tech, m_technology);
-   str += text;
-   sprintf(text, fmt_oid, m_oid.first, m_oid.second);
-   str += text;
-   str += m_auxString;
+   char text1[128];
+   sprintf(text1, fmt_tech, m_technology);
+   char text2[128];
+   sprintf(text2, fmt_oid, m_oid.first, m_oid.second);
+   std::string str = "[DB=" + m_dbID.toString() + "][CNT=" + m_cntID + "][CLID=" + m_classID.toString() + "]" + text1 + text2 + m_auxString;
    return str;
 }
 

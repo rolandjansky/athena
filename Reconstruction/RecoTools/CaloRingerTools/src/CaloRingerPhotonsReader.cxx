@@ -27,7 +27,7 @@ CaloRingerPhotonsReader::CaloRingerPhotonsReader(const std::string& type,
 
 // =============================================================================
 CaloRingerPhotonsReader::~CaloRingerPhotonsReader()
-{ 
+{
   if(m_clRingsBuilderPhotonFctor) delete m_clRingsBuilderPhotonFctor;
 }
 
@@ -35,16 +35,18 @@ CaloRingerPhotonsReader::~CaloRingerPhotonsReader()
 StatusCode CaloRingerPhotonsReader::initialize()
 {
 
-  CHECK( CaloRingerInputReader::initialize() );
+  ATH_CHECK( CaloRingerInputReader::initialize() );
 
   ATH_CHECK(m_inputPhotonContainerKey.initialize());
 
   if ( m_builderAvailable ) {
-    // Initialize our fctor 
-    m_clRingsBuilderPhotonFctor = 
-      new BuildCaloRingsFctor<const xAOD::Photon>(
-          m_crBuilder, 
+    // Initialize our fctor
+    m_clRingsBuilderPhotonFctor =
+      new BuildCaloRingsFctor<xAOD::PhotonContainer>(
+          m_inputPhotonContainerKey.key(),
+          m_crBuilder,
           msg() );
+      ATH_CHECK( m_clRingsBuilderPhotonFctor->initialize() );
   }
 
   return StatusCode::SUCCESS;
@@ -62,7 +64,7 @@ StatusCode CaloRingerPhotonsReader::execute()
 
   ATH_MSG_DEBUG("Entering " << name() << " execute.");
 
-  // Retrieve photons 
+  // Retrieve photons
   SG::ReadHandle<xAOD::PhotonContainer> photons(m_inputPhotonContainerKey);
   // check is only used for serial running; remove when MT scheduler used
   if(!photons.isValid()) {
@@ -71,13 +73,13 @@ StatusCode CaloRingerPhotonsReader::execute()
   }
 
   if ( m_builderAvailable ) {
-    m_clRingsBuilderPhotonFctor->prepareToLoopFor(photons->size());
+    ATH_CHECK( m_clRingsBuilderPhotonFctor->prepareToLoopFor(photons->size()) );
 
     // loop over our particles:
-    std::for_each( 
-        photons->begin(), 
-        photons->end(), 
-        *m_clRingsBuilderPhotonFctor );
+    for ( const auto photon : *photons ){
+      m_clRingsBuilderPhotonFctor->operator()( photon );
+    }
+
   }
 
 

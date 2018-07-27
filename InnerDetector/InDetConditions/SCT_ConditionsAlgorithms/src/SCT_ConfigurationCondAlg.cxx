@@ -11,7 +11,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_Cabling/SCT_SerialNumber.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ConditionsData/SCT_Chip.h"
 
@@ -30,7 +29,6 @@ SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvc
   , m_condSvc{"CondSvc", name}
   , m_cablingSvc{"SCT_CablingSvc", name}
   , m_pHelper{nullptr}
-  , m_pManager{nullptr}
 {
 }
 
@@ -43,7 +41,6 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
   ATH_CHECK(m_cablingSvc.retrieve());
 
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
-  ATH_CHECK(detStore()->retrieve(m_pManager, "SCT"));
 
   // Check conditions folder names
   if ((m_readKeyChannel.key()!=s_coolChannelFolderName) and (m_readKeyChannel.key()!=s_coolChannelFolderName2)) {
@@ -63,6 +60,7 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
   ATH_CHECK(m_readKeyChannel.initialize());
   ATH_CHECK(m_readKeyModule.initialize());
   ATH_CHECK(m_readKeyMur.initialize());
+  ATH_CHECK(m_sctDetEleCollKey.initialize());
 
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
@@ -106,9 +104,10 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
   }
 
   // Define validity of the output cond obbject and record it
-  EventIDRange rangeW{EventIDRange::intersect(m_rangeChannel, m_rangeModule, m_rangeMur)};
+  // m_rangeDetEle is run-lumi. Others are time.
+  EventIDRange rangeW{EventIDRange::intersect(m_rangeChannel, m_rangeModule, m_rangeMur/*, m_rangeDetEle*/)};
   if(rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << m_rangeChannel << " " << m_rangeModule << " " << m_rangeMur);
+    ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << m_rangeChannel << " " << m_rangeModule << " " << m_rangeMur/* << " " << m_rangeDetEle*/);
     return StatusCode::FAILURE;
   }
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
@@ -177,6 +176,19 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     return StatusCode::FAILURE;
   }
 
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_sctDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+  // Get EventIDRange
+  if (not sctDetEle.range(m_rangeDetEle)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << sctDetEle.key());
+    return StatusCode::FAILURE;
+  }
+
   // Loop over modules (i.e groups of 12 chips) in DB folder 
   CondAttrListVec::const_iterator itr{readCdo->begin()};
   CondAttrListVec::const_iterator end{readCdo->end()};
@@ -237,7 +249,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
         thisChip->appendBadStripsToVector(badStripsVec);
         // Loop over bad strips and insert strip ID into set
         for (const auto& thisBadStrip:badStripsVec) {
-          Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip)};
+          Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip, elements)};
           // If in rough order, may be better to call with itr of previous insertion as a suggestion    
           if (stripId.is_valid()) writeCdo->setBadStripId(stripId);
         }
@@ -411,7 +423,8 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
 
 // Construct the strip ID from the module SN, chip number and strip number
 Identifier 
-SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber) const {
+SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber,
+                                     const InDetDD::SiDetectorElementCollection* elements) const {
   Identifier waferId;
   const Identifier invalidIdentifier; //initialiser creates invalid Id
   unsigned int strip{0};
@@ -435,7 +448,7 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
 
   if (not waferId.is_valid()) return invalidIdentifier;
 
-  const InDetDD::SiDetectorElement* pElement{m_pManager->getDetectorElement(waferHash)};
+  const InDetDD::SiDetectorElement* pElement{elements->getDetectorElement(waferHash)};
   if (!pElement) {
     ATH_MSG_FATAL("Element pointer is NULL in 'getStripId' method");
     return invalidIdentifier;

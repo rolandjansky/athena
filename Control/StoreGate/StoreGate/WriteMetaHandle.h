@@ -40,7 +40,6 @@ namespace SG {
     bool isValid(const MetaContBase::SourceID& t) const;
 
     StatusCode record(const MetaContBase::SourceID& range, T* t);
-    void updateStore();
     
     const std::string& dbKey() const { return m_hkey.dbKey(); }
     
@@ -111,19 +110,8 @@ namespace SG {
         << "WriteMetaHandle::record() : obj at: " << t << "  range: " << r 
         << endmsg;
 
-    updateStore();
- 
     return StatusCode::SUCCESS;
   }
-
-  //------------------------------------------------------------------------
-
-  template <typename T>
-  void
-  WriteMetaHandle<T>::updateStore() {
-    m_cs->addedNewTransObject( fullKey().clid(), fullKey().key() );
-  }
-
 
   //------------------------------------------------------------------------
 

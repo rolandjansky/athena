@@ -75,7 +75,7 @@ typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<SCT_RDORawD
 StatusCode SCTRawDataProvider::execute()
 {
 
-  m_rawDataTool->BeginNewEvent();
+  m_rawDataTool->beginNewEvent();
 
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
   bool externalcacheRDO = !m_rdoContainerCacheKey.key().empty();

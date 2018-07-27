@@ -7,8 +7,8 @@
 
 #include "G4AtlasTools/UserActionToolBase.h"
 #include "TestActionTimer.h"
+#include "GaudiKernel/ITHistSvc.h"
 
-class ITHistSvc;
 
 namespace G4UA
 {
