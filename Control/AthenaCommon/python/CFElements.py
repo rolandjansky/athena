@@ -16,7 +16,8 @@ def seqAND(name, subs=[]):
     seq = AthSequencer( name )
     seq.ModeOR = False
     seq.Sequential = True
-    seq.StopOverride = True
+#    seq.StopOverride = True
+    seq.StopOverride = False
     for s in subs:
         seq += s
     return seq
