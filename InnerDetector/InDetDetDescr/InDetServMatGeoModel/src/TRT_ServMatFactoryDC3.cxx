@@ -69,7 +69,8 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
                                           -phiWid/2.,phiWid);
     const GeoShape* railGap2=new GeoTubs( minRofGap, outROfIDet+safetyGap ,endZOfIDet+safetyGap ,
                                           -phiWid/2.+M_PI,phiWid);
-
+    railGap1->ref();
+    railGap2->ref();
 
   // Build the patch panels:
   
@@ -190,7 +191,8 @@ void TRT_ServMatFactoryDC3::create(GeoPhysVol *mother)
     mother->add(xform2);
     mother->add(ServPhys);
   }
-
+  railGap1->unref();//should delete if not used anywhere
+  railGap2->unref();
   
 }
 

@@ -126,7 +126,7 @@ namespace InDet {
   void TrigSCTRawDataProvider::handle(const Incident& inc) {
   if (inc.type() == "BeginEvent") {
     m_container->cleanup();
-    m_rawDataTool->BeginNewEvent();
+    m_rawDataTool->beginNewEvent();
   }  
 }
 

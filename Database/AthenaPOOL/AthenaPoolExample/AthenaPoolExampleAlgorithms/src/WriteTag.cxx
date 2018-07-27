@@ -13,15 +13,14 @@
 #include "AthenaPoolUtilities/TagAthenaAttributeList.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/AthenaAttributeListSpecification.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "StoreGate/WriteHandle.h"
 
 using namespace AthPoolEx;
 
 //___________________________________________________________________________
-WriteTag::WriteTag(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_attribListSpec(0) {
-   declareProperty("Key",  m_key = "RunEventTag");
+WriteTag::WriteTag(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator), m_attribListSpec(0)
+{
    declareProperty("Magic", m_magic = 0);
 }
 //___________________________________________________________________________
@@ -45,19 +44,17 @@ StatusCode WriteTag::initialize() {
    for (AthenaAttributeListSpecification::const_iterator first = m_attribListSpec->begin(), last = m_attribListSpec->end(); first != last; ++first) {
       ATH_MSG_DEBUG(" name " << (*first).name() << " type " << (*first).typeName());
    }
+
+   ATH_CHECK( m_key.initialize() );
+   ATH_CHECK( m_tagKey.initialize() );
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode WriteTag::execute() {
+StatusCode WriteTag::execute_r (const EventContext& ctx) const {
    ATH_MSG_DEBUG("in execute()");
 
-   const DataHandle<EventInfo> evt;
-   if (evtStore()->retrieve(evt).isFailure()) {
-      ATH_MSG_FATAL("Could not find event");
-      return StatusCode::FAILURE;
-   }
-   unsigned int eventNumber = evt->event_ID()->event_number();
-   unsigned int runNumber = evt->event_ID()->run_number();
+   unsigned int eventNumber = ctx.eventID().event_number();
+   unsigned int runNumber = ctx.eventID().run_number();
    ATH_MSG_INFO("EventInfo event: " << eventNumber << "  run: " << runNumber);
 
    auto tagAttribList = std::make_unique<TagAthenaAttributeList>(*m_attribListSpec);
@@ -76,8 +73,11 @@ StatusCode WriteTag::execute() {
    if (m_magic > 0) {
       (*attribList)["MagicNumber"].data<unsigned int>() = m_magic.value();
    }
-   ATH_CHECK( evtStore()->record (std::move(attribList), m_key.value()) );
-   ATH_CHECK( evtStore()->record (std::move(tagAttribList), m_key.value()) );
+
+   SG::WriteHandle<AthenaAttributeList> attribListH (m_key, ctx);
+   SG::WriteHandle<TagAthenaAttributeList> tagAttribListH (m_tagKey, ctx);
+   ATH_CHECK( attribListH.record (std::move(attribList)) );
+   ATH_CHECK( tagAttribListH.record (std::move(tagAttribList)) );
 
    ATH_MSG_INFO("registered all data");
    return StatusCode::SUCCESS;

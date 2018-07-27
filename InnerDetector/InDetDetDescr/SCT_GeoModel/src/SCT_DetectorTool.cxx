@@ -40,6 +40,7 @@ SCT_DetectorTool::SCT_DetectorTool(const std::string& type,
     m_initialLayout{false},
     m_alignable{true},
     m_cosmic{false},
+    m_useDynamicAlignFolders{false},
     m_manager{nullptr},
     m_geoDbTagSvc{"GeoDbTagSvc", name},
     m_rdbAccessSvc{"RDBAccessSvc", name},
@@ -56,6 +57,7 @@ SCT_DetectorTool::SCT_DetectorTool(const std::string& type,
   declareProperty("Run2L1Folder", m_run2L1Folder="/Indet/AlignL1/ID");
   declareProperty("Run2L2Folder", m_run2L2Folder="/Indet/AlignL2/SCT");
   declareProperty("Run2L3Folder", m_run2L3Folder="/Indet/AlignL3");
+  declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
 }
 
 //
@@ -130,6 +132,7 @@ SCT_DetectorTool::create()
 
     SCT_Options options;
     options.setAlignable(m_alignable);
+    options.setDynamicAlignFolders(m_useDynamicAlignFolders);
     m_manager = nullptr;
 
     // 
@@ -202,41 +205,54 @@ SCT_DetectorTool::registerCallback()
 {
   StatusCode sc{StatusCode::FAILURE};
   if (m_alignable) {
-    if (detStore()->contains<CondAttrListCollection>(m_run2L1Folder)) {
-      ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L1Folder);
-      const DataHandle<CondAttrListCollection> calc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L1Folder));
-      sc = StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L1Folder);
+    if (m_useDynamicAlignFolders) {
+
+      if (detStore()->contains<CondAttrListCollection>(m_run2L1Folder)) {
+	ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L1Folder);
+	const DataHandle<CondAttrListCollection> calc;
+	ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L1Folder));
+	sc = StatusCode::SUCCESS;
+      } else {
+	ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L1Folder);
+	return StatusCode::FAILURE; 
+      }
+    
+
+      if (detStore()->contains<CondAttrListCollection>(m_run2L2Folder)) {
+	ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L2Folder);
+	const DataHandle<CondAttrListCollection> calc;
+	ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L2Folder));
+	sc = StatusCode::SUCCESS;
+      } else {
+	ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L2Folder);
+	return StatusCode::FAILURE; 
+      }
+      
+      
+      if (detStore()->contains<AlignableTransformContainer>(m_run2L3Folder)) {
+	ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run2L3Folder);
+	const DataHandle<AlignableTransformContainer> atc;
+	ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, m_run2L3Folder));
+	sc = StatusCode::SUCCESS;
+      } else {
+	ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder " << m_run2L3Folder);
+	return StatusCode::FAILURE;  
+      }
+      
     }
 
-    if (detStore()->contains<CondAttrListCollection>(m_run2L2Folder)) {
-      ATH_MSG_DEBUG("Registering callback on global Container with folder " << m_run2L2Folder);
-      const DataHandle<CondAttrListCollection> calc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, m_run2L2Folder));
-      sc = StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_WARNING("Unable to register callback on global Container with folder " << m_run2L2Folder);
-    }
+    else {
 
-    if (detStore()->contains<AlignableTransformContainer>(m_run2L3Folder)) {
-      ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run2L3Folder);
-      const DataHandle<AlignableTransformContainer> atc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, m_run2L3Folder));
-      sc = StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder " << m_run2L3Folder);
-    }
-
-    if (detStore()->contains<AlignableTransformContainer>(m_run1Folder)) {
-      ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run1Folder);
-      const DataHandle<AlignableTransformContainer> atc;
-      ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, m_run1Folder));
-      sc = StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder "
-                      << m_run1Folder << ", Alignment disabled (only if no Run2 scheme is loaded)!");
+      if (detStore()->contains<AlignableTransformContainer>(m_run1Folder)) {
+	ATH_MSG_DEBUG("Registering callback on AlignableTransformContainer with folder " << m_run1Folder);
+	const DataHandle<AlignableTransformContainer> atc;
+	ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, m_run1Folder));
+	sc = StatusCode::SUCCESS;
+      } else {
+	ATH_MSG_WARNING("Unable to register callback on AlignableTransformContainer with folder "
+			<< m_run1Folder << ", Alignment disabled (only if no Run2 scheme is loaded)!");
+	return StatusCode::FAILURE; 
+      }
     }
 
   } else {

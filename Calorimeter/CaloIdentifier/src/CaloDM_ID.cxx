@@ -291,7 +291,8 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   m_full_tile_zone_range = m_dict->build_multirange(reg_id2, prefix2, "phivalue");
 
 
-  if(m_msgSvc)
+  if (!m_quiet) {
+    if(m_msgSvc)
     {
       log << MSG::DEBUG << " initialize_from_dict : " << endmsg;
       log << MSG::DEBUG << " LAr zone range -> "  << (std::string)m_full_lar_zone_range << endmsg;
@@ -299,7 +300,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
       log << MSG::DEBUG << " Tile zone range -> "  << (std::string)m_full_tile_zone_range << endmsg;
       log << MSG::DEBUG << " Tile region range -> "  << (std::string)m_full_tile_region_range << endmsg;
     }
-  else
+    else
     {
       std::cout << " CaloDM_ID::initialize_from_dict : " 
 		<< std::endl;
@@ -312,6 +313,7 @@ int  CaloDM_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
       std::cout << " Tile region range -> "  << (std::string)m_full_tile_region_range
 		<< std::endl;
     }
+  }
     
 
   // Setup the hash tables
@@ -871,7 +873,8 @@ int   CaloDM_ID::initLevelsFromDict(void)
   m_eta_impl      = region.m_implementation[m_ETA_INDEX]; 
   m_phi_impl      = region.m_implementation[m_PHI_INDEX]; 
 
-  if(m_msgSvc)
+  if (!m_quiet) {
+    if(m_msgSvc)
     {
       //      log << MSG::DEBUG << "CaloDM_ID::initLevelsFromDict - found levels " << endmsg ;
       //      log << MSG::DEBUG << "subdet         " << m_CALO_INDEX     << endmsg ;
@@ -890,7 +893,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
       log << MSG::DEBUG << "eta       "  << m_eta_impl.show_to_string() << endmsg;
       log << MSG::DEBUG << "phi       "  << m_phi_impl.show_to_string() << endmsg;
     }
-  else
+    else
     { 
       //      std::cout << "CaloDM_ID::initLevelsFromDict - found levels " << std::endl ;
       //      std::cout << "subdet         " << m_CALO_INDEX     << std::endl ;
@@ -909,6 +912,7 @@ int   CaloDM_ID::initLevelsFromDict(void)
       std::cout << "eta       "  << m_eta_impl.show_to_string() << std::endl;
       std::cout << "phi       "  << m_phi_impl.show_to_string() << std::endl;
     }
+  }
   return(0) ;
 }
 

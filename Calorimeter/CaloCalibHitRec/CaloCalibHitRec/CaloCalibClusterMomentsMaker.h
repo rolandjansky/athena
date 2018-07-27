@@ -134,8 +134,6 @@ class CaloCalibClusterMomentsMaker: public AthAlgTool, virtual public CaloCluste
 
   const CaloDmDescrManager* m_caloDmDescrManager; 
 
-  StoreGateSvc* m_storeGate;
-
   int m_n_phi_out;
   int m_n_eta_out;
   double m_out_phi_max;

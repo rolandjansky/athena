@@ -1266,13 +1266,15 @@ Tile_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
     m_full_region_range.remove_range(reg_id);
   }
 
-  log << MSG::DEBUG << "initialize_from_dict : "                                << endmsg;
-  log << MSG::DEBUG << " region range -> "  << (std::string)m_full_region_range << endmsg;
-  log << MSG::DEBUG << " module range -> "  << (std::string)m_full_module_range << endmsg;
-  log << MSG::DEBUG << " tower range ->  "  << (std::string)m_full_tower_range  << endmsg;
-  log << MSG::DEBUG << " cell range ->   "  << (std::string)m_full_cell_range   << endmsg;
-  log << MSG::DEBUG << " pmt range ->    "  << (std::string)m_full_pmt_range    << endmsg;
-  log << MSG::DEBUG << " adc range ->    "  << (std::string)m_full_adc_range    << endmsg;
+  if (!m_quiet) {
+    log << MSG::DEBUG << "initialize_from_dict : "                                << endmsg;
+    log << MSG::DEBUG << " region range -> "  << (std::string)m_full_region_range << endmsg;
+    log << MSG::DEBUG << " module range -> "  << (std::string)m_full_module_range << endmsg;
+    log << MSG::DEBUG << " tower range ->  "  << (std::string)m_full_tower_range  << endmsg;
+    log << MSG::DEBUG << " cell range ->   "  << (std::string)m_full_cell_range   << endmsg;
+    log << MSG::DEBUG << " pmt range ->    "  << (std::string)m_full_pmt_range    << endmsg;
+    log << MSG::DEBUG << " adc range ->    "  << (std::string)m_full_adc_range    << endmsg;
+  }
     
   // Setup the hash tables
   if(init_hashes()) return (1);
@@ -1733,15 +1735,17 @@ int Tile_Base_ID::initLevelsFromDict (const std::string& group_name)
   m_pmt_impl     = region.m_implementation[m_PMT_INDEX]; 
   m_adc_impl     = region.m_implementation[m_ADC_INDEX]; 
 
-  log << MSG::DEBUG << "initLevelsFromDict decode index and bit fields for each level: "              << endmsg ;
-  log << MSG::DEBUG << " system   [" << m_SYSTEM_INDEX   << "]  " << m_system_impl.show_to_string()   << endmsg ;
-  log << MSG::DEBUG << " section  [" << m_SECTION_INDEX  << "]  " << m_section_impl.show_to_string()  << endmsg ;
-  log << MSG::DEBUG << " side     [" << m_SIDE_INDEX     << "]  " << m_side_impl.show_to_string()     << endmsg ;
-  log << MSG::DEBUG << " module   [" << m_MODULE_INDEX   << "]  " << m_module_impl.show_to_string()   << endmsg ;
-  log << MSG::DEBUG << " tower    [" << m_TOWER_INDEX    << "]  " << m_tower_impl.show_to_string()    << endmsg ;
-  log << MSG::DEBUG << " sampling [" << m_SAMPLE_INDEX   << "]  " << m_sample_impl.show_to_string()   << endmsg ;
-  log << MSG::DEBUG << " pmt      [" << m_PMT_INDEX      << "]  " << m_pmt_impl.show_to_string()      << endmsg ;
-  log << MSG::DEBUG << " adc      [" << m_ADC_INDEX      << "]  " << m_adc_impl.show_to_string()      << endmsg ;
+  if (!m_quiet) {
+    log << MSG::DEBUG << "initLevelsFromDict decode index and bit fields for each level: "              << endmsg ;
+    log << MSG::DEBUG << " system   [" << m_SYSTEM_INDEX   << "]  " << m_system_impl.show_to_string()   << endmsg ;
+    log << MSG::DEBUG << " section  [" << m_SECTION_INDEX  << "]  " << m_section_impl.show_to_string()  << endmsg ;
+    log << MSG::DEBUG << " side     [" << m_SIDE_INDEX     << "]  " << m_side_impl.show_to_string()     << endmsg ;
+    log << MSG::DEBUG << " module   [" << m_MODULE_INDEX   << "]  " << m_module_impl.show_to_string()   << endmsg ;
+    log << MSG::DEBUG << " tower    [" << m_TOWER_INDEX    << "]  " << m_tower_impl.show_to_string()    << endmsg ;
+    log << MSG::DEBUG << " sampling [" << m_SAMPLE_INDEX   << "]  " << m_sample_impl.show_to_string()   << endmsg ;
+    log << MSG::DEBUG << " pmt      [" << m_PMT_INDEX      << "]  " << m_pmt_impl.show_to_string()      << endmsg ;
+    log << MSG::DEBUG << " adc      [" << m_ADC_INDEX      << "]  " << m_adc_impl.show_to_string()      << endmsg ;
+  }
   
   return(0) ;
 }

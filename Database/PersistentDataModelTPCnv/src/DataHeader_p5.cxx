@@ -26,12 +26,8 @@ const std::string& DataHeaderElement_p5::token() const {
    return(m_token);
 }
 
-unsigned int DataHeaderElement_p5::oid2() const {
+long long int DataHeaderElement_p5::oid2() const {
    return(m_oid2);
-}
-
-void DataHeaderElement_p5::overwriteOid2(unsigned int oid2) {
-   m_oid2 = oid2;
 }
 
 

@@ -13,10 +13,10 @@
 
 #include "TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackRecalibrateTool.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TrkRIO_OnTrack/check_cast.h"
 
 
 ///////////////////////////////////////////////////////////////////
@@ -28,17 +28,14 @@ InDet::TRT_DriftCircleOnTrackRecalibrateTool::TRT_DriftCircleOnTrackRecalibrateT
   : AthAlgTool(ty,na,pa),
     m_riontrackTube("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
     m_drifttool("TRT_DriftFunctionTool"),
-    m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
     m_useToTCorrection(false),
     m_scalefactor(2.)
-    
 {
   declareInterface<IRIO_OnTrackCreator>(this);
   declareProperty("RIOonTrackToolTube",   m_riontrackTube  );
   declareProperty("DriftFunctionTool",    m_drifttool);
-  declareProperty("ErrorScalingTool",     m_errorScalingTool);
   declareProperty("ScaleHitUncertainty",  m_scalefactor    );
-  declareProperty("useDriftTimeToTCorrection",m_useToTCorrection);    
+  declareProperty("useDriftTimeToTCorrection",m_useToTCorrection);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -65,13 +62,12 @@ StatusCode InDet::TRT_DriftCircleOnTrackRecalibrateTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if ( m_errorScalingTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endmsg;
-    m_scaleTrtCov   = m_errorScalingTool->needToScaleTrt();
-    if (m_scaleTrtCov) msg(MSG::DEBUG) << "Detected need for scaling TRT errors." << endmsg;
+  if (!m_trtErrorScalingKey.key().empty()) {
+    ATH_CHECK(m_trtErrorScalingKey.initialize());
+    ATH_MSG_DEBUG("Detected need for scaling trt errors.");
+  }
+  if (!m_eventInfoKey.key().empty()) {
+    ATH_CHECK(m_eventInfoKey.initialize());
   }
 
   return sc;
@@ -140,21 +136,27 @@ const Trk::RIO_OnTrack* InDet::TRT_DriftCircleOnTrackRecalibrateTool::correct
     double sl = pE->strawLength()*.5;  
     if     (predictedLocZ > sl) predictedLocZ = sl;
     else if(predictedLocZ <-sl) predictedLocZ =-sl;
-   
+
 
     double escale2=error*error/DC->localCovariance()(Trk::driftRadius,Trk::driftRadius);
-    Amg::MatrixX cov(DC->localCovariance()*escale2); 
+    Amg::MatrixX cov(DC->localCovariance()*escale2);
 
-    if(m_scaleTrtCov) {
+    if (!m_trtErrorScalingKey.key().empty()) {
+
+      SG::ReadHandle< xAOD::EventInfo>  eventInfo (m_eventInfoKey);
+      double mu;
+      if (!eventInfo.isValid()) {
+        ATH_MSG_ERROR("Cant retrieve EventInfo"); 
+        mu = 0.;
+      } else {
+        mu = eventInfo->averageInteractionsPerCrossing();
+      }
+
       bool endcap = false;
       if(dynamic_cast<const InDetDD::TRT_EndcapElement*>(pE)) endcap = true;
-      Amg::MatrixX* newCov = m_errorScalingTool->createScaledTrtCovariance(cov,endcap);
-      if( !newCov ) {
-	ATH_MSG_WARNING("Failed to create scaled error for SCT");
-	return 0;
-      }
-      cov = *newCov;
-      delete newCov;
+      // SG::ReadCondHandle<TRTRIO_OnTrackErrorScaling> error_scaling( m_trtErrorScalingKey );
+      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_trtErrorScalingKey );
+      cov = check_cast<TRTRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( cov, endcap, mu);
     }
 
     Trk::DefinedParameter  radius(sign*driftradius,Trk::locX);

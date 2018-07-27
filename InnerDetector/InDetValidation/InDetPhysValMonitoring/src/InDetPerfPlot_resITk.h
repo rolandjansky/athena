@@ -184,16 +184,16 @@ private:
   TH1* m_significance_d0_vs_eta;
   TH1* m_significance_z0_vs_eta;
 
-  TH1* m_fix_qoverpt_res[16];
+  TH1* m_fix_qoverpt_res[16]{};
 
-  TH1* m_fix_qoverptresolutionRMS_vs_eta;
+  TH1* m_fix_qoverptresolutionRMS_vs_eta{};
 
 
-  TH1* m_fix_d0_res[16];
-  TH1* m_fix_d0resolutionRMS_vs_eta;
+  TH1* m_fix_d0_res[16]{};
+  TH1* m_fix_d0resolutionRMS_vs_eta{};
 
-  TH1* m_fix_z0_res[16];
-  TH1* m_fix_z0resolutionRMS_vs_eta;
+  TH1* m_fix_z0_res[16]{};
+  TH1* m_fix_z0resolutionRMS_vs_eta{};
 };
 
 

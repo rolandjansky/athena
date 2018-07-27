@@ -227,13 +227,6 @@ StatusCode InDetV0Finder::execute()
   xAOD::VertexAuxContainer* laAuxContainer(0);
   xAOD::VertexContainer*    lbContainer(0);
   xAOD::VertexAuxContainer* lbAuxContainer(0);
-
-// call InDetV0 finder
-  ATH_CHECK( m_v0FinderTool->performSearch(v0Container, v0AuxContainer,
-					   ksContainer, ksAuxContainer,
-					   laContainer, laAuxContainer,
-             lbContainer, lbAuxContainer,
-					   primaryVertex, importedVxContainer) );
 					   
 	auto cleanUpOnExit= [&](){
 	  delete v0Container;
@@ -245,9 +238,20 @@ StatusCode InDetV0Finder::execute()
 	  delete lbContainer;
 	  delete lbAuxContainer;
 	};
-
+	//
+	const auto statusOfSearch = m_v0FinderTool->performSearch(v0Container, v0AuxContainer,
+					   ksContainer, ksAuxContainer,
+					   laContainer, laAuxContainer,
+             lbContainer, lbAuxContainer,
+					   primaryVertex, importedVxContainer);
+	//
+	if (statusOfSearch != StatusCode::SUCCESS){
+	  ATH_MSG_ERROR("Vertex search of v0Container failed.");
+		cleanUpOnExit();
+		return StatusCode::FAILURE;
+	}
+  //
   //---- Recording section: write the results to StoreGate ---//
-
   SG::WriteHandle<xAOD::VertexContainer> h_V0( m_v0Key );
   if ( h_V0.record(std::unique_ptr<xAOD::VertexContainer>(v0Container), 
 			 std::unique_ptr<xAOD::VertexAuxContainer>(v0AuxContainer)) !=StatusCode::SUCCESS){

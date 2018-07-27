@@ -17,7 +17,7 @@
 #include <ostream>
 #include <vector>
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 class MsgStream;

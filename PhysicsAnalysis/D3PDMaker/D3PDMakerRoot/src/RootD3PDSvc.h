@@ -23,11 +23,12 @@
 #include <vector>
 #include <string>
 
+#include "RootD3PD.h"
 
 namespace D3PD {
 
 
-class RootD3PD;
+  // class RootD3PD;
 
 
 /**

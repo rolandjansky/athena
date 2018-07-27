@@ -17,6 +17,7 @@
 #include "xAODCaloRings/versions/RingSetConf_v1.h"
 
 namespace xAOD {
+
 /// The container is a simple typedef for now
 typedef DataVector< xAOD::RingSetConf_v1 > RingSetConfContainer_v1;
 /// Declare element links vector

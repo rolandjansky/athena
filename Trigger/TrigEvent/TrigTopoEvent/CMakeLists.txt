@@ -7,9 +7,8 @@ atlas_subdir( TrigTopoEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthContainers
+                          Control/AthenaKernel
                           GaudiKernel
                           Reconstruction/egamma/egammaEvent
                           Reconstruction/tauEvent
@@ -30,19 +29,19 @@ atlas_add_library( TrigTopoEvent
                    src/*.cxx
                    PUBLIC_HEADERS TrigTopoEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools GaudiKernel egammaEvent tauEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle TrigSerializeCnvSvcLib TrigNavigationLib
+                   LINK_LIBRARIES AthContainers AthenaKernel GaudiKernel egammaEvent tauEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle TrigSerializeCnvSvcLib TrigNavigationLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives )
 
 atlas_add_sercnv_library( TrigTopoEventSerCnv
                           FILES TrigTopoEvent/ElectronMuonTopoInfo.h TrigTopoEvent/ElectronMuonTopoInfoContainer.h
                           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                          LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools GaudiKernel egammaEvent tauEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle EventPrimitives TrigSerializeCnvSvcLib TrigNavigationLib TrigTopoEvent )
+                          LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaKernel GaudiKernel egammaEvent tauEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle EventPrimitives TrigSerializeCnvSvcLib TrigNavigationLib TrigTopoEvent )
 
 atlas_add_dictionary( TrigTopoEventDict
                       TrigTopoEvent/TrigTopoEventDict.h
                       TrigTopoEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools GaudiKernel egammaEvent tauEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle EventPrimitives TrigSerializeCnvSvcLib TrigNavigationLib TrigTopoEvent
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaKernel GaudiKernel egammaEvent tauEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle EventPrimitives TrigSerializeCnvSvcLib TrigNavigationLib TrigTopoEvent
                       DATA_LINKS ElectronMuonTopoInfo
                       ELEMENT_LINKS ElectronMuonTopoInfoContainer )
 

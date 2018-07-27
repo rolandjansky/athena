@@ -41,11 +41,6 @@ parent);
   virtual StatusCode execute(TagFragmentCollection& susyTagCol, const int max);
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~SUSYPhysTagTool( );
-
 private:
 
   /** Properties */

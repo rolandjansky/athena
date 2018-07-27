@@ -42,7 +42,6 @@ namespace Muon {
   MuonClusterOnTrackCreator::MuonClusterOnTrackCreator
   (const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
     // algtool interface - necessary!
@@ -53,10 +52,6 @@ namespace Muon {
     declareProperty("doCSC",  m_doCsc = true);
     declareProperty("doRPC",  m_doRpc = true);
     declareProperty("doTGC",  m_doTgc = true);
-    declareProperty("DoRpcErrorScaling", m_scaleRpcCov = false );
-    declareProperty("DoTgcErrorScaling", m_scaleTgcCov = false );
-    declareProperty("DoCscErrorScaling", m_scaleCscCov = false );
-    declareProperty("ErrorScalingTool", m_errorScalingTool );
     declareProperty("DoFixedErrorTgcEta", m_doFixedErrorTgcEta = false );
     declareProperty("DoFixedErrorRpcEta", m_doFixedErrorRpcEta = false );
     declareProperty("DoFixedErrorCscEta", m_doFixedErrorCscEta = false );
@@ -88,19 +83,6 @@ namespace Muon {
     if ( m_idHelper.retrieve().isFailure() ) {
       ATH_MSG_ERROR ( " Cannot retrieve  " << m_idHelper );
       return StatusCode::FAILURE;
-    }
-
-    // get error scaling tool
-    //
-    if(m_errorScalingTool.retrieve().isFailure())   {
-      ATH_MSG_WARNING ( "Can not get error scaling tool " << m_errorScalingTool
-			<< ", will trigger failure." );
-      return StatusCode::SUCCESS;
-    } else {
-      m_scaleCscCov = m_errorScalingTool->needToScaleCsc();
-      m_scaleRpcCov = m_errorScalingTool->needToScaleRpc();
-      m_scaleTgcCov = m_errorScalingTool->needToScaleTgc();
-      ATH_MSG_INFO ( "initialise() successful in " << name() );
     }
 
     return StatusCode::SUCCESS;
@@ -164,26 +146,6 @@ namespace Muon {
     }
     positionAlongStrip = lp[Trk::locY];
      
-    // Error matrix production - expect more intelligent code here.
-    //
-    // Amg::MatrixX* cov  = 0;
-    // Amg::MatrixX  oldLocalCov = RIO.localCovariance();
-    // if ( m_idHelper->isCsc(RIO.identify()) && m_scaleCscCov ) {
-    //   cov = m_errorScalingTool->createScaledCscCovariance(oldLocalCov);
-    //   ATH_MSG_VERBOSE ( "CSC: new cov(0,0) is " << (*cov)(0,0) );
-    // }
-    // if ( m_idHelper->isRpc(RIO.identify()) && m_scaleRpcCov ) {
-    //   cov = m_errorScalingTool->createScaledRpcCovariance(oldLocalCov);
-    //   ATH_MSG_VERBOSE ( "RPC: new cov(0,0) is " << (*cov)(0,0)  );
-    // }
-    // if ( m_idHelper->isTgc(RIO.identify()) && m_scaleTgcCov ) {
-    //   cov = m_errorScalingTool->createScaledTgcCovariance(oldLocalCov);
-    //   ATH_MSG_VERBOSE ( "TGC: new cov(0,0) is " << (*cov)(0,0)  );
-    // }
-    // Amg::MatrixX loce = (cov)                   ?
-    //   Amg::MatrixX(*cov)                       :
-    //   Amg::MatrixX(RIO.localCovariance()) ;
-    // delete cov;
     Amg::MatrixX loce = RIO.localCovariance();
     ATH_MSG_DEBUG ( "All: new err matrix is " << loce );
   

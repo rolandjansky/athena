@@ -45,10 +45,6 @@ unsigned long long DataHeaderElement_p6::oid2() const {
    return(m_oid2);
 }
 
-void DataHeaderElement_p6::overwriteOid2(unsigned long long oid2) {
-   m_oid2 = oid2;
-}
-
 
 DataHeaderForm_p6::DataHeaderForm_p6() : m_uints(), m_dbRecords(), m_objRecords(), m_objAlias(), m_objSymLinks(), m_objHashes(), m_entry(0U) {}
 DataHeaderForm_p6::DataHeaderForm_p6(const DataHeaderForm_p6& rhs) : m_uints(rhs.m_uints), m_dbRecords(rhs.m_dbRecords), m_objRecords(rhs.m_objRecords), m_objAlias(rhs.m_objAlias), m_objSymLinks(rhs.m_objSymLinks), m_objHashes(rhs.m_objHashes), m_entry(0U) {}

@@ -61,7 +61,6 @@ public:
 
   // returns the list of input constituents
   // typically to give to a fastjet::ClusterSequence 
-  std::vector<PseudoJet> asVectorPseudoJet() const;
   const std::vector<PseudoJet>* casVectorPseudoJet() const;
 
   // combine the contents of a PseudoJetContainer with the current container.

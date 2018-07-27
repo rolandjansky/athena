@@ -486,10 +486,12 @@ int  TileTBID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   m_full_module_range = m_dict->build_multirange(reg_id, prefix, "tbmodule");
   m_full_type_range   = m_dict->build_multirange(reg_id, prefix, "type");
 
-  log << MSG::DEBUG << "initialize_from_dict : "                                 << endmsg;
-  log << MSG::DEBUG << " type range -> "    << (std::string)m_full_type_range    << endmsg;
-  log << MSG::DEBUG << " module range -> "  << (std::string)m_full_module_range  << endmsg;
-  log << MSG::DEBUG << " channel range -> " << (std::string)m_full_channel_range << endmsg;
+  if (!m_quiet) {
+    log << MSG::DEBUG << "initialize_from_dict : "                                 << endmsg;
+    log << MSG::DEBUG << " type range -> "    << (std::string)m_full_type_range    << endmsg;
+    log << MSG::DEBUG << " module range -> "  << (std::string)m_full_module_range  << endmsg;
+    log << MSG::DEBUG << " channel range -> " << (std::string)m_full_channel_range << endmsg;
+  }
 
   // Setup the hash tables
   if(init_hashes()) return (1);
@@ -610,12 +612,14 @@ int TileTBID::initLevelsFromDict(void)
   m_system_impl.pack  (tile_field_value(),m_base_tile_type);
   m_section_impl.pack (TileTBID::TILE_TESTBEAM,m_base_tile_type);
 
-  log << MSG::DEBUG << "initLevelsFromDict decode index and bit fields for each level: "              << endmsg ;
-  log << MSG::DEBUG << " system   [" << m_SYSTEM_INDEX   << "]  " << m_system_impl.show_to_string()   << endmsg ;
-  log << MSG::DEBUG << " section  [" << m_SECTION_INDEX  << "]  " << m_section_impl.show_to_string()  << endmsg ;
-  log << MSG::DEBUG << " type     [" << m_TYPE_INDEX     << "]  " << m_type_impl.show_to_string()     << endmsg ;
-  log << MSG::DEBUG << " module   [" << m_MODULE_INDEX   << "]  " << m_module_impl.show_to_string()   << endmsg ;
-  log << MSG::DEBUG << " channel  [" << m_CHANNEL_INDEX  << "]  " << m_channel_impl.show_to_string()  << endmsg ;
+  if (!m_quiet) {
+    log << MSG::DEBUG << "initLevelsFromDict decode index and bit fields for each level: "              << endmsg ;
+    log << MSG::DEBUG << " system   [" << m_SYSTEM_INDEX   << "]  " << m_system_impl.show_to_string()   << endmsg ;
+    log << MSG::DEBUG << " section  [" << m_SECTION_INDEX  << "]  " << m_section_impl.show_to_string()  << endmsg ;
+    log << MSG::DEBUG << " type     [" << m_TYPE_INDEX     << "]  " << m_type_impl.show_to_string()     << endmsg ;
+    log << MSG::DEBUG << " module   [" << m_MODULE_INDEX   << "]  " << m_module_impl.show_to_string()   << endmsg ;
+    log << MSG::DEBUG << " channel  [" << m_CHANNEL_INDEX  << "]  " << m_channel_impl.show_to_string()  << endmsg ;
+  }
 
   return(0) ;
 }

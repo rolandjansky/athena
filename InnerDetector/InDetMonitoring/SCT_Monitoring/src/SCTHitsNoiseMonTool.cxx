@@ -42,7 +42,6 @@
 #include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" // ?
 
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 

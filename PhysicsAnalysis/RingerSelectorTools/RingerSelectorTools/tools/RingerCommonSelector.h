@@ -22,26 +22,26 @@
 
 namespace Ringer {
 
+class RingerConfStruct;
+
 /**
  *
  * @class RingerCommonSelecto
  *
- **/ 
+ **/
 class RingerCommonSelector : public RedirectMsgStream
 {
 
   public:
     /**
      * @brief Main ctor
-     **/ 
+     **/
     RingerCommonSelector(
       const Ringer::IDiscrWrapperCollection *discrWrapperCol,
       const Ringer::IThresWrapper *thresWrapper,
       Root::TAccept *partDecMsk,
-      const bool useTrackPat,
-      const bool useRawTrackPat,
-      const bool useCaloCommittee);
-    
+      const Ringer::RingerConfStruct& fileConf );
+
     /**
      * @brief Clear output space representation
      **/
@@ -49,7 +49,7 @@ class RingerCommonSelector : public RedirectMsgStream
 
     /**
      * @brief Execute Ringer common selector
-     **/ 
+     **/
     StatusCode execute(
         const DepVarStruct &depVar,
         const xAOD::CaloRings* clRings,
@@ -81,18 +81,18 @@ class RingerCommonSelector : public RedirectMsgStream
     /// The discrimination wrapper collection size
     size_t m_discrWrapperColSize;
     /// Hold discriminators input
-    std::vector<float> m_input; 
+    std::vector<float> m_input;
     /// Hold discriminators output
     std::vector<float> m_output;
     /// Hold decision
     std::vector<bool> m_decVec;
-    /** 
+    /**
      * @brief Hold track discriminator output
      *
      * This vector will be used only in the following special occasion:
      *   - It is wanted to feed the last classifier with the output from the track
-     *  classifier. In this case, we need 
-     **/ 
+     *  classifier. In this case, we need
+     **/
     std::vector<float> m_trackDiscr_output;
     /// Flag if discrimination approach is non segmented
     bool m_nonSegmentedDiscr;

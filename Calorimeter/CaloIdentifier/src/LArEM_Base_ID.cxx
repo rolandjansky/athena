@@ -414,27 +414,29 @@ int LArEM_Base_ID::initLevelsFromDict (const std::string& group_name)
   m_phi_impl      = region.m_implementation[m_PHI_INDEX]; 
   m_slar_impl     = region.m_implementation[m_SLAR_INDEX]; 
 
-  if(m_msgSvc) {
-    log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
-    log << MSG::DEBUG << "lar  "  << m_lar_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "em   "   << m_em_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "bec  "  << m_bec_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "samp " << m_sampling_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "reg  "  << m_region_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "eta  "  << m_eta_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "phi  "  << m_phi_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "is-slar  "  << m_slar_impl.show_to_string() << endmsg;
-  }
-  else {
-    std::cout << "decode index and bit fields for each level: " << std::endl;
-    std::cout << "lar  "  << m_lar_impl.show_to_string() << std::endl;
-    std::cout << "em   "   << m_em_impl.show_to_string() << std::endl;
-    std::cout << "bec  "  << m_bec_impl.show_to_string() << std::endl;
-    std::cout << "samp " << m_sampling_impl.show_to_string() << std::endl;
-    std::cout << "reg  "  << m_region_impl.show_to_string() << std::endl;
-    std::cout << "eta  "  << m_eta_impl.show_to_string() << std::endl;
-    std::cout << "phi  "  << m_phi_impl.show_to_string() << std::endl;
-    std::cout << "is-slar  "  << m_slar_impl.show_to_string() << std::endl;
+  if (!m_quiet) {
+    if(m_msgSvc) {
+      log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
+      log << MSG::DEBUG << "lar  "  << m_lar_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "em   "   << m_em_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "bec  "  << m_bec_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "samp " << m_sampling_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "reg  "  << m_region_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "eta  "  << m_eta_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "phi  "  << m_phi_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "is-slar  "  << m_slar_impl.show_to_string() << endmsg;
+    }
+    else {
+      std::cout << "decode index and bit fields for each level: " << std::endl;
+      std::cout << "lar  "  << m_lar_impl.show_to_string() << std::endl;
+      std::cout << "em   "   << m_em_impl.show_to_string() << std::endl;
+      std::cout << "bec  "  << m_bec_impl.show_to_string() << std::endl;
+      std::cout << "samp " << m_sampling_impl.show_to_string() << std::endl;
+      std::cout << "reg  "  << m_region_impl.show_to_string() << std::endl;
+      std::cout << "eta  "  << m_eta_impl.show_to_string() << std::endl;
+      std::cout << "phi  "  << m_phi_impl.show_to_string() << std::endl;
+      std::cout << "is-slar  "  << m_slar_impl.show_to_string() << std::endl;
+    }
   }
   
 
@@ -527,22 +529,24 @@ LArEM_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
 
     m_full_em_range = dict()->build_multirange(reg_id, group_name, prefix);
     m_full_region_range = dict()->build_multirange(reg_id, group_name, prefix, "region");  
-    
-    if(m_msgSvc) {
-      log << MSG::DEBUG << " initialize_from_dict : " 
-	  << endmsg;
-      log << MSG::DEBUG << " region range -> "  << (std::string)m_full_region_range
-	  << endmsg;
-      log << MSG::DEBUG << " channel range -> "  << (std::string)m_full_em_range
-	  << endmsg;
-    }
-    else {
-      std::cout << " LArEM_Base_ID::initialize_from_dict : " 
-		<< std::endl;
-      std::cout << " region range -> "  << (std::string)m_full_region_range
-		<< std::endl;
-      std::cout << " channel range -> "  << (std::string)m_full_em_range
-		<< std::endl;
+
+    if (!m_quiet) {
+      if(m_msgSvc) {
+        log << MSG::DEBUG << " initialize_from_dict : " 
+            << endmsg;
+        log << MSG::DEBUG << " region range -> "  << (std::string)m_full_region_range
+            << endmsg;
+        log << MSG::DEBUG << " channel range -> "  << (std::string)m_full_em_range
+            << endmsg;
+      }
+      else {
+        std::cout << " LArEM_Base_ID::initialize_from_dict : " 
+                  << std::endl;
+        std::cout << " region range -> "  << (std::string)m_full_region_range
+                  << std::endl;
+        std::cout << " channel range -> "  << (std::string)m_full_em_range
+                  << std::endl;
+      }
     }
    
     // initialize m_two_sym_sides

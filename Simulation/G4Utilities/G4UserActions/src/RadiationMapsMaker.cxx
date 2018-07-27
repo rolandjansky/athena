@@ -396,16 +396,34 @@ namespace G4UA{
 	  }
 	  
 	  if ( goodMaterial && vBinZoom >=0 ) {
-	    m_maps.m_rz_tid [vBinZoom] += dE_ION/rho;
-	    m_maps.m_rz_eion[vBinZoom] += dE_ION;
+	    if ( pdgid == 999 ) {
+	      m_maps.m_rz_tid [vBinZoom] += 1;
+	      m_maps.m_rz_eion[vBinZoom] += rho;
+	    }
+	    else {
+	      m_maps.m_rz_tid [vBinZoom] += dE_ION/rho;
+	      m_maps.m_rz_eion[vBinZoom] += dE_ION;
+	    }
 	  }
 	  if ( goodMaterial && vBinFull >=0 ) {
-	    m_maps.m_full_rz_tid [vBinFull] += dE_ION/rho;
-	    m_maps.m_full_rz_eion[vBinFull] += dE_ION;
+	    if ( pdgid == 999 ) {
+	      m_maps.m_full_rz_tid [vBinFull] += 1;
+	      m_maps.m_full_rz_eion[vBinFull] += rho;
+	    }
+	    else {
+	      m_maps.m_full_rz_tid [vBinFull] += dE_ION/rho;
+	      m_maps.m_full_rz_eion[vBinFull] += dE_ION;
+	    }
 	  }
 	  if ( goodMaterial && vBin3d >=0 ) {
-	    m_maps.m_3d_tid [vBin3d] += dE_ION/rho;
-	    m_maps.m_3d_eion[vBin3d] += dE_ION;
+	    if ( pdgid == 999 ) {
+	      m_maps.m_3d_tid [vBin3d] += 1;
+	      m_maps.m_3d_eion[vBin3d] += rho;
+	    }
+	    else {
+	      m_maps.m_3d_tid [vBin3d] += dE_ION/rho;
+	      m_maps.m_3d_eion[vBin3d] += dE_ION;
+	    }
 	  }
 	    
 	  if ( goodMaterial && (pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 )) {

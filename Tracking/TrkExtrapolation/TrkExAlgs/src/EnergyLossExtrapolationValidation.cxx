@@ -25,8 +25,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 // Framework
 #include "StoreGate/StoreGateSvc.h"
-// DataVector from DataModel
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 
 //================ Constructor =================================================

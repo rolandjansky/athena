@@ -10,8 +10,8 @@
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 
 //!< Trigger specific stuff
-#include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigInterfaces/FexAlgo.h"
+#include <iosfwd>
 
 class IRegSelSvc;
 class TrigTimer;
@@ -59,10 +59,10 @@ namespace InDet {
       // Protected data 
       ///////////////////////////////////////////////////////////////////
      
-      int                         m_outputlevel     ; // Print level for debug
-      int                         m_nprint          ; // Kind of  print
-      int                         m_nsegments       ; // Number segments
-      int                         m_nsegmentsTotal   ; // Number segments
+      int                         m_outputlevel{}     ; // Print level for debug
+      int                         m_nprint {}         ; // Kind of  print
+      int                         m_nsegments{}       ; // Number segments
+      int                         m_nsegmentsTotal{}   ; // Number segments
       ToolHandle<ITRT_TrackSegmentsMaker> m_segmentsMakerTool; // TRT segments maker
 
 
@@ -75,15 +75,15 @@ namespace InDet {
 
       //!< Trigger part
       ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
-      double                  m_etaHalfWidth;   //!< ROI half-width in eta.
-      double                  m_phiHalfWidth;   //!< ROI half-width in phi.
-      bool m_doFullScan; 			//!< supports FullScan mode
+      double                  m_etaHalfWidth{};   //!< ROI half-width in eta.
+      double                  m_phiHalfWidth{};   //!< ROI half-width in phi.
+      bool m_doFullScan{}; 			//!< supports FullScan mode
 
       //!< Timing
-      TrigTimer     *m_timerRegSel;
-      TrigTimer     *m_timerFind;
-      TrigTimer     *m_timerSegMaker;
-      TrigTimer     *m_timerMainLoop;
+      TrigTimer     *m_timerRegSel{};
+      TrigTimer     *m_timerFind{};
+      TrigTimer     *m_timerSegMaker{};
+      TrigTimer     *m_timerMainLoop{};
     };
   MsgStream&    operator << (MsgStream&   ,const TRT_TrigTrackSegmentsFinder&);
   std::ostream& operator << (std::ostream&,const TRT_TrigTrackSegmentsFinder&); 

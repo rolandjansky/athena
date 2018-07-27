@@ -5,15 +5,9 @@
 #include "SCT_DistortionsTool.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PathResolver/PathResolver.h"
-
-//#include "CLHEP/Geometry/Vector3D.h"
-//#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "TrkEventPrimitives/LocalParameters.h"
 
 #include <cmath>
 #include <string>

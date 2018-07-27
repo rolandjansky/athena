@@ -25,7 +25,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class LArOnOffIdMapping;
+#include "LArCabling/LArOnOffIdMapping.h"
+
 class CaloCell_ID;
 class LArRawChannelContainer;
 

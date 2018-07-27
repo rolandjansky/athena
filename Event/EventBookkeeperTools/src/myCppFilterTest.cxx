@@ -32,12 +32,6 @@ myCppFilterTest::myCppFilterTest(const std::string& name, ISvcLocator* pSvcLocat
   m_counter=0;
 }
 
-
-myCppFilterTest::~myCppFilterTest() {
-
-}
-
-
 StatusCode myCppFilterTest::initialize(){
   ATH_MSG_DEBUG("initialize()");
 

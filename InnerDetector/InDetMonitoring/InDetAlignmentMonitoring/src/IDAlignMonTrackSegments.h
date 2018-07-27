@@ -26,14 +26,12 @@ class TH2F_LW;
 
 class AtlasDetectorID;
 class PixelID;
-class SCT_ID;
 
 namespace InDetAlignMon{
   class TrackSelectionTool;
 }
 
 namespace InDetDD{
-  class SCT_DetectorManager;
   class PixelDetectorManager; 
 }
 

@@ -34,11 +34,11 @@ BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc):Converte
   //nop
 }
 
-////////////////////////
-// destructor
-////////////////////////
-BCM_RawContByteStreamCnv::~BCM_RawContByteStreamCnv() {
-}
+// ////////////////////////
+// // destructor
+// ////////////////////////
+// BCM_RawContByteStreamCnv::~BCM_RawContByteStreamCnv() {
+// }
 
 ////////////////////////
 // initialize()

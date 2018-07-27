@@ -40,6 +40,7 @@ class ISCT_ByteStreamErrorsTool: virtual public ISCT_ConditionsTool {
   virtual const std::set<IdentifierHash>* getErrorSet(int errorType) const =0;
 
   virtual bool isRODSimulatedData() const =0;
+  virtual bool isRODSimulatedData(const IdentifierHash& elementIdHash) const =0;
 
   virtual bool isCondensedReadout() const =0;
   virtual bool HVisOn() const =0;

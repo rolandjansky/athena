@@ -13,9 +13,7 @@
 #include "GeneratorObjects/xAODTruthParticleLink.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteDecorHandleKey.h"
-
-
-class IMCTruthClassifier;
+#include "MCTruthClassifier/IMCTruthClassifier.h"
 
 class TrackParticleTruthAlg: public AthAlgorithm {
 public:

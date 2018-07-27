@@ -12,9 +12,9 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include <bitset>
+#include "LArCabling/LArCablingService.h"
 
 class StoreGateSvc; 
-class LArCablingService;
 class MsgStream;
 
 class LArCellMaskingTool: public AthAlgTool,

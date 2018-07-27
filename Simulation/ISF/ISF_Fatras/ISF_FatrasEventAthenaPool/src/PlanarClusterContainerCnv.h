@@ -33,7 +33,6 @@ protected:
 public:
   PlanarClusterContainerCnv (ISvcLocator* svcloc);
 protected:
-  virtual ~PlanarClusterContainerCnv() override;
   virtual PlanarClusterContainer_PERS*   createPersistent (iFatras::PlanarClusterContainer* transCont)  override;
   virtual iFatras::PlanarClusterContainer* createTransient () override;
 

@@ -114,6 +114,12 @@ from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpac
 InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name = "InDetSiTrackerSpacePointFinder")
 topSequence += InDetSiTrackerSpacePointFinder
 
+# Condition algorithm for SiTrackerSpacePointFinder
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+   from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+   condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
 from LArCafJobs.LArCafJobsConf import LArNoiseBursts
 topSequence += LArNoiseBursts( "LArNoiseBursts" )

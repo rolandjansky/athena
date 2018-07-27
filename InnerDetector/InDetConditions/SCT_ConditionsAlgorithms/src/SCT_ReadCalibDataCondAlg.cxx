@@ -12,7 +12,6 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
@@ -56,7 +55,6 @@ SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvc
   , m_ignoreDefectParameters{}
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
-  , m_SCTdetMgr{nullptr}
 {
   declareProperty("IgnoreDefects", m_ignoreDefects, "Defects to ignore");
   declareProperty("IgnoreDefectsParameters", m_ignoreDefectParameters, "Limit on defect to ignore parameters");
@@ -74,9 +72,6 @@ SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvc
 StatusCode SCT_ReadCalibDataCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
   
-  // Get SCT detector manager
-  ATH_CHECK(detStore()->retrieve(m_SCTdetMgr, "SCT"));
-
   // Get SCT helper
   ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
 
@@ -86,6 +81,7 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
   // Read Cond Handle
   ATH_CHECK(m_readKeyGain.initialize());
   ATH_CHECK(m_readKeyNoise.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // Write Cond Handles
   for (unsigned int i{GAIN}; i<NFEATURES; i++) {
@@ -183,13 +179,26 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
     ATH_MSG_INFO("Range of input is " << rangeR[i]);
   }
 
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+  EventIDRange rangeDetEle;
+  if (not sctDetEle.range(rangeDetEle)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_SCTDetEleCollKey.key());
+    return StatusCode::FAILURE;
+  }
+
   // Set range of output
-  EventIDRange rangeW{EventIDRange::intersect(rangeR[GAIN], rangeR[NOISE])};
+  EventIDRange rangeW{EventIDRange::intersect(rangeR[GAIN], rangeR[NOISE], rangeDetEle)};
   if(rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
     return StatusCode::FAILURE;
   }
-  
+
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_CalibDefectData> writeCdoData[NFEATURES]{nullptr, nullptr};
   for (unsigned int i{GAIN}; i<NFEATURES; i++) {
@@ -222,9 +231,9 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
       m_id_sct->get_other_side(hashId0, hashId1);
 
       // Check for PhiSwap readout
-      InDetDD::SiDetectorElement* p_element{m_SCTdetMgr->getDetectorElement(hashId0)};
+      const InDetDD::SiDetectorElement* p_element{elements->getDetectorElement(hashId0)};
       bool phiSwap0Present{p_element->swapPhiReadoutDirection()};
-      p_element = (m_SCTdetMgr->getDetectorElement(hashId1));
+      p_element = (elements->getDetectorElement(hashId1));
       bool phiSwap1Present{p_element->swapPhiReadoutDirection()};
        
       // Clear theseDefects

@@ -5,6 +5,7 @@
 #include "G4AtlasTools/PhysicsListToolBase.h"
 
 #include "G4VUserPhysicsList.hh"
+#include "G4StateManager.hh"
 #include "G4RunManager.hh"
 #include "G4EmProcessOptions.hh"
 #include "G4UImanager.hh"
@@ -122,21 +123,31 @@ void PhysicsListToolBase::SetPhysicsOptions()
     {
       m_physicsList->SetDefaultCutValue(m_generalCut);
     }
+
+  std::vector<std::string> g4commands;
   if (m_neutronTimeCut > 0. && std::fabs(m_neutronTimeCut)>std::numeric_limits<double>::epsilon())
     {
       std::ostringstream oss;
       oss<<"/physics_engine/neutron/timeLimit "<<m_neutronTimeCut<<" ns";
-      G4UImanager* UImanager = G4UImanager::GetUIpointer();
-      UImanager->ApplyCommand(oss.str());
+      g4commands.push_back(oss.str());
     }
 
   if (m_neutronEnergyCut > 0. && std::fabs(m_neutronEnergyCut)>std::numeric_limits<double>::epsilon())
     {
       std::ostringstream oss;
       oss<<"/physics_engine/neutron/energyLimit "<<m_neutronEnergyCut<<" MeV";
-      G4UImanager* UImanager = G4UImanager::GetUIpointer();
-      UImanager->ApplyCommand(oss.str());
+      g4commands.push_back(oss.str());
     }
+
+  if(!g4commands.empty()) {
+    // Send UI commands
+    ATH_MSG_DEBUG("G4 Command: Trying in SetPhysicsOptions()");
+    G4UImanager* ui = G4UImanager::GetUIpointer();
+    for (auto g4command : g4commands) {
+      int returnCode = ui->ApplyCommand( g4command );
+      CommandLog(returnCode, g4command);
+    }
+  }
 
   G4EmProcessOptions emo;
   if (m_emMaxEnergy>=0) emo.SetMaxEnergy(m_emMaxEnergy);
@@ -148,4 +159,23 @@ void PhysicsListToolBase::SetPhysicsOptions()
       emo.SetApplyCuts(true);
     }
   return;
+}
+
+void PhysicsListToolBase::CommandLog(int returnCode, const std::string& commandString) const
+{
+  switch(returnCode) {
+  case 0: { ATH_MSG_DEBUG("G4 Command: " << commandString << " - Command Succeeded"); } break;
+  case 100: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Command Not Found!"); } break;
+  case 200: {
+    auto* stateManager = G4StateManager::GetStateManager();
+    ATH_MSG_DEBUG("G4 Command: " << commandString << " - Illegal Application State (" <<
+                    stateManager->GetStateString(stateManager->GetCurrentState()) << ")!");
+  } break;
+  case 300: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Range!"); } break;
+  case 400: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Unreadable!"); } break;
+  case 500: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Candidates!"); } break;
+  case 600: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Alias Not Found!"); } break;
+  default: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Unknown Status!"); } break;
+  }
+
 }

@@ -16,6 +16,10 @@
 GeoPixelSimpleStaveSupport::GeoPixelSimpleStaveSupport()
 {
   m_physVol = Build();
+  m_physVol->ref();
+}
+GeoPixelSimpleStaveSupport::~GeoPixelSimpleStaveSupport(){
+  m_physVol->unref();
 }
 
 GeoVPhysVol* GeoPixelSimpleStaveSupport::Build() {

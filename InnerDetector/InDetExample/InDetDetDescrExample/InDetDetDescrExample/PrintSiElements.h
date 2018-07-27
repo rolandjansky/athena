@@ -9,10 +9,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 //#include "CLHEP/Geometry/Transform3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include <fstream>
-
-class IGeoModelSvc;
 
 /////////////////////////////////////////////////////////////////////////////
 

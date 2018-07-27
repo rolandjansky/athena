@@ -50,11 +50,6 @@ public:
     virtual StatusCode finalize();
     virtual StatusCode execute(MissingETData *data);
 
-   protected:
-
-   /** Standard destructor */
-   virtual ~MissingETScaleTool( );
-
  private:
 
   StatusCode MissingETScale(MissingETData *data);

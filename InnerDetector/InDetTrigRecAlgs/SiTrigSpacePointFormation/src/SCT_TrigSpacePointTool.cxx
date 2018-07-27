@@ -34,12 +34,10 @@ SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
   m_overlapLimitPhi(5.64),      // overlap limit for phi-neighbours.
   m_overlapLimitEtaMin(1.68),   // low overlap limit for eta-neighbours.
   m_overlapLimitEtaMax(3.0),   // high overlap limit for eta-neighbours.
-  m_epsWidth(0.02),		// safety margin for half-widths, in cm.
   m_spacePointsOverlapName("OverlapSpacePoints"),
   m_SiSpacePointMakerToolName("InDet::SiSpacePointMakerTool"),
   m_manager(0),
   m_idHelper(0),
-  m_properties{nullptr},
   m_Sct_clcontainer{nullptr},
   m_SiSpacePointMakerTool(0),
   m_allClusters(false),       // process all clusters without limits.
@@ -60,7 +58,6 @@ SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
                                              // eta-neighbours.
   declareProperty("OverlapLimitEtaMax", m_overlapLimitEtaMax);// high overlap limit for 
                                            // eta-neighbours.
-  declareProperty("EpsWidth",m_epsWidth); // safety margin for half-widths, in cm
   declareProperty("SpacePointsOverlapName", m_spacePointsOverlapName);
   declareProperty("SiSpacePointMakerToolName", m_SiSpacePointMakerToolName);
  
@@ -96,10 +93,6 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
     return StatusCode::FAILURE;
   } 
 
-  m_properties = new InDet::SiElementPropertiesTable(*m_idHelper, 
-						     *elements, 
-						     m_epsWidth);
-
   ATH_CHECK( toolSvc()->retrieveTool(m_SiSpacePointMakerToolName, 
                                      m_SiSpacePointMakerTool, this) );
 
@@ -113,7 +106,6 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
 //--------------------------------------------------------------------------
 StatusCode SCT_TrigSpacePointTool::finalize() {
   StatusCode sc = AthAlgTool::finalize(); 
-  delete m_properties; m_properties=0;
   return sc;
 }
 
@@ -121,19 +113,21 @@ StatusCode SCT_TrigSpacePointTool::finalize() {
 //--------------------------------------------------------------------------
 void SCT_TrigSpacePointTool::
 addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection, 
-		   const SCT_ClusterContainer* clusterContainer,
-		   SpacePointCollection* spacepointCollection) {
+                   const SCT_ClusterContainer* clusterContainer,
+                   const SiElementPropertiesTable* properties,
+                   SpacePointCollection* spacepointCollection) {
 
-  addSCT_SpacePoints(clusCollection, clusterContainer, spacepointCollection, 0);
+  addSCT_SpacePoints(clusCollection, clusterContainer, properties, spacepointCollection, 0);
 }
 				
 //--------------------------------------------------------------------------
 
 void SCT_TrigSpacePointTool::
 addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection, 
-		   const SCT_ClusterContainer* clusterContainer,
-		   SpacePointCollection* spacepointCollection,
-		   SpacePointOverlapCollection* overlapColl) {
+                   const SCT_ClusterContainer* clusterContainer,
+                   const SiElementPropertiesTable* properties,
+                   SpacePointCollection* spacepointCollection,
+                   SpacePointOverlapCollection* overlapColl) {
 
   m_Sct_clcontainer = clusterContainer;
   m_spacepointoverlapCollection = overlapColl;
@@ -174,7 +168,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
     IdentifierHash thisHash = m_idHelper->wafer_hash(thisID);
 
     const std::vector<IdentifierHash>* 
-      others(m_properties->neighbours(thisHash));
+      others(properties->neighbours(thisHash));
     if (others==0 || others->empty() ) return;
     std::vector<IdentifierHash>::const_iterator otherHash = others->begin();
     
@@ -195,7 +189,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
     doOverlapColl = true;
     ++otherHash;
     if (otherHash == others->end() ) return;
-    float hwidth(m_properties->halfWidth(thisHash)); 
+    float hwidth(properties->halfWidth(thisHash));
     // half-width of wafer
     
     checkForSCT_Points(clusCollection, *otherHash, 

@@ -43,6 +43,9 @@ namespace InDet {
           m_breakTolerance(od.m_breakTolerance),
           m_outsideTolerance(od.m_outsideTolerance)
          {}
+         
+         ///Default assignment
+         TRT_OverlapDescriptor & operator = (const TRT_OverlapDescriptor &) = default;
              
          /** Destructor */
          virtual ~TRT_OverlapDescriptor(){}

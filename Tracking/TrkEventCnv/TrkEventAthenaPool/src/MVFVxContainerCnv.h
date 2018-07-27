@@ -45,8 +45,6 @@ public:
   MVFVxContainerCnv( ISvcLocator *svcloc );
 protected:
 
-  ~MVFVxContainerCnv();
-  
   virtual StatusCode initialize();
   
   virtual MVFVxContainer_PERS *createPersistent( MVFVxContainer *transCont);

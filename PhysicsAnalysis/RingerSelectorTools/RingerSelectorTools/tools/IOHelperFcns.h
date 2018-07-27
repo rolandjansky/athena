@@ -36,14 +36,14 @@ void readVar(TDirectory* dir, const char* varName, ReadingType& varDest);
  * @brief Write var with name varName at directory dir, raises otherwise.
  *
  * It cannot write non-scalar C objects, such as float[] and so on. Use
- * std::vector<> otherwise. It also needs the root dictionary available 
+ * std::vector<> otherwise. It also needs the root dictionary available
  * for the type being writen. Some std::vector types available are:
  *
  * std::vector<float>
  * std::vector<double>
  * std::vector<unsigned int>
  *
- * But their long counterparts seem not possible to be written. 
+ * But their long counterparts seem not possible to be written.
  *
  * For enumeration types, convert them into integers and when reading, convert
  * them back, i.e.:
@@ -139,7 +139,7 @@ void writeVersion(TDirectory* dir);
 /**
  * @brief Creates directory in baseDir with given name.
  *
- * Throws runtime_error if error occurred. It also adds to created directory 
+ * Throws runtime_error if error occurred. It also adds to created directory
  * the package version in which it was created. This can be written using the
  * getWrittenVersion function.
  **/

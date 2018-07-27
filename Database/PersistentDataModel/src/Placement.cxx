@@ -14,10 +14,8 @@ Placement::Placement() : m_technology(0L), m_fileName(""), m_containerName("") {
 
 const std::string Placement::toString() const {
    char text[128];
-   std::string str = "[FILE=" + m_fileName + "][CONT=" + m_containerName + "]";
    sprintf(text, fmt_tech, m_technology);
-   str += text;
-   str += m_auxString;
+   std::string str = "[FILE=" + m_fileName + "][CONT=" + m_containerName + "]" + text + m_auxString;
    return str;
 }
 
