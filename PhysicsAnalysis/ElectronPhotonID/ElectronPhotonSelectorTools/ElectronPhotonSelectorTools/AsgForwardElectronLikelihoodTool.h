@@ -63,23 +63,23 @@ public:
   // Main methods for IAsgCalculatorTool interface
 public:
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::IParticle* part ,  int set = 4 ) const;
+  const Root::TResult& calculate( const xAOD::IParticle* part ) const;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron*  eg   ,  int set = 4 ) const {
-    return calculate (eg, -99, set ); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
+  const Root::TResult& calculate( const xAOD::Electron*  eg   ) const {
+    return calculate (eg, -99 ); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma*    eg   ,  int set = 4 ) const {
-    return calculate (eg, -99, set ); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
+  const Root::TResult& calculate( const xAOD::Egamma*    eg   ) const {
+    return calculate (eg, -99 ); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron*  eg, double mu ,  int set = 0 ) const;
+  const Root::TResult& calculate( const xAOD::Electron*  eg, double mu ) const;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma*    eg, double mu ,  int set = 0 ) const; 
+  const Root::TResult& calculate( const xAOD::Egamma*    eg, double mu ) const; 
 
   /** Method to get the plain TAccept */
   virtual const Root::TAccept& getTAccept( ) const;

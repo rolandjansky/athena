@@ -39,7 +39,7 @@ namespace LikeEnumForward {
     double likelihood;
     double eta;
     double eT;
-    double ip;        
+    double ip;
   };
 
   struct LHCalcVars_t{
@@ -53,8 +53,8 @@ namespace LikeEnumForward {
     double secondR;
     double secondDensity;
     double significance;
-    double ip;        
-    int set;};
+    double ip;
+  };
 
   struct ROOT6_NamespaceAutoloadHook{};
 }
@@ -118,8 +118,7 @@ namespace Root {
 				   double secondR,
 				   double significance,
 				   double secondDensity,
-				   double ip,
-				   int set = 4) const;
+				   double ip ) const;
     
 
     /// Add an input file that holds the PDFs
@@ -153,10 +152,10 @@ namespace Root {
     // in the same order as prescribed in fVariables
 
     /// Description???
-    double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0,int set = 4) const;
+    double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0) const;
 
     /// Description???
-    double EvaluateLikelihood(std::vector<float>  varVector,double et,double eta,double ip=0,int set = 4) const;
+    double EvaluateLikelihood(std::vector<float>  varVector,double et,double eta,double ip=0) const;
 
 
     // To concoct a bitmask on your own, use the 

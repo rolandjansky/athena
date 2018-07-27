@@ -170,7 +170,7 @@ int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(std::string vstr,uns
             return 1;
 	  }
 	  
-          // PS: it shouldn't go to the last bin (which is 7000 GeV)
+          // it shouldn't go to the last bin (which is 7000 GeV)
           if ( et > fnEtBinsHistOrig-1 ) {
             continue;
           }
@@ -291,8 +291,7 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(
 								     double secondR,
 								     double significance,
 								     double secondDensity,
-								     double ip,
-								     int set ) const
+								     double ip ) const
 {
   LikeEnumForward::LHCalcVars_t vars;
   
@@ -307,7 +306,6 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(
   vars.significance    = significance   ;  
   vars.secondDensity   = secondDensity  ;
   vars.ip              = ip             ;
-  vars.set             = set            ;
   
   return calculate(vars);
 }
@@ -330,7 +328,7 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(LikeEnumFor
   std::vector<double> vec (arr, arr + sizeof(arr) / sizeof(double) );
   
   // Calculate the actual likelihood value and fill the return object
-  double lhVal = this->EvaluateLikelihood(vec,vars_struct.eT,vars_struct.eta,vars_struct.ip,vars_struct.set);
+  double lhVal = this->EvaluateLikelihood(vec,vars_struct.eT,vars_struct.eta,vars_struct.ip);
   m_result.setResult( m_resultPosition_LH, lhVal  );
   return m_result;
 }
@@ -338,31 +336,27 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(LikeEnumFor
 
   
 
-double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<float> varVector,double et,double eta,double ip,int set) const
+double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<float> varVector,double et,double eta,double ip) const
 {
   std::vector<double> vec;
   for(unsigned int var = 0; var < fnVariables; var++){
     vec.push_back(varVector[var]);
   }
-  return EvaluateLikelihood(vec,et,eta,ip,set);//,mask);  
+  return EvaluateLikelihood(vec,et,eta,ip);//,mask);  
 }
 
 
 
-double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip,int set) const
+double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip) const
 {
-  
-  // PS: I have no clue what the set is supposed to be, Hanlin please comment
-  if( (set>8) || (set<1) ) {
-    set=4;
-  }
   
   // const double GeV = 1000;
   unsigned int etbin = (getLikelihoodEtHistBin(et) > 2) ? (getLikelihoodEtHistBin(et)-2):getLikelihoodEtHistBin(et); // hist binning
   unsigned int etabin = getLikelihoodEtaBin(eta);
-  if( (etbin==5) && (etabin==10) ) { // PS: what is this doing? Can't this be fixed in the configs?
-    etabin = 9;
-  }
+  // if( (etbin==5) && (etabin==10) ) { // in a previous version these bins were not running stable, for now keep them
+  //   etabin = 9;
+  // }
+
   unsigned int ipbin  = getIpBin(ip);
 
   if (etbin >= fnEtBinsHist) {
@@ -391,8 +385,8 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<doub
       double prob = 0;
 
       double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
-      if (integral == 0) {
-	ATH_MSG_WARNING("Error! PDF integral == 0!");
+      if (integral == 0) { // currently, the crack always has integral == 0 and will throw this warning
+	ATH_MSG_WARNING("Error! PDF integral == 0!"); 
 	return -1.35;
       }
       
@@ -446,7 +440,7 @@ unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtaBin(double et
   const unsigned int nEtaBins = 11;
   const double etaBins[nEtaBins] = {2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6, 4.9};
   
-  for(unsigned int etaBin = 1; etaBin < nEtaBins; ++etaBin){ // PS: start loop at 1 so underflow is applied in case we're below 2.5 (which shouldn't happen since there's a kin cut)
+  for(unsigned int etaBin = 1; etaBin < nEtaBins; ++etaBin){ // start loop at 1 so underflow is applied in case we're below 2.5 (which shouldn't happen since there's a kin cut)
     if(fabs(eta) < etaBins[etaBin])
       return etaBin;
   }
@@ -476,7 +470,7 @@ unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtHistBin(double
 //---------------------------------------------------------------------------------------
 // Gets the bin name. Given the HISTOGRAM binning (fnEtBinsHist)
 void Root::TForwardElectronLikelihoodTool::getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const{
-  double eta_bounds[11] = {2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6, 4.9};//ATTENTION PS: what attnetion?
+  double eta_bounds[11] = {2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6, 4.9};
   int et_bounds[fnEtBinsHist] = {15,20,30,40,50,7000};
   if (!iptype.empty())
     sprintf(buffer, "%s%det%02deta%0.2f", iptype.c_str(), int(fIpBounds[ipbin]), et_bounds[etbin], eta_bounds[etabin]);

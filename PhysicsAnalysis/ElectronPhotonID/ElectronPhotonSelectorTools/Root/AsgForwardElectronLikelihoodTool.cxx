@@ -150,7 +150,7 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
     m_rootForwardTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
     m_rootForwardTool->CutLikelihoodPileupCorrectionA = AsgConfigHelper::HelperDouble("DiscCutSlopeForPileupTransform",env);
     m_rootForwardTool->CutLikelihoodPileupCorrectionB = AsgConfigHelper::HelperDouble("DiscCutForPileupTransform",env);
-    m_rootForwardTool->doPileupTransform = env.GetValue("doPileupTransform", false);
+    m_rootForwardTool->doPileupCorrection = env.GetValue("doPileupCorrection", false);
 	
   } else{  //Error if it cant find the conf
     ATH_MSG_ERROR("Could not find configuration file");
@@ -269,11 +269,11 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
 //=============================================================================
 // Calculate method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu, int set ) const
+const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const
 {
   
   const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
-  return calculate(el, mu, set);
+  return calculate(el, mu);
 
 }
 
@@ -281,7 +281,7 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::Eg
 //=============================================================================
 // The main result method: the actual likelihood is calculated here
 //=============================================================================
-const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu , int set  ) const
+const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu ) const
 {
   if ( !eg )
     {
@@ -363,9 +363,9 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::El
     ip = mu;
   }
 
-  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, 2nd lambda=%8.5f, lateral=%8.5f, longitudinal=%8.5f, center lambda=%8.5f, frac max=%8.5f, secondR=%8.5f, significance=%8.5f, 2nd density=%8.5f, ip=%8.5f, set=%d",
+  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, 2nd lambda=%8.5f, lateral=%8.5f, longitudinal=%8.5f, center lambda=%8.5f, frac max=%8.5f, secondR=%8.5f, significance=%8.5f, 2nd density=%8.5f, ip=%8.5f",
 			 eta, et, secondLambda, lateral, longitudinal,
-			 centerLambda, fracMax, secondR, significance, secondDensity, ip, set ) );
+			 centerLambda, fracMax, secondR, significance, secondDensity, ip ) );
   
   
   if (!allFound) {
@@ -384,8 +384,7 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::El
 				       secondR,
 				       significance,
 				       secondDensity,    
-				       ip,
-				       set);
+				       ip);
 }
 
 /** Method to get the plain TAccept */
@@ -422,12 +421,12 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept(const xAOD::IParti
 
 }
 //=============================================================================
-const Root::TResult& AsgForwardElectronLikelihoodTool::calculate(const xAOD::IParticle* part, int set ) const
+const Root::TResult& AsgForwardElectronLikelihoodTool::calculate(const xAOD::IParticle* part ) const
 {
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if (eg)
     {
-      return calculate(eg,set);
+      return calculate(eg);
     }
   else
     {
