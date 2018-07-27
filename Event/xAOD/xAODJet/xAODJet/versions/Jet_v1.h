@@ -17,7 +17,9 @@
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 #include "xAODBTagging/BTaggingContainer.h"
+#endif //GENERATIONBASE
 #endif //SIMULATIONBASE
 
 // Local include(s):
@@ -229,13 +231,15 @@ namespace xAOD {
     template<class T>
     void setAttribute( AttributeID type, const T& value );
 #ifndef SIMULATIONBASE
+#ifndef GENERATINBASE
     /// Access to the associated btagging object
     const BTagging* btagging() const;
     /// Access to the associated btagging object
     const ElementLink< BTaggingContainer >& btaggingLink() const;
     /// Access to btagging objects
     void setBTaggingLink( const ElementLink< BTaggingContainer>& el );
-#endif
+#endif // GENERATIONBASE
+#endif // SIMULATIONBASE
 
     /// @}
     ////////////////////////////////////////////////////////    
