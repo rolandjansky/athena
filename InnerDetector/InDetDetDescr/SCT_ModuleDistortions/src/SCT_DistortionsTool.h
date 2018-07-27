@@ -6,12 +6,10 @@
 #define SCT_DistortionsTool_H
 
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
-//#include "CLHEP/Geometry/Vector3D.h"
-//#include "CLHEP/Geometry/Point3D.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
 #include <map>
-#include "AthenaBaseComps/AthAlgTool.h"
 
 class SCT_ID;
 

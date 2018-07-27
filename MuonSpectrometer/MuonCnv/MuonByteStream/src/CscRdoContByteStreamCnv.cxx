@@ -36,11 +36,6 @@ CscRdoContByteStreamCnv::CscRdoContByteStreamCnv(ISvcLocator* svcloc)
 {}
 
 
-// destructor
-CscRdoContByteStreamCnv::~CscRdoContByteStreamCnv() 
-{}
-
-
 // class ID
 const CLID& CscRdoContByteStreamCnv::classID()
 {

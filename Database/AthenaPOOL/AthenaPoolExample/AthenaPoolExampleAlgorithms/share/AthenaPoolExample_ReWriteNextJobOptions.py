@@ -70,12 +70,13 @@ svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__ReadData,AthPoolEx__ReWriteData
 topSequence += AthPoolEx__ReadData("ReadData")
-topSequence += AthPoolEx__ReWriteData("ReWriteData")
+topSequence += AthPoolEx__ReWriteData("ReWriteData", ExampleHitKey="")
 
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__WriteTag
 topSequence += AthPoolEx__WriteTag("WriteTag")
 MagicWriteTag = AthPoolEx__WriteTag( "MagicWriteTag" )
 MagicWriteTag.Key = "MagicTag"
+MagicWriteTag.TagKey = "MagicTag"
 MagicWriteTag.Magic = 24
 topSequence += MagicWriteTag
 

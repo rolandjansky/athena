@@ -23,12 +23,12 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "LArRecConditions/ILArBadChanTool.h"
 
 class LArCablingService;
 class StoreGateSvc;
 class CaloCell_ID;
 class LArOnlineID;
-class ILArBadChanTool;
 class LArFebErrorSummary;
 
 class LArBadFebMaskingTool: public AthAlgTool,

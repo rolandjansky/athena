@@ -46,6 +46,7 @@
 //#include "CaloEvent/CaloClusterMoment.h"
 #include "TBEvent/TBEventInfo.h"
 #include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -171,6 +172,14 @@ StatusCode GetLCDeadMaterialTree::initialize()
 
   m_outputTree = m_data->MakeTree("DeadMaterialTree");
 
+  ATH_CHECK( m_clusterCollName.initialize() );
+  if (m_doSaveCalibClusInfo) {
+    ATH_CHECK( m_clusterCollNameCalib.initialize() );
+  }
+  else {
+    m_clusterCollNameCalib = "";
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -201,19 +210,7 @@ StatusCode GetLCDeadMaterialTree::execute()
   /* ********************************************
   access to cluster container
   ******************************************** */
-  const DataHandle<xAOD::CaloClusterContainer> pClusColl;
-  ATH_CHECK( evtStore()->retrieve(pClusColl,m_clusterCollName) );
-
-  const DataHandle<xAOD::CaloClusterContainer> pClusCollCalib;
-  if(m_doSaveCalibClusInfo) {
-    ATH_CHECK( evtStore()->retrieve(pClusCollCalib,m_clusterCollNameCalib) );
-
-    if(pClusColl->size() != pClusCollCalib->size()) {
-      ATH_MSG_WARNING( "Different size of calibrated and uncalibrated cluster collection " 
-                       << pClusColl->size() << " " << pClusCollCalib->size()  );
-      return StatusCode::SUCCESS;
-    }
-  }
+  SG::ReadHandle<xAOD::CaloClusterContainer> pClusColl (m_clusterCollName);
 
   /* ********************************************
   reading TBEventInfo
@@ -308,6 +305,13 @@ StatusCode GetLCDeadMaterialTree::execute()
     }
 
     if(m_doSaveCalibClusInfo) {
+      SG::ReadHandle<xAOD::CaloClusterContainer> pClusCollCalib (m_clusterCollNameCalib);
+      if(pClusColl->size() != pClusCollCalib->size()) {
+        ATH_MSG_WARNING( "Different size of calibrated and uncalibrated cluster collection " 
+                         << pClusColl->size() << " " << pClusCollCalib->size()  );
+        return StatusCode::SUCCESS;
+      }
+
       const xAOD::CaloCluster * theClusterCalib = pClusCollCalib->at(iClus);
 
       // reco status

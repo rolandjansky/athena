@@ -64,10 +64,6 @@ public:
   StatusCode toBSMetadata  (const std::vector<std::string>& keys);
   StatusCode fromBSMetadata(const std::vector<std::string>& keys);
 
-protected:
-
-  /// Standard Destructor
-  virtual ~ByteStreamAttListMetadataSvc() {}
 
 private:
   Gaudi::Property<std::string> m_inputStoreName;

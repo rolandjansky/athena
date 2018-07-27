@@ -12,14 +12,14 @@
 
 // the user data-class defintions
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "StoreGate/WriteHandle.h"
 
 using namespace AthPoolEx;
 
 //___________________________________________________________________________
-WriteData::WriteData(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator) {
+WriteData::WriteData(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
+{
 }
 //___________________________________________________________________________
 WriteData::~WriteData() {
@@ -27,40 +27,32 @@ WriteData::~WriteData() {
 //___________________________________________________________________________
 StatusCode WriteData::initialize() {
    ATH_MSG_INFO("in initialize()");
+   ATH_CHECK( m_exampleHitKey.initialize() );
+   ATH_CHECK( m_aliasKey.initialize() );
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode WriteData::execute() {
+StatusCode WriteData::execute_r (const EventContext& ctx) const {
    ATH_MSG_DEBUG("in execute()");
 
-   const DataHandle<EventInfo> evt;
-   if (evtStore()->retrieve(evt).isFailure()) {
-      ATH_MSG_FATAL("Could not find event");
-      return StatusCode::FAILURE;
-   }
-   int eventNumber = evt->event_ID()->event_number();
-   int runNumber = evt->event_ID()->run_number();
+   int eventNumber = ctx.eventID().event_number();
+   int runNumber = ctx.eventID().run_number();
    ATH_MSG_INFO("EventInfo event: " << eventNumber << "  run: " << runNumber);
 
-   ExampleHitContainer* hitCont = new ExampleHitContainer();
+   SG::WriteHandle<ExampleHitContainer> hits (m_exampleHitKey, ctx);
+   ATH_CHECK( hits.record( std::make_unique<ExampleHitContainer>() ) );
    for (int i = 0; i < 10; i++) {
-      ExampleHit* hitObj = new ExampleHit();
+      auto hitObj = std::make_unique<ExampleHit>();
       hitObj->setX(1.2345 + eventNumber * 100 + 3.21 * i);
       hitObj->setY(-2.345 + runNumber * 100 - 5.6789 * i);
       hitObj->setZ(34.567 - eventNumber * 100 + 87.6 / (i + 0.456));
       hitObj->setDetector("DummyHitDetector");
-      hitCont->push_back(hitObj);
+      hits->push_back(std::move (hitObj));
    }
-   if (evtStore()->record(hitCont, "MyHits").isFailure()) {
-      ATH_MSG_ERROR("Could not register ExampleHitContainer/MyHits");
-      return StatusCode::FAILURE;
-   }
+
    if (eventNumber == 14) {
       ATH_MSG_INFO("Now creating ExampleHit alias for event: " << eventNumber);
-      if (evtStore()->setAlias(hitCont, "PetersHits").isFailure()) {
-         ATH_MSG_ERROR("Could not register alias for ExampleHitContainer/MyHits");
-         return StatusCode::FAILURE;
-      }
+      ATH_CHECK( hits.alias (m_aliasKey) );
    }
    ATH_MSG_INFO("registered all data");
    return StatusCode::SUCCESS;

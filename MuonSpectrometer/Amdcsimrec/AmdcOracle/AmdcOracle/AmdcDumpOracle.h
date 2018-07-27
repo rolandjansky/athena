@@ -8,11 +8,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h" 
+#include "AmdcDb/IRDBAccessSvcWithUpdate.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #include "AmdcOracle/AmdcOracleMisc.h"
 
-class IRDBAccessSvcWithUpdate;
 class IRDBAccessSvc;
 
   /**

@@ -29,10 +29,8 @@
 #include "TrkGeometry/MaterialStepCollection.h"
 #include "TrkGeometry/ElementTable.h"
 #include "TrkGeometry/Material.h"
+#include "TrkValInterfaces/IPositionMomentumWriter.h"
 
-namespace Trk {
-  class IPositionMomentumWriter;
-}
 
 namespace G4UA
 {

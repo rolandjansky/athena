@@ -37,13 +37,11 @@ class TrigVertexCountsCollectionCnv : public TrigVertexCountsCollectionCnvBase
   
   friend class CnvFactory<TrigVertexCountsCollectionCnv>;
  
-  protected:
-   
 public:
   TrigVertexCountsCollectionCnv( ISvcLocator *svcloc );
-protected:
   ~TrigVertexCountsCollectionCnv();
    
+protected:
    virtual TrigVertexCountsCollection_PERS *createPersistent( TrigVertexCountsCollection *transObj);
    virtual TrigVertexCountsCollection      *createTransient();
   

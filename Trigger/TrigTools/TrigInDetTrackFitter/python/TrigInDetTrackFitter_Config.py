@@ -15,9 +15,8 @@ class ConfiguredTrigL2_Extrapolator(Trk__Extrapolator) :
         from AthenaCommon.AppMgr import ToolSvc
         from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
-        from IOVDbSvc.CondDB import conddb
-        if not (conddb.folderRequested( "/Indet/TrkErrorScaling" ) or conddb.folderRequested( "/Indet/Onl/TrkErrorScaling" )):
-            conddb.addFolderSplitOnline("INDET", "/Indet/Onl/TrkErrorScaling", "/Indet/TrkErrorScaling" )
+        from InDetRecExample.TrackingCommon import createAndAddCondAlg, getRIO_OnTrackErrorScalingCondAlg
+        createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
         
         from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
         TrigL2_StepPropagator = Trk__STEP_Propagator(name = 'TrigL2_StepPropagator')

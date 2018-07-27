@@ -37,7 +37,6 @@ protected:
 public:
   LayerMaterialMapCnv( ISvcLocator *svcloc );
 protected:
-  ~LayerMaterialMapCnv();
   virtual StatusCode initialize();
 
   virtual LayerMaterialMap_PERS *createPersistent( Trk::LayerMaterialMap *transCont);

@@ -36,6 +36,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
@@ -49,7 +50,6 @@ namespace InDetDD{
 
 
 namespace InDet {
-  class ISCT_ClusteringTool;
 /**
  *    @class SCT_Clusterization
  *    @brief Form clusters from SCT Raw Data Objects

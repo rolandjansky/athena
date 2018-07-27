@@ -20,7 +20,7 @@ description : Class for finding brem points in the inner detector using the GSF
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkParameters/TrackParameters.h"
 

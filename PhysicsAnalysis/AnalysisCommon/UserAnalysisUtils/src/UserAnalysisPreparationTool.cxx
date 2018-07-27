@@ -77,10 +77,6 @@ StatusCode UserAnalysisPreparationTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-//------------------------------------------------------------------------------
-UserAnalysisPreparationTool::~UserAnalysisPreparationTool()
-{}
-
 //-------------------------------------------------------------------------------
 StatusCode UserAnalysisPreparationTool::execute() {
   ATH_MSG_DEBUG("in execute()");

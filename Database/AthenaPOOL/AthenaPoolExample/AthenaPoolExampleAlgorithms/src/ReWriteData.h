@@ -11,14 +11,18 @@
  *  $Id: ReWriteData.h,v 1.1 2008-12-10 21:28:11 gemmeren Exp $
  **/
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaPoolExampleData/ExampleHitContainer.h"
+#include "AthenaPoolExampleData/ExampleTrackContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 namespace AthPoolEx {
 
 /** @class AthPoolEx::ReWriteData
  *  @brief This class provides an example for reading and writing data objects from/to Pool.
  **/
-class ReWriteData : public AthAlgorithm {
+class ReWriteData : public AthReentrantAlgorithm {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    ReWriteData(const std::string& name, ISvcLocator* pSvcLocator);
@@ -27,9 +31,13 @@ public: // Constructor and Destructor
 
 public:
 /// Gaudi Service Interface method implementations:
-   StatusCode initialize();
-   StatusCode execute();
-   StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode execute_r (const EventContext& ctx) const override;
+   virtual StatusCode finalize() override;
+
+private:
+   SG::ReadHandleKey<ExampleHitContainer> m_exampleHitKey { this, "ExampleHitKey", "MyHits" };
+   SG::WriteHandleKey<ExampleTrackContainer> m_exampleTrackKey { this, "ExampleTrackKey", "MyTracks" };
 };
 
 } // end AthPoolEx namespace

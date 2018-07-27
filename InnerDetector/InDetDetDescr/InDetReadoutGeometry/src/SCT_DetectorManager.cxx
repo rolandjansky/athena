@@ -114,34 +114,6 @@ namespace InDetDD {
     return getDetectorElement(m_idHelper->wafer_id(barrel_endcap, layer_wheel, phi_module, eta_module, side));
   }
 
-  const SiDetectorElement* SCT_DetectorManager::getDetectorElement(const Identifier &id, const SiDetectorElementCollection* coll) const
-  {
-    if (coll) {
-      Identifier waferId =  m_idHelper->wafer_id(id);
-      IdentifierHash idHash = m_idHelper->wafer_hash(waferId);
-      if (idHash.is_valid()) {
-        return (*coll)[idHash];
-      } else {
-        return nullptr;
-      }
-    }
-    return getDetectorElement(id);
-  }
-
-  const SiDetectorElement* SCT_DetectorManager::getDetectorElement(const IdentifierHash &idHash, const SiDetectorElementCollection* coll) const
-  {
-    if (coll) {
-      return (*coll)[idHash];
-    }
-    return getDetectorElement(idHash);
-  }
-
-  const SiDetectorElement* SCT_DetectorManager::getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module, int side,
-                                                                   const SiDetectorElementCollection* coll) const
-  {
-    return getDetectorElement(m_idHelper->wafer_id(barrel_endcap, layer_wheel, phi_module, eta_module, side), coll);
-  }
-
   const SiDetectorElementCollection* SCT_DetectorManager::getDetectorElementCollection() const
   { 
     return &m_elementCollection;

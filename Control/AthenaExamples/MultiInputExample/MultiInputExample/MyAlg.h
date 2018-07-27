@@ -7,7 +7,7 @@
 
 // Data members classes
 #include <list>
-class PileUpMergeSvc;
+#include "PileUpTools/PileUpMergeSvc.h"
  
 
 /////////////////////////////////////////////////////////////////////////////

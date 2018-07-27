@@ -578,6 +578,3 @@ StatusCode MuonTool::muonSetup(MissingETMuonData *muondata) {
 StatusCode MuonTool::finalize() {
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-MuonTool::~MuonTool() {}

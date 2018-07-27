@@ -46,9 +46,9 @@ class TrigEFBjetContainerCnv : public TrigEFBjetContainerCnvBase
    
 public:
   TrigEFBjetContainerCnv( ISvcLocator *svcloc );
-protected:
   ~TrigEFBjetContainerCnv();
   
+protected:
   
    virtual TrigEFBjetContainer_PERS *createPersistent( TrigEFBjetContainer *transObj);
    virtual TrigEFBjetContainer      *createTransient();

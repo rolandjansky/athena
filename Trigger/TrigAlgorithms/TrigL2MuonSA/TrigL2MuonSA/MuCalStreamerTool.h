@@ -104,7 +104,8 @@ namespace TrigL2MuonSA {
 
   private:
 
-    BooleanProperty m_writeToFile;
+    Gaudi::Property< bool > m_writeToFile {
+	this, "WriteToFile", false, ""};
 
     // name of the calibration buffer or of the 
     // output file
@@ -118,7 +119,7 @@ namespace TrigL2MuonSA {
     ServiceHandle<StoreGateSvc>    m_storeGate;
 
     // the region selector
-    IRegSelSvc*  m_regionSelector;
+    ServiceHandle<IRegSelSvc>  m_regionSelector;
       
     // RPC cabling service
     const IRPCcablingSvc* m_rpcCabling;
@@ -129,7 +130,7 @@ namespace TrigL2MuonSA {
     //    const TGCCablingBase* m_tgcCablingSvc;
 
     // ROB DataProvider
-    ROBDataProviderSvc* m_robDataProvider;
+    ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
     // id of the circular buffer
     int m_cid;

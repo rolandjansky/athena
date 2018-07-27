@@ -37,7 +37,7 @@ namespace pool  {
     */
   class RootOODb  : public IOODatabase  {
   public:
-    typedef Gaudi::PluginService::Factory<IOODatabase*> Factory;
+    typedef Gaudi::PluginService::Factory<IOODatabase*()> Factory;
 
     /// Standard Constructor
     RootOODb(DbType typ=ROOT_StorageType);
@@ -58,14 +58,6 @@ namespace pool  {
     IDbContainer* createContainer(const DbType& typ);
   };
 
-  class RootOOTree : public RootOODb {
-  public:
-    /// Standard Constructor
-    RootOOTree() : RootOODb(ROOTTREE_StorageType)   {  }
-    /// Label of the specific class
-    static const char* catalogLabel()  {   return "ROOT_Tree";        }
-  };
-   
   class RootOOKey : public RootOODb {
   public:
     /// Standard Constructor
@@ -73,7 +65,23 @@ namespace pool  {
     /// Label of the specific class
     static const char* catalogLabel()  {   return "ROOT_Key";         }
   };
-   
+
+  class RootOOTree : public RootOODb {
+  public:
+    /// Standard Constructor
+    RootOOTree() : RootOODb(ROOTTREE_StorageType)   {  }
+    /// Label of the specific class
+    static const char* catalogLabel()  {   return "ROOT_Tree";        }
+  };
+
+  class RootOOTreeIndex : public RootOODb {
+  public:
+    /// Standard Constructor
+    RootOOTreeIndex() : RootOODb(ROOTTREEINDEX_StorageType)   {  }
+    /// Label of the specific class
+    static const char* catalogLabel()  {   return "ROOT_TreeIndex";        }
+  };
+
 }       // end namespace pool
 
 #endif  /* POOL_ROOTSTORAGESVC_ROOTOODB_H  */

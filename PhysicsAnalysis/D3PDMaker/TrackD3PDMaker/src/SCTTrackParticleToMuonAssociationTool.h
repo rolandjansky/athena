@@ -14,11 +14,7 @@
  
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
-
-
-namespace Analysis {
-  class Muon;
-}
+#include "muonEvent/Muon.h"
 
 namespace Rec {
   class TrackParticle;

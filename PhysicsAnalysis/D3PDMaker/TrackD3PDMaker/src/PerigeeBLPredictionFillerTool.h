@@ -18,13 +18,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "TrkParameters/TrackParameters.h"
+#include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
 
 class PixelID;
-
-namespace InDet {
-  class IInDetTestBLayerTool;
-}
-
 
 namespace D3PD {
 

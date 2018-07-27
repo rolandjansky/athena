@@ -12,6 +12,7 @@ namespace MuonGM {
 
 // MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "MuonCalibMath/SamplePoint.h"
 
 #include "MdtCalibUtils/RtDataFromFile.h"
 
@@ -23,7 +24,6 @@ namespace MuonCalib {
 
 class CalibDbConnection;
 class IRtRelation;
-class SamplePoint;
 class CalibHeadOperations;
 
 class CalibrationDbIOTool : public AthAlgTool, virtual public CalibrationIOTool {
