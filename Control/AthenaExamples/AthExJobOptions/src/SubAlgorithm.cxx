@@ -34,10 +34,10 @@ StatusCode SubAlgorithm::reinitialize()
 }
 
 //___________________________________________________________________________
-StatusCode SubAlgorithm::beginRun()
+StatusCode SubAlgorithm::start()
 {
 
-// perform work needed at start of every run
+// perform work needed before event processing starts
 
    return StatusCode::SUCCESS;
 }
@@ -52,10 +52,10 @@ StatusCode SubAlgorithm::execute()
 }
 
 //___________________________________________________________________________
-StatusCode SubAlgorithm::endRun()
+StatusCode SubAlgorithm::stop()
 {
 
-// perform work done at end of every run
+// perform work done after event processing stopped
 
    return StatusCode::SUCCESS;
 }
