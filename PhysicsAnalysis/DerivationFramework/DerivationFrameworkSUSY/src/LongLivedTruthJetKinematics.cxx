@@ -42,7 +42,6 @@ StatusCode LongLivedTruthJetKinematics::initialize() {
   ATH_CHECK( evtStore()->record( newjets.first, m_outputTruthJetContainer ) );
   ATH_CHECK( evtStore()->record( newjets.second, m_outputTruthJetContainer+"Aux." ) );
 
-
   return StatusCode::SUCCESS;
 }
 
@@ -71,9 +70,6 @@ TLorentzVector LongLivedTruthJetKinematics::matchJets(xAOD::Jet* mytruthJet) con
 				const xAOD::TruthParticle* quark = vert->outgoingParticle(i);
         TLorentzVector outgoing(0,0,0,0);
         outgoing.SetPtEtaPhiE( quark->pt(), quark->eta(), quark->phi(), quark->e());
-
-        // Only want to match to quarks? This can be changed if necessary
-        if(fabs( quark->pdgId() ) > 6) continue;
 
         // Find truth quark nearest to truth jet (within dR < 0.4)
         if( truthJetTLV.DeltaR( outgoing) < dRMinTruth ){
@@ -163,10 +159,5 @@ double LongLivedTruthJetKinematics::getThetaFromEta(double eta) const{
   return theta;
 }
 
-StatusCode LongLivedTruthJetKinematics::finalize(){
-
-    return StatusCode::SUCCESS;
-
-  }
 
 }
