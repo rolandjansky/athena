@@ -26,7 +26,7 @@
 #include "Identifier/IdentifierHash.h"
 
 #include "PixelConditionsData/PixelDCSData.h"
-#include "PixelConditionsServices/IPixelDCSSvc.h"
+#include "PixelConditionsTools/IPixelDCSSvc.h"
 
 //C++ standard library headers
 #include <vector>
