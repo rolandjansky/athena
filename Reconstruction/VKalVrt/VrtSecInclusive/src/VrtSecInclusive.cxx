@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -177,22 +177,6 @@ namespace VKalVrtAthena {
     
     ATH_MSG_DEBUG("destructor called");
   }
-
-
-
-  //__________________________________________________________________________
-  StatusCode VrtSecInclusive::beginRun()  { 
-
-    ATH_MSG_INFO("beginRun()");
-    //
-    ATH_MSG_VERBOSE("Charged electron/pion mass " << m_e<<","<<m_pi);
-    //
-    // average radii of various material layers - use both MC and data
-    //
-
-    return StatusCode::SUCCESS;
-  }
-  
   
   
   //__________________________________________________________________________
@@ -201,6 +185,7 @@ namespace VKalVrtAthena {
     //---------------- HBOOK
     ITHistSvc*     hist_root=0;
     ATH_MSG_INFO("initialize: begin");
+    ATH_MSG_VERBOSE("Charged electron/pion mass " << m_e<<","<<m_pi);
     //
     // first instantiate tools
 
