@@ -104,63 +104,15 @@ StatusCode CaloCellMaker::execute() {
 
   SG::WriteHandle<CaloCellContainer> caloCellsOutput(m_caloCellsOutputKey);
 
-  //if (!m_caloCellHack) {
-
   ATH_CHECK( caloCellsOutput.record(CxxUtils::make_unique<CaloCellContainer>(static_cast<SG::OwnershipPolicy>(m_ownPolicy))) );
-
-  // // J.M. Try removing this (based on discussions with Walter and Scott)  
-  // also symLink as INavigable4MomentumCollection!
-  //INavigable4MomentumCollection* theNav4Coll = 0;
-
-  // if (evtStore()->symLink(theContainer, theNav4Coll).isFailure()) {
-  //   ATH_MSG_WARNING( "Error symlinking CaloCellContainer to INavigable4MomentumCollection " );
-  //   return StatusCode::SUCCESS;
-  // }
-
-  // } else {
-  //   // take CaloCellContainer from input and cast away constness
-  //   const CaloCellContainer * theConstContainer;
-
-  //   if (evtStore()->retrieve(theConstContainer, m_caloCellsOutputName).isFailure()
-  //       || theConstContainer == 0) {
-
-  //     ATH_MSG_WARNING( "Could not retrieve CaloCellContainer " << m_caloCellsOutputName );
-  //     return StatusCode::SUCCESS;
-  //   }
-  //   theContainer = const_cast<CaloCellContainer *>(theConstContainer);
-
-  // }
 
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool = m_caloCellMakerTools.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool = m_caloCellMakerTools.end();
-
-  //The following piece of code would be even more efficient but unfortunately the 
-  //ToolHandleArray doesn't allow to remove elements.
-
-  //  // For performance reasons want to remove the cell-checker tool from the list
-//   // of tools at the fifth event.
-//   if ((++m_evCounter)==5) {
-//     //Search for cell-checker tool in list of tools
-//     for (;itrTool!=endTool && itrTool->typeAndName()!="CaloCellContainerCheckerTool/CaloCellContainerCheckerTool";++itrTool);
-//     if (itrTool!=endTool) { //Found cell-checker tool
-//       m_caloCellMakerTools.erase(itrTool); //Remove cell-checker tool
-//       //Re-initialize the iterators
-//       itrTool=m_caloCellMakerTools.begin();
-//       endTool=m_caloCellMakerTools.end();
-//       ATH_MSG_INFO( "Remove CellChecking tool from list of tools" );
-//       ATH_MSG_DEBUG( "Tools left: " << m_caloCellMakerTools );
-//     }
-//   }
 
   // loop on tools
   // note that finalization and checks are also done with tools
   //  ++m_evCounter;
   for (; itrTool != endTool; ++itrTool) {
-    // if (m_evCounter > 5) {
-    //   if (itrTool->typeAndName() == "CaloCellContainerCheckerTool/CaloCellContainerCheckerTool")
-    //     continue;
-    // }
-
     ATH_MSG_DEBUG( "Calling tool " << itrTool->name() );
 
     std::string chronoName = this->name() + "_" + itrTool->name();

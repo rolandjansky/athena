@@ -22,7 +22,6 @@
 //#include "CaloRec/CaloClusterLockVars.h"
 #include "../CaloTopoTowerAlg.h"
 #include "CaloRec/Blob2ToolConstants.h"
-#include "../CaloCellOverwrite.h"
 #include "../CaloCellFastCopyTool.h"
 #include "../CaloClusterCellLinksUpdater.h"
 #include "../CaloTowerxAODFromCells.h"
@@ -43,7 +42,6 @@ DECLARE_COMPONENT( CaloConstCellMaker )
 DECLARE_COMPONENT( CaloClusterCorrDBWriter )
 DECLARE_COMPONENT( CaloClusterCorrDumper )
 DECLARE_COMPONENT( CaloTopoTowerAlg )
-DECLARE_COMPONENT( CaloCellOverwrite )
 DECLARE_COMPONENT( CaloClusterCellLinksUpdater )
 
 DECLARE_COMPONENT( CaloTowerxAODFromCells )
