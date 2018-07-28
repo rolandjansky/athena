@@ -1055,7 +1055,7 @@ StatusCode PixelFastDigitizationTool::digitize()
         double etaWidth = design->widthFromColumnRange(etaIndexMin, etaIndexMax);
         double phiWidth = design->widthFromRowRange(phiIndexMin, phiIndexMax);
 
-        InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
+        InDet::SiWidth siWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
                                                      Amg::Vector2D(phiWidth,etaWidth) );
         int lvl1a = 0; // needs to be checked with Pixel experts
 
@@ -1066,7 +1066,7 @@ StatusCode PixelFastDigitizationTool::digitize()
                                                           rdoListGanged,
                                                           lvl1a,
                                                           totListGanged,
-                                                          *siWidth,
+                                                          siWidth,
                                                           hitSiDetElement,
                                                           true,
                                                           m_pixErrorStrategy,
@@ -1101,7 +1101,7 @@ StatusCode PixelFastDigitizationTool::digitize()
       // from InDetReadoutGeometry : width from phi
       double phiWidth = design->widthFromRowRange(phiIndexMin, phiIndexMax);
 
-      InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
+      InDet::SiWidth siWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
                                                    Amg::Vector2D(phiWidth,etaWidth) );
       // correct shift implied by the scaling of the Lorentz angle
       double newshift = 0.5*thickness*tanLorAng;
@@ -1125,7 +1125,7 @@ StatusCode PixelFastDigitizationTool::digitize()
                                                     rdoList,
                                                     lvl1a,
                                                     totList,
-                                                    *siWidth,
+                                                    siWidth,
                                                     hitSiDetElement,
                                                     isGanged,
                                                     m_pixErrorStrategy,
@@ -1135,7 +1135,7 @@ StatusCode PixelFastDigitizationTool::digitize()
         // create your own cluster
         // you need to correct for the lorentz drift -- only if surface charge emulation was switched on
         double appliedShift = m_pixEmulateSurfaceCharge ? m_pixTanLorentzAngleScalor*shift : (1.-m_pixTanLorentzAngleScalor)*shift;
-        Amg::Vector2D*  lcorrectedPosition = new Amg::Vector2D(clusterPosition.x()+appliedShift,clusterPosition.y());
+        Amg::Vector2D lcorrectedPosition(clusterPosition.x()+appliedShift,clusterPosition.y());
         // create the parameterised error
         double sigmaPhi = m_siDeltaPhiCut-1 < int(m_pixPhiError.size()) ?
           m_pixPhiError[m_siDeltaPhiCut-1] : m_pixPhiError[m_pixPhiError.size()-1];
@@ -1149,11 +1149,11 @@ StatusCode PixelFastDigitizationTool::digitize()
         Amg::MatrixX* clusterErr = new Amg::MatrixX(covariance);
         // create the cluster
         pixelCluster = new InDet::PixelCluster(clusterId,
-                                               *lcorrectedPosition,
+                                               lcorrectedPosition,
                                                rdoList,
                                                lvl1a,
                                                totList,
-                                               *siWidth,
+                                               siWidth,
                                                hitSiDetElement,
                                                clusterErr);
         //if (isGanged)  pixelCluster->setGangedPixel(isGanged); //FIXME is this needed here?
