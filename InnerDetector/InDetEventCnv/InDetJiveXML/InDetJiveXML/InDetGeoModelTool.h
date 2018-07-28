@@ -44,14 +44,14 @@ namespace JiveXML{
 
     private:
       
-      const InDetDD::PixelDetectorManager* m_PixelGeoManager;
-      const PixelID* m_PixelIDHelper;
+      const InDetDD::PixelDetectorManager* m_PixelGeoManager{};
+      const PixelID* m_PixelIDHelper{};
       
-      const InDetDD::SCT_DetectorManager* m_SCTGeoManager;
-      const SCT_ID* m_SCTIDHelper;
+      const InDetDD::SCT_DetectorManager* m_SCTGeoManager{};
+      const SCT_ID* m_SCTIDHelper{};
 
-      const InDetDD::TRT_DetectorManager* m_TRTGeoManager;
-      const TRT_ID* m_TRTIDHelper;
+      const InDetDD::TRT_DetectorManager* m_TRTGeoManager{};
+      const TRT_ID* m_TRTIDHelper{};
   
   };
 
