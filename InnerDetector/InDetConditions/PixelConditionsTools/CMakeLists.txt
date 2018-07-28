@@ -9,8 +9,8 @@ atlas_subdir( PixelConditionsTools )
 set( extra_dep )
 set( extra_lib )
 if( NOT SIMULATIONBASE )
-   set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetConditions/PixelConditionsServices InnerDetector/InDetDetDescr/PixelGeoModel )
-set( extra_lib PixelGeoModelLib )
+   set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetDetDescr/PixelGeoModel InnerDetector/InDetConditions/InDetByteStreamErrors )
+set( extra_lib PixelGeoModelLib InDetByteStreamErrors )
 endif()
 
 # Declare the package's dependencies:
@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
   Control/AthenaKernel
   DetectorDescription/GeoPrimitives
   GaudiKernel
+  InnerDetector/InDetConditions/InDetConditionsSummaryService
   PRIVATE
   Control/AthenaBaseComps
   Control/SGTools
