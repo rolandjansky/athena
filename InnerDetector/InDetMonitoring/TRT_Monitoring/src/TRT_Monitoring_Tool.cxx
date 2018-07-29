@@ -234,8 +234,8 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   declareProperty("max_abs_eta",              m_max_abs_eta         = 2.5);
   declareProperty("MinTrackP",                m_minP                = 0.0 * CLHEP::GeV);
   declareProperty("min_pT",                   m_min_pT              = 0.5 * CLHEP::GeV);
-  declareProperty("min_si_hits",              m_min_si_hits         = 1);
-  declareProperty("min_pixel_hits",           m_min_pixel_hits      = 0);
+  declareProperty("min_si_hits",              m_min_si_hits         = 3);
+  declareProperty("min_pixel_hits",           m_min_pixel_hits      = 1);
   declareProperty("min_sct_hits",             m_min_sct_hits        = 0);
   declareProperty("min_trt_hits",             m_min_trt_hits        = 10);
   declareProperty("min_tracks_straw",         m_min_tracks_straw    = 10);

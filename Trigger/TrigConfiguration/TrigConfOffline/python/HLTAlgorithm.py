@@ -1,5 +1,5 @@
 ###########################################################################
-#    Copyright (C) 2008 by Miroslav Nozicka
+#    
 #    <nozicka@mail.desy.de>
 #
 #    Package TrigConfOffline

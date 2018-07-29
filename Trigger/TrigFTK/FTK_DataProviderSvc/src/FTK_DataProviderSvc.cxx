@@ -1533,8 +1533,6 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
     } else {
 
       const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(raw_cluster, *trkPerigee);
-      
-      
       if (sct_cluster_on_track==nullptr){
 	ATH_MSG_WARNING(" SCT_ClusterOnTrack failed to create cluster " <<  cluster_number);
 	m_nFailedSCTClusters[cluster_number]++;

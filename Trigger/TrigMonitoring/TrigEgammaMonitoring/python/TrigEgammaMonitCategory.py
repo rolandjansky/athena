@@ -76,13 +76,17 @@ commissionTP_electron = [
 
 monitoringTP_electron = [
                          'HLT_e28_lhtight_nod0_ivarloose',                        
-                         'HLT_e24_lhvloose_nod0_L1EM20VH'
+                         'HLT_e24_lhvloose_nod0_L1EM20VH',
+                         # low mu runs 2018
+                         'HLT_e15_lhloose_nod0_L1EM12' 
                          ]
 monitoringTP_electron += commissionTP_electron
 
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
+                     'HLT_g35_loose',
+                     'HLT_g120_loose',
                      'HLT_g25_medium_sc_L1EM20VH',
                      'HLT_g20_tight_icalovloose_L1EM15VHI',
                      'HLT_g200_loose']

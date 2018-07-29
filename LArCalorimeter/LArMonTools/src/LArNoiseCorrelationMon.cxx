@@ -22,6 +22,8 @@
 //   2) control PublishAllFebsOnline: if it is set to true, switched off the monitoring in case the FEB list (1) is empty and the algorithm is running online.
 //   3) list of triggers to be used ('TriggerChain'): to be passed as a single string "trigger_chain_1, trigger_chain_2". The default is "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY", for the latter, only events in the abort gap are used, selection done by hand.
 //   4) control IsCalibrationRun: to be set to true when running on calibration, it switches off the trigger selection.
+//   5) control PublishPartialSums: tells the algorithm to also publish the partial sum histograms. default is false.
+
 //
 // ********************************************************************
 
@@ -79,6 +81,7 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
 	
   /** If false, blocks the histogram booking in case it's running online and the 'm_FEBsToMonitor' list is empty. i.e. prevents the algorithm from publishing one histogram per FEB for all FEBs in online environnement */
   declareProperty("PublishAllFebsOnline",m_publishAllFebsOnline=true);
+  declareProperty("PublishPartialSums",m_publishPartialSums=false);
 
   /** To be set to true when running on calibration run. It swithces off trigger selection*/
   declareProperty("IsCalibrationRun",m_isCalibrationRun=false);
@@ -130,6 +133,7 @@ LArNoiseCorrelationMon::initialize()
   
   ATH_MSG_INFO( "Initialize LArNoiseCorrelationMon" );
   
+  m_evtCounter=0;
   StatusCode sc;
   
   /** Get LAr Online Id Helper*/
@@ -220,17 +224,19 @@ LArNoiseCorrelationMon::fillHistograms()
 
   ATH_MSG_DEBUG("in fillHists()" );
     
-
-  /**EventID is a part of EventInfo, search event informations:*/
-  const xAOD::EventInfo* thisEvent;
-  ATH_CHECK(evtStore()->retrieve(thisEvent));
-  
-  m_evtId = thisEvent->eventNumber();
-  ATH_MSG_DEBUG("Event nb " << m_evtId );  
+  /**increase internal event counter, for calibration run only */
+  m_evtCounter++;
 
   /** check trigger */
   bool passTrig = m_isCalibrationRun;
   if(!m_isCalibrationRun) { 
+     /**EventID is a part of EventInfo, search event informations:*/
+     const xAOD::EventInfo* thisEvent;
+     ATH_CHECK(evtStore()->retrieve(thisEvent));
+  
+     m_evtId = thisEvent->eventNumber();
+     ATH_MSG_DEBUG("Event nb " << m_evtId );  
+
     bool passBCID;
     if(!m_trigDecTool.empty()) {
       for(auto trig_chain : m_triggers) {
@@ -238,14 +244,16 @@ LArNoiseCorrelationMon::fillHistograms()
 	passTrig=(passTrig || (passBCID && m_trigDecTool->isPassed(trig_chain)));
       }
     }
-    if (!passTrig) {
-      ATH_MSG_DEBUG ( " Failed trigger selection " );
-      return StatusCode::SUCCESS;
-    }
-    else {
-      ATH_MSG_DEBUG ( " Pass trigger selection " );
-    }
   }
+
+  if (!passTrig) {
+      ATH_MSG_DEBUG ( " Failed trigger selection " );
+      if(m_IsOnline && (endOfLumiBlockFlag() || endOfEventsBlockFlag())) fillInCorrelations(); //seems not to work offline, so done for online only
+      return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG ( " Pass trigger selection " );
+  }
+  
 
 
 
@@ -254,6 +262,7 @@ LArNoiseCorrelationMon::fillHistograms()
   ATH_CHECK(evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey));
   
   
+  ATH_MSG_DEBUG ( " LArDigitContainer size "<<pLArDigitContainer->size()<<" for key "<<m_LArDigitContainerKey); 
   /** Define iterators to loop over Digits containers*/
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
   LArDigitContainer::const_iterator itDig_2;
@@ -331,41 +340,8 @@ LArNoiseCorrelationMon::fillHistograms()
   }/** End of loop on LArDigit*/
  
 
-  /** compute correlation and update the published plot once per LB */
-  if(endOfLumiBlockFlag() || endOfEventsBlockFlag())
-    {
-      double mean1,mean2;
-      double sumVar1,sumVar2;
-      double N;
-      double cor;
-      for (auto const& feb_entry : m_FEBhistograms)
-	{
-	  m_histos=feb_entry.second;
-	  for(int i=1;i<=Nchan;i++)
-	    {
-	      mean1=m_histos.second.second->GetBinContent(i);
-	      sumVar1=m_histos.second.first->GetBinContent(i,i);
-	      N=m_histos.second.second->GetBinEntries(i);
-	      if(N==0) 
-		{
-		  ATH_MSG_DEBUG( "Bin " << i << " has 0 entries" );
-		  continue;
-		}
-	      for(int j=i+1;j<=Nchan;j++)
-		{
-		  mean2=m_histos.second.second->GetBinContent(j);
-		  sumVar2=m_histos.second.first->GetBinContent(j,j);
-		  if((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2)==0) {
-		    ATH_MSG_DEBUG( "sigma_i*sigma_j is zero for bin (" << i << "," << j << "). Correlation cannot be computed." );
-		    continue;
-		  }
-		  cor=(m_histos.second.first->GetBinContent(i,j)-N*mean1*mean2)/TMath::Sqrt((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2));
-		  m_histos.first->SetBinContent(i,j,cor);
-		  m_histos.first->SetBinContent(j,i,cor);
-		}
-	    }
-	}
-    }
+  /** compute correlation and update the published plot once per LB (seems not to work offline, so done for online only)*/
+  if(m_IsOnline && (endOfLumiBlockFlag() || endOfEventsBlockFlag())) fillInCorrelations();
  
   return StatusCode::SUCCESS;
 }
@@ -375,6 +351,7 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
 {
   if(endOfRunFlag()) 
     {
+      fillInCorrelations();
       if(m_IsOnline)
 	{
 	  for (auto const& feb_entry : m_FEBhistograms)
@@ -407,6 +384,47 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
 
     return true;
  }
+
+
+/*---------------------------------------------------------*/
+/**Compute correlations and fill in the plots*/
+void LArNoiseCorrelationMon::fillInCorrelations()
+{
+  double mean1,mean2;
+  double sumVar1,sumVar2;
+  double N;
+  double cor;
+  for (auto const& feb_entry : m_FEBhistograms)
+    {
+      m_histos=feb_entry.second;
+      for(int i=1;i<=Nchan;i++)
+	{
+	  mean1=m_histos.second.second->GetBinContent(i);
+	  sumVar1=m_histos.second.first->GetBinContent(i,i);
+	  N=m_histos.second.second->GetBinEntries(i);
+	  if(N==0) 
+	    {
+	      ATH_MSG_DEBUG( "Bin " << i << " has 0 entries" );
+	      continue;
+	    }
+	  for(int j=i+1;j<=Nchan;j++)
+	    {
+	      mean2=m_histos.second.second->GetBinContent(j);
+	      sumVar2=m_histos.second.first->GetBinContent(j,j);
+	      if((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2)==0) {
+		ATH_MSG_DEBUG( "sigma_i*sigma_j is zero for bin (" << i << "," << j << "). Correlation cannot be computed." );
+		continue;
+	      }
+	      cor=(m_histos.second.first->GetBinContent(i,j)-N*mean1*mean2)/TMath::Sqrt((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2));
+	      m_histos.first->SetBinContent(i,j,cor);
+	      m_histos.first->SetBinContent(j,i,cor);
+	    }
+	}
+    }
+}
+
+
+
 
 
 /*---------------------------------------------------------*/
@@ -453,23 +471,71 @@ void LArNoiseCorrelationMon::bookThisFEB(HWIdentifier id,MonGroup& grEMBA,MonGro
   m_FEBhistograms[id]=std::make_pair(h_corr,std::make_pair(h_TMP_sums,h_av));
 
   if(m_LArOnlineIDHelper->isEMBchannel(id)) {
-    if(m_LArOnlineIDHelper->pos_neg(id)==1) grEMBA.regHist(h_corr).ignore();
-    else grEMBC.regHist(h_corr).ignore();
+    if(m_LArOnlineIDHelper->pos_neg(id)==1) {
+      grEMBA.regHist(h_corr).ignore();
+      if(m_publishPartialSums && !m_IsOnline) {
+	grEMBA.regHist(h_av).ignore();
+	grEMBA.regHist(h_TMP_sums).ignore();
+      }
+    }
+    else {
+      grEMBC.regHist(h_corr).ignore();
+      if(m_publishPartialSums && !m_IsOnline) {
+	grEMBC.regHist(h_av).ignore();
+	grEMBC.regHist(h_TMP_sums).ignore();
+      }
+    }
   }
   else
     if(m_LArOnlineIDHelper->isEMECchannel(id)) {
-      if(m_LArOnlineIDHelper->pos_neg(id)==1) grEMECA.regHist(h_corr).ignore();
-      else grEMECC.regHist(h_corr).ignore();
+      if(m_LArOnlineIDHelper->pos_neg(id)==1) {
+	grEMECA.regHist(h_corr).ignore();
+	if(m_publishPartialSums && !m_IsOnline) {
+	  grEMECA.regHist(h_av).ignore();
+	  grEMECA.regHist(h_TMP_sums).ignore();
+	}
+      }
+      else {
+	grEMECC.regHist(h_corr).ignore();
+      if(m_publishPartialSums && !m_IsOnline) {
+	grEMECC.regHist(h_av).ignore();
+	grEMECC.regHist(h_TMP_sums).ignore();
+      }
+      }
     }
     else
       if(m_LArOnlineIDHelper->isHECchannel(id)) {
-	if(m_LArOnlineIDHelper->pos_neg(id)==1) grHECA.regHist(h_corr).ignore();
-	else grHECC.regHist(h_corr).ignore();
+	if(m_LArOnlineIDHelper->pos_neg(id)==1) {
+	  grHECA.regHist(h_corr).ignore();
+	  if(m_publishPartialSums && !m_IsOnline) {
+	    grHECA.regHist(h_av).ignore();
+	    grHECA.regHist(h_TMP_sums).ignore();
+	  }
+	}
+	else {
+	  grHECC.regHist(h_corr).ignore();
+	  if(m_publishPartialSums && !m_IsOnline) {
+	    grHECC.regHist(h_av).ignore();
+	    grHECC.regHist(h_TMP_sums).ignore();
+	  }
+	}
       }
       else
 	if(m_LArOnlineIDHelper->isFCALchannel(id)) {
-	  if(m_LArOnlineIDHelper->pos_neg(id)==1) grFCALA.regHist(h_corr).ignore();
-	  else grFCALC.regHist(h_corr).ignore();
+	  if(m_LArOnlineIDHelper->pos_neg(id)==1) {
+	    grFCALA.regHist(h_corr).ignore();
+	    if(m_publishPartialSums && !m_IsOnline) {
+	      grFCALA.regHist(h_av).ignore();
+	      grFCALA.regHist(h_TMP_sums).ignore();
+	    }
+	  }
+	  else {
+	    grFCALC.regHist(h_corr).ignore();
+	    if(m_publishPartialSums && !m_IsOnline) {
+	      grFCALC.regHist(h_av).ignore();
+	      grFCALC.regHist(h_TMP_sums).ignore();
+	    }
+	  }
 	}
 }
 

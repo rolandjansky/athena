@@ -93,7 +93,7 @@ eflowTrackCaloPoints* eflowTrackCaloExtensionTool::execute(const xAOD::TrackPart
     return new eflowTrackCaloPoints(parametersMap);
   }
   else{
-    msg(MSG::WARNING) << "TrackExtension failed for track with pt and eta " << track->pt() << " and " << track->eta() << endmsg;
+    if (track->pt() > 3*Gaudi::Units::GeV)  ATH_MSG_WARNING("TrackExtension failed for track with pt and eta " << track->pt() << " and " << track->eta());
     parametersMap[eflowCalo::LAYER::Unknown] = 0;
     return new eflowTrackCaloPoints(parametersMap);
   }

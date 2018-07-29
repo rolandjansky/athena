@@ -1,8 +1,11 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  * TriggerAnalysisHelper.cxx
- * Copyright (C) 2016 Ryan Mackenzie White <ryan.white@cern.ch>
+ * 
  *
- * Distributed under terms of the  license.
+ 
  */
 #include "AthenaKernel/errorcheck.h"
 #include "TriggerAnalysisHelper.h"

@@ -1,0 +1,1635 @@
+
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex11TypeBuilderEPKcj
+   fun:_ZN4ROOT6Reflex13TypeDistillerISsE3GetEv
+   fun:_ZN4ROOT6Reflex17FunctionDistillerIFP8IServiceSsP11ISvcLocatorEE3GetEv
+   fun:_ZN55_GLOBAL__N_.._src_ToolSvc_ToolSvc.cpp_9D2164D3_F2D0F4A114ToolSvc_dict20C1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+}
+
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI17EvtPersistencySvcE6createERKSsP11ISvcLocator
+   fun:_ZN72_GLOBAL__N_.._src_PersistencySvc_EvtPersistencySvc.cpp_EF105EC1_8431AE9F7FactoryI17EvtPersistencySvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI23HistogramPersistencySvcE6createERKSsP11ISvcLocator
+   fun:_ZN78_GLOBAL__N_.._src_PersistencySvc_HistogramPersistencySvc.cpp_9D2164D3_43B39ECB7FactoryI23HistogramPersistencySvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT6Reflex6ReflexC2Ev
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libReflex.so
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libReflex.so
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex11TypeBuilderEPKcj
+   fun:_ZN4ROOT6Reflex13TypeDistillerISsE3GetEv
+   fun:_ZN4ROOT6Reflex17FunctionDistillerIFP8IServiceSsP11ISvcLocatorEE3GetEv
+   fun:_ZN55_GLOBAL__N_.._src_ToolSvc_ToolSvc.cpp_9D2164D3_0CE4793F14ToolSvc_dict20C1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+}
+{
+   TArray leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN7TArrayI3SetEi
+   fun:_ZN6TColor10SetPaletteEiPi
+   fun:_ZN6TStyle10SetPaletteEiPi
+   fun:_ZN6TStyle5ResetEPKc
+   fun:_ZN6TStyleC1EPKcS1_
+}
+{
+   TStorage leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN8TStorage11ObjectAllocEj
+   fun:_ZN7TObjectnwEj
+   fun:_ZNK4ROOT20TQObjectInitBehavior11CreateClassEPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorPcES2_S2_ii
+   fun:_ZN4ROOT17TGenericClassInfo8GetClassEv
+   fun:_ZN8TQObject5ClassEv
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
+   obj:/usr/lib/libstdc++.so.6.0.3
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN4ROOT6Reflex9ScopeNameC1EPKcPNS0_9ScopeBaseE
+   fun:_ZN4ROOT6Reflex5Scope11__NIRVANA__Ev
+}
+{
+   TString leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN10TStringRef6GetRepEii
+   fun:_ZN7TStringC1EPKc
+   fun:_ZN10TObjStringC1EPKc
+   fun:_ZN4ROOT18TMapTypeToClassRec3AddEPKcRP9TClassRec
+   fun:_ZN11TClassTable3AddEPKcsRKSt9type_infoPFvvEi
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__store_dictposition
+   fun:G__storerewindposition
+   fun:G__exec_text
+   fun:G__platformMacro
+   fun:G__set_stdio
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIN4ROOT6Reflex5ScopeEE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseIN4ROOT6Reflex5ScopeESaIS2_EE11_M_allocateEj
+   fun:_ZNSt6vectorIN4ROOT6Reflex5ScopeESaIS2_EE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPS2_S4_EERKS2_
+   fun:_ZNSt6vectorIN4ROOT6Reflex5ScopeESaIS2_EE9push_backERKS2_
+   fun:_ZNK4ROOT6Reflex9ScopeBase11AddSubScopeERKNS0_5ScopeE
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex9ScopeBaseC2EPKcNS0_4TYPEE
+   fun:_ZN4ROOT6Reflex9NamespaceC1EPKc
+   fun:_ZN4ROOT6Reflex16NamespaceBuilderC1EPKc
+   fun:_ZN4ROOT6Reflex13PluginServiceC1Ev
+   fun:_ZN4ROOT6Reflex13PluginService8InstanceEv
+}
+{
+   CINT Leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:G__call_setup_funcs
+   fun:_ZN24G__cpp_setup_initG__MathC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT20GenerateInitInstanceEPK8TComplex
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libCore.so
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNK4ROOT6Reflex3Any6HolderIPKcE5CloneEv
+   fun:_ZN4ROOT6Reflex3AnyC1ERKS1_
+   fun:_ZN4ROOT6Reflex3AnyaSERKS1_
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyEjRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsRKNS0_3AnyE
+}
+{
+      Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex9ScopeBaseC2Ev
+   fun:_ZN4ROOT6Reflex9NamespaceC1Ev
+   fun:_ZN4ROOT6Reflex9Namespace11GlobalScopeEv
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex9ScopeBaseC2EPKcNS0_4TYPEE
+   fun:_ZN4ROOT6Reflex9NamespaceC1EPKc
+   fun:_ZN4ROOT6Reflex16NamespaceBuilderC1EPKc
+   fun:_ZN4ROOT6Reflex13PluginServiceC1Ev
+   fun:_ZN4ROOT6Reflex13PluginService8InstanceEv
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex9ScopeBaseC2Ev
+   fun:_ZN4ROOT6Reflex9NamespaceC1Ev
+   fun:_ZN4ROOT6Reflex9Namespace11GlobalScopeEv
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex9ScopeNameC1EPKcPNS0_9ScopeBaseE
+   fun:_ZN4ROOT6Reflex5Scope11__NIRVANA__Ev
+   fun:_ZN4ROOT6Reflex9ScopeBaseC2Ev
+   fun:_ZN4ROOT6Reflex9NamespaceC1Ev
+   fun:_ZN4ROOT6Reflex9Namespace11GlobalScopeEv
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex5Scope11__NIRVANA__Ev
+   fun:_ZN4ROOT6Reflex9ScopeBaseC2Ev
+   fun:_ZN4ROOT6Reflex9NamespaceC1Ev
+   fun:_ZN4ROOT6Reflex9Namespace11GlobalScopeEv
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex9ScopeNameC1EPKcPNS0_9ScopeBaseE
+   fun:_ZN4ROOT6Reflex11TypeBuilderEPKcj
+   fun:_ZN4ROOT6Reflex13TypeDistillerISsE3GetEv
+   fun:_ZN4ROOT6Reflex17FunctionDistillerIFP8IServiceSsP11ISvcLocatorEE3GetEv
+   fun:_ZN55_GLOBAL__N_.._src_ToolSvc_ToolSvc.cpp_9D2164D3_0CE4793F14ToolSvc_dict20C1Ev
+}
+{
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@GLIBC_2.0
+   fun:_ZN4ROOT6Reflex13SharedLibrary4LoadEv
+   fun:_ZN4ROOT6Reflex13PluginService14LoadFactoryLibERKSs
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5TList10NewOptLinkEP7TObjectPKcP8TObjLink
+   fun:_ZN5TList7AddLastEP7TObjectPKc
+   fun:_ZN5TList3AddEP7TObjectPKc
+   fun:_ZN5TROOTC1EPKcS1_PPFvvE
+   fun:_ZN4ROOT7GetROOTEv
+}
+{
+   Memcheck:Leak
+   fun:malloc
+   fun:G__getparameterlist
+   fun:G__createfuncmacro
+   fun:G__define
+   fun:G__keyword_anytime_7
+   fun:G__exec_statement
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11TClassTableC1Ev
+   fun:_ZN11TClassTable3AddEPKcsRKSt9type_infoPFvvEi
+   fun:_ZN4ROOT8AddClassEPKcsRKSt9type_infoPFvvEi
+   fun:_ZNK4ROOT20TDefaultInitBehavior8RegisterEPKcsRKSt9type_infoPFvvEi
+   fun:_ZN4ROOT17TGenericClassInfo4InitEi
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex9ScopeNameC1EPKcPNS0_9ScopeBaseE
+   fun:_ZN4ROOT6Reflex11TypeBuilderEPKcj
+   fun:_ZN4ROOT6Reflex13TypeDistillerIN2SG6FolderEE3GetEv
+   fun:_ZN4ROOT6Reflex7GetTypeIN2SG6FolderEEERKNS0_4TypeEv
+   fun:_ZN66_GLOBAL__N_.._src_components_SGComps_entries.cxx_9D2164D3_35A4406C12Folder_dict8C1Ev
+}
+{
+   Memcheck:Leak
+   fun:malloc
+   fun:G__add_ipath
+   fun:_ZN5TCint14AddIncludePathEPKc
+   fun:_ZN5TROOTC1EPKcS1_PPFvvE
+   fun:_ZN4ROOT7GetROOTEv
+   fun:_ZN6TTimer5ResetEv
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT25GenerateInitInstanceLocalEPK10TObjString
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT20GenerateInitInstanceEPK16TMemberInspector
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libCore.so
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libCore.so
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT25GenerateInitInstanceLocalEPK8TQObject
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT20GenerateInitInstanceEPK16TMemberInspector
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libCore.so
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libCore.so
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN6TLimit7fgTableE
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libHist.so
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libHist.so
+   fun:_dl_init
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex11TypeBuilderEPKcj
+   fun:_ZN4ROOT6Reflex13TypeDistillerIN2SG6FolderEE3GetEv
+   fun:_ZN4ROOT6Reflex7GetTypeIN2SG6FolderEEERKNS0_4TypeEv
+   fun:_ZN66_GLOBAL__N_.._src_components_SGComps_entries.cxx_9D2164D3_35A4406C12Folder_dict8C1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__memfunc_para_setup
+   fun:G__parse_parameter_link
+   fun:G__memfunc_setup
+   fun:_Z18G__cpp_setup_func1v
+   fun:G__cpp_setup_funcG__Base1
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_gCINTMutex
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libCore.so
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libCore.so
+   fun:_dl_init
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5TCint12SetClassInfoEP6TClassb
+   fun:_ZN6TClass4InitEPKcsPKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorPcES1_S1_ii
+   fun:_ZN6TClassC1EPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorPcES1_S1_ii
+   fun:_ZN4ROOT11CreateClassEPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorPcES1_S1_ii
+   fun:_ZNK4ROOT20TDefaultInitBehavior11CreateClassEPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorPcES2_S2_ii
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__createfuncmacro
+   fun:G__define
+   fun:G__keyword_anytime_7
+   fun:G__exec_statement
+   fun:G__loadfile_tmpfile
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNK4ROOT6Reflex3Any6HolderIjE5CloneEv
+   fun:_ZN4ROOT6Reflex3AnyC1ERKS1_
+   fun:_ZN4ROOT6Reflex3AnyaSERKS1_
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyEjRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsRKNS0_3AnyE
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:G__stack_instance
+   fun:G__resetplocal
+   fun:_Z20G__cpp_setup_global0v
+   fun:G__cpp_setup_globalG__Math
+   fun:G__cpp_setupG__Math
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIN4ROOT6Reflex3AnyEE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseIN4ROOT6Reflex3AnyESaIS2_EE11_M_allocateEj
+   fun:_ZNSt6vectorIN4ROOT6Reflex3AnyESaIS2_EE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPS2_S4_EEjRKS2_
+   fun:_ZNSt6vectorIN4ROOT6Reflex3AnyESaIS2_EE6insertEN9__gnu_cxx17__normal_iteratorIPS2_S4_EEjRKS2_
+   fun:_ZNSt6vectorIN4ROOT6Reflex3AnyESaIS2_EE6resizeEjRKS2_
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIN4ROOT6Reflex4TypeEE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseIN4ROOT6Reflex4TypeESaIS2_EE11_M_allocateEj
+   fun:_ZNSt12_Vector_baseIN4ROOT6Reflex4TypeESaIS2_EEC2EjRKS3_
+   fun:_ZNSt6vectorIN4ROOT6Reflex4TypeESaIS2_EEC1ERKS4_
+   fun:_ZN4ROOT6Reflex8FunctionC1ERKNS0_4TypeERKSt6vectorIS2_SaIS2_EERKSt9type_infoNS0_4TYPEE
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex9Namespace11GlobalScopeEv
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT6Reflex6ReflexC2Ev
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libReflex.so
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__getparameterlist
+   fun:G__createfuncmacro
+   fun:G__define
+   fun:G__keyword_anytime_7
+   fun:G__exec_statement
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5TList10NewOptLinkEP7TObjectPKcP8TObjLink
+   fun:_ZN5TList7AddLastEP7TObjectPKc
+   fun:_ZN5TList3AddEP7TObjectPKc
+   fun:_ZN5TROOTC1EPKcS1_PPFvvE
+   fun:_ZN4ROOT7GetROOTEv
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex8TypeBaseC2EPKcjNS0_4TYPEERKSt9type_infoRKNS0_4TypeE
+   fun:_ZN4ROOT6Reflex7PointerC1ERKNS0_4TypeERKSt9type_info
+   fun:_ZN4ROOT6Reflex14PointerBuilderERKNS0_4TypeERKSt9type_info
+   fun:_ZN4ROOT6Reflex13TypeDistillerIP10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex13TypeDistillerIKP10IInterfaceE3GetEv
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex16NamespaceBuilderC1EPKc
+   fun:_ZN4ROOT6Reflex13PluginServiceC1Ev
+   fun:_ZN4ROOT6Reflex13PluginService8InstanceEv
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateIP10IInterfaceS4_EET_RKSsRKT0_
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNK4ROOT6Reflex3Any6HolderIPKcE5CloneEv
+   fun:_ZN4ROOT6Reflex3AnyC1ERKS1_
+   fun:_ZN4ROOT6Reflex3AnyaSERKS1_
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyEjRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsRKNS0_3AnyE
+}
+{
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT14DefineBehaviorEP8TQObjectS1_
+   fun:_ZN4ROOT25GenerateInitInstanceLocalEPK6TTimer
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT20GenerateInitInstanceEPK16TMemberInspector
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libCore.so
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__add_ipath
+   fun:_ZN5TCint14AddIncludePathEPKc
+   fun:_ZN5TROOTC1EPKcS1_PPFvvE
+   fun:_ZN4ROOT7GetROOTEv
+   fun:_ZN6TTimer5ResetEv
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:realloc
+   fun:G__add_setup_func
+   fun:_ZN26G__cpp_setup_initG__MatrixC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT20GenerateInitInstanceEPK12TMatrixTBaseIfE
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libMatrix.so
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:realloc
+   fun:G__add_ipath
+   fun:_ZN5TCint14AddIncludePathEPKc
+   fun:_ZN5TROOTC1EPKcS1_PPFvvE
+   fun:_ZN4ROOT7GetROOTEv
+   fun:_ZN6TTimer5ResetEv
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__malloc
+   fun:G__allocvariable
+   fun:G__letvariable
+   fun:G__getexpr
+   fun:G__set_stdio
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex8TypeBaseC2EPKcjNS0_4TYPEERKSt9type_infoRKNS0_4TypeE
+   fun:_ZN4ROOT6Reflex7PointerC1ERKNS0_4TypeERKSt9type_info
+   fun:_ZN4ROOT6Reflex14PointerBuilderERKNS0_4TypeERKSt9type_info
+   fun:_ZN4ROOT6Reflex13TypeDistillerIP10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex13TypeDistillerIKP10IInterfaceE3GetEv
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex8TypeBaseC2EPKcjNS0_4TYPEERKSt9type_infoRKNS0_4TypeE
+   fun:_ZN4ROOT6Reflex7TypedefC1EPKcRKNS0_4TypeENS0_4TYPEES6_
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT6Reflex6ReflexC2Ev
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyEjRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsPKc
+   fun:_ZNK4ROOT6Reflex12PropertyList11AddPropertyERKSsPKc
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+}
+{
+   dlopen leak
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:_dl_lookup_symbol_x
+   fun:_dl_relocate_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+}
+{
+   dlopen leak
+   Memcheck:Leak
+   fun:malloc
+   fun:add_to_global
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+}
+{
+   dlopen leak
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+}
+{
+   dlopen leak
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+}
+{
+   dlopen leak
+   Memcheck:Leak
+   fun:malloc
+   fun:open_path
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+}
+{
+   dlopen leak
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+}
+{
+   dlopen leak
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:dl_open_worker
+   fun:_dl_catch_error
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNK4ROOT6Reflex3Any6HolderI11InterfaceIDE5CloneEv
+   fun:_ZN4ROOT6Reflex3AnyC1ERKS1_
+   fun:_ZN4ROOT6Reflex3AnyaSERKS1_
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyEjRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsRKNS0_3AnyE
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__createfuncmacro
+   fun:G__define
+   fun:G__keyword_anytime_7
+   fun:G__exec_statement
+   fun:G__loadfile_tmpfile
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex10MemberBaseC2EPKcRKNS0_4TypeENS0_4TYPEEj
+   fun:_ZN4ROOT6Reflex14FunctionMemberC1EPKcRKNS0_4TypeEPFPvS7_RKSt6vectorIS7_SaIS7_EES7_ES7_S3_jNS0_4TYPEE
+   fun:_ZN4ROOT6Reflex15FunctionBuilderC1ERKNS0_4TypeEPKcPFPvS7_RKSt6vectorIS7_SaIS7_EES7_ES7_S6_h
+   fun:_ZN67_GLOBAL__N_.._src_DataSvc_PartitionSwitchTool.cpp_9D2164D3_EEE8248227PartitionSwitchTool_dict128C1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex19FunctionTypeBuilderERKNS0_4TypeERKSt6vectorIS1_SaIS1_EERKSt9type_info
+   fun:_ZN4ROOT6Reflex17FunctionDistillerIFP8IAlgToolSsSsPK10IInterfaceEE3GetEv
+   fun:_ZN67_GLOBAL__N_.._src_DataSvc_PartitionSwitchTool.cpp_9D2164D3_EEE8248227PartitionSwitchTool_dict128C1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN67_GLOBAL__N_.._src_DataSvc_PartitionSwitchTool.cpp_9D2164D3_EEE8248229s_PartitionSwitchTool_dict128E
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex8TypeNameC1EPKcPNS0_8TypeBaseEPKSt9type_info
+   fun:_ZN4ROOT6Reflex8TypeBaseC2EPKcjNS0_4TYPEERKSt9type_infoRKNS0_4TypeE
+   fun:_ZN4ROOT6Reflex11FundamentalC1EPKcjRKSt9type_info
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex8TypeBaseC2EPKcjNS0_4TYPEERKSt9type_infoRKNS0_4TypeE
+   fun:_ZN4ROOT6Reflex11FundamentalC1EPKcjRKSt9type_info
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT6Reflex6ReflexC2Ev
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex14PointerBuilderERKNS0_4TypeERKSt9type_info
+   fun:_ZN4ROOT6Reflex13TypeDistillerIP10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex13TypeDistillerIKP10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex7GetTypeIKP10IInterfaceEERKNS0_4TypeEv
+   fun:_ZN4ROOT6Reflex11ValueObjectC1IKP10IInterfaceEERT_
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__createtemplateclass
+   fun:G__tagtable_setup
+   fun:G__cpp_setup_tagtableG__Base3
+   fun:G__cpp_setupG__Base3
+   fun:G__call_setup_funcs
+}
+{
+   Graf leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN11TWebPaletteC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_gWebImagePalette
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libGraf.so
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libGraf.so
+}
+{
+   Graf leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN11TWebPaletteC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_gWebImagePalette
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libGraf.so
+   obj:/afs/cern.ch/sw/lcg/external/root/5.18.00a/slc4_ia32_gcc34_dbg/root/lib/libGraf.so
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex8TypeBaseC2EPKcjNS0_4TYPEERKSt9type_infoRKNS0_4TypeE
+   fun:_ZN4ROOT6Reflex11FundamentalC1EPKcjRKSt9type_info
+   fun:_ZN4ROOT6Reflex6ReflexC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN4ROOT6Reflex6ReflexC2Ev
+}
+{
+   ROOT leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5TList7NewLinkEP7TObjectP8TObjLink
+   fun:_ZN5TList7AddLastEP7TObject
+   fun:_ZN5TList3AddEP7TObject
+   fun:_ZN10THashTable3AddEP7TObject
+   fun:_ZN4TMap3AddEP7TObjectS1_
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5TCint17UpdateListOfTypesEv
+   fun:_ZN5TROOT14GetListOfTypesEb
+   fun:_ZNK5TROOT7GetTypeEPKcb
+   fun:_ZN6TClass8GetClassEPKcb
+   fun:_ZNK5TROOT8GetClassEPKcb
+}
+{
+   TClass leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN8TStorage5AllocEj
+   fun:_ZN9TObjArray4InitEii
+   fun:_ZN9TObjArrayC1Eii
+   fun:_ZN6TClass4InitEPKcsPKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorPcES1_S1_ii
+   fun:_ZN6TClassC1EPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorPcES1_S1_ii
+}
+{
+   TClass leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_Z6StrDupPKc
+   fun:_ZN11TClassTable3AddEPKcsRKSt9type_infoPFvvEi
+   fun:_ZN4ROOT8AddClassEPKcsRKSt9type_infoPFvvEi
+   fun:_ZNK4ROOT20TDefaultInitBehavior8RegisterEPKcsRKSt9type_infoPFvvEi
+   fun:_ZN4ROOT17TGenericClassInfo4InitEi
+}
+{
+   TClass leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN11TClassTableC1Ev
+   fun:_ZN11TClassTable3AddEPKcsRKSt9type_infoPFvvEi
+   fun:_ZN4ROOT8AddClassEPKcsRKSt9type_infoPFvvEi
+   fun:_ZNK4ROOT20TDefaultInitBehavior8RegisterEPKcsRKSt9type_infoPFvvEi
+   fun:_ZN4ROOT17TGenericClassInfo4InitEi
+}
+{
+   TClass leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11TClassTable11FindElementEPKcb
+   fun:_ZN11TClassTable3AddEPKcsRKSt9type_infoPFvvEi
+   fun:_ZN4ROOT8AddClassEPKcsRKSt9type_infoPFvvEi
+   fun:_ZNK4ROOT20TDefaultInitBehavior8RegisterEPKcsRKSt9type_infoPFvvEi
+   fun:_ZN4ROOT17TGenericClassInfo4InitEi
+}
+{
+   TClass leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN10THashTableC1Eii
+   fun:_ZN4TMapC1Eii
+   fun:_ZN4ROOT18TMapTypeToClassRecC1Ev
+   fun:_ZN11TClassTableC1Ev
+   fun:_ZN11TClassTable3AddEPKcsRKSt9type_infoPFvvEi
+}
+{
+   TClass leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN8TStorage11ObjectAllocEj
+   fun:_ZN7TObjectnwEj
+   fun:_ZN4TMap3AddEP7TObjectS1_
+   fun:_ZN4ROOT18TMapTypeToClassRec3AddEPKcRP9TClassRec
+   fun:_ZN11TClassTable3AddEPKcsRKSt9type_infoPFvvEi
+}
+{
+   TClass leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN12TObjectTableC1Ei
+   fun:_ZN12TObjectTable6AddObjEP7TObject
+   fun:_ZN7TObjectC2Ev
+   fun:_ZN11TClassTableC1Ev
+   fun:_ZN11TClassTable3AddEPKcsRKSt9type_infoPFvvEi
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIN4ROOT6Reflex11OwnedMemberEE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseIN4ROOT6Reflex11OwnedMemberESaIS2_EE11_M_allocateEj
+   fun:_ZNSt6vectorIN4ROOT6Reflex11OwnedMemberESaIS2_EE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPS2_S4_EERKS2_
+   fun:_ZNSt6vectorIN4ROOT6Reflex11OwnedMemberESaIS2_EE9push_backERKS2_
+   fun:_ZNK4ROOT6Reflex9ScopeBase17AddFunctionMemberERKNS0_6MemberE
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIN4ROOT6Reflex6MemberEE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseIN4ROOT6Reflex6MemberESaIS2_EE11_M_allocateEj
+   fun:_ZNSt6vectorIN4ROOT6Reflex6MemberESaIS2_EE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPS2_S4_EERKS2_
+   fun:_ZNSt6vectorIN4ROOT6Reflex6MemberESaIS2_EE9push_backERKS2_
+   fun:_ZNK4ROOT6Reflex9ScopeBase17AddFunctionMemberERKNS0_6MemberE
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNK4ROOT6Reflex3Any6HolderISsE5CloneEv
+   fun:_ZN4ROOT6Reflex3AnyC1ERKS1_
+   fun:_ZN4ROOT6Reflex3AnyaSERKS1_
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyEjRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsRKNS0_3AnyE
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex10MemberBaseC2EPKcRKNS0_4TypeENS0_4TYPEEj
+   fun:_ZN4ROOT6Reflex14FunctionMemberC1EPKcRKNS0_4TypeEPFPvS7_RKSt6vectorIS7_SaIS7_EES7_ES7_S3_jNS0_4TYPEE
+   fun:_ZN4ROOT6Reflex15FunctionBuilderC1ERKNS0_4TypeEPKcPFPvS7_RKSt6vectorIS7_SaIS7_EES7_ES7_S6_h
+   fun:_ZN59_GLOBAL__N_.._src_NTupleSvc_NTupleSvc.cpp_17E02520_8B10567116NTupleSvc_dict48C1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex8TypeNameC1EPKcPNS0_8TypeBaseEPKSt9type_info
+   fun:_ZN4ROOT6Reflex11TypeBuilderEPKcj
+   fun:_ZN4ROOT6Reflex13TypeDistillerI10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex13TypeDistillerIP10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex13TypeDistillerIKP10IInterfaceE3GetEv
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIN4ROOT6Reflex3AnyEE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseIN4ROOT6Reflex3AnyESaIS2_EE11_M_allocateEj
+   fun:_ZNSt6vectorIN4ROOT6Reflex3AnyESaIS2_EE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPS2_S4_EEjRKS2_
+   fun:_ZNSt6vectorIN4ROOT6Reflex3AnyESaIS2_EE6insertEN9__gnu_cxx17__normal_iteratorIPS2_S4_EEjRKS2_
+   fun:_ZNSt6vectorIN4ROOT6Reflex3AnyESaIS2_EE6resizeEjRKS2_
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyEjRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsRKNS0_3AnyE
+   fun:_ZN4ROOT6Reflex16PropertyListImpl11AddPropertyERKSsPKc
+   fun:_ZNK4ROOT6Reflex12PropertyList11AddPropertyERKSsPKc
+   fun:_ZN4ROOT6Reflex9ScopeBaseC2Ev
+}
+{
+   TUnix leak
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN7TSystemC2EPKcS1_
+   fun:_ZN11TUnixSystemC1Ev
+   fun:_ZN5TROOT10InitSystemEv
+   fun:_ZN5TROOTC1EPKcS1_PPFvvE
+   fun:_ZN4ROOT7GetROOTEv
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex11TypeBuilderEPKcj
+   fun:_ZN4ROOT6Reflex13TypeDistillerI10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex13TypeDistillerIP10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex13TypeDistillerIKP10IInterfaceE3GetEv
+   fun:_ZN4ROOT6Reflex7GetTypeIKP10IInterfaceEERKNS0_4TypeEv
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN69_GLOBAL__N_.._src_ApplicationMgr_ApplicationMgr.cpp_9D2164D3_A4BA85537FactoryI14ApplicationMgrFP10IInterfaceS3_EE4FuncEPvRKSt6vectorIS6_SaIS6_EES6_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateIP10IInterfaceS4_EET_RKSsRKT0_
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
+   obj:/usr/lib/libstdc++.so.6.0.3
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN4ROOT6Reflex8TypeNameC1EPKcPNS0_8TypeBaseEPKSt9type_info
+   fun:_ZN4ROOT6Reflex8TypeBaseC2EPKcjNS0_4TYPEERKSt9type_infoRKNS0_4TypeE
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   fun:G__cpp_setup_tagtableG__Unix
+   fun:G__cpp_setupG__Unix
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:calloc
+   fun:G__malloc
+   fun:_Z16G__alloc_var_refIiPFl8G__valueEEviT0_PcP12G__var_arrayiRS0_
+   fun:G__allocvariable
+   fun:G__letvariable
+   fun:G__getexpr
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__createtemplateclass
+   fun:G__tagtable_setup
+   fun:G__cpp_setup_tagtableG__Base3
+   fun:G__cpp_setupG__Base3
+   fun:G__call_setup_funcs
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__search_typename
+   fun:G__search_typename2
+   fun:G__cpp_setup_typetableG__Unix
+   fun:G__cpp_setupG__Unix
+   fun:G__call_setup_funcs
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__memfunc_para_setup
+   fun:G__parse_parameter_link
+   fun:G__memfunc_setup
+   fun:_Z18G__cpp_setup_func1v
+   fun:G__cpp_setup_funcG__Cont
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:_ZN9G__heritsixEi
+   fun:G__inheritance_setup
+   fun:G__cpp_setup_inheritanceG__Unix
+   fun:G__cpp_setupG__Unix
+   fun:G__call_setup_funcs
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   fun:G__cpp_setup_tagtableG__Unix
+   fun:G__cpp_setupG__Unix
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   fun:G__cpp_setup_tagtableG__Unix
+   fun:G__cpp_setupG__Unix
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   fun:G__cpp_setup_tagtableG__Unix
+   fun:G__cpp_setupG__Unix
+}
+{
+   Reflex leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN4ROOT6Reflex15FunctionBuilderC1ERKNS0_4TypeEPKcPFPvS7_RKSt6vectorIS7_SaIS7_EES7_ES7_S6_h
+   fun:_ZN59_GLOBAL__N_.._src_NTupleSvc_NTupleSvc.cpp_17E02520_8B10567116NTupleSvc_dict48C1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I__ZN59_GLOBAL__N_.._src_NTupleSvc_NTupleSvc.cpp_17E02520_8B10567118s_NTupleSvc_dict48E
+   obj:/afs/cern.ch/atlas/offline/external/GAUDI/v19r6p4-LCG54f/GaudiSvc/i686-slc4-gcc34-dbg/libGaudiSvc.so
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   fun:G__cpp_setup_tagtableG__Unix
+   fun:G__cpp_setupG__Unix
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:_ZN9G__heritsixEi
+   fun:G__inheritance_setup
+   fun:G__cpp_setup_inheritanceG__Unix
+   fun:G__cpp_setupG__Unix
+   fun:G__call_setup_funcs
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__savestring
+   fun:G__allocvariable
+   fun:G__letvariable
+   fun:G__getexpr
+   fun:G__set_stdio
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:_ZN9G__paramsixEi
+   fun:G__memfunc_setup
+   fun:_Z18G__cpp_setup_func1v
+   fun:G__cpp_setup_funcG__Cont
+   fun:G__cpp_setupG__Cont
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   fun:G__cpp_setup_tagtableG__Unix
+   fun:G__cpp_setupG__Unix
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__allocvariable
+   fun:G__letvariable
+   fun:G__getexpr
+   fun:G__set_stdio
+   fun:G__main
+}
+{
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   fun:G__cpp_setup_tagtableG__Unix
+   fun:G__cpp_setupG__Unix
+}
+{
+
+   CINT leak
+   Memcheck:Leak
+   fun:malloc
+   fun:G__memfunc_next
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   fun:G__cpp_setup_tagtableG__Unix
+}
+
+
+
+
+
+{
+   PersistencySvc factory leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI17EvtPersistencySvcE6createERKSsP11ISvcLocator
+   fun:_ZN72_GLOBAL__N_.._src_PersistencySvc_EvtPersistencySvc.cpp_EF105EC1_4A5556AB7FactoryI17EvtPersistencySvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   PersistencySvc factory leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI23HistogramPersistencySvcE6createERKSsP11ISvcLocator
+   fun:_ZN78_GLOBAL__N_.._src_PersistencySvc_HistogramPersistencySvc.cpp_9D2164D3_20537EF17FactoryI23HistogramPersistencySvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIP8PropertyE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseIP8PropertySaIS1_EE11_M_allocateEj
+   fun:_ZNSt6vectorIP8PropertySaIS1_EE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPS1_S3_EERKS1_
+   fun:_ZNSt6vectorIP8PropertySaIS1_EE9push_backERKS1_
+   fun:_ZN11PropertyMgr15declarePropertyIbEEvRKSsRT_S2_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11PropertyMgr15declarePropertyIbEEvRKSsRT_S2_
+   fun:_ZNK7Service15declarePropertyIbEE10StatusCodeRKSsRT_S3_
+   fun:_ZN7ServiceC2ERKSsP11ISvcLocator
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI12StoreGateSvcE6createERKSsP11ISvcLocator
+   fun:_ZN71_GLOBAL__N_.._src_components_StoreGateSvc_entries.cxx_9D2164D3_6A2FD51A7FactoryI12StoreGateSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11PropertyMgr15declarePropertyISsEEvRKSsRT_S2_
+   fun:_ZNK7Service15declarePropertyISsEE10StatusCodeRKSsRT_S3_
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN7ServiceC2ERKSsP11ISvcLocator
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorISsE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseISsSaISsEE11_M_allocateEj
+   fun:_ZNSt12_Vector_baseISsSaISsEEC2EjRKS0_
+   fun:_ZNSt6vectorISsSaISsEEC1ERKS1_
+   fun:_ZN15BoundedVerifierISt6vectorISsSaISsEEEC1ERKS3_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI10HistorySvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_HistorySvc_HistorySvc.cpp_9D2164D3_852D11FA7FactoryI10HistorySvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI12EventLoopMgrE6createERKSsP11ISvcLocator
+   fun:_ZN67_GLOBAL__N_.._src_ApplicationMgr_EventLoopMgr.cpp_9D2164D3_238F8A117FactoryI12EventLoopMgrFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14SimplePropertyISt6vectorISsSaISsEE15BoundedVerifierIS2_EEC1ES4_
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN8Property20declareUpdateHandlerI10MessageSvcEEvMT_FvRS_EPS2_
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKSsN5Gaudi7Parsers13PropertyEntryEEEE8allocateEjPKv
+   fun:_ZNSt8_Rb_treeISsSt4pairIKSsN5Gaudi7Parsers13PropertyEntryEESt10_Select1stIS5_ENS3_11_NoCaseCmp_ESaIS5_EE11_M_get_nodeEv
+   fun:_ZNSt8_Rb_treeISsSt4pairIKSsN5Gaudi7Parsers13PropertyEntryEESt10_Select1stIS5_ENS3_11_NoCaseCmp_ESaIS5_EE14_M_create_nodeERKS5_
+   fun:_ZNSt8_Rb_treeISsSt4pairIKSsN5Gaudi7Parsers13PropertyEntryEESt10_Select1stIS5_ENS3_11_NoCaseCmp_ESaIS5_EE9_M_insertEPSt18_Rb_tree_node_baseSC_RKS5_
+   fun:_ZNSt8_Rb_treeISsSt4pairIKSsN5Gaudi7Parsers13PropertyEntryEESt10_Select1stIS5_ENS3_11_NoCaseCmp_ESaIS5_EE13insert_uniqueERKS5_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI10EvtDataSvcE6createERKSsP11ISvcLocator
+   fun:_ZN58_GLOBAL__N_.._src_DataSvc_EvtDataSvc.cpp_EF105EC1_F55F41E77FactoryI10EvtDataSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN12StoreGateSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI12StoreGateSvcE6createERKSsP11ISvcLocator
+   fun:_ZN71_GLOBAL__N_.._src_components_StoreGateSvc_entries.cxx_9D2164D3_6A2FD51A7FactoryI12StoreGateSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI23HistogramPersistencySvcE6createERKSsP11ISvcLocator
+   fun:_ZN78_GLOBAL__N_.._src_PersistencySvc_HistogramPersistencySvc.cpp_9D2164D3_20537EF17FactoryI23HistogramPersistencySvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI12HistogramSvcE6createERKSsP11ISvcLocator
+   fun:_ZN65_GLOBAL__N_.._src_HistogramSvc_HistogramSvc.cpp_17E02520_EABF6AE47FactoryI12HistogramSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI13JobOptionsSvcE6createERKSsP11ISvcLocator
+   fun:_ZN67_GLOBAL__N_.._src_JobOptionsSvc_JobOptionsSvc.cpp_9D2164D3_253EDA187FactoryI13JobOptionsSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN8Property20declareUpdateHandlerI7ServiceEEvMT_FvRS_EPS2_
+   fun:_ZN7ServiceC2ERKSsP11ISvcLocator
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN13JobOptionsSvc22addPropertyToCatalogueERKSsRK8Property
+   fun:_ZN13JobOptionsSvc20fillServiceCatalogueEv
+   fun:_ZN13JobOptionsSvc11readOptionsERKSsS1_
+   fun:_ZN13JobOptionsSvc10initializeEv
+   fun:_ZN14ApplicationMgr9i_startupEv
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN8Property20declareUpdateHandlerI14ApplicationMgrEEvMT_FvRS_EPS2_
+   fun:_ZN14ApplicationMgrC1EP10IInterface
+   fun:_ZN69_GLOBAL__N_.._src_ApplicationMgr_ApplicationMgr.cpp_9D2164D3_A4BA85537FactoryI14ApplicationMgrFP10IInterfaceS3_EE4FuncEPvRKSt6vectorIS6_SaIS6_EES6_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorISt10_List_nodeIP8IServiceEE8allocateEjPKv
+   fun:_ZNSt10_List_baseIP8IServiceSaIS1_EE11_M_get_nodeEv
+   fun:_ZNSt4listIP8IServiceSaIS1_EE14_M_create_nodeERKS1_
+   fun:_ZNSt4listIP8IServiceSaIS1_EE9_M_insertESt14_List_iteratorIS1_ERKS1_
+   fun:_ZNSt4listIP8IServiceSaIS1_EE9push_backERKS1_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI16ProxyProviderSvcE6createERKSsP11ISvcLocator
+   fun:_ZN66_GLOBAL__N_.._src_components_SGComps_entries.cxx_9D2164D3_35A4406C7FactoryI16ProxyProviderSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11PropertyMgr15declarePropertyISt6vectorISsSaISsEEEEvRKSsRT_S5_
+   fun:_ZNK7Service15declarePropertyISt6vectorISsSaISsEEEE10StatusCodeRKSsRT_S6_
+   fun:_ZN10ClassIDSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10ClassIDSvcE6createERKSsP11ISvcLocator
+   fun:_ZN68_GLOBAL__N_.._src_components_CLIDComps_entries.cxx_9D2164D3_6E09122B7FactoryI10ClassIDSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorISt10_List_nodeIN11IncidentSvc8ListenerEEE8allocateEjPKv
+   fun:_ZNSt10_List_baseIN11IncidentSvc8ListenerESaIS1_EE11_M_get_nodeEv
+   fun:_ZNSt4listIN11IncidentSvc8ListenerESaIS1_EE14_M_create_nodeERKS1_
+   fun:_ZNSt4listIN11IncidentSvc8ListenerESaIS1_EE6insertESt14_List_iteratorIS1_ERKS1_
+   fun:_ZN11IncidentSvc11addListenerEP17IIncidentListenerRKSslbb
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorISt13_Rb_tree_nodeISt4pairIKSsSt3mapISsN5Gaudi7Parsers13PropertyEntryENS6_11_NoCaseCmp_ESaIS2_IS3_S7_EEEEEE8allocateEjPKv
+   fun:_ZNSt8_Rb_treeISsSt4pairIKSsSt3mapISsN5Gaudi7Parsers13PropertyEntryENS4_11_NoCaseCmp_ESaIS0_IS1_S5_EEEESt10_Select1stISA_ESt4lessISsESaISA_EE11_M_get_nodeEv
+   fun:_ZNSt8_Rb_treeISsSt4pairIKSsSt3mapISsN5Gaudi7Parsers13PropertyEntryENS4_11_NoCaseCmp_ESaIS0_IS1_S5_EEEESt10_Select1stISA_ESt4lessISsESaISA_EE14_M_create_nodeERKSA_
+   fun:_ZNSt8_Rb_treeISsSt4pairIKSsSt3mapISsN5Gaudi7Parsers13PropertyEntryENS4_11_NoCaseCmp_ESaIS0_IS1_S5_EEEESt10_Select1stISA_ESt4lessISsESaISA_EE9_M_insertEPSt18_Rb_tree_node_baseSI_RKSA_
+   fun:_ZNSt8_Rb_treeISsSt4pairIKSsSt3mapISsN5Gaudi7Parsers13PropertyEntryENS4_11_NoCaseCmp_ESaIS0_IS1_S5_EEEESt10_Select1stISA_ESt4lessISsESaISA_EE13insert_uniqueESt17_Rb_tree_iteratorISA_ERKSA_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorISt10_List_nodeISt4pairIP8IServiceiEEE8allocateEjPKv
+   fun:_ZNSt10_List_baseISt4pairIP8IServiceiESaIS3_EE11_M_get_nodeEv
+   fun:_ZNSt4listISt4pairIP8IServiceiESaIS3_EE14_M_create_nodeERKS3_
+   fun:_ZNSt4listISt4pairIP8IServiceiESaIS3_EE6insertESt14_List_iteratorIS3_ERKS3_
+   fun:_ZN14ServiceManager10addServiceEP8IServicei
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI10ClassIDSvcE6createERKSsP11ISvcLocator
+   fun:_ZN68_GLOBAL__N_.._src_components_CLIDComps_entries.cxx_9D2164D3_6E09122B7FactoryI10ClassIDSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI17EvtPersistencySvcE6createERKSsP11ISvcLocator
+   fun:_ZN72_GLOBAL__N_.._src_PersistencySvc_EvtPersistencySvc.cpp_EF105EC1_4A5556AB7FactoryI17EvtPersistencySvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI7ToolSvcE6createERKSsP11ISvcLocator
+   fun:_ZN55_GLOBAL__N_.._src_ToolSvc_ToolSvc.cpp_9D2164D3_0CE4793F7FactoryI7ToolSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI13AlgContextSvcE6createERKSsP11ISvcLocator
+   fun:_ZN67_GLOBAL__N_.._src_AlgContextSvc_AlgContextSvc.cpp_9D2164D3_0D7C1DBD7FactoryI13AlgContextSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI11IncidentSvcE6createERKSsP11ISvcLocator
+   fun:_ZN63_GLOBAL__N_.._src_IncidentSvc_IncidentSvc.cpp_9D2164D3_6CD632E57FactoryI11IncidentSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SvcFactoryI13AppMgrRunableE6createERKSsP11ISvcLocator
+   fun:_ZN68_GLOBAL__N_.._src_ApplicationMgr_AppMgrRunable.cpp_9D2164D3_266AD5697FactoryI13AppMgrRunableFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11PropertyMgr15declarePropertyIiEEvRKSsRT_S2_
+   fun:_ZN14ApplicationMgrC1EP10IInterface
+   fun:_ZN69_GLOBAL__N_.._src_ApplicationMgr_ApplicationMgr.cpp_9D2164D3_A4BA85537FactoryI14ApplicationMgrFP10IInterfaceS3_EE4FuncEPvRKSt6vectorIS6_SaIS6_EES6_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN12StoreGateSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI12StoreGateSvcE6createERKSsP11ISvcLocator
+   fun:_ZN71_GLOBAL__N_.._src_components_StoreGateSvc_entries.cxx_9D2164D3_6A2FD51A7FactoryI12StoreGateSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN2SG10StringPoolC1Ev
+   fun:_ZN12StoreGateSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI12StoreGateSvcE6createERKSsP11ISvcLocator
+   fun:_ZN71_GLOBAL__N_.._src_components_StoreGateSvc_entries.cxx_9D2164D3_6A2FD51A7FactoryI12StoreGateSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11PropertyMgr15declarePropertyIjEEvRKSsRT_S2_
+   fun:_ZNK7Service15declarePropertyIjEE10StatusCodeRKSsRT_S3_
+   fun:_ZN7DataSvcC2ERKSsP11ISvcLocator
+   fun:_ZN10EvtDataSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10EvtDataSvcE6createERKSsP11ISvcLocator
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN7DataSvc9i_setRootERKSsP10DataObject
+   fun:_ZN7DataSvc7setRootERKSsP10DataObject
+   fun:_ZN12HistogramSvc10initializeEv
+   fun:_ZN7Service13sysInitializeEv
+   fun:_ZN14ServiceManager11makeServiceERKSsRP8IService
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11PropertyMgr15declarePropertyISt3mapISsN5Gaudi10Histo1DDefESt4lessISsESaISt4pairIKSsS3_EEEEEvRS7_RT_SB_
+   fun:_ZNK7Service15declarePropertyISt3mapISsN5Gaudi10Histo1DDefESt4lessISsESaISt4pairIKSsS3_EEEEE10StatusCodeRS7_RT_SC_
+   fun:_ZN12HistogramSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI12HistogramSvcE6createERKSsP11ISvcLocator
+   fun:_ZN65_GLOBAL__N_.._src_HistogramSvc_HistogramSvc.cpp_17E02520_EABF6AE47FactoryI12HistogramSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14ApplicationMgrC1EP10IInterface
+   fun:_ZN69_GLOBAL__N_.._src_ApplicationMgr_ApplicationMgr.cpp_9D2164D3_A4BA85537FactoryI14ApplicationMgrFP10IInterfaceS3_EE4FuncEPvRKSt6vectorIS6_SaIS6_EES6_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZN4ROOT6Reflex13PluginService6CreateERKSsRKNS0_4TypeERKSt6vectorINS0_11ValueObjectESaIS8_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11PropertyMgr15declarePropertyISt3mapISsSsSt4lessISsESaISt4pairIKSsSsEEEEEvRS5_RT_S9_
+   fun:_ZN14ApplicationMgrC1EP10IInterface
+   fun:_ZN69_GLOBAL__N_.._src_ApplicationMgr_ApplicationMgr.cpp_9D2164D3_A4BA85537FactoryI14ApplicationMgrFP10IInterfaceS3_EE4FuncEPvRKSt6vectorIS6_SaIS6_EES6_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN8Property20declareUpdateHandlerI19MinimalEventLoopMgrEEvMT_FvRS_EPS2_
+   fun:_ZN19MinimalEventLoopMgrC2ERKSsP11ISvcLocator
+   fun:_ZN12EventLoopMgrC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI12EventLoopMgrE6createERKSsP11ISvcLocator
+   fun:_ZN67_GLOBAL__N_.._src_ApplicationMgr_EventLoopMgr.cpp_9D2164D3_238F8A117FactoryI12EventLoopMgrFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11IncidentSvc11addListenerEP17IIncidentListenerRKSslbb
+   fun:_ZN10ClassIDSvc10initializeEv
+   fun:_ZN7Service13sysInitializeEv
+   fun:_ZN14ServiceManager11makeServiceERKSsRP8IService
+   fun:_ZN14ServiceManager10getServiceERKSsRP8IServiceb
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIPK8PropertyE8allocateEjPKv
+   fun:_ZNSt12_Vector_baseIPK8PropertySaIS2_EE11_M_allocateEj
+   fun:_ZNSt12_Vector_baseIPK8PropertySaIS2_EEC2EjRKS3_
+   fun:_ZNSt6vectorIPK8PropertySaIS2_EEC1ERKS4_
+   fun:_ZNSt4pairIKSsSt6vectorIPK8PropertySaIS4_EEEC1ERKS7_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN19JobOptionsCatalogueC1Ev
+   fun:_ZN13JobOptionsSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI13JobOptionsSvcE6createERKSsP11ISvcLocator
+   fun:_ZN67_GLOBAL__N_.._src_JobOptionsSvc_JobOptionsSvc.cpp_9D2164D3_253EDA187FactoryI13JobOptionsSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14SimplePropertyIi15BoundedVerifierIiEEC1ES1_
+   fun:_ZN7ServiceC2ERKSsP11ISvcLocator
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14SimplePropertyISs15BoundedVerifierISsEEC1ERKSsS4_S1_
+   fun:_ZN13JobOptionsSvc22addPropertyToCatalogueERKSsRK8Property
+   fun:_ZN13JobOptionsSvc20fillServiceCatalogueEv
+   fun:_ZN13JobOptionsSvc11readOptionsERKSsS1_
+   fun:_ZN13JobOptionsSvc10initializeEv
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN12HistogramSvc10initializeEv
+   fun:_ZN7Service13sysInitializeEv
+   fun:_ZN14ServiceManager11makeServiceERKSsRP8IService
+   fun:_ZN14ServiceManager10getServiceERKSsRP8IServiceb
+   fun:_ZN11ISvcLocator7serviceI15IDataManagerSvcEE10StatusCodeRKSsRPT_b
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN8Property20declareUpdateHandlerI12HistogramSvcEEvMT_FvRS_EPS2_
+   fun:_ZN12HistogramSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI12HistogramSvcE6createERKSsP11ISvcLocator
+   fun:_ZN65_GLOBAL__N_.._src_HistogramSvc_HistogramSvc.cpp_17E02520_EABF6AE47FactoryI12HistogramSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN19MinimalEventLoopMgr10initializeEv
+   fun:_ZN12EventLoopMgr10initializeEv
+   fun:_ZN7Service13sysInitializeEv
+   fun:_ZN14ServiceManager18initializeServicesEv
+   fun:_ZN14ApplicationMgr10initializeEv
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14SimplePropertyISs15BoundedVerifierISsEEC1ES1_
+   fun:_ZN14ApplicationMgrC1EP10IInterface
+   fun:_ZN69_GLOBAL__N_.._src_ApplicationMgr_ApplicationMgr.cpp_9D2164D3_A4BA85537FactoryI14ApplicationMgrFP10IInterfaceS3_EE4FuncEPvRKSt6vectorIS6_SaIS6_EES6_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14SimplePropertyIb15BoundedVerifierIbEEC1ES1_
+   fun:_ZN7ServiceC2ERKSsP11ISvcLocator
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14SimplePropertyIj15BoundedVerifierIjEEC1ES1_
+   fun:_ZN10MessageSvcC1ERKSsP11ISvcLocator
+   fun:_ZN10SvcFactoryI10MessageSvcE6createERKSsP11ISvcLocator
+   fun:_ZN61_GLOBAL__N_.._src_MessageSvc_MessageSvc.cpp_9D2164D3_9ECD61837FactoryI10MessageSvcFP8IServiceSsP11ISvcLocatorEE4FuncEPvRKSt6vectorIS8_SaIS8_EES8_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN16AlgorithmManagerC1EP10IInterface
+   fun:_ZN14ApplicationMgrC1EP10IInterface
+   fun:_ZN69_GLOBAL__N_.._src_ApplicationMgr_ApplicationMgr.cpp_9D2164D3_A4BA85537FactoryI14ApplicationMgrFP10IInterfaceS3_EE4FuncEPvRKSt6vectorIS6_SaIS6_EES6_
+   fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+   fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+
+
+#####################
+# frontier_client
+{
+	FrontierClient:frontier_str_copy/wordcopy_fwd_dest_aligned
+	Memcheck:Addr8
+	fun:_wordcopy_fwd_dest_aligned
+	fun:bcopy
+	fun:frontier_str_copy
+}
+

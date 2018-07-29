@@ -15,7 +15,7 @@ include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
 # Now configure and schedule the monitoring tool
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 theBunchCrossingTool=BunchCrossingTool()
-#ToolSvc+=theBunchCrossingTool
+ToolSvc+=theBunchCrossingTool
 
 # --- for athena online running ---
 if 'EventBlockSize' not in dir():
