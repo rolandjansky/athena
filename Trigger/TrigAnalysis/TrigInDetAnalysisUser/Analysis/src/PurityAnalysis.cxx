@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    PurityAnalysis.cxx         
 //   
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: PurityAnalysis.cxx 688225 2015-08-07 20:12:06Z sutt $
 

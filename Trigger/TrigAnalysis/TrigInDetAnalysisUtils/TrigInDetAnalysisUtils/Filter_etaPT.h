@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    Filter_etaPT.h        
 //
 //            generic track filter to filter on eta and PT only
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: Filter_PT.h, v0.0   Wed 28 Oct 2009 02:47:05 CET sutt $
 

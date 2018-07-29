@@ -17,8 +17,8 @@ class TFCS2DFunction:public TFCSFunction
 
     virtual int ndim() const {return 2;};
     
-    virtual void rnd_to_fct(float& valuex,float& valuey,float rnd0,float rnd1) = 0;
-    virtual void rnd_to_fct(float value[],const float rnd[]);
+    virtual void rnd_to_fct(float& valuex,float& valuey,float rnd0,float rnd1) const = 0;
+    virtual void rnd_to_fct(float value[],const float rnd[]) const;
 
   private:
 

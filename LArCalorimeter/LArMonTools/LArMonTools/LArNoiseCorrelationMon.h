@@ -87,6 +87,9 @@ private:
   /** list of FEBs to monitor. FEB names are expected to be of the type  LARONLINEID defined in the package atlas/LArCalorimeter/LArMonTools/LArMonTools/LArOnlineIDStrHelper.h  e.g. 'BarrelCFT00Slot02'  */
   std::vector<std::string> m_FEBsToMonitor; 
 
+  /** to publish partial sums (offline only) if needed*/
+  bool m_publishPartialSums;
+
   /** to avoid publishing tons of histograms online, in case it's a problem*/
   bool m_publishAllFebsOnline;
 
@@ -97,7 +100,7 @@ private:
   HWIdentifier m_febID;
   int m_ch1,m_ch2;  
 
-  /**declaration variables used in joboptions*/
+  /**other variables used in joboptions*/
   bool m_IsOnline; 
   bool m_ignoreKnownBadChannels;
 
@@ -107,9 +110,11 @@ private:
   /** Private members*/
   int m_evtId;
   std::vector<std::string> m_triggers;
+  int m_evtCounter;
   
   /** Declare methods used*/
   bool isGoodChannel(const HWIdentifier id,const float ped) const;
+  void fillInCorrelations();
   void bookSelectedFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);
   void bookAllFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);
   void bookThisFEB(HWIdentifier id,MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);

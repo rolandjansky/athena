@@ -195,15 +195,6 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   /** Errors */
   declareMonitoredStdContainer("EF_track_errors",m_track_errors);
   
-  /** Author - not filled? */
-  declareMonitoredStdContainer("EF_author",m_author);
-  
-  /** deltaZ0 core Trks - not filled?*/
-  declareMonitoredStdContainer("EF_deltaZ0coreTrks",m_deltaZ0coreTrks);
-  
-  /** deltaZ0 wide Trks - not filled?*/
-  declareMonitoredStdContainer("EF_deltaZ0wideTrks",m_deltaZ0wideTrks);
-
   // RNN inputs
   // scalar
   declareMonitoredVariable("EF_RNN_scalar_ptRatioEflowApprox", m_RNN_scalar_ptRatioEflowApprox);
@@ -383,7 +374,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_innerTrkAvgDist=-999;
 	m_SumPtTrkFrac=-999;
 
-	m_author.clear();
 	m_calo_errors.clear();
 	m_track_errors.clear();
 	m_EtEm =-10.;
@@ -914,15 +904,11 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 
 	  // RNN monitoring
-	  //if(m_rnn_evaluator) {
-	  // for now, keep monitoring taus with at least 1 track, until we define 0p triggers
-	  if(m_rnn_evaluator && m_numTrack>0) {
+	  if(m_rnn_evaluator) {
 
 	    TauJetRNN* rnn = 0;
-	    // to be used soon
-	    //if(m_numTrack==0) rnn = m_rnn_evaluator->get_rnn_0p();
-	    //else if(m_numTrack==1) rnn = m_rnn_evaluator->get_rnn_1p();
-	    if(m_numTrack==1) rnn = m_rnn_evaluator->get_rnn_1p();
+	    if(m_numTrack==0) rnn = m_rnn_evaluator->get_rnn_0p();
+	    else if(m_numTrack==1) rnn = m_rnn_evaluator->get_rnn_1p();
 	    else rnn = m_rnn_evaluator->get_rnn_3p();
 	    
 	    const std::map<std::string, std::map<std::string, double> >* rnn_scalar = rnn->getScalarInputs();
@@ -938,12 +924,9 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	    m_RNN_cluster_et_log = rnn_vector->at("clusters").at("et_log");
 	    m_RNN_cluster_dEta = rnn_vector->at("clusters").at("dEta");
 	    m_RNN_cluster_dPhi = rnn_vector->at("clusters").at("dPhi");	    
-	    // to be used soon, needs new tuning
-	    /*
 	    m_RNN_cluster_CENTER_LAMBDA = rnn_vector->at("clusters").at("CENTER_LAMBDA");
 	    m_RNN_cluster_SECOND_LAMBDA = rnn_vector->at("clusters").at("SECOND_LAMBDA"); 
 	    m_RNN_cluster_SECOND_R = rnn_vector->at("clusters").at("SECOND_R");
-	    */
 
 	    m_RNN_Ntracks = rnn_vector->at("tracks").at("pt_log").size();
 	    m_RNN_track_pt_log = rnn_vector->at("tracks").at("pt_log");
@@ -951,12 +934,9 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	    m_RNN_track_dPhi = rnn_vector->at("tracks").at("dPhi");
 	    m_RNN_track_d0_abs_log = rnn_vector->at("tracks").at("d0_abs_log");
 	    m_RNN_track_z0sinThetaTJVA_abs_log = rnn_vector->at("tracks").at("z0sinThetaTJVA_abs_log");
-	    // to be used soon, needs new tuning
-	    /*
 	    m_RNN_track_nInnermostPixelHits = rnn_vector->at("tracks").at("nIBLHitsAndExp");
 	    m_RNN_track_nPixelHits = rnn_vector->at("tracks").at("nPixelHitsPlusDeadSensors");
 	    m_RNN_track_nSCTHits = rnn_vector->at("tracks").at("nSCTHitsPlusDeadSensors");
-	    */
 
 	    if( !p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore) || !p_tau->isAvailable<float>("RNNJetScore") )
 	      msg() << MSG::WARNING <<" RNNJetScore not available. Should not happen when TauJetRNNEvaluator is run!"<<endmsg;
@@ -967,24 +947,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  }
 	  
 	
-	  // write out delta Z0
-	  /*
-	   * FF, March 2014: deactivated.
-	   * If the output of these variables is still needed, drop me a line.
-	   * We can either print them here as done before or put them into tauEDM to have them available globally
-	   if (m_useTauPVTool) {
-	   m_tauPVTool->getDeltaZ0Values(m_deltaZ0coreTrks, m_deltaZ0wideTrks);
-	   
-	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for core trk ";
-	   for ( unsigned int i=0; i<m_deltaZ0coreTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0coreTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endreq;
-	   
-	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for wide trk ";
-	   for ( unsigned int i=0; i<m_deltaZ0wideTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0wideTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endreq;
-	   }
-	  */
-
 	  //
 	  // copy CaloOnly four vector, if present
 	  //

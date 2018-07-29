@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    ConfAnalysis.cxx         
 //   
 //
 //                   
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: ConfAnalysis.cxx 800361 2017-03-12 14:33:19Z sutt $
 

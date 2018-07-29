@@ -143,6 +143,13 @@ class doLArRODMonTool(JobProperty):
     StoredValue=True
 list+=[doLArRODMonTool]
 
+class doLArNoiseCorrelationMon(JobProperty):
+    """ Global switch for doLArNoiseCorrelationMon """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+list+=[doLArNoiseCorrelationMon]
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the LArMon flag container

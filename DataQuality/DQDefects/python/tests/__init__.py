@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # -*- coding: utf-8 -*-
 from os import unlink, environ
 from os.path import exists
