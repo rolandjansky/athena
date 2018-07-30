@@ -14,7 +14,7 @@
 #ifndef L1TOPODATAMAKER_H
 #define L1TOPODATAMAKER_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace ROIB {
    class RoIBResult;
