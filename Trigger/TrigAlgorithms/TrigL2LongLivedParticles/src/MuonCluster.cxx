@@ -84,16 +84,6 @@ HLT::ErrorCode MuonCluster::hltInitialize() {
   return HLT::OK;
 }
 
-HLT::ErrorCode MuonCluster::hltBeginRun() {
-  msg() << MSG::INFO << "hltBeginRun"<<  endmsg;
-  return HLT::OK;
-}
-
-HLT::ErrorCode MuonCluster::hltEndRun() {
-  msg() << MSG::INFO << "hltEndRun"<<  endmsg;
-  return HLT::OK;
-}
-
 HLT::ErrorCode MuonCluster::hltFinalize() {
   msg() << MSG::INFO << "hltFinalize()" << endmsg;
   return HLT::OK;

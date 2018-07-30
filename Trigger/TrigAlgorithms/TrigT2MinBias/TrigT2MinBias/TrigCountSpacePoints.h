@@ -33,7 +33,6 @@ class TrigCountSpacePoints: public HLT::AllTEAlgo {
   virtual ~TrigCountSpacePoints();
   
   HLT::ErrorCode hltInitialize();  //!< hlt initialize
-  HLT::ErrorCode hltBeginRun();
   HLT::ErrorCode hltFinalize();    //!< hlt finalize
   HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input, unsigned int output);
   StatusCode fillCollections( bool, bool, std::vector<int>&, std::vector<int>& );

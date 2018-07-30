@@ -43,7 +43,6 @@ namespace Trk {
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize();
-    HLT::ErrorCode hltEndRun();
 
   private:
     HLT::ErrorCode mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol);

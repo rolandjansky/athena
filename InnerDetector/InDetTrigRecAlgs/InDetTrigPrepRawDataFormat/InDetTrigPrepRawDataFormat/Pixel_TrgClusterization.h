@@ -81,7 +81,6 @@ namespace InDet {
     virtual HLT::ErrorCode hltExecute(const HLT::TriggerElement* input,
 				      HLT::TriggerElement* output);
     virtual HLT::ErrorCode hltFinalize();
-    virtual HLT::ErrorCode hltEndRun();
 
     // Method to prepare ROB id list
     using HLT::FexAlgo::prepareRobRequests;

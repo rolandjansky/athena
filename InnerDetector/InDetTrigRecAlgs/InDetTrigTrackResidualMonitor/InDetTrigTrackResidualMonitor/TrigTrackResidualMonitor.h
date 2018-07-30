@@ -75,7 +75,6 @@ namespace InDet
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize();
-    HLT::ErrorCode hltEndRun();
     
     
   private:

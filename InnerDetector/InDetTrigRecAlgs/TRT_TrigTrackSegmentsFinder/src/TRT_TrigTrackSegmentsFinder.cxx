@@ -207,16 +207,6 @@ HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltFinalize() {
   return HLT::OK;
 }
 
-//----------------------------------
-//          endRun method:
-//----------------------------------------------------------------------------
-HLT::ErrorCode InDet::TRT_TrigTrackSegmentsFinder::hltEndRun() {
-  
-  msg() << MSG::INFO << "TRT_TrigTrackSegmentsFinder::endRun()" << endmsg;
-  
-  return HLT::OK;
-}
-  
 ///////////////////////////////////////////////////////////////////
 // Overload of << operator MsgStream
 ///////////////////////////////////////////////////////////////////

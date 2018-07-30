@@ -617,20 +617,6 @@ namespace InDet{
     }
     return HLT::OK;
   }
-  //----------------------------------  
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SCT_TrgClusterization::hltEndRun() {
-
-    // Get the messaging service, print where you are
-    ATH_MSG_INFO( "SCT_TrgClusterization::hltEndRun()" );
-
-    return HLT::OK;
-  }
-
-  //---------------------------------------------------------------------------
-
-
 
   //-------------------------------------------------------------------------
   HLT::ErrorCode SCT_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {

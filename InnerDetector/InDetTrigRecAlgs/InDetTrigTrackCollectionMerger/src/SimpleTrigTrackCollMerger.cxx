@@ -148,16 +148,6 @@ namespace Trk {
   }
 
   //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SimpleTrigTrackCollMerger::hltEndRun() {
-    msg() << MSG::INFO << name() << "::hltEndRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
-
-  //----------------------------------
   //          finalize method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode SimpleTrigTrackCollMerger::hltFinalize() {
