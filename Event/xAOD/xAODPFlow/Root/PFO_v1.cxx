@@ -257,6 +257,8 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
 
+
+
   /** specaial implementations for floats, for eflowRec JetETMiss variables, to reduce disk space usage */
 
   template<> void PFO_v1::setAttribute(const std::string& AttributeType, const xAOD::PFODetails::PFOLeptonType& anAttribute){

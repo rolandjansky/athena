@@ -28,8 +28,9 @@ const eflowCaloENUM eflowCalo::m_samplCaloMap[CaloCell_ID::FCAL2+1] =
   Tile1, Tile2, Tile3,
   Tile2, Tile3, Unknown,
   Tile1, Tile2, Tile3,
-  Unknown, Unknown, Unknown
+  FCAL0, FCAL1, FCAL2
 };
+
 
 const std::string eflowCalo::m_layerNames[nRegions+1] =
 {
@@ -37,6 +38,7 @@ const std::string eflowCalo::m_layerNames[nRegions+1] =
   "EME1", "EME2", "EME3",
   "HEC1", "HEC2", "HEC3", "HEC4",
   "Tile1", "Tile2", "Tile3",
+  "FCAL0", "FCAL1", "FCAL2",
   "N/A"
 };
 
@@ -60,12 +62,13 @@ const std::string& eflowCalo::name(eflowCaloENUM layer)
 /////    * * *  eflowFirstIntRegions  * * *    /////
 
 
-const eflowFirstIntENUM eflowFirstIntRegions::m_caloFirstIntMap[eflowCalo::Tile3+1] = 
+const eflowFirstIntENUM eflowFirstIntRegions::m_caloFirstIntMap[eflowCalo::FCAL2+1] = 
 {
   EMB1, EMB2, EMB3,
   EME1, EME2, EME3,
   HEC, HEC, HEC, HEC,
-  Tile, Tile, Tile
+  Tile, Tile, Tile,
+  FCAL, FCAL, FCAL
 };
 
 const std::string eflowFirstIntRegions::m_layerNames[nRegions+1] =
@@ -74,6 +77,7 @@ const std::string eflowFirstIntRegions::m_layerNames[nRegions+1] =
   "EME1", "EME2", "EME3",
   "HEC",
   "Tile",
+  "FCAL",
   "N/A"
 };
 

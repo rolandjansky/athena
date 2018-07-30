@@ -23,6 +23,9 @@ EtaPhi* TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) {
   if (etaphi.getEta() == -999.){
     etaphi = track->etaPhiInLayer(m_endcapLayer);
   }
+  if (etaphi.getEta() == -999.){
+    etaphi = track->etaPhiInLayer(m_fcalLayer);
+  }
   *m_position = EtaPhi(etaphi);
   return m_position;
 }

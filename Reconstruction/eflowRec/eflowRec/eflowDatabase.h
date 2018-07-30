@@ -30,6 +30,12 @@ class eflowDatabase  {
 
   double getEmX0PerUnitLength() {return m_emX0PerUnitLength;}
   double getHadX0PerUnitLength() {return m_hadX0PerUnitLength;}
+  double getFCalX0PerUnitLength(int layer) {
+    if(layer==0) return m_fcal0;
+    else if(layer==1) return m_fcal1;
+    else if(layer==2) return m_fcal2;
+    else return 0.0;
+  }
 
   std::vector<double> getCellEtaWidth() {return m_cellEtaWidth;}
   std::vector<double> getCellPhiWidth() {return m_cellPhiWidth;}
@@ -41,6 +47,10 @@ class eflowDatabase  {
 
   double m_emX0PerUnitLength;
   double m_hadX0PerUnitLength; 
+
+  double m_fcal0;
+  double m_fcal1;
+  double m_fcal2;
 
   std::vector<double>  m_cellEtaWidth;
   std::vector<double>  m_cellPhiWidth;

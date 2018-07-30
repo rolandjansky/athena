@@ -31,10 +31,6 @@ class eflowParameters {
  public:
 
   eflowParameters() {
-    m_thickness.reserve(eflowCalo::nRegions);
-    for (int i = 0; i < eflowCalo::nRegions; i++) {
-      m_thickness.push_back(0.0);
-    }
     int nSubtRegions = eflowFirstIntRegions::nRegions;
     m_FirstIntParameters.resize(nSubtRegions);
     for (int i = 0; i < nSubtRegions; i++) {
@@ -49,13 +45,6 @@ class eflowParameters {
     }
   }
 
-  double getRingThickness(eflowCaloENUM layer) const {
-    return (eflowCalo::Unknown != layer) ? m_thickness[layer] : eflowEEtaBinBase::getErrorReturnValue();
-  }
-
-  void setRingThickness(eflowCaloENUM layer, double thickness) {
-    if (eflowCalo::Unknown != layer) m_thickness[layer] = thickness;
-  }
   const eflowFirstIntParameters* getFirstIntBin(eflowFirstIntENUM j1st) const {
     return (eflowFirstIntRegions::Unknown != j1st) ? m_FirstIntParameters[j1st] : 0;
   }
@@ -65,7 +54,6 @@ class eflowParameters {
 
 
  private:
-  std::vector<double> m_thickness;
   std::vector<eflowFirstIntParameters*> m_FirstIntParameters;
 };
 
@@ -81,12 +69,6 @@ class eflowEEtaBinnedParameters :  public eflowEEtaBinBase {
   /* for eflowTauTool */
   bool getOrdering(eflowRingSubtractionManager& subtMan, double e, double eta, eflowFirstIntENUM j1st) const;
 
-  /* Set data - invoked by e/p tool */
-  void setRingThickness(int energyBin, int etaBin, eflowCaloENUM ringNo, double thickness) {
-    if (m_bins[energyBin][etaBin]) {
-      m_bins[energyBin][etaBin]->setRingThickness(ringNo, thickness);
-    }
-  }
   void setFudgeMean(int energyBin, int etaBin, eflowFirstIntENUM j1st, double fudgeMean) {
     if (m_bins[energyBin][etaBin]) {
       eflowFirstIntParameters* j1stBin = m_bins[energyBin][etaBin]->getFirstIntBin(j1st);

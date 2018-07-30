@@ -38,9 +38,6 @@ public:
   static void subtractTracksFromClusters(eflowRecTrack* efRecTrack, std::vector<xAOD::CaloCluster*> clusterSubtractionList);
   static void annihilateClusters(std::vector<xAOD::CaloCluster*>& clusters);
   static void annihilateCluster(xAOD::CaloCluster* cluster);
-
-private:
-
   static void makeOrderedCellList(const eflowTrackCaloPoints& trackCalo, const std::vector<xAOD::CaloCluster*>& clusters, eflowCellList & orderedCells);
 
 };
