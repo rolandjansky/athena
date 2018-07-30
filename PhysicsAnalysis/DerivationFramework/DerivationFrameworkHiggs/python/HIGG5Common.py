@@ -12,8 +12,8 @@ def getHIGG5Common() :
         ("AntiKt4EMTopoJets.TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt"
            ".JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta"
            ".DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m"),
-        ("AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
-            ".-constituentLinks.-constituentWeight.-ConstituentScale"),
+        # ("AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
+        #    ".-constituentLinks.-constituentWeight.-ConstituentScale"),
         ("AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet"
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"),
         ("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
@@ -24,7 +24,7 @@ def getHIGG5Common() :
             ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
             ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
-            ".GhostAntiKt2TrackJet.GhostTrack"),
+            ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"),
         ("AntiKt10TrackCaloClusterJets"
          ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
         # "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2cl100_discriminant",
@@ -102,7 +102,7 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
                                "AntiKt4EMTopoJets",
                                "AntiKt4EMPFlowJets",
                                "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                               #  "AntiKtVR30Rmax4Rmin02Track",
+                               # "AntiKtVR30Rmax4Rmin02Track",
                                "BTagging_AntiKt4EMTopo",
                                "BTagging_AntiKt4EMPFlow",
                                "BTagging_AntiKt2Track",
