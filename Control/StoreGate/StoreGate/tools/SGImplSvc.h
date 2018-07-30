@@ -611,15 +611,6 @@ public:
                                bool returnExisting) override final;
 
 
-  /**
-   * @brief Inform HIVE that an object has been updated.
-   * @param id The CLID of the object.
-   * @param key The key of the object.
-   */
-  virtual
-  StatusCode updatedObject (CLID id, const std::string& key) override final;
-
-
   /// Get proxy given a hashed key+clid.
   /// Find an exact match; no handling of aliases, etc.
   /// Returns 0 to flag failure.

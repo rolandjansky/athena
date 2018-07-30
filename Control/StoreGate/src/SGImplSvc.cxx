@@ -812,18 +812,6 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
 
 
 /**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode SGImplSvc::updatedObject (CLID /*id*/, const std::string& /*key*/)
-{
-  lock_t lock (m_mutex);
-  return StatusCode::SUCCESS;
-}
-
-
-/**
  * @brief Set the Hive slot number for this store.
  * @param slot The slot number.  -1 means that this isn't a Hive store.
  * @param numSlots The total number of slots.  Should be 1 for the

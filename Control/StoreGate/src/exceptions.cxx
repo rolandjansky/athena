@@ -296,51 +296,6 @@ void throwExcNullUpdateHandle (CLID clid,
 
 
 /// Helper: format exception error string.
-std::string excUpdatedObjectFailure_format (CLID clid,
-                                            const std::string& sgkey,
-                                            const std::string& storename)
-  
-{
-  std::ostringstream os;
-  os << "SG::ExcUpdatedObjectFailure: "
-     << "updatedObject failed: "
-     << storename << "+" << sgkey << "[" << clid << "]";
-  return os.str();
-}
-
-
-/**
- * @brief Constructor.
- * @param clid CLID from the key.
- * @param sgkey StoreGate key from the key.
- * @param storename Store name from the key.
- */
-ExcUpdatedObjectFailure::ExcUpdatedObjectFailure (CLID clid,
-                                                  const std::string& sgkey,
-                                                  const std::string& storename)
-  : std::runtime_error (excUpdatedObjectFailure_format (clid, sgkey, storename))
-{
-}
-
-
-/**
- * @brief Throw a SG::ExcUpdatedObjectFailure exception.
- * @param clid CLID from the key.
- * @param sgkey StoreGate key from the key.
- * @param storename Store name from the key.
- */
-void throwExcUpdatedObjectFailure (CLID clid,
-                                   const std::string& sgkey,
-                                   const std::string& storename)
-{
-  throw ExcUpdatedObjectFailure (clid, sgkey, storename);
-}
-
-
-//****************************************************************************
-
-
-/// Helper: format exception error string.
 std::string excNonConstHandleKey_format (CLID clid,
                                          const std::string& sgkey,
                                          const std::string& storename)
