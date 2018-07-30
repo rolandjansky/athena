@@ -464,9 +464,7 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
-
-
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
 ]
 
 if globalflags.DataSource()=='geant4':
