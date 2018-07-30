@@ -42,7 +42,6 @@ namespace InDet{
     
     FTK_TrackMaker(const std::string &name, ISvcLocator *pSvcLocator);
     virtual ~FTK_TrackMaker();
-    virtual HLT::ErrorCode hltBeginRun();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize   ()  ;

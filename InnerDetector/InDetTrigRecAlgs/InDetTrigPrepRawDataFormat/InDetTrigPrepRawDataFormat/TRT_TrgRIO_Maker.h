@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,6 @@ namespace InDet{
     
     TRT_TrgRIO_Maker(const std::string &name, ISvcLocator *pSvcLocator);
     virtual ~TRT_TrgRIO_Maker();
-    virtual HLT::ErrorCode hltBeginRun();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize   ()  ;
