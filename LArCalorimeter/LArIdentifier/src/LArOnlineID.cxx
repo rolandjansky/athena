@@ -33,12 +33,14 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 /* =================================================================== */
 {
     MsgStream log(m_msgSvc, "LArOnlineID" );
-    std::string strg = "initialize_from_dictionary";
-    if(m_msgSvc) {
+    if (!m_quiet) {
+      std::string strg = "initialize_from_dictionary";
+      if(m_msgSvc) {
         log << MSG::INFO << strg << endmsg;
-    }
-    else {
+      }
+      else {
         std::cout << strg << std::endl;
+      }
     }
   
     // Check whether this helper should be reinitialized
@@ -55,7 +57,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     m_dict = dict_mgr.find_dictionary ("LArCalorimeter"); 
     if(!m_dict) {
 
-        strg = " initialize_from_dictionary - cannot access LArCalorimeter dictionary ";
+        std::string strg = " initialize_from_dictionary - cannot access LArCalorimeter dictionary ";
         if(m_msgSvc) {
             log << MSG::ERROR << strg << endmsg;
         }
@@ -83,7 +85,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     if (atlasDict->get_label_value("subdet", "LArCalorimeter", larField)) {
         std::stringstream strm;
         strm << atlasDict->m_name;
-        strg= " Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary "+strm.str();
+        std::string strg= " Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary "+strm.str();
         if(m_msgSvc) {
             log << MSG::ERROR << strg << endmsg;
         }
@@ -98,7 +100,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("part", "LArOnline", larOnlineField)) {
         std::stringstream strm;
         strm <<  m_dict->m_name;      
-        strg = "Could not get value for label 'LArOnline' of field 'part' in dictionary "+strm.str(); 
+        std::string strg = "Could not get value for label 'LArOnline' of field 'part' in dictionary "+strm.str(); 
         if(m_msgSvc) {
             log << MSG::ERROR << strg << endmsg;
         }
@@ -113,7 +115,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("part", "LArOnlineCalib", larOnlineCalibField)) {
         std::stringstream strm;
         strm <<  m_dict->m_name;      
-        strg = "Could not get value for label 'LArOnlineCalib' of field 'part' in dictionary "+strm.str();
+        std::string strg = "Could not get value for label 'LArOnlineCalib' of field 'part' in dictionary "+strm.str();
         if(m_msgSvc) {
             log << MSG::ERROR << strg << endmsg;
         }
@@ -139,51 +141,57 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     m_full_feb_range       = m_dict->build_multirange( region_id , group_name, prefix, "slot"); 
     m_full_feedthrough_range = m_dict->build_multirange( region_id , group_name, prefix, "feedthrough");
 
-    std::string strg0= " initialize_from_dictionary :";
-    std::string strg1= " feedthrough range -> " + (std::string)m_full_feedthrough_range;
-    std::string strg2= " feedthrough slot range -> " + (std::string)m_full_feb_range;  
-    std::string strg3= " channel range -> " + (std::string)m_full_laronline_range;
-    if(m_msgSvc) {
+    if (!m_quiet) {
+      std::string strg0= " initialize_from_dictionary :";
+      std::string strg1= " feedthrough range -> " + (std::string)m_full_feedthrough_range;
+      std::string strg2= " feedthrough slot range -> " + (std::string)m_full_feb_range;  
+      std::string strg3= " channel range -> " + (std::string)m_full_laronline_range;
+      if(m_msgSvc) {
         log << MSG::DEBUG << strg0 << endmsg;
         log << MSG::DEBUG << strg1 << endmsg;
         log << MSG::DEBUG << strg2 << endmsg;
         log << MSG::DEBUG << strg3 << endmsg;
-    }
-    else {
+      }
+      else {
         std::cout << strg0 << std::endl;
         std::cout << strg1 << std::endl;
         std::cout << strg2 << std::endl;
         std::cout << strg3 << std::endl;
+      }
     }
     /* calib */ 
     /* Full range for calib channels */
     m_full_calib_laronline_range = m_dict->build_multirange( region_id2 , group_name, prefix2); 
     m_full_calib_module_range    = m_dict->build_multirange( region_id2 , group_name, prefix2, "slot"); 
 
-    strg0= "=> initialize_from_dictionary : ";
-    strg2= "=> Calib module range -> " + (std::string)m_full_calib_module_range;  
-    strg3= "=> Calib channel range -> " + (std::string)m_full_calib_laronline_range;
-    if(m_msgSvc) {
+    if (!m_quiet) {
+      std::string strg0= "=> initialize_from_dictionary : ";
+      std::string strg2= "=> Calib module range -> " + (std::string)m_full_calib_module_range;  
+      std::string strg3= "=> Calib channel range -> " + (std::string)m_full_calib_laronline_range;
+      if(m_msgSvc) {
         log << MSG::DEBUG << strg0 << endmsg;
         log << MSG::DEBUG << strg2 << endmsg;
         log << MSG::DEBUG << strg3 << endmsg;
-    }
-    else {
+      }
+      else {
         std::cout << strg0 << std::endl;
         std::cout << strg2 << std::endl;
         std::cout << strg3 << std::endl;
+      }
     }
 
   
     /* Setup the hash tables */
-    std::stringstream strm;
-    strm << dictionaryVersion();
-    strg="[initialize_from_dictionary] version= " + strm.str();      
-    if(m_msgSvc) {
+    if (!m_quiet) {
+      std::stringstream strm;
+      strm << dictionaryVersion();
+      std::string strg="[initialize_from_dictionary] version= " + strm.str();      
+      if(m_msgSvc) {
         log << MSG::DEBUG << strg << endmsg;
-    }
-    else {
+      }
+      else {
         std::cout << "LArOnlineID: " << strg << std::endl;      
+      }
     }
     if( dictionaryVersion() == "fullAtlas" ) {
         if(LArOnlineID_Base::init_hashes()) return (1);
@@ -243,27 +251,30 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         m_chan_hash_calcs[m_bec_slot_impl.unpack(min)] = hc;
 
         if (m_bec_slot_impl.unpack(min) >= size) {
+          if (m_quiet) {
+            std::stringstream strm;
             strm << size;
             strm1 << show_to_string(min);
             strm2 << m_bec_slot_impl.unpack(min);
-            strg = "Min > "+strm.str();
-            strg1= " "+strm1.str();
-            strg2= " "+strm2.str();
+            std::string strg = "Min > "+strm.str();
+            std::string strg1= " "+strm1.str();
+            std::string strg2= " "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::DEBUG << strg << endmsg;
-                log << MSG::DEBUG << strg1 << endmsg;
-                log << MSG::DEBUG << strg2 << endmsg;
+              log << MSG::DEBUG << strg << endmsg;
+              log << MSG::DEBUG << strg1 << endmsg;
+              log << MSG::DEBUG << strg2 << endmsg;
             }
             else {
-                std::cout << strg << std::endl;
-                std::cout << strg1 << std::endl;
-                std::cout << strg2 << std::endl;
-            }     
+              std::cout << strg << std::endl;
+              std::cout << strg1 << std::endl;
+              std::cout << strg2 << std::endl;
+            }
             //std::cout << "min > " << size << " " 
             //    << i << " "
             //      << show_to_string(min) << " " 
             //      << m_pnz_reg_impl.unpack(min) << " " 
             //      << std::endl;
+          }
         }
     }
 
@@ -271,12 +282,14 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     for (unsigned int i = 0; i < m_channelHashMax; ++i) {
         HWIdentifier id = channel_Id(i);
         if (channel_Hash(id) != i) {
+          if (!m_quiet) {
+            std::stringstream strm;
             strm << show_to_string(id);
             strm1 << channel_Hash(id);
             strm2 << i;
-            strg = " *****  Error channel ranges, id, hash, i = "+strm.str();
-            strg1= " , "+strm1.str();
-            strg2= " , "+strm2.str();
+            std::string strg = " *****  Error channel ranges, id, hash, i = "+strm.str();
+            std::string strg1= " , "+strm1.str();
+            std::string strg2= " , "+strm2.str();
             if(m_msgSvc) {
                 log << MSG::ERROR << strg << endmsg;
                 log << MSG::ERROR << strg1 << endmsg;
@@ -287,6 +300,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
                 std::cout << strg1 << std::endl;
                 std::cout << strg2 << std::endl;
             }
+          }
         }
     }
 
@@ -383,7 +397,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strm1 << show_to_string(min);
             strm2 << m_bec_ft_impl.unpack(min);
             strm3 << min_hash;
-            strg = "Min > " + strm.str() + " " + strm1.str() + " " + strm2.str() + " " + strm3.str();
+            std::string strg = "Min > " + strm.str() + " " + strm1.str() + " " + strm2.str() + " " + strm3.str();
             if(m_msgSvc) {
                 log << MSG::DEBUG << strg << endmsg;
             }
@@ -406,7 +420,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strm << show_to_string(id);
             strm1 << feb_Hash(id);
             strm2 << i;
-            strg = " *****  Error feb ranges, id, hash, i = " + 
+            std::string strg = " *****  Error feb ranges, id, hash, i = " + 
                 strm.str() + " , " + strm1.str() + " , "+strm2.str();
             if(m_msgSvc) {
                 log << MSG::ERROR << strg << endmsg;
