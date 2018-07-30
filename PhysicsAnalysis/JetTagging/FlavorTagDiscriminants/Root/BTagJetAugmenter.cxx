@@ -12,6 +12,7 @@ BTagJetAugmenter::BTagJetAugmenter():
   eta_uncalib("eta_uncalib"),
   abs_eta_uncalib("abs_eta_uncalib"),
   ip2d_weightBOfTracks("IP2D_weightBofTracks"),
+  ip2d_nTrks("IP2D_nTrks"),
   ip2d_pu("IP2D_pu"),
   ip2d_pc("IP2D_pc"),
   ip2d_pb("IP2D_pb"),
@@ -20,6 +21,7 @@ BTagJetAugmenter::BTagJetAugmenter():
   ip2d_bu("IP2D_bu"),
   ip2d_bc("IP2D_bc"),
   ip3d_weightBOfTracks("IP3D_weightBofTracks"),
+  ip3d_nTrks("IP3D_nTrks"),
   ip3d_pu("IP3D_pu"),
   ip3d_pc("IP3D_pc"),
   ip3d_pb("IP3D_pb"),
@@ -77,6 +79,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   } else {
     ip2d_isDefaults(btag) = 1;
   }
+  ip2d_nTrks(*btag) = ip2d_weightBOfTracks(*btag).size();
 
   ip2d_cu(btag) = std::log(ip2d_pc(btag) / ip2d_pu(btag));
   ip2d_bu(btag) = std::log(ip2d_pb(btag) / ip2d_pu(btag));
@@ -91,6 +94,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   ip3d_cu(btag) = std::log(ip3d_pc(btag) / ip3d_pu(btag));
   ip3d_bu(btag) = std::log(ip3d_pb(btag) / ip3d_pu(btag));
   ip3d_bc(btag) = std::log(ip3d_pb(btag) / ip3d_pc(btag));
+  ip3d_nTrks(*btag) = ip3d_weightBOfTracks(*btag).size();
 
   if (jf_vertices(btag).size() > 0 && (jf_nVtx(btag) > 0 || jf_nSingleTracks(btag) > 0)) {
     jf_isDefaults(btag) = 0;
