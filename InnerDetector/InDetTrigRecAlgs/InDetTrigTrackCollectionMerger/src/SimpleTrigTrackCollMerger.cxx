@@ -27,16 +27,6 @@ namespace Trk {
 
 
   //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SimpleTrigTrackCollMerger::hltBeginRun() {
-    msg() << MSG::INFO << name() << "::beginRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
-
-  //----------------------------------
   //          hltInitialize method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode SimpleTrigTrackCollMerger::hltInitialize() {

@@ -68,7 +68,6 @@ namespace InDet{
     
     ~SiTrigSpacePointFinder();
     
-    HLT::ErrorCode hltBeginRun(); 
     HLT::ErrorCode hltInitialize(); 
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize();

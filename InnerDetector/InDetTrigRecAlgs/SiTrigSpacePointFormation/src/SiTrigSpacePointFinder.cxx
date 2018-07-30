@@ -104,15 +104,6 @@ namespace InDet{
   }
   //----------------------------------  
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SiTrigSpacePointFinder::hltBeginRun(){
-
-    ATH_MSG_INFO( "SiTrigSpacePointFinder::hltBeginRun()" );
-
-    return HLT::OK;
-  }
 
   //----------------------------------
   //          Initialize method:
