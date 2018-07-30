@@ -73,6 +73,11 @@ atlas_add_test( CaloCellFastCopyTool_test
    IdDictParser AthenaBaseComps StoreGateLib CxxUtils GaudiKernel
    EXTRA_PATTERNS "Retrieved const handle|Service base class initialized|DEBUG Property update for OutputLevel|object not modifiable" )
 
+atlas_add_test( CaloCellContainerFromClusterTool_test
+   SOURCES test/CaloCellContainerFromClusterTool_test.cxx
+   LINK_LIBRARIES CaloRecLib 
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
