@@ -13,6 +13,7 @@
 
 // Athena/Gaudi include(s):
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // Forward declaration(s):
@@ -53,7 +54,7 @@ namespace LVL1MUCTPI {
     * @version $Revision: 681356 $
     *
     */
-   class L1Muctpi : public AthAlgorithm {
+  class L1Muctpi : public extends<AthAlgorithm, IIncidentListener> {
 
    public:
       /// Regular Gaudi algorithm constructor
@@ -67,10 +68,11 @@ namespace LVL1MUCTPI {
       virtual StatusCode finalize();
       /// Regular Gaudi algorithm execute function
       virtual StatusCode execute();
-      /// Regular Gaudi algorithm beginRun function
-      virtual StatusCode beginRun();
+      virtual void handle(const Incident&) override;
 
    private:
+      /// handles beginRun
+      StatusCode loadFixedConditions();  
       /// Event loop method for running as part of digitization
       StatusCode executeFromDigi();
       /// Event loop method for running on an AOD file
