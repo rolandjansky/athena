@@ -236,7 +236,11 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks"
 ]
 
 # add the extra variables that come from the BTagJetAugmenterAlg
