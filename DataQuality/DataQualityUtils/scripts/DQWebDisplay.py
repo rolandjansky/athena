@@ -19,14 +19,23 @@ os.chdir(CWD)
 ## Get usable signal handlers
 os.environ['TDAQ_ERS_NO_SIGNAL_HANDLERS'] = '1'
 
-import sys
-sys.argv.append( '-b-' )
 import ROOT
+import sys
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
 from ROOT import gSystem
+from optparse import OptionParser
 os.chdir(CWD)
+
+parser = OptionParser()
+parser.add_option("--htag", dest="htag",
+                  help='Use configuration from a specified htag')
+
+(options, args) = parser.parse_args()
+
+if options.htag:
+    os.environ['HTAG'] = options.htag
 
 from DataQualityUtils.DQWebDisplayMod import DQWebDisplay
 
@@ -39,7 +48,7 @@ def usage():
   cmdi = sys.argv[0].rfind("/")
   cmd = sys.argv[0][cmdi+1:]
   print ""
-  print "Usage: ", cmd, "<data_file> <config> <processing_version> [run_accumulating [conditions_string]]"
+  print "Usage: DQWebDisplay.py <data_file> <config> <processing_version> [run_accumulating [conditions_string]] [--h htag]"
   print ""
   print "This is a production utility; use TEST config for development and testing."
   print ""
@@ -47,6 +56,7 @@ def usage():
   print ""
 
 if __name__ == "__main__":
+
   print len(sys.argv)
   if len(sys.argv) < 5 or len(sys.argv) > 7:
     usage()
@@ -62,6 +72,8 @@ if __name__ == "__main__":
       print 'Setting condition', sys.argv[5]
       ROOT.gSystem.Load('libDataQualityInterfaces')
       ROOT.dqi.ConditionsSingleton.getInstance().setCondition(sys.argv[5])
+
+  parset = OptionParser
 
   configModule = ""
   
@@ -94,6 +106,7 @@ if __name__ == "__main__":
     print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
     sys.exit(1)
 
-  
+
   DQWebDisplay( inputFile, runAccumulating, config )
+
 
