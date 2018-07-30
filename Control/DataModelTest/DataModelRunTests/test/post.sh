@@ -26,7 +26,7 @@ PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
 PP="$PP"'|^==> New TileCablingService created$'
 
 # CLIDsvc output depends on module cache, existing files?
-PP="$PP"'|^ClassIDSvc[ 0]*INFO'
+PP="$PP"'|^ClassIDSvc[ 0123456789]*INFO'
 
 # File catalog stuff.
 PP="$PP"'|^Domain.ROOT_All.'
