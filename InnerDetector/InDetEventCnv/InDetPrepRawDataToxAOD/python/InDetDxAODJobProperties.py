@@ -78,7 +78,7 @@ class DumpLArCollisionTime(JobProperty):
     """dump LAr collision time """
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
+    StoredValue = True
     pass
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DumpLArCollisionTime)
 
