@@ -7,13 +7,13 @@
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Message.h"
-#include "GaudiKernel/xtoa.h"
 #include "LoggedMessageSvc.h"
 
 #include <sstream>
 #include <iostream>
 #include <fstream>
 #include <utility>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -563,9 +563,8 @@ void LoggedMessageSvc::reportMessage( const Message& msg, int outputLevel )    {
 
       if ( m_msgLimit[key] != 0 ) {
         if (nmsg == m_msgLimit[key]) {
-          char lim[16];
           std::string str = levelNames[key] + " message limit (";
-          str += ::_itoa(m_msgLimit[key].value(),lim,10);
+          str += std::to_string( m_msgLimit[key].value() );
           str += ") reached for ";
           str += msg.getSource() + ". Suppressing further output.";
           cmsg = new Message(msg.getSource(),MSG::WARNING,str);
