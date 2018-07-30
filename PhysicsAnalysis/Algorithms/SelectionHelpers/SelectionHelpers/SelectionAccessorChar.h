@@ -15,14 +15,14 @@ namespace CP
   /// \brief the \ref SelectionAccesor for OR tool selection
   /// decorations
 
-  class SelectionAccessorOR final : public ISelectionAccessor
+  class SelectionAccessorChar final : public ISelectionAccessor
   {
     //
     // public interface
     //
 
   public:
-    SelectionAccessorOR (const std::string& name);
+    SelectionAccessorChar (const std::string& name);
 
   public:
     virtual SelectionType

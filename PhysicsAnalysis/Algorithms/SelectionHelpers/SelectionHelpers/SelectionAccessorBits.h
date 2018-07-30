@@ -5,24 +5,24 @@
 /// @author Nils Krumnack
 
 
-#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_REGULAR_H
-#define SELECTION_HELPERS__SELECTION_ACCESSOR_REGULAR_H
+#ifndef SELECTION_HELPERS__SELECTION_ACCESSOR_BITS_H
+#define SELECTION_HELPERS__SELECTION_ACCESSOR_BITS_H
 
 #include <SelectionHelpers/ISelectionAccessor.h>
 
 namespace CP
 {
   /// \brief the \ref SelectionAccesor for standard CP algorithm
-  /// selection decorations
+  /// selection decorations encoded as bits
 
-  class SelectionAccessorRegular final : public ISelectionAccessor
+  class SelectionAccessorBits final : public ISelectionAccessor
   {
     //
     // public interface
     //
 
   public:
-    SelectionAccessorRegular (const std::string& name);
+    SelectionAccessorBits (const std::string& name);
 
   public:
     virtual SelectionType
@@ -46,7 +46,7 @@ namespace CP
     // private interface
     //
 
-    /// \brief th underlying accessor
+    /// \brief the underlying accessor
   private:
     SG::AuxElement::Accessor<SelectionType> m_accessor;
   };
