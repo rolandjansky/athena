@@ -6,7 +6,7 @@
 #define TRIGT1CALOCALIBCONDITIONS_L1CALORXGAINCONTAINER_H
 
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "GaudiKernel/DataObject.h"
 
