@@ -65,7 +65,6 @@ public:
 };
 std::vector<int> MyObj::deleted;
 CLASS_DEF (MyObj, 293847295, 1)
-static const CLID MyCLID = 293847295;
 
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF(MyObj, 223019562 );
