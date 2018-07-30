@@ -311,17 +311,6 @@ StoreGateSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
 }
 
 
-/**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode StoreGateSvc::updatedObject (CLID id, const std::string& key)
-{
-  _SGXCALL(updatedObject, (id, key), StatusCode::FAILURE);
-}
-
-
 /// return the list of all current proxies in store
 vector<const SG::DataProxy*> 
 StoreGateSvc::proxies() const {

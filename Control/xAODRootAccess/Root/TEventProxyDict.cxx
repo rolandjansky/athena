@@ -410,12 +410,6 @@ namespace xAOD {
                                 "implemented" );
    }
 
-   StatusCode TEvent::updatedObject( CLID, const std::string& ) {
-
-      throw std::runtime_error( "xAOD::TEvent::updatedObject is not "
-                                "implemented" );
-   }
-
    unsigned long TEvent::addRef() {
 
       return 0;

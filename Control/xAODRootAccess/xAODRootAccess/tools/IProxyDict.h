@@ -94,9 +94,6 @@ public:
                  bool allowMods,
                  bool returnExisting ) = 0;
 
-   /// Inform HIVE that an object has been updated
-   virtual StatusCode updatedObject( CLID id, const std::string& key ) = 0;
-
    /// Increment the reference count of Interface instance
    virtual unsigned long addRef() = 0;
 
