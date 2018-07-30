@@ -44,6 +44,11 @@ def getHITSStreamItemList():
                          "CSCSimHitCollection#*",
                          "MDTSimHitCollection#*",
                          "TrackRecordCollection#MuonExitLayer"]
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+        if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+            hitsItemList += ["GenericMuonSimHitCollection#*"] #MicroMegas only
+            hitsItemList += ["sTGCSimHitCollection#*"]
+
     ## FwdRegion
     if DetFlags.FwdRegion_on():
         hitsItemList += ["SimulationHitCollection#*"]
