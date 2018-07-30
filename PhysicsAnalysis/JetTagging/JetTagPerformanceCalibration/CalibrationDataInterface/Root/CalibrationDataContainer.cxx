@@ -215,7 +215,7 @@ CalibrationDataContainer::getHadronisation() const
 
 //________________________________________________________________________________
 std::string
-CalibrationDataContainer::getExcluded() const
+CalibrationDataContainer::getExcludedUncertainties() const
 {
   // Retrieve the (semicolon-separated) set of uncertainties that are recommended for removal from the eigenvector decomposition (if any)
   const static std::string null("");
@@ -278,7 +278,7 @@ CalibrationDataContainer::setHadronisation(const std::string& text)
 
 //________________________________________________________________________________
 void
-CalibrationDataContainer::setExcluded(const std::string& text)
+CalibrationDataContainer::setExcludedUncertainties(const std::string& text)
 {
   // Insert (or replace) the (semicolon-separated) list of uncertainties that are recommended to be excluded from the eigenvector decomposition
   //

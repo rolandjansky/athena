@@ -260,6 +260,8 @@ End_Html */
 #include "CalibrationDataInterface/CalibrationDataContainer.h"
 
 #include "CalibrationDataInterface/CalibrationDataEigenVariations.h"
+#include "CalibrationDataInterface/CalibrationDataInternals.h"
+#include <boost/algorithm/string.hpp>
 
 #include "TMath.h"
 #include "TEnv.h"
@@ -279,43 +281,45 @@ using std::endl;
 using Analysis::CalibrationDataContainer;
 using Analysis::UncertaintyResult;
 using Analysis::CalibrationDataEigenVariations;
+using Analysis::CalibrationDataInterface::split;
+using boost::trim;
 
 #ifndef __CINT__
 ClassImp(Analysis::CalibrationDataInterfaceROOT)
 #endif
 
-// local utility function: trim leading and trailing whitespace in the configuration .env file
+// // local utility function: trim leading and trailing whitespace in the configuration .env file
 
-namespace {
-  // local utility function: trim leading and trailing whitespace in the property strings
-  std::string trim(const std::string& str,
-		   const std::string& whitespace = " \t") {
-    const auto strBegin = str.find_first_not_of(whitespace);
-    if (strBegin == std::string::npos)
-        return ""; // no content
+// namespace {
+//   // local utility function: trim leading and trailing whitespace in the property strings
+//   std::string trim(const std::string& str,
+// 		   const std::string& whitespace = " \t") {
+//     const auto strBegin = str.find_first_not_of(whitespace);
+//     if (strBegin == std::string::npos)
+//         return ""; // no content
 
-    const auto strEnd = str.find_last_not_of(whitespace);
-    const auto strRange = strEnd - strBegin + 1;
+//     const auto strEnd = str.find_last_not_of(whitespace);
+//     const auto strRange = strEnd - strBegin + 1;
 
-    return str.substr(strBegin, strRange);
-  }
+//     return str.substr(strBegin, strRange);
+//   }
 
-  // local utility function: split string into a vector of substrings separated by a specified separator
-  std::vector<std::string> split(const std::string& str, char token = ';') {
-    std::vector<std::string> result;
-    if (str.size() > 0) {
-      std::string::size_type end;
-      std::string tmp(str);
-      do {
-	end = tmp.find(token);
-	std::string entry = trim(tmp.substr(0,end));
-	if (entry.size() > 0) result.push_back(entry); 
-	if (end != std::string::npos) tmp = tmp.substr(end+1);
-      } while (end != std::string::npos);
-    }
-    return result;
-  }
-}
+//   // local utility function: split string into a vector of substrings separated by a specified separator
+//   std::vector<std::string> split(const std::string& str, char token = ';') {
+//     std::vector<std::string> result;
+//     if (str.size() > 0) {
+//       std::string::size_type end;
+//       std::string tmp(str);
+//       do {
+// 	end = tmp.find(token);
+// 	std::string entry = trim(tmp.substr(0,end));
+// 	if (entry.size() > 0) result.push_back(entry); 
+// 	if (end != std::string::npos) tmp = tmp.substr(end+1);
+//       } while (end != std::string::npos);
+//     }
+//     return result;
+//   }
+// }
 
 //________________________________________________________________________________
 Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const string& taggerName, string configname, string pathname)
@@ -333,8 +337,8 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
 
   // ROOT file containing the calibrations
   TString filename = env.GetValue("File", "BTaggingPerformanceCalibrations.root");
-  m_filenameEff = trim(string(env.GetValue("FileEff", "")));
-  m_filenameSF = trim(string(env.GetValue("FileSF", "")));
+  m_filenameEff = string(env.GetValue("FileEff", "")); trim(m_filenameEff);
+  m_filenameSF =  string(env.GetValue("FileSF", ""));  trim(m_filenameSF);
   if (m_filenameEff == "") {
     m_filenameEff = pathname + filename.Data();
   }
@@ -379,7 +383,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   std::map<string, string> SFNames;
   for (auto const& flavour : flavours) {
     string test(testPrefix); test += "ScaleFactorCalibration"; test += flavour; test += "Name";
-    SFNames[flavour] = trim(string(env.GetValue(test.c_str(), "default")));
+    SFNames[flavour] = string(env.GetValue(test.c_str(), "default")); trim(SFNames[flavour]);
   }
   setSFCalibrationNames(SFNames);
 
@@ -397,7 +401,8 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
       // NB: TEnv imposes a maximum string length of 1024 characters -- is this a problem?
       string::size_type arrow = alias.find("->");
       if (arrow == string::npos) continue;
-      m_aliases[trim(alias.substr(0,arrow))] = trim(alias.substr(arrow+2));
+      string target = alias.substr(0,arrow); trim(target);
+      m_aliases[target] = alias.substr(arrow+2); trim(m_aliases[target]);
       if (end != string::npos) AL = AL.substr(end+1);
     } while (end != string::npos);
   }
@@ -453,7 +458,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
     mappings["Tight"] = Tight;
     for (auto const& flavour : flavours) {
       test = testPrefix; test += "EigenvectorReduction"; test += flavour;
-      std::string reduction = trim(string(env.GetValue(test.c_str(), "Loose")));
+      std::string reduction = string(env.GetValue(test.c_str(), "Loose")); trim(reduction);
       m_EVReductions[flavour] = mappings.find(reduction) == mappings.end() ? mappings["Loose"] : mappings.find(reduction)->second;
     }
   }
@@ -463,7 +468,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   if (m_maxAbsEta < 0) m_maxAbsEta = 2.5;
 
   // set validation / protection strategy in case an out-of-bounds eta value is specified
-  string strategy = trim(string(env.GetValue("OutOfBoundsEta", "GiveUp")));
+  string strategy = string(env.GetValue("OutOfBoundsEta", "GiveUp")); trim(strategy);
   if (strategy == "GiveUp") m_absEtaStrategy = GiveUp;
   else if (strategy == "Flag") m_absEtaStrategy = Flag;
   else if (strategy == "Ignore") m_absEtaStrategy = Ignore;
@@ -473,7 +478,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   }
 
   // set validation / protection strategy in case out-of-bounds variables are specified
-  strategy = trim(string(env.GetValue("OutOfBoundsOther", "Flag")));
+  strategy = string(env.GetValue("OutOfBoundsOther", "Flag")); trim(strategy);
   if (strategy == "GiveUp") m_otherStrategy = GiveUp;
   else if (strategy == "GiveUpExtrapolated") m_otherStrategy = GiveUpExtrapolated;
   else if (strategy == "Flag") m_otherStrategy = Flag;

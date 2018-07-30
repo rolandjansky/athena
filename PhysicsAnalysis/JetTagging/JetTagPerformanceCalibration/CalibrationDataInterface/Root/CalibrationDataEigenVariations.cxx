@@ -8,6 +8,7 @@
 
 #include "CalibrationDataInterface/CalibrationDataContainer.h"
 #include "CalibrationDataInterface/CalibrationDataEigenVariations.h"
+#include "CalibrationDataInterface/CalibrationDataInternals.h"
 
 #include <iomanip>
 #include <iostream>
@@ -15,6 +16,7 @@
 #include <set>
 #include <algorithm>
 #include <cmath>
+
 #include "TH1.h"
 #include "TVectorT.h"
 #include "TDecompSVD.h"
@@ -22,6 +24,7 @@
 #include "TROOT.h"
 
 using Analysis::CalibrationDataEigenVariations;
+using Analysis::CalibrationDataInterface::split;
 using std::string;
 using std::map;
 using std::vector;
@@ -158,34 +161,6 @@ namespace {
     return cov;
   }
 
-  // local utility function: trim leading and trailing whitespace in the property strings
-  std::string trim(const std::string& str,
-		   const std::string& whitespace = " \t") {
-    const auto strBegin = str.find_first_not_of(whitespace);
-    if (strBegin == std::string::npos)
-        return ""; // no content
-
-    const auto strEnd = str.find_last_not_of(whitespace);
-    const auto strRange = strEnd - strBegin + 1;
-
-    return str.substr(strBegin, strRange);
-  }
-
-  // local utility function: split string into a vector of substrings separated by a specified separator
-  std::vector<std::string> split(const std::string& str, char token = ';') {
-    std::vector<std::string> result;
-    if (str.size() > 0) {
-      std::string::size_type end;
-      std::string tmp(str);
-      do {
-	end = tmp.find(token);
-	std::string entry = trim(tmp.substr(0,end));
-	if (entry.size() > 0) result.push_back(entry); 
-	if (end != std::string::npos) tmp = tmp.substr(end+1);
-      } while (end != std::string::npos);
-    }
-    return result;
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,12 +197,12 @@ ClassImp(CalibrationDataEigenVariations)
 
 //________________________________________________________________________________
 CalibrationDataEigenVariations::CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt,
-							       bool excludeRecommended) :
+							       bool excludeRecommendedUncertaintySet) :
   m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1)
 {
   // if specified, add items recommended for exclusion from EV decomposition by the calibration group to the 'named uncertainties' list
-  if (excludeRecommended) {
-    std::vector<std::string> to_exclude = split(m_cnt->getExcluded());
+  if (excludeRecommendedUncertaintySet) {
+    std::vector<std::string> to_exclude = split(m_cnt->getExcludedUncertainties());
     for (auto name : to_exclude) excludeNamedUncertainty(name);
     if (to_exclude.size() == 0) {
       std::cerr << "CalibrationDataEigenVariations warning: exclusion of pre-set uncertainties list requested but no (or empty) list found" << std::endl;

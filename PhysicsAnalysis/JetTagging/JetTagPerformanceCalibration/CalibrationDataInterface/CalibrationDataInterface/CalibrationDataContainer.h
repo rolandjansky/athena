@@ -88,7 +88,7 @@ namespace Analysis {
     std::string getHadronisation() const;
 
     /** @brief retrieve the (semicolon-separated) set of uncertainties that are recommended for removal from the eigenvector decomposition */
-    std::string getExcluded() const;
+    std::string getExcludedUncertainties() const;
 
     /**
        retrieve the calibration result.
@@ -146,7 +146,7 @@ namespace Analysis {
     /** insert the set of uncertainties that are recommended for removal from the eigenvector decomposition.
 	@param text   semicolon-separated list of uncertainties
     */
-    void setExcluded(const std::string& text);
+    void setExcludedUncertainties(const std::string& text);
 
     /** @brief insert the relevant object for the requested source of 'uncertainty' */
     void setUncertainty(const std::string& unc, TObject* obj);

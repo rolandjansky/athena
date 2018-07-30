@@ -28,7 +28,8 @@ namespace Analysis
     typedef std::set<size_t> IndexSet;
     typedef std::set<IndexSet> IndexSuperSet;
 
-    CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt, bool excludeRecommended = false);
+    /** normal constructor. The second argument, if true, will attempt to retrieve a 'recommended' set of uncertainties to be excluded from EV decomposition */
+    CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt, bool excludeRecommendedUncertaintySet = false);
     ~CalibrationDataEigenVariations();
 
     /** exclude the source of uncertainty indicated by  name  from eigenvector calculations */
