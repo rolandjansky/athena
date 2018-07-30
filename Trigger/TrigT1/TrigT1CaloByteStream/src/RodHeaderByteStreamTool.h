@@ -16,7 +16,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 class IInterface;
 class InterfaceID;
