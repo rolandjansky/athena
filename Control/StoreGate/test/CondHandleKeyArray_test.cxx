@@ -127,8 +127,11 @@ void test1()
 
 int main()
 {
-  ISvcLocator* pDum;
-  Athena_test::initGaudi(pDum); //need MessageSvc
+  ISvcLocator* svcloc;
+  //need MessageSvc
+  if (!Athena_test::initGaudi("CondHandleKeyArray_test.txt", svcloc)) {
+    return 1;
+  }
 
   test1();
   return 0;
