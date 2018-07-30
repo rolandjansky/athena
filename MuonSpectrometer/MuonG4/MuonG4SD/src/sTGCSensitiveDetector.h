@@ -25,8 +25,8 @@ public:
     
 private:
 
-    SG::WriteHandle<GenericMuonSimHitCollection> m_GenericMuonHitCollection;
     SG::WriteHandle<sTGCSimHitCollection> m_sTGCSimHitCollection;
+    SG::WriteHandle<GenericMuonSimHitCollection> m_GenericMuonHitCollection;
     sTgcHitIdHelper* m_muonHelper;
 
 };
