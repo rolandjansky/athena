@@ -198,7 +198,7 @@
 + Tools/PmbCxxUtils
 + Tools/PyCmt
 + Tools/PyJobTransforms
-#+ Tools/PyJobTransformsCore
++ Tools/PyJobTransformsCore
 + Tools/PyUtils
 + Tools/Scripts
 + Tools/XMLCoreParser
