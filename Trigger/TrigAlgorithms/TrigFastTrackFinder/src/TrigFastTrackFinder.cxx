@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -421,10 +421,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
 //-------------------------------------------------------------------------
 
-HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
+HLT::ErrorCode TrigFastTrackFinder::hltStart()
 {
-  ATH_MSG_DEBUG("At BeginRun of " << name());
-
   //getting magic numbers from the layer numbering tool
 
   m_tcs.m_maxBarrelPix    = m_numberingTool->offsetBarrelSCT();
