@@ -423,6 +423,9 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
         CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
+        self.RawDataProviderTool = "RpcRawDataProviderTool"
+        self.DecodeBS = DetFlags.readRDOBS.RPC_on()
+
         # use seeded decoding
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
             self.useMdtSeededDecoding = True
@@ -432,7 +435,6 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
             # use ROB based seeded decoding instead of PRD based
             self.useMdtRobDecoding = True
-            self.useRpcRobDecoding = True
             self.useTgcRobDecoding = False # neither available nor needed
             self.useCscRobDecoding = False # neither available nor needed
 

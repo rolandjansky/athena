@@ -8,6 +8,7 @@ from AthenaCommon.Include import include
 from AthenaCommon.Constants import VERBOSE,DEBUG, INFO
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr as CfgMgr
 
 ### workaround to prevent online trigger folders to be enabled ###
@@ -81,7 +82,6 @@ if TriggerFlags.doMuon:
   muonRecFlags.doTrackPerformance    = True
   muonRecFlags.TrackPerfSummaryLevel = 2
   muonRecFlags.TrackPerfDebugLevel   = 5
-  muonRecFlags.doCSCs                = True
   muonRecFlags.doNSWNewThirdChain    = False
   muonCombinedRecFlags.doCaloTrkMuId = False
   muonCombinedRecFlags.printSummary = False
@@ -216,9 +216,8 @@ if TriggerFlags.doMuon:
   
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
       RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool",
-                                                           OutputLevel         = INFO,
-                                                           RawDataProviderTool = MuonRpcRawDataProviderTool,
-                                                           useBStoRdoTool      = True)
+                                                           OutputLevel         = INFO)
+
       ToolSvc += RpcRdoToRpcPrepDataTool
   
       from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
@@ -234,6 +233,7 @@ if TriggerFlags.doMuon:
                                                     ProviderTool = MuonRpcRawDataProviderTool,
                                                     OutputLevel  = INFO)
       if doEFSA:
+        efMuViewNode += RpcRawDataProvider
         efMuViewNode += RpcRdoToRpcPrepData
       #if doL2SA:
       #  l2MuViewNode += RpcRawDataProvider
@@ -317,7 +317,9 @@ if TriggerFlags.doMuon:
     if muonRecFlags.doRPCs():
       from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
       L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(OutputLevel = DEBUG,
-                                                            RpcPrepDataProvider = RpcRdoToRpcPrepDataTool)
+                                                            RpcPrepDataProvider = RpcRdoToRpcPrepDataTool,
+                                                            RpcRawDataProvider = MuonRpcRawDataProviderTool,
+                                                            DecodeBS = DetFlags.readRDOBS.RPC_on())
       ToolSvc += L2RpcDataPreparator
        
       muFastAlg.DataPreparator.RPCDataPreparator = L2RpcDataPreparator
