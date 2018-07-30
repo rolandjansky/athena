@@ -231,7 +231,7 @@ namespace xAOD {
     template<class T>
     void setAttribute( AttributeID type, const T& value );
 #ifndef SIMULATIONBASE
-#ifndef GENERATINBASE
+#ifndef GENERATIONBASE
     /// Access to the associated btagging object
     const BTagging* btagging() const;
     /// Access to the associated btagging object
