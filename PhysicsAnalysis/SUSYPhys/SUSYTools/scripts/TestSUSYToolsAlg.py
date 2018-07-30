@@ -13,6 +13,9 @@ parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
 parser.add_option('-t', '--type', dest = 'type',
                   action = 'store', type = 'string', default = 'MC',
                   help = 'Job type. (MC, AFII, DATA)' )
+parser.add_option('-d', '--daod', dest = 'daod',
+                  action = 'store', type = 'int', default = '0',
+                  help = 'input DAOD type. Do not specify for xAOD input' )
 parser.add_option('-m', '--maxEvts', dest = 'maxEvts',
                   action = 'store', type = 'int', default = '500',
                   help = 'Max events (-1 is all)' )
@@ -28,15 +31,19 @@ import os
 sh = ROOT.SH.SampleHandler()
 sh.setMetaString( 'nc_tree', 'CollectionTree' )
 
+cvmfsInputArea = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ART/ARTInput'
 inputFile = ''
 
-if options.type == "AFII":
-    inputFile = os.getenv( 'ASG_TEST_FILE_MC_AFII' )
-elif options.type == "DATA":
-    inputFile = os.getenv( 'ASG_TEST_FILE_DATA' )
+if options.daod == 0:
+    if options.type == "AFII":
+        inputFile = os.getenv( 'ASG_TEST_FILE_MC_AFII' )
+    elif options.type == "DATA":
+        inputFile = os.getenv( 'ASG_TEST_FILE_DATA' )
+    else:
+        inputFile = os.getenv( 'ASG_TEST_FILE_MC' )
 else:
-    inputFile = os.getenv( 'ASG_TEST_FILE_MC' )
-
+    inputFile = '%s/DAOD_data18SUSY%s.art.merge.root' % (cvmfsInputArea, options.daod)
+    
 basePath = os.path.basename(inputFile)
 sample_dir = os.path.dirname(os.path.abspath(inputFile))
 mother_dir = os.path.dirname(sample_dir)       
