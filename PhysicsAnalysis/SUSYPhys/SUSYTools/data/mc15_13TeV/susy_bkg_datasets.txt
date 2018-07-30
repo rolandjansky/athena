@@ -93,6 +93,8 @@ mc15_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.evgen.EVNT.e6337
 mc15_13TeV.410471.PhPy8EG_A14_ttbar_hdamp258p75_allhad.evgen.EVNT.e6337
 mc15_13TeV.410472.PhPy8EG_A14_ttbar_hdamp258p75_dil.evgen.EVNT.e6348
 
+mc15_13TeV.410480.PhPy8EG_A14_ttbar_hdamp517p5_SingleLep.evgen.EVNT.e6454
+
 mc15_13TeV.410442.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttbar_dil.evgen.EVNT.e6407
 
 mc15_13TeV.410424.Sherpa_224_NNPDF30NNLO_ttbar_dilepton_MEPS_NLO.evgen.EVNT.e6404
@@ -2484,6 +2486,11 @@ mc15_13TeV.364284.Sherpa_222_NNPDF30NNLO_lllvjj_EW6.evgen.EVNT.e6055
 mc15_13TeV.364285.Sherpa_222_NNPDF30NNLO_llvvjj_EW6.evgen.EVNT.e6055
 mc15_13TeV.364286.Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW4.evgen.EVNT.e6055
 mc15_13TeV.364287.Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW6.evgen.EVNT.e6055
+
+mc15_13TeV.364336.Sherpa_222_NNPDF30NNLO_WpWpWn_sslvlvjj_EW6.evgen.EVNT.e6377
+mc15_13TeV.364337.Sherpa_222_NNPDF30NNLO_WnWnWp_sslvlvjj_EW6.evgen.EVNT.e6377
+mc15_13TeV.364338.Sherpa_222_NNPDF30NNLO_WpWpWn_oslvlvjj_EW6.evgen.EVNT.e6377
+mc15_13TeV.364339.Sherpa_222_NNPDF30NNLO_WnWnWp_oslvlvjj_EW6.evgen.EVNT.e6377
  
 mc15_13TeV.363507.Sherpa_222_NNPDF30NNLO_WWZ_3l1v2j_EW6.evgen.EVNT.e6379
 mc15_13TeV.363508.Sherpa_222_NNPDF30NNLO_WZZ_4l2j_EW6.evgen.EVNT.e6412
@@ -2683,6 +2690,23 @@ mc15_13TeV.426007.PowhegPythia8EvtGen_A14_NNPDF23LO_CT10ME_jetjet_JZ7.evgen.EVNT
 mc15_13TeV.426008.PowhegPythia8EvtGen_A14_NNPDF23LO_CT10ME_jetjet_JZ8.evgen.EVNT.e3788
 mc15_13TeV.426009.PowhegPythia8EvtGen_A14_NNPDF23LO_CT10ME_jetjet_JZ9.evgen.EVNT.e3788
 
+
+################################################################################################################
+# Sherpa dijet
+
+mc15_13TeV.426131.Sherpa_CT10_jets_JZ1.evgen.EVNT.e4355
+mc15_13TeV.426132.Sherpa_CT10_jets_JZ2.evgen.EVNT.e4355
+mc15_13TeV.426133.Sherpa_CT10_jets_JZ3.evgen.EVNT.e4355
+mc15_13TeV.426134.Sherpa_CT10_jets_JZ4.evgen.EVNT.e4355
+mc15_13TeV.426135.Sherpa_CT10_jets_JZ5.evgen.EVNT.e4355
+mc15_13TeV.426136.Sherpa_CT10_jets_JZ6.evgen.EVNT.e4355
+mc15_13TeV.426137.Sherpa_CT10_jets_JZ7.evgen.EVNT.e4635
+mc15_13TeV.426138.Sherpa_CT10_jets_JZ8.evgen.EVNT.e4635
+mc15_13TeV.426139.Sherpa_CT10_jets_JZ9.evgen.EVNT.e4635
+mc15_13TeV.426140.Sherpa_CT10_jets_JZ10.evgen.EVNT.e4635
+mc15_13TeV.426141.Sherpa_CT10_jets_JZ11.evgen.EVNT.e4635
+mc15_13TeV.426142.Sherpa_CT10_jets_JZ12.evgen.EVNT.e4635
+
 ################################################################################################################
 # Higgs
 
@@ -2855,6 +2879,8 @@ mc15_13TeV.410278.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_tttautau_mll_1_5.evgen
 mc15_13TeV.410397.MadGraphPythia8EvtGen_ttbar_wbee_MEN30LO_A14N23LO.evgen.EVNT.e6086
 mc15_13TeV.410398.MadGraphPythia8EvtGen_ttbar_wbmumu_MEN30LO_A14N23LO.evgen.EVNT.e6086
 mc15_13TeV.410399.MadGraphPythia8EvtGen_ttbar_wbtautau_MEN30LO_A14N23LO.evgen.EVNT.e6086
+
+mc15_13TeV.410408.aMcAtNloPythia8EvtGen_tWZ_Ztoll_minDR1.evgen.EVNT.e6423
 
 ################################################################################################################
 # Sherpa 2.2.0 ttV

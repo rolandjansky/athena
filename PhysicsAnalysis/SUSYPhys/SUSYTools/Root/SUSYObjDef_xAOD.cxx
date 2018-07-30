@@ -223,6 +223,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orBtagWP(""),
     m_orInputLabel(""),
     m_orBJetPtUpperThres(-999.),
+    m_orLinkOverlapObjects(false),
     m_orDoFatjets(false),
     m_EleFatJetDR(-999.),
     m_JetFatJetDR(-999.),
@@ -366,6 +367,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
   declareProperty( "ORInputLabel", m_orInputLabel);
   declareProperty( "ORBJetPtUpperThres", m_orBJetPtUpperThres);
+  declareProperty( "ORLinkOverlapObjects", m_orLinkOverlapObjects);
 
   declareProperty( "DoFatJetOR", m_orDoFatjets);
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
@@ -1141,7 +1143,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
@@ -1169,6 +1171,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
   configFromFile(m_orBJetPtUpperThres, "OR.BJetPtUpperThres", rEnv, -1.); // upper pt threshold of b-jet in OR in unit of MeV, -1 means no pt threshold
+  configFromFile(m_orLinkOverlapObjects, "OR.LinkOverlapObjects", rEnv, false); 
   //
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);

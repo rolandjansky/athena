@@ -34,6 +34,7 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
       #           "FastJetPlugin" for EECambridge plugin
       algj = "ee_kt"
 
+    if globalflags.DataSource()=='data': ExGhostLabels = []
     SubjetContainerName = "%sEx%s%iSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet)
     ExKtbbTagToolName = str( "Ex%sbbTagTool%i_%s" % (subjet_mode, nsubjet, JetCollectionName) )
     if hasattr(jtm, ExKtbbTagToolName):
@@ -183,7 +184,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, E
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
-def addVRJets(sequence, *pos_opts, **opts):
+def addVRJets(sequence, do_ghost=False, *pos_opts, **opts):
     from JetRec.JetRecStandard import jtm
     from AthenaCommon import Logging
 
@@ -205,10 +206,17 @@ def addVRJets(sequence, *pos_opts, **opts):
     VRJetRadius=0.4
     VRJetInputs='pv0track'
     VRJetOptions = dict(
-        ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+        ghostArea = 0 , ptmin = 2000,
         variableRMinRadius = 0.02, variableRMassScale = 30000,
         calibOpt = "none")
 
+    # Change some options if we have do_ghost set to true. Hopefully
+    # this will be the only VR collection in the future.
+    if do_ghost:
+        ghost_suffix = "GhostTag"
+        VRJetName += ghost_suffix
+        VRGhostLabel += ghost_suffix
+        VRJetOptions['ptmin'] = 5000
 
     #==========================================================
     # Build VR jets
@@ -221,16 +229,18 @@ def addVRJets(sequence, *pos_opts, **opts):
     from AthenaCommon.AppMgr import ToolSvc
 
     #make the btagging tool for VR jets
-    btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
-                 options={"name"         : VRJetBTagName.lower(),
-                          "BTagName"     : VRJetBTagName,
-                          "BTagJFVtxName": "JFVtx",
-                          "BTagSVName"   : "SecVtx",
-                          },
-                 SetupScheme = "",
-                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
-                               'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP']
-                 )
+    btag_vrjets = ConfInst.setupJetBTaggerTool(
+        ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
+        options={"name"         : VRJetBTagName.lower(),
+                 "BTagName"     : VRJetBTagName,
+                 "BTagJFVtxName": "JFVtx",
+                 "BTagSVName"   : "SecVtx",
+        },
+        SetupScheme = "",
+        TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu',
+                      'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
+        TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks"
+    )
 
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
 
@@ -577,6 +587,7 @@ def addHbbTagger(
 # Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
+   DFisMC = (globalflags.DataSource()=='geant4')
    jetToolName = "DFReclustertingTool"
    algoName = "DFJetReclusteringAlgo"
    
@@ -592,7 +603,6 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
      getattr(ToolSvc,jetToolName).DoArea = False
      getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
      getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
-     DFisMC = (globalflags.DataSource()=='geant4')
      if(DFisMC):
        getattr(ToolSvc,jetToolName).GhostTruthInputBContainer = "BHadronsFinal"
        getattr(ToolSvc,jetToolName).GhostTruthInputCContainer = "CHadronsFinal"
@@ -601,10 +611,14 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
      DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
    
    # build subjets
+   GhostLabels = ["GhostTrack"]
+   if(DFisMC):
+     GhostLabels += ["GhostBHadronsFinal"]
+     GhostLabels += ["GhostCHadronsFinal"]
    # N=2 subjets
-   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True)
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True, ExGhostLabels=GhostLabels)
    # N=3 subjets
-   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True)
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True, ExGhostLabels=GhostLabels)
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
 

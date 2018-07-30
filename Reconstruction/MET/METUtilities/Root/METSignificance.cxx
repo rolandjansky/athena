@@ -454,15 +454,15 @@ namespace met {
   StatusCode METSignificance::AddMuon(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
     const xAOD::Muon* muon(static_cast<const xAOD::Muon*>(obj));
 
-    std::string dettype = "";
+    int dettype = 0;
     if(muon->muonType()==0){//Combined
-      dettype="CB";//CB
+      dettype=3;//CB
     }
     else if(muon->muonType()==1){//MuonStandAlone
-      dettype="MS";//MS
+      dettype=1;//MS
     }
     else if(muon->muonType()>1){//Segment, Calo, Silicon
-      dettype="ID";//ID
+      dettype=2;//ID
     }
     else{
       ATH_MSG_VERBOSE("This muon had none of the normal muon types (ID,MS,CB) - check this in detail");

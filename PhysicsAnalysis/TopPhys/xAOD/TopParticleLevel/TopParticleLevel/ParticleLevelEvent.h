@@ -30,7 +30,8 @@ namespace top {
 	      m_muons( nullptr ),
               m_photons( nullptr ),
 	      m_jets( nullptr ),
-          m_largeRJets( nullptr ),
+	      m_RCJets( SG::VIEW_ELEMENTS ),
+	      m_largeRJets( nullptr ),
 	      m_met( nullptr ),
 	      m_selectionDecisions(){}
 
@@ -49,6 +50,12 @@ namespace top {
 
 	/// Pointer to truth level jets
 	const xAOD::JetContainer * m_jets;
+	
+	///Container of recluster jets (can be sorted)
+	xAOD::JetContainer m_RCJets;
+	
+	/// Containers of variable-R reclustered jets (can be sorted)
+	std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > m_VarRCJets;
 
         /// Pointer to the truth level large R jets.
         const xAOD::JetContainer * m_largeRJets;

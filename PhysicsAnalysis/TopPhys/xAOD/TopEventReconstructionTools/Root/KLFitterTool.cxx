@@ -23,31 +23,46 @@ namespace top{
     m_bTagCutValue(9999.9), 
     m_transferFunctionsPathPrefix("SetMe"),
     m_transferFunctionsPath("SetMe"),
+    m_selectionName("SetMe"),
     m_leptonType("SetMe"),
+    m_customParameters("SetMe"),
     m_LHType("SetMe"),
     m_myFitter(nullptr)
   {
     declareProperty( "config" , m_config , "Set the configuration" );
     declareProperty( "LeptonType", m_leptonType = "kUndefined" , "Define the lepton type" );
+    declareProperty( "CustomParameters", m_customParameters = "" , "Define the custom parameters" );
+    declareProperty( "SelectionName", m_selectionName = "kUndefined" , "Define the name of the selection" );
     declareProperty( "LHType",     m_LHType = "kUndefined" , "Define the Likelihood type" );
   }
   
   /// Function initialising the tool
   StatusCode KLFitterTool::initialize()
   {    
+
     // Have you set the config??
     if (m_config == nullptr) {
       ATH_MSG_ERROR("Please set the top::TopConfig");
       return StatusCode::FAILURE;
     }
+    //Retrieving configuration from TopConfig
     m_config->setKLFitter();
-    m_LHType = m_config -> KLFitterLH();
-
+    //Setting configuration, giving priority to the ones passed inside the selection
+    std::vector<std::string> custom_tokens;
+    tokenize(m_customParameters, custom_tokens, " ");
+    std::string temp_option="";
+    // Setting event topology
+    if(findOption(custom_tokens, "KLFitterLH", temp_option))
+       m_LHType = temp_option;
+    else
+       m_LHType = m_config -> KLFitterLH();
     // Find KLFitter ATLAS transfer functions. As of May '18, stored in
     // AnalysisTop group data area on cvmfs.
     m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "dev/AnalysisTop/KLFitterTFs/" );
-    m_transferFunctionsPath = m_config->KLFitterTransferFunctionsPath();
-    
+    if(findOption(custom_tokens, "KLFitterTransferFunctionsPath", temp_option))
+       m_transferFunctionsPath = temp_option;
+    else
+       m_transferFunctionsPath = m_config->KLFitterTransferFunctionsPath();
     std::string transferFunctionAbsPath = m_transferFunctionsPathPrefix + m_transferFunctionsPath + "/";
     
     // 1) create an instance of the fitter
@@ -58,10 +73,7 @@ namespace top{
     m_myDetector = std::make_unique<KLFitter::DetectorAtlas_8TeV>( transferFunctionAbsPath );
     
     // 3) tell the fitter which detector to use
-    if (!m_myFitter->SetDetector(m_myDetector.get())) {
-      ATH_MSG_ERROR( "ERROR setting detector to fitter" );
-      return StatusCode::FAILURE;
-    }    
+    top::check(m_myFitter->SetDetector(m_myDetector.get()), "KLFitterTool::initialize() ERROR setting detector to fitter" );
     
     // 4) create an instance of the likelihood for ttbar->l+jets channel and customize it according to your needs
     m_myLikelihood = std::make_unique<KLFitter::LikelihoodTopLeptonJets>(); 
@@ -132,36 +144,32 @@ namespace top{
 
     }
     // 4.b) Jet Selection Mode
-    if (m_config->KLFitterJetSelectionMode() == "kLeadingThree" ){
+    std::string JetSelectionMode="";
+    if(findOption(custom_tokens, "KLFitterJetSelectionMode", temp_option))
+       JetSelectionMode = temp_option;
+    else
+       JetSelectionMode = m_config -> KLFitterJetSelectionMode();
+
+    if (JetSelectionMode == "kLeadingThree" )
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingThree;
-    }
-    else if (m_config->KLFitterJetSelectionMode() == "kLeadingFour" ){
+    else if (JetSelectionMode == "kLeadingFour" )
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingFour;
-    }
-    else if (m_config->KLFitterJetSelectionMode() == "kLeadingFive") {
+    else if (JetSelectionMode == "kLeadingFive") 
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingFive;
-    }
-    else if (m_config->KLFitterJetSelectionMode() == "kLeadingSix") {
+    else if (JetSelectionMode == "kLeadingSix") 
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingSix;
-    }
-    else if (m_config->KLFitterJetSelectionMode() == "kLeadingSeven") {
+    else if (JetSelectionMode == "kLeadingSeven") 
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kLeadingSeven;
-    }
-    else if (m_config->KLFitterJetSelectionMode() == "kBtagPriorityThreeJets") {
+    else if (JetSelectionMode == "kBtagPriorityThreeJets") 
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPriorityThreeJets;
-    }
-    else if (m_config->KLFitterJetSelectionMode() == "kBtagPriorityFourJets") {
+    else if (JetSelectionMode == "kBtagPriorityFourJets") 
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPriorityFourJets;
-    }
-    else if (m_config->KLFitterJetSelectionMode() == "kBtagPriorityFiveJets") {
+    else if (JetSelectionMode == "kBtagPriorityFiveJets") 
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPriorityFiveJets;
-    }  
-    else if (m_config->KLFitterJetSelectionMode() == "kBtagPrioritySixJets") {
+    else if (JetSelectionMode == "kBtagPrioritySixJets") 
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPrioritySixJets;
-    }
-    else if (m_config->KLFitterJetSelectionMode() == "kBtagPrioritySevenJets") {
+    else if (JetSelectionMode == "kBtagPrioritySevenJets") 
       m_jetSelectionModeKLFitterEnum = top::KLFitterJetSelection::kBtagPrioritySevenJets;
-    }
     else {
       ATH_MSG_ERROR("Please supply a valid JetSelectionMode : kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityFourJets , kBtagPriorityFiveJets , kBtagPrioritySixJets , kBtagPrioritySevenJets" );
       return StatusCode::FAILURE;      
@@ -177,30 +185,28 @@ namespace top{
     } 
 
     // 4.c) SetBTagging method
-    if (m_config->KLFitterBTaggingMethod() == "kNotag") {
+    std::string BTaggingMethod="";
+    if(findOption(custom_tokens, "KLFitterBTaggingMethod", temp_option))
+       BTaggingMethod = temp_option;
+    else
+       BTaggingMethod = m_config -> KLFitterBTaggingMethod();
+
+    if (BTaggingMethod == "kNotag") 
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kNotag;
-    }
-    else if (m_config->KLFitterBTaggingMethod() == "kVetoNoFit" ){
+    else if (BTaggingMethod == "kVetoNoFit" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoNoFit;
-    }
-    else if (m_config->KLFitterBTaggingMethod() == "kVetoNoFitLight" ){
+    else if (BTaggingMethod == "kVetoNoFitLight" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoNoFitLight;
-    }
-    else if (m_config->KLFitterBTaggingMethod() == "kVetoNoFitBoth" ){
+    else if (BTaggingMethod == "kVetoNoFitBoth" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoNoFitBoth;
-    }
-    else if (m_config->KLFitterBTaggingMethod() == "kWorkingPoint" ){
+    else if (BTaggingMethod == "kWorkingPoint" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kWorkingPoint;
-    }    
-    else if (m_config->KLFitterBTaggingMethod() == "kVeto" ){
+    else if (BTaggingMethod == "kVeto" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVeto;
-    }    
-    else if (m_config->KLFitterBTaggingMethod() == "kVetoLight" ){
+    else if (BTaggingMethod == "kVetoLight" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoLight;
-    }
-    else if (m_config->KLFitterBTaggingMethod() == "kVetoBoth" ){
+    else if (BTaggingMethod == "kVetoBoth" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoBoth;
-    }        
     else {
       ATH_MSG_ERROR("Please supply a valid BTaggingMethod : kNotag,kVetoNoFit,kVetoNoFitLight,kVetoNoFitBoth,kWorkingPoint,kVeto,kVetoLight or kVetoBoth" );
       return StatusCode::FAILURE;
@@ -219,12 +225,26 @@ namespace top{
     m_myLikelihood_AllHadronic -> PhysicsConstants()->SetMassTop( m_massTop );
     m_myLikelihood_BoostedLJets-> PhysicsConstants()->SetMassTop( m_massTop );
     // 4.e) TopMassFixed
-    m_myLikelihood             -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() ); 
-    m_myLikelihood_TTH         -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-    m_myLikelihood_JetAngles   -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-    m_myLikelihood_TTZ         -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-    m_myLikelihood_AllHadronic -> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
-    m_myLikelihood_BoostedLJets-> SetFlagTopMassFixed( m_config->KLFitterTopMassFixed() );
+    bool FixTopMass=true;
+    if(findOption(custom_tokens, "KLFitterTopMassFixed", temp_option)){
+       if(temp_option.compare("True")==0)
+         FixTopMass=true;
+       else if(temp_option.compare("False")==0)
+         FixTopMass=false;
+       else{
+         ATH_MSG_ERROR("Invalid KLFitterTopMassFixed custom option! Exiting.");
+         return StatusCode::FAILURE;
+       }
+    }
+    else
+       FixTopMass = m_config -> KLFitterTopMassFixed();
+
+    m_myLikelihood             -> SetFlagTopMassFixed( FixTopMass ); 
+    m_myLikelihood_TTH         -> SetFlagTopMassFixed( FixTopMass );
+    m_myLikelihood_JetAngles   -> SetFlagTopMassFixed( FixTopMass );
+    m_myLikelihood_TTZ         -> SetFlagTopMassFixed( FixTopMass );
+    m_myLikelihood_AllHadronic -> SetFlagTopMassFixed( FixTopMass );
+    m_myLikelihood_BoostedLJets-> SetFlagTopMassFixed( FixTopMass );
 
     // 5) tell the fitter which likelihood to use
     if(m_LHType == "ttbar")
@@ -257,33 +277,57 @@ namespace top{
     
     // 6) Figure out the b tagging working point
     // All the blame for this horrible code rests with the b-tagging people
-    if (m_config->bTagWP_available().size() != 1) {
-      ATH_MSG_INFO(m_config->bTagWP_available().size()<<" b-tagging WP - cannot pick b-jets. Please select only 1 WP if you are using KLFitter");
+    std::string btagWP="";
+    if(findOption(custom_tokens, "KLFitterBTaggingWP", temp_option))
+       btagWP = temp_option;
+    else{
+      if (m_config->bTagWP_available().size() != 1) {
+        ATH_MSG_ERROR(m_config->bTagWP_available().size()<<" b-tagging WP - cannot pick b-jets. Please select only 1 WP or specify the desired one in your selection!");
+        return StatusCode::FAILURE;
+      }
+      btagWP = m_config->bTagWP_available()[0];
+    }  
+    if(btagWP.find("Continuous")!=std::string::npos){
+      ATH_MSG_ERROR("KLFitter is not able to run with (pseudo)continuous b-tagging! Please specify a different WP either in your configuration file or in your selection!");
+      return StatusCode::FAILURE;
     }
-    
-    const auto btagWP = m_config->bTagWP_available()[0];
     m_btagging_eff_tool = "BTaggingEfficiencyTool_"+btagWP+"_"+m_config->sgKeyJets();
     top::check( m_btagging_eff_tool.retrieve(), "Failed to retrieve b-tagging Efficiency tool" );
     
     ATH_MSG_INFO("++++++++++++++++++++++++++++++");
     ATH_MSG_INFO("Configured KLFitter with name "<<name());
-    ATH_MSG_INFO("  Using " << "BTaggingEfficiencyTool_"+btagWP+"_"+m_config->sgKeyJets());
+    ATH_MSG_INFO("  For selection "<<m_selectionName);
+    ATH_MSG_INFO("  Using " << m_btagging_eff_tool);
     ATH_MSG_INFO("  Using transfer functions with full path " << transferFunctionAbsPath);
     ATH_MSG_INFO("  Using Lepton \t\t"         << m_leptonType);
-    ATH_MSG_INFO("  Using JetSelectionMode \t" << m_config->KLFitterJetSelectionMode());
-    ATH_MSG_INFO("  Using BTaggingMethod \t"   << m_config->KLFitterBTaggingMethod());
-    ATH_MSG_INFO("  Using TopMassFixed \t"     << m_config->KLFitterTopMassFixed());
+    ATH_MSG_INFO("  Using JetSelectionMode \t" << JetSelectionMode);
+    ATH_MSG_INFO("  Using BTaggingMethod \t"   << BTaggingMethod);
+    ATH_MSG_INFO("  Using TopMassFixed \t"     << FixTopMass);
     
     if (m_config->KLFitterSaveAllPermutations()) 
         ATH_MSG_INFO("  Saving All permutations");
-    if (!m_config->KLFitterSaveAllPermutations())
+    else
         ATH_MSG_INFO("  Saving only the permutation with the highest event probability");
     ATH_MSG_INFO("++++++++++++++++++++++++++++++");    
     
     /// Return gracefully:
     return StatusCode::SUCCESS;     
   }
-  
+  /// Config helpers
+  bool KLFitterTool::findOption(std::vector<std::string> full_options, std::string option, std::string &op_value){
+     //Find option in full_options and put in op_value, then return true. Otherwise return false
+     for(unsigned int t=0; t<full_options.size(); ++t){
+        if(full_options.at(t).compare("") == 0) continue; //Skip void strings
+        top::check((full_options.at(t).find(":")!=std::string::npos),"KLFitterTool::findOption Error! You specified an invalid option: " + full_options.at(t) +". Expected format is A:a B:b C:c...");
+        std::string key   = full_options.at(t).substr(0,full_options.at(t).find(":"));
+        std::string value = full_options.at(t).substr(full_options.at(t).find(":")+1);
+        if(key.compare(option) == 0){
+           op_value = value;
+           return true;
+        }
+     }
+     return false;
+  }  
   /// Function executing the tool
   StatusCode KLFitterTool::execute(const top::Event& event)
   {
@@ -306,17 +350,12 @@ namespace top{
     // - for jets:
     //   * bool isBtagged : mandatory only if you want to use b-tagging in the fit
 
-
-    // To allow KLFitter to run on multiple non-orthogonal selections, we set/check a decorator
-    std::cout<<event.m_info->eventNumber()<<std::endl;
-    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
-std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
+/*
+    FIXME: this may be useful to cache results, that's why I am not deleting this piece of commented code
+           maybe we could concatenate the full KLFitter selection and then calculate an hash...
+    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) )
        if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;     
-       event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
-    }
-    else event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
-
-  
+*/  
     KLFitter::Particles * myParticles = new KLFitter::Particles{};
 
     if(m_LHType == "ttbar"){
@@ -416,7 +455,10 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
     }
 
     // set the jets, depending on the Jet Selection Mode
-    setJets(event, myParticles); 
+    if(!setJets(event, myParticles)){
+       ATH_MSG_INFO("KLFitterTool::execute: error at event "<<event.m_info->eventNumber()<<". It was not possible to properly fill the jets. Are you trying to use a KLeadingX Jet Selection mode with a signal region with less than X jets? Please check your configuration!");
+       return StatusCode::FAILURE;
+    }
     
     // add the particles to the fitter
     if (!m_myFitter->SetParticles(myParticles)) {
@@ -433,12 +475,25 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
       ATH_MSG_ERROR( "KLFitter: Error adding MET to fitter..." );
       return StatusCode::FAILURE;
     }    
-    
-    // create the xAOD::KLFitterResultContainer
-    xAOD::KLFitterResultAuxContainer* resultAuxContainer = new xAOD::KLFitterResultAuxContainer{};
-    xAOD::KLFitterResultContainer* resultContainer = new xAOD::KLFitterResultContainer{};
-    resultContainer->setStore( resultAuxContainer );
-    
+    // define StoreGate names
+    std::string outputSGKey("SetMe");
+    if (!event.m_isLoose) {
+      outputSGKey = m_config->sgKeyKLFitter( event.m_hashValue );
+    }
+    if (event.m_isLoose) {
+      outputSGKey = m_config->sgKeyKLFitterLoose( event.m_hashValue );
+    }    
+    std::string outputSGKeyAux = outputSGKey + "Aux.";
+    // create or retrieve (if existent) the xAOD::KLFitterResultContainer
+    xAOD::KLFitterResultAuxContainer* resultAuxContainer = nullptr;
+    xAOD::KLFitterResultContainer* resultContainer = nullptr;
+    if ((!m_config->KLFitterSaveAllPermutations())||((m_config->KLFitterSaveAllPermutations())&&(!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)))){
+       resultAuxContainer = new xAOD::KLFitterResultAuxContainer{};
+       resultContainer = new xAOD::KLFitterResultContainer{};
+       resultContainer->setStore( resultAuxContainer );
+    }
+    else
+       top::check(evtStore()->tds()->retrieve(resultContainer,outputSGKey),"KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
     
     // loop over all permutations
     const int nperm = m_myFitter->Permutations()->NPermutations();
@@ -448,6 +503,10 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
       // create a result 
       xAOD::KLFitterResult* result = new xAOD::KLFitterResult{};
       resultContainer->push_back( result );
+
+      //Set name hash. This is because it seems std::string is not supported by AuxContainers...
+      std::hash<std::string> hash_string;
+      result->setSelectionCode( hash_string(m_selectionName) );
       
       unsigned int ConvergenceStatusBitWord = m_myFitter->ConvergenceStatus();
       bool MinuitDidNotConverge = (ConvergenceStatusBitWord & m_myFitter->MinuitDidNotConvergeMask) != 0;
@@ -648,33 +707,28 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
     
 
     // Save to StoreGate / TStore
-    std::string outputSGKey("SetMe");
-    if (!event.m_isLoose) {
-      outputSGKey = m_config->sgKeyKLFitter( event.m_hashValue );
-    }
-    if (event.m_isLoose) {
-      outputSGKey = m_config->sgKeyKLFitterLoose( event.m_hashValue );
-    }    
-    
-    std::string outputSGKeyAux = outputSGKey + "Aux.";
     
     // Save all permutations or only the highest event probability?
     
     // Save all
     if (m_config->KLFitterSaveAllPermutations()) {   
-      xAOD::TReturnCode save = evtStore()->tds()->record( resultContainer ,outputSGKey  );
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record( resultAuxContainer , outputSGKeyAux );
-      if( !save || !saveAux ){
-        return StatusCode::FAILURE;
-      }    
+      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
+         top::check(evtStore()->tds()->record( resultContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer");
+         top::check(evtStore()->tds()->record( resultAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer");
+      }
     }
-    
     // Save only the best
-    if (!m_config->KLFitterSaveAllPermutations()) {
-      // create the xAOD::KLFitterResultContainer
-      xAOD::KLFitterResultAuxContainer* bestAuxContainer = new xAOD::KLFitterResultAuxContainer{};
-      xAOD::KLFitterResultContainer* bestContainer = new xAOD::KLFitterResultContainer{};
-      bestContainer->setStore( bestAuxContainer );      
+    else{
+      // create ore retrieve the xAOD::KLFitterResultContainer
+      xAOD::KLFitterResultAuxContainer* bestAuxContainer = nullptr;
+      xAOD::KLFitterResultContainer* bestContainer = nullptr;
+      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
+         bestAuxContainer = new xAOD::KLFitterResultAuxContainer{};
+         bestContainer = new xAOD::KLFitterResultContainer{};
+         bestContainer->setStore( bestAuxContainer );      
+      }
+      else
+         top::check(evtStore()->tds()->retrieve(bestContainer,outputSGKey),"KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
       
       for (auto x : *resultContainer) {
         if (x->bestPermutation() == 1) {
@@ -683,13 +737,10 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
           bestContainer->push_back( result );
         }
       }
-      
-      xAOD::TReturnCode save = evtStore()->tds()->record( bestContainer ,outputSGKey  );
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record( bestAuxContainer , outputSGKeyAux );
-      if( !save || !saveAux ){
-        return StatusCode::FAILURE;
-      }       
-      
+      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
+         top::check(evtStore()->tds()->record( bestContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer with best permutation");
+         top::check(evtStore()->tds()->record( bestAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer with best permutation");
+      }
       // watch out for memory leaks!
       // raw pointers have not been put into a DataVector
       // we still actually own them
@@ -733,8 +784,10 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
    xAOD::JetContainer jets;
    xAOD::JetAuxContainer jetsAux;
    jets.setStore( &jetsAux );
-   xAOD::Jet* jet_copy = new xAOD::Jet(jet);
+   xAOD::Jet* jet_copy = new xAOD::Jet();
    jets.push_back(jet_copy);
+   *jet_copy = jet;
+   jet_copy->setJetP4(jet.jetP4());
    //treat jet as b-tagged
    jet_copy->setAttribute("HadronConeExclTruthLabelID", 5);
    top::check(m_btagging_eff_tool->getMCEfficiency(*jet_copy, *efficiency),
@@ -747,70 +800,66 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
 
 
 
-  void KLFitterTool::setJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingThree) {
-      setJetskLeadingThree( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFour) {
-      setJetskLeadingFour( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFive) {
-      setJetskLeadingFive( event , inputParticles );
-    } 
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSix) {
-      setJetskLeadingSix( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSeven) {
-      setJetskLeadingSeven( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityThreeJets) {
-      setJetskBtagPriorityThreeJets( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFourJets) {
-      setJetskBtagPriorityFourJets( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFiveJets) {
-      setJetskBtagPriorityFiveJets( event , inputParticles );
-    }     
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySixJets) {
-      setJetskBtagPrioritySixJets( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySevenJets) {
-      setJetskBtagPrioritySevenJets( event , inputParticles );
-    }
-
-
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingThree)
+      return setJetskLeadingThree( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFour)
+      return setJetskLeadingFour( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFive)
+      return setJetskLeadingFive( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSix)
+      return setJetskLeadingSix( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSeven)
+      return setJetskLeadingSeven( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityThreeJets)
+      return setJetskBtagPriorityThreeJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFourJets)
+      return setJetskBtagPriorityFourJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFiveJets)
+      return setJetskBtagPriorityFiveJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySixJets)
+      return setJetskBtagPrioritySixJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySevenJets)
+      return setJetskBtagPrioritySevenJets( event , inputParticles );
+    return false;
   }
   
-  void KLFitterTool::setJetskLeadingThree(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingThree(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 3);
+    return setJetskLeadingX(event, inputParticles, 3);
   }
 
-  void KLFitterTool::setJetskLeadingFour(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingFour(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 4);
+    return setJetskLeadingX(event, inputParticles, 4);
   }
 
-  void KLFitterTool::setJetskLeadingFive(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingFive(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 5);
+    return setJetskLeadingX(event, inputParticles, 5);
   }
 
-  void KLFitterTool::setJetskLeadingSix(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingSix(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 6);
+    return setJetskLeadingX(event, inputParticles, 6);
   }
 
-  void KLFitterTool::setJetskLeadingSeven(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingSeven(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 7);
+    return setJetskLeadingX(event, inputParticles, 7);
   }
 
-  void KLFitterTool::setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, int njets)
+  bool KLFitterTool::setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, const unsigned int njets)
   {
-    int index(0);
+    unsigned int index(0);
+    //If container has less jets than required, raise error
+    if(m_config->KLFitterFailOnLessThanXJets()){
+       if(event.m_jets.size()<njets){
+          ATH_MSG_INFO("KLFitterTool::setJetskLeadingX: You required "<<njets<<" jets. Event has "<<event.m_jets.size()<<" jets!");
+          return false;
+       }
+    }
     for (const auto& jet : event.m_jets) {
       if (index > njets-1) break;
 
@@ -827,38 +876,47 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
                                   isTagged, eff, 1./ineff, KLFitter::Particles::kNone, weight);
       ++index;
     }
+    return true;
   }
 
   
-  void KLFitterTool::setJetskBtagPriorityThreeJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPriorityThreeJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 3 );
+    return setJetskBtagPriority( event , inputParticles , 3 );
   }
   
-  void KLFitterTool::setJetskBtagPriorityFourJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPriorityFourJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 4 );
+    return setJetskBtagPriority( event , inputParticles , 4 );
   }
   
-  void KLFitterTool::setJetskBtagPriorityFiveJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPriorityFiveJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 5 );
+    return setJetskBtagPriority( event , inputParticles , 5 );
   }  
 
-  void KLFitterTool::setJetskBtagPrioritySixJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPrioritySixJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 6 );
+    return setJetskBtagPriority( event , inputParticles , 6 );
   }
   
-  void KLFitterTool::setJetskBtagPrioritySevenJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPrioritySevenJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 7 );
+    return setJetskBtagPriority( event , inputParticles , 7 );
   }
   
-  void KLFitterTool::setJetskBtagPriority(const top::Event& event,KLFitter::Particles* inputParticles,const unsigned int maxJets)
+  bool KLFitterTool::setJetskBtagPriority(const top::Event& event,KLFitter::Particles* inputParticles,const unsigned int maxJets)
   {
     // kBtagPriority mode first adds the b jets, then the light jets                                                                                                                    
     // If your 6th or 7th jet is a b jet, then you probably want this option                                                                                                    
+
+    //If container has less jets than required, raise error
+    if(m_config->KLFitterFailOnLessThanXJets()){
+       if(event.m_jets.size()<maxJets){
+          ATH_MSG_INFO("KLFitterTool::setJetskBtagPriority: You required "<<maxJets<<" jets. Event has "<<event.m_jets.size()<<" jets!");
+          return false;
+       }
+    }
 
     unsigned int totalJets(0);
 
@@ -901,7 +959,7 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
       
       ++index;
     }  // for (jet)                                                                                                                                                                   
-    
+    return true;
   }
 
      

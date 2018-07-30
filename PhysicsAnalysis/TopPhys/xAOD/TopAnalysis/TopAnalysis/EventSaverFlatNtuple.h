@@ -8,7 +8,6 @@
 #include "TopAnalysis/EventSaverBase.h"
 #include "TopCorrections/ScaleFactorRetriever.h"
 #include "TopEventSelectionTools/TreeManager.h"
-#include "TopObjectSelectionTools/RCJetMC15.h"
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -16,8 +15,6 @@
 #include "AthContainers/DataVector.h"
 #include <unordered_map>
 
-// fwd declare particle-level class
-class ParticleLevelRCJetObjectLoader;
 
 namespace top {
 
@@ -492,6 +489,8 @@ private:
     std::vector<int>   m_mu_true_type;
     std::vector<int>   m_mu_true_origin;
     std::vector<char>  m_mu_true_isPrompt;
+    std::vector<float>  m_mu_prodVtx_z;
+    std::vector<float>  m_mu_prodVtx_perp;
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
@@ -581,14 +580,13 @@ private:
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
-    std::unique_ptr<RCJetMC15> m_rc;
-    std::map<std::string,std::unique_ptr<RCJetMC15> > m_VarRC;
     std::string m_egamma;      // egamma systematic naming scheme
     std::string m_muonsyst;    // muon systematic naming scheme
     std::string m_jetsyst;     // jet systematic naming scheme
-    std::unordered_map<std::size_t, JetReclusteringTool*> m_jetReclusteringTool;
     std::map<std::string,std::vector<float>> m_VarRCjetBranches;
     std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranches;
+    std::map<std::string,std::vector<float>> m_VarRCjetBranchesParticle;
+    std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranchesParticle;
     std::vector<int> m_rcjet_nsub;
     std::vector<float> m_rcjet_pt;
     std::vector<float> m_rcjet_eta;
@@ -621,6 +619,22 @@ private:
     std::vector<float> m_rcjet_d12_clstr;
     std::vector<float> m_rcjet_d23_clstr;
     std::vector<float> m_rcjet_Qw_clstr;
+
+    std::vector<float> m_rcjet_gECF332_clstr;
+    std::vector<float> m_rcjet_gECF461_clstr;
+    std::vector<float> m_rcjet_gECF322_clstr;
+    std::vector<float> m_rcjet_gECF331_clstr;
+    std::vector<float> m_rcjet_gECF422_clstr;
+    std::vector<float> m_rcjet_gECF441_clstr;
+    std::vector<float> m_rcjet_gECF212_clstr;
+    std::vector<float> m_rcjet_gECF321_clstr;
+    std::vector<float> m_rcjet_gECF311_clstr;
+    std::vector<float> m_rcjet_L1_clstr;
+    std::vector<float> m_rcjet_L2_clstr;
+    std::vector<float> m_rcjet_L3_clstr;
+    std::vector<float> m_rcjet_L4_clstr;
+    std::vector<float> m_rcjet_L5_clstr;
+
     
     //met
     float m_met_met;
@@ -628,6 +642,8 @@ private:
 
     //KLFitter
     short m_klfitter_selected;
+    /// Selection
+    std::vector<std::string> m_klfitter_selection;
     /// Error flags
     std::vector<short> m_klfitter_minuitDidNotConverge;
     std::vector<short> m_klfitter_fitAbortedDueToNaN;
@@ -638,6 +654,7 @@ private:
     std::vector<unsigned int> m_klfitter_bestPermutation;
     std::vector<float> m_klfitter_logLikelihood;
     std::vector<float> m_klfitter_eventProbability;
+    std::vector<unsigned int> m_klfitter_parameters_size;
     std::vector<std::vector<double>> m_klfitter_parameters;
     std::vector<std::vector<double>> m_klfitter_parameterErrors;
 
@@ -822,11 +839,6 @@ private:
     std::vector<int> m_ljet_Ghosts_CHadron_Final_Count;
     std::vector<std::vector<int>> m_rcjetsub_Ghosts_BHadron_Final_Count;
     std::vector<std::vector<int>> m_rcjetsub_Ghosts_CHadron_Final_Count;
-
-    // for rc jets at particle level
-    std::unique_ptr<ParticleLevelRCJetObjectLoader> m_rcjet_particle;
-    std::string m_RCJetContainerParticle;       // name for RC jets container
-
 
     // Truth tree inserted variables
     // This can be expanded as required
@@ -1140,12 +1152,9 @@ protected:
   const std::string& RCJetContainer() const { return m_RCJetContainer;} // name for RC jets container in TStore
   const std::vector<std::string>& VarRCJetRho() const { return m_VarRCJetRho;}
   const std::vector<std::string>& VarRCJetMassScale() const { return m_VarRCJetMassScale;}
-  const std::unique_ptr<RCJetMC15>& rc() const { return m_rc;}
-  const std::map<std::string,std::unique_ptr<RCJetMC15> >& VarRC() const { return m_VarRC;}
   const std::string& egamma() const { return m_egamma;} // egamma systematic naming scheme
   const std::string& muonsyst() const { return m_muonsyst;} // muon systematic naming scheme
   const std::string& jetsyst() const { return m_jetsyst;} // jet systematic naming scheme
-  const std::unordered_map<std::size_t, JetReclusteringTool*>& jetReclusteringTool() const { return m_jetReclusteringTool;}
   const std::map<std::string,std::vector<float>>& VarRCjetBranches() const { return m_VarRCjetBranches;}
   const std::map<std::string,std::vector<std::vector<float>>>& VarRCjetsubBranches() const { return m_VarRCjetsubBranches;}
   const std::vector<int>& rcjet_nsub() const { return m_rcjet_nsub;}
@@ -1172,7 +1181,21 @@ protected:
   const std::vector<float>& rcjet_d12_clstr() const { return m_rcjet_d12_clstr;}
   const std::vector<float>& rcjet_d23_clstr() const { return m_rcjet_d23_clstr;}
   const std::vector<float>& rcjet_Qw_clstr() const { return m_rcjet_Qw_clstr;}
-  
+  const std::vector<float>& rcjet_gECF332_clstr() const { return m_rcjet_gECF332_clstr;}
+  const std::vector<float>& rcjet_gECF461_clstr() const { return m_rcjet_gECF461_clstr;}
+  const std::vector<float>& rcjet_gECF322_clstr() const { return m_rcjet_gECF322_clstr;}
+  const std::vector<float>& rcjet_gECF331_clstr() const { return m_rcjet_gECF331_clstr;}
+  const std::vector<float>& rcjet_gECF422_clstr() const { return m_rcjet_gECF422_clstr;}
+  const std::vector<float>& rcjet_gECF441_clstr() const { return m_rcjet_gECF441_clstr;}
+  const std::vector<float>& rcjet_gECF212_clstr() const { return m_rcjet_gECF212_clstr;}
+  const std::vector<float>& rcjet_gECF321_clstr() const { return m_rcjet_gECF321_clstr;}
+  const std::vector<float>& rcjet_gECF311_clstr() const { return m_rcjet_gECF311_clstr;}
+   
+  const std::vector<float>& rcjet_L1_clstr() const { return m_rcjet_L1_clstr;}
+  const std::vector<float>& rcjet_L2_clstr() const { return m_rcjet_L2_clstr;}
+  const std::vector<float>& rcjet_L3_clstr() const { return m_rcjet_L3_clstr;}
+  const std::vector<float>& rcjet_L4_clstr() const { return m_rcjet_L4_clstr;}
+  const std::vector<float>& rcjet_L5_clstr() const { return m_rcjet_L5_clstr;}
 
   //met
   const float& met_met() const { return m_met_met;}
@@ -1180,6 +1203,8 @@ protected:
 
   ///KLFitter
   const short& klfitter_selected() const { return m_klfitter_selected;}
+  /// Selection
+  const std::vector<std::string> klfitter_selection() const { return m_klfitter_selection;}
   /// Error flags
   const std::vector<short>& klfitter_minuitDidNotConverge() const { return m_klfitter_minuitDidNotConverge;}
   const std::vector<short>& klfitter_fitAbortedDueToNaN() const { return m_klfitter_fitAbortedDueToNaN;}
@@ -1189,6 +1214,7 @@ protected:
   const std::vector<unsigned int>& klfitter_bestPermutation() const { return m_klfitter_bestPermutation;}
   const std::vector<float>& klfitter_logLikelihood() const { return m_klfitter_logLikelihood;}
   const std::vector<float>& klfitter_eventProbability() const { return m_klfitter_eventProbability;}
+  const std::vector<unsigned int>& klfitter_parameters_size() const { return m_klfitter_parameters_size;}
   const std::vector<std::vector<double>>& klfitter_parameters() const { return m_klfitter_parameters;}
   const std::vector<std::vector<double>>& klfitter_parameterErrors() const { return m_klfitter_parameterErrors;}
   /// Model
@@ -1339,10 +1365,6 @@ protected:
   const std::vector<int>& ljet_Ghosts_CHadron_Final_Count() const { return m_ljet_Ghosts_CHadron_Final_Count;}
   const std::vector<std::vector<int>>& rcjetsub_Ghosts_BHadron_Final_Count() const { return m_rcjetsub_Ghosts_BHadron_Final_Count;}
   const std::vector<std::vector<int>>& rcjetsub_Ghosts_CHadron_Final_Count() const { return m_rcjetsub_Ghosts_CHadron_Final_Count;}
-
-  // for rc jets at particle level
-  const std::unique_ptr<ParticleLevelRCJetObjectLoader>& rcjet_particle() const { return m_rcjet_particle;}
-  const std::string& RCJetContainerParticle() const { return m_RCJetContainerParticle;} // name for RC jets container
 
   // Truth tree inserted variables
   // This can be expanded as required

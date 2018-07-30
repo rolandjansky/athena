@@ -6,6 +6,9 @@
 # art-output: monitoring.atlfast.root
 # art-output: dcube
 
+# Create empty pool file
+art.py createpoolfile
+
 echo "Running SUSYTools test: \'share/minimalExampleJobOptions_atlfast.py\'"
 athena SUSYTools/minimalExampleJobOptions_atlfast.py --evtMax=-1
 echo  "art-result: $? TEST"

@@ -5,11 +5,13 @@
 #include "TopEvent/SystematicEvent.h"
 #include "TopEvent/KLFitterResult.h"
 #include "TopEvent/PseudoTopResult.h"
+#include "TopEvent/RCJetMC15.h"
 
 #ifdef __CINT__
 #pragma extra_include "TopEvent/SystematicEvent.h";
 #pragma extra_include "TopEvent/KLFitterResult.h";
 #pragma extra_include "TopEvent/PseudoTopResult.h";
+#pragma extra_include "TopEvent/RCJetMC15.h";
 
 #pragma link off all globals;
 #pragma link off all classes;
@@ -27,5 +29,7 @@
 #pragma link C++ class xAOD::PseudoTopResult+;
 #pragma link C++ class xAOD::PseudoTopResultContainer+;
 #pragma link C++ class xAOD::PseudoTopResultAuxContainer+;
+
+#pragma link C++ class RCJetMC15+;
 
 #endif

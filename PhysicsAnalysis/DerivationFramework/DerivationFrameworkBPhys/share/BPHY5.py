@@ -119,6 +119,15 @@ BplKplVertexFit = Trk__TrkVKalVrtFitter(
 ToolSvc += BplKplVertexFit
 print      BplKplVertexFit
 
+#Add the B to pi pi Jpsi X final states
+from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+BpipiXVertexFit = Trk__TrkVKalVrtFitter(
+                                         name                = "BpipiXVertexFit",
+                                         Extrapolator        = BPHY5_VertexTools.InDetExtrapolator,
+                                         FirstMeasuredPoint  = False,
+                                         MakeExtendedVertex  = True)
+ToolSvc += BpipiXVertexFit
+print      BpipiXVertexFit
 
 ## 5/ setup the Jpsi+2 track finder
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus2Tracks
@@ -170,6 +179,31 @@ UseMassConstraint		= True)
 ToolSvc += BPHY5BplJpsiKpl
 print      BPHY5BplJpsiKpl    
 
+## 5b/ setup the Jpsi+pi+pi+X track finder
+from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus2Tracks
+BPHY5BJpsipipiX = Analysis__JpsiPlus2Tracks(name = "BPHY5BJpsipipiX",
+                                        OutputLevel = INFO,
+kaonkaonHypothesis			= False,
+pionpionHypothesis                      = True,
+kaonpionHypothesis                      = False,
+trkThresholdPt			        = 800.0,
+trkMaxEta				    = 3.0,
+BMassUpper				    = 5800.0,
+BMassLower				    = 3400.0,
+#DiTrackMassUpper = 1019.445 + 100.,
+#DiTrackMassLower = 1019.445 - 100.,
+Chi2Cut                     = 8.0,
+TrkQuadrupletMassUpper      = 5800.0,
+TrkQuadrupletMassLower      = 3400.0,
+JpsiContainerKey		    = "BPHY5JpsiCandidates",
+TrackParticleCollection     = "InDetTrackParticles",
+MuonsUsedInJpsi			    = "Muons",
+TrkVertexFitterTool		    = BpipiXVertexFit,
+TrackSelectorTool		    = BPHY5_VertexTools.InDetTrackSelectorTool,
+UseMassConstraint		    = True)
+
+ToolSvc += BPHY5BJpsipipiX
+print      BPHY5BJpsipipiX
 
 ## 6/ setup the combined augmentation/skimming tool for the Bpm
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk	
@@ -193,6 +227,17 @@ BPHY5BplKplSelectAndWrite = DerivationFramework__Reco_dimuTrk(name				     	= "B
                                                               MaxPVrefit                = 10000 )
 ToolSvc += BPHY5BplKplSelectAndWrite
 print      BPHY5BplKplSelectAndWrite
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk	
+BPHY5BpipiXSelectAndWrite = DerivationFramework__Reco_dimuTrkTrk(name                 = "BPHY5BpipiXSelectAndWrite",
+                                                           Jpsi2PlusTrackName       = BPHY5BJpsipipiX,
+                                                           OutputVtxContainerName   = "BPHY5BJpsipipiXCandidates",
+                                                           PVContainerName          = "PrimaryVertices",
+                                                           RefPVContainerName       = "BPHY5RefittedBPipiPrimaryVertices",
+                                                           RefitPV                  = True, Do3d = False,
+                                                           MaxPVrefit               = 10000, DoVertexType = 7)
+ToolSvc += BPHY5BpipiXSelectAndWrite
+print      BPHY5BpipiXSelectAndWrite
 
 
 ## b/ augment and select Bs->JpsiKK candidates
@@ -234,6 +279,19 @@ BPHY5_Select_Bpl2JpsiPi      = DerivationFramework__Select_onia2mumu(
 
 ToolSvc += BPHY5_Select_Bpl2JpsiPi
 print      BPHY5_Select_Bpl2JpsiPi
+
+BPHY5_Select_B2JpsipipiX = DerivationFramework__Select_onia2mumu(
+  name                       = "BPHY5_Select_B2JpsipipiX",
+  HypothesisName             = "pipiJpsi",
+  InputVtxContainerName      = "BPHY5BJpsipipiXCandidates",
+  TrkMasses                  = [105.658, 105.658, 139.570, 139.570],
+  VtxMassHypo                = 4260,
+  MassMin                    = 3400.0,
+  MassMax                    = 5800.0, Do3d = False,
+  Chi2Max                    = 200)
+
+ToolSvc += BPHY5_Select_B2JpsipipiX
+print      BPHY5_Select_B2JpsipipiX
 
 #expression = "count(BpmJpsiKpmCandidates.passed_Bplus) > 0"
 #from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -332,7 +390,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 bphy5Seq += CfgMgr.DerivationFramework__DerivationKernel("BPHY5Kernel",
                                                                        AugmentationTools = [BPHY5JpsiSelectAndWrite,  BPHY5_Select_Jpsi2mumu,
                                                                                             BPHY5BsKKSelectAndWrite,  BPHY5_Select_Bs2JpsiKK,
-                                                                                            BPHY5BplKplSelectAndWrite,BPHY5_Select_Bpl2JpsiKpl, BPHY5_Select_Bpl2JpsiPi,
+                                                                                            BPHY5BplKplSelectAndWrite, BPHY5BpipiXSelectAndWrite, BPHY5_Select_Bpl2JpsiKpl, BPHY5_Select_Bpl2JpsiPi, BPHY5_Select_B2JpsipipiX,
                                                                                             BPHY5_AugOriginalCounts],
                                                                        #Only skim if not MC
                                                                        SkimmingTools     = [BPHY5SkimmingOR] if not isSimulation else [],
@@ -377,8 +435,8 @@ StaticContent += ["xAOD::VertexContainer#BPHY5RefittedPrimaryVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#BPHY5RefittedPrimaryVerticesAux."]
 StaticContent += ["xAOD::VertexContainer#BPHY5RefBplJpsiKplPrimaryVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#BPHY5RefBplJpsiKplPrimaryVerticesAux."]
-
-
+StaticContent += ["xAOD::VertexContainer#BPHY5RefittedBPipiPrimaryVertices"]
+StaticContent += ["xAOD::VertexAuxContainer#BPHY5RefittedBPipiPrimaryVerticesAux."]
 
 ## ID track particles
 AllVariables += ["InDetTrackParticles"]
@@ -404,6 +462,8 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY5BsKKS
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY5BplKplSelectAndWrite.OutputVtxContainerName]
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY5BplKplSelectAndWrite.OutputVtxContainerName]
 
+StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY5BpipiXSelectAndWrite.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY5BpipiXSelectAndWrite.OutputVtxContainerName]
 
 # Tagging information (in addition to that already requested by usual algorithms)
 #AllVariables += ["Electrons"] 

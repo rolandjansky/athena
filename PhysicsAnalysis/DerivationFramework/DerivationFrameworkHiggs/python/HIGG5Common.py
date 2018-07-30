@@ -191,7 +191,10 @@ def getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault('ThinningService',      thinning_helper.ThinningSvc())
     kwargs.setdefault('TopoClCollectionSGKey','CaloCalTopoClusters')
     kwargs.setdefault('ApplyAnd',             False)
-    thinning_tool = DerivationFramework__JetCaloClusterThinning(name                  = kwargs.pop('name'), **kwargs)
+    kwargs.setdefault('AdditionalClustersKey', ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"])
+    thinning_tool = DerivationFramework__JetCaloClusterThinning(name = kwargs.pop('name'),
+                                                                AdditionalClustersKey = kwargs.pop('AdditionalClustersKey'),
+                                                                **kwargs)
 
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
@@ -201,7 +204,11 @@ def getAntiKt10LCTopoCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
     kwargs.setdefault('name',                 tool_prefix + 'AntiKt10LCTopoCaloClusterThinningTool')
     kwargs.setdefault('SGKey',                'AntiKt10LCTopoJets')
     kwargs.setdefault('SelectionString',      '(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
-    return getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
+    kwargs.setdefault('AdditionalClustersKey', ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"])
+    return getJetCaloClusterThinning(tool_prefix,
+                                     thinning_helper,
+                                     AdditionalClustersKey = kwargs.pop('AdditionalClustersKey'),
+                                     **kwargs)
 
 def getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning

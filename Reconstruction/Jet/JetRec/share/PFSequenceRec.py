@@ -77,10 +77,8 @@ jtm += PseudoJetGetter(
   SkipNegativeEnergy = True,
   )
 
-import cppyy
-try: cppyy.loadDictionary('xAODBaseDict')
-except: pass
 from ROOT import xAOD
+xAOD.Type.ObjectType
 
 #this tool does much of the PFO manipulations in PFlowPseudoJetGetter
 from JetRecTools.JetRecToolsConf import CorrectPFOTool

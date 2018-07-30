@@ -29,7 +29,7 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
     Trk__TrackToVertexIPEstimator)
 
 # flavor tagging
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addHbbTagger
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addHbbTagger, addExKtCoM
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
@@ -122,7 +122,12 @@ DerivationFrameworkJob += FTAG5Seq
 #====================================================================
 
 #put custom jet names here
-OutputJets["FTAG5"] = ["AntiKtVR30Rmax4Rmin02TrackJets"]
+FTAG5BTaggedJets = [
+    "AntiKtVR30Rmax4Rmin02TrackJets",
+    "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets"]
+OutputJets["FTAG5"] = FTAG5BTaggedJets[:]
 
 # I don't understand why we need some of these. We don't use
 # AntiKt4PV0TrackJets in the output, but without them we get a crash
@@ -144,30 +149,41 @@ addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 # Note that the ghost association to the 'AntiKt10LCTopo' jets is
 # hardcoded within this function "for now".
 addVRJets(FTAG5Seq, logger=ftag5_log)
+addVRJets(FTAG5Seq, logger=ftag5_log, do_ghost=True)
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
+#===================================================================
+# ExKt subjets for each trimmed large-R jet
+#===================================================================
+ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, False)
+
+BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+
+
 #==================================================================
-# Augment tracks in jets with additional information
+# Augment tracks and jets with additional information
 #==================================================================
 
 FTAG5Seq += CfgMgr.BTagVertexAugmenter()
-for jc in OutputJets["FTAG5"]:
-   if 'Truth' in jc:
-       continue
-   FTAG5Seq += CfgMgr.BTagTrackAugmenter(
+for jc in FTAG5BTaggedJets:
+    # Add some track information
+    FTAG5Seq += CfgMgr.BTagTrackAugmenter(
        "BTagTrackAugmenter_" + jc,
        OutputLevel=INFO,
        JetCollectionName = jc,
        TrackToVertexIPEstimator = FTAG5IPETool,
        SaveTrackVectors = True,
-   )
-
-# also add some b-tagging jet-wise information
-FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
-    "FTAG5JetAugmenter",
-    JetCollectionName="AntiKtVR30Rmax4Rmin02TrackJets")
+    )
+    # also add some b-tagging jet-wise information
+    FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
+           "FTAG5JetAugmenter_"+jc,
+           JetCollectionName=jc
+    )
 
 #================================================================
 # Add Hbb tagger
@@ -198,12 +214,14 @@ FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
 FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
 fatJetCollection = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
-subJetCollection = "AntiKtVR30Rmax4Rmin02TrackJets"
 
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
     "InDetTrackParticles",
     "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub_expert",   
     fatJetCollection]
 
 jssVariables = ['.'.join([fatJetCollection] + JSSHighLevelVariables) ]
@@ -215,14 +233,16 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
 ]
 
-# add the extra varialbes that come from the BTagJetAugmenterAlg
-FTAG5SlimmingHelper.ExtraVariables.append('.'.join([
-    "BTagging_AntiKtVR30Rmax4Rmin02Track"] + complex_jet_discriminants))
+# add the extra variables that come from the BTagJetAugmenterAlg
+for jc in FTAG5BTaggedJets:
+    FTAG5SlimmingHelper.ExtraVariables.append('.'.join([
+    	"BTagging_"+jc.replace("Jets","")] + complex_jet_discriminants))
 
 # add some more extra variables for ghost associated particles
 ghost_particles = [

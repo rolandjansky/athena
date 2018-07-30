@@ -54,6 +54,7 @@ public:
         m_jets(SG::VIEW_ELEMENTS),
 	m_photons(SG::VIEW_ELEMENTS),
         m_largeJets(SG::VIEW_ELEMENTS),
+	m_RCJets(SG::VIEW_ELEMENTS),
         m_trackJets(SG::VIEW_ELEMENTS),
         m_tauJets(SG::VIEW_ELEMENTS),
         m_met(nullptr),
@@ -95,6 +96,12 @@ public:
 
     ///Container of large jets (can be sorted)
     xAOD::JetContainer m_largeJets;
+    
+    ///Container of recluster jets (can be sorted)
+    xAOD::JetContainer m_RCJets;
+    
+    /// Containers of variable-R reclustered jets (can be sorted)
+    std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > m_VarRCJets;
     
     ///Container of track jets (can be sorted)
     xAOD::JetContainer m_trackJets;    

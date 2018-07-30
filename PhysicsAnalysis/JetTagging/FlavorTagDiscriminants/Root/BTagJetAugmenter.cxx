@@ -91,13 +91,13 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   ip3d_bu(*btag) = btag->calcLLR(ip3d_pb(*btag), ip3d_pu(*btag));
   ip3d_bc(*btag) = btag->calcLLR(ip3d_pb(*btag), ip3d_pc(*btag));
 
+  jf_deltaR(*btag) = NAN;
   if (jf_vertices(*btag).size() > 0 && jf_vertices(*btag).at(0).isValid() && (jf_nVtx(*btag) > 0 || jf_nSingleTracks(*btag) > 0)) {
     jf_isDefaults(*btag) = 0;
+    jf_deltaR(*btag) = std::hypot(jf_deltaEta(*btag), jf_deltaPhi(*btag));
   } else {
     jf_isDefaults(*btag) = 1;
   }
-
-  jf_deltaR(*btag) = std::hypot(jf_deltaEta(*btag), jf_deltaPhi(*btag));
 
   if (sv1_vertices(*btag).size() > 0 && sv1_vertices(*btag).at(0).isValid()) {
     sv1_isDefaults(*btag) = 0;

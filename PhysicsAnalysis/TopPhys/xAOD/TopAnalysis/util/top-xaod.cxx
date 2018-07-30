@@ -336,6 +336,7 @@ int main(int argc, char** argv) {
     // make top::Event objects
     std::unique_ptr<top::TopEventMaker> topEventMaker( new top::TopEventMaker( "top::TopEventMaker" ) );
     top::check(topEventMaker->setProperty( "config" , topConfig ) , "Failed to setProperty of top::TopEventMaker");
+    top::check(topEventMaker->initialize(),"Failed to initialize top::TopEventMaker");
     // Debug messages?
     // topEventMaker.msg().setLevel(MSG::DEBUG);
 
