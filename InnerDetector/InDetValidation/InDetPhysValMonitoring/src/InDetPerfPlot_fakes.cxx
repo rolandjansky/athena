@@ -268,7 +268,8 @@ InDetPerfPlot_fakes::finalizePlots() {
       double xBC = incTrkNum[j]->GetBinContent(i);
       incTrkDenom[j]->SetBinError(i, std::sqrt(yBC));
       incTrkNum[j]->SetBinError(i, std::sqrt(xBC));
-      binError = std::sqrt((xBC * xBC / (yBC * yBC * yBC)) + (xBC) / (yBC * yBC));
+      double yBC2=(yBC * yBC);
+      binError = (yBC2 > 0  ? std::sqrt((xBC * xBC / (yBC * yBC * yBC)) + (xBC) / (yBC * yBC)) : 0);
       if (binError > 0) {
         incTrk[j]->SetBinError(i, binError);
       }

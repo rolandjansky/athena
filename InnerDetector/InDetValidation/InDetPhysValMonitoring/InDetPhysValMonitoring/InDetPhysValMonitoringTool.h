@@ -15,7 +15,6 @@
 
 
 //local include
-#include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
 
 //#include "PATCore/IAsgSelectionTool.h"
@@ -26,6 +25,11 @@
 #include "GaudiKernel/ToolHandle.h"
 //EDM includes
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthPileupEventContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODJet/JetContainer.h"
+
 //Athena
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
@@ -77,23 +81,39 @@ private:
 	const std::vector<const xAOD::TruthParticle *> getTruthParticles();
 	//
 	const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );
-  // Get a data container; implementation at end of this header file
-  template<class T>
-	const T* getContainer( const std::string & containerName);
 	// Do Jet/TIDE plots (Tracking In Dense Environment)
 	StatusCode doJetPlots(const xAOD::TrackParticleContainer * pTracks, 
 	                      IDPVM::CachedGetAssocTruth & association,
-	                      const  xAOD::Vertex * primaryVtx);
+	                      const  xAOD::Vertex * primaryVtx,
+                              const std::vector<const xAOD::TruthParticle*> &truthParticles);
 	///TrackParticle container's name
-	std::string m_trkParticleName;
+        SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkParticleName
+             {this,"TrackParticleContainerName", "InDetTrackParticles"};
 	///TruthParticle container's name
-	std::string m_truthParticleName;
+        SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleName
+             {this, "TruthParticleContainerName",  "TruthParticles", ""};
+
 	///Primary vertex container's name
-	std::string m_vertexContainerName;
+        SG::ReadHandleKey<xAOD::VertexContainer>  m_vertexContainerName
+             {this,"VertexContainerName", "PrimaryVertices", ""};
 	///Truth vertex container's name
-	std::string m_truthVertexContainerName;
+        SG::ReadHandleKey<xAOD::TruthVertexContainer> m_truthVertexContainerName
+             {this,"TruthVertexContainerName",  "TruthVertices",""};
+
 	///EventInfo container name
-	std::string m_eventInfoContainerName;
+        SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoContainerName
+             {this,"EventInfoContainerName", "EventInfo", ""};
+
+        SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventKey
+             {this, "TruthEventKey", "TruthEventName","Name of the truth events container probably either TruthEvent or TruthEvents"};
+        SG::ReadHandleKey<xAOD::TruthPileupEventContainer> m_truthPileUpeEventKey
+             {this, "TruthPileupEventKey", "TruthPileupEventName","Name of the truth pileup events container probably TruthPileupEvent(s)"};
+
+        // needed to indicate data dependencies
+        std::vector<SG::ReadDecorHandleKey<xAOD::TrackParticleContainer> > m_floatTrkDecor;
+        std::vector<SG::ReadDecorHandleKey<xAOD::TrackParticleContainer> > m_intTrkDecor;
+        std::vector<SG::ReadDecorHandleKey<xAOD::TruthParticleContainer> > m_floatTruthDecor;
+        std::vector<SG::ReadDecorHandleKey<xAOD::TruthParticleContainer> > m_intTruthDecor;
 
 	///Directory name
 	std::string m_dirName;
@@ -105,7 +125,7 @@ private:
 	bool m_onlyInsideOutTracks;
 	bool m_TrkSelectPV;   // make track selection relative to PV
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
-  ToolHandle<IAthSelectionTool> m_truthSelectionTool;
+	ToolHandle<IAthSelectionTool> m_truthSelectionTool;
 	std::vector<int> m_prospectsMatched;
 	int m_twoMatchedEProb;
 	int m_threeMatchedEProb;
@@ -116,24 +136,14 @@ private:
 	std::vector<int> m_trackCutflow;
 	std::vector<unsigned int> m_truthCutCounters;
 	std::string m_pileupSwitch; // All, PileUp, or HardScatter
-	
 	///Jet Things
-	std::string m_jetContainerName;
+        SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName
+             {this, "jetContainerName", "AntiKt4TruthJets" , ""};
+
 	float m_maxTrkJetDR;
 	bool m_fillTIDEPlots;
 	bool m_fillExtraTIDEPlots;
 
 	std::string m_folder;
 };
-
-template<class T>
-  inline 
-	const T* InDetPhysValMonitoringTool::getContainer(const std::string & containerName){
-		const T * ptr = evtStore()->retrieve< const T >( containerName );
-    	if (!ptr) {
-        	ATH_MSG_WARNING("Container '"<<containerName<<"' could not be retrieved");
-    	}
-    	return ptr;
-	}
-
 #endif

@@ -28,7 +28,6 @@
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
 #include "xAODTracking/TrackParticle.h"
-#include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
 
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -91,15 +90,11 @@ InDetPhysValLargeD0Tool::InDetPhysValLargeD0Tool(const std::string& type, const 
   m_useTrackSelection(true),
   m_onlyInsideOutTracks(false),
   m_trackSelectionTool("TrackSelectionTool/TrackSelectionTool"),
-  m_truthSelectionTool("TrackTruthSelectionTool/TruthSelectionTool"),
+  m_truthSelectionTool("AthTruthSelectionTool"),
   m_maxTrkJetDR{},
   m_folder{},
   m_fillTIDEPlots{},
   m_fillExtraTIDEPlots{} {
-  declareProperty("TrackParticleContainerName", m_trkParticleName = "InDetTrackParticles");
-  declareProperty("TruthParticleContainerName", m_truthParticleName = "TruthParticles");
-  declareProperty("VertexContainerName", m_vertexContainerName = "PrimaryVertices");
-  declareProperty("EventInfoContainerName", m_eventInfoContainerName = "EventInfo");
   declareProperty("useTrackSelection", m_useTrackSelection); // redundant?
   declareProperty("onlyInsideOutTracks", m_onlyInsideOutTracks);
   declareProperty("TrackSelectionTool", m_trackSelectionTool);
@@ -126,7 +121,7 @@ InDetPhysValLargeD0Tool::initialize() {
     }
     ATH_CHECK(m_trackSelectionTool.retrieve());
   }
-  ATH_CHECK(m_truthSelectionTool.retrieve());
+  ATH_CHECK(m_truthSelectionTool.retrieve( EnableTool {not m_truthParticleName.key().empty()} ));
   m_LargeD0Plots =
     std::move(std::unique_ptr<InDetRttLargeD0Plots> (new InDetRttLargeD0Plots(0, "IDPerformanceMon/" + m_folder)));
 
@@ -146,22 +141,30 @@ InDetPhysValLargeD0Tool::fillHistograms() {
   ATH_MSG_DEBUG("Filling hists " << name() << "...");
 
   // Retrieve trackParticle container.
-  auto ptracks = getContainer<xAOD::TrackParticleContainer>(m_trkParticleName);
-  if (!ptracks) {
+  SG::ReadHandle<xAOD::TrackParticleContainer> ptracks(m_trkParticleName);
+  if (!ptracks.isValid()) {
     return StatusCode::FAILURE;
   }
   // Retrieve EventInfo container
-  auto eventinfo = getContainer<xAOD::EventInfo>(m_eventInfoContainerName);
+  SG::ReadHandle<xAOD::EventInfo> eventinfo(m_eventInfoContainerName);
+  if (!eventinfo.isValid()) {
+    return StatusCode::FAILURE;
+  }
   // Retrieve vertex container
-  auto privert = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
+  SG::ReadHandle<xAOD::VertexContainer> privert(m_vertexContainerName);
+  if (!privert.isValid()) {
+    return StatusCode::FAILURE;
+  }
 
   // Retrieve truthParticle container.
-  const xAOD::TruthParticleContainer* truthParticles =
-    (!m_truthParticleName.empty() ? getContainer<xAOD::TruthParticleContainer>(m_truthParticleName) : nullptr);
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticles;
+  if (!m_truthParticleName.key().empty()) {
+    truthParticles=SG::ReadHandle<xAOD::TruthParticleContainer>(m_truthParticleName);
+  }
 
   // Counters etc.
   const unsigned int nTracks(ptracks->size());
-  const unsigned int nTruth(truthParticles  ? truthParticles->size() : 0);
+  const unsigned int nTruth(truthParticles.isValid()  ? truthParticles->size() : 0);
   unsigned int nSelectedTracks(0), num_truthmatch_match(0);
 
   // Probabilities.
@@ -254,7 +257,7 @@ InDetPhysValLargeD0Tool::fillHistograms() {
   /**
    * This is the beginning of the nested Loop, built mainly for the Efficiency Plots.
    */
-  if (truthParticles) {
+  if (truthParticles.isValid()) {
     // Outer loop: All truth particles.
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     for (const auto& thisTruth : *truthParticles) {

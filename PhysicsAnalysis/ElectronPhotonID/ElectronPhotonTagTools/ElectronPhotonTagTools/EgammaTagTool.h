@@ -59,11 +59,6 @@ private:
                         const DataHandle<EventInfo>& eventInfo);
 
 
-protected:
-
-   /** Standard destructor */
-   virtual ~EgammaTagTool( );
-
 private:
   /** Properties */
   std::string m_electronContainer;

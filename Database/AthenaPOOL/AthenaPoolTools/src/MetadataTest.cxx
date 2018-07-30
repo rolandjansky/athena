@@ -10,7 +10,6 @@
 #include "MetadataTest.h"
 
 //#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/AlgFactory.h"
 #include "StoreGate/ReadMetaHandle.h"
 
 #include "xAODCutFlow/CutBookkeeperContainer.h"

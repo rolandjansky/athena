@@ -12,9 +12,6 @@
 
 SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKeyHV{"/SCT/DCS/HV"}
-  , m_readKeyState{"/SCT/DCS/CHANSTAT"}
-  , m_writeKeyState{"SCT_DCSStatCondData"}
   , m_condSvc{"CondSvc", name}
   , m_readAllDBFolders{true}
   , m_returnHVTemp{true}
@@ -36,10 +33,6 @@ SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& na
   declareProperty("useHVLow", m_useHVLowLimit);
   declareProperty("useHVUp", m_useHVUpLimit);
   declareProperty("useHVChan", m_useHVChanCut);
-  
-  declareProperty("ReadKeyHV", m_readKeyHV, "Key of input (raw) HV conditions folder");
-  declareProperty("ReadKeyState", m_readKeyState, "Key of input (raw) State conditions folder");
-  declareProperty("WriteKeyState", m_writeKeyState, "Key of output (derived) State conditions folder");
 }
 
 StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
@@ -89,12 +82,9 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   SG::WriteCondHandle<SCT_DCSStatCondData> writeHandle{m_writeKeyState};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 

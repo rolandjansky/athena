@@ -60,7 +60,8 @@ void FastSCT_Clusterization::addCluster(){
    double clusterPos = 0.5 * static_cast<double>(strip);
    //double localPhiR = m_current_pitch*clusterPos + m_localXcorrection;
 
-   double shift = m_detEl->getLorentzCorrection();
+   IdentifierHash hashId = m_sctID->wafer_hash(m_element);
+   double shift = m_lorentzAngleTool->getLorentzShift(hashId);
    double localPhiR = m_current_pitch*clusterPos + shift;
 
 
@@ -98,7 +99,7 @@ void FastSCT_Clusterization::setupNewElement(const Identifier elementId,
   m_first_strip = sctStrip;
   m_last_strip = sctStrip;
   m_strips_ascending=true;
-  m_deltaXlorentz= m_detEl->getLorentzCorrection();
+  m_deltaXlorentz= m_lorentzAngleTool->getLorentzShift(hashId);
   // find geometry of this element:
   if (m_sctID->is_barrel(elementId) ){
     m_current_pitch = m_barrel_pitch;

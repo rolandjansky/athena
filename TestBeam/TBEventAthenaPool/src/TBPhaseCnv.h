@@ -23,7 +23,9 @@ typedef  T_AthenaPoolCustomCnv<TBPhase, TBPhase_PERS >   TBPhaseCnvBase;
 class TBPhaseCnv : public TBPhaseCnvBase {
 friend class CnvFactory<TBPhaseCnv >;
 protected:
+public:
   TBPhaseCnv (ISvcLocator* svcloc) : TBPhaseCnvBase(svcloc) {}
+protected:
   virtual TBPhase_PERS*   createPersistent (TBPhase* transCont);
   virtual TBPhase*        createTransient ();
 

@@ -5,9 +5,9 @@
 #ifndef MUON_MUONSEGMENT_MUONSEGMENTCOMBINATIONCOLLECTION_H
 #define MUON_MUONSEGMENT_MUONSEGMENTCOMBINATIONCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MuonSegment/MuonSegmentCombination.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**This typedef represents a collection of MuonSegmentCombination objects. 
 It is a DataVector. It can be saved

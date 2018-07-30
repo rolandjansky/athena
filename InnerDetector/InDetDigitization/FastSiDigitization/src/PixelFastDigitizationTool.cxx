@@ -6,14 +6,12 @@
 // PixelFastDigitizationTool.cxx
 //   Implementation file for class PixelFastDigitizationTool
 ////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 
 // Pixel digitization includes
 #include "FastSiDigitization/PixelFastDigitizationTool.h"
 
 // Det Descr
 #include "Identifier/Identifier.h"
-//#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
@@ -35,17 +33,19 @@
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 // Fatras
 #include "InDetPrepRawData/PixelCluster.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "TrkExUtils/LineIntersection2D.h"
 #include "InDetPrepRawData/SiWidth.h"
-#include "InDetSimEvent/SiHitCollection.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
+#include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "HepMC/GenParticle.h"
@@ -1055,7 +1055,7 @@ StatusCode PixelFastDigitizationTool::digitize()
         double etaWidth = design->widthFromColumnRange(etaIndexMin, etaIndexMax);
         double phiWidth = design->widthFromRowRange(phiIndexMin, phiIndexMax);
 
-        InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
+        InDet::SiWidth siWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
                                                      Amg::Vector2D(phiWidth,etaWidth) );
         int lvl1a = 0; // needs to be checked with Pixel experts
 
@@ -1066,7 +1066,7 @@ StatusCode PixelFastDigitizationTool::digitize()
                                                           rdoListGanged,
                                                           lvl1a,
                                                           totListGanged,
-                                                          *siWidth,
+                                                          siWidth,
                                                           hitSiDetElement,
                                                           true,
                                                           m_pixErrorStrategy,
@@ -1101,7 +1101,7 @@ StatusCode PixelFastDigitizationTool::digitize()
       // from InDetReadoutGeometry : width from phi
       double phiWidth = design->widthFromRowRange(phiIndexMin, phiIndexMax);
 
-      InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
+      InDet::SiWidth siWidth(Amg::Vector2D(m_siDeltaPhiCut,m_siDeltaEtaCut),
                                                    Amg::Vector2D(phiWidth,etaWidth) );
       // correct shift implied by the scaling of the Lorentz angle
       double newshift = 0.5*thickness*tanLorAng;
@@ -1125,7 +1125,7 @@ StatusCode PixelFastDigitizationTool::digitize()
                                                     rdoList,
                                                     lvl1a,
                                                     totList,
-                                                    *siWidth,
+                                                    siWidth,
                                                     hitSiDetElement,
                                                     isGanged,
                                                     m_pixErrorStrategy,
@@ -1135,7 +1135,7 @@ StatusCode PixelFastDigitizationTool::digitize()
         // create your own cluster
         // you need to correct for the lorentz drift -- only if surface charge emulation was switched on
         double appliedShift = m_pixEmulateSurfaceCharge ? m_pixTanLorentzAngleScalor*shift : (1.-m_pixTanLorentzAngleScalor)*shift;
-        Amg::Vector2D*  lcorrectedPosition = new Amg::Vector2D(clusterPosition.x()+appliedShift,clusterPosition.y());
+        Amg::Vector2D lcorrectedPosition(clusterPosition.x()+appliedShift,clusterPosition.y());
         // create the parameterised error
         double sigmaPhi = m_siDeltaPhiCut-1 < int(m_pixPhiError.size()) ?
           m_pixPhiError[m_siDeltaPhiCut-1] : m_pixPhiError[m_pixPhiError.size()-1];
@@ -1149,11 +1149,11 @@ StatusCode PixelFastDigitizationTool::digitize()
         Amg::MatrixX* clusterErr = new Amg::MatrixX(covariance);
         // create the cluster
         pixelCluster = new InDet::PixelCluster(clusterId,
-                                               *lcorrectedPosition,
+                                               lcorrectedPosition,
                                                rdoList,
                                                lvl1a,
                                                totList,
-                                               *siWidth,
+                                               siWidth,
                                                hitSiDetElement,
                                                clusterErr);
         //if (isGanged)  pixelCluster->setGangedPixel(isGanged); //FIXME is this needed here?
@@ -1275,40 +1275,20 @@ bool PixelFastDigitizationTool::areNeighbours
  InDetDD::SiDetectorElement* /*element*/,
  const PixelID& pixelID) const
 {
-
-  int splitClusters = 0;
-  int acceptDiagonalClusters = 1;
-
+  // note: in the PixelClusteringToolBase, m_splitClusters is a variable; here
+  // splitClusters was explicitly set to zero, acceptDiagonalClusters = 1
+  // so much of the original code is redundant and only one path through the code
+  // is possible.
+  
   std::vector<Identifier>::const_iterator groupBegin = group.begin();
   std::vector<Identifier>::const_iterator groupEnd = group.end();
 
-  //Identifier elementID = element->identify();
 
   int row2 = pixelID.phi_index(rdoID);
   int col2 = pixelID.eta_index(rdoID);
-  int maxZsize=999;
-  if(splitClusters == 1){
-    int etamodule = pixelID.eta_module(rdoID);
-    int isBarrel = pixelID.barrel_ec(rdoID);
-    if(isBarrel == 0){
-      // this goes from 0 (central stave) to 6
-      int dz = abs(etamodule-6);
-      if(dz<4){ maxZsize=2; }
-      else{ maxZsize=3; }
-    }
-    else{
-      maxZsize = 2;
-    }
-    if(maxZsize > 3){
-      ATH_MSG_WARNING (" areNeighbours - problems ");
-    }
-  }
-  if(splitClusters == 2) maxZsize = 2;
+ 
 
-  int rowmin = row2;
   int rowmax = row2;
-  int colmin = col2;
-  int colmax = col2;
   bool match=false;
   while (groupBegin!=groupEnd)
     {
@@ -1321,23 +1301,12 @@ bool PixelFastDigitizationTool::areNeighbours
 
       // a side in common
       if(deltacol+deltarow < 2) match = true;
-      if(acceptDiagonalClusters != 0 && deltacol == 1
-         && deltarow == 1) match = true;
-
-      // check cluster size
-      if(splitClusters != 0){
-        if(row1 > rowmax) rowmax = row1;
-        if(row1 < rowmin) rowmin = row1;
-        if(col1 > colmax) colmax = row1;
-        if(col1 < colmin) colmin = row1;
-      }
+      //condition "if (acceptDiagonalClusters !=0") is redundant
+      if(deltacol == 1 && deltarow == 1) match = true;
 
       ++groupBegin;
     }
-  if(match && splitClusters != 0){
-    if(colmax-colmin > maxZsize-1) match = false;
-    if(rowmax-rowmin > 1) match = false;
-  }
+  
 
   return match;
 }

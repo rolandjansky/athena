@@ -20,6 +20,7 @@
 #include <map>
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -28,9 +29,9 @@
 #include "SiCombinatorialTrackFinderTool_xk/SiTrajectory_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiTools_xk.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
+#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLinks_xk.h"
 
 class MsgStream          ;
-class IInDetConditionsSvc;
 
 namespace InDet{
 
@@ -111,8 +112,9 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      ServiceHandle<IInDetConditionsSvc>    m_pixelCondSummarySvc;
-      ServiceHandle<IInDetConditionsSvc>    m_sctCondSummarySvc  ;
+      ToolHandle<IInDetConditionsTool>        m_pixelCondSummaryTool;
+      ToolHandle<IInDetConditionsTool>    m_sctCondSummaryTool{this, "SctSummaryTool",
+          "InDetSCT_ConditionsSummaryTool/SCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool   ;
       ToolHandle<Trk::IPatternParametersUpdator>    m_updatortool;
@@ -160,8 +162,9 @@ namespace InDet{
       int                            m_nclusminb     ; // Min number clusters
       int                            m_nwclusmin     ; // Min number weighted clusters
       std::list<Trk::Track*>         m_tracks        ; // List found tracks
-      std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundaryPIX;
-      std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundarySCT;
+      InDet::SiDetElementBoundaryLinks_xk m_boundaryPIX;
+      SG::ReadCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_boundarySCTKey{this, "SCT_DetElementBoundaryLinks_xk",
+          "SCT_DetElementBoundaryLinks_xk", "Key of InDet::SiDetElementBoundaryLinks_xk for SCT"};
 
       ///////////////////////////////////////////////////////////////////
       // Methods 

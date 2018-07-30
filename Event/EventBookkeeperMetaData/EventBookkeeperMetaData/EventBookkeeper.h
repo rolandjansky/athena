@@ -9,8 +9,7 @@
 #ifndef EVENTBOOKKEEPER_H 
 #define EVENTBOOKKEEPER_H 
  
-// CLIDSvc includes (for persistency)
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 #include <iosfwd>
 #include <stdint.h>

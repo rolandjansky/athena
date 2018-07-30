@@ -12,10 +12,11 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include <ostream>
 #include <iomanip>
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_HeavyIon.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor

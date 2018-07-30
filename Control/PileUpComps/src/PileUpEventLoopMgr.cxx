@@ -295,16 +295,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
           return StatusCode::FAILURE;
         }
 
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-      Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
-      if (alg != nullptr) {
-        alg->setContext( m_eventContext );
-      } else {
-        ATH_MSG_ERROR( "Unable to dcast IAlgorithm " << (*ita)->name() 
-                       << " to Algorithm" );
-        return StatusCode::FAILURE;
-      }
-#endif
     }
 
   // Initialize the list of Output Streams. Note that existing Output Streams
@@ -316,17 +306,6 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
                         (*ita)->name() );
         return StatusCode::FAILURE;
       }
-
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-      Algorithm* alg = dynamic_cast<Algorithm*>( (IAlgorithm*)(*ita) );
-      if (alg != nullptr) {
-        alg->setContext( m_eventContext );
-      } else {
-        ATH_MSG_ERROR( "Unable to dcast IAlgorithm " << (*ita)->name() 
-                       << " to Algorithm" );
-        return StatusCode::FAILURE;
-      }
-#endif
     }
 
   const EventInfo* pEvent(0);
@@ -801,11 +780,7 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms()
         ita != m_topAlgList.end();
         ita++ )
     {
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-      StatusCode sc = (*ita)->sysExecute();
-#else
       StatusCode sc = (*ita)->sysExecute(*m_eventContext);
-#endif
       // this duplicates what is already done in Algorithm::sysExecute, which
       // calls Algorithm::setExecuted, but eventually we plan to remove that 
       // function
@@ -911,11 +886,7 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
       for (ListAlg::iterator ito = m_outStreamList.begin();
            ito != m_outStreamList.end(); ito++ )
         {
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-          sc = (*ito)->sysExecute();
-#else
           sc = (*ito)->sysExecute(*m_eventContext);
-#endif
           if( !sc.isSuccess() )
             {
               eventFailed = true;

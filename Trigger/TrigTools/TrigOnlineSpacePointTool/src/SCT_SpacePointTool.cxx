@@ -5,7 +5,6 @@
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigOnlineSpacePointTool/SCT_SpacePointTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "Identifier/IdentifierHash.h" 
 #include <string>

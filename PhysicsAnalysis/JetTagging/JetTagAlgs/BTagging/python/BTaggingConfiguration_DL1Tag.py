@@ -13,7 +13,7 @@ def buildDL1(basename):
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : [basename],
+                  'CalibrationTaggers' : [basename],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                   'ToolCollection'     : basename+'Tag'}
 

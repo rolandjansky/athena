@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # File:    WriteCellNoiseToCool.py
 # Purpose: Manual update of cell noise constants from ascii file
@@ -163,8 +163,17 @@ import cppyy
 from CaloCondBlobAlgs import CaloCondTools
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools
+if run<0:
+    cabling = 'RUN2a'
+elif run<222222 or 'COMP200' in ischema:
+    cabling = 'RUN1'
+else:
+    if ('OFLP200' in ischema and run>=310000) or run>=343000:
+        cabling = 'RUN2a'
+    else:
+        cabling = 'RUN2'
 hashMgr=None
-hashMgrDef=TileCellTools.TileCellHashMgr()
+hashMgrDef=TileCellTools.TileCellHashMgr(cabling=cabling)
 hashMgrA=TileCellTools.TileCellHashMgr("UpgradeA")
 hashMgrBC=TileCellTools.TileCellHashMgr("UpgradeBC")
 hashMgrABC=TileCellTools.TileCellHashMgr("UpgradeABC")
@@ -347,21 +356,25 @@ if run>=0 and len(iovList)>0:
 #== update only one IOV from input DB if we are reading numbers from file
 if (ncell>0 and nval>2):
   if (run>0):
-    if (len(iovList)>1): 
-      print "Updating only single IOV"
-      iovList = iovList[0:1]
-    iov=iovList[0]
-    since = (run, lumi)
-    until = iov[1]
-    iov = (since, until)
-    iovList = [ iov ]
+    if begin<-1:
+      iovList=iovList[0:-begin]
+      print "Updating",len(iovList),"IOVs"
+    else:
+      if (len(iovList)>1):
+        print "Updating only single IOV"
+        iovList = iovList[0:1]
+      iov=iovList[0]
+      since = (run, lumi)
+      until = iov[1]
+      iov = (since, until)
+      iovList = [ iov ]
   else:
     if (len(iovList)>1): 
       print "Updating only last IOV"
       iovList = iovList[len(iovList)-1:]
 
 if begin>=0 and len(iovList)>1:
-    raise Exception("-z flag can not be used with multiple IOVs, please provide run number inside one IOV")
+    raise Exception("-begin flag can not be used with multiple IOVs, please provide run number inside one IOV")
 
 if not tile:
   modName="LAr %2d" % chan

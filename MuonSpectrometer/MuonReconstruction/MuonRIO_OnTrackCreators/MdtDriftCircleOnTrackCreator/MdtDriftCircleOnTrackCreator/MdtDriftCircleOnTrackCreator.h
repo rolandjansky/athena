@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
@@ -71,7 +70,6 @@ namespace Muon {
        - doMDT: switch on/off ROT creation (default = true)
        - TimingMode: select timing mode (default = ATLTIME)
        - MuonTofTool: Tool to be used to calculate time of flight (default = "Muon::MuonCosmicTofTool/MuonCosmicTofTool")
-       - ErrorScalingTool: Tool to scale errors (default = "Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool")
        - DoWireSag: Flag to turn on application of geometrical wire sagging correstions (default = false)
        - CreateTubeHit: Flag to turn on the creation of tube hits (default = false)
     */
@@ -189,21 +187,16 @@ namespace Muon {
       // parametrised error function
       double parametrisedSigma( double r ) const;
       
-      void fillMboyParametrisedErrors();
-      float mBoyParametrisedSigma(double r) const; // TODO - merge into parametrisedSigma? EJWM
-      
       double mooreErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mooreErrorStrategyMC(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mooreErrorStrategyLoose(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mooreErrorStrategyTight(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
-      double mboyErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR) const;
       
       double muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       
       ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
       ServiceHandle<MdtCalibrationSvc>     m_mdtCalibSvc;
       ServiceHandle<MdtCalibrationDbSvc>   m_mdtCalibDbSvc;
-      ToolHandle<Trk::IRIO_OnTrackErrorScalingTool>   m_errorScalingTool;
       ToolHandle<IMuonTofTool>             m_tofTool; //!<Time of flight tool (handle tof if not coming from IP)
 
       // Configuration variables
@@ -235,8 +228,6 @@ namespace Muon {
       bool                                m_doIndividualChamberReweights; //!< Deweight individual chambers
       bool                                m_isMC; //!< toggle between MC and data alignment errors (to be removed in rel. 21!)
       bool                                m_looseErrors; //!< toggle between loose errors (initial before alignment) and tight after alignment
-      // Additions for Mboy errors 
-      std::vector<float>                  m_mboyParametrisedErrors;//!< Holds the error values copied from MuonboyCore's fredigint.F90
     };
 
 } // End of muon namewpace

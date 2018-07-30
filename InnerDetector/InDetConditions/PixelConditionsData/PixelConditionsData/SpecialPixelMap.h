@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSDATA_SPECIALPIXELMAP_H
@@ -7,8 +7,8 @@
 
 #include "PixelCoralClientUtils/SpecialPixelMap.hh"
 
-#include "CLIDSvc/CLASS_DEF.h"
-
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CondCont.h"
 #include<map>
 #include<string>
 
@@ -96,5 +96,8 @@ class ModuleSpecialPixelMap : public PixelCoralClientUtils::ModuleSpecialPixelMa
 
 CLASS_DEF(DetectorSpecialPixelMap, 203854058, 1) 
 CLASS_DEF(ModuleSpecialPixelMap, 84153642, 1)
+
+CONDCONT_DEF( DetectorSpecialPixelMap, 70046420); 
+CONDCONT_DEF( ModuleSpecialPixelMap, 153445648);
 
 #endif

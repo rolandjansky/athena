@@ -16,7 +16,7 @@
 namespace xAOD {
 
    L2IsoMuon_v1::L2IsoMuon_v1()
-      : IParticle(), m_p4(), m_p4Cached( false ) {
+      : IParticle() {
 
    }
 
@@ -39,25 +39,24 @@ namespace xAOD {
 
    double L2IsoMuon_v1::e() const {
 
-      return p4().M();
+      return genvecP4().E();
    }
 
    double L2IsoMuon_v1::rapidity() const {
 
-      return p4().Rapidity();
+      return genvecP4().Rapidity();
    }
 
-   const L2IsoMuon_v1::FourMom_t& L2IsoMuon_v1::p4() const {
-
-      // Update the cached object if necessary:
-      if( ! m_p4Cached ) {
-         m_p4Cached = true;
-         m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m() );
-      }
-
-      // Return the cached object:
-      return m_p4;
+   L2IsoMuon_v1::FourMom_t L2IsoMuon_v1::p4() const {
+     FourMom_t p4;
+     p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+     return p4;	
    }
+
+   /// this provides a GenVector (pt, eta, phi, m)
+   L2IsoMuon_v1::GenVecFourMom_t L2IsoMuon_v1::genvecP4() const {
+     return GenVecFourMom_t(pt(), eta(), phi(), m());
+   } 
 
    Type::ObjectType L2IsoMuon_v1::type() const {
 
@@ -76,7 +75,6 @@ namespace xAOD {
 
       static Accessor< float > acc( "pt" );
       acc( *this ) = pt;
-      m_p4Cached = false;
       return;
    }
 
@@ -84,7 +82,6 @@ namespace xAOD {
 
       static Accessor< float > acc( "eta" );
       acc( *this ) = eta;
-      m_p4Cached = false;
       return;
    }
 
@@ -92,7 +89,6 @@ namespace xAOD {
 
       static Accessor< float > acc( "phi" );
       acc( *this ) = phi;
-      m_p4Cached = false;
       return;
    }
 

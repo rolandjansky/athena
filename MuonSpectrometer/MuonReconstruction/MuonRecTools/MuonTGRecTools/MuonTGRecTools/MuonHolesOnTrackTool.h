@@ -11,9 +11,6 @@
 
 // Base class
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
@@ -101,10 +98,6 @@ private:
   const TgcIdHelper* m_tgcIdHelper;
   const MuonGM::MuonDetectorManager* m_muonMgr;
   
-  // -- algorithm members
-  StoreGateSvc                    *m_StoreGate;         //!< transient event store providing the tracks
-  StoreGateSvc                    *m_detStore;       
-
   mutable const  Trk::TrackingVolume*       m_msEntrance;
   
   bool    m_parUpdate;                                  // steering - extrapolation parameters update when looping over layers

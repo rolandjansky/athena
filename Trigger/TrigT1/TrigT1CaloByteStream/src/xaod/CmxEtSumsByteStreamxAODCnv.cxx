@@ -13,15 +13,14 @@
 #include "ByteStreamData/ROBData.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "xAODTrigL1Calo/CMXEtSums.h"

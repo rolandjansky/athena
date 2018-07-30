@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbSession.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbSessionObj handle implementation
 //--------------------------------------------------------------------
@@ -120,7 +119,3 @@ IOODatabase* DbSession::db(const DbType& typ) const {
   return isValid() ? m_ptr->db(typ) : 0;
 }
 
-/// Inject new Database implementation
-DbStatus DbSession::addDb(IOODatabase* db_impl) const {
-  return (isValid() && db_impl) ? m_ptr->addDb(db_impl) : Error;
-}

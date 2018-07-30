@@ -134,7 +134,7 @@ namespace Muon {
     if ( m_mmPrds && m_mmIdHelper->is_mm(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_mmIdHelper->get_detectorElement_hash(ide,ideHash);
+      m_mmIdHelper->get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -148,7 +148,7 @@ namespace Muon {
     if ( m_stgcPrds && m_stgcIdHelper->is_stgc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_stgcIdHelper->get_detectorElement_hash(ide,ideHash);
+      m_stgcIdHelper->get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");

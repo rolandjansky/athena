@@ -4,7 +4,6 @@
 #include "IOVSvc/CondSvc.h"
 #include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/EventIDBase.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "AthenaKernel/StoreID.h"
 #include "SGTools/BaseInfo.h"
 

@@ -35,11 +35,11 @@ class TrigMuonEFInfoContainerCnv : public TrigMuonEFInfoContainerCnvBase{
   
   friend class CnvFactory<TrigMuonEFInfoContainerCnv>;
   
- protected:
-  
+public:
   TrigMuonEFInfoContainerCnv( ISvcLocator *svcloc );
   ~TrigMuonEFInfoContainerCnv();
   
+protected:
   virtual TrigMuonEFInfoContainer_PERS *createPersistent( TrigMuonEFInfoContainer *transObj);
   virtual TrigMuonEFInfoContainer      *createTransient();
   

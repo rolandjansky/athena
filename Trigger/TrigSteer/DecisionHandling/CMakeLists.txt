@@ -21,6 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
                           #Trigger/TrigSteer/L1Decoder
 			  AtlasTest/TestTools
 			  Control/StoreGate
+			  Trigger/TrigSteer/TrigOutputHandling
+			  Trigger/TrigEvent/TrigSteeringEvent
 			  )
 
 find_package( ROOT )
@@ -30,7 +32,7 @@ atlas_add_library( DecisionHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES xAODTrigger GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent)
 
 # Component(s) in the package:
 atlas_add_component( DecisionHandling

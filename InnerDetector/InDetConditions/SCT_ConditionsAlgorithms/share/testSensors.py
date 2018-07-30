@@ -1,5 +1,15 @@
 import AthenaCommon.AtlasUnixStandardJob
 
+#--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
 
@@ -68,7 +78,6 @@ import AtlasGeoModel.GeoModelInit
 # Disable SiLorentzAngleSvc to remove
 # ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
 from SCT_ConditionsTools.SCT_SensorsToolSetup import SCT_SensorsToolSetup
 sct_SensorsToolSetup = SCT_SensorsToolSetup()

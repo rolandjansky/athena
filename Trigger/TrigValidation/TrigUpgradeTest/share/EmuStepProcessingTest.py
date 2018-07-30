@@ -15,23 +15,7 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataFlow( True )
 
-# include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-# svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
 
-# # This is the list of proxies to set up so that retrieval attempt will trigger the BS conversion
-# if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
-#     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-#     svcMgr += ByteStreamAddressProviderSvc()
-# svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
-
-# Event-level algorithm sequence
-
-
-# from SGComps.SGCompsConf import SGInputLoader
-# topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-# topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
-
-#from AthenaCommon.CFElements import stepSeq
 
 
 data = {'noreco': [';', ';', ';']}  # in the lists there are the events
@@ -70,28 +54,104 @@ data['photons'] = ['eta:1,phi:1,pt:130000;',
                    ';']
 
 
+
 from TrigUpgradeTest.TestUtils import writeEmulationFiles
 writeEmulationFiles(data)
 
-#include("TrigUpgradeTest/L1CF.py")
-include("TrigUpgradeTest/HLTCF.py")
+
+from AthenaCommon.CFElements import parOR, seqAND, stepSeq
+
+
+# signatures
+from TrigUpgradeTest.HLTCFConfig import makeHLTTree
+from TrigUpgradeTest.MenuComponents import MenuSequence, Chain, ChainStep
+
+
+doMuon=True
+doElectron=True
+doCombo=True
+
+HLTChains = []
+EnableElChains = []
+EnabledMuChains = []
+EnabledMComboChains = []
+
+
+# muon chains
+if doMuon:
+    from TrigUpgradeTest.HLTSignatureConfig import muStep1Sequence, muStep2Sequence
+    muStep1 = muStep1Sequence()
+    muStep2 = muStep2Sequence()
+
+
+    MuChains  = [
+        Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [muStep1]) , ChainStep("Step2_mu20", [muStep2] )]) ,
+        Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [muStep1]) , ChainStep("Step2_mu8",  [muStep2] ) ] )
+        ]
+
+    HLTChains += MuChains
+    EnabledMuChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in MuChains]
+
+
+
+
+## #electron chains
+if doElectron:
+    from TrigUpgradeTest.HLTSignatureConfig import elStep1Sequence, elStep2Sequence
+    elStep1 = elStep1Sequence()
+    elStep2 = elStep2Sequence()
+    ElChains  = [
+        Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [elStep1]), ChainStep("Step2_e20",  [elStep2]) ] )
+#        Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [elStep1]) ] )
+        ]
+
+    HLTChains += ElChains
+    EnabledElChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in ElChains]
+
+
+# combined chain
+if doCombo:
+    from TrigUpgradeTest.HLTSignatureConfig import combStep1Sequence, combStep2Sequence
+    muelStep1 = combStep1Sequence()
+    muelStep2 = combStep2Sequence()
+    CombChains =[
+        Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [muelStep1]),
+                                                                ChainStep("Step2_mu8_e8",  [muelStep2]) ] )
+        ]
+
+    HLTChains += CombChains
+    EnabledComboChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in CombChains]
+
+
+
+EnabledChainNamesToCTP = [str(n)+":"+c.name for n,c in enumerate(HLTChains)]
+
+print EnabledChainNamesToCTP
+
+
 
 ########################## L1 #################################################
-# this is the same as in "TrigUpgradeTest/L1CF.py"
+
 L1UnpackingSeq = parOR("L1UnpackingSeq")
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
 l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
 l1Decoder.prescaler.EventInfo=""
+l1Decoder.Chains="HLTChainsResult"
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
-#ctpUnpacker.CTPToChainMapping = [ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
+ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
+#[ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
 l1Decoder.ctpUnpacker = ctpUnpacker
 
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
-emUnpacker.ThresholdToChainMapping = ["EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
+emUnpacker.ThresholdToChainMapping = EnabledElChains
+print EnabledElChains
+#["EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
 
 muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
-muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU8 : HLT_mu8", "MU8 : HLT_2mu8",  "MU8 : HLT_mu8_e8",  "MU10 : HLT_mu20",   "EM100 : HLT_g100" ]
+muUnpacker.ThresholdToChainMapping = EnabledMuChains
+print EnabledMuChains
+#["MU6 : HLT_mu6", "MU8 : HLT_mu8", "MU8 : HLT_2mu8",  "MU8 : HLT_mu8_e8",  "MU10 : HLT_mu20",   "EM100 : HLT_g100" ]
 
 l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
 
@@ -115,74 +175,24 @@ print L1UnpackingSeq
 # filters: one SeqFilter per step, per chain
 # inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
+# map L1 decisions for menu
+for unpack in l1Decoder.roiUnpackers:
+    if unpack.name() is "EMRoIsUnpackingTool":
+        unpack.Decisions="L1EM"
+    if unpack.name() is "MURoIsUnpackingTool":
+        unpack.Decisions="L1MU"
 
-from TrigUpgradeTest.HLTCFConfig import *
-from TrigUpgradeTest.MenuComponents import *
+        
 
-include("TrigUpgradeTest/HLTSignatureConfig.py")
-
-nsteps=2
-
-# muon chains
-muStep1 = muStep1Sequence()
-muStep2 = muStep2Sequence()
-MuChains  = [
-    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [SequenceHypoTool(muStep1,step1mu20())]),
-                                                         ChainStep("Step2_mu20", [SequenceHypoTool(muStep2,step2mu20())]) ] ),
-
-    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [SequenceHypoTool(muStep1,step1mu8())] ),
-                                                         ChainStep("Step2_mu8",  [SequenceHypoTool(muStep2,step2mu8())]) ] )
-    ]
-
-
-
-#electron chains
-elStep1 = elStep1Sequence()
-elStep2 = elStep2Sequence()
-ElChains  = [
-    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [SequenceHypoTool(elStep1,step1e20())]),
-                                                        ChainStep("Step2_e20",  [SequenceHypoTool(elStep2,step2e20())]) ] )
-    ]
-
-
-# combined chain
-muelStep1 = combStep1Sequence()
-muelStep2 = combStep2Sequence()
-CombChains =[
-    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [SequenceHypoTool(muelStep1, step1mu8_e8())]),
-                                                              ChainStep("Step2_mu8_e8",  [SequenceHypoTool(muelStep2, step2mu8_e8())]) ] )
-    ]
-
-
-group_of_chains = MuChains + ElChains + CombChains
-#+ CombChains
-#+ ElChains + CombChains
-
-
-
-# main HLT top sequence
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+from AthenaCommon.AlgSequence import AlgSequence, AthSequencer, dumpSequence
 topSequence = AlgSequence()
+topSequence += L1UnpackingSeq
+##### Make all HLT #######
+makeHLTTree(HLTChains)
    
-TopHLTRootSeq = seqAND("TopHLTRootSeq") # Root
-topSequence += TopHLTRootSeq
 
-#add the L1Upcacking
-TopHLTRootSeq += L1UnpackingSeq
-
-# add the HLT steps Node
-HLTAllStepsSeq = seqAND("EmuTest_HLTAllStepsSequence")
-TopHLTRootSeq += HLTAllStepsSeq
-
-# make CF tree
-
-decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=nsteps)
-
-
-
-
-
-#from AthenaCommon.AlgSequence import dumpMasterSequence
-#dumpMasterSequence()
+from AthenaCommon.AlgSequence import dumpMasterSequence
+dumpMasterSequence()
 
 theApp.EvtMax = 3
+

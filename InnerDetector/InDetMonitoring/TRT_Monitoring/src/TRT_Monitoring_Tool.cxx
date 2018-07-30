@@ -4,7 +4,7 @@
 
 #include "TRT_Monitoring/TRT_Monitoring_Tool.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -17,7 +17,6 @@
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
-#include "TRT_ConditionsServices/ITRT_DCS_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_DAQ_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
@@ -75,7 +74,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_idHelper(0),
 	p_toolSvc("IToolSvc", name),
 	m_sumSvc("TRT_StrawStatusSummarySvc", name),
-	m_DCSSvc("TRT_DCS_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_DAQSvc("TRT_DAQ_ConditionsSvc", name), // NOTE: not used anywhere?
 	m_BSSvc("TRT_ByteStream_ConditionsSvc", name),
 	m_condSvc_BS("TRT_ByteStream_ConditionsSvc", name), // NOTE: not used anywhere?
@@ -161,7 +159,6 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("ToolSvc",                  p_toolSvc);
 	declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);
 	declareProperty("InDetTRT_DAQ_ConditionsSvc", m_DAQSvc);
-	declareProperty("InDetTRT_DCS_ConditionsSvc", m_DCSSvc);
 	declareProperty("TRT_ByteStream_ConditionsSvc", m_BSSvc);
 	declareProperty("TRT_StrawNeighbourSvc",   m_TRTStrawNeighbourSvc);
 	declareProperty("DriftFunctionTool",        m_drifttool);
@@ -427,15 +424,6 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 			ATH_CHECK( m_sumSvc.retrieve() );
 		}
 
-		// NOTE: is this used anywhere?
-		if (m_doDCS) {
-			// Retrieve the TRT_DCS Conditions Service.
-			if (m_DCSSvc.name().empty()) {
-				ATH_MSG_WARNING("TRT_DCSConditionsSvc not given.");
-			} else {
-				ATH_CHECK( m_DCSSvc.retrieve() );
-			}
-		}// if do dcs
 
 		// NOTE: is this used anywhere?
 		// NOTE: This is the same of m_BSSvc

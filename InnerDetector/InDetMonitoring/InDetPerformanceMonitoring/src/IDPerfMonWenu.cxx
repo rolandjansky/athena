@@ -7,8 +7,7 @@
 // AUTHORS: Beate Heinemann, Tobias Golling, Sara Strandberg
 // **********************************************************************
 
-#include <sstream>
-#include <math.h>
+#include <cmath>
 #include "TH1.h"
 #include "TH2.h"
 #include "TH1F.h"
@@ -47,6 +46,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "InDetPerformanceMonitoring/IDPerfMonWenu.h"
+#include <stdexcept>
 
 // *********************************************************************
 // Public Methods
@@ -238,15 +238,19 @@ StatusCode IDPerfMonWenu::bookHistograms()
       name = "Wenu_Eop_" + m_region_strings[region];
       title = "E/p for Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eop.push_back(new TH1F(name.c_str(),title.c_str(), 60, 0., 10.));
+      /** original code: what was intended here?
       if (region==incl) RegisterHisto(al_Wenu_mon,m_Wenu_Eop[region]);
       else RegisterHisto(al_Wenu_mon,m_Wenu_Eop[region]);
-
+      **/
+      RegisterHisto(al_Wenu_mon,m_Wenu_Eop[region]);
       name = "Wenu_Eopdiff_" + m_region_strings[region];
       title = "E/p difference (pos-neg) for Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eopdiff.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
+      /** original code: what was intended here?
       if (region==incl) RegisterHisto(al_Wenu_mon,m_Wenu_Eopdiff[region],true);
       else RegisterHisto(al_Wenu_mon,m_Wenu_Eopdiff[region],true);
-
+      **/
+      RegisterHisto(al_Wenu_mon,m_Wenu_Eopdiff[region],true);
       name = "Wenu_Eop_plus_" + m_region_strings[region];
       title = "E/p for pos. charged Wenu EM-clusters in " + m_region_strings[region];
       m_Wenu_Eop_plus.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
@@ -638,7 +642,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
     // check ID
     if(m_doIDCuts){
       LHSel = false;
-      LHSel = m_LHTool2015->accept(em);
+      LHSel = (bool) m_LHTool2015->accept(em);
       if(!LHSel) continue;
       ATH_MSG_DEBUG("Electron passes " << m_electronIDLevel << " likelihood selection");
     }
@@ -858,10 +862,10 @@ int IDPerfMonWenu::etaRegion(double eta) {
 }
 
 void IDPerfMonWenu::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track, int region, float dEta, float dPhi) {
-
-  //std::cout << "In FillHistosPerCluster with cluster " << cluster << "track " << track << " region " << region << std::endl;
-
   if (cluster == 0) return;
+  if (region<0){
+    throw std::out_of_range("Region is negative in IDPerfMonWenu::FillHistosPerCluster");
+  }
   // THERE IS A CLUSTER
 
   if (region == incl) { // inclusive only

@@ -30,13 +30,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::NeutralParticleAuxContainer,
 class xAODNeutralParticleAuxContainerCnv :
    public xAODNeutralParticleAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODNeutralParticleAuxContainerCnv >;
-
-protected:
+public:
    /// Converter constructor
    xAODNeutralParticleAuxContainerCnv( ISvcLocator* svcLoc );
 
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::NeutralParticleAuxContainer*
    createPersistent( xAOD::NeutralParticleAuxContainer* trans );

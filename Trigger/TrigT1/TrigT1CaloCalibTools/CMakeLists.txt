@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArRecUtils
+                          LArCalorimeter/LArElecCalib
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           TileCalorimeter/TileConditions
                           TileCalorimeter/TileEvent
@@ -49,13 +49,13 @@ atlas_add_library( TrigT1CaloCalibToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1CaloCalibTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AsgTools AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier xAODTrigL1Calo GaudiKernel LArIdentifier LArRecConditions TileEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces CaloDetDescrLib StoreGateLib SGtests LArRecUtilsLib TileConditionsLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib CaloTriggerToolLib AthenaMonitoringLib LArCablingLib TrigT1CaloEventLib  TrigT1CaloCondSvcLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AsgTools AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier xAODTrigL1Calo GaudiKernel LArIdentifier LArRecConditions TileEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces CaloDetDescrLib StoreGateLib SGtests TileConditionsLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib CaloTriggerToolLib AthenaMonitoringLib LArCablingLib TrigT1CaloEventLib  TrigT1CaloCondSvcLib
                    PRIVATE_LINK_LIBRARIES CaloEvent CaloIdentifier EventInfo LArRawEvent LWHists TrigT1Interfaces )
 
 atlas_add_component( TrigT1CaloCalibTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloDetDescrLib AsgTools AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier xAODTrigL1Calo GaudiKernel LArIdentifier LArRecConditions LArRecUtilsLib TileConditionsLib TileEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloMonitoringToolsLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib CaloEvent CaloIdentifier CaloTriggerToolLib AthenaMonitoringLib EventInfo LArRawEvent LArCablingLib LWHists TrigT1CaloEventLib TrigT1Interfaces TrigT1CaloCalibToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloDetDescrLib AsgTools AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier xAODTrigL1Calo GaudiKernel LArIdentifier LArRecConditions TileConditionsLib TileEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloMonitoringToolsLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib CaloEvent CaloIdentifier CaloTriggerToolLib AthenaMonitoringLib EventInfo LArRawEvent LArCablingLib LWHists TrigT1CaloEventLib TrigT1Interfaces TrigT1CaloCalibToolsLib )
 
 
 # Install files from the package:

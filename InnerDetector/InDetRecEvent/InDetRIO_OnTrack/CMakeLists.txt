@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Event/EventContainers
+                          Event/EventPrimitives
                           PRIVATE
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkDetDescr/TrkSurfaces )
@@ -26,12 +27,12 @@ atlas_add_library( InDetRIO_OnTrack
                    src/*.cxx
                    PUBLIC_HEADERS InDetRIO_OnTrack
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthLinks Identifier GaudiKernel InDetPrepRawData TrkEventPrimitives TrkRIO_OnTrack EventContainers
+                   LINK_LIBRARIES AthLinks Identifier GaudiKernel InDetPrepRawData TrkEventPrimitives TrkRIO_OnTrack EventContainers EventPrimitives
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} InDetReadoutGeometry TrkSurfaces )
 
 atlas_add_dictionary( InDetRIO_OnTrackDict
                       InDetRIO_OnTrack/InDetRIO_OnTrackDict.h
                       InDetRIO_OnTrack/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks Identifier GaudiKernel InDetPrepRawData TrkEventPrimitives TrkRIO_OnTrack InDetReadoutGeometry TrkSurfaces InDetRIO_OnTrack EventContainers )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks Identifier GaudiKernel InDetPrepRawData TrkEventPrimitives TrkRIO_OnTrack InDetReadoutGeometry TrkSurfaces InDetRIO_OnTrack EventContainers EventPrimitives)
 

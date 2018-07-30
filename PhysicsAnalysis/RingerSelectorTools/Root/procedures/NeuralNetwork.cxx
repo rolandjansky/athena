@@ -29,12 +29,13 @@ namespace Discrimination {
 
 // =============================================================================
 NNFeedForward::NNFeedForward(
-    const std::vector<unsigned int> &n, 
-    const std::vector<float> &w, 
+    const std::vector<unsigned int> &n,
+    const std::vector<float> &w,
     const std::vector<float> &b)
   : m_wM(nullptr),
     m_bM(nullptr),
-    m_mM(nullptr)
+    m_mM(nullptr),
+    m_removeOutputTansig(false)
 {
   changeArchiteture(n,w,b);
 }
@@ -42,19 +43,19 @@ NNFeedForward::NNFeedForward(
 
 // =============================================================================
 // void NNFeedForward::changeArchiteture(
-//     boost::python::list &n, 
-//     boost::python::list &w, 
+//     boost::python::list &n,
+//     boost::python::list &w,
 //     boost::python::list &b)
 // {
-//   changeArchiteture(to_std_vector<unsigned int>(n), 
+//   changeArchiteture(to_std_vector<unsigned int>(n),
 //       to_std_vector<float>(w),
 //       to_std_vector<float>(b));
 // }
 
 // =============================================================================
 void NNFeedForward::changeArchiteture(
-    const std::vector<unsigned int> &n, 
-    const std::vector<float> &w, 
+    const std::vector<unsigned int> &n,
+    const std::vector<float> &w,
     const std::vector<float> &b)
 {
 
@@ -97,17 +98,17 @@ void NNFeedForward::changeArchiteture(
   // First multiplication dimension
   m_mM = new float *[m_nLayers]; //number of layers including input
 
-  for (unsigned int l = 0; l<m_nLayers; ++l){ 
+  for (unsigned int l = 0; l<m_nLayers; ++l){
     m_mM[l] = new float[n[l]]; //number of m_nodes in current layer
   }
   std::vector<float>::const_iterator itrB = b.begin();
   std::vector<float>::const_iterator itrW = w.begin();
-  for (unsigned int l = 0; l < m_nLayers-1; ++l){  
+  for (unsigned int l = 0; l < m_nLayers-1; ++l){
     // Second and last dimension of m_bM
     m_bM[l] = new float[n[l+1]]; //number of m_nodes in next layer
     // Second dimension of m_wM
     m_wM[l] = new float*[n[l+1]]; //number of m_nodes in next layer
-    for (unsigned int i=0; i<n[l+1]; i++){ 
+    for (unsigned int i=0; i<n[l+1]; i++){
       // Third and last dimension of m_wM
       m_wM[l][i]=new float [n[l]]; //number of m_nodes in current layer
       // Populating bias matrix
@@ -120,7 +121,7 @@ void NNFeedForward::changeArchiteture(
     // Populating multiplication matrix so that starting sum equals zero
     for (unsigned int i=0; i<n[l]; i++){
       m_mM[l][i]=0;
-    }   
+    }
   }
 }
 
@@ -129,7 +130,7 @@ void NNFeedForward::releaseBias(){
   if (m_bM){
     for (unsigned int l=0; l<m_nodes.size()-1; ++l){
       delete[] m_bM[l]; //Deletes array of values at second dimension of m_bM
-    } 
+    }
   }
   delete[] m_bM; //Deletes array of pointers at first dimension of m_bM
   m_bM = nullptr;
@@ -137,7 +138,7 @@ void NNFeedForward::releaseBias(){
 
 // =============================================================================
 void NNFeedForward::releaseWeights(){
-  if (m_wM){ 
+  if (m_wM){
     for (unsigned int l=0; l<m_nodes.size()-1; ++l){
       if (m_wM[l]){
         for (unsigned int i=0; i<m_nodes[l+1]; ++i){
@@ -174,13 +175,13 @@ NNFeedForward::~NNFeedForward()
 // =============================================================================
 void NNFeedForward::execute(
     const std::vector<float> &input,
-    std::vector<float> &output) const 
+    std::vector<float> &output) const
 {
 #ifndef NDEBUG
   ATH_MSG_DEBUG("Applying NNFeedForward. Pattern space is: " << input);
 #endif
   if ( input.size() != m_nodes[0] ){
-    throw std::runtime_error(std::string("Pattern space size (") + 
+    throw std::runtime_error(std::string("Pattern space size (") +
         std::to_string(input.size()) + ") fed to discriminator is "
         "not compatible with this discriminator pattern space size ("
         + std::to_string(m_nodes[0]) + ".");
@@ -190,13 +191,14 @@ void NNFeedForward::execute(
     m_mM[0][i]=input[i];
   }
   // Propagate:
-  for(unsigned int l=0; l<m_nodes.size()-1;l++){
+  for(unsigned int l=0; l<m_nLayers-1;l++){
+    const bool outputLayer = ((l + 2) == m_nLayers);
     for(unsigned int k=0; k<m_nodes[l+1]; k++){
       m_mM[l+1][k]=m_bM[l][k];
       for (unsigned int j=0;j<m_nodes[l]; j++){
         m_mM[l+1][k]+=m_mM[l][j]*m_wM[l][k][j];
       }
-      m_mM[l+1][k]=tanh(m_mM[l+1][k]);
+      m_mM[l+1][k]=(outputLayer&&m_removeOutputTansig)?m_mM[l+1][k]:tanh(m_mM[l+1][k]);
     }
   }
 
@@ -246,23 +248,28 @@ void NNFeedForward::print(MSG::Level lvl) const
   std::vector<float> weights, bias;
   getWeigthsAndBias(weights, bias);
   msg() << lvl << "Nodes: " << m_nodes << endmsg;
-  msg() << static_cast<MSG::Level>((lvl>MSG::VERBOSE)?(lvl-1):(lvl)) 
+  msg() << static_cast<MSG::Level>((lvl>MSG::VERBOSE)?(lvl-1):(lvl))
     << "Vectorized Weights: " << weights << endmsg;
-  msg() << static_cast<MSG::Level>((lvl>MSG::VERBOSE)?(lvl-1):(lvl)) 
+  msg() << static_cast<MSG::Level>((lvl>MSG::VERBOSE)?(lvl-1):(lvl))
     << "Vectorized Bias: " << bias << endmsg;
 }
 
 // =============================================================================
-void NNFeedForward::read(NNFeedForward *newObj, 
-    TDirectory *configDir, 
-    unsigned /*version*/ )
+void NNFeedForward::read(NNFeedForward *newObj,
+    TDirectory *configDir,
+    unsigned version )
 {
   std::vector<unsigned int> nodes;
   std::vector<float> weights, bias;
-  IOHelperFcns::readVar(configDir, "nodes", nodes); 
-  IOHelperFcns::readVar(configDir, "weights", weights); 
-  IOHelperFcns::readVar(configDir, "bias", bias); 
+  IOHelperFcns::readVar(configDir, "nodes", nodes);
+  IOHelperFcns::readVar(configDir, "weights", weights);
+  IOHelperFcns::readVar(configDir, "bias", bias);
   newObj->changeArchiteture(nodes,weights,bias);
+  if ( version > 16 ) {
+    IOHelperFcns::readVar(configDir, "removeOutputTansig", newObj->m_removeOutputTansig);
+  } else {
+    newObj->m_removeOutputTansig = false;
+  }
 }
 
 // =============================================================================
@@ -274,8 +281,9 @@ void NNFeedForward::write(TDirectory *configDir, const char *) const
     IOHelperFcns::writeVar(configDir, "nodes",   m_nodes );
     IOHelperFcns::writeVar(configDir, "weights", weights );
     IOHelperFcns::writeVar(configDir, "bias",    bias    );
+    IOHelperFcns::writeVar(configDir, "removeOutputTansig",  m_removeOutputTansig   );
   } else {
-    std::runtime_error(std::string("Cannot write configuration from empty" 
+    std::runtime_error(std::string("Cannot write configuration from empty"
           " (or with pointers not allocated) neural network."));
   }
 }

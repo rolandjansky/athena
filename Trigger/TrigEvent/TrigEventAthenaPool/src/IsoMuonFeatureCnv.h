@@ -40,10 +40,11 @@ typedef T_AthenaPoolCustomCnv<IsoMuonFeature, IsoMuonFeature_PERS>
  class IsoMuonFeatureCnv : public IsoMuonFeatureCnvBase {
  friend class CnvFactory<IsoMuonFeatureCnv>;
  
- protected:
+public:
  IsoMuonFeatureCnv( ISvcLocator *svcloc );
  ~IsoMuonFeatureCnv();
     
+protected:
    virtual IsoMuonFeature_PERS* createPersistent( IsoMuonFeature *transObj);
    virtual IsoMuonFeature* createTransient();
  

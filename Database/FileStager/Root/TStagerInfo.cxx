@@ -8,6 +8,11 @@
 ClassImp(TStagerInfo)
 
 
+using std::string;
+using std::cerr;
+using std::endl;
+
+
 TStagerInfo::TStagerInfo()
     : pipeLength(1)
     , pid(getpid())

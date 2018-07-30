@@ -21,7 +21,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "LArCellRec/LArNoisyROTool.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

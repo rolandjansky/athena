@@ -41,7 +41,9 @@ class SCT_RDO_ContainerCnv : public SCT_RDO_ContainerCnvBase {
   StoreGateSvc*  m_storeGate;
 
 protected:
+public:
   SCT_RDO_ContainerCnv (ISvcLocator* svcloc);
+protected:
   virtual SCT_RDO_Container_PERS*   createPersistent (SCT_RDO_Container* transCont);
   virtual SCT_RDO_Container* createTransient ();
 

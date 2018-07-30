@@ -383,18 +383,7 @@ else :
    theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/MEDIUM"]
    theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/LOW"   ]
 
-## This algorithm verifies that no FEBs are dropping out of the run
-## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
-include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")       
-topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
-if CheckBadEvents:
-   from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
-   theLArBadEventCatcher=LArBadEventCatcher()
-   theLArBadEventCatcher.CheckAccCalibDigitCont=True
-   theLArBadEventCatcher.CheckBSErrors=True
-   theLArBadEventCatcher.KeyList=GainList
-   theLArBadEventCatcher.StopOnError=False
-   topSequence+=theLArBadEventCatcher    
+   
 
 ##########################################################################
 #                                                                        #
@@ -408,7 +397,8 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
+MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    RampLog.info( "Read Bad Channels from Oracle DB")
@@ -424,15 +414,33 @@ if ( ReadBadChannelFromCOOL ):
       
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
-   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",
+                    className="CondAttrListCollection")
 else :
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
 
 if 'MissingFEBsLArCalibFolderTag' in dir() :
    MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
-   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",
+                    className='AthenaAttributeList')
 else :
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+
+include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+
+## This algorithm verifies that no FEBs are dropping out of the run
+## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
+include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")       
+topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
+if CheckBadEvents:
+   from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
+   theLArBadEventCatcher=LArBadEventCatcher()
+   theLArBadEventCatcher.CheckAccCalibDigitCont=True
+   theLArBadEventCatcher.CheckBSErrors=True
+   theLArBadEventCatcher.KeyList=GainList
+   theLArBadEventCatcher.StopOnError=False
+   topSequence+=theLArBadEventCatcher 
+
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   

@@ -14,7 +14,7 @@
 
 HFMuonHypo::HFMuonHypo(const std::string& name, ISvcLocator* pSvcLocator) 
   : HLT::HypoAlgo(name, pSvcLocator){
-  ATH_MSG_INFO("IN HFMuonHypo Constructor");
+  ATH_MSG_VERBOSE("IN HFMuonHypo Constructor");
 
   declareMonitoredVariable("eloss_all"       , m_eloss_all        , -1.);
   declareMonitoredVariable("eloss_passing"   , m_eloss_passing    , -1.);

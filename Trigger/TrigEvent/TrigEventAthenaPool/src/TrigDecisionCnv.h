@@ -42,10 +42,11 @@ class TrigDecisionCnv : public TrigDecisionCnvBase {
 
   friend class CnvFactory<TrigDecisionCnv >;
 
- protected:
+public:
   TrigDecisionCnv (ISvcLocator* svcloc);
   ~TrigDecisionCnv ();
 
+protected:
     virtual TrigDecision_PERS*     createPersistent (TrigDec::TrigDecision* transCont);
     virtual TrigDec::TrigDecision* createTransient ();
 };

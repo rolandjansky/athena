@@ -141,7 +141,6 @@ size_t HiveMgrSvc::freeSlots() {
 DataObjIDColl HiveMgrSvc::getNewDataObjects() {
   // FIXME: to be removed
   DataObjIDColl products;
-  m_hiveStore->getNewDataObjects(products).ignore();
   return products;
 }
 

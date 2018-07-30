@@ -14,7 +14,6 @@
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
@@ -57,11 +56,9 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
   
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-//         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const InDet::PixelClusterCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -77,7 +74,6 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing PixelClusterContainer ***" << endmsg;
 }
 
 void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Container_p1* persCont, InDet::PixelClusterContainer* transCont, MsgStream &log) 
@@ -103,13 +99,11 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
     PixelClusterCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of PixelCluster (SG::VIEW_ELEMENTS)
 	// IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p1& pcoll = persCont->m_collections[icoll];        
-        //Identifier collID(Identifier(pcoll.m_id));
         IdentifierHash collIDHash(IdentifierHash(pcoll.m_hashId));
         coll = new InDet::PixelClusterCollection(collIDHash);
         coll->setIdentifier(Identifier(pcoll.m_id));
@@ -120,8 +114,12 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
             InDet::PixelCluster* chan = dynamic_cast<InDet::PixelCluster*>(createTransFromPStore((CONV**)0, pchan, log ) );
-            chan->m_detEl = de;
-            (*coll)[ichan] = chan;
+            if (chan){
+              chan->m_detEl = de;
+              (*coll)[ichan] = chan;
+            } else {
+              log << MSG::WARNING  << "Cast to InDet::PixelCluster* failed in PixelClusterContainerCnv_p1" << endmsg;
+            }
         }
         
         // register the rdo collection in IDC with hash - faster addCollection
@@ -129,13 +127,9 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
         if (sc.isFailure()) {
             throw std::runtime_error("Failed to add collection to ID Container");
         }
-//         if (log.level() <= MSG::DEBUG) {
-//             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-// collID.get_compact() << ", added to Identifiable container." << endmsg;
-//         }
+
     }
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading PixelClusterContainer" << endmsg;
 }
 
 
@@ -173,9 +167,7 @@ StatusCode InDet::PixelClusterContainerCnv_p1::initialize(MsgStream &log) {
       log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
       return StatusCode::FAILURE;
    } 
-   //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
-   //   }
+  
 
    // Get the pixel helper from the detector store
    sc = detStore->retrieve(m_pixId, "PixelID");
@@ -183,16 +175,12 @@ StatusCode InDet::PixelClusterContainerCnv_p1::initialize(MsgStream &log) {
       log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
    } 
-   //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the PixelID helper." << endmsg;
-   //   }
-
+   
    sc = detStore->retrieve(m_pixMgr);
    if (sc.isFailure()) {
       log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
       return sc;
    }
 
-   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }

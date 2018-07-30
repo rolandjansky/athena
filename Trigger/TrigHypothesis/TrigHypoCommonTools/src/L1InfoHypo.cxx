@@ -81,19 +81,6 @@ HLT::ErrorCode L1InfoHypo::hltInitialize()
   return HLT::OK;
 }
 
-HLT::ErrorCode L1InfoHypo::hltBeginRun() 
-{
-  msg() << MSG::DEBUG << "beginRun"<<  endmsg;
-
-  return HLT::OK;
-}
-
-HLT::ErrorCode L1InfoHypo::hltEndRun() 
-{
-  msg() << MSG::DEBUG << "endRun"<<  endmsg;
-  return HLT::OK;
-}
-
 HLT::ErrorCode L1InfoHypo::hltFinalize() 
 {
   msg() << MSG::DEBUG << "finalize()" << endmsg;

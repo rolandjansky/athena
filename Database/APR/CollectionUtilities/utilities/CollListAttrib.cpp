@@ -7,7 +7,6 @@
  * @brief Utility to list the metadata of a POOL collection
  * @author K. Karr <Kristo.Karr@cern.ch>
  * @author Marcin.Nowak@cern.ch
- * $Id: CollListAttrib.cpp 726582 2016-02-27 11:23:37Z krasznaa $
  */
 
 #include "PersistentDataModel/Token.h"
@@ -20,6 +19,7 @@
 #include "CollectionBase/CollectionService.h"
 
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
@@ -43,7 +43,8 @@ using namespace pool;
 int main(int argc, const char *argv[])
 {
    string thisProgram("CollListAttrib");
- 
+   SystemTools::initGaudi();
+
    try  { 
       pool::CollectionService   collectionService;
       coral::MessageStream log( thisProgram );

@@ -29,10 +29,10 @@
 //#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloRec/Blob2ToolConstants.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
 
 class StoreGateSvc;
 class MsgStream;
-class IJobOptionsSvc;
 class IToolSvc;
 
 

@@ -171,6 +171,8 @@ private:
   double m_vertex_z;
 	
   ToolHandle< InDetAlignMon::TrackSelectionTool > m_trackSelection; 
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
 };
 
 #endif

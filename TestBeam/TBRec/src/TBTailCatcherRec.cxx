@@ -2,19 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TBTailCatcherRec.h"
+
 #define WTC_ADC_MAX 1024
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/Property.h"
-
-#include "TBRec/TBTailCatcherRec.h"
-
-//#include "GaudiKernel/AlgFactory.h"
-// static const AlgFactory<TBObjectRecoAlgo> s_factory;
-// const IAlgFactory& TBObjectRecoAlgoFactory = s_factory;
-
-
-
 
 
 TBTailCatcherRec::TBTailCatcherRec(const std::string& name,

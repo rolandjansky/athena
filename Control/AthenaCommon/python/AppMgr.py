@@ -299,10 +299,7 @@ class AthAppMgr( AppMgr ):
          ipa2=IPA("IncidentProcAlg2")
          athEndSeq += ipa2
 
-         # unroll AthFilterSeq to save some function calls and
-         # stack size on the C++ side
-         for c in athFilterSeq.getChildren():
-            athMasterSeq += c
+         athMasterSeq += athFilterSeq
 
          # XXX: should we discard empty sequences ?
          #      might save some CPU and memory...
@@ -324,8 +321,8 @@ class AthAppMgr( AppMgr ):
          athAlgEvtSeq += athAllAlgSeq
          athAlgEvtSeq += athEndSeq
 
-         athMasterSeq += athAlgEvtSeq
-         athMasterSeq += athOutSeq
+         athFilterSeq += athAlgEvtSeq
+         athFilterSeq += athOutSeq
          athMasterSeq += athRegSeq
          
          Logging.log.debug ("building master sequence... [done]")
@@ -656,7 +653,7 @@ class AthAppMgr( AppMgr ):
 
    def reinitialize( self ):
     # since we're going to run python again, may have to re-enable to profiler
-      if self._opts.profile_python:
+      if self._opts and self._opts.profile_python:
          import cProfile
          cProfile._athena_python_profiler.enable()
 
@@ -846,7 +843,7 @@ class AthAppMgr( AppMgr ):
              shutil.copy2("MP_PoolFileCatalog.xml", "PoolFileCatalog.xml")
 
    def __report_python_profile( self ):
-      if self._opts.profile_python:
+      if self._opts and self._opts.profile_python:
          import cProfile, pstats
          cProfile._athena_python_profiler.disable()
          stats = pstats.Stats(cProfile._athena_python_profiler,
@@ -975,8 +972,8 @@ def AuditorSvc():             # backwards compatibility
 #                        +--- athEndSeq
 #                |
 #                +--- athOutSeq
-#                |
-#                +--- athRegStreams
+#         |
+#         +--- athRegStreams
 athMasterSeq = AlgSequence.AthSequencer( "AthMasterSeq" )
 athFilterSeq = AlgSequence.AthSequencer( "AthFilterSeq" )
 athCondSeq   = AlgSequence.AthSequencer( "AthCondSeq" )

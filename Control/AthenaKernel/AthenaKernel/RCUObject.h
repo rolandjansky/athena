@@ -161,6 +161,21 @@ public:
 
 
   /**
+   * @brief Move constructor.
+   *
+   * Allow passing these objects via move.
+   */
+  IRCUObject (IRCUObject&& other);
+
+
+  // Make these explicit to prevent warnings from coverity.
+  // (copy/assign are implicitly deleted due to the mutex member.)
+  IRCUObject (const IRCUObject&) = delete;
+  IRCUObject& operator= (const IRCUObject&) = delete;
+  IRCUObject& operator= (IRCUObject&&) = delete;
+
+
+  /**
    * @brief Destructor.
    *
    * Remove this object from the service if it has been registered.
@@ -275,6 +290,21 @@ public:
 
 
   /**
+   * @brief Move constructor.
+   *
+   * Allow passing these objects via move.
+   */
+  RCUObject (RCUObject&& other);
+
+
+  // Make these explicit to prevent warnings from coverity.
+  // (copy/assign are implicitly deleted due to the mutex member.)
+  RCUObject (const RCUObject&) = delete;
+  RCUObject& operator= (const RCUObject&) = delete;
+  RCUObject& operator= (RCUObject&&) = delete;
+
+
+  /**
    * @brief Return a reader for this @c RCUObject.
    */
   Read_t reader() const;
@@ -294,9 +324,10 @@ public:
    * @brief Return a reader for this @c RCUObject.
    *        When destroyed, this reader will declare
    *        the @c RCUObject as quiescent
-   * @param ctx The event context.
+   * @param ctx The event context (must not be a temporary).
    */
   ReadQuiesce_t readerQuiesce (const EventContext& ctx);
+  ReadQuiesce_t readerQuiesce (const EventContext&& ctx) = delete;
 
 
   /**
@@ -309,9 +340,23 @@ public:
 
   /**
    * @brief Return an updater for this @c RCUObject.
-   * @param ctx The event context.
+   * @param ctx The event context (must not be a temporary).
    */
   Update_t updater (const EventContext& ctx);
+  Update_t updater (const EventContext&& ctx) = delete;
+
+
+  /**
+   * @brief Queue an object for later deletion.
+   * @param p The object to delete.
+   *
+   * The object @c p will be queued for deletion once a grace period
+   * has passed for all slots.  In contrast to using @c updater,
+   * this does not change the current object.  It also does not mark
+   * the current slot as having completed the grace period (so this can
+   * be called by a thread running outside of a slot context).
+   */
+  void discard (std::unique_ptr<T> p);
 
 
 private:
@@ -397,9 +442,10 @@ public:
   /**
    * @brief Constructor.
    * @param rcuobj The @c RCUObject we're reading.
-   * @param ctx The event context.
+   * @param ctx The event context (must not be a temporary).
    */
   RCUReadQuiesce (RCUObject<T>& rcuobj, const EventContext& ctx);
+  RCUReadQuiesce (RCUObject<T>& rcuobj, const EventContext&& ctx) = delete;
 
 
   /**
@@ -440,9 +486,10 @@ public:
   /**
    * @brief Constructor.
    * @param rcuobj The @c RCUObject we're reading.
-   * @param ctx The event context.
+   * @param ctx The event context (must not be a temporary).
    */
   RCUUpdate (RCUObject<T>& rcuobj, const EventContext& ctx);
+  RCUUpdate (RCUObject<T>& rcuobj, const EventContext&& ctx) = delete;
 
   
   /**

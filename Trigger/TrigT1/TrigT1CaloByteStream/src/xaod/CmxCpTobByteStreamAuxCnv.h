@@ -38,13 +38,8 @@ class CpByteStreamV2Tool;
 
 class CmxCpTobByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<CmxCpTobByteStreamAuxCnv>;
-
-protected:
-
-  CmxCpTobByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  CmxCpTobByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~CmxCpTobByteStreamAuxCnv(){};
 

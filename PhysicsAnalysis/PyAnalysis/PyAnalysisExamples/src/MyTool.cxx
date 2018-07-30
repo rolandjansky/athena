@@ -7,6 +7,7 @@
 #include "PyAnalysisExamples/MyTool.h"
 #include "PyAnalysisExamples/MyObj.h"
 #include "PyKernel/PyReverseProxy.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 
 using namespace AthPyEx;
 
@@ -18,6 +19,8 @@ const InterfaceID& MyTool::interfaceID( )
 
 StatusCode MyTool::execute(MyObj *obj)
 {
+  RootUtils::PyGILStateEnsure gil;
+
   // get RevProxy
   PyReverseProxy * proxy = PyReverseProxy::getProxy("MyObj_Proxy");
   // convert C++ obj to Python obj

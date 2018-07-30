@@ -29,13 +29,9 @@ extern long ByteStream_StorageType;
 */
 class CscRdoContByteStreamCnv: public Converter 
 {
-  friend class CnvFactory<CscRdoContByteStreamCnv>;
-
-protected:
-  CscRdoContByteStreamCnv(ISvcLocator* svcloc);
-  ~CscRdoContByteStreamCnv();
 
 public:
+  CscRdoContByteStreamCnv(ISvcLocator* svcloc);
 
   virtual StatusCode initialize();
   virtual StatusCode createObj(IOpaqueAddress* /*pAddr*/, DataObject*& /*pObj*/){

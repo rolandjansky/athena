@@ -3,6 +3,7 @@
 ################################################################################
 
 find_package( TBB )
+find_package( GTest )
 
 # Declare the package name:
 atlas_subdir( AthViews )
@@ -15,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           Control/StoreGate
                           Trigger/TrigEvent/TrigSteeringEvent
+                          Control/AthenaExamples/AthExHive
                           GaudiKernel
                           PRIVATE
                           Control/CxxUtils
@@ -46,14 +48,20 @@ atlas_add_test( ViewLinking_test
 		LINK_LIBRARIES ${TBB_LIBRARIES}
 		AthViews TestTools )
 
+atlas_add_test( ViewCollectionMerge_test 
+    INCLUDE_DIRS ${TBB_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+    SOURCES test/ViewCollectionMerge_test.cxx 
+    LINK_LIBRARIES ${TBB_LIBRARIES} ${GTEST_LIBRARIES} AthViews TestTools
+    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test")
+
 atlas_add_test( SimpleViews SCRIPT test/test_simple_view_example.sh
                 PROPERTIES PASS_REGULAR_EXPRESSION "INFO view_test running with store view9" )
 
-atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh
-                PROPERTIES PASS_REGULAR_EXPRESSION "INFO 109" )
+atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh )
 
 atlas_add_test( ViewNestFail SCRIPT test/test_view_nest_fail.sh
-                PROPERTIES PASS_REGULAR_EXPRESSION "Execution of algorithm nest_alg failed" )
+                PROPERTIES PASS_REGULAR_EXPRESSION "Execution of algorithm nest_alg failed"
+                TIMEOUT 300 )
 
 # Install files from the package:
 atlas_install_headers( AthViews )

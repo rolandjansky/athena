@@ -12,8 +12,8 @@
 
 //#undef NDEBUG
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer {
 
@@ -22,7 +22,7 @@ namespace Ringer {
  * @brief Specialization for PreProcessor procedure.
  **/
 template<>
-class IRingerProcedureWrapper< PreProcessing::IPreProcessor > : 
+class IRingerProcedureWrapper< PreProcessing::IPreProcessor > :
   virtual public IRedirectMsgStream,
   virtual public IRingerProcedureWrapperBase
 {
@@ -72,7 +72,7 @@ class IRingerProcedureWrapper< PreProcessing::IPreProcessor > :
      * the new representation.
      **/
     virtual void applyPreProcessing(
-        const DepVarStruct &depVar, 
+        const DepVarStruct &depVar,
         std::vector<float> &transformVec) const = 0;
 
     /**
@@ -85,21 +85,21 @@ class IRingerProcedureWrapper< PreProcessing::IPreProcessor > :
     /**
      * @brief Write all wrappers on ppWrapperCol to TDirectory
      **/
-    static void writeCol(const WrapperCollection &ppWrapperCol, 
+    static void writeCol(const WrapperCollection &ppWrapperCol,
         TDirectory *configDir);
 
     /**
      * @brief Read all pre-processing on configDir and append them to
      * IPreProcWrapperCollection
      **/
-    static void read(WrapperCollection &ppWrapperCol, 
-        TDirectory *configDir, 
+    static void read(WrapperCollection &ppWrapperCol,
+        TDirectory *configDir,
         unsigned version);
 
 #if RINGER_USE_NEW_CPP_FEATURES
-    static constexpr const char* wrapName = "RingerPreProcessorWrapper"; 
+    static constexpr const char* wrapName = "RingerPreProcessorWrapper";
 #else
-    static const char* wrapName; 
+    static const char* wrapName;
 #endif
 
     /** Ensure virtual destructor */
@@ -128,7 +128,7 @@ template < class procedure_t,
   /*EtDependency*/int etDependency,
   /*SegmentationType*/int segType>
 class RingerProcedureWrapper<
-  procedure_t, 
+  procedure_t,
   etaDependency,
   etDependency,
   segType,
@@ -149,8 +149,8 @@ class RingerProcedureWrapper<
      *
      * Vector Dimension: [segType][etBin][etaBin]:
      **/
-    typedef typename std::vector < 
-        std::vector < 
+    typedef typename std::vector <
+        std::vector <
         std::vector < procedure_t* > >
       > PPDepProcCollection;
     ///@}
@@ -158,7 +158,7 @@ class RingerProcedureWrapper<
     /// Ctors:
     ///@{
     /**
-     * @brief Build RProc Wrapper 
+     * @brief Build RProc Wrapper
      **/
     RingerProcedureWrapper(
         const PPDepProcCollection &ppDepCol):
@@ -166,8 +166,8 @@ class RingerProcedureWrapper<
       m_pp(nullptr),
       m_rsRawConfCol(nullptr),
       m_nRings(0)
-    { 
-      checkPPCol(); 
+    {
+      checkPPCol();
       m_pp = m_ppCol[0][0][0];
     }
     ///@}
@@ -198,7 +198,7 @@ class RingerProcedureWrapper<
      * the new representation.
      **/
     virtual void applyPreProcessing(
-        const DepVarStruct &depVar, 
+        const DepVarStruct &depVar,
         std::vector<float> &transformVec) const ATH_RINGER_FINAL ATH_RINGER_OVERRIDE;
     /// @}
 
@@ -209,8 +209,8 @@ class RingerProcedureWrapper<
      * @brief Set the holden CaloRings raw configuration collection.
      **/
     virtual void setRawConfCol(
-        const xAOD::RingSetConf::RawConfCollection *crRawConfCol) 
-      ATH_RINGER_FINAL ATH_RINGER_OVERRIDE 
+        const xAOD::RingSetConf::RawConfCollection *crRawConfCol)
+      ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
     {
       m_rsRawConfCol = crRawConfCol;
       m_nRings = xAOD::RingSetConf::totalNumberOfRings( *crRawConfCol );
@@ -230,7 +230,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Get segmentation type for this pre-processor
      **/
-    virtual SegmentationType getSegType() const 
+    virtual SegmentationType getSegType() const
       ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
     {
       return static_cast<SegmentationType>(segType);
@@ -239,8 +239,8 @@ class RingerProcedureWrapper<
     /**
      * @brief Returns whether holden interface collection is empty.
      **/
-    virtual bool empty() const ATH_RINGER_FINAL ATH_RINGER_OVERRIDE 
-    { 
+    virtual bool empty() const ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
+    {
       return m_ppCol.empty();
     }
 
@@ -299,7 +299,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Read collection from TDirectory
      **/
-    static RingerProcedureWrapper* read(TDirectory *configDir, 
+    static RingerProcedureWrapper* read(TDirectory *configDir,
         unsigned version);
     ///@}
 
@@ -307,10 +307,10 @@ class RingerProcedureWrapper<
     /// Private Methods:
     ///@{
     /**
-     * @brief Check if pre-processing interface collection is in good status 
+     * @brief Check if pre-processing interface collection is in good status
      * (Throws otherwise)
      **/
-    void checkPPCol(); 
+    void checkPPCol();
     ///@}
 
     /// Private Properties:
@@ -328,7 +328,7 @@ class RingerProcedureWrapper<
     unsigned m_nRings;
 #endif
     ///@}
- 
+
 };
 
 } // namespace Ringer

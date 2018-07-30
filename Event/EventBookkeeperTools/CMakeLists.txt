@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthToolSupport/AsgTools
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolKernel
                           Event/xAOD/xAODCutFlow
                           GaudiKernel
                           PRIVATE

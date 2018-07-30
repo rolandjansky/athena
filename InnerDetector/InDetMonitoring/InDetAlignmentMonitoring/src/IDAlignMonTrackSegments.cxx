@@ -18,7 +18,6 @@
 #include "IDAlignMonTrackSegments.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrack/TrackCollection.h"
-//#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "InDetTrackSplitterTool/IInDetTrackSplitterTool.h"
 #include "TrackSelectionTool.h"
 #include <iostream>
@@ -133,6 +132,7 @@ IDAlignMonTrackSegments::IDAlignMonTrackSegments( const std::string & type, cons
   declareProperty("trackSumTool", m_trackSumTool);
 
   m_histosBooked = 0;
+  m_events=0;
 }
 
 //---------------------------------------------------------------------------------------
@@ -607,26 +607,26 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     
     if(!evtStore()->contains<TrackCollection>(m_upperTracksName)){
       if(m_events == 1) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endmsg;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_upperTracksName << " TrackCollections" << endmsg;
+	      ATH_MSG_WARNING( "Unable to get " << m_upperTracksName << " TrackCollections" );
+      }else ATH_MSG_DEBUG( "Unable to get " << m_upperTracksName << " TrackCollections" );
       return StatusCode::SUCCESS;
     }
     
     if (!evtStore()->contains<TrackCollection>(m_lowerTracksName)){
       if(m_events == 1) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endmsg;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_lowerTracksName << " TrackCollections" << endmsg;
+	      ATH_MSG_WARNING( "Unable to get " << m_lowerTracksName << " TrackCollections" );
+      }else ATH_MSG_DEBUG( "Unable to get " << m_lowerTracksName << " TrackCollections" );
       return StatusCode::SUCCESS;
     }
     
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endmsg;
+      ATH_MSG_DEBUG( "TrackCollection with name "<<m_upperTracksName<<" is NULL" );
     }
 
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endmsg;
+      ATH_MSG_DEBUG( "TrackCollection with name "<<m_lowerTracksName<<" is NULL" );
     }
     
   }else{
@@ -634,8 +634,8 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     //We only need the inputTracks if we're splitting them ourselves
     if (!evtStore()->contains<TrackCollection>(m_inputTracksName)){
       if(m_events == 1){ 
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endmsg;
-      }else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_inputTracksName << " TrackCollections" << endmsg;
+	      ATH_MSG_WARNING( "Unable to get " << m_inputTracksName << " TrackCollections" );
+      }else ATH_MSG_DEBUG( "Unable to get " << m_inputTracksName << " TrackCollections");
       return StatusCode::SUCCESS;
     }
     
@@ -664,14 +664,14 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     //Get the Upper Tracks
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endmsg;
+      ATH_MSG_INFO( "TrackCollection with name "<<m_upperTracksName<<" is NULL" );
       
     }
 
     //Get the Lower Tracks
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endmsg;
+      ATH_MSG_INFO( "TrackCollection with name "<<m_lowerTracksName<<" is NULL" );
       
     }
 
@@ -683,9 +683,13 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   //	      << "                                                     lower track collection = "<< m_lowerTracksName << "   size: " << tracksLower->size() 
   //	      << std::endl;
   //}
-
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksUpper->size() <<" Upper Tracks." << endmsg;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksLower->size() <<" Lower Tracks from Track from StoreGate" << endmsg;
+  //at this point, tracksUpper and tracksLower must have sensible values
+  if ((not tracksUpper) or (not tracksLower)){
+    ATH_MSG_ERROR("Upper or Lower tracks pointer is null, must terminate!");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG( "Retrieved "<< tracksUpper->size() <<" Upper Tracks." );
+  ATH_MSG_DEBUG( "Retrieved "<< tracksLower->size() <<" Lower Tracks from Track from StoreGate" );
   
   //===============================================================
   // Filling the upper and lower tracks and their differences

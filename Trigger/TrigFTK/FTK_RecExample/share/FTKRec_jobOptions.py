@@ -9,9 +9,16 @@ if rec.doFTK() and globalflags.InputFormat() == 'bytestream':
     ByteStreamAddressProviderSvc.TypeNames += [ "FTK_RawTrackContainer/FTK_RDO_Tracks"]
     
 if rec.doFTK():
+
+    # SiLorentzAngleTool for SCT
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
     
     from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-    theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc")
+    theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc",
+                                                     SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
     ServiceMgr += theFTK_DataProviderSvc
     
     from TrigFTK_RawDataAlgs.TrigFTK_RawDataAlgsConf import FTK_RDO_ReaderAlgo
@@ -64,3 +71,29 @@ if rec.doFTK():
         FTKRefitTrackParticleCnvAlg.TrackTruthContainerName = "FTK_RefitTracks_TruthCollection"
         FTKRefitTrackParticleCnvAlg.PrintIDSummaryInfo = True
         topSequence += FTKRefitTrackParticleCnvAlg
+
+        augmentation_tools = []
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (DerivationFramework__TrackParametersForTruthParticles)
+
+        TruthDecor = DerivationFramework__TrackParametersForTruthParticles(
+           name="TruthTPDecor",
+           TruthParticleContainerName="TruthParticles",
+           DecorationPrefix="")
+        augmentation_tools.append(TruthDecor)
+
+        # Set up derivation framework
+        from AthenaCommon import CfgMgr
+        
+        theFTKseq = CfgMgr.AthSequencer("FTKSeq")
+        from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
+            DerivationFramework__CommonAugmentation)
+        
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += DerivationFramework__TrackParametersForTruthParticles('TruthTPDecor')
+        theFTKseq += CfgMgr.DerivationFramework__CommonAugmentation(
+          "TSOS_Kernel",
+          AugmentationTools=augmentation_tools,
+          OutputLevel=INFO)
+        topSequence += theFTKseq
+
+

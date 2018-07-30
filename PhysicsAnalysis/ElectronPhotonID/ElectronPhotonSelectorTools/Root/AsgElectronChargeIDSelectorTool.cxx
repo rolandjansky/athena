@@ -43,8 +43,7 @@
 //=============================================================================
 AsgElectronChargeIDSelectorTool::AsgElectronChargeIDSelectorTool(std::string myname) :
   AsgTool(myname) ,
-  m_cutPosition_bdt(0),
-  m_resultPosition_bdt(0)
+  m_cutPosition_bdt(0)
 {
   // Declare the needed properties
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
@@ -148,8 +147,7 @@ StatusCode AsgElectronChargeIDSelectorTool::initialize()
   // Get the name of the current operating point, and massage the other strings accordingly
   //ATH_MSG_VERBOSE( "Going to massage the labels based on the provided operating point..." );
 
-  m_cutPosition_bdt = m_acceptBDT.addCut( "bdt", "pass bdt" );
-  m_resultPosition_bdt = m_resultBDT.addResult( "bdt", "ECIDS bdt" );
+  m_cutPosition_bdt = m_acceptInfo.addCut( "bdt", "pass bdt" );
 
   return StatusCode::SUCCESS ;
 }
@@ -163,64 +161,63 @@ StatusCode AsgElectronChargeIDSelectorTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgElectronChargeIDSelectorTool::accept( const xAOD::Electron* eg, double mu ) const
+asg::AcceptData AsgElectronChargeIDSelectorTool::accept( const xAOD::Electron* eg, double mu ) const
 {
 
-  double bdt=calculate(eg,mu);
+  double bdt = calculate(eg,mu);
   
   ATH_MSG_VERBOSE("\t accept( const xAOD::Electron* eg, double mu ), bdt="<<bdt);
   
-  m_acceptBDT.clear();
+  asg::AcceptData acceptData(&m_acceptInfo);
   
-  m_acceptBDT.setCutResult(m_cutPosition_bdt,bdt>m_cutOnBDT);
+  acceptData.setCutResult(m_cutPosition_bdt, bdt > m_cutOnBDT);
 
-  return m_acceptBDT;
+  return acceptData;
 }
 
 //=============================================================================
 // Accept method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-const Root::TAccept& AsgElectronChargeIDSelectorTool::accept( const xAOD::Egamma* eg, double mu) const
+asg::AcceptData AsgElectronChargeIDSelectorTool::accept( const xAOD::Egamma* eg, double mu) const
 {
-  double bdt=calculate(eg,mu);
+  double bdt = calculate(eg,mu);
   
   ATH_MSG_VERBOSE("\t accept( const xAOD::Egamma* eg, double mu ), bdt="<<bdt);
   
-  m_acceptBDT.clear();
+  asg::AcceptData acceptData(&m_acceptInfo);
   
-  m_acceptBDT.setCutResult(m_cutPosition_bdt,bdt>m_cutOnBDT);
+  acceptData.setCutResult(m_cutPosition_bdt, bdt > m_cutOnBDT);
 
-  return m_acceptBDT;
+  return acceptData;
 }
 
 //=============================================================================
 // The main result method: the actual likelihood is calculated here
 //=============================================================================
-const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Electron* eg, double mu ) const
+double AsgElectronChargeIDSelectorTool::calculate( const xAOD::Electron* eg, double mu ) const
 {
 
   ATH_MSG_VERBOSE("\t AsgElectronChargeIDSelectorTool::calculate( const xAOD::Electron* eg, double mu= "<<mu<<" )");
 
   if ( !eg ) {
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_resultDummy;
+    return -999;
   }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ) {
     ATH_MSG_ERROR ("Failed, no cluster.");
-    return m_resultDummy;
+    return -999;
   }  
 
   const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
   if ( fabs(eta) > 300.0 ) {
     ATH_MSG_ERROR ("Failed, eta range.");
-    return m_resultDummy;
+    return -999;
   }
   
   double et = 0.;// transverse energy of the electron (using the track eta) 
@@ -430,24 +427,22 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
   double bdt_output = m_v_bdts.at(m_bdt_index)->GetGradBoostMVA(m_v_bdts.at(m_bdt_index)->GetPointers());
   ATH_MSG_DEBUG("ECIDS-BDT= "<<bdt_output);
 
-  m_resultBDT.setResult(m_resultPosition_bdt,bdt_output);
-  return m_resultBDT;
+  return bdt_output;
 }
 
 //=============================================================================
 // Calculate method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Egamma* eg, double mu ) const
+double AsgElectronChargeIDSelectorTool::calculate( const xAOD::Egamma* eg, double mu ) const
 {
   ATH_MSG_VERBOSE("AsgElectronChargeIDSelectorTool::calculate( const xAOD::Egamma* "<<eg<<", double mu= "<<mu<< " ) const");
   ATH_MSG_WARNING("Method not implemented for egamma object! Reurning -1!!");
   
-  m_resultBDT.setResult(m_resultPosition_bdt,-1);
-  return m_resultBDT;
+  return -999;
 }
 
 //=============================================================================
-const Root::TAccept& AsgElectronChargeIDSelectorTool::accept(const xAOD::IParticle* part) const
+asg::AcceptData AsgElectronChargeIDSelectorTool::accept(const xAOD::IParticle* part) const
 {
   ATH_MSG_VERBOSE("Entering accept( const IParticle* part )");
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
@@ -457,11 +452,12 @@ const Root::TAccept& AsgElectronChargeIDSelectorTool::accept(const xAOD::IPartic
     }
   else{
     ATH_MSG_ERROR("AsgElectronChargeIDSelectorTool::could not cast to const Electron");
-    return m_acceptDummy;
+    asg::AcceptData acceptData(&m_acceptInfo);
+    return acceptData;
   }
 }
 
-const Root::TResult& AsgElectronChargeIDSelectorTool::calculate(const xAOD::IParticle* part) const
+double AsgElectronChargeIDSelectorTool::calculate(const xAOD::IParticle* part) const
 {
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if (eg)
@@ -471,7 +467,7 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate(const xAOD::IPar
   else
     {
       ATH_MSG_ERROR ( " Could not cast to const Electron " );
-      return m_resultDummy;
+      return -999;
     }
 }
 

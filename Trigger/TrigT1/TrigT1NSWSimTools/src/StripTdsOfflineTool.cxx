@@ -502,7 +502,7 @@ namespace NSWL1 {
 	    ATH_MSG_DEBUG("StripTdsOfflineTool:NO MATCH ALL \n" <<
 			 "wedge:" << strip->wedge() << "\n"
 			 <<"layer:"<< strip->layer() << "\n"
-			 <<"loc_y:"<< strip->locY()<< "\n");
+			 <<"loc_x:"<< strip->locX()<< "\n");
 	  }
 
 	  strip->set_readStrip(read_strip);
@@ -586,7 +586,7 @@ namespace NSWL1 {
     ATH_MSG_DEBUG("StripTdsOfflineTool:Strip: \n" <<
 		 "wedge:" << strip->wedge() << "\n"
 		 <<"layer:"<< strip->layer() << "\n"
-		 <<"loc_y:"<< strip->locY()<< "\n");
+		 <<"loc_x:"<< strip->locX()<< "\n");
 
     for( auto pad_data: pad_strip_info){
       if (pad_data.size()!=4)
@@ -608,7 +608,7 @@ namespace NSWL1 {
 
       if (wedge != strip->wedge()) continue;
       if (layer != strip->layer()) continue;
-      if (strip->locY() > loc_max_y || strip->locY()< loc_min_y) continue; 
+      if (strip->locX() > loc_max_y || strip->locX()< loc_min_y) continue;
       strip->setBandId((int) bandID);
 
       ATH_MSG_DEBUG("StripTdsOfflineTool:MATCH");

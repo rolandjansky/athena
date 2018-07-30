@@ -30,6 +30,7 @@ class opt :
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
+    doL1Unpacking    = True
 #
 ################################################################################
 
@@ -307,13 +308,14 @@ from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
 svcMgr += LVL1ConfigSvc()
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
-if globalflags.InputFormat.is_bytestream():
-    from TrigUpgradeTest.TestUtils import L1DecoderTest
+if opt.doL1Unpacking:
+    if globalflags.InputFormat.is_bytestream():
+        from TrigUpgradeTest.TestUtils import L1DecoderTest
     #topSequence += L1DecoderTest(OutputLevel = opt.HLTOutputLevel)
-    topSequence += L1DecoderTest(OutputLevel = DEBUG)
-else:
-    from TrigUpgradeTest.TestUtils import L1EmulationTest
-    topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
+        topSequence += L1DecoderTest(OutputLevel = DEBUG)
+    else:
+        from TrigUpgradeTest.TestUtils import L1EmulationTest
+        topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
 
 # ---------------------------------------------------------------
 # Monitoring

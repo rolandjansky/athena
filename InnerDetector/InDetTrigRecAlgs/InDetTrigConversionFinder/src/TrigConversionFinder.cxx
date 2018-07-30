@@ -127,11 +127,9 @@ namespace InDet
 #endif
      
       // Find conversions
-      // virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles) = 0;
       std::pair <xAOD::VertexContainer*, xAOD::VertexAuxContainer*> foo;
       foo = m_VertexFinderTool->findVertex(TPC);
       InDetTrigConversionContainer = foo.first;
-      //delete tpBaseColl;
     }
       
     
@@ -151,7 +149,12 @@ namespace InDet
     
     if(outputLevel <= MSG::DEBUG){
       msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
-      msg() << MSG::DEBUG << "REGTEST: Output conversion container size :" << InDetTrigConversionContainer->size() << endmsg;
+      if (InDetTrigConversionContainer){
+        msg() << MSG::DEBUG << "REGTEST: Output conversion container size :" << InDetTrigConversionContainer->size() << endmsg;
+      } else {
+        msg() << MSG::DEBUG << "InDetTrigConversionContainer ptr is null at "<<__LINE__<<endmsg;
+      }
+    
     } 
     
     return HLT::OK;
@@ -178,6 +181,10 @@ namespace InDet
 	    const Trk::LinkToTrackParticleBase * linkToTrackPB = dynamic_cast<const Trk::LinkToTrackParticleBase *>(trLink); 
 	    if(0!= linkToTrackPB){
 	      if(linkToTrackPB->isValid()) tempTrk = linkToTrackPB->cachedElement();
+	      if (not tempTrk) {
+	        msg() << MSG::ERROR<<"tempTrk ptr is null at "<<__LINE__<<endmsg;
+	        continue;
+	      }
 	      const Trk::TrackSummary* summary = tempTrk->trackSummary();
 	      int ncl  = summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits);
 	      int ntrt = summary->get(Trk::numberOfTRTHits);
@@ -190,7 +197,7 @@ namespace InDet
                 if(ncl==0 && ntrt>0) isTrt2 = true;
 	      }
 	    }//end of dynamic_cast check
-	  }//end of ITrackLink existance check
+	  }//end of ITrackLink existence check
 	  
 	}
 	

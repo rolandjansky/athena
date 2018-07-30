@@ -23,7 +23,9 @@ class TrigCompositeContainerCnv : public TrigCompositeContainerCnvBase
  
   protected:
    
+public:
   TrigCompositeContainerCnv( ISvcLocator *svcloc ): TrigCompositeContainerCnvBase(svcloc){}
+protected:
  
    
    virtual TrigCompositeContainer_PERS *createPersistent( TrigCompositeContainer *transObj);

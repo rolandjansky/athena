@@ -18,7 +18,7 @@
 #define TRKSPACEPOINT_SPACEPOINTOVERLAPCOLLECTION_H
 
 // Base classes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/DataObject.h"
 //class SpacePoint;
 #include "TrkSpacePoint/SpacePoint.h"
@@ -63,7 +63,7 @@ private:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(SpacePointOverlapCollection,1164030866, 1)
 
 

@@ -33,7 +33,6 @@ template <class TYPE> class CnvFactory;
 extern long ByteStream_StorageType;
 
 class LArRawChannelContByteStreamCnv: public Converter {
-  friend class CnvFactory<LArRawChannelContByteStreamCnv>;
 
  public:
   LArRawChannelContByteStreamCnv(ISvcLocator* svcloc);

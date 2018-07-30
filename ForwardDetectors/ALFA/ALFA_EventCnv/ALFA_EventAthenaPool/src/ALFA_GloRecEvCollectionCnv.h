@@ -24,7 +24,9 @@ class ALFA_GloRecEvCollectionCnv : public T_AthenaPoolCustomCnv <ALFA_GloRecEvCo
  
  protected: 
   
+public:
   ALFA_GloRecEvCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <ALFA_GloRecEvCollection, ALFA_GloRecEvCollection_PERS >(svcloc) {} 
+protected:
 
   ALFA_GloRecEvCollection_PERS*  createPersistent (ALFA_GloRecEvCollection *transCont);
   ALFA_GloRecEvCollection*       createTransient ();

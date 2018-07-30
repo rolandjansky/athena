@@ -49,18 +49,18 @@ SCT_StripVetoTool::finalize() {
 }
 
 bool 
-SCT_StripVetoTool::canReportAbout(InDetConditions::Hierarchy h) {
+SCT_StripVetoTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h==InDetConditions::SCT_STRIP); //default case is the side, which we cant report on
 }
 
 bool 
-SCT_StripVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+SCT_StripVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   return (m_badIds.find(elementId) == m_badIds.end());
 }
 
 bool 
-SCT_StripVetoTool::isGood(const IdentifierHash& /*hashId*/) { //comment out unused parameter to prevent compiler warning
+SCT_StripVetoTool::isGood(const IdentifierHash& /*hashId*/) const { //comment out unused parameter to prevent compiler warning
   return true; //cant answer questions about the module side
 }
 

@@ -122,7 +122,7 @@ namespace PanTau {
      typedef IParticle::FourMom_t FourMom_t;
  
      /// @brief The full 4-momentum of the particle as a TLoretzVector
-     virtual const FourMom_t& p4() const;
+     virtual FourMom_t p4() const;
 
      /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
      virtual xAOD::Type::ObjectType type() const;

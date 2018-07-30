@@ -13,21 +13,16 @@
 
 
 #include "TRT_DriftFunctionTool/TRT_DriftFunctionTool.h"
-#include "GaudiKernel/ToolFactory.h"
 
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/IToolSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_Numerology.h"
 #include "InDetReadoutGeometry/Version.h"
-
-
-#include "GaudiKernel/IIncidentSvc.h"
-#include "EventInfo/EventIncident.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-
+#include "StoreGate/ReadCondHandle.h"
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -42,10 +37,13 @@
 TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
-  :  AthAlgTool(type, name, parent),
+  : AthAlgTool(type, name, parent),
     m_TRTCalDbSvc("TRT_CalDbSvc",name),
     m_TRTCalDbSvc2("",name),
-    m_IncidentSvc("IncidentSvc",name),
+    m_setupToT(true),
+    m_setupHT(true),
+    m_ToTkey("/TRT/Calib/ToTCalib"),
+    m_HTkey("/TRT/Calib/HTCalib"),
     m_drifttimeperbin(3.125 * CLHEP::ns),
     m_error(0.17),
     m_drifttimeperhalfbin(0.), // set later
@@ -68,9 +66,8 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
 
 {
   declareInterface<ITRT_DriftFunctionTool>(this);
-  declareProperty("IncidentService",m_IncidentSvc);
   m_drifttimeperhalfbin = m_drifttimeperbin/2.;
-  declareProperty("TRT_Calibration",m_isdata);
+  declareProperty("IsMC",m_ismc);
   declareProperty("AllowDigiVersionOverride",m_allow_digi_version_override);
   declareProperty("ForcedDigiVersion",m_forced_digiversion);
   declareProperty("AllowDataMCOverride",m_allow_data_mc_override);
@@ -166,16 +163,6 @@ StatusCode TRT_DriftFunctionTool::initialize()
     ATH_MSG_INFO(" Drift time information ignored ");
   }
 
-  //Incident service (to check for MC/data and setup accordingly)
-  if ( m_IncidentSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve service " << m_IncidentSvc);
-    return StatusCode::FAILURE;
-  } else 
-    ATH_MSG_DEBUG("Retrieved service " << m_IncidentSvc);
-
-  // call handle in case of BeginRun
-  m_IncidentSvc->addListener( this, std::string("BeginRun"));
-
   // Retrieve TRT_DetectorManager and helper
   sc = AthAlgTool::detStore()->retrieve(m_manager, m_trt_mgr_location);
   if (sc.isFailure() || !m_manager)
@@ -209,21 +196,52 @@ StatusCode TRT_DriftFunctionTool::initialize()
   DecodeVersionKey versionKey(geomodel,"TRT");
   m_key=versionKey.tag();
 
+  ATH_CHECK( m_ToTkey.initialize() );
+  ATH_CHECK( m_HTkey.initialize() );
 
-  // Register callback function for cache updates - ToT:
-  const DataHandle<CondAttrListCollection> aptr;
-  if (StatusCode::SUCCESS == detStore()->regFcn(&TRT_DriftFunctionTool::update,this, aptr, "/TRT/Calib/ToTCalib" )) {
-    ATH_MSG_INFO ("Registered callback for TRT_DriftFunctionTool - ToT Correction.");
+  int numB = m_manager->getNumerology()->getNBarrelPhi();
+  ATH_MSG_DEBUG(" Number of Barrel elements "<< numB);      
+      
+  if (numB==2) {
+      m_istestbeam = true;
   } else {
-    ATH_MSG_ERROR ("Callback registration failed for TRT_DriftFunctionTool - ToT!  Using default correction values.");
+      m_istestbeam = false;
   }
 
-  // Register callback function for cache updates - HT:
-  const DataHandle<CondAttrListCollection> aptrHT;
-  if (StatusCode::SUCCESS == detStore()->regFcn(&TRT_DriftFunctionTool::update,this, aptrHT, "/TRT/Calib/HTCalib" )) {
-    ATH_MSG_INFO ("Registered callback for TRT_DriftFunctionTool - HT Correction.");
+
+  bool choosedata = false;
+  bool choosemc = false;
+
+  if(m_ismc) {
+    ATH_MSG_INFO(" TRT_DriftFunctionTool initialized for simulation");
+    choosemc = true;
+    m_isdata=false;
   } else {
-    ATH_MSG_ERROR ("Callback registration failed for TRT_DriftFunctionTool - HT!  Using default correction values.");
+    ATH_MSG_INFO("  TRT_DriftFunctionTool initialized for data");
+    choosedata = true;
+    m_isdata=true;
+  }
+
+  if(m_allow_data_mc_override) { 
+    choosedata = false;
+    choosemc = false;
+    if (m_forcedata) {
+      ATH_MSG_INFO(" Constants will be read from conddb ");
+      choosedata=true;
+    } else {
+      ATH_MSG_INFO(" Constants will be read from code ");
+      choosemc=true;
+    }
+  }
+
+  if(choosemc&&choosedata) ATH_MSG_FATAL("Trying to init MC and data setup both!");
+  if(!choosemc&&!choosedata) ATH_MSG_FATAL("Neither MC nor data setup selected!");
+  if(choosemc) {
+    m_isdata=false;
+    setupRtRelationMC();
+  } else {
+    m_isdata=true;
+    setupRtRelationData();
   }
 
   return sc;
@@ -237,78 +255,6 @@ StatusCode TRT_DriftFunctionTool::finalize()
   return sc;
 }
 
-//
-// handle BeginRun incidents------------------------------------------------
-void TRT_DriftFunctionTool::handle(const Incident& inc)
-{
-
-  //Find out what type of run
-  if (inc.type() == "BeginRun") 
-    {
-      const EventInfo* pevt = 0; // pointer for the event
-      StatusCode status = evtStore()->retrieve(pevt); // retrieve the pointer to the event
-      if(!status.isSuccess() || pevt==0) {
-	ATH_MSG_FATAL("Couldn't get EventInfo object from StoreGate");
-        return;
-      }
-
-      int numB = m_manager->getNumerology()->getNBarrelPhi();
-      ATH_MSG_DEBUG(" Number of Barrel elements "<< numB);      
-      
-      if (numB==2) {
-          m_istestbeam = true;
-        } else {
-          m_istestbeam = false;
-        }
-
-      if(pevt->event_type()->test(EventType::IS_CALIBRATION))
-	{
-	  ATH_MSG_DEBUG("Run reports itself as calibration");
-	} else {
-  	  ATH_MSG_DEBUG("Run reports itself as physics");
-	}
-
-      bool choosedata = false;
-      bool choosemc = false;
-
-      if(pevt->event_type()->test(EventType::IS_SIMULATION))
-	{
-	  ATH_MSG_DEBUG("Run reports itself as simulation");
-	  choosemc = true;
-          m_ismc=true;
-	} else {
-	ATH_MSG_DEBUG("Run reports itself as data");
-	  choosedata = true;
-          m_ismc=false;
-	}
-
-      if(m_allow_data_mc_override)
-	{ 
-	  choosedata = false;
-	  choosemc = false;
-	  if (m_forcedata)
-	    {
-	      ATH_MSG_INFO(" Constants will be read from conddb ");
-	      choosedata=true;
-	    } else {
-	    ATH_MSG_INFO(" Constants will be read from code ");
-	      choosemc=true;
-	    }
-	}
-
-      if(choosemc&&choosedata) ATH_MSG_FATAL("Trying to init MC and data setup both!");
-      if(!choosemc&&!choosedata) ATH_MSG_FATAL("Neither MC nor data setup selected!");
-      if(choosemc)
-	{
-	  m_isdata=false;
-          setupRtRelationMC();
-	} else {
-	  m_isdata=true;
-          setupRtRelationData();
-	}
-    }
-  return;
-}
 // Drift time in ns for any non negative drift radius; Not calibrated for
 // individual straws and run range, but otherwise adapted to any
 // setup.
@@ -457,11 +403,11 @@ double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id
     slope = m_TRTCalDbSvc2->driftSlope(drifttime,id,foundslope);
     ATH_MSG_DEBUG ("Overlay TRTCalDbSvc2 gives slope: "<<slope<<", found="<<foundslope);
   }
-  
+
   if(founderr && foundslope) {
     return error+mu*slope;
 //to add condition for old setup
-  } 
+  }
   else if ((founderr && !foundslope)  || (mu<0)) {
 		return error; }
   else {  //interpolate
@@ -479,25 +425,84 @@ double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id
 }
 
 //
-// returns the time over threshold correction in ns 
-double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id) const
+// returns the time over threshold correction in ns
+double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id)
 {
+
+  if(m_setupToT) {
+    std::lock_guard<std::mutex> lock(m_cacheMutex);
+    const CondAttrListCollection* atrlistcol;
+    SG::ReadCondHandle<CondAttrListCollection> rch(m_ToTkey);
+    atrlistcol=*rch;
+    if(!atrlistcol) {
+      ATH_MSG_ERROR ("Problem reading condDB ToT correction constants.");
+    } else {
+      int channel;
+      std::ostringstream var_name;
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
+            citr!=atrlistcol->end();++citr) {
+
+        //get Barrel (1) or Endcap (2)
+        channel = citr->first;
+
+        if ((channel == 1) || (channel == 2)) {
+          const coral::AttributeList& atrlist = citr->second;
+
+          for (int i = 0; i < 20; ++i ) {
+            var_name << "TRT_ToT_" << std::dec << i;
+            m_tot_corrections[channel-1][i] = atrlist[var_name.str()].data<float>();
+            var_name.str("");
+          }
+        }
+      }
+    }
+    m_setupToT=false;
+  }
+
 
   int tot_index = tot/3.125;
   if (tot_index < 0) tot_index = 0;
   if (tot_index > 19) tot_index = 19;
-  
+
   int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
-  
+
   return m_tot_corrections[bec_index][tot_index];
 }
 
-// Returns high threshold correction to the drift time (ns) 
-double TRT_DriftFunctionTool::driftTimeHTCorrection(Identifier id) const 
+// Returns high threshold correction to the drift time (ns)
+double TRT_DriftFunctionTool::driftTimeHTCorrection(Identifier id)
 {
 
+if(m_setupHT) {
+    std::lock_guard<std::mutex> lock(m_cacheMutex);
+    const CondAttrListCollection* atrlistcol;
+    SG::ReadCondHandle<CondAttrListCollection> rch(m_HTkey);
+    atrlistcol=*rch;
+    if (!atrlistcol) {
+      ATH_MSG_ERROR ("Problem reading condDB HT correction constants.");
+    } else {
+      int channel;
+      std::ostringstream var_name;
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
+           citr!=atrlistcol->end();++citr) {
+
+        channel = citr->first;
+        if (channel == 1) {
+          const coral::AttributeList& atrlist = citr->second;
+
+          for (int i = 0; i < 2; ++i ) {
+            var_name << "TRT_HT_" << std::dec << i;
+            m_ht_corrections[i] = atrlist[var_name.str()].data<float>();
+            var_name.str("");
+          }
+        }
+      }
+    }
+    m_setupHT=false;
+  }
+
   int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
-  
+
   return m_ht_corrections[bec_index];
 }
 
@@ -900,90 +905,4 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
           }
 
         }
-}
-
-/* ----------------------------------------------------------------------------------- */
-// Callback function to update constants from database: 
-/* ----------------------------------------------------------------------------------- */
-StatusCode TRT_DriftFunctionTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
-
-  ATH_MSG_INFO ("Updating constants for the TRT_DriftFunctionTool! ");
-
- // Callback function to update Drift Time Correction parameters when condDB data changes:
-  for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
-   ATH_MSG_DEBUG("IOVCALLBACK for key " << *key << " number " << I);
-
-  StatusCode status = StatusCode::SUCCESS;
-  
-  for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key) {
-
-    const CondAttrListCollection* atrlistcol;
-    
-    if (*key == "/TRT/Calib/ToTCalib") {
-      ATH_MSG_INFO ("Updating ToT constants for the TRT_DriftFunctionTool! ");
-
-      // Read the ToT Correction parameters:
-      // ----------------------------------------------------------------------------------- //
-      if (StatusCode::SUCCESS == detStore()->retrieve(atrlistcol, "/TRT/Calib/ToTCalib" ) && atrlistcol != 0) {
-
-	 int channel;
-	 std::ostringstream var_name;
-	 for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
-              citr!=atrlistcol->end();++citr) {
-
-	    //get Barrel (1) or Endcap (2)
-	   channel = citr->first;
-
-	   if ((channel == 1) || (channel == 2)) {
-             const coral::AttributeList& atrlist = citr->second;
-
-	     for (int i = 0; i < 20; ++i ) {
-       	       var_name << "TRT_ToT_" << std::dec << i;
-	       m_tot_corrections[channel-1][i] = atrlist[var_name.str()].data<float>();
-	       var_name.str("");
-	     }	 
-	   } 
-	 }
-	
-      } else {
-	ATH_MSG_ERROR ("Problem reading condDB object for ToT correction constants.");
-	status = StatusCode::FAILURE;
-      }
-    }
-    
-    
-    if (*key == "/TRT/Calib/HTCalib") {
-      ATH_MSG_INFO ("Updating HT constants for the TRT_DriftFunctionTool! ");
-
-      // Read the HT Correction parameters:
-      // ----------------------------------------------------------------------------------- //
-      if (StatusCode::SUCCESS == detStore()->retrieve(atrlistcol, "/TRT/Calib/HTCalib" ) && atrlistcol != 0) {
-
-	 int channel;
-	 std::ostringstream var_name;
-	 for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
-              citr!=atrlistcol->end();++citr) {
-	      
-	   channel = citr->first;
-
-	   if (channel == 1) {
-             const coral::AttributeList& atrlist = citr->second;
-
-	     for (int i = 0; i < 2; ++i ) {
-	       var_name << "TRT_HT_" << std::dec << i;
-       	       m_ht_corrections[i] = atrlist[var_name.str()].data<float>();
-	       var_name.str("");
-	     }	 
-	   } 
-	 }
-
-       } else {
-	 ATH_MSG_ERROR ("Problem reading condDB object for HT correction constants.");
-	 status = StatusCode::FAILURE;
-       }
-    }
-   
-  }
-  
-  return status;
 }

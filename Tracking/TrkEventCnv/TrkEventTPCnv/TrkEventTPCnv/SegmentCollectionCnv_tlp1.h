@@ -35,7 +35,6 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/ErrorMatrixCnv_p1.h"            
 #include "TrkEventTPCnv/TrkEventPrimitives/CovarianceMatrixCnv_p1.h"            
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"         
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3DCnv_p1.h"         
 
 #include "TrkEventTPCnv/TrkRIO_OnTrack/RIO_OnTrackCnv_p1.h"             
 #include "TrkEventTPCnv/TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrackCnv_p1.h"       

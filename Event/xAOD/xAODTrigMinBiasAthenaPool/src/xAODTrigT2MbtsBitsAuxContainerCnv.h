@@ -30,13 +30,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigT2MbtsBitsAuxContainer,
 class xAODTrigT2MbtsBitsAuxContainerCnv :
    public xAODTrigT2MbtsBitsAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTrigT2MbtsBitsAuxContainerCnv >;
-
-protected:
+public:
    /// Converter constructor
    xAODTrigT2MbtsBitsAuxContainerCnv( ISvcLocator* svcLoc );
 
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::TrigT2MbtsBitsAuxContainer*
    createPersistent( xAOD::TrigT2MbtsBitsAuxContainer* trans );

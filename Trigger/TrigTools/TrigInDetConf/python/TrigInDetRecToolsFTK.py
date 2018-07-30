@@ -54,10 +54,15 @@ ToolSvc += InDetTrigBroadPixelClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigBroadPixelClusterOnTrackToolFTK
   
+# SiLorentzAngleTool for SCT
+if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+  from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+  sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 InDetTrigBroadSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigBroadSCT_ClusterOnTrackToolFTK",
                                                                     CorrectionStrategy = 0,  # do correct position bias
-                                                                    ErrorStrategy      = 0)  # do use broad errors
+                                                                    ErrorStrategy      = 0,  # do use broad errors
+                                                                    SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
 ToolSvc += InDetTrigBroadSCT_ClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigBroadSCT_ClusterOnTrackToolFTK
@@ -161,3 +166,19 @@ TrigFTK_RawVertexFinderTool=  FTK_VertexFinderTool(name="FTK_RawVertexFinderTool
 ToolSvc+=TrigFTK_RawVertexFinderTool
 if (InDetTrigFlags.doPrintConfigurables()):
   print TrigFTK_RawVertexFinderTool
+
+from TrkVertexWeightCalculators.TrkVertexWeightCalculatorsConf import Trk__SumPtVertexWeightCalculator
+TrigFTK_VertexWeightCalculator = Trk__SumPtVertexWeightCalculator(name = "TrigFTK_SumPtVertexWeightCalculator",
+                                                                  DoSumPt2Selection = True)
+if (InDetTrigFlags.doPrintConfigurables()):
+  print TrigFTK_VertexWeightCalculator 
+ 
+
+ToolSvc += TrigFTK_VertexWeightCalculator 
+
+from TrkVertexTools.TrkVertexToolsConf import Trk__VertexCollectionSortingTool
+TrigFTK_VertexCollectionSortingTool = Trk__VertexCollectionSortingTool(name                   = "TrigFTK_VertexCollectionSortingTool",
+                                                                       VertexWeightCalculator = TrigFTK_VertexWeightCalculator)
+ToolSvc += TrigFTK_VertexCollectionSortingTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print TrigFTK_VertexCollectionSortingTool

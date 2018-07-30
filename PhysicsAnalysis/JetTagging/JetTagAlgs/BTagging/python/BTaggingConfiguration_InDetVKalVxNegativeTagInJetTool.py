@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Configuration functions for InDetVKalVxNegativeTagInJetTool
 # Author: Wouter van den Wollenberg (2013-2014)
 # Note: This tool has its own file because it is common to many different taggers
 #       so deletion of the one tagger that has this function won't break the others.
 from BTagging.BTaggingFlags import BTaggingFlags
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
 metaInDetVKalVxNegativeTagInJetTool = { 'IsAVertexFinder' : True,
                                         'VertexFinderxAODBaseName' : 'SV1Flip',

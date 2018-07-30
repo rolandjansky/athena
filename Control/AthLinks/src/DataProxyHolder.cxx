@@ -68,7 +68,9 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
     if (sg == 0)
       sg = SG::CurrentEventStore::store();
 
-    m_proxy = sg->proxy (obj);
+    if (sg) {
+      m_proxy = sg->proxy (obj);
+    }
     if (m_proxy == 0) {
       // Didn't find a proxy for this object.
       // Store the object pointer directly, and return 0.
@@ -86,9 +88,11 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
         // This can happen when reading a view vector with xAODRootAccess
         // in an athena build, where the TAD may not get a CLID set.
         // Check based on key.
-        sgkey_t link_sgkey = sg->stringToKey (m_proxy->name(), link_clid);
-        if (link_sgkey != m_proxy->sgkey())
-          throw SG::ExcCLIDMismatch (m_proxy->clID(), link_clid);
+        if (sg) {
+          sgkey_t link_sgkey = sg->stringToKey (m_proxy->name(), link_clid);
+          if (link_sgkey != m_proxy->sgkey())
+            throw SG::ExcCLIDMismatch (m_proxy->clID(), link_clid);
+        }
       }
     }
   }

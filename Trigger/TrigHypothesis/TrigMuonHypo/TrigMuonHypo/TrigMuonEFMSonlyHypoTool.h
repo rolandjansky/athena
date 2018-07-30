@@ -57,5 +57,4 @@ class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 };
 
-DECLARE_TOOL_FACTORY(TrigMuonEFMSonlyHypoTool)
 #endif

@@ -13,7 +13,6 @@
 // the user data-class defintions
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 

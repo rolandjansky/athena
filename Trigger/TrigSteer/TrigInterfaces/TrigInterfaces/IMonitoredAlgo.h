@@ -344,7 +344,7 @@ class IMonitoredAlgo {
   /**
    * @brief Method to add a standard container of variables to the monitored list.
    * @param name name of the standard container of variables to add.
-   * @param var reference to the standard container of variables to add.
+   * @param container reference to the standard container of variables to add.
    * @param resetPolicy if container should be cleared before each algorithm execution.
    * @return handle to the newly added IGeter
    */
@@ -380,7 +380,7 @@ class IMonitoredAlgo {
   /**
    * @brief Method to add a collection (DataVector) of variables to the monitored list.
    * @param name name of the collection of variables to add.
-   * @param var reference to the pointer to the collection of variables to add.
+   * @param coll reference to the pointer to the collection of variables to add.
    * @param method an external method, used to access object value (must take a pointer to objects in the collection as argument).
    * @return handle to the newly added IGetter
    */

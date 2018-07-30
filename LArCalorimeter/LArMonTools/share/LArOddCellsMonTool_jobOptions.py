@@ -42,10 +42,7 @@ theLArOddCellsMonTool = LArOddCellsMonTool(name="LArOddCellsMonTool",
                                            )
 from AthenaCommon.BeamFlags import jobproperties
 
-if jobproperties.Global.DataSource.get_Value() == 'data':
-   theLArOddCellsMonTool.LArPedestalKey='Pedestal'
-else:
-   theLArOddCellsMonTool.LArPedestalKey='LArPedestal'
+theLArOddCellsMonTool.LArPedestalKey='LArPedestal'
 
 
 #The next line is actually getting all the information. I'm sure this is available offline at the T0, but

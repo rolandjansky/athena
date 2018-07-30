@@ -313,7 +313,7 @@ public:
    *
    * A decoration is locked by changing from a decoration to an ordinary
    * variable.  If the container itself is locked, then modifications
-   * to be variable are not permitted after this call.
+   * to the variable are not permitted after this call.
    */
   virtual void lockDecoration (SG::auxid_t auxid) override;
 
@@ -331,6 +331,20 @@ protected:
    * does not exist.
    */
   const void* getIODataInternal (auxid_t auxid, bool quiet) const;
+
+
+  /**
+   * @brief Return a pointer to the data to be stored for one aux data item.
+   * @param auxid The identifier of the desired aux data item.
+   * @param quiet If true, then don't print an error on failure.
+   *
+   * This will usually be a pointer to a @c std::vector; however, it may
+   * be something different for a standalone object.
+   *
+   * Returns 0 and reports an error if the requested aux data item
+   * does not exist.
+   */
+  void* getIODataInternal (auxid_t auxid, bool quiet);
 
 
   /**

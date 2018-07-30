@@ -13,8 +13,7 @@
 
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include "TrkVertexFitterUtils/TrackToVertexIPEstimator.h"
-#include "GaudiKernel/ToolFactory.h"
-#include "xAODTracking/Vertex.h"
+#include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 
 namespace Analysis {

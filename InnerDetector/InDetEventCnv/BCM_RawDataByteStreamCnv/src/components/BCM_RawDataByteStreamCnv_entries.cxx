@@ -1,5 +1,5 @@
 #include "BCM_RawDataByteStreamCnv/BCM_RawContByteStreamCnv.h"
-DECLARE_CONVERTER_FACTORY( BCM_RawContByteStreamCnv )
+DECLARE_CONVERTER( BCM_RawContByteStreamCnv )
 
 #include "BCM_RawDataByteStreamCnv/BCM_RawContByteStreamTool.h"
 DECLARE_COMPONENT( BCM_RawContByteStreamTool )

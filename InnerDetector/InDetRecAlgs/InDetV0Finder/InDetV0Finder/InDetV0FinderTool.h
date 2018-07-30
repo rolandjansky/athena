@@ -17,11 +17,10 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "HepPDT/ParticleDataTable.hh"
-#include "InDetConversionFinderTools/InDetConversionFinderTools.h"
-#include "DataModel/DataVector.h"
-#include "ITrackToVertex/ITrackToVertex.h"
-#include "xAODTracking/VertexContainer.h"
+#include "InDetConversionFinderTools/InDetConversionFinderTools.h" //why needed?
+#include "AthContainers/DataVector.h"
+#include "xAODTracking/VertexContainerFwd.h"
+#include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 /**
@@ -79,12 +78,20 @@ namespace Trk
   class V0Tools;
   class IExtrapolator;
   class ITrackSelectorTool;
+}
+
+namespace HepPDT{
   class ParticleDataTable;
+}
+
+namespace Reco{
+  class ITrackToVertex;
 }
 
 namespace InDet
 {
   class VertexPointEstimator;
+  class ConversionFinderUtils;
 
   static const InterfaceID IID_InDetV0FinderTool("InDetV0FinderTool", 1, 0);
 
@@ -185,6 +192,9 @@ namespace InDet
     bool doMassFit(xAOD::Vertex* vxCandidate, int pdgID);
 
     xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Amg::Vector3D vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
+
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", 
+	                                                   "primary vertex container" };
 
   };
 

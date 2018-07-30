@@ -12,6 +12,7 @@
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/DatabaseSpecification.h"
 #include "PersistencySvc/ITransaction.h"
+#include "FileCatalog/IFileCatalog.h"
 
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/Placement.h"
@@ -25,6 +26,7 @@ pool::PersistencySvc::PersistencySvc::~PersistencySvc()
   delete m_session; m_session = 0;
 }
 
+/*
 void
 pool::PersistencySvc::PersistencySvc::setFileCatalog( pool::IFileCatalog& catalog )
 {
@@ -36,6 +38,7 @@ pool::PersistencySvc::PersistencySvc::fileCatalog()
 {
   return m_session->fileCatalog();
 }
+*/
 
 void*
 pool::PersistencySvc::PersistencySvc::readObject( const Token& token, void* object )

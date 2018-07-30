@@ -14,11 +14,7 @@ theLArCosmicsMonTool = LArCosmicsMonTool(name="LArCosmicsMonTool",
                                          LArBadChannelMask          = theLArBadChannelsMasker
                          )
 
-from AthenaCommon.BeamFlags import jobproperties
-if jobproperties.Global.DataSource.get_Value() == 'data':
-    theLArCosmicsMonTool.LArPedestalKey='Pedestal'
-else:
-    theLArCosmicsMonTool.LArPedestalKey='LArPedestal'
+theLArCosmicsMonTool.LArPedestalKey='LArPedestal'
    
     
 ToolSvc += theLArCosmicsMonTool

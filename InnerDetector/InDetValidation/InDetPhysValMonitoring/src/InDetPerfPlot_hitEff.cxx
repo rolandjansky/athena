@@ -8,7 +8,7 @@
  **/
 
 #include "InDetPerfPlot_hitEff.h"
-#include "InDetPhysHitDecoratorTool.h"
+#include "InDetPhysHitDecoratorAlg.h"
 #include "xAODTracking/TrackParticle.h"
 #include "TProfile.h"
 #include "TEfficiency.h"

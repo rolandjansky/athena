@@ -7,7 +7,6 @@
 
 // Framework Related Headers
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 // Used for retrieving the collection
 #include "xAODJet/JetContainer.h"

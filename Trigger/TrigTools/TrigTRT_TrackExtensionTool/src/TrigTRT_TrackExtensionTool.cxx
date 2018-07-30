@@ -17,7 +17,6 @@
 #include <cmath>
 #include <iostream>
 
-#include "GaudiKernel/ToolFactory.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"

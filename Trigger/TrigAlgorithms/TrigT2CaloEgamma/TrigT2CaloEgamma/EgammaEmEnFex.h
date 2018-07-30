@@ -38,7 +38,9 @@ class EgammaEmEnFex: public IAlgToolCalo {
     *   @param[in] roi RoI definition.
     */
     StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
-		       const IRoiDescriptor& roi );
+		       const IRoiDescriptor& roi,
+		       const CaloDetDescrElement*& caloDDE = caloDDENull,
+                       const EventContext* context = nullptr );
 
     /// OBSOLETE!! DO NOT USE
 
@@ -52,7 +54,7 @@ class EgammaEmEnFex: public IAlgToolCalo {
 		       double phimin, double phimax) {
       TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax,
 			     HLT::phimean(phimin,phimax), phimin, phimax);
-      return execute( rtrigEmCluster, roi );
+      return execute( rtrigEmCluster, roi, caloDDENull, nullptr );
     }
 
 

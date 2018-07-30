@@ -43,5 +43,5 @@ class TrigL2CaloHypoToolMult : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
   ToolHandleArray<ITrigL2CaloHypoTool> m_subTools { this, "SubTools", {}, "Sub tools performing cuts" };
   
 }; 
-DECLARE_TOOL_FACTORY( TrigL2CaloHypoToolMult )
+
 #endif //> !TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLMULT_H

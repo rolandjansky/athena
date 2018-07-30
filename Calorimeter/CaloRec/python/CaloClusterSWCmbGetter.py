@@ -12,7 +12,7 @@ class CaloClusterSWCmbGetter ( Configured )  :
     _outputType = "CaloClusterContainer"
     _outputKey = "CombinedCluster"
     _output = { _outputType : _outputKey , 
-                "CaloClusterAuxContainer" : _outputKey+"Aux.",
+                "xAOD::CaloClusterAuxContainer" : _outputKey+"Aux.",
                 "CaloCellLinkContainer" : _outputKey+"_links" 
                 } # exact list of output
 

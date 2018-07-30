@@ -21,6 +21,7 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTracking/Vertex.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
 #include <cstdint>
@@ -44,31 +45,31 @@ AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(std::string mynam
 
   // Name of the quality to use
   declareProperty("isEMMask",
-		  m_rootForwardTool->isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
+		  m_rootForwardTool->m_isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
 		  "The mask to use");
   // Eta binning
-  declareProperty("CutBinEta_ForwardElectron",m_rootForwardTool->CutBinEta_ForwardElectron,
+  declareProperty("CutBinEta_ForwardElectron",       m_rootForwardTool->m_cutBinEta_ForwardElectron,
 		  "Eta binning");
   // NPV  binning
-  declareProperty("CutVxp_ForwardElectron",m_rootForwardTool->CutVxp_ForwardElectron,
+  declareProperty("CutVxp_ForwardElectron",          m_rootForwardTool->m_cutVxp_ForwardElectron,
 		  "nvtx binning");
   // Cut on lateral shower shape
-  declareProperty("CutLATERAL_ForwardElectron",m_rootForwardTool->CutLATERAL_ForwardElectron,
+  declareProperty("CutLATERAL_ForwardElectron",      m_rootForwardTool->m_cutLATERAL_ForwardElectron,
 		  "Cut on lateral shower shape in 2nd sampling");
   // Cut on secondLambda
-  declareProperty("CutSECONDLAMBDA_ForwardElectron",m_rootForwardTool->CutSECONDLAMBDA_ForwardElectron,
+  declareProperty("CutSECONDLAMBDA_ForwardElectron", m_rootForwardTool->m_cutSECONDLAMBDA_ForwardElectron,
 		  "Cut on secondLambda");
   // Cut on longitudinal
-  declareProperty("CutLONGITUDINAL_ForwardElectron",m_rootForwardTool->CutLONGITUDINAL_ForwardElectron,
+  declareProperty("CutLONGITUDINAL_ForwardElectron", m_rootForwardTool->m_cutLONGITUDINAL_ForwardElectron,
 		  "Cut on longitudinal");
   // Cut on fracMax
-  declareProperty("CutCELLMAXFRAC_ForwardElectron",m_rootForwardTool->CutCELLMAXFRAC_ForwardElectron,
+  declareProperty("CutCELLMAXFRAC_ForwardElectron",  m_rootForwardTool->m_cutCELLMAXFRAC_ForwardElectron,
 		  "Cut on fracMax");
   // Cut on centerlambda
-  declareProperty("CutCENTERLAMBDA_ForwardElectron",m_rootForwardTool->CutCENTERLAMBDA_ForwardElectron,
+  declareProperty("CutCENTERLAMBDA_ForwardElectron", m_rootForwardTool->m_cutCENTERLAMBDA_ForwardElectron,
 		  "Cut on centerlambda");
   // Cut on secondR
-  declareProperty("CutSECONDR_ForwardElectron",m_rootForwardTool->CutSECONDR_ForwardElectron ,
+  declareProperty("CutSECONDR_ForwardElectron",      m_rootForwardTool->m_cutSECONDR_ForwardElectron ,
 		  "Cut on secondR)");
 }
 
@@ -78,9 +79,6 @@ AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(std::string mynam
 //=============================================================================
 AsgForwardElectronIsEMSelector::~AsgForwardElectronIsEMSelector()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgForwardElectronIsEMSelector finalize()");
-  }
   delete m_rootForwardTool;
 }
 
@@ -105,34 +103,39 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
     TEnv env(filename.c_str());
 
+    // Setup primary vertex key handle
+    m_primVtxContKey = m_primVtxContName;
+    ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
+
+    
     ///------- Read in the TEnv config ------///
 
     //Override the mask via the config only if it is not set 
-    if(m_rootForwardTool->isEMMask==egammaPID::EgPidUndefined){ 
+    if(m_rootForwardTool->m_isEMMask==egammaPID::EgPidUndefined){ 
       unsigned int mask(env.GetValue("isEMMask",static_cast<int>(egammaPID::EgPidUndefined)));
-      m_rootForwardTool->isEMMask=mask;
+      m_rootForwardTool->m_isEMMask=mask;
     }
     //
     ATH_MSG_DEBUG("Read in the TEnv config ");
     ///------- Use helpers to read in the cut arrays ------///
-    m_rootForwardTool->CutBinEta_ForwardElectron  =AsgConfigHelper::HelperFloat("CutBinEta_ForwardElectron",env);
-    m_rootForwardTool->CutVxp_ForwardElectron = AsgConfigHelper::HelperFloat("CutVxp_ForwardElectron",env);
-    m_rootForwardTool->CutSECONDLAMBDA_ForwardElectron = AsgConfigHelper::HelperFloat("CutSECONDLAMBDA_ForwardElectron",env);
-    m_rootForwardTool->CutLATERAL_ForwardElectron = AsgConfigHelper::HelperFloat("CutLATERAL_ForwardElectron",env);
-    m_rootForwardTool->CutLONGITUDINAL_ForwardElectron = AsgConfigHelper::HelperFloat("CutLONGITUDINAL_ForwardElectron",env);
-    m_rootForwardTool->CutCELLMAXFRAC_ForwardElectron = AsgConfigHelper::HelperFloat("CutCELLMAXFRAC_ForwardElectron",env);
-    m_rootForwardTool->CutCENTERLAMBDA_ForwardElectron = AsgConfigHelper::HelperFloat("CutCENTERLAMBDA_ForwardElectron",env);
-    m_rootForwardTool->CutSECONDR_ForwardElectron = AsgConfigHelper::HelperFloat("CutSECONDR_ForwardElectron",env);
+    m_rootForwardTool->m_cutBinEta_ForwardElectron       = AsgConfigHelper::HelperFloat("CutBinEta_ForwardElectron",env);
+    m_rootForwardTool->m_cutVxp_ForwardElectron          = AsgConfigHelper::HelperFloat("CutVxp_ForwardElectron",env);
+    m_rootForwardTool->m_cutSECONDLAMBDA_ForwardElectron = AsgConfigHelper::HelperFloat("CutSECONDLAMBDA_ForwardElectron",env);
+    m_rootForwardTool->m_cutLATERAL_ForwardElectron      = AsgConfigHelper::HelperFloat("CutLATERAL_ForwardElectron",env);
+    m_rootForwardTool->m_cutLONGITUDINAL_ForwardElectron = AsgConfigHelper::HelperFloat("CutLONGITUDINAL_ForwardElectron",env);
+    m_rootForwardTool->m_cutCELLMAXFRAC_ForwardElectron  = AsgConfigHelper::HelperFloat("CutCELLMAXFRAC_ForwardElectron",env);
+    m_rootForwardTool->m_cutCENTERLAMBDA_ForwardElectron = AsgConfigHelper::HelperFloat("CutCENTERLAMBDA_ForwardElectron",env);
+    m_rootForwardTool->m_cutSECONDR_ForwardElectron      = AsgConfigHelper::HelperFloat("CutSECONDR_ForwardElectron", env);
   } else {
     ATH_MSG_INFO("Conf file empty. Just user Input");
   }
 
-  ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootForwardTool->isEMMask  );
+  ATH_MSG_INFO("operating point : " << this->getOperatingPointName() << " with mask: "<< m_rootForwardTool->m_isEMMask  );
 
   // Get the message level and set the underlying ROOT tool message level accordingly
   m_rootForwardTool->msg().setLevel(this->msg().level());
   // We need to initialize the underlying ROOT TSelectorTool
-  if ( 0 == m_rootForwardTool->initialize() )
+  if ( m_rootForwardTool->initialize().isFailure() )
     {
       ATH_MSG_ERROR("Could not initialize the TForwardElectronIsEMSelector!");
       sc = StatusCode::FAILURE;
@@ -151,19 +154,23 @@ StatusCode AsgForwardElectronIsEMSelector::finalize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
-  if ( !(m_rootForwardTool->finalize()) )
-    {
-      ATH_MSG_ERROR("Something went wrong at finalize!");
-      sc = StatusCode::FAILURE;
-    }
-
   return sc ;
+}
+
+//=============================================================================
+// return the accept info object
+//=============================================================================
+
+const asg::AcceptInfo& AsgForwardElectronIsEMSelector::getAcceptInfo() const
+{
+    return m_rootForwardTool->getAcceptInfo();
 }
 
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgForwardElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
+asg::AcceptData
+AsgForwardElectronIsEMSelector::accept( const xAOD::IParticle* part ) const{
 
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   if(part->type()==xAOD::Type::Electron || part->type()==xAOD::Type::Photon){
@@ -171,41 +178,39 @@ const Root::TAccept& AsgForwardElectronIsEMSelector::accept( const xAOD::IPartic
   }
   else{
     ATH_MSG_ERROR("AsgForwardElectronIsEMSelector::could not convert argument to Electron/Photon");
-    return m_acceptDummy;
+    return m_rootForwardTool->accept();
   }
 }
 
-const Root::TAccept& AsgForwardElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
+asg::AcceptData
+AsgForwardElectronIsEMSelector::accept( const xAOD::Egamma* eg ) const{
 
   ATH_MSG_DEBUG("Entering accept( const Egamma* part )");  
   if ( eg ){
-    StatusCode sc = execute(eg);
+    unsigned int isEM = ~0;
+    StatusCode sc = execute(eg, isEM);
     if (sc.isFailure()) {
       ATH_MSG_ERROR("could not calculate isEM");
-      return m_acceptDummy;
+      return m_rootForwardTool->accept();
     }
-    return m_rootForwardTool->fillAccept();
+    return m_rootForwardTool->fillAccept(isEM);
   }
   else{
     ATH_MSG_ERROR("AsgForwardElectronIsEMSelector::accept was given a bad argument");
-    return m_acceptDummy;
+    return m_rootForwardTool->accept();
   }
 }
 
-const Root::TAccept& AsgForwardElectronIsEMSelector::accept( const xAOD::Electron* el) const{
+asg::AcceptData
+AsgForwardElectronIsEMSelector::accept( const xAOD::Electron* el) const{
   ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
-  //ATH_MSG_DEBUG(" Resultado "<<accept(static_cast<const xAOD::Egamma*> (el)));  
   return accept(static_cast<const xAOD::Egamma*> (el));
 }
 
-const Root::TAccept& AsgForwardElectronIsEMSelector::accept( const xAOD::Photon* ph) const{
+asg::AcceptData
+AsgForwardElectronIsEMSelector::accept( const xAOD::Photon* ph) const{
   ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
   return accept(static_cast<const xAOD::Egamma*> (ph));  
-}
-
-/** The value of the isem **/
-unsigned int AsgForwardElectronIsEMSelector::IsemValue() const {
-  return m_rootForwardTool->isEM(); 
 }
 
 //=============================================================================
@@ -214,9 +219,9 @@ unsigned int AsgForwardElectronIsEMSelector::IsemValue() const {
 std::string AsgForwardElectronIsEMSelector::getOperatingPointName() const
 {
 
-  if (m_rootForwardTool->isEMMask == egammaPID::ID_ForwardElectron){ return "Forw Id"; }
+  if (m_rootForwardTool->m_isEMMask == egammaPID::ID_ForwardElectron){ return "Forw Id"; }
   else{
-    ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootForwardTool->isEMMask );
+    ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootForwardTool->m_isEMMask );
     return "";
   }
 }
@@ -224,19 +229,18 @@ std::string AsgForwardElectronIsEMSelector::getOperatingPointName() const
 ///==========================================================================================//
 
 // ==============================================================
-StatusCode AsgForwardElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const{
+StatusCode AsgForwardElectronIsEMSelector::execute(const xAOD::Egamma* eg, unsigned int& isEM) const{
   //
   // Particle identification for electrons based on cuts
   //
   ATH_MSG_DEBUG("entering execute(const Egamma* eg...)");
   // initialisation
-  unsigned int iflag = 0; 
+  isEM = 0; 
   // protection against null pointer
   if (eg==0) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_DEBUG("exiting because el is NULL");
-    iflag = (0x1 << egammaPID::BinEta_ForwardElectron); 
-    m_rootForwardTool->setIsEM(iflag);
+    isEM = (0x1 << egammaPID::BinEta_ForwardElectron); 
     return StatusCode::SUCCESS; 
   }
 
@@ -245,8 +249,7 @@ StatusCode AsgForwardElectronIsEMSelector::execute(const xAOD::Egamma* eg ) cons
   if ( cluster == 0 ) {
     // if object is bad then use the bit for "bad eta"
     ATH_MSG_DEBUG("exiting because cluster is NULL");
-    iflag = (0x1 << egammaPID::BinEta_ForwardElectron); 
-    m_rootForwardTool->setIsEM(iflag);
+    isEM = (0x1 << egammaPID::BinEta_ForwardElectron); 
     return StatusCode::SUCCESS; 
   }
 
@@ -264,10 +267,8 @@ StatusCode AsgForwardElectronIsEMSelector::execute(const xAOD::Egamma* eg ) cons
     eta = fabs(el->eta());
   }
   //Call the calocuts using the egamma object
-  iflag = calocuts_electrons(eg, eta, nvtx, 0); 
+  isEM = calocuts_electrons(eg, eta, nvtx, 0); 
 
-  m_rootForwardTool->setIsEM(iflag); 
-  //m_rootForwardTool->fillAccept(); 
   return StatusCode::SUCCESS;
 
 }
@@ -323,10 +324,6 @@ unsigned int AsgForwardElectronIsEMSelector::calocuts_electrons(const xAOD::Egam
 					       iflag);
 }
 
-const Root::TAccept& AsgForwardElectronIsEMSelector::getTAccept( ) const{
-  return m_rootForwardTool->getTAccept();
-}
-
 //=============================================================================
 //// Helper method to get the number of primary vertices
 //// ( This is horrible! We don't want to iterate over all vertices in the event for each electron!!! 
@@ -334,22 +331,11 @@ const Root::TAccept& AsgForwardElectronIsEMSelector::getTAccept( ) const{
 ////=============================================================================
 unsigned int AsgForwardElectronIsEMSelector::getNPrimVertices() const
 {
-  static bool PVExists = true;
   unsigned int nVtx(0);
-  const xAOD::VertexContainer* vxContainer(0);
-  if(PVExists)
-    {
-      if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
-	{
-	  ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
-	  PVExists = false; // if retrieve failed, don't try to retrieve again
-	  return nVtx;
-	}
-      for ( unsigned int i=0; i<vxContainer->size(); i++ )
-	{
-	  const xAOD::Vertex* vxcand = vxContainer->at(i);
-	  if ( vxcand->nTrackParticles() >= 3 ) nVtx++;
-	}
-    }
+  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey); 
+  for ( unsigned int i = 0; i < vtxCont->size(); i++ ) {
+      const xAOD::Vertex* vtxcand = vtxCont->at(i);
+      if ( vtxcand->nTrackParticles() >= 3 ) nVtx++;
+  }
   return nVtx;
 }

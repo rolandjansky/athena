@@ -15,8 +15,9 @@ typedef  T_AthenaPoolCustomCnv<Muon::RpcByteStreamErrorContainer, RpcByteStreamE
 
 class RpcByteStreamErrorContainerCnv : public RpcByteStreamErrorContainerCnvBase {
 friend class CnvFactory<RpcByteStreamErrorContainerCnv >;
-protected:
+public:
   RpcByteStreamErrorContainerCnv (ISvcLocator* svcloc) : RpcByteStreamErrorContainerCnvBase(svcloc) {}
+protected:
   virtual RpcByteStreamErrorContainer_PERS*   createPersistent (Muon::RpcByteStreamErrorContainer* transObj);
   virtual Muon::RpcByteStreamErrorContainer*  createTransient ();
 };

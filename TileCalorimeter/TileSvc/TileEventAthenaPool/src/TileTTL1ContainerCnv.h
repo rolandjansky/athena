@@ -37,7 +37,9 @@ class TileTTL1ContainerCnv: public T_AthenaPoolCustomCnv<
 
   /** Create the converter from the service locator
    */
+public:
   TileTTL1ContainerCnv(ISvcLocator* svcloc);
+protected:
 
   /** Build the persistent representation from the transient one.
    */

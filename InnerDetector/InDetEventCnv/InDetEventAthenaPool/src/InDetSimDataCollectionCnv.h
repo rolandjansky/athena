@@ -25,7 +25,9 @@ class InDetSimDataCollectionCnv : public InDetSimDataCollectionCnvBase {
   friend class CnvFactory<InDetSimDataCollectionCnv >;
                                                                                                                                                              
 protected:
+public:
   InDetSimDataCollectionCnv (ISvcLocator* svcloc) : InDetSimDataCollectionCnvBase(svcloc) {}
+protected:
   virtual InDetSimDataCollection_PERS*   createPersistent (InDetSimDataCollection* transCont);
   virtual InDetSimDataCollection* createTransient ();
 };

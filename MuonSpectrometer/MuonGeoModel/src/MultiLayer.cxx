@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MultiLayer.h"
@@ -20,7 +20,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
 #include "CLHEP/GenericFunctions/Variable.hh"
 // for cutouts
 #include "GeoModelKernel/GeoShape.h"
@@ -28,7 +27,6 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoTube.h"
-
 
 #include <vector>
 #include <cassert>
@@ -42,7 +40,6 @@ MultiLayer::MultiLayer(std::string n): DetectorElement(n),
   nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.),
   mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0), cutoutAtAngle(false)
 {
-   m_geo_version = 400;
    MYSQL* mysql = MYSQL::GetPointer();
    MDT* md = (MDT*)mysql->GetTechnology(name);
    if (md != NULL) {
@@ -70,7 +67,6 @@ MultiLayer::MultiLayer(std::string n): DetectorElement(n),
 
 GeoFullPhysVol* MultiLayer::build()
 {
-  int igeometry_ref = 405;
     DriftTube tube(name+" DriftTube");
     double eps = 0.001;
     double tuberad = tube.outerRadius;
@@ -566,8 +562,6 @@ GeoFullPhysVol* MultiLayer::build()
       for (int i = 0; i < nrOfLayers; i++) {
 	if (verbose_multilayer) std::cout<<"Tube Layers n. "<<i<<std::endl;
         tstart = -mdtthickness/2. + yy[i];
-        int extraTube = 0;
-        if (xx[i] < tubePitch - 1.0) extraTube = 1;
         double loffset = 0.;
         int nttot = 0;
         bool nextTimeSubtract = false;
@@ -576,39 +570,25 @@ GeoFullPhysVol* MultiLayer::build()
           double dy = tubeDX[j];
           int nt = Ntubes[j];
 
-	  if (getGeoVersion() < igeometry_ref)
-	    { // for layout < r.04.04 cannot fix this in order to preserve the frozen tier0 policy
-	      if (nextTimeSubtract) {
-		nt -= extraTube;
-		nextTimeSubtract = false;
-	      }
-	      if (internalCutout[j]) {
-		nt += extraTube;
-		nextTimeSubtract = true;
-	      }
-	      if (verbose_multilayer) std::cout<<"staircasing or cutout region "<<j<<" n. of tubes affected should be "<< Ntubes[j]<<" and are "<<nt<<" internal cutout "<<internalCutout[j]<<" next time subtract "<<nextTimeSubtract<<std::endl;
+	  if (arrowpointoutwards && cutAtAngle)
+	    {
+	      if (j<tubeVector.size()-1)
+		if (internalCutout[j+1])
+		  {
+		    // next region is the one with the cutout:
+		    // for tubeLayer 3 (and 4) must increase the number of tubes in this region by one
+		    if (i>1) nt+=1;
+		  }
+	      if (j>0)
+		if (internalCutout[j-1])
+		  {
+		    // previous region is the one with the cutout:
+		    // for tubeLayer 3 (and 4) must decrease the number of tubes in this region by one
+		    if (i>1) nt-=1;
+		  }
 	    }
-	  else 
-	    { // layout >= r.04.04 do the right thing 
-	    if (arrowpointoutwards && cutAtAngle)
-	      {
-		if (j<tubeVector.size()-1) 
-		  if (internalCutout[j+1])
-		    {
-		      // next region is the one with the cutout: 
-		      // for tubeLayer 3 (and 4) must increase the number of tubes in this region by one
-		      if (i>1) nt+=1;
-		    }
-		if (j>0) 
-		  if (internalCutout[j-1])
-		    {
-		      // previous region is the one with the cutout: 
-		      // for tubeLayer 3 (and 4) must decrease the number of tubes in this region by one
-		      if (i>1) nt-=1;
-		    }
-	      }
-	    if (verbose_multilayer) std::cout<<"staircasing or cutout region "<<j<<" n. of tubes affected should be "<< Ntubes[j]<<" and are "<<nt<<" internal cutout "<<internalCutout[j]<<" next time subtract "<<nextTimeSubtract<<std::endl;
-	  }
+	  if (verbose_multilayer) std::cout<<"staircasing or cutout region "<<j<<" n. of tubes affected should be "<< Ntubes[j]<<" and are "<<nt<<" internal cutout "<<internalCutout[j]<<" next time subtract "<<nextTimeSubtract<<std::endl;
+
           if (nt > 0) { 
             loffset = nttot*tubePitch;
             lstart = loffset - length/2. + xx[i];

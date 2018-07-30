@@ -83,6 +83,13 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
       if(m_dlf->PassSiMu(*mu)) return true;
     }
   }
+  else if(m_filter == Filters::SiMuBa)
+  {
+    for(const xAOD::Muon* mu: *muc)
+    {
+      if(m_dlf->PassSiMuBa(*mu)) return true;
+    }
+  }
   else if(m_filter == Filters::DiEl)
   {
     for(auto el1 = elc->cbegin(); el1 != elc->cend(); el1++)

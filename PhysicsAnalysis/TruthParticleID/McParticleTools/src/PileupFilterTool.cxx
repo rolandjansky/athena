@@ -170,14 +170,14 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
 
   std::vector<const HepMC::GenParticle*> particles;
   if ( m_includeSimul ) {
-     sc = m_tesIO->getMC(particles,  m_mcEventsName);
+    sc = m_tesIO->getMC(particles,  m_mcEventsReadHandleKey.key());
   } else {
     static const IsGenerator ifs;
-    sc = m_tesIO->getMC(particles, &ifs, m_mcEventsName);
+    sc = m_tesIO->getMC(particles, &ifs, m_mcEventsReadHandleKey.key());
   }
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Could not get Monte Carlo particles from TDS at : "
-		  << m_mcEventsName);
+		  << m_mcEventsReadHandleKey.key());
     return StatusCode::FAILURE;
   }
 
@@ -185,9 +185,9 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
 
   //+++ Get True Vertices from Storegate
   const McEventCollection* mcTruth(0);
-  sc = evtStore()->retrieve(mcTruth, m_mcEventsName);
+  sc = evtStore()->retrieve(mcTruth, m_mcEventsReadHandleKey.key());
   if( sc.isFailure() ) {
-    ATH_MSG_WARNING("MC Event " << m_mcEventsName << " not found.");
+    ATH_MSG_WARNING("MC Event " << m_mcEventsReadHandleKey.key() << " not found.");
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("McEventCollection successfully retrieved" << endmsg

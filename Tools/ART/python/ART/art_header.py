@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """Class to handle art-headers."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
@@ -17,7 +17,10 @@ MODULE = "art.header"
 class ArtHeader(object):
     """Class to handle art-headers."""
 
+    # headers in alphabetical order
+    ART_ATHENA_MT = 'art-athena-mt'
     ART_CI = 'art-ci'
+    ART_CORES = 'art-cores'
     ART_DESCRIPTION = 'art-description'
     ART_INCLUDE = 'art-include'
     ART_INPUT = 'art-input'
@@ -46,10 +49,12 @@ class ArtHeader(object):
         self.add(ArtHeader.ART_CI, ListType, [])
 
         # "grid" type only
+        self.add(ArtHeader.ART_CORES, IntType, 1)
         self.add(ArtHeader.ART_OUTPUT, ListType, [])
         self.add(ArtHeader.ART_INPUT, StringType, None)
         self.add(ArtHeader.ART_INPUT_NFILES, IntType, 1)
         self.add(ArtHeader.ART_INPUT_SPLIT, IntType, 0)
+        self.add(ArtHeader.ART_ATHENA_MT, IntType, 0)
 
         self.read(filename)
 
@@ -73,12 +78,9 @@ class ArtHeader(object):
             if line_match:
                 try:
                     key = line_match.group(1)
-                    value = line_match.group(2)
-                    if key in self.header:
-                        if self.header[key]['type'] == StringType:
-                            value = value.strip()
-                        elif self.header[key]['type'] == IntType:
-                            value = int(value)
+                    value = line_match.group(2).strip()
+                    if key in self.header and self.header[key]['type'] == IntType:
+                        value = int(value)
 
                     if self.is_list(key):
                         # handle list types

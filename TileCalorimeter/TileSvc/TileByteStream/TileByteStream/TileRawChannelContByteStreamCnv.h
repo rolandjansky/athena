@@ -13,6 +13,8 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthMessaging.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <vector>
 
@@ -47,13 +49,8 @@ class TileRawChannelContByteStreamCnv
   , public IIncidentListener
   , public ::AthMessaging
 {
-
-    friend class CnvFactory<TileRawChannelContByteStreamCnv>;
-
-  protected:
-    TileRawChannelContByteStreamCnv(ISvcLocator* svcloc);
-
   public:
+    TileRawChannelContByteStreamCnv(ISvcLocator* svcloc);
 
     typedef TileRawChannelContByteStreamTool  BYTESTREAMTOOL ; 
 

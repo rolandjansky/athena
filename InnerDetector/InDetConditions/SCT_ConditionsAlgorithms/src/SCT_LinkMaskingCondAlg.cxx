@@ -10,13 +10,8 @@
 
 SCT_LinkMaskingCondAlg::SCT_LinkMaskingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/purple/pants"}
-  // This folder can be created by SCT_ConditionsServices/python/createLinkMaskingSQLiteFile.py
-  , m_writeKey{"SCT_LinkMaskingCondData"}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) bad wafer conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) bad wafer conditions folder");
 }
 
 StatusCode SCT_LinkMaskingCondAlg::initialize() {
@@ -44,12 +39,9 @@ StatusCode SCT_LinkMaskingCondAlg::execute() {
   SG::WriteCondHandle<SCT_ModuleVetoCondData> writeHandle{m_writeKey};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 

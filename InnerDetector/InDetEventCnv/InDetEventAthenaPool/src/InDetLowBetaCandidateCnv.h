@@ -22,8 +22,10 @@ class InDetLowBetaCandidateCnv  : public T_AthenaPoolCustomCnv<InDet::InDetLowBe
 
  protected:
   
+public:
   InDetLowBetaCandidateCnv(ISvcLocator* svcloc);
   ~InDetLowBetaCandidateCnv();
+protected:
 
   InDetLowBetaCandidate_PERS*  createPersistent(InDet::InDetLowBetaCandidate* transCont);
 

@@ -468,6 +468,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
           from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
           InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
+          from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
+          from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+          InDetTrigSiComTrackFinder_FTF.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
           ToolSvc += InDetTrigSiComTrackFinder_FTF
         
         

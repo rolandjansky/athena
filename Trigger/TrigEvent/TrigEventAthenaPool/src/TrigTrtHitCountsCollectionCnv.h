@@ -21,7 +21,9 @@ class TrigTrtHitCountsCollectionCnv : public TrigTrtHitCountsCollectionCnvBase {
  
   protected:
    
+public:
   TrigTrtHitCountsCollectionCnv( ISvcLocator *svcloc ): TrigTrtHitCountsCollectionCnvBase(svcloc) {}
+protected:
    
    virtual TrigTrtHitCountsCollection_PERS *createPersistent( TrigTrtHitCountsCollection *transObj);
    virtual TrigTrtHitCountsCollection      *createTransient();

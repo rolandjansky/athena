@@ -14,7 +14,6 @@
 #include "PersistentDataModel/Token.h"
 
 #include "StorageSvc/DbType.h"
-
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFileCatalog.h"
 

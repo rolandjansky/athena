@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // FPEAuditor.h 
@@ -15,6 +15,7 @@
 #include <string>
 #include <list>
 #include <utility> // for std::pair
+#include <atomic>
 
 // FrameWork includes
 #include "GaudiKernel/Auditor.h"
@@ -27,6 +28,7 @@
 
 // Forward declaration
 class INamedInterface;
+
 
 class FPEAuditor : virtual public Auditor, public AthMessaging
 { 
@@ -103,6 +105,8 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   /////////////////////////////////////////////////////////////////// 
  private: 
 
+  std::string m_evtInfoKey;
+
   /** report fpes which happened during step 'step' on behalf of 'caller'
    */
   void report_fpe(const std::string& step, const std::string& caller);
@@ -119,11 +123,11 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   typedef std::list<FpeNode_t> FpeStack_t;
   /** a stack of FPE exceptions which have been raised
    */
-  FpeStack_t m_fpe_stack;
+  static thread_local FpeStack_t s_fpe_stack;
   
   enum { FPEAUDITOR_OVERFLOW=0, FPEAUDITOR_INVALID=1, FPEAUDITOR_DIVBYZERO=2, FPEAUDITOR_ARRAYSIZE=3 };
   
-  unsigned int m_CountFPEs[FPEAUDITOR_ARRAYSIZE];
+  std::atomic<unsigned int> m_CountFPEs[FPEAUDITOR_ARRAYSIZE];
   
   unsigned int m_NstacktracesOnFPE;
   

@@ -164,14 +164,14 @@ StatusCode OldSpclMcFilterTool::selectSpclMcBarcodes()
 
   std::vector<const HepMC::GenParticle*> particles;
   if ( m_includeSimul ) {
-     sc = m_tesIO->getMC(particles,  m_mcEventsName);
+    sc = m_tesIO->getMC(particles,  m_mcEventsReadHandleKey.key());
   } else {
     static const IsGenerator ifs;
-    sc = m_tesIO->getMC(particles, &ifs, m_mcEventsName);
+    sc = m_tesIO->getMC(particles, &ifs, m_mcEventsReadHandleKey.key());
   }
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Could not get Monte Carlo particles from TDS at : "
-		  << m_mcEventsName);
+		  << m_mcEventsReadHandleKey.key());
     return StatusCode::FAILURE;
   }
 

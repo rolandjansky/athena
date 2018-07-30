@@ -1,20 +1,21 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.gen_klass.py
 # @purpose helper script to generate header and cxx files of various
-#           athena components (svc/tool/alg/isvc/itool/object)
+#          athena components (svc/tool/alg/isvc/itool/object)
 # @author Sebastien Binet
 # @date   April 2008
+#
+# Use PyUtils/test/test_genklass.sh to check compilation of generated code
 
-__version__ = "$Revision: 615060 $"
 __author__ = "Sebastien Binet"
 __doc__ = """\
 helper script to generate header and cxx files of various athena
 components (svc/tool/alg/isvc/itool/object)
 """
 
-import sys
 import os
+from datetime import datetime
 
 import PyUtils.acmdlib as acmdlib
 
@@ -22,7 +23,7 @@ class GenTypes:
     values = ('object',
               'isvc', 'svc',
               'itool', 'tool',
-              'alg',
+              'alg', 'reentrant_alg',
               ## the python ones
               'pyalg', 'pysvc', 'pytool', 'pyaud'
               )
@@ -30,850 +31,362 @@ class GenTypes:
     pass
 
 class Templates:
+    copyright_template = "Copyright (C) 2002-%d CERN for the benefit of the ATLAS collaboration" % datetime.now().year
     isvc_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-#ifndef %(guard)s 
-#define %(guard)s 1 
+/*
+  %(copyright)s
+*/
+#ifndef %(guard)s
+#define %(guard)s
 
-/** @class %(klass)s
- */
-
-// STL includes
-#include <string>
-
-// FrameWork includes
 #include "GaudiKernel/IService.h"
-
-// %(pkg)s includes
-
 %(namespace_begin)s
+/**
+ * @class %(klass)s
+ * @brief 
+ **/
+class %(klass)s : virtual public IService {
+public:
+  DeclareInterfaceID(%(klass)s, 1, 0);
 
-class %(klass)s
-  : virtual public ::IService
-{ 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  /** Destructor: 
-   */
-  virtual ~%(klass)s();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  static const InterfaceID& interfaceID();
-
-}; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline const InterfaceID& %(klass)s::interfaceID() 
-{ 
-  static const InterfaceID IID_%(klass)s("%(klass)s", 1, 0);
-  return IID_%(klass)s; 
-}
-
+  virtual ~%(klass)s() override {}
+};
 %(namespace_end)s
-#endif //> !%(guard)s
+#endif // %(guard)s
 """
 
-    isvc_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
-// %(pkg)s includes
-#include "%(pkg)s/%(klass)s.h"
-
-%(namespace_begin)s
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-%(klass)s::~%(klass)s()
-{}
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-%(namespace_end)s
-"""
+    isvc_cxx_template = ""
 
     itool_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  %(copyright)s
+*/
 #ifndef %(guard)s
-#define %(guard)s 1
+#define %(guard)s
 
-// STL includes
-
-// HepMC / CLHEP includes
-
-// FrameWork includes
 #include "GaudiKernel/IAlgTool.h"
-
-// Forward declaration
-
 %(namespace_begin)s
+/**
+ * @class %(klass)s
+ * @brief 
+ **/
+class %(klass)s : virtual public IAlgTool {
+public: 
+  DeclareInterfaceID(%(klass)s, 1, 0);
 
-static const InterfaceID IID_%(klass)s("%(klass)s", 1, 0);
-
-class %(klass)s
-  : virtual public ::IAlgTool
-{ 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  /** Destructor: 
-   */
-  virtual ~%(klass)s();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-  static const InterfaceID& interfaceID();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
-
+  virtual ~%(klass)s() override {}
 }; 
-
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-inline const InterfaceID& %(klass)s::interfaceID() 
-{ 
-   return IID_%(klass)s; 
-}
-
 %(namespace_end)s
-#endif //> !%(guard)s
+#endif // %(guard)s
 """
 
-    itool_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+    itool_cxx_template = ""
 
-// Framework includes
-//#include "GaudiKernel/MsgStream.h"
-
-// %(pkg)s includes
-#include "%(pkg)s/%(klass)s.h"
-
-%(namespace_begin)s
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-%(klass)s::~%(klass)s()
-{}
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-///////////////////////////////////////////////////////////////////
-
-%(namespace_end)s
-"""
     object_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  %(copyright)s
+*/
 #ifndef %(guard)s
-#define %(guard)s 1
+#define %(guard)s
 
-// STL includes
 #include <iosfwd>
-
-// Gaudi includes
-
-// Forward declaration
-
 %(namespace_begin)s
-
-class %(klass)s
-{ 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  /// Default constructor: 
+/**
+ * @class %(klass)s
+ * @brief 
+ **/
+class %(klass)s {
+public:
   %(klass)s();
+  %(klass)s(const %(klass)s& rhs);
+  %(klass)s& operator=(const %(klass)s& rhs);
+  virtual ~%(klass)s();
+};
 
-  /// Copy constructor: 
-  %(klass)s( const %(klass)s& rhs );
-
-  /// Assignment operator: 
-  %(klass)s& operator=( const %(klass)s& rhs ); 
-
-  /// Constructor with parameters: 
-
-  /// Destructor: 
-  virtual ~%(klass)s(); 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
-
-}; 
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-//std::ostream& operator<<( std::ostream& out, const %(klass)s& o );
-
+//std::ostream& operator<<(std::ostream& out, const %(klass)s& o);
 %(namespace_end)s
-
-#endif //> !%(guard)s
+#endif // %(guard)s
 """
 
     object_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  %(copyright)s
+*/
 
-// %(pkg)s includes
 #include "%(pkg)s/%(klass)s.h"
-
-// STL includes
-
 %(namespace_begin)s
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
 %(namespace_end)s
 """
 
     svc_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  %(copyright)s
+*/
 #ifndef %(guard)s
-#define %(guard)s 1
+#define %(guard)s
+
+// Package includes
+#include "%(ipkg)s/%(iklass)s.h"
+
+// Framework includes
+#include "AthenaBaseComps/AthService.h"
 
 // STL includes
 #include <string>
-
-// FrameWork includes
-#include "AthenaBaseComps/AthService.h"
-
-// %(ipkg)s
-#include "%(ipkg)s/%(iklass)s.h"
-
-// Forward declaration
-class ISvcLocator;
-template <class TYPE> class SvcFactory;
-
 %(namespace_begin)s
+/**
+ * @class %(klass)s
+ * @brief 
+ **/
+class %(klass)s : public extends<AthService, %(iklass)s> {
+public:
+  %(klass)s(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~%(klass)s() override;
 
-class %(klass)s
-  : virtual public ::%(iklass)s,
-            public ::AthService
-{ 
-  friend class SvcFactory<%(klass)s>;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
-  %(klass)s( const std::string& name, ISvcLocator* pSvcLocator );
-
-  /// Destructor: 
-  virtual ~%(klass)s(); 
-
-  // Assignment operator: 
-  //%(klass)s &operator=(const %(klass)s &alg); 
-
-  /// Gaudi Service Implementation
-  //@{
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
-  //@}
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  static const InterfaceID& interfaceID();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
-
-  /// Default constructor: 
-  %(klass)s();
-
-  /// Containers
-  
-
-}; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-inline const InterfaceID& %(klass)s::interfaceID() 
-{ 
-  return %(iklass)s::interfaceID(); 
-}
-
+private:
+  //Gaudi::Property<int> m_myInt{this, "MyInt", 0, "An Integer"};
+};
 %(namespace_end)s
-
-#endif //> !%(guard)s
+#endif // %(guard)s
 """
 
     svc_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
-// %(pkg)s includes
+/*
+  %(copyright)s
+*/
 #include "%(klass)s.h"
-
-// STL includes
-
-// FrameWork includes
-#include "GaudiKernel/Property.h"
-
 %(namespace_begin)s
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-%(klass)s::%(klass)s( const std::string& name, 
-		      ISvcLocator* pSvcLocator ) : 
-  ::AthService( name, pSvcLocator )
+%(klass)s::%(klass)s(const std::string& name, ISvcLocator* pSvcLocator) :
+  base_class(name, pSvcLocator)
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-
 }
 
-// Destructor
-///////////////
 %(klass)s::~%(klass)s()
-{}
+{
+}
 
-// Athena Service's Hooks
-////////////////////////////
 StatusCode %(klass)s::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-
+  //ATH_MSG_DEBUG("Use macros for logging!");
   return StatusCode::SUCCESS;
 }
 
 StatusCode %(klass)s::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-
   return StatusCode::SUCCESS;
 }
-
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode 
-%(klass)s::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( %(iklass)s::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<%(iklass)s*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return ::AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
 %(namespace_end)s
 """
 
     alg_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  %(copyright)s
+*/
 #ifndef %(guard)s
-#define %(guard)s 1
+#define %(guard)s
 
-// STL includes
-#include <string>
-
-// FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include <string>
 %(namespace_begin)s
+/**
+ * @class %(klass)s
+ * @brief 
+ **/
+class %(klass)s : public AthAlgorithm {
+public:
+  %(klass)s(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~%(klass)s() override;
 
-class %(klass)s
-  : public ::AthAlgorithm
-{ 
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
-  %(klass)s( const std::string& name, ISvcLocator* pSvcLocator );
-
-  /// Destructor: 
-  virtual ~%(klass)s(); 
-
-  // Assignment operator: 
-  //%(klass)s &operator=(const %(klass)s &alg); 
-
-  // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
-
-  /// Default constructor: 
-  %(klass)s();
-
-  /// Containers
-  
-
-}; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
+private:
+  //Gaudi::Property<int> m_myInt{this, "MyInt", 0, "An Integer"};
+};
 %(namespace_end)s
-#endif //> !%(guard)s
+#endif // %(guard)s
 """
 
     alg_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  %(copyright)s
+*/
 
-// %(pkg)s includes
 #include "%(klass)s.h"
-
-// STL includes
-
-// FrameWork includes
-#include "GaudiKernel/Property.h"
-
 %(namespace_begin)s
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-%(klass)s::%(klass)s( const std::string& name, 
-			  ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator )
+%(klass)s::%(klass)s(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator)
 {
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-
 }
 
-// Destructor
-///////////////
 %(klass)s::~%(klass)s()
-{}
+{
+}
 
-// Athena Algorithm's Hooks
-////////////////////////////
 StatusCode %(klass)s::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-
+  //ATH_MSG_DEBUG("Use macros for logging!");
   return StatusCode::SUCCESS;
 }
 
 StatusCode %(klass)s::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode %(klass)s::execute()
-{  
-  ATH_MSG_DEBUG ("Executing " << name() << "...");
-
+{
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
 %(namespace_end)s
 """
 
-    tool_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+    reentrant_alg_hdr_template = """\
+/*
+  %(copyright)s
+*/
 #ifndef %(guard)s
-#define %(guard)s 1
+#define %(guard)s
+
+// Framework includes
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 // STL includes
 #include <string>
-
-// FrameWork includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-// %(ipkg)s includes
-#include "%(ipkg)s/%(iklass)s.h"
-
-// Forward declaration
-
 %(namespace_begin)s
+/**
+ * @class %(klass)s
+ * @brief 
+ **/
+class %(klass)s : public AthReentrantAlgorithm {
+public:
+  %(klass)s(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~%(klass)s() override;
 
-class %(klass)s
-  : virtual public ::%(iklass)s,
-            public ::AthAlgTool
-{ 
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute_r(const EventContext& context) const override;
+  virtual StatusCode finalize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
-  %(klass)s( const std::string& type,
-	     const std::string& name, 
-	     const IInterface* parent );
-
-  /// Destructor: 
-  virtual ~%(klass)s(); 
-
-  // Athena algtool's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
-
-  /// Default constructor: 
-  %(klass)s();
-
-  // Containers
-  
-
-}; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
+private:
+  //Gaudi::Property<int> m_myInt{this, "MyInt", 0, "An Integer"};
+};
 %(namespace_end)s
-#endif //> !%(guard)s
+#endif // %(guard)s
 """
 
-    tool_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+    reentrant_alg_cxx_template = """\
+/*
+  %(copyright)s
+*/
 
-// %(pkg)s includes
 #include "%(klass)s.h"
-
-// STL includes
-
-// FrameWork includes
-#include "GaudiKernel/IToolSvc.h"
-
 %(namespace_begin)s
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-%(klass)s::%(klass)s( const std::string& type, 
-		      const std::string& name, 
-		      const IInterface* parent ) : 
-  ::AthAlgTool  ( type, name, parent   )
+%(klass)s::%(klass)s(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareInterface< %(iklass)s >(this);
-  //
-  // Property declaration
-  // 
-  //declareProperty( "Property", m_nProperty );
-
 }
 
-// Destructor
-///////////////
 %(klass)s::~%(klass)s()
-{}
+{
+}
 
-// Athena algtool's Hooks
-////////////////////////////
 StatusCode %(klass)s::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-
+  //ATH_MSG_DEBUG("Use macros for logging!");
   return StatusCode::SUCCESS;
 }
 
 StatusCode %(klass)s::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
+StatusCode %(klass)s::execute_r(const EventContext& context) const
+{
+  return StatusCode::SUCCESS;
+}
+%(namespace_end)s
+"""
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
+    tool_hdr_template = """\
+/*
+  %(copyright)s
+*/
+#ifndef %(guard)s
+#define %(guard)s
 
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
+// Package includes
+#include "%(ipkg)s/%(iklass)s.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
+// Framework includes
+#include "AthenaBaseComps/AthAlgTool.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
+// STL includes
+#include <string>
+%(namespace_begin)s
+/**
+ * @class %(klass)s
+ * @brief
+ **/
+class %(klass)s : public extends<AthAlgTool, %(iklass)s> {
+public:
+  %(klass)s(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual ~%(klass)s() override;
 
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+
+private:
+  //Gaudi::Property<int> m_myInt{this, "MyInt", 0, "An Integer"};
+};
+%(namespace_end)s
+#endif // %(guard)s
+"""
+
+    tool_cxx_template = """\
+/*
+  %(copyright)s
+*/
+
+#include "%(klass)s.h"
+%(namespace_begin)s
+%(klass)s::%(klass)s(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent)
+{
+}
+
+%(klass)s::~%(klass)s()
+{
+}
+
+StatusCode %(klass)s::initialize()
+{
+  //ATH_MSG_DEBUG("Use macros for logging!");
+  return StatusCode::SUCCESS;
+}
+
+StatusCode %(klass)s::finalize()
+{
+  return StatusCode::SUCCESS;
+}
 %(namespace_end)s
 """
 
     pyalg_template = """\
+#
+# %(copyright)s
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'some documentation here'
-__version__ = '$Revision: 615060 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import AthenaCommon.SystemOfUnits as Units
@@ -906,12 +419,15 @@ class %(klass)s (PyAthena.Alg):
 """
 
     pysvc_template = """\
+#
+# %(copyright)s
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'some documentation here'
-__version__ = '$Revision: 615060 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import AthenaCommon.SystemOfUnits as Units
@@ -941,12 +457,15 @@ class %(klass)s (PyAthena.Svc):
 """
 
     pytool_template = """\
+#
+# %(copyright)s
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'some documentation here'
-__version__ = '$Revision: 615060 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import AthenaCommon.SystemOfUnits as Units
@@ -976,12 +495,15 @@ class %(klass)s (PyAthena.AlgTool):
 """
 
     pyaud_template = """\
+#
+# %(copyright)s
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
 
 __doc__     = 'some documentation here'
-__version__ = '$Revision: 615060 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import AthenaCommon.SystemOfUnits as Units
@@ -1032,8 +554,8 @@ def gen_files(pkg="", klass="", klass_type='object', fname='foo',
     if klass.count("::")>0:
         nm    = klass.split("::")[0]
         klass = klass.split("::")[1]
-        namespace_begin = "namespace %s {" % nm
-        namespace_end   = "} //> end namespace %s" % nm
+        namespace_begin = os.linesep + "namespace %s {" % nm + os.linesep
+        namespace_end   = os.linesep + "} // namespace %s" % nm + os.linesep
         pass
 
     guard = "%s_%s_H" % (pkg.upper(), namespace_klass.upper())
@@ -1044,23 +566,25 @@ def gen_files(pkg="", klass="", klass_type='object', fname='foo',
               iklass=iklass,
               guard=guard,
               namespace_begin=namespace_begin,
-              namespace_end=namespace_end
+              namespace_end=namespace_end,
+              copyright=Templates.copyright_template
               )
     fname = os.path.splitext(fname)[0]
-    
+
     o_hdr = open(fname+'.h', 'w')
     o_hdr.writelines(hdr%d)
     o_hdr.flush()
     o_hdr.close()
 
-    o_cxx = open(fname+'.cxx', 'w')
-    o_cxx.writelines(cxx%d)
-    o_cxx.flush()
-    o_cxx.close()
+    if len(cxx)>0:
+        o_cxx = open(fname+'.cxx', 'w')
+        o_cxx.writelines(cxx%d)
+        o_cxx.flush()
+        o_cxx.close()
 
     return 0
 
-   
+
 def gen_pyfiles(pkg="", klass="", klass_type='pyalg', fname='foo'):
     """Simple helper function to generate (python) files based off some
        user informations.
@@ -1076,7 +600,7 @@ def gen_pyfiles(pkg="", klass="", klass_type='pyalg', fname='foo'):
         raise err
 
     invalid_py_chars = ( ':', '.', '>', '<', ' ' )
-    
+
     if any([c for c in invalid_py_chars if c in klass]):
         err = "::: INVALID class name ! (%s) !\n"%klass
         err += "::: python class names can *NOT* contain any character of %s"%\
@@ -1087,7 +611,8 @@ def gen_pyfiles(pkg="", klass="", klass_type='pyalg', fname='foo'):
     fname=''.join([fname,'.py'])
     d = dict( pkg=pkg,
               klass=klass,
-              fname=fname
+              fname=fname,
+              copyright=Templates.copyright_template
               )
     o = open(fname, 'w')
     o.writelines(py_template%d)
@@ -1128,15 +653,15 @@ def main(args):
     """helper script to generate header and cxx files
     of various athena components (svc/tool/alg/isvc/itool/object)
     """
-    
+
     exitcode = 0
-    
+
     if args.klass_type in GenTypes.needing_iface and \
        ( args.ipkg is None or args.iklass is None ) :
         print ":: You have to give 'ipkg' and 'iklass' options to properly ",
         print "generate an implementation for '%s'"%args.klass_type
         return 3
-        
+
 
     if args.ipkg is None:
         args.ipkg = ""

@@ -2,6 +2,16 @@ useDB=True
 
 import AthenaCommon.AtlasUnixStandardJob
 
+#--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import AuditorSvc
@@ -53,7 +63,6 @@ import AtlasGeoModel.GeoModelInit
 # Disable SiLorentzAngleSvc to remove
 # ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
@@ -67,15 +76,16 @@ IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 IOVDbSvc.OutputLevel = 3
 
 if useDB:
-    # Set up SCT_DCSConditionsSvc and required conditions folders and conditions algorithms
-    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
-    sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
-    sct_DCSConditionsSvcSetup.setup()
+    # Set up SCT_DCSConditionsTool and required conditions folders and conditions algorithms
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+    sct_DCSConditionsToolSetup.setup()
 
 # For SCT_SiliconConditionsSvc
 from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
 sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
 sct_SiliconConditionsToolSetup.setUseDB(useDB)
+sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
 sct_SiliconConditionsToolSetup.setup()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconConditionsTestAlg

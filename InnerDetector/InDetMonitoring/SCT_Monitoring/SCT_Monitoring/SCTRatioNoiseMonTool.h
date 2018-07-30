@@ -29,8 +29,8 @@
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "GaudiKernel/ServiceHandle.h"
-//#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "InDetRawData/SCT_RDO_Container.h"
@@ -48,7 +48,6 @@ class TH1F_LW;
 class TH2F_LW;
 class StatusCode;
 class SCT_ID;
-class IInDetConditionsSvc;
 
 #define DEBUG(x) ATH_MSG_DEBUG(x)
 #define INFO(x) ATH_MSG_INFO(x)
@@ -243,7 +242,8 @@ private:
   const SCT_ID* m_pSCTHelper;
   //SCT Detector Manager
   const InDetDD::SCT_DetectorManager* m_sctmgr;
-  ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
+  ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTol",
+      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"};
   bool                                     m_checkBadModules;
   bool                                     m_ignore_RDO_cut_online;
   /// For online monitoring

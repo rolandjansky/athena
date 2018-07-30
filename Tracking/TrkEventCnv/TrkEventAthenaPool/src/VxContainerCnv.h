@@ -40,8 +40,9 @@ class VxContainerCnv : public VxContainerCnvBase, public AthenaPoolCnvTPExtensio
  
  protected:
   
+public:
   VxContainerCnv( ISvcLocator *svcloc );
-  ~VxContainerCnv();
+protected:
   virtual StatusCode initialize();
   
   virtual VxContainer_PERS *createPersistent( VxContainer *transCont);

@@ -15,19 +15,26 @@
 #include "RootDomain.h"
 #include "RootKeyContainer.h"
 #include "RootTreeContainer.h"
+#include "RootTreeIndexContainer.h"
 #include "StorageSvc/DbInstanceCount.h"
 
 // declare the types provided by this Storage plugin
 DECLARE_COMPONENT_WITH_ID(pool::RootOODb, "ROOT_All")
-DECLARE_COMPONENT_WITH_ID(pool::RootOOTree, "ROOT_Tree")
 DECLARE_COMPONENT_WITH_ID(pool::RootOOKey, "ROOT_Key")
+DECLARE_COMPONENT_WITH_ID(pool::RootOOTree, "ROOT_Tree")
+DECLARE_COMPONENT_WITH_ID(pool::RootOOTreeIndex, "ROOT_TreeIndex")
 
 using namespace pool;
 
 /// Standard Constructor
-RootOODb::RootOODb(DbType typ) : OODatabaseImp(typ)
+RootOODb::RootOODb(DbType) : IOODatabase()
 {
    DbInstanceCount::increment(this);
+}
+
+const std::string&  RootOODb::name () const {
+   static std::string name =  { "APR.RootStorageSvc" };
+   return name;
 }
 
 /// Standard Destructor
@@ -37,24 +44,27 @@ RootOODb::~RootOODb()  {
 
 /// Create Root Domain object
 IDbDomain* RootOODb::createDomain()  {
-  return new RootDomain(this);        
+  return new RootDomain();
 }
 
 /// Create Root Database object (TFile)
 IDbDatabase* RootOODb::createDatabase()  {
-  return new RootDatabase(this);         
+  return new RootDatabase();
 }
 
 /// Create Root Container object
-IDbContainer* RootOODb::createContainer(const DbType& typ) { 
+IDbContainer* RootOODb::createContainer(const DbType& typ) {
   if ( typ.match(ROOTKEY_StorageType) )  {
-    return new RootKeyContainer(this);
+    return new RootKeyContainer();
   }
   else if ( typ.match(ROOTTREE_StorageType) )    {
-    return new RootTreeContainer(this);
+    return new RootTreeContainer();
+  }
+  else if ( typ.match(ROOTTREEINDEX_StorageType) )    {
+    return new RootTreeIndexContainer();
   }
   else if ( typ.match(ROOT_StorageType) )    {
-    return new RootTreeContainer(this);
+    return new RootTreeContainer();
   }
   return 0;
 }

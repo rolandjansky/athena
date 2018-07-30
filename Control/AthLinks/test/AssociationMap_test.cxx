@@ -233,7 +233,7 @@ void test1 (SGTest::TestStore& store)
   std::cout << std::endl
 	    << " *** Test AssociationMap<TrackContainer,TrackContainer> :" 
 	    << std::endl;
-  TTAss* ttAsso = new TTAss();
+  TTAss ttAsso;
 
   /////////////////////////////////////////////////
   ///  Exploring AssociationMap non-const interface
@@ -258,9 +258,9 @@ void test1 (SGTest::TestStore& store)
 		  << "]"
 		  << std::endl;
 	if ( tIdx - assoIdx == 1 ) {
-	  ttAsso->addAssociation( tCont, *tIter, tCont, *assItr );
+	  ttAsso.addAssociation( tCont, *tIter, tCont, *assItr );
 	} else {
-	  ttAsso->addAssociation( tCont, tIdx,   tCont, assoIdx );
+	  ttAsso.addAssociation( tCont, tIdx,   tCont, assoIdx );
 	}
       }
     }//> loop over tracks to be associated
@@ -270,7 +270,7 @@ void test1 (SGTest::TestStore& store)
   ///  Exploring AssociationMap const interface
   ///
 
-  const TTAss * const ttMap   = ttAsso;
+  const TTAss * const ttMap   = &ttAsso;
   
   assert( tCont->size()-1 == ttMap->size( myTrack ) );
 

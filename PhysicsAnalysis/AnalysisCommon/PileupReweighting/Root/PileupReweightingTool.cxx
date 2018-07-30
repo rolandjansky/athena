@@ -77,9 +77,8 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
 
 #ifndef XAOD_STANDALONE
 //rootcore can't do this yet!
-void PileupReweightingTool::updateHandler(Property& p) {
+void PileupReweightingTool::updateHandler(Property& /*p*/) {
    //call the original update handler 
-   this->msg_update_handler(p);
    EnableDebugging(this->msgLvl(MSG::DEBUG));
 }
 #endif

@@ -17,6 +17,8 @@
 #include "xAODBase/IParticleContainer.h"
 #include "AthLinks/ElementLink.h"
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
 
 namespace xAOD {
 
@@ -57,7 +59,13 @@ namespace xAOD {
     typedef IParticle::FourMom_t FourMom_t;
 
     /// The full 4-momentum of the particle
-    virtual const FourMom_t& p4() const;
+    virtual FourMom_t        p4() const;
+
+    /// Base 4 Momentum type (GenVector)
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > GenVecFourMom_t;
+    
+    /// The full 4-momentum of the particle : GenVector form
+    GenVecFourMom_t          genvecP4() const;
 
     ///  The type of the object as a simple enumeration
     virtual Type::ObjectType type() const;
@@ -117,13 +125,6 @@ namespace xAOD {
 
     /// Function preparing the object to be persistified
     void toPersistent();
-
-  private:
-    /// Cached 4-momentum object
-    mutable FourMom_t m_p4;
-
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_p4Cached;
 
   }; // class Particle_v1
 

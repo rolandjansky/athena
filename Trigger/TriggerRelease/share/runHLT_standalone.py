@@ -70,6 +70,9 @@ log = logging.getLogger('runHLT_standalone.py')
 
 #predefined menu setups accessible using 'test<NAME>[MC]=True' commandline
 menuMap={
+         #Run-3 preparation menu
+         'LS2V1':           ('LS2_v1',                  'TriggerMenuXML/LVL1config_LS2_v1.xml'),         
+
          #2017 menus:       menu name                   L1 xml file
          'PhysicsV7':       ('Physics_pp_v7',           'TriggerMenuXML/LVL1config_Physics_pp_v7.xml'),
          'MCV7':            ('MC_pp_v7',                'TriggerMenuXML/LVL1config_MC_pp_v7.xml'),
@@ -120,6 +123,9 @@ menuMap={
          'PhysicsV1':       ('Physics_pp_v1',           'TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
          'MCV1':            ('MC_pp_v1',                'TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
          'CosmicPPV1':      ('Physics_pp_v1_cosmics_prescale','TriggerMenuXML/LVL1config_Physics_pp_v1.xml'),
+
+         #Upgrade menus:       menu name                   L1 xml file
+         'MCPhaseII':       ('MC_PhaseII',           'TriggerMenuXML/LVL1config_MC_PhaseII.xml'),
 }
 
 # Useful in job options beyond our control to always run the latest menu via 'testCurrentMenu=True'
@@ -218,7 +224,6 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'detailedErrorStreams',
                                 'optimizeChainOrder',    
                                 'enableHotIDMasking',
-                                'softTRTsettings',
                                 'openThresholdRPCCabling',
                                 #special streaming setup
                                 'enable7BitL1TTStreaming',
@@ -253,6 +258,7 @@ else:           # More data modifiers
                                 #'ignoreL1Vetos',  #also run L2 prescaled and disabled L1 items
                                 #'disablePixels',
                                 #'disableSCTBarrel',
+                                'useDynamicAlignFolders',
     ]
 
 #make some more common trig cost operations easier to setup
@@ -436,6 +442,10 @@ if globalflags.InputFormat=='bytestream':
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
         _run_number = af.run_number[0]
+
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber =_run_number
+
     if _run_number>=276073:       #start of periodD1, 25ns bunch spacing 
         jobproperties.Beam.bunchSpacing=25
         log.info('Bunch spacing set to %dns for a bytestream input. It can be overriden by BunchSpacing50ns=True'

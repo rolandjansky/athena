@@ -12,6 +12,17 @@ from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType() == "cosmics" and "cosmics_flags" not in simFlags.extra_flags:
     simFlags.load_cosmics_flags()
 
+## Global flags needed by externals
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DataSource = 'geant4'
+if jobproperties.Beam.beamType() == 'cosmics':
+    globalflags.DetGeo = 'commis'
+else:
+    globalflags.DetGeo = 'atlas'
+
+## At this point we can set the global job properties flag
+globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
+
 from AthenaCommon.DetFlags import DetFlags
 ## Tidy up DBM DetFlags: temporary measure
 DetFlags.DBM_setOff()
@@ -38,17 +49,6 @@ DetFlags.readRIOBS.all_setOff()
 DetFlags.readRIOPool.all_setOff()
 DetFlags.writeRIOPool.all_setOff()
 DetFlags.writeRDOPool.all_setOff()
-
-## Global flags needed by externals
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DataSource = 'geant4'
-if jobproperties.Beam.beamType() == 'cosmics':
-    globalflags.DetGeo = 'commis'
-else:
-    globalflags.DetGeo = 'atlas'
-
-## At this point we can set the global job properties flag
-globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
 
 # Switch off GeoModel Release in the case of parameterization
 if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():

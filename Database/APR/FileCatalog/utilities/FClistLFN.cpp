@@ -2,34 +2,26 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FClistLFN.cpp 509054 2012-07-05 13:33:16Z mnowak $
 /**FClistLFN.cpp -- FileCatalog command line tool to list all the LFN entries from the catalog.
   @author Zhen Xie
   @author Maria Girone
-  @date: 02/03/2005 Z.X.
-   set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-   separate logging stream to std::cerr, output stream to std::cout.
 */
 
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/IFCContainer.h"
-#include "FileCatalog/FCSystemTools.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
 #include <vector>
-#include <string>
-#include <cstdlib>
+
 using namespace pool;
 
 void printUsage(){
-  std::cout<<"usage: FClistLFN [-p pfname -q query -u contactstring -m maxcache(default 1000) -h]" <<std::endl; 
+  std::cout<<"usage: FClistLFN [-p pfname] [-u contactstring] [-h]" <<std::endl; 
 }
 
-static const char* opts[] = {"p","q","u","m","h",0};
+static const char* opts[] = {"p","u","h",0};
 
 
 class contactParser{
@@ -60,10 +52,10 @@ private:
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mypfn;
-  std::string  query;
-  unsigned int maxcache=1000; 
   try{
     CommandLine commands(argc,argv);
     commands.CheckOptions(opts);
@@ -71,16 +63,10 @@ int main(int argc, char** argv)
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
     }else{
-      myuri=FCSystemTools::GetEnvStr("POOL_CATALOG");
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
     }       
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");
-    }
-    if( commands.Exists("m") ){
-      maxcache=atoi(commands.GetByName("m").c_str());
-    }
-    if( commands.Exists("q") ){
-      query=commands.GetByName("q");
     }
     if( commands.Exists("h") ){
       printUsage();
@@ -91,13 +77,16 @@ int main(int argc, char** argv)
     exit(0);
   }
 
-  if(!query.empty()&&!mypfn.empty()){
+  if( !mypfn.empty() ) {
     std::cerr<< "Warning: list LFN by PFN..." <<std::endl;
   }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
     if(myuri.empty()){
-      mycatalog->addReadCatalog(myuri);
+       // get default
+       pool::URIParser p;
+       p.parse();
+       mycatalog->addReadCatalog(p.contactstring());
     }else{
       contactParser parser(myuri);
       std::vector<std::string> uris;
@@ -106,26 +95,26 @@ int main(int argc, char** argv)
       mycatalog->addReadCatalog(*i);
       }
     }
-    FClookup l;
-    mycatalog->setAction(l);
     mycatalog->connect();
     mycatalog->start();
-    LFNContainer mylfns( mycatalog.get(), maxcache );
-    if( !mypfn.empty() ){
-      l.lookupLFNByPFN(mypfn,mylfns);
+
+    pool::IFileCatalog::Strings fids;
+    if( !mypfn.empty() ) {
+       fids.push_back( mycatalog->lookupPFN( mypfn ) );
     }else{
-      l.lookupLFNByQuery(query,mylfns);
+       mycatalog->getFIDs( fids );
     }
-    while(mylfns.hasNext()){
-      LFNEntry lentry;
-      lentry=mylfns.Next();
-      std::cout<<lentry.lfname()<<std::endl;
+    for( const auto& fid: fids ) {
+       pool::IFileCatalog::Files files;
+       mycatalog->getLFNs( fid, files );
+       for( const auto& file: files ) {
+          std::cout << file.first << " ,   " << file.second << std::endl;
+       }
     }
+
     mycatalog->commit();  
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){

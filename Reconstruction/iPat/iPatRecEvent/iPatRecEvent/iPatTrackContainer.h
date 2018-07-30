@@ -16,10 +16,8 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#ifndef CLIDSVC_CLASSDEF_H
-# include "CLIDSvc/CLASS_DEF.h"
-#endif
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "iPatTrack/Track.h"
 
 class iPatTrackContainer:public DataVector<Track>

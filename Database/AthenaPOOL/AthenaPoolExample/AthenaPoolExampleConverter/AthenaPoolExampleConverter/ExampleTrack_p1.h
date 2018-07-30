@@ -15,6 +15,7 @@
 #include "DataModelAthenaPool/ElementLink_p3.h"
 #include "DataModelAthenaPool/ElementLinkVector_p1.h"
 #include "DataModelAthenaPool/Navigable_p2.h"
+#include "CxxUtils/unused.h"
 
 #include <CLHEP/Geometry/Vector3D.h>
 #include <string>
@@ -31,9 +32,9 @@ public: // Constructor and Destructor
    virtual ~ExampleTrack_p1() {}
 
 private:
-   double m_pt;
-   double m_eta;
-   double m_phi;
+   double ATH_UNUSED_MEMBER(m_pt);
+   double ATH_UNUSED_MEMBER(m_eta);
+   double ATH_UNUSED_MEMBER(m_phi);
    std::string m_detector;
 
    ElementLinkInt_p3 m_elementlink1, m_elementlink2;

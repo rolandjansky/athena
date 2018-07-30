@@ -121,13 +121,6 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
-HLT::ErrorCode TrigCountTrtHits::hltBeginRun() {
-  // This initialisation has been moved into the event loop.
-  // @see TrigCountTrtHitsHypo::checkDetectorMask
-  ATH_MSG_DEBUG(" TrigCountTrtHits will be initialized in hltExecute"); 
-  return HLT::OK;
-}
-//---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountTrtHits::checkDetectorMask() {
   m_hltExecuteInitialisationRun = true;

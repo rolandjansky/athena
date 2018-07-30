@@ -10,6 +10,7 @@
 #include "PoolSvc.h"
 
 #include "GaudiKernel/IIoComponentMgr.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -22,8 +23,7 @@
 #include "CollectionBase/CollectionDescription.h"
 
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
-
+#include "POOLCore/DbPrint.h"
 #include "PersistencySvc/IPersistencySvc.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/IDatabase.h"
@@ -199,9 +199,17 @@ StatusCode PoolSvc::setupPersistencySvc() {
    // Setup a persistency services
    m_persistencySvcVec.push_back(pool::IPersistencySvc::create(*m_catalog).release()); // Read Service
    m_pers_mut.push_back(new CallMutex);
-   if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("MultiThreaded", true)) {
-      ATH_MSG_FATAL("Failed to enable multithreaded ROOT via PersistencySvc.");
+   if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("ENABLE_THREADSAFETY", true)) {
+      ATH_MSG_FATAL("Failed to enable thread safety in ROOT via PersistencySvc.");
       return(StatusCode::FAILURE);
+   }
+   // Switiching on ROOT implicit multi threading for AthenaMT
+   if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
+
+      if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("ENABLE_IMPLICITMT", true)) {
+         ATH_MSG_FATAL("Failed to enable implicit multithreading in ROOT via PersistencySvc.");
+         return(StatusCode::FAILURE);
+      }
    }
    m_contextMaxFile.insert(std::pair<unsigned int, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
    if (!connect(pool::ITransaction::READ).isSuccess()) {
@@ -250,13 +258,17 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-   unsigned int streamId = 0;
-   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
-		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
-      ATH_MSG_DEBUG("Deleting PersSvc stream " << streamId);
-      delete *iter;
+   if (!disconnect(IPoolSvc::kOutputStream).isSuccess()) {
+      ATH_MSG_WARNING("Cannot disconnect output Stream");
+   }
+   for (const auto& persistencySvc : m_persistencySvcVec) {
+      delete persistencySvc;
    }
    m_persistencySvcVec.clear();
+   for (const auto& persistencyMutex : m_pers_mut) {
+      delete persistencyMutex;
+   }
+   m_pers_mut.clear();
    if (m_catalog != nullptr) {
       m_catalog->commit();
       delete m_catalog; m_catalog = nullptr;
@@ -351,12 +363,10 @@ const pool::IFileCatalog* PoolSvc::catalog() const {
 //__________________________________________________________________________
 void PoolSvc::lookupBestPfn(const std::string& token, std::string& pfn, std::string& type) const {
    std::string dbID;
-   pool::FCregister action;
-   m_catalog->setAction(action);
    if (token.substr(0, 4) == "PFN:") {
-      action.lookupFileByPFN(token.substr(4), dbID, type); // PFN -> FID
+      m_catalog->lookupFileByPFN(token.substr(4), dbID, type); // PFN -> FID
    } else if (token.substr(0, 4) == "LFN:") {
-      action.lookupFileByLFN(token.substr(4), dbID); // LFN -> FID
+      m_catalog->lookupFileByLFN(token.substr(4), dbID); // LFN -> FID
    } else if (token.substr(0, 4) == "FID:") {
       dbID = token.substr(4);
    } else if (token.size() > Guid::null().toString().size()) { // full token
@@ -366,24 +376,22 @@ void PoolSvc::lookupBestPfn(const std::string& token, std::string& pfn, std::str
    } else { // guid only
       dbID = token;
    }
-   action.lookupBestPFN(dbID, pool::FileCatalog::READ, pool::FileCatalog::SEQUENTIAL, pfn, type); // FID -> best PFN
+   m_catalog->getFirstPFN(dbID, pfn, type); // FID -> best PFN
 }
 //__________________________________________________________________________
 void PoolSvc::renamePfn(const std::string& pf, const std::string& newpf) const {
    std::string dbID, type;
-   pool::FCregister action;
-   m_catalog->setAction(action);
-   action.lookupFileByPFN(pf, dbID, type);
+    m_catalog->lookupFileByPFN(pf, dbID, type);
    if (dbID.empty()) {
       ATH_MSG_WARNING("Failed to lookup: " << pf << " in FileCatalog");
       return;
    }
-   action.lookupFileByPFN(newpf, dbID, type);
+   m_catalog->lookupFileByPFN(newpf, dbID, type);
    if (!dbID.empty()) {
       ATH_MSG_INFO("Found: " << newpf << " in FileCatalog");
       return;
    }
-   action.renamePFN(pf, newpf);
+   m_catalog->renamePFN(pf, newpf);
 }
 //__________________________________________________________________________
 pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
@@ -416,10 +424,8 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    // Check POOL FileCatalog entry.
    bool insertFile = false;
    if (connection.substr(0, 4) == "PFN:") {
-      pool::IFCAction action;
-      m_catalog->setAction(action);
       std::string fid, fileType;
-      action.lookupFileByPFN(connection.substr(4), fid, fileType);
+      m_catalog->lookupFileByPFN(connection.substr(4), fid, fileType);
       if (fid.empty()) { // No entry in file catalog
          insertFile = true;
          ATH_MSG_INFO("File is not in Catalog! Attempt to open it anyway.");
@@ -450,10 +456,8 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
             ATH_MSG_INFO("Failed to find container " << collection << " to create POOL collection.");
             if (insertFile && m_attemptCatalogPatch.value()) {
                dbH->setTechnology(pool::ROOT_StorageType.type());
-               pool::FCregister action;
-               m_catalog->setAction(action);
                std::string fid = dbH->fid();
-               action.registerPFN(connection.substr(4), "ROOT_All", fid);
+               m_catalog->registerPFN(connection.substr(4), "ROOT_All", fid);
             }
             return(nullptr); // no events
          }
@@ -491,10 +495,8 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
                       << connection << "' - FileCatalog will NOT be updated.");
       } else {
          dbH->setTechnology(pool::ROOT_StorageType.type());
-         pool::FCregister action;
-         m_catalog->setAction(action);
          std::string fid = dbH->fid();
-         action.registerPFN(connection.substr(4), "ROOT_All", fid);
+         m_catalog->registerPFN(connection.substr(4), "ROOT_All", fid);
       }
    }
    return(collPtr);
@@ -873,6 +875,7 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
 //__________________________________________________________________________
 pool::IFileCatalog* PoolSvc::createCatalog() {
    pool::IFileCatalog* ctlg = new pool::IFileCatalog;
+   ctlg->removeCatalog("*");
    for (auto& catalog : m_readCatalog.value()) {
       ATH_MSG_DEBUG("POOL ReadCatalog is " << catalog);
       if (catalog.substr(0, 8) == "apcfile:" || catalog.substr(0, 7) == "prfile:") {

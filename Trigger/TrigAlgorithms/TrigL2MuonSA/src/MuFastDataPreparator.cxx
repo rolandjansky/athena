@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/MuFastDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -31,8 +30,8 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
                                                          const std::string& name,
                                                          const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-  m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
   m_options(),
+  m_regionSelector("RegSelSvc", name ),
   m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator"),
   m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator"),
   m_mdtDataPreparator("TrigL2MuonSA::MdtDataPreparator"),
@@ -43,6 +42,10 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
 {
    declareInterface<TrigL2MuonSA::MuFastDataPreparator>(this);
    declareProperty("RPCRecRoiSvc",      m_recRPCRoiSvc,      "Reconstruction of RPC RoI");
+   declareProperty("RPCDataPreparator", m_rpcDataPreparator );
+   declareProperty("TGCDataPreparator", m_tgcDataPreparator );
+   declareProperty("MDTDataPreparator", m_mdtDataPreparator );
+   declareProperty("CSCDataPreparator", m_cscDataPreparator );
 }
 
 // --------------------------------------------------------------------------------
@@ -58,95 +61,52 @@ TrigL2MuonSA::MuFastDataPreparator::~MuFastDataPreparator()
 StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 {
    // Get a message stream instance
-  ATH_MSG_DEBUG("Initializing MuFastDataPreparator - package version " << PACKAGE_VERSION);
-   
+   ATH_MSG_DEBUG("Initializing MuFastDataPreparator - package version " << PACKAGE_VERSION);
+    
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
      ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
-
-  sc = m_recRPCRoiSvc.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_recRPCRoiSvc);
-    return sc;
-  } else {
-    ATH_MSG_INFO("Retrieved Service " << m_recRPCRoiSvc);
-  }
-  
-  // retrieve the ID helper and the region selector
-   StoreGateSvc* detStore(0);
-   const MuonGM::MuonDetectorManager* muonMgr;
-   sc = serviceLocator()->service("DetectorStore", detStore);
-   if (sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve DetectorStore.");
      return sc;
    }
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
+
+   ATH_CHECK( m_recRPCRoiSvc.retrieve() );
+   ATH_MSG_INFO("Retrieved Service " << m_recRPCRoiSvc);
    
-   sc = detStore->retrieve( muonMgr,"Muon" );
-   if (sc.isFailure()) return sc;
+   // retrieve the ID helper and the region selector
+   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
+   ATH_CHECK(detStore.retrieve());
+   ATH_MSG_DEBUG("Retrieved DetectorStore.");
+
+   const MuonGM::MuonDetectorManager* muonMgr;
+   ATH_CHECK( detStore->retrieve( muonMgr,"Muon" ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_mdtIdHelper = muonMgr->mdtIdHelper();
-   
-   // Locate RegionSelector
-   sc = service("RegSelSvc", m_regionSelector);
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve the regionselector service");
-      return sc;
-   }
+  
+   ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
 
    if (m_use_rpc) {
-     sc = m_rpcDataPreparator.retrieve();
-     if ( sc.isFailure() ) {
-       ATH_MSG_ERROR("Could not retrieve " << m_rpcDataPreparator);
-       return sc;
-     }
+     ATH_CHECK( m_rpcDataPreparator.retrieve() );
      ATH_MSG_DEBUG("Retrieved service " << m_rpcDataPreparator);
    }
 
-   sc = m_tgcDataPreparator.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_tgcDataPreparator);
-      return sc;
-   }
+   ATH_CHECK( m_tgcDataPreparator.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_tgcDataPreparator);
 
-   sc =m_mdtDataPreparator.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_mdtDataPreparator);
-      return sc;
-   }
+   ATH_CHECK( m_mdtDataPreparator.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_mdtDataPreparator);
    
-   sc =m_cscDataPreparator.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_cscDataPreparator);
-     return sc;
-   }
+   ATH_CHECK( m_cscDataPreparator.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_cscDataPreparator);
 
-   sc =m_rpcRoadDefiner.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_rpcRoadDefiner);
-     return sc;
-   }
+   ATH_CHECK( m_rpcRoadDefiner.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_rpcRoadDefiner);
 
-   sc =m_tgcRoadDefiner.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_tgcRoadDefiner);
-     return sc;
-   }
+   ATH_CHECK( m_tgcRoadDefiner.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_tgcRoadDefiner);
 
-   sc =m_rpcPatFinder.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_rpcPatFinder);
-     return sc;
-   }
+   ATH_CHECK( m_rpcPatFinder.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
 
    // set the geometry tools
@@ -174,19 +134,21 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::setMCFlag(BooleanProperty use_mcL
 {
   m_use_mcLUT = use_mcLUT;
 
-  StatusCode sc = StatusCode::SUCCESS;
-
   if (m_use_mcLUT) {
-    sc = serviceLocator()->service("PtEndcapLUTSvc_MC", m_ptEndcapLUTSvc);
+    const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc_MC", name()); 
+    if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+      ATH_MSG_DEBUG("Could not retrieve PtEndcapLUTSvc_MC");
+      return StatusCode::FAILURE;
+    }
+    m_tgcRoadDefiner->setPtLUT(&*ptEndcapLUTSvc);
   } else {
-    sc = serviceLocator()->service("PtEndcapLUTSvc",    m_ptEndcapLUTSvc);
+    const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc", name()); 
+    if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+      ATH_MSG_DEBUG("Could not retrieve PtEndcapLUTSvc");
+      return StatusCode::FAILURE;
+    }
+    m_tgcRoadDefiner->setPtLUT(&*ptEndcapLUTSvc);
   }
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not find PtEndcapLUTSvc");
-    return sc;
-  }
-
-  m_tgcRoadDefiner->setPtLUT(m_ptEndcapLUTSvc);
 
   return StatusCode::SUCCESS;
 }

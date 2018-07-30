@@ -30,12 +30,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigRingerRingsAuxContainer,
 class xAODTrigRingerRingsAuxContainerCnv :
    public xAODTrigRingerRingsAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTrigRingerRingsAuxContainerCnv >;
-
-protected:
+public:
    /// Converter constructor
    xAODTrigRingerRingsAuxContainerCnv( ISvcLocator* svcLoc );
+
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::TrigRingerRingsAuxContainer*
    createPersistent( xAOD::TrigRingerRingsAuxContainer* trans );

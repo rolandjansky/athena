@@ -4,31 +4,6 @@ from AthenaCommon import CfgGetter,CfgMgr,Logging
 
 # Common methods to return default UserAction(Tool)s
 
-# actions to be run at begin/end of run
-def getDefaultRunActions():
-    defaultUA=[]
-    return defaultUA
-
-# begin of event
-def getDefaultEventActions():
-    defaultUA=[]
-    return defaultUA
-
-# stepping
-def getDefaultSteppingActions():
-    defaultUA=[]
-    return defaultUA
-
-# tracking
-def getDefaultTrackingActions():
-    defaultUA=[]
-    return defaultUA
-
-# Stacking Classification
-def getDefaultStackingActions():
-    defaultUA=[]
-    return defaultUA
-
 def flag_on(name):
     from G4AtlasApps.SimFlags import simFlags
     return hasattr(simFlags, name) and getattr(simFlags, name).statusOn
@@ -84,17 +59,6 @@ def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
 
     optActions = simFlags.OptionalUserActionList.get_Value()
-    kwargs.setdefault('RunActionTools',
-                      getDefaultRunActions() + optActions['Run'])
-    kwargs.setdefault('EventActionTools',
-                      getDefaultEventActions() + optActions['Event'])
-    kwargs.setdefault('SteppingActionTools',
-                      getDefaultSteppingActions() + optActions['Step'])
-    kwargs.setdefault('TrackingActionTools',
-                      getDefaultTrackingActions() + optActions['Tracking'])
-    # no optional actions for stacking
-    kwargs.setdefault('StackingActionTools', getDefaultStackingActions())
-
     # new user action tools
     kwargs.setdefault('UserActionTools',
                       getDefaultActions() + optActions['General'])
@@ -105,11 +69,6 @@ def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
 def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     optActions = simFlags.OptionalUserActionList.get_Value()
-    run = getDefaultRunActions() + optActions['Run']
-    event = getDefaultEventActions() + optActions['Event']
-    tracking = getDefaultTrackingActions() + optActions['Tracking']
-    stepping = getDefaultSteppingActions() + optActions['Step']
-    stacking = getDefaultStackingActions()
     generalActions = getDefaultActions() + optActions['General']
 
     # FIXME: ADS these actions are not yet migrated to Hive
@@ -122,12 +81,6 @@ def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
     #            event+=['RadLenNtuple']
     #            eoe+=['RadLenNtuple']
     #            stepping+=['RadLenNtuple']
-
-    kwargs.setdefault('RunActionTools', run)
-    kwargs.setdefault('EventActionTools', event)
-    kwargs.setdefault('SteppingActionTools', stepping)
-    kwargs.setdefault('TrackingActionTools', tracking)
-    kwargs.setdefault('StackingActionTools', stacking)
 
     # New user action tools
     kwargs.setdefault('UserActionTools', generalActions)
@@ -142,22 +95,11 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
 
     from G4AtlasApps.SimFlags import simFlags
     optActions = simFlags.OptionalUserActionList.get_Value()
-    run = getDefaultRunActions() + optActions['Run']
-    event = getDefaultEventActions() + optActions['Event']
-    tracking = getDefaultTrackingActions() + optActions['Tracking']
-    stepping = getDefaultSteppingActions() + optActions['Step']
-    stacking = getDefaultStackingActions()
     generalActions = (
         TrackProcessorUserAction + MCTruthUserAction +
         getDefaultActions() + optActions['General'] +
         PhysicsValidationUserAction
     )
-
-    kwargs.setdefault('RunActionTools', run)
-    kwargs.setdefault('EventActionTools', event)
-    kwargs.setdefault('SteppingActionTools', stepping)
-    kwargs.setdefault('TrackingActionTools', tracking)
-    kwargs.setdefault('StackingActionTools', stacking)
 
     # New user action tools
     kwargs.setdefault('UserActionTools', generalActions)

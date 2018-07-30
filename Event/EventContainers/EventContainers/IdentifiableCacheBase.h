@@ -18,25 +18,30 @@
 
 
 #include "Identifier/IdentifierHash.h"
-#include <stdexcept>
 #include <mutex>
 #include <atomic>
-#include <condition_variable>
-
+#include "EventContainers/IDC_WriteHandleBase.h"
 //abarton
 //Enabling the ability to remove collections to help compatability with old code.
-//This may be removed to improved threadsafety.
+//This may be removed to improved thread-safety.
 #define IdentifiableCacheBaseRemove
 
 namespace EventContainers {
 
 
+
 class IdentifiableCacheBase
 {
+
 public:
+//here for access from other classes
+static constexpr uintptr_t INVALIDflag = UINTPTR_MAX;
+static constexpr uintptr_t ABORTEDflag = UINTPTR_MAX-1;
+static constexpr size_t s_defaultBucketSize =6;
 
 typedef std::true_type thread_safe;
 typedef std::set<IdentifierHash> idset_t;
+
 #if 0
   struct deleter
   {
@@ -71,49 +76,77 @@ typedef std::set<IdentifierHash> idset_t;
   
   struct IMaker
   {
+    bool m_IsReEntrant = false;
     virtual ~IMaker() {}
     virtual void_unique_ptr typelessMake (IdentifierHash hash) const = 0;  // unique_ptr<T>??
   };
   
-  // Return payload if there, null if not there.
-  const void* find (IdentifierHash hash) const;
+  /// Return payload if there, null if not there.
+  const void* find (IdentifierHash hash);
+  /// Retrieve ptr, will wait if there is something in progress
+  const void* findWait (IdentifierHash hash);
 
-  // Try to make payload if not there.
+  /// Try to make payload if not there.
   const void* get (IdentifierHash hash);
 
-  std::vector<IdentifierHash> ids() const;
+  ///In a threaded situation this collection will be valid but will not container hashes later added
+  std::vector<IdentifierHash> ids();
   
-  bool add (IdentifierHash hash, const void* p, bool TakeOwnerShip);
+  bool add (IdentifierHash hash, const void* p);
   bool add (IdentifierHash hash, void_unique_ptr p);
 
+  bool IMakerPresent() const { return m_maker!=nullptr; }
+
+  /// Checks if the item is completed if it is not started it extablishes lock (returns 0),
+  /// If it is started but not completed it adds to wait list (returns 1)
+  /// If the item is already completed it returns 2
+  /// If the item is aborted it does nothing and returns 3
+  int tryLock(IdentifierHash, IDC_WriteHandleBase &, std::vector<IdentifierHash>&);
+
+  ///Returns 1 is the item has been aborted otherwise 0
+  int itemAborted(IdentifierHash);
+
+  ///Returns 1 is the item is inprogress otherwise 0
+  int itemInProgress(IdentifierHash);
+
+  ///Halts the thread until the require hash is completed or aborted
+  const void* waitFor(IdentifierHash);
+
+  ///Create a set of hashes, updates an IDC mask as appropriate
+  void createSet (const std::vector<IdentifierHash>& hashes, std::vector<bool> &mask);
+
 #ifdef IdentifiableCacheBaseRemove
+  ///Use to remove a collection from the cache, this is for backwards compatability 
+  /// and should not be used in a concurrent environment
   bool remove (IdentifierHash hash);
 #endif
-  size_t fullSize() const { return m_owns.size(); }
-  size_t numberOfHashes() const;
-  
+  size_t fullSize() const { return m_vec.size(); }
+  ///In a concurrent situation this number isn't necessarily perfectly synchronised with ids().size()
+  size_t numberOfHashes();
+#ifndef NDEBUG
+  void cancelWait(IdentifierHash hash);
+#endif
 protected:
+  IdentifiableCacheBase (IdentifierHash maxHash, const IMaker* maker, size_t lockBucketSize);
   IdentifiableCacheBase (IdentifierHash maxHash, const IMaker* maker);
   ~IdentifiableCacheBase();
   void clear (deleter_f* deleter);
-  void cleanUp(deleter_f* deleter);//Call once before delection
-  
+  void cleanUp(deleter_f* deleter);//Call once before destruction
+  void notifyHash(IdentifierHash hash);
 private:
   std::vector<std::atomic<const void*> > m_vec;
-  std::vector<bool> m_owns;
   
   const IMaker* m_maker;
-  // Set of currently populated hashes.
-  // If a hash has an entry in the set but not in the vector,
-  // a conversion is in progress.
-
-  idset_t m_ids;
 
   typedef std::mutex mutex_t;
   typedef std::lock_guard<mutex_t> lock_t;
-  mutable mutex_t m_mutex;
-
-  std::condition_variable m_cond;
+  typedef std::unique_lock<mutex_t> uniqueLock;
+  mutex_t m_mutex;
+  ///Pool of mutexes used for waiting on completion if in a concurrent environment
+  std::unique_ptr<mutexPair[]> m_HoldingMutexes;
+  size_t m_NMutexes;
+  ///Holds the number of valid hashes in container, in concurrent use it is not guaranteed to be up to date.
+  std::atomic<size_t> m_currentHashes;
 };
 
 

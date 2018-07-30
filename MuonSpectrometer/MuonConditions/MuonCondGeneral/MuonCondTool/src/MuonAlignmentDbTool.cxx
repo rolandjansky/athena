@@ -43,7 +43,6 @@ MuonAlignmentDbTool::MuonAlignmentDbTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_detStore(0),
     m_IOVSvc(0),
     m_alineData(0),
     m_blineData(0),
@@ -122,20 +121,10 @@ StatusCode MuonAlignmentDbTool::initialize()
   m_log<<MSG::INFO<<"Initilalizing"<<endmsg;
   m_log << MSG::INFO << "In initialize ---- # of folders registered is "<<m_parlineFolder.size()<< endmsg;
 
-
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_debug )  m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
-
   // Get interface to IOVSvc
   m_IOVSvc = 0;
   bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
+  StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
   {
        m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
@@ -147,7 +136,7 @@ StatusCode MuonAlignmentDbTool::initialize()
   // *********************************************************************  
   // B Line for the moment are switched off....
   //log<<MSG::INFO<<"Call-back for B-lines..... maybe going to register"<<endmsg;
-  //  sc=m_detStore->regFcn(&IMuonAlignmentDbTool::loadAlignBLine,
+  //  sc=detStore()->regFcn(&IMuonAlignmentDbTool::loadAlignBLine,
   //                        dynamic_cast<IMuonAlignmentDbTool*>(this),
   //                        parlineData, m_parlineFolder);
   //
@@ -158,7 +147,7 @@ StatusCode MuonAlignmentDbTool::initialize()
   
   // *********************************************************************  
   // B Line for the moment are switched off....
-  // m_detStore->regFcn(&IMuonAlignmentDbTool::loadAlignBLine,dynamic_cast<IMuonAlignmentDbTool*>(this),&MuonAlignmentDbSvc::loadAlignBLine,dynamic_cast<MuonAlignmentDbSvc*>(dbSvc));
+  // detStore()->regFcn(&IMuonAlignmentDbTool::loadAlignBLine,dynamic_cast<IMuonAlignmentDbTool*>(this),&MuonAlignmentDbSvc::loadAlignBLine,dynamic_cast<MuonAlignmentDbSvc*>(dbSvc));
   //log<<MSG::INFO<<"registered loadAlignBline"<<endmsg;
   // *********************************************************************  
 
@@ -174,7 +163,7 @@ StatusCode MuonAlignmentDbTool::initialize()
   
   // record the containers in the detector store
   
-  sc = m_detStore->record(m_alineData,m_alineDataLocation);
+  sc = detStore()->record(m_alineData,m_alineDataLocation);
   if (sc == StatusCode::FAILURE) {
     m_log << MSG::ERROR << "Cannot record A Lines container in the detector store"
 	<< endmsg;
@@ -182,7 +171,7 @@ StatusCode MuonAlignmentDbTool::initialize()
   }
   else m_log << MSG::INFO << "A Lines container recorded in the detector store"<<endmsg;
            
-  sc = m_detStore->record(m_blineData,m_blineDataLocation);
+  sc = detStore()->record(m_blineData,m_blineDataLocation);
   if (sc == StatusCode::FAILURE) {
     m_log << MSG::ERROR << "Cannot record B Lines container in the detector store"
 	<< endmsg;
@@ -190,7 +179,7 @@ StatusCode MuonAlignmentDbTool::initialize()
   }
   else m_log << MSG::INFO << "B Lines container recorded in the detector store"<<endmsg;
   
-  sc = m_detStore->record(m_asbuiltData,m_asbuiltDataLocation);
+  sc = detStore()->record(m_asbuiltData,m_asbuiltDataLocation);
   if (sc == StatusCode::FAILURE) {
     m_log << MSG::ERROR << "Cannot record B Lines container in the detector store"
 	<< endmsg;
@@ -198,7 +187,7 @@ StatusCode MuonAlignmentDbTool::initialize()
   }
   else m_log << MSG::INFO << "As-Built container recorded in the detector store"<<endmsg;
 
-  if( m_ILinesFromDb ) sc = m_detStore->record(m_ilineData,m_ilineDataLocation);
+  if( m_ILinesFromDb ) sc = detStore()->record(m_ilineData,m_ilineDataLocation);
   if (sc == StatusCode::FAILURE && m_ILinesFromDb) {
     m_log << MSG::ERROR << "Cannot not record I-Lines container in the detector store"
 	<< endmsg;
@@ -208,7 +197,7 @@ StatusCode MuonAlignmentDbTool::initialize()
 
   // Get the TransientAddress from DetectorStore and set "this" as the
   // AddressProvider
-  SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<ALineMapContainer>::ID(), m_alineDataLocation);
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<ALineMapContainer>::ID(), m_alineDataLocation);
   if (!proxy) {
       m_log << MSG::ERROR << "Unable to get the proxy for class ALineParContainer" << endmsg;
       return StatusCode::FAILURE;
@@ -224,7 +213,7 @@ StatusCode MuonAlignmentDbTool::initialize()
 
                                                                             
 
-   proxy = m_detStore->proxy(ClassID_traits<BLineMapContainer>::ID(), m_blineDataLocation);
+   proxy = detStore()->proxy(ClassID_traits<BLineMapContainer>::ID(), m_blineDataLocation);
    if (!proxy) {
      m_log << MSG::ERROR << "Unable to get the proxy for class BLineParContainer" << endmsg;
      return StatusCode::FAILURE;
@@ -236,7 +225,7 @@ StatusCode MuonAlignmentDbTool::initialize()
    //tad->setProvider(addp);
    if( m_debug )  m_log << MSG::DEBUG << "set address provider for BLineParContainer" << endmsg;
 
-   proxy = m_detStore->proxy(ClassID_traits<CscInternalAlignmentMapContainer>::ID(), m_ilineDataLocation);
+   proxy = detStore()->proxy(ClassID_traits<CscInternalAlignmentMapContainer>::ID(), m_ilineDataLocation);
    if (!proxy && m_ILinesFromDb) {
      m_log << MSG::ERROR << "Unable to get the proxy for class CscInternalAlignmentMapContainer" << endmsg;
      return StatusCode::FAILURE;
@@ -249,7 +238,7 @@ StatusCode MuonAlignmentDbTool::initialize()
    if( m_debug )  m_log << MSG::DEBUG << "set address provider for CscInternalAlignmentMapContainer" << endmsg;
 
 
-   proxy = m_detStore->proxy(ClassID_traits<MdtAsBuiltMapContainer>::ID(), m_asbuiltDataLocation);
+   proxy = detStore()->proxy(ClassID_traits<MdtAsBuiltMapContainer>::ID(), m_asbuiltDataLocation);
    if (!proxy) {
      m_log << MSG::ERROR << "Unable to get the proxy for class MdtAsBuiltParContainer" << endmsg;
      return StatusCode::FAILURE;
@@ -275,7 +264,7 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   if (m_geometryVersion == "")
   {
       const MuonGM::MuonDetectorManager* muonMgr;
-      if (StatusCode::SUCCESS != m_detStore->retrieve(muonMgr))
+      if (StatusCode::SUCCESS != detStore()->retrieve(muonMgr))
       {
           m_log << MSG::WARNING << "Failed to retrieve the MuonDetectorManager - will assume geometry version R.03.03" << endmsg;
           m_geometryVersion = "R.03.03";
@@ -290,7 +279,7 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
   if (m_mdtIdHelper == 0)
   {
-      sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+      sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
       if (!sc.isSuccess()) {
           m_log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endmsg;
           return sc;
@@ -300,7 +289,7 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   else if( m_debug )  m_log << MSG::DEBUG << "MdtIdHelper already initialized" << endmsg;
   if (m_cscIdHelper == 0)
   {
-      sc = m_detStore->retrieve(m_cscIdHelper, "CSCIDHELPER" );
+      sc = detStore()->retrieve(m_cscIdHelper, "CSCIDHELPER" );
       if (!sc.isSuccess()) {
 	m_log << MSG::ERROR << "Can't retrieve CscIdHelper" << endmsg;
           return sc;
@@ -310,7 +299,7 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   else if( m_debug )  m_log << MSG::DEBUG << "CscIdHelper already initialized" << endmsg;
   if (m_rpcIdHelper == 0)
   {
-      sc = m_detStore->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
+      sc = detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
       if (!sc.isSuccess()) {
           m_log << MSG::ERROR << "Can't retrieve RpcIdHelper" << endmsg;
           return sc;
@@ -320,7 +309,7 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   else if( m_debug )  m_log << MSG::DEBUG << "RpcIdHelper already initialized" << endmsg;
   if (m_tgcIdHelper == 0)
   {
-      sc = m_detStore->retrieve(m_tgcIdHelper, "TGCIDHELPER" );
+      sc = detStore()->retrieve(m_tgcIdHelper, "TGCIDHELPER" );
       if (!sc.isSuccess()) {
           m_log << MSG::ERROR << "Can't retrieve TgcIdHelper" << endmsg;
           return sc;
@@ -332,10 +321,10 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
   // reinitialize
   // retreive and remove the old collection 
-  sc = m_detStore->retrieve( m_alineData, m_alineDataLocation );
+  sc = detStore()->retrieve( m_alineData, m_alineDataLocation );
   if(sc.isSuccess())  {
       m_log << MSG::INFO << "Previous A-line Container found in the DetStore <" << m_alineData <<">"<< endmsg;
-      sc = m_detStore->remove( m_alineData );
+      sc = detStore()->remove( m_alineData );
       if(sc.isSuccess()) {
 	m_log << MSG::INFO << "A-line Container at <" << m_alineData << "> removed "<<endmsg;
       }
@@ -350,10 +339,10 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   }
   m_alineData=0;
   
-  sc = m_detStore->retrieve( m_blineData, m_blineDataLocation );
+  sc = detStore()->retrieve( m_blineData, m_blineDataLocation );
   if(sc.isSuccess())  {
       m_log << MSG::INFO << "Previous B-line Container found in the DetStore <" << m_blineData <<">"<< endmsg;
-      sc = m_detStore->remove( m_blineData );
+      sc = detStore()->remove( m_blineData );
       if(sc.isSuccess()) {
 	m_log << MSG::INFO << "B-line Container at <" << m_blineData << "> removed "<<endmsg;
       }
@@ -367,11 +356,11 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   }
   m_blineData=0;
 
-  sc = m_detStore->retrieve( m_ilineData, m_ilineDataLocation );
+  sc = detStore()->retrieve( m_ilineData, m_ilineDataLocation );
   if(sc.isSuccess())  {
       m_log << MSG::INFO << "Previous I-line Container found in the DetStore <" << m_ilineData <<">"<< endmsg;
       if( m_ILinesFromDb ) {
-        sc = m_detStore->remove( m_ilineData );
+        sc = detStore()->remove( m_ilineData );
         if(sc.isSuccess()) {
 	  m_log << MSG::INFO << "I-line Container at <" << m_ilineData << "> removed "<<endmsg;
         }
@@ -388,10 +377,10 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   }
   m_ilineData=0;
 
-  sc = m_detStore->retrieve( m_asbuiltData, m_asbuiltDataLocation );
+  sc = detStore()->retrieve( m_asbuiltData, m_asbuiltDataLocation );
   if(sc.isSuccess())  {
       m_log << MSG::INFO << "Previous As-Built Container found in the DetStore <" << m_asbuiltData <<">"<< endmsg;
-      sc = m_detStore->remove( m_asbuiltData );
+      sc = detStore()->remove( m_asbuiltData );
       if(sc.isSuccess()) {
 	m_log << MSG::INFO << "As-Built Container at <" << m_asbuiltData << "> removed "<<endmsg;
       }
@@ -486,16 +475,16 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   }
   
   // finally record ABLineContainer
-  if ((m_detStore->record( m_alineData, m_alineDataLocation )).isFailure()) return StatusCode::FAILURE;
+  if ((detStore()->record( m_alineData, m_alineDataLocation )).isFailure()) return StatusCode::FAILURE;
   m_log << MSG::INFO<<"New A-line container recoded in the DetStore with key "<<m_alineDataLocation<<endmsg;
-  if ((m_detStore->record( m_blineData, m_blineDataLocation )).isFailure()) return StatusCode::FAILURE;
+  if ((detStore()->record( m_blineData, m_blineDataLocation )).isFailure()) return StatusCode::FAILURE;
   m_log << MSG::INFO<<"New B-line container recoded in the DetStore with key "<<m_blineDataLocation<<endmsg;
   if( m_ILinesFromDb ) {
-    if ((m_detStore->record( m_ilineData, m_ilineDataLocation )).isFailure()) return StatusCode::FAILURE;
+    if ((detStore()->record( m_ilineData, m_ilineDataLocation )).isFailure()) return StatusCode::FAILURE;
     m_log << MSG::INFO<<"New I-line container recoded in the DetStore with key "<<m_ilineDataLocation<<endmsg;
   }
   else m_log << MSG::INFO<<"I-line not recorded from this tool since functionality disabled."<<endmsg;
-  if ((m_detStore->record( m_asbuiltData, m_asbuiltDataLocation )).isFailure()) return StatusCode::FAILURE;
+  if ((detStore()->record( m_asbuiltData, m_asbuiltDataLocation )).isFailure()) return StatusCode::FAILURE;
   m_log << MSG::INFO<<"New As-built container recoded in the DetStore with key "<<m_asbuiltDataLocation<<endmsg;
   
   m_log << MSG::INFO <<"LoadParameters done !"<< endmsg;
@@ -523,7 +512,7 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
 
    // retreive the collection of strings read out from the DB
    const CondAttrListCollection * atrc;
-   sc=m_detStore->retrieve(atrc,folderName);
+   sc=detStore()->retrieve(atrc,folderName);
    if(sc.isFailure())  {
      log << MSG::WARNING 
          << "could not retreive the CondAttrListCollection from DB folder " 
@@ -838,7 +827,7 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
    
 
 // ss:01/07/2008 not clear if this is needed at all 
-   SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<ALineMapContainer>::ID(), m_alineDataLocation);
+   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<ALineMapContainer>::ID(), m_alineDataLocation);
     if (!proxy) {
       log << MSG::ERROR << "Unable to get the proxy for class ALineParContainer" << endmsg;
       return StatusCode::FAILURE;
@@ -861,7 +850,7 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
 
    // retreive the collection of strings read out from the DB
    const CondAttrListCollection * atrc;
-   sc=m_detStore->retrieve(atrc,folderName);
+   sc=detStore()->retrieve(atrc,folderName);
    if(sc.isFailure())  {
      log << MSG::WARNING 
          << "could not retreive the CondAttrListCollection from DB folder " 
@@ -1072,7 +1061,7 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
    
 
 // ss:01/07/2008 not clear if this is needed at all 
-   SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<CscInternalAlignmentMapContainer>::ID(), m_ilineDataLocation);
+   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<CscInternalAlignmentMapContainer>::ID(), m_ilineDataLocation);
     if (!proxy) {
       log << MSG::ERROR << "Unable to get the proxy for class ILineParContainer" << endmsg;
       return StatusCode::FAILURE;
@@ -1094,7 +1083,7 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
 
    // retreive the collection of strings read out from the DB
    const CondAttrListCollection * atrc;
-   sc=m_detStore->retrieve(atrc,folderName);
+   sc=detStore()->retrieve(atrc,folderName);
    if(sc.isFailure())  {
      ATH_MSG_WARNING( "could not retreive the CondAttrListCollection from DB folder " 
                       << folderName  );
@@ -1187,7 +1176,7 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
    
 
 // ss:01/07/2008 not clear if this is needed at all 
-   SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtAsBuiltMapContainer>::ID(), m_asbuiltDataLocation);
+   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MdtAsBuiltMapContainer>::ID(), m_asbuiltDataLocation);
     if (!proxy) {
       ATH_MSG_ERROR( "Unable to get the proxy for class ILineParContainer"  );
       return StatusCode::FAILURE;

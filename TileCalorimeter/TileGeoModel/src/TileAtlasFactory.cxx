@@ -377,7 +377,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
   double PosRminITC1  = dbManager->TILBrminimal()*CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-  double PosRminITC   = dbManager->TILBrminimal()*CLHEP::cm;
+  double PosRminITC   = rMinC10 /* dbManager->TILBrminimal() */ *CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
   double PosRminCrack = rMinE4pos*CLHEP::cm;
 
@@ -385,7 +385,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     
   // R maximal
   double PosRmaxTotal = ROutMax[3];
-    
+
+  if(m_log->level()<=MSG::DEBUG)
+    (*m_log) << MSG::DEBUG
+             << " PosRminITC1 = "  << PosRminITC1
+             << " PosRminITC2 = "  << PosRminITC
+             << " PosRminCrack = " << PosRminCrack
+             << " PosRminExt = "   << PosRminExt
+             << " PosRmaxTotal = " << PosRmaxTotal
+	     << endmsg;
+
   GeoPcon* tileEnvPconePosEndcap = new GeoPcon(PhiMin[3]*CLHEP::deg, PhiMax[3]*CLHEP::deg);
 
   // Positive Endcap 
@@ -467,7 +476,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG1);
   double NegRminITC1 = dbManager->TILBrminimal()*CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG2);
-  double NegRminITC = dbManager->TILBrminimal()*CLHEP::cm;
+  double NegRminITC = rMinC10 /* dbManager->TILBrminimal() */ *CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_PLUG4);
   double NegRminCrack = rMinE4neg*CLHEP::cm;
   dbManager->SetCurrentSection(TileDddbManager::TILE_EBARREL);
@@ -476,7 +485,16 @@ void TileAtlasFactory::create(GeoPhysVol *world)
     
   // R maximal 
   double NegRmaxTotal = ROutMax[2];
-    
+
+  if(m_log->level()<=MSG::DEBUG)
+    (*m_log) << MSG::DEBUG
+             << " NegRminITC1 = "  << NegRminITC1
+             << " NegRminITC2 = "  << NegRminITC
+             << " NegRminCrack = " << NegRminCrack
+             << " NegRminExt = "   << NegRminExt
+             << " NegRmaxTotal = " << NegRmaxTotal
+	     << endmsg;
+
   GeoPcon* tileEnvPconeNegEndcap = new GeoPcon(PhiMin[2]*CLHEP::deg, PhiMax[2]*CLHEP::deg);
 
   // Negative Endcap 
@@ -956,7 +974,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                        AnglMin, AnglMax);
 
       checking("ITC itcWheel2 (+)", false, 0,
-               rMinITC1*CLHEP::cm,rMaxITC1*CLHEP::cm, AnglMin,AnglMax, dzITC1/2*CLHEP::cm);
+               rMinITC2*CLHEP::cm,rMaxITC2*CLHEP::cm, AnglMin,AnglMax, dzITC2/2*CLHEP::cm);
 
       GeoTubs* itcWheel2 = new GeoTubs(rMinITC2*CLHEP::cm,
                                        rMaxITC2*CLHEP::cm,
@@ -1035,7 +1053,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                        AnglMin, AnglMax);
 
       checking("ITC itcWheel2 (-)", false, 0,
-               rMinITC1*CLHEP::cm,rMaxITC1*CLHEP::cm, AnglMin,AnglMax, dzITC1/2*CLHEP::cm);
+               rMinITC2*CLHEP::cm,rMaxITC2*CLHEP::cm, AnglMin,AnglMax, dzITC2/2*CLHEP::cm);
 
       GeoTubs* itcWheel2 = new GeoTubs(rMinITC2*CLHEP::cm,
                                        rMaxITC2*CLHEP::cm,
@@ -1750,15 +1768,17 @@ void TileAtlasFactory::create(GeoPhysVol *world)
            rMinITC1 = dbManager->TILBrminimal();
            rMaxITC1 = dbManager->TILBrmaximal();
            dzITC1   = dbManager->TILBdzmodul();
-	   if (Ifspecialgirder)
+	   if (Ifspecialgirder) {
+             if(m_log->level()<=MSG::DEBUG)
+               (*m_log) << MSG::DEBUG <<" dzITC1 changed from "<<dzITC1<<" to "<<dbManager->TILBdzgir()<<endmsg;
 	     dzITC1 = dbManager->TILBdzgir();
+           }
          } else
          { (*m_log) << MSG::INFO <<" D4 unavailable "<<endmsg;
 	   dzITC1 = 9.485; //sb [CLHEP::cm]
          }
 
         bool specialC10 = (Ifd4 && Ifc10 && rMaxITC2 < rMinITC1);
-        double rMaxITC20 = rMaxITC2; // remember real max radius of C10 cell to position it properly
         if (specialC10) {
           rMaxITC2 = rMinITC1; // for special C10 make outer radius equal to inner radius of D4
         }
@@ -1806,7 +1826,6 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             HepGeom::Translate3D itcModule_SubShiftNeg(X, 0., Z);
             const GeoShapeUnion& itcModuleMotherNeg = itcModuleSub1Neg->add(*itcModuleSub2Neg<<itcModule_SubShiftNeg);
 
-            if (specialC10) Z -= (rMaxITC2-rMaxITC20)/2*CLHEP::cm;
             HepGeom::Translate3D itcModuleSubShiftNeg(X, 0., Z);
 
             GeoLogVol* lvITCModuleMotherNeg = new GeoLogVol("ITCModule",&itcModuleMotherNeg,matAir);
@@ -1898,7 +1917,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
             if (Filling)
              { sectionBuilder->fillSection(pvPlug1ModuleMotherNeg, 3,
                                            dbManager->TILBrmaximal(),
-                                           dbManager->TILBrminimal(),
+                                           (thicknessWedgeMother > rless) ? dbManager->TILBrminimal() : dbManager->TILBrmin(),
                                            dzGlue,
                                            deltaPhi,
                                            ModuleNcp,
@@ -1968,7 +1987,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	  //
           Z = (dzITC1 - dzITC2)/2*CLHEP::cm;
 
-          if (fabs(Z) <= fabs(zITCStandard) && NbPeriod == 6) zShift = zITCStandard*(1./CLHEP::cm);
+          if (NbPeriod == 6 && !Ifspecialgirder && fabs(Z) < fabs(zITCStandard)) zShift = zITCStandard*(1./CLHEP::cm);
 
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG <<"  ITCModule Negative, position X= "<<X<<" Z= "<<Z
@@ -2125,7 +2144,6 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           HepGeom::Translate3D itcModule_SubShiftPos(X, 0., Z);
           const GeoShapeUnion& itcModuleMotherPos = itcModuleSub1Pos->add(*itcModuleSub2Pos<<itcModule_SubShiftPos);
 
-          if (specialC10) Z -= (rMaxITC2-rMaxITC20)/2*CLHEP::cm;
           HepGeom::Translate3D itcModuleSubShiftPos(X, 0., Z);
 
           GeoLogVol* lvITCModuleMotherPos = new GeoLogVol("ITCModule",&itcModuleMotherPos,matAir);
@@ -2218,8 +2236,8 @@ void TileAtlasFactory::create(GeoPhysVol *world)
           // Fill the section
 	  if (Filling)
 	    { sectionBuilder->fillSection(pvPlug1ModuleMotherPos, 3,
-		                         dbManager->TILBrmaximal(), 
-                                         dbManager->TILBrminimal(),
+                                         dbManager->TILBrmaximal(),
+                                         (thicknessWedgeMother > rless) ? dbManager->TILBrminimal() : dbManager->TILBrmin(),
                                          dzGlue,
                                          deltaPhi,
 					 ModuleNcp,
@@ -2287,7 +2305,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 	  //ps          Z = (dbManager->TILBdzmodul()-dzITC2)/2*CLHEP::cm;
           Z = (dzITC1 - dzITC2)/2*CLHEP::cm;
 
-          if (fabs(Z) <= fabs(zITCStandard) && NbPeriod == 6) zShift = zITCStandard*(1./CLHEP::cm);
+          if (NbPeriod == 6 && !Ifspecialgirder && fabs(Z) < fabs(zITCStandard)) zShift = zITCStandard*(1./CLHEP::cm);
 
 	  if(m_log->level()<=MSG::DEBUG)
 	    (*m_log) << MSG::DEBUG <<"  ITCModule Positive, position X= "<<X<<" Z= "<<Z

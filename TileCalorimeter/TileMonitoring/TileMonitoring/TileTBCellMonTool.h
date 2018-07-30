@@ -75,6 +75,9 @@ class TileTBCellMonTool: public TileFatherMonTool {
     int m_nEventsProcessed[9]; // number of processed events per trigger
     std::string m_cellsContName;
 
+    double m_maxEnergy;
+    double m_maxTotalEnergy;
+
     TH1F* m_tileChannelTimeLBA[64][48];
     TH1F* m_tileChannelTimeLBC[64][48];
     TH1F* m_tileChannelTimeEBA[64][48];
@@ -155,6 +158,8 @@ class TileTBCellMonTool: public TileFatherMonTool {
 	int m_cellHitMapLB_C[8][4];
 	std::string m_cellHitMapNameEB[14];
 	std::string m_cellHitMapNameLB[23];
+
+
 /*
 	//E3
 	cellHitMapEB[0][0]=-1;

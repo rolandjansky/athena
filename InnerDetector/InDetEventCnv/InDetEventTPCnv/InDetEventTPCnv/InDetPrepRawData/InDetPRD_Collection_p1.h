@@ -5,8 +5,6 @@
 #ifndef INDETPRD_COLLECTION_P1_H
 #define INDETPRD_COLLECTION_P1_H
 
-#include <vector>
-#include "Identifier/Identifier.h"
 
 namespace InDet{
 class InDetPRD_Collection_p1 
@@ -18,6 +16,7 @@ public:
     InDetPRD_Collection_p1()
             : 
             m_id(0),
+            m_hashId(0),
             m_begin(0),
             m_end(0)
         { } ;

@@ -36,6 +36,8 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "TFile.h"
 #include <fstream>
 
@@ -44,8 +46,12 @@ using std::atan2;
 
 /** Constructor **/
 ISF::FastCaloSimSvcV2::FastCaloSimSvcV2(const std::string& name, ISvcLocator* svc) :
-  BaseSimulationSvc(name, svc),m_param(0),
-  m_rndGenSvc("AtRndmGenSvc", name)
+  BaseSimulationSvc(name, svc),
+  m_param(nullptr),
+  m_theContainer(nullptr),
+  m_rndGenSvc("AtRndmGenSvc", name),
+  m_randomEngine(nullptr),
+  m_caloGeo(nullptr)
 {
   declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"TFCSparam.root");
   declareProperty("ParamsInputObject"              ,       m_paramsObject,"SelPDGID");
@@ -80,9 +86,11 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   TString path_to_fcal_geo_files = "/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/";
   m_caloGeo->LoadFCalGeometryFromFiles(path_to_fcal_geo_files + "FCal1-electrodes.sorted.HV.09Nov2007.dat", path_to_fcal_geo_files + "FCal2-electrodes.sorted.HV.April2011.dat", path_to_fcal_geo_files + "FCal3-electrodes.sorted.HV.09Nov2007.dat");
   
-  std::unique_ptr<TFile> paramsFile(TFile::Open( m_paramsFilename.c_str(), "READ" ));
+  const std::string fileName = m_paramsFilename;
+  std::string inputFile=PathResolverFindCalibFile(fileName);
+  std::unique_ptr<TFile> paramsFile(TFile::Open( inputFile.c_str(), "READ" ));
   if (paramsFile == nullptr) {
-    ATH_MSG_WARNING("file = "<<m_paramsFilename<< " not found");
+    ATH_MSG_ERROR("file = "<<m_paramsFilename<< " not found");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Opened parametrization file = "<<m_paramsFilename);
@@ -188,6 +196,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   }
 
   Amg::Vector3D particle_position =  isfp.position();
+  /*
   float eta_isfp = particle_position.eta();             // isfp eta and phi, in case we need them
   //float phi_isfp = particle_position.phi();  
   if(abs(eta_isfp) > 0.3 || abs(eta_isfp) < 0.15) //somewhat enlarged to not cut off too many particles
@@ -195,6 +204,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     ATH_MSG_INFO("ISF particle is out of eta range: "<<eta_isfp<<". Go to next Particle.");
     return StatusCode::SUCCESS; 
   }
+  */
 
   if(!(pdgid==22 || pdgid==211 || pdgid==11))
   {
@@ -203,11 +213,13 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   } 
 
   TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(pow(isfp.ekin(),2)+pow(isfp.mass(),2)),isfp.pdgCode());
-  TFCSExtrapolationState result;
-  m_FastCaloSimCaloExtrapolation->extrapolate(result,&truth);
+  truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
+
+  TFCSExtrapolationState extrapol;
+  m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   TFCSSimulationState simulstate;
 
-  m_param->simulate(simulstate, &truth, &result);
+  m_param->simulate(simulstate, &truth, &extrapol);
 
   ATH_MSG_INFO("Energy returned: " << simulstate.E());
   ATH_MSG_INFO("Energy fraction for layer: ");

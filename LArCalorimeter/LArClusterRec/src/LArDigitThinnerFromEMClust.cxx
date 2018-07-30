@@ -13,7 +13,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCell.h"
 #include "AthContainers/ConstDataVector.h"
-#include "LArRecConditions/LArOnOffIdMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 
 LArDigitThinnerFromEMClust::LArDigitThinnerFromEMClust(const std::string& name,

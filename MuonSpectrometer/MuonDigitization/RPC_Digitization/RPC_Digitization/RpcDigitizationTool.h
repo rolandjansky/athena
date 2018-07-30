@@ -46,25 +46,25 @@ the same strip before the dead time is ignored.
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonCondInterface/IRPCConditionsSvc.h"
 
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
 
+//Outputs
+#include "MuonDigitContainer/RpcDigitContainer.h"
+#include "MuonSimData/MuonSimDataCollection.h"
 
 #include <vector>
 #include <map>
 
 class RpcHitIdHelper;
 
-class RpcDigitContainer;
 class RpcIdHelper;
 class PileUpMergeSvc;
 class IAtRndmGenSvc;
-class MsgStream;
 class ITagInfoMgr;
  
-class IRPCConditionsSvc;
-
 namespace MuonGM{
   class MuonDetectorManager;
 }
@@ -87,11 +87,11 @@ public:
   /** When being run from PileUpToolsAlgs, this method is called for each active 
       bunch-crossing to process current SubEvents bunchXing is in ns */
 
-  virtual  StatusCode processBunchXing(
-                                    int bunchXing,
-                                    SubEventIterator bSubEvents,
-                                    SubEventIterator eSubEvents
-                                       ) override final;
+  virtual StatusCode processBunchXing(
+                                      int bunchXing,
+                                      SubEventIterator bSubEvents,
+                                      SubEventIterator eSubEvents
+                                      ) override final;
 
 
   /** When being run from PileUpToolsAlgs, this method is called at the end of 
@@ -107,17 +107,12 @@ public:
       back-compatibility (IMuonDigitizationTool) */
   virtual StatusCode digitize() override final;
 
-  /** Finalize */
-  virtual StatusCode finalize() override final;
-
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
   CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
 
 private:
 
-  RpcDigitContainer*          m_digitContainer;
-  MuonSimDataCollection*      m_sdoContainer;
   const MuonGM::MuonDetectorManager*  m_GMmgr;
   const RpcIdHelper*          m_idHelper;
   RpcHitIdHelper*             m_muonHelper;
@@ -143,7 +138,7 @@ private:
   /** Get next event and extract collection of hit collections: */
   StatusCode getNextEvent();
   /** Digitization functionality shared with RPC_PileUpTool */
-  StatusCode doDigitization();
+  StatusCode doDigitization(RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
   /** */
   StatusCode fillTagInfo()    const;
   /** */
@@ -231,8 +226,8 @@ private:
 protected:  
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   std::string m_inputHitCollectionName; // name of the input objects
-  std::string m_outputDigitCollectionName; // name of the output digits
-  std::string m_outputSDO_CollectionName; // name of the output SDOs
+  SG::WriteHandleKey<RpcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","RPC_DIGITS","WriteHandleKey for Output RpcDigitContainer"}; // name of the output digits
+  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","RPC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization

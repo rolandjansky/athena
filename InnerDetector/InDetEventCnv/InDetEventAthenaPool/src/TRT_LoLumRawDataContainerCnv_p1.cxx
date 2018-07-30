@@ -64,7 +64,7 @@ void TRT_LoLumRawDataContainerCnv_p1::transToPers(const TRT_RDO_Container* trans
         persCont->m_rawdata.resize(chanEnd);
         for (unsigned int i = 0; i < collection.size(); ++i) {
             InDetRawData_p1* pchan = &(persCont->m_rawdata[i + chanBegin]);
-            const TRT_LoLumRawData* chan = dynamic_cast<const TRT_LoLumRawData*>(collection[i]);
+            const TRT_LoLumRawData* chan = static_cast<const TRT_LoLumRawData*>(collection[i]);
             chanCnv.transToPers(chan, pchan, log);
         }
     }

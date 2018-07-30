@@ -7,7 +7,7 @@
 
 // PBdR (17Apr2007)
 
-#include <iostream>
+#include <exception>
 #include <map>
 #include <vector>
 
@@ -91,13 +91,11 @@ inline double* AlVec::ptrData() const {
 
 inline double& AlVec::operator[](int i) {
   if( i < 0 ) {
-    std::cerr << "AlVec: Index < zero! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "AlVec: Index < zero! " );
   }
 
   if( i >= m_size ) {
-    std::cerr << "AlVec: Index too large! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "AlVec: Index too large! ");
   }
 
   return *(m_ptr_data+i);
@@ -105,13 +103,11 @@ inline double& AlVec::operator[](int i) {
 
 inline const double& AlVec::operator[](int i) const {
   if( i < 0 ) {
-    std::cerr << "AlVec: Index < zero! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "AlVec: Index < zero! " );
   }
 
   if( i >= m_size ) {
-    std::cerr << "AlVec: Index too large! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "AlVec: Index too large! " );
   }
 
   return *(m_ptr_data+i);

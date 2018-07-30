@@ -42,7 +42,9 @@ class xAODMissingETAuxComponentMapCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODMissingETAuxComponentMapCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::MissingETAuxComponentMap*

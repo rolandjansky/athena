@@ -160,6 +160,7 @@ CoraCoolExample::CoraCoolExample(const std::string& dbstring,
   m_payloadspec.extend("ULongLong1",cool::StorageType::UInt63);
   m_payloadspec.extend("String1",cool::StorageType::String4k);
   // optional declaration of CORAL Blob type object
+  m_blobsize = 0;
   if (m_blob) {
     m_payloadspec.extend("Blob1",cool::StorageType::Blob64k);
     m_blobsize=1000;

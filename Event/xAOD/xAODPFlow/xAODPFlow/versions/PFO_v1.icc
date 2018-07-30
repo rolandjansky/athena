@@ -42,6 +42,28 @@ namespace xAOD{
     }
   }
 
+  // Not good enough to just define the specialisations in the source file -- they must be declared publicly
+  /** Setter specialisation for PFOLeptonType */
+  template<> void PFO_v1::setAttribute(const std::string& AttributeType, const xAOD::PFODetails::PFOLeptonType& anAttribute);
+  /** Getter specialisation for PFOLeptonType */
+  template<> bool PFO_v1::attribute(const std::string& AttributeType, xAOD::PFODetails::PFOLeptonType& anAttribute) const;
+
+  /** Setter specialisation for float */
+  template<> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const float& anAttribute);
+  /** Getter specialisation for float */
+  template<> bool PFO_v1::attribute(PFODetails::PFOAttributes AttributeType, float& anAttribute) const;
+
+
+  /** Setter specialisation for double with enum type argument */
+  template<> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const double& anAttribute);
+  /** Getter specialisation for double with enum type argument */
+  template<> bool PFO_v1::attribute(PFODetails::PFOAttributes AttributeType, double& anAttribute) const;
+
+  /** Setter specialisation for double with string type argument */
+  template<> void PFO_v1::setAttribute(const std::string& AttributeType, const double& anAttribute);
+  /** Getter specialisation for double with string type argument */
+  template<> bool PFO_v1::attribute(const std::string& AttributeType, double& anAttribute) const;
+
   template<class T> void PFO_v1::convertLink(ElementLink<IParticleContainer>& IParticleLink, const ElementLink<T>& templateLink) {
    ElementLink<T> tempLink;
    tempLink.setElement(*templateLink);

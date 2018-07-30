@@ -5,8 +5,8 @@
 // TheAnalysis.h
 //
 
-#ifndef _Analysis_Analysis_H
-#define _Analysis_Analysis_H
+#ifndef CALOTESTS_ANALYSIS_H
+#define CALOTESTS_ANALYSIS_H
 
 #include <string>
 
@@ -15,12 +15,20 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AIDA/IHistogram2D.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/CaloDM_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArElecCalib/ILArfSampl.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "LArSimEvent/LArHitContainer.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "LArRawEvent/LArRawChannelContainer.h"
+#include "CaloEvent/CaloClusterContainer.h"
+#include "CaloSimEvent/CaloCalibrationHitContainer.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
@@ -99,6 +107,29 @@ namespace MyAnalysis {
   bool m_useTriggerTime;
   bool m_doTruth;
 
+  SG::ReadHandleKey<McEventCollection> m_mcCollName { this, "MCColl", "GEN_AOD" };
+  SG::ReadHandleKeyArray<LArHitContainer> m_hitContainerNames { this, "HitContainers",
+                                                                {"LArHitEMB",
+                                                                 "LArHitEMEC",
+                                                                 "LArHitHEC",
+                                                                 "LArHitFCAL"} };
+  SG::ReadHandleKey<CaloCellContainer> m_caloCellName { this, "CaloCells", "AllCalo" };
+  SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelName { this, "RawChannels", "LArRawChannels" };
+  SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_calibHitContainerNames
+    { this, "CalibHitContainers",
+      {"LArCalibrationHitActive",
+       "LArCalibrationHitDeadMaterial",
+       "LArCalibrationHitInactive",
+       "TileCalibHitActiveCell",
+       "TileCalibHitInactiveCell",
+       "TileCalibHitDeadMaterial"} };
+  SG::ReadHandleKey<CaloClusterContainer> m_cluster55Name { this, "Cluster55", "LArClusterEM" };
+  SG::ReadHandleKey<CaloClusterContainer> m_cluster55gamName { this, "Cluster55gam", "LArClusterEMgam" };
+  SG::ReadHandleKey<CaloClusterContainer> m_cluster35Name { this, "Cluster35", "LArClusterEM35" };
+  SG::ReadHandleKey<CaloClusterContainer> m_cluster35gamName { this, "Cluster35gam", "LArClusterEMgam35" };
+  SG::ReadHandleKey<CaloClusterContainer> m_cluster37Name { this, "Cluster37", "LArClusterEM37" };
+  SG::ReadHandleKey<CaloClusterContainer> m_cluster37gamName { this, "Cluster37gam", "LArClusterEMgam37" };
+    
   int m_nevt;
 
   LArCablingService * m_cablingService;
@@ -106,13 +137,9 @@ namespace MyAnalysis {
   StringProperty m_triggerTimeToolName;
   ITriggerTime* m_triggerTimeTool;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   Identifier m_id;
   const LArEM_ID*        m_larem_id;
   const CaloDM_ID*       m_calodm_id;
-
-  const DataHandle<ILArfSampl>    m_dd_fSampl;
 
   // list of cell energies
   struct CellInfo {

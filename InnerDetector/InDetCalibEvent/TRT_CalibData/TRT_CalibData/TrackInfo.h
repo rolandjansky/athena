@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBDATA__TRACKINFO_H
@@ -75,6 +75,19 @@ namespace TRT {
     TrackInfo() : std::vector<HitInfo*>(), m_Ints(Track::TNOIV),m_Floats(Track::TNOFV){}
     TrackInfo(std::vector<HitInfo*>& orig) : std::vector<HitInfo*>(orig), m_Ints(Track::TNOIV),m_Floats(Track::TNOFV){}
     TrackInfo(const TrackInfo& orig): std::vector<HitInfo*>(orig), m_Ints(orig.m_Ints),m_Floats(orig.m_Floats){}
+    //assignment
+    TrackInfo & operator=(const TrackInfo & other){
+      if (&other != this){
+        for(auto &i:*this){
+          delete i;
+        }
+        this->clear();
+        *this = other;
+        m_Ints = other.m_Ints;
+        m_Floats = other.m_Floats;
+      }
+      return *this;
+    }
     // Destructor
     ~TrackInfo(){for (std::vector<HitInfo*>::iterator i=this->begin();i!=this->end();++i) delete *i; } // We _OWN_ the hits!!!
     // Access

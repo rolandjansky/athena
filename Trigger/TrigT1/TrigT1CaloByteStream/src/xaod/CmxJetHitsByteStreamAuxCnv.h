@@ -38,13 +38,8 @@ class JepByteStreamV2Tool;
 
 class CmxJetHitsByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<CmxJetHitsByteStreamAuxCnv>;
-
-protected:
-
-  CmxJetHitsByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  CmxJetHitsByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~CmxJetHitsByteStreamAuxCnv(){};
 

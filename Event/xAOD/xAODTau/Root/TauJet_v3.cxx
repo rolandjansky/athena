@@ -21,7 +21,7 @@
 namespace xAOD {
   
   TauJet_v3::TauJet_v3()
-    : IParticle(), m_p4(), m_p4Cached( false ) {
+    : IParticle() {
   }
   
 
@@ -93,75 +93,86 @@ namespace xAOD {
 
 
   double TauJet_v3::e() const {
-    // Check if we need to reset the cached object:
-    // if( ! m_p4Cached ) {
-      m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
-    //   m_p4Cached = true;
-    // }
-    return p4().E();
+    return genvecP4().E();
   }
 
 
   double TauJet_v3::rapidity() const {
-    // Check if we need to reset the cached object:
-    // if( ! m_p4Cached ) {
-      m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
-    //   m_p4Cached = true;
-    // }
-    return p4().Rapidity();
+    return genvecP4().Rapidity();
   }
 
-  const TauJet_v3::FourMom_t& TauJet_v3::p4() const {
-    
-    // Check if we need to reset the cached object:
-    // if( ! m_p4Cached ) {
-    m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
-      m_p4Cached = true;
-    // }
-    
-    // Return the cached object:
-    return m_p4;
+  TauJet_v3::FourMom_t TauJet_v3::p4() const {
+    FourMom_t p4;
+    p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+    return p4;	
   }
 
-  const TauJet_v3::FourMom_t& TauJet_v3::p4(const TauJetParameters::TauCalibType calib) const {
-    
-    // Check if we need to reset the cached object:
-    // if( ! m_p4Cached ) {
-      switch(calib) {
-      case TauJetParameters::JetSeed:
-	m_p4.SetPtEtaPhiM( ptJetSeed(), etaJetSeed(), phiJetSeed(), mJetSeed());
-	break;
-      case TauJetParameters::DetectorAxis:
-	m_p4.SetPtEtaPhiM( ptDetectorAxis(), etaDetectorAxis(), phiDetectorAxis(), mDetectorAxis());
-	break;
-      case TauJetParameters::IntermediateAxis:
-	m_p4.SetPtEtaPhiM( ptIntermediateAxis(), etaIntermediateAxis(), phiIntermediateAxis(), mIntermediateAxis());
-	break;
-      case TauJetParameters::TauEnergyScale:
-	m_p4.SetPtEtaPhiM( ptTauEnergyScale(), etaTauEnergyScale(), phiTauEnergyScale(), mTauEnergyScale());
-	break;
-      case TauJetParameters::TauEtaCalib:
-	m_p4.SetPtEtaPhiM( ptTauEtaCalib(), etaTauEtaCalib(), phiTauEtaCalib(), mTauEtaCalib());
-	break;
-      case TauJetParameters::PanTauCellBasedProto:
-	m_p4.SetPtEtaPhiM( ptPanTauCellBasedProto(), etaPanTauCellBasedProto(), phiPanTauCellBasedProto(), mPanTauCellBasedProto());
-	break;
-      case TauJetParameters::PanTauCellBased:
-	m_p4.SetPtEtaPhiM( ptPanTauCellBased(), etaPanTauCellBased(), phiPanTauCellBased(), mPanTauCellBased());
-	break;
-      case TauJetParameters::TrigCaloOnly:
-	m_p4.SetPtEtaPhiM( ptTrigCaloOnly(), etaTrigCaloOnly(), phiTrigCaloOnly(), mTrigCaloOnly());
-	break;
-      case TauJetParameters::FinalCalib:
-	m_p4.SetPtEtaPhiM( ptFinalCalib(), etaFinalCalib(), phiFinalCalib(), mFinalCalib());
-	break;
-      default:
-	m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
+  TauJet_v3::GenVecFourMom_t TauJet_v3::genvecP4() const {
+    return GenVecFourMom_t(pt(), eta(), phi(), m());
+  }
+
+  TauJet_v3::FourMom_t TauJet_v3::p4(const TauJetParameters::TauCalibType calib) const {
+    FourMom_t p4;
+   
+    switch(calib) {
+    case TauJetParameters::JetSeed:
+      p4.SetPtEtaPhiM( ptJetSeed(), etaJetSeed(), phiJetSeed(), mJetSeed());
+      break;
+    case TauJetParameters::DetectorAxis:
+      p4.SetPtEtaPhiM( ptDetectorAxis(), etaDetectorAxis(), phiDetectorAxis(), mDetectorAxis());
+      break;
+    case TauJetParameters::IntermediateAxis:
+      p4.SetPtEtaPhiM( ptIntermediateAxis(), etaIntermediateAxis(), phiIntermediateAxis(), mIntermediateAxis());
+      break;
+    case TauJetParameters::TauEnergyScale:
+      p4.SetPtEtaPhiM( ptTauEnergyScale(), etaTauEnergyScale(), phiTauEnergyScale(), mTauEnergyScale());
+      break;
+    case TauJetParameters::TauEtaCalib:
+      p4.SetPtEtaPhiM( ptTauEtaCalib(), etaTauEtaCalib(), phiTauEtaCalib(), mTauEtaCalib());
+      break;
+    case TauJetParameters::PanTauCellBasedProto:
+      p4.SetPtEtaPhiM( ptPanTauCellBasedProto(), etaPanTauCellBasedProto(), phiPanTauCellBasedProto(), mPanTauCellBasedProto());
+      break;
+    case TauJetParameters::PanTauCellBased:
+      p4.SetPtEtaPhiM( ptPanTauCellBased(), etaPanTauCellBased(), phiPanTauCellBased(), mPanTauCellBased());
+      break;
+    case TauJetParameters::TrigCaloOnly:
+      p4.SetPtEtaPhiM( ptTrigCaloOnly(), etaTrigCaloOnly(), phiTrigCaloOnly(), mTrigCaloOnly());
+      break;
+    case TauJetParameters::FinalCalib:
+      p4.SetPtEtaPhiM( ptFinalCalib(), etaFinalCalib(), phiFinalCalib(), mFinalCalib());
+      break;
+    default:
+      p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
     }
-    // m_p4Cached = true;
-    
-    // Return the cached object:
-    return m_p4;
+
+    return p4;
+  }
+
+  TauJet_v3::GenVecFourMom_t TauJet_v3::genvecP4(const TauJetParameters::TauCalibType calib) const {
+   
+    switch(calib) {
+    case TauJetParameters::JetSeed:
+      return GenVecFourMom_t( ptJetSeed(), etaJetSeed(), phiJetSeed(), mJetSeed());
+    case TauJetParameters::DetectorAxis:
+      return GenVecFourMom_t( ptDetectorAxis(), etaDetectorAxis(), phiDetectorAxis(), mDetectorAxis());
+    case TauJetParameters::IntermediateAxis:
+      return GenVecFourMom_t( ptIntermediateAxis(), etaIntermediateAxis(), phiIntermediateAxis(), mIntermediateAxis());
+    case TauJetParameters::TauEnergyScale:
+      return GenVecFourMom_t( ptTauEnergyScale(), etaTauEnergyScale(), phiTauEnergyScale(), mTauEnergyScale());
+    case TauJetParameters::TauEtaCalib:
+      return GenVecFourMom_t( ptTauEtaCalib(), etaTauEtaCalib(), phiTauEtaCalib(), mTauEtaCalib());
+    case TauJetParameters::PanTauCellBasedProto:
+      return GenVecFourMom_t( ptPanTauCellBasedProto(), etaPanTauCellBasedProto(), phiPanTauCellBasedProto(), mPanTauCellBasedProto());
+    case TauJetParameters::PanTauCellBased:
+      return GenVecFourMom_t( ptPanTauCellBased(), etaPanTauCellBased(), phiPanTauCellBased(), mPanTauCellBased());
+    case TauJetParameters::TrigCaloOnly:
+      return GenVecFourMom_t( ptTrigCaloOnly(), etaTrigCaloOnly(), phiTrigCaloOnly(), mTrigCaloOnly());
+    case TauJetParameters::FinalCalib:
+      return GenVecFourMom_t( ptFinalCalib(), etaFinalCalib(), phiFinalCalib(), mFinalCalib());
+    default:
+      return GenVecFourMom_t( pt(), eta(), phi(), m());
+    }
   }
 
   
@@ -454,7 +465,7 @@ namespace xAOD {
 
   const TauJet_v3::TauTrackLinks_t TauJet_v3::tauTrackLinksWithMask(unsigned int mask) const{
     TauJet_v3::TauTrackLinks_t links;
-    for(const ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       if( (*link)->flagWithMask(mask))
 	links.push_back(link);
     }
@@ -474,7 +485,7 @@ namespace xAOD {
   const TauTrack* TauJet_v3::trackWithMask( size_t i, unsigned int mask, int* container_index ) const {
     uint tracks_pass_mask=0;
 
-    for(const ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       const TauTrack* trk = *link;
       if(trk->flagWithMask(mask)){
 	if(tracks_pass_mask==i) {
@@ -541,7 +552,7 @@ namespace xAOD {
   /// Get the v<pointer> to all tracks associated with this tau, regardless of classification
   std::vector<TauTrack*> TauJet_v3::allTracks() {
     std::vector<TauTrack*> trks;
-    for(ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       const TauTrack* c_trk = *link;
       xAOD::TauTrackContainer* tauTrackContainer = link.getDataNonConstPtr();
       TauTrack* trk=tauTrackContainer->at(link.index());
@@ -571,7 +582,7 @@ namespace xAOD {
   //number of tracks with a given classification
   size_t TauJet_v3::nTracksWithMask(unsigned int flags) const{
     size_t n(0);
-    for(const ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       const TauTrack* trk = *link;
       if(trk->flagWithMask(flags)) n++;
     }    

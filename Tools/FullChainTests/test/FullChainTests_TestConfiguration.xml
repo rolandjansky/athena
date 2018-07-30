@@ -218,7 +218,7 @@
                   <doc>evgen</doc>
                   <jobTransformJobName>minbiasEvt2CavernEvt_r7725</jobTransformJobName>
                   <jobTransformCmd>
-				  AtlasG4_tf.py --inputEVNTFile 'MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_CAVERNTRFile 'MC15.cavbg13TeV.EVNT.pool.root' --maxEvents 10 --skipEvents 0 --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --DataRunNumber='222525' --physicsList 'FTFP_BERT' --randomSeed 5678 --preInclude 'SimulationJobOptions/preInclude.G4WriteCavern.py' --postInclude 'PyJobTransforms/UseFrontier.py'
+				  AtlasG4_tf.py --inputEVNTFile 'MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_TRFile 'MC15.cavbg13TeV.EVNT.pool.root' --maxEvents 10 --skipEvents 0 --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --DataRunNumber='222525' --physicsList 'FTFP_BERT' --randomSeed 5678 --preInclude 'SimulationJobOptions/preInclude.G4WriteCavern.py' --postInclude 'PyJobTransforms/UseFrontier.py'
                   </jobTransformCmd>
                   <group>FCTTransform</group>
                   <chaindataset_info>
@@ -246,7 +246,7 @@
                   <doc>simul</doc>
                   <jobTransformJobName>cavernSimul_r7725</jobTransformJobName>
                   <jobTransformCmd>
-				  Sim_tf.py --simulator 'MC12G4' --inputEVNT_CAVERNFile 'MC15.cavbg13TeV.EVNT.pool.root' --outputHITSFile 'MC15.cavbg13TeV.HITS.pool.root' --maxEvents -1 --skipEvents 0 --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --enableLooperKiller 'True' --randomSeed 8765 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.G4ReadCavern.py' --postInclude 'PyJobTransforms/UseFrontier.py' --ignorePatterns='ToolSvc.ISFG4.+ERROR\s+ISF_to_G4Event.+article.conversion.failed'
+				  Sim_tf.py --simulator 'MC12G4' --inputEVNT_TRFile 'MC15.cavbg13TeV.EVNT.pool.root' --outputHITSFile 'MC15.cavbg13TeV.HITS.pool.root' --maxEvents -1 --skipEvents 0 --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --enableLooperKiller 'True' --randomSeed 8765 --preInclude 'TRtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.G4ReadCavern.py' --postInclude 'PyJobTransforms/UseFrontier.py' --ignorePatterns='ToolSvc.ISFG4.+ERROR\s+ISF_to_G4Event.+article.conversion.failed'
                   </jobTransformCmd>
                   <group>FCTTransform</group>
                   <chaindataset_info>

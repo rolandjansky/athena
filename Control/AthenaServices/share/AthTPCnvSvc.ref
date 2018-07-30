@@ -1,19 +1,20 @@
-Fri Mar 17 17:22:56 CET 2017
-Preloading tcmalloc_minimal.so
+Sun Jul  8 10:45:18 EDT 2018
+WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2017-03-17 17:16]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaServices/AthTPCnvSvc_test.py"
-Py:ConfigurableDb    INFO Read module info for 5282 configurables from 7 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 502 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+# setting LC_ALL to "C"
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on p05614910w96644.cern.ch on Fri Mar 17 17:23:07 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Sun Jul  8 10:45:20 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -21,14 +22,13 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2303 CLIDRegistry entries for module ALL
-ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+ClassIDSvc           INFO  getRegistryEntries: read 2826 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1103 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1136 CLIDRegistry entries for module ALL
 AthTPCnvSvc       WARNING Could not load converter for transient class [AthenaServicesTestConverters::TBTRIG]
 AthTPCnvSvc       WARNING Could not load converter for transient class [AthenaServicesTestConverters::TBTRIG]
 AthTPCnvSvc       WARNING could not load converter for transient CLID [20394825] (AthenaServicesTestConverters::TBTRIG)
@@ -40,13 +40,14 @@ Py:Configurable     ERROR attempt to add a duplicate (AthBeginSeq.BeginIncFiring
 Py:Configurable     ERROR attempt to add a duplicate (AthBeginSeq.IncidentProcAlg1) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthEndSeq.EndIncFiringAlg) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthEndSeq.IncidentProcAlg2) ... dupe ignored
+Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthFilterSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthAllAlgSeq.AthCondSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthAllAlgSeq.AthAlgSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthBeginSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthAllAlgSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthEndSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthAlgEvtSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthOutSeq) ... dupe ignored
+Py:Configurable     ERROR attempt to add a duplicate (AthFilterSeq.AthAlgEvtSeq) ... dupe ignored
+Py:Configurable     ERROR attempt to add a duplicate (AthFilterSeq.AthOutSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthRegSeq) ... dupe ignored
 StatusCodeSvc        INFO reinitialize
 ClassIDSvc           INFO RE-initializing ClassIDSvc
@@ -63,7 +64,7 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-ChronoStatSvc        INFO Time User   : Tot= 2.71  [s]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 1.54  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

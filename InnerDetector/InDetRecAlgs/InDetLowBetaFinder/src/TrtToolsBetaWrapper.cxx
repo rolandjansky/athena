@@ -13,10 +13,6 @@
 // Track headers
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TrkParticleBase/TrackParticleBaseCollection.h"
-#include "TrkParticleBase/TrackParticleBase.h"
-#include "Particle/TrackParticleContainer.h"
-#include "Particle/TrackParticle.h"
 
 // Other headers
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
@@ -31,8 +27,8 @@
 
 // Prints the input of TRT_FEbeta() to file (hard-set)
 // This is a temporary debug method, and may be removed later
-int printTrtToolBetaLiklihoodDebugFile(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, std::vector<int> TRT_layer, 
-                           std::vector<float> TRT_t0, std::vector<float> TRT_R, std::vector<float> TRT_R_track, 
+int printTrtToolBetaLiklihoodDebugFile(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, std::vector<int> TRT_layer,
+                           std::vector<float> TRT_t0, std::vector<float> TRT_R, std::vector<float> TRT_R_track,
                            std::vector<float> TrackX, std::vector<float> TrackY, std::vector<float> TrackZ, float RecPt, float RecEta);
                
                
@@ -41,13 +37,12 @@ int printTrtToolBetaLiklihoodDebugFile(std::vector<int> TRT_bitpattern, std::vec
 StatusCode InDet::LowBetaAlg::initializeTrtToolBetaLiklihood()
 {
 	// Declare the track refit container
-	declareProperty("UnslimmedTracksContainer", m_UnslimmedTracksContainerName="CombinedInDetTracks");
 	// Create the TrtTool
 	m_TrtTool = new TrtToolBetaLiklihood();
 	
 	// Load the default prior values
 	m_TrtTool->TRT_LoadDefaultPriors();
-/*	
+/*
 	// Register a function for obtaining priors from the TRT conditions database
 	const DataHandle<CondAttrListCollection> collectionHandle;
 	StatusCode SC = detStore()->regFcn(&InDet::LowBetaAlg::update,this,collectionHandle,"/TRT/Calib/MLbetaPriors");
@@ -55,7 +50,7 @@ StatusCode InDet::LowBetaAlg::initializeTrtToolBetaLiklihood()
 	  ATH_MSG_WARNING("Callback registration failed for LowBetaAlg - priors.  Using default prior values.");
 	else
 	  ATH_MSG_INFO("Registered callback for updating LowBetaAlg - priors");
-*/	
+*/
 	return StatusCode::SUCCESS;
 }
 
@@ -158,7 +153,7 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
 	      if (    ( (etaIndex       >= 0) && (etaIndex       <= TrtToolBetaLiklihood::NETABINS) )
 	           && ( (barrelOrEndcap == 0) || (barrelOrEndcap == 1) )
-	           && ( (radiusIndex    >= 0) && (radiusIndex    <= TrtToolBetaLiklihood::NRFEBINS) ) 
+	           && ( (radiusIndex    >= 0) && (radiusIndex    <= TrtToolBetaLiklihood::NRFEBINS) )
 		)
 	      {
 	        const coral::AttributeList &list = iter->second;
@@ -197,7 +192,7 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 // Returns a vector of results from TRT_FEbeta where:
 //	vector[0] = LikelihoodBeta
 //	vector[1] = LikelihoodError
-std::vector<float> InDet::LowBetaAlg::callTrtToolBetaLiklihood(const Trk::Track& track)
+std::vector<float> InDet::LowBetaAlg::callTrtToolBetaLiklihood(const Trk::Track& track) const
 {
 	// Return variable
 	std::vector<float> LikelihoodValues;
@@ -253,26 +248,26 @@ std::vector<float> InDet::LowBetaAlg::callTrtToolBetaLiklihood(const Trk::Track&
 	// We now have everything we need
 	
 	
-/*	
+/*
 	// Create the debug file
 	printTrtToolBetaLiklihoodDebugFile(TRT_bitpattern,TRT_bec,TRT_strawlayer,TRT_layer,TRT_t0,TRT_R,
 				TRT_R_track,TrackX,TrackY,TrackZ,RecPt,RecEta);
-*/	
+*/
 	// Now call the actual function we want
         //std::cout << "call FEbeta fxn:" << std::endl;
 	LikelihoodValues = m_TrtTool->TRT_FEbeta(TRT_bitpattern,TRT_bec,TRT_strawlayer,TRT_layer,TRT_t0,TRT_estDrift,
 						TRT_R,TRT_R_track,TrackX,TrackY,TrackZ,RecPt,RecEta,TRT_isTube);
         //std::cout << "FEbeta = " << LikelihoodValues.at(0) << std::endl;
-/*	
+/*
        //------debug---------------------------------------------------
         const char* FILENAME_C = "/scratchdisk2/wmills/unslimmedDump.log";
         FILE* outFile;
         outFile = fopen(FILENAME_C,"a");
         fprintf(outFile,"fit beta = %f \n",LikelihoodValues.at(0));
         //fprintf(outFile,"no. good hits = %i \n",TRT_bec.size());
-        fclose(outFile);	
+        fclose(outFile);
 	//-------------------end debug-----------------------
-*/	
+*/
 	return LikelihoodValues;
 }
 
@@ -281,7 +276,7 @@ std::vector<float> InDet::LowBetaAlg::callTrtToolBetaLiklihood(const Trk::Track&
 StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track& track,
 			std::vector<int>* TRT_bitpattern,std::vector<int>* TRT_bec,std::vector<int>* TRT_strawlayer,std::vector<int>* TRT_layer,
 			std::vector<float>* TRT_t0,std::vector<float>* TRT_estDrift,std::vector<float>* TRT_R,std::vector<float>* TRT_R_track,
-			std::vector<float>* TrackX,std::vector<float>* TrackY,std::vector<float>* TrackZ,float* RecPt,float* RecEta, std::vector<int>* TRT_isTube)
+			std::vector<float>* TrackX,std::vector<float>* TrackY,std::vector<float>* TrackZ,float* RecPt,float* RecEta, std::vector<int>* TRT_isTube) const
 {
 	// Variable for non-refit drift circles, to be used as a check
 	std::vector<float> TRT_R_notFit;
@@ -357,72 +352,62 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 	*RecPt  = pt;
 	*RecEta = eta;
 	//std::cout << "break point 2 " << std::endl;
-	
-	
-	// Check if the track refit container is in storegate
-	//if (!evtStore()->contains<TrackCollection>(m_RefittedTracksContainerName))
-        if (!evtStore()->contains<TrackCollection>(m_UnslimmedTracksContainerName))
-	{
-	  // Warn the user that the algorithm failed
-	  //ATH_MSG_WARNING("StoreGate does not contain the RefittedTracks container");
-          ATH_MSG_WARNING("StoreGate does not contain the UnslimmedTracks container");
-	  return StatusCode::FAILURE;
-	}
-	
+
 	// Get the track refit container from storegate
 	// (We've already checked that it's there)
 	//const TrackCollection* refitTracks(0);
-        const TrackCollection* unslimmedTracks(0);
 	//StatusCode SC = evtStore()->retrieve(refitTracks,m_RefittedTracksContainerName);
-        StatusCode SC = evtStore()->retrieve(unslimmedTracks,m_UnslimmedTracksContainerName);
-	//if (SC.isFailure() || !refitTracks)
-        if (SC.isFailure() || !unslimmedTracks)
-	{
-	  //ATH_MSG_WARNING("Could not retrieve RefittedTracks container");
-          ATH_MSG_WARNING("Could not retrieve UnslimmedTracks container");
-	  return StatusCode::FAILURE;
-	}
-	//std::cout << "break point 3 " << std::endl;
-	
-	// need to loop over refit container to find the right refit track, NOT 1:1 with track particles!
-        // is this still true for the unslimmed container?
-        //std::cout << "matching loop, eta = " << eta << ", phi0 = " << phi0 << std::endl;
-	//float refitEta = -999;
-	//float refitPhi = -999;
-	float etaphiCone = 0;
-	float bestCone = 9999;
-        //int matchIndex = 0; 
-        //int hereIndex = 0;
-	//TrackCollection::const_iterator MATCH = refitTracks->begin();
-        TrackCollection::const_iterator MATCH = unslimmedTracks->begin();
-	//for( TrackCollection::const_iterator ITR = refitTracks->begin(); ITR!=refitTracks->end(); ++ITR){
-        for( TrackCollection::const_iterator ITR = unslimmedTracks->begin(); ITR!=unslimmedTracks->end(); ++ITR){
-	  const Trk::TrackParameters *aMeasPer = (*ITR)->perigeeParameters();
-	  //etaphiCone = sqrt(pow( -log(tan(aMeasPer->parameters()[Trk::theta]/2))  - (*itr)->eta(), 2) + pow( aMeasPer->parameters()[Trk::phi0] - (*itr)->phi(),2));
-	  etaphiCone = sqrt(pow( -log(tan(aMeasPer->parameters()[Trk::theta]/2))  - eta, 2) + pow( aMeasPer->parameters()[Trk::phi0] - phi0,2));
-	  if( etaphiCone < bestCone ){
-	    bestCone = etaphiCone;
-	    //refitEta = -log(tan(aMeasPer->parameters()[Trk::theta]/2));
-	    //refitPhi = aMeasPer->parameters()[Trk::phi0];
-	    MATCH = ITR;
-            //matchIndex = hereIndex;
-	  }
-          //hereIndex++;
-	}
+        SG::ReadHandle<TrackCollection> unslimmedTracks;
+        const Trk::Track *best_unslimmed_match=nullptr;
+        float bestCone = 9999;
+        if (!m_UnslimmedTracksContainerName.key().empty()) {
+          unslimmedTracks=SG::ReadHandle<TrackCollection>(m_UnslimmedTracksContainerName ) ;
+          if (!unslimmedTracks.isValid()) {
+            ATH_MSG_WARNING("Could not retrieve UnslimmedTracks container " << m_UnslimmedTracksContainerName.key());
+            return StatusCode::FAILURE;
+          }
+          //std::cout << "break point 3 " << std::endl;
+
+          // need to loop over refit container to find the right refit track, NOT 1:1 with track particles!
+          // is this still true for the unslimmed container?
+          //std::cout << "matching loop, eta = " << eta << ", phi0 = " << phi0 << std::endl;
+          //float refitEta = -999;
+          //float refitPhi = -999;
+          float etaphiCone = 0;
+          //int matchIndex = 0;
+          //int hereIndex = 0;
+          for(const Trk::Track *TR : *unslimmedTracks) {
+            const Trk::TrackParameters *aMeasPer = TR->perigeeParameters();
+            //etaphiCone = sqrt(pow( -log(tan(aMeasPer->parameters()[Trk::theta]/2))  - (*itr)->eta(), 2) + pow( aMeasPer->parameters()[Trk::phi0] - (*itr)->phi(),2));
+            etaphiCone = sqrt(pow( -log(tan(aMeasPer->parameters()[Trk::theta]/2))  - eta, 2) + pow( aMeasPer->parameters()[Trk::phi0] - phi0,2));
+            if( etaphiCone < bestCone ){
+              bestCone = etaphiCone;
+              //refitEta = -log(tan(aMeasPer->parameters()[Trk::theta]/2));
+              //refitPhi = aMeasPer->parameters()[Trk::phi0];
+              best_unslimmed_match = TR;
+              //matchIndex = hereIndex;
+            }
+            //hereIndex++;
+          }
+          if (!best_unslimmed_match) {
+            ATH_MSG_WARNING("No matching unslimmed track.");
+            return StatusCode::FAILURE;
+          }
+        }
+        else {
+          best_unslimmed_match=&track;
+        }
         //std::cout << "matching complete, bestCone = " << bestCone << ", matchIndex = " << matchIndex << std::endl;
 	
 	//std::cout << "break point 4 " << std::endl;
 	// Check for refit hits (aka track states on surfaces, tsos)
-	const DataVector<const Trk::TrackStateOnSurface>* refitHits = dynamic_cast<const DataVector<const Trk::TrackStateOnSurface>*>((*MATCH)->trackStateOnSurfaces());
+	const DataVector<const Trk::TrackStateOnSurface>* refitHits = dynamic_cast<const DataVector<const Trk::TrackStateOnSurface>*>(best_unslimmed_match->trackStateOnSurfaces());
 	if (refitHits)
 	{
-	  DataVector<const Trk::TrackStateOnSurface>::const_iterator hitIterEnd = refitHits->end();
-	  DataVector<const Trk::TrackStateOnSurface>::const_iterator hitIter = refitHits->begin();
-	  // Loop over hits
-	  for (; hitIter != hitIterEnd; ++hitIter)
+          for (const Trk::TrackStateOnSurface *hit : *refitHits )
 	  {
 	    //only include this hit if we can call a TRT drift circle out of a measurementBase object based on it
-	    const Trk::MeasurementBase *measurement = (*hitIter)->measurementOnTrack();
+	    const Trk::MeasurementBase *measurement = hit->measurementOnTrack();
 	    if (measurement)
 	    {
 	      // Get drift circle (ensures that hit is from TRT):
@@ -462,7 +447,7 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 		  //std::cout << "break point 6 " << std::endl;
                   // Get TRT r(t) from the db:
                   const TRTCond::BasicRtRelation* rtr = dynamic_cast<const TRTCond::BasicRtRelation*>(m_trtconddbsvc->getRtRelation(TRTlocal)) ;
-                  const float *pcal; 
+                  const float *pcal;
                   const float defaultpcal[] = {-0.179736,0.0366578,0.000699622,-0.000011811} ;
                   pcal = rtr ? rtr->cal() : defaultpcal ;
 
@@ -476,7 +461,7 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 		  double g  = 0.0;
 		  //if (a!= 0.0){
 		     f = (3.*c/a - b*b/a/a)/3.;
-		     g = (2.*b*b*b/a/a/a - 9.*b*c/a/a + 27.*d/a)/27.;  
+		     g = (2.*b*b*b/a/a/a - 9.*b*c/a/a + 27.*d/a)/27.;
 		     //std::cout << "break point 7.2" << std::endl;
 		     double h = g*g/4. + f*f*f/27.;
 		     //std::cout << "break point 7.3" << std::endl;
@@ -525,7 +510,7 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
                   TRT_estDrift->push_back(estDrift);
 	          
 	          // Get local track radius (track-anode distance)
-	          const Trk::TrackParameters* hitParam=((*hitIter)->trackParameters());
+	          const Trk::TrackParameters* hitParam=(hit->trackParameters());
 	          float localTrackRadius = -999;
 	          if(hitParam)
 	            localTrackRadius = hitParam->parameters()[Trk::driftRadius];
@@ -543,14 +528,15 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 	    }
 	  }  //std::cout << "end hit loop" << std::endl;
 	}
-	
-	// Compare the non-refit and refit drift circle radii
-	if (TRT_R_notFit.size() != TRT_R->size())
-	  bestCone = 9999;
-	else
-	  for(unsigned int i = 0; i < TRT_R->size(); i++)
-	    if ((*TRT_R)[i] != TRT_R_notFit[i])
-	      bestCone = 9998;
+
+        // unused
+	// // Compare the non-refit and refit drift circle radii
+	// if (TRT_R_notFit.size() != TRT_R->size())
+	//   bestCone = 9999;
+	// else
+	//   for(unsigned int i = 0; i < TRT_R->size(); i++)
+	//     if ((*TRT_R)[i] != TRT_R_notFit[i])
+	//       bestCone = 9998;
 	
 	
 	return StatusCode::SUCCESS;
@@ -579,8 +565,8 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 
 // Prints the input of TRT_FEbeta() to file (hard-set)
 // This is a temporary debug method, and may be removed later
-int printTrtToolBetaLiklihoodDebugFile(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, std::vector<int> TRT_layer, 
-                           std::vector<float> TRT_t0, std::vector<float> TRT_R, std::vector<float> TRT_R_track, 
+int printTrtToolBetaLiklihoodDebugFile(std::vector<int> TRT_bitpattern, std::vector<int> TRT_bec, std::vector<int> TRT_strawlayer, std::vector<int> TRT_layer,
+                           std::vector<float> TRT_t0, std::vector<float> TRT_R, std::vector<float> TRT_R_track,
                            std::vector<float> TrackX, std::vector<float> TrackY, std::vector<float> TrackZ, float RecPt, float RecEta)
 {
 	static int trackNum = 0;

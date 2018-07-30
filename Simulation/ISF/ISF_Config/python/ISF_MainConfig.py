@@ -269,8 +269,13 @@ def getKernel_PassBackG4(name="ISF_Kernel_PassBackG4", **kwargs):
 ############## Simulator: CosmicsG4 ###############
 def getKernel_CosmicsG4(name="ISF_Kernel_CosmicsG4", **kwargs):
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_FullGeant4Selector' ] )
-    kwargs.setdefault("EventFilterTools"            , [ 'ISF_CosmicEventFilter']   )
+    kwargs.setdefault("EventFilterTools"            , [ 'ISF_CosmicEventFilter' ]   )
     return getKernel_FullG4(name, **kwargs)
+
+############## Simulator: FullG4+Stopping Particles ###############
+def getKernel_StoppingG4(name="ISF_Kernel_StoppingG4", **kwargs):
+    kwargs.setdefault("EventFilterTools"            , [ 'ISF_StoppedParticleFilter' ]   )
+    return getKernel_GenericG4Only(name, **kwargs)
 
 ############## Simulator: MC12G4 ###############
 def getKernel_MC12G4(name="ISF_Kernel_MC12G4", **kwargs):
@@ -369,7 +374,7 @@ def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultParticleKillerSelector' ]    )
     kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasPileupSelector_noHits',
                                                        'ISF_FatrasPileupSelector',
-                                                       'ISF_DefaultFatrasNewExtrapolationSelector' ]            )
+                                                       'ISF_DefaultFatrasSelector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonFatrasSelector',
                                                        'ISF_EtaGreater5ParticleKillerSimSelector',
                                                        #'ISF_FastCaloSimPileupSelector',

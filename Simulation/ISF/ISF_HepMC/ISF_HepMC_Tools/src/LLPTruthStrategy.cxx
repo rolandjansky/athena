@@ -20,9 +20,10 @@ ISF::LLPTruthStrategy::LLPTruthStrategy(const std::string& t, const std::string&
   m_passProcessCodeRangeHigh(0),
   m_passProcessCategory(0)
 {
-    declareProperty("PassProcessCodeRangeLow",  m_passProcessCodeRangeLow=200);
+    declareProperty("PassProcessCodeRangeLow" , m_passProcessCodeRangeLow=200);
     declareProperty("PassProcessCodeRangeHigh", m_passProcessCodeRangeHigh=299);
-    declareProperty("PassProcessCategory",      m_passProcessCategory=9);
+    declareProperty("PassProcessCategory"     , m_passProcessCategory=9);
+    declareProperty("Regions"                 , m_regionListProperty );
 }
 
 /** Destructor **/
@@ -34,6 +35,13 @@ ISF::LLPTruthStrategy::~LLPTruthStrategy()
 StatusCode  ISF::LLPTruthStrategy::initialize()
 {
     ATH_MSG_VERBOSE("Initializing ...");
+
+    for(auto region : m_regionListProperty.value()) {
+      if(region < AtlasDetDescr::fFirstAtlasRegion || region >= AtlasDetDescr::fNumAtlasRegions) {
+        ATH_MSG_ERROR("Unknown Region (" << region << ") specified. Please check your configuration.");
+        return StatusCode::FAILURE;
+      }
+    }
 
     ATH_MSG_VERBOSE("Initialization successful.");
     return StatusCode::SUCCESS;
@@ -78,6 +86,15 @@ bool ISF::LLPTruthStrategy::pass( ITruthIncident& ti) const {
     // not passed!
     return false; 
 }
+
+
+bool ISF::LLPTruthStrategy::appliesToRegion(unsigned short geoID) const
+{
+  return std::find( m_regionListProperty.begin(),
+                    m_regionListProperty.end(),
+                    geoID ) != m_regionListProperty.end();
+}
+
 
 bool ISF::LLPTruthStrategy::isSUSYParticle(const int id) const
 {

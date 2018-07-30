@@ -139,6 +139,7 @@ InDetFlags.doV0Finder=False
 InDetFlags.doSlimming=False
 InDetFlags.preProcessing=doIDNewTracking
 InDetFlags.postProcessing=doIDNewTracking
+InDetFlags.doCaloSeededBrem=False
 
 
 
@@ -326,4 +327,12 @@ else:
   print "Don't report this error, check for an configuration ERROR earlier in the log file"
   import sys
   sys.exit(1)
+
+
+if 'TauDoubletFilter' in dir():
+   topSequence.TrigSteer_HLT.TrigFastTrackFinder_TauIso.Doublet_Filter_ParamByRes = TauDoubletFilter 
+
+if 'TauRoiParam' in dir():
+   topSequence.TrigSteer_HLT.HLTTauTrackRoiUpdater.ParamByDoubletRes = TauRoiParam;
+
 

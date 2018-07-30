@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArRecUtils/LArADC2MeVTool.h"
-#include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
+#include "LArADC2MeVTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArIdentifier/LArOnlineID.h"

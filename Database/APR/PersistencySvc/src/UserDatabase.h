@@ -6,18 +6,18 @@
 #define INCLUDE_PERSISTENCYSVC_USERDATABASE_H
 
 #include "PersistencySvc/IDatabase.h"
+#include "PersistencySvc/ISession.h"
 #include "PersistencySvc/DatabaseSpecification.h"
 #include "PersistencySvc/ITechnologySpecificAttributes.h"
 
 namespace pool {
-
   // forward declarations
   class DatabaseConnectionPolicy;
   class IFileCatalog;
   class ITransaction;
+   
 
   namespace PersistencySvc {
-
     // forward declarations
     class TechnologyDispatcher;
     class DatabaseHandler;
@@ -60,12 +60,6 @@ namespace pool {
 
       /// Returns the opening mode. It can be used to check whether the database is connected.
       IDatabase::OpenMode openMode() const;
-
-      /** Reopens in a different mode.
-       *  If the database was in UPDATE mode before, then all changes since
-       *  the last commit are aborted.
-       */
-      void revertMode( IDatabase::OpenMode mode );
 
       /// Returns the file identifier of this database
       const std::string& fid() const;

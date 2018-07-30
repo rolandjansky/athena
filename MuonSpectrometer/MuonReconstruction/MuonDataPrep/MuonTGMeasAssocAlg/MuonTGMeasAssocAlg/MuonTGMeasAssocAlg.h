@@ -11,9 +11,6 @@
 
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -134,8 +131,7 @@ private:
 
  inline StatusCode MuonTGMeasAssocAlg::retrieveMeasurements() {
    // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "MuonTGMeasAssocAlg::retrieveMeasurements()" << endmsg;
+  ATH_MSG_DEBUG( "MuonTGMeasAssocAlg::retrieveMeasurements()" );
   //
   //if (m_allHits) delete m_allHits;
   if (m_mdtHits) delete m_mdtHits;
@@ -147,9 +143,9 @@ private:
   if (m_rpcIn) m_rpcHits = createRpcHitCollectionLayers();  
   if (m_cscIn) m_cscHits = createCscHitCollectionLayers();  
   if (m_tgcIn) m_tgcHits = createTgcHitCollectionLayers();  
-  StatusCode sc = createStationHitCollection();
+  ATH_CHECK( createStationHitCollection() );
 
-  log << MSG::DEBUG << "MuonTGMeasAssocAlg::collected hits from " << m_allHits->size() << " stations"  << endmsg;
+  ATH_MSG_DEBUG( "MuonTGMeasAssocAlg::collected hits from " << m_allHits->size() << " stations"  );
   
   if (m_allHits->size()) return StatusCode::SUCCESS;
 

@@ -13,7 +13,7 @@ class SCT_SiliconConditionsToolSetup:
         self.toolName = "SCT_SiliconConditionsTool"
         self.tool = None
 
-        self.dcsSvc = None
+        self.dcsTool = None
 
         self.useDB = True
         self.forceUseGeoModel = False
@@ -39,8 +39,8 @@ class SCT_SiliconConditionsToolSetup:
     def getTool(self):
         return self.tool
 
-    def setDcsSvc(self, dcsSvc):
-        self.dcsSvc = dcsSvc
+    def setDcsTool(self, dcsTool):
+        self.dcsTool = dcsTool
 
     def getUseDB(self):
         return self.useDB
@@ -51,22 +51,22 @@ class SCT_SiliconConditionsToolSetup:
 
         if not hasattr(condSeq, self.hvAlgName):
             from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconHVCondAlg
-            if self.dcsSvc is None:
+            if self.dcsTool is None:
                 condSeq += SCT_SiliconHVCondAlg(name = self.hvAlgName)
             else:
                 condSeq += SCT_SiliconHVCondAlg(name = self.hvAlgName,
-                                                UseState = self.dcsSvc.ReadAllDBFolders,
-                                                DCSConditionsSvc = self.dcsSvc)
+                                                UseState = self.dcsTool.ReadAllDBFolders,
+                                                DCSConditionsTool = self.dcsTool)
         self.hvAlg = getattr(condSeq, self.hvAlgName)
 
         if not hasattr(condSeq, self.tempAlgName):
             from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconTempCondAlg
-            if self.dcsSvc is None:
+            if self.dcsTool is None:
                 condSeq += SCT_SiliconTempCondAlg(name = self.tempAlgName)
             else:
                 condSeq += SCT_SiliconTempCondAlg(name = self.tempAlgName,
-                                                  UseState = self.dcsSvc.ReadAllDBFolders,
-                                                  DCSConditionsSvc = self.dcsSvc)
+                                                  UseState = self.dcsTool.ReadAllDBFolders,
+                                                  DCSConditionsTool = self.dcsTool)
         self.tempAlg = getattr(condSeq, self.tempAlgName)
 
     def setTool(self):

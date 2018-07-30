@@ -3,20 +3,9 @@
 
   <!-- Jet_v1 dictionaries: -->
   <class name="xAOD::Jet_v1" >
-    <field name="m_pxpypze" transient="true" />
-    <field name="m_pxpypzeCached" transient="true" />
-    <field name="m_momentum" transient="true" />
-    <field name="m_momentumCached" transient="true" />
     <field name="m_assoParticleCache" transient="true" />
     <field name="m_fastJetLink" transient="true" />
   </class>
-  <read sourceClass="xAOD::Jet_v1" version="[1-]"
-        targetClass="xAOD::Jet_v1" source="" target="m_pxpypzeCached" >
-    <![CDATA[
-       m_pxpypzeCached = false;
-       newObj->reset();
-    ]]>
-  </read>
 
 <!--  <class name="std::vector< xAOD::JetFourMom_t >" /> -->
 

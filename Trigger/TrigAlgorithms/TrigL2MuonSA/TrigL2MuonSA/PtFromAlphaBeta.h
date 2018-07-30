@@ -49,8 +49,10 @@ class PtFromAlphaBeta: public AthAlgTool
     float fp(float x, float c33, float c22, float c1) const;
     
     BooleanProperty  m_use_mcLUT;
-    BooleanProperty m_use_cscpt;
-    BooleanProperty m_avoid_misaligned_cscs;
+    Gaudi::Property< bool > m_use_cscpt {
+	this, "useCscPt", false, ""};
+    Gaudi::Property< bool > m_avoid_misaligned_cscs {
+	this, "AvoidMisalignedCSCs", true, "avoid using the 2 new chambers, whose alignment is not completed"};
 
     const ToolHandle<PtEndcapLUT>*    m_ptEndcapLUT;
       

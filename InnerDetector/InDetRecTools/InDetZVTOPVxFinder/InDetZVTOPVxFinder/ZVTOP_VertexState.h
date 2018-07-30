@@ -6,13 +6,17 @@
 #define IINDETZVTOP_VERTEXSTATE_H 
 
 #include "VxVertex/Vertex.h"
-#include "TrkTrack/Track.h"
+#include <vector>
 /**
  *  ZVTOP_Tool helper class
  *  to store the full vertex/tracks & vtx_probability
  * information
  *  @author:      Tatjana Lenz <Tatjana.Lenz@cern.ch>
  */
+ 
+ namespace Trk{
+  class Track;
+ }
 
 
 namespace InDet
@@ -31,7 +35,7 @@ public:
 
     /**Copy Constructor */
     ZVTOP_VertexState (const ZVTOP_VertexState& vs); //copy-constructor
-    //ZVTOP_VertexState &operator=  (const ZVTOP_VertexState &);  //assignement operator
+    ZVTOP_VertexState &operator=  (const ZVTOP_VertexState &)= default;
     
     double& vtx_prob(void);
 

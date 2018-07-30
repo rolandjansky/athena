@@ -72,7 +72,7 @@ endforeach()
 # Component(s) in the package:
 atlas_add_library( JetTagToolsLib
     JetTagTools/*.h
-    src/DummyTag.cxx src/TrackSelector.cxx
+    src/TrackSelector.cxx
     src/HistoHelperRoot.cxx src/NewLikelihoodTool.cxx
     src/BasicTrackGradeFactory.cxx src/DetailedTrackGradeFactory.cxx
     src/GradedTrack.cxx src/IPTag.cxx src/JetTagUtils.cxx
@@ -80,7 +80,6 @@ atlas_add_library( JetTagToolsLib
     src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
     src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx
     src/MV1Tag.cxx src/MV2Tag.cxx
-    src/MyTag.cxx
     src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
     src/MultiSVTag.cxx src/JetVertexCharge.cxx src/SoftMuonTag.cxx
     src/ExKtbbTag.cxx src/ExKtbbTagTool.cxx src/MultivariateTagManager.cxx

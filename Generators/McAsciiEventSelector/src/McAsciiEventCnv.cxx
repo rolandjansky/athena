@@ -13,7 +13,6 @@
 // STL includes
 
 // Framework includes
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "SGTools/StorableConversions.h"
 

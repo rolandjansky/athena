@@ -132,7 +132,7 @@ const HepGeom::Transform3D& GeoVFullPhysVol::getDefAbsoluteTransform(GeoVAlignme
   }
   else {
     store->setDefAbsPosition(this,tProd);
-    const HepGeom::Transform3D* storedPosition = store->getAbsPosition(this);
+    const HepGeom::Transform3D* storedPosition = store->getDefAbsPosition(this);
     return *storedPosition;
   }
 }

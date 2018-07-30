@@ -25,7 +25,6 @@
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
-#include "egammaInterfaces/IFourMomCombiner.h"
 #include "egammaInterfaces/IegammaBackShape.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
@@ -39,6 +38,5 @@
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "egammaInterfaces/Iegammaqweta1c.h"
 #include "egammaInterfaces/Iegammaqweta2c.h"
-#include "egammaInterfaces/IelectronSuperClusterBuilder.h"
-#include "egammaInterfaces/IphotonSuperClusterBuilder.h"
+#include "egammaInterfaces/IegammaMVASvc.h"
 #endif // EGAMMAINTERFACES_EGAMMAINTERFACESDICT_H

@@ -53,9 +53,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     separateJetAlgs = jetFlags.separateJetAlgs()
 
 
-  from RecExConfig.ObjKeyStore import cfgKeyStore
   # Event shape tools.
-  evstools = []
   evsDict = {
     "emtopo"   : ("EMTopoEventShape",   jtm.emget),
     "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
@@ -63,8 +61,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   }
 
   if jetFlags.useTracks():
-    evsDict["emtopo"] = ("EMTopoEventShape",   jtm.emoriginget)
-    evsDict["lctopo"] = ("LCTopoEventShape",   jtm.lcoriginget)
+    evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emoriginget)
+    evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcoriginget)
   jetlog.info( myname + "Event shape tools: " + str(eventShapeTools) )
 
   from RecExConfig.AutoConfiguration import IsInInputFile
@@ -77,34 +75,30 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
       else:
         jetlog.info( myname + "Adding event shape " + evskey )
         if not IsInInputFile("xAOD::EventShape",toolname):
-          jtm += configEventDensityTool(toolname, getter, 0.4)
-          evstools += [jtm.tools[toolname]]
+          jtm += configEventDensityTool(toolname, getter.Label, 0.4)
+          jtm.allEDTools += [jtm.tools[toolname]]
     else:
       jetlog.info( myname + "Invalid event shape key: " + evskey )
       raise Exception
 
   # Add the tool runner. It runs the jetrec tools.
-  rtools = []
+  ctools = []
   # Add the truth tools.
   if useTruth:    
     from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
-    rtools += scheduleCopyTruthParticles()
+    ctools += scheduleCopyTruthParticles()
     
     # build truth jet input :
-    rtools += [ jtm.truthpartcopy, jtm.truthpartcopywz ]
+    ctools += [ jtm.truthpartcopy, jtm.truthpartcopywz ]
 
   ## if jetFlags.useCells():
-  ##   rtools += [jtm.missingcells] commented out : incompatible with trigger : ATR-9696
+  ##   ctools += [jtm.missingcells] commented out : incompatible with trigger : ATR-9696
   if jetFlags.useTracks:
-    rtools += [jtm.tracksel,
+    ctools += [jtm.tracksel,
                jtm.tvassoc,
                jtm.trackselloose_trackjets,
                ]
    
-  # Add the algorithm. It runs the jetrec tools.
-  from JetRec.JetRecConf import JetAlgorithm
-  ctools = []
-
   # LCOriginTopoClusters and EMOriginTopoClusters are shallow copies
   # of CaloCalTopoClusters.  This means that if CaloCalTopoClusters gets
   # thinned on output, the the two derived containers need to be thinned
@@ -145,8 +139,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
             )
           postalgs.append(CHSnPFOsThinAlg)
 
-
   from JetRec.JetRecConf import JetToolRunner
+  from JetRec.JetRecConf import JetAlgorithm
   runners = []
   if len(ctools)>0:
     jtm += JetToolRunner("jetconstit",
@@ -154,51 +148,50 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
                          Tools=ctools,
                          Timer=jetFlags.timeJetToolRunner()
                          )
-    jtm.jetconstit
-    runners = [jtm.jetconstit]
+    job += JetAlgorithm("jetalgConstituents",
+                        Tools=[jtm.jetconstit])
+
+  # Add all the PseudoJetAlgorithms now
+  from JetRec.JetRecConf import PseudoJetAlgorithm
+  for getter in jtm.allGetters:
+    job += PseudoJetAlgorithm("pjalg_"+getter.Label,PJGetter=getter)
+
+  # Then, add all event shape tools in separate algs
+  for evstool in jtm.allEDTools:
+    from EventShapeTools.EventShapeToolsConf import EventDensityAthAlg
+    job += EventDensityAthAlg("edalg_"+evstool.OutputContainer,EventDensityTool=evstool)
 
   if separateJetAlgs:
 
-    jtm += JetToolRunner("jetrun",
-                         EventShapeTools=evstools,
-                         Tools=rtools,
-                         Timer=jetFlags.timeJetToolRunner()
-                         )
-    runners += [jtm.jetrun]
-
-    job += JetAlgorithm("jetalg")
-    jetalg = job.jetalg
-    jetalg.Tools = runners
-
     for t in jtm.jetrecs:
-      jalg = JetAlgorithm("jetalg"+t.name())
-      jalg.Tools = [t]
-      job+= jalg
+      jalg = JetAlgorithm("jetalg"+t.name(),
+                          Tools = [t])
+      job += jalg
 
   else:
     from JetRec.JetRecConf import JetToolRunner
     jtm += JetToolRunner("jetrun",
-                         EventShapeTools=evstools,
+                         EventShapeTools=[],
                          Tools=rtools+jtm.jetrecs,
                          Timer=jetFlags.timeJetToolRunner()
                          )
     runners += [jtm.jetrun]
 
-    job += JetAlgorithm("jetalg")
-    jetalg = job.jetalg
-    jetalg.Tools = runners
-    if jetFlags.debug > 0:
-      jtm.setOutputLevel(jtm.jetrun, DEBUG)
-      jetalg.OutputLevel = DEBUG
-    if jetFlags.debug > 1:
-      for tool in jtm.jetrecs:
-        jtm.setOutputLevel(tool, DEBUG)
-    if jetFlags.debug > 2:
-      for tool in jtm.finders:
-        jtm.setOutputLevel(tool, DEBUG)
-    if jetFlags.debug > 3:
-      jtm.setOutputLevel(jtm.jetBuilderWithArea, DEBUG)
-      jtm.setOutputLevel(jtm.jetBuilderWithoutArea, DEBUG)
+  job += JetAlgorithm("jetalg")
+  jetalg = job.jetalg
+  jetalg.Tools = runners
+  if jetFlags.debug > 0:
+    # jtm.setOutputLevel(jtm.jetrun, DEBUG)
+    jetalg.OutputLevel = DEBUG
+  if jetFlags.debug > 1:
+    for tool in jtm.jetrecs:
+      jtm.setOutputLevel(tool, DEBUG)
+  if jetFlags.debug > 2:
+    for tool in jtm.finders:
+      jtm.setOutputLevel(tool, DEBUG)
+  if jetFlags.debug > 3:
+    jtm.setOutputLevel(jtm.jetBuilderWithArea, DEBUG)
+    jtm.setOutputLevel(jtm.jetBuilderWithoutArea, DEBUG)
 
   for postalg in postalgs:
     job += postalg

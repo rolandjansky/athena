@@ -6,15 +6,18 @@
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 //-------------------------------------------------
 // Other stuff
-#include  "GaudiKernel/ToolFactory.h"
 #include  "AnalysisUtils/AnalysisMisc.h"
 #include  "TrkParticleBase/TrackParticleBaseCollection.h"
-//#include  "TrkParticleCreator/TrackParticleCreatorTool.h"
 #include  "GeoPrimitives/GeoPrimitivesHelpers.h"
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+
+#include  "boost/graph/bron_kerbosch_all_cliques.hpp"
 #include  "TMath.h"
+#include  "TH1D.h"
+#include "TProfile.h"
+
 #include  <algorithm>
 //
-//#include<iostream>
 
 //----------------------------------------------------------------------------------------
 //  GetVrtSecMulti resurns the vector Results with the following
@@ -171,7 +174,8 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //          newvrt.SelTrk.clear();
 //          for(i=0;i<NPTR;i++) { newvrt.SelTrk.push_back(Solution[i]-1);}//std::cout<<"Solution="<<Solution[i]<<'\n';
 //================================================== Boost version (don't forget to uncomment addEdge in Select2TrVrt()
-      long int* weit=0; long int* Solution=0;
+      const long int* weit=0; 
+      const long int* Solution=0;
       std::vector< std::vector<int> > allCliques;
       bron_kerbosch_all_cliques(*m_compatibilityGraph, clique_visitor(allCliques));
       for(int cq=0; cq<(int)allCliques.size();cq++){
@@ -523,7 +527,6 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           nth=(*WrkVrtSet)[iv].SelTrk.size(); if(nth == 1) continue;  // 1track vertices are treated already
           //Signif3Dproj=VrtVrtDist(PrimVrt, curVrt.vertex, curVrt.vertexCov, JetDir);
           VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); //VK non-projected Signif3D is worse
- 	  //std::cout<<" Solution="<<iv<<" Ntrk="<<nth<<'\n';
           if(xAODwrk)xAODwrk->tmpListTracks.resize(nth); else if(RECwork)RECwork->tmpListTracks.resize(nth);
           for(i=0;i<nth;i++) {
             if     (xAODwrk)xAODwrk->tmpListTracks[i]=xAODwrk->listJetTracks[curVrt.SelTrk[i]];
@@ -809,7 +812,6 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //
 //
       double totMass = VertexMom.M();
-      //double totE    = VertexMom.E();
       Results.push_back(totMass);                           //1st
       double eRatio = VertexMom.E()/MomentumJet.E(); 
       Results.push_back(  eRatio<1. ? eRatio : 1.);         //2nd
@@ -817,8 +819,6 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
       Results.push_back((double)NTracks);                   //4th
       if     (xAODwrk) Results.push_back((double)xAODwrk->listSecondTracks.size());   //5th
       else if(RECwork) Results.push_back((double)RECwork->listSecondTracks.size());   //5th
-//      Dist3D=VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
-//      Results.push_back(Signif3D);
       Results.push_back(0.);                                        //6th  -  not clear what to use here -> return 0.
       Results.push_back(MomentumJet.E());                 //7th
 
@@ -1229,7 +1229,13 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
         NTrk=(*WrkVrtSet)[V].SelTrk.size();
         if(NTrk==2)return Prob;
         int SelT=-1; double Chi2Max=0.;
-        for(int i=0; i<NTrk; i++){ if( (*WrkVrtSet)[V].Chi2PerTrk[i]>Chi2Max) { Chi2Max=(*WrkVrtSet)[V].Chi2PerTrk[i];  SelT=i;}}	    
+        for(int i=0; i<NTrk; i++){
+          if( (*WrkVrtSet)[V].Chi2PerTrk[i]>Chi2Max) { 
+            Chi2Max=(*WrkVrtSet)[V].Chi2PerTrk[i];  
+            SelT=i;
+          }
+        }
+        if (SelT<0) return 0; 
         (*WrkVrtSet)[V].detachedTrack=(*WrkVrtSet)[V].SelTrk[SelT];
         (*WrkVrtSet)[V].SelTrk.erase( (*WrkVrtSet)[V].SelTrk.begin() + SelT ); //remove track
         StatusCode sc = RefitVertex( WrkVrtSet, V, AllTrackList);

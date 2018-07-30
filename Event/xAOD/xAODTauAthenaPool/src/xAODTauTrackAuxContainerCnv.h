@@ -26,7 +26,9 @@ class xAODTauTrackAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODTauTrackAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::TauTrackAuxContainer*

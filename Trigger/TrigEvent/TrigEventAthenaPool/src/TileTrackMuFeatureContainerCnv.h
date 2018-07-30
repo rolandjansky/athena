@@ -39,7 +39,9 @@ class TileTrackMuFeatureContainerCnv : public TileTrackMuFeatureContainerCnvBase
   
  protected:
   
+public:
   TileTrackMuFeatureContainerCnv( ISvcLocator *svcloc ): TileTrackMuFeatureContainerCnvBase(svcloc){}
+protected:
   
   virtual TileTrackMuFeatureContainer_PERS *createPersistent( TileTrackMuFeatureContainer *transObj);
   virtual TileTrackMuFeatureContainer      *createTransient();

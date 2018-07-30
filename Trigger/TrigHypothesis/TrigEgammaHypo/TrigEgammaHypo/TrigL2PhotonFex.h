@@ -20,8 +20,8 @@
  **
  **************************************************************************/ 
 
-#ifndef TRIG_PHOTON_FEX_H 
-#define TRIG_PHOTON_FEX_H
+#ifndef TRIG_TrigL2PhotonFex_H 
+#define TRIG_TrigL2PhotonFex_H
 
 // athena stuff
 #include "GaudiKernel/IToolSvc.h"

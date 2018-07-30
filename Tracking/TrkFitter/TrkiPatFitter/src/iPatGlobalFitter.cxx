@@ -9,7 +9,6 @@
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
@@ -20,8 +19,6 @@
 
 namespace Trk
 { 
-
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 iPatGlobalFitter::iPatGlobalFitter (const std::string&	type, 
 				    const std::string&	name,
@@ -40,8 +37,6 @@ iPatGlobalFitter::~iPatGlobalFitter (void)
     delete m_derivativeMatrix;
 }
 
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
-
 Amg::MatrixX*
 iPatGlobalFitter::DerivMatrix() const
 {
@@ -53,7 +48,7 @@ iPatGlobalFitter::DerivMatrix() const
     int numberParameters	= 5;
     if (m_allParameters) numberParameters = m_parameters->numberParameters();
     int rows	= 0;
-    for (std::list<FitMeasurement*>::iterator m = m_measurements->begin();
+    for (std::vector<FitMeasurement*>::iterator m = m_measurements->begin();
          m != m_measurements->end();
 	 ++m)
     {
@@ -68,7 +63,7 @@ iPatGlobalFitter::DerivMatrix() const
     
     m_derivativeMatrix = new Amg::MatrixX(rows,numberParameters);
     int row	= 0;
-    for (std::list<FitMeasurement*>::iterator m = m_measurements->begin();
+    for (std::vector<FitMeasurement*>::iterator m = m_measurements->begin();
          m != m_measurements->end();
 	 ++m)
     {
@@ -118,7 +113,6 @@ int
 iPatGlobalFitter::iterationsOfLastFit() const
 { return m_iterations; }
 
-//<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
   
 void
 iPatGlobalFitter::setMinIterations(int minIterations)

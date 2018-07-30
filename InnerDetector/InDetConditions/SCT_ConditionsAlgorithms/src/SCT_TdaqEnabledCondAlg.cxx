@@ -14,13 +14,9 @@
 
 SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/TDAQ/Resources/ATLAS/SCT/Robins"}
-  , m_writeKey{"SCT_TdaqEnabledCondData", "SCT_TdaqEnabledCondData"}
   , m_condSvc{"CondSvc", name}
   , m_cablingSvc{"SCT_CablingSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
   declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"}, "Key of non-xAOD EventInfo");
 }
 
@@ -59,12 +55,9 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
 
   // Do we have a valid Write Cond Handle for current time?
   if(writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 

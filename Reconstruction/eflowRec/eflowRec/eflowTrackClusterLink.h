@@ -25,6 +25,9 @@
 class eflowRecTrack;
 class eflowRecCluster;
 
+/**
+ Stores pointers to an eflowRecTrack and an eflowRecCluster. These pointers are inserted in the InstanceMap stored. We also store a vector of energy density, around the track impact point in each calorimeter layer, corresponding to the layers in the calorimeter.
+*/
 class eflowTrackClusterLink {
 private:
   typedef std::map<std::pair<eflowRecTrack*, eflowRecCluster*>, std::unique_ptr<eflowTrackClusterLink> > InstanceMap;

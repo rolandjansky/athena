@@ -73,10 +73,7 @@ HLT::ErrorCode TrigGSCFex::hltInitialize() {
     msg() << MSG::INFO << "Initializing TrigGSCFex, version " << PACKAGE_VERSION << endmsg;
 
   // declareProperty overview 
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
 
   if(m_setupOfflineTools) {
 
@@ -84,6 +81,7 @@ HLT::ErrorCode TrigGSCFex::hltInitialize() {
       if(m_jetGSCCalib_tool.retrieve().isFailure()) {
 	msg() << MSG::FATAL << "Failed to locate tool " << m_jetGSCCalib_tool << endmsg;
 	return HLT::BAD_JOB_SETUP;
+
       } else {
 	msg() << MSG::INFO << "Retrieved tool " << m_jetGSCCalib_tool << endmsg;
       }
@@ -105,23 +103,23 @@ HLT::ErrorCode TrigGSCFex::hltInitialize() {
 
 HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigGSCFex" << endmsg;
+  ATH_MSG_DEBUG( "Executing TrigGSCFex" );
 
   // RETRIEVE INPUT CONTAINERS
 
   // Get EF jet 
   const xAOD::JetContainer* jets = nullptr;
   if(getFeature(inputTE, jets, m_jetKey) == HLT::OK && jets != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() );
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - No xAOD::JetContainer" << endmsg;
+    ATH_MSG_DEBUG( "INPUT - No xAOD::JetContainer" );
     return HLT::MISSING_FEATURE;
   }
 
   // Get primary vertex 
   const xAOD::VertexContainer* vertexes = nullptr;
   if (getFeature(outputTE, vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << "nVertexes = " << vertexes->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << "nVertexes = " << vertexes->size() );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::VertexContainer" << endmsg;
     return HLT::MISSING_FEATURE;
@@ -130,7 +128,7 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
   // Get tracks 
   const xAOD::TrackParticleContainer* tracks = nullptr;
   if(getFeature(outputTE, tracks, m_trackKey) == HLT::OK && tracks != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() << endmsg;
+    ATH_MSG_DEBUG( "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::TrackParticleContainer" << endmsg;
     return HLT::MISSING_FEATURE;

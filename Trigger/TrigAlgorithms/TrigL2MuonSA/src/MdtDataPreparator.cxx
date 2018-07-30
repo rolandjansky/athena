@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/MdtDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "MuonRDO/MdtCsmContainer.h"
@@ -56,10 +55,14 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
    m_storeGateSvc( "StoreGateSvc", name ),
-   m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool"),
-   m_regionSelector(0), m_robDataProvider(0), m_recMuonRoIUtils(),
+   m_activeStore( "ActiveStoreSvc", name ), 
+   m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool"), 
+   m_mdtCabling("MuonMDT_CablingSvc", name), 
+   m_regionSelector("RegSelSvc", name ), 
+   m_robDataProvider("ROBDataProviderSvc", name), 
+   m_recMuonRoIUtils(),
    m_mdtRegionDefiner("TrigL2MuonSA::MdtRegionDefiner"),
-   m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"),
+   m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"),   
    m_use_mdtcsm(true),
    m_BMGpresent(false),
    m_BMGid(-1)
@@ -92,92 +95,43 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
       return sc;
    }
    
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
-      return sc;
-   }
+   ATH_CHECK( m_storeGateSvc.retrieve() );
 
-   // Locate MDT RawDataProvider
-   sc = m_mdtRawDataProvider.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_mdtRawDataProvider);
-      return sc;
-   }
+   ATH_CHECK( m_mdtRawDataProvider.retrieve() );
    ATH_MSG_DEBUG("Retrieved tool " << m_mdtRawDataProvider);
 
    //
    std::string serviceName;
 
    // Locate RegionSelector
-   serviceName = "RegionSelector";
-   sc = service("RegSelSvc", m_regionSelector);
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve " << serviceName);
-      return sc;
-   }
-   ATH_MSG_DEBUG("Retrieved service " << serviceName);
+   ATH_CHECK( m_regionSelector.retrieve());
+   ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
 
    // Locate ROBDataProvider
-   serviceName = "ROBDataProvider";
-   IService* svc = 0;
-   sc = service("ROBDataProviderSvc", svc);
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve " << serviceName);
-      return sc;
-   }
-   m_robDataProvider = dynamic_cast<ROBDataProviderSvc*> (svc);
-   if( m_robDataProvider == 0 ) {
-     ATH_MSG_ERROR("Could not cast to ROBDataProviderSvc ");
-      return StatusCode::FAILURE;
-   }
-   ATH_MSG_DEBUG("Retrieved service " << serviceName);
+   ATH_CHECK( m_robDataProvider.retrieve() );
+   ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider.name());
+   
 
-   //
-   sc =m_mdtRegionDefiner.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_mdtRegionDefiner);
-     return sc;
-   }
+   ATH_CHECK( m_mdtRegionDefiner.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_mdtRegionDefiner);
 
    // initialize the NEW cabling service
-   sc = service("MuonMDT_CablingSvc",m_mdtCabling);
-   if (sc != StatusCode::SUCCESS) {
-     ATH_MSG_ERROR("Could not find the MuonMDT_CablingSvc");
-     return sc;
-   }
+   ATH_CHECK( m_mdtCabling.retrieve());
    ATH_MSG_DEBUG("Retrieved the new cabling service ");
    
    // retrieve the mdtidhelper
-   StoreGateSvc* detStore(0);
-   sc = serviceLocator()->service("DetectorStore", detStore);
-   if (sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve DetectorStore.");
-     return sc;
-   }
+   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
+   ATH_CHECK( detStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved DetectorStore.");
-   
-   sc = detStore->retrieve( m_muonMgr,"Muon" );
-   if (sc.isFailure()) return sc;
+   ATH_CHECK( detStore->retrieve(m_muonMgr,"Muon") );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_mdtIdHelper = m_muonMgr->mdtIdHelper();
    
-   sc = m_mdtPrepDataProvider.retrieve();
-   if (sc.isSuccess()) {
-     ATH_MSG_DEBUG("Retrieved " << m_mdtPrepDataProvider);
-   } else {
-     ATH_MSG_FATAL("Could not get " << m_mdtPrepDataProvider);
-     return sc;
-   }
+   ATH_CHECK( m_mdtPrepDataProvider.retrieve() );
+   ATH_MSG_DEBUG("Retrieved " << m_mdtPrepDataProvider);
 
    // Retrieve ActiveStore
-   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-   if (sc.isFailure() || m_activeStore == 0) {
-     ATH_MSG_ERROR(" Cannot get ActiveStoreSvc.");
-     return sc ;
-   }
+   ATH_CHECK( m_activeStore.retrieve() ); 
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
 
    m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;

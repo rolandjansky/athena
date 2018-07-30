@@ -40,7 +40,9 @@ class xAODTrigNavigationAuxInfoCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODTrigNavigationAuxInfoCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::TrigNavigationAuxInfo*

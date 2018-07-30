@@ -23,7 +23,9 @@ class TrigTauContainerCnv : public TrigTauContainerCnvBase
  
   protected:
    
+public:
   TrigTauContainerCnv( ISvcLocator *svcloc ): TrigTauContainerCnvBase(svcloc){}
+protected:
  
    
    virtual TrigTauContainer_PERS *createPersistent( TrigTauContainer *transObj);

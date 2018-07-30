@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ILArNoisyROTool.h 
@@ -34,7 +34,7 @@ class ILArNoisyROTool
   static const InterfaceID& interfaceID();
 
   virtual 
-  std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*)=0;
+  std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*) const =0;
 
 }; 
 

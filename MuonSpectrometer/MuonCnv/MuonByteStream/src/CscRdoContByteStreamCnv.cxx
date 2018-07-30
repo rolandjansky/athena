@@ -12,7 +12,6 @@
 #include "ByteStreamData/RawEvent.h" 
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -34,11 +33,6 @@ CscRdoContByteStreamCnv::CscRdoContByteStreamCnv(ISvcLocator* svcloc)
   m_tool("Muon::CscRdoContByteStreamTool"),
   m_byteStreamEventAccess("ByteStreamCnvSvc", const_cnvName),
   m_storeGate("StoreGateSvc", const_cnvName)
-{}
-
-
-// destructor
-CscRdoContByteStreamCnv::~CscRdoContByteStreamCnv() 
 {}
 
 

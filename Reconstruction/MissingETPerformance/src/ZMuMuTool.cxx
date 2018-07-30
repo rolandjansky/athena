@@ -5,7 +5,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
 
 //#include "CLHEP/Units/PhysicalConstants.h"
 #include <vector>
@@ -566,6 +565,3 @@ StatusCode ZMuMuTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-ZMuMuTool::~ZMuMuTool() {}

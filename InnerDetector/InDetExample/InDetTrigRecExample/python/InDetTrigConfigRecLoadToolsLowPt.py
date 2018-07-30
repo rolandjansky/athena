@@ -68,7 +68,7 @@ ToolSvc += InDetTrigSiDetElementsRoadMakerLowPt
 # Local combinatorial track finding using space point seed and detector element road
 #
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools \
-     import InDetTrigPixelConditionsSummarySvc, InDetTrigSCTConditionsSummarySvc
+     import InDetTrigPixelConditionsSummaryTool, InDetTrigSCTConditionsSummaryTool
 from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
 
 InDetTrigSiComTrackFinderLowPt = \
@@ -81,10 +81,17 @@ InDetTrigSiComTrackFinderLowPt = \
                                          useSCT           = DetFlags.haveRIO.SCT_on(),   
                                          PixelClusterContainer = 'PixelTrigClusters',
                                          SCT_ClusterContainer = 'SCT_TrigClusters',
-                                         PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
-                                         SctSummarySvc = InDetTrigSCTConditionsSummarySvc
+                                         PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
+                                         SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                          )															
 ToolSvc += InDetTrigSiComTrackFinderLowPt
+if DetFlags.haveRIO.SCT_on():
+  # Condition algorithm for SiCombinatorialTrackFinder_xk
+  from AthenaCommon.AlgSequence import AthSequencer
+  condSeq = AthSequencer("AthCondSeq")
+  if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+    from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+    condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
 from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings

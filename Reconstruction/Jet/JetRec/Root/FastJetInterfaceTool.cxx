@@ -7,22 +7,11 @@
 
 
 //#include "EventInfo/EventID.h"
-//#include "SGTools/crc64.h"
+#include "CxxUtils/crc64.h"
 
 #include "JetRec/FastJetInterfaceTool.h"
 
 using namespace FastJetInterface;
-
-namespace FastJetSeeds {
-  /// \namespace FastJetSeeds 
-  /// 
-  /// Provide function to properly build random seeds.
-  /// Recopied from "SGTools/crc64.h" here so this can be used outside Athena.
-  ///
-  //  See implementation below.
-  uint64_t crc64 (const std::string& str);
-  uint64_t crc64addint (uint64_t crc, unsigned int x);  
-}
 
 ///////////////
 // Constants //
@@ -645,9 +634,9 @@ StatusCode FastJetInterfaceTool::configJetAreas()
                                             m_ghostedMeanKt);
 
         // create a seed from the jet alg and the seed
-        m_baseRNDSeed = FastJetSeeds::crc64 ("FastJet");
-        m_baseRNDSeed = FastJetSeeds::crc64addint (m_baseRNDSeed, (uint64_t) m_jetAlgorithm);
-        m_baseRNDSeed = FastJetSeeds::crc64addint (m_baseRNDSeed, uint64_t (m_radius*10) );
+        m_baseRNDSeed = CxxUtils::crc64 ("FastJet");
+        m_baseRNDSeed = CxxUtils::crc64addint (m_baseRNDSeed, (uint64_t) m_jetAlgorithm);
+        m_baseRNDSeed = CxxUtils::crc64addint (m_baseRNDSeed, uint64_t (m_radius*10) );
         m_baseRNDSeed += m_userRNDSeed;
         // seed will be modified and reset in the Garea_spec for each event (see updateRandomSeeds() ).
 
@@ -689,8 +678,8 @@ void FastJetInterfaceTool::updateRandomSeeds()
   }
 
   // Use both event and run nunmber to reset the random seeds
-  uint64_t crc = FastJetSeeds::crc64addint (m_baseRNDSeed, evnum);
-  crc = FastJetSeeds::crc64addint (crc, runnum);
+  uint64_t crc = CxxUtils::crc64addint (m_baseRNDSeed, evnum);
+  crc = CxxUtils::crc64addint (crc, runnum);
   
   // Tacitly assuming that there are no consistency requirements
   // on the RNG state (true for the current RNG that fastjet uses).
@@ -706,100 +695,4 @@ void FastJetInterfaceTool::updateRandomSeeds()
   Garea_spec.get_random_status (seed);
   ATH_MSG_DEBUG("area def "<< m_areaDefinition<< "   ghost spec= "<< &Garea_spec << " crc= "<< crc<< "  seed0="<< seed[0] << " seed1="<<seed[1]);
 
-}
-
-
-
-namespace FastJetSeeds {
-  /**
-   * @author scott snyder, originally from David T. Jones
-   * @date Mar 2007
-   * @brief A CRC-64 implementation.
-   */
-  /*
-   * Original comments:
-   * Improved calculation of CRC-64 values for protein sequences
-   * By David T. Jones (dtj@cs.ucl.ac.uk)  - September 28th 2002
-   * 
-   * Modified from code at URL:
-   * ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife/old/SPcrc.tar.gz
-   *
-   * Changed to C++ and moved into a namespace.
-   */
-
-
-  
-  // I don't have a citation for the source of this polynomial.
-  // Maybe should replace it with the ECMA DLT poly?
-#define POLY64REV     0x95AC9329AC4BC9B5ULL
-#define INITIALCRC    0xFFFFFFFFFFFFFFFFULL
-
-  // Original SWISSPROT/TrEMBL poly.  Shown to be weak.
-//#define POLY64REV 0xd800000000000000ULL
-//#define INITIALCRC    0x0000000000000000ULL
-
-
-  namespace {
-
-    bool crc_init = false;
-    uint64_t CRCTable[256];
-
-    // Initialize the CRC table.
-    void init_table()
-    {
-      crc_init = true;
-      for (int i = 0; i < 256; i++)
-        {
-          uint64_t part = i;
-          for (int j = 0; j < 8; j++)
-            {
-              if (part & 1)
-                part = (part >> 1) ^ POLY64REV;
-              else
-                part >>= 1;
-            }
-          CRCTable[i] = part;
-        }
-    }
-    
-  } // anonymous namespace
-
-
-
-  
-  /**
-   * @brief Find the CRC-64 of a string.
-   * @param str The string to hash.
-   */
-  uint64_t crc64 (const std::string& str)
-  {
-    if (!crc_init)
-      init_table();
-    
-    uint64_t crc = INITIALCRC;
-    const char* seq = str.data();
-    const char* end = seq + str.size();
-    while (seq < end)
-      crc = CRCTable[(crc ^ *seq++) & 0xff] ^ (crc >> 8);
-    return crc;
-  }
-  
-  
-  /**
-   * @brief Extend a previously-calculated CRC to include an int.
-   * @param crc The previously-calculated CRC.
-   * @param x The integer to add.
-   * @return The new CRC.
-   */
-  uint64_t crc64addint (uint64_t crc, unsigned int x)
-  {
-    if (!crc_init)
-      init_table();
-    
-    while (x > 0) {
-      crc = CRCTable[(crc ^ x) & 0xff] ^ (crc >> 8);
-      x >>= 8;
-    }
-    return crc;
-  }
 }

@@ -22,7 +22,7 @@
 
 // Include Athena stuff 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 #include "SCT_ConditionsData/SCT_GainCalibData.h"
 #include "SCT_ConditionsData/SCT_NoiseCalibData.h"
 
@@ -47,16 +47,16 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash& hashId) override;
+  virtual bool isGood(const IdentifierHash& hashId) const override;
   //@}
   
   // Methods to return calibration data
-  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) override; //!<Get NPtGain data per wafer
-  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) override; //!<Get NoiseOccupancy data wafer
+  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) const override; //!<Get NPtGain data per wafer
+  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) const override; //!<Get NoiseOccupancy data wafer
 
  private:
   // Private enums
@@ -81,8 +81,8 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_GainCalibData> m_condDataGain;
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_NoiseCalibData> m_condDataNoise;
   // Read Cond Handles
-  SG::ReadCondHandleKey<SCT_GainCalibData> m_condKeyGain;
-  SG::ReadCondHandleKey<SCT_NoiseCalibData> m_condKeyNoise;
+  SG::ReadCondHandleKey<SCT_GainCalibData> m_condKeyGain{this, "CondKeyGain", "SCT_GainCalibData", "SCT calibration data of gains of chips"};
+  SG::ReadCondHandleKey<SCT_NoiseCalibData> m_condKeyNoise{this, "CondKeyNoise", "SCT_NoiseCalibData", "SCT calibration data of noises of chips"};
 
   // Noise level for isGood::Side
   float m_noiseLevel;

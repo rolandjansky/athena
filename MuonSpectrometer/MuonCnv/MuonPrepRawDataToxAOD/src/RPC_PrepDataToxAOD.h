@@ -13,13 +13,8 @@
 #include "MuonPrepDataToxAOD.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-
-namespace Muon {
-  class IMuonClusterOnTrackCreator;
-}
-namespace Trk {
-  class IResidualPullCalculator;
-}
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 class RPC_PrepDataToxAOD : public MuonPrepDataToxAOD<Muon::RpcPrepDataContainer,MuonSimDataCollection> {
 public:

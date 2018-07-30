@@ -20,17 +20,17 @@ namespace TrigCostRootAnalysis {
   //Forward declaration
   class CounterBase;
 
-  Float_t tableFnChainGetTotalFracTime(CounterMap_t* _map, CounterBase* _TCCB);
-  Float_t tableFnChainGetTotalTimeErr(CounterMap_t* _map, CounterBase* _TCCB);
+  Float_t tableFnChainGetTotalFracTime(CounterMap_t* map, CounterBase* TCCB);
+  Float_t tableFnChainGetTotalTimeErr(CounterMap_t* map, CounterBase* TCCB);
 
-  Float_t tableFnGlobalGetSteeringFarmUse(CounterMap_t* _map, CounterBase* _TCCB);
-  Float_t tableFnGlobalGetHLTNodePrediction(CounterMap_t* _map, CounterBase* _TCCB);
-  Float_t tableFnGlobalGetHLTNodePredictionErr(CounterMap_t* _map, CounterBase* _TCCB);
-  Float_t tableFnGlobalGetHLTNodePredictionSteering(CounterMap_t* _map, CounterBase* _TCCB);
-  Float_t tableFnGlobalGetHLTNodePredictionErrSteering(CounterMap_t* _map, CounterBase* _TCCB);
+  Float_t tableFnGlobalGetSteeringFarmUse(CounterMap_t* map, CounterBase* TCCB);
+  Float_t tableFnGlobalGetHLTNodePrediction(CounterMap_t* map, CounterBase* TCCB);
+  Float_t tableFnGlobalGetHLTNodePredictionErr(CounterMap_t* map, CounterBase* TCCB);
+  Float_t tableFnGlobalGetHLTNodePredictionSteering(CounterMap_t* map, CounterBase* TCCB);
+  Float_t tableFnGlobalGetHLTNodePredictionErrSteering(CounterMap_t* map, CounterBase* TCCB);
 
-  Float_t tableFnRateGetWeightedRateErr(CounterMap_t* _map, CounterBase* _TCCB);
-  Float_t tableFnRateGetDirectRateErr(CounterMap_t* _map, CounterBase* _TCCB);
+  Float_t tableFnRateGetWeightedRateErr(CounterMap_t* map, CounterBase* TCCB);
+  Float_t tableFnRateGetDirectRateErr(CounterMap_t* map, CounterBase* TCCB);
 }
 
 #endif //TrigCostRootAnalysis_TableValueFunctions_H

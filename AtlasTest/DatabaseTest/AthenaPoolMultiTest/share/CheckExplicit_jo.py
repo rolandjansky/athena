@@ -62,27 +62,11 @@ RunEventTagWriter   = RunEventTagWriter("RunEventTagWriter")
 
 topSequence        += RunEventTagWriter
 
-from RegistrationServices.RegistrationServicesConf import InputCollectionMetadataCopy
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamDefMeta
 from RegistrationServices.RegistrationServicesConf import RegistrationStream
 from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
 
 TagTool = RegistrationStreamTagTool("TagTool")
 #TagTool.PrimaryKey = ['RunNumber','EventNumber']
-
-# Add tool for copying input collection metadata
-copyTool = InputCollectionMetadataCopy("copyTool")
-copyTool.OutputLevel = DEBUG
-ToolSvc += copyTool
-
-# Add algorithm to add default collection metadata
-DefaultCollMeta = RegistrationStreamDefMeta("DefaultCollMeta")
-DefaultCollMeta.Project = "AthenaPoolMultiTest"
-DefaultCollMeta.Stream = "CheckCollections"
-DefaultCollMeta.Pass = 2
-DefaultCollMeta.ConfigTag = "ATN"
-DefaultCollMeta.OutputLevel = DEBUG   
-topSequence+=DefaultCollMeta  
 
 # output a collection to test multi input metadata copy
 FullColl = RegistrationStream("FullColl")
@@ -90,7 +74,6 @@ FullColl.WriteInputDataHeader = TRUE
 FullColl.OutputCollection = "CheckCollections.root"
 FullColl.ItemList        += [ "DataHeader#*" ]
 FullColl.ItemList        += [ "AthenaAttributeList#RunEventTag" ]
-FullColl.ItemList        += [ "CollectionMetadataContainer#Default" ]
 FullColl.Tool = TagTool
 FullColl.OutputLevel = DEBUG
 

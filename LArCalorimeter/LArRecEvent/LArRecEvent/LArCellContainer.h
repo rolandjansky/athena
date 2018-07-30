@@ -49,8 +49,8 @@ Updated: June 24, 2003 (DR)
         Add optional Ownership switch in constructor for use with DataPool 
 ********************************************************************/
 
-#include "DataModel/DataVector.h" 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h" 
+#include "AthenaKernel/CLASS_DEF.h"
 #include "LArRecEvent/LArCell.h"
 
 class LArCellContainer : public DataVector<LArCell>

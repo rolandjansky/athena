@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
                           Commission/CommissionEvent
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           Event/xAOD/xAODTracking
                           InnerDetector/InDetCalibEvent/TRT_CalibData
@@ -30,7 +30,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
-                          Tracking/TrkFitter/TrkFitterInterfaces )
+                          Tracking/TrkFitter/TrkFitterInterfaces
+                          Tracking/TrkExtrapolation/TrkExInterfaces )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
@@ -40,7 +41,7 @@ atlas_add_component( TRT_CalibAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODEventInfo GaudiKernel TrkToolInterfaces CommissionEvent DataModel Identifier xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetRawData InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkTrack VxVertex TrkFitterInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODEventInfo GaudiKernel TrkToolInterfaces CommissionEvent AthContainers Identifier xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetRawData InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkTrack VxVertex TrkFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_CalibAlgs )

@@ -13,7 +13,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 // GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
@@ -29,7 +28,6 @@
 #include "MuonRDO/TgcRdoContainer.h"
 
 #include "MuonDigitContainer/TgcDigitContainer.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
@@ -386,8 +384,7 @@ TgcRawDataValAlg::fillEfficiency(){
   //std::vector<double> CSCSegmentEta[2][3];//[ac][IMO]
 
   // Retrieve current coincidence container from storegate
-  const Muon::TgcCoinDataContainer* tgc_trg_container(0);
-  ATH_CHECK( (*m_activeStore)->retrieve(tgc_trg_container, m_outputCoinCollectionLocation) );
+  SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_trg_container(m_outputCoinCollectionLocation);
   
   // Loop over TGCCoinContainer
   Muon::TgcCoinDataContainer::const_iterator it_end=tgc_trg_container->end();

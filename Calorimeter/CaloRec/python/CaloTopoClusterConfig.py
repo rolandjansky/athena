@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
 from AthenaCommon.SystemOfUnits import MeV
 
-def CaloTopoClusterCfg(inputFlags):
+def CaloTopoClusterCfg(configFlags):
     result=ComponentAccumulator()
     
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
@@ -18,11 +17,12 @@ def CaloTopoClusterCfg(inputFlags):
     from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot #, CaloClusterLockVars, CaloClusterPrinter
 
     
-    result.executeModule(LArGMCfg,inputFlags)
-    result.executeModule(TileGMCfg,inputFlags)    
-    result.executeModule(CaloNoiseToolCfg,inputFlags)
+    result.merge(LArGMCfg(configFlags))
+    result.merge(TileGMCfg(configFlags))
 
-    theCaloNoiseTool=result.getPublicTool("CaloNoiseTool")
+    #Get CaloNoiseTool
+    acc,theCaloNoiseTool=CaloNoiseToolCfg(configFlags)
+    result.merge(acc)
 
     # maker tools
     TopoMaker = CaloTopoClusterMaker("TopoMaker")
@@ -59,7 +59,7 @@ def CaloTopoClusterCfg(inputFlags):
     TopoMaker.SeedCutsInAbsE                 = True
     TopoMaker.ClusterEtorAbsEtCut            = 0.0*MeV
     # use 2-gaussian or single gaussian noise for TileCal
-    TopoMaker.TwoGaussianNoise = inputFlags.get("CaloRec.CaloTopoClusterConfigFlags.doTwoGaussianNoise")
+    TopoMaker.TwoGaussianNoise = configFlags.get("Calo.TopoCluster.doTwoGaussianNoise")
         
     TopoSplitter = CaloTopoClusterSplitter("TopoSplitter")
     # cells from the following samplings will be able to form local
@@ -81,7 +81,7 @@ def CaloTopoClusterCfg(inputFlags):
                                            "FCAL1","FCAL2"]
     TopoSplitter.ShareBorderCells = True
     TopoSplitter.RestrictHECIWandFCalNeighbors  = False
-    TopoSplitter.WeightingOfNegClusters = inputFlags.get("CaloRec.CaloTopoClusterConfigFlags.doTreatEnergyCutAsAbsolute")
+    TopoSplitter.WeightingOfNegClusters = configFlags.get("Calo.TopoCluster.doTreatEnergyCutAsAbsolute")
     #
     # the following options are not set, since these are the default
     # values
@@ -95,25 +95,36 @@ def CaloTopoClusterCfg(inputFlags):
     CaloTopoCluster.ClustersOutputName="CaloCalTopoClusters"   
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
-            
-    result.addEventAlgo(CaloTopoCluster)
-    return result
+    
+    return result,CaloTopoCluster
 
 
 
 if __name__=="__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+
+    from AthenaCommon.Logging import log
+    from AthenaCommon.Constants import DEBUG
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+    log.setLevel(DEBUG)
+
+    ConfigFlags.set("global.isMC",False)
+    ConfigFlags.set("global.InputFiles",["myESD.pool.root"])
+    ConfigFlags.lock()
+
     cfg=ComponentAccumulator()
-    from AthenaConfiguration.CfgLogMsg import cfgLogMsg
-    cfgLogMsg.setLevel("debug")
-    cfgFlags=ConfigFlagContainer()
-    cfgFlags.set("AthenaConfiguration.GlobalFlags.isMC",False)
-    cfgFlags.set("AthenaConfiguration.GlobalFlags.InputFiles",["myESD.pool.root"])
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.executeModule(PoolReadCfg,cfgFlags)
-
-    cfg.executeModule(CaloTopoClusterCfg,cfgFlags)
-    cfg.getEventAlgo("CaloTopoCluster").ClustersOutputName="CaloCalTopoClustersNew" 
+    cfg.merge(PoolReadCfg(ConfigFlags))
+    
+    topoAcc,topoAlg=CaloTopoClusterCfg(ConfigFlags)
+    topoAlg.ClustersOutputName="CaloCalTopoClustersNew" 
+    
+    cfg.merge(topoAcc)
+    cfg.addEventAlgo(topoAlg)
+              
 
     f=open("CaloTopoCluster.pkl","w")
     cfg.store(f)

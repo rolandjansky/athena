@@ -18,7 +18,6 @@
 #include "JetTagAna.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -1046,8 +1045,6 @@ StatusCode JetTagAna::execute() {
       //* Retrieve from StoreGate LVL1 RoIs *//
       const LVL1_ROI* lvl1RoI = 0; 
       sc = evtStore()->retrieve(lvl1RoI);
-      
-      LVL1_ROI::jets_type::const_iterator itrL1;
       
       if (sc.isFailure() || !lvl1RoI) {
 	ATH_MSG_WARNING ( "No L1RoI found in TDS" );

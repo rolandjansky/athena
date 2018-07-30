@@ -15,7 +15,8 @@ if larCondFlags.LArDBConnection.statusOn  :
   LArDBConnection = larCondFlags.LArDBConnection()
   LArDB = ""
 
-
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 larCondFlags.config_ElecCalibMC()
 
@@ -46,8 +47,13 @@ larCondDBFolders = ["/LAR/ElecCalibMC/Ramp",
 if larCondFlags.useMCShape():
     larCondDBFolders += ["/LAR/ElecCalibMC/Shape"]
 
-larCondDBFolders += ["/LAR/BadChannels/BadChannels"]
-larCondDBFolders += ["/LAR/BadChannels/MissingFEBs"]
+include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg,LArBadFebCondAlg
+larCondDBFolders += [("CondAttrListCollection","/LAR/BadChannels/BadChannels")]
+condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
+larCondDBFolders += [("AthenaAttributeList","/LAR/BadChannels/MissingFEBs")]
+condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
 ## these may be conditional. 
 if larCondFlags.hasMphys() :

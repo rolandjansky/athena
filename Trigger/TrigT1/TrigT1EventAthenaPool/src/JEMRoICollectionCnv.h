@@ -24,7 +24,7 @@ typedef T_AthenaPoolCustomCnv<JEMRoICollection, JEMRoICollection_PERS> JEMRoICol
 class JEMRoICollectionCnv: public JEMRoICollectionCnvBase {
 friend class CnvFactory<JEMRoICollectionCnv>;
 
-protected:
+public:
 
   JEMRoICollectionCnv (ISvcLocator* svcloc) :
     JEMRoICollectionCnvBase(svcloc),
@@ -32,7 +32,7 @@ protected:
     m_log( m_msgSvc, "JEMRoICollectionCnv" )
      {}
   
-  ~JEMRoICollectionCnv() {}
+protected:
   
   virtual JEMRoICollection_PERS*   createPersistent (JEMRoICollection* transCont);
   virtual JEMRoICollection*        createTransient ();

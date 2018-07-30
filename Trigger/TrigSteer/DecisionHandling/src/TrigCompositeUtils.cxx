@@ -55,7 +55,7 @@ namespace TrigCompositeUtils {
     return decisions.empty();
   }
 
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required ) {
+  bool isAnyIDPassing( const Decision* d,  const DecisionIDContainer& required ) {
     for ( auto id : readOnlyAccessor( *d ) ) {
       if ( required.count( id ) > 0 )
 	return true;
@@ -66,8 +66,6 @@ namespace TrigCompositeUtils {
   bool passed( DecisionID id, const DecisionIDContainer& idSet ) {
     return idSet.count( id ) != 0;
   }
-
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required );
 
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
     d->setObjectLink( "seed", ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ) );
@@ -81,6 +79,32 @@ namespace TrigCompositeUtils {
   ElementLink<DecisionContainer> linkToPrevious( const Decision* d ) {
     return d->objectLink<DecisionContainer>( "seed" );
   }
+
+
+  bool copyLinks(const Decision* src, Decision* dest) {
+    if ( not dest->linkColNames().empty() ) {
+      return false;
+    }
+
+    {
+      static SG::AuxElement::Accessor< std::vector< std::string > > accNames( "linkColNames" );
+      accNames( *dest ) = src->linkColNames(); 
+    }
+    {
+      static SG::AuxElement::Accessor< std::vector< uint32_t > > accKeys( "linkColKeys" );
+      accKeys( *dest ) = src->linkColKeys();
+    }
+    {
+      static SG::AuxElement::Accessor< std::vector< uint16_t > > accIndices( "linkColIndices" );
+      accIndices( *dest ) = src->linkColIndices();
+    }
+    {
+      static SG::AuxElement::Accessor< std::vector< uint32_t > > accClids( "linkColClids" );
+      accClids( *dest ) = src->linkColClids();
+    }
+    return true;
+  }
+
 
   const xAOD::TrigComposite* find( const xAOD::TrigComposite* start, const std::function<bool( const xAOD::TrigComposite* )>& filter ) {
     if ( filter( start ) ) return start;

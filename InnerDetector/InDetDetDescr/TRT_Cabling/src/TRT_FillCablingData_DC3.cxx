@@ -38,7 +38,6 @@
 #include <stdio.h>
 
 #include <iostream>
-#include "GaudiKernel/ToolFactory.h"
 #include "TRT_FillCablingData_DC3.h"
 #include <fstream>
 

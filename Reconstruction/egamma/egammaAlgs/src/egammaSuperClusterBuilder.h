@@ -17,7 +17,7 @@
 #include "CaloUtils/CaloCellDetPos.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "egammaInterfaces/IegammaSwTool.h"
-#include "egammaMVACalib/IegammaMVATool.h"
+#include "egammaInterfaces/IegammaMVASvc.h"
 
 /** Base class for electronSuperClusterBuilder and photonSuperClusterBuilder.
  *  The inheritance should be private. This class should never be instantiated
@@ -30,7 +30,7 @@ protected:
   egammaSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** should be called by the derived class in the initialize phase */
-  StatusCode initialize();
+  StatusCode initialize() override;
 
   /** Is clus in window center around ref? */
   bool MatchesInWindow(const xAOD::CaloCluster *ref,
@@ -141,9 +141,9 @@ private:
   Gaudi::Property<bool> m_calibrateClusters {this, "CalibrateClusters", true, 
       "Whether to run cluster calibrations"};
 
-  /** @brief Handle to the MVA calibration Tool **/
-  PublicToolHandle<IegammaMVATool>  m_MVACalibTool {this,
-      "MVACalibTool", "egammaMVATool", "calibration tool"};
+  /** @brief Handle to the MVA calibration service **/
+  ServiceHandle<IegammaMVASvc>  m_MVACalibSvc {this,
+      "MVACalibSvc", "egammaMVASvc", "calibration service"};
   
   /** @brief Tool to handle cluster corrections */
   ToolHandle<IegammaSwTool>   m_clusterCorrectionTool {this,

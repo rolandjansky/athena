@@ -5,7 +5,9 @@
 #include "CoolLumiUtilities/CoolLumiUtilsTest.h"
 
 
-MyTestClass::MyTestClass() {
+MyTestClass::MyTestClass()
+  : m_value(0)
+{
 }
 
 void

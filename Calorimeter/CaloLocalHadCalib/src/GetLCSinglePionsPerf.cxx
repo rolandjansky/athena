@@ -478,6 +478,10 @@ StatusCode GetLCSinglePionsPerf::initialize()
 
   delete [] xbins;
 
+  ATH_CHECK( m_clusterBasicCollName.initialize() );
+  ATH_CHECK( m_CalibrationHitContainerNames.initialize() );
+  ATH_CHECK( m_DMCalibrationHitContainerNames.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -660,7 +664,9 @@ StatusCode GetLCSinglePionsPerf::finalize()
 
 **************************************************************************** */
 StatusCode GetLCSinglePionsPerf::execute()
-{ 
+{
+  const EventContext& ctx = getContext();
+
   /* ********************************************
   reading TBEventInfo
   ******************************************** */
@@ -704,8 +710,8 @@ StatusCode GetLCSinglePionsPerf::execute()
 
   if(m_mc_etabin <0 || m_mc_etabin >= m_netabin || m_mc_enerbin <0 || m_mc_enerbin >= m_nlogenerbin || m_mc_phibin !=0) return StatusCode::SUCCESS;
 
-  ATH_CHECK(  evtStore()->retrieve(m_clusColl, m_clusterBasicCollName ) );
-  if(m_clusColl->size() == 0)  {
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusColl (m_clusterBasicCollName, ctx);
+  if(clusColl->size() == 0)  {
     ATH_MSG_WARNING( "Empty ClusterContainer "  <<  m_clusterBasicCollName  );
     return StatusCode::SUCCESS;
   }
@@ -716,11 +722,7 @@ StatusCode GetLCSinglePionsPerf::execute()
     float engClusCalibThs = 1.0*MeV;
     HepLorentzVector hlv_pion(1,0,0,1);
     hlv_pion.setREtaPhi(1./cosh(m_mc_eta),m_mc_eta,m_mc_phi);
-    xAOD::CaloClusterContainer::const_iterator clusIter = m_clusColl->begin();
-    xAOD::CaloClusterContainer::const_iterator clusIterEnd = m_clusColl->end();
-    for( ;clusIter!=clusIterEnd;clusIter++) {
-      const xAOD::CaloCluster * theCluster = (*clusIter); // this collection has cluster moments
-// 
+    for (const xAOD::CaloCluster* theCluster : *clusColl) {
       double mx_calib_tot;
       if( !theCluster->retrieveMoment( xAOD::CaloCluster::ENG_CALIB_TOT, mx_calib_tot) ) {
         ATH_MSG_ERROR( "Moment ENG_CALIB_TOT is absent"   );
@@ -757,15 +759,15 @@ StatusCode GetLCSinglePionsPerf::execute()
   }
 
   if(m_doEngRecOverTruth || m_doEngTag || m_doEngRecSpect || m_doEngNoiseClus){
-    fill_reco();
+    fill_reco (*clusColl, ctx);
   }
 
   if(m_doClusMoments) {
-    fill_moments();
+    fill_moments (*clusColl, ctx);
   }
 
   if(m_doCalibHitsValidation) {
-    fill_calibhits();
+    fill_calibhits (*clusColl, ctx);
   }
 
   return StatusCode::SUCCESS;
@@ -778,16 +780,16 @@ StatusCode GetLCSinglePionsPerf::execute()
 + classification performance
 + noise clusters
 **************************************************************************** */
-int GetLCSinglePionsPerf::fill_reco()
+int GetLCSinglePionsPerf::fill_reco (const xAOD::CaloClusterContainer& clusColl,
+                                     const EventContext& ctx)
 {
   /* ********************************************
   reading cluster collections for each calibration level
   ******************************************** */
   std::vector<const xAOD::CaloClusterContainer *> clusCollVector;
-  for(std::vector<std::string >::iterator it=m_clusterCollNames.begin(); it!=m_clusterCollNames.end(); it++){    
-    const DataHandle<xAOD::CaloClusterContainer> pColl;
-    ATH_CHECK( evtStore()->retrieve(pColl, (*it) ), -1 );
-    clusCollVector.push_back(pColl);
+  for (const SG::ReadHandleKey<xAOD::CaloClusterContainer> & k : m_clusterCollNames) {
+    SG::ReadHandle<xAOD::CaloClusterContainer> pColl (k, ctx);
+    clusCollVector.push_back(pColl.cptr());
   }
 
   HepLorentzVector hlv_pion(1,0,0,1);
@@ -806,12 +808,9 @@ int GetLCSinglePionsPerf::fill_reco()
   engClusSumCalibTagged.resize(m_ntagcases, 0.0);
 
   int nGoodClus = 0;
-  xAOD::CaloClusterContainer::const_iterator clusIter = m_clusColl->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = m_clusColl->end();
-  unsigned int iClus = 0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
-    const xAOD::CaloCluster * theCluster = (*clusIter); // this collection has cluster moments
-
+  unsigned int iClus = -1;
+  for (const xAOD::CaloCluster* theCluster : clusColl) {
+    ++iClus;
     double mx_calib_tot;
     if( !theCluster->retrieveMoment( xAOD::CaloCluster::ENG_CALIB_TOT, mx_calib_tot) ) {
       ATH_MSG_ERROR( "Moment ENG_CALIB_TOT is absent"   );
@@ -970,23 +969,22 @@ int GetLCSinglePionsPerf::fill_reco()
 /* ****************************************************************************
 to check moments assignment
 **************************************************************************** */
-int GetLCSinglePionsPerf::fill_moments()
+int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusColl,
+                                        const EventContext& ctx)
 {
   /* ********************************************
   reading calibration containers
   ******************************************** */
-  const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  std::vector<std::string>::iterator iter;
-  for (iter=m_CalibrationHitContainerNames.begin(); iter!=m_CalibrationHitContainerNames.end();iter++) {
-    ATH_CHECK( evtStore()->retrieve(cchc,*iter), -1 );
-    v_cchc.push_back(cchc);
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_CalibrationHitContainerNames) {
+    SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
+    v_cchc.push_back(cchc.cptr());
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (iter=m_DMCalibrationHitContainerNames.begin();iter!=m_DMCalibrationHitContainerNames.end();iter++) {
-    ATH_CHECK(  evtStore()->retrieve(cchc,*iter), -1 );
-    v_dmcchc.push_back(cchc);
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_DMCalibrationHitContainerNames) {
+    SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
+    v_dmcchc.push_back(cchc.cptr());
   }
 
   // calculate total calibration energy int active+inactive hits
@@ -1060,16 +1058,14 @@ int GetLCSinglePionsPerf::fill_moments()
   double  engClusSumCalib(0);
   double  engClusSumCalibPresOnly(0);
   std::vector<std::vector<double > > clsMoments; // [iClus][m_nmoments]
-  clsMoments.resize(m_clusColl->size());
+  clsMoments.resize(clusColl.size());
   std::vector<double > clsMomentsSum; // [m_nmoments]
   clsMomentsSum.resize(m_nmoments,0.0);
 
   // retrieving cluster moments
-  xAOD::CaloClusterContainer::const_iterator clusIter = m_clusColl->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = m_clusColl->end();
-  unsigned int iClus = 0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
-    const xAOD::CaloCluster * theCluster = (*clusIter);
+  unsigned int iClus = -1;
+  for (const xAOD::CaloCluster* theCluster : clusColl) {
+    ++iClus;
     clsMoments[iClus].resize(m_validMoments.size(),0.0);
     int iMoment=0;
     for(moment_name_vector::const_iterator im=m_validMoments.begin(); im!=m_validMoments.end(); im++, iMoment++){
@@ -1175,7 +1171,7 @@ int GetLCSinglePionsPerf::fill_moments()
     if(m_doClusMoments && xnorm > m_mc_ener*0.0001) {
       // moments assigned to first 3 maximum clusters
       const double inv_xnorm = 1. / xnorm;
-      for(unsigned int i_cls=0; i_cls<m_clusColl->size(); i_cls++){
+      for(unsigned int i_cls=0; i_cls<clusColl.size(); i_cls++){
         m_clusMoment_vs_eta[iMoment][i_cls][m_mc_enerbin]->Fill(m_mc_eta, clsMoments[i_cls][iMoment]*inv_xnorm);
         m_clusMoment_vs_ebeam[iMoment][i_cls][m_mc_etabin]->Fill(m_mc_ener, clsMoments[i_cls][iMoment]*inv_xnorm);
       if(i_cls>=2) break;
@@ -1200,23 +1196,22 @@ int GetLCSinglePionsPerf::fill_moments()
 /* ****************************************************************************
 calibration hits validation
 **************************************************************************** */
-int GetLCSinglePionsPerf::fill_calibhits()
+int GetLCSinglePionsPerf::fill_calibhits (const xAOD::CaloClusterContainer& clusColl,
+                                          const EventContext& ctx)
 {
   /* ********************************************
   reading calibration containers
   ******************************************** */
-  const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  std::vector<std::string>::iterator iter;
-  for (iter=m_CalibrationHitContainerNames.begin(); iter!=m_CalibrationHitContainerNames.end();iter++) {
-    ATH_CHECK( evtStore()->retrieve(cchc,*iter), -1 );
-    v_cchc.push_back(cchc);
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_CalibrationHitContainerNames) {
+    SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
+    v_cchc.push_back(cchc.cptr());
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (iter=m_DMCalibrationHitContainerNames.begin();iter!=m_DMCalibrationHitContainerNames.end();iter++) {
-    ATH_CHECK( evtStore()->retrieve(cchc,*iter), -1 );
-    v_dmcchc.push_back(cchc);
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_DMCalibrationHitContainerNames) {
+    SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
+    v_dmcchc.push_back(cchc.cptr());
   }
 
   // calculate total calibration energy int active+inactive hits
@@ -1276,14 +1271,11 @@ int GetLCSinglePionsPerf::fill_calibhits()
 
   // calibration energy assigned to one or another cluster
   // retrieving cluster moments
-  xAOD::CaloClusterContainer::const_iterator clusIter = m_clusColl->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = m_clusColl->end();
   double engCalibAssigned = 0.0;
   double engClusSumCalibPresOnly = 0.0;
-  unsigned int iClus = 0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
-    const xAOD::CaloCluster * theCluster = (*clusIter);
-
+  unsigned int iClus = -1;
+  for (const xAOD::CaloCluster* theCluster : clusColl) {
+    ++iClus;
     double mx_calib_tot, mx_calib_ooc, mx_calib_dm;
 //     if( !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT, mx_calib_tot)
 //          || !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_OUT_L, mx_calib_ooc)

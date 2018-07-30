@@ -17,14 +17,13 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TauAnalysisTools/ITauTruthTrackMatchingTool.h"
 
 /**
  * tool for selecting tracks associated to tau candidates (xAOD::TauJetContainer)
  * for the purpose of PV refit, returns a xAOD::TrackParticleContainer
  * if UseTrueTracks = true, use truth matched tracks only
 */
-
-namespace TauAnalysisTools { class ITauTruthTrackMatchingTool; }
 
 namespace DerivationFramework {
 

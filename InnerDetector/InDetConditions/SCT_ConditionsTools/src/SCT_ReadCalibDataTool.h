@@ -26,13 +26,14 @@
 #include "SCT_ConditionsData/SCT_WaferGoodStripInfo.h"
 #include "SCT_ConditionsData/SCT_AllGoodStripInfo.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
 // Include Athena stuff 
 #include "AthenaBaseComps/AthAlgTool.h"
 
 // Forward declarations
 class ISCT_CablingSvc;
 class SCT_ID;
-namespace InDetDD{ class SCT_DetectorManager; }
 
 /** This class contains a Tool that reads SCT calibration data and makes it available to 
     other algorithms. The current implementation reads the data from a COOL database. 
@@ -53,11 +54,11 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this tool can report on the hierarchy level (e.g. module, chip...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   ///Summarise the result from the tool as good/bad
-  virtual bool isGood(const Identifier& elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  virtual bool isGood(const Identifier& elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash& /*hashId*/) override { return true; }
+  virtual bool isGood(const IdentifierHash& /*hashId*/) const override { return true; }
   //@}
   
   // Methods to return calibration defect type and summary
@@ -72,27 +73,28 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   mutable std::vector<EventContext::ContextEvt_t> m_cacheGain;
   mutable std::vector<EventContext::ContextEvt_t> m_cacheNoise;
   mutable std::vector<EventContext::ContextEvt_t> m_cacheInfo;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
   // Pointers of SCT_CalibDefectData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_CalibDefectData> m_condDataGain;
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_CalibDefectData> m_condDataNoise;
   // Pointer of SCT_AllGoodStripInfo
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_AllGoodStripInfo> m_condDataInfo;
+  // Pointer of InDetDD::SiDetectorElementCollection
+  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;
   // Read Cond Handles
-  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyGain;
-  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyNoise;
-  SG::ReadCondHandleKey<SCT_AllGoodStripInfo> m_condKeyInfo;
+  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyGain{this, "CondKeyGain", "SCT_CalibDefectNPtGain", "SCT defects due to NPtGain calibration"};
+  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyNoise{this, "CondKeyNoise", "SCT_CalibDefectNPtNoise", "SCT defects due to NPtNoise calibration"};
+  SG::ReadCondHandleKey<SCT_AllGoodStripInfo> m_condKeyInfo{this, "CondKeyInfo", "SCT_AllGoodStripInfo", "SCT good strips based on calibration defects"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   const SCT_CalibDefectData* getCondDataGain(const EventContext& ctx) const;
   const SCT_CalibDefectData* getCondDataNoise(const EventContext& ctx) const;
   const SCT_AllGoodStripInfo* getCondDataInfo(const EventContext& ctx) const;
+  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
   
   //----------Private Attributes----------//
   ServiceHandle<ISCT_CablingSvc>      m_cabling;     //!< Handle to SCT cabling service
-  const InDetDD::SCT_DetectorManager* m_SCTdetMgr;   //!< Handle to SCT detector manager
   const SCT_ID*                       m_id_sct;      //!< Handle to SCT ID helper
-  
-  // Flag to set true to be able to use all methods not just isGood
-  bool m_recoOnly;
 };
 
 //---------------------------------------------------------------------- 

@@ -15,22 +15,10 @@
 #include <string>
 #include <vector>
 
-#ifndef GAUDIKERNEL_IEVTSELECTOR_H
-# include "GaudiKernel/IEvtSelector.h"
-#endif
-
-#ifndef GAUDIKERNEL_PROPERTY_H
-# include "GaudiKernel/Property.h"
-#endif 
-
-#ifndef GAUDIKERNEL_SERVICEHANDLE_H
-# include "GaudiKernel/ServiceHandle.h"
-#endif 
-
-#ifndef GAUDIKERNEL_TOOLHANDLE_H
+#include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#endif
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -38,6 +26,7 @@
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/ICollectionSize.h"
+#include "AthenaKernel/IConditionsCleanerSvc.h"
 
 //////////////////////////////////////////////////
 #include "GaudiKernel/IAlgResourcePool.h"
@@ -289,7 +278,7 @@ private:
   StoreGateSvc* eventStore() const;
   const EventInfo* m_pEvent;
 
-
+   ServiceHandle<Athena::IConditionsCleanerSvc> m_conditionsCleaner;
 };
 
 #endif // ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H

@@ -1254,6 +1254,8 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
     
     ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
     
+    m_muon_pairs_processed.clear();
+    
     for( auto cont_bphys : fc_bphys ) {
         ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
         for ( auto bphys:  *(cont_bphys.cptr()) )  {
@@ -1287,9 +1289,9 @@ StatusCode HLTXAODBphysMonTool::bookContainers(){
 }
 StatusCode HLTXAODBphysMonTool::fillContainers(){
     // fill the hists for containers
-    
     for (const auto& containerItem: m_containerList) {
         
+        m_muon_pairs_processed.clear();
         const xAOD::TrigBphysContainer*  trigBphysContainer(nullptr);
         StatusCode sc = evtStore()->retrieve(trigBphysContainer,containerItem); //"HLT_xAOD__TrigBphysContainer_EFBMuMuFex"
         if (sc.isFailure() || ! trigBphysContainer) {
@@ -1454,11 +1456,12 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
         int pixHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
         int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
         
-        if( chainName.find("bBmumux") != std::string::npos && trkIt1->dataID().find("Bphysics_IDTrig") != std::string::npos ) {
+        if(fullSetOfHists && chainName.find("bBmumux") != std::string::npos && trkIt1->dataID().find("Bphysics_IDTrig") != std::string::npos ) {
           // // first fill ID track histograms
-          // hist(Form("%s_%s_pTtrk",pref,name))->Fill(ptTrk1/1000.);
-          // hist(Form("%s_%s_d0trk",pref,name))->Fill(d0Trk1);
-          // hist(Form("%s_%s_z0trk",pref,name))->Fill(z0Trk1);
+          setCurrentMonGroup(m_base_path_shifter+"/"+path);
+          hist(Form("%s_%s_pTtrk",pref,name))->Fill(ptTrk1/1000.);
+          hist(Form("%s_%s_d0trk",pref,name))->Fill(d0Trk1);
+          hist(Form("%s_%s_z0trk",pref,name))->Fill(z0Trk1);
           continue; // not consider ID tracks which appear in Bmumux-like chains
         }
         
@@ -1520,10 +1523,18 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                     qTrk1 = -1;
                     //qTrk2 = 1;
                 }
-                
+                auto cur_pair            = std::make_pair (ptl1, ptl2);
+                auto cur_pair_rev        = std::make_pair (ptl2, ptl1);
                 float phiStar      = phiMethod(trk1_tl, trk2_tl, qTrk1);
                 float cosThetaStar = cosMethod(trk1_tl, trk2_tl, qTrk1);
-
+                bool sawThisMuonPair  =std::find(m_muon_pairs_processed.begin(),m_muon_pairs_processed.end(),cur_pair)!=m_muon_pairs_processed.end();
+                if(sawThisMuonPair) {
+                    continue;
+                } else  {
+             
+                m_muon_pairs_processed.push_back(cur_pair);
+                m_muon_pairs_processed.push_back(cur_pair_rev);
+            
                 //************ SHIFTER ************* //
                 setCurrentMonGroup(m_base_path_shifter+"/"+path);
                 hist(Form("%s_%s_dR",pref,name))->Fill(dR);
@@ -1538,8 +1549,8 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                     hist(Form("%s_%s_deta",pref,name))->Fill(deta);
                     hist(Form("%s_%s_pTsum",pref,name))->Fill(pTsum/1000.);
                 }
-                
-                
+
+                 
                 //************ EXPERT ************* //
                 setCurrentMonGroup(m_base_path_expert+"/"+path);
                 hist(Form("%s_%s_phiStar",pref,name))->Fill(phiStar);
@@ -1559,13 +1570,14 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                   hist2(Form("%s_%s_phiStarRapidity",pref,name))    ->Fill(ditrk_rapidity, phiStar,1);
                   hist2(Form("%s_%s_phiStarPhi",pref,name))         ->Fill(ditrk_phi,      phiStar,1);
                 }
-
+                }
                 
             } // valid second track
         } // if a second track
         
 
     } // loop over the track vector
+
     
 }
 

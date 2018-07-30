@@ -13,17 +13,11 @@
 #include <vector>
 
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/SystemOfUnits.h"
-#include "GaudiKernel/PhysicalConstants.h"
+
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-class TH1;
-class TH1F;
-class TH2;
-class TH2F;
-class TProfile;
-
+//typdefs, cannot be fwd declared
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Photon.h"
@@ -32,6 +26,14 @@ class TProfile;
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODMissingET/MissingET.h"
+
+class TH1;
+class TH1F;
+class TH2;
+class TH2F;
+class TProfile;
+
+
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
@@ -81,21 +83,21 @@ public:
   enum m_eta_region { incl, barrel, eca, ecc, Nregions };
   std::vector<std::string> m_region_strings;
 
-  int m_histosBooked;
+  int m_histosBooked{};
 
   // event histos
 
-  TH1F* m_Nevents;
+  TH1F* m_Nevents{};
 
-  TH1F* m_Check;
-  TH1F* m_Zee_invmass;
-  TH1F* m_Zee_invmass_sel;
-  TH1F* m_Zee_trk_invmass;
-  TH1F* m_Zee_trk_invmass_scaled;
-  TH1F* m_Zee_trk_invmass_sel;
+  TH1F* m_Check{};
+  TH1F* m_Zee_invmass{};
+  TH1F* m_Zee_invmass_sel{};
+  TH1F* m_Zee_trk_invmass{};
+  TH1F* m_Zee_trk_invmass_scaled{};
+  TH1F* m_Zee_trk_invmass_sel{};
 
-  TH1F* m_Zee_Eopasym_perevent;
-  TH1F* m_Zee_Eopasym_perevent_central;
+  TH1F* m_Zee_Eopasym_perevent{};
+  TH1F* m_Zee_Eopasym_perevent_central{};
 
   // cluster histos
 
@@ -181,13 +183,13 @@ public:
   std::string m_metName;
   std::string m_triggerChainName;
   std::string m_metRefFinalName;
-  double m_eoverp_tight_min;
-  double m_eoverp_tight_max;
-  double m_eoverp_standard_min;
-  double m_eoverp_standard_max;
-  int m_checkrate;
+  double m_eoverp_tight_min{};
+  double m_eoverp_tight_max{};
+  double m_eoverp_standard_min{};
+  double m_eoverp_standard_max{};
+  int m_checkrate{};
   std::string m_electronIDLevel;
-  bool m_doIDCuts;
+  bool m_doIDCuts{};
   //Likelihood tool:
   AsgElectronLikelihoodTool* m_LHTool2015; //!
 };

@@ -102,15 +102,6 @@ HLT::ErrorCode muIso::hltFinalize()
    return HLT::OK;
 }
 
-HLT::ErrorCode muIso::hltBeginRun()
-{
-
-   ATH_MSG_INFO( "At BeginRun of " << name() << " - package version "
-                 << PACKAGE_VERSION  );
-
-   return HLT::OK;
-}
-
 HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE)
 {
 

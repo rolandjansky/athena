@@ -27,13 +27,23 @@ atlas_disable_as_needed()
 atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h 
                            ISF_FastCaloSimEvent/DoubleArray.h 
+                           ISF_FastCaloSimEvent/TFCSFunction.h 
                            ISF_FastCaloSimEvent/TFCS1DFunction.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionInt16Histogram.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionInt32Histogram.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionSpline.h 
+                           ISF_FastCaloSimEvent/TFCS1DFunctionTemplateHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunction.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
+                           ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h
                            ISF_FastCaloSimEvent/TFCSInitWithEkin.h
+                           ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h
+                           ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h
                            ISF_FastCaloSimEvent/TFCSParametrizationChain.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h
                            ISF_FastCaloSimEvent/TFCSParametrizationFloatSelectChain.h
@@ -51,6 +61,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h
                            ISF_FastCaloSimEvent/TFCSHitCellMapping.h
+                           ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h
+                           ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h
                            ISF_FastCaloSimEvent/TFCSExtrapolationState.h 
                            ISF_FastCaloSimEvent/TFCSSimulationState.h 

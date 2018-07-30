@@ -20,7 +20,9 @@ class LUCID_DigitContainerCnv: public LUCID_DigitContainerCnvBase {
   
  protected:
   
+public:
   LUCID_DigitContainerCnv(ISvcLocator* svcloc): LUCID_DigitContainerCnvBase(svcloc) {}
+protected:
     
     virtual LUCID_DigitContainer_PERS* createPersistent(LUCID_DigitContainer* transCont);
     virtual LUCID_DigitContainer*      createTransient ();

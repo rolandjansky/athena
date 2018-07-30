@@ -40,11 +40,6 @@ public:
   virtual StatusCode execute(TagFragmentCollection& jetMissingEtTagCol, const int max);
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~JetMissingEtIdentificationTagTool( );
-
 private:
    
    /** Properties */

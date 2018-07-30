@@ -102,7 +102,7 @@ addJetRecoToAlgSequence()
 #--------------------------------------------------------------
 # save event shapes set with the JetAlgorithm
 #--------------------------------------------------------------
-for esTool in jtm.jetrun.EventShapeTools :
+for esTool in jtm.allEDTools:
     t = getattr(ToolSvc, esTool.getName() )
     jetFlags.jetAODList += [ "xAOD::EventShape#"+t.OutputContainer,
                              "xAOD::EventShapeAuxInfo#"+t.OutputContainer+'Aux.' ]

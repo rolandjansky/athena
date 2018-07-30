@@ -7,4 +7,5 @@
 # Purpose: Test decoration handles and hive.
 #
 
+FILECATALOG = 'xAODTestDecorHandle2MT_catalog.xml'
 include ('DataModelRunTests/xAODTestDecorHandle2_jo.py')

@@ -270,7 +270,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
     
-    registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","8TeV/ttbar/mc12_LCJets_v1");
+    registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","mc12a/akt4_LCtopo_PP6");
     registerParameter("KLFitterJetSelectionMode","kLeadingFour , kLeadingFive , kBtagPriorityFourJets , kBtagPriorityFiveJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
     registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar or ttH.", "ttbar");
@@ -366,8 +366,8 @@ void ConfigurationSettings::loadFromFile(const std::string& filename) {
         std::getline(liness, key, ' '); //to the space
         std::getline(liness, value); //to the end of the line
 
-        auto its = strings_.find(key);
-        if (its != strings_.end()) {
+        auto its = m_strings.find(key);
+        if (its != m_strings.end()) {
             its->second.m_data = value;
             its->second.m_set = true;
         }
@@ -407,7 +407,7 @@ void ConfigurationSettings::loadFromFile(const std::string& filename) {
     data.m_data = default_val;
     data.m_human_explanation = message;
     data.m_set = (default_val.empty() ? false : true);
-    strings_[name] = data;
+    m_strings[name] = data;
 }
 
 const std::string& ConfigurationSettings::value(const std::string& key) const {
@@ -419,9 +419,9 @@ const std::string& ConfigurationSettings::value(const std::string& key) const {
         throw std::invalid_argument(message);
     }
 
-    std::map<std::string, StringData>::const_iterator its = strings_.find(key);
+    std::map<std::string, StringData>::const_iterator its = m_strings.find(key);
     //The string is not in the map
-    if (its == strings_.end()) {
+    if (its == m_strings.end()) {
         throw std::invalid_argument("ConfigurationSettings: The variable doesn't exist in the code " + key);
     }
 
@@ -438,7 +438,7 @@ bool ConfigurationSettings::configured() const {
 }
 
 const std::map<std::string, StringData>& ConfigurationSettings::stringData() const {
-    return strings_;
+    return m_strings;
 }
 
 const std::vector<SelectionConfigurationData> ConfigurationSettings::selections() const {

@@ -6,12 +6,13 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a]"
+    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a] [-x] [-N]"
     echo " -c: Execute CMake step"
     echo " -m: Execute make step"
     echo " -i: Execute install step"
     echo " -p: Execute CPack step"
     echo " -a: Abort on error"
+    echo " -x: Add extra CMake argument"
     echo " -N: Use Ninja"
 
     echo "If none of the c, m, i or p options are set then the script will do"
@@ -30,7 +31,7 @@ NIGHTLY=true
 BUILDTOOLTYPE=""
 BUILDTOOL="make -k"
 INSTALLRULE="install/fast"
-while getopts ":t:b:hcmipaN" opt; do
+while getopts ":t:b:hcmipax:N" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -52,6 +53,9 @@ while getopts ":t:b:hcmipaN" opt; do
             ;;
         a)
             NIGHTLY=false
+            ;;
+        x)
+            EXTRACMAKE=$OPTARG
             ;;
         N)
             BUILDTOOL="ninja -k 0"
@@ -124,6 +128,7 @@ if [ -n "$EXE_CMAKE" ]; then
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
     { time cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+        ${EXTRACMAKE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthenaSrcDir}; } 2>&1 | tee cmake_config.log
 fi
@@ -132,11 +137,11 @@ fi
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
     branch=$(basename $(cd ${BUILDDIR}/.. ; pwd)) #FIXME: should be taken from env.
-    timestamp_tmp=` basename ${BUILDDIR}/.@@__* 2>/dev/null | sed 's,^\.,,' `
-    if test "X$timestamp_tmp" = "X" ; then
+    timestamp_tmp=` basename ${BUILDDIR}/../.@@__* 2>/dev/null | sed 's,^\.,,' `
+    test "X$timestamp_tmp" != "X" || {
         timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ #to be used until the final stamp from ReleaseData is available
-        touch ${BUILDDIR}/.${timestamp_tmp}
-    fi
+        touch ${BUILDDIR}/../.${timestamp_tmp}
+    }
     (set +e
      ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" Athena ${BUILDDIR}/build/Athena/cmake_config.log 
     )

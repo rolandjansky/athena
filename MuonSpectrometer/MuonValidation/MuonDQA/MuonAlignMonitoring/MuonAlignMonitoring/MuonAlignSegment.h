@@ -8,7 +8,6 @@
 /* // Gaudi Tools */
 /* #include "GaudiKernel/MsgStream.h" */
 /* #include "GaudiKernel/Algorithm.h" */
-/* #include "GaudiKernel/AlgFactory.h" */
 /* #include "GaudiKernel/IToolSvc.h" */
 /* #include "GaudiKernel/ToolHandle.h" */
 /* #include "GaudiKernel/ITHistSvc.h" */

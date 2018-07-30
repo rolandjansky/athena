@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -15,6 +15,19 @@ PURPOSE: Class for calibrating a TRT sub-level
 ********************************************************************/
 
 #include "Calibrator.h"
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TH1D.h>
+#include <TDirectory.h>
+#include <TF1.h>
+#include <TNtuple.h>
+#include <TGraphErrors.h>
+#include <TStyle.h>
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <cmath>
+
 
 caldata::caldata(){
   res = -999; 
@@ -121,9 +134,6 @@ caldata::caldata(bool makehist, int nbinst, int nbinsr){
 RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDirectory* dir){
 
   int fitresult;
-  //bool t_binning = binvar==0;
-  //bool r_binning = binvar==1;
-
   npoints = binvar==0 ? rtHist->GetNbinsX() : rtHist->GetNbinsY() ;
 
 
@@ -160,9 +170,9 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
   // check and classify the bin-histograms
   for (int i=0;i<npoints;i++) {
     
-    m_chname = string(Form("%s slize_%i",binlabel,i));
-    m_chtit = binvar==0 ? string(Form("bin %i : %4.2f < %s < %4.2f  [ns]",i,rtHist->GetXaxis()->GetBinLowEdge(i+1),binlabel,rtHist->GetXaxis()->GetBinUpEdge(i+1))) :
-                        string(Form("bin %i : %4.2f < %s < %4.2f  [mm]",i,rtHist->GetYaxis()->GetBinLowEdge(i+1),binlabel,rtHist->GetYaxis()->GetBinUpEdge(i+1))) ;
+    m_chname = std::string(Form("%s slize_%i",binlabel,i));
+    m_chtit = binvar==0 ? std::string(Form("bin %i : %4.2f < %s < %4.2f  [ns]",i,rtHist->GetXaxis()->GetBinLowEdge(i+1),binlabel,rtHist->GetXaxis()->GetBinUpEdge(i+1))) :
+                        std::string(Form("bin %i : %4.2f < %s < %4.2f  [mm]",i,rtHist->GetYaxis()->GetBinLowEdge(i+1),binlabel,rtHist->GetYaxis()->GetBinUpEdge(i+1))) ;
     hslizes[i] = binvar==0 ? rtHist->ProjectionY(m_chname.data(),i+1,i+1) :
                              rtHist->ProjectionX(m_chname.data(),i+1,i+1);
     hslizes[i]->SetTitle(m_chtit.data());
@@ -181,13 +191,10 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
       }
     }
     
-    //m_rightsig[i] = m_rightval[i]==0 || m_maxbin[i]==20 ? 100 : sqrt(m_maxval[i])/m_maxval[i] + sqrt(m_rightval[i])/m_rightval[i];
-    m_rightsig[i] = m_rightval[i]==0 ? 100 : sqrt(m_maxval[i])/m_maxval[i] + sqrt(m_rightval[i])/m_rightval[i];
-    m_leftsig[i]  = m_leftval[i]==0 ? 100 : sqrt(m_maxval[i])/m_maxval[i] + sqrt(m_leftval[i])/m_leftval[i];
+    m_rightsig[i] = m_rightval[i]==0 ? 100 : std::sqrt(m_maxval[i])/m_maxval[i] + std::sqrt(m_rightval[i])/m_rightval[i];
+    m_leftsig[i]  = m_leftval[i]==0 ? 100 : std::sqrt(m_maxval[i])/m_maxval[i] + std::sqrt(m_leftval[i])/m_leftval[i];
     
     m_btype[i]=EMPTY;
-    //if (m_rightsig[i]<0.1 && m_leftsig[i]<0.1){
-    //if (m_rightsig[i]<0.5 && m_leftsig[i]<0.5){
     if(true){
       m_btype[i]=GOOD;
       m_btype[i-1]=GOOD;
@@ -213,18 +220,9 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
     m_ff = new TF1("dtfitfunc","gaus");
     
     m_ff->SetRange(frmin,frmax);
-    
-    //     m_ff->SetParameter(0,hslizes[i]->GetMaximum()); 
-    //     m_ff->SetParLimits(0,0.5*hslizes[i]->GetMaximum(),1000000);
-    //     m_ff->SetParameter(1,hslizes[i]->GetBinCenter(m_maxbin[i])); 
-    //     m_ff->SetParLimits(1,frmin,frmax);
-    //     m_ff->SetParameter(2,5);
-    //     m_ff->SetParLimits(2,-0.5,0.5);
-    
-    //cout << i << " " << m_maxbin[i] << " " << m_maxval[i] << " " << m_mean-width << " " << m_mean+width << " " << m_mean << endl;
-    
+
     m_t = binvar==0 ? rtHist->GetXaxis()->GetBinCenter(i+1) : rtHist->GetYaxis()->GetBinCenter(i+1);
-    m_et = binvar==0 ? rtHist->GetXaxis()->GetBinWidth(1)/sqrt(12.0) : rtHist->GetYaxis()->GetBinWidth(1)/sqrt(12.0);
+    m_et = binvar==0 ? rtHist->GetXaxis()->GetBinWidth(1)/std::sqrt(12.0) : rtHist->GetYaxis()->GetBinWidth(1)/std::sqrt(12.0);
     m_d = 0;
     m_ed = 0;
     
@@ -247,7 +245,7 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
         fitresult=hslizes[i]->Fit("dtfitfunc","QR");
         m_d =  m_ff->GetParameter(1);
         m_ed = m_ff->GetParError(1);
-        cout << fitresult << " " << m_ed << endl;
+        std::cout << fitresult << " " << m_ed << std::endl;
       }
       else{
         m_d =  0;
@@ -255,9 +253,7 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
       }
     }
 
-    //cout << i << " " << m_ipoint << " " << m_t << " " << m_d << " " << m_et << " " << m_ed << " " << m_btype[i] << endl;
 
-    //if (m_btype[i]==GOOD && m_d>=0.0 && m_d<=2.0){
     if (m_btype[i]==GOOD && m_ed!=0){
       m_tv[m_ipoint]=m_t;
       m_dv[m_ipoint]=m_d;
@@ -279,9 +275,9 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
   }  
 
   rtgr = binvar==0 ? new TGraphErrors(m_ipoint,m_tv,m_dv,m_etv,m_edv) :  new TGraphErrors(m_ipoint,m_dv,m_tv,m_edv,m_etv);
-  rtgr->SetTitle((string("binning in ") + binlabel).data());
+  rtgr->SetTitle((std::string("binning in ") + binlabel).data());
   trgr = binvar==0 ? new TGraphErrors(m_ipoint,m_dv,m_tv,m_edv,m_etv) :  new TGraphErrors(m_ipoint,m_tv,m_dv,m_etv,m_edv);
-  trgr->SetTitle((string("binning in ") + binlabel).data());
+  trgr->SetTitle((std::string("binning in ") + binlabel).data());
 
   rtgr->SetMarkerStyle(1) ;
   rtgr->SetMarkerColor(2) ;
@@ -298,6 +294,7 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
 
 
 }
+
 
 
 RtGraph::~RtGraph(){  
@@ -329,21 +326,6 @@ double pol3deg2(double *x, double *par) {
   return r;
 }
 
-/*
-double pol3_dines(double *x, double *par) {
-  double m_t = x[0];
-  double rp = par[0]+m_t*(par[1]+(m_t*(par[2]+m_t*par[3])));
-  return rp;
-}
-
-double pol3simple_dines(double *x, double *par) {
-  double m_t = x[0];
-  double tp = m_t-par[1];// then tp = par[2]*rp+par[3]*rp*rp*rp 
-  double b = par[3]/(par[2]*par[2]*par[2]*par[2]);
-  double rp = tp/par[2]-b*tp*tp*tp;// an assumption that holds within +-1ns
-  return rp;
-}
-*/
 
 double trrel_dines(double *x, double *par){
   double rmin0 = par[0];
@@ -351,7 +333,7 @@ double trrel_dines(double *x, double *par){
   double v = par[2];
   double t_const = par[3];
   double r = x[0];
-  double t = t_const + 2*rho/v*asin(sqrt(rmin0*rmin0*(1-0.25*r*r)+r*r)/(2*rho));
+  double t = t_const + 2*rho/v*std::asin(std::sqrt(rmin0*rmin0*(1-0.25*r*r)+r*r)/(2*rho));
   return t;
 }
 
@@ -361,47 +343,12 @@ double rtrel_dines(double *x, double*par){
   double v = par[2];
   double t_const = par[3];
   double t = x[0];
-  double r_squared = (4*rho*rho*sin(v*(t-t_const)/(2*rho))-rmin0*rmin0)/(1-0.25*rmin0*rmin0);
-  double r=r_squared>0 ? sqrt(r_squared) : 0.0;
+  double r_squared = (4*rho*rho*std::sin(v*(t-t_const)/(2*rho))-rmin0*rmin0)/(1-0.25*rmin0*rmin0);
+  double r=r_squared>0 ? std::sqrt(r_squared) : 0.0;
   return r;
 }
 
-/*
-double trrel_dines(double *x, double *par) {
-  double r = x[0];
-  double rp = sqrt(r*r+par[0]*par[0]);
-  double m_t = par[1]+rp*par[2]+rp*rp*par[3];
-  return m_t;
-}
 
-double rtrel_dines(double *x, double *par) {
-  double m_t=x[0];
-
-  double a = par[1]-par[2]*fabs(par[0]);
-  double b = par[2]*par[0]*par[2]*par[0];
-  double c = par[2]*par[2];
-  double m_d = par[3];
-
-  double A = m_d*m_d;
-  double B = -c-2*(m_t-a)*m_d;
-  double C = (m_t-a)*(m_t-a)-b;
-  
-  double r;
- 
-  if (A>0){    
-    if ((-B-sqrt(B*B-4*A*C))/(2*A)>0) r = sqrt((-B-sqrt(B*B-4*A*C))/(2*A));
-    else r = 0;
-  }
-  else{
-    if (C/fabs(B)>0) r = sqrt(C/fabs(B));
-    else r = 0;
-  }
-  //if (C/fabs(B)-C*C*A*A/fabs(B*B*B)>0) r = sqrt(C/fabs(B) - C*C*A*A/fabs(B*B*B));
-  //if (C/fabs(B)-C*C*A*A/fabs(B*B*B)+C*C*C*A*A*A/(2*fabs(B*B*B*B*B))>0) r = sqrt(C/fabs(B) - C*C*A*A/fabs(B*B*B) + C*C*C*A*A*A/(2*fabs(B*B*B*B*B)));
-  
-  return r;
-}
-*/
 
 Calibrator::Calibrator(){
   level =-10;
@@ -452,7 +399,7 @@ Calibrator::Calibrator(){
 
 }
 
-Calibrator::Calibrator(int lev, string nme, int mint0, int minrt, string rtr, string rtb, float t0sft){
+Calibrator::Calibrator(int lev, std::string nme, int mint0, int minrt, std::string rtr, std::string rtb, float t0sft){
   level=lev;
   m_name=nme; 
   m_rtbinning=rtb;
@@ -476,7 +423,7 @@ Calibrator::Calibrator(int lev, string nme, int mint0, int minrt, string rtr, st
   m_maxres=0.6;
   m_nbinsres=100;
 
-  m_isdines = rtr.find("dines")!=string::npos;
+  m_isdines = rtr.find("dines")!=std::string::npos;
   dort=false;
   dot0=false;
   dores=false;
@@ -517,20 +464,12 @@ float Calibrator::AccumulativeMean(float n, float oldmean, float newvalue){
     return oldmean*((n-1)/n)+newvalue/n;
 }
 
-bool Calibrator::HasKey(string key){
-/* std::map<std::string,caldata>::iterator i = data.begin();
+bool Calibrator::HasKey(std::string key){
 
-   cout << key << endl;
-   for ( ; i != data.end(); ++i ){
-   printf("# ");
-   cout << i->first << endl;
-   }
-*/
   return data.find(key) != data.end();
 }
 
 bool Calibrator::CheckSelection(int level){
-  //if (selection.find(level)!=selection.end() || selection.find(-3)!=selection.end() || selection.find(-4)!=selection.end()) return true;
   if (selection.find(level)!=selection.end() || selection.find(-3)!=selection.end()) return true;
   else return false;
 }
@@ -540,24 +479,24 @@ bool Calibrator::Skip(){
   else return false;
 }
 
-string Calibrator::PrintInfo(){
-  string yn[2]={"NO","YES"};
-  string info = string(Form("CONFIGURATION %-16s: dort=%-3s, dot0=%-3s, dores=%-3s, selection=",m_name.data(),yn[dort].data(),yn[dot0].data(),yn[dores].data()));
+std::string Calibrator::PrintInfo(){
+  std::string yn[2]={"NO","YES"};
+  std::string info = std::string(Form("CONFIGURATION %-16s: dort=%-3s, dot0=%-3s, dores=%-3s, selection=",m_name.data(),yn[dort].data(),yn[dot0].data(),yn[dores].data()));
   for (std::set<int>::iterator isel = selection.begin(); isel != selection.end(); isel++) {
-    if (*isel==-3) info += string("all"); 
-    else if (*isel==-4) info += string("none"); 
-    else info += string(Form("%2i,",*isel)); 
+    if (*isel==-3) info += std::string("all"); 
+    else if (*isel==-4) info += std::string("none"); 
+    else info += std::string(Form("%2i,",*isel)); 
   } 
   return info;
 }
 
-string Calibrator::PrintStat(){
-  string info = string(Form("STATISTICS %16s: nunits=%8i, nhits=%9i, hits/unit=%11.1f", m_name.data(), (int)data.size(), m_nhits, (float)m_nhits/(float)data.size() ));
+std::string Calibrator::PrintStat(){
+  std::string info = std::string(Form("STATISTICS %16s: nunits=%8i, nhits=%9i, hits/unit=%11.1f", m_name.data(), (int)data.size(), m_nhits, (float)m_nhits/(float)data.size() ));
   return info;
 }
 
-string Calibrator::GetOptString(){
-  string optstr="";
+std::string Calibrator::GetOptString(){
+  std::string optstr="";
   if (dort) optstr = optstr + "R";
   if (dot0) optstr = optstr + "T";
   if (printlog) optstr = optstr + "P";
@@ -577,36 +516,34 @@ int Calibrator::GetNDirs(){
   return data.size();
 }
 
-string Calibrator::GetSelString(){
-  string selstr="";
+std::string Calibrator::GetSelString(){
+  std::string selstr="";
   if (selection.find(-3)!=selection.end()) selstr="*";
   else if (selection.find(-4)!=selection.end()) selstr="-";
-  else for (std::set<int>::iterator isel=selection.begin(); isel!=selection.end(); isel++) selstr += string(Form("%i",*isel));
+  else for (std::set<int>::iterator isel=selection.begin(); isel!=selection.end(); isel++) selstr += std::string(Form("%i",*isel));
   return selstr;
 }
 
-string Calibrator::GetBinnedRt(string key){
+std::string Calibrator::GetBinnedRt(std::string key){
 
   int nbins=data[key].rtgraph->tval.size();
   double maxt=data[key].rtgraph->tval[nbins-1];
   double mint=data[key].rtgraph->tval[0];
-  //double binwidth=(maxt-mint)/(nbins-1);
 
-  string brt = "";
+  std::string brt = "";
   brt += Form("%f %f %i ",mint,maxt,nbins);
 
   for (int ip=0; ip<nbins;ip++){
     brt += Form("%f ",data[key].rtgraph->rval[ip]);
-    //cout << data[key].rtgraph->rval[ip] << endl;
   }
   return brt;
 }
 
 int Calibrator::UpdateOldConstants(){
 
-  string line;
-  ifstream oldconstfile("calib_constants_in.txt");
-  string key;
+  std::string line;
+  std::ifstream oldconstfile("calib_constants_in.txt");
+  std::string key;
   float t0;
   
   if (oldconstfile.is_open())
@@ -615,7 +552,7 @@ int Calibrator::UpdateOldConstants(){
       {
         oldconstfile >> key >> t0;
         if (data.find(key) != data.end()){
-          cout << "UPDATED OLD T0: " << key << " " << data[key].oldt02 << " -> " << t0 << endl; 
+          std::cout << "UPDATED OLD T0: " << key << " " << data[key].oldt02 << " -> " << t0 << std::endl; 
           data[key].oldt02=t0;
         }
       }
@@ -623,27 +560,17 @@ int Calibrator::UpdateOldConstants(){
       return 0;
     }  
   else {
-    cout << "NO OLD T0S FILE FOUND. USING AVERAGE VALUES!" << endl;
+    std::cout << "NO OLD T0S FILE FOUND. USING AVERAGE VALUES!" << std::endl;
     return -1;
   } 
 }
 
-float Calibrator::FitRt(string key, string opt, TH2F* rtHist, TDirectory* dir){
+float Calibrator::FitRt(std::string key, std::string opt, TH2F* rtHist, TDirectory* dir){
   
-  //float mintime=999.0;
-  //float m_mindistance = 0.0; //0.1 
-  //int npoints=rtHist->GetNbinsY();
-  //char m_chname[100], m_chtit[100];
-  //float tbinsize=3.125;// width=2.5*tbinsize, m_mean;
-  //int m_maxbin;
-  //float m_maxval;
   float rtpars[4];
 
-  //TGraphErrors* rtgr = new TGraphErrors(npoints);
-  //TGraphErrors* trgr = new TGraphErrors(npoints);
-
   //create r-m_t and m_t-r graphs
-  RtGraph* rtg = m_rtbinning.find("t")==string::npos ? new RtGraph(rtHist,1,string("abs(rtrack)").data(),!bequiet,dir) : new RtGraph(rtHist,0,string("t-t0").data(),!bequiet,dir);
+  RtGraph* rtg = m_rtbinning.find("t")==std::string::npos ? new RtGraph(rtHist,1,std::string("abs(rtrack)").data(),!bequiet,dir) : new RtGraph(rtHist,0,std::string("t-t0").data(),!bequiet,dir);
 
   TF1 dtfitfunc("dtfitfunc","gaus(0)");
 
@@ -675,26 +602,19 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist, TDirectory* dir){
 
   // m_t-r relation
   trfunc->SetRange(0,2);
-  if (opt.find("3")==string::npos) trfunc->FixParameter(3,0);
+  if (opt.find("3")==std::string::npos) trfunc->FixParameter(3,0);
   trfunc->SetLineColor(4) ;
   rtg->trgr->Fit(trfunc,"QR"); // always fit the m_t-r relation
-  //if (opt.find("Q")==string::npos) rtg->trgr->Write();
   if (!bequiet) rtg->trgr->Write();
 
-  //float trpars[4]={trfunc->GetParameter(0),trfunc->GetParameter(1),trfunc->GetParameter(2),trfunc->GetParameter(3)};
 
   // r-m_t relation
   rtfunc->SetRange(0,45);
-  if (opt.find("3")==string::npos) rtfunc->FixParameter(3,0);
+  if (opt.find("3")==std::string::npos) rtfunc->FixParameter(3,0);
   rtfunc->SetLineColor(4) ;
   if (m_isdines) { 
-    // if Dines' R-m_t relation just use the parameters from the m_t-r relation
     rtfunc->SetParameters(trfunc->GetParameter(0),trfunc->GetParameter(1),trfunc->GetParameter(2),trfunc->GetParameter(3));
-    //(rtg->rtgr->GetListOfFunctions())->Add(rtfunc->Clone());
-    //rtfunc->SetParameters(0.000000e+00, 6.269950e-02, -3.370054e-04, -1.244642e-07);
-    //rtg->rtgr->Fit(rtfunc,"QR");
-    
-    //(rtg->rtgr->GetListOfFunctions())->Add(rtfunc);
+   
   }
   else { // else do a fit
     rtfunc->SetParameters(0.000000e+00, 6.269950e-02, -3.370054e-04, -1.244642e-07);
@@ -705,7 +625,6 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist, TDirectory* dir){
     rtg->rtgr->Fit(rtfunc,"QR"); //fit again
 
   }
-  //if (opt.find("Q")==string::npos)  rtg->rtgr->Write();
   if (!bequiet)  rtg->rtgr->Write();
 
   // old r-m_t relation
@@ -715,13 +634,6 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist, TDirectory* dir){
   oldrtfunc->SetLineWidth(1) ;
   oldrtfunc->SetParameters(data[key].oldrtpar[0],data[key].oldrtpar[1],data[key].oldrtpar[2],data[key].oldrtpar[3]);
 
-
-  //cout << data[key].oldrtpar[0] << endl;
-  //cout << data[key].oldrtpar[1] << endl;
-  //cout << data[key].oldrtpar[2] << endl;
-  //cout << data[key].oldrtpar[3] << endl;
-
-  //if (opt.find("Q")==string::npos) oldrtfunc->Write();
   if (!bequiet) oldrtfunc->Write();
 
   rtpars[0] = rtfunc->GetParameter(0);
@@ -731,9 +643,7 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist, TDirectory* dir){
 
   //get the t0 from the tr relation
   float tdrift = 20;
-  //if (m_isdines) tdrift = trfunc->GetParameter(1); 
-  //else         tdrift = trfunc->GetParameter(0); 
-
+ 
   if (!m_isdines) {
     float rdrift = 0.0;
     int ntries = 0;
@@ -751,14 +661,13 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist, TDirectory* dir){
       residual = rdrift - driftradius;
       
       ntries = ntries + 1;
-      //cout << "RES " << residual << " " << tdrift << endl;
       if (ntries>maxtries){
         break;
       }
     }
   }
   
-  if (opt.find("0")==string::npos) {
+  if (opt.find("0")==std::string::npos) {
     if (m_isdines){
       data[key].rtpar[0] = rtpars[0];
       data[key].rtpar[1] = rtpars[1];
@@ -777,26 +686,18 @@ float Calibrator::FitRt(string key, string opt, TH2F* rtHist, TDirectory* dir){
     data[key].rtpar[2] = rtpars[2];
     data[key].rtpar[3] = rtpars[3];
   }
-  
-  //cout << rtpars[0] << "==>" << data[key].rtpar[0] << endl;
-  //cout << rtpars[1] << "==>" << data[key].rtpar[1] << endl;
-  //cout << rtpars[2] << "==>" << data[key].rtpar[2] << endl;
-  //cout << rtpars[3] << "==>" << data[key].rtpar[3] << endl;
-
-  //m_rtgraphs[key]=rtg;
+ 
   data[key].rtgraph=rtg;
 
   delete rtfunc;
   delete oldrtfunc;
   delete trfunc;
 
-  //return tdrift;
   return 0.0;
-  //return rtpars[0];
 }
 
 
-float Calibrator::FitTimeResidual(string key, TH1F* tresHist){
+float Calibrator::FitTimeResidual(std::string key, TH1F* tresHist){
   
 
   float mean = tresHist->GetMean();
@@ -815,7 +716,6 @@ float Calibrator::FitTimeResidual(string key, TH1F* tresHist){
   data[key].tresMean =  0;
   float fitmean=tresHist->GetBinCenter(maxbin);  
   if (fabs(fitmean)>5.0){ 
-//    data[key].t0    = mean;
     data[key].tresMean =  mean;
     data[key].t0err = rms;
     data[key].t0fittype = 1;
@@ -863,9 +763,6 @@ float Calibrator::FitTimeResidual(string key, TH1F* tresHist){
     return mean;
   }
 
-  //tresHist->Fit("gaus","QR","",fitmean-fitrms,fitmean+fitrms);
-  //tresHist->Fit("gaus","QR","",mean-fitrms,mean+fitrms);
-
   data[key].tres = tresHist->GetFunction("gaus")->GetParameter(2);
   data[key].tresMean = tresHist->GetFunction("gaus")->GetParameter(1);
   data[key].t0err = tresHist->GetFunction("gaus")->GetParError(1);
@@ -888,7 +785,7 @@ float Calibrator::FitTimeResidual(string key, TH1F* tresHist){
   }
 
 
-float Calibrator::FitResidual(string key, TH1F* resHist){
+float Calibrator::FitResidual(std::string key, TH1F* resHist){
 
   float mean = resHist->GetMean();
   //float rms = resHist->GetRMS();
@@ -908,16 +805,15 @@ float Calibrator::FitResidual(string key, TH1F* resHist){
 
 }
 
-TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, caldata * caldata_above){
+TDirectory* Calibrator::Calibrate(TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){
 
   //set some bool flags
-  bool calrt=opt.find("R")!=string::npos;
-  bool calt0=opt.find("T")!=string::npos;
-  bool donothing=opt.find("N")!=string::npos;
-  //bool isquiet=opt.find("Q")!=string::npos;
-  bool prnt=opt.find("P")!=string::npos;
-  bool useref=opt.find("B")!=string::npos;
-  bool useshortstw=opt.find("S")!=string::npos;
+  bool calrt=opt.find("R")!=std::string::npos;
+  bool calt0=opt.find("T")!=std::string::npos;
+  bool donothing=opt.find("N")!=std::string::npos;
+  bool prnt=opt.find("P")!=std::string::npos;
+  bool useref=opt.find("B")!=std::string::npos;
+  bool useshortstw=opt.find("S")!=std::string::npos;
   
   if (donothing) return dir;
 
@@ -935,12 +831,9 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
   
       
   //Fit also the residual if an rt or t0 calibration is made
-  //if ((int)data[key].nres>50 && level<5) {    
   if ((int)data[key].nres>50 && ((enough_rt && calrt) || (enough_t0 && calt0))) {    
-  //if ((int)data[key].nres>50) {    
 
     m_resHists[key] = new TH1F("residual","residual",m_nbinsres,m_minres,m_maxres);
-    //m_resHists[key] = new TH1F("residual","residual",m_nbinsres,m_minres,m_maxres);
     for (int i=0;i<100;i++) {
       m_resHists[key]->SetBinContent(i+1,data[key].reshist[i]);
     }
@@ -958,7 +851,6 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
   if (nort){
     //use old data
     data[key].rtflag=true;
-    //data[key].rtt0=0;
     data[key].rtt0=caldata_above->rtt0;
     data[key].rtgraph=caldata_above->rtgraph;
     for (int i=0;i<4;i++) data[key].rtpar[i]=data[key].oldrtpar[i];
@@ -979,7 +871,6 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
         m_rtHists[key]->SetDirectory(0);
       }
       data[key].rtt0=FitRt(key,opt,m_rtHists[key],m_hdirs[key]); //do the fit
-      //if (prnt) printf("RT    %7i (%8.1e) %8.1e %8.1e %8.1e, %3.2f  : ", data[key].nrt, data[key].rtpar[0], data[key].rtpar[1], data[key].rtpar[2], data[key]. rtpar[3], data[key].rtt0);     
       if (prnt) printf("RT    %7i (%8.1e) %8.1e %8.1e %8.1e, %3.2f  : ", data[key].nrt, data[key].rtpar[0], data[key].rtpar[1], data[key].rtpar[2], data[key]. rtpar[3], data[key].rtt0);     
     }
     else{
@@ -1035,16 +926,11 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
       }
       //use data from level above
       else { 
-        //data[key].t0=caldata_above->t0;
         //TEMP FIX to dont destroy right T0s
         if (data[key].oldt02 + (caldata_above->t0 - caldata_above->oldt02)  >0)    data[key].t0=data[key].oldt02 + (caldata_above->t0 - caldata_above->oldt02);
         else data[key].t0= 0;
         //TEMP FIX to dont destroy right T0s
-        //if (level != 6 )  data[key].t0=data[key].oldt02;
-        //if (level == 6 ) {
-        //data[key].t0=caldata_above->t0;
-        //if  (caldata_above->ntres< m_mint0stat )  data[key].t0=data[key].oldt02;
-        //}
+       
       //add the short straw correction here. In this way, the shift is only done when contants at STRAW level come from level above.
         if ((level == 6 && useshortstw) && fabs(data[key].det)<2  && (data[key].lay==0 && data[key].stl<9) )         data[key].t0=caldata_above->t0-0.75; 
         data[key].t0err=caldata_above->t0err;
@@ -1057,9 +943,9 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
   }
 
 
-  if (prnt && !bequiet) cout << " H";
+  if (prnt && !bequiet) std::cout << " H";
 
-  if (prnt) cout << endl;
+  if (prnt) std::cout << std::endl;
 
 
   return m_hdirs[key];
@@ -1067,7 +953,7 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
 }
 
 
-int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
+int Calibrator::AddHit(std::string key, databundle d, int* binhist, bool makehist){
   
   int tresbin=Simple1dHist(m_mintres,m_maxtres,m_nbinstres,d.tres);
   int resbin=Simple1dHist(m_minres,m_maxres,m_nbinsres,d.res);
@@ -1084,7 +970,7 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
  
     //out of memory?
     if (hist == nullptr){
-      cout << "OUT OF MEMORY!" << endl;
+      std::cout << "OUT OF MEMORY!" << std::endl;
       return -1;
     }
 
@@ -1282,7 +1168,7 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
 void Calibrator::WriteStat(TDirectory* dir){
   dir->cd();
   TNtuple* stattup = new TNtuple(Form("%stuple",m_name.data()),"statistics","det:lay:mod:brd:chp:sid:stl:stw:rtflag:t0flag:t0:oldt0:rt0:dt0:t0offset:ftype:nhits:nt0:nrt:res:resMean:dres:tres:tresMean:x:y:z");
-  for(map<string,caldata>::iterator ihist=data.begin(); ihist!=data.end(); ++ihist){
+  for(std::map<std::string,caldata>::iterator ihist=data.begin(); ihist!=data.end(); ++ihist){
     if ((ihist->second).calflag) {
       float const ntvar[27]={
         float((ihist->second).det),
@@ -1325,12 +1211,11 @@ void Calibrator::WriteStat(TDirectory* dir){
 
 void Calibrator::DumpConstants(){
 
-  //ofstream dumpfile(Form("calib_constants_out.txt",level),ios::out | ios::app);
-  ofstream dumpfile( "calib_constants_out.txt", ios::out | ios::app);
+  std::ofstream dumpfile( "calib_constants_out.txt", std::ios::out | std::ios::app);
 
-  for(map<string,caldata>::iterator ihist=data.begin(); ihist!=data.end(); ihist++){
+  for(std::map<std::string,caldata>::iterator ihist=data.begin(); ihist!=data.end(); ihist++){
     
-    dumpfile << ihist->first << " " << (ihist->second).t0 << " " << endl;
+    dumpfile << ihist->first << " " << (ihist->second).t0 << " " << std::endl;
     
   }
   

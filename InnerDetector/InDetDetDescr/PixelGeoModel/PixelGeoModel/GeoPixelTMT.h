@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELTMT_H
@@ -15,6 +15,7 @@ class GeoPixelTMT : public GeoPixelStaveSupport {
 
 public:  
   GeoPixelTMT();
+  virtual ~GeoPixelTMT();
   virtual GeoVPhysVol* Build();
   virtual GeoVPhysVol* getPhysVol() const {return m_physVol;}
   virtual const HepGeom::Transform3D & transform() const {return m_transform;}

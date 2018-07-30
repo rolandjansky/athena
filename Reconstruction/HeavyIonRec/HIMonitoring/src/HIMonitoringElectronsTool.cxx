@@ -199,21 +199,21 @@ StatusCode HIMonitoringElectronsTool::fillHistograms()
 	    float z0 = (*electrons_itr)->trackParticle()->z0();
 	    m_h_electron_z0sintheta->Fill(z0*sin(2*TMath::ATan(exp(-eta))));
 
-	    bool loose_LH = m_electronLooseLHTool->accept(*electrons_itr);
-	    bool medium_LH = m_electronMediumLHTool->accept(*electrons_itr);
-	    bool tight_LH = m_electronTightLHTool->accept(*electrons_itr);
+	    bool loose_LH  = (bool) m_electronLooseLHTool->accept(*electrons_itr);
+	    bool medium_LH = (bool) m_electronMediumLHTool->accept(*electrons_itr);
+	    bool tight_LH  = (bool) m_electronTightLHTool->accept(*electrons_itr);
 
 	    float etcone20 = (*electrons_itr)->auxdata<float>("etcone20") * 1.e-3;
 
-	    float reta = (*electrons_itr)->auxdata<float>("Reta");
-	    float rphi = (*electrons_itr)->auxdata<float>("Rphi");
+	    float reta  = (*electrons_itr)->auxdata<float>("Reta");
+	    float rphi  = (*electrons_itr)->auxdata<float>("Rphi");
 	    float weta2 = (*electrons_itr)->auxdata< float >("weta2");
 
 	    float rhad = (*electrons_itr)->auxdata<float>("Rhad");
 
 	    float eratio = (*electrons_itr)->auxdata<float>("Eratio");
-	    float f1 = (*electrons_itr)->auxdata<float>("f1");
-	    float f3 = (*electrons_itr)->auxdata<float>("f3");
+	    float f1     = (*electrons_itr)->auxdata<float>("f1");
+	    float f3     = (*electrons_itr)->auxdata<float>("f3");
 
 	    float deltaeta1;
 	    (*electrons_itr)->trackCaloMatchValue(deltaeta1, xAOD::EgammaParameters::deltaEta1);

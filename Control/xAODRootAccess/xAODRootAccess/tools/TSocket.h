@@ -40,6 +40,10 @@ namespace xAOD {
       /// Destructor
       ~TSocket();
 
+      // Dtor closes the socket, so don't allow copy/assign.
+      TSocket (const TSocket&) = delete;
+      TSocket& operator= (const TSocket&) = delete;
+
       /// Function connecting to the specified address
       TReturnCode connect( const TInetAddress& address, int port );
       /// Close the current connection

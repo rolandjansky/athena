@@ -5,7 +5,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
@@ -2047,8 +2046,6 @@ StatusCode MissingETCompositionTool::finalize() {
 }
 
 //------------------------------------------------------------------------------
-MissingETCompositionTool::~MissingETCompositionTool() {}
-
 evt_display::evt_display(int run, int event, ITHistSvc *thistSvc, const std::string &folderName, MsgStream* mLog) {
   
   //msg() << MSG::WARNING << "in evt_display" << endmsg;

@@ -13,16 +13,19 @@ namespace Ringer {
 const char* VariableDependency::type() const
 {
   std::stringstream depVar;
-  depVar.precision(2);
   if (m_etaDependency){
     if (m_etDependency){
-      depVar << "[" << m_etaMin << "<=eta<" << m_etaMax << ", " 
-             << m_etMin << "<=Et<" << m_etMax << "]";
+      depVar.precision(3);
+      depVar << "[" << m_etaMin << "<=eta<" << m_etaMax << ", ";
+      depVar.precision(2);
+      depVar << m_etMin << "<=Et<" << m_etMax << "]";
     } else {
+      depVar.precision(3);
       depVar << "[" << m_etaMin << "<=eta<" << m_etaMax << "]";
     }
   } else {
     if (m_etDependency){
+      depVar.precision(2);
       depVar << "[" << m_etMin << "<=Et<" << m_etMax << "]";
     } else {
       return "[eta, Et Independent]";
@@ -33,34 +36,34 @@ const char* VariableDependency::type() const
 }
 
 // =============================================================================
-void VariableDependency::read(VariableDependency *varDep, 
-    TDirectory *configDir, 
+void VariableDependency::read(VariableDependency *varDep,
+    TDirectory *configDir,
     unsigned /*writtenVersion*/)
 {
   // Read unsigned int and transform it to EtDependency:
-  IOHelperFcns::readVar<EtaDependency, unsigned int>(configDir, 
-      "etaDependency", 
-      varDep->m_etaDependency ); 
+  IOHelperFcns::readVar<EtaDependency, unsigned int>(configDir,
+      "etaDependency",
+      varDep->m_etaDependency );
   // Read unsigned int and transform it to EtDependency:
-  IOHelperFcns::readVar<EtDependency, unsigned int>(configDir, 
-      "etDependency",  
-      varDep->m_etDependency  ); 
-  IOHelperFcns::readVar(configDir, "etaMin",        varDep->m_etaMin        ); 
-  IOHelperFcns::readVar(configDir, "etaMax",        varDep->m_etaMax        ); 
-  IOHelperFcns::readVar(configDir, "etMin",         varDep->m_etMin         ); 
-  IOHelperFcns::readVar(configDir, "etMax",         varDep->m_etMax         ); 
+  IOHelperFcns::readVar<EtDependency, unsigned int>(configDir,
+      "etDependency",
+      varDep->m_etDependency  );
+  IOHelperFcns::readVar(configDir, "etaMin",        varDep->m_etaMin        );
+  IOHelperFcns::readVar(configDir, "etaMax",        varDep->m_etaMax        );
+  IOHelperFcns::readVar(configDir, "etMin",         varDep->m_etMin         );
+  IOHelperFcns::readVar(configDir, "etMax",         varDep->m_etMax         );
 }
 
 // =============================================================================
 void VariableDependency::writeDepInfo(TDirectory *configDir) const
 {
   // Write EtaDependency enumeration as unsigned int:
-  IOHelperFcns::writeVar< const EtaDependency, const unsigned int>( configDir, 
-      "etaDependency", 
+  IOHelperFcns::writeVar< const EtaDependency, const unsigned int>( configDir,
+      "etaDependency",
       m_etaDependency );
   // Write EtDependency enumeration as unsigned int:
-  IOHelperFcns::writeVar< const EtDependency, const unsigned int>( configDir, 
-      "etDependency",  
+  IOHelperFcns::writeVar< const EtDependency, const unsigned int>( configDir,
+      "etDependency",
       m_etDependency  );
   IOHelperFcns::writeVar(configDir, "etaMin",        m_etaMin        );
   IOHelperFcns::writeVar(configDir, "etaMax",        m_etaMax        );

@@ -159,11 +159,9 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
 if InDetFlags.doLowBetaFinder():
   include ("InDetRecExample/ConfiguredLowBetaFinder.py")
   from AthenaCommon.GlobalFlags import globalflags
-  if (globalflags.DataSource is not "data"):
-    InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.TrackParticles(), True)
-  else:
-    InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.TrackParticles(), False)
-          
+  InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.xAODTrackParticleContainer(),
+                                                     True if (globalflags.DataSource is not "data") else False,
+                                                     InDetKeys.UnslimmedTracks())
 
 # -------------------------------------------------------------------------
 #
@@ -471,17 +469,6 @@ if InDetFlags.doParticleCreation() and not InDetFlags.useExistingTracksAsInput()
         trackToVertexTool = Reco__TrackToVertex('TrackToVertex')
         ToolSvc += trackToVertexTool
      
- from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetVxLinksToTrackParticles
- InDetVxLinkSetter = InDet__InDetVxLinksToTrackParticles(name          = "InDetVxLinkSetter",
-                                                         TracksName    = InDetKeys.xAODTrackParticleContainer(),
-                                                         VerticesName  = InDetKeys.xAODVertexContainer(),
-                                                         TrackToVertex = trackToVertexTool)
-
- topSequence += InDetVxLinkSetter
-
- if InDetFlags.doPrintConfigurables():
-  print InDetVxLinkSetter
-
 if rec.doPhysicsValidationAugmentation() :
   try:
     import InDetPhysValMonitoring.InDetPhysValDecoration

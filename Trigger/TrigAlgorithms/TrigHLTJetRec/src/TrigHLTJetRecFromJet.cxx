@@ -14,6 +14,7 @@ TrigHLTJetRecFromJet::TrigHLTJetRecFromJet(const std::string& name,
 
 TrigHLTJetRecFromJet::~TrigHLTJetRecFromJet(){}
 
-const xAOD::JetContainer* TrigHLTJetRecFromJet::build() const{
-  return TrigHLTJetRecBase<xAOD::JetContainer>::defaultBuild();
+HLT::ErrorCode TrigHLTJetRecFromJet::build(fastjet::ClusterSequence*& cs,
+                                           xAOD::JetContainer*& jc) const{
+  return TrigHLTJetRecBase<xAOD::JetContainer>::defaultBuild(cs, jc);
 }

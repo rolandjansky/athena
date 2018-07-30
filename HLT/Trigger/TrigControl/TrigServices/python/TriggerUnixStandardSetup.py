@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -81,12 +81,6 @@ def _setupCommonServices():
     from TrigServices.TrigServicesConf import TrigISHelper
     ToolSvc += TrigISHelper("TrigISHelper")
 
-    # Configure TrigPreFlightCheck
-    from TrigServices.TrigServicesConf import TrigPreFlightCheck
-    ToolSvc += TrigPreFlightCheck("TrigPreFlightCheck",
-                                  ReleaseDirs = ["AtlasP1HLT","AtlasHLT"]
-                                  )
-
     # Configure CoreDumpSvc
     if not hasattr(svcMgr,"CoreDumpSvc"):
         from AthenaServices.Configurables import CoreDumpSvc
@@ -150,7 +144,7 @@ def _setupCommonServicesEnd():
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
     svcMgr.CoreDumpSvc.CallOldHandler = True
     svcMgr.CoreDumpSvc.FatalHandler = 0   # no extra fatal handler
-    svcMgr.CoreDumpSvc.TimeOut = 0        # no timeout for stack trace generation
+    svcMgr.CoreDumpSvc.TimeOut = 60000000000        # no timeout for stack trace generation -> changed to 60s (ATR17112)
 
     # Disable StatusCodeSvc (causes problems with shutting down children at stop in HLTPU)
     svcMgr.StatusCodeSvc.SuppressCheck = True

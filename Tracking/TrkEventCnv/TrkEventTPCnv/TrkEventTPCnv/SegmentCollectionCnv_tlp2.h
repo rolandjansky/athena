@@ -29,15 +29,12 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/ErrorMatrixCnv_p1.h"            
 #include "TrkEventTPCnv/TrkEventPrimitives/CovarianceMatrixCnv_p1.h"            
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"         
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3DCnv_p1.h"         
 
-// #include "TrkEventTPCnv/TrkRIO_OnTrack/RIO_OnTrackCnv_p2.h"             
 #include "TrkEventTPCnv/TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrackCnv_p1.h"       
 #include "TrkEventTPCnv/TrkCompetingRIOsOnTrack/CompetingRIOsOnTrackCnv_p1.h"
 
 #include "TrkEventTPCnv/TrkDetElementSurface/DetElementSurfaceCnv_p1.h"
 
-#include <iostream>
 
 class SegmentCollectionCnv_tlp2
  : public AthenaPoolTopLevelTPConverter< SegmentCollectionCnv_p1, Trk::SegmentCollection_tlp2 >
@@ -80,8 +77,6 @@ protected:
   ErrorMatrixCnv_p1             m_errorMatricesCnv;
   LocalParametersCnv_p1         m_localParametersCnv;            
 
-  //trial and error for the datavector ...
-  // RIO_OnTrackCnv_p2             m_RIOsCnv;
   PseudoMeasurementOnTrackCnv_p1 m_pseudoMeasurementOnTrackCnv;
   CompetingRIOsOnTrackCnv_p1    m_crotCnv;
   

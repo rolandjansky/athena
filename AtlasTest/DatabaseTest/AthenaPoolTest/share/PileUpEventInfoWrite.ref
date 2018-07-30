@@ -67,7 +67,6 @@ Py:PropertyProxy  WARNING   -MooTrackMaker: TrigMoore.TrigMooreConf - ['MooAlgs.
 Py:PropertyProxy  WARNING   -MooiPatTrackConstructor: TrigMoore.TrigMooreConf - ['MooAlgs.MooAlgsConf']
 Py:PropertyProxy  WARNING   -MooMakeAANtuplePulls: TrigMoore.TrigMooreConf - ['MooStatistics.MooStatisticsConf']
 Py:PropertyProxy  WARNING Fix your cmt/requirements file !!
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr $Revision: 1.2 $

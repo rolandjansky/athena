@@ -23,7 +23,9 @@ typedef  T_AthenaPoolCustomCnv<TBTriggerPatternUnit, TBTriggerPatternUnit_PERS >
 class TBTriggerPatternUnitCnv : public TBTriggerPatternUnitCnvBase {
 friend class CnvFactory<TBTriggerPatternUnitCnv >;
 protected:
+public:
   TBTriggerPatternUnitCnv (ISvcLocator* svcloc) : TBTriggerPatternUnitCnvBase(svcloc) {}
+protected:
   virtual TBTriggerPatternUnit_PERS*   createPersistent (TBTriggerPatternUnit* transCont);
   virtual TBTriggerPatternUnit*        createTransient ();
 

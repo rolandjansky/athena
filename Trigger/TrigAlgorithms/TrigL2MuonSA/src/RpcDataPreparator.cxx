@@ -6,7 +6,6 @@
 
 #include "TrigL2MuonSA/RpcDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -43,8 +42,8 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
                                                    const IInterface*  parent): 
    AthAlgTool(type,name,parent),
    m_storeGateSvc( "StoreGateSvc", name ),
-   m_activeStore(0),
-   m_regionSelector(0),
+   m_activeStore( "ActiveStoreSvc", name ),
+   m_regionSelector( "RegSelSvc", name ),
    m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
@@ -74,70 +73,34 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
       return sc;
    }
    
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
-      return sc;
-   }
+   ATH_CHECK( m_storeGateSvc.retrieve() ); 
 
    // Locate RegionSelector
-   sc = service("RegSelSvc", m_regionSelector);
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve RegionSelector");
-      return sc;
-   }
+   ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   StoreGateSvc* detStore;
-   sc = serviceLocator()->service("DetectorStore", detStore);
-   if (sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve DetectorStore.");
-     return sc;
-   }
+   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name()); 
+   ATH_CHECK( detStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved DetectorStore.");
- 
-   sc = detStore->retrieve( m_muonMgr );
-   if (sc.isFailure()) return sc;
+   ATH_CHECK( detStore->retrieve( m_muonMgr ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_rpcIdHelper = m_muonMgr->rpcIdHelper();
+  
+   ATH_CHECK( m_rpcPrepDataProvider.retrieve() );
+   ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
 
-   sc = m_rpcPrepDataProvider.retrieve();
-   if (sc.isSuccess()) {
-     ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
-   } else {
-     ATH_MSG_FATAL("Could not get " << m_rpcPrepDataProvider);
-     return sc;
-   }
-
-   sc = m_idHelperTool.retrieve();
-   if (sc.isSuccess()) {
-     ATH_MSG_DEBUG("Retrieved " << m_idHelperTool);
-   } else {
-     ATH_MSG_FATAL("Could not get " << m_idHelperTool); 
-     return sc;
-   }
+   ATH_CHECK( m_idHelperTool.retrieve() );
+   ATH_MSG_DEBUG("Retrieved " << m_idHelperTool);
 
    // Retrieve ActiveStore
-   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-   if (sc.isFailure() || m_activeStore == 0) {
-     ATH_MSG_ERROR(" Cannot get ActiveStoreSvc.");
-     return sc ;
-   }
+   ATH_CHECK( m_activeStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
 
    // Retrieve the RPC cabling service
    ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-   sc = RpcCabGet.retrieve();
-   if ( sc != StatusCode::SUCCESS ) {
-     ATH_MSG_ERROR("Could not retrieve the RPCcablingServerSvc");
-     return sc;
-   }
-   sc = RpcCabGet->giveCabling(m_rpcCabling);
-   if ( sc != StatusCode::SUCCESS ) {
-     ATH_MSG_ERROR("Could not retrieve the RPC Cabling Server");
-     return sc;
-   }
+   ATH_CHECK( RpcCabGet.retrieve() ); 
+   ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
+
    m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
    if ( !m_rpcCablingSvc ) {
      ATH_MSG_ERROR("Could not retrieve the RPC cabling svc");

@@ -3,37 +3,27 @@
 */
 
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
  
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 
-//----------------------------------------------------------------//
-
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-/////////////////////////////////////////////////////////
-#include "AmdcDb/AmdcDb.h"
-
-//----------------------------------------------------------------//
 #include "AmdcAth/AmdcsimrecAthenaSvc.h"
-
+#include "AmdcDb/AmdcDb.h"
 #include "AmdcDb/AmdcDbSvc.h"
 #include "AmdcDb/AmdcDbRecordset.h"
 #include "AmdcDb/AmdcDbSvcMakerFromRDB.h"
 #include "AmdcDb/AmdcDbSvcMakerFromAmdc.h"
  
 /// Standard Constructor
-AmdcDb::AmdcDb(const std::string& name,ISvcLocator* svc):
-  AthService(name,svc) ,
-p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
+AmdcDb::AmdcDb(const std::string& name,ISvcLocator* svc)
+  : AthService(name,svc) 
+  , m_emptyRecordset(new AmdcDbRecordset())
+  , p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
 {
-
-  p_AmdcDbRecordsetEmptyOne = 0 ;
-
-//Set Default values
   p_AmdcDbSvcFromAmdc = 0 ;
   p_AmdcDbSvcFromRDB  = 0 ;
 
@@ -68,8 +58,7 @@ p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
   m_ValFromRDBEpsLengthCM.push_back(DummyInt)  ; m_ValFromRDBEpsLengthCM.clear () ;
   m_ValFromRDBEpsAngle.push_back(DummyInt)     ; m_ValFromRDBEpsAngle.clear    () ;
 
-
-//Declare the properties
+  //Declare the properties
   declareProperty("AMDBtag", m_AMDBtag) ;
   declareProperty("UglyCodeOn", m_UglyCodeOn) ;
   
@@ -98,7 +87,6 @@ p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
   declareProperty("AmdcsimrecAthenaSvc", p_AmdcsimrecAthenaSvc);
   
   p_detStore = 0 ;
-
 }
  
 /// Standard Destructor
@@ -110,7 +98,7 @@ AmdcDb::~AmdcDb()  {
 /// Service initialisation
 StatusCode AmdcDb::initialize() {
 
-  ATH_MSG_INFO( "Initialisation started     " ) ;
+  ATH_MSG_INFO( "Initialisation started" ) ;
 
   StatusCode sc=AthService::initialize();
   if (sc.isFailure()) {
@@ -217,6 +205,7 @@ StatusCode AmdcDb::regFcnAmdcsimrecAthenaSvcUpdatedSvc()
   return StatusCode::SUCCESS;
   
 }
+
 StatusCode AmdcDb::AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS)
 {
   ATH_MSG_INFO( "AmdcsimrecAthenaSvcUpdatedSvc called     " ) ;  
@@ -239,6 +228,7 @@ StatusCode AmdcDb::AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS)
   return StatusCode::SUCCESS;
 
 }
+
 StatusCode AmdcDb::DoUpdatedSvc()
 {
   if ( !m_AmdcsimrecAthenaSvcUpdatedSvcDONE ){
@@ -311,51 +301,46 @@ StatusCode AmdcDb::queryInterface(const InterfaceID& riid, void** ppvInterface)
   addRef();
   return StatusCode::SUCCESS;
 }
- 
-const IRDBRecordset* AmdcDb::getRecordset(const std::string& node,
-					  const std::string& tag,
-					  const std::string& /*tag2node*/ ,
-				          const std::string& /*connName*/)
+
+IRDBRecordset_ptr AmdcDb::getRecordsetPtr(const std::string& node,
+                                          const std::string& tag,
+                                          const std::string& /*tag2node*/ ,
+                                          const std::string& /*connName*/)
 {
- if ( p_AmdcDbRecordsetEmptyOne == 0 ) p_AmdcDbRecordsetEmptyOne = new AmdcDbRecordset();
- if ( tag=="RDB"  ) {
-   const IRDBRecordset* pIRDBRecordset = p_AmdcDbSvcFromRDB->getRecordset(node);
-   if (pIRDBRecordset == 0) return p_AmdcDbRecordsetEmptyOne;
-   return pIRDBRecordset;
- }
- if ( tag=="Amdc"  ) {
-   const IRDBRecordset* pIRDBRecordset = p_AmdcDbSvcFromAmdc->getRecordset(node);
-   if (pIRDBRecordset == 0) return p_AmdcDbRecordsetEmptyOne;
-   return pIRDBRecordset;
- }
- return p_AmdcDbRecordsetEmptyOne;
+  const IRDBRecordset* pIRDBRecordset{nullptr}; 
+  if(tag=="RDB") {
+    pIRDBRecordset = p_AmdcDbSvcFromRDB->getRecordset(node);
+  }
+  else if(tag=="Amdc") {
+    pIRDBRecordset = p_AmdcDbSvcFromAmdc->getRecordset(node);
+  }
+
+  if(pIRDBRecordset)
+    return IRDBRecordset_ptr(const_cast<IRDBRecordset*>(pIRDBRecordset));
+  else
+    return m_emptyRecordset;
 }
 
-//Functions
-//  of IRDBAccessSvc Not implemented
+// Functions of IRDBAccessSvc Not implemented
 bool AmdcDb::connect   (const std::string& /*connName*/ ) { std::cout << " AmdcDb::connect Not implemented    " << std::endl ; return true; }
+
 bool AmdcDb::disconnect(const std::string& /*connName*/ ) { std::cout << " AmdcDb::disconnect Not implemented " << std::endl ; return true; }
+
 bool AmdcDb::shutdown  (const std::string& /*connName*/ ) { std::cout << " AmdcDb::shutdown Not implemented   " << std::endl ; return true; }
+
 std::string AmdcDb::getChildTag(const std::string& /*childNode*/  ,
 			        const std::string& /*parentTag*/  ,
 			        const std::string& /*parentNode*/ ,
 			        const std::string& /*connName*/   )
 { std::cout << " AmdcDb::getChildTag Not implemented " << std::endl ; std::string ToBeReturned = "Not Implemented"; return ToBeReturned; }
+
 std::unique_ptr<IRDBQuery> AmdcDb::getQuery(const std::string& /*node*/     ,
                             const std::string& /*tag*/      ,
                             const std::string& /*tag2node*/ ,
                             const std::string& /*connName*/ ){ std::cout << " AmdcDb::getQuery Not implemented " << std::endl ; return 0; }
-IRDBRecordset_ptr AmdcDb::getRecordsetPtr(const std::string& node,
-                                          const std::string& /*tag*/,
-                                          const std::string& /*tag2node*/ ,
-                                          const std::string& /*connName*/)
-{
-    IRDBRecordset* c_ptr = const_cast<IRDBRecordset*>((this)->getRecordset(node,"Amdc"));
-    IRDBRecordset_ptr rec = IRDBRecordset_ptr(c_ptr);
-    return rec;
-}
+
 RDBTagDetails AmdcDb::getTagDetails(const std::string& /*tag*/,
-   	                                    const std::string& /*connName*/ )
+				    const std::string& /*connName*/ )
 {
  RDBTagDetails tagDetails;
  return tagDetails;

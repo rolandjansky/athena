@@ -24,16 +24,23 @@
 // IOV SVC for alignment:
 #include "AthenaKernel/IIOVSvc.h"
 
+#include "DetDescrConditions/AlignableTransformContainer.h"
+
 class StoreGateSvc;
 class AlignableTransform;
 class Identifier; 
 class AtlasDetectorID;
+class GeoVAlignmentStore;
+class CondAttrListCollection;
 
 #include <string>
 #include <map>
 #include <set>
+#include <list>
 
 namespace InDetDD {
+
+  typedef std::map<std::string, const void*> RawAlignmentObjects;
 
     /** @class InDetDetectorManager
     
@@ -72,7 +79,10 @@ namespace InDetDD {
       void addSpecialFolder(const std::string & key);
       void addGlobalFolder(const std::string & key); 
       void addAlignFolderType(const AlignFolderType alignfolder);
+
       StatusCode align( IOVSVC_CALLBACK_ARGS ) const;
+
+      StatusCode align(const RawAlignmentObjects& alignObjects, GeoVAlignmentStore* alignStore) const;
     
       /** Invalidate cache for all detector elements */
       virtual void invalidateAll() const = 0;
@@ -85,11 +95,11 @@ namespace InDetDD {
     
       /** Declaring the Message method for further use */
       MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
-    	
+
       /** Declaring the Method providing Verbosity Level */
       bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
 
-      AlignFolderType                           m_alignfoldertype;	    
+      AlignFolderType                           m_alignfoldertype;
     
     protected:
       StoreGateSvc * m_detStore;
@@ -119,13 +129,13 @@ namespace InDetDD {
       class AlignInfo {
 
         private:
-	  AlignFolderType m_aligntype;
+        AlignFolderType m_aligntype;
 
         public:
           AlignInfo(): m_aligntype(InDetDD::none) {};
           AlignInfo(AlignFolderType alignfolder): m_aligntype(alignfolder) {};
-	  AlignFolderType AlignFolder() const {return m_aligntype;}
-	  bool isValidAlign() const {return (m_aligntype != InDetDD::none);}
+          AlignFolderType AlignFolder() const {return m_aligntype;}
+          bool isValidAlign() const {return (m_aligntype != InDetDD::none);}
 
       };
 
@@ -138,24 +148,31 @@ namespace InDetDD {
 
       /** Process the alignment container, calls processKey */
       bool processAlignmentContainer(const std::string & key) const;
-      
+      bool processAlignmentContainer(const AlignableTransformContainer* container, GeoVAlignmentStore* alignStore) const;
+
       /** Called by processAlignmentContainer, 
           applies only one key on the transform Collections */
       bool processKey(const std::string key, 
-    		  const AlignableTransform* transformCollection) const;
+                      const AlignableTransform* transformCollection,
+                      GeoVAlignmentStore* alignStore=nullptr) const;
     
       /** Set method applying the delta transform (in global or local frame)
           onto the geoModel transform : CLHEP <--> Amg interface */
       virtual bool setAlignableTransformDelta(int level, 
-    					                      const Identifier & id, 
-    					                      const Amg::Transform3D & delta,
-    					                      FrameType frame) const = 0;
+                                              const Identifier & id, 
+                                              const Amg::Transform3D & delta,
+                                              FrameType frame,
+                                              GeoVAlignmentStore* alignStore=nullptr) const = 0;
     
       virtual bool processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType alignfolder) const;
 
-      bool processGlobalAlignmentContainer(const std::string & key) const;
+      bool processGlobalAlignmentContainer(const std::string & key,
+                                           const CondAttrListCollection* obj=nullptr,
+                                           GeoVAlignmentStore* alignStore=nullptr) const;
 
-      virtual bool processGlobalAlignment(const std::string & key, int level, FrameType frame) const;
+      virtual bool processGlobalAlignment(const std::string & key, int level, FrameType frame,
+                                          const CondAttrListCollection* obj=nullptr,
+                                          GeoVAlignmentStore* alignStore=nullptr) const;
       
       virtual const AtlasDetectorID* getIdHelper() const = 0;
     

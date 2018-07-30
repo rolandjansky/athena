@@ -41,7 +41,9 @@ class xAODSlowMuonAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODSlowMuonAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::SlowMuonAuxContainer*

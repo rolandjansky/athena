@@ -86,10 +86,11 @@ void compare (const InDet::SCT_ClusterContainer& p1,
 }
 
 
-void testit (const InDet::SCT_ClusterContainer& trans1)
+void testit (const InDet::SCT_ClusterContainer& trans1, const SCT_ID& sct_id)
 {
   MsgStream log (0, "test");
   SCT_ClusterContainerCnv_p3 cnv;
+  cnv.setIdHelper(&sct_id);
   InDet::SCT_ClusterContainer_p3 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<InDet::SCT_ClusterContainer> trans2
@@ -133,7 +134,7 @@ makeclusts(const SCT_ID& sct_id)
       cl->setHashAndIndex (hash, i);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash, true);
+    cont->addCollection (coll.release(), hash);
   }
 
   // gcc4.9 doesn't allow returning cont directly here; fixed in 5.2.
@@ -148,13 +149,13 @@ void test1(const SCT_ID& sct_id)
   {
     // Do it once without leak checking to get services initialized.
     std::unique_ptr<const InDet::SCT_ClusterContainer> cont = makeclusts(sct_id);
-    testit (*cont);
+    testit (*cont, sct_id);
   }
   
   // And again with leak checking.
   Athena_test::Leakcheck check;
   std::unique_ptr<const InDet::SCT_ClusterContainer> cont = makeclusts(sct_id);
-  testit (*cont);
+  testit (*cont, sct_id);
 }
 
 

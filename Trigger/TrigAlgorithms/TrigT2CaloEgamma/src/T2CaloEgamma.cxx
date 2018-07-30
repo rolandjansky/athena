@@ -233,7 +233,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
   // we save, and *which* "roiWord" (if any) we store if we need to use it 
   // again
   (*ptrigEmCluster).setRoIword(roiDescriptor->roiWord());
-  const CaloDetDescrElement * caloDDE = 0;
+  const CaloDetDescrElement * caloDDE = nullptr;
 
   // zeros the container per RoI
   m_Container = 0;
@@ -242,9 +242,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
   if ( m_timersvc ) m_timer[1]->start();
   uint32_t error = 0;
   for (; it < m_emAlgTools.end(); it++)  {
-    (*it)->setCaloDetDescrElement(caloDDE);
     //   if ((*it)->execute(*ptrigEmCluster,etamin,etamax,phimin,phimax).isFailure() ) {
-    if ((*it)->execute(*ptrigEmCluster, newroi ).isFailure() ) {
+    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, nullptr ).isFailure() ) {
       ATH_MSG_WARNING( "T2Calo AlgToolEgamma returned Failure"  );
       //      return HLT::TOOL_FAILURE;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
@@ -252,9 +251,6 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
     uint32_t in_error = (*it)->report_error();
     if ( 0x0FFFFFFF & in_error ) m_conversionError++;
     if ( 0xF0000000 & in_error ) m_algorithmError++;
-    if ( (*it)->getCaloDetDescrElement() != 0 ){
-    	caloDDE = (*it)->getCaloDetDescrElement();
-    }
     error|=in_error;
   }
   // support to new monitoring

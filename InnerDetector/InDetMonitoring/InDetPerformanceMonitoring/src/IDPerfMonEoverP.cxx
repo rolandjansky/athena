@@ -22,7 +22,7 @@ PURPOSE:  Create  a simple ntuple to perform EoverP studies with
 #include "GaudiKernel/ListItem.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <vector>
 // Validation mode - TTree includes
 #include "GaudiKernel/ITHistSvc.h"
@@ -60,6 +60,8 @@ using namespace Trk;
 IDPerfMonEoverP::IDPerfMonEoverP(const std::string& name,
   ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
+  m_refittedTracks_no1{},
+  m_refittedTracks_no2{},
   m_TrackRefitter(""),
   m_TrackRefitter_no2(""),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
@@ -67,11 +69,22 @@ IDPerfMonEoverP::IDPerfMonEoverP(const std::string& name,
   m_isDATA(true),
   m_validationMode(true),
   m_fillDetailedTree(false),
+  m_primaryVertexFirstCandidate{},
   m_validationTreeName("EGrefitter"),
   m_validationTreeDescription("egamma track refitter results"),
   m_validationTreeFolder("/eoverpValidation/efitterValidation"),
   m_validationTree(0),
+  m_runNumber{},
+  m_evtNumber{},
+  m_lumi_block{},
+  m_nelectrons{},
   m_electronCounter(0),
+  m_nbpv{},
+  m_METgoodness{},
+  m_sumet{},
+  m_missingEt{},
+  m_missingEtx{},
+  m_missingEty{},
   m_ZeeLooseMassOS_Cluster(0),
   m_ZeeLooseMassSS_Cluster(0),
   m_ZeeMediumMassOS_Cluster(0),
@@ -88,7 +101,20 @@ IDPerfMonEoverP::IDPerfMonEoverP(const std::string& name,
   m_smallValidationTreeName("EGrefitterSmall"),
   m_smallValidationTreeDescription("Small Tree for E/p fits"),
   m_smallValidationTreeFolder("/eoverpValidation2/efitterValidation2"),
-  m_smallValidationTree(0)
+  m_smallValidationTree(0),
+  m_small_QoverP{},
+  m_small1_QoverP{},
+  m_small2_QoverP{},
+  m_smallClusterEnergy{},
+  m_smallClusterPhi{},
+  m_smallClusterEta{},
+  m_smallTrackTheta{},
+  m_smallCharge{},
+  m_smalld0{},
+  m_smallz0{},
+  m_LHToolLoose2015{},
+  m_LHToolMedium2015{},
+  m_LHToolTight2015{}
 {
 
 // The following properties are specified at run-time
@@ -640,6 +666,7 @@ StatusCode IDPerfMonEoverP::execute()
   if (sc.isFailure())
   {
     ATH_MSG_ERROR("Could not record "<< m_OutputTrackCollectionName_no1 <<" object.");
+    delete selectedElectrons;
     return (StatusCode::FAILURE);
   }
 
@@ -647,6 +674,7 @@ StatusCode IDPerfMonEoverP::execute()
   if (sc.isFailure())
   {
     ATH_MSG_ERROR("Could not record "<< m_OutputTrackCollectionName_no2 <<" object.");
+    delete selectedElectrons;
     return (StatusCode::FAILURE);
   }
 
@@ -654,6 +682,7 @@ StatusCode IDPerfMonEoverP::execute()
 	if (sc.isFailure())
   {
     ATH_MSG_ERROR("Could not record "<< m_OutputTrackCollectionName_no1+"Selected" <<" object.");
+    delete selectedElectrons;
     return (StatusCode::FAILURE);
   }
 
@@ -704,7 +733,7 @@ void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg) const
   m_isGoodOQ[m_electronCounter] = el_goodOQ;
 
   // check loose LH
-  bool val_loose=m_LHToolLoose2015->accept(eg);
+  bool val_loose = (bool) m_LHToolLoose2015->accept(eg);
   ATH_MSG_DEBUG( "Loose value : " << val_loose);
   //if(eg->passSelection(val_loose, "Loose")) {
   if(val_loose){
@@ -713,7 +742,7 @@ void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg) const
   }//else{ATH_MSG_DEBUG("Loose electron not defined !");}
 
   // check medium LH
-  bool val_med=m_LHToolMedium2015->accept(eg);
+  bool val_med = (bool) m_LHToolMedium2015->accept(eg);
   ATH_MSG_DEBUG( "Medium value : " << val_med );
   //if(eg->passSelection(val_med, "Medium")) {
   if(val_med){
@@ -722,7 +751,7 @@ void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg) const
   }//else{ATH_MSG_DEBUG("Mediu, electron not defined !");}
 
   // check tight LH
-  bool val_tight=m_LHToolTight2015->accept(eg);
+  bool val_tight = (bool) m_LHToolTight2015->accept(eg);
   ATH_MSG_DEBUG( "Tight value : " << val_tight);
   //if(eg->passSelection(val_tight, "Tight")) {
   if(val_tight){

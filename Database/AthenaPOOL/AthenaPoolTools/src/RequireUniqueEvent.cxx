@@ -12,7 +12,6 @@
 // the user data-class defintions
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
                                                           
 #include "StoreGate/StoreGateSvc.h"
 
@@ -40,24 +39,16 @@ StatusCode RequireUniqueEvent::initialize()
 StatusCode RequireUniqueEvent::execute() 
 {
    ATH_MSG_DEBUG ( "in execute()" );
-   
-   // Check for event header
-   const DataHandle<EventInfo> evt;
-   ATH_CHECK( evtStore()->retrieve(evt) );
-   ATH_MSG_DEBUG ( "Found EventInfo in SG" );
-    
-   if (!evt.isValid()) {
-       ATH_MSG_FATAL ( "Could not find event" );
-       return(StatusCode::FAILURE);
-   }
-   ATH_MSG_DEBUG ( "EventInfo event: " << evt->event_ID()->event_number() 
-                   << " run: " << evt->event_ID()->run_number() );
+
+   const EventIDBase& eid = getContext().eventID();
+   ATH_MSG_DEBUG ( "EventInfo event: " << eid.event_number() 
+                   << " run: " << eid.run_number() );
    //
    // Check if EventID has occurred previously. If so, issue a warning
    //  -- Use brute force, i.e. let the set keep the index and do the search
    //  -- return code on insert is pair with iterator,bool
    //
-   EventID ev( evt->event_ID()->run_number(), evt->event_ID()->event_number() ); 
+   EventID ev( eid.run_number(), eid.event_number() ); 
    if (!m_evList.insert(ev).second) {
        ATH_MSG_WARNING ( "Duplicate record " << ev );
        m_cnt++;

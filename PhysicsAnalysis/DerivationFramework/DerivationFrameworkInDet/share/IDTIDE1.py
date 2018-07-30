@@ -86,22 +86,15 @@ ToolSvc += IDTIDE1TrackToVertexWrapper
 augmentationTools.append(IDTIDE1TrackToVertexWrapper)
 print IDTIDE1TrackToVertexWrapper
 
-# Add decoration with truth parameters if running on simulation
-if IsMonteCarlo:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
-    TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
-                                                                        DecorationPrefix = "")
-    ToolSvc += TruthDecor
-    augmentationTools.append(TruthDecor)
-    print TruthDecor
-
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
+import InDetRecExample.TRTCommon
 DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
                                                           ContainerName = "InDetTrackParticles",
                                                           IsSimulation = False,
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
+                                                          TRT_ToT_dEdx = InDetRecExample.TRTCommon.getTRT_ToT_dEdxTool() if idDxAOD_doTrt else "",
                                                           StoreSCT   = idDxAOD_doSct,
                                                           StorePixel = idDxAOD_doPix,
                                                           OutputLevel =INFO)
@@ -247,12 +240,30 @@ if IsMonteCarlo:
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1Kernel",
-                                                                       AugmentationTools = augmentationTools,
-                                                                       SkimmingTools = skimmingTools,
-                                                                       ThinningTools = thinningTools,
-                                                                       RunSkimmingFirst = True,
-                                                                       OutputLevel =INFO)
+idtide_kernel = CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1Kernel",
+                                                             AugmentationTools = augmentationTools,
+                                                             SkimmingTools = skimmingTools,
+                                                             ThinningTools = thinningTools,
+                                                             RunSkimmingFirst = True,
+                                                             OutputLevel =INFO)
+DerivationFrameworkJob += idtide_kernel
+accept_algs=[ idtide_kernel.name() ]
+
+if IsMonteCarlo:
+  # add track parameter decorations to truth particles but only if the decorations have not been applied already
+  import InDetPhysValMonitoring.InDetPhysValDecoration
+  meta_data = InDetPhysValMonitoring.InDetPhysValDecoration.getMetaData()
+  from AthenaCommon.Logging import logging
+  logger = logging.getLogger( "DerivationFramework" )
+  if len(meta_data) == 0 :
+    truth_track_param_decor_alg = InDetPhysValMonitoring.InDetPhysValDecoration.getInDetPhysValTruthDecoratorAlg()
+    if  InDetPhysValMonitoring.InDetPhysValDecoration.findAlg(truth_track_param_decor_alg.getName()) == None :
+      accept_algs.append( truth_track_param_decor_alg )
+    else :
+      logger.info('Decorator %s already present not adding again.' % (truth_track_param_decor_alg.getName() ))
+  else :
+    logger.info('IDPVM decorations to track particles already applied to input file not adding again.')
+
 
 #====================================================================
 # SET UP STREAM  
@@ -263,7 +274,7 @@ from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDTIDEStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTIDEStream )
 IDTIDE1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-IDTIDE1Stream.AcceptAlgs(["IDTIDE1Kernel"])
+IDTIDE1Stream.AcceptAlgs( accept_algs )
 
 #idtideSeq = CfgMgr.AthSequencer("IDTIDE1Sequence")
 #DerivationFrameworkJob += idtideSeq

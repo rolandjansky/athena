@@ -18,7 +18,7 @@
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+////#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/shared_lock_guard.hpp"
 #include <iostream>
@@ -58,7 +58,7 @@ public:
 };
 
 
-DECLARE_SERVICE_FACTORY( TestWhiteBoard )
+DECLARE_COMPONENT( TestWhiteBoard )
 
 
 struct Payload
@@ -211,7 +211,8 @@ void ThreadedTest::testThread::operator()()
     }
     else if (i%29 == 0) {
       if (i%2 == 0) {
-        auto r = obj.readerQuiesce (EventContext (0, m_iworker));
+        EventContext ctx (0, m_iworker);
+        auto r = obj.readerQuiesce (ctx);
         r->check();
       }
       else {

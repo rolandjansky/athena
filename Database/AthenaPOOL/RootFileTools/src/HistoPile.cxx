@@ -26,16 +26,16 @@ void HistoPile::Pop()
 //______________________________________________________________________________
 const char * HistoPile::Path() 
 {
-    static char line[1024];
-    Int_t len = 0;
-  
-    for( list<string>::iterator p=m_path.begin(); p!=m_path.end(); ++p) {
-      strcpy( line + len, (*p).c_str() );
-      len += p->size();
+    static std::string line;
+
+    for (const std::string& p : m_path) {
+      line += p;
     }
     // replace trailing dot
-    *(line + len-1) = 0; //' '; 
-    return line; 
+    if (line.size() > 0) {
+      line.erase (line.size()-1);
+    }
+    return line.c_str(); 
 }
 
 //______________________________________________________________________________

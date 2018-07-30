@@ -12,7 +12,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetAlignGenTools/InDetAlignHitQualSelTool.h"
 
@@ -31,6 +31,9 @@ InDetAlignHitQualSelTool::InDetAlignHitQualSelTool( const std::string& t
   , m_acceptIBLHits( true )
   , m_acceptPixelHits( true )
   , m_acceptSCTHits( true )
+  , m_PIXManager{}
+  , m_pixelid{}
+  , m_sctID{} 
 {
   declareInterface<IInDetAlignHitQualSelTool>(this) ;
   declareProperty( "RejectOutliers",         m_rejectOutliers     ) ;
@@ -51,40 +54,11 @@ StatusCode InDetAlignHitQualSelTool::initialize() {
   StatusCode sc = AlgTool::initialize() ;
   if( sc.isFailure() ) return sc ;
   // get DetectorStore service
-  sc = detStore().retrieve() ;
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR( "DetectorStore service not found !" );
-    return sc ;
-  } else {
-    ATH_MSG_DEBUG( "DetectorStore retrieved!" );
-  }
-  if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()){
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT ID is : "<< m_sctID <<endmsg ;
-  
-  if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()){
-    msg(MSG::FATAL) << "Could not get PIXEL ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endmsg;
-  
+  ATH_CHECK( detStore().retrieve()) ;
+  ATH_CHECK(detStore()->retrieve(m_sctID, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
   // get pixel manager
-  sc = detStore()->retrieve( m_PIXManager, "Pixel" ) ;
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Could not get PIXManager !" ) ;
-    return sc;
-  }
-  // get SCT manager
-  sc = detStore()->retrieve( m_SCTManager, "SCT" ) ;
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Could not get SCTManager !" ) ;
-    return sc;
-  }
-  ATH_MSG_DEBUG( "initialize() successful in " << name() ) ; 
-
-  
+  ATH_CHECK(detStore()->retrieve( m_PIXManager, "Pixel" )) ;
   return StatusCode::SUCCESS ;
 }
 
@@ -309,7 +283,7 @@ bool InDetAlignHitQualSelTool::isGoodClusterSize( const std::vector<Identifier>&
 
 bool InDetAlignHitQualSelTool::isEdgeChannel( const vector<Identifier>& idVec ) const {
   for( unsigned int i=0, i_max=idVec.size() ; i!=i_max ; ++i ) {
-    if( m_SCTManager->identifierBelongs(idVec[i]) ) {
+    if( m_sctID->is_sct(idVec[i]) ) {
       int stripId = m_sctID->strip(idVec[i]) ;
       if( stripId == 0 || stripId == 767 ) {
         ATH_MSG_DEBUG( " SCT strip " << i << " with id " << stripId << " is an edge channel " ) ;

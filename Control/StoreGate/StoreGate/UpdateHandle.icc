@@ -30,8 +30,7 @@ namespace SG {
 template <class T>
 inline
 UpdateHandle<T>::UpdateHandle() 
-  : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Reader),
-    m_updated(false)
+  : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Reader)
 {
 }
 
@@ -46,8 +45,7 @@ inline
 UpdateHandle<T>::UpdateHandle(const std::string& sgkey,
                               const std::string& storename /*= "StoreGateSvc"*/)
   : VarHandleBase( ClassID_traits<T>::ID(),
-                   sgkey, Gaudi::DataHandle::Reader, storename ),
-    m_updated(false)
+                   sgkey, Gaudi::DataHandle::Reader, storename )
 {
 }
 
@@ -62,8 +60,7 @@ UpdateHandle<T>::UpdateHandle(const std::string& sgkey,
 template <class T>
 inline
 UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key)
-  : VarHandleBase (key, nullptr),
-    m_updated(false)
+  : VarHandleBase (key, nullptr)
 {
 }
 
@@ -82,8 +79,7 @@ UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key)
 template <class T>
 UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key,
                                const EventContext& ctx)
-  : VarHandleBase (key, &ctx),
-    m_updated(false)
+  : VarHandleBase (key, &ctx)
 {
 }
 
@@ -94,8 +90,7 @@ UpdateHandle<T>::UpdateHandle (const UpdateHandleKey<T>& key,
 template <class T>
 inline
 UpdateHandle<T>::UpdateHandle(const UpdateHandle& h)
-  : VarHandleBase(h),
-    m_updated(h.m_updated)
+  : VarHandleBase(h)
 {
 }
 
@@ -105,8 +100,7 @@ UpdateHandle<T>::UpdateHandle(const UpdateHandle& h)
 template <class T>
 inline
 UpdateHandle<T>::UpdateHandle(UpdateHandle&& h)
-  : VarHandleBase(std::move(h)),
-    m_updated(h.m_updated)
+  : VarHandleBase(std::move(h))
 {
 }
 
@@ -121,7 +115,6 @@ UpdateHandle<T>::UpdateHandle::operator= (const UpdateHandle& h)
 {
   if (this != &h) {
     this->VarHandleBase::operator=(h);
-    this->m_updated = h.m_updated;
   }
   return *this;
 }
@@ -137,7 +130,6 @@ UpdateHandle<T>::UpdateHandle::operator= (UpdateHandle&& h)
 {
   if (this != &h) {
     this->VarHandleBase::operator=(std::move(h));
-    this->m_updated = h.m_updated;
   }
   return *this;
 }
@@ -202,11 +194,6 @@ typename UpdateHandle<T>::pointer_type
 UpdateHandle<T>::ptr()
 {
   pointer_type ptr = reinterpret_cast<pointer_type>(this->typeless_ptr());
-  if (ptr && !m_updated && m_store) {
-    if (m_store->updatedObject (this->clid(), this->name()).isFailure())
-      SG::throwExcUpdatedObjectFailure (clid(), name(), store());
-    m_updated = true;
-  }
   return ptr;
 }
 
@@ -217,7 +204,7 @@ UpdateHandle<T>::ptr()
 template <class T>
 inline
 typename UpdateHandle<T>::pointer_type
-UpdateHandle<T>::cachedPtr() const
+UpdateHandle<T>::cachedPtr()
 {
   return reinterpret_cast<pointer_type>(this->m_ptr);
 }
@@ -241,12 +228,11 @@ bool UpdateHandle<T>::isValid()
  * @brief Reset this handle.
  * @param hard If true, anything depending on the event store is cleared.
  *
- * Clear the updated flag, then call reset() from the base class.
+ * Call reset() from the base class.
  */
 template <class T>
 void UpdateHandle<T>::reset (bool hard)
 {
-  m_updated = false;
   VarHandleBase::reset (hard);
 }
 

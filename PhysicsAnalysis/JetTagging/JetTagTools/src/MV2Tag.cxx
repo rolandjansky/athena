@@ -154,19 +154,13 @@ namespace Analysis {
 
     // #1: Preparation of MVA instance using tmva/egammaBDT
     /* jet author: */
-    std::string author;
+    std::string author(assigned_jet_author);
 
     if (m_forceMV2CalibrationAlias) {
       author = m_MV2CalibAlias;
     }
-    else {
-      author = assigned_jet_author;
-    }
 
-
-    std::string alias = m_calibrationTool->channelAlias(author);
-
-    ATH_MSG_DEBUG("#BTAG# Jet author for MV2: " << author << ", alias: " << alias );
+    ATH_MSG_DEBUG("#BTAG# Jet author for MV2: " << author);
 
     /* check if calibration has to be updated: */
     std::pair<TObject*, bool> calib=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
@@ -181,7 +175,7 @@ namespace Analysis {
     if(calibHasChanged) {
       ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
       if(!calib.first) {
-	ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for"<< m_taggerNameBase<<" "<<alias<<" "<<author);
+	ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for"<< m_taggerNameBase<<" "<<author);
 	m_disableAlgo=true;
 	return;
       }
@@ -193,11 +187,11 @@ namespace Analysis {
 	else {
 	  ATH_MSG_WARNING("#BTAG# Unsupported ROOT class type: "<<rootClassName<<" is retrieved. Disabling algorithm..");
 	  m_disableAlgo=true;
-    return;
+          return;
 	}
 
       }
-      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib", false);
+      m_calibrationTool->updateHistogramStatus(m_taggerNameBase, author, m_taggerNameBase+"Calib", false);
 
       //const std::string treeName  ="BDT";
       //const std::string varStrName="variables";
@@ -209,12 +203,12 @@ namespace Analysis {
 	//now the new part istringstream
 	TList* list = (TList*)calib.first;
 
-  for(int i=0; i<list->GetSize(); ++i) {
+      for(int i=0; i<list->GetSize(); ++i) {
 
-    TObjString* ss = (TObjString*)list->At(i);
-	  std::string sss = ss->String().Data();
+          TObjString* ss = (TObjString*)list->At(i);
+	      std::string sss = ss->String().Data();
 
-    //KM: if it doesn't find "<" in the string, it starts from non-space character
+        //KM: if it doesn't find "<" in the string, it starts from non-space character
 	  int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
 	  std::string tmp = sss.erase(0,posi);
 
@@ -232,7 +226,7 @@ namespace Analysis {
 	  //   nClasses =stoi(newString);
 	  // }
 	}
-	m_calibrationTool->storeCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib", inputVars, iss.str(), 0);
+	m_calibrationTool->storeCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib", inputVars, iss.str(), 0);
 
 	iss.clear();
       }
@@ -255,16 +249,17 @@ namespace Analysis {
 	}
 	inputVars.push_back(commaSepVars.substr(0,-1));
 
-	m_calibrationTool->storeCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib", inputVars, "", tree);
+	m_calibrationTool->storeCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib", inputVars, "", tree);
       }
     }//calibHasChanged
 
     /*KM: Get back the calib objects from calibration broker*/
-    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ) {
+    std::string alias = m_calibrationTool->channelAlias(author);
+    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, author, m_taggerNameBase+"Calib") ) {
       std::vector<float*>  inputPointers; inputPointers.clear();
       unsigned nConfgVar=0; bool badVariableFound=false;
 
-      CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
+      CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib");
       std::vector<std::string> inputVars = calib.inputVars;
       std::string str = calib.str;
       TTree* tree = (TTree*)calib.obj;
@@ -277,22 +272,22 @@ namespace Analysis {
 	return;
       }
       ATH_MSG_VERBOSE("#BTAG# MV2 m_useEgammaMethodMV2= "<<m_useEgammaMethodMV2 );
-
+ 
       if (!m_useEgammaMethodMV2) {
 	// now configure the TMVAReaders:
 	/// check if the reader for this tagger needs update
 	tmvaReader = new TMVA::Reader();
 
-  //Input variables :
-  //replace NAN default values and, assign the values from the MVTM input map to the relevant variables
-  //currently default values are hard coded in the definition of ReplaceNaN_andAssign()
+      //Input variables :
+      //replace NAN default values and, assign the values from the MVTM input map to the relevant variables
+      //currently default values are hard coded in the definition of ReplaceNaN_andAssign()
 
-  CreateLocalVariables( inputs );
+      CreateLocalVariables( inputs );
 
-  SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
+      SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
 
 
-   ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
+      ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
 	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
@@ -329,24 +324,22 @@ namespace Analysis {
 	else {
 	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
 	  m_disableAlgo=true;
-    return;
-
+          return;
 	}
 
-  CreateLocalVariables( inputs );
+    CreateLocalVariables( inputs );
 
-  SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
+    SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
 
-  ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
+    ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
-	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
-	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
-	  m_disableAlgo=true;
-    delete bdt;
-    return;
-	}
-
+    if ( inputVars.size()!=nConfgVar or badVariableFound ) {
+	ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
+	m_disableAlgo=true;
+        delete bdt;
+        return;
+    }
 	bdt->SetPointers(inputPointers);
 
 	it_egammaBDT = m_egammaBDTs.find(alias);
@@ -357,7 +350,7 @@ namespace Analysis {
 	m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
 
       }
-      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false, name());
+      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,author, m_taggerNameBase+"Calib", false);
     }
 
     // #2 fill inputs
@@ -508,7 +501,7 @@ void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
 
       if ( m_local_inputvals.find(inputVars.at(ivar)) == m_local_inputvals.end() ){
         //if variable is not found
-        ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in MV2... the algorithm will be 'disabled'.");//<<alias<<" "<<author);
+        ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in MV2... the algorithm will be 'disabled'.");
         badVariableFound=true;
       }else{
         if(m_useEgammaMethodMV2){

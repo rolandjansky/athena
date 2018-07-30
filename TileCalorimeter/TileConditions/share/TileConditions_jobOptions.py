@@ -8,10 +8,17 @@ msg = logging.getLogger( 'TileConditions_jobOptions.py' )
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
 
+if 'RunNumber' in dir():
+    rn = RunNumber
+elif '_run_number' in dir():
+    rn = _run_number
+else:
+    rn = None
+
 import re
 from AthenaCommon.GlobalFlags import globalflags
 gbltg=globalflags.DetDescrVersion()
-patt = re.compile(r'-([A-Z]+)-')
+patt = re.compile(r'-([A-Z]+.)-')
 ss = patt.search(gbltg)
 if (type(ss) != type(None)):
     version = ss.group(1)
@@ -19,15 +26,34 @@ if (type(ss) != type(None)):
         msg.warning("Old geometry tag detected %s - will not use COOL DB for TileCal calibration" % gbltg)
         TileUseCOOL = False
         TileFrameLength = 9
-    if (version=='GEO') and (not 'TileCablingType' in dir()):
-        if not 'RunNumber' in dir():
+
+if (not 'TileCablingType' in dir()):
+    if rn is None:
+        try:
+            from G4AtlasApps.SimFlags import simFlags
+            if simFlags.RunNumber.statusOn:
+                rn = simFlags.RunNumber()
+        except:
+            msg.info("No SimFlags available - looks like HLT job")
+    if rn is None:
+        try:
             from RecExConfig.AutoConfiguration import GetRunNumber
             rn=GetRunNumber()
-        else:
-            rn=RunNumber
+        except:
+            msg.info("No Run Number available - assume latest cabling")
+
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+    if geoFlags.Run()=="RUN1":
         if rn>219651: # choose RUN2 cabling for old geometry tags starting from 26-MAR-2013 
             TileCablingType = 4 
             msg.warning("Forcing RUN2 cabling for run %s with geometry %s" % (rn,gbltg) )
+    elif geoFlags.Run()=="RUN2":
+        if (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000 or rn<1: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
+            TileCablingType = 5
+            msg.info("Forcing RUN2a (2018) cabling for run %s with geometry %s" % (rn,gbltg) )
+        else:
+            TileCablingType = 4
+            msg.info("Forcing RUN2 (2014-2017) cabling for run %s with geometry %s" % (rn,gbltg) )
 
 if 'TileCablingType' in dir():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -50,16 +76,15 @@ if not 'TileUseDCS' in dir():
         TileCheckOFC=True
 
     if TileUseDCS:
-        from RecExConfig.AutoConfiguration import GetRunNumber
-        rn=GetRunNumber()
+        if rn is None:
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            rn=GetRunNumber()
         TileUseDCS = ((rn>171194 and rn<222222) or rn>232498); # use DCS only for 2011 data and later, excluding shutdown period
 
 if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in dir()):
-    if not 'RunNumber' in dir():
+    if rn is None:
         from RecExConfig.AutoConfiguration import GetRunNumber
         rn=GetRunNumber()
-    else:
-        rn=RunNumber
     if not 'RunOflOFC' in dir():
         RunOflOFC=314450
     if rn<RunOflOFC: # use OFC stored in online folder for all runs before 2017

@@ -24,16 +24,16 @@ typedef T_AthenaPoolCustomCnv<JetElementCollection, JetElementCollection_PERS> J
 class JetElementCollectionCnv: public JetElementCollectionCnvBase {
 friend class CnvFactory<JetElementCollectionCnv>;
 
-protected:
+public:
 
   JetElementCollectionCnv (ISvcLocator* svcloc) :
     JetElementCollectionCnvBase(svcloc),
     m_msgSvc( msgSvc() ),
     m_log( m_msgSvc, "JetElementCollectionCnv" )
      {}
-  
-  ~JetElementCollectionCnv() {}
-  
+
+protected:
+
   virtual JetElementCollection_PERS*   createPersistent (JetElementCollection* transCont);
   virtual JetElementCollection*        createTransient ();
 

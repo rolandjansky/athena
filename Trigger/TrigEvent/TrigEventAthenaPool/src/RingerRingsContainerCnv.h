@@ -22,7 +22,9 @@ class RingerRingsContainerCnv : public RingerRingsContainerCnvBase {
  
   protected:
    
+public:
   RingerRingsContainerCnv(ISvcLocator *svcloc) : RingerRingsContainerCnvBase(svcloc){}
+protected:
  
   virtual RingerRingsContainer_PERS *createPersistent(RingerRingsContainer *transObj);
   virtual RingerRingsContainer *createTransient();

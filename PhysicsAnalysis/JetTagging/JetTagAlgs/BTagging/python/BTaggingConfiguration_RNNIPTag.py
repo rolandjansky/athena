@@ -11,7 +11,7 @@ def buildRNNIP(basename, is_flipped=False, calibration=None):
     cal_dir = calibration or basename
     meta = {'IsATagger'         : True,
             'xAODBaseName'      : basename,
-            'CalibrationFolders' : [cal_dir],
+            'CalibrationTaggers' : [cal_dir],
             'DependsOn'         : ['AtlasExtrapolator',
                                    'BTagCalibrationBrokerTool',
                                    'BTagTrackToVertexTool',

@@ -63,6 +63,9 @@
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "SiSpacePointFormation/SiElementPropertiesTable.h"
+
 class Event;
 class SpacePointCollection; 
 class SpacePointOverlapCollection; 
@@ -79,8 +82,6 @@ namespace InDetDD {
 }
 
 namespace InDet {
-
-  class SiElementPropertiesTable;
 
   class SiTrackerSpacePointFinder:public AthReentrantAlgorithm {
 
@@ -113,7 +114,8 @@ namespace InDet {
 
 
     void addSCT_SpacePoints
-      (const SCT_ClusterCollection* next, 
+      (const SCT_ClusterCollection* next,
+       const SiElementPropertiesTable* properties,
        SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const; 
 
     void checkForSCT_Points
@@ -144,7 +146,6 @@ namespace InDet {
     float m_overlapLimitPhi;       // overlap limit for phi-neighbours.
     float m_overlapLimitEtaMin;    // low overlap limit for eta-neighbours.
     float m_overlapLimitEtaMax;    // high overlap limit for eta-neighbours.
-    float m_epsWidth;		   // safety margin for half-width.
 
     bool m_overrideBS;
     float m_xVertex;
@@ -162,7 +163,6 @@ namespace InDet {
     // const InDetDD::PixelDetectorManager* m_managerPixel;     // unused
     const SCT_ID* m_idHelper;
     const PixelID* m_idHelperPixel;
-    static const SiElementPropertiesTable* s_properties;
     
     SG::WriteHandleKey<SpacePointContainer> m_SpacePointContainer_SCTKey;
     SG::WriteHandleKey<SpacePointContainer> m_SpacePointContainerPixelKey;
@@ -170,6 +170,8 @@ namespace InDet {
     SG::UpdateHandleKey<SpacePointCache> m_SpacePointCache_SCTKey;
     SG::UpdateHandleKey<SpacePointCache> m_SpacePointCache_PixKey;
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
+
+    SG::ReadCondHandleKey<InDet::SiElementPropertiesTable> m_SCTPropertiesKey{this, "SCTPropertiesKey", "SCT_ElementPropertiesTable", "Key of input SiElementPropertiesTable for SCT"};
   };
 
 }

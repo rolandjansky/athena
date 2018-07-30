@@ -261,8 +261,8 @@ StatusCode AthenaPoolCnvSvc::fillRepRefs(IOpaqueAddress* pAddress, DataObject* p
          status = cnv->fillRepRefs(pAddress, pObject);
       }
    } else {
+      // Forward to base class fillRepRefs
       try {
-         // Forward to base class fillRepRefs
          status = ::AthCnvSvc::fillRepRefs(pAddress, pObject);
       } catch(std::runtime_error& e) {
          ATH_MSG_FATAL(e.what());
@@ -654,7 +654,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       ATH_MSG_VERBOSE("Requesting write object for: " << placementStr);
       StatusCode sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
       while (sc.isRecoverable()) {
-         usleep(100);
+         //usleep(100);
          sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
       }
       if (!sc.isSuccess()) {
@@ -679,7 +679,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       // Share object
       sc = m_outputStreamingTool[streamClient]->putObject(buffer, nbytes);
       while (sc.isRecoverable()) {
-         usleep(100);
+         //usleep(100);
          sc = m_outputStreamingTool[streamClient]->putObject(buffer, nbytes);
       }
       if (own) { delete [] static_cast<const char*>(buffer); }
@@ -702,7 +702,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       int num = -1;
       sc = m_outputStreamingTool[streamClient]->clearObject(&tokenStr, num);
       while (sc.isRecoverable()) {
-         usleep(100);
+         //usleep(100);
          sc = m_outputStreamingTool[streamClient]->clearObject(&tokenStr, num);
       }
       if (!sc.isSuccess()) {
@@ -736,6 +736,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
 }
 //______________________________________________________________________________
 void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
+   ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObjR_ALL");
    }
@@ -748,36 +749,37 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
          std::size_t nbytes = 0;
          StatusCode sc = m_outputStreamingTool[m_streamServer]->getObject(&buffer, nbytes, num);
          while (sc.isRecoverable()) {
-            usleep(100);
+            //usleep(100);
             sc = m_outputStreamingTool[m_streamServer]->getObject(&buffer, nbytes, num);
          }
          if (!sc.isSuccess()) {
             ATH_MSG_ERROR("Failed to get Data for " << token->toString());
-            return;
-         }
-         if (token->classID() != Guid::null()) {
-            // Deserialize object
-            RootType cltype(pool::DbReflex::forGuid(token->classID()));
-            obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+            obj = nullptr;
          } else {
-            // Deserialize object
-            std::string className = token->auxString();
-            className = className.substr(className.find("[PNAME="));
-            className = className.substr(7, className.find(']') - 7);
-            RootType cltype(RootType::ByName(className));
-            obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+            if (token->classID() != Guid::null()) {
+               // Deserialize object
+               RootType cltype(pool::DbReflex::forGuid(token->classID()));
+               obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+            } else {
+               // Deserialize object
+               std::string className = token->auxString();
+               className = className.substr(className.find("[PNAME="));
+               className = className.substr(7, className.find(']') - 7);
+               RootType cltype(RootType::ByName(className));
+               obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+            }
+            AuxDiscoverySvc auxDiscover;
+            if (!auxDiscover.receiveStore(m_serializeSvc.get(), m_outputStreamingTool[m_streamServer].get(), obj, num).isSuccess()) {
+               ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
+               obj = nullptr;
+            }
          }
-         AuxDiscoverySvc auxDiscover;
-         if (!auxDiscover.receiveStore(m_serializeSvc.get(), m_outputStreamingTool[m_streamServer].get(), obj, num).isSuccess()) {
-            ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
-         }
-         return;
       }
    }
    if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
       if (!m_inputStreamingTool->lockObject(token->toString().c_str()).isSuccess()) {
-         ATH_MSG_WARNING("Failed to lock Data for " << token->toString());
+         ATH_MSG_ERROR("Failed to lock Data for " << token->toString());
          obj = nullptr;
       } else {
          if (m_doChronoStat) {
@@ -794,17 +796,18 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
             m_chronoStatSvc->chronoStop("gObj_ALL");
          }
          if (!sc.isSuccess()) {
-            ATH_MSG_WARNING("Failed to get Data for " << token->toString());
+            ATH_MSG_ERROR("Failed to get Data for " << token->toString());
             obj = nullptr;
          } else {
             obj = m_serializeSvc->deserialize(buffer, nbytes, token->classID()); buffer = nullptr;
             AuxDiscoverySvc auxDiscover;
             if (!auxDiscover.receiveStore(m_serializeSvc.get(), m_inputStreamingTool.get(), obj).isSuccess()) {
                ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
+               obj = nullptr;
             }
          }
       }
-   } else {
+   } else if (token->dbID() != Guid::null()) {
       m_poolSvc->setObjPtr(obj, token);
    }
    if (m_doChronoStat) {
@@ -1097,6 +1100,9 @@ StatusCode AthenaPoolCnvSvc::decodeOutputSpec(std::string& fileSpec,
    } else if (fileSpec.find("ROOTTREE:") == 0) {
       outputTech = pool::ROOTTREE_StorageType;
       fileSpec.erase(0, 9);
+   } else if (fileSpec.find("ROOTTREEINDEX:") == 0) {
+      outputTech = pool::ROOTTREEINDEX_StorageType;
+      fileSpec.erase(0, 14);
    }
    return(StatusCode::SUCCESS);
 }

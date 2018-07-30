@@ -24,7 +24,7 @@
 #include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 
-#include "SCT_ConditionsTools/SCT_Chip.h"
+#include "SCT_ConditionsData/SCT_Chip.h"
 
 // Forward declarations
 class SCT_ID;
@@ -52,7 +52,7 @@ class SCT_PortMap {
     m_output[1] = out1;
   }
 
-  ~SCT_PortMap() {}
+  ~SCT_PortMap() = default;
   
   /** Functions to retrieve the chip mapped to the input and output ports*/
   inline SCT_Parameters::ChipType input(int port) const  { return m_input[port];}
@@ -80,9 +80,9 @@ class SCT_ReadoutTool : public extends<AthAlgTool, ISCT_ReadoutTool> {
   StatusCode finalize() override;
   
   /** Determine which chips are in the readout for a module of a particular type by Identifier*/
-  StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok);
+  virtual StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) override;
   /** Determine which chips are in the readout for a module of a particular type by truncated serial number*/
-  StatusCode determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok);
+  virtual StatusCode determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) override;
 
  private:
 

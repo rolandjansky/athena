@@ -272,7 +272,7 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
+StatusCode MergeMcEventCollTool::processBunchXing(int bunchXing,
                                                 SubEventIterator bSubEvents,
                                                 SubEventIterator eSubEvents)
 {
@@ -280,14 +280,13 @@ StatusCode MergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
   SubEventIterator iEvt(bSubEvents);
   //loop over the McEventCollections (each one assumed to containing exactly one GenEvent) of the various input events
   while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
     const McEventCollection *pMEC(NULL);
-    //FIXME Should I be using m_truthCollKey in the retrieve method?
-    if (!seStore.retrieve(pMEC, m_truthCollKey.value()).isSuccess()) {
-      ATH_MSG_ERROR ("processBunchXing: SubEvt McEventCollection NOT FOUND in StoreGate " << seStore.name() );
+    if (!m_pMergeSvc->retrieveSingleSubEvtData(m_truthCollKey.value(), pMEC,
+					       bunchXing, iEvt).isSuccess()){
+      ATH_MSG_ERROR("McEventCollection not found for event key " << m_truthCollKey.value());
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG ("processBunchXing: SubEvt McEventCollection from StoreGate " << seStore.name() );
+
     if (!processEvent(pMEC,iEvt->time(),iEvt->index()).isSuccess()) {
       ATH_MSG_ERROR ("processBunchXing: Failed to process McEventCollection." );
       return StatusCode::FAILURE;

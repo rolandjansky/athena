@@ -1,13 +1,12 @@
-
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-def PoolReadCfg(inputFlags):
+def PoolReadCfg(configFlags):
     """
-    creates A ComponentAccumulator instance containing the 
+    Creates a ComponentAccumulator instance containing the 
     athena services required for POOL file reading
     """
 
-    filenames=inputFlags.get("AthenaConfiguration.GlobalFlags.InputFiles")
+    filenames=configFlags("global.InputFiles")
 
     result=ComponentAccumulator()
 

@@ -6,8 +6,8 @@
 #define TRKCALOCLUSTERROI_COLLECTION_H
 
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 

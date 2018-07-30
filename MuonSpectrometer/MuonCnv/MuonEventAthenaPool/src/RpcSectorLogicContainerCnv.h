@@ -16,7 +16,9 @@ typedef  T_AthenaPoolCustomCnv<RpcSectorLogicContainer, PERS >   RpcSectorLogicC
 class RpcSectorLogicContainerCnv : public RpcSectorLogicContainerCnvBase {
 friend class CnvFactory<RpcSectorLogicContainerCnv >;
 protected:
+public:
   RpcSectorLogicContainerCnv (ISvcLocator* svcloc) : RpcSectorLogicContainerCnvBase(svcloc) {}
+protected:
   virtual PERS*   createPersistent (RpcSectorLogicContainer* transObj);
   virtual RpcSectorLogicContainer*  createTransient ();
 };

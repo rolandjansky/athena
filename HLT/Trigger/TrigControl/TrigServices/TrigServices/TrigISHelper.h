@@ -148,8 +148,8 @@ inline bool TrigISHelper::validPartition(ISObject obj)
 
 inline const InterfaceID& TrigISHelper::interfaceID()
 {
-  static const InterfaceID _IID("TrigISHelper", 1, 0);
-  return _IID;
+  static const InterfaceID IID("TrigISHelper", 1, 0);
+  return IID;
 }
 
 //--------------------------------------------------------------------------------

@@ -77,9 +77,7 @@ CscClusterValAlg::CscClusterValAlg(const std::string & type,
   m_cscclus_oviewEC(0)
 {
 
-  declareProperty("CSCClusterKey", m_cscClusterKey = "CSC_Clusters");
   declareProperty("CSCClusterPath", m_cscClusterPath = "Muon/MuonRawDataMonitoring/CSC/Clusters");
-  declareProperty("CSCPrepRawDataKey", m_cscPRDKey = "CSC_Measurements");
   declareProperty("CSCQmaxCutADC", m_qmaxADCCut = 100);
   declareProperty("CSCStripFitter", m_stripFitter);
   declareProperty("CSCCalibTool", m_cscCalibTool);
@@ -166,6 +164,9 @@ StatusCode CscClusterValAlg::initialize(){
   }
 
   ManagedMonitorToolBase::initialize().ignore();
+
+  ATH_CHECK(m_cscClusterKey.initialize());
+  ATH_CHECK(m_cscPRDKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -746,41 +747,12 @@ StatusCode CscClusterValAlg::fillHistograms() {
   if(m_doEvtSel) { if(!evtSelTriggersPassed()) return sc; }
 
   // retrieve cluster / strip collection
-  const DataHandle<CscPrepDataContainer> cscCluster(0);
-  const DataHandle<CscStripPrepDataContainer> cscStrip(0);
-
-  sc = StatusCode(evtStore()->contains<Muon::CscPrepDataContainer>(m_cscClusterKey));
-  if(sc.isFailure() || m_cscClusterKey == "") {
-    ATH_MSG_WARNING (  "Cluster container of type Muon::CscPrepDataContainer and key \"" << m_cscClusterKey << "\" NOT found in StoreGate" );
-    return sc;
-  } else {
-    sc = evtStore()->retrieve(cscCluster, m_cscClusterKey);
-    if( sc.isFailure() ) {
-      ATH_MSG_WARNING ( "Could not retrieve cluster container of type Muon::CscPrepDataContainer and key \"" << m_cscClusterKey << "\"" );
-      return sc;
-    }
-  }
-
-  sc = StatusCode(evtStore()->contains<Muon::CscStripPrepDataContainer>(m_cscPRDKey));
-  if(sc.isFailure() || m_cscPRDKey == "") {
-    ATH_MSG_WARNING (  "PRD container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPRDKey << "\" NOT found in StoreGate" );
-    return sc;
-  } else {
-    sc = evtStore()->retrieve(cscStrip, m_cscPRDKey);
-    if( sc.isFailure() ) {
-      ATH_MSG_WARNING ( "Could not retrieve strip container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPRDKey << "\"" );
-      return sc;
-    }
-  }
+  SG::ReadHandle<CscPrepDataContainer> cscCluster(m_cscClusterKey);
+  SG::ReadHandle<CscStripPrepDataContainer> cscStrip(m_cscPRDKey);
 
   // we can do (some) monitoring plots with just the cluster
   // ideally we need both the cluster and the strips that make up that cluster  
-  if( sc.isSuccess()) { 
-    FillCSCClusters(*cscCluster, *cscStrip);
-  } else {
-    ATH_MSG_WARNING ( name() << " : cannot fill monitoring histograms " );
-    return StatusCode::SUCCESS;
-  }
+  FillCSCClusters(cscCluster.cptr(), cscStrip.cptr());
 
   return sc; 
 }
@@ -788,14 +760,14 @@ StatusCode CscClusterValAlg::fillHistograms() {
 //
 // FillCSCClusters ----------------------------------------------------------------
 //
-void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& cols, const CscStripPrepDataContainer& strips ) {
+void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer* cols, const CscStripPrepDataContainer* strips ) {
 
 
-  ATH_MSG_DEBUG ( " Size of Cluster Collection : " << cols.size() );
-  ATH_MSG_DEBUG ( " Size of Strip Collection : " << strips.size() );
+  ATH_MSG_DEBUG ( " Size of Cluster Collection : " << cols->size() );
+  ATH_MSG_DEBUG ( " Size of Strip Collection : " << strips->size() );
 
-  for ( CscPrepDataContainer::const_iterator Icol = cols.begin();
-      Icol != cols.end(); ++Icol ) {
+  for ( CscPrepDataContainer::const_iterator Icol = cols->begin();
+      Icol != cols->end(); ++Icol ) {
     const CscPrepDataCollection& clus = **Icol;
     //Identifier coll_id = clus.identify();
 
@@ -952,8 +924,8 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& cols, const
           m_h2csc_clus_hitmap->Fill(stripid, secLayer);
 
           if(!pcol) {
-            CscStripPrepDataContainer::const_iterator icol = strips.indexFind(clus.identifyHash());
-            if ( icol == strips.end() ) {
+            CscStripPrepDataContainer::const_iterator icol = strips->indexFind(clus.identifyHash());
+            if ( icol == strips->end() ) {
               found_id = false;
               break;  // could not identify the strips
             } else {

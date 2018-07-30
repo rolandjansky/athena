@@ -19,7 +19,9 @@ class TrigPassFlagsCollectionCnv : public TrigPassFlagsCollectionCnvBase {
 
  protected:
 
+public:
   TrigPassFlagsCollectionCnv( ISvcLocator *svcloc ): TrigPassFlagsCollectionCnvBase(svcloc){}
+protected:
 
   virtual TrigPassFlagsCollection_PERS *createPersistent( TrigPassFlagsCollection *transObj);
   virtual TrigPassFlagsCollection      *createTransient();

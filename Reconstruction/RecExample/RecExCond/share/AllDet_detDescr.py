@@ -61,17 +61,6 @@ if DetFlags.detdescr.any_on():
     if DetFlags.detdescr.Muon_on() and not rec.doAODMerging():
         protectedInclude ("AmdcAth/AmdcAth_jobOptions.py")
 
-        #if DetDescrVersion[0:3]=="DC2":
-        from AthenaCommon.GlobalFlags import globalflags
-        if globalflags.DetDescrVersion()[0:3]=="DC2":
-            #FIXME should not be there
-            MDTcablingSvc = Service ("MDTcablingSvc")
-            MDTcablingSvc.RODfile = "P03_RODmap.data"
-            RPCcablingSvc = Service ("RPCcablingSvc")
-            RPCcablingSvc.ConfFileName = "P03conf.data"
-            RPCcablingSvc.CorrFileName = "P03conf.corr"
-
-
 
     # MagneticField Service
     if DetFlags.detdescr.BField_on() and not rec.doAODMerging():

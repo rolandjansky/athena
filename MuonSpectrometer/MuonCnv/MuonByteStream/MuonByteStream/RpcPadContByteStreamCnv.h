@@ -16,6 +16,7 @@
 
 //#include "MuonByteStream/RPC_Hid2RESrcID.h"
 //#include "MuonByteStream/RpcROD_Decoder.h"
+#include "MuonRPC_CnvTools/IRPC_RDOtoByteStreamTool.h"
 
 class DataObject;
 class StatusCode;
@@ -24,9 +25,9 @@ class IByteStreamEventAccess;
 class StoreGateSvc; 
 class MsgStream; 
 
-namespace Muon {
-class IRPC_RDOtoByteStreamTool; 
-}
+// namespace Muon {
+// class IRPC_RDOtoByteStreamTool; 
+// }
 #include <string>
 
 // Abstract factory to create the converter
@@ -36,13 +37,9 @@ template <class TYPE> class CnvFactory;
 extern long ByteStream_StorageType;
 
 class RpcPadContByteStreamCnv: public Converter {
-  friend class CnvFactory<RpcPadContByteStreamCnv>;
-
- protected:
-  RpcPadContByteStreamCnv(ISvcLocator* svcloc);
-  ~RpcPadContByteStreamCnv();
 
  public:
+  RpcPadContByteStreamCnv(ISvcLocator* svcloc);
 
   typedef Muon::IRPC_RDOtoByteStreamTool  BYTESTREAMTOOL ; 
 

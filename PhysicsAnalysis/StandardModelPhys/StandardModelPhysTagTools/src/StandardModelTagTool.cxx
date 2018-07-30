@@ -79,9 +79,3 @@ StatusCode StandardModelPhysTagTool::finalize() {
   ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
-
-/** destructor */
-StandardModelPhysTagTool::~StandardModelPhysTagTool() {}
-
-
-

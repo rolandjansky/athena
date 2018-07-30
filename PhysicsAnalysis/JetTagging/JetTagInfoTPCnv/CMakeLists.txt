@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/egamma/egammaEvent
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkEventCnv/TrkEventTPCnv
-                          PRIVATE
                           Control/CxxUtils )
 
 # External dependencies:

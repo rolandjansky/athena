@@ -5,7 +5,7 @@
 #ifndef TRIGMON_CONFIG_COLLECTION_H
 #define TRIGMON_CONFIG_COLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigMonitoringEvent/TrigMonConfig.h"
 
 class TrigMonConfigCollection : public DataVector<TrigMonConfig> {

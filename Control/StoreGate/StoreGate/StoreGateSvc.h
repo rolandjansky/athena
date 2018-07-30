@@ -28,6 +28,8 @@
 #include "GaudiKernel/Property.h"   /*StringArrayProperty*/
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/DataObjID.h"
+#include "GaudiKernel/IAlgContextSvc.h"
 
 #include <cstddef>                     // for size_t
 #include <list>
@@ -36,6 +38,7 @@
 #include <string>
 #include <sys/types.h>                  // for off_t
 #include <vector>                       
+#include <type_traits>
 
 #include "AthenaKernel/StoreID.h"
 #include "AthenaKernel/IProxyDict.h"
@@ -56,6 +59,7 @@
 #include "StoreGate/SGWPtr.h"
 #include "SGTools/DataStore.h"
 #include "StoreGate/SGObjectWithVersion.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -534,30 +538,10 @@ public:
   /// @param forceRemove: if true remove proxies ignoring their resetOnly flag
   virtual StatusCode clearStore(bool forceRemove=false) override final;
 
-  /** Get data objects registered in store since last getNewDataObjects call (or since init for 1st call)
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Status code indicating failure or success.
-   */
-  virtual StatusCode getNewDataObjects(DataObjIDColl& products) override final;
-
-  /** Check if something has been added to the store since last getNewDataObjects call
-   *
-   * @param  products     [IN]     Slot number (event slot)   *
-   * @return Boolean indicating the presence of new products
-   */
-  virtual bool newDataObjectsPresent() override final; 
-
-  /** make newly recorded DataObjects know to the WhiteBoard, by copying
-   *    from thread local storage to m_newDataObjects
+  /** Reset handles added since the last call to commit.
    */
   virtual void commitNewDataObjects() override final;
   //@}
-
-  ///a new transient object has been recorded
-  void addedNewTransObject(CLID clid, const std::string& key);
-
-  void addedNewPersObject(CLID clid, SG::DataProxy* dp);
 
   ///set the hive event slot pointer: used by the event loop mgrs
   static void setSlot(SG::HiveEventSlot* pSlot);
@@ -646,15 +630,6 @@ public:
                                const std::string& key,
                                bool allowMods,
                                bool returnExisting) override final;
-
-
-  /**
-   * @brief Inform HIVE that an object has been updated.
-   * @param id The CLID of the object.
-   * @param key The key of the object.
-   */
-  virtual
-  StatusCode updatedObject (CLID id, const std::string& key) override final;
 
 
   /// Get proxy given a hashed key+clid.
@@ -878,6 +853,7 @@ private:
   ServiceHandle<IIncidentSvc> m_incSvc; ///< property
   ServiceHandle<ActiveStoreSvc> m_activeStoreSvc; ///< property
 
+
   friend class SG::TestHiveStoreSvc;
   static SG::HiveEventSlot* currentSlot();
 
@@ -995,7 +971,69 @@ private:
 
   /// Cache store type in the facade class.
   StoreID::type m_storeID;
-  
+
+  /// Algorithm context, for tracking bad calls.
+  ServiceHandle<IAlgContextSvc> m_algContextSvc;
+
+  struct BadListItem
+    : public DataObjID
+  {
+  public:
+    BadListItem (CLID clid, const std::string& key, const std::string& algo)
+      : DataObjID (clid, key), m_algo (algo)
+    {}
+    std::string m_algo;
+  };
+  typedef std::unordered_set<BadListItem, DataObjID_Hasher> BadItemList;
+
+  /// Remember calls to retrieve and record for a MT store, so we can
+  /// warn about them during finalize().
+  // Thread-safe, since they're protected by m_badMutex.
+  mutable BadItemList m_badRetrieves ATLAS_THREAD_SAFE;
+  mutable BadItemList m_badRecords   ATLAS_THREAD_SAFE;
+
+  /// Protect access to m_bad* members.
+  typedef std::mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+  mutable mutex_t m_badMutex;
+
+
+  /**
+   * @brief Remember that retrieve() was called for a MT store.
+   * @param clid CLID of the operation.
+   * @param key Key of the operation.
+   */
+  void rememberBadRetrieve (CLID clid, const std::string& key) const;
+
+
+  /**
+   * @brief Remember that retrieve() was called for a MT store.
+   * @param clid CLID of the operation.
+   * @param key Key of the operation.
+   */
+  void rememberBadRecord (CLID clid, const std::string& key) const;
+
+
+  /**
+   * @brief Remember that retrieve or record was called for a MT store.
+   * @param bad The list on which to store the operation.
+   * @param clid CLID of the operation.
+   * @param key Key of the operation.
+   */
+  void rememberBad (BadItemList& bad,
+                    CLID clid,
+                    const std::string& key) const;
+
+
+  /** 
+   * @brief Print out a list of bad calls during finalization.
+   * @param bad List of bad calls.
+   * @param what Description of the operation.
+   */
+  void printBadList (const BadItemList& bad,
+                     const std::string& what) const;
+
+
 
 public:
   ///////////////////////////////////////////////////////////////////////

@@ -5,7 +5,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "egammaEvent/ElectronContainer.h"
 
@@ -222,6 +221,3 @@ StatusCode ZeeTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-ZeeTool::~ZeeTool() {}

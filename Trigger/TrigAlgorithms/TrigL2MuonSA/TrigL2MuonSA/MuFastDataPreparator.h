@@ -100,18 +100,20 @@ class MuFastDataPreparator: public AthAlgTool
  protected:
   
   // Services
-  ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc;
+  //ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc;
+  ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc {
+  	this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc", "Reconstruction of RPC RoI"};
 
  private:
   
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
 
-  IRegSelSvc*        m_regionSelector;
+  ServiceHandle<IRegSelSvc> m_regionSelector;
   const MdtIdHelper* m_mdtIdHelper;
   
  private:
   
-  const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
+  //const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
 
   // Tools
   ToolHandle<RpcDataPreparator>  m_rpcDataPreparator;

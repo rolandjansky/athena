@@ -42,13 +42,8 @@ class TileLaserObjByteStreamCnv
   : public Converter
   , public ::AthMessaging
  {
-
-    friend class CnvFactory<TileLaserObjByteStreamCnv>;
-
-  protected:
-    TileLaserObjByteStreamCnv(ISvcLocator* svcloc);
-
   public:
+    TileLaserObjByteStreamCnv(ISvcLocator* svcloc);
 
     typedef TileLaserObjByteStreamTool  BYTESTREAMTOOL ;
 

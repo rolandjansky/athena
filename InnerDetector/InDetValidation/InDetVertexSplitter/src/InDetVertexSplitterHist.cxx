@@ -9,7 +9,6 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "VxVertex/VxContainer.h"

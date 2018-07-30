@@ -35,7 +35,6 @@ class PixelID;
  **/
 
 class PixelIDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<PixelIDDetDescrCnv>;
 
 public:
 
@@ -48,7 +47,6 @@ public:
     static long storageType();
     static const CLID& classID();
 
-protected:
     PixelIDDetDescrCnv(ISvcLocator* svcloc);
 
 private:

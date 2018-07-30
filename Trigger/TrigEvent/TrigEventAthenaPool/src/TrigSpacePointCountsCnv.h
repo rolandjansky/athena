@@ -34,10 +34,11 @@ class TrigSpacePointCountsCnv : public TrigSpacePointCountsCnvBase {
 
   virtual StatusCode initialize();
 
- protected:
+public:
   TrigSpacePointCountsCnv(ISvcLocator *svcloc);
   ~TrigSpacePointCountsCnv();
 
+protected:
   virtual TrigSpacePointCounts_PERS  *createPersistent(TrigSpacePointCounts *transObj);
   virtual TrigSpacePointCounts       *createTransient();
 };

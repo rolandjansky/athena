@@ -35,6 +35,8 @@
 // AthenaServices
 #include "PyAthenaEventLoopMgr.h"
 
+#include "RootUtils/PyAthenaGILStateEnsure.h"
+
 
 //- data ------------------------------------------------------------------
 namespace {
@@ -80,6 +82,7 @@ PyAthenaEventLoopMgr::PyAthenaEventLoopMgr( const std::string& name,
 //=========================================================================
 PyObject* PyAthenaEventLoopMgr::setManager( PyObject* mgr )
 {
+   RootUtils::PyGILStateEnsure gil;
    if ( ! PyObject_HasAttrString( mgr, execalgs ) )
    {
       PyErr_SetString( PyExc_TypeError, "given object is not a manager" );
@@ -119,6 +122,7 @@ PyObject* PyAthenaEventLoopMgr::setManager( PyObject* mgr )
 
 PyObject* PyAthenaEventLoopMgr::getManager()
 {
+   RootUtils::PyGILStateEnsure gil;
    if ( ! m_manager )
    {
       Py_INCREF( Py_None );
@@ -135,6 +139,7 @@ PyObject* PyAthenaEventLoopMgr::getManager()
 //=========================================================================
 StatusCode PyAthenaEventLoopMgr::initialize()    
 {
+   RootUtils::PyGILStateEnsure gil;
 // get the PyAthenaEventLoopMgr python-side class
    PyObject* modpyelm = PyImport_ImportModule( const_cast< char* >( "AthenaServices.PyAthenaEventLoopMgr" ) );
    if ( modpyelm ) {
@@ -179,6 +184,7 @@ StatusCode PyAthenaEventLoopMgr::initialize()
 //=========================================================================
 StatusCode PyAthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx)
 {
+   RootUtils::PyGILStateEnsure gil;
 // forward to call to the python-side object
    if ( m_manager != nullptr )
    {
@@ -220,6 +226,7 @@ StatusCode PyAthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx)
 //=========================================================================
 StatusCode PyAthenaEventLoopMgr::finalize()
 {
+   RootUtils::PyGILStateEnsure gil;
    Py_XDECREF( m_manager );
 
    return this->AthenaEventLoopMgr::finalize();

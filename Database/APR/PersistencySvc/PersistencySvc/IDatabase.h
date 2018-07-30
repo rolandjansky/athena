@@ -46,12 +46,6 @@ namespace pool {
     /// Returns the opening mode. It can be used to check whether the database is connected.
     virtual OpenMode openMode() const = 0;
 
-    /** Reopens in a different mode.
-     *  If the database was in UPDATE mode before, then all changes since
-     *  the last commit are aborted.
-     */
-    virtual void revertMode( OpenMode mode ) = 0;
-
     /// Returns the file identifier of this database
     virtual const std::string& fid() const = 0;
 

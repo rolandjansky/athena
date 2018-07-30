@@ -22,8 +22,8 @@ class SCT_SensorsCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-  SG::WriteCondHandleKey<SCT_SensorsCondData> m_writeKey;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/Sensors", "Key of input (raw) conditions folder"};
+  SG::WriteCondHandleKey<SCT_SensorsCondData> m_writeKey{this, "WriteKey", "SCT_SensorsCondData", "Key of output (derived) conditions data"};
   ServiceHandle<ICondSvc> m_condSvc; 
 };
 

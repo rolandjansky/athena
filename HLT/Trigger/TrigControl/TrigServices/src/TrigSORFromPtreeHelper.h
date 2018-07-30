@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -37,7 +37,7 @@ public:
    * otherwise. SOR contents filled according to what is specified by rparams.
    * Validity of SOR set to this run
    */
-  const SOR * fillSOR(const boost::property_tree::ptree & rparams) const;
+  const SOR * fillSOR(const boost::property_tree::ptree & rparams, const EventContext& ctx) const;
 
 private:
   typedef ServiceHandle<StoreGateSvc> SG;

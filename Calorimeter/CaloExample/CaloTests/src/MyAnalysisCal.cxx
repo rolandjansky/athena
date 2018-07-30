@@ -12,6 +12,7 @@
 #include "CaloSimEvent/CaloCalibrationHit.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "GeneratorObjects/McEventCollection.h"
+#include "StoreGate/ReadHandle.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 
@@ -22,7 +23,7 @@ namespace MyAnalysisCal {
 
   //Constructor
   AnalysisCal::AnalysisCal(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name,pSvcLocator)
+    AthReentrantAlgorithm(name,pSvcLocator)
     //m_nevt(0)
   {
   }
@@ -37,6 +38,9 @@ namespace MyAnalysisCal {
   StatusCode AnalysisCal::initialize()
   {
     ATH_MSG_DEBUG("Analysiscal initialize()"  );
+    ATH_CHECK( m_mcCollName.initialize() );
+    ATH_CHECK( m_hitContainerNames.initialize() );
+    ATH_CHECK( m_calibHitContainerNames.initialize() );
     return StatusCode::SUCCESS; 
   }
   //__________________________________________________________________________
@@ -47,7 +51,7 @@ namespace MyAnalysisCal {
   }
   
   //__________________________________________________________________________
-  StatusCode AnalysisCal::execute()
+  StatusCode AnalysisCal::execute_r (const EventContext& ctx) const
   {
     //.............................................
     
@@ -55,14 +59,10 @@ namespace MyAnalysisCal {
 
 // loop over generated particles
 
-      const DataHandle<McEventCollection> mcCollptr;
+      SG::ReadHandle<McEventCollection> mcCollptr (m_mcCollName);
       double e_true=0.;
       double eta_true=-999.;
       double phi_true=-999.;
-      if ( evtStore()->retrieve(mcCollptr,"GEN_EVENT").isFailure() ) {
-        ATH_MSG_WARNING( "cannot retrieve McEventCollection  with key GEN_EVENT" );
-      } 
-      else
       {
        McEventCollection::const_iterator itr;
        for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
@@ -86,32 +86,13 @@ namespace MyAnalysisCal {
 
 // Loop over LAr hits
 
-  std::vector <std::string> HitContainer;
-
-  HitContainer.push_back("LArHitEMB");
-  HitContainer.push_back("LArHitEMEC");
-  HitContainer.push_back("LArHitHEC");
-  HitContainer.push_back("LArHitFCAL");
-  unsigned int iHitContainer;
   int nhit_tot=0;
   double etot_hit=0.;
-  ATH_MSG_DEBUG( "HitContainer.size " << HitContainer.size()  );
-  for (iHitContainer=0;iHitContainer<HitContainer.size();iHitContainer++)
- {
-    const LArHitContainer* hit_container ;
-    if(evtStore()->retrieve(hit_container,HitContainer[iHitContainer])
-      .isFailure()) {
-      ATH_MSG_INFO( " cannot retrieve hit container "  );
-    }  else
-    {
-       LArHitContainer::const_iterator hititer;
-       for(hititer=hit_container->begin();
-           hititer != hit_container->end();hititer++)
-       {
-          LArHit* hit = (*hititer);
-          etot_hit += hit->energy();
-          nhit_tot++;
-       }
+  for (const SG::ReadHandleKey<LArHitContainer>& k : m_hitContainerNames) {
+    SG::ReadHandle<LArHitContainer> hit_container (k, ctx);
+    for (const LArHit* hit : *hit_container) {
+      etot_hit += hit->energy();
+      nhit_tot++;
     }
   }
   ATH_MSG_INFO( " Total number of LAr hits " << nhit_tot  );
@@ -122,27 +103,12 @@ namespace MyAnalysisCal {
 
   double etot_cal=0;
   nhit_tot=0;
-  std::vector <std::string> CalibrationHitContainer;
-  CalibrationHitContainer.push_back("LArCalibrationHitActive");
-  CalibrationHitContainer.push_back("LArCalibrationHitDeadMaterial");
-  CalibrationHitContainer.push_back("LArCalibrationHitInactive");
-  ATH_MSG_DEBUG( "CalibrationHitContainer.size " << CalibrationHitContainer.size()  );
-  for (iHitContainer=0;iHitContainer<CalibrationHitContainer.size();iHitContainer++)
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_calibHitContainerNames)
   {
-    const CaloCalibrationHitContainer* calocalibrationhit_container ;
-    if(evtStore()->retrieve(calocalibrationhit_container,CalibrationHitContainer[iHitContainer])
-      .isFailure()) {
-      ATH_MSG_INFO( " cannot retrieve calo calibration hit container "  );
-    }  else
-    {
-       CaloCalibrationHitContainer::const_iterator calibhititer;
-       for(calibhititer=calocalibrationhit_container->begin();
-           calibhititer != calocalibrationhit_container->end();calibhititer++)
-       {
-          CaloCalibrationHit* calibhit = (*calibhititer);
-          nhit_tot++;
-          etot_cal = etot_cal + calibhit->energyTotal();
-       }
+    SG::ReadHandle<CaloCalibrationHitContainer> calocalibrationhit_container (k, ctx);
+    for (const CaloCalibrationHit* calibhit : *calocalibrationhit_container) {
+      nhit_tot++;
+      etot_cal = etot_cal + calibhit->energyTotal();
     }
   }
   ATH_MSG_INFO( " Total number of calibration hits " << nhit_tot  );

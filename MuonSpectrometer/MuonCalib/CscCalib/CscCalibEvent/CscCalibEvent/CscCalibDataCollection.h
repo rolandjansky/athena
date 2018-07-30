@@ -15,8 +15,8 @@
 *******************************************************************/
 
 #include "CscCalibEvent/CscCalibData.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
 
 class CscCalibDataCollection : public DataVector<CscCalibData> {

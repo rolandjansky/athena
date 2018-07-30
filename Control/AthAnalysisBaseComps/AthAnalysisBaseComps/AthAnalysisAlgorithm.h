@@ -59,11 +59,7 @@ class AthAnalysisAlgorithm : public ::AthHistogramAlgorithm, virtual public IInc
       /// Function initialising the tool in the correct way in Athena
       virtual StatusCode sysInitialize() override;
       /// override to do firstEvent method
-#ifndef GAUDI_SYSEXECUTE_WITHCONTEXT 
-      virtual StatusCode sysExecute() override;
-#else
       virtual StatusCode sysExecute(const EventContext&) override;
-#endif
 
       /// Helper function to access IOVMetaDataContainer information helped in the MetaDataStore
       template<typename T> StatusCode retrieveMetadata(const std::string& folder, const std::string& key, T& out) { 

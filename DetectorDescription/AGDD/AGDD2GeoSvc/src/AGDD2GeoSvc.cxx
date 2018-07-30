@@ -5,7 +5,6 @@
 #include "AGDD2GeoSvc/AGDD2GeoSvc.h"
 #include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SvcFactory.h"
 
 #include "AGDDControl/IAGDDToolBase.h"
 #include "AGDDControl/AGDDTokenizer.h"
@@ -25,7 +24,6 @@
 AGDDtoGeoSvc::AGDDtoGeoSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc),m_tagInfoMgr(0)
 {
-	ATH_MSG_INFO("creating AGDDtoGeoSvc!!!");
 	declareProperty( "Builders",      	m_builders, "Builders");
 }
 

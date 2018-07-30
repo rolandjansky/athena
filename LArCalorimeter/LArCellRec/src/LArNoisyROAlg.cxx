@@ -3,7 +3,7 @@
 */
 
 
-#include "LArCellRec/LArNoisyROAlg.h"
+#include "LArNoisyROAlg.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
@@ -11,7 +11,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArCabling/LArCablingService.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -22,7 +21,7 @@
 using xAOD::EventInfo;
 
 LArNoisyROAlg::LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator):
-  AthAlgorithm (name, pSvcLocator), 
+  AthReentrantAlgorithm (name, pSvcLocator), 
   m_noisyROTool("LArNoisyROTool",this)
 {
   declareProperty( "CaloCellContainer", m_CaloCellContainerName = "AllCalo" );
@@ -30,23 +29,25 @@ LArNoisyROAlg::LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator):
   declareProperty( "Tool",m_noisyROTool);
 }
 
-StatusCode LArNoisyROAlg::initialize()
-{
-  CHECK(m_noisyROTool.retrieve());
+StatusCode LArNoisyROAlg::initialize() {
+  ATH_CHECK(m_noisyROTool.retrieve());
+  ATH_CHECK(m_CaloCellContainerName.initialize());
+  ATH_CHECK(m_outputKey.initialize());
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArNoisyROAlg::execute() 
+StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
 {
+  SG::ReadHandle<CaloCellContainer> cellContainer(m_CaloCellContainerName, ctx);
+  if (!cellContainer.isValid()) { 
+    ATH_MSG_ERROR( " Can not retrieve CaloCellContainer: "
+                   << m_CaloCellContainerName.key());
+    return StatusCode::FAILURE;      
+  } 
+  
 
-  const CaloCellContainer* cellContainer(0);
-  StatusCode sc = evtStore()->retrieve(cellContainer, m_CaloCellContainerName);
-  if (sc.isFailure() || !cellContainer ) {
-    ATH_MSG_WARNING( " Could not retreive the CaloCellContainer with name " << m_CaloCellContainerName  );
-    return StatusCode::RECOVERABLE;
-  }
-
-  std::unique_ptr<LArNoisyROSummary> noisyRO=m_noisyROTool->process(cellContainer);
+  SG::WriteHandle<LArNoisyROSummary> noisyRO(m_outputKey, ctx);
+  ATH_CHECK(noisyRO.record(m_noisyROTool->process(cellContainer.cptr())));
 
 
   bool badFEBFlag=noisyRO->BadFEBFlaggedPartitions();
@@ -59,7 +60,7 @@ StatusCode LArNoisyROAlg::execute()
   {
     // retrieve EventInfo
     const xAOD::EventInfo* eventInfo_c=0;
-    sc = evtStore()->retrieve(eventInfo_c);
+    StatusCode sc = evtStore()->retrieve(eventInfo_c);
     if (sc.isFailure()) 
     {
       ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set LAr bit information "  );
@@ -106,8 +107,6 @@ StatusCode LArNoisyROAlg::execute()
     if (failSetWARNREASON) ATH_MSG_WARNING( "Failure during setEventFlagBit(EventInfo::LAr,...)"  );
   
   }
-
-  CHECK(evtStore()->record(std::move(noisyRO),m_outputKey));
 
   return StatusCode::SUCCESS;
 }

@@ -7,13 +7,13 @@ atlas_subdir( BeamPipeGeoModel )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           PRIVATE
-                          Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
+                          Control/AthenaKernel
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           GaudiKernel )
 
@@ -27,7 +27,7 @@ atlas_add_library( BeamPipeGeoModelLib
                    PUBLIC_HEADERS BeamPipeGeoModel
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} GeoModelKernel GeoModelUtilities StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES SGTools GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES SGTools AthenaKernel GaudiKernel )
 
 atlas_add_component( BeamPipeGeoModel
                      src/components/*.cxx

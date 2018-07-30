@@ -16,14 +16,12 @@
 #include "TrkTrack/TrackExtensionMap.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkToolInterfaces/ITrackScoringTool.h"
+
 #include <vector>
 #include <array>
 #include <mutex>
-
-namespace Trk{
-  class ITrackScoringTool;
-  class ITrackFitter;
-}
 
 namespace InDet {
 

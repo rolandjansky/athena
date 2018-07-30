@@ -33,9 +33,9 @@ class MaterialStepCollectionCnv : public MaterialStepCollectionCnvBase {
  
  protected:
  
+public:
   MaterialStepCollectionCnv( ISvcLocator *svcloc );
-  ~MaterialStepCollectionCnv();
-  
+protected:
   virtual StatusCode initialize();
  
   virtual MaterialStepCollection_PERS* createPersistent( Trk::MaterialStepCollection *transCont);

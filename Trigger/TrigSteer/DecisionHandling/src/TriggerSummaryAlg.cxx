@@ -7,6 +7,8 @@
 //#include "TrigSteerEvent/Chain.h"
 
 
+
+
 TriggerSummaryAlg::TriggerSummaryAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ) {}
@@ -16,7 +18,7 @@ TriggerSummaryAlg::~TriggerSummaryAlg()
 
 StatusCode TriggerSummaryAlg::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+
   // processing of the chains mapping
 
   CHECK(  m_inputDecisionKey.initialize() );
@@ -26,13 +28,13 @@ StatusCode TriggerSummaryAlg::initialize()
 
   CHECK( m_summaryKey.initialize() );
 
+  CHECK( m_outputTools.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
 {  
-  ATH_MSG_DEBUG ("Executing " << name() << "...");
-
   // that is certain input
   auto l1DecisionHandle = SG::makeHandle(  m_inputDecisionKey, context );
   auto inputHandles( m_finalDecisionKeys.makeHandles() );
@@ -40,7 +42,7 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   for ( auto input: inputHandles ) {
     if ( input.isValid() ) {
       for ( auto decisionObject: *input )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
+        TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
       }
       ATH_MSG_DEBUG( "Found "<<input->size()<<" Decisions for " << input.key() );
     } else {
@@ -55,9 +57,6 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
 
   // check for an evident error, this is HLT chain not mentioned at the L1
   // that is the only reason we pull the L1 here
- 
-
-  
 
   auto summaryCont = std::make_unique<TrigCompositeUtils::DecisionContainer>();
   auto summaryAuxCont = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
@@ -68,10 +67,7 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   for ( auto id: allPassingIDs ) {
     TrigCompositeUtils::addDecisionID( id, summaryObj );
   }
-  
 
-
-  
   // if ( ! m_hltResultKey.empty() ) {
   //   auto result = std::make_unique<HLT::HLTResult>();
   //   CHECK( buildHLTResult( result ) );
@@ -80,8 +76,9 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   auto summaryHandle = SG::makeHandle( m_summaryKey, context );
   CHECK( summaryHandle.record( std::move( summaryCont ), std::move( summaryAuxCont ) ) );
 
+  for ( auto& tool: m_outputTools ) {
+    CHECK( tool->createOutput( context ) );
+  }
+
   return StatusCode::SUCCESS;
 }
-
-
-

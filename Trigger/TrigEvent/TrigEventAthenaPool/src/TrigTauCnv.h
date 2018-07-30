@@ -35,9 +35,11 @@ class TrigTauCnv : public T_AthenaPoolCustomCnv<TrigTau, TrigTau_PERS >
 
  protected:
   
+public:
   TrigTauCnv(ISvcLocator* svcloc);
   ~TrigTauCnv();
 
+protected:
   TrigTau_PERS*  createPersistent(TrigTau* transCont);
 
   TrigTau*       createTransient ();

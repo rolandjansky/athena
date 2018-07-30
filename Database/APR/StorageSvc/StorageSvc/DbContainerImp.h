@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainerImp.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //
 //  Package    : StorageSvc (The POOL project)
@@ -16,7 +15,6 @@
 #include "PersistentDataModel/Token.h"
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/IDbContainer.h"
-#include "StorageSvc/DbImplementation.h"
 
 // STL include files
 #include <map>
@@ -42,8 +40,7 @@ namespace pool    {
     *  @author  M.Frank
     *  @version 1.0
     */
-  class DbContainerImp : public DbImplementation, 
-                         virtual public IDbContainer
+  class DbContainerImp : virtual public IDbContainer
   {
   protected:
     /// Transaction Fifo definition
@@ -112,24 +109,13 @@ namespace pool    {
     virtual DbStatus writeObject(TransactionStack::value_type& /* entry */)  
     { return Error;                                                   }
     /// Execute object modification requests during a transaction
-    /** @param refTr    [IN]  Transaction reference
-      *
-      * @return DbStatus code indicating success or failure.  
-      */
-    virtual DbStatus commitTransaction(DbTransaction& refTr);
-    /// Execute end of object modification requests during a transaction
-    /** @param refTr    [IN]  Transaction reference
-      *
-      * @return DbStatus code indicating success or failure.  
-      */
-    virtual DbStatus endTransaction(DbTransaction& refTr);
+    virtual DbStatus commitTransaction();
 
     /// Access section identifier from OID
     virtual const DbSection& getSection(const Token::OID_t& oid) const;
 
   public:
-    /// Constructor with initializing arguments
-    DbContainerImp(IOODatabase* db);
+    DbContainerImp();
     /// Release instance (Abstract interfaces do not expose destructor!)
     virtual void release()                             { delete this;           }
     /// Attach sections to container object
@@ -155,8 +141,8 @@ namespace pool    {
       */
     virtual DbStatus setOption(const DbOption& opt);
 
-    /// Start/Commit/Rollback Database Transaction
-    virtual DbStatus transAct(DbTransaction& pTransaction);
+    /// Execute Transaction Action
+    virtual DbStatus transAct(Transaction::Action);
     /// In place allocation of raw memory for the transient object
     virtual void* allocate(   unsigned long siz, 
                               DbContainer&  cntH,

@@ -11,11 +11,13 @@
 
 // Base classes
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetPrepRawData/SCT_Cluster.h"
 
 // for ElementLink to IdentifiableContainer SCT_ClusterContainer
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "AthLinks/ElementLink.h"
+
+
+class SCT_Cluster;
 
 namespace Trk {
   class Surface;
@@ -45,7 +47,7 @@ namespace InDet{
       /**For POOL only. Do not use*/
       SCT_ClusterOnTrack();
       /**Copy constructor*/
-      SCT_ClusterOnTrack(const SCT_ClusterOnTrack &);
+      SCT_ClusterOnTrack(const SCT_ClusterOnTrack &) = default;
 
     /** Constructor with parameters :
       RIO/PrepRawData pointer, LocalPosition*, LocalErrorMatrix*, idDE&
@@ -100,10 +102,12 @@ namespace InDet{
                           double positionAlongStrip);
 
       /**Assignment operator*/
-      SCT_ClusterOnTrack &operator=(const SCT_ClusterOnTrack &);
+      SCT_ClusterOnTrack &operator=(const SCT_ClusterOnTrack &) = default;
+      /**Default move assigment operator*/
+      SCT_ClusterOnTrack &operator=(SCT_ClusterOnTrack &&) = default;
 
       /** Destructor */
-      virtual ~SCT_ClusterOnTrack();
+      virtual ~SCT_ClusterOnTrack() = default;
      
       /** returns global position (gathered through Surface constraint)
       - fullfills Trk::MeasurementBase interface
@@ -146,7 +150,6 @@ namespace InDet{
       virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd);
  
       /** SCT_Cluster - the RIO (PRD, PrepRawData)*/
-//       mutable const SCT_Cluster*   m_rio;
       ElementLinkToIDCSCT_ClusterContainer m_rio; 
       /** corresponding detector element*/
       const InDetDD::SiDetectorElement* m_detEl;

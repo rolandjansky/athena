@@ -14,9 +14,7 @@
 
 // EDM include(s):
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
-
-// Forward declaration(s):
-class IxAODClusterCompressor;
+#include "CaloInterface/IxAODClusterCompressor.h"
 
 /// Base class for the converter
 typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterAuxContainer,
@@ -42,7 +40,9 @@ class xAODCaloClusterAuxContainerCnv : public xAODCaloClusterAuxContainerCnvBase
 
 protected:
    /// Converter constructor
+public:
    xAODCaloClusterAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::CaloClusterAuxContainer*

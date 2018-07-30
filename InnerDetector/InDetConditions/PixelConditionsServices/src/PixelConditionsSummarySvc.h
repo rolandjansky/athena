@@ -78,6 +78,7 @@ class PixelConditionsSummarySvc: public AthService, virtual public IInDetConditi
     bool m_useDCS;
     bool m_useBS;
     bool m_useTDAQ;
+    bool m_disableCallback;
 
     void getID(const Identifier& id, unsigned int& pixID, unsigned int& mchips) const;
 

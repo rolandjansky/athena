@@ -36,7 +36,7 @@ public:
   SCT1_RawData(const Identifier rdoId, const unsigned int word);
 
   // Destructor:
-  virtual ~SCT1_RawData();
+  virtual ~SCT1_RawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 
@@ -55,6 +55,15 @@ public:
   // public default constructor needed for I/O, but should not be
   // called from an alg
   SCT1_RawData();
+
+  // Default copy constructor
+  SCT1_RawData(const SCT1_RawData&) = default;
+  // Default assignment operator
+  SCT1_RawData& operator=(const SCT1_RawData&) = default;
+  // Default move constructor
+  SCT1_RawData(SCT1_RawData&&) = default;
+  // Default move assignment operator
+  SCT1_RawData& operator=(SCT1_RawData&&) = default;
 
   ///////////////////////////////////////////////////////////////////
   // Private data:

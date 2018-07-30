@@ -21,7 +21,6 @@
 #include <list>
 #include <algorithm>
 #include <iterator>
-//#include "GaudiKernel/ToolFactory.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"

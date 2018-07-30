@@ -29,7 +29,10 @@ class TrigJetFromPseudojet : public JetFromPseudojet
         TrigJetFromPseudojet(std::string name);
 
         using JetFromPseudojet::add;
-        virtual xAOD::Jet* add(const fastjet::PseudoJet& pj, xAOD::JetContainer& jets, const xAOD::Jet* pparent) const;
+        virtual xAOD::Jet* add(const fastjet::PseudoJet& pj,
+                               const PseudoJetContainer&,
+                               xAOD::JetContainer& jets,
+                               const xAOD::Jet* pparent) const;
 };
 
 

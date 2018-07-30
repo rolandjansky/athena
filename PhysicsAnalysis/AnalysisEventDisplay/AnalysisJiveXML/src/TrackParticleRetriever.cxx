@@ -3,7 +3,6 @@
 */
 
 #include "AnalysisJiveXML/TrackParticleRetriever.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 

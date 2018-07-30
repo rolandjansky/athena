@@ -2,17 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNTAA_TBTrack.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/INTupleSvc.h"
+#include "CBNTAA_TBTrack.h"
 
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"
+#include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <string>
-#include "PathResolver/PathResolver.h"
 
 
 CBNTAA_TBTrack::CBNTAA_TBTrack(const std::string & name, ISvcLocator * pSvcLocator) :
@@ -34,9 +30,6 @@ CBNTAA_TBTrack::CBNTAA_TBTrack(const std::string & name, ISvcLocator * pSvcLocat
 StatusCode CBNTAA_TBTrack::CBNT_initialize() {
   ATH_MSG_DEBUG ( "in initialize()"  );
   
-  IToolSvc* toolSvc = nullptr;
-  ATH_CHECK( service("ToolSvc",toolSvc) );
-
   // Add beam track parameters
   addBranch("bm_x",      m_beam_coor_x,     "bm_x/f");
   addBranch("bm_y",      m_beam_coor_y,     "bm_y/f");

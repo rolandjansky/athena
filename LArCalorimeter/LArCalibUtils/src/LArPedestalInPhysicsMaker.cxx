@@ -21,7 +21,6 @@
 // Include files
 #include "LArCalibUtils/LArPedestalInPhysicsMaker.h"
 
-//#include "GaudiKernel/AlgFactory.h"
 //#include "GaudiKernel/Property.h"
 //#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IIncidentSvc.h"

@@ -6,7 +6,6 @@
 #define MUONGEOMODEL_MUONDETECTORTOOL_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "MuonCondInterface/IMuonAlignmentDbTool.h"
 

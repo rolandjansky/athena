@@ -19,13 +19,9 @@ extern unsigned char ByteStream_StorageType;
 
 template< class DATATYPE > 
 class TBDataCnv: public Converter {
-  friend class CnvFactory<TBDataCnv>;
-
- protected:
-  TBDataCnv(ISvcLocator* svcloc);
-
 
  public:
+  TBDataCnv(ISvcLocator* svcloc);
 
   virtual StatusCode initialize();
   virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 

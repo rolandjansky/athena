@@ -27,6 +27,9 @@
 class eflowTrackClusterLink;
 class eflowMatchCluster;
 
+/**
+This class extends the information about a xAOD::CaloCluster. It includes an element link and raw pointer back to the CaloCluster, the index of the cluster in the CaloClusterContainer, a bool to determine if the CaloCluster is allowed to be modified or not (only if we have already copied the CaloCluster), the type (ECAL/HCAL), a map to store the LC weights for the calorimeter cluster cells, a pointer to an eflowMatchCluster and a vector of eflowTrackClusterLink
+*/
 class eflowRecCluster {
 public:
   eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink);
@@ -38,7 +41,8 @@ public:
   xAOD::CaloCluster* getClusterForModification(xAOD::CaloClusterContainer* container);
 
   ElementLink<xAOD::CaloClusterContainer> getClusElementLink() const { return m_clusElementLink; }
-
+  ElementLink<xAOD::CaloClusterContainer> getOriginalClusElementLink() const { return m_originalClusElementLink; }
+  
   eflowMatchCluster* getMatchCluster() const { return m_matchCluster.get(); }
 
   double getSumExpectedEnergy();
@@ -60,6 +64,7 @@ public:
 private:
   int m_clusterId;
   const xAOD::CaloCluster* m_cluster;
+  ElementLink<xAOD::CaloClusterContainer> m_originalClusElementLink;
   ElementLink<xAOD::CaloClusterContainer> m_clusElementLink;
   bool m_isTouchable;
   /* 1: ECAL, 2: HCAL */
@@ -83,6 +88,9 @@ public:
   };
 };
 
+/**
+ This class, which inherits from the pure virtual ICluster, stores a pointer to an eflowRecCluster. It also stores assorted kinematic information such as cluster energy, mean energy weighted eta/phi values etc.
+*/
 class eflowMatchCluster: public PFMatch::ICluster {
 public:
  eflowMatchCluster(eflowRecCluster* efRecCluster) :  m_efRecCluster(efRecCluster), m_clusterEne(m_efRecCluster->getCluster()->e()), m_clusterEta(m_efRecCluster->getCluster()->eta()), m_clusterPhi(m_efRecCluster->getCluster()->phi()), m_clusterEtaMean(0.0), m_clusterPhiMean(0.0), m_clusterEtaVariance(0), m_clusterPhiVariance(0), m_calVariance(false) {

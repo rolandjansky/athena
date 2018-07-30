@@ -6,7 +6,6 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AGDDControl/AGDDController.h"
@@ -52,18 +51,18 @@ MuonAGDDToolHelper::MuonAGDDToolHelper()
 	result=Gaudi::svcLocator()->service("GeoModelSvc",p_GeoModelSvc);
   	if (result.isFailure())
     {
-    	std::cout<<"unable to access GeoModelSvc "<<std::endl;
+	std::cout<<"MuonAGDDToolHelper\tunable to access GeoModelSvc "<<std::endl;
     }
     result=Gaudi::svcLocator()->service("RDBAccessSvc",p_RDBAccessSvc);
     if (result.isFailure())
     {
-    	std::cout<<"unable to access RBDAccessSvc "<<std::endl;
+	std::cout<<"MuonAGDDToolHelper\tunable to access RBDAccessSvc "<<std::endl;
     }
 	m_tagInfoKey="";
 	result=Gaudi::svcLocator()->service("TagInfoMgr",m_tagInfoMgr);
   	if (result.isFailure()) 
   	{
-    	std::cout<<"Unable to retrieve TagInfoMgr!"<<std::endl;
+	std::cout<<"MuonAGDDToolHelper\tUnable to retrieve TagInfoMgr!"<<std::endl;
   	}
   	else
   		m_tagInfoKey=m_tagInfoMgr->tagInfoKey();
@@ -97,22 +96,24 @@ std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
    }
    else
    {
-      std::cout<<"  agdd2geoVersion is empty " <<std::endl;
+      std::cout<<"MuonAGDDToolHelper\tagdd2geoVersion is empty " <<std::endl;
    }	
    return structuresFromFlags;
 }
 
 
-std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
+std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt, std::string tableName)
 {
-	
+
    const IGeoModelSvc * geoModel=p_GeoModelSvc;
+   if(!geoModel) return "";
 
    IRDBAccessSvc * accessSvc=p_RDBAccessSvc;
+   if(!accessSvc) return "";
 
    std::string AtlasVersion = geoModel->atlasVersion();
    std::string MuonVersion  = geoModel->muonVersionOverride();
-   
+
    std::string detectorKey  = MuonVersion.empty() ? AtlasVersion : MuonVersion;
    std::string detectorNode = MuonVersion.empty() ? "ATLAS" : "MuonSpectrometer";
    if ( MuonVersion == "CUSTOM"){
@@ -121,9 +122,11 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
    } 
 
 
-   IRDBRecordset_ptr recordsetAGDD = accessSvc->getRecordsetPtr("AGDD",detectorKey,detectorNode);
+   IRDBRecordset_ptr recordsetAGDD = accessSvc->getRecordsetPtr(tableName.c_str(),detectorKey,detectorNode);
+   if(!recordsetAGDD) return "";
 
    const IRDBRecord *recordAGDD =  (*recordsetAGDD)[0];
+   if(!recordAGDD) return "";
    std::string AgddString = recordAGDD->getString("DATA");
 
    size_t pos=AgddString.find("AGDD.dtd");
@@ -132,11 +135,15 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
    if (dumpIt) 
    {
 	 	std::ofstream  GeneratedFile;
-	 	GeneratedFile.open("generated_amdb_simrec_pool.txt");
+		std::string fileName;
+		fileName.append("Generated_");
+		fileName.append(tableName);
+		fileName.append("_pool.txt");
+	 	GeneratedFile.open(fileName);
 		GeneratedFile<<AgddString<<std::endl;
 		GeneratedFile.close();
    }
-	 
+
    return AgddString;
 
 }

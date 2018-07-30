@@ -14,7 +14,6 @@ namespace TrigL2MuonSA {
   struct MdtHitData
   {
     unsigned int name;
-    int isEndcap;
     int StationEta;
     int StationPhi;
     int Multilayer;

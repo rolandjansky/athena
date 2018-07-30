@@ -1,7 +1,6 @@
 #!/bin/bash
 # art-description: art job for FTK_mu_ttbar
 # art-type: grid
-# art-output: pid
 # art-output: HLTL2-plots
 # art-output: HLTEF-plots
 # art-output: HLTL2-plots-lowpt
@@ -12,7 +11,7 @@
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-input:  valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119
+# art-input:  mc16_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e5602_s3126_d1455_d1457
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
@@ -26,6 +25,49 @@
 
 RED='\033[0;31m'
 NC='\033[0m'
+
+
+function usage { 
+    [ $# -gt 1 ] && echo $2
+
+    echo "Usage: $(basename $0) [args]"
+    echo 
+    echo "-d, --directory  DIRECTORY \t run from the specified directory"
+    echo "-l, --local                \t run locally rather than on the grid"
+    echo "-x, --exclude              \t don't run athena or the post processing, only the plotting stages"
+    echo "-p, --post                 \t force running of post processingthe post processing, even if -x is set"
+    echo "-f, --force                \t disable protection against rerunning where you shouldn't be"
+    echo "-h, --help                 \t this help"
+    [ $# -gt 0 ] && exit $1
+    exit 0
+}
+
+args=$(getopt -ql "searchpath:" -o "d:lxph" -- "$@")
+
+# eval set -- "$args"
+
+RUNATHENA=1
+RUNPOST=-1
+DIRECTORY=
+LOCAL=0
+FORCE=0
+
+while [ $# -ge 1 ]; do
+    case "$1" in
+        --) shift ; break ;;
+        -d | --directory )  if [ $# -lt 2 ]; then usage; fi ; DIRECTORY="$2" ; shift ;;
+        -x | --exclude )    RUNATHENA=0 ; [ $RUNPOST -eq -1 ] && RUNPOST=0;;
+        -p | --post )       RUNPOST=1 ;;
+        -f | --force )      FORCE=1 ;;
+        -l | --local )      LOCAL=1 ;;
+        -h | --help )       usage ;;
+     esac
+    shift
+done
+
+
+[ $RUNPOST -eq 0 ] || RUNPOST=1
+
 
 # generate a time stamp
 
@@ -102,8 +144,6 @@ function waitonallproc   {
 
 # run athena  
 
-iathena=0
-
 function runathena { 
    timestamp  "runathena:"
 
@@ -123,9 +163,7 @@ function runathena {
      echo "ARGS: $ARGS"
      echo -e "\nrunning athena in athena-$1\n"
      athena.py  -c "$ARGS"               TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py  &> athena-local-$1.log
-     echo "art-result: $? athena_$iathena"
-
-     ((iathena++))
+     echo "art-result: $? athena_$1"
 
      pwd
      ls -lt
@@ -155,6 +193,7 @@ function saveoutput {
 
 
 
+ls -l
 
 
 
@@ -162,7 +201,7 @@ export RTTJOBNAME=TrigInDetValidation_FTK_mu_ttbar
 
 jobList=
 
-if [ $# -gt 0 -a "x$1" == "x--local" ]; then
+if [ $LOCAL -eq 1 ]; then
       echo "running locally"
       # get number of files 
       NFILES=$(grep "^#[[:space:]]*art-input-nfiles:" $0 | sed 's|.*art-input-nfiles:[[:space:]]*||g')
@@ -173,8 +212,11 @@ else
       fileList="['${ArtInFile//,/', '}']"
       _jobList="'../${ArtInFile//,/' '../}'"
       echo "List of files = $fileList"
-      for git in $_jobList ; do jobList="$jobList ARTConfig=[$git]" ; done
+      for git in $_jobList ; do jobList="$jobList ARTConfig=[$git]" ; echo "ART running over $git"  ; done
 fi
+
+
+if [ $RUNATHENA -eq 1 ]; then 
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice.py
 
@@ -190,7 +232,7 @@ for git in $jobList ; do
 
     ARGS="$git;EventMax=500;doFTK=True"
  
-    echo "ARGS: $ARGS"
+#   echo "ARGS: $ARGS"
 
     waitonproc
     
@@ -218,9 +260,12 @@ done
 
 [ -e topp.log ] && rm topp.log
 
-ps -aF --pid $PPROCS | grep $USER >> topp.log
+echo -e "\nUID        PID  PPID  C    SZ   RSS PSR STIME TTY          TIME CMD" >> topp.log
+ps -aF --pid $PPROCS | grep $USER | grep -v grep | grep -v sed | sed 's| [^[:space:]]*/python | python |g' | sed 's| [^[:space:]]*/athena| athena|g' | sed 's|ARTConfig=.* |ARTConfig=... |g' | sed 's|eos/[^[:space:]]*/trigindet|eos/.../trigindet|g' >> topp.log
 
 echo >> topp.log
+
+sleep 20 
 
 top -b -n1 > top.log
 grep PID top.log >> topp.log
@@ -266,7 +311,12 @@ hadd expert-monitoring.root athena-*/expert-monitoring.root &> hadd.log
 # file to the check will fail. This creates a link so this 
 # test will pass
   
-for git in output-dataset/*.root ; do ln -s $git TrkNtuple-0000.root ; break ; done  
+for git in output-dataset/*.root ; do if [ -e $git ]; then ln -s $git TrkNtuple-0000.root ; break ; fi ; done  
+
+[ -e TrkNtuple-0000.root ] || echo "WARNING: all athena stages failed"
+
+fi
+
 
 ls -lt
 
@@ -285,6 +335,8 @@ for DATFILE in *.dat ; do
     fi
 done
 
+if [ $RUNATHENA -eq 1 -o $RUNPOST -eq 1 ]; then
+
 
 TIDArdict TIDAdata11-rtt.dat -f data-muon-FTK.root -p 13 -b Test_bin.dat  2>&1 | tee TIDArdict_1.log
 echo "art-result: $? TIDArdict_1"
@@ -293,6 +345,9 @@ echo "art-result: $? TIDArdict_1"
 
 timestamp "TIDArdict"
 
+
+
+fi
 
 
 TIDArun-art.sh data-muon-FTK.root data-FTK_mu_ttbar-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK HLT_mu24_FTKRefit_idperf_InDetTrigTrackingxAODCnv_Muon_FTKRefit -d HLTL2-plots  2>&1 | tee TIDArun_2.log

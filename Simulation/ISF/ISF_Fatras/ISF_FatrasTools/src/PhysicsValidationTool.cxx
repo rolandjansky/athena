@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/PhysicsValidationTool.h"
+#include "PhysicsValidationTool.h"
 
 // Tracking
 #include "TrkParameters/TrackParameters.h"
@@ -31,7 +31,33 @@ iFatras::PhysicsValidationTool::PhysicsValidationTool( const std::string& t,
                                       const IInterface*  p )
  : base_class(t,n,p),
    m_thistSvc("THistSvc",n),
-   m_validationStream("ISFFatras")
+   m_validationStream("ISFFatras"),
+   m_eloss(0.),
+   m_ionloss(0.),
+   m_radloss(0.),
+   m_zOaTr(0.),
+   m_wZ(0.),
+   m_thIn(0.),
+   m_phIn(0.),
+   m_dIn(0.),
+   m_thEnd(0.),
+   m_phEnd(0.),
+   m_dEnd(0.),
+   m_X0(0.),
+   m_dt(0.),
+   m_interactions(nullptr),
+   m_process(0),
+   m_pdg_mother(0),
+   m_gen_mother(0),
+   m_nChild(0),
+   m_vtx_dist(0.),
+   m_vtx_theta(0.),
+   m_vtx_phi(0.),
+   m_vtx_e_diff(0.),
+   m_vtx_p_diff(0.),
+   m_vtx_plong_diff(0.),
+   m_vtx_pperp_diff(0.),
+   m_p_mother(0.)
 {
   // validation output section
   declareProperty("ValidationStreamName",

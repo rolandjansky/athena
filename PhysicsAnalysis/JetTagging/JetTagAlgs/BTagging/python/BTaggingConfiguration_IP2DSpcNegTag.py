@@ -191,7 +191,7 @@ def toolIP2DSpcNegTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
 #------------------------------------------------------------------------
 
-metaIP2DSpcNegNewLikelihoodTool = { 'CalibrationFolders' : ['IP2D',],
+metaIP2DSpcNegNewLikelihoodTool = { 'CalibrationTaggers' : ['IP2D',],
                                     'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                     'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                     'ToolCollection'     : 'IP2DSpcNegTag' }

@@ -27,7 +27,6 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
  
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/CnvFactory.h"
 
 #include "StoreGate/StoreGate.h" 
 #include "SGTools/StorableConversions.h"
@@ -454,7 +453,6 @@ IdDictDetDescrCnv::classID() {
 IdDictDetDescrCnv::IdDictDetDescrCnv(ISvcLocator* svcloc) 
     :
     DetDescrConverter(ClassID_traits<IdDictManager>::ID(), svcloc),
-    m_dictMgr(0),
     m_parser(0),
     m_doChecks(false),
     m_doNeighbours(true),

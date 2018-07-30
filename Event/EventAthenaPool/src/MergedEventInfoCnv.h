@@ -27,7 +27,9 @@ typedef  T_AthenaPoolCustomCnv<MergedEventInfo, MergedEventInfo_PERS >   MergedE
 class MergedEventInfoCnv : public MergedEventInfoCnvBase {
 friend class CnvFactory<MergedEventInfoCnv >;
 protected:
+public:
   MergedEventInfoCnv (ISvcLocator* svcloc) : MergedEventInfoCnvBase(svcloc) {}
+protected:
   virtual MergedEventInfo_PERS*   createPersistent (MergedEventInfo* transObj);
   virtual MergedEventInfo*        createTransient ();
 };

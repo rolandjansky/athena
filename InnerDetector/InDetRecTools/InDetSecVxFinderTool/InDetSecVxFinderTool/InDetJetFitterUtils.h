@@ -27,10 +27,7 @@
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Vector/LorentzVector.h"
-//#include "TrkParticleBase/LinkToTrackParticleBase.h"
-//#include "TrkParticleBase/TrackParticleBaseCollection.h"
-//#include "TrkParticleBase/TrackParticleBase.h"
-//#include "TrkNeutralParameters/NeutralParameters.h"
+
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/Vertex.h" 
 

@@ -15,6 +15,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 #include "TrigMuonHypo/TrigMufastHypoTool.h"
+#include "DecisionHandling/HypoBase.h"
 
 class StoreGateSvc;
 class TriggerElement;
@@ -23,7 +24,7 @@ class TriggerElement;
 // --------------------------------------------------------------------------------
 
 class TrigMufastHypoAlg
-   : public ::AthReentrantAlgorithm
+   : public ::HypoBase
 {
   public:
 
@@ -40,21 +41,9 @@ class TrigMufastHypoAlg
     TrigMufastHypoAlg(); 
     ToolHandleArray<TrigMufastHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
-    SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
-	this, "Decisions", "L2MuonFastDecisions", "Name of the decisions object attached by TrigMufastHypo"};
-
-    SG::ReadHandleKey<std::vector< SG::View*>> m_viewsKey{
-	this, "ViewRoIs", "MUViewRoIs", "Name of the input data on Views produced by EventCreatorAlgorithms"};
-
     SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastKey{
 	this, "MuonL2SAInfoFromMuFastAlg", "MuonL2SAInfo", "Name of the input data on xAOD::L2StandAloneMuonContainer produced by MuFastSteering"};
 
-    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiKey{
-	this, "RoIs", "MURoIs", "Name of the input data from L1Decoder"};
-
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_previousDecisionsKey{
-	this, "L1Decisions", "", "Name of the input decisions object produced by MuFastSteering"};
 };
 
-DECLARE_ALGORITHM_FACTORY( TrigMufastHypoAlg )
 #endif

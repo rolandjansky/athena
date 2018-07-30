@@ -23,14 +23,14 @@ class CaloDmDescrManager;
 class McEventCollection;
 class TruthParticleContainer;
 
-#include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h" 
 
 #include "CaloRec/CaloClusterCollectionProcessor.h"
-//#include "CaloEvent/CaloClusterMoment.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDmDetDescr/CaloDmDescrManager.h"
+#include "CaloSimEvent/CaloCalibrationHitContainer.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 
 #include <string>
 #include <vector>
@@ -186,14 +186,14 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
    *
    * The containers specified in this property should hold calibration
    * hits inside the calorimeter systems. */
-  std::vector<std::string> m_CalibrationHitContainerNames;
+  SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_CalibrationHitContainerNames;
 
   /** 
    * @brief vector of dead material calibration hit container names to use. 
    *
    * The containers specified in this property should hold calibration
    * hits outside the calorimeter systems - i.e. dead material hits ... */
-  std::vector<std::string> m_DMCalibrationHitContainerNames;
+  SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_DMCalibrationHitContainerNames;
 
   /** 
    * @brief name of truth particle container

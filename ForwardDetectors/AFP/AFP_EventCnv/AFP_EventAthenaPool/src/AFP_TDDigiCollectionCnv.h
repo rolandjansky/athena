@@ -17,10 +17,11 @@ class AFP_TDDigiCollectionCnv : public T_AthenaPoolCustomCnv <AFP_TDDigiCollecti
 {
 	friend class CnvFactory<AFP_TDDigiCollectionCnv>;
 
-protected:
+public:
 	AFP_TDDigiCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <AFP_TDDigiCollection, 
 AFP_TDDigiCollection_PERS >(svcloc) {}
 
+protected:
 	AFP_TDDigiCollection_PERS* createPersistent (AFP_TDDigiCollection *transCont);
 	AFP_TDDigiCollection* createTransient ();
  };

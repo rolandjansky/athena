@@ -38,6 +38,7 @@ AuxTypeRegistry& AuxTypeRegistry::instance()
  * @param ti Type of the aux data item.
  * @param name The name of the aux data item.
  * @param clsname The name of its associated class.  May be blank.
+ * @param flags Optional flags qualifying the type.  See above.
  *
  * The type of the item is given by @a ti.
  * Return @c null_auxid if we don't know how to make vectors of @a ti.
@@ -47,9 +48,10 @@ AuxTypeRegistry& AuxTypeRegistry::instance()
  */
 SG::auxid_t AuxTypeRegistry::getAuxID (const std::type_info& ti,
                                        const std::string& name,
-                                       const std::string& clsname /*= ""*/)
+                                       const std::string& clsname /*= ""*/,
+                                       const Flags flags /*= Flags::None*/)
 {
-  return findAuxID (name, clsname, ti, &AuxTypeRegistry::makeFactoryNull);
+  return findAuxID (name, clsname, flags, ti, &AuxTypeRegistry::makeFactoryNull);
 }
 
 
@@ -428,6 +430,7 @@ AuxTypeRegistry::~AuxTypeRegistry()
  * @brief Look up a name -> @c auxid_t mapping.
  * @param name The name of the aux data item.
  * @param clsname The name of its associated class.  May be blank.
+ * @param flags Optional flags qualifying the type.  See above.
  * @param ti The type of this aux data item.
  * @param makeFactory Function to create a factory for this type, if needed.
  *                    May return 0 if the type is unknown.
@@ -446,6 +449,7 @@ AuxTypeRegistry::~AuxTypeRegistry()
 SG::auxid_t
 AuxTypeRegistry::findAuxID (const std::string& name,
                             const std::string& clsname,
+                            const Flags flags,
                             const std::type_info& ti,
                             IAuxTypeVectorFactory* (AuxTypeRegistry::*makeFactory) () const)
 {
@@ -454,6 +458,12 @@ AuxTypeRegistry::findAuxID (const std::string& name,
   id_map_t::iterator i = m_auxids.find (key);
   if (i != m_auxids.end()) {
     typeinfo_t& m = m_types[i->second];
+
+    if (CxxUtils::test (m.m_flags, Flags::Atomic) &&
+        !CxxUtils::test (flags, Flags::Atomic))
+    {
+      throw SG::ExcAtomicMismatch (i->second, ti);
+    }
 
     // By all rights, these two tests should be redundant.
     // However, there are cases where we see distinct @c type_info objects
@@ -496,6 +506,7 @@ AuxTypeRegistry::findAuxID (const std::string& name,
   t.m_clsname = clsname;
   t.m_ti = &ti;
   t.m_factory = fac;
+  t.m_flags = flags;
   AthContainers_detail::fence_seq_cst();
   m_auxids[key] = auxid;
 

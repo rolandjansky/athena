@@ -35,6 +35,12 @@
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "MuonTrigCoinData/RpcCoinDataContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "StoreGate/ReadHandleKey.h"
+
 
 #include <TError.h>
 #include <TH1F.h>
@@ -75,14 +81,12 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   // Private function to add the clusters to the ntuple
   StatusCode addClusters(std::string clusterContainerName);  
   
-  StoreGateSvc* m_eventStore;
-  
-  ActiveStoreSvc* m_activeStore;
-
-
   //ServiceHandle<IRPCConditionsSvc> m_pSummarySvc;
   
-  
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};  
+  SG::ReadHandleKey<Muon::RpcCoinDataContainer> m_key_trig{this,"RPCTriggerContainer","RPC_triggerHits","RPC trigger hits"};
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_clusterContainerName{this,"ClusterContainer","rpcClusters","RPC clusters"};
 
   std::string m_generic_path_rpcmonitoring ;
   
@@ -133,10 +137,7 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   //Declare Properties  
   std::string m_chamberName		;
   std::string m_StationSize		;
-  std::string m_key_rpc			;
-  std::string m_key_trig		;
   bool m_doClusters			;
-  std::string m_clusterContainerName	;
   bool m_checkCabling			;
   bool m_rpcfile			;   
   bool m_rpcchamberhist			;    

@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ToyNextPassFilterAlg.cxx,v 1.4 2008-09-23 22:00:47 binet Exp $
-#include "GaudiKernel/AlgFactory.h"
 #include "ToyNextPassFilterAlg.h"
-
-DECLARE_ALGORITHM_FACTORY( ToyNextPassFilterAlg )
 
 ToyNextPassFilterAlg::ToyNextPassFilterAlg( const std::string& name,
 					    ISvcLocator* pLoc ):

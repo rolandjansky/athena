@@ -4,7 +4,6 @@
 
 // Framework include files
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IProperty.h"
@@ -129,14 +128,8 @@ bool
 FilteredAlgorithm::isEventAccepted( ) const
 {
   bool result = true;
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = this->getContext();
   if (ctx.valid()) {
-#else
-  const EventContext* ctxptr = this->getContext();
-  if (ctxptr && ctxptr->valid()) {
-    const EventContext& ctx = *ctxptr;
-#endif
     result = m_decSvc->isEventAccepted(this->name(),ctx);
     //ATH_MSG_DEBUG("res=" << result << " n=" << this->name() << " sl=" << ctx.slot() << " evt=" << ctx.eventID().event_number());
   } else {

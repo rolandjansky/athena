@@ -18,7 +18,6 @@
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
@@ -195,6 +194,7 @@ InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv_p2::createTransient
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
       log << MSG::FATAL << "Could not initialize TRT_DriftCircleContainerCnv_p2 " << endmsg;
+      return nullptr; // if m_trtId not initialized return null pointer instead of dereferencing it later
      }
     }
     std::auto_ptr<InDet::TRT_DriftCircleContainer> trans(new InDet::TRT_DriftCircleContainer(m_trtId->straw_layer_hash_max()));

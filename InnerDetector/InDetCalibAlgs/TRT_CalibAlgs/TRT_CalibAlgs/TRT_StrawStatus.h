@@ -17,13 +17,13 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetRawData/TRT_RDO_Container.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrack/Track.h"
 #include "VxVertex/VxContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -35,10 +35,6 @@ class ITRT_StrawNeighbourSvc;
 class ITRT_StrawStatusSummarySvc ;
 class ITRT_HWMappingSvc;
 class ITRT_DCS_ConditionsSvc;
-
-namespace Trk {
-  class ITrackHoleSearchTool;
-}
 
 
 namespace InDet 
@@ -72,15 +68,14 @@ namespace InDet
     private:
 
       void clear();	
-   //   void detailedReportResults();
       void reportResults();
       void printDetailedInformation();
 	
       /** function that returns straw index (in range 0-5481; 0-1641 for barrel, the rest for endcap) 
 	      same convention as for TRT_monitoring (copied from there) */
       void myStrawIndex(Identifier id, int *index);
-	  int barrelStrawNumber(int strawNumber, int strawlayerNumber, int LayerNumber);
-	  int endcapStrawNumber( int strawNumber, int strawLayerNumber, int LayerNumber );
+	    int barrelStrawNumber(int strawNumber, int strawlayerNumber, int LayerNumber);
+	    int endcapStrawNumber( int strawNumber, int strawLayerNumber, int LayerNumber );
 	  	  
       /** returns index of hardware units: board, chip, pad
 		  private fix for now, will call TRTStrawNeighbourSvc when available 
@@ -88,8 +83,6 @@ namespace InDet
 		  number chips 0-103 barrel, 0-239 endcap
 		  number pads: chips x 2 */
 		  
-   //   void myHardwareMapping(Identifier id, int &board, int &chip, int &pad);
-
       int m_nBarrelStraws; // 1642
       int m_nEndcapStraws; // 3840
       int m_nAllStraws; // 1642+3840=5484
@@ -131,11 +124,7 @@ namespace InDet
       std::string m_fileName;         
       int m_skipBusyEvents;
 
- //     int m_accumulateStrawWordFlag;
-   //   int m_accumulateStrawWord[2][32][5482][28];
-
       /** member variables for algorithm properties: */
-      // int/double/bool  m_propertyName;
       int m_printDetailedInformation;
     }; 
 } // end of namespace

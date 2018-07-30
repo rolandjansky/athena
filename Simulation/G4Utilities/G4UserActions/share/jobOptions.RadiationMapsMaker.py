@@ -5,6 +5,7 @@ from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
 #
 # radmaptool = G4UA__RadiationMapsMakerTool("G4UA::RadiationMapsMakerTool")
 # radmaptool.RadMapsFileName = "RadMaps.root" 
+# radmaptool.Material        = "" # if left empty all materials are used (default)
 # radmaptool.NBinsR          =   120
 # radmaptool.NBinsZ          =   240
 # radmaptool.NBinsR3D        =    30

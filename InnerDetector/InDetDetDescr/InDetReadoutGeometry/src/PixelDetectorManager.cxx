@@ -122,7 +122,6 @@ namespace InDetDD {
     return getDetectorElement(m_idHelper->wafer_id(barrel_endcap, layer_wheel, phi_module, eta_module));
   }
 
-
   const SiDetectorElementCollection* PixelDetectorManager::getDetectorElementCollection() const
   { 
     return &m_elementCollection;
@@ -205,9 +204,10 @@ namespace InDetDD {
 
 
   bool PixelDetectorManager::setAlignableTransformDelta(int level, 
-                              const Identifier & id, 
-                              const Amg::Transform3D & delta,
-                              FrameType frame) const
+                                                        const Identifier & id, 
+                                                        const Amg::Transform3D & delta,
+                                                        FrameType frame,
+                                                        GeoVAlignmentStore* /*alignStore*/) const
   {
 
     if (level == 0) { // At the element level - local shift
@@ -443,9 +443,10 @@ namespace InDetDD {
     
         // Set the new transform; Will replace existing one with updated transform
         bool status = setAlignableTransformDelta(0, 
-                   trans_iter->identify(),
-                   Amg::CLHEPTransformToEigen(newtrans),
-                   InDetDD::local);
+                                                 trans_iter->identify(),
+                                                 Amg::CLHEPTransformToEigen(newtrans),
+                                                 InDetDD::local,
+                                                 nullptr);
  
         if (!status) {
           if (msgLvl(MSG::DEBUG)) {
@@ -464,7 +465,7 @@ namespace InDetDD {
   }
 
   // New global alignment folders
-  bool PixelDetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame) const
+  bool PixelDetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame, const CondAttrListCollection* /*obj*/, GeoVAlignmentStore* alignStore) const
   {
 
     bool alignmentChange = false;
@@ -520,7 +521,8 @@ namespace InDetDD {
 	bool status = setAlignableTransformDelta(level,
 						 ident,
 						 newtrans,
-						 frame);
+						 frame,
+                                                 alignStore);
 
         if (!status) {
           if (msgLvl(MSG::DEBUG)) {

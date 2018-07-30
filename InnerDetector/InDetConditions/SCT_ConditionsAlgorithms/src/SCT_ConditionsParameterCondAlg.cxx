@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "SCT_ConditionsTools/SCT_Chip.h"
+#include "SCT_ConditionsData/SCT_Chip.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "Identifier/IdentifierHash.h"
 #include "GaudiKernel/EventIDRange.h"
@@ -72,13 +72,9 @@ namespace {//anonymous namespace introduces file-scoped functions
 
 SCT_ConditionsParameterCondAlg::SCT_ConditionsParameterCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DAQ/Configuration/Chip"}
-  , m_writeKey{"SCT_CondParameterData"}
   , m_cablingSvc{"SCT_CablingSvc", name}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) chip conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) average threshold conditions folder");
 }
 
 StatusCode SCT_ConditionsParameterCondAlg::initialize() {
@@ -107,12 +103,9 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
   SG::WriteCondHandle<SCT_CondParameterData> writeHandle{m_writeKey};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 

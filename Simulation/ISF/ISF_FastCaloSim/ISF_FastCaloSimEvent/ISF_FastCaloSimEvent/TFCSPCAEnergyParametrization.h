@@ -31,20 +31,23 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   virtual bool is_match_all_calosample() const {return false;};
   
   void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
-  void loadInputs(TFile* file);
-  void loadInputs(TFile* file,std::string);
+  bool loadInputs(TFile* file);
+  bool loadInputs(TFile* file,std::string);
+  void clean();
   
   void Print(Option_t *option = "") const;
+  
+  int                       do_rescale;
+  
  private:
   
   std::vector<int>          m_RelevantLayers;
 
-  std::vector<TMatrixDSym*> m_symCov;
+  std::vector<TMatrixD*>    m_EV;
   std::vector<TVectorD*>    m_MeanValues;
   std::vector<TVectorD*>    m_SigmaValues;
   std::vector<TVectorD*>    m_Gauss_means;
   std::vector<TVectorD*>    m_Gauss_rms;
-  std::vector<TVectorD*>    m_LowerBounds;
   std::vector<std::vector<TFCS1DFunction*> > m_cumulative;
   
   int m_numberpcabins;

@@ -39,13 +39,13 @@ public:
   //@}
   
   ///Can the service report about the given component? (chip, module...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   
   ///Is the detector element good?
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::SCT_STRIP) override;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::SCT_STRIP) const override;
   
   ///is it good?, using wafer hash
-  virtual bool isGood(const IdentifierHash& hashId) override;
+  virtual bool isGood(const IdentifierHash& hashId) const override;
 
 private:
   StatusCode fillData();

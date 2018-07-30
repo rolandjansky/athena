@@ -5,7 +5,6 @@
 // DetStatusSvc.cxx
 // Richard Hawkings, started 13/12/06
 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"

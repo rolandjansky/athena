@@ -16,7 +16,7 @@
 namespace xAOD {
   
   DiTauJet_v1::DiTauJet_v1()
-    : IParticle(), m_p4(), m_p4Cached( false ) {
+    : IParticle() {
   }
   
 
@@ -26,13 +26,15 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( DiTauJet_v1, float, double, m)
 
 
-  const DiTauJet_v1::FourMom_t& DiTauJet_v1::p4() const {
-      m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
-      m_p4Cached = true;
-
-    return m_p4;
+  DiTauJet_v1::FourMom_t DiTauJet_v1::p4() const {
+    FourMom_t p4;
+    p4.SetPtEtaPhiM( pt(), eta(), phi(), m()); 
+    return p4;	
   }
 
+  DiTauJet_v1::GenVecFourMom_t DiTauJet_v1::genvecP4() const {
+    return GenVecFourMom_t(pt(), eta(), phi(), m());
+  }
 
   void DiTauJet_v1::setP4(double pt, double eta, double phi, double m)  {
     static Accessor< float > acc1( "pt" );
@@ -52,15 +54,12 @@ namespace xAOD {
 
 
   double DiTauJet_v1::rapidity() const {
-    m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
-
-    return p4().Rapidity();
+    return genvecP4().Rapidity();
   }
 
 
   double DiTauJet_v1::e() const {
-    m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
-    return p4().E();
+    return genvecP4().E();
   }
 
 

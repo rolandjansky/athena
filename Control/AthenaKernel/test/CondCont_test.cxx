@@ -14,13 +14,16 @@
 #include "AthenaKernel/CondCont.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/random.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/Service.h"
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
 #include <cassert>
 #include <iostream>
+#include <atomic>
 
 
 namespace SG {
@@ -53,6 +56,46 @@ public:
 
   Athena::IRCUObject* m_removed = nullptr;
 };
+
+
+class ConditionsCleanerTest
+  : public extends<Service, Athena::IConditionsCleanerSvc>
+{
+public:
+  ConditionsCleanerTest (const std::string& name,
+                         ISvcLocator* svcloc)
+    : base_class (name, svcloc)
+  {}
+  virtual StatusCode event (const EventContext& ctx,
+                            bool allowAsync) override;
+  virtual StatusCode condObjAdded (const EventContext& ctx,
+                                   CondContBase& cc) override;
+
+  virtual StatusCode printStats() const override
+  { std::abort(); }
+
+  static std::atomic<int> s_nobj;
+};
+
+std::atomic<int> ConditionsCleanerTest::s_nobj;
+
+
+StatusCode ConditionsCleanerTest::event (const EventContext& /*ctx*/,
+                                         bool /*allowAsync*/)
+{
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode ConditionsCleanerTest::condObjAdded (const EventContext& /*ctx*/,
+                                                CondContBase& /*cc*/)
+{
+  ++s_nobj;
+  return StatusCode::SUCCESS;
+}
+
+
+DECLARE_COMPONENT( ConditionsCleanerTest )
 
 
 class B
@@ -111,7 +154,10 @@ const EventIDRange r3 (timestamp (123), timestamp (456));
 template <class T>
 void fillit (CondCont<T>& cc, std::vector<T*> & ptrs)
 {
+  int nsave = ConditionsCleanerTest::s_nobj;
   assert (cc.entries() == 0);
+  assert (cc.entriesTimestamp() == 0);
+  assert (cc.entriesRunLBN() == 0);
   assert (cc.ranges().empty());
   cc.setProxy (nullptr);
   assert (cc.proxy() == nullptr);
@@ -127,26 +173,34 @@ RE: [0]\n");
   ptrs.push_back (new T(2));
   ptrs.push_back (new T(3));
 
-  assert( cc.typelessInsert (r1, ptrs[0]) );
-  assert( cc.typelessInsert (r2, ptrs[1]) );
-  assert( cc.insert (r3, std::unique_ptr<T> (ptrs[2])) );
+  assert( cc.typelessInsert (r1, ptrs[0]).isSuccess() );
+  assert( cc.typelessInsert (r2, ptrs[1]).isSuccess() );
+  assert( cc.insert (r3, std::unique_ptr<T> (ptrs[2])).isSuccess() );
+  {
+    StatusCode sc = cc.insert (r3, std::make_unique<T> (99));
+    assert (sc.isSuccess());
+    assert (CondContBase::Category::isDuplicate (sc));
+  }
   assert (cc.entries() == 3);
+  assert (cc.entriesTimestamp() == 1);
+  assert (cc.entriesRunLBN() == 2);
   std::ostringstream ss2;
   cc.list (ss2);
   std::ostringstream exp2;
   exp2 << "id: 'key'  proxy: 0\n"
        << "clock: [1]\n"
-       << "{[4294967295,t:123] - [4294967295,t:456]} " << ptrs[2] << "\n"
+       << "{[t:123] - [t:456]} " << ptrs[2] << "\n"
        << "RE: [2]\n"
        << "{[10,l:15] - [10,l:20]} " << ptrs[0] << "\n"
        << "{[20,l:17] - [2147483647,l:2147483647]} " << ptrs[1] << "\n";
 
-  //  std::cout << "ss2: " << ss2.str() << "\nexp2: " << exp2.str() << "\n";
+  //std::cout << "ss2: " << ss2.str() << "\nexp2: " << exp2.str() << "\n";
 
   assert (ss2.str() == exp2.str());
 
   auto t4 = std::make_unique<T> (4);
-  assert( ! cc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(t4)) );
+  assert( ! cc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(t4)).isSuccess() );
+  assert (ConditionsCleanerTest::s_nobj - nsave == 3);
 }
 
 
@@ -204,6 +258,26 @@ void test1 (TestRCUSvc& rcusvc)
   std::vector<B*> bptrs;
   fillit (cc, bptrs);
   checkit (cc, bptrs);
+
+  assert (cc.nInserts() == 3);
+  assert (cc.maxSize() == 3);
+
+  const EventIDRange r4 (timestamp (800), timestamp (899));
+  assert( cc.typelessInsert (r4, new B(4)).isSuccess() );
+  assert (cc.entriesTimestamp() == 2);
+  assert (cc.entriesRunLBN() == 2);
+
+  std::vector<CondCont<B>::key_type> keys1 =
+    { CondContBase::keyFromRunLBN (r2.start()) };
+  std::vector<CondCont<B>::key_type> keys2 =
+    { CondContBase::keyFromTimestamp (r4.start()) };
+  assert (cc.trimRunLBN (keys1) == 1);
+  assert (cc.trimTimestamp (keys2) == 1);
+  assert (cc.entriesTimestamp() == 1);
+  assert (cc.entriesRunLBN() == 1);
+
+  assert (cc.trimRunLBN (keys1) == 0);
+  assert (cc.trimTimestamp (keys2) == 0);
 }
 
 
@@ -225,7 +299,7 @@ void test2 (TestRCUSvc& rcusvc)
   checkit (bcc, bptrs);
 
   auto b4 = std::make_unique<B> (4);
-  assert( ! bcc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(b4)) );
+  assert( ! bcc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(b4)).isSuccess() );
 }
 
 
@@ -288,7 +362,7 @@ void test3_Writer::operator()()
       m_map.erase (rr.start(), ctx());
     }
     EventIDRange r = makeRange(i);
-    m_map.insert (r, std::make_unique<B> (i), ctx());
+    assert (m_map.insert (r, std::make_unique<B> (i), ctx()).isSuccess());
     m_map.quiescent (ctx());
     if (((i+1)%128) == 0) {
       usleep (1000);
@@ -436,8 +510,10 @@ void test3 (TestRCUSvc& rcusvc)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
+  CondContBase::setCleanerSvcName ("ConditionsCleanerTest");
+
   // Verify that B is indeed offset in D, so we get to test a nontrivial conversion.
   {
     D d(0);

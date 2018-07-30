@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNTAA_TBTDCRaw.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/INTupleSvc.h"
-
+#include "CBNTAA_TBTDCRaw.h"
 #include "TBEvent/TBTDCRawCont.h"
 #include <vector>
 
@@ -30,9 +25,6 @@ CBNTAA_TBTDCRaw::~CBNTAA_TBTDCRaw()
 StatusCode CBNTAA_TBTDCRaw::CBNT_initialize()
 {
   ATH_MSG_DEBUG ( "in initialize()" );
-
-  IToolSvc* toolSvc = nullptr;
-  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
 
   addBranch("TBTDCRaw",m_tdc);
   addBranch("TBTDCRaw_underThreshold",m_underThreshold);

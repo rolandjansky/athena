@@ -15,10 +15,7 @@
 
 //Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "AthenaKernel/CLASS_DEF.h"
 
 //Athena includes
 #include "Identifier/Identifier.h"
@@ -51,13 +48,13 @@ public:
   //@}
   
   ///Can the service report about the given component? (chip, module...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h);
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   
   ///Is the detector element good?
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   
   ///is it good?, using wafer hash
-  virtual bool isGood(const IdentifierHash& hashId);
+  virtual bool isGood(const IdentifierHash& hashId) const override;
 
 private:
 

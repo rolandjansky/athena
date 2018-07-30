@@ -43,8 +43,9 @@ class TrackParticleContainerCnv : public TrackParticleContainerCnvBase
  
  protected:
   
+public:
   TrackParticleContainerCnv( ISvcLocator *svcloc );
-  ~TrackParticleContainerCnv();
+protected:
   virtual StatusCode initialize();
   
   virtual TrackParticleContainer_PERS *createPersistent( Rec::TrackParticleContainer *transCont);

@@ -8,9 +8,9 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
-using namespace SCT_ConditionsServices;
+using namespace SCT_ConditionsData;
 
 // Constructor
 SCT_MajorityConditionsTool::SCT_MajorityConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -19,8 +19,7 @@ SCT_MajorityConditionsTool::SCT_MajorityConditionsTool(const std::string& type, 
   m_majorityFraction{0.9},
   m_mutex{},
   m_cache{},
-  m_condData{},
-  m_condKey{std::string{"SCT_MajorityCondData"}}
+  m_condData{}
  {
   declareProperty("UseOverall", m_overall);
   declareProperty("MajorityFraction", m_majorityFraction);
@@ -44,7 +43,7 @@ StatusCode SCT_MajorityConditionsTool::finalize() {
 }
 
 // Is the detector good?
-bool SCT_MajorityConditionsTool::isGood() {
+bool SCT_MajorityConditionsTool::isGood() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
   if (!condData) return false;
@@ -62,7 +61,7 @@ bool SCT_MajorityConditionsTool::isGood() {
 }
 
 // Is a barrel/endcap good?
-bool SCT_MajorityConditionsTool::isGood(int bec) {
+bool SCT_MajorityConditionsTool::isGood(int bec) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
   if (!condData) return false;

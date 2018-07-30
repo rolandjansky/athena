@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """Base class for grid and (local) build submits."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
@@ -98,29 +98,29 @@ class ArtBase(object):
         """Show configuration."""
         log = logging.getLogger(MODULE)
         config = ArtConfiguration(config)
+        if package is None:
+            log.info("%s", config.packages())
+            return 0
+
         keys = config.keys(nightly_release, project, platform, package)
         for key in keys:
             log.info("%s %s", key, config.get(nightly_release, project, platform, package, key))
         return 0
 
-    def download(self, input_file):
-        """Download input_file from RUCIO."""
-        return self.get_input(input_file)
-
     #
     # Default implementations
     #
-    def compare_ref(self, path, ref_path, entries=-1):
+    def compare_ref(self, path, ref_path, files, entries=-1, mode='detailed'):
         """TBD."""
         result = 0
 
-        (exit_code, out, err) = run_command(' '.join(("art-diff.py", "--diff-type=diff-pool", path, ref_path)))
+        (exit_code, out, err, command, start_time, end_time) = run_command(' '.join(("art-diff.py", "--diff-type=diff-pool", path, ref_path)))
         if exit_code != 0:
             result |= exit_code
             print err
         print out
 
-        (exit_code, out, err) = run_command(' '.join(("art-diff.py", "--diff-type=diff-root", "--entries=" + str(entries), path, ref_path)))
+        (exit_code, out, err, command, start_time, end_time) = run_command(' '.join(("art-diff.py", "--diff-type=diff-root", "--mode=" + mode, "--entries=" + str(entries), (' '.join(('--file=' + s for s in files))), path, ref_path)))
         if exit_code != 0:
             result |= exit_code
             print err
@@ -160,9 +160,9 @@ class ArtBase(object):
         """
         Return a list of all test files matching 'test_*.sh' of given 'job_type', 'index_type' and nightly/project/platform.
 
-        'index_type' can be 'all', 'batch' or 'single'.
+        'job_type' can be 'grid' or 'build', given by the test
 
-        If "given" is None, all files are returned.
+        'index_type' can be 'all', 'batch' or 'single'.
 
         Only the filenames are returned.
         """
@@ -171,26 +171,30 @@ class ArtBase(object):
             files = os.listdir(directory)
             files.sort()
             for fname in files:
+
                 # is not a test ?
                 if not fnmatch.fnmatch(fname, 'test_*.sh') and not fnmatch.fnmatch(fname, 'test_*.py'):
                     continue
 
                 test_name = os.path.join(directory, fname)
 
-                # is not of correct type
+                has_art_input = ArtHeader(test_name).get(ArtHeader.ART_INPUT) is not None
+                has_art_athena_mt = ArtHeader(test_name).get(ArtHeader.ART_ATHENA_MT) > 0
+
+                # SKIP if is not of correct type
                 if job_type is not None and ArtHeader(test_name).get(ArtHeader.ART_TYPE) != job_type:
                     continue
 
-                # is not included in nightly_release, project, platform
+                # SKIP if is not included in nightly_release, project, platform
                 if nightly_release is not None and not self.is_included(test_name, nightly_release, project, platform):
                     continue
 
-                # batch and does specify art-input
-                if index_type == "batch" and ArtHeader(test_name).get(ArtHeader.ART_INPUT) is not None:
+                # SKIP if batch and does specify art-input or art-athena-mt
+                if index_type == "batch" and (has_art_input or has_art_athena_mt):
                     continue
 
-                # single and does not specify art-input
-                if index_type == "single" and ArtHeader(test_name).get(ArtHeader.ART_INPUT) is None:
+                # SKIP if single and does NOT specify art-input or art-athena-mt
+                if index_type == "single" and not (has_art_input or has_art_athena_mt):
                     continue
 
                 result.append(fname)
@@ -229,7 +233,7 @@ class ArtBase(object):
         for pattern in patterns:
             nightly_release_pattern = "*"
             project_pattern = "*"
-            platform_pattern = "*-*-*-opt"
+            platform_pattern = "*-*-*-*"
 
             count = pattern.count('/')
             if count >= 2:
@@ -242,20 +246,6 @@ class ArtBase(object):
             if fnmatch.fnmatch(nightly_release, nightly_release_pattern) and fnmatch.fnmatch(project, project_pattern) and fnmatch.fnmatch(platform, platform_pattern):
                 return True
         return False
-
-    def get_input(self, input_name):
-        """Download input file from rucio. Retuns path of inputfile."""
-        work_dir = '.'
-
-        # run in correct environment
-        env = os.environ.copy()
-        env['PATH'] = '.:' + env['PATH']
-
-        (code, out, err) = run_command(os.path.join(self.art_directory, "art-get-input.sh") + " " + input_name, dir=work_dir, env=env)
-        if code == 0 and out != '':
-            return os.path.join(work_dir, input_name.replace(':', '/', 1))
-
-        return None
 
     #
     # Private Methods

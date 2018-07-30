@@ -28,9 +28,7 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-// #include "PixelConditionsServices/PixelConditionsSummarySvc.h"
-// #include "SCT_ConditionsServices/SCT_ConditionsSummarySvc.h"
-// #include "TRT_ConditionsServices/TRT_ConditionsSummarySvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 
 //#include <pthread.h>
@@ -114,7 +112,7 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "DisableSCTFromConditions",   m_disableSCTFromConditions=true,   "disable SCT modules based on the conditions summary svc");
   declareProperty( "DisableTRTFromConditions",   m_disableTRTFromConditions=true,   "disable TRT modules based on the conditions summary svc");
   declareProperty( "PixConditionsSvc",           m_PixConditionsSvc="PixelConditionsSummarySvc",  "name of conditions summary svc for the pixels");
-  declareProperty( "SCTConditionsSvc",           m_SCTConditionsSvc="SCT_ConditionsSummarySvc",  "name of conditions summary svc for the SCT");
+  declareProperty( "SCTConditionsTool",          m_SCTConditionsTool="SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool",  "name of conditions summary tool for the SCT");
   declareProperty( "TRTConditionsSvc",           m_TRTConditionsSvc="TRT_ConditionsSummarySvc",  "name of conditions summary svc for the TRT");
 }
 
@@ -335,15 +333,6 @@ void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string
 
   if ( detector ) { 
 
-    // get ConditionsSummarySvc
-
-    ServiceHandle<IInDetConditionsSvc> condsummary(serviceName, name());
-
-    if ( condsummary.retrieve().isFailure() ) { 
-      ATH_MSG_ERROR( "failed to get " << serviceName );
-      return;
-    } 
-
     // get list of all detector elements for this detector
 
     std::vector<IdentifierHash> IDList;
@@ -369,19 +358,48 @@ void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string
     std::vector<IdentifierHash>::iterator mitr(IDList.begin());
     std::vector<IdentifierHash>::iterator mend(IDList.end());
     
-    while ( mitr!=mend ) {  
-     
-      if ( condsummary->isActive(*mitr) )  { 
-	EnableList.push_back(*mitr);
-	active_modules++;
+    if ( detector==m_newsct ) {
+      // get ConditionsSummaryTool
+      ToolHandle<IInDetConditionsTool> condsummary(serviceName, this);
+      if ( condsummary.retrieve().isFailure() ) {
+        ATH_MSG_ERROR( "failed to get " << serviceName );
+        return;
       }
-      else {
-	DisableList.push_back(*mitr);
-	disabled_modules++; 
+
+      while ( mitr!=mend ) {
+        if ( condsummary->isActive(*mitr) )  {
+          EnableList.push_back(*mitr);
+          active_modules++;
+        }
+        else {
+          DisableList.push_back(*mitr);
+          disabled_modules++;
+        }
+        ATH_MSG_VERBOSE( serviceName << " module 0x" << std::hex << *mitr << std::dec
+                         << " isActive()=" << condsummary->isActive(*mitr) );
+        mitr++;
       }
-      ATH_MSG_VERBOSE( serviceName << " module 0x" << std::hex << *mitr << std::dec 
-                       << " isActive()=" << condsummary->isActive(*mitr) );
-      mitr++;
+    } else {
+      // get ConditionsSummarySvc
+      ServiceHandle<IInDetConditionsSvc> condsummary(serviceName, name());
+      if ( condsummary.retrieve().isFailure() ) {
+        ATH_MSG_ERROR( "failed to get " << serviceName );
+        return;
+      }
+
+      while ( mitr!=mend ) {
+        if ( condsummary->isActive(*mitr) )  {
+          EnableList.push_back(*mitr);
+          active_modules++;
+        }
+        else {
+          DisableList.push_back(*mitr);
+          disabled_modules++;
+        }
+        ATH_MSG_VERBOSE( serviceName << " module 0x" << std::hex << *mitr << std::dec
+                         << " isActive()=" << condsummary->isActive(*mitr) );
+        mitr++;
+      }
     }
 
     ATH_MSG_INFO( serviceName << " Number of modules active   " << active_modules );
@@ -2237,9 +2255,8 @@ bool RegSelSvc::reinitialiseInternal() {
   // and now handle all the disabling for the sct ... 
   if ( m_initSCT.value() ) { 
     
-    // first disable modules from the conditions summary services
-    //    if ( m_disableFromConditions ) disableIDFromConditions(m_newsct, "SCT_ConditionsSummarySvc");
-    if ( m_disableFromConditions  && m_disableSCTFromConditions ) disableIDFromConditions(m_newsct, m_SCTConditionsSvc);
+    // first disable modules from the conditions summary tool
+    if ( m_disableFromConditions  && m_disableSCTFromConditions ) disableIDFromConditions(m_newsct, m_SCTConditionsTool);
 
     // now *disable* the modules from robs the user has flagged
     if ( m_deleteRobList.size() ) m_newsct->disableRobList(m_deleteRobList);

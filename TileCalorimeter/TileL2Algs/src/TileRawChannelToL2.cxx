@@ -38,7 +38,6 @@
 
 TileRawChannelToL2::TileRawChannelToL2(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
-  , m_tileL2Builder("TileL2Builder")
 {
 }
 

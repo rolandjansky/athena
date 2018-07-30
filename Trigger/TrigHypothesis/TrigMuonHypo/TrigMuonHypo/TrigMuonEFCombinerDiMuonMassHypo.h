@@ -21,7 +21,7 @@ class TrigMuonEFCombinerDiMuonMassHypo: public HLT::HypoAlgo
       HLT::ErrorCode hltInitialize();    
       HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass); 
       HLT::ErrorCode hltFinalize();
-      HLT::ErrorCode hltBeginRun();
+      HLT::ErrorCode hltStart();
 
    private:
 

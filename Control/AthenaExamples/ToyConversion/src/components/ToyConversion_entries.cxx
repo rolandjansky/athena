@@ -6,6 +6,6 @@ typedef ToyConverter<Foo> ToyCnvFoo;
 typedef ToyConverter<Bar> ToyCnvBar;
 
 DECLARE_COMPONENT( ToyConversionSvc )
-DECLARE_CONVERTER_FACTORY( ToyCnvFoo )
-DECLARE_CONVERTER_FACTORY( ToyCnvBar )
+DECLARE_CONVERTER( ToyCnvFoo )
+DECLARE_CONVERTER( ToyCnvBar )
 

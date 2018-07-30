@@ -1,4 +1,5 @@
 test_trigindetvalidation_all_ttbar_pu40 3
+test_trigindetvalidation_all_ttbar_pu60 3
 test_trigindetvalidation_all_ttbar_pu80 3
 test_trigindetvalidation_beamspot_ttbar_pu40 3
 test_trigindetvalidation_beamspot_ttbar_pu40_zfinder 3
@@ -36,3 +37,5 @@ test_trigindetvalidation_mu_zmumu_ibl_pu40_rzmatcher 4
 test_trigindetvalidation_mu_zmumu_ibl_pu40 4
 test_trigindetvalidation_tau_ibl_pu46_offline 3
 test_trigindetvalidation_tau_ibl_pu46 3
+test_trigindetvalidation_tau_ibl_pu46_nodoublet 3
+test_trigindetvalidation_tau_ibl_pu46_roiparam  3

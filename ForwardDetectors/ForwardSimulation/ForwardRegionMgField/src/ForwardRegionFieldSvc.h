@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,13 +20,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
-#include "ForwardRegionMgField/IForwardRegionProperties.h"
+#include "ForwardRegionGeoModel/IForwardRegionProperties.h"
 // MagField includes
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 namespace MagField {
 
-  class ForwardRegionFieldSvc : public IMagFieldSvc, virtual public IIncidentListener, virtual public AthService {
+  class ForwardRegionFieldSvc : public extends<AthService, IMagFieldSvc, IIncidentListener>  {
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,6 @@ namespace MagField {
 
     /** AthService interface methods */
     StatusCode initialize() override final;
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
 
     /** IIncidentListener interface methods **/
     void handle(const Incident& runIncident) override final;

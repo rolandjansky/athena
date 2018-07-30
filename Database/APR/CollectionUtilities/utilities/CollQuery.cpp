@@ -7,7 +7,6 @@
  * @brief Utility to list the metadata of a POOL collection
  * @author K. Karr <Kristo.Karr@cern.ch>
  * @author Marcin.Nowak@cern.ch
- * $Id: CollQuery.cpp 556226 2013-07-30 15:42:48Z mnowak $
  */
 
 #include "PersistentDataModel/Token.h"
@@ -22,6 +21,7 @@
 #include "CollectionBase/CollectionService.h"
 
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
@@ -164,6 +164,8 @@ using namespace std;
 int main(int argc, const char *argv[])
 {
    string thisProgram("CollQuery");
+   SystemTools::initGaudi();
+
    try  { 
       pool::CollectionService   collectionService;
       coral::MessageStream log( thisProgram );

@@ -22,10 +22,11 @@
 #include <string>
 
 #include "GaudiKernel/Converter.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <string>
 
@@ -33,8 +34,6 @@
 class DataObject;
 class StatusCode;
 class IAddressCreator;
-class IROBDataProviderSvc;
-class IByteStreamEventAccess;
 
 class MsgStream;
 
@@ -75,7 +74,7 @@ namespace HLT {
   */
   class HLTResultByteStreamCnv : public Converter {
 
-  protected:
+  public:
     HLTResultByteStreamCnv(ISvcLocator* svcloc); //!< std Gaudi converter constructor
 
   public:
@@ -91,8 +90,6 @@ namespace HLT {
     static const CLID& classID(); //!< CLID
 
     long repSvcType() const { return i_repSvcType(); } //!< return repSvcType
-
-    friend class CnvFactory<HLTResultByteStreamCnv>; //!< declare factory as friend
 
   private:
 

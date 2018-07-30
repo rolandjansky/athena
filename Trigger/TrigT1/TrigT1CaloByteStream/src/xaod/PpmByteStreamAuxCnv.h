@@ -38,13 +38,8 @@ class PpmByteStreamReadV1V2Tool;
 
 class PpmByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<PpmByteStreamAuxCnv>;
-
-protected:
-
-  PpmByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  PpmByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~PpmByteStreamAuxCnv(){};
 

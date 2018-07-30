@@ -393,27 +393,23 @@ StatusCode TileCellBuilderFromHit::process(CaloCellContainer * theCellContainer)
   ++m_eventErrorCounter[3]; // count separately total number of events
   
   // retrieve EventInfo
-  const xAOD::EventInfo* eventInfo_c = 0;
-  if (evtStore()->retrieve(eventInfo_c).isFailure()) {
+  const xAOD::EventInfo* eventInfo = 0;
+  if (evtStore()->retrieve(eventInfo).isFailure()) {
     ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
-  }
-  xAOD::EventInfo* eventInfo = 0;
-  if (eventInfo_c) {
-    eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
   }
 
   if (eventInfo) {
 
     if (flag != 0) {
       ATH_MSG_DEBUG( " set eventInfo for Tile for this event to 0x" << MSG::hex << flag << MSG::dec );
-      if (!eventInfo->setEventFlags(xAOD::EventInfo::Tile, flag)) {
+      if (!eventInfo->updateEventFlags(xAOD::EventInfo::Tile, flag)) {
         ATH_MSG_WARNING( " cannot set eventInfo for Tile " );
       }
     }
     
     if (error != xAOD::EventInfo::NotSet) {
       ATH_MSG_DEBUG( " set error bits for Tile for this event to " << error );
-      if (!eventInfo->setErrorState(xAOD::EventInfo::Tile, error)) {
+      if (!eventInfo->updateErrorState(xAOD::EventInfo::Tile, error)) {
         ATH_MSG_WARNING( " cannot set error state for Tile " );
       }
     }

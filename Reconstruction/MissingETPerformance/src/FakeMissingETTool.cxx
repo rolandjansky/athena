@@ -5,7 +5,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
 
 //#include "CLHEP/Units/PhysicalConstants.h"
 #include "TLorentzVector.h"
@@ -865,6 +864,3 @@ StatusCode FakeMissingETTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-FakeMissingETTool::~FakeMissingETTool() {}

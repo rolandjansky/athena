@@ -472,7 +472,7 @@ class doWriteDPD(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 
 #
 class doWriteBS(JobProperty):

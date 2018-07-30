@@ -23,8 +23,6 @@ SCT_SiliconConditionsTool::SCT_SiliconConditionsTool(const std::string& type, co
   m_geoModelSvc{"GeoModelSvc", name},
   m_rdbSvc{"RDBAccessSvc", name},
   m_useGeoModel{false},
-  m_condKeyHV{"SCT_SiliconBiasVoltCondData"},
-  m_condKeyTemp{"SCT_SiliconTempCondData"},
   m_sct_id{nullptr}
 {
   declareProperty("Temperature",      m_defaultTemperature     );
@@ -81,24 +79,24 @@ StatusCode SCT_SiliconConditionsTool::finalize() {
 } 
 
 // Silicon temperature (by Identifier)
-float SCT_SiliconConditionsTool::temperature(const Identifier& elementId) {
+float SCT_SiliconConditionsTool::temperature(const Identifier& elementId) const {
   const IdentifierHash elementHash{m_sct_id->wafer_hash(elementId)};
   return temperature(elementHash);
 }
 
 // Silicon bias voltage (by Identifier)
-float SCT_SiliconConditionsTool::biasVoltage(const Identifier& elementId) {
+float SCT_SiliconConditionsTool::biasVoltage(const Identifier& elementId) const {
   const IdentifierHash elementHash{m_sct_id->wafer_hash(elementId)};
   return biasVoltage(elementHash);
 }
 
 // Silicon depletion voltage (by Identifier)
-float SCT_SiliconConditionsTool::depletionVoltage(const Identifier& /*elementId*/) {
+float SCT_SiliconConditionsTool::depletionVoltage(const Identifier& /*elementId*/) const {
   return m_defaultDepletionVoltage;
 }
 
 // Silicon temperature (by IdentifierHash)
-float SCT_SiliconConditionsTool::temperature(const IdentifierHash& elementHash) {
+float SCT_SiliconConditionsTool::temperature(const IdentifierHash& elementHash) const {
   if (m_useDB and (not m_useGeoModel)) {
     const SCT_DCSFloatCondData* data{getCondDataTemp()};
     if (data==nullptr) return m_defaultTemperature;
@@ -114,7 +112,7 @@ float SCT_SiliconConditionsTool::temperature(const IdentifierHash& elementHash) 
 }
 
 // Silicon bias voltage (by IdentifierHash)
-float SCT_SiliconConditionsTool::biasVoltage(const IdentifierHash& elementHash) {
+float SCT_SiliconConditionsTool::biasVoltage(const IdentifierHash& elementHash) const {
 
   if (m_useDB and (not m_useGeoModel)) {
     const SCT_DCSFloatCondData* data{getCondDataHV()};
@@ -131,7 +129,7 @@ float SCT_SiliconConditionsTool::biasVoltage(const IdentifierHash& elementHash) 
 }
 
 // Silicon deplition voltage (by IdentifierHash)
-float SCT_SiliconConditionsTool::depletionVoltage(const IdentifierHash& /*elementHash*/) {
+float SCT_SiliconConditionsTool::depletionVoltage(const IdentifierHash& /*elementHash*/) const {
   return m_defaultDepletionVoltage;
 }
 

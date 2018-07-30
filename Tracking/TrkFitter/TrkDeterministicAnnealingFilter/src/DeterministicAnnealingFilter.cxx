@@ -13,7 +13,6 @@
 
 #include "TrkDeterministicAnnealingFilter/DeterministicAnnealingFilter.h"
 
-//#include "GaudiKernel/ToolFactory.h"
 //#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/MsgStream.h"
 

@@ -23,7 +23,9 @@ class ElectronMuonTopoInfoContainerCnv : public ElectronMuonTopoInfoContainerCnv
  
   protected:
    
+public:
   ElectronMuonTopoInfoContainerCnv( ISvcLocator *svcloc ): ElectronMuonTopoInfoContainerCnvBase(svcloc){}
+protected:
  
    
    virtual ElectronMuonTopoInfoContainer_PERS *createPersistent( ElectronMuonTopoInfoContainer *transObj);

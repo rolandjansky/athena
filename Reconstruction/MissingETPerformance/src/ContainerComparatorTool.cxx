@@ -5,7 +5,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
 
 //#include "CLHEP/Units/PhysicalConstants.h"
 
@@ -177,9 +176,6 @@ StatusCode ContainerComparatorTool::comparatorPlots(MissingETData *data) {
 StatusCode ContainerComparatorTool::finalize() {
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-ContainerComparatorTool::~ContainerComparatorTool() {}
 
 ContainerComparatorTool::DiffContainers::DiffContainers(const std::string &s, const std::string &s2,ITHistSvc * thistSvc) 
 {

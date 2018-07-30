@@ -33,9 +33,9 @@ class ElementTableCnv : public ElementTableCnvBase {
  
  protected:
  
+public:
   ElementTableCnv( ISvcLocator *svcloc );
-  ~ElementTableCnv();
-  
+protected:
   virtual StatusCode initialize();
  
   virtual ElementTable_PERS* createPersistent( Trk::ElementTable *transCont);

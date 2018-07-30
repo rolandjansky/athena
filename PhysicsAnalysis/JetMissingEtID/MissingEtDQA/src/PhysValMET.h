@@ -108,13 +108,13 @@ class PhysValMET
   bool Accept(const xAOD::Jet* jet, double JvtCut);
 
   // vector of collections
-  std::vector <std::string> types;
+  std::vector <std::string> m_types;
 
   // vector of terms
-  std::vector <std::string> terms;
+  std::vector <std::string> m_terms;
 
   // Map for names
-  std::map <std::string,std::string> names;
+  std::map <std::string,std::string> m_names;
 
   // Hists
   TH1D *m_MET_Track, *m_MET_Track_x, *m_MET_Track_y, *m_MET_Track_phi, *m_MET_Track_sum;
@@ -155,7 +155,7 @@ class PhysValMET
   std::map<std::string,std::vector<TH2D*> > m_MET_CorrFinalTrk_Reb;
   std::map<std::string,std::vector<TH2D*> > m_MET_CorrFinalClus_Reb;
 
-  std::vector<std::string> dir_met;
+  std::vector<std::string> m_dir_met;
 
   ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
   ToolHandle<IAsgElectronLikelihoodTool> m_elecSelLHTool;

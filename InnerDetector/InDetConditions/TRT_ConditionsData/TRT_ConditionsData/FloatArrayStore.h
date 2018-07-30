@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTCONDITIONSDATA_FLOATARRAYSTORE_H
@@ -21,7 +21,9 @@ PURPOSE:  Access and manipulate an indexed storage
 #include <vector>
 #include <map>
 #include <string>
-#include <iostream>
+#include <functional> //for std::less
+#include <iosfwd> // fwd declaration for io classes
+#include <cmath> //std::abs
 #include "Identifier/Identifier.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
@@ -43,6 +45,8 @@ public:
   FloatArrayStore(const std::string tag);
 /** destructor  */
   virtual ~FloatArrayStore();
+/** move assignment **/
+  FloatArrayStore & operator=(FloatArrayStore&& other);
   
 /** Tag accessor */
   const std::string& tag() const;
@@ -95,6 +99,16 @@ inline FloatArrayStore::FloatArrayStore() : m_tag("Undefined") { }
 
 inline FloatArrayStore::FloatArrayStore(const std::string tag) : m_tag(tag) { }
 
+inline  FloatArrayStore & FloatArrayStore::operator=(FloatArrayStore&& other){
+  if (this!=&other){
+    m_tag=std::move(other.m_tag);
+    m_bufmap = other.m_bufmap;//can't std::move a map, the keys are const
+    m_buf=std::move(other.m_buf);
+  }
+  return *this;
+}
+
+
 inline FloatArrayStore::~FloatArrayStore() {}
 
 inline void FloatArrayStore::clear() {m_bufmap.clear(); m_buf.clear(); }
@@ -122,8 +136,6 @@ inline bool FloatArrayStore::existID(const Identifier& ident) const
 { return m_bufmap.find(ident)!=m_bufmap.end(); }
 
 inline bool FloatArrayStore::sharedID(const Identifier& ident) const { return existID(ident)? m_bufmap.find(ident)->second <0 : false; }
-
-inline void FloatArrayStore::dbg() const {std::cout << "dbg:" << m_bufmap.size() << "  " << m_buf.size() << std::endl;}
 
 inline const std::vector<float>& FloatArrayStore::operator[]
 (const Identifier& ident) const

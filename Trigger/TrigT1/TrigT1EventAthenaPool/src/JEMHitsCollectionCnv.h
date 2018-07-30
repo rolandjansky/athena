@@ -24,15 +24,15 @@ typedef T_AthenaPoolCustomCnv<JEMHitsCollection, JEMHitsCollection_PERS> JEMHits
 class JEMHitsCollectionCnv: public JEMHitsCollectionCnvBase {
 friend class CnvFactory<JEMHitsCollectionCnv>;
 
-protected:
+public:
 
   JEMHitsCollectionCnv (ISvcLocator* svcloc) :
     JEMHitsCollectionCnvBase(svcloc),
     m_msgSvc( msgSvc() ),
     m_log( m_msgSvc, "JEMHitsCollectionCnv" )
      {}
-  
-  ~JEMHitsCollectionCnv() {}
+
+protected:
   
   virtual JEMHitsCollection_PERS*   createPersistent (JEMHitsCollection* transCont);
   virtual JEMHitsCollection*        createTransient ();

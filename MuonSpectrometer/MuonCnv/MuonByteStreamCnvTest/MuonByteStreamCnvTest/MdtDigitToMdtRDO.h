@@ -8,8 +8,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-class MuonMDT_CablingSvc;
-class MdtCsmContainer;
+#include "MuonDigitContainer/MdtDigitContainer.h"
+#include "MuonRDO/MdtCsmContainer.h"
+#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
+
 class MdtIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -19,9 +21,8 @@ class MdtDigitToMdtRDO : public AthAlgorithm {
  public:
 
   MdtDigitToMdtRDO (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
  private:
 
@@ -30,11 +31,11 @@ class MdtDigitToMdtRDO : public AthAlgorithm {
 
  protected:
 
-  ServiceHandle<ActiveStoreSvc> m_activeStore;
   ServiceHandle<MuonMDT_CablingSvc>       m_cabling;
-  MdtCsmContainer *    m_csmContainer;
   const MdtIdHelper*   m_mdtIdHelper;
   bool m_BMEpresent;
+  SG::WriteHandleKey<MdtCsmContainer> m_csmContainerKey{this,"OutputObjectName","MDTCSM","WriteHandleKey for Output MdtCsmContainer"};
+  SG::ReadHandleKey<MdtDigitContainer> m_digitContainerKey{this,"InputObjectName","MDT_DIGITS","ReadHandleKey for Input MdtDigitContainer"};
 };
 
 #endif

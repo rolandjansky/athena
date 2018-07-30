@@ -3,7 +3,6 @@
 */
 
 #include "CoWAuditor.h"
-#include "GaudiKernel/AudFactory.h"
 #include "GaudiKernel/INamedInterface.h"
 #include <algorithm>
 #include "GaudiKernel/IIncidentSvc.h"

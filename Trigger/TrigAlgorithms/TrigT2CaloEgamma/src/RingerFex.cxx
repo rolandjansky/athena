@@ -196,7 +196,7 @@ void RingerFex::maxCell (const std::vector<const CaloCell*>& vcell,
   }
 }
 //!=================================================================================
-StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi)
+StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& , const EventContext*)
 {
   m_error = 0x0;
   bool accept=false;

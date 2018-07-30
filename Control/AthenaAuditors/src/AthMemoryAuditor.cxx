@@ -6,7 +6,6 @@
 // AthMemoryAuditor.cxx 
 // Author: Rolf Seuster
 
-#include "GaudiKernel/AudFactory.h"
 #include "GaudiKernel/INamedInterface.h"
 
 #include "AthMemoryAuditor.h"

@@ -34,14 +34,14 @@ def getSCT_Amp(name="SCT_Amp", **kwargs):
 ######################################################################################
 def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs):
     ## Set up services used by SCT_SurfaceChargesGenerator
-    # Set up SCT_DCSConditiosnSvc
-    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
-    sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
-    sct_DCSConditionsSvcSetup.setup()
+    # Set up SCT_DCSConditiosnTool
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+    sct_DCSConditionsToolSetup.setup()
     # Set up SCT_SiliconConditionsTool
     from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
     sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
-    sct_SiliconConditionsToolSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
+    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
     sct_SiliconConditionsToolSetup.setup()
     # Set up SCT_SiPropertiesTool
     from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
@@ -53,6 +53,10 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     if not hasattr(ToolSvc, "InDetSCT_RadDamageSummaryTool"):
         from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
         ToolSvc += SCT_RadDamageSummaryTool(name = "InDetSCT_RadDamageSummaryTool")
+    ## SiLorentzAngleTool for SCT_SurfaceChargesGenerator
+    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
@@ -62,6 +66,7 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
     kwargs.setdefault("SiPropertiesTool", sct_SiPropertiesToolSetup.getTool())
+    kwargs.setdefault("LorentzAngleTool", ToolSvc.SCTLorentzAngleTool)
     from AthenaCommon.GlobalFlags import globalflags
     kwargs.setdefault("isOverlay", globalflags.isOverlay())
 
@@ -86,39 +91,34 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
 def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     #Setup noise treament in SCT_FrontEnd
+    # To set the mean noise values for the different module types
+    # Default values set at 0 degrees, plus/minus ~5 enc per plus/minus degree
+    kwargs.setdefault("NoiseBarrel", 1500.0)
+    kwargs.setdefault("NoiseBarrel3", 1541.0)
+    kwargs.setdefault("NoiseInners", 1090.0)
+    kwargs.setdefault("NoiseMiddles", 1557.0)
+    kwargs.setdefault("NoiseShortMiddles", 940.0)
+    kwargs.setdefault("NoiseOuters", 1618.0)
+    kwargs.setdefault("NOBarrel", 1.5e-5)
+    kwargs.setdefault("NOBarrel3", 2.1e-5)
+    kwargs.setdefault("NOInners", 5.0e-9)
+    kwargs.setdefault("NOMiddles", 2.7e-5)
+    kwargs.setdefault("NOShortMiddles", 2.0e-9)
+    kwargs.setdefault("NOOuters", 3.5e-5)
     # If noise is turned off:
     if not digitizationFlags.doInDetNoise.get_Value():
         ###kwargs.setdefault("OnlyHitElements", True)
         print 'SCT_Digitization:::: Turned off Noise in SCT_FrontEnd'
-        kwargs.setdefault("NoiseBarrel", 0.0)
-        kwargs.setdefault("NoiseBarrel3", 0.0)
-        kwargs.setdefault("NoiseInners", 0.0)
-        kwargs.setdefault("NoiseMiddles", 0.0)
-        kwargs.setdefault("NoiseShortMiddles", 0.0)
-        kwargs.setdefault("NoiseOuters", 0.0)
-        kwargs.setdefault("NOBarrel", 0.0)
-        kwargs.setdefault("NOBarrel3", 0.0)
-        kwargs.setdefault("NOInners", 0.0)
-        kwargs.setdefault("NOMiddles", 0.0)
-        kwargs.setdefault("NOShortMiddles", 0.0)
-        kwargs.setdefault("NOOuters", 0.0)
         kwargs.setdefault("NoiseOn", False)
-        # To set the mean noise values for the different module types
-        # Default values set at 0 degrees, plus/minus ~5 enc per plus/minus degree
+        kwargs.setdefault("AnalogueNoiseOn", False)
     else:
-        kwargs.setdefault("NoiseBarrel", 1500.0)
-        kwargs.setdefault("NoiseBarrel3", 1541.0)
-        kwargs.setdefault("NoiseInners", 1090.0)
-        kwargs.setdefault("NoiseMiddles", 1557.0)
-        kwargs.setdefault("NoiseShortMiddles", 940.0)
-        kwargs.setdefault("NoiseOuters", 1618.0)
-        kwargs.setdefault("NOBarrel", 1.5e-5)
-        kwargs.setdefault("NOBarrel3", 2.1e-5)
-        kwargs.setdefault("NOInners", 5.0e-9)
-        kwargs.setdefault("NOMiddles", 2.7e-5)
-        kwargs.setdefault("NOShortMiddles", 2.0e-9)
-        kwargs.setdefault("NOOuters", 3.5e-5)
         kwargs.setdefault("NoiseOn", True)
+        kwargs.setdefault("AnalogueNoiseOn", True)
+    # In overlay MC, only analogue noise is on. Noise hits are not added.
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay() and globalflags.DataSource == 'geant4':
+        kwargs["NoiseOn"] = False
+        kwargs["AnalogueNoiseOn"] = True
     # Use Calibration data from Conditions DB, still for testing purposes only
     kwargs.setdefault("UseCalibData", True)
 
@@ -129,7 +129,6 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     kwargs.setdefault("SCT_ReadCalibChipDataTool", sct_ReadCalibChipDataToolSetup.getTool())
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
     from AthenaCommon.BeamFlags import jobproperties
-    from AthenaCommon.GlobalFlags import globalflags
     if digitizationFlags.PileUpPremixing:
         kwargs.setdefault("DataCompressionMode", 3)
     elif globalflags.isOverlay() and globalflags.DataSource == 'geant4':
@@ -138,7 +137,6 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("DataCompressionMode", 1) 
     else: 
         kwargs.setdefault("DataCompressionMode", 3) 
-        kwargs.setdefault("NoiseExpandedMode", True)
     # DataReadOutMode: 0 is condensed mode and 1 is expanded mode
     if globalflags.isOverlay() and globalflags.DataSource == 'geant4':
         kwargs.setdefault("DataReadOutMode", 0)

@@ -19,7 +19,7 @@ public:
   MOCK_CONST_METHOD0(e, double());
   MOCK_CONST_METHOD0(et, double());
   MOCK_CONST_METHOD0(rapidity, double());
-  MOCK_CONST_METHOD0(p4, const TLorentzVector&());
+  MOCK_CONST_METHOD0(p4, TLorentzVector());
   MOCK_CONST_METHOD0(position, unsigned int());
   MOCK_CONST_METHOD2(getAttribute, bool (const std::string&, float&));
   MOCK_CONST_METHOD0(toString, std::string());

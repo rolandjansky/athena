@@ -4,7 +4,6 @@
 
 #include "GeneratorFilters/SusySubprocessFinder.h"
 #include "TruthUtils/PIDHelpers.h"
-#include "GaudiKernel/AlgFactory.h"
 
 using HepMC::GenVertex;
 using HepMC::GenParticle;

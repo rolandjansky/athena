@@ -10,6 +10,10 @@
 // **********************************************************************
 
 #include "InDetPerformanceMonitoring/TRT_Electron_Monitoring_Tool.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+#include "LWHists/TProfile_LW.h"
+
 
 const float electron_mass = 0.511 * Gaudi::Units::MeV;
 const float muon_mass = 105.66 * Gaudi::Units::MeV;
@@ -311,7 +315,10 @@ loopOverConversions(std::vector<Trk::Track*> &v_usedTrks)
 
 	  if(!m_doElectronMon) continue;
 	  //Vertex cuts
-	  if(trkTag->vertex()->nTrackParticles() != 2) continue;
+	  //  the following statement (checking number of TrackParticles in the *primary* vertex of this track)
+	  //  appears to be a logic error; instead check the nnumber TrackParticles in the conversion vertex
+	  //if(trkTag->vertex()->nTrackParticles() != 2) continue;
+	  if (vertex->nTrackParticles() != 2) continue;
 	  if( chi2 >= 5 ) continue;
 	  if( r <= 40 ) continue;
 	  const xAOD::TrackParticle* trkProbe = *tpLinks.at((i+1) % 2);
@@ -526,8 +533,8 @@ bool
 TRT_Electron_Monitoring_Tool::
 muonQualityCuts(const xAOD::Muon *muon)
 {
-  const xAOD::TrackParticle* trkM = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if(!muon) return false;
+  const xAOD::TrackParticle* trkM = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if(!trkM) return false;
   uint8_t dummy(-1);
   int nTRT = trkM->summaryValue(  dummy , xAOD::numberOfTRTHits  )? dummy :-1;
@@ -754,14 +761,13 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
         break;
       case DET_BARRELC:
         myGeoHists = &m_tBarrelC;
-	break;
+	      break;
       case DET_ENDCAPA:
         myGeoHists = &m_tEndCapA;
-	break;
+	      break;
       case DET_ENDCAPC:
         myGeoHists = &m_tEndCapC;
-	break;
-      default : continue;
+	      break;
     }
     if(!myGeoHists) continue;
     if(nLLHits[i]>0){

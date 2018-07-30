@@ -357,7 +357,7 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
   for(LArCellCollection::iterator ii=coll.begin();ii!=coll.end();++ii)
        (*ii)->setEnergyFast(0.0);
 
-  int32_t energy;
+  int32_t energy(0);
   int32_t time;
   int32_t quality;
   uint32_t gain;
@@ -408,8 +408,12 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
         iprovenance=0x1000; // data comes from DSP computation
         iquality=0;
         if ( quality>=0 ) { iprovenance|= 0x2000; iquality=(quality& 0xffff);}
-	if(m_doBadChanMasking && m_badChannelMasker->cellShouldBeMaskedFEB(fId, fcNb, gain)) 
-           {energy = 0;   iquality = 0; iprovenance|=0x0800;} 
+	if(m_doBadChanMasking) {
+	  const HWIdentifier hwid= m_onlineHelper->channel_Id(fId,fcNb);
+	  if (m_badChannelMasker->cellShouldBeMasked(hwid, gain)) {
+	    {energy = 0;   iquality = 0; iprovenance|=0x0800;} 
+	  }
+	}
 	// time converted to ns
 	collElem->set(energy, time*1e-3, iquality, iprovenance, (CaloGain::CaloGain)gain);
         //setCellEnergy(collElem,energy, time, quality, (CaloGain::CaloGain)gain);
@@ -434,7 +438,7 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
 	}
         collElem = coll[fcNb+nfeb];
         iprovenance=0x0100; // data does not come from DSP computation
-	if(m_doBadChanMasking && m_badChannelMasker->cellShouldBeMaskedFEB(fId, fcNb, gain)) 
+	if(m_doBadChanMasking && m_badChannelMasker->cellShouldBeMasked(cId, gain)) 
            {energy = 0;   quality = 0; iprovenance=0x0800;} 
 	collElem->set(energy, time, 0, iprovenance, gain_in );
         //setCellEnergy(collElem,energy, time, quality, gain_in);

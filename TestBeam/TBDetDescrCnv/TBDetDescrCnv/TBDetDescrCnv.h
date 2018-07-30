@@ -23,7 +23,6 @@
 
 
 class TBDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<TBDetDescrCnv>;
 
 public:
 
@@ -35,8 +34,6 @@ public:
     virtual long repSvcType() const;
     static long storageType();
     static const CLID& classID();
-
-protected:
 
     TBDetDescrCnv(ISvcLocator* svcloc);
 

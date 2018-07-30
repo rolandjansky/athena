@@ -24,7 +24,9 @@ typedef LArSingleFloatConverter<LAruA2MeVMC> LAruA2MeVMCCnvBase;
 class LAruA2MeVMCCnv : public LAruA2MeVMCCnvBase {
 friend class CnvFactory<LAruA2MeVMCCnv >;
 protected:
+public:
     LAruA2MeVMCCnv (ISvcLocator* svcloc) : LAruA2MeVMCCnvBase(svcloc) {}
+protected:
     virtual LArConditionsSubset<LArSingleFloatP>*  createTransient ();
     LArConditionsSubset<LArSingleFloatP>*          createTransient(LArConditionsSubset<LAruA2MeVP>* orig);
 };

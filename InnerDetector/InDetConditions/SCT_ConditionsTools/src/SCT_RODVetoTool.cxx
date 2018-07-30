@@ -51,12 +51,12 @@ SCT_RODVetoTool::finalize() {
 }
 
 bool 
-SCT_RODVetoTool::canReportAbout(InDetConditions::Hierarchy h) {
+SCT_RODVetoTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return ((h==InDetConditions::DEFAULT) or (h==InDetConditions::SCT_SIDE));
 }
 
 bool 
-SCT_RODVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+SCT_RODVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   const IdentifierSet* badIds{getCondData()};
   if (badIds==nullptr) {
@@ -68,7 +68,7 @@ SCT_RODVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy 
 }
 
 bool 
-SCT_RODVetoTool::isGood(const IdentifierHash& hashId) {
+SCT_RODVetoTool::isGood(const IdentifierHash& hashId) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
   Identifier moduleId{m_pHelper->module_id(elementId)};
   return isGood(moduleId);

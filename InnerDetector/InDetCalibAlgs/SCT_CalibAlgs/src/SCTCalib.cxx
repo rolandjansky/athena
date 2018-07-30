@@ -163,9 +163,6 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
     m_pSCTHelper(0),
     m_pManager(0),
     m_pCalibWriteSvc            ("SCTCalibWriteSvc",name),
-    m_DCSConditionsSvc          ("SCT_DCSConditionsSvc",name),
-    m_ConfigurationConditionsSvc("SCT_ConfigurationConditionsSvc",name),
-    m_ReadCalibDataSvc          ("SCT_ReadCalibDataSvc",name),
     m_CablingSvc                ("SCT_CablingSvc",name),
     m_calibHitmapSvc            ("SCT_CalibHitmapSvc",name),
     m_calibBsErrSvc             ("SCT_CalibBsErrorSvc",name),
@@ -324,30 +321,18 @@ StatusCode SCTCalib::initialize() {
     if ( detStore()->retrieve( m_pManager, "SCT").isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve SCTManager" << endmsg,StatusCode::FAILURE;
     if ( not retrievedService(m_pCalibWriteSvc)) return StatusCode::FAILURE;
     if ( m_doHV) msg( MSG::FATAL ) << "Not yet properly implemented and tested!" << endmsg;
-    if ( !m_useDCS ) {
-        ATH_MSG_DEBUG( "DCSConditionsSvc was removed in initialization" );
-        if ( m_doHV ) {
-            ATH_MSG_ERROR( "DCSConditionsSvc has to be initialized for HvSvc" );
-            return StatusCode::FAILURE ;
-        }
-    } else {
-        if (not retrievedService(m_DCSConditionsSvc)) return StatusCode::FAILURE;
-    }
 
-    if ( !m_useConfiguration ) {
-        ATH_MSG_DEBUG( "ConfigurationConditionsSvc was removed in initialization" );
-    } else {
-        if (not retrievedService(m_ConfigurationConditionsSvc)) return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_ConfigurationConditionsTool.retrieve( EnableTool {m_useConfiguration} ) );
 
     if ( !m_useCalibration ) {
-        ATH_MSG_DEBUG( "ReadCalibDataSvc was removed in initialization" );
+        ATH_MSG_DEBUG( "ReadCalibDataTool was removed in initialization" );
+        m_ReadCalibDataTool.disable();
     } else {
-        if (not retrievedService(m_ReadCalibDataSvc)) return StatusCode::FAILURE;
+      if (m_ReadCalibDataTool.retrieve().isFailure()) return StatusCode::FAILURE;
     }
 
     if ( !m_useMajority ) {
-        ATH_MSG_DEBUG( "MajorityConditionsSvc was removed in initialization" );
+        ATH_MSG_DEBUG( "MajorityConditionsTool was removed in initialization" );
     } else {
       if (m_MajorityConditionsTool.retrieve().isFailure()) return StatusCode::FAILURE;
     }
@@ -485,14 +470,7 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
 
 StatusCode SCTCalib::beginRun() {
     ATH_MSG_INFO ("----- in beginRun() -----" );
-    //--- Check if configuration data is available or not
-    if ( m_useConfiguration and ( m_doNoisyStrip or m_doDeadStrip or m_doDeadChip ) ) {
-        if ( not m_ConfigurationConditionsSvc->filled() ) return msg( MSG::ERROR ) << "Configuration data is not available" << endmsg, StatusCode::FAILURE;
-    }
     //--- Check if calibration data is available or not
-    if ( m_useCalibration and m_doNoisyStrip ) {
-        if ( not m_ReadCalibDataSvc->filled() ) return msg( MSG::ERROR ) << "Calibration data is not available" << endmsg, StatusCode::FAILURE;
-    }
     return StatusCode::SUCCESS;
 }
 
@@ -777,20 +755,20 @@ StatusCode SCTCalib::getDeadStrip() {
     ATH_MSG_INFO( "getDeadStrip() called" );
 
     // Bad Mods
-    const std::set<Identifier>* badMods = m_ConfigurationConditionsSvc->badModules();
+    const std::set<Identifier>* badMods = m_ConfigurationConditionsTool->badModules();
     std::set<Identifier>::const_iterator ModItr(badMods->begin());
     std::set<Identifier>::const_iterator ModEnd(badMods->end());
     // Bad links
-    const std::map<Identifier, std::pair<bool, bool> >* badLinks = m_ConfigurationConditionsSvc->badLinks();
+    const std::map<Identifier, std::pair<bool, bool> >* badLinks = m_ConfigurationConditionsTool->badLinks();
     std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
     std::map<Identifier, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
     // Bad chips
-    const std::map<Identifier, unsigned int>* badChips = m_ConfigurationConditionsSvc->badChips();
+    const std::map<Identifier, unsigned int>* badChips = m_ConfigurationConditionsTool->badChips();
     std::map<Identifier, unsigned int>::const_iterator chipItr(badChips->begin());
     std::map<Identifier, unsigned int>::const_iterator chipEnd(badChips->end());
     // Bad strips (w/o bad modules and chips)
     std::set<Identifier> badStripsExclusive;
-    m_ConfigurationConditionsSvc->badStrips(badStripsExclusive, true, true);
+    m_ConfigurationConditionsTool->badStrips(badStripsExclusive, true, true);
     //std::set<Identifier>::const_iterator stripItr(badStripsExclusive.begin());
     std::set<Identifier>::const_iterator stripEnd(badStripsExclusive.end());
     //To get #(Enabled Modules)
@@ -2793,8 +2771,8 @@ SCTCalib::addStripsToList( Identifier& waferId, std::set<Identifier>& stripIdLis
                 if ( !isNew ) { //--- All noisy strips
                     stripIdList.insert( stripId );
                 } else { //--- New noisy strips : compared with configuration and calibration
-                    const bool isGoodInConfiguration = m_useConfiguration ? m_ConfigurationConditionsSvc->isGood( stripId, InDetConditions::SCT_STRIP ) : true;
-                    const bool isGoodInCalibration   = m_useCalibration   ? m_ReadCalibDataSvc->isGood( stripId, InDetConditions::SCT_STRIP )           : true;
+                    const bool isGoodInConfiguration = m_useConfiguration ? m_ConfigurationConditionsTool->isGood( stripId, InDetConditions::SCT_STRIP ) : true;
+                    const bool isGoodInCalibration   = m_useCalibration   ? m_ReadCalibDataTool->isGood( stripId, InDetConditions::SCT_STRIP )           : true;
                     if ( m_useConfiguration or m_useCalibration ) {
                         if ( isGoodInConfiguration && isGoodInCalibration ) {
                             stripIdList.insert( stripId );

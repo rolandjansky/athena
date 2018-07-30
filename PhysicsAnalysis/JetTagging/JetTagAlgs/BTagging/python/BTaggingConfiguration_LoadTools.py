@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # The python script contains functions which will set up default b-tagging configurations for a certain jet-collection.
 # Author: Wouter van den Wollenberg (wwollenb@nikhef.nl, wouter.van.den.wollenberg@cern.ch)
@@ -39,7 +39,8 @@ def Initiate(ConfInstance=None):
   if ConfInstance._Initialized:
     return True
 
-  from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+  from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+  from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
   from IOVDbSvc.CondDB import conddb
   btagrun1=False
   if conddb.dbdata == 'COMP200':
@@ -48,7 +49,7 @@ def Initiate(ConfInstance=None):
     # The Run() parameter only exists for ATLAS-R1(...) and ATLAS-R2(...) geo tags,
     # not for ATLAS-GEO(...) and ATLAS-IBL(...) ones. Hence if Run() is undefined,
     # presence of IBL is used to switch between Run1/Run2
-    btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+    btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
   if (btagrun1):
     print ConfInstance.BTagTag()+' - INFO - Setting up Run 1 configuration'
     BTaggingFlags.JetFitterNN=True

@@ -38,7 +38,9 @@ class xAODElectronAuxContainerCnv : public xAODElectronAuxContainerCnvBase {
 
 protected:
    /// Converter constructor
+public:
    xAODElectronAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::ElectronAuxContainer*

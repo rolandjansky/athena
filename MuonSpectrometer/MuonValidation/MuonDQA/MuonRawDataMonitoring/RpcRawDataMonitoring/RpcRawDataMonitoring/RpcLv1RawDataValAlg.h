@@ -15,13 +15,14 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
+
+#include "xAODEventInfo/EventInfo.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
@@ -40,6 +41,8 @@
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
 #include "RpcRawDataMonitoring/RpcGlobalUtilities.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 #include <sstream>
 #include <string.h>
@@ -80,16 +83,15 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   MuonDQAHistMap m_stationHists;
 
 
-  StoreGateSvc* m_eventStore;
-  
-  ActiveStoreSvc* m_activeStore;
-  
   StatusCode StoreTriggerType();
   int GetTriggerType() { return m_trigtype; }
   int m_trigtype;
   
   int m_sector;
   int m_side;
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
+  SG::ReadHandleKey<RpcPadContainer> m_rpcRdoKey{this,"RpcRdo","RPCPAD","RPC RDO"};
 
   std::vector<std::string> m_sectorlogicTowerCma_name_list   ;
   std::vector<std::string> m_sectorlogicTowerCma_name_list2  ;

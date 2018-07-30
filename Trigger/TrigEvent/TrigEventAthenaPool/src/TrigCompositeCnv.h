@@ -29,11 +29,11 @@ class TrigCompositeCnv  : public T_AthenaPoolCustomCnv<TrigComposite, TrigCompos
 
   friend class CnvFactory<TrigCompositeCnv>;
 
- protected:
-  
+public:
   TrigCompositeCnv(ISvcLocator* svcloc);
   ~TrigCompositeCnv();
 
+protected:
   TrigComposite_PERS*  createPersistent(TrigComposite* transCont);
 
   TrigComposite*       createTransient ();

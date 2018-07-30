@@ -45,6 +45,10 @@
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataCollection.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
+#include "StoreGate/ReadHandleKey.h"
+
 // STL includes
 #include <sstream>
 #include <string.h>
@@ -180,11 +184,8 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   virtual StatusCode procHistograms();  
 
  private:
-  StatusCode readOfflineMuonContainer(std::string key);
   // Retrieving information and data
-  ActiveStoreSvc* m_activeStore; // to get all the other information
   const RpcIdHelper* m_rpcIdHelper; 
-  const RpcSectorLogicContainer* m_sectorLogicContainer; 
   const MuonGM::MuonDetectorManager* m_muonMgr; // to retrieve coincidence informations
   
   // Trigger type stuff
@@ -199,6 +200,12 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   int m_event;
   int m_lumiblock;
   int m_BCID;
+
+  bool m_isMC;
+
+  SG::ReadHandleKey<Muon::RpcCoinDataContainer> m_rpcCoinKey{this,"RpcCoinKey","RPC_triggerHits","RPC coincidences"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"};
+  SG::ReadHandleKey<RpcSectorLogicContainer> m_sectorLogicContainerKey{this,"RPCSec","RPC_SECTORLOGIC","RPC sector logic"};
 
   // muon informations for offline muons and trigger hits
   std::vector<OfflineMuon>   m_OfflineMuons;

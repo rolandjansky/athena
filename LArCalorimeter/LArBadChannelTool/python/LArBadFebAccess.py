@@ -13,20 +13,20 @@ def LArBadFebAccess(algname="LArBadFebCondAlg", dbString=None):
     if dbString is not None:
         foldername=conddb.extractFolder(dbString)
         conddb.addFolder("",dbString,className='AthenaAttributeList')
-    else:
-        if conddb.isOnline:
-            foldername="/LAR/BadChannels/MissingFEBs"
-            conddb.addFolder("LAR",foldername,className='AthenaAttributeList')
-        else:
-            foldername="/LAR/BadChannelsOfl/MissingFEBs"
-            conddb.addFolder("LAR_OFL",foldername,className='AthenaAttributeList')
-            pass
-        pass
+    #else:
+    #    if conddb.isOnline or conddb.isMC:
+    #        foldername="/LAR/BadChannels/MissingFEBs"
+    #        conddb.addFolder("LAR",foldername,className='AthenaAttributeList')
+    #    else:
+    #        foldername="/LAR/BadChannelsOfl/MissingFEBs"
+    #        conddb.addFolder("LAR_OFL",foldername,className='AthenaAttributeList')
+    #        pass
+    #    pass
     
 
 
     from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
     theLArBadFebCondAlg=LArBadFebCondAlg(algname)
-    theLArBadFebCondAlg.ReadKey=foldername
+    theLArBadFebCondAlg.ReadKey="/LAR/BadChannels/MissingFEBs"
     condSeq+=theLArBadFebCondAlg
     return

@@ -51,24 +51,24 @@ class FactoryForStrategyC() :
              print ZvertexMaker_C
 
              # SCT and Pixel detector elements road builder
-             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummarySvc, InDetTrigSCTConditionsSummarySvc
+             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummaryTool, InDetTrigSCTConditionsSummaryTool
              from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
              InDetTrigSiDetElementsRoadMaker_C = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_C')
              InDetTrigSiDetElementsRoadMaker_C.RoadWidth = self.settings[('RoadWidth',instName)]
              ToolSvc += InDetTrigSiDetElementsRoadMaker_C
 
              if DetFlags.haveRIO.pixel_on():
-                 from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
+                 from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
                  from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-                 InDetTrigPixelConditionsSummarySvc = PixelConditionsSummarySvc(PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'))
+                 InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
              else:
-                 InDetTrigPixelConditionsSummarySvc = None
+                 InDetTrigPixelConditionsSummaryTool = None
              if DetFlags.haveRIO.SCT_on():
-                 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
                  from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-                 InDetTrigSCTConditionsSummarySvc = SCT_ConditionsSummarySvc(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummarySvc'))
+                 from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+                 InDetTrigSCTConditionsSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummaryTool"))
              else:
-                 InDetTrigSCTConditionsSummarySvc = None
+                 InDetTrigSCTConditionsSummaryTool = None
              from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
              from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigPatternPropagator
              from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPatternUpdator, InDetTrigRotCreator
@@ -82,9 +82,17 @@ class FactoryForStrategyC() :
                                                                   useSCT           = DetFlags.haveRIO.SCT_on(),
                                                                   PixelClusterContainer = 'PixelClusterCache',
                                                                   SCT_ClusterContainer = 'SCT_ClusterCache',
-                                                                  PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
-                                                                  SctSummarySvc = InDetTrigSCTConditionsSummarySvc)
+                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
+                                                                  SctSummaryTool = InDetTrigSCTConditionsSummaryTool)
              ToolSvc += TrackFinder_C
+             if DetFlags.haveRIO.SCT_on():
+                 # Condition algorithm for SiCombinatorialTrackFinder_xk
+                 from AthenaCommon.AlgSequence import AthSequencer
+                 condSeq = AthSequencer("AthCondSeq")
+                 if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+                     from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+                     condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
+             
              from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 
              TrackMaker_C = InDet__SiTrackMaker_xk( name = 'InDetTrigSiTrackMaker_C_'+instName,

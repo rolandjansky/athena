@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # ReadFromCoolCompare.py
 # (Based on A. Solodkov's script ReadCsFromCool.py)
@@ -165,7 +165,7 @@ else:
 if tag2.startswith('TileO'):
     folderTag2 = tag2
 elif tag2:
-    folderTag2 = TileCalibUtils.getFullTag(folderPath, tag2)
+    folderTag2 = TileCalibUtils.getFullTag(folderPath2, tag2)
 else:
     folderTag2 = ""
 
@@ -205,7 +205,7 @@ while not flt:
     if d<0:
         r-=1
         if r<0:
-            log.info("ERROR!!! No valid drawers in first database")
+            log.error("No valid drawers in first database")
             sys.exit()
         d=TileCalibUtils.getMaxDrawer(r)-1
     flt = blobReader.getDrawer(r, d, (run,lumi), False, False)
@@ -225,7 +225,7 @@ while not flt2:
     if d<0:
         r-=1
         if r<0:
-            log.info("ERROR!!! No valid drawers in second database")
+            log.error("No valid drawers in second database")
             sys.exit()
         d=TileCalibUtils.getMaxDrawer(r)-1
     flt2 = blobReader2.getDrawer(r, d, (run2,lumi2), False, False)
@@ -233,8 +233,10 @@ ot2 = flt2.getObjType()
 os2 = flt2.getObjSizeByte()/4
 
 if (os <> os2) or (ot <> ot2):
-    log.info("ERROR!!! object sizes %s %s or types %s %s are different" % (os, os2, ot, ot2))
-    sys.exit()
+    log.error("Object sizes (%s vs %s) or types (%s vs %s) are different" % (os, os2, ot, ot2))
+    answ=raw_input(' continue anyway? (y/n)')
+    if (answ <> 'y'):
+        sys.exit()
 
 v =[]
 v2=[]
@@ -263,16 +265,19 @@ for ros in xrange(0,5):
             osc = flt.getObjSizeByte()/4
             os2c = flt2.getObjSizeByte()/4
             if (((os <> osc) or (os2 <> os2c)) and answ <> 'y'):
-                log.info("ERROR!!! object sizes are different for ROS 0 (%s %s) and ROS %s (%s %s) drawer %s" % (os, os2, ros, osc, os2c, modName))
-                answ=raw_input(' continue anyway? (y/n)')
-                if (answ <> 'y'):
-                    sys.exit()
+                if (ros==0 and osc==os2c and os==os2):
+                    log.warning("Object sizes are different for last drawer in DB (%s) and default drawer %s (%s)" % (os, modName, osc))
                 else:
-                    for ind in xrange(0,osc):
-                        v.append(0)
-                        v2.append(0)
-                    
-        
+                    log.error("Object sizes are different for last drawer in DB (%s and %s) and drawer %s (%s and %s)" % (os, os2, modName, osc, os2c))
+                    answ=raw_input(' continue anyway? (y/n)')
+                    if (answ <> 'y'):
+                        sys.exit()
+                    else:
+                        for ind in xrange(0,osc):
+                            v.append(0)
+                            v2.append(0)
+
+
             for chn in xrange(TileCalibUtils.max_chan()):
                 chnName = " %2i" % chn
                 for adc in xrange(ng):

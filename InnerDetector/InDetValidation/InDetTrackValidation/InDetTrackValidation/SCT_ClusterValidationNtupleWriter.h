@@ -16,6 +16,7 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkTrack/TrackCollection.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include <vector>
@@ -24,7 +25,6 @@
 
 class SCT_ID;
 class TTree;
-class ISCT_ByteStreamErrorsSvc;
 class ISCT_CablingSvc;
 
 namespace InDet {
@@ -62,7 +62,7 @@ private:
     SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;     //!< Data object name: for the SCT this is "SCT_RDOs"
     SG::ReadHandleKey<SpacePointContainer> m_spacePointContainerName;//!< SpacePoint container name: for the SCT this is "SCT_SpacePoints"
     SG::ReadHandleKey<TrackCollection> m_inputTrackCollection; //! TrackCollection name, needed for hits-on-tracks, default is "CombinedInDetTracks"
-    ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
+    ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
     ServiceHandle<ISCT_CablingSvc> m_cabling;
     std::string m_ntupleFileName;     //!< jobOption: Ntuple file name
     std::string m_ntupleDirName;      //!< jobOption: Ntuple directory name

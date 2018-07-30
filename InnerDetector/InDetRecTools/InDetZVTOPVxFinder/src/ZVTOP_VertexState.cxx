@@ -9,7 +9,6 @@
  ***************************************************************************/
 
 #include "InDetZVTOPVxFinder/ZVTOP_VertexState.h"
-#include "VxVertex/Vertex.h"
 #include "TrkTrack/Track.h"
 
 namespace InDet {
@@ -22,10 +21,9 @@ namespace InDet {
   m_vtx_prob(vs.m_vtx_prob),
   m_vertex(vs.m_vertex),
   m_beam_spot(vs.m_beam_spot),
-  m_tracks(std::vector<const Trk::Track*>())
+  m_tracks(vs.m_tracks)
   {
-         for (std::vector<const Trk::Track*>::const_iterator itr = vs.m_tracks.begin();
-         itr != vs.m_tracks.end(); ++itr) m_tracks.push_back(*itr); 
+         
   }
   ZVTOP_VertexState::~ZVTOP_VertexState() {}
 } // end of namespace

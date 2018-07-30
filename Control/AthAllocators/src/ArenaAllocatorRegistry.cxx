@@ -36,10 +36,13 @@ public:
 
   /**
    * @brief Register a new allocator type.
-   * @param name The name of the allocator type.  Must not already exist.
+   * @param name The name of the allocator type.
    * @param creator The factory object to create instances of this type.
    *                The registry takes ownership of this pointer.
    * @return The new integer index for this allocator type.
+   *
+   * If the allocator type already exists, then the index of the existing
+   * one is returned (and the object passed as @c creator is deleted).
    */
   size_t registerCreator (const std::string& name,
                           std::unique_ptr<ArenaAllocatorCreator> creator);
@@ -87,10 +90,13 @@ ArenaAllocatorRegistryImpl::~ArenaAllocatorRegistryImpl()
 
 /**
  * @brief Register a new allocator type.
- * @param name The name of the allocator type.  Must not already exist.
+ * @param name The name of the allocator type.
  * @param creator The factory object to create instances of this type.
  *                The registry takes ownership of this pointer.
  * @return The new integer index for this allocator type.
+ *
+ * If the allocator type already exists, then the index of the existing
+ * one is returned (and the object passed as @c creator is deleted).
  */
 size_t
 ArenaAllocatorRegistryImpl::registerCreator (const std::string& name,
@@ -98,8 +104,15 @@ ArenaAllocatorRegistryImpl::registerCreator (const std::string& name,
 {
   lock_t lock (m_mutex);
 
-  // The name must not already exist.
-  assert (m_map.count (name) == 0);
+  // See if there's an existing one by this name.
+  // Shouldn't usually happen, since we check that the allocator doesn't
+  // exist before calling this, but could happen in a MT job.
+  // So we need to check it again with the lock held.
+  map_t::iterator it = m_map.find (name);
+  if (it != m_map.end()) {
+    // creator will be deleted.
+    return it->second;
+  }
 
   // The new index.
   size_t i = m_creators.size();
@@ -146,10 +159,13 @@ ArenaAllocatorRegistryImpl::create (size_t i)
 
 /**
  * @brief Register a new allocator type.
- * @param name The name of the allocator type.  Must not already exist.
+ * @param name The name of the allocator type.
  * @param creator The factory object to create instances of this type.
  *                The registry takes ownership of this pointer.
  * @return The new integer index for this allocator type.
+ *
+ * If the allocator type already exists, then the index of the existing
+ * one is returned (and the object passed as @c creator is deleted).
  */
 size_t
 ArenaAllocatorRegistry::registerCreator (const std::string& name,

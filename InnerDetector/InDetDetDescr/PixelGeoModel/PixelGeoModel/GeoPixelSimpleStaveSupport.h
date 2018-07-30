@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSIMPLESTAVESUPPORT_H
@@ -12,6 +12,7 @@ class GeoPixelSimpleStaveSupport : public GeoPixelStaveSupport {
 
 public:  
   GeoPixelSimpleStaveSupport();
+  virtual ~GeoPixelSimpleStaveSupport();
   virtual GeoVPhysVol* Build();
   virtual GeoVPhysVol* getPhysVol() const {return m_physVol;}
   virtual const HepGeom::Transform3D & transform() const {return m_transform;}

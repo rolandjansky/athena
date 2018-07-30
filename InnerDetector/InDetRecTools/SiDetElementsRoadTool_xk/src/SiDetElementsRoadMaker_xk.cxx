@@ -11,9 +11,7 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <iomanip>
-#include <utility>
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsRoadMaker_xk.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
@@ -22,6 +20,8 @@
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "EventInfo/TagInfo.h"
+#include <ostream>
+#include <iomanip>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -67,7 +67,6 @@ InDet::SiDetElementsRoadMaker_xk::~SiDetElementsRoadMaker_xk()
 
 StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 {
-  StatusCode sc = AlgTool::initialize(); 
   
   if (!m_usePIX && !m_useSCT) {
     msg(MSG::FATAL) << "Please don't call this tool if usePixel and useSCT are false" << endmsg;
@@ -78,22 +77,13 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   //
   if(m_fieldmode != "NoField" ) {
     
-    if( !m_fieldServiceHandle.retrieve() ){
-      ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-      return StatusCode::FAILURE;
-    }    
-    ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
+    ATH_CHECK( m_fieldServiceHandle.retrieve() );
     m_fieldService = &*m_fieldServiceHandle;
   }
 
   // Get propagator tool
   //
-  if ( m_proptool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
-  }
+  ATH_CHECK ( m_proptool.retrieve());
 
   // Get output print level
   //
@@ -108,7 +98,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   std::vector< std::string > tagInfoKeys =  detStore()->keys<TagInfo> ();
   std::string tagInfoKey = "";
 
-  if(tagInfoKeys.size()==0)
+  if(tagInfoKeys.empty())
     msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endmsg;
    else {
      if(tagInfoKeys.size() > 1) {
@@ -123,37 +113,22 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   
   // Setup call back for geometry
   //
-  sc = detStore()->regFcn(&InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsUpdate,
-			  this,tagInfoH,m_callbackString);
-
-  if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback for geometry " << name() << endmsg;
-   } else {
-      msg(MSG::ERROR) << "Could not book callback for geometry " << name () << endmsg;
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->regFcn(&InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsUpdate,
+			  this,tagInfoH,m_callbackString));
 
 
  std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
  const DataHandle<CondAttrListCollection> currentHandle;
  if (m_fieldmode != "NoField" && detStore()->contains<CondAttrListCollection>(folder)){
-   
-   sc = detStore()->regFcn(&InDet::SiDetElementsRoadMaker_xk::magneticFieldInit,
-			   this,currentHandle,folder);
-   
-   if(sc==StatusCode::SUCCESS) {
-     msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
-   } else {
-     msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
-     return StatusCode::FAILURE;
-   }
+   ATH_CHECK( detStore()->regFcn(&InDet::SiDetElementsRoadMaker_xk::magneticFieldInit,
+			   this,currentHandle,folder));
  }
  else {
    magneticFieldInit();
    ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
  }
  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -162,7 +137,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 
 StatusCode InDet::SiDetElementsRoadMaker_xk::finalize()
 {
-   StatusCode sc = AlgTool::finalize(); return sc;
+   return StatusCode::SUCCESS;
 }
 
 
@@ -172,7 +147,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::finalize()
 
 MsgStream& InDet::SiDetElementsRoadMaker_xk::dump( MsgStream& out ) const
 {
-  out<<std::endl;
+  out<<"\n";
   if(m_nprint)  return dumpEvent(out);
   return dumpConditions(out);
 }
@@ -208,21 +183,21 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) co
   if(m_layer[2].size()) ++maps;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
-     <<std::endl;
+     <<"\n";
   if(m_useSCT) {
-    out<<"| SCT   detector manager  | "<<m_sct             <<s5<<std::endl;
+    out<<"| SCT   detector manager  | "<<m_sct             <<s5<<"\n";
   }
   if(m_usePIX) {
-    out<<"| Pixel detector manager  | "<<m_pix             <<s6<<std::endl;
+    out<<"| Pixel detector manager  | "<<m_pix             <<s6<<"\n";
   }
-  out<<"| Tool for propagation    | "<<m_proptool.type() <<s1<<std::endl;
-  out<<"| Magnetic field mode     | "<<fieldmode[mode]   <<s3<<std::endl;
+  out<<"| Tool for propagation    | "<<m_proptool.type() <<s1<<"\n";
+  out<<"| Magnetic field mode     | "<<fieldmode[mode]   <<s3<<"\n";
   out<<"| Width of the road (mm)  | "
      <<std::setw(12)<<std::setprecision(5)<<m_width
-     <<"                                                  |"<<std::endl;
+     <<"                                                  |"<<"\n";
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
-     <<std::endl;
+     <<"\n";
 
   if(!maps || m_outputlevel==0) return out;
 
@@ -231,17 +206,17 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) co
     int nc = 0;
     for(unsigned int i=0; i!=m_layer[1].size(); ++i) nc+=m_layer[1][i].nElements();
     out<<"|----------------------------------------------------------------|"
-       <<std::endl;
+       <<"\n";
     out<<"| Barrel map containt "
        <<std::setw(3)<<nl<<" layers and"
        <<std::setw(5)<<nc<<" elements               |"
-       <<std::endl;
+       <<"\n";
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
     out<<"|   n  |     R     |   Z min    |   Z max    |  max dF    | nEl  |"
-       <<std::endl;
+       <<"\n";
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
     for(unsigned int i=0; i!=m_layer[1].size(); ++i) {
       double zmin = m_layer[1][i].z()-m_layer[1][i].dz();
       double zmax = m_layer[1][i].z()+m_layer[1][i].dz();
@@ -252,10 +227,10 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) co
 	 <<std::setw(10)<<std::setprecision(4)<<                zmax<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<< m_layer[1][i].dfe()<<" | "
 	 <<std::setw(4)<<m_layer[1][i].nElements()<<" | "
-	 <<std::endl;
+	 <<"\n";
     }
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
 
   }
   if(m_layer[0].size()) {
@@ -264,18 +239,18 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) co
     int nc = 0;
     for(unsigned int i=0; i!=m_layer[0].size(); ++i) nc+=m_layer[0][i].nElements();
     out<<"|----------------------------------------------------------------|"
-       <<std::endl;
+       <<"\n";
     out<<"| L.Endcap map containt"
        <<std::setw(3)<<nl<<" layers and"
        <<std::setw(5)<<nc<<" elements              |"
-       <<std::endl;
+       <<"\n";
 
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
     out<<"|   n  |     Z     |   R min    |   R max    |  max dF    | nEl  |"
-       <<std::endl;
+       <<"\n";
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
     for(unsigned int i=0; i!=m_layer[0].size(); ++i) {
       double rmin = m_layer[0][i].r()-m_layer[0][i].dr();
       double rmax = m_layer[0][i].r()+m_layer[0][i].dr();
@@ -286,27 +261,27 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) co
 	 <<std::setw(10)<<std::setprecision(4)<<               rmax<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<<m_layer[0][i].dfe()<<" | "
 	 <<std::setw(4)<<m_layer[0][i].nElements()<<" | "
-	 <<std::endl;
+	 <<"\n";
     }
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
   }
   if(m_layer[2].size()) {
     int nl = m_layer[2].size();
     int nc = 0;
     for(unsigned int i=0; i!=m_layer[2].size(); ++i) nc+=m_layer[2][i].nElements();
     out<<"|----------------------------------------------------------------|"
-       <<std::endl;
+       <<"\n";
    out<<"| R.Endcap map containt"
        <<std::setw(3)<<nl<<" layers and"
        <<std::setw(5)<<nc<<" elements              |"
-       <<std::endl;
+       <<"\n";
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
     out<<"|   n  |     Z     |   R min    |   R max    |  max dF    | nEl  |"
-       <<std::endl;
+       <<"\n";
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
     for(unsigned int i=0; i!=m_layer[2].size(); ++i) {
       double rmin = m_layer[2][i].r()-m_layer[0][i].dr();
       double rmax = m_layer[2][i].r()+m_layer[0][i].dr();
@@ -317,11 +292,12 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) co
 	 <<std::setw(10)<<std::setprecision(4)<<               rmax<<" | "
 	 <<std::setw(10)<<std::setprecision(4)<<m_layer[2][i].dfe()<<" | "
 	 <<std::setw(4)<<m_layer[2][i].nElements()<<" | "
-	 <<std::endl;
+	 <<"\n";
     }
     out<<"|------|-----------|------------|------------|------------|------|"
-       <<std::endl;
+       <<"\n";
   }
+  out<<"\n";
   return out;
 }
 
@@ -332,11 +308,11 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions( MsgStream& out ) co
 MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpEvent( MsgStream& out ) const
 {
   out<<"|---------------------------------------------------------------------|"
-     <<std::endl;
+     <<"\n";
   out<<"| Road size               | "<<std::setw(12)<<m_sizeroad
-     <<"                              |"<<std::endl;
+     <<"                              |"<<"\n";
   out<<"|---------------------------------------------------------------------|"
-     <<std::endl;
+     <<"\n";
   return out;
 }
 

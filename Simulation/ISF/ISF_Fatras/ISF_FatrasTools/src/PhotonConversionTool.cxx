@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/PhotonConversionTool.h"
+#include "PhotonConversionTool.h"
 
 // Gaudi Kernel
 #include "GaudiKernel/RndmGenerators.h"
@@ -345,38 +345,26 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
 
     // removal of soft children to be done in layer mat updator
 
-    ISF::ISFParticle* ch1 = new ISF::ISFParticle( vertex,
-						  p1*childDirection,
-						  mass,
-						  charge1,
-						  pdg1,
-						  time,
-						  *parent );
-    //if (m_validationMode) {
-    //  ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
-    //  validInfo->setProcess(14);
-    //  if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
-    //  else validInfo->setGeneration(1);     // assume parent is a primary track
-    //  ch1->setUserInformation(validInfo);
-    //}
-    children[0] = ch1;
+    std::unique_ptr<ISF::ISFParticle> ch1(new ISF::ISFParticle(vertex,
+                                                               p1*childDirection,
+                                                               mass,
+                                                               charge1,
+                                                               pdg1,
+                                                               time,
+                                                               *parent));
+    
+    std::unique_ptr<ISF::ISFParticle> ch2(new ISF::ISFParticle(vertex,
+                                                               p2*childDirection,
+                                                               mass,
+                                                               charge2,
+                                                               pdg2,
+                                                               time,
+                                                               *parent));
 
-    ISF::ISFParticle* ch2  = new ISF::ISFParticle( vertex,
-						   p2*childDirection,
-						   mass,
-						   charge2,
-						   pdg2,
-						   time,
-						   *parent );
-      
-    //if (m_validationMode) {
-    //  ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
-    //  validInfo->setProcess(14);
-    //  if (parent->getUserInformation()) validInfo->setGeneration(parent->getUserInformation()->generation()+1);
-    //  else validInfo->setGeneration(1);     // assume parent is a primary track
-    //  ch2->setUserInformation(validInfo);
-    //}
-    children[1] = ch2;
+    // Since ISF::ISFParticleVector is just a std::vector, do not `release` since
+    // then we need to manage the memory (could have just used raw pointers).
+    children[0] = ch1.get();
+    children[1] = ch2.get();
 
     // register TruthIncident
     ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
@@ -393,12 +381,6 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
     if (!children[1]->getTruthBinding()) {
         children[1]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
     }
-
-    // save info for validation
-    //if (m_validationMode && m_validationTool) {
-    //  Amg::Vector3D* nPrim=0;
-    //  m_validationTool->saveISFVertexInfo(14,vertex,*parent,parent->momentum(),nPrim,children);
-    //}
 
     return children;
 }

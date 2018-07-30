@@ -11,7 +11,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
 // OffloadManagerSvc includes

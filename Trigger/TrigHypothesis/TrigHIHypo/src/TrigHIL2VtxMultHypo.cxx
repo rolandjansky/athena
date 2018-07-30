@@ -50,17 +50,6 @@ TrigHIL2VtxMultHypo::~TrigHIL2VtxMultHypo(){
 
 
 ///
-/// Initialise - beginRun
-///
-HLT::ErrorCode TrigHIL2VtxMultHypo::hltBeginRun(){
-
-  msg() << MSG::INFO << "TrigHIL2VtxMultHypo::beginRun()" << endmsg;
-  return HLT::OK;
-
-}
-
-
-///
 /// Initialise
 ///
 HLT::ErrorCode TrigHIL2VtxMultHypo::hltInitialize() {

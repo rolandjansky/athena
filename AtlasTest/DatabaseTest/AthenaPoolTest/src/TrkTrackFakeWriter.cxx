@@ -23,7 +23,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
 // include Tracking EDM

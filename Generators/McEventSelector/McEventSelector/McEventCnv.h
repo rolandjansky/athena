@@ -16,12 +16,10 @@ template <class TYPE> class CnvFactory;
 // Externals 
 
 class McEventCnv: public Converter {
-  friend class CnvFactory<McEventCnv>;
-
- protected:
-  McEventCnv(ISvcLocator* svcloc);
 
  public:
+  McEventCnv(ISvcLocator* svcloc);
+
   StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 
 
   /// Storage type and class ID

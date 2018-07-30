@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNTAA_TBADCRaw.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
+#include "CBNTAA_TBADCRaw.h"
 
 #include "TBEvent/TBADCRawCont.h"
 #include <vector>
@@ -27,9 +22,6 @@ CBNTAA_TBADCRaw::~CBNTAA_TBADCRaw()
 StatusCode CBNTAA_TBADCRaw::CBNT_initialize()
 {
   ATH_MSG_DEBUG ( "in initialize()" );
-
-  IToolSvc* toolSvc = nullptr;
-  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
 
   addBranch("TBADCRaw",m_adc);
   return StatusCode::SUCCESS; 

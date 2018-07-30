@@ -162,4 +162,45 @@ SCT_GeometryManager::materialManager() const
   return m_materialManager;
 }
 
+SCT_GeometryManager&
+SCT_GeometryManager::operator=(const SCT_GeometryManager& right) {
+  if (this != &right) {
+    if (athenaComps() != right.athenaComps()) {
+      msg(MSG::WARNING) << "SCT_GeometryManager::operator=: SCT_GeoModelAthenaComps pointer is different" << std::endl;
+    }
+    m_options = right.m_options;
+    m_commonItems = right.m_commonItems;
+    m_old = false;
+    if (db()->testField("","L0_RLAY")) {
+      m_old = true;
+    }
+    m_barrelParameters = nullptr;
+    m_barrelModuleParameters = nullptr;
+    m_forwardParameters = nullptr;
+    m_forwardModuleParameters = nullptr;
+    m_generalParameters = nullptr;
+    m_materialManager = nullptr;
+    m_sctdb = nullptr;
+  }
+  return *this;
+}
+
+  SCT_GeometryManager::SCT_GeometryManager(const SCT_GeometryManager& right)
+    : SCT_ParametersBase(right.athenaComps())
+  {
+  m_options = right.m_options;
+  m_commonItems = right.m_commonItems;
+  m_old = false;
+  if (db()->testField("","L0_RLAY")) {
+    m_old = true;
+  }
+  m_barrelParameters = nullptr;
+  m_barrelModuleParameters = nullptr;
+  m_forwardParameters = nullptr;
+  m_forwardModuleParameters = nullptr;
+  m_generalParameters = nullptr;
+  m_materialManager = nullptr;
+  m_sctdb = nullptr;
+}
+
 }

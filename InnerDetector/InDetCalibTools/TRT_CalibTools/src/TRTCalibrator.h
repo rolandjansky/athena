@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBTOOLS__TRTCALIBRATOR_H
@@ -17,25 +17,28 @@ PURPOSE: Tool for calibrating the TRT
           
 ********************************************************************/
 
-#include <string>
+
 #include "TRT_CalibTools/ITRTCalibrator.h"
-//#include "TRT_ConditionsTools/ITRTStrawNeighbourTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-//#include "StoreGate/StoreGateSvc.h"
-#include <TNtuple.h>
-#include <TFile.h>
-#include <TVectorD.h>
+
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
 
 class ITRT_StrawSummarySvc;
 class AtlasDetectorID;
 class TRT_ID;
 class ITRT_CalDbSvc ;
+class TFile;
+namespace InDetDD{
+  class TRT_DetectorManager;
+}
 
 /**
 The TRTCalibrator is called from TRTCalibrationMgr.
@@ -112,8 +115,6 @@ private:
   const AtlasDetectorID* m_DetID;
   const TRT_ID* m_TRTID; 
   const InDetDD::TRT_DetectorManager* m_trtmanager;
-  //ToolHandle<ITRT_CalDbSvc> m_trtcaldbtool ;
-  //ToolHandle<ITRTStrawNeighbourTool> m_neighbourtool;  
   ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
   ServiceHandle<ITRT_StrawNeighbourSvc> m_neighbourSvc ;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; //!< The ConditionsSummaryTool
@@ -125,7 +126,6 @@ private:
   unsigned int m_numOfHitsAccepted ;
   unsigned int m_numOfProcessedTracks ;
 
-  //StoreGateSvc     * m_store_gate;
   
   std::string m_comTimeName;
 

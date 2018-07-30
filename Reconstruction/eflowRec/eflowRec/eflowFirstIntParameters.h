@@ -22,6 +22,9 @@ CREATED:  18th Aug, 2005
 #include <vector>
 #include <istream>
 
+/**
+ Extends eflowFirstInt to include parameters of the fits to radial shower profiles. Also adds functionality to allow interpolation between fixed energy and eta reference bins. This object is used internally in the eflowRingSubtractionManager.
+*/
 class eflowFirstIntParameters :  public eflowFirstInt {
 
  public:

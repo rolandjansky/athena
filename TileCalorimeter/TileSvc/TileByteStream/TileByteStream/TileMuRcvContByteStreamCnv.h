@@ -45,12 +45,8 @@ class TileMuRcvContByteStreamCnv
   , public IIncidentListener
   , public ::AthMessaging
 {
-  friend class CnvFactory<TileMuRcvContByteStreamCnv>;
-
- protected:
-  TileMuRcvContByteStreamCnv(ISvcLocator* svcloc);
-
  public:
+  TileMuRcvContByteStreamCnv(ISvcLocator* svcloc);
 
   typedef TileMuRcvContByteStreamTool  BYTESTREAMTOOL ; 
 

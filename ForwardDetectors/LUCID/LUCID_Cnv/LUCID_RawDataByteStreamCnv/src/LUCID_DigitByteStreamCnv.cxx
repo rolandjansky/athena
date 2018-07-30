@@ -14,8 +14,6 @@ LUCID_DigitByteStreamCnv::LUCID_DigitByteStreamCnv(ISvcLocator* svcloc) :
   m_StoreGate             = 0;
 }
 
-LUCID_DigitByteStreamCnv::~LUCID_DigitByteStreamCnv() {}
-
 StatusCode LUCID_DigitByteStreamCnv::initialize() {
 
   StatusCode sc = Converter::initialize(); 

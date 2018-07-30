@@ -21,13 +21,14 @@
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODJet/Jet.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include <vector>
 
 
 
-namespace Trk  { class VxCandidate; class ITrackToVertexIPEstimator; }
+namespace Trk  { class VxCandidate; }
 
 
 namespace D3PD {
@@ -103,7 +104,7 @@ private:
    * @brief Find the pT of the jet with electron removed.
    * @param eg The egamma object to analyze.
    * @param j The jet under consideration.
-   * @reducedPt[out] Jet Pt calculated after subtraction of electron momentum.
+   * @param[out] reducedPt Jet Pt calculated after subtraction of electron momentum.
    */
   StatusCode findReducedPt (const xAOD::Electron* eg,
 			    const xAOD::Jet* j,

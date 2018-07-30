@@ -9,7 +9,7 @@ atlas_subdir( TileGeoG4SD )
 atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileDetDescr
                           TileCalorimeter/TileSimEvent
-                          Tools/AtlasDoxygen
+                          
                           PRIVATE
                           Calorimeter/CaloIdentifier
                           Control/StoreGate

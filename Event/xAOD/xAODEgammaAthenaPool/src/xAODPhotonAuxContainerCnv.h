@@ -38,7 +38,9 @@ class xAODPhotonAuxContainerCnv : public xAODPhotonAuxContainerCnvBase {
 
 protected:
    /// Converter constructor
+public:
    xAODPhotonAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::PhotonAuxContainer*

@@ -5,13 +5,10 @@
 #ifndef AFP_SIDLocRecoEvCollection_h
 #define AFP_SIDLocRecoEvCollection_h
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AFP_LocRecoEv/AFP_SIDLocRecoEvent.h"
 
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
 
 class AFP_SIDLocRecoEvCollection: public DataVector<AFP_SIDLocRecoEvent> {
   

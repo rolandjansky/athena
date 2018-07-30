@@ -102,6 +102,10 @@ void Analysis_Tier0::initialise() {
   h_trkd0  = new TH1F("reftrk_d0" , "Reference track d0", 101,   -5.0,     5.0 );
   h_trkz0  = new TH1F("reftrk_z0" , "Reference track z0",  50,   -225.,    225.);
 
+  h_trketaroi  = new TH1F("reftrk_etaroi",  "Reference track Eta - Roi Eta",      100,   -2.5,     2.5) ;
+  h_trketazroi = new TH1F("reftrk_etazroi", "Reference track (Eta - Roi Eta)*Dz", 100,   -2.5,     2.5) ;
+
+
   h_trkdd0  = new TH1F("reftrk_dd0" , "Reference track sigma(d0)", 101,   -0.5,     0.5);
   h_trkdz0  = new TH1F("reftrk_dz0" , "Reference track sigma(z0)", 101,   -2.5,     2.5);
 
@@ -112,6 +116,10 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_trketa);
   addHistogram(h_trkd0);
   addHistogram(h_trkz0);
+
+  addHistogram(h_trketaroi);
+  addHistogram(h_trketazroi);
+
 
   addHistogram(h_trkdd0);
   addHistogram(h_trkdz0);
@@ -183,29 +191,34 @@ void Analysis_Tier0::initialise() {
 
   /// han config too stufid to deal with spaces in histogram names
   h_npixvseta     = new TProfile("npix_vs_eta",      "offline npix vs eta;offline #eta;# mean number of offline pixel hits", 30,   -2.5,  2.5);
-  h_npixvseta_rec = new TProfile("npix_vs_eta_rec",  "trigger npix vs eta;trigger #eta;# mean number of trigger pixel hits", 30,   -2.5,  2.5);
+  h_npixvseta_rec = new TProfile("npix_vs_eta_rec",  "trigger npix vs eta;offline #eta;# mean number of trigger pixel hits", 30,   -2.5,  2.5);
 
   h_nsctvseta     = new TProfile("nsct_vs_eta",      "offline nsct vs eta;offline #eta;# mean number of offline sct hits", 30,   -2.5,  2.5);
-  h_nsctvseta_rec = new TProfile("nsct_vs_eta_rec",  "trigger nsct vs eta;trigger #eta;# mean number of trigger sct hits", 30,   -2.5,  2.5);
+  h_nsctvseta_rec = new TProfile("nsct_vs_eta_rec",  "trigger nsct vs eta;offline #eta;# mean number of trigger sct hits", 30,   -2.5,  2.5);
 
   h_ntrtvseta     = new TProfile("ntrt_vs_eta",      "offline ntrt vs eta;offline #eta;# mean number of offline trt hits", 30,   -2.5, 2.5 );
-  h_ntrtvseta_rec = new TProfile("ntrt_vs_eta_rec",  "trigger ntrt vs eta;trigger #eta;# mean number of trigger trt hits", 30,   -2.5, 2.5 );
+  h_ntrtvseta_rec = new TProfile("ntrt_vs_eta_rec",  "trigger ntrt vs eta;offline #eta;# mean number of trigger trt hits", 30,   -2.5, 2.5 );
 
   h_npixvsphi     = new TProfile("npix_vs_phi",      "offline npix vs phi;offline #phi;# mean number of offline pixel hits", 30,   -M_PI,  M_PI);
-  h_npixvsphi_rec = new TProfile("npix_vs_phi_rec",  "trigger npix vs phi;trigger #phi;# mean number of trigger pixel hits", 30,   -M_PI,  M_PI);
+  h_npixvsphi_rec = new TProfile("npix_vs_phi_rec",  "trigger npix vs phi;offline #phi;# mean number of trigger pixel hits", 30,   -M_PI,  M_PI);
 
   h_nsctvsphi     = new TProfile("nsct_vs_phi",      "offline nsct vs phi;offline #phi;# mean number of offline sct hits", 30,   -M_PI,  M_PI);
-  h_nsctvsphi_rec = new TProfile("nsct_vs_phi_rec",  "trigger nsct vs phi;trigger #phi;# mean number of trigger sct hits", 30,   -M_PI,  M_PI);
+  h_nsctvsphi_rec = new TProfile("nsct_vs_phi_rec",  "trigger nsct vs phi;offline #phi;# mean number of trigger sct hits", 30,   -M_PI,  M_PI);
 
   h_ntrtvsphi     = new TProfile("ntrt_vs_phi",      "offline ntrt vs phi;offline #phi;# mean number of offline trt hits", 30,   -M_PI, M_PI );
-  h_ntrtvsphi_rec = new TProfile("ntrt_vs_phi_rec",  "trigger ntrt vs phi;trigger #phi;# mean number of trigger trt hits", 30,   -M_PI, M_PI );
+  h_ntrtvsphi_rec = new TProfile("ntrt_vs_phi_rec",  "trigger ntrt vs phi;offline #phi;# mean number of trigger trt hits", 30,   -M_PI, M_PI );
 
   h_npixvsd0     = new TProfile("npix_vs_d0",      "offline npix vs d0;offline #d0;# mean number of offline pixel hits", 39,  d0bins );
-  h_npixvsd0_rec = new TProfile("npix_vs_d0_rec",  "trigger npix vs d0;trigger #d0;# mean number of trigger pixel hits", 39,  d0bins );
+  h_npixvsd0_rec = new TProfile("npix_vs_d0_rec",  "trigger npix vs d0;offline #d0;# mean number of trigger pixel hits", 39,  d0bins );
 
   h_nsctvsd0     = new TProfile("nsct_vs_d0",      "offline nsct vs d0;offline #d0;# mean number of offline sct hits", 39,   d0bins );
-  h_nsctvsd0_rec = new TProfile("nsct_vs_d0_rec",  "trigger nsct vs d0;trigger #d0;# mean number of trigger sct hits", 39,   d0bins );
+  h_nsctvsd0_rec = new TProfile("nsct_vs_d0_rec",  "trigger nsct vs d0;offline #d0;# mean number of trigger sct hits", 39,   d0bins );
 
+  h_npixvspT     = new TProfile("npix_vs_pT",      "offline npix vs pT;offline #p_{T};# mean number of offline pixel hits", 25, &ptbins[0] );
+  h_npixvspT_rec = new TProfile("npix_vs_pT_rec",  "trigger npix vs pT;offline #p_{T};# mean number of trigger pixel hits", 25, &ptbins[0] );
+
+  h_nsctvspT     = new TProfile("nsct_vs_pT",      "offline nsct vs pT;offline #p_{T} [GeV];# mean number of offline pixel hits", 25, &ptbins[0] );
+  h_nsctvspT_rec = new TProfile("nsct_vs_pT_rec",  "trigger nsct vs pT;offline #p_{T} [GeV];# mean number of trigger pixel hits", 25, &ptbins[0] );
 
 
   h_nsihits_lb     = new TProfile( "nsihits_lb",     "offline n sihits vs lumiblock", 301, -0.5, 3009.5 );
@@ -249,6 +262,12 @@ void Analysis_Tier0::initialise() {
 
   addHistogram( h_nsctvsd0 ); 
   addHistogram( h_nsctvsd0_rec ); 
+
+  addHistogram( h_npixvspT ); 
+  addHistogram( h_npixvspT_rec ); 
+
+  addHistogram( h_nsctvspT ); 
+  addHistogram( h_nsctvspT_rec ); 
 
   /// trigger tracking differential resolutions
 
@@ -365,10 +384,12 @@ void Analysis_Tier0::initialise() {
 
 }
 
+extern TIDARoiDescriptor* agroi;
+
 
 void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 			     const std::vector<TIDA::Track*>& testTracks,
-			     TrackAssociator* associator) {
+			     TrackAssociator* associator ) { 
   
   /// Loop over reference tracks
   std::vector<TIDA::Track*>::const_iterator  reference    = referenceTracks.begin();
@@ -440,6 +461,9 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_npixvsd0->Fill( referenceD0,  int(((*reference)->pixelHits()+0.5)*0.5) ); 
     h_nsctvsd0->Fill( referenceD0,  (*reference)->sctHits() ); 
 
+    h_npixvspT->Fill( std::fabs(referencePT)*0.001,  int(((*reference)->pixelHits()+0.5)*0.5) ); 
+    h_nsctvspT->Fill( std::fabs(referencePT)*0.001,  (*reference)->sctHits() ); 
+
 
     h_npix->Fill(  int(((*reference)->pixelHits()+0.5)*0.5) ); 
     h_nsct->Fill(  (*reference)->sctHits() ); 
@@ -454,7 +478,7 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_chain->Fill(2.5);
 
 
-    if(test){
+    if (test) {
 
       h_chain->Fill(3.5);
 
@@ -503,7 +527,7 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_trkdd0_rec->Fill( test->da0() );
       h_trkdz0_rec->Fill( test->dz0() );
 
-      if ( test->da0()!=0 )  h_trkd0sig_rec->Fill( test->da0()/test->a0() );
+      if ( test->da0()!=0 )  h_trkd0sig_rec->Fill( test->a0()/test->da0() );
 
 
       /// 1d residual distributions 
@@ -527,6 +551,9 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_npixvsd0_rec->Fill( referenceD0, int((test->pixelHits()+0.5)*0.5) ); 
       h_nsctvsd0_rec->Fill( referenceD0, test->sctHits() ); 
 
+      h_npixvspT_rec->Fill( std::fabs(referencePT)*0.001,  int((test->pixelHits()+0.5)*0.5) ); 
+      h_nsctvspT_rec->Fill( std::fabs(referencePT)*0.001,  test->sctHits() ); 
+
       h_npix_rec->Fill(  int((test->pixelHits()+0.5)*0.5) ); 
       h_nsct_rec->Fill(  test->sctHits() ); 
       h_nsihits_rec->Fill(  test->siHits() ); 
@@ -542,6 +569,31 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_d0vsphi_rec->Fill( test->phi(), test->a0() );
 
     }
+    else { 
+      //  std::cout << "Analysis: " << name() << " " << roi();
+      //  if ( roi() ) std::cout << "\t" << *roi();
+      //  std::cout << std::endl; 
+
+      //      std::cout << "about to crash ? " << std::endl;
+
+      if ( roi() ) { 
+
+	double deta = 0.5*(roi()->etaPlus() - roi()->etaMinus()); 
+	
+	double Dzed = 0.5*(roi()->zedPlus() - roi()->zedMinus());
+	double dzed = referenceZ0 - roi()->zed();
+	
+	h_trketaroi->Fill( (referenceEta - roi()->eta())/deta );
+
+	h_trketazroi->Fill( (referenceEta - roi()->eta())*dzed/Dzed );
+      
+      }
+
+      //      std::cout << "not crashed yet" << std::endl;
+
+
+    }
+
     //    else { 
     //      if ( referencePT*0.001 > 10 ) { /// in GeV
     // 	      m_debug = true;
@@ -574,5 +626,8 @@ double Analysis_Tier0::phi(double p) {
   if(p >  M_PI) p -= 2*M_PI;
   return p;
 }
+
+
+
 
 

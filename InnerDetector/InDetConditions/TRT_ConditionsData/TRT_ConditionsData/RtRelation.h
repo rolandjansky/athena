@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file RtRelation.h 
@@ -14,8 +14,9 @@
 #ifndef TRTCONDITIONSDATA_RTRELATION_H
 #define TRTCONDITIONSDATA_RTRELATION_H
 
-#include <ostream>
+#include <sstream>
 #include <iostream>
+#include "GaudiKernel/MsgStream.h"
 
 namespace TRTCond
 {
@@ -61,8 +62,8 @@ namespace TRTCond
 
 }
 
-#include "GaudiKernel/MsgStream.h"
-#include <sstream>
+
+
 
 inline std::ostream& operator<<(std::ostream& os,const TRTCond::RtRelation& rtr) {
   return rtr.write( os ) ;

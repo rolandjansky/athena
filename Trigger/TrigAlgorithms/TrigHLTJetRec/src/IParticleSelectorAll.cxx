@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "TrigHLTJetRec/IParticleSelectorAll.h"
 
 IParticleSelectorAll::IParticleSelectorAll(const std::string& s,

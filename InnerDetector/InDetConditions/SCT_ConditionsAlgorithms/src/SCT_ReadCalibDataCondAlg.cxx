@@ -12,15 +12,14 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 // Include boost stuff
 #include "boost/lexical_cast.hpp"
 #include "boost/tokenizer.hpp"
 
-using namespace SCT_ConditionsServices;
+using namespace SCT_ConditionsData;
 
 // Utility functions
 namespace {
@@ -51,25 +50,12 @@ namespace {
 
 SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_recoOnly{true}
-  , m_readKeyGain{"/SCT/DAQ/Calibration/NPtGainDefects"}
-  , m_readKeyNoise{"/SCT/DAQ/Calibration/NoiseOccupancyDefects"}
-  , m_writeKeyGain{"SCT_CalibDefectNPtGain"}
-  , m_writeKeyNoise{"SCT_CalibDefectNPtNoise"}
-  , m_writeKeyInfo{"SCT_AllGoodStripInfo"}
   , m_defectMapIntToString{}
   , m_ignoreDefects{}
   , m_ignoreDefectParameters{}
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
-  , m_SCTdetMgr{nullptr}
 {
-  declareProperty("RecoOnly", m_recoOnly, "Use new improved isGood method, all other methods defunct"); 
-  declareProperty("ReadKeyGain", m_readKeyGain, "Key of input (raw) gain defect conditions folder");
-  declareProperty("ReadKeyNoise", m_readKeyNoise, "Key of input (raw) noise defect conditions folder");
-  declareProperty("WriteKeyGain", m_writeKeyGain, "Key of output (derived) gain defect conditions folder");
-  declareProperty("WriteKeyNoise", m_writeKeyNoise, "Key of output (derived) noise defect conditions folder");
-  declareProperty("WriteKeyInfo", m_writeKeyInfo, "Key of output (derived) good strip information conditions folder");
   declareProperty("IgnoreDefects", m_ignoreDefects, "Defects to ignore");
   declareProperty("IgnoreDefectsParameters", m_ignoreDefectParameters, "Limit on defect to ignore parameters");
 
@@ -86,9 +72,6 @@ SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvc
 StatusCode SCT_ReadCalibDataCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
   
-  // Get SCT detector manager
-  ATH_CHECK(detStore()->retrieve(m_SCTdetMgr, "SCT"));
-
   // Get SCT helper
   ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
 
@@ -98,6 +81,7 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
   // Read Cond Handle
   ATH_CHECK(m_readKeyGain.initialize());
   ATH_CHECK(m_readKeyNoise.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // Write Cond Handles
   for (unsigned int i{GAIN}; i<NFEATURES; i++) {
@@ -106,11 +90,9 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
     else if (i==NOISE) writeKeyData = &m_writeKeyNoise;
     if (writeKeyData==nullptr) continue;
     ATH_CHECK(writeKeyData->initialize());
-    if (not m_recoOnly) {
-      if (m_condSvc->regHandle(this, *writeKeyData).isFailure()) {
-        ATH_MSG_FATAL("unable to register WriteCondHandle " << writeKeyData->fullKey() << " with CondSvc");
-        return StatusCode::FAILURE;
-      }
+    if (m_condSvc->regHandle(this, *writeKeyData).isFailure()) {
+      ATH_MSG_FATAL("unable to register WriteCondHandle " << writeKeyData->fullKey() << " with CondSvc");
+      return StatusCode::FAILURE;
     }
   }
   ATH_CHECK(m_writeKeyInfo.initialize());
@@ -160,28 +142,20 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   bool validWriteCondHandle{true};
   // Do we have a valid Write Cond Handle for current time?
   SG::WriteCondHandle<SCT_CalibDefectData> writeHandleData[NFEATURES]{m_writeKeyGain, m_writeKeyNoise};
-  if (not m_recoOnly) {
-    for (unsigned int i{GAIN}; i<NFEATURES; i++) {
-      if (writeHandleData[i].isValid()) {
-        // in theory this should never be called in MT
-        writeHandleData[i].updateStore();
-        ATH_MSG_DEBUG("CondHandle " << writeHandleData[i].fullKey() << " is already valid."
-                      << ". In theory this should not be called, but may happen"
-                      << " if multiple concurrent events are being processed out of order."
-                      << " Forcing update of Store contents");
-      } else {
-        validWriteCondHandle = false;
-      }
+  for (unsigned int i{GAIN}; i<NFEATURES; i++) {
+    if (writeHandleData[i].isValid()) {
+      ATH_MSG_DEBUG("CondHandle " << writeHandleData[i].fullKey() << " is already valid."
+                    << ". In theory this should not be called, but may happen"
+                    << " if multiple concurrent events are being processed out of order.");
+    } else {
+      validWriteCondHandle = false;
     }
   }
   SG::WriteCondHandle<SCT_AllGoodStripInfo> writeHandleInfo{m_writeKeyInfo};
   if (writeHandleInfo.isValid()) {
-    // in theory this should never be called in MT                                                                                                                                               
-    writeHandleInfo.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandleInfo.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
   } else {
     validWriteCondHandle = false;
   }
@@ -205,19 +179,30 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
     ATH_MSG_INFO("Range of input is " << rangeR[i]);
   }
 
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+  EventIDRange rangeDetEle;
+  if (not sctDetEle.range(rangeDetEle)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_SCTDetEleCollKey.key());
+    return StatusCode::FAILURE;
+  }
+
   // Set range of output
-  EventIDRange rangeW{EventIDRange::intersect(rangeR[GAIN], rangeR[NOISE])};
+  EventIDRange rangeW{EventIDRange::intersect(rangeR[GAIN], rangeR[NOISE], rangeDetEle)};
   if(rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
     return StatusCode::FAILURE;
   }
-  
+
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_CalibDefectData> writeCdoData[NFEATURES]{nullptr, nullptr};
-  if (not m_recoOnly) {
-    for (unsigned int i{GAIN}; i<NFEATURES; i++) {
-      writeCdoData[i] = std::make_unique<SCT_CalibDefectData>();
-    }
+  for (unsigned int i{GAIN}; i<NFEATURES; i++) {
+    writeCdoData[i] = std::make_unique<SCT_CalibDefectData>();
   }
   std::unique_ptr<SCT_AllGoodStripInfo> writeCdoInfo{std::make_unique<SCT_AllGoodStripInfo>()};
   // Initialize arrays and all strips to True
@@ -246,9 +231,9 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
       m_id_sct->get_other_side(hashId0, hashId1);
 
       // Check for PhiSwap readout
-      InDetDD::SiDetectorElement* p_element{m_SCTdetMgr->getDetectorElement(hashId0)};
+      const InDetDD::SiDetectorElement* p_element{elements->getDetectorElement(hashId0)};
       bool phiSwap0Present{p_element->swapPhiReadoutDirection()};
-      p_element = (m_SCTdetMgr->getDetectorElement(hashId1));
+      p_element = (elements->getDetectorElement(hashId1));
       bool phiSwap1Present{p_element->swapPhiReadoutDirection()};
        
       // Clear theseDefects
@@ -321,53 +306,49 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
         }
       }
       
-      if (not m_recoOnly) {
-        // Fill the CalibDefectData maps with the Calib defect objects
-        if (i==GAIN) {
-          if (theseDefects.begDefects.empty()) {
-            ATH_MSG_DEBUG("No NPtGain defects for module " << moduleId);
-            continue;
-          }
-          if (not (writeCdoData[i]->addModule(moduleId, theseDefects))) {
-            ATH_MSG_ERROR("Unable to add module " << moduleId << " to NPtGain defect map");
-            return StatusCode::RECOVERABLE;
-          } else {
-            ATH_MSG_DEBUG("Defects for module " << moduleId << " added to NPG defect map");
-          }
-        } else if (i==NOISE) {  
-          if (theseDefects.begDefects.empty()) {
-            ATH_MSG_DEBUG("No NoiseOccupancy defects for module " << moduleId);
-            continue;
-          }
-          if (not (writeCdoData[i]->addModule(moduleId, theseDefects))) {
-            ATH_MSG_ERROR("Unable to add module " << moduleId << " to NoiseOccupancy defect map");
-            return StatusCode::RECOVERABLE;
-          } else {
-            ATH_MSG_DEBUG("Defects for module " << moduleId << " added to NoiseOccupancy defect map");
-          }
+      // Fill the CalibDefectData maps with the Calib defect objects
+      if (i==GAIN) {
+        if (theseDefects.begDefects.empty()) {
+          ATH_MSG_DEBUG("No NPtGain defects for module " << moduleId);
+          continue;
+        }
+        if (not (writeCdoData[i]->addModule(moduleId, theseDefects))) {
+          ATH_MSG_ERROR("Unable to add module " << moduleId << " to NPtGain defect map");
+          return StatusCode::RECOVERABLE;
+        } else {
+          ATH_MSG_DEBUG("Defects for module " << moduleId << " added to NPG defect map");
+        }
+      } else if (i==NOISE) {
+        if (theseDefects.begDefects.empty()) {
+          ATH_MSG_DEBUG("No NoiseOccupancy defects for module " << moduleId);
+          continue;
+        }
+        if (not (writeCdoData[i]->addModule(moduleId, theseDefects))) {
+          ATH_MSG_ERROR("Unable to add module " << moduleId << " to NoiseOccupancy defect map");
+          return StatusCode::RECOVERABLE;
+        } else {
+          ATH_MSG_DEBUG("Defects for module " << moduleId << " added to NoiseOccupancy defect map");
         }
       }
     }
   }
 
   //  Record the output cond objects
+  ATH_MSG_DEBUG("There are " << writeCdoInfo->size() << " elements in " << writeHandleInfo.key());
   if (writeHandleInfo.record(rangeW, std::move(writeCdoInfo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_AllGoodStripInfo " << writeHandleInfo.key() 
                   << " with EventRange " << rangeW << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("There are " << writeCdoInfo->size() << " elements in " << writeHandleInfo.key());
   ATH_MSG_INFO("recorded new CDO " << writeHandleInfo.key() << " with range " << rangeW << " into Conditions Store");
-  if (not m_recoOnly) {
-    for (unsigned int i{GAIN}; i<NFEATURES; i++) {
-      if (writeHandleData[i].record(rangeW, std::move(writeCdoData[i])).isFailure()) {
-        ATH_MSG_FATAL("Could not record SCT_CalibDefectData " << writeHandleData[i].key() 
-                      << " with EventRange " << rangeW << " into Conditions Store");
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("There are " << writeCdoData[i]->size() << " elements in " << writeHandleData[i].key());
-      ATH_MSG_INFO("recorded new CDO " << writeHandleData[i].key() << " with range " << rangeW << " into Conditions Store");
+  for (unsigned int i{GAIN}; i<NFEATURES; i++) {
+    ATH_MSG_DEBUG("There are " << writeCdoData[i]->size() << " elements in " << writeHandleData[i].key());
+    if (writeHandleData[i].record(rangeW, std::move(writeCdoData[i])).isFailure()) {
+      ATH_MSG_FATAL("Could not record SCT_CalibDefectData " << writeHandleData[i].key()
+                    << " with EventRange " << rangeW << " into Conditions Store");
+      return StatusCode::FAILURE;
     }
+    ATH_MSG_INFO("recorded new CDO " << writeHandleData[i].key() << " with range " << rangeW << " into Conditions Store");
   }
 
   return StatusCode::SUCCESS;

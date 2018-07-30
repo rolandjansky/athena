@@ -21,9 +21,6 @@ class RecoTimingObjCnv: public T_AthenaPoolCustomCnv< RecoTimingObj, RecoTimingO
   // make the factory for this converter our friend
   friend class CnvFactory<RecoTimingObjCnv>;
   
-  // destructor
-  virtual ~RecoTimingObjCnv() { delete m_msg; }; 
-    
   /////////////////////////////////////////////////////////////////// 
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
@@ -31,7 +28,13 @@ class RecoTimingObjCnv: public T_AthenaPoolCustomCnv< RecoTimingObj, RecoTimingO
   
   /** Create the converter from the service locator
    */
+public:
   RecoTimingObjCnv(ISvcLocator* svcloc);
+
+  // destructor
+  virtual ~RecoTimingObjCnv() { delete m_msg; }; 
+    
+protected:
 
   /** Build the persistent representation from the transient one.
    */

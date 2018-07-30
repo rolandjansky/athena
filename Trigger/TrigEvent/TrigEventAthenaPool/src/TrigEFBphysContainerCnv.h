@@ -44,9 +44,11 @@ class TrigEFBphysContainerCnv : public TrigEFBphysContainerCnvBase
  
   protected:
    
+public:
   TrigEFBphysContainerCnv( ISvcLocator *svcloc );
   ~TrigEFBphysContainerCnv();
   
+protected:
   
    virtual TrigEFBphysContainer_PERS *createPersistent( TrigEFBphysContainer *transObj);
    virtual TrigEFBphysContainer      *createTransient();

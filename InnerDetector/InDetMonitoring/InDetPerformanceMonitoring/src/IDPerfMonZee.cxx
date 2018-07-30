@@ -7,8 +7,7 @@
 // AUTHORS: Beate Heinemann, Tobias Golling, Sara Strandberg
 // **********************************************************************
 
-#include <sstream>
-#include <math.h>
+#include <cmath>
 #include "TH1.h"
 #include "TH2.h"
 #include "TH1F.h"
@@ -39,11 +38,11 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
-//#include "VxVertex/VxContainer.h"
-//#include "VxVertex/VxCandidate.h"
-//#include "VxVertex/RecVertex.h"
-//#include "VxVertex/Vertex.h"
-//#include "VxVertex/VxTrackAtVertex.h"
+#include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/PhysicalConstants.h"
+
+
+
 
 #include "egammaEvent/egammaParamDefs.h"
 #include "egammaEvent/egammaPIDdefsObs.h"
@@ -54,6 +53,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "InDetPerformanceMonitoring/IDPerfMonZee.h"
+#include <stdexcept>
 
 // *********************************************************************
 // Public Methods
@@ -256,15 +256,19 @@ StatusCode IDPerfMonZee::bookHistograms()
       name = "Zee_Eop_" + m_region_strings[region];
       title = "E/p for Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eop.push_back(new TH1F(name.c_str(),title.c_str(), 60, 0., 10.));
+      /**Original code: what was intended?
       if (region==incl) RegisterHisto(al_Zee_mon,m_Zee_Eop[region]);
       else RegisterHisto(al_Zee_mon,m_Zee_Eop[region]);
-
+      **/
+      RegisterHisto(al_Zee_mon,m_Zee_Eop[region]);
       name = "Zee_Eopdiff_" + m_region_strings[region];
       title = "E/p difference (pos-neg) for Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eopdiff.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
+      /**Original code: what was intended?
       if (region==incl) RegisterHisto(al_Zee_mon,m_Zee_Eopdiff[region],true);
       else RegisterHisto(al_Zee_mon,m_Zee_Eopdiff[region],true);
-
+      **/
+      RegisterHisto(al_Zee_mon,m_Zee_Eopdiff[region],true);
       name = "Zee_Eop_plus_" + m_region_strings[region];
       title = "E/p for pos. charged Zee EM-clusters in " + m_region_strings[region];
       m_Zee_Eop_plus.push_back(new TH1F(name.c_str(),title.c_str(), 10, 0., 2.));
@@ -730,7 +734,7 @@ const xAOD::CaloCluster* IDPerfMonZee::getLeadingEMcluster(const xAOD::PhotonCon
     // check ID
     if(m_doIDCuts){
       LHSel = false;
-      LHSel = m_LHTool2015->accept(em);
+      LHSel = (bool) m_LHTool2015->accept(em);
       if(!LHSel) continue;
       ATH_MSG_DEBUG("Electron passes " << m_electronIDLevel << " likelihood selection");
     }
@@ -937,6 +941,9 @@ int IDPerfMonZee::etaRegion(double eta) {
 void IDPerfMonZee::FillHistosPerCluster(const xAOD::CaloCluster* cluster, const xAOD::TrackParticle* track, int region, float dEta, float dPhi) {
 
   if (cluster == 0) return;
+  if (region<0){
+    throw(std::out_of_range("Region index has negative value in IDPerfMonZee::FillHistosPerCluster"));
+  }
   // THERE IS A CLUSTER
   if (region == incl) { // inclusive only
     m_Zee_eta[region]->Fill(cluster->etaBE(2));

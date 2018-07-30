@@ -444,7 +444,8 @@ namespace InDetDD {
     bool TRT_DetectorManager::setAlignableTransformDelta(int level, 
                                                          const Identifier & id, 
                                                          const Amg::Transform3D & delta,
-                                                         FrameType frame) const
+                                                         FrameType frame,
+                                                         GeoVAlignmentStore* alignStore) const
     {
         if (level == 0) {
       // Nothing implemented. Reserved in case we want alignable straws
@@ -459,14 +460,15 @@ namespace InDetDD {
             iter = m_alignableTransforms[index].find(id);
             if (iter == m_alignableTransforms[index].end()) return false;          
 
-            return setAlignableTransformAnyFrameDelta(iter->second, delta, frame);
+            return setAlignableTransformAnyFrameDelta(iter->second, delta, frame, alignStore);
 
         }
     }
 
     bool TRT_DetectorManager::setAlignableTransformAnyFrameDelta(ExtendedAlignableTransform * extXF, 
                                                                  const Amg::Transform3D & delta,
-                                                                 FrameType frame) const
+                                                                 FrameType frame,
+                                                                 GeoVAlignmentStore* /*alignStore*/) const
     {
     //---------------------
     // For Local:
@@ -540,9 +542,15 @@ namespace InDetDD {
 
         } else { // Other frame
             // if child or frame is zero it will have been set to local or global above
-            const HepGeom::Transform3D & xfChild = child->getDefAbsoluteTransform();
-            const HepGeom::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform();
-            extXF->alignableTransform()->setDelta(xfChild.inverse() * xfFrame * Amg::EigenTransformToCLHEP(delta) * xfFrame.inverse() * xfChild);
+            if (!child) { // CID 113112
+              // shouldn't be happening, if child is null then something is terribly wrong
+              ATH_MSG_ERROR("Child can't be null if frame is 'other'");
+              return false;
+            } else {
+	            const HepGeom::Transform3D & xfChild = child->getDefAbsoluteTransform();
+	            const HepGeom::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform();
+	            extXF->alignableTransform()->setDelta(xfChild.inverse() * xfFrame * Amg::EigenTransformToCLHEP(delta) * xfFrame.inverse() * xfChild);
+            }
         }
 
         return true;
@@ -640,7 +648,8 @@ namespace InDetDD {
     }
 
   // New global alignment filders
-  bool TRT_DetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame) const
+  bool TRT_DetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame,
+                                                   const CondAttrListCollection* /*obj*/, GeoVAlignmentStore* alignStore) const
   {
 
     bool alignmentChange = false;
@@ -680,7 +689,8 @@ namespace InDetDD {
         bool status = setAlignableTransformDelta(level,
                                                  ident,
                                                  Amg::CLHEPTransformToEigen(newtransform),
-                                                 frame);
+                                                 frame,
+                                                 alignStore);
 
         if (!status) {
           if (msgLvl(MSG::DEBUG)) {

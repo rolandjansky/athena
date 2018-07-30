@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 # $Id: PhysVal_jobOptions.py 795792 2017-02-06 14:45:08Z sroe $
@@ -31,9 +32,9 @@ ServiceMgr+=HistogramDefinitionSvc()
 ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPVMPlotDefRun2.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
-from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
-decorators = InDetPhysValDecoratorAlg()
-topSequence += decorators
+import InDetPhysValMonitoring.InDetPhysValDecoration
+for decorator in InDetPhysValMonitoring.InDetPhysValDecoration.getDecorators() :
+  topSequence += decorator
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 monMan = AthenaMonManager( "PhysValMonManager" )

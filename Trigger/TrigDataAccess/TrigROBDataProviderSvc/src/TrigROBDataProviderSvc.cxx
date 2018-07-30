@@ -49,6 +49,7 @@ TrigROBDataProviderSvc::TrigROBDataProviderSvc(const std::string& name, ISvcLoca
    m_maskL2EFModuleID(false),  
    m_isEventComplete(false),
    m_msg(0),
+   m_RobRequestInfo(0),
    m_histProp_requestedROBsPerCall(Gaudi::Histo1DDef("RequestedROBsPerCall" ,0,300,50)),
    m_histProp_receivedROBsPerCall(Gaudi::Histo1DDef("ReceivedROBsPerCall" ,0,300,50)),
    m_histProp_timeROBretrieval(Gaudi::Histo1DDef("TimeForROBretrieval" ,0.,500.,50)),
@@ -409,6 +410,8 @@ StatusCode TrigROBDataProviderSvc::queryInterface(const InterfaceID& riid, void*
     *ppvInterface = (IROBDataProviderSvc*)this;
   } else if ( ITrigROBDataProviderSvc::interfaceID().versionMatch(riid) )  {
     *ppvInterface = (ITrigROBDataProviderSvc*)this;
+  } else if ( ITrigROBDataProviderSvcPrefetch::interfaceID().versionMatch(riid) )  {
+    *ppvInterface = (ITrigROBDataProviderSvcPrefetch*)this;
   } else if ( IIncidentListener::interfaceID().versionMatch(riid) )  {
     *ppvInterface = (IIncidentListener*)this;
   } else {
@@ -705,6 +708,9 @@ void TrigROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
   // set the complete event flag
   m_isEventComplete = false;
 
+  // clear the ROB info object from steering
+  if (m_RobRequestInfo) m_RobRequestInfo->clearRequestScheduledRobIDs();
+
   if ( result.size() == 0 ) {
     logStream()<<MSG::ERROR<< " ---> setNextEvent online for "<< name() 
 	       <<" failed: Size of received vector of ROB fragments = " << result.size() 
@@ -855,6 +861,15 @@ void TrigROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std
   //--- online running
   //------------------
   } else {
+    // ---------------------------------------------------------------------------------------------
+    // make sure that all ROB prefetching information is taken into account before the ROB retrieval
+    // ---------------------------------------------------------------------------------------------
+    if (m_RobRequestInfo) {
+      // add ROBs in the info object to the prefetching list
+      addROBData(m_RobRequestInfo->requestScheduledRobIDs()); 
+      m_RobRequestInfo->clearRequestScheduledRobIDs();
+    }
+
     //--------------------
     // make unique ROB IDs
     //--------------------

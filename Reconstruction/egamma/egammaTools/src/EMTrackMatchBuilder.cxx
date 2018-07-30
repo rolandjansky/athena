@@ -31,7 +31,7 @@
 EMTrackMatchBuilder::EMTrackMatchBuilder(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent) : 
-  egammaBaseTool(type, name, parent)
+  AthAlgTool(type, name, parent)
 {
   // declare interface
   declareInterface<IEMTrackMatchBuilder>(this);
@@ -76,7 +76,7 @@ StatusCode EMTrackMatchBuilder::initialize()
 }
 
 // ==============================================================
-StatusCode EMTrackMatchBuilder::executeRec(egammaRec* eg)
+StatusCode EMTrackMatchBuilder::executeRec(egammaRec* eg) const
 {
   //
   // standard egamma execute method
@@ -113,7 +113,7 @@ StatusCode EMTrackMatchBuilder::executeRec(egammaRec* eg)
 }
 
 // ===============================================================
-StatusCode EMTrackMatchBuilder::trackExecute(egammaRec* eg, const xAOD::TrackParticleContainer*    trackPC)
+StatusCode EMTrackMatchBuilder::trackExecute(egammaRec* eg, const xAOD::TrackParticleContainer*    trackPC) const
 {
   if (!eg || !trackPC)
   {

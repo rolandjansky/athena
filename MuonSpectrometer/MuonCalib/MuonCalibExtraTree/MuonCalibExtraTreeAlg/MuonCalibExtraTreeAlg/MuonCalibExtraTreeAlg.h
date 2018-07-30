@@ -17,6 +17,8 @@
 #include "MuonCalibExtraTreeAlg/MuonCalibTrack_EBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibHit_EBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibTrackSegmentBranch.h"
+#include "MuonCalibITools/IIdToFixedIdTool.h"
+#include "TrkExInterfaces/IPropagator.h"
 
 class StoreGateSvc;
 class TFile;
@@ -31,7 +33,6 @@ namespace MuonGM {
 
 namespace MuonCalib {
 class IExtraTreeFillerTool;
-class IIdToFixedIdTool ;
 class  ISegmentOnTrackSelector;
   /**
      @class MuonCalibExtraTreeAlg

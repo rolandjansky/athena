@@ -41,6 +41,7 @@ SCT_OuterSide::SCT_OuterSide(const std::string & name, int moduleType)
 SCT_OuterSide::~SCT_OuterSide(){
   // Clean up
   delete m_sensor;
+  if (m_sensorPos) m_sensorPos->unref();
 }
 
 
@@ -78,6 +79,7 @@ const GeoLogVol* SCT_OuterSide::preBuild(){
   double outerSensorXPos = 0;
   //Position sensor
   m_sensorPos = new GeoTransform(HepGeom::TranslateX3D(outerSensorXPos));
+  m_sensorPos->ref();
 
   return OuterSideLogV;
 }

@@ -8,9 +8,8 @@ atlas_subdir( LArG4GenShowerLib )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Control/StoreGate
                           GaudiKernel
                           Simulation/G4Atlas/G4AtlasTools
@@ -35,7 +34,7 @@ atlas_add_library( LArG4GenShowerLibLib
                    PUBLIC_HEADERS LArG4GenShowerLib
                    PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps DataModel SGTools GaudiKernel G4AtlasToolsLib
+                   LINK_LIBRARIES AthenaBaseComps AthContainers GaudiKernel G4AtlasToolsLib
                    PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} EventInfo GeneratorObjects LArG4Code LArG4ShowerLib )
 
 atlas_add_component( LArG4GenShowerLib
@@ -47,7 +46,7 @@ atlas_add_dictionary( LArG4GenShowerLibDict
                       LArG4GenShowerLib/LArG4GenShowerLibDict.h
                       LArG4GenShowerLib/selection.xml
                       INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps DataModel SGTools GaudiKernel G4AtlasToolsLib EventInfo GeneratorObjects LArG4Code LArG4ShowerLib LArG4GenShowerLibLib )
+                      LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthContainers GaudiKernel G4AtlasToolsLib EventInfo GeneratorObjects LArG4Code LArG4ShowerLib LArG4GenShowerLibLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

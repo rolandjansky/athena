@@ -5,8 +5,10 @@
 #ifndef G4COSMICFILTER_G4UA__G4COSMICANDFILTERTOOL_H
 #define G4COSMICFILTER_G4UA__G4COSMICANDFILTERTOOL_H
 
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
+// Infrastructure includes
 #include "G4AtlasTools/UserActionToolBase.h"
+
+// Local includes
 #include "G4CosmicFilter/G4CosmicAndFilter.h"
 
 namespace G4UA

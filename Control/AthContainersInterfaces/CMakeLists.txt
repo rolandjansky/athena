@@ -15,6 +15,7 @@ endif()
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/CxxUtils
    ${extra_deps} )
 
 # External dependencies:
@@ -26,7 +27,7 @@ atlas_add_library( AthContainersInterfaces
    INTERFACE
    PUBLIC_HEADERS AthContainersInterfaces
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${extra_libs} )
+   LINK_LIBRARIES CxxUtils ${Boost_LIBRARIES} ${extra_libs} )
 
 # Test(s) in the package:
 atlas_add_test( AuxStore_traits_test

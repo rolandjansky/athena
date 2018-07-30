@@ -12,12 +12,11 @@
 //====================================================================
 
 /// Framework include files
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/DbHeap.h"
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbContainer.h"
 #include "StorageSvc/DbObjectCallBack.h"
-#include "StorageSvc/DbTransaction.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbContainerImp.h"
 
@@ -25,8 +24,8 @@ using namespace std;
 using namespace pool;
 
 /// Standard Constructor
-DbContainerImp::DbContainerImp(IOODatabase* idb)
-: DbImplementation(idb), m_size(0), m_writeSize(0), m_name("UNKNOWN"),
+DbContainerImp::DbContainerImp()
+: m_size(0), m_writeSize(0), m_name("UNKNOWN"),
   m_canUpdate(false),
   m_canDestroy(false)
 {
@@ -68,7 +67,7 @@ DbStatus DbContainerImp::close()   {
 /// In place allocation of raw memory for the transient object
 void* DbContainerImp::allocate(unsigned long siz, DbContainer& cntH, ShapeH shape)  {
   DbObjectHandle<DbObject> objH(cntH.type());
-  Token::OID_t objLink(cntH.token()->oid().first, int(nextRecordId()));
+  Token::OID_t objLink(cntH.token()->oid().first, nextRecordId());
   DbHeap::allocate(siz, &cntH, &objLink, &objH);
   if ( m_stack.size() < m_size+1 )  {
     m_stack.resize(m_size+1024);
@@ -86,7 +85,7 @@ void* DbContainerImp::allocate(unsigned long siz, DbContainer& cntH, ShapeH shap
 DbStatus DbContainerImp::allocate(DbContainer& cntH, const void* object, ShapeH shape, Token::OID_t& oid) {
   if ( object )  {
     oid.first  = cntH.token()->oid().first;
-    oid.second = int(nextRecordId());
+    oid.second = nextRecordId();
     if ( m_stack.size() < m_size+1 )  {
       m_stack.resize(m_size+1024);
     }
@@ -122,7 +121,7 @@ DbStatus DbContainerImp::clearStack()   {
 }
 
 /// Execute object modification requests during a transaction
-DbStatus DbContainerImp::commitTransaction(DbTransaction& refTr ) {
+DbStatus DbContainerImp::commitTransaction() {
   DbStatus iret   = Success;
   DbStatus status = Success;
   TransactionStack::iterator i = m_stack.begin();
@@ -150,43 +149,18 @@ DbStatus DbContainerImp::commitTransaction(DbTransaction& refTr ) {
       break;
     }
   }
-  clearStack();
-  status = endTransaction(refTr);
-  if ( !status.isSuccess() )  {
-    iret = status;
-  }
   return iret;
 }
 
-/// Execute object modification requests during a transaction
-DbStatus DbContainerImp::endTransaction(DbTransaction& /* refTr */ ) {
-  return Success;
-}
 
-/// Start/Commit/Rollback Database Transaction
-DbStatus DbContainerImp::transAct(DbTransaction& refTr)   {
+/// Execute Database Transaction action
+DbStatus DbContainerImp::transAct(Transaction::Action action)
+{
   DbStatus status = Success;
-  switch(refTr.state()) {
-  case Transaction::TRANSACT_COMMIT:
-    status = commitTransaction(refTr);
-    refTr.set(Transaction::TRANSACT_ENDED);
-    break;
-  case Transaction::TRANSACT_FLUSH:
-    status = commitTransaction(refTr);
-    refTr.set(Transaction::TRANSACT_ENDED);
-    break;
-  case Transaction::TRANSACT_START:
-    refTr.set(Transaction::TRANSACT_ACTIVE);
-    clearStack();
-    break;
-  case Transaction::TRANSACT_ROLLBACK:
-    clearStack();
-    refTr.set(Transaction::TRANSACT_ENDED);
-    break;
-  default:
-    status = Error;
-    break;
+  if( action==Transaction::TRANSACT_COMMIT || action==Transaction::TRANSACT_FLUSH ) {
+     status = commitTransaction();
   }
+  clearStack();
   return status;
 }
 

@@ -5,9 +5,10 @@
 #ifndef G4USERACTIONS_G4UA__FASTIDKILLERTOOL_H
 #define G4USERACTIONS_G4UA__FASTIDKILLERTOOL_H
 
-#include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+// Infrastructure includes
 #include "G4AtlasTools/UserActionToolBase.h"
+
+// Local includes
 #include "G4UserActions/FastIDKiller.h"
 
 namespace G4UA

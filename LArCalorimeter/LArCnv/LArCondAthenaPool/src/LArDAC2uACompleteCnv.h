@@ -24,7 +24,9 @@ typedef LArSingleFloatConverter<LArDAC2uAComplete> LArDAC2uACompleteCnvBase;
 class LArDAC2uACompleteCnv : public LArDAC2uACompleteCnvBase {
 friend class CnvFactory<LArDAC2uACompleteCnv >;
 protected:
+public:
     LArDAC2uACompleteCnv (ISvcLocator* svcloc) : LArDAC2uACompleteCnvBase(svcloc) {}
+protected:
     virtual LArConditionsSubset<LArSingleFloatP>*  createTransient ();
     LArConditionsSubset<LArSingleFloatP>*          createTransient(LArConditionsSubset<LArDAC2uAP>* orig);
 };

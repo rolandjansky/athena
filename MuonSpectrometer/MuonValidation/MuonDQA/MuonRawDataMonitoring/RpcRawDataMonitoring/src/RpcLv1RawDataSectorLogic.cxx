@@ -12,9 +12,7 @@
 /////////////////////////////////////////////////////////////////////////
       
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
-#include "xAODEventInfo/EventInfo.h" 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
@@ -38,6 +36,7 @@ RpcLv1RawDataSectorLogic::RpcLv1RawDataSectorLogic( const std::string & type,
 {  
   // Declare the properties      
   declareProperty("LumiblockHist" ,      m_lumiblockhist	= false	);   
+  declareProperty("isMC"                        , m_isMC                       = false  );
 }
 
 //***********************************************************************************************************************
@@ -68,10 +67,9 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
   m_Tower_out = 0 ;
   m_Tower_in = 0 ;
   m_in_sectorid = 0 ;
-  m_sectorLogicContainer = 0 ;
       
-  // Retrieve the active store
-  ATH_CHECK( serviceLocator() -> service("ActiveStoreSvc", m_activeStore) );
+  ATH_CHECK(m_sectorLogicContainerKey.initialize(!m_isMC));
+  ATH_CHECK(m_eventInfo.initialize());
 
   // Ignore the checking code
   ManagedMonitorToolBase::initialize().ignore();
@@ -83,8 +81,7 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
 //***********************************************************************************************************************
 StatusCode RpcLv1RawDataSectorLogic::StoreTriggerType() 
 {
-  const xAOD::EventInfo* eventInfo;
-  ATH_CHECK(  evtStore() -> retrieve(eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
   ATH_MSG_DEBUG( "RpcLv1RawDataSectorLogic::retrieved eventInfo"  );
   
   m_trigtype = eventInfo->level1TriggerType();
@@ -178,147 +175,142 @@ StatusCode RpcLv1RawDataSectorLogic::fillHistograms( )
     
     m_nTriggerHits = 0;
 
-    // Retrieve the Sector Logic container
-    sc = (*m_activeStore) -> retrieve(m_sectorLogicContainer);     
-    
-    if (sc.isFailure()) {
-      ATH_MSG_INFO( "Cannot retrieve the RpcSectorLogicContainer"  );
-      return StatusCode::SUCCESS;
-    }
-    else {
+    if(!m_isMC){
+      // Retrieve the Sector Logic container
+      SG::ReadHandle<RpcSectorLogicContainer> sectorLogicContainer(m_sectorLogicContainerKey);
       ///////////////////////////////////////////
       // Loop over the Sector Logic containers //
       ///////////////////////////////////////////
-      RpcSectorLogicContainer::const_iterator it = m_sectorLogicContainer -> begin();
-      for ( ; it != m_sectorLogicContainer -> end() ; ++it ) 
+      RpcSectorLogicContainer::const_iterator it = sectorLogicContainer -> begin();
+      for ( ; it != sectorLogicContainer -> end() ; ++it ) 
 	{
 	  int i_sectorid = (*it)->sectorId();
 	  m_nTriggerHitsperSector = 0;
-
+	  
 	  // Loop over the trigger hits of each sector
 	  RpcSectorLogic::const_iterator ithit = (*it) -> begin();
 	  for ( ; ithit != (*it) -> end() ; ++ithit ) 
-          {
-            // from RpcSLTriggerHit
-            bool b_isInput        = (*ithit) -> isInput();
-            int i_rowinBcid      = (*ithit) -> rowinBcid();//readout window BCid
-            int i_padid          = (*ithit) -> padId();//tower
-            int i_ptid           = (*ithit) -> ptId();//threshold
-            int i_roi            = (*ithit) -> roi();//region of interest
-            int i_triggerBcid    = (*ithit) -> triggerBcid();
-
-            m_Diff_triggerBCid = 0;
-            m_in_triggerBCid = 0;
-            m_out_triggerBCid = 0;
-            m_in_rowinBCid = 0;
-            m_out_rowinBCid = 0;
-            m_Tower_in = -1;
-
-            if (b_isInput == true){ 
-              m_nTriggerHits++;
-              m_nTriggerHitsperSector++;
-		
-              //Fill hits per trigger sector histogram
-              m_rpclv1_Hits_per_TriggerSector -> Fill(float(i_sectorid));
-              //per lumi block
-              if(m_lumiblockhist)m_rpclv1_Hits_per_TriggerSector_LB -> Fill(float(i_sectorid));
-
-              //Fill Pad vs. tigger sector histograms
-              if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad -> Fill(float(-(i_padid + 1)), float(i_sectorid));
-              else m_rpclv1_TriggerSector_vs_Pad -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
-		
-              if (i_ptid == 1){
-                if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt1 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
-                else m_rpclv1_TriggerSector_vs_Pad_Pt1 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
-              }
-              if (i_ptid == 2){
-                if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt2 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
-                else m_rpclv1_TriggerSector_vs_Pad_Pt2 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
-              }
-              if (i_ptid == 3){
-                if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt3 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
-                else m_rpclv1_TriggerSector_vs_Pad_Pt3 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
-              }
-              if (i_ptid == 4){
-                if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt4 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
-                else m_rpclv1_TriggerSector_vs_Pad_Pt4 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
-              }
-              if (i_ptid == 5){
-                if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt5 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
-                else m_rpclv1_TriggerSector_vs_Pad_Pt5 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
-              }
-              if (i_ptid == 6){
-                if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt6 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
-                else m_rpclv1_TriggerSector_vs_Pad_Pt6 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
-              }
-		
-              //Fill trigger sector vs. rowin BCid histogram
-              m_rpclv1_rowinBCid_vs_TriggerSector -> Fill(float(i_sectorid), float(i_rowinBcid));
-
-              //Fill Threshold vs. Pad(Tower) histogram
-              m_rpclv1_ptid_vs_Tower -> Fill(float(i_padid), float(i_ptid));
-
-              //Trigger BCid in
-              m_in_triggerBCid = i_triggerBcid;
-              //ReadOutWindow BCid in
-              m_in_rowinBCid = i_rowinBcid;
-
-              //Tower in
-              m_Tower_in = i_padid;
-		
-              m_Tower_out = -1;
-              // Loop over the trigger hits of each sector
-              RpcSectorLogic::const_iterator ithiti = (*it) -> begin();
-              for ( ; ithiti != (*it) -> end() ; ++ithiti ) 
-              {
-                bool b_isInput1        = (*ithiti) -> isInput();
-                int i_roi1            = (*ithiti) -> roi();//region of interest
-                int i_triggerBcid1    = (*ithiti) -> triggerBcid();
-                int i_rowinBcid1      = (*ithiti) -> rowinBcid();
-                if (b_isInput1 == false){ 
-
-                  //Tower out calculated from ROI out
-                  if ( i_roi1 < 4 ) m_Tower_out = 0; 
-                  if ( i_roi1 >= 4 && i_roi < 8 ) m_Tower_out = 1; 
-                  if ( i_roi1 >= 8 && i_roi < 12 ) m_Tower_out = 2; 
-                  if ( i_roi1 >= 12 && i_roi < 16 ) m_Tower_out = 3; 
-                  if ( i_roi1 >= 16 && i_roi < 20 ) m_Tower_out = 4; 
-                  if ( i_roi1 >= 20 && i_roi < 24 ) m_Tower_out = 5; 
-                  if ( i_roi1 >= 24 ) m_Tower_out = 6; 
-		      
-                  //Trigger BCid out
-                  m_out_triggerBCid = i_triggerBcid1;
-                  //ReadOutWindow BCid in
-                  m_out_rowinBCid = i_rowinBcid1;
-
-                  //Calculate Timing difference in trigger BCid
-                  if ((m_Tower_out == m_Tower_in) && (m_out_rowinBCid == m_in_rowinBCid)){
-                    if(m_in_triggerBCid - m_out_triggerBCid >= 0) m_Diff_triggerBCid = m_in_triggerBCid - m_out_triggerBCid;
-                    else  m_Diff_triggerBCid = (m_in_triggerBCid - m_out_triggerBCid) + 8;
-                  }
-                }
-		    
-              }
-            }
+	    {
+	      // from RpcSLTriggerHit
+	      bool b_isInput        = (*ithit) -> isInput();
+	      int i_rowinBcid      = (*ithit) -> rowinBcid();//readout window BCid
+	      int i_padid          = (*ithit) -> padId();//tower
+	      int i_ptid           = (*ithit) -> ptId();//threshold
+	      int i_roi            = (*ithit) -> roi();//region of interest
+	      int i_triggerBcid    = (*ithit) -> triggerBcid();
 	      
-
-            //Fill in/out dependent histograms & histograms with timing difference only for IN
-            if (b_isInput == true){ 
-
-              m_rpclv1_triggerBCid_inout_vs_Tower -> Fill(float(m_Tower_out), float(m_Diff_triggerBCid));
-
-              // if (i_padid == 0){ 
-              m_rpclv1_triggerBCid_inout_vs_TriggerSector -> Fill(float(i_sectorid), float(m_Diff_triggerBCid));
-              m_rpclv1_triggerBCid_inout -> Fill(float(m_Diff_triggerBCid));
-              //per lumi block
-              if(m_lumiblockhist)m_rpclv1_triggerBCid_inout_LB -> Fill(float(m_Diff_triggerBCid));
-              // }
-
-              if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout -> Fill(float(-(i_padid + 1)), float(i_sectorid), float(m_Diff_triggerBCid));
-              else m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout -> Fill(float((i_padid + 1)), float(i_sectorid - 32), float(m_Diff_triggerBCid));
-            }
+	      m_Diff_triggerBCid = 0;
+	      m_in_triggerBCid = 0;
+	      m_out_triggerBCid = 0;
+	      m_in_rowinBCid = 0;
+	      m_out_rowinBCid = 0;
+	      m_Tower_in = -1;
+	      
+	      if (b_isInput == true){ 
+		m_nTriggerHits++;
+		m_nTriggerHitsperSector++;
 		
-          } // End Loop over the trigger hits of each sector	  
+		//Fill hits per trigger sector histogram
+		m_rpclv1_Hits_per_TriggerSector -> Fill(float(i_sectorid));
+		//per lumi block
+		if(m_lumiblockhist)m_rpclv1_Hits_per_TriggerSector_LB -> Fill(float(i_sectorid));
+		
+		//Fill Pad vs. tigger sector histograms
+		if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad -> Fill(float(-(i_padid + 1)), float(i_sectorid));
+		else m_rpclv1_TriggerSector_vs_Pad -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
+		
+		if (i_ptid == 1){
+		  if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt1 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
+		  else m_rpclv1_TriggerSector_vs_Pad_Pt1 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
+		}
+		if (i_ptid == 2){
+		  if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt2 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
+		  else m_rpclv1_TriggerSector_vs_Pad_Pt2 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
+		}
+		if (i_ptid == 3){
+		  if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt3 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
+		  else m_rpclv1_TriggerSector_vs_Pad_Pt3 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
+		}
+		if (i_ptid == 4){
+		  if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt4 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
+		  else m_rpclv1_TriggerSector_vs_Pad_Pt4 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
+		}
+		if (i_ptid == 5){
+		  if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt5 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
+		  else m_rpclv1_TriggerSector_vs_Pad_Pt5 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
+		}
+		if (i_ptid == 6){
+		  if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_Pt6 -> Fill(float(-(i_padid + 1)), float(i_sectorid));
+		  else m_rpclv1_TriggerSector_vs_Pad_Pt6 -> Fill(float((i_padid + 1)), float(i_sectorid - 32));
+		}
+		
+		//Fill trigger sector vs. rowin BCid histogram
+		m_rpclv1_rowinBCid_vs_TriggerSector -> Fill(float(i_sectorid), float(i_rowinBcid));
+		
+		//Fill Threshold vs. Pad(Tower) histogram
+		m_rpclv1_ptid_vs_Tower -> Fill(float(i_padid), float(i_ptid));
+		
+		//Trigger BCid in
+		m_in_triggerBCid = i_triggerBcid;
+		//ReadOutWindow BCid in
+		m_in_rowinBCid = i_rowinBcid;
+		
+		//Tower in
+		m_Tower_in = i_padid;
+		
+		m_Tower_out = -1;
+		// Loop over the trigger hits of each sector
+		RpcSectorLogic::const_iterator ithiti = (*it) -> begin();
+		for ( ; ithiti != (*it) -> end() ; ++ithiti ) 
+		  {
+		    bool b_isInput1        = (*ithiti) -> isInput();
+		    int i_roi1            = (*ithiti) -> roi();//region of interest
+		    int i_triggerBcid1    = (*ithiti) -> triggerBcid();
+		    int i_rowinBcid1      = (*ithiti) -> rowinBcid();
+		    if (b_isInput1 == false){ 
+		      
+		      //Tower out calculated from ROI out
+		      if ( i_roi1 < 4 ) m_Tower_out = 0; 
+		      if ( i_roi1 >= 4 && i_roi < 8 ) m_Tower_out = 1; 
+		      if ( i_roi1 >= 8 && i_roi < 12 ) m_Tower_out = 2; 
+		      if ( i_roi1 >= 12 && i_roi < 16 ) m_Tower_out = 3; 
+		      if ( i_roi1 >= 16 && i_roi < 20 ) m_Tower_out = 4; 
+		      if ( i_roi1 >= 20 && i_roi < 24 ) m_Tower_out = 5; 
+		      if ( i_roi1 >= 24 ) m_Tower_out = 6; 
+		      
+		      //Trigger BCid out
+		      m_out_triggerBCid = i_triggerBcid1;
+		      //ReadOutWindow BCid in
+		      m_out_rowinBCid = i_rowinBcid1;
+		      
+		      //Calculate Timing difference in trigger BCid
+		      if ((m_Tower_out == m_Tower_in) && (m_out_rowinBCid == m_in_rowinBCid)){
+			if(m_in_triggerBCid - m_out_triggerBCid >= 0) m_Diff_triggerBCid = m_in_triggerBCid - m_out_triggerBCid;
+			else  m_Diff_triggerBCid = (m_in_triggerBCid - m_out_triggerBCid) + 8;
+		      }
+		    }
+		    
+		  }
+	      }
+	      
+	      
+	      //Fill in/out dependent histograms & histograms with timing difference only for IN
+	      if (b_isInput == true){ 
+		
+		m_rpclv1_triggerBCid_inout_vs_Tower -> Fill(float(m_Tower_out), float(m_Diff_triggerBCid));
+		
+		// if (i_padid == 0){ 
+		m_rpclv1_triggerBCid_inout_vs_TriggerSector -> Fill(float(i_sectorid), float(m_Diff_triggerBCid));
+		m_rpclv1_triggerBCid_inout -> Fill(float(m_Diff_triggerBCid));
+		//per lumi block
+		if(m_lumiblockhist)m_rpclv1_triggerBCid_inout_LB -> Fill(float(m_Diff_triggerBCid));
+		// }
+		
+		if (i_sectorid < 32) m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout -> Fill(float(-(i_padid + 1)), float(i_sectorid), float(m_Diff_triggerBCid));
+		else m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout -> Fill(float((i_padid + 1)), float(i_sectorid - 32), float(m_Diff_triggerBCid));
+	      }
+	      
+	    } // End Loop over the trigger hits of each sector	  
 	  
 	  // Fill the trigger hits per event per sector histogram here
 	  if (m_nTriggerHitsperSector > 0) {
@@ -326,13 +318,13 @@ StatusCode RpcLv1RawDataSectorLogic::fillHistograms( )
 	    //per lumi block
 	    if(m_lumiblockhist)m_rpclv1_TriggerHitsperEventperTriggerSector_LB -> Fill(float(i_sectorid), float(m_nTriggerHitsperSector));
 	  }
-
+	  
 	} // End Loop over the Sector Logic containers
-      
-      // Fill the trigger hits per event histogram here
-      m_rpclv1_TriggerHitsperEvent -> Fill(float(m_nTriggerHits));
 
     }
+    
+    // Fill the trigger hits per event histogram here
+    m_rpclv1_TriggerHitsperEvent -> Fill(float(m_nTriggerHits));
     
   } // AthenaMonManager::tier0 || AthenaMonManager::tier0Raw   
   

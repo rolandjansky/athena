@@ -12,7 +12,7 @@
 
 
 class ISpecialPixelMapSvc;
-class IInDetConditionsSvc;
+class IInDetConditionsTool;
 class PixelID;
 
 namespace InDetDD{ 
@@ -43,7 +43,7 @@ class PixelMapTestAlg: public AthAlgorithm{
   
  private:
   ServiceHandle< ISpecialPixelMapSvc > m_specialPixelMapSvc;
-  ServiceHandle< IInDetConditionsSvc > m_pixelConditionsSummarySvc;
+  ToolHandle< IInDetConditionsTool > m_pixelConditionsSummarySvc;
 
   bool m_useSummarySvc;
   bool m_writeTextfile;

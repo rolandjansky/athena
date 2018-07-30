@@ -45,12 +45,6 @@ atlas_add_test( safe_clid_test
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools )
 
-atlas_add_test( crc64_test
-                SOURCES
-                test/crc64_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools )
-
 atlas_add_test( exceptions_test
                 SOURCES
                 test/exceptions_test.cxx

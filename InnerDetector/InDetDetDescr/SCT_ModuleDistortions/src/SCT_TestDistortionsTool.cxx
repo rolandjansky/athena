@@ -4,29 +4,32 @@
 
 // Test SCT_DistortionsTool.cxx
 
-//Gaudi
-#include "GaudiKernel/AlgFactory.h"
+//Package
+#include "SCT_TestDistortionsTool.h"
 
 //Athena
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-
-//Package
-#include "SCT_TestDistortionsTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "PathResolver/PathResolver.h"
 
+//Gaudi
+#include "GaudiKernel/ITHistSvc.h"
+
+//CLHEP
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Random/RandGauss.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
+//ROOT
+#include "TH2F.h"
+#include "TH3F.h"
+
+//STL
 #include <cmath>
 #include <string>
 #include <fstream>
 #include <sstream>
-
-#include "TH2F.h"
 
 
 

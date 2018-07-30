@@ -26,8 +26,10 @@
 //   c) ADCsature: lowest value to check if a Digit sample is in saturation.
 // ********************************************************************
 
+#include "LArDigitMon.h"
+#include "LArOnlineIDStrHelper.h"
+
 //Histograms
-#include "GaudiKernel/ITHistSvc.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
 
@@ -36,16 +38,8 @@
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 
-//STL:
-#include <sstream>
-#include <iomanip>
-#include <cmath>
-#include <vector>
-#include <algorithm>
-
 //LAr infos:
 #include "Identifier/HWIdentifier.h"
-#include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigit.h"
@@ -55,11 +49,14 @@
 //Events infos:
 #include "xAODEventInfo/EventInfo.h"
 
-
-//Header:
-#include "LArMonTools/LArDigitMon.h"
-
 #include "LArTrigStreamMatching.h"
+
+//STL:
+#include <sstream>
+#include <iomanip>
+#include <cmath>
+#include <vector>
+#include <algorithm>
 
 /*---------------------------------------------------------*/
 LArDigitMon::LArDigitMon(const std::string& type, 
@@ -86,7 +83,7 @@ LArDigitMon::LArDigitMon(const std::string& type,
   /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
   declareProperty("LArBadChannelMask",m_badChannelMask);
-  declareProperty("LArPedestalKey", m_larPedestalKey="Pedestal");
+  declareProperty("LArPedestalKey", m_larPedestalKey="LArPedestal");
   declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "FREE");
   /**default cut to select events*/
   declareProperty("SigmaCut",               m_SigmaCut=5);
@@ -315,7 +312,7 @@ LArDigitMon::fillHistograms()
   m_eventsCounter++;
   
   // retrieve LArNoisyROSummary and skip the event if number of FEB is greater than the one declare in JO.
-  LArNoisyROSummary* noisyRO;
+  const LArNoisyROSummary* noisyRO;
   StatusCode sc = evtStore()->retrieve(noisyRO,"LArNoisyROSummary");
   if (sc.isFailure()) 
   {

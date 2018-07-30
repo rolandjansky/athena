@@ -58,12 +58,9 @@ StatusCode MuonLayerHoughAlg::initialize()
   return StatusCode::SUCCESS; 
 }
 
-
-
 StatusCode MuonLayerHoughAlg::execute()
 {
   
-
   const Muon::RpcPrepDataContainer* rpcPrds = GetObject(m_keyRpc);
   const Muon::MdtPrepDataContainer* mdtPrds = GetObject(m_keyMdt);
   const Muon::TgcPrepDataContainer* tgcPrds = GetObject(m_keyTgc);
@@ -89,13 +86,8 @@ StatusCode MuonLayerHoughAlg::execute()
   return StatusCode::SUCCESS;
 } // execute
 
-
-
-
-
 StatusCode MuonLayerHoughAlg::finalize()
 {
-  
-  return AthAlgorithm::finalize();
+  return StatusCode::SUCCESS;
 }
 

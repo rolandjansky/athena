@@ -5,15 +5,11 @@
 #ifndef ALFA_DigitCollection_h
 #define ALFA_DigitCollection_h
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "ALFA_RawEv/ALFA_Digit.h"
 
 #include "HitManagement/AthenaHitsVector.h"
-
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
 
 
 class ALFA_DigitCollection: public DataVector<ALFA_Digit> {

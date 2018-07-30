@@ -18,7 +18,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "TH3F.h"
 
 //forward declaration
 class TH1F;
@@ -351,15 +350,15 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   std::vector<TH1F*>     m_measurements_vs_LB_pix_ecc;
   
   
-  TProfile* m_measurements_eff_vs_LB_sct_eca;
-  TH1F*     m_hits_vs_LB_sct_eca;
-  TH1F*     m_measurements_vs_LB_sct_eca;
+  TProfile* m_measurements_eff_vs_LB_sct_eca{};
+  TH1F*     m_hits_vs_LB_sct_eca{};
+  TH1F*     m_measurements_vs_LB_sct_eca{};
   
   
   
-  TProfile* m_measurements_eff_vs_LB_sct_ecc;
-  TH1F*     m_hits_vs_LB_sct_ecc;
-  TH1F*     m_measurements_vs_LB_sct_ecc;
+  TProfile* m_measurements_eff_vs_LB_sct_ecc{};
+  TH1F*     m_hits_vs_LB_sct_ecc{};
+  TH1F*     m_measurements_vs_LB_sct_ecc{};
 
   
   std::vector<TProfile*> m_overlapX_eff_vs_Phi_pix_b;

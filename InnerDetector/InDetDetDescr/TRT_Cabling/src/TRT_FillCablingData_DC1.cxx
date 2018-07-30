@@ -6,7 +6,6 @@
 // Implementation file for TRT_FillCablingData_DC1 class
 //
 
-#include "GaudiKernel/ToolFactory.h"
 #include "TRT_FillCablingData_DC1.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include <iostream>

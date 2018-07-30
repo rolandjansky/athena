@@ -9,25 +9,26 @@
 #include "Normalizations.h"
 #include <cmath>
 #include <limits>
+#include "AsgTools/MsgStream.h"
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer
 {
 
-/** 
-* @brief Namespace dedicated for Ringer pre-processing utilities 
+/**
+* @brief Namespace dedicated for Ringer pre-processing utilities
 **/
 namespace PreProcessing
 {
 
-/** 
- * @brief Namespace dedicated for Ringer normalization utilities 
+/**
+ * @brief Namespace dedicated for Ringer normalization utilities
  **/
 namespace Norm {
 
-/** 
+/**
  * @brief Helper functions:
  **/
 namespace {
@@ -95,7 +96,7 @@ void applyInvNorm( std::vector<float> &inputSpace, const float invNorm ){
 
 // =============================================================================
 inline
-void applyInvNorm( std::vector<float> &inputSpace, 
+void applyInvNorm( std::vector<float> &inputSpace,
     const std::vector<float> &invNorm )
 {
   std::vector<float>::const_iterator itr2 = invNorm.begin();
@@ -121,7 +122,7 @@ void applyDeslocation( std::vector<float> &inputSpace, const float deslocation )
 
 // =============================================================================
 inline
-void applyDeslocation( std::vector<float> &inputSpace, 
+void applyDeslocation( std::vector<float> &inputSpace,
     const std::vector<float> deslocation )
 {
   std::vector<float>::const_iterator itr2 = deslocation.begin();

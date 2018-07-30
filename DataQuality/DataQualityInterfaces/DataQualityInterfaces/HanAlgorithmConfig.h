@@ -31,7 +31,7 @@ public:
 
   virtual ~HanAlgorithmConfig();
   
-  virtual TObject*                                      getReference() const throw (dqm_core::BadConfig);
+  virtual TObject*                                      getReference() const;
   
   virtual const std::map< std::string, double >&  getParameters() const;
   

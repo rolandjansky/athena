@@ -17,9 +17,9 @@ ServiceMgr+=HistogramDefinitionSvc()
 ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/InDetPVMPlotDefRun2.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
-from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
-decorators = InDetPhysValDecoratorAlg()
-topSequence += decorators
+import InDetPhysValMonitoring.InDetPhysValDecoration
+for decorator in InDetPhysValMonitoring.InDetPhysValDecoration.getDecorators() :
+  topSequence += decorator
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 monMan = AthenaMonManager( "PhysValMonManager" )

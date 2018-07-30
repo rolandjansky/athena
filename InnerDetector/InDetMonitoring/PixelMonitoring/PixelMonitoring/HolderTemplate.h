@@ -62,6 +62,8 @@ class HolderTemplate {
         m_copy2DFEval{copy2DFEval},
         m_doIBL{true} {}
 
+  virtual ~HolderTemplate() {}
+
   //! Function for histogram formatting. To be reimplemented in derived classes.
   virtual void formatHist() = 0;
 

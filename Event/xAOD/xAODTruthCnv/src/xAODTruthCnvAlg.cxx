@@ -41,7 +41,7 @@ namespace xAODMaker {
     
     
     xAODTruthCnvAlg::xAODTruthCnvAlg( const string& name, ISvcLocator* svcLoc )
-    : AthAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
+    : AthReentrantAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
     {
       // leaving metadata alone for now--to be updated
         declareProperty( "MetaObjectName", m_metaName = "TruthMetaData" );
@@ -56,15 +56,7 @@ namespace xAODMaker {
         }
 
         if (m_writeMetaData) {
-            CHECK( m_metaStore.retrieve() );
-            // Create an empty truth meta data container:
-            xAOD::TruthMetaDataAuxContainer* aux = new xAOD::TruthMetaDataAuxContainer();
-            m_tmd = new xAOD::TruthMetaDataContainer();
-            m_tmd->setStore( aux );
-            
-            // Record the trigger configuration metadata into it:
-            CHECK( m_metaStore->record( aux, m_metaName + "Aux." ) );
-            CHECK( m_metaStore->record( m_tmd, m_metaName ) );
+            ATH_CHECK( m_meta.initialize (m_metaStore, m_metaName) );
         }
         
 	// initialize handles
@@ -93,13 +85,13 @@ namespace xAODMaker {
     }
     
     
-    StatusCode xAODTruthCnvAlg::execute() {
+    StatusCode xAODTruthCnvAlg::execute_r (const EventContext& ctx) const {
         
-	SG::WriteHandle<xAODTruthParticleLinkVector> truthLinkVec(m_truthLinkContainerKey);
+        SG::WriteHandle<xAODTruthParticleLinkVector> truthLinkVec(m_truthLinkContainerKey, ctx);
 	ATH_CHECK(truthLinkVec.record(std::make_unique<xAODTruthParticleLinkVector>()));
         
 	// Retrieve the HepMC truth:
-	SG::ReadHandle<McEventCollection> mcColl(m_aodContainerKey);
+	SG::ReadHandle<McEventCollection> mcColl(m_aodContainerKey, ctx);
 	// validity check is only really needed for serial running. Remove when MT is only way.
 	if (!mcColl.isValid()) {
 	  ATH_MSG_ERROR("Could not retrieve HepMC with key:" << m_aodContainerKey.key());
@@ -112,7 +104,7 @@ namespace xAODMaker {
 	// Create the xAOD containers and their auxiliary stores:
 	// **************************************************************
 	// Signal event
-	SG::WriteHandle<xAOD::TruthEventContainer> xTruthEventContainer(m_xaodTruthEventContainerKey);
+	SG::WriteHandle<xAOD::TruthEventContainer> xTruthEventContainer(m_xaodTruthEventContainerKey, ctx);
 	ATH_CHECK(xTruthEventContainer.record(std::make_unique<xAOD::TruthEventContainer>(),
 					      std::make_unique<xAOD::TruthEventAuxContainer>()));
 	ATH_MSG_DEBUG( "Recorded TruthEventContainer with key: " << m_xaodTruthEventContainerKey.key() );
@@ -120,19 +112,19 @@ namespace xAODMaker {
 	// Pile-up events
 	SG::WriteHandle<xAOD::TruthPileupEventContainer> xTruthPileupEventContainer;
 	if (m_doAllPileUp || m_doInTimePileUp) {
-	  xTruthPileupEventContainer = SG::WriteHandle<xAOD::TruthPileupEventContainer>(m_xaodTruthPUEventContainerKey);
+	  xTruthPileupEventContainer = SG::WriteHandle<xAOD::TruthPileupEventContainer>(m_xaodTruthPUEventContainerKey, ctx);
 	  ATH_CHECK(xTruthPileupEventContainer.record(std::make_unique<xAOD::TruthPileupEventContainer>(),
 						      std::make_unique<xAOD::TruthPileupEventAuxContainer>()));
 	  ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerKey.key() );
 	}
 
 	// Particles
-	SG::WriteHandle<xAOD::TruthParticleContainer> xTruthParticleContainer(m_xaodTruthParticleContainerKey);
+	SG::WriteHandle<xAOD::TruthParticleContainer> xTruthParticleContainer(m_xaodTruthParticleContainerKey, ctx);
 	ATH_CHECK(xTruthParticleContainer.record(std::make_unique<xAOD::TruthParticleContainer>(),
 						 std::make_unique<xAOD::TruthParticleAuxContainer>()));
 	ATH_MSG_DEBUG( "Recorded TruthParticleContainer with key: " << m_xaodTruthParticleContainerKey.key() );
 	// Vertices
-	SG::WriteHandle<xAOD::TruthVertexContainer> xTruthVertexContainer(m_xaodTruthVertexContainerKey);
+	SG::WriteHandle<xAOD::TruthVertexContainer> xTruthVertexContainer(m_xaodTruthVertexContainerKey, ctx);
 	ATH_CHECK(xTruthVertexContainer.record(std::make_unique<xAOD::TruthVertexContainer>(),
 					       std::make_unique<xAOD::TruthVertexAuxContainer>()));
 	ATH_MSG_DEBUG( "Recorded TruthVertexContainer with key: " << m_xaodTruthVertexContainerKey.key() );
@@ -206,27 +198,7 @@ namespace xAODMaker {
 	      CHECK( m_inputMetaStore->retrieve(esi));
 	      uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
                         
-	      //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
-	      //is used to check if the key already exists (returns false in the case it exists)
-	      if( m_existingMetaDataChan.insert(mcChannelNumber).second ) {
-		xAOD::TruthMetaData* md = new xAOD::TruthMetaData();
-		m_tmd->push_back( md );
-                            
-		auto weightNameMap = genEvt->m_weights.m_names;
-		std::vector<std::string> orderedWeightNameVec;
-		orderedWeightNameVec.reserve( weightNameMap.size() );
-		for (auto& entry: weightNameMap) {
-		  orderedWeightNameVec.push_back(entry.first);
-		}
-                            
-		//The map from the HepMC record pairs the weight names with a corresponding index,
-		//it is not guaranteed that the indices are ascending when iterating over the map
-		std::sort(orderedWeightNameVec.begin(), orderedWeightNameVec.end(),
-			  [&](std::string i, std::string j){return weightNameMap.at(i) < weightNameMap.at(j);});
-                            
-		md->setMcChannelNumber(mcChannelNumber);
-		md->setWeightNames( std::move(orderedWeightNameVec) );
-	      }
+              ATH_CHECK( m_meta.maybeWrite (mcChannelNumber, *genEvt) );
 	    }
 	    // Event weights
 	    vector<float> weights;
@@ -413,6 +385,63 @@ namespace xAODMaker {
         tp->setPz(gp->momentum().pz());
         tp->setE(gp->momentum().e());
     }
+
+
+    StatusCode
+    xAODTruthCnvAlg::MetaDataWriter::initialize (ServiceHandle<StoreGateSvc>& metaStore,
+                                                 const std::string& metaName)
+    {
+      ATH_CHECK( metaStore.retrieve() );
+
+      auto md = std::make_unique<xAOD::TruthMetaDataContainer>();
+      m_tmd = md.get();
+
+      auto aux = std::make_unique<xAOD::TruthMetaDataAuxContainer>();
+      md->setStore( aux.get() );
+            
+      // Record the trigger configuration metadata into it:
+      CHECK( metaStore->record( std::move (aux), metaName + "Aux." ) );
+      CHECK( metaStore->record( std::move (md),  metaName ) );
+      return StatusCode::SUCCESS;
+    }
+
+
+    StatusCode
+    xAODTruthCnvAlg::MetaDataWriter::maybeWrite (uint32_t mcChannelNumber,
+                                                 const HepMC::GenEvent& genEvt)
+    {
+      // This bit needs to be serialized.
+      lock_t lock (m_mutex);
+      
+      //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
+      //is used to check if the key already exists (returns false in the case it exists)
+      if( m_existingMetaDataChan.insert(mcChannelNumber).second ) {
+        m_tmd->push_back (std::make_unique <xAOD::TruthMetaData>());
+        xAOD::TruthMetaData* md = m_tmd->back();
+        
+        // FIXME: class member protection violation here.
+        // This appears to be because WeightContainer has no public methods
+        // to get information about the weight names.
+        const std::map<std::string,HepMC::WeightContainer::size_type>& weightNameMap =
+          genEvt.weights().m_names;
+        std::vector<std::string> orderedWeightNameVec;
+        orderedWeightNameVec.reserve( weightNameMap.size() );
+        for (const auto& entry: weightNameMap) {
+          orderedWeightNameVec.push_back(entry.first);
+        }
+                            
+        //The map from the HepMC record pairs the weight names with a corresponding index,
+        //it is not guaranteed that the indices are ascending when iterating over the map
+        std::sort(orderedWeightNameVec.begin(), orderedWeightNameVec.end(),
+                  [&](std::string i, std::string j){return weightNameMap.at(i) < weightNameMap.at(j);});
+                            
+        md->setMcChannelNumber(mcChannelNumber);
+        md->setWeightNames( std::move(orderedWeightNameVec) );
+      }
+
+      return StatusCode::SUCCESS;
+    }
+
     
     
 } // namespace xAODMaker

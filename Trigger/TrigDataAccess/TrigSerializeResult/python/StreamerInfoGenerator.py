@@ -12,9 +12,9 @@ class StreamerInfoGenerator:
     #MN: ROOT6 strips std:: from types, so we need to check the names
     self.blacklist = ['std::', 'vector<', 'map<', 'queue<', 'list<']
     self.type = cppyy.gbl.RootType
-    cppyy.loadDict('libSTLRflx')
-    cppyy.loadDict('libSTLAddRflx')
-    cppyy.loadDict('libAtlasSTLAddReflexDict')
+#    cppyy.loadDict('libSTLRflx')
+#    cppyy.loadDict('libSTLAddRflx')
+#    cppyy.loadDict('libAtlasSTLAddReflexDict')
     #MN: switch off auto dict generation - god knows what that can mess up
     cppyy.gbl.gROOT.ProcessLine(".autodict")
 

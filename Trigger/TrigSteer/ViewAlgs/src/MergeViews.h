@@ -11,6 +11,6 @@ public:
   StatusCode initialize() override;
   StatusCode execute_r( const EventContext& context ) const override;
 private:
-  SG::ReadHandleKey<std::vector<SG::View*> > m_viewsKey { this, "Views", "Views", "Collection of views to read from" };  
+  SG::ReadHandleKey< ViewContainer > m_viewsKey { this, "Views", "Views", "Collection of views to read from" };  
   ToolHandleArray<IViewsMergerTool> m_mergingTools {this, "MergingTools", {}, "Merging tools used to perform the merging action" };
 };

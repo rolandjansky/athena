@@ -111,11 +111,6 @@ public:
   void                  resetTPCnvForReading() { m_TLCnvForReading = 0; }
 
 
-  /// Write out all extending persistent objects
-  /// @param baseObj [IN] pointer to the principal persistent object (where list of tokens will be stored)
-  /// @param key [IN] StoreGate key (string) - placement hint to generate storage container name
-  virtual void          writeExtendingObjects( void *baseObj, const std::string& key );
-
   /// Read all component persistent objects
   /// @param baseObj [IN] pointer to the principal persistent object
   /// holding the list of tokens for all component persistent objects to read

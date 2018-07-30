@@ -131,5 +131,5 @@ class TrigL2ElectronFexMT : public AthAlgorithm  {
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   
 };  
-DECLARE_ALGORITHM_FACTORY( TrigL2ElectronFexMT )
+
 #endif

@@ -258,6 +258,14 @@ from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 TRTCondStream=AthenaOutputStreamTool(name="CondStream1",OutputFile="trtcalibout.pool.root")
 ToolSvc += TRTCondStream
 print TRTCondStream
+
+# DCS Data Folders
+if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
+    if InDetFlags.useTrtDCS():
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>",classname='CondAttrListCollection')
+
 """ 
 
     if not calibconstants=="":
@@ -296,7 +304,8 @@ from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionToo
 InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
                                                    AllowDataMCOverride = True,
                                                    TRTCalDbTool=TRTCalSvc,
-                                                   ForceData = True)
+                                                   ForceData = True,
+                                                   IsMC=(globalflags.DataSource == 'geant4'))
 
 ToolSvc += InDetTRT_DriftFunctionTool
 print InDetTRT_DriftFunctionTool

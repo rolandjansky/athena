@@ -5,7 +5,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "MissingETPerformance/MuonTool.h"
 
@@ -579,6 +578,3 @@ StatusCode MuonTool::muonSetup(MissingETMuonData *muondata) {
 StatusCode MuonTool::finalize() {
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-MuonTool::~MuonTool() {}

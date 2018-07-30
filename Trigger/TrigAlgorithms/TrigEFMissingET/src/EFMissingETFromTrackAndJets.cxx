@@ -168,7 +168,20 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
     unsigned int n_putracks = 0;
     for (const xAOD::TrackParticle* itrk : TrackVec) {
-      bool isfromPV =  ((!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || itrk->vertex()==primaryVertex);
+      const xAOD::Vertex* foundVertex { nullptr };
+      for (const auto& vx : *vertexContainer)
+      {
+	for (const auto& tpLink : vx->trackParticleLinks())
+	{
+	  if (*tpLink == itrk)
+	  {
+	    foundVertex = vx;
+	    break;
+	  }
+	}
+	if (foundVertex) break;
+      }
+      bool isfromPV =  ((!foundVertex && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || foundVertex==primaryVertex);
       if(!isfromPV && itrk->pt()<30e3 && m_trackselTool->accept(*itrk,primaryVertex)) n_putracks++;
     } // end for loop over tracks
     if (!n_putracks) n_putracks++;
@@ -187,10 +200,24 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
         float deltaR_trackj = jet->p4().DeltaR(itrk->p4());
         if(deltaR_trackj>0.4) continue;
 
+	const xAOD::Vertex* foundVertex { nullptr };
+	for (const auto& vx : *vertexContainer)
+	{
+	  for (const auto& tpLink : vx->trackParticleLinks())
+	  {
+	    if (*tpLink == itrk)
+	    {
+	      foundVertex = vx;
+	      break;
+	    }
+	  }
+	  if (foundVertex) break;
+	}
+
         bool accept = (itrk->pt()>500 && m_trackselTool->accept(*itrk, primaryVertex));
         if (accept) ptsum_all += itrk->pt();
-        if (accept && ((!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || itrk->vertex()==primaryVertex)) ptsum_pv += itrk->pt();
-        if (accept && !(!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.)) ptsum_pileup += itrk->pt();
+        if (accept && ((!foundVertex && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || foundVertex==primaryVertex)) ptsum_pv += itrk->pt();
+        if (accept && !(!foundVertex && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.)) ptsum_pileup += itrk->pt();
       }
       //double JVF = ptsum_all>0 ? ptsum_pv/ptsum_all : -1;
       double Rpt = ptsum_pv/jet->pt();
@@ -207,15 +234,28 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
     for (const xAOD::TrackParticle* track : TrackVec) {
 
+      const xAOD::Vertex* foundVertex { nullptr };
+      for (const auto& vx : *vertexContainer)
+      {
+	for (const auto& tpLink : vx->trackParticleLinks())
+	{
+	  if (*tpLink == track)
+	  {
+	    foundVertex = vx;
+	    break;
+	  }
+	}
+	if (foundVertex) break;
+      }
       //checking the track coming from PV
-      bool isfromPV =  ((!track->vertex() && fabs((track->z0()+track->vz()-primaryVertex->z())*sin(track->theta()))<3.) || track->vertex()==primaryVertex);
+      bool isfromPV =  ((!foundVertex && fabs((track->z0()+track->vz()-primaryVertex->z())*sin(track->theta()))<3.) || foundVertex==primaryVertex);
       if(!isfromPV) continue;
       if(fabs(track->eta())>2.4 || track->pt()/1000. < m_track_ptcut) continue;
       if(!m_trackselTool->accept(*track,primaryVertex)) continue;
       if(m_muontrackselTool->accept(*track,primaryVertex)) continue;
 
       ATH_MSG_DEBUG( "\ttrack pt: " << track->pt()/1000. << "\teta: " << track->eta() << "\tphi: " << track->phi()
-                     << "\tvertex: " << track->vertex()
+                     << "\tvertex: " << foundVertex
                      << "\tz0: " << track->z0()
                      << "\tvz: " << track->vz()
                      << "\ttheta: " << track->theta()

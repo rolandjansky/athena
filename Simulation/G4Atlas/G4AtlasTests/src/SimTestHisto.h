@@ -17,12 +17,12 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "TH1.h"
+#include "TH2.h"
 class TProfile;
-class TH1;
-class TH2;
 
 /// Utility helper class for dealing with histograms in the sim tests.
-/// @fixme Is this class really needed?
+/// @note Is this class really needed?
 ///
 class SimTestHisto
 {
@@ -48,7 +48,7 @@ public:
   }
 
   /// Retrieve the histogram service
-  /// @fixme this should be done with a ServiceHandle instead
+  /// @note this should be done with a ServiceHandle instead
   ITHistSvc* tHistSvc()
   {
     static ITHistSvc* hSvc = 0;

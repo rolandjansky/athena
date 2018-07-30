@@ -22,7 +22,9 @@ class ALFA_CLinkEventCnv : public T_AthenaPoolCustomCnv <ALFA_CLinkEvent, ALFA_C
 	friend class CnvFactory<ALFA_CLinkEventCnv>;
 
 protected:
+public:
 	ALFA_CLinkEventCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <ALFA_CLinkEvent, ALFA_CLinkEvent_PERS >(svcloc) {}
+protected:
 	ALFA_CLinkEvent_PERS* createPersistent (ALFA_CLinkEvent *transCont);
 	ALFA_CLinkEvent* createTransient ();
 };

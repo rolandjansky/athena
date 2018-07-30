@@ -90,37 +90,32 @@ class TrigBjetHypoTool : virtual public ::AthAlgTool {
   bool decide(  const xAOD::BTagging* bTag, const TrigRoiDescriptor* roiDescriptor )  const;  
   //  bool decide(  const xAOD::BTaggingContainer* trigBTaggingContainer, const TrigRoiDescriptor* roiDescriptor )  const;  
 
+ private:
+  template<typename T> 
+    StatusCode retrieveTool( const std::string&,PublicToolHandle< T >& );
 
  private:
-
   HLT::Identifier m_id;
 
-  //  std::string m_jetKey; // not sure if needed, with some changes new configuration may be established
-
   /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
-  bool m_acceptAll;
+  Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
   /** @brief DeclareProperty: list of likelihood methods to be effectively used to perform the selection. */
-  std::string m_methodTag; 
+  Gaudi::Property< std::string > m_methodTag {this,"MethodTag","","list of likelihood methods to be effectively used to perform the selection"};
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
-  float m_xcutMV2c20;
-  float m_xcutMV2c10;
-
+  Gaudi::Property< float > m_xcutMV2c20 {this,"CutMV2c20",-20,"lower bound of the discriminant variable to be selected for MV2 tagger"};
+  Gaudi::Property< float > m_xcutMV2c10 {this,"CutMV2c10",-20,"lower bound of the discriminant variable to be selected for MV2 tagger"};
 
   // Not sure if needed
-  /** @brief DeclareProperty: string corresponding to the trigger level in which the algorithm is running. */
-  std::string m_instance;
-
   /** @brief to check the beam spot flag status. */
-  bool m_useBeamSpotFlag;
-
+  Gaudi::Property< bool > m_useBeamSpotFlag {this,"UseBeamSpotFlag",false,"check the beam spot flag status"};
  /** @brief Overide the requirement that the BS is valid. */
   /** @brief Used to not apply the correction to the GSC chains */
-  bool m_overRideBeamSpotValid;
-
+  Gaudi::Property< bool > m_overRideBeamSpotValid {this,"OverrideBeamSpotValid",false,"Overide the requirement that the BS is valid"};
 
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;
-  ToolHandle<GenericMonitoringTool> m_monTool;
+  PublicToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "GenericMonitoringTool/MonTool", "Monitoring tool" };
+
 };
 
 inline const InterfaceID& TrigBjetHypoTool::interfaceID()

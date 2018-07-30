@@ -9,9 +9,8 @@ atlas_subdir( LArRecEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           PRIVATE
                           Event/FourMomUtils )
@@ -24,12 +23,12 @@ atlas_add_library( LArRecEvent
                    src/*.cxx
                    PUBLIC_HEADERS LArRecEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloEvent CaloIdentifier DataModel SGTools Identifier
+                   LINK_LIBRARIES CaloEvent CaloIdentifier AthContainers Identifier
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} FourMomUtils )
 
 atlas_add_dictionary( LArRecEventDict
                       LArRecEvent/LArRecEventDict.h
                       LArRecEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloIdentifier DataModel SGTools Identifier FourMomUtils LArRecEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloIdentifier AthContainers Identifier FourMomUtils LArRecEvent )
 

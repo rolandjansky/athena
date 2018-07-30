@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ThreadGaudi.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "TrigMonTHistSvc.h"
@@ -31,14 +29,11 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 TrigMonTHistSvc::TrigMonTHistSvc( const std::string& name, ISvcLocator* svc ) 
     : THistSvcHLT(name, svc),
-      AthMessaging(msgSvc(), name),
-      m_add(true),      
       m_excludeType("()"), 
       m_includeType(".+"),
       m_excludeName(".*\\..*"),                                            
       m_includeName("^/((run_[0-9]+/lb_[0-9]+/LB)|(SHIFT)|(EXPERT)|(DEBUG)|(EXPRESS)|(RUNSTAT))/.+/.+") {
       //m_includeName("^/((SHIFT)|(EXPERT)|(DEBUG)|(RUNSTAT))/.+/.+") {     
-  declareProperty("SumUpHistograms", m_add, "In multi-threaded application decides to publish separate histograms for each thread or sum them up before publishing.");
   declareProperty("ExcludeType", m_excludeType);   
   declareProperty("IncludeType", m_includeType);
   declareProperty("ExcludeName", m_excludeName);
@@ -62,10 +57,8 @@ StatusCode TrigMonTHistSvc::initialize() {
   CHECK(THistSvcHLT::initialize());
   CHECK(setProperties());
 
-  AthMessaging::msg().setLevel(outputLevel());
+  msg().setLevel(outputLevel());
   // fix summing up flag if not running in separate threads
-  if ( ! isGaudiThreaded(name()) )
-    m_add = true;
  
   // Protect against multiple instances of TROOT
   if ( 0 == gROOT )   {
@@ -119,55 +112,57 @@ StatusCode TrigMonTHistSvc::regHist(const std::string& id) {
   return THistSvcHLT::regHist(id);
 }
 
-StatusCode TrigMonTHistSvc::regHist(const std::string& id, TH1* hist) {
-    return regHist_i(hist, id);
+
+StatusCode TrigMonTHistSvc::regHist(const std::string& id, std::unique_ptr<TH1> hist) {
+  return regHist_i(std::move(hist), id, false);
 }
 
-StatusCode TrigMonTHistSvc::regHist(const std::string& id, TH2* hist) {
-    return regHist_i(hist, id);
+StatusCode TrigMonTHistSvc::regHist(const std::string& id, std::unique_ptr<TH1> hist, TH1* hist_ptr) {
+  // This is only to support a common use case where the histogram is used after its registration
+  if ( hist_ptr != nullptr ) {
+    hist_ptr = hist.get();
+  }
+  return regHist_i( std::move( hist ), id, false );
+}
+  
+StatusCode TrigMonTHistSvc::regHist(const std::string& id, TH1* hist_ptr) {
+  std::unique_ptr<TH1> hist( hist_ptr );
+  return regHist_i( std::move( hist ), id, false );
 }
 
-StatusCode TrigMonTHistSvc::regHist(const std::string& id, TH3* hist) {
-    return regHist_i(hist, id);
-}
+
 
 StatusCode TrigMonTHistSvc::regTree(const std::string& id) {
   return THistSvcHLT::regTree(id);
 }
 
-StatusCode TrigMonTHistSvc::regTree(const std::string&, TTree* hist) {
-    // we do not support the trees; then let's make them not to be memory consumers
+StatusCode TrigMonTHistSvc::regTree(const std::string&, std::unique_ptr<TTree> tree) {
+  // we do not support the trees; then let's make them not to be memory consumers
   ATH_MSG_WARNING("The ROOT TTree is not supported by this service" 
-                  << " TTree \"" << hist->GetName() << "\" will be unsaved but will not consume all memory as well" 
+                  << " TTree \"" << tree->GetName() << "\" will be unsaved but will not consume all memory as well" 
                   );
-  hist->SetCircular(1);
+  tree->SetCircular(1);
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigMonTHistSvc::getHist(const std::string& id, TH1*& hist) const {
-  return THistSvcHLT::getHist(id, hist);  
+StatusCode TrigMonTHistSvc::regTree(const std::string& id, TTree* tree_ptr) {
+  std::unique_ptr<TTree> tree( tree_ptr );
+  return regTree(id, std::move(tree));
+}
+
+StatusCode TrigMonTHistSvc::getTree(const std::string&, TTree*&) const {
+  ATH_MSG_WARNING("The ROOT TTree is not supported by this service");
+  return StatusCode::SUCCESS;
 }
 
 
-StatusCode TrigMonTHistSvc::getHist(const std::string& id, TH2*& hist) const {
-  return THistSvcHLT::getHist(id, hist);  
-}
-
-
-StatusCode TrigMonTHistSvc::getHist(const std::string& id, TH3*& hist) const {
-  return THistSvcHLT::getHist(id, hist);
-}
-
-StatusCode TrigMonTHistSvc::getTree(const std::string& id, TTree*& hist) const {
-  return THistSvcHLT::getTree(id, hist);
-}
-
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-//  Needs proper implementation
-//
 StatusCode TrigMonTHistSvc::regGraph(const std::string& id) {
   return THistSvcHLT::regGraph(id);
+}
+
+StatusCode TrigMonTHistSvc::regGraph(const std::string&, std::unique_ptr<TGraph>) {
+  ATH_MSG_WARNING("The regGraph is not suported by this service");
+  return StatusCode::SUCCESS; 
 }
 
 StatusCode TrigMonTHistSvc::regGraph(const std::string&, TGraph*) {
@@ -180,38 +175,30 @@ StatusCode TrigMonTHistSvc::getGraph(const std::string& id, TGraph*& g) const {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-template <typename T> StatusCode TrigMonTHistSvc::regHist_i(T* hist, const std::string& id) {
+template <typename T> StatusCode TrigMonTHistSvc::regHist_i(std::unique_ptr<T> hist_unique, const std::string& id, bool /*shared*/) {
 
-    std::string regid;
-    if ( isObjectAllowed(id, hist).isFailure() ) {
+  // We need to pass ownership to the hist registry now
+  T* hist = nullptr;
+  if( hist_unique.get() != nullptr ) {
+    hist = hist_unique.release();
+  }
+  
+  std::string regid;
+  if ( isObjectAllowed(id, hist).isFailure() ) {
 	return  StatusCode::FAILURE;
-    }
-    // prepend by  service name if the histograms are not going to be added
-    // this way they are registered under different unique names
-    // from each service
-    if ( m_add )
-	regid = id;
-    else {
-	std::string n = getGaudiThreadIDfromName(name());
-
-	// strip blanks at the end of service name
-	std::string::size_type pos;
-	while ( (pos = n.find('\0', 0)) != std::string::npos) 
-	    n.erase(pos,1);
-	// build the name used for registration
-	regid = id+n;
-    }
-
-    if (hist->Class()->InheritsFrom(TH1::Class())) {
-        hltinterface::IInfoRegister::instance()->registerTObject(name(), regid, hist);
-        ATH_MSG_DEBUG("Histogram " << hist->GetName() 
-                      << " registered under " << regid << " " << m_add << " " << name());
-    } else {
-      ATH_MSG_ERROR("Trying to register " << hist->ClassName() 
-                    << " but this does not inherit from TH1 histogram");
-      return StatusCode::SUCCESS; 
-    }
+  }
+  regid = id;
+  
+  if (hist->Class()->InheritsFrom(TH1::Class())) {
+    hltinterface::IInfoRegister::instance()->registerTObject(name(), regid, hist);
+    ATH_MSG_DEBUG("Histogram " << hist->GetName() 
+                  << " registered under " << regid << " " << name());
+  } else {
+    ATH_MSG_ERROR("Trying to register " << hist->ClassName() 
+                  << " but this does not inherit from TH1 histogram");
     return StatusCode::SUCCESS; 
+  }
+  return StatusCode::SUCCESS; 
 }
 
 StatusCode TrigMonTHistSvc::deReg(TObject* optr) {
@@ -291,7 +278,7 @@ StatusCode TrigMonTHistSvc::getTTrees(const std::string&, TList &) const {
 //  internal methods 
 //==========================================================================
 //
-StatusCode  TrigMonTHistSvc::isObjectAllowed(std::string path, const TObject *o) {
+StatusCode TrigMonTHistSvc::isObjectAllowed(std::string path, const TObject *o) {
 
     boost::cmatch what;
 
@@ -398,4 +385,9 @@ StatusCode TrigMonTHistSvc::getTTrees(const std::string&, TList &, bool, bool) {
 
 bool TrigMonTHistSvc::exists( const std::string& name ) const {
   return THistSvcHLT::exists(name);
+}
+
+StatusCode TrigMonTHistSvc::notSupported() const {
+  ATH_MSG_WARNING("Shared histograms are not yet supported in TrigMonTHistSvc");
+  return StatusCode::SUCCESS;
 }

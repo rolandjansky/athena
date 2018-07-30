@@ -2,12 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNT_Timing.h"
+#include "CBNT_Timing.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/NTuple.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"

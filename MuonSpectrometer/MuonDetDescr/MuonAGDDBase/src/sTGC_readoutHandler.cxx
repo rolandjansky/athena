@@ -24,6 +24,12 @@ void sTGC_readoutHandler::ElementHandle()
     sTGC->roParameters.lPadWidth           = getAttributeAsDouble    ("lPadWidth", ret);
     if (! ret) std::cout << "WARNING: lPadWidth is missing" << std::endl;
 
+    sTGC->roParameters.sStripWidth           = getAttributeAsDouble    ("sStripWidth", ret);
+    if (! ret) std::cout << "WARNING: sStripWidth is missing" << std::endl;
+
+    sTGC->roParameters.lStripWidth           = getAttributeAsDouble    ("lStripWidth", ret);
+    if (! ret) std::cout << "WARNING: lStripWidth is missing" << std::endl;
+
     sTGC->roParameters.padH                = getAttributeAsVector    ("padH", ret);
     if (! ret) std::cout << "WARNING: padH is missing" << std::endl; 
 

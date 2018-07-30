@@ -18,6 +18,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "AthExHive/HiveDataObj.h"
 
 namespace AthViews {
 
@@ -67,6 +68,7 @@ class DFlowAlg1
   // vars
   SG::ReadHandleKey<int> m_r_int;
   SG::WriteHandleKey<int> m_w_int;
+  SG::WriteHandleKey<HiveDataObj> m_testUpdate;
 
 }; 
 

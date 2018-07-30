@@ -49,7 +49,9 @@ namespace Trk {
         - positiveFaceZX     [5] : Rectangular  Trk::PlaneSurface,
                                    parallel to \f$ zx \f$ plane at positive \f$ y \f$
     
-    @image html DoubleTrapezoidVolumeBounds_decomp.gif  
+    @internal
+    @image html DoubleTrapezoidVolumeBounds_decomp.gif
+    @endinternal
         
     @author Andreas.Salzburger@cern.ch , Sarka.Todorova@cern.ch 
     */

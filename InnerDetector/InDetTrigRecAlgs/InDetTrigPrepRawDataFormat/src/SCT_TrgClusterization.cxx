@@ -31,7 +31,6 @@
 #include "AthenaKernel/Timeout.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 
 //Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -60,14 +59,13 @@ namespace InDet{
     m_flaggedCondDataName("SCT_FlaggedCondData_TRIG"),
     m_idHelper(0),
     m_clusterContainer(nullptr),
+    m_manager(nullptr),
     m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
     m_phiHalfWidth(0.1),
     m_sctRDOContainerName("SCT_RDOs"),
-    m_bsErrorSvc("SCT_ByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
-    m_pSummarySvc("SCT_ConditionsSummarySvc", name),
     m_checkBadModules(true),
     m_maxRDOs(0),
     m_doTimeOutChecks(true),
@@ -89,8 +87,6 @@ namespace InDet{
     declareProperty("PhiHalfWidth",        m_phiHalfWidth);
     declareProperty("RawDataProvider",     m_rawDataProvider);
 
-    declareProperty("conditionsSummarySvc", m_pSummarySvc);
-    declareProperty("bytestreamErrorSvc",   m_bsErrorSvc);
     declareProperty("checkBadModules",      m_checkBadModules);
     declareProperty("maxRDOs",              m_maxRDOs);
     declareProperty("doTimeOutChecks",      m_doTimeOutChecks);
@@ -231,20 +227,15 @@ namespace InDet{
     }
 
 
-    //BS Error Svc
-    if (m_bsErrorSvc.retrieve().isFailure()){
-      ATH_MSG_FATAL( "Could not retrieve " << m_bsErrorSvc );
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } else {
-      ATH_MSG_INFO ("Retrieved service " << m_bsErrorSvc);
-    }
  
     if (m_checkBadModules){
-      if (m_pSummarySvc.retrieve().isFailure()){
-	ATH_MSG_ERROR( "Could not retrieve " << m_pSummarySvc );
+      if (m_pSummaryTool.retrieve().isFailure()){
+	ATH_MSG_ERROR( "Could not retrieve " << m_pSummaryTool );
       } else {
-	ATH_MSG_INFO( "Using " << m_pSummarySvc << " in clusterization" );
+	ATH_MSG_INFO( "Using " << m_pSummaryTool << " in clusterization" );
       }
+    } else {
+      m_pSummaryTool.disable();
     }
 
     m_timerSGate   = addTimer("SGate");
@@ -391,30 +382,6 @@ namespace InDet{
     if (scdec.isSuccess()){
       //check for recoverable errors
 
-      int n_err_total = 0;
-       
-      int bsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
-      
-      for (size_t idx = 0; idx<size_t(SCT_ByteStreamErrors::NUM_ERROR_TYPES); idx++){
-	int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
-	n_err_total += n_errors;
-	bsErrors[idx] = n_errors;
-      }
-
-
-      ATH_MSG_DEBUG( "decoding errors: " << n_err_total );
-
-      if (n_err_total){
-	for (size_t idx = 0; idx<size_t(SCT_ByteStreamErrors::NUM_ERROR_TYPES); idx++){
-	  m_SctBSErr.push_back(bsErrors[idx]);
-	  if (bsErrors[idx]){
-	    ATH_MSG_DEBUG(" " << idx << ":" << bsErrors[idx]);
-	  }
-	}
-	ATH_MSG_DEBUG( "" );
-      }
-
-
     } else {
       ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
     }
@@ -479,8 +446,8 @@ namespace InDet{
 	//optionally check for bad modules
 	bool goodModule=true;
 
-	if (m_checkBadModules && m_pSummarySvc){
-	  goodModule = m_pSummarySvc->isGood(RDO_Collection->identifyHash());
+	if (m_checkBadModules && m_pSummaryTool){
+	  goodModule = m_pSummaryTool->isGood(RDO_Collection->identifyHash());
 	  if (!goodModule)
 	    ATH_MSG_DEBUG( "Module not good: " << RDO_Collection->identifyHash() );
 	}
@@ -556,8 +523,8 @@ namespace InDet{
         
 	//optionally check for bad modules
 	bool goodModule=true;
-	if (m_checkBadModules && m_pSummarySvc){
-	  goodModule = m_pSummarySvc->isGood(rd->identifyHash());
+	if (m_checkBadModules && m_pSummaryTool){
+	  goodModule = m_pSummaryTool->isGood(rd->identifyHash());
 	  if (!goodModule)
 	    ATH_MSG_DEBUG( "Module not good: " << rd->identifyHash() );
 	}
@@ -650,20 +617,6 @@ namespace InDet{
     }
     return HLT::OK;
   }
-  //----------------------------------  
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SCT_TrgClusterization::hltEndRun() {
-
-    // Get the messaging service, print where you are
-    ATH_MSG_INFO( "SCT_TrgClusterization::hltEndRun()" );
-
-    return HLT::OK;
-  }
-
-  //---------------------------------------------------------------------------
-
-
 
   //-------------------------------------------------------------------------
   HLT::ErrorCode SCT_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {

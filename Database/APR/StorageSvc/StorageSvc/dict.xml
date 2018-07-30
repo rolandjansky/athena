@@ -1,11 +1,6 @@
 <lcgdict>
  <selection>
   <!-- package: POOLCore                     -->
-  <!--
-  <class name="pool::POOLContext"/>
-  <class name="pool::PoolMessageStream"/>
-  <class pattern="pool::Db*"             rootmap="false"/>
-  -->
   <class pattern="pool::DbHandleBase*"   rootmap="false"/>
   <class pattern="pool::IDb*"            rootmap="false"/>
   <class pattern="pool::IStorage*"       rootmap="false"/>
@@ -13,13 +8,6 @@
   <!-- package: StorageSvc                   -->
   <class name="std::pair<long long,long long>"       rootmap="false"/>
   <class name="pool::IOODatabase"        rootmap="false"/>
-
-  <class name="pool::Shape"              rootmap="false"/>
-  <class name="pool::Transaction"        rootmap="false"/>
-  <class name="pool::DataCallBack"       rootmap="false"/>
-  <class name="pool::FileDescriptor"     rootmap="false"/>
-  <class name="pool::DatabaseConnection" rootmap="false"/>
-  <class name="pool::StorageSvc"/>
 
   <class name="pool::DbToken"  id="B30D24AA-1F1D-4EE0-A9B6-C10405D65854"/>
   <class name="pool::DbString" id="DA8F479C-09BC-49D4-94BC-99D025A23A3B"/> 

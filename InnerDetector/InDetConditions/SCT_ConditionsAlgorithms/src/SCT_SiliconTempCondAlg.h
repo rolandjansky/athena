@@ -11,7 +11,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
-#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 
 #include "GaudiKernel/ICondSvc.h"
 
@@ -28,11 +28,11 @@ class SCT_SiliconTempCondAlg : public AthAlgorithm
 
  private:
   bool m_useState;
-  SG::ReadCondHandleKey<SCT_DCSStatCondData> m_readKeyState;
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyTemp0;
-  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey;
+  SG::ReadCondHandleKey<SCT_DCSStatCondData> m_readKeyState{this, "ReadKeyState", "SCT_DCSStatCondData", "Key of input state conditions data"};
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyTemp0{this, "ReadKeyTemp", "SCT_DCSTemp0CondData", "Key of input (hybrid) temperature conditions data"};
+  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey{this, "WriteKey", "SCT_SiliconTempCondData", "Key of output (sensor) temperature conditions data"};
   ServiceHandle<ICondSvc> m_condSvc;
-  ServiceHandle<ISCT_DCSConditionsSvc> m_sctDCSSvc;
+  ToolHandle<ISCT_DCSConditionsTool> m_sctDCSTool{this, "DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrived SCT DCS information"};
   const SCT_ID* m_pHelper;//!< ID helper for SCT
 };
 

@@ -138,11 +138,11 @@ namespace dqutils {
 					effDir[i+1]->cd();
 					for(Long_t j=0;j<layers[i];j++){
 						if(i==0) det_num=j;
-						if(i==1) det_num=j+N_DISKS;
-						if(i==2) det_num=j+N_DISKS+N_BARREL;
-						if(det_num == -1){
-							std::cerr << "--> Detector region (barrel, endcap A, endcap C) could not be determined" <<std::endl;
-							return;
+						else if(i==1) det_num=j+N_DISKS;
+						else if(i==2) det_num=j+N_DISKS+N_BARREL;
+						else {
+                                                  std::cerr << "--> Detector region (barrel, endcap A, endcap C) could not be determined" <<std::endl;
+                                                  return;
 						}
 						for(Long_t k=0;k<2;k++){
 							mapName[det_num][k] = eff_dir[i+1] + posi_eff[i]+j+"_"+k;

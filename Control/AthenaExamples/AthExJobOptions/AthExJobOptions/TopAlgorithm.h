@@ -27,12 +27,10 @@ class TopAlgorithm : public AthAlgorithm, private KeyMixin {
 public:
    TopAlgorithm( const std::string& name, ISvcLocator* svcloc );
 
-   StatusCode initialize();        // called once, at start of job
-   StatusCode reinitialize();      // can be called anytime after init
-   StatusCode beginRun();          // called at begin of every run
-   StatusCode execute();           // called every event
-   StatusCode endRun();            // called at end of every run
-   StatusCode finalize();          // called once, at end of job
+   virtual StatusCode initialize() override;        // called once, at start of job
+   virtual StatusCode reinitialize() override;      // can be called anytime after init
+   virtual StatusCode execute() override;           // called every event
+   virtual StatusCode finalize() override;          // called once, at end of job
 
 private:
    double m_rndmFactor;

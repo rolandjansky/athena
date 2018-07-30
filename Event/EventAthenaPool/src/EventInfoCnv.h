@@ -28,7 +28,9 @@ class EventInfoCnv : public EventInfoCnvBase {
     friend class CnvFactory<EventInfoCnv >;
 
 protected:
+public:
     EventInfoCnv (ISvcLocator* svcloc);
+protected:
     virtual EventInfo_PERS*   createPersistent (EventInfo* transObj);
     virtual EventInfo*        createTransient ();
     EventInfo*                massageEventInfo (EventInfo* ei);

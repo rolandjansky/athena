@@ -13,9 +13,6 @@
 
 // FrameWork includes
 
-// CLHEP/HepMC includes
-#include "GeneratorObjects/McEventCollection.h"
-
 // McParticleKernel includes
 #include "McParticleKernel/IMcVtxFilterTool.h"
 #include "McParticleKernel/ITruthIsolationTool.h"
@@ -37,14 +34,6 @@ TruthParticleFilterBaseTool::TruthParticleFilterBaseTool( const std::string& typ
   //
   // Property declaration
   // 
-
-  declareProperty( "McEvents",       
-		   m_mcEventsName = "TruthEvent",
-		   "Name of the input McEventCollection we want to filter" );
-
-  declareProperty( "McEventsOutput", 
-		   m_mcEventsOutputName = "GEN_AOD",
-		   "Name of the output McEventCollection which has been filtered" );
 
   declareProperty( "McVtxFilterTool",
 		   m_mcVtxFilterTool = McVtxFilterTool_t( "McVtxFilterTool",
@@ -95,11 +84,15 @@ StatusCode TruthParticleFilterBaseTool::initialize()
     m_isolationTool.disable();
   }
 
+  //initialize DataHandleKeys
+  ATH_CHECK(m_mcEventsReadHandleKey.initialize());
+  ATH_CHECK(m_mcEventsOutputWriteHandleKey.initialize());
+  
   ATH_MSG_INFO
     (" DoEtIsolations: [" << std::boolalpha << m_doEtIsolation.value()
      << "]" << endmsg
-     << " McEvents:       [" << m_mcEventsName.value() << "]" << endmsg
-     << " McEventsOutput: [" << m_mcEventsOutputName.value() << "]");
+     << " McEvents:       [" << m_mcEventsReadHandleKey.key() << "]" << endmsg
+     << " McEventsOutput: [" << m_mcEventsOutputWriteHandleKey.key() << "]");
   
   // Give the concrete (derived) tool a chance to initialize itself
   if ( initializeTool().isFailure() ) {
@@ -132,49 +125,44 @@ StatusCode TruthParticleFilterBaseTool::execute()
 {  
   ATH_MSG_DEBUG("Executing " << name() << "...");
 
-  const McEventCollection * mcEvent = 0;
-  if ( evtStore()->retrieve( mcEvent, m_mcEventsName.value() ).isFailure() ||
-       0 == mcEvent ) {
-    ATH_MSG_ERROR("Could not retrieve McEventCollection at ["
-                  << m_mcEventsName.value() << "] !!");
+  //Setup Handle to read input container
+  SG::ReadHandle<McEventCollection> mcEventsReadHandle(m_mcEventsReadHandleKey);
+
+  if (!mcEventsReadHandle.isValid()){
+    ATH_MSG_ERROR("Invalid ReadHandle to McEventColleciton with key: " << m_mcEventsReadHandleKey.key());
     return StatusCode::FAILURE;
   }
 
-  McEventCollection * filterMcEvent = new McEventCollection;
-  if ( evtStore()->record( filterMcEvent, 
-                           m_mcEventsOutputName.value() ).isFailure() ) {
-    ATH_MSG_ERROR("Could not record McEventCollection at ["
-                  << m_mcEventsOutputName.value() << "] !!");
-    delete filterMcEvent;
-    filterMcEvent = 0;
+  //Setup WriteHandle, and then record new McEventCollection.
+  SG::WriteHandle<McEventCollection> mcEventsOutputWriteHandle(m_mcEventsOutputWriteHandleKey);
+  ATH_CHECK(mcEventsOutputWriteHandle.record(std::make_unique<McEventCollection>()));  
+  
+  if (!mcEventsOutputWriteHandle.isValid()){
+    ATH_MSG_ERROR("Invalid WriteHamdle for McEventCollection with key ["
+                  <<m_mcEventsOutputWriteHandleKey.key()  << "] !!");
     return StatusCode::FAILURE;
   }
-
-  if ( evtStore()->setConst( filterMcEvent ).isFailure() ) {
-    ATH_MSG_WARNING("Could not setConst McEventCollection at ["
-		    << m_mcEventsOutputName << "] !!");
-  }
-
+  
   // Compute isolation for gamma/lepton.
   if ( m_doEtIsolation.value() ) {
     ATH_MSG_VERBOSE("Computing Et isolations...");
-    if ( m_isolationTool->buildEtIsolations(m_mcEventsName.value()).isFailure() ) {
+    if ( m_isolationTool->buildEtIsolations(m_mcEventsReadHandleKey.key()).isFailure() ) {
       ATH_MSG_ERROR("Could not compute Et isolations !!");
       return StatusCode::FAILURE;
     }
   } //> end do Et-isolation
 
-  if ( this->buildMcAod( mcEvent, filterMcEvent ).isFailure() ) {
+    if ( this->buildMcAod( mcEventsReadHandle.ptr(), mcEventsOutputWriteHandle.ptr() ).isFailure() ) {
     ATH_MSG_ERROR("Could not buildMcAod(in,out) !!");
     return StatusCode::FAILURE;
   }
 
-  // We have slimmed the filterMcEvent.
+  // We have slimmed the mcEventsOutputWriteHandle.
   // To not bias the map of isolation energies for this GenEvent, we alias
   // it to its original one
   if ( m_doEtIsolation.value() &&
-       !m_isolationTool->registerAlias( m_mcEventsOutputName.value(), 
-                                        m_mcEventsName.value() 
+       !m_isolationTool->registerAlias( m_mcEventsOutputWriteHandleKey.key(), 
+                                        m_mcEventsReadHandleKey.key() 
                                         ).isSuccess() ) {
     ATH_MSG_WARNING("Could not create an alias in the map of "\
 		    "isolation energies !");

@@ -5,7 +5,6 @@
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "TrigValAlgs/TrigEDMAuxChecker.h"
 #include <algorithm>

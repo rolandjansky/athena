@@ -12,7 +12,7 @@
 
 #include "AraTool/AraToolBase.h"
 #include "AnalysisUtils/ISelector.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 static const InterfaceID IID_ContainerFilterCore("ContainerFilterCore", 1, 0);
 

@@ -47,8 +47,9 @@ class PixelClusterContainerCnv :  public PixelClusterContainerCnvBase
   StoreGateSvc*  m_storeGate;
 
 protected:
+public:
   PixelClusterContainerCnv (ISvcLocator* svcloc);
-  ~PixelClusterContainerCnv();
+protected:
   virtual PixelClusterContainer_PERS*   createPersistent (InDet::PixelClusterContainer* transCont);
   virtual InDet::PixelClusterContainer* createTransient ();
 

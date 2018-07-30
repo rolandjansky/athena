@@ -24,7 +24,9 @@ class AFP_SIDLocRecoEvCollectionCnv : public T_AthenaPoolCustomCnv <AFP_SIDLocRe
  
  protected: 
   
+public:
   AFP_SIDLocRecoEvCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <AFP_SIDLocRecoEvCollection, AFP_SIDLocRecoEvCollection_PERS >(svcloc) {} 
+protected:
 
   AFP_SIDLocRecoEvCollection_PERS*  createPersistent (AFP_SIDLocRecoEvCollection *transCont);
   AFP_SIDLocRecoEvCollection*       createTransient ();

@@ -11,8 +11,7 @@
 
 // Trk
 #include "TrkGeometry/OverlapDescriptor.h"
-//#include "TrkEventPrimitives/PropDirection.h"
-//#include "TrkParameters/TrackParameters.h"
+
 // Trk inlcude
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
@@ -65,6 +64,12 @@ namespace InDet {
       }
       delete m_singleBinUtils;
     }
+    
+    ///Delete copy
+    DiscOverlapDescriptor(const DiscOverlapDescriptor &) = delete;
+    
+    ///Delete assignment
+    DiscOverlapDescriptor & operator=(const DiscOverlapDescriptor &) = delete;
     
     /**Pseudo-Constructor*/
     virtual DiscOverlapDescriptor* clone() const override;

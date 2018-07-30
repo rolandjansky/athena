@@ -10,6 +10,7 @@
 
 // System include(s):
 #include <iostream>
+#include "boost/preprocessor/facilities/overload.hpp"
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
@@ -25,7 +26,12 @@
 ///   <code>
 ///      AUX_VARIABLE( RunNumber );
 ///   </code>
-#  define AUX_VARIABLE( VAR ) regAuxVar( #VAR, VAR )
+/// Can take a optional additional argument giving SG::AuxTypeRegistry::Flags
+/// to use for this variable.
+#  define AUX_VARIABLE(...) \
+  BOOST_PP_OVERLOAD( AUX_VARIABLE_, __VA_ARGS__ )(__VA_ARGS__)
+#  define AUX_VARIABLE_1( VAR ) regAuxVar( #VAR, VAR, SG::AuxTypeRegistry::Flags::None )
+#  define AUX_VARIABLE_2( VAR, FLAGS ) regAuxVar( #VAR, VAR, FLAGS )
 
 #endif // not AUX_VARIABLE
 
@@ -37,12 +43,13 @@ namespace xAOD {
    /// @param name The name of the variable. Same as the C++ variable's name.
    /// @param vec A reference to the auxiliary variable inside the object
    template< typename T >
-   void AuxInfoBase::regAuxVar( const std::string& name,
-                                T& info ) {
+   SG::auxid_t AuxInfoBase::regAuxVar( const std::string& name,
+                                       T& info,
+                                       SG::AuxTypeRegistry::Flags flags ) {
 
       // Ask the registry for the number of this variable:
       const auxid_t auxid =
-         SG::AuxTypeRegistry::instance().template getAuxID< T >( name );
+        SG::AuxTypeRegistry::instance().template getAuxID< T >( name, "", flags  );
 
       // Make sure that the internal vector is big enough:
       if( m_vecs.size() <= auxid ) {
@@ -63,7 +70,7 @@ namespace xAOD {
       // Remember that we are now handling this variable:
       m_auxids.insert( auxid );
 
-      return;
+      return auxid;
    }
 
 } // namespace xAOD

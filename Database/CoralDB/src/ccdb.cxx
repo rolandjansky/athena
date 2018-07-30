@@ -191,7 +191,12 @@ void assertNumArgs(const string& cmd, int nRequired, int nAccepted, int nProvide
 //================================================================
 class CCDB_Config {
 public:
-  CCDB_Config() {}
+  CCDB_Config() :
+    m_help (0),
+    m_debug (0),
+    m_sloppyAliases (0)
+  {}
+
   CCDB_Config(int argc, char *const argv[]);
 
   const string& dbConnectionString() const { return m_dbConnectionString; }

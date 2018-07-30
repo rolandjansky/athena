@@ -24,8 +24,10 @@
 long ByteStream_StorageType=0x43;
 
 /// Standard constructor
-ByteStreamCnvSvc::ByteStreamCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-	ByteStreamCnvSvcBase(name, pSvcLocator) {
+ByteStreamCnvSvc::ByteStreamCnvSvc(const std::string& name, ISvcLocator* pSvcLocator)
+  : ByteStreamCnvSvcBase(name, pSvcLocator),
+    m_evtStore ("StoreGateSvc", name)
+{
   declareProperty("ByteStreamOutputSvc",     m_ioSvcName);
   declareProperty("ByteStreamOutputSvcList", m_ioSvcNameList);
   declareProperty("IsSimulation",  m_isSimulation = false);
@@ -33,6 +35,7 @@ ByteStreamCnvSvc::ByteStreamCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("IsCalibration", m_isCalibration= false);
   declareProperty("GetDetectorMask", m_getDetectorMask = false);
   declareProperty("UserType",      m_userType     = "RawEvent");
+  declareProperty("EventStore",    m_evtStore);
 }
 
 /// Standard Destructor
@@ -45,6 +48,8 @@ StatusCode ByteStreamCnvSvc::initialize() {
       ATH_MSG_FATAL("ByteStreamCnvSvcBase::initialize() failed");
       return(StatusCode::FAILURE);
    }
+
+   ATH_CHECK( m_evtStore.retrieve() );
 
    // get ready for output
    std::vector<std::string> ioSvcNames = m_ioSvcNameList.value();
@@ -98,12 +103,8 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
    ATH_MSG_DEBUG("In connectOutput");
 
    // Get the EventInfo obj for run/event number
-   const DataHandle<EventInfo> d;
-   StoreGate::instance().retrieve(d);
-   if (d == 0) {
-      ATH_MSG_ERROR("Cannot retrieve EventInfo");
-      return(StatusCode::FAILURE);
-   }
+   const EventInfo* d = nullptr;
+   ATH_CHECK( m_evtStore->retrieve(d) );
    uint64_t event = d->event_ID()->event_number();
    uint32_t run_no = d->event_ID()->run_number();
    uint32_t bc_time_sec = d->event_ID()->time_stamp();
@@ -135,8 +136,8 @@ StatusCode ByteStreamCnvSvc::commitOutput(const std::string& outputConnection, b
    writeFEA();
 
    // Get the EventInfo obj for trigger info
-   const DataHandle<EventInfo> evt;
-   StoreGate::instance().retrieve(evt);
+   const EventInfo* evt = nullptr;
+   ATH_CHECK( m_evtStore->retrieve(evt) );
    if (evt == 0) {
       ATH_MSG_ERROR("Cannot retrieve EventInfo");
       return(StatusCode::FAILURE);

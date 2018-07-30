@@ -9,7 +9,6 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 //#include "StoreGate/StoreGateSvc.h"
 //#include "StoreGate/DataHandle.h"

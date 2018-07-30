@@ -16,6 +16,7 @@
 
 
 #include "CxxUtils/atomic_fetch_minmax.h"
+#include "CxxUtils/features.h"
 #include "CxxUtils/bitscan.h"
 #include "CxxUtils/ones.h"
 #include <climits>
@@ -154,7 +155,7 @@ private:
   /// Size, in bits, of @c Block_t.
   static const size_t BLOCKSIZE = sizeof(Block_t) * CHAR_BIT;
 
-  /// Mask to select out the bit offset within one @Block_t.
+  /// Mask to select out the bit offset within one @c Block_t.
   static const size_t MASK = BLOCKSIZE-1;
 
 
@@ -830,6 +831,21 @@ private:
   {
   public:
     /**
+     * @brief Allocate an Impl structure.
+     * @param sz Size of an Impl structure.
+     * @param nbits Number of bits to allocate.
+     */
+    void* operator new (size_t /*sz*/, bit_t nbits);
+
+
+    /*
+     * @brief Free an Impl structure.
+     * @param p Pointer to the object to free.
+     */
+    void operator delete (void* p);
+
+    
+    /**
      * @brief Constructor.
      * @param nbits Number of bits in the set.
      */
@@ -845,6 +861,10 @@ private:
      * will be used instead.
      */
     Impl (const Impl& other, bit_t nbits = 0);
+
+
+    // Assignment is unimplemented.
+    Impl& operator= (const Impl&) = delete;
 
 
     /**
@@ -875,9 +895,22 @@ private:
     bool test (bit_t bit) const;
 
 
+    // Use popcnt instruction if available.  This ugliness needed
+    // because our default compilation options do not enable
+    // use of this instruction.
+#if defined(__x86_64__) && HAVE_FUNCTION_MULTIVERSIONING
     /**
      * @brief Count the number of 1 bits in the set.
      */
+    __attribute__ ((target ("popcnt")))
+    bit_t count() const;
+#endif
+    /**
+     * @brief Count the number of 1 bits in the set.
+     */
+#if HAVE_FUNCTION_MULTIVERSIONING
+    __attribute__ ((target ("default")))
+#endif
     bit_t count() const;
 
 

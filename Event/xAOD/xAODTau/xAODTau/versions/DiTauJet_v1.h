@@ -22,9 +22,10 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
 
 namespace xAOD {
-
 
 
   class DiTauJet_v1 : public IParticle {
@@ -43,7 +44,13 @@ namespace xAOD {
     virtual double           rapidity() const;
 
     /// The full 4-momentum of the particle
-    virtual const FourMom_t& p4() const;
+    virtual FourMom_t        p4() const;
+
+    /// Base 4 Momentum type for taus
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
+
+    ///  The full 4-momentum of the particle : internal taus type.
+    GenVecFourMom_t genvecP4() const; 
 
     /// Set methods for IParticle values
     void setP4(double pt, double eta, double phi, double m);
@@ -144,14 +151,6 @@ namespace xAOD {
     bool detail( DiTauJetParameters::Detail detail, float& value ) const;
     void setDetail( DiTauJetParameters::Detail detail, int value );
     void setDetail( DiTauJetParameters::Detail detail, float value );
-
-
-  private:
-
-    /// Cached 4-momentum object
-    mutable FourMom_t m_p4;
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_p4Cached;
 
   }; // class DiTauJet
 

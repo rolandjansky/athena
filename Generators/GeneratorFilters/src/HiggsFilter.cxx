@@ -29,7 +29,6 @@
 
 // Framework Related Headers:-
 //#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/AlgFactory.h"
 
 // Other classes used by this class:-
 //#include <math.h>

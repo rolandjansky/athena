@@ -17,7 +17,6 @@
 #include <cmath>
 #include <iostream>
 
-#include "GaudiKernel/ToolFactory.h"
 
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/PlaneSurface.h"

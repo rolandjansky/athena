@@ -24,7 +24,7 @@ typedef T_AthenaPoolCustomCnv<CMXEtSumsCollection, CMXEtSumsCollection_PERS> CMX
 class CMXEtSumsCollectionCnv: public CMXEtSumsCollectionCnvBase {
 friend class CnvFactory<CMXEtSumsCollectionCnv>;
 
-protected:
+public:
 
   CMXEtSumsCollectionCnv (ISvcLocator* svcloc) :
     CMXEtSumsCollectionCnvBase(svcloc),
@@ -32,7 +32,7 @@ protected:
     m_log( m_msgSvc, "CMXEtSumsCollectionCnv" )
      {}
   
-  ~CMXEtSumsCollectionCnv() {}
+protected:
   
   virtual CMXEtSumsCollection_PERS*   createPersistent (CMXEtSumsCollection* transCont);
   virtual CMXEtSumsCollection*        createTransient ();

@@ -135,7 +135,7 @@ StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,
       ATH_MSG_WARNING
         ("Could not launch filtering procedure for GenEvent number ["
          << iEvt << "] from McEventCollection ["
-         << m_mcEventsName << " !!"
+         << m_mcEventsReadHandleKey.key() << " !!"
          << endmsg
          << "  inEvt: " << inEvt);
       continue;
@@ -156,7 +156,7 @@ StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,
 
     if ( buildGenEvent( inEvt, outEvt ).isFailure() ) {
       ATH_MSG_ERROR("Could filter GenEvent number [" << iEvt 
-		    << "] from McEventCollection ["     << m_mcEventsName 
+		    << "] from McEventCollection ["     << m_mcEventsReadHandleKey.key() 
 		    << "] !!");
       delete outEvt;
       outEvt = 0;

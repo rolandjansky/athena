@@ -29,7 +29,9 @@ typedef T_AthenaPoolCoolMultChanCnv<LArAutoCorrMC, LArAutoCorrTransType, LArAuto
 class LArAutoCorrMCCnv : public LArAutoCorrMCCnvBase {
 friend class CnvFactory<LArAutoCorrMCCnv >;
 protected:
+public:
     LArAutoCorrMCCnv (ISvcLocator* svcloc) : LArAutoCorrMCCnvBase(svcloc) {}
+protected:
     virtual LArAutoCorrPersType*   createPersistent (LArAutoCorrTransType* transObj);
     virtual LArAutoCorrTransType*  createTransient ();
     LArAutoCorrTransType*          createTransient(LArConditionsSubset<LArAutoCorrP>* orig);

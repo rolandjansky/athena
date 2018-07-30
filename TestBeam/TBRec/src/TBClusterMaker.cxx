@@ -2,14 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Gaudi
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
+#include "TBClusterMaker.h"
 
-#include "StoreGate/StoreGateSvc.h" 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
@@ -24,8 +18,7 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "CaloGeoHelpers/proxim.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
-
-#include "TBRec/TBClusterMaker.h"
+#include "GaudiKernel/ListItem.h"
 
 //#############################################################################
 

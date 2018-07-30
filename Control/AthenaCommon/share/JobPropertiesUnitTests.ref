@@ -1,0 +1,20 @@
+Mon Mar  5 17:13:52 EST 2018
+WARNING: TCMALLOCDIR not defined, will use libc malloc
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/JobPropertiesUnitTests.py"
+test1BasicCreation (__main__.JobPropertiesTestCase)
+Test proper behavior of property creation ... ok
+test2BasicAccess (__main__.JobPropertiesTestCase)
+Test proper behavior of property access ... ok
+test3AccessUnset (__main__.JobPropertiesTestCase)
+Test proper behavior when accessing JobProperty with no StoredValue ... Py:JobProperty :: WARNING You are attempting to access the jobproperty JobProperties.MyProperties.MyUnsetProperty which has not been set
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK

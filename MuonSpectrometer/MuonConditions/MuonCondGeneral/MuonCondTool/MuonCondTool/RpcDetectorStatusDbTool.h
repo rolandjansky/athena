@@ -44,7 +44,6 @@ private:
   virtual StatusCode loadParameterStatus(IOVSVC_CALLBACK_ARGS) override;
   virtual StatusCode loadRpcDqStatus(IOVSVC_CALLBACK_ARGS) override;
   virtual std::string FolderName() const  override {return m_FolderName;}
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
   virtual const std::vector<Identifier>&  EffPanelId() const override { return  m_effPanelId;}

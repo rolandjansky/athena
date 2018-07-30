@@ -70,7 +70,7 @@ namespace pool {
       class RootCollection :  public ICollection {
     
      public:
-	typedef Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;
+	typedef Gaudi::PluginService::Factory<ICollection*( const ICollectionDescription*, ICollection::OpenMode, ISession*)> Factory;
     
         /// Constructor
         /// @param session If you want to access the referenced objects you have to provide an ISession
@@ -226,7 +226,7 @@ namespace pool {
         bool                                 m_open;
         bool                                 m_readOnly;
         
-        mutable IFileCatalog*                 m_fileCatalog;
+        mutable std::unique_ptr<pool::IFileCatalog> m_fileCatalog;
         mutable coral::MessageStream        m_poolOut;
 
         RootCollectionSchemaEditor*        m_schemaEditor;

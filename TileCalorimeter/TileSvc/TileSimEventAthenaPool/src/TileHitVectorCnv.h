@@ -19,7 +19,9 @@ class TileHitVectorCnv  : public T_AthenaPoolCustomCnv<TileHitVector, TileHitVec
   friend class CnvFactory<TileHitVectorCnv>;
 
  protected:
+public:
    TileHitVectorCnv(ISvcLocator* svcloc): T_AthenaPoolCustomCnv<TileHitVector, TileHitVector_PERS >( svcloc) {}
+protected:
 
   TileHitVector_PERS*  createPersistent(TileHitVector* transCont);
   TileHitVector*       createTransient ();

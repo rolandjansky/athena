@@ -34,7 +34,9 @@ class TrigT2JetContainerCnv : public TrigT2JetContainerCnvBase {
  
   protected:
    
+public:
   TrigT2JetContainerCnv( ISvcLocator *svcloc ): TrigT2JetContainerCnvBase(svcloc){}
+protected:
  
    
    virtual TrigT2JetContainer_PERS *createPersistent( TrigT2JetContainer *transObj);

@@ -16,7 +16,7 @@
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandle.h"
 
-//CxxUtils for override final  
+//CxxUtils for override final
 #include "CxxUtils/final.h"
 #include "CxxUtils/override.h"
 
@@ -25,7 +25,7 @@
 
 namespace Ringer {
 
-class CaloRingerInputReader : public ::AthAlgTool, 
+class CaloRingerInputReader : public ::AthAlgTool,
                               virtual public ICaloRingerInputReader
 {
 
@@ -33,31 +33,31 @@ class CaloRingerInputReader : public ::AthAlgTool,
 
     /// @name CaloRingerInputReader ctors and dtors:
     /// @{
-    /** 
+    /**
      * @brief Default constructor
      **/
     CaloRingerInputReader(const std::string& type,
                      const std::string& name,
                      const ::IInterface* parent);
 
-    /** 
+    /**
      * @brief Destructor
      **/
     ~CaloRingerInputReader();
     /// @}
-    
+
     /// Tool main methods:
     /// @{
-    /** 
-     * @brief initialize method 
+    /**
+     * @brief initialize method
      **/
     virtual StatusCode initialize() ATH_OVERRIDE;
-    /** 
+    /**
      * @brief read electrons and populates @name decoMap with them and their
      * respective CaloRings.
      **/
     virtual StatusCode execute() ATH_OVERRIDE;
-    /** 
+    /**
      * @brief finalize method
      **/
     virtual StatusCode finalize() ATH_OVERRIDE;
@@ -68,18 +68,18 @@ class CaloRingerInputReader : public ::AthAlgTool,
 
     /// Tool CaloRingerInputReader props (python configurables):
     /// @{
-    /** 
+    /**
      * @brief Tool to build CaloRings.
      **/
     PublicToolHandle<ICaloRingsBuilder> m_crBuilder {this,
-	"crBuilder", "", "CaloRingsBuilder Tool"};
+			"crBuilder", "", "The CaloRingsBuilder Tool"};
     /// @}
 
     /// Tool CaloRingerInputReader props (non configurables):
     /// @{
     /// If CaloRings builder is available
-    Gaudi::Property<bool> m_builderAvailable {this, 
-	"builderAvailable", false, "Whether Builder Tool is available."};
+    Gaudi::Property<bool> m_builderAvailable {this,
+			"builderAvailable", false, "Whether builder tool is available."};
     ///  @}
 
     template<class T> class writeDecorHandles;
@@ -99,12 +99,12 @@ class CaloRingerInputReader : public ::AthAlgTool,
       std::vector<SG::WriteDecorHandleKey<T> > m_lhoodKeys;
       std::string m_contName;
     };
-    
+
     /** @brief helper class to contain write decoration handles for selectors*/
     template<class T> class writeDecorHandles {
     public:
       writeDecorHandles(const writeDecorHandleKeys<T>& keys); // constructor
-      
+
       SG::WriteDecorHandle<T, char>& sel(size_t i) {return m_sel[i];};
       SG::WriteDecorHandle<T, unsigned int>& isEM(size_t i) {return m_isEM[i];};
       SG::WriteDecorHandle<T, float>& lhood(size_t i) {return m_lhood[i];};
@@ -117,24 +117,24 @@ class CaloRingerInputReader : public ::AthAlgTool,
     };
 
 };
-  
-  template<class T> 
-  StatusCode 
+
+  template<class T>
+  StatusCode
   CaloRingerInputReader::writeDecorHandleKeys<T>::addSelector(const std::string &selName)
   {
     m_selKeys.emplace_back(m_contName + "." + selName);
     ATH_CHECK(m_selKeys.back().initialize());
-    
+
     m_isEMKeys.emplace_back(m_contName + "." + selName + "_isEM");
     ATH_CHECK(m_isEMKeys.back().initialize());
-    
+
     m_lhoodKeys.emplace_back(m_contName + "." + selName + "_output");
     ATH_CHECK(m_lhoodKeys.back().initialize());
-    
+
     return StatusCode::SUCCESS;
-  } 
-  
-  template<class T> 
+  }
+
+  template<class T>
   CaloRingerInputReader::writeDecorHandles<T>::writeDecorHandles(const writeDecorHandleKeys<T>& keys)
   {
     for (size_t i = 0; i < keys.m_selKeys.size(); i++) {
@@ -143,7 +143,7 @@ class CaloRingerInputReader : public ::AthAlgTool,
       m_lhood.emplace_back(keys.m_lhoodKeys[i]);
     }
   }
-  
+
 } // namespace Ringer
 
 #endif // CALORINGERTOOLS_CALORINGERINPUTREADER_H

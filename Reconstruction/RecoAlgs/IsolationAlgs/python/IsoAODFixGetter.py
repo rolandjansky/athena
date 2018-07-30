@@ -30,7 +30,8 @@ def configureEDCorrection(tool):
     from JetRec.JetRecStandard import jtm
     topSequence = AlgSequence()
     if not hasattr(topSequence,'EDtpIsoVeryForwardAlg'):
-      tfcc = configEventDensityTool("EDtpIsoVeryForwardTool", jtm.emget,
+      tfcc = configEventDensityTool("EDtpIsoVeryForwardTool",
+                                    inputlabel = jtm.emget.Label,
                                     radius          = 0.5,
                                     AbsRapidityMin  = 2.5,
                                     AbsRapidityMax  = 4.5,

@@ -6,12 +6,12 @@
 // A. R-Veronneau 26/02/08
 
 #include "SCT_DCSConditionsTool.h"
-#include "SCT_ConditionsServices/SCT_SlhcIdConverter.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "GaudiKernel/ThreadLocalContext.h"
 
-using SCT_ConditionsServices::castId;
+#include "SCT_IdConverter.h"
+using SCT_ConditionsTools::castId;
 
 const Identifier SCT_DCSConditionsTool::s_invalidId;
 const float SCT_DCSConditionsTool::s_defaultHV{-30.}; 
@@ -31,9 +31,6 @@ SCT_DCSConditionsTool::SCT_DCSConditionsTool(const std::string& type, const std:
   m_pBadModules{},
   m_pModulesHV{},
   m_pModulesTemp0{},
-  m_condKeyState{"SCT_DCSStatCondData"},
-  m_condKeyHV{"SCT_DCSHVCondData"},
-  m_condKeyTemp0{"SCT_DCSTemp0CondData"},
   m_pHelper{nullptr}
 { 
     //declare variables which will be filled by jobOptions
@@ -67,12 +64,12 @@ StatusCode SCT_DCSConditionsTool::finalize() {
 }
 
 //Can report about the module as a whole or the wafer
-bool SCT_DCSConditionsTool::canReportAbout(InDetConditions::Hierarchy h) {
+bool SCT_DCSConditionsTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h==InDetConditions::SCT_MODULE or h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_STRIP);
 }   
 
 //returns the module ID (int), or returns -1 if not able to report
-Identifier SCT_DCSConditionsTool::getModuleID(const Identifier& elementId, InDetConditions::Hierarchy h) {
+Identifier SCT_DCSConditionsTool::getModuleID(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return s_invalidId;  
 
   Identifier moduleId;
@@ -89,7 +86,7 @@ Identifier SCT_DCSConditionsTool::getModuleID(const Identifier& elementId, InDet
 }
 
 //Returns if element Id is good or bad
-bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   Identifier moduleId=getModuleID(elementId, h);
   if (not moduleId.is_valid()) return true; // not canreportabout
 
@@ -105,7 +102,7 @@ bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions:
 }
 
 //Does the same for hashIds
-bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId) {
+bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId) const {
   Identifier waferId = m_pHelper->wafer_id(hashId);
   Identifier moduleId = m_pHelper->module_id(waferId);
   return isGood(moduleId, InDetConditions::SCT_MODULE);
@@ -115,7 +112,7 @@ bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId) {
 
 // some lame helper methods: 
 // returns HV (s_defaultHV(-30) if there is no information)
-float SCT_DCSConditionsTool::modHV(const Identifier& elementId, InDetConditions::Hierarchy h) {
+float SCT_DCSConditionsTool::modHV(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   Identifier moduleId = getModuleID(elementId, h);
   if (not moduleId.is_valid()) return s_defaultHV; // not canreportabout, return s_defaultHV(-30)
 
@@ -131,14 +128,14 @@ float SCT_DCSConditionsTool::modHV(const Identifier& elementId, InDetConditions:
 }
 
 //Does the same for hashIds
-float SCT_DCSConditionsTool::modHV(const IdentifierHash& hashId) {
+float SCT_DCSConditionsTool::modHV(const IdentifierHash& hashId) const {
   Identifier waferId = m_pHelper->wafer_id(hashId);
   Identifier moduleId = m_pHelper->module_id(waferId);
   return modHV(moduleId,InDetConditions::SCT_MODULE);
 } 
 
 //Returns temp0 (s_defaultTemperature(-40) if there is no information)
-float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
+float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   Identifier moduleId = getModuleID(elementId, h);
   if (not moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
@@ -154,14 +151,14 @@ float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, InDe
 } 
 
 //Does the same for hashIds
-float SCT_DCSConditionsTool::hybridTemperature(const IdentifierHash& hashId) {
+float SCT_DCSConditionsTool::hybridTemperature(const IdentifierHash& hashId) const {
   Identifier waferId = m_pHelper->wafer_id(hashId);
   Identifier moduleId = m_pHelper->module_id(waferId);
   return hybridTemperature(moduleId, InDetConditions::SCT_MODULE);
 }
 
 //Returns temp0 + correction for Lorentz angle calculation (s_defaultTemperature(-40) if there is no information)
-float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
+float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   Identifier moduleId = getModuleID(elementId, h);
   if (not moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
@@ -187,7 +184,7 @@ float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, InDe
 } 
 
 //Does the same for hashIds
-float SCT_DCSConditionsTool::sensorTemperature(const IdentifierHash& hashId) {
+float SCT_DCSConditionsTool::sensorTemperature(const IdentifierHash& hashId) const {
   Identifier waferId = m_pHelper->wafer_id(hashId);
   Identifier moduleId = m_pHelper->module_id(waferId);
   return sensorTemperature(moduleId, InDetConditions::SCT_MODULE);

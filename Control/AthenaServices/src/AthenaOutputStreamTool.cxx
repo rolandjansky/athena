@@ -22,6 +22,20 @@
 #include "SGTools/SGIFolder.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "PersistentDataModel/DataHeader.h"
+#include "PersistentDataModel/TokenAddress.h"
+
+namespace {
+
+/// Check to see if a DataHeader has been marked as input
+/// by MakeInputDataHeader.
+bool hasInputAlias (const SG::DataProxy& dp)
+{
+  std::string inputName = dp.name() + "_Input";
+  return dp.hasAlias (inputName);
+}
+
+
+} // anonymous namespace
 
 /// Constructor
 AthenaOutputStreamTool::AthenaOutputStreamTool(const std::string& type,
@@ -163,9 +177,9 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
 
    // Remove DataHeader with same key if it exists
    if (m_store->contains<DataHeader>(m_dataHeaderKey)) {
-      const DataHandle<DataHeader> preDh;
+      const DataHeader* preDh = nullptr;
       if (m_store->retrieve(preDh, m_dataHeaderKey).isSuccess()) {
-         if (m_store->removeDataAndProxy(preDh.cptr()).isFailure()) {
+         if (m_store->removeDataAndProxy(preDh).isFailure()) {
             ATH_MSG_ERROR("Unable to get proxy for the DataHeader with key " << m_dataHeaderKey);
             return(StatusCode::FAILURE);
          }
@@ -178,18 +192,21 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
    m_dataHeader->setProcessTag(m_processTag);
 
    // Retrieve all existing DataHeaders from StroreGate
-   const DataHandle<DataHeader> dh;
+   const DataHeader* dh = nullptr;
    std::vector<std::string> dhKeys;
    m_store->keys<DataHeader>(dhKeys);
    for (std::vector<std::string>::const_iterator dhKey = dhKeys.begin(), dhKeyEnd = dhKeys.end();
 	   dhKey != dhKeyEnd; dhKey++) {
-      if (!m_store->transientContains<DataHeader>(*dhKey)) { // Do not retrieve BackNavigation DataHeader
-         continue;
+      bool primaryDH = false;
+      if (!m_store->transientContains<DataHeader>(*dhKey)) {
+         if (*dhKey == "EventSelector") primaryDH = true;
+         ATH_MSG_DEBUG("No transientContains DataHeader with key " << *dhKey);
       }
       if (m_store->retrieve(dh, *dhKey).isFailure()) {
          ATH_MSG_DEBUG("Unable to retrieve the DataHeader with key " << *dhKey);
       }
-      if (dh->checkStatus(DataHeader::Primary)) {
+      SG::DataProxy* dhProxy = m_store->proxy(dh);
+      if (dh->isInput() || hasInputAlias (*dhProxy) || primaryDH) {
          // Add DataHeader token to new DataHeader
          if (m_extendProvenanceRecord) {
             std::string pTag;
@@ -202,7 +219,6 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
                }
             }
             // Update dhTransAddr to handle fast merged files.
-            SG::DataProxy* dhProxy = m_store->proxy(dh.operator->());
             if (dhProxy != 0 && dhProxy->address() != 0) {
               delete dhTransAddr; dhTransAddr = 0;
               m_dataHeader->insertProvenance(DataHeaderElement(dhProxy,
@@ -227,7 +243,7 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
       attrListKey = outputConnectionString.substr(pos + 18, outputConnectionString.find("]", pos + 18) - pos - 18);
    }
    if (!attrListKey.empty()) {
-      const DataHandle<AthenaAttributeList> attrList;
+      const AthenaAttributeList* attrList = nullptr;
       if (m_store->retrieve(attrList, attrListKey).isFailure()) {
          ATH_MSG_WARNING("Unable to retrieve AttributeList with key " << attrListKey);
       } else {
@@ -332,7 +348,6 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
    }
    // Check that the DataHeader is still valid
    DataObject* dataHeaderObj = m_store->accessData(ClassID_traits<DataHeader>::ID(), m_dataHeaderKey);
-   StatusCode status(StatusCode::SUCCESS);
    std::set<DataObject*> written;
    for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
 	   doIter != doLast; doIter++) {
@@ -347,76 +362,83 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
       } else {
          written.insert(*doIter);
          // Write object
-         IOpaqueAddress* addr(0);
-         if ((m_conversionSvc->createRep(*doIter, addr)).isSuccess()) {
+         IOpaqueAddress* addr(nullptr);
+         if (m_conversionSvc->createRep(*doIter, addr).isSuccess()) {
             SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
-            if (proxy != 0) {
-               m_dataHeader->insert(proxy, addr);
-               if (proxy->address() == 0) {
-                  proxy->setAddress(addr);
-               } else {
-                  delete addr; addr = 0;
-               }
+            if (proxy != nullptr) {
+               proxy->setAddress(addr);
             } else {
                ATH_MSG_WARNING("Could cast DataObject " << (*doIter)->clID() << " " << (*doIter)->name());
+               delete addr; addr = nullptr;
             }
          } else {
             ATH_MSG_ERROR("Could not create Rep for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
-            status = StatusCode::FAILURE;
+            return(StatusCode::FAILURE);
          }
       }
    }
-   m_dataHeader->addHash(&*m_store);
    if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
       // End of loop over DataObjects, write DataHeader
-      IOpaqueAddress* addr(0);
-      if ((m_conversionSvc->createRep(dataHeaderObj, addr)).isSuccess()) {
+      IOpaqueAddress* addr(nullptr);
+      if (m_conversionSvc->createRep(dataHeaderObj, addr).isSuccess()) {
          SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dataHeaderObj->registry());
-         if (proxy != 0) {
-            m_dataHeader->insert(proxy, addr, m_processTag);
-            if (proxy->address() == 0) {
-               proxy->setAddress(addr);
-            } else {
-               delete addr; addr = 0;
-            }
+         if (proxy != nullptr) {
+            proxy->setAddress(addr);
          } else {
-            ATH_MSG_WARNING("Could cast DataHeader");
-            status = StatusCode::FAILURE;
+            ATH_MSG_ERROR("Could cast DataHeader");
+            delete addr; addr = nullptr;
+            return(StatusCode::FAILURE);
          }
       } else {
          ATH_MSG_ERROR("Could not create Rep for DataHeader");
-         status = StatusCode::FAILURE;
+         return(StatusCode::FAILURE);
       }
    }
    if (!fillObjectRefs(dataObjects).isSuccess()) {
-      status = StatusCode::FAILURE;
+      return(StatusCode::FAILURE);
    }
+   m_dataHeader->addHash(&*m_store);
    if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
       // End of DataObjects, fill refs for DataHeader
       DataObjectVec dataHeaderObjVec;
       dataHeaderObjVec.push_back(dataHeaderObj);
       if (!fillObjectRefs(dataHeaderObjVec).isSuccess()) {
-         status = StatusCode::FAILURE;
+         return(StatusCode::FAILURE);
       }
    }
-   return(status);
+   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode AthenaOutputStreamTool::fillObjectRefs(const DataObjectVec& dataObjects) { //Copy
-   StatusCode status = StatusCode::SUCCESS;
    for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
 	   doIter != doLast; doIter++) {
       // call fillRepRefs of persistency service
-      if (!(m_conversionSvc->fillRepRefs((*doIter)->registry()->address(), *doIter)).isSuccess()) {
-         status = StatusCode::FAILURE;
+      SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
+      if (proxy != 0) {
+         IOpaqueAddress* addr(proxy->address());
+         if ((m_conversionSvc->fillRepRefs(addr, *doIter)).isSuccess()) {
+            if ((*doIter)->clID() != 1 || addr->par()[0] != "\n") {
+               if ((*doIter)->clID() != ClassID_traits<DataHeader>::ID()) {
+                  m_dataHeader->insert(proxy, addr);
+               } else {
+                  m_dataHeader->insert(proxy, addr, m_processTag);
+               }
+            }
+         } else {
+            ATH_MSG_ERROR("Could not fill Object Refs for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
+            return(StatusCode::FAILURE);
+         }
+      } else {
+         ATH_MSG_WARNING("Could cast DataObject " << (*doIter)->clID() << " " << (*doIter)->name());
       }
    }
-   return(status);
+   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode AthenaOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenFromTool) {
    const std::string hltKey = "HLTAutoKey";
-   const DataHandle<DataHeader> beg, ending;
+   SG::ConstIterator<DataHeader> beg;
+   SG::ConstIterator<DataHeader> ending;
    if (m_store->retrieve(beg, ending).isFailure() || beg == ending) {
       ATH_MSG_DEBUG("No DataHeaders present in StoreGate");
    } else {
@@ -426,17 +448,16 @@ StatusCode AthenaOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenFromT
 	            it != itLast; ++it) {
                // Only insert the primary clid, not the ones for the symlinks!
                CLID clid = it->getPrimaryClassID();
-                  std::string typeName;
-                  if (clid != ClassID_traits<DataHeader>::ID()) {
+               if (clid != ClassID_traits<DataHeader>::ID()) {
                   //check the typename is known ... we make an exception if the key contains 'Aux.' ... aux containers may not have their keys known yet in some cases
-		  //see https://its.cern.ch/jira/browse/ATLASG-59 for the solution
+                  //see https://its.cern.ch/jira/browse/ATLASG-59 for the solution
                   std::string typeName;
-                  if( m_clidSvc->getTypeNameOfID(clid,typeName).isFailure() && it->getKey().find("Aux.") == std::string::npos) {
-		    if(m_skippedItems.find(it->getKey()) == m_skippedItems.end()) {
-		      ATH_MSG_WARNING("Skipping " << it->getKey() << " with unknown clid " << clid << " . Further warnings for this item are suppressed" ); 
-		      m_skippedItems.insert(it->getKey()); 
-		    }
-                    continue;
+                  if (m_clidSvc->getTypeNameOfID(clid, typeName).isFailure() && it->getKey().find("Aux.") == std::string::npos) {
+                     if (m_skippedItems.find(it->getKey()) == m_skippedItems.end()) {
+                        ATH_MSG_WARNING("Skipping " << it->getKey() << " with unknown clid " << clid << " . Further warnings for this item are suppressed" );
+                        m_skippedItems.insert(it->getKey());
+                     }
+                     continue;
                   }
                   ATH_MSG_DEBUG("Adding " << typeName << "#" << it->getKey() << " (clid " << clid << ") to itemlist");
                   const std::string keyName = it->getKey();

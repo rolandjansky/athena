@@ -14,9 +14,7 @@
 namespace xAOD {
 
   Particle_v1::Particle_v1()
-    : //IParticle(),
-      m_p4(),
-      m_p4Cached( false ) {
+    : IParticle() {
   }
 
 
@@ -26,35 +24,33 @@ namespace xAOD {
   //
 
   double Particle_v1::pt() const {
-    return std::sqrt( std::pow( px(), 2 ) + std::pow( py(), 2 ) );
+    return std::hypot( px(), py() );
   }
 
   double Particle_v1::eta() const {
-    return p4().Eta();
+    return genvecP4().Eta();
   }
 
   double Particle_v1::phi() const {
-    return p4().Phi();
+    return genvecP4().Phi();
   }
 
   double Particle_v1::m() const {
-    return p4().M();
+    return genvecP4().M();
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( Particle_v1, float, double, e)
 
   double Particle_v1::rapidity() const {
-    return p4().Rapidity();
+    return genvecP4().Rapidity();
   }
 
-  const Particle_v1::FourMom_t& Particle_v1::p4() const {
-    // Check if we need to reset the cached object:
-    if( ! m_p4Cached ) {
-      m_p4.SetPxPyPzE( px(), py(), pz(), e() );
-      m_p4Cached = true;
-    }
-    // Return the cached object:
-    return m_p4;
+  Particle_v1::FourMom_t Particle_v1::p4() const {
+    return FourMom_t( px(), py(), pz(), e() );
+  }
+
+  Particle_v1::GenVecFourMom_t Particle_v1::genvecP4() const {
+    return GenVecFourMom_t( px(), py(), pz(), e() );
   }
 
   Type::ObjectType Particle_v1::type() const {
@@ -81,8 +77,6 @@ namespace xAOD {
     acc3( *this ) = (float)(vec.Pz());
     static Accessor< float > acc4( "e" );
     acc4( *this ) = (float)(vec.E());
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
 
 
@@ -98,8 +92,6 @@ namespace xAOD {
     acc3( *this ) = (float)pz;
     static Accessor< float > acc4( "e" );
     acc4( *this ) = (float)e;
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
 
 

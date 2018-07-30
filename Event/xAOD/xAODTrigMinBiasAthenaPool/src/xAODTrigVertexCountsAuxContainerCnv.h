@@ -30,13 +30,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigVertexCountsAuxContainer,
 class xAODTrigVertexCountsAuxContainerCnv :
    public xAODTrigVertexCountsAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTrigVertexCountsAuxContainerCnv >;
-
-protected:
+public:
    /// Converter constructor
    xAODTrigVertexCountsAuxContainerCnv( ISvcLocator* svcLoc );
 
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::TrigVertexCountsAuxContainer*
    createPersistent( xAOD::TrigVertexCountsAuxContainer* trans );

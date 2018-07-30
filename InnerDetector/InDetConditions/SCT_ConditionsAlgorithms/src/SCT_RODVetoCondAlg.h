@@ -22,7 +22,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/WriteHandle.h"
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_ConditionsData/IdentifierSet.h"
 

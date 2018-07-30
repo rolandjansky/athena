@@ -5,7 +5,6 @@
 #include "TrigL2MuonSA/MuFastStationFitter.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -35,32 +34,9 @@ TrigL2MuonSA::MuFastStationFitter::MuFastStationFitter(const std::string& type,
                                                        const std::string& name,
                                                        const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-  m_backExtrapolator("TrigMuonBackExtrapolator"),
-  m_alphaBetaEstimate("TrigL2MuonSA::AlphaBetaEstimate"),
-  m_ptFromAlphaBeta("TrigL2MuonSA::PtFromAlphaBeta")
+  m_alphaBetaEstimate("TrigL2MuonSA::AlphaBetaEstimate")
 {
    declareInterface<TrigL2MuonSA::MuFastStationFitter>(this);
-
-   declareProperty("BackExtrapolator", m_backExtrapolator, "public tool for back extrapolating the muon tracks to the IV");
-   declareProperty("PtFromAlphaBeta", m_ptFromAlphaBeta);
-
-   declareProperty("ENDCAPINN_MDT_CHI2_LIMIT", m_endcapinn_mdt_chi2_limit = 20);
-   declareProperty("ENDCAPMID_MDT_CHI2_LIMIT", m_endcapmid_mdt_chi2_limit = 20);
-   declareProperty("ENDCAPOUT_MDT_CHI2_LIMIT", m_endcapout_mdt_chi2_limit = 20);
-   declareProperty("ENDCAPEE_MDT_CHI2_LIMIT",  m_endcapee_mdt_chi2_limit  = 20);
-
-   declareProperty("RWIDTH_EndcapINN_FIRST",  m_rwidth_Endcapinn_first    = 150.);
-   declareProperty("RWIDTH_EndcapINN_SECOND", m_rwidth_Endcapinn_second   = 80. );
-   declareProperty("RWIDTH_EndcapMID_FIRST",  m_rwidth_Endcapmid_first    = 150.);
-   declareProperty("RWIDTH_EndcapMID_SECOND", m_rwidth_Endcapmid_second   = 100.);
-   declareProperty("RWIDTH_EndcapOUT_FIRST",  m_rwidth_Endcapout_first    = 120.);
-   declareProperty("RWIDTH_EndcapOUT_SECOND", m_rwidth_Endcapout_second   = 60. );
-   declareProperty("RWIDTH_EndcapEE_FIRST",   m_rwidth_Endcapee_first     = 150.);
-   declareProperty("RWIDTH_EndcapEE_SECOND",  m_rwidth_Endcapee_second    = 100.);
-
-   declareProperty("MDT_DRFITSPACE_UPLIMIT",   m_mdt_driftspace_uplimit   = 14.8);
-   declareProperty("MDT_DRFITSPACE_DOWNLIMIT", m_mdt_driftspace_downlimit = 0.1);
-   declareProperty("MDT_DRFITTIME_LIMIT",      m_mdt_drifttime_limit      = 1700.);
 }
 
 // --------------------------------------------------------------------------------
@@ -82,25 +58,13 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
       return sc;
    }
    
-  // BackExtrapolator services
-   sc = m_backExtrapolator.retrieve();
-   if ( !sc.isSuccess() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_backExtrapolator);
-    return sc;
-   } 
+   // BackExtrapolator services
+   ATH_CHECK( m_backExtrapolator.retrieve() );
 
-   sc = m_alphaBetaEstimate.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_alphaBetaEstimate);
-     return sc;
-   }
+   ATH_CHECK( m_alphaBetaEstimate.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_alphaBetaEstimate);
 
-   sc = m_ptFromAlphaBeta.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_ptFromAlphaBeta);
-     return sc;
-   }
+   ATH_CHECK( m_ptFromAlphaBeta.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
 
    return StatusCode::SUCCESS; 
@@ -111,23 +75,30 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
 StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(BooleanProperty use_mcLUT)
 {
   m_use_mcLUT = use_mcLUT;
-  StatusCode sc = StatusCode::SUCCESS;
 
   if (m_use_mcLUT) {
-     sc = serviceLocator()->service("PtEndcapLUTSvc_MC", m_ptEndcapLUTSvc);
+     const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc_MC", name());
+     if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+        ATH_MSG_ERROR("Could not find PtEndcaplLUTSvc");
+        return StatusCode::FAILURE;
+     }
+     // Calculation of alpha and beta
+     m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
+     // conversion: alpha, beta -> pT
+     m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
   } else {
-     sc = serviceLocator()->service("PtEndcapLUTSvc",    m_ptEndcapLUTSvc);
-  }
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not find PtEndcapLUTSvc");
-     return sc;
+     const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc", name());
+     if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+        ATH_MSG_ERROR("Could not find PtEndcaplLUTSvc");
+        return StatusCode::FAILURE;
+     }
+     // Calculation of alpha and beta
+     m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
+     // conversion: alpha, beta -> pT
+     m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
   }
 
-  // Calculation of alpha and beta
-  m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
-
-  // conversion: alpha, beta -> pT
-  m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
+  ATH_MSG_DEBUG( "Completed tp set " << (m_use_mcLUT?"MC":"not MC") << " flag" );    
 
   return StatusCode::SUCCESS;
 }

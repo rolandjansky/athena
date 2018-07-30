@@ -703,17 +703,6 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltFinalize() {
 	<< ". Invoked " << m_nInvoked << " times." << endmsg;
   return HLT::OK;
 }
-//----------------------------------
-//          endRun method:
-//----------------------------------------------------------------------------
-HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltEndRun() {
-   
-  msg() << MSG::INFO << "SiTrigSPSeededTrackFinder::endRun()" << endmsg;
- 
-  return HLT::OK;
-}
- 
-//---------------------------------------------------------------------------
 
 ///////////////////////////////////////////////////////////////////
 // Overload of << operator MsgStream

@@ -28,6 +28,14 @@ StatusCode SCT_FlaggedConditionTool::initialize() {
     return StatusCode::FAILURE;
   }
 
+  // A dirty fix of a configuration of InDetTrigInDetSCT_FlaggedConditionTool for InDetTrigInDetSCT_ConditionsSummaryTool
+  if (name().find("InDetTrigInDetSCT_FlaggedConditionTool")!=std::string::npos) {
+    if (m_badIds.key()=="SCT_FlaggedCondData") {
+      m_badIds = SG::ReadHandleKey<SCT_FlaggedCondData>("SCT_FlaggedCondData_TRIG");
+      ATH_MSG_INFO("Key of SCT_FlaggedCondData is changed to SCT_FlaggedCondData_TRIG in " << name());
+    }
+  }
+
   ATH_CHECK(m_badIds.initialize());
 
   return StatusCode::SUCCESS;
@@ -40,19 +48,19 @@ StatusCode SCT_FlaggedConditionTool::finalize() {
 }
 
 // Detector elements that this service can report about
-bool SCT_FlaggedConditionTool::canReportAbout(InDetConditions::Hierarchy h){
+bool SCT_FlaggedConditionTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h == InDetConditions::SCT_SIDE or h == InDetConditions::DEFAULT);
 }
 
 // Is this element good (by Identifier)?
-bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h){
+bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   const IdentifierHash hashId = m_sctID->wafer_hash(elementId);
   return isGood(hashId);
 }
 
 // Is this element good (by IdentifierHash)?
-bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId){
+bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
   const SCT_FlaggedCondData* badIds{getCondData()};
   if (badIds==nullptr) {
     ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (isGood)");

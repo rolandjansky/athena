@@ -36,7 +36,7 @@ public:
 	       std::vector<int>&& errorHit);
 
   // Destructor:
-  virtual ~SCT3_RawData();
+  virtual ~SCT3_RawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 
@@ -64,6 +64,15 @@ public:
   // public default constructor needed for I/O, but should not be
   // called from an alg
   SCT3_RawData();
+
+  // Default copy constructor
+  SCT3_RawData(const SCT3_RawData&) = default;
+  // Default assignment operator
+  SCT3_RawData& operator=(const SCT3_RawData&) = default;
+  // Default move constructor
+  SCT3_RawData(SCT3_RawData&&) = default;
+  // Default move assignment operator
+  SCT3_RawData& operator=(SCT3_RawData&&) = default;
 
   ///////////////////////////////////////////////////////////////////
   // Private data:

@@ -34,8 +34,7 @@
 // static ForwardRegionMgField q6vkick("Q6VKick",ForwardRegionField::Q6VKick);
 
 MagField::ForwardRegionFieldSvc::ForwardRegionFieldSvc(const std::string& name,ISvcLocator* svc) :
-  AthService(name,svc),
-  IMagFieldSvc(),
+  base_class(name,svc),
   m_magnet(-1),
   m_magDataType(0),
   m_MQXA_DataFile(""), //"MQXA_NOMINAL.dat" if name = Q1 or Q3
@@ -101,26 +100,6 @@ StatusCode MagField::ForwardRegionFieldSvc::initialize()
   ATH_CHECK(incidentSvc.retrieve());
   incidentSvc->addListener( this, IncidentType::BeginRun );
   ATH_MSG_INFO("Added listener to BeginRun incident");
-  return StatusCode::SUCCESS;
-}
-
-// Query the interfaces
-StatusCode MagField::ForwardRegionFieldSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if(IIncidentListener::interfaceID().versionMatch(riid))
-    {
-      *ppvInterface = dynamic_cast<IIncidentListener*>(this);
-    }
-  else if(IMagFieldSvc::interfaceID().versionMatch(riid))
-    {
-      *ppvInterface = dynamic_cast<IMagFieldSvc*>(this);
-    }
-  else
-    {
-     // Interface is not directly available: try out a base class
-      return AthService::queryInterface(riid, ppvInterface);
-    }
-  addRef();
   return StatusCode::SUCCESS;
 }
 

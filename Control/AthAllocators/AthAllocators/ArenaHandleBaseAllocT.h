@@ -108,7 +108,7 @@ protected:
   
   /**
    * @brief Find the index for creating an allocator.
-   * @params Pointer to the supplied parameters.
+   * @param params Pointer to the supplied parameters.
    *         If null, use the result of DEFPARAMS().
    *
    * We look up in the registry the Allocator name we get from @c params

@@ -16,7 +16,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 
 // EDM include(s):
 #include "xAODMetaData/FileMetaData.h"

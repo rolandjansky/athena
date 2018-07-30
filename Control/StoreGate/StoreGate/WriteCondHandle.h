@@ -44,7 +44,6 @@ namespace SG {
 
     StatusCode record(const EventIDRange& range, T* t);
     StatusCode record(const EventIDRange& range, std::unique_ptr<T> t);
-    void updateStore();
     
     const std::string& dbKey() const { return m_hkey.dbKey(); }
     
@@ -103,16 +102,16 @@ namespace SG {
         << "WriteCondHandle::record() : obj at: " << t.get() << "  range: " << r 
         << endmsg;
 
-    if (!m_cc->insert(r, std::move(t))) {
+    StatusCode sc = m_cc->insert(r, std::move(t));
+    // Preserve sc for return, since it may be DUPLICATE.
+    if (sc.isFailure()) {
       msg << MSG::ERROR 
           << "WriteCondHandle::record() : unable to insert obj in CondCont<T>"
           << endmsg;
       return StatusCode::FAILURE;
     }
  
-    updateStore();
- 
-    return StatusCode::SUCCESS;
+    return sc;
   }
 
   
@@ -122,16 +121,6 @@ namespace SG {
   {
     return record (r, std::unique_ptr<T> (t));
   }
-
-  //---------------------------------------------------------------------------
-
-  template <typename T>
-  void
-  WriteCondHandle<T>::updateStore() {
-    StoreGateSvc* cs = m_hkey.getCS();
-    cs->addedNewTransObject( m_hkey.fullKey().clid(), m_hkey.fullKey().key() );
-  }
-
 
   //---------------------------------------------------------------------------
 

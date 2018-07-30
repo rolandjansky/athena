@@ -38,9 +38,8 @@ namespace LVL1BS {
  */
 
 class L1TopoByteStreamAuxCnv : public Converter, public ::AthMessaging {
-  friend class CnvFactory<L1TopoByteStreamAuxCnv>;
 
- protected:
+public:
   L1TopoByteStreamAuxCnv(ISvcLocator* svcloc);
 
  public:

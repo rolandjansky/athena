@@ -17,10 +17,10 @@
 
 hltca::HLTCountsArchiverRCApp::HLTCountsArchiverRCApp(JobConfig& config, IPCPartition* part, hltca::HLTCountOHReceiver * rec) :
    Controllable(),
-   fJobConfig(config),
-   fCoolWriter(config.CoolDb()),
-   fIPCPartition(part),
-   fReceiver(rec)
+   m_jobConfig(config),
+   m_coolWriter(config.CoolDb()),
+   m_IPCPartition(part),
+   m_receiver(rec)
 {}
 
 hltca::HLTCountsArchiverRCApp::~HLTCountsArchiverRCApp() noexcept
@@ -30,7 +30,7 @@ hltca::HLTCountsArchiverRCApp::~HLTCountsArchiverRCApp() noexcept
 void 
 hltca::HLTCountsArchiverRCApp::prepareForRun(const daq::rc::TransitionCmd&) { 
    std::cout << "HLTCountsArchiverRCApp::prepareForRun: CLEAR RECEIVER" << std::endl;
-   fReceiver->ClearStorage();
+   m_receiver->ClearStorage();
 }
 
 void
@@ -43,18 +43,18 @@ hltca::HLTCountsArchiverRCApp::stopArchiving(const daq::rc::TransitionCmd&) {
 void
 hltca::HLTCountsArchiverRCApp::writeToCool() {
 
-   int lastlb = fReceiver->last_LB();
+   int lastlb = m_receiver->last_LB();
 
    if(lastlb<=0) return;  // n_lb<0 -> no LB written, n_lb==0 -> LB0 writter (also not good)
 
    if(!getRunNumberFromIS()) return;
 
-   bool needToOpen = !fCoolWriter.dbIsOpen();
+   bool needToOpen = !m_coolWriter.dbIsOpen();
    bool readOnly = false;
-   if(needToOpen) fCoolWriter.openDb(readOnly);
+   if(needToOpen) m_coolWriter.openDb(readOnly);
 
    try{
-      fCoolWriter.createSchema();
+      m_coolWriter.createSchema();
    } catch(...) {
       // just in case
    }
@@ -64,7 +64,7 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
       unsigned int n_lb = (unsigned int)lastlb;
 
       // enable buffered writing
-      fCoolWriter.setupStorageBuffers();
+      m_coolWriter.setupStorageBuffers();
 
       // loop over all lumiblocks
       for(unsigned int lb = 1; lb <= n_lb; ++lb) {
@@ -74,7 +74,7 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
             HLTCounter::TriggerLevel level = tl==0?HLTCounter::L2:HLTCounter::EF;
 
             // get the data from the receiver by LB and trigger level
-            const std::vector<hltca::HLTCounter>& hltCounters = fReceiver->hltCounters(lb, level);
+            const std::vector<hltca::HLTCounter>& hltCounters = m_receiver->hltCounters(lb, level);
 
             //             // example printout for LB 2 and L2
             //             if(lb==2 && level==HLTCounter::L2) {
@@ -86,11 +86,11 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
             //             }
 
             // write to COOL (note that buffering is switched on, so writing happens only at the end)
-            fCoolWriter.writeHLTCountersPayload(conf().CurrentRunNumber(), lb, hltCounters, level);
+            m_coolWriter.writeHLTCountersPayload(conf().CurrentRunNumber(), lb, hltCounters, level);
          }
       }
 
-      fCoolWriter.flushStorageBuffers();
+      m_coolWriter.flushStorageBuffers();
 
    }
    catch(cool::Exception ex) {
@@ -102,7 +102,7 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
       return;
    }
 
-   if(needToOpen) fCoolWriter.closeDb();
+   if(needToOpen) m_coolWriter.closeDb();
    
    return;
   
@@ -110,7 +110,7 @@ hltca::HLTCountsArchiverRCApp::writeToCool() {
 
 bool
 hltca::HLTCountsArchiverRCApp::getRunNumberFromIS() {
-   ISInfoDictionary dict(*fIPCPartition);
+   ISInfoDictionary dict(*m_IPCPartition);
 
    if ( !dict.contains("RunParams.SOR_RunParams") ) {
       std::cerr << "RunParams.SOR_RunParams doesn't exist" << std::endl;

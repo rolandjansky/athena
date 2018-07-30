@@ -27,14 +27,11 @@
 
 //local includes
 #include "SCT_CalibAlgs/ISCT_CalibHistoSvc.h"
-#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h" //template parameter
+#include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h" //template parameter
 #include "SCT_Cabling/ISCT_CablingSvc.h"  //template parameter
 
 //fwd declarations
 template <class TYPE> class SvcFactory;
-namespace InDetDD{
-  class  SCT_DetectorManager;
-}
 class StatusCode;
 class ISvcLocator;
 class IdentifierHash;
@@ -67,7 +64,7 @@ private:
          
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<StoreGateSvc> m_evtStore;
-  ServiceHandle<ISCT_DCSConditionsSvc>            m_DCSConditionsSvc;
+  ToolHandle<ISCT_DCSConditionsTool> m_DCSConditionsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
   ServiceHandle<ISCT_CablingSvc>                  m_cablingSvc;
   
   const SCT_ID* m_pSCTHelper;

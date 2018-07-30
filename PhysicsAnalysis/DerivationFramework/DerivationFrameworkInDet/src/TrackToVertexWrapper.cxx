@@ -41,6 +41,7 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
     ATH_CHECK(m_tool.retrieve());
+    ATH_CHECK(m_vertexKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -58,13 +59,33 @@ namespace DerivationFramework {
         ATH_MSG_ERROR ("Couldn't retrieve TrackParticles with key: " << m_containerName );
         return StatusCode::FAILURE;
     }
+    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+    if ( !vertices.isValid() )
+    {
+      ATH_MSG_ERROR ("Couldn't retrieve Vertices with key: " << m_vertexKey.key());
+      return StatusCode::FAILURE;
+    }
+
     // Run tool for each element and calculate the impact parameters/errors 
     for (xAOD::TrackParticleContainer::const_iterator trItr = tracks->begin(); trItr!=tracks->end(); ++trItr) {
       const Trk::ImpactParametersAndSigma* iPandSigma(NULL);
       const Trk::ImpactParametersAndSigma* iPandSigmaBiased(NULL);
-      if ( (*trItr)->vertex() ) {
-	iPandSigma = m_tool->estimate(*trItr,(*trItr)->vertex(),true);
-	iPandSigmaBiased = m_tool->estimate(*trItr,(*trItr)->vertex(),false);
+      const xAOD::Vertex* foundVertex { nullptr };
+      for (const auto& vx : *vertices)
+      {
+	for (const auto& tpLink : vx->trackParticleLinks())
+	{
+	  if (*tpLink == *trItr)
+	  {
+	    foundVertex = vx;
+	    break;
+	  }
+	}
+	if (foundVertex) break;
+      }
+      if ( foundVertex ) {
+	iPandSigma = m_tool->estimate(*trItr,foundVertex,true);
+	iPandSigmaBiased = m_tool->estimate(*trItr,foundVertex,false);
 	if( iPandSigma==0 ) ATH_MSG_WARNING ("trackToVertexIPEstimator failed !");
 	if( iPandSigmaBiased==0 ) ATH_MSG_WARNING ("trackToVertexIPEstimator biased IP failed !");
       } else {

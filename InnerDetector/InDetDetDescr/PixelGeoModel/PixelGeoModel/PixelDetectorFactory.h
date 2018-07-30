@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelDetectorFactory_h
@@ -32,8 +32,6 @@ class PixelDetectorFactory : public InDetDD::DetectorFactoryBase {
   // Access to the results:
   virtual const InDetDD::PixelDetectorManager * getDetectorManager() const;
 
-  // Determine which alignment folders are loaded to decide if we register old or new folders
-  virtual InDetDD::AlignFolderType getAlignFolderType() const;
 
  private:  
   
@@ -45,6 +43,9 @@ class PixelDetectorFactory : public InDetDD::DetectorFactoryBase {
   PixelGeometryManager * m_geometryManager;
 
   void doChecks();
+
+private:
+  bool m_useDynamicAlignFolders;
   
 };
 

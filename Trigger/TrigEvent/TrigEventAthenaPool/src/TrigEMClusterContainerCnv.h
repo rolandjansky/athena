@@ -23,7 +23,9 @@ class TrigEMClusterContainerCnv : public TrigEMClusterContainerCnvBase
  
   protected:
    
+public:
   TrigEMClusterContainerCnv( ISvcLocator *svcloc ): TrigEMClusterContainerCnvBase(svcloc){}
+protected:
  
    
    virtual TrigEMClusterContainer_PERS *createPersistent( TrigEMClusterContainer *transObj);

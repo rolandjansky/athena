@@ -2,12 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArRecUtils/LArOFCTool.h"
-#include "GaudiKernel/ToolFactory.h"
+#include "LArOFCTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"

@@ -14,7 +14,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/SvcFactory.h"
 
 // PerfMonComps includes
 #include "CallGraphBuilderSvc.h"

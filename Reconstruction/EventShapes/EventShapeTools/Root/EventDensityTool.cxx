@@ -10,6 +10,7 @@
 #include "fastjet/ClusterSequenceArea.hh"
 #include "xAODEventShape/EventShape.h"
 #include "xAODEventShape/EventShapeAuxInfo.h"
+#include "JetEDM/PseudoJetVector.h"
 
 using fastjet::JetAlgorithm;
 using fastjet::JetDefinition;
@@ -22,19 +23,16 @@ using fastjet::VoronoiAreaSpec;
 
 EventDensityTool::EventDensityTool(const std::string& name)
   : asg::AsgTool(name),
-  m_useAreaFourMom(true),
-  m_rhoDec(""), 
-  m_sigmaDec(""), 
-  m_areaDec("") {  
+  m_useAreaFourMom(true)
+{
   declareProperty("JetAlgorithm",    m_jetalg  = "Kt");
   declareProperty("JetRadius",       m_jetrad  = 0.4);
-  declareProperty("JetInput",        m_pjgetter);
   declareProperty("AbsRapidityMin",  m_rapmin  = 0.0);
   declareProperty("AbsRapidityMax",  m_rapmax  = 2.0);
   declareProperty("AreaDefinition",  m_areadef = "Voronoi");
   declareProperty("VoronoiRfact",    m_vrfact  = 1.0);
-  declareProperty("OutputContainer", m_outcon  = "GenericEventDensity");
-  declareProperty("UseFourMomArea", m_useAreaFourMom);
+  declareProperty("UseFourMomArea",  m_useAreaFourMom);
+  declareProperty("TrigPseudoJetGetter", m_trigPJGet);
 }
 
 //**********************************************************************
@@ -45,7 +43,6 @@ EventDensityTool::~EventDensityTool() {}
 
 StatusCode EventDensityTool::initialize() {
   ATH_MSG_INFO ("Initializing " << name() << "...");
-  ATH_CHECK( m_pjgetter.retrieve() );
 
   // Fetch the fastjet algorithm enum
   JetAlgorithm fjalg;
@@ -84,27 +81,40 @@ StatusCode EventDensityTool::initialize() {
   ATH_MSG_INFO("Configured properties:");
   ATH_MSG_INFO("     JetAlgorithm: " << m_jetalg);
   ATH_MSG_INFO("        JetRadius: " << m_jetrad);
-  ATH_MSG_INFO("         JetInput: " << m_pjgetter);
+  if(!m_inPJKey.key().empty()) {
+    ATH_MSG_INFO("   InputContainer: " << m_inPJKey.key());
+  } else {
+    ATH_MSG_INFO("     TrigPJGetter: " << m_trigPJGet.name());
+  }
   ATH_MSG_INFO("   AbsRapidityMin: " << m_rapmin);
   ATH_MSG_INFO("   AbsRapidityMax: " << m_rapmax);
   ATH_MSG_INFO("   AreaDefinition: " << m_areadef);
   ATH_MSG_INFO("     VoronoiRfact: " << m_vrfact);
-  ATH_MSG_INFO("  OutputContainer: " << m_outcon.key());
+  ATH_MSG_INFO("  OutputContainer: " << m_outEDKey.key());
   ATH_MSG_INFO("Derived properties:");
   ATH_MSG_INFO("        Fastjet jet defn: " << m_fjjetdef.description());
   ATH_MSG_INFO("       Fastjet area defn: " << m_fjareadef.description());
   ATH_MSG_INFO("    Fastjet jet selector: " << m_fjselector.description());
   ATH_MSG_INFO("  Use area four-momentum: " << m_useAreaFourMom);
 
-  // Fill the EventShape object
-  m_rhoDec   = SG::AuxElement::Accessor<float>("Density");
-  m_sigmaDec = SG::AuxElement::Accessor<float>("DensitySigma");
-  m_areaDec  = SG::AuxElement::Accessor<float>("DensityArea");
+  // Input sources
+  if(!m_inPJKey.key().empty() && m_trigPJGet.empty()) {
+    ATH_CHECK( m_inPJKey.initialize() );
+  }
+  // { FIXME: To be removed when trigger moves to DataHandles fully
+  else if(m_inPJKey.key().empty() && !m_trigPJGet.empty()) {
+    ATH_CHECK( m_trigPJGet.retrieve() );
+  }
+  // } FIXME
+  else {
+    ATH_MSG_ERROR( "Inconsistent/ambiguous input setup."
+		   << " InPJKey: " << m_inPJKey.key() 
+		   << " TrigPJGetter: " << m_trigPJGet.name() );
+    return StatusCode::FAILURE;
+  }
 
-  // DataHandles
-  ATH_CHECK( m_outcon.initialize() );
-  m_outconIn = m_outcon.key();
-  ATH_CHECK( m_outconIn.initialize() );
+  // Initialise output handle
+  ATH_CHECK( m_outEDKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -114,13 +124,6 @@ StatusCode EventDensityTool::initialize() {
 StatusCode EventDensityTool::fillEventShape() const {
   
   ATH_MSG_DEBUG("Begin fillEventShape()");
-
-  // check if not already existing
-  auto handle_inOut = SG::makeHandle (m_outconIn);
-  if ( handle_inOut.isValid() ) {
-    ATH_MSG_WARNING( "EventShape with key "<< m_outconIn.key() << " already exists. Not overwriting it." );
-    return StatusCode::SUCCESS;
-  }
 
   xAOD::EventShape *pevs = new xAOD::EventShape();
   std::unique_ptr<const xAOD::EventShape> pevs_ptr(pevs);
@@ -132,11 +135,11 @@ StatusCode EventDensityTool::fillEventShape() const {
   // Change the order: first fill the object and then record
   ATH_CHECK(fillEventShape(pevs));  
 
-  SG::WriteHandle<xAOD::EventShape> h_out(m_outcon);
+  auto h_out = makeHandle(m_outEDKey);
   if ( ! h_out.put(std::move(pevs_ptr), std::move(pevsaux_ptr) )) {
-    ATH_MSG_WARNING("Unable to write new Jet collection and aux store to event store: " << m_outcon.key());
+    ATH_MSG_WARNING("Unable to write new Jet collection and aux store to event store: " << m_outEDKey.key());
   } else {
-    ATH_MSG_DEBUG("Created new EventShape container: " << m_outcon.key());
+    ATH_MSG_DEBUG("Created new EventShape container: " << m_outEDKey.key());
   }
 
   return StatusCode::SUCCESS;
@@ -145,34 +148,34 @@ StatusCode EventDensityTool::fillEventShape() const {
 //**********************************************************************
 StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
 
-  const PseudoJetVector* ppjv = m_pjgetter->get();
-  if ( ppjv == 0 ) {
-    ATH_MSG_ERROR( "Couldn't retrieve pseudojets from "<< m_pjgetter->name() );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Retrieved input pseudojet count: " <<  ppjv->size());
+  if(!m_inPJKey.key().empty() && m_trigPJGet.empty()) {
+    auto h_in = makeHandle(m_inPJKey);
+    // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
+    if ( h_in->size() == 0 ) {
+      ATH_MSG_WARNING( "Input PseudoJetContainer size()=0 for pseudojets from "<< m_inPJKey.key() );
+      //return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Retrieved input pseudojets " << m_inPJKey.key() << " , count: " <<  h_in->size());
+    }
+    return fillEventShape(pevs, *(h_in->casVectorPseudoJet()));
   }
-
-  // call fillEventShape(PseudoJetVector, EventShape) :
-  return fillEventShape(pevs, *ppjv);    
+  // { FIXME: To be removed when trigger moves to DataHandles fully
+  else if(m_inPJKey.key().empty() && !m_trigPJGet.empty()) {
+    const PseudoJetVector& ppjv = *(m_trigPJGet->get());
+    // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
+    if ( ppjv.size() == 0 ) {
+      ATH_MSG_WARNING( "Input PseudoJetVector size()=0 for pseudojets from "<< m_trigPJGet.name() );
+      //return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG("Retrieved input pseudojets " << m_trigPJGet.name() << " , count: " <<  ppjv.size());
+    }
+    return fillEventShape(pevs, ppjv);
+  }
+  // } FIXME
+  
+  return StatusCode::FAILURE;
 }
 
-
-StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs, const xAOD::IParticleContainer*) const {
-  // Ignore IParticleContainer argument.
-
-  // Fetch inputs.
-  const PseudoJetVector* ppjv = m_pjgetter->get();
- 
-  if ( ppjv == 0 ) {
-    ATH_MSG_ERROR("Could not retrieve pseudojets from " << m_pjgetter->name());
-    return StatusCode::FAILURE;
-    /// TODO : instead build a PseudoJetVector from the input IParticleContainer
-  }
-  
-  return fillEventShape( pevs, *ppjv);
-}
-  
 //**********************************************************************
 
 StatusCode EventDensityTool::
@@ -197,9 +200,14 @@ fillEventShape( xAOD::EventShape* pevs, const PseudoJetVector& pjv) const {
   ATH_MSG_DEBUG(" calculated rho="<< rho);
 
   // Record rho.
-  m_rhoDec(*pevs) = rho;
-  m_sigmaDec(*pevs) = sigma;
-  m_areaDec(*pevs) = area;
+
+  // Fill the EventShape object
+  const static SG::AuxElement::Accessor<float> rhoDec("Density");
+  const static SG::AuxElement::Accessor<float> sigmaDec("DensitySigma");
+  const static SG::AuxElement::Accessor<float> areaDec("DensityArea");
+  rhoDec(*pevs) = rho;
+  sigmaDec(*pevs) = sigma;
+  areaDec(*pevs) = area;
 
   ATH_MSG_DEBUG("Recorded event density:  = " << 0.001*rho << " GeV");
 

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/TransportTool.h"
+#include "TransportTool.h"
 
 // Tracking
 #include "TrkTrack/Track.h"
@@ -271,7 +271,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
   // NB: don't delete eParameters, it's memory is managed inside the extrapolator
 
   // additional exercise due to the current mismatch in geoID
-  Trk::GeometrySignature nextGeoID=Trk::GeometrySignature(isp.nextGeoID()); 
+  Trk::GeometrySignature nextGeoID=static_cast<Trk::GeometrySignature>(isp.nextGeoID()); 
     
   const Trk::TrackParameters* eParameters = 0;
 
@@ -339,7 +339,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
   // additional exercise due to the current mismatch in geoID
   AtlasDetDescr::AtlasRegion geoID=AtlasDetDescr::AtlasRegion(5);
   if (nextGeoID<99) {
-    geoID = AtlasDetDescr::AtlasRegion(nextGeoID);
+    geoID = static_cast<AtlasDetDescr::AtlasRegion>(nextGeoID);
   }
 
   // validation mode - for all particle registered into stack
@@ -360,6 +360,10 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
 									    eParameters->momentum(),
 									    timeLim.time-isp.timeStamp()) : 0;     // update expects time difference
   // free memory
+  if ( hitVector ) {
+    for (auto& h : *hitVector) delete h.trackParms;
+    delete hitVector;
+  }
   delete eParameters;
 
   if (uisp && m_validationOutput) {

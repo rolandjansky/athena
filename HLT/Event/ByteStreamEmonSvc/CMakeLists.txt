@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( tdaq COMPONENTS emon ohroot owl is omniORB4 omnithread )
+find_package( tdaq COMPONENTS emon ohroot owl is omniORB4 omnithread oh )
 
 # Component(s) in the package:
 atlas_add_library( ByteStreamEmonSvcLib

@@ -7,13 +7,10 @@
 //   Implementation file for class TBTrackToCaloAlg
 ///////////////////////////////////////////////////////////////////
 
-#include "TBRec/TBTrackToCaloAlg.h"
-#include "TBRec/TBExtrapolTrackToCaloTool.h"
+#include "TBTrackToCaloAlg.h"
+#include "TBExtrapolTrackToCaloTool.h"
 
 // Gaudi includes
-#include "StoreGate/StoreGate.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 
 // Tracking includes
@@ -38,7 +35,7 @@
 
 //#include "ITrackToCalo/IExtrapolTrackToCaloTool.h"
 //#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
-#include "TBRec/ImpactInCaloCollection.h"
+#include "ImpactInCaloCollection.h"
 #include "AthenaKernel/Units.h"
 
 

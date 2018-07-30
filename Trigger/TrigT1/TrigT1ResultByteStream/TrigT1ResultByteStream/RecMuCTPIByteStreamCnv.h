@@ -9,7 +9,6 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Converter.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -42,13 +41,10 @@ extern long ByteStream_StorageType;
  */
 class RecMuCTPIByteStreamCnv : public Converter {
 
-  friend class CnvFactory< RecMuCTPIByteStreamCnv >;
-
-protected:
+public:
   /// Standard constructor
   RecMuCTPIByteStreamCnv( ISvcLocator* svcloc );
 
-public:
   /// Standard destructor
   ~RecMuCTPIByteStreamCnv();
 

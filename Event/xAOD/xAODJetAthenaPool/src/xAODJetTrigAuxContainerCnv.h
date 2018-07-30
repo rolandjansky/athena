@@ -42,7 +42,9 @@ class xAODJetTrigAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODJetTrigAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::JetTrigAuxContainer*

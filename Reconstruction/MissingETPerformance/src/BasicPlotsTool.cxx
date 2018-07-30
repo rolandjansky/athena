@@ -5,7 +5,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "xAODEventInfo/EventInfo.h"
 
@@ -599,6 +598,3 @@ StatusCode BasicPlotsTool::basicPlots(MissingETData *data) {
 StatusCode BasicPlotsTool::finalize() {
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-BasicPlotsTool::~BasicPlotsTool() {}

@@ -2,16 +2,7 @@
 <lcgdict>
 
   <!-- TauJet_v1 dictionaries: -->
-  <class name="xAOD::TauJet_v1" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::TauJet_v1" version="[1-]"
-        targetClass="xAOD::TauJet_v1" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::TauJet_v1" />
 
   <class name="xAOD::TauJetContainer_v1"
          id="93CCE680-47C0-11E3-997C-02163E00A614" />
@@ -26,16 +17,7 @@
   <class name="std::vector<std::vector<ElementLink<xAOD::TauJetContainer_v1> > >" />
 
   <!-- TauJet_v2 dictionaries: -->
-  <class name="xAOD::TauJet_v2" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::TauJet_v2" version="[1-]"
-        targetClass="xAOD::TauJet_v2" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::TauJet_v2" />
 
   <class name="xAOD::TauJetContainer_v2"
          id="AACF5DF5-2D1A-4678-9188-756C27314E2F" />
@@ -51,16 +33,7 @@
 
 
   <!-- TauJet_v3 dictionaries: -->
-  <class name="xAOD::TauJet_v3" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::TauJet_v3" version="[1-]"
-        targetClass="xAOD::TauJet_v3" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::TauJet_v3" />
 
   <class name="xAOD::TauJetContainer_v3"
          id="9A1207C5-E25F-4974-A9D6-A51DB37F09F9" />
@@ -99,16 +72,7 @@
 
 
   <!-- DiTauJet_v1 dictionaries: -->
-  <class name="xAOD::DiTauJet_v1" >
-   <field name="m_p4" transient="true" />
-   <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::DiTauJet_v1" version="[1-]"
-       targetClass="xAOD::DiTauJet_v1" source="" target="m_p4Cached" >
-   <![CDATA[
-      m_p4Cached = false;
-   ]]>
-  </read>
+  <class name="xAOD::DiTauJet_v1" />
 
   <class name="xAOD::DiTauJetContainer_v1"
         id="0AD18017-0347-4F89-976E-6DA3149DA622" />
@@ -124,16 +88,7 @@
 
 
   <!-- TauTrack_v1 dictionaries: -->
-  <class name="xAOD::TauTrack_v1" >
-   <field name="m_p4" transient="true" />
-   <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::TauTrack_v1" version="[1-]"
-       targetClass="xAOD::TauTrack_v1" source="" target="m_p4Cached" >
-   <![CDATA[
-      m_p4Cached = false;
-   ]]>
-  </read>
+  <class name="xAOD::TauTrack_v1" />
 
   <class name="xAOD::TauTrackContainer_v1"
         id="A45C1CC2-E6BE-4D99-BB49-3CE80AACEDDA" />

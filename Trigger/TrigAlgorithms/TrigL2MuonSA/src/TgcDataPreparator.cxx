@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/TgcDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -43,9 +42,11 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
 						   const IInterface*  parent): 
   AthAlgTool(type,name,parent),
    m_storeGateSvc( "StoreGateSvc", name ),
+   m_activeStore( "ActiveStoreSvc", name ), 
    m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
    m_tgcRawDataProvider("Muon::TGC_RawDataProviderTool"),
-   m_regionSelector(0), m_robDataProvider(0),
+   m_regionSelector( "RegSelSvc", name ), 
+   m_robDataProvider( "ROBDataProviderSvc", name ),
    m_options(), m_recMuonRoIUtils()
 {
    declareInterface<TrigL2MuonSA::TgcDataPreparator>(this);
@@ -75,68 +76,32 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
      ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
       return sc;
    }
-   
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
-      return sc;
-   }
 
-   // Locate TGC RawDataProvider
-   sc = m_tgcRawDataProvider.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_tgcRawDataProvider);
-      return sc;
-   }
+   ATH_CHECK( m_storeGateSvc.retrieve() );
+
+   ATH_CHECK( m_tgcRawDataProvider.retrieve() );
    ATH_MSG_DEBUG("Retrieved tool " << m_tgcRawDataProvider);
 
    // Locate RegionSelector
-   sc = service("RegSelSvc", m_regionSelector);
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve RegionSelector");
-      return sc;
-   }
+   ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   // Locate ROBDataProvider
-   std::string serviceName = "ROBDataProvider";
-   IService* svc = 0;
-   sc = service("ROBDataProviderSvc", svc);
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve " << serviceName);
-      return sc;
-   }
-   m_robDataProvider = dynamic_cast<ROBDataProviderSvc*> (svc);
-   if( m_robDataProvider == 0 ) {
-     ATH_MSG_ERROR("Could not cast to ROBDataProviderSvc ");
-      return StatusCode::FAILURE;
-   }
-   ATH_MSG_DEBUG("Retrieved service " << serviceName);
-
-   StoreGateSvc* detStore(0);
-   sc = serviceLocator()->service("DetectorStore", detStore);
-   if (sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve DetectorStore.");
-     return sc;
-   }
+   ServiceHandle<StoreGateSvc> detStore( "DetectorStore", name() );
+   ATH_CHECK( detStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved DetectorStore.");
- 
-   sc = detStore->retrieve( m_muonMgr,"Muon" );
-   if (sc.isFailure()) return sc;
+   ATH_CHECK( detStore->retrieve( m_muonMgr,"Muon" ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_tgcIdHelper = m_muonMgr->tgcIdHelper();
 
-   sc = m_tgcPrepDataProvider.retrieve();
-   if (sc.isFailure()) return sc;
-   ATH_MSG_DEBUG("Retrieved m_tgcPrepDataProvider");
-
-   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-   if (sc.isFailure()) {
-     ATH_MSG_ERROR(" Cannot get ActiveStoreSvc.");
-     return sc ;
-   }
+   ATH_CHECK( m_activeStore.retrieve() ); 
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
+
+   ATH_CHECK( m_tgcPrepDataProvider.retrieve() );
+   ATH_MSG_DEBUG("Retrieved tool " << m_tgcPrepDataProvider );
+
+   // Locate ROBDataProvider
+   ATH_CHECK( m_robDataProvider.retrieve() );
+   ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider.name() );
 
    ATH_CHECK(m_tgcContainerKey.initialize());
       

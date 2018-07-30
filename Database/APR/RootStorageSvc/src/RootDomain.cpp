@@ -25,8 +25,7 @@
 using namespace pool;
 
 /// Standard Constuctor
-RootDomain::RootDomain(IOODatabase* idb)
-: DbDomainImp(idb),
+RootDomain::RootDomain() :
   m_defCompression(1),
   m_defCompressionAlg(1),
   m_defSplitLevel(99),
@@ -90,6 +89,22 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
         }
         return sc;
       }
+      else if ( !strcasecmp(n, "ENABLE_THREADSAFETY") )  {
+        bool multithreaded = false;
+        DbStatus sc = opt._getValue(multithreaded);
+        if ( sc.isSuccess() && multithreaded )  {
+           ROOT::EnableThreadSafety();
+        }
+        return sc;
+      }
+      else if ( !strcasecmp(n, "ENABLE_IMPLICITMT") )  {
+        bool implicitMT = false;
+        DbStatus sc = opt._getValue(implicitMT);
+        if ( sc.isSuccess() && implicitMT )  {
+           ROOT::EnableImplicitMT();
+        }
+        return sc;
+      }
       break;
     case 'F':
       if ( !strncasecmp(n+5, "READSTREAMERINFO",15) )  {
@@ -97,16 +112,6 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
         DbStatus sc = opt._getValue(val);
         if ( sc.isSuccess() )  {
           TFile::SetReadStreamerInfo(val != 0 ? kTRUE : kFALSE);
-        }
-        return sc;
-      }
-      break;
-    case 'M':
-      if( !strcasecmp(n, "MultiThreaded") )  {
-        bool multithreaded = false;
-        DbStatus sc = opt._getValue(multithreaded);
-        if( sc.isSuccess() && multithreaded )  {
-           ROOT::EnableThreadSafety();
         }
         return sc;
       }

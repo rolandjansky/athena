@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -18,16 +19,15 @@ namespace InDet
    class TRT_DriftCircle_p2
    {
   public:
-     TRT_DriftCircle_p2() {}
+     TRT_DriftCircle_p2():
+       m_locPos(0.0),
+       m_errMat(0.0),
+       m_TRTdata(0) {}
 
-     // base PrepRawData_p1
-     // Trk::PrepRawData_p2 m_rawData;
-      
-//     unsigned int m_id;
      float m_locPos;
      float m_errMat;
      unsigned int m_TRTdata; // the raw data word from the TRT
-     
+
    };
 }
 

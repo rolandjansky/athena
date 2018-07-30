@@ -216,7 +216,7 @@ PixelConditionsSetup.createSvc()
 SCT_ConditionsSetup.config(useDCS=False, onlineMode=True, prefix='')
 #SCT_ConditionsSetup.config(useDCS=False, onlineMode=False, prefix='')
 SCT_ConditionsSetup.lock()
-SCT_ConditionsSetup.createSvc()
+SCT_ConditionsSetup.createTool()
 
 TRT_ConditionsSetup.config(useDCS=False, onlineMode=True, prefix='')
 #TRT_ConditionsSetup.config(useDCS=False, onlineMode=False, prefix='')

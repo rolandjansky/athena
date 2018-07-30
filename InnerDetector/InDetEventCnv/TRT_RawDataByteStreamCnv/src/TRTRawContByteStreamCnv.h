@@ -9,12 +9,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h" 
 
 #include "TRT_RawDataByteStreamCnv/ITRTRawContByteStreamTool.h"
 
 class DataObject;
 class TRTRawContByteStreamTool ; 
-class IByteStreamEventAccess   ;
 
 #include <string>
 
@@ -27,15 +27,9 @@ extern long ByteStream_StorageType;
 // the converter for writing BS from TRT Raw Data
 
 class TRTRawContByteStreamCnv: public Converter {
-  friend class CnvFactory<TRTRawContByteStreamCnv>;
-  
-  ~TRTRawContByteStreamCnv( );
-
- protected:
-
-  TRTRawContByteStreamCnv(ISvcLocator* svcloc);
-  
  public:
+  TRTRawContByteStreamCnv(ISvcLocator* svcloc);
+
   typedef TRT_RDO_Container       TRTRawContainer; 
 
   //! Storage type and class ID

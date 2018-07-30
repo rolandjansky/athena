@@ -15,7 +15,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/System.h"
@@ -197,17 +196,6 @@ ThinningSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                            bool returnExisting)
 {
   return m_storeGate->recordObject (obj, key, allowMods, returnExisting);
-}
-
-
-/**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode ThinningSvc::updatedObject (CLID id, const std::string& key)
-{
-  return m_storeGate->updatedObject (id, key);
 }
 
 

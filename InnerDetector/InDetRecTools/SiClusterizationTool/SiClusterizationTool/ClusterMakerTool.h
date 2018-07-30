@@ -21,9 +21,10 @@
 //#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 class IPixelOfflineCalibSvc;
 class IPixelCalibSvc;
@@ -141,6 +142,7 @@ private:
   bool m_calibrateCharge;
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
   // Parametrization of the Pixel errors
   // now moved in PixelConditionsData, except for CTB parametrization

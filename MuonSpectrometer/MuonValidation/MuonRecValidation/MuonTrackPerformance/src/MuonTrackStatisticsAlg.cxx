@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -10,7 +10,6 @@ MuonTrackStatisticsAlg
 #include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
-
 
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/MsgStream.h"
@@ -30,8 +29,6 @@ MuonTrackStatisticsAlg::MuonTrackStatisticsAlg(const std::string& name, ISvcLoca
   declareProperty("doTruth",         m_doTruth);
   declareProperty("writeToFile",     m_writeToFile);
   declareProperty("FileName",               m_fileName);
-
-
 }
 
 // INITIALIZE METHOD:
@@ -75,7 +72,7 @@ StatusCode MuonTrackStatisticsAlg::execute()
       ATH_MSG_WARNING("truth map "<<truthMap.key()<<" not valid!");
       return StatusCode::FAILURE;
     }
-    m_statisticsTool->updateTruthTrackCounters(truthMap.key(),truthMap.cptr());
+    ATH_CHECK( m_statisticsTool->updateTruthTrackCounters(truthMap.key(),truthMap.cptr()) );
   }
   
   return StatusCode::SUCCESS;
@@ -88,27 +85,18 @@ StatusCode MuonTrackStatisticsAlg::execute()
 
 
 StatusCode MuonTrackStatisticsAlg::finalize() 
-
 {
 
   ATH_MSG_INFO(std::endl << m_statisticsTool->printTrackCounters());
-
-
   //write to file
   if (m_writeToFile){
     m_fileOutput.open(m_fileName.c_str(), std::ios::trunc);
-
     m_fileOutput <<  m_statisticsTool->printTrackCounters() << std::endl;
-        
     m_fileOutput.close();
   }
 
   return StatusCode::SUCCESS;
 }
-
- 
-
-
 
 void
 MuonTrackStatisticsAlg::storeTruthTracks(void)
@@ -174,8 +162,6 @@ MuonTrackStatisticsAlg::storeTruthTracks(void)
     m_etag->push_back((*particle)->momentum().pseudoRapidity());
     m_barcode->push_back((*particle)->barcode());
     m_status->push_back((*particle)->status());
-
-
 
   */
   

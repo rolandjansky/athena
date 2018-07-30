@@ -1,10 +1,9 @@
 #include "InDetPhysValMonitoring/InDetPhysValMonitoringTool.h"
 #include "InDetPhysValMonitoring/InDetPhysValLargeD0Tool.h"
-#include "../InDetPhysValTruthDecoratorTool.h"
-#include "../InDetPhysHitDecoratorTool.h"
-#include "../ParameterErrDecoratorTool.h"
-#include "../TruthClassDecoratorTool.h"
-#include "InDetPhysValMonitoring/InDetPhysValDecoratorAlg.h"
+#include "../InDetPhysValTruthDecoratorAlg.h"
+#include "../InDetPhysHitDecoratorAlg.h"
+#include "../ParameterErrDecoratorAlg.h"
+#include "../TruthClassDecoratorAlg.h"
 #include "../TrackTruthSelectionTool.h"
 #include "../dRMatchingTool.h"
 #include "../TrackSelectionTool.h"
@@ -15,16 +14,15 @@
 
 #include "../DummyTrackSlimmingTool.h"
 
-DECLARE_COMPONENT( InDetPhysValDecoratorAlg )
 DECLARE_COMPONENT( AlgTestHistoDefSvc )
 DECLARE_COMPONENT( HistogramDefinitionSvc )
 DECLARE_COMPONENT( InDetPhysValMonitoringTool )
 DECLARE_COMPONENT( InDetPhysValLargeD0Tool )
 DECLARE_COMPONENT( ToolTestMonitoringPlots )
-DECLARE_COMPONENT( InDetPhysValTruthDecoratorTool )
-DECLARE_COMPONENT( InDetPhysHitDecoratorTool )
-DECLARE_COMPONENT( ParameterErrDecoratorTool )
-DECLARE_COMPONENT( TruthClassDecoratorTool )
+DECLARE_COMPONENT( InDetPhysValTruthDecoratorAlg )
+DECLARE_COMPONENT( InDetPhysHitDecoratorAlg )
+DECLARE_COMPONENT( ParameterErrDecoratorAlg )
+DECLARE_COMPONENT( TruthClassDecoratorAlg )
 DECLARE_COMPONENT( TrackTruthSelectionTool )
 DECLARE_COMPONENT( dRMatchingTool )
 DECLARE_COMPONENT( TrackSelectionTool )

@@ -2,34 +2,31 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCregisterPFN.cpp 509054 2012-07-05 13:33:16Z mnowak $
-/**FCregisterPFN.cpp -- FileCatalog command line tool registerPFN
+/**
+   FCregisterPFN.cpp -- FileCatalog command line tool registerPFN
    Register a PFN in the File Catalog: a unique FileID is generated and inserted in the catalog, 
-   @author: Zhen Xie
-   @author: Maria Girone
-   @date: 02/03/2005 Z.X.
-   set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-   separate logging stream to std::cerr, output stream to std::cout.
-   @date: 07/04/2005 Z.X.
-   adopt to split interface
- */
+*/
+
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
+
 using namespace pool;
+
 void printUsage(){
   std::cout<< "usage: registerPFN -p pfname [ -u contactstring -t filetype -g guid -h ]" <<std::endl;
 }
+
 static const char* opts[] = {"p","t","g","u","h",0};
 
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string myuri;
   std::string mypfn;
   std::string myfiletype;
@@ -40,6 +37,8 @@ int main(int argc, char** argv)
 
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
+    }else{
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
     } 
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");
@@ -66,19 +65,16 @@ int main(int argc, char** argv)
   }
   try{  
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    mycatalog->setWriteCatalog(myuri);
-    IFCAction a;
-    mycatalog->setAction(a);
+    pool::URIParser p( myuri );
+    p.parse();
+    mycatalog->setWriteCatalog(p.contactstring());
     mycatalog->connect();
     mycatalog->start();
-    FileCatalog::FileID fid = myguid;
-    a.registerPFN(mypfn,myfiletype,fid);
+    mycatalog->registerPFN(mypfn, myfiletype, myguid);
     mycatalog->commit();  
     mycatalog->disconnect();
-    std::cout<<fid<<std::endl;
+    std::cout<<myguid<<std::endl;
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){

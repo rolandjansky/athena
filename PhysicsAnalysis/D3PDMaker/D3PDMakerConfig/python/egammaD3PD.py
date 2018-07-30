@@ -47,7 +47,7 @@ def _args (level, name, kwin, **kw):
 
 
 def createxAOD (seq):
-    from D3PDMakerConfig.makexAOD import makexAOD, setVxLinks
+    from D3PDMakerConfig.makexAOD import makexAOD
     makexAOD (seq, 'xAOD::TruthParticleContainer',
               'TruthParticles', 'GEN_AOD',
               xaod_truth_event_key = 'TruthEvents',
@@ -176,8 +176,6 @@ def createxAOD (seq):
     makexAOD (seq, 'xAOD::TrigEMClusterContainer',
               'HLT_TrigT2CaloEgamma')
 
-    #setVxLinks (seq, 'InDetTrackParticles', 'VxPrimaryCandidate')
-    #setVxLinks (seq, 'GSFTrackParticles', 'VxPrimaryCandidate')
 
     makexAOD (seq, 'xAOD::MissingETContainer',
               'MET_Core_AntiKt4EMTopo',

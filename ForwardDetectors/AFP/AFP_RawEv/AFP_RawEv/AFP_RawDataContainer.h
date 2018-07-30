@@ -8,9 +8,8 @@
 #include <vector>
 #include <string>
 #include "AFP_RawEv/AFP_RawDataCollection.h"
-#include "SGTools/CLASS_DEF.h"
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 //svn hook
 

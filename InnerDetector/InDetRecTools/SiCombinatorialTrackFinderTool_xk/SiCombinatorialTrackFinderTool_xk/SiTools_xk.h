@@ -21,7 +21,7 @@
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 namespace InDet{
 
@@ -34,9 +34,9 @@ namespace InDet{
     public:
       
       SiTools_xk();
-      SiTools_xk(const SiTools_xk&);
+      SiTools_xk(const SiTools_xk&) = default;
       ~SiTools_xk();
-      SiTools_xk& operator  = (const SiTools_xk&);
+      SiTools_xk& operator  = (const SiTools_xk&) = default;
 
       ///////////////////////////////////////////////////////////////////
       // Main methods
@@ -50,8 +50,8 @@ namespace InDet{
 
       Trk::IRIO_OnTrackCreator*           rioTool    () const {return m_riotool    ;}
       Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
-      IInDetConditionsSvc*                pixcond    () const {return m_pixcond    ;}
-      IInDetConditionsSvc*                sctcond    () const {return m_sctcond    ;}
+      IInDetConditionsTool*               pixcond    () const {return m_pixcond    ;}
+      IInDetConditionsTool*               sctcond    () const {return m_sctcond    ;}
       const double&                       xi2max     () const {return m_xi2max     ;}
       const double&                       xi2maxBrem () const {return m_xi2maxBrem ;}
       const double&                       xi2maxNoAdd() const {return m_xi2maxNoAdd;}
@@ -75,11 +75,8 @@ namespace InDet{
 	 MagField::IMagFieldSvc* 
 	 );  
       
-      void setTools
-	(const Trk::MagneticFieldProperties&);
- 
-      void setTools(IInDetConditionsSvc*,IInDetConditionsSvc*); 
-
+      void setTools(const Trk::MagneticFieldProperties&);
+      void setTools(IInDetConditionsTool*,IInDetConditionsTool*);
       void setXi2pTmin(const double&,const double&,const double&,const double&);
       void setHolesClusters(const int&,const int&,const int&);
       void setAssociation(const int&);
@@ -99,8 +96,8 @@ namespace InDet{
       Trk::IPatternParametersPropagator* m_proptool;  // Propagator tool
       Trk::IPatternParametersUpdator* m_updatortool;  // Updator    tool
       Trk::IRIO_OnTrackCreator*       m_riotool    ;  // RIOonTrack creator
-      IInDetConditionsSvc*            m_pixcond    ;  // Condtionos for pixels 
-      IInDetConditionsSvc*            m_sctcond    ;  // Conditions for sct
+      IInDetConditionsTool*           m_pixcond    ;  // Condtionos for pixels 
+      IInDetConditionsTool*           m_sctcond    ;  // Conditions for sct
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
       double                          m_xi2maxBrem ;  // Max Xi2 for updator (brem fit)  
@@ -130,6 +127,7 @@ namespace InDet{
   inline SiTools_xk::SiTools_xk()
     {
       m_assoTool    = 0   ;
+      m_fieldService= 0    ;
       m_proptool    = 0   ;
       m_updatortool = 0   ;
       m_riotool     = 0   ;  
@@ -148,42 +146,10 @@ namespace InDet{
       m_multitrack  = false; 
       m_bremnoise   = false;
       m_electron    = false;
-      m_fieldService= 0    ;
+      m_heavyion    = false;
     }
 
-  inline SiTools_xk::SiTools_xk(const SiTools_xk& T)
-    {
-      *this = T;
-    }
   
-  inline SiTools_xk& SiTools_xk::operator = 
-    (const SiTools_xk& T) 
-    {
-      if(&T!=this) {
-	m_assoTool    = T.m_assoTool   ;
-	m_fieldtool   = T.m_fieldtool  ;
-	m_fieldService= T.m_fieldService;
-	m_proptool    = T.m_proptool   ;
-	m_updatortool = T.m_updatortool;
-	m_riotool     = T.m_riotool    ;
-	m_pixcond     = T.m_pixcond    ;
-	m_sctcond     = T.m_sctcond    ;
-	m_xi2max      = T.m_xi2max     ;
-	m_xi2maxBrem  = T.m_xi2maxBrem ;
-	m_xi2maxlink  = T.m_xi2maxlink ;
-	m_xi2multi    = T.m_xi2multi   ;
-	m_pTmin       = T.m_pTmin      ;
-	m_nholesmax   = T.m_nholesmax  ;
-	m_dholesmax   = T.m_dholesmax  ;
-	m_nclusmin    = T.m_nclusmin   ; 
-	m_useassoTool = T.m_useassoTool;
-	m_multitrack  = T.m_multitrack ; 
-	m_bremnoise   = T.m_bremnoise  ;
-	m_electron    = T.m_electron   ; 
-	m_heavyion    = T.m_heavyion   ;
-      }
-      return(*this);
-    }
 
   inline SiTools_xk::~SiTools_xk() {}
 
@@ -208,7 +174,7 @@ namespace InDet{
       m_fieldtool   = MF;
     }
 
-  inline void SiTools_xk::setTools (IInDetConditionsSvc* pix,IInDetConditionsSvc* sct)
+  inline void SiTools_xk::setTools (IInDetConditionsTool* pix,IInDetConditionsTool* sct)
     {
       m_pixcond = pix;
       m_sctcond = sct;

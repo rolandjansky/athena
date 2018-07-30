@@ -38,7 +38,6 @@ template <class TYPE> class CnvFactory;
 extern long ByteStream_StorageType;
 
 class LArAccumulatedCalibDigitContByteStreamCnv: public Converter {
-  friend class CnvFactory<LArAccumulatedCalibDigitContByteStreamCnv>;
 
 public:
   LArAccumulatedCalibDigitContByteStreamCnv(ISvcLocator* svcloc);

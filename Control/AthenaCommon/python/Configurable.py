@@ -5,7 +5,7 @@
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
 import copy, types, os, weakref,sys
-import ConfigurableMeta
+from AthenaCommon import ConfigurableMeta
 
 # Note: load iProperty etc. from GaudiPython only as-needed
 import GaudiKernel.GaudiHandles as GaudiHandles
@@ -21,6 +21,7 @@ __all__ = [ 'Configurable',
             'ConfigurableService',
             'ConfigurableUser'
             ]
+
 
 ## for messaging
 from Logging import logging
@@ -63,6 +64,8 @@ class Configurable( object ):
                               # are used for debugging purposes
 
    _printOnce = 0
+
+   configurableRun3Behavior=0
 
    def __new__ ( cls, *args, **kwargs ):
       """To Gaudi, any object with the same type/name is the same object. Hence,
@@ -109,7 +112,9 @@ class Configurable( object ):
          raise NameError( '"%s": type separator "/" no allowed in component name, '\
                           'typename is derived from configurable instead' % name )
 
-      if 'AthenaConfiguration.ComponentAccumulator' not in sys.modules.keys():
+      #Uncomment the following line for debugging:
+      #print "cls.configurableRun3Behavior=",cls.configurableRun3Behavior
+      if cls.configurableRun3Behavior==0:
          # ordinary recycle case
          try:
             conf = cls.configurables[ name ]
@@ -118,7 +123,7 @@ class Configurable( object ):
             for n,v in kwargs.items():
                try:
                   setattr( conf, n, v )
-               except AttributeError, originalAttributeError:
+               except AttributeError as originalAttributeError:
                 # rather annoying that we have to be somewhat silent here (the
                 # most common cases are 'name' and user kw args to be supplied
                 # to an overridden __init__)
@@ -165,7 +170,11 @@ class Configurable( object ):
                              (name,conf.__class__.__name__,cls.__name__) )
          except KeyError:
             pass
-      pass #end if not new configuration approach
+      else:
+         #Run 3 style config
+         #Uncomment this line to verify that RecExCommon doesn't use that
+         #print "Run 3 style config" 
+         pass #end if not new configuration approach
     # still here: create a new instance ...
       conf = object.__new__( cls )
 
@@ -177,10 +186,12 @@ class Configurable( object ):
       cls.__init__( conf, *args, **kwargs )
 
     # update normal, per-class cache
-      cls.configurables[ name ] = conf
+      if cls.configurableRun3Behavior==0:
+         cls.configurables[ name ] = conf
 
     # update generics super-cache
-      cls.allConfigurables[ name ] = conf
+      if cls.configurableRun3Behavior==0:
+         cls.allConfigurables[ name ] = conf
 
       return conf
 
@@ -191,7 +202,7 @@ class Configurable( object ):
 
     # this is an abstract class
       if klass == Configurable:
-         raise TypeError, "%s is an ABC and can not be instantiated" % str(Configurable)
+         raise TypeError( "%s is an ABC and can not be instantiated" % str(Configurable))
 
     # for using this Configurable as a (Gaudi) sequence
       self.__children = []
@@ -441,8 +452,7 @@ class Configurable( object ):
     # make sure base class init has been called
       if not hasattr(self,'_fInitOk') or not self._fInitOk:
        # could check more, but this is the only explanation
-         raise TypeError, \
-            "Configurable.__init__ not called in %s override" % self.__class__.__name__
+         raise TypeError("Configurable.__init__ not called in %s override" % self.__class__.__name__)
 
     # setup self: this collects all values on the python side
       self.__setupServices()
@@ -514,8 +524,7 @@ class Configurable( object ):
                value = value.getFullName()
             elif type(value) is list and len(value) > 0 and hasattr(value[0], 'getFullName'):
                value = [ i.getFullName() for i in value ]
-            if not hasattr(proxy,'default') or value != proxy.default :
-               props[ name ] = value
+            props[ name ] = value               
          except AttributeError:
             pass
 

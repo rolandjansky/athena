@@ -19,10 +19,9 @@
 #include "TH2F.h"
 #include "TProfile2D.h"
 #include "TF1.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrkParameters/TrackParameters.h"
@@ -287,7 +286,7 @@ SCTTracksMonTool::fillHistograms() {
   const bool doThisSubsystem[N_REGIONS] = {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
-  if (not evtStore()->contains<TrackCollection> (m_tracksName.key())) {
+  if (not tracks.isValid()) {
     ATH_MSG_WARNING("No collection named " << m_tracksName.key() << " in StoreGate");
     return StatusCode::SUCCESS;
   }

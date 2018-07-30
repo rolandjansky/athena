@@ -22,7 +22,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <algorithm>
 #include <cassert>
@@ -115,7 +115,7 @@ class TileCondProxyMock: public AthAlgTool, virtual public ITileCondProxy<T> {
 
 
 typedef TileCondProxyMock< TileCalibDrawerOfc > TileCondProxyMockOfc;
-DECLARE_TOOL_FACTORY( TileCondProxyMockOfc )
+DECLARE_COMPONENT( TileCondProxyMockOfc )
 
 
 

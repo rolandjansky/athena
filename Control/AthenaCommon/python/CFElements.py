@@ -16,6 +16,7 @@ def seqAND(name, subs=[]):
     seq = AthSequencer( name )
     seq.ModeOR = False
     seq.Sequential = True
+#    seq.StopOverride = True
     seq.StopOverride = False
     for s in subs:
         seq += s
@@ -54,6 +55,17 @@ def findSubSequence( start, nameToLookFor ):
                 return found
     return None
 
+def findOwningSequence( start, nameToLookFor ):
+    """ find sequence that owns the sequence nameTooLookFor"""
+    for c in start.getChildren():
+        if  c.name() == nameToLookFor:
+            return start
+        if isSequence( c ):
+            found = findOwningSequence( c, nameToLookFor )
+            if found:
+                return found
+    return None
+
 def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
     """ Traverse sequences tree to find the algorithm of given name. The first encountered is returned. 
 
@@ -72,29 +84,36 @@ def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
                     return found                
 
     return None
+
+def flatAlgorithmSequences( start ):
+    """ Converts tree like structure of sequences into dictionary 
+    keyed by top/start sequence name containing lists of of algorithms & sequences."""
+
+    def __inner( seq, collector ):
+        for c in seq.getChildren():        
+            collector[seq.name()].append( c )
+            if isSequence( c ):                        
+                __inner( c, collector )
+                
+    from collections import defaultdict
+    c = defaultdict(list)
+    __inner(start, c)
+    return c
+
+def flatSequencers( start ):
+    """ Flattens sequences """
     
+    def __inner( seq, collector ):
+        for c in seq.getChildren():        
+            collector[seq.name()].append( c )
+            if isSequence( c ):            
+                __inner( c, collector )
 
-def flatAlgorithmSequences( start, collector={} ):
-    """ Converts tree like structure of sequences into dictionary keyed by sequence name containing lists of of algorithms."""
-    collector[start.name()] = []
-    for c in start.getChildren():        
-        if not isSequence( c ):            
-            collector[start.name()].append( c )
-        else:
-            flatAlgorithmSequences( c, collector )
-    return collector
+    from collections import defaultdict
+    c = defaultdict(list)
+    __inner(start, c)
+    return c
 
-
-
-def flatSequencers( start, collector={} ):
-    collector[start.name()] = []
-    for c in start.getChildren():        
-        collector[start.name()].append( c )
-        if isSequence( c ):            
-            flatAlgorithmSequences( c, collector )
-    return collector
-
-    
 
 # self test
 if __name__ == "__main__":
@@ -132,21 +151,29 @@ if __name__ == "__main__":
     # no on demand creation
     inexistent = findSubSequence(top, "not_there")
     assert inexistent == None, "ERROR, found sub sequence that does not relay exist %s" % inexistent.name()
+    
+    # owner finding
+    inexistent = findOwningSequence(top, "not_there")
+    assert inexistent == None, "ERROR, found owner of inexistent sequence %s"% inexistent.name()
+
+    owner = findOwningSequence(top, "deep_nest1")
+    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
+
+    owner = findOwningSequence(top, "deep_nest2")
+    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
+
+    owner = findOwningSequence(top, "SomeAlg1")
+    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
+
+    owner = findOwningSequence(top, "SomeAlg0")
+    assert owner.name() == "top", "Wrong owner %s" % owner.name()
 
     flat = flatAlgorithmSequences( top )
-    expected = [ "top", "nest1", "nest2", "deep_nest1", "deep_nest2" ]
-    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, expected %s present %s "% ( " ".join( flat.keys() ), " ".join( expected ) )
-    assert len(flat["top"]) == 1, "To many, to few algorithms under the top sequence"
-    assert flat["top"][0].getName() == "SomeAlg0", "Wrong algorithm under top sequence %s" % flat["top"][0].getName()
-    assert flat["nest2"][0].getName() == "SomeAlg1"
-    assert flat["nest2"][1].getName() == "SomeAlg2"
-    assert flat["deep_nest2"][0].getName() == "SomeAlg3"
-
-
+    expected = [ "top", "nest2", "deep_nest2" ]
+    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, present %s expected %s "% ( " ".join( flat.keys() ), " ".join( expected ) )    
 
     flat = flatSequencers(top)
-    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, expected %s present %s "% ( " ".join( flat.keys() ), " ".join( expected ) )
-    assert len(flat["top"]) == 3, "To many, to few algorithms under the top sequence"
+    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, present %s expected %s "% ( " ".join( flat.keys() ), " ".join( expected ) )    
 
     a1 = findAlgorithm( top, "SomeAlg0" )
     assert a1, "Can't find algorithm present in sequence"

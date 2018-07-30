@@ -14,9 +14,9 @@
 #include "SCT_ConditionsData/SCT_ModuleCalibParameter.h"
 #include "SCT_ConditionsData/SCT_ModuleGainCalibData.h"
 #include "SCT_ConditionsData/SCT_ModuleNoiseCalibData.h"
-#include "SCT_ConditionsServices/SCT_ReadCalibChipUtilities.h"
+#include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
 
-using namespace SCT_ConditionsServices;
+using namespace SCT_ConditionsData;
 using namespace SCT_ReadCalibChipUtilities;
 
 //----------------------------------------------------------------------
@@ -27,9 +27,7 @@ SCT_ReadCalibChipDataTool::SCT_ReadCalibChipDataTool (const std::string& type, c
   m_cacheGain{},
   m_cacheNoise{},
   m_condDataGain{},
-  m_condDataNoise{},
-  m_condKeyGain{"SCT_GainCalibData"},
-  m_condKeyNoise{"SCT_NoiseCalibData"}
+  m_condDataNoise{}
   {
     declareProperty("NoiseLevel",          m_noiseLevel = 1800.0,        "Noise Level for isGood if ever used");
   }
@@ -60,14 +58,14 @@ SCT_ReadCalibChipDataTool::finalize() {
 //----------------------------------------------------------------------
 //Can only report good/bad at side level
 bool
-SCT_ReadCalibChipDataTool::canReportAbout(InDetConditions::Hierarchy h) {
+SCT_ReadCalibChipDataTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h==InDetConditions::SCT_SIDE);
 }
 
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
 bool
-SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) {
+SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) const {
   // Retrieve SCT_NoiseCalibData pointer
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_NoiseCalibData* condDataNoise{getCondDataNoise(ctx)};
@@ -111,7 +109,7 @@ SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) {
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
 bool
-SCT_ReadCalibChipDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+SCT_ReadCalibChipDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (h==InDetConditions::SCT_SIDE) { //Could do by chip too
     const IdentifierHash elementIdHash{m_id_sct->wafer_hash(elementId)};
     return isGood(elementIdHash);
@@ -124,7 +122,7 @@ SCT_ReadCalibChipDataTool::isGood(const Identifier& elementId, InDetConditions::
 
 //----------------------------------------------------------------------
 std::vector<float> 
-SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) {
+SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) const {
   // Print where you are
   ATH_MSG_DEBUG("in getNPtGainData()");
   std::vector<float> waferData;
@@ -168,7 +166,7 @@ SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int 
 
 //----------------------------------------------------------------------
 std::vector<float>
-SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) {
+SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) const {
   // Print where you are
   ATH_MSG_DEBUG("in getNoiseOccupancyData()");
   std::vector<float> waferData;

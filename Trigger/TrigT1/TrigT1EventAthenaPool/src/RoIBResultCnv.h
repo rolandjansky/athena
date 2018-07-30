@@ -33,7 +33,9 @@ class RoIBResultCnv : public RoIBResultCnvBase {
    friend class CnvFactory< RoIBResultCnv >;
 
 protected:
+public:
    RoIBResultCnv( ISvcLocator* svcLoc ) : RoIBResultCnvBase( svcLoc ) {}
+protected:
 
    virtual RoIBResult_PERS*  createPersistent( ROIB::RoIBResult* transObj );
    virtual ROIB::RoIBResult* createTransient();

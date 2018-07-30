@@ -23,9 +23,10 @@ typedef SiHitCollectionCnv_p2  SiHitCollectionCnv_PERS;
 
 class SiHitCollectionCnv  : public T_AthenaPoolCustomCnv<SiHitCollection, SiHitCollection_PERS > {
   friend class CnvFactory<SiHitCollectionCnv>;
-protected:
+public:
   SiHitCollectionCnv(ISvcLocator* svcloc) :
         T_AthenaPoolCustomCnv<SiHitCollection, SiHitCollection_PERS >( svcloc) {}
+protected:
   SiHitCollection_PERS*  createPersistent(SiHitCollection* transCont);
   SiHitCollection*       createTransient ();
 };

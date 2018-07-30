@@ -5,11 +5,10 @@
 # art-input-nfiles: 3
 # art-include: 21.0/Athena
 # art-include: master/Athena
-# art-output: InDetStandardPlots.root
-# art-output: comparison.root
-# art-output: comparison.ps
 # art-output: *.root
 # art-output: *.xml
+# art-output: dcube
+# art-output: *.png
 
 fileList="['${ArtInFile//,/', '}']"
 echo "List of files = ", $fileList
@@ -22,6 +21,13 @@ ls -lR
 athena.py  -c "from AthenaCommon.AthenaCommonFlags import athenaCommonFlags; athenaCommonFlags.FilesInput=$fileList; EventMax=1500;" $joboptions
 echo  "art-result: $? reco"
 
-bash /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/dcube/bin/art-dcube "MinBias" "InDetStandardPlots-MinBias.root"
+dcubeName="MinBias"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/dcube/config/MinBias_DCubeConfig.xml"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/ReferenceHistograms/InDetStandardPlots-MinBias.root"
+
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName InDetStandardPlots.root $dcubeXml $dcubeRef
 echo  "art-result: $? plot"
 
+plotmacro="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/scripts/makeplots.C"
+root -b -q $plotmacro
+echo "art-result: $? root"

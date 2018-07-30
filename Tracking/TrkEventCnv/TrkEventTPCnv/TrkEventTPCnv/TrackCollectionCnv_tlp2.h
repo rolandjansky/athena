@@ -52,9 +52,6 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalPositionCnv_p1.h"           
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"         
 
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3DCnv_p1.h"      
-
-#include <iostream>
 
 class TrackCollectionCnv_tlp2
  : public AthenaPoolTopLevelTPConverter< TrackCollectionCnv_p2, Trk::TrackCollection_tlp2 >
@@ -118,8 +115,6 @@ protected:
   LocalDirectionCnv_p1              m_localDirectionsCnv;
   LocalPositionCnv_p1               m_localPositionsCnv;
   LocalParametersCnv_p1             m_localParametersCnv;            
-
-  HepPoint3DCnv_p1                  m_pointsCnv;            	
 };
 
 #endif 

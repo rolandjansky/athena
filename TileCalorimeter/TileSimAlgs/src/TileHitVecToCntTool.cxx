@@ -119,7 +119,7 @@ StatusCode TileHitVecToCntTool::initialize() {
   CHECK(m_cablingSvc.retrieve());
   m_cabling = m_cablingSvc->cablingService();
 
-  m_run2 = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling);
+  m_run2 = m_cabling->isRun2Cabling();
 
   for (int i = 0; i < 7; ++i) {
     Identifier pmt_id;
@@ -707,7 +707,6 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
   if (m_rndmEvtOverlay && bunchXing != 0) iEvt = eSubEvents; // in overlay skip all events except BC=0
 
   while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
     /* zero all counters and sums */
     int nHit(0);
     double eHitTot(0.0);
@@ -719,14 +718,11 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
       const std::string hitVectorName(*hitVecNamesItr);
 
       if (m_pileUp || m_rndmEvtOverlay) {
+
         const TileHitVector* inputHits;
-        if (!seStore.contains<TileHitVector>(hitVectorName)) {
-          ATH_MSG_WARNING("TileHitVector container not found for signal event key " << hitVectorName);
-          continue;
-        }
-        if (seStore.retrieve(inputHits, hitVectorName).isFailure()) {
-          continue;
-        }
+	if (!(m_mergeSvc->retrieveSingleSubEvtData(hitVectorName, inputHits, bunchXing, iEvt))){
+	  ATH_MSG_ERROR(" Tile Hit container not found for event key " << hitVectorName);
+	}
 
         const double SubEvtTimOffset(iEvt->time());
 
@@ -745,10 +741,10 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
         //* Get TileHits from TileHitVector
         //**
         const TileHitVector * inputHits;
-        if (evtStore()->retrieve(inputHits, hitVectorName).isFailure()) {
-          ATH_MSG_WARNING("Hit Vector "<< hitVectorName << " not found in StoreGate");
-          continue;
-        }
+	if (!(m_mergeSvc->retrieveSingleSubEvtData(hitVectorName, inputHits, bunchXing, iEvt))){
+	  ATH_MSG_ERROR(" Tile Hit container not found for event key " << hitVectorName);
+	}
+
         this->processHitVectorWithoutPileUp(inputHits, nHit, eHitTot);
       } // to pile-up or not
 

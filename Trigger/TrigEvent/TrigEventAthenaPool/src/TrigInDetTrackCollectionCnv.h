@@ -34,11 +34,11 @@ class TrigInDetTrackCollectionCnv : public TrigInDetTrackCollectionCnvBase{
 
   friend class CnvFactory<TrigInDetTrackCollectionCnv>;
 
- protected:
-
+public:
   TrigInDetTrackCollectionCnv(ISvcLocator* svcloc);
   ~TrigInDetTrackCollectionCnv();
 
+protected:
   virtual TrigInDetTrackCollection_PERS*  createPersistent(TrigInDetTrackCollection* transObj);
   virtual TrigInDetTrackCollection*       createTransient ();
 

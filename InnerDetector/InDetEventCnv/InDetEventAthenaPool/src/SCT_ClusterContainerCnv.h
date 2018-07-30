@@ -14,10 +14,6 @@
 class StoreGateSvc;
 class SCT_ID;
 
-namespace InDetDD {
-   class SCT_DetectorManager;
-}
-
 #include "SCT_ClusterContainerCnv_p0.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_tlp1.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p3.h"
@@ -47,8 +43,9 @@ class SCT_ClusterContainerCnv : public SCT_ClusterContainerCnvBase
   StoreGateSvc*  m_storeGate;
 
 protected:
+public:
   SCT_ClusterContainerCnv (ISvcLocator* svcloc);
-  ~SCT_ClusterContainerCnv();
+protected:
   virtual SCT_ClusterContainer_PERS*   createPersistent (InDet::SCT_ClusterContainer* transCont);
   virtual InDet::SCT_ClusterContainer* createTransient ();
 

@@ -82,6 +82,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal) override final;
 
+  virtual StatusCode fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal);
+
   static const InterfaceID& interfaceID() {
     return ILArPileUpTool::interfaceID();}
 

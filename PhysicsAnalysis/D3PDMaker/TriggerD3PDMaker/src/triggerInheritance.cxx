@@ -5,7 +5,7 @@
 // $Id: triggerInheritance.cxx 282405 2010-03-03 09:45:55Z krasznaa $
 
 // Gaudi/Athena include(s):
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 // EDM include(s):
 #include "AnalysisTriggerEvent/Muon_ROI.h"

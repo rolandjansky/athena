@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -23,19 +24,25 @@ namespace InDet
     class TRT_DriftCircleOnTrack_p1
     {
         public:
-      TRT_DriftCircleOnTrack_p1() {}
+	    TRT_DriftCircleOnTrack_p1():
+		    m_idDE(0),
+		    m_status(0),
+		    m_highLevel(true),
+		    m_timeOverThreshold(0.0),
+		    m_localAngle(0.0),
+		    m_positionAlongWire(0.0) {}
 
       // base RIO_OnTrack_p1
       TPObjRef                      m_RIO;
-      
+
       IdentifierHash::value_type    m_idDE;
       unsigned int                  m_status;
       bool                          m_highLevel;
       float                         m_timeOverThreshold;
-      
+
       float                         m_localAngle;
       float                         m_positionAlongWire;
-      
+
       /** Link to PRD */
       ElementLinkInt_p1  m_prdLink;
     };

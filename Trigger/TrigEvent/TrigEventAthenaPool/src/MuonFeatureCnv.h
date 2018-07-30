@@ -36,10 +36,11 @@ class MuonFeatureCnv : public MuonFeatureCnvBase {
 
   friend class CnvFactory<MuonFeatureCnv>;
 
- protected:
+public:
   MuonFeatureCnv(ISvcLocator *svcloc);
   ~MuonFeatureCnv();
 
+protected:
   virtual MuonFeature_PERS  *createPersistent(MuonFeature *transObj);
   virtual MuonFeature       *createTransient();
 };

@@ -17,19 +17,18 @@
    based on egammaElectronCutIDTool from F. Derue
 
 */
-// ROOT includes
-#include <TString.h>
 // Include the return object and the base class
-#include "PATCore/TAccept.h"
-#include "PATCore/TSelectorToolBase.h"
+#include "PATCore/AcceptInfo.h"
+#include "PATCore/AcceptData.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 #include "AsgTools/AsgMessaging.h"
 #include <vector>
+#include <string>
 
 class AsgElectronIsEMSelector;
 
 namespace Root {
-  class TElectronIsEMSelector : public TSelectorToolBase, public asg::AsgMessaging
+  class TElectronIsEMSelector : public asg::AsgMessaging
   {
 
     friend class ::AsgElectronIsEMSelector;
@@ -44,13 +43,10 @@ namespace Root {
 
     // Main methods
     /** Initialize this class */
-    int initialize();
-
-    /** Finalize this class; everything that should be done after the event loop should go here */
-    inline int finalize() { return 1 ;};
+    StatusCode initialize();
 
     /** The main accept method: the actual cuts are applied here */
-    const Root::TAccept& accept(
+    asg::AcceptData accept(
 				// eta position in second sampling
 				float eta2,
 				// transverse energy in calorimeter (using eta position in second sampling)
@@ -106,7 +102,10 @@ namespace Root {
 				// E/p
 				double ep) const;
 
-    // calculate the isEM. (Used internally by accept)
+      /** Return dummy accept with only info */
+      asg::AcceptData accept() const { return asg::AcceptData(&m_acceptInfo); }
+
+      // calculate the isEM. (Used internally by accept)
     unsigned int calcIsEm(
 			  // eta position in second sampling
 			  float eta2,
@@ -236,101 +235,100 @@ namespace Root {
 			  unsigned int iflag) const;
 
 
-    unsigned int isEM() const {return m_isEM; };
-    //unsigned int isEMMask() const {return m_isEMMask; } // user should not need this
-
     ///////////////////////////////////
     // Public members (the cut values)
     ///////////////////////////////
 
     /** @brief which subset of cuts to apply */
-    unsigned int isEMMask;
+    unsigned int m_isEMMask;
 
     /** @brief use of TRT outliers*/
-    bool useTRTOutliers;
+    bool m_useTRTOutliers;
     /** @brief use of TRT Xenon Hits*/ 
-    bool useTRTXenonHits; 
+    bool m_useTRTXenonHits; 
 
     /** @brief range of eta bins for e-ID*/
-    std::vector<float> CutBinEta;
+    std::vector<float> m_cutBinEta;
     /** @brief range of ET bins for e-ID*/
-    std::vector<float> CutBinET;
+    std::vector<float> m_cutBinET;
     /** @brief cut on fraction of energy deposited in 1st sampling for e-ID*/
-    std::vector<float> CutF1;
+    std::vector<float> m_cutF1;
     /** @brief cut on hadronic energy for e-ID */
-    std::vector<float> CutHadLeakage;
+    std::vector<float> m_cutHadLeakage;
     /** @brief cut on ratio e237/e277 for e-ID*/
-    std::vector<float> CutReta37;
+    std::vector<float> m_cutReta37;
     /** @brief cut on ratio e233/e277 for e-ID*/
-    std::vector<float> CutRphi33;
+    std::vector<float> m_cutRphi33;
     /** @brief cut on shower width in 2nd sampling for e-ID*/
-    std::vector<float> CutWeta2c;
+    std::vector<float> m_cutWeta2c;
     /** @brief cut on Delta Emax2 in 1st sampling for e-ID*/
-    std::vector<float> CutDeltaEmax2;
+    std::vector<float> m_cutDeltaEmax2;
     /** @brief cut on Emax2 - Emin in 1st sampling for e-ID*/
-    std::vector<float> CutDeltaE;
+    std::vector<float> m_cutDeltaE;
     /** @brief cut on (Emax1-Emax2)/(Emax1-Emax2) for e-ID*/
-    std::vector<float> CutDEmaxs1;
+    std::vector<float> m_cutDEmaxs1;
     /** @brief cut on total width in 1st sampling for e-ID*/
-    std::vector<float> CutWtot;
+    std::vector<float> m_cutWtot;
     /** @brief cut on width in 1st sampling for e-ID*/
-    std::vector<float> CutWeta1c;
+    std::vector<float> m_cutWeta1c;
     /** @brief cut on Fside in 1st sampling for e-ID*/
-    std::vector<float> CutFracm;
+    std::vector<float> m_cutFracm;
     
     /** @brief cut values for cut on f3 */
-    std::vector<float> CutF3;
+    std::vector<float> m_cutF3;
 
     /** @brief cut min on b-layer hits for e-ID*/
-    std::vector<int> CutBL;
+    std::vector<int> m_cutBL;
     /** @brief cut min on pixel hits for e-ID*/
-    std::vector<int> CutPi;
+    std::vector<int> m_cutPi;
     /** @brief cut min on precision hits for e-ID*/
-    std::vector<int> CutSi;
+    std::vector<int> m_cutSi;
     /** @brief cut min on transverse impact parameter for e-ID*/
-    std::vector<float> CutA0;
+    std::vector<float> m_cutA0;
     /** @brief cut min on transverse impact parameter for Tight e-ID*/
-    std::vector<float> CutA0Tight;
+    std::vector<float> m_cutA0Tight;
     /** @brief cut max on delta eta for e-ID*/
-    std::vector<float> CutDeltaEta;
+    std::vector<float> m_cutDeltaEta;
     /** @brief cut max on delta eta for Tight e-ID*/
-    std::vector<float> CutDeltaEtaTight;
+    std::vector<float> m_cutDeltaEtaTight;
     /** @brief cut min on delta phi for e-ID (this should be negative) */
-    std::vector<float> CutminDeltaPhi;
+    std::vector<float> m_cutminDeltaPhi;
     /** @brief cut max on delta phi for e-ID*/
-    std::vector<float> CutmaxDeltaPhi;
+    std::vector<float> m_cutmaxDeltaPhi;
     /** @brief cut min on E/p for e-ID*/
-    std::vector<float> CutminEp;
+    std::vector<float> m_cutminEp;
     /** @brief cut max on E/p for e-ID*/
-    std::vector<float> CutmaxEp;
+    std::vector<float> m_cutmaxEp;
     
     /** @brief Eta binning for cuts on TRT for e-ID*/
-    std::vector<float> CutBinEta_TRT;
+    std::vector<float> m_cutBinEta_TRT;
     /** @brief Et binning for cuts on TRT for e-ID*/
-    std::vector<float>  CutBinET_TRT;
+    std::vector<float>  m_cutBinET_TRT;
     /** @brief cut on Number of TRT hits for e-ID*/
-    std::vector<float> CutNumTRT;
+    std::vector<float> m_cutNumTRT;
     /** @brief cut on Ratio of TR hits to Number of TRT hits for e-ID*/
-    std::vector<float> CutTRTRatio;
+    std::vector<float> m_cutTRTRatio;
     /** @brief cut on Ratio of TR hits to Number of TRT hits for 10% loss due to TRT */
-    std::vector<float> CutTRTRatio90;
+    std::vector<float> m_cutTRTRatio90;
     /** @brief cut on on eProbabilityHT new TRT PID tool */
-    std::vector<float> CutEProbabilityHT;
+    std::vector<float> m_cutEProbabilityHT;
 
+    const asg::AcceptInfo& getAcceptInfo() const { return m_acceptInfo; }
+      
     // Private members
   private:
 
     // would ideally be protected: only to be used by ARASelector
-    void setIsEM(unsigned int isEM) { m_isEM = isEM; };
-    const Root::TAccept& fillAccept() const;
+    asg::AcceptData fillAccept(unsigned int isEM) const;
 
     std::vector<int> FindEtEtaBin(double et, double eta2) const;
 
     template<typename T>
     bool CheckVar(const std::vector<T>& vec, int choice) const;
 
-    mutable unsigned int m_isEM;
-
+    /// Accept info
+    asg::AcceptInfo     m_acceptInfo;
+      
     // the cut positions
 
     /** @brief cluster eta range */
@@ -407,75 +405,75 @@ namespace Root {
     // the cut names
 
     /** @brief cluster eta range */
-    const TString m_cutNameClusterEtaRange_Electron;
+    const std::string m_cutNameClusterEtaRange_Electron;
     
     /** @brief matching to photon (not necessarily conversion--the name is historical) */
-    const TString m_cutNameConversionMatch_Electron;
+    const std::string m_cutNameConversionMatch_Electron;
     
     /** @brief cluster leakage into the hadronic calorimeter */
-    const TString m_cutNameClusterHadronicLeakage_Electron;
+    const std::string m_cutNameClusterHadronicLeakage_Electron;
     /** @brief energy in 2nd sampling (e.g E277>0) */
-    const TString m_cutNameClusterMiddleEnergy_Electron;
+    const std::string m_cutNameClusterMiddleEnergy_Electron;
     /** @brief energy ratio in 2nd sampling (e.g E237/E277) */
-    const TString m_cutNameClusterMiddleEratio37_Electron;
+    const std::string m_cutNameClusterMiddleEratio37_Electron;
     /** @brief energy ratio in 2nd sampling (e.g E233/E237) */
-    const TString m_cutNameClusterMiddleEratio33_Electron;
+    const std::string m_cutNameClusterMiddleEratio33_Electron;
     /** @brief width in the second sampling (e.g Weta2) */
-    const TString m_cutNameClusterMiddleWidth_Electron;
+    const std::string m_cutNameClusterMiddleWidth_Electron;
 
     /** @brief energy fraction in the third layer */
-    const TString m_cutNameClusterBackEnergyFraction_Electron;
+    const std::string m_cutNameClusterBackEnergyFraction_Electron;
 
     /** @brief fraction of energy found in 1st sampling (NB: not used in fact for electrons)*/
-    const TString m_cutNameClusterStripsEratio_Electron;
+    const std::string m_cutNameClusterStripsEratio_Electron;
     /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
-    const TString m_cutNameClusterStripsDeltaEmax2_Electron;
+    const std::string m_cutNameClusterStripsDeltaEmax2_Electron;
     /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1) */
-    const TString m_cutNameClusterStripsDeltaE_Electron;
+    const std::string m_cutNameClusterStripsDeltaE_Electron;
     /** @brief shower width in 1st sampling */
-    const TString m_cutNameClusterStripsWtot_Electron;
+    const std::string m_cutNameClusterStripsWtot_Electron;
     /** @brief shower shape in shower core 1st sampling */
-    const TString m_cutNameClusterStripsFracm_Electron;
+    const std::string m_cutNameClusterStripsFracm_Electron;
     /** @brief shower width weighted by distance from the maximum one */
-    const TString m_cutNameClusterStripsWeta1c_Electron;
+    const std::string m_cutNameClusterStripsWeta1c_Electron;
 
     /** @brief difference between max and 2nd max in strips */
-    const TString m_cutNameClusterStripsDEmaxs1_Electron;
+    const std::string m_cutNameClusterStripsDEmaxs1_Electron;
     /** @brief B layer hit */
-    const TString m_cutNameTrackBlayer_Electron;
+    const std::string m_cutNameTrackBlayer_Electron;
     /** @brief number of Pixel hits */
-    const TString m_cutNameTrackPixel_Electron;
+    const std::string m_cutNameTrackPixel_Electron;
     /** @brief number of Pixel and SCT hits */
-    const TString m_cutNameTrackSi_Electron;
+    const std::string m_cutNameTrackSi_Electron;
     /** @brief distance of closet approach */
-    const TString m_cutNameTrackA0_Electron;
+    const std::string m_cutNameTrackA0_Electron;
     /** @brief eta difference between cluster and extrapolated track in the 1st sampling */
-    const TString m_cutNameTrackMatchEta_Electron;
+    const std::string m_cutNameTrackMatchEta_Electron;
     /** @brief phi difference between cluster and extrapolated track in the 2nd sampling */
-    const TString m_cutNameTrackMatchPhi_Electron;
+    const std::string m_cutNameTrackMatchPhi_Electron;
     /** @brief energy-momentum match */
-    const TString m_cutNameTrackMatchEoverP_Electron;
+    const std::string m_cutNameTrackMatchEoverP_Electron;
     /** @brief Cut on the TRT eProbabilityHT_Electron */
-    const TString m_cutNameTrackTRTeProbabilityHT_Electron;
+    const std::string m_cutNameTrackTRTeProbabilityHT_Electron;
     /** @brief number of TRT hits */
-    const TString m_cutNameTrackTRThits_Electron;
+    const std::string m_cutNameTrackTRThits_Electron;
     /** @brief ratio of high to all TRT hits for isolated electrons */
-    const TString m_cutNameTrackTRTratio_Electron;
+    const std::string m_cutNameTrackTRTratio_Electron;
     /** @brief ratio of high to all TRT hits for non-isolated electrons (not for new ++ menus) */    
-    const TString m_cutNameTrackTRTratio90_Electron;
+    const std::string m_cutNameTrackTRTratio90_Electron;
 
     /** @brief distance of closet approach for tight selection (not to be used in new ++ menus) */
-    const TString m_cutNameTrackA0Tight_Electron;
+    const std::string m_cutNameTrackA0Tight_Electron;
     /** @brief eta difference between cluster and extrapolated track in the 1st sampling for 
 	tight selection (not to be used in new ++ menus)*/
-    const TString m_cutNameTrackMatchEtaTight_Electron;
+    const std::string m_cutNameTrackMatchEtaTight_Electron;
 
     /** @brief isolation */
-    const TString m_cutNameIsolation_Electron;
+    const std::string m_cutNameIsolation_Electron;
     /** @brief calorimetric isolation */
-    const TString m_cutNameClusterIsolation_Electron;
+    const std::string m_cutNameClusterIsolation_Electron;
     /** @brief tracker isolation */
-    const TString m_cutNameTrackIsolation_Electron;
+    const std::string m_cutNameTrackIsolation_Electron;
 
 
 

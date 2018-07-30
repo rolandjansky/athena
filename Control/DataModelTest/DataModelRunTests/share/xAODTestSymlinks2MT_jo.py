@@ -7,4 +7,5 @@
 # Purpose: Test syminks and hive.
 #
 
+FILECATALOG = 'xAODTestSymlinks2MT_catalog.xml'
 include ('DataModelRunTests/xAODTestSymlinks2_jo.py')

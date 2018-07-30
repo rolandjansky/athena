@@ -70,7 +70,6 @@ public:
   virtual long int   repSvcType() const;
 
 
-protected:
   /**
    * @brief Constructor.
    * @param clid The CLID if the class we're constructing.
@@ -118,9 +117,6 @@ template <class T>
 class CaloIDHelper_IDDetDescrCnv_T
   : public CaloIDHelper_IDDetDescrCnv
 {
-  /// This creates us, so it needs access to the constructor.
-  friend class CnvFactory<CaloIDHelper_IDDetDescrCnv_T>;
-
 
 public:
   /**
@@ -130,7 +126,6 @@ public:
   static const CLID& classID();
 
 
-protected:
   /**
    * @brief Constructor.
    * @param svcloc Gaudi service locator.

@@ -36,6 +36,7 @@ class SimpleView : public IProxyDict
 		DeclareInterfaceID( SimpleView, 2, 0 );
 		SimpleView();
 		SimpleView( std::string Name, bool AllowFallThrough = true );
+		SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName );
 		virtual ~SimpleView();
 
 		/// get default proxy with given id. Returns 0 to flag failure
@@ -130,14 +131,6 @@ class SimpleView : public IProxyDict
                                        bool allowMods,
                                        bool returnExisting);
 
-
-		/**
-		 * @brief Inform HIVE that an object has been updated.
-		 * @param id The CLID of the object.
-		 * @param key The key of the object.
-		 */
-		/// TEMPORARY: This method is being added.  It eventually should be pure.
-		virtual StatusCode updatedObject (CLID /*id*/, const std::string& /*key*/);
 
 		/**
 		 * @brief Tell the store that a handle has been bound to a proxy.

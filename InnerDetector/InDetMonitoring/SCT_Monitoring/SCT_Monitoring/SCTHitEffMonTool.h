@@ -13,7 +13,6 @@
 #define SCTEFFICIENCYTOOL_H
 //STL
 #include <string>
-//#include <boost/array.hpp>
 #include <array>
 
 //Gaudi
@@ -35,22 +34,25 @@
 
 //SCT
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-#include "TString.h"
 
 //
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CommissionEvent/ComTime.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "xAODEventInfo/EventInfo.h"
+
+//ROOT
+#include "TString.h"
 
 class Identifier;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
-class ISCT_ConfigurationConditionsSvc;
 class IInterface;
+class ISCT_ConfigurationConditionsTool;
 class TH1D;
 class TH1F;
 class TH2I;
@@ -80,53 +82,48 @@ class SCTHitEffMonTool : public ManagedMonitorToolBase  {
   ~SCTHitEffMonTool (); 
 
   /** Histogram booking method */
-  //  virtual StatusCode bookHistograms (bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun ); // hidetoshi 14.01.22
-  virtual StatusCode bookHistograms ();                                                               // hidetoshi 14.01.22
-  virtual StatusCode bookHistogramsRecurrent ();                                                      // hidetoshi 14.01.22
+  virtual StatusCode bookHistograms ();
+  virtual StatusCode bookHistogramsRecurrent ();
 
   /** Histogram filling method */
   virtual StatusCode fillHistograms ();
-  //  virtual StatusCode procHistograms (bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );  // hidetoshi 14.01.22
-  virtual StatusCode procHistograms ();                                                                      // hidetoshi 14.01.22
+  virtual StatusCode procHistograms ();
 
 private:
 
   StatusCode initialize();
 
-  const InDetDD::SCT_DetectorManager * m_mgr;
-
   /** Method to cut on track or hit variables and automatize DEBUG statements */
   StatusCode failCut (Bool_t value, std::string name);
 
   /** Method to compute incident angle of track to wafer */
-  StatusCode findAnglesToWaferSurface (const Amg::Vector3D &mom, Identifier id,
-				       Double_t &theta, Double_t &phi);
+  StatusCode findAnglesToWaferSurface (const Amg::Vector3D &mom, const Identifier id,
+                                       const InDetDD::SiDetectorElementCollection* elements,
+                                       Double_t &theta, Double_t &phi);
 
   /** Method to find the chip just before a given hit */
   Int_t previousChip (Double_t xl, Int_t side, bool swap);
 
   /** Computes residual of a hit to a track */
   Double_t getResidual (const Identifier& surfaceID,
-			const Trk::TrackParameters * trkParam,
-			const InDet::SCT_ClusterContainer* p_sctclcontainer);
+   const Trk::TrackParameters * trkParam,
+   const InDet::SCT_ClusterContainer* p_sctclcontainer);
 
   /** Single histogram booking method */
   template < class T > StatusCode bookEffHisto (T*& histo, MonGroup & MG, 
-						TString name, TString title, 
-						Int_t nbin, Double_t x1, Double_t x2);
+                                                TString name, TString title,
+                                                Int_t nbin, Double_t x1, Double_t x2);
 
   template < class T > StatusCode bookEffHisto (T*& histo, MonGroup & MG, 
-						TString name, TString title,
-						Int_t nbinx, Double_t x1, Double_t x2,
-						Int_t nbiny, Double_t y1, Double_t y2);
+                                                TString name, TString title,
+                                                Int_t nbinx, Double_t x1, Double_t x2,
+                                                Int_t nbiny, Double_t y1, Double_t y2);
 
   template < class T > StatusCode bookEffHisto (T*& histo, MonGroup & MG, 
-						TString name, TString title,
-						Int_t nbinx, Double_t * xbins,
-						Int_t nbiny, Double_t * ybins);
+                                                TString name, TString title,
+                                                Int_t nbinx, Double_t * xbins,
+                                                Int_t nbiny, Double_t * ybins);
 
-  const SCT_ID*   m_pSCTHelper;
-  const InDetDD::SCT_DetectorManager*   m_pManager;
   SG::ReadHandle<TrackCollection> m_TrackName;
   IChronoStatSvc * m_chrono;
 
@@ -173,8 +170,8 @@ private:
   ToolHandle < Trk::IRIO_OnTrackCreator > m_rotcreator; 
   ToolHandle < Trk::ITrackHoleSearchTool >  m_holeSearchTool;  
 
-  ServiceHandle < ISCT_ConfigurationConditionsSvc > m_configConditions;
-
+  ToolHandle < ISCT_ConfigurationConditionsTool > m_configConditions{this, "ConfigConditions",
+      "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
 
   typedef std::array < TProfile*, SCT_Monitoring::N_REGIONS > TProfArray;
   typedef std::array < TH1F*, SCT_Monitoring::N_REGIONS > TH1FArray;
@@ -191,7 +188,7 @@ private:
   TProfile * m_Eff_Total;
   TProfile * m_Eff_TotalBCID;
   TProfile * m_Eff_hashCodeHisto;
-	TProfile * m_Eff_LumiBlockHisto_Total;
+  TProfile * m_Eff_LumiBlockHisto_Total;
   TH1F* m_effdistribution;
 
   TProfile2D * m_effHashLumiB;
@@ -290,6 +287,7 @@ private:
 
   SG::ReadHandleKey<ComTime> m_comTimeName;
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_sctDetEleCollKey{this, "SctDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer
    * Numbering is counter-intuitive, would expect C then B then A; in fact the original ordering was A, C, B

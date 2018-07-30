@@ -36,10 +36,11 @@ class TrigPassBitsCnv : public TrigPassBitsCnvBase {
 
   friend class CnvFactory<TrigPassBitsCnv>;
 
- protected:
+public:
   TrigPassBitsCnv(ISvcLocator *svcloc);
   ~TrigPassBitsCnv();
 
+protected:
   virtual TrigPassBits_PERS  *createPersistent(TrigPassBits *transObj);
   virtual TrigPassBits       *createTransient();
 };

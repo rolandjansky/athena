@@ -20,6 +20,7 @@
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/PackedParameters.h"
 #include "AthContainers/PackedContainer.h"
+#include "AthContainers/tools/AtomicConstAccessor.h"
 #include "AthContainers/debug.h"
 #include "AthLinks/DataLink.h"
 
@@ -109,6 +110,8 @@ INSTAN_TYPE(std::vector<float>);
 INSTAN_TYPE(std::vector<double>);
 INSTAN_TYPE(std::vector<bool>);
 INSTAN_TYPE(std::vector<std::string>);
+
+template class SG::AtomicConstAccessor<unsigned int>;
 
 #undef ARGS1
 #undef ARGS2

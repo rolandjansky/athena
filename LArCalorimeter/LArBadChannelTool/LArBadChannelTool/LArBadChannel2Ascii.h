@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-#include "LArRecConditions/LArOnOffIdMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include <string>
 
 //class LArBadChanTool;

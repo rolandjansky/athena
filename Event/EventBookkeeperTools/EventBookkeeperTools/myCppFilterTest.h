@@ -21,7 +21,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // Prevent checkreq warning.
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 
 
 //class StoreGateSvc;
@@ -33,12 +33,6 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-
-
-protected:
-  virtual ~myCppFilterTest();
-
-
 
 private:
   CutIdentifier m_filterCutID;

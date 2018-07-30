@@ -8,12 +8,10 @@
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 //Forward declarations
-namespace Trk { 
-  class IResidualPullCalculator; 
-  class ITrackSummaryTool;
-}
 class AtlasDetectorID;
 
 namespace JiveXML{

@@ -185,7 +185,7 @@ def toolIP2DFlipTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
 #----------------------------------------------------------------------
 
-metaIP2DFlipNewLikelihoodTool = { 'CalibrationFolders' : ['IP2D',],
+metaIP2DFlipNewLikelihoodTool = { 'CalibrationTaggers' : ['IP2D',],
                                   'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                   'ToolCollection'     : 'IP2DFlipTag' }

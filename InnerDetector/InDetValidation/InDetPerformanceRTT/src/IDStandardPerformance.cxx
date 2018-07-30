@@ -485,42 +485,43 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_pulltheta.reserve(m_trackEtaBins);
     m_pullz0st.reserve(m_trackEtaBins);
     m_pullqopt.reserve(m_trackEtaBins);
-
+    constexpr unsigned int bufferLength{200};
+    char name[bufferLength];
     // base histograms for resolution plots versus eta and pt
     for (int i=0;i<m_trackEtaBins;i++) {
       // residuals 
-      char name[100];
-      sprintf(name,"d0res_bin%i",i);
+      
+      snprintf(name, bufferLength,"d0res_bin%i",i);
       m_hd0.push_back(create_registeredTH1F(al_debug, name,name,2000,-1.0,1.0));
 
-      sprintf(name,"z0res_bin%i",i);
+      snprintf(name, bufferLength,"z0res_bin%i",i);
       m_hz0.push_back(create_registeredTH1F(al_debug, name,name,200,-1.5,1.5));
 
-      sprintf(name,"phires_bin%i",i);
+      snprintf(name, bufferLength,"phires_bin%i",i);
       m_hphi.push_back(create_registeredTH1F(al_debug, name,name,3000,-0.03,0.03));
 
-      sprintf(name,"thetares_bin%i",i);
+      snprintf(name, bufferLength,"thetares_bin%i",i);
       m_htheta.push_back(create_registeredTH1F(al_debug, name,name,2000,-0.1,0.1));
 
-      sprintf(name,"z0stres_bin%i",i);
+      snprintf(name, bufferLength,"z0stres_bin%i",i);
       m_hz0st.push_back(create_registeredTH1F(al_debug, name,name,200,-1.5,1.5));
 
-      sprintf(name,"qoptres_bin%i",i);
+      snprintf(name, bufferLength,"qoptres_bin%i",i);
       m_hqopt.push_back(create_registeredTH1F(al_debug, name,name,200,-0.4,0.4));
 
       // pull distributions
-      sprintf(name,"d0pullres_bin%i",i);
+      snprintf(name, bufferLength,"d0pullres_bin%i",i);
       m_pulld0.push_back(create_registeredTH1F(al_debug, name,name,200,-5.,5.));
       
-      sprintf(name,"z0pullres_bin%i",i);
+      snprintf(name, bufferLength,"z0pullres_bin%i",i);
       m_pullz0.push_back(create_registeredTH1F(al_debug, name,name,200,-5.,5.));
-      sprintf(name,"phipullres_bin%i",i);
+      snprintf(name, bufferLength,"phipullres_bin%i",i);
       m_pullphi.push_back(create_registeredTH1F(al_debug, name,name,200,-5.,5.));
-      sprintf(name,"thetapullres_bin%i",i);
+      snprintf(name, bufferLength,"thetapullres_bin%i",i);
       m_pulltheta.push_back(create_registeredTH1F(al_debug, name,name,200,-5.,5.));
-      sprintf(name,"z0stpullres_bin%i",i);
+      snprintf(name, bufferLength,"z0stpullres_bin%i",i);
       m_pullz0st.push_back(create_registeredTH1F(al_debug, name,name,200,-5.,5.));
-      sprintf(name,"qoptpullres_bin%i",i);
+      snprintf(name, bufferLength,"qoptpullres_bin%i",i);
       m_pullqopt.push_back(create_registeredTH1F(al_debug, name,name,200,-5.,5.));
    }
 
@@ -533,26 +534,25 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_hpttheta.reserve(m_trackPtBins);
     m_hptz0st.reserve(m_trackPtBins);
     m_hptqopt.reserve(m_trackPtBins);
-
     // resolutions versus pt
     for (int i=0;i<m_trackPtBins;i++) {
-      char name[100];
-      sprintf(name,"d0res_ptbin%i",i);
+      
+      snprintf(name, bufferLength,"d0res_ptbin%i",i);
       m_hptd0.push_back(create_registeredTH1F(al_debug, name,name,2000,-1.0,1.0));
 
-      sprintf(name,"z0res_ptbin%i",i);
+      snprintf(name, bufferLength,"z0res_ptbin%i",i);
       m_hptz0.push_back(create_registeredTH1F(al_debug, name,name,200,-1.5,1.5));
 
-      sprintf(name,"phires_ptbin%i",i);
+      snprintf(name, bufferLength,"phires_ptbin%i",i);
       m_hptphi.push_back(create_registeredTH1F(al_debug, name,name,3000,-0.03,0.03));
 
-      sprintf(name,"thetares_ptbin%i",i);
+      snprintf(name, bufferLength,"thetares_ptbin%i",i);
       m_hpttheta.push_back(create_registeredTH1F(al_debug, name,name,2000,-0.1,0.1));
 
-      sprintf(name,"z0stres_ptbin%i",i);
+      snprintf(name, bufferLength,"z0stres_ptbin%i",i);
       m_hptz0st.push_back(create_registeredTH1F(al_debug, name,name,200,-1.5,1.5));
 
-      sprintf(name,"qoptres_ptbin%i",i);
+      snprintf(name, bufferLength,"qoptres_ptbin%i",i);
       m_hptqopt.push_back(create_registeredTH1F(al_debug, name,name,200,-0.4,0.4));
     }
 
@@ -992,10 +992,8 @@ StatusCode IDStandardPerformance::bookHistograms()
     m_pullWidthZ_vs_phi_pixel_endcap_disk.reserve(pixelEndcapDisks);
     m_residualMeanZ_vs_phi_pixel_endcap_disk.reserve(pixelEndcapDisks);
     m_residualWidthZ_vs_phi_pixel_endcap_disk.reserve(pixelEndcapDisks);
-
+    char title[bufferLength];
     for (int ilayer=0; ilayer<nPixelLayers; ilayer++) {
-      char name[200];
-      char title[200];
       // IBL 
       if (ilayer == 0){
         m_residualx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, "residualx_pixel_barrel_ibl", "Residual: Pixel Barrel X IBL ;x residual(#mum)", 120, -50, 50));
@@ -1012,182 +1010,182 @@ StatusCode IDStandardPerformance::bookHistograms()
       }
       // pixel barrel section
       if (ilayer < pixelBarrelLayers && ilayer>1){
-        sprintf(name, "residualx_pixel_barrel_l%i", ilayer-1);
-        sprintf(title, "Residual: Pixel Barrel X Layer %i;x residual(#mum)" ,ilayer-1);
+        snprintf(name, bufferLength, "residualx_pixel_barrel_l%i", ilayer-1);
+        snprintf(title, bufferLength, "Residual: Pixel Barrel X Layer %i;x residual(#mum)" ,ilayer-1);
         m_residualx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 120, -50, 50));
 
-        sprintf(name, "residualy_pixel_barrel_l%i", ilayer-1);
-        sprintf(title, "Residual: Pixel Barrel Y Layer %i;y residual(#mum)" ,ilayer-1);
+        snprintf(name, bufferLength, "residualy_pixel_barrel_l%i", ilayer-1);
+        snprintf(title, bufferLength, "Residual: Pixel Barrel Y Layer %i;y residual(#mum)" ,ilayer-1);
         m_residualy_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 120, -300, 300));
 
-        sprintf(name, "residualpullx_pixel_barrel_l%i", ilayer-1);
-        sprintf(title, "Residualpull: Pixel Barrel X Layer %i;x pull residual" ,ilayer-1);
+        snprintf(name, bufferLength, "residualpullx_pixel_barrel_l%i", ilayer-1);
+        snprintf(title, bufferLength, "Residualpull: Pixel Barrel X Layer %i;x pull residual" ,ilayer-1);
         m_residualpullx_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
 
-        sprintf(name, "residualpully_pixel_barrel_l%i", ilayer-1);
-        sprintf(title, "Residualpull: Pixel Barrel Y Layer %i;y pull residual" ,ilayer-1);
+        snprintf(name, bufferLength, "residualpully_pixel_barrel_l%i", ilayer-1);
+        snprintf(title, bufferLength, "Residualpull: Pixel Barrel Y Layer %i;y pull residual" ,ilayer-1);
         m_residualpully_pixel_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
       }
       // pixel endcap section
       if (ilayer < pixelEndcapDisks){
-        sprintf(name, "residualx_pixel_endcap_d%i", ilayer+1);
-        sprintf(title, "Residual: Pixel Endcap X Disk %i;x residual(#mum)" ,ilayer+1);
+        snprintf(name, bufferLength, "residualx_pixel_endcap_d%i", ilayer+1);
+        snprintf(title, bufferLength, "Residual: Pixel Endcap X Disk %i;x residual(#mum)" ,ilayer+1);
         m_residualx_pixel_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 120, -50, 50));
 
-        sprintf(name, "residualy_pixel_endcap_d%i", ilayer+1);
-        sprintf(title, "Residual: Pixel Endcap Y Disk %i;y residual(#mum)" ,ilayer+1);
+        snprintf(name, bufferLength, "residualy_pixel_endcap_d%i", ilayer+1);
+        snprintf(title, bufferLength, "Residual: Pixel Endcap Y Disk %i;y residual(#mum)" ,ilayer+1);
         m_residualy_pixel_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 120, -300, 300));
 
-        sprintf(name, "residualpullx_pixel_endcap_d%i", ilayer+1);
-        sprintf(title, "Residualpull: Pixel Endcap X Disk %i;x pull residual" ,ilayer+1);
+        snprintf(name, bufferLength, "residualpullx_pixel_endcap_d%i", ilayer+1);
+        snprintf(title, bufferLength, "Residualpull: Pixel Endcap X Disk %i;x pull residual" ,ilayer+1);
         m_residualpullx_pixel_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
 
-        sprintf(name, "residualpully_pixel_endcap_d%i", ilayer+1);
-        sprintf(title, "Residualpull: Pixel Endcap Y Disk %i;y pull residual" ,ilayer+1);
+        snprintf(name, bufferLength, "residualpully_pixel_endcap_d%i", ilayer+1);
+        snprintf(title, bufferLength, "Residualpull: Pixel Endcap Y Disk %i;y pull residual" ,ilayer+1);
         m_residualpully_pixel_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
       }
 
 // --
       // pixel barrel section
       if (ilayer < pixelBarrelLayers){
-        sprintf(name, "pullPhi_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull: Pixel Barrel Phi vs incident normal Layer %i;angle w/ normal;pull (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "pullPhi_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Barrel Phi vs incident normal Layer %i;angle w/ normal;pull (r-phi)" ,ilayer);
         m_pullPhi_vs_incident_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_normal, max_normal, 100, -5, 5));
-        sprintf(name, "residualPhi_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual: Pixel Barrel Phi vs incident normal Layer %i;angle w/ normal;residual (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "residualPhi_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Barrel Phi vs incident normal Layer %i;angle w/ normal;residual (r-phi)" ,ilayer);
         m_residualPhi_vs_incident_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_normal, max_normal, 200, -0.5, 0.5));
 
-        sprintf(name, "pullPhi_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull: Pixel Barrel Phi vs incident eta Layer %i;pixel eta;pull (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "pullPhi_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Barrel Phi vs incident eta Layer %i;pixel eta;pull (r-phi)" ,ilayer);
         m_pullPhi_vs_eta_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_eta, max_eta, 100, -5, 5));
-        sprintf(name, "residualPhi_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual: Pixel Barrel Phi vs incident eta Layer %i;pixel eta;residual (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "residualPhi_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Barrel Phi vs incident eta Layer %i;pixel eta;residual (r-phi)" ,ilayer);
         m_residualPhi_vs_eta_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_eta, max_eta, 200, -0.5, 0.5));
 
-        sprintf(name, "pullPhi_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull: Pixel Barrel Phi vs incident phi Layer %i;pixel phi;pull (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "pullPhi_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Barrel Phi vs incident phi Layer %i;pixel phi;pull (r-phi)" ,ilayer);
         m_pullPhi_vs_phi_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_phi, max_phi, 100, -5, 5));
-        sprintf(name, "residualPhi_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual: Pixel Barrel Phi vs incident phi Layer %i;pixel phi;residual (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "residualPhi_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Barrel Phi vs incident phi Layer %i;pixel phi;residual (r-phi)" ,ilayer);
         m_residualPhi_vs_phi_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_phi, max_phi, 200, -0.5, 0.5));
 // --
-        sprintf(name, "pullZ_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull: Pixel Barrel Z vs incident normal Layer %i;angle w/ normal;pull (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "pullZ_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Barrel Z vs incident normal Layer %i;angle w/ normal;pull (r-z)" ,ilayer);
         m_pullZ_vs_incident_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_normal, max_normal, 100, -5, 5));
-        sprintf(name, "residualZ_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual: Pixel Barrel Z vs incident normal Layer %i;angle w/ normal;residual (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "residualZ_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Barrel Z vs incident normal Layer %i;angle w/ normal;residual (r-z)" ,ilayer);
         m_residualZ_vs_incident_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_normal, max_normal, 200, -1, 1));
 
-        sprintf(name, "pullZ_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull: Pixel Barrel Z vs incident eta Layer %i;pixel eta;pull (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "pullZ_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Barrel Z vs incident eta Layer %i;pixel eta;pull (r-z)" ,ilayer);
         m_pullZ_vs_eta_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_eta, max_eta, 100, -5, 5));
-        sprintf(name, "residualZ_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual: Pixel Barrel Z vs incident eta Layer %i;pixel eta;residual (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "residualZ_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Barrel Z vs incident eta Layer %i;pixel eta;residual (r-z)" ,ilayer);
         m_residualZ_vs_eta_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_eta, max_eta, 200, -1, 1));
 
-        sprintf(name, "pullZ_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull: Pixel Barrel Z vs incident phi Layer %i;pixel phi;pull (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "pullZ_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Barrel Z vs incident phi Layer %i;pixel phi;pull (r-z)" ,ilayer);
         m_pullZ_vs_phi_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_phi, max_phi, 100, -5, 5));
-        sprintf(name, "residualZ_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual: Pixel Barrel Z vs incident phi Layer %i;pixel phi;residual (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "residualZ_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Barrel Z vs incident phi Layer %i;pixel phi;residual (r-z)" ,ilayer);
         m_residualZ_vs_phi_pixel_barrel_l.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_phi, max_phi, 200, -1, 1));
 
         // One profile each for the value and the width
         // The axis is meaningless, as it's projected from the 2d hist
-        sprintf(name, "pullMeanPhi_vs_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Barrel R-Phi Layer %i vs. incident normal;angle w/ normal;pull (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanPhi_vs_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Barrel R-Phi Layer %i vs. incident normal;angle w/ normal;pull (r-phi) mean" ,ilayer);
         m_pullMeanPhi_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullWidthPhi_vs_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull width: Pixel Barrel R-Phi Layer %i vs. incident normal;angle w/ normal;pull (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthPhi_vs_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Barrel R-Phi Layer %i vs. incident normal;angle w/ normal;pull (r-phi) width" ,ilayer);
         m_pullWidthPhi_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanPhi_vs_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Barrel R-Phi Layer %i vs. incident eta;pixel eta;pull (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanPhi_vs_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Barrel R-Phi Layer %i vs. incident eta;pixel eta;pull (r-phi) mean" ,ilayer);
         m_pullMeanPhi_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
         
-        sprintf(name, "pullWidthPhi_vs_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull width: Pixel Barrel R-Phi Layer %i vs. incident eta;pixel eta;pull (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthPhi_vs_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Barrel R-Phi Layer %i vs. incident eta;pixel eta;pull (r-phi) width" ,ilayer);
         m_pullWidthPhi_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanPhi_vs_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Barrel R-Phi Layer %i vs. incident phi;pixel phi;pull (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanPhi_vs_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Barrel R-Phi Layer %i vs. incident phi;pixel phi;pull (r-phi) mean" ,ilayer);
         m_pullMeanPhi_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullWidthPhi_vs_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull width: Pixel Barrel R-Phi Layer %i vs. incident phi;pixel phi;pull (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthPhi_vs_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Barrel R-Phi Layer %i vs. incident phi;pixel phi;pull (r-phi) width" ,ilayer);
         m_pullWidthPhi_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanPhi_vs_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Barrel R-Phi Layer %i vs. incident normal;angle w/ normal;residual (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanPhi_vs_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Barrel R-Phi Layer %i vs. incident normal;angle w/ normal;residual (r-phi) mean" ,ilayer);
 
         m_residualMeanPhi_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
-        sprintf(name, "residualWidthPhi_vs_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual width: Pixel Barrel R-Phi Layer %i vs. incident normal;angle w/ normal;residual (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthPhi_vs_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Barrel R-Phi Layer %i vs. incident normal;angle w/ normal;residual (r-phi) width" ,ilayer);
         m_residualWidthPhi_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanPhi_vs_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Barrel R-Phi Layer %i vs. incident eta;pixel eta;residual (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanPhi_vs_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Barrel R-Phi Layer %i vs. incident eta;pixel eta;residual (r-phi) mean" ,ilayer);
         m_residualMeanPhi_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualWidthPhi_vs_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual width: Pixel Barrel R-Phi Layer %i vs. incident eta;pixel eta;residual (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthPhi_vs_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Barrel R-Phi Layer %i vs. incident eta;pixel eta;residual (r-phi) width" ,ilayer);
         m_residualWidthPhi_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanPhi_vs_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Barrel R-Phi Layer %i vs. incident phi;pixel phi;residual (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanPhi_vs_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Barrel R-Phi Layer %i vs. incident phi;pixel phi;residual (r-phi) mean" ,ilayer);
         m_residualMeanPhi_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
       
-        sprintf(name, "residualWidthPhi_vs_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual width: Pixel Barrel R-Phi Layer %i vs. incident phi;pixel phi;residual (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthPhi_vs_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Barrel R-Phi Layer %i vs. incident phi;pixel phi;residual (r-phi) width" ,ilayer);
         m_residualWidthPhi_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanZ_vs_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Barrel Z Layer %i vs. incident normal;angle w/ normal;pull (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanZ_vs_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Barrel Z Layer %i vs. incident normal;angle w/ normal;pull (r-z) mean" ,ilayer);
         m_pullMeanZ_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
         
-        sprintf(name, "pullWidthZ_vs_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull width: Pixel Barrel Z Layer %i vs. incident normal;angle w/ normal;pull (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthZ_vs_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Barrel Z Layer %i vs. incident normal;angle w/ normal;pull (r-z) width" ,ilayer);
         m_pullWidthZ_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanZ_vs_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;pull (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanZ_vs_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;pull (r-z) mean" ,ilayer);
         m_pullMeanZ_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullWidthZ_vs_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull width: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;pull (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthZ_vs_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;pull (r-z) width" ,ilayer);
         m_pullWidthZ_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanZ_vs_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;pull (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanZ_vs_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;pull (r-z) mean" ,ilayer);
         m_pullMeanZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullWidthZ_vs_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Pull width: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;pull (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthZ_vs_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;pull (r-z) width" ,ilayer);
         m_pullWidthZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanZ_vs_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident normal;angle w/ normal;residual (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanZ_vs_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Barrel Z Layer %i vs. incident normal;angle w/ normal;residual (r-z) mean" ,ilayer);
         m_residualMeanZ_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualWidthZ_vs_incident_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident normal;angle w/normal;residual (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthZ_vs_incident_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Barrel Z Layer %i vs. incident normal;angle w/normal;residual (r-z) width" ,ilayer);
         m_residualWidthZ_vs_incident_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanZ_vs_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;residual (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanZ_vs_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;residual (r-z) mean" ,ilayer);
         m_residualMeanZ_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualWidthZ_vs_eta_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;residual (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthZ_vs_eta_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Barrel Z Layer %i vs. incident eta;pixel eta;residual (r-z) width" ,ilayer);
         m_residualWidthZ_vs_eta_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanZ_vs_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;residual (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanZ_vs_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;residual (r-z) mean" ,ilayer);
         m_residualMeanZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualWidthZ_vs_phi_pixel_barrel_l%i", ilayer);
-        sprintf(title, "Residual width: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;residual (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthZ_vs_phi_pixel_barrel_l%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Barrel Z Layer %i vs. incident phi;pixel phi;residual (r-z) width" ,ilayer);
         m_residualWidthZ_vs_phi_pixel_barrel_layer.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
      }
@@ -1195,146 +1193,146 @@ StatusCode IDStandardPerformance::bookHistograms()
 // --
       // pixel endcap section
       if (ilayer < pixelEndcapDisks){
-        sprintf(name, "pullPhi_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull: Pixel Endcap Phi vs incident normal Disk %i;angle w/ normal;pull (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "pullPhi_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Endcap Phi vs incident normal Disk %i;angle w/ normal;pull (r-phi)" ,ilayer);
         m_pullPhi_vs_incident_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_normal_endcap, max_normal_endcap, 100, -5, 5));
-        sprintf(name, "residualPhi_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual: Pixel Endcap Phi vs incident normal Disk %i;angle w/ normal;residual (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "residualPhi_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Endcap Phi vs incident normal Disk %i;angle w/ normal;residual (r-phi)" ,ilayer);
         m_residualPhi_vs_incident_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_normal_endcap, max_normal_endcap, 200, -0.5, 0.5));
 
-        sprintf(name, "pullPhi_pixel_eta_endcap_d%i", ilayer);
-        sprintf(title, "Pull: Pixel Endcap Phi vs incident eta Disk %i;pixel eta;pull (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "pullPhi_pixel_eta_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Endcap Phi vs incident eta Disk %i;pixel eta;pull (r-phi)" ,ilayer);
         m_pullPhi_vs_eta_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_eta_endcap, max_eta_endcap, 100, -5, 5));
-        sprintf(name, "residualPhi_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual: Pixel Endcap Phi vs incident eta Disk %i;pixel eta;residual (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "residualPhi_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Endcap Phi vs incident eta Disk %i;pixel eta;residual (r-phi)" ,ilayer);
         m_residualPhi_vs_eta_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, 25, min_eta_endcap, max_eta_endcap, 200, -0.5, 0.5));
 
-        sprintf(name, "pullPhi_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull: Pixel Endcap Phi vs incident phi Disk %i;pixel phi;pull (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "pullPhi_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Endcap Phi vs incident phi Disk %i;pixel phi;pull (r-phi)" ,ilayer);
         m_pullPhi_vs_phi_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, nbins_eta, min_phi_endcap, max_phi_endcap, 100, -5, 5));
 
-        sprintf(name, "residualPhi_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual: Pixel Endcap Phi vs incident phi Disk %i;pixel phi;residual (r-phi)" ,ilayer);
+        snprintf(name, bufferLength, "residualPhi_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Endcap Phi vs incident phi Disk %i;pixel phi;residual (r-phi)" ,ilayer);
         m_residualPhi_vs_phi_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, nbins_eta, min_phi_endcap, max_phi_endcap, 200, -0.5, 0.5));
 // --
-        sprintf(name, "pullZ_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull: Pixel Endcap Z vs incident normal Disk %i;angle w/ normal;pull (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "pullZ_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Endcap Z vs incident normal Disk %i;angle w/ normal;pull (r-z)" ,ilayer);
         m_pullZ_vs_incident_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, nbins_eta, min_normal_endcap, max_normal_endcap, 100, -5, 5));
 
-        sprintf(name, "residualZ_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual: Pixel Endcap Z vs incident normal Disk %i;angle w/ normal;residual (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "residualZ_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Endcap Z vs incident normal Disk %i;angle w/ normal;residual (r-z)" ,ilayer);
         m_residualZ_vs_incident_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, nbins_eta, min_normal_endcap, max_normal_endcap, 200, -1, 1));
 
-        sprintf(name, "pullZ_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull: Pixel Endcap Z vs incident eta Disk %i;pixel eta;pull (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "pullZ_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Endcap Z vs incident eta Disk %i;pixel eta;pull (r-z)" ,ilayer);
         m_pullZ_vs_eta_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, nbins_eta, min_eta_endcap, max_eta_endcap, 100, -5, 5));
 
-        sprintf(name, "residualZ_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual: Pixel Endcap Z vs incident eta Disk %i;pixel eta;residual (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "residualZ_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Endcap Z vs incident eta Disk %i;pixel eta;residual (r-z)" ,ilayer);
         m_residualZ_vs_eta_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, nbins_eta, min_eta_endcap, max_eta_endcap, 200, -1, 1));
 
-        sprintf(name, "pullZ_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull: Pixel Endcap Z vs incident phi Disk %i;pixel phi;pull (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "pullZ_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull: Pixel Endcap Z vs incident phi Disk %i;pixel phi;pull (r-z)" ,ilayer);
         m_pullZ_vs_phi_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, nbins_eta, min_phi_endcap, max_phi_endcap, 100, -5, 5));
 
-        sprintf(name, "residualZ_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual: Pixel Endcap Z vs incident phi Disk %i;pixel eta;residual (r-z)" ,ilayer);
+        snprintf(name, bufferLength, "residualZ_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual: Pixel Endcap Z vs incident phi Disk %i;pixel eta;residual (r-z)" ,ilayer);
         m_residualZ_vs_phi_pixel_endcap_d.push_back(create_registeredTH2F(pull_shift, name, title, nbins_eta, min_phi_endcap, max_phi_endcap, 200, -1, 1));
 
-        sprintf(name, "pullMeanPhi_vs_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Endcap R-Phi Disk %i vs. incident normal;angle w/ normal;pull (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanPhi_vs_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Endcap R-Phi Disk %i vs. incident normal;angle w/ normal;pull (r-phi) mean" ,ilayer);
         m_pullMeanPhi_vs_incident_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullWidthPhi_vs_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap R-Phi Disk %i vs. incident normal;angle w/ normal;pull (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthPhi_vs_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap R-Phi Disk %i vs. incident normal;angle w/ normal;pull (r-phi) width" ,ilayer);
         m_pullWidthPhi_vs_incident_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanPhi_vs_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Endcap R-Phi Disk %i vs. incident eta;pixel eta;pull (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanPhi_vs_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Endcap R-Phi Disk %i vs. incident eta;pixel eta;pull (r-phi) mean" ,ilayer);
         m_pullMeanPhi_vs_eta_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullWidthPhi_vs_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap R-Phi Disk %i vs. incident eta;pixel eta;pull (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthPhi_vs_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap R-Phi Disk %i vs. incident eta;pixel eta;pull (r-phi) width" ,ilayer);
         m_pullWidthPhi_vs_eta_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanPhi_vs_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull mean: Pixel Endcap R-Phi Disk %i vs. incident phi;pixel phi;pull (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanPhi_vs_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull mean: Pixel Endcap R-Phi Disk %i vs. incident phi;pixel phi;pull (r-phi) mean" ,ilayer);
         m_pullMeanPhi_vs_phi_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullWidthPhi_vs_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap R-Phi Disk %i vs. incident phi;pixel phi;pull (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthPhi_vs_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap R-Phi Disk %i vs. incident phi;pixel phi;pull (r-phi) width" ,ilayer);
         m_pullWidthPhi_vs_phi_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanPhi_vs_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Endcap R-Phi Disk %i vs. incident normal;angle w/ normal;residual (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanPhi_vs_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Endcap R-Phi Disk %i vs. incident normal;angle w/ normal;residual (r-phi) mean" ,ilayer);
         m_residualMeanPhi_vs_incident_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualWidthPhi_vs_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual width: Pixel Endcap R-Phi Disk %i vs. incident normal;angle w/ normal;residual (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthPhi_vs_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Endcap R-Phi Disk %i vs. incident normal;angle w/ normal;residual (r-phi) width" ,ilayer);
         m_residualWidthPhi_vs_incident_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanPhi_vs_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Endcap R-Phi Disk %i vs. incident eta;pixel eta;residual (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanPhi_vs_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Endcap R-Phi Disk %i vs. incident eta;pixel eta;residual (r-phi) mean" ,ilayer);
         m_residualMeanPhi_vs_eta_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
       
-        sprintf(name, "residualWidthPhi_vs_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual width: Pixel Endcap R-Phi Disk %i vs. incident eta;pixel eta;residual (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthPhi_vs_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Endcap R-Phi Disk %i vs. incident eta;pixel eta;residual (r-phi) width" ,ilayer);
         m_residualWidthPhi_vs_eta_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanPhi_vs_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Endcap R-Phi Disk %i vs. incident phi;pixel phi;residual (r-phi) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanPhi_vs_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Endcap R-Phi Disk %i vs. incident phi;pixel phi;residual (r-phi) mean" ,ilayer);
         m_residualMeanPhi_vs_phi_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualWidthPhi_vs_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual width: Pixel Endcap R-Phi Disk %i vs. incident phi;pixel phi;residual (r-phi) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthPhi_vs_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Endcap R-Phi Disk %i vs. incident phi;pixel phi;residual (r-phi) width" ,ilayer);
         m_residualWidthPhi_vs_phi_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanZ_vs_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap Z Disk %i vs. incident normal;angle w/ normal;pull (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanZ_vs_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap Z Disk %i vs. incident normal;angle w/ normal;pull (r-z) mean" ,ilayer);
         m_pullMeanZ_vs_incident_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
         
-        sprintf(name, "pullWidthZ_vs_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap Z Disk %i vs. incident normal;angle w/ normal;pull (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthZ_vs_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap Z Disk %i vs. incident normal;angle w/ normal;pull (r-z) width" ,ilayer);
         m_pullWidthZ_vs_incident_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanZ_vs_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap Z Disk %i vs. incident eta;pixel eta;pull (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanZ_vs_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap Z Disk %i vs. incident eta;pixel eta;pull (r-z) mean" ,ilayer);
         m_pullMeanZ_vs_eta_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
         
-        sprintf(name, "pullWidthZ_vs_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap Z Disk %i vs. incident eta;pixel eta;pull (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthZ_vs_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap Z Disk %i vs. incident eta;pixel eta;pull (r-z) width" ,ilayer);
         m_pullWidthZ_vs_eta_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "pullMeanZ_vs_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap Z Disk %i vs. incident phi;pixel phi;pull (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "pullMeanZ_vs_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap Z Disk %i vs. incident phi;pixel phi;pull (r-z) mean" ,ilayer);
         m_pullMeanZ_vs_phi_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
         
-        sprintf(name, "pullWidthZ_vs_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Pull width: Pixel Endcap Z Disk %i vs. incident phi;pixel phi;pull (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "pullWidthZ_vs_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Pull width: Pixel Endcap Z Disk %i vs. incident phi;pixel phi;pull (r-z) width" ,ilayer);
         m_pullWidthZ_vs_phi_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanZ_vs_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Endcap Z Disk %i vs. incident normal;angle w/ normal;residual (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanZ_vs_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Endcap Z Disk %i vs. incident normal;angle w/ normal;residual (r-z) mean" ,ilayer);
         m_residualMeanZ_vs_incident_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualWidthZ_vs_incident_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual width: Pixel Endcap Z Disk %i vs. incident normal;angle w/ normal;residual (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthZ_vs_incident_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Endcap Z Disk %i vs. incident normal;angle w/ normal;residual (r-z) width" ,ilayer);
         m_residualWidthZ_vs_incident_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanZ_vs_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Endcap Z Disk %i vs. incident eta;pixel eta;residual (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanZ_vs_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Endcap Z Disk %i vs. incident eta;pixel eta;residual (r-z) mean" ,ilayer);
         m_residualMeanZ_vs_eta_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualWidthZ_vs_eta_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual width: Pixel Endcap Z Disk %i vs. incident eta;pixel eta;residual (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthZ_vs_eta_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Endcap Z Disk %i vs. incident eta;pixel eta;residual (r-z) width" ,ilayer);
         m_residualWidthZ_vs_eta_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
-        sprintf(name, "residualMeanZ_vs_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual mean: Pixel Endcap Z Disk %i vs. incident phi;pixel phi;residual (r-z) mean" ,ilayer);
+        snprintf(name, bufferLength, "residualMeanZ_vs_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual mean: Pixel Endcap Z Disk %i vs. incident phi;pixel phi;residual (r-z) mean" ,ilayer);
         m_residualMeanZ_vs_phi_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
       
-        sprintf(name, "residualWidthZ_vs_phi_pixel_endcap_d%i", ilayer);
-        sprintf(title, "Residual width: Pixel Endcap Z Disk %i vs. incident phi;pixel phi;residual (r-z) width" ,ilayer);
+        snprintf(name, bufferLength, "residualWidthZ_vs_phi_pixel_endcap_d%i", ilayer);
+        snprintf(title, bufferLength, "Residual width: Pixel Endcap Z Disk %i vs. incident phi;pixel phi;residual (r-z) width" ,ilayer);
         m_residualWidthZ_vs_phi_pixel_endcap_disk.push_back(create_registeredTH1F(pull_parent, name, title, 100, -5, 5));
 
       }
@@ -1348,25 +1346,25 @@ StatusCode IDStandardPerformance::bookHistograms()
       etaBinLabels[4] = "2.0 < eta <= 2.5";
       for (int iEtaBin=0; iEtaBin<5; iEtaBin++) {
           if (ilayer < pixelBarrelLayers){
-            sprintf(name, "pullPhi_phi_pixel_endcap_d%i_etaBin%i", ilayer, iEtaBin);
-            sprintf(title, "Pull: Pixel Barrel Phi vs incident phi Layer %i, %s;pixel phi;pull (r-phi)" ,ilayer, etaBinLabels[iEtaBin].c_str());
+            snprintf(name, bufferLength, "pullPhi_phi_pixel_endcap_d%i_etaBin%i", ilayer, iEtaBin);
+            snprintf(title, bufferLength, "Pull: Pixel Barrel Phi vs incident phi Layer %i, %s;pixel phi;pull (r-phi)" ,ilayer, etaBinLabels[iEtaBin].c_str());
             m_pullPhi_vs_phi_pixel_barrel_etaBins[iEtaBin][ilayer] = create_registeredTH2F(pull_shift, name, title, nbins_eta, min_phi, max_phi, 200, -5, 5);
-            sprintf(name, "residualPhi_phi_pixel_endcap_d%i_etaBin%i", ilayer, iEtaBin);
-            sprintf(title, "Residual: Pixel Barrel Phi vs incident phi Layer %i, %s;pixel phi;residual (r-phi)" ,ilayer, etaBinLabels[iEtaBin].c_str());
+            snprintf(name, bufferLength, "residualPhi_phi_pixel_endcap_d%i_etaBin%i", ilayer, iEtaBin);
+            snprintf(title, bufferLength, "Residual: Pixel Barrel Phi vs incident phi Layer %i, %s;pixel phi;residual (r-phi)" ,ilayer, etaBinLabels[iEtaBin].c_str());
             m_residualPhi_vs_phi_pixel_barrel_etaBins[iEtaBin][ilayer] = create_registeredTH2F(pull_shift, name, title, nbins_eta, min_phi, max_phi, 200, -1, 1);
             // One profile each for the value and the width
             // The axis is meaningless, as it's projected from the 2d hist
-            sprintf(name, "pullMeanPhi_vs_incident_pixel_barrel_l%i_etaBin%i", ilayer, iEtaBin);
-            sprintf(title, "Pull mean: Pixel Barrel R-Phi Layer %i vs. incident phi %s;pixel phi;pull (r-phi) mean" ,ilayer, etaBinLabels[iEtaBin].c_str());
+            snprintf(name, bufferLength, "pullMeanPhi_vs_incident_pixel_barrel_l%i_etaBin%i", ilayer, iEtaBin);
+            snprintf(title, bufferLength, "Pull mean: Pixel Barrel R-Phi Layer %i vs. incident phi %s;pixel phi;pull (r-phi) mean" ,ilayer, etaBinLabels[iEtaBin].c_str());
             m_pullMeanPhi_vs_phi_pixel_barrel_etaBins[iEtaBin][ilayer] = create_registeredTH1F(pull_parent, name, title, 100, -5, 5);
-            sprintf(name, "pullWidthPhi_vs_incident_pixel_barrel_l%i_etaBin_%i", ilayer, iEtaBin);
-            sprintf(title, "Pull width: Pixel Barrel R-Phi Layer %i vs. incident phi %s;pixel phi;pull (r-phi) width" ,ilayer, etaBinLabels[iEtaBin].c_str());
+            snprintf(name, bufferLength, "pullWidthPhi_vs_incident_pixel_barrel_l%i_etaBin_%i", ilayer, iEtaBin);
+            snprintf(title, bufferLength, "Pull width: Pixel Barrel R-Phi Layer %i vs. incident phi %s;pixel phi;pull (r-phi) width" ,ilayer, etaBinLabels[iEtaBin].c_str());
             m_pullWidthPhi_vs_phi_pixel_barrel_etaBins[iEtaBin][ilayer] = create_registeredTH1F(pull_parent, name, title, 100, -5, 5);
-            sprintf(name, "residualMeanPhi_vs_incident_pixel_barrel_l%i_etaBin%i", ilayer, iEtaBin);
-            sprintf(title, "Residual mean: Pixel Barrel R-Phi Layer %i vs. incident phi %s;pixel phi;residual (r-phi) mean" ,ilayer, etaBinLabels[iEtaBin].c_str());
+            snprintf(name, bufferLength, "residualMeanPhi_vs_incident_pixel_barrel_l%i_etaBin%i", ilayer, iEtaBin);
+            snprintf(title, bufferLength, "Residual mean: Pixel Barrel R-Phi Layer %i vs. incident phi %s;pixel phi;residual (r-phi) mean" ,ilayer, etaBinLabels[iEtaBin].c_str());
             m_residualMeanPhi_vs_phi_pixel_barrel_etaBins[iEtaBin][ilayer] = create_registeredTH1F(pull_parent, name, title, 100, -5, 5);
-            sprintf(name, "residualWidthPhi_vs_incident_pixel_barrel_l%i_etaBin%i", ilayer, iEtaBin);
-            sprintf(title, "Residual width: Pixel Barrel R-Phi Layer %i vs. incident phi %s;pixel phi;residual(r-phi) width" ,ilayer, etaBinLabels[iEtaBin].c_str());
+            snprintf(name, bufferLength, "residualWidthPhi_vs_incident_pixel_barrel_l%i_etaBin%i", ilayer, iEtaBin);
+            snprintf(title, bufferLength, "Residual width: Pixel Barrel R-Phi Layer %i vs. incident phi %s;pixel phi;residual(r-phi) width" ,ilayer, etaBinLabels[iEtaBin].c_str());
             m_residualWidthPhi_vs_phi_pixel_barrel_etaBins[iEtaBin][ilayer] = create_registeredTH1F(pull_parent, name, title, 100, -5, 5);
          }
       }
@@ -1397,13 +1395,13 @@ StatusCode IDStandardPerformance::bookHistograms()
     for (int ilayer=0; ilayer<sctBarrelLayers; ilayer++) {
       char name[200];
       char title[200];
-      sprintf(name, "residualx_sct_barrel_l%i", ilayer);
-      sprintf(title, "Residual: SCT Barrel X L%i;x residual(#mum)" ,ilayer);
+      snprintf(name, bufferLength, "residualx_sct_barrel_l%i", ilayer);
+      snprintf(title, bufferLength, "Residual: SCT Barrel X L%i;x residual(#mum)" ,ilayer);
       m_residualx_sct_barrel_l.push_back(create_registeredTH1F(al_expert, name, title,140,-70,70));
 
       // residual pulls
-      sprintf(name, "residualpullx_sct_barrel_l%i", ilayer);
-      sprintf(title, "Residualpull: SCT Barrel X L%i;x pull residual" ,ilayer);
+      snprintf(name, bufferLength, "residualpullx_sct_barrel_l%i", ilayer);
+      snprintf(title, bufferLength, "Residualpull: SCT Barrel X L%i;x pull residual" ,ilayer);
       m_residualpullx_sct_barrel_l.push_back(create_registeredTH1F(al_expert, name, title, 100, -5, 5));
     }
 
@@ -1412,13 +1410,13 @@ StatusCode IDStandardPerformance::bookHistograms()
     for (int ilayer=0; ilayer<sctEndcapDisks; ilayer++) {
       char name[200];
       char title[200];
-      sprintf(name, "residualx_sct_endcap_d%i", ilayer);
-      sprintf(title, "Residual: SCT Endcap X L%i;x residual(#mum)" ,ilayer);
+      snprintf(name, bufferLength, "residualx_sct_endcap_d%i", ilayer);
+      snprintf(title, bufferLength, "Residual: SCT Endcap X L%i;x residual(#mum)" ,ilayer);
       m_residualx_sct_endcap_d.push_back(create_registeredTH1F(al_expert, name, title,140,-70,70));
 
       // residual pulls
-      sprintf(name, "residualpullx_sct_endcap_d%i", ilayer);
-      sprintf(title, "Residualpull: SCT Endcap X L%i;x pull residual" ,ilayer);
+      snprintf(name, bufferLength, "residualpullx_sct_endcap_d%i", ilayer);
+      snprintf(title, bufferLength, "Residualpull: SCT Endcap X L%i;x pull residual" ,ilayer);
       m_residualpullx_sct_endcap_d.push_back(create_registeredTH1F(al_expert, name, title, 100,-5,5));
     }
 
@@ -3518,7 +3516,7 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
     float chi2oDoF = -1;
     if (fitQual!=0) {
       float chisquared = (fitQual) ? fitQual->chiSquared() : -1.;
-      int DoF = (fitQual) ? fitQual->numberDoF() : -1;
+      int DoF = fitQual->numberDoF();
       if(DoF>0) chi2oDoF = chisquared/(float)DoF;
     }
    

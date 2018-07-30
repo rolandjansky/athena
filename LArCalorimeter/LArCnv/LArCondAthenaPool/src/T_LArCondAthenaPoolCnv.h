@@ -39,6 +39,7 @@ public:
 
     virtual ~T_LArCondAthenaPoolCnv();
 
+    virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key);
     virtual StatusCode DataObjectToPool(DataObject* pObj, std::string tname);
     virtual StatusCode PoolToDataObject(DataObject*& pObj, const std::string& token);
 

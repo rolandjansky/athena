@@ -2,11 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArRecUtils/LArAutoCorrTotalTool.h"
-#include "GaudiKernel/ToolFactory.h"
+#include "LArAutoCorrTotalTool.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "LArCabling/LArCablingService.h"

@@ -37,7 +37,9 @@ class MissingETCnv: public T_AthenaPoolCustomCnv< MissingET, MissingET_PERS >
 
   /** Create the converter from the service locator
    */
+public:
   MissingETCnv(ISvcLocator* svcloc);
+protected:
 
   /** Build the persistent representation from the transient one.
    */

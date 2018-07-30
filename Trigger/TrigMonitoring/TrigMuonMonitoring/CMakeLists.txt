@@ -33,19 +33,13 @@ find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
 # Component(s) in the package:
-atlas_add_library( TrigMuonMonitoringLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigMuonMonitoring
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} TrigInDetEvent TrigMuonEvent TrigHLTMonitoringLib AthenaMonitoringLib TrigDecisionToolLib TrigObjectMatchingLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} EventInfo xAODMuon xAODPrimitives xAODTracking xAODTrigMuon xAODTrigger GaudiKernel AnalysisTriggerEvent muonEvent VxVertex TrigConfHLTData TrigSteeringEvent )
-
 atlas_add_component( TrigMuonMonitoring
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigInDetEvent TrigMuonEvent TrigHLTMonitoringLib AthenaMonitoringLib EventInfo xAODMuon xAODPrimitives xAODTracking xAODTrigMuon xAODTrigger GaudiKernel AnalysisTriggerEvent muonEvent VxVertex TrigDecisionToolLib TrigObjectMatchingLib TrigConfHLTData TrigSteeringEvent TrigMuonMonitoringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigInDetEvent TrigMuonEvent TrigHLTMonitoringLib 
+                     AthenaMonitoringLib TrigDecisionToolLib TrigObjectMatchingLib EventInfo xAODMuon xAODPrimitives 
+                     xAODTracking xAODTrigMuon xAODTrigger GaudiKernel AnalysisTriggerEvent muonEvent VxVertex 
+                     TrigConfHLTData TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

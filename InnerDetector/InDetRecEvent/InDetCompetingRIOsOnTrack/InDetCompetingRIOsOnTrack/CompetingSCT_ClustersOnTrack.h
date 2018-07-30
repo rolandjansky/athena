@@ -15,7 +15,7 @@
 //#include "TrkEventPrimitives/ErrorMatrix.h"
 // #include "TrkParameters/TrackParameters.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h" // cannot fwd-declare because of covariant method
-#include <ostream>
+#include <iosfwd>
 
 //#include <iostream.h>
 class MsgStream;
@@ -54,18 +54,15 @@ public:
     CompetingSCT_ClustersOnTrack(const CompetingSCT_ClustersOnTrack& compROT);
     /** Assignment operator */
     CompetingSCT_ClustersOnTrack& operator=(const CompetingSCT_ClustersOnTrack& compROT);
+    /** Default move assignment operator */
+    CompetingSCT_ClustersOnTrack& operator=(CompetingSCT_ClustersOnTrack&& compROT) = default;
 
     /** Constructor with all parameters: PLEASE do not use directly,
     but call InDet::CompetingSCT_ClustersOnTrackTool, otherwise inconsistency of
     the data will be very probable. */
     CompetingSCT_ClustersOnTrack(
-        //const Trk::Surface* sf,
         std::vector<const InDet::SCT_ClusterOnTrack*>* childrots,
         std::vector<AssignmentProb>* assgnProb
-        //const Trk::TrackParameters*  assumedTrkPars,
-        //const Trk::LocalParameters* effecLocalPars,
-        //const Trk::ErrorMatrix* effecLocalErrMat,
-        //int ROTsHaveComSrfc // meaning of the values are described in the definition of ROTsHaveCommonSurface()
     );
 
     /** Destructor */
@@ -101,33 +98,14 @@ public:
      - CompetingSCT_ClustersOnTrack overwrites implementation in CompetingRIOsOnTrack, because SCT end cap
        needs special attention in calculating the effective parameters */
     virtual void setLocalParametersAndErrorMatrix();
-//    /** returns the effective LocalParameters @f$ \hat{m} @f$ according to the weights @f$ p_i @f$ (assignment probabilities).
-//     - interface from MeasurementBase
-//     - CompetingSCT_ClustersOnTrack overwrites implementation in CompetingRIOsOnTrack, because TRT
-//        needs special attention in calculating the effective parameters */
-//    const Trk::LocalParameters& localParameters() const;
-
-//    /** returns the effective local ErrorMatrix (@f$ \hat{G} @f$ = effective WeightMatrix) according to the weights @f$ p_i @f$ (assignment probabilities) .
-//    - interface from MeasurementBase
-//    - CompetingSCT_ClustersOnTrack overwrites implementation in CompetingRIOsOnTrack, because TRT
-//       needs special attention in calculating the effective ErrorMatrix */
-//    const Trk::ErrorMatrix& localErrorMatrix() const;
-
-    //    /** returns the TrackParameters used for calculation of the effective measurement.
-    //    - specific for CompetingSCT_ClustersOnTrack */
-    //    const Trk::TrackParameters* assumedTrackParameters() const;
-
 
 private:
 
-    //    /** returns the RIO_OnTrack vector (of base class type) i.e. cast upwards to provide RIO_OnTrack
-    //    for base class CompetingRIOsOnTrack*/
-    //    const std::vector<const Trk::RIO_OnTrack*>* getBaseRioOnTrack() const;
+  
 
     /** private method to clear the Trk::RIO_OnTrack vector */
     void                               clearChildRotVector();
-//    /** The surface to which the competingROTs parameters are expressed to */
-//    mutable const Trk::Surface*             m_associatedSurface;
+
 
     /** The global Position */
     mutable const Amg::Vector3D*        m_globalPosition;
@@ -145,12 +123,10 @@ private:
 };
 
 inline CompetingSCT_ClustersOnTrack* CompetingSCT_ClustersOnTrack::clone() const {
-    //     cout << "in clone()" << endl;
     return new InDet::CompetingSCT_ClustersOnTrack(*this);
 }
 
 inline const Trk::Surface& CompetingSCT_ClustersOnTrack::associatedSurface() const {
-    //if (m_containedChildRots)
     return ((*(m_containedChildRots->begin()))->associatedSurface());
 }
 
@@ -160,9 +136,7 @@ inline const std::vector<const InDet::SCT_ClusterOnTrack*>& CompetingSCT_Cluster
 }
 
 inline const InDet::SCT_ClusterOnTrack& CompetingSCT_ClustersOnTrack::rioOnTrack(unsigned int indx) const {
-  //if (m_containedChildRots && indx<m_containedChildRots->size())
         return * m_containedChildRots->operator[](indx);
-	//return 0;
 }
 
  inline const Amg::Vector3D& CompetingSCT_ClustersOnTrack::globalPosition() const {

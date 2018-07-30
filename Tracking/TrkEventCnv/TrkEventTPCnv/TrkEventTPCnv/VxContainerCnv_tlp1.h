@@ -111,11 +111,6 @@ class T_TPCnv<VxContainer, Trk::VxContainer_tlp1 >
 public:
   T_TPCnv();
 
-  // ??? Maybe this should be moved up to AthenaPoolTopLevelTPConverter...
-  virtual void persToTrans (const Trk::VxContainer_tlp1* pers,
-                            VxContainer* trans,
-                            MsgStream& msg);
-
 private:
   MVFVxContainerCnv_tlp1 m_MVFVxContainerCnv_tlp1;
 };

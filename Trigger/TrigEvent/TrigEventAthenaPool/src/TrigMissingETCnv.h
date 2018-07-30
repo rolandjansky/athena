@@ -36,9 +36,11 @@ class TrigMissingETCnv : public TrigMissingETCnvBase {
   friend class CnvFactory<TrigMissingETCnv>;
 
  protected:
+public:
   TrigMissingETCnv(ISvcLocator *svcloc);
   ~TrigMissingETCnv();
 
+protected:
   virtual TrigMissingET_PERS  *createPersistent(TrigMissingET *transObj);
   virtual TrigMissingET       *createTransient();
 };

@@ -1,3 +1,4 @@
+#Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # CaloTowerVecMon_jobOptions.py   L. Sawyer 12/02/2009
 # Trigger awareness implementation Ram Dhullipudi 11/24/09
 

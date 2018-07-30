@@ -12,16 +12,15 @@
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/StorableConversions.h"
 
 #include "TrigT1CaloEvent/RODHeader.h"
 

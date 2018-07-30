@@ -43,7 +43,7 @@ class TrigMuonEFMSonlyHypoAlg
     SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
 	this, "Decisions", "MuonEFMSonlyHypo_Decisions", "Name of the decisions object attached by TrigMuonEFMSonlyHypo"};
 
-    SG::ReadHandleKey<std::vector< SG::View*>> m_viewsKey{
+    SG::ReadHandleKey< ViewContainer > m_viewsKey{
 	this, "ViewRoIs", "MUViewRoIs", "Name of the input data on Views produced by EventCreatorAlgorithms"};
 
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{
@@ -56,5 +56,4 @@ class TrigMuonEFMSonlyHypoAlg
 	this, "L1Decisions", "MuonEFMSonly_Decisions", "Name of the input decisions object"};
 };
 
-DECLARE_ALGORITHM_FACTORY( TrigMuonEFMSonlyHypoAlg )
 #endif

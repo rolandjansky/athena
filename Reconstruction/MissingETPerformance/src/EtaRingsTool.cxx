@@ -5,7 +5,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
 
 //#include "CLHEP/Units/PhysicalConstants.h"
 
@@ -636,6 +635,3 @@ StatusCode EtaRingsTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-EtaRingsTool::~EtaRingsTool() {}

@@ -24,7 +24,7 @@ typedef T_AthenaPoolCustomCnv<TriggerTowerCollection, TriggerTowerCollection_PER
 class TriggerTowerCollectionCnv: public TriggerTowerCollectionCnvBase {
 friend class CnvFactory<TriggerTowerCollectionCnv>;
 
-protected:
+public:
 
   TriggerTowerCollectionCnv (ISvcLocator* svcloc) :
     TriggerTowerCollectionCnvBase(svcloc),
@@ -32,8 +32,8 @@ protected:
     m_log( m_msgSvc, "TriggerTowerCollectionCnv" )
      {}
   
-  ~TriggerTowerCollectionCnv() {}
-  
+protected:
+
   virtual TriggerTowerCollection_PERS*   createPersistent (TriggerTowerCollection* transCont);
   virtual TriggerTowerCollection*        createTransient ();
 

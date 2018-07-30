@@ -1,8 +1,8 @@
 #include "../SCTRawContByteStreamCnv.h"
-DECLARE_CONVERTER_FACTORY( SCTRawContByteStreamCnv )
+DECLARE_CONVERTER( SCTRawContByteStreamCnv )
 
-#include "../SCTRawContByteStreamService.h"
-DECLARE_COMPONENT( SCTRawContByteStreamService )  
+#include "../SCTRawContByteStreamTool.h"
+DECLARE_COMPONENT( SCTRawContByteStreamTool )
 
 #include "../SCTRawDataProvider.h"
 DECLARE_COMPONENT( SCTRawDataProvider )
@@ -16,3 +16,5 @@ DECLARE_COMPONENT( SCT_RodDecoder )
 #include "../SCT_RodEncoder.h"
 DECLARE_COMPONENT( SCT_RodEncoder )
 
+#include "../SCTEventFlagWriter.h"
+DECLARE_COMPONENT( SCTEventFlagWriter )

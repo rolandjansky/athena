@@ -29,6 +29,7 @@ Purpose : create a collection of ElectronTag
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
+#include "PATCore/AcceptData.h"
 //#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include <sstream>
@@ -513,9 +514,6 @@ StatusCode  ElectronTagTool::finalize() {
   ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
-
-/** destructor */
-ElectronTagTool::~ElectronTagTool() {}
 
 /** private function to get impact parameter */
 void ElectronTagTool::getElectronImpactParameter (const xAOD::Electron* elec, double& d0_significance, double& z0_sintheta) {

@@ -90,8 +90,8 @@ SCT_MaterialManager::addMaterial(GeoMaterial* material)
 
 const GeoMaterial* 
 SCT_MaterialManager::getMaterial(const std::string & originalMaterial, 
-				 double density,  
-				 const std::string & newName)
+                                 double density,  
+                                 const std::string & newName)
 {
   
   return s_materialManager->getMaterial(originalMaterial, density, newName);

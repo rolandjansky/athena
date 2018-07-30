@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # $Id: TrigT1MuctpiConfig.py 794528 2017-01-30 12:36:33Z fwinkl $
 
@@ -29,16 +29,17 @@ class DefaultL1Muctpi( LVL1MUCTPI__L1Muctpi ):
     self.MultiplicityStrategyName = "INCLUSIVE"
 
     # Decide which LUT to use, based on which run we are simulating:
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if ( geoFlags.Run() == "RUN1" ) or ( ( geoFlags.Run() == "UNDEFINED" ) and
-                                         ( geoFlags.isIBL() == False ) ):
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    if ( commonGeoFlags.Run() == "RUN1" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
+                                               ( geoFlags.isIBL() == False ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml"
       self.RunPeriod = "RUN1"
       logger.info( "Configuring MuCTPI simulation with Run 1 configuration file:" )
       logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml" )
       logger.info( "  with a RunPeriod=RUN1" )
-    elif ( geoFlags.Run() == "RUN2" ) or ( ( geoFlags.Run() == "UNDEFINED" ) and
-                                           ( geoFlags.isIBL() == True ) ):
+    elif ( commonGeoFlags.Run() == "RUN2" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
+                                                 ( geoFlags.isIBL() == True ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
       self.RunPeriod = "RUN2"
       logger.info( "Configuring MuCTPI simulation with Run 2 configuration file:" )
@@ -174,16 +175,17 @@ class DefaultL1MuctpiTool( LVL1MUCTPI__L1MuctpiTool ):
     self.MultiplicityStrategyName = "INCLUSIVE"
 
     # Decide which LUT to use, based on which run we are simulating:
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if ( geoFlags.Run() == "RUN1" ) or ( ( geoFlags.Run() == "UNDEFINED" ) and
-                                         ( geoFlags.isIBL() == False ) ):
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    if ( commonGeoFlags.Run() == "RUN1" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
+                                               ( geoFlags.isIBL() == False ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml"
       self.RunPeriod = "RUN1"
       logger.info( "Configuring MuCTPI simulation with Run 1 configuration file:" )
       logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml" )
       logger.info( "  with a RunPeriod=RUN1" )
-    elif ( geoFlags.Run() == "RUN2" ) or ( ( geoFlags.Run() == "UNDEFINED" ) and
-                                           ( geoFlags.isIBL() == True ) ):
+    elif ( commonGeoFlags.Run() == "RUN2" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
+                                                 ( geoFlags.isIBL() == True ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
       self.RunPeriod = "RUN2"
       logger.info( "Configuring MuCTPI simulation with Run 2 configuration file:" )

@@ -1,14 +1,18 @@
 <lcgdict>
 
 <!-- all the ARA converters and Athena persistent classes that are not WRITTEN by default should be moved here. -->
- <!-- The following should not be here! -->
- <class name="HepPoint3D_p1" />
+
+<!-- TrkV0Vertex top level collection -->
+ <class name="Trk::V0Container_tlp1" id="402A9BD1-4476-4E97-A5E4-EB4D742FBB38" />
+<!-- Vertex top level collection -->
+ <class name="Trk::VxContainer_tlp1"  id="AFA5FE76-EEC6-4BD1-B704-B5747F729291" />
 
 <!-- Track top level collection -->
  <class name="Trk::TrackCollection_tlp1" id="ECB12567-B999-4908-B0C6-C43CF9F9A987" />
  <class name="Trk::TrackCollection_tlp2" id="2D8B19DC-DB2E-4F56-BB94-D7C4544D501A" />
  <class name="Trk::TrackCollection_tlp3" id="A1E9FDCB-2F4A-4AC8-BF4E-2D70B9C70F8A" />
  <class name="Trk::TrackCollection_tlp4" id="3BEB819F-6ED2-48F6-9F95-E65E1759E781" />
+ <class name="Trk::TrackCollection_tlp5" id="436E4996-9D6E-11E3-AD2A-6C3BE51AB9F1" />
  <class name="Trk::SegmentCollection_tlp1" id="03A83988-8E38-45E9-95A5-9CB17B98074C" />
  <class name="Trk::SegmentCollection_tlp2" id="61A4056D-4FDF-4798-93D7-1BAC351FE32E" />
  <class name="Trk::Track_p1" />
@@ -37,6 +41,9 @@
  <class name="std::vector<Trk::Perigee_p1>" />
  <class name="Trk::Perigee_p2" />
  <class name="std::vector<Trk::Perigee_p2>" />
+
+ <class name="Trk::MaterialEffectsOnTrack_p1" />
+ <class name="std::vector<Trk::MaterialEffectsOnTrack_p1>" />
  
  <class name="Trk::RecVertex_p1" />
  <class name="std::vector<Trk::RecVertex_p1>" />

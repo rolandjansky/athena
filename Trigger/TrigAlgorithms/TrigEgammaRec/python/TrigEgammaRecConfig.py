@@ -12,10 +12,6 @@ from egammaRec.Factories import Factory, ToolFactory, FcnWrapper, getPropertyVal
 # The following tools use the offline configuration
 from egammaTools.egammaToolsFactories import EMConversionBuilder, EGammaAmbiguityTool,EMFourMomBuilder
 
-# Luminosity tool for LH correction
-if not hasattr(ToolSvc,"LuminosityTool"):
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-    ToolSvc += LuminosityToolOnline()
 
 # Define the isolation types
 import ROOT, cppyy

@@ -23,6 +23,9 @@ class eflowMatchCluster;
 
 static const InterfaceID IID_PFTrackClusterMatchingTool("PFTrackClusterMatchingTool", 1, 0);
 
+/**
+This is the tool, which inherits from AthAlgTool, which clients can use for track-cluster matching. Clients should define the type of cluster position, the type of track position and the type of distance to use. This tool uses the PF::TrackClusterMatcher tool and returns a vector of matched eflowRecCluster to the client. The client must provide an eflowRecTrack and a list of eflowRecCluster to consider for matching.
+*/
 class PFTrackClusterMatchingTool: public AthAlgTool {
 
 public:

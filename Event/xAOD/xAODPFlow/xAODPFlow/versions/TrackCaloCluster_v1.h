@@ -52,7 +52,13 @@ namespace xAOD {
     typedef IParticle::FourMom_t FourMom_t;
     
     /// The full 4-momentum of the particle.
-    virtual const FourMom_t& p4() const;
+    virtual FourMom_t        p4() const;
+
+    /// Base 4 Momentum type (GenVector version)
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
+
+    ///  The full 4-momentum of the particle : GenVector version
+    GenVecFourMom_t genvecP4() const; 
     
     /// The type of the object as a simple enumeration
     virtual Type::ObjectType type() const;
@@ -82,12 +88,6 @@ namespace xAOD {
     void setCaloClusterLinks(const std::vector< ElementLink< xAOD::CaloClusterContainer > >& caloClusterLinks);
     /// @}   
     
-    
-  private:
-    /// Cached 4-momentum object.
-    mutable FourMom_t m_p4;
-    mutable bool m_p4Cached;
-            
   }; 
   
 }

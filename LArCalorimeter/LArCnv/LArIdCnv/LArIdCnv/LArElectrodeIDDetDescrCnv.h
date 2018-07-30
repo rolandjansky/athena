@@ -34,8 +34,6 @@
  **/
 
 class LArElectrodeIDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<LArElectrodeIDDetDescrCnv>;
-
 public:
     virtual long int   repSvcType() const;
     virtual StatusCode initialize();
@@ -46,7 +44,6 @@ public:
     static long  storageType();
     static const CLID& classID();
 
-protected:
     LArElectrodeIDDetDescrCnv(ISvcLocator* svcloc);
 };
 

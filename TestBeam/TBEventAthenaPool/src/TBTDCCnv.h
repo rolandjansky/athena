@@ -23,7 +23,9 @@ typedef  T_AthenaPoolCustomCnv<TBTDC, TBTDC_PERS >   TBTDCCnvBase;
 class TBTDCCnv : public TBTDCCnvBase {
 friend class CnvFactory<TBTDCCnv >;
 protected:
+public:
   TBTDCCnv (ISvcLocator* svcloc) : TBTDCCnvBase(svcloc) {}
+protected:
   virtual TBTDC_PERS*   createPersistent (TBTDC* transCont);
   virtual TBTDC*        createTransient ();
 

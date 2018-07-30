@@ -1,6 +1,6 @@
 test1
-CondCont<T>::insert error: EventIDRange {[40,l:2] - [4294967295,t:543]} is neither fully RunEvent nor TimeStamp
+CondCont<T>::insert error: EventIDRange {[40,l:2] - [t:543]} is neither fully RunEvent nor TimeStamp
 test2
-CondCont<T>::insert error: EventIDRange {[40,l:2] - [4294967295,t:543]} is neither fully RunEvent nor TimeStamp
+CondCont<T>::insert error: EventIDRange {[40,l:2] - [t:543]} is neither fully RunEvent nor TimeStamp
 CondCont<T>::insert error: Not most-derived class.
 test3

@@ -59,13 +59,20 @@
 #include "G4eCoulombScatteringModel.hh"
 #include "G4WentzelVIModel.hh"
 #include "G4Version.hh"
-#if G4VERSION_NUMBER>=1000
-#include "G4UrbanMscModel.hh"
+
+#if G4VERSION_NUMBER > 1029
+#define PARTICLEITERATOR (this->GetParticleIterator())
+#elif G4VERSION_NUMBER > 1009
 #define PARTICLEITERATOR aParticleIterator
 #else
-#  include "G4UrbanMscModel96.hh"
 #define PARTICLEITERATOR theParticleIterator
-    using G4UrbanMscModel=G4UrbanMscModel96;
+#endif
+
+#if G4VERSION_NUMBER>=1000
+#include "G4UrbanMscModel.hh"
+#else
+#include "G4UrbanMscModel96.hh"
+using G4UrbanMscModel=G4UrbanMscModel96;
 #endif
 
 #include "G4MuBremsstrahlungModel.hh"

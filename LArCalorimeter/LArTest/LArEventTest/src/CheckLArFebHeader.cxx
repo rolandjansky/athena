@@ -3,7 +3,6 @@
 */
 
 #include "LArEventTest/CheckLArFebHeader.h"
-#include "GaudiKernel/AlgFactory.h"
 #include <vector>
 #include "GaudiKernel/IToolSvc.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"

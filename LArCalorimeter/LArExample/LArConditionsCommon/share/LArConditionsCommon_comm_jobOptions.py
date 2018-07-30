@@ -11,6 +11,8 @@ from RecExConfig.RecFlags import rec
 from LArConditionsCommon.LArCondFlags import larCondFlags 
 
 from IOVDbSvc.CondDB import conddb
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 if rec.projectName().startswith("data09") :
     larCondFlags.LArCoolChannelSelection="3:238,306,313,319,325,331,338,344,350,1001:1012,1021,1022"
@@ -42,11 +44,16 @@ if larCondFlags.LArForceIOVRunNumber.statusOn and larCondFlags.LArForceIOVRunNum
 #Offline applications read from COOLOFL_LAR/COMP200, folder /LAR/BadChannelsOfl/BadChannels
 #But SG key(=Folder name) is expected to be the same in both cases (default set in LArBadChanTool.cxx)
 #Solution: Re-key the object when reading from offline DB
-
+include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" ) #Needed by BC cond alog
 rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
 rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
-conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC)
-conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF)
+conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC,className="CondAttrListCollection")
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
+condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
+
+conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF,className='AthenaAttributeList')
+from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
+condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
 
 if not larCondFlags.LoadElecCalib.is_locked():
@@ -58,6 +65,7 @@ haveElecCalibInline=(conddb.dbdata=="CONDBR2")
 
 
 if (haveElecCalibInline):
+    # TEMPORARY --- until everything's been changed to use conditions handles.
     # Run 2 case:
     #This service creates a objects in the DetectorStore that wrap the AttributeListCollections 
     #with the inline representation of the electronic calibration and makes them accessible through the
@@ -68,9 +76,32 @@ if (haveElecCalibInline):
     svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]   
 
 
+def addLArFlatFolder (db, obj, calg, qual=''):
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSequence = AthSequencer("AthCondSeq")
+
+    folder = '/LAR/ElecCalibFlat/' + obj
+    conddb.addFolder(db, folder + forceRN + qual,
+                     className = 'CondAttrListCollection')
+    condSequence += calg (ReadKey=folder, WriteKey='LAr'+obj)
+    return
+
+    
+def addLArFolder (db, obj, cls, qual=''):
+    if db.endswith ('OFL'):
+        folder = 'ElecCalibOfl'
+    else:
+        folder = 'ElecCalibOnl'
+    conddb.addFolder (db, '/LAR/' + folder + '/' + obj + forceRN+qual,
+                      className = cls)
+    return
+
+
 #Load HVScaleCorr. For run 2,these constants are also used by the CaloNoiseToolDB 
 if (haveElecCalibInline):
-    conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/HVScaleCorr"+forceRN+sqlDB)
+    from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondAlg
+    addLArFlatFolder (ONLDB, 'HVScaleCorr', LArHVScaleCorrCondAlg, sqlDB)
+    # TEMPORARY
     theLArCondSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
 
 
@@ -93,56 +124,75 @@ if larCondFlags.LoadElecCalib():
       # Run 2 case:
       #1. uA2MeV
       if larCondFlags.ua2MeVFolder()=="":
-          conddb.addFolder("LAR_ONL","/LAR/ElecCalibFlat/uA2MeV"+forceRN)
+          from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LAruA2MeVFlat_ as LAruA2MeVCondAlg 
+          addLArFlatFolder ('LAR_ONL', 'uA2MeV', LAruA2MeVCondAlg)
+          # TEMPORARY
           theLArCondSvc.uA2MeVInput="/LAR/ElecCalibFlat/uA2MeV"
 
       else:
           #Load from offline database
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/"+larCondFlags.ua2MeVFolder()+forceRN)
-          pass
+          addLArFolder ('LAR_OFL', larCondFlags.ua2MeVFolder(),
+                        'LAruA2MeVComplete')
       
       #2. DAC2uA
-      conddb.addFolder("LAR_ONL","/LAR/ElecCalibFlat/DAC2uA"+forceRN)
+      from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArDAC2uAFlat_ as LArDAC2uACondAlg 
+      addLArFlatFolder ('LAR_ONL', 'DAC2uA', LArDAC2uACondAlg)
+      # TEMPORARY
       theLArCondSvc.DAC2uAInput="/LAR/ElecCalibFlat/DAC2uA"
 
       #3. Pedestal
-      conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/Pedestal"+forceRN+sqlDB)
+      from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArPedestalFlat_ as LArPedestalCondAlg 
+      addLArFlatFolder (ONLDB, 'Pedestal', LArPedestalCondAlg, sqlDB)
+      # TEMPORARY
       theLArCondSvc.PedestalInput="/LAR/ElecCalibFlat/Pedestal"
 
       #4. Ramp
-      conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/Ramp"+forceRN+sqlDB)
+      from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArRampFlat_ as LArRampCondAlg 
+      addLArFlatFolder (ONLDB, 'Ramp', LArRampCondAlg, sqlDB)
+      # TEMPORARY
       theLArCondSvc.RampInput="/LAR/ElecCalibFlat/Ramp"
       
       #5. MphysOverMcal
       if larCondFlags.MphysOverMcalFolder()=="":
-          conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/MphysOverMcal"+forceRN+sqlDB)
+          from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArMphysOverMcalFlat_ as LArMphysOverMcalCondAlg 
+          addLArFlatFolder (ONLDB, 'MphysOverMcal',
+                            LArMphysOverMcalCondAlg, sqlDB)
+          # TEMPORARY
           theLArCondSvc.MphysOverMcalInput="/LAR/ElecCalibFlat/MphysOverMcal"
-      else: 
+
+      else:
           #Load from offline database:
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/"+larCondFlags.MphysOverMcalFolder()+forceRN+sqlDB)
-          pass
+          addLArFolder ('LAR_OFL', larCondFlags.MphysOverMcalFolder(),
+                        'LArMphysOverMcalComplete', sqlDB)
 
       #6. HVScaleCorr -> moved outside of the if loadElecCalib clause b/c it's now used by the CaloNoiseTool
-      #conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/HVScaleCorr"+forceRN+sqlDB)
-      #theLArCondSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
 
       #7. OFCs
       if larCondFlags.OFCShapeFolder()=="":
-          conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/OFC"+forceRN+sqlDB)
+          from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg 
+          addLArFlatFolder (ONLDB, 'OFC', LArOFCCondAlg, sqlDB)
+          # TEMPORARY
           theLArCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
       else:
           #Load from offline DB
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
-          pass
+          addLArFolder ('LAR_OFL',
+                        'OFC/PhysWave/RTM/'+larCondFlags.OFCShapeFolder(),
+                        'LArOFCComplete', selection)
+
       #8.Shape
       if larCondFlags.useShape():
           if larCondFlags.OFCShapeFolder()=="":
-              conddb.addFolder(ONLDB,"/LAR/ElecCalibFlat/Shape"+forceRN+sqlDB)
+              from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArShapeFlat_ as LArShapeCondAlg 
+              addLArFlatFolder (ONLDB, 'Shape', LArShapeCondAlg, sqlDB)
+              # TEMPORARY
               theLArCondSvc.ShapeInput="/LAR/ElecCalibFlat/Shape"
           else:
               #Load from offline database
-              conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
-              pass
+              addLArFolder ('LAR_OFL',
+                            'Shape/RTM/'+larCondFlags.OFCShapeFolder(),
+                            'LArShapeComplete', selection)
+
+
           pass
       pass
 
@@ -163,47 +213,53 @@ if larCondFlags.LoadElecCalib():
 
       #1. uA2MeV
       if larCondFlags.ua2MeVFolder()=="":
-          conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/uA2MeV"+forceRN)
+          addLArFolder ('LAR_ONL', 'uA2MeV', 'LAruA2MeVMC')
       else:
           #Load from offline database
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/"+larCondFlags.ua2MeVFolder()+forceRN)
-          pass
+          addLArFolder ('LAR_OFL', larCondFlags.ua2MeVFolder(), 'LAruA2MeVMC')
       
       #2. DAC2uA
-      conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/DAC2uA"+forceRN)
+      addLArFolder ('LAR_ONL', 'DAC2uA', 'LArDAC2uAMC')
 
       #3. Pedestal
-      conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/Pedestal"+forceRN)
+      addLArFolder ('LAR_ONL', 'Pedestal', 'LArPedestalComplete',
+                    # POOL files set the key for this to `Pedestal',
+                    # but we want to use `LArPedestal'.
+                    '<key>LArPedestal</key>')
 
       #4. Ramp
-      conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/Ramp"+forceRN)
+      addLArFolder ('LAR_ONL', 'Ramp', 'LArRampComplete')
       
       #5. MphysOverMcal
       if larCondFlags.MphysOverMcalFolder()=="":
-          conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/MphysOverMcal"+forceRN)
+          addLArFolder ('LAR_ONL', 'MphysOverMcal',
+                        'LArMphysOverMcalComplete')
       else: 
           #Load from offline database:
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/"+larCondFlags.MphysOverMcalFolder()+forceRN)
-          pass
+          addLArFolder ('LAR_OFL', larCondFlags.MphysOverMcalFolder(),
+                        'LArMphysOverMcalComplete')
 
-      #6. HVScaleCorr 
-      conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/HVScaleCorr"+forceRN)
+      #6. HVScaleCorr
+      addLArFolder ('LAR_ONL', 'HVScaleCorr', 'LArHVScaleCorrComplete')
 
       #7. OFCs
       if larCondFlags.OFCShapeFolder()=="":
           conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/OFC"+forceRN)
+          addLArFolder ('LAR_ONL', 'OFC', 'LArOFCComplete')
       else:
           #Load from offline DB
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
-          pass
+          addLArFolder ('LAR_OFL', 'OFC/PhysWave/RTM/'+larCondFlags.OFCShapeFolder(),
+                        'LArOFCComplete', selection)
+
       #8.Shape
       if larCondFlags.useShape():
           if larCondFlags.OFCShapeFolder()=="":
-              conddb.addFolder("LAR_ONL","/LAR/ElecCalibOnl/Shape"+forceRN)
+              addLArFolder ('LAR_ONL', 'Shape', 'LArShapeComplete')
+
           else:
               #Load from offline database
-              conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
-              pass
+              addLArFolder ('LAR_OFL', 'Shape/RTM/'+larCondFlags.OFCShapeFolder(),
+                            'LArShapeComplete', selection)
           pass
       pass
   pass

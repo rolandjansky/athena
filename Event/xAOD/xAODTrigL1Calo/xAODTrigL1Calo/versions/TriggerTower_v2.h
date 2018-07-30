@@ -20,6 +20,9 @@
 // System include(s):
 #include <stdint.h>
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
 
   /// Description of TriggerTower_v2
@@ -87,7 +90,13 @@ namespace xAOD {
       typedef IParticle::FourMom_t FourMom_t;
 
       /// @brief The full 4-momentum of the particle as a TLoretzVector
-      virtual const FourMom_t& p4() const ATH_FINAL;
+      virtual FourMom_t p4() const ATH_FINAL;
+
+      /// Base 4 Momentum type for trigger tower
+      typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
+
+      ///  The full 4-momentum of the particle : GenVector type.
+      GenVecFourMom_t genvecP4() const; 
 
       /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
       virtual Type::ObjectType type() const ATH_FINAL; 
@@ -218,12 +227,7 @@ namespace xAOD {
     
     private:
       static const uint8_t m_saturation = 255;
-      
-      /// Cached 4-momentum object
-      mutable FourMom_t m_p4;
-      /// Cache state of the internal 4-momentum (reset from the streamer)
-      mutable bool m_p4Cached;      
-  
+        
   }; // class TriggerTower_v2
 } // namespace xAOD
 

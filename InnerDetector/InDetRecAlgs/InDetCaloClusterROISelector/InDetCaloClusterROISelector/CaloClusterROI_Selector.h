@@ -11,7 +11,6 @@
 */
 
 // INCLUDE HEADER FILES:
-#include <vector>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -70,15 +69,15 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   ToolHandle<IegammaIso>                       m_emCaloIsolationTool;
   /** @brief Pointer to the egammaCheckEnergyDepositTool*/
   ToolHandle<IegammaCheckEnergyDepositTool>    m_egammaCheckEnergyDepositTool;
-  /** @Middle shape Tool*/
+  /** @brief Middle shape Tool*/
   ToolHandle<IegammaMiddleShape>               m_egammaMiddleShape;
   /** @brief Tool to build ROI*/
   ToolHandle<InDet::ICaloClusterROI_Builder>   m_caloClusterROI_Builder;
   //
   // All booleans
   //
-  bool                              m_CheckHadronicEnergy;
-  bool                              m_CheckReta;
+  bool                              m_CheckHadronicEnergy{};
+  bool                              m_CheckReta{};
   //
   // Other properties.
   //

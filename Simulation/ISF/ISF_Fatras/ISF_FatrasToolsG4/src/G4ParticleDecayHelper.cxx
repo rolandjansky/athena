@@ -134,6 +134,10 @@ iFatras::G4ParticleDecayHelper::initialize()
     std::cout <<"f4dec: g4RunManagerHelper retrieved:"<< m_g4RunManagerHelper<< std::endl;
   }
 
+  // Disable auto-retrieve of this tool: Geant will raise an exception
+  // if this happens before the run manager is created.
+  m_pdgToG4Conv.disable();
+
   ATH_MSG_INFO("initialize() successful");
   return StatusCode::SUCCESS;
 }

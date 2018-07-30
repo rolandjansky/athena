@@ -18,22 +18,42 @@ namespace Muon {
 Temporary class to hold the MM RDO.
 */
 class MM_RawData {
-  friend class MM_RawDataCnv_p1;
-  
+
+  friend class MM_RawDataCnv_p1;  
 
  private:
-   
-   const Identifier m_id;
-   
+  
+  // not sure whether the offline identifier is needed
+  const Identifier m_id;
+  
+  /// channel Id
+  int m_channel;
+  /// tdc counts
+  int m_time;
+  /// adc counts
+  int m_charge;
+  
  public:
 
   /** default constructor */
-  MM_RawData ( const Identifier& id ) :  m_id(id) {}
+  MM_RawData ( const Identifier& id ) : m_id(id), m_channel(0), m_time(0), m_charge(0) {}
+
+
+  MM_RawData ( const Identifier& id, const int channel, 
+	       const int time, const int charge  ) 
+    :  m_id(id), m_channel(channel), m_time(time), m_charge(charge) {}
+
+
   MM_RawData () {} ; //!< TODO remove this. Currently have problems with convertor if I do though.
   
   virtual ~MM_RawData() {}
 
   const Identifier& identify() const { return m_id; }
+
+  // access functions to the online data
+  int channel() const { return m_channel; }
+  int time() const { return m_time; }
+  int charge() const { return m_charge; }
 
 };
 }

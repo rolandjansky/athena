@@ -14,7 +14,6 @@
 #include "LumiBlockComps/ILumiCalcSvc.h"
 #include "xAODLuminosity/SortLumiBlockRangeByStart.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 

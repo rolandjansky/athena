@@ -22,11 +22,7 @@ if Type == 'Cosmic':
        include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
        include("CaloCosEx/LArSignalReco_Cosmics_jobOptions.py")
 
-       from AthenaCommon.BeamFlags import jobproperties
-       if jobproperties.Global.DataSource.get_Value() == 'data':
-          theLArRawChannelBuilderPedestalDataBase.LArPedestalKey='Pedestal'
-       else:
-          theLArRawChannelBuilderPedestalDataBase.LArPedestalKey='LArPedestal'
+       theLArRawChannelBuilderPedestalDataBase.LArPedestalKey='LArPedestal'
                  
    else:
       # Use a simple Tool

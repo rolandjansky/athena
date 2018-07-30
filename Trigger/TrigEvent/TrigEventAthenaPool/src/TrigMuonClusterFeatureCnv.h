@@ -23,7 +23,9 @@ class TrigMuonClusterFeatureCnv : public TrigMuonClusterFeatureCnvBase {
  
  protected:
 
+public:
  TrigMuonClusterFeatureCnv( ISvcLocator *svcloc ): TrigMuonClusterFeatureCnvBase(svcloc){}
+protected:
     
    virtual TrigMuonClusterFeature_PERS* createPersistent( TrigMuonClusterFeature *transObj);
    virtual TrigMuonClusterFeature* createTransient();

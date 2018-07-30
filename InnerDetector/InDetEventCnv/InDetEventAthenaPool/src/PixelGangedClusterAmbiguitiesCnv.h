@@ -22,7 +22,9 @@ typedef  T_AthenaPoolCustomCnv<InDet::PixelGangedClusterAmbiguities, PixelGanged
 class PixelGangedClusterAmbiguitiesCnv : public PixelGangedClusterAmbiguitiesCnvBase {
 friend class CnvFactory<PixelGangedClusterAmbiguitiesCnv >;
 protected:
+public:
   PixelGangedClusterAmbiguitiesCnv (ISvcLocator* svcloc) : PixelGangedClusterAmbiguitiesCnvBase(svcloc, "PixelGangedClusterAmbiguitiesConverter") {}
+protected:
   virtual PixelGangedClusterAmbiguities_PERS*   createPersistent (InDet::PixelGangedClusterAmbiguities* transObj);
   virtual InDet::PixelGangedClusterAmbiguities*        createTransient ();
 };

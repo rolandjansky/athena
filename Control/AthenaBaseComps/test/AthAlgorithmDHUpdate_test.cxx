@@ -13,8 +13,8 @@
 
 #undef NDEBUG
 #include "../src/AthAlgorithmDHUpdate.h"
-#include "SGTools/CLASS_DEF.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "TestTools/initGaudi.h"
 #include <cassert>
 #include <iostream>
@@ -49,8 +49,6 @@ public:
   virtual const DataObjIDColl& extraInputDeps() const override
   { std::abort(); }
   virtual void acceptDHVisitor(IDataHandleVisitor*) const override
-  { std::abort(); }
-  virtual void commitHandles() override
   { std::abort(); }
   virtual const DataObjIDColl& inputDataObjs() const override
   { std::abort(); }

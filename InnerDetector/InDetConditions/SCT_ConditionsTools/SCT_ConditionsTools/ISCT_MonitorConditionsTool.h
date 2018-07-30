@@ -38,11 +38,11 @@ class ISCT_MonitorConditionsTool: virtual public ISCT_ConditionsTool {
   DeclareInterfaceID(ISCT_MonitorConditionsTool, 1, 0);
   
   /// Return a list of bad stip Identifiers
-  virtual void badStrips(std::set<Identifier>& strips)=0;
+  virtual void badStrips(std::set<Identifier>& strips) const =0;
   /// Return a list of bad stip Identifiers for a given module
-  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips)=0;
+  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const =0;
   /// Return a (space-separated) string of bad stip numbers (including hyphanated ranges) as they are written to the DB 
-  virtual std::string badStripsAsString(const Identifier& moduleId)=0;
+  virtual std::string badStripsAsString(const Identifier& moduleId) const =0;
 
  private:
 

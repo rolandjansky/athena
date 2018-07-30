@@ -55,10 +55,9 @@ class ComTime;
 class IInDetConditionsSvc;
 class ITRT_CalDbSvc;
 class ITRT_StrawStatusSummarySvc;
-class ITRT_DCS_ConditionsSvc;
+class ITRT_ConditionsSvc;
 class ITRT_DAQ_ConditionsSvc;
 class ITRT_ByteStream_ConditionsSvc;
-class ITRT_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
 //class ITRT_DriftFunctionTool;
 
@@ -148,7 +147,6 @@ private:
 	// Services
 	ServiceHandle<IToolSvc> p_toolSvc;
 	ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc;
-	ServiceHandle<ITRT_DCS_ConditionsSvc> m_DCSSvc;
 	ServiceHandle<ITRT_DAQ_ConditionsSvc> m_DAQSvc;
 	ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
 	ServiceHandle<ITRT_ConditionsSvc> m_condSvc_BS;

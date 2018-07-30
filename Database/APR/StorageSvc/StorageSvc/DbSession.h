@@ -81,8 +81,6 @@ namespace pool  {
     DbStatus close() const;
     /// Allow access to the Database implementation
     IOODatabase* db(const DbType& typ)   const;
-    /// Inject new Database implementation
-    DbStatus addDb(IOODatabase* impl)   const;
   };
 }       // End namespace pool
 #endif  // POOL_DBSESSION_H

@@ -22,8 +22,6 @@
 #include "xAODTrackingCnv/ITrackCollectionCnvTool.h"
 #include "xAODTrackingCnv/IRecTrackParticleContainerCnvTool.h"
 
-
-
 namespace xAODMaker {
 
   //Small class for cleaning up counter code
@@ -49,9 +47,7 @@ namespace xAODMaker {
       m_aod("TrackParticleCandidate"),
       m_tracks("Tracks"),
       m_xaodout("InDetTrackParticles"),
-      m_xauxout(""),
       m_xaodTrackParticlesout("ConvertedTrackParticleCandidate"),
-      m_xauxTrackParticlesout(""),
       m_truthParticleLinkVec("xAODTruthLinks"),
       m_aodTruth(""),
       m_trackTruth(""),
@@ -114,8 +110,8 @@ namespace xAODMaker {
   StatusCode TrackParticleCnvAlg::initialize() {
 
     ATH_MSG_DEBUG( "Initializing TrackParticleCnvAlg" );
-    ATH_MSG_DEBUG( "AODContainerName  = " << m_aod.name() );
-    ATH_MSG_DEBUG( "xAODContainerName = " << m_xaodTrackParticlesout.name() );
+    ATH_MSG_DEBUG( "AODContainerName  = " << m_aod.key() );
+    ATH_MSG_DEBUG( "xAODContainerName = " << m_xaodTrackParticlesout.key() );
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_truthClassifier.retrieve());
     ATH_CHECK( m_TrackCollectionCnvTool.retrieve() );
@@ -125,20 +121,14 @@ namespace xAODMaker {
     ATH_CHECK( m_TrackCollectionCnvTool->setParticleCreatorTool( &m_particleCreator ) );
     ATH_CHECK( m_RecTrackParticleContainerCnvTool->setParticleCreatorTool( &m_particleCreator ) );
 
-    if (!m_convertTracks) {
-      ATH_CHECK( m_xaodout.assign ("") );
-    }
-    if (!m_convertAODTrackParticles) {
-      ATH_CHECK( m_xaodTrackParticlesout.assign ("") );
-    }
+    ATH_CHECK(m_xaodout.initialize(m_convertTracks));
+    ATH_CHECK(m_xaodTrackParticlesout.initialize(m_convertAODTrackParticles));
+    ATH_CHECK(m_aod.initialize(m_convertAODTrackParticles));
+    ATH_CHECK(m_tracks.initialize(m_convertTracks));
+    ATH_CHECK(m_truthParticleLinkVec.initialize(m_addTruthLink));
+    ATH_CHECK(m_aodTruth.initialize(m_addTruthLink && m_convertAODTrackParticles));
+    ATH_CHECK(m_trackTruth.initialize(m_addTruthLink && m_convertTracks));
 
-    //Automatically set the Aux names
-    if(!m_xaodout.name().empty() && m_xauxout.name().empty()){
-        m_xauxout = SG::WriteHandle<xAOD::TrackParticleAuxContainer>(m_xaodout.name() + "Aux.");
-    }
-    if(!m_xaodTrackParticlesout.name().empty() && m_xauxTrackParticlesout.name().empty()){
-        m_xauxTrackParticlesout = SG::WriteHandle<xAOD::TrackParticleAuxContainer>( m_xaodTrackParticlesout.name() + "Aux." );
-    }
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
@@ -146,66 +136,68 @@ namespace xAODMaker {
   StatusCode TrackParticleCnvAlg::execute() {
 
     m_numEvents++; 
+    const Rec::TrackParticleContainer *aod=nullptr;
+    const TrackCollection *tracks = nullptr;
+    const xAODTruthParticleLinkVector *truthLinks = nullptr;
+    const TrackParticleTruthCollection *aodTruth = nullptr;
+    const TrackTruthCollection *trackTruth = nullptr;
+
     // Retrieve the AOD particles:
     if (m_convertAODTrackParticles){
-      if (!m_aod.isValid()) {
-        ATH_MSG_DEBUG("Error finding " << m_aod.name() << " found. Do nothing.");
+      SG::ReadHandle<Rec::TrackParticleContainer> rh_aod(m_aod);
+      if (!rh_aod.isValid()) {
+        ATH_MSG_DEBUG("Error finding " << m_aod.key() << " found. Do nothing.");
         return StatusCode::SUCCESS;
       } else {
-        ATH_MSG_VERBOSE("Got TrackParticleContainer with key " << m_aod.name() << " found.");
+	aod = rh_aod.cptr();
+        ATH_MSG_VERBOSE("Got TrackParticleContainer with key " << m_aod.key() << " found.");
       }
     }
     // Retrieve the Tracks:
     if (m_convertTracks){
-      if (!m_tracks.isValid()) {
-        ATH_MSG_DEBUG("Error finding " << m_tracks.name() << " found. Do nothing.");
+      SG::ReadHandle<TrackCollection> rh_tracks(m_tracks);
+      if (!rh_tracks.isValid()) {
+        ATH_MSG_DEBUG("Error finding " << m_tracks.key() << " found. Do nothing.");
         return StatusCode::SUCCESS;
       }  else {
-        ATH_MSG_VERBOSE("Got TrackCollection with key " << m_tracks.name() << " found.");
+	tracks = rh_tracks.cptr();
+        ATH_MSG_VERBOSE("Got TrackCollection with key " << m_tracks.key() << " found.");
       }
     }
     if( m_addTruthLink ){
       if (m_convertAODTrackParticles){
-        if (!m_aodTruth.isValid()) {
-          ATH_MSG_WARNING("No TrackParticleTruthCollection with key " << m_aodTruth.name() << " found. Do nothing.");
+	SG::ReadHandle<TrackParticleTruthCollection> rh_aodTruth(m_aodTruth);
+        if (!rh_aodTruth.isValid()) {
+          ATH_MSG_WARNING("No TrackParticleTruthCollection with key " << m_aodTruth.key() << " found. Do nothing.");
           return StatusCode::SUCCESS;
         }
+	else aodTruth = rh_aodTruth.cptr();
       }
       if (m_convertTracks){
-        if (!m_trackTruth.isValid()) {
-          ATH_MSG_WARNING("No DetailedTrackTruthCollection with key " << m_trackTruth.name() << " found. Do nothing.");
+	SG::ReadHandle<TrackTruthCollection> rh_trackTruth(m_trackTruth);
+        if (!rh_trackTruth.isValid()) {
+          ATH_MSG_WARNING("No DetailedTrackTruthCollection with key " << m_trackTruth.key() << " found. Do nothing.");
           return StatusCode::SUCCESS;
         }
+	else trackTruth = rh_trackTruth.cptr();
       }
 
-//      m_truthParticleLinkVec = evtStore()->tryConstRetrieve<xAODTruthParticleLinkVector>(m_truthLinkVecName);
-      if (!m_truthParticleLinkVec.isValid()) {
-        ATH_MSG_WARNING("No xAODTruthParticleLinkVector with key " << m_truthParticleLinkVec.name() << " found. Do nothing.");
+      SG::ReadHandle<xAODTruthParticleLinkVector> rh_truthParticleLinkVec(m_truthParticleLinkVec);
+      if (!rh_truthParticleLinkVec.isValid()) {
+        ATH_MSG_WARNING("No xAODTruthParticleLinkVector with key " << m_truthParticleLinkVec.key() << " found. Do nothing.");
         return StatusCode::SUCCESS;
       }
+      else truthLinks = rh_truthParticleLinkVec.cptr();
     }
     if (m_convertTracks) {
-       m_xaodout = CxxUtils::make_unique<xAOD::TrackParticleContainer>();
-       m_xauxout = CxxUtils::make_unique<xAOD::TrackParticleAuxContainer>();
-       if(!m_xaodout.isValid() || !m_xauxout.isValid()){
-          ATH_MSG_ERROR("Error creating key " << m_xaodout.name());
-          return StatusCode::FAILURE;
-       }
-       m_xaodout->setStore(m_xauxout.ptr());
-       const TrackTruthCollection* truthPtr = nullptr;
-       if (m_addTruthLink)
-         truthPtr = m_trackTruth.cptr();
-       convert(*(m_tracks.cptr()), truthPtr, m_TrackCollectionCnvTool,  m_xaodout);
+      SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodout(m_xaodout);
+      ATH_CHECK(wh_xaodout.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
+      convert((*tracks), trackTruth, m_TrackCollectionCnvTool,  wh_xaodout, truthLinks);
     }
     if (m_convertAODTrackParticles){
-       m_xaodTrackParticlesout = CxxUtils::make_unique<xAOD::TrackParticleContainer>();
-       m_xauxTrackParticlesout = CxxUtils::make_unique<xAOD::TrackParticleAuxContainer>();
-       if(!m_xaodTrackParticlesout.isValid() || !m_xauxTrackParticlesout.isValid()){
-          ATH_MSG_ERROR("Error creating key " << m_xaodTrackParticlesout.name());
-          return StatusCode::FAILURE;
-       }
-       m_xaodTrackParticlesout->setStore(m_xauxTrackParticlesout.ptr());
-       convert(*(m_aod.cptr()), m_aodTruth.cptr(), m_RecTrackParticleContainerCnvTool, m_xaodTrackParticlesout);
+      SG::WriteHandle<xAOD::TrackParticleContainer> wh_xaodTrackParticlesout(m_xaodTrackParticlesout);
+      ATH_CHECK(wh_xaodTrackParticlesout.record(std::make_unique<xAOD::TrackParticleContainer>(), std::make_unique<xAOD::TrackParticleAuxContainer>()));
+      convert((*aod), aodTruth, m_RecTrackParticleContainerCnvTool, wh_xaodTrackParticlesout, truthLinks);
     }
 
     return StatusCode::SUCCESS;
@@ -247,7 +239,7 @@ namespace xAODMaker {
   };
 
   template<typename CONT, typename TRUTHCONT, typename CONVTOOL>
-  int TrackParticleCnvAlg::convert(const CONT& container, const TRUTHCONT& truth, CONVTOOL& conv_tool, SG::WriteHandle<xAOD::TrackParticleContainer> &xaod){    
+  int TrackParticleCnvAlg::convert(const CONT& container, const TRUTHCONT& truth, CONVTOOL& conv_tool, SG::WriteHandle<xAOD::TrackParticleContainer> &xaod, const xAODTruthParticleLinkVector *truthLinkVec){    
     // Create the xAOD container and its auxiliary store:
    
 
@@ -378,7 +370,7 @@ namespace xAODMaker {
             ATH_MSG_VERBOSE("Found track Truth: barcode  " << result->second.particleLink().barcode() 
 			    << " evt " << result->second.particleLink().eventIndex());
             probability = result->second.probability();
-            link = m_truthParticleLinkVec->find(result->second.particleLink());
+            link = truthLinkVec->find(result->second.particleLink());
             if( link.isValid() ){
               ATH_MSG_DEBUG("Found matching xAOD Truth: barcode " << (*link)->barcode() << " pt " << (*link)->pt() 
 			    << " eta " << (*link)->eta() << " phi " << (*link)->phi());
@@ -424,9 +416,6 @@ namespace xAODMaker {
   {
     // create the xAOD::TrackParticle, the pointer is added to the container in the function
     xAOD::TrackParticle* xp = m_particleCreator->createParticle(tp,&xaod);
-    const ElementLink<VxContainer>& vx = tp.reconstructedVertexLink();
-    if (!vx.isDefault())
-      xp->setVertexLink (ElementLink<xAOD::VertexContainer> (vx.dataID(), vx.index()));
     return xp;
   } // createParticleAndTruth
 
@@ -448,11 +437,11 @@ namespace xAODMaker {
       msg(MSG::INFO) << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(9) << std::setprecision(3);
       msg(MSG::INFO) << " --- InDetParticleCreation Summary: " << endmsg;
     
-      msg(MSG::INFO) << " --- Input  TrackCollection        : \"" <<  m_tracks.name()              << "\" with " << m_nTracksProcessed << " Tracks (";
+      msg(MSG::INFO) << " --- Input  TrackCollection        : \"" <<  m_tracks.key()              << "\" with " << m_nTracksProcessed << " Tracks (";
       msg(MSG::INFO) << ( m_numEvents ? (double)m_nTracksProcessed/(double)m_numEvents : 0 ) << " per event)." << endmsg;
     
     
-      msg(MSG::INFO) << " --- Output TrackParticleContainer : \"" << m_xaodout.name() << "\" with " << nTP << " TrackParticles (";
+      msg(MSG::INFO) << " --- Output TrackParticleContainer : \"" << m_xaodout.key() << "\" with " << nTP << " TrackParticles (";
       msg(MSG::INFO) << (m_numEvents ? nTP/(double)m_numEvents : 0 ) << " per event)." << endmsg;
     
       if (m_nTrackParticlesCreated>0){

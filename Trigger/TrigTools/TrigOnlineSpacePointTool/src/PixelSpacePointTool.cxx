@@ -5,7 +5,6 @@
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigOnlineSpacePointTool/PixelSpacePointTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 

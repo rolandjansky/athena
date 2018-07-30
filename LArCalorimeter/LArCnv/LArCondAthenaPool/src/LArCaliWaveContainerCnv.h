@@ -30,7 +30,9 @@ class LArCaliWaveContainerCnv : public LArCaliWaveContainerCnvBase {
 friend class CnvFactory<LArCaliWaveContainerCnv >;
 
 protected:
+public:
     LArCaliWaveContainerCnv (ISvcLocator* svcloc) : LArCaliWaveContainerCnvBase(svcloc) {}
+protected:
     LArCaliWavePersType*   createPersistent (LArCaliWaveTransType* transObj);
     LArCaliWaveTransType*  createTransient ();
     LArCaliWaveTransType*  createTransient(LArCaliWaveTransType* orig); //used to read non t/p split version

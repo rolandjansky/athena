@@ -23,6 +23,21 @@ namespace HepMC {
 
 namespace ISF {
 
+  /**  The interaction classifications are described as follows:
+       STD_VTX: interaction of a particle without a pre-defined decay;
+       QS_SURV_VTX: a particle with a pre-defined decay under-going a
+       non-destructive interaction;
+       QS_DEST_VTX: a particle with a pre-defined decay under-going a
+       destructive interaction other than its pre-defined decay;
+       QS_PREDEF_VTX: a particle under-going its pre-defined decay */
+  typedef enum InteractionClass_t {
+    STD_VTX = 0,
+    QS_SURV_VTX = 1,
+    QS_DEST_VTX = 2,
+    QS_PREDEF_VTX = 3,
+    UNKNOWN_VTX
+  } InteractionClass_t;
+
   /** @class ITruthIncident
 
       ISF interface class for TruthIncidents. Information regarding
@@ -96,6 +111,12 @@ namespace ISF {
         enter the HepMC truth event) */
     virtual HepMC::GenParticle*       childParticle(unsigned short index,
                                                     Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode) const = 0;
+    /** Update the properties of a child particle from a pre-defined
+        interaction based on the properties of the ith child of the
+        current TruthIncident (only used in quasi-stable particle
+        simulation). */
+    virtual HepMC::GenParticle*       updateChildParticle(unsigned short index,
+                                                          HepMC::GenParticle *existingChild) const = 0;
     /** Set the the barcode of all child particles to the given bc */
     virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) = 0;
 
@@ -107,13 +128,13 @@ namespace ISF {
     inline void                       setPassWholeVertices(bool passWholeVertex);
 
     /**  The interaction classifications are described as follows:
-         case 0: interaction of a particle without a pre-defined decay;
-         case 1: a particle with a pre-defined decay under-going a
+         STD_VTX: interaction of a particle without a pre-defined decay;
+         QS_SURV_VTX: a particle with a pre-defined decay under-going a
          non-destructive interaction;
-         case 2: a particle with a pre-defined decay under-going a
+         QS_DEST_VTX: a particle with a pre-defined decay under-going a
          destructive interaction other than its pre-defined decay;
-         case 3: a particle under-going its pre-defined decay */
-    virtual int                        interactionClassification() const {return 0;};
+         QS_PREDEF_VTX: a particle under-going its pre-defined decay */
+    virtual ISF::InteractionClass_t interactionClassification() const {return ISF::STD_VTX;};
   private:
     AtlasDetDescr::AtlasRegion        m_geoID; //!< region that the TruthIncident is located in
   protected:

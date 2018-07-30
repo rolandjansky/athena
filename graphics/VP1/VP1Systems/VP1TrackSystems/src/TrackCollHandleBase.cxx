@@ -312,16 +312,20 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
    if (m_cut_etaptphi_allwillfail)
     return false;
 
-  // messageVerbose("TrackCollHandleBase::cut - checking hit cuts.");
+  messageVerbose("TrackCollHandleBase::cut - checking hit cuts.");
   if (mightHaveSubSystemHitInfo()&&!m_cut_requiredNHits.isEmpty()&&handle->hasSubSystemHitInfo()) {
     assert(m_cut_requiredNHits.count()==4);
-    // Only apply ID cuts to tracks which have ID hits
+    // Only apply ID cuts to tracks which have ID hits (so ID only and combined muons)
     if (handle->isIDTrack()){
       if (handle->getNPixelHits()<m_cut_requiredNHits[0]) return false;
       if (handle->getNSCTHits()<m_cut_requiredNHits[1]) return false;
       if (handle->getNTRTHits()<m_cut_requiredNHits[2]) return false;
     }
+    // Probably we should only be applying these to MS tracks?
+    messageVerbose("TrackCollHandleBase::cut : "+QString::number(handle->getNMuonPrecisionHits())+" / "+ QString::number(m_cut_requiredNHits[4]));
+    
     if (handle->getNMuonHits()<m_cut_requiredNHits[3]) return false;
+    if (handle->getNMuonPrecisionHits()<m_cut_requiredNHits[4]) return false;
   }
 
   if (!m_cut_pt_allowall||!m_cut_eta_allowall||!m_cut_phi_allowall)

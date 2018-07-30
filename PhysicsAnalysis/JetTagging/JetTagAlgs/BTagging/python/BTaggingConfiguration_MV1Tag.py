@@ -12,7 +12,7 @@ metaMV1Tag = { 'IsATagger'          : True,
                                        'IP3DTag',
                                        'JetFitterTagCOMBNN',
                                        'SV1Tag'],
-               'CalibrationFolders' : ['MV1',],
+               'CalibrationTaggers' : ['MV1',],
                'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                'ToolCollection'     : 'MV1Tag' }
 

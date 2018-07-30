@@ -1360,12 +1360,14 @@ bool
   std::vector<DestSurf >::iterator sBeg  = sfs.begin();
   unsigned int numSf=0; 
   unsigned int iCurr=0;         // index for m_currentDist
-
+  int startSf = -99;
   for (; sIter!=sfs.end(); sIter++) {
     Trk::DistanceSolution distSol = (*sIter).first->straightLineDistanceEstimate(position,direction0);
     double distEst = -propDir*maxPath;
+    double dist1Est = -propDir*maxPath;
     if (distSol.numberOfSolutions()>0 ) {
       distEst = distSol.first();
+      dist1Est = distSol.first();
       if ( distSol.numberOfSolutions()>1 && ( fabs(distEst) < tol || (propDir*distEst<-tol && propDir*distSol.second()>tol)) ) distEst = distSol.second();
     }
     // select input surfaces;
@@ -1384,6 +1386,7 @@ bool
       // save the nearest distance to surface
       m_currentDist[iCurr]=std::pair<int,std::pair<double,double> >(-1,std::pair<double,double>(distSol.currentDistance(),distSol.currentDistance(true)));
     }
+    if(fabs(dist1Est)<tol) startSf = (int) iCurr;
     iCurr++;
   }   
 
@@ -1672,7 +1675,15 @@ bool
               fabs(distSol.second()*propDir+distanceStepped-previousDistance) ){
 	    distanceEst = distSol.second();
 	  }
+// Peter Kluit: avoid jumping into other (distSol.first->second) distance solution for start surface with negative distance solution
+//              negative distanceEst will trigger flipDirection = true and will iterate to the start surface 
+//              this will lead to very similar positions for multiple propagator calls and many tiny X0 scatterers   
+          if(ic==startSf&&distanceEst<0&&distSol.first()>0) distanceEst = distSol.first();
 	}
+        //if(ic==startSf) std::cout << " start Surface " << ic << std::endl;
+        //std::cout << " surface nr ic " << ic << " distEst " << distanceEst << " previousDistance " << previousDistance << " distanceStepped " << distanceStepped  << " tol " << tol << " path " << path << std::endl;
+        //if(distSol.numberOfSolutions()>1) std::cout << " surface nr ic " << ic <<  " sol first " <<  distSol.first() << " second " << distSol.second() << " current " << distSol.currentDistance(true) << std::endl;
+
         // eliminate close surface if path too small
 	if (ic==nextSf && fabs(distanceEst)<tol && fabs(path)<tol) {
 	  (*vsIter).first=-1; vsIter=vsBeg; restart=true; distanceToTarget=maxPath; nextSf=-1;

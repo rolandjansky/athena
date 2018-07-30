@@ -27,7 +27,6 @@ template <class T, class P> class T_AthenaPoolExtendingCnv;
 template <class TRANS, class PERS>
 class T_AthenaPoolCustomCnv : public T_AthenaPoolCustCnv<TRANS, PERS> {
 
-friend class CnvFactory<T_AthenaPoolCustomCnv<TRANS, PERS> >;
    /// need the extending converter class as friend,
    /// so clones can access the original converter methods
 friend class T_AthenaPoolExtendingCnv<TRANS,PERS>;
@@ -35,12 +34,13 @@ friend class T_AthenaPoolExtendingCnv<TRANS,PERS>;
 public:
    typedef T_AthenaPoolCustCnv<TRANS, PERS> BaseType;
 
-protected:
    /// Constructor
    /// @param svcloc [IN] Gaudi service locator
    /// @param name [IN] Optional name, for error reporting.
    T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocator,
                          const char* name = nullptr);
+
+protected:
 
    // the 2 following methods are allowed to throw std::runtime_error
 
@@ -88,6 +88,11 @@ protected:
    virtual StatusCode transToPers(TRANS*, PERS*&) { return(StatusCode::FAILURE); }
    /// obsolete
    virtual StatusCode persToTrans(TRANS*&, PERS*) { return(StatusCode::FAILURE); }
+
+   /// Convert an object into Persistent.
+   /// @param pObj [IN] pointer to the transient object.
+   /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
+   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key);
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.

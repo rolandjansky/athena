@@ -7,9 +7,8 @@ atlas_subdir( MuonRDO )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           Event/EventContainers
                           MuonSpectrometer/MuonCablings/CSCcabling
@@ -27,12 +26,12 @@ atlas_add_library( MuonRDO
                    src/*.cxx
                    PUBLIC_HEADERS MuonRDO
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier CSCcablingLib MuonIdHelpersLib StoreGateLib SGtests TGCcablingInterfaceLib EventContainers
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers Identifier CSCcablingLib MuonIdHelpersLib StoreGateLib SGtests TGCcablingInterfaceLib EventContainers
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_dictionary( MuonRDODict
                       MuonRDO/MuonRDODict.h
                       MuonRDO/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier CSCcablingLib MuonIdHelpersLib StoreGateLib SGtests GaudiKernel TGCcablingInterfaceLib MuonRDO EventContainers)
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers Identifier CSCcablingLib MuonIdHelpersLib StoreGateLib SGtests GaudiKernel TGCcablingInterfaceLib MuonRDO EventContainers)
 

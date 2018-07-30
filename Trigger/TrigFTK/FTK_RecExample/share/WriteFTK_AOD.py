@@ -16,12 +16,12 @@ if rec.doTruth():
         "xAOD::TrackParticleContainer#Converted_FTKTrackParticleContainerRefit",
         "xAOD::TrackParticleAuxContainer#Converted_FTKTrackParticleContainerRefitAux.",
     ]
-else:
-    FtkAODList += [
-        "xAOD::TrackParticleContainer#FTK_TrackParticleContainer",
-        "xAOD::TrackParticleAuxContainer#FTK_TrackParticleContainerAux.",
-        "xAOD::TrackParticleContainer#FTK_TrackParticleContainerRefit",
-        "xAOD::TrackParticleAuxContainer#FTK_TrackParticleContainerRefitAux.",
-        ]
+    
+FtkAODList += [
+    "xAOD::TrackParticleContainer#FTK_TrackParticleContainer",
+    "xAOD::TrackParticleAuxContainer#FTK_TrackParticleContainerAux.",
+    "xAOD::TrackParticleContainer#FTK_TrackParticleContainerRefit",
+    "xAOD::TrackParticleAuxContainer#FTK_TrackParticleContainerRefitAux.",
+    ]
 
 

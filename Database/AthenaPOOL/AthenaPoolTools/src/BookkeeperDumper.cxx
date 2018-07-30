@@ -10,7 +10,6 @@
 #include "BookkeeperDumper.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/DataHeader.h"
@@ -54,7 +53,7 @@ void BookkeeperDumper::handle(const Incident& inc)
     ServiceHandle<StoreGateSvc> mdstore("StoreGateSvc/InputMetaDataStore", name());
     if (mdstore.retrieve().isSuccess()) {
       //
-      const DataHandle<xAOD::CutBookkeeperContainer> compBook(nullptr);
+      const xAOD::CutBookkeeperContainer* compBook = nullptr;
       if (mdstore->retrieve(compBook, "CutBookkeepers").isSuccess()) 
       {
         ATH_MSG_INFO("CBK size = " << compBook->size());
@@ -65,7 +64,7 @@ void BookkeeperDumper::handle(const Incident& inc)
         ATH_MSG_INFO("CBK No CutBookkeepers " << mdstore->dump());
       }
       //
-      const DataHandle<xAOD::CutBookkeeperContainer> incompBook(nullptr);
+      const xAOD::CutBookkeeperContainer* incompBook = nullptr;
       if (mdstore->retrieve(incompBook, "IncompleteCutBookkeepers").isSuccess()) 
       {
         ATH_MSG_INFO("ICBK size = " << incompBook->size());
@@ -76,7 +75,7 @@ void BookkeeperDumper::handle(const Incident& inc)
         ATH_MSG_INFO("ICBK No CutBookkeepers " << mdstore->dump());
       }
       //
-      const DataHandle<xAOD::CutBookkeeperContainer> pcompBook(nullptr);
+      const xAOD::CutBookkeeperContainer* pcompBook = nullptr;
       if (mdstore->retrieve(pcompBook, "PDFSumOfWeights").isSuccess()) 
       {
         ATH_MSG_INFO("PCBK size = " << pcompBook->size());
@@ -87,7 +86,7 @@ void BookkeeperDumper::handle(const Incident& inc)
         ATH_MSG_INFO("PCBK No CutBookkeepers " << mdstore->dump());
       }
       //
-      const DataHandle<xAOD::CutBookkeeperContainer> ipcompBook(nullptr);
+      const xAOD::CutBookkeeperContainer* ipcompBook = nullptr;
       if (mdstore->retrieve(ipcompBook, "IncompletePDFSumOfWeights").isSuccess()) 
       {
         ATH_MSG_INFO("IPCBK size = " << ipcompBook->size());

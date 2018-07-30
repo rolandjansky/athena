@@ -421,7 +421,17 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     StoredValue  = False
 
 class useDynamicAlignFolders(InDetFlagsJobProperty):
-    """ Use to turn on dynamic alignment constants folder scheme (new development for 2016) """
+    """ Deprecated property - use GeometryFlags directly to choose the alignment folder scheme """
+    def _do_action( self, *args, **kwds):
+       from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+       self._log.warning('Deprecated property InDetFlags.useDynamicAlignFolders used to control the alignment scheme - update the code to from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags;  InDetGeometryFlags.useDynamicAlignFolders.... ')
+       if self.StoredValue != 'none':
+          from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+          GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(self.StoredValue)
+          self._log.info("GeometryFlags.useDynamicAlignFolders set by InDetFlags: %s" % GeometryFlags.useDynamicAlignFolders)
+       else:
+          self._log.warning("Not setting InDetGeometryFlags.useDynamicAlignFolders by InDetFlags: %s" % self.StoredValue)
+          
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -583,10 +593,10 @@ class doVertexFinding(InDetFlagsJobProperty):
     StoredValue  = True
 
 class primaryVertexSetup(InDetFlagsJobProperty):
-    """ string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' """
+    """ string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' 'GaussIterativeFinding' 'GaussAdaptiveMultiFinding' """
     statusOn     = True
     allowedTypes = ['str']
-    allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding']
+    allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding', 'GaussIterativeFinding', 'GaussAdaptiveMultiFinding' ]
     StoredValue  = 'IterativeFinding'
 
 class primaryVertexCutSetup(InDetFlagsJobProperty):

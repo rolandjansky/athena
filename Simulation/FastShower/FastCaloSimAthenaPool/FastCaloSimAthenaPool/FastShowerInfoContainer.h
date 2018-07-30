@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _FASTSHOWERINFOCONTAINER_H_
-#define _FASTSHOWERINFOCONTAINER_H_
+#ifndef FASTSHOWERINFOCONTAINER_H
+#define FASTSHOWERINFOCONTAINER_H
 
 //#include <vector>
 // #include <iostream>
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "FastCaloSimAthenaPool/FastShowerInfo.h"
 
 
@@ -28,7 +28,7 @@ class FastShowerInfoContainer : public DataVector<FastShowerInfo>
 			
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FastShowerInfoContainer, 666778, 1)
 
 #endif

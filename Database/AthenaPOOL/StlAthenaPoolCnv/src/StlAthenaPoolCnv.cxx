@@ -3,7 +3,7 @@
 */
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCnv.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // explicit instantiations
 
@@ -47,12 +47,12 @@ public:
 #define DECL_CNV(NAME, TDEF) \
   typedef StlAthenaPoolCnv< NAME > TDEF; \
   template class StlAthenaPoolCnv< NAME >; \
-  DECLARE_CONVERTER_FACTORY(TDEF)
+  DECLARE_CONVERTER(TDEF)
 
 #define DECL2_CNV(N1, N2, TDEF)	\
   typedef StlAthenaPoolCnv< N1, N2 > TDEF; \
   template class StlAthenaPoolCnv< N1, N2 >; \
-  DECLARE_CONVERTER_FACTORY(TDEF)
+  DECLARE_CONVERTER(TDEF)
 
 #include "SGTools/BuiltinsClids.h"
 DECL_CNV(int, AthenaPoolIntCnv)

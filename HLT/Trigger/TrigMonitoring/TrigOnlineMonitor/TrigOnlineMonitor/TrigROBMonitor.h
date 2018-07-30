@@ -1,19 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
 #include "ByteStreamData/RawEvent.h"
+#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "GaudiKernel/HistoProperty.h"
 #include "eformat/Status.h"
 #include <stdint.h>
 
 /////////////////////////////////////////////////////////////////////////////
 
-class IROBDataProviderSvc;
-class ITrigROBDataProviderSvc;
 class TH1F;    /// for monitoring purposes
 class TH2F;    /// for monitoring purposes
 class TProfile;/// for monitoring purposes
@@ -24,8 +24,7 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-  StatusCode beginRun();  
-  StatusCode endRun();
+  StatusCode start();
 
 private:
 

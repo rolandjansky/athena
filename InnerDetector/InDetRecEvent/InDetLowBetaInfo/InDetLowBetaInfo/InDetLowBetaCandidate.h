@@ -14,8 +14,8 @@
 #ifndef INDETLOWBETACANDIDATE_H
 #define INDETLOWBETACANDIDATE_H
 
-#include "GaudiKernel/MsgStream.h"
-#include "CLIDSvc/CLASS_DEF.h"
+//#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class MsgStream;
 
@@ -23,7 +23,6 @@ namespace InDet{
 
   class InDetLowBetaCandidate{
    
-    /** default, copy = operator constructors */
   public:
     
     InDetLowBetaCandidate();
@@ -39,14 +38,13 @@ namespace InDet{
 		      	   );
 
     virtual ~InDetLowBetaCandidate();
-    InDetLowBetaCandidate(const InDetLowBetaCandidate& rhs);    
-    InDetLowBetaCandidate &operator=(const InDetLowBetaCandidate &);
-    /////////virtual VxCandidate* clone() const; 
-
+    InDetLowBetaCandidate(const InDetLowBetaCandidate& rhs) = default;
+    InDetLowBetaCandidate &operator=(const InDetLowBetaCandidate &) = default;
+    InDetLowBetaCandidate &operator=(InDetLowBetaCandidate &&) = default;
+    
     /** Output Method for MsgStream, to be overloaded by child classes */
     virtual MsgStream& dump(MsgStream& sl) const;
-    /** Output Method for std::ostream, to be overloaded by child classes */
-    //virtual std::ostream& dump(std::ostream& sl) const;
+
 
     float getTRTCorrBitsOverThreshold() const;
     float getTRTTrailingEdge() const;
@@ -70,7 +68,6 @@ namespace InDet{
   };  //end of class definitions
 
   MsgStream& operator << ( MsgStream& sl, const InDetLowBetaCandidate& sf);
-  //std::ostream& operator << ( std::ostream& sl, const InDetLowBetaCandidate& sf);
 
 }//end of namsepace
 

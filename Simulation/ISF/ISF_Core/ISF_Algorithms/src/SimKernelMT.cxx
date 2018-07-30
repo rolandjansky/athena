@@ -118,10 +118,10 @@ StatusCode ISF::SimKernelMT::finalize() {
 
 
 /// Returns the simulator to use for the given particle
-ISF::ISimulationSvc& ISF::SimKernelMT::identifySimulator(const ISF::ISFParticle& particle) const {
+ISF::ISimulationSvc& ISF::SimKernelMT::identifySimulator(const ISF::ISFParticle& particle) {
   AtlasDetDescr::AtlasRegion geoID = particle.nextGeoID();
   auto& localSelectors = m_simSelectors[geoID];
-  for (const auto& selector: localSelectors) {
+  for (auto& selector: localSelectors) {
     bool selected = selector->selfSelect(particle);
     if (selected) {
       return **selector->simulator();

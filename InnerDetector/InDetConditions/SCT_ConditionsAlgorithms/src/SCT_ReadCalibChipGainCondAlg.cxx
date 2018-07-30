@@ -11,21 +11,17 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
-#include "SCT_ConditionsServices/SCT_ReadCalibChipUtilities.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
 
-using namespace SCT_ConditionsServices;
+using namespace SCT_ConditionsData;
 using namespace SCT_ReadCalibChipUtilities;
 
 SCT_ReadCalibChipGainCondAlg::SCT_ReadCalibChipGainCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DAQ/Calibration/ChipGain"}
-  , m_writeKey{"SCT_GainCalibData"}
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) gain conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) gain conditions folder");
 }
 
 StatusCode SCT_ReadCalibChipGainCondAlg::initialize() {
@@ -56,12 +52,9 @@ StatusCode SCT_ReadCalibChipGainCondAlg::execute() {
   SG::WriteCondHandle<SCT_GainCalibData> writeHandle{m_writeKey};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 

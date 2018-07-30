@@ -34,7 +34,9 @@ class CTP_RDOCnv : public CTP_RDOCnvBase {
    friend class CnvFactory< CTP_RDOCnv >;
 
 protected:
+public:
    CTP_RDOCnv( ISvcLocator* svcLoc ) : CTP_RDOCnvBase( svcLoc ) {}
+protected:
 
    virtual CTP_RDO_PERS* createPersistent( CTP_RDO* transObj );
    virtual CTP_RDO*      createTransient();

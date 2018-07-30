@@ -7,4 +7,4 @@
 set -e
 
 # Run the test:
-athena.py --threads=4 AthExHive/AthExHiveOpts.py
+athena.py --threads=4 AthExHive/AthExHiveOpts.py | grep HiveAlgF | grep test | awk '{print $2,$6}' | sort -n

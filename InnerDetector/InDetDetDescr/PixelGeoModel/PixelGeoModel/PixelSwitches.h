@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelSwitches_H
@@ -51,6 +51,10 @@ public:
   void setDBM(bool flag = false);
   bool dbm() const;
 
+  //dynamic alignment folders
+  void setDynamicAlignFolders(const bool useDynAlignFolders);
+  bool dynamicAlignFolders() const;
+
 private:
 
   // flag to build also the services
@@ -80,6 +84,8 @@ private:
   // DBM
   bool m_dbm;
 
+  //controls which set of alignment folders is used
+  bool m_dynAlignFolders;
 };
 
 #endif // PixelSwitches_H

@@ -21,7 +21,6 @@ SCTByteStreamErrorFillerTool::SCTByteStreamErrorFillerTool
     const IInterface* parent)
      : BlockFillerTool<xAOD::EventInfo> (type, name, parent),
        m_sctid(0),
-       m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
        m_cabling("SCT_CablingSvc",name)
  {
    book().ignore(); // Avoid coverity warnings.
@@ -36,11 +35,11 @@ SCTByteStreamErrorFillerTool::SCTByteStreamErrorFillerTool
 
 
 
-    if (m_byteStreamErrSvc.retrieve().isFailure()) {
-      REPORT_MESSAGE (MSG::ERROR) << "Failed to retrieve service " << m_byteStreamErrSvc;
+    if (m_byteStreamErrTool.retrieve().isFailure()) {
+      REPORT_MESSAGE (MSG::ERROR) << "Failed to retrieve tool " << m_byteStreamErrTool;
       return StatusCode::FAILURE;
     } else {
-      REPORT_MESSAGE (MSG::INFO) << "Retrieved service " << m_byteStreamErrSvc;
+      REPORT_MESSAGE (MSG::INFO) << "Retrieved service " << m_byteStreamErrTool;
     }
     if (m_cabling.retrieve().isFailure()) {
       REPORT_MESSAGE (MSG::ERROR) << "Failed to retrieve service " << m_cabling;
@@ -81,7 +80,7 @@ StatusCode SCTByteStreamErrorFillerTool::fill (const xAOD::EventInfo& /*p*/)
 
    *m_totalNumErrors = 0;
    for (int type=0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type) {
-     const std::set<IdentifierHash>* errorSet = m_byteStreamErrSvc->getErrorSet(type);
+     const std::set<IdentifierHash>* errorSet = m_byteStreamErrTool->getErrorSet(type);
      if (errorSet != 0) {
        int eta=0,phi=0,bec=0,layer=0,side=0;
        std::set<IdentifierHash>::const_iterator it = errorSet->begin();

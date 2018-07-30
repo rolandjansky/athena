@@ -13,16 +13,11 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
 
 
 class RpcIdHelper;
 class IRPCcablingSvc;
-
-namespace Muon 
-{
-    class IRPC_RDO_Decoder;
-}
-
 
 namespace JiveXML {
 

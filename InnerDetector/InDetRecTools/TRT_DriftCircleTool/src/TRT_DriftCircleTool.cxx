@@ -15,7 +15,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "TRT_DriftCircleTool/TRT_DriftCircleTool.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"

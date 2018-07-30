@@ -6,7 +6,7 @@
 #define LArNoisyROSummary_h
 
 #include "Identifier/HWIdentifier.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include <vector>
 #include <stdint.h>

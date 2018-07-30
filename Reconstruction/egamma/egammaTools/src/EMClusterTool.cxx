@@ -20,7 +20,7 @@
 
 // =============================================================
 EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  egammaBaseTool(type, name, parent), 
+  AthAlgTool(type, name, parent),
   m_doTopoSeededContainer(false)
 {
   declareInterface<IEMClusterTool>(this);
@@ -59,12 +59,12 @@ StatusCode EMClusterTool::initialize() {
 
 
   // Get the cluster correction tool
-  if(m_MVACalibTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibTool);
+  if(m_MVACalibSvc.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibSvc);
     return StatusCode::SUCCESS;
   } 
   else {
-    ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibTool);   
+    ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibSvc);   
   }
 
   ATH_MSG_DEBUG("Initialization successful");
@@ -205,7 +205,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
   }
   xAOD::CaloCluster *newCluster = makeNewCluster(cluster, cluSize);
  
-  if (newCluster && m_MVACalibTool->execute(newCluster,eg).isFailure()){
+  if (newCluster && m_MVACalibSvc->execute(*newCluster,*eg).isFailure()){
     ATH_MSG_ERROR("Problem executing MVA cluster tool");
   }
   return newCluster;
@@ -242,7 +242,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& c
   //
   xAOD::CaloCluster* newClus = new xAOD::CaloCluster(cluster);
   if(m_applySuperClusters){ 
-    if (newClus && m_MVACalibTool->execute(newClus,eg).isFailure()){
+    if (newClus && m_MVACalibSvc->execute(*newClus,*eg).isFailure()){
       ATH_MSG_ERROR("Problem executing MVA cluster tool");
     }
   }

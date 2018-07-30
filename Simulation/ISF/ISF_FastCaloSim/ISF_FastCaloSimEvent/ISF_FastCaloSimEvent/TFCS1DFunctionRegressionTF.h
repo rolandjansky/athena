@@ -17,8 +17,9 @@ class TFCS1DFunctionRegressionTF:public TFCS1DFunctionRegression
     TFCS1DFunctionRegressionTF(float, float);
     ~TFCS1DFunctionRegressionTF() {};
 
-    virtual double rnd_to_fct(double rnd);
-    double retransform(double value);
+    using TFCS1DFunctionRegression::rnd_to_fct;
+    virtual double rnd_to_fct(double rnd) const;
+    double retransform(double value) const;
 
   private:
 
@@ -31,4 +32,10 @@ class TFCS1DFunctionRegressionTF:public TFCS1DFunctionRegression
 
 };
 
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+#pragma link C++ class TFCS1DFunctionRegressionTF+;
 #endif
+
+#endif
+
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOnlineMonitor/TrigMuCTPiROBMonitor.h"
@@ -7,8 +7,6 @@
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -28,6 +26,9 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
+const uint32_t TrigMuCTPiROBMonitor::NUMBER_OF_ENDCAP_UNITS;
+const uint32_t TrigMuCTPiROBMonitor::NUMBER_OF_FORWARD_UNITS;
+const uint32_t TrigMuCTPiROBMonitor::NUMBER_OF_BARREL_UNITS;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -498,10 +499,7 @@ StatusCode TrigMuCTPiROBMonitor::finalize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode TrigMuCTPiROBMonitor::beginRun() {
-
-  // Get a message stream instance
-  ATH_MSG_DEBUG( "beginRun()" );
+StatusCode TrigMuCTPiROBMonitor::start() {
 
   // Define histograms only when checks are requested
   if ((not m_doROBChecksum.value()) && (not m_doROBStatus.value())) return StatusCode::SUCCESS;
@@ -1027,8 +1025,10 @@ void TrigMuCTPiROBMonitor::decodeMuCTPi(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
     /* Create MuCTPIResult object */
     m_lvl1muCTPIResult = new ROIB::MuCTPIResult( muCTPIHead, muCTPITrail, m_lvl1muCTPIRoIs );
     /* Dump object if requested */
-    ATH_MSG_DEBUG( m_lvl1muCTPIResult->dump() );
-    m_lvl1muCTPIResult->dumpData(msg());
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG( m_lvl1muCTPIResult->dump() );
+      m_lvl1muCTPIResult->dumpData(msg());
+    }
 
     // fill histograms and compute RoI hashes
     float num_roib_rois =  m_lvl1muCTPIRoIs.size();
@@ -1096,10 +1096,12 @@ void TrigMuCTPiROBMonitor::decodeMuCTPi(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
     m_daqmuCTPIResult = new MuCTPI_RDO( candidateMultiplicity, dataWord );
 
     // print contents
-    MuCTPI_MultiplicityWord_Decoder(m_daqmuCTPIResult->candidateMultiplicity()).dumpData(msg());
-    for (uint32_t w : m_daqmuCTPIResult->dataWord()) {
-      MuCTPI_DataWord_Decoder(w).dumpData(msg());
-      dumpRoIBDataWord(mirodToRoIBDataWord(w));
+    if (msgLvl(MSG::DEBUG)) {
+      MuCTPI_MultiplicityWord_Decoder(m_daqmuCTPIResult->candidateMultiplicity()).dumpData(msg());
+      for (uint32_t w : m_daqmuCTPIResult->dataWord()) {
+        MuCTPI_DataWord_Decoder(w).dumpData(msg());
+        dumpRoIBDataWord(mirodToRoIBDataWord(w));
+      }
     }
 
     // now select out the RoI candidates for the BCID which triggered the event and save them in 

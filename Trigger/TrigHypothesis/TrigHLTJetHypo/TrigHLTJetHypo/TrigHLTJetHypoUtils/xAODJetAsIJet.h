@@ -23,7 +23,7 @@ namespace HypoJet{
     double e() const override;
     double et() const override;
     double rapidity() const override;
-    const TLorentzVector & p4() const override;
+    TLorentzVector p4() const override;
     unsigned int position() const override;
     bool getAttribute(const std::string&, float&) const override;
 

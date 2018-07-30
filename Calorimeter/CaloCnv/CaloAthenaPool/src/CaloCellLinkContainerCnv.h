@@ -29,7 +29,9 @@ class CaloCellLinkContainerCnv : public CaloCellLinkContainerCnvBase
 {
   friend class CnvFactory<CaloCellLinkContainerCnv>;
  protected:
+public:
   CaloCellLinkContainerCnv(ISvcLocator*);
+protected:
   virtual CaloCellLinkContainer* createTransient();
   virtual CaloCellLinkContainerPERS* createPersistent(CaloCellLinkContainer*);
  private:

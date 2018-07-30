@@ -7,17 +7,15 @@
 #include <cstdio>
 #include <cstring>
 
-static const char* fmt_tech = "[TECH=%08X]";
+static const char* const fmt_tech = "[TECH=%08lX]";
 
 Placement::Placement() : m_technology(0L), m_fileName(""), m_containerName("") {
 }
 
 const std::string Placement::toString() const {
    char text[128];
-   std::string str = "[FILE=" + m_fileName + "][CONT=" + m_containerName + "]";
    sprintf(text, fmt_tech, m_technology);
-   str += text;
-   str += m_auxString;
+   std::string str = "[FILE=" + m_fileName + "][CONT=" + m_containerName + "]" + text + m_auxString;
    return str;
 }
 
@@ -27,26 +25,18 @@ Placement& Placement::fromString(const std::string& source) {
       const char* p3 = ::strchr(p1, ']');
       if (p2 != 0 && p3 != 0) {
          if (::strncmp("[FILE=", p1, 6) == 0) {
-            char* p3mod = const_cast<char*>(p3);
-            *p3mod = 0;
-            m_fileName = p2 + 1;
-            *p3mod = ']';
+            m_fileName.assign (p2+1, p3-p2-1);
          } else if (::strncmp("[CONT=", p1, 6) == 0) {
-            char* p3mod = const_cast<char*>(p3);
-            *p3mod = 0;
-            m_containerName = p2 + 1;
-            *p3mod = ']';
+            m_containerName.assign (p2+1, p3-p2-1);
          } else if (::strncmp(fmt_tech, p1, 6) == 0) {
             ::sscanf(p1, fmt_tech, &m_technology);
          } else {
-            while (*(p2 + 1) == '[' && *(++p3) != 0 && *p3 != ']') {
+            while (*(p2 + 1) == '[' && p3 && *(++p3) != 0 && *p3 != ']') {
                p3 = ::strchr(p3, ']');
             }
-            char* p3mod = const_cast<char*>(p3);
-            *p3mod = 0;
-            m_auxString += p1;
+            if (!p3) p3 = source.c_str() + source.size();
+            m_auxString.append (p1, p3-p1);
             m_auxString += "]";
-            *p3mod = ']';
          }
       }
    }

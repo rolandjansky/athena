@@ -300,6 +300,8 @@ void InDetAlignDBTool::createDB() const
       // first check object not already there
       if (detStore()->contains<AlignableTransform>(m_alignobjs[i])) {
         ATH_MSG_FATAL( "create DB: AlignableTransform " << m_alignobjs[i] << " already exists" );
+        delete pat;
+        pat=nullptr;
         return;
       }
       if (StatusCode::SUCCESS!=detStore()->record(pat,m_alignobjs[i]))

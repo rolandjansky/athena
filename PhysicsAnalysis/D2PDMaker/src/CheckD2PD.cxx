@@ -17,7 +17,6 @@
 #define XXX std::cout << "I am here: " << __FILE__ << ":" << __LINE__ << std::endl;
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"

@@ -30,6 +30,7 @@ class Identifier;
 class IdentifierHash;
 class AtlasDetectorID;
 class GeoAlignableTransform;
+class GeoVAlignmentStore;
 
 namespace InDetDD {
 
@@ -105,12 +106,14 @@ class SiNumerology;
       
       /** Helper method to set delta transform from a global delta - Amg interface*/
       bool setAlignableTransformGlobalDelta(ExtendedAlignableTransform * extXF, 
-    					const Amg::Transform3D & delta) const;
+                                            const Amg::Transform3D & delta,
+                                            GeoVAlignmentStore* alignStore=nullptr) const;
     
       /** Helper method to set delta transform from a local delta - Amg interface */
       bool setAlignableTransformLocalDelta(ExtendedAlignableTransform * extXF, 
-    				       const Amg::Transform3D & localToGlobalXF,
-    				       const Amg::Transform3D & delta) const;
+                                           const Amg::Transform3D & localToGlobalXF,
+                                           const Amg::Transform3D & delta,
+                                           GeoVAlignmentStore* alignStore=nullptr) const;
     
       /** Access to module design */
       void addDesign(const SiDetectorDesign *);
@@ -128,9 +131,10 @@ class SiNumerology;
     
       /** This method is called by the InDetDetectorManager */
       virtual bool setAlignableTransformDelta(int level, 
-    					  const Identifier & id, 
-    					  const Amg::Transform3D & delta,
-    					  FrameType frame) const = 0;
+                                              const Identifier & id, 
+                                              const Amg::Transform3D & delta,
+                                              FrameType frame,
+                                              GeoVAlignmentStore* alignStore) const = 0;
     
     
     

@@ -43,13 +43,6 @@ class ISCT_ReadCalibDataTool: virtual public ISCT_ConditionsTool {
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(ISCT_ReadCalibDataTool, 1, 0);
   
-  /// @name Methods to be implemented from virtual baseclass methods, when introduced
-  ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy)=0;
-  ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier&, InDetConditions::Hierarchy)=0;
-  ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash& /*hashId*/)=0;
 };
 
 //---------------------------------------------------------------------- 

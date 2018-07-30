@@ -26,9 +26,10 @@ class MuonRdoContainerTPCnv
 {
 friend class CnvFactory<MuonRdoContainerTPCnv<T, P, CONV > >;
 
-protected:
+public:
   MuonRdoContainerTPCnv(ISvcLocator* svcloc);
 
+protected:
   /// Extend base-class conversion methods
   virtual P*	createPersistent(T* rdoC);
   virtual T*	createTransient ();

@@ -26,7 +26,7 @@ double  xAODJetAsIJet::et() const {return (m_jet->p4()).Et();}
 
 double xAODJetAsIJet::rapidity() const {return m_jet->rapidity();}
 
-const TLorentzVector& xAODJetAsIJet::p4() const {return m_jet->p4();}
+TLorentzVector xAODJetAsIJet::p4() const {return m_jet->p4();}
 
 unsigned int xAODJetAsIJet::position() const {return m_position;}
 

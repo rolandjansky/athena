@@ -26,7 +26,6 @@
 #include "eformat/SourceIdentifier.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IRegistry.h"
@@ -47,8 +46,6 @@ extern long ByteStream_StorageType;
 typedef std::map<uint32_t, LUCID_RodEncoder> LucidRodEncoder_map;
 
 class LUCID_DigitByteStreamCnv: public Converter {
-
-  ~LUCID_DigitByteStreamCnv();
 
  public:
 

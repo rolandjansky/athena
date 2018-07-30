@@ -34,8 +34,9 @@ class LayerMaterialMapCnv : public LayerMaterialMapCnvBase
 friend class CnvFactory<LayerMaterialMapCnv>;
 
 protected:
+public:
   LayerMaterialMapCnv( ISvcLocator *svcloc );
-  ~LayerMaterialMapCnv();
+protected:
   virtual StatusCode initialize();
 
   virtual LayerMaterialMap_PERS *createPersistent( Trk::LayerMaterialMap *transCont);

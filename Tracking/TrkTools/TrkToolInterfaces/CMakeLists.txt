@@ -9,7 +9,6 @@ atlas_subdir( TrkToolInterfaces )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthLinks
-                          Control/DataModel
                           Event/EventPrimitives
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
@@ -28,5 +27,5 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_library( TrkToolInterfaces
                    PUBLIC_HEADERS TrkToolInterfaces
-                   LINK_LIBRARIES AthContainers AthLinks DataModel EventPrimitives xAODTracking xAODTruth GaudiKernel TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParticleBase TrkSegment TrkTrack TrkTrackSummary )
+                   LINK_LIBRARIES AthContainers AthLinks EventPrimitives xAODTracking xAODTruth GaudiKernel TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParticleBase TrkSegment TrkTrack TrkTrackSummary )
 

@@ -39,7 +39,9 @@ EgammaSamp1Fex::~EgammaSamp1Fex(){
 }
 
 StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
-				   const IRoiDescriptor& roi ) { 
+				   const IRoiDescriptor& roi,
+				   const CaloDetDescrElement*& caloDDE,
+                                   const EventContext* context ) { 
   
 	// Time total AlgTool time 
 	if (!m_timersvc.empty()) m_timer[0]->start();      
@@ -47,8 +49,8 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         m_error=0x0;
 
         bool cluster_in_barrel = true;
-        if ( m_caloDDE )
-          cluster_in_barrel = m_caloDDE->is_lar_em_barrel();
+        if ( caloDDE )
+          cluster_in_barrel = caloDDE->is_lar_em_barrel();
 
         ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
 
@@ -57,6 +59,14 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         // Region Selector, sampling 1
 	int sampling = 1;
+
+	LArTT_Selector<LArCellCont> sel;
+        if ( context ) {
+                m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
+                m_iBegin = sel.begin();
+                m_iEnd = sel.end();
+        } else { // old mode
+
         // Get detector offline ID's for Collections
         m_data->RegionSelector(sampling, roi );
 
@@ -79,6 +89,7 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         if ( m_saveCells ){
            m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
         }
+	} // end of else context
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->stop();
         // Algorithmic time
@@ -91,9 +102,9 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
   double energyEta = rtrigEmCluster.eta();
   double energyPhi = rtrigEmCluster.phi();
-  if ( m_caloDDE ){
-	energyEta = m_caloDDE->eta();
-	energyPhi = m_caloDDE->phi();
+  if ( caloDDE ){
+	energyEta = caloDDE->eta();
+	energyPhi = caloDDE->phi();
   }
 
 
@@ -321,9 +332,9 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   double wstot = -9999.;
   double wstot_deta = (z_etamax-z_etamin)*0.5;
   double eta_center = z_etacell[z_ncmax];
-  if ( getCaloDetDescrElement() != 0 ) {
-    eta_center = getCaloDetDescrElement()->eta();
-    wstot_deta = getCaloDetDescrElement()->deta()*2.5;
+  if ( caloDDE != 0 ) {
+    eta_center = caloDDE->eta();
+    wstot_deta = caloDDE->deta()*2.5;
   }
   
   for(int ic=0; ic<40; ic++) { 

@@ -18,7 +18,6 @@
 // Framework include files
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainerImp.h"
-#include "StorageSvc/DbImplementation.h"
 
 #include <map>
 #include <vector>
@@ -105,6 +104,7 @@ namespace pool  {
     /// Definition of the branch container
     typedef std::vector<BranchDesc> Branches;
     
+  protected:
     /// Reference to the root tree object
     TTree*             m_tree;
     /// reference to exact type description
@@ -162,9 +162,8 @@ namespace pool  {
     void setBranchOffsetTabLen(TBranch* b, int offsettab_len);	
     
   public:
-
     /// Standard constructor
-    RootTreeContainer(IOODatabase* idb);
+    RootTreeContainer();
 
     /// Standard destructor
     virtual ~RootTreeContainer();
@@ -248,12 +247,8 @@ namespace pool  {
     /// Commit single entry to container
     virtual DbStatus writeObject(TransactionStack::value_type& entry);
 
-    /// Execute end of object modification requests during a transaction
-    /** @param refTr    [IN]     Transaction reference
-      *
-      * @return DbStatus code indicating success or failure.  
-      */
-    virtual DbStatus endTransaction(DbTransaction& refTr);
+    /// Execute Transaction action
+    virtual DbStatus transAct(Transaction::Action action);
   };
 }
 #endif //POOL_ROOTTREECONTAINER_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<vector>
@@ -56,16 +56,10 @@ int main(int argc, char* argv[]){
 
   int nPixelsPerModule = 46080;
   double nModules = 1744.;
-  //double nPixels = nModules*nPixelsPerModule;
 
   if (isIBL) {
-    //nModules = 2048.;
     nModules = 2024.; // ignore DBM
-    //nPixels = 2880. * 16. * 1744. // Pixel
-    //  + 26880. * 112. + 53760. * 168.  // IBL 3D + Planar
-    //  + 26880. * 24; // DBM
-    //nPixels = 2880. * 16. * 1744. // Pixel
-    //  + 26880. * 112. + 53760. * 168.;  // IBL 3D + Planar
+    
   }
   //-----------------------------------
   //Usage configuration of the program
@@ -164,12 +158,10 @@ int main(int argc, char* argv[]){
   components.push_back("Layer1");
   components.push_back("Layer2");
 
-  //std::map<unsigned int, TH2D*> hitMaps;
-  //std::map<unsigned int, TH2C*> deadMaps;
+
   std::map<std::string, TH2D*> hitMaps;
   std::map<std::string, TH2C*> deadMaps;
   std::map<unsigned int, TH2C*> deadMapsOnline;
-  //std::map<unsigned int, TH2C*> deadRefMaps;
   std::map<unsigned int, TH2C*> deadRefMapsOnline;
 
   TH1D* disabledModules = 0;
@@ -180,10 +172,8 @@ int main(int argc, char* argv[]){
 
   std::vector< TH1D*> h_deadPixel;
 
-  //double ndeadPixel[9]={0.};
   double ndeadPixel[10]={0.}; // add IBL
   double ndeadPixel_total=0;
-  //double ndeadPixel_noDisabled[9]={0.};
   double ndeadPixel_noDisabled[10]={0.}; // add IBL
 
   hitMapFile->GetObject("DisabledModules", disabledModules);
@@ -206,9 +196,7 @@ int main(int argc, char* argv[]){
     deadPixel_layer->GetXaxis()->SetBinLabel(4,"Disk1C");
     deadPixel_layer->GetXaxis()->SetBinLabel(5,"Disk2C");
     deadPixel_layer->GetXaxis()->SetBinLabel(6,"Disk3C");
-    //deadPixel_layer->GetXaxis()->SetBinLabel(7,"B-Layer");
-    //deadPixel_layer->GetXaxis()->SetBinLabel(8,"Layer1");
-    //deadPixel_layer->GetXaxis()->SetBinLabel(9,"Layer2");
+
     deadPixel_layer->GetXaxis()->SetBinLabel(7,"IBL");
     deadPixel_layer->GetXaxis()->SetBinLabel(8,"B-Layer");
     deadPixel_layer->GetXaxis()->SetBinLabel(9,"Layer1");
@@ -223,9 +211,7 @@ int main(int argc, char* argv[]){
     deadPixel_layer_all->GetXaxis()->SetBinLabel(4,"Disk1C");
     deadPixel_layer_all->GetXaxis()->SetBinLabel(5,"Disk2C");
     deadPixel_layer_all->GetXaxis()->SetBinLabel(6,"Disk3C");
-    //deadPixel_layer_all->GetXaxis()->SetBinLabel(7,"B-Layer");
-    //deadPixel_layer_all->GetXaxis()->SetBinLabel(8,"Layer1");
-    //deadPixel_layer_all->GetXaxis()->SetBinLabel(9,"Layer2");
+
     deadPixel_layer_all->GetXaxis()->SetBinLabel(7,"IBL");
     deadPixel_layer_all->GetXaxis()->SetBinLabel(8,"B-Layer");
     deadPixel_layer_all->GetXaxis()->SetBinLabel(9,"Layer1");
@@ -294,11 +280,7 @@ int main(int argc, char* argv[]){
                 ->GetListOfKeys()->At(phi)))->GetName());
 
         int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
-        //int i = PixelConvert::HashID((name));
 
-        //hitMaps[i] =
-        //  static_cast<TH2D*>((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.str().c_str())))
-        //          ->GetListOfKeys()->At(phi)))->ReadObj());
         hitMaps[name] =
           static_cast<TH2D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.str().c_str())))
                   ->GetListOfKeys())->At(phi)))->ReadObj());
@@ -314,13 +296,10 @@ int main(int argc, char* argv[]){
 
         }
         else{
-          //hitMaps[i]->SetName(name.c_str());
-          //hitMaps[i]->SetDirectory(hitMapSubDir);
+
           hitMaps[name]->SetName(name.c_str());
           hitMaps[name]->SetDirectory(hitMapSubDir);
 
-          //deadMaps[i] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
-          //deadMaps[i]->SetDirectory(deadmapSubDir);
           deadMaps[name] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
           deadMaps[name]->SetDirectory(deadmapSubDir);
 
@@ -388,11 +367,7 @@ int main(int argc, char* argv[]){
               ->GetListOfKeys()->At(module)))->GetName());
 
       int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
-      //int i = PixelConvert::HashID((name));
 
-      //hitMaps[i] =
-      //  static_cast<TH2D*>((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.str().c_str())))
-      //          ->GetListOfKeys()->At(j)))->ReadObj());
       hitMaps[name] =
         static_cast<TH2D*>
         (
@@ -419,13 +394,9 @@ int main(int argc, char* argv[]){
 
       }
       else{
-        //hitMaps[i]->SetName(name.c_str());
-        //hitMaps[i]->SetDirectory(hitMapSubDir);
         hitMaps[name]->SetName(name.c_str());
         hitMaps[name]->SetDirectory(hitMapSubDir);
 
-        //deadMaps[i] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
-        //deadMaps[i]->SetDirectory(deadmapSubDir);
         if(isIBL && layer == 0) deadMaps[name] = new TH2C(name.c_str(), name.c_str(), 160, 0., 160., 336, 0., 336.);
         else deadMaps[name] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
         deadMaps[name]->SetDirectory(deadmapSubDir);
@@ -434,14 +405,16 @@ int main(int argc, char* argv[]){
     }
   }
 
-  //std::string testarea = std::getenv("TestArea");
-  //ifstream ifs;
+
   char* tmppath = std::getenv("DATAPATH");
-  if(tmppath == nullptr){
+  const unsigned int maxPathStringLength{3000};
+  if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
       std::cout << "FATAL: Unable to retrieve environmental DATAPATH" << std::endl;
       exit(EXIT_FAILURE);
   }
-  std::string cmtpath(tmppath);
+  std::stringstream tmpSstr{};
+  tmpSstr<<tmppath;
+  std::string cmtpath(tmpSstr.str());
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
   for (const auto& x : paths){
@@ -451,11 +424,7 @@ int main(int argc, char* argv[]){
       } else {
         ifs.open(x + "/PixelMapping_May08.dat");
       }
-  //if(isIBL){
-  //  ifs.open(testarea + "/InstallArea/share/PixelMapping_Run2.dat");
-  //} else {
-  //  ifs.open(testarea + "/InstallArea/share/PixelMapping_May08.dat");
-  //}
+
       int tmp_barrel_ec; int tmp_layer; int tmp_module_phi; int tmp_module_eta; std::string tmp_module_name;
       std::vector<int> tmp_position;
       tmp_position.resize(4);
@@ -471,58 +440,6 @@ int main(int argc, char* argv[]){
     }
   }
 
-  //// convert moduleID to phi/eta
-  //std::map<std::string, int> phi2M_ECA;
-  //phi2M_ECA[std::string("1")] = 0;
-  //phi2M_ECA[std::string("6")] = 1;
-  //phi2M_ECA[std::string("2")] = 2;
-  //phi2M_ECA[std::string("5")] = 3;
-  //phi2M_ECA[std::string("3")] = 4;
-  //phi2M_ECA[std::string("4")] = 5;
-  //std::map<std::string, int> phi2M_ECC;
-  //phi2M_ECC[std::string("4")] = 0;
-  //phi2M_ECC[std::string("3")] = 1;
-  //phi2M_ECC[std::string("5")] = 2;
-  //phi2M_ECC[std::string("2")] = 3;
-  //phi2M_ECC[std::string("6")] = 4;
-  //phi2M_ECC[std::string("1")] = 5;
-  //std::map<std::string, int> eta2moduleID_IBL;
-  //eta2moduleID_IBL[std::string("A_M4_A8_2")] = 9;
-  //eta2moduleID_IBL[std::string("A_M4_A8_1")] = 8;
-  //eta2moduleID_IBL[std::string("A_M4_A7_2")] = 7;
-  //eta2moduleID_IBL[std::string("A_M4_A7_1")] = 6;
-  //eta2moduleID_IBL[std::string("A_M3_A6")] = 5;
-  //eta2moduleID_IBL[std::string("A_M3_A5")] = 4;
-  //eta2moduleID_IBL[std::string("A_M2_A4")] = 3;
-  //eta2moduleID_IBL[std::string("A_M2_A3")] = 2;
-  //eta2moduleID_IBL[std::string("A_M1_A2")] = 1;
-  //eta2moduleID_IBL[std::string("A_M1_A1")] = 0;
-  //eta2moduleID_IBL[std::string("C_M1_C1")] = -1;
-  //eta2moduleID_IBL[std::string("C_M1_C2")] = -2;
-  //eta2moduleID_IBL[std::string("C_M2_C3")] = -3;
-  //eta2moduleID_IBL[std::string("C_M2_C4")] = -4;
-  //eta2moduleID_IBL[std::string("C_M3_C5")] = -5;
-  //eta2moduleID_IBL[std::string("C_M3_C6")] = -6;
-  //eta2moduleID_IBL[std::string("C_M4_C7_1")] = -7;
-  //eta2moduleID_IBL[std::string("C_M4_C7_2")] = -8;
-  //eta2moduleID_IBL[std::string("C_M4_C8_1")] = -9;
-  //eta2moduleID_IBL[std::string("C_M4_C8_2")] = -10;
-  ////
-  //std::map<std::string, int> eta2moduleID_PixelBarrel;
-  //eta2moduleID_PixelBarrel[std::string("M6A")] = 6;
-  //eta2moduleID_PixelBarrel[std::string("M5A")] = 5;
-  //eta2moduleID_PixelBarrel[std::string("M4A")] = 4;
-  //eta2moduleID_PixelBarrel[std::string("M3A")] = 3;
-  //eta2moduleID_PixelBarrel[std::string("M2A")] = 2;
-  //eta2moduleID_PixelBarrel[std::string("M1A")] = 1;
-  //eta2moduleID_PixelBarrel[std::string("_M0")] = 0;
-  //eta2moduleID_PixelBarrel[std::string("M1C")] = -1;
-  //eta2moduleID_PixelBarrel[std::string("M2C")] = -2;
-  //eta2moduleID_PixelBarrel[std::string("M3C")] = -3;
-  //eta2moduleID_PixelBarrel[std::string("M4C")] = -4;
-  //eta2moduleID_PixelBarrel[std::string("M5C")] = -5;
-  //eta2moduleID_PixelBarrel[std::string("M6C")] = -6;
-
 
   //----------------------------------
   // calculate dead maps
@@ -530,16 +447,10 @@ int main(int argc, char* argv[]){
 
   int alternativeNDisabledModules = 0;
 
-  //for(std::map<unsigned int, TH2D*>::const_iterator module = hitMaps.begin(); module != hitMaps.end(); ++module)
   for(std::map<std::string, TH2D*>::const_iterator module = hitMaps.begin(); module != hitMaps.end(); ++module)
   {
 
-    //unsigned int moduleID = (*module).first;
     std::string moduleID = (*module).first;
-
-    //std::string onlineID = PixelConvert::OnlineID(module->first);
-    //std::string offlineID = PixelConvert::OfflineID(module->first);
-    //std::string DCSID = PixelConvert::DCSID(onlineID);
 
     TH2C* deadmap = 0;
 
@@ -556,51 +467,7 @@ int main(int argc, char* argv[]){
     int layer = position[1];
     int module_phi = position[2];
     int module_eta = position[3];
-    //if (moduleID.substr(0,1) == "D") { // Endcap
-    //  int B = std::stoi(moduleID.substr(5,2)); // e.g.) D3A_B02_S2_M4, phi = 17
-    //  int S = std::stoi(moduleID.substr(moduleID.size() - 4, 1));
-    //  if (moduleID.substr(2,1) == "A") {
-    //    barrel = 2;
-    //    int M = phi2M_ECA[moduleID.substr(moduleID.size() - 1, 1)];
-    //    if(B == 1 && S == 1) module_phi = 42 + M;
-    //    else module_phi = (B - 1) * 12 + (S - 1) * 6 + M - 6;
-    //  } else if (moduleID.substr(2,1) == "C") {
-    //    barrel = -2;
-    //    int M = phi2M_ECC[moduleID.substr(moduleID.size() - 1, 1)];
-    //    if(B == 1 && S == 1) module_phi = 42 + M;
-    //    else module_phi = (B - 1) * 12 + (S - 1) * 6 + M - 6;
-    //  }
-    //  layer = std::stoi( moduleID.substr(1,1) ) - 1;
-    //  module_eta = barrel;
-    //} else if (moduleID.substr(0,1) == "L") { // Barrel
-    //  barrel = 0;
-    //  if (moduleID.substr(1,1) == "I") { // IBL
-    //    layer = 0;
-    //    module_phi = std::stoi(moduleID.substr(4,2)) - 1; // e.g.) LI_S12_A_M2_A4
-    //    module_eta = eta2moduleID_IBL[moduleID.substr(7,std::string::npos)];
-    //  } else { // Pixel
-    //    layer = std::stoi( moduleID.substr(1,1) ) + 1; // Pixel
-    //    int B = std::stoi(moduleID.substr(4,2)); // e.g.) L0_B07_S1_M1A, phi = 13, eta = 1
-    //    int S = std::stoi(moduleID.substr(8,1));
-    //    module_eta = eta2moduleID_PixelBarrel[moduleID.substr(moduleID.size() - 3, std::string::npos)];
-    //    if (layer == 1) { // BLayer
-    //      if (moduleID.substr(0,9) == "L0_B11_S2") module_phi = 0;
-    //      else module_phi = (B - 1) * 2 + S;
-    //    } else if (layer == 2) { // Layer-1
-    //      module_phi = (B - 1) * 2 + (S - 1);
-    //    } else if (layer == 3) { // Layer-2
-    //      if (moduleID.substr(0,9) == "L2_B01_S1") module_phi = 51;
-    //      else module_phi = (B - 1) * 2 + (S - 1) - 1;
-    //    }
-    //  }
-    //} // end if barrel
-
-    //int barrel = ((moduleID >> 25) & 3);
-    //barrel = 2*(barrel-1);
-    //int layer = ((moduleID >> 23) & 3);
-    //int module_phi = ((moduleID >> 17) & 63);
-    //int module_eta = ((moduleID >> 13) & 15);
-    //module_eta -= 6;
+    
 
     unsigned int component_index = 0;
 
@@ -655,8 +522,6 @@ int main(int argc, char* argv[]){
         for(int pixel_phi = rowmin; pixel_phi < rowmax; pixel_phi++){
           double nHits = module->second->GetBinContent( pixel_eta + 1, pixel_phi + 1 );
 
-          //unsigned int pixelType = ModuleSpecialPixelMap::
-          //  pixelType( pixel_eta % 18, (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi );
 
           // check pixel type
           //unsigned int type = 0;
@@ -669,7 +534,6 @@ int main(int argc, char* argv[]){
             if( !isIBL3D && (pixel_eta_on_chip == 0 || pixel_eta_on_chip == 80 - 1) ){
               pixelType = 1; // long
             }
-            //else if(pixel_eta_on_chip > 0 && pixel_eta_on_chip < 80 - 1) // pixel size = 50x250 um2
             else { // pixel size = 50x250 um2
               pixelType = 0; // normal
             }
@@ -815,15 +679,13 @@ int main(int argc, char* argv[]){
         deadmap->Reset();
 
         alternativeNDisabledModules++;
-        //std::cout << "Check moduli" << onlineID << std::endl;
       }
 
       h_deadPixel[component_index]->Fill(thisModuleCut);
       deadPlot->Fill(thisModuleCut);
     } // end if !optionOnline
 
-    //std::cout << "Module " << onlineID << " " << offlineID << " " << DCSID << " dead pixels " << thisModuleCut << std::endl;
-    //logfile << "Module " << DCSID << " dead pixels " << thisModuleCut <<std::endl;
+
     logfile << "Module " << (*module).first << " dead pixels " << thisModuleCut <<std::endl;
   } // end loop over all modules
 
@@ -838,7 +700,6 @@ int main(int argc, char* argv[]){
     double nPixelsOnDisabledModules = 0.;
 
     for( int ii = 1; ii < nModules + 1; ii++ ){
-      //cout << disabledModules->GetBinContent(ii) << endl;
       nDisabledModules += disabledModules->GetBinContent(ii);
       if ( disabledModules->GetBinContent(ii) == nEvents ) {
         nFullDisabledModules++;
@@ -859,8 +720,6 @@ int main(int argc, char* argv[]){
 
     nDisabledModules /= nEvents;
 
-    // double nPixelsOnDisabledModules = nDisabledModules * nPixels / nModules;
-    //double nPixelsOnDisabledModules = nFullDisabledModules * nPixelsPerModule ;
     double alternativeNPixelsNoDisabledModules = 0 ;
     double alternativeNDeadPixelTotal=0;
 

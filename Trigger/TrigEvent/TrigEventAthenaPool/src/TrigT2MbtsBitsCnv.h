@@ -29,10 +29,11 @@ typedef T_AthenaPoolCustomCnv<TrigT2MbtsBits, TrigT2MbtsBits_PERS > TrigT2MbtsBi
 class TrigT2MbtsBitsCnv : public TrigT2MbtsBitsCnvBase {
   friend class CnvFactory<TrigT2MbtsBitsCnv>;
   
- protected:
+public:
   TrigT2MbtsBitsCnv(ISvcLocator* svcloc);
   ~TrigT2MbtsBitsCnv();
   
+protected:
   TrigT2MbtsBits_PERS* createPersistent(TrigT2MbtsBits* transObj);
   TrigT2MbtsBits* createTransient();
 };

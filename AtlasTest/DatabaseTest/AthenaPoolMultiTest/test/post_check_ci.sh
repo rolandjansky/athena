@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 #/** @file post_check_ci.sh
 # @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available). Modified to restrict checks
@@ -22,7 +22,7 @@ else
     joblog=${test}.log
     if [ "$status" = 0 ]
 	then 
-	echo "[92;1m post_check_ci.sh> OK: ${test} exited normally. Output is in $joblog [m"
+	#echo "[92;1m post_check_ci.sh> OK: ${test} exited normally. Output is in $joblog [m"
 	reflog=../share/${test}.ref
         grep -e 'RegStream1' \
              -e 'RunEventTagWriter' \
@@ -86,7 +86,9 @@ else
 		egrep -a -v 'RootDBase'  |\
 		egrep -a -v 'RootDatabase.open'  |\
 		# ignore root collect key 
-		egrep -a -v 'NewEventCollection.root, recovered'
+		egrep -a -v 'NewEventCollection.root, recovered' |\
+                # ignore new file catalog messages
+                egrep -a -v 'registerPFN'
 
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 
@@ -94,7 +96,8 @@ else
 		echo "[97;101;1m post_check_ci.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1
 	    else
-		echo "[92;1m post_check_ci.sh> OK: $joblog and $reflog identical [m"
+                true
+		#echo "[92;1m post_check_ci.sh> OK: $joblog and $reflog identical [m"
 	    fi
 	else
 	    tail $joblog
@@ -111,7 +114,7 @@ fi
 
 # Check output for ERROR/FATAL
 joblog=${test}.log
-echo 
+#echo 
 
 exit $status
 

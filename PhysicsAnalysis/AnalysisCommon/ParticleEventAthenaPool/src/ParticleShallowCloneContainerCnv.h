@@ -44,7 +44,9 @@ class ParticleShallowCloneContainerCnv : public T_AthenaPoolCustomCnv< ParticleS
 
   /** Create the converter from the service locator
    */
+public:
   ParticleShallowCloneContainerCnv(ISvcLocator* svcloc);
+protected:
 
   /** Build the persistent representation from the transient one.
    */

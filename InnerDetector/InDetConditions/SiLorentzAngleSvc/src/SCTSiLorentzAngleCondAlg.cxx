@@ -39,7 +39,7 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input SCT HV");
   declareProperty("ReadKeyBFieldSensor", m_readKeyBFieldSensor, "Key of input B-field sensor");
   declareProperty("WriteKey", m_writeKey, "Key of output SiLorentzAngleCondData");
-  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCT_LorentzAngleSvc!!!
+  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCTLorentzAngleTool!!!
   declareProperty("MagFieldSvc", m_magFieldSvc);
   declareProperty("Temperature", m_temperature = -7., "Default temperature in Celcius.");
   declareProperty("DepletionVoltage", m_deplVoltage = 70., "Default depletion voltage in Volt.");
@@ -103,12 +103,9 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
   SG::WriteCondHandle<SiLorentzAngleCondData> writeHandle{m_writeKey};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << " In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS;
   }
 

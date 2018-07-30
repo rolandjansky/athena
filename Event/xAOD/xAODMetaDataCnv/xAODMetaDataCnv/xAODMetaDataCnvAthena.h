@@ -12,6 +12,6 @@
 // were declared for the package. It should never be explicitly included
 // by any client code.
 
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 
 #endif // XAODMETADATACNV_XAODMETADATACNVATHENA_H

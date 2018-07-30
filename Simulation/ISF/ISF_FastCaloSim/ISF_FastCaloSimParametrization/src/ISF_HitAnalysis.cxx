@@ -30,7 +30,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -167,6 +166,8 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_calo_tb_coord(0)
    , m_sample_calo_surf(CaloCell_ID_FCS::noSample)
    , m_particleDataTable(0)
+   , m_CaloBoundaryR(1148)
+   , m_CaloBoundaryZ(3550)
 
    ,m_MC_DIGI_PARAM("/Digitization/Parameters")
    ,m_MC_SIM_PARAM("/Simulation/Parameters")
@@ -272,16 +273,16 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) )
 
 StatusCode ISF_HitAnalysis::initialize()
 {
- ATH_MSG_INFO( "Initializing ISF_HitAnalysis" );
- //
- // Register the callback(s):
- //
- StatusCode sc = service("GeoModelSvc", m_geoModel);
- if(sc.isFailure())
- {
-  ATH_MSG_ERROR( "Could not locate GeoModelSvc" );
-  return StatusCode::FAILURE;
- }
+  ATH_MSG_INFO( "Initializing ISF_HitAnalysis" );
+  //
+  // Register the callback(s):
+  //
+  StatusCode sc = service("GeoModelSvc", m_geoModel);
+  if(sc.isFailure())
+    {
+      ATH_MSG_ERROR( "Could not locate GeoModelSvc" );
+      return StatusCode::FAILURE;
+    }
 
   sc = detStore()->retrieve(m_tileMgr);
   if (sc.isFailure())
@@ -368,245 +369,245 @@ StatusCode ISF_HitAnalysis::initialize()
         ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
     } //tools
 
-if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) )
- {
-  const DataHandle< AthenaAttributeList > aptr;
-  if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,m_MC_DIGI_PARAM, true ).isFailure() )
-  {
-   ATH_MSG_ERROR( "Could not register callback for "<< m_MC_DIGI_PARAM );
-   return StatusCode::FAILURE;
-  }
- }
- else
- {
-  ATH_MSG_WARNING( "MetaData not found for "<< m_MC_DIGI_PARAM );
- }
-
- if(detStore()->contains< AthenaAttributeList >( m_MC_SIM_PARAM ) )
- {
-  const DataHandle< AthenaAttributeList > aptr;
-  if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,m_MC_SIM_PARAM, true ).isFailure() )
-  {
-   ATH_MSG_ERROR( "Could not register callback for "<< m_MC_SIM_PARAM );
-   return StatusCode::FAILURE;
-  }
- }
- else
-  ATH_MSG_WARNING( "MetaData not found for "<< m_MC_SIM_PARAM );
-
- // Get CaloGeometryHelper
- if (m_CaloGeometryHelper.retrieve().isFailure())
- {
-  ATH_MSG_ERROR("CaloGeometryHelper not found ");
-  return StatusCode::FAILURE;
- }
-
- // Get FastCaloSimCaloExtrapolation
- if (m_FastCaloSimCaloExtrapolation.retrieve().isFailure())
- {
-  ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
-  return StatusCode::FAILURE;
- }
-
- // Grab the Ntuple and histogramming service for the tree
- sc = service("THistSvc",m_thistSvc);
- if (sc.isFailure())
- {
-  ATH_MSG_ERROR( "Unable to retrieve pointer to THistSvc" );
-  return StatusCode::FAILURE;
- }
-
- //#########################
- IPartPropSvc* p_PartPropSvc=0;
- if (service("PartPropSvc",p_PartPropSvc).isFailure() || p_PartPropSvc == 0)
- {
-  ATH_MSG_ERROR("could not find PartPropService");
-  return StatusCode::FAILURE;
- }
-
- m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
- if(m_particleDataTable == 0)
- {
-        ATH_MSG_ERROR("PDG table not found");
-  return StatusCode::FAILURE;
- }
- //#########################
- std::unique_ptr<TFile> dummyFile = std::unique_ptr<TFile>(TFile::Open("dummyFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
- m_tree = new TTree("FCS_ParametrizationInput", "FCS_ParametrizationInput");
- std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleTreeName;
- sc = m_thistSvc->regTree(fullNtupleName, m_tree);
- if (sc.isFailure() || !m_tree )
- {
-  ATH_MSG_ERROR("Unable to register TTree: " << fullNtupleName);
-  return StatusCode::FAILURE;
- }
-
- /** now add branches and leaves to the tree */
- if (m_tree)
- {
-  ATH_MSG_INFO("Successfull registered TTree: " << fullNtupleName);
-  //initialize the variables before creating the branches
-  m_hit_x = new std::vector<float>;
-  m_hit_y = new std::vector<float>;
-  m_hit_z = new std::vector<float>;
-  m_hit_energy = new std::vector<float>;
-  m_hit_time = new std::vector<float>;
-  m_hit_identifier = new std::vector<Long64_t>;
-  m_hit_cellidentifier = new std::vector<Long64_t>;
-  m_islarbarrel = new std::vector<bool>;
-  m_islarendcap = new std::vector<bool>;
-  m_islarhec = new std::vector<bool>;
-  m_islarfcal = new std::vector<bool>;
-  m_istile = new std::vector<bool>;
-  m_hit_sampling = new std::vector<int>;
-  m_hit_samplingfraction = new std::vector<float>;
-
-  m_truth_energy = new std::vector<float>;
-  m_truth_px = new std::vector<float>;
-  m_truth_py = new std::vector<float>;
-  m_truth_pz = new std::vector<float>;
-  m_truth_pdg = new std::vector<int>;
-  m_truth_barcode = new std::vector<int>;
-  m_truth_vtxbarcode = new std::vector<int>;
-
-  m_cell_identifier = new std::vector<Long64_t>;
-  m_cell_energy = new std::vector<float>;
-  m_cell_sampling = new std::vector<int>;
-
-  m_g4hit_energy = new std::vector<float>;
-  m_g4hit_time = new std::vector<float>;
-  m_g4hit_identifier = new std::vector<Long64_t>;
-  m_g4hit_cellidentifier = new std::vector<Long64_t>;
-  m_g4hit_samplingfraction = new std::vector<float>;
-  m_g4hit_sampling = new std::vector<int>;
-
-  m_total_cell_e = 0;
-  m_total_hit_e = 0;
-  m_total_g4hit_e = 0;
-
-  m_final_cell_energy = new std::vector<Float_t>;
-  m_final_hit_energy = new std::vector<Float_t>;
-  m_final_g4hit_energy = new std::vector<Float_t>;
-
-  m_newTTC_entrance_eta = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_phi = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_r = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_z = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_entrance_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_back_eta = new std::vector<std::vector<float> >;
-  m_newTTC_back_phi = new std::vector<std::vector<float> >;
-  m_newTTC_back_r = new std::vector<std::vector<float> >;
-  m_newTTC_back_z = new std::vector<std::vector<float> >;
-  m_newTTC_back_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_back_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_mid_eta = new std::vector<std::vector<float> >;
-  m_newTTC_mid_phi = new std::vector<std::vector<float> >;
-  m_newTTC_mid_r = new std::vector<std::vector<float> >;
-  m_newTTC_mid_z = new std::vector<std::vector<float> >;
-  m_newTTC_mid_detaBorder = new std::vector<std::vector<float> >;
-  m_newTTC_mid_OK = new std::vector<std::vector<bool> >;
-  m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_r = new std::vector<float>;
-  m_newTTC_IDCaloBoundary_z = new std::vector<float>;
-  m_newTTC_Angle3D = new std::vector<float>;
-  m_newTTC_AngleEta = new std::vector<float>;
-
-  // Optional branches
-  if(m_saveAllBranches){
-    m_tree->Branch("HitX",                 &m_hit_x);
-    m_tree->Branch("HitY",                 &m_hit_y);
-    m_tree->Branch("HitZ",                 &m_hit_z);
-    m_tree->Branch("HitE",                 &m_hit_energy);
-    m_tree->Branch("HitT",                 &m_hit_time);
-    m_tree->Branch("HitIdentifier",        &m_hit_identifier);
-    m_tree->Branch("HitCellIdentifier",    &m_hit_cellidentifier);
-    m_tree->Branch("HitIsLArBarrel",       &m_islarbarrel);
-    m_tree->Branch("HitIsLArEndCap",       &m_islarendcap);
-    m_tree->Branch("HitIsHEC",             &m_islarhec);
-    m_tree->Branch("HitIsFCAL",            &m_islarfcal);
-    m_tree->Branch("HitIsTile",            &m_istile);
-    m_tree->Branch("HitSampling",          &m_hit_sampling);
-    m_tree->Branch("HitSamplingFraction",  &m_hit_samplingfraction);
-
-    m_tree->Branch("CellIdentifier",       &m_cell_identifier);
-    m_tree->Branch("CellE",                &m_cell_energy);
-    m_tree->Branch("CellSampling",         &m_cell_sampling);
-
-    m_tree->Branch("G4HitE",               &m_g4hit_energy);
-    m_tree->Branch("G4HitT",               &m_g4hit_time);
-    m_tree->Branch("G4HitIdentifier",      &m_g4hit_identifier);
-    m_tree->Branch("G4HitCellIdentifier",  &m_g4hit_cellidentifier);
-    m_tree->Branch("G4HitSamplingFraction",&m_g4hit_samplingfraction);
-    m_tree->Branch("G4HitSampling",        &m_g4hit_sampling);
-  }
-
-  //CaloHitAna output variables
-  m_tree->Branch("TruthE",               &m_truth_energy);
-  m_tree->Branch("TruthPx",              &m_truth_px);
-  m_tree->Branch("TruthPy",              &m_truth_py);
-  m_tree->Branch("TruthPz",              &m_truth_pz);
-  m_tree->Branch("TruthPDG",             &m_truth_pdg);
-  m_tree->Branch("TruthBarcode",         &m_truth_barcode);
-  m_tree->Branch("TruthVtxBarcode",      &m_truth_vtxbarcode);
-
-  m_oneeventcells = new FCS_matchedcellvector;
-  if(m_doAllCells){
-    m_tree->Branch("AllCells", &m_oneeventcells);
-  }
-
-  //write cells per layer
-  if(m_doLayers){
-    for (Int_t i = 0; i < MAX_LAYER; i++)
+  if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) )
     {
-      TString branchname = "Sampling_";
-      branchname += i;
-      m_layercells[i] = new FCS_matchedcellvector;
-      m_tree->Branch(branchname, &m_layercells[i]);
+      const DataHandle< AthenaAttributeList > aptr;
+      if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,m_MC_DIGI_PARAM, true ).isFailure() )
+        {
+          ATH_MSG_ERROR( "Could not register callback for "<< m_MC_DIGI_PARAM );
+          return StatusCode::FAILURE;
+        }
     }
-  }
+  else
+    {
+      ATH_MSG_WARNING( "MetaData not found for "<< m_MC_DIGI_PARAM );
+    }
 
-  if(m_doLayerSums){
-    //write also energies per layer:
-    m_tree->Branch("cell_energy", &m_final_cell_energy);
-    m_tree->Branch("hit_energy",  &m_final_hit_energy);
-    m_tree->Branch("g4hit_energy", &m_final_g4hit_energy);
+  if(detStore()->contains< AthenaAttributeList >( m_MC_SIM_PARAM ) )
+    {
+      const DataHandle< AthenaAttributeList > aptr;
+      if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,m_MC_SIM_PARAM, true ).isFailure() )
+        {
+          ATH_MSG_ERROR( "Could not register callback for "<< m_MC_SIM_PARAM );
+          return StatusCode::FAILURE;
+        }
+    }
+  else
+    ATH_MSG_WARNING( "MetaData not found for "<< m_MC_SIM_PARAM );
 
-    //This is a duplicate of cell_energy[25]
-    m_tree->Branch("total_cell_energy", &m_total_cell_e);
-    m_tree->Branch("total_hit_energy",  &m_total_hit_e);
-    m_tree->Branch("total_g4hit_energy", &m_total_g4hit_e);
-  }
+  // Get CaloGeometryHelper
+  if (m_CaloGeometryHelper.retrieve().isFailure())
+    {
+      ATH_MSG_ERROR("CaloGeometryHelper not found ");
+      return StatusCode::FAILURE;
+    }
 
-  m_tree->Branch("newTTC_back_eta",&m_newTTC_back_eta);
-  m_tree->Branch("newTTC_back_phi",&m_newTTC_back_phi);
-  m_tree->Branch("newTTC_back_r",&m_newTTC_back_r);
-  m_tree->Branch("newTTC_back_z",&m_newTTC_back_z);
-  m_tree->Branch("newTTC_back_detaBorder",&m_newTTC_back_detaBorder);
-  m_tree->Branch("newTTC_back_OK",&m_newTTC_back_OK);
-  m_tree->Branch("newTTC_entrance_eta",&m_newTTC_entrance_eta);
-  m_tree->Branch("newTTC_entrance_phi",&m_newTTC_entrance_phi);
-  m_tree->Branch("newTTC_entrance_r",&m_newTTC_entrance_r);
-  m_tree->Branch("newTTC_entrance_z",&m_newTTC_entrance_z);
-  m_tree->Branch("newTTC_entrance_detaBorder",&m_newTTC_entrance_detaBorder);
-  m_tree->Branch("newTTC_entrance_OK",&m_newTTC_entrance_OK);
-  m_tree->Branch("newTTC_mid_eta",&m_newTTC_mid_eta);
-  m_tree->Branch("newTTC_mid_phi",&m_newTTC_mid_phi);
-  m_tree->Branch("newTTC_mid_r",&m_newTTC_mid_r);
-  m_tree->Branch("newTTC_mid_z",&m_newTTC_mid_z);
-  m_tree->Branch("newTTC_mid_detaBorder",&m_newTTC_mid_detaBorder);
-  m_tree->Branch("newTTC_mid_OK",&m_newTTC_mid_OK);
-  m_tree->Branch("newTTC_IDCaloBoundary_eta",&m_newTTC_IDCaloBoundary_eta);
-  m_tree->Branch("newTTC_IDCaloBoundary_phi",&m_newTTC_IDCaloBoundary_phi);
-  m_tree->Branch("newTTC_IDCaloBoundary_r",&m_newTTC_IDCaloBoundary_r);
-  m_tree->Branch("newTTC_IDCaloBoundary_z",&m_newTTC_IDCaloBoundary_z);
-  m_tree->Branch("newTTC_Angle3D",&m_newTTC_Angle3D);
-  m_tree->Branch("newTTC_AngleEta",&m_newTTC_AngleEta);
+  // Get FastCaloSimCaloExtrapolation
+  if (m_FastCaloSimCaloExtrapolation.retrieve().isFailure())
+    {
+      ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
+      return StatusCode::FAILURE;
+    }
 
- }
- dummyFile->Close();
- return StatusCode::SUCCESS;
+  // Grab the Ntuple and histogramming service for the tree
+  sc = service("THistSvc",m_thistSvc);
+  if (sc.isFailure())
+    {
+      ATH_MSG_ERROR( "Unable to retrieve pointer to THistSvc" );
+      return StatusCode::FAILURE;
+    }
+
+  //#########################
+  IPartPropSvc* p_PartPropSvc=0;
+  if (service("PartPropSvc",p_PartPropSvc).isFailure() || p_PartPropSvc == 0)
+    {
+      ATH_MSG_ERROR("could not find PartPropService");
+      return StatusCode::FAILURE;
+    }
+
+  m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
+  if(m_particleDataTable == 0)
+    {
+      ATH_MSG_ERROR("PDG table not found");
+      return StatusCode::FAILURE;
+    }
+  //#########################
+  std::unique_ptr<TFile> dummyFile = std::unique_ptr<TFile>(TFile::Open("dummyFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
+  m_tree = new TTree("FCS_ParametrizationInput", "FCS_ParametrizationInput");
+  std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleTreeName;
+  sc = m_thistSvc->regTree(fullNtupleName, m_tree);
+  if (sc.isFailure() || !m_tree )
+    {
+      ATH_MSG_ERROR("Unable to register TTree: " << fullNtupleName);
+      return StatusCode::FAILURE;
+    }
+
+  /** now add branches and leaves to the tree */
+  if (m_tree)
+    {
+      ATH_MSG_INFO("Successfull registered TTree: " << fullNtupleName);
+      //initialize the variables before creating the branches
+      m_hit_x = new std::vector<float>;
+      m_hit_y = new std::vector<float>;
+      m_hit_z = new std::vector<float>;
+      m_hit_energy = new std::vector<float>;
+      m_hit_time = new std::vector<float>;
+      m_hit_identifier = new std::vector<Long64_t>;
+      m_hit_cellidentifier = new std::vector<Long64_t>;
+      m_islarbarrel = new std::vector<bool>;
+      m_islarendcap = new std::vector<bool>;
+      m_islarhec = new std::vector<bool>;
+      m_islarfcal = new std::vector<bool>;
+      m_istile = new std::vector<bool>;
+      m_hit_sampling = new std::vector<int>;
+      m_hit_samplingfraction = new std::vector<float>;
+
+      m_truth_energy = new std::vector<float>;
+      m_truth_px = new std::vector<float>;
+      m_truth_py = new std::vector<float>;
+      m_truth_pz = new std::vector<float>;
+      m_truth_pdg = new std::vector<int>;
+      m_truth_barcode = new std::vector<int>;
+      m_truth_vtxbarcode = new std::vector<int>;
+
+      m_cell_identifier = new std::vector<Long64_t>;
+      m_cell_energy = new std::vector<float>;
+      m_cell_sampling = new std::vector<int>;
+
+      m_g4hit_energy = new std::vector<float>;
+      m_g4hit_time = new std::vector<float>;
+      m_g4hit_identifier = new std::vector<Long64_t>;
+      m_g4hit_cellidentifier = new std::vector<Long64_t>;
+      m_g4hit_samplingfraction = new std::vector<float>;
+      m_g4hit_sampling = new std::vector<int>;
+
+      m_total_cell_e = 0;
+      m_total_hit_e = 0;
+      m_total_g4hit_e = 0;
+
+      m_final_cell_energy = new std::vector<Float_t>;
+      m_final_hit_energy = new std::vector<Float_t>;
+      m_final_g4hit_energy = new std::vector<Float_t>;
+
+      m_newTTC_entrance_eta = new std::vector<std::vector<float> >;
+      m_newTTC_entrance_phi = new std::vector<std::vector<float> >;
+      m_newTTC_entrance_r = new std::vector<std::vector<float> >;
+      m_newTTC_entrance_z = new std::vector<std::vector<float> >;
+      m_newTTC_entrance_detaBorder = new std::vector<std::vector<float> >;
+      m_newTTC_entrance_OK = new std::vector<std::vector<bool> >;
+      m_newTTC_back_eta = new std::vector<std::vector<float> >;
+      m_newTTC_back_phi = new std::vector<std::vector<float> >;
+      m_newTTC_back_r = new std::vector<std::vector<float> >;
+      m_newTTC_back_z = new std::vector<std::vector<float> >;
+      m_newTTC_back_detaBorder = new std::vector<std::vector<float> >;
+      m_newTTC_back_OK = new std::vector<std::vector<bool> >;
+      m_newTTC_mid_eta = new std::vector<std::vector<float> >;
+      m_newTTC_mid_phi = new std::vector<std::vector<float> >;
+      m_newTTC_mid_r = new std::vector<std::vector<float> >;
+      m_newTTC_mid_z = new std::vector<std::vector<float> >;
+      m_newTTC_mid_detaBorder = new std::vector<std::vector<float> >;
+      m_newTTC_mid_OK = new std::vector<std::vector<bool> >;
+      m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
+      m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
+      m_newTTC_IDCaloBoundary_r = new std::vector<float>;
+      m_newTTC_IDCaloBoundary_z = new std::vector<float>;
+      m_newTTC_Angle3D = new std::vector<float>;
+      m_newTTC_AngleEta = new std::vector<float>;
+
+      // Optional branches
+      if(m_saveAllBranches){
+        m_tree->Branch("HitX",                 &m_hit_x);
+        m_tree->Branch("HitY",                 &m_hit_y);
+        m_tree->Branch("HitZ",                 &m_hit_z);
+        m_tree->Branch("HitE",                 &m_hit_energy);
+        m_tree->Branch("HitT",                 &m_hit_time);
+        m_tree->Branch("HitIdentifier",        &m_hit_identifier);
+        m_tree->Branch("HitCellIdentifier",    &m_hit_cellidentifier);
+        m_tree->Branch("HitIsLArBarrel",       &m_islarbarrel);
+        m_tree->Branch("HitIsLArEndCap",       &m_islarendcap);
+        m_tree->Branch("HitIsHEC",             &m_islarhec);
+        m_tree->Branch("HitIsFCAL",            &m_islarfcal);
+        m_tree->Branch("HitIsTile",            &m_istile);
+        m_tree->Branch("HitSampling",          &m_hit_sampling);
+        m_tree->Branch("HitSamplingFraction",  &m_hit_samplingfraction);
+
+        m_tree->Branch("CellIdentifier",       &m_cell_identifier);
+        m_tree->Branch("CellE",                &m_cell_energy);
+        m_tree->Branch("CellSampling",         &m_cell_sampling);
+
+        m_tree->Branch("G4HitE",               &m_g4hit_energy);
+        m_tree->Branch("G4HitT",               &m_g4hit_time);
+        m_tree->Branch("G4HitIdentifier",      &m_g4hit_identifier);
+        m_tree->Branch("G4HitCellIdentifier",  &m_g4hit_cellidentifier);
+        m_tree->Branch("G4HitSamplingFraction",&m_g4hit_samplingfraction);
+        m_tree->Branch("G4HitSampling",        &m_g4hit_sampling);
+      }
+
+      //CaloHitAna output variables
+      m_tree->Branch("TruthE",               &m_truth_energy);
+      m_tree->Branch("TruthPx",              &m_truth_px);
+      m_tree->Branch("TruthPy",              &m_truth_py);
+      m_tree->Branch("TruthPz",              &m_truth_pz);
+      m_tree->Branch("TruthPDG",             &m_truth_pdg);
+      m_tree->Branch("TruthBarcode",         &m_truth_barcode);
+      m_tree->Branch("TruthVtxBarcode",      &m_truth_vtxbarcode);
+
+      m_oneeventcells = new FCS_matchedcellvector;
+      if(m_doAllCells){
+        m_tree->Branch("AllCells", &m_oneeventcells);
+      }
+
+      //write cells per layer
+      if(m_doLayers){
+        for (Int_t i = 0; i < MAX_LAYER; i++)
+          {
+            TString branchname = "Sampling_";
+            branchname += i;
+            m_layercells[i] = new FCS_matchedcellvector;
+            m_tree->Branch(branchname, &m_layercells[i]);
+          }
+      }
+
+      if(m_doLayerSums){
+        //write also energies per layer:
+        m_tree->Branch("cell_energy", &m_final_cell_energy);
+        m_tree->Branch("hit_energy",  &m_final_hit_energy);
+        m_tree->Branch("g4hit_energy", &m_final_g4hit_energy);
+
+        //This is a duplicate of cell_energy[25]
+        m_tree->Branch("total_cell_energy", &m_total_cell_e);
+        m_tree->Branch("total_hit_energy",  &m_total_hit_e);
+        m_tree->Branch("total_g4hit_energy", &m_total_g4hit_e);
+      }
+
+      m_tree->Branch("newTTC_back_eta",&m_newTTC_back_eta);
+      m_tree->Branch("newTTC_back_phi",&m_newTTC_back_phi);
+      m_tree->Branch("newTTC_back_r",&m_newTTC_back_r);
+      m_tree->Branch("newTTC_back_z",&m_newTTC_back_z);
+      m_tree->Branch("newTTC_back_detaBorder",&m_newTTC_back_detaBorder);
+      m_tree->Branch("newTTC_back_OK",&m_newTTC_back_OK);
+      m_tree->Branch("newTTC_entrance_eta",&m_newTTC_entrance_eta);
+      m_tree->Branch("newTTC_entrance_phi",&m_newTTC_entrance_phi);
+      m_tree->Branch("newTTC_entrance_r",&m_newTTC_entrance_r);
+      m_tree->Branch("newTTC_entrance_z",&m_newTTC_entrance_z);
+      m_tree->Branch("newTTC_entrance_detaBorder",&m_newTTC_entrance_detaBorder);
+      m_tree->Branch("newTTC_entrance_OK",&m_newTTC_entrance_OK);
+      m_tree->Branch("newTTC_mid_eta",&m_newTTC_mid_eta);
+      m_tree->Branch("newTTC_mid_phi",&m_newTTC_mid_phi);
+      m_tree->Branch("newTTC_mid_r",&m_newTTC_mid_r);
+      m_tree->Branch("newTTC_mid_z",&m_newTTC_mid_z);
+      m_tree->Branch("newTTC_mid_detaBorder",&m_newTTC_mid_detaBorder);
+      m_tree->Branch("newTTC_mid_OK",&m_newTTC_mid_OK);
+      m_tree->Branch("newTTC_IDCaloBoundary_eta",&m_newTTC_IDCaloBoundary_eta);
+      m_tree->Branch("newTTC_IDCaloBoundary_phi",&m_newTTC_IDCaloBoundary_phi);
+      m_tree->Branch("newTTC_IDCaloBoundary_r",&m_newTTC_IDCaloBoundary_r);
+      m_tree->Branch("newTTC_IDCaloBoundary_z",&m_newTTC_IDCaloBoundary_z);
+      m_tree->Branch("newTTC_Angle3D",&m_newTTC_Angle3D);
+      m_tree->Branch("newTTC_AngleEta",&m_newTTC_AngleEta);
+
+    }
+  dummyFile->Close();
+  return StatusCode::SUCCESS;
 
 } //initialize
 
@@ -804,255 +805,250 @@ StatusCode ISF_HitAnalysis::execute()
 
  //Get the FastCaloSim step info collection from store
  const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES;
- StatusCode sc = evtStore()->retrieve(eventStepsES, "ZHMergedEventSteps");
- if (sc.isFailure())
- {
-  ATH_MSG_WARNING( "No FastCaloSim steps read from StoreGate?" );
-  //return StatusCode::FAILURE;
- }
- else
- {
-  ATH_MSG_INFO("Read: "<<eventStepsES->size()<<" position hits");
-  for (ISF_FCS_Parametrization::FCS_StepInfoCollection::const_iterator it = eventStepsES->begin(); it != eventStepsES->end(); ++it)
-  {
-         m_hit_x->push_back( (*it)->x() );
-         m_hit_y->push_back( (*it)->y() );
-         m_hit_z->push_back( (*it)->z() );
-         m_hit_energy->push_back( (*it)->energy() );
-   m_hit_time->push_back( (*it)->time());
+ StatusCode sc = evtStore()->retrieve(eventStepsES, "MergedEventSteps");
+ if (sc.isFailure()) {
+   ATH_MSG_WARNING( "No FastCaloSim steps read from StoreGate?" );
+   //return StatusCode::FAILURE;
+ } else {
+   ATH_MSG_INFO("Read: "<<eventStepsES->size()<<" position hits");
+   for (ISF_FCS_Parametrization::FCS_StepInfoCollection::const_iterator it = eventStepsES->begin(); it != eventStepsES->end(); ++it) {
+     m_hit_x->push_back( (*it)->x() );
+     m_hit_y->push_back( (*it)->y() );
+     m_hit_z->push_back( (*it)->z() );
+     m_hit_energy->push_back( (*it)->energy() );
+     m_hit_time->push_back( (*it)->time());
 
-         //Try to get the samplings, sampling fractions from identifiers
-         bool larbarrel=false;
-         bool larendcap=false;
-         bool larhec=false;
-         bool larfcal=false;
-         bool tile=false;
-         int sampling=-1;
-         double sampfrac=0.0;
+     //Try to get the samplings, sampling fractions from identifiers
+     bool larbarrel=false;
+     bool larendcap=false;
+     bool larhec=false;
+     bool larfcal=false;
+     bool tile=false;
+     int sampling=-1;
+     double sampfrac=0.0;
 
-         Identifier id = (*it)->identify();
-         Identifier cell_id = (*it)->identify(); //to be replaced by cell_id in tile
+     Identifier id = (*it)->identify();
+     Identifier cell_id = (*it)->identify(); //to be replaced by cell_id in tile
 
-         if(m_calo_dd_man->get_element(id))
-         {
-          CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(id)->getSampling();
-          sampling = layer; //use CaloCell layer immediately
-         }
-         else
-          ATH_MSG_WARNING( "Warning no sampling info for "<<id.getString());
+     if(m_calo_dd_man->get_element(id)) {
+       CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(id)->getSampling();
+       sampling = layer; //use CaloCell layer immediately
+     } else {
+       ATH_MSG_WARNING( "Warning no sampling info for "<<id.getString());
+     } 
 
-   if(m_larEmID->is_lar_em(id) || m_larHecID->is_lar_hec(id) || m_larFcalID->is_lar_fcal(id))
-          sampfrac=m_dd_fSampl->FSAMPL(id);
+     if(m_larEmID->is_lar_em(id) || m_larHecID->is_lar_hec(id) || m_larFcalID->is_lar_fcal(id)) sampfrac=m_dd_fSampl->FSAMPL(id);
 
-         if(m_larEmID->is_lar_em(id))
-         {
-          //std::cout <<"This hit is in LAr EM ";
-          if (m_larEmID->is_em_barrel(id))
-                 larbarrel=true;
-          else if(m_larEmID->is_em_endcap(id))
-                 larendcap=true;
-         }
-         else if(m_larHecID->is_lar_hec(id))
-    larhec = true;
-         else if(m_larFcalID->is_lar_fcal(id))
-    larfcal = true;
-         else if(m_tileID->is_tile_barrel(id) || m_tileID->is_tile_extbarrel(id) || m_tileID->is_tile_gap(id) || m_tileID->is_tile_gapscin(id) || m_tileID->is_tile_aux(id))
-         {
-          cell_id = m_tileID->cell_id(id);
-          Int_t tile_sampling = -1;
-          if(m_calo_dd_man->get_element(cell_id))
-                {
-                 tile_sampling = m_calo_dd_man->get_element(cell_id)->getSampling();
-                 sampfrac = m_tileInfo->HitCalib(cell_id);
-                }
-          tile = true;
-          if(tile_sampling!= -1)
-           sampling = tile_sampling; //m_calo_dd_man needs to be called with cell_id not pmt_id!!
-         }
-         else
-    ATH_MSG_WARNING( "This hit is somewhere. Please check!");
+     if(m_larEmID->is_lar_em(id)) {
+       //LAr EM cells
+       if (m_larEmID->is_em_barrel(id)) larbarrel=true;
+        else if(m_larEmID->is_em_endcap(id)) larendcap=true;
+     } else if(m_larHecID->is_lar_hec(id)) {
+       //LAr HEC cells
+       larhec = true;
+     } else if(m_larFcalID->is_lar_fcal(id)) {
+       //LAr FCal cells
+       larfcal = true;
+     } else if (m_tileID->is_tile_aux(id)) {
+       // special case for E4'
+       tile = true;
+       cell_id = m_tileID->cell_id(id);
+       sampling = CaloCell_ID::TileGap3;
+       sampfrac = m_tileInfo->HitCalib(id);
+     } else if(m_tileID->is_tile_barrel(id) || m_tileID->is_tile_extbarrel(id) || m_tileID->is_tile_gap(id)) {
+       // all other Tile cells
+       tile = true;
+       cell_id = m_tileID->cell_id(id);
+       Int_t tile_sampling = -1;
+       if(m_calo_dd_man->get_element(cell_id)) {
+         tile_sampling = m_calo_dd_man->get_element(cell_id)->getSampling();
+         sampfrac = m_tileInfo->HitCalib(cell_id);
+       }
+       if(tile_sampling!= -1) sampling = tile_sampling; //m_calo_dd_man needs to be called with cell_id not pmt_id!!
+     } else {
+       ATH_MSG_WARNING( "This hit is somewhere. Please check!");
+     }  
 
-         m_hit_identifier->push_back(id.get_compact());
-         m_hit_cellidentifier->push_back(cell_id.get_compact());
-         //push things into vectors:
-         m_islarbarrel->push_back(larbarrel);
-         m_islarendcap->push_back(larendcap);
-         m_islarhec->push_back(larhec);
-         m_islarfcal->push_back(larfcal);
-         m_istile->push_back(tile);
-         m_hit_sampling->push_back(sampling);
-         m_hit_samplingfraction->push_back(sampfrac);
+     m_hit_identifier->push_back(id.get_compact());
+     m_hit_cellidentifier->push_back(cell_id.get_compact());
+     //push things into vectors:
+     m_islarbarrel->push_back(larbarrel);
+     m_islarendcap->push_back(larendcap);
+     m_islarhec->push_back(larhec);
+     m_islarfcal->push_back(larfcal);
+     m_istile->push_back(tile);
+     m_hit_sampling->push_back(sampling);
+     m_hit_samplingfraction->push_back(sampfrac);
 
-        } //event steps
+   } //event steps
  }//event steps read correctly
 
  //Get truth particle info
  //Note that there can be more truth particles, the first one is usually the one we need.
  const DataHandle<McEventCollection> mcEvent;
  sc = evtStore()->retrieve(mcEvent,"TruthEvent");
- if(sc.isFailure())
-  ATH_MSG_WARNING( "No truth event!");
- else
- {
-  if(mcEvent)
-  {
-         //std::cout<<"ISF_HitAnalysis: MC event size: "<<mcEvent->size()<<std::endl;
-         if (mcEvent->size())
-         {
-                int particleIndex=0;
-                int loopEnd = m_NtruthParticles;
-                if(loopEnd==-1)
-                {
-                 loopEnd = (*mcEvent->begin())->particles_size(); //is this the correct thing?
-                }
-                //std::cout <<"ISF_HitAnalysis: MC first truth event size: "<<(*mcEvent->begin())->particles_size()<<std::endl;
-          for (HepMC::GenEvent::particle_const_iterator it = (*mcEvent->begin())->particles_begin(); it != (*mcEvent->begin())->particles_end(); ++it)
-                {
-     ATH_MSG_DEBUG("Number truth particles="<<(*mcEvent->begin())->particles_size()<<" loopEnd="<<loopEnd);
-                 particleIndex++;
+ if(sc.isFailure()) {
+   ATH_MSG_WARNING( "No truth event!");
+ } else {
+   if(mcEvent) {
+     //std::cout<<"ISF_HitAnalysis: MC event size: "<<mcEvent->size()<<std::endl;
+     if(mcEvent->size()) {
+       int particleIndex=0;
+       int loopEnd = m_NtruthParticles;
+       if(loopEnd==-1) {
+         loopEnd = (*mcEvent->begin())->particles_size(); //is this the correct thing?
+       }
+       //std::cout <<"ISF_HitAnalysis: MC first truth event size: "<<(*mcEvent->begin())->particles_size()<<std::endl;
+       for (HepMC::GenEvent::particle_const_iterator it = (*mcEvent->begin())->particles_begin(); it != (*mcEvent->begin())->particles_end(); ++it) {
+         ATH_MSG_DEBUG("Number truth particles="<<(*mcEvent->begin())->particles_size()<<" loopEnd="<<loopEnd);
+         particleIndex++;
 
-                 if (particleIndex>loopEnd) break; //enough particles
+         if (particleIndex>loopEnd) break; //enough particles
 
-     //UPDATE EXTRAPOLATION WITH ALGTOOL *********************************************************************************************
+         //UPDATE EXTRAPOLATION WITH ALGTOOL***********************************************
 
-           TFCSTruthState truth((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz(),(*it)->momentum().e(),(*it)->pdg_id());
+         TFCSTruthState truth((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz(),(*it)->momentum().e(),(*it)->pdg_id());
 
-           //calculate the vertex
-           TVector3 moment;
-           moment.SetXYZ((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz());
-           TVector3 direction=moment.Unit();
+         //calculate the vertex
+         TVector3 moment;
+         moment.SetXYZ((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz());
+         TVector3 direction=moment.Unit();
 
-           //does it hit the barrel or the EC?
-           if(abs(direction.Z())/3550.<direction.Perp()/1148.) //BARREL
-            direction*=1148./direction.Perp();
-     else //EC
-        direction*=3550./abs(direction.Z());
+         //does it hit the barrel or the EC?
 
-           truth.set_vertex(direction.X(),direction.Y(),direction.Z()); //is this really needed?
+         if(abs(direction.Z())/m_CaloBoundaryZ < direction.Perp()/m_CaloBoundaryR) {
+           //BARREL
+           direction*=m_CaloBoundaryR/direction.Perp();
+         } else {
+           //EC
+           direction*=m_CaloBoundaryZ/abs(direction.Z());
+         }  
 
-           ATH_MSG_DEBUG("VERTEX x "<<direction.X()<<" y "<<direction.Y()<<" z "<<direction.Z());
+         if((*it)->production_vertex()) {
+           truth.set_vertex((*it)->production_vertex()->point3d().x(), (*it)->production_vertex()->point3d().y(), (*it)->production_vertex()->point3d().z());
+         } else {
+           truth.set_vertex(direction.X(),direction.Y(),direction.Z());
+           ATH_MSG_WARNING("No particle production vetext, use VERTEX from direction: x "<<direction.X()<<" y "<<direction.Y()<<" z "<<direction.Z());
+         }  
+         
+         if( fabs(direction.X()-truth.vertex().X())>0.1 || fabs(direction.Y()-truth.vertex().Y())>0.1 || fabs(direction.Z()-truth.vertex().Z())>0.1 ) {
+           ATH_MSG_WARNING("VERTEX from direction: x "<<direction.X()<<" y "<<direction.Y()<<" z "<<direction.Z());
+           ATH_MSG_WARNING("but VERTEX from hepmc: x "<<truth.vertex().X()<<" y "<<truth.vertex().Y()<<" z "<<truth.vertex().Z());
+         }  
 
-           TFCSExtrapolationState result;
-           m_FastCaloSimCaloExtrapolation->extrapolate(result,&truth);
+         TFCSExtrapolationState result;
+         m_FastCaloSimCaloExtrapolation->extrapolate(result,&truth);
 
-     //write the result into the ntuple variables:
+         //write the result into the ntuple variables:
 
-     ATH_MSG_DEBUG("IDCaloBoundary_eta() "<<result.IDCaloBoundary_eta());
-     ATH_MSG_DEBUG("IDCaloBoundary_phi() "<<result.IDCaloBoundary_phi());
-     ATH_MSG_DEBUG("IDCaloBoundary_r() "<<result.IDCaloBoundary_r());
-     ATH_MSG_DEBUG("IDCaloBoundary_z() "<<result.IDCaloBoundary_z());
-     ATH_MSG_DEBUG("AngleEta "<<result.IDCaloBoundary_AngleEta());
-     ATH_MSG_DEBUG("Angle3D "<<result.IDCaloBoundary_Angle3D());
+         ATH_MSG_DEBUG("IDCaloBoundary_eta() "<<result.IDCaloBoundary_eta());
+         ATH_MSG_DEBUG("IDCaloBoundary_phi() "<<result.IDCaloBoundary_phi());
+         ATH_MSG_DEBUG("IDCaloBoundary_r() "<<result.IDCaloBoundary_r());
+         ATH_MSG_DEBUG("IDCaloBoundary_z() "<<result.IDCaloBoundary_z());
+         ATH_MSG_DEBUG("AngleEta "<<result.IDCaloBoundary_AngleEta());
+         ATH_MSG_DEBUG("Angle3D "<<result.IDCaloBoundary_Angle3D());
 
-     m_newTTC_IDCaloBoundary_eta->push_back(float(result.IDCaloBoundary_eta()));
-                 m_newTTC_IDCaloBoundary_phi->push_back(float(result.IDCaloBoundary_phi()));
-                 m_newTTC_IDCaloBoundary_r->push_back(float(result.IDCaloBoundary_r()));
-                 m_newTTC_IDCaloBoundary_z->push_back(float(result.IDCaloBoundary_z()));
-                 m_newTTC_Angle3D ->push_back(float(result.IDCaloBoundary_Angle3D()));
-                 m_newTTC_AngleEta->push_back(float(result.IDCaloBoundary_AngleEta()));
+         m_newTTC_IDCaloBoundary_eta->push_back(float(result.IDCaloBoundary_eta()));
+         m_newTTC_IDCaloBoundary_phi->push_back(float(result.IDCaloBoundary_phi()));
+         m_newTTC_IDCaloBoundary_r->push_back(float(result.IDCaloBoundary_r()));
+         m_newTTC_IDCaloBoundary_z->push_back(float(result.IDCaloBoundary_z()));
+         m_newTTC_Angle3D ->push_back(float(result.IDCaloBoundary_Angle3D()));
+         m_newTTC_AngleEta->push_back(float(result.IDCaloBoundary_AngleEta()));
 
-     std::vector<float> eta_vec_ENT;
-                 std::vector<float> phi_vec_ENT;
-                 std::vector<float> r_vec_ENT;
-                 std::vector<float> z_vec_ENT;
-                 std::vector<float> detaBorder_vec_ENT;
-                 std::vector<bool>  OK_vec_ENT;
+         std::vector<float> eta_vec_ENT;
+         std::vector<float> phi_vec_ENT;
+         std::vector<float> r_vec_ENT;
+         std::vector<float> z_vec_ENT;
+         std::vector<float> detaBorder_vec_ENT;
+         std::vector<bool>  OK_vec_ENT;
 
-     std::vector<float> eta_vec_EXT;
-                 std::vector<float> phi_vec_EXT;
-                 std::vector<float> r_vec_EXT;
-                 std::vector<float> z_vec_EXT;
-                 std::vector<float> detaBorder_vec_EXT;
-                 std::vector<bool>  OK_vec_EXT;
+         std::vector<float> eta_vec_EXT;
+         std::vector<float> phi_vec_EXT;
+         std::vector<float> r_vec_EXT;
+         std::vector<float> z_vec_EXT;
+         std::vector<float> detaBorder_vec_EXT;
+         std::vector<bool>  OK_vec_EXT;
 
-     std::vector<float> eta_vec_MID;
-                 std::vector<float> phi_vec_MID;
-                 std::vector<float> r_vec_MID;
-                 std::vector<float> z_vec_MID;
-                 std::vector<float> detaBorder_vec_MID;
-                 std::vector<bool>  OK_vec_MID;
+         std::vector<float> eta_vec_MID;
+         std::vector<float> phi_vec_MID;
+         std::vector<float> r_vec_MID;
+         std::vector<float> z_vec_MID;
+         std::vector<float> detaBorder_vec_MID;
+         std::vector<bool>  OK_vec_MID;
 
-     float phi_MID;
+         for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
+           ATH_MSG_DEBUG("sample "<<sample);
+           ATH_MSG_DEBUG(" eta ENT "<<result.eta(sample,1)<<" eta EXT "<<result.eta(sample,2));
+           ATH_MSG_DEBUG(" phi ENT "<<result.phi(sample,1)<<" phi EXT "<<result.phi(sample,2));
+           ATH_MSG_DEBUG(" r   ENT "<<result.r(sample,1)  <<" r   EXT "<<result.r(sample,2)  );
+           ATH_MSG_DEBUG(" z   ENT "<<result.z(sample,1)  <<" z   EXT "<<result.z(sample,2)  );
+           ATH_MSG_DEBUG(" detaBorder   ENT "<<result.detaBorder(sample,1)  <<" detaBorder   EXT "<<result.detaBorder(sample,2)  );
+           ATH_MSG_DEBUG(" OK  ENT "<<result.OK(sample,1) <<" OK  EXT "<<result.OK(sample,2)  );
+           eta_vec_ENT.push_back(float(result.eta(sample,TFCSExtrapolationState::SUBPOS_ENT)));
+           eta_vec_EXT.push_back(float(result.eta(sample,TFCSExtrapolationState::SUBPOS_EXT)));
+           eta_vec_MID.push_back(float(result.eta(sample,TFCSExtrapolationState::SUBPOS_MID)));
+           phi_vec_ENT.push_back(float(result.phi(sample,TFCSExtrapolationState::SUBPOS_ENT)));
+           phi_vec_EXT.push_back(float(result.phi(sample,TFCSExtrapolationState::SUBPOS_EXT)));
+           phi_vec_MID.push_back(float(result.phi(sample,TFCSExtrapolationState::SUBPOS_MID)));
+           r_vec_ENT.push_back(float(result.r(sample,TFCSExtrapolationState::SUBPOS_ENT)));
+           r_vec_EXT.push_back(float(result.r(sample,TFCSExtrapolationState::SUBPOS_EXT)));
+           r_vec_MID.push_back(float(result.r(sample,TFCSExtrapolationState::SUBPOS_MID)));
+           z_vec_ENT.push_back(float(result.z(sample,TFCSExtrapolationState::SUBPOS_ENT)));
+           z_vec_EXT.push_back(float(result.z(sample,TFCSExtrapolationState::SUBPOS_EXT)));
+           z_vec_MID.push_back(float(result.z(sample,TFCSExtrapolationState::SUBPOS_MID)));
+           detaBorder_vec_ENT.push_back(float(result.detaBorder(sample,TFCSExtrapolationState::SUBPOS_ENT)));
+           detaBorder_vec_EXT.push_back(float(result.detaBorder(sample,TFCSExtrapolationState::SUBPOS_EXT)));
+           detaBorder_vec_MID.push_back(float(result.detaBorder(sample,TFCSExtrapolationState::SUBPOS_MID)));
+           OK_vec_ENT.push_back(result.OK(sample,TFCSExtrapolationState::SUBPOS_ENT));
+           OK_vec_EXT.push_back(result.OK(sample,TFCSExtrapolationState::SUBPOS_EXT));
+           OK_vec_MID.push_back(result.OK(sample,TFCSExtrapolationState::SUBPOS_MID));
+         }
 
-     for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample)
-                 {
-                        ATH_MSG_DEBUG("sample "<<sample);
-                        ATH_MSG_DEBUG(" eta ENT "<<result.eta(sample,1)<<" eta EXT "<<result.eta(sample,2));
-                        ATH_MSG_DEBUG(" phi ENT "<<result.phi(sample,1)<<" phi EXT "<<result.phi(sample,2));
-                        ATH_MSG_DEBUG(" r   ENT "<<result.r(sample,1)  <<" r   EXT "<<result.r(sample,2)  );
-                        ATH_MSG_DEBUG(" z   ENT "<<result.z(sample,1)  <<" z   EXT "<<result.z(sample,2)  );
-                        ATH_MSG_DEBUG(" detaBorder   ENT "<<result.detaBorder(sample,1)  <<" detaBorder   EXT "<<result.detaBorder(sample,2)  );
-                        ATH_MSG_DEBUG(" OK   ENT "<<result.OK(sample,1)  <<" OK   EXT "<<result.OK(sample,2)  );
-                        eta_vec_ENT.push_back(float(result.eta(sample,1)));
-                        eta_vec_EXT.push_back(float(result.eta(sample,2)));
-                        eta_vec_MID.push_back(float((result.eta(sample,1)+result.eta(sample,2))/2));
-                        phi_vec_ENT.push_back(float(result.phi(sample,1)));
-                        phi_vec_EXT.push_back(float(result.phi(sample,2)));
-                        phi_MID = (result.phi(sample,1)+result.phi(sample,2))/2;
-                        if (result.phi(sample,1) * result.phi(sample,2) < 0){
-                          if(phi_MID < 0) phi_MID = fabs(phi_MID)-M_PI;
-                          else phi_MID = M_PI - phi_MID;
-                        }
-                        phi_vec_MID.push_back(float(phi_MID));
-                        r_vec_ENT.push_back(float(result.r(sample,1)));
-                        r_vec_EXT.push_back(float(result.r(sample,2)));
-                        r_vec_MID.push_back(float((result.r(sample,1)+result.r(sample,2))/2));
-                        z_vec_ENT.push_back(float(result.z(sample,1)));
-                        z_vec_EXT.push_back(float(result.z(sample,2)));
-                        z_vec_MID.push_back(float((result.z(sample,1)+result.z(sample,2))/2));
-                        detaBorder_vec_ENT.push_back(float(result.detaBorder(sample,1)));
-                        detaBorder_vec_EXT.push_back(float(result.detaBorder(sample,2)));
-                        detaBorder_vec_MID.push_back(float((result.detaBorder(sample,1)+result.detaBorder(sample,2))/2));
-                        OK_vec_ENT.push_back(float(result.OK(sample,1)));
-                        OK_vec_EXT.push_back(float(result.OK(sample,2)));
-                        OK_vec_MID.push_back(float(result.OK(sample,1)&&result.OK(sample,2)));
-     }
+         m_newTTC_back_eta->push_back(eta_vec_EXT);
+         m_newTTC_back_phi->push_back(phi_vec_EXT);
+         m_newTTC_back_r  ->push_back(r_vec_EXT);
+         m_newTTC_back_z  ->push_back(z_vec_EXT);
+         m_newTTC_back_detaBorder  ->push_back(detaBorder_vec_EXT);
+         m_newTTC_back_OK  ->push_back(OK_vec_EXT);
+         m_newTTC_entrance_eta->push_back(eta_vec_ENT);
+         m_newTTC_entrance_phi->push_back(phi_vec_ENT);
+         m_newTTC_entrance_r  ->push_back(r_vec_ENT);
+         m_newTTC_entrance_z  ->push_back(z_vec_ENT);
+         m_newTTC_entrance_detaBorder  ->push_back(detaBorder_vec_ENT);
+         m_newTTC_entrance_OK  ->push_back(OK_vec_ENT);
+         m_newTTC_mid_eta->push_back(eta_vec_MID);
+         m_newTTC_mid_phi->push_back(phi_vec_MID);
+         m_newTTC_mid_r  ->push_back(r_vec_MID);
+         m_newTTC_mid_z  ->push_back(z_vec_MID);
+         m_newTTC_mid_detaBorder  ->push_back(detaBorder_vec_MID);
+         m_newTTC_mid_OK  ->push_back(OK_vec_MID);
 
-     m_newTTC_back_eta->push_back(eta_vec_EXT);
-                 m_newTTC_back_phi->push_back(phi_vec_EXT);
-                 m_newTTC_back_r  ->push_back(r_vec_EXT);
-                 m_newTTC_back_z  ->push_back(z_vec_EXT);
-                 m_newTTC_back_detaBorder  ->push_back(detaBorder_vec_EXT);
-                 m_newTTC_back_OK  ->push_back(OK_vec_EXT);
-                 m_newTTC_entrance_eta->push_back(eta_vec_ENT);
-                 m_newTTC_entrance_phi->push_back(phi_vec_ENT);
-                 m_newTTC_entrance_r  ->push_back(r_vec_ENT);
-                 m_newTTC_entrance_z  ->push_back(z_vec_ENT);
-                 m_newTTC_entrance_detaBorder  ->push_back(detaBorder_vec_ENT);
-                 m_newTTC_entrance_OK  ->push_back(OK_vec_ENT);
-                 m_newTTC_mid_eta->push_back(eta_vec_MID);
-                 m_newTTC_mid_phi->push_back(phi_vec_MID);
-                 m_newTTC_mid_r  ->push_back(r_vec_MID);
-                 m_newTTC_mid_z  ->push_back(z_vec_MID);
-                 m_newTTC_mid_detaBorder  ->push_back(detaBorder_vec_MID);
-                 m_newTTC_mid_OK  ->push_back(OK_vec_MID);
+         //*****************************
 
-     //*******************************************************************************************************************************
+         //OLD EXTRAPOLATION
+         /*
+         std::vector<Trk::HitInfo>* hitVector = caloHits(*(*it));
+         for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it) {
+           if((*it).trackParms) {
+             delete (*it).trackParms;
+             (*it).trackParms=0;
+           }
+         }
+         delete hitVector;
+         */
 
-     //OLD EXTRAPOLATION
-     std::vector<Trk::HitInfo>* hitVector = caloHits(*(*it));
+         //Amg::Vector3D mom((*it)->momentum().x(),(*it)->momentum().y(),(*it)->momentum().z());
 
-     Amg::Vector3D mom((*it)->momentum().x(),(*it)->momentum().y(),(*it)->momentum().z());
+         m_truth_energy->push_back((*it)->momentum().e());
+         m_truth_px->push_back((*it)->momentum().px());
+         m_truth_py->push_back((*it)->momentum().py());
+         m_truth_pz->push_back((*it)->momentum().pz());
+         m_truth_pdg->push_back((*it)->pdg_id());
+         m_truth_barcode->push_back((*it)->barcode());
 
-                 m_truth_energy->push_back((*it)->momentum().e());
-                 m_truth_px->push_back((*it)->momentum().px());
-                 m_truth_py->push_back((*it)->momentum().py());
-                 m_truth_pz->push_back((*it)->momentum().pz());
-                 m_truth_pdg->push_back((*it)->pdg_id());
-                 m_truth_barcode->push_back((*it)->barcode());
-
-     for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it)
-     {
-      if((*it).trackParms)
-      {
-       delete (*it).trackParms;
-       (*it).trackParms=0;
-      }
-     }
-     delete hitVector;
-    } //for mcevent
-         } //mcevent size
-        } //mcEvent
+       } //for mcevent
+     } //mcevent size
+   } //mcEvent
  }//truth event
 
  //Get reco cells if available
@@ -1073,8 +1069,13 @@ StatusCode ISF_HitAnalysis::execute()
   {
          m_cell_energy->push_back((*itrCell)->energy());
          m_cell_identifier->push_back((*itrCell)->ID().get_compact());
-         if (m_calo_dd_man->get_element((*itrCell)->ID()))
+         if (m_tileID->is_tile_aux((*itrCell)->ID())) {
+           // special case for E4'
+           m_cell_sampling->push_back(CaloCell_ID::TileGap3);
+         }
+         else if (m_calo_dd_man->get_element((*itrCell)->ID()))
          {
+          // all other Tile cells
           CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element((*itrCell)->ID())->getSampling();
           m_cell_sampling->push_back(layer);
          }

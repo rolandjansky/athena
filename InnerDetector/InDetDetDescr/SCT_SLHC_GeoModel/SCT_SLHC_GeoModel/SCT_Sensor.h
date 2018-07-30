@@ -18,6 +18,7 @@ namespace InDetDDSLHC {
 class SCT_Sensor: public SCT_UniqueComponentFactory{
  public:
   SCT_Sensor(const std::string & name, int moduleType);
+  ~SCT_Sensor();
   
  public:
   const GeoMaterial * material() const {return m_material;} 

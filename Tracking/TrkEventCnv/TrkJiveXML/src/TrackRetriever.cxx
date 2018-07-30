@@ -3,7 +3,6 @@
 */
 
 #include "TrkJiveXML/TrackRetriever.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 

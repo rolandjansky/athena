@@ -94,37 +94,10 @@ def commonPixelFastDigitizationConfig(name,**kwargs):
 
 def commonSCT_FastDigitizationConfig(name,**kwargs):
 
-    # Setup the DCS folders and Svc used in the sctSiliconConditionsSvc
-    from IOVDbSvc.CondDB import conddb
-    sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
-    sctDCSTempFolder = '/SCT/DCS/MODTEMP'
-    sctDCSHVFolder = '/SCT/DCS/HV'
-    if not conddb.folderRequested(sctDCSStateFolder):
-        conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
-    if not conddb.folderRequested(sctDCSTempFolder):
-        conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
-    if not conddb.folderRequested(sctDCSHVFolder):
-        conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
-    from AthenaCommon.AppMgr import ServiceMgr
-    if not hasattr(ServiceMgr, "InDetSCT_DCSConditionsSvc"):
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        if not hasattr(condSequence, "SCT_DCSConditionsHVCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-            condSequence += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                                       ReadKey = sctDCSHVFolder)
-        if not hasattr(condSequence, "SCT_DCSConditionsStatCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-            condSequence += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                         ReadKeyHV = sctDCSHVFolder,
-                                                         ReadKeyState = sctDCSStateFolder)
-        if not hasattr(condSequence, "SCT_DCSConditionsTempCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-            condSequence += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                         ReadKey = sctDCSTempFolder)
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-        InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
-        ServiceMgr += InDetSCT_DCSConditionsSvc
+    # Setup the DCS folders and tool used in the sctSiliconConditionsTool
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+    sct_DCSConditionsToolSetup.setup()
 
     kwargs.setdefault("ClusterMaker", "FastClusterMakerTool")
 
@@ -140,6 +113,13 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", FastSCT_FirstXing())
         kwargs.setdefault("LastXing",  FastSCT_LastXing() )
+
+    # SiLorentzAngleTool for SCT_FastDigitizationTool
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+    kwargs.setdefault("LorentzAngleTool", ToolSvc.SCTLorentzAngleTool)
 
     from AthenaCommon import CfgMgr
     return CfgMgr.SCT_FastDigitizationTool(name,**kwargs)

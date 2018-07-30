@@ -9,7 +9,7 @@ metaDL1FlipTag = { 'IsATagger'          : False,#True,
                       'DependsOn'          : ['AtlasExtrapolator',
                                               'BTagCalibrationBrokerTool',
                                               'BTagTrackToVertexTool'],
-                      'CalibrationFolders' : ['DL1',],
+                      'CalibrationTaggers' : ['DL1',],
                       'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                       'ToolCollection'     : 'DL1FlipTag'}
 

@@ -18,7 +18,6 @@
 //#include "AthenaPoolTestData/FauxTriggerMap.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 //#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

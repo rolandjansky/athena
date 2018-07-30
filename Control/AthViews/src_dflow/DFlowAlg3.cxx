@@ -34,7 +34,8 @@ DFlowAlg3::DFlowAlg3( const std::string& name,
   ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "dflow_int" ),
   m_r_ints( "dflow_ints" ),
-  m_w_dflowDummy( "dflow_dummy" )
+  m_w_dflowDummy( "dflow_dummy" ),
+  m_testUpdate( "testUpdate" )
 {
   //
   // Property declaration
@@ -47,6 +48,8 @@ DFlowAlg3::DFlowAlg3( const std::string& name,
   declareProperty( "RIntsFlow", m_r_ints, "Data flow of integers (read)" );
 
   declareProperty( "DFlowDummy", m_w_dflowDummy, "Dummy object to fix dependencies" );
+
+  declareProperty( "TestUpdate", m_testUpdate, "Test update handle" );
 
 }
 
@@ -64,6 +67,8 @@ StatusCode DFlowAlg3::initialize()
   CHECK( m_r_int.initialize() );
   CHECK( m_r_ints.initialize() );
   CHECK( m_w_dflowDummy.initialize() );
+  CHECK( m_testUpdate.initialize() );
+  CHECK( m_condKeyTest.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -79,11 +84,7 @@ StatusCode DFlowAlg3::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
 
   SG::ReadHandle< int > inputScalarHandle( m_r_int, ctx );
   ATH_MSG_INFO("================================");
@@ -167,6 +168,14 @@ StatusCode DFlowAlg3::execute()
   //Dummy object to fix the data flow
   SG::WriteHandle< int > outputHandle( m_w_dflowDummy, ctx );
   outputHandle.record( CxxUtils::make_unique<int>(1) );
+
+  // Test update handles
+  SG::ReadHandle< HiveDataObj > testUpdate( m_testUpdate, ctx );
+  ATH_MSG_INFO( "Update handle final: " << testUpdate->val() );
+
+  // Test conditions handles
+  SG::ReadCondHandle< CondDataObj > testConditions( m_condKeyTest, ctx );
+  ATH_MSG_INFO( "Conditions handle test: " << **testConditions << " from key " << testConditions.fullKey() );
 
   return StatusCode::SUCCESS;
 }

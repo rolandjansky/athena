@@ -35,8 +35,8 @@ StoreGateSvc* pStore(0);
 
 typedef TrigSerializeConverter<TestBContainer> TestBContainerSerCnv;
 typedef TrigSerializeConverter<TestAuxB> TestAuxBSerCnv;
-DECLARE_CONVERTER_FACTORY (TestBContainerSerCnv)
-DECLARE_CONVERTER_FACTORY (TestAuxBSerCnv)
+DECLARE_CONVERTER (TestBContainerSerCnv)
+DECLARE_CONVERTER (TestAuxBSerCnv)
 
 template<class HTYPE> 
 bool reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder,

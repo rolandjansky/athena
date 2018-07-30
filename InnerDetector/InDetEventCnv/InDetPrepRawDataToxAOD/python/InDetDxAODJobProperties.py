@@ -78,7 +78,7 @@ class DumpLArCollisionTime(JobProperty):
     """dump LAr collision time """
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = True
+    StoredValue = False
     pass
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DumpLArCollisionTime)
 
@@ -151,6 +151,13 @@ class TrtJpsiSelection(JobProperty):
     allowedTypes = ["bool"]
     StoredValue = False
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(TrtJpsiSelection)
+
+class DRAWZSelection(JobProperty):
+    """Z event selection based on DRAW ZMUMU"""
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DRAWZSelection)
 
 
 InDetDxAODFlags = jobproperties.InDetDxAODJobPropertyContainer

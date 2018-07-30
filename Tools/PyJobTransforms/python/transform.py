@@ -609,6 +609,7 @@ class transform(object):
 
             if not isInteractiveEnv():
                 reportType.append('text')
+                msg.debug('Detected Non-Interactive environment. Enabled text report')
 
         if 'reportName' in self._argdict:
             baseName = classicName = self._argdict['reportName'].value

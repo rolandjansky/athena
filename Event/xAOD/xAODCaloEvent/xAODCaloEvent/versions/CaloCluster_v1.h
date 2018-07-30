@@ -24,12 +24,16 @@ extern "C" {
 #include "xAODCaloEvent/CaloClusterContainerFwd.h"
 #include "AthLinks/ElementLink.h"
 
+
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "CaloEvent/CaloRecoStatus.h"
 #endif // not SIMULATIONBASE
 #endif // not XAOD_ANALYSIS
+
+// ROOT include(s):
+#include "Math/Vector4D.h"
 
 // Declare a dummy CaloClusterCellLink definition for standalone compilation:
 #if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
@@ -267,10 +271,19 @@ namespace xAOD {
      /// Definition of the 4-momentum type
      typedef IParticle::FourMom_t FourMom_t;
 
-      /// The full 4-momentum of the particle
-     virtual const FourMom_t& p4() const;
+     /// Base 4 Momentum type for calo
+     typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
 
-     const FourMom_t& p4(const State s) const;
+     ///  The full 4-momentum of the particle : GenVector type.
+     GenVecFourMom_t genvecP4() const; 
+
+     ///  The full 4-momentum of the particle : GenVector type.
+     GenVecFourMom_t genvecP4(const State s) const; 
+
+      /// The full 4-momentum of the particle
+     virtual FourMom_t p4() const;
+
+     FourMom_t p4(const State s) const;
      
      /// The type of the object as a simple enumeration
      virtual Type::ObjectType type() const;
@@ -539,16 +552,8 @@ namespace xAOD {
    private:
      /// bit-pattern describing the calo samplings contributing to this cluster
      unsigned m_samplingPattern;
-     /// Cached 4-momentum objects (one per signal state)
-     mutable FourMom_t m_p4[xAOD::CaloCluster_v1::NSTATES];
-     /// Cache state of the internal 4-momentum (reset from the streamer)
-     mutable std::bitset<xAOD::CaloCluster_v1::NSTATES> m_p4Cached;
 
-     mutable double m_pt[xAOD::CaloCluster_v1::NSTATES];
-     /// Cache state of the internal 4-momentum (reset from the streamer)
-     mutable std::bitset<xAOD::CaloCluster_v1::NSTATES> m_ptCached;
-
-     /// Current signal state
+     /// Current signal state *** NEED TO UPDATE FOR ATHENAMT ***
      mutable State m_signalState;
      ///Non-const ptr to cell links (for cluster building, transient-only)
      CaloClusterCellLink* m_cellLinks;
@@ -572,6 +577,8 @@ namespace xAOD {
      /// @name Athena-only methods, used during building stage
      /// @{
      /// Set up an ElementLink to a CaloClusterCellLink object
+     /// Takes ownership of CCCL.
+     /// Deprecated; use the unique_ptr version for new code.
      void addCellLink(CaloClusterCellLink* CCCL) {
        if (m_ownCellLinks && m_cellLinks) {
 	 //Delete link if there is one
@@ -579,6 +586,17 @@ namespace xAOD {
        }
 
        m_cellLinks=CCCL;
+       m_ownCellLinks=true;
+     }
+
+     /// Set up an ElementLink to a CaloClusterCellLink object
+     void addCellLink(std::unique_ptr<CaloClusterCellLink> CCCL) {
+       if (m_ownCellLinks && m_cellLinks) {
+	 //Delete link if there is one
+	 delete m_cellLinks;
+       }
+
+       m_cellLinks=CCCL.release();
        m_ownCellLinks=true;
      }
      /**@brief Set up an ElementLink to a CaloClusterCellLink object
@@ -601,7 +619,7 @@ namespace xAOD {
       */  
      const CaloClusterCellLink* getCellLinks() const;
 
-     /**@brief Get a pointer to the CaloClusterCellLink object (const version)
+     /**@brief Get a pointer to the CaloClusterCellLink object (non-const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid link
       */ 
      CaloClusterCellLink* getCellLinks() {
