@@ -18,7 +18,7 @@ PURPOSE:  A base class for RAW FTK tracks.
 **************************************************************/
 
 #include <stdint.h>
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigFTK_RawData/FTK_RawSCT_Cluster.h"
 #include "TrigFTK_RawData/FTK_RawPixelCluster.h"
 
