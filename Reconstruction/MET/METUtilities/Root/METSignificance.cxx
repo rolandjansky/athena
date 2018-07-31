@@ -72,7 +72,7 @@ namespace met {
     static SG::AuxElement::Accessor<float> acc_covXY("covXY");
     static SG::AuxElement::Accessor<float> acc_jvt("Jvt");
 
-    static const SG::AuxElement::Decorator< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
+  static const SG::AuxElement::ConstAccessor< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
 
     const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
 
@@ -376,7 +376,7 @@ namespace met {
 	    met_vect.SetXYZ(MEx,MEy,0.0);
 	  }
 	  // Rotate  & compute
-	  RotateToPhi(met_vect.Phi());
+	  CHECK(RotateToPhi(met_vect.Phi()));
 	  m_significance = Significance_LT(met_vect.Pt(), m_VarL, m_VarT, m_CvLT);
 	  m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
 	}else{
