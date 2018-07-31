@@ -116,10 +116,11 @@ std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const
           continue;
         }
 
-        /* Do not consider the same type (ECAL or HCAL) ones. */
+        /* Do not consider the same type (ECAL, HCAL or FCAL) ones. */
+	/* First we check if another ECAL, HCAL or FCAL cluster is found */ 
         if ((maskedType.size() != 0 && find(maskedType.begin(), maskedType.end(),
-                    thisCluster->getEfRecCluster()->getClusterType()) != maskedType.end())
-            || (thisCluster->getEfRecCluster()->getClusterType() == 3)) {
+					    thisCluster->getEfRecCluster()->getClusterType()) != maskedType.end())
+            || (thisCluster->getEfRecCluster()->getClusterType() == 4)) { /* then also veto if it is type 4, which means "unknown" type */
           continue;
         }
 

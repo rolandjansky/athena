@@ -122,13 +122,16 @@ int eflowRecCluster::getClusterType() {
   double totalEnergy = EMB_E + EME_E + HEC_E + Tile_E + FCAL_E + MiniFCAL_E;
   double ratioEM = (EMB_E+EME_E)/totalEnergy;
   double ratioHCAL = (HEC_E+Tile_E)/totalEnergy;
+  double ratioFCAL = (FCAL_E + MiniFCAL_E)/totalEnergy;
 
   if(ratioEM > 0.5) {
     m_type = 1;
   } else if (ratioHCAL > 0.5) {
     m_type = 2;
-  } else {
+  } else if (ratioFCAL > 0.5) {
     m_type = 3;
+  } else {
+    m_type = 4;
   }
 
   assert(m_type!=0);
