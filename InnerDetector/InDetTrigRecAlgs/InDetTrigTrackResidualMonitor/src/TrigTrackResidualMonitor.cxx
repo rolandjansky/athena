@@ -166,16 +166,6 @@ namespace InDet
   TrigTrackResidualMonitor::~TrigTrackResidualMonitor()
   {}
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackResidualMonitor::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackResidualMonitor::beginRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
-
   ///////////////////////////////////////////////////////////////////
   // Initialisation
   ///////////////////////////////////////////////////////////////////

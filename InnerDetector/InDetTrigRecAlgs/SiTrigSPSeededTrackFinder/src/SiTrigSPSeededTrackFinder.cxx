@@ -108,16 +108,6 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
 
 }
 
-//----------------------------------
-//          beginRun method:
-//----------------------------------------------------------------------------
-HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltBeginRun() {
-  
-  msg() << MSG::INFO << "SiTrigSPSeededTrackFinder::beginRun()" << endmsg;
-  return HLT::OK;
-}
-//----------------------------------------------------------------------------
-
 ///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
