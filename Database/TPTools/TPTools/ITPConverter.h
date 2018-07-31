@@ -18,6 +18,7 @@
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 #include <typeinfo>
+#include <typeindex>
 #include <string>
 
 
@@ -110,7 +111,7 @@ public:
 template<class CONVERTER_BASE>
 class TPConverterTypeMap {
 public:
-  typedef 	std::map<const std::type_info*, CONVERTER_BASE*>	TId_Map_t;
+  typedef 	std::map<const std::type_index, CONVERTER_BASE*>	TId_Map_t;
   typedef	typename TId_Map_t::iterator	iterator;
 
   TPConverterTypeMap() {}
@@ -135,7 +136,7 @@ public:
   iterator	end() { return m_cnvRegistry.end(); }
   
 protected:
-  TId_Map_t	m_cnvRegistry;	//!< map of the converters, indexed by type_info
+  TId_Map_t	m_cnvRegistry;	//!< map of the converters, indexed by type_index
 };
 
 
@@ -148,9 +149,9 @@ CONVERTER_BASE *
 TPConverterTypeMap<CONVERTER_BASE>
 ::findConverter(const std::type_info &objTypeInfo) const
 {
-   typename TId_Map_t::const_iterator	iter = m_cnvRegistry.find( &objTypeInfo );
+   typename TId_Map_t::const_iterator	iter = m_cnvRegistry.find( std::type_index(objTypeInfo) );
    return (iter == m_cnvRegistry.end())?
-      0 : iter->second;
+      0 : iter->second; 
 }
 
 
@@ -160,10 +161,9 @@ void
 TPConverterTypeMap<CONVERTER_BASE>
 ::addConverter(CONVERTER_BASE *converter, const std::type_info &objTypeInfo)
 {
-   m_cnvRegistry[&objTypeInfo] = converter;
+   m_cnvRegistry[std::type_index(objTypeInfo)] = converter;
 }
 
 
 
 #endif
-
