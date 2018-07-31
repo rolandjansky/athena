@@ -184,14 +184,12 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, E
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
-def addVRJets(sequence, do_ghost=False, *pos_opts, **opts):
+def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
     from JetRec.JetRecStandard import jtm
     from AthenaCommon import Logging
 
-    if 'logger' not in opts:
+    if logger is None:
         logger = Logging.logging.getLogger('VRLogger')
-    else:
-        logger = opts['logger']
 
     # define constants here, since we don't want every derivaiton
     # deciding for themselves what a VR jet is. If we do want this
