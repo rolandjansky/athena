@@ -12,7 +12,7 @@
 #include "AthenaKernel/errorcheck.h"
 
 #include "EventInfo/EventID.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // eformat include:
 #include "eformat/SourceIdentifier.h"
