@@ -251,6 +251,9 @@ def getEBnoL1PSSeed(l1items, l1seedname):
         l1EBitems.append('L1_TAU60_2TAU40')
         l1EBitems.append('L1_TAU60_DR-TAU20ITAU12I')
         l1EBitems.append('L1_XE50')
+        l1EBitems.append('L1_BPH-0M9-EM7-EM5_2MU4')
+        l1EBitems.append('L1_MJJ-500-NFF')
+        l1EBitems.append('L1_MJJ-700')
     elif ('L1_PhysicsHigh' in l1seedname):
         l1EBitems.append('L1_6J15')
         l1EBitems.append('L1_J400')
