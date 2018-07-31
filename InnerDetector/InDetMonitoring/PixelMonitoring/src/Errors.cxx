@@ -64,33 +64,33 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   }};
 
   std::array<std::pair<std::string, std::string>, kNumErrorStatesIBL> error_state_labelsIBL = {{
-      std::make_pair("BCID_errors", "Synchronization BCID errors"),
+      std::make_pair("BCID_errors", "Synchronization BCID errors"),  
       std::make_pair("LVL1ID_errors", "Synchronization LVL1ID errors"),
-      std::make_pair("Row_Column_errors", "Row Column errors"),
-      std::make_pair("Limit_errors", "Limit_errors"),
-      std::make_pair("Preamble_errors", "Preamble errors"),
-      std::make_pair("Masked_link_errors", "Masked link errors"),
-      std::make_pair("Hamming_code_0_errors", "Hamming code 0 errors"),
-      std::make_pair("Hamming_code_1_errors", "Hamming code 1 errors"),
-      std::make_pair("Hamming_code_2_errors", "Hamming code 2 errors"),
-      std::make_pair("L1_incounter_errors", "L1 in counter errors"),
+      std::make_pair("BCID_counter_errors", "BCID counter errors"),
+      std::make_pair("L1_Trigger_ID_errors", "L1 trigger ID errors"),
       std::make_pair("L1_request_counter_errors", "L1 request counter errors"),
       std::make_pair("L1_register_errors", "L1 register errors"),
       std::make_pair("L1_Trigger_ID_errors", "L1 trigger ID errors"),
-      std::make_pair("Readout_processor_errors", "Readout processor errors"),
-      std::make_pair("Skipped_trig_counter_errors", "Skipped trigger counter errors"),
+      std::make_pair("Skippped_trig_count_errors", "Skipped trigger counter errors"),
+      std::make_pair("Row-Column_errors", "Row-Column errors"),
       std::make_pair("Truncated_event_flag_errors", "Truncated event errors"),
-      std::make_pair("Triple redundant_errors", "Triple redundant errors"),
+      std::make_pair("Limit_errors", "Limit errors"),
+      std::make_pair("Preamble_errors", "Preamble errors"),
+      std::make_pair("Hamming_code_0_errors", "Hamming code 0 errors"),
+      std::make_pair("Hamming_code_1_errors", "Hamming code 1 errors"),
+      std::make_pair("Hamming_code_2_errors", "Hamming code 2 errors"),
+      std::make_pair("Triple_redundant_errors_1", "Triple redundant errors 1"),
+      std::make_pair("CMD_decoder_bitflip_errors", "CMD decoder bit flip errors"),
+      std::make_pair("Triple_redundant_errors_2", "Triple redundant errors 2"),
+      std::make_pair("Triple_redundant_errors_3", "Triple redundant errors 3"),
+      std::make_pair("Trailer_timeout_errors", "timeout errors"),
+      std::make_pair("Timeout_ROD_errors", "Timeout ROD errors"),
+      std::make_pair("Masked_link", "Masked link errors"),
+      std::make_pair("FE_readout_process_errors", "FE readout process errors"),
       std::make_pair("Write_reg_data_errors", "Write register data errors"),
       std::make_pair("Address_errors", "Address errors"),
       std::make_pair("Other_CMD_decoder_errors", "CMD decoder errors"),
-      std::make_pair("CMD_decoder_bitflip_errors", "CMD decoder bit flip errors"),
-      std::make_pair("CMD_decoder_SEU_errors", "CMD decoder SEU errors"),
       std::make_pair("Data_bus_address_errors", "Data bus address errors"),
-      std::make_pair("ROD_Timeout_errors", "ROD Timeout errors"),
-      std::make_pair("Timeout_errors", "Timeout errors"),
-      std::make_pair("BCID_counter_errors", "BCID counter errors"),
-      std::make_pair("Triple_redundant_errors2", "Triple redundant errors 2"),
   }};
 
   const char* errorBitsPIX[kNumErrorBits] = {
@@ -359,10 +359,10 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     bool has_err_cat[ErrorCategory::COUNT] = {false};
     bool has_err_type[ErrorCategoryMODROD::COUNT] = {false};
 
+    // Bit-shifting over modules, only for ROD-type errors for FE-I3
     for (unsigned int bit = 0; bit < kNumErrorBits; bit++) {
-      if ((kErrorWord & (static_cast<uint64_t>(1) << bit)) != 0) {
-        // For non-IBL, We deal with FE/MCC errors separately, so ignore them here!
-        if (!is_fei4 && bit >= 4 && bit <= 16) continue;
+      if (!is_fei4 && ((kErrorWord & (static_cast<uint64_t>(1) << bit)) != 0)) {
+        if (bit >=4 && bit <=16) continue;
 
         num_errors[kLayer]++;
         num_errors_per_bit[kLayer][bit]++;
@@ -374,22 +374,13 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
         int error_type = 0;
         int error_cat = 0;
 
-        if (!is_fei4) {
-          // if (bit == 14 || bit == 15 || bit == 16) error_type = 1;  // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
-          if (bit == 20 || bit == 21)              error_type = 2;  // ROD synchronization errors      (20: BCID, 21: LVL1ID)
-          // if (bit == 4  || bit == 12 || bit == 13) error_type = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
-          if (bit == 0  || bit == 1)               error_type = 4;  // ROD truncation errors           (0: FIFO Overflow, 1: H/T Limit)
-          if (bit == 23)                           error_type = 5;  // optical errors                  (23: preamble (bitflip))
-          // if (bit >= 5  && bit <= 7)               error_type = 6;  // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
-          if (bit == 22)                           error_type = 7;  // timeout errors                  (22: timeout on ROD formatter)
-        } else {
-          if (bit == 3  || bit == 4  || bit == 8)  error_type = 1;  // synchronization error   (3:LVL1ID, 4:BCID, 8:BCID counter error)
-          if (bit == 0 || bit == 18)               error_type = 3;  // module truncation error (0:Row/Column error, 18:Truncated event)
-          if (bit == 1)                            error_type = 4;  // ROD truncation error    (1:Limit error)
-          if (bit == 5)                            error_type = 5;  // optical error           (5:Preable error)
-          if (bit == 9 || bit == 10 || bit == 11 || bit == 19 || bit == 23 || bit == 24 || bit == 26) error_type = 6;  // SEU   (9,10,11: hammingcode, 19:Triple redundant, 23:Bit flip, 24:SEU, 26:Triple redundant)
-          if (bit == 2 || bit == 7)                error_type = 7;  // Timeout error           (2:Trailer timeout error, 7:readout timeout
-        }
+        // if (bit == 14 || bit == 15 || bit == 16) error_type = 1;  // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
+        if (bit == 20 || bit == 21)              error_type = 2;  // ROD synchronization errors      (20: BCID, 21: LVL1ID)
+        // if (bit == 4  || bit == 12 || bit == 13) error_type = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
+        if (bit == 0  || bit == 1)               error_type = 4;  // ROD truncation errors           (0: FIFO Overflow, 1: H/T Limit)
+        if (bit == 23)                           error_type = 5;  // optical errors                  (23: preamble (bitflip))
+        // if (bit >= 5  && bit <= 7)               error_type = 6;  // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
+        if (bit == 22)                           error_type = 7;  // timeout errors                  (22: timeout on ROD formatter)
 
         if (error_type) {  // if there were any errors we care about
           if (error_type == 1 || error_type == 2) error_cat = ErrorCategory::kSync;
@@ -457,8 +448,8 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
     unsigned int num_femcc_errwords = 0;
 
-    // Do the same bit-shifting again, this time for FE/MCC error words.
-    if (!is_fei4 && kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
+    // Do the same bit-shifting again, this time per FE (both FE-I3 and FE-I4)
+    if (kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
       // Collection of: FE ID, associated error word
       std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
 
@@ -472,15 +463,21 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
             num_errors[kLayer]++;
             num_errors_per_bit[kLayer][bit]++;
 
-            // This error word contains FE/MCC related errors.
-            if (bit >=4 && bit <=16) has_femcc_errbits = true;
-
             int error_type = 0;  // same definitions as above
             int error_cat = 0;   // same definitions as above
 
-            if (bit == 14 || bit == 15 || bit == 16) error_type = 1;
-            if (bit == 4  || bit == 12 || bit == 13) error_type = 3;
-            if (bit >= 5  && bit <= 7)               error_type = 6;
+            if (!is_fei4) {
+              if (bit == 14 || bit == 15 || bit == 16) error_type = 1; // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
+              if (bit == 4  || bit == 12 || bit == 13) error_type = 3; // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
+              if (bit >= 5  && bit <= 7)               error_type = 6; // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
+            } else {
+              if (bit == 3 || bit == 4 || bit == 8)    error_type = 1;  // synchronization error   (3:LVL1ID, 4:BCID, 8:BCID counter error)
+              if (bit == 0 || bit == 18)               error_type = 3;  // module truncation error (0:Row/Column error, 18:Truncated event)
+              if (bit == 1)                            error_type = 4;  // ROD truncation error    (1:Limit error)
+              if (bit == 5)                            error_type = 5;  // optical error           (5:Preable error)
+              if (bit == 9 || bit == 10 || bit == 11 || bit == 19 || bit == 23 || bit == 24 || bit == 26) error_type = 6;  // SEU   (9,10,11: hammingcode, 19:Triple redundant, 23:Bit flip, 24:SEU, 26:Triple redundant)
+              if (bit == 2 || bit == 7)                error_type = 7;  // Timeout error           (2:Trailer timeout error, 7:readout timeout
+            }
 
             if (error_type) {  // if there were any errors we care about
               if (error_type == 1) error_cat = ErrorCategory::kSync;
@@ -516,7 +513,11 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
             }
 
             if (getErrorState(bit, is_fei4) != 99) {
-              num_errors_per_state[kLayer][getErrorState(bit, is_fei4)]++;
+              if (is_fei4) {
+                num_errors_per_stateDBMIBL[kLayer - PixLayerDBM::kDBMA][getErrorState(bit, is_fei4) - kNumErrorStates]++;
+              } else {
+                num_errors_per_state[kLayer][getErrorState(bit, is_fei4)]++;
+              }
               if (m_errhist_expert_maps[getErrorState(bit, is_fei4)]) m_errhist_expert_maps[getErrorState(bit, is_fei4)]->fill(WaferID, m_pixelid);
             }
           }  // end bit shifting
