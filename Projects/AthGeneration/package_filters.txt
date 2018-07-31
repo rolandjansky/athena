@@ -53,7 +53,7 @@
 + Database/APR/CollectionUtilities
 + Database/APR/FileCatalog
 #+ Database/APR/ImplicitCollection
-+ Database/APR/POOLCore
++ Database/APR/POOLCore 
 + Database/APR/PersistencySvc
 #+ Database/APR/RelationalCollection
 #+ Database/APR/RootCollection
@@ -63,11 +63,11 @@
 #+ Database/APR/XMLCatalog
 + Database/AthenaPOOL/AthenaPoolCnvSvc
 + Database/AthenaPOOL/AthenaPoolKernel
-#+ Database/AthenaPOOL/AthenaPoolServices
++ Database/AthenaPOOL/AthenaPoolServices
 + Database/AthenaPOOL/AthenaPoolUtilities
 + Database/AthenaPOOL/DBDataModel
 #+ Database/AthenaPOOL/EventSelectorAthenaPool
-#+ Database/AthenaPOOL/OutputStreamAthenaPool
++ Database/AthenaPOOL/OutputStreamAthenaPool
 + Database/AthenaPOOL/PoolSvc
 + Database/AthenaPOOL/RDBAccessSvc
 + Database/AthenaPOOL/RootConversions
@@ -76,7 +76,7 @@
 #+ Database/AthenaRoot/AthenaRootComps
 #+ Database/AthenaRoot/AthenaRootKernel
 #+ Database/AtlasSTLAddReflex
-#+ Database/AtlasSealCLHEP
++ Database/AtlasSealCLHEP
 #+ Database/CondDBObjects
 #+ Database/ConnectionManagement/AtlasAuthentication
 + Database/ConnectionManagement/DBReplicaSvc
@@ -187,7 +187,7 @@
 #+ Reconstruction/RecEvent
 #+ Reconstruction/RecEventAthenaPool
 #+ Reconstruction/RecEventTPCnv
-#+ Reconstruction/RecExample/RecExConfig
++ Reconstruction/RecExample/RecExConfig
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Tools/ART
 + Tools/AtlasDoxygen

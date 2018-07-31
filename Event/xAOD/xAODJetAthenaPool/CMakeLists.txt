@@ -19,7 +19,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 set( poolcnv_files )
 set( poolcnv_types )
 
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( poolcnv_files xAODJet/JetContainer.h xAODJet/JetAuxContainer.h xAODJet/JetTrigAuxContainer.h)
    set( poolcnv_types xAOD::JetContainer xAOD::JetAuxContainer xAOD::JetTrigAuxContainer)
 else()
