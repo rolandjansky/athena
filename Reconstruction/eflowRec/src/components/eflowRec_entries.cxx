@@ -10,6 +10,7 @@
 #include "eflowRec/eflowTrackCaloExtensionTool.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 #include "eflowRec/eflowCellEOverPTool_mc12_JetETMiss.h"
+#include "eflowRec/eflowCellEOverPTool_mc12_HLLHC.h"
 #include "eflowRec/eflowCellEOverPTool_mc12_LC.h"
 #include "eflowRec/eflowObjectCreatorTool.h"
 #include "eflowRec/eflowOverlapRemoval.h"
@@ -30,6 +31,7 @@ DECLARE_TOOL_FACTORY( eflowClusterCollectionTool )
 DECLARE_TOOL_FACTORY( eflowTrackCaloExtensionTool )
 DECLARE_TOOL_FACTORY( PFTrackClusterMatchingTool )
 DECLARE_TOOL_FACTORY( eflowCellEOverPTool_mc12_JetETMiss)
+DECLARE_TOOL_FACTORY( eflowCellEOverPTool_mc12_HLLHC)
 DECLARE_TOOL_FACTORY( eflowCellEOverPTool_mc12_LC)
 DECLARE_TOOL_FACTORY( eflowObjectCreatorTool )
 
@@ -48,6 +50,7 @@ DECLARE_FACTORY_ENTRIES(eflowRec) {
     DECLARE_TOOL ( eflowTrackCaloExtensionTool )
     DECLARE_TOOL ( PFTrackClusterMatchingTool )
     DECLARE_TOOL (eflowCellEOverPTool_mc12_JetETMiss)
+    DECLARE_TOOL (eflowCellEOverPTool_mc12_HLLHC)
     DECLARE_TOOL ( eflowCellEOverPTool_mc12_LC)
     DECLARE_TOOL (eflowObjectCreatorTool )
 }
