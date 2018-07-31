@@ -88,11 +88,6 @@ class TriggerPeriodData:
         'D':(350310,352107,20422),
         'E':(352123,352137,18296),
         'F':(352274,352514,19938),
-        'G':(354107,354494,17012),
-        'H':(354826,355224,43.4 ),
-        'I':(355261,355273,17318),
-        'J':(355331,355468,18781),
-        #'K':(355529,355650,19341), still open
     }
     
     grlbase = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/"
@@ -100,7 +95,6 @@ class TriggerPeriodData:
     y2017grlpath = grlbase+"data17_13TeV/20180619/data17_13TeV.periodAllYear_DetStatus-v99-pro22-01_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
     y2016grlpath = grlbase+"data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
     y2015grlpath = grlbase+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
-    y2017lowmugrlpath = grlbase+"data17_13TeV/20180117/data17_13TeV.periodN_DetStatus-v98-pro21-16_Unknown_PHYS_StandardGRL_All_Good_25ns_ignore_GLOBAL_LOWMU.xml"
     def __init__(self, period, customGRL=None):
         if customGRL:
             self.loadGRL(customGRL)
@@ -110,8 +104,6 @@ class TriggerPeriodData:
             self.loadGRL(self.y2015grlpath)
         elif period & TriggerPeriod.y2016: 
             self.loadGRL(self.y2016grlpath)
-        elif period & TriggerPeriod.y2017lowmu: 
-            self.loadGRL(self.y2017lowmugrlpath)
         elif period & TriggerPeriod.y2017: 
             self.loadGRL(self.y2017grlpath)
         elif period & TriggerPeriod.y2018: 
@@ -176,28 +168,19 @@ class TriggerPeriodData:
                 ranges.append( self.periodMap2017['H'] )
                 ranges.append( self.periodMap2017['I'] )
                 ranges.append( self.periodMap2017['K'] )
-            if period & TriggerPeriod.y2017lowmu       :
+            if period & TriggerPeriod.y2017periodN     :
                 ranges.append( self.periodMap2017['N'] )
-            if period & TriggerPeriod.y2018periodBE    :
+            if period & TriggerPeriod.y2018periodBF    :
                 ranges.append( self.periodMap2018['B'] )
                 ranges.append( self.periodMap2018['C'] )
                 ranges.append( self.periodMap2018['D'] )
                 ranges.append( self.periodMap2018['E'] )
-            if period & TriggerPeriod.y2018periodFI    :
                 ranges.append( self.periodMap2018['F'] )
-                ranges.append( self.periodMap2018['G'] )
-                ranges.append( self.periodMap2018['H'] )
-                ranges.append( self.periodMap2018['I'] )
-            if period & TriggerPeriod.y2018lowmu       :
-                ranges.append( self.periodMap2018['J'] )
-            #if period & TriggerPeriod.y2018periodK    :
-            #    ranges.append( self.periodMap2018['K'] )
             for run in self.grl.keys()[:]:
                 if not any([run >= x[0] and run <= x[1] for x in ranges]): self.grl.pop(run)
 
 def test():
-    print TriggerPeriodData( TriggerPeriod.y2017 ).grl
-    print TriggerPeriodData( TriggerPeriod.y2017lowmu ).grl
+    print TriggerPeriodData( TriggerPeriod.y2015 ).grl
 
 if __name__ == "__main__":
     sys.exit(test())

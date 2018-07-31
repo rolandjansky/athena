@@ -4,7 +4,7 @@ __version__="$Revision: 1.01 $"
 __doc__="Access to Trigger DB and TriggerMenu to read past and future prescales"
 
 import sys
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, LBexceptions, TriggerRenaming
+from TriggerMenu.api.TriggerEnums import TriggerPeriod, LBexceptions
 from TriggerMenu.api.TriggerPeriodData import TriggerPeriodData
 
 def getRunLBFromU64(runlb):
@@ -156,12 +156,8 @@ def queryHLTPrescaleTableRun2(connection,psk):
     return res
 
 
-def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
+def fillHLTlist( info, hltList , lbCount, run, grlblocks):
     from TrigConfigSvc.TrigConfigSvcUtils import getL1Items, getL1Prescales
-    from AthenaCommon.Logging import logging
-
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
-    log.setLevel(logging.ERROR) #avoid the spam from TrigConfigSvcUtils
 
     items = getL1Items('TRIGGERDB', info['smk']) # returs map item name => CTP ID
     chainsHLT = getChainsWithL1seed('TRIGGERDB', info['smk']) # returns map HLT ID => (HLT name, L1 seed)
@@ -222,18 +218,17 @@ def fillHLTmap( info, hltMap_prev , lbCount, run, grlblocks):
                 if tmpl1ps < 1: tmpl1ps = 1e99
                 l1ps = min(l1ps, tmpl1ps)
             
-            if hltps*l1ps < 1e99: efflb = lboverlap/(hltps*l1ps)
-            else:                 efflb = 0
+            efflb = lboverlap/(hltps*l1ps)
             if not chainsHLT[hltid][0] in hltMap: hltMap[chainsHLT[hltid][0]] = [l1seeds, 0, hltrerun>0]
             hltMap[chainsHLT[hltid][0]][1] += efflb
     
-    for hlt,(l1,efflb,rerun) in hltMap_prev.iteritems():
+    for i, (hlt,(l1,efflb,rerun)) in enumerate(hltList):
         if hlt in hltMap: 
             hltMap[hlt][1] += efflb
             hltMap[hlt][2] |= rerun
-        else: hltMap[hlt] = [l1, efflb,rerun]
+        else: hltMap[hlt] = (l1, efflb,rerun)
 
-    return hltMap, lbCount
+    return hltMap.items(), lbCount
 
 
 def getChainsWithL1seed(connection, smk):
@@ -268,39 +263,42 @@ def getChainsWithL1seed(connection, smk):
 
 
 
-def getHLTmap_fromDB(period, customGRL):
-    ''' Return a map of HLT chain: (L1 seed, active LBs, is-rerun) for a given period
+def getHLTlist_fromDB(period, customGRL):
+    ''' Return a list of (HLT chain, L1 seed, average prescale ) for a given period
+        The average prescale is an approximation weighting the PS by number of lumiblocks.
+        *** Don't use this number in analysis!!! ***
     '''
     
     triggerPeriod = TriggerPeriodData( period, customGRL ).grl
-    if not triggerPeriod: return {},0
+    if not triggerPeriod: return [],0
     runsWithReadyForPhysics = getReadyForPhysicsInRange(triggerPeriod)
     keys = getKeys( runsWithReadyForPhysics)
     
-    hltMap = {}
+    hltList = []
     lbCount = 0
     for run in keys:
         print "Filling run:",run
-        hltMap, lbCount = fillHLTmap( keys[run], hltMap, lbCount , run, triggerPeriod[run])
+        hltList, lbCount = fillHLTlist( keys[run], hltList, lbCount , run, triggerPeriod[run])
 
-    return hltMap, lbCount
+    hltList = [(x, l1, activeLB/float(lbCount), activeLB, hasRerun) for x, (l1, activeLB, hasRerun) in hltList]
+    return hltList, lbCount
 
-def getHLTmap_fromTM(period):
-    ''' Return a map of HLT chain: (L1 seed, active LBs, is-rerun) for a given period
+def getHLTlist_fromTM(period):
+    ''' Return a list of (HLT chain, L1 seed, prescale ) for a given period
         Only "Future" periods make sense here
-        The format is the same as for TriggerDBAccess for compatibility but rerun is always false
+        The format is the same as for TriggerDBAccess for compatibility but the l1seeds are empty
     '''
     from TriggerMenu.menu import Physics_pp_v7
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     
     Physics_pp_v7.setupMenu()
-    if not period & TriggerPeriod.future: return {}, 0
+    if not period & TriggerPeriod.future: return []
     maxlumi = 20000
     if   period & TriggerPeriod.future1p8e34: maxlumi = 17000
     elif period & TriggerPeriod.future2e34:   maxlumi = 20000
     else: print "Warning non-recongnized future",period
 
-    hltMap = {}
+    hltList = []
     dummyfutureLBs = 1e6
     for prop in dir(TriggerFlags):
         if prop[-5:]!='Slice': continue
@@ -314,37 +312,24 @@ def getHLTmap_fromTM(period):
             ps = 0
             if maxlumi <= 20000 and 'Primary:20000' in comment: ps = 1
             if maxlumi <= 17000 and 'Primary:17000' in comment: ps = 1
-            hltMap[hltname] = (l1seed, dummyfutureLBs*ps, False)  #hasRerun=False
+            hltList.append( (hltname, l1seed, ps, dummyfutureLBs*ps, False) ) #hasRerun=False
         
-    return hltMap, dummyfutureLBs
+    return hltList, dummyfutureLBs
 
 def getHLTlist(period, customGRL):
-    ''' For a given period it returns: [HLT chain, L1 seed, average livefraction, active LB, is-rerun], total LB
-        The average livefraction is an approximation weighting the PS by number of lumiblocks.
+    ''' For a given period it returns: [HLT chain, L1 seed, average livefraction, active LB], total LB
+        The average prescale is an approximation weighting the PS by number of lumiblocks.
         *** Don't use this number in analysis!!! ***
-        For "future" periods, the average livefraction is 1 for items flagged as primary in TM and 0 for non-primaries
+        For "future" periods, the average prescale is 1 for items flagged as primary in TM and 0 for non-primaries
     '''
     if not period & TriggerPeriod.future or TriggerPeriod.isRunNumber(period): 
-        hltmap, totalLB = getHLTmap_fromDB(period, customGRL)
+        hltlist, totalLB = getHLTlist_fromDB(period, customGRL)
     else:
-        hltmap, totalLB = getHLTmap_fromTM(period)
+        hltlist, totalLB = getHLTlist_fromTM(period)
     
-    hltlist = cleanHLTmap(hltmap, totalLB)
-    return (hltlist, totalLB)
-
-def cleanHLTmap(hltmap, totalLB):
-
-    from copy import deepcopy
-    for  name, (l1seed, activeLB, hasRerun) in deepcopy(hltmap).iteritems(): #since it will modify on the fly
-        for pair in TriggerRenaming.pairs:
-            if name==pair[0] and     pair[1] in hltmap: hltmap[pair[1]][1] += activeLB
-            #if name==pair[0] and not pair[1] in hltmap: hltmap[pair[1]]     = [l1seed, activeLB, hasRerun]
-            if name==pair[1] and     pair[0] in hltmap: hltmap[pair[0]][1] += activeLB
-            #if name==pair[1] and not pair[0] in hltmap: hltmap[pair[0]]     = [l1seed, activeLB, hasRerun]
-
     vetoes = ['calib','noise','noalg','satmon','peb']
-    hltlist = [(name, l1seed, activeLB/totalLB, activeLB, hasRerun) for name, (l1seed, activeLB, hasRerun) in hltmap.iteritems() if not any(v in name for v in vetoes)]
-    return hltlist
+    hltlist = [(name, l1seed, livefraction, activeLB, hasRerun) for name, l1seed, livefraction, activeLB, hasRerun in hltlist if not any(v in name for v in vetoes)]
+    return (hltlist, totalLB)
 
 def test():
     print getHLTlist(TriggerPeriod.y2017,None)
