@@ -63,11 +63,11 @@
 #+ Database/APR/XMLCatalog
 + Database/AthenaPOOL/AthenaPoolCnvSvc
 + Database/AthenaPOOL/AthenaPoolKernel
-#+ Database/AthenaPOOL/AthenaPoolServices
++ Database/AthenaPOOL/AthenaPoolServices
 + Database/AthenaPOOL/AthenaPoolUtilities
 + Database/AthenaPOOL/DBDataModel
 #+ Database/AthenaPOOL/EventSelectorAthenaPool
-#+ Database/AthenaPOOL/OutputStreamAthenaPool
++ Database/AthenaPOOL/OutputStreamAthenaPool
 + Database/AthenaPOOL/PoolSvc
 + Database/AthenaPOOL/RDBAccessSvc
 + Database/AthenaPOOL/RootConversions
@@ -76,7 +76,7 @@
 #+ Database/AthenaRoot/AthenaRootComps
 #+ Database/AthenaRoot/AthenaRootKernel
 #+ Database/AtlasSTLAddReflex
-#+ Database/AtlasSealCLHEP
++ Database/AtlasSealCLHEP
 #+ Database/CondDBObjects
 #+ Database/ConnectionManagement/AtlasAuthentication
 + Database/ConnectionManagement/DBReplicaSvc
