@@ -119,7 +119,7 @@ namespace met {
     declareProperty("GreedyPhotons",      m_greedyPhotons      = false               );
     declareProperty("VeryGreedyPhotons",  m_veryGreedyPhotons  = false           );
     
-    declareProperty("UseGhostMuons",      m_useGhostMuons      = true                );
+    declareProperty("UseGhostMuons",      m_useGhostMuons      = false               );
     declareProperty("DoRemoveMuonJets",   m_doRemoveMuonJets   = true                );
     declareProperty("DoSetMuonJetEMScale", m_doSetMuonJetEMScale = true              );
     
