@@ -346,6 +346,18 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot3Seq,"EXOT3")
 addTCCTrimmedJets(exot3Seq,"EXOT3")
 
+#
+# Adding ExCoM sub-jets for each trimmed large-R jet
+#
+ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+#  doTrackJet = False
+ExCoMJetCollection__SubJet = addExKtCoM(exot3Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False, ["GhostBHadronsFinal","GhostCHadronsFinal"], 0, "CoM")
+
+
+BTaggingFlags.CalibrationChannelAliases += [
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+
+
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
 addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
@@ -423,10 +435,18 @@ EXOT3SlimmingHelper.AppendToDictionary = {
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
     "LCOriginTopoClusters"                      :   "xAOD::CaloClusterContainer",
     "LCOriginTopoClustersAux"                   :   "xAOD::ShallowAuxContainer" ,
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
+
+
 }
 
 # Add all variabless for VR track-jets
-EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
+EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets",
+                                      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"
+        ]
 
 # Save certain b-tagging variables for VR track-jet
 EXOT3SlimmingHelper.ExtraVariables += [
@@ -438,7 +458,13 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "LCOriginTopoClusters.calEta.calPhi",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
-    "Muons.EnergyLoss.energyLossType"
+    "Muons.EnergyLoss.energyLossType",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.ExCoM2SubJets",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.DL1_pb.DL1_pu.DL1_pc.DL1mu_pb.DL1mu_pu.DL1mu_pc.DL1rnn_pb.DL1rnn_pu.DL1rnn_pc",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
 ]
 
 if globalflags.DataSource()=='geant4':
