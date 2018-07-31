@@ -165,6 +165,7 @@ namespace met {
     double m_customCenJetPtCut,m_customFwdJetPtCut;
     double m_customJvtCut,m_customJvtPtMax;
     double m_JetEtaMax;
+    double m_JetEtaForw;
 
     bool m_extraJetRejection;
     bool m_doPFlow;
