@@ -361,10 +361,8 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
                                                                time,
                                                                *parent));
 
-    // Since ISF::ISFParticleVector is just a std::vector, do not `release` since
-    // then we need to manage the memory (could have just used raw pointers).
-    children[0] = ch1.get();
-    children[1] = ch2.get();
+    children[0] = ch1.release();
+    children[1] = ch2.release();
 
     // register TruthIncident
     ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
