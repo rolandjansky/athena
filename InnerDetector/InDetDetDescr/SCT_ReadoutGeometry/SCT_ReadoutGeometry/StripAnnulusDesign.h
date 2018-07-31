@@ -59,6 +59,8 @@ public:
                    const std::vector<double> stripEnd);
 
     ~StripAnnulusDesign();
+ 
+    HepGeom::Point3D<double> sensorCenter() const;
 
     // Copy constructor and assignment:
     StripAnnulusDesign(const StripAnnulusDesign &design);

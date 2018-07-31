@@ -154,18 +154,13 @@ SiDetectorElement::updateCache() const
   m_firstTime = false;
   
   const HepGeom::Transform3D &geoTransform = getMaterialGeom()->getAbsoluteTransform();
-
-  double radialShift = 0.;
-  //TO:
-  auto testDesign = m_design;
-
-  if(testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
-     radialShift = testDesign->localModuleCentreRadius(); 
       
-  HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
-  m_centerCLHEP = geoTransform * centerGeoModel;
+  m_centerCLHEP = geoTransform * m_design->sensorCenter();
   m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
   
+  HepGeom::Point3D<double> centerGeoModel(0., 0., 0.);
+  m_originCLHEP = geoTransform * centerGeoModel;
+  m_origin = Amg::Vector3D(m_originCLHEP[0],m_originCLHEP[1],m_originCLHEP[2]);
   //
   // Determine directions depth, eta and phi axis in reconstruction local frame
   // ie depth away from interaction point
@@ -525,6 +520,13 @@ SiDetectorElement::center() const
 }
 
 const Amg::Vector3D & 
+SiDetectorElement::origin() const
+{
+  if (!m_cacheValid) updateCache();
+  return m_origin;
+}
+
+const Amg::Vector3D & 
 SiDetectorElement::normal() const
 {
   if (!m_cacheValid) updateCache();
@@ -864,10 +866,6 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 	       double &zMin, double &zMax, 
 	       double &phiMin, double &phiMax) const
 {
-
-  //TO:
-  auto testDesign = m_design;
-
   HepGeom::Point3D<double> corners[4];
   getCorners(corners);
 
@@ -875,18 +873,13 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 
   double phiOffset = 0.;
 
-  double radialShift = 0.;
-  //TO: check if testdesign is a StripStereoAnnulusDesign
-  if (testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
-      radialShift = testDesign->localModuleCentreRadius(); // additional radial shift for sensors centred on beamline
+  HepGeom::Point3D<double> sensorCenter = m_design->sensorCenter();
+  double radialShift = sensorCenter[0];
 
   const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
 
   for (int i = 0; i < 4; i++) {
-    //TO:
-    if(testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
-       corners[i].transform(rShift);
-
+    corners[i].transform(rShift);
     HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
 
     double rPoint = globalPoint.perp();

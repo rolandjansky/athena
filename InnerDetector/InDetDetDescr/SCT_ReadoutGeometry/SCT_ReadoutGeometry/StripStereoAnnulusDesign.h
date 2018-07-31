@@ -61,6 +61,8 @@ public:
 
     ~StripStereoAnnulusDesign();
 
+    HepGeom::Point3D<double> sensorCenter() const;
+
     // Copy constructor and assignment:
     StripStereoAnnulusDesign(const StripStereoAnnulusDesign &design);
     StripStereoAnnulusDesign &operator = (const StripStereoAnnulusDesign &design);
@@ -92,7 +94,6 @@ public:
     double phiPitch(const SiLocalPosition &localPosition) const;
     double phiPitch(const SiCellId &cellId) const;
     double phiPitch() const;
-    double localModuleCentreRadius() const;
 
     // distance to the nearest diode in units of pitch, from 0.0 to 0.5,
     // this method should be fast as it is called for every surface charge

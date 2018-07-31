@@ -23,7 +23,6 @@ SiDetectorDesign::SiDetectorDesign(double thickness,
                                    bool depthSymmetric,
                                    InDetDD::CarrierType carrierType,
                                    int readoutSide):
-    m_designType(0),
     m_etaAxis(zAxis),
     m_phiAxis(yAxis),
     m_depthAxis(xAxis),
@@ -44,7 +43,6 @@ SiDetectorDesign::SiDetectorDesign(double thickness,
                                    int readoutSide,
                                    Axis stripDirection,
                                    Axis thicknessDirection):
-    m_designType(0),
     m_etaAxis(stripDirection),
     m_depthAxis(thicknessDirection),
     m_thickness(thickness),
@@ -63,6 +61,10 @@ SiDetectorDesign::SiDetectorDesign(double thickness,
 
 // Destructor:
 SiDetectorDesign::~SiDetectorDesign() {
+}
+
+HepGeom::Point3D<double> SiDetectorDesign::sensorCenter() const {
+    return HepGeom::Point3D<double> (0., 0., 0.);
 }
 
 SiIntersect SiDetectorDesign::inDetector(const SiLocalPosition &localPosition,
