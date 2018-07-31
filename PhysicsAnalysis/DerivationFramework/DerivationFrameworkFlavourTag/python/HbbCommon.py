@@ -198,7 +198,7 @@ def addVRJets(sequence, do_ghost=False, *pos_opts, **opts):
     # flexibility, this code will need some rewriting to ensure that
     # there are no issues with train safety.
     if opts or pos_opts:
-        logger.warning('Options specified for VR jets, they will be ignored')
+        logger.error('Options specified for VR jets, they will be ignored')
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track"
     VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
