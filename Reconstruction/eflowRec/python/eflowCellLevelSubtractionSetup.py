@@ -19,6 +19,17 @@ def setup_eflowCellLevelSubtraction(Configured, nameModifier, mlog):
         
         Configured.eflowCellEOverPTool=CellEOverPTool
 
+    elif "EM_HLLHC" == nameModifier:
+        try:
+            from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_HLLHC
+            CellEOverPTool=eflowCellEOverPTool_mc12_HLLHC()
+        except:
+            mlog.error("could not import eflowRec.eflowCellEOverPTool_mc12")
+            print traceback.format_exc()
+            return False
+        
+        Configured.eflowCellEOverPTool=CellEOverPTool
+
     elif "LC" == nameModifier:
         try:
             from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_LC
