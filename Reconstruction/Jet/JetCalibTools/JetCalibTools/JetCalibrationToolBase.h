@@ -48,6 +48,9 @@ class JetCalibrationToolBase
  public:
   friend class JetCalibrationTool;
 
+  // A convenient typedef
+  typedef std::vector<double> VecD;
+
   // Default constructor: 
   JetCalibrationToolBase();
 
@@ -77,6 +80,10 @@ class JetCalibrationToolBase
   virtual int modifyJet(xAOD::Jet&) const { return 0; }
 
   virtual void setUnitsGeV(bool useGeV) { if (useGeV) m_GeV=1; else m_GeV=1000; }
+
+  // Retrieve pTmax from in situ corrections
+  virtual VecD retrieveEtaIntercalPtMax(){VecD tmp;return tmp;}
+  virtual VecD retrieveAbsoluteInsituPtMax(){VecD tmp;return tmp;}
   
   /////////////////////////////////////////////////////////////////// 
   // Protected methods: 

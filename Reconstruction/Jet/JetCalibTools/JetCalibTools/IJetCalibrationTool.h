@@ -31,6 +31,9 @@ class IJetCalibrationTool : virtual public asg::IAsgTool {
 
 public:
 
+  // A convenient typedef
+  typedef std::vector<double> VecD;
+
   /// Initialize the tool.
   virtual StatusCode initializeTool(const std::string& name) = 0;
 
@@ -51,6 +54,10 @@ public:
 
   /// Jet modifier interface to calibrate a single jet.
   virtual int modifyJet(xAOD::Jet& jet) const = 0;
+
+  // Retrieve pTmax from in situ corrections
+  virtual VecD retrieveEtaIntercalPtMax(){VecD tmp; return tmp;}
+  virtual VecD retrieveAbsoluteInsituPtMax(){VecD tmp; return tmp;}
 
 };
 
