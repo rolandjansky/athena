@@ -184,6 +184,7 @@ if InDetFlags.doPRDFormation():
       from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
       InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
                                                           globalPosAlg      = InDetClusterMakerTool,
+                                                          useRowInformation = InDetFlags.doSLHC(),
                                                           conditionsService = InDetSCT_ConditionsSummarySvc)
       if InDetFlags.selectSCTIntimeHits():
          if InDetFlags.InDet25nsec(): 
