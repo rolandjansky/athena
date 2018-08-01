@@ -176,53 +176,16 @@ class ComponentAccumulator(object):
         self._deduplicate(newTool,self._publicTools)
         return
 
+
+        
+
+
     def _deduplicate(self,newComp,compList):
         #Check for duplicates:
         for comp in compList:
             if comp.getType()==newComp.getType() and comp.getJobOptName()==newComp.getJobOptName():
                 #Found component of the same type and name
-                #print "Checking ", comp.getType(), comp.getJobOptName()
-                allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
-                for prop in allProps:
-                    if not prop.startswith('_'):
-                        try:
-                            oldprop=getattr(comp,prop)
-                        except AttributeError:
-                            oldprop=None
-                        try:
-                            newprop=getattr(newComp,prop)
-                        except AttributeError:
-                            newprop=None
-
-                        #Note that getattr for a list property works, even if it's not in ValuedProperties
-                        if (oldprop!=newprop):
-                            #found property mismatch
-                            if isinstance(oldprop,list): #if properties are mergeable, do that!
-                                propid="%s.%s" % (comp.getType(),str(prop))
-                                #Try merging this property. Will raise on failure
-                                mergeprop=unifyProperty(propid,oldprop,newprop)
-                                setattr(comp,prop,mergeprop)
-                            elif isinstance(oldprop,dict): #Dicts/maps can be unified
-                                #find conflicting keys 
-                                doubleKeys= set(oldprop.keys()) & set(prop.keys())
-                                for k in doubleKeys():
-                                    if oldprop[k]!= prop[k]:
-                                        raise DeduplicationFailed("Map-property '%s.%s' defined multiple times with conflicting values for key %s" % \
-                                                                      (comp.getJobOptName(),str(prop),k))
-                                    pass
-                                mergeprop=oldprop
-                                mergeprop.update(prop)
-                                                                  
-                            else:
-                                #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
-                                raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
-                                                                  (comp.getJobOptName(),str(prop)))
-                            pass 
-                            #end if prop-mismatch
-                        pass
-                        #end if startswith("_")
-                    pass
-                    #end loop over properties
+                self._deduplicateComponent(newComp,comp)
                 #We found a service of the same type and name and could reconcile the two instances
                 self._msg.debug("Reconciled configuration of component %s", comp.getJobOptName())
                 return False #False means nothing got added
@@ -237,7 +200,61 @@ class ComponentAccumulator(object):
             compList.append(newComp)
         except:
             compList+=newComp
+            pass
         return True #True means something got added
+    
+
+
+    def _deduplicateComponent(self,newComp,comp):
+        #print "Checking ", comp.getType(), comp.getJobOptName()
+        allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
+        for prop in allProps:
+            if not prop.startswith('_'):
+                try:
+                    oldprop=getattr(comp,prop)
+                except AttributeError:
+                    oldprop=None
+                try:
+                    newprop=getattr(newComp,prop)
+                except AttributeError:
+                    newprop=None
+
+                #Note that getattr for a list property works, even if it's not in ValuedProperties
+                if (oldprop!=newprop):
+                    #found property mismatch
+                    if isinstance(oldprop,list): #if properties are mergeable, do that!
+                        propid="%s.%s" % (comp.getType(),str(prop))
+                        #Try merging this property. Will raise on failure
+                        mergeprop=unifyProperty(propid,oldprop,newprop)
+                        setattr(comp,prop,mergeprop)
+                    elif isinstance(oldprop,dict): #Dicts/maps can be unified
+                        #find conflicting keys 
+                        doubleKeys= set(oldprop.keys()) & set(prop.keys())
+                        for k in doubleKeys():
+                            if oldprop[k]!= prop[k]:
+                                raise DeduplicationFailed("Map-property '%s.%s' defined multiple times with conflicting values for key %s" % \
+                                                              (comp.getJobOptName(),str(prop),k))
+                            pass
+                        mergeprop=oldprop
+                        mergeprop.update(prop)
+                        setattr(comp,prop,mergeprop)
+                    elif isinstance(oldprop,GaudiHandle.GaudiHandle):
+                        _deduplicateComponent(oldprop,newprop)
+                        pass
+                    elif isinstance(oldprop,GaudiHandle.GaudiHandleArray):
+                        for newTool in prop:
+                            _deduplicate(oldProp,newTool)
+                        pass
+                    else:
+                        #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
+                        raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
+                                                      (comp.getJobOptName(),str(prop)))
+                pass 
+                #end if prop-mismatch
+            pass
+        #end if startswith("_")
+        pass
+      
     
     def getService(self,name):
         for svc in self._services: 
