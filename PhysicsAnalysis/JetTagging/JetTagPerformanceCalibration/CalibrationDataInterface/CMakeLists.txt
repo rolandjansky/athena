@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( ROOT COMPONENTS Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
-find_package( Boost ) # header-only so no libraries needed?
+find_package( Boost ) # header-only so no libraries needed
 
 # Component(s) in the package:
 atlas_add_root_dictionary( CalibrationDataInterfaceLib
