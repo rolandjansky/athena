@@ -16,7 +16,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 //#include "TrigConfigSvc/ITrigConfigSvc.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1JetCMXTools.h"

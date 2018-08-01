@@ -16,7 +16,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloToolInterfaces/IL1CPCMXTools.h"
 #include "xAODTrigL1Calo/CMXCPTobContainer.h"
 #include "xAODTrigL1Calo/CMXCPHitsContainer.h"
