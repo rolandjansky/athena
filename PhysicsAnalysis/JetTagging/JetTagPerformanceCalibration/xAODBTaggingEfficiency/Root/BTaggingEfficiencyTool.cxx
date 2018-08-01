@@ -370,6 +370,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 	// And from this list extract only this particular uncertainty (if it exists)
 	const std::string s_tau_extrap = "extrapolation from charm";
 	if (std::find(all_systematics.begin(), all_systematics.end(), s_tau_extrap) != all_systematics.end()) {
+	  // Again, we don't add the suffix here (per JIRA: AFT-343)
 	  std::string entry = "FT_EFF_extrapolation_from_charm"; // entry.append(suffixes[i]);
 	  std::vector<std::string> extrapSyst; extrapSyst.push_back(entry);
 	  if (! addSystematics(extrapSyst, flavourID, TauExtrapolation)) {
