@@ -118,7 +118,9 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,ISvcLocator
     HLT::FexAlgo(name, pSvcLocator),
     m_electronContainerName("egamma_Electrons"),
     m_photonContainerName("egamma_Photons"),
-    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
+    m_extrapolationTool("EMExtrapolationTools/EMExtrapolationTools")
+
 {
 
     // The following default properties are configured in TrigEgammaRecConfig using Factories
@@ -163,6 +165,8 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,ISvcLocator
 
     /** Luminosity tool */
     declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
+
+    declareProperty("ExtrapolationTool", m_extrapolationTool, "Extrapolation tool");
 
     /** @brief Track to track assoc after brem, set to false. If true and no GSF original track in cone */
     declareProperty("useBremAssoc",                    m_useBremAssoc          = false, "use track to track assoc after brem"); 
@@ -467,6 +471,12 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
         ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
     }      
 
+    /* the extrapolation tool*/
+    if(m_extrapolationTool.retrieve().isFailure()){
+        ATH_MSG_ERROR("Unable to retrieve extrapolationTool " << m_extrapolationTool);
+        return HLT::BAD_JOB_SETUP;
+    }
+
     /** @brief Isolation Configuration */ 
     // Build helpers and decorators for all required isolations
     std::set<std::string> runIsoType;
@@ -585,6 +595,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
     ATH_MSG_INFO("REGTEST: ElectronCaloPID tool: " <<   m_electronCaloPIDBuilder); 
     ATH_MSG_INFO("REGTEST: PhotonPID tool: "    <<      m_photonPIDBuilder);
     ATH_MSG_INFO("REGTEST: LumiTool "           <<      m_lumiBlockMuTool);
+    ATH_MSG_INFO("REGTEST: ExtrapolationTool: " <<      m_extrapolationTool);
 
 
     ATH_MSG_DEBUG("REGTEST: Check properties");
@@ -639,7 +650,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         HLT::TriggerElement* outputTE )
 {
     if ( msgLvl() <= MSG::DEBUG ) {
-        msg() << MSG::DEBUG << "Executing HLT alg. TrigTopoEgammaBuilder p01" << endreq;
+        msg() << MSG::DEBUG << "Executing HLT alg. TrigTopoEgammaBuilder p03" << endreq;
         msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
     } 
     // Time total TrigTopoEgammaBuilder execution time.
@@ -843,7 +854,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
                     ATH_MSG_ERROR("Failed to get key for TrackContainer");
                 }
                 else ATH_MSG_DEBUG("Track Collection key in SG: " << TrkCollKey);
-            }                
+            }
         }
 
         // Create vertex from leading track in RoI
@@ -907,23 +918,44 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     xAOD::CaloClusterAuxContainer clusContainer_tmpAux;
     clusContainer_tmp.setStore(&clusContainer_tmpAux);
 
+    static SG::AuxElement::Accessor < ElementLink < xAOD::CaloClusterContainer > > sisterCluster("SisterCluster");
+    static const SG::AuxElement::Accessor < ElementLink < xAOD::CaloClusterContainer > > const_sisterCluster("SisterCluster");
+
     ATH_MSG_DEBUG( "before copy " << clusContainer->size() << " clusters");
 
     xAOD::CaloClusterContainer::const_iterator cciter = clusContainer->begin();
     xAOD::CaloClusterContainer::const_iterator ccend  = clusContainer->end();
     for (; cciter != ccend; ++cciter) {
         ATH_MSG_DEBUG("->CHECKING Cluster " << (cciter-clusContainer->begin()) <<
-                       " at eta, phi, et " << (*cciter)->eta() << ", " <<
+                       " at eta, phi, et: " << (*cciter)->eta() << ", " <<
                        (*cciter)->phi() << ", " << (*cciter)->et() << 
-                       "NCells=" << (*cciter)->size() <<
-                       "cell_begin==cell_end" << ( (*cciter)->cell_begin() == (*cciter)->cell_end() ) );
+                       ", NCells=" << (*cciter)->size() <<
+                       ", cell_begin==cell_end " << ( (*cciter)->cell_begin() == (*cciter)->cell_end() ) );
+        ATH_MSG_DEBUG("           getCellLinks=" << (*cciter)->getCellLinks() );
 
-        double emfrac(-11111);
-        if(!(*cciter)->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
-            ATH_MSG_WARNING("No EM fraction momement stored in original cluster");
+        if(msgLvl() <= MSG::DEBUG) {
+            double emfrac(-11111);
+            if(!(*cciter)->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
+                ATH_MSG_WARNING("No EM fraction momement stored in original cluster");
+            }
+            ATH_MSG_DEBUG(" >CHECKING Cluster: em_fraction=" << emfrac );
         }
-        ATH_MSG_DEBUG(">CHECKING Cluster: em_fraction=" << emfrac );
-        clusContainer_tmp.push_back( new xAOD::CaloCluster( **cciter ) );
+        ATH_MSG_DEBUG(" >CHECKING Cluster: sisterCluster.isAvailable=" << sisterCluster.isAvailable( **cciter ) );
+
+        xAOD::CaloCluster * _tmp_clus = new xAOD::CaloCluster( **cciter );
+
+        // make a link from copy to original
+        const ElementLink< xAOD::CaloClusterContainer > clusterLink( *clusContainer, (cciter-clusContainer->begin()) );
+        sisterCluster(*_tmp_clus) = clusterLink;
+
+        clusContainer_tmp.push_back( _tmp_clus );
+
+        ATH_MSG_DEBUG("->CHECKING _tmp_clus=" << _tmp_clus  );
+        ATH_MSG_DEBUG("           at eta, phi, et: " << _tmp_clus->eta() << ", " << _tmp_clus->phi() << ", " << _tmp_clus->et() );
+        ATH_MSG_DEBUG("           NCells=" << _tmp_clus->size() );
+        ATH_MSG_DEBUG("           getCellLinks=" << _tmp_clus->getCellLinks() );
+        ATH_MSG_DEBUG(" >CHECKING copy Cluster: sisterCluster.isAvailable=" << const_sisterCluster.isAvailable( *_tmp_clus ) );
+
     }
 
     ATH_MSG_DEBUG( "before xAOD::shallowCopyContainer, clusContainer_tmp.size=" << clusContainer_tmp.size() );
@@ -931,6 +963,24 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer( clusContainer_tmp );
 
     ATH_MSG_DEBUG( "inputShallowcopy.first->size=" << inputShallowcopy.first->size() );
+
+
+    for( unsigned int i = 0; i<inputShallowcopy.first->size(); i++) {
+        ATH_MSG_DEBUG("Before accessing clusters_copy->at("<<i<<")");
+        xAOD::CaloCluster *clus = inputShallowcopy.first->at(i);
+        ATH_MSG_DEBUG("->CHECKING inputShallowcopy.first Cluster i=" << i << ", clus=" << clus );
+        ATH_MSG_DEBUG("           at eta, phi, et: " << clus->eta() << ", " << clus->phi() << ", " << clus->et() );
+        ATH_MSG_DEBUG("           getCellLinks=" << clus->getCellLinks() );
+        ATH_MSG_DEBUG(" >CHECKING inputShallowcopy.first Cluster: sisterCluster.isAvailable=" << const_sisterCluster.isAvailable( *clus ) );
+
+        const xAOD::CaloCluster * other = clusContainer_tmp.at(i);
+        const CaloClusterCellLink* links=other->getCellLinks();
+        if (links) {
+            clus->addCellLink(new CaloClusterCellLink(*links));
+        } else {
+            ATH_MSG_WARNING("No CellLinks in source cluster "<< i << "of xAOD::shallowCopyContainer");
+        }
+    } // End attaching clusters to egammaRec
 
     //Here it just needs to be a view copy ,
     //i.e the collection we create does not really
@@ -951,9 +1001,16 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // Add egammaRec into container
     // then do next steps
     for( unsigned int i = 0; i<clusters_copy->size(); i++){
+        ATH_MSG_DEBUG("Before accessing clusters_copy->at("<<i<<")");
+        const xAOD::CaloCluster *clus = clusters_copy->at(i);
+        ATH_MSG_DEBUG("->CHECKING copy Cluster i=" << i << ", clus=" << clus );
+        ATH_MSG_DEBUG("           at eta, phi, et: " << clus->eta() << ", " << clus->phi() << ", " << clus->et() );
+        ATH_MSG_DEBUG("           getCellLinks=" << clus->getCellLinks() );
+        ATH_MSG_DEBUG(" >CHECKING copy Cluster: sisterCluster.isAvailable=" << const_sisterCluster.isAvailable( *clus ) );
+
         // create a new egamma object + corresponding egDetail container
-        const ElementLink< xAOD::CaloClusterContainer > clusterLink( *clusContainer, i );
-        const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink}; 
+        const ElementLink< xAOD::CaloClusterContainer > clusterLink( *clusters_copy, i );
+        const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};
         egammaRec* egRec = new egammaRec(); 
         egRec->setCaloClusters( elClusters );
         m_eg_container->push_back( egRec );
@@ -977,67 +1034,83 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         }
         if (timerSvc()) m_timerTool2->stop(); //timer
     } //m_doConversions/
-    
-    // Check for Track Match. 
-    
+
+    // Check for Track Match.
+
     if(m_doTrackMatching){
         ATH_MSG_DEBUG("doTrackMatching=true");
         ATH_MSG_DEBUG("pTrackParticleContainer->size: "<< pTrackParticleContainer->size() );
         for(auto egRec : *m_eg_container) {
             if (timerSvc()) m_timerTool1->start(); //timer
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-                << "REGTEST:: Running TrackMatchBuilder" << endreq;
-            if(m_trackMatchBuilder->trackExecute(egRec,pTrackParticleContainer).isFailure())
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-                    << "REGTEST: no Track matched to this cluster" << endreq;
+
+            ATH_MSG_DEBUG( "REGTEST:: Running TrackMatchBuilder" );
+
+            if(m_trackMatchBuilder->trackExecute(egRec,pTrackParticleContainer).isFailure()) {
+                ATH_MSG_DEBUG( "REGTEST: no Track matched to this cluster" );
+            }
+
             if (timerSvc()) m_timerTool1->stop(); //timer
         } // End track match building
+        // calculate track to calorimeter extrapolation
+        // need for electron supercluster builder
+        //Save extrapolated perigee to calo (eta,phi)
+        static const SG::AuxElement::Decorator<float> pgExtrapEta ("perigeeExtrapEta");
+        static const SG::AuxElement::Decorator<float> pgExtrapPhi ("perigeeExtrapPhi");
+
+        for(auto egRec : *m_eg_container) {
+            const xAOD::TrackParticle* trP = egRec->trackParticle();
+            if (trP) {
+                float extrapEta(-999.), extrapPhi(-999.);
+                bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo( &(trP->perigeeParameters()), &extrapEta, &extrapPhi);
+                if (hitEM2) {
+                    ATH_MSG_DEBUG("Extrapolated eta="<< extrapEta << ", phi=" << extrapPhi);
+                } else {
+                    ATH_MSG_WARNING("Extrapolation to EM2 failed!");
+                }
+                pgExtrapEta(*trP) = extrapEta;
+                pgExtrapPhi(*trP) = extrapPhi;
+            }
+        } // End track extrapolation
+
     } //m_trackMatchBuilderToExec
 
+    ATH_MSG_DEBUG("Check egammaRecs before call to superclusters builders" );
+    if(msgLvl() <= MSG::DEBUG) {
+        for (std::size_t i = 0 ; i < m_eg_container->size();++i) {
+            auto egRec=m_eg_container->at(i);
+            double emFrac(-12345.);
+            const xAOD::CaloCluster *eg_clus = egRec->caloCluster();
+            ATH_MSG_DEBUG("  > i="<< i <<", eg_clus=" << eg_clus );
+            if (!eg_clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
+                ATH_MSG_WARNING("NO ENG_FRAC_EM moment available in eg_clus" );
+            } else {
+                ATH_MSG_DEBUG("ENG_FRAC_EM="<< emFrac );
+            }
+            ATH_MSG_DEBUG("Number of associated tracks " << egRec->getNumberOfTrackParticles() );
+        }
+    }
+    ATH_MSG_DEBUG("Check egammaRecs completed" );
 
-    // Run the ambiguity resolving to decide if egRec is Electron or Photon
-    //Get the ElementLinks for Tracks, Clusters, Vertices
-    ElementLinkVector<xAOD::CaloClusterContainer> clusterLinks;
-    if(m_doTopoIsolation) stat=getFeaturesLinks< xAOD::CaloClusterContainer, xAOD::CaloClusterContainer > (inputTE, clusterLinks, "TrigEFCaloCalibFex"); 
-    else stat=getFeaturesLinks< xAOD::CaloClusterContainer, xAOD::CaloClusterContainer > (inputTE, clusterLinks, ""); 
-    if ( stat != HLT::OK ) {
-        ATH_MSG_ERROR("REGTEST: No CaloClusterLinks retrieved for the trigger element");
-    } else{
-        ATH_MSG_DEBUG(" REGTEST: Got CaloClusterLinks from TE");
-    }
-                
-    ElementLinkVector<xAOD::TrackParticleContainer> trackLinks;
-    stat=getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE, trackLinks, "");
-    if ( stat != HLT::OK ) {
-        ATH_MSG_ERROR("REGTEST: No TrackParticleLinks retrieved for the trigger element");
-            //May need to add ERROR codes for online debugging
-    } else{
-        ATH_MSG_DEBUG(" REGTEST: Got TrackParticleLinks from TE");
-    }
-    
-    ElementLinkVector<xAOD::VertexContainer> vxLinks;
-    stat=getFeaturesLinks< xAOD::VertexContainer, xAOD::VertexContainer > (inputTE, vxLinks, "");
-    if ( stat != HLT::OK ) {
-        ATH_MSG_ERROR("REGTEST: No VertexLinks retrieved for the trigger element"); 
-            //May need to add ERROR codes for online debugging
-    } else{
-        ATH_MSG_DEBUG(" REGTEST: Got VertexLinks from TE");
-    }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Create SuperClusters
   ////////////////////////////////////////////////
+
+
   //Now all info should be added  the initial topoClusters build SuperClusters
   //Electron superclusters Builder
 
   // prepare output objects for SuperCluster Builder
     //Create new EgammaRecContainer
+    ATH_MSG_DEBUG("Prepare to create electron superclusters" );
     EgammaRecContainer *electronSuperRecs = new EgammaRecContainer();
+    ATH_MSG_DEBUG("electronSuper EgammaRecContainer created" );
 
     // Electrons
     xAOD::CaloClusterContainer* electron_CSCContainer = new xAOD::CaloClusterContainer();
     xAOD::CaloClusterAuxContainer electron_CSCAux;
     electron_CSCContainer->setStore(&electron_CSCAux);
 
+    ATH_MSG_DEBUG("Before call of electron superclusters builder" << m_electronSCBuilder);
     TRIG_CHECK_SC(m_electronSCBuilder->hltExecute(m_eg_container,
                                                             electronSuperRecs,
                                                             electron_CSCContainer));
@@ -1059,13 +1132,17 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
   //Photon superclusters Builder
   // prepare output objects for SuperCluster Builder
     //Create new EgammaRecContainer
+    ATH_MSG_DEBUG("Prepare to create photon superclusters" );
     EgammaRecContainer *photonSuperRecs = new EgammaRecContainer();
+    ATH_MSG_DEBUG("photonSuper EgammaRecContainer created" );
+
     // Photons
     xAOD::CaloClusterContainer* photon_CSCContainer = new xAOD::CaloClusterContainer();
     xAOD::CaloClusterAuxContainer photon_CSCAux;
     photon_CSCContainer->setStore(&photon_CSCAux);
 
 
+    ATH_MSG_DEBUG("Before call of photon superclusters builder" << m_photonSCBuilder);
     TRIG_CHECK_SC(m_photonSCBuilder->hltExecute(m_eg_container,
                                                           photonSuperRecs,
                                                           photon_CSCContainer));
