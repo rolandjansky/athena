@@ -55,7 +55,6 @@ TrigEFCaloHypoNoise::TrigEFCaloHypoNoise(const std::string& name, ISvcLocator* p
   declareProperty( "MNBLooseFlaggedPartitions", m_mNBLooseFlaggedPartitions=true);
   declareProperty( "MNBTightFlaggedPartitions", m_mNBTightFlaggedPartitions=true);
   declareProperty( "MNBTight_PsVetoFlaggedPartitions", m_mNBTight_PsVetoFlaggedPartitions=true);
-  m_mask = 0xff; // in principle, accept everybody
 
 }
 
@@ -117,7 +116,6 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltInitialize()
   if ( m_mNBTightFlaggedPartitions ) m_mask|=0x20;
   if ( m_mNBTight_PsVetoFlaggedPartitions ) m_mask|=0x40;
   msg() << MSG::DEBUG << "using a mask to selec events : " << std::hex << m_mask << std::dec << endreq;
-  std::cout << "CHECK using a mask to selec events : " << std::hex << m_mask << std::dec << std::endl;
 
   
   return HLT::OK;
@@ -189,17 +187,14 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
   
 
 
-  std::cout << "CHECK HERE " <<  std::hex << flag << " " << (flag & m_mask) << std::dec << std::endl;
   // Apply mask see that the event may NOT be accepted, but it will still be
   // available as flag to the cool process
   if ( (flag & m_mask) != 0x0 ) {
 	if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise detected : ";
-        std::cout << "LAr Noise detected : " << std::endl;
 	pass = true;
   }
         else {
 	   if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise not detected!" << endreq;
-           std::cout << "LAr Noise not detected : " << std::endl;
 	}
 
   const xAOD::EventInfo* evt;
