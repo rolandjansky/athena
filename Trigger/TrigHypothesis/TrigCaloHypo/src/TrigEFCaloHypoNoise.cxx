@@ -50,6 +50,12 @@ TrigEFCaloHypoNoise::TrigEFCaloHypoNoise(const std::string& name, ISvcLocator* p
   declareProperty( "BadFEBCut", m_MinBadFEB=5 );
   declareProperty( "TimeToClear", m_timeTagPosToClear=300);
   declareProperty( "ISPublishTime", m_publishTime=180);
+  declareProperty( "BadFEBFlaggedPartitions", m_badFEBFlaggedPartitions=true);
+  declareProperty( "SatTightFlaggedPartitions", m_satTightFlaggedPartitions=true);
+  declareProperty( "MNBLooseFlaggedPartitions", m_mNBLooseFlaggedPartitions=true);
+  declareProperty( "MNBTightFlaggedPartitions", m_mNBTightFlaggedPartitions=true);
+  declareProperty( "MNBTight_PsVetoFlaggedPartitions", m_mNBTight_PsVetoFlaggedPartitions=true);
+  m_mask = 0xff; // in principle, accept everybody
 
 }
 
@@ -102,6 +108,17 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltInitialize()
           m_isInterface = false;
       }
   } // if cfact
+
+  // create mask
+  m_mask = 0x0;
+  if ( m_badFEBFlaggedPartitions ) m_mask|=0x1;
+  if ( m_satTightFlaggedPartitions ) m_mask|=0x2;
+  if ( m_mNBLooseFlaggedPartitions ) m_mask|=0x10;
+  if ( m_mNBTightFlaggedPartitions ) m_mask|=0x20;
+  if ( m_mNBTight_PsVetoFlaggedPartitions ) m_mask|=0x40;
+  msg() << MSG::DEBUG << "using a mask to selec events : " << std::hex << m_mask << std::dec << endreq;
+  std::cout << "CHECK using a mask to selec events : " << std::hex << m_mask << std::dec << std::endl;
+
   
   return HLT::OK;
   
@@ -154,13 +171,17 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
 	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : SatTightFlaggedPartitions" << endreq;
 	      flag |= 0x2;
         }
-        if ( noisyRO->MNBTight_PsVetoFlaggedPartitions() ) {
-	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBLooseFlaggedPartions" << endreq;
-	      flag |= 0x10;
+	if ( noisyRO->MNBLooseFlaggedPartitions() ) {
+              if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBLooseFlaggedPartions" << endreq;
+              flag |= 0x10;
         }
         if ( noisyRO->MNBTightFlaggedPartitions() ) {
-	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBTightFlaggedPartions" << endreq;
-	      flag |= 0x20;
+              if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBTightFlaggedPartions" << endreq;
+              flag |= 0x20;
+        }
+        if ( noisyRO->MNBTight_PsVetoFlaggedPartitions() ) {
+              if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBPSVetoTightPartions" << endreq;
+              flag |= 0x40;
         }
   } // end of if outCells
 
@@ -168,11 +189,18 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
   
 
 
-  if ( flag != 0x0 ) {
+  std::cout << "CHECK HERE " <<  std::hex << flag << " " << (flag & m_mask) << std::dec << std::endl;
+  // Apply mask see that the event may NOT be accepted, but it will still be
+  // available as flag to the cool process
+  if ( (flag & m_mask) != 0x0 ) {
 	if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise detected : ";
+        std::cout << "LAr Noise detected : " << std::endl;
 	pass = true;
   }
-        else if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise not detected!" << endreq;
+        else {
+	   if ( msgDebug ) msg() << MSG::DEBUG << "LAr Noise not detected!" << endreq;
+           std::cout << "LAr Noise not detected : " << std::endl;
+	}
 
   const xAOD::EventInfo* evt;
   if ( (store()->retrieve(evt)).isFailure() ) {
