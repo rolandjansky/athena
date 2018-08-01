@@ -427,17 +427,17 @@ StatusCode TrigALFAROBMonitor::execute() {
 
        //LVL1CTP::Lvl1Result resultL1(true);
        //if (getLvl1Result(resultL1)) {
-       		std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
-                for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
-                    int word = it->first>>5;
-                    int offset = (it->first)%32;
-                    if (itemsBP.at(word) & 1<<offset) {
-                       //ATH_MSG_INFO ("found item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
-                    }
-                }
-       		for(std::vector<uint32_t>::iterator it = itemsBP.begin(); it != itemsBP.end(); ++it) {
-          		//ATH_MSG_INFO ("triggerWord: "<<*it);
-       		}
+       		//kk std::vector<uint32_t> & itemsBP = resultL1.itemsBeforePrescale();
+                //kk for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
+                    //kk int word = it->first>>5;
+                    //kk int offset = (it->first)%32;
+                    //kk if (itemsBP.at(word) & 1<<offset) {
+                       //kk //ATH_MSG_INFO ("found item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
+                    //kk }
+                //kk }
+       		//kk for(std::vector<uint32_t>::iterator it = itemsBP.begin(); it != itemsBP.end(); ++it) {
+          		//kk //ATH_MSG_INFO ("triggerWord: "<<*it);
+       		//kk }
        findALFATracks(resultL1);
        //}
        findODTracks ();
@@ -950,14 +950,14 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *lwcPtr);
     	    ATH_MSG_DEBUG("ROD skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
-            continue;
+            return; //continue;
         }
         if ((*twcPtr & 0xff000000) != 0x8a000000) {
 	    //AlfaEventObj->framingStatus |= 0x8;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *twcPtr);
     	    ATH_MSG_DEBUG( "ROD skipped - TWC: "<< *twcPtr );
-            continue;
+            return; //continue;
         }
 
 
