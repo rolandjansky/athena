@@ -3,7 +3,7 @@
 //                           JEMJetSim.cxx  -  description
 //                              -------------------
 //     begin                : Wed Mar 12 2014
-//     copyright            : (C) 2014 by Alan Watson
+//     copyright            : (C) 2014, 2018 by Alan Watson
 //     email                : Alan.Watson@CERN.CH
 //  ***************************************************************************/
 //
@@ -79,29 +79,6 @@ StatusCode JEMJetSim::initialize()
   ATH_CHECK(  m_configSvc.retrieve() );
   ATH_CHECK( m_JetTool.retrieve() );
   return StatusCode::SUCCESS ;
-}
-
-
-//-------------------------------------------------
-// Optional debug of menu at start of run
-//-------------------------------------------------
-
-StatusCode JEMJetSim::beginRun()
-{
-  if (msgLvl(MSG::DEBUG)) printTriggerMenu();
-  return StatusCode::SUCCESS ;
-}
-
-
-
-//---------------------------------
-// finalise()
-//---------------------------------
-
-StatusCode JEMJetSim::finalize()
-{
-   ATH_MSG_INFO("Finalizing" );
-   return StatusCode::SUCCESS ;
 }
 
 

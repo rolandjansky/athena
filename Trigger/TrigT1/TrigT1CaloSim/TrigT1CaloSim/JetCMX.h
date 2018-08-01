@@ -3,7 +3,7 @@
                            JetCMX.h  -  description
                               -------------------
      begin                : Mon Jul 28 2014
-     copyright            : (C) 2014 Alan Watson
+     copyright            : (C) 2014, 2018 Alan Watson
      email                : Alan.Watson@CERN.CH
   ***************************************************************************/
 
@@ -69,9 +69,7 @@
    //------------------------------------------------------
 
    StatusCode initialize() ;
-   StatusCode beginRun() ;
    StatusCode execute() ;
-   StatusCode finalize() ;
 
  private: // Private methods
    /** Store CTP SLink data objects in the TES. */

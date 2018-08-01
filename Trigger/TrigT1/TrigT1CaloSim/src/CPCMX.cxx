@@ -3,7 +3,7 @@
 //                           CPCMX.cxx  -  description
 //                              -------------------
 //     begin                : Mon Jul 28 2014
-//     copyright            : (C) 2014 by Alan Watson
+//     copyright            : (C) 2014, 2018 by Alan Watson
 //     email                : Alan.Watson@CERN.CH
 //  ***************************************************************************/
 //
@@ -83,29 +83,6 @@ StatusCode CPCMX::initialize()
 {
   ATH_CHECK( m_configSvc.retrieve() );
   return StatusCode::SUCCESS ;
-}
-
-
-//-------------------------------------------------
-// Optional debug of menu at start of run
-//-------------------------------------------------
-
-StatusCode CPCMX::beginRun()
-{
-  if (msgLvl(MSG::DEBUG)) printTriggerMenu();
-  return StatusCode::SUCCESS ;
-}
-
-
-
-//---------------------------------
-// finalise()
-//---------------------------------
-
-StatusCode CPCMX::finalize()
-{
-   ATH_MSG_INFO("Finalizing" );
-   return StatusCode::SUCCESS ;
 }
 
 
