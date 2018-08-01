@@ -21,7 +21,7 @@
 using xAOD::EventInfo;
 
 LArNoisyROAlg::LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator):
-  AthAlgorithm (name, pSvcLocator), 
+  AthReentrantAlgorithm (name, pSvcLocator), 
   m_noisyROTool("LArNoisyROTool",this)
 {
   declareProperty( "CaloCellContainer", m_CaloCellContainerName = "AllCalo" );
@@ -36,9 +36,9 @@ StatusCode LArNoisyROAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArNoisyROAlg::execute() {
-
-  SG::ReadHandle<CaloCellContainer> cellContainer(m_CaloCellContainerName);
+StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
+{
+  SG::ReadHandle<CaloCellContainer> cellContainer(m_CaloCellContainerName, ctx);
   if (!cellContainer.isValid()) { 
     ATH_MSG_ERROR( " Can not retrieve CaloCellContainer: "
                    << m_CaloCellContainerName.key());
@@ -46,7 +46,7 @@ StatusCode LArNoisyROAlg::execute() {
   } 
   
 
-  SG::WriteHandle<LArNoisyROSummary> noisyRO(m_outputKey);
+  SG::WriteHandle<LArNoisyROSummary> noisyRO(m_outputKey, ctx);
   ATH_CHECK(noisyRO.record(m_noisyROTool->process(cellContainer.cptr())));
 
 

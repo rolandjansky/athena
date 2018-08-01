@@ -51,6 +51,9 @@ private:
   /// Pure singleton private constructor
   G4AtlasWorkerRunManager();
 
+  /// This command prints a message about a G4Command depending on its returnCode
+  void CommandLog(int returnCode, const std::string& commandString) const;
+
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level

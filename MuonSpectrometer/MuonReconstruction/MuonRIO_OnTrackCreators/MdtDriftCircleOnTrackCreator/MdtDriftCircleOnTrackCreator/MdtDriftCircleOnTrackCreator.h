@@ -19,7 +19,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
@@ -71,7 +70,6 @@ namespace Muon {
        - doMDT: switch on/off ROT creation (default = true)
        - TimingMode: select timing mode (default = ATLTIME)
        - MuonTofTool: Tool to be used to calculate time of flight (default = "Muon::MuonCosmicTofTool/MuonCosmicTofTool")
-       - ErrorScalingTool: Tool to scale errors (default = "Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool")
        - DoWireSag: Flag to turn on application of geometrical wire sagging correstions (default = false)
        - CreateTubeHit: Flag to turn on the creation of tube hits (default = false)
     */
@@ -199,7 +197,6 @@ namespace Muon {
       ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
       ServiceHandle<MdtCalibrationSvc>     m_mdtCalibSvc;
       ServiceHandle<MdtCalibrationDbSvc>   m_mdtCalibDbSvc;
-      ToolHandle<Trk::IRIO_OnTrackErrorScalingTool>   m_errorScalingTool;
       ToolHandle<IMuonTofTool>             m_tofTool; //!<Time of flight tool (handle tof if not coming from IP)
 
       // Configuration variables

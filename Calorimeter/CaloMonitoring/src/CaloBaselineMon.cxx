@@ -246,7 +246,7 @@ StatusCode CaloBaselineMon::fillHistograms() {
 
   // Fill pedestalMon only when the bunch is empty and far away enough from the last train.
   if (m_bool_pedestalMon){
-    if ((not m_bunchCrossingTool->isFilled(bcid)) and (m_bunchCrossingTool->gapAfterBunch(bcid) >= m_pedestalMon_BCIDmin*25.)) thisEvent_bool_pedestalMon = true;
+    if ((not m_bunchCrossingTool->isFilled(bcid)) and (m_bunchCrossingTool->gapAfterBunch(bcid) >= m_pedestalMon_BCIDmin*25.) and (m_bunchCrossingTool->gapBeforeBunch(bcid) >= m_pedestalMon_BCIDmin*25.)) thisEvent_bool_pedestalMon = true;
   }
   // Fill bcidtoolMon only when the bunch is in a bunch train and within accepted BCID range.
   if (m_bool_bcidtoolMon){

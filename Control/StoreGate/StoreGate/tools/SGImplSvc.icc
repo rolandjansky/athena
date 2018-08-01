@@ -477,7 +477,6 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle) const
                  << " of type "  << ClassID_traits<T>::typeName() 
                  << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
-    addedNewPersObject(ClassID_traits<T>::ID(), dp);
   }
   return sc;
 }
@@ -507,7 +506,6 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle) const
                  << " of type "  << ClassID_traits<T>::typeName() 
                  << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
-    addedNewPersObject(ClassID_traits<T>::ID(), dp);
   }
 
   return sc;
@@ -541,7 +539,6 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle,
                   << " of type "  << ClassID_traits<T>::typeName() 
                   << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
-    addedNewPersObject(ClassID_traits<T>::ID(), dp);
   }
   return sc;
 
@@ -575,7 +572,6 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle,
                  << ' ' << " of type "  << ClassID_traits<T>::typeName() 
                  << "(CLID " << ClassID_traits<T>::ID() << ')');
 #endif
-    addedNewPersObject(ClassID_traits<T>::ID(), dp);
   }
   return sc;
 
@@ -630,10 +626,6 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
 #endif
     return StatusCode::FAILURE;
   }
-
-  //FIXME no associateAux
-  SG::ConstProxyIterator idp(first);
-  while (idp != end) addedNewPersObject(ClassID_traits<T>::ID(), idp++->second);
 
   return StatusCode::SUCCESS;
 }

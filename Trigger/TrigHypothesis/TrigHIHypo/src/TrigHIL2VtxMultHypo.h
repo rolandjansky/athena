@@ -37,7 +37,6 @@ class TrigHIL2VtxMultHypo : public HLT::HypoAlgo {
   ~TrigHIL2VtxMultHypo();
   
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
   HLT::ErrorCode hltFinalize();
   

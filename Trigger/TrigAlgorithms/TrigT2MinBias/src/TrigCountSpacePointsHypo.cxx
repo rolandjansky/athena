@@ -167,13 +167,6 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltInitialize() {
   return HLT::OK;
 }
 
-//-----------------------------------------------------------------------------
-HLT::ErrorCode TrigCountSpacePointsHypo::hltBeginRun() {
-  // This initialisation has been moved into the event loop.
-  // @see TrigCountSpacePointsHypo::checkDetectorMask
-  ATH_MSG_DEBUG(" TrigCountSpacePointsHypo will be initialized in hltExecute"); 
-  return HLT::OK;
-}
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountSpacePointsHypo::checkDetectorMask() {

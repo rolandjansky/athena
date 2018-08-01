@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -68,7 +68,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     /** destructor */
     ~EFMissingET();
 
-    virtual HLT::ErrorCode hltBeginRun();
+    virtual HLT::ErrorCode hltStart();
 
     /**
      * @brief implementation of the abstract hltExecute method in HLT::AllTEAlgo.

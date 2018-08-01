@@ -263,40 +263,37 @@ namespace xAODMaker {
       const PileUpEventInfo* puei =
          dynamic_cast< const PileUpEventInfo* >( aod );
       if( puei && copyPileUpLinks ) {
-         // Construct the map for the SubEvent translation:
-         static std::map< PileUpEventInfo::SubEvent::pileup_type,
-                          xAOD::EventInfo::PileUpType > subTypeMap;
-         if( ! subTypeMap.size() ) {
-            subTypeMap[ PileUpTimeEventIndex::Unknown ] =
-               xAOD::EventInfo::Unknown;
-            subTypeMap[ PileUpTimeEventIndex::Signal ] =
-               xAOD::EventInfo::Signal;
-            subTypeMap[ PileUpTimeEventIndex::MinimumBias ] =
-               xAOD::EventInfo::MinimumBias;
-            subTypeMap[ PileUpTimeEventIndex::Cavern ] =
-               xAOD::EventInfo::Cavern;
-            subTypeMap[ PileUpTimeEventIndex::HaloGas ] =
-               xAOD::EventInfo::HaloGas;
-            subTypeMap[ PileUpTimeEventIndex::ZeroBias ] =
-               xAOD::EventInfo::ZeroBias;
-         }
-
          // Create the sub-event objects to fill into the output object:
          std::vector< xAOD::EventInfo::SubEvent > subEvents;
          PileUpEventInfo::SubEvent::const_iterator itr = puei->beginSubEvt();
          PileUpEventInfo::SubEvent::const_iterator end = puei->endSubEvt();
          for( ; itr != end; ++itr ) {
             // Look up the sub-event type:
-            std::map< PileUpEventInfo::SubEvent::pileup_type,
-               xAOD::EventInfo::PileUpType >::const_iterator type_itr =
-               subTypeMap.find( itr->type() );
-            if( type_itr == subTypeMap.end() ) {
-               ATH_MSG_WARNING( "Unknown sub-event type ("
-                                << itr->type() << ") encountered" );
+           
+            xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
+            switch (itr->type()) {
+            case PileUpTimeEventIndex::Signal:
+              type = xAOD::EventInfo::Signal;
+              break;
+            case PileUpTimeEventIndex::MinimumBias:
+              type = xAOD::EventInfo::MinimumBias;
+              break;
+            case PileUpTimeEventIndex::Cavern:
+              type = xAOD::EventInfo::Cavern;
+              break;
+            case PileUpTimeEventIndex::HaloGas:
+              type = xAOD::EventInfo::HaloGas;
+              break;
+            case PileUpTimeEventIndex::ZeroBias:
+              type = xAOD::EventInfo::ZeroBias;
+              break;
+            case PileUpTimeEventIndex::Unknown:
+              break;
+            default:
+              ATH_MSG_WARNING( "Unknown sub-event type ("
+                               << itr->type() << ") encountered" );
+              break;
             }
-            const xAOD::EventInfo::PileUpType type =
-               ( type_itr != subTypeMap.end() ? type_itr->second :
-                 xAOD::EventInfo::Unknown );
 
             // Construct the link to the pile-up EventInfo object:
             ElementLink< xAOD::EventInfoContainer > link;

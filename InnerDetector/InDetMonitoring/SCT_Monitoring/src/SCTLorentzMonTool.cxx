@@ -16,6 +16,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "TH1F.h"
@@ -53,8 +54,7 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   m_phiVsNstrips_Side{},
   m_phiVsNstrips_Side_100{},
   m_phiVsNstrips_Side_111{},
-  m_pSCTHelper(nullptr),
-  m_sctmgr(nullptr) {
+  m_pSCTHelper(nullptr) {
   /** sroe 3 Sept 2015:
      histoPathBase is declared as a property in the base class, assigned to m_path
      with default as empty string.
@@ -79,7 +79,11 @@ SCTLorentzMonTool::~SCTLorentzMonTool() {
 StatusCode SCTLorentzMonTool::initialize() {
   ATH_CHECK( SCTMotherTrigMonTool::initialize() );
 
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
+
   ATH_CHECK( m_tracksName.initialize() );
+  ATH_CHECK(m_sctDetEleCollKey.initialize());
+
   ATH_CHECK(m_trackToVertexTool.retrieve());
 
   return StatusCode::SUCCESS;
@@ -101,9 +105,6 @@ SCTLorentzMonTool::bookHistogramsRecurrent( ) {                                 
                                                                                                                                                  // 14.01.21
   }
   ATH_MSG_DEBUG("initialize being called");
-  detStore()->retrieve(m_pSCTHelper, "SCT_ID");
-  ATH_CHECK(detStore()->retrieve(m_sctmgr, "SCT"));
-  ATH_MSG_DEBUG("SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"");
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
     msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endmsg;                                // hidetoshi 14.01.22
@@ -123,9 +124,6 @@ SCTLorentzMonTool::bookHistograms( ) {                                          
                                                                                                                                                          // hidetoshi
                                                                                                                                                          // 14.01.21
   ATH_MSG_DEBUG("initialize being called");
-  ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
-  ATH_CHECK(detStore()->retrieve(m_sctmgr, "SCT"));
-  ATH_MSG_DEBUG("SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"");
   /* Retrieve TrackToVertex extrapolator tool */
   ATH_CHECK(m_trackToVertexTool.retrieve());
   // Booking  Track related Histograms
@@ -167,17 +165,18 @@ SCTLorentzMonTool::fillHistograms() {
 
   ATH_MSG_DEBUG("enters fillHistograms");
 
-  SG::ReadHandle<TrackCollection> tracks(m_tracksName);
-  if (evtStore()->contains<TrackCollection> (m_tracksName.key())) {
-    if (not tracks.isValid()) {
-      msg(MSG::WARNING) << " TrackCollection not found: Exit SCTLorentzTool" << m_tracksName.key() << endmsg;
-      return StatusCode::SUCCESS;
-    }
-  } else {
-    msg(MSG::WARNING) << "Container " << m_tracksName.key() << " not found.  Exit SCTLorentzMonTool" << endmsg;
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_WARNING(m_sctDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::SUCCESS;
   }
 
+  SG::ReadHandle<TrackCollection> tracks(m_tracksName);
+  if (not tracks.isValid()) {
+    msg(MSG::WARNING) << " TrackCollection not found: Exit SCTLorentzTool" << m_tracksName.key() << endmsg;
+    return StatusCode::SUCCESS;
+  }
   TrackCollection::const_iterator trkitr = tracks->begin();
   TrackCollection::const_iterator trkend = tracks->end();
 
@@ -251,7 +250,7 @@ SCTLorentzMonTool::fillHistograms() {
               pTrack[0] = trkp->momentum().x();
               pTrack[1] = trkp->momentum().y();
               pTrack[2] = trkp->momentum().z();
-              int iflag = findAnglesToWaferSurface(pTrack, sinAlpha, clus->identify(), thetaToWafer, phiToWafer);
+              int iflag = findAnglesToWaferSurface(pTrack, sinAlpha, clus->identify(), elements, thetaToWafer, phiToWafer);
               if (iflag < 0) {
                 msg(MSG::WARNING) << "Error in finding track angles to wafer surface" << endmsg;
                 continue; // Let's think about this (later)... continue, break or return?
@@ -451,13 +450,16 @@ SCTLorentzMonTool::h1Factory(const std::string &name, const std::string &title, 
 
 int
 SCTLorentzMonTool::findAnglesToWaferSurface(const float (&vec)[3], const float &sinAlpha, const Identifier &id,
+                                            const InDetDD::SiDetectorElementCollection* elements,
                                             float &theta, float &phi) {
   int iflag(-1);
 
   phi = 90.;
   theta = 90.;
 
-  InDetDD::SiDetectorElement *element = m_sctmgr->getDetectorElement(id);
+  const Identifier waferId = m_pSCTHelper->wafer_id(id);
+  const IdentifierHash waferHash = m_pSCTHelper->wafer_hash(waferId);
+  const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
   if (!element) {
     MsgStream log(msgSvc(), name());
     log << MSG::ERROR << "findAnglesToWaferSurface:  failed to find detector element for id=" <<

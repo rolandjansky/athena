@@ -51,7 +51,7 @@ namespace LVL1MUCTPI {
   // Constructor
   //--------------
   L1Muctpi::L1Muctpi( const std::string& name, ISvcLocator* pSvcLocator )
-    : AthAlgorithm( name, pSvcLocator ),
+    : base_class( name, pSvcLocator ),
       m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
       m_theMuctpi( 0 ), m_executeFunction(nullptr)  {
 
@@ -123,6 +123,12 @@ namespace LVL1MUCTPI {
     ATH_MSG_INFO( "Package version: " << PACKAGE_VERSION    );
     ATH_MSG_INFO( "=======================================" );
 
+    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "L1Muctpi");
+    CHECK(incidentSvc.retrieve());
+    incidentSvc->addListener(this,"BeginRun", 100);
+    incidentSvc.release().ignore();
+
+    
     // Now this is a tricky part. We have to force the message logging of the
     // MuCTPI simulation to display messages of the same level as this MsgStream.
     MsgWriter::instance()->setMinType( msg().level() );
@@ -261,7 +267,19 @@ namespace LVL1MUCTPI {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode L1Muctpi::beginRun( ) {
+  void L1Muctpi::handle(const Incident& incident) {
+
+    if (incident.type()!="BeginRun") return;
+    ATH_MSG_DEBUG( "In L1Muctpi BeginRun incident");
+    
+    StatusCode sc = loadFixedConditions();
+    if( sc.isFailure() ) {
+      ATH_MSG_ERROR( "ERROR in MuCTPI configuration");
+    }
+  }
+  
+  
+  StatusCode L1Muctpi::loadFixedConditions( ) {
 
     Configuration muctpiConfiguration;
     // Connect to the LVL1 configuration service (create it if it doesn't exist):

@@ -10,7 +10,7 @@
  AUTHORS:  David Rousseau
  CREATED:  May 24,2005
 
- PURPOSE:  build a cell container from a calocluster correction
+ PURPOSE:  build a cell container from a calocluster collection
 
  ********************************************************************/
 

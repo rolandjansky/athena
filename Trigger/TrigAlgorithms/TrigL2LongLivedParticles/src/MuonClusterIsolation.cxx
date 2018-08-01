@@ -100,16 +100,6 @@ HLT::ErrorCode MuonClusterIsolation::hltInitialize() {
   return HLT::OK;
 }
 
-HLT::ErrorCode MuonClusterIsolation::hltBeginRun() {
-  msg() << MSG::INFO << "hltBeginRun"<<  endmsg;
-  return HLT::OK;
-}
-
-HLT::ErrorCode MuonClusterIsolation::hltEndRun() {
-  msg() << MSG::INFO << "hltEndRun"<<  endmsg;
-  return HLT::OK;
-}
-
 HLT::ErrorCode MuonClusterIsolation::hltFinalize() {
   msg() << MSG::INFO << "hltFinalize()" << endmsg;
   return HLT::OK;

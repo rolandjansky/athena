@@ -141,7 +141,7 @@ StatusCode ByteStreamNavigationProviderSvc::updateAddress(StoreID::type storeId,
 // with TECH signature 1000
 //
 StatusCode ByteStreamNavigationProviderSvc::readEvent() {
-   const DataHandle<DataHeader> dataHeader, dataHeaderLast;
+   SG::ConstIterator<DataHeader> dataHeader, dataHeaderLast;
    // Get all headers
    StatusCode status = eventStore()->retrieve(dataHeader, dataHeaderLast);
    if (!status.isSuccess()) {
@@ -158,7 +158,7 @@ StatusCode ByteStreamNavigationProviderSvc::readEvent() {
           // Key hold file name
          file  = dataHeader->getProcessTag();
          token = dataHeader->begin()->getToken();
-      } else if (token == 0 && dataHeader->checkStatus(DataHeader::Primary)) {
+      } else if (token == 0 && dataHeader->isInput()) {
          for (std::vector<DataHeaderElement>::const_iterator i = dataHeader->beginProvenance(),
 		         iEnd = dataHeader->endProvenance(); i != iEnd; i++) {
             if (i->getToken() != 0 && i->getToken()->technology() == 0x00001000) {
@@ -175,14 +175,15 @@ StatusCode ByteStreamNavigationProviderSvc::readEvent() {
          ATH_MSG_DEBUG("readEvent: Cannot find BS DataHeader in StoreGate");
          return(StatusCode::RECOVERABLE);
       } else {
-         StatusCode status = eventStore()->retrieve(dataHeader, token->toString());
+         const DataHeader* dh = nullptr;
+         StatusCode status = eventStore()->retrieve(dh, token->toString());
          if (!status.isSuccess()) {
             m_rawEvent = 0;
             ATH_MSG_DEBUG("readEvent: Cannot retrieve BS DataHeader from StoreGate");
             return(StatusCode::RECOVERABLE);
          }
-         file  = dataHeader->getProcessTag();
-         token = dataHeader->begin()->getToken();
+         file  = dh->getProcessTag();
+         token = dh->begin()->getToken();
       }
    }
    if (token == 0) {

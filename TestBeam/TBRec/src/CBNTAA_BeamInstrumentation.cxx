@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNTAA_BeamInstrumentation.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/INTupleSvc.h"
+#include "CBNTAA_BeamInstrumentation.h"
 
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBBPCCont.h"
@@ -74,10 +71,6 @@ CBNTAA_BeamInstrumentation::~CBNTAA_BeamInstrumentation()
 StatusCode CBNTAA_BeamInstrumentation::CBNT_initialize()
 {
   ATH_MSG_DEBUG ( "in initialize()" );
-
-  IToolSvc* toolSvc = nullptr;
-  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
-
 
   const unsigned nScint=m_scint_names.size();  
   addBranch("Beam_sNames",m_scint_ntnames);

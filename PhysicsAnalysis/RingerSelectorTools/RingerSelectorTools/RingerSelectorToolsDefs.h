@@ -20,17 +20,17 @@
  *
  **/
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer {
 
 
-/**                                                                                        
+/**
  * @brief the possible procedure longitudinal segmentation types.
  *
  * - NoSegmentation stands for a unique representation for all data. This may
- *   mean that the procedure: 
+ *   mean that the procedure:
  *
  *    o is not applied for a pattern segment;
  *
@@ -62,7 +62,7 @@ namespace Ringer {
  * If adding a new value on this enumeration, add it to the numberOfSegments
  * function on RingerSelectorToolsDefs.cxx
  **/
-enum SegmentationType { 
+enum SegmentationType {
   NoSegmentation = 0,
   TrackCalSegmentation,
   TrackCalPatTypeSegmentation,
@@ -71,8 +71,8 @@ enum SegmentationType {
   NSegmentations
 };
 
-/** 
- * @brief Specify eta position dependency 
+/**
+ * @brief Specify eta position dependency
  *
  * This specifies whether the discriminator will operate only for a small
  * (bin) eta region or will operate for the full analysis region (generally the
@@ -85,8 +85,8 @@ enum EtaDependency {
   NEtaDependencies
 };
 
-/** 
- * @brief Specify et position dependency 
+/**
+ * @brief Specify et position dependency
  *
  * This specifies whether the discriminator will operate only for a small
  * (bin) Et region or will operate for the full analysis region (generally the
@@ -99,8 +99,8 @@ enum EtDependency {
   NEtDependencies
 };
 
-/** 
- * @brief the cut requirement 
+/**
+ * @brief the cut requirement
  **/
 enum Requirement {
   Loose_CutID_Pd = 0, // Same detection probability as CutID Loose

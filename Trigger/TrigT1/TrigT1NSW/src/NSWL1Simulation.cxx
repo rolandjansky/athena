@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -35,10 +35,6 @@ namespace NSWL1 {
       m_current_run(-1),
       m_current_evt(-1)
   {
-
-    m_counters.clear();
-
-    // Services
 
     // Property setting general behaviour:
     declareProperty( "DoOffline",    m_doOffline    = false, "Steers the offline emulation of the LVL1 logic" );
@@ -180,15 +176,8 @@ namespace NSWL1 {
   }
 
 
-  StatusCode NSWL1Simulation::beginRun() {
-    ATH_MSG_INFO( "beginRun " << name() );
-    m_counters.clear();
-    return StatusCode::SUCCESS;
-  }
-
-
   StatusCode NSWL1Simulation::execute() {
-    ATH_MSG_INFO( "execute" << name() );
+
     m_counters.clear();
 
     // retrieve the current run number and event number

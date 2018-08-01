@@ -7,7 +7,7 @@
 #ifndef TRIG_OBJECT_MATCHING_TRAIT_DEFS_H
 #define TRIG_OBJECT_MATCHING_TRAIT_DEFS_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrigObjectMatching/TrigMuonEFInfoDistanceFunctor.h"
 #include "TrigObjectMatching/ClusterDistanceFunctor.h"

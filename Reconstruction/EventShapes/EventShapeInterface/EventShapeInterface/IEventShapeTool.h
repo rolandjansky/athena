@@ -43,9 +43,6 @@ class IEventShapeTool
 
   /// Fills the given EventShape object
   virtual StatusCode fillEventShape(xAOD::EventShape *) const =0 ;
-
-  /// Fills the given EventShape object using the given input IParticleContainer
-  virtual StatusCode fillEventShape(xAOD::EventShape *, const xAOD::IParticleContainer*) const =0 ;
   
 
  protected: 

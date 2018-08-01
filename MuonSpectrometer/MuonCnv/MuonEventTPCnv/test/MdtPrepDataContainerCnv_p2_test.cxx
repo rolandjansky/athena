@@ -122,7 +122,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
          Muon::MdtStatusDriftTime);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash, true);
+    cont->addCollection (coll.release(), hash);
   }
 
   // gcc4.9 doesn't allow returning cont directly here; fixed in 5.2.

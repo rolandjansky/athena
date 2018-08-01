@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -40,11 +40,13 @@ namespace InDet
     : HLT::FexAlgo (name, pSvcLocator),
       m_particleCreatorTool("Trk::ParticleCreatorTool"),
       m_residualCalc("Trk::ResidualPullCalculator"),
+      m_idHelper{},
+      m_pixelId{},
       m_tracks(0),
       m_doIBLresidual(false),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
-      m_mon_counter(0),
+      m_mon_counter(1),
       m_mon_prescale(1),
       m_mon_ptmin(1)
   {
@@ -116,16 +118,6 @@ namespace InDet
   TrigTrackingxAODCnv::~TrigTrackingxAODCnv()
   {}
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackingxAODCnv::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackingxAODCnv::beginRun()" << endmsg;
-    m_mon_counter = 1;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
 
   ///////////////////////////////////////////////////////////////////
   // Initialisation
@@ -258,7 +250,7 @@ namespace InDet
     tpCont->setStore( &tpAuxCont );
 
 
-    if(m_tracks && runAlg) {
+    if(runAlg) { //m_tracks should not be checked here, it has been dereferenced already
       for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
         const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
 
@@ -333,18 +325,6 @@ namespace InDet
     msg() << MSG::DEBUG << "finalize() success" << endmsg;
     return HLT::OK;
   }
-
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackingxAODCnv::hltEndRun() {
-
-    msg() << MSG::INFO << "TrigTrackingxAODCnv::endRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
-
 
   //---------------------------------------------------------------------------
   //  update the monitoring arrays
@@ -498,7 +478,7 @@ namespace InDet
 
     //+++ Prescale
     if (m_mon_counter >= m_mon_prescale) {
-      m_mon_counter = 0;
+      m_mon_counter = 1;
     } else {
       return;
     }

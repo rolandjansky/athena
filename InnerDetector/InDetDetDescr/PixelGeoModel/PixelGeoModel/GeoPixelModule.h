@@ -13,6 +13,7 @@ class GeoPixelModule : public GeoVPixelFactory {
 
  public:
   GeoPixelModule(GeoPixelSiCrystal &theSensor);
+  virtual ~GeoPixelModule();
   virtual GeoVPhysVol* Build();
   double Thickness();
   double ThicknessN();

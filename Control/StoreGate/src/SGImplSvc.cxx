@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define SLOW_NEWDATAOBJECTS 1
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -70,7 +69,6 @@ using SG::TransientAddress;
 ///////////////////////////////////////////////////////////////////////////
 // Remapping implementation.
 
-thread_local DataObjIDColl s_newObjs;
 
 namespace SG {
 
@@ -621,8 +619,6 @@ SGImplSvc::addSymLink(const CLID& linkid, DataProxy* dp)
     if (baseptr)
       this->t2pRegister (baseptr, dp).ignore();
   }
-
-  addedNewTransObject (linkid, dp->name());
   return sc;
 }
 
@@ -635,8 +631,6 @@ SGImplSvc::addAlias(const std::string& aliasKey, DataProxy* proxy)
               << endmsg;
     return StatusCode::FAILURE;
   }
-
-  addedNewTransObject (proxy->clID(), aliasKey);
 
   // add key to proxy and to ProxyStore
   return m_pStore->addAlias(aliasKey, proxy);
@@ -814,19 +808,6 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
       return nullptr;
     }
   return proxy;
-}
-
-
-/**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode SGImplSvc::updatedObject (CLID id, const std::string& key)
-{
-  lock_t lock (m_mutex);
-  addedNewTransObject (id, key);
-  return StatusCode::SUCCESS;
 }
 
 
@@ -1154,10 +1135,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
     }
   }
 
-  addedNewTransObject(clid, rawKey);
-
   return dp;
-  
 }
 
 DataProxy*
@@ -1579,32 +1557,9 @@ void SGImplSvc::addAutoSymLinks (const std::string& key,
   }
 }
 
-StatusCode SGImplSvc::getNewDataObjects(DataObjIDColl& products) {
-  lock_t lock (m_mutex);
-  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,true);
-  products.swap(m_newDataObjects);
-  m_newDataObjects.clear();
-  return StatusCode::SUCCESS;
-}
-
-bool SGImplSvc::newDataObjectsPresent() /*const*/ {
-  lock_t lock (m_mutex);
-  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,false);
-  return !m_newDataObjects.empty();
-} 
-
 void
 SGImplSvc::commitNewDataObjects() {
   lock_t lock (m_mutex);
-  tbb::spin_rw_mutex::scoped_lock lock2(m_newDataLock,true);
-  for (auto obj : s_newObjs) {
-    if (msgLevel(MSG::VERBOSE)) {
-      verbose() << "committing dataObj \"" << obj << "\""
-                << endmsg;
-    }
-    m_newDataObjects.insert( obj );
-  }
-  s_newObjs.clear();
 
   // Reset handles added since the last call to commit.
   bool hard_reset = (m_numSlots > 1);
@@ -1613,36 +1568,6 @@ SGImplSvc::commitNewDataObjects() {
   for (IResetable* h : handles)
     h->reset (hard_reset);
 }
-
-#ifndef SLOW_NEWDATAOBJECTS
-void SGImplSvc::addedNewPersObject(CLID, DataProxy*) const {}
-void SGImplSvc::addedNewTransObject(CLID, const std::string&) {}
-#else
-void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) const {
-  lock_t lock (m_mutex);
-  //if proxy is loading from persistency
-  //add key of object to list of "newly recorded" objects
-  if (0 != dp->provider()) {
-    // The object itself.
-    s_newObjs.insert(DataObjID(clid,dp->name()));
-
-    // Aliases.
-    for (const std::string& alias : dp->alias()) {
-      s_newObjs.insert(DataObjID(clid,alias));
-    }
-
-    // Symlinks.
-    for (CLID clid2 : dp->transientID()) {
-      if (clid2 != clid)
-        s_newObjs.insert(DataObjID(clid2,dp->name()));
-    }
-  }
-}
-void SGImplSvc::addedNewTransObject(CLID clid, const std::string& key) const {
-  lock_t lock (m_mutex);
-  s_newObjs.insert(DataObjID(clid,key));
-}
-#endif
 
 
 /**

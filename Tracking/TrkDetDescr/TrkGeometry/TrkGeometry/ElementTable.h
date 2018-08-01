@@ -11,10 +11,10 @@
 
 
 #include "TrkGeometry/Material.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <climits>
 #include <memory>
-#include "CLIDSvc/CLASS_DEF.h"
 
 class MsgStream;
 

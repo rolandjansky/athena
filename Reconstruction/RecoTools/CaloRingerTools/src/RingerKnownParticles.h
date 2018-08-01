@@ -22,10 +22,10 @@ namespace Ringer {
 /**
  * @brief template to get particle_t name and if it has cluster access.
  *
- *  - Use GetParticleProp< particle_t >::name to retrieve the particle name. 
+ *  - Use GetParticleProp< particle_t >::name to retrieve the particle name.
  *
  *  - Use GetParticleProp< particle_t >::hasCluster to retrieve whether particle
- * has cluster access. 
+ * has cluster access.
  *
  * The particle must have its class name declared using
  * DECLARE_RINGER_KNOWN_PARTICLE macro.
@@ -48,12 +48,12 @@ template < typename particle_t > struct GetParticleProp;
   }
 
 // Declare Ringer known particles:
-DECLARE_RINGER_KNOWN_PARTICLE( const xAOD::Electron  , true  ) 
-DECLARE_RINGER_KNOWN_PARTICLE( const xAOD::Photon    , true  ) 
+DECLARE_RINGER_KNOWN_PARTICLE( xAOD::Electron  , true  )
+DECLARE_RINGER_KNOWN_PARTICLE( xAOD::Photon    , true  )
 
 // Ringer can be run with IParticles, but it won't use cluster information
 // since it is not available:
-DECLARE_RINGER_KNOWN_PARTICLE( const xAOD::IParticle , false ) 
+DECLARE_RINGER_KNOWN_PARTICLE( xAOD::IParticle , false )
 
 #undef DECLARE_RINGER_KNOWN_PARTICLE
 

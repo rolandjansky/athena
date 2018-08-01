@@ -182,6 +182,8 @@ namespace InDet{
                    " is true and used for clustering");
     }
 
+    ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -436,7 +438,20 @@ namespace InDet{
 
     // Find detector element for these digits
     Identifier elementID(collection.identify());
-    const  InDetDD::SiDetectorElement* element = manager.getDetectorElement(elementID);
+    const  InDetDD::SiDetectorElement* element = nullptr;
+    if (m_useDetectorManager) {
+      element = manager.getDetectorElement(elementID);
+    } else {
+      const Identifier waferId{idHelper.wafer_id(elementID)};
+      const IdentifierHash waferHash{idHelper.wafer_hash(waferId)};
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+      const InDetDD::SiDetectorElementCollection* sctDetEle{*sctDetEleHandle};
+      if (not sctDetEleHandle.isValid() or sctDetEle==nullptr) {
+        ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+        return nullResult;
+      }
+      element = sctDetEle->getDetectorElement(waferHash);
+    }
     if (!element) {
       ATH_MSG_WARNING("Element not in the element map, ID = "<< elementID);
       return nullResult;

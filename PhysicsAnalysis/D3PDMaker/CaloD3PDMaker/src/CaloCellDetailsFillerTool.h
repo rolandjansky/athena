@@ -14,13 +14,13 @@
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "GaudiKernel/ToolHandle.h" 
+#include "CaloConditions/ICaloBadChanTool.h"
+#include "CaloInterface/ICaloNoiseTool.h"
 
 class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
-class ICaloBadChanTool;
-class ICaloNoiseTool;
 
 namespace D3PD {
 

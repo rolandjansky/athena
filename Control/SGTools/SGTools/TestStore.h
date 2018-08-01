@@ -63,7 +63,6 @@ public:
   virtual void registerKey (sgkey_t /*key*/,
                             const std::string& /*str*/,
                             CLID /*clid*/) override;
-  virtual StatusCode updatedObject (CLID id, const std::string& key) override;
 
   
   // These have dummy implementations.
@@ -135,9 +134,6 @@ public:
   mutable SG::StringPool m_stringPool ATLAS_THREAD_SAFE;
 
   std::vector<IResetable*> m_boundHandles;
-
-  std::vector<std::string> m_updated;
-  bool m_failUpdatedObject = false;
 
   // Log failed calls to proxy(CLID, std::string).
   mutable std::vector<std::pair<CLID, std::string> > m_missedProxies ATLAS_THREAD_SAFE;

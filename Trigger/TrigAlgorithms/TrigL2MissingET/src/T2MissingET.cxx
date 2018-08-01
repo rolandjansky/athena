@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -147,7 +147,7 @@ T2MissingET::T2MissingET(const std::string& name, ISvcLocator* pSvcLocator)
 
 //////////////////////////////////////////////////////////
 
-HLT::ErrorCode T2MissingET::hltBeginRun() {
+HLT::ErrorCode T2MissingET::hltStart() {
 
   // access StoreGate
   m_StoreGate = store();

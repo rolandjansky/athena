@@ -20,6 +20,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/WriteHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "PixelProcessorTool.h"
@@ -48,7 +49,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
 
   protected:
-    void addSDO(SiChargedDiodeCollection *collection);
+    void addSDO(SiChargedDiodeCollection &collection);
 
   private:
 

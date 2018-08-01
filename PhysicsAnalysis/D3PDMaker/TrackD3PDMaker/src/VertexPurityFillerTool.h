@@ -7,10 +7,10 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkVertexFitterValidationUtils/TrkPriVxPurityTool.h"
 
 namespace Trk{
 class VxCandidate;
-class TrkPriVxPurityTool;
 }
 
 namespace D3PD {

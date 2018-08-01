@@ -11,6 +11,8 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetTrackClusterAssValidation/TrackClusterAssValidation.h"
 #include "StoreGate/ReadHandle.h"
+#include "HepPDT/ParticleDataTable.hh"
+#include "HepMC/GenParticle.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -1463,11 +1465,11 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
   }
 
   for(c = event_data.m_kinecluster.begin(); c!= event_data.m_kinecluster.end(); ++c) {
-
     const Trk::PrepRawData*
-      d = (*c).second;
+    d = (*c).second;
     const InDetDD::SiDetectorElement*
-      de= dynamic_cast<const InDetDD::SiDetectorElement*>(d->detectorElement());
+    de= dynamic_cast<const InDetDD::SiDetectorElement*>(d->detectorElement());
+    if (not de) continue;
     int q  = charge(event_data,*c,rp);
 
     if     (q<0) {

@@ -19,16 +19,7 @@
 ///  - Label: Label for the constituents. See note below.
 ///  - SkipNegativeEnergy: Flag indicating that inputs with negative energy
 /// should be ignored.
-///  - GhostScale : If nonzero, the pseudojets are labeled as ghosts and
-/// their four-momenta are scaled by this factor.
-///
-/// Note: The label is attached to the CUI (constituent user info) associated with
-/// created pseudojet and should be unique for each set of pseuodjets used as input
-/// for finding a particular collection of jets.
-///
-/// The label for a primary pseudojet getter (the first in the vector presented
-/// to JetRecTool) is used to deduce the input type and must be one of the
-/// following: LCTopo, TopoEM, TopoTower, Tower, Truth, Track, PFlow.
+///  - Pt : The pT set on the MS ghosts
 
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IPseudoJetGetter.h"
@@ -73,10 +64,7 @@ protected:  //data
 
   // Job options.
   SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_incoll;        /// Input collection name.
-  SG::ReadHandleKey<PseudoJetContainer> m_outcollRead;        /// Output collection for reading
-  SG::ReadHandleKey<PseudoJetContainer> m_outcollReadGhost;        /// Output ghost collection for reading
   SG::WriteHandleKey<PseudoJetContainer> m_outcoll;      /// Output collection name.
-  SG::WriteHandleKey<PseudoJetContainer> m_outcollGhost;      /// Output ghost collection name.
 
   std::string m_label;              /// Label for the collection.
   double m_pt;                      /// PT assiged to the pseudojets.

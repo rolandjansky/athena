@@ -1325,13 +1325,13 @@ StatusCode SiSmearedDigitizationTool::digitize()
 
       // Smear intersection
       // create the smear parameter
-      if(m_SmearPixel){ // Smear Pixel also in y direction
+      if(m_SmearPixel and hitPlanarDetElement){ // Smear Pixel also in y direction
         if (sigmaX != 0.) {
           double sParX = 0.;
           do {
             sParX = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaX);
             ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for X --- " << sParX);
-          } while (std::fabs(interX+sParX)>(hitPlanarDetElement->lengthXmin()/2.));
+          } while (std::fabs(interX+sParX)>(hitPlanarDetElement->lengthXmin()*0.5));
           interX += sParX;
         }
         if (sigmaY != 0.) {
@@ -1339,13 +1339,13 @@ StatusCode SiSmearedDigitizationTool::digitize()
           do {
             sParY = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaY);
             ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for Y --- " << sParY);
-          }  while (std::fabs(interY+sParY)>(hitPlanarDetElement->lengthY()/2.));
+          }  while (std::fabs(interY+sParY)>(hitPlanarDetElement->lengthY()*0.5));
           interY += sParY;
         }
       }
 
       // Define the current smeared center position
-      if(!m_SmearPixel && !m_useDiscSurface) {
+      if(!m_SmearPixel and !m_useDiscSurface and hitPlanarDetElement) {
         // correct position x first if you have a trapezoid
         if (hitPlanarDetElement->shape() == InDetDD::Trapezoid) {
           double lengthY    = hitPlanarDetElement->lengthY();

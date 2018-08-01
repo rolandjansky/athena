@@ -18,7 +18,8 @@ AtlasG4_tf.py \
 --physicsList 'FTFP_BERT' \
 --DBRelease 'current' \
 --postInclude 'G4AtlasTests/postInclude.DCubeTest.py,G4AtlasTests/postInclude.NSW.config.simu.py' \
---preExec 'simFlags.ReleaseGeoModel=False;simFlags.SimulateNewSmallWheel=True;'
+--preExec 'simFlags.ReleaseGeoModel=False;simFlags.SimulateNewSmallWheel=True;' \
+--imf False
 
 echo  "art-result: $? simulation"
 

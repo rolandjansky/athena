@@ -211,8 +211,3 @@ StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const in
 
   return StatusCode::SUCCESS;
 }
-
-/** destructor */
-TauJetTagTool::~TauJetTagTool() {}
-
-

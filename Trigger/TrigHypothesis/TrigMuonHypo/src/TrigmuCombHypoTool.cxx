@@ -104,7 +104,7 @@ bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonIn
  
    //Retrieve combined muon
    //xAOD::L2CombinedMuon
-   auto pMuon = input.cluster;
+   auto pMuon = input.muComb;
    if (!pMuon) {
       result = false;
       ATH_MSG_ERROR("Retrieval of xAOD::L2CombinedMuon from vector failed");
@@ -280,7 +280,7 @@ StatusCode TrigmuCombHypoTool::multiplicitySelection(std::vector<TrigmuCombHypoT
       auto notFromSameRoI = [&]( const HLT::Index1DVec& comb ) {
          std::set<const xAOD::L2CombinedMuon*> setOfClusters;
          for ( auto index: comb ) {
-            setOfClusters.insert( input[index].cluster );
+            setOfClusters.insert( input[index].muComb );
          }
          return setOfClusters.size() == comb.size();
       };
@@ -298,7 +298,7 @@ StatusCode TrigmuCombHypoTool::multiplicitySelection(std::vector<TrigmuCombHypoT
 
    for ( auto idx: passingIndices ) {
       ATH_MSG_DEBUG("Muon event[" << idx << "] passes through Chain/ID " << m_decisionId 
-                    << " with pT = " << input[idx].cluster->pt() << "GeV" );
+                    << " with pT = " << input[idx].muComb->pt() << "GeV" );
       TrigCompositeUtils::addDecisionID( m_decisionId.numeric(), input[idx].decision );
    }
 

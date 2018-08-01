@@ -8,10 +8,7 @@
 //
 //****************************************************************************
 
-#include "TBRec/TBExtrapolTrackToCaloTool.h"
-
-#include "GaudiKernel/Property.h"
-
+#include "TBExtrapolTrackToCaloTool.h"
 #include <vector>
 
 // Stuff needed for the extrapolation :

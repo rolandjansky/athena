@@ -40,7 +40,8 @@ enum PreProcessorTypes {
   ConstantValue,
   Sequential,
   Spherization,
-  MinMax
+  MinMax,
+  ExtraPatternsNorm
 };
 } // namespace Type
 } // namespace PreProcessing
@@ -57,7 +58,8 @@ enum DiscriminatorTypes {
 enum ThresholdTypes {
   IThresholdVarDep,
   IThreshold,
-  UniqueThreshold
+  UniqueThreshold,
+  LinearPileupCorrectionThreshold
 };
 } // namespace Type
 } // namespace Discrimination

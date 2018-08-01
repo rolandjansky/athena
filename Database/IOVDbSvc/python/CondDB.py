@@ -28,6 +28,8 @@ import os
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from IOVSvc.IOVSvcConf import CondSvc
 from IOVSvc.IOVSvcConf import CondInputLoader
+from AthenaServices.AthenaServicesConf import Athena__ConditionsCleanerSvc
+from AthenaServices.AthenaServicesConf import Athena__DelayedConditionsCleanerSvc
 from AthenaCommon.AlgSequence import AthSequencer
 import StoreGate.StoreGateConf as StoreGateConf
 
@@ -37,6 +39,11 @@ condSeq = AthSequencer("AthCondSeq")
 svcMgr += CondSvc()
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 condSeq += condInputLoader
+
+# Enable conditions garbage collection.
+cleaner = Athena__DelayedConditionsCleanerSvc()
+svcMgr += cleaner
+svcMgr += Athena__ConditionsCleanerSvc (CleanerSvc = cleaner)
 
 class CondDB:
     "Class to hold configuration information for Athena conditions DB access"

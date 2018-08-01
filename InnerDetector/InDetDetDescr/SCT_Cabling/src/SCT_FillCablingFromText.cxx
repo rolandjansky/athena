@@ -116,7 +116,7 @@ SCT_FillCablingFromText::filled() const {
 
 //
 StatusCode
-SCT_FillCablingFromText::fillMaps(ISCT_CablingSvc* cabling) {
+SCT_FillCablingFromText::fillMaps(ISCT_CablingSvc* cabling) const {
   if (readDataFromFile(cabling).isFailure()) {
     ATH_MSG_FATAL("Could not read cabling from file");
     return StatusCode::FAILURE;
@@ -127,7 +127,7 @@ SCT_FillCablingFromText::fillMaps(ISCT_CablingSvc* cabling) {
 
 //
 StatusCode
-SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) {
+SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) const {
   ServiceHandle<StoreGateSvc> detStore{"DetectorStore", name()};
   if (detStore.retrieve().isFailure()) {
     ATH_MSG_FATAL("Detector service  not found !");

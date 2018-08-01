@@ -23,8 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
-                          Trigger/TrigAnalysis/TriggerMenuAnalysis
-                          Trigger/TrigAnalysis/TriggerMenuNtuple
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data

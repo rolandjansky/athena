@@ -14,13 +14,12 @@
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 #include "Identifier/IdentifierHash.h"
-#include <vector>
 
 namespace InDet
 {
    class SiClusterOnTrack_p1    {
   public:
-     SiClusterOnTrack_p1():m_isbroad(false) {}
+     SiClusterOnTrack_p1():m_idDE{},m_isbroad(false) {}
 
      // base RIO_OnTrack_p1
      TPObjRef                       m_RIO;

@@ -39,6 +39,8 @@
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 namespace InDet
 {
@@ -164,16 +166,6 @@ namespace InDet
   TrigTrackResidualMonitor::~TrigTrackResidualMonitor()
   {}
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackResidualMonitor::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackResidualMonitor::beginRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
-
   ///////////////////////////////////////////////////////////////////
   // Initialisation
   ///////////////////////////////////////////////////////////////////
@@ -256,15 +248,6 @@ namespace InDet
     m_idHelperSCT = IdHelperSCT;
     
 
-    ///SCT Manager
-    if(detStore->retrieve(m_SCT_Manager, "SCT").isFailure()){
-      msg() << MSG::FATAL   << "Could not get SCT_Manager !" << endmsg;
-    }
-    else{
-      msg() << MSG::DEBUG << "SCT manager found !" << endmsg;
-    }
-    
-    
     // Pixel Manager
     if(detStore->retrieve(m_Pixel_Manager, "Pixel").isFailure()){
       msg() << MSG::FATAL   << "Could not get Pixel_Manager !" << endmsg;
@@ -444,239 +427,246 @@ namespace InDet
       
       
       if (trkSum && npix >= 3 && nsct >= 6){
-	const Trk::Perigee *trkPerig = track->perigeeParameters();
-	double TrackPt = -1;
-	if(trkPerig){
-	  TrackPt = trkPerig->pT();
-	  m_TrackPt.push_back(TrackPt);
-	}
-	if (trkPerig->pT() > 5000){
-	  for( ; it!=itEnd; ++it ){
-	    tsos = *it;
-	    if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
-	      const Trk::MeasurementBase* mesb=
-		dynamic_cast <const Trk::MeasurementBase*>((*it)->measurementOnTrack());
-	      const Trk::TrackParameters* trackPars = (*it)->trackParameters();
-	      
-	      const Trk::ResidualPull* resPullPixelBiased;// = 0;
-	      const Trk::ResidualPull* resPullSCTBiased; //= 0;
-	      
-	      const Trk::ResidualPull* resPullPixelUnbiased;// = 0;
-	      const Trk::ResidualPull* resPullSCTUnbiased; //= 0;
-	      
-	      int detType = 99;
-	      
-	      const Trk::MeasurementBase* mesh = (*it)->measurementOnTrack();
-	      const Trk::RIO_OnTrack* hitbec = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
-	      const Identifier & hitIdbec = hitbec->identify();
-	      
-	      
-	      if (m_idHelper->is_pixel(hitIdbec)){
-		detType = 0;
-	      }
-	      if (m_idHelper->is_sct(hitIdbec)) {
-		detType = 1;
-	      }
-	      
-	      if((mesb) != 0 && (trackPars) !=0){
-		const Trk::TrackParameters* TrackParams(0);
-		const Trk::TrackParameters* UnbiasedTrackParams(0);
-		const Trk::TrackParameters* PropagatedTrackParams(0);
-		const Trk::TrackParameters* OtherSideUnbiasedTrackParams(0);
-		const Trk::TrackParameters* PropagatedPixelUnbiasedTrackParams(0);
-		const Trk::TrackParameters* PixelUnbiasedTrackParams(0);
-		
-		const Trk::Surface* Surf = &(mesb->associatedSurface());
-		const Identifier id =  Surf->associatedDetectorElementIdentifier();
-		
-		if ( id.is_valid()) {
-		  int barrelECSCTUB = 99;
-		  int barrelECSCTB = 99;		  
-		  int barrelECPUB = 99;
-		  int barrelECPB = 99;
-		  if (detType == 1 ) {
-		    //	if (m_idHelperSCT->is_sct(id)) {  //there's no TrueUnbiased for non-SCT (pixel) hits)  
-		    
-		    // check if other module side was also hit and try to remove other hit as well
-		    const Identifier& idbECSCTUB = m_idHelperSCT->wafer_id(hitIdbec);
-		    barrelECSCTUB = m_idHelperSCT->barrel_ec(idbECSCTUB);
-		    const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
-		    const Identifier& OtherModuleSideID = m_SCT_Manager->getDetectorElement(id)->otherSide()->identify();
-		    //const Trk::RIO_OnTrack* hit(0);
-		    
-		    for (const Trk::TrackStateOnSurface* TempTsos : *(*itResTrk)->trackStateOnSurfaces()) {
-		      const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
-		      //hit = hitOnTrack;
-		      if (hitOnTrack != 0) {
-			const Identifier& trkID = hitOnTrack->identify();
-			if (m_idHelperSCT->wafer_id(trkID) == OtherModuleSideID) {
-			  OtherModuleSideHit = TempTsos;
-			}
-		      }
-		    }
-		    
-		    if (OtherModuleSideHit) {
-		      if (OtherModuleSideHit->trackParameters()) {
-			OtherSideUnbiasedTrackParams = m_updator->removeFromState(*(OtherModuleSideHit->trackParameters()),
-										  OtherModuleSideHit->measurementOnTrack()->localParameters(),
-										  OtherModuleSideHit->measurementOnTrack()->localCovariance());
-			
-			if (OtherSideUnbiasedTrackParams) {
-			  const Trk::Surface* TempSurface = &(OtherModuleSideHit->measurementOnTrack()->associatedSurface());
-			  const Trk::MagneticFieldProperties* TempField = 0;
-			  if (TempSurface){
-			    if (TempSurface->associatedLayer()){
-			      if (TempSurface->associatedLayer()->enclosingTrackingVolume()){
-				TempField = dynamic_cast <const Trk::MagneticFieldProperties*>(TempSurface->associatedLayer()->enclosingTrackingVolume());
-			      }
-			    }
-			  } 
-			  
-			  PropagatedTrackParams = m_propagator->propagate(*OtherSideUnbiasedTrackParams,
-									  tsos->measurementOnTrack()->associatedSurface(),
-									  Trk::anyDirection, false,
-									  *TempField,
-									  m_ParticleHypothesis);
-			  
-			  delete OtherSideUnbiasedTrackParams;
-			  
-			  UnbiasedTrackParams = m_updator->removeFromState(*PropagatedTrackParams, 
-									   tsos->measurementOnTrack()->localParameters(), 
-									   tsos->measurementOnTrack()->localCovariance());
-			  
-			  delete PropagatedTrackParams;
-			  if (UnbiasedTrackParams) {
-			    TrackParams = UnbiasedTrackParams->clone(); 
-			  }
-			  
-			  resPullSCTUnbiased =   m_residualPullCalculator->residualPull(mesb,TrackParams,Trk::ResidualPull::Unbiased);
-			  if(barrelECSCTUB == 0) {  // Barrel region
-			    m_resSCTUnbiasedBarrel.push_back(resPullSCTUnbiased->residual()[Trk::loc1]);
-			    m_pullSCTUnbiasedBarrel.push_back(resPullSCTUnbiased->pull()[Trk::loc1]);
-			  }
-			  else if (barrelECSCTUB == 2){ // EndCap A
-			    m_resSCTUnbiasedEndCapA.push_back(resPullSCTUnbiased->residual()[Trk::loc1]);
-			    m_pullSCTUnbiasedEndCapA.push_back(resPullSCTUnbiased->pull()[Trk::loc1]);
-			  }
-			  else if (barrelECSCTUB == -2 ) { // EndCap A
-			    m_resSCTUnbiasedEndCapC.push_back(resPullSCTUnbiased->residual()[Trk::loc1]);
-			    m_pullSCTUnbiasedEndCapC.push_back(resPullSCTUnbiased->pull()[Trk::loc1]);
-			  }
-			  delete UnbiasedTrackParams;  	      
-			} 
-		      } 
-		    } 
-		  } // end of m_True Unbiased Loop
-		  
-		  
-		  else if ( detType == 0 ) {
-		    // else  if (m_idHelperPixel->is_pixel(id) ) {  
-		    const Identifier& idbECPUB = m_idHelperPixel->wafer_id(hitIdbec);
-		    barrelECPUB = m_idHelperPixel->barrel_ec(idbECPUB);
-		    const Trk::TrackStateOnSurface* PixelSideHit(0);
-		    PixelSideHit = *it;
-		    
-		    PropagatedPixelUnbiasedTrackParams = m_updator->removeFromState(*tsos->trackParameters(), 
-										    tsos->measurementOnTrack()->localParameters(), 
-										    tsos->measurementOnTrack()->localCovariance());
-		    //  const Identifier& PixelID = m_Pixel_Manager->getDetectorElement(id)->identify();
-		    const Trk::Surface* TempSurfacePixel = &(PixelSideHit->measurementOnTrack()->associatedSurface());
-		    const Trk::MagneticFieldProperties* TempFieldPixel = 0;
-		    
-		    if (TempSurfacePixel){
-		      if (TempSurfacePixel->associatedLayer()){
-			if (TempSurfacePixel->associatedLayer()->enclosingTrackingVolume()){
-			  TempFieldPixel = dynamic_cast <const Trk::MagneticFieldProperties*>(TempSurfacePixel->associatedLayer()->enclosingTrackingVolume());
-			}
-		      }
-		    } 
-		    
-		    PixelUnbiasedTrackParams = m_propagator->propagate(*PropagatedPixelUnbiasedTrackParams,
-								       tsos->measurementOnTrack()->associatedSurface(),
-								       Trk::anyDirection, false,
-								       *TempFieldPixel,
-								       m_ParticleHypothesis);
-		    delete PropagatedPixelUnbiasedTrackParams;		
-		    
-		    if (PixelUnbiasedTrackParams) {
-		      TrackParams = PixelUnbiasedTrackParams->clone(); 
-		    }
-		    
-		    resPullPixelUnbiased = m_residualPullCalculator->residualPull(mesb,TrackParams,Trk::ResidualPull::Unbiased);
-		    if (barrelECPUB == 0){
-		      m_resPixellocXUnbiasedBarrel.push_back(resPullPixelUnbiased->residual()[Trk::locX]);
-		      m_resPixellocYUnbiasedBarrel.push_back(resPullPixelUnbiased->residual()[Trk::locY]);
-		      m_pullPixellocXUnbiasedBarrel.push_back(resPullPixelUnbiased->pull()[Trk::locX]);
-		      m_pullPixellocYUnbiasedBarrel.push_back(resPullPixelUnbiased->pull()[Trk::locY]);
-		    }
-		    else if (barrelECPUB == 2 ){
-		      m_resPixellocXUnbiasedEndCapA.push_back(resPullPixelUnbiased->residual()[Trk::locX]);
-		      m_resPixellocYUnbiasedEndCapA.push_back(resPullPixelUnbiased->residual()[Trk::locY]);
-		      m_pullPixellocXUnbiasedEndCapA.push_back(resPullPixelUnbiased->pull()[Trk::locX]);
-		      m_pullPixellocYUnbiasedEndCapA.push_back(resPullPixelUnbiased->pull()[Trk::locY]);
-		    }
-		    else if (barrelECPUB == -2 ) {
-		      m_resPixellocXUnbiasedEndCapC.push_back(resPullPixelUnbiased->residual()[Trk::locX]);
-		      m_resPixellocYUnbiasedEndCapC.push_back(resPullPixelUnbiased->residual()[Trk::locY]);
-		      m_pullPixellocXUnbiasedEndCapC.push_back(resPullPixelUnbiased->pull()[Trk::locX]);
-		      m_pullPixellocYUnbiasedEndCapC.push_back(resPullPixelUnbiased->pull()[Trk::locY]);
-		    }
-		  }
-		  
-		  
-		  if ( detType == 0 ){
-		    // if (m_idHelperPixel->is_pixel(id) ) {
-		    const Identifier& idbECPB = m_idHelperPixel->wafer_id(hitIdbec);
-		    barrelECPB = m_idHelperPixel->barrel_ec(idbECPB);
-		    
-		    resPullPixelBiased = m_residualPullCalculator->residualPull(mesb,trackPars,Trk::ResidualPull::Biased);
-		    
-		    if(barrelECPB == 0){
-		      m_resPixellocXBiasedBarrel.push_back(resPullPixelBiased->residual()[Trk::locX]);
-		      m_resPixellocYBiasedBarrel.push_back(resPullPixelBiased->residual()[Trk::locY]);
-		      m_pullPixellocXBiasedBarrel.push_back(resPullPixelBiased->pull()[Trk::locX]);
-		      m_pullPixellocYBiasedBarrel.push_back(resPullPixelBiased->pull()[Trk::locY]);
-		    }
-		    else if (barrelECPB == 2 ){
-		      m_resPixellocXBiasedEndCapA.push_back(resPullPixelBiased->residual()[Trk::locX]);
-		      m_resPixellocYBiasedEndCapA.push_back(resPullPixelBiased->residual()[Trk::locY]);
-		      m_pullPixellocXBiasedEndCapA.push_back(resPullPixelBiased->pull()[Trk::locX]);
-		      m_pullPixellocYBiasedEndCapA.push_back(resPullPixelBiased->pull()[Trk::locY]);
-		    }
-		    else if (barrelECPB == -2 ) {
-		      m_resPixellocXBiasedEndCapC.push_back(resPullPixelBiased->residual()[Trk::locX]);
-		      m_resPixellocYBiasedEndCapC.push_back(resPullPixelBiased->residual()[Trk::locY]);
-		      m_pullPixellocXBiasedEndCapC.push_back(resPullPixelBiased->pull()[Trk::locX]);
-		      m_pullPixellocYBiasedEndCapC.push_back(resPullPixelBiased->pull()[Trk::locY]);
-		    }
-		    
-		    
-		  } else if ( detType == 1 ) {
-		    // } else if (m_idHelperSCT->is_sct(id)) {
-		    const Identifier& idbECSCTB = m_idHelperSCT->wafer_id(hitIdbec);
-		    barrelECSCTB = m_idHelperSCT->barrel_ec(idbECSCTB);
-		    
-		    resPullSCTBiased =   m_residualPullCalculator->residualPull(mesb,trackPars,Trk::ResidualPull::Biased);
-		    
-		    if(barrelECSCTB == 0){
-		      m_resSCTBiasedBarrel.push_back(resPullSCTBiased->residual()[Trk::locX]);
-		      m_pullSCTBiasedBarrel.push_back(resPullSCTBiased->pull()[Trk::locX]);
-		    }
-		    else if (barrelECSCTB == 2) {
-		      m_resSCTBiasedEndCapA.push_back(resPullSCTBiased->residual()[Trk::locX]);
-		      m_pullSCTBiasedEndCapA.push_back(resPullSCTBiased->pull()[Trk::locX]);
-		    }
-		    else if (barrelECSCTB == -2 ) {
-		      m_resSCTBiasedEndCapC.push_back(resPullSCTBiased->residual()[Trk::locX]);
-		      m_pullSCTBiasedEndCapC.push_back(resPullSCTBiased->pull()[Trk::locX]);
-		    }
-		  }
-		} // is_valid, for detector types
-	      } // if loop, track parameters ! = 0 or trackPars !=0
-	    } // If loop   Trk::measurement
-	  } // end of for loop over trackStateOnSurfaces
-	} // end of the if loop for trkPerig->pT()
-      }// end of trkSum and npix and nsct
+        const Trk::Perigee *trkPerig = track->perigeeParameters();
+        double TrackPt = -1;
+        if(trkPerig){
+          TrackPt = trkPerig->pT();
+          m_TrackPt.push_back(TrackPt);
+          if (trkPerig->pT() > 5000){
+            for( ; it!=itEnd; ++it ){
+              tsos = *it;
+              if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
+                const Trk::MeasurementBase* mesb=dynamic_cast <const Trk::MeasurementBase*>((*it)->measurementOnTrack());
+                const Trk::TrackParameters* trackPars = (*it)->trackParameters();
+        
+                const Trk::ResidualPull* resPullPixelBiased;// = 0;
+                const Trk::ResidualPull* resPullSCTBiased; //= 0;
+        
+                const Trk::ResidualPull* resPullPixelUnbiased;// = 0;
+                const Trk::ResidualPull* resPullSCTUnbiased; //= 0;
+        
+                int detType = 99;
+        
+                const Trk::MeasurementBase* mesh = (*it)->measurementOnTrack();
+                const Trk::RIO_OnTrack* hitbec = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
+                if (not hitbec){
+                  msg() << MSG::WARNING << " Cast from MeasurementBase to RIO_OnTrack failed in line "<<__LINE__ << endmsg;
+                  continue;
+                }
+                const Identifier & hitIdbec = hitbec->identify();
+        
+        
+                if (m_idHelper->is_pixel(hitIdbec)){
+            detType = 0;
+                }
+                if (m_idHelper->is_sct(hitIdbec)) {
+            detType = 1;
+                }
+        
+                if((mesb) != 0 && (trackPars) !=0){
+            const Trk::TrackParameters* TrackParams(0);
+            const Trk::TrackParameters* UnbiasedTrackParams(0);
+            const Trk::TrackParameters* PropagatedTrackParams(0);
+            const Trk::TrackParameters* OtherSideUnbiasedTrackParams(0);
+            const Trk::TrackParameters* PropagatedPixelUnbiasedTrackParams(0);
+            const Trk::TrackParameters* PixelUnbiasedTrackParams(0);
+    
+            const Trk::Surface* Surf = &(mesb->associatedSurface());
+            const Identifier id =  Surf->associatedDetectorElementIdentifier();
+    
+            if ( id.is_valid()) {
+              int barrelECSCTUB = 99;
+              int barrelECSCTB = 99;		  
+              int barrelECPUB = 99;
+              int barrelECPB = 99;
+              if (detType == 1 ) {
+                //	if (m_idHelperSCT->is_sct(id)) {  //there's no TrueUnbiased for non-SCT (pixel) hits)  
+        
+                // check if other module side was also hit and try to remove other hit as well
+                const Identifier& idbECSCTUB = m_idHelperSCT->wafer_id(hitIdbec);
+                barrelECSCTUB = m_idHelperSCT->barrel_ec(idbECSCTUB);
+                const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
+                const IdentifierHash waferHash = m_idHelperSCT->wafer_hash(id);
+                IdentifierHash otherSideHash;
+                m_idHelperSCT->get_other_side(waferHash, otherSideHash);
+                const Identifier OtherModuleSideID = m_idHelperSCT->wafer_id(otherSideHash);
+                //const Trk::RIO_OnTrack* hit(0);
+        
+                for (const Trk::TrackStateOnSurface* TempTsos : *(*itResTrk)->trackStateOnSurfaces()) {
+                  const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
+                  //hit = hitOnTrack;
+                  if (hitOnTrack != 0) {
+              const Identifier& trkID = hitOnTrack->identify();
+              if (m_idHelperSCT->wafer_id(trkID) == OtherModuleSideID) {
+                OtherModuleSideHit = TempTsos;
+              }
+                  }
+                }
+        
+                if (OtherModuleSideHit) {
+                  if (OtherModuleSideHit->trackParameters()) {
+              OtherSideUnbiasedTrackParams = m_updator->removeFromState(*(OtherModuleSideHit->trackParameters()),
+                              OtherModuleSideHit->measurementOnTrack()->localParameters(),
+                              OtherModuleSideHit->measurementOnTrack()->localCovariance());
+      
+              if (OtherSideUnbiasedTrackParams) {
+                const Trk::Surface* TempSurface = &(OtherModuleSideHit->measurementOnTrack()->associatedSurface());
+                const Trk::MagneticFieldProperties* TempField = 0;
+                if (TempSurface){
+                  if (TempSurface->associatedLayer()){
+                    if (TempSurface->associatedLayer()->enclosingTrackingVolume()){
+                TempField = dynamic_cast <const Trk::MagneticFieldProperties*>(TempSurface->associatedLayer()->enclosingTrackingVolume());
+                    }
+                  }
+                } 
+        
+                PropagatedTrackParams = m_propagator->propagate(*OtherSideUnbiasedTrackParams,
+                            tsos->measurementOnTrack()->associatedSurface(),
+                            Trk::anyDirection, false,
+                            *TempField,
+                            m_ParticleHypothesis);
+        
+                delete OtherSideUnbiasedTrackParams;
+        
+                UnbiasedTrackParams = m_updator->removeFromState(*PropagatedTrackParams, 
+                             tsos->measurementOnTrack()->localParameters(), 
+                             tsos->measurementOnTrack()->localCovariance());
+        
+                delete PropagatedTrackParams;
+                if (UnbiasedTrackParams) {
+                  TrackParams = UnbiasedTrackParams->clone(); 
+                }
+        
+                resPullSCTUnbiased =   m_residualPullCalculator->residualPull(mesb,TrackParams,Trk::ResidualPull::Unbiased);
+                if(barrelECSCTUB == 0) {  // Barrel region
+                  m_resSCTUnbiasedBarrel.push_back(resPullSCTUnbiased->residual()[Trk::loc1]);
+                  m_pullSCTUnbiasedBarrel.push_back(resPullSCTUnbiased->pull()[Trk::loc1]);
+                }
+                else if (barrelECSCTUB == 2){ // EndCap A
+                  m_resSCTUnbiasedEndCapA.push_back(resPullSCTUnbiased->residual()[Trk::loc1]);
+                  m_pullSCTUnbiasedEndCapA.push_back(resPullSCTUnbiased->pull()[Trk::loc1]);
+                }
+                else if (barrelECSCTUB == -2 ) { // EndCap A
+                  m_resSCTUnbiasedEndCapC.push_back(resPullSCTUnbiased->residual()[Trk::loc1]);
+                  m_pullSCTUnbiasedEndCapC.push_back(resPullSCTUnbiased->pull()[Trk::loc1]);
+                }
+                delete UnbiasedTrackParams;  	      
+              } 
+                  } 
+                } 
+              } // end of m_True Unbiased Loop
+      
+      
+              else if ( detType == 0 ) {
+                // else  if (m_idHelperPixel->is_pixel(id) ) {  
+                const Identifier& idbECPUB = m_idHelperPixel->wafer_id(hitIdbec);
+                barrelECPUB = m_idHelperPixel->barrel_ec(idbECPUB);
+                const Trk::TrackStateOnSurface* PixelSideHit(0);
+                PixelSideHit = *it;
+        
+                PropagatedPixelUnbiasedTrackParams = m_updator->removeFromState(*tsos->trackParameters(), 
+                                tsos->measurementOnTrack()->localParameters(), 
+                                tsos->measurementOnTrack()->localCovariance());
+                //  const Identifier& PixelID = m_Pixel_Manager->getDetectorElement(id)->identify();
+                const Trk::Surface* TempSurfacePixel = &(PixelSideHit->measurementOnTrack()->associatedSurface());
+                const Trk::MagneticFieldProperties* TempFieldPixel = 0;
+        
+                if (TempSurfacePixel){
+                  if (TempSurfacePixel->associatedLayer()){
+              if (TempSurfacePixel->associatedLayer()->enclosingTrackingVolume()){
+                TempFieldPixel = dynamic_cast <const Trk::MagneticFieldProperties*>(TempSurfacePixel->associatedLayer()->enclosingTrackingVolume());
+              }
+                  }
+                } 
+        
+                PixelUnbiasedTrackParams = m_propagator->propagate(*PropagatedPixelUnbiasedTrackParams,
+                               tsos->measurementOnTrack()->associatedSurface(),
+                               Trk::anyDirection, false,
+                               *TempFieldPixel,
+                               m_ParticleHypothesis);
+                delete PropagatedPixelUnbiasedTrackParams;		
+        
+                if (PixelUnbiasedTrackParams) {
+                  TrackParams = PixelUnbiasedTrackParams->clone(); 
+                }
+        
+                resPullPixelUnbiased = m_residualPullCalculator->residualPull(mesb,TrackParams,Trk::ResidualPull::Unbiased);
+                if (barrelECPUB == 0){
+                  m_resPixellocXUnbiasedBarrel.push_back(resPullPixelUnbiased->residual()[Trk::locX]);
+                  m_resPixellocYUnbiasedBarrel.push_back(resPullPixelUnbiased->residual()[Trk::locY]);
+                  m_pullPixellocXUnbiasedBarrel.push_back(resPullPixelUnbiased->pull()[Trk::locX]);
+                  m_pullPixellocYUnbiasedBarrel.push_back(resPullPixelUnbiased->pull()[Trk::locY]);
+                }
+                else if (barrelECPUB == 2 ){
+                  m_resPixellocXUnbiasedEndCapA.push_back(resPullPixelUnbiased->residual()[Trk::locX]);
+                  m_resPixellocYUnbiasedEndCapA.push_back(resPullPixelUnbiased->residual()[Trk::locY]);
+                  m_pullPixellocXUnbiasedEndCapA.push_back(resPullPixelUnbiased->pull()[Trk::locX]);
+                  m_pullPixellocYUnbiasedEndCapA.push_back(resPullPixelUnbiased->pull()[Trk::locY]);
+                }
+                else if (barrelECPUB == -2 ) {
+                  m_resPixellocXUnbiasedEndCapC.push_back(resPullPixelUnbiased->residual()[Trk::locX]);
+                  m_resPixellocYUnbiasedEndCapC.push_back(resPullPixelUnbiased->residual()[Trk::locY]);
+                  m_pullPixellocXUnbiasedEndCapC.push_back(resPullPixelUnbiased->pull()[Trk::locX]);
+                  m_pullPixellocYUnbiasedEndCapC.push_back(resPullPixelUnbiased->pull()[Trk::locY]);
+                }
+              }
+      
+      
+              if ( detType == 0 ){
+                // if (m_idHelperPixel->is_pixel(id) ) {
+                const Identifier& idbECPB = m_idHelperPixel->wafer_id(hitIdbec);
+                barrelECPB = m_idHelperPixel->barrel_ec(idbECPB);
+        
+                resPullPixelBiased = m_residualPullCalculator->residualPull(mesb,trackPars,Trk::ResidualPull::Biased);
+        
+                if(barrelECPB == 0){
+                  m_resPixellocXBiasedBarrel.push_back(resPullPixelBiased->residual()[Trk::locX]);
+                  m_resPixellocYBiasedBarrel.push_back(resPullPixelBiased->residual()[Trk::locY]);
+                  m_pullPixellocXBiasedBarrel.push_back(resPullPixelBiased->pull()[Trk::locX]);
+                  m_pullPixellocYBiasedBarrel.push_back(resPullPixelBiased->pull()[Trk::locY]);
+                }
+                else if (barrelECPB == 2 ){
+                  m_resPixellocXBiasedEndCapA.push_back(resPullPixelBiased->residual()[Trk::locX]);
+                  m_resPixellocYBiasedEndCapA.push_back(resPullPixelBiased->residual()[Trk::locY]);
+                  m_pullPixellocXBiasedEndCapA.push_back(resPullPixelBiased->pull()[Trk::locX]);
+                  m_pullPixellocYBiasedEndCapA.push_back(resPullPixelBiased->pull()[Trk::locY]);
+                }
+                else if (barrelECPB == -2 ) {
+                  m_resPixellocXBiasedEndCapC.push_back(resPullPixelBiased->residual()[Trk::locX]);
+                  m_resPixellocYBiasedEndCapC.push_back(resPullPixelBiased->residual()[Trk::locY]);
+                  m_pullPixellocXBiasedEndCapC.push_back(resPullPixelBiased->pull()[Trk::locX]);
+                  m_pullPixellocYBiasedEndCapC.push_back(resPullPixelBiased->pull()[Trk::locY]);
+                }
+        
+        
+              } else if ( detType == 1 ) {
+                // } else if (m_idHelperSCT->is_sct(id)) {
+                const Identifier& idbECSCTB = m_idHelperSCT->wafer_id(hitIdbec);
+                barrelECSCTB = m_idHelperSCT->barrel_ec(idbECSCTB);
+        
+                resPullSCTBiased =   m_residualPullCalculator->residualPull(mesb,trackPars,Trk::ResidualPull::Biased);
+        
+                if(barrelECSCTB == 0){
+                  m_resSCTBiasedBarrel.push_back(resPullSCTBiased->residual()[Trk::locX]);
+                  m_pullSCTBiasedBarrel.push_back(resPullSCTBiased->pull()[Trk::locX]);
+                }
+                else if (barrelECSCTB == 2) {
+                  m_resSCTBiasedEndCapA.push_back(resPullSCTBiased->residual()[Trk::locX]);
+                  m_pullSCTBiasedEndCapA.push_back(resPullSCTBiased->pull()[Trk::locX]);
+                }
+                else if (barrelECSCTB == -2 ) {
+                  m_resSCTBiasedEndCapC.push_back(resPullSCTBiased->residual()[Trk::locX]);
+                  m_pullSCTBiasedEndCapC.push_back(resPullSCTBiased->pull()[Trk::locX]);
+                }
+              }
+            } // is_valid, for detector types
+                } // if loop, track parameters ! = 0 or trackPars !=0
+              } // If loop   Trk::measurement
+            } // end of for loop over trackStateOnSurfaces
+    
+          } 
+        }// end of the 'if trkPerig'
+      }//end of 'if trkSum and npix>=3 and nsct>=6
     } //  end of loop over all tracks
     
     
@@ -696,16 +686,6 @@ namespace InDet
     return HLT::OK;
   }
 
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackResidualMonitor::hltEndRun() {
-   
-    msg() << MSG::INFO << "TrigTrackResidualMonitor::endRun()" << endmsg;
-   
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
 } // end namespace
 
 

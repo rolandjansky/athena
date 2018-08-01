@@ -14,7 +14,7 @@
 #ifndef TRT_SeededSpacePointFinder_ATL_H
 #define TRT_SeededSpacePointFinder_ATL_H
 
-#include <list>
+
 
 //Tool Handle
 //
@@ -24,18 +24,21 @@
 
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
-#include "SiSpacePointsSeed/SiSpacePointsSeed.h"
 
 #include "InDetRecToolInterfaces/ITRT_SeededSpacePointFinder.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
+#include <list>
+#include <vector>
+#include <iosfwd>
+
 class MsgStream   ;
 class SCT_ID      ;
+class SiSpacePointsSeed;
 
 namespace Trk{
-  //class IMagFieldSvc;
   class IPRD_AssociationTool;
 }
 

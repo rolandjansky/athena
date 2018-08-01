@@ -33,14 +33,9 @@ def defineEDAlg(R=0.4, inputtype="LCTopo"):
 
     from JetRec.JetRecStandard import jtm
 
-    # map a getter to the input argument
-    inputgetter = { "LCTopo" : jtm.lcget,
-                    "EMTopo" : jtm.emget,
-                    "EMPFlow": jtm.empflowget,
-                    "EMCPFlow": jtm.emcpflowget,
-                    }[inputtype]
-
-    t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype, inputgetter, R)
+    t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype,
+                             inputlabel = inputtype,
+                             radius = R)
     t.OutputLevel = 3
     ToolSvc += t
     return EventDensityAlg( "EventDensityAlg"+t.name(), EventDensityTool = t , OutputLevel=3)

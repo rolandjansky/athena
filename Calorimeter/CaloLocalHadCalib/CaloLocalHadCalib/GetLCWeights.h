@@ -18,7 +18,11 @@
  * clusters. */
 
 #include "GaudiKernel/HistoDef.h"
+#include "CaloSimEvent/CaloCalibrationHitContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 #include <vector>
 #include <string>
 
@@ -125,14 +129,14 @@ class GetLCWeights : public AthAlgorithm
   /**
    * @brief Name of the CaloClusterContainer to use. */
 
-  std::string m_clusterCollName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterCollName;
 
   /** 
    * @brief vector of calibration hit container names to use. 
    *
    * The containers specified in this property should hold calibration
    * hits inside the calorimeter systems. */
-  std::vector<std::string> m_CalibrationHitContainerNames;
+  SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_CalibrationHitContainerNames;
 
   /** 
    * @brief flag to switch on/off the use of the inversion method

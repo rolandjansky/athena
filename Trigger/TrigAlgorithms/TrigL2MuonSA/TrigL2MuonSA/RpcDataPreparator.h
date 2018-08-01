@@ -82,11 +82,11 @@ class RpcDataPreparator: public AthAlgTool
  private:
 		       
       // Reference to StoreGateSvc;
-      ServiceHandle<StoreGateSvc>    m_storeGateSvc;
-      ActiveStoreSvc* m_activeStore;
+      ServiceHandle<StoreGateSvc>   m_storeGateSvc;
+      ServiceHandle<ActiveStoreSvc> m_activeStore;
       
       // Region Selector
-      IRegSelSvc*          m_regionSelector;
+      ServiceHandle<IRegSelSvc> m_regionSelector;
 
       // RPC cabling service
       const IRPCcablingSvc* m_rpcCabling;
@@ -97,7 +97,10 @@ class RpcDataPreparator: public AthAlgTool
       const RpcIdHelper* m_rpcIdHelper;
 
       // handles to the RoI driven data access
+      ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
       ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
+      //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider {
+      // 	this, "RpcPrepDataProvider", "Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool", ""};
       
       ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
 
@@ -108,6 +111,9 @@ class RpcDataPreparator: public AthAlgTool
       // for writing.
       bool m_use_RoIBasedDataAccess;
       bool m_isFakeRoi;
+
+      // Flag to decide whether or not to run BS decoding
+      Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
 };
 
 } // namespace TrigL2MuonSA

@@ -288,7 +288,6 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   TH1* m_mdtglobalhitstime;
   
-
   TH1* m_nummdtchamberswithhits; // Number of MDT chambers with hits
   TH1* m_nummdtchamberswithhits_ADCCut; // Number of MDT chambers with hits
   TH1* m_nummdtchamberswithHighOcc; // Number of MDT chambers with > 1% occupancy
@@ -308,6 +307,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH2* m_mdtoccvslb[4][3];
   TH2* m_mdtoccvslb_by_crate[4][4];
   TH2* m_mdtoccvslb_ontrack_by_crate[4][4];
+  TH2* m_mdtoccvslb_summaryPerSector;
 
   /////End from old BS
 

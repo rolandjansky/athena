@@ -29,12 +29,11 @@ typedef T_AthenaPoolCustomCnv<TrigVertexCounts, TrigVertexCounts_PERS > TrigVert
 class TrigVertexCountsCnv : public TrigVertexCountsCnvBase {
   friend class CnvFactory<TrigVertexCountsCnv>;
   
- protected:
 public:
   TrigVertexCountsCnv(ISvcLocator* svcloc);
-protected:
   ~TrigVertexCountsCnv();
   
+protected:
   TrigVertexCounts_PERS* createPersistent(TrigVertexCounts* transObj);
   TrigVertexCounts* createTransient();
 };

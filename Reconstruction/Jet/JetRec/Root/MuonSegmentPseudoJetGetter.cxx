@@ -38,15 +38,6 @@ StatusCode MuonSegmentPseudoJetGetter::initialize() {
   ATH_CHECK( m_incoll.initialize() );
   ATH_CHECK( m_outcoll.initialize() );
 
-  m_outcollRead = m_outcoll.key();
-  ATH_CHECK( m_outcollRead.initialize() );
-
-  m_outcollReadGhost = m_outcoll.key() + "Ghost";
-  ATH_CHECK( m_outcollReadGhost.initialize() );
-
-  m_outcollGhost = m_outcoll.key() + "Ghost";
-  ATH_CHECK( m_outcollGhost.initialize() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -71,15 +62,7 @@ const PseudoJetContainer* MuonSegmentPseudoJetGetter::getC() const {
   ATH_MSG_DEBUG("Getting MuonSegmentPseudoJetContainer...");
   const PseudoJetContainer * pjcont;
 
-  // check if not already existing
-  auto handle_inOut = SG::makeHandle (m_outcollRead);
-  if ( handle_inOut.isValid() ) {
-    ATH_MSG_DEBUG("Fetching existing pseudojets." << m_outcollRead.key());
-    pjcont = handle_inOut.cptr();
-    return pjcont;
-  }
-
-  // else we build and record the container
+  // build and record the container
   const xAOD::MuonSegmentContainer* cont;
   auto handle_in = SG::makeHandle(m_incoll);
   if ( handle_in.isValid() ) {
@@ -93,11 +76,6 @@ const PseudoJetContainer* MuonSegmentPseudoJetGetter::getC() const {
   }
 
   std::vector<PseudoJet> vpj = createPseudoJets(cont);
-
-  // "Ghost" in outout collection name? If so is a ghost collection.
-  if((m_outcoll.key()).find("Ghost") != std::string::npos){
-    for(PseudoJet& pj : vpj) {pj *= 1e-40;}
-  }
     
   // create an extractor (MuonSegmentExtractors are always ghost extractors)
   MuonSegmentExtractor* extractor = new MuonSegmentExtractor(cont, m_label);

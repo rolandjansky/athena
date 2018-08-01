@@ -23,10 +23,9 @@ class TrigMonConfigCollectionCnv
 
 public:
   TrigMonConfigCollectionCnv(ISvcLocator* svcloc);
-
- protected:
   virtual ~TrigMonConfigCollectionCnv();
 
+ protected:
   TrigMonConfigCollection_PERS*  createPersistent(TrigMonConfigCollection* transObj);
   TrigMonConfigCollection*       createTransient ();
 

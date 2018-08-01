@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AcceptL1TopoMonitor.h"
@@ -317,7 +317,7 @@ bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHist
     return true;
 }
 //----------------------------------------------------------
-HLT::ErrorCode AcceptL1TopoMonitor::hltBeginRun()
+HLT::ErrorCode AcceptL1TopoMonitor::hltStart()
 {
     ATH_MSG_INFO ("beginRun");
     ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
@@ -457,9 +457,8 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltBeginRun()
     return HLT::OK;
 }
 //----------------------------------------------------------
-HLT::ErrorCode AcceptL1TopoMonitor::hltEndRun()
+HLT::ErrorCode AcceptL1TopoMonitor::hltStop()
 {
-    ATH_MSG_INFO("endRun");
     ATH_MSG_DEBUG("Error counters:");
     ATH_MSG_DEBUG("GenericRoiError   : "<<m_counterGenericRoiError);
     ATH_MSG_DEBUG("GenericDaqError   : "<<m_counterGenericDaqError);

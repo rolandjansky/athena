@@ -23,8 +23,8 @@ def _larCablingCfg(configFlags,algo,folder):
         folderwithtag=folder
 
     result.addCondAlgo(algo(ReadKey=folder))
-    result.addConfig(addFolders,configFlags,folderwithtag,className="AthenaAttributeList",detDb=db)
-    return result
+    result.merge(addFolders(configFlags,folderwithtag,className="AthenaAttributeList",detDb=db))
+    return result,None
 
 
 def LArOnOffIdMappingCfg(configFlags):

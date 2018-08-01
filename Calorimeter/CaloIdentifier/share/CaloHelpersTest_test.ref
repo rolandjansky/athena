@@ -1,0 +1,9 @@
+CaloIdentifier/CaloHelpersTest
+test1
+LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+LArEM: 173312 36
+LArHEC: 5632 16
+LArFCAL: 3524 6
+LArMinifcal: 0 0
+Tile: 5184 6
+calo: 187652 64

@@ -34,24 +34,6 @@ namespace Trk {
 #endif
   }
 
-  VertexPositions::VertexPositions(const VertexPositions& rhs) : m_position(rhs.m_position),
-								 m_useWeightTimesPosition(rhs.m_useWeightTimesPosition)
-  {
-#ifndef NDEBUG
-    s_numberOfInstantiations++; // new Vertex, so increment total count
-#endif
-  }
-  
-  VertexPositions & VertexPositions::operator= (const VertexPositions& rhs)
-  {
-    if (this!=&rhs)
-    {
-      m_position = rhs.m_position;
-      m_useWeightTimesPosition=rhs.m_useWeightTimesPosition;
-    }
-    return *this;
-  }
-  
   MsgStream& VertexPositions::dump(MsgStream& sl) const {
     if (m_useWeightTimesPosition) {
       sl << "Trk::VertexPositions weight times position: (" ;

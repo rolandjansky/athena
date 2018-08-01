@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/TBCellNoiseCorrection.h"
+#include "TBCellNoiseCorrection.h"
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloEvent/CaloCell.h"
@@ -10,8 +10,6 @@
 
 #include "PathResolver/PathResolver.h"
 
-#include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/Incident.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include <TFile.h>

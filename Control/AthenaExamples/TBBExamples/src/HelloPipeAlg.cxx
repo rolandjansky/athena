@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iterator>
@@ -132,20 +132,3 @@ StatusCode HelloPipeAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-StatusCode HelloPipeAlg::beginRun() {
-  // Part 1: print where you are
-  ATH_MSG_INFO ("beginRun()");
-
-  return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-StatusCode HelloPipeAlg::endRun() {
-  // Part 1: print where you are
-  ATH_MSG_INFO ("endRun()");
-
-  return StatusCode::SUCCESS;
-}

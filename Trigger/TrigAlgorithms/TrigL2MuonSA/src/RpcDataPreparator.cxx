@@ -10,6 +10,7 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
@@ -42,12 +43,14 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
                                                    const IInterface*  parent): 
    AthAlgTool(type,name,parent),
    m_storeGateSvc( "StoreGateSvc", name ),
-   m_activeStore(0),
-   m_regionSelector(0),
+   m_activeStore( "ActiveStoreSvc", name ),
+   m_regionSelector( "RegSelSvc", name ),
+   m_rawDataProviderTool("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
    m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
    declareInterface<TrigL2MuonSA::RpcDataPreparator>(this);
+   declareProperty("RpcRawDataProvider", m_rawDataProviderTool);
    declareProperty("RpcPrepDataProvider", m_rpcPrepDataProvider);
 }
 
@@ -76,26 +79,16 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( m_storeGateSvc.retrieve() ); 
 
    // Locate RegionSelector
-   sc = service("RegSelSvc", m_regionSelector);
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve RegionSelector");
-      return sc;
-   }
+   ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   StoreGateSvc* detStore;
-   sc = serviceLocator()->service("DetectorStore", detStore);
-   if (sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve DetectorStore.");
-     return sc;
-   }
+   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name()); 
+   ATH_CHECK( detStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved DetectorStore.");
- 
-   sc = detStore->retrieve( m_muonMgr );
-   if (sc.isFailure()) return sc;
+   ATH_CHECK( detStore->retrieve( m_muonMgr ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_rpcIdHelper = m_muonMgr->rpcIdHelper();
-
+  
    ATH_CHECK( m_rpcPrepDataProvider.retrieve() );
    ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
 
@@ -103,25 +96,22 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved " << m_idHelperTool);
 
    // Retrieve ActiveStore
-   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-   if (sc.isFailure() || m_activeStore == 0) {
-     ATH_MSG_ERROR(" Cannot get ActiveStoreSvc.");
-     return sc ;
-   }
+   ATH_CHECK( m_activeStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
+
+   // Retreive PRC raw data provider tool
+   ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
+   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
+     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
+     return StatusCode::FAILURE;
+   } else
+     msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
 
    // Retrieve the RPC cabling service
    ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-   sc = RpcCabGet.retrieve();
-   if ( sc != StatusCode::SUCCESS ) {
-     ATH_MSG_ERROR("Could not retrieve the RPCcablingServerSvc");
-     return sc;
-   }
-   sc = RpcCabGet->giveCabling(m_rpcCabling);
-   if ( sc != StatusCode::SUCCESS ) {
-     ATH_MSG_ERROR("Could not retrieve the RPC Cabling Server");
-     return sc;
-   }
+   ATH_CHECK( RpcCabGet.retrieve() ); 
+   ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
+
    m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
    if ( !m_rpcCablingSvc ) {
      ATH_MSG_ERROR("Could not retrieve the RPC cabling svc");
@@ -198,6 +188,11 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, *iroi, rpcRobList);
+     if(m_decodeBS) {
+         if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
+             ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
+         }
+     }
      if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
        ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
      }
@@ -211,6 +206,11 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, rpcRobList);
+     if(m_decodeBS) {
+         if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
+             ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
+         }
+     }
      if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
        ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
      }

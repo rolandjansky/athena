@@ -27,7 +27,6 @@ namespace Trk {
 }
 namespace InDetDD {
   class PixelDetectorManager ;
-  class SCT_DetectorManager ;
 }
 class AtlasDetectorID ;
 class Identifier ;
@@ -96,7 +95,6 @@ class InDetAlignHitQualSelTool : virtual public IInDetAlignHitQualSelTool, publi
  // "infrastructure" members
  
   const InDetDD::PixelDetectorManager*   m_PIXManager ; //!< to get pixel phi and eta identifiers
-  const InDetDD::SCT_DetectorManager*    m_SCTManager ; //!< to get strip numbers
   const PixelID*                         m_pixelid ;    //!< Pixel id helper
   const SCT_ID*                          m_sctID ;    //!< Pixel id helper
 } ;

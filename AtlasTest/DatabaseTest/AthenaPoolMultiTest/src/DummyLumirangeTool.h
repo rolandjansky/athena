@@ -58,9 +58,6 @@ public:
 
 protected:
 
-  /// Standard Destructor
-  virtual ~DummyLumirangeTool();
-
   /// name of store:
   StringProperty   m_storeName;
   IntegerProperty  m_lumigran, m_firstrun;

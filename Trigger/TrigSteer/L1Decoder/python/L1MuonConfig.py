@@ -25,14 +25,17 @@ def RPCCablingConfig(flags):
 
     # get the GeoModelSvc and add MuonDetectorTool
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg    
-    acc.addConfig( GeoModelCfg, flags )
+    gmsAcc,gms=GeoModelCfg(flags )
+    acc.merge(gmsAcc)
+
 
     from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
     detTool = MuonDetectorTool()
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1    
-    acc.getService('GeoModelSvc').DetectorTools += [ detTool ]
+    gms.DetectorTools += [ detTool ]
 
+    acc.addService(gms)
     
     from MuonRPC_Cabling.MuonRPC_CablingConf import MuonRPC_CablingSvc
     rpcCablingSvc = MuonRPC_CablingSvc()
@@ -47,10 +50,10 @@ def RPCCablingConfig(flags):
     #conddb.addFolderSplitMC('RPC','/RPC/TRIGGER/CM_THR_PHI', '/RPC/TRIGGER/CM_THR_PHI')
 
 
-    acc.addConfig( addFolders, flags, 
+    acc.merge(addFolders(flags, 
                    [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI', 
                      '/RPC/TRIGGER/CM_THR_PHI', '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ], 
-                   'RPC' )
+                   'RPC' ))
 
     # that should not be here???
     acc.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps']
@@ -83,16 +86,16 @@ def TGCCablingConfig(flags):
     acc.addService( TGCCablingSvc )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.addConfig( addFolders, flags, ['/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA'], 'TGC')
+    acc.merge(addFolders(flags, ['/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA'], 'TGC'))
     return acc
 
 # for reco running we need MDT and CSC, yet to come
 
 if __name__ == '__main__':
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.set('Trigger.L1Decoder.doCalo',True)
-    ConfigFlags.set('Trigger.L1Decoder.doMuon',True)
     ConfigFlags.set('global.InputFiles',["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",])
     ConfigFlags.lock()
 
@@ -100,8 +103,8 @@ if __name__ == '__main__':
     acc = ComponentAccumulator()
 
 
-    acc.addConfig( RPCCablingConfig, ConfigFlags )
-    acc.addConfig( TGCCablingConfig, ConfigFlags )
+    acc.merge(RPCCablingConfig(ConfigFlags ))
+    acc.merge(TGCCablingConfig(ConfigFlags ))
 
     f=open('MuonConfig.pkl','w')
     acc.store(f)

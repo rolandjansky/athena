@@ -3,15 +3,16 @@
 */
 
 
+#include "TBXMLWriterToolBase.h"
+#include "TBXMLCaloCellWriterTool.h"
+#include "TBXMLWriter.h"
+
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgTool.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -23,9 +24,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 
-#include "TBRec/TBXMLWriterToolBase.h"
-#include "TBRec/TBXMLCaloCellWriterTool.h"
-#include "TBRec/TBXMLWriter.h"
 #include "boost/io/ios_state.hpp"
 
 #include <iostream>

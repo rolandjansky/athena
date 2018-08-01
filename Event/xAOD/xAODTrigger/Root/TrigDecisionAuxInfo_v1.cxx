@@ -36,6 +36,11 @@ namespace xAOD {
       AUX_VARIABLE( efPrescaled );
       AUX_VARIABLE( lvl2Resurrected );
       AUX_VARIABLE( efResurrected );
+
+      // Extended July 2018
+      AUX_VARIABLE( chainMTPassedRaw );
+      AUX_VARIABLE( chainMTPrescaled );
+      AUX_VARIABLE( chainMTRerun );
    }
 
 } // namespace xAOD

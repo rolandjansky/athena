@@ -14,7 +14,7 @@
 #include "CaloRingerTools/ICaloRingerPhotonsReader.h"
 #include "CaloRingerReaderUtils.h"
 
-//CxxUtils for override final  
+//CxxUtils for override final
 #include "CxxUtils/final.h"
 #include "CxxUtils/override.h"
 
@@ -29,7 +29,7 @@
 
 namespace Ringer {
 
-class CaloRingerPhotonsReader : public CaloRingerInputReader, 
+class CaloRingerPhotonsReader : public CaloRingerInputReader,
                                 public ICaloRingerPhotonsReader
 {
 
@@ -37,31 +37,31 @@ class CaloRingerPhotonsReader : public CaloRingerInputReader,
 
     /// @name CaloRingerPhotonsReader ctors and dtors:
     /// @{
-    /** 
+    /**
      * @brief Default constructor
      **/
     CaloRingerPhotonsReader(const std::string& type,
                      const std::string& name,
                      const ::IInterface* parent);
 
-    /** 
+    /**
      * @brief Destructor
      **/
     ~CaloRingerPhotonsReader();
     /// @}
-    
+
     /// Tool main methods:
     /// @{
-    /** 
-     * @brief initialize method 
+    /**
+     * @brief initialize method
      **/
     virtual StatusCode initialize() ATH_OVERRIDE;
-    /** 
+    /**
      * @brief read electrons and populates @name decoMap with them and their
      * respective CaloRings.
      **/
     virtual StatusCode execute() ATH_OVERRIDE;
-    /** 
+    /**
      * @brief finalize method
      **/
     virtual StatusCode finalize() ATH_OVERRIDE;
@@ -72,14 +72,14 @@ class CaloRingerPhotonsReader : public CaloRingerInputReader,
 
     /// Tool CaloRingerElectronsReader props (python configurables):
     /// @{
-    /** 
+    /**
      * @brief Electron selectors.
      * TODO Change it to Photon Selector
      **/
     PublicToolHandleArray<IAsgElectronRingerSelector> m_ringerSelectors {this,
 	"PhotonSelectors", {}, "The ASG Photon Selectors."};
 
-    /** 
+    /**
      * @brief Hold selectors result names.
      **/
     Gaudi::Property<std::vector<std::string> > m_ringerSelectorResultNames {this,
@@ -98,7 +98,7 @@ class CaloRingerPhotonsReader : public CaloRingerInputReader,
     /// @{
 
     /// The CaloRings Builder functor:
-    BuildCaloRingsFctor<const xAOD::Photon> *m_clRingsBuilderPhotonFctor;
+    BuildCaloRingsFctor<xAOD::PhotonContainer> *m_clRingsBuilderPhotonFctor;
 
     /// Whether selectors are available
     //bool m_selectorAvailable;

@@ -9,7 +9,7 @@
 // Trk include
 #include "TrkGeometry/MaterialProperties.h"
 
-#include "ISF_FatrasTools/MultipleScatteringSamplerGaussianMixture.h"
+#include "MultipleScatteringSamplerGaussianMixture.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
