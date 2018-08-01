@@ -375,7 +375,7 @@ namespace met {
 	    met_vect.SetXYZ(MEx,MEy,0.0);
 	  }
 	  // Rotate  & compute
-	  CHECK(RotateToPhi(met_vect.Phi()));
+	  ATH_CHECK(RotateToPhi(met_vect.Phi()));
 	  m_significance = Significance_LT(met_vect.Pt(), m_VarL, m_VarT, m_CvLT);
 	  m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
 	}else{
