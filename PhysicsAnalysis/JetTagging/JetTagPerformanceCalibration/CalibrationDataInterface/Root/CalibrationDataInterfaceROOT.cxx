@@ -288,39 +288,6 @@ using boost::trim;
 ClassImp(Analysis::CalibrationDataInterfaceROOT)
 #endif
 
-// // local utility function: trim leading and trailing whitespace in the configuration .env file
-
-// namespace {
-//   // local utility function: trim leading and trailing whitespace in the property strings
-//   std::string trim(const std::string& str,
-// 		   const std::string& whitespace = " \t") {
-//     const auto strBegin = str.find_first_not_of(whitespace);
-//     if (strBegin == std::string::npos)
-//         return ""; // no content
-
-//     const auto strEnd = str.find_last_not_of(whitespace);
-//     const auto strRange = strEnd - strBegin + 1;
-
-//     return str.substr(strBegin, strRange);
-//   }
-
-//   // local utility function: split string into a vector of substrings separated by a specified separator
-//   std::vector<std::string> split(const std::string& str, char token = ';') {
-//     std::vector<std::string> result;
-//     if (str.size() > 0) {
-//       std::string::size_type end;
-//       std::string tmp(str);
-//       do {
-// 	end = tmp.find(token);
-// 	std::string entry = trim(tmp.substr(0,end));
-// 	if (entry.size() > 0) result.push_back(entry); 
-// 	if (end != std::string::npos) tmp = tmp.substr(end+1);
-//       } while (end != std::string::npos);
-//     }
-//     return result;
-//   }
-// }
-
 //________________________________________________________________________________
 Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const string& taggerName, string configname, string pathname)
   :     m_runEigenVectorMethod(false), m_useRecommendedEVExclusions(false), m_absEtaStrategy(GiveUp), m_otherStrategy(Flag)
@@ -2465,11 +2432,6 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
     // The choices are stored with the container object; but first we need to know what flavour we are dealing with.
     string flavour = dir.substr(dir.find_last_of("/")+1);
 
-    // auto const listEnd  = m_excludeFromCovMatrix[flavour].end();
-    //    for (std::vector<std::string>::const_iterator listIter= m_excludeFromCovMatrix[flavour].begin(); listIter != listEnd; ++listIter) {
-    // for (auto listIter= m_excludeFromCovMatrix[flavour].begin(); listIter != listEnd; ++listIter) {
-    //   newEigenVariation->excludeNamedUncertainty(*listIter);
-    // }
     for (auto entry : m_excludeFromCovMatrix[flavour]) {
       newEigenVariation->excludeNamedUncertainty(entry);
     }
