@@ -1,0 +1,137 @@
+LibraryNames libTopEventSelectionTools libTopEventReconstructionTools
+
+### Good Run List
+GRLDir  GoodRunsLists
+GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20180129/physics_25ns_21.0.19.xml data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.xml
+
+### Pile-up reweighting tool - Metadata determines which to use
+# MC16a configuration
+PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.FS.v2/CI.prw.merged.root
+PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.AF.v2/CI.prw.merged.root
+PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root
+
+# MC16c configuration
+#PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16c.FS.v2/CI.prw.merged.root
+#PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16c.AF.v2/CI.prw.merged.root
+#PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
+
+# MC16d configuration
+#PRWConfigFiles_FS dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.FS.v2/CI.prw.merged.root
+#PRWConfigFiles_AF dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16d.AF.v2/CI.prw.merged.root
+#PRWLumiCalcFiles GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
+
+ElectronCollectionName Electrons
+MuonCollectionName Muons
+JetCollectionName AntiKt4EMTopoJets
+LargeJetCollectionName None
+LargeJetSubstructure None
+TauCollectionName None
+PhotonCollectionName None
+
+TruthCollectionName TruthParticles
+TruthJetCollectionName AntiKt4TruthWZJets
+TopPartonHistory ttbar
+TopParticleLevel True
+TruthBlockInfo False
+PDFInfo True
+
+ObjectSelectionName top::ObjectLoaderStandardCuts
+OutputFormat top::EventSaverFlatNtuple
+OutputEvents SelectedEvents
+OutputFilename output.root
+PerfStats No
+
+Systematics Nominal
+JetUncertainties_NPModel CategoryReduction
+JetUncertainties_BunchSpacing 25ns
+
+ElectronID TightLH
+ElectronIDLoose MediumLH
+ElectronIsolation Gradient
+ElectronIsolationLoose None
+
+MuonQuality Medium
+MuonQualityLoose Medium
+MuonIsolation Gradient
+MuonIsolationLoose None
+
+# DoTight/DoLoose to activate the loose and tight trees
+# each should be one in: Data, MC, Both, False
+DoTight Both
+DoLoose False
+
+UseAodMetaData True
+#IsAFII False
+
+BTaggingWP MV2c10:FixedCutBEff_77
+
+### HL-LHC
+HLLHC True
+HLLHCFakes False
+
+
+
+########################
+### Di-muon selection
+########################
+SELECTION mumu_upgrade
+INITIAL
+MU_N 25000 >= 2
+MU_N 25000 == 2
+EL_N 25000 == 0
+MLL > 15000
+JET_N 25000 >= 1
+JET_N 25000 >= 2
+SAVE
+
+########################
+### Di-electron selection
+########################
+SELECTION ee_upgrade
+INITIAL
+EL_N 25000 >= 2
+EL_N 25000 == 2
+MU_N 25000 == 0
+MLL > 15000
+JET_N 25000 >= 1
+JET_N 25000 >= 2
+SAVE
+
+########################
+### e-mu selection
+########################
+SELECTION emu_upgrade
+INITIAL
+MU_N 25000 >= 1
+EL_N 25000 >= 1
+MU_N 25000 == 1
+EL_N 25000 == 1
+MLL > 15000
+JET_N 25000 >= 1
+JET_N 25000 >= 2
+SAVE
+
+########################
+### Muon+jets selection
+########################
+SELECTION mujets_upgrade
+INITIAL
+MU_N 25000 >= 1
+EL_N 25000 == 0
+MU_N 25000 == 1
+JET_N 25000 >= 1
+JET_N 25000 >= 2
+SAVE
+
+########################
+### Electron+jets selection
+########################
+SELECTION ejets_upgrade
+INITIAL
+EL_N 25000 >= 1
+MU_N 25000 == 0
+EL_N 25000 == 1
+JET_N 25000 >= 1
+JET_N 25000 >= 2
+SAVE
+
