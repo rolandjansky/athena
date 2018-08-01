@@ -49,9 +49,11 @@ atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
    atlas_add_test( OverlapRemovalTestJob
-      SCRIPT OverlapAlgorithmsTest_eljob.py --unit-test )
+      SCRIPT OverlapAlgorithmsTest_eljob.py --unit-test
+      PROPERTIES TIMEOUT 300 )
 else()
    atlas_add_test( OverlapRemovalTestJob
       SCRIPT athena.py
-             AsgAnalysisAlgorithms/OverlapAlgorithmsTest_jobOptions.py )
+             AsgAnalysisAlgorithms/OverlapAlgorithmsTest_jobOptions.py
+      PROPERTIES TIMEOUT 300 )
 endif()
