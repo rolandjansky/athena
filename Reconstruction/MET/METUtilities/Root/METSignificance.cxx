@@ -245,6 +245,7 @@ namespace met {
 
 	// skip the invisible and total MET
 	if(MissingETBase::Source::isTotalTerm(met->source())){
+	  ATH_MSG_VERBOSE("Total: " << met->name() << " val: " << met->met());
 	  continue;
 	}
 	if(met->source()==invisSource) continue;

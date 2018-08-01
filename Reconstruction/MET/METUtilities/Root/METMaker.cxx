@@ -112,6 +112,7 @@ namespace met {
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
     declareProperty("CustomJetJvtPtMax",  m_customJvtPtMax     = 60e3                );
     declareProperty("CustomJetEtaMax",    m_JetEtaMax          = 4.5                 );
+    declareProperty("CustomJetEtaForw",   m_JetEtaForw         = 2.4                 );
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
@@ -628,7 +629,7 @@ namespace met {
       }
       if(assoc && !assoc->isMisc()) {
         ATH_MSG_VERBOSE( "Jet calib pt = " << jet->pt());
-        bool selected = (fabs(jet->eta())<2.4 && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=2.4 && jet->pt()>m_FwdJetPtCut );//jjj
+        bool selected = (fabs(jet->eta())<m_JetEtaForw && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=m_JetEtaForw && jet->pt()>m_FwdJetPtCut );//jjj
         bool JVT_reject(false);
 	bool isMuFSRJet(false);
 	
@@ -637,7 +638,7 @@ namespace met {
 
 	// Apply the JVT
         if(doJetJVT) {
-	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<2.4) {
+	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<m_JetEtaForw) {
 	    float jvt=-100.0;	
 	    bool gotJVT = jet->getAttribute<float>(m_jetJvtMomentName,jvt);
 	    if(gotJVT) {
