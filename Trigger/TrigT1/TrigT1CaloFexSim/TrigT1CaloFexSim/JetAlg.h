@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JetAlg_H
@@ -13,6 +13,7 @@
 #include "CaloTriggerTool/GTowerSCMap.h"
 #include "CaloIdentifier/TTOnlineID.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/JTower_ID.h"
 #include "CaloIdentifier/GTower_ID.h"
@@ -43,6 +44,8 @@ class JetAlg{
       et  = et_j;
     };
   };
+
+
 
   struct Seed{
 

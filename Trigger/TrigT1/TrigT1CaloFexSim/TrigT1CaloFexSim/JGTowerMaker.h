@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JGTOWERMAKER_H
@@ -55,6 +55,14 @@ class JGTowerMaker: public ::AthAlgorithm {
   bool  JMatched;
   std::map<TString, TH1*> hName;
   std::map<TString, TH2*> h2Name;
+//Jet customized options:
+  float m_jJet_thr;
+  float m_jSeed_size;
+  float m_jJet_r;
+  float m_gJet_thr;
+  float m_gSeed_size;
+  float m_gJet_r;
+
 }; 
 
 #endif //> !XAODL1CALO_XAODL1CALOALG_H

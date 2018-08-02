@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 // TrigT1CaloFexSim includes
 #include "TrigT1CaloFexSim/JGTowerReader.h"
 #include "TrigT1CaloFexSim/JGTower.h"
@@ -33,11 +37,14 @@ JGTowerReader::JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator 
 
   declareProperty("outputNoise",m_outputNoise=false);
   declareProperty("noise_file",m_noise_file="");
+  declareProperty("jJet_threshold",m_jJet_thr=2.0);
   declareProperty("jSeed_size",m_jSeed_size=0.2);
+  declareProperty("jMax_r",m_jMax_r=0.4);
   declareProperty("jJet_r",m_jJet_r=0.4);
-  declareProperty("gSeed_size",m_gSeed_size=0.4);
-  declareProperty("gJet_r",m_gJet_r=1.0);
-
+  declareProperty("gJet_threshold",m_gJet_thr=2.0);
+  declareProperty("gSeed_size",m_gSeed_size=0.2);
+  declareProperty("gMax_r",m_gMax_r=0.4);
+  declareProperty("gJet_r",m_gJet_r=0.4);
 }
 
 
@@ -78,12 +85,14 @@ StatusCode JGTowerReader::initialize() {
 
   for(int i=0;i<m_jTowerHashMax;i++){
      float noise_base = jh_noise->GetBinContent(i+1);
-     jT_noise.push_back(noise_base*2);
+     jT_noise.push_back(noise_base);
+     jJet_thr.push_back(noise_base*m_jJet_thr);
   }
 
   for(int i=0;i<m_gTowerHashMax;i++){
      float noise_base = gh_noise->GetBinContent(i+1);
      gT_noise.push_back(noise_base*2);
+     gJet_thr.push_back(noise_base*m_gJet_thr);
   } 
 
   
@@ -252,9 +261,10 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 
 // jet algorithms
   if(jSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(jTs,jSeeds));
-  CHECK(JetAlg::SeedFinding(jTs,jSeeds,0.2,0.8,jT_noise)); //the diameter of seed, and its range to be local maximum
+  
+  CHECK(JetAlg::SeedFinding(jTs,jSeeds,m_jSeed_size,m_jMax_r,jJet_thr)); //the diameter of seed, and its range to be local maximum
                                           //Careful to ensure the range set to be no tower double counted
-  CHECK(JetAlg::BuildJet(jTs, jT_noise,jSeeds, jL1Jets,0.4)); 
+  CHECK(JetAlg::BuildJet(jTs, jJet_thr,jSeeds, jL1Jets,m_jJet_r)); 
   CHECK(METAlg::BuildMET(jTs,jT_noise,jMET));
 
   return StatusCode::SUCCESS;
@@ -263,211 +273,15 @@ StatusCode JGTowerReader::JFexAlg(const xAOD::JGTowerContainer* jTs){
 StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
 // jet algorithms
- // if(gSeeds->eta.empty()) CHECK(SeedGrid(gTs,gSeeds));
-//  CHECK(SeedFinding(gTs,gSeeds,0.4,2.0,gT_noise)); // the diameter of seed, and its range to be local maximum
+  if(gSeeds->eta.empty()) CHECK(JetAlg::SeedGrid(gTs,gSeeds));
+  CHECK(JetAlg::SeedFinding(gTs,gSeeds,m_gSeed_size,m_gMax_r,gJet_thr)); // the diameter of seed, and its range to be local maximum
                                           // Careful to ensure the range set to be no tower double counted
- // CHECK(BuildJet(gTs,gT_noise,gSeeds,gL1Jets,1.0)); //default gFex jets are cone jets wih radius of 1.0
+  CHECK(JetAlg::BuildJet(gTs,gJet_thr,gSeeds,gL1Jets,m_gJet_r)); //default gFex jets are cone jets wih radius of 1.0
   CHECK(METAlg::BuildMET(gTs,gT_noise,gMET));
 
   return StatusCode::SUCCESS;
 }
 
-//function to build up the location of all seeds
-/*StatusCode JGTowerReader::SeedGrid(const xAOD::JGTowerContainer*towers, JGTowerReader::Seed*seeds){
-
-
-  std::vector<float> seed_candi_eta;
-
-  std::vector<std::pair<int,int>> seeds_candi;
-  unsigned t_size = towers->size();
-  float t_maxi=-999;
-
-  for(unsigned i=0; i<t_size;i++){
-     const xAOD::JGTower*tower = towers->at(i);
-     float t_eta = tower->eta();
-     if(t_eta>t_maxi) t_maxi=t_eta;
-  }
-
-  //arrange seeds in the order from eta=-4.9 to eta=4.9
-  for(float t_eta=t_maxi-0.01; t_eta<t_maxi;){
-
-     float tmp=999;
-
-     for(unsigned i=0;i<t_size;i++){
-        const xAOD::JGTower*tower = towers->at(i);
-        std::vector<int> SC_indices = tower->SCIndex();
-        if(SC_indices.size()==0) continue;
-
-        float candi_eta = tower->eta()-tower->deta()/2;
-        if(tower->eta()<0) candi_eta = tower->eta()+tower->deta()/2;
-        if(fabs(tower->eta())>3.2) candi_eta = tower->eta();
-
-        
-        if( candi_eta<tmp && seed_candi_eta.size()==0) { tmp=candi_eta; t_eta = candi_eta;}
-        else if( candi_eta > t_eta && candi_eta<tmp )  {  tmp = candi_eta; }
-
-     }
-     t_eta = tmp;
-     seed_candi_eta.push_back(t_eta);
-  }
-
-  //arrange seeds in the order from phi=-pi to phi=pi
-  for(unsigned i=0; i<seed_candi_eta.size(); i++){
-
-     (seeds->eta).push_back(seed_candi_eta.at(i));
-     std::vector<float> tmp_phi;    
-     for(float t_phi=-TMath::Pi(); ;){
-
-        float dphi=0;
-        
-        for(unsigned t=0;t<t_size;){
-           const xAOD::JGTower*tower = towers->at(t);
-           t++;
-           std::vector<int> SC_indices = tower->SCIndex();
-           if(SC_indices.size()==0) continue;
-
-           float eta = tower->eta()-tower->deta()/2;
-           if(tower->eta()<0) eta = tower->eta()+tower->deta()/2;
-           if(fabs(tower->eta())>3.2)  eta = tower->eta();
-           if(eta!=seed_candi_eta.at(i)) continue;
-           dphi = tower->dphi();
-           break;
-        }
-       tmp_phi.push_back(t_phi);
-       t_phi+=dphi;
-
-       if(t_phi>TMath::Pi()) break;
-     }
-  (seeds->phi).push_back(tmp_phi);
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-//To find the seeds as local maxima 
-StatusCode JGTowerReader::SeedFinding(const xAOD::JGTowerContainer*towers, JGTowerReader::Seed*seeds, float seed_size,float range, std::vector<float> noise){
-
-   // get the energy of each seeds which is defined as 2x2 towers in barrel and endcap, and single tower in fcal
-   
-   for(unsigned i=0; i<seeds->eta.size(); i++){
-      std::vector<float> tmp_et;
-      for(unsigned ii=0; ii<seeds->phi.at(i).size(); ii++){
-         float et=0;
-         float thr=0;
-         float eta=seeds->eta.at(i);
-         float phi=seeds->phi.at(i).at(ii);
-         for(unsigned t=0; t<towers->size(); t++){
-            const xAOD::JGTower*tower = towers->at(t);
-            if(!inBox(tower->eta(),eta,seed_size/2,tower->phi(),phi,seed_size/2)) continue;
-            if( tower->et()> 5*noise.at(t) ) et+= tower->et();
-            thr += noise.at(t);
-         }
-         if(et<thr*6) et = 0;
-         tmp_et.push_back(et);
-      }
-      seeds->et.push_back(tmp_et);
-   }
-
-   // determine whether the seed is with locally maximal energy
-   for(unsigned iseed_eta=0; iseed_eta<seeds->eta.size(); iseed_eta++){
-      std::vector<bool> tmp_max;
-      for(unsigned iseed_phi=0; iseed_phi<seeds->phi.at(iseed_eta).size(); iseed_phi++){
-         float et = seeds->et.at(iseed_eta).at(iseed_phi);
-         // only seeds with Et>5GeV is available
-         if(et<5000) {
-           tmp_max.push_back(0);
-           continue;
-         }
-         // eta_n: et higher than all seeds with smaller eta
-         // eta_p: et higher than all seeds with larger eta
-         // eta_0: et higher than the other seeds along the same eta ring
-
-         bool eta_n=1, eta_p=1, eta_0=1;
-
-         for(unsigned i=iseed_eta+1; ;i++){
-            if(i>=seeds->eta.size()) break;
-            if(fabs(seeds->eta.at(i)-seeds->eta.at(iseed_eta))>range) break;
-            for(unsigned ii=0; ii<seeds->phi.at(i).size(); ii++){
-               
-               float dphi = deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(i).at(ii));
-               if(dphi>range) continue;
-               if(seeds->et.at(iseed_eta).at(iseed_phi)<=seeds->et.at(i).at(ii)){
-                 eta_p = false;
-                 break;  
-               }
-            }
-         }
-
-         for(int i=iseed_eta-1; ;i--){
-            if(i<0) break;
-            if(fabs(seeds->eta.at(iseed_eta)-seeds->eta.at(i))>range) break;
-            for(unsigned ii=0; ii<seeds->phi.at(i).size(); ii++){
-               float dphi = deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(i).at(ii));
-               if(dphi>range) continue;
-               if(seeds->et.at(iseed_eta).at(iseed_phi)<=seeds->et.at(i).at(ii)){
-                 eta_n = false;
-                 break;
-               }
-            }
-         }
-
-         for(unsigned ii=0; ii<seeds->phi.at(iseed_eta).size(); ii++){
-            if(ii==iseed_phi) continue;
-            float dphi = deltaPhi(seeds->phi.at(iseed_eta).at(iseed_phi),seeds->phi.at(iseed_eta).at(ii));
-            if(dphi>range) continue;
-            if(seeds->et.at(iseed_eta).at(iseed_phi)<=seeds->et.at(iseed_eta).at(ii)){
-              eta_0 = false;
-              break;
-            }
-         }
-         tmp_max.push_back(eta_n&&eta_p&&eta_0);
-      }
-   seeds->local_max.push_back(tmp_max);
-   }
-   return StatusCode::SUCCESS;
-}
-
-StatusCode JGTowerReader::BuildJet(const xAOD::JGTowerContainer*towers,std::vector<float> noise,JGTowerReader::Seed*seeds, std::vector<JGTowerReader::L1Jet>& js, float jet_size){
-
-  for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
-     for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){
-        if(!seeds->local_max.at(eta_ind).at(phi_ind)) continue;
-        float eta = seeds->eta.at(eta_ind);
-        float phi = seeds->phi.at(eta_ind).at(phi_ind);
-        float j_et = 0;
-        for(unsigned t=0; t<towers->size(); t++){
-           const xAOD::JGTower* tower = towers->at(t);
-           if(fabs(tower->et())<noise.at(t)) continue; 
-           if(!inBox(eta,tower->eta(),jet_size, phi, tower->phi(),jet_size)) continue;
-           j_et += tower->et();
-        }
-        if(j_et<10000) continue;
-        JGTowerReader::L1Jet j = L1Jet(eta,phi,j_et);
-        js.push_back(j);
-     }
-  }
-  return StatusCode::SUCCESS;
-}
-*/
-/*StatusCode JGTowerReader::BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise, JGTowerReader::MET* met){
-  float met_x=0;
-  float met_y=0;
-  for(unsigned t=0; t<towers->size(); t++){
-     const xAOD::JGTower* tower = towers->at(t); 
-     if(tower->et()<noise.at(t)) continue;
-     float phi=tower->phi();
-     float et =tower->et();
-     met_x -= et*cos(phi);
-     met_y -= et*sin(phi);
-  }
-
-  float et_met = sqrt(met_x*met_x+met_y*met_y); 
-  float phi_met=TMath::ACos(met_x/et_met); 
-  if (met_y<0) phi_met = -phi_met;
-  met->phi=phi_met;
-  met->et = et_met;
-  return StatusCode::SUCCESS; 
-}*/
 StatusCode JGTowerReader::ProcessObject(){
 
   

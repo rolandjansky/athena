@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/JGTower.h"
 //function to build up the location of all seeds
@@ -156,7 +160,7 @@ StatusCode JetAlg::SeedFinding(const xAOD::JGTowerContainer*towers, JetAlg::Seed
 }
 
 
-StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,std::vector<float> noise,JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_size){
+StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,std::vector<float> noise,JetAlg::Seed*seeds, std::vector<JetAlg::L1Jet>& js, float jet_r){
 
   for(unsigned eta_ind=0; eta_ind<seeds->eta.size(); eta_ind++){
      for(unsigned phi_ind=0; phi_ind<seeds->phi.at(eta_ind).size(); phi_ind++){
@@ -167,7 +171,7 @@ StatusCode JetAlg::BuildJet(const xAOD::JGTowerContainer*towers,std::vector<floa
         for(unsigned t=0; t<towers->size(); t++){
            const xAOD::JGTower* tower = towers->at(t);
            if(fabs(tower->et())<noise.at(t)) continue;
-           if(!inBox(eta,tower->eta(),jet_size, phi, tower->phi(),jet_size)) continue;
+           if(!inBox(eta,tower->eta(),jet_r, phi, tower->phi(),jet_r)) continue;
            j_et += tower->et();
         }
         if(j_et<10000) continue;

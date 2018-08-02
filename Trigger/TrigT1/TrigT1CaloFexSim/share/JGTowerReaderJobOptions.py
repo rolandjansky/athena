@@ -64,15 +64,28 @@ svcMgr.THistSvc.Output += ["OUTPUT DATAFILE='myOutputFile.root' OPT='RECREATE'"]
 
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
+  declareProperty("outputNoise",m_outputNoise=false);
+  declareProperty("noise_file",m_noise_file="");
+  declareProperty("jJet_threshold",m_jJet_thr=2.0);
+  declareProperty("jSeed_size",m_jSeed_size=0.2);
+  declareProperty("jMax_r",m_jMax_r=0.4);
+  declareProperty("jJet_r",m_jJet_r=0.4);
+  declareProperty("gJet_threshold",m_gJet_thr=2.0);
+  declareProperty("gSeed_size",m_gSeed_size=0.2);
+  declareProperty("gMax_r",m_gMax_r=0.4);
+  declareProperty("gJet_r",m_gJet_r=0.4);
+
 algseq += CfgMgr.JGTowerReader(
 outputNoise=True,
 noise_file="../../Trigger/TrigT1/TrigT1CaloFexSim/data/noise_r9813.root",
+jJet_threshold=3,
 jSeed_size=0.2,
+jMax_r=0.4,
 jJet_r=0.4,
-gSeed_size=0.4,
-gJet_r=1.0,
-seed_thr=1.5,
-seed_tower_thr=1.0
+gJet_threshold=3,
+gSeed_size=0.2,
+gMax_r=0.4,
+gJet_r=0.4,
 )                                 #adds an instance of your alg to it
 algseq.JGTowerReader.OutputLevel=DEBUG
 
