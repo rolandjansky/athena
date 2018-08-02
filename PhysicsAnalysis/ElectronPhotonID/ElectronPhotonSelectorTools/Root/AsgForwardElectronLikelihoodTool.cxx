@@ -131,10 +131,10 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
       if (m_configFile.find("dev/") != std::string::npos) {      
         std::string PDFdevval = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/offline/mc16_20180716/ForwardElectronLikelihoodPdfs.root"); // this is the first PDF ever released
         PDFfilename = ("dev/"+PDFdevval);
-        ATH_MSG_INFO( "Getting the input PDFs from: " << PDFfilename  );
+        ATH_MSG_DEBUG( "Getting the input PDFs from: " << PDFfilename  );
       } else {
         PDFfilename = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/offline/mc16_20180716/ForwardElectronLikelihoodPdfs.root");
-        ATH_MSG_INFO( "Getting the input PDFs from: " << PDFfilename );
+        ATH_MSG_DEBUG( "Getting the input PDFs from: " << PDFfilename );
       }
     }
     std::string filename = PathResolverFindCalibFile( PDFfilename );
@@ -214,14 +214,14 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
 {
   if ( !eg )
     {
-      ATH_MSG_INFO("Failed, no egamma object.");
+      ATH_MSG_ERROR("Failed, no egamma object.");
       return m_acceptDummy;
     }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
     {
-      ATH_MSG_INFO("Failed, no cluster.");
+      ATH_MSG_ERROR("Failed, no cluster.");
       return m_acceptDummy;
     }  
   
@@ -230,8 +230,8 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
   const float eta = (cluster->eta());
   if ( fabs(eta) > 300.0 )
     {
-      ATH_MSG_INFO("Failed, eta range.");
-      ATH_MSG_INFO(" we were checking . " << eta);
+      ATH_MSG_ERROR("Failed, eta range.");
+      ATH_MSG_ERROR(" we were checking . " << eta);
       return m_acceptDummy;
     }
   
@@ -285,14 +285,14 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::El
 {
   if ( !eg )
     {
-      ATH_MSG_INFO("Failed, no egamma object.");
+      ATH_MSG_ERROR("Failed, no egamma object.");
       return m_resultDummy;
     }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
     {
-      ATH_MSG_INFO("Failed, no cluster.");
+      ATH_MSG_ERROR("Failed, no cluster.");
       return m_resultDummy;
     }  
   
@@ -300,8 +300,8 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::El
   const float eta = cluster->eta(); 
   if ( fabs(eta) > 300.0 )
     {
-      ATH_MSG_INFO("Failed, eta range.");
-      ATH_MSG_INFO("checking at other place ." << eta);
+      ATH_MSG_ERROR("Failed, eta range.");
+      ATH_MSG_ERROR("checking at other place ." << eta);
       return m_resultDummy;
     }
   
