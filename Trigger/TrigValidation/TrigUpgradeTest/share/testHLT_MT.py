@@ -113,7 +113,6 @@ setModifiers = ['noLArCalibFolders',
                 #'enableCoherentPS',
                 'useOracle',
                 'enableHotIDMasking',
-                'softTRTsettings',
                 'openThresholdRPCCabling',
 ]
 
