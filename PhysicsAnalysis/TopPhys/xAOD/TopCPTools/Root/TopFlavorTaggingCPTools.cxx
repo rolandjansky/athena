@@ -247,10 +247,10 @@ StatusCode FlavorTaggingCPTools::initialize() {
         top::check(btagsel->setProperty("OperatingPoint", btagWP),
                   "Failed to set b-tagging selection tool OperatingPoint");
         top::check(btagsel->setProperty("MinPt",
-                                        static_cast<double>(m_config->jetPtcut())),
+                                        static_cast<double>(m_config->trackJetPtcut())),
                   "Failed to set b-tagging selection tool MinPt");
         top::check(btagsel->setProperty("MaxEta",
-                                        static_cast<double>(m_config->jetEtacut())),
+                                        static_cast<double>(m_config->trackJetEtacut())),
                   "Failed to set b-tagging selection tool MaxEta");
         top::check(btagsel->initialize(),
                   "Failed to initialize b-tagging selection tool");

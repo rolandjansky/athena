@@ -49,6 +49,7 @@ namespace fastjet{
 namespace JetSubStructureUtils{
   class KtSplittingScale;
   class Qw;
+  class EnergyCorrelatorGeneralized;
 }
 
 class RCJetMC15 final : public asg::AsgTool{
@@ -81,6 +82,9 @@ public:
     std::string rcjetContainerName( std::size_t hash_value, bool isLooseEvent );
 
     bool passSelection(const xAOD::Jet& jet) const;
+    
+    void getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet);
+    void getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet);
 
 
 private:
@@ -120,6 +124,15 @@ private:
     JetSubStructureUtils::KtSplittingScale* m_split12;
     JetSubStructureUtils::KtSplittingScale* m_split23;
     JetSubStructureUtils::Qw* m_qw;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF332;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF461;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF322;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF331;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF422;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF441;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF212;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF321;
+    JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF311;
     
     bool m_unique_syst;
 

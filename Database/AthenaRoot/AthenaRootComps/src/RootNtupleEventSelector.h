@@ -216,6 +216,9 @@ class RootNtupleEventSelector :
   /// List of branches to activate in the @c TTree 
   StringArrayProperty m_activeBranchNames;
 
+  /// Should missing trees be ignored (only prints a warning)
+  bool m_ignoreMissingTrees;
+
   /// Number of events to skip at the beginning 
   long m_skipEvts;
   

@@ -109,7 +109,7 @@ addDefaultTrimmedJets(FTAG2Seq,"FTAG2",dotruth=True)
 # Add Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 
-addExKtDoubleTaggerRCJets(FTAG1Seq, ToolSvc)
+addExKtDoubleTaggerRCJets(FTAG2Seq, ToolSvc)
 
 #===================================================================
 # Variable Radius (VR) Jets
@@ -159,7 +159,7 @@ FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "AntiKt4EMTopoJets","BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMPFlowJets",
-                                        "MET_Reference_AntiKt4EMPFlow"
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt8EMTopoJets",
                                         "AntiKt8EMTopoExKt2SubJets",
                                         "AntiKt8EMTopoExKt3SubJets",
