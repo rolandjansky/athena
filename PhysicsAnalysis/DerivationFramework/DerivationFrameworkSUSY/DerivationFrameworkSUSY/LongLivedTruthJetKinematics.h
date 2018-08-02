@@ -39,12 +39,13 @@ protected:
   int m_llp_pdgid; //!
   double m_caloRad; //!
   double m_dR_matching; //!
+  double m_minRadius; //!
 
   double getEtaFromTheta(double theta) const;
   double getThetaFromEta(double eta) const;
   TLorentzVector getDVKine(const TLorentzVector longLivedParticle, const TLorentzVector decayProduct, double r_dv, double R_cal) const;
   bool isDecayParticle(const xAOD::TruthParticle* particle) const;
-  TLorentzVector matchJets(const xAOD::Jet* mytruthJet) const;
+  bool matchJets(TLorentzVector& mytruthJet) const;
 
 };
 }

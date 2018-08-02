@@ -19,6 +19,7 @@ LongLivedTruthJetKinematics::LongLivedTruthJetKinematics(const std::string& t, c
   declareProperty("CalorimeterRadius", m_caloRad = 1800, "The radius of the calorimeter");
   declareProperty("DeltaRMatching", m_dR_matching = 0.3, "The maximum deltaR between particle and jet which is considered a match");
   declareProperty("LLP_PDGID", m_llp_pdgid = 1000022, "The pdgid of the long-lived particle");
+  declareProperty("MinRadius", m_minRadius = 1, "The minimum radius considered as a long-lived decay");
 }
 
 StatusCode LongLivedTruthJetKinematics::initialize() {
@@ -35,7 +36,10 @@ StatusCode LongLivedTruthJetKinematics::addBranches() const{
   std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > newjets = xAOD::shallowCopyContainer(*injets); 
 
   for(auto truthJet: *(newjets.first)){
-    TLorentzVector newJet = matchJets( truthJet );
+    TLorentzVector newJet(0,0,0,0);
+    newJet.SetPtEtaPhiE(truthJet->pt(), truthJet->eta(), truthJet->phi(), truthJet->e());
+    bool isMatched = matchJets( newJet );
+    if(!isMatched) continue;
     xAOD::JetFourMom_t v(newJet.Pt(), newJet.Eta(), newJet.Phi(), newJet.M());
     truthJet->setJetP4( v );
   }
@@ -46,10 +50,9 @@ StatusCode LongLivedTruthJetKinematics::addBranches() const{
   return StatusCode::SUCCESS;
 }
 
-TLorentzVector LongLivedTruthJetKinematics::matchJets(const xAOD::Jet* mytruthJet) const{
+//TLorentzVector LongLivedTruthJetKinematics::matchJets(const xAOD::Jet* mytruthJet) const{
+bool LongLivedTruthJetKinematics::matchJets(TLorentzVector& truthJetTLV) const{
   // Looping over all truth jets to see if they match to a LLP decay
-  TLorentzVector truthJetTLV(0,0,0,0);
-  truthJetTLV.SetPtEtaPhiE(mytruthJet->pt(), mytruthJet->eta(), mytruthJet->phi(), mytruthJet->e());
   double dRMinTruth = m_dR_matching;
   const xAOD::TruthParticle* matchedSparticle = nullptr;
 
@@ -63,7 +66,6 @@ TLorentzVector LongLivedTruthJetKinematics::matchJets(const xAOD::Jet* mytruthJe
     if(!isDecay) continue;
     const xAOD::TruthVertex* vert = sparticle->decayVtx();
 
-		//for(auto quark: vert->OutgoingParticles()){
     for(unsigned int i=0; i<vert->nOutgoingParticles(); i++){
       if(!vert->outgoingParticle(i)) continue;
       const xAOD::TruthParticle* quark = vert->outgoingParticle(i);
@@ -79,21 +81,21 @@ TLorentzVector LongLivedTruthJetKinematics::matchJets(const xAOD::Jet* mytruthJe
   }
 
   // Only care about jets matched to truth particles from LLP
-  if( !matchedSparticle ) return truthJetTLV;
+  if( !matchedSparticle ) return false;
 
   TLorentzVector sparticleTLV(0,0,0,0);
   sparticleTLV.SetPtEtaPhiM( matchedSparticle->pt(), matchedSparticle->eta(), matchedSparticle->phi(), matchedSparticle->m());
   const xAOD::TruthVertex* vert = matchedSparticle->decayVtx();
   double radius = sqrt(vert->x() * vert->x() + vert->y() * vert->y() + vert->z() * vert->z());
 
-  TLorentzVector newJet = getDVKine( sparticleTLV, truthJetTLV, radius, m_caloRad);
+  truthJetTLV = getDVKine( sparticleTLV, truthJetTLV, radius, m_caloRad);
 
-  return newJet;
+  return true;
 }
 
 // Want to check if the particle has a decay, and that it does not decay to itself
 bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* sparticle) const{
-  if(sparticle->pdgId() != m_llp_pdgid) return false;
+  if(fabs(sparticle->pdgId() ) != m_llp_pdgid) return false;
   if(!sparticle->hasDecayVtx()) return false;
 
   bool isRealDecay = true;
@@ -103,7 +105,7 @@ bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* spa
   }
   const xAOD::TruthVertex* vert = sparticle->decayVtx();
   double radius = sqrt(vert->x() * vert->x() + vert->y() * vert->y() + vert->z() * vert->z());
-  if(radius < 5) isRealDecay = false;
+  if(radius < m_minRadius) isRealDecay = false;
 
   return isRealDecay;
 
