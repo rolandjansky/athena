@@ -586,14 +586,30 @@ StatusCode SGImplSvc::retrieve(SG::ConstIterator<T>& cibegin,
                                SG::ConstIterator<T>& ciend ) const
 {
   lock_t lock (m_mutex);
-  const DataHandle<T> chbegin, chend;
-  StatusCode sc = this->retrieve(chbegin, chend);
-  if (sc.isSuccess()) {
-    cibegin=SG::ConstIterator<T>(chbegin);
-    ciend=SG::ConstIterator<T>(chend);
+  SG::ConstProxyIterator first;
+  SG::ConstProxyIterator end = first;
+
+  if (!(proxyRange(ClassID_traits<T>::ID(),first,end)).isSuccess()) {
+#ifndef NDEBUG
+    SG_MSG_DEBUG("retrieve(range): no object found " 
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
   }
+
+  (ciend.setState(end, end)).ignore();
+  
+  if (!(cibegin.setState(first, end)).isSuccess()) {
+#ifndef NDEBUG
+    SG_MSG_DEBUG("retrieve(range): Can't set DataHandle for object range " 
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+    return StatusCode::FAILURE;
+  }
+
   //FIXME no associateAux
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////

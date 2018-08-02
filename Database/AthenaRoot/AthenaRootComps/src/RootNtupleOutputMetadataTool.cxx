@@ -162,10 +162,8 @@ RootNtupleOutputMetadataTool::handle(const Incident& inc)
     StatusCode pc = m_ometaStore->retrieve(titer,tend); 
     if (pc.isSuccess()) { 
       for (; titer != tend; titer++) { 
-        if (titer.isValid()) { 
-          if (m_ometaStore->removeDataAndProxy(&*titer).isFailure()) { 
-            ATH_MSG_ERROR("Unable to remove TransferTree after writing"); 
-          } 
+        if (m_ometaStore->removeDataAndProxy(&*titer).isFailure()) { 
+          ATH_MSG_ERROR("Unable to remove TransferTree after writing"); 
         } 
       } 
     } 
@@ -219,16 +217,13 @@ RootNtupleOutputMetadataTool::writeMetadata()
     for (; titer != tend; titer++) {
       std::string key = titer.key();
       if (m_treesWritten.find(key) == m_treesWritten.end()) {
-        if (titer.isValid()) {
-          const TTree* x = (TTree*)titer->tree(); 
-          try { 
-            if (this->addMetadata(key,x,typeid(TTree)).isFailure()) failure=true; 
-          } 
-          catch (...) { 
-            ATH_MSG_INFO("Error adding metadata for TTree " << key); 
-          } 
-        }
-        else ATH_MSG_INFO("Retrieve TTree with null pointer from input metadata store");
+        const TTree* x = (TTree*)titer->tree(); 
+        try { 
+          if (this->addMetadata(key,x,typeid(TTree)).isFailure()) failure=true; 
+        } 
+        catch (...) { 
+          ATH_MSG_INFO("Error adding metadata for TTree " << key); 
+        } 
         m_treesWritten.insert(key);
       }
       else {ATH_MSG_WARNING("Tree " << key << " already written");}
@@ -267,11 +262,9 @@ RootNtupleOutputMetadataTool::copyMetadata()
   failure = false; 
   if (pc.isSuccess()) {
     for (; titer != tend; titer++) {
-      if (titer.isValid()) {
-        auto toCopy = std::make_unique<TransferTree>(*titer);
-        if (!m_ometaStore->contains<TransferTree>(titer.key())) {
-          if (m_ometaStore->record(std::move(toCopy),titer.key()).isFailure()) failure=true;
-        }
+      auto toCopy = std::make_unique<TransferTree>(*titer);
+      if (!m_ometaStore->contains<TransferTree>(titer.key())) {
+        if (m_ometaStore->record(std::move(toCopy),titer.key()).isFailure()) failure=true;
       }
       else ATH_MSG_INFO("Retrieve TTree with null pointer from input metadata store");
     }
