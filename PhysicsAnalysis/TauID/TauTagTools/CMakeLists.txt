@@ -11,11 +11,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           GaudiKernel
                           PhysicsAnalysis/EventTag/TagEvent
+                          PhysicsAnalysis/TauID/TauAnalysisTools
                           PRIVATE
                           Control/StoreGate
                           Event/xAOD/xAODTau
-                          PhysicsAnalysis/AnalysisCommon/AnalysisUtils
-                          PhysicsAnalysis/TauID/TauAnalysisTools )
+                          PhysicsAnalysis/AnalysisCommon/AnalysisUtils )
 
 # External dependencies:
 find_package( CLHEP )
