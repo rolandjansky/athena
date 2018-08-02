@@ -437,7 +437,7 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
   if (!allFound) ATH_MSG_FATAL("Missing input variable for ECIDS BDT calculation");
     
   const xAOD::EventInfo* eventInfo = nullptr;
-  if (evtStore()->retrieve(eventInfo).isFailure()) ATH_MSG_WARNING ( " Cannot access to event info " );
+  if (evtStore()->retrieve(eventInfo,"EventInfo").isFailure()) ATH_MSG_WARNING ( " Cannot access to event info " );
   // lumiBlock = eventInfo->lumiBlock(), runNumber = eventInfo->runNumber(), eventNumber=eventInfo->eventNumber();
   //ATH_MSG_DEBUG("event_num%bdt_size="<<eventInfo->eventNumber()<<"%"<<unsigned(m_v_bdts.size())<<"= "<<eventInfo->eventNumber()%unsigned(m_v_bdts.size()));
   unsigned bdt_index=eventInfo->eventNumber()%unsigned(m_v_bdts.size());
