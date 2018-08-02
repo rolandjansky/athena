@@ -141,7 +141,7 @@ private:
 
   void setupTempMapsHelper(TObject* obj,
                            std::unordered_map<int, TObjArray>& objs,
-                           std::vector<TObjArray >& sysObjs,int& seenSystematics) const;
+                           std::vector<TObjArray >& sysObjs,int& seenSystematics) ;
 
   /// Fill and interpret the setup, depending on which histograms are found in the input file(s)
   int setup( const TObjArray& hist,

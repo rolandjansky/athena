@@ -469,7 +469,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
   currentVector_itr = currentmap.find(mapkey::uncorr); 
   if (currentVector_itr != currentmap.end()) {
     if (currentVector_itr->second.at(runnumberIndex).GetEntriesFast()>0) {
-      TH1 *uncorr = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
+     TH1 *uncorr = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
       const double valAdd = uncorr->GetBinContent(globalBinNumber);
       val = sqrt(val * val + valAdd * valAdd);
       for (int i = 0; i < sLevel[m_detailLevel]; ++i) {
@@ -856,36 +856,27 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
   TIter nextkey(gDirectory->GetListOfKeys());
   TKey *key;
   TObject *obj(0);
-  int seenSystematicsFull = 0;
-  int seenSystematicsFast =0;
-    //Loop of the keys 
-    while ((key = (TKey *) nextkey())) {
-      obj = key->ReadObj();
-      if (obj->IsA()->InheritsFrom("TH1")) {
-        // The histogram containing the scale factors need to end with _sf and need to contain either the string "FullSim"
-        // or "AtlFast2"!
-        if (TString(obj->GetName()).Contains("FullSim")) {
-          setupTempMapsHelper( obj,objsFull,sysObjsFull, seenSystematicsFull); 
-        }
-        else if (TString(obj->GetName()).Contains("AtlFast2")) {
-          setupTempMapsHelper( obj,objsFast,sysObjsFast, seenSystematicsFast); 
-        } else {
-          ATH_MSG_ERROR(
-                        " (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
-                        << "Could NOT interpret if the histogram: " << obj->GetName()
-                        << " is full or fast simulation!");
-          return 0;
-        }
+  int seenSystematics= 0;
+
+  //Loop of the keys 
+  while ((key = (TKey *) nextkey())) {
+    obj = key->ReadObj();
+    if (obj->IsA()->InheritsFrom("TH1")) {
+      // The histogram containing the scale factors need to end with _sf and need to contain either the string "FullSim"
+      // or "AtlFast2"!
+      if (TString(obj->GetName()).Contains("FullSim")) {
+        setupTempMapsHelper( obj,objsFull,sysObjsFull, seenSystematics); 
+      }
+      else if (TString(obj->GetName()).Contains("AtlFast2")) {
+        setupTempMapsHelper( obj,objsFast,sysObjsFast, seenSystematics); 
+      } else {
+        ATH_MSG_ERROR(
+                      " (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+                      << "Could NOT interpret if the histogram: " << obj->GetName()
+                      << " is full or fast simulation!");
+        return 0;
       }
     }
-  /*
-   * Set the possible maximum number of systematics
-   */
-  if (seenSystematicsFull > m_nSysMax) {
-    m_nSysMax = seenSystematicsFull;
-  }
-  if (seenSystematicsFast > m_nSysMax) {
-    m_nSysMax = seenSystematicsFast;
   }
   ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
                 << "setting up histograms for run ranges  " <<
@@ -956,7 +947,7 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
 void Root::TElectronEfficiencyCorrectionTool::setupTempMapsHelper(TObject* obj, 
                                                                   std::unordered_map<int, TObjArray>& objs,
                                                                   std::vector<TObjArray >& sysObjs, 
-                                                                  int& seenSystematics) const {
+                                                                  int& seenSystematics)  {
   //Add all except the correlated 
   for (unsigned int ikey = 0; ikey < m_keys.size(); ++ikey) {
     if (TString(obj->GetName()).EndsWith("_" +  TString(mapkey::keytostring(m_keys.at(ikey))))) {
@@ -1006,6 +997,10 @@ void Root::TElectronEfficiencyCorrectionTool::setupTempMapsHelper(TObject* obj,
     /*Increase the counter*/
     seenSystematics++;
   }
+
+  if (seenSystematics > m_nSysMax) {
+    m_nSysMax = seenSystematics;
+  }
 }
 /*
  * Helper for setting up the uncorrelated syst for the toys
@@ -1022,10 +1017,10 @@ bool Root::TElectronEfficiencyCorrectionTool::setupUncorrToySyst(std::unordered_
 
         TObjArray dummy;
         uncorrToyMCSyst.push_back(buildToyMCTable(objs.find(mapkey::sf)->second, 
-                                                      dummy,
-                                                      objs.find(mapkey::stat)->second,
-                                                      dummy, 
-                                                      sysObjs));
+                                                  dummy,
+                                                  objs.find(mapkey::stat)->second,
+                                                  dummy, 
+                                                  sysObjs));
         toysBooked = true;
       }else {
         ATH_MSG_DEBUG("! Toy MC error propagation booked, but not all needed" 
