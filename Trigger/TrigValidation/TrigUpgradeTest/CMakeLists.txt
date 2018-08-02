@@ -74,11 +74,11 @@ atlas_add_test( egammaRunData
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
               )
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonRunData )
-atlas_add_test( photonRunData
- 		SCRIPT test/test_photon_run_data.sh
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu )
+atlas_add_test( photonMenu
+ 		SCRIPT test/test_photon_menu.sh
                  PROPERTIES TIMEOUT 500
- 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonRunData               )
+ 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu   )
 
 #		EXTRA_PATTERNS "TriggerSummary"
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )

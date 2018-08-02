@@ -14,19 +14,17 @@ from TrigUpgradeTest.MenuComponents import HLTRecoSequence, MenuSequence
 #      L2 Calo
 # ===============================================================================================
 
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+theFastCaloAlgo=T2CaloEgamma_ReFastAlgo("FastCaloAlgo" )
 theFastCaloAlgo.OutputLevel=VERBOSE
 theFastCaloAlgo.ClustersName="L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
- 
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo])
-
 
 
 fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
