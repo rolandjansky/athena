@@ -385,8 +385,8 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<doub
       double prob = 0;
 
       double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
-      if (integral == 0) { // currently, the crack always has integral == 0 and will throw this warning
-	ATH_MSG_WARNING("Error! PDF integral == 0!"); 
+      if (integral == 0) { // currently, the crack always has integral == 0 
+	ATH_MSG_DEBUG("Error! PDF integral == 0!"); // changed it to debug message since we intend to run the tool in the derivations
 	return -1.35;
       }
       

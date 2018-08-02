@@ -9,7 +9,6 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronMultiLeptonSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgForwardElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"

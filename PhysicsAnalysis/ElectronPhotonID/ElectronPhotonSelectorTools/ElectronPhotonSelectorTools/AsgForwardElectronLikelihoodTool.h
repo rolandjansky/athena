@@ -10,7 +10,7 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "EgammaAnalysisInterfaces/IAsgForwardElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
@@ -21,9 +21,9 @@ namespace Root{
 
 
 class AsgForwardElectronLikelihoodTool : public asg::AsgTool, 
-				  virtual public IAsgForwardElectronLikelihoodTool
+				  virtual public IAsgElectronLikelihoodTool
 {
-  ASG_TOOL_CLASS2(AsgForwardElectronLikelihoodTool, IAsgForwardElectronLikelihoodTool, IAsgSelectionTool)
+  ASG_TOOL_CLASS2(AsgForwardElectronLikelihoodTool, IAsgElectronLikelihoodTool, IAsgSelectionTool)
 
 public:
   /** Standard constructor */

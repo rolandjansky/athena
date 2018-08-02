@@ -20,7 +20,7 @@
 
 #include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
-#include "EgammaAnalysisInterfaces/IAsgForwardElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 //
 #include "AsgTools/MessageCheck.h"
@@ -96,8 +96,7 @@ int main( int argc, char* argv[] ) {
   ANA_CHECK(electronForwardMedium->initialize());
      
   //Medium Likelihood electron
-  asg::AnaToolHandle<IAsgForwardElectronLikelihoodTool> electronForwardMediumLH ("AsgFwdElectronLikelihoodTool/electronMediumLHSelector");
-  // AsgForwardElectronLikelihoodTool* electronForwardMediumLH = new AsgForwardElectronLikelihoodTool ("AsgFwdElectronLikelihoodTool/electronMediumLHSelector");
+  asg::AnaToolHandle<IAsgElectronLikelihoodTool> electronForwardMediumLH ("AsgForwardElectronLikelihoodTool/electronMediumLHSelector");
   ANA_CHECK(electronForwardMediumLH.setProperty("WorkingPoint", "TightLHForwardElectron"));
   ANA_CHECK(electronForwardMediumLH.setProperty("OutputLevel",mylevel));
   ANA_CHECK(electronForwardMediumLH.initialize());
