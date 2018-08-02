@@ -49,7 +49,6 @@ int main( int argc, char* argv[] ) {
   CHECK( ifile.get() );
 
   // Create a TEvent object:
-  //xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
   xAOD::TEvent event;
    
   //Then the tools

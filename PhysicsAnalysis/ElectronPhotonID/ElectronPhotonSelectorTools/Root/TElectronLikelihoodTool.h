@@ -227,17 +227,14 @@ namespace Root {
     // For every input "varVector", make sure elements of vector are
     // in the same order as prescribed in fVariables
 
-    /// Description???
+    /// Internal methods to calculate the LH discriminant from a set of variables
     double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0) const;
-
-    /// Description???
     double EvaluateLikelihood(std::vector<float>  varVector,double et,double eta,double ip=0) const;
 
 
     // To concoct a bitmask on your own, use the 
     // variable names prescribed in fVariables.
     
-    /// Description???
     unsigned int GetLikelihoodBitmask(std::string vars) const;
     
     double InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const;

@@ -151,29 +151,25 @@ namespace Root {
     // For every input "varVector", make sure elements of vector are
     // in the same order as prescribed in fVariables
 
-    /// Description???
+    /// Internal methods to calculate the LH discriminant from a set of variables
     double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0) const;
-
-    /// Description???
     double EvaluateLikelihood(std::vector<float>  varVector,double et,double eta,double ip=0) const;
 
 
     // To concoct a bitmask on your own, use the 
     // variable names prescribed in fVariables.
     
-    /// Description???
     unsigned int GetLikelihoodBitmask(std::string vars) const;
+
     unsigned int LikelihoodTightBitmask() const {
       std::string vars = "el_secLambda,el_secondR,el_lateral,el_lonngitudinal,el_centralLamba,el_fracMax,el_significance,el_secondDensity";
       return GetLikelihoodBitmask(vars);
     };
     
-    /// Description???
     unsigned int LikelihoodMediumBitmask() const{
       return LikelihoodTightBitmask();
     };
 
-    /// Description???
     unsigned int LikelihoodLooseBitmask() const{
       std::string vars = "el_secLambda,el_secondR,el_lateral,el_lonngitudinal,el_centralLamba,el_fracMax,el_significance,el_secondDensity";
       return GetLikelihoodBitmask(vars);
