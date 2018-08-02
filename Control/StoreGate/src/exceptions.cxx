@@ -337,4 +337,16 @@ void throwExcNonConstHandleKey (CLID clid,
 }
 
 
+//****************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcInvalidIterator::ExcInvalidIterator()
+  : std::runtime_error ("Attempt to dereference invalid SG::Iterator/SG::ConstIterator")
+{
+}
+
+
 } // namespace SG
