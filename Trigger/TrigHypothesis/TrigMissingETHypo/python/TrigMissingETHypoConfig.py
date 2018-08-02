@@ -360,6 +360,7 @@ class EFMetHypoTCTrkPUCXE (EFMissingETHypoBase):
 
 class L2MetHypoTE (EFMissingETHypoBase):
     __slots__ = []
+
     def __init__(self, name = "L2MetHypo_te1000",l2_thr=1000*GeV):
         super( L2MetHypoTE, self ).__init__( name )
 
