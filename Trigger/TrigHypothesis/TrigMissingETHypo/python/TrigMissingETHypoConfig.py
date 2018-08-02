@@ -344,9 +344,15 @@ class EFMetHypoTCTrkPUCXE (EFMissingETHypoBase):
         self.doEMScaleTC=True
         if 'tchad' in name:
             self.doEMScaleTC = False
+<<<<<<< HEAD
         if 'tclcw' in name:
             self.doEMScaleTC = False
         if 'tcem' in name:
+=======
+        if 'tc' in name and 'lcw' in name:
+            self.doEMScaleTC = False
+        if 'tc' in name and 'em' in name:
+>>>>>>> release/21.1.37
             self.doEMScaleTC = True
         if 'wMu' in name:
             self.doMuonCorrection = True
