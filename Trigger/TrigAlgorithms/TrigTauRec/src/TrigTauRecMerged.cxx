@@ -194,7 +194,7 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   
   /** Errors */
   declareMonitoredStdContainer("EF_track_errors",m_track_errors);
-    
+
   // RNN inputs
   // scalar
   declareMonitoredVariable("EF_RNN_scalar_ptRatioEflowApprox", m_RNN_scalar_ptRatioEflowApprox);
@@ -945,24 +945,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  }
 	  
 	
-	  // write out delta Z0
-	  /*
-	   * FF, March 2014: deactivated.
-	   * If the output of these variables is still needed, drop me a line.
-	   * We can either print them here as done before or put them into tauEDM to have them available globally
-	   if (m_useTauPVTool) {
-	   m_tauPVTool->getDeltaZ0Values(m_deltaZ0coreTrks, m_deltaZ0wideTrks);
-	   
-	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for core trk ";
-	   for ( unsigned int i=0; i<m_deltaZ0coreTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0coreTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endreq;
-	   
-	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for wide trk ";
-	   for ( unsigned int i=0; i<m_deltaZ0wideTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0wideTrks[i] << ", ";
-	   msg() << MSG::DEBUG << endreq;
-	   }
-	  */
-
 	  //
 	  // copy CaloOnly four vector, if present
 	  //
