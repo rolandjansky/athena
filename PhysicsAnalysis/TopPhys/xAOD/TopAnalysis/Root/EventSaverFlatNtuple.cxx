@@ -1765,8 +1765,9 @@ namespace top {
 		  if (firstEgMotherTruthOrigin.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthOrigin[i] = firstEgMotherTruthOrigin(*elPtr);
 		  if (firstEgMotherPdgId.isAvailable(*elPtr)) m_el_true_firstEgMotherPdgId[i] = firstEgMotherPdgId(*elPtr);
 
-		  m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i], m_el_true_firstEgMotherPdgId[i]);
-  		  m_el_true_isChargeFl[i] = isChargeFl(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i], m_el_true_firstEgMotherPdgId[i], m_el_charge[i]);
+		  std::pair<bool,bool> isPrompt_isChargeFl = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i], m_el_true_firstEgMotherPdgId[i], m_el_charge[i]);
+		  m_el_true_isPrompt[i] = isPrompt_isChargeFl.first;
+  		  m_el_true_isChargeFl[i] = isPrompt_isChargeFl.second;
                 }
                 ++i;
             }
@@ -3994,7 +3995,7 @@ namespace top {
   
   //new prompt lepton classification below based on https://twiki.cern.ch/twiki/pub/AtlasProtected/IsolationFakeForum/MakeTruthClassification.hxx
   //these represent the latest IFF recommendations
-  bool EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId){
+  std::pair<bool, bool> EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge){
     // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
     bool isprompt = (type == 2 || 
 		(type == 4 && origin == 5 && fabs(egMotherPdgId) == 11) ||
@@ -4003,30 +4004,18 @@ namespace top {
 		// unknown electrons from multi-boson (sherpa 222, di-boson)
 		(type == 1 && egMotherType == 2 && egMotherOrigin == 47 && fabs(egMotherPdgId) == 11) );
 
-    //if (isprompt && (egMotherPdgId*RecoCharge<0)) return true;
-    //comment by Jannik: the charge check above works in combination with the "isChargeFl" function below: in both cases the electron is prompt, therefore I comment this line here -> users will then not be confused whether the electron is prompt or not if "isPromptElectron" returns false while "isChargeFl" returns true...
-    if (isprompt) return true;
+    bool isChargeFl = false;
+    if (egMotherPdgId*RecoCharge>0) isChargeFl = true;
+    if (isprompt) return std::make_pair(true,isChargeFl); //charge flipped electrons are also considered prompt
 
     // bkg photons from photon conv from FSR (must check!!)
-    if (type == 4 && origin == 5 && egMotherOrigin == 40) return true;  
+    if (type == 4 && origin == 5 && egMotherOrigin == 40) return std::make_pair(true,false);  
     // non-iso photons from FSR for the moment but we must check!! (must check!!)
-    if (type == 15 && origin == 40) return true;  
+    if (type == 15 && origin == 40) return std::make_pair(true,false);  
     // mainly in Sherpa Zee, but some also in Zmumu
-    if (type == 4 && origin == 7 && egMotherType == 15 && egMotherOrigin == 40) return true; 
+    if (type == 4 && origin == 7 && egMotherType == 15 && egMotherOrigin == 40) return std::make_pair(true,false); 
 
-    return false;
-  }
-
-  bool EventSaverFlatNtuple::isChargeFl(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge){
-    // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
-    bool isprompt = (type == 2 || 
-		(type == 4 && origin == 5 && fabs(egMotherPdgId) == 11) ||
-		// bkg electrons from ElMagDecay with origin top, W or Z, higgs, diBoson
-		(type == 4 && origin == 7 && egMotherType == 2 && (egMotherOrigin == 10 || egMotherOrigin == 12 || egMotherOrigin == 13 || egMotherOrigin == 14 || egMotherOrigin == 43) && fabs(egMotherPdgId) == 11) ||
-		// unknown electrons from multi-boson (sherpa 222, di-boson)
-		(type == 1 && egMotherType == 2 && egMotherOrigin == 47 && fabs(egMotherPdgId) == 11) );
-
-    return (isprompt && (egMotherPdgId*RecoCharge>0));
+    return std::make_pair(false,false);
   }
 
   bool EventSaverFlatNtuple::isPromptMuon(int type, int origin){
