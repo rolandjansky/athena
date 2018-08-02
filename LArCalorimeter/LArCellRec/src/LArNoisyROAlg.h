@@ -23,9 +23,10 @@
 #include "CaloInterface/ILArNoisyROTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "LArRecEvent/LArNoisyROSummary.h"
 
 class CaloCellContainer;
-class LArNoisyROSummary; 
 
 class LArNoisyROAlg : public AthReentrantAlgorithm
 {
@@ -40,8 +41,9 @@ class LArNoisyROAlg : public AthReentrantAlgorithm
  private: 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
  
-  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerName;
-  SG::WriteHandleKey<LArNoisyROSummary> m_outputKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
+  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerName{this, "CaloCellContainer", "AllCalo", "Name of input cell container"};
+  SG::WriteHandleKey<LArNoisyROSummary> m_outputKey{this, "OutputKey", "LArNoisyROSummary", "Output summary object name"};
 
 };
 
