@@ -36,7 +36,6 @@ protected:
   std::string m_inputTruthJetContainer = ""; //!
   std::string m_inputParticleContainer = ""; //!
   std::string m_outputTruthJetContainer = ""; //!
-  int m_llp_pdgid; //!
   double m_caloRad; //!
   double m_dR_matching; //!
   double m_minRadius; //!

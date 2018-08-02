@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
    Event/xAOD/xAODTruth
+   Generators/TruthUtils
    PhysicsAnalysis/CommonTools/ExpressionEvaluation
    PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
    Reconstruction/RecoTools/RecoToolInterfaces
@@ -39,7 +40,7 @@ atlas_add_library( DerivationFrameworkSUSYLib
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES AthenaBaseComps xAODTruth RecoToolInterfaces
-   ExpressionEvaluationLib MCTruthClassifierLib ReweightUtilsLib TrkExUtils
+   ExpressionEvaluationLib MCTruthClassifierLib ReweightUtilsLib TrkExUtils TruthUtils
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODAssociations
    xAODEventInfo xAODJet xAODTracking GaudiKernel )
 

@@ -6,6 +6,7 @@
 // Jennifer Roloff, Harvard University
 
 #include "DerivationFrameworkSUSY/LongLivedTruthJetKinematics.h"
+#include "TruthUtils/PIDHelpers.h"
 
 namespace DerivationFramework {
 
@@ -18,7 +19,6 @@ LongLivedTruthJetKinematics::LongLivedTruthJetKinematics(const std::string& t, c
   declareProperty("OutputContainer", m_outputTruthJetContainer = "AntiKt4LLPTruthJets", "The output container for the sequence.");
   declareProperty("CalorimeterRadius", m_caloRad = 1800, "The radius of the calorimeter");
   declareProperty("DeltaRMatching", m_dR_matching = 0.3, "The maximum deltaR between particle and jet which is considered a match");
-  declareProperty("LLP_PDGID", m_llp_pdgid = 1000022, "The pdgid of the long-lived particle");
   declareProperty("MinRadius", m_minRadius = 1, "The minimum radius considered as a long-lived decay");
 }
 
@@ -95,13 +95,14 @@ bool LongLivedTruthJetKinematics::matchJets(TLorentzVector& truthJetTLV) const{
 
 // Want to check if the particle has a decay, and that it does not decay to itself
 bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* sparticle) const{
-  if(fabs(sparticle->pdgId() ) != m_llp_pdgid) return false;
+  if( !  MC::PID::isSUSY(sparticle->pdgId()) ) return false;
   if(!sparticle->hasDecayVtx()) return false;
 
   bool isRealDecay = true;
   for(unsigned int j=0; j<sparticle->decayVtx()->nOutgoingParticles(); j++){
     if(!sparticle->decayVtx()->outgoingParticle(j)) continue;
     if( sparticle->pdgId() == sparticle->decayVtx()->outgoingParticle(j)->pdgId()) isRealDecay = false;
+    if( MC::PID::isSUSY(sparticle->decayVtx()->outgoingParticle(j)->pdgId()) ) isRealDecay = false;
   }
   const xAOD::TruthVertex* vert = sparticle->decayVtx();
   double radius = sqrt(vert->x() * vert->x() + vert->y() * vert->y() + vert->z() * vert->z());
