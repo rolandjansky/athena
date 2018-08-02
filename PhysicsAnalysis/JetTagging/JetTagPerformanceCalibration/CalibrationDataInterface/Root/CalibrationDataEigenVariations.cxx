@@ -8,6 +8,7 @@
 
 #include "CalibrationDataInterface/CalibrationDataContainer.h"
 #include "CalibrationDataInterface/CalibrationDataEigenVariations.h"
+#include "CalibrationDataInterface/CalibrationDataInternals.h"
 
 #include <iomanip>
 #include <iostream>
@@ -15,6 +16,7 @@
 #include <set>
 #include <algorithm>
 #include <cmath>
+
 #include "TH1.h"
 #include "TVectorT.h"
 #include "TDecompSVD.h"
@@ -22,6 +24,7 @@
 #include "TROOT.h"
 
 using Analysis::CalibrationDataEigenVariations;
+using Analysis::CalibrationDataInterface::split;
 using std::string;
 using std::map;
 using std::vector;
@@ -193,9 +196,18 @@ ClassImp(CalibrationDataEigenVariations)
 #endif
 
 //________________________________________________________________________________
-CalibrationDataEigenVariations::CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt) :
+CalibrationDataEigenVariations::CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt,
+							       bool excludeRecommendedUncertaintySet) :
   m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1)
 {
+  // if specified, add items recommended for exclusion from EV decomposition by the calibration group to the 'named uncertainties' list
+  if (excludeRecommendedUncertaintySet) {
+    std::vector<std::string> to_exclude = split(m_cnt->getExcludedUncertainties());
+    for (auto name : to_exclude) excludeNamedUncertainty(name);
+    if (to_exclude.size() == 0) {
+      std::cerr << "CalibrationDataEigenVariations warning: exclusion of pre-set uncertainties list requested but no (or empty) list found" << std::endl;
+    }
+  }
 }
 
 //________________________________________________________________________________
@@ -238,7 +250,8 @@ CalibrationDataEigenVariations::excludeNamedUncertainty(const std::string& name)
   else if (! m_cnt->GetValue(name.c_str()))
     std::cerr << "CalibrationDataEigenVariations::excludeNamedUncertainty error:"
 	      << " uncertainty named " << name << " not found" << std::endl;
-  else {
+  // only really add if the entry is not yet in the list
+  else if (m_namedIndices.find(name) == m_namedIndices.end()) {
     m_named.push_back(std::pair<TH1*, TH1*>(0, 0));
     m_namedIndices[name] = m_named.size()-1;
   }
@@ -281,7 +294,7 @@ CalibrationDataEigenVariations::getEigenCovarianceMatrix() const
 	uncs[t] == "combined" || uncs[t] == "statistics" ||
         uncs[t] == "systematics" || uncs[t] == "MCreference" ||
         uncs[t] == "MChadronisation" || uncs[t] == "extrapolation" ||
-        uncs[t] == "ReducedSets") continue;
+        uncs[t] == "ReducedSets" || uncs[t] == "excluded_set") continue;
     // entries that can be excluded if desired
     if (m_namedIndices.find(uncs[t]) != m_namedIndices.end()) continue;
 
@@ -729,7 +742,7 @@ CalibrationDataEigenVariations::initialize(double min_variance)
       final_set.insert(current_set);
     ++current_set;
   }
-  if (final_set.size() > 0) std::cout << "Removing " << final_set.size()
+  if (final_set.size() > 0) std::cout << "CalibrationDataEigenVariations: Removing " << final_set.size()
 				      << " eigenvector variations leading to sub-tolerance effects, retaining "
 				      << m_eigen.size()-final_set.size() << " variations" << std::endl;
   removeVariations(final_set);

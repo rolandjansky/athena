@@ -37,7 +37,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Boost )
-find_package( ROOT COMPONENTS Core MathCore Hist RIO MathMore )
+find_package( ROOT COMPONENTS Core Hist MathCore)
 
 # Component(s) in the package:
 atlas_add_library( ElectronEfficiencyCorrectionLib
@@ -52,8 +52,7 @@ atlas_add_library( ElectronEfficiencyCorrectionLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronEfficiencyCorrection
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES xAODEgamma PATInterfaces AthenaBaseComps xAODCore
-      xAODEventInfo GaudiKernel ElectronEfficiencyCorrectionLib )
+      LINK_LIBRARIES  AthenaBaseComps GaudiKernel ElectronEfficiencyCorrectionLib )
 endif()
 
 atlas_add_dictionary( ElectronEfficiencyCorrectionDict
@@ -98,7 +97,6 @@ if( XAOD_STANDALONE )
 	          SCRIPT EgEfficiencyCorr_testEgEfficiencyCorr  $ASG_TEST_FILE_MC 40)
  
 endif()
-
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py)
