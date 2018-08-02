@@ -16,6 +16,8 @@ fi
 export NAME=HLT_HIV4
 export JOB_LOG="${NAME}.log"
 
+source HLTMPPU_setup.sh
+
 timeout 40m trigtest_ART_HLTMPPU.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART_HLTMPPU.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}

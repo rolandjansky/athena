@@ -13,6 +13,8 @@ if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
+source HLTMPPU_setup.sh
+
 export NAME=HelloWorldHLT
 export JOB_LOG="${NAME}.log"
 

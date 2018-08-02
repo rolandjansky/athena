@@ -12,6 +12,8 @@ if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
+source HLTMPPU_setup.sh
+
 export NAME=HLT_physicsV7
 export JOB_LOG="${NAME}.log"
 
