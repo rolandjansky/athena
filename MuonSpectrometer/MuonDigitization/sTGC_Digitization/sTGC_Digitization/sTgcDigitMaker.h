@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // sTgcDigitMaker.h
@@ -36,7 +36,7 @@ namespace MuonGM {
 class sTgcDigitCollection;
 class sTgcHitIdHelper;
 class sTgcIdHelper;
-class GenericMuonSimHit; 
+class sTGCSimHit; 
 
 //--- class description
 class sTgcDigitMaker {
@@ -53,7 +53,7 @@ class sTgcDigitMaker {
   */
   StatusCode initialize(CLHEP::HepRandomEngine* m_rndmEngine, const int channelTypes);
 
-  sTgcDigitCollection* executeDigi(const GenericMuonSimHit* hit, const float globalHitTime);
+  sTgcDigitCollection* executeDigi(const sTGCSimHit* hit, const float globalHitTime);
 
   //Declaring the Message method for further use
   MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }

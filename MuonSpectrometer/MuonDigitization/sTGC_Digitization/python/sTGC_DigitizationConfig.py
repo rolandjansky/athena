@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import sTGC_Digitization job properties
@@ -30,10 +30,6 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     kwargs.setdefault("OutputSDOName", "sTGC_SDO")
     kwargs.setdefault("doToFCorrection", True)
-    if 'MC16Merge' in jobproperties.Digitization.experimentalDigi():
-        kwargs.setdefault("UseMcEventCollectionHelper",True)
-    else:
-        kwargs.setdefault("UseMcEventCollectionHelper",False)
      
     return CfgMgr.sTgcDigitizationTool(name,**kwargs)
 
@@ -42,5 +38,6 @@ def getSTGCRange(name="sTgcRange", **kwargs):
     kwargs.setdefault('FirstXing', sTGC_FirstXing() ) 
     kwargs.setdefault('LastXing',  sTGC_LastXing() ) 
     kwargs.setdefault('CacheRefreshFrequency', 1.0 ) #default 0 no dataproxy reset 
-    kwargs.setdefault('ItemList', ["GenericMuonSimHitCollection#sTGCSensitiveDetector"] ) 
+    #kwargs.setdefault('ItemList', ["GenericMuonSimHitCollection#sTGCSensitiveDetector"] ) 
+    kwargs.setdefault('ItemList', ["sTGCSimHitCollection#sTGCSensitiveDetector"] ) 
     return CfgMgr.PileUpXingFolder(name, **kwargs)
