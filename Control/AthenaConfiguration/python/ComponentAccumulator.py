@@ -371,6 +371,12 @@ class ComponentAccumulator(object):
     
 
     def appendToGlobals(self):
+
+        #Cache old configurable behavior
+        oldstat=Configurable.configurableRun3Behavior
+
+        #Turn configurable behavior to old-style (eg return pre-existing instances instead of new'ing them)
+        Configurable.configurableRun3Behavior=0
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theApp
         
         for s in self._services:
@@ -399,6 +405,8 @@ class ComponentAccumulator(object):
             if k not in [ 'CreateSvc', 'ExtSvc']:
                 setattr(theApp,k,v)
 
+        #Re-instante previous configurable behavior
+        Configurable.configurableRun3Behavior=oldstat
         return
 
 
