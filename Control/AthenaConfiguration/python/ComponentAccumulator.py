@@ -222,7 +222,15 @@ class ComponentAccumulator(object):
                 #Note that getattr for a list property works, even if it's not in ValuedProperties
                 if (oldprop!=newprop):
                     #found property mismatch
-                    if isinstance(oldprop,list): #if properties are mergeable, do that!
+                    if isinstance(oldprop,GaudiHandles.GaudiHandle):
+                        self._deduplicateComponent(oldprop,newprop)
+                        pass
+                    elif isinstance(oldprop,GaudiHandles.GaudiHandleArray):
+                        print oldprop,newprop
+                        for newTool in newprop:
+                            self._deduplicate(newTool,oldprop)
+                        pass
+                    elif isinstance(oldprop,list): #if properties are mergeable, do that!
                         propid="%s.%s" % (comp.getType(),str(prop))
                         #Try merging this property. Will raise on failure
                         mergeprop=unifyProperty(propid,oldprop,newprop)
@@ -238,13 +246,6 @@ class ComponentAccumulator(object):
                         mergeprop=oldprop
                         mergeprop.update(prop)
                         setattr(comp,prop,mergeprop)
-                    elif isinstance(oldprop,GaudiHandle.GaudiHandle):
-                        _deduplicateComponent(oldprop,newprop)
-                        pass
-                    elif isinstance(oldprop,GaudiHandle.GaudiHandleArray):
-                        for newTool in prop:
-                            _deduplicate(oldProp,newTool)
-                        pass
                     else:
                         #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
                         raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
