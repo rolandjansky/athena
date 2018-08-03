@@ -260,8 +260,7 @@ StatusCode AsgElectronLikelihoodTool::initialize()
       return StatusCode::FAILURE;
     }
 
-  // Copy the now filled TAccept and TResult to the dummy
-  m_acceptDummy = m_rootTool->getTAccept();
+  // Copy the now filled TResult to the dummy
   m_resultDummy = m_rootTool->getTResult();
 
   return StatusCode::SUCCESS ;
@@ -274,23 +273,23 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 
   if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
     ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }  
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 
   const double energy =  cluster->e();
@@ -346,8 +345,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
         EoverP = fabs(t->qOverP()) * energy;
       }
       else {
-        ATH_MSG_ERROR( "Failed, no track particle. et= " << et << "eta= " << eta );
-        return m_acceptDummy;
+        ATH_MSG_WARNING( "Failed, no track particle. et= " << et << "eta= " << eta );
+        return m_rootTool->cleanTAccept();
       }
 
       if( !eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1) ){
@@ -382,8 +381,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 			wstot, EoverP, ip ));
   
   if (!allFound) {
-    ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
-    return m_acceptDummy;
+    ATH_MSG_WARNING("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
+    return m_rootTool->cleanTAccept();
   }
   
   // Get the answer from the underlying ROOT tool
@@ -411,7 +410,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 
   // Call the main accept if this is not a calo-only LH
@@ -422,18 +421,18 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 
   if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
     ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
-    ATH_MSG_ERROR ("Failed, no cluster.");
-    return m_acceptDummy;
+    ATH_MSG_WARNING ("Failed, no cluster.");
+    return m_rootTool->cleanTAccept();
   }  
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
-    ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
-    return m_acceptDummy;
+    ATH_MSG_WARNING("Failed, cluster is missing samplings EMB2 and EME2");
+    return m_rootTool->cleanTAccept();
   }
   
   const double energy =  cluster->e();
@@ -484,7 +483,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 
   if (!allFound) {
     ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 
   // Get the answer from the underlying ROOT tool
@@ -880,7 +879,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* pa
     }
   else{
     ATH_MSG_WARNING("AsgElectronLikelihoodTool::could not cast to const Electron");
-    return m_acceptDummy;
+    return m_rootTool->cleanTAccept();
   }
 }
 

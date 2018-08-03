@@ -112,8 +112,6 @@ private:
   /** Pointer to the underlying ROOT based tool */
   std::unique_ptr<Root::TElectronLikelihoodTool> m_rootTool;
   
-  /** A dummy return TAccept object */
-  Root::TAccept m_acceptDummy;
 
   /** A dummy return TResult object */
   Root::TResult m_resultDummy;

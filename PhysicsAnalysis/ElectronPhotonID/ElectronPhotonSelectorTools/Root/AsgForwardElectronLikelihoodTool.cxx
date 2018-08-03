@@ -153,8 +153,6 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
       return StatusCode::FAILURE;
     }
   
-  // Copy the now filled TAccept and TResult to the dummy
-  m_acceptDummy = m_rootForwardTool->getTAccept();
   m_resultDummy = m_rootForwardTool->getTResult();
     
   return StatusCode::SUCCESS ;
@@ -180,14 +178,14 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
   if ( !eg )
     {
       ATH_MSG_ERROR("Failed, no egamma object.");
-      return m_acceptDummy;
-    }
+      return m_rootForwardTool->cleanTAccept();
+     }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
     {
-      ATH_MSG_ERROR("Failed, no cluster.");
-      return m_acceptDummy;
+      ATH_MSG_WARNING("Failed, no cluster.");
+      return m_rootForwardTool->cleanTAccept();
     }  
   
   const double energy =  cluster->e();
@@ -195,9 +193,8 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
   const float eta = (cluster->eta());
   if ( fabs(eta) > 300.0 )
     {
-      ATH_MSG_ERROR("Failed, eta range.");
-      ATH_MSG_ERROR(" we were checking . " << eta);
-      return m_acceptDummy;
+      ATH_MSG_WARNING("Failed, eta > 3000.");
+      return m_rootForwardTool->cleanTAccept();
     }
   
   // transverse energy of the electron (using the track eta) 
@@ -352,16 +349,15 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate( const xAOD::El
 				       ip);
 }
 
-/** Method to get the plain TAccept */
+/** Method to get the plain TAccept from the underlying TSelectorToolBase*/
 const Root::TAccept& AsgForwardElectronLikelihoodTool::getTAccept( ) const{
   return m_rootForwardTool->getTAccept();
 }
 
-/** Method to get the plain TResult */
+/** Method to get the  TResult from the underlying TCalculatorToolBase*/
 const Root::TResult& AsgForwardElectronLikelihoodTool::getTResult( ) const{
   return m_rootForwardTool->getTResult();
 }
-
 
 //=============================================================================
 /// Get the name of the current operating point
@@ -381,7 +377,7 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept(const xAOD::IParti
     }
   else{
     ATH_MSG_WARNING("AsgForwardElectronLikelihoodTool::could not cast to const Electron");
-    return m_acceptDummy;
+    return m_rootForwardTool->cleanTAccept();
   }
 
 }

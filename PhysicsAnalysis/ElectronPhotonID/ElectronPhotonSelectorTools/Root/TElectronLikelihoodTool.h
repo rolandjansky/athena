@@ -195,8 +195,13 @@ namespace Root {
                                     double deltaEta, double d0, double d0sigma, double rphi,
                                     double deltaPoverP ,double deltaphires, double TRT_PID,
                                     double ip) const;
-    
 
+    ///Reset the internal (TSelectorToolBase) m_accept and return it 
+    const Root::TAccept& cleanTAccept() const{
+      m_accept.clear();
+      return m_accept;
+    }
+    
     /// Add an input file that holds the PDFs
     inline void setPDFFileName ( const std::string& val ) { PdfFileName = val; }
 
@@ -208,7 +213,6 @@ namespace Root {
 
     /// Load the variable histograms from the pdf file.
     int LoadVarHistograms(std::string vstr, unsigned int varIndex);
-
 
     /// Set the prefix of the result name
     inline void setResultPrefix ( const std::string& val ) { m_resultPrefix = val; }

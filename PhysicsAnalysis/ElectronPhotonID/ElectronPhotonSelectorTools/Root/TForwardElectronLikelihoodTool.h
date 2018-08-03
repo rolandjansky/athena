@@ -120,6 +120,11 @@ namespace Root {
 				   double secondDensity,
 				   double ip ) const;
     
+    ///Reset the internal (TSelectorToolBase) m_accept and return it 
+    const Root::TAccept& cleanTAccept() const{
+      m_accept.clear();
+      return m_accept;
+    }
 
     /// Add an input file that holds the PDFs
     inline void setPDFFileName ( const std::string& val ) { PdfFileName = val; }
