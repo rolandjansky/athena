@@ -138,12 +138,12 @@ private:
                    const xAOD::EventInfo* eventInfo=nullptr,
                    HLT::HLTResult* hltResult=nullptr) const;
 
-  // Build an HLT result FullEventFragment
-  eformat::write::FullEventFragment* fullHltResult(const xAOD::EventInfo* eventInfo,
-                                                   HLT::HLTResult* hltResult) const;
+  // Build an HLT result FullEventFragment and serialise it into uint32[]
+  std::unique_ptr<uint32_t[]> fullHltResult(const xAOD::EventInfo* eventInfo,
+                                            HLT::HLTResult* hltResult) const;
 
-  /// Send an HLT result FullEventFragment to the DataCollector
-  void eventDone(eformat::write::FullEventFragment* hltrFragment) const;
+  /// Send an HLT result to the DataCollector
+  void eventDone(std::unique_ptr<uint32_t[]> hltResult) const;
 
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
@@ -204,11 +204,10 @@ private:
   /// Vector of top level algorithm names
   Gaudi::Property<std::vector<std::string> > m_topAlgNames;
 
-  typedef SimpleProperty< std::vector<uint32_t> > Uint32ArrayProperty;
   /// list of all enabled ROBs which can be retrieved
-  Uint32ArrayProperty m_enabledROBs;
+  SimpleProperty<std::vector<uint32_t> > m_enabledROBs;
   /// list of all enabled Sub Detectors which can be retrieved
-  Uint32ArrayProperty m_enabledSubDetectors;
+  SimpleProperty<std::vector<uint32_t> > m_enabledSubDetectors;
 
   /// Hard event processing timeout
   FloatProperty m_hardTimeout;

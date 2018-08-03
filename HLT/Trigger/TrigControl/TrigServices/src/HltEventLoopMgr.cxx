@@ -35,6 +35,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // TDAQ includes
+#include "eformat/StreamTag.h"
 #include "hltinterface/DataCollector.h"
 #include "owl/time.h"
 
@@ -46,6 +47,60 @@
 using namespace boost::property_tree;
 using SOR = TrigSORFromPtreeHelper::SOR;
 
+// =============================================================================
+// Implementation-specific constants and helpers that are not part of the class. These values and functions are
+// accessed multiple times per event, so may be important for performance.
+// =============================================================================
+namespace {
+  constexpr std::array<uint32_t, 12> L1R_SKIP_ROB_CHECK
+  {{
+    0x7300a8, 0x7300a9, 0x7300aa, 0x7300ab, // TDAQ_CALO_CLUSTER_PROC_ROI ROBs
+    0x7500ac, 0x7500ad,                     // TDAQ_CALO_JET_PROC_ROI ROBs
+    0x760001,                               // TDAQ_MUON_CTP_INTERFACE ROB
+    0x770001,                               // TDAQ_CTP ROB
+    0x910081, 0x910091, 0x910082, 0x910092  // TDAQ_CALO_TOPO_PROC ROBs
+  }}; //concrete IDs still unknown for TDAQ_FTK and TDAQ_CALO_FEAT_EXTRACT_ROI
+
+  //============================================================================
+  constexpr std::array<eformat::SubDetector, 7> L1R_SKIP_SD_CHECK
+  {{
+    eformat::TDAQ_CALO_CLUSTER_PROC_ROI,
+    eformat::TDAQ_CALO_JET_PROC_ROI,
+    eformat::TDAQ_HLT,
+    eformat::TDAQ_FTK,
+    eformat::TDAQ_CALO_TOPO_PROC,
+    eformat::TDAQ_CALO_DIGITAL_PROC,
+    eformat::TDAQ_CALO_FEAT_EXTRACT_ROI
+  }};
+
+  //============================================================================
+  constexpr bool skipEnabledCheck(uint32_t robid)
+  {
+    // Skip check for HLT Result ROBs (for DataScouting)
+    if (static_cast<eformat::SubDetector>((robid >> 16) & 0xff) == eformat::TDAQ_HLT) return true;
+
+    // Skip check for certain L1 input ROBs
+    for (size_t i=0; i<=L1R_SKIP_ROB_CHECK.size(); ++i) {
+      if (robid == L1R_SKIP_ROB_CHECK[i]) return true;
+    }
+
+    return false;
+  }
+
+  //============================================================================
+  constexpr bool skipEnabledCheck(eformat::SubDetector sd)
+  {
+    // Skip check for HLT Result ROBs (for DataScouting)
+    if (sd == eformat::TDAQ_HLT) return true;
+
+    // Skip check for certain L1 input ROBs
+    for (size_t i=0; i<=L1R_SKIP_SD_CHECK.size(); ++i) {
+      if (sd == L1R_SKIP_SD_CHECK[i]) return true;
+    }
+
+    return false;
+  }
+}
 
 // =============================================================================
 // Standard constructor
@@ -1078,22 +1133,21 @@ void HltEventLoopMgr::failedEvent(EventContext* eventContext,
 
   // need to create and return a result with debug stream flags
   // for now, only creating a dummy result
-  eformat::write::FullEventFragment* hltrFragment = fullHltResult(eventInfo,hltResult);
+  std::unique_ptr<uint32_t[]> hltr = fullHltResult(eventInfo,hltResult);
 
-  // serialize and send the result
-  eventDone(hltrFragment);
-  // should we delete hltrFragment now?
+  // send the result
+  eventDone(std::move(hltr));
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
 
 // ==============================================================================
-eformat::write::FullEventFragment* HltEventLoopMgr::fullHltResult(const xAOD::EventInfo* eventInfo,
-                                                                  HLT::HLTResult* hltResult) const
+std::unique_ptr<uint32_t[]> HltEventLoopMgr::fullHltResult(const xAOD::EventInfo* eventInfo,
+                                                           HLT::HLTResult* hltResult) const
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   ATH_MSG_DEBUG("Creating an HLT result for event " << *eventInfo);
-  eformat::write::FullEventFragment* hltrFragment = new eformat::write::FullEventFragment;
+  auto hltrFragment = std::make_unique<eformat::write::FullEventFragment>();
 
   // need to handle eventInfo==nullptr here?
 
@@ -1117,14 +1171,89 @@ eformat::write::FullEventFragment* HltEventLoopMgr::fullHltResult(const xAOD::Ev
   ATH_MSG_DEBUG("Event " << eventInfo->eventNumber() << " is "
                 << (hltResult->accepted() ? "accepted" : "rejected"));
 
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return hltrFragment;
-}
 
-// ==============================================================================
-void HltEventLoopMgr::eventDone(eformat::write::FullEventFragment* hltrFragment) const
-{
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+  if (hltResult->accepted() && eventInfo->streamTags().empty()) {
+    ATH_MSG_ERROR("HLTResult accepted bit is true, but EventInfo has no stream tags");
+    // what do we do now?
+  }
+
+  //----------------------------------------------------------------------------
+  // Fill stream tags
+  //----------------------------------------------------------------------------
+  std::vector<eformat::helper::StreamTag> streamTags;
+  for(const auto& st : eventInfo->streamTags()) {
+    // Filter ROBs
+    std::set<uint32_t> robs;
+    if (m_enabledROBs.empty()) {
+      // Skip the enabled robs check
+      robs = st.robs();
+    }
+    else {
+      for (const auto& robid : st.robs()) {
+        if (skipEnabledCheck(robid))
+          robs.insert(robid);
+        else if (std::find(m_enabledROBs.value().cbegin(),
+                           m_enabledROBs.value().cend(),
+                           robid) != m_enabledROBs.value().cend())
+          robs.insert(robid);
+        else
+          ATH_MSG_DEBUG("---> ROB ID 0x" << MSG::hex << robid << MSG::dec
+                        << " will not be retrieved because it is not on the list of enabled ROBs");
+      }
+    }
+
+    // Filter SubDetectors
+    std::set<eformat::SubDetector> dets;
+    if (m_enabledSubDetectors.empty()) {
+      // Skip the enabled subdetectors check
+      // Need to cast from set<uint32_t> to set<eformat::SubDetector>
+      for (const auto& detid : st.dets())
+        dets.insert(static_cast<eformat::SubDetector>(detid));
+    }
+    else {
+      for (const auto& detid : st.dets()) {
+        const eformat::SubDetector edetid = static_cast<eformat::SubDetector>(detid);
+        if (skipEnabledCheck(edetid))
+          dets.insert(edetid);
+        else if (std::find(m_enabledSubDetectors.value().cbegin(),
+                           m_enabledSubDetectors.value().cend(),
+                           detid) != m_enabledSubDetectors.value().cend())
+          dets.insert(edetid);
+        else
+          ATH_MSG_DEBUG("---> SubDetector ID 0x" << MSG::hex << detid << MSG::dec
+                        << " will not be retrieved because it is not on the list of enabled SubDetectors");
+      }
+    }
+
+    // Create an eformat::helper::StreamTag
+    streamTags.emplace_back(st.name(), st.type(), st.obeysLumiblock(), robs, dets);
+  }
+
+  // Can remove the below printout when the code is verified to work correctly
+  if (msgLevel() <= MSG::VERBOSE) {
+    ATH_MSG_VERBOSE("Event " << eventInfo->eventNumber() << " has " << eventInfo->streamTags().size()
+                    << " stream tags in event info and " << streamTags.size()
+                    << " of them were converted to eformat::helper::StreamTag");
+    for (const auto& st : eventInfo->streamTags()) {
+      ATH_MSG_VERBOSE("Stream tag [name/type/obeys_lumiblock] = [" << st.name() << "/" << st.type() << "/"
+                      << st.obeysLumiblock() << "]");
+      for (const auto& robid : st.robs())
+        ATH_MSG_VERBOSE("---> ROB 0x" << MSG::hex << robid << MSG::dec);
+      for (const auto& detid : st.dets())
+        ATH_MSG_VERBOSE("---> SubDetector 0x" << MSG::hex << (uint32_t)detid << MSG::dec);
+    }
+  }
+
+  // Memory allocated to streamTagData has to be freed after making a copy of bound FullEventFragment.
+  // This is ensured by the use of std::unique_ptr.
+  uint32_t nStreamTagWords = 0;
+  auto streamTagData = std::make_unique<uint32_t[]>({});
+  eformat::helper::encode(streamTags,nStreamTagWords,streamTagData.get());
+  hltrFragment->stream_tag(nStreamTagWords, streamTagData.get());
+
+  //----------------------------------------------------------------------------
+  // Serialise the HLT result FullEventFragment
+  //----------------------------------------------------------------------------
   const eformat::write::node_t* top = hltrFragment->bind();
   auto hltrFragmentSize = hltrFragment->size_word();
   auto hltrPtr = std::make_unique<uint32_t[]>(hltrFragmentSize);
@@ -1133,8 +1262,18 @@ void HltEventLoopMgr::eventDone(eformat::write::FullEventFragment* hltrFragment)
     ATH_MSG_ERROR("HLT result FullEventFragment serialization failed");
     // missing error handling
   }
+
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  return hltrPtr;
+}
+
+// ==============================================================================
+// This method is now trivial and could be removed
+void HltEventLoopMgr::eventDone(std::unique_ptr<uint32_t[]> hltResult) const
+{
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   ATH_MSG_DEBUG("Sending the HLT result to DataCollector");
-  hltinterface::DataCollector::instance()->eventDone(std::move(hltrPtr));
+  hltinterface::DataCollector::instance()->eventDone(std::move(hltResult));
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
 
@@ -1269,9 +1408,9 @@ int HltEventLoopMgr::drainScheduler()
     }
 
     // create HLT result FullEventFragment
-    eformat::write::FullEventFragment* hltrFragment = fullHltResult(eventInfo,hltResult);
+    std::unique_ptr<uint32_t[]> hltr = fullHltResult(eventInfo,hltResult);
     // serialize and send the result
-    eventDone(hltrFragment);
+    eventDone(std::move(hltr));
     // should we delete hltrFragment now?
 
     { // flag idle slot to the timeout thread and reset the timer
