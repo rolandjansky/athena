@@ -79,8 +79,12 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   m_sctAnalogStripClustering(false),
   m_sctErrorStrategy(2),
   m_sctRotateEC(true),
-  m_sctMinimalPathCut(120. * Gaudi::Units::micrometer)
-
+  m_mergeCluster(true),
+  m_DiffusionShiftX_barrel(4),
+  m_DiffusionShiftY_barrel(4),
+  m_DiffusionShiftX_endcap(15),
+  m_DiffusionShiftY_endcap(15),
+  m_sctMinimalPathCut(90.)
 {
   declareInterface<ISCT_FastDigitizationTool>(this);
   declareProperty("InputObjectName"               , m_inputObjectName,          "Input Object name" );
@@ -98,6 +102,10 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   declareProperty("SCT_ErrorStrategy"             , m_sctErrorStrategy);
   declareProperty("SCT_RotateEndcapClusters"      , m_sctRotateEC);
   declareProperty("SCT_MinimalPathLength"         , m_sctMinimalPathCut);
+  declareProperty("DiffusionShiftX_barrel", m_DiffusionShiftX_barrel);
+  declareProperty("DiffusionShiftY_barrel", m_DiffusionShiftY_barrel);
+  declareProperty("DiffusionShiftX_endcap", m_DiffusionShiftX_endcap);
+  declareProperty("DiffusionShiftY_endcap", m_DiffusionShiftY_endcap);
   declareProperty("HardScatterSplittingMode"      , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
 }
@@ -144,6 +152,8 @@ StatusCode SCT_FastDigitizationTool::initialize()
   CHECK(m_mergeSvc.retrieve());
 
   CHECK(m_lorentzAngleTool.retrieve());
+  //Initialize threshold
+  m_sctMinimalPathCut = m_sctMinimalPathCut * Gaudi::Units::micrometer;
 
   return StatusCode::SUCCESS ;
 }
@@ -324,7 +334,6 @@ StatusCode SCT_FastDigitizationTool::digitize()
       while (i != e)
         {
           TimedHitPtr<SiHit> currentSiHit(*i++);
-          //const HepMcParticleLink McLink = HepMcParticleLink(trkn,currentSiHit.eventId());
 
           const InDetDD::SiDetectorElement *hitSiDetElement = m_manager->getDetectorElement(currentSiHit->getBarrelEndcap(), currentSiHit->getLayerDisk(), currentSiHit->getPhiModule(), currentSiHit->getEtaModule(), currentSiHit->getSide());
           if (!hitSiDetElement)
@@ -332,6 +341,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
               ATH_MSG_ERROR( "Could not get detector element.");
               continue;
             }
+
+          std::vector<HepMcParticleLink> hit_vector; //Store the hits in merged cluster
 
           // the module design
           const InDetDD::SCT_ModuleSideDesign* design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign*>(&hitSiDetElement->design());
@@ -359,8 +370,20 @@ StatusCode SCT_FastDigitizationTool::digitize()
 
           const double hitDepth  = hitSiDetElement->hitDepthDirection();
 
-          const HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
-          const HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
+          double shiftX,shiftY;
+          if (hitSiDetElement->isBarrel()){
+            shiftX=m_DiffusionShiftX_barrel;
+            shiftY=m_DiffusionShiftY_barrel;
+          }
+          else{
+            shiftX=m_DiffusionShiftX_endcap;
+            shiftY=m_DiffusionShiftY_endcap;
+          }
+
+          HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
+          HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
+
+          Diffuse(localStartPosition,localEndPosition, shiftX * Gaudi::Units::micrometer, shiftY * Gaudi::Units::micrometer);
 
           const double localEntryX = localStartPosition.x();
           const double localEntryY = localStartPosition.y();
@@ -368,6 +391,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
           const double localExitX = localEndPosition.x();
           const double localExitY = localEndPosition.y();
           const double localExitZ = localEndPosition.z();
+
+
 
           const Amg::Vector2D localEntry(localEntryX,localEntryY);
           const Amg::Vector2D localExit(localExitX,localExitY);
@@ -411,11 +436,9 @@ StatusCode SCT_FastDigitizationTool::digitize()
           const double par = -localEntryZ/(localExitZ-localEntryZ);
           const double interX = localEntryX + par*(localExitX-localEntryX);
           const double interY = localEntryY + par*(localExitY-localEntryY);
-          //  double interX = 0.5*(localEntryX+localExitX);
-          //  double interY = 0.5*(localEntryY+localExitY);
+
           const Amg::Vector2D intersection(interX,interY);
           const Identifier intersectionId            =  hitSiDetElement->identifierOfPosition(intersection);
-          //InDetDD::SiCellId intersectionCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
 
           // apply the lorentz correction
           const IdentifierHash detElHash = hitSiDetElement->identifyHash();
@@ -441,7 +464,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
           int phiIndexMaxRaw = -1000;
 
           // is it a single strip w/o drift effect ? - also check the numerical stability
-          const bool singleStrip = ( (entryCellId == exitCellId && entryValid) || (distX*distX < 10e-5) );
+          const bool singleStrip = (entryCellId == exitCellId && entryValid);
           if (singleStrip && !useLorentzDrift)
             {
               // ----------------------- single strip lucky case  ----------------------------------------
@@ -694,7 +717,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
                           // record the drift position on the surface
                           const double driftPositionAtSurfaceX = driftStepCenter.x() + tanLorAng*driftZtoSurface;
                           const Amg::Vector2D driftAtSurface(driftPositionAtSurfaceX,
-                                                       driftStepCenter.y());
+                                                             driftStepCenter.y());
                           const Identifier surfaceChargeId = hitSiDetElement->identifierOfPosition(driftAtSurface);
                           if (surfaceChargeId.is_valid())
                             {
@@ -743,14 +766,12 @@ StatusCode SCT_FastDigitizationTool::digitize()
                     m_sctSmearPathLength*CLHEP::RandGauss::shoot(m_randomEngine);
                   chargeWeight *=  (1.+sPar);
                 }
+
               // the threshold cut
               if (!(chargeWeight > m_sctMinimalPathCut)) { continue; }
 
               // get the position according to the identifier
               const Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(chargeId);
-              // the cut off
-              //        if ( !aboveThreshold ) abTh += 1; continue;
-              // path statistics
               potentialClusterPath_Used += chargeWeight;
               // taken Weight (Fatras can do analog SCT clustering)
               const double takenWeight =  m_sctAnalogStripClustering ? chargeWeight : 1.;
@@ -780,41 +801,51 @@ StatusCode SCT_FastDigitizationTool::digitize()
           const IdentifierHash waferID = m_sct_ID->wafer_hash(hitSiDetElement->identify());
 
           // merging clusters
-          unsigned int countC(0);
-          ATH_MSG_INFO("Before cluster merging there were " << SCT_DetElClusterMap.size() << " clusters in the SCT_DetElClusterMap.");
-          for(SCT_detElement_RIO_map::iterator existingClusterIter = SCT_DetElClusterMap.begin(); existingClusterIter != SCT_DetElClusterMap.end();)
-            {
-              ++countC;
-              if (countC>100)
-                {
-                  ATH_MSG_WARNING("Over 100 clusters checked for merging - bailing out!!");
-                  break;
-                }
-              if (m_sct_ID->wafer_hash(((existingClusterIter->second)->detectorElement())->identify()) != waferID) {continue;}
-              //make a temporary to use within the loop and possibly erase - increment the main interator at the same time.
-              SCT_detElement_RIO_map::iterator currentExistingClusterIter = existingClusterIter++;
+          if(m_mergeCluster){
+            unsigned int countC(0);
+            ATH_MSG_INFO("Before cluster merging there were " << SCT_DetElClusterMap.size() << " clusters in the SCT_DetElClusterMap.");
+            for(SCT_detElement_RIO_map::iterator existingClusterIter = SCT_DetElClusterMap.begin(); existingClusterIter != SCT_DetElClusterMap.end();)
+              {
+                ++countC;
+                if (countC>100)
+                  {
+                    ATH_MSG_WARNING("Over 100 clusters checked for merging - bailing out!!");
+                    break;
+                  }
+                if (m_sct_ID->wafer_hash(((existingClusterIter->second)->detectorElement())->identify()) != waferID) {continue;}
+                //make a temporary to use within the loop and possibly erase - increment the main interator at the same time.
+                SCT_detElement_RIO_map::iterator currentExistingClusterIter = existingClusterIter++;
 
-              const InDet::SCT_Cluster *existingCluster = (currentExistingClusterIter->second);
-              bool isNeighbour = this->NeighbouringClusters(potentialClusterRDOList, existingCluster);
-              if(isNeighbour)
-                {
-                  //Merge the clusters
-                  std::vector<Identifier> existingClusterRDOList = existingCluster->rdoList();
-                  potentialClusterRDOList.insert(potentialClusterRDOList.end(), existingClusterRDOList.begin(), existingClusterRDOList.end() );
-                  Amg::Vector2D existingClusterPosition(existingCluster->localPosition());
-                  potentialClusterPosition = (potentialClusterPosition + existingClusterPosition)/2;
-                  potentialClusterId = hitSiDetElement->identifierOfPosition(potentialClusterPosition);
-                  //FIXME - also need to tidy up any associations to the deleted cluster in the truth container too.
-                  SCT_DetElClusterMap.erase(currentExistingClusterIter);
-                  //FIXME - possibly we need to delete existingCluster
-                  //explicitly at this point too in order to avoid a
-                  //memory leak?
-                  ATH_MSG_VERBOSE("Merged two clusters.");
-                  //break; // Should look for more than one possible merge.
-                }
-            }
-          ATH_MSG_INFO("After cluster merging there were " << SCT_DetElClusterMap.size() << " clusters in the SCT_DetElClusterMap.");
+                const InDet::SCT_Cluster *existingCluster = (currentExistingClusterIter->second);
+                bool isNeighbour = this->NeighbouringClusters(potentialClusterRDOList, existingCluster);
+                if(isNeighbour)
+                  {
+                    //Merge the clusters
+                    std::vector<Identifier> existingClusterRDOList = existingCluster->rdoList();
+                    potentialClusterRDOList.insert(potentialClusterRDOList.end(), existingClusterRDOList.begin(), existingClusterRDOList.end() );
+                    Amg::Vector2D existingClusterPosition(existingCluster->localPosition());
+                    potentialClusterPosition = (potentialClusterPosition + existingClusterPosition)/2;
+                    potentialClusterId = hitSiDetElement->identifierOfPosition(potentialClusterPosition);
+                    //FIXME - also need to tidy up any associations to the deleted cluster in the truth container too.
+                    SCT_DetElClusterMap.erase(currentExistingClusterIter);
 
+
+                    //Store HepMcParticleLink connected to the cluster removed from the collection
+                    std::pair<PRD_MultiTruthCollection::iterator,PRD_MultiTruthCollection::iterator> saved_hit = m_sctPrdTruth->equal_range(existingCluster->identify());
+                    for (PRD_MultiTruthCollection::iterator this_hit = saved_hit.first; this_hit != saved_hit.second; this_hit++)
+                      {
+                        hit_vector.push_back(this_hit->second);
+                      }
+                    //Delete all the occurency of the currentCluster from the multi map
+                    if (saved_hit.first != saved_hit.second) m_sctPrdTruth->erase(existingCluster->identify());
+
+                    delete existingCluster;
+                    ATH_MSG_VERBOSE("Merged two clusters.");
+                    //break; // Should look for more than one possible merge.
+                  }
+              }
+            ATH_MSG_INFO("After cluster merging there were " << SCT_DetElClusterMap.size() << " clusters in the SCT_DetElClusterMap.");
+          }
           // check whether this is a trapezoid
           const bool isTrapezoid(design->shape()==InDetDD::Trapezoid);
           // prepare & create the siWidth
@@ -904,7 +935,17 @@ StatusCode SCT_FastDigitizationTool::digitize()
             {
               ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << potentialCluster << " and link = " << currentSiHit->particleLink());
             }
-        }
+
+
+          for(HepMcParticleLink p: hit_vector){
+            m_sctPrdTruth->insert(std::make_pair(potentialCluster->identify(), p ));
+          }
+
+          hit_vector.clear();
+
+
+        } // end hit while
+
       (void) m_sctClusterMap->insert(SCT_DetElClusterMap.begin(), SCT_DetElClusterMap.end());
     }
   return StatusCode::SUCCESS;
@@ -1006,7 +1047,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
       std::vector<Identifier>::const_iterator existingClusterRDOIter = existingClusterRDOList.begin();
       for( ; existingClusterRDOIter != existingClusterRDOList.end(); ++existingClusterRDOIter)
         {
-	  if(std::abs(static_cast<Identifier::diff_type>(existingClusterRDOIter->get_compact() - potentialClusterRDOIter->get_compact())) < 2)
+          if(abs(m_sct_ID->strip(*existingClusterRDOIter) - m_sct_ID->strip(*potentialClusterRDOIter)) < 2)
             {
               isNeighbour = true;
               break;
@@ -1020,4 +1061,29 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
     } // end of loop over RDOs in the potential cluster
   //---------------------------------------------------------------------------------
   return isNeighbour;
+}
+
+
+void SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const{
+
+  double localEntryX = localEntry.x();
+  double localExitX = localExit.x();
+
+  double signX =  (localExitX - localEntryX) > 0 ? 1 : -1;
+  localEntryX += shiftX * (-1) * signX;
+  localExitX += shiftX * signX;
+  localEntry.setX(localEntryX);
+  localExit.setX(localExitX);
+
+  double localEntryY = localEntry.y();
+  double localExitY = localExit.y();
+
+  double signY =  (localExitY - localEntryY) > 0 ? 1 : -1;
+  localEntryY += shiftY * (-1) * signY;
+  localExitY += shiftY * signY;
+
+  //Check the effect in the endcap
+  localEntry.setY(localEntryY);
+  localExit.setY(localExitY);
+
 }

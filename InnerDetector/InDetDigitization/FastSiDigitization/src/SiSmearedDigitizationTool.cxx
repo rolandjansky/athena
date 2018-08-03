@@ -1497,7 +1497,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
           double stripLength = fabs(ends.first.xEta()-ends.second.xEta());
 
           InDet::SiWidth siWidth(Amg::Vector2D(int(rdoList.size()),1),
-                                                       Amg::Vector2D(clusterWidth,stripLength) );
+                                 Amg::Vector2D(clusterWidth,stripLength) );
 
           const Amg::Vector2D& colRow = siWidth.colRow();
 
@@ -1555,11 +1555,8 @@ StatusCode SiSmearedDigitizationTool::digitize()
           double clusterWidth = rdoList.size()*hitPlanarDetElement->phiPitch(intersection);
           double stripLength  = hitPlanarDetElement->stripLength(intersection);
 
-          //InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(int(rdoList.size()),1),
-          //                                             Amg::Vector2D(clusterWidth,stripLength) );
-                                                       
           InDet::SiWidth siWidth(Amg::Vector2D(int(rdoList.size()),1), Amg::Vector2D(clusterWidth,stripLength) );
-          
+
           AmgSymMatrix(2) mat;
           mat.setIdentity();
           if(m_useDiscSurface) {
