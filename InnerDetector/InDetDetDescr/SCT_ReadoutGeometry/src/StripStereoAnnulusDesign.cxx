@@ -338,5 +338,15 @@ const HepGeom::Transform3D StripStereoAnnulusDesign::SiHitToGeoModel() const {
    return HepGeom::RotateY3D(90.*CLHEP::deg) ;
 }
 
+double StripStereoAnnulusDesign::stripLength(const InDetDD::SiCellId &cellId) const
+{
+  SiLocalPosition lpoc = localPositionOfCell(cellId);
+  std::pair<SiLocalPosition, SiLocalPosition> end = endsOfStrip(lpoc);
+  double dx = end.second.xEta() - end.first.xEta();
+  double dy = end.second.xPhi() - end.first.xPhi();
+  return sqrt(dx * dx + dy * dy);
+}
+
+
 } // namespace InDetDD
 
