@@ -8,6 +8,8 @@
 ## date: 29 Oct 2014, 1 Sept 2010
 
 import itertools
+import random
+from operator import itemgetter
 
 def getRunLumiInfoFragment(jobnumber,task,maxEvents,sequentialEventNumbers=False):
     """Calculate the specific configuration of the current job in the digi
@@ -36,6 +38,43 @@ def getRunLumiInfoFragment(jobnumber,task,maxEvents,sequentialEventNumbers=False
         return defineSequentialEventNumbers(jobnumber,fragment,maxEvents)
     else:
         return fragment
+
+def getRandomlySampledRunLumiInfoFragment(jobnumber,task,maxEvents,sequentialEventNumbers=False):
+    """Calculate the specific configuration of the current job in the digi
+    task. Sample the mu values randomly.
+    """
+    # init random generator
+    random.seed(jobnumber)
+
+    # generate task inverse
+    lookup_table=taskLookupTable(task)
+    max_index = len(lookup_table) - 1
+
+    # sample mu profile
+    new_frag = []
+    evt_nbr = jobnumber * maxEvents
+    for i in range(maxEvents):
+        evt_nbr += 1
+
+        index = lookup_table[random.randint(0, max_index)]
+        t = task[index]
+
+        item = {
+            'run': t['run'],
+            'lb': t['lb'],
+            'starttstamp': t['starttstamp'],
+            'dt': t['dt'],
+            'evts': 1,
+            'mu': t['mu'],
+            'force_new': t['force_new']
+        }
+
+        if sequentialEventNumbers:
+            item['evt_nbr'] = evt_nbr
+
+        new_frag.append(item)
+
+    return sorted(new_frag, key=itemgetter('run', 'starttstamp'))
 
 def getFragment(jobnumber,task,maxEvents):
     """ Calculate the specific configuration of the current job in the digi task.
@@ -111,6 +150,15 @@ class taskIterator(object):
             if self.current.get('force_new',False): to_do = 0
         raise StopIteration
 #
+
+def taskLookupTable(task):
+    """ Generate task lookup table
+    """
+    table = []
+    for i, item in enumerate(task):
+        for k in range(item['evts']):
+            table.append(i)
+    return table
 
 def defineSequentialEventNumbers(jobnumber,fragment,maxEvents):
     """ Calculate sequential event numbers for the defined getFragment.
