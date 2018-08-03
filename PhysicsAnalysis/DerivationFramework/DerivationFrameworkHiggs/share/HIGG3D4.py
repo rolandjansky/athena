@@ -106,7 +106,7 @@ if globalflags.DataSource()=='geant4':
 electronIDRequirements = '(Electrons.DFCommonElectronsLHLoose)'
 electronRequirements = '(Electrons.pt > 17*GeV) && (abs(Electrons.eta) < 2.6)'
 leadElectron = electronRequirements #+ ' && (Electrons.pt > 17*GeV)'
-muonsRequirements = '(Muons.pt > 17*GeV) #&& (Muons.DFCommonGoodMuon)'
+muonsRequirements = '(Muons.pt > 17*GeV) && (Muons.DFCommonGoodMuon)'
 leadMuon = muonsRequirements #+ ' && (Muons.pt > 17*GeV)'
 
 eeSelection = '((count('+electronRequirements+') >= 1) && (count('+leadElectron+') >= 1) && (count('+electronRequirements+' && '+electronIDRequirements+') >= 1))'

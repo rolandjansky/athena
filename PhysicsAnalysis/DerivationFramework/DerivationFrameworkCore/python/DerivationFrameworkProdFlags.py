@@ -442,6 +442,19 @@ class WriteDAOD_HIGG3D3Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG3D3Stream)
 listAODtoDPD.append(WriteDAOD_HIGG3D3Stream.StreamName)
 
+class WriteDAOD_HIGG3D4Stream(JobProperty):
+    """HIGG3D4: WW to lvlv"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_HIGG3D4'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkHiggs/HIGG3D4.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG3D4Stream)
+listAODtoDPD.append(WriteDAOD_HIGG3D4Stream.StreamName)
+
 
 ##################################
 # Defined by Higgs subgroup 4
