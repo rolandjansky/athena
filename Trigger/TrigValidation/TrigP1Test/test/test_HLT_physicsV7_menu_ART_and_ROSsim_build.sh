@@ -8,7 +8,7 @@ if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
-export NAME=HLT_physicsV7_rerunLVL1_menu
+export NAME=HLT_physicsV7_menu
 export JOB_LOG="${NAME}.log"
 
 timeout 100m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
