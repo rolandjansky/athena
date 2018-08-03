@@ -11,10 +11,8 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "xAODEventInfo/EventInfo.h"
-//#include "xAODEventInfo/EventID.h"
 
 #include <cmath>
 
@@ -24,8 +22,6 @@ LArNoisyROAlg::LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator):
   AthReentrantAlgorithm (name, pSvcLocator), 
   m_noisyROTool("LArNoisyROTool",this)
 {
-  declareProperty( "CaloCellContainer", m_CaloCellContainerName = "AllCalo" );
-  declareProperty( "OutputKey", m_outputKey="LArNoisyROSummary");
   declareProperty( "Tool",m_noisyROTool);
 }
 
@@ -33,6 +29,8 @@ StatusCode LArNoisyROAlg::initialize() {
   ATH_CHECK(m_noisyROTool.retrieve());
   ATH_CHECK(m_CaloCellContainerName.initialize());
   ATH_CHECK(m_outputKey.initialize());
+  ATH_CHECK(m_knownBadFEBsVecKey.initialize() );
+  ATH_CHECK(m_knownMNBFEBsVecKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -45,9 +43,39 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
     return StatusCode::FAILURE;      
   } 
   
+  
+  SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey);
+  const LArBadFebCont* badCont=*badHdl;
+  std::set<unsigned int> bf;
+  if(badCont) {
+     for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+        bf.insert(i->first);
+     }
+     if(bf.size() == 0) {
+        ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+     }
+  }
+  const std::set<unsigned int> knownBadFEBs(bf);
+  ATH_MSG_DEBUG("Number of known Bad FEBs: "<<knownBadFEBs.size());
+
+  SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey);
+  std::vector<HWIdentifier> MNBfeb;
+  const LArBadFebCont* MNBCont=*MNBHdl;
+  if(MNBCont) {
+     for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
+        MNBfeb.push_back(HWIdentifier(i->first));
+     } 
+     if(MNBfeb.size() == 0) {
+        ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
+     } 
+  }
+  const std::vector<HWIdentifier> knownMNBFEBs(MNBfeb);
+  ATH_MSG_INFO("Number of known MNB FEBs: "<<knownMNBFEBs.size());
+
+
 
   SG::WriteHandle<LArNoisyROSummary> noisyRO(m_outputKey, ctx);
-  ATH_CHECK(noisyRO.record(m_noisyROTool->process(cellContainer.cptr())));
+  ATH_CHECK(noisyRO.record(m_noisyROTool->process(cellContainer.cptr(), &knownBadFEBs, &knownMNBFEBs)));
 
 
   bool badFEBFlag=noisyRO->BadFEBFlaggedPartitions();

@@ -52,6 +52,12 @@ class LArNoisyROSummary
   //** add an MNB Tight FEB to the bad FEB list */
   void add_MNBTight_feb(HWIdentifier febid);
 
+  //** Set the list of MNB Tight_PsVeto FEBs via the FEB HWIdentifiers */
+  void set_MNBTight_PsVeto_febs(const std::vector<HWIdentifier>& );
+
+  //** add an MNB Tight_PsVeto FEB to the bad FEB list */
+  void add_MNBTight_PsVeto_feb(HWIdentifier febid);
+
   //** Set the list of MNB Tight FEBs via the FEB HWIdentifiers */
   void set_MNBLoose_febs(const std::vector<HWIdentifier>& );
 
@@ -63,6 +69,7 @@ class LArNoisyROSummary
 
   //** add noisy preamp as FEB id + first channel for preamp */
   void add_noisy_preamp(HWIdentifier febid, int channel);
+
 
 
   //** set Partition bit pattern for bad FEB flagging **//
@@ -86,12 +93,14 @@ class LArNoisyROSummary
   //** Set Partition bit pattern for mini-noise-burst flagging (tight_psveto) **/
   void SetMNBTightFlaggedPartitions_PsVeto(uint8_t bitpattern) { m_MNBTightFlaggedPartitions_PsVeto=bitpattern; }
 
-
   //** retrieve noisy FEBs by id */
   const std::vector<HWIdentifier>& get_noisy_febs() const;
 
   //** retrieve MNB Tight FEBs by id */
   const std::vector<HWIdentifier>& get_MNBTight_febs() const;
+
+  //** retrieve MNB Tight FEBs by id */
+  const std::vector<HWIdentifier>& get_MNBTight_PsVeto_febs() const;
 
   //** retrieve MNB Loose FEBs by id */
   const std::vector<HWIdentifier>& get_MNBLoose_febs() const;
@@ -128,6 +137,9 @@ class LArNoisyROSummary
 
   //** List of MNB Tight FEBs */
   std::vector<HWIdentifier> m_MNBTight_febs;
+
+  //** List of MNB Tight FEBs */
+  std::vector<HWIdentifier> m_MNBTight_PsVeto_febs;
 
   //** List of MNB Loose FEBs */
   std::vector<HWIdentifier> m_MNBLoose_febs;

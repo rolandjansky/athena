@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArNoisyROTool.cxx 
@@ -24,7 +22,6 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
 				const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
   m_calo_id(0), m_onlineID(0), 
-  m_cablingKey("LArOnOffIdMap"),
   m_partitionMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}}) //beware: The order matters! 
 {
   declareInterface<ILArNoisyROTool >(this);
@@ -33,37 +30,10 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   declareProperty( "IgnoreMaskedCells", m_ignore_masked_cells=false );
   declareProperty( "IgnoreFrontInnerWheelCells", m_ignore_front_innerwheel_cells=true );
   declareProperty( "BadFEBCut", m_MinBadFEB=3 );
-  declareProperty( "KnownBADFEBs", m_knownBadFEBsVec={0x3a188000, 0x3a480000, 0x3a490000, 0x3a498000, 0x3a790000, 0x3aa90000, 0x3aa98000, 0x3b108000, 0x3b110000, 0x3b118000, 0x3ba80000, 0x3ba88000, 0x3ba90000, 0x3ba98000, 0x3bb08000, 0x3bc00000});
-  // list agreed on LAr weekly meeting : https://indico.cern.ch/event/321653/
-  // 3a188000   EndcapCFT06LEMInner2        ECC06LEMI2       EndcapCFT03Slot02     [4.4.1.0.3.2]   
-  // 3a480000   EndcapCFT02RSpePresampler   ECC02RSpePs      EndcapCFT09Slot01     [4.4.1.0.9.1]   
-  // 3a490000   EndcapCFT02RSpeMiddle0      ECC02RSpeM0      EndcapCFT09Slot03     [4.4.1.0.9.3]   
-  // 3a498000   EndcapCFT02RSpeMiddle1      ECC02RSpeM1      EndcapCFT09Slot04     [4.4.1.0.9.4]   
-  // 3a790000   EndcapCFT12RSpeMiddle0      ECC12RSpeM0      EndcapCFT15Slot03     [4.4.1.0.15.3]  
-  // 3aa90000   EndcapCFT09RSpeMiddle0      ECC09RSpeM0      EndcapCFT21Slot03     [4.4.1.0.21.3]  
-  // 3aa98000   EndcapCFT09RSpeMiddle1      ECC09RSpeM1      EndcapCFT21Slot04     [4.4.1.0.21.4]  
-  // 3b108000   EndcapAFT02RSpeFront0       ECA02RSpeF0      EndcapAFT02Slot02     [4.4.1.1.2.2]   
-  // 3b110000   EndcapAFT02RSpeMiddle0      ECA02RSpeM0      EndcapAFT02Slot03     [4.4.1.1.2.3]   
-  // 3b118000   EndcapAFT02RSpeMiddle1      ECA02RSpeM1      EndcapAFT02Slot04     [4.4.1.1.2.4]   
-  // 3ba80000   EndcapAFT12RSpePresampler   ECA12RSpePs      EndcapAFT21Slot01     [4.4.1.1.21.1]  
-  // 3ba88000   EndcapAFT12RSpeFront0       ECA12RSpeF0      EndcapAFT21Slot02     [4.4.1.1.21.2]  
-  // 3ba90000   EndcapAFT12RSpeMiddle0      ECA12RSpeM0      EndcapAFT21Slot03     [4.4.1.1.21.3]  
-  // 3ba98000   EndcapAFT12RSpeMiddle1      ECA12RSpeM1      EndcapAFT21Slot04     [4.4.1.1.21.4]  
-  // 3bb08000   EndcapAFT12LEMInner2        ECA12LEMI2       EndcapAFT22Slot02     [4.4.1.1.22.2]  
-  // 3bc00000   EndcapAFT13LStdPresampler   ECA13LStdPs      EndcapAFT24Slot01     [4.4.1.1.24.1]  
-
-  declareProperty( "KnownMNBFEBs", m_knownMNBFEBsVec={951255040, // EMBC FT 22 Slot 7
-	                                              953810944, // EMBC FT 27 Slot 5
-       	                                              954105856, // EMBC FT 27 Slot 14
-	                                              961052672, // EMBA FT 9 Slot 2
-  	                                              961839104, // EMBA FT 10 Slot 10
-	                                              961970176, // EMBA FT 10 Slot 14
-	                                              972980224  // EMBA FT 31 Slot 14
-	                                             });
 
   declareProperty( "MNBLooseCut",m_MNBLooseCut=5,"Number of cells above CellQualityCut");
   declareProperty( "MNBTightCut",m_MNBTightCut=17,"Number of cells above CellQualityCut");
-
+  declareProperty( "MNBTight_PsVetoCut",m_MNBTight_PsVetoCut={13,3},"Number of cells above CellQualityCut");
   declareProperty( "SaturatedCellQualityCut", m_SaturatedCellQualityCut=65535);
   declareProperty( "SaturatedCellEnergyTightCut", m_SaturatedCellEnergyTightCut=1000.);
   declareProperty( "SaturatedCellTightCut", m_SaturatedCellTightCut=20);
@@ -92,18 +62,28 @@ StatusCode LArNoisyROTool::initialize() {
   ATH_CHECK(detStore()->retrieve(m_onlineID,"LArOnlineID"));
   ATH_CHECK( m_cablingKey.initialize() );
 
-  //convert std::vector (jobO) to std::set (internal representation)
-  m_knownBadFEBs.insert(m_knownBadFEBsVec.begin(),m_knownBadFEBsVec.end());
-
-  for (unsigned fID : m_knownMNBFEBsVec) 
-    m_knownMNBFEBs.insert(HWIdentifier(fID));
+  // Fill the map betw<een any EMB FEB and the same FT PS FEB
+  // Filled only for EMB so far
+  for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineID->feb_begin(); 
+       allFeb != m_onlineID->feb_end(); ++allFeb) {
+    
+    HWIdentifier febid = HWIdentifier(*allFeb);    
+    int FEBIndex = febid.get_identifier32().get_compact();
+    int FEBIndex_PS = 0;
+    int barrel_ec = m_onlineID->barrel_ec(febid);
+    if (barrel_ec == 0){
+      int pos_neg   = m_onlineID->pos_neg(febid);
+      int ft        = m_onlineID->feedthrough(febid);
+      FEBIndex_PS = (m_onlineID->feb_Id(0,pos_neg,ft,1)).get_identifier32().get_compact();      
+    }
+    m_mapPSFEB[FEBIndex] = FEBIndex_PS;
+  }
 
   return StatusCode::SUCCESS;
 }
 
 
-
-std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContainer* cellContainer) const{
+std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContainer* cellContainer, const std::set<unsigned int>* knownBadFEBs, const std::vector<HWIdentifier>* knownMNBFEBs) const{
 
   std::unique_ptr<LArNoisyROSummary> noisyRO(new LArNoisyROSummary);
 
@@ -226,7 +206,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     // If the FEB is known to be subject to noise burst (list defiend as property)
     // give a weight 2
     const unsigned int int_id =  febid.get_identifier32().get_compact();
-    if (m_knownBadFEBs.find(int_id)!=m_knownBadFEBs.end()) weight=2;
+    if (knownBadFEBs->find(int_id)!=knownBadFEBs->end()) weight=2;
 
     if ( m_onlineID->isEMBchannel(chanID) ) 
     {
@@ -272,15 +252,27 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
 
   //Check for Mini Noise Bursts:
   uint8_t MNBTightPartition=0;
+  uint8_t MNBTight_PsVetoPartition=0;
   uint8_t MNBLoosePartition=0;
   
   std::array<unsigned,5> nTightMNBFEBSperPartition({{0,0,0,0,0}});
+  std::array<unsigned,5> nTight_PsVetoMNBFEBSperPartition({{0,0,0,0,0}});
   std::array<unsigned,5> nLooseMNBFEBSperPartition({{0,0,0,0,0}});
-  for (HWIdentifier febid: m_knownMNBFEBs) { //Loop over known MNB FEBs
+  for (HWIdentifier febid: *knownMNBFEBs) { //Loop over known MNB FEBs
+    //FEBEvtStatMapCstIt statIt=FEBStats.find(febid.get_identifier32().get_compact());
     FEBEvtStatMapCstIt statIt=FEBStats.find(febid.get_identifier32().get_compact());
     if (statIt!=FEBStats.end()) {
       if (statIt->second.badChannels()>=m_MNBLooseCut) {
 	(nLooseMNBFEBSperPartition[partitionNumber(febid)])++;
+        // Tight_PsVeto MNBs
+	if ( statIt->second.badChannels() > m_MNBTight_PsVetoCut[0] ){
+	  unsigned int associatedPSFEB = m_mapPSFEB.find(statIt->first)->second;
+	  if (associatedPSFEB != 0){
+	    if (FEBStats.count(associatedPSFEB) == 0) (nTight_PsVetoMNBFEBSperPartition[partitionNumber(febid)])++;
+	    else if (FEBStats[associatedPSFEB].badChannels() < m_MNBTight_PsVetoCut[1]) (nTight_PsVetoMNBFEBSperPartition[partitionNumber(febid)])++;
+	  }
+	}
+	// Tight MNBs
 	if (statIt->second.badChannels()>=m_MNBTightCut)
 	  (nTightMNBFEBSperPartition[partitionNumber(febid)])++;
       }
@@ -293,9 +285,11 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     ATH_MSG_DEBUG( "Partition " << iP << ": Found " << nTightMNBFEBSperPartition[iP] << " MNB FEBs with more than " <<  m_MNBTightCut << " bad-Q channels"  );
     if (nLooseMNBFEBSperPartition[iP]>0) MNBLoosePartition |= m_partitionMask[iP];
     if (nTightMNBFEBSperPartition[iP]>0) MNBTightPartition |= m_partitionMask[iP];
+    if (nTight_PsVetoMNBFEBSperPartition[iP]>0) MNBTight_PsVetoPartition |= m_partitionMask[iP];
   }// end loop over partitions      
   
   noisyRO->SetMNBTightFlaggedPartitions(MNBTightPartition);
+  noisyRO->SetMNBTightFlaggedPartitions_PsVeto(MNBTight_PsVetoPartition);
   noisyRO->SetMNBLooseFlaggedPartitions(MNBLoosePartition);
 
   return noisyRO;

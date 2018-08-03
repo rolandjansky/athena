@@ -59,7 +59,7 @@ class LArNoisyROTool:
   virtual StatusCode  finalize();
 
   virtual 
-  std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*) const;
+  std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*, const std::set<unsigned int>*, const std::vector<HWIdentifier>*) const;
 
  private: 
 
@@ -109,11 +109,13 @@ class LArNoisyROTool:
   typedef std::unordered_map<unsigned int, FEBEvtStat>::iterator FEBEvtStatMapIt;
   typedef std::unordered_map<unsigned int, FEBEvtStat>::const_iterator FEBEvtStatMapCstIt;
 
+  std::unordered_map<unsigned int,unsigned int> m_mapPSFEB;
+
  private: 
 
   const CaloCell_ID* m_calo_id;
   const LArOnlineID* m_onlineID;
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey {this, "CablingKey", "LArOnOffIdMap", "key to read OnOff mapping"};
 
   //** Qfactor value above which a channel is considered bad */
   unsigned int m_CellQualityCut;
@@ -133,22 +135,6 @@ class LArNoisyROTool:
   //** min number of bad FEB to put LAr warning in event info */
   unsigned int m_MinBadFEB;
 
-  //** list of FEBs known to be affected by NoiseBursts */
-  //** If the number of BAD FEBs (counted with this weight 2) is greater than the m_MinBadFEB, the */
-  //** flag BADFEBS_W is set to true */
-  //** Example with the (default) value of 5 (strictly greater than), the following combination will lead to a BADFEBS_W */
-  //** >=5 (including 1 known bad FEB), >=4 (including 2 known bad FEB), >=3 (including 3 known bad FEB). */
-  std::vector<unsigned int> m_knownBadFEBsVec;
-
-  //** Same as above but as set to increase search speed
-  std::set<unsigned int> m_knownBadFEBs;
-
-  //** List of FEBs known to be affected by mini Noise Bursts (jobO) */
-  std::vector<unsigned int> m_knownMNBFEBsVec;
-
-  //* List of FEBs known to be affected by mini Noise Bursts. Using a set to avoid duplication */
-  std::set<HWIdentifier> m_knownMNBFEBs;
-
   //** count bad FEB for job */
   //std::unordered_map<unsigned int, unsigned int> m_badFEB_counters;
 
@@ -167,8 +153,9 @@ class LArNoisyROTool:
   //** Count events with too many saturated Qfactor cells */
   unsigned int m_SaturatedCellTightCutEvents;
 
-  float m_MNBLooseCut;
-  float m_MNBTightCut;
+  unsigned int m_MNBLooseCut;
+  unsigned int m_MNBTightCut;
+  std::vector<unsigned int> m_MNBTight_PsVetoCut;
 
   std::array<uint8_t,4> m_partitionMask;
 

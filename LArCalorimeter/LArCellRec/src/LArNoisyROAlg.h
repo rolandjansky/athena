@@ -23,6 +23,10 @@
 #include "CaloInterface/ILArNoisyROTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRecEvent/LArNoisyROSummary.h"
+
+
 
 class CaloCellContainer;
 class LArNoisyROSummary; 
@@ -40,8 +44,10 @@ class LArNoisyROAlg : public AthReentrantAlgorithm
  private: 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
  
-  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerName;
-  SG::WriteHandleKey<LArNoisyROSummary> m_outputKey;
+  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerName {this, "CaloCellContainer", "AllCalo", "input cell container key"};
+  SG::WriteHandleKey<LArNoisyROSummary> m_outputKey {this, "OutputKey", "LArNoisyROSummary", "output object key"};
+  SG::ReadCondHandleKey<LArBadFebCont> m_knownBadFEBsVecKey {this, "BadFEBsKey", "LArKnownBadFEBs", "key to read the known Bad FEBs"};
+  SG::ReadCondHandleKey<LArBadFebCont> m_knownMNBFEBsVecKey {this, "MNBFEBsKey", "LArKnownMNBFEBs", "key to read the known MNB FEBs"};
 
 };
 
