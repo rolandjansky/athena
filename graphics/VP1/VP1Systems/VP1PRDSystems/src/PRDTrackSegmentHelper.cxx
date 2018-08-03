@@ -19,7 +19,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrack/Track.h"
 #include "TrkSegment/Segment.h"
 
