@@ -359,7 +359,7 @@ class OnlineCondTag(JobProperty):
     """ Default (online) HLT conditions tag """
     statusOn=True
     allowedType=['str']
-    StoredValue='CONDBR2-HLTP-2017-03'
+    StoredValue='CONDBR2-HLTP-2018-01'
 
 _flags.append(OnlineCondTag)
 
