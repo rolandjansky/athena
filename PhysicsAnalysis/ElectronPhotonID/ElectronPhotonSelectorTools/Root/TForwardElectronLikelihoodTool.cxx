@@ -226,8 +226,7 @@ const Root::TAccept& Root::TForwardElectronLikelihoodTool::accept( LikeEnumForwa
   bool passLH(true);
 
   if (fabs(vars_struct.eta) < 2.5) {
-    ATH_MSG_DEBUG("This electron is fabs(eta)<2.5 Returning False.");
-    ATH_MSG_INFO(" and the eta is ." <<vars_struct.eta );
+    ATH_MSG_DEBUG("This forward electron has" << vars_struct.eta <<  " ,which is fabs(eta)<2.5 Returning False.");
     passKine = false;
   }
 
@@ -249,8 +248,8 @@ const Root::TAccept& Root::TForwardElectronLikelihoodTool::accept( LikeEnumForwa
   if(CutLikelihood.size()){
     // To protect against a binning mismatch, which should never happen
     if(ibin_combined > CutLikelihood.size()){
-      ATH_MSG_ERROR("Somehow the desired bin is outside of the range! This should never happen!");
-      ATH_MSG_INFO ( " the comb bin is " << ibin_combined << " lh size " << CutLikelihood.size() );
+      ATH_MSG_WARNING ( "The desired bin is outside of the range!  Bin : " << ibin_combined << 
+                        " available LH bins " << CutLikelihood.size() << " Should never happen!" );
       
     }
     
@@ -333,9 +332,6 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(LikeEnumFor
   return m_result;
 }
 
-
-  
-
 double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<float> varVector,double et,double eta,double ip) const
 {
   std::vector<double> vec;
@@ -345,18 +341,12 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<floa
   return EvaluateLikelihood(vec,et,eta,ip);//,mask);  
 }
 
-
-
 double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip) const
 {
   
   // const double GeV = 1000;
   unsigned int etbin = (getLikelihoodEtHistBin(et) > 2) ? (getLikelihoodEtHistBin(et)-2):getLikelihoodEtHistBin(et); // hist binning
   unsigned int etabin = getLikelihoodEtaBin(eta);
-  // if( (etbin==5) && (etabin==10) ) { // in a previous version these bins were not running stable, for now keep them
-  //   etabin = 9;
-  // }
-
   unsigned int ipbin  = getIpBin(ip);
 
   if (etbin >= fnEtBinsHist) {
