@@ -156,7 +156,7 @@ template <typename CONT, typename RPAR, typename COLL>
 void 
 Navigable<CONT, RPAR, COLL>::putElement(const CONT*
 					ptrObjectContainer,
-					external_index_type& 
+					const external_index_type& 
 					refIndex,
 					const RPAR& 
 					refParameter,
@@ -193,7 +193,7 @@ template<typename CONT, typename RPAR, typename COLL>
 void
 Navigable<CONT, RPAR, COLL>::insertElement(const CONT*
 					   ptrObjectContainer,
-					   external_index_type&
+					   const external_index_type&
 					   refIndex,
 					   const RPAR&
 					   refParameter,
@@ -214,7 +214,7 @@ template<typename CONT, typename RPAR, typename COLL>
 void
 Navigable<CONT, RPAR, COLL>::insertElement(const CONT*
 					   ptrObjectContainer,
-					   external_index_type&
+					   const external_index_type&
 					   refIndex,
                                            IProxyDict* sg,
 					   const RPAR&
@@ -262,7 +262,7 @@ Navigable<CONT,RPAR,COLL>::reweight(const constituent_type* ptrObject,
 template<typename CONT, typename RPAR, typename COLL>
 void
 Navigable<CONT,RPAR,COLL>::reweight(const CONT*          ptrContainer,
-				    external_index_type& refIndex,
+				    const external_index_type& refIndex,
 				    const RPAR&          refParm)
 {
   NavigationDefaults::DefaultChildColl<CONT,RPAR>::
@@ -294,7 +294,7 @@ Navigable<CONT, RPAR, COLL>::remove(const constituent_type* ptrObject)
 template<typename CONT, typename RPAR, typename COLL>
 bool
 Navigable<CONT, RPAR, COLL>::remove( const CONT* ptrObjectContainer,
-				     external_index_type& refIndex)
+				     const external_index_type& refIndex)
 {
   return this->remove((*ptrObjectContainer)[refIndex]);
 }
@@ -330,7 +330,7 @@ Navigable<CONT, RPAR, COLL>::contains(const constituent_type* ptrObject) const
 template<typename CONT, typename RPAR, typename COLL>
 bool
 Navigable<CONT, RPAR, COLL>::contains( const CONT* ptrObjectContainer,
-				       external_index_type& 
+				       const external_index_type& 
 				       refIndex) const
 {
   const constituent_type* ptrObject = 
@@ -453,7 +453,7 @@ Navigable<CONT, RPAR, COLL>::getParameter(const constituent_type*
 template<typename CONT, typename RPAR, typename COLL>
 RPAR
 Navigable<CONT, RPAR, COLL>::getParameter(const CONT* ptrObjectContainer,
-					  external_index_type& 
+					  const external_index_type& 
 					  refIndex) const
 {
   const constituent_type* ptrObject = (*ptrObjectContainer)[refIndex];
