@@ -25,7 +25,7 @@ def main():
     parser.add_argument('-t',help="Show tools",action="store_true")
     parser.add_argument('-s',help="Show services",action="store_true")
 
-    parser.add_argument('filter',nargs="+",help="filter string")
+    parser.add_argument('filter',nargs="*",help="filter string")
     
     args = parser.parse_args()
 
@@ -94,9 +94,11 @@ def main():
                     for pName,pDescr in pList.iteritems():
                         if pName in skipProperties: continue
                         myString = textwrap.wrap(pDescr)
-                        print padString % (pName,myString[0])
-                        for f in myString[1:]:
-                            print padString2 % ("",f)
+                        if len(myString)==0: print padString % (pName," <NO DESCRIPTION>")
+                        else:
+                            print padString % (pName,myString[0])
+                            for f in myString[1:]:
+                                print padString2 % ("",f)
 
 
     return 0
