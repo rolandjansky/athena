@@ -55,7 +55,7 @@ AsgForwardElectronLikelihoodTool::AsgForwardElectronLikelihoodTool(std::string m
   // the variable names, if non-standard - nope, it's done above!
   declareProperty("VariableNames",m_rootForwardTool->VariableNames,"Variable names input to the LH");
   // The likelihood cut values
-  declareProperty("CutLikelihoodA",m_rootForwardTool->CutLikelihoodA,"Cut on likelihood discriminant");
+  declareProperty("CutLikelihood",m_rootForwardTool->CutLikelihood,"Cut on likelihood discriminant");
   // The pileup-correction part of the likelihood cut values
   declareProperty("CutLikelihoodPileupCorrection",m_rootForwardTool->CutLikelihoodPileupCorrection,"Pileup correction for LH discriminant");
  declareProperty("DiscCutForPileupTransform",m_rootForwardTool->CutLikelihoodPileupCorrectionB,"Reference disc used by pileup transform");

@@ -129,12 +129,6 @@ namespace Root {
     /// Add an input file that holds the PDFs
     inline void setPDFFileName ( const std::string& val ) { PdfFileName = val; }
 
-    /// Define the variable names
-    inline void setVariableNames ( const std::string& val ) { 
-      VariableNames = val; 
-      m_variableBitMask = GetLikelihoodBitmask(val);
-    }
-
     /// Load the variable histograms from the pdf file.
     int LoadVarHistograms(std::string vstr, unsigned int varIndex);
 
@@ -144,9 +138,6 @@ namespace Root {
    
     /// The string for the result
     inline void setResultName ( const std::string& val ) { m_resultName = val; }
-
-    unsigned int getBitmask(void) const { return m_variableBitMask;} 
-    inline void setBitmask(unsigned int val) { m_variableBitMask = val; };
 
     // Private methods
   private:
@@ -207,7 +198,6 @@ namespace Root {
     bool doPileupCorrection;
     /** @brief cut on likelihood output*/
     std::vector<double> CutLikelihood;
-    std::vector<double> CutLikelihoodA;
     /** @brief pileup correction factor for cut on likelihood output*/
     std::vector<double> CutLikelihoodPileupCorrection;
     /** @brief pileup correction factor for cut on likelihood output, 4 GeV bin*/
@@ -236,10 +226,6 @@ namespace Root {
     // Private member variables
   private:
 
-    /// The bitmask corresponding to the variables in the likelihood. For internal use.
-    unsigned int        m_variableBitMask;
-
-
     /// Pointer to the opened TFile that holds the PDFs
     TFile*              m_pdfFile;
 
@@ -249,30 +235,22 @@ namespace Root {
     /// The string for the result
     std::string m_resultName;
 
-    /// The position of the kinematic cut bit in the TAccept return object
-    int m_cutPosition_kinematic;
+    /// The position of the kinematic cuts bit in the TAccept return object, separate for eta/Et
+    int m_cutPosition_kinematicEta;
+    int m_cutPosition_kinematicEt ;
     /// The position of the likelihood cut bit in the TAccept return object
     int m_cutPosition_LH;
     /// The position of the likelihood value bit in the TResult return object
    
     int m_resultPosition_LH;
     static const double fIpBounds[IP_FBINS+1];
-    static const unsigned int  fnEtBinsHist     = 6;  // number of hists stored for nominal LH (useHighETLHBinning), including 4GeV bin
-    static const unsigned int  fnEtBinsHistOrig = 5;  // number of hists stored for original LH, including 4GeV bin (for backwards compatibility)
-    static const unsigned int  fnDiscEtBinsOrig = 7;  // number of discs stored for original LH, excluding 4GeV bin (for backwards compatibility)
-    static const unsigned int  fnEtaBins        = 11;
-    static const unsigned int  fnVariables      = 8;
-    TForwardElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_FBINS][fnEtBinsHist][fnEtaBins][fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    static const char*  fVariables                      [fnVariables]; 
-    static const double Disc_Loose[40];
-    static const double Disc_Medium[40];
-    static const double Disc_Tight[40];
-    static const double Disc_Medium_b[40];
-    static const double Disc_Tight_b[40];
-    static const double Disc_Medium_a[40];
-    static const double Disc_Tight_a[40];
-    static const double Disc_Loose_a[40];
-    static const double Disc_Loose_b[40];
+    static const unsigned int  s_fnEtBinsHist     = 6;  // number of hists stored for nominal LH
+    static const unsigned int  s_fnDiscEtBins     = 4;  // number of discs stored for original LH
+    static const unsigned int  s_fnEtaBins        = 10;
+    static const unsigned int  s_fnVariables      = 8;
+    TForwardElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_FBINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    static const char*  fVariables                      [s_fnVariables]; 
+
     unsigned int getIpBin(double ip) const;
     void getBinName(char* buffer, int etbin,int etabin) const;
   };

@@ -19,15 +19,16 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
   m_pdfFile(0),
   m_resultPrefix(""),
   m_resultName("likelihood"),
-  m_cutPosition_kinematic(-9),
+  m_cutPosition_kinematicEta(-9),
+  m_cutPosition_kinematicEt (-9),
   m_cutPosition_LH(-9),
   m_resultPosition_LH(-9)
 {
-  for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
+  for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
     for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
       for (unsigned int ip = 0; ip < IP_FBINS; ip++){
-	for(unsigned int et = 0; et < fnEtBinsHist; et++){
-	  for(unsigned int eta = 0; eta < fnEtaBins; eta++){
+	for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
+	  for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
 	    fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
 	  }
 	}
@@ -41,11 +42,11 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
 //=============================================================================
 Root::TForwardElectronLikelihoodTool::~TForwardElectronLikelihoodTool()
 {
-  for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
+  for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
     for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
       for (unsigned int ip = 0; ip < IP_FBINS; ip++){
-	for(unsigned int et = 0; et < fnEtBinsHist; et++){
-	  for(unsigned int eta = 0; eta < fnEtaBins; eta++){
+	for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
+	  for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
 	    if (fPDFbins[s_or_b][ip][et][eta][varIndex]){
 	      delete fPDFbins[s_or_b][ip][et][eta][varIndex];
 	      fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
@@ -71,18 +72,23 @@ int Root::TForwardElectronLikelihoodTool::initialize()
       ATH_MSG_WARNING("You need to specify the input PDF file name before you call initialize() with setPDFFileName('your/file/name.root') ");
       sc = 0;
     }
-  if ( sc == 0 )
-    {
-      ATH_MSG_ERROR("Could NOT initialize! Please fix the errors mentioned above...");
-      return sc;
-    }
+
+  unsigned int number_of_expected_bin    =  s_fnDiscEtBins*s_fnEtaBins ;
+  if( CutLikelihood.size() != number_of_expected_bin) {
+    ATH_MSG_ERROR("Configuration issue :  CutLikelihood expected size " << number_of_expected_bin <<
+		  " input size " << CutLikelihood.size());
+    ATH_MSG_ERROR("Could NOT initialize! Please fix the errors mentioned above...");
+    return sc;
+  }
   
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
   
-  // Cut position for the kineatic pre-selection
-  m_cutPosition_kinematic = m_accept.addCut( "kinematic", "pass kinematic" );
-  if ( m_cutPosition_kinematic < 0 ) sc = 0;
+  // Cut position for the kineatic pre-selection, separately for eta/Et
+  m_cutPosition_kinematicEta = m_accept.addCut( "kinematicEta", "pass kinematic eta" );
+  if ( m_cutPosition_kinematicEta < 0 ) sc = 0;
+  m_cutPosition_kinematicEt  = m_accept.addCut( "kinematicEt" , "pass kinematic Et " );
+  if ( m_cutPosition_kinematicEt  < 0 ) sc = 0;
  
   // Cut position for the likelihood selection - DO NOT CHANGE ORDER!
   m_cutPosition_LH = m_accept.addCut( "passLH", "pass Likelihood" );
@@ -119,7 +125,7 @@ int Root::TForwardElectronLikelihoodTool::initialize()
     }
 
   //Load the histograms
-  for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
+  for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
     std::string vstr = fVariables[varIndex];
     ATH_MSG_INFO(vstr);
     // Skip the loading of PDFs for variables we don't care about for this operating point.
@@ -141,8 +147,8 @@ int Root::TForwardElectronLikelihoodTool::initialize()
 int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned int varIndex){
   for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
     for (unsigned int ip = 0; ip < IP_FBINS; ip++){
-      for(unsigned int et = 0; et < fnEtBinsHist; et++){
-        for(unsigned int eta = 0; eta < fnEtaBins; eta++){
+      for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
+        for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
 
           std::string sig_bkg = (s_or_b==0) ? "sig" : "bkg" ;	  
           // Because eta bins in the root file don't match up exactly with cut menu
@@ -168,9 +174,8 @@ int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(std::string vstr,uns
             ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
             return 1;
 	  }
-	  
           // it shouldn't go to the last bin (which is 7000 GeV)
-          if ( et > fnEtBinsHistOrig-1 ) {
+          if ( et > s_fnEtBinsHist-2 ) { // -2 because the last bin (50-7000 GeV) is sort of an overflow for which no histogram exists
             continue;
           }
 
@@ -183,6 +188,7 @@ int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(std::string vstr,uns
 	  }
           if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
             TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
+	    std::cout << " in et bin " << et << " and eta " << eta << " chose " << hist->GetName() << std::endl;
             fPDFbins[s_or_b][ip][et][eta][varIndex] = new TForwardElectronLikelihoodTool::SafeTH1(hist);
             delete hist;
           }
@@ -221,35 +227,39 @@ const Root::TAccept& Root::TForwardElectronLikelihoodTool::accept( LikeEnumForwa
   m_accept.clear();
 
   // Set up the individual cuts
-  bool passKine(true);
+  bool passKineEta(true);
+  bool passKineEt (true);
   bool passLH(true);
 
   if (fabs(vars_struct.eta) < 2.5) {
-    ATH_MSG_DEBUG("This forward electron has" << vars_struct.eta <<  " ,which is fabs(eta)<2.5 Returning False.");
-    passKine = false;
+    ATH_MSG_DEBUG("This forward electron has" << vars_struct.eta <<  ", which is fabs(eta)<2.5 Returning False.");
+    passKineEta = false;
   }
+  // Return if the kinematic requirements are not fulfilled
+  m_accept.setCutResult( m_cutPosition_kinematicEta, passKineEta );
+  if ( !passKineEta ){ return m_accept; }
 
   unsigned int etbin = (getLikelihoodEtHistBin(vars_struct.eT)> 2) ? (getLikelihoodEtHistBin(vars_struct.eT)-2) : getLikelihoodEtHistBin(vars_struct.eT);
   unsigned int etabin = getLikelihoodEtaBin(vars_struct.eta);
   
-  if (etbin  >= fnDiscEtBinsOrig) {
+  if (etbin  >= s_fnDiscEtBins) {
     ATH_MSG_WARNING( "Cannot evaluate likelihood for Et " << vars_struct.eT<< ". Returning false..");
-    passKine = false;
+    passKineEt = false;
   }
   
   // Return if the kinematic requirements are not fulfilled
-  m_accept.setCutResult( m_cutPosition_kinematic, passKine );
-  if ( !passKine ){ return m_accept; }
+  m_accept.setCutResult( m_cutPosition_kinematicEt, passKineEt );
+  if ( !passKineEt ){ return m_accept; }
   
   double cutDiscriminant = -999.;
-  unsigned int ibin_combined = etbin*10+etabin-1;
+  unsigned int ibin_combined = etbin*s_fnEtBinsHist+etabin;
 
   if(CutLikelihood.size()){
     // To protect against a binning mismatch, which should never happen
     if(ibin_combined > CutLikelihood.size()){
-      ATH_MSG_WARNING ( "The desired bin is outside of the range!  Bin : " << ibin_combined << 
+      ATH_MSG_ERROR ( "The desired bin is outside of the range!  Bin : " << ibin_combined << 
                         " available LH bins " << CutLikelihood.size() << " Should never happen!" );
-      
+      return m_accept;
     }
     
     cutDiscriminant = CutLikelihood[ibin_combined];
@@ -334,10 +344,10 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(LikeEnumFor
 double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<float> varVector,double et,double eta,double ip) const
 {
   std::vector<double> vec;
-  for(unsigned int var = 0; var < fnVariables; var++){
+  for(unsigned int var = 0; var < s_fnVariables; var++){
     vec.push_back(varVector[var]);
   }
-  return EvaluateLikelihood(vec,et,eta,ip);//,mask);  
+  return EvaluateLikelihood(vec,et,eta,ip);
 }
 
 double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip) const
@@ -347,23 +357,23 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<doub
   unsigned int etbin = (getLikelihoodEtHistBin(et) > 2) ? (getLikelihoodEtHistBin(et)-2):getLikelihoodEtHistBin(et); // hist binning
   unsigned int etabin = getLikelihoodEtaBin(eta);
   unsigned int ipbin  = getIpBin(ip);
-
-  if (etbin >= fnEtBinsHist) {
-    ATH_MSG_WARNING("skipping etbin " << etbin << ", et " << et);
+  std::cout << " for et " << et << " chose " << etbin << " and for eta " << eta << " chose " << etabin << std::endl;
+  if (etbin >= s_fnEtBinsHist) {
+    ATH_MSG_WARNING("skipping etbin  " << etbin  << ", et  " << et);
     return -999.;
   }
-  if (etabin >= fnEtaBins) {
+  if (etabin >= s_fnEtaBins) {
     ATH_MSG_WARNING("skipping etabin " << etabin << ", eta " << eta);
     return -999.;
   }
   
-  if (varVector.size() != fnVariables) 
+  if (varVector.size() != s_fnVariables) 
     ATH_MSG_WARNING("Error! Variable vector size mismatch! Check your vector!" );
   
   double SigmaS = 1.;
   double SigmaB = 1.;
 
-  for(unsigned int var = 0; var < fnVariables; var++){
+  for(unsigned int var = 0; var < s_fnVariables; var++){
     
     std::string varstr = fVariables[var];
     
@@ -426,10 +436,10 @@ unsigned int Root::TForwardElectronLikelihoodTool::getIpBin(double ip) const{
 //---------------------------------------------------------------------------------------
 // Gets the Eta bin [0-9] given the eta
 unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtaBin(double eta) const{
-  const unsigned int nEtaBins = 11;
-  const double etaBins[nEtaBins] = {2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6, 4.9};
+  const unsigned int nEtaBins = 10;
+  const double etaBins[nEtaBins] = {2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6, 4.9};
   
-  for(unsigned int etaBin = 1; etaBin < nEtaBins; ++etaBin){ // start loop at 1 so underflow is applied in case we're below 2.5 (which shouldn't happen since there's a kin cut)
+  for(unsigned int etaBin = 0; etaBin < nEtaBins; ++etaBin){
     if(fabs(eta) < etaBins[etaBin])
       return etaBin;
   }
@@ -441,7 +451,7 @@ unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtaBin(double et
 unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) const {
   const double GeV = 1000;
   
-  const unsigned int nEtBins = fnEtBinsHist;
+  const unsigned int nEtBins = s_fnEtBinsHist;
   const double eTBins[nEtBins] = {15*GeV,20*GeV,30*GeV,40*GeV,50*GeV,7000*GeV};
   
   for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
@@ -451,7 +461,6 @@ unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtHistBin(double
     }
   }
   
-  // ATH_MSG_INFO("Get ET " << eT << " etbin " << eTBins[nEtBins-1] );
   return nEtBins-1; // Return the last bin if > the last bin.
   
 }
@@ -459,15 +468,15 @@ unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtHistBin(double
 //---------------------------------------------------------------------------------------
 // Gets the bin name. Given the HISTOGRAM binning (fnEtBinsHist)
 void Root::TForwardElectronLikelihoodTool::getBinName(char* buffer, int etbin,int etabin) const{
-  static const double eta_bounds[11] = {2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6, 4.9};
-  static const int et_bounds[fnEtBinsHist] = {15,20,30,40,50,7000};
+  static const double eta_bounds[10] = {2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6};
+  static const int et_bounds[s_fnEtBinsHist] = {15,20,30,40,50,7000};
   snprintf(buffer, 200,"et%deta%0.2f", et_bounds[etbin], eta_bounds[etabin]);
   return;
 }
 
 
 // These are the variables availalble in the likelihood.
-const char* Root::TForwardElectronLikelihoodTool::fVariables[fnVariables] = {"el_secondLambda"
+const char* Root::TForwardElectronLikelihoodTool::fVariables[s_fnVariables] = {"el_secondLambda"
 									     ,"el_lateral"
 									     ,"el_longitudinal"
 									     ,"el_centerLambda"
