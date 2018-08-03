@@ -48,7 +48,7 @@ ZdcL1CaloErrorByteStreamTool::~ZdcL1CaloErrorByteStreamTool()
 StatusCode ZdcL1CaloErrorByteStreamTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   return StatusCode::SUCCESS;
 }
