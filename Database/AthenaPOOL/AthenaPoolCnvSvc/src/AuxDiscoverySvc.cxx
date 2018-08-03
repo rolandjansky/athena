@@ -181,19 +181,19 @@ StatusCode AuxDiscoverySvc::receiveStore(const IAthenaSerializeSvc* serSvc, cons
 	      ipcTool->getObject(&typeName, nbytes, num).isSuccess() && nbytes > 0 &&
 	      ipcTool->getObject(&elemName, nbytes, num).isSuccess() && nbytes > 0) {
          if (ipcTool->getObject(&buffer, nbytes, num).isSuccess()) {
-            const RootType type(std::string(static_cast<char*>(typeName)));
-            void* dynAttr = nullptr;
-            if (type.IsFundamental()) {
-               dynAttr = new char[nbytes];
-               std::memcpy(dynAttr, buffer, nbytes); buffer = nullptr;
-            } else {
-               dynAttr = serSvc->deserialize(buffer, nbytes, type); buffer = nullptr;
-            }
             SG::auxid_t auxid = this->getAuxID(static_cast<char*>(attrName),
 	            static_cast<char*>(elemName),
 	            static_cast<char*>(typeName));
             if (auxid != SG::null_auxid) {
-               this->setData(auxid, dynAttr, type);
+              const RootType type(std::string(static_cast<char*>(typeName)));
+              void* dynAttr = nullptr;
+              if (type.IsFundamental()) {
+                dynAttr = new char[nbytes];
+                std::memcpy(dynAttr, buffer, nbytes); buffer = nullptr;
+              } else {
+                dynAttr = serSvc->deserialize(buffer, nbytes, type); buffer = nullptr;
+              }
+              this->setData(auxid, dynAttr, type);
             }
          }
       }
