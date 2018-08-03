@@ -14,12 +14,12 @@
 
 namespace InDetDD {
 
-ServiceVolumeSchema::ServiceVolumeSchema() 
+SimpleServiceVolumeSchema::SimpleServiceVolumeSchema() 
 {
   setSimpleSchema();
 }
 
-void ServiceVolumeSchema::setPixelSchema()
+void SimpleServiceVolumeSchema::setPixelSchema()
 {
   m_rmin = "RIN";
   m_rmax = "ROUT";
@@ -40,7 +40,7 @@ void ServiceVolumeSchema::setPixelSchema()
   m_volId = "FRAMENUM";
 }
 
-void ServiceVolumeSchema::setDefaultSchema()
+void SimpleServiceVolumeSchema::setDefaultSchema()
 {
   m_rmin = "RMIN";
   m_rmax = "RMAX";
@@ -61,7 +61,7 @@ void ServiceVolumeSchema::setDefaultSchema()
   m_volId = "";
 }
 
-void ServiceVolumeSchema::setSimpleSchema()
+void SimpleServiceVolumeSchema::setSimpleSchema()
 {
   m_rmin = "RMIN";
   m_rmax = "RMAX";
@@ -82,7 +82,7 @@ void ServiceVolumeSchema::setSimpleSchema()
   m_volId = "";
 }
 
-SimpleServiceVolumeMakerMgr::SimpleServiceVolumeMakerMgr(IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
+SimpleServiceVolumeMakerMgr::SimpleServiceVolumeMakerMgr(IRDBRecordset_ptr table, const SimpleServiceVolumeSchema & schema, 
 							 bool readDataFromDB,
 							 const PixelGeoBuilderBasics* basics)
   : GeoXMLUtils(),
@@ -304,7 +304,7 @@ int SimpleServiceVolumeMakerMgr::volId(int index) const
 
 
 SimpleServiceVolumeMaker::SimpleServiceVolumeMaker(const std::string & label,
-						   IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
+						   IRDBRecordset_ptr table, const SimpleServiceVolumeSchema & schema, 
 						   const PixelGeoBuilderBasics* basics,
 						   bool readDataFromDB) 
   : m_label(label)

@@ -18,9 +18,9 @@ namespace InDetDD {
   class ServiceVolume;
   class AthenaComps;
 
-  class ServiceVolumeSchema {
+  class SimpleServiceVolumeSchema {
   public:
-    ServiceVolumeSchema();
+    SimpleServiceVolumeSchema();
 
     void setPixelSchema();
     void setDefaultSchema();
@@ -95,7 +95,7 @@ namespace InDetDD {
   class SimpleServiceVolumeMakerMgr : public GeoXMLUtils, public PixelGeoBuilder {
 
   public:
-    SimpleServiceVolumeMakerMgr(IRDBRecordset_ptr table, const ServiceVolumeSchema & schema, 
+    SimpleServiceVolumeMakerMgr(IRDBRecordset_ptr table, const SimpleServiceVolumeSchema & schema, 
 				bool readDataFromDB,
 				const PixelGeoBuilderBasics* basics);
     
@@ -120,11 +120,11 @@ namespace InDetDD {
     unsigned int numElements() const;
 
     const IGeometryDBSvc *db() const;
-    const ServiceVolumeSchema & schema() const {return m_schema;}
+    const SimpleServiceVolumeSchema & schema() const {return m_schema;}
     
   private:
     IRDBRecordset_ptr m_table;
-    ServiceVolumeSchema m_schema;
+    SimpleServiceVolumeSchema m_schema;
     //    const InDetDD::AthenaComps * m_athenaComps;
     //    const OraclePixGeoAccessor* m_geoAccessor;
     PixelSimpleServiceXMLHelper* m_simpleSrvXMLHelper;
@@ -136,7 +136,7 @@ namespace InDetDD {
   public:
     SimpleServiceVolumeMaker(const std::string & label,
 			     IRDBRecordset_ptr table, 
-			     const ServiceVolumeSchema & schema,
+			     const SimpleServiceVolumeSchema & schema,
 			     const PixelGeoBuilderBasics* basics,
 			     bool readDataFromDB) ;
     //		       const InDetDD::AthenaComps *);

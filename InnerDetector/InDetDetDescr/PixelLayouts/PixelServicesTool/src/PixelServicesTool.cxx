@@ -130,7 +130,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
     return;
   }
 
-  ATH_MSG_INFO("InDetServicesTool::buildServices -built services");
+  ATH_MSG_INFO("InDetServicesTool::buildServices - built services");
 
   // Add service materials
   std::string fileName="ServiceMaterial.xml";
@@ -181,7 +181,6 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
   bool cylEndcap = genDBHelper.isBarrelCylindrical();
 
   // Top volume / pixel envelope
-  InDetDD::UnboundedZone topZone("Mother");
 
   // SvcRegion defined locally
   ATH_MSG_DEBUG("GEOPIXELSERVICES pixel : "<<svcRegions.size()<<"  cyl : "<<cylBarrel<<" "<<cylEndcap<<"  dyn ");
@@ -226,8 +225,9 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
     }
     topZone.add(pixZone);
 	
-    m_pixServices = new ServiceStaticBuilder(basics,/*&*m_serviceBuilderTool,*/ &topZone);
-    if(bDynBuilder) m_dynServices = new ServiceDynamicBuilder(basics,/*&*m_serviceBuilderTool,*/ &topZone, m_bSvcDynAutomated,m_bSetupBarrelModuleMaterial);
+    m_pixServices = new ServiceStaticBuilder(basics, &topZone);
+    if(bDynBuilder) m_dynServices = new ServiceDynamicBuilder(basics, &topZone, 
+                                                              m_bSvcDynAutomated,m_bSetupBarrelModuleMaterial);
 
     return;
   }

@@ -10,7 +10,7 @@
 class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
 
  public:
-  PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::ServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
+  PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics);
   PixelSimpleServiceXMLHelper(std::string envFileName, const PixelGeoBuilderBasics* basics);
   ~PixelSimpleServiceXMLHelper();
 
@@ -43,7 +43,7 @@ class PixelSimpleServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder 
 
  private:
 
-    InDetDD::ServiceVolumeSchema m_schema;
+    InDetDD::SimpleServiceVolumeSchema m_schema;
     bool m_bXMLdefined;
 
 };

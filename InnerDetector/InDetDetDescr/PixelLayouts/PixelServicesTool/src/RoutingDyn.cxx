@@ -210,7 +210,9 @@ void RoutingDyn::organizePredefinedRouteSegment(HSvcRoute route)
   if (msgLvl(MSG::DEBUG)) { 
     msg(MSG::DEBUG)<<"Z pos INIT : "<<route.name()<<"  ";
     int nbZposInit = (int)zPos.size();
-    for(int i=0; i<nbZposInit; i++)msg(MSG::DEBUG)<<zPos[i]<<" ";msg(MSG::DEBUG)<<endreq;
+    for(int i=0; i<nbZposInit; i++)
+        msg(MSG::DEBUG)<<zPos[i]<<" ";
+    msg(MSG::DEBUG)<<endreq;
   }
 
   std::sort( zPos.begin(), zPos.end() );
@@ -219,7 +221,9 @@ void RoutingDyn::organizePredefinedRouteSegment(HSvcRoute route)
   int nbZpos = (int)zPos.size();
   if (msgLvl(MSG::DEBUG)) { 
     msg(MSG::DEBUG)<<"Z pos : "<<route.name()<<"  ";
-    for(int i=0; i<nbZpos; i++)msg(MSG::DEBUG)<<zPos[i]<<" ";msg(MSG::DEBUG)<<endreq;
+    for(int i=0; i<nbZpos; i++)
+        msg(MSG::DEBUG)<<zPos[i]<<" ";
+    msg(MSG::DEBUG)<<endreq;
   }
 
   double radius = svcVol[0]->radius();
@@ -241,15 +245,15 @@ void RoutingDyn::organizePredefinedRouteSegment(HSvcRoute route)
 						     z1,z2,
 						     os.str());    
     double zMid = (z1+z2)*.5;
-    for(int i=0; i<nbSvcVol; i++)
-      {
-	double zMin =svcVol[i]->zMin();
-	double zMax =svcVol[i]->zMax();
-	if((zMid-zMin)*(zMid-zMax)<0) {
-	  ServiceDynVolume::LayerContainer layerCont = svcVol[i]->layers();
-	  for (ServiceDynVolume::LayerContainer::const_iterator bl=layerCont.begin(); bl!=layerCont.end(); ++bl) newCyl->addLayer(*bl);
-	}
-      }
+    for(int i=0; i<nbSvcVol; i++) {
+        double zMin =svcVol[i]->zMin();
+        double zMax =svcVol[i]->zMax();
+        if((zMid-zMin)*(zMid-zMax)<0) {
+            ServiceDynVolume::LayerContainer layerCont = svcVol[i]->layers();
+            for (ServiceDynVolume::LayerContainer::const_iterator bl=layerCont.begin(); bl!=layerCont.end(); ++bl) 
+                newCyl->addLayer(*bl);
+        }
+    }
     
     newRoute.addVolume(newCyl);	
     addVolume(newCyl);
@@ -326,7 +330,8 @@ void RoutingDyn::organizePredefinedRouteSegment(VSvcRoute route)
 		//		for(std::vector<Interval>::iterator it2=overlapInterval.begin(); it2!=overlapInterval.end(); ++it2)
 		//		  if ((*it2).isIdenticalTo(locInter)) bAlreadyExists = true;
 		for(auto& itOverlap : overlapInterval)
-		  if (itOverlap.isIdenticalTo(locInter)) bAlreadyExists = true;
+		  if (itOverlap.isIdenticalTo(locInter)) 
+              bAlreadyExists = true;
 		if(!bAlreadyExists) overlapInterval.push_back(locInter);
 	      }
 	    }
@@ -343,10 +348,13 @@ void RoutingDyn::organizePredefinedRouteSegment(VSvcRoute route)
   int nbRpos = (int)rPos.size();
   if (msgLvl(MSG::DEBUG)) { 
     msg(MSG::DEBUG)<<"Radial pos : "<<route.name()<<"  ";
-    for(int i=0; i<nbRpos; i++)msg(MSG::DEBUG)<<rPos[i]<<" ";msg(MSG::DEBUG)<<endreq;
+    for(int i=0; i<nbRpos; i++)
+        msg(MSG::DEBUG)<<rPos[i]<<" ";
+    msg(MSG::DEBUG)<<endreq;
     
     msg(MSG::DEBUG)<<"Overlap_intervals : "<<route.name()<<"  ";
-    for(std::vector<Interval>::iterator it=overlapInterval.begin(); it!=overlapInterval.end(); ++it) msg(MSG::DEBUG)<<(*it).getMin()<<" "<<(*it).getMax()<<" // ";
+    for(std::vector<Interval>::iterator it=overlapInterval.begin(); it!=overlapInterval.end(); ++it) 
+        msg(MSG::DEBUG)<<(*it).getMin()<<" "<<(*it).getMax()<<" // ";
     msg(MSG::DEBUG)<<endreq;  
   }
     
@@ -363,12 +371,12 @@ void RoutingDyn::organizePredefinedRouteSegment(VSvcRoute route)
       bool bOverlap = false;
       Interval locInt(r1,r2);
       for(std::vector<Interval>::iterator it=overlapInterval.begin(); it!=overlapInterval.end(); ++it){
-	if((*it).containsInterval(locInt)) bOverlap=true;
-	//	msg(MSG::DEBUG)<<"-> isInInterval : "<<r1<<" "<<r2<<" // "<<(*it).getMin()<<" "<<(*it).getMax()<<"  => "<<bOverlap<<" "<<(*it).isInInterval(r1)<<" "<<(*it).isInInterval(r2)<<endreq;
+          if((*it).containsInterval(locInt)) bOverlap=true;
+          //	msg(MSG::DEBUG)<<"-> isInInterval : "<<r1<<" "<<r2<<" // "<<(*it).getMin()<<" "<<(*it).getMax()<<"  => "<<bOverlap<<" "<<(*it).isInInterval(r1)<<" "<<(*it).isInInterval(r2)<<endreq;
       }
 
       if(bOverlap)
-	msg(MSG::DEBUG)<<"   - vertical route : "<<route.name()<<" : "<<r1<<" to "<<r2<<"  at z="<<zpos<<"  OVERLAP"<<endreq;
+          msg(MSG::DEBUG)<<"   - vertical route : "<<route.name()<<" : "<<r1<<" to "<<r2<<"  at z="<<zpos<<"  OVERLAP"<<endreq;
       else
 	{
 	  std::ostringstream os;
@@ -400,9 +408,10 @@ void RoutingDyn::organizePredefinedRouteSegment(VSvcRoute route)
 // 		for (ServiceDynVolume::LayerContainer::const_iterator bl=layerCont.begin(); bl!=layerCont.end(); ++bl) newDisk->addLayer(*bl);
 // 	      }
 	      for(auto& itSvc : svcList) {
-		int iVol=itSvc;
-		ServiceDynVolume::LayerContainer layerCont = svcVol[iVol]->layers();
-		for (ServiceDynVolume::LayerContainer::const_iterator bl=layerCont.begin(); bl!=layerCont.end(); ++bl) newDisk->addLayer(*bl);
+              int iVol=itSvc;
+              ServiceDynVolume::LayerContainer layerCont = svcVol[iVol]->layers();
+              for (ServiceDynVolume::LayerContainer::const_iterator bl=layerCont.begin(); bl!=layerCont.end(); ++bl) 
+                  newDisk->addLayer(*bl);
 	      }
 	      
 	      newRoute.addVolume(newDisk);	
@@ -925,8 +934,12 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
   msg(MSG::DEBUG)<<endreq;
   msg(MSG::DEBUG)<<"** ComputeRouteMaterial for layer "<<layerNumber<<" type "<<layerType<< " staveTmp "<< staveNumber;
   msg(MSG::DEBUG)<<"  part : "<<((layerType==0)?"brl":"ec")<<"  #module/chip : ";
-  for(auto& it : modulePerStave) msg(MSG::DEBUG)<<it<<"  "; msg(MSG::DEBUG)<<"// ";
-  for(auto& it : chipPerModule) msg(MSG::DEBUG)<<it<<"  "; msg(MSG::DEBUG)<<endreq;
+  for(auto& it : modulePerStave) 
+      msg(MSG::DEBUG)<<it<<"  "; 
+  msg(MSG::DEBUG)<<"// ";
+  for(auto& it : chipPerModule) 
+      msg(MSG::DEBUG)<<it<<"  "; 
+  msg(MSG::DEBUG)<<endreq;
 
   std::string name = constructName(layerType, layerPart, layerNumber);
   ServiceDynMaterial result( name);
@@ -939,7 +952,10 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
   // Get the service list corresponding to staves  (taken into account only once per module)
   std::vector<std::string> staveMaterialNames;
   if(layerPart==0) staveMaterialNames = m_svcRoutingXMLHelper->getTypeMaterialNames(layerNumber,"stave");
-  msg(MSG::DEBUG)<<"Stave material names : ";for(std::vector<std::string>::iterator it=staveMaterialNames.begin(); it!=staveMaterialNames.end(); ++it) msg(MSG::DEBUG)<<(*it)<<" "; msg(MSG::DEBUG)<<endreq;
+  msg(MSG::DEBUG)<<"Stave material names : ";
+  for(std::vector<std::string>::iterator it=staveMaterialNames.begin(); it!=staveMaterialNames.end(); ++it) 
+      msg(MSG::DEBUG)<<(*it)<<" "; 
+  msg(MSG::DEBUG)<<endreq;
   std::vector<std::string> staveMaterialCmpt;
 
   // Loop over the different types of module (barrel/transition/inclined) or (endcap) only
@@ -956,8 +972,8 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
       std::string svcSetName = m_svcRoutingXMLHelper->getServiceSetName(svcSetIndex);
       
       if(beyondPP0 && routeType!="endcap"){
-	svcList_string = m_svcRoutingXMLHelper->getBeyondPP0ServiceSetContent(svcSetIndex);
-	svcSetName = m_svcRoutingXMLHelper->getBeyondPP0ServiceSetName(svcSetIndex);
+          svcList_string = m_svcRoutingXMLHelper->getBeyondPP0ServiceSetContent(svcSetIndex);
+          svcSetName = m_svcRoutingXMLHelper->getBeyondPP0ServiceSetName(svcSetIndex);
       }
 
       //  msg(MSG::DEBUG)<<"** ComputeRouteMaterial : layer index "<<layerIndex<<"    svc index "<<svcSetIndex<<endreq;
@@ -1192,7 +1208,10 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
     {
       // Get the service list corresponding to staves  (taken into account only once per module)
       std::vector<std::string> staveMaterialNames = m_svcRoutingXMLHelper->getTypeMaterialNames(iLayer,"stave");
-      msg(MSG::DEBUG)<<"Stave material names : ";for(std::vector<std::string>::iterator it=staveMaterialNames.begin(); it!=staveMaterialNames.end(); ++it) msg(MSG::DEBUG)<<(*it)<<" "; msg(MSG::DEBUG)<<endreq;
+      msg(MSG::DEBUG)<<"Stave material names : ";
+      for(std::vector<std::string>::iterator it=staveMaterialNames.begin(); it!=staveMaterialNames.end(); ++it) 
+          msg(MSG::DEBUG)<<(*it)<<" "; 
+      msg(MSG::DEBUG)<<endreq;
 
       for(int iStaveTmp=0; iStaveTmp<int(m_bplc[iLayer].size()); iStaveTmp++) {
 	// Total module number

@@ -4,7 +4,7 @@
 #include "PathResolver/PathResolver.h"
 #include "PixelLayoutUtils/DBXMLUtils.h"
 
-PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::ServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics):
+PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table, const InDetDD::SimpleServiceVolumeSchema & schema, const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
   PixelGeoBuilder(basics),
   m_schema(schema),
