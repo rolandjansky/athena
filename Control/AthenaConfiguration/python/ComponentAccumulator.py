@@ -12,6 +12,7 @@ import collections
 
 from UnifyProperties import unifyProperty
 
+
 class DeduplicationFailed(RuntimeError):
     pass
 
@@ -27,7 +28,6 @@ class ComponentAccumulator(object):
         self._sequence=AthSequencer('AthAlgSeq')    #(Nested) sequence of event processing algorithms per sequence + their private tools 
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools 
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
-        self._conditionsInput=set()      #List of database folder (as string), eventually passed to IOVDbSvc
         self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
         self._outputPerStream={}         #Dictionary of {streamName,set(items)}, all as strings
 
@@ -36,6 +36,21 @@ class ComponentAccumulator(object):
 
         #Backward compatiblity hack: Allow also public tools:
         self._publicTools=[]
+
+        #To check if this accumulator was merged:
+        self._wasMerged=False
+
+
+    def empty(self):
+        return len(self._sequence)+len(self._conditionsAlgs)+len(self._services)+\
+            len(self._publicTools)+len(self._outputPerStream)+len(self._theAppProps) == 0 
+
+    def __del__(self):
+        if not self._wasMerged and not self.empty():
+            #raise ConfigurationError("This componentAccumulator was never merged!")
+            print "ERROR, this componentAccumulator was never merged!"
+        pass
+    
 
 
     def printConfig(self, withDetails=False):
@@ -60,8 +75,6 @@ class ComponentAccumulator(object):
                         self._msg.info( " "*nestLevel +"\__ "+ c.name() +" (alg)" )
             printSeqAndAlgs(self._sequence) 
 
-        self._msg.info( "Conditions Inputs" )
-        self._msg.info( self._conditionsInput )
         self._msg.info( "Condition Algorithms" )
         self._msg.info( [ a.getName() for a in self._conditionsAlgs ] )
         self._msg.info( "Services" )
@@ -252,11 +265,6 @@ class ComponentAccumulator(object):
         raise KeyError("No public tool with name %s known" % name)
 
 
-    def addConditionsInput(self,condObj):
-        #That's a string, should do some sanity checks on formatting
-        self._conditionsInput.add(condObj)
-        pass
-
     def addEventInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
         self._eventInput.add(condObj)
@@ -279,6 +287,27 @@ class ComponentAccumulator(object):
             self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
         self._theAppProps[key]=value
         pass
+
+
+    def mergeAll(self,others):
+        if isinstance(others,ComponentAccumulator):
+            return self.merge(others)
+        
+        elif isinstance(others,collections.Sequence):
+            for other in others:
+                if isinstance (other,ComponentAccumulator):
+                    self.merge(other)
+                elif isinstance (other,ConfigurableService):
+                    self.addService(other)
+                elif isinstance(other,ConfigurableAlgorithm):
+                    self.addAlgorithm(other)
+                elif isinstance(other,ConfigurableAlgTool):
+                    self.addPublicTool(other)
+                else:
+                    raise RuntimeError("mergeAll called with unexpected parameter of type %s" % type(other))
+
+        else:
+            raise RuntimeError("mergeAll called with unexpected parameter")
 
     def merge(self,other):
         """ Merging in the other accumulator """
@@ -326,9 +355,6 @@ class ComponentAccumulator(object):
         #Merge sequences:
         mergeSequences(self._sequence,other._sequence)
 
-        # Merge Conditions inputs
-        self._conditionsInput|=other._conditionsInput
-        
         #self._conditionsAlgs+=other._conditionsAlgs
         for condAlg in other._conditionsAlgs:
             self.addCondAlgo(condAlg) #Profit from deduplicaton here
@@ -349,8 +375,10 @@ class ComponentAccumulator(object):
         #Merge AppMgr properties:
         for (k,v) in other._theAppProps.iteritems():
             self.setAppProperty(k,v)  #Will warn about overrides
-
+            pass
+        other._wasMerged=True
     
+        
 
     def appendToGlobals(self):
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theApp
@@ -487,7 +515,7 @@ class ComponentAccumulator(object):
         pickle.dump( self._jocat, outfile ) 
         pickle.dump( self._jocfg, outfile ) 
         pickle.dump( self._pycomps, outfile )     
-
+        self._wasMerged=True
 
 
 def CAtoGlobalWrapper(cfgmethod,flags):
@@ -506,6 +534,7 @@ def CAtoGlobalWrapper(cfgmethod,flags):
 
 # self test            
 if __name__ == "__main__":
+    
     Configurable.configurableRun3Behavior+=1
     # trivial case without any nested sequences
     from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
