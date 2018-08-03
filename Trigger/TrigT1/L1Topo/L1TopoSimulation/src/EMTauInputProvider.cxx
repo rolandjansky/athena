@@ -99,6 +99,7 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    }
 
    ATH_MSG_DEBUG("Filling the input event. Number of emtau topo data objects: " << emtau->size());
+   // topoData is read in in reverse in order to obtain the same crate order as in the hardware (3->0, not 0->3)
    for(auto iTopoData = emtau->rbegin(); iTopoData != emtau->rend(); ++iTopoData) {
       const CPCMXTopoData *topoData = *iTopoData;
 
