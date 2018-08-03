@@ -1266,7 +1266,7 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, do
     #L2Fex.trackCollectionKey = "InDetTrigTrackingxAODCnv_Bphysics_IDTrig"
 
     from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Jpsi
-    L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")
+    L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_pebJpsi")
     L2Hypo.bphysCollectionKey = L2Fex.bphysCollectionKey 
     theChainDef.addSequence([L2Fex, L2Hypo], L2outTEsprec , L2TEname+"MultiTrk")
     theChainDef.addSignatureL2([L2TEname+"MultiTrk"])

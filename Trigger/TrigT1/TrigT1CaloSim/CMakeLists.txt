@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/DataModel
                           Control/PileUpTools
                           Control/StoreGate
+                          Event/EventOverlay/OverlayAlgBase
                           Event/xAOD/xAODTrigL1Calo
                           GaudiKernel
                           LArCalorimeter/LArRawEvent
@@ -52,7 +53,7 @@ atlas_add_library( TrigT1CaloSimLib
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier CaloTTDetDescr
-   AthenaBaseComps AthContainers xAODTrigL1Calo GaudiKernel LArRawEvent
+   AthenaBaseComps AthContainers OverlayAlgBase xAODTrigL1Calo GaudiKernel LArRawEvent
    TileEvent TrigConfL1Data TrigT1CaloCalibConditions
    TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces TrigT1Interfaces
    CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArToolsLib
@@ -63,7 +64,7 @@ atlas_add_library( TrigT1CaloSimLib
 atlas_add_component( TrigT1CaloSim
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloTTDetDescr AthenaBaseComps DataModel PileUpToolsLib StoreGateLib SGtests xAODTrigL1Calo GaudiKernel LArRawEvent LArToolsLib TileConditionsLib TileEvent TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces AthenaKernel CxxUtils EventInfo xAODEventInfo LumiBlockCompsLib AtlasCLHEP_RandomGenerators PathResolver TrigT1CaloSimLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloTTDetDescr AthenaBaseComps DataModel PileUpToolsLib StoreGateLib SGtests OverlayAlgBase xAODTrigL1Calo GaudiKernel LArRawEvent LArToolsLib TileConditionsLib TileEvent TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces AthenaKernel CxxUtils EventInfo xAODEventInfo LumiBlockCompsLib AtlasCLHEP_RandomGenerators PathResolver TrigT1CaloSimLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
