@@ -6,10 +6,10 @@ topSequence += SiHitAnalysis('SCTHitAnalysis')
 topSequence.SCTHitAnalysis.CollectionName='SCT_Hits'
 topSequence.PixelHitAnalysis.HistPath='/SiHitAnalysis/'
 if InDetGeometryFlags.isSLHC():
- topSequence.PixelHitAnalysis.isITK = False
+ topSequence.PixelHitAnalysis.isITK = True
 topSequence.SCTHitAnalysis.HistPath='/SiHitAnalysis/'
 if InDetGeometryFlags.isSLHC():
- topSequence.SCTHitAnalysis.isITK = False
+ topSequence.SCTHitAnalysis.isITK = True
 topSequence.PixelHitAnalysis.ExpertMode= "off"
 topSequence.SCTHitAnalysis.ExpertMode= "off"
 
