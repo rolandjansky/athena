@@ -188,7 +188,7 @@ int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(std::string vstr,uns
 	  }
           if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
             TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
-	    std::cout << " in et bin " << et << " and eta " << eta << " chose " << hist->GetName() << std::endl;
+	    // std::cout << " in et bin " << et << " and eta " << eta << " chose " << hist->GetName() << std::endl;
             fPDFbins[s_or_b][ip][et][eta][varIndex] = new TForwardElectronLikelihoodTool::SafeTH1(hist);
             delete hist;
           }
@@ -357,7 +357,7 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<doub
   unsigned int etbin = (getLikelihoodEtHistBin(et) > 2) ? (getLikelihoodEtHistBin(et)-2):getLikelihoodEtHistBin(et); // hist binning
   unsigned int etabin = getLikelihoodEtaBin(eta);
   unsigned int ipbin  = getIpBin(ip);
-  std::cout << " for et " << et << " chose " << etbin << " and for eta " << eta << " chose " << etabin << std::endl;
+  // std::cout << " for et " << et << " chose " << etbin << " and for eta " << eta << " chose " << etabin << std::endl;
   if (etbin >= s_fnEtBinsHist) {
     ATH_MSG_WARNING("skipping etbin  " << etbin  << ", et  " << et);
     return -999.;
