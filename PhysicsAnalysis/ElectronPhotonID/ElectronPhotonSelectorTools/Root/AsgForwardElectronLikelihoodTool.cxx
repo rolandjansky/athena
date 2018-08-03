@@ -8,11 +8,6 @@
 
 */
 
-
-
-
-
-
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
 
@@ -42,11 +37,8 @@
 AsgForwardElectronLikelihoodTool::AsgForwardElectronLikelihoodTool(std::string myname) :
   AsgTool(myname),
   m_configFile(""),
-  m_rootForwardTool(0)
+  m_rootForwardTool(new Root::TForwardElectronLikelihoodTool( ("T"+myname).c_str() ))
 {
-
-  // Create an instance of the underlying ROOT tool
-  m_rootForwardTool = new Root::TForwardElectronLikelihoodTool( ("T"+myname).c_str() );
 
   // Declare the needed properties
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
@@ -54,12 +46,6 @@ AsgForwardElectronLikelihoodTool::AsgForwardElectronLikelihoodTool(std::string m
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
   declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
-
-
-
-
-
-
   //
   // Configurables in the root tool
   //
@@ -79,26 +65,19 @@ AsgForwardElectronLikelihoodTool::AsgForwardElectronLikelihoodTool(std::string m
 
 }
 
-
-
-
-
-
-
 //=============================================================================
 // Standard destructor
 //=============================================================================
 AsgForwardElectronLikelihoodTool::~AsgForwardElectronLikelihoodTool()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgForwardElectronLikelihoodTool finalize()");
-  }
-  delete m_rootForwardTool;
+  if ( !(m_rootForwardTool->finalize()) )
+    {
+      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
+    }
 }
 
-
 //=============================================================================
-// Asgena initialize method
+// Asg/Athena initialize method
 //=============================================================================
 StatusCode AsgForwardElectronLikelihoodTool::initialize()
 {
@@ -179,21 +158,6 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
     
   return StatusCode::SUCCESS ;
   
-}
-
-
-//=============================================================================
-// Asgena finalize method (now called by destructor)
-//=============================================================================
-StatusCode AsgForwardElectronLikelihoodTool::finalize()
-{
-  if ( !(m_rootForwardTool->finalize()) )
-    {
-      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
-      return StatusCode::FAILURE;
-    }
-
-  return StatusCode::SUCCESS;
 }
 
 //=============================================================================

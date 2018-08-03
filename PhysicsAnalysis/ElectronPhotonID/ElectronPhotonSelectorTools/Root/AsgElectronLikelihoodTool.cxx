@@ -42,11 +42,8 @@
 AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   AsgTool(myname),
   m_configFile(""),
-  m_rootTool(0)
+  m_rootTool(new Root::TElectronLikelihoodTool( ("T"+myname).c_str() ))
 {
-
-  // Create an instance of the underlying ROOT tool
-  m_rootTool = new Root::TElectronLikelihoodTool( ("T"+myname).c_str() );
 
   // Declare the needed properties
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
@@ -57,9 +54,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("useCaloSumsContainer", m_useCaloSumsCont=true, "Whether to use the CaloSums container");
   declareProperty("fcalEtDefault", m_fcalEtDefault = 0, "The default FCal sum ET");
   declareProperty("CaloSumsContainer", m_CaloSumsContName="CaloSums", "The CaloSums container name" );
-
-
-
   //
   // Configurables in the root tool
   //
@@ -135,21 +129,19 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if it is a calo-only LH");
 }
 
-
 //=============================================================================
 // Standard destructor
 //=============================================================================
 AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgElectronLikelihoodTool finalize()");
-  }
-  delete m_rootTool;
+  if ( !(m_rootTool->finalize()) )
+    {
+      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
+    }
 }
 
-
 //=============================================================================
-// Asgena initialize method
+// Asg/athena initialize method
 //=============================================================================
 StatusCode AsgElectronLikelihoodTool::initialize()
 {
@@ -274,22 +266,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 
   return StatusCode::SUCCESS ;
 }
-
-
-//=============================================================================
-// Asgena finalize method (now called by destructor)
-//=============================================================================
-StatusCode AsgElectronLikelihoodTool::finalize()
-{
-  if ( !(m_rootTool->finalize()) )
-    {
-      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
-      return StatusCode::FAILURE;
-    }
-
-  return StatusCode::SUCCESS;
-}
-
 
 //=============================================================================
 // The main accept method: the actual cuts are applied here 

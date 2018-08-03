@@ -14,7 +14,7 @@
 #include "xAODEgamma/ElectronFwd.h"
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
-
+#include <memory>
 namespace Root{
   class TForwardElectronLikelihoodTool;
 }
@@ -34,60 +34,58 @@ public:
   virtual ~AsgForwardElectronLikelihoodTool();
 public:
   /** Gaudi Service Interface method implementations */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
-  /** Gaudi Service Interface method implementations */
-  virtual StatusCode finalize();
 
   // Main methods for IAsgSelectorTool interface
 public:
   /** The main accept method: using the generic interface */
-  const Root::TAccept& accept( const xAOD::IParticle* part ) const;
+  const Root::TAccept& accept( const xAOD::IParticle* part ) const override final;
 
   /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Electron* eg ) const {
+  const Root::TAccept& accept( const xAOD::Electron* eg ) const override final{
     return accept (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Egamma* eg ) const {
+  const Root::TAccept& accept( const xAOD::Egamma* eg ) const override final{
     return accept (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main accept method: in case mu not in EventInfo online */
-  const Root::TAccept& accept( const xAOD::Electron* eg, double mu ) const;
+  const Root::TAccept& accept( const xAOD::Electron* eg, double mu ) const override final;
 
   /** The main accept method: in case mu not in EventInfo online */
-  const Root::TAccept& accept( const xAOD::Egamma*   eg, double mu ) const;
+  const Root::TAccept& accept( const xAOD::Egamma*   eg, double mu ) const override final;
   
   // Main methods for IAsgCalculatorTool interface
 public:
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::IParticle* part ) const;
+  const Root::TResult& calculate( const xAOD::IParticle* part ) const override final;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron*  eg   ) const {
+  const Root::TResult& calculate( const xAOD::Electron*  eg   ) const override final{
     return calculate (eg, -99 ); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma*    eg   ) const {
+  const Root::TResult& calculate( const xAOD::Egamma*    eg   ) const override final{
     return calculate (eg, -99 ); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron*  eg, double mu ) const;
+  const Root::TResult& calculate( const xAOD::Electron*  eg, double mu ) const override final;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma*    eg, double mu ) const; 
+  const Root::TResult& calculate( const xAOD::Egamma*    eg, double mu ) const override final; 
 
   /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
+  virtual const Root::TAccept& getTAccept( ) const override final;
 
   /** Method to get the plain TResult */
-  virtual const Root::TResult& getTResult( ) const;
+  virtual const Root::TResult& getTResult( ) const override final;
 
-  virtual std::string getOperatingPointName( ) const;
+  virtual std::string getOperatingPointName( ) const override final;
 
   // Private methods
 private:
@@ -108,7 +106,7 @@ private:
   std::string m_configFile;
 
   /** Pointer to the underlying ROOT based tool */
-  Root::TForwardElectronLikelihoodTool* m_rootForwardTool;
+  std::unique_ptr<Root::TForwardElectronLikelihoodTool> m_rootForwardTool;
   
   /** A dummy return TAccept object */
   Root::TAccept m_acceptDummy;
