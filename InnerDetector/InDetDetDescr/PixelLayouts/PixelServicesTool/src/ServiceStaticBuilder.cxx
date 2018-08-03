@@ -110,16 +110,11 @@
 #include <iomanip>
 #include <algorithm>
 
-ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, /*IInDetServMatBuilderTool * serviceBuilderTool ,*/InDetDD::Zone * pixZone) 
+ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, InDetDD::Zone * pixZone) 
   : PixelGeoBuilder(basics) ,
     m_pixServBuilder(0),
     m_services(0)
-{
-
-  ///*****NB SERVICE BUILDING DISABLED TEMPORARILY PENDING DEBUGGING******
-  return;
-
-
+ {
   // Envelope interface
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
@@ -131,17 +126,10 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
   if (barrelPresent) initialize("barrel");
   if (endcapAPresent || endcapCPresent) initialize("endcap");
   initialize("simple");
-  //  initialize("envelope");
-
+  
   msg(MSG::INFO)<<"GEOPIXELSERVICES constructor # services : "<<m_services.size()<<endreq;
 
-//  // If not slhc, procced as usual : all services are added at a time
-//   //  if not SLHC, check all services vs pixel
-
   msg(MSG::DEBUG)<<" ************************** ServiceStaticBuilder built - BEGIN  - pixServBuilder ****************************"<<endreq;
-
-  //  m_pixServBuilder = new InDetDD::VolumeStandardBuilder(*pixZone, m_services);
-  //  m_pixServBuilder->setMaterialManager(matMgr());
 
   InDetDD::VolumeStandardBuilder* volStdBuilder = new InDetDD::VolumeStandardBuilder(*pixZone, m_services);
   volStdBuilder->setMaterialManager(matMgr());
@@ -150,7 +138,7 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
 
   msg(MSG::DEBUG)<<" ************************** ServiceStaticBuilder built - END  - svcBuilderTool ****************************"<<endreq;
     
-  //return;
+  return;
 
 }
 
@@ -176,19 +164,9 @@ void ServiceStaticBuilder::addTopZone( InDetDD::Zone * pixZone)
 
 void ServiceStaticBuilder::initialize(const std::string & a)
 {
-  // For "simple" services use ServiceVolumeMaker to read in the table. The barrel and endcap can also be read in 
-  // with ServiceVolumeMaker but there is still use of parameters specified by radiation length which is not handled by ServiceVolumeMaker
-  // so we use the old version. 
-
   msg(MSG::INFO)<<"ServiceStaticBuilder::initialize "<<a<<endreq;
 
-//   if (a!="simple") {
-//     return initializeOld(a);
-//   }
-
-  GeoPixelServicesDBHelper srvDBHelper(getBasics());
-
-  InDetDD::ServiceVolumeSchema schema;
+  InDetDD::SimpleServiceVolumeSchema schema;
   std::string label;
   if (a=="simple") {
     schema.setSimpleSchema();
@@ -204,14 +182,16 @@ void ServiceStaticBuilder::initialize(const std::string & a)
     return;
   } 
 
+  GeoPixelServicesDBHelper srvDBHelper(getBasics());
   IRDBRecordset_ptr table = srvDBHelper.getPixelServiceRecordset(a);
   
   msg(MSG::DEBUG)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker "<<a<<endreq;
-  InDetDD::SimpleServiceVolumeMaker volMaker(label, table, schema, getBasics(),false);
+  InDetDD::SimpleServiceVolumeMaker volMaker(label, table, schema, getBasics(), false);
   msg(MSG::DEBUG)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker : # services "<<a<<"  "<<volMaker.numElements()<<endreq;
-  for (unsigned int i = 0; i < volMaker.numElements(); ++i) {
-    m_services.push_back(volMaker.make(i));
-  }
+  for (unsigned int i = 0; i < volMaker.numElements(); ++i) 
+      m_services.push_back(volMaker.make(i));
+  
+  return;
 }
 
 
