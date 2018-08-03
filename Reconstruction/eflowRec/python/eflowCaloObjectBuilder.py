@@ -26,14 +26,24 @@ def setup_eflowObjectBuilderTools(Configured, nameModifier,mlog):
     ObjectBuilder_Tools.PrivateToolList  = []
 
     if jobproperties.eflowRecFlags.eflowAlgType == "CellLevel" or jobproperties.eflowRecFlags.eflowAlgType == "EOverP" :
-        try:
-            from eflowRec.eflowCellLevelSubtractionToolDefault import eflowCellLevelSubtractionToolDefault
-            CellLevelSubtractionTool = eflowCellLevelSubtractionToolDefault("eflowCellLevelSubtractionTool_"+nameModifier)
-        except:
-            mlog.error("could not import eflowRec.eflowCellLevelSubtractionTool")
-            print traceback.format_exc()
-            return False
-        
+        if nameModifier == "EM":
+            try:
+                from eflowRec.eflowCellLevelSubtractionToolDefault import eflowCellLevelSubtractionToolDefault
+                CellLevelSubtractionTool = eflowCellLevelSubtractionToolDefault("eflowCellLevelSubtractionTool_"+nameModifier)
+            except:
+                mlog.error("could not import eflowRec.eflowCellLevelSubtractionTool")
+                print traceback.format_exc()
+                return False
+
+        elif nameModifier == "EM_HLLHC":
+            try:
+                from eflowRec.eflowCellLevelSubtractionToolDefault import eflowCellLevelSubtractionTool_HLLHC
+                CellLevelSubtractionTool = eflowCellLevelSubtractionTool_HLLHC("eflowCellLevelSubtractionTool_"+nameModifier)
+            except:
+                mlog.error("could not import eflowRec.eflowCellLevelSubtractionTool")
+                print traceback.format_exc()
+                return False
+            
         # Toggle e/p mode
         if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
             CellLevelSubtractionTool.CalcEOverP = True
