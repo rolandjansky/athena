@@ -37,7 +37,10 @@ RDBQuery::RDBQuery(RDBAccessSvc* accessSvc
    , m_size(0)
    , m_cursor(0)
 {
-  m_accessSvc->connect(m_connName);
+  if (!m_accessSvc->connect(m_connName)) {
+    m_accessSvc->msg() << MSG::ERROR << "Can't connect to database: "
+                       << connName << endmsg;
+  }
 }
 
 RDBQuery::~RDBQuery()
