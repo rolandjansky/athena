@@ -16,7 +16,6 @@ Root::TForwardElectronLikelihoodTool::TForwardElectronLikelihoodTool(const char*
   VariableNames(""),
   OperatingPoint(),
   PdfFileName(""),
-  m_ipBinning(""),
   m_pdfFile(0),
   m_resultPrefix(""),
   m_resultName("likelihood"),
@@ -154,12 +153,12 @@ int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(std::string vstr,uns
           //unsigned int et_tmp = (eta == 5 && et == 1) ? 1 : et; 
 	  unsigned int et_tmp = et;
           char binname[200];
-          getBinName( binname, et_tmp, eta_tmp, ip, m_ipBinning );
+          getBinName( binname, et_tmp, eta_tmp );
 	  
 	  char pdfdir[500];
-	  sprintf(pdfdir,"%s/%s",vstr.c_str(),sig_bkg.c_str());
+	  snprintf(pdfdir,500,"%s/%s",vstr.c_str(),sig_bkg.c_str());
 	  char pdf[500];
-	  sprintf(pdf,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
+	  snprintf(pdf,500,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
 	  
 	  if (!m_pdfFile->GetListOfKeys()->Contains(vstr.c_str())){
             ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
@@ -179,8 +178,8 @@ int Root::TForwardElectronLikelihoodTool::LoadVarHistograms(std::string vstr,uns
 	  // Use the first Et bin given in the root file for all Et ranges below
           if (et == 0 && !((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
             // ATH_MSG_INFO( "using lowest GeV bin in place of all below." );
-	    getBinName( binname, et_tmp+1, eta_tmp, ip, m_ipBinning );
-	    sprintf(pdf,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
+	    getBinName( binname, et_tmp+1, eta_tmp );
+	    snprintf(pdf,500,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
 	  }
           if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
             TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
@@ -459,13 +458,10 @@ unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtHistBin(double
 
 //---------------------------------------------------------------------------------------
 // Gets the bin name. Given the HISTOGRAM binning (fnEtBinsHist)
-void Root::TForwardElectronLikelihoodTool::getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const{
-  double eta_bounds[11] = {2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6, 4.9};
-  int et_bounds[fnEtBinsHist] = {15,20,30,40,50,7000};
-  if (!iptype.empty())
-    sprintf(buffer, "%s%det%02deta%0.2f", iptype.c_str(), int(fIpBounds[ipbin]), et_bounds[etbin], eta_bounds[etabin]);
-  else 
-    sprintf(buffer, "et%deta%0.2f", et_bounds[etbin], eta_bounds[etabin]);
+void Root::TForwardElectronLikelihoodTool::getBinName(char* buffer, int etbin,int etabin) const{
+  static const double eta_bounds[11] = {2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.16, 3.35, 3.6, 4.9};
+  static const int et_bounds[fnEtBinsHist] = {15,20,30,40,50,7000};
+  snprintf(buffer, 200,"et%deta%0.2f", et_bounds[etbin], eta_bounds[etabin]);
   return;
 }
 

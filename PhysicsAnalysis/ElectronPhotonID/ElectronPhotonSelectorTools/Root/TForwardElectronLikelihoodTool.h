@@ -133,8 +133,6 @@ namespace Root {
     /// Load the variable histograms from the pdf file.
     int LoadVarHistograms(std::string vstr, unsigned int varIndex);
 
-    /// Define the binning 
-    inline void setBinning ( const std::string& val ) { m_ipBinning = val; }
 
     /// Set the prefix of the result name
     inline void setResultPrefix ( const std::string& val ) { m_resultPrefix = val; }
@@ -236,8 +234,6 @@ namespace Root {
     /// The bitmask corresponding to the variables in the likelihood. For internal use.
     unsigned int        m_variableBitMask;
 
-    /// Deprecated.
-    std::string         m_ipBinning;
 
     /// Pointer to the opened TFile that holds the PDFs
     TFile*              m_pdfFile;
@@ -273,7 +269,7 @@ namespace Root {
     static const double Disc_Loose_a[40];
     static const double Disc_Loose_b[40];
     unsigned int getIpBin(double ip) const;
-    void getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const;
+    void getBinName(char* buffer, int etbin,int etabin) const;
   };
 
 } // End: namespace Root
