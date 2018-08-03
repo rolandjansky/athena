@@ -8,7 +8,7 @@
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
-
+#include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
 // Headers from external packages.
 

@@ -10,17 +10,32 @@
 class description
 */
 
-class MUCTPI_SAAlg
-{
+namespace LVL1MUCTPIPHASE1 {
 
- public:
+  class SimController;
 
-  MUCTPI_SAAlg();
-  ~MUCTPI_SAAlg();
+  class MUCTPI_SAAlg
+  {
+    
+  public:
+    
+    MUCTPI_SAAlg();
+    ~MUCTPI_SAAlg();
+    
+    void initialize();
+    void execute();
+    void finalize();
 
+    void setRunSimData(bool flag, int nevents) {m_runSimData=flag;m_nSimEvents=nevents;}
+    
+  private:
 
- private:
+    
+    SimController* m_controller;
+    bool m_runSimData;
+    int m_nSimEvents;
 
-};
+  };
+}
 
 #endif // TRIGT1MUCTPIPHASE1_MUCTPI_SAALG_H

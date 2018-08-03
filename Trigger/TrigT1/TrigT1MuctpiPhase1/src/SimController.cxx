@@ -8,21 +8,40 @@
 
 // The headers from other ATLAS packages,
 // from most to least dependent.
-
+#include "TrigT1MuctpiPhase1/GenTestPattern.h"
+#include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
 // Headers from external packages.
 
 
 // System headers.
+#include <iostream>
 
+namespace LVL1MUCTPIPHASE1 {
 
-SimController::SimController()
-{
+  SimController::SimController() :
+    m_muctpiInput(new LVL1MUONIF::Lvl1MuCTPIInputPhase1()),
+    m_patGen(new GenTestPattern(m_muctpiInput))
+    
+  {
+  }
+  
+  SimController::~SimController()
+  {
+    delete m_muctpiInput;
+    delete m_patGen;
+  }
 
-}
+  void SimController::genRandomSimData()
+  {
+    m_patGen->generateEvent(0, 0x3);
+  }
 
-SimController::~SimController()
-{
+  void SimController::run()
+  {
+    std::cout << *m_muctpiInput << std::endl;
+  }
+
 
 }
 
