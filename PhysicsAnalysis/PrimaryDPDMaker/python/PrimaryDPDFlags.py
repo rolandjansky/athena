@@ -487,6 +487,19 @@ class WriteDAOD_SCTVALIDStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_SCTVALIDStream)
 listRAWtoDPD.append(WriteDAOD_SCTVALIDStream.StreamName)
 
+class WriteDAOD_PixelVALIDStream(JobProperty):
+    """ Produce the DPD for DAOD_PixelVALID - AOD with PrepRawData """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_PixelVALID"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "InDetPrepRawDataToxAOD/PixelxAOD.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_PixelVALIDStream)
+listRAWtoDPD.append(WriteDAOD_PixelVALIDStream.StreamName)
+
 class WriteDAOD_IDTIDEStream(JobProperty):
     """ Produce the DPD for DAOD_IDTIDE - AOD with PrepRawData """
     statusOn     = True
