@@ -99,7 +99,9 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    }
 
    ATH_MSG_DEBUG("Filling the input event. Number of emtau topo data objects: " << emtau->size());
-   for(const CPCMXTopoData * topoData : * emtau) {
+   for(auto iTopoData = emtau->rbegin(); iTopoData != emtau->rend(); ++iTopoData) {
+      const CPCMXTopoData *topoData = *iTopoData;
+
       // fill the vector of TOBs
       std::vector< CPTopoTOB > tobs;
       topoData->tobs(tobs);
