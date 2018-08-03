@@ -4,13 +4,14 @@
 # Configuration functions for IP2DTrigHybridTag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 from IOVDbSvc.CondDB import conddb
 btagrun1 = False
 if conddb.dbdata == 'COMP200':
     btagrun1 = True
 elif conddb.isMC:
-    btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run()
+    btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run()
                                              == "UNDEFINED" and geoFlags.isIBL() == False))
 
 metaIP2DTrigHybridTag = {'IsATagger': True,
