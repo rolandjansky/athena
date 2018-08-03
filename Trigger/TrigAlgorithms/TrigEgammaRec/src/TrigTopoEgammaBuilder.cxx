@@ -277,7 +277,7 @@ TrigTopoEgammaBuilder::TrigTopoEgammaBuilder(const std::string& name,ISvcLocator
 }
 
 // DESTRUCTOR:
-  
+
 TrigTopoEgammaBuilder::~TrigTopoEgammaBuilder()
 {  }
 ////////////////////////////////////////////////////////////////////////////
@@ -286,7 +286,7 @@ TrigTopoEgammaBuilder::~TrigTopoEgammaBuilder()
 
 HLT::ErrorCode TrigTopoEgammaBuilder::hltStart()
 {
-    if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "in Start()" << endreq;
+    ATH_MSG_INFO( "in Start()" );
 
     return HLT::OK;
 }
@@ -297,7 +297,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltStart()
 
 HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
 
-    msg() << MSG::INFO << "in initialize()" << endreq;
+    ATH_MSG_INFO( "in initialize()" );
 
     // Global timers
     if (timerSvc()) m_timerTotal = addTimer("Total");
@@ -305,7 +305,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
     // Pointer to Tool Service
     IToolSvc* p_toolSvc = 0;
     if (service("ToolSvc", p_toolSvc).isFailure()) {
-        msg() << MSG::FATAL << "REGTEST: Tool Service not found " << endreq;
+        ATH_MSG_FATAL( "REGTEST: Tool Service not found " );
         return HLT::BAD_JOB_SETUP;
     }
 
@@ -381,8 +381,8 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
         ATH_MSG_DEBUG("Retrieved Tool "<<m_showerBuilder);
         if (timerSvc()) m_timerTool5 = addTimer("EMShowerBuilder");
     }
-    
-    
+
+
     // TopoClusterCopierTool
     if (m_topoclustercopier.empty()) {
         ATH_MSG_ERROR("TopoClusterCopierTool is empty");
@@ -436,7 +436,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
         ATH_MSG_DEBUG("Retrieved Tool "<<m_electronPIDBuilder);
         if (timerSvc()) m_timerPIDTool1 = addTimer("ElectronPIDBuilder");
     }
-    
+
     if (m_electronCaloPIDBuilder.empty()) {
         ATH_MSG_ERROR("ElectronCaloPIDBuilder is empty");
         return HLT::BAD_JOB_SETUP;
@@ -449,7 +449,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
         ATH_MSG_DEBUG("Retrieved Tool "<<m_electronCaloPIDBuilder);
         if (timerSvc()) m_timerPIDTool2 = addTimer("ElectronCaloPIDBuilder");
     }
-    
+
     if (m_photonPIDBuilder.empty()) {
         ATH_MSG_ERROR("PhotonPIDBuilder is empty");
         return HLT::BAD_JOB_SETUP;
@@ -464,12 +464,12 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
     }
 
     // For now, we don't try to retrieve the lumi tool
-    if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
+    if (m_lumiBlockMuTool.retrieve().isFailure()) {
         ATH_MSG_FATAL("Unable to retrieve Luminosity Tool"); 
-        return HLT::ERROR;                                                         
-    } else {                                                                     
+        return HLT::ERROR;
+    } else {
         ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
-    }      
+    }
 
     /* the extrapolation tool*/
     if(m_extrapolationTool.retrieve().isFailure()){
@@ -538,7 +538,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
             ATH_MSG_WARNING("Isolation flavour " << flavName << " does not exist ! Check your inputs");
         if (runIsoType.find(flavName) == runIsoType.end()) runIsoType.insert(flavName);
     }
-    
+
     /** @brief Retrieve IsolationTools based on IsoTypes configured */
     if(m_doTrackIsolation){
         if (!m_trackIsolationTool.empty() && runIsoType.find("ptcone") != runIsoType.end()){ 
@@ -639,7 +639,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltFinalize() {
 
 HLT::ErrorCode TrigTopoEgammaBuilder::hltEndRun()
 {
-    if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "in endRun()" << endreq;
+    ATH_MSG_INFO( "in endRun()" );
     return HLT::OK;
 }
 
@@ -649,10 +649,10 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltEndRun()
 HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inputTE,
         HLT::TriggerElement* outputTE )
 {
-    if ( msgLvl() <= MSG::DEBUG ) {
-        msg() << MSG::DEBUG << "Executing HLT alg. TrigTopoEgammaBuilder p03" << endreq;
-        msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
-    } 
+
+    ATH_MSG_DEBUG( "Executing HLT alg. TrigTopoEgammaBuilder p03" );
+    ATH_MSG_DEBUG( "inputTE->getId(): " << inputTE->getId() );
+
     // Time total TrigTopoEgammaBuilder execution time.
     if (timerSvc()) m_timerTotal->start();
 
@@ -667,23 +667,17 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     HLT::ErrorCode stat; 
     if(m_doTopoIsolation) stat = getFeatures(inputTE, vectorClusterContainer,m_slwClusterContName);
     else  stat = getFeatures(inputTE, vectorClusterContainer);
-    
+
     if ( stat!= HLT::OK ) {
-        msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
+        ATH_MSG_ERROR( " REGTEST: No CaloClusterContainers retrieved for the trigger element" );
         return HLT::OK;
     }
     //debug message
-    if ( msgLvl() <= MSG::VERBOSE)
-        msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainer.size()
-            << " CaloClusterContainers associated to the TE " << endreq;
+    ATH_MSG_VERBOSE( " REGTEST: Got " << vectorClusterContainer.size() << " CaloClusterContainers associated to the TE " );
 
     // Check that there is only one ClusterContainer in the RoI
     if (vectorClusterContainer.size() < 1){
-        if ( msgLvl() <= MSG::ERROR )
-            msg() << MSG::ERROR
-                << "REGTEST: Size of vectorClusterContainer is not 1, it is: "
-                << vectorClusterContainer.size()
-                << endreq;
+        ATH_MSG_ERROR( "REGTEST: Size of vectorClusterContainer is not 1, it is: " << vectorClusterContainer.size() );
         //return HLT::BAD_JOB_SETUP;
         return HLT::OK;
     }
@@ -691,30 +685,25 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // Get the last ClusterContainer
     const xAOD::CaloClusterContainer* clusContainer = vectorClusterContainer.back();
     if(!clusContainer){
-        if ( msgLvl() <= MSG::ERROR )
-            msg() << MSG::ERROR
-                << " REGTEST: Retrieval of CaloClusterContainer from vector failed"
-                << endreq;
+        ATH_MSG_ERROR( " REGTEST: Retrieval of CaloClusterContainer from vector failed" );
         //return HLT::BAD_JOB_SETUP;
         return HLT::OK;
     }
-    
+
 
     bool topoClusTrue = false; 
     std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainerTopo;
     if(m_doTopoIsolation){
         stat = getFeatures(inputTE, vectorClusterContainerTopo,m_topoClusterContName);
-    
+
         if ( stat!= HLT::OK ) {
             ATH_MSG_ERROR(" REGTEST: No CaloTopoClusterContainers retrieved for the trigger element");
             //return HLT::OK; // If you did not get it, it is not a problem, continue!
-        }  
-             
-        //debug message
-        if ( msgLvl() <= MSG::VERBOSE){
-        msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainerTopo.size()
-             << " CaloCTopoclusterContainers associated to the TE " << endreq;
         }
+
+        //debug message
+        ATH_MSG_VERBOSE( " REGTEST: Got " << vectorClusterContainerTopo.size() << " CaloCTopoclusterContainers associated to the TE " );
+
         // Get the last ClusterContainer
         if ( !vectorClusterContainerTopo.empty() ) {
             const xAOD::CaloClusterContainer* clusContainerTopo = vectorClusterContainerTopo.back();
@@ -724,8 +713,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     }
 
 
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-        << clusContainer->size() << " calo clusters in container" << endreq;
+    ATH_MSG_DEBUG( clusContainer->size() << " calo clusters in container" );
 
     if(clusContainer->size() < 1){
         return HLT::OK;
@@ -738,14 +726,14 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     std::string electronKey="";
     HLT::ErrorCode sc = getUniqueKey( m_electron_container, electronContSGKey, electronKey);
     if (sc != HLT::OK) {
-        msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endreq;
+        ATH_MSG_DEBUG( "Could not retrieve the electron container key" );
         return sc;
     }
 
     electronContSGKey+="egammaRec";
     //    // just store the thing now!
     if ( store()-> record(m_eg_container,electronContSGKey).isFailure() ) {
-        msg() << MSG::ERROR << "REGTEST: Could not register the EgammaRecContainer" << endreq;
+        ATH_MSG_ERROR( "REGTEST: Could not register the EgammaRecContainer" );
         return HLT::ERROR;
     }
     // Create collections used in the navigation
@@ -758,7 +746,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     m_photon_container = new xAOD::PhotonContainer();
     xAOD::PhotonTrigAuxContainer photonAux;
     m_photon_container->setStore(&photonAux);
-    
+
     //***************************************************************************************************************
     // Retrieve from TE containers needed for tool execution, set corresponding flag to be used in execution
     //***************************************************************************************************************
@@ -766,36 +754,33 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // Shower Shape & CaloCellContainer
     const CaloCellContainer* pCaloCellContainer = 0;
     const xAOD::CaloClusterContainer* pTopoClusterContainer = 0;
-    
+
     // Get vector of pointers to all CaloCellContainers from TE
     std::string clusCollKey="";
     std::vector<const CaloCellContainer*> vectorCellContainer;
-    
+
     if(m_doTopoIsolation) stat = getFeatures(inputTE, vectorCellContainer,"TrigCaloCellMaker");
     else stat = getFeatures(inputTE, vectorCellContainer);
 
     if ( stat != HLT::OK ) {
         //m_showerBuilderToExec = false;
-        msg() << MSG::ERROR << "REGTEST: No CaloCellContainers retrieved for the trigger element, shower builder to be executed: " << m_showerBuilder << endreq;
+        ATH_MSG_ERROR( "REGTEST: No CaloCellContainers retrieved for the trigger element, shower builder to be executed: " << m_showerBuilder );
         //Should this be ERROR? Maybe just set to run showerbuilder to false?
         return HLT::ERROR;
         //May need to add ERROR codes for online debugging
     } else{
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST: Got " << vectorCellContainer.size()
-            << " CaloCellContainers associated to the TE " << endreq;
-        
+        ATH_MSG_DEBUG( " REGTEST: Got " << vectorCellContainer.size() << " CaloCellContainers associated to the TE " );
+
         if ( getStoreGateKey( clusContainer, clusCollKey) != HLT::OK) {
             ATH_MSG_ERROR("Failed to get key for ClusterContainer");
         }
         else ATH_MSG_DEBUG("Cluster Collection key in SG: " << clusCollKey);
-             
+
         // Check that there is only one CellContainer in the RoI
         if (vectorCellContainer.size() != 1){
             //m_showerBuilderToExec = false;
-            msg() << MSG::ERROR
-                << "REGTEST: Size of calo cell container vector is not 1 but " << vectorCellContainer.size()
-                << " shower builder to be executed: " << m_showerBuilder
-                << endreq;
+            ATH_MSG_ERROR( "REGTEST: Size of calo cell container vector is not 1 but " << vectorCellContainer.size()
+                << " shower builder to be executed: " << m_showerBuilder );
             return HLT::ERROR;
             //May need to add ERROR codes for online debugging
         } else{
@@ -804,13 +789,11 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
             pCaloCellContainer = vectorCellContainer.back();
 
             if(!pCaloCellContainer){
-                msg() << MSG::ERROR
-                    << "Retrieval of CaloCellContainer from vector failed, m_showerBuilderToExec: " << m_showerBuilder
-                    << endreq;
+                ATH_MSG_ERROR( "Retrieval of CaloCellContainer from vector failed, m_showerBuilderToExec: " << m_showerBuilder );
                 return HLT::ERROR;
                 //May need to add ERROR codes for online debugging
             } else{
-                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Running m_showerBuilder: " << m_showerBuilder << endreq;
+                ATH_MSG_VERBOSE( "Running m_showerBuilder: " << m_showerBuilder );
             } //pCaloCellContainer
         }
         if(topoClusTrue) pTopoClusterContainer = vectorClusterContainerTopo.back();
@@ -830,14 +813,12 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         // in case a TrackParticleContainer is retrieved from the TE
         if (stat != HLT::OK) {
             m_doTrackMatching=false;
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-                << " REGTEST: no TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endreq;
+            ATH_MSG_DEBUG( " REGTEST: no TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder );
 
         } else {
             // check that it is not empty
             if (vectorTrackParticleContainer.size() < 1) {
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                    << " REGTEST: empty TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endreq;
+                ATH_MSG_DEBUG( " REGTEST: empty TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder );
 
             } else {
                 // Get the pointer to last TrackParticleContainer 
@@ -845,9 +826,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
                 m_doTrackMatching = true;
                 if(!pTrackParticleContainer){
                     m_doTrackMatching = false;
-                    msg() << MSG::ERROR
-                        << " REGTEST: Retrieval of TrackParticleContainer from vector failed"
-                        << endreq;
+                    ATH_MSG_ERROR( " REGTEST: Retrieval of TrackParticleContainer from vector failed" );
                 }
                 ATH_MSG_DEBUG("m_doTrackMatching: " << m_doTrackMatching);
                 if ( getStoreGateKey( pTrackParticleContainer, TrkCollKey) != HLT::OK) {
@@ -880,26 +859,21 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // in case a VxContainer is retrieved from the TE
     if (stat != HLT::OK) {
         m_doConversions = false;
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-            << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endreq;
+        ATH_MSG_DEBUG( " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions );
     } else {
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST: Got " << vectorVxContainer.size()
-            << " VertexContainers associated to the TE " << endreq;
+        ATH_MSG_DEBUG( " REGTEST: Got " << vectorVxContainer.size() << " VertexContainers associated to the TE " );
         // check that it is not empty
         if (vectorVxContainer.size() < 1) {
             m_doConversions= false;
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endreq;
+            ATH_MSG_DEBUG( " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions );
         } else {
             // Get the pointer to last VxContainer 
             pVxContainer = vectorVxContainer.back();
             if(!pVxContainer){
                 m_doConversions = false;
-                msg() << MSG::ERROR
-                    << " REGTEST: Retrieval of VxContainer from vector failed"
-                    << endreq;
+                ATH_MSG_ERROR( " REGTEST: Retrieval of VxContainer from vector failed" );
             }
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "m_doConversions " << m_doConversions << endreq;
+            ATH_MSG_DEBUG( "m_doConversions " << m_doConversions );
         }
     }
 
@@ -933,7 +907,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
                        ", cell_begin==cell_end " << ( (*cciter)->cell_begin() == (*cciter)->cell_end() ) );
         ATH_MSG_DEBUG("           getCellLinks=" << (*cciter)->getCellLinks() );
 
-        if(msgLvl() <= MSG::DEBUG) {
+        if (ATH_UNLIKELY(msgLvl (MSG::DEBUG))) {
             double emfrac(-11111);
             if(!(*cciter)->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
                 ATH_MSG_WARNING("No EM fraction momement stored in original cluster");
@@ -1075,7 +1049,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     } //m_trackMatchBuilderToExec
 
     ATH_MSG_DEBUG("Check egammaRecs before call to superclusters builders" );
-    if(msgLvl() <= MSG::DEBUG) {
+    if (ATH_UNLIKELY(msgLvl (MSG::DEBUG))) {
         for (std::size_t i = 0 ; i < m_eg_container->size();++i) {
             auto egRec=m_eg_container->at(i);
             double emFrac(-12345.);
@@ -1254,9 +1228,9 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         if (timerSvc()) m_timerTool3->start(); //timer
 
       author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
-						 photonRec->vertex(),
-						 electronRec->trackParticle(),
-						 type);
+                                                 photonRec->vertex(),
+                                                 electronRec->trackParticle(),
+                                                 type);
         if (timerSvc()) m_timerTool3->stop(); //timer
         ATH_MSG_DEBUG("REGTEST:: AmbiguityTool Author " << author);
       break;
@@ -1264,10 +1238,10 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     }
     //Fill each photon
     if (author == xAOD::EgammaParameters::AuthorPhoton ||
-	author == xAOD::EgammaParameters::AuthorAmbiguous){
+        author == xAOD::EgammaParameters::AuthorAmbiguous){
       ATH_MSG_DEBUG("getPhoton");
       if ( !getPhoton(photonRec, m_photon_container, author,type) ){
-	return HLT::ERROR;
+        return HLT::ERROR;
       }
       ATH_MSG_DEBUG("getPhoton success");
     }
@@ -1280,8 +1254,8 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
         ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg)");
-        if(m_fourMomBuilder->hltExecute(eg)); // 
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endreq; 
+        if(m_fourMomBuilder->hltExecute(eg)); //
+        else ATH_MSG_DEBUG( "REGTEST: problem with fourmom tool" );
         if (timerSvc()) m_timerTool4->stop(); //timer
 
         // Shower Shape
@@ -1289,14 +1263,14 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         if (timerSvc()) m_timerTool5->start(); //timer
         ATH_MSG_DEBUG("about to run EMShowerBuilder::recoExecute(eg,pCaloCellContainer)");
         if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endreq;
+        else ATH_MSG_DEBUG( "REGTEST: no shower built for this cluster" );
         if (timerSvc()) m_timerTool5->stop(); //timer
-        
+
         // Isolation
         //
         // Calo Isolation types
-        
-        if(m_doCaloCellIsolation || m_doTopoIsolation){       
+
+        if(m_doCaloCellIsolation || m_doTopoIsolation){
             if (timerSvc()) m_timerIsoTool2->start(); //timer
             std::map<std::string,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
             for (; itc != itcE; itc++) {
@@ -1347,9 +1321,9 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
                 ATH_MSG_DEBUG(" REGTEST: ptcone40   =  " << getIsolation_ptcone40(eg));
 
             }
-            if (timerSvc()) m_timerIsoTool1->stop(); //timer       
+            if (timerSvc()) m_timerIsoTool1->stop(); //timer
         }
-     
+
         // PID
         ATH_MSG_DEBUG("about to run execute(eg) for PID");
         if (timerSvc()) m_timerPIDTool1->start(); //timer
@@ -1369,7 +1343,9 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         else ATH_MSG_DEBUG("Problem in electron PID");
         if (timerSvc()) m_timerPIDTool2->stop(); //timer
         ATH_MSG_DEBUG(" REGTEST: xAOD Reconstruction Electron variables: ");
-        if(msgLvl() <= MSG::DEBUG) PrintElectron(eg);
+        if (ATH_UNLIKELY(msgLvl (MSG::DEBUG))) {
+            PrintElectron(eg);
+        }
     }
 
     //Dress the Photon objects
@@ -1378,20 +1354,20 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
         ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg)");
-        if(m_fourMomBuilder->hltExecute(eg)); // 
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endreq; 
+        if(m_fourMomBuilder->hltExecute(eg)); //
+        else ATH_MSG_DEBUG( "REGTEST: problem with fourmom tool" );
         if (timerSvc()) m_timerTool4->stop(); //timer
 
         // Shower Shape
         if (timerSvc()) m_timerTool5->start(); //timer
         ATH_MSG_DEBUG("about to run EMShowerBuilderrecoExecute(eg,pCaloCellContainer)");
         if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endreq;
+        else ATH_MSG_DEBUG( "REGTEST: no shower built for this cluster" );
         if (timerSvc()) m_timerTool5->stop(); //timer
-        
+
         // Isolation
-        
-        if(m_doCaloCellIsolation || m_doTopoIsolation){       
+
+        if(m_doCaloCellIsolation || m_doTopoIsolation){
             if (timerSvc()) m_timerIsoTool2->start(); //timer
             std::map<std::string,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
             for (; itc != itcE; itc++) {
@@ -1418,7 +1394,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
 
             if (timerSvc()) m_timerIsoTool2->stop(); //timer
         }
-    
+
         // Particle ID
         if (timerSvc()) m_timerPIDTool3->start(); //timer
         if( m_photonPIDBuilder->execute(eg)){
@@ -1427,14 +1403,16 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         else ATH_MSG_DEBUG("Problem in photon PID");
         if (timerSvc()) m_timerPIDTool3->stop(); //timer
         ATH_MSG_DEBUG(" REGTEST: xAOD Reconstruction Photon variables: ");
-        if(msgLvl() <= MSG::DEBUG) PrintPhoton(eg);
+        if (ATH_UNLIKELY(msgLvl (MSG::DEBUG))) {
+            PrintPhoton(eg);
+        }
     }
 
     // attach electron container to the TE
     if (HLT::OK != attachFeature( outputTE, m_electron_container, m_electronContainerName) ){
         ATH_MSG_ERROR("REGTEST: trigger xAOD::ElectronContainer attach to TE and record into StoreGate failed");
         return HLT::NAV_ERROR;
-    } 
+    }
     else{
         ATH_MSG_DEBUG("REGTEST: xAOD::ElectronContainer created and attached to TE: " << m_electronContainerName); 
     }
@@ -1588,7 +1566,7 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
     ATH_MSG_DEBUG("LHCaloLoose " << eg->passSelection("LHCaloLoose"));
     ATH_MSG_DEBUG("LHCaloMedium " << eg->passSelection("LHCaloMedium"));
     ATH_MSG_DEBUG("LHCaloTight " << eg->passSelection("LHCaloTight"));
-    
+
     ATH_MSG_DEBUG("isEMLHVLoose " << eg->selectionisEM(isEMbit,"isEMLHVLoose"));
     ATH_MSG_DEBUG("isEMLHVLoose bit " << std::hex << isEMbit); 
     ATH_MSG_DEBUG("isEMLHLoose " << eg->selectionisEM(isEMbit,"isEMLHLoose"));
@@ -1599,23 +1577,23 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
     ATH_MSG_DEBUG("isEMLHTight bit " << std::hex << isEMbit); 
     float val_float=-99;
     //DEBUG output for Egamma container
-    
+
     //Cluster and ShowerShape info
     //REGTEST printout
     if (eg) {
-        msg() << MSG::DEBUG << " REGTEST: electron energy: " << eg->e() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: electron eta: " << eg->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: electron phi: " << eg->phi() << endreq;
+        ATH_MSG_DEBUG( " REGTEST: electron energy: " << eg->e() );
+        ATH_MSG_DEBUG( " REGTEST: electron eta: " << eg->eta() );
+        ATH_MSG_DEBUG( " REGTEST: electron phi: " << eg->phi() );
         ATH_MSG_DEBUG(" REGTEST: electron charge " << eg->charge());
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with electron pointer" << endreq;
+        ATH_MSG_DEBUG( " REGTEST: problems with electron pointer" );
     }
 
     ATH_MSG_DEBUG(" REGTEST: cluster variables");
     if (eg->caloCluster()) {
-        msg() << MSG::DEBUG << " REGTEST: electron cluster transverse energy: " << eg->caloCluster()->et() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: electron cluster eta: " << eg->caloCluster()->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: electron cluster phi: " << eg->caloCluster()->phi() << endreq;
+        ATH_MSG_DEBUG( " REGTEST: electron cluster transverse energy: " << eg->caloCluster()->et() );
+        ATH_MSG_DEBUG( " REGTEST: electron cluster eta: " << eg->caloCluster()->eta() );
+        ATH_MSG_DEBUG( " REGTEST: electron cluster phi: " << eg->caloCluster()->phi() );
         double tmpeta = -999.;
         double tmpphi = -999.;
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
@@ -1623,7 +1601,7 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
         ATH_MSG_DEBUG(" REGTEST: electron Calo-frame coords. etaCalo = " << tmpeta); 
         ATH_MSG_DEBUG(" REGTEST: electron Calo-frame coords. phiCalo = " << tmpphi);
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with electron cluster pointer" << endreq;
+        ATH_MSG_DEBUG( " REGTEST: problems with electron cluster pointer" );
     }
 
     ATH_MSG_DEBUG(" REGTEST: EMShower variables");
@@ -1649,15 +1627,15 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
     ATH_MSG_DEBUG(" REGTEST: trackmatch variables");
 
     if(eg->trackParticle()){
-        msg() << MSG::DEBUG << " REGTEST: pt=  " << eg->trackParticle()->pt() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: charge=  " << eg->trackParticle()->charge() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: E/p=  " << eg->caloCluster()->et() / eg->trackParticle()->pt() << endreq;
+        ATH_MSG_DEBUG( " REGTEST: pt=  " << eg->trackParticle()->pt() );
+        ATH_MSG_DEBUG(" REGTEST: charge=  " << eg->trackParticle()->charge() );
+        ATH_MSG_DEBUG( " REGTEST: E/p=  " << eg->caloCluster()->et() / eg->trackParticle()->pt() );
         eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaEta1);
-        msg() << MSG::DEBUG << " REGTEST: Delta eta 1st sampling=  " << val_float << endreq;
+        ATH_MSG_DEBUG( " REGTEST: Delta eta 1st sampling=  " << val_float );
         eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaPhi2);
-        msg() << MSG::DEBUG << " REGTEST: Delta phi 2nd sampling=  " << val_float << endreq;
+        ATH_MSG_DEBUG( " REGTEST: Delta phi 2nd sampling=  " << val_float );
     } else{
-        msg() << MSG::DEBUG << " REGTEST: no electron eg->trackParticle() pointer" << endreq; 
+        ATH_MSG_DEBUG( " REGTEST: no electron eg->trackParticle() pointer" );
     }
 }
 
@@ -1674,30 +1652,30 @@ void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg) const {
     ATH_MSG_DEBUG("isEMTight bit " << std::hex << isEMbit); 
     float val_float=-99;
     //DEBUG output for Egamma container
-    msg() << MSG::DEBUG << " REGTEST: xAOD Reconstruction Photon variables: " << endreq; 
+    ATH_MSG_DEBUG( " REGTEST: xAOD Reconstruction Photon variables: " );
     //Cluster and ShowerShape info
     //REGTEST printout
     if (eg) {
-        msg() << MSG::DEBUG << " REGTEST: photon energy: " << eg->e() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: photon eta: " << eg->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: photon phi: " << eg->phi() << endreq;
+        ATH_MSG_DEBUG( " REGTEST: photon energy: " << eg->e() );
+        ATH_MSG_DEBUG( " REGTEST: photon eta: " << eg->eta() );
+        ATH_MSG_DEBUG( " REGTEST: photon phi: " << eg->phi() );
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with photon pointer" << endreq;
+        ATH_MSG_DEBUG( " REGTEST: problems with photon pointer" );
     }
 
     ATH_MSG_DEBUG(" REGTEST: cluster variables");
     if (eg->caloCluster()) {
-        msg() << MSG::DEBUG << " REGTEST: photon cluster transverse energy: " << eg->caloCluster()->et() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: photon cluster eta: " << eg->caloCluster()->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: photon cluster phi: " << eg->caloCluster()->phi() << endreq;
+        ATH_MSG_DEBUG( " REGTEST: photon cluster transverse energy: " << eg->caloCluster()->et() );
+        ATH_MSG_DEBUG( " REGTEST: photon cluster eta: " << eg->caloCluster()->eta() );
+        ATH_MSG_DEBUG( " REGTEST: photon cluster phi: " << eg->caloCluster()->phi() );
         double tmpeta = -999.;
         double tmpphi = -999.;
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
-        eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi); 
-        ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. etaCalo = " << tmpeta); 
-        ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. phiCalo = " << tmpphi); 
+        eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi);
+        ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. etaCalo = " << tmpeta);
+        ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. phiCalo = " << tmpphi);
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with photon cluster pointer" << endreq;
+        ATH_MSG_DEBUG( " REGTEST: problems with photon cluster pointer" );
     }
 
     ATH_MSG_DEBUG(" REGTEST: EMShower variables");
