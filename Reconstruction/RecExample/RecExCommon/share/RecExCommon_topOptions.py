@@ -1712,3 +1712,6 @@ if rec.readAOD():
 
 include("RecExCommon/RecoUtils.py")
 include("RecExCommon/PrintRecoSummary.py")
+
+from RecAlgs.RecAlgsConf import AppStopAlg
+topSequence+=AppStopAlg()
