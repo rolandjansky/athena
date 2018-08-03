@@ -1,4 +1,7 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*-------------------------------------------------------------------------
    Script for multiclass TMVA training using track origin information.
    Don't forget to set AntiGarbageCut=1 in SSVF to create the training data.
    Author: V.Kostyukhin
@@ -124,7 +127,7 @@ void TMVAMultiApply( )
 
    prbS=0.6;
    prbP=0.9;
-   ptjet=150000.;
+   ptjet=250000.;
    etajet=1.;
    const std::vector<Float_t> &result=reader->EvaluateMulticlass("BDTG");
    std::cout<<" TEST="<<result.size()<<" wgt="<<result[0]<<","<<result[1]<<","<<result[2]<<'\n';

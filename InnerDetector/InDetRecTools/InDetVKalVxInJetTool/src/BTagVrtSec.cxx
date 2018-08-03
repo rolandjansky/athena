@@ -495,7 +495,7 @@ namespace InDet{
 	    if(trackPt>trackPtMax)trackPtMax=trackPt;
           }
 	  m_hb_rNdc->Fill( FitVertex.perp(), m_w_1);
-          m_hb_trkPtMax->Fill( trackPtMax/(1.+log(JetDir.Pt()/20000.)), m_w_1);
+          m_hb_trkPtMax->Fill( trackPtMax, m_w_1);
           m_pr_effVrt->Fill((float)m_NRefPVTrk,1.);              
 	  m_pr_effVrtEta->Fill( JetDir.Eta(),1.);
           m_hb_mom->Fill( MomentumJet.E(), m_w_1);
@@ -736,7 +736,7 @@ namespace InDet{
             m_hb_impactZ->Fill( SignifZ, m_w_1); 
             m_hb_impactRZ->Fill(SignifR, SignifZ, m_w_1); 
 	    m_hb_impact->Fill( ImpactSignif, m_w_1);
-	    if(i<100 && m_curTup){
+	    if(i<DevTuple::maxNTrk && m_curTup){
                  m_curTup->p_prob[i]=RankBTrk(SelectedTracks[i]->pt(),JetDir.Pt(),0.);
                  m_curTup->s_prob[i]=RankBTrk(0.,0.,ImpactSignif); 
                  m_curTup->SigR[i]=SignifR; m_curTup->SigZ[i]=SignifZ; 
@@ -759,7 +759,7 @@ namespace InDet{
 	 }
       }
       if(m_fillHist){  m_curTup->ptjet=JetDir.Perp();  m_curTup->etajet=fabs(JetDir.Eta()); m_curTup->phijet=JetDir.Phi();
-                       m_curTup->nTrkInJet=std::min(NTracks,100); };
+                       m_curTup->nTrkInJet=std::min(NTracks,DevTuple::maxNTrk); };
       if(nTrkHF==0) return; //======  No at all good HF tracks 
 
       ListSecondTracks.reserve(2*NTracks);                 // Reserve memory for single vertex
