@@ -18,6 +18,10 @@
 #include "TrigSteeringEvent/Lvl1Result.h"
 #include "TrigSteeringEvent/HLTResult.h"
 
+#include "TrigConfHLTData/HLTChain.h"
+#include "TrigConfHLTData/HLTChainList.h"
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 namespace ROIB {
@@ -152,7 +156,8 @@ private:
 
   std::string m_pathHisto;
 
-  bool m_SBflag;
+  bool                m_SBflag;
+  TrigConf::HLTChain* m_HLTcostMon_chain;
 
   int m_elast15, m_elast18;     // ctp-items id numbers to select golden alfa trigger for data quality assesment
   int m_nbOfTracksInDetectors[8]; // counters for track candidates - needed in data quality assesment
@@ -195,15 +200,15 @@ bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
 
   /// Helper for checksum test
   /// returns true if a ROB checksum failed
-  bool verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
-  bool verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
   /// Helper for status bits test
-  void verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
 
   /// Helper for decoding the ALFA ROB 
-  void decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  uint32_t  decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag);
   void decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf);
   uint32_t  decodePMT0 (uint32_t dataWord);
 

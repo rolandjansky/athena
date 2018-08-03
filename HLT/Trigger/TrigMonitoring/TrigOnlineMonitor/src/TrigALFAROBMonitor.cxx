@@ -237,6 +237,28 @@ StatusCode TrigALFAROBMonitor::initialize(){
     m_ALFARobIds.push_back(m_lvl1ALFA2ROBid.value());
   }
 
+  const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
+  if (chainlist) {
+         BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
+            if (chain->chain_name() == "HLT_costmonitor") {
+               m_HLTcostMon_chain = chain;               
+               ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << m_HLTcostMon_chain->prescale()
+                                << " and the SB flag set to: "<<m_SBflag);
+               if (m_HLTcostMon_chain->prescale() >=1 ) {
+                      m_SBflag = true;
+               } else {
+                      m_SBflag = false;
+               }
+            } else {
+                      //ATH_MSG_INFO ("HLT prescale key evaluation - " << chain->chain_name());
+            }  
+         }
+  } else {
+       ATH_MSG_WARNING ("HLT prescale key evaluation  - failed");
+  }
+
+
+
   ATH_MSG_INFO("Initialize completed");
   return StatusCode::SUCCESS;
 }
@@ -291,27 +313,6 @@ StatusCode TrigALFAROBMonitor::execute() {
   const EventID* p_EventID = p_EventInfo->event_ID();
   m_LB = p_EventID->lumi_block();
 
-  // check if we have new LB and any histograms need reset
-  // if we have new LB and StableBeams start filling and resetting SB histograms
-             //ATH_MSG_INFO ("HLT prescale key evaluation ");
-             const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
-             if (chainlist) {
-                 BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
-                   if (chain->chain_name() == "HLT_costmonitor") {
-                        if (chain->prescale() >=1 ) {
-                               m_SBflag = true;
-                        } else {
-                               m_SBflag = false;
-                        }
-                        //ATH_MSG_INFO ("HLT_costmonitor chain with prescale " << chain->prescale()<< " and the SB flag set to: "<<m_SBflag);
-                   } else {
-                      //ATH_MSG_INFO ("HLT prescale key evaluation - " << chain->chain_name());
-                   }
-                 }
-             } else {
-             ATH_MSG_WARNING ("HLT prescale key evaluation  - failed");
-             }
-
   if (m_previousEventLB < 0) {
     m_previousEventLB = m_LB;  // first event
   } else {
@@ -321,21 +322,16 @@ StatusCode TrigALFAROBMonitor::execute() {
         if (m_LB % 60 == 0) reset60LBhistos(m_previousEventLB);
         uint32_t newPrescKey = m_configSvc->hltPrescaleKey();
         if (newPrescKey != m_prescKey) {
-             // check with cont monitor if the SB fla has been set
              ATH_MSG_INFO ("HLT prescale key changed to "<<newPrescKey );
-             const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
-             if (chainlist) {
-                 BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
-                   if (chain->chain_name() == "HLT_costmonitor") {
-                        if (chain->prescale() >=1 ) {
-                               m_SBflag = true;
-                        } else {
-                               m_SBflag = false;
-                        }
-                        ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << chain->prescale()<< " and the SB flag set to: "<<m_SBflag);
-                   }
-                 }
+             
+             // check with cont monitor if the SB fla has been set
+             if (m_HLTcostMon_chain->prescale() >=1 ) {
+                        m_SBflag = true;
+             } else {
+                        m_SBflag = false;
              }
+             ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << m_HLTcostMon_chain->prescale()
+                                << " and the SB flag set to: "<<m_SBflag);
              m_prescKey = newPrescKey;
         }
         m_previousEventLB = m_LB;
@@ -423,24 +419,10 @@ StatusCode TrigALFAROBMonitor::execute() {
 
     // decode ALFA ROBs
     if (! event_with_checksum_failure) {
-       decodeALFA(**it );
-
-       //LVL1CTP::Lvl1Result resultL1(true);
-       //if (getLvl1Result(resultL1)) {
-       		//kk std::vector<uint32_t> & itemsBP = resultL1.itemsBeforePrescale();
-                //kk for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
-                    //kk int word = it->first>>5;
-                    //kk int offset = (it->first)%32;
-                    //kk if (itemsBP.at(word) & 1<<offset) {
-                       //kk //ATH_MSG_INFO ("found item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
-                    //kk }
-                //kk }
-       		//kk for(std::vector<uint32_t>::iterator it = itemsBP.begin(); it != itemsBP.end(); ++it) {
-          		//kk //ATH_MSG_INFO ("triggerWord: "<<*it);
-       		//kk }
-       findALFATracks(resultL1);
-       //}
-       findODTracks ();
+       if (decodeALFA(**it ) == 0) {
+          findALFATracks(resultL1);
+          findODTracks ();
+      }
     }
   }
 
@@ -792,7 +774,7 @@ StatusCode TrigALFAROBMonitor::endRun() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-bool TrigALFAROBMonitor::verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+bool TrigALFAROBMonitor::verifyALFAROBChecksum(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) {
 
   bool failed_checksum(false);
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType it(0); 
@@ -844,7 +826,7 @@ bool TrigALFAROBMonitor::verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBF
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigALFAROBMonitor::verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+void TrigALFAROBMonitor::verifyROBStatusBits(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) {
 
   // print check for received ROB
 	ATH_MSG_VERBOSE(" verifyROBStatusBits: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec);
@@ -872,7 +854,7 @@ void TrigALFAROBMonitor::verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFra
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag) {
 
   ATH_MSG_DEBUG(" decodeALFA: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec);
 
@@ -896,7 +878,7 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
 				     << robFragSize << " ROD fragment size " << rodFragSize << " evtNum " <<evtNum );
 
   // check if we have real data in the ROB - ALFA has fixed fragment size of 0x1e1 - skip such event and return if not real
-  if (robFragSize != 0x1e1) return;
+  if (robFragSize != 0x1e1) return (1);
 
   if ((rodId == (uint32_t)m_lvl1ALFA1ROBid.value()) || (rodId == (uint32_t)m_lvl1ALFA2ROBid.value())) {
     ATH_MSG_DEBUG( "   Found ALFA ROB " << std::to_string(rodId) );
@@ -913,7 +895,7 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
      
     uint32_t ndata = robFrag.rod_ndata();
     for( uint32_t i = 0; i < ndata; ++i, ++data ) {
-      ATH_MSG_DEBUG( "       0x" << MSG::hex << std::setw( 8 )
+      ATH_MSG_DEBUG( MSG::dec<< " i: "<<i<<"       0x" << MSG::hex << std::setw( 8 )
 	    << static_cast< uint32_t >( *data ) );
     } 
     /* Create trailer */
@@ -944,41 +926,36 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
 
     
     while ( 1 ) {
+	uint32_t mbNb = 0; // from 20.07.2010 MB numbers are as PMF0 15-0 bits - counting from 1 and coded as 1 from N 
+        
         // check consistency of the ROD data - if data from LWC point to TWC
         if ((*lwcPtr & 0xff000000) != 0x81000000) {
 	    //AlfaEventObj->framingStatus |= 0x4;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *lwcPtr);
-    	    ATH_MSG_DEBUG("ROD skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
-            return; //continue;
+    	    ATH_MSG_DEBUG("ROD skipped - LWC(-1): "<< MSG::hex << *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
+    	    ATH_MSG_INFO("ROD skipped - LWC(-1): "<< MSG::hex << *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
+            return (1); //continue;
         }
         if ((*twcPtr & 0xff000000) != 0x8a000000) {
 	    //AlfaEventObj->framingStatus |= 0x8;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *twcPtr);
     	    ATH_MSG_DEBUG( "ROD skipped - TWC: "<< *twcPtr );
-            return; //continue;
+    	    ATH_MSG_INFO( "ROD skipped - TWC(-1): "<< MSG::hex << *(twcPtr-1)<< " TWC: "<< *twcPtr <<" TWC+1: " << *(twcPtr+1) 
+                           <<" LWC: " << *lwcPtr << " mbNb: "<< mbNb);
+            return (1); //continue;
         }
 
 
         const uint32_t* dataPtr = lwcPtr;
         dataPtr++; // bol
 
-	//uint32_t mrodInputNb =  (*dataPtr) & 0xf; 
-	uint32_t mbNb = 0; // from 20.07.2010 MB numbers are as PMF0 15-0 bits - counting from 1 and coded as 1 from N 
-	//uint32_t mrodNb = ((*dataPtr)>>4) & 0xfff;
-
 	dataPtr++; // tlp - always 5 TDCs (5 captons) - use it as mask for scanning TDC data
         uint32_t tlp = (*dataPtr) & 0xffff; 
         dataPtr++; // bot
 
         for ( ; tlp; tlp>>=1 ) {
-            //uint32_t bot = *dataPtr;  // event number and bcx numbers 
-
-            //if ((bob&0xFFF) != ((bot>>12)&0xFFF)) // synch check: TTC at MB against TTC at ROD 
-            //{
-              // AlfaEventObj->synchRODvsMB[0] |= (0x1)<<mrodInputNb; // offest zero in synchRODvsMB should be replaced by the ROD number
-            //}
 
             dataPtr++; // TDC data
 	    uint32_t data16channels = *dataPtr;
@@ -1029,8 +1006,6 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
                 data16channels = *dataPtr;
             }
 
-	    //AlfaEventObj->bcxAtALFA_M[mbNb-1] = bot & 0xFFF;
-
             // TDC trailer EOT ?
             if (( *dataPtr & 0xF0000000) != 0xC0000000) {
                 break;
@@ -1045,14 +1020,11 @@ void TrigALFAROBMonitor::decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob
             continue;
         }
         
-        //if ((*dataPtr & 0xff000000) == 0xf0000000)  { //EOB
-            //break; 
-        //}
-
-        return; //break;  // end of data or data corrupted - break decoding
+        return (0); //break;  // end of data or data corrupted - break decoding
     } //ERS_INFO ("gnamDecode - end of decoding MROD:" << MrodId);
   }
  }
+ return (0);
 }
 
 void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf) {
@@ -1378,7 +1350,7 @@ void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
                                 x_Rec[iDet] = (RecPos_U-RecPos_V)/2.;
                                 y_Rec[iDet] = sign*(-(RecPos_V+RecPos_U)/2.-115.);
 
-       		                std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
+       		                std::vector<uint32_t>& itemsBP = resultL1.itemsBeforePrescale();
                                 for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
                                        int word = it->first>>5;
                                        int offset = (it->first)%32;
@@ -1408,7 +1380,7 @@ void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
 
         }
 
-        std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
+        std::vector<uint32_t>& itemsBP = resultL1.itemsBeforePrescale();
         if (itemsBP.at(m_elast15>>5) & (1 <<(m_elast15%32))) {
            m_hist_goodData->Fill(1.);
            m_hist_goodDataLB15->Fill(m_LB, 1.);
