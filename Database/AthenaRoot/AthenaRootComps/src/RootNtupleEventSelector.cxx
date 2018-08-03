@@ -701,6 +701,9 @@ StatusCode
 RootNtupleEventSelector::seek (Context& ctx, int evtnum) const
 {
   RootNtupleEventContext* rctx = dynamic_cast<RootNtupleEventContext*>(&ctx);
+  if (!rctx) {
+    return StatusCode::FAILURE;
+  }
 
   // std::cout << "::seek - evtnum=" << evtnum 
   //           << " curevt=" << m_curEvt 
