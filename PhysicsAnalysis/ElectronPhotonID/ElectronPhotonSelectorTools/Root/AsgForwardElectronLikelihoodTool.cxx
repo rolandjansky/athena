@@ -3,6 +3,7 @@
 */
 
 /**
+
    @class AsgForwardElectronLikelihoodTool
    @brief Electron selector tool to select objects in Asgena using an underlying pure ROOT tool.
 
@@ -379,7 +380,7 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept(const xAOD::IParti
       return accept(eg);
     }
   else{
-    ATH_MSG_ERROR("AsgForwardElectronLikelihoodTool::could not cast to const Electron");
+    ATH_MSG_WARNING("AsgForwardElectronLikelihoodTool::could not cast to const Electron");
     return m_acceptDummy;
   }
 
@@ -394,7 +395,7 @@ const Root::TResult& AsgForwardElectronLikelihoodTool::calculate(const xAOD::IPa
     }
   else
     {
-      ATH_MSG_ERROR ( " Could not cast to const Electron " );
+      ATH_MSG_WARNING ( " Could not cast to const Electron " );
       return m_resultDummy;
     }
 }

@@ -879,7 +879,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* pa
       return accept(eg);
     }
   else{
-    ATH_MSG_ERROR("AsgElectronLikelihoodTool::could not cast to const Electron");
+    ATH_MSG_WARNING("AsgElectronLikelihoodTool::could not cast to const Electron");
     return m_acceptDummy;
   }
 }
@@ -893,12 +893,10 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle*
     }
   else
     {
-      ATH_MSG_ERROR ( " Could not cast to const Electron " );
+      ATH_MSG_WARNING( " Could not cast to const Electron " );
       return m_resultDummy;
     }
 }
-
-
 
 
 //=============================================================================
