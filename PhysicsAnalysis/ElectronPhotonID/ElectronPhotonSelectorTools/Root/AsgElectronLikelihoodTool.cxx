@@ -91,8 +91,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("doRemoveTRTPIDAtHighEt",m_rootTool->doRemoveTRTPIDAtHighEt,"Turn off TRTPID at high Et");
   // use smooth interpolation between LH bins
   declareProperty("doSmoothBinInterpolation",m_rootTool->doSmoothBinInterpolation,"use smooth interpolation between LH bins");
-  // use binning for high ET LH
-  declareProperty("useHighETLHBinning",m_rootTool->useHighETLHBinning,"Use binning for high ET LH");
   // use one extra bin for high ET LH
   declareProperty("useOneExtraHighETLHBin",m_rootTool->useOneExtraHighETLHBin,"Use one extra bin for high ET LH");
   // cut on Wstot above HighETBinThreshold
@@ -218,7 +216,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->doSmoothBinInterpolation = env.GetValue("doSmoothBinInterpolation", false);
     m_caloOnly = env.GetValue("caloOnly", false);
 
-    m_rootTool->useHighETLHBinning = env.GetValue("useHighETLHBinning", false);
     m_rootTool->useOneExtraHighETLHBin = env.GetValue("useOneExtraHighETLHBin", false);
     // cut on Wstot above HighETBinThreshold
     m_rootTool->CutWstotAtHighET = AsgConfigHelper::HelperDouble("CutWstotAtHighET", env);

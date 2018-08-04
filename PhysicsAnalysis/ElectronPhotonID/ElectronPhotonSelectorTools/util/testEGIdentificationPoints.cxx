@@ -58,7 +58,7 @@ int main( int argc, char* argv[] ) {
    // Check if we received a file name:
    if( argc < 2 ) {
      ANA_MSG_ERROR("No file name received!" );
-     ANA_MSG_ERROR( "  Usage: %s [xAOD file name]");
+     ANA_MSG_ERROR( "  Usage: %s [xAOD file name]  %d Num of events to process %d (0 photons , 1 electrons)");
      return EXIT_FAILURE;
    }
    
@@ -99,8 +99,7 @@ int main( int argc, char* argv[] ) {
          entries = e;
       }
    }
-
-
+   
    if (isElectron) {
    //Medium cut based Electrons
 
@@ -165,8 +164,6 @@ int main( int argc, char* argv[] ) {
        ANA_MSG_INFO("Electron ignore Had Leakage check all else via isem:: "<< ignoreHadLeakageisem << " ,bitset " << ignoreHadLeakageisemBitSet);
 
        ++counter;
-
-
        }
      } // loop entries
    }// is electron
