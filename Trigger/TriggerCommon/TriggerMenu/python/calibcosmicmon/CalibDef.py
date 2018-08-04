@@ -233,6 +233,10 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
          'idcalib_trk9_fwd_L1J12_VTE100'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
          'idcalib_trk9_central_L1J12_VTE200'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_2'),
          'idcalib_trk9_fwd_L1J12_VTE200'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_2'),
+         'idcalib_trk9_central_L1J10_VTE100'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
+         'idcalib_trk9_fwd_L1J10_VTE100'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
+         'idcalib_trk9_central_L1J10_VTE200'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_2'),
+         'idcalib_trk9_fwd_L1J10_VTE200'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_2'),
          'idcalib_trk9_central_bs'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
          'idcalib_trk9_fwd_bs'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
          'idcalib_trk9_central_L1MBTS_1_VTE70'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
@@ -316,6 +320,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      
      l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSubDetListWriter")
      l2_RPCSubDetListWriter.SubdetId = ['TDAQ_MUON', 'TDAQ_CTP', 'TDAQ_HLT', 'RPC']
+     l2_RPCSubDetListWriter.extraROBs += [0x610080, 0x620080]
 
      l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
      

@@ -344,9 +344,10 @@ class EFMetHypoTCTrkPUCXE (EFMissingETHypoBase):
         self.doEMScaleTC=True
         if 'tchad' in name:
             self.doEMScaleTC = False
-        if 'tclcw' in name:
+
+        if 'tc' in name and 'lcw' in name:
             self.doEMScaleTC = False
-        if 'tcem' in name:
+        if 'tc' in name and 'em' in name:
             self.doEMScaleTC = True
         if 'wMu' in name:
             self.doMuonCorrection = True
@@ -359,6 +360,7 @@ class EFMetHypoTCTrkPUCXE (EFMissingETHypoBase):
 
 class L2MetHypoTE (EFMissingETHypoBase):
     __slots__ = []
+
     def __init__(self, name = "L2MetHypo_te1000",l2_thr=1000*GeV):
         super( L2MetHypoTE, self ).__init__( name )
 

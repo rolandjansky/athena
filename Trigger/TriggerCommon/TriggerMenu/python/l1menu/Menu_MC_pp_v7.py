@@ -9,9 +9,9 @@ def print_available():
     for i in range(512):
       if i==463: continue #reserved for L1_RD2_BGRP14, L1_RD3_BGRP15 now assigned to 510 for partition 3 ATR-17737
       if i>=509 and i<=511: continue #reserved for CALREQ
-      if not i in Lvl1Flags.CtpIdMap().values(): available.append(str(i))
+      if not i in Lvl1Flags.CtpIdMap().values(): available.append(i)
     available.sort()
-    print "There are %d available CTP IDs:"%len(available),",".join(available)
+    print "There are %d available CTP IDs:"%len(available),",".join(map(str,available))
     print "IDs >= 472 go in partition 2, IDs >= 492 go in partition 3"
 
 def defineMenu():
@@ -626,10 +626,10 @@ def defineMenu():
         "L1_ZB",
 
         # BPTX
-#        "L1_BPTX0_BGRP0", "L1_BPTX1_BGRP0",
+        "L1_BPTX0_BGRP0", "L1_BPTX1_BGRP0",
         
         # BCM
-#        'L1_BCM_Wide_BGRP0', 'L1_BCM_AC_CA_UNPAIRED_ISO',
+        'L1_BCM_Wide_BGRP0', #'L1_BCM_AC_CA_UNPAIRED_ISO',
         'L1_BCM_AC_CA_BGRP0', 'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO',
         'L1_BCM_AC_UNPAIRED_ISO','L1_BCM_CA_UNPAIRED_ISO',
         'L1_BCM_AC_UNPAIREDB1','L1_BCM_CA_UNPAIREDB2',
@@ -702,9 +702,9 @@ def defineMenu():
 #        'L1_W-05DPHI-EM15XE-1',
         #'L1_W-15DPHI-EM15XE-1',
         'L1_W-05RO-XEHT-0',
-        'L1_W-90RO2-XEHT-0',
-        'L1_W-250RO2-XEHT-0',
-        'L1_W-HT20-JJ15.ETA49',
+        #'L1_W-90RO2-XEHT-0',
+        #'L1_W-250RO2-XEHT-0',
+        #'L1_W-HT20-JJ15.ETA49',
         #'L1_W-NOMATCH',
         #'L1_W-NOMATCH_W-05RO-XEEMHT',
         'L1_EM12_W-MT25',
@@ -860,8 +860,8 @@ def defineMenu():
         'L1_ALFA_BGT_BGRP4','L1_ALFA_BGT_BGRP10',
         'L1_ALFA_SHOWSYST5',
 #        'L1_ALFA_SYST9','L1_ALFA_SYST10','L1_ALFA_SYST11','L1_ALFA_SYST12',
-#        'L1_ALFA_SYST17','L1_ALFA_SYST18',
-#        'L1_ALFA_ANY',
+        'L1_ALFA_SYST17','L1_ALFA_SYST18',
+        'L1_ALFA_ANY',
         'L1_ALFA_ANY_EMPTY','L1_ALFA_B1_EMPTY','L1_ALFA_B2_EMPTY','L1_ALFA_ANY_FIRSTEMPTY','L1_ALFA_ANY_UNPAIRED_ISO','L1_ALFA_ANY_UNPAIRED_NONISO',
         'L1_ALFA_ANY_BGRP10',
         'L1_ALFA_ANY_ABORTGAPNOTCALIB','L1_ALFA_ANY_CALIB',
@@ -1247,7 +1247,7 @@ def defineMenu():
         'L1_TGC_BURST' : 220,
 #        'L1_TGC_BURST_EMPTY' : 184,
         'L1_LHCF' : 221,
-#        'L1_BCM_Wide_BGRP0' : 222,
+        'L1_BCM_Wide_BGRP0' : 281,
         'L1_BCM_AC_CA_BGRP0' : 223,
         'L1_BCM_Wide_EMPTY' : 224,
         'L1_BCM_Wide_UNPAIRED_ISO' : 225,
@@ -1268,8 +1268,8 @@ def defineMenu():
         'L1_BCM_Wide_CALIB' : 237,
         'L1_BTAG-MU4J15' : 238,
         'L1_ZB' : 240,
-#        'L1_BPTX0_BGRP0' : 241,
-#        'L1_BPTX1_BGRP0' : 242,
+        'L1_BPTX0_BGRP0' : 279,
+        'L1_BPTX1_BGRP0' : 280,
         'L1_BTAG-MU6J20' : 243,
 #        'L1_BTAG-MU4J20' : 245,
         'L1_3J15_BTAG-MU4J15' : 246,
@@ -1310,9 +1310,9 @@ def defineMenu():
         #'L1_W-15DPHI-EM15XE-1' : 272,
 #        'L1_W-05DPHI-EMXE-1' : 276,
 #        'L1_W-05RO-XEHT-0' : 277,
-        'L1_W-90RO2-XEHT-0' : 279,
-        'L1_W-250RO2-XEHT-0' : 280,
-        'L1_W-HT20-JJ15.ETA49' : 281,
+#        'L1_W-90RO2-XEHT-0' : 279,
+#        'L1_W-250RO2-XEHT-0' : 280,
+#        'L1_W-HT20-JJ15.ETA49' : 281,
 #        'L1_W-NOMATCH' : 282,
         #'L1_W-NOMATCH_W-05RO-XEEMHT' : 283,
 
@@ -1495,7 +1495,24 @@ def defineMenu():
         'L1_AFP_C_BGRP0'	:	435,
         'L1_AFP_A_BGRP0'	:	455,
 
-
+        'L1_ALFA_ELAST15' : 464,
+        'L1_ALFA_ELAST18' : 477,
+        'L1_ALFA_SYST17'  : 478,
+        'L1_ALFA_SYST18'  : 489,
+        'L1_ALFA_ANY'     : 490,
+        'L1_ALFA_ANY_EMPTY' : 491,
+        'L1_ALFA_ANY_FIRSTEMPTY' : 492,
+        'L1_ALFA_ANY_UNPAIRED_ISO' : 493,
+        'L1_ALFA_ANY_UNPAIRED_NONISO' : 494,
+        'L1_ALFA_ANY_CALIB' : 495,
+        'L1_ALFA_ANY_ABORTGAPNOTCALIB' : 496,
+        'L1_ALFA_B1_EMPTY' : 313,
+        'L1_ALFA_B2_EMPTY' : 314,
+        'L1_ALFA_B7L1_OD' : 324,
+        'L1_ALFA_A7L1_OD' : 325,
+        'L1_ALFA_A7R1_OD' : 326,
+        'L1_ALFA_B7R1_OD' : 328,
+        'L1_ALFA_BGT_BGRP1' : 349,
         
         'L1_MU6_FTK'                           : 499,
         'L1_MU20_FTK'                          : 500,
