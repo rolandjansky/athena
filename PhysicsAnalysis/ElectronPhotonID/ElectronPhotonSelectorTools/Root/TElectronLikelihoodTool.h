@@ -156,11 +156,11 @@ namespace Root {
     public :
       SafeTH1(TH1F* hist);
       ~SafeTH1();
-      int GetNbinsX();
-      int FindBin(double);
-      double GetBinContent(int);
-      double GetBinLowEdge(int);
-      double Integral();
+      int GetNbinsX() const ;
+      int FindBin(double) const;
+      double GetBinContent(int) const;
+      double GetBinLowEdge(int) const ;
+      double Integral() const ;
 
     private:
       std::vector<float> m_binContent;
@@ -217,14 +217,11 @@ namespace Root {
     /// The string for the result
     inline void setResultName ( const std::string& val ) { m_resultName = val; }
 
-    unsigned int getBitmask(void) const { return m_variableBitMask;} 
-    inline void setBitmask(unsigned int val) { m_variableBitMask = val; };
 
   private:
    
     /// Internal methods to calculate the LH discriminant from a set of variables
     double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0) const;
-    double EvaluateLikelihood(std::vector<float>  varVector,double et,double eta,double ip=0) const;
 
     /// Mask out the variables , out of all possible in , 
     ///not employed in the current configuration
