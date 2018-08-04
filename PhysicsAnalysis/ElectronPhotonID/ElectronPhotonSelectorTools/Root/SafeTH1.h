@@ -2,6 +2,9 @@
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
    */
 
+#ifndef __EGSELECTOR_SAFETH1L__
+#define __EGSELECTOR_SAFETH1L__
+
 #include "TFile.h"
 #include "TH1.h"
 
@@ -66,3 +69,4 @@ private:
 };
 }
 }
+#endif
