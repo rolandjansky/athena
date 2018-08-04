@@ -59,7 +59,7 @@ class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_innerTrkAvgDist', type='TH1F', title=" EF inner track average distance; innerTrkAvgDist; nRoIs", xbins=40, xmin=-0.05, xmax=0.5) ]
         self.Histograms += [ defineHistogram('EF_SumPtTrkFrac', type='TH1F', title=" EF Sum Pt Track Fraction; SumPtTrkFrac; nRoIs", xbins=40, xmin=-0.5, xmax=1.1) ]
  
-        self.Histograms += [ defineHistogram('EF_ActualInteractions', type='TH1F', title=" Number of actual interaction per bunch crossing;ActualInteractions;nevents", xbins=50, xmin=0.0, xmax=50.) ]
+        self.Histograms += [ defineHistogram('EF_ActualInteractions', type='TH1F', title=" Number of actual interaction per bunch crossing;ActualInteractions;nevents", xbins=80, xmin=0.0, xmax=80.) ]
         self.Histograms += [ defineHistogram('EF_AvgInteractions', type='TH1F', title=" Number of average interaction per bunch crossing;AvgInteractions;nevents", xbins=80, xmin=0.0, xmax=80.) ]
 
         self.Histograms += [ defineHistogram('EF_beamspot_x', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.) ]

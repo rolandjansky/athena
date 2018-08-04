@@ -320,6 +320,7 @@ class TauHypoProvider:
         ('tightRNN', 29): [3,  29.0*GeV, 3],
         ('tightRNN', 35): [3,  35.0*GeV, 3],
         ('tightRNN', 38): [3,  38.0*GeV, 3],
+        ('tightRNN', 40): [3,  40.0*GeV, 3],
         ('tightRNN', 50): [3,  50.0*GeV, 3],
         ('tightRNN', 60): [3,  60.0*GeV, 3],
         ('tightRNN', 80): [3,  80.0*GeV, 3],

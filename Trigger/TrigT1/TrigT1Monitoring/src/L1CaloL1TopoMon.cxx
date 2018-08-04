@@ -2,17 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ********************************************************************
-//
-// NAME:        L1CaloL1TopoMon.cxx
-// PACKAGE:     TrigT1CaloMonitoring
-//
-// AUTHOR:      Joergen Sjoelin (sjolin@fysik.su.se)
-//
-// DESCRIPTION: Monitoring of L1Calo --> L1Topo transmission
-//
-// ********************************************************************
-
 #include <map>
 #include <utility>
 #include <set>
@@ -24,6 +13,9 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
+
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
 
 #include "LWHists/LWHist.h"
 #include "LWHists/TH1F_LW.h"
@@ -89,7 +81,7 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
-    m_debug(false), m_histBooked(false),
+    m_debug(false), m_histBooked(false),m_lumiNo(0),
     m_h_l1topo_1d_CMXTobs(0),
     m_h_l1topo_1d_Simulation(0),
     m_h_l1topo_1d_JetTobs_EnergyLg(0),
@@ -98,6 +90,7 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
     m_h_l1topo_2d_Tobs_etaPhi_mismatch{},
     m_h_l1topo_2d_Tobs_etaPhi_match{},
     m_h_l1topo_1d_Errors(0),
+    m_h_l1topo_1d_Overflows(0),
     m_h_l1topo_1d_DAQTobs(0),
     m_h_l1topo_1d_DAQJetTobs(0),
     m_h_l1topo_1d_DAQTauTobs(0),
@@ -107,6 +100,7 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
     m_h_l1topo_1d_DAQMismatchTriggerBits(0),
     m_h_l1topo_1d_DAQOverflowBits(0),
     m_h_l1topo_1d_ROITobs(0),
+    m_h_l1topo_1d_ErrorsByLumiblock(0),
     m_h_l1topo_2d_ItemsBC{},
     m_h_l1topo_2d_ItemsBC_ratio{}
   
@@ -191,27 +185,41 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
+  if (newRunFlag() || newLumiBlockFlag()) {
+    const EventInfo *evtInfo = 0;
+    StatusCode sc = evtStore()->retrieve(evtInfo);
+    if (sc.isSuccess()) {
+      m_lumiNo = evtInfo->event_ID()->lumi_block();
+    }
+  }
+
   if ( newLumiBlockFlag() ) {}
 
   if ( newRunFlag() ) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup L1CaloL1Topo( this, m_PathInRootFile, run, attr, "", "merge" );
-    MonGroup L1CaloL1TopoEvents( this, m_PathInRootFile, run, attr,
-                                 "", "eventSample" );
 
     m_histTool->setMonGroup(&L1CaloL1Topo);
 
     m_h_l1topo_1d_Errors =
       m_histTool->book1F("l1topo_1d_Errors",
-			 "L1Topo error summary",
+			 "L1Topo error summary;;Number of Events",
 			 ERROR_BIT::NUMBEROFBITS, 0, ERROR_BIT::NUMBEROFBITS);
+
+    m_h_l1topo_1d_Overflows =
+      m_histTool->book1F("l1topo_1d_Overflow",
+			 "L1Topo overflows;Overflow;Number of Events",1,0,1);
+    
     for (int i=0; i<ERROR_BIT::NUMBEROFBITS;++i)
       m_h_l1topo_1d_Errors->GetXaxis()->
 	SetBinLabel(i+1,ERROR_LABELS[i].c_str());
-
-  
-
+    
+    m_h_l1topo_1d_ErrorsByLumiblock =
+      m_histTool->book1F("l1topo_1d_ErrorsByLumiblock",
+			 "Events with Errors by Lumiblock;"
+			 "Lumi Block;Number of Events",2500,0,2500);
+    
     m_h_l1topo_1d_CMXTobs =
       m_histTool->book1F("l1topo_1d_CMXTobs",
 			 "Number of CMX TOBs",
@@ -258,34 +266,42 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
 
     m_h_l1topo_2d_Tobs_Hitmap_mismatch[JETS_TOB] = m_histTool->
       bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetSTobs_Hitmap_mismatch",
-				   "CMX-L1Topo mismatched small jet TOBs hit map");
+				   "CMX-L1Topo mismatched small "
+				   "jet TOBs hit map");
     m_h_l1topo_2d_Tobs_Hitmap_match[JETS_TOB] = m_histTool->
       bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetSTobs_Hitmap_match",
 				   "CMX-L1Topo matched small jet TOBs hit map");
     m_h_l1topo_2d_Tobs_Hitmap_mismatch[JETL_TOB] = m_histTool->
       bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetLTobs_Hitmap_mismatch",
-				   "CMX-L1Topo mismatched large jet TOBs hit map");
+				   "CMX-L1Topo mismatched large "
+				   "jet TOBs hit map");
     m_h_l1topo_2d_Tobs_Hitmap_match[JETL_TOB] = m_histTool->
       bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetLTobs_Hitmap_match",
 				   "CMX-L1Topo matched large jet TOBs hit map");
     m_h_l1topo_2d_Tobs_Hitmap_mismatch[TAU_TOB] = m_histTool->
       bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_TauTobs_Hitmap_mismatch",
-					    "CMX-L1Topo mismatched tau TOBs hit map");
+					    "CMX-L1Topo mismatched "
+					    "tau TOBs hit map");
     m_h_l1topo_2d_Tobs_Hitmap_match[TAU_TOB] = m_histTool->
       bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_TauTobs_Hitmap_match",
-					    "CMX-L1Topo matched tau TOBs hit map");
+					    "CMX-L1Topo matched tau "
+					    "TOBs hit map");
     m_h_l1topo_2d_Tobs_Hitmap_mismatch[EM_TOB] = m_histTool->
       bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_EMTobs_Hitmap_mismatch",
-					    "CMX-L1Topo mismatched EM TOBs hit map");
+					    "CMX-L1Topo mismatched EM "
+					    "TOBs hit map");
     m_h_l1topo_2d_Tobs_Hitmap_match[EM_TOB] = m_histTool->
       bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_EMTobs_Hitmap_match",
-					    "CMX-L1Topo matched EM TOBs hit map");
+					    "CMX-L1Topo matched EM TOBs "
+					    "hit map");
     m_h_l1topo_2d_Tobs_Hitmap_mismatch[MU_TOB] = m_histTool->
       bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_MuTobs_Hitmap_mismatch",
-					    "CMX-L1Topo mismatched muon TOBs hit map");
+					    "CMX-L1Topo mismatched muon"
+					    "TOBs hit map");
     m_h_l1topo_2d_Tobs_Hitmap_match[MU_TOB] = m_histTool->
       bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_MuTobs_Hitmap_match",
-					    "CMX-L1Topo matched muon TOBs hit map");
+					    "CMX-L1Topo matched muon "
+					    "TOBs hit map");
 
     // --------
     
@@ -372,17 +388,16 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
       ATH_MSG_DEBUG("L1Topo bits configured in the LVL1 menu = "
 		    << topoCounterToName.size());
       for (unsigned int binIndex=0; binIndex<128; ++binIndex){ 
+	std::string label(std::to_string(binIndex));
 	auto it = topoCounterToName.find(binIndex);
-	const bool USE_ALPHANUM=false;
-	std::string label;
 	if (it != topoCounterToName.end()){
-	  if (USE_ALPHANUM) label=it->second;
-	  for (uint32_t bc=1; bc<=5; ++bc)
-	    m_h_l1topo_2d_ItemsBC[binIndex/32]->
-	      SetBinContent(binIndex%32+1,bc,0.0001); // bins>0 for active bins
-	}
-	else {
-	  if (USE_ALPHANUM) label=std::to_string(binIndex);
+	  const bool USE_ALPHANUM=true;
+	  if (USE_ALPHANUM && it->second.length()>2) {
+	    label=it->second;
+	    for (uint32_t bc=1; bc<=5; ++bc)
+	      m_h_l1topo_2d_ItemsBC[binIndex/32]->
+		SetBinContent(binIndex%32+1,bc,0.0001); // bins>0 active bins
+	  }
 	}
 	m_h_l1topo_2d_ItemsBC[binIndex/32]->GetXaxis()->
 	  SetBinLabel(binIndex%32+1,label.c_str());
@@ -411,6 +426,8 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 
   StatusCode sc = StatusCode::SUCCESS;
 
+  int topo_error=0;
+
   typedef std::tuple<int,int,int,int,int,int> TobKey;
   std::set<TobKey> cmxKeys[TOB_TYPES],topoKeys[TOB_TYPES],
     keyDiff[TOB_TYPES],keyIntersect[TOB_TYPES];
@@ -419,6 +436,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   if (m_errorTool->corrupt() || m_errorTool->robOrUnpackingError()) {
     if (m_debug) msg(MSG::DEBUG) << "Corrupt L1Calo event" << endreq;
     m_h_l1topo_1d_Errors->Fill(CALO_CONV);
+    topo_error|=(1<<CALO_CONV);
   }
 
   const DataHandle<CTP_RDO> ctpRDO = 0;
@@ -461,7 +479,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   sc = evtStore()->retrieve(cmxcptob);
   if (sc.isFailure() || !cmxcptob) {
     ATH_MSG_DEBUG ("No CMX CP tobs found in TES");
-    //m_h_l1topo_1d_Errors->Fill(NO_CMX_CP);
+    // tot_error|=NO_CMX_CP;
   }   
   else {
     ATH_MSG_DEBUG( "Found CMXCPTobCollection, looping on TOBs ..." );
@@ -489,6 +507,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   if (sc.isFailure() || !cmxtob) {
     ATH_MSG_DEBUG ("No CMX tobs found in TES");
     m_h_l1topo_1d_Errors->Fill(NO_CMX);
+    topo_error|=(1<<NO_CMX);
   }   
   else {
     ATH_MSG_DEBUG( "Found CMXJetTobCollection, looping on TOBs ..." );
@@ -559,6 +578,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   sc = evtStore()->retrieve(rdos);
   if (sc.isFailure() or 0 == rdos) {
     m_h_l1topo_1d_Errors->Fill(NO_DAQ);
+    topo_error|=(1<<NO_DAQ);
     ATH_MSG_DEBUG ( "Could not retrieve L1Topo DAQ RDO collection "
 		    "from StoreGate" );
   }
@@ -584,12 +604,14 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       if (! errors.empty()){
 	ATH_MSG_WARNING( "Converter errors reported: " << errors );
 	m_h_l1topo_1d_Errors->Fill(DAQ_CONV);
+	topo_error|=(1<<DAQ_CONV);
       }
       const std::vector<uint32_t> cDataWords = rdo->getDataWords();
 
       if ( cDataWords.size() == 0 ) {
         ATH_MSG_DEBUG ( "L1TopoRDO DAQ is empty" );
 	m_h_l1topo_1d_Errors->Fill(NO_DAQ);
+	topo_error|=(1<<NO_DAQ);
       }
 
       // initialise header: beware, this can make a valid-looking header
@@ -603,6 +625,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	    header = L1Topo::Header(word);
 	    if (header.payload_crc()!=0) {
 	      m_h_l1topo_1d_Errors->Fill(PAYL_CRC);
+	      topo_error|=(1<<PAYL_CRC);
 	    }
 	    i_fpga=(((rdo->getSourceID())>>3)&2)+header.fpga();
 	    break;
@@ -623,8 +646,11 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	    auto status = L1Topo::Status(word);
 	    ATH_MSG_WARNING( "fibre overflow: " << status.overflow()
 			     << " fibre crc: " << status.crc() );
-	    if (status.overflow()) m_h_l1topo_1d_Errors->Fill(F_OVERFLOW);
-	    if (status.crc()) m_h_l1topo_1d_Errors->Fill(F_CRC);
+	    if (status.overflow()) m_h_l1topo_1d_Overflows->Fill(0.5);
+	    if (status.crc()) {
+	      m_h_l1topo_1d_Errors->Fill(F_CRC);
+	      topo_error|=(1<<F_CRC);
+	    }
 	    break;
 	  }
 	case L1Topo::BlockTypes::L1TOPO_TOB:
@@ -655,7 +681,8 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	      const int energyL  = (word & 0x3FF);	      
 	      if (energyL) {
 		topoKeys[JETL_TOB].insert(std::make_tuple(crate,jem,frame,
-							  location,energyL,i_fpga));
+							  location,
+							  energyL,i_fpga));
 		//auto tob = L1Topo::JetTOB(word);
 		int tob = 1; // Fake object until defined
 		daqJetTobs.push_back(tob);
@@ -663,7 +690,8 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	      }
 	      if (energyS) {
 		topoKeys[JETS_TOB].insert(std::make_tuple(crate,jem,frame,
-							  location,energyS,i_fpga));
+							  location,energyS,
+							  i_fpga));
 	      }
 	    }
 	    break;
@@ -679,7 +707,8 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	      const int location = (word >> 13) & 0x3;
 	      const int energy   = (word & 0xFF);	      
 	      if (energy)
-		topoKeys[TAU_TOB].insert(std::make_tuple(crate,cpm,chip,location,
+		topoKeys[TAU_TOB].insert(std::make_tuple(crate,cpm,chip,
+							 location,
 							 energy,i_fpga));
 	    }
 	    break;
@@ -696,7 +725,8 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	      const int energy   = (word & 0xFF);
 	      if (energy)
 		topoKeys[EM_TOB].insert(std::make_tuple(crate,cpm,chip,
-							location,energy,i_fpga));
+							location,energy,
+							i_fpga));
 	    }
 	    break;
 	  }
@@ -748,11 +778,13 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     if (! errors.empty()) {
       ATH_MSG_WARNING( "Converter errors reported: " << errors );
       m_h_l1topo_1d_Errors->Fill(ROI_CONV);
+      topo_error|=(1<<ROI_CONV);
     }
     const std::vector<uint32_t> cDataWords = rdo.getDataWords();
     if ( cDataWords.size() == 0 ) {
       ATH_MSG_DEBUG ( "L1TopoRDO ROI is empty" );
       m_h_l1topo_1d_Errors->Fill(NO_ROI);
+      topo_error|=(1<<NO_ROI);
     }
     for (auto word : cDataWords) {
       switch (L1Topo::blockType(word)) {
@@ -763,8 +795,10 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
         roiTobs.push_back(tob);
         //auto index = L1Topo::triggerBitIndex(rdo.getSourceID(),tob);
         for (unsigned int i = 0; i < 8; ++i) {
-          //m_histTriggerBitsFromROIConv->Fill (index+i,(tob.trigger_bits() >>i)&1);
-          //m_histOverflowBitsFromROIConv->Fill(index+i,(tob.overflow_bits()>>i)&1);
+          //m_histTriggerBitsFromROIConv->
+	  // Fill(index+i,(tob.trigger_bits() >>i)&1);
+          //m_histOverflowBitsFromROIConv->
+	  // Fill(index+i,(tob.overflow_bits()>>i)&1);
         }
         // histogram trigger and overflow bits
         break;
@@ -779,7 +813,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     }
   }
   m_h_l1topo_1d_ROITobs->Fill(std::min((int)roiTobs.size(),19));
-  
+
   for (unsigned int i=1; i<=128;++i) {
     float diff=fabs(m_h_l1topo_1d_DAQTriggerBits->GetBinContent(i)-
 		    m_h_l1topo_1d_Simulation->GetBinContent(i));
@@ -792,19 +826,24 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     set_symmetric_difference(cmxKeys[t].begin(),cmxKeys[t].end(),
 			     topoKeys[t].begin(),topoKeys[t].end(),
 			     inserter(keyDiff[t],keyDiff[t].begin()));
-    if (keyDiff[t].size()>0) m_h_l1topo_1d_Errors->Fill(CMX_MATCH);
+    if (keyDiff[t].size()>0) {
+      m_h_l1topo_1d_Errors->Fill(CMX_MATCH);
+      topo_error|=(1<<CMX_MATCH);
+    }
     for (auto& tob : keyDiff[t]) {
       int x,y;
       double eta,phi;
       if (t==JETS_TOB || t==JETL_TOB) {
-	jem2Coord(std::get<0>(tob),std::get<1>(tob),std::get<2>(tob),std::get<3>(tob),
-		  x,y,eta,phi);
-	m_histTool->fillJEMRoIEtaVsPhi(m_h_l1topo_2d_Tobs_etaPhi_mismatch[t],eta,phi);
+	jem2Coord(std::get<0>(tob),std::get<1>(tob),std::get<2>(tob),
+		  std::get<3>(tob),x,y,eta,phi);
+	m_histTool->fillJEMRoIEtaVsPhi(m_h_l1topo_2d_Tobs_etaPhi_mismatch[t],
+				       eta,phi);
       }
       else {
-	cpm2Coord(std::get<0>(tob),std::get<1>(tob),std::get<2>(tob),std::get<3>(tob),
-		  x,y,eta,phi);
-	m_histTool->fillCPMRoIEtaVsPhi(m_h_l1topo_2d_Tobs_etaPhi_mismatch[t],eta,phi);
+	cpm2Coord(std::get<0>(tob),std::get<1>(tob),std::get<2>(tob),
+		  std::get<3>(tob),x,y,eta,phi);
+	m_histTool->fillCPMRoIEtaVsPhi(m_h_l1topo_2d_Tobs_etaPhi_mismatch[t],
+				       eta,phi);
       }
       m_h_l1topo_2d_Tobs_Hitmap_mismatch[t]->Fill(x,y);
     }
@@ -815,19 +854,25 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       int x,y;
       double eta,phi;
       if (t==JETS_TOB || t==JETL_TOB) {
-	jem2Coord(std::get<0>(tob),std::get<1>(tob),std::get<2>(tob),std::get<3>(tob),
-		  x,y,eta,phi);
-	m_histTool->fillJEMRoIEtaVsPhi(m_h_l1topo_2d_Tobs_etaPhi_match[t],eta,phi);
+	jem2Coord(std::get<0>(tob),std::get<1>(tob),
+		  std::get<2>(tob),std::get<3>(tob),x,y,eta,phi);
+	m_histTool->fillJEMRoIEtaVsPhi(m_h_l1topo_2d_Tobs_etaPhi_match[t],
+				       eta,phi);
       }
       else {
-	cpm2Coord(std::get<0>(tob),std::get<1>(tob),std::get<2>(tob),std::get<3>(tob),
-		  x,y,eta,phi);
-	m_histTool->fillCPMRoIEtaVsPhi(m_h_l1topo_2d_Tobs_etaPhi_match[t],eta,phi);
+	cpm2Coord(std::get<0>(tob),std::get<1>(tob),std::get<2>(tob),
+		  std::get<3>(tob),x,y,eta,phi);
+	m_histTool->fillCPMRoIEtaVsPhi(m_h_l1topo_2d_Tobs_etaPhi_match[t],eta,
+				       phi);
       }
       m_h_l1topo_2d_Tobs_Hitmap_match[t]->Fill(x,y);
     }
   }
 
+  if (topo_error) {
+    m_h_l1topo_1d_ErrorsByLumiblock->Fill(m_lumiNo);
+  }
+  
   return StatusCode::SUCCESS;
 }
 

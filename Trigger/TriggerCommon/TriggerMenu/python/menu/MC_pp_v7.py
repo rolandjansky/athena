@@ -20,20 +20,7 @@ def setupMenu():
     PhysicsStream="Main"
 
     ### Remove HLT items that have a remapped L1 threshold and therefore not available in MC
-    L1toRemove = [
-        'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
-        'L1_EM3_ALFA_EINE',
-        'L1_2EM3_ALFA_EINE',
-        'L1_MBTS_ALFA',
-        'L1_ALFA_Jet_Phys',
-        'L1_ALFA_Diff_Phys',
-        'L1_ALFA_CDiff_Phys',
-        'L1_ALFA_CEP',
-        'L1_TRT_ALFA_EINE',
-        'L1_TRT_ALFA_ANY',
-        'L1_TRT_ALFA_ANY_UNPAIRED_ISO',
-        'L1_TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO',
-    ]
+    L1toRemove = []
 
     for prop in dir(TriggerFlags):
         if prop[-5:]!='Slice': continue
@@ -812,6 +799,7 @@ def setupMenu():
 # L1XE50
         ['xe110_pufit_xe60_L1XE50', 'L1_XE50', ['L1_XE50','L1_XE50'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x60_L1XE50'] ]],
 
+
 # L1XE55
         ['xe110_pufit_xe60_L1XE55', 'L1_XE55', ['L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x60_L1XE55'] ]],
 
@@ -1029,7 +1017,7 @@ def setupMenu():
         ['tau35_dikaon_tracktwo_L1TAU12',            'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_dikaontight_tracktwo',                    'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_dikaontight_tracktwo_L1TAU12',            'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-
+	  
         # Ditau Items
         ['tau35_perf_ptonly_tau25_perf_ptonly_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_perf_ptonly","tau25_perf_ptonly"]]],
 
@@ -1251,9 +1239,6 @@ def setupMenu():
 
         ['e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE', 'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE', ['L1_EM15'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e5_etcut_L1W-05RO-XEHT-0',            'L1_W-05RO-XEHT-0',           ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e5_etcut_L1W-90RO2-XEHT-0',           'L1_W-90RO2-XEHT-0',          ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e5_etcut_L1W-250RO2-XEHT-0',          'L1_W-250RO2-XEHT-0',         ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e5_etcut_L1W-HT20-JJ15.ETA49',        'L1_W-HT20-JJ15.ETA49',       ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e13_etcut_L1EM12_W-MT25',             'L1_EM12_W-MT25',             ['L1_EM12'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e18_etcut_L1EM15_W-MT35',             'L1_EM15_W-MT35',             ['L1_EM15'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e18_etcut_trkcut', 'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE', ['L1_EM15'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -1355,10 +1340,7 @@ def setupMenu():
 
         # B->eeK* final state, while it is chain for Bphys program, for a technical reason it resides here.  ATR-17507
         ['e9_etcut_e5_etcut',                              'L1_EM7_2EM3',       ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_etcut_bBeexM2700_L1EM7',                      'L1_EM7',            [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
-        ['e9_etcut_e5_etcut_bBeexM2700_L1BPH-0M9-EM7-EM5',  'L1_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 
-        ['e9_etcut_bBeexM2700_L1BPH-0DR3-EM7J15',   'L1_BPH-0DR3-EM7J15',    ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 
         # test SuperCluster chains. Implementatino discussed in ATR-17176
         ['g140_loose_sc_L1EM24VHI',        'L1_EM24VHI', [], [PhysicsStream, 'express'], ['RATE:SinglePhoton','BW:Egamma'],-1],
@@ -1548,15 +1530,11 @@ def setupMenu():
 
 
         ['e9_etcut_e5_etcut_bBeexM6000_mu6_nomucomb_L1BPH-0M9-EM7-EM5_MU6',  'L1_BPH-0M9-EM7-EM5_MU6',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
-        ['e9_etcut_e5_etcut_bBeexM2700_mu6_nomucomb_L1BPH-0M9-EM7-EM5_MU6',  'L1_BPH-0M9-EM7-EM5_MU6',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
 
-        ['e9_etcut_bBeexM2700_mu6_nomucomb_L1BPH-0DR3-EM7J15_MU6',   'L1_BPH-0DR3-EM7J15_MU6',    ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
         ['e9_etcut_bBeexM6000_mu6_nomucomb_L1BPH-0DR3-EM7J15_MU6',   'L1_BPH-0DR3-EM7J15_MU6',   ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
 
         ['e9_etcut_e5_etcut_bBeexM6000_2mu4_nomucomb_L1BPH-0M9-EM7-EM5_2MU4',  'L1_BPH-0M9-EM7-EM5_2MU4',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
-        ['e9_etcut_e5_etcut_bBeexM2700_2mu4_nomucomb_L1BPH-0M9-EM7-EM5_2MU4',  'L1_BPH-0M9-EM7-EM5_2MU4',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
 
-        ['e9_etcut_bBeexM2700_2mu4_nomucomb_L1BPH-0DR3-EM7J15_2MU4',   'L1_BPH-0DR3-EM7J15_2MU4',    ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
         ['e9_etcut_bBeexM6000_2mu4_nomucomb_L1BPH-0DR3-EM7J15_2MU4',   'L1_BPH-0DR3-EM7J15_2MU4',   ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
 
         ['j20_xe100_mht_L1XE50', 'L1_XE50', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j20','xe100_mht_L1XE50']]],
@@ -1769,8 +1747,6 @@ def setupMenu():
         # ATR-14643
         ['g25_medium_tau25_dikaonmasstight_tracktwo_60mVis10000','L1_EM22VHI', ['L1_EM22VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium','tau25_dikaonmasstight_tracktwo'],False]],
         ['g25_medium_L1EM24VHI_tau25_dikaonmasstight_tracktwo_60mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHI','tau25_dikaonmasstight_tracktwo'],False] ],
-
-
         
         # VBF triggers
         ['g25_loose_2j40_0eta490_3j25_0eta490_invm700', 'L1_EM22VHI', ['L1_EM22VHI','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g25_loose","2j40_0eta490","3j25_0eta490_invm700"]]],
@@ -2466,6 +2442,11 @@ ps_calibmon_list=[
     'lumipeb_vdm_L1RD0_BGRP9',
     'lumipeb_vdm_L1RD0_FILLED',
     'lumipeb_vdm_L1RD0_UNPAIRED_ISO',
+    'lumipeb_vdm_L1RD2_BGRP12',
+    'lumipeb_vdm_L1RD0_BGRP10',
+    'lumipeb_vdm_L1MBTS_1_LUCID_BGRP9',
+    'larpebcalib_L1RD0_BGRP11',
+    'larpebcalib_L1RD0_EMPTY',
     'mu0_muoncalib',
     'mu0_muoncalib_L1MU4_EMPTY',
     'noalg_bkg_L1Bkg',
@@ -2572,10 +2553,9 @@ ps_minb_list=[
     'mb_perf_L1RD1_FILLED',
     'mb_sptrk_vetombts2in_L1ZDC_AND',
     'mb_sptrk_vetombts2in_L1ZDC_A_C',
-    '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS',
-    '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST',
-    'mb_sptrk_vetombts2in_L1ALFA_ANY',
-    'mb_sptrk_vetombts2in_L1ALFA_ANY_UNPAIRED_ISO',
+    'mb_sp_vetospmbts2in_L1AFP_A_OR_C',
+    'mb_sp_vetospmbts2in_L1AFP_A_AND_C',
+    'mb_sp_vetosp_L1AFP_A_AND_C',
     'mb_sp600_pusup300_trk40_hmt_L1TE5',
     'mb_sp700_pusup350_trk50_hmt_L1TE5',
     'mb_sp900_pusup400_trk50_hmt_L1TE5',
@@ -3032,6 +3012,8 @@ ps_minb_list=[
     'mb_sp_L1RD0_UNPAIRED_ISO',
     'mb_sp_ncb_L1RD0_UNPAIRED_ISO',
     'mb_sp_blayer_L1RD0_UNPAIRED_ISO',
+    'mb_sp_ncb_L1RD0_UNPAIRED',
+    'mb_sp_blayer_L1RD0_UNPAIRED',
     'mb_sp_L1RD0_FILLED',
     'mb_sptrk_L1RD3_FILLED',
     'mb_sptrk_noisesup',
@@ -3069,6 +3051,14 @@ ps_minb_list=[
 ##     'mb_sptrk_L1VTE5',
 ##     'mb_sptrk_L1VTE10',
 #    'mb_sptrk_L1MBTS_1',
+     'mb_sptrk_pt2_L1AFP_A_OR_C',
+     'mb_sptrk_pt4_L1AFP_A_OR_C',
+     'mb_sptrk_pt6_L1AFP_A_OR_C',
+     'mb_sptrk_pt8_L1AFP_A_OR_C',
+     'mb_sptrk_pt2_L1AFP_A_AND_C',
+     'mb_sptrk_pt4_L1AFP_A_AND_C',
+     'mb_sptrk_pt6_L1AFP_A_AND_C',
+     'mb_sptrk_pt8_L1AFP_A_AND_C',
     
     'noalg_mb_L1LUCID',
     'noalg_mb_L1LUCID_EMPTY',
@@ -3127,6 +3117,7 @@ ps_rerun_list = [
     'xe0noL1_l2fsperf_pufit',
     'xe0noL1_l2fsperf_tc_em',
     'xe0noL1_l2fsperf_tc_lcw',
+    'xe0noL1_pufittrack_lcw_nojcalib_xe100_pufit_xe65',
 
     ]
 
@@ -3422,6 +3413,10 @@ if TriggerFlags.doFTK():
         'beamspot_trkFS_FTK',
         'beamspot_trkFS_FTKRefit', 
         'beamspot_idperf_FTKRefit',
+        'beamspot_idperf_FTK_L14J20_FTK',
+        'beamspot_trkFS_FTK_L14J20_FTK',
+        'beamspot_trkFS_FTKRefit_L14J20_FTK',
+        'beamspot_idperf_FTKRefit_L14J20_FTK',
         'mu6_idperf_FTK',
         'mu24_idperf_FTK',
         'mu6_idperf_FTKRefit',
@@ -3786,9 +3781,6 @@ ps_streamers_list = [
      'noalg_l1topo_L1TAU30',
      'noalg_l1topo_L1TAU40',
      'noalg_l1topo_L1W-05RO-XEHT-0',
-     'noalg_l1topo_L1W-250RO2-XEHT-0',
-     'noalg_l1topo_L1W-90RO2-XEHT-0',
-     'noalg_l1topo_L1W-HT20-JJ15.ETA49',
 #     'noalg_l1topo_L1W-NOMATCH',
      'noalg_l1topo_L1XE35',
      'noalg_l1topo_L1XE45',
@@ -3801,6 +3793,37 @@ ps_streamers_list = [
      'noalg_standby_L13J15',
      'noalg_standby_L14J15',
      'noalg_standby_L1J15',
+     'noalg_L1EM3_EMPTY',
+     'noalg_L1MU6_EMPTY',
+     'noalg_L1TAU8_EMPTY',
+     'noalg_L1J12_EMPTY',
+     'noalg_larcells_L1LAR-ZEE_LAR-EM',
+     'noalg_larcells_L1LAR-ZEE',
+     'noalg_l1topo_L1LFV-MU11',
+     'noalg_l1topo_L1LAR-ZEE',
+     'noalg_l1topo_L1LAR-ZEE_LAR-EM',
+     'noalg_l1topo_L130M-EM20ITAU12',
+     'noalg_l1topo_L1TAU60_DR-TAU20ITAU12I',
+     'noalg_l1topo_L1LLP-RO',
+     'noalg_l1topo_L1MJJ-400-CF',
+     'noalg_l1topo_L1SC111-CJ15',
+     'noalg_l1topo_L1SC85-CJ15',
+     'noalg_l1topo_L1LATE-MU10_J50',
+     'noalg_l1topo_L1LATE-MU10_XE40',
+     'noalg_l1topo_L1MJJ-500-NFF',
+     'noalg_l1topo_L1J50_DETA20-J50J',
+     'noalg_l1topo_L1BPH-0M9-EM7-EM5',
+     'noalg_l1topo_L1BPH-0DR3-EM7J15',
+     'noalg_l1topo_L1DPHI-2EM3',
+     'noalg_L1AFP_NSA',
+     'noalg_L1AFP_NSC',
+     'noalg_L1AFP_FSA_SIT',
+     'noalg_L1AFP_FSC_SIT',
+     'noalg_L1LFV-MU11',
+     'noalg_L1EM22VH',
+     'noalg_L1EM24VHI',
+     'noalg_L12EM20VH',
+     'noalg_L1TAU100',
 ]
 
 #-----------------------------------------------------
@@ -3840,7 +3863,7 @@ Prescales.HLTPrescales_loose_mc_prescale.update(dict(map(None,chain_list,len(cha
 ######################################################
 
 ######################################################
-# TIGHT mc prescales for performance
+# TIGHTPERF mc prescales for performance
 ######################################################
 Prescales.L1Prescales_tightperf_mc_prescale= deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tightperf_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
@@ -3850,7 +3873,8 @@ if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
 
 Prescales.HLTPrescales_tightperf_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
-
+Prescales.L1Prescales_CPSampleProd_mc_prescale= deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_CPSampleProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
 ######################################################
 # TIGHT mc prescales
 ######################################################
@@ -3861,6 +3885,8 @@ chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # e
 #Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
 #chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_ftk_list+ps_perform_list
 Prescales.HLTPrescales_tight_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
+Prescales.L1Prescales_BulkMCProd_mc_prescale  = deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_BulkMCProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tight_mc_prescale)
 ######################################################
 
 ######################################################
