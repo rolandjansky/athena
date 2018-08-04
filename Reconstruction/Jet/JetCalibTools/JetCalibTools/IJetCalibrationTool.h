@@ -24,15 +24,13 @@
 
 //Package includes
 #include "JetCalibTools/JetEventInfo.h"
+#include "JetCalibTools/JetCalibUtils.h"
 
 class IJetCalibrationTool : virtual public asg::IAsgTool {
 
   ASG_TOOL_INTERFACE( IJetCalibrationTool )
 
 public:
-
-  // A convenient typedef
-  typedef std::vector<double> VecD;
 
   /// Initialize the tool.
   virtual StatusCode initializeTool(const std::string& name) = 0;

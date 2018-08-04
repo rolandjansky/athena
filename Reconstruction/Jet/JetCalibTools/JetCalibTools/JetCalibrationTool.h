@@ -48,9 +48,6 @@ public:
   /// Constructor with parameters: 
   JetCalibrationTool(const std::string& name = "JetCalibrationTool");
 
-  // A convenient typedef
-  typedef std::vector<double> VecD;
-
   /// Destructor: 
   virtual ~JetCalibrationTool(); 
 

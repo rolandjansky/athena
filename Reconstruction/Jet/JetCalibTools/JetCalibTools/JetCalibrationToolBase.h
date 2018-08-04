@@ -30,7 +30,6 @@
 
 //Package includes
 #include "JetCalibTools/IJetCalibrationTool.h"
-#include "JetCalibTools/JetCalibUtils.h"
 
 class JetCalibrationToolBase
   : public asg::AsgTool,
@@ -47,9 +46,6 @@ class JetCalibrationToolBase
   /////////////////////////////////////////////////////////////////// 
  public:
   friend class JetCalibrationTool;
-
-  // A convenient typedef
-  typedef std::vector<double> VecD;
 
   // Default constructor: 
   JetCalibrationToolBase();
