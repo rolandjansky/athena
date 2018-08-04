@@ -55,7 +55,7 @@ def defineMenu():
 		
 		#TODO TAU trigger behaving like EM items, lowere thresholds
         # 16 x TAU
-        'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 'HA60', 'HA100', 
+        'HA2', 'HA3','HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 
 
         #----------------------
         # SLOT 8 / CON 0 (JET1)
@@ -82,7 +82,7 @@ def defineMenu():
         'J40', 'J50', 'J75', 'J85', 'J100', 'J175',
 
         # 6 x FJ              
-        'J10.31ETA49', 'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J75.31ETA49', 'J100.31ETA49',
+        'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', 'J100.31ETA49',
 
         #---------------------
         # SLOT 8 / CON 2 (EN1)
@@ -399,7 +399,8 @@ def defineMenu():
                        #'L1_JE300',
                        #'L1_JE500',
                        # forward jets
-                       'L1_J10.31ETA49',
+                       'L1_J15.31ETA49',
+                       'L1_J20.31ETA49',
                        #'L1_FJ30',
                        #'L1_FJ55' ,
                        #'L1_FJ95',
@@ -569,7 +570,7 @@ def defineMenu():
                        'L1_J30_EMPTY', 'L1_J30_UNPAIRED', 'L1_J30_FIRSTEMPTY',
                        #FJ  UNPAIRED-EMPTY-ETC
                        #'L1_FJ10_UNPAIRED_ISO', 'L1_FJ10_FIRSTEMPTY',
-                       'L1_J10.31ETA49_EMPTY',
+                       #'L1_J10.31ETA49_EMPTY',
                        #ZDC
                        'L1_ZDC_EMPTY',
                        'L1_ZDC_UNPAIRED_ISO',
@@ -643,6 +644,8 @@ def defineMenu():
                        #### NO-MU10 'L1_MU10_TAU12_J25_2J12',
                        #### NO-MU10 'L1_MU10_TAU20',
                        #### NO-MU10 'L1_MU10_TAU20IM',
+                       'L1_TAU2',
+                       'L1_TAU3',
                        'L1_TAU12',
                        'L1_TAU12IL',
                        'L1_TAU12IM',
@@ -664,8 +667,14 @@ def defineMenu():
                        'L1_TAU25IT_2TAU12IT_2J25_3J12',
                        'L1_TAU30',
                        'L1_TAU40',
-                       'L1_TAU60',
+                       #'L1_TAU60',
                        #'L1_TAU8',
+                       'L1_2TAU2_VTE50',
+                       'L1_2TAU3_VTE50',
+                       'L1_2TAU2_VTE100',
+                       'L1_2TAU3_VTE100',
+                       'L1_2TAU2_VTE200',
+                       'L1_2TAU3_VTE200',
                        'L1_EM20VH_FIRSTEMPTY',
                        'L1_EM20VHI',
                        'L1_EM7_EMPTY',
@@ -702,7 +711,7 @@ def defineMenu():
         'L1_2MU4_EMPTY' : 6,
         'L1_RD0_UNPAIRED_NONISO' : 7,
         'L1_BCM_AC_CA_UNPAIRED_NONISO': 8,
-        'L1_FJ10_UNPAIRED_NONISO' :  9,
+        #'L1_FJ10_UNPAIRED_NONISO' :  9,
         'L1_2EM10' : 10,
         #'L1_2EM5' : 11,
         #'L1_MU0_VTE20' : 12,
@@ -749,8 +758,9 @@ def defineMenu():
         'L1_MBTSC15' : 61,
         'L1_RD0_EMPTY' : 62,
         'L1_RD1_FILLED' : 63,            
-        #'L1_TAU3' : 64,
+        'L1_TAU2' : 64,
         'L1_MBTSC3' : 65,
+        'L1_TAU3' : 66,
         'L1_MU4_FIRSTEMPTY' : 67,
         'L1_MU6_FIRSTEMPTY' : 68,
         #'L1_2MU0_EMPTY' : 69,
@@ -801,7 +811,7 @@ def defineMenu():
 
         'L1_MBTSA0' : 120,
         'L1_MBTSA1' : 122,
-        'L1_FJ0' : 123,
+        #'L1_FJ0' : 123,
         'L1_2MU6_UNPAIRED_ISO' : 124,
         'L1_2MU6_UNPAIRED_NONISO' : 125,
         'L1_BCM_Wide_UNPAIRED_NONISO' : 126,
@@ -839,6 +849,9 @@ def defineMenu():
         'L1_MBTSA7' : 156,
         'L1_NIM_S8C2B23'            : 157,#DIRNIM
         
+        'L1_J15.31ETA49' : 158,
+        'L1_J20.31ETA49' : 159,
+        
         #'L1_MU0_UNPAIRED_NONISO' : 159,
         #'L1_MU0_UNPAIRED_ISO' : 160,
         'L1_MBTSA8' : 161,
@@ -853,12 +866,12 @@ def defineMenu():
         'L1_J30_EMPTY' : 172,
         'L1_MBTSA12' : 173,
         'L1_MBTSA13' : 174,
-        'L1_FJ0_EMPTY' : 175,
+        #'L1_FJ0_EMPTY' : 175,
         'L1_MBTSA14' : 176,
         #'L1_EM3_EMPTY' : 177,
         'L1_MBTSA15' : 178,
-        'L1_FJ0_UNPAIRED_ISO' : 180,
-        'L1_FJ5_UNPAIRED_ISO' : 181,
+        #'L1_FJ0_UNPAIRED_ISO' : 180,
+        #'L1_FJ5_UNPAIRED_ISO' : 181,
         'L1_ZDC_UNPAIRED_ISO' : 182,
         'L1_ZDC_UNPAIRED_NONISO' : 183,
         #'L1_J12_EMPTY' : 184,
@@ -875,12 +888,12 @@ def defineMenu():
         
         'L1_ZDC_A_C_EMPTY' : 196,
         'L1_ZDC_EMPTY' : 197,
-        'L1_FJ5' : 198,
-        'L1_FJ10' : 199,
+        #'L1_FJ5' : 198,
+        #'L1_FJ10' : 199,
         'L1_MBTS_1_UNPAIRED_ISO':    200,
         'L1_MBTS_1_UNPAIRED_NONISO':    201,        
         'L1_MBTS_1_1_UNPAIRED_ISO':  202,
-        'L1_FJ15':  203,        
+        #'L1_FJ15':  203,        
         'L1_MBTS_2_UNPAIRED_ISO':    204,
         'L1_MBTS_2_UNPAIRED_NONISO':    205,
         'L1_LUCID_A_C_UNPAIRED_NONISO':  206,
@@ -893,8 +906,8 @@ def defineMenu():
         'L1_LUCID_A_C' : 214,
         'L1_LUCID' : 215,
         
-        'L1_FJ5_EMPTY' : 218,
-        'L1_FJ0_C' : 219,
+        #'L1_FJ5_EMPTY' : 218,
+        #'L1_FJ0_C' : 219,
         
         'L1_MBTS_2' : 222,
         'L1_MBTS_2_2' : 223,
@@ -913,7 +926,7 @@ def defineMenu():
         'L1_LUCID_A_EMPTY' : 236,
         'L1_LUCID_C_EMPTY' : 237,
         'L1_LUCID_A_C_EMPTY' : 238,
-        'L1_FJ0_A' : 239,
+        #'L1_FJ0_A' : 239,
         'L1_MBTS_1_1_BGRP11' : 240,
         'L1_BPTX0_BGRP0' : 241,
         'L1_BPTX1_BGRP0' : 242,
@@ -976,7 +989,7 @@ def defineMenu():
         'L1_TAU25IT_2TAU12IT_2J25_3J12': 296,
         'L1_TAU30': 297,
         'L1_TAU40': 298,
-        'L1_TAU60': 299,
+        #'L1_TAU60': 299,
         'L1_EM20VH_FIRSTEMPTY': 300,
         'L1_EM20VHI': 301,
         'L1_EM7_EMPTY': 302,
@@ -1035,6 +1048,13 @@ def defineMenu():
 	'L1_EM8':      344,
 	'L1_2EM7':      345,
         'L1_CALREQ2' : 511,
+      
+    'L1_2TAU2_VTE50' : 351,
+    'L1_2TAU3_VTE50' : 352,
+    'L1_2TAU2_VTE100' : 353,
+    'L1_2TAU3_VTE100' : 354,
+    'L1_2TAU2_VTE200' : 355,
+    'L1_2TAU3_VTE200' : 356,    
 	
 
     'L1_ZDC_XOR_TE20_VTE200' : 481,
