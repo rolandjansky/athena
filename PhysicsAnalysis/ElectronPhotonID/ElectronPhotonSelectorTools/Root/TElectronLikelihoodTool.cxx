@@ -82,11 +82,11 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
     for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
       for (unsigned int ip = 0; ip < s_IP_BINS; ip++){
-	for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
-	  for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
-	    fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
-	  }
-	}
+        for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
+          for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
+            m_fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
+          }
+        }
       }
     }
   }
@@ -103,14 +103,14 @@ Root::TElectronLikelihoodTool::~TElectronLikelihoodTool()
   for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
     for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
       for (unsigned int ip = 0; ip < s_IP_BINS; ip++){
-	for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
-	  for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
-	    if (fPDFbins[s_or_b][ip][et][eta][varIndex]){
-	      delete fPDFbins[s_or_b][ip][et][eta][varIndex];
-	      fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
-	    }
-	  }
-	}
+        for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
+          for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
+            if (m_fPDFbins[s_or_b][ip][et][eta][varIndex]){
+              delete m_fPDFbins[s_or_b][ip][et][eta][varIndex];
+              m_fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
+            }
+          }
+        }
       }
     }
   }
@@ -374,7 +374,7 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	  }
 	  if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
 	    TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
-	    fPDFbins[s_or_b][ip][et][eta][varIndex] = new TElectronLikelihoodTool::SafeTH1(hist);
+	    m_fPDFbins[s_or_b][ip][et][eta][varIndex] = new EGSelectors::SafeTH1(hist);
 	    delete hist;
 	  }
 	  else {
@@ -715,20 +715,20 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
     }
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {
       
-      int bin = fPDFbins[s_or_b][ipbin][etbin][etabin][var]->FindBin(varVector[var]);
+      int bin = m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->FindBin(varVector[var]);
 
       double prob = 0;
       if (doSmoothBinInterpolation) {
 	prob = InterpolatePdfs(s_or_b,ipbin,et,eta,bin,var);
       } 
       else {
-	double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
+	double integral = double(m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
 	if (integral == 0) {
 	  ATH_MSG_WARNING("Error! PDF integral == 0!");
 	  return -1.35;
 	}
         
-	prob = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
+	prob = double(m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
       }
 
       if   (s_or_b == 0) SigmaS *= prob;
@@ -980,9 +980,9 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
   // scheme between cuts - so be careful!
   int etbin = getLikelihoodEtHistBin(et); // hist binning
   int etabin = getLikelihoodEtaBin(eta);
-  double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
-  double prob = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
-  int Nbins      = fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetNbinsX();
+  double integral = double(m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
+  double prob = double(m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
+  int Nbins      = m_fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetNbinsX();
   if (et > 42500.) return prob; // interpolation stops here.
   if (et < 6000.) return prob; // interpolation stops here.
   if (22500. < et && et < 27500.) return prob; // region of non-interpolation for pdfs
@@ -999,7 +999,7 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
     double prob_next = prob;
     if (etbin+1<=6) {
       // account for potential histogram bin inequalities
-      int NbinsPlus  = fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->GetNbinsX();
+      int NbinsPlus  = m_fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->GetNbinsX();
       int binplus = bin;
       if (Nbins < NbinsPlus){
 	binplus = int(round(bin*(Nbins/NbinsPlus)));
@@ -1008,8 +1008,8 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
 	binplus = int(round(bin*(NbinsPlus/Nbins)));
       }
       // do interpolation
-      double integral_next = double(fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->Integral());
-      prob_next = double(fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->GetBinContent(binplus)) / integral_next;
+      double integral_next = double(m_fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->Integral());
+      prob_next = double(m_fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->GetBinContent(binplus)) / integral_next;
       return prob+(prob_next-prob)*(et-bin_center)/(bin_width);
     }
   }
@@ -1017,7 +1017,7 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
   double prob_before = prob;
   if (etbin-1>=0) {
     // account for potential histogram bin inequalities
-    int NbinsMinus = fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->GetNbinsX();
+    int NbinsMinus = m_fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->GetNbinsX();
     int binminus = bin;
     if (Nbins < NbinsMinus){
       binminus = int(round(bin*(Nbins/NbinsMinus)));
@@ -1025,62 +1025,10 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
     else if (Nbins > NbinsMinus){
       binminus = int(round(bin*(NbinsMinus/Nbins)));
     }
-    double integral_before = double(fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->Integral());
-    prob_before = double(fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->GetBinContent(binminus)) / integral_before;
+    double integral_before = double(m_fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->Integral());
+    prob_before = double(m_fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->GetBinContent(binminus)) / integral_before;
   }
   return prob-(prob-prob_before)*(bin_center-et)/(bin_width);
 }
 
-/*
- * SafeTH1 class, to allow us to immediately free the ROOT TH1 memory
- */
-Root::TElectronLikelihoodTool::SafeTH1::SafeTH1(TH1F* roothist){
-  const int nbins = roothist->GetNbinsX();
-  m_binContent.resize(nbins,0); // Note that the PDF over/underflows are unused and thus unrepresented here!
-  for(int i = 0; i < nbins; ++i){
-    m_binContent[i] = roothist->GetBinContent(i+1);
-  }
-  m_firstBinLowEdge = roothist->GetBinLowEdge(1);
-  m_lastBinLowEdge  = roothist->GetBinLowEdge(nbins);
-  m_binWidth        = (m_lastBinLowEdge - m_firstBinLowEdge) / (GetNbinsX() - 1);
-  m_integral        = roothist->Integral(1,nbins);
-}
 
-Root::TElectronLikelihoodTool::SafeTH1::~SafeTH1(){}
-
-int Root::TElectronLikelihoodTool::SafeTH1::GetNbinsX()const {
-  int n = m_binContent.size();
-  return n;
-}
-
-int Root::TElectronLikelihoodTool::SafeTH1::FindBin(double value) const {
-
-  if(value < m_firstBinLowEdge){
-    return 0; // first bin of m_binContent
-  }
-  if(value > m_lastBinLowEdge){
-    return GetNbinsX() - 1; // last bin of m_binContent
-  }
-
-  // note double rather than float due to incorrect rounding in O(1/10000) cases if float is used
-  double bin_double = (value - m_firstBinLowEdge) / m_binWidth; 
-  int bin = static_cast<int>(bin_double);
-
-  return bin;
-}
-
-double Root::TElectronLikelihoodTool::SafeTH1::GetBinContent(int bin) const {
-  int nbins = this->GetNbinsX();
-  // since we store the bin content in a vector we need a protection 
-  // for cases where we try to access a non-existing bin. In these 
-  // cases just go to the last bin
-  return (bin>nbins) ? m_binContent[nbins-1] : m_binContent[bin];
-}
-
-double Root::TElectronLikelihoodTool::SafeTH1::GetBinLowEdge(int bin) const{
-  return m_firstBinLowEdge + m_binWidth*bin;
-}
-
-double Root::TElectronLikelihoodTool::SafeTH1::Integral() const{
-  return m_integral;
-}

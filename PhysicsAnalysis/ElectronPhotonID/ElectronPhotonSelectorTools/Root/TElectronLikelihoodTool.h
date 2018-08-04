@@ -95,6 +95,8 @@
 
 #include <string>                       // for string
 #include <vector>                       // for vector
+#include "SafeTH1.h"
+
 class TFile;
 class TH1F;
 namespace Root { class TAccept; }
@@ -151,27 +153,6 @@ namespace Root {
     /// Standard destructor
     ~TElectronLikelihoodTool();
 
-  private:
-    class SafeTH1{
-    public :
-      SafeTH1(TH1F* hist);
-      ~SafeTH1();
-      int GetNbinsX() const ;
-      int FindBin(double) const;
-      double GetBinContent(int) const;
-      double GetBinLowEdge(int) const ;
-      double Integral() const ;
-
-    private:
-      std::vector<float> m_binContent;
-      double m_firstBinLowEdge;
-      double m_lastBinLowEdge;
-      double m_binWidth;
-      double m_integral;
-    };
-
-    // Main methods
-  public:
     /// Initialize this class
     int initialize();
 
@@ -202,13 +183,7 @@ namespace Root {
     /// Add an input file that holds the PDFs
     inline void setPDFFileName ( const std::string& val ) { PdfFileName = val; }
 
-    /// Define the variable names
-    inline void setVariableNames ( const std::string& val ) { 
-      VariableNames = val; 
-      m_variableBitMask = GetLikelihoodBitmask(val);
-    }
-
-    /// Load the variable histograms from the pdf file.
+       /// Load the variable histograms from the pdf file.
     int LoadVarHistograms(std::string vstr, unsigned int varIndex);
 
     /// Set the prefix of the result name
@@ -223,8 +198,9 @@ namespace Root {
     /// Internal methods to calculate the LH discriminant from a set of variables
     double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0) const;
 
-    /// Mask out the variables , out of all possible in , 
-    ///not employed in the current configuration
+    ///Mask out the variables ,out of all possible ones, 
+    ///that are not employed in the current configuration
+    ///as read from the input config file
     unsigned int GetLikelihoodBitmask(std::string vars) const;
     
     ///Interpolation between cut values
@@ -369,7 +345,7 @@ namespace Root {
     static const unsigned int  s_fnVariables      = 13;
     //Allowed variables 
     static const std::string   s_fVariables [s_fnVariables];
-    TElectronLikelihoodTool::SafeTH1* fPDFbins  [2][s_IP_BINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    EGSelectors::SafeTH1* m_fPDFbins  [2][s_IP_BINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
   };
 } // End: namespace Root
 

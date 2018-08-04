@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -22,10 +22,7 @@
 #include "PATCore/TCalculatorToolBase.h"
 #include "PATCore/TSelectorToolBase.h"
 #include "AsgTools/AsgMessaging.h"
-
-namespace{
-  const unsigned int  IP_FBINS=1;
-}
+#include "SafeTH1.h"
 
 namespace LikeEnumForward {
   enum Menu {
@@ -71,28 +68,6 @@ namespace Root {
     /// Standard destructor
     ~TForwardElectronLikelihoodTool();
 
-  private:
-    class SafeTH1{
-    public :
-      SafeTH1(TH1F* hist);
-      ~SafeTH1();
-
-      int GetNbinsX();
-      int FindBin(double);
-      double GetBinContent(int);
-      double GetBinLowEdge(int);
-      double Integral();
-
-    private: 
-      std::vector<float> m_binContent;
-      double m_firstBinLowEdge;
-      double m_lastBinLowEdge;
-      double m_binWidth;
-      double m_integral;
-      char m_string[500];
-    };
-
-    // Main methods
   public:
     /// Initialize this class
     int initialize();
@@ -144,34 +119,29 @@ namespace Root {
    
     // For every input "varVector", make sure elements of vector are
     // in the same order as prescribed in fVariables
-
     /// Internal methods to calculate the LH discriminant from a set of variables
     double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0) const;
-    double EvaluateLikelihood(std::vector<float>  varVector,double et,double eta,double ip=0) const;
 
 
-    // To concoct a bitmask on your own, use the 
-    // variable names prescribed in fVariables.
-    
+    ////Mask out the variables ,out of all possible ones, 
+    ///that are not employed in the current configuration
+    ///as read from the input config file 
     unsigned int GetLikelihoodBitmask(std::string vars) const;
 
-    unsigned int LikelihoodTightBitmask() const {
-      std::string vars = "el_secLambda,el_secondR,el_lateral,el_lonngitudinal,el_centralLamba,el_fracMax,el_significance,el_secondDensity";
-      return GetLikelihoodBitmask(vars);
-    };
-    
-    unsigned int LikelihoodMediumBitmask() const{
-      return LikelihoodTightBitmask();
-    };
-
-    unsigned int LikelihoodLooseBitmask() const{
-      std::string vars = "el_secLambda,el_secondR,el_lateral,el_lonngitudinal,el_centralLamba,el_fracMax,el_significance,el_secondDensity";
-      return GetLikelihoodBitmask(vars);
-    };
     
     double InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const;
     double InterpolatePdfs(unsigned int s_or_b,unsigned int ipbin,double et,double eta,int bin,unsigned int var) const;
-    
+    /// Apply a transform to zoom into the LH output peaks.
+    double TransformLikelihoodOutput(double ps,double pb) const;
+    /// Eta binning for pdfs and discriminant cuts.
+    unsigned int getLikelihoodEtaBin(double eta) const ;
+    /// Et binning for for the likelihood pdfs and discriminants.
+    unsigned int getLikelihoodEtHistBin(double et)const ;
+    //Pile-up binning    
+    unsigned int getIpBin(double ip) const;
+    //get the bin names as is in the input file
+    void getBinName(char* buffer, int etbin,int etabin) const;
+  
   public:
     /** @brief range of eta bins for e-ID*/
     std::vector<float> CutBinEta_ForwardElectron;
@@ -188,23 +158,16 @@ namespace Root {
     /** @brief cut on centerlambda*/
     std::vector<float> CutCENTERLAMBDA_ForwardElectron;
     std::vector<float> CutSECONDDENSITY_ForwardElectron;
-
-    bool useHighETLHBinning;
-    /** @brief use one extra bin for high ET LH*/
-    bool useOneExtraHighETLHBin;
-    /** @brief do pileup-dependent transform on discriminant value*/
-   
     /** @brief do pileup-dependent correction on discriminant value*/
     bool doPileupCorrection;
     /** @brief cut on likelihood output*/
     std::vector<double> CutLikelihood;
     /** @brief pileup correction factor for cut on likelihood output*/
     std::vector<double> CutLikelihoodPileupCorrection;
-    /** @brief pileup correction factor for cut on likelihood output, 4 GeV bin*/
+     /** @brief pileup slope factor for cut on likelihood output*/
     std::vector<double> CutLikelihoodPileupCorrectionA;
+     /** @brief pileup constant factor for cut on likelihood output*/
     std::vector<double> CutLikelihoodPileupCorrectionB;
-
-
     /** @brief variables to use in the LH*/
     std::string VariableNames;
     /** The operating point for the final cuts*/
@@ -212,22 +175,11 @@ namespace Root {
     /** Name of the pdf file*/
     std::string PdfFileName;
 
-    // Private methods
-  private:
-    /// Apply a transform to zoom into the LH output peaks.
-    double TransformLikelihoodOutput(double ps,double pb) const;
-
-    /// Eta binning for pdfs and discriminant cuts.
-    unsigned int getLikelihoodEtaBin(double eta) const ;
-
-    /// Coarse Et binning. Used for the likelihood pdfs.
-    unsigned int getLikelihoodEtHistBin(double et)const ;
-
-    // Private member variables
+     // Private member variables
   private:
 
     /// Pointer to the opened TFile that holds the PDFs
-    TFile*              m_pdfFile;
+    TFile*  m_pdfFile;
 
     /// The prefix string for the result
     std::string m_resultPrefix;
@@ -243,19 +195,17 @@ namespace Root {
     /// The position of the likelihood value bit in the TResult return object
    
     int m_resultPosition_LH;
-    static const double fIpBounds[IP_FBINS+1];
-    static const unsigned int  s_fnEtBinsHist     = 6;  // number of hists stored for nominal LH
+
+    static const unsigned int  s_IP_FBINS=1;
+    static const double s_fIpBounds[s_IP_FBINS+1];
+    static const unsigned int  s_fnEtBinsHist     = 4;  // number of hists stored for nominal LH
     static const unsigned int  s_fnDiscEtBins     = 4;  // number of discs stored for original LH
     static const unsigned int  s_fnEtaBins        = 10;
     static const unsigned int  s_fnVariables      = 8;
-    TForwardElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_FBINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    static const char*  fVariables                      [s_fnVariables]; 
-
-    unsigned int getIpBin(double ip) const;
-    void getBinName(char* buffer, int etbin,int etabin) const;
+    static const char*  s_fVariables  [s_fnVariables]; 
+    EGSelectors::SafeTH1* m_fPDFbins [2][s_IP_FBINS][s_fnEtBinsHist][s_fnEtaBins][s_fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
   };
 
 } // End: namespace Root
 
-//----------------------------------------------------------------------------------------
 #endif
