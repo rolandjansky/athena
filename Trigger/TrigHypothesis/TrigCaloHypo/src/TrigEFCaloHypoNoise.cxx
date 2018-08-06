@@ -39,7 +39,7 @@ class ISvcLocator;
 /////////////////////////////////////////////////////////////////////
 //
 TrigEFCaloHypoNoise::TrigEFCaloHypoNoise(const std::string& name, ISvcLocator* pSvcLocator):
-  HLT::HypoAlgo(name, pSvcLocator), m_isInterface(false), m_noisyROTool("",this) {
+  HLT::HypoAlgo(name, pSvcLocator), m_isInterface(false), m_noisyROTool("",this),m_hasFebs(false) {
 
   declareProperty("Etcut",   m_EtCut = 40*CLHEP::GeV); // Default: 40 GeV
   declareProperty("doMonitoring", m_doMonitoring = false );
@@ -84,6 +84,16 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltInitialize()
 	msg() << MSG::WARNING << "Could not retrieve tool, no noise burst hunting" << endmsg;
 	return HLT::OK;
   }
+
+  StatusCode sc = m_knownBadFEBsVecKey.initialize();
+  if(sc != StatusCode::SUCCESS) {
+     ATH_MSG_WARNING( "Could not find Known Bad FEBs list, assuming empty !!!" );
+  }
+  sc = m_knownMNBFEBsVecKey.initialize() ;
+  if(sc != StatusCode::SUCCESS) {
+     ATH_MSG_WARNING( "Could not find Known MNB FEBs list, assuming empty !!!" );
+  }
+  m_hasFebs=false;
 
   auto cfact = hltinterface::ContainerFactory::getInstance();
   if ( cfact ) {
@@ -139,11 +149,45 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
     return ec;
   }
 
-  
+  if(!m_hasFebs){
+     bool hasBad=false; bool hasMNB=false;
+     SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey);
+     const LArBadFebCont* badCont=*badHdl;
+     if(badCont) {
+       for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+          m_knownBadFEBs.insert(i->first);
+       }
+       if(m_knownBadFEBs.size() == 0) {
+             ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+       }
+       hasBad=true;
+     }
+     ATH_MSG_DEBUG("Number of known Bad FEBs: "<<m_knownBadFEBs.size());
+
+     SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey);
+     const LArBadFebCont* MNBCont=*MNBHdl;
+     if(MNBCont) {
+       for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
+          m_knownMNBFEBs.push_back(HWIdentifier(i->first));
+       }
+       if(m_knownMNBFEBs.size() == 0) {
+             ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
+       }
+       hasMNB=true;
+     }
+     ATH_MSG_DEBUG("Number of known MNB FEBs: "<<m_knownMNBFEBs.size());
+     if(hasBad && hasMNB) {
+        m_hasFebs=true;
+     } else {
+        ATH_MSG_WARNING("No known Bad or MNB Febs list available, will be empty !!");
+     }      
+  }   
+  const std::set<unsigned int> knownBadFEBs(m_knownBadFEBs);
+  const std::vector<HWIdentifier> knownMNBFEBs(m_knownMNBFEBs);
   unsigned int flag = 0;
   if ( outCells ) {
 	if ( msgDebug ) msg() << MSG::DEBUG << "Got cell container, will process it" << endmsg;
-	std::unique_ptr<LArNoisyROSummary> noisyRO = m_noisyROTool->process(outCells);
+	std::unique_ptr<LArNoisyROSummary> noisyRO = m_noisyROTool->process(outCells, &knownBadFEBs, &knownMNBFEBs);
 	if ( msgDebug ) msg() << MSG::DEBUG << "processed it" << endmsg;
         if ( noisyRO->BadFEBFlaggedPartitions() ) {
 	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEBFlaggedPartitions" << endmsg;
