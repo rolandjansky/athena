@@ -341,7 +341,6 @@ StatusCode SiSmearedDigitizationTool::processBunchXing(int bunchXing,
 
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel processBunchXing() ---" );
 
-  m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
     StoreGateSvc& seStore(*iEvt->ptr()->evtStore());

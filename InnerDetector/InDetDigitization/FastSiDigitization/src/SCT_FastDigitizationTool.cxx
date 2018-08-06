@@ -172,7 +172,6 @@ StatusCode SCT_FastDigitizationTool::processBunchXing(int bunchXing,
                                                       SubEventIterator bSubEvents,
                                                       SubEventIterator eSubEvents)
 {
-  m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
   if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
