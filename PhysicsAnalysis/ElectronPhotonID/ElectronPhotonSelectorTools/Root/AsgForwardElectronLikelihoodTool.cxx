@@ -42,10 +42,10 @@ AsgForwardElectronLikelihoodTool::AsgForwardElectronLikelihoodTool(std::string m
 {
 
   // Declare the needed properties
-  declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
-  declareProperty("ConfigFile",m_configFile="","The config file to use");
+  declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point"     );
+  declareProperty("ConfigFile"  ,m_configFile  ="","The config file to use");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
-  declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
+  declareProperty("nPVdefault"    , m_nPVdefault = 0, "The default number of PVs if not counted");
   declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
   //
   // Configurables in the root tool
@@ -54,14 +54,12 @@ AsgForwardElectronLikelihoodTool::AsgForwardElectronLikelihoodTool(std::string m
   declareProperty("inputPDFFileName",  m_pdfFileName="", "The input ROOT file name that holds the PDFs" );
   // the variable names, if non-standard - nope, it's done above!
   declareProperty("VariableNames",m_rootForwardTool->VariableNames,"Variable names input to the LH");
+  
   // The likelihood cut values
   declareProperty("CutLikelihood",m_rootForwardTool->CutLikelihood,"Cut on likelihood discriminant");
-  // The pileup-correction part of the likelihood cut values
-  declareProperty("CutLikelihoodPileupCorrection",m_rootForwardTool->CutLikelihoodPileupCorrection,"Pileup correction for LH discriminant");
- declareProperty("DiscCutForPileupTransform",m_rootForwardTool->CutLikelihoodPileupCorrectionB,"Reference disc used by pileup transform");
- declareProperty("DiscCutSlopeForPileupTransform",m_rootForwardTool->CutLikelihoodPileupCorrectionA,"Reference slope used by pileup transform");
-  
   // do pileup-dependent discriminant cut
+  declareProperty("DiscCutSlopeForPileupTransform",m_rootForwardTool->CutLikelihoodPileupCorrectionA,"Slope correction for pileup dependent discriminant cut");
+  declareProperty("DiscCutForPileupTransform"     ,m_rootForwardTool->CutLikelihoodPileupCorrectionB,"Additional offset for pileup dependent discriminant cut");
   declareProperty("doPileupCorrection",m_rootForwardTool->doPileupCorrection,"Do pileup-dependent discriminant cut");
 
 }
@@ -179,7 +177,7 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
     {
       ATH_MSG_ERROR("Failed, no egamma object.");
       return m_rootForwardTool->cleanTAccept();
-     }
+    }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
@@ -189,7 +187,6 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
     }  
   
   const double energy =  cluster->e();
-  // const float eta = (cluster->etaBE(2)); 
   const float eta = (cluster->eta());
   if ( fabs(eta) > 300.0 )
     {
@@ -198,9 +195,8 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
     }
   
   // transverse energy of the electron (using the track eta) 
-  //  const double et = eg->pt(); 
   double et = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
-    double ip(0);
+  double ip(0);
   
   // Get the number of primary vertices in this event
   if( mu < 0 ){ // use npv if mu is negative (not given)
@@ -209,11 +205,7 @@ const Root::TAccept& AsgForwardElectronLikelihoodTool::accept( const xAOD::Elect
   else {
     ip = mu;
   }
-
-  // if (!allFound) {
-  //   ATH_MSG_WARNING("Have some variables missing.");
-  // }
-
+  
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
@@ -422,5 +414,3 @@ unsigned int AsgForwardElectronLikelihoodTool::getNPrimVertices() const
   }
   return nVtx;
 }
-
-

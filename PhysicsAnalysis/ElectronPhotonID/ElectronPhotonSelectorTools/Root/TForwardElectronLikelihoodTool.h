@@ -5,6 +5,26 @@
 // Dear emacs, this is -*-c++-*-
 //----------------------------------------------------------------------------------------
 
+/** 
+
+    Tool to apply the ID criteria for forward electrons
+
+    The methodology is largely based on the likelihood of central electrons, so please refer to ElectronPhotonSelectorTools/TElectronLikelihoodTool.h for details
+
+    The forward likelihood ID relies on the following list of topo-cluster variables:
+    el_secondLambda : longitudinal second moment
+    el_lateral      : normalised lateral moment
+    el_longitudinal : normalised longitudinal moment
+    el_centerLambda : shower depth
+    el_fracMax      : fraction of cluster energy in the most energetic cell
+    el_secondR      : transverse second moment
+    el_significance : cluster energy divided by cluster noise
+    el_secondDensity: second moment of signal density
+    
+    Major revision when migrating to rel 21 in August 2018
+*/
+
+
 #ifndef TFORWARDELECTRONLIKELIHOODTOOL_H
 #define TFORWARDELECTRONLIKELIHOODTOOL_H
 
@@ -105,87 +125,61 @@ namespace Root {
     inline void setPDFFileName ( const std::string& val ) { PdfFileName = val; }
 
     /// Load the variable histograms from the pdf file.
-    int LoadVarHistograms(std::string vstr, unsigned int varIndex);
-
-
-    /// Set the prefix of the result name
-    inline void setResultPrefix ( const std::string& val ) { m_resultPrefix = val; }
-   
-    /// The string for the result
-    inline void setResultName ( const std::string& val ) { m_resultName = val; }
+    int LoadVarHistograms(TFile* pdfFile, std::string vstr, unsigned int varIndex);
 
     // Private methods
   private:
    
     // For every input "varVector", make sure elements of vector are
     // in the same order as prescribed in fVariables
-    /// Internal methods to calculate the LH discriminant from a set of variables
+    // Internal methods to calculate the LH discriminant from a set of variables
     double EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip=0) const;
 
 
-    ////Mask out the variables ,out of all possible ones, 
-    ///that are not employed in the current configuration
-    ///as read from the input config file 
+    /// Mask out the variables ,out of all possible ones, 
+    /// that are not employed in the current configuration
+    /// as read from the input config file 
     unsigned int GetLikelihoodBitmask(std::string vars) const;
 
-    
-    double InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const;
-    double InterpolatePdfs(unsigned int s_or_b,unsigned int ipbin,double et,double eta,int bin,unsigned int var) const;
+    // PHILIP interpolation is unused    
+    /* double InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const; */
+    /* double InterpolatePdfs(unsigned int s_or_b,unsigned int ipbin,double et,double eta,int bin,unsigned int var) const; */
+
     /// Apply a transform to zoom into the LH output peaks.
     double TransformLikelihoodOutput(double ps,double pb) const;
     /// Eta binning for pdfs and discriminant cuts.
     unsigned int getLikelihoodEtaBin(double eta) const ;
     /// Et binning for for the likelihood pdfs and discriminants.
-    unsigned int getLikelihoodEtHistBin(double et)const ;
+    unsigned int getLikelihoodEtBin (double et )const ;
     //Pile-up binning    
     unsigned int getIpBin(double ip) const;
     //get the bin names as is in the input file
     void getBinName(char* buffer, int etbin,int etabin) const;
   
   public:
-    /** @brief range of eta bins for e-ID*/
-    std::vector<float> CutBinEta_ForwardElectron;
-    /** @brief cut on secondlambda*/
-    std::vector<float> CutSECONDLAMBDA_ForwardElectron;
-    /** @brief cut on lateral*/
-    std::vector<float> CutLATERAL_ForwardElectron;
-    /** @brief cut on longitudinal*/
-    std::vector<float> CutLONGITUDINAL_ForwardElectron;
-    /** @brief cut on maxFrac*/
-    std::vector<float> CutCELLMAXFRAC_ForwardElectron;
-    /** @brief cut values for cut on secondR */
-    std::vector<float> CutSECONDR_ForwardElectron;
-    /** @brief cut on centerlambda*/
-    std::vector<float> CutCENTERLAMBDA_ForwardElectron;
-    std::vector<float> CutSECONDDENSITY_ForwardElectron;
+
     /** @brief do pileup-dependent correction on discriminant value*/
     bool doPileupCorrection;
     /** @brief cut on likelihood output*/
     std::vector<double> CutLikelihood;
-    /** @brief pileup correction factor for cut on likelihood output*/
-    std::vector<double> CutLikelihoodPileupCorrection;
-     /** @brief pileup slope factor for cut on likelihood output*/
+    /** the cut on the PU discriminant is adjusted as a function of nVtx
+	cut + nVtx*cutA + cutB
+	this is different from the procedure for central electrons
+    */
+    /** @brief pileup slope factor for cut on likelihood output*/
     std::vector<double> CutLikelihoodPileupCorrectionA;
      /** @brief pileup constant factor for cut on likelihood output*/
     std::vector<double> CutLikelihoodPileupCorrectionB;
     /** @brief variables to use in the LH*/
     std::string VariableNames;
-    /** The operating point for the final cuts*/
-    LikeEnumForward::Menu OperatingPoint;
     /** Name of the pdf file*/
     std::string PdfFileName;
 
      // Private member variables
   private:
 
-    /// Pointer to the opened TFile that holds the PDFs
-    TFile*  m_pdfFile;
-
-    /// The prefix string for the result
-    std::string m_resultPrefix;
-
-    /// The string for the result
-    std::string m_resultName;
+    /// The bitmask corresponding to the variables in the likelihood. For internal use.
+    unsigned int        m_variableBitMask;
 
     /// The position of the kinematic cuts bit in the TAccept return object, separate for eta/Et
     int m_cutPosition_kinematicEta;
