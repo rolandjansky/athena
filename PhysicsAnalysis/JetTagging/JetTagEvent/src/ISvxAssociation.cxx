@@ -24,7 +24,7 @@ namespace Analysis
   ISvxAssociation::ISvxAssociation():
     m_vertexInfo(0) {}
 
-  ISvxAssociation::ISvxAssociation(NameType& name):
+  ISvxAssociation::ISvxAssociation(const NameType& name):
     m_vertexInfo(0)
   { this->setName(name); }  
   
@@ -44,7 +44,7 @@ namespace Analysis
     m_vertexInfo(rhs.m_vertexInfo!=0 ? rhs.m_vertexInfo->clone() : 0)
   { }
 
-  ISvxAssociation::ISvxAssociation(NameType& name,const ISvxAssociation & rhs):
+  ISvxAssociation::ISvxAssociation(const NameType& name,const ISvxAssociation & rhs):
     JetAssociationBase(rhs),
     m_vertexInfo(rhs.m_vertexInfo!=0 ? rhs.m_vertexInfo->clone() : 0)
   { this->setName(name); }

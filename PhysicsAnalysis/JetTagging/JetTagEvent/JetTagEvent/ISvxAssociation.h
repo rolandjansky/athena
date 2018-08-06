@@ -42,8 +42,8 @@ namespace Analysis
 
     public:
       ISvxAssociation() ;      //!< constructor
-      ISvxAssociation(NameType& name) ;      //!< constructor
-      ISvxAssociation(NameType& name,const ISvxAssociation & rhs);
+      ISvxAssociation(const NameType& name) ;      //!< constructor
+      ISvxAssociation(const NameType& name,const ISvxAssociation & rhs);
       ISvxAssociation(const ISvxAssociation & rhs);
       ~ISvxAssociation() ;      //!< destructor
 
