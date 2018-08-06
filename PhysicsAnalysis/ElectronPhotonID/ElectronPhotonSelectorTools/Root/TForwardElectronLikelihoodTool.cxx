@@ -257,15 +257,8 @@ const Root::TAccept& Root::TForwardElectronLikelihoodTool::accept( LikeEnumForwa
   unsigned int ibin_combined = etbin*s_fnEtBinsHist+etabin;
 
   if(CutLikelihood.size()){
-    // To protect against a binning mismatch, which should never happen
-    if(ibin_combined > CutLikelihood.size()){
-      ATH_MSG_ERROR ( "The desired bin is outside of the range!  Bin : " << ibin_combined << 
-                      " available LH bins " << CutLikelihood.size() << " Should never happen!" );
-      return m_accept;
-    }
 
     cutDiscriminant = CutLikelihood[ibin_combined];
-
     // If doPileupCorrection, then correct the discriminant itself instead of the cut value
     if (doPileupCorrection) {
       cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrectionA[ibin_combined]+CutLikelihoodPileupCorrectionB[ibin_combined];
@@ -318,13 +311,13 @@ const Root::TResult& Root::TForwardElectronLikelihoodTool::calculate(LikeEnumFor
   // Reset the results to defaul values
   m_result.setResult( m_resultPosition_LH, -999.0  );
   double arr[] = {vars_struct.secondLambda
-    ,vars_struct.lateral
-      ,vars_struct.longitudinal
-      ,vars_struct.centerLambda
-      ,vars_struct.fracMax
-      ,vars_struct.secondR
-      ,vars_struct.significance
-      ,vars_struct.secondDensity
+		  ,vars_struct.lateral
+		  ,vars_struct.longitudinal
+		  ,vars_struct.centerLambda
+		  ,vars_struct.fracMax
+		  ,vars_struct.secondR
+		  ,vars_struct.significance
+		  ,vars_struct.secondDensity
   };
   std::vector<double> vec (arr, arr + sizeof(arr) / sizeof(double) );
 
@@ -430,7 +423,7 @@ unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtaBin(double et
 // Gets the histogram Et bin given the et (MeV). Binning uses upper bound 
 unsigned int Root::TForwardElectronLikelihoodTool::getLikelihoodEtBin(double eT) const {
   const double GeV = 1000;  
-  const unsigned int nEtBins = s_fnEtBinsHist;
+  const unsigned int nEtBins = s_fnDiscEtBins;
   const double eTBins[nEtBins] = {30*GeV,40*GeV,50*GeV,7000*GeV}; // removed 20 GeV bin since we're upper bound oriented
   for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
     if(eT < eTBins[eTBin]){
