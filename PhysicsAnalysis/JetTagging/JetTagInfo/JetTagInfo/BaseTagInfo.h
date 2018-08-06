@@ -21,6 +21,8 @@
 namespace Analysis
 {
 
+  class BaseTagInfoCnv_p1;
+
   /** Class BasetagInfo:
   Implements methods defined in ITagInfo.
 
@@ -46,7 +48,8 @@ public:
 
     /** Return and set methods for the likelihood. */
     virtual void                     setTagLikelihood(const std::vector<double>&); //!< to set the tag likelihood for one tagger
-    virtual std::vector<double>      tagLikelihood(void) const;                    //!< returns the tag likelihood of one tagger
+    virtual void                     setTagLikelihood(std::vector<double>&&); //!< to set the tag likelihood for one tagger
+    virtual const std::vector<double>& tagLikelihood(void) const;                    //!< returns the tag likelihood of one tagger
 //     virtual double                   lhSig(void) const;                            //!< shortcut to retrieve the first element of the tagLikelihood
     virtual void                     setWeight(double weight);                     //!< set the weight for one tagger
     virtual double                   weight() const;                               //!< get the weight of one tagger
@@ -56,7 +59,11 @@ public:
     virtual BaseTagInfo*             clone() const;                                //!< a clone method for the proper workings of the copy constructor
 
 protected:
-    bool m_isValid;                      //!< true if the tagger could tag the jet, default is false
+    friend class Analysis::BaseTagInfoCnv_p1;
+    void setValid (bool valid);
+    void setTagJetInfoType (TagInfoType type);
+
+  bool m_isValid;                      //!< true if the tagger could tag the jet, default is false
     std::vector<double> m_tagLikelihood; //!< vector to hold the taglikelihood (signal plus N background)
     double m_weight;                     //!< weight for this tag
     TagInfoType m_tagJetInfoType;        //!< string to hold the info type (specified by the tag tool)
@@ -79,7 +86,11 @@ inline void BaseTagInfo::setTagLikelihood(const std::vector<double>& tagLikeliho
 {
     m_tagLikelihood=tagLikelihood;
 }
-inline std::vector<double> BaseTagInfo::tagLikelihood(void) const
+inline void BaseTagInfo::setTagLikelihood(std::vector<double>&& tagLikelihood)
+{
+    m_tagLikelihood=std::move(tagLikelihood);
+}
+inline const std::vector<double>& BaseTagInfo::tagLikelihood(void) const
 {
   // in principal the caller has to check if the vector has a length
   // -> no checking for the size as in the case of lhSig(void)
@@ -102,6 +113,14 @@ inline double BaseTagInfo::weight(void) const
 inline Analysis::BaseTagInfo* Analysis::BaseTagInfo::clone() const
 {
     return new BaseTagInfo(*this);
+}
+inline void BaseTagInfo::setValid (bool valid)
+{
+  m_isValid = valid;
+}
+inline void BaseTagInfo::setTagJetInfoType (TagInfoType type)
+{
+  m_tagJetInfoType = type;
 }
 } // End namespace
 #endif
