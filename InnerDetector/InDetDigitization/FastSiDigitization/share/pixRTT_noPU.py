@@ -54,4 +54,4 @@ ServiceMgr.MessageSvc.enableSuppression = False
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence.PixelFastDigitization.PixelFastDigitizationTool.OutputLevel=VERBOSE
-topSequence.StreamRDO.ItemList += ["InDet::SiClusterContainer#PixelClusters"]
+AlgSequence("Streams").StreamRDO.ItemList += ["InDet::SiClusterContainer#PixelClusters"]
