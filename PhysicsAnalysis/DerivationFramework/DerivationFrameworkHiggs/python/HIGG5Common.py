@@ -22,16 +22,19 @@ def getHIGG5Common() :
         "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity"
         ]
 
+def getHIGG5CommonTruthContainers() :
+    return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonWithDecayParticles","TruthBosonWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
+
 def getHIGG5CommonTruth() :
     return [
         "AntiKt4EMTopoJets.ConeTruthLabelID",
         "TruthEvents.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.weights.crossSection.crossSectionError.truthParticleLinks",
-        "TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
+        #"TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
          # "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
-        ("TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag"
-            ".classifierParticleOrigin.classifierParticleType.classifierParticleOutCome"
-            ".dressedPhoton.polarizationPhi.polarizationTheta"
-            ".truthOrigin.truthParticleLink.truthType"),
+        #("TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag"
+        #    ".classifierParticleOrigin.classifierParticleType.classifierParticleOutCome"
+        #    ".dressedPhoton.polarizationPhi.polarizationTheta"
+        #    ".truthOrigin.truthParticleLink.truthType"),
         "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType"
         ]
 
@@ -44,6 +47,53 @@ def filterContentList(pattern, content_list) :
         if pat.match(head) :
             result.append(elm)
     return result
+
+def getTruth3Collections(kernel) :
+
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+
+    #STEP 1do the prejet augmentations by hand 
+    decorationDressing='dressedPhoton'
+    DFCommonTruthElectronDressingTool.decorationName = decorationDressing
+    DFCommonTruthMuonDressingTool.decorationName = decorationDressing
+
+    if not hasattr(kernel,'MCTruthCommonPreJetKernel'):
+        augmentationToolsList = [ DFCommonTruthClassificationTool,
+                                  DFCommonTruthMuonTool,DFCommonTruthElectronTool,
+                                  DFCommonTruthPhotonToolSim,
+                                  DFCommonTruthNeutrinoTool,
+                                  DFCommonTruthTopTool,
+                                  DFCommonTruthBosonTool,
+                                  DFCommonTruthBSMTool,
+                                  DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
+                                  DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
+                                  DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
+                                  DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
+        from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+        kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
+                                                                 AugmentationTools = augmentationToolsList
+                                                                 )
+    #STEP2 rest of addStandardTruth
+    # Jets and MET
+    addTruthJets(kernel, decorationDressing)
+    addTruthMET(kernel)
+    # Tools that must come after jets
+    schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
+    #STEP3 SPECIAL add B and C hadrons (keep all generations below)
+    addHFAndDownstreamParticles(kernel,True,True,-1)
+    #STEP4 SPECIAL W/Z/H boson collection with children (this should then also include W decay products of top)
+    addBosonsAndDownstreamParticles(kernel,1)
+    #STEP5 INCLUDE special top collection with 1 generation below (custom)
+    addTopQuarkAndDownstreamParticles(kernel,1)
+     #STEP6 hard scatter information (only one generation, so really ME...)
+    addHardScatterCollection(kernel)
+     #STEP7 add PV information (up to ~60 vertices per event)
+    addPVCollection(kernel)
+     #STEP8
+     # Add back the navigation contect for the collections we want
+    addTruthCollectionNavigationDecorations(kernel,["HardScatterParticles","TruthBosonWithDecayParticles","TruthTopQuarkWithDecayParticles","TruthElectrons","TruthMuons","TruthTaus","TruthNeutrinos","TruthBSM"])
+
+
 
 # --- common thinning tools
 def getTruthThinningTool(tool_prefix, thinning_helper) :
