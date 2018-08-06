@@ -10,6 +10,12 @@
 ################################################################ 
 
 # 2018 menu (covering 1.5e34 to 2.3e34 menus)
+BJetMET_2018 = [
+    'HLT_j85_gsc100_bmv2c1050_split_xe85_pufit_xe50_L1XE55',
+    'HLT_2j35_gsc45_bmv2c1070_split_xe85_pufit_xe50_L12J15_XE55',
+    'HLT_3j35_bmv2c1077_split_xe70_pufit_xe50_L13J15.0ETA25_XE40',
+]
+
 MET_2018 = [
     'HLT_xe100_pufit_xe75_L1XE60',
     'HLT_xe110_pufit_L1XE55',
@@ -95,6 +101,12 @@ DiLepton_2018 = [
 ]
 
 # 2017 menu (covering 1.5e34 to 2.0e34 menus)
+BJetMET_2017 = [
+    'HLT_j60_gsc100_bmv2c1050_split_xe80_mht_L1XE60',
+    'HLT_2j25_gsc45_bmv2c1070_split_xe80_mht_L12J15_XE55',
+    'HLT_3j15_gsc35_bmv2c1077_split_xe60_mht_L13J15.0ETA25_XE40',
+]
+
 MET_2017 = [
     'HLT_xe90_pufit_L1XE50',
     'HLT_xe100_pufit_L1XE50',
