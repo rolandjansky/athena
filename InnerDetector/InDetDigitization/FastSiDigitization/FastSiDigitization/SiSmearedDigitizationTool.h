@@ -151,6 +151,9 @@ public:
   iFatras::PlanarClusterContainer*  m_planarClusterContainer;               //!< the SCT_ClusterContainer
 
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
+  int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
+  bool                      m_HardScatterSplittingSkipper;
+  IntegerProperty  m_vetoThisBarcode;
 
   PRD_MultiTruthCollection* m_pixelPrdTruth{};
   std::string               m_prdTruthNamePixel;

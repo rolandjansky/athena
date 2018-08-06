@@ -67,10 +67,12 @@
 
 using namespace InDetDD;
 
+static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
+//Barcodes at the HepMC level are int
+
 // Constructor with parameters:
 SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, const std::string &name,
                                                      const IInterface* parent):
-
   PileUpToolBase(type, name, parent),
   m_thpcsi(NULL),
   m_rndmSvc("AtRndmGenSvc",name),
@@ -89,6 +91,9 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_sctClusterContainer(0),
   m_planarClusterContainer(0),
   m_mergeSvc("PileUpMergeSvc",name),
+  m_HardScatterSplittingMode(0),
+  m_HardScatterSplittingSkipper(false),
+  m_vetoThisBarcode(crazyParticleBarcode),
   m_prdTruthNamePixel("PRD_MultiTruthPixel"),
   m_prdTruthNameSCT("PRD_MultiTruthSCT"),
   m_prdTruthNamePlanar("PRD_MultiTruthPlanar"),
@@ -151,6 +156,8 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   // get the service handle for the TrackingGeometry
   declareProperty("TrackingGeometrySvc"          , m_trackingGeometrySvc);
   declareProperty("UseCustomGeometry", m_useCustomGeometry);
+  declareProperty("HardScatterSplittingMode"     , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
+  declareProperty("ParticleBarcodeVeto"          , m_vetoThisBarcode, "Barcode of particle to ignore");
 
 }
 
@@ -329,6 +336,7 @@ StatusCode SiSmearedDigitizationTool::prepareEvent(unsigned int)
 
   m_siHitCollList.clear();
   m_thpcsi = new TimedHitCollection<SiHit>();
+  m_HardScatterSplittingSkipper = false;
 
   return StatusCode::SUCCESS;
 }
@@ -338,8 +346,11 @@ StatusCode SiSmearedDigitizationTool::processBunchXing(int bunchXing,
                                                        SubEventIterator bSubEvents,
                                                        SubEventIterator eSubEvents)
 {
-
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel processBunchXing() ---" );
+  //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
+  if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
+  if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
+  if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
@@ -494,8 +505,12 @@ StatusCode SiSmearedDigitizationTool::processAllSubEvents() {
   TimedHitCollList::iterator   iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end()  );
 
+  m_HardScatterSplittingSkipper = false;
   // loop on the hit collections
   while ( iColl != endColl ) {
+    if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; ++iColl; continue; }
+    if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { ++iColl; continue; }
+    if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
     const SiHitCollection* p_collection(iColl->second);
     thpcsi.insert(iColl->first, p_collection);
     ATH_MSG_DEBUG ( "SiHitCollection found with " << p_collection->size() << " hits" );
@@ -587,8 +602,11 @@ StatusCode SiSmearedDigitizationTool::FillTruthMap(PRD_MultiTruthCollection * ma
 
   ATH_MSG_DEBUG("Truth map filling with cluster " << *cluster << " and link = " << hit->particleLink());
   if (hit->particleLink().isValid()){
-    map->insert(std::make_pair(cluster->identify(), hit->particleLink()));
-    ATH_MSG_DEBUG("Truth map filled with cluster " << *cluster << " and link = " << hit->particleLink());
+    const int barcode( hit->particleLink().barcode());
+    if ( barcode !=0 && barcode != m_vetoThisBarcode ) {
+      map->insert(std::make_pair(cluster->identify(), hit->particleLink()));
+      ATH_MSG_DEBUG("Truth map filled with cluster " << *cluster << " and link = " << hit->particleLink());
+    }
   }else{
     ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << cluster << " and link = " << hit->particleLink());
   }
