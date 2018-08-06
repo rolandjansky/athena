@@ -12,10 +12,6 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
-if DerivationFrameworkIsMonteCarlo: 
-  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-  scheduleTauTruthTools()
-
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -44,8 +40,6 @@ HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_2g.*|HLT_mu.*|HLT_j.*|HLT_b.*
 HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream) 
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
-thinningTools.append( HIGG5Common.getInDetTrackParticleThinning(        'HIGG5D3',HIGG5D3ThinningHelper) )
-thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D3',HIGG5D3ThinningHelper,   ApplyAnd=True) )
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D3',HIGG5D3ThinningHelper) )
@@ -342,7 +336,6 @@ HIGG5D3SlimmingHelper.AppendToDictionary = {
 HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
-                                           "TauJets",
                                            "MET_Reference_AntiKt4EMTopo",
                                            "AntiKt4EMTopoJets",
                                            "AntiKt4EMPFlowJets",

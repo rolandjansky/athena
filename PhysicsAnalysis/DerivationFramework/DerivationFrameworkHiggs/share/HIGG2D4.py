@@ -57,10 +57,6 @@ thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'HIGG2D4
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
 
-# Truth particles
-if DerivationFrameworkIsMonteCarlo:
-    thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG2D4', HIGG2D4ThinningHelper))
-
 print "HIGG2D4.py thinningTools", thinningTools
 
 #====================================================================
@@ -280,6 +276,13 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg2d4Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
+#====================================================================
+# SET UP CUSTOM TRUTH3 INFORMATION (only for higg5D2Kernel)
+#====================================================================
+if DerivationFrameworkIsMonteCarlo :
+    HIGG5Common.getTruth3Collections(higg2d4Seq)
+
+
 # Main selection
 higg2d4Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG2D4Kernel",
@@ -301,6 +304,30 @@ HIGG2D4SlimmingHelper.AppendToDictionary = {
   "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
+ "TruthBoson" : "xAOD::TruthParticleContainer" ,
+  "TruthBosonAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthTop" : "xAOD::TruthParticleContainer" ,
+  "TruthTopAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthBSM" : "xAOD::TruthParticleContainer" ,
+  "TruthBSMAux" : "xAOD::TruthParticleAuxContainer" ,
+  "HardScatterParticles" : "xAOD::TruthParticleContainer" ,
+  "HardScatterParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthBosonWithDecayParticles" : "xAOD::TruthParticleContainer" ,
+  "TruthBosonWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthTopQuarkWithDecayParticles" : "xAOD::TruthParticleContainer" ,
+  "TruthTopQuarkWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthHFWithDecayParticles" : "xAOD::TruthParticleContainer" ,
+  "TruthHFWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
+  "HardScatterVertices" : "xAOD::TruthVertexContainer" ,
+  "HardScatterVerticesAux" : "xAOD::TruthVertexAuxContainer" ,
+  "TruthBosonWithDecayVertices" : "xAOD::TruthVertexContainer" ,
+  "TruthBosonWithDecayVerticesAux" : "xAOD::TruthVertexAuxContainer" ,
+  "TruthTopQuarkWithDecayVertices" : "xAOD::TruthVertexContainer" ,
+  "TruthTopQuarkWithDecayVerticesAux" : "xAOD::TruthVertexAuxContainer" ,
+  "TruthPrimaryVertices" : "xAOD::TruthVertexContainer",
+  "TruthPrimaryVerticesAux" : "xAOD::TruthVertexAuxContainer",
+  "TruthHFWithDecayVertices" : "xAOD::TruthVertexContainer",
+  "TruthHFWithDecayVerticesAux" : "xAOD::TruthVertexAuxContainer",
   }
 
 HIGG2D4SlimmingHelper.SmartCollections = ["Electrons",
