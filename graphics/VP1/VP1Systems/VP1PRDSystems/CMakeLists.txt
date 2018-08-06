@@ -19,7 +19,7 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Base
    graphics/VP1/VP1Utils
    PRIVATE
-   Control/DataModel
+   Control/AthContainers
    DetectorDescription/GeoModel/GeoModelUtilities
    Event/EventPrimitives
    InnerDetector/InDetDetDescr/InDetIdentifier
@@ -52,7 +52,7 @@ atlas_add_library( VP1PRDSystems VP1PRDSystems/*.h src/*.cxx
    LINK_LIBRARIES GeoModelKernel GeoPrimitives InDetReadoutGeometry
    InDetPrepRawData MuonPrepRawData TrkPrepRawData TrkSpacePoint VP1Base
    VP1Utils MuonIdHelpersLib Qt5::Core Qt5::Gui
-   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES} DataModel
+   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers
    GeoModelUtilities EventPrimitives InDetIdentifier MuonReadoutGeometry
    TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack
    TrkSegment TrkTrack VP1HEPVis VP1GuideLineSystems  )

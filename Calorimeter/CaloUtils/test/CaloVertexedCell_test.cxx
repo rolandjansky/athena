@@ -13,6 +13,7 @@
 #undef NDEBUG
 #include "CaloUtils/CaloVertexedCell.h"
 #include "CaloEvent/CaloCell.h"
+#include "CaloEvent/CaloTester.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
@@ -21,16 +22,8 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloCell_Base_ID.h"
-#include "CaloIdentifier/LArEM_ID.h"
-#include "CaloIdentifier/LArHEC_ID.h"
-#include "CaloIdentifier/LArFCAL_ID.h"
-#include "CaloIdentifier/LArMiniFCAL_ID.h"
-#include "CaloIdentifier/TileID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "IdDictParser/IdDictParser.h"
-#include "GaudiKernel/ISvcLocator.h"
 #include "TestTools/initGaudi.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include <iostream>
@@ -90,58 +83,20 @@ CaloDetDescrElement* add_dde (CaloDetDescrManager* ddman,
 }
 
 
-CaloDetDescrElement* make_dd ()
+CaloDetDescrElement* make_dd (CaloTester& tester)
 {
-  LArEM_ID*   em_id   = new LArEM_ID;
-  LArHEC_ID*  hec_id  = new LArHEC_ID;
-  LArFCAL_ID* fcal_id = new LArFCAL_ID;
-  LArMiniFCAL_ID* minifcal_id = new LArMiniFCAL_ID;
-  TileID*     tile_id = new TileID;
+  Identifier reg_id = tester.caloID().region_id (CaloCell_ID::LAREM,
+                                                 1, // + barrel
+                                                 2, // sampling 2
+                                                 0); // sampling 2
+  auto ddp = std::make_unique<MyDetDescriptor> (reg_id,
+                                                nullptr,
+                                                &tester.caloID());
+  CaloDetDescriptor* descr = ddp.get();
 
-  IdDictParser parser;
-  parser.register_external_entity ("LArCalorimeter",
-                                   "IdDictLArCalorimeter.xml");
-  IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
-  em_id->set_do_neighbours (false);
-  em_id->initialize_from_dictionary (idd);
-  hec_id->initialize_from_dictionary (idd);
-  fcal_id->set_do_neighbours (false);
-  fcal_id->initialize_from_dictionary (idd);
-  minifcal_id->set_do_neighbours (false);
-  minifcal_id->initialize_from_dictionary (idd);
-  tile_id->set_do_neighbours (false);
-  tile_id->initialize_from_dictionary (idd);
+  tester.mgr().add (std::move (ddp));
 
-  CaloCell_ID* calo_helper = new CaloCell_ID (em_id,
-                                              hec_id,
-                                              fcal_id,
-                                              minifcal_id,
-                                              tile_id);
-  calo_helper->initialize_from_dictionary (idd);
-  Identifier reg_id = calo_helper->region_id (CaloCell_ID::LAREM,
-                                              1, // + barrel
-                                              2, // sampling 2
-                                              0); // sampling 2
-  CaloDetDescriptor* descr = new MyDetDescriptor (reg_id,
-                                                  0,
-                                                  calo_helper);
-
-  CaloDetDescrManager* ddman =
-    const_cast<CaloDetDescrManager*> (CaloDetDescrManager::instance());
-  if (!ddman) {
-    ddman = new CaloDetDescrManager;
-    ISvcLocator* svcLoc = Gaudi::svcLocator();
-    StoreGateSvc* detStore = 0;
-    StatusCode status = svcLoc->service("DetectorStore",detStore);
-    if (!status.isSuccess()) abort();
-    status = detStore->record (ddman, "CaloMgr");
-    if (!status.isSuccess()) abort();
-  }
-  ddman->set_helper (calo_helper);
-  ddman->initialize();
-  ddman->add (descr);
-
-  return add_dde (ddman, descr, 0.11, 1);
+  return add_dde (&tester.mgr(), descr, 0.11, 1);
 }
 
 
@@ -209,7 +164,9 @@ int main()
     return 0;
   }  
 
-  CaloDetDescrElement* dde = make_dd();
+  CaloTester tester;
+  tester.record_mgr();
+  CaloDetDescrElement* dde = make_dd (tester);
   test1 (dde);
   return 0;
 }

@@ -8,25 +8,23 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import HLTRecoSequence, MenuSequence
+from TrigUpgradeTest.MenuComponents import MenuSequence
 
 # ===============================================================================================
 #      L2 Calo
 # ===============================================================================================
 
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+theFastCaloAlgo=T2CaloEgamma_ReFastAlgo("FastCaloAlgo" )
 theFastCaloAlgo.OutputLevel=VERBOSE
 theFastCaloAlgo.ClustersName="L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
- 
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo])
-
 
 
 fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
@@ -48,17 +46,13 @@ theFastCaloHypo.OutputLevel = DEBUG
 theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 
-fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
+fastCaloAthSequence =  seqAND("fastCaloAthSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
-fastCalo_HLTSequence = HLTRecoSequence("fastCalo_HLTSequence",
-                                         Sequence=fastCaloSequence,
-                                         Maker=fastCaloViewsMaker,                                         
-                                         Seed="L1EM")
-
-fastCaloSequence = MenuSequence("egammaCaloStep",
-                                    recoSeqList=[fastCalo_HLTSequence],
-                                    Hypo=theFastCaloHypo,
-                                    HypoToolClassName="TrigL2CaloHypoToolConf")
+def fastCaloSequence():
+    return MenuSequence(  Sequence=fastCaloAthSequence,
+                              Maker=fastCaloViewsMaker, 
+                              Hypo=theFastCaloHypo,
+                              HypoToolClassName="TrigL2CaloHypoToolConf")
 
 
 
@@ -100,16 +94,12 @@ thePhotonHypo.OutputLevel = VERBOSE
 
 
 
-photonSequence = seqAND("photonSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
+photonAthSequence = seqAND("photonAthSequence",  [l2PhotonViewsMaker, photonInViewAlgs] )
 
 
-photon_HLTSequence = HLTRecoSequence("photon_HLTSequence",
-                                       Maker=l2PhotonViewsMaker,
-                                       Sequence=photonSequence,
-                                       Seed="L1EM")
-
-photonSequence = MenuSequence("photonStep",
-                                    recoSeqList=[photon_HLTSequence],
-                                    Hypo=thePhotonHypo,
-                                    HypoToolClassName="TrigL2PhotonHypoToolConf")
+def photonSequence():
+    return MenuSequence( Maker=l2PhotonViewsMaker,
+                             Sequence=photonAthSequence,
+                             Hypo=thePhotonHypo,
+                             HypoToolClassName="TrigL2PhotonHypoToolConf")
 

@@ -574,15 +574,6 @@ HLT::ErrorCode TrigEgammaRec::hltFinalize() {
 
     return HLT::OK;
 }
-/////////////////////////////////////////////////////////////////
-//          endRun method:
-
-HLT::ErrorCode TrigEgammaRec::hltEndRun()
-{
-    if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "in endRun()" << endmsg;
-    return HLT::OK;
-}
-
 
 //////////////////////////////////////////////////
 

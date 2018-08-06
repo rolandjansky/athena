@@ -41,8 +41,6 @@ class muIso: public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE);
   /** hltInitialize. Called by the Steering. */
   HLT::ErrorCode hltInitialize();
-  /** hltBeginRun. Called by the Steering. */
-  HLT::ErrorCode hltBeginRun();
   /** hltFinalize. Called by the Steering. */
   HLT::ErrorCode hltFinalize();
 

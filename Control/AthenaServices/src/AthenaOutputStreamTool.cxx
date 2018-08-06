@@ -24,6 +24,19 @@
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModel/TokenAddress.h"
 
+namespace {
+
+/// Check to see if a DataHeader has been marked as input
+/// by MakeInputDataHeader.
+bool hasInputAlias (const SG::DataProxy& dp)
+{
+  std::string inputName = dp.name() + "_Input";
+  return dp.hasAlias (inputName);
+}
+
+
+} // anonymous namespace
+
 /// Constructor
 AthenaOutputStreamTool::AthenaOutputStreamTool(const std::string& type,
 		const std::string& name,
@@ -192,7 +205,8 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
       if (m_store->retrieve(dh, *dhKey).isFailure()) {
          ATH_MSG_DEBUG("Unable to retrieve the DataHeader with key " << *dhKey);
       }
-      if (dh->isInput() || primaryDH) {
+      SG::DataProxy* dhProxy = m_store->proxy(dh);
+      if (dh->isInput() || hasInputAlias (*dhProxy) || primaryDH) {
          // Add DataHeader token to new DataHeader
          if (m_extendProvenanceRecord) {
             std::string pTag;
@@ -205,13 +219,13 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
                }
             }
             // Update dhTransAddr to handle fast merged files.
-            SG::DataProxy* dhProxy = m_store->proxy(dh);
             if (dhProxy != 0 && dhProxy->address() != 0) {
               delete dhTransAddr; dhTransAddr = 0;
               m_dataHeader->insertProvenance(DataHeaderElement(dhProxy,
                                                                dhProxy->address(),
                                                                pTag));
-            } else {
+            }
+            else if (dhTransAddr != nullptr) {
               m_dataHeader->insertProvenance(DataHeaderElement(dhTransAddr,
                                                                dhTransAddr->address(),
                                                                pTag));

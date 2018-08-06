@@ -22,11 +22,11 @@ namespace WrapperHelperFcns {
  * Return the discriminator on dirObj of ppType
  **/
 inline
-Discrimination::IDiscriminatorVarDep* getDiscr(discrEnum_t discrType, 
+Discrimination::IDiscriminatorVarDep* getDiscr(discrEnum_t discrType,
     TDirectory *dirObj )
 {
   using namespace Discrimination;
-  // For the interface case, we will have to create each pre-processing 
+  // For the interface case, we will have to create each pre-processing
   // depending on the information written on ppType:
   switch ( discrType )
   {
@@ -42,6 +42,26 @@ Discrimination::IDiscriminatorVarDep* getDiscr(discrEnum_t discrType,
     }
   }
 }
+
+inline
+void addExtraDescription( std::vector<float> &input
+                        , const DepVarStruct& depVar
+                        , const Ringer::PreProcessing::Norm::ExtraPatternsNorm* extraPatNorm
+                        , const Ringer::ExtraDescriptionPatterns& extraDescr )
+{
+  if ( extraPatNorm == nullptr ) {
+    throw std::runtime_error( std::string("Attempted to add description with empty norm") );
+  }
+  if( extraDescr.feedEta() ){
+    input.push_back( extraPatNorm->normEta( depVar.eta ) );
+  }
+  if( extraDescr.feedEt() ){
+    input.push_back( extraPatNorm->normEt( depVar.et ) );
+  }
+  if( extraDescr.feedPileupEstimation() ){
+    input.push_back( extraPatNorm->normPileupEstimation( depVar.pileupEstimation ) );
+  }
+}
 } // WrapperHelperFcns
 
 // Import Wrapper Helper functions
@@ -54,7 +74,7 @@ using namespace WrapperHelperFcns;
 // =============================================================================
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -77,7 +97,7 @@ void RingerProcedureWrapper<
   }
   for ( size_t segIdx = 0; segIdx < m_discrCol.size() ; ++segIdx){
     for ( size_t etIdx = 0; etIdx < m_discrCol[segIdx].size() ; ++etIdx){
-      for ( size_t etaIdx = 0; etaIdx < m_discrCol[segIdx][etIdx].size(); 
+      for ( size_t etaIdx = 0; etaIdx < m_discrCol[segIdx][etIdx].size();
           ++etaIdx)
       {
         delete m_discrCol[segIdx][etIdx][etaIdx];
@@ -89,7 +109,7 @@ void RingerProcedureWrapper<
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -120,15 +140,15 @@ void RingerProcedureWrapper<
   std::vector<float> transformVec;
 
 #ifndef NDEBUG
-    ATH_MSG_DEBUG( "Allocating space on transformVec of size " << 
-      (((clrings)?(m_nRings):0) + 
+    ATH_MSG_DEBUG( "Allocating space on transformVec of size " <<
+      (((clrings)?(m_nRings):0) +
       ((trackPat)?TrackPatternsHolder::numberOfPatterns():0)));
 #endif
 
   // We grant it enougth space to handle worst case:
-  transformVec.reserve( 
-      (clrings)?(m_nRings):(0 + 
-      ((trackPat)?TrackPatternsHolder::numberOfPatterns():0)) 
+  transformVec.reserve(
+      (clrings)?(m_nRings):(0 +
+      ((trackPat)?TrackPatternsHolder::numberOfPatterns():0))
     );
 
   std::vector<float> input = transformVec;
@@ -150,9 +170,9 @@ void RingerProcedureWrapper<
     // If pre-processing available execute it:
     for ( size_t ppIdx = 0; ppIdx < m_ppWrapperCol.size(); ++ppIdx ){
       m_ppWrapperCol[ppIdx]->applyPreProcessing(
-          depVar, 
-          clrings, 
-          trackPat, 
+          depVar,
+          clrings,
+          trackPat,
           transformVec);
     }
   }
@@ -172,13 +192,17 @@ void RingerProcedureWrapper<
   switch(segType){
     case SegmentationType::NoSegmentation:
     {
-      
+
 #ifndef NDEBUG
-      ATH_MSG_VERBOSE("Applying NonSegmented" 
-          " discriminator at etaIdx (" << etaIdx << ") and etIdx (" 
+      ATH_MSG_VERBOSE("Applying NonSegmented"
+          " discriminator at etaIdx (" << etaIdx << ") and etIdx ("
           << etIdx << ").");
 #endif
       input = transformVec;
+      if ( static_cast<bool>(m_extraDescriptionPatterns) ) {
+        // Add demanded extra description
+        addExtraDescription( input, depVar, m_extraDescriptionNorms.at(etIdx).at(etaIdx), m_extraDescriptionPatterns );
+      }
       // Apply discrimination to all transformed space:
       m_discrCol[cDiscr++][etIdx][etaIdx]->execute(input,output);
       break;
@@ -186,8 +210,8 @@ void RingerProcedureWrapper<
     case SegmentationType::TrackCalSegmentation:
     {
 #ifndef NDEBUG
-      ATH_MSG_VERBOSE("Applying Track/Cal segmented" 
-          " discriminators at etaIdx (" << etaIdx << ") and etIdx (" 
+      ATH_MSG_VERBOSE("Applying Track/Cal segmented"
+          " discriminators at etaIdx (" << etaIdx << ") and etIdx ("
           << etIdx << ").");
 #endif
       if (clrings){
@@ -196,9 +220,14 @@ void RingerProcedureWrapper<
             transformVec,
             input);
 
+        if ( static_cast<bool>(m_extraDescriptionPatterns) ) {
+          // Add demanded extra description
+          addExtraDescription( input, depVar, m_extraDescriptionNorms.at(etIdx).at(etaIdx), m_extraDescriptionPatterns );
+        }
+
         executeSegmentedDiscr(
-            input, 
-            m_discrCol[cDiscr++][etIdx][etaIdx], 
+            input,
+            m_discrCol[cDiscr++][etIdx][etaIdx],
             output);
       } else {
         cDiscr += 1;
@@ -212,9 +241,14 @@ void RingerProcedureWrapper<
             transformVec,
             input);
 
+        if ( static_cast<bool>(m_extraDescriptionPatterns) ) {
+          // Add demanded extra description
+          addExtraDescription( input, depVar, m_extraDescriptionNorms.at(etIdx).at(etaIdx), m_extraDescriptionPatterns );
+        }
+
         executeSegmentedDiscr(
-            input, 
-            m_discrCol[cDiscr++][etIdx][etaIdx], 
+            input,
+            m_discrCol[cDiscr++][etIdx][etaIdx],
             output);
       } else {
         cDiscr += 1;
@@ -230,8 +264,8 @@ void RingerProcedureWrapper<
     case SegmentationType::TrackCalJointSections:
     {
 #ifndef NDEBUG
-      ATH_MSG_VERBOSE("Applying Track/Cal-JointSections segmented" 
-          " discriminators at etaIdx (" << etaIdx << ") and etIdx (" 
+      ATH_MSG_VERBOSE("Applying Track/Cal-JointSections segmented"
+          " discriminators at etaIdx (" << etaIdx << ") and etIdx ("
           << etIdx << ").");
 #endif
       if (clrings){
@@ -239,15 +273,20 @@ void RingerProcedureWrapper<
         while ( cDiscr < static_cast<size_t>(
               CalJointSection::NJointSections) )
         {
-          getCaloSegmentFromTransformVec( 
+          getCaloSegmentFromTransformVec(
               *m_rsRawConfCol,
               static_cast<CalJointSection>(cDiscr),
               transformVec,
               input);
 
+          if ( static_cast<bool>(m_extraDescriptionPatterns) ) {
+            // Add demanded extra description
+            addExtraDescription( input, depVar, m_extraDescriptionNorms.at(etIdx).at(etaIdx), m_extraDescriptionPatterns );
+          }
+
           executeSegmentedDiscr(
-              input, 
-              m_discrCol[cDiscr++][etIdx][etaIdx], 
+              input,
+              m_discrCol[cDiscr++][etIdx][etaIdx],
               output);
         }
       } else {
@@ -260,9 +299,14 @@ void RingerProcedureWrapper<
             transformVec,
             input);
 
+        if ( static_cast<bool>(m_extraDescriptionPatterns) ) {
+          // Add demanded extra description
+          addExtraDescription( input, depVar, m_extraDescriptionNorms.at(etIdx).at(etaIdx), m_extraDescriptionPatterns );
+        }
+
         executeSegmentedDiscr(
-            input, 
-            m_discrCol[cDiscr++][etIdx][etaIdx], 
+            input,
+            m_discrCol[cDiscr++][etIdx][etaIdx],
             output);
       } else {
         cDiscr += 1;
@@ -272,8 +316,8 @@ void RingerProcedureWrapper<
     case SegmentationType::TrackCalJointLayers:
     {
 #ifndef NDEBUG
-      ATH_MSG_VERBOSE("Applying Track/Cal-JointLayers segmented" 
-          " discriminators at etaIdx (" << etaIdx << ") and etIdx (" 
+      ATH_MSG_VERBOSE("Applying Track/Cal-JointLayers segmented"
+          " discriminators at etaIdx (" << etaIdx << ") and etIdx ("
           << etIdx << ").");
 #endif
       if (clrings){
@@ -287,9 +331,14 @@ void RingerProcedureWrapper<
               transformVec,
               input);
 
+          if ( static_cast<bool>(m_extraDescriptionPatterns) ) {
+            // Add demanded extra description
+            addExtraDescription( input, depVar, m_extraDescriptionNorms.at(etIdx).at(etaIdx), m_extraDescriptionPatterns );
+          }
+
           executeSegmentedDiscr(
-              input, 
-              m_discrCol[cDiscr++][etIdx][etaIdx], 
+              input,
+              m_discrCol[cDiscr++][etIdx][etaIdx],
               output);
         }
       } else {
@@ -302,9 +351,14 @@ void RingerProcedureWrapper<
             transformVec,
             input);
 
+        if ( static_cast<bool>(m_extraDescriptionPatterns) ) {
+          // Add demanded extra description
+          addExtraDescription( input, depVar, m_extraDescriptionNorms.at(etIdx).at(etaIdx), m_extraDescriptionPatterns );
+        }
+
         executeSegmentedDiscr(
-            input, 
-            m_discrCol[cDiscr++][etIdx][etaIdx], 
+            input,
+            m_discrCol[cDiscr++][etIdx][etaIdx],
             output);
       } else {
         cDiscr += 1;
@@ -316,7 +370,7 @@ void RingerProcedureWrapper<
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -365,12 +419,17 @@ void RingerProcedureWrapper<
     etIdx = findEtBin(depVar.et, m_discrCol[0]);
   }
 
+  if ( static_cast<bool>(m_extraDescriptionPatterns) ) {
+    // Add demanded extra description
+    addExtraDescription( inputCopy, depVar, m_extraDescriptionNorms.at(etIdx).at(etaIdx), m_extraDescriptionPatterns );
+  }
+
   // Apply it:
   m_discrCol[0][etIdx][etaIdx]->execute(inputCopy,output);
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -384,19 +443,19 @@ void RingerProcedureWrapper<
   false,     // isPreProcessor
   true,      // isDiscriminator
   false>     // isThreshold
-::checkPPWrapperCol(){
+::checkPPWrapperCol() const {
   if (m_ppWrapperCol.empty()){
     throw std::runtime_error(std::string(
-          "Attempted to start Discriminator Wrapper with" 
+          "Attempted to start Discriminator Wrapper with"
            " PreProcessing Wrapper collection that is empty.\n"
-           "In this case, do not input PreProcessing" 
+           "In this case, do not input PreProcessing"
            " Wrapper collection in Discriminator"
            " Wrapper construction."));
 
   }
-  for ( size_t ppWrapperIdx = 0; ppWrapperIdx < m_ppWrapperCol.size(); 
+  for ( size_t ppWrapperIdx = 0; ppWrapperIdx < m_ppWrapperCol.size();
       ++ppWrapperIdx ){
-    if( !m_ppWrapperCol[ppWrapperIdx] || 
+    if( !m_ppWrapperCol[ppWrapperIdx] ||
         m_ppWrapperCol[ppWrapperIdx]->empty() ){
       throw std::runtime_error(std::string(
             "Attempted to start Discriminator Wrapper with"
@@ -407,7 +466,7 @@ void RingerProcedureWrapper<
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -421,10 +480,34 @@ void RingerProcedureWrapper<
   false,     // isPreProcessor
   true,      // isDiscriminator
   false>     // isThreshold
-::checkDiscrCol(){
+::checkExtraPatNorm() const {
+  if ( m_extraDescriptionNorms.size() != m_discrCol[0].size() ){
+    throw std::runtime_error( std::string("Extra normalization and discriminator et size do not match") );
+  }
+  if ( m_extraDescriptionNorms[0].size() != m_discrCol[0][0].size() ) {
+    throw std::runtime_error( std::string("Extra normalization and discriminator eta size do not match") );
+  }
+}
+
+// =============================================================================
+template <
+  class procedure_t,
+  /*EtaDependency*/int etaDependency,
+  /*EtDependency*/int etDependency,
+  /*SegmentationType*/int segType
+>
+void RingerProcedureWrapper<
+  procedure_t,
+  etaDependency,
+  etDependency,
+  segType,
+  false,     // isPreProcessor
+  true,      // isDiscriminator
+  false>     // isThreshold
+::checkDiscrCol() const {
   try {
-    checkCollection(m_discrCol, 
-        static_cast<EtaDependency>(etaDependency), 
+    checkCollection(m_discrCol,
+        static_cast<EtaDependency>(etaDependency),
         static_cast<EtDependency>(etDependency));
     if (segType && m_discrCol.size() < 2 ){
       throw std::runtime_error(std::string("Cannot allocate dependency vector "
@@ -437,7 +520,7 @@ void RingerProcedureWrapper<
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -465,7 +548,7 @@ void RingerProcedureWrapper<
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -483,18 +566,18 @@ std::string RingerProcedureWrapper<
   typedef typename RingerProcedureType<procedure_t>::procEnum_t procEnum_t;
   std::stringstream ss;
   ss << "RingerProcedureWrapper<"
-        << toStr(procedure_t::template procType<procEnum_t>() ) 
+        << toStr(procedure_t::template procType<procEnum_t>() )
         << ((Ringer::is_same<procedure_t,
                              Discrimination::IDiscriminatorVarDep>::value)?",":
             "(VarDep),")
-        << toStr(static_cast<EtaDependency>(etaDependency)) << "," 
-        << toStr(static_cast<EtDependency>(etDependency)) << "," 
+        << toStr(static_cast<EtaDependency>(etaDependency)) << ","
+        << toStr(static_cast<EtDependency>(etDependency)) << ","
         << toStr(static_cast<SegmentationType>(segType)) << ">";
   return ss.str();
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -513,7 +596,7 @@ std::string RingerProcedureWrapper<
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -529,21 +612,21 @@ void RingerProcedureWrapper<
   false>      // isThreshold
 ::print(MSG::Level lvl) const
 {
-  if ( this->isStreamAvailable() ) { 
+  if ( this->isStreamAvailable() ) {
     if ( this->level() > lvl ){
       // Don't waste time to print nothing.
       return;
     }
-    this->msg() << lvl << " -------- Printing PreProcesorWrappers -------- " 
+    this->msg() << lvl << " -------- Printing PreProcesorWrappers -------- "
       << endmsg;
     // Print pre-processing collection:
     for ( size_t ppWrapIdx = 0; ppWrapIdx < m_ppWrapperCol.size(); ++ppWrapIdx )
     {
-      this->msg() << lvl << "PreProcessingWrapper" 
+      this->msg() << lvl << "PreProcessingWrapper"
         << IOHelperFcns::makeIdxStr(ppWrapIdx) << endmsg;
       m_ppWrapperCol[ppWrapIdx]->print( lvl );
     }
-    this->msg() << lvl << " --- Finished printing PreProcessorWrappers --- " 
+    this->msg() << lvl << " --- Finished printing PreProcessorWrappers --- "
       << endmsg;
     // Print discriminators
     std::vector<unsigned> posVec(3);
@@ -551,7 +634,7 @@ void RingerProcedureWrapper<
       posVec[0] = segIdx;
       for ( size_t etIdx = 0; etIdx < m_discrCol[segIdx].size() ; ++etIdx){
         posVec[1] = etIdx;
-        for ( size_t etaIdx = 0; etaIdx < m_discrCol[segIdx][etIdx].size(); 
+        for ( size_t etaIdx = 0; etaIdx < m_discrCol[segIdx][etIdx].size();
             ++etaIdx)
         {
           posVec[2] = etaIdx;
@@ -562,13 +645,13 @@ void RingerProcedureWrapper<
       }
     }
   } else {
-    std::cerr << "Stream is not available, cannot print " << fullName() << "." 
+    std::cerr << "Stream is not available, cannot print " << fullName() << "."
       << std::endl;
   }
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -587,7 +670,7 @@ void RingerProcedureWrapper<
 
   // ----------- Template basics ----------
   // Create configuration directory
-  TDirectory *configDir = IOHelperFcns::makeDir(baseDir, 
+  TDirectory *configDir = IOHelperFcns::makeDir(baseDir,
       (std::string(name()) + idxStr).c_str() );
 
   // Write basic template information:
@@ -598,10 +681,12 @@ void RingerProcedureWrapper<
   // FIXME Why do I need to use const? Unfortunately if I don't use so, the
   // compiler won't accept static_casting from discr_Enum_t to unsigned int:
   // some issue with reference casting.
+  // It may have something to do with object life time, as const references
+  // have lifetime extended.
   IOHelperFcns::writeVar<const discrEnum_t, const unsigned int>( configDir,
       "discrType",
       discrType);
-  IOHelperFcns::writeVar<const SegmentationType, const unsigned int>( configDir, 
+  IOHelperFcns::writeVar<const SegmentationType, const unsigned int>( configDir,
       "segType",
       fileSegType);
   IOHelperFcns::writeVar<const EtaDependency, const unsigned int>( configDir,
@@ -625,18 +710,18 @@ void RingerProcedureWrapper<
   IOHelperFcns::writeVar( configDir,  "discrEtaDepSize" , discrEtaDepSize );
   // Write Discriminator collection
   std::vector<unsigned int> discrCount(3);
-  for (size_t segIdx = 0; 
-      segIdx < m_discrCol.size(); 
+  for (size_t segIdx = 0;
+      segIdx < m_discrCol.size();
       ++segIdx)
   {
     discrCount[0] = segIdx;
-    for (size_t etIdx = 0; 
-        etIdx < m_discrCol[segIdx].size(); 
+    for (size_t etIdx = 0;
+        etIdx < m_discrCol[segIdx].size();
         ++etIdx)
     {
       discrCount[1] = etIdx;
-      for (size_t etaIdx = 0; 
-          etaIdx < m_discrCol[segIdx][etIdx].size(); 
+      for (size_t etaIdx = 0;
+          etaIdx < m_discrCol[segIdx][etIdx].size();
           ++etaIdx)
       {
         discrCount[2] = etaIdx;
@@ -646,10 +731,30 @@ void RingerProcedureWrapper<
       }
     }
   }
+  unsigned mask = m_extraDescriptionPatterns.to_ulong();
+  IOHelperFcns::writeVar( configDir
+                        , "extraDescriptionPatterns"
+                        , mask
+                        );
+
+  // Work on the extra pattern normalization:
+  if (static_cast<bool>(m_extraDescriptionPatterns) ){
+    this->checkExtraPatNorm();
+    unsigned et(0), eta(0);
+    for ( const auto& extraNormVec : m_extraDescriptionNorms ) {
+      for ( const auto extraNorm : extraNormVec ) {
+        std::vector<unsigned> idxs{et,eta};
+        extraNorm->write( configDir, IOHelperFcns::makeIdxStr( idxs ).c_str()  );
+        ++eta;
+      }
+      ++et; eta = 0;
+    }
+  }
+
 }
 
 // =============================================================================
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency,
   /*EtDependency*/int etDependency,
@@ -681,12 +786,12 @@ RingerProcedureWrapper<
   // Create empty preprocessing wrapper collection:
   IPreProcWrapperCollection ppWrapperCol;
 
-  //ATH_MSG_DEBUG("Reading Discrimination Wrapper of type \"" 
-  //    << ppType.Data() 
+  //ATH_MSG_DEBUG("Reading Discrimination Wrapper of type \""
+  //    << ppType.Data()
   //    << "\" named \"" << configDir->GetName()
   //    << "\" and dependency : ["
   //    << toStr(segType) << ","
-  //    << toStr(etaDependency) << "," 
+  //    << toStr(etaDependency) << ","
   //    << toStr(etDependency) << "]");
 
   // Check if this discriminator has pre-processing:
@@ -695,7 +800,7 @@ RingerProcedureWrapper<
 
   // Fill preprocessing wrapper collection
   if (hasPP) {
-    IPreProcWrapper::read( ppWrapperCol, configDir, version ); 
+    IPreProcWrapper::read( ppWrapperCol, configDir, version );
   } else {
     //ATH_MSG_VERBOSE("This Discrimination Wrapper hasn't pre-processors.");
   }
@@ -716,7 +821,8 @@ RingerProcedureWrapper<
           discrEtaDepSize, nullptr )));
 
   // Allocate index position retriever:
-  std::vector<unsigned int> discrIdxVec(3);
+  std::vector<unsigned int> discrIdxVec(3,0);
+  std::vector<unsigned int> extraIdxVec(2,0);
 
   // Retrieve dir list and loop on it:
   std::shared_ptr<THashList> list(nullptr);
@@ -724,6 +830,19 @@ RingerProcedureWrapper<
     std::runtime_error(std::string("Couldn't retrieve directory "
           "list from wrapper folder"));
   }
+
+  // Read description patterns:
+  unsigned mask(0);
+  try{
+    IOHelperFcns::readVar( configDir,  "extraDescriptionPatterns", mask );
+  } catch ( std::exception &) {
+    // old file, all ok
+  }
+  Ringer::ExtraDescriptionPatterns extraDescriptionPatterns(mask);
+
+  ExtraPatternsNormCollection extraDescriptionNorms( discrEtDepSize
+                                                   , std::vector< Ringer::PreProcessing::Norm::ExtraPatternsNorm* >( discrEtaDepSize, nullptr )
+                                                   );
 
   TIter iter( list.get() );
   while ( TDirectory* dirObj = static_cast<TDirectory*>(iter()) ) {
@@ -733,11 +852,20 @@ RingerProcedureWrapper<
     //ATH_MSG_VERBOSE("Scanning directory " << folderName );
 
     // Filter pre-processing wrapper dirs:
-    if ( IOHelperFcns::startsWith( IRingerProcedureWrapper<
-        PreProcessing::IPreProcessor>::wrapName, folderName) )
+    if ( IOHelperFcns::startsWith( IRingerProcedureWrapper<PreProcessing::IPreProcessor>::wrapName, folderName) )
     {
       // Ok, we don't need to scan this directory, we've handled it before.
       //ATH_MSG_VERBOSE("Directory is PreProcessorWrapper, continuing.." );
+      continue;
+    }
+    // Treat extra patterns normalization
+    if ( IOHelperFcns::startsWith( "ExtraPatternsNorm" , folderName) ){
+      if ( ! static_cast<bool>( extraDescriptionPatterns ) ){
+        throw std::runtime_error("Read ExtraPatternsNorm on file whereas no extra description is needed..." );
+      }
+      IOHelperFcns::getIdxVecFromStr( folderName, extraIdxVec );
+      auto* extraPatNorm = Ringer::PreProcessing::Norm::ExtraPatternsNormVarDep::read( dirObj );
+      extraDescriptionNorms[ extraIdxVec[0] ][ extraIdxVec[1] ] = extraPatNorm;
       continue;
     }
     // Get information about the discriminator on the folder:
@@ -745,14 +873,14 @@ RingerProcedureWrapper<
     EtaDependency fileEtaDep;
     EtDependency fileEtDep;
     try {
-      IOHelperFcns::readVar<discrEnum_t, unsigned int>(dirObj, 
-          "procType", 
+      IOHelperFcns::readVar<discrEnum_t, unsigned int>(dirObj,
+          "procType",
           discrType);
-      IOHelperFcns::readVar<EtaDependency, unsigned int>(dirObj, 
-          "etaDependency", 
+      IOHelperFcns::readVar<EtaDependency, unsigned int>(dirObj,
+          "etaDependency",
           fileEtaDep);
-      IOHelperFcns::readVar<EtDependency, unsigned int>(dirObj, 
-          "etDependency", 
+      IOHelperFcns::readVar<EtDependency, unsigned int>(dirObj,
+          "etDependency",
           fileEtDep);
     } catch (const std::runtime_error &e){
       throw std::runtime_error(std::string("Couldn't get discriminator type "
@@ -778,7 +906,7 @@ RingerProcedureWrapper<
         discrIdxVec[2] >= discrEtaDepSize )
     {
       throw std::runtime_error(std::string("There is something wrong with ")
-            + "folder idxStr: " + folderName + ". Got idxStr " + 
+            + "folder idxStr: " + folderName + ". Got idxStr " +
             IOHelperFcns::makeIdxStr(discrIdxVec) + ". Maximum discrimination "
             "collection size is : " + std::to_string(discrSegDepSize) + "," +
             std::to_string(discrEtDepSize) + "," + std::to_string(discrEtaDepSize));
@@ -789,7 +917,7 @@ RingerProcedureWrapper<
                                       [discrIdxVec[1]]
                                       [discrIdxVec[2]];
 
-    // Check which procedure_t this discrimination wrapper holds. 
+    // Check which procedure_t this discrimination wrapper holds.
     if ( Ringer::is_same<procedure_t, IDiscriminatorVarDep >::value )
     {
       // If the procedure_t is not the Discriminator interface, code will
@@ -802,7 +930,7 @@ RingerProcedureWrapper<
       discrEnum_t wrapperDiscrType = procedure_t::template procType<discrEnum_t>();
       if ( discrType != wrapperDiscrType ){
         throw std::runtime_error( std::string("There is a discriminator of type ") +
-            toStr(discrType) + " whereas this wrapper can only hold discriminators " 
+            toStr(discrType) + " whereas this wrapper can only hold discriminators "
             "of type " + toStr(wrapperDiscrType));
       }
       thisDiscr = procedure_t::read( dirObj );
@@ -817,6 +945,9 @@ RingerProcedureWrapper<
   } else {
     newWrapper = new RingerProcedureWrapper(ppWrapperCol, discrCol);
   }
+
+  newWrapper->setExtraDescriptionPatterns( extraDescriptionPatterns );
+  newWrapper->setExtraDescriptionNorms( extraDescriptionNorms );
 
   return newWrapper;
 

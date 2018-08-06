@@ -9,11 +9,11 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-#include "PixelConditionsServices/IPixelDCSSvc.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
+#include "PixelConditionsTools/IPixelDCSSvc.h"
+#include "PixelConditionsTools/IPixelByteStreamErrorsSvc.h"
+#include "PixelConditionsTools/ISpecialPixelMapSvc.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
-#include "PixelConditionsServices/IPixelTDAQSvc.h"
+#include "PixelConditionsTools/IPixelTDAQSvc.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"

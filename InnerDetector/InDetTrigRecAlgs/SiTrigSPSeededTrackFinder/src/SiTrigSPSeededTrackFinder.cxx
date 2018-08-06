@@ -108,16 +108,6 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
 
 }
 
-//----------------------------------
-//          beginRun method:
-//----------------------------------------------------------------------------
-HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltBeginRun() {
-  
-  msg() << MSG::INFO << "SiTrigSPSeededTrackFinder::beginRun()" << endmsg;
-  return HLT::OK;
-}
-//----------------------------------------------------------------------------
-
 ///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
@@ -703,17 +693,6 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltFinalize() {
 	<< ". Invoked " << m_nInvoked << " times." << endmsg;
   return HLT::OK;
 }
-//----------------------------------
-//          endRun method:
-//----------------------------------------------------------------------------
-HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltEndRun() {
-   
-  msg() << MSG::INFO << "SiTrigSPSeededTrackFinder::endRun()" << endmsg;
- 
-  return HLT::OK;
-}
- 
-//---------------------------------------------------------------------------
 
 ///////////////////////////////////////////////////////////////////
 // Overload of << operator MsgStream

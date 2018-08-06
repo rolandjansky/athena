@@ -34,7 +34,7 @@ class IAsgElectronRingerSelector : virtual public IAsgSelectionTool
 {
 
   ASG_TOOL_INTERFACE(IAsgElectronRingerSelector)
-  
+
   public:
 
   /** Virtual Destructor */
@@ -51,7 +51,7 @@ class IAsgElectronRingerSelector : virtual public IAsgSelectionTool
 
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
-  
+
   /** The basic Ringer selector tool execution */
   virtual StatusCode execute(const xAOD::Electron* eg) const = 0;
 
@@ -60,7 +60,7 @@ class IAsgElectronRingerSelector : virtual public IAsgSelectionTool
 
   /** Get last executed TAccept answer */
   virtual const Root::TAccept& getTAccept() const = 0;
-  
+
   /** Get last executed TResult value */
   virtual const std::vector<float>& getOutputSpace() const = 0;
 

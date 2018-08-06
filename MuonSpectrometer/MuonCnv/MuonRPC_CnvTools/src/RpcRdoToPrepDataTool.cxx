@@ -28,7 +28,6 @@
 
 // BS access 
 //#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
 //Muon cool db access
 #include "MuonCondInterface/IRPCConditionsSvc.h"
@@ -55,13 +54,11 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_doingSecondLoopAmbigColls(false),   //!< true if running a second loop over ambiguous collections in RoI-based mode
     m_reduceCablingOverlap(true),         //!< toggle on/off the overlap removal
     m_timeShift(0.),                      //!< any global time shift ?!
-    m_useBStoRdoTool(false),              //!< true if running trigger (EF) on BS input
     m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
     m_muonMgr(nullptr),
     m_rpcHelper(nullptr),
     m_rpcCabling(nullptr),
     //m_padHashIdHelper(0),
-    m_rawDataProviderTool("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder"),
     m_rSummarySvc("RPCCondSummarySvc", name),
     m_fullEventDone(false)
@@ -77,10 +74,8 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
   declareProperty("reduceCablingOverlap",      m_reduceCablingOverlap       = true);
   declareProperty("timeShift",                 m_timeShift                  = -12.5); // Zmumu muons are at t=0 in PRD time-domain
   
-  declareProperty("useBStoRdoTool",            m_useBStoRdoTool       = false);
   declareProperty("DecodeData",                m_decodeData = true );
   // tools 
-  declareProperty ("RawDataProviderTool",      m_rawDataProviderTool);
   declareProperty ("RdoDecoderTool",           m_rpcRdoDecoderTool);
   
   declareProperty("RPCInfoFromDb",             m_RPCInfoFromDb  = false );
@@ -134,9 +129,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
   }
   else ATH_MSG_VERBOSE(" MuonDetectorManager retrieved");
   
-  
-  // Get RpcRawDataProviderTool
-  ATH_CHECK( m_rawDataProviderTool.retrieve( DisableTool{ !m_useBStoRdoTool } ));
   
   // Get RpcRdoDecoderTool
   ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );  
@@ -290,24 +282,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   /// RPC context
   IdContext rpcContext = m_rpcHelper->module_context();
   
-  if(m_useBStoRdoTool) { 
-    // we come here if the entire rdo container is not yet in SG (i.e. in EF with BS input) 
-    // ask RpcRawDataProviderTool to decode the list of robs and to fill the rdo IDC
-    if (sizeVectorRequested == 0) {
-      if (m_rawDataProviderTool->convert().isFailure()) {
-	msg (MSG::FATAL) << "BS conversion into RDOs failed" << endmsg;
-	return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("BS conversion into RDOs for the entire event done !");
-    }
-    else {
-      if (m_rawDataProviderTool->convert(rdoHashVec).isFailure()) {
-	msg (MSG::FATAL) << "BS conversion into RDOs failed" << endmsg;
-	return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("BS conversion into RDOs for the selected collections done !");
-    }
-  }
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
   auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
@@ -412,11 +386,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
         StatusCode sc = m_rpcCabling->giveRDO_fromPRD(idVectToBeDecoded, rdoHashVec);
         if (StatusCode::SUCCESS != sc) return sc;
-        if (m_rawDataProviderTool->convert(rdoHashVec).isFailure()) {
-          msg (MSG::FATAL) << "BS conversion into RDOs failed" << endmsg;
-          return StatusCode::FAILURE;
-        }
-        ATH_MSG_DEBUG("BS conversion into RDOs for the selected collections done !");
       }
     }
     if (! m_solvePhiAmbiguities) {
@@ -529,13 +498,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
   /// RPC context
   IdContext rpcContext = m_rpcHelper->module_context();
 
-  if(m_useBStoRdoTool) {
-    // we come here if the entire rdo container is not yet in SG (i.e. in EF with BS input) 
-    // ask RpcRawDataProviderTool to decode the list of robs and to fill the rdo IDC
-    CHECK( m_rawDataProviderTool->convert(robIdsToBeDecoded) );
-    ATH_MSG_DEBUG("BS conversion into RDOs for the selected ROBs done !");
-  }
-  
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
   auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);

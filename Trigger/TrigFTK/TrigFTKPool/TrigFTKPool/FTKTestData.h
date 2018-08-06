@@ -17,6 +17,6 @@ public:
   int getValue() const;
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(FTKTestData,827647585,1)
 #endif // FTKTestData_h

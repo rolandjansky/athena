@@ -106,7 +106,7 @@ namespace JiveXML {
         //Get the cluster
         const InDet::SiCluster* sicluster = (*SiClusterItr);
         const InDet::PixelCluster *cluster = dynamic_cast<const InDet::PixelCluster*>(sicluster);
-        
+        if (not cluster) continue;
         //and the detector element for that cluster via the id
         Identifier id = m_geo->PixelIDHelper()->wafer_id(cluster->identify());
         InDetDD::SiDetectorElement* element = m_geo->PixelGeoManager()->getDetectorElement(id);
@@ -115,13 +115,13 @@ namespace JiveXML {
           continue ;
         }
 
-        //Now store all the infromation we've obtained so far
+        //Now store all the information we've obtained so far
         x0.push_back(DataType(cluster->globalPosition().x() /10.));
         y0.push_back(DataType(cluster->globalPosition().y() /10.));
         z0.push_back(DataType(cluster->globalPosition().z() /10.));
         widthx.push_back(DataType(cluster->width().phiR()/10.0));
         widthy.push_back(DataType(cluster->width().z()/10.0));
-	eloss.push_back(DataType(cluster->energyLoss()));
+	      eloss.push_back(DataType(cluster->energyLoss()));
 
         //Get the cluster id
         Identifier clusterId = cluster->identify();

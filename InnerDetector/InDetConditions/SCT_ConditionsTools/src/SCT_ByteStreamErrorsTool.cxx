@@ -110,7 +110,7 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   
-  //  if (isRODSimulatedData()) return false;
+  if (m_checkRODSimulatedData and isRODSimulatedData(elementIdHash)) return false;
   
   bool result{true};
 
@@ -145,8 +145,6 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   
-  //  if (isRODSimulatedData()) return false;
-
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
     return isGood(elementIdHash);
@@ -167,6 +165,10 @@ SCT_ByteStreamErrorsTool::isGoodChip(const Identifier& stripId) const {
     ATH_MSG_WARNING("moduleId obtained from stripId " << stripId << " is invalid.");
     return false;
   }
+
+  const Identifier waferId{m_sct_id->wafer_id(stripId)};
+  const IdentifierHash waferHash{m_sct_id->wafer_hash(waferId)};
+  if (m_checkRODSimulatedData and isRODSimulatedData(waferHash)) return false;
 
   // tempMaskedChips and abcdErrorChips hold 12 bits.
   // bit 0 (LSB) is chip 0 for side 0.
@@ -379,6 +381,14 @@ SCT_ByteStreamErrorsTool::isRODSimulatedData() const {
   const SCT_ByteStreamFractionContainer* fracData{getFracData()};
   if (fracData==nullptr) return false;
   return fracData->majority(SCT_ByteStreamFractionContainer::SimulatedData);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+bool
+SCT_ByteStreamErrorsTool::isRODSimulatedData(const IdentifierHash& elementIdHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const std::set<IdentifierHash>& errorSet{getErrorSet(SCT_ByteStreamErrors::RODSimulatedData, ctx)};
+  return (errorSet.count(elementIdHash)!=0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -71,11 +71,9 @@ namespace InDet {
     
     //!<  Basic algorithm methods:
     virtual HLT::ErrorCode hltInitialize();
-    virtual HLT::ErrorCode hltBeginRun();
     virtual HLT::ErrorCode hltExecute(const HLT::TriggerElement* input,
 				      HLT::TriggerElement* output);
     virtual HLT::ErrorCode hltFinalize();
-    virtual HLT::ErrorCode hltEndRun();
 
     // Method to prepare ROB id list
     using HLT::FexAlgo::prepareRobRequests;

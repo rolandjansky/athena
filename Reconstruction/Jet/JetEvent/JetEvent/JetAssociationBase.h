@@ -13,6 +13,7 @@ namespace Analysis {
   class PhotonAssociationCnv_p1;
   class MuonAssociationCnv_p1;
   class ElectronAssociationCnv_p1;
+  class ISvxAssociationCnv_p1;
 }
 
 // RS HERE
@@ -47,6 +48,7 @@ protected:
   friend class Analysis::PhotonAssociationCnv_p1;
   friend class Analysis::MuonAssociationCnv_p1;
   friend class Analysis::ElectronAssociationCnv_p1;
+  friend class Analysis::ISvxAssociationCnv_p1;
   
   // JetAssociationBase();
   

@@ -20,8 +20,8 @@ namespace InDet
      PixelCluster_p1() {}
      // base
      TPObjRef	m_siCluster;
-     float 	m_omegax;
-     float 	m_omegay;
+     float 	m_omegax{};
+     float 	m_omegay{};
    };
 }
 

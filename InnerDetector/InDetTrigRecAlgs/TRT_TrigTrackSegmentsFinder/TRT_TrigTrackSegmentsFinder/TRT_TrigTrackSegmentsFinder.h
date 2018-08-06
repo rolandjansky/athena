@@ -35,11 +35,9 @@ namespace InDet {
 
       TRT_TrigTrackSegmentsFinder(const std::string &name, ISvcLocator *pSvcLocator);
       virtual ~TRT_TrigTrackSegmentsFinder() {};
-      HLT::ErrorCode hltBeginRun();
       HLT::ErrorCode hltInitialize();
       HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
       HLT::ErrorCode hltFinalize();
-      HLT::ErrorCode hltEndRun();
 
       //parameters for monitoring
       double m_RoIPhi;

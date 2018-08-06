@@ -80,7 +80,7 @@ StatusCode LArPedestalMaker::execute()
   } 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
-  const LArDigitContainer* larDigitContainer;
+  const LArDigitContainer* larDigitContainer = nullptr;
 
   for (;key_it!=key_it_e;key_it++) {
     StatusCode sc= evtStore()->retrieve(larDigitContainer,*key_it);

@@ -7,7 +7,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "SGTools/StlVectorClids.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 

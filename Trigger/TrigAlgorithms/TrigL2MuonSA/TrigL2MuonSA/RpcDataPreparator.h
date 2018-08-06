@@ -97,6 +97,7 @@ class RpcDataPreparator: public AthAlgTool
       const RpcIdHelper* m_rpcIdHelper;
 
       // handles to the RoI driven data access
+      ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
       ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
       //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider {
       // 	this, "RpcPrepDataProvider", "Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool", ""};
@@ -110,6 +111,9 @@ class RpcDataPreparator: public AthAlgTool
       // for writing.
       bool m_use_RoIBasedDataAccess;
       bool m_isFakeRoi;
+
+      // Flag to decide whether or not to run BS decoding
+      Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
 };
 
 } // namespace TrigL2MuonSA

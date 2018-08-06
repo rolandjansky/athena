@@ -8,6 +8,7 @@ from AthenaCommon.Include import include
 from AthenaCommon.Constants import VERBOSE,DEBUG, INFO
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr as CfgMgr
 
 ### workaround to prevent online trigger folders to be enabled ###
@@ -37,7 +38,7 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import HLTRecoSequence, MenuSequence
+from TrigUpgradeTest.MenuComponents import MenuSequence
 
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
@@ -81,7 +82,6 @@ if TriggerFlags.doMuon:
   muonRecFlags.doTrackPerformance    = True
   muonRecFlags.TrackPerfSummaryLevel = 2
   muonRecFlags.TrackPerfDebugLevel   = 5
-  muonRecFlags.doCSCs                = True
   muonRecFlags.doNSWNewThirdChain    = False
   muonCombinedRecFlags.doCaloTrkMuId = False
   muonCombinedRecFlags.printSummary = False
@@ -216,9 +216,8 @@ if TriggerFlags.doMuon:
   
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
       RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool",
-                                                           OutputLevel         = INFO,
-                                                           RawDataProviderTool = MuonRpcRawDataProviderTool,
-                                                           useBStoRdoTool      = True)
+                                                           OutputLevel         = INFO)
+
       ToolSvc += RpcRdoToRpcPrepDataTool
   
       from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
@@ -234,6 +233,7 @@ if TriggerFlags.doMuon:
                                                     ProviderTool = MuonRpcRawDataProviderTool,
                                                     OutputLevel  = INFO)
       if doEFSA:
+        efMuViewNode += RpcRawDataProvider
         efMuViewNode += RpcRdoToRpcPrepData
       #if doL2SA:
       #  l2MuViewNode += RpcRawDataProvider
@@ -317,7 +317,9 @@ if TriggerFlags.doMuon:
     if muonRecFlags.doRPCs():
       from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
       L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(OutputLevel = DEBUG,
-                                                            RpcPrepDataProvider = RpcRdoToRpcPrepDataTool)
+                                                            RpcPrepDataProvider = RpcRdoToRpcPrepDataTool,
+                                                            RpcRawDataProvider = MuonRpcRawDataProviderTool,
+                                                            DecodeBS = DetFlags.readRDOBS.RPC_on())
       ToolSvc += L2RpcDataPreparator
        
       muFastAlg.DataPreparator.RPCDataPreparator = L2RpcDataPreparator
@@ -360,15 +362,15 @@ if TriggerFlags.doMuon:
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastAlg.MuonL2SAInfo
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode ])
 
-    l2muFast_HLTSequence = HLTRecoSequence("l2muFast_HLTSequence",
-                                          Sequence=l2muFastSequence,
-                                          Maker=l2MuViewsMaker,
-                                          Seed="L1MU")
+    ## l2muFast_HLTSequence = HLTRecoSequence("l2muFast_HLTSequence",
+    ##                                       Sequence=l2muFastSequence,
+    ##                                       Maker=l2MuViewsMaker,
+    ##                                       Seed="L1MU")
     
-    muFastStep = MenuSequence("muFastStep",
-                                      recoSeqList=[l2muFast_HLTSequence],
-                                      Hypo=trigMufastHypo,
-                                      HypoToolClassName="TrigMufastHypoToolConf")
+    muFastStep = MenuSequence( Sequence=l2muFastSequence,
+                                 Maker=l2MuViewsMaker,
+                                 Hypo=trigMufastHypo,
+                                 HypoToolClassName="TrigMufastHypoToolConf")
 
 # ===========================================
 #          SET L2MUCOMB
@@ -420,15 +422,15 @@ if TriggerFlags.doMuon:
     l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, l2muCombViewNode ] )
 
 
-    l2muComb_HLTSequence = HLTRecoSequence("l2muComb_HLTSequence",
-                                          Sequence=l2muCombSequence,
-                                          Maker=l2muCombViewsMaker,
-                                          Seed="L1MU")
+    ## l2muComb_HLTSequence = HLTRecoSequence("l2muComb_HLTSequence",
+    ##                                       Sequence=l2muCombSequence,
+    ##                                       Maker=l2muCombViewsMaker,
+    ##                                       Seed="L1MU")
 
-    muCombStep = MenuSequence("muCombStep", 
-                                      recoSeqList=[l2muComb_HLTSequence],
-                                      Hypo=trigmuCombHypo,
-                                      HypoToolClassName="TrigmuCombHypoToolConf")
+    muCombStep = MenuSequence(  Sequence=l2muCombSequence,
+                                  Maker=l2muCombViewsMaker,
+                                  Hypo=trigmuCombHypo,
+                                  HypoToolClassName="TrigmuCombHypoToolConf")
 
 
 # ===========================================

@@ -163,7 +163,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
 StatusCode PixelDigitizationTool::digitizeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
-  SiChargedDiodeCollection  *chargedDiodes = new SiChargedDiodeCollection;
+  SiChargedDiodeCollection  chargedDiodes;
   std::vector<std::pair<double,double> > trfHitRecord; trfHitRecord.clear(); 
   std::vector<double> initialConditions; initialConditions.clear();
 
@@ -192,7 +192,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     }
 
     // Create the charged diodes collection
-    chargedDiodes->setDetectorElement(sielement);
+    chargedDiodes.setDetectorElement(sielement);
     const InDetDD::PixelModuleDesign *p_design= static_cast<const InDetDD::PixelModuleDesign*>(&(sielement->design()));
 
     ///////////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 	//Create signal in sensor, loop over collection of loaded sensorTools
 	for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());
-          if (m_chargeTool[itool]->induceCharge( *phit, *chargedDiodes, *sielement, *p_design, trfHitRecord, initialConditions)==StatusCode::FAILURE) { break; }
+          if (m_chargeTool[itool]->induceCharge( *phit, chargedDiodes, *sielement, *p_design, trfHitRecord, initialConditions)==StatusCode::FAILURE) { break; }
         }
 	initialConditions.clear();
 	trfHitRecord.clear();
@@ -224,13 +224,13 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     ATH_MSG_DEBUG("Apply processor tools");
     for (unsigned int itool=0; itool<m_processorTool.size(); itool++) {
       ATH_MSG_DEBUG("Executing tool " << m_processorTool[itool]->name());
-      m_processorTool[itool]->process(*chargedDiodes);
+      m_processorTool[itool]->process(chargedDiodes);
     }
 
-    ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes->identify()));
-    ATH_MSG_DEBUG("in digitize elements with hits: ec - layer - eta - phi  " << m_detID->barrel_ec(chargedDiodes->identify()) << " - " << m_detID->layer_disk(chargedDiodes->identify()) << " - " << m_detID->eta_module(chargedDiodes->identify()) << " - " << m_detID->phi_module(chargedDiodes->identify()));
+    ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes.identify()));
+    ATH_MSG_DEBUG("in digitize elements with hits: ec - layer - eta - phi  " << m_detID->barrel_ec(chargedDiodes.identify()) << " - " << m_detID->layer_disk(chargedDiodes.identify()) << " - " << m_detID->eta_module(chargedDiodes.identify()) << " - " << m_detID->phi_module(chargedDiodes.identify()));
 
-    IdentifierHash idHash = chargedDiodes->identifyHash();
+    IdentifierHash idHash = chargedDiodes.identifyHash();
 
     assert(idHash<processedElements.size());
     processedElements[idHash] = true;
@@ -238,20 +238,20 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     ///////////////////////////////////////////////////////////
     // ***       Create and store RDO and SDO   ****
     ///////////////////////////////////////////////////////////
-    if (!chargedDiodes->empty()) {
+    if (!chargedDiodes.empty()) {
 
-      PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes->identifyHash());
-      RDOColl->setIdentifier(chargedDiodes->identify());
+      PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes.identifyHash());
+      RDOColl->setIdentifier(chargedDiodes.identify());
       for (unsigned int itool=0; itool<m_fesimTool.size(); itool++) {
         ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
-        m_fesimTool[itool]->process(*chargedDiodes,*RDOColl);
+        m_fesimTool[itool]->process(chargedDiodes,*RDOColl);
       }
       CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
  
       ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
       addSDO(chargedDiodes);
     }
-    chargedDiodes->clear();
+    chargedDiodes.clear();
   }
   delete m_timedHits;
   m_timedHits = nullptr;
@@ -271,35 +271,35 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
         if (element) {
           ATH_MSG_DEBUG ("In digitize of untouched elements: layer - phi - eta  " << m_detID->layer_disk(element->identify()) << " - " << m_detID->phi_module(element->identify()) << " - " << m_detID->eta_module(element->identify()) << " - " << "size: " << processedElements.size());
 
-          chargedDiodes->setDetectorElement(element);
+          chargedDiodes.setDetectorElement(element);
           ATH_MSG_DEBUG("Digitize non hit element");
 
           // Apply processor tools
           ATH_MSG_DEBUG("Apply processor tools");
           for (unsigned int itool=0; itool<m_processorTool.size(); itool++) {
             ATH_MSG_DEBUG("Executing tool " << m_processorTool[itool]->name());
-            m_processorTool[itool]->process(*chargedDiodes);
+            m_processorTool[itool]->process(chargedDiodes);
           }
 
           // Create and store RDO and SDO
-          if (!chargedDiodes->empty()) {
-            PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes->identifyHash());
-            RDOColl->setIdentifier(chargedDiodes->identify());
+          if (!chargedDiodes.empty()) {
+            PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes.identifyHash());
+            RDOColl->setIdentifier(chargedDiodes.identify());
             for (unsigned int itool=0; itool<m_fesimTool.size(); itool++) {
               ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
-              m_fesimTool[itool]->process(*chargedDiodes,*RDOColl);
+              m_fesimTool[itool]->process(chargedDiodes,*RDOColl);
             }
             CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 
             ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
             addSDO(chargedDiodes);
           }
-          chargedDiodes->clear();
+          chargedDiodes.clear();
         }
       }
     }
   }
-  delete chargedDiodes;
+  //delete chargedDiodes;
   ATH_MSG_DEBUG("non-hits processed");
 
   return StatusCode::SUCCESS;
@@ -310,7 +310,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 //=======================================
 // Convert a SiTotalCharge to a InDetSimData, and store it. (this needs working...)
 //-----------------------------------------------------------------------------------------------
-void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
+void PixelDigitizationTool::addSDO(SiChargedDiodeCollection & collection) {
 
   typedef SiTotalCharge::list_t list_t;
 
@@ -318,16 +318,13 @@ void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
   deposits.reserve(5); // no idea what a reasonable number for this would be with pileup
 
   // loop over the charged diodes
-  SiChargedDiodeIterator EndOfDiodeCollection = collection->end();
-  for(SiChargedDiodeIterator i_chargedDiode=collection->begin(); i_chargedDiode!=EndOfDiodeCollection; ++i_chargedDiode) {
+  for(const auto & chargedDiode:collection) {
     deposits.clear();
-    const list_t& charges = (*i_chargedDiode).second.totalCharge().chargeComposition();
-
+    const list_t& charges = chargedDiode.second.totalCharge().chargeComposition();
     bool real_particle_hit = false;
     // loop over the list
     list_t::const_iterator EndOfChargeList =  charges.end();
     for ( list_t::const_iterator i_ListOfCharges = charges.begin(); i_ListOfCharges!=EndOfChargeList; ++i_ListOfCharges) {
-
       const HepMcParticleLink& trkLink = i_ListOfCharges->particleLink();
       int barcode = trkLink.barcode();
       if ((barcode == 0) || (barcode == m_vetoThisBarcode)){
@@ -351,7 +348,7 @@ void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
     }
     // add the simdata object to the map:
     if(real_particle_hit || m_createNoiseSDO) {
-      m_simDataColl->insert(std::make_pair(collection->getId((*i_chargedDiode).first),InDetSimData(deposits,(*i_chargedDiode).second.flag())));
+      m_simDataColl->insert(std::make_pair(collection.getId(chargedDiode.first),InDetSimData(deposits,chargedDiode.second.flag())));
     }
   }
 }

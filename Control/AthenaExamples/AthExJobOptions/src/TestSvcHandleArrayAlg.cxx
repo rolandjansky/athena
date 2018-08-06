@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthExJobOptions/TestSvcHandleArrayAlg.h"
@@ -41,14 +41,6 @@ StatusCode TestSvcHandleArrayAlg::reinitialize()
    return initialize();
 }
 
-//___________________________________________________________________________
-StatusCode TestSvcHandleArrayAlg::beginRun()
-{
-
-// perform work needed at start of every run
-
-   return StatusCode::SUCCESS;
-}
 
 //___________________________________________________________________________
 StatusCode TestSvcHandleArrayAlg::execute()
@@ -72,12 +64,6 @@ StatusCode TestSvcHandleArrayAlg::execute()
   return StatusCode::SUCCESS;
 }
 
-//___________________________________________________________________________
-StatusCode TestSvcHandleArrayAlg::endRun()
-{
-  
-   return StatusCode::SUCCESS;
-}
 
 //___________________________________________________________________________
 StatusCode TestSvcHandleArrayAlg::finalize()

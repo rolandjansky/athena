@@ -133,14 +133,6 @@ class SimpleView : public IProxyDict
 
 
 		/**
-		 * @brief Inform HIVE that an object has been updated.
-		 * @param id The CLID of the object.
-		 * @param key The key of the object.
-		 */
-		/// TEMPORARY: This method is being added.  It eventually should be pure.
-		virtual StatusCode updatedObject (CLID /*id*/, const std::string& /*key*/);
-
-		/**
 		 * @brief Tell the store that a handle has been bound to a proxy.
 		 * @param handle The handle that was bound.
 		 * The default implementation does nothing.

@@ -8,32 +8,60 @@
 
 #include "Thresholds.h"
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer {
 
-/** 
- * @brief Namespace dedicated for Ringer Discrimination utilities 
+/**
+ * @brief Namespace dedicated for Ringer Discrimination utilities
  **/
 namespace Discrimination {
 
 // =============================================================================
 inline
 void UniqueThreshold::execute(const std::vector<float> &input,
-    std::vector<bool> &output) const 
+    std::vector<bool> &output, const DepVarStruct &/*depVar*/) const
 {
 #ifndef NDEBUG
-  ATH_MSG_DEBUG("Applying UniqueThreshold (Value: " << m_threshold 
+  ATH_MSG_DEBUG("Applying UniqueThreshold (Value: " << m_threshold
       << "). Output space is: " << input);
 #endif
   output.clear();
   if ( input.empty() ) {
     throw std::runtime_error(
-        std::string("Entered UniqueDimThreshold.execute" 
+        std::string("Entered UniqueThreshold.execute"
           " with input.size() == 0"));
   }
   output.push_back( input[0] > m_threshold );
+#ifndef NDEBUG
+  std::ios_base::fmtflags flags = std::cout.flags();
+  ATH_MSG_DEBUG("Decision is: " << output);
+  // reset previous cout flags
+  std::cout.flags(flags);
+#endif
+}
+
+// =============================================================================
+inline
+void LinearPileupCorrectionThreshold::execute(const std::vector<float> &input,
+    std::vector<bool> &output, const DepVarStruct &depVar) const
+{
+#ifndef NDEBUG
+  ATH_MSG_DEBUG("Applying LinearPileupCorrectionThreshold (Intercept: " <<  m_intercept
+      << ",Slope:" << m_slope << ",maxPileupValue:" << m_maxPileupValue
+      << "). Output space is: " << input);
+#endif
+  output.clear();
+  if ( input.empty() ) {
+    throw std::runtime_error(std::string("Entered LinearPileupCorrectionThreshold.execute"
+          " with input.size() == 0"));
+  }
+  auto pileup = depVar.pileupEstimation;
+  pileup = (pileup > m_maxPileupValue)?m_maxPileupValue:pileup;
+
+  output.push_back( input[0] > (m_intercept + m_slope * pileup) );
+
 #ifndef NDEBUG
   std::ios_base::fmtflags flags = std::cout.flags();
   ATH_MSG_DEBUG("Decision is: " << output);

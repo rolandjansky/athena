@@ -6,12 +6,7 @@
 /// Write out a ISvxAssociation
 ///
 
-#define private public
-#define protected public
 #include "JetTagEvent/ISvxAssociation.h"
-#undef private
-#undef protected
-
 #include "JetTagInfoTPCnv/ISvxAssociationCnv_p1.h"
 
 namespace Analysis {
@@ -29,7 +24,7 @@ namespace Analysis {
 					   ISvxAssociation_p1 *persObj,
 					   MsgStream &)
   {
-    persObj->m_keyIndex = transObj->m_keyIndex;
+    persObj->m_keyIndex = transObj->keyIndex();
   }
 }
 

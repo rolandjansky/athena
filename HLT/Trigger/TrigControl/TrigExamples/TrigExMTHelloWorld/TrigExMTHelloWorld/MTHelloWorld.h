@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -12,8 +12,6 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode execute();
   virtual StatusCode finalize();
-  virtual StatusCode beginRun();
-  virtual StatusCode endRun();
   virtual StatusCode start();
   virtual StatusCode stop();
   

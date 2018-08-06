@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -46,7 +46,7 @@ namespace InDet
       m_doIBLresidual(false),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
-      m_mon_counter(0),
+      m_mon_counter(1),
       m_mon_prescale(1),
       m_mon_ptmin(1)
   {
@@ -118,16 +118,6 @@ namespace InDet
   TrigTrackingxAODCnv::~TrigTrackingxAODCnv()
   {}
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackingxAODCnv::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackingxAODCnv::beginRun()" << endmsg;
-    m_mon_counter = 1;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
 
   ///////////////////////////////////////////////////////////////////
   // Initialisation
@@ -336,18 +326,6 @@ namespace InDet
     return HLT::OK;
   }
 
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackingxAODCnv::hltEndRun() {
-
-    msg() << MSG::INFO << "TrigTrackingxAODCnv::endRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
-
-
   //---------------------------------------------------------------------------
   //  update the monitoring arrays
   //---------------------------------------------------------------------------
@@ -500,7 +478,7 @@ namespace InDet
 
     //+++ Prescale
     if (m_mon_counter >= m_mon_prescale) {
-      m_mon_counter = 0;
+      m_mon_counter = 1;
     } else {
       return;
     }

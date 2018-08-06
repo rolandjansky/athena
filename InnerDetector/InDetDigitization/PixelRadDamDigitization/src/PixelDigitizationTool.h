@@ -49,7 +49,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
 
   protected:
-    void addSDO(SiChargedDiodeCollection *collection);
+    void addSDO(SiChargedDiodeCollection &collection);
 
   private:
 

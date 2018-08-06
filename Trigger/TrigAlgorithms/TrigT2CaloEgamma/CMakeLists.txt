@@ -9,9 +9,6 @@ atlas_subdir( TrigT2CaloEgamma )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloGeoHelpers
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
                           Control/AthenaBaseComps
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigRinger
@@ -32,12 +29,12 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigT2CaloEgammaLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT2CaloEgamma
-                   LINK_LIBRARIES CaloEvent CaloGeoHelpers DataModel SGTools xAODTrigCalo xAODTrigRinger GaudiKernel TrigSteeringEvent TrigT2CaloCommonLib CaloDetDescrLib TrigT2CaloCalibrationLib TrigTimeAlgsLib
+                   LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTrigCalo xAODTrigRinger GaudiKernel TrigSteeringEvent TrigT2CaloCommonLib CaloDetDescrLib TrigT2CaloCalibrationLib TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES CaloIdentifier AthLinks IRegionSelector TrigT1Interfaces )
 
 atlas_add_component( TrigT2CaloEgamma
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloEvent CaloGeoHelpers DataModel SGTools xAODTrigCalo xAODTrigRinger GaudiKernel TrigT2CaloCommonLib TrigSteeringEvent CaloDetDescrLib CaloIdentifier AthLinks IRegionSelector TrigT1Interfaces TrigT2CaloCalibrationLib TrigTimeAlgsLib TrigT2CaloEgammaLib )
+                     LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTrigCalo xAODTrigRinger GaudiKernel TrigT2CaloCommonLib TrigSteeringEvent CaloDetDescrLib CaloIdentifier AthLinks IRegionSelector TrigT1Interfaces TrigT2CaloCalibrationLib TrigTimeAlgsLib TrigT2CaloEgammaLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

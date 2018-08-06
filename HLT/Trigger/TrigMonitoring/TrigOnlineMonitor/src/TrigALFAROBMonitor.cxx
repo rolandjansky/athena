@@ -490,26 +490,10 @@ StatusCode TrigALFAROBMonitor::execute() {
   return StatusCode::SUCCESS;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode TrigALFAROBMonitor::finalize() {
-
-  // Get the messaging service
-  ATH_MSG_INFO( "finalize()" );
-
-  // delete decoded objects
-
-//  m_trigROBDataProviderSvc.reset();
-
-  return StatusCode::SUCCESS;
-}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode TrigALFAROBMonitor::beginRun() {
-
-  // Get a message stream instance
-  ATH_MSG_INFO("beginRun()");
+StatusCode TrigALFAROBMonitor::start() {
 
   const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
   if(!ctp_confg) {
@@ -781,9 +765,8 @@ StatusCode TrigALFAROBMonitor::beginRun() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode TrigALFAROBMonitor::endRun() {
+StatusCode TrigALFAROBMonitor::stop() {
 
-  ATH_MSG_INFO("endRun()");
   reset1LBhistos(m_LB);
 
   return StatusCode::SUCCESS;

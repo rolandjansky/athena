@@ -51,6 +51,7 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
     const GeoBox* moduleBox = new GeoBox(thickness/2.,width/2.,length/2.);
     const GeoShape * moduleShape = moduleBox;
     m_theModule = new GeoLogVol(logName,moduleShape,air);
+    m_theModule->ref();
   } 
   else {
 
@@ -66,6 +67,7 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
 
     if(m_moduleSvcThickness<0.001) {
       m_theModule = new GeoLogVol(logName,moduleShape,air);
+      m_theModule->ref();
     }
     else {
       const GeoShape * gblShape = 0;

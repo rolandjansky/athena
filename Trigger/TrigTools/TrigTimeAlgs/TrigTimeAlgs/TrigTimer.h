@@ -11,8 +11,8 @@
 #include <iostream>
 #include <string>
 #include <cmath>
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
  * @class TrigTimer  

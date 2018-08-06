@@ -73,7 +73,7 @@
  * 64-bit quantities, producing a 127-bit result.  This allows processing
  * 128 bits at a time.
  *
- * A few other subtleties that are worth mentioning.  First, when the value
+ * A few other subtleties are worth mentioning.  First, when the value
  * of p is written, the initial 1 bit is often dropped.  So for the example
  * above, we were calculating a 4-bit CRC with a p of 0x16, but in practice
  * one might drop the initial 1 on p and  write it as 0x6 (with the bit
@@ -106,7 +106,7 @@
  * For a folding step, we take a block of 256 bits (A in the above example)
  * and reduce it to a block of 128 bits (A' in the above).  Suppose
  * we have a 256-bit A that's divided into a 64-bit H, a 64-bit L,
- * and a 64-bit G:
+ * and a 128-bit G:
  *
  *   A = 2^192 H + 2^128 L + G
  *

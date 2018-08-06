@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -109,25 +109,6 @@ namespace InDet{
     //declareProperty("ErrorStrategy",m_errorStrategy);
   }
 
-  //----------------------------------  
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SCT_TrgClusterization::hltBeginRun() {
-
-
-    ATH_MSG_INFO( "SCT_TrgClusterization::beginRun() configured with "
-		  << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
-    if (m_doFullScan) ATH_MSG_INFO( "FullScan mode" );
-    ATH_MSG_INFO( "will be driven by RoI objects" );
-
-    /*
-    StatusCode sc = m_rawDataProvider->initContainer();
-    if (sc.isFailure())
-      msg() << MSG::WARNING << "RDO container cannot be registered" << endmsg;
-    */
-    return HLT::OK;
-  }
-
 
   //----------------------------------  
   //          Initialize method:
@@ -225,8 +206,6 @@ namespace InDet{
       ATH_MSG_ERROR( "Raw data provider not available" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
-
-
  
     if (m_checkBadModules){
       if (m_pSummaryTool.retrieve().isFailure()){
@@ -238,6 +217,11 @@ namespace InDet{
       m_pSummaryTool.disable();
     }
 
+    ATH_MSG_INFO( "SCT_TrgClusterization configured with "
+                  << "PhiHalfWidth: " << m_phiHalfWidth << " EtaHalfWidth: "<< m_etaHalfWidth );
+    if (m_doFullScan) ATH_MSG_INFO( "FullScan mode" );
+    ATH_MSG_INFO( "will be driven by RoI objects" );
+    
     m_timerSGate   = addTimer("SGate");
     m_timerCluster  = addTimer("Cluster");
     m_timerRegSel = addTimer("RegSel");
@@ -617,20 +601,6 @@ namespace InDet{
     }
     return HLT::OK;
   }
-  //----------------------------------  
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SCT_TrgClusterization::hltEndRun() {
-
-    // Get the messaging service, print where you are
-    ATH_MSG_INFO( "SCT_TrgClusterization::hltEndRun()" );
-
-    return HLT::OK;
-  }
-
-  //---------------------------------------------------------------------------
-
-
 
   //-------------------------------------------------------------------------
   HLT::ErrorCode SCT_TrgClusterization::prepareRobRequests(const HLT::TriggerElement* inputTE ) {

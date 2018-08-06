@@ -74,11 +74,11 @@ atlas_add_test( egammaRunData
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
               )
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonRunData )
-atlas_add_test( photonRunData
- 		SCRIPT test/test_photon_run_data.sh
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu )
+atlas_add_test( photonMenu
+ 		SCRIPT test/test_photon_menu.sh
                  PROPERTIES TIMEOUT 500
- 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonRunData               )
+ 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu   )
 
 #		EXTRA_PATTERNS "TriggerSummary"
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )
@@ -123,7 +123,7 @@ atlas_add_test( EmuL1Decoding
 
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
-		EXTRA_PATTERNS "\[Alg\]"
+		EXTRA_PATTERNS "-s TriggerMonitorFinal"		
 )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
@@ -133,6 +133,12 @@ atlas_add_test( NewJO
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
 		)
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )
+atlas_add_test( l1sim
+		SCRIPT test/test_l1sim.sh
+                PROPERTIES TIMEOUT 500 
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim
+		)
+
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/test*.sh )

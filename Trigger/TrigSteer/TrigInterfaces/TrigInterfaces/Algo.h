@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINTERFACES_Algo_H
@@ -56,8 +56,6 @@ namespace HLT
    *
    * - hltInitialize()
    * - hltStart()
-   * - hltBeginRun()
-   * - hltEndRun()
    * - hltStop()
    * - hltFinalize()
    *
@@ -74,21 +72,19 @@ namespace HLT
    * \par Call sequence for OFFLINE running
    * The call sequence for offline running is as follows:   
      \verbatim
-        hltInitialize -> hltStart -> [hltBeginRun -> hltEndRun]+ -> hltStop -> hltFinalize   \endverbatim   
-   * For each run-number change the hltBeginRun() and hltEndRun() methods are called. hltStart() and
-   * hltStop() are called once at the beginning and end of the job.
+        hltInitialize -> hltStart -> hltStop -> hltFinalize   \endverbatim
+   * hltStart() and hltStop() are called once at the beginning and end of the job.
    *
    * \par Call sequence for ONLINE running
    * The call sequence for online running is as follows:
      \verbatim
-        hltInitialize -> [hltStart -> hltBeginRun -> hltEndRun -> hltStop]+ -> hltFinalize   \endverbatim
+        hltInitialize -> [hltStart -> hltStop]+ -> hltFinalize   \endverbatim
    * Compared to offline, the hltStart() and hltStop() methods are called at the beginning and
    * end of each run, i.e. at every run-number change. This is to allow for resetting of
    * monitoring histograms, etc. for each run.
    *
    * As a general rule, code that has to be executed once per run in the online but once per job in
-   * the offline (e.g. histogram booking) should be put into hltStart() and hltStop(). All other
-   * run-dependent code should be put into hltBeginRun() and hltEndRun().
+   * the offline (e.g. histogram booking) should be put into hltStart() and hltStop().
    */
 
   class Algo : public AthAlgorithm, public IMonitoredAlgo {
@@ -127,32 +123,11 @@ namespace HLT
     
     /**
      * @brief Method to be redefined by the user to implement the actions performed
-     *        by the algorithm at the BeginRun state transition.
-     * @return HLT::ErrorCode for the BeginRun transition.
-     *
-     * This method should contain code that is exectuded on each run-number change
-     * for both online and offline running.
-     */
-    virtual HLT::ErrorCode hltBeginRun() { return HLT::OK; }
-
-    /**
-     * @brief Method to be redefined by the user to implement the actions performed
-     *        by the algorithm at the EndRun state transition.
-     * @return HLT::ErrorCode for the EndRun transition.
-     *
-     * This method should contain code that is exectuded on each run-number change
-     * for both online and offline running.
-     */
-    virtual HLT::ErrorCode hltEndRun() { return HLT::OK; }
-
-    /**
-     * @brief Method to be redefined by the user to implement the actions performed
      *        by the algorithm at the Stop state transition.
      * @return StatusCode for the Stop process.
      *
      * Offline this method is called once per job after the last event.
-     * Online it is called at the end of each run (i.e. run-number change)
-     * just after hltEndRun().
+     * Online it is called at the end of each run (i.e. run-number change).
      */
     virtual HLT::ErrorCode hltStop() { return HLT::OK; }
 
@@ -275,22 +250,6 @@ namespace HLT
      */
     StatusCode start();
     
-    /**
-     * @brief Method performing the BeginRun transition.
-     * @return StatusCode for the BeginRun process.
-     *
-     * Calls the public hltBeginRun method; not to be re-implemented/used by developers.     
-     */
-    StatusCode beginRun();
-
-    /**
-     * @brief Method performing the EndRun transition.
-     * @return StatusCode for the EndRun process.
-     *
-     * Calls the public hltEndRun method; not to be re-implemented/used by developers.
-     */
-    StatusCode endRun();
-
     /**
      * @brief Method performing the Stop transition
      * @return StatusCode for the Stop process.
@@ -517,22 +476,6 @@ namespace HLT
      */
     StatusCode stopMonitors();
     
-    /**
-     * @brief Method performing monitoring operations associated to the BeginRun transition.
-     * @return StatusCode for the monitoring BeginRun process.
-     *
-     * Currently does nothing.
-     */
-    StatusCode beginRunMonitors();
-
-    /**
-     * @brief Method performing monitoring operations associated to the EndRun transition.
-     * @return StatusCode for the monitoring EndRun process, always StatusCode::SUCCESS.
-     *
-     * Currently does nothing.
-     */
-    StatusCode endRunMonitors();
-
      /**
      * @brief Method performing monitoring operations before the event.
      * @return StatusCode for the pre-event monitoring process.

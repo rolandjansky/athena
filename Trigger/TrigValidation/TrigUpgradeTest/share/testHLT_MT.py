@@ -30,7 +30,8 @@ class opt :
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
-    doL1Unpacking    = True
+    doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
+    doL1Sim          = False          # (re)run L1 simulation
 #
 ################################################################################
 
@@ -112,7 +113,6 @@ setModifiers = ['noLArCalibFolders',
                 #'enableCoherentPS',
                 'useOracle',
                 'enableHotIDMasking',
-                'softTRTsettings',
                 'openThresholdRPCCabling',
 ]
 
@@ -308,8 +308,141 @@ from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
 svcMgr += LVL1ConfigSvc()
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
+if opt.doL1Sim:
+    logLevel=DEBUG
+    from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
+    caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker")
+    caloTowerMaker.ZeroSuppress = True
+    caloTowerMaker.CellType     = 3
+
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2CPMTowerMaker
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2JetElementMaker
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPMSim
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMJetSim
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JEMEnergySim
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__CPCMX
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__JetCMX
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__EnergyCMX
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__RoIROD
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Tester
+
+    from TrigT1MBTS.TrigT1MBTSConf import LVL1__TrigT1MBTS
+    from TrigT1ZDC.TrigT1ZDCConf import LVL1__TrigT1ZDC
+
+    
+    from AthenaCommon.CFElements import seqAND
+    
+    l1CaloSim = seqAND('l1CaloSim',[
+        caloTowerMaker,
+        #LVL1__Run2CPMTowerMaker( 'CPMTowerMaker', ExtraInputs=["XYZ#1"], ExtraOutputs=["XYZ#2"]) ,
+        LVL1__Run2CPMTowerMaker( 'CPMTowerMaker') ,
+        LVL1__Run2JetElementMaker( 'JetElementMaker'),
+        LVL1__CPMSim( 'CPMSim' ) ,
+        LVL1__JEMJetSim( 'JEMJetSim' ) ,
+        LVL1__JEMEnergySim( 'JEMEnergySim' ) ,
+        LVL1__CPCMX( 'CPCMX' ) ,
+        LVL1__JetCMX( 'JetCMX' ) ,
+        LVL1__EnergyCMX( 'EnergyCMX' ) ,
+        LVL1__RoIROD( 'RoIROD' ),
+        LVL1__TrigT1MBTS(),
+        LVL1__TrigT1ZDC()
+    ])
+    for a in l1CaloSim.Members:
+        a.OutputLevel=logLevel
+        
+    from IOVDbSvc.CondDB import conddb
+    L1CaloFolderList = []
+    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib"]
+    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib"]
+    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/RunParameters"]
+    #L1CaloFolderList += ["/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars"]
+    #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/VgaDac"]
+    #L1CaloFolderList += ["/TRIGGER/Receivers/Conditions/Strategy"]
+    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Conditions/DisabledTowers"]
+    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels"]
+    L1CaloFolderList += ["/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"]
+
+    
+    for l1calofolder in L1CaloFolderList:
+        #conddb.addFolderWithTag("TRIGGER_OFL", l1calofolder, "HEAD")
+        conddb.addFolder( "TRIGGER_OFL", l1calofolder )
+    # muons
+    from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
+    MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = True,
+                                                     DecodeRpcRDO = True,
+                                                     DecodeTgcRDO = True,
+                                                     DecodeCscRDO = True ) 
+    
+    MuonRdoToMuonDigitTool.cscCalibTool = ToolSvc.CscCalibTool
+
+    ToolSvc += MuonRdoToMuonDigitTool
+
+    from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigit
+    from TrigT1RPCsteering.TrigT1RPCsteeringConf import TrigT1RPC    
+    from TrigT1TGC.TrigT1TGCConf import LVL1TGCTrigger__LVL1TGCTrigger
+    from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
+    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+
+    ToolSvc += L1MuctpiTool("L1MuctpiTool")
+    ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+    
+    ToolSvc += L1MuctpiTool("LVL1MUCTPI__L1MuctpiTool") # one for topo, no idea why we need two
+    ToolSvc.LVL1MUCTPI__L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+    
+    
+
+
+    muctpi             = L1Muctpi()
+    muctpi.OutputLevel = logLevel
+    muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+    
+    l1MuonSim = seqAND("l1MuonSim", [
+        
+        MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
+                            MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool,
+                            OutputLevel            = logLevel),
+        
+        TrigT1RPC("TrigT1RPC",
+                  Hardware          = True, # not sure if needed, not there in old config, present in JO
+                  DataDetail        = False,
+                  RPCbytestream     = False,
+                  RPCbytestreamFile = "", OutputLevel=logLevel),
+        
+        # base on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
+        # interesting is that this JO sets inexisting properties, commented out below
+        LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
+                                       InputData_perEvent  = "TGC_DIGITS", 
+                                      # ASDOutDataLocation = "/Event/ASDOutDataLocation",
+                                      # MuonTrigConfig     = "/Run/MuonTrigConfig",
+                                       MuCTPIInput_TGC     = "/Event/L1MuctpiStoreTGC",
+                                       MaskFileName        = "TrigT1TGCMaskedChannel.db",
+                                       MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
+                                       OutputLevel         = logLevel),
+        muctpi
+        
+    ])
+    # only needed for MC
+    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI")
+    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW")
+    conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE")
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+    from TrigT1CTP.TrigT1CTPConfig import CTPSimulationInReco
+    from TrigT1RoIB.TrigT1RoIBConfig import RoIBuilder
+
+    ctp             = CTPSimulationInReco("CTPSimulation")
+    ctp.DoLUCID     = False
+    ctp.DoBCM       = False
+    ctp.DoL1Topo    = False
+    ctp.OutputLevel = logLevel
+    ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
+    ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
+    
+    l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim] )
+    
+    topSequence += l1Sim
+
 if opt.doL1Unpacking:
-    if globalflags.InputFormat.is_bytestream():
+    if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
         from TrigUpgradeTest.TestUtils import L1DecoderTest
     #topSequence += L1DecoderTest(OutputLevel = opt.HLTOutputLevel)
         topSequence += L1DecoderTest(OutputLevel = DEBUG)

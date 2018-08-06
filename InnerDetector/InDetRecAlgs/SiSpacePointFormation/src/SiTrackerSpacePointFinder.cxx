@@ -11,9 +11,9 @@ ATLAS Collaboration
 
 
 #include "SiSpacePointFormation/SiTrackerSpacePointFinder.h"
-#include "SiSpacePointFormation/SiElementPropertiesTable.h"
 
 // For processing clusters
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -35,9 +35,6 @@ ATLAS Collaboration
 
 namespace InDet {
 
-const SiElementPropertiesTable* SiTrackerSpacePointFinder::s_properties = nullptr;
-
-
 //------------------------------------------------------------------------
   SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string& name,
       ISvcLocator* pSvcLocator)
@@ -52,7 +49,6 @@ const SiElementPropertiesTable* SiTrackerSpacePointFinder::s_properties = nullpt
     m_overlapLimitPhi(5.64),  // overlap limit for phi-neighbours.
     m_overlapLimitEtaMin(1.68),  // low overlap limit for eta-neighbours.
     m_overlapLimitEtaMax(3.0),  // high overlap limit for eta-neighbours.
-    m_epsWidth(0.02),  // safety margin for half-widths, in cm.
     m_overrideBS(false),
     m_xVertex(0.),
     m_yVertex(0.),
@@ -153,13 +149,8 @@ StatusCode SiTrackerSpacePointFinder::initialize()
     // also need the SCT Manager to get the detectorElementCollection
     ATH_CHECK(detStore()->retrieve(m_manager,"SCT"));
 
-    // Make a table of neighbours and widths of side 1 SCT wafers
-    //ADAM - removed const cast to test without
-    //Using const static to save memory in cases of multiple instances of this algorithm.
-    if(s_properties==nullptr){
-       const InDetDD::SiDetectorElementCollection* elements =(m_manager->getDetectorElementCollection());
-       s_properties = new SiElementPropertiesTable(*m_idHelper, *elements, m_epsWidth);
-    }
+    // Initialize the key of input SiElementPropertiesTable for SCT
+    ATH_CHECK(m_SCTPropertiesKey.initialize());
   }
 
   ATH_CHECK(m_SiSpacePointMakerTool.retrieve());
@@ -187,6 +178,15 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
 
 
   ++m_numberOfEvents;
+  const SiElementPropertiesTable* properties = nullptr;
+  if (m_selectSCTs) {
+    SG::ReadCondHandle<SiElementPropertiesTable> sctProperties(m_SCTPropertiesKey, ctx);
+    properties = sctProperties.retrieve();
+    if (properties==nullptr) {
+      ATH_MSG_FATAL("Pointer of SiElementPropertiesTable (" << m_SCTPropertiesKey.fullKey() << ") could not be retrieved");
+      return StatusCode::SUCCESS;
+    }
+  }
   SPFCache r_cache(ctx);
   if (! m_overrideBS){
     r_cache.vertex = m_iBeamCondSvc->beamVtx().position();
@@ -255,7 +255,8 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
       const SCT_ClusterCollection *colNext=&(**it);
       // Create SpacePointCollection
       IdentifierHash idHash = colNext->identifyHash();
-      if(spacePointContainer_SCT->tryFetch(idHash)){
+      SpacePointContainer::IDC_WriteHandle lock = spacePointContainer_SCT->getWriteHandle(idHash);
+      if(lock.alreadyPresent()){
           ATH_MSG_DEBUG("SCT Hash " << idHash << " is already in cache");
           ++sctCacheCount;
           continue; //Skip if already present in cache
@@ -266,7 +267,8 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
       spacepointCollection->setIdentifier(elementID);
 
       if ( colNext->size() != 0){
-        addSCT_SpacePoints(colNext,spacepointCollection.get(),spacepointoverlapCollection.ptr(), r_cache);
+        addSCT_SpacePoints(colNext, properties,
+                           spacepointCollection.get(), spacepointoverlapCollection.ptr(), r_cache);
       } else {
         ATH_MSG_DEBUG( "Empty SCT cluster collection" );
       }
@@ -275,7 +277,7 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
         ATH_MSG_VERBOSE( "SiTrackerSpacePointFinder algorithm found no space points" );
       } else {
         //In a MT environment the cache maybe filled by another thread in which case this will delete the duplicate
-        StatusCode sc= spacePointContainer_SCT->addOrDelete( std::move(spacepointCollection), idHash );
+        StatusCode sc= lock.addOrDelete( std::move(spacepointCollection) );
         if (sc.isFailure()){
           ATH_MSG_ERROR( "Failed to add SpacePoints to container" );
           return StatusCode::RECOVERABLE;
@@ -305,8 +307,8 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
     {
       ATH_MSG_VERBOSE( "Collection num " << numColl++ );
       IdentifierHash idHash = (*colNext)->identifyHash();
-
-      if(spacePointContainerPixel->tryFetch(idHash)){
+      SpacePointContainer::IDC_WriteHandle lock = spacePointContainerPixel->getWriteHandle(idHash);
+      if(lock.alreadyPresent()){
           ATH_MSG_DEBUG("pixel Hash " << idHash << " is already in cache");
           ++pixCacheCount;
           continue;
@@ -331,7 +333,7 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
       }
       else
       {
-        StatusCode sc = spacePointContainerPixel->addOrDelete( std::move(spacepointCollection), idHash );
+        StatusCode sc = lock.addOrDelete( std::move(spacepointCollection) );
         if (sc.isFailure())
         {
           ATH_MSG_ERROR( "Failed to add SpacePoints to container" );
@@ -380,9 +382,6 @@ StatusCode SiTrackerSpacePointFinder::finalize()
     ATH_MSG_DEBUG( m_sctCacheHits << " sct cache hits" );
     ATH_MSG_DEBUG( m_pixCacheHits << " pix cache hits" );
   }
-  if(s_properties){
-     delete s_properties; s_properties = nullptr;
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -390,6 +389,7 @@ StatusCode SiTrackerSpacePointFinder::finalize()
 
 void SiTrackerSpacePointFinder::
 addSCT_SpacePoints(const SCT_ClusterCollection* next,
+                   const SiElementPropertiesTable* properties,
     SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache &r_cache) const
 {
 
@@ -409,7 +409,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* next,
     // check2 for phi overlaps
 
     const std::vector<IdentifierHash>*
-      others(s_properties->neighbours(thisHash));
+      others(properties->neighbours(thisHash));
     if (others==0 || others->empty() ) return;
     std::vector<IdentifierHash>::const_iterator otherHash = others->begin();
 
@@ -425,7 +425,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* next,
     overlapColl = true;
     ++otherHash;
     if (otherHash == others->end() ) return;
-    float hwidth(s_properties->halfWidth(thisHash));
+    float hwidth(properties->halfWidth(thisHash));
     // half-width of wafer
 
     checkForSCT_Points(next, *otherHash,

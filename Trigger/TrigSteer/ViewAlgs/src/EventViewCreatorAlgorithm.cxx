@@ -55,7 +55,11 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
   unsigned int viewCounter = 0;
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
 
-  const TrigRoiDescriptor* previousRoI = 0;
+  //  const TrigRoiDescriptor* previousRoI = 0;
+  // mapping RoI with index of the View in the vector
+  // This is used to link the same view to differnt decisions that come from the same RoI
+  std::map <const TrigRoiDescriptor*, int> viewMap;
+  std::map <const TrigRoiDescriptor*, int>::iterator itViewMap;
   size_t outputIndex = 0;
  // Loop over all input containers, which are of course TrigComposites, and request their features
   // this is the same as InputMaker, apart from the view creation. The loop can be splitted in two loops, to have one common part
@@ -100,50 +104,60 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       auto roiDescriptor = *roiDescriptorEL;
       ATH_MSG_DEBUG( "Placing TrigRoiDescriptor " << *roiDescriptor );
       newd->setObjectLink( "initialRoI", roiDescriptorEL );
-      
+
+      // search for existing view
+      itViewMap = viewMap.find(roiDescriptor);
+      if (itViewMap != viewMap.end()){
+	int iview=itViewMap->second;
+	newd->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ));//adding view to TC
+	//	need to check if this View has parent views? can we have more than one parent views?
+      }
+      else{
+
       // this is added for EVCreator explicitally, differently from InputMaker:
-      if ( previousRoI == roiDescriptor ) {
+      //   if ( previousRoI == roiDescriptor ) {
 	// TODO here code supporting the case wnen we have many decisions associated to a single RoI
-	 continue;
+	// continue;
+      //}
+	//      previousRoI = roiDescriptor;
+	
+	ATH_MSG_DEBUG( "Positive decisions on RoI, preparing view" );
+	// fill the RoI output collection
+	auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >();    
+	oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
+	oneRoIColl->push_back( roiDescriptor );
+	
+	// make the view
+	ATH_MSG_DEBUG( "Making the View" );
+	auto newview = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
+	viewVector->push_back( newview );
+	contexts.emplace_back( ctx );
+	contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun ) );
+	
+	// link decision to this view
+	newd->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
+      	viewMap[roiDescriptor]=viewVector->size()-1;
+      
+	// see if there is a view linked to the decision object, if so link it to the view that is just made
+	if ( Idecision->hasObjectLink( "view" ) ) {
+	  auto viewEL = Idecision->objectLink< ViewContainer >( "view" );
+	  CHECK( viewEL.isValid() );
+	  auto parentView = *viewEL;
+	  viewVector->back()->linkParent( parentView );
+	  ATH_MSG_DEBUG( "Parent view linked" );
+	}
+	
+	//store the RoI in the view
+	auto handle = SG::makeHandle( m_inViewRoIs, contexts.back() );
+	CHECK( handle.setProxyDict( viewVector->back() ) );
+	CHECK( handle.record( std::move( oneRoIColl ) ) );
       }
-
-      ATH_MSG_DEBUG( "Positive decisions on RoI, preparing view" );
-      previousRoI = roiDescriptor;
-
-      // fill the RoI output collection
-      auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >();    
-      oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
-      oneRoIColl->push_back( roiDescriptor );
-      
-      // make the view
-      ATH_MSG_DEBUG( "Making the View" );
-      auto newview = ViewHelper::makeView( name()+"_view", viewCounter++, m_viewFallThrough ); //pointer to the view
-      viewVector->push_back( newview );
-      contexts.emplace_back( ctx );
-      contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun ) );
-      
-      // link decision to this view
-      newd->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
-      
-      // see if there is a view linked to the decision object, if so link it to the view that is just made
-      if ( Idecision->hasObjectLink( "view" ) ) {
-	auto viewEL = Idecision->objectLink< ViewContainer >( "view" );
-	CHECK( viewEL.isValid() );
-	auto parentView = *viewEL;
-	viewVector->back()->linkParent( parentView );
-	ATH_MSG_DEBUG( "Parent view linked" );
-      }
-
-      //store the RoI in the view
-      auto handle = SG::makeHandle( m_inViewRoIs, contexts.back() );
-      CHECK( handle.setProxyDict( viewVector->back() ) );
-      CHECK( handle.record( std::move( oneRoIColl ) ) );      
       input_counter++;      
     }
 
-      ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<OutputDecisions->size()  <<" at index "<< outputIndex);
-      CHECK( outputHandles[outputIndex].record( std::move( OutputDecisions ), std::move( dec_aux ) ) );
-      outputIndex++;
+    ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<OutputDecisions->size()  <<" at index "<< outputIndex);
+    CHECK( outputHandles[outputIndex].record( std::move( OutputDecisions ), std::move( dec_aux ) ) );
+    outputIndex++;
   }
 
   

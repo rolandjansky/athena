@@ -6,8 +6,8 @@
 #include "TrigT1CaloUtils/InternalTriggerTower.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 
 CLASS_DEF(LVL1::InternalTriggerTower,   119250601, 1)

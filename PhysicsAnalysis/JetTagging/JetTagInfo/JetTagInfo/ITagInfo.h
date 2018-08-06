@@ -46,7 +46,8 @@ namespace Analysis
     public:
       virtual ~ITagInfo() {}; //!< destructor
       virtual void setTagLikelihood(const std::vector<double>&) = 0; //!< to set the tag likelihood for one tagger
-      virtual std::vector<double> tagLikelihood(void) const = 0;     //!< returns the tag likelihood of one tagger
+      virtual void setTagLikelihood(std::vector<double>&&) = 0; //!< to set the tag likelihood for one tagger
+      virtual const std::vector<double>& tagLikelihood(void) const = 0;     //!< returns the tag likelihood of one tagger
 //       virtual double lhSig(void) const = 0;                          //!< shortcut to retrieve the first element of the tagLikelihood
       virtual void setWeight(double weight) = 0;                     //!< set the weight for one tagger
       virtual double weight() const = 0;                             //!< get the weight of one tagger

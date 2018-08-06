@@ -40,7 +40,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-  	 
+
 #include <string>
 
 class SCT_ID;
@@ -82,13 +82,15 @@ namespace InDet {
     // Convert clusters to space points
 
     void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
-			     const SCT_ClusterContainer* clusterContainer,
-			     SpacePointCollection* spacepointCollection,
-			     SpacePointOverlapCollection* overlapColl); 
+                             const SCT_ClusterContainer* clusterContainer,
+                             const SiElementPropertiesTable* properties,
+                             SpacePointCollection* spacepointCollection,
+                             SpacePointOverlapCollection* overlapColl);
 
     void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
-			     const SCT_ClusterContainer* clusterContainer,
-			     SpacePointCollection* spacepointCollection); 
+                             const SCT_ClusterContainer* clusterContainer,
+                             const SiElementPropertiesTable* properties,
+                             SpacePointCollection* spacepointCollection);
 
 
     void checkForSCT_Points (const SCT_ClusterCollection* clusters1,
@@ -114,7 +116,6 @@ namespace InDet {
     float m_overlapLimitPhi;       //!< overlap limit for phi-neighbours.
     float m_overlapLimitEtaMin;    //!< low overlap limit for eta-neighbours.
     float m_overlapLimitEtaMax;    //!< high overlap limit for eta-neighbours.
-    float m_epsWidth;		   //!< safety margin for half-width.
 
     std::string m_spacePointsOverlapName;
     std::string m_SiSpacePointMakerToolName;
@@ -122,7 +123,6 @@ namespace InDet {
 
     const InDetDD::SCT_DetectorManager *m_manager; 
     const SCT_ID* m_idHelper;
-    InDet::SiElementPropertiesTable* m_properties;
 
     const SCT_ClusterContainer* m_Sct_clcontainer;
     InDet::SiSpacePointMakerTool* m_SiSpacePointMakerTool;

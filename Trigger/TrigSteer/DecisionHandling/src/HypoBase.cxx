@@ -7,7 +7,8 @@
 HypoBase::HypoBase( const std::string& name, ISvcLocator* pSvcLocator )
   : ::AthReentrantAlgorithm( name, pSvcLocator ) {}
 
-HypoBase::~HypoBase() {} 
+HypoBase::~HypoBase() {}
+
 
 const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HypoBase::decisionInput() const{
   return m_input;
@@ -26,3 +27,4 @@ StatusCode HypoBase::sysInitialize() {
   ATH_MSG_DEBUG("HypoBase::sysInitialize()           and produce decision: " << m_output.key() );
   return StatusCode::SUCCESS;
 }
+

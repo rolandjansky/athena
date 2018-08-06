@@ -3,6 +3,7 @@
 from TrigL2MuonSA.TrigL2MuonSAConf import *
 from TrigL2MuonSA.TrigL2MuonSAMonitoring import *
 from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
+from AthenaCommon.DetFlags import DetFlags
 from TrigTimeMonitor.TrigTimeHistToolConfig import *
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
@@ -14,6 +15,12 @@ theStationFitter     = TrigL2MuonSA__MuFastStationFitter()
 theTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
 theTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
 ptFromAlphaBeta      = TrigL2MuonSA__PtFromAlphaBeta()
+
+rpcDataPreparator = TrigL2MuonSA__RpcDataPreparator()
+rpcDataPreparator.DecodeBS = DetFlags.readRDOBS.RPC_on()
+ToolSvc += rpcDataPreparator
+
+theDataPreparator.RPCDataPreparator = rpcDataPreparator
 
 ToolSvc += theDataPreparator
 ToolSvc += thePatternFinder

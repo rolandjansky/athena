@@ -6,6 +6,8 @@
   
 include("TrigUpgradeTest/testHLT_MT.py") 
 
+from AthenaCommon.DetFlags import DetFlags
+
 ### workaround to prevent online trigger folders to be enabled ###
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
@@ -110,7 +112,6 @@ if TriggerFlags.doMuon:
   muonRecFlags.doTrackPerformance    = True
   muonRecFlags.TrackPerfSummaryLevel = 2
   muonRecFlags.TrackPerfDebugLevel   = 5
-  muonRecFlags.doCSCs                = True
   muonRecFlags.doNSWNewThirdChain    = False
   muonCombinedRecFlags.doCaloTrkMuId = False
   muonCombinedRecFlags.printSummary = False
@@ -239,9 +240,9 @@ if TriggerFlags.doMuon:
   
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
       RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool",
-                                                           OutputLevel         = INFO,
-                                                           RawDataProviderTool = MuonRpcRawDataProviderTool,
-                                                           useBStoRdoTool      = True)
+                                                           OutputLevel         = INFO)
+
+
       ToolSvc += RpcRdoToRpcPrepDataTool
   
       from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
@@ -257,6 +258,7 @@ if TriggerFlags.doMuon:
                                                     ProviderTool = MuonRpcRawDataProviderTool,
                                                     OutputLevel  = INFO)
       if doEFSA:
+        efMuViewNode += RpcRawDataProvider
         efMuViewNode += RpcRdoToRpcPrepData
       #if doL2SA:
       #  l2MuViewNode += RpcRawDataProvider
@@ -361,7 +363,9 @@ if TriggerFlags.doMuon:
     if muonRecFlags.doRPCs():
       from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
       L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(OutputLevel = DEBUG,
-                                                            RpcPrepDataProvider = RpcRdoToRpcPrepDataTool)
+                                                            RpcPrepDataProvider = RpcRdoToRpcPrepDataTool,
+                                                            RpcRawDataProvider = MuonRpcRawDataProviderTool,
+                                                            DecodeBS = DetFlags.readRDOBS.RPC_on())
       ToolSvc += L2RpcDataPreparator
        
       muFastAlg.DataPreparator.RPCDataPreparator = L2RpcDataPreparator
@@ -412,6 +416,7 @@ if TriggerFlags.doMuon:
     # make sequences
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode, trigMufastHypo ])
     muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2muFastSequence,  muFastDecisionsDumper ] )
+
 
 
 # ===============================================================================================
@@ -609,9 +614,12 @@ if TriggerFlags.doMuon==True:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+    summary.OutputLevel = DEBUG
+
+#    step = seqAND("firstStep", [parOR("FilterStep1",[filterL1RoIsAlg]), muFastStep])
+
+    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
@@ -628,7 +636,8 @@ if TriggerFlags.doMuon==True:
     summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muonEFSAStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
@@ -647,7 +656,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     step1 = parOR("step1", [ muCombStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, step1, summary ]  ) 
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    step1filter = parOR("step1filter", [ filterL2SAAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
@@ -668,7 +679,12 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     step0 = parOR("step0", [ muFastStep ] )
     step1 = parOR("step1", [ muCombStep ] )
     step2 = parOR("step2", [ muonEFSAStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, step1, step2, summary ]  ) 
+
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    step1filter = parOR("step1filter", [ filterL2SAAlg ] )
+    step2filter = parOR("step2filter", [ filterEFSAAlg ] )
+
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
