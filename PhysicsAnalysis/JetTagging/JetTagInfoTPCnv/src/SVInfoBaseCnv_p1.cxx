@@ -6,9 +6,7 @@
 /// Code for the converters
 ///
 
-#define private public
 #include "JetTagInfo/SVInfoBase.h"
-#undef private
 #include "JetTagInfoTPCnv/SVInfoBaseCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 

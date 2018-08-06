@@ -5,13 +5,8 @@
 #ifndef JETTAGINFOTPCNV_SVInfoPlusCNV_P1_H
 #define JETTAGINFOTPCNV_SVInfoPlusCNV_P1_H
 
-#define private public
-#define protected public
 #include "VxVertex/RecVertex.h"
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
-#undef protected
-#undef private
-
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 #include "JetTagInfoTPCnv/SVInfoPlus_p1.h"
