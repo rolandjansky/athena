@@ -114,9 +114,8 @@ private:
                           std::vector<TObjArray>& sysObjs,
                           std::vector< std::vector<TObjArray>>& uncorrToyMCSyst);
 
-  void calcDetailLevels(const TH1 *eig,
-                        std::array<int,detailLevelEnd>& sLevel,
-                        int& nSys) const ;
+  int calcDetailLevels(const TH1 *eig,
+                        std::array<int,detailLevelEnd>& sLevel) const ;
 
   std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, 
                                           const TObjArray &eig, 
@@ -152,22 +151,18 @@ private:
              const int runNumEnd) const ;
 
 private :
-  ///Private data members
+  ///Flag to control Toys
   bool m_doToyMC;
   bool m_doCombToyMC;
-  //// The detail level
-  int m_detailLevel;
-  //The number of toys
+  ///The number of toys
   int m_nToyMC;
   /// The Random seed
   unsigned long int m_seed;
+  /// The detail level
+  int m_detailLevel;
   ///Maximum number of systematics
   int m_nSysMax;
-  // The positions of the efficiency scale factor correlated sustematic uncertainties in the result
-  std::vector<int> m_position_corrSys; 
-  /// The positions of the toy MC scale factors
-  std::vector<int> m_position_uncorrToyMCSF; ///Uncorrelated toy systematics
-  ///The representation of the prepared toy SF tables
+  //The representation of the prepared toy SF tables
   std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
   std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
   /// The list of file name(s)
@@ -191,7 +186,6 @@ private :
   //The Random generator class   
   TRandom3 m_Rndm;
 }; // End: class definition
-
 } // End: namespace Root
 
 #endif
