@@ -83,6 +83,7 @@ int Root::TForwardElectronLikelihoodTool::initialize()
     ATH_MSG_ERROR("Configuration issue :  CutLikelihood expected size " << number_of_expected_bin <<
                   " input size " << CutLikelihood.size());
     ATH_MSG_ERROR("Could NOT initialize! Please fix the errors mentioned above...");
+    sc = 0;
     return sc;
   }
 
@@ -254,7 +255,7 @@ const Root::TAccept& Root::TForwardElectronLikelihoodTool::accept( LikeEnumForwa
   if ( !passKineEt ){ return m_accept; }
 
   double cutDiscriminant = -999.;
-  unsigned int ibin_combined = etbin*s_fnEtBinsHist+etabin;
+  unsigned int ibin_combined = etbin*s_fnEtaBins+etabin;
 
   if(CutLikelihood.size()){
 
