@@ -137,6 +137,7 @@ namespace pool   {
   public:
     RefCounter() {}
     RefCounter( const RefCounter& ) { m_count = 1; }
+    RefCounter& operator= (const RefCounter&) { return *this; }
     /// Increase the reference count
     int addRef()   { return ++m_count; }
     /// Decrease the reference count 
