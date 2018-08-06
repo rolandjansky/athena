@@ -396,11 +396,14 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
   {
     const Amg::Transform3D& T1  =  element1->transform();
     const Amg::Transform3D& T2  =  element2->transform();
-
+    
+    Amg::Vector3D            C  =  element1->center()   ;
+    
+    
     double x12 = T1(0,0)*T2(0,0)+T1(1,0)*T2(1,0)+T1(2,0)*T2(2,0)                              ;
-    double r   = sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3))                                        ;
+    double r   = sqrt(C[0]*C[0]+C[1]*C[1])                                                    ;
     double s   = (T1(0,3)-T2(0,3))*T1(0,2)+(T1(1,3)-T2(1,3))*T1(1,2)+(T1(2,3)-T2(2,3))*T1(2,2);
-
+    
     double dm  = (m_SCTgapParameter*r)*fabs(s*x12);
     double d   = dm/sqrt((1.-x12)*(1.+x12));
     
