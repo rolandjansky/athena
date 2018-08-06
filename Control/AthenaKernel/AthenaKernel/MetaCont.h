@@ -192,14 +192,6 @@ bool MetaCont<T>::find(const SourceID& it, T*& t) const {
     t=itr->second;
     return true;
   }
-/*
-  else {
-    std::cerr << "SID=" << it << " not found" << std::endl;
-    for (const auto& elt : m_metaSet) {
-      std::cerr << "Container has SID=" << elt.first << std::endl;
-    }
-  }
-*/
 
   return false;
 }
