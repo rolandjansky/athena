@@ -122,7 +122,9 @@ int main() {
     tbb::task_scheduler_init init( 10 );
 
     for ( size_t rep = 0; rep < 100; ++rep ) {
-      ParallelCallTest::launchTests( 20, { &dSFMTScenario, &RanluxScenario, &RanecuScenario } );
+      if (! ParallelCallTest::launchTests( 20, { &dSFMTScenario, &RanluxScenario, &RanecuScenario } ) ) {
+        return 1;
+      }
     }
 
 
