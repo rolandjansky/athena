@@ -256,7 +256,7 @@ StatusCode PixelFastDigitizationTool::prepareEvent(unsigned int)
 }
 
 
-StatusCode PixelFastDigitizationTool::processBunchXing(int /*bunchXing*/,
+StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
                                                        SubEventIterator bSubEvents,
                                                        SubEventIterator eSubEvents)
 {
@@ -264,36 +264,34 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int /*bunchXing*/,
   if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
-  SubEventIterator iEvt(bSubEvents);
-  while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-    PileUpTimeEventIndex thisEventIndex(static_cast<int>(iEvt->time()), iEvt->index());
-    const SiHitCollection* seHitColl(nullptr);
-    if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
-      ATH_MSG_ERROR ( "SubEvent SiHitCollection not found in StoreGate " << seStore.name() );
-      return StatusCode::FAILURE;
-    }
 
+  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-    ATH_MSG_DEBUG ( "SiHitCollection found with " << seHitColl->size() << " hits" );
-    //Copy Hit Collection
-    SiHitCollection* siHitColl(new SiHitCollection("PixelHits"));
-    SiHitCollection::const_iterator i(seHitColl->begin());
-    SiHitCollection::const_iterator e(seHitColl->end());
-    // Read hits from this collection
-    for (; i!=e; ++i) {
-      const SiHit sihit(*i);
-      siHitColl->Insert(sihit);
-    }
-    m_thpcsi->insert(thisEventIndex, siHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_siHitCollList.push_back(siHitColl);
-
-    ++iEvt;
-
-
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+                                          bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " SiHitCollections with key " <<
+                    m_inputObjectName << " found");
   }
 
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  for( ; iColl != endColl; iColl++) {
+    SiHitCollection *siHitColl = new SiHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+    ATH_MSG_DEBUG("SiHitCollection found with " << siHitColl->size() <<
+                  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
+    m_thpcsi->insert(timeIndex, siHitColl);
+    m_siHitCollList.push_back(siHitColl);
+  }
 
   return StatusCode::SUCCESS;
 }
