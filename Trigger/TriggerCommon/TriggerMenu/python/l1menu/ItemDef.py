@@ -355,9 +355,6 @@ class ItemDef:
         LVL1MenuItem('L1_EM15VH_2EM8VH_MU6').setLogic( EM15VH & EM8VH.x(2) &  MU6 & physcond).setTriggerType(TT.muon)    # noqa: F821
 
         # TAU ctpid=[0x40:0x4f]
-        LVL1MenuItem('L1_TAU2'  ).setLogic( HA2   & physcond).setTriggerType( TT.calo )    # noqa: F821
-        LVL1MenuItem('L1_TAU3'  ).setLogic( HA3   & physcond).setTriggerType( TT.calo )    # noqa: F821
-        
         LVL1MenuItem('L1_TAU6'  ).setLogic( HA6   & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_TAU8'  ).setLogic( HA8   & physcond).setTriggerType( TT.calo )    # noqa: F821
 
@@ -402,14 +399,7 @@ class ItemDef:
         LVL1MenuItem('L1_TAU12_FIRSTEMPTY'     ).setLogic( HA12   & firstempty ).setTriggerType( TT.calo )       # noqa: F821
         LVL1MenuItem('L1_TAU30_EMPTY'          ).setLogic( HA30   & cosmiccond ).setTriggerType( TT.calo )       # noqa: F821
         LVL1MenuItem('L1_TAU30_UNPAIRED_ISO').setLogic( HA30  & unpaired_isocond ).setTriggerType( TT.calo )     # noqa: F821
-        
-        #UPC TAU
-        LVL1MenuItem('L1_2TAU2_VTE50').setLogic( HA2.x(2)      & Not(TE50) & physcond).setTriggerType(TT.calo)    # noqa: F821
-        LVL1MenuItem('L1_2TAU3_VTE50').setLogic( HA3.x(2)      & Not(TE50) & physcond).setTriggerType(TT.calo)    # noqa: F821
-        LVL1MenuItem('L1_2TAU2_VTE100').setLogic( HA2.x(2)      & Not(TE100) & physcond).setTriggerType(TT.calo)    # noqa: F821
-        LVL1MenuItem('L1_2TAU3_VTE100').setLogic( HA3.x(2)      & Not(TE100) & physcond).setTriggerType(TT.calo)    # noqa: F821
-        LVL1MenuItem('L1_2TAU2_VTE200').setLogic( HA2.x(2)      & Not(TE200) & physcond).setTriggerType(TT.calo)    # noqa: F821
-        LVL1MenuItem('L1_2TAU3_VTE200').setLogic( HA3.x(2)      & Not(TE200) & physcond).setTriggerType(TT.calo)    # noqa: F821
+
 
         # 3xTAU
         LVL1MenuItem('L1_TAU20_2TAU12'  ).setLogic( HA20 & HA12.x(2)  & physcond).setTriggerType( TT.calo )          # noqa: F821
