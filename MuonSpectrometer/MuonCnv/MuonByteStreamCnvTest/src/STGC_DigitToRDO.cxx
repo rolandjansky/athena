@@ -19,6 +19,9 @@ STGC_DigitToRDO::STGC_DigitToRDO(const std::string& name, ISvcLocator* pSvcLocat
 
 StatusCode STGC_DigitToRDO::initialize()
 {
+  declareProperty("RDOContainerName", m_rdoContainer = "sTGCRDO");
+  declareProperty("DigitContainerName", m_digitContainer = "sTGC_DIGITS");
+  
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_rdoContainer.initialize() );
   ATH_CHECK( m_digitContainer.initialize() );  
@@ -37,8 +40,17 @@ StatusCode STGC_DigitToRDO::execute()
 
   if (digits.isValid() ){
     for (const sTgcDigitCollection* digitColl : *digits ){
-      // Making some assumptions here that digit hash == RDO hash. 
-      IdentifierHash hash = digitColl->identifierHash();
+
+      // Transform the hash id ( digit collection use detector element ID hash, RDO's use 
+      // module Id hash
+      Identifier digitId = digitColl->identify();
+      IdentifierHash hash;
+      int getRdoCollHash = m_idHelper->get_module_hash(digitId,hash);
+      if ( getRdoCollHash !=0 ) {
+	ATH_MSG_ERROR("Could not get the module hash Id");
+	return StatusCode::FAILURE;
+      } 
+
       STGC_RawDataCollection* coll = new STGC_RawDataCollection(hash);
       if (rdos->addCollection(coll,hash).isFailure() ){
         ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
@@ -48,7 +60,11 @@ StatusCode STGC_DigitToRDO::execute()
     
       for (const sTgcDigit* digit : *digitColl ){
         Identifier id = digit->identify();
-        STGC_RawData* rdo = new STGC_RawData(id);
+	uint16_t bcTag = digit->bcTag();
+	float time   = digit->time();
+	float charge = digit->charge();
+	bool isDead = digit->isDead();
+        STGC_RawData* rdo = new STGC_RawData(id, bcTag, time, charge, isDead);
         coll->push_back(rdo);
       }
     }
