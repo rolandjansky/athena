@@ -7,12 +7,12 @@
 #ifndef JetAlgorithm_H
 #define JetAlgorithm_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AnaAlgorithm/AnaAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class IJetExecuteTool;
 
-class JetAlgorithm : public AthAlgorithm { 
+class JetAlgorithm : public EL::AnaAlgorithm { 
 
 public: 
 

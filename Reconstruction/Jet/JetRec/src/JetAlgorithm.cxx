@@ -13,7 +13,7 @@ using std::string;
 
 JetAlgorithm::JetAlgorithm(const std::string& name, 
                            ISvcLocator* pSvcLocator )
-: ::AthAlgorithm( name, pSvcLocator ) {
+: EL::AnaAlgorithm( name, pSvcLocator ) {
   declareProperty( "Tools", m_exetools);
 }
 
