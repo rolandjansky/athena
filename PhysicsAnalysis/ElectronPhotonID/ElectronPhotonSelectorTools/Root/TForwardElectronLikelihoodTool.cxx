@@ -350,8 +350,10 @@ double Root::TForwardElectronLikelihoodTool::EvaluateLikelihood(std::vector<doub
     return -999.;
   }
   
-  if (varVector.size() != s_fnVariables) 
+  if (varVector.size() != s_fnVariables) {
     ATH_MSG_WARNING("Error! Variable vector size mismatch! Check your vector!" );
+    return -999.;
+  }  
   
   double SigmaS = 1.;
   double SigmaB = 1.;
