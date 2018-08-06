@@ -25,10 +25,16 @@ data['emclusters'] = ['eta:1,phi:1,et:180000; eta:1,phi:-1.2,et:35000;',
                       'eta:-0.6,phi:1.7,et:9000;']
 
 data['msmu']  = [';',
-                 'eta:-1.2,phi:0.7,pt:6500; eta:-1.1,phi:0.6,pt:8500;',
-                 'eta:-1.7,phi:-0.2,pt:9500;']
+                 'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;',
+                 'eta:-1.7,phi:-0.2,pt:9500,pt2:8500;']
 
-data['ctp'] = [ 'HLT_g100',  'HLT_2g50 HLT_e20', 'HLT_mu20 HLT_mu8 HLT_2mu8 HLT_mu8_e8' ]
+data['ctp'] = [ 'HLT_e20',
+                'HLT_mu8 HLT_mu81step HLT_e20 HLT_e8 HLT_mu8_e8',
+                'HLT_mu20 HLT_mu8 HLT_mu81step HLT_2mu8 HLT_e8' ]
+
+## data['ctp'] = [ 'HLT_g100',
+##                 'HLT_2g50 HLT_e20',
+##                 'HLT_mu20 HLT_mu8 HLT_2mu8 HLT_mu8_e8' ]
 
 data['l1emroi'] = ['1,1,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.2,0,EM3,EM7',
                    '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
@@ -72,9 +78,10 @@ doElectron=True
 doCombo=True
 
 HLTChains = []
-EnableElChains = []
+EnabledElChains = []
 EnabledMuChains = []
-EnabledMComboChains = []
+EnabledMuComboChains = []
+EnabledElComboChains = []
 
 
 # muon chains
@@ -85,8 +92,9 @@ if doMuon:
 
 
     MuChains  = [
-        Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [muStep1]) , ChainStep("Step2_mu20", [muStep2] )]) ,
-        Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [muStep1]) , ChainStep("Step2_mu8",  [muStep2] ) ] )
+        Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu", [muStep2] )]) ,
+        Chain(name='HLT_mu81step', Seed="L1_MU6",   ChainSteps=[ChainStep("Step1_mu", [muStep1]) ]) ,
+        Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu", [muStep1]) , ChainStep("Step2_mu",  [muStep2] ) ] )
         ]
 
     HLTChains += MuChains
@@ -101,8 +109,8 @@ if doElectron:
     elStep1 = elStep1Sequence()
     elStep2 = elStep2Sequence()
     ElChains  = [
-        Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [elStep1]), ChainStep("Step2_e20",  [elStep2]) ] )
-#        Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [elStep1]) ] )
+        Chain(name='HLT_e20' , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] ),
+        Chain(name='HLT_e8'  , Seed="L1_EM7", ChainSteps=[ ChainStep("Step1_em",  [elStep1]), ChainStep("Step2_em",  [elStep2]) ] )
         ]
 
     HLTChains += ElChains
@@ -111,22 +119,31 @@ if doElectron:
 
 # combined chain
 if doCombo:
-    from TrigUpgradeTest.HLTSignatureConfig import combStep1Sequence, combStep2Sequence
-    muelStep1 = combStep1Sequence()
-    muelStep2 = combStep2Sequence()
+    from TrigUpgradeTest.HLTSignatureConfig import elStep1Sequence, muStep1Sequence, elStep2Sequence, muStep2Sequence
+    elStep1 = elStep1Sequence()
+    muStep1 = muStep1Sequence()
+    elStep2 = elStep2Sequence()
+    muStep2 = muStep2Sequence()
+ 
     CombChains =[
-        Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [muelStep1]),
-                                                                ChainStep("Step2_mu8_e8",  [muelStep2]) ] )
+        Chain(name='HLT_mu8_e8' , Seed="L1_MU6_EM7", ChainSteps=[ ChainStep("Step1_mu_em",  [muStep1, elStep1]), ChainStep("Step2_mu_em",  [muStep2, elStep2])] )         
         ]
 
     HLTChains += CombChains
-    EnabledComboChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in CombChains]
+    for c in CombChains:
+        seeds=c.seed.split("_")
+        seeds.pop(0) #remove first L1 string
+        for s in seeds:
+            if "MU" in s: EnabledMuComboChains.append(s +" : "+ c.name)
+            if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name) 
 
-
+    #EnabledComboChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in CombChains]
+    print "enabled Combo chains: ", EnabledMuComboChains,EnabledElComboChains
 
 EnabledChainNamesToCTP = [str(n)+":"+c.name for n,c in enumerate(HLTChains)]
 
-print EnabledChainNamesToCTP
+
+print "EnabledChainNamesToCTP: ",EnabledChainNamesToCTP
 
 
 
@@ -144,13 +161,15 @@ ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
 l1Decoder.ctpUnpacker = ctpUnpacker
 
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
-emUnpacker.ThresholdToChainMapping = EnabledElChains
-print EnabledElChains
+emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
+print "EMRoIsUnpackingTool enables chians:"
+print emUnpacker.ThresholdToChainMapping
 #["EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
 
 muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
-muUnpacker.ThresholdToChainMapping = EnabledMuChains
-print EnabledMuChains
+muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
+print "MURoIsUnpackingTool enables chians:"
+print muUnpacker.ThresholdToChainMapping
 #["MU6 : HLT_mu6", "MU8 : HLT_mu8", "MU8 : HLT_2mu8",  "MU8 : HLT_mu8_e8",  "MU10 : HLT_mu20",   "EM100 : HLT_g100" ]
 
 l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]

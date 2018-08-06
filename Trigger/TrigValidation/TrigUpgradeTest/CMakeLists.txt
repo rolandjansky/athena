@@ -123,7 +123,7 @@ atlas_add_test( EmuL1Decoding
 
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
-		EXTRA_PATTERNS "\[Alg\]"
+		EXTRA_PATTERNS "-s TriggerMonitorFinal"		
 )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )

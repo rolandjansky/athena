@@ -387,7 +387,7 @@ muFastThresholdsForECWeakBRegion = {
     }
 
 
-def TrigMufastHypoToolFromName( thresholdHLT ):	
+def TrigMufastHypoToolFromName( toolName,  thresholdHLT ):	
         
     name = "TrigMufastHypoTool"
     config = TrigMufastHypoConfig()
@@ -398,7 +398,7 @@ def TrigMufastHypoToolFromName( thresholdHLT ):
     thresholds = config.decodeThreshold( threshold )
     print "TrigMufastHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
 
-    tool=config.ConfigurationHypoTool( thresholdHLT, thresholds )
+    tool=config.ConfigurationHypoTool( toolName, thresholds )
     
     # Setup MonTool for monitored variables in AthenaMonitoring package
     TriggerFlags.enableMonitoring = ["Validation"]
@@ -413,7 +413,7 @@ def TrigMufastHypoToolFromName( thresholdHLT ):
     return tool
 
 
-def TrigmuCombHypoToolFromName( thresholdHLT ):	
+def TrigmuCombHypoToolFromName( toolName, thresholdHLT ):	
         
     name = "TrigmuCombHypoTool"
     config = TrigmuCombHypoConfig()
@@ -425,7 +425,7 @@ def TrigmuCombHypoToolFromName( thresholdHLT ):
     print "TrigmuCombHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
 
     tight = False
-    tool=config.ConfigurationHypoTool( thresholdHLT, thresholds, tight )
+    tool=config.ConfigurationHypoTool( toolName, thresholds, tight )
     
     # Setup MonTool for monitored variables in AthenaMonitoring package
     TriggerFlags.enableMonitoring = ["Validation"]

@@ -26,6 +26,11 @@ StatusCode TriggerSummaryAlg::initialize()
   renounceArray( m_finalDecisionKeys );
   CHECK( m_finalDecisionKeys.initialize() );
 
+  ATH_MSG_DEBUG("Will consume implicit decisions:" );
+  for (auto& input: m_finalDecisionKeys){  
+    ATH_MSG_DEBUG( " "<<input.key() );
+  }
+
   CHECK( m_summaryKey.initialize() );
 
   CHECK( m_outputTools.retrieve() );
@@ -34,7 +39,8 @@ StatusCode TriggerSummaryAlg::initialize()
 }
 
 StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
-{  
+{
+  
   // that is certain input
   auto l1DecisionHandle = SG::makeHandle(  m_inputDecisionKey, context );
   auto inputHandles( m_finalDecisionKeys.makeHandles() );
@@ -48,8 +54,8 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
     } else {
       ATH_MSG_DEBUG( "Missing decisions for " << input.key() << " which may be perfectly correct" );
     }
-
   }
+  
   ATH_MSG_DEBUG( "In summary " << allPassingIDs.size() << " chains passed:" );
   for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
     ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
