@@ -32,7 +32,7 @@ namespace Analysis
       
     public:
       ElectronAssociation() ;      //!< constructor
-      ElectronAssociation(NameType& name) ;      //!< constructor
+      ElectronAssociation(const NameType& name) ;      //!< constructor
       ~ElectronAssociation() ;      //!< destructor
       
       virtual JetAssociationBase* clone() const; 
@@ -45,20 +45,22 @@ namespace Analysis
 			const Electron* the_electron,  double weight=1);
       
       void set_electron(const ElectronContainer* theContainer,
-			index_type& theIndex,   double weight=1);
+			const index_type& theIndex,
+                        double weight=1);
       
       void set_association(const ElectronContainer* theContainer,
 			   const Electron* the_electron,  double weight=1) 
 	{set_electron(theContainer, the_electron, weight);}
       
       void set_association(const ElectronContainer* theContainer,
-			   index_type& theIndex,   double weight=1)
+			   const index_type& theIndex,
+                           double weight=1)
 	{set_electron(theContainer, theIndex, weight);}
       
       double getElectronWeight(const Electron* the_electron) const ;
       
       double getElectronWeight(const ElectronContainer* theContainer,
-			       index_type& theIndex) const;
+			       const index_type& theIndex) const;
       
     } ;
   
