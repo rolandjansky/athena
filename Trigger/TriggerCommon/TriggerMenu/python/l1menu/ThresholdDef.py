@@ -232,7 +232,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('TAU',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60,100]:
+        for thrV in [2, 3, 6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60,100]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
         # beam splashes     
