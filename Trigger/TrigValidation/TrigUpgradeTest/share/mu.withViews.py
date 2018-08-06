@@ -418,6 +418,7 @@ if TriggerFlags.doMuon:
     muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2muFastSequence,  muFastDecisionsDumper ] )
 
 
+
 # ===============================================================================================
 #               Setup muComb                                                                    
 # ===============================================================================================
@@ -613,9 +614,12 @@ if TriggerFlags.doMuon==True:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+    summary.OutputLevel = DEBUG
+
+#    step = seqAND("firstStep", [parOR("FilterStep1",[filterL1RoIsAlg]), muFastStep])
+
+    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
@@ -632,7 +636,8 @@ if TriggerFlags.doMuon==True:
     summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muonEFSAStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
@@ -651,7 +656,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     step1 = parOR("step1", [ muCombStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, step1, summary ]  ) 
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    step1filter = parOR("step1filter", [ filterL2SAAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
@@ -672,7 +679,12 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     step0 = parOR("step0", [ muFastStep ] )
     step1 = parOR("step1", [ muCombStep ] )
     step2 = parOR("step2", [ muonEFSAStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, step1, step2, summary ]  ) 
+
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    step1filter = parOR("step1filter", [ filterL2SAAlg ] )
+    step2filter = parOR("step2filter", [ filterEFSAAlg ] )
+
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 

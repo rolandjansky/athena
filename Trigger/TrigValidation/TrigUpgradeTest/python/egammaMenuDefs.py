@@ -30,7 +30,7 @@ include("InDetRecExample/InDetRecConditionsAccess.py")
 from InDetRecExample.InDetKeys import InDetKeys
 
 # menu components   
-from TrigUpgradeTest.MenuComponents import HLTRecoSequence, MenuSequence
+from TrigUpgradeTest.MenuComponents import MenuSequence
 
 # ===============================================================================================
 #      L2 Calo
@@ -70,17 +70,13 @@ theFastCaloHypo.OutputLevel = DEBUG
 theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 
-fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
+fastCaloAthSequence =  seqAND("fastCaloAthSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
-fastCalo_HLTSequence = HLTRecoSequence("fastCalo_HLTSequence",
-                                         Sequence=fastCaloSequence,
-                                         Maker=fastCaloViewsMaker,                                         
-                                         Seed="L1EM")
-
-fastCaloSequence = MenuSequence("egammaCaloStep",
-                                    recoSeqList=[fastCalo_HLTSequence],
-                                    Hypo=theFastCaloHypo,
-                                    HypoToolClassName="TrigL2CaloHypoToolConf")
+def fastCaloSequence():
+    return  MenuSequence(    Sequence=fastCaloAthSequence,
+                             Maker=fastCaloViewsMaker,
+                             Hypo=theFastCaloHypo,
+                             HypoToolClassName="TrigL2CaloHypoToolConf")
 
 #########################################
 # second step:  tracking.....
@@ -147,16 +143,12 @@ theElectronHypo.OutputLevel = VERBOSE
 # this needs to be added:
 #electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.Output )    
 
-electronSequence = seqAND("electronSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
-
-electron_HLTSequence = HLTRecoSequence("electron_HLTSequence",
-                                       Maker=l2ElectronViewsMaker,                                        
-                                       Sequence=electronSequence,
-                                       Seed="L1EM")
+electronAthSequence = seqAND("electronAthSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
 
 
-electronSequence = MenuSequence("electronStep",
-                                    recoSeqList=[electron_HLTSequence],
-                                    Hypo=theElectronHypo,
-                                    HypoToolClassName="TrigL2ElectronHypoToolConf")
+def electronSequence():
+    return  MenuSequence(    Maker=l2ElectronViewsMaker,                                        
+                             Sequence=electronAthSequence,
+                             Hypo=theElectronHypo,
+                             HypoToolClassName="TrigL2ElectronHypoToolConf")
 

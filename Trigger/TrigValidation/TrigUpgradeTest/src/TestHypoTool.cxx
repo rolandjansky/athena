@@ -16,8 +16,6 @@ namespace HLTTest {
     ITestHypoTool( name ),
     AthAlgTool( type, name, parent )
   {
-    // declareProperty( "Threshold", m_threshold );
-    // declareProperty( "Property", m_property );
     m_decisionId=HLT::Identifier::fromToolName(name );
   }
 
@@ -64,6 +62,7 @@ namespace HLTTest {
 	  ATH_MSG_DEBUG( "  threshold " << m_threshold << " passed by value: " << v );	
 	  addDecisionID(  m_decisionId, d );
 	}
+	else ATH_MSG_DEBUG( "  threshold " << m_threshold << " not passed by value " << v );
       }
       else {
 	ATH_MSG_DEBUG("No Input decisions requested by active chain "<< m_decisionId);
