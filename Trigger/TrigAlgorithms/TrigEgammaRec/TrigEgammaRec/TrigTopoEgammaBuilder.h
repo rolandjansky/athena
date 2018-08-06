@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGTOPOEGAMMABUILDER_H
@@ -44,6 +44,7 @@
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
+#include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h" 
 
 #include "xAODPrimitives/IsolationType.h"
@@ -130,6 +131,10 @@ private:
   
   /** Luminosity Tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; 
+
+   /** @brief Tool for extrapolation */
+   ToolHandle<IEMExtrapolationTools> m_extrapolationTool;
+
   // booleans to run specific parts of offline reconstruction
   bool m_doConversions;
   bool m_doTrackMatching;
