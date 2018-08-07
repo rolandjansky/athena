@@ -120,8 +120,8 @@ HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs)
   // Create the histogram and register it
   H* h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
   if ( m_histSvc->regHist( fullName, static_cast<TH1*>( h ) ).isFailure() ) {    
-    throw HistogramFillerCreateException("Histogram >"+ fullName + "< can not be registered in THistSvc");
     delete h;
+    throw HistogramFillerCreateException("Histogram >"+ fullName + "< can not be registered in THistSvc");
 
   }
   
