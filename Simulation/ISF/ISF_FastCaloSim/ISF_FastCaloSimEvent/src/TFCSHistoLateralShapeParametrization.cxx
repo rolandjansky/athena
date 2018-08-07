@@ -37,7 +37,7 @@ void TFCSHistoLateralShapeParametrization::set_number_of_hits(float nhits)
   m_nhits=nhits;
 }
 
-void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   const int cs=calosample();
   const double center_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
@@ -67,6 +67,9 @@ void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationS
     ATH_MSG_ERROR("  Histogram: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" alpha="<<alpha<<" r="<<r<<" rnd1="<<rnd1<<" rnd2="<<rnd2);
     alpha=0;
     r=0.001;
+
+    ATH_MSG_ERROR("  This error could probably be retried");
+    return FCSFatal;
   }
   
   const float delta_eta_mm = r * cos(alpha);
@@ -82,6 +85,8 @@ void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationS
   hit.phi() = center_phi + delta_phi;
 
   ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<" r="<<r<<" alpha="<<alpha);
+
+  return FCSSuccess;
 }
 
 

@@ -26,7 +26,7 @@ TFCSSimpleLateralShapeParametrization::~TFCSSimpleLateralShapeParametrization()
 }
 
 
-void TFCSSimpleLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSSimpleLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
   hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
@@ -42,6 +42,8 @@ void TFCSSimpleLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulation
 
   hit.eta() += delta_eta;
   hit.phi() += delta_phi;
+
+  return FCSSuccess;
 }
 
 
@@ -138,4 +140,3 @@ void TFCSSimpleLateralShapeParametrization::getHitXY(double &x, double &y)
     y = m_rnd->Gaus(0, m_sigmaY);
 
 }
-
