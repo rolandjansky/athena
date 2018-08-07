@@ -37,7 +37,7 @@ def createAlgorithm( typeName, instanceName ):
     pass
 
 
-def createPublicTool( toolName, typeName ):
+def createPublicTool( typeName, toolName ):
     """Helper function for setting up a public tool for a dual-use algorithm
 
     This function is meant to be used in the analysis algorithm sequence
@@ -46,9 +46,9 @@ def createPublicTool( toolName, typeName ):
     Athena and EventLoop.
 
     Keyword arguments:
+      typeName -- The C++ type name of the private tool
       toolName -- The property name with which the tool handle was declared on
                   the algorithm. Also the instance name of the tool.
-      typeName -- The C++ type name of the private tool
     """
 
     try:
