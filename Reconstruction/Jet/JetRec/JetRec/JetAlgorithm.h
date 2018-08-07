@@ -2,34 +2,34 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// JetAlgorithm.h 
+// JetAlgorithm.h
 
 #ifndef JetAlgorithm_H
 #define JetAlgorithm_H
 
 #include "AnaAlgorithm/AnaAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/ToolHandle.h"
 
 class IJetExecuteTool;
 
-class JetAlgorithm : public EL::AnaAlgorithm { 
+class JetAlgorithm : public EL::AnaAlgorithm {
 
-public: 
+public:
 
-  /// Constructor with parameters: 
+  /// Constructor with parameters:
   JetAlgorithm(const std::string& name, ISvcLocator* pSvcLocator);
 
-  /// Destructor: 
-  ~JetAlgorithm(); 
+  /// Destructor:
+  ~JetAlgorithm();
 
   /// Athena algorithm's Hooks
   StatusCode  initialize();
   StatusCode  execute();
   StatusCode  finalize();
 
-private: 
+private:
 
-  /// Default constructor: 
+  /// Default constructor:
   JetAlgorithm();
 
 private:
@@ -37,6 +37,6 @@ private:
   /// Athena configured tools
   ToolHandleArray<IJetExecuteTool> m_exetools;
 
-}; 
+};
 
 #endif

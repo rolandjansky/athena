@@ -31,5 +31,6 @@
 #include "JetRec/PseudoJetGetter.h"
 #include "JetRec/PseudoJetGetterRegistry.h"
 
+#include "JetRec/JetAlgorithm.h"
 
 #endif

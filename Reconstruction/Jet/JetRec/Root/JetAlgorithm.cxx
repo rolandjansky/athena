@@ -2,16 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// JetAlgorithm.cxx 
+// JetAlgorithm.cxx
 
-#include "JetAlgorithm.h"
+#include "JetRec/JetAlgorithm.h"
 #include "JetInterface/IJetExecuteTool.h"
 
 using std::string;
 
 //**********************************************************************
 
-JetAlgorithm::JetAlgorithm(const std::string& name, 
+JetAlgorithm::JetAlgorithm(const std::string& name,
                            ISvcLocator* pSvcLocator )
 : EL::AnaAlgorithm( name, pSvcLocator ) {
   declareProperty( "Tools", m_exetools);
@@ -50,7 +50,7 @@ StatusCode JetAlgorithm::finalize() {
 
 //**********************************************************************
 
-StatusCode JetAlgorithm::execute() {  
+StatusCode JetAlgorithm::execute() {
   ATH_MSG_VERBOSE("Executing " << name() << "...");
   // Loop over tools.
   unsigned int ntools = m_exetools.size();

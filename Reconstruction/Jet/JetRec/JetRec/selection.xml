@@ -27,4 +27,6 @@
 <class name="PseudoJetGetter"/>
 <class name="PseudoJetGetterRegistry"/>
 
+<class name="JetAlgorithm"/>
+
 </lcgdict>
