@@ -123,6 +123,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='This script checks applied scale factors written to a file by MuonEfficiencyCorrections/MuonEfficiencyCorrectionsSFFilesTest. For more help type \"python CheckAppliedSFs.py -h\"', prog='CheckAppliedSFs', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--InputFile', help='Specify an input root file', default="Applied_SFs.root")
+    parser.add_argument('-o', '--outDir', help='Specify a destination directory', default="Plots")
     parser.add_argument('-l', '--label', help='Specify the dataset you used with MuonEfficiencyCorrectionsSFFilesTest', default="361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu")
     parser.add_argument('-w', '--WP', help='Specify a WP to plot', nargs='+', default=[])
     parser.add_argument('--varType', help='Specify a variation type', nargs='+', default=["", "MUON_EFF_RECO_SYS__1down", "MUON_EFF_RECO_STAT__1down"])
@@ -177,8 +178,8 @@ if __name__ == "__main__":
     ROOT.gROOT.SetBatch(1)
     gc.disable()
     
-    if os.path.isdir("Plots") == False:
-        os.system("mkdir -p Plots")
+    if os.path.isdir(Options.outDir) == False:
+        os.system("mkdir -p %s"%(Options.outDir))
     
     bonusname=Options.bonusname
 
@@ -225,7 +226,7 @@ if __name__ == "__main__":
     if len(calibReleases)==2:
 
         dummy = ROOT.TCanvas("dummy", "dummy", 800, 600)
-        dummy.SaveAs("Plots/AllAppliedSFCheckPlots%s.pdf[" % (bonusname))
+        dummy.SaveAs("%s/AllAppliedSFCheckPlots%s.pdf[" % (Options.outDir, bonusname))
         
         can = ROOT.TCanvas("calibcomparison%s"%(bonusname),"SFCheck",1000,600)
         can.SetLogy()
@@ -275,10 +276,10 @@ if __name__ == "__main__":
                     pu.DrawTLatex(0.55, 0.5, Options.bonuslabel)
                     pu.DrawTLatex(0.55, 0.55, "WP: %s, %s"%(wp,variationDrawn))
                     pu.DrawTLatex(0.55, 0.6, corrType)
-                    can.SaveAs("Plots/AppliedSFCheck_%s_%s_%s%s.pdf"%(wp,t,var,bonusname))
-                    can.SaveAs("Plots/AllAppliedSFCheckPlots%s.pdf" % (bonusname))
+                    can.SaveAs("%s/AppliedSFCheck_%s_%s_%s%s.pdf"%(Options.outDir, wp,t,var,bonusname))
+                    can.SaveAs("%s/AllAppliedSFCheckPlots%s.pdf" % (Options.outDir, bonusname))
 
-        dummy.SaveAs("Plots/AllAppliedSFCheckPlots%s.pdf]" % (bonusname))
+        dummy.SaveAs("%s/AllAppliedSFCheckPlots%s.pdf]" % (Options.outDir, bonusname))
         
     else:
         print "INFO: Currently, only release comaparisons are implemented"
