@@ -160,21 +160,21 @@ namespace InDet {
       m_biasZ0HistError = nullptr;
       m_biasQoverPsagittaHistError = nullptr;
       return StatusCode::FAILURE;
-    } else if (runNumber <= 340368) {
+    } else if (runNumber <= 341649) {
       if (runNumber < 297730) {
-        ATH_MSG_INFO( "Calibrating for 2015 runs (before 297730)." );
+        ATH_MSG_INFO( "Calibrating for 2015 runs (before 297730)." ); // 2015
         rootfileName = m_calibFileData15;
       } else if (runNumber <= 300908) {
-        ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (297730 to 300908)." ); // pre-TSI: 297730 - 300908
+        ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (297730 to 300908)." ); // pre-TSI 2016
         rootfileName = m_calibFileData16_preTS1;
-      } else if (runNumber <= 311481) {  // post TS1: 301912 - 311481
-        ATH_MSG_INFO( "Calibrating for 2016 runs after IBL temperature change (301912 to 311481)." );
+      } else if (runNumber <= 311481) {
+        ATH_MSG_INFO( "Calibrating for 2016 runs after IBL temperature change (301912 to 311481)." ); // post-TS1 2016
         rootfileName = m_calibFileData16_postTS1;
-      } else if (runNumber <= 334737) { // pre-fire 2017: 323427 - 334737
-        ATH_MSG_INFO( "Calibrating for 2017 runs pre-fire (323427 to 334737)." );
+      } else if (runNumber <= 334737) {
+        ATH_MSG_INFO( "Calibrating for 2017 runs pre-fire (323427 to 334737)." ); // pre-fire 2017
         rootfileName = m_calibFileData17_preFire;
-      } else { // post-fire 2017: 334842-340368
-        ATH_MSG_INFO( "Calibrating for 2017 runs post-fire (334842 to 340368)." );
+      } else {
+        ATH_MSG_INFO( "Calibrating for 2017 runs post-fire (334842 to 341649)." ); // post-fire 2017
         rootfileName = m_calibFileData17_postFire;
       }
       ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0/theNominal_d0") );
@@ -184,7 +184,7 @@ namespace InDet {
       ATH_CHECK ( initObject<TH2>(m_biasZ0HistError, rootfileName, "z0/theUncertainty_z0") );
       ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistError, rootfileName, "sagitta/theUncertainty_sagitta") );
     } else {
-      ATH_MSG_ERROR( "Run number = " << runNumber << " not in recognized range (286282 to 340368)." );
+      ATH_MSG_ERROR( "Run number = " << runNumber << " not in recognized range (286282 to 341649)." );
       return StatusCode::FAILURE;
     }
 
