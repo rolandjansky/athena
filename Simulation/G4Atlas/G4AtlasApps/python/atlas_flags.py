@@ -153,7 +153,7 @@ class WorldRRange(JobProperty):
     R dimension of the ATLAS envelope
     """
     statusOn = False
-    allowerTypes = ['int','float']
+    allowedTypes = ['int','float']
     StoredValue = 12500.
 
 class WorldZRange(JobProperty):
