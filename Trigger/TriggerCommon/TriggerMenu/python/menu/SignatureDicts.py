@@ -131,7 +131,7 @@ JetChainParts = {
     'cleaning'     : ['cleanL','cleanT','cleanLLP',
                       'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],
-    'recoAlg'      : ["a2","a3","a4", "a10", "a10r", "a10t"],
+    'recoAlg'      : ["a3","a4", "a10", "a10r", "a10t"],
     'dataType'     : ['TT', 'tc', 'cc', 'ion', 'sktc'],
     'calib'        : ["had","lcw","em"],
     'jetCalib'     : ["jes","sub","subjes","subjesIS", "nojcalib"],
