@@ -11,6 +11,7 @@
 
 #include <AsgTools/AsgTool.h>
 #include <PATCore/IAsgSelectionTool.h>
+#include <atomic>
 
 namespace CP
 {
@@ -69,13 +70,28 @@ namespace CP
     /// tool properties
     /// \{
 
+  private:
     float m_minPt {0};
     float m_maxEta {0};
     float m_etaGapLow {0};
     float m_etaGapHigh {0};
+    bool m_useClusterEta {false};
+    bool m_printCastWarning {true};
 
     /// \}
 
+    /// \brief a version of \ref m_printCastWarning that we modify
+    /// once we printed the warning
+    ///
+    /// I don't like modifying property values in the tool itself, so
+    /// I copy it over here and then modify once I print out.
+    ///
+    /// Technically this tool isn't thread-safe due to the use of
+    /// TAccept, but once we move to master this will be fixed, so
+    /// this member is already made thread-safe so that we don't trip
+    /// up on that later.
+  private:
+    mutable std::atomic<bool> m_shouldPrintCastWarning {true};
 
     /// \brief the \ref TAccept we are using
   private:
