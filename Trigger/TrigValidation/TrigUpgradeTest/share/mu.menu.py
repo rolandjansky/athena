@@ -23,8 +23,6 @@ AlgScheduler.ShowDataDependencies( True )
 AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
 
-
-
 # ===============================================================================================
 #               Setup CF(Control Flow)
 # ===============================================================================================
@@ -47,31 +45,32 @@ if  TriggerFlags.doMuon==True:
     ##########################################
 
     from TrigUpgradeTest.MenuComponents import Chain, ChainStep
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, doL2SA, doL2CB, doEFSA
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muonEFSAStep, doL2SA, doL2CB, doEFSA
 
     MenuChains  = []
 
     step1mufast=ChainStep("Step1_mufast", [muFastStep])
+    step2muComb=ChainStep("Step2_muComb", [muCombStep])
+    step3muEFSA=ChainStep("Step3_muEFSA", [muonEFSAStep])
 
     # add one chain wihtout tracking
-    MenuChains += [Chain(name='HLT_mu6fast', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
+    MenuChains += [Chain(name='HLT_mu6fast', Seed="L1_MU6",  ChainSteps=[step1mufast])]
     
     if TriggerFlags.doID==False:
         if doL2SA==True  and doL2CB==False and doEFSA==False:           
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
         if doL2SA==False and doL2CB==False and doEFSA==True: 
-            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
-            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step3muEFSA ])]
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step3muEFSA ])]
     elif TriggerFlags.doID==True:
-        step2muComb=ChainStep("Step2_muComb", [muCombStep])
+        #step2muComb=ChainStep("Step2_muComb", [muCombStep])
         if doL2SA==True  and doL2CB==True  and doEFSA==False:
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
         if doL2SA==True  and doL2CB==True  and doEFSA==True:
-            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
-            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]           
-    
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]           
     
             
 
@@ -112,7 +111,7 @@ if  TriggerFlags.doMuon==True:
         if unpack.name() is "MURerunRoIsUnpackingTool":
             unpack.Decisions="RerunL1MU"
             unpack.SourceDecisions="L1MU"
-            
+           
     # this is a temporary hack to include new test chains
     EnabledChainNamesToCTP = [str(n)+":"+c.name for n,c in enumerate(MenuChains)]
     topSequence.L1DecoderTest.ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP

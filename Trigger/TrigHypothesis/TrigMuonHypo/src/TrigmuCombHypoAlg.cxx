@@ -12,6 +12,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
 
 #include "TrigMuonHypo/TrigmuCombHypoAlg.h"
+#include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils; 
 
@@ -86,17 +87,13 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
     ATH_CHECK( previousDecision->hasObjectLink("view") );
     auto viewEL = previousDecision->objectLink<ViewContainer>("view");
     ATH_CHECK( viewEL.isValid() );
-    const SG::View* view_const = *viewEL;
-    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
-    ATH_MSG_INFO("DEBUG: view name = " << view->name() );
 
     // get info
-    auto muCombHandle = SG::makeHandle( m_muCombKey, context ); 
-    ATH_CHECK( muCombHandle.setProxyDict(view) );
+    auto muCombHandle = ViewHelper::makeHandle( *viewEL, m_muCombKey, context );
     ATH_CHECK( muCombHandle.isValid() );
     ATH_MSG_DEBUG( "Muinfo handle size: " << muCombHandle->size() << "...");
 
-    auto muCombEL = ElementLink<xAOD::L2CombinedMuonContainer> ( view->name()+"_"+m_muCombKey.key(), 0 );
+    auto muCombEL = ViewHelper::makeLink( *viewEL, muCombHandle, 0 );
     ATH_CHECK( muCombEL.isValid() );
     const xAOD::L2CombinedMuon* muComb = *muCombEL;
     
@@ -113,10 +110,9 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
     auto muFastInfo = (*muCombEL)->muSATrack(); 
     ATH_MSG_DEBUG("REGTEST: muSATrack pt in " << m_muCombKey.key() << " = " << muFastInfo->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: muSATrack eta/phi in " << m_muCombKey.key() << " = " << muFastInfo->eta() << "/" << muFastInfo->phi());
-    
     ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
-    ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<view->name()  );
+    ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
 
     counter++;
   }
