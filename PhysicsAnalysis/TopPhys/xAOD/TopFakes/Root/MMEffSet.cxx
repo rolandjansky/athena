@@ -454,7 +454,7 @@ void MMEffSet::SetLepton(MMEvent event,MMLepton lepton){
   else if(_Estimate.find(":pt")!=string::npos)   { input[k] = pt;    k++; expected_parameters += ":pt";}
   if(_Estimate.find(":jetpt_dR")!=string::npos)  { input[k] = jetpt; k++; input[k] = dR; k++; expected_parameters += ":jetpt_dR";}
   else if(_Estimate.find(":jetpt")!=string::npos){ input[k] = jetpt; k++; expected_parameters += ":jetpt";}
-  if(_Estimate.find(":sumet")!=string::npos)  { input[k] = sumet; k++; expected_parameters += "sumet";}
+  if(_Estimate.find(":sumet")!=string::npos)  { input[k] = sumet; k++; expected_parameters += ":sumet";}
   if(_Estimate.find(":dR")!=string::npos && _Estimate.find(":dRpt")==string::npos)  { input[k] = dR; k++; expected_parameters += ":dR";}
   if(_Estimate.find(":dRpt")!=string::npos)   { input[k] = dRpt;  k++; expected_parameters += ":dRpt";}
   if(_Estimate.find(":dPhi")!=string::npos)   { input[k] = dPhi;  k++; expected_parameters += ":dPhi";}
