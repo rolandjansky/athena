@@ -8,9 +8,7 @@
 
 #include "sTgcRdoToPrepDataTool.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
