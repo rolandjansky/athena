@@ -86,7 +86,7 @@ xAOD::ExclusiveConeDoubleHadronFlavourLabel (const xAOD::Jet* jet) {
   int label = -1;
 
   // We don't check the return value, as we would not be able to handle it gracefully anyway
-  jet->getAttribute("HadronConeExtendedExclTruthLabelID",label);
+  jet->getAttribute("HadronConeExclExtendedTruthLabelID",label);
   return label;
 }
 
