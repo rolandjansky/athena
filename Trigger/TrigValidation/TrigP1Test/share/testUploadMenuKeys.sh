@@ -66,6 +66,10 @@ elif [ "$type" == "HLT_mcV7" ]; then
   stump="MC_pp_v7"
 elif [ "$type" == "HLT_mcV7_rerunLVL1" ]; then
   stump="MC_pp_v7"
+elif [ "$type" == "HLT_HIV5" ]; then
+  stump="Physics_HI_v5"
+elif [ "$type" == "HLT_HIV5_rerunLVL1" ]; then
+  stump="Physics_HI_v5"
 else 
   stump=""
 fi
