@@ -34,6 +34,14 @@ def makeMuonAnalysisSequence( dataType ):
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut' )
 
+    # Set up the track selection algorithm:
+    alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
+                           'MuonTrackSelectionAlg' )
+    alg.selectionDecoration = "trackSelection"
+    alg.maxD0Significance = 3
+    alg.maxDeltaZ0SinTheta = 0.5
+    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut' )
+
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonSelectionAlg' )
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionDecoration = 'good_muon'
@@ -49,15 +57,15 @@ def makeMuonAnalysisSequence( dataType ):
     # Set up an algorithm used for debugging the muon selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' )
     alg.histPattern = 'muon_cflow_%SYS%'
-    alg.selection = [ 'kin_select', 'good_muon', 'isolated_muon' ]
-    alg.selectionNCuts = [ 2, 4, 1 ]
+    alg.selection = [ 'kin_select', 'trackSelection', 'good_muon', 'isolated_muon' ]
+    alg.selectionNCuts = [ 2, 2, 4, 1 ]
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'MuonViewFromSelectionAlg' )
-    alg.selection = [ 'kin_select', 'good_muon', 'isolated_muon' ]
+    alg.selection = [ 'kin_select', 'trackSelection', 'good_muon', 'isolated_muon' ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the efficiency scale factor calculation algorithm:
