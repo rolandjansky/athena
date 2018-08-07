@@ -22,24 +22,24 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 # Component(s) in the package:
 atlas_add_library( EventShapeToolsLib
                    Root/*.cxx
-                   src/*.cxx
                    PUBLIC_HEADERS EventShapeTools
                    INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${FASTJET_LIBRARIES} AsgTools GaudiKernel EventShapeInterface JetInterface
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODEventShape )
+                   LINK_LIBRARIES ${FASTJET_LIBRARIES} AsgTools EventShapeInterface JetInterface
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventShape )
 
-atlas_add_component( EventShapeTools
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AsgTools GaudiKernel EventShapeInterface JetInterface AthenaBaseComps xAODEventShape EventShapeToolsLib )
+if( NOT XAOD_STANDALONE )
+  atlas_add_component( EventShapeTools
+                       src/*.cxx src/components/*.cxx
+                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
+                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AsgTools GaudiKernel EventShapeInterface JetInterface AthenaBaseComps xAODEventShape EventShapeToolsLib )
+endif()
 
 atlas_add_dictionary( EventShapeToolsDict
                       EventShapeTools/EventShapeToolsDict.h
                       EventShapeTools/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AsgTools GaudiKernel EventShapeInterface JetInterface AthenaBaseComps xAODEventShape EventShapeToolsLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AsgTools EventShapeInterface JetInterface xAODEventShape EventShapeToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-
