@@ -123,7 +123,7 @@ public:
   void addToFlaggedErrorCounter(const unsigned int & serviceCodeCounter);
 
  private:
-  int masked_errors;
+  int m_masked_errors;
 
   int m_numGenWarnings;
   int m_maxNumGenWarnings;     // Maximum number of general warnings to print

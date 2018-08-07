@@ -5,7 +5,7 @@
 /*
   TrigMuonEFTagandProbe
   Package: Trigger/TrigAlgorithms/TrigMuSuperEF
-  Authors: Jonathan Jamieson, University of Glasgow, Created 09/10/2017, Last edit: 23/02/18
+  Authors: Jonathan Jamieson, University of Glasgow, Created 09/10/2017, Last edit: 28/05/18
 */
 
 #ifndef TRIGMUONEFTAGANDPROBE_TRIGMUONEFTAGANDPROBE_H
@@ -171,9 +171,6 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
   //Sets up instance of MonitoringObject public to TrigMuonEFTagandProbe
   MonitoringObject Thresh_Mon;                                                              
                                 
-  //To access Storegate need to use DataVector pointer which always assumes pointer elements
-  const DataVector<LVL1::RecMuonRoI>* m_l1_muon_RoIs; 
-  
   bool m_debug; //Flag for conditional DEBUG output
   bool m_verbose; //Flag for conditional VEROSE output
   

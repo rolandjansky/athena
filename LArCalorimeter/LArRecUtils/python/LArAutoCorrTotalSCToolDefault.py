@@ -66,15 +66,21 @@ def LArAutoCorrTotalSCToolDefault (name="LArAutoCorrTotalSCToolDefault", **kw):
     if not globalflags.DataSource()=='data':
        from IOVDbSvc.CondDB import conddb
        if ( conddb.isMC and not conddb.folderRequested('/LAR/IdentifierOfl/OnOffIdMap_SC') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARIdentifierOflOnOffIdMap_SC-000</tag>/LAR/IdentifierOfl/OnOffIdMap_SC")
+           #conddb.addFolder("LAR_OFL","<tag>LARIdentifierOflOnOffIdMap_SC-000</tag>/LAR/IdentifierOfl/OnOffIdMap_SC")
+           conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/OnOffIdMap_SC")
        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/fSampl') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCfSampl-000</tag>/LAR/ElecCalibMCSC/fSampl")
+           #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCfSampl-000</tag>/LAR/ElecCalibMCSC/fSampl")
+           conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/fSampl")
        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Pedestal') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCPedestal-000</tag>/LAR/ElecCalibMCSC/Pedestal")
+           #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCPedestal-000</tag>/LAR/ElecCalibMCSC/Pedestal")
+           conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Pedestal")
        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Noise') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCNoise-000</tag>/LAR/ElecCalibMCSC/Noise")
+           #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCNoise-000</tag>/LAR/ElecCalibMCSC/Noise")
+           conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Noise")
        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Shape') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCShape-000</tag>/LAR/ElecCalibMCSC/Shape")
+           #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCShape-000</tag>/LAR/ElecCalibMCSC/Shape")
+           conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Shape")
        if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/AutoCorr') ) :
-           conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCAutoCorr-000</tag>/LAR/ElecCalibMCSC/AutoCorr")
+           #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCAutoCorr-000</tag>/LAR/ElecCalibMCSC/AutoCorr")
+           conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/AutoCorr")
     return tool

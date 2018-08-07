@@ -196,10 +196,13 @@ void TrigT1CaloBaseFex::findTTsAround(const xAOD::TriggerTowerContainer* scells,
 
 bool TrigT1CaloBaseFex::isCellEmMaximum(const std::vector<CaloCell*>& scells, const CaloCell* cell) const {
         if ( !cell ) return false;
-	if ( cell->caloDDE()->getSampling() >= 8 ) return false;
-	float cellpt = cell->et()+0.001; //make sure you don't get thecell itself
+	int samp = cell->caloDDE()->getSampling();
+	if ( (samp >= 8) && (samp!=21) ) return false; // include FCAL0 EM
+	float cellpt = 1.0001*cell->et(); //make sure you don't get thecell itself
 	for(auto scell : scells){ 
-		if ( scell->caloDDE()->getSampling() >= 8 ) continue;
+		int samp1 = scell->caloDDE()->getSampling();
+		if ( ( samp1 >= 8 ) && (samp1!=21) ) continue;
+		if ( scell->ID() == cell->ID()  ) continue;
 		if ( scell->et() > cellpt ) return false;
 	}
 	return true;
@@ -208,7 +211,8 @@ bool TrigT1CaloBaseFex::isCellEmMaximum(const std::vector<CaloCell*>& scells, co
 float TrigT1CaloBaseFex::sumEmCells(const std::vector<CaloCell*>& scells) const {
 	float totalSum = 0.0;
 	for(auto scell : scells) {
-		if ( scell->caloDDE()->getSampling() <8 ) totalSum+= scell->energy();
+		int samp1 = scell->caloDDE()->getSampling();
+		if ( (samp1<8) || (samp1==21) ) totalSum+= scell->energy();
 	}
 	return totalSum;
 }
@@ -227,7 +231,7 @@ float TrigT1CaloBaseFex::sumEmCells2nd(const std::vector<CaloCell*>& scells) con
 float TrigT1CaloBaseFex::sumHadCells(const std::vector<CaloCell*>& scells) const {
 	float totalSum = 0.0;
 	for(auto scell : scells){
-             if ( (scell->caloDDE()->getSampling() <8) || ( scell->caloDDE()->getSampling()>=20) ) continue;
+             if ( (scell->caloDDE()->getSampling() <8) || ( scell->caloDDE()->getSampling()>=22) ) continue;
              //totalSum+= (scell->et())*TMath::CosH(scell->eta());
              totalSum+= (scell->energy());
 	}
@@ -247,21 +251,89 @@ float TrigT1CaloBaseFex::sumHadTTs(const std::vector<const xAOD::TriggerTower*>&
 void TrigT1CaloBaseFex::findCluster(const std::vector<CaloCell*>& scells, float &etaCluster, float &phiCluster) const {
 	etaCluster=0.0;
 	phiCluster=0.0;
-	float energyCluster=0.0;
+	double etaClusterD=0.0;
+	double phiClusterD=0.0;
+
+	double energyCluster=0.0;
+	bool cross_phi_bound=false;
+        int last_sign=0;
+	for(auto scell : scells){
+	  if ( fabsf( scell->phi() ) < 2.7 ) continue;
+	  int layer = scell->caloDDE()->getSampling();
+          if ( ( layer != 2 ) && ( layer != 6 ) ) continue;
+	  int cell_sign = ( scell->phi() >=0 ? 1 : -1 );
+          if ( ( last_sign!=0 ) && ( last_sign != cell_sign ) ) cross_phi_bound = true;
+	  last_sign = cell_sign;
+	}
+
 	for(auto scell : scells){
 	     int layer = scell->caloDDE()->getSampling();
              if ( ( layer != 2 ) && ( layer != 6 ) ) continue;
-             etaCluster+= (scell->et()) * (scell->eta());
-             phiCluster+= (scell->et()) * (scell->phi());
-             energyCluster+= (scell->et()) ;
+	     double scelleta = scell->eta();
+	     double scellphi = scell->phi();
+	     double scellet = scell->et();
+             etaClusterD+= (scellet * scelleta);
+	     if (cross_phi_bound && scellphi < 0 ) scellphi += 2 * M_PI;
+             phiClusterD+= (scellet * scellphi);
+             energyCluster+= (scellet) ;
 	}
 	if ( energyCluster > 0.1 ) {
-		etaCluster/=energyCluster;
-		phiCluster/=energyCluster;
+		etaClusterD/=energyCluster;
+		phiClusterD/=energyCluster;
+		etaCluster = (float)etaClusterD;
+		phiCluster = (float)phiClusterD;
+		if ( phiCluster > M_PI ) phiCluster-=2*M_PI;
 	} else {
 		etaCluster=-999.0;
 		phiCluster=-999.0;
 	}
+}
+
+void TrigT1CaloBaseFex::findClusterFor(const std::vector<CaloCell*>& scells, float &etaCluster, float &phiCluster, float &zCluster) const {
+        etaCluster=0.0;
+        phiCluster=0.0;
+	zCluster=0.0;
+        double etaClusterD=0.0;
+        double phiClusterD=0.0;
+	double zClusterD=0.0;
+
+        double energyCluster=0.0;
+        bool cross_phi_bound=false;
+        int last_sign=0;
+        for(auto scell : scells){
+          if ( fabsf( scell->phi() ) < 2.7 ) continue;
+          int layer = scell->caloDDE()->getSampling();
+          if ( ( layer != 21 ) && ( layer != 6 ) ) continue;
+          int cell_sign = ( scell->phi() >=0 ? 1 : -1 );
+          if ( ( last_sign!=0 ) && ( last_sign != cell_sign ) ) cross_phi_bound = true;
+          last_sign = cell_sign;
+        }
+
+        for(auto scell : scells){
+             int layer = scell->caloDDE()->getSampling();
+             if ( ( layer != 21 ) && ( layer != 6 ) ) continue;
+             double scelleta = scell->eta();
+             double scellz = scell->z();
+             double scellphi = scell->phi();
+             double scellet = scell->et();
+             etaClusterD+= (scellet * scelleta);
+             zClusterD+= (scellet * scellz);
+             if (cross_phi_bound && scellphi < 0 ) scellphi += 2 * M_PI;
+             phiClusterD+= (scellet * scellphi);
+             energyCluster+= (scellet) ;
+        }
+        if ( energyCluster > 0.1 ) {
+                etaClusterD/=energyCluster;
+                phiClusterD/=energyCluster;
+                zClusterD/=energyCluster;
+                etaCluster = (float)etaClusterD;
+                phiCluster = (float)phiClusterD;
+                zCluster = (float)zClusterD;
+                if ( phiCluster > M_PI ) phiCluster-=2*M_PI;
+        } else {
+                etaCluster=-999.0;
+                phiCluster=-999.0;
+        }
 }
 
 void TrigT1CaloBaseFex::NoiseThreshold(const CaloCellContainer* scells, const float& significance, std::vector<CaloCell*>& out) {

@@ -64,12 +64,10 @@ StatusCode TrigBphysHelperUtilsTool::initialize()
   ATH_MSG_DEBUG ("Initializing " << name() << "...");
     
     if (m_fitterSvc.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find Trk::TrkVKalVrtFitter" << endmsg;
+        ATH_MSG_ERROR("Can't find Trk::TrkVKalVrtFitter" );
         return StatusCode::FAILURE;
     } else {
-        if (msg().level() <= MSG::DEBUG) {
-            msg() << MSG::DEBUG << "Trk::TrkVKalVrtFitter found" << endmsg;
-        }
+        ATH_MSG_DEBUG("Trk::TrkVKalVrtFitter found" );
         m_VKVFitter = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
     }
 
@@ -136,7 +134,7 @@ void TrigBphysHelperUtilsTool::addUnique(std::vector<const Trk::Track*>& tracks,
 
 bool TrigBphysHelperUtilsTool::areUnique(const xAOD::TrackParticle* t0, const xAOD::TrackParticle* t1, double dEtaCut , double dPhiCut, double dPtCut) const {
     if (!t0 || !t1) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "nullptr for inputs " << t0 << " " << t1 << endmsg;
+        ATH_MSG_DEBUG("nullptr for inputs " << t0 << " " << t1 );
         return false; // if nullptr then return false
     }
     double pt0  = t0->pt();
@@ -145,12 +143,8 @@ bool TrigBphysHelperUtilsTool::areUnique(const xAOD::TrackParticle* t0, const xA
     double pt1  = t1->pt();
     double eta1 = t1->eta();
     double phi1 = t1->phi();
-    if ( msg().level() <= MSG::DEBUG ) {
-        msg()  << MSG::DEBUG << "Test Uniqueness of: pT1/pT2, eta1/eta2, phi1/phi2: "
-        << pt0  << " / " << pt1  << ",   "
-        << eta0 << " / " << eta1  << ",   "
-        << phi0 << " / " << phi1  << endmsg;
-    } // DEBUG
+    ATH_MSG_DEBUG("Test Uniqueness of: pT1/pT2, eta1/eta2, phi1/phi2: "
+        << pt0  << " / " << pt1  << ",   " << eta0 << " / " << eta1  << ",   " << phi0 << " / " << phi1  );
     double dphi = absDeltaPhi(phi0, phi1);
     double deta = absDeltaEta(eta0, eta1);
     double dpt  = fabs( pt0 - pt1);
@@ -159,12 +153,10 @@ bool TrigBphysHelperUtilsTool::areUnique(const xAOD::TrackParticle* t0, const xA
         deta < dEtaCut &&
         (dPtCut < 0 && dpt < dPtCut)
         ) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " is a Match" << endmsg;
+        ATH_MSG_DEBUG(" is a Match" );
         return false; // consider tracks to be unique
     } else {
-        if ( msg().level() <= MSG::DEBUG ) {
-            msg()  << MSG::DEBUG << "Tracks are diferent" << endmsg;
-        }
+        ATH_MSG_DEBUG("Tracks are diferent" );
     }
     // if here then the tracks are unique
     return true;
@@ -175,13 +167,13 @@ void TrigBphysHelperUtilsTool::addUnique(const xAOD::Muon* muon, std::vector<con
                                          double dEtaCut, double dPhiCut, double dPtCut,
                                          xAOD::Muon::TrackParticleType ptype ) const {
     if (!muon) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Muon has nullptr " << endmsg;
+        ATH_MSG_DEBUG("Muon has nullptr " );
         return;
     }
     
     const xAOD::TrackParticle* muontp = muon->trackParticle(ptype);
     if (!muontp) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Muon does nove tp of type: " << ptype << endmsg;
+        ATH_MSG_DEBUG("Muon does nove tp of type: " << ptype );
         return;
     }
     
@@ -190,11 +182,11 @@ void TrigBphysHelperUtilsTool::addUnique(const xAOD::Muon* muon, std::vector<con
     double eta = muontp->eta();
     double phi = muontp->phi();
     
-    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "to Match: " << muon << " " << muontp << " "
-        << pt << " " << eta << " " << phi << endmsg;
+    ATH_MSG_DEBUG("to Match: " << muon << " " << muontp << " "
+        << pt << " " << eta << " " << phi );
 
     if (!output.size()) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No previous muons - is unique" << ptype << endmsg;
+        ATH_MSG_DEBUG("No previous muons - is unique" << ptype );
         output.push_back(muon); // if no entries, then by definition, unique
         return; // done
     }
@@ -212,20 +204,20 @@ void TrigBphysHelperUtilsTool::addUnique(const xAOD::Muon* muon, std::vector<con
         double deta = absDeltaEta(etain, eta);
         double dpt  = fabs( pt - ptin);
 
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " against: " << muin << " " << muintp << " "
-            << ptin << " " << etain << " " << phiin << endmsg;
+        ATH_MSG_DEBUG(" against: " << muin << " " << muintp << " "
+            << ptin << " " << etain << " " << phiin );
         
         if (dphi < dPhiCut &&
             deta < dEtaCut &&
             (dPtCut < 0 || dpt < dPtCut)
             ) {
-            if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " is a Match" << endmsg;
+            ATH_MSG_DEBUG(" is a Match" );
             return; // found a matching track, so return out of the function
         }
 
     } // loop over already unoique muons
     
-    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No match - is unique" << endmsg;
+    ATH_MSG_DEBUG("No match - is unique" );
     // if here, have found no match amongst > 0 possibles
     output.push_back(muon);
     
@@ -237,7 +229,7 @@ const xAOD::EventInfo* TrigBphysHelperUtilsTool::getEventInfo() const {
     // get the event info; return nullptr if not there
     const xAOD::EventInfo *evtInfo(0);
     if ( evtStore()->retrieve(evtInfo).isFailure() ) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endmsg;
+        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
         return nullptr;
     }
     return evtInfo;
@@ -251,22 +243,22 @@ StatusCode TrigBphysHelperUtilsTool::getRunEvtLb(uint32_t & run, uint32_t & evt,
     const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( evtStore()->retrieve(evtInfo).isFailure() ) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endmsg;
+        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
         // now try the old event ifo
         if ( evtStore()->retrieve(pEventInfo).isFailure() ) {
-            if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+            ATH_MSG_DEBUG("Failed to get EventInfo " );
             return StatusCode::FAILURE;
         } else {
             run   = pEventInfo->event_ID()->run_number();
             evt   = pEventInfo->event_ID()->event_number();
             lb    = pEventInfo->event_ID()->lumi_block();
-            if ( msg().level() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << run << " Event " << evt <<  endmsg;
+            ATH_MSG_DEBUG(" Run " << run << " Event " << evt );
         }// found old event info
     }else { // found the xAOD event info
         run   = evtInfo->runNumber();
         evt   = evtInfo->eventNumber();
         lb    = evtInfo->lumiBlock();
-        if ( msg().level() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << run << " Event " << evt << endmsg;
+        ATH_MSG_DEBUG(" Run " << run << " Event " << evt );
     } // get event ifo
 
     return StatusCode::SUCCESS;
@@ -278,15 +270,15 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
                                                xAOD::TrigBphys::pType ptype,
                                                xAOD::TrigBphys::levelType plevel) {
     ///Note - if sucess, then caller is responsible for the memory created in result
-    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "In buildDiMu" << endmsg;
+    ATH_MSG_DEBUG("In buildDiMu" );
     result = nullptr;
     
     if (particles.size() != 2) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Found " << particles.size() << " inputs. Needed 2" << endmsg;
+        ATH_MSG_DEBUG("Found " << particles.size() << " inputs. Needed 2" );
         return StatusCode::FAILURE;
     }
     if (!particles[0].isValid() | !particles[1].isValid() ) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Invalid inputs" << endmsg;
+        ATH_MSG_DEBUG("Invalid inputs" );
         return StatusCode::FAILURE;
     }
 
@@ -307,11 +299,11 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     // check the TrackParticles for a covariance matrix
     if ((*particles[0])->definingParametersCovMatrixVec().size() == 0) {
         doFit = false;
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fit not allowed, Problems with TP0" << endmsg;
+        ATH_MSG_DEBUG("Fit not allowed, Problems with TP0" );
     }
     if ((*particles[1])->definingParametersCovMatrixVec().size() == 0) {
         doFit = false;
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fit not allowed, Problems with TP1" << endmsg;
+        ATH_MSG_DEBUG("Fit not allowed, Problems with TP1" );
     }
 
     //const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
@@ -323,7 +315,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
 
     if (!vx){
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Vertex returned from fit / fitting not allowed" << endmsg;
+        ATH_MSG_DEBUG("No Vertex returned from fit / fitting not allowed" );
         
         result->setFitmass     (-9999);
         result->setFitchi2     (-9999);
@@ -338,7 +330,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         std::vector<double> masses(particles.size(), m_massMuon);
         m_VKVFitter->setMassInputParticles(masses); // give input tracks muon mass
         if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-            if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
+            ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
         } // if
         
         result->setFitmass     (invariantMass);
@@ -355,8 +347,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     // now add in the element links - note that they need the reshuffling applied
 
     
-    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG <<
-        "Print for obj: " << result << "\n\t  " <<
+    ATH_MSG_DEBUG("Print for obj: " << result << "\n\t  " <<
         "roiId:         " << result->roiId()  << "\n\t  " <<
         "particleType:  " << result->particleType() << "\n\t  " <<
         "level:         " << result->level() << "\n\t  " <<
@@ -368,7 +359,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         "fitndof:       " << result->fitndof() << "\n\t  " <<
         "fitx:          " << result->fitx() << "\n\t  " <<
         "fity:          " << result->fity() << "\n\t  " <<
-        "fitz:          " << result->fitz() << "\n\t  " << endmsg;
+        "fitz:          " << result->fitz() << "\n\t  " );
 
     result->addTrackParticleLink(particles[0]);
     result->addTrackParticleLink(particles[1]);
@@ -381,13 +372,13 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
                                                std::vector<double>& inputMasses) { // inputmasses not const, as vertex code doesn't allowit
-    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "In vertexFit" << endmsg;
+    ATH_MSG_DEBUG("In vertexFit" );
     if (!result) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Need to provide valid TrigBphys object" << endmsg;
+        ATH_MSG_DEBUG("Need to provide valid TrigBphys object" );
         return StatusCode::FAILURE;
     }
     if (particles.size() != inputMasses.size()) {
-        if ( msg().level() <= MSG::WARNING ) msg()  << MSG::WARNING << "Mismatch in particle and mass vector sizes" << endmsg;
+        ATH_MSG_WARNING("Mismatch in particle and mass vector sizes" );
         return StatusCode::FAILURE;
     }
     bool doFit(true); // set false if problematic TP
@@ -395,12 +386,12 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     
     for ( auto ptlEL : particles) {
         if (!ptlEL.isValid()) {
-            if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Non valid TPEL" << endmsg;
+            ATH_MSG_DEBUG("Non valid TPEL" );
             doFit = false;
         }
         if ((*ptlEL)->definingParametersCovMatrixVec().size() == 0) {
             doFit = false;
-            if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fit not allowed, Problems with TP in vertexFit" << endmsg;
+            ATH_MSG_DEBUG("Fit not allowed, Problems with TP in vertexFit" );
         }
         trks.push_back(*ptlEL);
     } // loop over particle ELs
@@ -412,7 +403,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     TLorentzVector tracks_p;
 
     if (!vx){
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Vertex returned from fit / fitting not allowed" << endmsg;
+        ATH_MSG_DEBUG("No Vertex returned from fit / fitting not allowed" );
         
         result->setFitmass     (-9999);
         result->setFitchi2     (-9999);
@@ -428,7 +419,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
         m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
         if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-            if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
+            ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
             invariantMass = -9999.;
         } // if
         
@@ -446,7 +437,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         
         delete vx; vx = 0;
     } // if vx
-    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG <<
+    ATH_MSG_DEBUG(
         "Print for obj: " << result << "\n\t  " <<
         "roiId:         " << result->roiId()  << "\n\t  " <<
         "particleType:  " << result->particleType() << "\n\t  " <<
@@ -459,7 +450,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         "fitndof:       " << result->fitndof() << "\n\t  " <<
         "fitx:          " << result->fitx() << "\n\t  " <<
         "fity:          " << result->fity() << "\n\t  " <<
-        "fitz:          " << result->fitz() << "\n\t  " << endmsg;
+        "fitz:          " << result->fitz() << "\n\t  " );
     
     for ( auto ptlEL : particles) {
         result->addTrackParticleLink(ptlEL);
@@ -470,13 +461,13 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<const xAOD::TrackParticle*> &trks,
                                                std::vector<double>& inputMasses) { // inputmasses not const, as vertex code doesn't allowit
-    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "In vertexFit" << endmsg;
+    ATH_MSG_DEBUG("In vertexFit" );
     if (!result) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Need to provide valid TrigBphys object" << endmsg;
+        ATH_MSG_DEBUG("Need to provide valid TrigBphys object" );
         return StatusCode::FAILURE;
     }
     if (trks.size() != inputMasses.size()) {
-        if ( msg().level() <= MSG::WARNING ) msg()  << MSG::WARNING << "Mismatch in particle and mass vector sizes" << endmsg;
+        ATH_MSG_WARNING("Mismatch in particle and mass vector sizes" );
         return StatusCode::FAILURE;
     }
     bool doFit(true); // set false if problematic TP
@@ -488,7 +479,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     TLorentzVector tracks_p;
 
     if (!vx){
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Vertex returned from fit / fitting not allowed" << endmsg;
+        ATH_MSG_DEBUG("No Vertex returned from fit / fitting not allowed" );
         
         result->setFitmass     (-9999);
         result->setFitchi2     (-9999);
@@ -504,7 +495,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
         m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
         if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-            if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endmsg;
+            ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
             invariantMass = -9999.;
         } // if
         
@@ -522,7 +513,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
 
         delete vx; vx = 0;
     } // if vx
-    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG <<
+    ATH_MSG_DEBUG(
         "Print for obj: " << result << "\n\t  " <<
         "roiId:         " << result->roiId()  << "\n\t  " <<
         "particleType:  " << result->particleType() << "\n\t  " <<
@@ -535,7 +526,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         "fitndof:       " << result->fitndof() << "\n\t  " <<
         "fitx:          " << result->fitx() << "\n\t  " <<
         "fity:          " << result->fity() << "\n\t  " <<
-        "fitz:          " << result->fitz() << "\n\t  " << endmsg;
+        "fitz:          " << result->fitz() << "\n\t  " );
     
     return StatusCode::SUCCESS;
 } //vertexFit
@@ -556,7 +547,7 @@ double TrigBphysHelperUtilsTool::invariantMass(const std::vector<const xAOD::Tra
 
 double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::IParticle*>&ptls, const std::vector<double> & masses) const {
     if (ptls.size() != masses.size()) {
-        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Mismatch of vector sizes in invariantMass" << endmsg;
+        ATH_MSG_DEBUG("Mismatch of vector sizes in invariantMass" );
         return -1;
     }
     
@@ -565,7 +556,7 @@ double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::I
     const unsigned int nPtls(ptls.size());
     for (unsigned int i =0; i < nPtls; ++i) {
         if (!ptls[i]) {
-            if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Null ptr in invariantMass; return -1" << endmsg;
+            ATH_MSG_DEBUG("Null ptr in invariantMass; return -1" );
             return -1.;
         }
         // mass correction factors (i.e to turn from GeV to MeV
@@ -573,9 +564,7 @@ double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::I
         double cFactor(1.);
         if ( dynamic_cast<const xAOD::L2StandAloneMuon*>(ptls[i]) ) {
             cFactor = 1000.;
-            if ( msg().level() <= MSG::DEBUG ) {
-                msg()  << MSG::DEBUG << "Found L2StandAlone muon for IParticle: " << i << " Treating as having units of GeV" << endmsg;
-            }
+            ATH_MSG_DEBUG("Found L2StandAlone muon for IParticle: " << i << " Treating as having units of GeV" );
         } // if L2 muon
         
                 
@@ -600,15 +589,13 @@ void TrigBphysHelperUtilsTool::fillTrigObjectKinematics(xAOD::TrigBphys* bphys,
                                                         const std::vector<const xAOD::TrackParticle*>& ptls)
  {
      if (!bphys) {
-         if ( msg().level() <= MSG::WARNING ) {
-             msg()  << MSG::WARNING << "Null pointer of trigger object provided." << endmsg;
-         }
+         ATH_MSG_WARNING("Null pointer of trigger object provided." );
          return;
      }
      
      //     if (ptls.size() != masses.size()) {
      //         if ( msg().level() <= MSG::WARNING ) {
-     //             msg()  << MSG::WARNING << "Nptls != nMasses; no information will be populated." << endmsg;
+     //             msg()  << MSG::WARNING << "Nptls != nMasses; no information will be populated." );
      //         }
      //         return;
      //     } // if invalid prequesits
@@ -637,9 +624,7 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
                              const std::vector<const xAOD::TrackParticle*> &ptls) {
     
     if (!bphys) {
-        if ( msg().level() <= MSG::WARNING ) {
-            msg()  << MSG::WARNING << "Null pointer of trigger object provided." << endmsg;
-        }
+        ATH_MSG_WARNING("Null pointer of trigger object provided." );
         return;
     }
     
@@ -647,13 +632,13 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
     Amg::Vector3D beamSpot(0.,0.,0.);
     if ( service("BeamCondSvc", iBeamCondSvc).isFailure() || iBeamCondSvc == 0)
     {
-        msg() << MSG::DEBUG<< "Could not retrieve Beam Conditions Service. " << endmsg;
+        ATH_MSG_DEBUG("Could not retrieve Beam Conditions Service. " );
     }else {
         beamSpot = iBeamCondSvc->beamPos();
         int beamSpotBitMap = iBeamCondSvc->beamStatus();
         //* Check if beam spot is from online algorithms *//
         int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
-        if(msg().level() <= MSG::DEBUG) msg() << MSG::DEBUG << "  beamSpotBitMap= "<< beamSpotBitMap<<" beamSpotStatus= "<<beamSpotStatus<<endmsg;
+        ATH_MSG_DEBUG("  beamSpotBitMap= "<< beamSpotBitMap<<" beamSpotStatus= "<<beamSpotStatus);
     }
     
     static const double CONST = 1000./299.792; // unit conversion for lifetime
@@ -683,23 +668,3 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
     bphys->setTau     (BsTau);
     bphys->setTauError(BsTauError);
 } // setBeamlineDisplacement
-
-
-
-///////////////////////////////////////////////////////////////////
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-

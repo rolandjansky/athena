@@ -28,6 +28,10 @@ class TH1F;
 class TH2F;
 class TTree;
 class LArSuperCellCablingTool;
+namespace xAOD {
+     class ICaloTopoClusterIsolationTool;
+}
+
 
 
 class DumpAll : public AthAlgorithm
@@ -46,6 +50,7 @@ private :
 
 	/** For cell <-> SCell comparisons */
 	ToolHandle<LArSuperCellCablingTool> m_cabling;
+	ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_topoIsolationTool;
 	/** base file */
 	TFile* m_file;
 	/** base histograms about super-cells */
@@ -82,6 +87,13 @@ private :
 	std::vector<float> m_selectron_e3;
 	std::vector<float> m_selectron_wstot;
 	std::vector<float> m_selectron_time;
+	std::vector<float> m_selectron_isolcell;
+	std::vector<float> m_selectron_isolscell;
+	std::vector<float> m_selectron_e233;
+	std::vector<float> m_selectron_emaxs1;
+	std::vector<float> m_selectron_isoltopo20;
+	std::vector<float> m_selectron_isoltopo30;
+	std::vector<float> m_selectron_isoltopo40;
 
 	std::vector<float> m_selectronLAr_eta;
 	std::vector<float> m_selectronLAr_phi;
@@ -93,8 +105,10 @@ private :
 	std::vector<float> m_truth_eta;
 	std::vector<float> m_truth_phi;
 	std::vector<float> m_truth_pdg;
+	std::vector<float> m_truth_pdgM;
 	std::vector<float> m_truth_barcode;
 	std::vector<float> m_truth_charge;
+	std::vector<float> m_truth_z;
 
 	std::vector<float> m_l1_et;
 	std::vector<float> m_l1_eta;

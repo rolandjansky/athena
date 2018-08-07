@@ -412,6 +412,9 @@ Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS,
     P[2]=gP[2]+gV[2]*s+Ac*DVz;
 
     V[0]=gV[0]+Av*DVx;V[1]=gV[1]+Av*DVy;V[2]=gV[2]+Av*DVz;
+    if (std::abs(V[2]) > 1.0) {
+      return nullptr;
+    }
     
     pSE->m_transformPointToLocal(P,lP);
   

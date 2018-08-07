@@ -25,7 +25,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
-  MonitorSliceCPU::MonitorSliceCPU(const TrigCostData* _costData) : MonitorBase(_costData, "SliceCPU") {
+  MonitorSliceCPU::MonitorSliceCPU(const TrigCostData* costData) : MonitorBase(costData, "SliceCPU") {
     m_dummyCounter = newCounter(Config::config().getStr(kDummyString), INT_MIN);
     allowSameIDCounters();
   }
@@ -33,50 +33,50 @@ namespace TrigCostRootAnalysis {
   /**
    * Process new event for this monitor.
    * For each alg, get its chain and the chain's first group. Use this as the counter type
-   * @param _weight The event weight.
+   * @param weight The event weight.
    */
-  void MonitorSliceCPU::newEvent(Float_t _weight) {
+  void MonitorSliceCPU::newEvent(Float_t weight) {
     m_timer.start();
     if (Config::config().debug()) Info("MonitorSliceCPU::newEvent", "*** Processing Algorithms ***");
 
-    for (CounterMapSetIt_t _cmsIt = m_collectionsToProcess.begin(); _cmsIt != m_collectionsToProcess.end(); ++_cmsIt) {
-      CounterMap_t* _counterMap = *_cmsIt;
+    for (CounterMapSetIt_t cmsIt = m_collectionsToProcess.begin(); cmsIt != m_collectionsToProcess.end(); ++cmsIt) {
+      CounterMap_t* counterMap = *cmsIt;
 
       startEvent();
 
       // Loop over all chains.
-      for (UInt_t _c = 0; _c < m_costData->getNChains(); ++_c) {
+      for (UInt_t c = 0; c < m_costData->getNChains(); ++c) {
         // Get the name of the chain (Supplying L2 or EF helps, but is not needed)
-        Int_t _chainID = m_costData->getChainID(_c);
-        const std::string _chainName =
-          TrigConfInterface::getHLTNameFromChainID(_chainID, m_costData->getChainLevel(_c));
+        Int_t chainID = m_costData->getChainID(c);
+        const std::string chainName =
+          TrigConfInterface::getHLTNameFromChainID(chainID, m_costData->getChainLevel(c));
 
         // Did we fail?
-        if (_chainName == Config::config().getStr(kBlankString)) {
+        if (chainName == Config::config().getStr(kBlankString)) {
           Warning("MonitorChain::newEvent", "Skipping Chain ID %i. Cannot get name from current configuration.",
-                  _chainID);
+                  chainID);
           continue;
         }
 
         // Are we running over this chain?
-        if (checkPatternNameMonitor(_chainName, m_invertFilter,
-                                    m_costData->getIsChainResurrected(_c)) == kFALSE) continue;
+        if (checkPatternNameMonitor(chainName, m_invertFilter,
+                                    m_costData->getIsChainResurrected(c)) == kFALSE) continue;
 
-        std::string _chainGroup;
-        if (TrigConfInterface::getNHLTGroupNamesFromChainID(_chainID) > 0) {
-          _chainGroup = TrigConfInterface::getHLTGroupNameFromChainID(_chainID, 0);
+        std::string chainGroup;
+        if (TrigConfInterface::getNHLTGroupNamesFromChainID(chainID) > 0) {
+          chainGroup = TrigConfInterface::getHLTGroupNameFromChainID(chainID, 0);
         } else {
-          _chainGroup = Config::config().getStr(kUnknownString);
+          chainGroup = Config::config().getStr(kUnknownString);
           if (Config::config().getDisplayMsg(kMsgNoGroup) == kTRUE) Warning("MonitorSliceCPU::newEvent",
                                                                             "Chain %s (%i) has no group",
-                                                                            _chainName.c_str(), _chainID);
+                                                                            chainName.c_str(), chainID);
         }
 
-        CounterBase* _counter = getCounter(_counterMap, _chainGroup, 0);
-        _counter->processEventCounter(_c, 0, _weight);
+        CounterBase* counter = getCounter(counterMap, chainGroup, 0);
+        counter->processEventCounter(c, 0, weight);
       }
 
-      endEvent(_weight);
+      endEvent(weight);
     }
 
     m_timer.stop();
@@ -87,8 +87,8 @@ namespace TrigCostRootAnalysis {
    * Note these are currently hard-coded. We may want to make them configurable
    * @return If this monitor should be active for a given mode.
    */
-  Bool_t MonitorSliceCPU::getIfActive(ConfKey_t _mode) {
-    switch (_mode) {
+  Bool_t MonitorSliceCPU::getIfActive(ConfKey_t mode) {
+    switch (mode) {
     case kDoAllSummary:       return kTRUE;
 
     case kDoKeySummary:       return kTRUE;
@@ -96,7 +96,7 @@ namespace TrigCostRootAnalysis {
     case kDoLumiBlockSummary: return kTRUE;
 
     default: Error("MonitorSliceCPU::getIfActive", "An invalid summary mode was provided (key %s)",
-                   Config::config().getName(_mode).c_str());
+                   Config::config().getName(mode).c_str());
     }
     return kFALSE;
   }
@@ -107,47 +107,47 @@ namespace TrigCostRootAnalysis {
   void MonitorSliceCPU::saveOutput() {
     m_filterOutput = kTRUE; // Apply any user-specified name filter to output
 
-    VariableOptionVector_t _toSavePlots = m_dummyCounter->getAllHistograms();
-    std::vector<TableColumnFormatter> _toSaveTable;
+    VariableOptionVector_t toSavePlots = m_dummyCounter->getAllHistograms();
+    std::vector<TableColumnFormatter> toSaveTable;
 
-    _toSaveTable.push_back(MonitorBase::TableColumnFormatter("Event Rate [Hz]",
+    toSaveTable.push_back(MonitorBase::TableColumnFormatter("Event Rate [Hz]",
                                                              "Rate in this run range of events with at least one execution of this algorithm.",
                                                              kVarEventsActive, kSavePerEvent, 2,
                                                              kFormatOptionNormaliseWallTime));
 
-    _toSaveTable.push_back(MonitorBase::TableColumnFormatter("Group Total Time [s]",
+    toSaveTable.push_back(MonitorBase::TableColumnFormatter("Group Total Time [s]",
                                                              "Total time for a chain execution in this group.",
                                                              kVarTime, kSavePerCall, 2, kFormatOptionMiliSecToSec));
 
-    _toSaveTable.push_back(MonitorBase::TableColumnFormatter("Group Total Time Frac. Err. [%]",
+    toSaveTable.push_back(MonitorBase::TableColumnFormatter("Group Total Time Frac. Err. [%]",
                                                              "Fractional statistical uncertainty on total chain time.",
                                                              &tableFnChainGetTotalTimeErr, 3));
 
-    _toSaveTable.push_back(MonitorBase::TableColumnFormatter("Group Total Time [%]",
+    toSaveTable.push_back(MonitorBase::TableColumnFormatter("Group Total Time [%]",
                                                              "Total time for chain execution in this group as a percentage of all algorithm executions in this run range.",
                                                              &tableFnChainGetTotalFracTime, 2)); // We can re-use the
                                                                                                  // Chain fn here as
                                                                                                  // vars in both called
                                                                                                  // "time"
 
-    _toSaveTable.push_back(MonitorBase::TableColumnFormatter("Group Total Time/Event [ms]",
+    toSaveTable.push_back(MonitorBase::TableColumnFormatter("Group Total Time/Event [ms]",
                                                              "Average execution time for chains in this group per event for events with at least one executed chain in this run range.",
                                                              kVarTime, kSavePerEvent, kVarEventsActive, kSavePerEvent,
                                                              2));
 
-    sharedTableOutputRoutine(_toSaveTable);
-    sharedHistogramOutputRoutine(_toSavePlots);
+    sharedTableOutputRoutine(toSaveTable);
+    sharedHistogramOutputRoutine(toSavePlots);
   }
 
   /**
    * Construct new counter of correct derived type, pass back as base type.
    * This function must be implemented by all derived monitor types.
    * @see MonitorBase::addCounter( const std::string &_name, Int_t _ID )
-   * @param _name Cost reference to name of counter.
-   * @param _ID Reference to ID number of counter.
+   * @param name Cost reference to name of counter.
+   * @param ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct serived type.
    */
-  CounterBase* MonitorSliceCPU::newCounter(const std::string& _name, Int_t _ID) {
-    return new CounterSliceCPU(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
+  CounterBase* MonitorSliceCPU::newCounter(const std::string& name, Int_t ID) {
+    return new CounterSliceCPU(m_costData, name, ID, m_detailLevel, (MonitorBase*) this);
   }
 } // namespace TrigCostRootAnalysis

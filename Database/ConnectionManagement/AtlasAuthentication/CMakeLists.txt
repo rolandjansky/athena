@@ -33,7 +33,7 @@ if( NOT ATLAS_EXTERNAL )
 endif()
 
 # Pick up authentication.xml:
-set( AtlasAuthentication_native_version "v18" )
+set( AtlasAuthentication_native_version "v19" )
 set( AtlasAuthentication_home
    "${ATLAS_EXTERNAL}/AtlasAuth/${AtlasAuthentication_native_version}" )
 atlas_install_xmls( ${AtlasAuthentication_home}/authentication.xml )

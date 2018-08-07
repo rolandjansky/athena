@@ -99,10 +99,10 @@ StatusCode CaloBandwidth::execute(){
 	std::map< std::pair<float,float> , int > mallLa1Above2Sig;
 	std::map< std::pair<float,float> , int > mallLa1Above3Sig;
         for(auto cl : *allcalo) {
-		int samp = cl->caloDDE()->getSampling();
 		ii++;
-		if ( !( (samp==1) || (samp==5) ) ) continue;
 		if ( ! ( (cl->phi() >=0 ) && ( cl->phi() <0.2 ) ) ) continue;
+		int samp = cl->caloDDE()->getSampling();
+		if ( !( (samp==1) || (samp==5) ) ) continue;
 		int idx=-1;
 		for(unsigned int i=0;i<m_limits.size(); ++i ) {
 			std::pair<float,float> p = m_limits[i];

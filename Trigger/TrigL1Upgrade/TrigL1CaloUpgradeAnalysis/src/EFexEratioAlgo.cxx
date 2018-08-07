@@ -36,6 +36,7 @@ EFexEratioAlgo::EFexEratioAlgo( const std::string& name, ISvcLocator* pSvcLocato
        declareProperty("InputLvl1Name", m_inputLvl1Name = "LVL1EmTauRoIs" );
        declareProperty("eFexEtThreshold",m_EEtThr = 20e3 );
        declareProperty("rEtaThreshold",m_rEtaThr = 0.745 );
+       declareProperty("f3Threshold",m_f3Thr = 1.0 );
        declareProperty("rEratioThreshold",m_EratioThr = 0.41 );
 }
 
@@ -52,21 +53,26 @@ StatusCode EFexEratioAlgo::initialize(){
 		m_EtSElectron = new TH1F("EtSElectron","Et of Super Cell based Electron",60,0,60);
 		m_numpt1 = new TH1F("numpt1","numpt1",100,0,100);
 		m_numpt2 = new TH1F("numpt2","numpt2",100,0,100);
+		m_numpt2f3 = new TH1F("numpt2f3","numpt2f3",100,0,100);
 		m_numpt3 = new TH1F("numpt3","numpt3",100,0,100);
 		m_numpt4 = new TH1F("numpt4","numpt4",100,0,100);
 		m_denpt = new TH1F("denpt","denpt",100,0,100);
 		m_numeta1 = new TH1F("numeta1","numeta1",100,-2.5,2.5);
 		m_numeta2 = new TH1F("numeta2","numeta2",100,-2.5,2.5);
+		m_numeta2f3 = new TH1F("numeta2f3","numeta2f3",100,-2.5,2.5);
 		m_numeta3 = new TH1F("numeta3","numeta3",100,-2.5,2.5);
 		m_numeta4 = new TH1F("numeta4","numeta4",100,-2.5,2.5);
 		m_deneta = new TH1F("deneta","deneta"   ,100,-2.5,2.5);
 		m_numphi1 = new TH1F("numphi1","numphi1",128,-M_PI,M_PI);
 		m_numphi2 = new TH1F("numphi2","numphi2",128,-M_PI,M_PI);
+		m_numphi2f3 = new TH1F("numphi2f3","numphi2f3",128,-M_PI,M_PI);
 		m_numphi3 = new TH1F("numphi3","numphi3",128,-M_PI,M_PI);
 		m_numphi4 = new TH1F("numphi4","numphi4",128,-M_PI,M_PI);
 		m_denphi = new TH1F("denphi","denphi"    ,128,-M_PI,M_PI);
 		m_trackPt = new TH1F("trackPt","trackPt",160,0,80);
 		m_trackEta = new TH1F("trackEta","trackEta",100,-2.5,2.5);
+		m_trackBPt = new TH1F("trackBPt","trackBPt",160,0,80);
+		m_trackBEta = new TH1F("trackBEta","trackBEta",100,-2.5,2.5);
 
 	}
 	return StatusCode::SUCCESS;
@@ -78,21 +84,26 @@ StatusCode EFexEratioAlgo::finalize(){
         if ( m_enableMon ){
 		m_numpt1->Write();
 		m_numpt2->Write();
+		m_numpt2f3->Write();
 		m_numpt3->Write();
 		m_numpt4->Write();
 		m_denpt->Write();
 		m_numeta1->Write();
 		m_numeta2->Write();
+		m_numeta2f3->Write();
 		m_numeta3->Write();
 		m_numeta4->Write();
 		m_deneta->Write();
 		m_numphi1->Write();
 		m_numphi2->Write();
+		m_numphi2f3->Write();
 		m_numphi3->Write();
 		m_numphi4->Write();
 		m_denphi->Write();
 		m_trackPt->Write();
 		m_trackEta->Write();
+		m_trackBPt->Write();
+		m_trackBEta->Write();
 		m_histFile->Write();
 		m_histFile->Close();
 	}
@@ -176,6 +187,7 @@ StatusCode EFexEratioAlgo::execute(){
 			}
 			float rEta=-999.0;
 			float eRatio=-999.0;
+			float f3=999.0;
 			if ( cl->e277() > 0.1 ) 
 			    rEta= cl->e237() / cl->e277();
 			if ( rEta < m_rEtaThr ) continue;
@@ -184,11 +196,26 @@ StatusCode EFexEratioAlgo::execute(){
 			    m_numeta2->Fill( tt->eta() );
 			    m_numphi2->Fill( tt->phi() );
 			}
+			if ( cl->et() > 1 )
+			   f3 = (cl->energy(CaloSampling::EMB3) + cl->energy(CaloSampling::EME3) ) / cl->et() ;
+			if ( f3 > m_f3Thr ) continue;
+			m_numpt2f3->Fill( pt );
+			if ( pt > 20 ) {
+			    m_numeta2f3->Fill( tt->eta() );
+			    m_numphi2f3->Fill( tt->phi() );
+			}
 			for( auto er : *lASP ) {
 			    if ( fabsf( er->eta() - cl->eta() ) > 0.035 ) continue;
 			    if ( deltaPhi( er->phi(), cl->phi() ) > 0.1 ) continue;
 			    if ( er->emaxs1() + er->e2tsts1() > 0.1 ) 
 				eRatio = ( er->emaxs1() - er->e2tsts1() ) / (er->emaxs1() + er->e2tsts1() );
+			}
+			for(auto track : *tracks ){
+			    if ( track->pt() < 2e3 ) continue;
+			    if ( fabsf( track->eta() - cl->eta() ) > 0.02 ) continue;
+			    if ( deltaPhi( track->phi(), cl->phi() ) > 0.03 ) continue;
+			    m_trackBPt->Fill( track->pt() / 1e3 );
+			    m_trackBEta->Fill(track->eta() );
 			}
 			if ( eRatio < m_EratioThr ) continue;
 			m_numpt3->Fill( pt );

@@ -19,8 +19,8 @@ class TriggerInfo:
         from TriggerDataAccess import getHLTlist
         HLTlist, totalLB = getHLTlist(period, customGRL)
         self.totalLB = totalLB
-        for hlt, l1, livefraction, activeLB in HLTlist:
-            self.triggerChains.append( TriggerChain(hlt, l1, livefraction, activeLB))
+        for hlt, l1, livefraction, activeLB, hasRerun in HLTlist:
+            self.triggerChains.append( TriggerChain(hlt, l1, livefraction, activeLB, hasRerun))
 
     @classmethod
     def merge(cls,listofTI):
@@ -73,12 +73,30 @@ class TriggerInfo:
     def _getAllHLT(self,triggerType, additionalTriggerType, matchPattern):
         return {x.name: x.livefraction for x in self.triggerChains if x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)}
 
+    def _getActive(self,triggerType, additionalTriggerType, matchPattern, livefraction=1.0):
+        return [x.name for x in self.triggerChains if x.isActive(livefraction) and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
+    def _getInactive(self,triggerType, additionalTriggerType, matchPattern, livefraction=1.0):
+        return [x.name for x in self.triggerChains if x.isInactive(livefraction) and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
+
+    def _checkPeriodConsistency(self,triggerType, additionalTriggerType, matchPattern):
+        inconsistent = set()
+        for i in range(len(self.triggerChains)):
+            probe1 = self.triggerChains[i]
+            if not (probe1.passType(triggerType, additionalTriggerType) and re.search(matchPattern, probe1.name)): continue
+            for j in range(i+1,len(self.triggerChains)):
+                probe2 = self.triggerChains[j]
+                if not (probe2.passType(triggerType, additionalTriggerType) and re.search(matchPattern, probe2.name)): continue
+                if probe1.isUnprescaled() and not probe2.isUnprescaled() and probe1.isLowerThan(probe2)==1: inconsistent.add(probe2.name)
+                if probe2.isUnprescaled() and not probe1.isUnprescaled() and probe2.isLowerThan(probe1)==1: inconsistent.add(probe1.name)
+                
+        return inconsistent
+
 
 class TriggerLeg:
     types          = ('e','j','mu','tau','xe','g','ht')
     legpattern     = re.compile('([0-9]*)(%s)([0-9]+)' % '|'.join(types))
     detailpattern  = re.compile('(?:-?\d+)|(?:[^0-9|-]+)')
-    bjetpattern    = re.compile('bmv')
+    bjetpattern    = re.compile('bmv|btight|bmedium|bloose')
     bphyspattern   = re.compile('b[A-Z]')
     exoticspattern = re.compile('llp|LLP|muvtx|hiptrt|LATE|NOMATCH')
 
@@ -274,13 +292,14 @@ class TriggerChain:
     l1types        = ('EM','J','MU','TAU','XE','XS','HT')
     l1pattern      = re.compile('([0-9]*)(%s)([0-9]+)' % '|'.join(l1types))
 
-    def __init__(self,name,l1seed,livefraction,activeLB):
+    def __init__(self,name,l1seed,livefraction,activeLB=1,hasRerun=False):
         self.name = name
         self.l1seed = l1seed
         tmplegs = TriggerLeg.parse_legs(name,l1seed,name)
         self.legs = self.splitAndOrderLegs(tmplegs)
         self.livefraction = livefraction
         self.activeLB = activeLB
+        self.hasRerun = hasRerun
         self.triggerType = self.getTriggerType(self.legs, l1seed)
 
     def splitAndOrderLegs(self, legs):
@@ -289,7 +308,7 @@ class TriggerChain:
         for triggerType in TriggerType:
             for l in legs:
                 if not l.legtype == triggerType: continue
-                for i in range(l.count):
+                for i in range(l.count): #split into N single legs
                     tmp = deepcopy(l)
                     tmp.count = 1
                     if tmp.legtype & TriggerType.el_multi:
@@ -351,8 +370,9 @@ class TriggerChain:
                 if legtype == 'EM' or legtype == 'TAU':
                     pass
                 elif legtype == 'MU':
-                    if count > 1: mtype |= TriggerType.mu_multi
-                    elif not mtype & TriggerType.mu_multi: mtype |= TriggerType.mu_single
+                    if not mtype & TriggerType.mu_bphys:
+                        if count > 1: mtype |= TriggerType.mu_multi
+                        elif not mtype & TriggerType.mu_multi: mtype |= TriggerType.mu_single
                 elif legtype == 'J':
                     if not mtype & TriggerType.bj and not mtype & TriggerType.j and not mtype & TriggerType.tau and not mtype & TriggerType.ht:
                         if count > 1: mtype |= TriggerType.j_multi
@@ -364,6 +384,11 @@ class TriggerChain:
                 else:
                     print "Unknown trigger type:",(legtype, mtype, token, self.name)
         return mtype
+
+    def isActive(self, livefraction=1e-99):
+        return self.livefraction > livefraction or self.hasRerun
+    def isInactive(self, livefraction=1e-99):
+        return not self.isActive(livefraction)
 
     def isUnprescaled(self, livefraction=1.0):
         return self.livefraction >= livefraction
