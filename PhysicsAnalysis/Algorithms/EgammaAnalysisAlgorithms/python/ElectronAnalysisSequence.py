@@ -89,6 +89,14 @@ def makeElectronAnalysisSequence( dataType,
     alg.selectionTool.ElectronWP = isolationWP
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut' )
 
+    # Set up the track selection algorithm:
+    alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
+                           'ElectronTrackSelectionAlg' )
+    alg.selectionDecoration = "trackSelection"
+    alg.maxD0Significance = 5
+    alg.maxDeltaZ0SinTheta = 0.5
+    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut' )
+
     # Set up the electron efficiency correction algorithm:
     alg = createAlgorithm( 'CP::ElectronEfficiencyCorrectionAlg',
                            'ElectronEfficiencyCorrectionAlg' )
@@ -115,15 +123,15 @@ def makeElectronAnalysisSequence( dataType,
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                            'ElectronCutFlowDumperAlg' )
     alg.histPattern = 'electron_cflow_%SYS%'
-    alg.selection = [ 'selectLikelihood', 'isolated', 'bad_eff' ]
-    alg.selectionNCuts = [ 7, 1, 1 ]
+    alg.selection = [ 'selectLikelihood', 'isolated', 'trackSelection', 'bad_eff' ]
+    alg.selectionNCuts = [ 7, 1, 3, 1 ]
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'ElectronViewFromSelectionAlg' )
-    alg.selection = [ 'selectLikelihood', 'isolated', 'bad_eff' ]
+    alg.selection = [ 'selectLikelihood', 'isolated', 'trackSelection', 'bad_eff' ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the electrons, for
