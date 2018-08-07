@@ -144,8 +144,6 @@ function waitonallproc   {
 
 # run athena  
 
-iathena=0
-
 function runathena { 
    timestamp  "runathena:"
 
@@ -165,9 +163,7 @@ function runathena {
      echo "ARGS: $ARGS"
      echo -e "\nrunning athena in athena-$1\n"
      athena.py  -c "$ARGS"              TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice.py  &> athena-local-$1.log
-     echo "art-result: $? athena_$iathena"
-
-     ((iathena++))
+     echo "art-result: $? athena_$1"
 
      pwd
      ls -lt
@@ -264,9 +260,12 @@ done
 
 [ -e topp.log ] && rm topp.log
 
-ps -aF --pid $PPROCS | grep $USER >> topp.log
+echo -e "\nUID        PID  PPID  C    SZ   RSS PSR STIME TTY          TIME CMD" >> topp.log
+ps -aF --pid $PPROCS | grep $USER | grep -v grep | grep -v sed | sed 's| [^[:space:]]*/python | python |g' | sed 's| [^[:space:]]*/athena| athena|g' | sed 's|ARTConfig=.* |ARTConfig=... |g' | sed 's|eos/[^[:space:]]*/trigindet|eos/.../trigindet|g' >> topp.log
 
 echo >> topp.log
+
+sleep 20 
 
 top -b -n1 > top.log
 grep PID top.log >> topp.log
@@ -312,7 +311,9 @@ hadd expert-monitoring.root athena-*/expert-monitoring.root &> hadd.log
 # file to the check will fail. This creates a link so this 
 # test will pass
   
-for git in output-dataset/*.root ; do ln -s $git TrkNtuple-0000.root ; break ; done  
+for git in output-dataset/*.root ; do if [ -e $git ]; then ln -s $git TrkNtuple-0000.root ; break ; fi ; done  
+
+[ -e TrkNtuple-0000.root ] || echo "WARNING: all athena stages failed"
 
 fi
 
@@ -349,7 +350,7 @@ timestamp "TIDArdict"
 fi
 
 
-TIDArun-art.sh data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig -d HLTEF-plots  2>&1 | tee TIDArun_2.log
+TIDArun-art.sh data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e28_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e28_medium_gsf_idperf:GSFTrigTrackParticles -d HLTEF-plots  2>&1 | tee TIDArun_2.log
 echo "art-result: $? TIDArun_2"
 
 
