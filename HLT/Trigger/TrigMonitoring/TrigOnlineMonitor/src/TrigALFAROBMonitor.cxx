@@ -315,11 +315,13 @@ StatusCode TrigALFAROBMonitor::execute() {
 
   if (m_previousEventLB < 0) {
     m_previousEventLB = m_LB;  // first event
+    m_prevLB10reset = m_LB;
+    m_prevLB60reset = m_LB;
   } else {
      if (m_LB > m_previousEventLB){ // new LB
         reset1LBhistos(m_previousEventLB);
-        if (m_LB % 10 == 0) reset10LBhistos(m_previousEventLB);
-        if (m_LB % 60 == 0) reset60LBhistos(m_previousEventLB);
+        if ((m_LB - m_prevLB10reset) > 10 ) {reset10LBhistos(m_previousEventLB); m_prevLB10reset = m_LB;};
+        if ((m_LB - m_prevLB10reset) > 60 ) {reset60LBhistos(m_previousEventLB); m_prevLB60reset = m_LB;};
         uint32_t newPrescKey = m_configSvc->hltPrescaleKey();
         if (newPrescKey != m_prescKey) {
              ATH_MSG_INFO ("HLT prescale key changed to "<<newPrescKey );

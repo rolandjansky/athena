@@ -123,6 +123,8 @@ private:
 
   int m_LB; // luminosity block number
   int m_previousEventLB; // luminosity block number of the previous events
+  int m_prevLB10reset;   // LB at which previous reset of 10LB histograms happened
+  int m_prevLB60reset;   // LB  -- 60LB histograms were reset
   uint32_t m_prescKey; // current hlt prescale key
 
   BooleanProperty                  m_doTiming;
