@@ -113,18 +113,7 @@ def addVRJetsAndBTagging(HIGG4DxName, sequence):
     from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
     
     # removed for now. Does not work in rel 21 anymore
-    addVRJets(sequence, 
-              "AntiKtVR30Rmax4Rmin02Track", 
-              "GhostVR30Rmax4Rmin02TrackJet", 
-              VRJetAlg="AntiKt", 
-              VRJetRadius=0.4, 
-              VRJetInputs="pv0track", 
-              ghostArea = 0 , 
-              ptmin = 2000, 
-              ptminFilter = 7000, 
-              variableRMinRadius = 0.02, 
-              variableRMassScale = 30000, 
-              calibOpt = "none")
+    addVRJets(sequence)
     
     # Run b-tagging
     from BTagging.BTaggingFlags import BTaggingFlags

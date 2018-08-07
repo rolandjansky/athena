@@ -38,7 +38,9 @@ namespace DerivationFramework {
   private:
 
     std::string m_eventInfoName;
-    ToolHandle<DerivationFramework::TTbarPlusHeavyFlavorFilterTool> m_filterTool;
+    ToolHandle<DerivationFramework::TTbarPlusHeavyFlavorFilterTool> m_BfilterTool;
+    ToolHandle<DerivationFramework::TTbarPlusHeavyFlavorFilterTool> m_BBfilterTool;
+    ToolHandle<DerivationFramework::TTbarPlusHeavyFlavorFilterTool> m_CfilterTool;
     
 
   }; /// class
