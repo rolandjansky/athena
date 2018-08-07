@@ -55,5 +55,5 @@ if( XAOD_STANDALONE )
       SCRIPT python -m unittest AnaAlgorithm.AnaAlgSequence )
 else()
    atlas_install_python_modules( python/__init__.py python/DualUseConfig.py
-      python/AlgSequence.py python/AnaAlgSequence.py )
+      python/AlgSequence.py python/AnaAlgSequence.py python/Logging.py )
 endif()
