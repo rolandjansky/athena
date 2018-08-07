@@ -591,15 +591,13 @@ if TriggerFlags.doMuon:
     trigMuonEFSAHypo = TrigMuonEFMSonlyHypoConfig("MuonEFSAHypoAlg")
     trigMuonEFSAHypo.OutputLevel = DEBUG
 
-    trigMuonEFSAHypo.ViewRoIs = efMuViewsMaker.Views
     trigMuonEFSAHypo.MuonDecisions = "Muons"
-    trigMuonEFSAHypo.RoIs = efMuViewsMaker.InViewRoIs
-    trigMuonEFSAHypo.Decisions = "EFMuonSADecisions"
-    trigMuonEFSAHypo.L1Decisions = efMuViewsMaker.InputMakerInputDecisions[0]
+    trigMuonEFSAHypo.HypoOutputDecisions = "EFMuonSADecisions"
+    trigMuonEFSAHypo.HypoInputDecisions = efMuViewsMaker.InputMakerInputDecisions[0]
 
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
-    muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.Decisions )
+    muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.HypoOutputDecisions )
     muonEFSAStep = seqAND("muonEFSAStep", [filterEFSAAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
 
 
@@ -633,7 +631,7 @@ if TriggerFlags.doMuon==True:
   if doEFSA==True and doL2SA==False and doL2CB==False:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
+    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muonEFSAStep ] )
     stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
@@ -674,7 +672,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
+    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     step1 = parOR("step1", [ muCombStep ] )
@@ -688,7 +686,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.Decisions, "WhateverElse" ] 
+    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )

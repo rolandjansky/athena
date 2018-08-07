@@ -23,18 +23,20 @@ class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
   ~TrigMuonEFMSonlyHypoTool();
  
   struct MuonEFInfo {
-  MuonEFInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::MuonContainer* m,
+  MuonEFInfo( TrigCompositeUtils::Decision* d, 
+              const TrigRoiDescriptor* r, 
+              const xAOD::Muon* m,
 	      const TrigCompositeUtils::Decision* previousDecision )
-  : decision( d ), 
+    : decision( d ), 
       roi( r ),
-      muons( m ),
+      muon( m ),
       previousDecisionIDs(TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			  TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
       
     TrigCompositeUtils::Decision* decision;
     const TrigRoiDescriptor* roi;
-    const xAOD::MuonContainer* muons;
+    const xAOD::Muon* muon;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
 

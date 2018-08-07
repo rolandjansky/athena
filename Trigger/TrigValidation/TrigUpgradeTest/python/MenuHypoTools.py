@@ -48,4 +48,9 @@ def TrigmuCombHypoToolConf(name, conf):
     hypotool.OutputLevel = DEBUG
     return hypotool
 
-   
+def TrigMuonEFMSonlyHypoToolConf(name, conf):
+    from AthenaCommon.Constants import DEBUG
+    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuonEFMSonlyHypoToolFromName
+    hypotool= TrigMuonEFMSonlyHypoToolFromName(name, conf)
+    hypotool.OutputLevel = DEBUG
+    return hypotool   
