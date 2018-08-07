@@ -9,6 +9,10 @@ import sys
 import pdb
 import glob
 
+import logging
+logger = logging.getLogger('hancoolmod')
+logger.addHandler(logging.NullHandler())
+
 import ROOT
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
@@ -23,7 +27,6 @@ from ROOT import dqutils
 
 ## LumiBlock length (in minutes)
 LBlength = 1.0
-
 
 ## Mapping han<->COOL
 folderMap = {
@@ -154,7 +157,7 @@ def getLimits( name ):
             low_limit = 1
             hi_limit = max_hi_limit
     except Exception, e:
-        print 'Could not determine limits because:', e
+        logging.warning('Could not determine limits because: %s', e)
         low_limit = 1
         hi_limit = 4294967295
 
@@ -182,9 +185,9 @@ def hancool(runNumber=3070,
 
     runlimitscache = {}
     
-    print '====> Running hancool_defects'
+    logger.info('====> Running hancool_defects')
     hancool_defects(runNumber, filePath, dbConnection, 'HEAD', isESn)
-    print '<==== Done with hancool_defects'
+    logger.info('<==== Done with hancool_defects')
 
 # Nothing that follows applies for Run 2 ...
 #    if ( filePath.rfind("/")!=(len(filePath)-1) ):
@@ -504,15 +507,16 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
         globname = fnames[0][0]
         filename = os.path.basename(globname)    
         since, until = getLimits(filename)
-        # disabled until fixed
-        #defects += pix_defect.execute(runNumber, globname, until-1)
+        defects += pix_defect.execute(runNumber, globname, until-1)
 
     from DQDefects import DefectsDB
     ddb = DefectsDB(dbConnection, read_only=False)
     if isESn:
+        logging.info('Running detmask_defects')
         detmask_defects(runNumber, ddb)
     with ddb.storage_buffer:
         for defect in iovs_merge(defects):
+            logger.debug('Uploading %s', defect)
             ddb.insert(defect.defect, since=(runNumber << 32 | defect.since),
                        until=(runNumber << 32 | defect.until),
                        comment=defect.comment,
@@ -527,4 +531,3 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
     #ddb = DefectsDB(dbConnection, read_only=False, tag="HEAD")
     #import pix_defect
     #pix_defect.execute(runNumber, globname_pix, until-1, 'sys:hancool', ddb)
-

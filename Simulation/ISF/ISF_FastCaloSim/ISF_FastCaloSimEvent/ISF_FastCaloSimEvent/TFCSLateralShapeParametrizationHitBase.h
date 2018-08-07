@@ -69,10 +69,10 @@ public:
   /// simulated one hit position with some energy. As last step in TFCSLateralShapeParametrizationHitChain::simulate, 
   /// the hit should be mapped into a cell and this cell recorded in simulstate. 
   /// All hits/cells should be resacled such that their final sum is simulstate->E(sample)
-  virtual void simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 private:
 
-  ClassDef(TFCSLateralShapeParametrizationHitBase,1)  //TFCSLateralShapeParametrizationHitBase
+  ClassDefOverride(TFCSLateralShapeParametrizationHitBase,1)  //TFCSLateralShapeParametrizationHitBase
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

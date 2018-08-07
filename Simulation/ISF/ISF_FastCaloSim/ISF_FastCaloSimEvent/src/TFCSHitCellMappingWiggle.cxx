@@ -85,12 +85,11 @@ void TFCSHitCellMappingWiggle::initialize(const std::vector< const TH1* > histog
   initialize(functions,bin_low_edges);
 }
 
-void TFCSHitCellMappingWiggle::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSHitCellMappingWiggle::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   float eta=fabs(hit.eta());
   if(eta<m_bin_low_edge[0] || eta>=m_bin_low_edge[get_number_of_bins()]) {
-    TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
-    return;
+    return TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
   }  
   
   auto it = std::upper_bound(m_bin_low_edge.begin(),m_bin_low_edge.end(),eta);
@@ -108,7 +107,7 @@ void TFCSHitCellMappingWiggle::simulate_hit(Hit& hit,TFCSSimulationState& simuls
     hit.phi()=TVector2::Phi_mpi_pi(hit_phi_shifted);
   }  
 
-  TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
+  return TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
 }
 
 void TFCSHitCellMappingWiggle::Print(Option_t *option) const
@@ -170,4 +169,3 @@ void TFCSHitCellMappingWiggle::unit_test(TFCSSimulationState* simulstate,TFCSTru
 #endif
 
 }
-

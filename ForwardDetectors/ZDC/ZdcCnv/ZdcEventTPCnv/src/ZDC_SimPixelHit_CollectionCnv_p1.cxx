@@ -23,15 +23,16 @@ void ZDC_SimPixelHit_CollectionCnv_p1::transToPers(const ZDC_SimPixelHit_Collect
 
 void ZDC_SimPixelHit_CollectionCnv_p1::persToTrans(const ZDC_SimPixelHit_Collection_p1* persObj, ZDC_SimPixelHit_Collection* transObj, MsgStream& log) {
 
-  //log << MSG::INFO << " size = " << persObj->size() << endreq;
+  //log << MSG::INFO << " size = " << persObj->size() << endmsg;
 
   transObj->reserve(persObj->size());
   
   for (unsigned int i=0; i<persObj->size(); ++i) {
     
-    //log << MSG::INFO << " i = " << i << endreq;
+    //log << MSG::INFO << " i = " << i << endmsg;
     const ZDC_SimPixelHit_p1* pixelhit = &((*persObj)[i]);
     
-    transObj->push_back(*ZdcPixelHitConv.createTransient(pixelhit, log));
+    std::unique_ptr<ZDC_SimPixelHit> ptr (ZdcPixelHitConv.createTransient(pixelhit, log));
+    transObj->push_back(*ptr);
   }    
 }

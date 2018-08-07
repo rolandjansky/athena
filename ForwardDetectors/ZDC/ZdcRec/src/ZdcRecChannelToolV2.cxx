@@ -76,7 +76,7 @@ void ZdcRecChannelToolV2::handle( const Incident& inc )
 //==================================================================================================
 StatusCode ZdcRecChannelToolV2::initialize()
 {
-	msg(MSG::INFO) << "Initializing " << name() << endreq;
+	msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
 	//Get the pedestal information for the channels.
 	//For now, this is a file; later on it will be moved to a database
@@ -85,17 +85,17 @@ StatusCode ZdcRecChannelToolV2::initialize()
 	
 	const ZdcID* zdcId = 0;
 	if (detStore()->retrieve( zdcId ).isFailure() ) {
-	    msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endreq;
+	    msg(MSG::ERROR) << "execute: Could not retrieve ZdcID object from the detector store" << endmsg;
 	    return StatusCode::FAILURE;
 	}
 	else {
-	    msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endreq;
+	    msg(MSG::DEBUG) << "execute: retrieved ZdcID" << endmsg;
 	}
 	m_zdcId = zdcId;
 
 	ZdcCablingService::getInstance()->setZdcID(m_zdcId);
 
-	msg(MSG::DEBUG) << "--> ZDC : END OF MODIFICATION 0" << endreq ;
+	msg(MSG::DEBUG) << "--> ZDC : END OF MODIFICATION 0" << endmsg ;
 	return StatusCode::SUCCESS;
 
 	ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
@@ -107,7 +107,7 @@ StatusCode ZdcRecChannelToolV2::initialize()
 //==================================================================================================
 StatusCode ZdcRecChannelToolV2::finalize()
 {
-	msg(MSG::INFO) << "Finalizing " << name() << endreq;
+	msg(MSG::INFO) << "Finalizing " << name() << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -217,7 +217,7 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
 		      << "/" <<  module.type()
 		      << "/" <<  module.zdcModule()
 		      << "/" <<  module.channel()
-		      << endreq;
+		      << endmsg;
       return 1;
     }
 
@@ -335,13 +335,13 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module)
 
 //Returns a pointer to a RawChannel Collection with energy and time
 //==================================================================================================
-int  ZdcRecChannelToolV2::makeRawFromDigits(xAOD::ZdcModuleContainer&  m_ChannelCollection)
+int  ZdcRecChannelToolV2::makeRawFromDigits(xAOD::ZdcModuleContainer&  ChannelCollection)
 {
 
 	Identifier id;
 
 	
-	msg(MSG::DEBUG) << "--> ZDC : ZdcRecChannelToolV2 m_ChannelCollection size " << m_ChannelCollection.size() << endreq ;
+	msg(MSG::DEBUG) << "--> ZDC : ZdcRecChannelToolV2 ChannelCollection size " << ChannelCollection.size() << endmsg ;
 	return 0;
 }
 
@@ -365,7 +365,7 @@ int ZdcRecChannelToolV2::getPeakProperties(std::vector<float>& times, std::vecto
 
   if (times.size() != adcs.size()) 
     {
-      msg(MSG::WARNING) << "times and ADCs inconsistent!" << endreq;
+      msg(MSG::WARNING) << "times and ADCs inconsistent!" << endmsg;
       return 0;
     }
 

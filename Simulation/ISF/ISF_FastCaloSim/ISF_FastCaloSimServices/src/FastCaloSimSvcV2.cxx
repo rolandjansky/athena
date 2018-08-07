@@ -46,8 +46,12 @@ using std::atan2;
 
 /** Constructor **/
 ISF::FastCaloSimSvcV2::FastCaloSimSvcV2(const std::string& name, ISvcLocator* svc) :
-  BaseSimulationSvc(name, svc),m_param(0),
-  m_rndGenSvc("AtRndmGenSvc", name)
+  BaseSimulationSvc(name, svc),
+  m_param(nullptr),
+  m_theContainer(nullptr),
+  m_rndGenSvc("AtRndmGenSvc", name),
+  m_randomEngine(nullptr),
+  m_caloGeo(nullptr)
 {
   declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"TFCSparam.root");
   declareProperty("ParamsInputObject"              ,       m_paramsObject,"SelPDGID");
@@ -215,7 +219,10 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   TFCSSimulationState simulstate;
 
-  m_param->simulate(simulstate, &truth, &extrapol);
+  FCSReturnCode status = m_param->simulate(simulstate, &truth, &extrapol);
+  if (status != FCSSuccess) {
+    return StatusCode::FAILURE;
+  }
 
   ATH_MSG_INFO("Energy returned: " << simulstate.E());
   ATH_MSG_INFO("Energy fraction for layer: ");

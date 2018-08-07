@@ -21,9 +21,11 @@ int TFCSLateralShapeParametrizationHitBase::get_number_of_hits(TFCSSimulationSta
   return -1;
 }
 
-void TFCSLateralShapeParametrizationHitBase::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSLateralShapeParametrizationHitBase::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
   hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
   hit.phi()=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
+
+  return FCSSuccess;
 }

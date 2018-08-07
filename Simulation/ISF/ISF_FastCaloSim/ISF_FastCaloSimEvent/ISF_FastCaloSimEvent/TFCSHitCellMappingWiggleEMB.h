@@ -13,7 +13,7 @@ public:
 
   /// modify one hit position to emulate the LAr accordeon shape
   /// and then fills all hits into calorimeter cells
-  virtual void simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 private:
   //** Array for the hit-to-cell assignment accordion structure fix (wiggle)  **//
   //** To be moved to the conditions database at some point **//
@@ -23,7 +23,7 @@ private:
 
   double doWiggle();
 
-  ClassDef(TFCSHitCellMappingWiggleEMB,1)  //TFCSHitCellMappingWiggleEMB
+  ClassDefOverride(TFCSHitCellMappingWiggleEMB,1)  //TFCSHitCellMappingWiggleEMB
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

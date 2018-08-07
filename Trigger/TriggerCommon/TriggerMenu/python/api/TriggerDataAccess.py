@@ -129,7 +129,11 @@ def getHLTPrescalesRun2(connection,psk):
     """
 
     res = queryHLTPrescaleTableRun2(connection,psk)
-    return {r[0]:r[3] for r in res if r and r[1]=='Prescale'}
+    prescales = {r[0]:r[3] for r in res if r and r[1]=='Prescale'}
+    rerun     = {r[0]:r[3] for r in res if r and r[1]=='ReRun'}
+    for x in prescales:
+        if x not in rerun: rerun[x] = False
+    return {x: (prescales[x],rerun[x]) for x in prescales}
 
 def queryHLTPrescaleTableRun2(connection,psk):
 
@@ -162,14 +166,14 @@ def fillHLTlist( info, hltList , lbCount, run, grlblocks):
     tmphltList = []
     for lbrange in info['hltpsk']:
         lbstart, lbend = lbrange[2], lbrange[4]
-        if lbend ==0: lbend = 2000
+        if lbend ==-1: lbend = 2000
         hltprescales = getHLTPrescalesRun2('TRIGGERDB', lbrange[0])
         tmphltList.append(( lbstart, lbend,hltprescales) )
 
     tmpl1List = []
     for lbrange in info['l1psk']:
         lbstart, lbend = lbrange[2], lbrange[4]
-        if lbend ==0: lbend = 2000
+        if lbend ==-1: lbend = 2000
         l1psname, l1prescales = getL1Prescales('TRIGGERDB', lbrange[0])
         l1prescales    = {l1name: l1prescales[int(l1id)] for (l1name, l1id) in items.iteritems()}
         tmpl1List.append(( lbstart, lbend,l1prescales) )
@@ -203,23 +207,26 @@ def fillHLTlist( info, hltList , lbCount, run, grlblocks):
 
         #print "Accepted:",(lboverlap, lbstart, lbend, grlblocks)
         lbCount += lboverlap
-        for hltid, hltps in hltprescales.iteritems():
+        for hltid, (hltps, hltrerun) in hltprescales.iteritems():
             if hltid not in chainsHLT: continue
-            if hltps < 1: hltps = 1e10
+            if hltps < 1: hltps = 1e99
             l1seeds = chainsHLT[hltid][1]
-            l1ps = 1e10
+            l1ps = 1e99
             for l1seed in l1seeds.split(","): #protect 'L1_MU20,L1_MU21'
+                if l1seed not in l1prescales and len(l1seeds) > 10: continue #Protection against buggy HLT_noalg_Standby
                 tmpl1ps = l1prescales[l1seed] 
-                if tmpl1ps < 1: tmpl1ps = 1e10
+                if tmpl1ps < 1: tmpl1ps = 1e99
                 l1ps = min(l1ps, tmpl1ps)
             
             efflb = lboverlap/(hltps*l1ps)
-            if not chainsHLT[hltid][0] in hltMap: hltMap[chainsHLT[hltid][0]] = [l1seeds, 0]
+            if not chainsHLT[hltid][0] in hltMap: hltMap[chainsHLT[hltid][0]] = [l1seeds, 0, hltrerun>0]
             hltMap[chainsHLT[hltid][0]][1] += efflb
     
-    for i, (hlt,(l1,efflb)) in enumerate(hltList):
-        if hlt in hltMap: hltMap[hlt][1] += efflb
-        else: hltMap[hlt] = (l1, efflb)
+    for i, (hlt,(l1,efflb,rerun)) in enumerate(hltList):
+        if hlt in hltMap: 
+            hltMap[hlt][1] += efflb
+            hltMap[hlt][2] |= rerun
+        else: hltMap[hlt] = (l1, efflb,rerun)
 
     return hltMap.items(), lbCount
 
@@ -273,7 +280,7 @@ def getHLTlist_fromDB(period, customGRL):
         print "Filling run:",run
         hltList, lbCount = fillHLTlist( keys[run], hltList, lbCount , run, triggerPeriod[run])
 
-    hltList = [(x, l1, activeLB/float(lbCount), activeLB) for x, (l1, activeLB) in hltList]
+    hltList = [(x, l1, activeLB/float(lbCount), activeLB, hasRerun) for x, (l1, activeLB, hasRerun) in hltList]
     return hltList, lbCount
 
 def getHLTlist_fromTM(period):
@@ -305,7 +312,7 @@ def getHLTlist_fromTM(period):
             ps = 0
             if maxlumi <= 20000 and 'Primary:20000' in comment: ps = 1
             if maxlumi <= 17000 and 'Primary:17000' in comment: ps = 1
-            hltList.append( (hltname, l1seed, ps, dummyfutureLBs*ps) )
+            hltList.append( (hltname, l1seed, ps, dummyfutureLBs*ps, False) ) #hasRerun=False
         
     return hltList, dummyfutureLBs
 
@@ -315,17 +322,17 @@ def getHLTlist(period, customGRL):
         *** Don't use this number in analysis!!! ***
         For "future" periods, the average prescale is 1 for items flagged as primary in TM and 0 for non-primaries
     '''
-    if not period & TriggerPeriod.future or period >= TriggerPeriod.runNumber: 
+    if not period & TriggerPeriod.future or TriggerPeriod.isRunNumber(period): 
         hltlist, totalLB = getHLTlist_fromDB(period, customGRL)
     else:
         hltlist, totalLB = getHLTlist_fromTM(period)
     
-    vetoes = ['calib','noise','noalg','EMPTY','UNPAIRED']
-    hltlist = [(name, l1seed, livefraction, activeLB) for name, l1seed, livefraction, activeLB in hltlist if not any(v in name for v in vetoes)]
+    vetoes = ['calib','noise','noalg','satmon','peb']
+    hltlist = [(name, l1seed, livefraction, activeLB, hasRerun) for name, l1seed, livefraction, activeLB, hasRerun in hltlist if not any(v in name for v in vetoes)]
     return (hltlist, totalLB)
 
 def test():
-    print getHLTlist(TriggerPeriod.y2017)
+    print getHLTlist(TriggerPeriod.y2017,None)
 
 if __name__ == "__main__":
     sys.exit(test())
