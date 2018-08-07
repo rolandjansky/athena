@@ -9,7 +9,7 @@
 # the standalone logger
 
 try:
-    from AthenaCommon import logging
+    from AthenaCommon.Logging import logging as logging
 
 except:
 
