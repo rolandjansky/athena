@@ -8,8 +8,8 @@
 //======= TFCSInvisibleParametrization =========
 //=============================================
 
-void TFCSInvisibleParametrization::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSInvisibleParametrization::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   ATH_MSG_VERBOSE("now in TFCSInvisibleParametrization::simulate(). Don't do anything for invisible");
+  return FCSSuccess;
 }
-
