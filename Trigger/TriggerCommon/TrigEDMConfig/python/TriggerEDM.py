@@ -497,8 +497,8 @@ TriggerHLTList = [
     ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubFSAux.',                    'BS ESD AODFULL', 'Jet'),
 
 
-    ('xAOD::JetContainer#HLT_a4tcemsubjesFS',                            'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubjesFSAux.',                 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a4tcemsubjesFS',                            'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubjesFSAux.',                 'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetContainer#HLT_a4tcemnojcalibFS',                          'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a4tcemnojcalibFSAux.',               'BS ESD AODFULL', 'Jet'),
 
@@ -574,8 +574,8 @@ TriggerHLTList = [
     ('xAOD::JetTrigAuxContainer#HLT_a10TThadnojcalibFSAux.',             'BS ESD AODFULL', 'Jet'),
 
     # Reclustered jets
-    ('xAOD::JetContainer#HLT_a10r_tcemsubjesFS',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a10r_tcemsubjesFSAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10r_tcemsubjesFS',                         'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10r_tcemsubjesFSAux.',              'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetContainer#HLT_a10r_tcemsubjesISFS',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a10r_tcemsubjesISFSAux.',            'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
 
@@ -584,18 +584,18 @@ TriggerHLTList = [
     ('xAOD::JetTrigAuxContainer#HLT_TrigCosmicJetRecAux.',               '',                       'Jet'),
 
     # R=0.4 HI jets
-    ('xAOD::JetContainer#HLT_a4ionemsubjesFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a4ionemsubjesFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a4ionemsubjesISFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4ionemsubjesISFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     # R=0.3 HI jets
-    ('xAOD::JetContainer#HLT_a3ionemsubjesFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a3ionemsubjesISFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesISFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     
     # 2016 EM Calibration
     ('xAOD::JetContainer#HLT_a4tcemsubjesISFS',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubjesISFSAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     # 2016 LCW Calibration
-    ('xAOD::JetContainer#HLT_a4tclcwsubjesISFS',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a4tclcwsubjesISFSAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a4tclcwsubjesISFS',                         'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4tclcwsubjesISFSAux.',              'BS ESD AODFULL', 'Jet'),
     
     # Large R trimmed jets
     ('xAOD::JetContainer#HLT_a10t_tclcwjesFS',                           '', 'Jet'),

@@ -242,8 +242,10 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     persKey     = (m_pTrigCaloQuality->getPersistencyFlag() ? name() : "TrigCaloClusterMaker");
     persKeyLink = persKey + "_Link";
   }
+  if ( msgLvl() <= MSG::DEBUG ) {
   msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << persKey << endmsg;
   msg() << MSG::DEBUG << "CaloCellLinkContainer is stored with key = " << persKeyLink << endmsg;
+  }
 
   //  msg() << MSG::DEBUG << store()->dump() << endmsg;
   sc = getUniqueKey( m_pCaloClusterContainer, clusterCollKey, persKey );

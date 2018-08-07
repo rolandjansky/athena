@@ -57,6 +57,7 @@ calibStreams = [
                 'AFPALFA',
                 'BphysPEB',
                 'RPCNoise',
+                'RPCsecondaryreadout',
                 'IDprescaledL1',
                 'LArPEB',
                 'L1TopoMismatches'

@@ -79,6 +79,14 @@ class TrigEFCaloHypoNoise : public HLT::HypoAlgo {
 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
 
+  // helpers to define what is to be used to save events
+  bool m_badFEBFlaggedPartitions;
+  bool m_satTightFlaggedPartitions;
+  bool m_mNBLooseFlaggedPartitions;
+  bool m_mNBTightFlaggedPartitions;
+  bool m_mNBTight_PsVetoFlaggedPartitions;
+  unsigned int m_mask;
+
 };
 #endif
 
