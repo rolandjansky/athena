@@ -29,9 +29,10 @@
 #include "Identifier/IdContext.h" 
 #include "ByteStreamData/RawEvent.h" 
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"  
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <deque>
 
@@ -57,15 +58,15 @@ public:
 		       std::vector<bool>&, FastSCT_Clusterization* );
 
   int addNewStrip(int strip, int, uint32_t onlineId, int ERRORS, float errorHit[20],
-		  std::vector<bool>&);
+		  std::vector<bool>&, const InDetDD::SiDetectorElementCollection* elements);
 
  private:
-  const InDetDD::SCT_DetectorManager *m_indet_mgr; 
   const SCT_ID* m_sct_id; 
   IdContext m_cntx_sct; 
   FastSCT_Clusterization* m_pClusterization;
   ISCT_CablingSvc* m_cablingSvc;
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 };
 
 #endif

@@ -2,14 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
 #include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
-#include "GaudiKernel/ListItem.h"
+
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "ByteStreamData/ROBData.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+
+#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "ByteStreamData/ROBData.h" 
+
 #include <algorithm> 
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
@@ -36,22 +40,16 @@ const InterfaceID& FastSCT_RodDecoder::interfaceID( )
 StatusCode FastSCT_RodDecoder::initialize() {
 
   ATH_MSG_INFO(" initialize "); 
-  StatusCode sc = AthAlgTool::initialize(); 
+  ATH_CHECK(AthAlgTool::initialize());
 
-  sc = detStore()->retrieve(m_indet_mgr,"SCT"); 
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot retrieve SCT_DetectorManager!");
-    return StatusCode::FAILURE;
-  } 
-  
-  if (detStore()->retrieve(m_sct_id, "SCT_ID").isFailure()) {                       
-     ATH_MSG_FATAL("Could not get SCT ID helper");
-     return StatusCode::FAILURE;
-  }  
+  ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
 
   m_cntx_sct = m_sct_id->wafer_context();
 
   ATH_CHECK(m_lorentzAngleTool.retrieve());
+
+  // Initialize ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -112,6 +110,14 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 
   //For the BS Time Out Error
   std::vector<uint32_t>  TimeOutErrOnlineIds ;
+
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return false;
+  }
 
  // loop over the ROB  iterator over 32 bits words
 
@@ -180,7 +186,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		      */
 		      if (strip != oldstrip)
 			{ //if it is a new cluster,  make RDO with the previous cluster
-			  nNewStrips+=addNewStrip(oldstrip,groupSize,onlineId,ERRORS,errorHit, listOfIds);
+			  nNewStrips+=addNewStrip(oldstrip,groupSize,onlineId,ERRORS,errorHit, listOfIds, elements);
 			  saved[oldstrip]=1;
 			  oldstrip = strip;
 			  groupSize = 0;	
@@ -207,7 +213,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		      */
 		      if (strip != oldstrip) 
 			{ //if it is a new cluster, make RDO with the previous cluster
-			  nNewStrips+=addNewStrip(oldstrip,groupSize,onlineId,ERRORS,errorHit,listOfIds);
+			  nNewStrips+=addNewStrip(oldstrip,groupSize,onlineId,ERRORS,errorHit,listOfIds, elements);
 			  saved[oldstrip]=1;	 
 			  oldstrip = strip;
 			  groupSize = 0;
@@ -278,7 +284,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 			robid<<" online Id "<<onlineId<<std::dec<<endmsg ;
 		      */
 		      groupSize =  1 ;
-		      nNewStrips+=addNewStrip(strip,groupSize,onlineId,ERRORS,errorHit,listOfIds) ;
+		      nNewStrips+=addNewStrip(strip,groupSize,onlineId,ERRORS,errorHit,listOfIds, elements);
 		      saved[strip] = 1;
 		      groupSize = 0 ;
 		    }
@@ -299,12 +305,12 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 			  strip++;
 			  // tbin = dataWord&0x7;
 			  groupSize = 1;
-			  nNewStrips+=addNewStrip(strip,groupSize,onlineId,ERRORS,errorHit,listOfIds);
+			  nNewStrips+=addNewStrip(strip,groupSize,onlineId,ERRORS,errorHit,listOfIds, elements);
 			  saved[strip] = 1;
 			  // second hit from the pair
 			  strip++;
 			  // tbin = (dataWord >> 4) & 0x7 ;
-			  nNewStrips+=addNewStrip(strip,groupSize,onlineId,ERRORS,errorHit,listOfIds);
+			  nNewStrips+=addNewStrip(strip,groupSize,onlineId,ERRORS,errorHit,listOfIds, elements);
 			  saved[strip] = 1;
 			  groupSize = 0;
 			}
@@ -322,7 +328,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 			  strip++;
 			  // tbin = dataWord&0x7;
 			  groupSize = 1;
-			  nNewStrips+=addNewStrip(strip,groupSize,onlineId,ERRORS,errorHit,listOfIds);
+			  nNewStrips+=addNewStrip(strip,groupSize,onlineId,ERRORS,errorHit,listOfIds, elements);
 			  saved[strip] = 1;  
 			  groupSize = 0; 
 			}
@@ -346,7 +352,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 			groupSize<<", Link "<<linkNb<<", chip "<<chip<<std::dec<<" strip "<<strip<< endmsg ;
 		    }
 		  */
-		  nNewStrips+=addNewStrip(strip, groupSize++, onlineId, ERRORS, errorHit,listOfIds);	 
+		  nNewStrips+=addNewStrip(strip, groupSize++, onlineId, ERRORS, errorHit,listOfIds, elements);
 		  saved[strip] = 1;
 		}
 	      //Every thing is set to default for a new hunt of RDO
@@ -477,7 +483,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
   // create RDO of the last link or stream of the event
   if (saved[strip]==0 && oldstrip>=0)
     {
-      nNewStrips+=addNewStrip(strip, groupSize++, onlineId, ERRORS, errorHit,listOfIds);
+      nNewStrips+=addNewStrip(strip, groupSize++, onlineId, ERRORS, errorHit,listOfIds, elements);
       saved[strip] = 1;
     }
   /*
@@ -489,7 +495,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 }
 
 int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId, 
-                                    int /*ERRORS*/, float /*errorHit*/[20], std::vector<bool>& listOfIds)
+                                    int /*ERRORS*/, float /*errorHit*/[20], std::vector<bool>& listOfIds,
+                                    const InDetDD::SiDetectorElementCollection* elements)
 
 {
   const IdentifierHash hashId = m_cablingSvc->getHashFromOnlineId(onlineId) ;
@@ -509,7 +516,7 @@ int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId
       return 0;
     }
 
-  const InDetDD::SiDetectorElement * p_element = (m_indet_mgr->getDetectorElement(hashId));
+  const InDetDD::SiDetectorElement * p_element = (elements->getDetectorElement(hashId));
   int iStrip,strip;
   if (p_element->swapPhiReadoutDirection()) 
     {
