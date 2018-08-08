@@ -9,25 +9,24 @@
 #ifndef SCTSiLorentzAngleCondAlg_h
 #define SCTSiLorentzAngleCondAlg_h
 
-// Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ICondSvc.h"
-
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "StoreGate/WriteCondHandleKey.h"
-#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
+#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ICondSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // forward declarations
-namespace InDetDD {
-  class SiDetectorManager;
-}  
-
 namespace MagField {
   class IMagFieldSvc;
 }
@@ -47,18 +46,18 @@ class SCTSiLorentzAngleCondAlg: public AthAlgorithm
   virtual StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyTemp;
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyHV;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyBFieldSensor;
-  SG::WriteCondHandleKey<SiLorentzAngleCondData> m_writeKey;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyTemp{this, "ReadKeyTemp", "SCT_SiliconTempCondData", "Key of input SCT temperature"};
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyHV{this, "ReadKeyHV", "SCT_SiliconBiasVoltCondData", "Key of input SCT HV"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyBFieldSensor{this, "ReadKeyBFieldSensor", "/EXT/DCS/MAGNETS/SENSORDATA",  "Key of input B-field sensor"};
+  // The /GLOBAL/BField/Maps folder is run-lumi folder and has just one IOV. The folder is not used for IOV determination.
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  SG::WriteCondHandleKey<SiLorentzAngleCondData> m_writeKey{this, "WriteKey", "SCTSiLorentzAngleCondData", "Key of output SiLorentzAngleCondData"};
 
   // needed services
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
-
-  const InDetDD::SiDetectorManager* m_detManager;
 
   // Properties
   double                   m_temperature;
@@ -73,7 +72,7 @@ class SCTSiLorentzAngleCondAlg: public AthAlgorithm
   double                   m_temperatureMin;
   double                   m_temperatureMax;
 
-  Amg::Vector3D getMagneticField(const IdentifierHash& elementHash) const;
+  Amg::Vector3D getMagneticField(const InDetDD::SiDetectorElement* element) const;
 };
 
 #endif // SCTSiLorentzAngleCondAlg_h

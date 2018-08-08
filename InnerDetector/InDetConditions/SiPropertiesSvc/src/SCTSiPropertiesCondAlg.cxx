@@ -4,32 +4,20 @@
 
 #include "SCTSiPropertiesCondAlg.h"
 
-#include <cmath>
-#include <memory>
-
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include <cmath>
+#include <memory>
 
 SCTSiPropertiesCondAlg::SCTSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKeyTemp{"SCT_SiliconTempCondData"}
-  , m_readKeyHV{"SCT_SiliconBiasVoltCondData"}
-  , m_writeKey{"SCTSiliconPropertiesVector"}
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
-  , m_detManager{nullptr}
 {
-  declareProperty("TemperatureMin", m_temperatureMin = -80., "Minimum temperature allowed in Celcius.");
-  declareProperty("TemperatureMax", m_temperatureMax = 100., "Maximum temperature allowed in Celcius.");
-  declareProperty("TemperatureDefault", m_temperatureDefault = -7., "Default temperature in Celcius.");
-  declareProperty("ReadKeyeTemp", m_readKeyTemp, "Key of input sensor temperature conditions folder");
-  declareProperty("ReadKeyHV", m_readKeyHV, "Key of input bias voltage conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output silicon properties conditions folder");
 }
 
 StatusCode SCTSiPropertiesCondAlg::initialize() {
@@ -41,14 +29,12 @@ StatusCode SCTSiPropertiesCondAlg::initialize() {
   // SCT ID helper
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
 
-  // Detector manager
-  ATH_CHECK(detStore()->retrieve(m_detManager, "SCT"));
-
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
   // Read Cond Handles
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
   if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
@@ -100,10 +86,23 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
   }
   ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << rangeHV);
 
-  // Combined the validity ranges of temp and HV
+  // Combined the validity ranges of temp and HV (timestamp IOV)
   EventIDRange rangeW{EventIDRange::intersect(rangeTemp, rangeHV)};
   if(rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
+    return StatusCode::FAILURE;
+  }
+
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+  EventIDRange rangeDetEle; // Run-LB IOV
+  if (not sctDetEle.range(rangeDetEle)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_SCTDetEleCollKey.key());
     return StatusCode::FAILURE;
   }
   
@@ -128,7 +127,7 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
     double deplVoltage{m_siCondTool->depletionVoltage(elementHash) * CLHEP::volt};
     double biasVoltage{m_siCondTool->biasVoltage(elementHash) * CLHEP::volt};
 
-    const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
+    const InDetDD::SiDetectorElement* element{elements->getDetectorElement(elementHash)};
     double depletionDepth{element->thickness()};
     if (std::abs(biasVoltage)<std::abs(deplVoltage)) {
       depletionDepth *= sqrt(std::abs(biasVoltage/deplVoltage));
