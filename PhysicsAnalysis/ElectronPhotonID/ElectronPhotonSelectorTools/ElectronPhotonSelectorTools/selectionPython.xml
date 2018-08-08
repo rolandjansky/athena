@@ -4,6 +4,7 @@
   <class name="AsgPhotonIsEMSelector" />
   <class name="AsgElectronMultiLeptonSelector" /> 
   <class name="AsgElectronLikelihoodTool" /> 
+  <class name="AsgForwardElectronLikelihoodTool" /> 
   <class name="EGammaAmbiguityTool" /> 
   <class name="AsgDeadHVCellRemovalTool" /> 
   <class name="AsgElectronChargeIDSelectorTool"/>

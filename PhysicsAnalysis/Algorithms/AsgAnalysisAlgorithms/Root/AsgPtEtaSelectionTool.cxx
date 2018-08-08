@@ -12,8 +12,8 @@
 
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 
+#include <xAODEgamma/Electron.h>
 #include <xAODBase/IParticle.h>
-
 #include <cmath>
 
 //
@@ -30,6 +30,8 @@ namespace CP
     declareProperty ("maxEta", m_maxEta, "maximum abs(eta) to allow (or 0 for no eta cut)");
     declareProperty ("etaGapLow", m_etaGapLow, "low end of the eta gap");
     declareProperty ("etaGapHigh", m_etaGapHigh, "high end of the eta gap (or 0 for no eta gap)");
+    declareProperty ("useClusterEta", m_useClusterEta, "whether to use the cluster eta (for electrons only)");
+    declareProperty ("printCastWarning", m_printCastWarning, "whether to print a warning when the cast fails");
   }
 
 
@@ -70,10 +72,13 @@ namespace CP
 
     if (m_minPt > 0)
       m_accept.addCut ("minPt", "minimum pt cut");
+    if (m_useClusterEta)
+      m_accept.addCut ("castElectron", "cast to electron");
     if (m_maxEta > 0)
       m_accept.addCut ("maxEta", "maximum eta cut");
     if (m_etaGapHigh > 0)
       m_accept.addCut ("etaGap", "eta gap cut");
+    m_shouldPrintCastWarning = m_printCastWarning;
 
     return StatusCode::SUCCESS;
   }
@@ -93,14 +98,36 @@ namespace CP
   {
     m_accept.clear();
     std::size_t cutIndex {};
-    const float absEta = std::abs (particle->eta());
 
     if (m_minPt > 0)
       m_accept.setCutResult (cutIndex ++, particle->pt() >= m_minPt);
-    if (m_maxEta > 0)
-      m_accept.setCutResult (cutIndex ++, absEta <= m_maxEta);
-    if (m_etaGapHigh > 0)
-      m_accept.setCutResult (cutIndex ++, absEta < m_etaGapLow || absEta > m_etaGapHigh);
+
+    if (m_maxEta > 0 || m_etaGapHigh > 0 || m_useClusterEta)
+    {
+      float absEta = 0;
+
+      if (m_useClusterEta == true)
+      {
+        const xAOD::Electron *electron
+          = dynamic_cast<const xAOD::Electron*>(particle);
+        if (electron == nullptr)
+        {
+          if (m_shouldPrintCastWarning)
+            ANA_MSG_ERROR ("failed to cast input particle to electron");
+          m_shouldPrintCastWarning = false;
+          return m_accept;
+        }
+        absEta = std::abs (electron->caloCluster()->etaBE(2));
+      } else
+      {
+        absEta = std::abs (particle->eta());
+      }
+
+      if (m_maxEta > 0)
+        m_accept.setCutResult (cutIndex ++, absEta <= m_maxEta);
+      if (m_etaGapHigh > 0)
+        m_accept.setCutResult (cutIndex ++, absEta < m_etaGapLow || absEta > m_etaGapHigh);
+    }
 
     return m_accept;
   }

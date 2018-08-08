@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef __ASGELECTRONLIKELIHOODTOOL__
-#define __ASGELECTRONLIKELIHOODTOOL__
+#ifndef __ASGFORWARDELECTRONLIKELIHOODTOOL__
+#define __ASGFORWARDELECTRONLIKELIHOODTOOL__
 
 
 // Atlas includes
@@ -15,27 +15,27 @@
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
 #include <memory>
-
 namespace Root{
-  class TElectronLikelihoodTool;
+  class TForwardElectronLikelihoodTool;
 }
 
 
-class AsgElectronLikelihoodTool : public asg::AsgTool, 
+class AsgForwardElectronLikelihoodTool : public asg::AsgTool, 
 				  virtual public IAsgElectronLikelihoodTool
 {
-  ASG_TOOL_CLASS2(AsgElectronLikelihoodTool, IAsgElectronLikelihoodTool, IAsgSelectionTool)
+  ASG_TOOL_CLASS2(AsgForwardElectronLikelihoodTool, IAsgElectronLikelihoodTool, IAsgSelectionTool)
 
 public:
   /** Standard constructor */
-  AsgElectronLikelihoodTool( const std::string myname);
+  AsgForwardElectronLikelihoodTool( const std::string myname);
 
 
   /** Standard destructor */
-  virtual ~AsgElectronLikelihoodTool();
+  virtual ~AsgForwardElectronLikelihoodTool();
 public:
   /** Gaudi Service Interface method implementations */
   virtual StatusCode initialize() override final;
+
 
   // Main methods for IAsgSelectorTool interface
 public:
@@ -56,7 +56,7 @@ public:
   const Root::TAccept& accept( const xAOD::Electron* eg, double mu ) const override final;
 
   /** The main accept method: in case mu not in EventInfo online */
-  const Root::TAccept& accept( const xAOD::Egamma* eg, double mu ) const override final;
+  const Root::TAccept& accept( const xAOD::Egamma*   eg, double mu ) const override final;
   
   // Main methods for IAsgCalculatorTool interface
 public:
@@ -64,20 +64,20 @@ public:
   const Root::TResult& calculate( const xAOD::IParticle* part ) const override final;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron* eg ) const override final{
-    return calculate (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
+  const Root::TResult& calculate( const xAOD::Electron*  eg   ) const override final{
+    return calculate (eg, -99 ); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma* eg ) const override final{
-    return calculate (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
+  const Root::TResult& calculate( const xAOD::Egamma*    eg   ) const override final{
+    return calculate (eg, -99 ); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron* eg, double mu ) const override final;
+  const Root::TResult& calculate( const xAOD::Electron*  eg, double mu ) const override final;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const override final; 
+  const Root::TResult& calculate( const xAOD::Egamma*    eg, double mu ) const override final; 
 
   /** Method to get the plain TAccept */
   virtual const Root::TAccept& getTAccept( ) const override final;
@@ -92,25 +92,21 @@ private:
   /// Get the number of primary vertices
   unsigned int getNPrimVertices() const;
 
-  /// Get the FCal ET for centrality determination (for HI collisions)
-  double getFcalEt() const;
 
   /// Get the name of the current operating point
 
-  /// check for FwdElectron
-  bool isForwardElectron( const xAOD::Egamma* eg, const float eta ) const;
 
 
   // Private member variables
 private:
-  /** Working Point */
-  std::string m_WorkingPoint;
+  /* The Working Point */
+  std::string  m_WorkingPoint;
 
   // The input config file.
   std::string m_configFile;
 
   /** Pointer to the underlying ROOT based tool */
-  std::unique_ptr<Root::TElectronLikelihoodTool> m_rootTool;
+  std::unique_ptr<Root::TForwardElectronLikelihoodTool> m_rootForwardTool;
   
 
   /** A dummy return TResult object */
@@ -126,22 +122,8 @@ private:
   /// The primary vertex container name
   std::string m_primVtxContName;
 
-  /// Whether or not to use the CaloSums container in HI events
-  bool m_useCaloSumsCont;
-
-  /// defualt FCal ET (when not using CaloSums container, in HI events)
-  double m_fcalEtDefault;
-
-  /// The CaloSums container name, in HI events
-  std::string m_CaloSumsContName;
-
-
   /// The input ROOT file name that holds the PDFs
   std::string m_pdfFileName;
-
-  /// Flag for calo only LH
-  bool m_caloOnly;
-
 
 
 }; // End: class definition

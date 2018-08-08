@@ -624,7 +624,9 @@ namespace top {
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
                 systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
                 systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
+                systematicTree->makeOutputVariable(m_el_true_firstEgMotherPdgId, "el_true_firstEgMotherPdgId");
 		systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
+		systematicTree->makeOutputVariable(m_el_true_isChargeFl, "el_true_isChargeFl");
               }
             }
 
@@ -1714,7 +1716,9 @@ namespace top {
               m_el_true_origin.resize(n_electrons);
               m_el_true_firstEgMotherTruthOrigin.resize(n_electrons);
               m_el_true_firstEgMotherTruthType.resize(n_electrons);
+              m_el_true_firstEgMotherPdgId.resize(n_electrons);
 	      m_el_true_isPrompt.resize(n_electrons);
+	      m_el_true_isChargeFl.resize(n_electrons);
             }
 
             for (const auto* const elPtr : event.m_electrons) {
@@ -1748,18 +1752,22 @@ namespace top {
                   m_el_true_origin[i] = 0;
                   m_el_true_firstEgMotherTruthType[i] = 0;
                   m_el_true_firstEgMotherTruthOrigin[i] = 0;
+                  m_el_true_firstEgMotherPdgId[i] = 0;
                   static SG::AuxElement::Accessor<int> typeel("truthType");
                   static SG::AuxElement::Accessor<int> origel("truthOrigin");
 		  static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
                   static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
+                  static SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
 
                   if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
                   if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
 		  if (firstEgMotherTruthType.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthType[i] = firstEgMotherTruthType(*elPtr);
 		  if (firstEgMotherTruthOrigin.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthOrigin[i] = firstEgMotherTruthOrigin(*elPtr);
+		  if (firstEgMotherPdgId.isAvailable(*elPtr)) m_el_true_firstEgMotherPdgId[i] = firstEgMotherPdgId(*elPtr);
 
-		  m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
-		  
+		  std::pair<bool,bool> isPrompt_isChargeFl = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i], m_el_true_firstEgMotherPdgId[i], m_el_charge[i]);
+		  m_el_true_isPrompt[i] = isPrompt_isChargeFl.first;
+  		  m_el_true_isChargeFl[i] = isPrompt_isChargeFl.second;
                 }
                 ++i;
             }
@@ -3985,22 +3993,35 @@ namespace top {
       return out;
     }
   
-  bool EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin){
+  //new prompt lepton classification below based on https://twiki.cern.ch/twiki/pub/AtlasProtected/IsolationFakeForum/MakeTruthClassification.hxx
+  //these represent the latest IFF recommendations
+  std::pair<bool, bool> EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge){
     // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
-    bool prompt            = (type == 2 &&
-			      (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
-    // New recovery using first Non-Geant 
-    bool recovered_FSRConv = (type == 4 && egMotherType == 40);
-    bool recovered_Other   = (type == 4 && egMotherType == 2 &&			      
-			      (egMotherOrigin == 10 || egMotherOrigin == 12 || egMotherOrigin == 13 || egMotherOrigin == 14 || egMotherOrigin == 43) );
+    bool isprompt = (type == 2 || 
+		(type == 4 && origin == 5 && fabs(egMotherPdgId) == 11) ||
+		// bkg electrons from ElMagDecay with origin top, W or Z, higgs, diBoson
+		(type == 4 && origin == 7 && egMotherType == 2 && (egMotherOrigin == 10 || egMotherOrigin == 12 || egMotherOrigin == 13 || egMotherOrigin == 14 || egMotherOrigin == 43) && fabs(egMotherPdgId) == 11) ||
+		// unknown electrons from multi-boson (sherpa 222, di-boson)
+		(type == 1 && egMotherType == 2 && egMotherOrigin == 47 && fabs(egMotherPdgId) == 11) );
 
-    return (prompt || recovered_FSRConv || recovered_Other);
+    bool isChargeFl = false;
+    if (egMotherPdgId*RecoCharge>0) isChargeFl = true;
+    if (isprompt) return std::make_pair(true,isChargeFl); //charge flipped electrons are also considered prompt
+
+    // bkg photons from photon conv from FSR (must check!!)
+    if (type == 4 && origin == 5 && egMotherOrigin == 40) return std::make_pair(true,false);  
+    // non-iso photons from FSR for the moment but we must check!! (must check!!)
+    if (type == 15 && origin == 40) return std::make_pair(true,false);  
+    // mainly in Sherpa Zee, but some also in Zmumu
+    if (type == 4 && origin == 7 && egMotherType == 15 && egMotherOrigin == 40) return std::make_pair(true,false); 
+
+    return std::make_pair(false,false);
   }
 
   bool EventSaverFlatNtuple::isPromptMuon(int type, int origin){
     // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
     bool prompt = (type == 6 &&
-		   (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
+		   (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 15 || origin == 22 || origin == 43) ); 
 
     return prompt;
   }

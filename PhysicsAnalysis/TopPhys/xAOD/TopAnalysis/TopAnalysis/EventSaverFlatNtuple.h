@@ -472,7 +472,9 @@ private:
     std::vector<int>   m_el_true_origin;
     std::vector<int>   m_el_true_firstEgMotherTruthType;
     std::vector<int>   m_el_true_firstEgMotherTruthOrigin;
+    std::vector<int>   m_el_true_firstEgMotherPdgId;
     std::vector<char>  m_el_true_isPrompt;
+    std::vector<char>  m_el_true_isChargeFl;
 
     //muons
     std::vector<float> m_mu_pt;
@@ -1066,7 +1068,9 @@ protected:
   const std::vector<int>& el_true_origin() const { return m_el_true_origin;}
   const std::vector<int>& el_true_firstEgMotherTruthType() const { return m_el_true_firstEgMotherTruthType;}
   const std::vector<int>& el_true_firstEgMotherTruthOrigin() const { return m_el_true_firstEgMotherTruthOrigin;}
+  const std::vector<int>& el_true_firstEgMotherPdgId() const { return m_el_true_firstEgMotherPdgId;}
   const std::vector<char>& el_true_isPrompt() const { return m_el_true_isPrompt;}
+  const std::vector<char>& el_true_isChargeFl() const { return m_el_true_isChargeFl;}
 
   //muons
   const std::vector<float>& mu_pt() const { return m_mu_pt;}
@@ -1372,7 +1376,7 @@ protected:
   const std::unordered_map<std::string,int*>& extraTruthVars_int() const { return m_extraTruthVars_int;}
 
   // Prompt lepton definition for event saver
-  bool isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin);
+  std::pair<bool, bool> isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge);
   bool isPromptMuon(int type, int origin);
 
   ClassDef(top::EventSaverFlatNtuple, 0);

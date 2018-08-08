@@ -90,6 +90,10 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
     ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt() << " origin " << getPartOrigin( tp, originMap ));
     return false;
   }
+  // Extra catch.  If we aren't supposed to include prompt leptons, we aren't supposed to include prompt neutrinos
+  if (!m_includePromptLeptons && MCUtils::PID::isNeutrino(pdgid) && isPrompt(tp,originMap)){
+    return false;
+  }
 
   // -- added for dark jet clustering -- //
   // new classifiers to account for dark particles
@@ -283,7 +287,10 @@ int CopyTruthJetParticles::execute() const {
     // Last two switches only apply if the thing is a lepton and not a tau
     int pdgid = tp->pdgId();
     if ((abs(pdgid)==11 || abs(pdgid)==13) && tp->hasProdVtx()){
-      if(isPrompt(tp,originMap)) promptLeptons.push_back(tp);
+      // If this is a prompt, generator stable lepton, then we can use it
+      if(tp->status()==1 && tp->barcode()<m_barcodeOffset && isPrompt(tp,originMap)){
+        promptLeptons.push_back(tp);
+      }
     }
   }
 

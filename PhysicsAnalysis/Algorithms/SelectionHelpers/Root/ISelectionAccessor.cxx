@@ -12,8 +12,8 @@
 #include <SelectionHelpers/ISelectionAccessor.h>
 
 #include <AsgTools/StatusCode.h>
-#include <SelectionHelpers/SelectionAccessorRegular.h>
-#include <SelectionHelpers/SelectionAccessorOR.h>
+#include <SelectionHelpers/SelectionAccessorBits.h>
+#include <SelectionHelpers/SelectionAccessorChar.h>
 #include <exception>
 
 //
@@ -79,9 +79,9 @@ namespace CP
     }
 
     if (asChar)
-      accessor = std::make_unique<SelectionAccessorOR> (var);
+      accessor = std::make_unique<SelectionAccessorChar> (var);
     else
-      accessor = std::make_unique<SelectionAccessorRegular> (var);
+      accessor = std::make_unique<SelectionAccessorBits> (var);
     return StatusCode::SUCCESS;
   }
 }
