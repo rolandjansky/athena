@@ -32,7 +32,7 @@ namespace Analysis
       
     public:
       PhotonAssociation() ;      //!< constructor
-      PhotonAssociation(NameType& name) ;      //!< constructor
+      PhotonAssociation(const NameType& name) ;      //!< constructor
       ~PhotonAssociation() ;      //!< destructor
       
       virtual JetAssociationBase* clone() const; 
@@ -45,20 +45,20 @@ namespace Analysis
 			const Photon* the_photon,  double weight=1);
       
       void set_photon(const PhotonContainer* theContainer,
-			index_type& theIndex,   double weight=1);
+                      const index_type& theIndex,   double weight=1);
       
       void set_association(const PhotonContainer* theContainer,
 			   const Photon* the_photon,  double weight=1) 
 	{set_photon(theContainer, the_photon, weight);}
       
       void set_association(const PhotonContainer* theContainer,
-			   index_type& theIndex,   double weight=1)
+			   const index_type& theIndex,   double weight=1)
 	{set_photon(theContainer, theIndex, weight);}
       
       double getPhotonWeight(const Photon* the_photon) const ;
       
       double getPhotonWeight(const PhotonContainer* theContainer,
-			       index_type& theIndex) const;
+                             const index_type& theIndex) const;
       
     } ;
   
