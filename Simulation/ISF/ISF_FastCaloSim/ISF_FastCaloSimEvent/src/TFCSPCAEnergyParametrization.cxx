@@ -58,7 +58,7 @@ void TFCSPCAEnergyParametrization::Print(Option_t *option) const
   }  
 }
 
-void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
 
   int pcabin=simulstate.Ebin();
@@ -134,6 +134,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   delete [] input_data;
   delete [] simdata;
 
+  return FCSSuccess;
 }
 
 void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValues, TMatrixD *EV, int gNVariables, double *p, double *x, int nTest)
@@ -262,4 +263,3 @@ void TFCSPCAEnergyParametrization::clean()
  for(unsigned int i=0;i<m_EV.size();i++)
   delete m_EV[i];
 }
-

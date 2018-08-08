@@ -13,19 +13,19 @@ public:
   TFCSParametrizationChain(const TFCSParametrizationChain& ref):TFCSParametrization(ref.GetName(),ref.GetTitle()),m_chain(ref.chain()) {};
 
   typedef std::vector< TFCSParametrizationBase* > Chain_t;
-  virtual unsigned int size() const {return m_chain.size();};
-  virtual const TFCSParametrizationBase* operator[](unsigned int ind) const {return m_chain[ind];};
-  virtual TFCSParametrizationBase* operator[](unsigned int ind) {return m_chain[ind];};
+  virtual unsigned int size() const override {return m_chain.size();};
+  virtual const TFCSParametrizationBase* operator[](unsigned int ind) const override {return m_chain[ind];};
+  virtual TFCSParametrizationBase* operator[](unsigned int ind) override {return m_chain[ind];};
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back(const Chain_t::value_type& param) {m_chain.push_back(param);recalc();};
 
-  virtual bool is_match_Ekin_bin(int Ekin_bin) const;
-  virtual bool is_match_calosample(int calosample) const;
+  virtual bool is_match_Ekin_bin(int Ekin_bin) const override;
+  virtual bool is_match_calosample(int calosample) const override;
 
-  virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
-  void Print(Option_t *option = "") const;
+  void Print(Option_t *option = "") const override;
 protected:
   void recalc_pdgid_intersect();
   void recalc_pdgid_union();
@@ -40,11 +40,16 @@ protected:
   
   ///Default is to call recalc_pdgid_intersect() and recalc_Ekin_eta_intersect()
   virtual void recalc();
+
+  FCSReturnCode simulate_and_retry(TFCSParametrizationBase* parametrization, TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+
 private:  
   Chain_t m_chain;
 
-  ClassDef(TFCSParametrizationChain,1)  //TFCSParametrizationChain
+  ClassDefOverride(TFCSParametrizationChain,1)  //TFCSParametrizationChain
 };
+
+#include "ISF_FastCaloSimEvent/TFCSParametrizationChain.icc"
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSParametrizationChain+;
