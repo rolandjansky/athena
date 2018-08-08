@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "CaloIdentifier/GTower_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "xAODTrigL1Calo/JGTower.h"

@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2002-2018 or the benefit of the ATLAS collaboration
+*/
+
 #include "TrigT1CaloFexSim/METAlg.h"
 #include "TrigT1CaloFexSim/JGTower.h"
 StatusCode METAlg::BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise, METAlg::MET* met){
