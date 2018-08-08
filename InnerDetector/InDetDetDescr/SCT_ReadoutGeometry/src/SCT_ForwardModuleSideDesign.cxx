@@ -66,13 +66,6 @@ double SCT_ForwardModuleSideDesign::sinStripAngleReco(double x, double y) const 
     double sinAngle = -x * oneOverRadius / sqrt(
         (1 + y * oneOverRadius) * (1 + y * oneOverRadius) + x * oneOverRadius * x * oneOverRadius);
 
-    // Simpler:
-    double rPlusY = radius() + y;
-    double sinOther = -x / sqrt(x * x + rPlusY * rPlusY);
-    if ((sinOther - sinAngle) > 0.0001) {
-        std::cout << "Angles differ: sinAngle = " << sinAngle << "; sinOther = " << sinOther << std::endl;
-    }
-
     return sinAngle;
 }
 
