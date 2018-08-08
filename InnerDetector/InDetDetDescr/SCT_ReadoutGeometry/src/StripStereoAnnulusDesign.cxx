@@ -79,6 +79,21 @@ HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
     return HepGeom::Point3D<double>(m_R, 0., 0.);
 }
 
+double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCoord) const {
+//
+//    Transform to strip frame SF (eq. 36 in ver G, combined with eq. 2 since we are in beam frame)
+//
+    double x = etaCoord;
+    double y = phiCoord;
+    double xSF = cos(-m_stereo) * (x - m_R) - sin(-m_stereo) * y + m_R;
+    double ySF = sin(-m_stereo) * (x - m_R) + cos(-m_stereo) * y;
+    double phiPrime = atan2(ySF, xSF);
+
+    // The minus sign below is because this routine is called by tracking software, which swaps x and y, then measures angles from y 
+    // to x
+    return -sin(phiPrime + m_stereo);
+}
+
 void StripStereoAnnulusDesign::getStripRow(SiCellId cellId, int *strip2D, int *rowNum) const {
     int strip1D = cellId.phiIndex();
     *rowNum = row(strip1D);

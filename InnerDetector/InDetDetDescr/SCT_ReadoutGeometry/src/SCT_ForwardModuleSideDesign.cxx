@@ -57,6 +57,25 @@ SCT_ForwardModuleSideDesign::~SCT_ForwardModuleSideDesign()
   delete m_bounds;
 }
 
+double SCT_ForwardModuleSideDesign::sinStripAngleReco(double x, double y) const {
+    // If theta is angle between the edges of a sensor, then tan(theta/2) = (maxW - minW) / 2 / length
+    // and tan(theta/2) = width/2 / radius
+    // So 1/r = (maxW - minW) / (width * length)
+    double oneOverRadius = (maxWidth() - minWidth()) / (width() * length());
+    // We measure the angle from the y (eta) axis towards the x (phi) axis, hence the -ve sign.
+    double sinAngle = -x * oneOverRadius / sqrt(
+        (1 + y * oneOverRadius) * (1 + y * oneOverRadius) + x * oneOverRadius * x * oneOverRadius);
+
+    // Simpler:
+    double rPlusY = radius() + y;
+    double sinOther = -x / sqrt(x * x + rPlusY * rPlusY);
+    if ((sinOther - sinAngle) > 0.0001) {
+        std::cout << "Angles differ: sinAngle = " << sinAngle << "; sinOther = " << sinOther << std::endl;
+    }
+
+    return sinAngle;
+}
+
 void
 SCT_ForwardModuleSideDesign::distanceToDetectorEdge(const SiLocalPosition & localPosition,
 						   double & etaDist, double & phiDist) const
