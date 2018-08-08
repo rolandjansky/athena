@@ -53,6 +53,7 @@ class SCT_NeighboursTable;
 class IBeamCondSvc;
 
 namespace InDet { class SiElementPropertiesTable;}
+namespace InDetDD { class SiDetectorElementCollection; }
 typedef InDet::SCT_ClusterContainer SCT_ClusterContainer; 
 typedef InDet::SiClusterCollection SiClusterCollection; 
 typedef InDet::SiCluster SiCluster; 
@@ -84,25 +85,24 @@ namespace InDet {
     void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
                              const SCT_ClusterContainer* clusterContainer,
                              const SiElementPropertiesTable* properties,
+                             const InDetDD::SiDetectorElementCollection* elements,
                              SpacePointCollection* spacepointCollection,
                              SpacePointOverlapCollection* overlapColl);
 
-    void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
-                             const SCT_ClusterContainer* clusterContainer,
-                             const SiElementPropertiesTable* properties,
-                             SpacePointCollection* spacepointCollection);
-
+    void checkForSCT_Points (const SCT_ClusterCollection* clusters1,
+                             const IdentifierHash& id2,
+                             const InDetDD::SiDetectorElementCollection* elements,
+                             double minDiff,
+                             double maxDiff,
+                             SpacePointCollection* spacepointCollection,
+                             bool overlapColl);
 
     void checkForSCT_Points (const SCT_ClusterCollection* clusters1,
-			     const IdentifierHash& id2, double minDiff, 
-			     double maxDiff,
-			     SpacePointCollection* spacepointCollection, 
-			     bool overlapColl); 
-
-    void checkForSCT_Points (const SCT_ClusterCollection* clusters1, 
-			     const IdentifierHash& id2, double min1, 
-			     double max1,
-			     double min2, double max2);
+                             const IdentifierHash& id2,
+                             const InDetDD::SiDetectorElementCollection* elements,
+                             double min1,
+                             double max1,
+                             double min2, double max2);
 
 
   private:

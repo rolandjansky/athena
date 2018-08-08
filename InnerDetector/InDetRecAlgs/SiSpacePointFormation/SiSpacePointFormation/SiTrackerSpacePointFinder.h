@@ -47,24 +47,26 @@
 #define SiSpacePointFormation_SI_POINT_FINDER_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthContainers/DataVector.h"
-#include "Identifier/Identifier.h"
 
-#include "SiSpacePointTool/SiSpacePointMakerTool.h"
+#include "AthContainers/DataVector.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "Identifier/Identifier.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "TrkSpacePoint/SpacePoint.h" 
-#include <string>
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "TrkSpacePoint/SpacePointContainer.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-
-#include "StoreGate/ReadCondHandleKey.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiSpacePointFormation/SiElementPropertiesTable.h"
+#include "SiSpacePointTool/SiSpacePointMakerTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrkSpacePoint/SpacePoint.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include <string>
 
 class Event;
 class SpacePointCollection; 
@@ -78,7 +80,6 @@ class IBeamCondSvc;
 
 namespace InDetDD {
   class SCT_DetectorManager;
-  class PixelDetectorManager;
 }
 
 namespace InDet {
@@ -116,17 +117,22 @@ namespace InDet {
     void addSCT_SpacePoints
       (const SCT_ClusterCollection* next,
        const SiElementPropertiesTable* properties,
+       const InDetDD::SiDetectorElementCollection* elements,
        SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const; 
 
     void checkForSCT_Points
       (const SCT_ClusterCollection* clusters1,
-       const IdentifierHash id2, double minDiff, double maxDiff,
+       const IdentifierHash id2,
+       const InDetDD::SiDetectorElementCollection* elements,
+       double minDiff, double maxDiff,
        SpacePointCollection* spacepointCollection, bool overlapColl, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const; 
 
     void checkForSCT_Points
       (const SCT_ClusterCollection* clusters1, 
-     const IdentifierHash id2, double min1, double max1,
-     double min2, double max2, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const;
+       const IdentifierHash id2,
+       const InDetDD::SiDetectorElementCollection* elements,
+       double min1, double max1,
+       double min2, double max2, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const;
     
 
     // data members
@@ -160,7 +166,6 @@ namespace InDet {
     mutable std::atomic<int> m_pixCacheHits;
     bool m_cachemode; //used for online MT counters
     const InDetDD::SCT_DetectorManager* m_manager; 
-    // const InDetDD::PixelDetectorManager* m_managerPixel;     // unused
     const SCT_ID* m_idHelper;
     const PixelID* m_idHelperPixel;
     
@@ -171,6 +176,8 @@ namespace InDet {
     SG::UpdateHandleKey<SpacePointCache> m_SpacePointCache_PixKey;
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
 
+    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     SG::ReadCondHandleKey<InDet::SiElementPropertiesTable> m_SCTPropertiesKey{this, "SCTPropertiesKey", "SCT_ElementPropertiesTable", "Key of input SiElementPropertiesTable for SCT"};
   };
 

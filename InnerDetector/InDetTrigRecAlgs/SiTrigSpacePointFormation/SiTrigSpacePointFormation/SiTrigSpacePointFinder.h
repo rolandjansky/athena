@@ -26,21 +26,20 @@
 #ifndef SiTrigSpacePointFormation_SI_POINT_FINDER_H
 #define SiTrigSpacePointFormation_SI_POINT_FINDER_H
 
-//!< INCLUDES                                                    
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+//!<  Trigger includes
+#include "TrigInterfaces/FexAlgo.h"
 
-
+//!< INCLUDES
 #include "Identifier/IdentifierHash.h"
 // typedef, cannot fwd declare
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-
-#include "StoreGate/ReadCondHandleKey.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiSpacePointFormation/SiElementPropertiesTable.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-//!<  Trigger includes
-#include "TrigInterfaces/FexAlgo.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
 #include <vector>
@@ -51,9 +50,11 @@ class SpacePointCollection;
 class SpacePointContainer; 
 class SpacePointOverlapCollection;
 class IRegSelSvc;
-class PixelID;
 class TrigTimer;
 
+namespace InDetDD {
+  class SCT_DetectorManager;
+}
 
 namespace InDet{
 
@@ -88,6 +89,7 @@ namespace InDet{
     //    int m_numberOfEvents;
     //    const InDetDD::PixelDetectorManager *m_managerPixel; 
     //    const PixelID* m_idHelperPixel;
+    const InDetDD::SCT_DetectorManager* m_managerSCT;
     IdentifierHash m_maxKey;
     
     const SCT_ClusterContainer *m_sctClusterContainer{};
@@ -97,6 +99,8 @@ namespace InDet{
 
     SpacePointOverlapCollection*    m_spOverlapColl;     
 
+    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     SG::ReadCondHandleKey<InDet::SiElementPropertiesTable> m_SCTPropertiesKey{this, "SCTPropertiesKey",
         "SCT_ElementPropertiesTable", "Key of input SiElementPropertiesTable for SCT"};
 
