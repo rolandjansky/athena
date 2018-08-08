@@ -151,6 +151,9 @@ public:
   iFatras::PlanarClusterContainer*  m_planarClusterContainer;               //!< the SCT_ClusterContainer
 
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
+  int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
+  bool                      m_HardScatterSplittingSkipper;
+  IntegerProperty  m_vetoThisBarcode;
 
   PRD_MultiTruthCollection* m_pixelPrdTruth{};
   std::string               m_prdTruthNamePixel;
@@ -164,7 +167,6 @@ public:
   SiHitCollection* m_simHitColl{};
   std::string      m_inputObjectName;     //! name of the sub event  hit collections.
 
-  std::vector<std::pair<unsigned int, int> > m_seen;
   std::list<SiHitCollection*> m_siHitCollList;
 
   Pixel_detElement_RIO_map* m_pixelClusterMap{};
