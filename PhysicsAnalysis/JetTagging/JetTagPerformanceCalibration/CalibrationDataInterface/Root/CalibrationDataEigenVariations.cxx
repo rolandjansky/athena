@@ -244,7 +244,7 @@ CalibrationDataEigenVariations::excludeNamedUncertainty(const std::string& name)
 	      << " initialization already done" << std::endl;
   else if (name == "comment"    || name == "result"   || name == "systematics" ||
 	   name == "statistics" || name == "combined" || name == "extrapolation" ||
-	   name == "MCreference" || name == "MChadronisation" || name == "ReducedSets")
+	   name == "MCreference" || name == "MChadronisation" || name == "ReducedSets" || name == "excluded_set")
     std::cerr << "CalibrationDataEigenVariations::excludeNamedUncertainty error:"
 	      << " name " << name << " not allowed" << std::endl;
   else if (! m_cnt->GetValue(name.c_str()))
