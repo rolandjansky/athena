@@ -156,6 +156,8 @@ public:
    // Transform from SiHit to GeoModel frame
    const HepGeom::Transform3D SiHitToGeoModel() const;
 
+   double sinStripAngleReco(double phiCoord, double etaCoord) const;
+
     // ------------------------------------------------------------------------------------------
 
 //

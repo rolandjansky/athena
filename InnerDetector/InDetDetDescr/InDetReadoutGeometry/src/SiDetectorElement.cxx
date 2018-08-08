@@ -342,7 +342,7 @@ SiDetectorElement::updateCache() const
     if (isSCT() && m_otherSide) {
       double sinStereoThis = std::abs(sinStereo());
       double sinStereoOther = std::abs(m_otherSide->sinStereo());
-      if (sinStereoThis == sinStereoOther) {
+      if (std::fabs(sinStereoThis- sinStereoOther)<1.e-6) {
 	// If they happend to be equal then set side0 as axial and side1 as stereo.
 	const SCT_ID* sctId = dynamic_cast<const SCT_ID *>(getIdHelper()); 
         if(sctId){
@@ -746,7 +746,24 @@ double SiDetectorElement::sinStereo() const
   if (isBarrel()) {
     sinStereo = m_phiAxis.z();
   } else { // endcap
-    sinStereo = (m_center.y() * m_etaAxis.x() - m_center.x() * m_etaAxis.y()) / m_center.perp();
+    if (m_design->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
+      HepGeom::Point3D<double> sensorCenter = m_design->sensorCenter();
+      //Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
+      double sinStereoReco = - m_design->sinStripAngleReco(sensorCenter[1], sensorCenter[0]);
+      double cosStereoReco = sqrt(1-sinStereoReco*sinStereoReco); 
+      double radialShift = sensorCenter[0]; 
+      //The focus of all strips in the local reco frame
+      Amg::Vector2D localfocus(-radialShift*sinStereoReco, radialShift - radialShift*cosStereoReco);
+      //The focus of all strips in the global frame
+      Amg::Vector3D globalfocus(globalPosition(localfocus));
+      //The direction of x-axis of the Strip frame in the global frame
+      Amg::Vector3D globalSFxAxis =(m_center - globalfocus)/radialShift;
+      //Stereo angle is the angle between global radial direction and the x-axis of the Strip frame in the global frame 
+      sinStereo = (m_center.y() * globalSFxAxis.x() - m_center.x() * globalSFxAxis.y()) / m_center.perp();   
+    }
+    else{ //non built-in Stereo angle
+      sinStereo = (m_center.y() * m_etaAxis.x() - m_center.x() * m_etaAxis.y()) / m_center.perp();
+    }
   }      
   return sinStereo;
 }
@@ -806,13 +823,7 @@ SiDetectorElement::isStereo() const
 double 
 SiDetectorElement::sinStereoLocal(const Amg::Vector2D &localPos) const
 {
-  // The equation below will work for rectangle detectors as well in which 
-  // case it will return 0. But we return zero immediately as there is no point doing the calculation.
-  if (m_design->shape() == InDetDD::Box) return 0;
-  double oneOverRadius = (maxWidth() - minWidth()) /  (width() * length());
-  double x = localPos[distPhi];
-  double y = localPos[distEta];
-  return -x*oneOverRadius / sqrt( (1+y*oneOverRadius)*(1+y*oneOverRadius) + x*oneOverRadius*x*oneOverRadius );  
+  return m_design->sinStripAngleReco(localPos[0], localPos[1]);
 }
 
 

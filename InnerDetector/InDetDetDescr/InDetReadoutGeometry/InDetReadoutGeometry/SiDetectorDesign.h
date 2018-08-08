@@ -96,7 +96,9 @@ public:
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
-    
+    /** Give strip angle in the reco frame */
+    virtual double sinStripAngleReco(double phiCoord, double etaCoord) const;
+ 
     /** Return the centre of a sensor in the local reference frame. 
         For most designs, this is the origin of the local reference frame.
         For StripStereoAnnulusDesign, this is not the case (coordinate origin is "on the beamline") */
@@ -275,6 +277,11 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
+
+inline double SiDetectorDesign::sinStripAngleReco(double /* x */, double /* y */) const {
+    return 0.0; // pixel and barrel strip sensors always zero 
+}
+
 inline SiDetectorDesign::Axis SiDetectorDesign::etaAxis() const {
     return m_etaAxis;
 }
