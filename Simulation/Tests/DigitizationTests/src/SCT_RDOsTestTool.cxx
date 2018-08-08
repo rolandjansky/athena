@@ -19,9 +19,6 @@ SCT_RDOsTestTool::SCT_RDOsTestTool(const std::string& type,
                                    const std::string& name,
                                    const IInterface* parent)
   : DigiTestToolBase(type, name, parent),
-    //m_siConditionsSvc("SCT_SiliconConditionsSvc",name),
-    //m_siPropertiesSvc("SCT_SiPropertiesSvc",name),
-    //m_sctmgr(NULL),
     m_sctID(NULL),
     m_numberOfEventsSelected(0),
     m_collection("SCT_RDOs"),
@@ -44,8 +41,6 @@ SCT_RDOsTestTool::SCT_RDOsTestTool(const std::string& type,
     m_EndCapC_OccupancyByDisk(0),
     m_SCT_OccupancyByModuleType(0)
 {
-  //declareProperty("SiConditionsSvc", m_siConditionsSvc);
-  //declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
   for(unsigned int i(0); i<9; ++i)
     {
       m_h_sct_endcapA_occ_layer[i]=NULL;
@@ -58,23 +53,6 @@ SCT_RDOsTestTool::SCT_RDOsTestTool(const std::string& type,
 
 StatusCode SCT_RDOsTestTool::initialize()
 {
-  //Get ISiPropertiesSvc
-  //   if( m_siPropertiesSvc.retrieve().isFailure() )
-  //     {
-  //       return StatusCode::FAILURE;
-  //     }
-
-  //Get ISiliconConditionsSvc
-  //   if( m_siConditionsSvc.retrieve().isFailure() )
-  //     {
-  //       return StatusCode::FAILURE;
-  //     }
-  // get the SCT detector manager
-  //   if(detStore()->retrieve(m_sctmgr,"SCT").isFailure())
-  //     {
-  //       return StatusCode::FAILURE;
-  //     }
-
   // get the SCT ID Helper
   if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure())
     {
