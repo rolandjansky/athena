@@ -2759,7 +2759,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig   -d HLTEF-plots  </argvalue>
+                <argvalue>data-electron-merge.root data-el_Zee_IBL_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e28_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e28_medium_gsf_idperf:GSFTrigTrackParticles  -d HLTEF-plots  </argvalue>
               </arg>
             </action>
 
