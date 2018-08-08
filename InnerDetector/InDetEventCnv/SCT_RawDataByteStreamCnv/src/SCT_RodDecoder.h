@@ -11,26 +11,25 @@
 
 #ifndef INDETRAWDATABYTESTREAM_SCT_RODDECODER_H 
 #define INDETRAWDATABYTESTREAM_SCT_RODDECODER_H
-//STL
-#include <string>
-#include <cstdint>
 
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "Identifier/IdContext.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+
+//STL
+#include <string>
+#include <cstdint>
 
 class ISCT_CablingSvc;
 class SCT_ID;
-
-namespace InDetDD {
-  class SCT_DetectorManager; 
-}
 
 //using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 /** @class SCT_RodDecoder
@@ -76,7 +75,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
               uint32_t onlineId, int ERRORS,
               ISCT_RDO_Container& rdoIdc,
               CacheHelper&,
-              const std::vector<int>& errorHit);
+              const std::vector<int>& errorHit,
+              const InDetDD::SiDetectorElementCollection* elements);
 
   /// add an error for each wafer in a problematic ROD.
   void addRODError(uint32_t rodid, int errorType,
@@ -89,10 +89,10 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip, InDetBSErrContainer* errs);
   const SCT_ID* m_sct_id;
   IdContext m_cntx_sct;
-  const InDetDD::SCT_DetectorManager *m_indet_mgr;
   ServiceHandle<ISCT_CablingSvc> m_cabling;
   ToolHandle<ISCT_ConfigurationConditionsTool> m_configTool{this, "ConfigTool",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   bool m_condensedMode ;
   bool m_superCondensedMode ;
   /** Summary of the decoding process */
