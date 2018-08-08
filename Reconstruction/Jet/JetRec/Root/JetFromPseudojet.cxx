@@ -66,33 +66,7 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
     // If constituents are already uncalibrated, the momentum is the same.
     jet->setJetP4(xAOD::JetEMScaleMomentum, jet->jetP4());
     ATH_MSG_DEBUG("  EM scale momentum set to jet scale");
-  } else if ( (inputtype == xAOD::JetInput::EMTopoOrigin) ||
-              (inputtype == xAOD::JetInput::LCTopoOrigin) ||
-              (inputtype == xAOD::JetInput::LCTopo) ||
-              (inputtype == xAOD::JetInput::LCPFlow)|| 
-              (inputtype == xAOD::JetInput::EMCPFlow) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginSK) ||
-              (inputtype == xAOD::JetInput::LCTopoOriginSK) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginSKTime) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginCS) ||
-              (inputtype == xAOD::JetInput::LCTopoOriginCS) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginVor) ||
-              (inputtype == xAOD::JetInput::LCTopoOriginVor) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginCSSK) ||
-              (inputtype == xAOD::JetInput::LCTopoOriginCSSK) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginCSSKTime) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginVorSK) ||
-              (inputtype == xAOD::JetInput::LCTopoOriginVorSK) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginVorSKTime) ||
-	      (inputtype == xAOD::JetInput::EMPFlowSK) ||
-	      (inputtype == xAOD::JetInput::EMPFlowSKTime) ||
-	      (inputtype == xAOD::JetInput::EMPFlowCS) ||
-	      (inputtype == xAOD::JetInput::EMPFlowVor) ||
-	      (inputtype == xAOD::JetInput::EMPFlowCSSK) ||
-	      (inputtype == xAOD::JetInput::EMPFlowCSSKTime) ||
-	      (inputtype == xAOD::JetInput::EMPFlowVorSK) ||
-	      (inputtype == xAOD::JetInput::EMPFlowVorSKTime)
-	      ) {
+  } else if (isValidConstitType(inputtype) || (inputtype == xAOD::JetInput::LCPFlow) || (inputtype == xAOD::JetInput::EMCPFlow)) {
     // fetch and sum the uncalibrated constituent momenta
     xAOD::JetConstituentVector vec = jet->getConstituents();
     if(! vec.isValid() ) {

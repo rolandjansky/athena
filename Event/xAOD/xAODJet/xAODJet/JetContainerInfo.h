@@ -17,6 +17,7 @@
 /// ///////////////////////////////
 
 #include <string>
+#include <unordered_set>
 
 namespace xAOD {
 
@@ -94,6 +95,8 @@ namespace xAOD {
       Other = 100,
       Uncategorized= 1000
     };
+
+    bool isValidConstitType(Type t);
     
     const std::string& typeName(Type t);
 
