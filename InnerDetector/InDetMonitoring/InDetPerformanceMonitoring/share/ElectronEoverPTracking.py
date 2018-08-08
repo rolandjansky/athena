@@ -30,7 +30,7 @@ from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTr
 SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("SCT_ClusterOnTrackTool",
                                                         CorrectionStrategy = 0,  # do correct position bias
                                                         ErrorStrategy      = 2,  # do use phi dependent errors
-                                                        orentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
+                                                        LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
 ToolSvc += SCT_ClusterOnTrackTool
 #
 # default ROT creator, not smart !
