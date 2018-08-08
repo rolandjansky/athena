@@ -14,7 +14,6 @@
 // Det Descr
 #include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 
@@ -77,7 +76,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_thpcsi(NULL),
   m_rndmSvc("AtRndmGenSvc",name),
   m_manager_pix(NULL),
-  m_manager_sct(NULL),
   m_pixel_ID(0),
   m_sct_ID(0),
   m_randomEngine(0),
@@ -190,14 +188,6 @@ StatusCode SiSmearedDigitizationTool::initialize()
     }
 
   }else{ // Smear SCT
-    // Get the SCT Detector Manager
-    if (StatusCode::SUCCESS != detStore()->retrieve(m_manager_sct,"SCT") ) {
-      ATH_MSG_ERROR ( "Can't get SCT_DetectorManager " );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG ( "Retrieved SCT_DetectorManager with version "  << m_manager_sct->getVersion().majorNum() );
-    }
-
     if (detStore()->retrieve(m_sct_ID, "SCT_ID").isFailure()) {
       ATH_MSG_ERROR ( "Could not get SCT ID helper" );
       return StatusCode::FAILURE;
@@ -210,6 +200,10 @@ StatusCode SiSmearedDigitizationTool::initialize()
 
     m_inputObjectName="SCT_Hits"; // Set the input object name
 
+    if (not m_useCustomGeometry) {
+      // Initialize ReadCondHandleKey
+      ATH_CHECK(m_SCTDetEleCollKey.initialize());
+    }
   }
 
   //Get own engine with own seeds:
@@ -983,6 +977,16 @@ StatusCode SiSmearedDigitizationTool::digitize()
     } else ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
   } else ATH_MSG_DEBUG("Collection " << m_detElementMapName  << " not found!");
 
+  // Get SCT_DetectorElementCollection
+  const InDetDD::SiDetectorElementCollection* elementsSCT = nullptr;
+  if ((not m_useCustomGeometry) and (not m_SmearPixel)) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    elementsSCT = sctDetEle.retrieve();
+    if (elementsSCT==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+  }
 
   TimedHitCollection<SiHit>::const_iterator i, e;
 
@@ -1038,13 +1042,13 @@ StatusCode SiSmearedDigitizationTool::digitize()
         }
       } else { // Smear SCT
         side = hit->getSide();
+        Identifier idwafer = m_sct_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule,side);
+        IdentifierHash idhash = m_sct_ID->wafer_hash(m_sct_ID->wafer_id(idwafer));
         if (!m_useCustomGeometry) {// Not custom SCT
-          const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_sct->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule,side);
+          const InDetDD::SiDetectorElement* hitSiDetElement_temp = elementsSCT->getDetectorElement(idhash);
           ATH_MSG_DEBUG("SCT SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << ", side " << side);
           hitSiDetElement = hitSiDetElement_temp;
         } else { // Custom SCT
-          Identifier idwafer = m_sct_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule,side);
-          IdentifierHash idhash = m_sct_ID->wafer_hash(m_sct_ID->wafer_id(idwafer));
           iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(idhash);
           if (it_map == m_detElementMap->end())
             ATH_MSG_WARNING("Id hash " << idhash << " not found in the map from id hash to planar detector element.");
@@ -1675,6 +1679,17 @@ StatusCode SiSmearedDigitizationTool::digitize()
 
 StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
 {
+  // Get SCT_DetectorElementCollection
+  const InDetDD::SiDetectorElementCollection* elementsSCT = nullptr;
+  if ((not m_useCustomGeometry) and (not m_SmearPixel)) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    elementsSCT = sctDetEle.retrieve();
+    if (elementsSCT==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+  }
+
   if ( m_useCustomGeometry ) { // store Planar RIOs
 
     ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in planar createAndStoreRIOs() ---" );
@@ -1787,7 +1802,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
 
       IdentifierHash waferID;
       waferID = firstDetElem->first;
-      const InDetDD::SiDetectorElement* detElement = m_manager_sct->getDetectorElement(waferID);
+      const InDetDD::SiDetectorElement* detElement = elementsSCT->getDetectorElement(waferID);
 
       InDet::SCT_ClusterCollection *clusterCollection = new InDet::SCT_ClusterCollection(waferID);
       clusterCollection->setIdentifier(detElement->identify());

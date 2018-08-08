@@ -2,14 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <algorithm>
 #include "FastSiDigitization/SCT_FastDigitizationTool.h"
 
 // Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
-
-// Gaudi
-#include "GaudiKernel/SystemOfUnits.h"
 
 // Hit class includes
 #include "InDetSimData/InDetSimDataCollection.h"
@@ -17,15 +13,7 @@
 #include "CxxUtils/make_unique.h"
 
 // Det Descr includes
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-// CLHEP
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandGaussZiggurat.h"
-#include "CLHEP/Random/RandLandau.h"
-
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
@@ -43,9 +31,20 @@
 #include "InDetSimEvent/SiHitCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 
+#include "StoreGate/ReadCondHandle.h"
+
+// Gaudi
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "HepMC/GenParticle.h"
 
+// CLHEP
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandLandau.h"
+
+#include <algorithm>
 #include <sstream>
 #include <string>
 
@@ -59,7 +58,6 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   PileUpToolBase(type, name, parent),
   m_inputObjectName("SCT_Hits"),
   m_sct_ID(nullptr),
-  m_manager(nullptr),
   m_mergeSvc("PileUpMergeSvc",name),
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
@@ -126,10 +124,6 @@ StatusCode SCT_FastDigitizationTool::initialize()
       return StatusCode::FAILURE;
     }
 
-  // Get the SCT Detector Manager
-  CHECK(detStore()->retrieve(m_manager,"SCT"));
-  ATH_MSG_DEBUG ( "Retrieved SCT_DetectorManager with version "  << m_manager->getVersion().majorNum() );
-
   CHECK(detStore()->retrieve(m_sct_ID, "SCT_ID"));
 
   if (m_inputObjectName=="")
@@ -154,6 +148,9 @@ StatusCode SCT_FastDigitizationTool::initialize()
   CHECK(m_lorentzAngleTool.retrieve());
   //Initialize threshold
   m_sctMinimalPathCut = m_sctMinimalPathCut * Gaudi::Units::micrometer;
+
+  // Initialize ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS ;
 }
@@ -327,6 +324,14 @@ StatusCode SCT_FastDigitizationTool::mergeEvent()
 
 StatusCode SCT_FastDigitizationTool::digitize()
 {
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+
   TimedHitCollection<SiHit>::const_iterator i, e;
   if(!m_sctClusterMap) { m_sctClusterMap = new SCT_detElement_RIO_map; }
   else { m_sctClusterMap->clear(); }
@@ -339,7 +344,9 @@ StatusCode SCT_FastDigitizationTool::digitize()
         {
           TimedHitPtr<SiHit> currentSiHit(*i++);
 
-          const InDetDD::SiDetectorElement *hitSiDetElement = m_manager->getDetectorElement(currentSiHit->getBarrelEndcap(), currentSiHit->getLayerDisk(), currentSiHit->getPhiModule(), currentSiHit->getEtaModule(), currentSiHit->getSide());
+          const Identifier waferId = m_sct_ID->wafer_id(currentSiHit->getBarrelEndcap(), currentSiHit->getLayerDisk(), currentSiHit->getPhiModule(), currentSiHit->getEtaModule(), currentSiHit->getSide());
+          const IdentifierHash waferHash = m_sct_ID->wafer_hash(waferId);
+          const InDetDD::SiDetectorElement *hitSiDetElement = elements->getDetectorElement(waferHash);
           if (!hitSiDetElement)
             {
               ATH_MSG_ERROR( "Could not get detector element.");
@@ -958,6 +965,14 @@ StatusCode SCT_FastDigitizationTool::digitize()
 
 StatusCode SCT_FastDigitizationTool::createAndStoreRIOs()
 {
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+
   SCT_detElement_RIO_map::iterator clusterMapGlobalIter = m_sctClusterMap->begin();
   SCT_detElement_RIO_map::iterator endOfClusterMap = m_sctClusterMap->end();
   for (; clusterMapGlobalIter != endOfClusterMap; clusterMapGlobalIter = m_sctClusterMap->upper_bound(clusterMapGlobalIter->first))
@@ -966,7 +981,7 @@ StatusCode SCT_FastDigitizationTool::createAndStoreRIOs()
       range = m_sctClusterMap->equal_range(clusterMapGlobalIter->first);
       SCT_detElement_RIO_map::iterator firstDetElem = range.first;
       const IdentifierHash waferID = firstDetElem->first;
-      const InDetDD::SiDetectorElement *detElement = m_manager->getDetectorElement(waferID);
+      const InDetDD::SiDetectorElement *detElement = elements->getDetectorElement(waferID);
       InDet::SCT_ClusterCollection *clusterCollection = new InDet::SCT_ClusterCollection(waferID);
       if (clusterCollection)
         {

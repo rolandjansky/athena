@@ -8,8 +8,6 @@
 #include "DigiTestToolBase.h"
 
 class SCT_ID;
-//class ISiliconConditionsSvc;
-//class ISiPropertiesSvc;
 
 class SCT_RDOsTestTool : public DigiTestToolBase {
 
@@ -29,9 +27,6 @@ public:
   StatusCode CheckSDOs();
   double GetBarrelOccupancy(const TH2* hist, const int layer, const double basescale, double& error);
   double GetEndcapOccupancy(const TH2* hist, const int disk, const double basescale, double& error);
-  //ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
-  //ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
-  //const InDetDD::SCT_DetectorManager *m_sctmgr; //!< Pointer to the SCT detector manager
   const SCT_ID *m_sctID;        //!<  Pointer to the SCT ID helper
   unsigned int m_numberOfEventsSelected;
 
