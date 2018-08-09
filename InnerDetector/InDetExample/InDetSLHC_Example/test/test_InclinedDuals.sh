@@ -38,7 +38,7 @@ if [ $dorec -ne 0 ]; then
 else
   esd=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD.root
 fi
-jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py
+#jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_sim=SiHitValid.root
 dcubemon_rec=physval.root
 dcubecfg_sim=$artdata/InDetSLHC_Example/dcube/config/InclinedDuals_SiHitValid.xml
@@ -154,7 +154,7 @@ fi
 
 if [ $dophy -ne 0 ]; then
 
-  run ls -lLU "$esd" "$jo"
+  run ls -lLU "$esd"
 
   if [ ! -s "$esd" ]; then
     echo "$script: Reco_tf output '$esd' not created - exit" 2>&1
@@ -167,7 +167,7 @@ if [ $dophy -ne 0 ]; then
   # Run InDetPhysValMonitoring on ESD.
   # It should eventually be possible to include this in the reco step, but this needs Reco_tf to support the ITk IDPVM setup.
   ( set -x
-    inputESDFile="$esd" exec athena.py "$jo"
+    inputESDFile="$esd" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
   )
   echo "art-result: $? physval"
 
