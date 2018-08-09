@@ -45,7 +45,7 @@ void LArNoisyROSummaryCnv_p5::transToPers(const LArNoisyROSummary* trans, LArNoi
   pers->m_BadFEB_WFlaggedPartitions = trans->BadFEB_WFlaggedPartitions() ;
   pers->m_MNBLooseFlaggedPartitions = trans->MNBLooseFlaggedPartitions();
   pers->m_MNBTightFlaggedPartitions = trans->MNBTightFlaggedPartitions();
-  pers->m_MNBTightFlaggedPartitions_PsVeto = trans->MNBTightFlaggedPartitions_PsVeto();
+  pers->m_MNBTight_PsVetoFlaggedPartitions = trans->MNBTight_PsVetoFlaggedPartitions();
   
 }
 
@@ -92,6 +92,6 @@ void LArNoisyROSummaryCnv_p5::persToTrans(const LArNoisyROSummary_p5* pers, LArN
   trans->SetBadFEB_WFlaggedPartitions (pers->m_BadFEB_WFlaggedPartitions);
   trans->SetMNBLooseFlaggedPartitions (pers->m_MNBLooseFlaggedPartitions);
   trans->SetMNBTightFlaggedPartitions (pers->m_MNBTightFlaggedPartitions);
-  trans->SetMNBTightFlaggedPartitions_PsVeto (pers->m_MNBTightFlaggedPartitions_PsVeto);
+  trans->SetMNBTight_PsVetoFlaggedPartitions (pers->m_MNBTight_PsVetoFlaggedPartitions);
 
 }

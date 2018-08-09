@@ -43,32 +43,44 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
     return StatusCode::FAILURE;      
   } 
   
-  
-  SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey);
-  const LArBadFebCont* badCont=*badHdl;
   std::set<unsigned int> bf;
-  if(badCont) {
-     for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
-        bf.insert(i->first);
+  std::vector<HWIdentifier> MNBfeb;
+  StoreGateSvc* pStore;
+  if (!(service("ConditionStore", pStore)).isSuccess() || 0 == pStore) {
+     ATH_MSG_WARNING("Could not locate ConditionService");
+  } else {
+     if (!pStore->contains<CondCont<LArBadFebCont> >(m_knownBadFEBsVecKey.key())) { 
+       ATH_MSG_WARNING("No Bad FEBs object existing, assume empty list");
+     } else {   
+       SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey, ctx);
+       const LArBadFebCont* badCont=*badHdl;
+       if(badCont) {
+          for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+             bf.insert(i->first);
+          }
+          if(bf.size() == 0) {
+             ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+          }
+       }
      }
-     if(bf.size() == 0) {
-        ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+  
+     if (!pStore->contains<CondCont<LArBadFebCont> >(m_knownMNBFEBsVecKey.key())) {
+       ATH_MSG_WARNING("No MNB FEBs object existing, assume empty list");
+     } else {
+       SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey, ctx);
+       const LArBadFebCont* MNBCont=*MNBHdl;
+       if(MNBCont) {
+          for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
+             MNBfeb.push_back(HWIdentifier(i->first));
+          } 
+          if(MNBfeb.size() == 0) {
+             ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
+          } 
+       }
      }
   }
   const std::set<unsigned int> knownBadFEBs(bf);
   ATH_MSG_DEBUG("Number of known Bad FEBs: "<<knownBadFEBs.size());
-
-  SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey);
-  std::vector<HWIdentifier> MNBfeb;
-  const LArBadFebCont* MNBCont=*MNBHdl;
-  if(MNBCont) {
-     for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
-        MNBfeb.push_back(HWIdentifier(i->first));
-     } 
-     if(MNBfeb.size() == 0) {
-        ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
-     } 
-  }
   const std::vector<HWIdentifier> knownMNBFEBs(MNBfeb);
   ATH_MSG_INFO("Number of known MNB FEBs: "<<knownMNBFEBs.size());
 
@@ -83,8 +95,9 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
   bool badSaturatedTightCut=noisyRO->SatTightFlaggedPartitions();
   bool MNBLooseCut=noisyRO->MNBLooseFlaggedPartitions();
   bool MNBTightCut=noisyRO->MNBTightFlaggedPartitions();
+  bool MNBTight_PsVetoCut=noisyRO->MNBTight_PsVetoFlaggedPartitions();
   
-  if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut) 
+  if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut || MNBTight_PsVetoCut) 
   {
     // retrieve EventInfo
     const xAOD::EventInfo* eventInfo_c=0;
@@ -125,6 +138,12 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
       failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
       // Set reason why event was flagged
       failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT));
+    }
+
+    if ( MNBTight_PsVetoCut ) {
+      failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
+      // Set reason why event was flagged
+      failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT_PSVETO));
     }
 
     if ( MNBLooseCut ) { //FIXME Tight cut actually implies loose cut too

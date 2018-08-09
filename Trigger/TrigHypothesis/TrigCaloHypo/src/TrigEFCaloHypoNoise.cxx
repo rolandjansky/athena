@@ -145,35 +145,45 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
   const CaloCellContainer* outCells(0);
   HLT::ErrorCode ec = getFeature(outputTE, outCells);
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get CellCollections " << endmsg;
+    ATH_MSG_WARNING(" Failed to get CellCollections ");
     return ec;
   }
 
   if(!m_hasFebs){
      bool hasBad=false; bool hasMNB=false;
-     SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey);
-     const LArBadFebCont* badCont=*badHdl;
-     if(badCont) {
-       for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
-          m_knownBadFEBs.insert(i->first);
-       }
-       if(m_knownBadFEBs.size() == 0) {
-             ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
-       }
-       hasBad=true;
+     if (!evtStore()->contains<LArBadFebCont>(m_knownBadFEBsVecKey.key())) { 
+         ATH_MSG_WARNING("No Bad FEBs object existing, assume empty list");
+         hasBad=true;
+     } else {   
+         SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey);
+         const LArBadFebCont* badCont=*badHdl;
+         if(badCont) {
+           for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+              m_knownBadFEBs.insert(i->first);
+           }
+           if(m_knownBadFEBs.size() == 0) {
+                 ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+           }
+           hasBad=true;
+         }
      }
      ATH_MSG_DEBUG("Number of known Bad FEBs: "<<m_knownBadFEBs.size());
 
-     SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey);
-     const LArBadFebCont* MNBCont=*MNBHdl;
-     if(MNBCont) {
-       for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
-          m_knownMNBFEBs.push_back(HWIdentifier(i->first));
-       }
-       if(m_knownMNBFEBs.size() == 0) {
-             ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
-       }
-       hasMNB=true;
+     if (!evtStore()->contains<LArBadFebCont>(m_knownMNBFEBsVecKey.key())) { 
+         ATH_MSG_WARNING("No MNB FEBs object existing, assume empty list");
+         hasMNB=true;
+     } else {   
+         SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey);
+         const LArBadFebCont* MNBCont=*MNBHdl;
+         if(MNBCont) {
+           for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
+              m_knownMNBFEBs.push_back(HWIdentifier(i->first));
+           }
+           if(m_knownMNBFEBs.size() == 0) {
+                 ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
+           }
+           hasMNB=true;
+         }
      }
      ATH_MSG_DEBUG("Number of known MNB FEBs: "<<m_knownMNBFEBs.size());
      if(hasBad && hasMNB) {

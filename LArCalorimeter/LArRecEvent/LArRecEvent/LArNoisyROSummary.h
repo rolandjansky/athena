@@ -91,7 +91,7 @@ class LArNoisyROSummary
   void SetMNBLooseFlaggedPartitions(uint8_t bitpattern) { m_MNBLooseFlaggedPartitions=bitpattern; }
 
   //** Set Partition bit pattern for mini-noise-burst flagging (tight_psveto) **/
-  void SetMNBTightFlaggedPartitions_PsVeto(uint8_t bitpattern) { m_MNBTightFlaggedPartitions_PsVeto=bitpattern; }
+  void SetMNBTight_PsVetoFlaggedPartitions(uint8_t bitpattern) { m_MNBTight_PsVetoFlaggedPartitions=bitpattern; }
 
   //** retrieve noisy FEBs by id */
   const std::vector<HWIdentifier>& get_noisy_febs() const;
@@ -127,7 +127,7 @@ class LArNoisyROSummary
   uint8_t MNBTightFlaggedPartitions() const {return m_MNBTightFlaggedPartitions;}
 
   //** Partition bit map for mini-noise-burst flagging (tight_psveto) **//
-  uint8_t MNBTightFlaggedPartitions_PsVeto() const {return m_MNBTightFlaggedPartitions_PsVeto;}
+  uint8_t MNBTight_PsVetoFlaggedPartitions() const {return m_MNBTight_PsVetoFlaggedPartitions;}
 
 
  private:
@@ -155,7 +155,7 @@ class LArNoisyROSummary
   //** Flags for Mini-noise-bursts */
   uint8_t m_MNBLooseFlaggedPartitions;
   uint8_t m_MNBTightFlaggedPartitions;
-  uint8_t m_MNBTightFlaggedPartitions_PsVeto;
+  uint8_t m_MNBTight_PsVetoFlaggedPartitions;
 
 };
 

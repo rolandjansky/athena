@@ -55,6 +55,15 @@ conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChanne
 from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
 condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
+if (rec.doESD() or rec.doRDOTrigger()) and ('COMP200' not in conddb.GetInstance()):
+   rekeyBADF="<key>/LAR/BadChannels/KnownBADFEBs</key>"
+   rekeyMNBF="<key>/LAR/BadChannels/KnownMNBFEBs</key>"
+   conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownBADFEBs","/LAR/BadChannelsOfl/KnownBADFEBs"+forceRN+rekeyBADF,False,False,False,"AthenaAttributeList")
+   lkbf=LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey="/LAR/BadChannels/KnownBADFEBs",WriteKey="LArKnownBadFEBs")
+   lkbf.OutputLevel=DEBUG
+   condSeq+=lkbf
+   conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownMNBFEBs","/LAR/BadChannelsOfl/KnownMNBFEBs"+forceRN+rekeyMNBF,False,False,False,"AthenaAttributeList")
+   condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey="/LAR/BadChannels/KnownMNBFEBs",WriteKey="LArKnownMNBFEBs")
 
 if not larCondFlags.LoadElecCalib.is_locked():
     larCondFlags.LoadElecCalib.set_Value(rec.readRDO()) 

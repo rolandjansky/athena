@@ -22,7 +22,7 @@ theLArNoisyROMon.ProcessNEvents= EventBlockSize
 theLArNoisyROMon.NoisyFEBDefStr =  '(>'+str(larNoisyROFlags.BadChanPerFEB())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
 theLArNoisyROMon.MNBLooseFEBDefStr =  '(>'+str(larNoisyROFlags.MNBLooseCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
 theLArNoisyROMon.MNBTightFEBDefStr =  '(>'+str(larNoisyROFlags.MNBTightCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
-theLArNoisyROMon.KnownMNBFEBs =  larNoisyROFlags.KnownMNBFEBs()
+theLArNoisyROMon.MNBTight_PsVetoFEBDefStr =  '(>'+str(larNoisyROFlags.MNBTight_PsVetoCut()[0])+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+') + PS veto (<'+str(larNoisyROFlags.MNBTight_PsVetoCut()[1])+' channels)'
 theLArNoisyROMon.BadFEBCut = larNoisyROFlags.BadFEBCut() 
 
 from RecExConfig.RecFlags import rec

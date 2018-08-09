@@ -62,7 +62,7 @@ StatusCode LArNoisyROTool::initialize() {
   ATH_CHECK(detStore()->retrieve(m_onlineID,"LArOnlineID"));
   ATH_CHECK( m_cablingKey.initialize() );
 
-  // Fill the map betw<een any EMB FEB and the same FT PS FEB
+  // Fill the map between any EMB FEB and the same FT PS FEB
   // Filled only for EMB so far
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineID->feb_begin(); 
        allFeb != m_onlineID->feb_end(); ++allFeb) {
@@ -146,6 +146,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     }
   }
 
+  // Store the Saturated flag per partition
   uint8_t SatTightPartitions = 0;
   if ( NsaturatedTightCutBarrelA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBAMask;
   if ( NsaturatedTightCutBarrelC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBCMask;
@@ -154,23 +155,32 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   bool badSaturatedTightCut = (SatTightPartitions != 0);
   if ( badSaturatedTightCut ) noisyRO-> SetSatTightFlaggedPartitions(SatTightPartitions);
 
-  // are there any bad FEB or preamp ?
+  // loop on all FEBs and check whether FEB can be declared as bad for the different type of flags:
+  // regular noise burst, weighted noise burst, MNB tight and loose
   for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); it++ ) {
     ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
     if ( it->second.badChannels() > m_BadChanPerFEB ) {
       noisyRO->add_noisy_feb(HWIdentifier(it->first));
     }
 
-    // Tight MNBs
-    if ( it->second.badChannels() > m_MNBTightCut ){
-       noisyRO->add_MNBTight_feb(HWIdentifier(it->first));
-    }
-
     // Loose MNBs
     if ( it->second.badChannels() > m_MNBLooseCut ){
        noisyRO->add_MNBLoose_feb(HWIdentifier(it->first));
+       // Tight_PsVeto MNBs
+       if ( it->second.badChannels() > m_MNBTight_PsVetoCut[0] ){
+         unsigned int associatedPSFEB = m_mapPSFEB.find(it->first)->second;
+         if (associatedPSFEB != 0){ // Check if a PS FEB is associated (TRUE only for EMB FEBs)
+           if (FEBStats.count(associatedPSFEB) == 0) noisyRO->add_MNBTight_PsVeto_feb(HWIdentifier(it->first));
+           else if (FEBStats[associatedPSFEB].badChannels() < m_MNBTight_PsVetoCut[1]) noisyRO->add_MNBTight_PsVeto_feb(HWIdentifier(it->first));
+         }
+       }
+       // Tight MNBs
+       if ( it->second.badChannels() > m_MNBTightCut ){
+          noisyRO->add_MNBTight_feb(HWIdentifier(it->first));
+       }
     }
  
+
 //  // Noisy preamp removed as no used currently
 //  // Kept here just in case we may want to revive it
 //    const unsigned int* PAcounters = it->second.PAcounters();
@@ -289,7 +299,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   }// end loop over partitions      
   
   noisyRO->SetMNBTightFlaggedPartitions(MNBTightPartition);
-  noisyRO->SetMNBTightFlaggedPartitions_PsVeto(MNBTight_PsVetoPartition);
+  noisyRO->SetMNBTight_PsVetoFlaggedPartitions(MNBTight_PsVetoPartition);
   noisyRO->SetMNBLooseFlaggedPartitions(MNBLoosePartition);
 
   return noisyRO;
