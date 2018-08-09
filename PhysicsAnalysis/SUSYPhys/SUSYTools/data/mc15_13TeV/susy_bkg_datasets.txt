@@ -2708,6 +2708,23 @@ mc15_13TeV.426141.Sherpa_CT10_jets_JZ11.evgen.EVNT.e4635
 mc15_13TeV.426142.Sherpa_CT10_jets_JZ12.evgen.EVNT.e4635
 
 ################################################################################################################
+# Herwig7 dijet
+
+mc15_13TeV.364443.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ0.evgen.EVNT.e5989
+mc15_13TeV.364444.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ1.evgen.EVNT.e5989
+mc15_13TeV.364445.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ2.evgen.EVNT.e5989
+mc15_13TeV.364446.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ3.evgen.EVNT.e5989
+mc15_13TeV.364447.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ4.evgen.EVNT.e5989
+mc15_13TeV.364448.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ5.evgen.EVNT.e5989
+mc15_13TeV.364449.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ6.evgen.EVNT.e5989
+mc15_13TeV.364450.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ7.evgen.EVNT.e5989
+mc15_13TeV.364451.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ8.evgen.EVNT.e5989
+mc15_13TeV.364452.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ9.evgen.EVNT.e5989
+mc15_13TeV.364453.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ10.evgen.EVNT.e5989
+mc15_13TeV.364454.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ11.evgen.EVNT.e5989
+mc15_13TeV.364479.Herwig7EvtGen_H7UE_NNPDF30nlo_jetjet_JZ12.evgen.EVNT.e6065
+
+################################################################################################################
 # Higgs
 
 mc15_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.evgen.EVNT.e6281

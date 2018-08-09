@@ -41,11 +41,15 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char>  acc_passFJvt("passFJvt");
 
   const static SG::AuxElement::Decorator<float> dec_jvt("Jvt");
-  const static SG::AuxElement::Accessor<float> acc_jvt("Jvt");
+  const static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
   
   const static SG::AuxElement::Decorator<char> dec_bjet("bjet");
+  const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
+
   const static SG::AuxElement::Decorator<char> dec_bjet_jetunc("bjet_jetunc"); //added for JetUncertainties usage
   const static SG::AuxElement::Decorator<char> dec_bjet_loose("bjet_loose");
+
+  const static SG::AuxElement::Decorator<double> dec_btag_weight("btag_weight");
 
   StatusCode SUSYObjDef_xAOD::GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
   {
@@ -113,6 +117,49 @@ namespace ST {
     return StatusCode::SUCCESS;
   }
 
+  StatusCode SUSYObjDef_xAOD::GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const xAOD::JetContainer* containerToBeCopied) 
+  {
+    if (!m_tool_init) {
+      ATH_MSG_ERROR("SUSYTools was not initialized!!");
+      return StatusCode::FAILURE;
+    }
+
+    std::string jetkey_tmp = jetkey;
+    if (jetkey.empty()) {
+      jetkey_tmp = m_defaultTrackJets;
+    }
+
+    const xAOD::JetContainer* jets(0);
+    if (copy==NULL) { // empty container provided
+      if (containerToBeCopied != nullptr) {
+        jets = containerToBeCopied;
+      }
+      else {
+        ATH_MSG_DEBUG("Retrieve jet collection: " << jetkey_tmp);
+        ATH_CHECK( evtStore()->retrieve(jets, jetkey_tmp) );
+      }
+      std::pair<xAOD::JetContainer*, xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*jets);
+      copy = shallowcopy.first;
+      copyaux = shallowcopy.second;
+      bool setLinks = xAOD::setOriginalObjectLink(*jets, *copy);
+      if (!setLinks) {
+        ATH_MSG_WARNING("Failed to set original object links on " << jetkey_tmp);
+      }
+    } else { // use the user-supplied collection instead 
+      ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
+      jets=copy;
+    }
+
+    // Update the jets
+    for (const auto& jet : *copy) {
+      ATH_CHECK( this->FillTrackJet(*jet) );
+    }
+    if (recordSG) {
+      ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
+      ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
+    }
+    return StatusCode::SUCCESS;
+  }
 
   StatusCode SUSYObjDef_xAOD::GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& jetkey, const bool doLargeRdecorations, const xAOD::JetContainer* containerToBeCopied)
   {
@@ -230,7 +277,6 @@ namespace ST {
     return StatusCode::SUCCESS;
   }
 
-
   StatusCode SUSYObjDef_xAOD::FillJet(xAOD::Jet& input, bool doCalib, bool isFat) {
 
     ATH_MSG_VERBOSE( "Starting FillJet on jet with pt=" << input.pt() );
@@ -249,6 +295,7 @@ namespace ST {
         dec_effscalefact(input) = 1.;
         dec_passOR(input) = true;
         dec_bjet_jetunc(input) = false;
+        dec_btag_weight(input) = -999.;
 
         // If a user hasn't specified an uncertainty config, then this tool will be empty
         if (!m_fatjetUncertaintiesTool.empty()){
@@ -349,6 +396,31 @@ namespace ST {
       // Print the resolution information
       ATH_MSG_INFO( "  MC resolution = " << mcRes );
       ATH_MSG_INFO( "  Res uncertainty = " << uncert );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode SUSYObjDef_xAOD::FillTrackJet(xAOD::Jet& input) {
+
+    ATH_MSG_VERBOSE( "Starting FillTrackJet on jet with pt=" << input.pt() );
+
+    dec_signal(input) = false;
+    dec_btag_weight(input) = -999.;
+    dec_effscalefact(input) = 1.;
+
+    if (m_useBtagging) {
+      if (m_BtagWP != "Continuous") this->IsTrackBJet(input);
+      else this->IsTrackBJetContinuous(input);
+    }
+
+    dec_signal(input) = input.pt() >= m_trkJetPt && fabs(input.eta()) <= m_trkJetEta;
+
+    if (m_debug) {
+      ATH_MSG_INFO( "TRK JET pt: " << input.pt() );
+      ATH_MSG_INFO( "TRK JET eta: " << input.eta() );
+      ATH_MSG_INFO( "TRK JET phi: " << input.phi() );
+      ATH_MSG_INFO( "TRK JET E: " << input.e() );
     }
 
     return StatusCode::SUCCESS;
@@ -459,9 +531,30 @@ namespace ST {
     bool isbjet = m_btagSelTool->accept(input);
     dec_bjet(input) = isbjet;
 
+    double weight = 0.;
+    if ( m_btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
+      ATH_MSG_ERROR ("btagSelTool:: could not retrieve b-tag weight.");
+    }
+    dec_btag_weight(input) = weight;
+    ATH_MSG_VERBOSE( "b-tag weight?: " << weight );
+
     return isbjet;
   }
 
+  bool SUSYObjDef_xAOD::IsTrackBJet(const xAOD::Jet& input) const {
+
+    bool isbjet = m_btagSelTool_trkJet->accept(input);
+    dec_bjet(input) = isbjet;
+
+    double weight = 0.;
+    if ( m_btagSelTool_trkJet->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
+      ATH_MSG_ERROR ("btagSelTool_trkJet:: could not retrieve b-tag weight.");
+    }
+    dec_btag_weight(input) = weight;
+    ATH_MSG_VERBOSE( "b-tag weight (track jets)?: " << weight );
+
+    return isbjet;
+  }
 
   int SUSYObjDef_xAOD::IsBJetContinuous(const xAOD::Jet& input) const {
     //////////////////////
@@ -481,6 +574,13 @@ namespace ST {
     return isbjet;
   }
 
+  int SUSYObjDef_xAOD::IsTrackBJetContinuous(const xAOD::Jet& input) const {
+
+    int isbjet = m_btagSelTool_trkJet->getQuantile(input);
+    dec_bjet(input) = isbjet;
+
+    return isbjet;
+  }
 
   float SUSYObjDef_xAOD::BtagSF(const xAOD::JetContainer* jets) const {
 
@@ -491,7 +591,7 @@ namespace ST {
 
       if ( fabs(jet->eta()) > 2.5 ) {
         ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for jet with |eta|>2.5 (jet eta=" << jet->eta() << "), jet will be skipped");
-      } else if ( jet->pt() < 20e3 ){ //|| jet->pt() > 1e6 ) {
+      } else if ( jet->pt() < 20e3 ){ 
         ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for jet with invalid pt (jet pt=" << jet->pt() << "), jet will be skipped");
       } else {
 
@@ -500,7 +600,6 @@ namespace ST {
         if (!jet->getAttribute("HadronConeExclTruthLabelID", truthlabel)) {
           ATH_MSG_ERROR("Failed to get jet truth label!");
         }
-        const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
         ATH_MSG_VERBOSE("This jet is " << (acc_bjet(*jet) ? "" : "not ") << "b-tagged.");
         ATH_MSG_VERBOSE("This jet's truth label is " << truthlabel);
 
@@ -509,13 +608,13 @@ namespace ST {
 
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to retrieve SF for jet in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_ERROR( " Failed to retrieve SF for b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid SF for jet in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_VERBOSE( " No valid SF for b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           default:
-            ATH_MSG_VERBOSE( " Retrieve SF for b-tagged jet in SUSYTools_xAOD::BtagSF with value " << sf );
+            ATH_MSG_VERBOSE( " Retrieve SF for b-tagged jets in SUSYTools_xAOD::BtagSF with value " << sf );
           }
         } else {
 
@@ -523,13 +622,13 @@ namespace ST {
 
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to retrieve SF for non-b-tagged jet in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_ERROR( " Failed to retrieve SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid inefficiency SF for non-b-tagged jet in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_VERBOSE( " No valid inefficiency SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           default:
-            ATH_MSG_VERBOSE( " Retrieve SF for non-b-tagged jet in SUSYTools_xAOD::BtagSF with value " << sf );
+            ATH_MSG_VERBOSE( " Retrieve SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF with value " << sf );
           }
         }
       }
@@ -567,6 +666,89 @@ namespace ST {
 
   }
 
+  float SUSYObjDef_xAOD::BtagSF_trkJet(const xAOD::JetContainer* trkjets) const {
+
+    float totalSF = 1.;
+    for ( const auto& trkjet : *trkjets ) {
+
+      float sf = 1.;
+
+      if ( fabs(trkjet->eta()) > 2.5 ) {
+        ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for trkjet with |eta|>2.5 (trkjet eta=" << trkjet->eta() << "), trkjet will be skipped");
+      } else if ( trkjet->pt() < 20e3 ){ 
+        ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for trkjet with invalid pt (trkjet pt=" << trkjet->pt() << "), jet will be skipped");
+      } else {
+
+        CP::CorrectionCode result;
+        int truthlabel(-1);
+        if (!trkjet->getAttribute("HadronConeExclTruthLabelID", truthlabel)) {
+          ATH_MSG_ERROR("Failed to get jet truth label!");
+        }
+        ATH_MSG_VERBOSE("This jet is " << (acc_bjet(*trkjet) ? "" : "not ") << "b-tagged.");
+        ATH_MSG_VERBOSE("This jet's truth label is " << truthlabel);
+
+        if ( acc_bjet(*trkjet) ) {
+          result = m_btagEffTool_trkJet->getScaleFactor(*trkjet, sf);
+
+          switch (result) {
+          case CP::CorrectionCode::Error:
+            ATH_MSG_ERROR( " Failed to retrieve SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            break;
+          case CP::CorrectionCode::OutOfValidityRange:
+            ATH_MSG_VERBOSE( " No valid SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            break;
+          default:
+            ATH_MSG_VERBOSE( " Retrieve SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet with value " << sf );
+          }
+        } else {
+
+          result = m_btagEffTool_trkJet->getInefficiencyScaleFactor(*trkjet, sf);
+
+          switch (result) {
+          case CP::CorrectionCode::Error:
+            ATH_MSG_ERROR( " Failed to retrieve SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            break;
+          case CP::CorrectionCode::OutOfValidityRange:
+            ATH_MSG_VERBOSE( " No valid inefficiency SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            break;
+          default:
+            ATH_MSG_VERBOSE( " Retrieve SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet with value " << sf );
+          }
+        }
+      }
+
+      dec_effscalefact(*trkjet) = sf;
+
+      if( acc_signal(*trkjet) ) totalSF *= sf; 
+
+    }
+
+    return totalSF;
+
+  }
+
+
+  float SUSYObjDef_xAOD::BtagSFsys_trkJet(const xAOD::JetContainer* trkjets, const CP::SystematicSet& systConfig)
+  {
+
+    float totalSF = 1.;
+
+    //Set the new systematic variation
+    CP::SystematicCode ret = m_btagEffTool_trkJet->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure BTaggingEfficiencyTool (track jets) for systematic var. " << systConfig.name() );
+    }
+
+    totalSF = BtagSF_trkJet( trkjets );
+
+    ret = m_btagEffTool_trkJet->applySystematicVariation(m_currentSyst);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure BTaggingEfficiencyTool (track jets) for systematic var. " << systConfig.name() );
+    }
+
+    return totalSF;
+
+  }
 
   double SUSYObjDef_xAOD::JVT_SF(const xAOD::JetContainer* jets) {
 
