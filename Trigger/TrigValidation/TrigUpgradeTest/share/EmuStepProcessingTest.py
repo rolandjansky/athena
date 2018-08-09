@@ -137,7 +137,6 @@ if doCombo:
             if "MU" in s: EnabledMuComboChains.append(s +" : "+ c.name)
             if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name) 
 
-    #EnabledComboChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in CombChains]
     print "enabled Combo chains: ", EnabledMuComboChains,EnabledElComboChains
 
 EnabledChainNamesToCTP = [str(n)+":"+c.name for n,c in enumerate(HLTChains)]
@@ -157,20 +156,17 @@ l1Decoder.Chains="HLTChainsResult"
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
 ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
-#[ "0:HLT_g100",  "1:HLT_e20", "2:HLT_mu20", "3:HLT_2mu8", "3:HLT_mu8", "33:HLT_2mu8", "15:HLT_mu8_e8" ]
 l1Decoder.ctpUnpacker = ctpUnpacker
 
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )
 emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
 print "EMRoIsUnpackingTool enables chians:"
 print emUnpacker.ThresholdToChainMapping
-#["EM7 : HLT_mu8_e8", "EM20 : HLT_e20", "EM50 : HLT_2g50",   "EM100 : HLT_g100" ]
 
 muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1muroi.dat",  OutputTrigRoIs="L1MURoIs", Decisions="L1MU" )
 muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
 print "MURoIsUnpackingTool enables chians:"
 print muUnpacker.ThresholdToChainMapping
-#["MU6 : HLT_mu6", "MU8 : HLT_mu8", "MU8 : HLT_2mu8",  "MU8 : HLT_mu8_e8",  "MU10 : HLT_mu20",   "EM100 : HLT_g100" ]
 
 l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
 

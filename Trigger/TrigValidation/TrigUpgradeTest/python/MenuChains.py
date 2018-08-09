@@ -23,9 +23,9 @@ ChainDictionary ={  'HLT_e8'     : ['HLT_e8'],
 
 def getConfFromChainName(name):  
     if name in ChainDictionary:
-        print "called chain "+name+" and hypoTool conf "+ str(ChainDictionary[name])
+        print "MenuChains.getConfFromChainName: Called chain "+name+" and hypoTool conf "+ str(ChainDictionary[name])
         return ChainDictionary[name]
-    log.error("Wrong chain name given: found %s",name)
+    log.error("MenuChains.getConfFromChainName: Wrong chain name given: found %s",name)
     sys.exit("ERROR, in chain configuration") 
 
 
