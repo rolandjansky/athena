@@ -87,6 +87,8 @@ get_files -xmls LVL1config.dtd
 ref_folder=""
 if [ $database == "ART" ]; then
   ref_folder="_ART"
+elif [ "$type" == "HLT_HIV5" ]; then
+  ref_folder="_HI"
 fi
 
 

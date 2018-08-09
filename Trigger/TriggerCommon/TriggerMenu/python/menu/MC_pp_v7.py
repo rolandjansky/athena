@@ -1060,6 +1060,9 @@ def setupMenu():
         ['tau125_perf_tracktwo',                   'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau125_perf_ptonly',                     'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau160_perf_track',                      'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_idperf_track',                    'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_idperf_tracktwo',                 'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau160_perf_tracktwo',                   'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau80_medium1_track',                    'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau125_medium1_track',                   'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - No BDT: variations
@@ -2486,6 +2489,7 @@ ps_calibmon_list=[
     'sct_noise',
     'tilecalib_laser',
     'rpcpeb_L1RD0_EMPTY',
+    'rpcpebsecondaryreadout',
     'idpsl1_L1IDprescaled'
     ]    
 ps_eb_list=[
@@ -3316,8 +3320,12 @@ ps_perform_list = [
     'mu14_iloose_tau25_perf_ptonly_L1MU10_TAU12IM',
     'tau160_idperf_tracktwo',
     'tau160_idperf_tracktwo_L1TAU100',
+    'tau160_idperf_tracktwoEF_L1TAU100',
+    'tau160_idperf_tracktwoMVA_L1TAU100',
     'tau160_perf_tracktwo',
     'tau160_perf_tracktwo_L1TAU100',
+    'tau160_perf_tracktwoEF_L1TAU100',
+    'tau160_perf_tracktwoMVA_L1TAU100',
     'tau35_perf_tracktwo',
     'tau35_perf_tracktwo_L1TAU20_tau25_perf_tracktwo_L1TAU12',
     'tau0_perf_ptonly_L1TAU12',
@@ -3326,6 +3334,9 @@ ps_perform_list = [
     'tau125_medium1_track',
     'tau125_perf_ptonly',
     'tau160_idperf_track',
+    'tau160_idperf_tracktwo',
+    'tau160_perf_tracktwo',
+    'tau160_idperf_track_L1TAU100',
     'tau160_perf_track',
     'tau25_idperf_track',
     'tau25_idperf_tracktwo2015',
@@ -3873,8 +3884,8 @@ if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
 
 Prescales.HLTPrescales_tightperf_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
-Prescales.L1Prescales_CPSampleProd_mc_prescale= deepcopy(Prescales.L1Prescales)
-Prescales.HLTPrescales_CPSampleProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
+Prescales.L1Prescales_TriggerValidation_mc_prescale= deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_TriggerValidation_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
 ######################################################
 # TIGHT mc prescales
 ######################################################
@@ -3887,6 +3898,8 @@ chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # e
 Prescales.HLTPrescales_tight_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 Prescales.L1Prescales_BulkMCProd_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_BulkMCProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tight_mc_prescale)
+Prescales.L1Prescales_CPSampleProd_mc_prescale  = deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_CPSampleProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tight_mc_prescale)
 ######################################################
 
 ######################################################

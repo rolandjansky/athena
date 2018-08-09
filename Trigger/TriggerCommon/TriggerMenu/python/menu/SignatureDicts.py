@@ -741,6 +741,7 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'calibAFP',
                                 'calibAFPALFA',
                                 'rpcpeb',
+                                'rpcpebsecondaryreadout',
                                 'idpsl1',
                                 'larpebcalib'
                                 ]

@@ -4,7 +4,7 @@ __version__="$Revision: 1.01 $"
 __doc__="Class containing all the information of an HLT chain"
 
 import re
-from TriggerMenu.api.TriggerEnums import TriggerType
+from TriggerMenu.api.TriggerEnums import TriggerType, TriggerPeriod
 
 class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
@@ -59,7 +59,7 @@ class TriggerInfo:
                 continue
             append = False
             for other in typeMap[chain.triggerType][:]:
-                comp = chain.isLowerThan(other)
+                comp = chain.isLowerThan(other,self.period)
                 if comp ==  0: 
                     append = False
                     break
@@ -70,12 +70,12 @@ class TriggerInfo:
         return [x.name for t in typeMap.itervalues() for x in t ]
 
 
-    def _getAllHLT(self,triggerType, additionalTriggerType, matchPattern):
-        return {x.name: x.livefraction for x in self.triggerChains if x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)}
+    def _getAllHLT(self,triggerType, additionalTriggerType, matchPattern, livefraction):
+        return {x.name: x.livefraction for x in self.triggerChains if x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name) and x.isUnprescaled(livefraction)}
 
-    def _getActive(self,triggerType, additionalTriggerType, matchPattern, livefraction=1.0):
+    def _getActive(self,triggerType, additionalTriggerType, matchPattern, livefraction):
         return [x.name for x in self.triggerChains if x.isActive(livefraction) and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
-    def _getInactive(self,triggerType, additionalTriggerType, matchPattern, livefraction=1.0):
+    def _getInactive(self,triggerType, additionalTriggerType, matchPattern, livefraction):
         return [x.name for x in self.triggerChains if x.isInactive(livefraction) and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
 
     def _checkPeriodConsistency(self,triggerType, additionalTriggerType, matchPattern):
@@ -86,8 +86,8 @@ class TriggerInfo:
             for j in range(i+1,len(self.triggerChains)):
                 probe2 = self.triggerChains[j]
                 if not (probe2.passType(triggerType, additionalTriggerType) and re.search(matchPattern, probe2.name)): continue
-                if probe1.isUnprescaled() and not probe2.isUnprescaled() and probe1.isLowerThan(probe2)==1: inconsistent.add(probe2.name)
-                if probe2.isUnprescaled() and not probe1.isUnprescaled() and probe2.isLowerThan(probe1)==1: inconsistent.add(probe1.name)
+                if probe1.isUnprescaled() and not probe2.isUnprescaled() and probe1.isLowerThan(probe2,self.period)==1: inconsistent.add(probe2.name)
+                if probe2.isUnprescaled() and not probe1.isUnprescaled() and probe2.isLowerThan(probe1,self.period)==1: inconsistent.add(probe1.name)
                 
         return inconsistent
 
@@ -156,7 +156,7 @@ class TriggerLeg:
     def __repr__(self):
         return self.legname+" {0:b}".format(self.legtype)
 
-    def isLegLowerThan(self, other, debug=False):
+    def isLegLowerThan(self, other, is2015, debug=False):
         ''' Returns -9 if none of them is lower than the other (e.g. different met flavour).
             Returns -1 if identical
             Returns  0 if other is lower than self.
@@ -169,21 +169,21 @@ class TriggerLeg:
             print self.l1seed, other.l1seed
             print self.details, other.details
             print self.thr, other.thr
-            print self.compareDetails(other, debug=True)
+            print self.compareDetails(other, is2015, debug=True)
             print self.details == other.details
             print "DEBUG LEGS END --------"
 
         if self.legtype != other.legtype: return -9
-        if self.compareDetails(other) == -1:
+        if self.compareDetails(other, is2015) == -1:
             if self.thr < other.thr: return 1
             if self.thr > other.thr: return 0
             else: return -1
 
-        if self.compareDetails(other) == 1 and self.thr  <= other.thr: return 1
-        if self.compareDetails(other) == 0 and other.thr <= self.thr:  return 0
+        if self.compareDetails(other, is2015) == 1 and self.thr  <= other.thr: return 1
+        if self.compareDetails(other, is2015) == 0 and other.thr <= self.thr:  return 0
         return -9
 
-    def compareDetails(self, other, debug=False):
+    def compareDetails(self, other, is2015, debug=False):
         ''' Returns -9 if none of them is lower than the other (e.g. different met flavour).
             Returns -1 if identical
             Returns  0 if other is lower than self.
@@ -193,28 +193,28 @@ class TriggerLeg:
 
         if debug: print "compareDetails:",len(self.details), len(other.details),(self.l1seed == other.l1seed),(self.details == other.details) 
         if len(self.details) != len(other.details): 
-            if any([x.startswith("nod0") for x in self.details]):
+            if not is2015 and any([x.startswith("nod0") for x in self.details]):
                 cloneself = deepcopy(self)
                 cloneself.details = [ x for x in self.details if not x.startswith("nod0")]
-                compno = cloneself.compareDetails(other,debug)
+                compno = cloneself.compareDetails(other,is2015,debug)
                 if compno ==1 or compno == -1: 
                     return 1
-            if any([x.startswith("nod0") for x in other.details]):
+            if not is2015 and any([x.startswith("nod0") for x in other.details]):
                 cloneother = deepcopy(other)
                 cloneother.details = [ x for x in other.details if not x.startswith("nod0")]
-                compno = self.compareDetails(cloneother,debug)
+                compno = self.compareDetails(cloneother,is2015,debug)
                 if compno ==0 or compno == -1:
                     return 0
             if any([x.startswith("cut") for x in self.details]):
                 cloneself = deepcopy(self)
                 cloneself.details = [ x for x in self.details if not x.startswith("cut")]
-                compno = cloneself.compareDetails(other,debug)
+                compno = cloneself.compareDetails(other,is2015,debug)
                 if compno ==0 or compno == -1: 
                     return 0
             if any([x.startswith("cut") for x in other.details]):
                 cloneother = deepcopy(other)
                 cloneother.details = [ x for x in other.details if not x.startswith("cut")]
-                compno = self.compareDetails(cloneother,debug)
+                compno = self.compareDetails(cloneother,is2015,debug)
                 if compno ==1 or compno == -1:
                     return 1
             return -9
@@ -420,11 +420,13 @@ class TriggerChain:
         print self.name, self.legs, "{0:b}".format(self.triggerType), self.livefraction, self.activeLB
         return ""
 
-    def isLowerThan(self, other):
+    def isLowerThan(self, other,period=TriggerPeriod.future):
         ''' Returns -1 if none of them is lower than the other (e.g. asymmetric dilepton).
             Returns  0 if other is lower than self.
             Returns  1 if self  is lower than other.
         '''
+        is2015  = period & TriggerPeriod.y2015 and not TriggerPeriod.isRunNumber(period)
+        is2015 |= period <= 284484             and     TriggerPeriod.isRunNumber(period)
         if self.triggerType != other.triggerType: return -1
         if len(self.legs) != len(other.legs): return -1
         comp = -1
@@ -432,7 +434,7 @@ class TriggerChain:
         #if re.search("HLT_j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split", self.name): debug = True
         if debug: print "DEBUG:",self.name,other.name
         for selfleg, otherleg in zip(self.legs, other.legs):
-            legcomp = selfleg.isLegLowerThan(otherleg, debug)
+            legcomp = selfleg.isLegLowerThan(otherleg, is2015, debug)
             if debug: print "DEBUG LEG return:", legcomp
             if legcomp == -9: return -1
             elif legcomp == -1: continue
