@@ -139,12 +139,11 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 
     const STGC_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
-    const Identifier elementId = m_stgcIdHelper->elementID(rdoId);
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
     
     // get the local and global positions
-    const MuonGM::sTgcReadoutElement* detEl = m_muonMgr->getsTgcReadoutElement(elementId);
+    const MuonGM::sTgcReadoutElement* detEl = m_muonMgr->getsTgcReadoutElement(rdoId);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(rdoId,localPos);
