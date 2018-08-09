@@ -24,7 +24,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
          usePrdAssociationTool = True
       else:
          usePrdAssociationTool = False
@@ -63,6 +63,8 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
+         elif NewTrackingCuts.mode() == "DisplacedSoftPion" :
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_TrkSeeded as SiSpacePointsSeedMaker
          else:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
 
@@ -117,7 +119,20 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.useDBM = True
          if NewTrackingCuts.mode() == "PixelThreeLayer":
             InDetSiSpacePointsSeedMaker.SkipIBLcut = True
-
+         if NewTrackingCuts.mode() == "DisplacedSoftPion" :
+            InDetSiSpacePointsSeedMaker.RoISeedTrackContainer = "ResolvedPixelThreeLayerTracks"
+            InDetSiSpacePointsSeedMaker.TracksForIsolation    = "ResolvedTracks"
+            InDetSiSpacePointsSeedMaker.RoISeedRTrackD0       = 10.0 
+            InDetSiSpacePointsSeedMaker.RoISeedTrackPt        = 20000.0
+            InDetSiSpacePointsSeedMaker.RoISeedTrackSCTHits   = 0
+            InDetSiSpacePointsSeedMaker.RoISeedTrackPixHits   = 3
+            InDetSiSpacePointsSeedMaker.RoISeedTrackIso       = 0.1
+            InDetSiSpacePointsSeedMaker.IsoTrackPtThr         = 400.0
+            InDetSiSpacePointsSeedMaker.IsoTrackConeSize      = 0.4
+            InDetSiSpacePointsSeedMaker.DoRoITrackD0Sort      = True
+            InDetSiSpacePointsSeedMaker.DeltaThetaRoISP       = 0.8
+            InDetSiSpacePointsSeedMaker.DeltaPhiRoISP         = 0.8
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 50
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
@@ -239,7 +254,7 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "SLHCConversionFinding":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_SLHCConversionTracks'
 
-         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
+         elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "DisplacedSoftPion":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
         
          elif NewTrackingCuts.mode() == "PixelThreeLayer":
