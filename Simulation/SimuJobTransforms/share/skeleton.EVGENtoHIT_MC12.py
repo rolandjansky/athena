@@ -222,10 +222,9 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
-## Always enable the looper killer, unless it's been disabled
-if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool')
-else:
+## The looper killer is on by default. Disable it if this is requested.
+if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
+    simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool')
     atlasG4log.warning("The looper killer will NOT be run in this job.")
 
 try:
