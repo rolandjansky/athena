@@ -2365,7 +2365,6 @@ namespace top {
 	// VarRC jets
 	if (m_makeVarRCJets){
           std::string VarRC = "vrcjet";
-	  std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > VarRCJets=event.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
@@ -2377,7 +2376,7 @@ namespace top {
 
 	      // Initialize the vectors to be saved as branches
 	      
-	      xAOD::JetContainer* vrc_jets = VarRCJets[name].get();
+	      xAOD::JetContainer* vrc_jets = event.m_VarRCJets[name].get();
               unsigned int sizeOfRCjets = vrc_jets->size();
 	      m_VarRCjetBranches[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
@@ -3356,7 +3355,6 @@ namespace top {
 	// VarRC jets
 	if (m_makeVarRCJets){
           std::string VarRC = "vrcjet";
-	  std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > VarRCJets=plEvent.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
@@ -3368,7 +3366,7 @@ namespace top {
 
 	      // Initialize the vectors to be saved as branches
 	      
-	      xAOD::JetContainer* vrc_jets = VarRCJets[name].get();
+	      xAOD::JetContainer* vrc_jets = plEvent.m_VarRCJets[name].get();
               unsigned int sizeOfRCjets = vrc_jets->size();
 	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
