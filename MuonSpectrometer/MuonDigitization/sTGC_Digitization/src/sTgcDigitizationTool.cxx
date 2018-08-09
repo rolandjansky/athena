@@ -288,15 +288,6 @@ StatusCode sTgcDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 
   ATH_MSG_DEBUG("sTgcDigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
   m_STGCHitCollList.clear();
-  //m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
-  
-  //Perform null check on m_thpcsTGC. If pointer is not null throw error
-  //  if(!m_thpcsTGC) { 
-  //      m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
-  //}else{
-  //	ATH_MSG_ERROR ( "m_thpcsTGC is not null" );
-  //	return StatusCode::FAILURE;	
-  //}
 
   return StatusCode::SUCCESS;
 }
