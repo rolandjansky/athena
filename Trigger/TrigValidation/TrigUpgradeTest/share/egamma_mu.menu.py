@@ -54,8 +54,7 @@ comboChains +=  [Chain(name='HLT_mu6_e3_etcut', Seed="L1_MU6_EM3",  ChainSteps=[
 
 
 # sum all
-testChains = egammaChains + MuonChains
-#+ comboChains
+testChains = egammaChains + MuonChains+ comboChains
 
 
 #################################
