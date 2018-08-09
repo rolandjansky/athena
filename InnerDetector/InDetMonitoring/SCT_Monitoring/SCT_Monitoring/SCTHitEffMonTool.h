@@ -287,7 +287,7 @@ private:
 
   SG::ReadHandleKey<ComTime> m_comTimeName;
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_sctDetEleCollKey{this, "SctDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer
    * Numbering is counter-intuitive, would expect C then B then A; in fact the original ordering was A, C, B
