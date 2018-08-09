@@ -154,7 +154,7 @@ fi
 
 if [ $dophy -ne 0 ]; then
 
-  run ls -lLU "$esd" "$jo"
+  run ls -lLU "$esd"
 
   if [ ! -s "$esd" ]; then
     echo "$script: Reco_tf output '$esd' not created - exit" 2>&1
