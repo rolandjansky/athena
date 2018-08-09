@@ -228,7 +228,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_dataObjectName(std::string("SCT_RDOs")),
   m_eventInfoKey(std::string("EventInfo")),
   m_pSCTHelper(nullptr),
-  m_sctmgr(nullptr),
   m_checkBadModules(true),
   m_ignore_RDO_cut_online(true) {
   /** sroe 3 Sept 2015:

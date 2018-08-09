@@ -102,7 +102,7 @@ private:
   //@}
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName;
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_sctDetEleCollKey{this, "SctDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   //@name Service members
   //@{
