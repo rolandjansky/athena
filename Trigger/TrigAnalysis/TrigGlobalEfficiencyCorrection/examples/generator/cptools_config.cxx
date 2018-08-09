@@ -1,29 +1,44 @@
 [example0:electron_properties_set] #############################################
         t->setProperty("TriggerKey", string(j?"":"Eff_")
-			+ "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0").ignore();
+			+ "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0").ignore();
         t->setProperty("IdKey", "Tight").ignore();
-        t->setProperty("IsoKey", "Tight").ignore();
+        t->setProperty("IsoKey", "FixedCutTightTrackOnly").ignore();
 	
 [example1and2:electron_extraproperties_declare] ################################
     /// For property 'ListOfLegsPerTool':
     std::map<string,string> legsPerTool;
 
-[example1and2:electron_toolconfigs] ############################################
+[example1:electron_toolconfigs] ############################################
     enum{ cLEGS, cKEY };
     vector<std::array<string,2>> toolConfigs = {
          /// {<list of trigger legs>, <key in map file>}
          /// Single-electron trigger (same tool instance for 2015 and 2016):
         {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose, e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0",
-            "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"}, 
-        /// Dielectron trigger (same tool instance for 2015 and 2016):
-        {"e12_lhloose_L1EM10VH, e17_lhvloose_nod0", 
-            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0"}
+            "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"}, 
+        /// Dielectron trigger (same tool instance for 2015-2017):
+        {"e12_lhloose_L1EM10VH, e17_lhvloose_nod0, e24_lhvloose_nod0_L1EM20VH", 
+            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"}
+     };
+
+[example2:electron_toolconfigs] ############################################
+    enum{ cLEGS, cKEY };
+    vector<std::array<string,2>> toolConfigs = {
+         /// {<list of trigger legs>, <key in map file>}
+         /// Single-electron trigger (different instances for 2015-2017):
+        {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose"}, 
+        {"e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 [2016]", "2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"}, 
+        {"e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 [2017]", "2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0"}, 
+        /// the above splitting per year is just for illustration -- better
+        ///  to use a single instance for 2015-2017, as in the Example 1
+        /// Dielectron trigger (same tool instance for 2015-2017):
+        {"e12_lhloose_L1EM10VH, e17_lhvloose_nod0, e24_lhvloose_nod0_L1EM20VH", 
+            "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"}
      };
 
 [example1and2:electron_properties_set] #########################################
         t->setProperty("TriggerKey", string(j?"":"Eff_") + cfg[cKEY]).ignore();
         t->setProperty("IdKey", "Tight").ignore();
-        t->setProperty("IsoKey", "Tight").ignore();
+        t->setProperty("IsoKey", "FixedCutTightTrackOnly").ignore();
 
 [example1and2:electron_extraproperties_fill] ###################################
         /// Safer to retrieve the name from the final ToolHandle, it might be
@@ -71,9 +86,9 @@
     std::vector<std::array<std::string,5> > toolConfigs = {
         /// <list of legs>, <list of tags>, <key in map file>, <PID WP>, <iso WP>
         /// For leading electron:
-        {"e12_lhloose_L1EM10VH", "Signal", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "Tight", "Tight"},
+        {"e12_lhloose_L1EM10VH", "Signal", "2015_e12_lhloose_L1EM10VH", "Tight", "FixedCutTightTrackOnly"},
         /// For subleading electron(s):
-        {"e12_lhloose_L1EM10VH", "*", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "LooseBLayer", ""}
+        {"e12_lhloose_L1EM10VH", "*", "2015_e12_lhloose_L1EM10VH", "LooseBLayer", ""}
     };
         
 [example3b:electron_toolconfigs] ###############################################
@@ -81,11 +96,11 @@
     std::vector<std::array<std::string,5> > toolConfigs = {
 		/// <list of legs>, <list of tags>, <key in map file>, <PID WP>, <iso WP>
         /// Single electron trigger, only for the leading electron ("Signal")
-		{"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Signal", "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "Tight", "Tight"}, 
+		{"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Signal", "2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Tight", "FixedCutTightTrackOnly"}, 
 		/// Dielectron trigger, for the leading electron ("Signal")
-		{"e12_lhloose_L1EM10VH", "Signal", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "Tight", "Tight"}, 
+		{"e12_lhloose_L1EM10VH", "Signal", "2015_e12_lhloose_L1EM10VH", "Tight", "FixedCutTightTrackOnly"}, 
 		/// Dielectron trigger, for subleading electron(s) (not tagged => "*")
-		{"e12_lhloose_L1EM10VH", "*", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "LooseBLayer", ""}
+		{"e12_lhloose_L1EM10VH", "*", "2015_e12_lhloose_L1EM10VH", "LooseBLayer", ""}
      };
         
 [example3c:electron_toolconfigs] ###############################################
@@ -93,9 +108,9 @@
     std::vector<std::array<std::string,5> > toolConfigs = {
 		/// <list of legs>, <list of tags>, <key in map file>, <PID WP>, <iso WP>
         /// Single electron trigger: electrons tagged 'Signal'
-		{"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Signal", "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "Medium", ""}, 
+		{"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Signal", "2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", "Medium", ""}, 
 		/// Dielectron trigger: all electrons (tagged or not)
-		{"e12_lhloose_L1EM10VH", "*,Signal", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "LooseBLayer", ""}
+		{"e12_lhloose_L1EM10VH", "*,Signal", "2015_e12_lhloose_L1EM10VH", "LooseBLayer", ""}
      };
         
 [example3d:electron_toolconfigs] ###############################################
@@ -104,11 +119,11 @@
 		/// <list of legs>, <list of tags>, <key in map file>, <PID WP>, <iso WP>
 		/// Single-electron trigger: electrons tagged 'MyTight'
 		{"e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "MyTight", 
-			"SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "Tight", "GradientLoose"},
+			"2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "Tight", "GradientLoose"},
 		/// Electron-muon trigger: electrons tagged 'MyTight' or 'MyMedium'
-		{"e7_lhmedium_nod0", "MyMedium,MyTight", "MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0", "Medium", ""},
+		{"e7_lhmedium_nod0", "MyMedium,MyTight", "2016_e7_lhmedium_nod0", "Medium", ""},
 		/// Dielectron trigger: all electrons (tagged or not)
-		{"e17_lhvloose_nod0", "*,MyMedium,MyTight", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "LooseBLayer", ""},
+		{"e17_lhvloose_nod0", "*,MyMedium,MyTight", "2016_e17_lhvloose_nod0", "LooseBLayer", ""},
      };
         
 [example3e:electron_toolconfigs] ###############################################
@@ -117,11 +132,11 @@
 		/// <list of legs>, <list of tags>, <key in map file>, <PID WP>, <iso WP>
 		/// Single-electron trigger: only electrons tagged 'PID2' (TightLH+iso) 
 		{"e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "PID2", 
-			"SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "Tight", "GradientLoose"},
+			"2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", "Tight", "GradientLoose"},
 		/// Electron-muon trigger: electrons tagged 'PID2' or 'PID1' (MediumLH)
-		{"e7_lhmedium_nod0", "PID1,PID2", "MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0", "Medium", ""},
+		{"e7_lhmedium_nod0", "PID1,PID2", "2016_e7_lhmedium_nod0", "Medium", ""},
 		/// Dielectron trigger: all electrons (tagged or not)
-		{"e17_lhvloose_nod0", "*,PID1,PID2", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "LooseBLayer", ""},
+		{"e17_lhvloose_nod0", "*,PID1,PID2", "2016_e17_lhvloose_nod0", "LooseBLayer", ""},
      };
         
 [example3:electron_properties_set] #############################################
