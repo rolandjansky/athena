@@ -38,7 +38,8 @@ namespace met {
   ////////////////
   METTauAssociator::METTauAssociator(const std::string& name) :
     AsgTool(name),
-    METAssociator(name)
+    METAssociator(name),
+    m_tauContKey("")
   {}
 
   // Destructor
@@ -52,6 +53,9 @@ namespace met {
   {
     ATH_CHECK( METAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+    ATH_CHECK( m_tauContKey.assign(m_input_data_key));
+    ATH_CHECK( m_tauContKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -79,7 +83,7 @@ namespace met {
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
-    SG::ReadHandle<xAOD::TauJetContainer> tauCont(m_input_data_key);
+    SG::ReadHandle<xAOD::TauJetContainer> tauCont(m_tauContKey);
     if (!tauCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input tau container " << m_input_data_key);
       return StatusCode::FAILURE;

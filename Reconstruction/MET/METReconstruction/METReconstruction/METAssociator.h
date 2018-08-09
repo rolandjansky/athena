@@ -27,6 +27,12 @@
 // METRecoInterface includes
 #include "METRecoInterface/IMETAssocToolBase.h"
 
+#include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
+
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
 //#include "xAODCaloEvent/CaloClusterContainer.h"
@@ -81,6 +87,15 @@ namespace met {
     std::string m_trkcoll;
     std::string m_clcoll;
     std::string m_pfcoll;
+
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey;
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey;
+    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey;
+    SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey;
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_forcollKey;
+    SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey;
+
+
 
     bool m_pflow;
     bool m_useTracks;

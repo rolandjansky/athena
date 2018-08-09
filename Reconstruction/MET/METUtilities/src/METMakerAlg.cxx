@@ -191,7 +191,7 @@ namespace met {
     MissingETBase::UsageHandler::Policy objScale = MissingETBase::UsageHandler::PhysicsObject;
     if(m_doTruthLep) objScale = MissingETBase::UsageHandler::TruthParticle;
     // Electrons
-    if(!Electrons->empty()) {
+    if(!m_eleColl.empty()) {
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
       for(const auto& el : *Electrons) {
     	if(accept(el)) {
@@ -209,7 +209,7 @@ namespace met {
     }
 
     // Photons
-    if(!Gamma->empty()) {
+    if(!m_gammaColl.empty()) {
       ConstDataVector<PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
       for(const auto& ph : *Gamma) {
     	if(accept(ph)) {
@@ -226,7 +226,7 @@ namespace met {
     }
 
     // Taus
-    if(!TauJets->empty()) {
+    if(!m_tauColl.empty()) {
       ConstDataVector<TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
       for(const auto& tau : *TauJets) {
     	if(accept(tau)) {
@@ -243,7 +243,7 @@ namespace met {
     }
 
     // Muons
-    if(!Muons->empty()) {
+    if(!m_muonColl.empty()) {
       ConstDataVector<MuonContainer> metMuons(SG::VIEW_ELEMENTS);
       for(const auto& mu : *Muons) {
     	if(accept(mu)) {
@@ -304,6 +304,9 @@ namespace met {
   }
 
   bool METMakerAlg::accept(const xAOD::TauJet* tau)
-  { return (tau->pt()>20e3);} //m_tauSelTool->accept( *tau ); }
+  { 
+  // std::cout<<"Just checking this works -> tau pt is "<<tau->pt()<<std::endl;
+
+   return m_tauSelTool->accept( *tau ); }
 
 }

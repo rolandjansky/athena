@@ -23,7 +23,6 @@
 #include "xAODMissingET/MissingETAuxComponentMap.h"
 
 // Truth EDM
-#include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
 
@@ -57,7 +56,8 @@ namespace met {
   METTruthTool::METTruthTool(const std::string& name) : 
     AsgTool(name),
     METBuilderTool(name),
-    m_truth_type(0)
+    m_truth_type(0),
+    m_truthEventKey("")
   {
     // NonInt, Int, IntMuons, IntOut
     declareProperty( "InputComposition", m_inputType = "NonInt" ); // Truth type
@@ -90,6 +90,9 @@ namespace met {
       ATH_MSG_FATAL("Invalid input type provided");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK( m_truthEventKey.assign(m_input_data_key));
+    ATH_CHECK( m_truthEventKey.initialize());
+
 
     return StatusCode::SUCCESS;
   }
@@ -200,7 +203,8 @@ namespace met {
     metTerm->setSource(m_truth_type);
 
     // Retrieve the truth container
-    SG::ReadHandle<xAOD::TruthEventContainer> truthEvents(m_input_data_key);
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEvents(m_truthEventKey);
+
     if (!truthEvents.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input truth event container ");
       return StatusCode::SUCCESS;

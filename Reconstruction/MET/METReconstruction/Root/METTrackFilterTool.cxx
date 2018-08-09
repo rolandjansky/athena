@@ -66,11 +66,11 @@ namespace met {
     declareProperty( "DoPVSel",            m_trk_doPVsel = true                 );
     // declareProperty( "TrackD0Max",      m_trk_d0Max = 1.5                    );
     // declareProperty( "TrackZ0Max",      m_trk_z0Max = 1.5                    );
-    declareProperty( "InputPVKey",         m_pv_inputkey = "PrimaryVertices"    );
+    declareProperty( "InputPVKey",         m_pv_input = "PrimaryVertices"    );
     declareProperty( "DoEoverPSel",        m_trk_doEoverPsel = false            );
-    declareProperty( "InputClusterKey",    m_cl_inputkey = "CaloCalTopoClusters");
-    declareProperty( "InputElectronKey",   m_el_inputkey = "Electrons"          );
-    declareProperty( "InputMuonKey",       m_mu_inputkey = "Muons"              );
+    declareProperty( "InputClusterKey",    m_cl_input = "CaloCalTopoClusters");
+    declareProperty( "InputElectronKey",   m_el_input = "Electrons"          );
+    declareProperty( "InputMuonKey",       m_mu_input = "Muons"              );
     declareProperty( "DoVxSep",            m_doVxSep = false                    );
     declareProperty( "TrackSelectorTool",  m_trkseltool                         );
     declareProperty( "TrackVxAssocTool",   m_trkToVertexTool                    );
@@ -99,6 +99,17 @@ namespace met {
     ATH_CHECK(m_caloIsolationTool.retrieve());
 
     if(m_doVxSep) ATH_MSG_INFO("Building TrackMET for each vertex");
+
+    ATH_CHECK( m_cl_inputkey.assign(m_cl_input));
+    ATH_CHECK( m_cl_inputkey.initialize());
+    ATH_CHECK( m_pv_inputkey.assign(m_pv_input));
+    ATH_CHECK( m_pv_inputkey.initialize());
+    if(m_doLepRecovery){
+      ATH_CHECK( m_el_inputkey.assign(m_el_input));
+      ATH_CHECK( m_el_inputkey.initialize());
+      ATH_CHECK( m_mu_inputkey.assign(m_mu_input));
+      ATH_CHECK( m_mu_inputkey.initialize());
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -225,14 +236,14 @@ namespace met {
       {
         SG::ReadHandle<xAOD::ElectronContainer> elCont(m_el_inputkey);
         if (!elCont.isValid()) {
-          ATH_MSG_WARNING("Unable to retrieve electron container " << m_el_inputkey);
+          ATH_MSG_WARNING("Unable to retrieve electron container " << m_el_input);
           return StatusCode::SUCCESS;
         } else { 
 	  selectElectrons(*elCont, selElectrons); 
 	} 
         SG::ReadHandle<xAOD::MuonContainer> muCont(m_mu_inputkey);
         if (!muCont.isValid()) {
-          ATH_MSG_WARNING("Unable to retrieve muon container " << m_mu_inputkey);
+          ATH_MSG_WARNING("Unable to retrieve muon container " << m_mu_input);
           return StatusCode::SUCCESS;
         } else { 
 	  selectMuons(*muCont, selMuons); 

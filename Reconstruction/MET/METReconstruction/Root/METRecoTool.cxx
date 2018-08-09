@@ -59,7 +59,6 @@ namespace met {
     declareProperty( "TimingDetail",       m_timedetail = 0      );
   }
 
-
   // Athena algtool's Hooks
   ////////////////////////////
   StatusCode METRecoTool::initialize()
@@ -75,6 +74,9 @@ namespace met {
       ATH_MSG_FATAL("Output MissingETComponentMap name must be provided.");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK( m_contname.initialize() );
+    ATH_CHECK( m_mapname.initialize() );
+
 
     ATH_MSG_INFO ("Reconstructing MET container: " << m_contname
 		  << " with composition map: " << m_mapname     );
