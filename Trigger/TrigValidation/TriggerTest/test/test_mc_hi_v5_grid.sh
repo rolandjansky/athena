@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: Heavy ion MC v3 tight TriggerTest on MC
+# art-description: Heavy ion MC v4 TriggerTest on MC
 # art-type: grid
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
@@ -21,8 +21,8 @@
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
 
-export NAME="mc_hi_v3_tight_grid"
-export MENU="MC_HI_v3_tight_mc_prescale"
+export NAME="mc_hi_v5_grid"
+export MENU="MC_HI_v5"
 export EVENTS="500"
 export INPUT="pbpb"
 

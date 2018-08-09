@@ -21,7 +21,7 @@
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
 
-export NAME="physics_pp_v7_aod_grid"
+export NAME="physics_hi_v4_grid"
 export MENU="Physics_HI_v4"
 export EVENTS="500"
 export INPUT="pbpb"

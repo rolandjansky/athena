@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: Heavy ion physics v3 TriggerTest on MC
+# art-description: Heavy ion physics v4 TriggerTest on MC
 # art-type: build
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
@@ -21,8 +21,8 @@
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
 
-export NAME="physics_hi_v3_build"
-export MENU="Physics_HI_v3"
+export NAME="physics_hi_v5_build"
+export MENU="Physics_HI_v5"
 export EVENTS="5"
 export INPUT="pbpb"
 export COST_MONITORING="False"
