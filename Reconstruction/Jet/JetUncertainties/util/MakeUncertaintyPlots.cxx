@@ -602,7 +602,7 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
           }
         }
         std::cout << "Using pT file " << filename << std::endl;
-        TFile* PTfile = new TFile("/"+filename,"READ");
+        TFile* PTfile = new TFile(filename,"READ");
         if (!PTfile || PTfile->IsZombie())
         {
             printf("Failed to open PT fraction file\n");
@@ -1257,11 +1257,31 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
    
     // Write the plot
     frame->Draw("axis same");
-    if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
-        canvas->Print(outFile);
+    
+    // Ensure we don't have debugging enabled
+    if (optHelper.GetDumpFile() == "")
+    {
+        if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
+            canvas->Print(outFile);
+        else
+            canvas->Print(TString(outFile).ReplaceAll(outFile.EndsWith(".eps")?".eps":".png",Form("/fig_%s_%s.%s",fixedIsEta?"eta":"pt",fixedIsEta?Form("%.1f",fixedValue):Form("%.0f",fixedValue),outFile.EndsWith(".eps")?"eps":"png")));
+    }
     else
-        canvas->Print(TString(outFile).ReplaceAll(outFile.EndsWith(".eps")?".eps":".png",Form("/fig_%s_%s.%s",fixedIsEta?"eta":"pt",fixedIsEta?Form("%.1f",fixedValue):Form("%.0f",fixedValue),outFile.EndsWith(".eps")?"eps":"png")));
-
+    {
+        // Debug mode, just write out the graphs
+        printf("Preparing to dump to file: %s\n",optHelper.GetDumpFile().Data());
+        TFile* dumpFile = TFile::Open(optHelper.GetDumpFile(),"NEW");
+        dumpFile->cd();
+        for (size_t iSet = 0; iSet < compGraphs.size(); ++iSet)
+        {
+            for (size_t iComp = 0 ; iComp < compGraphs.at(iSet).size(); ++iComp)
+            {
+                compGraphs.at(iSet).at(iComp)->Write();
+            }
+        }
+        dumpFile->Close();
+    }
+    
     // Free graphs/hists
     for (size_t iProv = 0; iProv < providers.size(); ++iProv)
     {
@@ -1483,13 +1503,17 @@ int main (int argc, char* argv[])
     canvas->SetFrameBorderMode(0);
     canvas->cd();
 
-    // If this is not an eps, start the output
-    if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
-        canvas->Print(outFile+"[");
-    // Otherwise, make a folder for the eps files
-    else
-        system(Form("mkdir -p %s",TString(outFile).ReplaceAll(outFile.EndsWith(".eps")?".eps":".png","").Data()));
-
+    // Ensure we don't have debugging enabled
+    if (optHelper.GetDumpFile() == "")
+    {
+        // If this is not an eps, start the output
+        if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
+            canvas->Print(outFile+"[");
+        // Otherwise, make a folder for the eps files
+        else
+            system(Form("mkdir -p %s",TString(outFile).ReplaceAll(outFile.EndsWith(".eps")?".eps":".png","").Data()));
+    
+    }
 
     // Run once per jet type
     if (!(jetDefs.size() == configs.size() && jetDefs.size() != 1) || (doComparison && jetDefs.size() != 1))
@@ -1677,9 +1701,13 @@ int main (int argc, char* argv[])
         providers.clear();
     }
 
-    // If this is not an eps, end the output
-    if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
-        canvas->Print(outFile+"]");
+    // Ensure we don't have debugging enabled
+    if (optHelper.GetDumpFile() == "")
+    {
+        // If this is not an eps, end the output
+        if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
+            canvas->Print(outFile+"]");
+    }
 
     return 0;
 }

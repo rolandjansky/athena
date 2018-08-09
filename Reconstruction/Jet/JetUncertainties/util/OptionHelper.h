@@ -79,6 +79,9 @@ class OptionHelper : public asg::AsgMessaging
   
         // Layout control
         TString GetInputsDir() const {  checkInit(); return m_inputsDir; }
+        
+        // Debug/similar control
+        TString GetDumpFile() const { checkInit(); return m_dumpFile; }
 
     private:
         bool    m_isInit;
@@ -129,6 +132,8 @@ class OptionHelper : public asg::AsgMessaging
         // allowing MakeUncertaintyPlots to be run from outside
         // of the testInputs/run/ directory
         TString m_inputsDir;
+
+        TString m_dumpFile;
 
         TString getOptionValue(const std::vector<TString>& options, const TString optionName) const;
         template <typename T>
@@ -187,7 +192,9 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_scaleVars()
     , m_systFilters()
   
-    , m_inputsDir("//eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/")
+    , m_inputsDir("/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/")
+
+    , m_dumpFile("")
 { }
 
 bool OptionHelper::Initialize(const std::vector<TString>& options)
@@ -253,7 +260,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_isDijet        = getOptionValueWithDefault(options,"isDijet",m_isDijet);
     if (m_isDijet)
     {
-        if (!m_composition)
+        if (m_composition == "")
             m_composition = "Dijet";
         else
         {
@@ -267,6 +274,8 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_compareVals    = getCompareVals(options);
 
     m_inputsDir      = getOptionValueWithDefault(options,"inputsDir",m_inputsDir);
+
+    m_dumpFile       = getOptionValueWithDefault(options,"dumpFile",m_dumpFile);
 
     const TString localScaleVar = getOptionValue(options,"scaleVar");
     if (localScaleVar == "")
@@ -436,7 +445,10 @@ std::vector<double> OptionHelper::GetFixedPtVals() const
     std::vector<double> bins;
 
     if (m_fixedPtVals != "")
-        bins = jet::utils::vectorize<double>(m_fixedPtVals,",");
+    {
+        if (m_fixedPtVals != "NONE")
+            bins = jet::utils::vectorize<double>(m_fixedPtVals,",");
+    }
     else
         bins = jet::utils::vectorize<double>("25,40,60,80,120",",");
 
@@ -449,7 +461,10 @@ std::vector<double> OptionHelper::GetFixedEtaVals() const
     std::vector<double> bins;
 
     if (m_fixedEtaVals != "")
-        bins = jet::utils::vectorize<double>(m_fixedEtaVals,",");
+    {
+        if (m_fixedEtaVals != "NONE")
+            bins = jet::utils::vectorize<double>(m_fixedEtaVals,",");
+    }
     else if (IsLargeR())
         bins = jet::utils::vectorize<double>("0",",");
     else if (IsJER())
@@ -466,7 +481,10 @@ std::vector<double> OptionHelper::GetFixedMoverPtVals() const
     std::vector<double> bins;
 
     if (m_fixedMoverPtVals != "")
-        bins = jet::utils::vectorize<double>(m_fixedMoverPtVals,",");
+    {
+        if (m_fixedMoverPtVals != "NONE")
+            bins = jet::utils::vectorize<double>(m_fixedMoverPtVals,",");
+    }
     else if (!IsLargeR())
         bins = jet::utils::vectorize<double>("0",",");
     else if (IsPublicFormat())
