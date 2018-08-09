@@ -33,8 +33,6 @@ ATLAS Collaboration
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-
 
 #include "CxxUtils/make_unique.h"
 
@@ -71,10 +69,10 @@ SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string&	name,
 	m_idHelper		(nullptr),
 	m_idHelperPixel		(nullptr),
 	m_properties		(nullptr),
-	m_SpacePointContainer_SCT	("SCT_SpacePoints"),
-	m_SpacePointContainerPixel	("PixelSpacePoints"),
-	m_spacepointoverlapCollection	("OverlapSpacePoints"),
-	m_SiSpacePointMakerTool		("InDet::SiSpacePointMakerTool")
+	m_SpacePointContainer_SCT       ("SCT_SpacePoints"),
+	m_SpacePointContainerPixel      ("PixelSpacePoints"),
+	m_spacepointoverlapCollection   ("OverlapSpacePoints"),
+	m_SiSpacePointMakerTool         ("InDet::SiSpacePointMakerTool", this)
     {
   //Use the same space point name both for internal use (for graphics) end
   // for storing in TDS. If a name is the empty string, do not retrieve
@@ -162,6 +160,7 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 	  }
     }
     ATH_MSG_INFO( "SiTrackerSpacePointFinder::initialized for package version " << PACKAGE_VERSION );
+    
     return StatusCode::SUCCESS;
 }
 
@@ -201,7 +200,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 //        }
           m_SpacePointContainerPixel = CxxUtils::make_unique<SpacePointContainer>(m_idHelperPixel->wafer_hash_max());
           if (! m_SpacePointContainerPixel.isValid() ){
-               msg(MSG:: FATAL) << "SpacePointContainer " << m_SpacePointContainerPixel.name() << "could not be initialised !"<< endreq;
+               msg(MSG:: FATAL) << "SpacePointContainer " << m_SpacePointContainerPixel.name() << "could not be initialised !"<< endmsg;
                return StatusCode::FAILURE;
           }
 	  // prevent SG from deleting object:
@@ -222,7 +221,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 */	  
 	  m_SpacePointContainer_SCT = CxxUtils::make_unique<SpacePointContainer>(m_idHelper->wafer_hash_max());
           if (! m_SpacePointContainer_SCT.isValid() ){
-               msg(MSG:: FATAL) << "SpacePointContainer " << m_SpacePointContainer_SCT.name() << "could not be initialised !"<< endreq;
+               msg(MSG:: FATAL) << "SpacePointContainer " << m_SpacePointContainer_SCT.name() << "could not be initialised !"<< endmsg;
                return StatusCode::FAILURE;
           }
           	  	  
@@ -237,7 +236,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 
     m_spacepointoverlapCollection = CxxUtils::make_unique<SpacePointOverlapCollection>();
     if (! m_spacepointoverlapCollection.isValid() ){
-       msg(MSG:: FATAL) << "SpacePointOverlapCollection " << m_spacepointoverlapCollection.name() << "could not be initialised !"<< endreq;
+       msg(MSG:: FATAL) << "SpacePointOverlapCollection " << m_spacepointoverlapCollection.name() << "could not be initialised !"<< endmsg;
        return StatusCode::FAILURE;
     }
           
@@ -247,10 +246,13 @@ StatusCode SiTrackerSpacePointFinder::execute()
     if (m_selectSCTs){
 	  // retrieve SCT cluster container
         if (!m_Sct_clcontainer.isValid()){
-          msg(MSG:: FATAL) << "Could not find the data object "<< m_Sct_clcontainer.name() << " !" << endreq;
+          msg(MSG:: FATAL) << "Could not find the data object "<< m_Sct_clcontainer.name() << " !" << endmsg;
           return StatusCode::RECOVERABLE;
         }
         ATH_MSG_DEBUG( "SCT Cluster container found:  " << m_Sct_clcontainer->size() << " collections" );
+        
+        m_SiSpacePointMakerTool->newEvent();
+        
 	// Get hold of all clusters and iterate through them.
 	// Pixel clusters will be converted immediately to pixel space points. 
 	// For SCT clusters, posssible pairs will be found and space points computed.
@@ -280,7 +282,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 	    } else {
 		  StatusCode sc= m_SpacePointContainer_SCT->addCollection( spacepointCollection,
 							      spacepointCollection->identifyHash() );
-		  if (sc.isFailure()){
+          if (sc.isFailure()){
 		    ATH_MSG_ERROR( "Failed to add SpacePoints to container" );
 		    return StatusCode::RECOVERABLE;
 		  }
@@ -302,7 +304,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 //	ATH_MSG_DEBUG( "Pixel Cluster container found:  " << m_Pixel_clcontainer->size() << " collections" );
 
         if (!m_Pixel_clcontainer.isValid()){
-          msg(MSG:: FATAL) << "Could not find the data object "<< m_Pixel_clcontainer.name() << " !" << endreq;
+          msg(MSG:: FATAL) << "Could not find the data object "<< m_Pixel_clcontainer.name() << " !" << endmsg;
           return StatusCode::RECOVERABLE;
         }
         
@@ -326,7 +328,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 	    if ((*colNext)->size() != 0)
 	    {
 		m_SiSpacePointMakerTool->fillPixelSpacePointCollection(*colNext,spacepointCollection);
-	    }
+        }
 	    else
 	    {
 		ATH_MSG_DEBUG( "Empty pixel cluster collection" );
@@ -342,7 +344,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 	    {    
 		StatusCode sc= m_SpacePointContainerPixel->addCollection( spacepointCollection,
 							       spacepointCollection->identifyHash() );
-		if (sc.isFailure())
+        if (sc.isFailure())
 		{
 		    ATH_MSG_ERROR( "Failed to add SpacePoints to container" );
 		    return StatusCode::RECOVERABLE;
