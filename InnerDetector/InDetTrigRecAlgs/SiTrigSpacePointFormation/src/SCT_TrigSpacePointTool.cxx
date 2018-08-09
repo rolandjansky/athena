@@ -84,15 +84,6 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
 
   // Make a table of neighbours and widths of side 1 SCT wafers
   
-  InDetDD::SiDetectorElementCollection* elements;
-  elements = const_cast<InDetDD::SiDetectorElementCollection*>
-    (m_manager->getDetectorElementCollection());   
-  
-  if (!elements) {
-    ATH_MSG_FATAL( "Cannot retrieve detector elements" );
-    return StatusCode::FAILURE;
-  } 
-
   ATH_CHECK( toolSvc()->retrieveTool(m_SiSpacePointMakerToolName, 
                                      m_SiSpacePointMakerTool, this) );
 
@@ -111,21 +102,12 @@ StatusCode SCT_TrigSpacePointTool::finalize() {
 
 
 //--------------------------------------------------------------------------
-void SCT_TrigSpacePointTool::
-addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection, 
-                   const SCT_ClusterContainer* clusterContainer,
-                   const SiElementPropertiesTable* properties,
-                   SpacePointCollection* spacepointCollection) {
-
-  addSCT_SpacePoints(clusCollection, clusterContainer, properties, spacepointCollection, 0);
-}
-				
-//--------------------------------------------------------------------------
 
 void SCT_TrigSpacePointTool::
 addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection, 
                    const SCT_ClusterContainer* clusterContainer,
                    const SiElementPropertiesTable* properties,
+                   const InDetDD::SiDetectorElementCollection* elements,
                    SpacePointCollection* spacepointCollection,
                    SpacePointOverlapCollection* overlapColl) {
 
@@ -149,11 +131,12 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
   }
 
   // Do nothing unless this is a side 1 detector (strips of const phi).
+  IdentifierHash thisHash(clusCollection->identifyHash());
   Identifier thisID(clusCollection->identify());
-  
+
   // if it is not the stereo side
   const InDetDD::SiDetectorElement *element = 
-    m_manager->getDetectorElement(m_idHelper->wafer_id(thisID));
+    elements->getDetectorElement(thisHash);
 
   if (element && !(element->isStereo())){
     //if (m_idHelper->side(thisID)==1) {
@@ -165,8 +148,6 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
     // "check1" is used for opposite and eta overlaps.
     // check2 for phi overlaps
 
-    IdentifierHash thisHash = m_idHelper->wafer_hash(thisID);
-
     const std::vector<IdentifierHash>* 
       others(properties->neighbours(thisHash));
     if (others==0 || others->empty() ) return;
@@ -175,6 +156,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
     bool doOverlapColl = false;
     // check opposite wafer
     checkForSCT_Points(clusCollection, *otherHash, 
+                       elements,
 		       -m_overlapLimitOpposite, +m_overlapLimitOpposite,
 		       spacepointCollection,doOverlapColl);
     
@@ -193,11 +175,13 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
     // half-width of wafer
     
     checkForSCT_Points(clusCollection, *otherHash, 
+                       elements,
 		       -hwidth, -hwidth+m_overlapLimitPhi, 
 		       +hwidth-m_overlapLimitPhi, +hwidth);
     ++otherHash;
     if (otherHash == others->end() )  return;
     checkForSCT_Points(clusCollection, *otherHash, 
+                       elements,
 		       +hwidth-m_overlapLimitPhi, +hwidth,
 		       -hwidth, -hwidth+m_overlapLimitPhi);
     
@@ -213,6 +197,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
 	    m_idHelper->layer_disk(thisID)==2)
 	  {
 	    checkForSCT_Points(clusCollection, *otherHash, 
+                               elements,
 			       +m_overlapLimitEtaMin, 
 			       +m_overlapLimitEtaMax,
 			       spacepointCollection,doOverlapColl);
@@ -220,11 +205,13 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
 	    if (otherHash == others->end() )  return;
 	    
 	    checkForSCT_Points(clusCollection, *otherHash, 
+                               elements,
 			       -m_overlapLimitEtaMax, 
 			       -m_overlapLimitEtaMin,
 			       spacepointCollection,doOverlapColl);
 	  }else{
 	    checkForSCT_Points(clusCollection, *otherHash, 
+                               elements,
 			       -m_overlapLimitEtaMax, 
 			       -m_overlapLimitEtaMin,
 			       spacepointCollection,doOverlapColl);
@@ -232,6 +219,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
 	    if (otherHash == others->end() )  return;
 	     
 	    checkForSCT_Points(clusCollection, *otherHash, 
+                               elements,
 			       +m_overlapLimitEtaMin,
 			       +m_overlapLimitEtaMax,
 			       spacepointCollection,doOverlapColl);
@@ -246,7 +234,9 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
 
 void SCT_TrigSpacePointTool::
 checkForSCT_Points(const SCT_ClusterCollection* clusters1,
-		   const IdentifierHash& id2, double min, double max,
+		   const IdentifierHash& id2,
+                   const InDetDD::SiDetectorElementCollection* elements,
+                   double min, double max,
 		   SpacePointCollection* spacepointCollection, 
 		   bool overlapColl) {
 
@@ -271,7 +261,7 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
   if (!overlapColl) {
     m_SiSpacePointMakerTool->
       fillSCT_SpacePointCollection(clusters1, clusters2,min, max, 
-				   m_allClusters, beampos, m_manager, 
+				   m_allClusters, beampos, elements,
 				   spacepointCollection);
   }
 
@@ -279,7 +269,7 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
     m_SiSpacePointMakerTool->
       fillSCT_SpacePointEtaOverlapCollection(clusters1, clusters2, min, max, 
 					     m_allClusters, beampos, 
-					     m_manager,
+					     elements,
 					     m_spacepointoverlapCollection);
   }
 }
@@ -288,6 +278,7 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
 void SCT_TrigSpacePointTool::
   checkForSCT_Points(const SCT_ClusterCollection* clusters1,
 		     const IdentifierHash& id2,
+                     const InDetDD::SiDetectorElementCollection* elements,
 		     double min1, double max1, double min2, double max2){
 
   // get the cluster collections for these two detectors. Clus1 must lie
@@ -312,7 +303,7 @@ void SCT_TrigSpacePointTool::
   m_SiSpacePointMakerTool->
     fillSCT_SpacePointPhiOverlapCollection(clusters1, clusters2, min1, max1, 
 					   min2, max2, m_allClusters, beampos,
-					   m_manager, 
+					   elements,
 					   m_spacepointoverlapCollection);
 
 }

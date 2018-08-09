@@ -1642,7 +1642,6 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
       const Trk::CurvilinearParameters*  cparm = new Trk::CurvilinearParameters(bremPhoton->position(),bremPhoton->momentum(),bremPhoton->charge());
       const Trk::TrackParameters* uPar = updateInLay(bremPhoton,cparm,remMat,timeLim, pLim, dir, Trk::photon);
       if (uPar) { ATH_MSG_VERBOSE( "Check this: parameters should be dummy here (brem.photon) " <<","<<uPar->position() ); }
-      if (cparm) { delete cparm; }
     }
 
     // if validation is turned on - go for it 

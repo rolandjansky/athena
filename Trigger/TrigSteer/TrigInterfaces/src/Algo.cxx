@@ -207,18 +207,6 @@ StatusCode Algo::stop()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode Algo::beginRun()
-{
-  if ( hltBeginRun() != HLT::OK) return StatusCode::FAILURE;
-
-  if ( beginRunMonitors().isFailure() ) {
-    ATH_MSG_WARNING ("Unable to initialize at beginRun all monitors, continuing anyway");
-  }
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode Algo::finalize()
 {
   // call initialize from derived class:
@@ -365,12 +353,6 @@ StatusCode Algo::stopMonitors()
     }
   }
   return sc;
-}
-
-
-StatusCode Algo::beginRunMonitors()
-{
-  return StatusCode::SUCCESS;
 }
 
 

@@ -12,6 +12,10 @@ Created:     October 2011
 Description: Object to encode the result of efficiency/scale factor/resolution calculation
 ******************************************************************************/
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 // This class' header
 #include "PATCore/TResult.h"
 

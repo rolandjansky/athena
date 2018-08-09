@@ -22,8 +22,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
-#include "xAODEventInfo/EventInfo.h"
-//#include "EventInfo/EventID.h"
 
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -470,8 +468,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   HepRandomEngine* engine=0; 
   if (m_WithNoise) 
     {
-      const xAOD::EventInfo* eventInfo;
-      ATH_CHECK( evtStore()->retrieve(eventInfo) );
+      SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey); 
       const int iSeedNumber = eventInfo->runNumber()*10000000
 	                     +eventInfo->eventNumber();
       

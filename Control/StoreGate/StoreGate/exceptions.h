@@ -268,6 +268,20 @@ void throwExcNonConstHandleKey (CLID clid,
                                 const std::string& storename);
 
 
+/**
+ * @brief Exception --- Deference invalid SG::Iterator.
+ */
+class ExcInvalidIterator
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcInvalidIterator();
+};
+
+
 } // namespace SG
 
 

@@ -84,46 +84,44 @@ StatusCode TrigMuonEFMSonlyHypoTool::decide(TrigMuonEFMSonlyHypoTool::MuonEFInfo
 
   //  decision making
   //Get xAOD::MuonContainer from hypotool
-  const xAOD::MuonContainer *muonContainer = input.muons;
-  if(!muonContainer){
+  const xAOD::Muon* muon = input.muon;
+  if( !muon ){
     ATH_MSG_DEBUG("Retrieval of xAOD::MuonContainer failed");
     return StatusCode::FAILURE;
   }
 
-  for(auto muon : *muonContainer){
-    if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
 
-      const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+  if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
 
-      if (!tr) {
-	ATH_MSG_DEBUG("No ExtrapolatedMuonSpectrometerTrackParticle found.");
-	continue;
-      } else {
-	ATH_MSG_DEBUG("Retrieved ExtrapolatedMuonSpectrometerTrack track with abs pt "<< (*tr).pt()/CLHEP::GeV << " GeV ");
+    const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
 
-	//fill monitored variables
-	fexPt.push_back(tr->pt()/CLHEP::GeV);
-	fexEta.push_back(tr->eta());
-	fexPhi.push_back(tr->phi());
+    if (!tr) {
+      ATH_MSG_DEBUG("No ExtrapolatedMuonSpectrometerTrackParticle found.");
+    } else {
+      ATH_MSG_DEBUG("Retrieved ExtrapolatedMuonSpectrometerTrack track with abs pt "<< (*tr).pt()/CLHEP::GeV << " GeV ");
 
-	//Apply hypo cuts
-	float absEta = fabs(tr->eta());
-	float threshold = 0;
-	for (std::vector<float>::size_type k=0; k<m_bins; ++k) {
-	  if (absEta > m_ptBins[k] && absEta <= m_ptBins[k+1]) threshold = m_ptThresholds[k];
-	}
-	if (fabs(tr->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
-	  selPt.push_back(tr->pt()/CLHEP::GeV);
-	  selEta.push_back(tr->eta());
-	  selPhi.push_back(tr->phi());
+      //fill monitored variables
+      fexPt.push_back(tr->pt()/CLHEP::GeV);
+      fexEta.push_back(tr->eta());
+      fexPhi.push_back(tr->phi());
 
-	  result = true;
-	}
-	ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
-		      << " with Charge " << tr->charge()
-		      << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
-		      << " so hypothesis is " << (result?"true":"false"));
+      //Apply hypo cuts
+      float absEta = fabs(tr->eta());
+      float threshold = 0;
+      for (std::vector<float>::size_type k=0; k<m_bins; ++k) {
+        if (absEta > m_ptBins[k] && absEta <= m_ptBins[k+1]) threshold = m_ptThresholds[k];
       }
+      if (fabs(tr->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
+        selPt.push_back(tr->pt()/CLHEP::GeV);
+        selEta.push_back(tr->eta());
+        selPhi.push_back(tr->phi());
+
+        result = true;
+      }
+      ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
+      	      << " with Charge " << tr->charge()
+      	      << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
+      	      << " so hypothesis is " << (result?"true":"false"));
     }
   }
   return StatusCode(result);				

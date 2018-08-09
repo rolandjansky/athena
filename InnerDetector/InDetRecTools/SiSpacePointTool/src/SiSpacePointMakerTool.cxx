@@ -6,14 +6,14 @@
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
 // Cluster and space point collections
 
-#include "TrkSpacePoint/SpacePointCollection.h" 
-#include "TrkSpacePoint/SpacePointOverlapCollection.h" 
+#include "TrkSpacePoint/SpacePointCollection.h"
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
 // For processing clusters
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h" 
-#include "InDetReadoutGeometry/SiDetectorElement.h" 
+#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 // Space points
 #include "SiSpacePoint/SCT_SpacePoint.h"
@@ -180,7 +180,7 @@ Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluste
 //--------------------------------------------------------------------------
 void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1, 
   const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
-  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, SpacePointCollection* spacepointCollection) const {
+  const Amg::Vector3D& vertexVec, const InDetDD::SiDetectorElementCollection* elements, SpacePointCollection* spacepointCollection) const {
 
   double stripLengthGapTolerance = 0.; 
 
@@ -194,7 +194,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
   // -ME fixme- get first element
   const InDetDD::SiDetectorElement *element1 =0;
  
-  if ((*clusters1Next) &&(clusters1Next!=clusters1Finish)) element1 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
+  if ((*clusters1Next) &&(clusters1Next!=clusters1Finish)) element1 = elements->getDetectorElement(clusters1->identifyHash());
 
   if (!element1) {
     msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
@@ -213,7 +213,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointCollection(const InDet::SCT_Cluste
     
     // -ME fixme- get first element
     const InDetDD::SiDetectorElement *element2 =0;
-    if (*clusters2Next && (clusters2Next != clusters2Finish)) element2= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
+    if (*clusters2Next && (clusters2Next != clusters2Finish)) element2= elements->getDetectorElement(clusters2->identifyHash());
 
     if (!element2) {
       msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
@@ -264,7 +264,7 @@ void SiSpacePointMakerTool::fillPixelSpacePointCollection(const InDet::PixelClus
 //--------------------------------------------------------------------------
 void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
   const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters, 
-  const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
+  const Amg::Vector3D& vertexVec, const InDetDD::SiDetectorElementCollection* elements,
   SpacePointOverlapCollection* spacepointoverlapCollection) const {
 
   double stripLengthGapTolerance = 0.; 
@@ -279,7 +279,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
 
   const InDetDD::SiDetectorElement *element1 =0;
    
-  if ((*clusters1Next) &&(clusters1Next!=clusters1Finish)) element1 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
+  if ((*clusters1Next) &&(clusters1Next!=clusters1Finish)) element1 = elements->getDetectorElement(clusters1->identifyHash());
   if (!element1) {
     msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
     return;
@@ -296,7 +296,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
       clusters2Finish=(*clusters2).end();
     
     const InDetDD::SiDetectorElement *element2 =0;
-    if (*clusters2Next && (clusters2Next != clusters2Finish)) element2= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
+    if (*clusters2Next && (clusters2Next != clusters2Finish)) element2= elements->getDetectorElement(clusters2->identifyHash());
     if (!element2) {
       msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
       break;
@@ -324,7 +324,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointEtaOverlapCollection(const InDet::
 //--------------------------------------------------------------------------
 void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::SCT_ClusterCollection* clusters1, 
   const InDet::SCT_ClusterCollection* clusters2, double min1, double max1, double min2, double max2, 
-  bool allClusters, const Amg::Vector3D& vertexVec, const InDetDD::SCT_DetectorManager *SCT_Manager, 
+  bool allClusters, const Amg::Vector3D& vertexVec, const InDetDD::SiDetectorElementCollection* elements,
   SpacePointOverlapCollection* spacepointoverlapCollection) const {
 
   double stripLengthGapTolerance = 0.; if(m_SCTgapParameter!=0.) {min1-=20.;  max1+=20.;}
@@ -340,7 +340,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
     clusters1Finish = clusters1->end();
 
   const InDetDD::SiDetectorElement *element1 =0;
-  if ( (*clusters1Next) && (clusters1Next!=clusters1Finish)) element1= SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters1Next)->identify()));
+  if ( (*clusters1Next) && (clusters1Next!=clusters1Finish)) element1= elements->getDetectorElement(clusters1->identifyHash());
   if (!element1) {
     msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters1Next)->identify()) <<endmsg;
     return;
@@ -357,7 +357,7 @@ void SiSpacePointMakerTool::fillSCT_SpacePointPhiOverlapCollection(const InDet::
 	clusters2Finish=(*clusters2).end();
       
       const InDetDD::SiDetectorElement *element2 =0;
-      if (*clusters2Next&&(clusters2Next != clusters2Finish)) element2 = SCT_Manager->getDetectorElement(m_idHelper->wafer_id((*clusters2Next)->identify()));
+      if (*clusters2Next&&(clusters2Next != clusters2Finish)) element2 = elements->getDetectorElement(clusters2->identifyHash());
       if (!element2) {
 	msg(MSG::ERROR) << "Bad cluster identifier  " << m_idHelper->show_to_string((*clusters2Next)->identify()) <<endmsg;
 	break;

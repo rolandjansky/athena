@@ -62,7 +62,7 @@ if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
 InDetTrigBroadSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigBroadSCT_ClusterOnTrackToolFTK",
                                                                     CorrectionStrategy = 0,  # do correct position bias
                                                                     ErrorStrategy      = 0,  # do use broad errors
-                                                                    SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
+                                                                    LorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
 ToolSvc += InDetTrigBroadSCT_ClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigBroadSCT_ClusterOnTrackToolFTK

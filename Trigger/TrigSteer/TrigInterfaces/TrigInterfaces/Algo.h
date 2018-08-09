@@ -56,7 +56,6 @@ namespace HLT
    *
    * - hltInitialize()
    * - hltStart()
-   * - hltBeginRun()
    * - hltStop()
    * - hltFinalize()
    *
@@ -73,21 +72,19 @@ namespace HLT
    * \par Call sequence for OFFLINE running
    * The call sequence for offline running is as follows:   
      \verbatim
-        hltInitialize -> hltStart -> [hltBeginRun]+ -> hltStop -> hltFinalize   \endverbatim   
-   * For each run-number change the hltBeginRun() method is called. hltStart() and
-   * hltStop() are called once at the beginning and end of the job.
+        hltInitialize -> hltStart -> hltStop -> hltFinalize   \endverbatim
+   * hltStart() and hltStop() are called once at the beginning and end of the job.
    *
    * \par Call sequence for ONLINE running
    * The call sequence for online running is as follows:
      \verbatim
-        hltInitialize -> [hltStart -> hltBeginRun -> hltStop]+ -> hltFinalize   \endverbatim
+        hltInitialize -> [hltStart -> hltStop]+ -> hltFinalize   \endverbatim
    * Compared to offline, the hltStart() and hltStop() methods are called at the beginning and
    * end of each run, i.e. at every run-number change. This is to allow for resetting of
    * monitoring histograms, etc. for each run.
    *
    * As a general rule, code that has to be executed once per run in the online but once per job in
-   * the offline (e.g. histogram booking) should be put into hltStart() and hltStop(). All other
-   * run-dependent code should be put into hltBeginRun().
+   * the offline (e.g. histogram booking) should be put into hltStart() and hltStop().
    */
 
   class Algo : public AthAlgorithm, public IMonitoredAlgo {
@@ -124,16 +121,6 @@ namespace HLT
      */
     virtual HLT::ErrorCode hltStart() { return HLT::OK; }
     
-    /**
-     * @brief Method to be redefined by the user to implement the actions performed
-     *        by the algorithm at the BeginRun state transition.
-     * @return HLT::ErrorCode for the BeginRun transition.
-     *
-     * This method should contain code that is exectuded on each run-number change
-     * for both online and offline running.
-     */
-    virtual HLT::ErrorCode hltBeginRun() { return HLT::OK; }
-
     /**
      * @brief Method to be redefined by the user to implement the actions performed
      *        by the algorithm at the Stop state transition.
@@ -263,14 +250,6 @@ namespace HLT
      */
     StatusCode start();
     
-    /**
-     * @brief Method performing the BeginRun transition.
-     * @return StatusCode for the BeginRun process.
-     *
-     * Calls the public hltBeginRun method; not to be re-implemented/used by developers.     
-     */
-    StatusCode beginRun();
-
     /**
      * @brief Method performing the Stop transition
      * @return StatusCode for the Stop process.
@@ -497,14 +476,6 @@ namespace HLT
      */
     StatusCode stopMonitors();
     
-    /**
-     * @brief Method performing monitoring operations associated to the BeginRun transition.
-     * @return StatusCode for the monitoring BeginRun process.
-     *
-     * Currently does nothing.
-     */
-    StatusCode beginRunMonitors();
-
      /**
      * @brief Method performing monitoring operations before the event.
      * @return StatusCode for the pre-event monitoring process.

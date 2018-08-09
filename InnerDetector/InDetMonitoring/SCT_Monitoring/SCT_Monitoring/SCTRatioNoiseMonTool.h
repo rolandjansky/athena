@@ -28,7 +28,6 @@
 
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
@@ -240,8 +239,6 @@ private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
-  //SCT Detector Manager
-  const InDetDD::SCT_DetectorManager* m_sctmgr;
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTol",
       "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"};
   bool                                     m_checkBadModules;

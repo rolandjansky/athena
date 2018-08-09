@@ -224,7 +224,8 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
               m_dataHeader->insertProvenance(DataHeaderElement(dhProxy,
                                                                dhProxy->address(),
                                                                pTag));
-            } else {
+            }
+            else if (dhTransAddr != nullptr) {
               m_dataHeader->insertProvenance(DataHeaderElement(dhTransAddr,
                                                                dhTransAddr->address(),
                                                                pTag));

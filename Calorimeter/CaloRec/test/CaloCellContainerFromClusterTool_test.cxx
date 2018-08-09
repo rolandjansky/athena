@@ -28,8 +28,11 @@
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "StoreGate/setupStoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <set>
 #include <iostream>
 #include <cassert>
@@ -216,6 +219,10 @@ int main (int /*argc*/, char** argv)
 
   ServiceHandle<StoreGateSvc> sg ("StoreGateSvc", "test");
   assert( sg.retrieve() );
+
+  EventContext ctx;
+  ctx.setExtension( Atlas::ExtendedEventContext (&*sg, 0) );
+  Gaudi::Hive::setCurrentContext (ctx);
 
   test1 (calotest, *sg);
   return 0;

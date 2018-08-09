@@ -35,16 +35,15 @@ private:
   /// output decisions
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "HypoOutputDecisions", {}, "Ouput Decisions" };
 
-
   typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
   Gaudi::Property< MultiplicityReqMap > m_multiplicitiesReqMap{this, "MultiplicitiesMap", {}, "Map from the chain name to implicities required at each input"};
 
   //!< iterates over the inputs and for every object (no filtering) crates output object linked to input moving the decisions that are mentioned in the passing set
-  StatusCode copyDecisions( const TrigCompositeUtils::DecisionIDContainer& passing ) const;
+  StatusCode copyDecisions( const TrigCompositeUtils::DecisionIDContainer& passing, const EventContext& context ) const;
 
   //!< iterates over all inputs filling the multiplicity map for each input collection
   typedef std::map<TrigCompositeUtils::DecisionID, int> MultiplicityMap;
-  void fillDecisionsMap( std::vector< MultiplicityMap >&  dmap) const;
+  void fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const EventContext& context) const;
 };
 
 #endif // DECISIONHANDLING_COMBOHYPO_H

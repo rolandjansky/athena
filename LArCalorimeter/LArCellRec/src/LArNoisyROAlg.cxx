@@ -16,8 +16,6 @@
 
 #include <cmath>
 
-using xAOD::EventInfo;
-
 LArNoisyROAlg::LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator):
   AthReentrantAlgorithm (name, pSvcLocator), 
   m_noisyROTool("LArNoisyROTool",this)
@@ -100,44 +98,33 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
   if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut || MNBTight_PsVetoCut) 
   {
     // retrieve EventInfo
-    const xAOD::EventInfo* eventInfo_c=0;
-    StatusCode sc = evtStore()->retrieve(eventInfo_c);
-    if (sc.isFailure()) 
-    {
-      ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set LAr bit information "  );
-    }
-    xAOD::EventInfo* eventInfo=0;
-    if (eventInfo_c)
-    {
-      eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
-    }
-
+    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey); 
 
     bool failSetWARN=false;
     bool failSetWARNREASON=false;
     // set warning flag except if the error flag has been already set
-    if ( eventInfo &&  eventInfo->errorState(EventInfo::LAr) != EventInfo::Error) {
+    if ( eventInfo->errorState(xAOD::EventInfo::LAr) != xAOD::EventInfo::Error) {
       if ( badFEBFlag ) {
-	failSetWARN |= (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
-	failSetWARNREASON |= (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::BADFEBS));
+	failSetWARN |= (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Warning));
+	failSetWARNREASON |= (!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS));
       }//endif badFEBFlag
 
       if ( badFEBFlag_W ) {
 	//Set WARNING Flag
-	failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
+	failSetWARN |=(!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Warning));
 	// Set reason why event was flagged
-	failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::BADFEBS_W));
+	failSetWARNREASON |=(!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS_W));
       }// end if badFEBFlag_W
 
       if ( badSaturatedTightCut ){
-	failSetWARNREASON |= (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ));
+	failSetWARNREASON |= (!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ));
       }
     }
 
     if ( MNBTightCut ) {
-      failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
+      failSetWARN |=(!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Warning));
       // Set reason why event was flagged
-      failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT));
+      failSetWARNREASON |=(!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT));
     }
 
     if ( MNBTight_PsVetoCut ) {
@@ -147,7 +134,7 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
     }
 
     if ( MNBLooseCut ) { //FIXME Tight cut actually implies loose cut too
-      failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTLOOSE));
+      failSetWARNREASON |=(!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::MININOISEBURSTLOOSE));
     }
 
     if (failSetWARN) ATH_MSG_WARNING( "Failure during EventInfo::setEventErrorState(EventInfo::LAR,EventInfo::WARNING)"  );

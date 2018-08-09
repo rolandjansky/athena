@@ -1532,11 +1532,6 @@ except Exception:
      # protect until doPyDump is defined in all releases
      treatException("problem with the dumpers")
 
-#Trigger ntuple (from Clemencia Mora). Not if not rec.doTrigger
-if rec.readESD() and rec.doTrigger() and  TriggerFlags.NtupleProductionFlags.produceNtuples():
-    #old Tier0TriggerFlags.doTier0TriggerNtuple():
-    protectedInclude("TriggerRelease/TriggerNTupleProduction.py")
-
 if rec.doCBNT():
     # AANTupleStream should be at the very end
     topSequence+=theAANTupleStream
@@ -1712,3 +1707,6 @@ if rec.readAOD():
 
 include("RecExCommon/RecoUtils.py")
 include("RecExCommon/PrintRecoSummary.py")
+
+from RecAlgs.RecAlgsConf import AppStopAlg
+topSequence+=AppStopAlg()

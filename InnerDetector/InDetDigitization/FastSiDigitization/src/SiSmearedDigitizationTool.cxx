@@ -14,7 +14,6 @@
 // Det Descr
 #include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 
@@ -67,15 +66,16 @@
 
 using namespace InDetDD;
 
+static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
+//Barcodes at the HepMC level are int
+
 // Constructor with parameters:
 SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, const std::string &name,
                                                      const IInterface* parent):
-
   PileUpToolBase(type, name, parent),
   m_thpcsi(NULL),
   m_rndmSvc("AtRndmGenSvc",name),
   m_manager_pix(NULL),
-  m_manager_sct(NULL),
   m_pixel_ID(0),
   m_sct_ID(0),
   m_randomEngine(0),
@@ -89,6 +89,9 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_sctClusterContainer(0),
   m_planarClusterContainer(0),
   m_mergeSvc("PileUpMergeSvc",name),
+  m_HardScatterSplittingMode(0),
+  m_HardScatterSplittingSkipper(false),
+  m_vetoThisBarcode(crazyParticleBarcode),
   m_prdTruthNamePixel("PRD_MultiTruthPixel"),
   m_prdTruthNameSCT("PRD_MultiTruthSCT"),
   m_prdTruthNamePlanar("PRD_MultiTruthPlanar"),
@@ -151,6 +154,8 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   // get the service handle for the TrackingGeometry
   declareProperty("TrackingGeometrySvc"          , m_trackingGeometrySvc);
   declareProperty("UseCustomGeometry", m_useCustomGeometry);
+  declareProperty("HardScatterSplittingMode"     , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
+  declareProperty("ParticleBarcodeVeto"          , m_vetoThisBarcode, "Barcode of particle to ignore");
 
 }
 
@@ -183,14 +188,6 @@ StatusCode SiSmearedDigitizationTool::initialize()
     }
 
   }else{ // Smear SCT
-    // Get the SCT Detector Manager
-    if (StatusCode::SUCCESS != detStore()->retrieve(m_manager_sct,"SCT") ) {
-      ATH_MSG_ERROR ( "Can't get SCT_DetectorManager " );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG ( "Retrieved SCT_DetectorManager with version "  << m_manager_sct->getVersion().majorNum() );
-    }
-
     if (detStore()->retrieve(m_sct_ID, "SCT_ID").isFailure()) {
       ATH_MSG_ERROR ( "Could not get SCT ID helper" );
       return StatusCode::FAILURE;
@@ -203,6 +200,10 @@ StatusCode SiSmearedDigitizationTool::initialize()
 
     m_inputObjectName="SCT_Hits"; // Set the input object name
 
+    if (not m_useCustomGeometry) {
+      // Initialize ReadCondHandleKey
+      ATH_CHECK(m_SCTDetEleCollKey.initialize());
+    }
   }
 
   //Get own engine with own seeds:
@@ -329,6 +330,7 @@ StatusCode SiSmearedDigitizationTool::prepareEvent(unsigned int)
 
   m_siHitCollList.clear();
   m_thpcsi = new TimedHitCollection<SiHit>();
+  m_HardScatterSplittingSkipper = false;
 
   return StatusCode::SUCCESS;
 }
@@ -338,36 +340,40 @@ StatusCode SiSmearedDigitizationTool::processBunchXing(int bunchXing,
                                                        SubEventIterator bSubEvents,
                                                        SubEventIterator eSubEvents)
 {
-
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in pixel processBunchXing() ---" );
+  //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
+  if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
+  if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
+  if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
-  SubEventIterator iEvt(bSubEvents);
-  while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-    PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
-    const SiHitCollection* seHitColl(NULL);
-    if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
-      ATH_MSG_ERROR ( "SubEvent SiHitCollection not found in StoreGate " << seStore.name() );
-      return StatusCode::FAILURE;
-    }
+  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-    //Copy Hit Collection
-    SiHitCollection* siHitColl(new SiHitCollection("PixelHits"));
-    SiHitCollection::const_iterator i(seHitColl->begin());
-    SiHitCollection::const_iterator e(seHitColl->end());
-    // Read hits from this collection
-    for (; i!=e; ++i) {
-      const SiHit sihit(*i);
-      siHitColl->Insert(sihit);
-    }
-    m_thpcsi->insert(thisEventIndex, siHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_siHitCollList.push_back(siHitColl);
-    ++iEvt;
-
-
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+                                          bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " SiHitCollections with key " <<
+                    m_inputObjectName << " found");
   }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  for( ; iColl != endColl; iColl++) {
+    SiHitCollection *siHitColl = new SiHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+    ATH_MSG_DEBUG("SiHitCollection found with " << siHitColl->size() <<
+                  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
+    m_thpcsi->insert(timeIndex, siHitColl);
+    m_siHitCollList.push_back(siHitColl);
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -495,8 +501,12 @@ StatusCode SiSmearedDigitizationTool::processAllSubEvents() {
   TimedHitCollList::iterator   iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end()  );
 
+  m_HardScatterSplittingSkipper = false;
   // loop on the hit collections
   while ( iColl != endColl ) {
+    if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; ++iColl; continue; }
+    if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { ++iColl; continue; }
+    if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
     const SiHitCollection* p_collection(iColl->second);
     thpcsi.insert(iColl->first, p_collection);
     ATH_MSG_DEBUG ( "SiHitCollection found with " << p_collection->size() << " hits" );
@@ -588,8 +598,11 @@ StatusCode SiSmearedDigitizationTool::FillTruthMap(PRD_MultiTruthCollection * ma
 
   ATH_MSG_DEBUG("Truth map filling with cluster " << *cluster << " and link = " << hit->particleLink());
   if (hit->particleLink().isValid()){
-    map->insert(std::make_pair(cluster->identify(), hit->particleLink()));
-    ATH_MSG_DEBUG("Truth map filled with cluster " << *cluster << " and link = " << hit->particleLink());
+    const int barcode( hit->particleLink().barcode());
+    if ( barcode !=0 && barcode != m_vetoThisBarcode ) {
+      map->insert(std::make_pair(cluster->identify(), hit->particleLink()));
+      ATH_MSG_DEBUG("Truth map filled with cluster " << *cluster << " and link = " << hit->particleLink());
+    }
   }else{
     ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << cluster << " and link = " << hit->particleLink());
   }
@@ -964,6 +977,16 @@ StatusCode SiSmearedDigitizationTool::digitize()
     } else ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
   } else ATH_MSG_DEBUG("Collection " << m_detElementMapName  << " not found!");
 
+  // Get SCT_DetectorElementCollection
+  const InDetDD::SiDetectorElementCollection* elementsSCT = nullptr;
+  if ((not m_useCustomGeometry) and (not m_SmearPixel)) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    elementsSCT = sctDetEle.retrieve();
+    if (elementsSCT==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+  }
 
   TimedHitCollection<SiHit>::const_iterator i, e;
 
@@ -1019,13 +1042,13 @@ StatusCode SiSmearedDigitizationTool::digitize()
         }
       } else { // Smear SCT
         side = hit->getSide();
+        Identifier idwafer = m_sct_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule,side);
+        IdentifierHash idhash = m_sct_ID->wafer_hash(m_sct_ID->wafer_id(idwafer));
         if (!m_useCustomGeometry) {// Not custom SCT
-          const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_sct->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule,side);
+          const InDetDD::SiDetectorElement* hitSiDetElement_temp = elementsSCT->getDetectorElement(idhash);
           ATH_MSG_DEBUG("SCT SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << ", side " << side);
           hitSiDetElement = hitSiDetElement_temp;
         } else { // Custom SCT
-          Identifier idwafer = m_sct_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule,side);
-          IdentifierHash idhash = m_sct_ID->wafer_hash(m_sct_ID->wafer_id(idwafer));
           iFatras::IdHashDetElementCollection::iterator it_map = m_detElementMap->find(idhash);
           if (it_map == m_detElementMap->end())
             ATH_MSG_WARNING("Id hash " << idhash << " not found in the map from id hash to planar detector element.");
@@ -1497,7 +1520,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
           double stripLength = fabs(ends.first.xEta()-ends.second.xEta());
 
           InDet::SiWidth siWidth(Amg::Vector2D(int(rdoList.size()),1),
-                                                       Amg::Vector2D(clusterWidth,stripLength) );
+                                 Amg::Vector2D(clusterWidth,stripLength) );
 
           const Amg::Vector2D& colRow = siWidth.colRow();
 
@@ -1555,11 +1578,8 @@ StatusCode SiSmearedDigitizationTool::digitize()
           double clusterWidth = rdoList.size()*hitPlanarDetElement->phiPitch(intersection);
           double stripLength  = hitPlanarDetElement->stripLength(intersection);
 
-          //InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(int(rdoList.size()),1),
-          //                                             Amg::Vector2D(clusterWidth,stripLength) );
-                                                       
           InDet::SiWidth siWidth(Amg::Vector2D(int(rdoList.size()),1), Amg::Vector2D(clusterWidth,stripLength) );
-          
+
           AmgSymMatrix(2) mat;
           mat.setIdentity();
           if(m_useDiscSurface) {
@@ -1659,6 +1679,17 @@ StatusCode SiSmearedDigitizationTool::digitize()
 
 StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
 {
+  // Get SCT_DetectorElementCollection
+  const InDetDD::SiDetectorElementCollection* elementsSCT = nullptr;
+  if ((not m_useCustomGeometry) and (not m_SmearPixel)) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    elementsSCT = sctDetEle.retrieve();
+    if (elementsSCT==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+  }
+
   if ( m_useCustomGeometry ) { // store Planar RIOs
 
     ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in planar createAndStoreRIOs() ---" );
@@ -1771,7 +1802,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
 
       IdentifierHash waferID;
       waferID = firstDetElem->first;
-      const InDetDD::SiDetectorElement* detElement = m_manager_sct->getDetectorElement(waferID);
+      const InDetDD::SiDetectorElement* detElement = elementsSCT->getDetectorElement(waferID);
 
       InDet::SCT_ClusterCollection *clusterCollection = new InDet::SCT_ClusterCollection(waferID);
       clusterCollection->setIdentifier(detElement->identify());
