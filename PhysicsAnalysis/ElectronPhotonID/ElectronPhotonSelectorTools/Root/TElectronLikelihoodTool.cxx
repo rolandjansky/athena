@@ -448,7 +448,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   //unsigned int ipbin  = 0;
 
   // sanity
-  if (etbinLH  >= s_fnDiscEtBins) {
+  if (etbinLH  >=  s_fnDiscEtBinsOneExtra) {
     ATH_MSG_WARNING( "Cannot evaluate likelihood for Et " << vars_struct.eT<< ". Returning false..");
     passKine = false;
   }
