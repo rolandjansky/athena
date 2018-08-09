@@ -148,6 +148,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagSystStrategy(""),
+    m_BtagWP_trkJet(""),
+    m_BtagTagger_trkJet(""),
     //configurable cuts here
     m_eleBaselinePt(-99.),
     m_eleBaselineEta(-99.),
@@ -299,6 +301,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_btagEffTool(""),
     m_btagSelTool(""),
     m_btagSelTool_OR(""),
+    m_btagEffTool_trkJet(""),
+    m_btagSelTool_trkJet(""),
     //
     m_metMaker(""),
     m_metSystTool(""),
@@ -412,6 +416,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
   declareProperty( "BtagWP", m_BtagWP);     //the one used in FillJet() afterwards
   declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath);
+  declareProperty( "BtagTaggerTrkJet", m_BtagTagger_trkJet);
+  declareProperty( "BtagWPTrkJet", m_BtagWP_trkJet);  //the one used in FillTrackJet() afterwards
 
   //ELECTRONS
   declareProperty( "EleBaselinePt", m_eleBaselinePt);
@@ -560,6 +566,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_btagEffTool.declarePropertyFor( this, "BTaggingEfficiencyTool", "The BTaggingEfficiencyTool" );
   m_btagSelTool.declarePropertyFor( this, "BTaggingSelectionTool", "The main BTaggingSelectionTool" );
   m_btagSelTool_OR.declarePropertyFor( this, "BTaggingSelectionTool_OR", "The BTaggingSelectionTool used to select b-jets for overlap removal" );
+  m_btagEffTool_trkJet.declarePropertyFor( this, "BTaggingEfficiencyTool_trkJet", "The BTaggingEfficiencyTool for track jets" );
+  m_btagSelTool_trkJet.declarePropertyFor( this, "BTaggingSelectionTool_trkJet", "The main BTaggingSelectionTool for track jets" );
   //
   m_metMaker.declarePropertyFor( this, "METMaker", "The METMaker instance");
   m_metSystTool.declarePropertyFor( this, "METSystTool", "The METSystematicsTool");
@@ -805,6 +813,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
       ATH_MSG_WARNING( "Now trying with one of the background forum merged mc16 prw input files (it won't however work for signal samples!)." );
       prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/");
       if ( mcCampaignMD == "mc16a" ) prwConfigFile += "merged_prw_mc16a_latest.root";
+      else if ( mcCampaignMD == "mc16c" ) prwConfigFile += "mc16c_defaults.NotRecommended.prw.root";
       // SOON TO BE // else if ( mcCampaignMD == "mc16c" ) prwConfigFile += '';
       // SOON TO BE // else if ( mcCampaignMD == "mc16d" ) prwConfigFile += '';
       TFile testF2(prwConfigFile.data(),"read");
@@ -1045,7 +1054,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
   configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "GradientLoose");
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FixedCutHighPtCaloOnly");
-  configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); //Medium is the only one supported for the moment, and not many clients yet.
+  configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eled0sig, "Ele.d0sig", rEnv, 5.);
   configFromFile(m_elez0, "Ele.z0", rEnv, 0.5);
@@ -1054,7 +1063,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map5.txt"); 
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt"); 
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
@@ -1132,6 +1141,10 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jesCalibSeqJMS, "Jet.CalibSeqJMS", rEnv, "JetArea_Residual_EtaJES_GSC");
   configFromFile(m_jesCalibSeqFat, "Jet.CalibSeqFat", rEnv, "EtaJES_JMS");
   //
+  configFromFile(m_defaultTrackJets, "TrackJet.Coll", rEnv, "AntiKtVR30Rmax4Rmin02TrackJets");
+  configFromFile(m_trkJetPt, "TrackJet.Pt", rEnv, 20000.);
+  configFromFile(m_trkJetEta, "TrackJet.Eta", rEnv, 2.8);
+  //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //
   configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false);
@@ -1145,6 +1158,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
   configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-29_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
+  configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
+  configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
@@ -1809,6 +1824,15 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
     //}
   }
+  if (!m_btagEffTool_trkJet.empty()) {
+    CP::SystematicCode ret = m_btagEffTool_trkJet->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure xAODBTaggingEfficiency (track jets) for systematic var. " << systConfig.name() );
+      return ret;
+    } else {
+      ATH_MSG_VERBOSE("Configured xAODBTaggingEfficiency (track jets) for systematic var. " << systConfig.name() );
+    }
+  }  
   if (!m_tauSmearingTool.empty()) {
     CP::SystematicCode ret = m_tauSmearingTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
@@ -2119,7 +2143,13 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Jet::Btag);
     }
   }
-
+  if ( !m_btagEffTool_trkJet.empty() ) {
+    if ( m_btagEffTool_trkJet->isAffectedBySystematic(sys) ) {
+      sysInfo.affectsWeights = true;
+      sysInfo.affectsType = SystObjType::BTag;
+      sysInfo.affectedWeights.insert(ST::Weights::Jet::Btag_Track);
+    }
+  }
   if (!m_tauSmearingTool.empty()) {
     if ( m_tauSmearingTool->isAffectedBySystematic(sys) ) {
       sysInfo.affectsKinematics = true;

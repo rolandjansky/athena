@@ -54,6 +54,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
 
   const static SG::AuxElement::ConstAccessor<float> acc_topoetcone20("topoetcone20");
+  const static SG::AuxElement::ConstAccessor<float> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
 
 StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& elekey, const xAOD::ElectronContainer* containerToBeCopied)
 {
@@ -227,10 +228,13 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   //ChargeIDSelector
   if( m_runECIS ){
-    ATH_MSG_WARNING( "ChargeIDSelector tool is not available in R21 yet.");
-    dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
-    double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
-    dec_ecisBDT(input) = bdt;
+    if (acc_passECIDS.isAvailable(input)) {
+      dec_passChID(input) = acc_passECIDS(input); // Loose 97% WP!
+    } else {
+      dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
+      double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
+      dec_ecisBDT(input) = bdt;
+    }
 
     //get ElectronChargeEfficiencyCorrectionTool decorations in this case
     if( !isData() ) {
@@ -320,8 +324,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("I will now die messily.");
   }
 
-  if (chfSF) 
-    ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
+  if (chfSF) ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
 
   //shortcut keys for trigger SF config
   std::string singleLepStr = "singleLepton";
@@ -424,6 +427,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
 
   // new : charge flip SF 
   if (chfSF){
+    ATH_MSG_WARNING ("Be aware that charge mis-ID SF is not provided in R21 yet. Use at your own risk!");
     double chf_sf(1.);
 
     //ECIS SF 
@@ -459,7 +463,6 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     }   
 
   }
-
   
   dec_effscalefact(el) = sf;
   return sf;
