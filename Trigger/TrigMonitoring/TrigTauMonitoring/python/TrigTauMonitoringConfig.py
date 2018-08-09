@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 def TrigTauMonitoringTool():
 	full_tau = [
@@ -33,25 +33,30 @@ def TrigTauMonitoringTool():
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo', # 2tau non-L1TOPO
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I',
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J
-        			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30',
+        			#'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30', # no longer in physics menu?
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I',
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J
         			'tau80_medium1_tracktwo_L1TAU60_tau35_medium1_tracktwo_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I', # 2tau L1TOPO
+                                # 2018 chains  
+                                'tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF',
+                                'tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25',
+                                'tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25',
+                                'tau80_medium1_tracktwoEF_L1TAU60_tau35_medium1_tracktwoEF_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',
 	]
 	
 	mutau_topo_chains = [
         			'mu14_ivarloose_tau25_medium1_tracktwo', # tau+mu non-L1TOPO
         			'mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', # tau+mu L1TOPO
-        			'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO
-			'mu14_ivarloose_tau25_medium1_tracktwo_03dR30',
-			'mu14_ivarloose_tau25_medium1_tracktwo_03dR30_L1DR-MU10TAU12I_TAU12I-J25',
+        			#'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO # no longer in physics menu? 
+                                #'mu14_ivarloose_tau25_medium1_tracktwo_03dR30', # no longer in physics menu? 
+                                #'mu14_ivarloose_tau25_medium1_tracktwo_03dR30_L1DR-MU10TAU12I_TAU12I-J25', # no longer in physics menu?
 	]
 
 	eltau_topo_chains = [
 			'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo', # tau+e+J non-L1TOPO
 			'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', # tau+e+J L1TOPO
-			'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_03dR30',
-			'e17_lhmedium_nod0_tau25_medium1_tracktwo_03dR30_L1DR-EM15TAU12I-J25',
+			#'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_03dR30', # no longer in physics menu?
+			#'e17_lhmedium_nod0_tau25_medium1_tracktwo_03dR30_L1DR-EM15TAU12I-J25', # no longer in physics menu?
 	]
 
 	MVA_chains = [
@@ -67,6 +72,7 @@ def TrigTauMonitoringTool():
 			'tau25_verylooseRNN_tracktwo',
 			'tau25_looseRNN_tracktwo',
 			'tau25_mediumRNN_tracktwo',
+			'tau25_tightRNN_tracktwo',
 			'tau25_verylooseRNN_tracktwoMVA',
 			'tau25_looseRNN_tracktwoMVA',
 			'tau25_mediumRNN_tracktwoMVA',
@@ -74,13 +80,6 @@ def TrigTauMonitoringTool():
 	]
 
 	BDTRNN_chains = [
-			'tau25_perf_tracktwo',
-			'tau25_idperf_tracktwo',
-			'tau25_medium1_tracktwo',
-			'tau25_idperf_tracktwoEF',
-			'tau25_perf_tracktwoEF',
-			'tau25_idperf_tracktwoEFmvaTES',
-			'tau25_perf_tracktwoEFmvaTES',
 			'tau25_idperf_tracktwoMVA',
 			'tau25_perf_tracktwoMVA',
 	]
@@ -112,10 +111,6 @@ def TrigTauMonitoringTool():
 		'tau160_idperf_tracktwo_L1TAU100',
 		'tau160_medium1_tracktwo_L1TAU100',
 	]
-	# removed highpt_tau chains:
-	# 'tau160_medium1HighptL_tracktwo',
-	# 'tau160_medium1HighptM_tracktwo',
-	# 'tau160_medium1HighptH_tracktwo'
  
 
 	# get the Level1 Emulation tool from the emulation python config
@@ -149,7 +144,7 @@ def TrigTauMonitoringTool():
 				primary_tau		= full_tau, #[]
 				prescaled_tau		= [], #tau_track_test, #[],
 				LowestSingleTau		= hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
-				LowestSingleTauMVA		= "tau25_mediumRNN_tracktwoMVA",
+				LowestSingleTauMVA	= "tau25_medium1_tracktwoEF",
 				Highpt_tau		= highpt_tau,
 				Ztt_tau		 	= ztt_tau,
 				EffOffTauPtCut	 	= 25000.,  #MeV
@@ -168,8 +163,7 @@ def TrigTauMonitoringTool():
 #				doTestTracking		= False,
 				doL1JetPlots		= False,
 				doEFTProfiles		= False,
-				doFailTrackFilterBitMonitoring		= True,
-				doRNNInOutMonitoring		= True,
+				doFailTrackFilterBitMonitoring = False,
 				domuCut40		= False,
 				doEfficiencyRatioPlots = True, #False
 				doL1TopoLeptonsMonitoringWarnings = False,

@@ -201,8 +201,10 @@ else:
                 Year = 2015
             elif RunNumber < 314450:
                 Year = 2016
-            else:
+            elif RunNumber < 342540:
                 Year = 2017
+            else:
+                Year = 2018
 
 
             if 'RunStream' in dir():
@@ -709,8 +711,8 @@ else:
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
         if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2017-07'
-            else:                        CondDbTag = 'CONDBR2-ES1PA-2017-03'
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2018-03'
+            else:                        CondDbTag = 'CONDBR2-ES1PA-2018-02'
         else:
             if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
             else:                                               CondDbTag = 'COMCOND-ES1PA-006-05'
@@ -902,6 +904,13 @@ if doTileMF:
 
     ToolSvc.TileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
     ToolSvc.TileRawChannelBuilderMF.UseDSPCorrection = not TileBiGainRun
+
+    if OfcFromCOOL and not doTileFitCool:
+        TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
+        TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
+
+        tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
+        tileInfoConfigurator.setupCOOLAutoCr()
 
     print ToolSvc.TileRawChannelBuilderMF 
 

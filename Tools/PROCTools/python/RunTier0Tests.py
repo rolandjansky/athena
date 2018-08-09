@@ -250,14 +250,19 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
 
     if RunPatchedOnly: #overwrite
+        # Resolve the subfolder first. Results are stored like: main_folder/q-test/branch/.
+        # This should work both in standalone and CI
+        subfolder = os.environ['AtlasVersion'][0:4]
         # Use EOS if mounted, otherwise CVMFS
-        clean_dir = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/'+q
+        clean_dir = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/{0}/{1}'.format(q,subfolder)
         if(glob.glob(clean_dir)):
             logging.info("EOS is mounted, going to read the reference files from there instead of CVMFS")
             clean_dir = 'root://eosatlas.cern.ch/'+clean_dir # In case outside CERN
         else:
             logging.info("EOS is not mounted, going to read the reference files from CVMFS")
-            clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/'+q
+            clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/{0}/{1}'.format(q,subfolder)
+
+    logging.info("Reading the reference file from location "+clean_dir)
 
     comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()

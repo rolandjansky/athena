@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "AtlasLabels.h"
 
 #include "TLatex.h"
@@ -9,14 +12,14 @@
 
 #include <string>
 
-void ATLASLabel(Double_t x,Double_t y, const std::string& text, Color_t color) 
+void ATLASLabel(Double_t x,Double_t y, const std::string& text, Color_t color, int nx, int ny ) 
 {
   TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
   l.SetNDC();
   l.SetTextFont(72);
   l.SetTextColor(color);
 
-  double delx = 0.115*696*gPad->GetWh()/(472*gPad->GetWw());
+  double delx = 0.115*696*gPad->GetWh()*nx/(472*gPad->GetWw()*ny);
 
   l.DrawLatex(x,y,"ATLAS");
   if (text!="") {
@@ -30,14 +33,14 @@ void ATLASLabel(Double_t x,Double_t y, const std::string& text, Color_t color)
 }
 
 
-void Label(Double_t x,Double_t y, const std::string& text, Color_t color) 
+void Label(Double_t x,Double_t y, const std::string& text, Color_t color, int nx, int ny ) 
 {
   TLatex l; //l.SetTextAlign(12); l.SetTextSize(tsize); 
   l.SetNDC();
   l.SetTextFont(72);
   l.SetTextColor(color);
 
-  double delx = 0.115*696*gPad->GetWh()/(472*gPad->GetWw());
+  double delx = 0.115*696*gPad->GetWh()*nx/(472*gPad->GetWw()*ny);
 
   if (text!="") {
     TLatex p; 

@@ -5,7 +5,6 @@
 /***************************************************************************
  * Interface to the Tool responsible for wrapping ATLAS identifier to Standalone Muon Fixed Identifier
  * --------------------------------------
- * Copyright (C) 2004 by ATLAS Collaboration
  *
  * Author       : Zdenko van Kesteren
  * Creation Date: 20 May 2005

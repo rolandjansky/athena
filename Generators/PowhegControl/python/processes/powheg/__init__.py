@@ -10,6 +10,7 @@ from DMGG import DMGG
 from DMS_tloop import DMS_tloop
 from DMV import DMV
 from ggF_H import ggF_H
+from ggF_HH import ggF_HH
 from ggF_HZ import ggF_HZ
 from Hj import Hj
 from Hjj import Hjj

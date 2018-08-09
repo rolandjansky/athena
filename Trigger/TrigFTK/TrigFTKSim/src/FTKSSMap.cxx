@@ -1532,7 +1532,7 @@ FTKSSMap::get_lookup_table(const int plane,const int section, const int id) cons
           tmp[1] = iy;
           tmp.setPlane(plane);
           tmp.setSector(0);
-          ssid = compressed_ssid_word_pixel(tmp,0);//localModuleID=0
+          ssid = compressed_ssid_word_pixel(0,tmp.getPlane(),0,tmp[0],tmp[1],0);
         }
       } else {
         // SCT
@@ -1541,7 +1541,7 @@ FTKSSMap::get_lookup_table(const int plane,const int section, const int id) cons
           tmp[0] = ix;
           tmp.setPlane(plane);
           tmp.setSector(0);
-          ssid = compressed_ssid_word_strip(tmp,0);//localModuleID=0
+          ssid = compressed_ssid_word_strip(0,tmp.getPlane(),0,tmp[0]);
         }
       }
       //cout << " ix=" << ix << " iy=" << iy << " ilut=" << lut_offset << " ssid=" << ssid << endl;

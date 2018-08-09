@@ -128,22 +128,22 @@ class BjetHypo (TrigBjetHypo):
                 # These are the offline working points
                 if cut=="hmv2c1040":
                     # Actually ~45% efficient
-                    self.CutMV2c10_hybrid =  0.978
+                    self.CutMV2c10_hybrid =  0.973
                 elif cut=="hmv2c1050":
                     # Actually ~55% efficient
-                    self.CutMV2c10_hybrid =  0.948
+                    self.CutMV2c10_hybrid =  0.939
                 elif cut=="hmv2c1060":
                     # Actually ~65% efficient
-                    self.CutMV2c10_hybrid = 0.846
+                    self.CutMV2c10_hybrid = 0.835
                 elif cut=="hmv2c1070":
                     # Actually ~75% efficient
-                    self.CutMV2c10_hybrid = 0.580
+                    self.CutMV2c10_hybrid = 0.588
                 elif cut=="hmv2c1077":
                     # Actually ~80% efficient
-                    self.CutMV2c10_hybrid = 0.162
+                    self.CutMV2c10_hybrid = 0.192
                 elif cut=="hmv2c1085":
                     # Actually ~90% efficient
-                    self.CutMV2c10_hybrid = -0.494
+                    self.CutMV2c10_hybrid = -0.402
             
  
 
@@ -275,7 +275,7 @@ class BjetHypoSplit (TrigBjetHypo):
                     self.CutMV2c10 =  0.948
                 elif cut=="mv2c1060":
                     # Actually ~65% efficient
-                    self.CutMV2c10 =  0.847
+                    self.CutMV2c10 =  0.846
                 elif cut=="mv2c1070":
                     # Actually ~75% efficient
                     self.CutMV2c10 =  0.580
@@ -292,22 +292,22 @@ class BjetHypoSplit (TrigBjetHypo):
                 # These are the hybrid working points
                 if cut=="hmv2c1040":
                     # Actually ~45% efficient
-                    self.CutMV2c10_hybrid =  0.978
+                    self.CutMV2c10_hybrid =  0.973
                 elif cut=="hmv2c1050":
                     # Actually ~55% efficient
-                    self.CutMV2c10_hybrid =  0.948
+                    self.CutMV2c10_hybrid =  0.939
                 elif cut=="hmv2c1060":
                     # Actually ~65% efficient
-                    self.CutMV2c10_hybrid = 0.846
+                    self.CutMV2c10_hybrid = 0.835
                 elif cut=="hmv2c1070":
                     # Actually ~75% efficient
-                    self.CutMV2c10_hybrid = 0.580
+                    self.CutMV2c10_hybrid = 0.588
                 elif cut=="hmv2c1077":
                     # Actually ~80% efficient
-                    self.CutMV2c10_hybrid = 0.162
+                    self.CutMV2c10_hybrid = 0.192
                 elif cut=="hmv2c1085":
                     # Actually ~90% efficient
-                    self.CutMV2c10_hybrid = -0.494
+                    self.CutMV2c10_hybrid = -0.402
 
                     
 

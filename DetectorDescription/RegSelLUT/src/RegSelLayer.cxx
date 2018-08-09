@@ -97,25 +97,25 @@ void RegSelLayer::PhiCluster::addModule(const RegSelModule& m) {
   double start   = pmin;
   
   bool notoverlaping = true;
-  for ( int i=mpositions.size() ; i-- ; ) { 
+  for ( int i=m_positions.size() ; i-- ; ) { 
     
-     double _delphi = mpositions[i]-start;
+     double tdelphi = m_positions[i]-start;
     
-     if ( _delphi>M_PI  ) start+=M_TWOPI;
-     if ( _delphi<-M_PI ) start-=M_TWOPI;
+     if ( tdelphi>M_PI  ) start+=M_TWOPI;
+     if ( tdelphi<-M_PI ) start-=M_TWOPI;
     
-     if ( std::fabs(mpositions[i]-start)<overlap ) {  
-        mpositions[i] = mpositions[i]*mN[i]+start;
-	mN[i]++;
-	mpositions[i] /= mN[i];
+     if ( std::fabs(m_positions[i]-start)<overlap ) {  
+        m_positions[i] = m_positions[i]*m_N[i]+start;
+	m_N[i]++;
+	m_positions[i] /= m_N[i];
 	notoverlaping = false;
 	break;
       }
   }
 
   if ( notoverlaping ) {  
-    mN.push_back(1);
-    mpositions.push_back(start);  
+    m_N.push_back(1);
+    m_positions.push_back(start);  
   }
 
 }

@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    particleType.h        
 //            a class of my own because ttying to access the  
@@ -8,7 +11,6 @@
 //            As it happens, this class has no data memebrs,
 //            but derives from an std::map
 //  
-//   Copyright (C) 2011 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: particleType.h, v0.0   Thu 14 Jul 2011 09:50:36 BST sutt $
 

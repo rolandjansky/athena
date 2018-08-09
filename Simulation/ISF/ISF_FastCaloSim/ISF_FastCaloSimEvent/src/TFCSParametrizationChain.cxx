@@ -125,11 +125,15 @@ bool TFCSParametrizationChain::is_match_calosample(int calosample) const
   return true;
 }
 
-void TFCSParametrizationChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSParametrizationChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   for(auto param: m_chain) {
-    param->simulate(simulstate,truth,extrapol);
+    if (simulate_and_retry(param, simulstate, truth, extrapol) != FCSSuccess) {
+      return FCSFatal;
+    }
   }
+
+  return FCSSuccess;
 }
 
 void TFCSParametrizationChain::Print(Option_t *option) const
@@ -138,9 +142,10 @@ void TFCSParametrizationChain::Print(Option_t *option) const
   TString opt(option);
   //bool shortprint=opt.Index("short")>=0;
   //bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
-  opt=opt+"- ";
 
+  char count='A';
   for(auto param: m_chain) {
-    param->Print(opt);
+    param->Print(opt+count+' ');
+    count++;
   }
 }

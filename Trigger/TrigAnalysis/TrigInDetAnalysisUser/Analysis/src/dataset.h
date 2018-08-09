@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    dataset.h        
 //
 //                   
 //  
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: dataset.h 760843 2016-07-09 23:56:54Z sutt $
 

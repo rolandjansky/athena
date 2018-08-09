@@ -50,7 +50,7 @@ METMakerTool = CfgMgr.met__METMaker('METMaker',
 				    )
 ToolSvc += METMakerTool
 
-FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-03-30_v1.root"
+FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-06-24_v1.root"
 MaxEta         = 2.5
 MinPt          = 20000.
 JetAuthor      = "AntiKt4EMTopoJets"

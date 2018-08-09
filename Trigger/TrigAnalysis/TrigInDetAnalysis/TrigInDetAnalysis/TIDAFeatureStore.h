@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDAFeatureStore.h        
 //
 //            Generic storage container - to contain objects wrapped 
 //            as Features      
 //  
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: FeatureStore.h, v0.0   Fri  7 Aug 2015 15:00:32 CEST sutt $
 

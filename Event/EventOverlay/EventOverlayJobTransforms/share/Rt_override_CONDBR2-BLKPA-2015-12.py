@@ -126,3 +126,126 @@ conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",forc
 conddb.blockFolder("/SCT/DAQ/Config/Module")
 conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True)
 
+dofolderoverrides = True
+if dofolderoverrides:
+        print "ACH - overriding folder access patterns"
+        conddb.dumpFolderTags('myconddb.txt',True)
+ 
+overlaylongfolders = []
+def adjustlongfolder(name):
+        if conddb.folderRequested(name):
+                print "setting "+name+" to 100000000s cache"
+                conddb.addMarkup(name,"<cache>100000000</cache>")
+                global overlaylongfolders
+                overlaylongfolders += [name]
+
+if dofolderoverrides:
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/calhits")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/clcon")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/deadOTXback")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/deadOTXps")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/etamod")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/etaoff")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/gap")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/larupdate")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/lwc")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/phimod")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/phioff")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/rfac")
+        adjustlongfolder("/CALO/CaloSwClusterCorrections/trcorr")
+        adjustlongfolder("/CALO/H1Weights/H1WeightsCone4Topo")
+        adjustlongfolder("/CALO/Identifier/CaloTTOnAttrIdMapAtlas")
+        adjustlongfolder("/CALO/Identifier/CaloTTOnOffIdMapAtlas")
+        adjustlongfolder("/CALO/Identifier/CaloTTPpmRxIdMapAtlas")
+        adjustlongfolder("/CALO/JetCalib/EtaMassEnergyCorr")
+        adjustlongfolder("/CALO/JetCalib/JetPropertyInvertResponseTool")
+        adjustlongfolder("/CALO/JetCalib/MCNumInversionResponse")
+        adjustlongfolder("/CALO/JetCalib/OffsetCorrection")
+        adjustlongfolder("/CALO/JetCalib/TrackAngularCorrection")
+        adjustlongfolder("/CALO/JetCalib/TrackBasedResponseCorrection")
+        adjustlongfolder("/CALO/Ofl/Pedestal/CellPedestal")
+        adjustlongfolder("/CALO/Pedestal/CellPedestal")
+        adjustlongfolder("/CSC/PSLOPE")
+        adjustlongfolder("/CSC/RMS")
+        adjustlongfolder("/CSC/T0BASE")
+        adjustlongfolder("/CSC/T0PHASE")
+        adjustlongfolder("/GLOBAL/DETSTATUS/DEFECTLOGIC")
+        adjustlongfolder("/Indet/TrkErrorScaling")
+        adjustlongfolder("/LAR/CellCorrOfl/deadOTX")
+        adjustlongfolder("/LAR/ElecCalibOfl/LArPileupShape")
+        adjustlongfolder("/MDT/CABLING/MAP_SCHEMA")
+        adjustlongfolder("/MDT/CABLING/MEZZANINE_SCHEMA")
+        adjustlongfolder("/MUONALIGN/MDT/ASBUILTPARAMS")
+        adjustlongfolder("/MUONALIGN/TGC/SIDEA")
+        adjustlongfolder("/MUONALIGN/TGC/SIDEC")
+        adjustlongfolder("/PIXEL/LorentzAngleScale")
+        adjustlongfolder("/PIXEL/NoiseMapLong")
+        adjustlongfolder("/PIXEL/PixMapLong")
+        adjustlongfolder("/PIXEL/PixMapShort")
+        adjustlongfolder("/PIXEL/PixdEdx")
+        adjustlongfolder("/PIXEL/PixelClustering/PixelClusNNCalib")
+        adjustlongfolder("/PIXEL/PixelClustering/PixelCovCorr")
+        adjustlongfolder("/RPC/CABLING/MAP_SCHEMA")
+        adjustlongfolder("/RPC/CABLING/MAP_SCHEMA_CORR")
+        adjustlongfolder("/RPC/DQMF/ELEMENT_STATUS")
+        adjustlongfolder("/TGC/CABLING/MAP_SCHEMA")
+        adjustlongfolder("/TILE/OFL02/CALIB/CIS/NLN")
+        adjustlongfolder("/TILE/OFL02/CALIB/EMS")
+        adjustlongfolder("/TILE/OFL02/CALIB/LAS/FIBER")
+        adjustlongfolder("/TILE/OFL02/CALIB/LAS/NLN")
+        adjustlongfolder("/TILE/OFL02/NOISE/AUTOCR")
+        adjustlongfolder("/TILE/OFL02/PULSESHAPE/CIS/LEAK100")
+        adjustlongfolder("/TILE/OFL02/PULSESHAPE/CIS/LEAK5P")
+        adjustlongfolder("/TILE/OFL02/PULSESHAPE/LAS")
+        adjustlongfolder("/TILE/OFL02/PULSESHAPE/PHY")
+        adjustlongfolder("/TILE/OFL02/TIME/CHANNELOFFSET/CIS")
+        adjustlongfolder("/TRT/Calib/DX")
+        adjustlongfolder("/TRT/Calib/HTCalib")
+        adjustlongfolder("/TRT/Calib/PID")
+        adjustlongfolder("/TRT/Calib/PID_RToT")
+        adjustlongfolder("/TRT/Calib/PID_RToTver_New")
+        adjustlongfolder("/TRT/Calib/PID_vector")
+        adjustlongfolder("/TRT/Calib/PIDver_New")
+        adjustlongfolder("/TRT/Calib/ToT/ToTValue")
+        adjustlongfolder("/TRT/Calib/ToT/ToTVectors")
+        adjustlongfolder("/TRT/Calib/ToTCalib")
+        adjustlongfolder("/TRT/Calib/errors")
+        adjustlongfolder("/TRT/Calib/errors2d")
+        adjustlongfolder("/TRT/Calib/slopes")
+        adjustlongfolder("/CSC/FTHOLD")
+        adjustlongfolder("/CSC/NOISE")
+        adjustlongfolder("/CSC/PED")
+        adjustlongfolder("/GLOBAL/BTagCalib/RUN12")
+        adjustlongfolder("/Indet/PixelDist")
+        adjustlongfolder("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/4samples3bins17phases")
+        adjustlongfolder("/LAR/ElecCalibOfl/Shape/RTM/4samples3bins17phases")
+        adjustlongfolder("/PIXEL/CablingMap")
+        adjustlongfolder("/PIXEL/NoiseMapShort")
+        adjustlongfolder("/PIXEL/PixReco")
+        adjustlongfolder("/Indet/AlignL3")
+        adjustlongfolder("/MUONALIGN/ERRS")
+        adjustlongfolder("/RPC/TRIGGER/CM_THR_ETA")
+        adjustlongfolder("/RPC/TRIGGER/CM_THR_PHI")
+        adjustlongfolder("/TRT/AlignL2")
+ 
+print "overlaylongfolders: ", overlaylongfolders
+ 
+def adjustshortfolder(name):
+        global overlaylongfolders
+        if name in overlaylongfolders:
+                print "already made "+name+" long"
+        else:
+                if conddb.folderRequested(name):
+                        print "setting "+name+" to 10s cache"
+                        conddb.addMarkup(name,"<cache>10</cache>")
+                else:
+                        print "folder "+name+" was not requested?!"
+
+if dofolderoverrides:
+        with open("myconddb.txt") as f:
+                for l in f:
+                        ls=l.split(" ")
+                        if ls[0].startswith("--folder"):
+                                ls1=ls[1].rstrip('\r\n')
+                                ls11=ls1.rstrip('\n')
+                                adjustshortfolder(ls11)

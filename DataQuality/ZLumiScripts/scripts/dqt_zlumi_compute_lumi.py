@@ -21,6 +21,8 @@ parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
                     default=0)
 parser.add_argument('--dblivetime', action='store_true',
                     help='Look up livetime from DB')
+parser.add_argument('--mode', type=str, help='Zee or Zmumu')
+
 args = parser.parse_args()
 
 BINWIDTH=10
@@ -49,9 +51,8 @@ for key in fin.GetListOfKeys():
         break
 
 if args.grl:
-    grlReader = ROOT.Root.TGoodRunsListReader(args.grl)
-    grlReader.Interpret()
-    grl = grlReader.GetMergedGRLCollection()
+    import DQUtils
+    grl = DQUtils.grl.load_grl(args.grl)
 else:
     grl = None
 
@@ -65,9 +66,20 @@ if args.out:
 else:
     outfname = '%s_data.root' % runname[4:]
 
-if not z_m:
-    logging.critical("Can't retrieve m_Z_Counter_mu")
-    sys.exit(1)
+runmode = args.mode
+print 'Running in', runmode, 'mode'
+if runmode == 'Zee':
+    z_m = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_el' % runname)
+    if not z_m:
+        logging.critical("Can't retrieve m_Z_Counter_el")
+        sys.exit(1)
+
+if runmode == 'Zmumu':
+    z_m = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % runname)
+    if not z_m:
+        logging.critical("Can't retrieve m_Z_Counter_mu")
+        sys.exit(1)
+
 
 fout = None
 t = None
@@ -177,7 +189,17 @@ divisor.Multiply(px)
 
 nrebinned_bins = ((lbmax-lbmin) // BINWIDTH) + 1
 
-lumiplot_m = ROOT.TH1F('lumiplot_m', 'Lumi, Z->#mu#mu (Run %s)' % runname[4:], 
+if runmode == 'Zee':
+    lumititle = 'Lumi, Z->ee (Run %s)' % runname[4:]
+    efftitle = 'eff #sigma, Z->ee'
+    lumirawtitle = 'Lumi, Z->ee per LB'
+if runmode == 'Zmumu':
+    lumititle = 'Lumi, Z->#mu#mu (Run %s)' % runname[4:]
+    efftitle = 'eff #sigma, Z->#mu#mu'
+    lumirawtitle = 'Lumi, Z->#mu#mu per LB'
+
+
+lumiplot_m = ROOT.TH1F('lumiplot_m', lumititle % runname[4:], 
                        int(nrebinned_bins),
                        lbmin, lbmin+BINWIDTH*nrebinned_bins)
 lumiplot_m_ratio = ROOT.TH1F('lumiplot_m_ratio', 'Z/official lumi ratio (Run %s)' % runname[4:], 
@@ -185,9 +207,9 @@ lumiplot_m_ratio = ROOT.TH1F('lumiplot_m_ratio', 'Z/official lumi ratio (Run %s)
                        lbmin, lbmin+BINWIDTH*nrebinned_bins)
 lumiplot_m.SetXTitle('LB')
 lumiplot_m.SetYTitle('Luminosity (x 10^{33} cm^{-2} s^{-1})')
-xsec_m = ROOT.TH1F('xsec_m', 'eff #sigma, Z->#mu#mu', int(nrebinned_bins),
+xsec_m = ROOT.TH1F('xsec_m', efftitle, int(nrebinned_bins),
                        lbmin, lbmin+BINWIDTH*nrebinned_bins)
-lumiplot_raw_m =  ROOT.TH1F('lumiplot_raw_m', 'Lumi, Z->#mu#mu, per LB', 
+lumiplot_raw_m =  ROOT.TH1F('lumiplot_raw_m', lumirawtitle, 
                            int(lbmax-lbmin),
                            lbmin, lbmax)
 
@@ -204,7 +226,7 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
         l_zatimesc = mu_dep_eff(official_mu[ibin])
     else:
         l_zatimesc = ZATIMESC
-    if grl and not grl.HasRunLumiBlock(int(runname[4:]), int(lumiplot_raw_m.GetBinCenter(ibin))):
+    if grl and not DQUtils.grl.grl_contains_run_lb(grl, (int(runname[4:]), int(lumiplot_raw_m.GetBinCenter(ibin)))):
         o_passgrl[0]=0
     else:
         o_passgrl[0]=1

@@ -252,8 +252,11 @@ def addTrigFTKSimTFOptions(parser):
                         help='when SSFTRDefn=1 (by eta), the min eta', group='TrigFTKTrackFitter')
     parser.add_argument('--SSFTRMaxEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
                         help='when SSFTRDefn=1 (by eta), the max eta', group='TrigFTKTrackFitter')
-    parser.add_argument('--Chi2DofCut', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help='Chi2 cut on second stage tracks', group='TrigFTKTrackFitter')    
+    parser.add_argument('--Chi2DofCutAux', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Chi2 cut on first stage tracks', group='TrigFTKTrackFitter')
+    parser.add_argument('--Chi2DofCutSSB', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Chi2 cut on second stage tracks', group='TrigFTKTrackFitter')
+    
     return None
 
 

@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    Filter_Offline2017.h        
 //
@@ -6,22 +9,6 @@
 //            on hadronic tracks as found in 
 //              https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TrackingCPPreRecsSummer2017
 // 
-//   Copyright (C) 2017 M.Sutton (sutt@cern.ch)    
-//
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of the GNU General Public License
-//   as published by the Free Software Foundation; either version 2
-//   of the License, or (at your option) any later version.
-//    
-//   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-//   
-//   You should have received a copy of the GNU General Public License
-//   along with this program; if not, write to the Free Software
-//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-//   MA  02110-1301, USA.
 //
 
 
@@ -45,12 +32,7 @@ public:
   Filter_Offline2017(  double pTMin=1000, const std::string& type="tight" ) :  
     m_pTMin(pTMin),
     m_type(type)
-  {
-    if ( m_type!="loose" && m_type!="loose-primary" && m_type!="tight" ) { 
-      std::cerr << "Filter_Offline2017::type: " << m_type << "not recognised" << std::endl;
-      std::exit(-1);
-    }
-  } 
+  {  } 
 
   bool select(const TIDA::Track* t, const TIDARoiDescriptor* =0 ) { 
     // Select track parameters
@@ -89,6 +71,25 @@ public:
       /// require a blayer (ibl in run2) hit only if one is expected
       if ( ( t->expectBL() || t->hasTruth() ) && t->bLayerHits()<1 )  selected = false;
     }
+    else if ( m_type=="tight-tau" ) { 
+      if ( std::fabs(t->eta())>2.5 || std::fabs(t->pT())<m_pTMin ) selected = false;
+      
+      // Select track silicon hit content
+      if ( std::fabs(t->eta())< 1.65 && Nsi<9  ) selected = false;
+      if ( std::fabs(t->eta())>=1.65 && Nsi<11 ) selected = false;
+      
+      if ( t->pixelHoles()>0 ) selected = false;
+
+      if ( t->pixelHits()<4 ) selected = false;
+
+      /// require a blayer (ibl in run2) hit only if one is expected
+      if ( ( t->expectBL() || t->hasTruth() ) && t->bLayerHits()<1 )  selected = false;
+    }
+    else { 
+      std::cerr << "Filter_Offline2017::type: " << m_type << "not recognised" << std::endl;
+      std::exit(-1);
+    }
+
 
     return selected;
   } 

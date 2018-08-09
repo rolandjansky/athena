@@ -15,11 +15,13 @@
 #include "InDetBeamSpotFinder/IInDetBeamSpotTool.h"
 #include "TrkEventPrimitives/VertexType.h"
 #include "CLHEP/Matrix/Vector.h"
+#include "CLHEP/Matrix/SymMatrix.h"
 #include "TMinuit.h"
 #include "TMath.h"
 #include "TTree.h"
 #include <string>
 #include <vector>
+#include <map>
 
 namespace InDet {
   /** A concrete implementation of IInDetBeamSpotTool, using primary vertex information to 
@@ -38,6 +40,9 @@ namespace InDet {
 
     //Copy Constructor
     InDetBeamSpotVertex( const InDetBeamSpotVertex& rhs );
+    
+    //assignment
+    InDetBeamSpotVertex & operator=(const InDetBeamSpotVertex & other) = default;
 
     virtual StatusCode initialize();
     virtual StatusCode finalize();

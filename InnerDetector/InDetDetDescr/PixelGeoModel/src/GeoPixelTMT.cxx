@@ -108,6 +108,11 @@ GeoVPhysVol* GeoPixelTMT::Build() {
     } 
   }
 
+  if(lastShape==0) {
+
+     gmt_mgr->msg(MSG::ERROR) << "There is no shape for GeoPixelTMT in "<<__FILE__<<":"<<__LINE__<<endmsg;
+     exit(EXIT_FAILURE);
+  }
   const GeoShape * tmtShape = lastShape;
   // don't trust boolean volume
   // double totVolume = tmtShape->volume();

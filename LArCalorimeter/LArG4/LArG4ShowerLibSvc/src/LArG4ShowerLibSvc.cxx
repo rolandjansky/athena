@@ -18,7 +18,7 @@
 #include "TTree.h"
 
 LArG4ShowerLibSvc::LArG4ShowerLibSvc(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc)
+  : base_class(name,svc)
   , m_fileNameList()
   , m_rndmEngineName("FROZENSHOWERS")
   , m_rndmGenSvc("AtDSFMTGenSvc", name)
@@ -152,19 +152,6 @@ StatusCode LArG4ShowerLibSvc::finalize()
 
   return StatusCode::SUCCESS;
 }
-
-StatusCode
-LArG4ShowerLibSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IID_ILArG4ShowerLibSvc == riid ) {
-    *ppvInterface = (ILArG4ShowerLibSvc*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  // Interface is not directly available: try out a base class
-  return AthService::queryInterface(riid, ppvInterface);
-}
-
 
 /*
  * Returns library from internal map based on the particle. Returns nullptr if there

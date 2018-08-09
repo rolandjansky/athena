@@ -74,7 +74,7 @@ namespace ISFTesting {
     { };
 
     virtual ~DummyTruthIncident() {};
-    virtual const HepMC::FourVector&  position() const {return myPosition;};
+    virtual const HepMC::FourVector&  position() const {return m_myPosition;};
     virtual int                       physicsProcessCategory() const { return 1;};
     virtual Barcode::PhysicsProcessCode physicsProcessCode() const {return 1;};
     virtual double                    parentP2() const {return 1.0;};
@@ -118,7 +118,7 @@ namespace ISFTesting {
     /** Set the the barcode of all child particles to the given bc */
     virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode) {};
   private:
-    const HepMC::FourVector myPosition{0.0, 40.0, 0.0, 40.0};
+    const HepMC::FourVector m_myPosition{0.0, 40.0, 0.0, 40.0};
   };
 
   class MockTruthIncident : public DummyTruthIncident {

@@ -89,7 +89,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_detID(nullptr),
   m_thpcsi(nullptr),
   m_SurfaceChargesTool("SurfaceChargesTool"),
-  m_chargedDiodes(nullptr),
   m_vetoThisBarcode(crazyParticleBarcode),
   m_rndmSvc("AtRndmGenSvc",name),
   m_mergeSvc("PileUpMergeSvc",name),
@@ -200,7 +199,6 @@ StatusCode PixelDigitizationTool::processAllSubEvents()
   ATH_MSG_VERBOSE("Begin digitizeAllHits");
   if (m_enableHits && !getNextEvent().isFailure()) digitizeAllHits();
   else ATH_MSG_DEBUG("no hits found in event!");
-  delete m_chargedDiodes;
   // loop over elements without hits
   ATH_MSG_DEBUG("Digitized Elements with Hits");
   digitizeNonHits();
@@ -280,8 +278,9 @@ void PixelDigitizationTool::digitizeAllHits() {
   // Loop over the Detectors with hits
   /////////////////////////////////////////////////
   ATH_MSG_DEBUG ( "Digitizing hits" );
+  auto m_chargedDiodes =  std::make_unique<SiChargedDiodeCollection>();
   int hitcount = 0; // First, elements with hits.
-  while (digitizeElement(m_chargedDiodes) ) {
+  while (digitizeElement(m_chargedDiodes.get()) ) {
     ATH_MSG_DEBUG ( "Hit collection ID=" << m_detID->show_to_string( m_chargedDiodes->identify() ) );
 
     hitcount++;  // Hitcount will be a number in the hit collection minus number of hits in missing mods
@@ -317,10 +316,10 @@ void PixelDigitizationTool::digitizeAllHits() {
     // Don't create empty ones.
     //    if (!m_chargedDiodes->empty() && m_module_status==0 ) {
     if (!m_chargedDiodes->empty() ) {
-      StatusCode sc = createAndStoreRDO(m_chargedDiodes);
+      StatusCode sc = createAndStoreRDO(m_chargedDiodes.get());
       if (sc.isSuccess()) // error msg is given inside createAndStoreRDO()
         {
-          addSDO(m_chargedDiodes);
+          addSDO(m_chargedDiodes.get());
         }
     }
 
@@ -335,7 +334,7 @@ void PixelDigitizationTool::digitizeNonHits() {
   if (m_onlyHitElements) return;
   //
   ATH_MSG_DEBUG ( "processing elements without hits" );
-  m_chargedDiodes = new SiChargedDiodeCollection;
+  auto m_chargedDiodes =  std::make_unique<SiChargedDiodeCollection>();
   for (unsigned int i=0; i < m_processedElements.size(); i++) {
     if (!m_processedElements[i]) {
       IdentifierHash idHash = i;
@@ -365,20 +364,19 @@ void PixelDigitizationTool::digitizeNonHits() {
 
         m_chargedDiodes->setDetectorElement(element);
         ATH_MSG_DEBUG ( "calling digitizeElements() for NON hits" );
-        applyProcessorTools(m_chargedDiodes);
+        applyProcessorTools(m_chargedDiodes.get());
 
         // Create and store RDO and SDO
         // Don't create empty ones.
         if (!m_chargedDiodes->empty()) {
-          StatusCode sc = createAndStoreRDO( m_chargedDiodes);
+          StatusCode sc = createAndStoreRDO( m_chargedDiodes.get());
           if (sc.isSuccess()) // error msg is given inside createAndStoreRDO()
-            addSDO(m_chargedDiodes);
+            addSDO(m_chargedDiodes.get());
         }
         m_chargedDiodes->clear();
       }
     }
   }
-  delete m_chargedDiodes;
   return;
 }
 
@@ -1136,7 +1134,6 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   m_processedElements.clear();
   m_processedElements.resize(m_detID->wafer_hash_max(),false);
   m_thpcsi = new TimedHitCollection<SiHit>();
-  m_chargedDiodes = new SiChargedDiodeCollection;
   m_HardScatterSplittingSkipper = false;
   return StatusCode::SUCCESS;
 }
@@ -1147,7 +1144,6 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
 StatusCode PixelDigitizationTool::mergeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::mergeEvent()");
   if (m_enableHits) digitizeAllHits();
-  delete m_chargedDiodes;
 
   digitizeNonHits();
 

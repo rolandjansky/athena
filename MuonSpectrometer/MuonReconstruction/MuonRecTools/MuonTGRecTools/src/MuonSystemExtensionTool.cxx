@@ -220,6 +220,10 @@ namespace Muon {
         ATH_MSG_VERBOSE("extrapolation failed, trying next layer ");
         continue;
       }
+
+//    reject intersections with very big uncertainties (parallel to surface)
+      if(Amg::error(*exPars->covariance(),Trk::locX) > 10000. || Amg::error(*exPars->covariance(),Trk::locY) > 10000.) continue;
+
       // create shared pointer and add to garbage collection
       std::shared_ptr<const Trk::TrackParameters> sharedPtr(exPars);
       trackParametersVec.push_back(sharedPtr);
@@ -249,7 +253,11 @@ namespace Muon {
         MuonSystemExtension::Intersection intersection(sharedPtr,*it);
         intersections.push_back( intersection );
       }
-      currentPars = exPars;
+      if(Amg::error(*exPars->covariance(),Trk::locX) < 10.*Amg::error(*currentPars->covariance(),Trk::locX) &&
+         Amg::error(*exPars->covariance(),Trk::locY) < 10.*Amg::error(*currentPars->covariance(),Trk::locY)) {
+         // only update the parameters if errors don't blow up
+        currentPars = exPars;
+      }
     }
     
     ATH_MSG_DEBUG(" completed extrapolation: destinations " << surfaces.size() << " intersections " << intersections.size() );

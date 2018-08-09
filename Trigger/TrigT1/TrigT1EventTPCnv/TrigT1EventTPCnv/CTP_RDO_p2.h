@@ -1,5 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 #ifndef TRIGT1EVENTTPCNV_CTP_RDO_P2_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #define TRIGT1EVENTTPCNV_CTP_RDO_P2_H
 
 // System include(s):

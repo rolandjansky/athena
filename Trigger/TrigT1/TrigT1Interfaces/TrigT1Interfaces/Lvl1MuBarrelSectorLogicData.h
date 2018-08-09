@@ -1,5 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 #ifndef TRIGT1INTERFACES_LVL1MUBARRELSECTORLOGICDATA_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #define TRIGT1INTERFACES_LVL1MUBARRELSECTORLOGICDATA_H
 
 // System include(s):

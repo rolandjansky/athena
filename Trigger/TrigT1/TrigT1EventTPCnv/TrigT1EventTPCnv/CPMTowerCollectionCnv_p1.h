@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef CPMTowerCollectionCNV_P1_H
 #define CPMTowerCollectionCNV_P1_H
 

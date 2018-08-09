@@ -20,6 +20,22 @@ class PowhegRES(PowhegBase):
         @param is_LO           True if this is a leading-order process.
         """
         super(PowhegRES, self).__init__(base_directory, "POWHEG-BOX-RES", executable_name, **kwargs)
+        self.add_keyword("numevts", kwargs.get("nEvents", None))
+
+    @property
+    def default_PDFs(self):
+        """! Default PDFs for this process."""
+        __PDF_list = range(260000, 260101) # NNPDF30_nlo_as_0118 central with eigensets
+        __PDF_list += [267000, 264000]     # NNPDF30_nlo_as_0121 and NNPDF30_nlo_as_0115
+        __PDF_list += [13100, 25100]       # CT14nlo and MMHT2014nlo68cl
+        __PDF_list += range(90400, 90433)  # PDF4LHC15_nlo_30_pdfas with eigensets
+        return __PDF_list
+
+    @property
+    def default_scales(self):
+        """! Default scale variations for this process."""
+        return [[1.0, 1.0, 1.0, 0.5, 0.5, 2.0, 2.0],\
+                [1.0, 0.5, 2.0, 0.5, 1.0, 1.0, 2.0]]
 
     @property
     def files_for_cleanup(self):

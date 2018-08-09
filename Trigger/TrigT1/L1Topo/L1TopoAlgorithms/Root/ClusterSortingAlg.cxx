@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  ClusterSortingAlg.cxx
 //  TopoCore
 //  Created by V Sorin, Joerg Stelzer .
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //  algorithm to make list of cluster, pt order applied
 //
 #include "L1TopoAlgorithms/ClusterSortingAlg.h"

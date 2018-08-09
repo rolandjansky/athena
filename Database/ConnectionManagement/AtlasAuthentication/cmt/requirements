@@ -9,7 +9,7 @@ use AtlasPolicy AtlasPolicy-*
 # use AtlasCORAL   AtlasCORAL-00-*   External
 # use AtlasExternalArea AtlasExternalArea-* External
 
-macro AtlasAuthentication_native_version "v18"
+macro AtlasAuthentication_native_version "v19"
 macro AtlasAuthentication_home "${ATLAS_EXTERNAL}/AtlasAuth/$(AtlasAuthentication_native_version)"
 macro AtlasAuthentication_export_paths " $(AtlasAuthentication_home) "
 

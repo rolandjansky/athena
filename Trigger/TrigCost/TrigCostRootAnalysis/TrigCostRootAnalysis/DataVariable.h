@@ -31,25 +31,25 @@ namespace TrigCostRootAnalysis {
    */
   class DataVariable {
   public:
-    DataVariable(DataStore* _parent);
+    DataVariable(DataStore* parent);
     ~DataVariable();
-    void registerSaveState(VariableOption_t _vo, std::string& _title);
-    void store(Float_t _value, Float_t _weight = 1.);
-    void setVariableDenominator(Float_t _denominator);
-    void setBinLabels(VariableOption_t _vo, std::vector<std::string> _titles);
+    void registerSaveState(VariableOption_t vo, std::string& title);
+    void store(Float_t value, Float_t weight = 1.);
+    void setVariableDenominator(Float_t denominator);
+    void setBinLabels(VariableOption_t vo, std::vector<std::string> titles);
     void endEvent();
     void endPeriod();
-    Float_t getValue(VariableOption_t _vo) const;
-    Bool_t getValueExists(VariableOption_t _vo) const;
-    Float_t getValueError(VariableOption_t _vo) const;
-    Int_t getEntries(VariableOption_t _vo) const;
-    void setValue(VariableOption_t _vo, Float_t _val);
-    void setEntries(VariableOption_t _vo, UInt_t _val);
-    void setErrorSquared(VariableOption_t _vo, Float_t _val);
-    TH1F* getHist(VariableOption_t _vo, Bool_t _silent = kFALSE);
-    std::string* getHistTitle(VariableOption_t _vo) const;
-    void setHist(VariableOption_t _vo, TH1F* _hist);
-    // TH2F* getHist2D(VariableOption_t _vo);
+    Float_t getValue(VariableOption_t vo) const;
+    Bool_t getValueExists(VariableOption_t vo) const;
+    Float_t getValueError(VariableOption_t vo) const;
+    Int_t getEntries(VariableOption_t vo) const;
+    void setValue(VariableOption_t vo, Float_t val);
+    void setEntries(VariableOption_t vo, UInt_t val);
+    void setErrorSquared(VariableOption_t vo, Float_t val);
+    TH1F* getHist(VariableOption_t vo, Bool_t silent = kFALSE);
+    std::string* getHistTitle(VariableOption_t vo) const;
+    void setHist(VariableOption_t vo, TH1F* hist);
+    // TH2F* getHist2D(VariableOption_t vo);
 
     static UInt_t s_globalHistId;
   private:
@@ -76,13 +76,13 @@ namespace TrigCostRootAnalysis {
       ~Data();
     };
 
-    void makeHist(Data* _data);
-    void dataSave(Data* _data, Float_t _value, Float_t _weight);
-    void dataBuffer(Data* _data, Float_t _value, Float_t _weight);
-    void dataSaveBuffer(Data* _data);
-    void dataSaveFractionBuffer(Data* _data);
-    Bool_t checkRegistered(VariableOption_t _vo, Bool_t _silent = kFALSE) const;
-    DataVariable::Data* getData(VariableOption_t _vo);
+    void makeHist(Data* data);
+    void dataSave(Data* data, Float_t value, Float_t weight);
+    void dataBuffer(Data* data, Float_t value, Float_t weight);
+    void dataSaveBuffer(Data* data);
+    void dataSaveFractionBuffer(Data* data);
+    Bool_t checkRegistered(VariableOption_t vo, Bool_t silent = kFALSE) const;
+    DataVariable::Data* getData(VariableOption_t vo);
 
     std::map< VariableOption_t, Data* > m_dataMap; //!< Map of Data structs for each option
     DataStore* m_parentDataStore; //!< Pointer to my parent, used mostly for debug

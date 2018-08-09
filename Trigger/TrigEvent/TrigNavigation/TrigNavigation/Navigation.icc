@@ -17,6 +17,7 @@
 
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/RoICacheHistory.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 
 /*****************************************************************************
  *
@@ -26,7 +27,8 @@
 
 template<class T>
 __attribute__((__used__))
-bool HLT::Navigation::attachFeature( TriggerElement* te, const T* feature,
+bool HLT::Navigation::attachFeature NO_SANITIZE_UNDEFINED 
+                                   ( TriggerElement* te, const T* feature,
 				     MemoryManagement mmanagement, std::string& key,
 				     const std::string& label ) {
   // Get clid

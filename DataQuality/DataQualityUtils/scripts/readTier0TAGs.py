@@ -14,13 +14,12 @@
 import os, sys  
 import argparse
 
-import pathExtract         
+from DataQualityUtils import pathExtract         
 import xmlrpclib
 
 from ROOT import TFile,TChain
 from ROOT import gStyle
 
-#gROOT.Reset()
 gStyle.SetPalette(1)
 gStyle.SetOptStat("em")
   

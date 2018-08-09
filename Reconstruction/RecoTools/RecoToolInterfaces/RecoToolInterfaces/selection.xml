@@ -1,0 +1,18 @@
+<lcgdict>
+  <class name="xAOD::ICaloTopoClusterIsolationTool"/>
+  <class name="xAOD::INeutralEFlowIsolationTool"/>
+  <class name="xAOD::ITrackIsolationTool"/>
+  <class name="xAOD::CaloCorrection"/>
+  <class name="xAOD::TrackCorrection"/>
+  <class name="xAOD::CaloIsolation"/>
+  <class name="xAOD::TrackIsolation"/>
+  <class name="xAOD::ICaloCellIsolationTool"/>
+  <class name="Trk::ICaloCellSelector"/>
+  <class name="xAOD::ICaloIsolationDecoratorTool"/>
+  <class name="xAOD::IChargedEFlowIsolationTool"/>
+  <class name="Rec::IMuonCaloEnergyTool"/>
+  <class name="Rec::IParticleCaloCellAssociationTool"/>
+  <class name="Rec::IParticleCaloClusterAssociationTool"/>
+  <class name="Trk::IParticleCaloExtensionTool"/>
+</lcgdict>
+

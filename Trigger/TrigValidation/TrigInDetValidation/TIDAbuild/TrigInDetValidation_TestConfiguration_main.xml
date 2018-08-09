@@ -82,6 +82,8 @@
 
 <!-- #     include   "TrigInDetValidation_tau_pu46.xml"  -->
 #     include   "TrigInDetValidation_tau_IBL_pu46.xml"
+#     include   "TrigInDetValidation_tau_IBL_pu46_NoDoublet.xml"
+#     include   "TrigInDetValidation_tau_IBL_pu46_RoiParam.xml"
 #     include   "TrigInDetValidation_tau_IBL_pu46_offline.xml"
 
 #     include   "TrigInDetValidation_mu_single_mu_larged0.xml"

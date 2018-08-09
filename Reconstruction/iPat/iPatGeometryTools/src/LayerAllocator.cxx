@@ -6,7 +6,6 @@
  AlgTool creating silicon layer/ring/detector geometry structure.
  Used to retrieve the layer/ring/detector intersected by a track vector.
  --------------------------------------------------------------------------
-  Copyright (C) 2001 by ATLAS Collaboration
  ***************************************************************************/
 
 //<<<<<< INCLUDES                                                       >>>>>>

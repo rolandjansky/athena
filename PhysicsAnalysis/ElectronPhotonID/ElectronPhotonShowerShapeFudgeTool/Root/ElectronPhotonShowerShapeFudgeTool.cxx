@@ -321,15 +321,13 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
 const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::correctedCopy( const xAOD::Photon& ph, xAOD::Photon*& output ) const {
 
   output = new xAOD::Photon(ph);
-  applyCorrection(*output);
-  return CP::CorrectionCode::Ok;
+  return applyCorrection(*output);
 }
 
 const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::correctedCopy( const xAOD::Electron& el, xAOD::Electron*& output ) const{
 
   output = new xAOD::Electron(el);
-  applyCorrection(*output);
-  return CP::CorrectionCode::Ok;
+  return applyCorrection(*output);
 }
 
 

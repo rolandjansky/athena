@@ -51,6 +51,8 @@
 /** Constructor **/
 ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
+  detID(nullptr),
+  larID(nullptr),
   m_extrapolator(),
   m_ownPolicy(static_cast<int>(SG::VIEW_ELEMENTS)),
   m_batchProcessMcTruth(false),
@@ -62,7 +64,7 @@ ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc
   m_caloCellMakerTools_simulate(),
   m_caloCellMakerTools_release(),
   m_punchThroughTool(""),
-  m_theContainer(0),
+  m_theContainer(nullptr),
   m_particleBroker ("ISF_ParticleBroker",name)
 {
   // where to go 
@@ -97,14 +99,20 @@ StatusCode ISF::FastCaloSimSvcPU::initialize()
    ATH_MSG_INFO ( m_screenOutputPrefix << "Initializing FastCaloSimSvcPU ...");
    
    detID=new AtlasDetectorID();
-   IdDictParser* parser = new IdDictParser;
+   std::unique_ptr<IdDictParser> parser(new IdDictParser());
    IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
-   detID->initialize_from_dictionary(idd);
+   if (detID->initialize_from_dictionary(idd))
+   {
+     ATH_MSG_WARNING ("detID->initialize_from_dictionary returned non-zero return code.");
+   }
    
    larID=new LArEM_ID();
    //IdDictMgr& lar_idd = parser->parse("IdDictParser/IdDictLArCalorimeter.xml");
    IdDictMgr& lar_idd = parser->parse("IdDictParser/ATLAS_IDS.xml");
-   larID->initialize_from_dictionary(lar_idd);
+   if (larID->initialize_from_dictionary(lar_idd))
+   {
+     ATH_MSG_WARNING ("larID->initialize_from_dictionary returned non-zero return code.");
+   }
    
    // access tools and store them
    if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_setup).isFailure() ) 
@@ -679,7 +687,7 @@ std::vector<Trk::HitInfo>* ISF::FastCaloSimSvcPU::caloHits(const ISF::ISFParticl
   Trk::PathLimit pathLim(-1.,0);
   //if (absPdg!=999 && pHypothesis<99) pathLim = m_samplingTool->sampleProcess(mom,isp.charge(),pHypothesis);
      
-  Trk::GeometrySignature nextGeoID=Trk::GeometrySignature(isp.nextGeoID()); 
+  Trk::GeometrySignature nextGeoID = static_cast<Trk::GeometrySignature>(isp.nextGeoID()); 
 
   // save Calo entry hit (fallback info)
   hitVector->push_back(Trk::HitInfo(inputPar.clone(),isp.timeStamp(),nextGeoID,0.));  

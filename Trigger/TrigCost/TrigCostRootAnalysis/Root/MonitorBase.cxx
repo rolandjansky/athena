@@ -38,9 +38,9 @@ namespace TrigCostRootAnalysis {
    * Sets internal flags based on current configuration.
    * Called by derived implementation on construction.
    */
-  MonitorBase::MonitorBase(const TrigCostData* _costData, std::string _name) :
-    m_costData(_costData),
-    m_name(_name),
+  MonitorBase::MonitorBase(const TrigCostData* costData, std::string name) :
+    m_costData(costData),
+    m_name(name),
     m_level(0),
     m_pass(1),
     m_detailLevel(10),
@@ -55,7 +55,7 @@ namespace TrigCostRootAnalysis {
     m_countersInEvent(),
     m_currentCollectionLBNumber(-1),
     m_currentDBKey(-1, -1, -1),
-    m_timer("Monitor", _name) {
+    m_timer("Monitor", name) {
     m_invertFilter = Config::config().getInt(kPatternsInvert);
     m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
     m_doKeySummary = (Bool_t) Config::config().getInt(kDoKeySummary);
@@ -79,18 +79,18 @@ namespace TrigCostRootAnalysis {
       Info("MonitorBase::~MonitorBase", "Destructing this monitor and all counters within %s L:%i",
            getName().c_str(), getLevel());
     }
-    CounterCollectionIt_t _colIt = m_counterCollections.begin();
-    for (; _colIt != m_counterCollections.end(); ++_colIt) {
+    CounterCollectionIt_t colIt = m_counterCollections.begin();
+    for (; colIt != m_counterCollections.end(); ++colIt) {
       // Loop over all counters in this counter map
-      CounterMapIt_t _counterIt = _colIt->second.begin();
-      for (; _counterIt != _colIt->second.end(); ++_counterIt) {
-        delete _counterIt->second;
+      CounterMapIt_t counterIt = colIt->second.begin();
+      for (; counterIt != colIt->second.end(); ++counterIt) {
+        delete counterIt->second;
       }
     }
     m_counterCollections.clear();
-    for (std::map<std::string, LumiCollector*>::iterator _it = m_collectionLumiCollector.begin();
-         _it != m_collectionLumiCollector.end(); ++_it) {
-      delete _it->second;
+    for (std::map<std::string, LumiCollector*>::iterator it = m_collectionLumiCollector.begin();
+         it != m_collectionLumiCollector.end(); ++it) {
+      delete it->second;
     }
     m_collectionLumiCollector.clear();
     delete m_dummyCounter;
@@ -99,8 +99,8 @@ namespace TrigCostRootAnalysis {
   /**
    * @ param _pass Set which pass through the input files are we on.
    */
-  void MonitorBase::setPass(UInt_t _pass) {
-    m_pass = _pass;
+  void MonitorBase::setPass(UInt_t pass) {
+    m_pass = pass;
   }
 
   /**
@@ -130,22 +130,22 @@ namespace TrigCostRootAnalysis {
    */
   void MonitorBase::collateCounterCollectionsForEvent() {
     // Do we already have this calculated
-    Float_t _lumiLength = m_costData->getLumiLength();
-    Int_t _lumiBlockNumber = m_costData->getLumi();
-    DBKey _key = TrigConfInterface::getCurrentDBKey();
+    Float_t lumiLength = m_costData->getLumiLength();
+    Int_t lumiBlockNumber = m_costData->getLumi();
+    DBKey key = TrigConfInterface::getCurrentDBKey();
 
-    if (m_currentCollectionLBNumber == _lumiBlockNumber && m_currentDBKey == _key) {
+    if (m_currentCollectionLBNumber == lumiBlockNumber && m_currentDBKey == key) {
       // We do not need to recalculate the list of counter collections, but do still need to account for the lumi
       // bookkeeping
-      for (std::set<std::string>::const_iterator _it = m_collectionsToProcessNames.begin();
-           _it != m_collectionsToProcessNames.end(); ++_it) {
-        recordLumi(*_it, _lumiBlockNumber, _lumiLength);
+      for (std::set<std::string>::const_iterator it = m_collectionsToProcessNames.begin();
+           it != m_collectionsToProcessNames.end(); ++it) {
+        recordLumi(*it, lumiBlockNumber, lumiLength);
       }
       return;
     }
 
-    m_currentCollectionLBNumber = _lumiBlockNumber;
-    m_currentDBKey.set(_key.SMK(), _key.L1PSK(), _key.HLTPSK());
+    m_currentCollectionLBNumber = lumiBlockNumber;
+    m_currentDBKey.set(key.SMK(), key.L1PSK(), key.HLTPSK());
 
     // Clear the set of collections to iterate over this event
     m_collectionsToProcess.clear();
@@ -153,13 +153,13 @@ namespace TrigCostRootAnalysis {
 
     // Add the "All" collection. Simplist, just runs over all the events. There may be a lot of events
     if (getIfActive(kDoAllSummary) && m_doAllSummary) {
-      addToCollectionsToProcess(m_allString, _lumiBlockNumber, _lumiLength, kDoAllSummary);
+      addToCollectionsToProcess(m_allString, lumiBlockNumber, lumiLength, kDoAllSummary);
     }
 
     //Active for this monitor?
     if (getIfActive(kDoLumiBlockSummary) && m_doLumiBlockSummary) {
       // Do we look at this lumi block on its own?
-      static Int_t _lbSummaryStart = INT_MIN, _lbSummaryEnd = INT_MIN;
+      static Int_t lbSummaryStart = INT_MIN, lbSummaryEnd = INT_MIN;
 
       // Have we set yet which is the "first" LB we are doing detailed monitoring for.
       if (Config::config().getIsSet(kFullSummaryStartLb) == kFALSE) {
@@ -169,57 +169,57 @@ namespace TrigCostRootAnalysis {
           Config::config().set(kFullSummaryStartLb, Config::config().getInt(kLumiStart), kLocked);
         } else {
           // No lumiStart either... OK let's start from this LB. It may not be the first - but it's our best guess.
-          Config::config().set(kFullSummaryStartLb, _lumiBlockNumber, kLocked);
+          Config::config().set(kFullSummaryStartLb, lumiBlockNumber, kLocked);
         }
       }
 
-      if (_lbSummaryStart == INT_MIN) {
-        _lbSummaryStart = Config::config().getInt(kFullSummaryStartLb);
-        _lbSummaryEnd = _lbSummaryStart +
+      if (lbSummaryStart == INT_MIN) {
+        lbSummaryStart = Config::config().getInt(kFullSummaryStartLb);
+        lbSummaryEnd = lbSummaryStart +
                         ((Config::config().getInt(kNLbFullSummary) - 1) * Config::config().getInt(kNLbFullSkip));
         Info("MonitorBase::collateCounterCollectionsForEvent",
-             "Setting per-LB monitoring from LB %i to %i (every %i LB)", (Int_t) _lbSummaryStart, (Int_t) _lbSummaryEnd,
+             "Setting per-LB monitoring from LB %i to %i (every %i LB)", (Int_t) lbSummaryStart, (Int_t) lbSummaryEnd,
              (Int_t) Config::config().getInt(kNLbFullSkip));
-        assert(_lbSummaryEnd > _lbSummaryStart);
+        assert(lbSummaryEnd > lbSummaryStart);
       }
 
       // Does the current lumiblock fall in the range?
-      if ((Int_t) _lumiBlockNumber >= _lbSummaryStart && (Int_t) _lumiBlockNumber <= _lbSummaryEnd) {
+      if ((Int_t) lumiBlockNumber >= lbSummaryStart && (Int_t) lumiBlockNumber <= lbSummaryEnd) {
         // Is it a multiple of NLbFullSkip?
-        if ((_lumiBlockNumber - _lbSummaryStart) % m_nLbFullSkip == 0) {
-          std::string _LBIdentifier;
-          std::ostringstream _ss;
-          _ss << std::setfill('0') << std::setw(5) << _lumiBlockNumber;
-          _LBIdentifier = m_lumiBlockString + std::string("_") + _ss.str();
-          addToCollectionsToProcess(_LBIdentifier, _lumiBlockNumber, _lumiLength, kDoLumiBlockSummary);
+        if ((lumiBlockNumber - lbSummaryStart) % m_nLbFullSkip == 0) {
+          std::string LBIdentifier;
+          std::ostringstream ss;
+          ss << std::setfill('0') << std::setw(5) << lumiBlockNumber;
+          LBIdentifier = m_lumiBlockString + std::string("_") + ss.str();
+          addToCollectionsToProcess(LBIdentifier, lumiBlockNumber, lumiLength, kDoLumiBlockSummary);
         }
       }
     }
 
     // Are we providing a summary per keyset?
     if (getIfActive(kDoKeySummary) && m_doKeySummary) {
-      Bool_t _doKeySummaryDesicion = kTRUE;
+      Bool_t doKeySummaryDecision = kTRUE;
 
       if (!m_ratesOnly) { // Only apply extra logic if this is not "rates mode"
-        if (m_perKeySummaries.count(_key) == 0) { // Do we not have this summary in the books?
+        if (m_perKeySummaries.count(key) == 0) { // Do we not have this summary in the books?
           if (m_perKeySummaries.size() < (size_t) m_nHLTConfigSummary) {
             // We have not yet reached the max number of key summaries.
-            m_perKeySummaries.insert(_key);
-            m_perKeySummaryLBStart[ _key ] = _lumiBlockNumber;
+            m_perKeySummaries.insert(key);
+            m_perKeySummaryLBStart[ key ] = lumiBlockNumber;
           } else {
-            _doKeySummaryDesicion = kFALSE;
+            doKeySummaryDecision = kFALSE;
           }
         } else { // seen this one before
           // Check LB range
-          Int_t _diff = _lumiBlockNumber - m_perKeySummaryLBStart[ _key ];
-          if (_diff < 0 || _diff >= m_nLBPerHLTConfig) {
-            _doKeySummaryDesicion = kFALSE;
+          Int_t diff = lumiBlockNumber - m_perKeySummaryLBStart[ key ];
+          if (diff < 0 || diff >= m_nLBPerHLTConfig) {
+            doKeySummaryDecision = kFALSE;
           }
         }
       }
 
-      if (_doKeySummaryDesicion == kTRUE) addToCollectionsToProcess(
-          _key.name(), _lumiBlockNumber, _lumiLength, kDoKeySummary);
+      if (doKeySummaryDecision == kTRUE) addToCollectionsToProcess(
+          key.name(), lumiBlockNumber, lumiLength, kDoKeySummary);
     }
 
     // m_collectionsToProcess has been populated, return
@@ -230,14 +230,14 @@ namespace TrigCostRootAnalysis {
    * @return A count of the number of counters in all counter collections.
    */
   UInt_t MonitorBase::getNCounters() {
-    CounterCollectionIt_t _colIt = m_counterCollections.begin();
-    UInt_t _n = 0;
+    CounterCollectionIt_t colIt = m_counterCollections.begin();
+    UInt_t n = 0;
 
-    for (; _colIt != m_counterCollections.end(); ++_colIt) {
+    for (; colIt != m_counterCollections.end(); ++colIt) {
       // Loop over all counters in this counter map
-      _n += _colIt->second.size();
+      n += colIt->second.size();
     }
-    return _n;
+    return n;
   }
 
   /**
@@ -250,36 +250,36 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Adds the counters for this monitor to be processed in this event
-   * @param _name reference to the name of counter collection to add (will be created if does not exist)
-   * @param _lumiBlockNumber Current LB, used for bookkeeping for this CounterCollection
-   * @param _lumiLength Length of current LB, used for bookkeeping for this CounterCollection
+   * @param name reference to the name of counter collection to add (will be created if does not exist)
+   * @param lumiBlockNumber Current LB, used for bookkeeping for this CounterCollection
+   * @param lumiLength Length of current LB, used for bookkeeping for this CounterCollection
    * @param _type Conf key specifying the type of this CounterCollection which may be queried later.
    */
-  void MonitorBase::addToCollectionsToProcess(const std::string& _name, UInt_t _lumiBlockNumber, Float_t _lumiLength,
-                                              const ConfKey_t _type) {
-    m_collectionsToProcess.insert(getCounterCollection(_name, _type));
-    m_collectionsToProcessNames.insert(_name);
-    recordLumi(_name, _lumiBlockNumber, _lumiLength);
+  void MonitorBase::addToCollectionsToProcess(const std::string& name, UInt_t lumiBlockNumber, Float_t lumiLength,
+                                              const ConfKey_t type) {
+    m_collectionsToProcess.insert(getCounterCollection(name, type));
+    m_collectionsToProcessNames.insert(name);
+    recordLumi(name, lumiBlockNumber, lumiLength);
   }
 
   /**
    * Keep track on the event lumi
    */
-  void MonitorBase::recordLumi(const std::string& _name, UInt_t _lumiBlockNumber, Float_t _lumiLength) {
+  void MonitorBase::recordLumi(const std::string& name, UInt_t lumiBlockNumber, Float_t lumiLength) {
     if (m_pass != 1) return; // Only do lumi on the first pass
 
-    if (m_collectionLumiCollector.count(_name) == 0) {
-      m_collectionLumiCollector.insert(std::make_pair(_name, new LumiCollector()));
+    if (m_collectionLumiCollector.count(name) == 0) {
+      m_collectionLumiCollector.insert(std::make_pair(name, new LumiCollector()));
     }
-    m_collectionLumiCollector[ _name ]->recordEventLumi(_lumiBlockNumber, _lumiLength);
+    m_collectionLumiCollector[ name ]->recordEventLumi(lumiBlockNumber, lumiLength);
   }
 
   /**
    * Sets the level of detail for this monitor to use, this is passed on to all counters which are created.
-   * @param _detailLevel Level of detail nominally in the range 0 - 10
+   * @param detailLevel Level of detail nominally in the range 0 - 10
    */
-  void MonitorBase::setDetailLevel(UInt_t _detailLevel) {
-    m_detailLevel = _detailLevel;
+  void MonitorBase::setDetailLevel(UInt_t detailLevel) {
+    m_detailLevel = detailLevel;
   }
 
   /**
@@ -301,26 +301,26 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Apply a check on a counter's string decoration and only export it if an exact match
-   * @param _decoration Key of string decoration to check
-   * @param _value Value of string to match exactly
+   * @param decoration Key of string decoration to check
+   * @param value Value of string to match exactly
    */
-  void MonitorBase::filterOutputOnStrDecoration(ConfKey_t _decoration, const std::string _value) {
-    m_filterOnDecorationValue = _value;
-    m_filterOnDecorationKey = _decoration;
+  void MonitorBase::filterOutputOnStrDecoration(ConfKey_t decoration, const std::string value) {
+    m_filterOnDecorationValue = value;
+    m_filterOnDecorationKey = decoration;
   }
 
   /**
-   * Sends the startEvent call to _one_ counter - assuming that only static counters need resetting.
+   * Sends the startEvent call to one_ counter - assuming that only static counters need resetting.
    * If a counter map is optionlly suplied, the call is sent to all counters in the map
-   * @param _counters Optional map of counters to call startEvent on, if not supplied only the dummy counter is called.
+   * @param counters Optional map of counters to call startEvent on, if not supplied only the dummy counter is called.
    */
-  void MonitorBase::startEvent(CounterMap_t* _counters) {
-    if (_counters == 0 && m_dummyCounter != 0) {
+  void MonitorBase::startEvent(CounterMap_t* counters) {
+    if (counters == 0 && m_dummyCounter != 0) {
       m_dummyCounter->startEvent();
-    } else if (_counters != 0) {
-      CounterMapIt_t _it = _counters->begin();
-      for (; _it != _counters->end(); ++_it) {
-        _it->second->startEvent();
+    } else if (counters != 0) {
+      CounterMapIt_t it = counters->begin();
+      for (; it != counters->end(); ++it) {
+        it->second->startEvent();
       }
     }
   }
@@ -329,10 +329,10 @@ namespace TrigCostRootAnalysis {
    * Sends the endEvent call to all counters which have run in the event (denoted by inserting them into the set
    *m_countersInEvent)
    */
-  void MonitorBase::endEvent(Float_t _weight) {
-    for (CounterSetIt_t _it = m_countersInEvent.begin(); _it != m_countersInEvent.end(); ++_it) {
-      // _it is an iterator over a set of pointers to CounterBase objects
-      (**_it).endEvent(_weight);
+  void MonitorBase::endEvent(Float_t weight) {
+    for (CounterSetIt_t it = m_countersInEvent.begin(); it != m_countersInEvent.end(); ++it) {
+      // it is an iterator over a set of pointers to CounterBase objects
+      (**it).endEvent(weight);
     }
     m_countersInEvent.clear();
   }
@@ -340,8 +340,7 @@ namespace TrigCostRootAnalysis {
   /**
    * This must be inherited to be used
    */
-  Bool_t MonitorBase::getIfActive(ConfKey_t _mode) {
-    UNUSED(_mode);
+  Bool_t MonitorBase::getIfActive(ConfKey_t /*mode*/) {
     Error("MonitorBase::getIfActive", "Function called on base class, you must impliment this in the derived class.");
     return kFALSE;
   }
@@ -353,122 +352,122 @@ namespace TrigCostRootAnalysis {
    * If setup to do so, it can also mimic this hierarchy in the file system. Here, canvases are saved as either PDF or
    *PNG (or both).
    * Be warned, this can create thousands of files and directories if output is not slimmed using --chainPatternsOutput.
-   * @param _toSave a vector of pairs of <string name, VariableOption> where each pair corresponds to a histogram type
+   * @param toSave a vector of pairs of <string name, VariableOption> where each pair corresponds to a histogram type
    *to export.
    */
-  void MonitorBase::sharedHistogramOutputRoutine(VariableOptionVector_t& _toSave) {
-    Bool_t _doRoot = Config::config().getInt(kOutputRoot);
-    Bool_t _doCanv = Config::config().getInt(kOutputCanvas);
-    Bool_t _doHist = Config::config().getInt(kOutputHist);
-    Bool_t _doImage = Config::config().getInt(kOutputImage);
-    Bool_t _doPng = Config::config().getInt(kOutputPng);
-    Bool_t _doPdf = Config::config().getInt(kOutputPdf);
+  void MonitorBase::sharedHistogramOutputRoutine(VariableOptionVector_t& toSave) {
+    Bool_t doRoot = Config::config().getInt(kOutputRoot);
+    Bool_t doCanv = Config::config().getInt(kOutputCanvas);
+    Bool_t doHist = Config::config().getInt(kOutputHist);
+    Bool_t doImage = Config::config().getInt(kOutputImage);
+    Bool_t doPng = Config::config().getInt(kOutputPng);
+    Bool_t doPdf = Config::config().getInt(kOutputPdf);
 
-    if (_doRoot == kFALSE && _doImage == kFALSE) return;
+    if (doRoot == kFALSE && doImage == kFALSE) return;
 
-    Bool_t _checkEachCounter = kFALSE;
-    if (_toSave.size() == 0) {
-      _checkEachCounter = kTRUE;
+    Bool_t checkEachCounter = kFALSE;
+    if (toSave.size() == 0) {
+      checkEachCounter = kTRUE;
     }
 
-    TCanvas* _c = new TCanvas();
-    _c->SetLogy(kTRUE);
-    _c->SetBatch(kTRUE);
+    TCanvas* c = new TCanvas();
+    c->SetLogy(kTRUE);
+    c->SetBatch(kTRUE);
 
-    const std::string _outputFolder = Config::config().getStr(kOutputDirectory);
-    const std::string _imgFolder = Config::config().getStr(kOutputImageDirectory);
+    const std::string outputFolder = Config::config().getStr(kOutputDirectory);
+    const std::string imgFolder = Config::config().getStr(kOutputImageDirectory);
 
     // Loop over all counter collections
-    CounterCollectionIt_t _colIt = m_counterCollections.begin();
-    for (; _colIt != m_counterCollections.end(); ++_colIt) {
-      CounterMapIt_t _mapIt = _colIt->second.begin();
-      std::string _counterCollectionName = _colIt->first;
+    CounterCollectionIt_t colIt = m_counterCollections.begin();
+    for (; colIt != m_counterCollections.end(); ++colIt) {
+      CounterMapIt_t mapIt = colIt->second.begin();
+      std::string counterCollectionName = colIt->first;
 
       // For the counter collection
       disableROOTMsg();
-      if (_doRoot) gDirectory->mkdir(_counterCollectionName.c_str());
-      if (_doRoot) gDirectory->cd(_counterCollectionName.c_str());
+      if (doRoot) gDirectory->mkdir(counterCollectionName.c_str());
+      if (doRoot) gDirectory->cd(counterCollectionName.c_str());
       enableROOTMsg();
 
       // For the monitor
-      if (_doRoot) gDirectory->mkdir(std::string(getName() + "_" + getLevelStr()).c_str());
-      if (_doRoot) gDirectory->cd(std::string(getName() + "_" + getLevelStr()).c_str());
+      if (doRoot) gDirectory->mkdir(std::string(getName() + "_" + getLevelStr()).c_str());
+      if (doRoot) gDirectory->cd(std::string(getName() + "_" + getLevelStr()).c_str());
 
-      for (; _mapIt != _colIt->second.end(); ++_mapIt) {
-        CounterBase* _TCCB = _mapIt->second;
+      for (; mapIt != colIt->second.end(); ++mapIt) {
+        CounterBase* TCCB = mapIt->second;
 
         // Check if we are saving this
-        if (m_filterOutput && checkPatternNameOutput(_TCCB->getName(), m_invertFilter) == kFALSE) continue;
+        if (m_filterOutput && checkPatternNameOutput(TCCB->getName(), m_invertFilter) == kFALSE) continue;
 
         // Check if there is any content
-        if (_TCCB->getValueExists(kVarCalls, kSavePerEvent) == kTRUE) {
-          if (_TCCB->getValue(kVarCalls, kSavePerEvent) == 0) continue;
+        if (TCCB->getValueExists(kVarCalls, kSavePerEvent) == kTRUE) {
+          if (TCCB->getValue(kVarCalls, kSavePerEvent) == 0) continue;
         }
 
-        const std::string _outputPath = _outputFolder + "/"
-                                        + _imgFolder + "/"
-                                        + _counterCollectionName + "/"
+        const std::string outputPath = outputFolder + "/"
+                                        + imgFolder + "/"
+                                        + counterCollectionName + "/"
                                         + getName() + "_" + getLevelStr() + "/"
-                                        + _TCCB->getName();
+                                        + TCCB->getName();
 
-        std::string _outputName = _TCCB->getName();
-        checkForIllegalCharacters(_outputName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kTRUE);
+        std::string outputName = TCCB->getName();
+        checkForIllegalCharacters(outputName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kTRUE);
 
-        if (_checkEachCounter == kTRUE) { // Query each counter
-          _toSave = _TCCB->getAllHistograms();
+        if (checkEachCounter == kTRUE) { // Query each counter
+          toSave = TCCB->getAllHistograms();
         }
-        if (_toSave.size() == 0) {
-          //Info("MonitorBase::sharedHistogramOutputRoutine","No filled hist for %s", _outputPath.c_str());
+        if (toSave.size() == 0) {
+          //Info("MonitorBase::sharedHistogramOutputRoutine","No filled hist for %s", outputPath.c_str());
           continue; // Nothing to save here
         }
 
-        if (_doImage) gSystem->mkdir(_outputPath.c_str(), kTRUE);
-        if (_doRoot) gDirectory->mkdir(_outputName.c_str());
-        if (_doRoot) gDirectory->cd(_outputName.c_str());
+        if (doImage) gSystem->mkdir(outputPath.c_str(), kTRUE);
+        if (doRoot) gDirectory->mkdir(outputName.c_str());
+        if (doRoot) gDirectory->cd(outputName.c_str());
 
-        for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-          const std::string _plotName = constructPlotName(_mapIt->second, _toSave[_i]);
-          TH1F* _h = _TCCB->getHist(_toSave[_i]);
+        for (UInt_t i = 0; i < toSave.size(); ++i) {
+          const std::string plotName = constructPlotName(mapIt->second, toSave[i]);
+          TH1F* h = TCCB->getHist(toSave[i]);
 
-          if (_h == 0 || _h->GetEntries() == 0) {
+          if (h == 0 || h->GetEntries() == 0) {
             if (Config::config().debug()) {
-              Info("MonitorBase::sharedHistogramOutputRoutine", "Skiping save of empty histogram %s",
-                   _plotName.c_str());
+              Info("MonitorBase::sharedHistogramOutputRoutine", "Skipping save of empty histogram %s",
+                   plotName.c_str());
             }
             continue; // Do not save empty histos
           }
 
-          plotHistogram(_h);
+          plotHistogram(h);
           // Rename for better finding later
-          _h->SetName(std::string("h_" + _plotName).c_str());
-          plotText(0.20, 0.85, std::string(m_name + ": " + _TCCB->getName()).c_str());
+          h->SetName(std::string("h_" + plotName).c_str());
+          plotText(0.20, 0.85, std::string(m_name + ": " + TCCB->getName()).c_str());
 
           disableROOTMsg();
-          if (_doPng) _c->Print(std::string(_outputPath + "/" + _plotName + ".png").c_str());
-          if (_doPdf) _c->Print(std::string(_outputPath + "/" + _plotName + ".pdf").c_str());
+          if (doPng) c->Print(std::string(outputPath + "/" + plotName + ".png").c_str());
+          if (doPdf) c->Print(std::string(outputPath + "/" + plotName + ".pdf").c_str());
           enableROOTMsg();
-          if (_doCanv) _c->Write(std::string("c_" + _plotName).c_str());
+          if (doCanv) c->Write(std::string("c_" + plotName).c_str());
           // Important - if we do not set the range here - the java web display will mess up
-          Float_t _min = _h->GetBinContent(_h->GetMinimumBin()) * 0.9;
-          _h->GetYaxis()->SetRangeUser(_min, _h->GetBinContent(_h->GetMaximumBin()) * 1.1);
-          // Float_t _max = _h->GetBinContent(h->GetMaximumBin());
-          // Float_t _min = _h->GetBinContent(h->GetMaximumBin());
-          // if (!isEqual(_max, _min) && !isZero(_min) && _min > 0 && (_max/_min) > 100. ) {
-          //   _c->SetLogy(kTRUE); // For large Y scales
+          Float_t min = h->GetBinContent(h->GetMinimumBin()) * 0.9;
+          h->GetYaxis()->SetRangeUser(min, h->GetBinContent(h->GetMaximumBin()) * 1.1);
+          // Float_t max = h->GetBinContent(h->GetMaximumBin());
+          // Float_t min = h->GetBinContent(h->GetMaximumBin());
+          // if (!isEqual(max, min) && !isZero(min) && min > 0 && (max/min) > 100. ) {
+          //   c->SetLogy(kTRUE); // For large Y scales
           // }
 
-          if (_doHist) _h->Write(std::string("h_" + _plotName).c_str());
+          if (doHist) h->Write(std::string("h_" + plotName).c_str());
         }
 
-        if (_doRoot) gDirectory->cd("..");
+        if (doRoot) gDirectory->cd("..");
       }
 
-      if (_doRoot) gDirectory->cd("..");
-      if (_doRoot) gDirectory->cd("..");
+      if (doRoot) gDirectory->cd("..");
+      if (doRoot) gDirectory->cd("..");
     }
 
-    if (_checkEachCounter == kTRUE) _toSave.clear();
-    delete _c;
+    if (checkEachCounter == kTRUE) toSave.clear();
+    delete c;
   }
 
   /**
@@ -479,77 +478,77 @@ namespace TrigCostRootAnalysis {
    *values to be saved in the table.
    * @see FormatterOption
    * @see VariableOption
-   * @param _toSave a vector of TableColumnFormatter objects which have been setup to give the desired table output.
+   * @param toSave a vector of TableColumnFormatter objects which have been setup to give the desired table output.
    */
-  void MonitorBase::sharedTableOutputRoutine(const std::vector<TableColumnFormatter>& _toSave) {
+  void MonitorBase::sharedTableOutputRoutine(const std::vector<TableColumnFormatter>& toSave) {
     if (Config::config().getInt(kOutputCsv) == kFALSE) return;
 
     // Save tables. Loop over counter collections.
-    CounterCollectionNonConstIt_t _colIt = m_counterCollections.begin();
-    for (; _colIt != m_counterCollections.end(); ++_colIt) {
-      std::string _counterCollectionName = _colIt->first;
-      CounterMap_t* _counterMap = &(_colIt->second);
-      CounterMapIt_t _counterMapIt = _colIt->second.begin();
+    CounterCollectionNonConstIt_t colIt = m_counterCollections.begin();
+    for (; colIt != m_counterCollections.end(); ++colIt) {
+      std::string counterCollectionName = colIt->first;
+      CounterMap_t* counterMap = &(colIt->second);
+      CounterMapIt_t counterMapIt = colIt->second.begin();
 
       // Skip if there are no counters to process
-      if (_counterMap->size() == 0) continue;
+      if (counterMap->size() == 0) continue;
       // Skip if there are no counters passing decoration requirement
       if (m_filterOutput && m_filterOnDecorationValue != Config::config().getStr(kBlankString)) {
-        Bool_t _stuffToWrite = kFALSE;
-        for (; _counterMapIt != _colIt->second.end(); ++_counterMapIt) {
-          if (_counterMapIt->second->getStrDecoration(m_filterOnDecorationKey) == m_filterOnDecorationValue) {
-            _stuffToWrite = kTRUE;
+        Bool_t stuffToWrite = kFALSE;
+        for (; counterMapIt != colIt->second.end(); ++counterMapIt) {
+          if (counterMapIt->second->getStrDecoration(m_filterOnDecorationKey) == m_filterOnDecorationValue) {
+            stuffToWrite = kTRUE;
             break;
           }
         }
-        if (_stuffToWrite == kFALSE) continue;
+        if (stuffToWrite == kFALSE) continue;
       }
 
-      const std::string _outputFolder = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(
+      const std::string outputFolder = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(
         kOutputCSVDirectory);
-      gSystem->mkdir(_outputFolder.c_str(), kTRUE);
+      gSystem->mkdir(outputFolder.c_str(), kTRUE);
 
-      const std::string _tableName = _outputFolder
+      const std::string tableName = outputFolder
                                      + "/Table_"
                                      + getName() + "_"
                                      + getLevelStr() + "_"
-                                     + _counterCollectionName
+                                     + counterCollectionName
                                      + ".csv";
-      std::ofstream _fout;
-      _fout.open(_tableName.c_str());
-      _fout << std::fixed; // Use fixed width output
+      std::ofstream fout;
+      fout.open(tableName.c_str());
+      fout << std::fixed; // Use fixed width output
 
       if (Config::config().debug()) {
         Info("MonitorBase::sharedTableOutputRoutine",
              "Doing table output with path %s, %u columns, %u (potential) rows.",
-             _tableName.c_str(), (UInt_t) _toSave.size(), (UInt_t) _colIt->second.size());
+             tableName.c_str(), (UInt_t) toSave.size(), (UInt_t) colIt->second.size());
       }
 
       // Do the title line. First column is always the counter's name.
-      _fout << "Name,";
-      for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-        checkForIllegalCharacters(_toSave[_i].m_columnName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
-        _fout << _toSave[_i].m_columnName;
-        if (_i != _toSave.size() - 1) _fout << ",";
-        else _fout << std::endl;
+      fout << "Name,";
+      for (UInt_t i = 0; i < toSave.size(); ++i) {
+        checkForIllegalCharacters(toSave[i].m_columnName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
+        fout << toSave[i].m_columnName;
+        if (i != toSave.size() - 1) fout << ",";
+        else fout << std::endl;
       }
 
       // Do the second line, this contains the tooltip descriptions
-      _fout << ",";
-      for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-        checkForIllegalCharacters(_toSave[_i].m_tooltip, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
-        _fout << _toSave[_i].m_tooltip;
-        if (_i != _toSave.size() - 1) _fout << ",";
-        else _fout << std::endl;
+      fout << ",";
+      for (UInt_t i = 0; i < toSave.size(); ++i) {
+        checkForIllegalCharacters(toSave[i].m_tooltip, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
+        fout << toSave[i].m_tooltip;
+        if (i != toSave.size() - 1) fout << ",";
+        else fout << std::endl;
       }
 
       // Loop over all counters and add their row to the table.
-      for (_counterMapIt = _colIt->second.begin(); _counterMapIt != _colIt->second.end(); ++_counterMapIt) {
-        CounterBase* _TCCB = _counterMapIt->second;
-        outputTableRow(_TCCB, _fout, _toSave, _counterMap, _counterCollectionName);
+      for (counterMapIt = colIt->second.begin(); counterMapIt != colIt->second.end(); ++counterMapIt) {
+        CounterBase* TCCB = counterMapIt->second;
+        outputTableRow(TCCB, fout, toSave, counterMap, counterCollectionName);
       }
 
-      _fout.close();
+      fout.close();
     }
   }
 
@@ -560,35 +559,35 @@ namespace TrigCostRootAnalysis {
    *spaces.
    * Single quotes - ' - are not allowed as these strings are echo'd into javascript fields. They are replaced with -
    *(not ideal).
-   * @param _toCheck String to parse for illegal characters. Note - this is modified.
-   * @param _checkComma True to replace comma's with spaces
-   * @param _checkApostrophe True to replace single quotes with hyphens
-   * @param _checkColon True to replace colons with underscrores
+   * @param toCheck String to parse for illegal characters. Note - this is modified.
+   * @param checkComma True to replace comma's with spaces
+   * @param checkApostrophe True to replace single quotes with hyphens
+   * @param checkColon True to replace colons with underscrores
    */
-  void MonitorBase::checkForIllegalCharacters(std::string& _toClean, Bool_t _checkComma, Bool_t _checkApostrophe,
-                                              Bool_t _checkColon) {
-    std::string _before = _toClean;
-    if (_checkComma && _toClean.find(",") != std::string::npos) {
-      std::replace(_toClean.begin(), _toClean.end(), ',', ' ');
+  void MonitorBase::checkForIllegalCharacters(std::string& toClean, Bool_t checkComma, Bool_t checkApostrophe,
+                                              Bool_t checkColon) {
+    std::string before = toClean;
+    if (checkComma && toClean.find(",") != std::string::npos) {
+      std::replace(toClean.begin(), toClean.end(), ',', ' ');
       if (Config::config().getDisplayMsg(kMsgIllegalCharacters) == kTRUE) {
         Warning("MonitorBase::checkForIllegalCharacters",
                 "Titles, tooltips and data are stored in CSV, they cannot contain ',' changing %s[%s -> %s]",
-                getName().c_str(), _before.c_str(), _toClean.c_str());
+                getName().c_str(), before.c_str(), toClean.c_str());
       }
     }
-    if (_checkApostrophe && _toClean.find("'") != std::string::npos) {
-      std::replace(_toClean.begin(), _toClean.end(), '\'', '-');
+    if (checkApostrophe && toClean.find("'") != std::string::npos) {
+      std::replace(toClean.begin(), toClean.end(), '\'', '-');
       if (Config::config().getDisplayMsg(kMsgIllegalCharacters) == kTRUE) {
         Warning("MonitorBase::checkForIllegalCharacters",
                 "Titles, tooltips and data cannot contain single quotes, messes up latter javascript, changing %s[%s -> %s]",
-                getName().c_str(), _before.c_str(), _toClean.c_str());
+                getName().c_str(), before.c_str(), toClean.c_str());
       }
     }
-    if (_checkColon && _toClean.find(":") != std::string::npos) {
-      std::replace(_toClean.begin(), _toClean.end(), ':', '_');
+    if (checkColon && toClean.find(":") != std::string::npos) {
+      std::replace(toClean.begin(), toClean.end(), ':', '_');
       if (Config::config().getDisplayMsg(kMsgIllegalCharacters) == kTRUE) {
         Warning("MonitorBase::checkForIllegalCharacters", "TDirectories, cannot contain \":\" changing %s[%s -> %s]",
-                getName().c_str(), _before.c_str(), _toClean.c_str());
+                getName().c_str(), before.c_str(), toClean.c_str());
       }
     }
   }
@@ -598,140 +597,140 @@ namespace TrigCostRootAnalysis {
    * @see sharedTableOutputRoutine
    * @see FormatterOption
    * @see VariableOption
-   * @param _TCCB Pointer to counter object
+   * @param TCCB Pointer to counter object
    */
-  void MonitorBase::outputTableRow(CounterBase* _TCCB,
-                                   std::ofstream& _fout,
-                                   const std::vector<TableColumnFormatter>& _toSave,
-                                   CounterMap_t* _counterMap,
-                                   std::string& _counterCollectionName) {
-    std::ios::fmtflags _foutFlags(_fout.flags());
+  void MonitorBase::outputTableRow(CounterBase* TCCB,
+                                   std::ofstream& fout,
+                                   const std::vector<TableColumnFormatter>& toSave,
+                                   CounterMap_t* counterMap,
+                                   std::string& counterCollectionName) {
+    std::ios::fmtflags foutFlags(fout.flags());
 
     // Check if we are saving this
-    if (m_filterOutput && checkPatternNameOutput(_TCCB->getName(), m_invertFilter) == kFALSE) return;
+    if (m_filterOutput && checkPatternNameOutput(TCCB->getName(), m_invertFilter) == kFALSE) return;
 
     if (m_filterOutput && m_filterOnDecorationValue != Config::config().getStr(kBlankString)) {
-      if (_TCCB->getStrDecoration(m_filterOnDecorationKey) != m_filterOnDecorationValue) return;
+      if (TCCB->getStrDecoration(m_filterOnDecorationKey) != m_filterOnDecorationValue) return;
     }
 
     // Check if there is any content
-    if (_TCCB->getValueExists(kVarCalls, kSavePerEvent) == kTRUE) {
-      if (_TCCB->getValue(kVarCalls, kSavePerEvent) == 0) return;
+    if (TCCB->getValueExists(kVarCalls, kSavePerEvent) == kTRUE) {
+      if (TCCB->getValue(kVarCalls, kSavePerEvent) == 0) return;
     }
 
     // Output name
-    std::string _rowName = _TCCB->getName();
-    checkForIllegalCharacters(_rowName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kTRUE);
-    _fout << _rowName << ",";
+    std::string rowName = TCCB->getName();
+    checkForIllegalCharacters(rowName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kTRUE);
+    fout << rowName << ",";
     // Output data
-    for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-      std::string _stringValue = "";
-      Float_t _value = 0., _entries = 0.;
+    for (UInt_t i = 0; i < toSave.size(); ++i) {
+      std::string stringValue = "";
+      Float_t value = 0., entries = 0.;
 
       // If using a Float_t function pointer
-      if (_toSave[_i].m_functionPtr != 0) {
+      if (toSave[i].m_functionPtr != 0) {
         if (Config::config().debug()) {
           Info("MonitorBase::outputTableRow", "\tDoing table cell %s via Float_t FnPtr %lu",
-               _toSave[_i].m_columnName.c_str(),
-               (ULong_t) _toSave[_i].m_functionPtr);
+               toSave[i].m_columnName.c_str(),
+               (ULong_t) toSave[i].m_functionPtr);
         }
-        _value = _toSave[_i].m_functionPtr(_counterMap, _TCCB); // Use this function pointer to get the value to save.
+        value = toSave[i].m_functionPtr(counterMap, TCCB); // Use this function pointer to get the value to save.
         // If using a std::string function pointer
-      } else if (_toSave[_i].m_functionPtrStr != 0) {
+      } else if (toSave[i].m_functionPtrStr != 0) {
         if (Config::config().debug()) {
           Info("MonitorBase::outputTableRow", "\tDoing table cell %s via std::string FnPtr %lu",
-               _toSave[_i].m_columnName.c_str(),
-               (ULong_t) _toSave[_i].m_functionPtrStr);
+               toSave[i].m_columnName.c_str(),
+               (ULong_t) toSave[i].m_functionPtrStr);
         }
-        _stringValue = _toSave[_i].m_functionPtrStr(_counterMap, _TCCB);
+        stringValue = toSave[i].m_functionPtrStr(counterMap, TCCB);
         // If using a std::string decoration
-      } else if (_toSave[_i].m_formatOption == kFormatOptionUseStringDecoration) {
+      } else if (toSave[i].m_formatOption == kFormatOptionUseStringDecoration) {
         if (Config::config().debug()) {
           Info("MonitorBase::outputTableRow", "\t\tDoing table cell %s via std::string decoration %s",
-               _toSave[_i].m_columnName.c_str(),
-               Config::config().getStr(_toSave[_i].m_dataVariable).c_str());
+               toSave[i].m_columnName.c_str(),
+               Config::config().getStr(toSave[i].m_dataVariable).c_str());
         }
-        _stringValue = _TCCB->getStrDecoration(_toSave[_i].m_dataVariable);
+        stringValue = TCCB->getStrDecoration(toSave[i].m_dataVariable);
         // If using Float_t decoration
-      } else if (_toSave[_i].m_formatOption == kFormatOptionUseFloatDecoration) {
+      } else if (toSave[i].m_formatOption == kFormatOptionUseFloatDecoration) {
         if (Config::config().debug()) {
           Info("MonitorBase::outputTableRow", "\tDoing table cell %s via Float_t decoration %s",
-               _toSave[_i].m_columnName.c_str(),
-               Config::config().getStr(_toSave[_i].m_dataVariable).c_str());
+               toSave[i].m_columnName.c_str(),
+               Config::config().getStr(toSave[i].m_dataVariable).c_str());
         }
-        _value = _TCCB->getDecoration(_toSave[_i].m_dataVariable);
+        value = TCCB->getDecoration(toSave[i].m_dataVariable);
         // If using Int_t decoration
-      } else if (_toSave[_i].m_formatOption == kFormatOptionUseIntDecoration) {
+      } else if (toSave[i].m_formatOption == kFormatOptionUseIntDecoration) {
         if (Config::config().debug()) {
           Info("MonitorBase::outputTableRow", "\tDoing table cell %s via Int_t decoration %s",
-               _toSave[_i].m_columnName.c_str(),
-               Config::config().getStr(_toSave[_i].m_dataVariable).c_str());
+               toSave[i].m_columnName.c_str(),
+               Config::config().getStr(toSave[i].m_dataVariable).c_str());
         }
-        _value = _TCCB->getIntDecoration(_toSave[_i].m_dataVariable);
+        value = TCCB->getIntDecoration(toSave[i].m_dataVariable);
         // Otherwise do a direct fetch of stored data
       } else {
         if (Config::config().debug()) {
           Info("MonitorBase::outputTableRow", "\tDoing table cell %s via Float_t DataVariable %s",
-               _toSave[_i].m_columnName.c_str(),
-               Config::config().getStr(_toSave[_i].m_dataVariable).c_str());
+               toSave[i].m_columnName.c_str(),
+               Config::config().getStr(toSave[i].m_dataVariable).c_str());
         }
-        _value = _TCCB->getValue(_toSave[_i].m_dataVariable, _toSave[_i].m_dataVO);
-        _entries = _TCCB->getEntries(_toSave[_i].m_dataVariable, _toSave[_i].m_dataVO);
+        value = TCCB->getValue(toSave[i].m_dataVariable, toSave[i].m_dataVO);
+        entries = TCCB->getEntries(toSave[i].m_dataVariable, toSave[i].m_dataVO);
 
         // Check if we are supposed to divide through by a denominator
-        if (_toSave[_i].m_dataVariableDenominator != kNoneString) {
-          Float_t _valueDenom = _TCCB->getValue(_toSave[_i].m_dataVariableDenominator, _toSave[_i].m_dataVODenominator);
-          if (isZero(_valueDenom)) {
-            _value = 0.;
+        if (toSave[i].m_dataVariableDenominator != kNoneString) {
+          Float_t valueDenom = TCCB->getValue(toSave[i].m_dataVariableDenominator, toSave[i].m_dataVODenominator);
+          if (isZero(valueDenom)) {
+            value = 0.;
           } else {
-            _value /= _valueDenom;
+            value /= valueDenom;
           }
         }
       }
 
       // See if there are any other modifiers requested via enum
-      if (_toSave[_i].m_formatOption != kFormatOptionNone) {
-        switch (_toSave[_i].m_formatOption) {
+      if (toSave[i].m_formatOption != kFormatOptionNone) {
+        switch (toSave[i].m_formatOption) {
         case kFormatOptionNormaliseEntriesWallTime:
-          _value = _entries;
-
-        // NOTE: Explicit fall-through of case logic
+          value = entries;
+          // NOTE: Explicit fall-through of case logic
+          /* FALLTHROUGH */
         case kFormatOptionNormaliseWallTime:
-          if (isZero(m_collectionLumiCollector[ _counterCollectionName ]->getTotalLumiBlockTime())) {
-            _value = 0.;
+          if (isZero(m_collectionLumiCollector[ counterCollectionName ]->getTotalLumiBlockTime())) {
+            value = 0.;
           } else {
-            _value /= m_collectionLumiCollector[ _counterCollectionName ]->getTotalLumiBlockTime();
+            value /= m_collectionLumiCollector[ counterCollectionName ]->getTotalLumiBlockTime();
           }
           break;
 
         case kFormatOptionNormaliseLBTimeDec:
-          if (isZero(_TCCB->getDecoration(kDecLbLength))) _value = 0;
-          else _value /= _TCCB->getDecoration(kDecLbLength);
+          if (isZero(TCCB->getDecoration(kDecLbLength))) value = 0;
+          else value /= TCCB->getDecoration(kDecLbLength);
           break;
 
         case kFormatOptionUseWallTime:
-          _value = m_collectionLumiCollector[ _counterCollectionName ]->getTotalLumiBlockTime();
+          value = m_collectionLumiCollector[ counterCollectionName ]->getTotalLumiBlockTime();
           break;
 
         case kFormatOptionNormaliseEntries:
-          if (isZero(_entries) == kTRUE) {
-            _value = 0.;
+          if (isZero(entries) == kTRUE) {
+            value = 0.;
           } else {
-            _value /= _entries;
+            value /= entries;
           }
           break;
 
         case kFormatOptionMiliSecToSec:
-          _value /= 1000.;
+          value /= 1000.;
           break;
 
         case kFormatOptionToPercentage:
-          _value *= 100.;
+          value *= 100.;
           break;
 
         case kFormatOptionUseEntries:
           // Overwrite the value field, we are after the number of entries rather than the value
-          _value = _entries;
+          value = entries;
           break;
 
         // Deliberately ignored cases
@@ -742,29 +741,29 @@ namespace TrigCostRootAnalysis {
 
         default:
           Error("MonitorBase::outputTableRow", "Table formatting option enum %i was not recognised.",
-                _toSave[_i].m_formatOption);
+                toSave[i].m_formatOption);
           break;
         }
       }
 
       // Do the output
-      if (_stringValue != "") {
-        checkForIllegalCharacters(_stringValue, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
-        _fout << _stringValue;
+      if (stringValue != "") {
+        checkForIllegalCharacters(stringValue, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
+        fout << stringValue;
       } else {
-        _fout << std::setprecision(_toSave[_i].m_precision) << _value;
+        fout << std::setprecision(toSave[i].m_precision) << value;
       }
 
       // Comma separate
-      if (_i != _toSave.size() - 1) _fout << ",";
+      if (i != toSave.size() - 1) fout << ",";
     }
 
-    _fout << std::endl;
-    _fout.flags(_foutFlags);
+    fout << std::endl;
+    fout.flags(foutFlags);
   }
 
-  Bool_t MonitorBase::doesCounterCollectionExist(const std::string& _identifier) {
-    if (m_counterCollections.count(_identifier) != 0) {
+  Bool_t MonitorBase::doesCounterCollectionExist(const std::string& identifier) {
+    if (m_counterCollections.count(identifier) != 0) {
       return (Bool_t) true;
     }
     return (Bool_t) false;
@@ -772,18 +771,18 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Get the collection of counters for a given identifier, create a new one if none currently exists.
-   * @param _identifier The name of the collection, "All" is used for the collection which runs on each event,
+   * @param identifier The name of the collection, "All" is used for the collection which runs on each event,
    *                    "LB:xxx" is used for individual lumi blocks, "SM:xxx_L1:xxx_HLT:xxx" for individual keysets.
    *                    Others can be added as and when needed.
-   * @param _type A key to specify what sort of counter collection this is rather than having to decude from the string
+   * @param type A key to specify what sort of counter collection this is rather than having to decude from the string
    * @return A pointer to the requested counter map.
    */
-  CounterMap_t* MonitorBase::getCounterCollection(const std::string& _identifier, const ConfKey_t _type) {
-    if (m_counterCollections.count(_identifier) == 0) {
-      m_counterCollections[_identifier] = CounterMap_t();
-      m_counterMapType[ &m_counterCollections[_identifier] ] = _type;
+  CounterMap_t* MonitorBase::getCounterCollection(const std::string& identifier, const ConfKey_t type) {
+    if (m_counterCollections.count(identifier) == 0) {
+      m_counterCollections[identifier] = CounterMap_t();
+      m_counterMapType[ &m_counterCollections[identifier] ] = type;
     }
-    return &m_counterCollections[_identifier];
+    return &m_counterCollections[identifier];
   }
 
   //TIM M - INCOMPLETE! Get name of every range
@@ -795,36 +794,36 @@ namespace TrigCostRootAnalysis {
     return toReturn;
   }
 
-  ConfKey_t MonitorBase::getCounterCollectionType(const std::string& _identifier) {
-    return m_counterMapType.at(&m_counterCollections.at(_identifier));
+  ConfKey_t MonitorBase::getCounterCollectionType(const std::string& identifier) {
+    return m_counterMapType.at(&m_counterCollections.at(identifier));
   }
 
   /**
    * Request counter for a supplied name and ID. The name must be unique within this monitor.
    * If a counter with this name already exists, a base class pointer is returned.
    * If a counter with this name does not exist, a new one is first created before its pointer returned.
-   * @param _name Const reference to unique counter name (within this monitor)
-   * @param _ID Reference to the ID number for this counter.
+   * @param name Const reference to unique counter name (within this monitor)
+   * @param ID Reference to the ID number for this counter.
    */
-  CounterBase* MonitorBase::getCounter(CounterMap_t* _counterMap, const std::string& _name, Int_t _ID) {
-    CounterMapIt_t _it = _counterMap->find(_name);
+  CounterBase* MonitorBase::getCounter(CounterMap_t* counterMap, const std::string& name, Int_t ID) {
+    CounterMapIt_t it = counterMap->find(name);
 
     // Do we have a counter for this string?
-    if (_it != _counterMap->end()) {
+    if (it != counterMap->end()) {
       // Also check IDs match (unless this has been explicitly disabled due to having many ID's)
-      if (m_allowSameIDCounters == kFALSE && _it->second->getID() != _ID) {
+      if (m_allowSameIDCounters == kFALSE && it->second->getID() != ID) {
         // This is technically allowed by the architecture of the program, but we will warn the user anyway as they have
         // not explicitly said that it is OK to have many counters with the same ID
         Warning("MonitorBase::getCounter", "Name clash for %s with IDs %i and %i.",
-                _name.c_str(), _ID, _it->second->getID());
+                name.c_str(), ID, it->second->getID());
       }
-      m_countersInEvent.insert(_it->second);
-      return _it->second;
+      m_countersInEvent.insert(it->second);
+      return it->second;
     } else {
       // If we don't yet then add a new one and return a reference
-      CounterBase* _TCCB = addCounter(_counterMap, _name, _ID);
-      m_countersInEvent.insert(_TCCB);
-      return _TCCB;
+      CounterBase* TCCB = addCounter(counterMap, name, ID);
+      m_countersInEvent.insert(TCCB);
+      return TCCB;
     }
   }
 
@@ -840,23 +839,23 @@ namespace TrigCostRootAnalysis {
    * Base class wrapper to handle the map related aspects of adding a new counter.
    * The newCounter call is pure virtual and must be implemented by the derived class such that
    * an object of the correct type is created then passed back as a polymorphic base class pointer.
-   * @param _name Const reference to the name of the new counter.
-   * @param _ID Reference to the ID number of the new counter.
+   * @param name Const reference to the name of the new counter.
+   * @param ID Reference to the ID number of the new counter.
    * @result Base class pointer to new counter.
    */
-  CounterBase* MonitorBase::addCounter(CounterMap_t* _counterMap, const std::string& _name, Int_t _ID) {
-    CounterBase* _tcc = newCounter(_name, _ID);
+  CounterBase* MonitorBase::addCounter(CounterMap_t* counterMap, const std::string& name, Int_t ID) {
+    CounterBase* tcc = newCounter(name, ID);
 
     // If we are after a new counter each call - then change the name (but *ONLY* in the map) to a simple number
     // such that it will never match a counter name upon a call to newCounter
     if (m_allowSameNamedCounters == kTRUE) {
-      static Int_t _counterNumber = 0;
-      const std::string _uniqueName = std::string("counter_" + intToString(_counterNumber++));
-      _counterMap->insert(std::make_pair(_uniqueName, _tcc));
+      static Int_t counterNumber = 0;
+      const std::string uniqueName = std::string("counter_" + intToString(counterNumber++));
+      counterMap->insert(std::make_pair(uniqueName, tcc));
     } else {
-      _counterMap->insert(std::make_pair(_name, _tcc));
+      counterMap->insert(std::make_pair(name, tcc));
     }
-    return _tcc;
+    return tcc;
   }
 
   /**
@@ -885,17 +884,17 @@ namespace TrigCostRootAnalysis {
   /**
    * Helper function. For a given counter, and a given variable plus VariableOption pair, construct the name of the plot
    * to be used as the file name or the histogram name in any output.
-   * @param _counter Pointer to counter object, the name of the counter will be used.
-   * @param _variable Pair of variable name and VariableOption enum, used in constructiong plot name.
+   * @param counter Pointer to counter object, the name of the counter will be used.
+   * @param variable Pair of variable name and VariableOption enum, used in constructiong plot name.
    * @returns Formatted plot name string.
    */
-  std::string MonitorBase::constructPlotName(CounterBase* _counter, ConfVariableOptionPair_t _variable) {
-    std::string _name = _counter->getName();
-    _name += "_";
-    _name += Config::config().getStr(_variable.first); // What is being monitored (e.g. time, calls).
-    _name += "_";
-    _name += VariableOptionStr[ _variable.second ]; // How it's being monitored (e.g. per event, per call)
-    return _name;
+  std::string MonitorBase::constructPlotName(CounterBase* counter, ConfVariableOptionPair_t variable) {
+    std::string name = counter->getName();
+    name += "_";
+    name += Config::config().getStr(variable.first); // What is being monitored (e.g. time, calls).
+    name += "_";
+    name += VariableOptionStr[ variable.second ]; // How it's being monitored (e.g. per event, per call)
+    return name;
   }
 
   /**
@@ -924,71 +923,71 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Sets the level this monitor is operating at.
-   * @param _l Sets the level.
+   * @param l Sets the level.
    */
-  void MonitorBase::setLevel(UInt_t _l) {
-    m_level = _l;
+  void MonitorBase::setLevel(UInt_t l) {
+    m_level = l;
   }
 
   /**
    * Sets the name of this monitor, used when formatting output.
-   * @param _name Sets the name.
+   * @param name Sets the name.
    */
-  void MonitorBase::setName(const std::string& _name) {
-    m_name = _name;
+  void MonitorBase::setName(const std::string& name) {
+    m_name = name;
   }
 
   /**
    * Construct a TableColumnFormatter to output a column of data from all counters.
    * This version will directly fetch a variable from the counter's storage.
-   * @param _title The title of the column in the table.
-   * @param _variableName The name of the variable saved in the counter to export for this column.
-   * @param _vo The corresponding variable option for this variable (saved per call, per event, etc.)
-   * @param _precision The number of decimal places to include for this column.
+   * @param title The title of the column in the table.
+   * @param variableName The name of the variable saved in the counter to export for this column.
+   * @param vo The corresponding variable option for this variable (saved per call, per event, etc.)
+   * @param precision The number of decimal places to include for this column.
    */
-  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& _title,
-                                                          const std::string& _tooltip,
-                                                          ConfKey_t _variableName,
-                                                          VariableOption_t _vo,
-                                                          UInt_t _precision, FormatterOption_t _fo) :
-    m_columnName(_title),
-    m_tooltip(_tooltip),
-    m_dataVariable(_variableName),
-    m_dataVO(_vo),
+  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& title,
+                                                          const std::string& tooltip,
+                                                          ConfKey_t variableName,
+                                                          VariableOption_t vo,
+                                                          UInt_t precision, FormatterOption_t fo) :
+    m_columnName(title),
+    m_tooltip(tooltip),
+    m_dataVariable(variableName),
+    m_dataVO(vo),
     m_dataVariableDenominator(kNoneString),
     m_dataVODenominator(),
-    m_precision(_precision),
+    m_precision(precision),
     m_functionPtr(0),
     m_functionPtrStr(0),
-    m_formatOption(_fo) {}
+    m_formatOption(fo) {}
 
   /**
    * Construct a TableColumnFormatter to output a column of data from all counters.
    * This version will directly fetch two variable from the counter's storage and divide one by the other.
-   * @param _title The title of the column in the table.
-   * @param _variableNameNominator The name of the variable saved in the counter to export for this column.
-   * @param _voNominator The corresponding variable option for this variable (saved per call, per event, etc.)
-   * @param _variableNameDenominator The name of the variable saved in the counter to use as denominator.
-   * @param _voDenominator The corresponding variable option for this denominator
-   * @param _precision The number of decimal places to include for this column.
+   * @param title The title of the column in the table.
+   * @param variableNameNominator The name of the variable saved in the counter to export for this column.
+   * @param voNominator The corresponding variable option for this variable (saved per call, per event, etc.)
+   * @param variableNameDenominator The name of the variable saved in the counter to use as denominator.
+   * @param voDenominator The corresponding variable option for this denominator
+   * @param precision The number of decimal places to include for this column.
    */
-  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& _title,
-                                                          const std::string& _tooltip,
-                                                          ConfKey_t _dataVarialbeNominator,
-                                                          VariableOption_t _voNominator,
-                                                          ConfKey_t _dataVarialbeDenominator,
-                                                          VariableOption_t _voDenominator,
-                                                          UInt_t _precision, FormatterOption_t _fo) :
-    m_columnName(_title),
-    m_tooltip(_tooltip),
-    m_dataVariable(_dataVarialbeNominator),
-    m_dataVO(_voNominator),
-    m_dataVariableDenominator(_dataVarialbeDenominator),
-    m_dataVODenominator(_voDenominator),
-    m_precision(_precision),
+  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& title,
+                                                          const std::string& tooltip,
+                                                          ConfKey_t dataVarialbeNominator,
+                                                          VariableOption_t voNominator,
+                                                          ConfKey_t dataVarialbeDenominator,
+                                                          VariableOption_t voDenominator,
+                                                          UInt_t precision, FormatterOption_t fo) :
+    m_columnName(title),
+    m_tooltip(tooltip),
+    m_dataVariable(dataVarialbeNominator),
+    m_dataVO(voNominator),
+    m_dataVariableDenominator(dataVarialbeDenominator),
+    m_dataVODenominator(voDenominator),
+    m_precision(precision),
     m_functionPtr(0),
     m_functionPtrStr(0),
-    m_formatOption(_fo) {}
+    m_formatOption(fo) {}
 
   /**
    * Construct a TableColumnFormatter to output a column of data from all counters.
@@ -997,23 +996,23 @@ namespace TrigCostRootAnalysis {
    * The CounterMap_t* input is considered optional. This is only needed when all counters are needed to calculate a
    *quantity, such as how much time a
    * chain used averaged over all chains.
-   * @param _title The title of the column in the table.
-   * @param _functionPrt Pointer to function which takes a counterMap* and CounterBase* and then returns a float value
+   * @param title The title of the column in the table.
+   * @param functionPrt Pointer to function which takes a counterMap* and CounterBase* and then returns a float value
    *to include in the column.
-   * @param _precision The number of decimal places to include for this column.
+   * @param precision The number of decimal places to include for this column.
    */
-  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& _title,
-                                                          const std::string& _tooltip,
-                                                          Float_t(*_functionPtr)(CounterMap_t*, CounterBase*),
-                                                          UInt_t _precision) :
-    m_columnName(_title),
-    m_tooltip(_tooltip),
+  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& title,
+                                                          const std::string& tooltip,
+                                                          Float_t(*functionPtr)(CounterMap_t*, CounterBase*),
+                                                          UInt_t precision) :
+    m_columnName(title),
+    m_tooltip(tooltip),
     m_dataVariable(),
     m_dataVO(),
     m_dataVariableDenominator(),
     m_dataVODenominator(),
-    m_precision(_precision),
-    m_functionPtr(_functionPtr),
+    m_precision(precision),
+    m_functionPtr(functionPtr),
     m_functionPtrStr(0),
     m_formatOption(kFormatOptionNone) {}
 
@@ -1024,22 +1023,22 @@ namespace TrigCostRootAnalysis {
    * The CounterMap_t* input is considered optional. This is only needed when all counters are needed to calculate a
    *quantity, such as how much time a
    * chain used averaged over all chains.
-   * @param _title The title of the column in the table.
-   * @param _functionPrtStr Pointer to function which takes a CounterMap_t* and CounterBase* and then returns a string
+   * @param title The title of the column in the table.
+   * @param functionPrtStr Pointer to function which takes a CounterMap_t* and CounterBase* and then returns a string
    *value to include in the column.
    */
-  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& _title,
-                                                          const std::string& _tooltip,
-                                                          std::string(*_functionPtrStr)(CounterMap_t*, CounterBase*)) :
-    m_columnName(_title),
-    m_tooltip(_tooltip),
+  MonitorBase::TableColumnFormatter::TableColumnFormatter(const std::string& title,
+                                                          const std::string& tooltip,
+                                                          std::string(*functionPtrStr)(CounterMap_t*, CounterBase*)) :
+    m_columnName(title),
+    m_tooltip(tooltip),
     m_dataVariable(),
     m_dataVO(),
     m_dataVariableDenominator(),
     m_dataVODenominator(),
     m_precision(0),
     m_functionPtr(0),
-    m_functionPtrStr(_functionPtrStr),
+    m_functionPtrStr(functionPtrStr),
     m_formatOption(kFormatOptionNone) {}
 
 

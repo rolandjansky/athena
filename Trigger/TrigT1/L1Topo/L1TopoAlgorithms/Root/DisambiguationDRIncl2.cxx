@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * DisambiguationDRIncl2.cpp
  * Created by Joerg Stelzer / V Sorin on 9/16/14.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  * 
  * @brief algorithm calculates the dR distance between objects in two lists, 
  * but minimum value uses > instead of >= as dr algos

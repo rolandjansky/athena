@@ -41,3 +41,7 @@
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Trigger/TrigAnalysis/TrigMuonEfficiency
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
+
+# Data quality packages not needed in Athena
+- DataQuality/DataQualityConfigurations
+- DataQuality/DCSCalculator2

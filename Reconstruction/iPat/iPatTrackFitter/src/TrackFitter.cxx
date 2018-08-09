@@ -6,7 +6,6 @@
  least squared fit to track hit data => PerigeeParameters with covariance
  and fit quality. 
  ------------------------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -639,7 +638,6 @@ TrackFitter::initialize()
 
     // can now create FitProcedure class
     m_fitProcedure = new Trk::FitProcedure(false,
-					   false,
 					   false,
 					   false,
 					   m_rungeKuttaIntersector,

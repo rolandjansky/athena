@@ -26,7 +26,10 @@
 
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "PATCore/TAccept.h"            // for TAccept
+#include "PATCore/TResult.h"            // for TResult
 
 class TrigTimer;
 
@@ -61,11 +64,17 @@ class TrigBphysElectronCounter: public HLT::AllTEAlgo  {
   float m_mindR;
   // OI: should we check for CB flag?
   std::string                 m_egammaElectronCutIDToolName;
+  std::string                 m_athElectronLHIDSelectorToolName;
   std::string                 m_electronCollectionKey;
+  std::string                 m_outputTrackCollectionKey;
+  bool                        m_useAthElectronLHIDSelector;
   unsigned int                m_IsEMrequiredBits;  //!< isem flag bits required per electron, matches pt cuts
   bool                        m_applyIsEM;  //!< true if isem flag required 
   ToolHandle<IAsgElectronIsEMSelector> m_egammaElectronCutIDTool;
-
+  ToolHandle<IAsgElectronLikelihoodTool> m_athElectronLHIDSelectorTool;
+  /** Luminosity Tool */
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // used by LH selector
+  
   //Counters
   uint32_t m_countTotalEvents;
   uint32_t m_countPassedPt;
@@ -95,8 +104,25 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
   outVec.clear();
   std::vector<float> pts;
   std::vector<unsigned int> isEMs;
+  std::vector<bool> isLHAcceptTrigs;
   
   float mindR2 = mindR*mindR;
+
+  bool useLumiTool=false;
+  double mu = 0.;
+  double avg_mu = 0.;
+  if(m_useAthElectronLHIDSelector && m_lumiBlockMuTool){
+      useLumiTool=true;
+      mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+      avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+      ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu << ", Average Mu Value   : " << avg_mu);
+  }
+
+  // first get all candidates with suitable pt
+  Tout outVecTmp;
+
+  float lowestPt = ptObjMin.back();
+  ATH_MSG_DEBUG("REGTEST: asking for pt cut  " << lowestPt);
 
   unsigned int nTEs = inputTE.size();
   for ( unsigned int i=0; i < nTEs; ++i) {
@@ -106,71 +132,97 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
       for( const auto& efmu : inVecColl){	
 	  // check for overlap
 	  bool found = false;
-	  for(const auto& part : outVec ){
+	  for(const auto& part : outVecTmp ){ 
+	    ATH_MSG_DEBUG(" found pt " << (*part)->pt() << " lowestPt "<< lowestPt );
+	    if( (*part)->pt() < lowestPt ) continue;
 	    double deta = (*part)->eta() - (*efmu)->eta();
 	    double dphi = (*part)->phi() - (*efmu)->phi();
 	    double deltaR2 = deta*deta +dphi*dphi;
 	    if( deltaR2 <= mindR2) found = true;
 	  }
-	  if( !found ){
-	    // calculate isEM
-	    unsigned int isEMTrig = 0;
-	    if( m_applyIsEM && m_egammaElectronCutIDTool != 0 ){
-	      if( m_egammaElectronCutIDTool->execute( (*efmu) ).isFailure() )
-		if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " can not calculate isEM on electron " << (*efmu)->pt() << endmsg;
-	      isEMTrig = m_egammaElectronCutIDTool->IsemValue();
-	      if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " set isEM Trig " << std::hex << isEMTrig << " on electron " << (*efmu)->pt() << endmsg;
+	  if( !found ) outVecTmp.push_back(efmu);
+      } // loop over inVecColl
+    }}} // end loop over TE
 
-	    }else{
-	      if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " No check of isEM is done " << endmsg;
-	    }
-	    
-	    float pt = fabs((*efmu)->pt()) ;
-	    // check if value in GeV or MeV, if it was >350 GeV and multiplied by 1000, it does not matter
-	    if( pt < 350. && pt>0.01 ) pt *= 1000.;
-	    pts.push_back(pt);	    
-	    outVec.push_back(efmu);
-	    isEMs.push_back(isEMTrig);	    
-	    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Found electron, pt= " << pt << ", isEMTrig= 0x"<< std::hex << isEMTrig << " (required isEM= 0x"<< std::hex << isEMBitCuts << std::dec<< ")"<< endmsg;
-	    unsigned int isEMbit=0;
-	    
-	    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "  passing isEMLoose =  " << (*efmu)->selectionisEM(isEMbit,"isEMLoose") << " 0x" << std::hex <<  isEMbit << endmsg;
-	  }
-      }//}// end loop over electrons in one TE
-    } // end getFeaturesLinks
-   }} // end loop over all TEs
-
-    //=== check if it is enough electrons
-  if( (int)outVec.size() < nObjMin ) {
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Rejecting: "
-    					 <<" #electrons= " <<  outVec.size() 
-    					 << " while need "<< nObjMin << endmsg;
+  //=== check if it is enough electrons
+  if( (int)outVecTmp.size() < nObjMin ) {
+    ATH_MSG_DEBUG("Rejecting: " <<" #electrons before PID = " <<  outVecTmp.size() << " while need "<< nObjMin );
     return 1;
   }
+
+  // now check isEM and keep only relevant electrons
+  outVec.clear();
+  for(const auto & efmu : outVecTmp ){
+    // calculate isEM
+    unsigned int isEMTrig = 0;
+    bool isLHAcceptTrig = false;
+    float lhval=0;
+
+    if( m_applyIsEM ) {
+      if(m_useAthElectronLHIDSelector){
+	if( m_athElectronLHIDSelectorTool != 0){
+	  if(useLumiTool){
+	    const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(*efmu,avg_mu);
+	    lhval=m_athElectronLHIDSelectorTool->getTResult().getResult(0);
+	    ATH_MSG_DEBUG("LHValue with mu " << lhval);
+	    isLHAcceptTrig = (bool) (acc);
+	  }else {
+	    ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
+	    const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(*efmu);
+	    lhval=m_athElectronLHIDSelectorTool->getTResult().getResult(0);
+	    ATH_MSG_DEBUG("LHValue without mu " << lhval);
+	    isLHAcceptTrig = (bool) (acc);
+	  }
+	} // end of m_athElectronLHIDSelectorTool != 0
+      }else{
+	if( m_egammaElectronCutIDTool != 0 ){
+	  if( m_egammaElectronCutIDTool->execute( (*efmu) ).isFailure() )
+	    ATH_MSG_DEBUG(" can not calculate isEM on electron " << (*efmu)->pt() );
+	  isEMTrig = m_egammaElectronCutIDTool->IsemValue();
+	  ATH_MSG_DEBUG(" set isEM Trig " << std::hex << isEMTrig << " on electron " << (*efmu)->pt() );
+
+	  if( (isEMTrig & isEMBitCuts)==0 ) isLHAcceptTrig = true;
+	}
+      } // end of  m_egammaElectronCutIDTool != 0
+    }else{
+      ATH_MSG_DEBUG(" No check of isEM is done " );
+      isLHAcceptTrig = true;      
+    } // end of if( m_applyIsEM )
+
+    if( isLHAcceptTrig ){ // good candidate
+      outVec.push_back(efmu);
+      float pt = fabs((*efmu)->pt()) ;
+      // check if value in GeV or MeV, if it was >350 GeV and multiplied by 1000, it does not matter
+      if( pt < 350. && pt>0.01 ) pt *= 1000.;
+      pts.push_back(pt);
+      ATH_MSG_DEBUG("Found electron, pt= " << pt << ", isEMTrig= 0x"<< std::hex << isEMTrig
+		    << " (required isEM= 0x"<< std::hex << isEMBitCuts << std::dec<< ")"
+		    << ", isLHAccept = " << isLHAcceptTrig );
+      unsigned int isEMbit=0;	    
+      ATH_MSG_DEBUG("  passing isEMLoose =  " << (*efmu)->selectionisEM(isEMbit,"isEMLoose") << " 0x" << std::hex <<  isEMbit );
+    }
+  } // end loop over electrons passing pt cuts
+
+  if( (int)outVec.size() < nObjMin ) {
+    ATH_MSG_DEBUG("Rejecting: " <<" #electrons after PID = " <<  outVec.size() << " while need "<< nObjMin );
+    return 2;
+  }
+
+  // now check pts cuts  
   //std::sort(isEMs.begin(), isEMs.end(), [&pts](size_t i, size_t j) {return pts[i] > pts[j];});
   std::sort(pts.begin(), pts.end(), std::greater<float>());
 
   //== check that electrons have correct pts and isEM
   unsigned int Ncheck = std::min( nObjMin, int(ptObjMin.size()) );
   bool failElectronPt = false;
-  bool failElectronIsEM = false;
   for ( unsigned int ipt=0; ipt < Ncheck; ++ipt) {
     if(  pts[ipt] < ptObjMin[ipt] ) 
       failElectronPt = true;
-    // here we need a logic that allows different isEM cuts for different electrons. Disable it for now
-    //if( (isEM[ipt] & m_IsEMrequiredBits[ipt])!=0 ) 
-    if( (isEMs[ipt] & isEMBitCuts)!=0 ) 
-      failElectronIsEM = true;    
   }
   if( failElectronPt ){
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail electron pt cut" << endmsg;
-    return 2;
-  }
-  if( failElectronIsEM ){
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail electron PID cut " << endmsg;
+    ATH_MSG_DEBUG("Fail electron pt cut" );
     return 3;
   }
-  // here would be good to limit number of objects to the minimum
 
   return 0;
 

@@ -70,7 +70,8 @@ WriteToCool = True
 LbsPerWindow           = 20
 
 #--- Noisy strips
-NoisyUpdate            = True     # True = Write out difference from the existing data, False = Write out all
+NoisyUpdate            = False    # True = Write out difference from the existing data, False = Write out all
+NoisyWriteAllModules   = True     # True = Write out all modules if NoisyUpdate = false; False = write only modules with at least one noisy strip
 NoisyMinStat           = 10000    # 50000 (enough), 10000 (still possible), 5000 (for commissioning)
 NoisyStripAll          = True     # True = All noisy strips into DB, False = Only newly found strips
 NoisyStripThrDef       = True     # True = Offline, False = Calib
@@ -78,7 +79,7 @@ NoisyStripThrOffline   = 1.500E-2 # Threshold in Offline
 NoisyStripThrOnline    = 1.500E-3 # Threshold in Online/Calibration (TBD)
 NoisyWaferFinder       = True     # True = turn on noisy wafer criteria, False = turn off
 NoisyWaferWrite        = True     # True = include noisy wafer, False = do not include
-NoisyWaferAllStrips    = False     # True = write out all strips, False = only noisy strips
+NoisyWaferAllStrips    = False    # True = write out all strips, False = only noisy strips
 NoisyWaferThrBarrel    = 1.000E-3
 NoisyWaferThrECA       = 1.000E-3
 NoisyWaferThrECC       = 1.000E-3

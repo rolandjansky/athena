@@ -1,4 +1,7 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigRoiDescriptor.h        
 //
@@ -6,7 +9,6 @@
 //             for enforcement of correct roi sizes       
 //  
 //   @author sutt@cern.ch
-//   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigRoiDescriptor.h, v0.1   Fri 08 Jun 2013 23:52:09 CEST sutt $
 
@@ -76,7 +78,7 @@ public:
    */
   TrigRoiDescriptor(double eta, double etaMinus, double etaPlus, 
 		    double phi, double phiMinus, double phiPlus, 
-		    double zed=0, double zedMinus=-zedWidthDefault, double zedPlus=zedWidthDefault);
+		    double zed=0, double zedMinus=-s_zedWidthDefault, double zedPlus=s_zedWidthDefault);
   
   /**
    * @brief constructor
@@ -95,7 +97,7 @@ public:
   TrigRoiDescriptor(unsigned int l1id, unsigned int id, 
 		    double eta, double etaMinus, double etaPlus, 
 		    double phi, double phiMinus, double phiPlus, 
-		    double zed=0, double zedMinus=-zedWidthDefault, double zedPlus=zedWidthDefault);
+		    double zed=0, double zedMinus=-s_zedWidthDefault, double zedPlus=s_zedWidthDefault);
 
   /**
    * @brief constructor
@@ -115,7 +117,7 @@ public:
   TrigRoiDescriptor(unsigned int roiWord, unsigned int l1id, unsigned int id, 
 		    double eta, double etaMinus, double etaPlus, 
 		    double phi, double phiMinus, double phiPlus, 
-		    double zed=0, double zedMinus=-zedWidthDefault, double zedPlus=zedWidthDefault);
+		    double zed=0, double zedMinus=-s_zedWidthDefault, double zedPlus=s_zedWidthDefault);
 
 
   TrigRoiDescriptor( const IRoiDescriptor& roi );

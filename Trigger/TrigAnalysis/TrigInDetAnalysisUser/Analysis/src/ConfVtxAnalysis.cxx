@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    ConfVtxAnalysis.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: ConfVtxAnalysis.cxx, v0.0   Sun  9 Aug 2015 21:53:46 CEST sutt $
 
@@ -80,23 +82,23 @@ void ConfVtxAnalysis::initialise() {
 
   
   hnvtx   = new TH1F( "nvtx", ";number of vertices",   100, -0.5,  100.5   );
-  hzed    = new TH1F( "zed",   ";vtx z [mm]",       200, -300,   300   );
+  hzed    = new TH1F( "zed",   ";vtx z [mm]",          200, -300,   300   );
   //  hntrax  = new TH1F( "ntrax", ";number of tracks", 201,   -0.5, 200.5 );
   hntrax  = new TH1F( "ntrax", ";number of tracks", 80,  vnbins );
-  hmu     = new TH1F( "mu",    ";<mu>",    81, -0.5, 80.5   );
+  hmu     = new TH1F( "mu",    ";<mu>",         81, -0.5, 80.5   );
   hlb     = new TH1F( "lb",    ";lumi block",  301, -0.5, 3009.5   );
 
 
-  hnvtx_rec  = new TH1F( "nvtx_rec",  ";number of vertices",   100, -0.5,  100.5   );
-  hzed_rec   = new TH1F( "zed_rec",   ";vtx z [mm]",       200, -300,   300   );
-  hntrax_rec = new TH1F( "ntrax_rec", ";number of tracks", 80, vnbins );
+  hnvtx_rec  = new TH1F( "nvtx_rec",  ";number of vertices",  100, -0.5,  100.5   );
+  hzed_rec   = new TH1F( "zed_rec",   ";vtx z [mm]",          200, -300,   300   );
+  hntrax_rec = new TH1F( "ntrax_rec", ";number of tracks",     80, vnbins );
 
   hzed_res = new TH1F( "zed_res", "Delta z [mm]", 400, -10, 10 );
 
-  rdz_vs_zed    = new Resplot( "rdz_vs_zed",   100, -300,    300,    400, -20, 20 ); 
-  rdz_vs_ntrax  = new Resplot( "rdz_vs_ntrax", 201,   -0.5,  200.5,  400, -20, 20 ); 
-  rdz_vs_nvtx   = new Resplot( "rdz_vs_nvtx",  81,    -0.5,   80.5,  400, -20, 20 ); 
-  rdz_vs_mu     = new Resplot( "rdz_vs_mu",    30,     0,     30,    400, -20, 20 ); 
+  rdz_vs_zed    = new Resplot( "rdz_vs_zed",   100, -300,    300,    1600, -20, 20 ); 
+  rdz_vs_ntrax  = new Resplot( "rdz_vs_ntrax", 201,   -0.5,  200.5,  1600, -20, 20 ); 
+  rdz_vs_nvtx   = new Resplot( "rdz_vs_nvtx",  81,    -0.5,   80.5,  1600, -20, 20 ); 
+  rdz_vs_mu     = new Resplot( "rdz_vs_mu",    30,     0,     30,    1600, -20, 20 ); 
 
   eff_zed   = new Efficiency( hzed,   "zed_eff" );
   eff_ntrax = new Efficiency( hntrax, "ntrax_eff" );
@@ -106,7 +108,7 @@ void ConfVtxAnalysis::initialise() {
  
   //  double ntrax[10] = { 0, 2, 5, 10, 15, 20, 30, 15, 100 }; 
 
-  rdz_vs_lb    = new Resplot( "rdz_vs_lb",  301, -0.5, 3009.5,  400, -20, 20 ); 
+  rdz_vs_lb    = new Resplot( "rdz_vs_lb",  301, -0.5, 3009.5,  800, -20, 20 ); 
   rdx_vs_lb    = new Resplot( "rdx_vs_lb",  301, -0.5, 3009.5,  300,  -3,  3 ); 
   rdy_vs_lb    = new Resplot( "rdy_vs_lb",  301, -0.5, 3009.5,  300,  -3,  3 ); 
 

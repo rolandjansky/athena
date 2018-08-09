@@ -5,7 +5,7 @@
 ## just used to determine the input file dummy-naming strategy for C++ generators)
 lhefGenerators = ["Lhef", # generic name: prefer to use the names below
                   "aMcAtNlo", "McAtNlo", "Powheg", "PowHel", "MadGraph", "CompHep", "CalcHep",
-                  "Whizard", "MCFM", "JHU", "MEtop", "Charybdis", "Charybdis2",
+                  "Whizard", "MCFM", "JHU", "MEtop", "Charybdis", "Charybdis2","BCVEGPY", "Dire4Pythia8",
                   "BlackMax", "QBH", "gg2ww", "gg2zz", "gg2vv", "HvyN", "VBFNLO", "FPMC", "ProtosLHEF"]
 
 ## A more general list of generators which provide partonic input, including non-LHEF ones

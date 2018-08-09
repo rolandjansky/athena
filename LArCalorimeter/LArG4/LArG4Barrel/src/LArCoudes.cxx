@@ -10,7 +10,7 @@ LArCoudes::LArCoudes(std::string strDetector)
 {
   if (s_theCoudes==nullptr)
     {
-      if(strDetector=="")
+      if(strDetector.empty())
         {
           s_theCoudes=
             new PhysicalVolumeAccessor("LAr::EMB::STAC",
@@ -28,7 +28,7 @@ LArCoudes::LArCoudes(std::string strDetector)
 }
 double LArCoudes::XCentCoude(int stackid, int cellid) const
 {
-  int id=cellid+stackid*10000;
+  const int id=cellid+stackid*10000;
   const G4VPhysicalVolume *pv=s_theCoudes->GetPhysicalVolume(id);
   if (!pv) std::abort();
   const G4ThreeVector& tv=pv->GetTranslation();
@@ -36,7 +36,7 @@ double LArCoudes::XCentCoude(int stackid, int cellid) const
 }
 double LArCoudes::YCentCoude(int stackid, int cellid) const
 {
-  int id=cellid+stackid*10000;
+  const int id=cellid+stackid*10000;
   const G4VPhysicalVolume *pv=s_theCoudes->GetPhysicalVolume(id);
   if (!pv) std::abort();
   const G4ThreeVector& tv=pv->GetTranslation();

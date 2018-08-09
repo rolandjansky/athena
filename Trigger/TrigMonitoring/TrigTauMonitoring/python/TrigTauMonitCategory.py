@@ -161,9 +161,6 @@ monitoring_tau_validation = [
     'tau160_perf_tracktwo_L1TAU100', # 'tau160_perf_tracktwo',
     'tau160_medium1_tracktwo',
     'tau160_medium1_tracktwo_L1TAU100', # 1tau
-    'tau160_medium1HighptL_tracktwo',
-    'tau160_medium1HighptM_tracktwo',
-    'tau160_medium1HighptH_tracktwo',
     'tau12_idperf_FTK',
     'tau12_perf_FTK',
     'tau12_perf0_FTK',

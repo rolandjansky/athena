@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import Logging
-from ...decorators import timed
-from ...utility import LHE, ProcessManager, SingleProcessThread
 import glob
 import os
 import shutil
 import subprocess
+from AthenaCommon import Logging
+from ...decorators import timed
+from ...utility import LHE, ProcessManager, SingleProcessThread
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
@@ -250,6 +250,8 @@ def __run_executable(executable):
 
     @author James Robinson <james.robinson@cern.ch>
     """
+    if not os.path.isfile(executable):
+        raise OSError("MadSpin executable {} not found!".format(executable))
     logger.info("MadSpin executable: {}".format(executable))
     with open("madspin_runcard.txt", "rb") as runcard_input:
         processes = [SingleProcessThread([executable], stdin=runcard_input, ignore_output=["INFO:", "MadSpin>"])]

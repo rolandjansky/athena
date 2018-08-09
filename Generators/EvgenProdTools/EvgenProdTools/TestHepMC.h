@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -48,6 +48,9 @@ public:
   double      m_eff_warn_threshold, m_eff_fail_threshold, m_tau_eff_threshold;
   double      m_accur_margin;
   bool m_doHist;
+  bool m_beamEnergyTest, m_vtxNaNTest, m_vtxDisplacedTest, m_momNaNTest, m_lifeTimeTest, m_energyG4Test;
+  bool m_energyImbalanceTest, m_momImbalanceTest, m_negativeEnergyTest, m_tachyonsTest, m_unstableNoVtxTest;
+  bool m_pi0NoVtxTest, m_undisplacedDaughtersTest;
 
   std::vector<int> m_vertexStatuses;
 

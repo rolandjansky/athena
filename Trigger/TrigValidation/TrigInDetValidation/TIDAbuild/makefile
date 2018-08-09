@@ -2,7 +2,7 @@
 #
 #   File:         makefile
 #
-#                 Copyright (C) M.Sutton (sutt@cern.ch) 
+#                  
 #   Description:  simply builds a global xml file from a collection of 
 #                 separate xml files  
 #                 

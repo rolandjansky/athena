@@ -1,8 +1,10 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    phiHelper.h        
 //
-//   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: phiHelper.h, v0.0   Sun 20 Jun 2010 20:21:49 BST sutt $
 

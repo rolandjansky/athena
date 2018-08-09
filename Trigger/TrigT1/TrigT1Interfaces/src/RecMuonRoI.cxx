@@ -1,20 +1,14 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // $Id: RecMuonRoI.cxx 364688 2011-05-09 16:58:25Z krasznaa $
 /***************************************************************************
                          RecMuonRoI.cxx  -  description
                             -------------------
    begin                : Tue Feb 25 2003
-   copyright            : (C) 2003 by wengler
    email                : Thorsten.Wengler
 ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 // STL include(s):
 #include <iomanip>

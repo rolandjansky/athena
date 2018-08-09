@@ -131,7 +131,8 @@ StatusCode RefitTracksAndVertex::execute() {
   if ( !evtStore()->retrieve( vertices, m_vertexListInput ).isSuccess() ){ // retrieve arguments: container type, container key
     ATH_MSG_WARNING("execute() Failed to retrieve Reconstructed vertex container. " << m_vertexListInput );
     //ATH_MSG_ERROR(evtStore()->dump());
-    return StatusCode::SUCCESS;
+    delete outputtracks;
+    return StatusCode::SUCCESS; //?? really
   }
   
   if( evtStore()->record( outputtracks, m_trackListOutput ).isFailure() ) {
@@ -146,7 +147,7 @@ StatusCode RefitTracksAndVertex::execute() {
   CHECK( evtStore()->record(theVertexAuxContainer, m_outputVertexContainerName + "Aux.") );
 
   const xAOD::Vertex* primaryVertex = 0;  
-  for( auto vertex: *vertices ) {
+  for( const auto & vertex: *vertices ) {
     if( vertex->vertexType() == xAOD::VxType::PriVtx ) {
       primaryVertex = vertex;
       break;

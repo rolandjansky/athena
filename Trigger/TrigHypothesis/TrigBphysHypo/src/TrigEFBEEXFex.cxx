@@ -235,24 +235,19 @@ TrigEFBEEXFex::~TrigEFBEEXFex()
 /*----------------------------------------------------------------------------*/
 HLT::ErrorCode TrigEFBEEXFex::hltInitialize()
 {
-    msg() << MSG::INFO << "Running TrigEFBEEXFex::hltInitialize" << endmsg;
+    ATH_MSG_INFO("Running TrigEFBEEXFex::hltInitialize" );
     
-    if(msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "Initialization completed successfully:" << endmsg;
-        msg() << MSG::DEBUG << "AcceptAll          = "
-        << (m_acceptAll==true ? "True" : "False") << endmsg;
-        msg() << MSG::DEBUG << "DoFTK         = "
-        << (m_FTK==true ? "True" : "False") << endmsg;
-        msg() << MSG::INFO << "MaxNcombinations            = " << m_maxNcombinations << endmsg;
+    ATH_MSG_DEBUG("Initialization completed successfully:" );
+    ATH_MSG_DEBUG("AcceptAll          = "   << (m_acceptAll==true ? "True" : "False") );
+    ATH_MSG_DEBUG("DoFTK         = "        << (m_FTK==true ? "True" : "False") );
+    ATH_MSG_DEBUG("MaxNcombinations            = " << m_maxNcombinations );
         
-        msg() << MSG::DEBUG << "Activated decays:" << endmsg;
-        msg() << MSG::DEBUG << "    B+ -> e e K+         : " << (m_doB_KEEDecay==true ? "True" : "False") << endmsg;
-        msg() << MSG::DEBUG << "    Bd -> e e K*(K+ Pi-) : " << (m_doBd_KstarEEDecay==true ? "True" : "False") << endmsg;
-        msg() << MSG::DEBUG << "    Bs -> e e Phi(K+ K-) : " << (m_doBs_Phi1020EEDecay==true ? "True" : "False") << endmsg;
+    ATH_MSG_DEBUG("Activated decays:" );
+    ATH_MSG_DEBUG("    B+ -> e e K+         : " << (m_doB_KEEDecay==true ? "True" : "False") );
+    ATH_MSG_DEBUG("    Bd -> e e K*(K+ Pi-) : " << (m_doBd_KstarEEDecay==true ? "True" : "False") );
+    ATH_MSG_DEBUG("    Bs -> e e Phi(K+ K-) : " << (m_doBs_Phi1020EEDecay==true ? "True" : "False") );
         
-        msg() << MSG::DEBUG << "OppositeCharge     = "        << (m_oppositeCharge==true ? "True" : "False") << endmsg;
-        
-    }
+    ATH_MSG_DEBUG("OppositeCharge     = "        << (m_oppositeCharge==true ? "True" : "False") );
     
     // setting up timers
     if ( timerSvc() ) {
@@ -262,21 +257,19 @@ HLT::ErrorCode TrigEFBEEXFex::hltInitialize()
     
     // retrieving the vertex fitting tool
     if (m_fitterSvc.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find Trk::TrkVKalVrtFitter" << endmsg;
+        ATH_MSG_ERROR("Can't find Trk::TrkVKalVrtFitter" );
         return StatusCode::SUCCESS;
     } else {
-        if (msgLvl() <= MSG::DEBUG) {
-            msg() << MSG::DEBUG << "Trk::TrkVKalVrtFitter found" << endmsg;
-        }
+        ATH_MSG_DEBUG("Trk::TrkVKalVrtFitter found" );
         m_VKVFitter = dynamic_cast< Trk::TrkVKalVrtFitter* > (&(*m_fitterSvc));
     }
     
     // retrieving BphysHelperUtilsTool
     if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
+        ATH_MSG_ERROR("Can't find TrigBphysHelperUtilsTool" );
         return StatusCode::SUCCESS;
     } else {
-            if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
+            ATH_MSG_DEBUG("TrigBphysHelperUtilsTool found" );
     }
     
     // set counters
@@ -332,35 +325,35 @@ HLT::ErrorCode TrigEFBEEXFex::hltInitialize()
 HLT::ErrorCode TrigEFBEEXFex::hltFinalize()
 {
     
-    msg() << MSG::INFO << "Running TrigEFBEEXFex::hltFinalize" << endmsg;
+    ATH_MSG_INFO("Running TrigEFBEEXFex::hltFinalize" );
     
-    msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFBEEXFex -------------|" << endmsg;
-    msg() << MSG::INFO << "Run on events/RoIs      " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
-    msg() << MSG::INFO << "Passed events/RoIs      " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
-    msg() << MSG::INFO << "Evts Passed B+:         " << m_countPassedEventsBplus << endmsg;
-    msg() << MSG::INFO << "Evts Passed Bd:         " << m_countPassedEventsBd << endmsg;
-    msg() << MSG::INFO << "Evts Passed Bs:         " << m_countPassedEventsBs << endmsg;
-    msg() << MSG::INFO << std::endl << endmsg;
-    msg() << MSG::INFO << "PassedEEID:           " << m_countPassedEEID << endmsg;
-    msg() << MSG::INFO << "PassedEEOS:           " << m_countPassedEEOS << endmsg;
-    msg() << MSG::INFO << "PassedEEMass:         " << m_countPassedEEMass << endmsg;
-    msg() << MSG::INFO << "PassedEEVtx:          " << m_countPassedEEVtx << endmsg;
-    msg() << MSG::INFO << "PassedEEVtxChi2:      " << m_countPassedEEVtxChi2 << endmsg;
-    msg() << MSG::INFO << "PassedBplusMass:        " << m_countPassedBplusMass << endmsg;
-    msg() << MSG::INFO << "PassedBplusVtx:         " << m_countPassedBplusVtx << endmsg;
-    msg() << MSG::INFO << "PassedBplusVtxChi2:     " << m_countPassedBplusVtxChi2 << endmsg;
-    msg() << MSG::INFO << "PassedKstarMass:        " << m_countPassedKstarMass << endmsg;
-    msg() << MSG::INFO << "PassedKstarVtx:         " << m_countPassedKstarVtx << endmsg;
-    msg() << MSG::INFO << "PassedKstarVtxChi2:     " << m_countPassedKstarVtxChi2 << endmsg;
-    msg() << MSG::INFO << "PassedBdMass:           " << m_countPassedBdMass << endmsg;
-    msg() << MSG::INFO << "PassedBdVtx:            " << m_countPassedBdVtx << endmsg;
-    msg() << MSG::INFO << "PassedBdVtxChi2:        " << m_countPassedBdVtxChi2 << endmsg;
-    msg() << MSG::INFO << "PassedPhi1020Mass:      " << m_countPassedPhi1020Mass << endmsg;
-    msg() << MSG::INFO << "PassedPhi1020Vtx:       " << m_countPassedPhi1020Vtx << endmsg;
-    msg() << MSG::INFO << "PassedPhi1020VtxChi2:   " << m_countPassedPhi1020VtxChi2 << endmsg;
-    msg() << MSG::INFO << "PassedBsMass:           " << m_countPassedBsMass << endmsg;
-    msg() << MSG::INFO << "PassedBsVtx:            " << m_countPassedBsVtx << endmsg;
-    msg() << MSG::INFO << "PassedBsVtxChi2:        " << m_countPassedBsVtxChi2 << endmsg;
+    ATH_MSG_INFO("|----------------------- SUMMARY FROM TrigEFBEEXFex -------------|" );
+    ATH_MSG_INFO("Run on events/RoIs      " << m_countTotalEvents << "/" << m_countTotalRoI );
+    ATH_MSG_INFO("Passed events/RoIs      " << m_countPassedEvents << "/" << m_countPassedRoIs );
+    ATH_MSG_INFO("Evts Passed B+:         " << m_countPassedEventsBplus );
+    ATH_MSG_INFO("Evts Passed Bd:         " << m_countPassedEventsBd );
+    ATH_MSG_INFO("Evts Passed Bs:         " << m_countPassedEventsBs );
+    ATH_MSG_INFO(std::endl );
+    ATH_MSG_INFO("PassedEEID:           " << m_countPassedEEID );
+    ATH_MSG_INFO("PassedEEOS:           " << m_countPassedEEOS );
+    ATH_MSG_INFO("PassedEEMass:         " << m_countPassedEEMass );
+    ATH_MSG_INFO("PassedEEVtx:          " << m_countPassedEEVtx );
+    ATH_MSG_INFO("PassedEEVtxChi2:      " << m_countPassedEEVtxChi2 );
+    ATH_MSG_INFO("PassedBplusMass:        " << m_countPassedBplusMass );
+    ATH_MSG_INFO("PassedBplusVtx:         " << m_countPassedBplusVtx );
+    ATH_MSG_INFO("PassedBplusVtxChi2:     " << m_countPassedBplusVtxChi2 );
+    ATH_MSG_INFO("PassedKstarMass:        " << m_countPassedKstarMass );
+    ATH_MSG_INFO("PassedKstarVtx:         " << m_countPassedKstarVtx );
+    ATH_MSG_INFO("PassedKstarVtxChi2:     " << m_countPassedKstarVtxChi2 );
+    ATH_MSG_INFO("PassedBdMass:           " << m_countPassedBdMass );
+    ATH_MSG_INFO("PassedBdVtx:            " << m_countPassedBdVtx );
+    ATH_MSG_INFO("PassedBdVtxChi2:        " << m_countPassedBdVtxChi2 );
+    ATH_MSG_INFO("PassedPhi1020Mass:      " << m_countPassedPhi1020Mass );
+    ATH_MSG_INFO("PassedPhi1020Vtx:       " << m_countPassedPhi1020Vtx );
+    ATH_MSG_INFO("PassedPhi1020VtxChi2:   " << m_countPassedPhi1020VtxChi2 );
+    ATH_MSG_INFO("PassedBsMass:           " << m_countPassedBsMass );
+    ATH_MSG_INFO("PassedBsVtx:            " << m_countPassedBsVtx );
+    ATH_MSG_INFO("PassedBsVtxChi2:        " << m_countPassedBsVtxChi2 );
     
     return HLT::OK;
 }
@@ -369,9 +362,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltFinalize()
 /*----------------------------------------------------------------------------*/
 HLT::ErrorCode TrigEFBEEXFex::acceptInputs(HLT::TEConstVec& , bool& pass)
 {
-    if ( msgLvl() <= MSG::DEBUG )
-        msg() << MSG::DEBUG << "Running TrigEFBEEXFex::acceptInputs" << endmsg;
-    
+    ATH_MSG_DEBUG("Running TrigEFBEEXFex::acceptInputs" );
     pass = true;
     
     return HLT::OK;
@@ -381,8 +372,7 @@ HLT::ErrorCode TrigEFBEEXFex::acceptInputs(HLT::TEConstVec& , bool& pass)
 /*----------------------------------------------------------------------------*/
 HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement*  outputTE )
 {
-    if ( msgLvl() <= MSG::DEBUG )
-        msg() << MSG::DEBUG << "Running TrigEFBEEXFex::hltExecute" << endmsg;
+    ATH_MSG_DEBUG("Running TrigEFBEEXFex::hltExecute" );
     
     if ( timerSvc() ) m_TotTimer->start();
     
@@ -403,15 +393,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     m_mon_TotalRunTime   = 0.;
     m_mon_VertexingTime  = 0.;
     
-    if(msgLvl() <= MSG::VERBOSE) {
-        if (m_acceptAll) {
-            msg() << MSG::VERBOSE << "AcceptAll property is set: taking all events" << endmsg;
-            result = true;
-        } else {
-            msg() << MSG::VERBOSE << "AcceptAll property not set: applying selection" << endmsg;
-        }
-    }
-    
+    ATH_MSG_VERBOSE("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));    
     // Retrieve event info
     int IdRun   = 0;
     int IdEvent = 0;
@@ -420,19 +402,18 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endmsg;
+        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
         // now try the old event ifo
         if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+            ATH_MSG_DEBUG("Failed to get EventInfo " );
             m_mon_Errors.push_back( ERROR_No_EventInfo );
         } else {
             IdRun   = pEventInfo->event_ID()->run_number();
             IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << " using algo " << "m_lepAlgo"<<  endmsg;
+            ATH_MSG_DEBUG(" Run " << IdRun << " Event " << IdEvent << " using algo " << "m_lepAlgo");
         }// found old event info
     }else { // found the xAOD event info
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << " using algo m_lepAlgo" << endmsg;
+        ATH_MSG_DEBUG(" Run " << evtInfo->runNumber() << " Event " << evtInfo->eventNumber() << " using algo m_lepAlgo" );
         IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event info
@@ -443,7 +424,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     int lep2_TE=-1;
     if (!m_FTK) {
       if ( inputTE.size() != 2 ) {
-        msg() << MSG::DEBUG << "Got different than 2 number of input TEs: " << inputTE.size() << endmsg;
+        ATH_MSG_DEBUG("Got different than 2 number of input TEs: " << inputTE.size() );
           //m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
           //if ( timerSvc() ) m_TotTimer->stop();
           //return HLT::BAD_JOB_SETUP;
@@ -455,7 +436,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
       }
     } else {
       if ( inputTE.size() != 3 ) {
-        msg() << MSG::ERROR << "FTK mode expect 3 input TEs, got : " << inputTE.size() << endmsg;
+        ATH_MSG_ERROR("FTK mode expect 3 input TEs, got : " << inputTE.size() );
         m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::BAD_JOB_SETUP;
@@ -490,30 +471,30 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     // get them from the navigation
 
      if ( getFeature(inputTE[lep1_TE], roiDescriptor1) != HLT::OK ) {
-        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor 1" << endmsg;
+        ATH_MSG_ERROR("Navigation error while getting RoI descriptor 1" );
         m_mon_Errors.push_back(ERROR_No_RoIs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::NAV_ERROR;
      }
      if ( !roiDescriptor1 ) {
-       msg() << MSG::ERROR << "roiDescriptor1 is NULL" << endmsg;
+       ATH_MSG_ERROR("roiDescriptor1 is NULL" );
        return HLT::NAV_ERROR;
      }
     
      if ( getFeature(inputTE[lep2_TE], roiDescriptor2) != HLT::OK ) {
-        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor 2" << endmsg;
+        ATH_MSG_ERROR("Navigation error while getting RoI descriptor 2" );
         m_mon_Errors.push_back(ERROR_No_RoIs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::NAV_ERROR;
      }
      if ( !roiDescriptor2 ) {
-       msg() << MSG::ERROR << "roiDescriptor2 is NULL" << endmsg;
+       ATH_MSG_ERROR("roiDescriptor2 is NULL" );
        return HLT::NAV_ERROR;
      }
 
      if (m_FTK) {
       if ( getFeature(inputTE[0], roiDescriptorTrk) != HLT::OK ) {
-        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor Trk" << endmsg;
+        ATH_MSG_ERROR("Navigation error while getting RoI descriptor Trk" );
         m_mon_Errors.push_back(ERROR_No_RoIs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::NAV_ERROR;
@@ -521,22 +502,15 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
      }
 
 
-    if ( msgLvl() <= MSG::DEBUG ){
-        msg() << MSG::DEBUG
-        << "Using inputTEs: "<< inputTE[lep1_TE] <<  " and "  << inputTE[lep2_TE] << " with Ids " << inputTE[lep1_TE]->getId()<< " AND "<< inputTE[lep2_TE]->getId() << std::endl
-        << "; RoI IDs = "   << roiDescriptor1->roiId()<< " AND   " <<roiDescriptor2->roiId() << std::endl
-        << ": Eta1 =    "   << roiDescriptor1->eta() << " Eta2= " <<roiDescriptor2->eta() << std::endl
-        << ", Phi1 =    "   << roiDescriptor1->phi() << " Phi2= " <<roiDescriptor2->phi()
-        << endmsg;
-	if (m_FTK) {
-	  msg() << MSG::DEBUG << "Using inputTE for tracks: "<< inputTE[0] << " " << inputTE[0]->getId()<< std::endl
-        << "; RoI IDs = "   << roiDescriptorTrk->roiId() << std::endl
-        << ": EtaTrk =    "   << roiDescriptorTrk->eta() << std::endl
-        << ", PhiTrk =    "   << roiDescriptorTrk->phi() 
-        << endmsg;
-	}
-    }
     
+     ATH_MSG_DEBUG("Using inputTEs: "<< inputTE[lep1_TE] <<  " and "  << inputTE[lep2_TE] << " with Ids " << inputTE[lep1_TE]->getId()<< " AND "<< inputTE[lep2_TE]->getId());
+     ATH_MSG_DEBUG("; RoI IDs = "   << roiDescriptor1->roiId()<< " AND   " <<roiDescriptor2->roiId());
+     ATH_MSG_DEBUG(": Eta1 =    "   << roiDescriptor1->eta() << " Eta2= " <<roiDescriptor2->eta() << ", Phi1 =    "   << roiDescriptor1->phi() << " Phi2= " <<roiDescriptor2->phi());
+	 if (m_FTK) {
+	    ATH_MSG_DEBUG("Using inputTE for tracks: "<< inputTE[0] << " " << inputTE[0]->getId()
+          << "; RoI IDs = "   << roiDescriptorTrk->roiId() << ": EtaTrk =    "   << roiDescriptorTrk->eta() << ", PhiTrk =    "   << roiDescriptorTrk->phi() );
+	 }
+        
     // Fill RoIs monitoring containers
     m_mon_RoI_RoI1Eta.push_back(roiDescriptor1->eta());
     m_mon_RoI_RoI1Phi.push_back(roiDescriptor1->phi());
@@ -555,9 +529,9 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 
     // Get the lepton container from the outputTE
     ElementLinkVector<xAOD::ElectronContainer> lepContainerEF1;
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of lep 1" << endmsg;
+    ATH_MSG_DEBUG("Try to retrieve EFInfo container of lep 1" );
     if(getFeaturesLinks<xAOD::ElectronContainer,xAOD::ElectronContainer>(inputTE[lep1_TE], lepContainerEF1)!=HLT::OK ) {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of lep 1, exiting" << endmsg;
+        ATH_MSG_DEBUG("Failed to get EFInfo feature of lep 1, exiting" );
         m_mon_Errors.push_back(ERROR_No_ElectronContainer);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::OK; 
@@ -569,7 +543,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     for ( const auto muel : lepContainerEF1 ) {
    
       //if ( (*muel)->lepType() != xAOD::Lep::Combined && (*muel)->lepType() != xAOD::Lep::SegmentTagged) {
-      //  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Lep from roi1 is neither Combined or SegmentTagged - reject" << endmsg;
+      //  ATH_MSG_DEBUG("Lep from roi1 is neither Combined or SegmentTagged - reject" );
       //  continue;
       //}
       const xAOD::Electron* lep = *muel;
@@ -581,36 +555,31 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
         const ElementLink<xAOD::TrackParticleContainer> & idtpEl = lep->trackParticleLink();
       if( idtpEl.isValid() ) idtp = *idtpEl;
       if (!idtp) {
-          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No innerdetector lep1 TrackParticle found" << endmsg;
+          ATH_MSG_DEBUG("No innerdetector lep1 TrackParticle found" );
           continue;
       }
         addUnique(lepTPELtracks1,idtpEl);
         addUnique(lepTPELtracksMerged,idtpEl);
         
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
-            << " Comb lep 1 pt/eta/phi " << idtp->pt()
-            << " / " << idtp->eta() << " / " << idtp->phi()
-            << endmsg;
-
-        
+        ATH_MSG_DEBUG(" Comb lep 1 pt/eta/phi " << idtp->pt()<< " / " << idtp->eta() << " / " << idtp->phi());
 
     } // for
  
     // second
     
     ElementLinkVector<xAOD::ElectronContainer> lepContainerEF2;
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of lep 2" << endmsg;
+    ATH_MSG_DEBUG("Try to retrieve EFInfo container of lep 2" );
     if(getFeaturesLinks<xAOD::ElectronContainer,xAOD::ElectronContainer>(inputTE[lep2_TE], lepContainerEF2)!=HLT::OK ) {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of lep 2, exiting" << endmsg;
+        ATH_MSG_DEBUG("Failed to get EFInfo feature of lep 2, exiting" );
         m_mon_Errors.push_back(ERROR_No_ElectronContainer);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::OK; 
     }
-    if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG("Found LepContainer, Got LepEF (2) Feature, size = " << lepContainerEF2.size());
+    ATH_MSG_DEBUG("Found LepContainer, Got LepEF (2) Feature, size = " << lepContainerEF2.size());
     
     for ( const auto muel : lepContainerEF2 ) {
       //if ( (*muel)->lepType() != xAOD::Electron::Combined && (*muel)->lepType() != xAOD::Electron::SegmentTagged) {
-      //  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Lep from roi2 is neither Combined or SegmentTagged - reject" << endmsg;
+      //  ATH_MSG_DEBUG("Lep from roi2 is neither Combined or SegmentTagged - reject" );
       //  continue;
       //}
       const xAOD::Electron* lep = *muel;
@@ -619,16 +588,12 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
         const ElementLink<xAOD::TrackParticleContainer> & idtpEl = lep->trackParticleLink();
         if( idtpEl.isValid() ) idtp = *idtpEl;
       if (!idtp) {
-          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No innerdetector lep2 TrackParticle found" << endmsg;
+          ATH_MSG_DEBUG("No innerdetector lep2 TrackParticle found" );
           continue;
       }
         addUnique(lepTPELtracks2,idtpEl);
         addUnique(lepTPELtracksMerged,idtpEl);
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
-            << " Comb lep 1 pt/eta/phi " << idtp->pt()
-            << " / " << idtp->eta() << " / " << idtp->phi()
-            << endmsg;
-
+        ATH_MSG_DEBUG(" Comb lep 1 pt/eta/phi " << idtp->pt() << " / " << idtp->eta() << " / " << idtp->phi());
 
     } // for loop over leps
     
@@ -649,24 +614,17 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
             mapTrkToLeps[(*idtp)] = mu;
     } // muContlepContainerEF2
    
-    if(msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "lepContainerEF1.size()= " << lepContainerEF1.size()<<endmsg;
-        msg() << MSG::DEBUG << "lepContainerEF2.size()= " << lepContainerEF2.size()<<endmsg;
-        msg() << MSG::DEBUG << "lepTPELtracks1.size()= "  << lepTPELtracks1.size() <<endmsg;
-        msg() << MSG::DEBUG << "lepTPELtracks2.size()= "  << lepTPELtracks2.size() <<endmsg;
-        msg() << MSG::DEBUG << "lepTPELtracksMerged.size()= "  << lepTPELtracksMerged.size() <<endmsg;
-        
+    if(msgLvl() <= MSG::DEBUG){
+        msg() << MSG::DEBUG << "lepContainerEF1.size()= " << lepContainerEF1.size() << "lepContainerEF2.size()= " << lepContainerEF2.size() 
+          << "lepTPELtracks1.size()= "  << lepTPELtracks1.size() << "lepTPELtracks2.size()= "  << lepTPELtracks2.size() << "lepTPELtracksMerged.size()= "  << lepTPELtracksMerged.size()<< endmsg;        
         for (auto muel: lepTPELtracks1) {
-            msg() << MSG::DEBUG << "lepTPELtracks1: " << *muel << " " <<
-            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
+            msg() << MSG::DEBUG << "lepTPELtracks1: " << *muel << " " << (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
         for (auto muel: lepTPELtracks2) {
-            msg() << MSG::DEBUG << "lepTPELtracks2: " << *muel << " " <<
-            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
+            msg() << MSG::DEBUG << "lepTPELtracks2: " << *muel << " " << (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
         for (auto muel: lepTPELtracksMerged) {
-            msg() << MSG::DEBUG << "lepTPELtracksMerged: " << *muel << " " <<
-            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
+            msg() << MSG::DEBUG << "lepTPELtracksMerged: " << *muel << " " << (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
     } // if debug
     
@@ -690,8 +648,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     
     if( !(lepTPELtracks1.size()> 0 && lepTPELtracks2.size() > 0) )
     {
-        if ( msgLvl() <= MSG::DEBUG )
-            msg() << MSG::DEBUG << "No lep candidate found for one or both TEs" << endmsg;
+        ATH_MSG_DEBUG("No lep candidate found for one or both TEs" );
         m_mon_Errors.push_back(ERROR_No_ElectronCandidate);
         delete m_TrigBphysColl_b;
         delete m_TrigBphysColl_X;
@@ -709,11 +666,11 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
             for(mElItr=pElItr+1; mElItr != lepTPELtracksMerged.end(); ++mElItr) {
                 auto pTp = **pElItr;
                 auto mTp = **mElItr;
-                ATH_MSG(DEBUG) << "Try to build lep pair from lep1 " << *(*pElItr) << ", lep2 " << *(*mElItr) << endmsg;
+                ATH_MSG_DEBUG("Try to build lep pair from lep1 " << *(*pElItr) << ", lep2 " << *(*mElItr) );
                 
                 // check that we have two different lep tracks
                 if (pTp==mTp) {
-                    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Lep tracks are same" << endmsg;
+                    ATH_MSG_DEBUG("Lep tracks are same" );
                     m_mon_Errors.push_back(ERROR_SameLep);
                     continue;
                 }
@@ -721,7 +678,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 
                 // check if leps have opposite signs
                 if( m_oppositeCharge && (mTp->charge())*(pTp->charge()) > 0) {
-                    ATH_MSG(DEBUG) << "Lep pair rejected by opposite change check: lep1 " << pTp->charge() << ", lep2 " << mTp->charge() << endmsg;
+                    ATH_MSG_DEBUG("Lep pair rejected by opposite change check: lep1 " << pTp->charge() << ", lep2 " << mTp->charge() );
                     continue;
                 }
                 m_countPassedEEOS++;
@@ -730,11 +687,11 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 //float massEE = XMass(*pItr,*mItr,di_to_leps);
                 float massEE = XMass(pTp,mTp,di_to_electrons);
                 if( massEE < m_lowerEEMassCut || massEE > m_upperEEMassCut ) {
-                    ATH_MSG(DEBUG) << "Lep pair rejected by mass cut: m = " << massEE << endmsg;
+                    ATH_MSG_DEBUG("Lep pair rejected by mass cut: m = " << massEE );
                     continue;
                 }
                 m_countPassedEEMass++;
-		ATH_MSG(DEBUG) << "Lep pair accepted by mass cut: m = " << massEE << endmsg;
+		ATH_MSG_DEBUG("Lep pair accepted by mass cut: m = " << massEE );
                 
                 if ( timerSvc() ) m_VtxFitTimer->resume();
                 //xAOD::TrigBphys * trigEEObj = new xAOD::TrigBphys;
@@ -746,7 +703,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 std::vector<double> masses_mumu = {EMASS,EMASS};
                 if (!m_bphysHelperTool->vertexFit(trigEEUniquePtr.get(),
                                                   vec_mumu_tracks,masses_mumu).isSuccess()) {
-                    ATH_MSG(DEBUG) << " Vertex fitting failed." << endmsg;
+                    ATH_MSG_DEBUG(" Vertex fitting failed." );
                     if ( timerSvc() ) m_VtxFitTimer->pause();
                     continue;
                 }
@@ -757,7 +714,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 
                 float chi2EE = trigEEUniquePtr->fitchi2();
                 if(chi2EE > m_VtxChi2Cut || chi2EE < 0) {
-                    ATH_MSG(DEBUG) << "Lep pair rejected by chi2 cut: chi2 = " << chi2EE << endmsg;
+                    ATH_MSG_DEBUG("Lep pair rejected by chi2 cut: chi2 = " << chi2EE );
                     continue;
                 }
                 m_countPassedEEVtxChi2++;
@@ -783,13 +740,8 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 
                 m_mon_DiE_n++;
                 
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Dilep Sec Vtx at ("
-                    << trigEEUniquePtr->fitx() << " , "
-                    << trigEEUniquePtr->fity() << " , "
-                    << trigEEUniquePtr->fitz()  <<  ") with chi2 = "
-                    << trigEEUniquePtr->fitchi2() << " ("
-                    << trigEEUniquePtr->fitndof() << "  dof)"
-                    << " Mass= "<< massEE << endmsg;
+                ATH_MSG_DEBUG(" Dilep Sec Vtx at (" << trigEEUniquePtr->fitx() << " , " << trigEEUniquePtr->fity() << " , " << trigEEUniquePtr->fitz()
+                   <<  ") with chi2 = " << trigEEUniquePtr->fitchi2() << " (" << trigEEUniquePtr->fitndof() << "  dof)" << " Mass= "<< massEE );
 
                 // JK look for tracks in TrackParticle containers and add to TrigEFBphys
                 //
@@ -809,7 +761,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 //HLT::ErrorCode status = getFeature(inputTE.front(), tracksRoiI1); // Need to insert the correct label
                 HLT::ErrorCode status = getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE.front(), tracksRoiI1, m_input_trackCollectionKey);
                 if(status != HLT::OK) {
-                    msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollection from the 1st trigger element" << endmsg;
+                    ATH_MSG_WARNING("Failed to get xAOD::TrackParticleCollection from the 1st trigger element" );
                     m_mon_Errors.push_back(ERROR_No_TrackColl);
                     delete m_TrigBphysColl_b;
                     delete m_TrigBphysColl_X;
@@ -820,7 +772,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 //status = getFeature(inputTE.back() , tracksRoiI2); // Need to insert the correct label
                 status = getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE.back(), tracksRoiI2, m_input_trackCollectionKey);
                 if(status != HLT::OK) {
-                    msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollection from the 2nd trigger element" << endmsg;
+                    ATH_MSG_WARNING("Failed to get xAOD::TrackParticleCollection from the 2nd trigger element" );
                     m_mon_Errors.push_back(ERROR_No_TrackColl);
                     delete m_TrigBphysColl_b;
                     delete m_TrigBphysColl_X;
@@ -829,8 +781,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                     if ( timerSvc() ) m_TotTimer->stop();
                     return HLT::MISSING_FEATURE;
                 }
-                ATH_MSG(DEBUG) << "Ntracks RoI1: " << ( tracksRoiI1.empty() ? -1 : tracksRoiI1.size() ) << endmsg;
-                ATH_MSG(DEBUG) << "Ntracks RoI2: " << ( tracksRoiI2.empty() ? -1 : tracksRoiI2.size() ) << endmsg;
+                ATH_MSG_DEBUG("Ntracks RoI1: " << ( tracksRoiI1.empty() ? -1 : tracksRoiI1.size() ) << ", Ntracks RoI2: " << ( tracksRoiI2.empty() ? -1 : tracksRoiI2.size() ) );
                 // JW if containers are empty - it's not necessarily an issue; right?
                 
                 std::vector<const xAOD::TrackParticle*> merged_tracks;
@@ -888,10 +839,10 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                             msg() << MSG::DEBUG << "Trk::Track with no perigeeParameters\n";
                           }
                         } else {
-                            msg() << MSG::DEBUG <<  "   no Trk::Track\n" ;
+                            msg() << MSG::DEBUG << "   no Trk::Track\n" ;
                         }
                     }
-                    msg() << MSG::DEBUG<< endmsg;
+                    msg() << MSG::DEBUG << endmsg;
                 } // if debug
                 
                 
@@ -919,16 +870,13 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                   //                ELlep2.resetWithKeyAndIndex(mTp->dataID(),mTp->index());
                   //                Found2Track = true;
                 
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Matching summary: " << Found1Track<<Found2Track << endmsg;
-                
-                
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Now loop over TrackParticles to find tracks " << endmsg;
+                ATH_MSG_DEBUG("Matching summary: " << Found1Track<<Found2Track << ", Now loop over TrackParticles to find tracks " );
                 //                    xAOD::TrackParticleContainer::const_iterator trkIt =  merged_tracks.begin();
                 //                    xAOD::TrackParticleContainer::const_iterator lastTrkIt = merged_tracks.end();
                 //std::vector<const xAOD::TrackParticle*>::const_iterator trkIt     = merged_tracks.begin();
                 std::vector<const xAOD::TrackParticle*>::const_iterator lastTrkIt = merged_tracks.end();
                 
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found tracks, ntrack= " << merged_tracks.size() << endmsg;
+                ATH_MSG_DEBUG("Found tracks, ntrack= " << merged_tracks.size() );
                 
                 
                 // Main outer loop over tracks
@@ -949,24 +897,24 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                     ItrackEL3.resetWithKeyAndIndex(trackEL3.dataID(), trackEL3.index());
 
                     if (*trackEL3 != track1) {
-                        ATH_MSG(FATAL) << "Track 1 doesn't match dereferenced elementlink: " << track1 << " " << *trackEL3 << endmsg;
+                        ATH_MSG_FATAL("Track 1 doesn't match dereferenced elementlink: " << track1 << " " << *trackEL3 );
                         if ( timerSvc() ) m_TotTimer->stop();
                         return HLT::MISSING_FEATURE;
                     }
                     
                     // Check that it is not lep track
                     //                         if(itrk1==piTrk || itrk1==miTrk) {
-                    //                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a lep, skip it" << endmsg;
+                    //                             ATH_MSG_DEBUG("Track " << track1 << " was matched to a lep, skip it" );
                     //                             continue;
                     //                         }
                     
                     // ST: EL comparison does not work -- they appear to be always different
                     //                         if(trackEL3 == trackELlep1 || trackEL3 == trackELlep2 ) {
-                    //                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a lep, skip it" << endmsg;
+                    //                             ATH_MSG_DEBUG("Track " << track1 << " was matched to a lep, skip it" );
                     //                             continue;
                     //                         }
                     if( !(Found1Track && isUnique(*trkIt1,*trackELlep1)) || !(Found2Track &&isUnique(*trkIt1,*trackELlep2)) ) {
-                        ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a lep, skip it" << endmsg;
+                        ATH_MSG_DEBUG("Track " << track1 << " was matched to a lep, skip it" );
                         continue;
                     }
                     
@@ -987,11 +935,11 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                             m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusEEKplus,{*trackEL3,*trackELlep1,*trackELlep2});
                             if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
                               if(m_countBpToStore == m_maxBpToStore) {
-                                ATH_MSG(WARNING) << "Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" << endmsg;
+                                ATH_MSG_WARNING("Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" );
                                 m_mon_Errors.push_back(ERROR_MaxNumBpReached);
                               }
                               else
-                                ATH_MSG(DEBUG) << "Do not write out " << m_countBpToStore+1 << "th B+ candidate" << endmsg;
+                                ATH_MSG_DEBUG("Do not write out " << m_countBpToStore+1 << "th B+ candidate" );
                               delete trigPartBplusEEKplus;
                             }
                             else {
@@ -1015,15 +963,13 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                     
                     // Protection
                     if( nTriedCombinations > m_maxNcombinations ) {
-                        ATH_MSG(DEBUG) << "Too many track combinations: " << endmsg;
-                        ATH_MSG(DEBUG) << "  nTriedCombinations = " << nTriedCombinations
-                        << ", while MaxNcombinations = " << m_maxNcombinations << endmsg;
-                        ATH_MSG(DEBUG) << "Terminate the loop" << endmsg;
-                        ATH_MSG(DEBUG) << "  Bphys Collection size is " << m_TrigBphysColl_b->size() << endmsg;
-                        if(m_TrigBphysColl_b->size() > 0)
+                        ATH_MSG_DEBUG("Too many track combinations: nTried = " << nTriedCombinations << ", while Max= " << m_maxNcombinations 
+                                << ". Terminate the loop." << "  (BphysColl size=" << m_TrigBphysColl_b->size() << ")" );
+                        if(m_TrigBphysColl_b->size() > 0){
                             m_mon_Errors.push_back(ERROR_TooManyComb_Acc);
-                        else
+                        } else { 
                             m_mon_Errors.push_back(ERROR_TooManyComb_Rej);
+                        }
                         break;
                     }
                     
@@ -1037,7 +983,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                             return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
                         }
                         
-			if(m_doBd_KstarEEDecay || m_doBs_Phi1020EEDecay ) {
+			            if(m_doBd_KstarEEDecay || m_doBs_Phi1020EEDecay ) {
                                 //const Trk::Track* track2 = (*trkIt2)->track();
                                 const xAOD::TrackParticle* track2 = (*trkIt2);
 
@@ -1052,7 +998,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 
                             
                             if (*trackEL4 != track2) {
-                                ATH_MSG(FATAL) << "Track 2 doesn't match dereferenced elementlink: " << track2 << " " << *trackEL4 << endmsg;
+                                ATH_MSG_FATAL("Track 2 doesn't match dereferenced elementlink: " << track2 << " " << *trackEL4 );
                                 if ( timerSvc() ) m_TotTimer->stop();
                                 return HLT::MISSING_FEATURE;
                             }
@@ -1060,19 +1006,19 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                             
                                 // Check that it is not lep track
 //                                 if(itrk2==piTrk || itrk2==miTrk) {
-//                                     ATH_MSG(DEBUG) << "Track " << track2 << " was matched to a lep, skip it" << endmsg;
+//                                     ATH_MSG_DEBUG("Track " << track2 << " was matched to a lep, skip it" );
 //                                     continue;
 //                                 }
                                 if( !(Found1Track && isUnique(*trkIt2,*trackELlep1)) || !(Found2Track &&isUnique(*trkIt2,*trackELlep2)) ) {
-                                    ATH_MSG(DEBUG) << "Track " << track2 << " was matched to a lep, skip it" << endmsg;
+                                    ATH_MSG_DEBUG("Track " << track2 << " was matched to a lep, skip it" );
                                     continue;
                                 }
                                 
                                 // check that track1 and track2 have opposite charges
 				//                                if( (track1->charge())*(track2->charge()) > 0) {
-				//                                    ATH_MSG(DEBUG) << "Track pair rejected by opposite charge check: "
+				//                                    ATH_MSG_DEBUG("Track pair rejected by opposite charge check: "
 				//                                    << track1 << " = " << track1->charge() << ",  "
-				//                                    << track2 << " = " << track2->charge() << endmsg;
+				//                                    << track2 << " = " << track2->charge() );
 				//                                    continue;
 				//                                }
                                 
@@ -1083,9 +1029,9 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 
 				  // check that track1 and track2 have opposite charges
 				  if( (track1->charge())*(track2->charge()) > 0) {      
-				     ATH_MSG(DEBUG) << "Track pair rejected by opposie charge check: "
+				     ATH_MSG_DEBUG("Track pair rejected by opposie charge check: "
                                      << track1 << " = " << track1->charge() << ",  "   
-                                     << track2 << " = " << track2->charge() << endmsg;
+                                     << track2 << " = " << track2->charge() );
 				  } else {
 
                                     // Mass hypothesis 1: track1 = kaon, track2 = pion
@@ -1099,11 +1045,11 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                                         
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
                                           if(m_countBdToStore == m_maxBdToStore) {
-                                            ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
+                                            ATH_MSG_WARNING("Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" );
                                             m_mon_Errors.push_back(ERROR_MaxNumBdReached);
                                           }
                                           else
-                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endmsg;
+                                            ATH_MSG_DEBUG("Do not write out " << m_countBdToStore+1 << "th Bd candidate" );
                                           delete xaod_trigPartBdEEKstar;
                                           delete xaod_trigPartKstar;
                                         }
@@ -1145,11 +1091,11 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3});
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
                                           if(m_countBdToStore == m_maxBdToStore) {
-                                            ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
+                                            ATH_MSG_WARNING("Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" );
                                             m_mon_Errors.push_back(ERROR_MaxNumBdReached);
                                           }
                                           else
-                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endmsg;
+                                            ATH_MSG_DEBUG("Do not write out " << m_countBdToStore+1 << "th Bd candidate" );
                                           delete xaod_trigPartBdEEKstar;
                                           delete xaod_trigPartKstar;
                                         }
@@ -1191,9 +1137,9 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 
 				  // check that track1 and track2 have opposite charges
 				  if( (track1->charge())*(track2->charge()) > 0) {      
-				     ATH_MSG(DEBUG) << "Track pair rejected by opposie charge check: "
+				     ATH_MSG_DEBUG("Track pair rejected by opposie charge check: "
                                      << track1 << " = " << track1->charge() << ",  "   
-                                     << track2 << " = " << track2->charge() << endmsg;
+                                     << track2 << " = " << track2->charge() );
 				  } else {
 
                                     xAOD::TrigBphys* xaod_trigPartPhi(nullptr);
@@ -1207,11 +1153,11 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                                         
                                         if(m_maxBsToStore >= 0 && m_countBsToStore >= m_maxBsToStore) {
                                           if(m_countBsToStore == m_maxBsToStore) {
-                                            ATH_MSG(WARNING) << "Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" << endmsg;
+                                            ATH_MSG_WARNING("Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" );
                                             m_mon_Errors.push_back(ERROR_MaxNumBsReached);
                                           }
                                           else
-                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBsToStore+1 << "th Bs candidate" << endmsg;
+                                            ATH_MSG_DEBUG("Do not write out " << m_countBsToStore+1 << "th Bs candidate" );
                                           delete xaod_trigPartBsEEPhi;
                                           delete xaod_trigPartPhi;
                                         }
@@ -1255,16 +1201,16 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
         } // end of outer lep loop
     } // end if muidIDtracks1,2 sizes >= 0
     
-    if (msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "Totally tried to build " << nTriedCombinations << " tracks cobinations" << endmsg;
+    ATH_MSG_DEBUG("Totally tried to build " << nTriedCombinations << " tracks cobinations" );
     m_mon_nTriedCombinations = nTriedCombinations;
     
 //     std::string  KEY; //sivokl
     
     if(m_TrigBphysColl_b!=0 && m_TrigBphysColl_b->size()>0) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_TrigBphysColl_b->size() << endmsg;
+        ATH_MSG_DEBUG("REGTEST: Store Bphys Collection size: " << m_TrigBphysColl_b->size() );
         HLT::ErrorCode sc = attachFeature(outputTE, m_TrigBphysColl_X, "EFBEEXFex_X" );
         if(sc != HLT::OK) {
-            msg() << MSG::WARNING << "Failed to store trigBphys_X Collection in outputTE" << endmsg;
+            ATH_MSG_WARNING("Failed to store trigBphys_X Collection in outputTE" );
             m_mon_Errors.push_back(ERROR_BphysCollStore_Fails);
             delete m_TrigBphysColl_b;
             delete m_TrigBphysColl_X;
@@ -1277,10 +1223,11 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 //         const xAOD::TrigBphysContainer * TrigBphysColl_X_persist(0);
 //         sc = getFeature(outputTE, TrigBphysColl_X_persist, "EFBEEXFex_X");
         if(sc != HLT::OK) {
-        msg() << MSG::WARNING << "Failed to getFeaturesLinks trigBphys_X Collection in outputTE" << endmsg;
+        ATH_MSG_WARNING("Failed to getFeaturesLinks trigBphys_X Collection in outputTE" );
         } else {
+            if(msgLvl() <= MSG::DEBUG)
             for ( const auto eltp: ELvecTBPh) {
-              if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "  ===== TrigBphys Container ElementLinks : " 
+              msg() << MSG::DEBUG << "  ===== TrigBphys Container ElementLinks : " 
               << " index: "  << eltp.index()
               << " sgkey: "  << eltp.dataID()
               << " hashkey: "<< eltp.key()
@@ -1300,27 +1247,23 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 if(*persistentSecEL == *(*BPobj)->secondaryDecayLink())
                   secEL = persistentSecEL;
               }
-              if(!secEL.isValid())
-                msg() << MSG::WARNING << "Failed to find persistified secondary decay EL" << endmsg;
-              else
+              if(!secEL.isValid()){
+                ATH_MSG_WARNING("Failed to find persistified secondary decay EL" );
+              } else {
                 (*BPobj)->setSecondaryDecayLink(secEL);
-              
-              if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "  ===== TrigBphys secondaryDecay ElementLinks AFTER reset: "
-              << "S link isValid = " << (*BPobj)->secondaryDecayLink().isValid() << std::endl
-              << "S link  dataID = " << (*BPobj)->secondaryDecayLink().dataID() << std::endl
-              << "S link   index = " << (*BPobj)->secondaryDecayLink().index() << std::endl
-              << "S link     key = " << (*BPobj)->secondaryDecayLink().key() << std::endl
-              << "S link    cptr = " << (*BPobj)->secondaryDecayLink().cptr() << std::endl
-              << endmsg;
+              }
+              ATH_MSG_DEBUG("  ===== TrigBphys secondaryDecay ElementLinks AFTER reset: Slink "
+              << "isValid = " << (*BPobj)->secondaryDecayLink().isValid()
+              << ", dataID = " << (*BPobj)->secondaryDecayLink().dataID()
+              << ", index = " << (*BPobj)->secondaryDecayLink().index()
+              << ", key = " << (*BPobj)->secondaryDecayLink().key() 
+              << ", cptr = " << (*BPobj)->secondaryDecayLink().cptr() );
             }
         }
 
-
-
-	        
         sc = attachFeature(outputTE, m_TrigBphysColl_b, m_bphysCollectionKey );
         if(sc != HLT::OK) {
-            msg() << MSG::WARNING << "Failed to store trigBphys Collection in outputTE" << endmsg;
+            ATH_MSG_WARNING("Failed to store trigBphys Collection in outputTE" );
             m_mon_Errors.push_back(ERROR_BphysCollStore_Fails);
             delete m_TrigBphysColl_b;
             delete m_TrigBphysColl_X;
@@ -1328,7 +1271,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
             return HLT::ERROR;
         }
     } else {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endmsg;
+        ATH_MSG_DEBUG("REGTEST: no bphys collection to store "  );
         delete m_TrigBphysColl_b;
         delete m_TrigBphysColl_X;
     }
@@ -1350,8 +1293,8 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     }
     
     if ( timerSvc() ) {
-        ATH_MSG(DEBUG) << "m_TotTimer->elapsed()    = " << m_TotTimer->elapsed() << endmsg;
-        ATH_MSG(DEBUG) << "m_VtxFitTimer->elapsed() = " << m_VtxFitTimer->elapsed() << endmsg;
+        ATH_MSG_DEBUG("m_TotTimer->elapsed()    = " << m_TotTimer->elapsed() );
+        ATH_MSG_DEBUG("m_VtxFitTimer->elapsed() = " << m_VtxFitTimer->elapsed() );
     }
     
     return HLT::OK;
@@ -1363,15 +1306,13 @@ xAOD::TrigBphys* TrigEFBEEXFex::checkBplusEEKplus(const ElementLink<xAOD::TrackP
                                                       const ElementLink<xAOD::TrackParticleContainer> & ellep1,
                                                       const ElementLink<xAOD::TrackParticleContainer> & ellep2) {
     
-    if(msgLvl() <= MSG::DEBUG) {
-        ATH_MSG(DEBUG) << "Try to build B+ -> mu mu K+ with track " << *eltrack1 << endmsg;
-    }
+    ATH_MSG_DEBUG("Try to build B+ -> mu mu K+ with track " << *eltrack1 );
     float massKEE = KEEMass(*ellep1,*ellep2,*eltrack1);
     
     static std::vector<double> masses = {KPLUSMASS,EMASS,EMASS};
     
     if( !(massKEE > m_lowerKEEMassCut && massKEE < m_upperKEEMassCut) ) {
-        ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKEE << endmsg;
+        ATH_MSG_DEBUG(" B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKEE );
         return nullptr;
     }
     ++m_countPassedBplusMass;
@@ -1395,7 +1336,7 @@ xAOD::TrigBphys* TrigEFBEEXFex::checkBplusEEKplus(const ElementLink<xAOD::TrackP
         
         if ( timerSvc() ) m_VtxFitTimer->resume();
         if (!m_bphysHelperTool->vertexFit(result,vec_tracks,masses).isSuccess()) {
-            ATH_MSG(DEBUG) << " Vertex fitting failed." << endmsg;
+            ATH_MSG_DEBUG(" Vertex fitting failed." );
             if ( timerSvc() ) m_VtxFitTimer->pause();
             delete result;
             return nullptr;
@@ -1405,22 +1346,14 @@ xAOD::TrigBphys* TrigEFBEEXFex::checkBplusEEKplus(const ElementLink<xAOD::TrackP
         double chi2val(result->fitchi2());
         
         if (chi2val > m_bVtxChi2Cut || chi2val < 0) {
-            ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by chi2 cut: chi2 = " << chi2val << endmsg;
+            ATH_MSG_DEBUG(" B+ -> mu mu K+ candidate rejected by chi2 cut: chi2 = " << chi2val );
             delete result;
             return nullptr;
         }
         m_mon_BEEK_Chi2_B.push_back(chi2val);
         ++m_countPassedBplusVtxChi2;
-        
-        
-        if(msgLvl() <= MSG::DEBUG) {
-            msg() << MSG::DEBUG << " Good B+ -> mu mu K+ found!" << std::endl
-            << "  m = " << result->mass() << ", "
-            << "chi2 = " << result->fitchi2() << ", vertex (" << result->fitx() << ", "
-            << result->fity() << ", " << result->fitz() << ")" << endmsg;
-        } // if debug
-        
-        
+        ATH_MSG_DEBUG("Good B+->mumuK+ found! m= " << result->mass() << ", " << "chi2 = " << result->fitchi2() 
+                << ", vertex (" << result->fitx() << ", " << result->fity() << ", " << result->fitz() << ")" );
     } // if m_doB_KEEVertexing
     else {
       // if vertexting is not done - just attach trackParticle links
@@ -1539,16 +1472,16 @@ xAOD::TrigBphys* TrigEFBEEXFex::checkBEE2X(const ElementLink<xAOD::TrackParticle
         pMon_BEE2X_VtxMass_B  = &m_mon_BsEEPhi_VtxMass_Bs;
         pMon_BEE2X_Chi2_B     = &m_mon_BsEEPhi_Chi2_Bs;
     } else {
-        ATH_MSG(DEBUG) << "Wrong decay identifier passed to checkBEE2X: decay = " << decay << endmsg;
+        ATH_MSG_DEBUG("Wrong decay identifier passed to checkBEE2X: decay = " << decay );
         m_mon_Errors.push_back(ERROR_WrongDecayID);
         return nullptr;
     }
      
-   ATH_MSG(DEBUG) << "Try to build " << decayName << " with tracks " << *eltrack1 << ", " << *eltrack2 << endmsg;
+   ATH_MSG_DEBUG("Try to build " << decayName << " with tracks " << *eltrack1 << ", " << *eltrack2 );
     
     float massX = XMass(*eltrack1, *eltrack2, decay);
     if( !(massX > lowerXMassCut && massX < upperXMassCut) ) {
-        ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X mass cut: m = " << massX << endmsg;
+        ATH_MSG_DEBUG(" " << decayName << " candidate rejected by X mass cut: m = " << massX );
         trigPartX = nullptr;
         return nullptr;
     }
@@ -1557,7 +1490,7 @@ xAOD::TrigBphys* TrigEFBEEXFex::checkBEE2X(const ElementLink<xAOD::TrackParticle
     
     float massXEE = XEEMass(*ellep1, *ellep2, *eltrack1, *eltrack2, decay);
     if( !(massXEE > lowerXEEMassCut && massXEE < upperXEEMassCut) ) {
-        ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XEE mass cut: m = " << massXEE << endmsg;
+        ATH_MSG_DEBUG(" " << decayName << " candidate rejected by XEE mass cut: m = " << massXEE );
         trigPartX = nullptr;
         return nullptr;
     }
@@ -1593,14 +1526,14 @@ xAOD::TrigBphys* TrigEFBEEXFex::checkBEE2X(const ElementLink<xAOD::TrackParticle
     if(do2XVertexing) {
         if ( timerSvc() ) m_VtxFitTimer->resume();
         if (!m_bphysHelperTool->vertexFit(fitVtx_X,vec_tracksX,massHypoX).isSuccess()) {
-            ATH_MSG(DEBUG) << " Vertex fitting of X failed." << decayName << endmsg;
+            ATH_MSG_DEBUG(" Vertex fitting of X failed." << decayName );
         }
         if ( timerSvc() ) m_VtxFitTimer->pause();
         
         ++(*countPassedXVtx);
         double chi2X(fitVtx_X->fitchi2());
         if( chi2X > chi2XCut || chi2X < 0 ) {
-            ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endmsg;
+            ATH_MSG_DEBUG(" " << decayName << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X );
             delete fitVtx_X;
             delete fitVtx;
             return nullptr;
@@ -1619,13 +1552,13 @@ xAOD::TrigBphys* TrigEFBEEXFex::checkBEE2X(const ElementLink<xAOD::TrackParticle
     if(doBEE2XVertexing) {
         if ( timerSvc() ) m_VtxFitTimer->resume();
         if (!m_bphysHelperTool->vertexFit(fitVtx,vec_tracks,massHypo).isSuccess()) {
-            ATH_MSG(DEBUG) << " Vertex fitting of EEX failed for " << decayName << endmsg;
+            ATH_MSG_DEBUG(" Vertex fitting of EEX failed for " << decayName );
         }
         if ( timerSvc() ) m_VtxFitTimer->pause();
         (*countPassedXEEVtx)++;
         double chi2EEX(fitVtx->fitchi2());
         if( chi2EEX > chi2XEECut || chi2EEX < 0 ) {
-            ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XEE vertex chi2 cut: chi2 = " << chi2EEX << endmsg;
+            ATH_MSG_DEBUG(" " << decayName << " candidate rejected by XEE vertex chi2 cut: chi2 = " << chi2EEX );
             delete fitVtx_X;
             delete fitVtx;
             return nullptr;
@@ -1731,11 +1664,6 @@ bool TrigEFBEEXFex::isUnique(const  xAOD::TrackParticle* id1, const  xAOD::Track
     else return true;
     
 }
-
-
-
-
-
 
 double TrigEFBEEXFex::XMass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, int decay) { /// checking the mass
     
@@ -1885,5 +1813,3 @@ double TrigEFBEEXFex::XKPiPiEEMass(const xAOD::TrackParticle* lep1, const xAOD::
     return m_bphysHelperTool->invariantMass(bTracks, massHypo);
     
 }
-
-

@@ -95,17 +95,18 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 
   const eformat::FullEventFragment<const uint32_t*> *event = m_robDataProvider->getEvent();
 
-  if (!event) {
-    ATH_MSG_WARNING("NULL event retrived from m_robDataProvider");
-    return StatusCode::SUCCESS;
+  // this information will be present only in offline reconstruction
+  // not be at HLT; however the remaining AFP information will be
+  // present both online and offline
+  if (event) {
+    // set information about event in the RawContainer
+    rawContainer->setTimeStamp(event->bc_time_seconds());
+    rawContainer->setTimeStampNS(event->bc_time_nanoseconds());
+    rawContainer->setBCId(event->bc_id());
+    rawContainer->setLumiBlock(event->lumi_block());
+    rawContainer->setLvl1Id(event->lvl1_id());
   }
 
-  // set information about event in the RawContainer
-  rawContainer->setTimeStamp(event->bc_time_seconds());
-  rawContainer->setTimeStampNS(event->bc_time_nanoseconds());
-  rawContainer->setBCId(event->bc_id());
-  rawContainer->setLumiBlock(event->lumi_block());
-  rawContainer->setLvl1Id(event->lvl1_id());
 
   // fill container with collections
   AFP_SiRawCollection *collectionSi = nullptr;
@@ -198,7 +199,8 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	return StatusCode::SUCCESS;
       }
 
-    } // end is data
+    } 
+    // end is data
     
   } // end of loop
   return StatusCode::SUCCESS;
@@ -213,12 +215,16 @@ AFP_ByteStream2RawCnv::getCollectionSi(const unsigned int link, const unsigned i
     return nullptr;
   }
 
-  for (const AFP_SiRawCollection& collection : container->collectionsSi()) {
-    if (collection.link() == link && collection.robId() == robId) {
-      ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there.");
-      return nullptr;
-    }
-  }
+  // Code below is commented, because it was impossible to
+  // reconstruct several bunch crossings in one event with it. In
+  // standard data taking only one bunch crossing is saved and this
+  // protection should not be necessary. However in case of big
+  // readout problems the code may be needed, that is why it stays
+  // commented here.
+
+  // for (const AFP_SiRawCollection& collection : container->collectionsSi())
+  //   if (collection.link() == link && collection.robId() == robId)
+  //     ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection. (Reading several BCX?)");
 
   AFP_SiRawCollection& newCollection = container->newCollectionSi();
   return &newCollection;
@@ -232,13 +238,17 @@ AFP_ByteStream2RawCnv::getCollectionToF(const unsigned int link, const unsigned 
     ATH_MSG_WARNING("NULL pointer passed in argument: container. NULL pointer returned.");
     return nullptr;
   }
+  
+  // Code below is commented, because it was impossible to
+  // reconstruct several bunch crossings in one event with it. In
+  // standard data taking only one bunch crossing is saved and this
+  // protection should not be necessary. However in case of big
+  // readout problems the code may be needed, that is why it stays
+  // commented here.
 
-  for (const AFP_ToFRawCollection& collection : container->collectionsToF()) {
-    if (collection.link() == link && collection.robId() == robId) {
-      ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there.");
-      return nullptr;
-    }
-  }
+  // for (const AFP_ToFRawCollection& collection : container->collectionsToF())
+  //   if (collection.link() == link && collection.robId() == robId)
+  //     ATH_MSG_WARNING("ToF collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection (Reading several BCX?)");
 
   AFP_ToFRawCollection& newCollection = container->newCollectionToF();
   return &newCollection;

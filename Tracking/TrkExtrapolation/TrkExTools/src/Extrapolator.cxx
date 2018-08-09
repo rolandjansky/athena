@@ -3063,6 +3063,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(
 
   // ---------------------------- main loop over next material layers
   // ---------------------------------------------------
+  const ::Trk::TrackParameters *last_boudnary_parameters = nullptr;
   while (nextParameters) {
     Trk::BoundaryCheck bchk = false;
     const Trk::TrackParameters *onNextLayer = extrapolateToNextMaterialLayer(prop,
@@ -3125,8 +3126,20 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(
       if (m_parametersAtBoundary.nextVolume && (m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::MS ||
                                                 (m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::Calo &&
                                                  m_useDenseVolumeDescription))) {
+        // @TODO compare and store position rather than comparing pointers
         if (m_parametersAtBoundary.nextParameters) {
+          if (last_boudnary_parameters == m_parametersAtBoundary.nextParameters) {
+            ATH_MSG_WARNING( "  [!] Already tried parameters at boundary -> exit: pos="
+			    << positionOutput(m_parametersAtBoundary.nextParameters->position())
+			    << " momentum=" << momentumOutput(m_parametersAtBoundary.nextParameters->momentum()));
+	    m_parametersAtBoundary.boundaryInformation(0, 0, 0);
+            return nullptr;
+          }
           onNextLayer = m_parametersAtBoundary.nextParameters;
+          last_boudnary_parameters=m_parametersAtBoundary.nextParameters;
+          ATH_MSG_DEBUG( "  [+] Try parameters at boundary: pos="
+			<< positionOutput(m_parametersAtBoundary.nextParameters->position())
+			<< " momentum=" << momentumOutput(m_parametersAtBoundary.nextParameters->momentum()));
         }
         currVol = m_parametersAtBoundary.nextVolume;
       }

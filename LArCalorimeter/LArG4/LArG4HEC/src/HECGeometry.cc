@@ -57,11 +57,7 @@ namespace LArG4 {
   namespace HEC {
 
     HECGeometry::HECGeometry(const std::string& name, ISvcLocator * pSvcLocator)
-      : AthService(name, pSvcLocator)
-      , m_hecManager(nullptr)
-      , m_depthHist(false)
-      , m_withMother(false)
-      , m_g4historyDepth(0)
+      : base_class(name, pSvcLocator)
     {
 
     }
@@ -103,7 +99,7 @@ namespace LArG4 {
 
           int isegInner = 0;
           int isegOuter = block->getNumRadialSegments();
-          int numBlk  = block->getBlockNumber();
+          const int numBlk  = block->getBlockNumber();
 
           int nInReg = 4;
           if (numBlk>1 && numBlk<6) { isegInner = 1; nInReg=3; }
@@ -123,8 +119,8 @@ namespace LArG4 {
               m_minval[depthIndex][iregion][ieta]= hecRad->getMinVal();
               m_maxval[depthIndex][iregion][ieta]= hecRad->getMaxVal();
               // This is a most terrible hack to correct numbers in the database...:
-              double rInner = m_hecManager->getBlock(depthIndex)->getInnerRadius();
-              double rOuter = m_hecManager->getBlock(depthIndex)->getOuterRadius();
+              const double rInner = m_hecManager->getBlock(depthIndex)->getInnerRadius();
+              const double rOuter = m_hecManager->getBlock(depthIndex)->getOuterRadius();
               if (hecRad->getMaxVal()==2027.)                    m_maxval[depthIndex][iregion][ieta]=rOuter;
               if (hecRad->getMinVal()==375. && depthIndex==0)    m_minval[depthIndex][iregion][ieta]=rInner;
               else if (hecRad->getMinVal()==478 && depthIndex>0) m_minval[depthIndex][iregion][ieta]=rInner;
@@ -137,7 +133,6 @@ namespace LArG4 {
       m_firstAbsThickness[1] = m_hecManager->getBlock(3)->getFrontPlateThickness() ;
       m_wheel1 = m_depthSize[0]+m_depthSize[1]+m_depthSize[2];              // 816.5;
       m_wheel2 = m_depthSize[3]+m_depthSize[4]+m_depthSize[5]+m_depthSize[6]; // 961.0;
-      m_betweenWheels = 40.5; // FIXME HACK!! -- can't find this through LArReadoutGeometry...
       m_startHec2 = m_wheel1 + m_betweenWheels + m_firstAbsThickness[1];
       m_hecLength = m_wheel1 + m_betweenWheels + m_wheel2;
       m_rOuter  = m_hecManager->getBlock(0)->getOuterRadius();
@@ -177,20 +172,6 @@ namespace LArG4 {
             }
         }
 
-      return StatusCode::SUCCESS;
-    }
-
-   //============================================================================================
-
-    StatusCode HECGeometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
-    {
-      if ( IHECGeometry::interfaceID().versionMatch(riid) ) {
-        *ppvInterface = dynamic_cast<IHECGeometry*>(this);
-      } else {
-        // Interface is not directly available : try out a base class
-        return AthService::queryInterface(riid, ppvInterface);
-      }
-      addRef();
       return StatusCode::SUCCESS;
     }
 
@@ -248,8 +229,8 @@ namespace LArG4 {
       // Next we need to be able to handle things regardless whether the Wheels are
       // imbedded in a HEC Mother or whether they are placed independently into the cryostat:
 
-      bool inMother = false;
-      if (volumeName == "LArMgr::LAr::HEC::Mother") inMother = true;
+      static const G4String motherVolumeName("LArMgr::LAr::HEC::Mother");
+      const bool inMother(volumeName == motherVolumeName);
 
       // This will give us the hit-position in the Wheel coordinates (ie in LAr::HEC::LiquidArgon):
       // But we have to be careful: We COULD be in a mother, in which case the wheel coord. is meaningless.
@@ -282,11 +263,10 @@ namespace LArG4 {
 
         {
 
-          int modVol  = m_g4historyDepth+1 ; // geant depth of the HEC::Module
-          int depthVol= m_g4historyDepth+2 ; // geant depth of the HEC::Module::Depth
-
-          int depthIndex   = theTouchable->GetHistory()->GetVolume(depthVol)->GetCopyNo();
-          int moduleIndex  = theTouchable->GetHistory()->GetVolume(modVol)->GetCopyNo();
+          const int depthVol= m_g4historyDepth+2 ; // geant depth of the HEC::Module::Depth
+          const int depthIndex   = theTouchable->GetHistory()->GetVolume(depthVol)->GetCopyNo();
+          const int modVol  = m_g4historyDepth+1 ; // geant depth of the HEC::Module
+          const int moduleIndex  = theTouchable->GetHistory()->GetVolume(modVol)->GetCopyNo();
 
           const G4AffineTransform moduleTransform= theTouchable->GetHistory()->GetTransform(modVol);
 

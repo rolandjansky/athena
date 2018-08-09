@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   TFileString.h        
 //
 //    root TObject std::string std::vector class for writing std::string std::vectors
 //    to root files               
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: TFileString.h, v0.0   Sat Mar 15 19:49:16 GMT 2008 sutt
 

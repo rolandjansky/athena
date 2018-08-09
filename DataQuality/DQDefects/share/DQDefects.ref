@@ -1,0 +1,36 @@
+DQDefects.tests.test_database_creation ... ok
+DQDefects.tests.test_database_creation_unicode ... ok
+DQDefects.tests.test_database_retrieval ... ok
+DQDefects.tests.test_defect_creation ... ok
+Testing virtual defects involving inversion ... ok
+DQDefects.tests.test_defect_insertion_retrieval ... ok
+DQDefects.tests.test_defect_insertion_retrieval_unicode ... ok
+DQDefects.tests.test_defect_empty_retrieval ... ok
+DQDefects.tests.test_virtual_defect_creation ... ok
+DQDefects.tests.test_virtual_defect_creation_unicode ... ok
+DQDefects.tests.test_nonpresent ... ok
+Testing many virtual channels with sparsely placed IoVs ... ok
+Testing virtual defect basics ... ok
+DQDefects.tests.test_virtual_defects_deep ... ok
+DQDefects.tests.test_virtual_defects_stress ... ok
+DQDefects.tests.test_virtual_defect_hiding ... ok
+DQDefects.tests.test_update_virtual_defect ... ok
+DQDefects.tests.test_tagging_unicode ... ok
+DQDefects.tests.test_rename_defects ... ok
+DQDefects.tests.test_ignore_defects ... ok
+DQDefects.tests.test_query_with_primary_dependencies ... ok
+DQDefects.tests.test_independent_tags ... ok
+Checking with_primary_dependencies + ignore ... ok
+Checking that virtual flags don't depend on non-existent flags ... ok
+DQDefects.tests.test_iov_tag_defects ... ok
+DQDefects.tests.test_intersect ... ok
+DQDefects.tests.test_normalize_defect_names ... ok
+DQDefects.tests.test_reject_duplicate_names ... ok
+Check that the intolerable defect listing function works ... ok
+Checking that listing a tag works even if the tag is empty ... ok
+Test that defects are inserted correctly into non-contiguous ranges ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 26.579s
+
+OK

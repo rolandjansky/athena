@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    simpletimer.h        
 //            these functions have a precision of about 0.001 ms
 //
 //
-//   Copyright (C) 2007 M.Sutton (sutt@hep.ucl.ac.uk)    
 //
 //   $Id: simpletimer.h, v0.0   Thu 22 Jan 2009 15:51:52 GMT sutt $
 

@@ -31,13 +31,13 @@ namespace TrigCostRootAnalysis {
    */
   class CounterRatesIntersection: public CounterBaseRates {
   public:
-    CounterRatesIntersection(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
-                             UInt_t _detailLevel = 10, MonitorBase* _parent = 0);
+    CounterRatesIntersection(const TrigCostData* costData, const std::string& name, Int_t ID,
+                             UInt_t detailLevel = 10, MonitorBase* parent = 0);
     ~CounterRatesIntersection();
-    void debug(UInt_t _e);
+    void debug(UInt_t e);
 
-    Float_t runDirect(Bool_t _usePrescale = kTRUE);
-    Double_t runWeight(Bool_t _includeExpress = kFALSE);
+    Float_t runDirect(Bool_t usePrescale = kTRUE);
+    Double_t runWeight(Bool_t includeExpress = kFALSE);
   private:
     void removeRedundancies();
 

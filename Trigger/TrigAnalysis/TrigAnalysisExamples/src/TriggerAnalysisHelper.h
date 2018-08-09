@@ -1,8 +1,11 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  * TriggerAnalysisHelper.h
- * Copyright (C) 2016 Ryan Mackenzie White <ryan.white@cern.ch>
+ * 
  *
- * Distributed under terms of the  license.
+ 
  */
 #ifndef TRIGGERANALYSISHELPER_H
 #define TRIGGERANALYSISHELPER_H

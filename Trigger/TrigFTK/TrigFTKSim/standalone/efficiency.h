@@ -44,10 +44,12 @@ double Dcurv;
 double Deta;
 double Dz0;
 double ptmincut;
-double dx, dy;
+//double dx, dy;
+double vtxTruth[3];
 
 // block of generic control histograms for the FTK tracks
 TH2F *histocoordmasketa_ftk;
+TH2F *histocoordmasketaphi_ftk[17];
 TH2F *histocoordmaskz0_ftk;
 TH2F *histocoordmaskphi_ftk;
 TH2F *histonmisseta_ftk;
@@ -68,6 +70,8 @@ TH2F *histophid0_ftk_pt5;
 TH1F *histocurv_ftk;
 TH1F *histoeta_ftk;
 TH2F *histoetaphi_ftk;
+
+TH2F *histoeff_etaphiplane[17];
 
 
 TH2F *histoetaphi_ftk_IBL;
@@ -161,6 +165,12 @@ TH1F *histoz0res;
 TProfile *histod0res_veta;
 TProfile *histoz0res_veta;
 TProfile *histod0res_vphi;
+TH2F *histo2d0res_vphi;
+TH2F *histo2d0res_veta;
+TH2F *histo2d0res_coordbit;
+TH2F *histo2d0truth_vphi;
+TH2F *histo2d0ftk_vphi;
+TH2F *histo2curvCurv;
 TProfile *histoz0res_vphi;
 TProfile *histod0res_vz0;
 TProfile *histoz0res_vz0;

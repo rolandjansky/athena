@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// IL1EtTools.h, (c) ATLAS Detector software
+// IL1EtTools.h, 
 ///////////////////////////////////////////////////////////////////
 #ifndef ILVL1L1ETTOOLS_H
 #define ILVL1L1ETTOOLS_H
@@ -38,16 +38,16 @@ Interface definition for L1EtTools
     virtual void moduleSums(const std::map<int, xAOD::JetElement*>* jemap,
                             DataVector<ModuleEnergy>* modules, int slice = -1) = 0;
     virtual void crateSums(const DataVector<ModuleEnergy>* modules,
-                            DataVector<CrateEnergy>* crates, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) = 0 ;
+                            DataVector<CrateEnergy>* crates, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false) = 0 ;
     virtual void crateSums(const DataVector<EnergyCMXData>* modules,
-                            DataVector<CrateEnergy>* crates, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) = 0 ;
+                            DataVector<CrateEnergy>* crates, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false) = 0 ;
     virtual void crateSums(const xAOD::JetElementContainer* jetelements,
-                           DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) = 0;
+                           DataVector<CrateEnergy>* crates, int slice = -1, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false) = 0;
     virtual void crateSums(const std::map<int, xAOD::JetElement*>* jemap,
-                           DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) = 0;
+                           DataVector<CrateEnergy>* crates, int slice = -1, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false) = 0;
     virtual SystemEnergy systemSums(const DataVector<CrateEnergy>* crates)  = 0;
-    virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) = 0;
-    virtual SystemEnergy systemSums(const std::map<int, xAOD::JetElement*>* jemap, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) = 0;
+    virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false) = 0;
+    virtual SystemEnergy systemSums(const std::map<int, xAOD::JetElement*>* jemap, int slice = -1, uint32_t maskXE = 0xff, uint32_t maskTE = 0xff, bool restricted = false) = 0;
   
   };
 

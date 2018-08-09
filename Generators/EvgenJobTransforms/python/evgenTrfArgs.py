@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -83,7 +83,7 @@ def addStdEvgenArgs(parser):
 
     parser.add_argument("--outputTXTFile", group="Evgen",
                         help="optional output TXT file for LHEF events, default is None",
-                        type=trfArgClasses.argFactory(trfArgClasses.argFile))
+                        type=trfArgClasses.argFactory(trfArgClasses.argLHEFile, io='output', runarg=True))
     parser.add_argument("--generatorRunMode", group="Evgen",
                         help="Run mode to pass on to the event generator",
                         default=trfArgClasses.argString("run", runarg=True),

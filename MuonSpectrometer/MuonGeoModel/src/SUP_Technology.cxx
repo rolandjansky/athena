@@ -5,7 +5,6 @@
 /***************************************************************************
  stiffening aluminum bars holding together RPC and DED components
  ----------------------------------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: SUP_Technology.cxx,v 1.1 2008-07-31 10:57:55 dquarrie Exp $

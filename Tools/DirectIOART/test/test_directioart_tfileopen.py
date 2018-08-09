@@ -2,6 +2,15 @@
 
 # art-description: DirectIOART TFile::Open
 # art-type: grid
+# art-include master/Athena
+# art-include 21.0/Athena
+# art-include 21.0/AthSimulation
+# art-include 21.2/AthAnalysis
+# art-include 21.2/AthDerivation
+# art-include 21.2/AnalysisBase
+# art-include 21.2/AnalysisTop
+# art-include 21.3/Athena
+# art-include 21.9/Athena
 
 import ROOT
 import os

@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  ClusterAbbreviated.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/10/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef TCS__ClusterAbbreviated
 #define TCS__ClusterAbbreviated

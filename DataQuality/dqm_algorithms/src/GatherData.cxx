@@ -14,6 +14,7 @@
 
 #include <TH1.h>
 #include <TGraph.h>
+#include <TEfficiency.h>
 
 #include "dqm_core/exceptions.h"
 #include "dqm_core/AlgorithmManager.h"
@@ -60,8 +61,9 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
   // Cast to the type of TObject to assess
   const TH1* h = dynamic_cast<const TH1*>( &data );
   const TGraph* g = dynamic_cast<const TGraph*>( &data );
-  if( h == 0 && g == 0 ) {
-    throw dqm_core::BadConfig( ERS_HERE, name, "Cannot cast data to type TH1" );
+  const TEfficiency* e = dynamic_cast<const TEfficiency*>( &data );
+  if( h == 0 && g == 0 && e==0 ) {
+    throw dqm_core::BadConfig( ERS_HERE, name, "Cannot cast data to type TH1, TGraph, or TEfficiency" );
   }
   
   std::map<std::string,double> tags;
@@ -77,6 +79,13 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
     tags["YMean"] = g->GetMean(2);
     tags["XRMS"]  = g->GetRMS(1);
     tags["YRMS"]  = g->GetRMS(2);
+  }
+
+  if ( e != 0 ) {
+    tags["Mean"] = e->GetCopyPassedHisto()->GetMean();
+    tags["MeanError"] = e->GetCopyPassedHisto()->GetMeanError();
+    tags["RMS"] = e->GetCopyPassedHisto()->GetRMS();
+    tags["RMSError"] = e->GetCopyPassedHisto()->GetRMSError();
   }
   
   dqm_core::Result* result = new dqm_core::Result( status );

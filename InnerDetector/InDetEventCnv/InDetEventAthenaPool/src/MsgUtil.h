@@ -12,6 +12,7 @@
 
 #include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/MsgStream.h"
+#include "CxxUtils/no_sanitize_undefined.h"
  
 namespace IDEvtAthPool {
   //Small slightly dirty workaround so we can set the source name on the
@@ -20,7 +21,7 @@ namespace IDEvtAthPool {
   public:
     void setSource(const char*c) { if (m_source!=c) m_source=c; }
   };
-  inline void setMsgName(AthMessaging*a,const char*c) {
+  inline void setMsgName NO_SANITIZE_UNDEFINED (AthMessaging*a,const char*c) {
     if (a&&c) static_cast<MsgStreamSourceSettable*>(&(a->msg()))->setSource(c);
   }
 }

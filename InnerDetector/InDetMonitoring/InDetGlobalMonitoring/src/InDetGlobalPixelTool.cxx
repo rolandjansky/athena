@@ -137,14 +137,19 @@ StatusCode InDetGlobalPixelTool::fillHistograms()
   m_tracks=m_combined_tracks;
   int nPixelHits=0;
 
-
+  if(m_tracks==0)
+    {
+      ATH_MSG_WARNING( "No Tracks. Leaving InDetGlobalPixelTool!" );
+      return StatusCode::SUCCESS;	
+    }
+    
   std::vector<Identifier> myRDOIDs;
   for (int i=0; i<(int)m_tracks->size(); i++)
     {
       const Trk::Track *track=(*m_tracks)[i];
       if (track == 0) 
 	{
-	  if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endreq;
+	  ATH_MSG_ERROR( "no pointer to track!!!" );
 	  break;
 	}
       const Trk::TrackSummary* summary = m_trkSummaryTool->createSummary(*track);

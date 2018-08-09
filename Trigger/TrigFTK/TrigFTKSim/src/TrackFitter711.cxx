@@ -17,6 +17,8 @@
 #include <cassert>
 using namespace std;
 
+static int print_guessed=0; //1000;
+
 TrackFitter711::TrackFitter711() :
   TrackFitter(),
   m_use_guessing(true),
@@ -619,6 +621,7 @@ void TrackFitter711::processor_end(int ibank)
   // m_trackoutput_pre_hw->addNFitsHWRejectedMajorityI(ibank,m_nfits_rejmajI);
   // m_trackoutput_pre_hw->addNConnections(ibank,m_nconn);
   // m_trackoutput_pre_hw->addNExtrapolatedTracks(ibank,m_nextrapolatedTracks);
+
 }
 
 
@@ -851,7 +854,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        newtrkI.setHWTrackID(-1);
 
        // add one fit in the counters
-       m_nfitsI += 1;
+       if (nmissing==0) m_nfitsI += 1;
        if (nmissing>0) m_nfits_majI += 1;
        if (missPix) m_nfits_majI_pix += 1;
        if (missSCT) m_nfits_majI_SCT += 1;
@@ -871,7 +874,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
            // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
            float dof = m_ncoords - m_npars - newtrkI.getNMissing();
            if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
-           float chisqcut = m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut_maj;
+           float chisqcut = m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut_maj;
            if (newtrkI.getChi2()>chisqcut)
              toAdd = false;
        }
@@ -933,7 +936,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        float dof = m_ncoords - m_npars - newtrkI.getNMissing();
        if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
-       if( newtrkI.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) ) {
+       if( newtrkI.getChi2() < ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut ) ) {
          fullpassed = true;
          break;
        }
@@ -951,7 +954,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
      if (newtrkI.getNMissing()==0 &&
          (m_do_majority==1 || (m_do_majority>1 && !fullpassed)) &&
          // Do recovery if chi2 or chi2/dof is above threshold
-         (newtrkI.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut )) &&
+         (newtrkI.getChi2() > ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut )) &&
          // Or veto majority if chi2 is too high
          (newtrkI.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0) ) { // recover majority
        /* if the N/N track have a bad chi2 we try to evaluate
@@ -1014,7 +1017,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
      // check if the track pass the quality requirements
-     if (newtrkI.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
+     if (newtrkI.getChi2()< ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux :
                              (newtrkI.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
          newtrkI.getChi2() != 0 ) {
 
@@ -1651,7 +1654,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       // the hits are obtained from the extrapolated SS and the neighbor
       for (int ss_shift=-m_nneighbours/2; ss_shift!=m_nneighbours/2+1; ++ss_shift) {
         const int tmpSS = ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode());
-	
+  
         // skip SS out of the current module boundaries
         if (/*(ndim==1)&&*/(tmpSS<bounds[ip][0]||tmpSS>bounds[ip][1])) // TODO:
           continue;
@@ -1726,8 +1729,8 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
           cbitmask |= (1<<(m_idcoords_eff[ip]+i));
           cbitmask_real |= (1<<(m_idcoords_eff[ip]+i));
         } else {
-	  if (ndim == 1) missSCT = true;
-	  else missPix = true;
+    if (ndim == 1) missSCT = true;
+    else missPix = true;
           // in this case the extrapolation failed, some empty value is placed
           newtrk.setFTKHit(m_idplanes_eff[ip],FTKHit()); // set an empty hit
         }
@@ -1800,14 +1803,14 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
         //for ( int i = 0; i < 16; i++)
         //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
 
-        m_nfits += 1;
+        if (nmissing_more==0)m_nfits += 1;
         //std::cout << "m_nfits: " << m_nfits << std::endl;
 
         if (nmissing_more>0) {
           m_nfits_maj += 1;
-	  if (missPix) m_nfits_maj_pix += 1;
-	  if (missSCT) m_nfits_maj_SCT += 1;
-	}
+    if (missPix) m_nfits_maj_pix += 1;
+    if (missSCT) m_nfits_maj_SCT += 1;
+  }
 
         // perform the fit
         //newtrk.setTrackID(m_comb_id++);
@@ -1914,7 +1917,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       float dof = m_ncoords - m_npars - newtrk.getNMissing();
       if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
-      if( newtrk.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) )
+      if( newtrk.getChi2() < ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB : m_Chi2Cut ) )
       {
         fullpassed = true;
         break;
@@ -1942,7 +1945,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     //if (m_extrafits && nmissing_more==0 &&
     //    (m_do_majority==1 || (m_do_majority>1 && !fullpassed)) &&
     //    // Do recovery if chi2 or chi2/dof is above threshold
-    //    (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut )) &&
+    //    (newtrk.getChi2() > ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB : m_Chi2Cut )) &&
     //    // Or veto majority if chi2 is too high
     //    (newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0) )
 
@@ -1953,8 +1956,8 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     // Try to recover majority if chi2 no good
     bool do_majority_recover = m_extrafits && nmissing_more==0;
     do_majority_recover = do_majority_recover && (m_do_majority==1 || (m_do_majority>1 && !fullpassed));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
+    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB : m_Chi2Cut ));
+    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB : m_Chi2Cut ));
     do_majority_recover = do_majority_recover && (newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0);
 
 
@@ -2028,7 +2031,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
     // check if the track pass the quality requirements
-    if (newtrk.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
+    if (newtrk.getChi2()< ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB :
           (newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
         newtrk.getChi2() != 0 )
     {
@@ -3366,7 +3369,10 @@ void TrackFitter711::guessedHitsToSSID() {
       m_ssid[ip] = m_ssmap_complete->getSSGlobal(tmphit, 1);
     }
 
-
+    if(print_guessed && (m_idplanes_eff[ip]==0)) {
+       cout<<"guessed_hit: "<< m_ssid[ip]<<":"<<moduleID
+           <<","<<tmphit[0]<<","<<tmphit[1]<<"\n";
+    }
 
     //    std::cout << "SSID current " << m_ssid[ip] << std::endl;
 
@@ -3645,7 +3651,7 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
       //for ( int i = 0; i < 16; i++)
       //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
 
-      m_nfits += 1;
+      if (nmissing_more==0)m_nfits += 1;
       //std::cout << "m_nfits: " << m_nfits << std::endl;
 
       if (nmissing_more>0) {
@@ -3716,7 +3722,7 @@ void TrackFitter711::saveCompleteTracks() {
       float dof = m_ncoords - m_npars - newtrk.getNMissing();
       if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
-      if( newtrk.getChi2() < ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ) ) {
+      if( newtrk.getChi2() < ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB : m_Chi2Cut ) ) {
         fullpassed = true;
         break;
       }
@@ -3749,8 +3755,8 @@ void TrackFitter711::saveCompleteTracks() {
     // Try to recover majority if chi2 no good
     bool do_majority_recover = m_extrafits && nmissing_more==0;
     do_majority_recover = do_majority_recover && (m_do_majority==1 || (m_do_majority>1 && !fullpassed));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
-    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut : m_Chi2Cut ));
+    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB : m_Chi2Cut ));
+    do_majority_recover = do_majority_recover && (newtrk.getChi2() > ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB : m_Chi2Cut ));
     do_majority_recover = do_majority_recover && (newtrk.getChi2() < m_Chi2Cut_vetomaj || m_Chi2Cut_vetomaj < 0);
 
 
@@ -3828,7 +3834,7 @@ void TrackFitter711::saveCompleteTracks() {
     //
 
     // check if the track pass the quality requirements
-    if (newtrk.getChi2()< ( m_Chi2DofCut > -1 ? dof*m_Chi2DofCut :
+    if (newtrk.getChi2()< ( m_Chi2DofCutSSB > -1 ? dof*m_Chi2DofCutSSB :
           (newtrk.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
         newtrk.getChi2() != 0 )
     {

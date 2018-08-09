@@ -1,5 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 ///////////////////////////////////////////////////////////////////
-// L1TopoDataMaker.cxx, (c) Alan Watson (see header file for license)
+// L1TopoDataMaker.cxx, 
 ///////////////////////////////////////////////////////////////////
 
 #include "TrigT1CaloUtils/L1TopoDataMaker.h"

@@ -13,9 +13,13 @@ from AthenaCommon.SystemOfUnits import MeV, mm
 ## GenParticleFilters
 
 def getParticleFinalStateFilter(name="ISF_ParticleFinalStateFilter", **kwargs):
-    # ParticleFinalStateFilter
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    G4NotInUse = not ISF_Flags.UsingGeant4.get_Value()
+    from G4AtlasApps.SimFlags import simFlags
+    G4NotInUse = G4NotInUse and simFlags.ISFRun.get_Value()
     # use CheckGenInteracting==False to allow GenEvent neutrinos to propagate into the simulation
-    #kwargs.setdefault("CheckGenInteracting"     , False )
+    kwargs.setdefault("CheckGenSimStable", G4NotInUse)
+    kwargs.setdefault("CheckGenInteracting", G4NotInUse)
     return CfgMgr.ISF__GenParticleFinalStateFilter(name, **kwargs)
 
 def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
@@ -84,6 +88,10 @@ def getParticlePositionFilterDynamic(name="ISF_ParticlePositionFilterDynamic", *
       return getParticlePositionFilterWorld(name, **kwargs)
 
 def getGenParticleInteractingFilter(name="ISF_GenParticleInteractingFilter", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    simdict = simFlags.specialConfiguration.get_Value()
+    if simdict is not None and "InteractingPDGCodes" in simdict:
+        kwargs.setdefault('AdditionalInteractingParticleTypes', simdict["InteractingPDGCodes"])
     return CfgMgr.ISF__GenParticleInteractingFilter(name, **kwargs)
 
 def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):

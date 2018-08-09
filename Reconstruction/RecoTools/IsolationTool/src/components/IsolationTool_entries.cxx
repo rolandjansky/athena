@@ -12,7 +12,6 @@
 DECLARE_NAMESPACE_TOOL_FACTORY( xAOD, TrackIsolationTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( xAOD, CaloIsolationTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( CP, IsolationHelper )
-
 DECLARE_ALGORITHM_FACTORY( IsolationTool_AthTest )
 
 DECLARE_FACTORY_ENTRIES( IsolationTool ) {
@@ -20,6 +19,5 @@ DECLARE_FACTORY_ENTRIES( IsolationTool ) {
    DECLARE_NAMESPACE_TOOL( xAOD, TrackIsolationTool )
    DECLARE_NAMESPACE_TOOL( xAOD, CaloIsolationTool )
    DECLARE_NAMESPACE_TOOL( CP, IsolationHelper )
-
    DECLARE_ALGORITHM( IsolationTool_AthTest )
 }
