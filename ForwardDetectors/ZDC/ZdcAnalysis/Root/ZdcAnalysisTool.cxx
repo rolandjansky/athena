@@ -20,7 +20,7 @@ namespace ZDC
   ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name), m_init(false), 
 							      m_writeAux(false), m_eventReady(false),
 							      m_runNumber(0), m_lumiBlock(0),
-							      m_splines{0,0,0,0,0,0,0,0}, m_zdcTriggerEfficiency(0)
+    m_splines{{{{0,0,0,0}},{{0,0,0,0}}}}, m_zdcTriggerEfficiency(0)
 {
 
 #ifndef XAOD_STANDALONE
@@ -93,7 +93,7 @@ void ZdcAnalysisTool::initializeTriggerEffs(unsigned int runNumber)
 
   //file->Print();
 
-  stringstream Aalpha_name;
+  std::stringstream Aalpha_name;
   Aalpha_name<<"A_alpha_"<<runNumber;
   TSpline3* par_A_alpha = (TSpline3*)file->GetObjectChecked(Aalpha_name.str().c_str(),"TSpline3");
 
@@ -103,61 +103,61 @@ void ZdcAnalysisTool::initializeTriggerEffs(unsigned int runNumber)
       m_doCalib = false;
     }
 
-  stringstream Abeta_name;
+  std::stringstream Abeta_name;
   Abeta_name<<"A_beta_"<<runNumber;
   TSpline3* par_A_beta = (TSpline3*)file->GetObjectChecked(Abeta_name.str().c_str(),"TSpline3");
-  stringstream Atheta_name;
+  std::stringstream Atheta_name;
   Atheta_name<<"A_theta_"<<runNumber;
   TSpline3* par_A_theta = (TSpline3*)file->GetObjectChecked(Atheta_name.str().c_str(),"TSpline3");
   
-  stringstream Calpha_name;
+  std::stringstream Calpha_name;
   Calpha_name<<"C_alpha_"<<runNumber;
   TSpline3* par_C_alpha = (TSpline3*)file->GetObjectChecked(Calpha_name.str().c_str(),"TSpline3");
-  stringstream Cbeta_name;
+  std::stringstream Cbeta_name;
   Cbeta_name<<"C_beta_"<<runNumber;
   TSpline3* par_C_beta = (TSpline3*)file->GetObjectChecked(Cbeta_name.str().c_str(),"TSpline3");
-  stringstream Ctheta_name;
+  std::stringstream Ctheta_name;
   Ctheta_name<<"C_theta_"<<runNumber;
   TSpline3* par_C_theta = (TSpline3*)file->GetObjectChecked(Ctheta_name.str().c_str(),"TSpline3");
   
-  stringstream Err_Aalpha_name;
+  std::stringstream Err_Aalpha_name;
   Err_Aalpha_name<<"A_alpha_error_"<<runNumber;
   TSpline3* parErr_A_alpha = (TSpline3*)file->GetObjectChecked(Err_Aalpha_name.str().c_str(),"TSpline3");
-  stringstream Err_Abeta_name;
+  std::stringstream Err_Abeta_name;
   Err_Abeta_name<<"A_beta_error_"<<runNumber;
   TSpline3* parErr_A_beta = (TSpline3*)file->GetObjectChecked(Err_Abeta_name.str().c_str(),"TSpline3");
-  stringstream Err_Atheta_name;
+  std::stringstream Err_Atheta_name;
   Err_Atheta_name<<"A_theta_error_"<<runNumber;
   TSpline3* parErr_A_theta = (TSpline3*)file->GetObjectChecked(Err_Atheta_name.str().c_str(),"TSpline3");
   
-  stringstream Err_Calpha_name;
+  std::stringstream Err_Calpha_name;
   Err_Calpha_name<<"C_alpha_error_"<<runNumber;
   TSpline3* parErr_C_alpha = (TSpline3*)file->GetObjectChecked(Err_Calpha_name.str().c_str(),"TSpline3");
-  stringstream Err_Cbeta_name;
+  std::stringstream Err_Cbeta_name;
   Err_Cbeta_name<<"C_beta_error_"<<runNumber;
   TSpline3* parErr_C_beta = (TSpline3*)file->GetObjectChecked(Err_Cbeta_name.str().c_str(),"TSpline3");
-  stringstream Err_Ctheta_name;
+  std::stringstream Err_Ctheta_name;
   Err_Ctheta_name<<"C_theta_error_"<<runNumber;
   TSpline3* parErr_C_theta = (TSpline3*)file->GetObjectChecked(Err_Ctheta_name.str().c_str(),"TSpline3");
   
   
-  stringstream Cov_A_alpha_beta_name;
+  std::stringstream Cov_A_alpha_beta_name;
   Cov_A_alpha_beta_name<<"cov_A_alpha_beta_"<<runNumber;
   TSpline3* cov_A_alpha_beta = (TSpline3*)file->GetObjectChecked(Cov_A_alpha_beta_name.str().c_str(),"TSpline3");
-  stringstream Cov_A_alpha_theta_name;
+  std::stringstream Cov_A_alpha_theta_name;
   Cov_A_alpha_theta_name<<"cov_A_alpha_theta_"<<runNumber;
   TSpline3* cov_A_alpha_theta = (TSpline3*)file->GetObjectChecked(Cov_A_alpha_theta_name.str().c_str(),"TSpline3");
-  stringstream Cov_A_beta_theta_name;
+  std::stringstream Cov_A_beta_theta_name;
   Cov_A_beta_theta_name<<"cov_A_beta_theta_"<<runNumber;
   TSpline3* cov_A_beta_theta = (TSpline3*)file->GetObjectChecked(Cov_A_beta_theta_name.str().c_str(),"TSpline3");
   
-  stringstream Cov_C_alpha_beta_name;
+  std::stringstream Cov_C_alpha_beta_name;
   Cov_C_alpha_beta_name<<"cov_C_alpha_beta_"<<runNumber;
   TSpline3* cov_C_alpha_beta = (TSpline3*)file->GetObjectChecked(Cov_C_alpha_beta_name.str().c_str(),"TSpline3");
-  stringstream Cov_C_alpha_theta_name;
+  std::stringstream Cov_C_alpha_theta_name;
   Cov_C_alpha_theta_name<<"cov_C_alpha_theta_"<<runNumber;
   TSpline3* cov_C_alpha_theta = (TSpline3*)file->GetObjectChecked(Cov_C_alpha_theta_name.str().c_str(),"TSpline3");
-  stringstream Cov_C_beta_theta_name;
+  std::stringstream Cov_C_beta_theta_name;
   Cov_C_beta_theta_name<<"cov_C_beta_theta_"<<runNumber;
   TSpline3* cov_C_beta_theta = (TSpline3*)file->GetObjectChecked(Cov_C_beta_theta_name.str().c_str(),"TSpline3");
   
@@ -220,9 +220,9 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializeDefault()
 
   ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {1020, 1020, 1020, 1020, 1020, 1020, 1020, 1020};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
   //  Construct the data analyzer
   //
@@ -234,7 +234,7 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializeDefault()
   zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, deltaT0CutLow, deltaT0CutHigh, deltaT0CutLow, deltaT0CutHigh);
 
   if (m_combineDelay) {
-    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {0, 0, 0, 0, 0, 0, 0, 0};
+    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
     zdcDataAnalyzer->EnableDelayed(m_delayDeltaT, defaultPedestalShifts);
   }
@@ -282,9 +282,9 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializepPb2016()
 
   //  ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {1020, 1020, 1020, 1020, 1020, 1020, 1020, 1020};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
   //  Construct the data analyzer
   //
@@ -308,8 +308,8 @@ ZDCDataAnalyzer* ZdcAnalysisTool::initializepPb2016()
   // We allow the combineDelay to be controlled by the properties
   //
   //  if (m_combineDelay) {
-  m_combineDelay = true;
-    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {0, 0, 0, 0, 0, 0, 0, 0};
+    m_combineDelay = true;
+    ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
     zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
     //  }
@@ -322,25 +322,25 @@ void ZdcAnalysisTool::initialize40MHz()
   // We have a complete configuration and so we override all of the default parameters
   //
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {4.2, 3.8, 5.2, 5.0,
-                                               5.0, 3.7, 3.5, 3.5};
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {{{{4.2, 3.8, 5.2, 5.0}},
+                                                {{5.0, 3.7, 3.5, 3.5}}}};
 
   // identical to 80 MHz -- is this right
-  ZDCDataAnalyzer::ZDCModuleFloatArray tau2 = {20.0, 20.4, 18.9, 20.8,
-                                               19.1, 21.9, 22.6, 23.4};
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau2 = {{{{20.0, 20.4, 18.9, 20.8}},
+                                                {{19.1, 21.9, 22.6, 23.4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples = {1, 1, 2, 1,
-                                                                 1, 1, 1, 1};
+  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinSamples = {{{{1, 1, 2, 1}},
+                                                                  {{1, 1, 1, 1}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG = {-8, -8, -8, -8,
-								      -8, -8, -8, -8};
+  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG = {{{{-8, -8, -8, -8}},
+                                                                       {{-8, -8, -8, -8}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsLG = {-4, -4, -4, -4,
-								      -4, -4, -4, -4};
+  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsLG = {{{{-4, -4, -4, -4}},
+                                                                       {{-4, -4, -4, -4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {1020, 1020, 1020, 1020, 1020, 1020, 1020, 1020};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{1020, 1020, 1020, 1020}}, {{1020, 1020, 1020, 1020}}}};
 
   // Set Tau and nominal timing offsets                                                                                                                          
   ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
@@ -355,18 +355,18 @@ void ZdcAnalysisTool::initialize40MHz()
     }
   }
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {53.942, 49.887, 59.633, 46.497,
-					       46.314, 42.267, 50.327, 41.605};
-  ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {51.771, 47.936, 57.438, 44.191,
-					       44.295, 41.755, 48.081, 40.175};
+  ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{{53.942, 49.887, 59.633, 46.497}},
+                                                {{46.314, 42.267, 50.327, 41.605}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{{51.771, 47.936, 57.438, 44.191}},
+                                                {{44.295, 41.755, 48.081, 40.175}}}};
 
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {-6, -5, -5, -5, -5, -5, -5, -5};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {-6, -5, -5, -5, -5, -5, -5, -5};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {8, 8, 8, 11, 8, 10, 8, 12};
+  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {{{{-6, -5, -5, -5}}, {{-5, -5, -5, -5}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {{{{8, 8, 8, 11}}, {{8, 10, 8, 12}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {{{{-6, -5, -5, -5}}, {{-5, -5, -5, -5}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {{{{8, 8, 8, 11}}, {{8, 10, 8, 12}}}};
 
   std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG;
 
@@ -416,18 +416,18 @@ void ZdcAnalysisTool::initialize80MHz()
   // We have a complete configuration and so we override all of the default parameters
   //
 
-  _peak2ndDerivMinSamples = {3, 2, 3, 2,
-                             2, 2, 2, 2};
+  m_peak2ndDerivMinSamples = {{{{3, 2, 3, 2}},
+                               {{2, 2, 2, 2}}}};
 
-  _peak2ndDerivMinThresholdsHG = {-8, -8, -8, -8,
-				  -8, -8, -8, -8};
+  m_peak2ndDerivMinThresholdsHG = {{{{-8, -8, -8, -8}},
+                                    {{-8, -8, -8, -8}}}};
 
-  _peak2ndDerivMinThresholdsLG = {-4, -4, -4, -4,
-				  -4, -4, -4, -4};
+  m_peak2ndDerivMinThresholdsLG = {{{{-4, -4, -4, -4}},
+                                    {{-4, -4, -4, -4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
-  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {950, 950, 950, 950, 950, 950, 950, 950};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {{{{800, 800, 800, 800}}, {{800, 800, 800, 800}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {{{{950, 950, 950, 950}}, {{950, 950, 950, 950}}}};
 
   // Set Tau and nominal timing offsets                                                                                                                          
   ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
@@ -442,24 +442,24 @@ void ZdcAnalysisTool::initialize80MHz()
     }
   }
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {3.9, 3.4, 4.1, 4.2,
-                                               4.2, 3.6, 3.3, 3.4};
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {{{{3.9, 3.4, 4.1, 4.2}},
+                                                {{4.2, 3.6, 3.3, 3.4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray tau2 = {20.0, 20.4, 18.9, 20.8,
-                                               19.1, 21.9, 22.6, 23.4};
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau2 = {{{{20.0, 20.4, 18.9, 20.8}},
+                                                {{19.1, 21.9, 22.6, 23.4}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {44.24, 40.35, 49.3, 36.0,
-					       36.0, 31.1, 40.75, 30.5};
+  ZDCDataAnalyzer::ZDCModuleFloatArray t0HG = {{{{44.24, 40.35, 49.3, 36.0}},
+                                                {{36.0, 31.1, 40.75, 30.5}}}};
 					       
-  ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {42.65, 38.5, 47.4, 34,
-					       33.7, 29.9, 39.0, 29.3};
+  ZDCDataAnalyzer::ZDCModuleFloatArray t0LG = {{{{42.65, 38.5, 47.4, 34}},
+                                                {{33.7, 29.9, 39.0, 29.3}}}};
 
-  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {10, 10, 10, 10, 10, 10, 10, 10};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {-6, -5, -5, -5, -5, -5, -5, -5};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {-6, -5, -5, -5, -5, -5, -5, -5};
-  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {8, 8, 8, 11, 8, 10, 8, 12};
+  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutHG = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray chisqDivAmpCutLG = {{{{10, 10, 10, 10}}, {{10, 10, 10, 10}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = {{{{-6, -5, -5, -5}}, {{-5, -5, -5, -5}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {{{{8, 8, 8, 11}}, {{8, 10, 8, 12}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowLG = {{{{-6, -5, -5, -5}}, {{-5, -5, -5, -5}}}};
+  ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighLG = {{{{8, 8, 8, 11}}, {{8, 10, 8, 12}}}};
 
   std::array<std::array<std::vector<float>, 4>, 2> slewingParamsHG, slewingParamsLG;
 
@@ -493,8 +493,8 @@ void ZdcAnalysisTool::initialize80MHz()
   moduleHGNonLinCorr[1][2] = {-7.82514e-02, -1.21218e-01};
   moduleHGNonLinCorr[1][3] = {-2.34354e-02, -2.52033e-01};
 
-  m_zdcDataAnalyzer_80MHz = new ZDCDataAnalyzer(7 , 12.5, 0, "FermiExp",_peak2ndDerivMinSamples,
-						_peak2ndDerivMinThresholdsHG, _peak2ndDerivMinThresholdsLG,m_lowGainOnly);
+  m_zdcDataAnalyzer_80MHz = new ZDCDataAnalyzer(7 , 12.5, 0, "FermiExp",m_peak2ndDerivMinSamples,
+						m_peak2ndDerivMinThresholdsHG, m_peak2ndDerivMinThresholdsLG,m_lowGainOnly);
 
   m_zdcDataAnalyzer_80MHz->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
   m_zdcDataAnalyzer_80MHz->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1, tau2, t0HG, t0LG);
@@ -505,8 +505,8 @@ void ZdcAnalysisTool::initialize80MHz()
 
 StatusCode ZdcAnalysisTool::initializeTool()
 {
-  tf1SincInterp = new TF1("SincInterp",ZDC::SincInterp,-5.,160.,8);
-  tf1SincInterp->SetNpx(300);
+  m_tf1SincInterp = new TF1("SincInterp",ZDC::SincInterp,-5.,160.,8);
+  m_tf1SincInterp->SetNpx(300);
 
   // Set up calibrations
   //
@@ -897,9 +897,11 @@ void ZdcAnalysisTool::setEnergyCalibrations(unsigned int runNumber)
 void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
 {
   char name[128];
-  sprintf(name,"%s/%s",m_zdcAnalysisConfigPath.c_str(),m_zdcTimeCalibFileName.c_str());
-  ATH_MSG_INFO("Opening time calibration file " << name);
-  TFile* fCalib = TFile::Open(name);
+  std::string filename = PathResolverFindCalibFile( "ZdcAnalysis/"+m_zdcTimeCalibFileName );
+  //sprintf(name,"%s/%s",m_zdcAnalysisConfigPath.c_str(),m_zdcTimeCalibFileName.c_str());
+  ATH_MSG_INFO("Opening time calibration file " << filename);
+  TFile* fCalib = TFile::Open(filename.c_str());
+
   std::array<std::array<TSpline*, 4>, 2> T0HGOffsetSplines;
   std::array<std::array<TSpline*, 4>, 2> T0LGOffsetSplines;
   TSpline3* spline;
@@ -968,13 +970,13 @@ StatusCode ZdcAnalysisTool::reprocessZdc()
   {    
     size_t nsamp = adc.size();
     float presamp = adc.at(0);
-    tf1SincInterp->SetParameter(0,deltaT);
+    m_tf1SincInterp->SetParameter(0,deltaT);
     for (size_t i = 0;i<nsamp;i++)
       {
-	tf1SincInterp->SetParameter(i+1,adc.at(i)-presamp);
+	m_tf1SincInterp->SetParameter(i+1,adc.at(i)-presamp);
       }
-    amp = tf1SincInterp->GetMaximum();
-    time = tf1SincInterp->GetMaximumX();
+    amp = m_tf1SincInterp->GetMaximum();
+    time = m_tf1SincInterp->GetMaximumX();
     qual = 1.;
     return true;
   }
