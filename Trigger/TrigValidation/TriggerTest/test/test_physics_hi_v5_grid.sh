@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: Heavy ion physics v4 TriggerTest on MC
+# art-description: Heavy ion physics v5 TriggerTest on MC
 # art-type: grid
 # art-include: 21.1/AthenaP1
 # art-include: 21.1-dev/AthenaP1
