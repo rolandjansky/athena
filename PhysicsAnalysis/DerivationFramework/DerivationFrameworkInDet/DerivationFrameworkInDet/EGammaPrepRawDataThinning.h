@@ -21,7 +21,6 @@
 
 // Needed for the pixel clusters
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"

@@ -10,7 +10,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
