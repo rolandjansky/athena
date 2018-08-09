@@ -16,7 +16,6 @@ def TrigMuonMonitoringTool():
 	HLTMuonMon.monitoring_muonLowpt = hltmonList.monitoring_muonLowpt
 	HLTMuonMon.monitoring_muon_Support = hltmonList.monitoring_muon_Support
 
-	print "Yohei setL2HypoTENames"
 	setL2HypoTENames( HLTMuonMon, hltmonList)
 
 	from RecExConfig.RecFlags import rec

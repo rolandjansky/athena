@@ -77,7 +77,8 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muonLowpt", m_chainsLowpt);
   declareProperty("monitoring_muon_Support", m_chainSupport);
   declareProperty("HI_pp_mode", m_HI_pp_mode);
-  
+
+  declareProperty("AccessHypoTEs", m_access_hypoTE=true);
   //construction of L2MuonSA parameters
   declareProperty("monitoring_muonNonIso_L2SAHypo", m_hyposGeneric_L2SA);
   declareProperty("monitoring_muonIso_L2SAHypo", m_hyposEFiso_L2SA);
@@ -1056,9 +1057,9 @@ const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const
   const HLT::TriggerElement *hypote = NULL;
   std::vector<HLT::TriggerElement*> TEsuccessors = m_ExpertMethods->getNavigation()->getDirectSuccessors(te);
   for(auto te2 : TEsuccessors){
-    msg() << MSG::DEBUG << "[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) << endreq;
+    //ATH_MSG_DEBUG("[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) );
     if(Trig::getTEName(*te2)==hyponame){
-      msg() << MSG::DEBUG << "[" << chainname<< "] selected HypoTE: " << te2->getId() << " " <<  Trig::getTEName(*te2) <<  " isPassed=" << te2->getActiveState() << endreq;
+      ATH_MSG_DEBUG("[" << chainname<< "] selected HypoTE: " << te2->getId() << " " <<  Trig::getTEName(*te2) <<  " isPassed=" << te2->getActiveState() );
       hypote = te2;
     }
   }

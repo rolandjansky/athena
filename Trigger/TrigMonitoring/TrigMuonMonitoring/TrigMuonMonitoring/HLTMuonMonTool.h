@@ -205,6 +205,8 @@ class HLTMuonMonTool : public IHLTMonTool
   std::map<std::string, std::string> m_lowerChains;
   std::map<std::string, int>  m_thresh;
   std::map<std::string, std::string> m_chainsEF_L2_map;  // add by Yuan
+  
+  bool m_access_hypoTE;
   //Hypo names for L2 standalone muons
   std::vector<std::string> m_hyposMSonly_L2SA;
   std::vector<std::string> m_hyposGeneric_L2SA;
