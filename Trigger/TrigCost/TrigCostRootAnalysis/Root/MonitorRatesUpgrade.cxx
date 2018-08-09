@@ -53,15 +53,15 @@ namespace TrigCostRootAnalysis {
    * It will simulate L1, L2 and HLT rates using Run2 EB data as input
    * It will apply efficiencies to simulate expected rates yeilds
    */
-  MonitorRatesUpgrade::MonitorRatesUpgrade(const TrigCostData* _costData)
-    : MonitorBase(_costData, "RateUpgrade"),
+  MonitorRatesUpgrade::MonitorRatesUpgrade(const TrigCostData* costData)
+    : MonitorBase(costData, "RateUpgrade"),
     m_R3(0),
     m_statsEventMu(0.),
     m_statsEventMu2(0.),
     m_statsEventMuN(0),
     m_thisEventPtr(nullptr) {
     m_dummyCounter =
-      static_cast<CounterBase*>(new CounterRatesChain(_costData, Config::config().getStr(kDummyString), 10));
+      static_cast<CounterBase*>(new CounterRatesChain(costData, Config::config().getStr(kDummyString), 10));
     m_globalRateL1Counter = nullptr;
     m_globalRateL2Counter = nullptr;
     m_globalRateL3Counter = nullptr;
@@ -81,9 +81,9 @@ namespace TrigCostRootAnalysis {
    * Destroy this monitor - note we have special RatesChainItems to destroy here too
    */
   MonitorRatesUpgrade::~MonitorRatesUpgrade() {
-    for (auto _item : m_chainItemsL1) delete _item.second;
-    for (auto _item : m_chainItemsL2) delete _item.second;
-    for (auto _item : m_chainItemsL3) delete _item.second;
+    for (auto item : m_chainItemsL1) delete item.second;
+    for (auto item : m_chainItemsL2) delete item.second;
+    for (auto item : m_chainItemsL3) delete item.second;
   }
 
   /**
@@ -117,13 +117,13 @@ namespace TrigCostRootAnalysis {
 
     if (m_upgradeBunchScaling == kTRUE) {
       m_targetPairedBunches = Config::config().getInt(kTargetPairedBunches);
-      Int_t _pairedBunches = Config::config().getInt(kPairedBunches);
+      Int_t pairedBunches = Config::config().getInt(kPairedBunches);
 
-      m_collidingBunchFactor = m_targetPairedBunches / (Float_t) _pairedBunches; // Going to continue to assume that 1
+      m_collidingBunchFactor = m_targetPairedBunches / (Float_t) pairedBunches; // Going to continue to assume that 1
                                                                                  // is PAIRED
       Info("MonitorRatesUpgrade::populateChainItemMaps",
            "We will scale x%.2f for the number of bunches in the ring (%i->%i) (note this may change mid-processing if using MultiRun)",
-           m_collidingBunchFactor, _pairedBunches, m_targetPairedBunches);
+           m_collidingBunchFactor, pairedBunches, m_targetPairedBunches);
     } else {
       Warning("MonitorRatesUpgrade::populateChainItemMaps", "Upgrade rates will not be scaled for extra bunches.");
     }
@@ -137,177 +137,177 @@ namespace TrigCostRootAnalysis {
       Warning("MonitorRatesUpgrade::populateChainItemMaps", "Upgrade rates will not be scaled for online EB deadtime.");
     }
 
-    Float_t m_upgradePredictionL = Config::config().getFloat(kRunLumiXML) * m_collidingBunchFactor *
+    Float_t upgradePredictionL = Config::config().getFloat(kRunLumiXML) * m_collidingBunchFactor *
                                    (m_pileupFactor / Config::config().getFloat(kOnlinePeakMuAverage));
     Info("MonitorRatesUpgrade::populateChainItemMaps",
          "*** THIS UPGRADE RATES PREDICTION IS PERFORMING A L EXTRAPOLATION OF %.2e -> %.2e ***",
-         Config::config().getFloat(kRunLumiXML), m_upgradePredictionL);
-    Config::config().setFloat(kPredictionLumiMenuXML, m_upgradePredictionL, "PredictionLumiMenuXML");
+         Config::config().getFloat(kRunLumiXML), upgradePredictionL);
+    Config::config().setFloat(kPredictionLumiMenuXML, upgradePredictionL, "PredictionLumiMenuXML");
 
     if (Config::config().getInt(kDoUpgradeRatesScan) == kTRUE) {
       // Scan over a set of energies
-      for (UInt_t _e = 5; _e <= 500; _e += 5) { // Energy
-        for (UInt_t _n = 1; _n <= 8; ++_n) {
-          if (_n >= 5 && _n <= 7) continue; // Don't do N of 5,6,7
-          if (_e > 100) {
-            if (_e % 25 != 0) continue;
-          } else if (_e > 50) {
-            if (_e % 10 != 0) continue;
+      for (UInt_t e = 5; e <= 500; e += 5) { // Energy
+        for (UInt_t n = 1; n <= 8; ++n) {
+          if (n >= 5 && n <= 7) continue; // Don't do N of 5,6,7
+          if (e > 100) {
+            if (e % 25 != 0) continue;
+          } else if (e > 50) {
+            if (e % 10 != 0) continue;
           }
-          for (UInt_t _t = 0; _t < 17; ++_t) {
-            if (_n > 1 && (_t == 9 || _t == 10 || _t == 12 || _t == 13 || _t == 14)) continue; // No multiplicity in
+          for (UInt_t t = 0; t < 17; ++t) {
+            if (n > 1 && (t == 9 || t == 10 || t == 12 || t == 13 || t == 14)) continue; // No multiplicity in
                                                                                                // TE,HT or XE,MHT or
                                                                                                // MU10_ME
-            if ((_t == 2 || _t == 3) && _e > 100) continue; // No EM after 100 GeV
-            if ((_t >= 4 && _t <= 7) && _e > 100) continue; // No TAU after 100 GeV
-            if (_t == 8 && _e > 20) continue; // No MU after 20
-            if ((_t == 15 || _t == 16) && _n != 4) continue; // only 4J
-            if ((_t == 15 || _t == 16) && _e > 25) continue; // only 4J E up to 25
+            if ((t == 2 || t == 3) && e > 100) continue; // No EM after 100 GeV
+            if ((t >= 4 && t <= 7) && e > 100) continue; // No TAU after 100 GeV
+            if (t == 8 && e > 20) continue; // No MU after 20
+            if ((t == 15 || t == 16) && n != 4) continue; // only 4J
+            if ((t == 15 || t == 16) && e > 25) continue; // only 4J E up to 25
 
-            Int_t _iso = 0;
-            Int_t _etaMin = 0, _etaMax = 49;
-            std::string _type, _isoStr;
-            switch (_t) {
-            case 0: _type = "J";
-              _etaMax = 31;
+            Int_t iso = 0;
+            Int_t etaMin = 0, etaMax = 49;
+            std::string type, isoStr;
+            switch (t) {
+            case 0: type = "J";
+              etaMax = 31;
               break;
 
-            case 1: _type = "EM";
+            case 1: type = "EM";
               break;
 
-            case 2: _type = "EM";
-              _isoStr = "I";
-              _iso = m_isoBits["EM_I"];
+            case 2: type = "EM";
+              isoStr = "I";
+              iso = m_isoBits["EM_I"];
               break;
 
-            case 3: _type = "EM";
-              _isoStr = "VHI";
-              _iso = m_isoBits["EM_VHI"];
+            case 3: type = "EM";
+              isoStr = "VHI";
+              iso = m_isoBits["EM_VHI"];
               break;
 
-            case 4: _type = "TAU";
+            case 4: type = "TAU";
               break;
 
-            case 5: _type = "TAU";
-              _isoStr = "IL";
-              _iso = m_isoBits["TAU_IL"];
+            case 5: type = "TAU";
+              isoStr = "IL";
+              iso = m_isoBits["TAU_IL"];
               break;
 
-            case 6: _type = "TAU";
-              _isoStr = "IM";
-              _iso = m_isoBits["TAU_IM"];
+            case 6: type = "TAU";
+              isoStr = "IM";
+              iso = m_isoBits["TAU_IM"];
               break;
 
-            case 7: _type = "TAU";
-              _isoStr = "IT";
-              _iso = m_isoBits["TAU_IT"];
+            case 7: type = "TAU";
+              isoStr = "IT";
+              iso = m_isoBits["TAU_IT"];
               break;
 
-            case 8: _type = "MU";
+            case 8: type = "MU";
               break;
 
-            case 9: _type = "XE";
+            case 9: type = "XE";
               break;
 
-            case 10: _type = "TE";
+            case 10: type = "TE";
               break;
 
-            case 11: _type = "J";
-              _isoStr = "_32ETA49";
-              _etaMin = 32;
-              _etaMax = 49;
+            case 11: type = "J";
+              isoStr = "_32ETA49";
+              etaMin = 32;
+              etaMax = 49;
               break;
 
-            case 12: _type = "MHT";
+            case 12: type = "MHT";
               break;
 
-            case 13: _type = "HT";
+            case 13: type = "HT";
               break;
 
-            case 14: _type = "EM";
+            case 14: type = "EM";
               break; // plus mu10
 
-            case 15: _type = "J";
-              _etaMax = 31;
+            case 15: type = "J";
+              etaMax = 31;
               break; // 4J plus TE
 
-            case 16: _type = "J";
-              _etaMax = 31;
+            case 16: type = "J";
+              etaMax = 31;
               break; // 4J plus HT
             }
-            //if (_t != 0 || _n != 1) continue;             // HACK
-            std::string _nStr = std::to_string(_n);
-            if (_n == 1) _nStr = "";
-            std::string _extra = "";
-            if (_t == 14) _extra = "MU10_";
+            //if (t != 0 || n != 1) continue;             // HACK
+            std::string nStr = std::to_string(n);
+            if (n == 1) nStr = "";
+            std::string extra = "";
+            if (t == 14) extra = "MU10_";
 
-            int _subE = 500;
-            if (_t == 15 || _t == 16) _subE = 250;
-            for (int _sE = _subE; _sE <= 500; _sE += 50) {
-              std::stringstream _name;
-              std::stringstream _group;
+            int subE = 500;
+            if (t == 15 || t == 16) subE = 250;
+            for (int sE = subE; sE <= 500; sE += 50) {
+              std::stringstream name;
+              std::stringstream group;
 
-              if (_t == 15) _extra = "TE" + std::to_string(_sE) + "_";
-              if (_t == 16) _extra = "HT" + std::to_string(_sE) + "_";
+              if (t == 15) extra = "TE" + std::to_string(sE) + "_";
+              if (t == 16) extra = "HT" + std::to_string(sE) + "_";
 
-              _name << "L1_" << _extra << _nStr << _type << _e << _isoStr;
-              _group << "RATE_Test_" << _extra << _nStr << _type << _isoStr;
-              if (m_chainItemsL1.count(_name.str()) == 1) continue;                                                                         // Already
+              name << "L1_" << extra << nStr << type << e << isoStr;
+              group << "RATE_Test_" << extra << nStr << type << isoStr;
+              if (m_chainItemsL1.count(name.str()) == 1) continue;                                                                         // Already
                                                                                                                                             // has
 
-              TriggerLogic _triggerLogic;
-              _triggerLogic.addCondition(_type, _n, _e, _iso, _etaMin, _etaMax);
+              TriggerLogic triggerLogic;
+              triggerLogic.addCondition(type, n, e, iso, etaMin, etaMax);
 
-              if (_t == 14) _triggerLogic.addCondition("MU", 1, 10, 0, _etaMin, _etaMax);
-              if (_t == 15) _triggerLogic.addCondition("TE", 1, _sE, 0, 0, 49);
-              if (_t == 16) _triggerLogic.addCondition("HT", 1, _sE, 0, 0, 49);
+              if (t == 14) triggerLogic.addCondition("MU", 1, 10, 0, etaMin, etaMax);
+              if (t == 15) triggerLogic.addCondition("TE", 1, sE, 0, 0, 49);
+              if (t == 16) triggerLogic.addCondition("HT", 1, sE, 0, 0, 49);
 
-              auto _it = m_upgradeChains.insert(ChainInfo(_name.str(), 1, _triggerLogic, _group.str(), "", 1., 1.));
-              TriggerLogic* _tl = const_cast<TriggerLogic*>(&(_it->m_triggerLogic)); //Why is this const in the first
+              auto _it = m_upgradeChains.insert(ChainInfo(name.str(), 1, triggerLogic, group.str(), "", 1., 1.));
+              TriggerLogic* tl = const_cast<TriggerLogic*>(&(_it->m_triggerLogic)); //Why is this const in the first
                                                                                      // place?
 
-              RatesChainItem* _L1 = new RatesChainItem(_name.str(), /*chainLevel=*/ 1, 1.);
-              m_chainItemsL1[ _name.str() ] = _L1;
-              _L1->setTriggerLogic(_tl);
+              RatesChainItem* L1 = new RatesChainItem(name.str(), /*chainLevel=*/ 1, 1.);
+              m_chainItemsL1[ name.str() ] = L1;
+              L1->setTriggerLogic(tl);
             }
           }
         }
       }
     }
 
-    for (std::multiset<ChainInfo>::iterator _it = m_upgradeChains.begin(); _it != m_upgradeChains.end(); ++_it) {
+    for (std::multiset<ChainInfo>::iterator it = m_upgradeChains.begin(); it != m_upgradeChains.end(); ++it) {
       //for (auto _item : m_upgradeChains) {
-      if (_it->m_level == 2) {
+      if (it->m_level == 2) {
         continue; // not doing HLT yet
       }
-      const std::string _nameL1 = _it->m_name;
+      const std::string nameL1 = it->m_name;
 
-      if (m_chainItemsL1.count(_nameL1) == 1) continue;                                                             // Already
+      if (m_chainItemsL1.count(nameL1) == 1) continue;                                                             // Already
                                                                                                                     // has
 
-      Double_t _chainPrescale = 1.; //TODO - nonzero prescales?
-      RatesChainItem* _L1 = new RatesChainItem(_nameL1, /*chainLevel=*/ 1, _chainPrescale);
-      _L1->setRateReductionFactor(_it->m_weight0);
-      m_chainItemsL1[ _nameL1 ] = _L1;
+      Double_t chainPrescale = 1.; //TODO - nonzero prescales?
+      RatesChainItem* L1 = new RatesChainItem(nameL1, /*chainLevel=*/ 1, chainPrescale);
+      L1->setRateReductionFactor(it->m_weight0);
+      m_chainItemsL1[ nameL1 ] = L1;
 
-      std::string _nameL2 = _it->m_l2name;
-      RatesChainItem* _L2 = new RatesChainItem(_nameL2, /*chainLevel=*/ 2, 1.);
-      m_chainItemsL2[ _nameL2 ] = _L2;
-      _L2->setRateReductionFactor(_it->m_weight1);
+      std::string nameL2 = it->m_l2name;
+      RatesChainItem* L2 = new RatesChainItem(nameL2, /*chainLevel=*/ 2, 1.);
+      m_chainItemsL2[ nameL2 ] = L2;
+      L2->setRateReductionFactor(it->m_weight1);
 
-      _L2->addLower(_L1);
-      _L1->addUpper(_L2);
+      L2->addLower(L1);
+      L1->addUpper(L2);
 
-      TriggerLogic* _tl = const_cast<TriggerLogic*>(&(_it->m_triggerLogic)); // Why are you const!?!
+      TriggerLogic* tl = const_cast<TriggerLogic*>(&(it->m_triggerLogic)); // Why are you const!?!
 
-      _L1->setTriggerLogic(_tl);
-      _L2->setTriggerLogic(_tl);
+      L1->setTriggerLogic(tl);
+      L2->setTriggerLogic(tl);
     }
 
 
-    for (const auto _chainItem : m_chainItemsL1) _chainItem.second->classifyLumiAndRandom();
+    for (const auto chainItem : m_chainItemsL1) chainItem.second->classifyLumiAndRandom();
     //Should not be needed, do different lumi scaling here
-    for (const auto _chainItem : m_chainItemsL2) _chainItem.second->classifyLumiAndRandom();
+    for (const auto chainItem : m_chainItemsL2) chainItem.second->classifyLumiAndRandom();
   }
 
   /**
@@ -318,14 +318,14 @@ namespace TrigCostRootAnalysis {
    * We make one counter per chain (L1 and HLT), one per intersection of each chain and other chains in its group
    * and one for the union of all chains in each group.
    */
-  void MonitorRatesUpgrade::populateCounterMap(CounterMap_t* _counterMap) {
-    createGlobalCounters(_counterMap);
-    createL1Counters(_counterMap);
-    //createL2Counters(_counterMap);
-    //createL3Counters(_counterMap);
+  void MonitorRatesUpgrade::populateCounterMap(CounterMap_t* counterMap) {
+    createGlobalCounters(counterMap);
+    createL1Counters(counterMap);
+    //createL2Counters(counterMap);
+    //createL3Counters(counterMap);
   }
 
-  void MonitorRatesUpgrade::createGlobalCounters(CounterMap_t* _counterMap) {
+  void MonitorRatesUpgrade::createGlobalCounters(CounterMap_t* counterMap) {
     // Crate the global rates counter, this will be the OR of everything HLT
     m_globalRateL3Counter =
       new CounterRatesUnion(m_costData, Config::config().getStr(kRateGlobalHLTString), 0, 10, (MonitorBase*) this); // Mint
@@ -336,7 +336,7 @@ namespace TrigCostRootAnalysis {
     m_globalRateL3Counter->decorate(kDecPrescaleValOnlineL1, (Float_t) 0);
     m_globalRateL3Counter->decorate(kDecType, "Union");
     // m_globalRateL3Counter->setAdvancedLumiScaling(kFALSE);
-    (*_counterMap)[Config::config().getStr(kRateGlobalHLTString)] = static_cast<CounterBase*>(m_globalRateL3Counter);
+    (*counterMap)[Config::config().getStr(kRateGlobalHLTString)] = static_cast<CounterBase*>(m_globalRateL3Counter);
 
     // Crate the global L2 counter, this will be the OR of everything L2
     m_globalRateL2Counter =
@@ -347,8 +347,8 @@ namespace TrigCostRootAnalysis {
     m_globalRateL2Counter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateL2Counter->decorate(kDecPrescaleValOnlineL1, (Float_t) 0);
     m_globalRateL2Counter->decorate(kDecType, "Union");
-    // m_globalRateL2Counter->setAdvancedLumiScaling(kFALSE);;
-    (*_counterMap)[Config::config().getStr(kRateGlobalL2String)] = static_cast<CounterBase*>(m_globalRateL2Counter);
+    // m_globalRateL2Counter->setAdvancedLumiScaling(kFALSE);
+    (*counterMap)[Config::config().getStr(kRateGlobalL2String)] = static_cast<CounterBase*>(m_globalRateL2Counter);
 
     // Crate the global L1 counter, this will be the OR of everything L1
     m_globalRateL1Counter =
@@ -360,13 +360,13 @@ namespace TrigCostRootAnalysis {
     m_globalRateL1Counter->decorate(kDecPrescaleValOnlineL1, (Float_t) 0);
     m_globalRateL1Counter->decorate(kDecType, "Union");
     // m_globalRateL1Counter->setAdvancedLumiScaling(kFALSE);
-    (*_counterMap)[Config::config().getStr(kRateGlobalL1String)] = static_cast<CounterBase*>(m_globalRateL1Counter);
+    (*counterMap)[Config::config().getStr(kRateGlobalL1String)] = static_cast<CounterBase*>(m_globalRateL1Counter);
   }
 
   /**
    * The starting point is to define what items we're interested at L1
    */
-  void MonitorRatesUpgrade::createL1Counters(CounterMap_t* _counterMap) {
+  void MonitorRatesUpgrade::createL1Counters(CounterMap_t* counterMap) {
     // // also overlaps
     // static int ID = 1000;
     // // TEMP
@@ -383,65 +383,65 @@ namespace TrigCostRootAnalysis {
     //     _L1Chain->addL1Item( m_chainItemsL1["L1_TE" + std::to_string(TE)] );
     //     assert( m_chainItemsL1.count("L1_4J" + std::to_string(jE)) +   m_chainItemsL1.count("L1_TE" +
     // std::to_string(TE)) == 2);
-    //     (*_counterMap)[_chainName] = static_cast<CounterBase*>(_L1Chain); // Insert into the counterMap
+    //     (*counterMap)[_chainName] = static_cast<CounterBase*>(_L1Chain); // Insert into the counterMap
     //     Info("MonitorRatesUpgrade::createL1Counters","Made a L1 counter for: %s", _L1Chain->getName().c_str() );
     //   }
     // }
 
 
-    for (const auto _item : m_upgradeChains) {
-      if (_item.m_level != 1) continue; // not doing HLT here
+    for (const auto item : m_upgradeChains) {
+      if (item.m_level != 1) continue; // not doing HLT here
 
-      const std::string _chainName = _item.m_name;
-      const UInt_t _chainID = _item.m_ID;
+      const std::string chainName = item.m_name;
+      const UInt_t chainID = item.m_ID;
 
-      //Info("MonitorRatesUpgrade::createL1Counters","Create counter: %s", _chainName.c_str() );
+      //Info("MonitorRatesUpgrade::createL1Counters","Create counter: %s", chainName.c_str() );
 
       // Find the ChainItem for this chain
-      ChainItemMapIt_t _it = m_chainItemsL1.find(_chainName);
-      if (_it == m_chainItemsL1.end()) {
-        Warning("MonitorRatesUpgrade::createL1Counters", "Cannot find L1 item: %s", _chainName.c_str());
+      ChainItemMapIt_t it = m_chainItemsL1.find(chainName);
+      if (it == m_chainItemsL1.end()) {
+        Warning("MonitorRatesUpgrade::createL1Counters", "Cannot find L1 item: %s", chainName.c_str());
         continue;
       }
-      RatesChainItem* _chainItemL1 = _it->second;
+      RatesChainItem* chainItemL1 = it->second;
 
-      const std::string _prescaleStr = Config::config().getStr(kL1String) + ":" + doubleToString(
-        _chainItemL1->getPS(), 2);
-      const std::string _group = _item.m_group + std::string("_L1");
+      const std::string prescaleStr = Config::config().getStr(kL1String) + ":" + doubleToString(
+        chainItemL1->getPS(), 2);
+      const std::string group = item.m_group + std::string("L1");
 
 
-      CounterRatesChain* _L1Chain = new CounterRatesChain(m_costData, _chainName, _chainID, 10, (MonitorBase*) this); // Mint
+      CounterRatesChain* L1Chain = new CounterRatesChain(m_costData, chainName, chainID, 10, (MonitorBase*) this); // Mint
                                                                                                                       // new
                                                                                                                       // counter
-      _L1Chain->decorate(kDecRatesGroupName, _group);
-      _L1Chain->decorate(kDecPrescaleStr, _prescaleStr);
-      _L1Chain->decorate(kDecType, "L1");
-      //_L1Chain->setAdvancedLumiScaling(kFALSE);
-      _L1Chain->addL1Item(_chainItemL1); // Link it to where it'll be getting its pass/fail info
-      (*_counterMap)[_chainName] = static_cast<CounterBase*>(_L1Chain); // Insert into the counterMap
-      //Info("MonitorRatesUpgrade::createL1Counters","Made a L1 counter for: %s", _L1Chain->getName().c_str() );
+      L1Chain->decorate(kDecRatesGroupName, group);
+      L1Chain->decorate(kDecPrescaleStr, prescaleStr);
+      L1Chain->decorate(kDecType, "L1");
+      //L1Chain->setAdvancedLumiScaling(kFALSE);
+      L1Chain->addL1Item(chainItemL1); // Link it to where it'll be getting its pass/fail info
+      (*counterMap)[chainName] = static_cast<CounterBase*>(L1Chain); // Insert into the counterMap
+      //Info("MonitorRatesUpgrade::createL1Counters","Made a L1 counter for: %s", L1Chain->getName().c_str() );
 
       //Add to global L1 counter
-      m_globalRateL1Counter->addL1Item(_chainItemL1);
+      m_globalRateL1Counter->addL1Item(chainItemL1);
 
       // Do group
-      CounterMapIt_t _findGroup = _counterMap->find(_group); // Do we have a counter for this group?
-      if (_findGroup != _counterMap->end()) { // We do have a group already! Add to it.
-        (static_cast<CounterRatesUnion*>(_findGroup->second))->addL1Item(_chainItemL1);
+      CounterMapIt_t findGroup = counterMap->find(group); // Do we have a counter for this group?
+      if (findGroup != counterMap->end()) { // We do have a group already! Add to it.
+        (static_cast<CounterRatesUnion*>(findGroup->second))->addL1Item(chainItemL1);
       } else {
         // We need a new group counter, this should be of type Union
-        CounterRatesUnion* _ratesGroup = new CounterRatesUnion(m_costData, _group, 0, 10, (MonitorBase*) this); // Mint
+        CounterRatesUnion* ratesGroup = new CounterRatesUnion(m_costData, group, 0, 10, (MonitorBase*) this); // Mint
                                                                                                                 // new
                                                                                                                 // counter
-        //Info("MonitorRatesUpgrade::createL1Counters","Made a L1 Group counter for: %s", _ratesGroup->getName().c_str()
+        //Info("MonitorRatesUpgrade::createL1Counters","Made a L1 Group counter for: %s", ratesGroup->getName().c_str()
         // );
-        _ratesGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
-        _ratesGroup->decorate(kDecPrescaleVal, (Float_t) 0.);
-        _ratesGroup->decorate(kDecRatesGroupName, _item.m_group);
-        _ratesGroup->decorate(kDecType, "Union");
-        //_ratesGroup->setAdvancedLumiScaling(kFALSE);
-        _ratesGroup->addL1Item(_chainItemL1); // Add initial counter
-        (*_counterMap)[_group] = static_cast<CounterBase*>(_ratesGroup); // Instert into the map
+        ratesGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
+        ratesGroup->decorate(kDecPrescaleVal, (Float_t) 0.);
+        ratesGroup->decorate(kDecRatesGroupName, item.m_group);
+        ratesGroup->decorate(kDecType, "Union");
+        //ratesGroup->setAdvancedLumiScaling(kFALSE);
+        ratesGroup->addL1Item(chainItemL1); // Add initial counter
+        (*counterMap)[group] = static_cast<CounterBase*>(ratesGroup); // Instert into the map
       }
     }
   }
@@ -449,60 +449,59 @@ namespace TrigCostRootAnalysis {
   /**
    * L2 are like L1, but with another hardware layer added
    */
-  void MonitorRatesUpgrade::createL2Counters(CounterMap_t* _counterMap) {
-    for (const auto _item : m_upgradeChains) {
-      if (_item.m_level != 1) continue; // Note should be 1, L2 stored in L1 info
+  void MonitorRatesUpgrade::createL2Counters(CounterMap_t* counterMap) {
+    for (const auto item : m_upgradeChains) {
+      if (item.m_level != 1) continue; // Note should be 1, L2 stored in L1 info
 
-      std::string _chainName = _item.m_l2name;
-      const UInt_t _chainID = _item.m_ID;
+      std::string chainName = item.m_l2name;
+      const UInt_t chainID = item.m_ID;
 
       // Find the ChainItem for this chain
-      ChainItemMapIt_t _it = m_chainItemsL2.find(_chainName);
-      if (_it == m_chainItemsL2.end()) {
-        //Warning("MonitorRatesUpgrade::createL2Counters","Cannot find L2 item: %s", _chainName.c_str() );
+      ChainItemMapIt_t it = m_chainItemsL2.find(chainName);
+      if (it == m_chainItemsL2.end()) {
+        //Warning("MonitorRatesUpgrade::createL2Counters","Cannot find L2 item: %s", chainName.c_str() );
         continue;
       }
-      RatesChainItem* _chainItemL2 = _it->second;
+      RatesChainItem* chainItemL2 = it->second;
 
-      const std::string _group = _item.m_group + std::string("_L2");
-      const std::string _prescaleStr = Config::config().getStr(kL1String) + ":" + doubleToString(
-        _chainItemL2->getPS(), 2);
-      CounterRatesChain* _L2Chain = new CounterRatesChain(m_costData, _chainName, _chainID, 10, (MonitorBase*) this); // Mint
+      const std::string group = item.m_group + std::string("L2");
+      const std::string prescaleStr = Config::config().getStr(kL1String) + ":" + doubleToString(
+        chainItemL2->getPS(), 2);
+      CounterRatesChain* L2Chain = new CounterRatesChain(m_costData, chainName, chainID, 10, (MonitorBase*) this); // Mint
                                                                                                                       // new
                                                                                                                       // counter
-      _L2Chain->decorate(kDecRatesGroupName, _group);
-      _L2Chain->decorate(kDecPrescaleStr, _prescaleStr);
-      _L2Chain->decorate(kDecType, "L2");
-      _L2Chain->addL2Item(_chainItemL2); // Link it to where it'll be getting its pass/fail info
-      (*_counterMap)[_chainName] = static_cast<CounterBase*>(_L2Chain); // Insert into the counterMap
+      L2Chain->decorate(kDecRatesGroupName, group);
+      L2Chain->decorate(kDecPrescaleStr, prescaleStr);
+      L2Chain->decorate(kDecType, "L2");
+      L2Chain->addL2Item(chainItemL2); // Link it to where it'll be getting its pass/fail info
+      (*counterMap)[chainName] = static_cast<CounterBase*>(L2Chain); // Insert into the counterMap
 
-      //Info("MonitorRatesUpgrade::createL2Counters","Create counter: %s", _chainName.c_str() );
+      //Info("MonitorRatesUpgrade::createL2Counters","Create counter: %s", chainName.c_str() );
 
       //Add to global L1 counter
-      m_globalRateL2Counter->addL2Item(_chainItemL2);
+      m_globalRateL2Counter->addL2Item(chainItemL2);
 
       // Do group
-      CounterMapIt_t _findGroup = _counterMap->find(_group); // Do we have a counter for this group?
-      if (_findGroup != _counterMap->end()) { // We do have a group already! Add to it.
-        (static_cast<CounterRatesUnion*>(_findGroup->second))->addL1Item(_chainItemL2);
+      CounterMapIt_t findGroup = counterMap->find(group); // Do we have a counter for this group?
+      if (findGroup != counterMap->end()) { // We do have a group already! Add to it.
+        (static_cast<CounterRatesUnion*>(findGroup->second))->addL1Item(chainItemL2);
       } else {
         // We need a new group counter, this should be of type Union
-        CounterRatesUnion* _ratesGroup = new CounterRatesUnion(m_costData, _group, 0, 10, (MonitorBase*) this); // Mint
+        CounterRatesUnion* ratesGroup = new CounterRatesUnion(m_costData, group, 0, 10, (MonitorBase*) this); // Mint
                                                                                                                 // new
                                                                                                                 // counter
-        _ratesGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
-        _ratesGroup->decorate(kDecPrescaleVal, (Float_t) 0.);
-        _ratesGroup->decorate(kDecRatesGroupName, _group);
-        _ratesGroup->decorate(kDecType, "Union");
-        //_ratesGroup->setAdvancedLumiScaling(kFALSE);
-        _ratesGroup->addL1Item(_chainItemL2); // Add initial counter
-        (*_counterMap)[_group] = static_cast<CounterBase*>(_ratesGroup); // Instert into the map
+        ratesGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
+        ratesGroup->decorate(kDecPrescaleVal, (Float_t) 0.);
+        ratesGroup->decorate(kDecRatesGroupName, group);
+        ratesGroup->decorate(kDecType, "Union");
+        //ratesGroup->setAdvancedLumiScaling(kFALSE);
+        ratesGroup->addL1Item(chainItemL2); // Add initial counter
+        (*counterMap)[group] = static_cast<CounterBase*>(ratesGroup); // Instert into the map
       }
     }
   }
 
-  void MonitorRatesUpgrade::createL3Counters(CounterMap_t* _counterMap) {
-    UNUSED(_counterMap);
+  void MonitorRatesUpgrade::createL3Counters(CounterMap_t* /*counterMap*/) {
   }
 
   /**
@@ -510,141 +509,141 @@ namespace TrigCostRootAnalysis {
    * Make sure to delete all these which go into the pileup database at the end.....
    */
   TOBAccumulator* MonitorRatesUpgrade::getEventTOBs() {
-    static Float_t _EMCountsPerGeV = Config::config().getInt(kUpgradeEMCountsPerGeV);
-    static Float_t _JetCountsPerGeV = Config::config().getInt(kUpgradeJetCountsPerGeV);
-    TOBAccumulator* _tobs = new TOBAccumulator();
-    Bool_t _hasE = kFALSE;
+    static Float_t EMCountsPerGeV = Config::config().getInt(kUpgradeEMCountsPerGeV);
+    static Float_t JetCountsPerGeV = Config::config().getInt(kUpgradeJetCountsPerGeV);
+    TOBAccumulator* tobs = new TOBAccumulator();
+    Bool_t hasE = kFALSE;
 
-    for (UInt_t _r = 0; _r < m_costData->getNRoIs(); ++_r) {
-      //Info("MonitorRatesUpgrade::getEventTOBs", "Processing TOB %i of %i", _r, (int) m_costData->getNRoIs());
-      ConfKey_t _t = kNoneString;
-      if (m_costData->getIsRoINone(_r) == kTRUE) continue;
-      else if (m_costData->getIsRoIMuon(_r) == kTRUE) _t = kMuonString;
-      else if (m_costData->getIsRoIEmTau(_r) == kTRUE) {
-        if (m_costData->getIsRoITau(_r) == kTRUE) _t = kTauString;
-        else _t = kEmString;
-      } else if (m_costData->getIsRoIJet(_r) == kTRUE) _t = kJetString;
-      else if (m_costData->getIsRoIJetEt(_r) == kTRUE) continue;
-      else if (m_costData->getIsRoIEnergy(_r) == kTRUE) {
+    for (UInt_t r = 0; r < m_costData->getNRoIs(); ++r) {
+      //Info("MonitorRatesUpgrade::getEventTOBs", "Processing TOB %i of %i", r, (int) m_costData->getNRoIs());
+      ConfKey_t t = kNoneString;
+      if (m_costData->getIsRoINone(r) == kTRUE) continue;
+      else if (m_costData->getIsRoIMuon(r) == kTRUE) t = kMuonString;
+      else if (m_costData->getIsRoIEmTau(r) == kTRUE) {
+        if (m_costData->getIsRoITau(r) == kTRUE) t = kTauString;
+        else t = kEmString;
+      } else if (m_costData->getIsRoIJet(r) == kTRUE) t = kJetString;
+      else if (m_costData->getIsRoIJetEt(r) == kTRUE) continue;
+      else if (m_costData->getIsRoIEnergy(r) == kTRUE) {
         //Info("MonitorRatesUpgrade::getEventTOBs", "   Is of type ENERGY");
-        if (_tobs->TE() > 0 && m_costData->getRoIEt(_r) <= _tobs->TE()) continue; // Get the largest (full width)
-        _hasE = kTRUE;
-        _tobs->set(TrigXMLService::trigXMLService().m_muPerLB.at(m_costData->getLumi()),
-                   m_costData->getRoIVectorEX(_r), m_costData->getRoIVectorEY(_r), m_costData->getRoIEt(_r),
-                   m_costData->getRoIOverflowEX(_r), m_costData->getRoIOverflowEY(_r),
-                   m_costData->getRoIOverflowET(_r));
+        if (tobs->TE() > 0 && m_costData->getRoIEt(r) <= tobs->TE()) continue; // Get the largest (full width)
+        hasE = kTRUE;
+        tobs->set(TrigXMLService::trigXMLService().m_muPerLB.at(m_costData->getLumi()),
+                   m_costData->getRoIVectorEX(r), m_costData->getRoIVectorEY(r), m_costData->getRoIEt(r),
+                   m_costData->getRoIOverflowEX(r), m_costData->getRoIOverflowEY(r),
+                   m_costData->getRoIOverflowET(r));
         continue;
       }
-      //Info("MonitorRatesUpgrade::getEventTOBs", "   Is of type %s", Config::config().getName(_t).c_str());
-      TOB _tob;
-      _tob.m_eta = m_costData->getRoIEta(_r);
-      _tob.m_phi = m_costData->getRoIPhi(_r);
-      _tob.m_et = m_costData->getRoIEt(_r);
-      _tob.m_etLarge = m_costData->getRoIEtLarge(_r);
-      _tob.m_iso = m_costData->getRoIEmTauIsoBits(_r); // returns 0 for others
-      _tob.m_id = m_costData->getRoIID(_r);
-      _tob.m_type = _t;
-      if (_t == kTauString || _t == kEmString) {
-        _tob.m_et /= _EMCountsPerGeV; // Run 2 we have two counts per GeV for EM/TAU
-      } else if (_t == kJetString) {
-        _tob.m_et /= _JetCountsPerGeV; // Run 2 is still usually 1 count per GeV for jets
+      //Info("MonitorRatesUpgrade::getEventTOBs", "   Is of type %s", Config::config().getName(t).c_str());
+      TOB tob;
+      tob.m_eta = m_costData->getRoIEta(r);
+      tob.m_phi = m_costData->getRoIPhi(r);
+      tob.m_et = m_costData->getRoIEt(r);
+      tob.m_etLarge = m_costData->getRoIEtLarge(r);
+      tob.m_iso = m_costData->getRoIEmTauIsoBits(r); // returns 0 for others
+      tob.m_id = m_costData->getRoIID(r);
+      tob.m_type = t;
+      if (t == kTauString || t == kEmString) {
+        tob.m_et /= EMCountsPerGeV; // Run 2 we have two counts per GeV for EM/TAU
+      } else if (t == kJetString) {
+        tob.m_et /= JetCountsPerGeV; // Run 2 is still usually 1 count per GeV for jets
       }
-      if (_tobs->TOBs().find(_tob) != _tobs->TOBs().end() && Config::config().getDisplayMsg(kMsgDupeTOB) == kTRUE) {
-        Error("MonitorRatesUpgrade::getEventTOBs", "Event has multiple TOBs with ID %i\n%s", _tob.m_id,
-              _tobs->print().c_str());
+      if (tobs->TOBs().find(tob) != tobs->TOBs().end() && Config::config().getDisplayMsg(kMsgDupeTOB) == kTRUE) {
+        Error("MonitorRatesUpgrade::getEventTOBs", "Event has multiple TOBs with ID %i\n%s", tob.m_id,
+              tobs->print().c_str());
       }
-      _tobs->add(_tob);
+      tobs->add(tob);
     }
-    if (_hasE == kFALSE && Config::config().getDisplayMsg(kMsgNoTETOB) == kTRUE) {
+    if (hasE == kFALSE && Config::config().getDisplayMsg(kMsgNoTETOB) == kTRUE) {
       Error("MonitorRatesUpgrade::getEventTOBs", "Event has no ENERGY TOB(s). Total TOBs: %i\n%s",
-            m_costData->getNRoIs(), _tobs->print().c_str());
-      for (UInt_t _r = 0; _r < m_costData->getNRoIs(); ++_r) Info("MonitorRatesUpgrade::getEventTOBs",
-                                                                  " TOB %i/%i of id %i", _r,
+            m_costData->getNRoIs(), tobs->print().c_str());
+      for (UInt_t r = 0; r < m_costData->getNRoIs(); ++r) Info("MonitorRatesUpgrade::getEventTOBs",
+                                                                  " TOB %i/%i of id %i", r,
                                                                   (Int_t) m_costData->getNRoIs(),
-                                                                  m_costData->getRoIID(_r));
+                                                                  m_costData->getRoIID(r));
     }
-    return _tobs;
+    return tobs;
   }
 
   void MonitorRatesUpgrade::printEnergyTOBs() {
-    for (UInt_t _r = 0; _r < m_costData->getNRoIs(); ++_r) {
-      if (m_costData->getIsRoIEnergy(_r) == kTRUE) {
-        Float_t _met =
-          TMath::Sqrt((m_costData->getRoIVectorEX(_r) * m_costData->getRoIVectorEX(_r)) +
-                      (m_costData->getRoIVectorEY(_r) * m_costData->getRoIVectorEY(_r)));
+    for (UInt_t r = 0; r < m_costData->getNRoIs(); ++r) {
+      if (m_costData->getIsRoIEnergy(r) == kTRUE) {
+        Float_t met =
+          TMath::Sqrt((m_costData->getRoIVectorEX(r) * m_costData->getRoIVectorEX(r)) +
+                      (m_costData->getRoIVectorEY(r) * m_costData->getRoIVectorEY(r)));
         Info("MonitorRatesUpgrade::printEnergyTOBs",
              "Energy TOB x:%i y:%i (MET:%.2f) TE:%i | OverflowFlags: x:%i y:%i TE:%i",
-             (Int_t) m_costData->getRoIVectorEX(_r), (Int_t) m_costData->getRoIVectorEY(
-               _r), _met, (Int_t) m_costData->getRoIEt(_r),
-             m_costData->getRoIOverflowEX(_r), m_costData->getRoIOverflowEY(_r), m_costData->getRoIOverflowET(_r));
+             (Int_t) m_costData->getRoIVectorEX(r), (Int_t) m_costData->getRoIVectorEY(
+               r), met, (Int_t) m_costData->getRoIEt(r),
+             m_costData->getRoIOverflowEX(r), m_costData->getRoIOverflowEY(r), m_costData->getRoIOverflowET(r));
       }
     }
   }
 
-  void MonitorRatesUpgrade::validateTriggerEmulation(CounterMap_t* _counterMap, TOBAccumulator* _this, Bool_t _print) {
-    static std::set<std::string> _types;
+  void MonitorRatesUpgrade::validateTriggerEmulation(CounterMap_t* counterMap, TOBAccumulator* thisAccum, Bool_t print) {
+    static std::set<std::string> types;
 
-    if (_types.size() == 0) {
-      _types.insert("EM");
-      _types.insert("TAU");
-      _types.insert("J");
-      _types.insert("MU");
-      _types.insert("XE");
-      _types.insert("TE");
+    if (types.size() == 0) {
+      types.insert("EM");
+      types.insert("TAU");
+      types.insert("J");
+      types.insert("MU");
+      types.insert("XE");
+      types.insert("TE");
     }
-    static std::vector<std::string> _validationItems;
-    if (_validationItems.size() == 0) {
-      _validationItems.push_back("L1_MU15");
-      //_validationItems.push_back("L1_2MU10"); // Know broken
-      _validationItems.push_back("L1_EM15");
-      _validationItems.push_back("L1_TAU20");
-      _validationItems.push_back("L1_TE30");
-      _validationItems.push_back("L1_XE300");
-      _validationItems.push_back("L1_J100");
-      //_validationItems.push_back("L1_2EM10VH"); // Known broken
+    static std::vector<std::string> validationItems;
+    if (validationItems.size() == 0) {
+      validationItems.push_back("L1_MU15");
+      //validationItems.push_back("L1_2MU10"); // Know broken
+      validationItems.push_back("L1_EM15");
+      validationItems.push_back("L1_TAU20");
+      validationItems.push_back("L1_TE30");
+      validationItems.push_back("L1_XE300");
+      validationItems.push_back("L1_J100");
+      //validationItems.push_back("L1_2EM10VH"); // Known broken
     }
-    Int_t _checkTrigEmulation[10] = {
+    Int_t checkTrigEmulation[10] = {
       0
     };
-    Int_t _checkTrigOnline[10] = {
+    Int_t checkTrigOnline[10] = {
       0
     };
-    if (_print) Info("MonitorRatesUpgrade::validateTriggerEmulation",
+    if (print) Info("MonitorRatesUpgrade::validateTriggerEmulation",
                      " ###  ###  ###  ###  ###  ###  TRIGGER EMULATION CHECK  ###  ###  ###  ###  ###  ###");
-    if (_print) Info("MonitorRatesUpgrade::validateTriggerEmulation", " Event: %i TOBs, MET:(%.0f,%.0f)=%f TE:%f\n%s",
-      (int) _this->TOBs().size(), _this->vX(), _this->vY(), _this->MET(), _this->TE(), _this->print().c_str());
+    if (print) Info("MonitorRatesUpgrade::validateTriggerEmulation", " Event: %i TOBs, MET:(%.0f,%.0f)=%f TE:%f\n%s",
+      (int) thisAccum->TOBs().size(), thisAccum->vX(), thisAccum->vY(), thisAccum->MET(), thisAccum->TE(), thisAccum->print().c_str());
 
-    for (auto _type : _types) {
-      if (_print) Info("MonitorRatesUpgrade::validateTriggerEmulation", " *** %s ***", _type.c_str());
-      CounterMapIt_t _it = _counterMap->begin();
-      std::stringstream _ssEmu;
-      for (; _it != _counterMap->end(); ++_it) {
-        if (_it->second->getName().find(_type) == std::string::npos) continue;
-        if (_it->second->getName().substr(0, 3) != "L1_") continue;
-        if (isZero(((CounterRatesChain*) (_it->second))->runWeight()) == kTRUE) continue;
-        for (UInt_t _v = 0; _v < _validationItems.size(); ++_v) if (_it->second->getName() == _validationItems.at(_v)) _checkTrigEmulation[_v] = 1;
-        _ssEmu << _it->second->getName() << ", ";
+    for (auto type : types) {
+      if (print) Info("MonitorRatesUpgrade::validateTriggerEmulation", " *** %s ***", type.c_str());
+      CounterMapIt_t it = counterMap->begin();
+      std::stringstream ssEmu;
+      for (; it != counterMap->end(); ++it) {
+        if (it->second->getName().find(type) == std::string::npos) continue;
+        if (it->second->getName().substr(0, 3) != "L1_") continue;
+        if (isZero(((CounterRatesChain*) (it->second))->runWeight()) == kTRUE) continue;
+        for (UInt_t v = 0; v < validationItems.size(); ++v) if (it->second->getName() == validationItems.at(v)) checkTrigEmulation[v] = 1;
+        ssEmu << it->second->getName() << ", ";
       }
-      if (_print && _ssEmu.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " ^^^ EMULATED PASS: %s", _ssEmu.str().c_str());
-      std::stringstream _ssOnline;
-      for (UInt_t _c = 0; _c < m_costData->getNL1(); ++_c) {
-        if (m_costData->getIsL1PassedBeforePrescale(_c) == kFALSE) continue;
-        Int_t _CTPID = m_costData->getL1CtpId(_c);
-        const std::string _chainName = TrigConfInterface::getNameFromCtpId(_CTPID);
-        if (_chainName.find(_type) == std::string::npos) continue;
-        if (_chainName.find("-") != std::string::npos) continue;
-        for (UInt_t _v = 0; _v < _validationItems.size(); ++_v) if (_chainName == _validationItems.at(_v)) _checkTrigOnline[_v] = kTRUE;
-        _ssOnline << _chainName << ", ";
+      if (print && ssEmu.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " ^^^ EMULATED PASS: %s", ssEmu.str().c_str());
+      std::stringstream ssOnline;
+      for (UInt_t c = 0; c < m_costData->getNL1(); ++c) {
+        if (m_costData->getIsL1PassedBeforePrescale(c) == kFALSE) continue;
+        Int_t CTPID = m_costData->getL1CtpId(c);
+        const std::string chainName = TrigConfInterface::getNameFromCtpId(CTPID);
+        if (chainName.find(type) == std::string::npos) continue;
+        if (chainName.find("-") != std::string::npos) continue;
+        for (UInt_t v = 0; v < validationItems.size(); ++v) if (chainName == validationItems.at(v)) checkTrigOnline[v] = kTRUE;
+        ssOnline << chainName << ", ";
       }
-      if (_print && _ssOnline.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " &&& ONLINE PASS: %s", _ssOnline.str().c_str());
+      if (print && ssOnline.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " &&& ONLINE PASS: %s", ssOnline.str().c_str());
     }
-    if (_print) printEnergyTOBs();
-    if (_print == kFALSE) {
-      for (UInt_t _v = 0; _v < _validationItems.size(); ++_v) {
-        if (_checkTrigEmulation[_v] != _checkTrigOnline[_v]) {
-          Info("MonitorRatesUpgrade::validateTriggerEmulation", " !!!!!!!!!!!!!!!!!!!!!!!!! %s !!!!!!!!!!!!!!!!!!!!!!!", _validationItems.at(_v).c_str());
+    if (print) printEnergyTOBs();
+    if (print == kFALSE) {
+      for (UInt_t v = 0; v < validationItems.size(); ++v) {
+        if (checkTrigEmulation[v] != checkTrigOnline[v]) {
+          Info("MonitorRatesUpgrade::validateTriggerEmulation", " !!!!!!!!!!!!!!!!!!!!!!!!! %s !!!!!!!!!!!!!!!!!!!!!!!", validationItems.at(v).c_str());
           Info("MonitorRatesUpgrade::validateTriggerEmulation", " !!!!!!!!!!!!!!!!!!!! FAILED TO VALIDATE !!!!!!!!!!!!!!!!!!!!");
-          validateTriggerEmulation(_counterMap, _this, kTRUE);
+          validateTriggerEmulation(counterMap, thisAccum, kTRUE);
           break;
         }
       }
@@ -654,10 +653,9 @@ namespace TrigCostRootAnalysis {
   /**
    * Process new event for this monitor.
    * For the chain rate monitor - we look at a chain's rate and its correlation with other chains in its group
-   * @param _weight We don't use the standard weight here - form it ourselves
+   * @param weight We don't use the standard weight here - form it ourselves
    */
-  void MonitorRatesUpgrade::newEvent(Float_t _weight) {
-    UNUSED(_weight);
+  void MonitorRatesUpgrade::newEvent(Float_t /*weight*/) {
     m_timer.start();
     if (Config::config().debug()) Info("MonitorRatesUpgrade::newEvent", "*** Processing Chain Rates ***");
 
@@ -670,17 +668,17 @@ namespace TrigCostRootAnalysis {
     if (m_upgradePileupScaling == kTRUE) {
       // FIRST PASS
       // If FIRST PASS, all we do is build the PU database
-      static UInt_t _message = 0;
-      if (_message == 0) {
-        _message = 1;
+      static UInt_t message = 0;
+      if (message == 0) {
+        message = 1;
         Info("MonitorRatesUpgrade::newEvent", "Building the Pileup Database...");
       }
       if (getPass() == 1) {
         if (Config::config().getInt(kCurrentEventWasRandomOnline) == kTRUE) m_pileupDatabase.push_back(getEventTOBs());
         return;
       }
-      if (_message == 1) {
-        _message = 2;
+      if (message == 1) {
+        message = 2;
         Info("MonitorRatesUpgrade::newEvent", "Moving on to second pass, Pileup Database has:%i events", (Int_t) m_pileupDatabase.size());
       }
     }
@@ -697,29 +695,29 @@ namespace TrigCostRootAnalysis {
     }
 
     // We do all the weighting here ourselves
-    Float_t _weightUpgrade = Config::config().getFloat(kCurrentEventEBWeight) * m_collidingBunchFactor * m_upgradeDeadtimeScaling;
+    Float_t weightUpgrade = Config::config().getFloat(kCurrentEventEBWeight) * m_collidingBunchFactor * m_upgradeDeadtimeScaling;
 
     // SECOND PASS
-    static Int_t _tobDebug = 0;
-    // if (++_tobDebug < 50) Info("MonitorRatesUpgrade::newEvent", " *******************************************");
+    static Int_t tobDebug = 0;
+    // if (++tobDebug < 50) Info("MonitorRatesUpgrade::newEvent", " *******************************************");
 
-    TOBAccumulator* m_thisEventPtr = getEventTOBs();
+    TOBAccumulator* thisEventPtr = getEventTOBs();
 
     if (m_upgradePileupScaling) {
       m_collisionsToMix += m_pileupFactor; // Want another ~200 collisions
 
-      Int_t _eventsAdded = 0;
+      Int_t eventsAdded = 0;
       while (m_thisEventPtr->mu() < m_collisionsToMix) {
-        UInt_t _pileupLottery = m_R3.Integer(m_pileupDatabase.size());
-        m_thisEventPtr->add(m_pileupDatabase.at(_pileupLottery));
-        ++_eventsAdded;
+        UInt_t pileupLottery = m_R3.Integer(m_pileupDatabase.size());
+        m_thisEventPtr->add(m_pileupDatabase.at(pileupLottery));
+        ++eventsAdded;
       }
 
-      if (++_tobDebug < 50) Info("MonitorRatesUpgrade::newEvent", "Target collisions: %.2f | Adding %i events, <mu> = %.2f", m_collisionsToMix, _eventsAdded, m_thisEventPtr->mu());
+      if (++tobDebug < 50) Info("MonitorRatesUpgrade::newEvent", "Target collisions: %.2f | Adding %i events, <mu> = %.2f", m_collisionsToMix, eventsAdded, m_thisEventPtr->mu());
       m_collisionsToMix -= m_thisEventPtr->mu(); // Take this off so any excess is taken into account next time
 
-      m_statsEventMu += m_thisEventPtr->mu();
-      m_statsEventMu2 += pow(m_thisEventPtr->mu(), 2);
+      m_statsEventMu += thisEventPtr->mu();
+      m_statsEventMu2 += pow(thisEventPtr->mu(), 2);
       ++m_statsEventMuN;
     }
 
@@ -731,41 +729,41 @@ namespace TrigCostRootAnalysis {
     // round(m_eventsToMix), m_eventsToMix);
     // // Add pileup
     // for (Int_t _pu = 0; _pu <  (Int_t) round(m_eventsToMix); ++_pu) { // Cast to int rounds down
-    //   UInt_t _pileupLottery = m_R3.Integer( m_pileupDatabase.size() );
-    //   m_thisEventPtr->add( m_pileupDatabase.at( _pileupLottery ) );
+    //   UInt_t pileupLottery = m_R3.Integer( m_pileupDatabase.size() );
+    //   m_thisEventPtr->add( m_pileupDatabase.at( pileupLottery ) );
     // }
-    // if (_tobDebug < 20) Info("MonitorRatesUpgrade::newEvent", " ### MIXING %i EVENTS, NOW HAEV %i TOBs ### MET:%f
+    // if (tobDebug < 20) Info("MonitorRatesUpgrade::newEvent", " ### MIXING %i EVENTS, NOW HAVE %i TOBs ### MET:%f
     // TE:%f\n%s", (Int_t) m_eventsToMix, (Int_t) m_thisEventPtr->TOBs().size(), m_thisEventPtr->MET(),
     // m_thisEventPtr->TE(),m_thisEventPtr->print().c_str());
     // m_eventsToMix -= (Int_t)m_eventsToMix; // Remove whole integer events mixed. Leave fractional part to accumulate
     // for next event.
 
-    for (const auto _chainItem : m_chainItemsL1) _chainItem.second->beginEvent(m_thisEventPtr);
-    for (const auto _chainItem : m_chainItemsL2) _chainItem.second->beginEvent(m_thisEventPtr);
+    for (const auto chainItem : m_chainItemsL1) chainItem.second->beginEvent(m_thisEventPtr);
+    for (const auto chainItem : m_chainItemsL2) chainItem.second->beginEvent(m_thisEventPtr);
 
     //Now loop over the counter collections;
-    for (CounterMapSetIt_t _cmsIt = m_collectionsToProcess.begin(); _cmsIt != m_collectionsToProcess.end(); ++_cmsIt) {
-      CounterMap_t* _counterMap = *_cmsIt; // This counter map holds all the counters.
+    for (CounterMapSetIt_t cmsIt = m_collectionsToProcess.begin(); cmsIt != m_collectionsToProcess.end(); ++cmsIt) {
+      CounterMap_t* counterMap = *cmsIt; // This counter map holds all the counters.
 
       // If the counter map is empty, then we need to populate it. We will pre-load a counter for every chain.
-      if (_counterMap->size() == 0) populateCounterMap(_counterMap);
+      if (counterMap->size() == 0) populateCounterMap(counterMap);
 
       // Loop over all counters, they will use their pre-linked RatesChainItems to get their weights.
-      CounterMapIt_t _it = _counterMap->begin();
-      for (; _it != _counterMap->end(); ++_it) {
-        _it->second->processEventCounter(0, 1, _weightUpgrade);
-        m_countersInEvent.insert(_it->second);
+      CounterMapIt_t it = counterMap->begin();
+      for (; it != counterMap->end(); ++it) {
+        it->second->processEventCounter(0, 1, weightUpgrade);
+        m_countersInEvent.insert(it->second);
       }
-      //if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(_counterMap, m_thisEventPtr, kFALSE /*print*/);
+      //if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(counterMap, thisEventPtr, kFALSE /*print*/);
 
       endEvent(0);
     }
 
-    for (const auto _chainItem : m_chainItemsL1) _chainItem.second->endEvent();
-    for (const auto _chainItem : m_chainItemsL2) _chainItem.second->endEvent();
+    for (const auto chainItem : m_chainItemsL1) chainItem.second->endEvent();
+    for (const auto chainItem : m_chainItemsL2) chainItem.second->endEvent();
 
-    delete m_thisEventPtr;
-    m_thisEventPtr = nullptr;
+    delete thisEventPtr;
+    thisEventPtr = nullptr;
 
     m_timer.stop();
   }
@@ -774,65 +772,65 @@ namespace TrigCostRootAnalysis {
    * Saves the topology of all counters to a JSON file linked to the counter name. Imported by web display.
    */
   void MonitorRatesUpgrade::saveRateGraphs() {
-    const std::string _output = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputRatesGraphFilename);
+    const std::string output = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputRatesGraphFilename);
 
-    std::ofstream _fout(_output.c_str());
-    JsonExport _json;
-    _json.addNode(_fout, "ratesGaphs");
+    std::ofstream fout(output.c_str());
+    JsonExport json;
+    json.addNode(fout, "ratesGaphs");
 
-    std::set<std::string> _configsSeen;
-    for (CounterCollectionIt_t _collectionIt = m_counterCollections.begin(); _collectionIt != m_counterCollections.end(); ++_collectionIt) {
-      for (CounterMapIt_t _counterMapIt = _collectionIt->second.begin(); _counterMapIt != _collectionIt->second.end(); ++_counterMapIt) {
-        CounterBaseRates* _counter = static_cast<CounterBaseRates*>(_counterMapIt->second);
+    std::set<std::string> configsSeen;
+    for (CounterCollectionIt_t collectionIt = m_counterCollections.begin(); collectionIt != m_counterCollections.end(); ++collectionIt) {
+      for (CounterMapIt_t counterMapIt = collectionIt->second.begin(); counterMapIt != collectionIt->second.end(); ++counterMapIt) {
+        CounterBaseRates* counter = static_cast<CounterBaseRates*>(counterMapIt->second);
 
-        if (_configsSeen.count(_counter->getName()) == 1) continue;
-        _configsSeen.insert(_counter->getName());
-        _json.addNode(_fout, _counter->getName());
+        if (configsSeen.count(counter->getName()) == 1) continue;
+        configsSeen.insert(counter->getName());
+        json.addNode(fout, counter->getName());
 
         // If a unique then continue
-        if (_counter->getStrDecoration(kDecType) == "UniqueHLT" || _counter->getStrDecoration(kDecType) == "UniqueL1") {
-          _json.endNode(_fout);
+        if (counter->getStrDecoration(kDecType) == "UniqueHLT" || counter->getStrDecoration(kDecType) == "UniqueL1") {
+          json.endNode(fout);
           continue;
         }
 
-        if (_counter->getL2ItemSet().size() == 0) { // If only L1
-          for (ChainItemSetIt_t _L1It = _counter->getL1ItemSet().begin(); _L1It != _counter->getL1ItemSet().end(); ++_L1It) {
-            RatesChainItem* _L1 = (*_L1It);
-            const std::string _source = _L1->getName() + " [PS:" + doubleToString(_L1->getPS()) + "]";
-            _json.addLeafCustom(_fout, "source", _source, "target", _source);
+        if (counter->getL2ItemSet().size() == 0) { // If only L1
+          for (ChainItemSetIt_t L1It = counter->getL1ItemSet().begin(); L1It != counter->getL1ItemSet().end(); ++L1It) {
+            RatesChainItem* L1 = (*L1It);
+            const std::string source = L1->getName() + " [PS:" + doubleToString(L1->getPS()) + "]";
+            json.addLeafCustom(fout, "source", source, "target", source);
           }
-        } else if (_counter->getL3ItemSet().size() == 0) { // If only L1 and L2
-          for (ChainItemSetIt_t _L2It = _counter->getL2ItemSet().begin(); _L2It != _counter->getL2ItemSet().end(); ++_L2It) {
-            RatesChainItem* _L2 = (*_L2It);
-            for (ChainItemSetIt_t _L1It = _L2->getLowerStart(); _L1It != _L2->getLowerEnd(); ++_L1It) {
-              RatesChainItem* _L1 = (*_L1It);
-              const std::string _source = _L1->getName() + " [PS:" + doubleToString(_L1->getPS()) + "]";
-              const std::string _target = _L2->getName() + " [PS:" + doubleToString(_L2->getPS()) + "]";
-              _json.addLeafCustom(_fout, "source", _source, "target", _target);
+        } else if (counter->getL3ItemSet().size() == 0) { // If only L1 and L2
+          for (ChainItemSetIt_t L2It = counter->getL2ItemSet().begin(); L2It != counter->getL2ItemSet().end(); ++L2It) {
+            RatesChainItem* L2 = (*L2It);
+            for (ChainItemSetIt_t L1It = L2->getLowerStart(); L1It != L2->getLowerEnd(); ++L1It) {
+              RatesChainItem* L1 = (*L1It);
+              const std::string source = L1->getName() + " [PS:" + doubleToString(L1->getPS()) + "]";
+              const std::string target = L2->getName() + " [PS:" + doubleToString(L2->getPS()) + "]";
+              json.addLeafCustom(fout, "source", source, "target", target);
             }
           }
         } else { // all three levels
-          for (ChainItemSetIt_t _L3It = _counter->getL3ItemSet().begin(); _L3It != _counter->getL3ItemSet().end(); ++_L3It) {
-            RatesChainItem* _L3 = (*_L3It);
-            for (ChainItemSetIt_t _L2It = _L3->getLowerStart(); _L2It != _L3->getLowerEnd(); ++_L2It) {
-              RatesChainItem* _L2 = (*_L2It);
-              const std::string _source = _L2->getName() + " [PS:" + doubleToString(_L2->getPS()) + "]";
-              const std::string _target = _L3->getName() + " [PS:" + doubleToString(_L3->getPS()) + "]";
-              _json.addLeafCustom(_fout, "source", _source, "target", _target);
-              for (ChainItemSetIt_t _L1It = _L2->getLowerStart(); _L1It != _L2->getLowerEnd(); ++_L1It) {
-                RatesChainItem* _L1 = (*_L1It);
-                const std::string _source = _L1->getName() + " [PS:" + doubleToString(_L1->getPS()) + "]";
-                const std::string _target = _L2->getName() + " [PS:" + doubleToString(_L2->getPS()) + "]";
-                _json.addLeafCustom(_fout, "source", _source, "target", _target);
+          for (ChainItemSetIt_t L3It = counter->getL3ItemSet().begin(); L3It != counter->getL3ItemSet().end(); ++L3It) {
+            RatesChainItem* L3 = (*L3It);
+            for (ChainItemSetIt_t L2It = L3->getLowerStart(); L2It != L3->getLowerEnd(); ++L2It) {
+              RatesChainItem* L2 = (*L2It);
+              const std::string source = L2->getName() + " [PS:" + doubleToString(L2->getPS()) + "]";
+              const std::string target = L3->getName() + " [PS:" + doubleToString(L3->getPS()) + "]";
+              json.addLeafCustom(fout, "source", source, "target", target);
+              for (ChainItemSetIt_t L1It = L2->getLowerStart(); L1It != L2->getLowerEnd(); ++L1It) {
+                RatesChainItem* L1 = (*L1It);
+                const std::string source = L1->getName() + " [PS:" + doubleToString(L1->getPS()) + "]";
+                const std::string target = L2->getName() + " [PS:" + doubleToString(L2->getPS()) + "]";
+                json.addLeafCustom(fout, "source", source, "target", target);
               }
             }
           }
         }
-        _json.endNode(_fout);
+        json.endNode(fout);
       }
     }
-    _json.endNode(_fout); // ratesGraphs
-    _fout.close();
+    json.endNode(fout); // ratesGraphs
+    fout.close();
   }
 
   /**
@@ -840,15 +838,15 @@ namespace TrigCostRootAnalysis {
    * Note these are currently hard-coded. We may want to make them configurable
    * @return If this monitor should be active for a given mode.
    */
-  Bool_t MonitorRatesUpgrade::getIfActive(ConfKey_t _mode) {
-    switch (_mode) {
+  Bool_t MonitorRatesUpgrade::getIfActive(ConfKey_t mode) {
+    switch (mode) {
     case kDoAllSummary:       return kTRUE;
 
     case kDoKeySummary:       return kTRUE;
 
     case kDoLumiBlockSummary: return kTRUE;
 
-    default: Error("MonitorRatesUpgrade::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str());
+    default: Error("MonitorRatesUpgrade::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(mode).c_str());
     }
     return kFALSE;
   }
@@ -863,25 +861,25 @@ namespace TrigCostRootAnalysis {
     Info("MonitorRatesUpgrade::saveOutput", "Sum(Collisions)=%.3e Sum(Collisions^2)=%.3e Events:%i", m_statsEventMu, m_statsEventMu2, m_statsEventMuN);
 
 
-    for (CounterCollectionIt_t _collectionIt = m_counterCollections.begin(); _collectionIt != m_counterCollections.end(); ++_collectionIt) {
-      const std::string _counterCollectionName = _collectionIt->first;
+    for (CounterCollectionIt_t collectionIt = m_counterCollections.begin(); collectionIt != m_counterCollections.end(); ++collectionIt) {
+      const std::string counterCollectionName = collectionIt->first;
       // Finalise unique counters
       if (Config::config().getInt(kDoUniqueRates) == kTRUE) {
-        for (CounterMapIt_t _counterMapIt = _collectionIt->second.begin(); _counterMapIt != _collectionIt->second.end(); ++_counterMapIt) {
-          CounterBaseRates* _counter = static_cast<CounterBaseRates*>(_counterMapIt->second);
-          if (_counter->getStrDecoration(kDecType) == "UniqueHLT" || _counter->getStrDecoration(kDecType) == "UniqueL1") {
-            _counter->decorate(kDecLbLength, m_collectionLumiCollector[ _counterCollectionName ]->getTotalLumiBlockTime());
-            _counter->finalise();
+        for (CounterMapIt_t counterMapIt = collectionIt->second.begin(); counterMapIt != collectionIt->second.end(); ++counterMapIt) {
+          CounterBaseRates* counter = static_cast<CounterBaseRates*>(counterMapIt->second);
+          if (counter->getStrDecoration(kDecType) == "UniqueHLT" || counter->getStrDecoration(kDecType) == "UniqueL1") {
+            counter->decorate(kDecLbLength, m_collectionLumiCollector[ counterCollectionName ]->getTotalLumiBlockTime());
+            counter->finalise();
           }
         }
       }
       // Finalise all other counters (makes use of unique counters)
-      for (CounterMapIt_t _counterMapIt = _collectionIt->second.begin(); _counterMapIt != _collectionIt->second.end(); ++_counterMapIt) {
+      for (CounterMapIt_t counterMapIt = collectionIt->second.begin(); counterMapIt != collectionIt->second.end(); ++counterMapIt) {
         //Note we have added a negation here
-        CounterBaseRates* _counter = static_cast<CounterBaseRates*>(_counterMapIt->second);
-        if (!(_counter->getStrDecoration(kDecType) == "UniqueHLT" || _counter->getStrDecoration(kDecType) == "UniqueL1")) {
-          _counter->decorate(kDecLbLength, m_collectionLumiCollector[ _counterCollectionName ]->getTotalLumiBlockTime());
-          _counter->finalise();
+        CounterBaseRates* counter = static_cast<CounterBaseRates*>(counterMapIt->second);
+        if (!(counter->getStrDecoration(kDecType) == "UniqueHLT" || counter->getStrDecoration(kDecType) == "UniqueL1")) {
+          counter->decorate(kDecLbLength, m_collectionLumiCollector[ counterCollectionName ]->getTotalLumiBlockTime());
+          counter->finalise();
         }
       }
     }
@@ -890,79 +888,79 @@ namespace TrigCostRootAnalysis {
 
     if (Config::config().getInt(kOutputRatesGraph) == kTRUE) saveRateGraphs();
 
-    VariableOptionVector_t _toSavePlots = m_dummyCounter->getAllHistograms();
+    VariableOptionVector_t toSavePlots = m_dummyCounter->getAllHistograms();
 
-    std::vector<TableColumnFormatter> _toSaveTable;
+    std::vector<TableColumnFormatter> toSaveTable;
 
-    _toSaveTable.push_back(TableColumnFormatter("Active Time [s]",
+    toSaveTable.push_back(TableColumnFormatter("Active Time [s]",
                                                 "Integrated length of all lumi blocks which contributed events to this rates prediction.",
                                                 kVarEventsPassedNoPS /*ignored*/, kSavePerCall /*ignored*/, 2, kFormatOptionUseWallTime));
 
-    _toSaveTable.push_back(TableColumnFormatter("Group",
+    toSaveTable.push_back(TableColumnFormatter("Group",
                                                 "The group this chain belongs to.",
                                                 kDecRatesGroupName, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
-    _toSaveTable.push_back(TableColumnFormatter("Weighted PS Rate [Hz]",
+    toSaveTable.push_back(TableColumnFormatter("Weighted PS Rate [Hz]",
                                                 "Rate after applying all prescale(s) as weights.",
                                                 kVarEventsPassed, kSavePerCall, 4, kFormatOptionNormaliseWallTime));
 
-    _toSaveTable.push_back(TableColumnFormatter("Weighted PS Rate Err [Hz]",
+    toSaveTable.push_back(TableColumnFormatter("Weighted PS Rate Err [Hz]",
                                                 "Error on rate after applying all prescale(s) as weights",
                                                 &tableFnRateGetWeightedRateErr, 4));
 
     if (Config::config().getInt(kDoUniqueRates) == kTRUE) {
-      _toSaveTable.push_back(TableColumnFormatter("Unique Rate [Hz]",
+      toSaveTable.push_back(TableColumnFormatter("Unique Rate [Hz]",
                                                   "Rate unique to this chain or combination of chains.",
                                                   kDecUniqueRate, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
-      _toSaveTable.push_back(TableColumnFormatter("Unique Fraction [%]",
+      toSaveTable.push_back(TableColumnFormatter("Unique Fraction [%]",
                                                   "Fraction of rate of this chain with no overlap with any other chain.",
                                                   kDecUniqueFraction, kSavePerCall, 0, kFormatOptionUseStringDecoration));
     }
 
-    _toSaveTable.push_back(TableColumnFormatter("Unbiased Pass [%]",
+    toSaveTable.push_back(TableColumnFormatter("Unbiased Pass [%]",
                                                 "The probability that this chain passes events selected online with zero trigger bias",
                                                 kVarUnbiasedPassed, kSavePerCall, kVarUnbiasedRun, kSavePerCall, 5, kFormatOptionToPercentage));
 
-    _toSaveTable.push_back(TableColumnFormatter("Prescale",
+    toSaveTable.push_back(TableColumnFormatter("Prescale",
                                                 "The prescale of this chain. Only displayed for simple combinations.",
                                                 kDecPrescaleStr, kSavePerCall, 0, kFormatOptionUseStringDecoration));
 
     if (Config::config().getInt(kRatesScaleByPS)) {
-      _toSaveTable.push_back(TableColumnFormatter("L1 Online Prescale",
+      toSaveTable.push_back(TableColumnFormatter("L1 Online Prescale",
                                                   "The online prescale of this chain at L1. Applied here as a weight.",
                                                   kDecPrescaleValOnlineL1, kSavePerCall, 0, kFormatOptionUseFloatDecoration));
     }
 
-    _toSaveTable.push_back(TableColumnFormatter("ID",
+    toSaveTable.push_back(TableColumnFormatter("ID",
                                                 "The CPTID or HLT Chain ID",
                                                 kDecID, kSavePerCall, 0, kFormatOptionUseIntDecoration));
 
-    _toSaveTable.push_back(TableColumnFormatter("Raw Active Events",
+    toSaveTable.push_back(TableColumnFormatter("Raw Active Events",
                                                 "Raw underlying statistics on the number events processed for this chain.",
                                                 kVarEventsRunRawStat, kSavePerCall, 0));
 
-    _toSaveTable.push_back(TableColumnFormatter("Raw Pass Events",
+    toSaveTable.push_back(TableColumnFormatter("Raw Pass Events",
                                                 "Raw underlying statistics on the number events passed by this chain.",
                                                 kVarEventsPassRawStat, kSavePerCall, 0));
 
-    _toSaveTable.push_back(TableColumnFormatter("Active Events",
+    toSaveTable.push_back(TableColumnFormatter("Active Events",
                                                 "Number of events in which the chain - or at least one chain in the combination - was executed.",
                                                 kVarEventsRun, kSavePerCall, 4));
 
-    _toSaveTable.push_back(TableColumnFormatter("Input Rate [Hz]",
+    toSaveTable.push_back(TableColumnFormatter("Input Rate [Hz]",
                                                 "Input rate to this chain or combination of chains. At L1 this will be the collision frequency for the bunch pattern.",
                                                 kVarEventsRun, kSavePerCall, 4, kFormatOptionNormaliseWallTime));
 
-    _toSaveTable.push_back(TableColumnFormatter("Pass Fraction before PS [%]",
+    toSaveTable.push_back(TableColumnFormatter("Pass Fraction before PS [%]",
                                                 "Fraction of events which pass this trigger before prescale.",
                                                 kVarEventsPassedNoPS, kSavePerCall, kVarEventsRun, kSavePerCall, 4, kFormatOptionToPercentage));
 
-    _toSaveTable.push_back(TableColumnFormatter("Pass Fraction after PS [%]",
+    toSaveTable.push_back(TableColumnFormatter("Pass Fraction after PS [%]",
                                                 "Fraction of events which pass this trigger after prescale.",
                                                 kVarEventsPassed, kSavePerCall, kVarEventsRun, kSavePerCall, 4, kFormatOptionToPercentage));
 
-    _toSaveTable.push_back(TableColumnFormatter("Pass Weighted PS",
+    toSaveTable.push_back(TableColumnFormatter("Pass Weighted PS",
                                                 "Number of events this chain or combination passed after applying prescales as weighting factors.",
                                                 kVarEventsPassed, kSavePerCall, 4));
 
@@ -972,43 +970,41 @@ namespace TrigCostRootAnalysis {
     m_filterOutput = kTRUE;
     setName("Rate_Upgrade_ChainL1");
     filterOutputOnStrDecoration(kDecType, "L1");
-    sharedTableOutputRoutine(_toSaveTable);
-    sharedHistogramOutputRoutine(_toSavePlots);
+    sharedTableOutputRoutine(toSaveTable);
+    sharedHistogramOutputRoutine(toSavePlots);
 
     setName("Rate_Upgrade_ChainL2");
     filterOutputOnStrDecoration(kDecType, "L2");
-    sharedTableOutputRoutine(_toSaveTable);
-    sharedHistogramOutputRoutine(_toSavePlots);
+    sharedTableOutputRoutine(toSaveTable);
+    sharedHistogramOutputRoutine(toSavePlots);
 
     setName("Rate_Upgrade_ChainHLT");
     filterOutputOnStrDecoration(kDecType, "HLT");
-    sharedTableOutputRoutine(_toSaveTable);
-    sharedHistogramOutputRoutine(_toSavePlots);
+    sharedTableOutputRoutine(toSaveTable);
+    sharedHistogramOutputRoutine(toSavePlots);
 
     // Now do the GROUP - note we can remove the "Group" option from the table.
-    //_toSaveTable.erase( _toSaveTable.begin() + 1 );
+    //toSaveTable.erase( toSaveTable.begin() + 1 );
     setName("Rate_Upgrade_Group");
     filterOutputOnStrDecoration(kDecType, "Union");
-    sharedTableOutputRoutine(_toSaveTable);
-    sharedHistogramOutputRoutine(_toSavePlots);
+    sharedTableOutputRoutine(toSaveTable);
+    sharedHistogramOutputRoutine(toSavePlots);
 
     setName("Rate_Upgrade_Combination");
     filterOutputOnStrDecoration(kDecType, "Intersection");
-    sharedTableOutputRoutine(_toSaveTable);
-    sharedHistogramOutputRoutine(_toSavePlots);
+    sharedTableOutputRoutine(toSaveTable);
+    sharedHistogramOutputRoutine(toSavePlots);
   }
 
   /**
    * Construct new counter of correct derived type, pass back as base type.
    * This function must be implemented by all derived monitor types.
-   * @see MonitorBase::addCounter( const std::string &_name, Int_t _ID )
-   * @param _name Cost reference to name of counter.
-   * @param _ID Reference to ID number of counter.
+   * @see MonitorBase::addCounter( const std::string &name, Int_t ID )
+   * @param name Cost reference to name of counter.
+   * @param ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct serived type.
    */
-  CounterBase* MonitorRatesUpgrade::newCounter(const std::string& _name, Int_t _ID) {
-    UNUSED(_name);
-    UNUSED(_ID);
+  CounterBase* MonitorRatesUpgrade::newCounter(const std::string& /*name*/, Int_t /*ID*/) {
     Error("MonitorRatesUpgrade::newCounter", "For Rates counters - please mint them yourself as the derived type is important (Chain, Union, Intersection etc.)");
     return 0;
   }

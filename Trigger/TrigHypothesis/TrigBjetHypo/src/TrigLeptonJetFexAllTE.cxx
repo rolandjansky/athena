@@ -81,8 +81,7 @@ float TrigLeptonJetFexAllTE::phiCorr(float phi) {
 
 HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output) {
   
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Executing TrigLeptonJetFexAllTE" << endmsg;
+  ATH_MSG_DEBUG( "Executing TrigLeptonJetFexAllTE" );
 
   bool pass = false;
 
@@ -98,12 +97,12 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   }
 
   if(inputTE[0].size() == 0) {
-    msg() << MSG::DEBUG << "No muon TE found" << endmsg;
+    ATH_MSG_DEBUG( "No muon TE found" );
     return HLT::OK;
   }
 
   if(inputTE[1].size() == 0) {
-    msg() << MSG::DEBUG << "No jet TE found" << endmsg;
+    ATH_MSG_DEBUG( "No jet TE found" );
     return HLT::OK;
   }
 
@@ -153,8 +152,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
   if(jets.size()==0 ){
 
-    if (msgLvl() <= MSG::DEBUG)
-      msg()<< MSG::DEBUG << " Size of JetCollection is 0" << endmsg;
+    ATH_MSG_DEBUG( " Size of JetCollection is 0" );
 
     m_cutCounter=0;
 
@@ -163,8 +161,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   // This is commented just for this to compile  
   //  std::sort (jets.begin(), jets.end(), P4Sorters::Descending::Et());
  
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << muons->size() << " muons and " << jets_EF->size() << " jets" << endmsg; 
+  ATH_MSG_DEBUG( "Found " << muons->size() << " muons and " << jets_EF->size() << " jets" );
 
 
   int j=0;
@@ -175,8 +172,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
     muonEta = Muon->eta();
     muonPhi = Muon->phi();
 
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Muon "<< j+1 << "; ipt " <<  Muon->pt() << "; eta "<< muonEta << "; phi " << muonPhi << endmsg;
+    ATH_MSG_DEBUG( "Muon "<< j+1 << "; ipt " <<  Muon->pt() << "; eta "<< muonEta << "; phi " << muonPhi );
 
     unsigned int i=0;
     for ( xAOD::JetContainer::const_iterator jetitr=jets_EF->begin() ; jetitr!=jets_EF->end() ; jetitr++ ) {
@@ -185,21 +181,19 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
       auto jet = *jetitr;
       //-------
       float jetEt  = jet->p4().Et()*0.001;
+      
 
-
-	
-    if (jetEt < m_etThreshold) {
-          if (msgLvl() <= MSG::DEBUG)
-            msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_etThreshold/1000 << " GeV threshold; Et " << jetEt/1000 << endmsg;
-          continue;
-        }
-
-
+      
+      if (jetEt < m_etThreshold) {
+	ATH_MSG_DEBUG( "Jet "<< i << " below the " << m_etThreshold/1000 << " GeV threshold; Et " << jetEt/1000 );
+	continue;
+      }
+      
+      
       jetEta = jet->eta();
       jetPhi = jet->phi();
 
-   if (msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt/1000 << "; eta "<< jetEta << "; phi " << jetPhi << endmsg;
+      ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt/1000 << "; eta "<< jetEta << "; phi " << jetPhi );
 
 	  
       deltaEta = muonEta - jetEta;
@@ -207,7 +201,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 	
       double dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "deltaR = "<< dR << endmsg; 
+      ATH_MSG_DEBUG( "deltaR = "<< dR );
 
       switch (m_workingMode) {
 
@@ -231,8 +225,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
     if (pass) {
 	
-      if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Accepting the event" << endmsg;
+      ATH_MSG_DEBUG( "Accepting the event" );
 	
       m_cutCounter=1;
         
@@ -240,8 +233,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
         
     } else {
 	
-      if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Rejecting the event" << endmsg;
+      ATH_MSG_DEBUG( "Rejecting the event" );
 	
       m_cutCounter=0;
          

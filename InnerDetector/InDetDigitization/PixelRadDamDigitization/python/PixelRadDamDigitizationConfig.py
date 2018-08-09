@@ -2,7 +2,7 @@
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Pixel Digitization code.
@@ -169,7 +169,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     procTools = []
     chargeTools = [] #Tools in array for flexibility
     feSimTools = []
-    if GeometryFlags.isSLHC():
+    if InDetGeometryFlags.isSLHC():
       procTools += ['PixelRadDamDiodeCrossTalkGenerator']
       chargeTools += ['RadDamSensorSimPlanarTool']
       feSimTools += ['RadDamRD53SimTool']

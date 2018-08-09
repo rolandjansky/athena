@@ -33,27 +33,27 @@ using namespace TrigCostRootAnalysis;
 
 int main() {
   Info("TrigCostD3PD", "Execute UserSkeleton");
-  const std::string _treeName = "trig_cost";
+  const std::string treeName = "trig_cost";
 
   // Master chain of all files to analyse
-  TChain _chain(_treeName.c_str());
+  TChain chain(treeName.c_str());
 
-  std::vector< std::string > _inputFiles;
+  std::vector< std::string > inputFiles;
   // TODO - ADD YOUR FILES
-  _inputFiles.push_back("/afs/cern.ch/work/t/tamartin/public/NTUP_TRIGCOST.05385661._001604.pool.root");
+  inputFiles.push_back("/afs/cern.ch/work/t/tamartin/public/NTUP_TRIGCOST.05385661._001604.pool.root");
 
 
-  for (UInt_t f = 0; f < _inputFiles.size(); ++f) {
-    _chain.Add(_inputFiles.at(f).c_str());
-    Info("TrigCostD3PD", "Using Input File: %s", _inputFiles.at(f).c_str());
+  for (UInt_t f = 0; f < inputFiles.size(); ++f) {
+    chain.Add(inputFiles.at(f).c_str());
+    Info("TrigCostD3PD", "Using Input File: %s", inputFiles.at(f).c_str());
   }
 
   // 'event' is very important, it's used pass-by-reference and dictates which entry in the tree we're reading from.
-  Long64_t _event = 0;
+  Long64_t event = 0;
 
   // If you need L2 or EF data, add extra instances of TrigCostData
-  TrigCostData _HLTData;
-  _HLTData.setup(/*currentEvent*/ _event, /*branch prefix*/ "TrigCostHLT_", /*TTree (or TChain)*/ &_chain);
+  TrigCostData HLTData;
+  HLTData.setup(/*currentEvent*/ event, /*branch prefix*/ "TrigCostHLT_", /*TTree (or TChain)*/ &chain);
 
   // Set location of config tree
   Config::config().set(kConfigPrefix, "trig_costMeta/TrigConfTree", "ConfigPrefix");
@@ -61,9 +61,9 @@ int main() {
   // Set the name of the ROS mapping
   // This is the RootCore environment way.
   Config::config().set(kROSXMLName, "rob-ros-robin-2012.xml");
-  const Char_t* _env = std::getenv("ROOTCOREBIN");
-  if (_env != NULL) {
-    Config::config().set(kDataDir, std::string(_env) + std::string("/data/TrigCostRootAnalysis/"));
+  const Char_t* env = std::getenv("ROOTCOREBIN");
+  if (env != NULL) {
+    Config::config().set(kDataDir, std::string(env) + std::string("/data/TrigCostRootAnalysis/"));
     Config::config().set(kROSXMLPath, Config::config().getStr(kDataDir) + Config::config().getStr(kROSXMLName));
   }
 
@@ -71,10 +71,10 @@ int main() {
 #ifndef ROOTCORE
   Config::config().set(kIsRootCore, 0, "IsRootCore");
   if (Config::config().getIsSet(kROSXMLName)) {
-    std::string _locAthena = PathResolverFindDataFile(Config::config().getStr(kROSXMLName));
-    if (_locAthena == "") Error("Config::parseCLI", "Athena cannot find ROS mapping file %s", Config::config().getStr(kROSXMLName).c_str());
+    std::string locAthena = PathResolverFindDataFile(Config::config().getStr(kROSXMLName));
+    if (locAthena == "") Error("Config::parseCLI", "Athena cannot find ROS mapping file %s", Config::config().getStr(kROSXMLName).c_str());
     else {
-      Config::config().set(kROSXMLPath, _locAthena, "ROSXMLPath");
+      Config::config().set(kROSXMLPath, locAthena, "ROSXMLPath");
       Info("Config::parseCLI", "Athena has found the file: %s", Config::config().getStr(kROSXMLPath).c_str());
     }
   }
@@ -93,92 +93,92 @@ int main() {
 
   Info("TrigCostD3PD", "Doing some sample output, have a look at TrigCostData.h to see all accessible data calls.");
 
-  const UInt_t _maxEvents = 1;
+  const UInt_t maxEvents = 1;
 
   // Begin event loop
-  for (Long64_t _masterEvent = 0; _masterEvent < _chain.GetEntries(); ++_masterEvent) {
+  for (Long64_t masterEvent = 0; masterEvent < chain.GetEntries(); ++masterEvent) {
     // Load correct tree into memory in the chain
-    _event = _chain.LoadTree(_masterEvent);
-    assert(_event >= 0); // -1=Empty, -2=OutOfRange, -3=FileIOProblem, -4=TTreeMissing
+    event = chain.LoadTree(masterEvent);
+    assert(event >= 0); // -1=Empty, -2=OutOfRange, -3=FileIOProblem, -4=TTreeMissing
 
     //if start of file, config
-    if (_event == 0) {
+    if (event == 0) {
       TrigConfInterface::reset();
-      TrigConfInterface::configure(&_chain);
+      TrigConfInterface::configure(&chain);
     }
 
     /// CHAINS
-    Info("TrigCostD3PD::EventLoop", "Event %lli, Number of Chains: %i", _event, _HLTData.getNChains());
-    for (UInt_t _c = 0; _c < _HLTData.getNChains(); ++_c) {
+    Info("TrigCostD3PD::EventLoop", "Event %lli, Number of Chains: %i", event, HLTData.getNChains());
+    for (UInt_t c = 0; c < HLTData.getNChains(); ++c) {
       Info("TrigCostD3PD::EventLoop", " -- Chain:%s, PassedRaw:%s, Time:%.2f ms, Algs:%i",
-           TrigConfInterface::getHLTNameFromChainID(_HLTData.getChainID(_c), _HLTData.getChainLevel(_c)).c_str(),
-           (_HLTData.getIsChainPassedRaw(_c) ? "YES" : "NO"),
-           _HLTData.getChainTimerFromSequences(_c),
-           (_HLTData.getChainAlgCalls(_c) + _HLTData.getChainAlgCaches(_c)));
+           TrigConfInterface::getHLTNameFromChainID(HLTData.getChainID(c), HLTData.getChainLevel(c)).c_str(),
+           (HLTData.getIsChainPassedRaw(c) ? "YES" : "NO"),
+           HLTData.getChainTimerFromSequences(c),
+           (HLTData.getChainAlgCalls(c) + HLTData.getChainAlgCaches(c)));
     }
 
     /// SEQUENCES AND ALGS
-    for (UInt_t _s = 0; _s < _HLTData.getNSequences(); ++_s) {
+    for (UInt_t s = 0; s < HLTData.getNSequences(); ++s) {
       Info("TrigCostD3PD::EventLoop", " -- -- Sequence:%s/%s",
-           TrigConfInterface::getHLTNameFromChainID(_HLTData.getSequenceChannelCounter(_s), _HLTData.getSequenceLevel(_s)).c_str(),
-           TrigConfInterface::getHLTSeqNameFromIndex(_HLTData.getSequenceIndex(_s)).c_str());
+           TrigConfInterface::getHLTNameFromChainID(HLTData.getSequenceChannelCounter(s), HLTData.getSequenceLevel(s)).c_str(),
+           TrigConfInterface::getHLTSeqNameFromIndex(HLTData.getSequenceIndex(s)).c_str());
 
       // Loop over all algorithms in sequence
-      for (UInt_t _a = 0; _a < _HLTData.getNSeqAlgs(_s); ++_a) {
-        Int_t _seqIndex = _HLTData.getSequenceIndex(_s);
-        Int_t _seqAlgPos = _HLTData.getSeqAlgPosition(_s, _a);
+      for (UInt_t a = 0; a < HLTData.getNSeqAlgs(s); ++a) {
+        Int_t seqIndex = HLTData.getSequenceIndex(s);
+        Int_t seqAlgPos = HLTData.getSeqAlgPosition(s, a);
 
-        const std::string _algName = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
-        const std::string _algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
+        const std::string algName = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
+        const std::string algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
 
         Info("TrigCostD3PD::EventLoop", " -- -- -- Algorithm:%s::%s, Time:%.6f ms, Data:%.2f kB",
-             _algType.c_str(), _algName.c_str(),
-             _HLTData.getSeqAlgTimer(_s, _a),
-             (_HLTData.getSeqAlgROBRetrievalSize(_s, _a) + _HLTData.getSeqAlgROBRequestSize(_s, _a)));
+             algType.c_str(), algName.c_str(),
+             HLTData.getSeqAlgTimer(s, a),
+             (HLTData.getSeqAlgROBRetrievalSize(s, a) + HLTData.getSeqAlgROBRequestSize(s, a)));
       }
     }
 
     /// ROS
-    for (UInt_t _Rob = 0; _Rob < _HLTData.getNROBs(); ++_Rob) {
-      std::pair< Int_t, Int_t > _alg = _HLTData.getROBAlgLocation(_Rob);
-      std::string _requestingAlg = "NotFound";
-      if (_alg.first > -1 && _alg.second > -1) {
-        Int_t _seqIndex = _HLTData.getSequenceIndex(_alg.first);
-        Int_t _seqAlgPos = _HLTData.getSeqAlgPosition(_alg.first, _alg.second);
-        _requestingAlg = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
+    for (UInt_t Rob = 0; Rob < HLTData.getNROBs(); ++Rob) {
+      std::pair< Int_t, Int_t > alg = HLTData.getROBAlgLocation(Rob);
+      std::string requestingAlg = "NotFound";
+      if (alg.first > -1 && alg.second > -1) {
+        Int_t seqIndex = HLTData.getSequenceIndex(alg.first);
+        Int_t seqAlgPos = HLTData.getSeqAlgPosition(alg.first, alg.second);
+        requestingAlg = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
       }
       Info("TrigCostD3PD::EventLoop", " -- ROS Request by '%s': Start:%i.%i Stop:%i.%i Time:%.6f",
-           _requestingAlg.c_str(),
-           _HLTData.getROBTimeStartSec(_Rob),
-           _HLTData.getROBTimeStartMicroSec(_Rob),
-           _HLTData.getROBTimeStopSec(_Rob),
-           _HLTData.getROBTimeStopMicroSec(_Rob),
-           _HLTData.getROBTimer(_Rob));
-      for (UInt_t _RobData = 0; _RobData < _HLTData.getROBDataN(_Rob); ++_RobData) {
-        Int_t _RobId = _HLTData.getROBDataID(_Rob, _RobData);
-        const std::string _RobinName = ROSConfService::rosConfService().getRobinNameFromId((UInt_t) _RobId);
-        const std::string _RosName = ROSConfService::rosConfService().getRosNameFromFromRobinName(_RobinName);
+           requestingAlg.c_str(),
+           HLTData.getROBTimeStartSec(Rob),
+           HLTData.getROBTimeStartMicroSec(Rob),
+           HLTData.getROBTimeStopSec(Rob),
+           HLTData.getROBTimeStopMicroSec(Rob),
+           HLTData.getROBTimer(Rob));
+      for (UInt_t RobData = 0; RobData < HLTData.getROBDataN(Rob); ++RobData) {
+        Int_t RobId = HLTData.getROBDataID(Rob, RobData);
+        const std::string RobinName = ROSConfService::rosConfService().getRobinNameFromId((UInt_t) RobId);
+        const std::string RosName = ROSConfService::rosConfService().getRosNameFromFromRobinName(RobinName);
 
-        Bool_t _cached = _HLTData.getIsROBDataCached(_Rob, _RobData);
+        Bool_t cached = HLTData.getIsROBDataCached(Rob, RobData);
         Info("TrigCostD3PD::EventLoop", " -- -- ROB:(%s | %s) : Size:%.6f kb : %s",
-             _RosName.c_str(),
-             _RobinName.c_str(),
-             _HLTData.getROBDataSize(_Rob, _RobData),
-             (_cached ? "Cached" : "Retrieved"));
+             RosName.c_str(),
+             RobinName.c_str(),
+             HLTData.getROBDataSize(Rob, RobData),
+             (cached ? "Cached" : "Retrieved"));
       }
     }
 
     /// ROI
-    for (UInt_t _r = 0; _r < _HLTData.getNRoIs(); ++_r) {
-      std::string _ROIType = _HLTData.getRoITypeString(_r);
+    for (UInt_t r = 0; r < HLTData.getNRoIs(); ++r) {
+      std::string ROIType = HLTData.getRoITypeString(r);
       Info("TrigCostD3PD::EventLoop", " -- ROI ID:%i Type:%s at Eta:%.2f Phi:%.2f",
-           _HLTData.getRoIID(_r),
-           _ROIType.c_str(),
-           _HLTData.getRoIEta(_r),
-           _HLTData.getRoIPhi(_r));
+           HLTData.getRoIID(r),
+           ROIType.c_str(),
+           HLTData.getRoIEta(r),
+           HLTData.getRoIPhi(r));
     }
 
-    if (_masterEvent >= _maxEvents) break;
+    if (masterEvent >= maxEvents) break;
   }
 
   Info("TrigCostD3PD", "Terminating");

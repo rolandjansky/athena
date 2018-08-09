@@ -359,7 +359,7 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
   for(LArCellCollection::iterator ii=coll.begin();ii!=coll.end();++ii)
        (*ii)->setEnergyFast(0.0);
 
-  int32_t energy;
+  int32_t energy(0);
   int32_t time;
   int32_t quality;
   uint32_t gain;

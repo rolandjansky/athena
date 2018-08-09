@@ -82,7 +82,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True, doL2MultiTrack = False)
 
     topoAlgs = chainDict["topo"]
 
-    SameConfigTopos = ['bJpsi', 'bDimu', 'bDimu2700', 'bTau', 'bTauTrk', 'trkTau', 'bTauTight',
+    SameConfigTopos = ['bJpsi', 'bDimu', 'bDimu2700', 'bDimu6000', 'bTau', 'bTauTrk', 'trkTau', 'bTauTight',
                        'bDsPhiXtight','bDsPhiX', 'bPhi', 
                        'bBmumu', 'bJpsimumu', 'bUpsimumu', 'Zmumu','bUpsi',
                        'bNocut', 'bVertex2', 'bVertex3']
@@ -278,6 +278,18 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu2700
         EFFex = EFMultiMuFex_DiMu()
         EFHypo = EFMultiMuHypo_DiMu2700()
+
+    elif (mtopo =='bDimu6000'):
+        from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_L26000
+        L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+        L2Fex.setTrackThresholds( trkmuons )
+        L2Hypo = EFMultiMuHypo_L26000("L2MultiMuHypo_bDimu6000")
+
+        from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_DiMu
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
+        EFFex = EFMultiMuFex_DiMu()
+        EFHypo = EFMultiMuHypo_DiMu6000()
 
     elif (mtopo == 'bTauTrk'):
 
@@ -1249,11 +1261,13 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, do
     from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_Jpsi
     L2Fex = TrigMultiTrkFex_Jpsi("TrigMultiTrkFex_TrkPEB"+fexNameExt)
     L2Fex.setTrackThresholds( trkmuons )
+    L2Fex.bphysCollectionKey = "MultiTrkFex_TrkPEB"
+    L2Fex.outputTrackCollectionKey = "MultiTrkFex_TrkPEB"
     #L2Fex.trackCollectionKey = "InDetTrigTrackingxAODCnv_Bphysics_IDTrig"
 
     from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Jpsi
-    L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")
-    L2Hypo.bphysCollectionKey = "MultiTrkFex"
+    L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_pebJpsi")
+    L2Hypo.bphysCollectionKey = L2Fex.bphysCollectionKey 
     theChainDef.addSequence([L2Fex, L2Hypo], L2outTEsprec , L2TEname+"MultiTrk")
     theChainDef.addSignatureL2([L2TEname+"MultiTrk"])
 
@@ -1614,12 +1628,12 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     #L2ChainName = "L2_" + chainDict['chainName']
     #EFChainName = "EF_" + chainDict['chainName']
     topoAlgs = chainDict["topo"]
-    TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
+    #TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
     
     myTopoString = ''
     for mtopo in topoAlgs:
         myTopoString =myTopoString+'_'+mtopo
-    L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item'].replace(",","")
+    L2TEname = "L2_" + chainDict['chainName'] + "_Beex"  # TEname+myTopoString+'_'+chainDict['L1item'].replace(",","")
     EFTEname = "EF_" + chainDict['chainName']
 
 
@@ -1642,25 +1656,25 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     # Note - may need to change oppsign and vtx requirements
     # noL2 option to skip dimuon selection at L2
 
-    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
-    L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiE"+fexNameExt)  # this FEX does not use muons, so changing the name is sufficient
-    L2Fex.setElectronTrackThresholds( trkelectrons )   # however, we need only energetic tracks unlike in muons.
-    L2Fex.trkMass= 0.511 # otherwise mass cut will not remove comversions
-
+    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiE
+    L2Fex = TrigMultiTrkFex_DiE("TrigMultiTrkFex_DiE"+fexNameExt)  
+    L2Fex.setElectronTrackThresholds( trkelectrons )   
+    
     if  'bBeexv2' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Bmumux
         L2Hypo = EFMultiMuHypo_Bmumux("EFMultiMuHypo_Beexv2")    # this Hypo cuts only on mass of Bphys object, so not important to separate muons and electrons
-        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+        L2Hypo.bphysCollectionKey = "MultiTrkFex_DiE"
         
     elif  'bBeexM2700' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu2700
         L2Hypo = EFMultiMuHypo_DiMu2700("EFMultiMuHypo_BeeM2700")    # 
-        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+        L2Hypo.bphysCollectionKey = "MultiTrkFex_DiE"
         
-    elif  'bBeexM6000' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
+    elif  'bBeexM6000' in topoAlgs or 'bBeexM6000t' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
         L2Hypo = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_BeeM6000")    # 
-        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+        L2Hypo.bphysCollectionKey = "MultiTrkFex_DiE"  # do not change collection key, as it is output to AOD
+
     else :
         log.error( " Unknown Bphysics B->eeX chain "+ chainDict['chainName']+" do not know how to set up")
         return theChainDef
@@ -1707,9 +1721,26 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
         from TrigBphysHypo.TrigBphysElectronCounterConfig import  TrigBphysElectronCounter_bBee
         EFFexE = TrigBphysElectronCounter_bBee("TrigBphysECounter"+chainDict['chainName'], trkelectrons, pid,  4650. )
         EFFexE.setEFElectronThresholds( trkelectrons, 4650. )
+        EFFexE.outputTrackCollectionKey = "BphysElectronCounter" 
+    
         theChainDef.addSequence([EFFexE],inputTEsEF, EFTEname+"_eCounter")
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_eCounter"])    
 
+        if  'bBeexM6000t' in topoAlgs :
+            EFFexM = TrigMultiTrkFex_DiE("TrigMultiTrkFex_EFDiE"+fexNameExt) 
+            EFFexM.setElectronTrackThresholds( trkelectrons )
+            EFFexM.trackCollectionKey = EFFexE.outputTrackCollectionKey  # these are input tracks, we want to use those identified by BphysElectronContainer
+            EFFexM.outputTrackCollectionKey = "EFEMultiTrkFex_DiE"  # these are selected tracks for monitoring
+            EFFexM.bphysCollectionKey = "EFEMultiTrkFex_DiE" # this is output container with Bphys objects that will be used in Hypo
+             # do not change collection key, as it is output to AOD
+
+            from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
+            EFHypoM = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_EFBeeM6000")    # 
+            EFHypoM.bphysCollectionKey = EFFexM.bphysCollectionKey 
+            theChainDef.addSequence([EFFexM, EFHypoM],EFTEname+"_eCounter", EFTEname+"_EFMass")
+            theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_EFMass"])    
+
+        
 
     return theChainDef
 

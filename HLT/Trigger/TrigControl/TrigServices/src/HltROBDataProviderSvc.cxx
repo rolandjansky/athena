@@ -1230,6 +1230,13 @@ void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROB
       if ( p_robMonStruct ) {
       	 (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
         }
+    } else if ((m_ignoreROB.value().size() != 0) &&
+	       (std::find(m_ignoreROB.value().begin(), m_ignoreROB.value().end(),id) != m_ignoreROB.value().end())) {
+      ATH_MSG_DEBUG(" ---> addROBDataToCache: ROB Id : 0x" << MSG::hex << id << MSG::dec
+		    << " removed for L1 Id = " << m_currentLvl1ID);
+      if ( p_robMonStruct ) {
+	(p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
+      }
     } else {
       m_online_robmap[id]= (it->robFragment);
       //* detailed monitoring

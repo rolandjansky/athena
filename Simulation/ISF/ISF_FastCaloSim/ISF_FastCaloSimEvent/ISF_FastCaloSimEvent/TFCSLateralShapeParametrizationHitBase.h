@@ -19,17 +19,41 @@ public:
   class Hit
   {
     public:
-    Hit():m_eta(0),m_phi(0),m_E(0) {}; // for hits with the same energy, m_E should normalized to E(layer)/nhit
-    Hit(float eta, float phi, float E):m_eta(eta),m_phi(phi),m_E(E) {};
-    Hit(float eta, float phi, float z, float E):m_eta(eta),m_phi(phi),m_z(z),m_E(E) {};
+    Hit():m_eta_x(0.),m_phi_y(0.),m_z(0.),m_E(0.) {}; // for hits with the same energy, m_E should normalized to E(layer)/nhit
+    Hit(float eta, float phi, float E):m_eta_x(eta),m_phi_y(phi),m_E(E) {};
+    Hit(float x, float y, float z, float E):m_eta_x(x),m_phi_y(y),m_z(z),m_E(E) {};
+    
+    inline void setEtaPhiE(float eta,float phi, float E){
+      m_eta_x=eta;
+      m_phi_y=phi;
+      m_E=E;
+    }
+    inline void setXYZE(float x,float y,float z, float E){
+      m_eta_x=x;
+      m_phi_y=y;
+      m_z=z;
+      m_E=E;
+    }
 
-    float& eta() {return m_eta;};
-    float& phi() {return m_phi;};
-    float& E() {return m_E;};
-    float& z() {return m_z;}
+    inline void reset(){
+      m_eta_x=0.;
+      m_phi_y=0.;
+      m_z=0.;
+      m_E=0.;
+    }
+
+    inline float& eta() {return m_eta_x;};
+    inline float& phi() {return m_phi_y;};
+    inline float& x() {return m_eta_x;};
+    inline float& y() {return m_phi_y;};
+    inline float& E() {return m_E;};
+    inline float& z() {return m_z;}
 
     private:
-    float m_eta,m_phi,m_z,m_E;
+    float m_eta_x; // eta for barrel and end-cap, x for FCal
+    float m_phi_y; // phi for barrel and end-cap, y for FCal
+    float m_z;
+    float m_E;
   };
 
   /// simulated one hit position with some energy. As last step in TFCSLateralShapeParametrizationHitChain::simulate, 

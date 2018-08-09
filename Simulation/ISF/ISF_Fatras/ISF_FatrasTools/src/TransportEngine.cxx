@@ -416,7 +416,7 @@ ISF::ISFParticle* iFatras::TransportEngine::handleExtrapolationResult(const ISF:
         ATH_MSG_VERBOSE( "[ fatras transport ] Successfully reached detector boundary with the particle -> return particle at boundary.");
         // create the updated particle at the end of processing step
 	AtlasDetDescr::AtlasRegion geoID=AtlasDetDescr::AtlasRegion(5);
-	if (nextGeoID<99) geoID = AtlasDetDescr::AtlasRegion(nextGeoID);	  
+	if (nextGeoID<99) geoID = static_cast<AtlasDetDescr::AtlasRegion>(nextGeoID);	  
         rParticle = new ISF::ISFParticle(position,
                                          momentum,
                                          isp.mass(),

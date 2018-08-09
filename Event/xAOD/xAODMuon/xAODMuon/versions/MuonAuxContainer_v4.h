@@ -141,6 +141,31 @@ namespace xAOD {
       std::vector< uint8_t >          etaLayer3TGCHoles;
       std::vector< uint8_t >          etaLayer4TGCHoles;
 
+      // New Small Wheel
+      // STGC
+      std::vector< uint8_t >          phiLayer1STGCHits;
+      std::vector< uint8_t >          phiLayer2STGCHits;
+      
+      std::vector< uint8_t >          etaLayer1STGCHits;
+      std::vector< uint8_t >          etaLayer2STGCHits;
+      
+      std::vector< uint8_t >          phiLayer1STGCHoles;
+      std::vector< uint8_t >          phiLayer2STGCHoles;
+      
+      std::vector< uint8_t >          etaLayer1STGCHoles;
+      std::vector< uint8_t >          etaLayer2STGCHoles;
+
+      // MM
+      std::vector< uint8_t >          MMHits;
+      std::vector< uint8_t >          MMHoles;
+      // Note: there is currently no MuonStationIndex for the two MM layers
+      // In the future it might be needed to add them in order to have 
+      // separate counters as follows
+      // std::vector< uint8_t >          Layer1MMHits;
+      // std::vector< uint8_t >          Layer2MMHits;
+      // std::vector< uint8_t >          Layer1MMHoles;
+      // std::vector< uint8_t >          Layer2MMHoles;      
+
       std::vector< uint8_t >          cscEtaHits;
       std::vector< uint8_t >          cscUnspoiledEtaHits;
 

@@ -69,6 +69,7 @@ protected :
 	float sumHadTTs(const std::vector<const xAOD::TriggerTower*>& scells) const ;
 	/** detect central cluster position */
 	void findCluster(const std::vector<CaloCell*>& scells, float &etaCluster, float &phiCluster) const;
+	void findClusterFor(const std::vector<CaloCell*>& scells, float &etaCluster, float &phiCluster, float &radiusCluster) const;
         /** find cells above E/sigm threshold */
 	void NoiseThreshold(const CaloCellContainer*, const float& significance, std::vector<CaloCell*>& out);
 

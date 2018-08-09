@@ -40,46 +40,38 @@ public:
     virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi);
 
     virtual void print() const { }
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
+    virtual StatusCode eventInitialize();
     virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
     virtual void cleanup(xAOD::TauJet* ) { }
 
 
 private:
-    std::string m_file1P; //!< energy calibration file
-    std::string m_file3P; //!< energy calibration file
+    std::string m_file0P;
+    std::string m_file1P;
+    std::string m_file3P;
     
     typedef std::pair<double, std::unique_ptr<TH2> > m_pair_t;
     
-    std::vector<m_pair_t> m_hists1P;
-    std::vector<m_pair_t> m_hists3P;
+    std::vector<m_pair_t>* m_hists0P;
+    std::vector<m_pair_t>* m_hists1P;
+    std::vector<m_pair_t>* m_hists3P;
 
     // Limits, probably not needed
     std::map<int, double> m_xmin;
     std::map<int, double> m_ymin;
     std::map<int, double> m_xmax;
     std::map<int, double> m_ymax;
-    
-    // Ugly, but makes configuration easier to read
-    //double m_effVeryLoose1P;
-    //double m_effLoose1P;
-    //double m_effMedium1P;
-    //double m_effTight1P;
-    
-    //double m_effVeryLoose3P;
-    //double m_effLoose3P;
-    //double m_effMedium3P;
-    //double m_effTight3P;
-    
-    
+        
     bool m_defineWP;
     bool m_electronMode;
 
     std::vector<int> m_cut_bits;
+    std::vector<float> m_cut_effs_0p;
     std::vector<float> m_cut_effs_1p;
     std::vector<float> m_cut_effs_3p;
 
     std::vector<std::string> m_decoration_names;
+    std::vector<float> m_cut_effs_decoration_0p;
     std::vector<float> m_cut_effs_decoration_1p;
     std::vector<float> m_cut_effs_decoration_3p;
 
@@ -88,6 +80,8 @@ private:
 
     SG::AuxElement::ConstAccessor<float>* acc_score;
     SG::AuxElement::Accessor<float>* acc_newScore;
+
+    float m_mu;
 
 };
 

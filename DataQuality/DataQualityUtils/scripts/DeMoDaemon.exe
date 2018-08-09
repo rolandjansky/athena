@@ -2,6 +2,10 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # Author : Benjamin Trocme (LPSC - Grenoble) - 2017
 # Daemon job to update daily the DQ stats
+# Arguments:
+# -$1 : directory when to run the daemon (a priori ~atlasdqm/w1/DeMo
+# -$2 : DeMo year
+# -$3 : DeMo tag
 ##################################################################
 
 date
@@ -11,11 +15,10 @@ cd $1
 export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
 source $AtlasSetup/scripts/asetup.sh 21.0.66,Athena,gcc62
 
-
 echo "First, looking for new runs..."
 python DeMoUpdate.py --runListUpdate
 
-systems='TRT LAr Tile CaloCP'
+systems='Pixel SCT TRT LAr Tile MDT TGC RPC CSC IDGlobal BTag CaloCP MuonCP Trig_L1 Trig_HLT'
 
 for system in $systems
 do
@@ -25,9 +28,10 @@ echo "Processing "$system
 echo "====================================================================================="
 echo "====================================================================================="
 
-python DeMoUpdate.py -b --onlineLumiNorm -t $2.onlDelivNorm -s $system --weekly --vetoLumiEvol 
-python DeMoUpdate.py -b --onlineLumiNorm -t $2.onlDelivNorm -s $system --grlUpdate
-python DeMoScan.py -t $2.onlDelivNorm -s $system --recapDefects
+python DeMoUpdate.py -b -y $2 -t $3 -s $system --weekly --vetoLumiEvol &> YearStats-$system/daemon-weekly.out
+python DeMoUpdate.py -b -y $2 -t $3 -s $system --grlUpdate &> YearStats-$system/daemon-GRL.out
+python DeMoStatus.py -y $2 -t $3 -s $system --savePlots &> YearStats-$system/daemon-GRL-2.out
+python DeMoScan.py -y $2 -t $3 -s $system --recapDefects &> YearStats-$system/daemon-recapDefects.out
 done
 
-
+/afs/cern.ch/user/a/atlasdqm/www/DeMo/generate.exe

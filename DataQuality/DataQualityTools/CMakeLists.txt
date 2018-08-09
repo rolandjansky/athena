@@ -41,6 +41,7 @@ atlas_depends_on_subdirs(
                           Tools/LWHists
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkExtrapolation/TrkExInterfaces
+			  Trigger/TrigAnalysis/TrigEgammaMatchingTool
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigMuonMatching
                           Trigger/TrigEvent/TrigCaloEvent

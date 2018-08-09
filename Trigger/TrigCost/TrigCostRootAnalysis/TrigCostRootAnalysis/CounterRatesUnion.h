@@ -46,21 +46,21 @@ namespace TrigCostRootAnalysis {
    */
   class CounterRatesUnion: public CounterBaseRates {
   public:
-    CounterRatesUnion(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
-                      MonitorBase* _parent = 0);
+    CounterRatesUnion(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel = 10,
+                      MonitorBase* parent = 0);
     ~CounterRatesUnion();
-    void debug(UInt_t _e);
+    void debug(UInt_t e);
 
     void finalise();
-    Float_t runDirect(Bool_t _usePrescale = kTRUE);
-    Double_t runWeight(Bool_t _includeExpress = kFALSE);
+    Float_t runDirect(Bool_t usePrescale = kTRUE);
+    Double_t runWeight(Bool_t includeExpress = kFALSE);
   protected:
     void classify();
     Double_t runWeight_OnlyL1();
-    Double_t runWeight_AllToAll(Bool_t _includeExpress = kFALSE);
-    Double_t runWeight_AllOneToOne(Bool_t _includeExpress = kFALSE);
-    Double_t runWeight_AllOneToMany(Bool_t _includeExpress = kFALSE);
-    Double_t runWeight_ManyToMany(Bool_t _includeExpress = kFALSE);
+    Double_t runWeight_AllToAll(Bool_t includeExpress = kFALSE);
+    Double_t runWeight_AllOneToOne(Bool_t includeExpress = kFALSE);
+    Double_t runWeight_AllOneToMany(Bool_t includeExpress = kFALSE);
+    Double_t runWeight_ManyToMany(Bool_t includeExpress = kFALSE);
 
     CombinationClassification m_combinationClassification; //!< Hold the classified topology of the set of chains in
                                                            // this Union.

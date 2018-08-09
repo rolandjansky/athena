@@ -25,12 +25,12 @@ namespace TrigCostRootAnalysis {
    */
   class MonitorROSCommon {
   public:
-    StringIntSetMap_t& getROSMapping(UInt_t _robReq);
-    StringIntSetMap_t& getROBINMapping(UInt_t _robReq);
+    StringIntSetMap_t& getROSMapping(UInt_t robReq);
+    StringIntSetMap_t& getROBINMapping(UInt_t robReq);
 
-    static void collateROSRequests(UInt_t _level, const TrigCostData* _costData);
+    static void collateROSRequests(UInt_t level, const TrigCostData* costData);
   protected:
-    void addCommonTableEntries(std::vector<MonitorBase::TableColumnFormatter>& _toSaveTable);
+    void addCommonTableEntries(std::vector<MonitorBase::TableColumnFormatter>& toSaveTable);
 
     static Int_t m_eventNumber; //!< Static event number which is buffered
     static UInt_t m_level; //!< Static level which is buffered

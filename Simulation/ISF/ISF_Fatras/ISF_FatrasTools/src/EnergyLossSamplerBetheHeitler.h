@@ -76,8 +76,6 @@ namespace iFatras{
   std::string                          m_randomEngineName; 
 
   mutable std::vector<double>          m_pdf;
-  mutable double                       m_cashedPathLength;
-  int                                  m_numberPointsInPDF;
 
   /** the one free parameter to scale */
   double                               m_scaleFactor;   

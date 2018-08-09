@@ -22,7 +22,7 @@ namespace TrigCostRootAnalysis {
     AutoMonResult(const AlertStatus& interest_level);
 
     void saveOutput() const;
-    void saveList(JsonExport _json, std::map < const CounterBase*, const AutoMonTest* > list, std::ofstream& _fout,
+    void saveList(JsonExport json, std::map < const CounterBase*, const AutoMonTest* > list, std::ofstream& fout,
                   const AlertStatus& alert) const;
     void printList(std::map < const CounterBase*, const AutoMonTest* > list, const AlertStatus& alert) const;
     void setInterestLevel(const AlertStatus& level) {m_interest_level = level;}

@@ -4,6 +4,7 @@ import eformat
 import operator
 
 detmaskmap = {
+    'FORWARD_AFP': 'AFP',
     'FORWARD_ALPHA': 'ALFA',
     'FORWARD_BCM': 'IDBCM',                                     
     'FORWARD_LUCID': 'LCD',                                       
@@ -44,8 +45,9 @@ detmaskmap = {
     }
 
 detmaskmap_defects = {
+    #'FORWARD_AFP': 'AFP_DISABLED', # not yet functional
     'FORWARD_ALPHA': 'ALFA_DISABLED',
-    'FORWARD_LUCID': 'LCD_DISABLED',
+    #'FORWARD_LUCID': 'LCD_DISABLED', # LUCID now operates outside ATLAS partition
     'FORWARD_ZDC': 'ZDC_DISABLED',
     'LAR_EM_BARREL_A_SIDE': 'LAR_EMBA_DISABLED',
     'LAR_EM_BARREL_C_SIDE': 'LAR_EMBC_DISABLED',

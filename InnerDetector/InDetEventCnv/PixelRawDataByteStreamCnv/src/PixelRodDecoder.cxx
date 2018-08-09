@@ -43,14 +43,23 @@
 PixelRodDecoder::PixelRodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
     :  AthAlgTool(type,name,parent),
+      m_is_ibl_present(false),
+      m_is_ibl_module(false),
+      m_is_dbm_module(false),
+      m_masked_errors(0),
+      m_numGenWarnings(0),
+      m_maxNumGenWarnings(200),
+      m_numBCIDWarnings(0),
+      m_maxNumBCIDWarnings(50),
       m_pixelCabling("PixelCablingSvc",name),
+      m_pixel_id(nullptr),
+      m_det(eformat::SubDetector()),
+      m_cablingData(nullptr),
       m_condsummary("PixelConditionsSummarySvc",name),
       m_errors("PixelByteStreamErrorsSvc",name)
 {
     declareInterface< IPixelRodDecoder  >( this );
     declareProperty ("ErrorsSvc",m_errors);
-    m_is_ibl_present = false;
-    m_is_ibl_module = false;
 }
 
 //--------------------------------------------------------------------------- destructor
@@ -108,7 +117,7 @@ StatusCode PixelRodDecoder::initialize() {
     } else
         msg(MSG::INFO) << "Retrieved ByteStream Errors tool " << m_errors << endreq;
 
-    masked_errors = 0;
+    m_masked_errors = 0;
 
     m_numGenWarnings = 0;
     m_maxNumGenWarnings = 200;
@@ -124,7 +133,7 @@ StatusCode PixelRodDecoder::finalize() {
 
 #ifdef PIXEL_DEBUG
     msg(MSG::VERBOSE) << "in PixelRodDecoder::finalize" << endreq;
-    msg(MSG::DEBUG) << masked_errors << " times BCID and LVL1ID error masked" << endreq;
+    msg(MSG::DEBUG) << m_masked_errors << " times BCID and LVL1ID error masked" << endreq;
 #endif
 
     ATH_MSG_INFO("Total number of warnings (output limit)");
@@ -1168,7 +1177,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
     if (sc == StatusCode::RECOVERABLE) {
 
         if (errorcode == (3 << 20) ){  // Fix for M8, this error always occurs, masked out REMOVE FIXME !!
-            masked_errors++;
+            m_masked_errors++;
             return StatusCode::SUCCESS;
         }
 

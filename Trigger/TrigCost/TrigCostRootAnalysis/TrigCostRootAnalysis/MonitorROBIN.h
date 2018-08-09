@@ -30,13 +30,13 @@ namespace TrigCostRootAnalysis {
    */
   class MonitorROBIN: public MonitorBase, public MonitorROSCommon {
   public:
-    // StringIntSetMap_t& getROBINMapping(UInt_t _robReq);
-    //static void collateROBINRequests(UInt_t _level, const TrigCostData* _costData);
+    // StringIntSetMap_t& getROBINMapping(UInt_t robReq);
+    //static void collateROBINRequests(UInt_t level, const TrigCostData* costData);
 
-    MonitorROBIN(const TrigCostData* _costData);
-    void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter(const std::string& _name, Int_t _ID);
-    Bool_t getIfActive(ConfKey_t _mode);
+    MonitorROBIN(const TrigCostData* costData);
+    void newEvent(Float_t weight = 1.);
+    CounterBase* newCounter(const std::string& name, Int_t ID);
+    Bool_t getIfActive(ConfKey_t mode);
     void saveOutput();
 
     /*

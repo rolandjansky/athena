@@ -34,29 +34,29 @@ namespace TrigCostRootAnalysis {
    */
   class RatesChainItem {
   public:
-    RatesChainItem(std::string _name, Int_t _level, Double_t _PS, Double_t _PSExpress = 1.);
+    RatesChainItem(std::string name, Int_t level, Double_t PS, Double_t PSExpress = 1.);
 
-    void addLower(RatesChainItem* _lower);
-    void addUpper(RatesChainItem* _upper);
-    void addCounter(CounterBaseRates* _client);
+    void addLower(RatesChainItem* lower);
+    void addUpper(RatesChainItem* upper);
+    void addCounter(CounterBaseRates* client);
     ChainItemSetIt_t getLowerStart();
     ChainItemSetIt_t getLowerEnd();
     ChainItemSet_t& getLower();
     ChainItemSetIt_t getUpperStart();
     ChainItemSetIt_t getUpperEnd();
     ChainItemSet_t& getUpper();
-    Bool_t getLowerContains(RatesChainItem* _find);
-    Bool_t getLowerContainsAll(std::set<RatesChainItem*>& _set);
-    Bool_t getUpperContains(RatesChainItem* _find);
-    Bool_t getUpperContainsAll(std::set<RatesChainItem*>& _set);
-    void setExtraEfficiency(Double_t _extraEfficiency);
-    void setRateReductionFactor(Double_t _reductionFactor);
-    void setTriggerLogic(TriggerLogic* _tl);
-    void setProxy(CounterBaseRates* _c) {m_proxy = _c;}
-    void fillHistograms(DataStore& _dataStore, Float_t _weight, Float_t _bunchWeight);
+    Bool_t getLowerContains(RatesChainItem* find);
+    Bool_t getLowerContainsAll(std::set<RatesChainItem*>& set);
+    Bool_t getUpperContains(RatesChainItem* find);
+    Bool_t getUpperContainsAll(std::set<RatesChainItem*>& set);
+    void setExtraEfficiency(Double_t extraEfficiency);
+    void setRateReductionFactor(Double_t reductionFactor);
+    void setTriggerLogic(TriggerLogic* tl);
+    void setProxy(CounterBaseRates* c) {m_proxy = c;}
+    void fillHistograms(DataStore& dataStore, Float_t weight, Float_t bunchWeight);
 
-    void beginEvent(Bool_t _passRaw, CounterBaseRatesSet_t& _counterSet);
-    void beginEvent(TOBAccumulator* _eventTOBs);
+    void beginEvent(Bool_t passRaw, CounterBaseRatesSet_t& counterSet);
+    void beginEvent(TOBAccumulator* eventTOBs );
 
     void endEvent();
     void newRandomPS();
@@ -68,18 +68,18 @@ namespace TrigCostRootAnalysis {
     Bool_t getPassRaw();
     Bool_t getPassPS();
     // Bool_t getIsNotPhysics();
-    Double_t getPSWeight(Bool_t _includeExpress = kFALSE);
-    Double_t getPSReducedWeight(Bool_t _includeExpress = kFALSE);
+    Double_t getPSWeight(Bool_t includeExpress = kFALSE);
+    Double_t getPSReducedWeight(Bool_t includeExpress = kFALSE);
     Double_t getPS();
-    void setPS(Double_t _PS);
-    void setPSReduced(Double_t _PSReduced);
-    Double_t getPassRawOverPS(Bool_t _includeExpress = kFALSE);
-    Double_t getPassRawOverPSReduced(Bool_t _includeExpress = kFALSE);
+    void setPS(Double_t PS);
+    void setPSReduced(Double_t PSReduced);
+    Double_t getPassRawOverPS(Bool_t includeExpress = kFALSE);
+    Double_t getPassRawOverPSReduced(Bool_t includeExpress = kFALSE);
     Bool_t getPassRawAndPS();
     const std::string& getName();
     UInt_t getID();
     TriggerLogic* getTriggerLogic();
-    Double_t getLumiExtrapolationFactor(UInt_t _lb, Bool_t _disableEventLumiExtrapolation);
+    Double_t getLumiExtrapolationFactor(UInt_t lb, Bool_t disableEventLumiExtrapolation);
   private:
     std::string m_name; //!< This chain item's name, more for debug
     Int_t m_level; //!> Which level this item's at

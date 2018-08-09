@@ -23,7 +23,7 @@
 #include "Utility.h"
 
 /**
- * @file Config.h
+ * @file TrigCostRootAnalysis/Config.h
  *
  * This singleton class allows for small pieces of data, such as configuration settings, to be globally
  * distributed to the application via a singleton configuration object.
@@ -53,40 +53,40 @@ namespace TrigCostRootAnalysis {
     static Config& config(); //!< Use this method to get the singleton
 
     Bool_t parseCLI(int argc, char* argv[]);
-    const std::string& getStr(ConfKey_t _key);
-    const std::string& getName(ConfKey_t _key);
-    Int_t getInt(ConfKey_t _key);
-    Long64_t getLong(ConfKey_t _key);
-    Float_t getFloat(ConfKey_t _key);
-    const std::vector<Int_t>& getIntVec(ConfKey_t _key);
-    UInt_t getVecSize(ConfKey_t _key);
-    const std::string& getVecEntry(ConfKey_t _key, UInt_t);
-    Bool_t getVecMatches(ConfKey_t _key, const std::string& _entry);
-    Bool_t addVecEntry(ConfKey_t _key, const std::string& _toAdd);
-    Bool_t removeVecEntry(ConfKey_t _key, const std::string& _toRemove);
-    Bool_t clearVec(ConfKey_t _key);
-    Bool_t getIntVecMatches(ConfKey_t _key, const Int_t _entry);
-    Bool_t getIsSet(ConfKey_t _key);
-    Bool_t getDisplayMsg(ConfKey_t _key);
+    const std::string& getStr(ConfKey_t key);
+    const std::string& getName(ConfKey_t key);
+    Int_t getInt(ConfKey_t key);
+    Long64_t getLong(ConfKey_t key);
+    Float_t getFloat(ConfKey_t key);
+    const std::vector<Int_t>& getIntVec(ConfKey_t key);
+    UInt_t getVecSize(ConfKey_t key);
+    const std::string& getVecEntry(ConfKey_t key, UInt_t);
+    Bool_t getVecMatches(ConfKey_t key, const std::string& entry);
+    Bool_t addVecEntry(ConfKey_t key, const std::string& toAdd);
+    Bool_t removeVecEntry(ConfKey_t key, const std::string& toRemove);
+    Bool_t clearVec(ConfKey_t key);
+    Bool_t getIntVecMatches(ConfKey_t key, const Int_t entry);
+    Bool_t getIsSet(ConfKey_t key);
+    Bool_t getDisplayMsg(ConfKey_t key);
     Bool_t debug();
     void messageSuppressionReport();
-    void set(ConfKey_t _key, const Int_t _value, const std::string _name = "", LockStatus_t _lock = kLocked);
-    void set(ConfKey_t _key, const Int_t _value, LockStatus_t _lock = kLocked);
-    void setDisplayMsg(ConfKey_t _key, const Int_t _value, const std::string _name = "");
-    void setFloat(ConfKey_t _key, const Float_t _value, const std::string _name = "", LockStatus_t _lock = kLocked);
-    void setLong(ConfKey_t _key, const Long64_t _value, const std::string _name = "", LockStatus_t _lock = kLocked);
-    void set(ConfKey_t _key, const std::vector< std::string > _value, const std::string _name = "",
-             LockStatus_t _lock = kLocked);
-    void set(ConfKey_t _key, const std::vector< Int_t > _value, const std::string _name = "",
-             LockStatus_t _lock = kLocked);
-    void set(ConfKey_t _key, const std::string _value, const std::string _name = "", LockStatus_t _lock = kLocked);
-    void increment(ConfKey_t _key);
-    void decrement(ConfKey_t _key);
+    void set(ConfKey_t key, const Int_t value, const std::string name = "", LockStatus_t lock = kLocked);
+    void set(ConfKey_t key, const Int_t value, LockStatus_t lock = kLocked);
+    void setDisplayMsg(ConfKey_t key, const Int_t value, const std::string name = "");
+    void setFloat(ConfKey_t key, const Float_t value, const std::string name = "", LockStatus_t lock = kLocked);
+    void setLong(ConfKey_t key, const Long64_t value, const std::string name = "", LockStatus_t lock = kLocked);
+    void set(ConfKey_t key, const std::vector< std::string > value, const std::string name = "",
+             LockStatus_t lock = kLocked);
+    void set(ConfKey_t key, const std::vector< Int_t > value, const std::string name = "",
+             LockStatus_t lock = kLocked);
+    void set(ConfKey_t key, const std::string value, const std::string name = "", LockStatus_t lock = kLocked);
+    void increment(ConfKey_t key);
+    void decrement(ConfKey_t key);
     void dump();
-    void dumpToMeta(std::ofstream& _fout, JsonExport& _json);
+    void dumpToMeta(std::ofstream& fout, JsonExport& json);
     Bool_t getConfKeyNameFromString(const std::string& s, ConfKey_t& result);
   private:
-    Bool_t getIsLocked(ConfKey_t _key, Bool_t _printErrorMsg = kFALSE);
+    Bool_t getIsLocked(ConfKey_t key, Bool_t printErrorMsg = kFALSE);
 
     Bool_t m_debug;
     std::string m_blankString; //!< Instance of blank string to return ref to on failures.

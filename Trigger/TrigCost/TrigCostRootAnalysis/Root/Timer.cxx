@@ -25,7 +25,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Base class constructor. Sets name and ID.
    */
-  Timer::Timer(std::string _type, std::string _name) : m_type(_type), m_name(_name), m_startTime(0), m_time(0), m_calls(
+  Timer::Timer(std::string type, std::string name) : m_type(type), m_name(name), m_startTime(0), m_time(0), m_calls(
       0) {
     s_timers.push_back(this);
   }
@@ -45,14 +45,14 @@ namespace TrigCostRootAnalysis {
   void Timer::print() {
     if (m_calls == 0) return;
 
-    Float_t _avTime = m_time / m_calls;
+    Float_t avTime = m_time / m_calls;
     Info("Timer::print", "%s timer used\t %.3f ms per call over %i call(s) in '%s'",
-         m_type.c_str(), _avTime, m_calls, m_name.c_str());
+         m_type.c_str(), avTime, m_calls, m_name.c_str());
   }
 
   void Timer::printAll() {
-    for (UInt_t _t = 0; _t < s_timers.size(); ++_t) {
-      s_timers.at(_t)->print();
+    for (UInt_t t = 0; t < s_timers.size(); ++t) {
+      s_timers.at(t)->print();
     }
   }
 } // namespace TrigCostRootAnalysis

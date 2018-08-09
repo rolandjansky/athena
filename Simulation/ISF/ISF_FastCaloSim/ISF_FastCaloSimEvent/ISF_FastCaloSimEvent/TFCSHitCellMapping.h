@@ -21,9 +21,9 @@ public:
 
   void Print(Option_t *option) const;
 
-private:
+protected:
   ICaloGeometry* m_geo; //! do not persistify
-
+private:
   ClassDef(TFCSHitCellMapping,1)  //TFCSHitCellMapping
 };
 

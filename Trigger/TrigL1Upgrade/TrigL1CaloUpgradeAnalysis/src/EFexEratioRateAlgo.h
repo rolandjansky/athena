@@ -45,21 +45,26 @@ private :
 	TH1F* m_EtSElectron;
 	TH1F* m_numpt1;
 	TH1F* m_numpt2;
+	TH1F* m_numpt2f3;
 	TH1F* m_numpt3;
 	TH1F* m_numpt4;
 	TH1F* m_denpt;
 	TH1F* m_numeta1;
 	TH1F* m_numeta2;
+	TH1F* m_numeta2f3;
 	TH1F* m_numeta3;
 	TH1F* m_numeta4;
 	TH1F* m_deneta;
 	TH1F* m_numphi1;
 	TH1F* m_numphi2;
+	TH1F* m_numphi2f3;
 	TH1F* m_numphi3;
 	TH1F* m_numphi4;
 	TH1F* m_denphi;
         TH1F* m_trackPt;
         TH1F* m_trackEta;
+        TH1F* m_trackBPt;
+        TH1F* m_trackBEta;
         bool m_doTruth;
         bool m_doOffline;
 	std::string m_inputClusterName;
@@ -67,6 +72,7 @@ private :
 	std::string m_inputLvl1Name;
 	float m_EEtThr;
 	float m_rEtaThr;
+	float m_f3Thr;
 	float m_EratioThr;
 
 };

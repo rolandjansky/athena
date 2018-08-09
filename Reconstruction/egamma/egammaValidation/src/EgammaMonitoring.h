@@ -52,7 +52,6 @@ class EgammaMonitoring : public AthAlgorithm
   egammaMonitoring::EffRecPlots Eff_Reco;
   
   egammaMonitoring::ShowerShapesPlots ssp      ;
-  egammaMonitoring::ShowerShapesPlots ssp_fe   ;
   egammaMonitoring::ShowerShapesPlots ssp_10cut;
 
   
@@ -74,11 +73,6 @@ class EgammaMonitoring : public AthAlgorithm
   
   egammaMonitoring::PhotonPlots pp_truthUnconvPhoton        ;
   egammaMonitoring::PhotonPlots pp_truthUnconvRecoConv      ;
-  egammaMonitoring::PhotonPlots pp_truthUnconvRecoConv1Si   ;
-  egammaMonitoring::PhotonPlots pp_truthUnconvRecoConv1TRT  ;
-  egammaMonitoring::PhotonPlots pp_truthUnconvRecoConv2Si   ;
-  egammaMonitoring::PhotonPlots pp_truthUnconvRecoConv2TRT  ;
-  egammaMonitoring::PhotonPlots pp_truthUnconvRecoConv2SiTRT;
   egammaMonitoring::PhotonPlots pp_truthUnconvRecoUnconv    ;
 
   // Histos

@@ -29,8 +29,8 @@ namespace TrigCostRootAnalysis {
     LumiCollector();
     ~LumiCollector();
 
-    void recordEventLumi(Int_t _lumiBlock, Float_t _length);
-    Float_t getLumiBlockTime(Int_t _lumiBlock);
+    void recordEventLumi(Int_t lumiBlock, Float_t length);
+    Float_t getLumiBlockTime(Int_t lumiBlock);
     Float_t getTotalLumiBlockTime();
     UInt_t getNLumiBlocks();
     void saveOutput();

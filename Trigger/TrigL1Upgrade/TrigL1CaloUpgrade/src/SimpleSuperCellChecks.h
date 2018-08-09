@@ -75,13 +75,25 @@ private :
 	TH1F* m_resolution;
 	TH2F* m_resol_vs_et;
 	TH2F* m_resol_vs_eta;
+	TH2F* m_resol_vs_nvtx;
+	TH2F* m_resol_vs_bcid;
+	TH2F* m_resol_vs_bcidN;
 	std::vector<TH1F*> m_resolution_perLayer;
 	std::vector<TH1F*> m_resolutionMEt_perLayer;
 	std::vector<TH1F*> m_resolutionBCID_perLayer;
 	std::vector<TH2F*> m_resol_vs_et_perLayer;
 	std::vector<TH2F*> m_resol_vs_eta_perLayer;
 	std::vector<TH2F*> m_resol_vs_nvtx_perLayer;
+	std::vector<TH2F*> m_resol_vs_bcid_perLayer;
+	std::vector<TH2F*> m_resol_vs_bcidN_perLayer;
+	std::vector<TH2F*> m_et_vs_bcidN_perLayer;
 	std::vector<TH1F*> m_TimeResolAT_perLayer;
+	TH2F* m_et_vs_BCIDN;
+	TH2F* m_e_vs_BCIDN;
+	TH2F* m_etleta_vs_BCIDN;
+	TH2F* m_eleta_vs_BCIDN;
+	TH1F* m_et_vs_LBCIDN;
+	TH1F* m_etleta_vs_LBCIDN;
         int counter;
 
 };

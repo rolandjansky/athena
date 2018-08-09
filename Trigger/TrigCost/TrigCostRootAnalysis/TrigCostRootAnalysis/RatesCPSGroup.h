@@ -26,11 +26,11 @@ namespace TrigCostRootAnalysis {
    */
   class RatesCPSGroup {
   public:
-    RatesCPSGroup(std::string _name);
+    RatesCPSGroup(std::string name);
     const std::string& getName();
 
 
-    void add(RatesChainItem* _item);
+    void add(RatesChainItem* item);
     void calculateCPSFactor();
 
     RatesChainItem* getL1();

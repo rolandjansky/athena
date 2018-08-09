@@ -65,7 +65,7 @@ def defineMenu():
         TopoOutput( algoname='INVM_NFF',                                    module=0, fpga=1, clock=1, firstbit=12 ), # 4 bits 
         TopoOutput( algoname='63DETA127-FJ20s1-FJ20s2',                     module=1, fpga=1, clock=0, firstbit=14 ), # 4 bits 
         TopoOutput( algoname='0DETA20-J50s1-Js2',                           module=1, fpga=1, clock=0, firstbit=12 ), # 4 bits 
-        TopoOutput( algoname='27DPHI31-EMs1-EMs6',                          module=0, fpga=0, clock=1, firstbit=12 ), # 4 bits 
+        TopoOutput( algoname='27DPHI32-EMs1-EMs6',                          module=0, fpga=0, clock=1, firstbit=12 ), # 4 bits 
         TopoOutput( algoname='HT150-J20s5.ETA31',                           module=0, fpga=0, clock=0, firstbit=9 ),
         TopoOutput( algoname='HT190-J15s5.ETA21',                           module=0, fpga=0, clock=0, firstbit=10 ),
         TopoOutput( algoname='05MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=0, firstbit=14 ),#v6
@@ -84,7 +84,7 @@ def defineMenu():
         TopoOutput( algoname='ZEE-EM20shi2',                                module=0, fpga=0, clock=1, firstbit=2 ),
         TopoOutput( algoname='FTK-EM20s1',                                  module=1, fpga=0, clock=1, firstbit=13 ),  
         TopoOutput( algoname='FTK-J100s1',                                  module=1, fpga=0, clock=0, firstbit=10 ),  
-        TopoOutput( algoname='FTK-MU20s1',                                  module=1, fpga=0, clock=0, firstbit=15 ),  
+        TopoOutput( algoname='FTK-MU10s1',                                  module=1, fpga=0, clock=0, firstbit=15 ),  
         TopoOutput( algoname='NOT-02MATCH-EM10s1-AJj15all.ETA49',           module=0, fpga=0, clock=1, firstbit=11 ), 
 #        TopoOutput( algoname='05RATIO-XE0-SUM0-EM10s1-HT0-AJj15all.ETA49',  module=0, fpga=0, clock=1, firstbit=12 ), 
         TopoOutput( algoname='15MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=1, firstbit=14 ),#v6n        

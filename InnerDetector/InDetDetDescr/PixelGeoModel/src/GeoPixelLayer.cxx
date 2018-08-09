@@ -444,6 +444,12 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 
   //  delete staveSupport;
 
+  if(layerPhys==0)
+  {
+      gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
+      exit(EXIT_FAILURE);
+  }
+
   // SLHC only
   // Add the "support layer" -- another way to add extra material
   // but it has to be inside the logical layer volume

@@ -629,7 +629,7 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
   ATH_MSG_DEBUG ("Solving Tracks");
   solveTracks();
   
-  if (msgLvl(MSG::INFO)) dumpTracks(*m_finalTracks);
+  if (msgLvl(MSG::DEBUG)) dumpTracks(*m_finalTracks);
   
   // memory defragmantation fix. Cleaning before returning the result 
   m_prdSigSet.clear(); 

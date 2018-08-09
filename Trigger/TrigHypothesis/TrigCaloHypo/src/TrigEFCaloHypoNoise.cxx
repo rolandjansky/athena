@@ -150,15 +150,11 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
 	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEBFlaggedPartitions" << endreq;
 	      flag |= 0x1;
         }
-        if ( noisyRO->BadFEB_WFlaggedPartitions() ) {
-	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEB_WFlaggedPartitions" << endreq;
-	      flag |= 0x8;
-        }
         if ( noisyRO->SatTightFlaggedPartitions() ) {
 	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : SatTightFlaggedPartitions" << endreq;
 	      flag |= 0x2;
         }
-        if ( noisyRO->MNBLooseFlaggedPartitions() ) {
+        if ( noisyRO->MNBTight_PsVetoFlaggedPartitions() ) {
 	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : MNBLooseFlaggedPartions" << endreq;
 	      flag |= 0x10;
         }
@@ -222,6 +218,7 @@ HLT::ErrorCode TrigEFCaloHypoNoise::hltExecute(const HLT::TriggerElement* output
 		}
 	}
   }
+
 
   return HLT::OK;
 

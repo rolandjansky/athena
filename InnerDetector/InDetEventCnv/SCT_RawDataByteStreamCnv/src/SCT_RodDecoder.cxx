@@ -173,7 +173,7 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
   uint32_t robid = robFrag->rod_source_id();
   /**determine whether this data was generated using the ROD simulator */
   uint32_t rod_datatype = robFrag->rod_detev_type();
-  if ((rod_datatype >> 20 ) & 1)   m_byteStreamErrSvc->setRODSimulatedData();
+  if ((rod_datatype >> 20 ) & 1) addRODError(robid, SCT_ByteStreamErrors::RODSimulatedData);
 
   /** look for the bit that denotes "Super-condensed" mode.*/
   m_superCondensedMode =  ((rod_datatype >> 21 ) & 1);   

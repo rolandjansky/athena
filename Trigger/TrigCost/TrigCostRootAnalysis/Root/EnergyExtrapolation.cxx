@@ -127,49 +127,49 @@ namespace TrigCostRootAnalysis {
     Info("EnergyExtrapolation::loadMenuV5", "Energy extrapolation factor based on result of HLT v5 menu.");
   }
 
-  Float_t EnergyExtrapolation::eval(Float_t _x) {
+  Float_t EnergyExtrapolation::eval(Float_t x) {
     return(m_param[0] +
-           m_param[1] * TMath::Power(_x, 1.) +
-           m_param[2] * TMath::Power(_x, 2.) +
-           m_param[3] * TMath::Power(_x, 3.) +
-           m_param[4] * TMath::Power(_x, 4.) +
-           m_param[5] * TMath::Power(_x, 5.) +
-           m_param[6] * TMath::Power(_x, 6.) +
-           m_param[7] * TMath::Power(_x, 7.) +
-           m_param[8] * TMath::Power(_x, 8.));
+           m_param[1] * TMath::Power(x, 1.) +
+           m_param[2] * TMath::Power(x, 2.) +
+           m_param[3] * TMath::Power(x, 3.) +
+           m_param[4] * TMath::Power(x, 4.) +
+           m_param[5] * TMath::Power(x, 5.) +
+           m_param[6] * TMath::Power(x, 6.) +
+           m_param[7] * TMath::Power(x, 7.) +
+           m_param[8] * TMath::Power(x, 8.));
   }
 
-  Float_t EnergyExtrapolation::getEventWeight(const TrigCostData* _costData) {
+  Float_t EnergyExtrapolation::getEventWeight(const TrigCostData* costData) {
     if (m_enabled == kFALSE) return 1.;
 
-    Float_t _jettyE = 0., _missingE = 0., _muonE = 0.;
+    Float_t jettyE = 0., missingE = 0., muonE = 0.;
     // Loop over all chains
-    for (UInt_t _c = 0; _c < _costData->getNChains(); ++_c) {
+    for (UInt_t c = 0; c < costData->getNChains(); ++c) {
       // Get the name of the chain (Supplying L2 or EF helps, but is not needed)
-      Int_t _chainID = _costData->getChainID(_c);
-      const std::string _chainName = TrigConfInterface::getHLTNameFromChainID(_chainID, _costData->getChainLevel(_c));
+      Int_t chainID = costData->getChainID(c);
+      const std::string chainName = TrigConfInterface::getHLTNameFromChainID(chainID, costData->getChainLevel(c));
 
-      if (m_jettyItems.count(_chainName) && m_jettyItems[_chainName] > _jettyE) {
-        _jettyE = m_jettyItems[_chainName];
-      } else if (m_muonItems.count(_chainName) && m_muonItems[_chainName] > _muonE) {
-        _muonE = m_muonItems[_chainName];
-      } else if (m_missingItems.count(_chainName) && m_missingItems[_chainName] > _missingE) {
-        _missingE = m_missingItems[_chainName];
+      if (m_jettyItems.count(chainName) && m_jettyItems[chainName] > jettyE) {
+        jettyE = m_jettyItems[chainName];
+      } else if (m_muonItems.count(chainName) && m_muonItems[chainName] > muonE) {
+        muonE = m_muonItems[chainName];
+      } else if (m_missingItems.count(chainName) && m_missingItems[chainName] > missingE) {
+        missingE = m_missingItems[chainName];
       }
     }
 
-    Float_t _eventMass = _jettyE + _missingE + _muonE;
-    Float_t _extrapolationWeight = eval(_eventMass);
+    Float_t eventMass = jettyE + missingE + muonE;
+    Float_t extrapolationWeight = eval(eventMass);
     if (m_13To5) {
       // This is simply wrong, but no time to approx anything better
-      _extrapolationWeight *= 1.07; // 5->8 (minbias)
-      _extrapolationWeight = 1. / _extrapolationWeight; // Invert
+      extrapolationWeight *= 1.07; // 5->8 (minbias)
+      extrapolationWeight = 1. / extrapolationWeight; // Invert
     }
     if (Config::config().debug()) {
       Info("EnergyExtrapolation::getEventWeight",
            "Event has J:%.0f, M:%.0f, X:%.0f.\tTotal:%.0f -> Extrap. Weight:%.4f",
-           _jettyE, _muonE, _missingE, _eventMass, _extrapolationWeight);
+           jettyE, muonE, missingE, eventMass, extrapolationWeight);
     }
-    return _extrapolationWeight;
+    return extrapolationWeight;
   }
 } // namespace TrigCostRootAnalysis

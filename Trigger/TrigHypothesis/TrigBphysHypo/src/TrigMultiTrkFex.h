@@ -109,16 +109,18 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
   //Monitored variables 
   std::vector<int>   m_mon_Errors;
   std::vector<int>   m_mon_Acceptance;
-  float m_mon_NTrk;
-  float m_mon_highptNTrk;
-  float m_mon_accepted_highptNTrk;
+  int m_mon_NTrk;
+  int m_mon_highptNTrk;
+  int m_mon_accepted_highptNTrk;
   std::vector<float> m_mon_NTrkMass;
   std::vector<float> m_mon_NTrkFitMass;
   std::vector<float> m_mon_NTrkChi2;
-  float m_mon_NPair;
-  float m_mon_acceptedNPair;
+  int m_mon_NPair;
+  int m_mon_acceptedNPair;
   std::vector<float> m_mon_pairMass;
-    
+  float m_mon_NComb;
+  float m_mon_acceptedNComb;
+  
 
 };
 
