@@ -779,9 +779,9 @@ namespace AtlasRoot {
     else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2017_R21_PRE or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1) {//add release 21 here for now
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
-      /*      if (m_esmodel == egEnergyCorr::es2017_R21_v1)
+      if (m_esmodel == egEnergyCorr::es2017_R21_v1)
 	m_resolution_tool = new eg_resolution("run2_R21_v1");
-	else */
+      else 
 	m_resolution_tool = new eg_resolution("run2_pre");
       
       if(m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1){
