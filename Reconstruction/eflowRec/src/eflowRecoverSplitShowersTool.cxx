@@ -44,7 +44,6 @@ m_windowRms(0.032),
 m_theEOverPTool("eflowCellEOverPTool",this),
 m_matchingTool("PFTrackClusterMatchingTool/RcvrSpltMatchingTool", this),
 m_binnedParameters(new eflowEEtaBinnedParameters()),
-m_integrator(new eflowLayerIntegrator(m_windowRms, 1.0e-3, 3.0)),
 m_subtractionSigmaCut(1.5),
 m_recoverIsolatedTracks(false),
 m_nTrackClusterMatches(0),
@@ -56,6 +55,7 @@ m_useUpdated2015ChargedShowerSubtraction(true)
   declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
   declareProperty("RecoverIsolatedTracks",m_recoverIsolatedTracks,"Whether to recover isolated tracks also");
   declareProperty("useUpdated2015ChargedShowerSubtraction",m_useUpdated2015ChargedShowerSubtraction,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region");
+  declareProperty("isHLLHC",m_isHLLHC,"Toggle whether we have the HLLHC setup");
   eflowRingSubtractionManager::setRMaxAndWeightRange(m_rCell, 1.0e6);
 }
 
@@ -84,6 +84,9 @@ StatusCode eflowRecoverSplitShowersTool::initialize(){
     msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endmsg;
     return StatusCode::SUCCESS;
   }
+
+  if (!m_isHLLHC) m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0, false);
+  else m_integrator= new eflowLayerIntegrator(0.032, 1.0e-3, 3.0, true);
 
   return StatusCode::SUCCESS;
 }

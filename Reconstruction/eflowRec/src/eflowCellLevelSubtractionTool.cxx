@@ -85,6 +85,7 @@ eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& 
   declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
   declareProperty("nMatchesInCellLevelSubtraction",m_nMatchesInCellLevelSubtraction,"Number of clusters to match");
   declareProperty("useUpdated2015ChargedShowerSubtraction",m_useUpdated2015ChargedShowerSubtraction,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region");
+  declareProperty("isHLLHC",m_isHLLHC,"Toggle whether we have the HLLHC setup");
 }
 
 eflowCellLevelSubtractionTool::~eflowCellLevelSubtractionTool() {
@@ -111,7 +112,8 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
     msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
   }
 
-  m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0);
+  if (!m_isHLLHC) m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0, false);
+  else m_integrator= new eflowLayerIntegrator(0.032, 1.0e-3, 3.0, true);
   m_binnedParameters = new eflowEEtaBinnedParameters();
 
   sc = m_theEOverPTool->execute(m_binnedParameters);

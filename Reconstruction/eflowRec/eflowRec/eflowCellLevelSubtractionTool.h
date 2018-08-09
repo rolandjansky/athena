@@ -97,6 +97,9 @@ public:
   /** Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density regions  */
   bool m_useUpdated2015ChargedShowerSubtraction;
 
+  /** Toggle whether we have the HLLHC setup */
+  bool m_isHLLHC;
+  
 };
 
 inline const InterfaceID& eflowCellLevelSubtractionTool::interfaceID()
