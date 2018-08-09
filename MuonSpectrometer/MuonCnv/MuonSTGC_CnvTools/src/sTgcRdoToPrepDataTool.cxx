@@ -86,7 +86,6 @@ StatusCode Muon::sTgcRdoToPrepDataTool::initialize()
 
 StatusCode Muon::sTgcRdoToPrepDataTool::finalize()
 {
-  //  if (0 != m_stgcPrepDataContainer) m_stgcPrepDataContainer->release();
   return StatusCode::SUCCESS;
 
 }
