@@ -121,7 +121,8 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
-      accept &= (tcc->taste()!= 0);
+      accept &= (tcc->taste()!= 0)*(tcc->pt()>-1.*FLT_MIN);
+      
     }
     if(accept) {
       particles.push_back( fastjet::PseudoJet(part->p4()) );
@@ -154,7 +155,7 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
-      accept &= (tcc->taste()!= 0);
+      accept &= (tcc->taste()!= 0)*(tcc->pt()>-1.*FLT_MIN);
     }
 
     float newPt(0.);
