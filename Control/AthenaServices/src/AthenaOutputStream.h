@@ -143,7 +143,7 @@ public:
    virtual StatusCode initialize();
    virtual StatusCode finalize();
    virtual StatusCode execute();
-   virtual StatusCode stop();
+   virtual StatusCode stop() override;
    //@}
    /// Stream the data
    virtual StatusCode write();

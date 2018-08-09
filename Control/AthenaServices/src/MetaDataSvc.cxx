@@ -39,7 +39,8 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_allowMetaDataStop(false),
 	m_persToClid(),
 	m_toolForClid(),
-	m_streamForKey() {
+	m_streamForKey(),
+        m_metaDataTools(this) {
    // declare properties
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);
@@ -117,10 +118,11 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_FATAL("Cannot get IncidentSvc.");
       return(StatusCode::FAILURE);
    }
-   if (!m_metaDataTools.retrieve().isSuccess()) {
+   if (m_metaDataTools.retrieve().isFailure()) {
       ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
       return(StatusCode::FAILURE);
    }
+   ATH_MSG_INFO("Found " << m_metaDataTools);
 
    m_incSvc->addListener(this, "FirstInputFile", 90);
    m_incSvc->addListener(this, "BeginInputFile", 90);
@@ -205,8 +207,8 @@ StatusCode MetaDataSvc::stop() {
    }
 
    // Set to be listener for end of event
-   //Incident metaDataStopIncident(name(), "MetaDataStop");
-   //m_incSvc->fireIncident(metaDataStopIncident);
+   Incident metaDataStopIncident(name(), "MetaDataStop");
+   m_incSvc->fireIncident(metaDataStopIncident);
 
    // finalizing tools via metaDataStop
    //ATH_CHECK(this->prepareOutput(metaDataStopIncident));
@@ -327,7 +329,6 @@ StatusCode MetaDataSvc::prepareOutput(const Incident& inc)
       return StatusCode::FAILURE;
    }
    const std::string guid = fileInc->fileGuid();
-   ATH_MSG_INFO("BLARG guid=" << guid);
    StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
@@ -391,7 +392,7 @@ void MetaDataSvc::handle(const Incident& inc) {
          ATH_MSG_ERROR("Could not retire metadata source " << fileName);
       }
    } else if (inc.type() == "LastInputFile") {
-      if (!m_metaDataTools.release().isSuccess()) {
+      if (m_metaDataTools.release().isFailure()) {
          ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
       }
    } else if (inc.type() == "ShmProxy") {

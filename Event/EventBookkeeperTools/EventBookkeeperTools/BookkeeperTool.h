@@ -11,12 +11,9 @@
  *  $Id: BookkeeperTool.h 663679 2015-04-29 08:31:54Z krasznaa $
  **/
 
-//#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
-#ifdef ASGTOOL_ATHENA
 #include "AthenaKernel/IMetaDataTool.h"
-#endif // ASGTOOL_ATHENA
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/ICutFlowSvc.h"
@@ -32,28 +29,26 @@
  **/
 
 
-class BookkeeperTool : public asg::AsgMetadataTool
-#ifdef ASGTOOL_ATHENA
-                     , public virtual ::IMetaDataTool
-#endif // ASGTOOL_ATHENA
+class BookkeeperTool : public AthAlgTool, public virtual ::IMetaDataTool
 {
-   ASG_TOOL_CLASS0(BookkeeperTool)
+   //ASG_TOOL_CLASS0(BookkeeperTool)
 public: // Constructor and Destructor
    /// Standard Service Constructor
-   BookkeeperTool(const std::string& name = "BookkeeperTool");
+   BookkeeperTool(const std::string& type, 
+                  const std::string& name,
+                  const IInterface*  parent);
    /// Destructor
    virtual ~BookkeeperTool();
 
 public:
-   //void handle(const Incident& incident);
-   virtual StatusCode metaDataStop();
    virtual StatusCode metaDataStop(const SG::SourceID&);
-   virtual StatusCode beginInputFile();
    virtual StatusCode beginInputFile(const SG::SourceID& sid = "Serial");
-   virtual StatusCode endInputFile();
    virtual StatusCode endInputFile(const SG::SourceID& sid = "Serial");
    virtual StatusCode initialize();
    virtual StatusCode finalize();
+protected:
+   ServiceHandle<StoreGateSvc> inputMetaStore() const;
+   ServiceHandle<StoreGateSvc> outputMetaStore() const;
 
 private:
   
@@ -71,7 +66,8 @@ private:
   StatusCode addCutFlow();
  
   /// Pointer to cut flow svc 
-  //ServiceHandle<ICutFlowSvc> m_cutflowsvc;
+  ServiceHandle<StoreGateSvc> m_inputMetaStore;
+  ServiceHandle<StoreGateSvc> m_outputMetaStore;
 
   /// The name of the output CutBookkeeperContainer
   std::string m_outputCollName;
@@ -92,7 +88,15 @@ private:
 
 };
 
-METACONT_DEF( xAOD::CutBookkeeperAuxContainer, 1422102 );
+inline ServiceHandle<StoreGateSvc> BookkeeperTool::inputMetaStore() const
+{
+  return m_inputMetaStore;
+}
+
+inline ServiceHandle<StoreGateSvc> BookkeeperTool::outputMetaStore() const
+{
+  return m_outputMetaStore;
+}
 
 #endif
 

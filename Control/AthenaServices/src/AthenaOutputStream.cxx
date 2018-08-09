@@ -318,18 +318,12 @@ StatusCode AthenaOutputStream::initialize() {
 
 StatusCode AthenaOutputStream::stop()
 {
+   ATH_MSG_INFO("AthenaOutputStream " << this->name() << " ::stop()");
       for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
            iter != m_helperTools.end(); iter++) {
          if (!(*iter)->preFinalize().isSuccess()) {
              ATH_MSG_ERROR("Cannot finalize helper tool");
          }
-      }
-      // Always force a final commit in stop - mainly applies to AthenaPool
-      if (m_writeOnFinalize) {
-         if (write().isFailure()) {  // true mean write AND commit
-            ATH_MSG_ERROR("Cannot write on finalize");
-         }
-         ATH_MSG_INFO("Records written: " << m_events);
       }
       FileIncident fileInc(name(),"MetaDataStop","","Serial");
       ServiceHandle<MetaDataSvc> mdsvc("MetaDataSvc", name());
@@ -338,6 +332,13 @@ StatusCode AthenaOutputStream::stop()
       }
       else {
          ATH_CHECK(mdsvc->prepareOutput(fileInc));
+      }
+      // Always force a final commit in stop - mainly applies to AthenaPool
+      if (m_writeOnFinalize) {
+         if (write().isFailure()) {  // true mean write AND commit
+            ATH_MSG_ERROR("Cannot write on finalize");
+         }
+         ATH_MSG_INFO("Records written: " << m_events);
       }
 
       if (!m_metadataItemList.value().empty()) {
@@ -388,6 +389,16 @@ void AthenaOutputStream::handle(const Incident& inc) {
            iter != m_helperTools.end(); iter++) {
          if (!(*iter)->preFinalize().isSuccess()) {
              ATH_MSG_ERROR("Cannot finalize helper tool");
+         }
+      }
+      FileIncident fileInc(name(),"MetaDataStop","","Serial");
+      ServiceHandle<MetaDataSvc> mdsvc("MetaDataSvc", name());
+      if (mdsvc.retrieve().isFailure()) {
+         ATH_MSG_ERROR("Could not retrieve MetaDataSvc for stop actions");
+      }
+      else {
+         if(mdsvc->prepareOutput(fileInc).isFailure()) {
+           ATH_MSG_ERROR("MetaDataStop prepareOutput failed");
          }
       }
       // Always force a final commit in stop - mainly applies to AthenaPool
@@ -551,6 +562,9 @@ StatusCode AthenaOutputStream::write() {
          }
       }
 
+      for (SG::IFolder::const_iterator i = m_p2BWritten->begin(), iEnd = m_p2BWritten->end(); i != iEnd; i++) {
+         //ATH_MSG_INFO("BLARG cao" << i->id() << " " << i->key());
+      }
       StatusCode currentStatus = m_streamer->streamObjects(m_objects);
       // Do final check of streaming
       if (!currentStatus.isSuccess()) {
@@ -572,6 +586,7 @@ StatusCode AthenaOutputStream::write() {
       }
    }
    if (failed) {
+      ATH_MSG_ERROR("Could not connectOutput");
       return(StatusCode::FAILURE);
    }
    return(StatusCode::SUCCESS);
@@ -591,11 +606,23 @@ void AthenaOutputStream::collectAllObjects() {
       }
    }
    m_p2BWritten->updateItemList(true);
+   std::vector<CLID> folderclids;
    // Collect all objects that need to be persistified:
-//FIXME refactor: move this in folder. Treat as composite
+   //FIXME refactor: move this in folder. Treat as composite
    for (SG::IFolder::const_iterator i = m_p2BWritten->begin(), iEnd = m_p2BWritten->end(); i != iEnd; i++) {
-       //ATH_MSG_INFO("BLARG " << i->id() << " " << i->key());
+      //ATH_MSG_INFO("BLARG cao" << i->id() << " " << i->key());
       addItemObjects(*i);
+      folderclids.push_back(i->id());
+   }
+   for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
+      if (std::find(folderclids.begin(),folderclids.end(),(*it)->clID())==folderclids.end()) {
+         m_objects.erase(it);
+      }
+   }
+   for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
+      if (std::find(folderclids.begin(),folderclids.end(),(*it)->clID())==folderclids.end()) {
+         ATH_MSG_ERROR("Object found that was not in itemlist");
+      }
    }
 }
 
@@ -751,7 +778,6 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                            attributes.insert(attr);
                            std::stringstream temp;
                            temp << tns.str() << attr;
-                           //ATH_MSG_INFO("BLARG " << this->name() << " " << temp.str());
                            if (m_itemSvc->addStreamItem(this->name(),temp.str()).isFailure()) {
                               ATH_MSG_WARNING("Unable to record item " << temp.str() << " in Svc");
                            }
