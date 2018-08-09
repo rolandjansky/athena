@@ -1,0 +1,28 @@
+AthAlgSeq           DEBUG RunEventTagWriter doesn't exist - created and appended to member list
+AthAlgSeq           DEBUG RegStream1 doesn't exist - created and appended to member list
+AthAlgSeq            INFO Member list: RunEventTagWriter, EventCount, RegistrationStream/RegStream1
+RunEventTagWriter   DEBUG Initializing RunEventTagWriter
+EventSelector       DEBUG Service base class initialized successfully
+EventSelector       DEBUG Try item: "PFN:Collection_SplitBar.root" from the collection list.
+EventSelector        INFO Using standard collection ref 
+EventSelector        INFO EventSelection with query RunNumber != 1000000 && EventNumber > 0
+EventSelector       DEBUG Try item: "PFN:Collection_SplitBar.root" from the collection list.
+ProxyProviderSvc    DEBUG  added Address Provider EventSelector
+RunEventTagWriter   DEBUG Defining the attribute list specification.
+RunEventTagWriter   DEBUG Printing out attribute list specification:
+RunEventTagWriter   DEBUG Attribute List Specification: 
+RunEventTagWriter   DEBUG  name RunNumber type unsigned int
+RunEventTagWriter   DEBUG  name EventNumber type unsigned int
+HistorySvc          DEBUG Registering algtool: RegStream1.RegStream1_TopFolder
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+EventSelector       DEBUG Get AttributeList from the collection
+EventSelector       DEBUG AttributeList size 2
+EventSelector       ERROR Cannot get DataHeader from Collection converter 
+RunEventTagWriter   DEBUG Finalizing RunEventTagWriter
+RegStream1           INFO Collection Events output: 0
+ServiceManager      DEBUG Finalizing service EventSelector
+ToolSvc             DEBUG finalize:  Tool List : ToolSvc.IOVDbMetaDataTool:1 RegStream1.RegStream1_TopFolder:2 
+ToolSvc             DEBUG   Delaying   finalization of RegStream1.RegStream1_TopFolder (refCount 2)
+ToolSvc             DEBUG   Performing finalization of RegStream1.RegStream1_TopFolder (refCount 2)
+ToolSvc             DEBUG   Performing deletion of RegStream1.RegStream1_TopFolder
+  1 | RunEventTagWriter::initialize() | libAthenaPoolMultiTestLib.so

@@ -1,0 +1,419 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+#include "LArIdentifier/LArOnlineID.h"
+#include "TAxis.h"
+
+/*---------------------------------------------------------*/
+template<class THist2D>
+inline StatusCode 
+LArOnlineIDStrHelper::definePartitionSummProp(THist2D* hist,bool HWNaming)
+// Define the labels for a TH2 with FT on Y axis
+// The name of the histogram should contain the name of
+// the partition
+// Typically used for summary TH2 : (FTs) vs (slots) (1 bin per FEB)
+// Beware: bins start at 1, feedthroughs start at 0
+{
+  hist->SetMinimum(0);
+  hist->GetXaxis()->SetTitle("Slot");
+  if (HWNaming) hist->GetYaxis()->SetTitle("Half Crate");
+  else hist->GetYaxis()->SetTitle("Feedthrough"); 
+
+  const unsigned nx(hist->GetNbinsX());
+  for (unsigned ix = 1;ix <= nx;ix++) (hist->GetXaxis())->SetBinLabel(ix,Form("%d",ix));
+
+  if (HWNaming){
+  std::string hName = hist->GetName();
+  
+  if ( hName.find("BarrelA",0) != std::string::npos || 
+       hName.find("EMBA",0) != std::string::npos ){
+    int barrel_ec = 0;  // Barrel
+    int pos_neg = 1;    // A
+    for (int ft = 0; ft < 32; ++ft) {
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label = "I"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      (hist->GetYaxis())->SetBinLabel(ft+1, label.c_str());
+    }
+  }
+
+  if ( hName.find("BarrelC",0) != std::string::npos || 
+       hName.find("EMBC",0) != std::string::npos ){
+    int barrel_ec = 0;  // Barrel
+    int pos_neg = 0;    // C
+    for (int ft = 0; ft < 32; ++ft) {
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label = "H"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      (hist->GetYaxis())->SetBinLabel(ft+1, label.c_str());
+    }
+  }
+
+  if (hName.find("EndcapA",0) != std::string::npos || 
+      hName.find("EmecA",0) != std::string::npos ||
+      hName.find("EMECA",0) != std::string::npos ){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 1;    // A
+    // select which feedthroughs to have labels for
+    int ftL[] = {0,1,4,5,6,7,8,11,12,15,16,19,20,23,24};  // 15 labels
+    for (int i = 0; i < 15; ++i) {
+      int ft = ftL[i];
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label = "A"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      (hist->GetYaxis())->SetBinLabel(ft+1, label.c_str());
+    }
+  }
+
+  if (hName.find("HecA",0) != std::string::npos || 
+      hName.find("HECA",0) != std::string::npos){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 1;    // A
+    // select which feedthroughs to have labels for
+    int ftL[] = {3,10,16,22};  // 4 labels
+    for (int i = 0; i < 4; ++i) {
+      int ft = ftL[i];
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label = "A"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      (hist->GetYaxis())->SetBinLabel(ft+1, label.c_str());
+    }
+  }
+
+  if (hName.find("FcalA",0) != std::string::npos 
+      || hName.find("FCALA",0) != std::string::npos){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 1;    // A
+    int ft = 6;         // FCal only feedthrough
+    HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+    std::string label = "A"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+    (hist->GetYaxis())->SetBinLabel(ft+1, label.c_str());
+  }
+
+  if (hName.find("EndcapC",0) != std::string::npos || 
+      hName.find("EmecC",0) != std::string::npos ||
+      hName.find("EMECC",0) != std::string::npos ){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 0;    // C
+    // select which feedthroughs to have labels for
+    int ftL[] = {0,1,4,5,6,7,8,11,12,15,16,19,20,23,24};  // 15 labels
+    for (int i = 0; i < 15; ++i) {
+      int ft = ftL[i];
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label = "C"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      (hist->GetYaxis())->SetBinLabel(ft+1, label.c_str());
+    }
+  }
+
+  if (hName.find("HecC",0) != std::string::npos || 
+      hName.find("HECC",0) != std::string::npos){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 0;    // C
+    // select which feedthroughs to have labels for
+    int ftL[] = {3,10,16,22};  // 4 labels
+    for (int i = 0; i < 4; ++i) {
+      int ft = ftL[i];
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label = "C"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      (hist->GetYaxis())->SetBinLabel(ft+1, label.c_str());
+    }
+  }
+
+  if (hName.find("FcalC",0) != std::string::npos ||
+      hName.find("FCALC",0) != std::string::npos){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 0;    // C
+    int ft = 6;         // FCal only feedthrough
+    HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+    std::string label = "C"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+    (hist->GetYaxis())->SetBinLabel(ft+1, label.c_str());
+  }
+  }
+
+  (hist->GetYaxis())->SetLabelSize(0.045);
+  //Not supported in LWHists: (hist->GetYaxis())->SetTitleOffset(1.2);
+
+  return StatusCode::SUCCESS;
+}
+
+/*---------------------------------------------------------*/
+template<class THist2D>
+inline StatusCode 
+LArOnlineIDStrHelper::definePartitionSummProp2(THist2D* hist,bool HWNaming)
+// Define the labels for a TH2 with FT+FEB on X axis
+// The name of the histogram should contain the name of
+// the partition
+// Typically used for TH2 (All FEBs) vs (Channels) (1 bin per channel)
+// Both slots and bins start at 1
+{
+  hist->SetMinimum(0);
+  if (HWNaming) hist->GetXaxis()->SetTitle("Half Crate(+Slot increasing)");
+  else hist->GetXaxis()->SetTitle("Feedthrough(+Slot increasing)");
+  hist->GetYaxis()->SetTitle("Channel");
+
+  std::string hName = hist->GetName();
+  
+  if (hName.find("BarrelA",0) != std::string::npos ||
+      hName.find("EMBA",0) != std::string::npos ){
+    int barrel_ec = 0;  // Barrel
+    int pos_neg = 1;    // A
+    for (int ft = 0; ft < 32; ++ft) {
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label; 
+      if (HWNaming) label = "I"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      else label = int_to_str(ft);
+      int bin = ft*14 + 1;  // feedthrough label on first slot of desired feedthroughs
+      (hist->GetXaxis())->SetBinLabel(bin, label.c_str());
+    }
+  }
+
+  if (hName.find("BarrelC",0) != std::string::npos ||
+      hName.find("EMBC",0) != std::string::npos ){
+    int barrel_ec = 0;  // Barrel
+    int pos_neg = 0;    // C
+    for (int ft = 0; ft < 32; ++ft) {
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label; 
+      if (HWNaming) label = "H"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      else label = int_to_str(ft);
+      int bin = ft*14 + 1;  // feedthrough label on first slot of desired feedthroughs
+      (hist->GetXaxis())->SetBinLabel(bin, label.c_str());
+    }
+  }
+
+  if (hName.find("EndcapA",0) != std::string::npos || hName.find("EmecA",0) != std::string::npos
+      || hName.find("EMECA",0) != std::string::npos){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 1;    // A
+    for (int ft = 0; ft < 25; ++ft) {
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label; 
+      if (HWNaming) label = "A"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      else label = int_to_str(ft);
+      int bin = ft*15 + 1;  // feedthrough label on first slot of desired feedthroughs
+      (hist->GetXaxis())->SetBinLabel(bin, label.c_str());
+    }
+  }
+
+  if (hName.find("HecA",0) != std::string::npos || hName.find("HECA",0) != std::string::npos){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 1;    // A
+    // select which feedthroughs to have labels for
+    int ftL[] = {3,10,16,22};  // 4 labels
+    for (int i = 0; i < 4; ++i) {
+      int ft = ftL[i];
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label; 
+      if (HWNaming) label = "A"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      else label = int_to_str(ft);
+      int bin = ft*15 + 1;  // feedthrough label on first slot of desired feedthroughs
+      (hist->GetXaxis())->SetBinLabel(bin, label.c_str());
+    }
+  }
+
+  if (hName.find("FcalA",0) != std::string::npos){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 1;    // A
+    int ft = 6;         // FCal only feedthrough
+    HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+    std::string label; 
+    if (HWNaming) label = "A"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+    else label = int_to_str(ft);
+    int bin = ft*15 + 1;  // feedthrough label on first slot of desired feedthroughs
+    (hist->GetXaxis())->SetBinLabel(bin, label.c_str());
+  }
+
+  if (hName.find("EndcapC",0) != std::string::npos || 
+      hName.find("EmecC",0) != std::string::npos ||
+      hName.find("EMECC",0)!= std::string::npos) {
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 0;    // C
+    for (int ft = 0; ft < 25; ++ft) {
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label; 
+      if (HWNaming) label = "C"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      else label = int_to_str(ft);
+      int bin = ft*15 + 1;  // feedthrough label on first slot of desired feedthroughs
+      (hist->GetXaxis())->SetBinLabel(bin, label.c_str());
+    }
+  }
+
+  if (hName.find("HecC",0) != std::string::npos || hName.find("HECC",0)!= std::string::npos ){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 0;    // C
+    // select which feedthroughs to have labels for
+    int ftL[] = {3,10,16,22};  // 4 labels
+    for (int i = 0; i < 4; ++i) {
+      int ft = ftL[i];
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      std::string label; 
+      if (HWNaming) label = "C"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+      else label = int_to_str(ft);
+      int bin = ft*15 + 1;  // feedthrough label on first slot of desired feedthroughs
+      (hist->GetXaxis())->SetBinLabel(bin, label.c_str());
+    }
+  }
+
+  if (hName.find("FcalC",0) != std::string::npos || hName.find("FCALC",0)!= std::string::npos ){
+    int barrel_ec = 1;  // Endcap
+    int pos_neg = 0;    // C
+    int ft = 6;         // FCal only feedthrough
+    HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+    std::string label; 
+    if (HWNaming) label = "C"+this->feedthroughOnly_str(feedthroughID, EXPERTS);
+    else label = int_to_str(ft);
+    int bin = ft*15 + 1;  // feedthrough label on first slot of desired feedthroughs
+    (hist->GetXaxis())->SetBinLabel(bin, label.c_str());
+  }
+
+  (hist->GetXaxis())->SetLabelSize(0.04);
+  //Not supported in LWHists: (hist->GetXaxis())->SetTitleOffset(1.5);
+
+  return StatusCode::SUCCESS;
+}
+
+/*---------------------------------------------------------*/
+/*---------------------------------------------------------*/
+template<class Taxis>
+inline void
+LArOnlineIDStrHelper::setAxisBinLabelsFebs(Taxis* axis, HWIdentifier feedthroughID)
+{
+  // labels are experts compact feb names for the desired feedthrough
+
+  int nSlots = (m_LArOnlineIDHelper->isEmBarrelOnline(feedthroughID)) ? 14 : 15;
+  int nBins = axis->GetNbins();
+  if (nSlots > nBins) nSlots = nBins;
+  bool changeAxis = false;
+
+  // loop over all febs and look for matching feedthrough
+  // slow, but ensures blank fields for unused slots
+  for (std::vector<HWIdentifier>::const_iterator p = m_LArOnlineIDHelper->feb_begin(); 
+       p != m_LArOnlineIDHelper->feb_end(); ++p) {
+    HWIdentifier febID = HWIdentifier(*p);
+    if (m_LArOnlineIDHelper->feedthrough_Id(febID) == feedthroughID) {
+      int slot = m_LArOnlineIDHelper->slot(febID);
+      if (slot <= nSlots) {
+        std::string label = this->febOnly_str(febID, EXPERTSCOMPACT);
+        axis->SetBinLabel(slot, label.c_str());  // slots and bins start at 1
+        changeAxis = true;
+      }
+    }
+  }
+
+  if (changeAxis) {
+    axis->SetLabelSize(0.045);
+    //Not supported in LWHists: axis->SetTitleOffset(1.2);
+  }
+
+}
+
+/*---------------------------------------------------------*/
+template<class Taxis>
+inline void
+LArOnlineIDStrHelper::setAxisBinLabelsAllFebs(Taxis* axis, const std::string& detector)
+{
+  // set the axis bin labels of an all febs axis with feedthrough names
+  // see setAxisBinLabelsFeedthroughNames
+
+  this->setAxisBinLabelsFeedthroughNames(axis, detector, true);
+}
+
+/*---------------------------------------------------------*/
+template<class Taxis>
+inline int LArOnlineIDStrHelper::findFixBin(Taxis*a,const double& x) const { return a->FindBin(x); }//LWHists never rebin (unless root backed)
+template<>
+inline int LArOnlineIDStrHelper::findFixBin(TAxis*a,const double& x) const { return a->FindFixBin(x); }//Root specialisation
+
+/*---------------------------------------------------------*/
+template<class Taxis>
+inline void
+LArOnlineIDStrHelper::setAxisBinLabelsFeedthroughNames(Taxis* axis, const std::string& detector, bool allFebs)
+{
+  // set the axis bin labels with feedthrough names
+  // for feedthrough axis: labels are feedthrough expert names associated to the relavant feedthroughs
+  // for all febs axis: labels are feedthrough expert names associated to the first relevant feb in a feedthrough
+  // works also for variable bin sizes
+  // possible detector strings (not case sensitive)
+  //  BARRELA, BARRELC, EMBA (EMA), EMBC (EMC)
+  //  ENDCAPA, ENDCAPC, EMECA (ECA), EMECC (ECC), HECA, HECC, FCALA, FCALC
+
+  int nBins = axis->GetNbins();
+  std::string detStr = this->str_to_upper(detector);
+  int barrel_ec = -1 ; // invalid value
+
+  if (detStr == "BARRELA" || detStr == "EMBA" || detStr == "EMA" || 
+      detStr == "BARRELC" || detStr == "EMBC" || detStr == "EMC") {
+    barrel_ec = 0;  // Barrel
+    int pos_neg = (detStr == "BARRELA" || detStr == "EMBA" || detStr == "EMA") ? 1 : 0; // 0=C, 1=A
+    for (int ft = 0; ft < 32; ++ft) {
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      int x = (allFebs) ? ft*14 + 1 : ft; // allFebs: feedthrough label on first slot of desired feedthroughs
+      int bin = findFixBin(axis,x);
+      if (bin > 0 && bin <= nBins) {
+	std::string label = this->feedthroughOnly_str(feedthroughID, m_defaultNameType);
+	axis->SetBinLabel(bin, label.c_str());
+      }
+    }
+  } else if (detStr == "ENDCAPA" || detStr == "ENDCAPC") {
+    barrel_ec = 1;  // Endcap
+    int pos_neg = (detStr == "ENDCAPA") ? 1 : 0; // 0=C, 1=A
+    for (int ft = 0; ft < 25; ++ft) {
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      int x = (allFebs) ? ft*15 + 1 : ft; // allFebs: feedthrough label on first slot of desired feedthroughs
+      int bin = findFixBin(axis,x);
+      if (bin > 0 && bin <= nBins) {
+        std::string label = this->feedthroughOnly_str(feedthroughID, m_defaultNameType);
+        axis->SetBinLabel(bin, label.c_str());
+      }
+    }
+  } else if (detStr == "EMECA" || detStr == "ECA" || 
+             detStr == "EMECC" || detStr == "ECC") {
+    barrel_ec = 1;  // Endcap
+    int pos_neg = (detStr == "EMECA" || detStr == "ECA") ? 1 : 0; // 0=C, 1=A
+    for (int ft = 0; ft < 25; ++ft) {
+      // select which feedthroughs to have labels for
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      // emec standard or emec special or HEC feedthrough
+      // the first slot of all these feedthroughs is an EMEC slot
+      if (m_LArOnlineIDHelper->isEmEndcapOnline(feedthroughID) || m_LArOnlineIDHelper->isHecOnline(feedthroughID)) {   
+        int x = (allFebs) ? ft*15 + 1 : ft; // allFebs: feedthrough label on first slot of desired feedthroughs
+        int bin = findFixBin(axis,x);
+        if (bin > 0 && bin <= nBins) {
+          std::string label = this->feedthroughOnly_str(feedthroughID, m_defaultNameType);
+          axis->SetBinLabel(bin, label.c_str());
+        }
+      }
+    }
+  } else if (detStr == "HECA" || detStr == "HECC") {
+    barrel_ec = 1;  // Endcap
+    int pos_neg = (detStr == "HECA") ? 1 : 0; // 0=C, 1=A
+    for (int ft = 0; ft < 25; ++ft) {
+      // select which feedthroughs to have labels for
+      HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+      // only select HEC feedthroughs
+      if (m_LArOnlineIDHelper->isHecOnline(feedthroughID)) {
+        int x = (allFebs) ? ft*15 + 5 : ft; // allFebs: fifth slot of HEC feedthtoughs is first HEC feb
+        int bin = findFixBin(axis,x);
+        if (bin > 0 && bin <= nBins) {
+          std::string label = this->feedthroughOnly_str(feedthroughID, m_defaultNameType);
+          axis->SetBinLabel(bin, label.c_str());
+        }
+      }
+    }
+  } else if (detStr == "FCALA" || detStr == "FCALC") {
+    barrel_ec = 1;  // Endcap
+    int pos_neg = (detStr == "FCALA") ? 1 : 0; // 0=C, 1=A
+    int ft = 6;         // FCal only feedthrough
+    HWIdentifier feedthroughID = m_LArOnlineIDHelper->feedthrough_Id(barrel_ec, pos_neg, ft);
+    int x = (allFebs) ? ft*15 + 1 : ft; // allFebs: feedthrough label on first slot of desired feedthroughs
+    int bin = findFixBin(axis,x);
+    if (bin > 0 && bin <= nBins) {
+      std::string label = this->feedthroughOnly_str(feedthroughID, m_defaultNameType);
+      axis->SetBinLabel(bin, label.c_str());
+    }
+  }
+
+  if (barrel_ec >= 0) {
+    axis->SetLabelSize(0.045);
+    //axis->SetTitleOffset(1.2);
+  }
+
+}

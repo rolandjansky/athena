@@ -1,0 +1,44 @@
+Athena               INFO including file "AthenaPoolUtilities/EventCount.py"
+ApplicationMgr       INFO Successfully loaded modules: EventSelectorAthenaPool
+EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-01-03
+EventSelector        INFO Create PoolCollectionConverter -  CollectionType: ImplicitROOT Connection:  InputCollection: EventCheck_out.root
+EventSelector        INFO EventSelection with query 
+EventSelector        INFO ----- EventSelectorAthenaPool Initialized Properly
+EventCount           INFO in initialize()
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+EventSelector        INFO EventSelector: End of input
+EventCount           INFO ---------- INPUT FILE SUMMARY ----------
+EventCount           INFO Input contained: 10 events
+EventCount           INFO  -- Event Range ( 1 .. 10 )
+EventCount           INFO Input contained: 1 runs
+EventCount           INFO  -- 2885
+EventCount           INFO Input contained the following CLIDs and Keys
+EventCount           INFO  -> 2101 EventInfo (10) 
+EventCount           INFO       - McEventInfo
+EventCount           INFO  -> 2540 Unknown (10) 
+EventCount           INFO       - PixelRDOs
+EventCount           INFO  -> 2541 Unknown (10) 
+EventCount           INFO       - SCT_RDOs
+EventCount           INFO  -> 2542 Unknown (10) 
+EventCount           INFO       - TRT_RDOs
+EventCount           INFO  -> 2721 Unknown (10) 
+EventCount           INFO       - LArRawChannels
+EventCount           INFO  -> 2927 Unknown (10) 
+EventCount           INFO       - TileRawChannelCnt
+EventCount           INFO  -> 4183 Unknown (10) 
+EventCount           INFO       - CSCRDO
+EventCount           INFO  -> 4186 Unknown (10) 
+EventCount           INFO       - TGCRDO
+EventCount           INFO  -> 4187 Unknown (10) 
+EventCount           INFO       - MDTCSM
+EventCount           INFO  -> 4190 Unknown (10) 
+EventCount           INFO       - RPCPAD
+EventCount           INFO  -> 6000 Unknown (10) 
+EventCount           INFO       - RoIBResult
+EventCount           INFO  -> 6270 Unknown (10) 
+EventCount           INFO       - MUCTPI_RDO
+EventCount           INFO  -> 222376821 DataHeader (10) 
+EventCount           INFO       - Stream1
+EventCount           INFO  -> 1235574503 Unknown (10) 
+EventCount           INFO       - MuonEntryRecord
+EventCount           INFO ----------------------------------------
