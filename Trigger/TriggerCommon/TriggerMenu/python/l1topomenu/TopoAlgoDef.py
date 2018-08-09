@@ -23,7 +23,7 @@ class TopoAlgoDef:
         _minet = 0
         usev7 = False
 
-        if '_v7' in TriggerFlags.triggerMenuSetup():
+        if '_v7' in TriggerFlags.triggerMenuSetup() or 'HI_v5' in TriggerFlags.triggerMenuSetup() :
             usev7 = True
         if '_PhaseII' in TriggerFlags.triggerMenuSetup():
             usev7 = True
@@ -201,7 +201,10 @@ class TopoAlgoDef:
             alg.addgeneric('JetSize', HW.DefaultJetSize.value) 
             alg.addvariable('MinEta', _mineta)
             alg.addvariable('MaxEta', jetabseta)
-            alg.addgeneric('DoEtaCut', 0)
+            if jet_type=='FJ':
+                alg.addgeneric('DoEtaCut', 1)
+            else:
+                alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg) 
 
         for jet_type in ['J']:

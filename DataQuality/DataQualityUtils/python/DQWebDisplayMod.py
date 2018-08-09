@@ -24,12 +24,22 @@ os.chdir(CWD)
 os.environ['TDAQ_ERS_NO_SIGNAL_HANDLERS'] = '1'
 
 import sys
+from optparse import OptionParser
 import ROOT
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
 from ROOT import gSystem
 os.chdir(CWD)
+
+parser = OptionParser()
+parser.add_option("--htag", dest="htag",
+                  help='Use configuration from a specified htag ')
+
+(options, args) = parser.parse_args()
+
+if options.htag:
+    os.environ['HTAG'] = options.htag
 
 from DataQualityUtils.handimod import handiWithComparisons
 from DataQualityUtils.handimod import makeCSSFile
@@ -788,7 +798,7 @@ def usage():
   cmdi = sys.argv[0].rfind("/")
   cmd = sys.argv[0][cmdi+1:]
   print ""
-  print "Usage: ", cmd, "<data_file> <config> <processing_version> [run_accumulating [conditions_string]]"
+  print "Usage: DQWebDisplay.py <data_file> <config> <processing_version> [run_accumulating [conditions_string]]"
   print ""
   print "This is a production utility; use TEST config for development and testing."
   print ""
@@ -811,8 +821,9 @@ if __name__ == "__main__":
       ROOT.dqi.ConditionsSingleton.getInstance().setCondition(sys.argv[5])
 
   configModule = ""
-  
-  if   sys.argv[2] == "TEST":
+  if options.htag:
+      configModule = "TestDisplayHTag"
+  elif   sys.argv[2] == "TEST":
     configModule = "TestDisplay"
   elif sys.argv[2] == "RTT":
     configModule = "RTTDisplay"
@@ -840,7 +851,7 @@ if __name__ == "__main__":
   except Exception, e:
     print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
     sys.exit(1)
-
+  
   
   DQWebDisplay( inputFile, runAccumulating, config )
 
