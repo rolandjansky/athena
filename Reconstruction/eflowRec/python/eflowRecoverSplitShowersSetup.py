@@ -66,4 +66,7 @@ def setup_eflowRecoverSplitShowers(Configured, nameModifier,mlog):
     MatchingTool.MatchCut = 0.2*0.2 # float
     Configured.PFTrackClusterMatchingTool = MatchingTool
 
+    if "EM_HLLHC" == nameModifier:
+        Configured.isHLLHC=True   
+    
     return True

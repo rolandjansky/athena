@@ -66,7 +66,8 @@ class eflowCellLevelSubtractionToolDefault_HLLHC(eflowCellLevelSubtractionTool) 
     
         if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
             self.useUpdated2015ChargedShowerSubtraction = False
-        
+
+        self.isHLLHC=True        
 
         gmFlag=""# default set to "golden1" for goldenMode. In the end this should come from this flag jobproperties.eflowRecFlags.goldenModeString()
         self.goldenModeString=gmFlag
