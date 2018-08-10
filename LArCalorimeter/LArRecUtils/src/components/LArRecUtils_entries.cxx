@@ -22,6 +22,9 @@
 #include "../LArSymConditionsAlg.h"
 #include "../LArMCSymCondAlg.h"
 #include "../LArADC2MeVCondAlg.h"
+#include "../LArAutoCorrTotalCondAlg.h"
+#include "../LArOFCCondAlg.h"
+
 
 DECLARE_COMPONENT( LArADC2MeVTool )
 DECLARE_COMPONENT( LArAutoCorrNoiseTool )
@@ -71,4 +74,6 @@ DECLARE_COMPONENT( LArfSamplSymCondAlg )
 DECLARE_COMPONENT( LArMinBiasSymCondAlg )
 DECLARE_COMPONENT( LArNoiseSymCondAlg )
 
+DECLARE_COMPONENT( LArAutoCorrTotalCondAlg )
 DECLARE_COMPONENT( LArADC2MeVCondAlg )
+DECLARE_COMPONENT( LArOFCCondAlg )
