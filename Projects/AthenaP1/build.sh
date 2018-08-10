@@ -12,6 +12,8 @@ usage() {
     echo " -i: Execute install step"
     echo " -p: Execute CPack step"
     echo " -a: Abort on error"
+    echo " -N: Use Ninja"
+
     echo "If none of the c, m, i or p options are set then the script will do"
     echo "*all* steps. Otherwise only the enabled steps are run - it's your"
     echo "reponsibility to ensure that precusors are in good shape"
@@ -25,7 +27,10 @@ EXE_MAKE=""
 EXE_INSTALL=""
 EXE_CPACK=""
 NIGHTLY=true
-while getopts ":t:b:hcmipa" opt; do
+BUILDTOOLTYPE=""
+BUILDTOOL="make -k"
+INSTALLRULE="install/fast"
+while getopts ":t:b:hcmipaN" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -33,21 +38,26 @@ while getopts ":t:b:hcmipa" opt; do
         b)
             BUILDDIR=$OPTARG
             ;;
-        c)
-            EXE_CMAKE="1"
-            ;;
-        m)
-            EXE_MAKE="1"
-            ;;
-        i)
-            EXE_INSTALL="1"
-            ;;
-        p)
-            EXE_CPACK="1"
-            ;;
-        a)
-            NIGHTLY=false
-            ;;
+       c)
+           EXE_CMAKE="1"
+           ;;
+       m)
+           EXE_MAKE="1"
+           ;;
+       i)
+           EXE_INSTALL="1"
+           ;;
+       p)
+           EXE_CPACK="1"
+           ;;
+       a)
+           NIGHTLY=false
+           ;;
+       N)
+           BUILDTOOL="ninja -k 0"
+           BUILDTOOLTYPE="-GNinja"
+           INSTALLRULE="install"
+           ;;
         h)
             usage
             exit 0
