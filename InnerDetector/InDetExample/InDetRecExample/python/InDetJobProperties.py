@@ -703,6 +703,12 @@ class doSecVertexFinder(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doVrtSecDecay(InDetFlagsJobProperty):
+    """ switch on/off VrtSecDecay finder """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doConversions(InDetFlagsJobProperty):
     """ switch on/off conversion finder """
     statusOn     = True
@@ -1840,6 +1846,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control to run alternative InDetV0Finder
       self.doSecVertexFinder        = self.postProcessing() and self.doSecVertexFinder()
+      self.doVrtSecDecay            = self.postProcessing() and self.doVrtSecDecay()
       #
       # control to run InDetConversionFinder
       self.doConversions            = self.postProcessing() and self.doConversions()
@@ -2754,6 +2761,7 @@ _list_InDetJobProperties = [Enabled,
                             doSimpleV0Finder,
                             useV0Fitter,
                             doSecVertexFinder,
+                            doVrtSecDecay,
                             doConversions,
                             doStatistics,
                             doStandardPlots,

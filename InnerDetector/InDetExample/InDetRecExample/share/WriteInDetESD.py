@@ -186,6 +186,9 @@ if InDetFlags.doxAOD():
   if InDetFlags.doConversions():
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
     InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
+  if InDetFlags.doVrtSecDecay():
+    InDetESDList+=['xAOD::VertexContainer#VrtSecDecay']
+    InDetESDList+=['xAOD::VertexAuxContainer#VrtSecDecayAux.' + excludedVertexAuxData]
 
   if InDetFlags.doTrackSegmentsPixel():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
