@@ -122,6 +122,16 @@ public:
 
 
   /**
+   * @brief Constructor from a DataProxy.
+   * @param proxy The proxy to which to bind.
+   * @param mode Mode of this handle (read/write/update).
+   *
+   * This handle will be bound to the given proxy.
+   */
+  explicit ReadHandle (SG::DataProxy* proxy);
+
+
+  /**
    * @brief Copy constructor.
    */
   ReadHandle( const ReadHandle& rhs );
