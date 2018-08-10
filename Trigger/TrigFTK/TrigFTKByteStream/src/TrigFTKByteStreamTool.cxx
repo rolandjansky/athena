@@ -160,18 +160,18 @@ StatusCode FTK::TrigFTKByteStreamTool::convert(IROBDataProviderSvc& dataProvider
     uint16_t rodMinorVersion= ver.minor_version();
 
     if (rodMinorVersion==m_AuxFormat) {
-      ATH_MSG_INFO("Unpacking Data in AUX Format with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec<<" no. data words " << nData);
+      ATH_MSG_DEBUG("Unpacking Data in AUX Format with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec<<" no. data words " << nData);
       if (m_decodeAux) {
 	StatusCode scdca = m_decoderAux->decode(nData, rodData, result);    
 	if (scdca.isFailure()){
 	  ATH_MSG_WARNING("problem in decoding the Aux format rob fragment");
 	}
       } else {
-	ATH_MSG_INFO("Skipping Data in AUX Format  with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec);
+	ATH_MSG_DEBUG("Skipping Data in AUX Format  with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec);
 	continue;
       }
     } else {
-      ATH_MSG_INFO("Unpacking Data in FLIC Format with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec);
+      ATH_MSG_DEBUG("Unpacking Data in FLIC Format with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec);
       
       StatusCode scdc = m_decoder->decode(nData, rodData, result);    
       if (scdc.isFailure()){
