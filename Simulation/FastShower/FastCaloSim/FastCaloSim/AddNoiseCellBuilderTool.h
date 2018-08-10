@@ -4,7 +4,7 @@
 
 #ifndef ADDNOISE_CELLBUILDERTOOL_H
 #define ADDNOISE_CELLBUILDERTOOL_H
-// 
+//
 // CellBuilderTool.cxx
 //     Building Cells objects from Atlfast
 //
@@ -25,11 +25,11 @@ namespace CLHEP {
 
 class AddNoiseCellBuilderTool: public BasicCellBuilderTool
 {
-public:    
+public:
   AddNoiseCellBuilderTool(
-			     const std::string& type, 
-			     const std::string& name, 
-			     const IInterface* parent);
+                          const std::string& type,
+                          const std::string& name,
+                          const IInterface* parent);
   ~AddNoiseCellBuilderTool();
 
 
@@ -38,22 +38,17 @@ public:
   // update theCellContainer
   virtual StatusCode process( CaloCellContainer * theCellContainer) ;
 private:
-  std::string m_noiseToolName; 
+  std::string m_noiseToolName;
   //NoiseTool
   ICaloNoiseTool* m_noiseTool;
-  
+
   //TRandom* m_rand;
 
   ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
   CLHEP::HepRandomEngine*        m_randomEngine;
   std::string                    m_randomEngineName;         //!< Name of the random number stream
-  
+
   bool m_donoise;
 };
 
 #endif
-
-
-
-
-

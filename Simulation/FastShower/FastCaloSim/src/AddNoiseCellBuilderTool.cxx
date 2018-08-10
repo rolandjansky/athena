@@ -8,7 +8,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h" 
+#include "StoreGate/StoreGateSvc.h"
 
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -25,16 +25,16 @@
 #include <fstream>
 
 AddNoiseCellBuilderTool::AddNoiseCellBuilderTool(
-			     const std::string& type, 
-			     const std::string& name, 
-			     const IInterface* parent)
-      :  BasicCellBuilderTool(type, name, parent),
-                           m_noiseToolName("CaloNoiseTool/calonoisetool"),
-			   m_rndmSvc("AtRndmGenSvc", name),
-			   m_randomEngine(0),
-			   m_randomEngineName("FastCaloSimNoiseRnd"),
-			   m_donoise(true)
-{ 
+                                                 const std::string& type,
+                                                 const std::string& name,
+                                                 const IInterface* parent)
+  : BasicCellBuilderTool(type, name, parent)
+  , m_noiseToolName("CaloNoiseTool/calonoisetool")
+  , m_rndmSvc("AtRndmGenSvc", name)
+  , m_randomEngine(0)
+  , m_randomEngineName("FastCaloSimNoiseRnd")
+  , m_donoise(true)
+{
   declareInterface<ICaloCellMakerTool>( this );
   declareProperty("CaloNoiseTool",         m_noiseToolName);
   declareProperty("doNoise",               m_donoise);
@@ -55,29 +55,29 @@ StatusCode AddNoiseCellBuilderTool::initialize()
   log << MSG::INFO <<  "Initialisating started" << endreq ;
 
   StatusCode sc=BasicCellBuilderTool::initialize();
-  
+
   IToolSvc* p_toolSvc = 0;    // Pointer to Tool Service
   sc = service("ToolSvc", p_toolSvc);
   if (sc.isFailure()) {
     log << MSG::FATAL
-	<< " Tool Service not found "
-	<< endreq;
+        << " Tool Service not found "
+        << endreq;
     return StatusCode::FAILURE;
   }
 
   IAlgTool* algtool;
-  ListItem corr(m_noiseToolName);	  
+  ListItem corr(m_noiseToolName);
   sc = p_toolSvc->retrieveTool(corr.type(), corr.name(), algtool);
   if (sc.isFailure()) {
     log << MSG::INFO
-	<< "Unable to find tool for " << m_noiseToolName
-	<< endreq;
+        << "Unable to find tool for " << m_noiseToolName
+        << endreq;
     return StatusCode::FAILURE;
   } else {
     log << MSG::INFO << "Noise Tool "
-	<< m_noiseToolName << " is selected!" << endreq;
+        << m_noiseToolName << " is selected!" << endreq;
   }
-  m_noiseTool=dynamic_cast<ICaloNoiseTool*>(algtool); 
+  m_noiseTool=dynamic_cast<ICaloNoiseTool*>(algtool);
 
   // Random number service
   if ( m_rndmSvc.retrieve().isFailure() ) {
@@ -99,7 +99,7 @@ StatusCode AddNoiseCellBuilderTool::initialize()
 StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer)
 {
   MsgStream log( msgSvc(), name() );
-  
+
   m_rndmSvc->print(m_randomEngineName);
   //m_randomEngine->showStatus();
   unsigned int rseed=0;
@@ -113,48 +113,48 @@ StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer
   log<< endreq;
 
   ++m_nEvent;
-  
+
   double E_tot=0;
   double Et_tot=0;
   CaloCellContainer::iterator f_cell = theCellContainer->begin();
   CaloCellContainer::iterator l_cell = theCellContainer->end();
   for ( ; f_cell!=l_cell; ++f_cell)
-  {
-    CaloCell* cell = (*f_cell) ;
-    if(!cell) continue;
-    const CaloDetDescrElement* theDDE=cell->caloDDE();
-    if(!theDDE) continue;
-    
-    CaloGain::CaloGain gain=m_noiseTool->estimatedGain(cell,ICaloNoiseToolStep::CELLS);
-    
-    #if FastCaloSim_project_release_v1 == 12
+    {
+      CaloCell* cell = (*f_cell) ;
+      if(!cell) continue;
+      const CaloDetDescrElement* theDDE=cell->caloDDE();
+      if(!theDDE) continue;
+
+      CaloGain::CaloGain gain=m_noiseTool->estimatedGain(cell,ICaloNoiseToolStep::CELLS);
+
+#if FastCaloSim_project_release_v1 == 12
       CaloCell_ID::SUBCALO calo=theDDE->getSubCalo();
       if(calo==CaloCell_ID::TILE) {
         ((FastSimTileCell*)cell)->setGain(gain);
       } else {
         ((FastSimCaloCell*)cell)->setGain(gain);
       }
-    #else  
+#else
       cell->setGain(gain);
-    #endif  
+#endif
 
-    if(m_donoise) {
-      double sigma=m_noiseTool->elecNoiseRMS(cell);
-      //double enoise=m_rand->Gaus(0.0,1.0)*sigma;
-      double enoise=CLHEP::RandGaussZiggurat::shoot(m_randomEngine,0.0,1.0)*sigma;
+      if(m_donoise) {
+        double sigma=m_noiseTool->elecNoiseRMS(cell);
+        //double enoise=m_rand->Gaus(0.0,1.0)*sigma;
+        double enoise=CLHEP::RandGaussZiggurat::shoot(m_randomEngine,0.0,1.0)*sigma;
 
-      
-    
-/*
-    if(cell->energy()>1000) {
-      log<<MSG::DEBUG<<"sample="<<cell->caloDDE()->getSampling()<<" eta="<<cell->eta()<<" phi="<<cell->phi()<<" gain="<<gain<<" e="<<cell->energy()<<" sigma="<<sigma<<" enoise="<<enoise<<endreq;
+
+
+        /*
+          if(cell->energy()>1000) {
+          log<<MSG::DEBUG<<"sample="<<cell->caloDDE()->getSampling()<<" eta="<<cell->eta()<<" phi="<<cell->phi()<<" gain="<<gain<<" e="<<cell->energy()<<" sigma="<<sigma<<" enoise="<<enoise<<endreq;
+          }
+        */
+        cell->setEnergy(cell->energy()+enoise);
+      }
+      E_tot+=cell->energy();
+      Et_tot+=cell->energy()/cosh(cell->eta());
     }
-*/    
-      cell->setEnergy(cell->energy()+enoise);
-    }  
-    E_tot+=cell->energy();
-    Et_tot+=cell->energy()/cosh(cell->eta());
-  }  
 
   log << MSG::INFO << "Executing finished calo size=" <<theCellContainer->size()<<" ; e="<<E_tot<<" ; et="<<Et_tot<< endreq;
   return StatusCode::SUCCESS;
