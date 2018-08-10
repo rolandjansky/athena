@@ -38,13 +38,15 @@
 #include "TEnv.h"
 
 const unsigned int nSel=5;
-enum Cut {
+namespace Cut {
+enum {
   all=0,
   baseline,
   passOR,
   signal,
   trigmatch
 };
+}
 static const TString SCut[] = {"All","Baseline","passOR","Signal","TrigM"};
 
 //**********************************************************************

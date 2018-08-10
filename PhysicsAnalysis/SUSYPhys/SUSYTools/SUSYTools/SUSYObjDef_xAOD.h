@@ -600,6 +600,7 @@ namespace ST {
     std::string m_orBtagWP;
     std::string m_orInputLabel;
     double m_orBJetPtUpperThres;
+    bool m_orLinkOverlapObjects;
 
     bool   m_orDoFatjets;
     double m_EleFatJetDR;

@@ -63,7 +63,7 @@ namespace CP
 
     /// the list of accessors and cut ignore list
   private:
-    std::vector<std::pair<std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> >,SelectionType> > m_accessors;
+    std::vector<std::pair<std::unique_ptr<const SG::AuxElement::ConstAccessor<SelectionType> >,SelectionType> > m_accessors;
 
     /// \brief the templated version of execute for a single systematic
   private:

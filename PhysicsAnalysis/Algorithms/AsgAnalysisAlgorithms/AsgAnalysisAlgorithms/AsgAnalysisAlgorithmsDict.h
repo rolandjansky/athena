@@ -9,6 +9,7 @@
 #define ASG_ANALYSIS_ALGORITHMS__ASG_ANALYSIS_ALGORITHMS_DICT_H
 
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
+#include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>

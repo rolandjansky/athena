@@ -108,7 +108,7 @@ namespace CP
       SelectionType ignore = 0;
       if (iter < m_ignore.size())
         ignore = m_ignore[iter];
-      auto accessor = std::make_unique<SG::AuxElement::Accessor<SelectionType> > (m_selection[iter]);
+      auto accessor = std::make_unique<SG::AuxElement::ConstAccessor<SelectionType> > (m_selection[iter]);
       m_accessors.push_back (std::make_pair (std::move (accessor), ignore));
     }
 

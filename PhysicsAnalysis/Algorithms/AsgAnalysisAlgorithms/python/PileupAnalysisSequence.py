@@ -4,7 +4,7 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makePileupAnalysisSequence( dataType ):
+def makePileupAnalysisSequence( dataType, userPileupConfigs=[], userLumicalcFiles=[] ):
     """Create a PRW analysis algorithm sequence
 
     Keyword arguments:
@@ -18,8 +18,8 @@ def makePileupAnalysisSequence( dataType ):
     seq = AnaAlgSequence( "PileupAnalysisSequence" )
 
     muMcFiles = ["dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root",
-                 "dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"]
-    muDataFiles = ["dev/SUSYTools/ilumicalc_histograms_None_276262-284154.root"]
+                 "dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"] + userPileupConfigs
+    muDataFiles = ["dev/SUSYTools/ilumicalc_histograms_None_276262-284154.root"] + userLumicalcFiles
 
     # Set up the only algorithm of the sequence:
     alg = createAlgorithm( 'CP::PileupReweightingAlg', 'PileupReweightingAlg' )
