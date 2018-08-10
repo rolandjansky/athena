@@ -88,8 +88,7 @@ ToolSvc += InDetTrigSiDetElementsRoadMakerCosmics
 #SP formation
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
 InDetTrigSiSpacePointMakerToolCosmics = InDet__SiSpacePointMakerTool(name = 'InDetTrigSiSpacePointMakerToolCosmics',
-                                                                     StripLengthTolerance = 0.05,
-                                                                     UsePerpendicularProjection = True)
+                                                                     StripLengthTolerance = 0.05)
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigSiSpacePointMakerToolCosmics
 ToolSvc += InDetTrigSiSpacePointMakerToolCosmics
