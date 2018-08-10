@@ -299,6 +299,59 @@ class EFMetHypoFTKTrackAndJetsXE (EFMissingETHypoBase):
         if 'xe30' in name:
             self.onlineMonitoring(True)
 
+class EFMetHypoTrackAndClustersXE (EFMissingETHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFMetHypo_trktcxe1000",ef_thr=1000*GeV):
+        super( EFMetHypoTrackAndClustersXE, self ).__init__( name )
+
+        self.SumETCut=ef_thr
+        self.MissingETCut=ef_thr
+        self.CutType=-2.0
+        self.METLabel='TrigEFMissingET_trktc'
+        self.doMuonCorrection = False
+        self.SumETCut = 100000000*GeV
+        self.forceAccept=False
+        self.onlineMonitoring(False)
+        self.doEMScaleTC=False
+        if 'noFW' in name:
+            self.doOnlyCalcCentralMET = True
+        if 'tclcw' in name:
+            self.doEMScaleTC = False
+        if 'wMu' in name:
+            self.doMuonCorrection = True
+        if 'noEF' in name:
+            self.MissingETCut=-100*GeV
+            self.SumETCut=-100*GeV
+        if 'xe30' in name:
+            self.onlineMonitoring(True)
+
+
+class EFMetHypoFTKTrackAndClustersXE (EFMissingETHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFMetHypo_trktcxe1000",ef_thr=1000*GeV):
+        super( EFMetHypoFTKTrackAndClustersXE, self ).__init__( name )
+
+        self.SumETCut=ef_thr
+        self.MissingETCut=ef_thr
+        self.CutType=-2.0
+        self.METLabel='TrigEFMissingET_trktcFTK'
+        self.doMuonCorrection = False
+        self.SumETCut = 100000000*GeV
+        self.forceAccept=False
+        self.onlineMonitoring(False)
+        self.doEMScaleTC=False
+        if 'noFW' in name:
+            self.doOnlyCalcCentralMET = True
+        if 'tclcw' in name:
+            self.doEMScaleTC = False
+        if 'wMu' in name:
+            self.doMuonCorrection = True
+        if 'noEF' in name:
+            self.MissingETCut=-100*GeV
+            self.SumETCut=-100*GeV
+        if 'xe30' in name:
+            self.onlineMonitoring(True)
+
 
 class EFMetHypoTCPUCXE (EFMissingETHypoBase):
     __slots__ = []
