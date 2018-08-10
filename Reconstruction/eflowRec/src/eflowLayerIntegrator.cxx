@@ -63,7 +63,7 @@ eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double r
 
 eflowLayerIntegrator::eflowLayerIntegrator(const eflowLayerIntegrator& originalEflowLayerIntegrator){
   m_rMax = originalEflowLayerIntegrator.m_rMax;
-  m_isHLLHC = anEFlowLayerIntegrator.m_isHLLHC;
+  m_isHLLHC = originalEflowLayerIntegrator.m_isHLLHC;
   m_allClustersIntegral =  originalEflowLayerIntegrator.m_allClustersIntegral;
   m_nUnitCellPerWindowOverCellEtaPhiArea = originalEflowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
   m_integrator = std::make_unique<eflowCellIntegrator<0> >(*originalEflowLayerIntegrator.m_integrator);
@@ -80,7 +80,7 @@ eflowLayerIntegrator& eflowLayerIntegrator::operator=(const eflowLayerIntegrator
   //if not assigning to self, then we copy the data to the new object
   else {
     m_rMax = originalEflowLayerIntegrator.m_rMax;
-    m_isHLLHC = anEFlowLayerIntegrator.m_isHLLHC;
+    m_isHLLHC = originalEflowLayerIntegrator.m_isHLLHC;
     m_allClustersIntegral =  originalEflowLayerIntegrator.m_allClustersIntegral;
     m_nUnitCellPerWindowOverCellEtaPhiArea = originalEflowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
     m_integrator = std::make_unique<eflowCellIntegrator<0> >(*originalEflowLayerIntegrator.m_integrator);
