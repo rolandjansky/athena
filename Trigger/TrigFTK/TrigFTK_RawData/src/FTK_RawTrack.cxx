@@ -48,6 +48,28 @@ FTK_RawTrack::FTK_RawTrack() :
   }
 }
 
+FTK_RawTrack::FTK_RawTrack(const FTK_RawTrack& track) {
+
+  m_pix_clusters.reserve(track.getPixelClusters().size());
+  m_sct_clusters.reserve(track.getSCTClusters().size());
+
+  unsigned int layer=0;
+  for (unsigned int ipix=0; ipix < track.getPixelClusters().size();  ++ipix,++layer){
+    m_pix_clusters.push_back(track.getPixelCluster(layer));
+  }
+  for (unsigned int isct=0; isct < track.getSCTClusters().size();  ++isct,++layer){
+    m_sct_clusters.push_back(track.getSCTCluster(layer));
+  }
+  m_word_th1 = track.getTH1();
+  m_word_th2 = track.getTH2();
+  m_word_th3 = track.getTH3();
+  m_word_th4 = track.getTH4();
+  m_word_th5 = track.getTH5();
+  m_word_th6 = track.getTH6();
+
+  m_barcode=track.getBarcode();
+}
+
 FTK_RawTrack::FTK_RawTrack(uint32_t word_th1, uint32_t word_th2, uint32_t word_th3, uint32_t word_th4, uint32_t word_th5, uint32_t word_th6)
 {
   m_barcode = 0;
@@ -365,6 +387,19 @@ double FTK_RawTrack::getChi2() const{
   }
   return chi2_f;
 
+}
+
+
+void FTK_RawTrack::setIsAuxFormat(bool isAux) {
+  if (isAux) {
+    m_word_th2 =   m_word_th2 | 0x1000;
+  } else {
+    m_word_th2 =   m_word_th2 & 0xFFFFEFFF;
+  }
+}
+
+bool FTK_RawTrack::getIsAuxFormat() {
+  return ((m_word_th2 & 0x1000) !=0);
 }
 
 
