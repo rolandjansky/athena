@@ -44,14 +44,14 @@ if InDetGeometryFlags.useDynamicAlignFolders():
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/AlignL1/TRT","/TRT/AlignL1/TRT")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/AlignL2","/TRT/AlignL2")
 else:
-    if (not DetFlags.simulate.SCT_on()) or (not DetFlags.simulate.pixel_on()):
+    if ((not DetFlags.simulate.SCT_on()) or (not DetFlags.simulate.pixel_on())) or (DetFlags.overlay.SCT_on() or DetFlags.overlay.pixel_on()):
         conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer")
     else:
         conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Align","/TRT/Align")
 
 # Condition algorithms for ID alignment
-if not DetFlags.simulate.SCT_on():
+if (not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on():
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "SCT_AlignCondAlg"):
