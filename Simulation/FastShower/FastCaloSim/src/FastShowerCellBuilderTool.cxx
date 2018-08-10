@@ -106,33 +106,20 @@ bool FastCaloSimIsGenSimulStable(const HepMC::GenParticle* p) {
 
 
 FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, const std::string& name, const IInterface* parent)
-  :BasicCellBuilderTool(type, name, parent),
-   m_mcLocation("TruthEvent"),
-   m_ParticleParametrizationFileName(""),
-   m_AdditionalParticleParametrizationFileNames(0),
-   m_DB_folder(0),
-   m_DB_channel(0),
-   m_DB_dirname(0),
-   m_MuonEnergyInCaloContainer("FatrasDepositedMuonEnergyInCalo"),
-   m_simul_ID_only(true),
-   m_simul_ID_v14_truth_cuts(false),
-   m_simul_EM_geant_only(false),
-   m_simul_heavy_ions(false),
-   p_coolhistsvc(0),
-   m_rndmSvc("AtDSFMTGenSvc", name),
-  m_randomEngine(0),
-  m_randomEngineName("FastCaloSimRnd"),
-  m_extrapolator(""),
-  m_caloSurfaceHelper(""),
-  m_sampling_energy_reweighting(CaloCell_ID_FCS::MaxSample,1.0),
-  m_rndm(0),
-  m_invisibles(0),
-  m_is_init_shape_correction(false),
-  m_caloEntrance(0),
-  m_caloEntranceName("InDet::Containers::InnerDetector")
+  : BasicCellBuilderTool(type, name, parent)
+  , m_AdditionalParticleParametrizationFileNames(0)
+  , m_DB_folder(0)
+  , m_DB_channel(0)
+  , m_DB_dirname(0)
+  , m_coolhistsvc("CoolHistSvc", name)
+  , m_partPropSvc("PartPropSvc", name)
+  , m_rndmSvc("AtDSFMTGenSvc", name)
+  , m_extrapolator("")
+  , m_caloSurfaceHelper("")
+  , m_calo_tb_coord("TBCaloCoordinate")
+  , m_sampling_energy_reweighting(CaloCell_ID_FCS::MaxSample,1.0)
+  , m_invisibles(0)
 {
-  declareInterface<ICaloCellMakerTool>( this );
-
   const int n_surfacelist=5;
   CaloCell_ID_FCS::CaloSample surfacelist[n_surfacelist]={CaloCell_ID_FCS::PreSamplerB,
                                                           CaloCell_ID_FCS::PreSamplerE,
@@ -149,6 +136,8 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   declareProperty("ParticleParametrizationFileName",m_ParticleParametrizationFileName);
   declareProperty("AdditionalParticleParametrizationFileNames",m_AdditionalParticleParametrizationFileNames);
 
+  declareProperty("CoolHistSvc",                    m_coolhistsvc,          "");
+  declareProperty("PartPropSvc",                    m_partPropSvc,          "");
   declareProperty("RandomService",                  m_rndmSvc,              "Name of the random number service");
   declareProperty("RandomStreamName",               m_randomEngineName,     "Name of the random number stream");
 
@@ -162,13 +151,14 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
   declareProperty("Extrapolator",                   m_extrapolator );
   declareProperty("CaloEntrance",                   m_caloEntranceName );
   declareProperty("CaloSurfaceHelper",              m_caloSurfaceHelper );
+  declareProperty("CaloCoordinateTool",             m_calo_tb_coord);
 
-  declareProperty("FastShowerInfoContainerKey",     m_FastShowerInfoContainerKey="FastShowerInfoContainer");
-  declareProperty("StoreFastShowerInfo",            m_storeFastShowerInfo=false);
+  declareProperty("FastShowerInfoContainerKey",     m_FastShowerInfoContainerKey);
+  declareProperty("StoreFastShowerInfo",            m_storeFastShowerInfo);
 
-  declareProperty("DoEnergyInterpolation",          m_jo_interpolate=false); //ATA: make interpolation optional
-  declareProperty("DoNewEnergyEtaSelection",        m_energy_eta_selection=false); //mwerner: make new selction of EnergyParam optional
-  declareProperty("use_Ekin_for_depositions",       m_use_Ekin_for_depositions=false);//Use the kinetic energy of a particle to as measure of the energie to deposit in the calo
+  declareProperty("DoEnergyInterpolation",          m_jo_interpolate); //ATA: make interpolation optional
+  declareProperty("DoNewEnergyEtaSelection",        m_energy_eta_selection); //mwerner: make new selction of EnergyParam optional
+  declareProperty("use_Ekin_for_depositions",       m_use_Ekin_for_depositions);//Use the kinetic energy of a particle to as measure of the energie to deposit in the calo
 
   //declareProperty("spline_reweight_x",       m_spline_reweight_x);
   //declareProperty("spline_reweight_y",       m_spline_reweight_y);
@@ -364,27 +354,18 @@ StatusCode FastShowerCellBuilderTool::initialize()
 {
   ATH_MSG_INFO("Initialisating started");
 
-  if ( BasicCellBuilderTool::initialize().isFailure() ) {
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(BasicCellBuilderTool::initialize());
 
-  IPartPropSvc* p_PartPropSvc=0;
-  if (service("PartPropSvc",p_PartPropSvc).isFailure() || p_PartPropSvc == 0) {
-    ATH_MSG_ERROR("could not find PartPropService");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_partPropSvc.retrieve());
 
-  m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
-  if(m_particleDataTable == 0){
+  m_particleDataTable = (HepPDT::ParticleDataTable*) m_partPropSvc->PDT();
+  if(!m_particleDataTable) {
     ATH_MSG_ERROR("PDG table not found");
     return StatusCode::FAILURE;
   }
 
   // Random number service
-  if ( m_rndmSvc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_rndmSvc);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   //Get own engine with own seeds:
   m_randomEngine = m_rndmSvc->GetEngine(m_randomEngineName);
@@ -393,59 +374,27 @@ StatusCode FastShowerCellBuilderTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  /*
-    sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure())
-    {
-    log << MSG::ERROR
-    << "Unable to get pointer to StoreGateSvc"
-    << endreq;
-    return StatusCode::FAILURE;
-    }
-  */
-
-  // Retrieve Tools
-  IToolSvc* p_toolSvc = 0;
-  if ( service("ToolSvc",p_toolSvc).isFailure() ){
-    ATH_MSG_ERROR("Cannot find ToolSvc! ");
-    return StatusCode::FAILURE;
+  // Get TimedExtrapolator
+  if (m_extrapolator.empty()) {
+    ATH_MSG_DEBUG("No Extrapolator specified.");
   }
   else {
-    IAlgTool* algTool;
-
-    // Get TimedExtrapolator
-    if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure())
-      return StatusCode::FAILURE;
-    else ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
-
-    // Get CaloSurfaceHelper
-    if (m_caloSurfaceHelper.retrieve().isFailure())
-      ATH_MSG_INFO("CaloSurfaceHelper not found ");
-
-    //#if FastCaloSim_project_release_v1 == 12
-    //m_calosurf_middle->setCaloDepth(m_calodepth);
-    //#endif
-
-    //#if FastCaloSim_project_release_v1 == 12
-    //m_calosurf_entrance->setCaloDepth(m_calodepthEntrance);
-    //#endif
-
-
-    std::string CaloCoordinateTool_name="TBCaloCoordinate";
-    ListItem CaloCoordinateTool(CaloCoordinateTool_name);
-    if ( p_toolSvc->retrieveTool(CaloCoordinateTool.type(),CaloCoordinateTool.name(), algTool, this).isFailure() ) {
-      ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-      return StatusCode::FAILURE;
-    }
-    m_calo_tb_coord = dynamic_cast<ICaloCoordinateTool*>(algTool);
-    if ( !m_calo_tb_coord ) {
-      ATH_MSG_ERROR("Cannot retrieve " << CaloCoordinateTool_name);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("retrieved " << CaloCoordinateTool_name);
-    }
-
+    ATH_CHECK(m_extrapolator.retrieve());
+    ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
   }
+
+  ATH_CHECK(m_caloSurfaceHelper.retrieve()); // Previously failure just printed an INFO message
+
+  ATH_CHECK(m_calo_tb_coord.retrieve());
+  ATH_MSG_INFO("retrieved " << m_calo_tb_coord.name());
+
+  //#if FastCaloSim_project_release_v1 == 12
+  //m_calosurf_middle->setCaloDepth(m_calodepth);
+  //#endif
+
+  //#if FastCaloSim_project_release_v1 == 12
+  //m_calosurf_entrance->setCaloDepth(m_calodepthEntrance);
+  //#endif
 
   find_phi0();
 
@@ -492,10 +441,7 @@ StatusCode FastShowerCellBuilderTool::initialize()
 
 
   // get the CoolHistSvc
-  if (service("CoolHistSvc",p_coolhistsvc).isFailure()) {
-    ATH_MSG_ERROR("Could not get CoolHistSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_coolhistsvc.retrieve());
 
   /*
     if(m_spline_reweight_x.size()>0 && m_spline_reweight_x.size()==m_spline_reweight_y.size()) {
@@ -684,7 +630,7 @@ StatusCode FastShowerCellBuilderTool::callBack( IOVSVC_CALLBACK_ARGS_P( I, keys)
     for(unsigned int icool=0;icool<m_DB_folder.size();++icool) {
       if (*itr==m_DB_folder[icool]) {
         TObject* odir;
-        if (p_coolhistsvc->getTObject(m_DB_folder[icool],m_DB_channel[icool],m_DB_dirname[icool],odir).isSuccess()) {
+        if (m_coolhistsvc->getTObject(m_DB_folder[icool],m_DB_channel[icool],m_DB_dirname[icool],odir).isSuccess()) {
           if (odir!=0) {
             TDirectory* dir=(TDirectory*)odir;
             if(nprint>1) {
