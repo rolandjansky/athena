@@ -1312,8 +1312,9 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_type,   "mu_true_type");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
-       m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_z, "mu_prodVtx_z");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_z,    "mu_prodVtx_z");
        m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_perp, "mu_prodVtx_perp");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_phi,  "mu_prodVtx_phi");
 
        // jets
        m_upgradeTreeManager->makeOutputVariable(m_jet_pt, "jet_pt");
@@ -3617,8 +3618,9 @@ namespace top {
        m_mu_true_type.resize(upgradeEvent.m_muons->size());
        m_mu_true_origin.resize(upgradeEvent.m_muons->size());
        m_mu_true_isPrompt.resize(upgradeEvent.m_muons->size());
-       m_mu_prodVtx_z.resize(upgradeEvent.m_muons->size());
+       m_mu_prodVtx_z.   resize(upgradeEvent.m_muons->size());
        m_mu_prodVtx_perp.resize(upgradeEvent.m_muons->size());
+       m_mu_prodVtx_phi. resize(upgradeEvent.m_muons->size());
 
        for (const auto  muPtr : * upgradeEvent.m_muons) {
          m_mu_pt[i] = muPtr->pt();
@@ -3630,8 +3632,9 @@ namespace top {
 	 m_mu_true_type[i] = 0;
 	 m_mu_true_origin[i] = 0;
 	 m_mu_true_isPrompt[i] = 0;
-         m_mu_prodVtx_z[i] = -999;
+         m_mu_prodVtx_z[i]    = -999;
          m_mu_prodVtx_perp[i] = -999;
+         m_mu_prodVtx_phi[i]  = -999;
 	 if (muPtr->isAvailable<unsigned int>("particleType")) {
 	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("particleType");
 	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleType")) {
@@ -3652,6 +3655,9 @@ namespace top {
          }
          if (muPtr->isAvailable<float>("prodVtx_perp")) {
            m_mu_prodVtx_perp[i] = muPtr->auxdata<float>("prodVtx_perp");
+         }
+         if (muPtr->isAvailable<float>("prodVtx_phi")) {
+           m_mu_prodVtx_phi[i] = muPtr->auxdata<float>("prodVtx_phi");
          }
 
          ++i;
