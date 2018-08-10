@@ -2,14 +2,42 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h> 
+#include <math.h>
+#include <algorithm>
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Derivt.h"
-#include <iostream>
 
 namespace Trk {
 
+  VKalVrtControlBase::VKalVrtControlBase(const baseMagFld* baseFld,   const addrMagHandler addrFld, 
+                                     const basePropagator* baseP, const addrPropagator addrP): 
+       m_objMagFld(baseFld),
+       m_funcMagFld(addrFld),
+       m_objProp(baseP), 
+       m_funcProp(addrP){}
+
+  VKalVrtControlBase::~VKalVrtControlBase(){}
+
+  VKalVrtControlBase::VKalVrtControlBase(const VKalVrtControlBase & src ): 
+       m_objMagFld(src.m_objMagFld),
+       m_funcMagFld(src.m_funcMagFld),
+       m_objProp(src.m_objProp), 
+       m_funcProp(src.m_funcProp){}
+
+  VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base): VKalVrtControlBase(base) { 
+    m_fullCovariance=0;
+    m_vrtMassTot=-1.;
+    m_vrtMassError=-1.;
+  }
+  VKalVrtControl::VKalVrtControl(const VKalVrtControl & src) : VKalVrtControlBase(src) { 
+    m_fullCovariance=0; 
+    m_forcft=src.m_forcft;
+    m_vrtMassTot=src.m_vrtMassTot;
+    m_vrtMassError=src.m_vrtMassError;
+  }
+  VKalVrtControl::~VKalVrtControl()  { if(m_fullCovariance) delete[] m_fullCovariance; }
 
 
   VKTrack::VKTrack(long int iniId, double Perigee[], double Covariance[], VKVertex * vk, double m):
@@ -72,7 +100,11 @@ namespace Trk {
 
 
 
-  VKVertex::VKVertex(){ 
+  VKVertex::VKVertex(const VKalVrtControl & FitControl): VKVertex() 
+  {    m_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(FitControl));  }
+
+  VKVertex::VKVertex()
+  { 
      useApriorVertex=0;  //no apriori vertex position used
      passNearVertex=false;   //no "pass near" constraint used
      passWithTrkCov=false;   //no trk covariance for this constraint
@@ -84,7 +116,10 @@ namespace Trk {
      fitCovXYZMom[0]=savedVrtMomCov[0]=100.; fitCovXYZMom[2] =savedVrtMomCov[2] =100.; fitCovXYZMom[5] =savedVrtMomCov[5] =100.;
      fitCovXYZMom[9]=savedVrtMomCov[9]=100.; fitCovXYZMom[14]=savedVrtMomCov[14]=100.; fitCovXYZMom[20]=savedVrtMomCov[20]=100.;
      Chi2=0.;
+     existFullCov=0;
+     std::fill(ader,ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),0);
   }
+
   VKVertex::~VKVertex()
   {  
        for( int i=0; i<(int)TrackList.size(); i++) delete TrackList[i];
@@ -100,6 +135,7 @@ namespace Trk {
 
 
   VKVertex::VKVertex(const VKVertex & src):        //copy constructor
+  m_fitterControl(new VKalVrtControl(*src.m_fitterControl)),
   Chi2(src.Chi2),                         // vertex Chi2
   useApriorVertex(src.useApriorVertex),   //for a priory vertex position knowledge usage
   passNearVertex(src.passNearVertex),     // needed for "passing near vertex" constraint
@@ -123,6 +159,8 @@ namespace Trk {
        fitCovXYZMom[i]=src.fitCovXYZMom[i];
     }
     nextCascadeVrt = 0;
+    existFullCov = src.existFullCov;
+    std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
     //----- Creation of track copies
     for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.push_back( new VKTrack(*(src.TrackList[i])) );
   }
@@ -130,6 +168,8 @@ namespace Trk {
   VKVertex& VKVertex::operator= (const VKVertex & src)        //Assignment operator
   {
     if (this!=&src){
+      m_fitterControl.reset();
+      m_fitterControl=std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*(src.m_fitterControl)));
       Chi2=src.Chi2;                         // vertex Chi2
       useApriorVertex=src.useApriorVertex;    //for a priory vertex position knowledge usage
       passNearVertex=src.passNearVertex;      // needed for "passing near vertex" constraint
@@ -152,6 +192,8 @@ namespace Trk {
         fitCovXYZMom[i]=src.fitCovXYZMom[i];
       }
       nextCascadeVrt = 0;
+      existFullCov = src.existFullCov;
+      std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
     //----- Creation of track copies
       TrackList.clear();
       tmpArr.clear();
@@ -165,5 +207,63 @@ namespace Trk {
   TWRK::TWRK(){}
   TWRK::~TWRK(){}
 
+  void VKalVrtControl::setIterationNum(int Iter)
+  {
+    if (Iter<3)   Iter=3;
+    if (Iter>100) Iter=100;
+    m_forcft.IterationNumber    = Iter;
+  }
+
+  void VKalVrtControl::setIterationPrec(double Prec)
+  {
+    if (Prec<1.e-5)   Prec=1.e-5;
+    if (Prec>1.e-1)   Prec=1.e-1;
+    m_forcft.IterationPrecision = Prec;
+  }
+
+  void VKalVrtControl::setRobustScale(double Scale)
+  {
+    if (Scale<0.01)   Scale=0.01;
+    if (Scale>100.)   Scale=100.;
+    m_forcft.RobustScale = Scale;
+  }
+
+  void VKalVrtControl::setRobustness(int Rob)
+  {
+    if (Rob<0)   Rob=0;
+    if (Rob>7)   Rob=7;
+    m_forcft.irob = Rob;
+  }
+  void VKalVrtControl::setMassCnstData(int Ntrk, double Mass){     // Define global mass constraint. It must be first
+    double sumM(0.);
+    for(int it=0; it<Ntrk; it++) sumM +=   m_forcft.wm[it];                        //sum of particle masses
+    if(sumM<Mass) {
+      m_forcft.wmfit[0]=Mass;
+      for(int it=0; it<Ntrk; it++) m_forcft.indtrkmc[0][it]=1;                     //Set participating particles
+      m_forcft.nmcnst=1;
+    }
+    m_forcft.useMassCnst = 1;
+  }
+  void VKalVrtControl::setMassCnstData(int Ntrk, std::vector<int> Index, double Mass){
+    double sumM(0.);
+    for(int it=0; it<Ntrk; it++) sumM +=   m_forcft.wm[Index[it]];                 //sum of particle masses
+    if(sumM<Mass) {
+      m_forcft.wmfit[0]=Mass;
+      for(int it=0; it<Ntrk; it++) m_forcft.indtrkmc[m_forcft.nmcnst][Index[it]]=1;  //Set participating particles
+      m_forcft.nmcnst++;
+    }
+    m_forcft.useMassCnst = 1;
+  }
+
+  void VKalVrtControl::setUsePhiCnst()   { m_forcft.usePhiCnst = 1;}
+  void VKalVrtControl::setUsePlaneCnst(double a, double b, double c, double d)   { 
+    if(a+b+c+d == 0.){  m_forcft.usePlaneCnst = 0;
+    }else{              m_forcft.usePlaneCnst = 1; }
+    m_forcft.Ap = a; m_forcft.Bp = b; m_forcft.Cp = c; m_forcft.Dp = d;
+  }
+  void VKalVrtControl::setUseThetaCnst() { m_forcft.useThetaCnst = 1;}
+  void VKalVrtControl::setUseAprioriVrt(){ m_forcft.useAprioriVrt = 1;}
+  void VKalVrtControl::setUsePointingCnst(int iType = 1 ) { m_forcft.usePointingCnst = iType<2 ? 1 : 2 ;}
+  void VKalVrtControl::setUsePassNear(int iType = 1 ) { m_forcft.usePassNear = iType<2 ? 1 : 2 ;}
 
 } /* End of namespace */

@@ -5,22 +5,11 @@
 #include <math.h>
 #include <iostream>
 #include "TrkVKalVrtCore/ForCFT.h"
-#include "TrkVKalVrtCore/Derivt.h"
-#include "TrkVKalVrtCore/WorkArray.h"
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 
 namespace Trk {
 
-
-extern WorkArray workarray_;
-extern ForCFT forcft_;
-extern DerivT derivt_;
-
-
-#define workarray_1 workarray_
-#define forcft_1 forcft_
-#define derivt_1 derivt_
 
 /* ************************************************************************/
 /*                                                                        */
@@ -79,8 +68,7 @@ extern DerivT derivt_;
 
 
 
-      long int vtcfit( VKVertex * vk)
-{
+    int vtcfit( VKVertex * vk) {
     
 
     double chi2i, dxyz[3], xyzt[3], eigv[8];
@@ -116,7 +104,7 @@ extern DerivT derivt_;
 
 
 
-#define ader_ref(a_1,a_2) workarray_1.ader[(a_2)*(NTrkM*3+3) + (a_1) - (NTrkM*3+4)]
+#define ader_ref(a_1,a_2) vk->ader[(a_2)*(vkalNTrkM*3+3) + (a_1) - (vkalNTrkM*3+4)]
 #define cvder_ref(a_1,a_2) vk->FVC.cvder[(a_2)*2 + (a_1) - 3]
 #define dcv_ref(a_1,a_2) vk->FVC.dcv[(a_2)*6 + (a_1) - 7]
 
@@ -160,21 +148,20 @@ extern DerivT derivt_;
 /* ---------------------------------------------------------------------- */
 
     long int IERR = 0;
-    long int NTRK = vk->TrackList.size();
+    int NTRK = vk->TrackList.size();
     double xyz[3]={vk->iniV[0],vk->iniV[1],vk->iniV[2]};
     double twb[9];
     double twci[6];
     double twbci[9];
     double xyzf[3];
 
-    if ( NTRK > NTrkM ) return 1;
+    if ( NTRK > vkalNTrkM ) return 1;
 
-// Dynamic arrays are created already in CFit
-    double *dphi 	= workarray_1.myWorkArrays->get_dphi();
-    double *deps	= workarray_1.myWorkArrays->get_deps();
-    double *drho  	= workarray_1.myWorkArrays->get_drho();
-    double *dtet 	= workarray_1.myWorkArrays->get_dtet();
-    double *dzp 	= workarray_1.myWorkArrays->get_dzp();
+    double *dphi   = new double[NTRK];
+    double *deps   = new double[NTRK];
+    double *drho   = new double[NTRK];
+    double *dtet   = new double[NTRK];
+    double *dzp    = new double[NTRK];
 
     double phip,zp,eps;
 
@@ -560,7 +547,7 @@ extern DerivT derivt_;
 	vk->wa[3] += vyv[2][0];
 	vk->wa[4] += vyv[2][1];
 	vk->wa[5] += vyv[2][2];
-	FullMTXfill(vk, workarray_1.ader);
+	FullMTXfill(vk, vk->ader);
 	if ( vk->passNearVertex ) {
 	  for (it = 1; it <= NTRK; ++it) {
 	    drdpy[0][0] = vk->tmpArr[it-1]->drdp[0][0] * vk->FVC.ywgt[0] + vk->tmpArr[it-1]->drdp[1][0] * vk->FVC.ywgt[1];
@@ -599,11 +586,11 @@ extern DerivT derivt_;
 	  }
 //----------------------------------------------------------------------------------
 	long int NParam = NTRK*3 + 3;
-	dsinv(&NParam, workarray_1.ader, NTrkM*3+3, &IERR);
+	dsinv(&NParam, vk->ader, vkalNTrkM*3+3, &IERR);
 	if ( IERR != 0) {
         std::cout << " Bad problem in CFIT inversion ierr="<<IERR<<", "<<eigv[2]<<'\n'; return IERR;
 	} else {
-            double *fortst = new double[NTrkM*3+3];
+            double *fortst = new double[vkalNTrkM*3+3];
 	    for (j = 0; j < 3; ++j) {
 		fortst[j] = stv[j];
 		for (ii=0; ii<NTRK; ++ii) { fortst[ii*3 +3 +j] = vk->tmpArr[ii]->tt[j];}
@@ -637,7 +624,7 @@ extern DerivT derivt_;
         //std::cout<< "NVertex Full="<<vk->fitV[0]<<", "<<vk->fitV[1]<<", "<<vk->fitV[2]<<'\n';
         //std::cout<< "NVertex Full shft="<<dxyz[0]<<", "<<dxyz[1]<<", "<<dxyz[2]<<'\n';
         //double *tmpA=new double[3+3*NTRK+20];
-        //IERR = FullMCNSTfill( vk, workarray_.ader, tmpA);
+        //IERR = FullMCNSTfill( vk, vk->ader, tmpA);
         //delete[] tmpA;
     }
 /* ------------------------------------------------------------ */
@@ -681,7 +668,7 @@ extern DerivT derivt_;
     //                                               <<vk->TrackList[it]->fitP[1] - vk->TrackList[it]->iniP[1]<<", "
     //                                               <<vk->TrackList[it]->fitP[2] - vk->TrackList[it]->iniP[2]<<'\n';
     //tmpA=new double[3+3*NTRK+20];
-    //IERR = FullMCNSTfill( vk, workarray_.ader, tmpA);
+    //IERR = FullMCNSTfill( vk, vk->ader, tmpA);
     //delete[] tmpA;
    }
 

@@ -4,21 +4,14 @@
 
 #include <math.h>
 #include <iostream>
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
-#include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
-#include "TrkVKalVrtCore/ForCFT.h"
-#include "TrkVKalVrtCore/WorkArray.h"
+#include "TrkVKalVrtCore/Derivt.h"
 
 namespace Trk {
 
-
 CascadeEvent cascadeEvent_;
 extern vkalMagFld      myMagFld;
-extern VKalVrtBMag     vkalvrtbmag;
-extern WorkArray       workarray_;
-extern DerivT          derivt_;
-extern ForCFT          forcft_;
 
 extern int cfdinv(double *, double *, long int );
 extern int cfInv5(double *cov, double *wgt );
@@ -71,7 +64,7 @@ void addCascadeEntry( VKVertex * vk, std::vector<int> index)
 //  vertexDefinition[iv][it]   - list of real track to vertex associacion
 //  cascadeDefinition[iv][ipv] - for given vertex IV the list of previous vertices pointing to it.
 // 
-int makeCascade(long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
+int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
                    std::vector< std::vector<int> > vertexDefinition,
                    std::vector< std::vector<int> > cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4)
@@ -94,7 +87,7 @@ int makeCascade(long int NTRK, long int *ich, double *wm, double *inp_Trk5, doub
     int vEstimDone=0, nTrkTot=0;
 
     for(iv=0; iv<NV; iv++){ 
-      VRT = new VKVertex(); 
+      VRT = new VKVertex(FitCONTROL); 
       VRT->setRefV(xyz);                               //ref point
       VRT->setRefIterV(xyz);                           //iteration ref. point
       VRT->setIniV(xyz); VRT->setCnstV(xyz);           // initial guess. 0 of course.
@@ -122,7 +115,7 @@ int makeCascade(long int NTRK, long int *ich, double *wm, double *inp_Trk5, doub
       }
       if(NTv>1){   //First estimation of vertex position if vertex has more than 2 tracks
         vEstimDone=1;
-        myMagFld.getMagFld(VRT->refIterV[0],VRT->refIterV[1],VRT->refIterV[2],vBx,vBy,vBz);
+        myMagFld.getMagFld(VRT->refIterV[0],VRT->refIterV[1],VRT->refIterV[2],vBx,vBy,vBz,(VRT->m_fitterControl).get());
         double aVrt[3]={0.,0.,0.};
         for(int i=0; i<NTv-1;i++) for(int j=i+1; j<NTv; j++){
            vkvFastV(&arr[i*5],&arr[j*5],xyz,vBz,out);
@@ -186,10 +179,6 @@ int initCascadeEngine()
   for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
      countTrk += cascadeEvent_.cascadeVertexList[iv]->TrackList.size();
   }
-  vkalDynamicArrays tmpArrays(countTrk);       // dynamic arrays creation for VTCFIT
-  workarray_.myWorkArrays = &tmpArrays;        // They are automatically removed on exit 
-  forcft_.nmcnst = 0;
-  derivt_.ndummy = 0;
 //---------------------Some check-----------
 //  VKMassConstraint * tmpc0=0; VKMassConstraint * tmpc1=0;
 //  if(cascadeEvent_.cascadeVertexList[0]->ConstraintList.size()>0){

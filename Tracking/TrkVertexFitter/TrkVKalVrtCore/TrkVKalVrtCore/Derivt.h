@@ -13,14 +13,6 @@
 
 namespace Trk {
   
-  struct DerivT{
-    long int ncnst, ndummy;
-    double aa[8];
-    double f0t[3*NTrkM*8];	/* was [3][300][8] */
-    double h0t[24];	        /* was [3][8] */
-  };
-
-
 
 // Base class for any constraint
 // Contains derivatines needed for application

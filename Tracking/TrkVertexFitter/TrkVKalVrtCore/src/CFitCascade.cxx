@@ -6,29 +6,24 @@
 #include <iostream>
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/ForCFT.h"
-#include "TrkVKalVrtCore/Propagator.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
-#include "TrkVKalVrtCore/WorkArray.h"
 #include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/Propagator.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 
 
 namespace Trk {
 
 extern vkalPropagator  myPropagator;
-extern WorkArray       workarray_;
-extern DerivT          derivt_;
-extern ForCFT          forcft_;
-extern VKalVrtBMag     vkalvrtbmag;
 extern vkalMagFld      myMagFld;
 extern CascadeEvent    cascadeEvent_;
 
 extern int cfdinv(double *, double *, long int );
 extern int cfInv5(double *cov, double *wgt );
 extern double cfSmallEigenvalue( double*, long int );
-extern long int  vtcfit( VKVertex * vk);
-extern void  combinedTrack(long int ICH, double *vrt0, double *pv0, double *covi, double *paro, double *covo);
-extern int afterFit(VKVertex *, double *, double *, double *, double *);
-extern int afterFitWithIniPar(VKVertex *vk, double *, double *, double *, double *);
+extern int  vtcfit( VKVertex * vk);
+extern void  combinedTrack(long int ICH, double *pv0, double *covi, double BMAG, double *paro, double *covo);
+extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase * =0 );
+extern int afterFitWithIniPar(VKVertex *vk, double *, double *, double *, double *, const VKalVrtControlBase * =0 );
 extern void applyConstraints(VKVertex * vk);
 extern void FullMTXfill(VKVertex * , double * );
 extern  int FullMCNSTfill(VKVertex * , double * , double * );
@@ -42,8 +37,8 @@ extern int getCascadeNPar(int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
 extern void cleanCascade();
 extern void cfdcopy(double *source, double *target, int);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *);
-extern std::vector<double> getFitParticleMom( VKTrack *);
+extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
+extern std::vector<double> getFitParticleMom( VKTrack *, double);
 
 extern void setFittedMatrices(double * , long int , std::vector<int> &, std::vector< std::vector<double> > & );
 extern std::vector<double> transformCovar(int , double **, std::vector<double> );
@@ -64,14 +59,14 @@ int setVTrackMass(VKVertex * vk)
    VectMOM totP;
 
    if(!vk->nextCascadeVrt)return 0;               // nonpointing vertex
-   myMagFld.getMagFld(vk->refIterV[0] + vk->fitV[0],
-                      vk->refIterV[1] + vk->fitV[1],
-                      vk->refIterV[2] + vk->fitV[2], vBx, vBy, vBz);
-  		      vkalvrtbmag.bmag  = vBz; //correct field in vertex
+
+   myMagFld.getMagFld(vk->refIterV[0]+vk->fitV[0], vk->refIterV[1]+vk->fitV[1], vk->refIterV[2]+vk->fitV[2],
+                                        vBx,vBy,vBz,(vk->m_fitterControl).get());
+
    NTRK = vk->TrackList.size();                   // Number of tracks at vertex
    totP.Px=0.;totP.Py=0.;totP.Pz=0.;totP.E=0.;
    for(it=0; it<NTRK; it++){
-       std::vector<double> pp = getFitParticleMom( vk->TrackList[it] );
+       std::vector<double> pp = getFitParticleMom( vk->TrackList[it], vBz );
        totP.Px += pp[0];     
        totP.Py += pp[1];     
        totP.Pz += pp[2];     
@@ -131,10 +126,9 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //
 //  Fit itself. First get magnetic field at iteration reference point
 //
-   double vBx,vBy,vBz;
-   myMagFld.getMagFld(vk->refIterV[0],vk->refIterV[1],vk->refIterV[2],vBx,vBy,vBz);
-   forcft_.localbmag = vBz; vkalvrtbmag.bmag  = vBz;
-   vkalvrtbmag.bmagz = vBz; vkalvrtbmag.bmagy = vBy; vkalvrtbmag.bmagx = vBx;
+   vk->m_fitterControl->m_forcft.localbmag=myMagFld.getMagFld(vk->refIterV,(vk->m_fitterControl).get());
+
+
 //
 //-------- Check if pointing constraint exists
 //
@@ -147,15 +141,13 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //-------- Then fit
 //
    applyConstraints(vk);                                         //apply all constraints in vertex 
-   long int IERR = vtcfit( vk );
+   int IERR = vtcfit( vk );
    if(IERR) return IERR;
 //
 //fit vertex once more with resolved constraints to prevent oscillations
 //   if(Pointing){ 
 //      double targVrt[3]={vk->refIterV[0] + vk->fitV[0],vk->refIterV[1] + vk->fitV[1],vk->refIterV[2] + vk->fitV[2]};
-//      myMagFld.getMagFld(targVrt[0],targVrt[1],targVrt[2],vBx,vBy,vBz);
-//      forcft_.localbmag = vBz; vkalvrtbmag.bmag  = vBz;
-//      vkalvrtbmag.bmagz = vBz; vkalvrtbmag.bmagy = vBy; vkalvrtbmag.bmagx = vBx;
+//      vk->m_fitterControl->m_forcft.localbmag=myMagFld.getMagFld(vk->targVrt,(vk->m_fitterControl).get());
 //      vk->setRefIterV(targVrt);
 //      vk->iniV[0]=vk->fitV[0]=vk->cnstV[0]=vk->iniV[1]=vk->fitV[1]=vk->cnstV[1]=vk->iniV[2]=vk->fitV[2]=vk->cnstV[2]=0.;
 //      for(int it=0; it<(int)vk->TrackList.size(); it++){
@@ -165,14 +157,14 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //         trk->cnstP[2] = trk->iniP[2] = trk->fitP[2];
 //      }      
 //      applyConstraints(vk);                                         //apply all constraints in vertex 
-//      long int IERR = vtcfit( vk );
+//      int IERR = vtcfit( vk );
 //      if(IERR) return IERR;
 //   }
 //
 //    Fill fitted combined track in next vertex (if needed)
 //
    if(vk->nextCascadeVrt){
-      FullMTXfill(vk, workarray_.ader);
+      FullMTXfill(vk, vk->ader);
       VKTrack * target_trk = getCombinedVTrack(vk);  // get address of combined track
       if( target_trk == 0 ) return -12;
 
@@ -182,13 +174,13 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
       double dptot[4],VrtMomCov[21];      
       double parV0[5],covParV0[15],tmpCov[15],fittedVrt[3];      
       if(Pointing){
-         IERR = afterFitWithIniPar( vk, workarray_.ader, vk->FVC.dcv, dptot, VrtMomCov);
+         IERR = afterFitWithIniPar( vk, vk->ader, vk->FVC.dcv, dptot, VrtMomCov, (vk->m_fitterControl).get());
          fittedVrt[0]=vk->refIterV[0]+vk->iniV[0];
          fittedVrt[1]=vk->refIterV[1]+vk->iniV[1];
          fittedVrt[2]=vk->refIterV[2]+vk->iniV[2];
       }
       else{
-         IERR = afterFit( vk, workarray_.ader, vk->FVC.dcv, dptot, VrtMomCov);
+         IERR = afterFit( vk, vk->ader, vk->FVC.dcv, dptot, VrtMomCov, (vk->m_fitterControl).get());
          fittedVrt[0]=vk->refIterV[0]+vk->fitV[0];
          fittedVrt[1]=vk->refIterV[1]+vk->fitV[1];
          fittedVrt[2]=vk->refIterV[2]+vk->fitV[2];
@@ -216,11 +208,12 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
       }
 //
 //  Particle creation and propagation      
-      combinedTrack( Charge, fittedVrt, dptot, VrtMomCov, parV0, covParV0);
+      double localField=myMagFld.getMagFld(fittedVrt,(vk->m_fitterControl).get());
+      combinedTrack( Charge, dptot, VrtMomCov, localField, parV0, covParV0);
       covParV0[0]=fabs(covParV0[0]); covParV0[2]=fabs(covParV0[2]); covParV0[5]=fabs(covParV0[5]);
       covParV0[9]=fabs(covParV0[9]); covParV0[14]=fabs(covParV0[14]);  //VK protection against numerical problems
       myPropagator.Propagate(-999, Charge, parV0, covParV0, fittedVrt, 
-                vk->nextCascadeVrt->refIterV, target_trk->Perig, tmpCov);
+                vk->nextCascadeVrt->refIterV, target_trk->Perig, tmpCov, (vk->m_fitterControl).get());
 //    IERR=cfInv5(tmpCov, target_trk->WgtM);  if (IERR) IERR=cfdinv(tmpCov, target_trk->WgtM, 5);
 //      target_trk->iniP[0]=target_trk->cnstP[0]=target_trk->fitP[0]=target_trk->Perig[2];   //initial guess
 //      target_trk->iniP[1]=target_trk->cnstP[1]=target_trk->fitP[1]=target_trk->Perig[3];
@@ -251,7 +244,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //
    if( vk->passNearVertex || vk==cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1]){
       double dptot[4],VrtMomCov[21];      
-      IERR = afterFit( vk, workarray_.ader, vk->FVC.dcv, dptot, VrtMomCov);
+      IERR = afterFit( vk, vk->ader, vk->FVC.dcv, dptot, VrtMomCov, (vk->m_fitterControl).get());
       if (IERR) return -13;                        /* NONINVERTIBLE COV.MATRIX */
       cfdcopy(    dptot, vk->fitMom, 3);          //save Momentum
       cfdcopy(VrtMomCov, vk->fitCovXYZMom, 21);   //save XYZMom covariance
@@ -276,8 +269,6 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
   for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
      countTrk += cascadeEvent_.cascadeVertexList[iv]->TrackList.size();
   }
-  vkalDynamicArrays tmpArrays(countTrk);     // dynamic arrays creation for VTCFIT
-  workarray_.myWorkArrays = &tmpArrays;      // They are automatically removed on exit 
 //============================================================================================
 //
 // First without pointing to get initial estimations and resolve mass constraints
@@ -305,7 +296,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 	                    vk->fitMom[0], vk->fitMom[1], vk->fitMom[2] };
           vk->FVC.Charge=getVertexCharge(vk);     
 	  vpderiv(true, vk->FVC.Charge, dparst, vk->fitCovXYZMom, vk->FVC.vrt, vk->FVC.covvrt, 
-	                      vk->FVC.cvder, vk->FVC.ywgt, vk->FVC.rv0);
+	                      vk->FVC.cvder, vk->FVC.ywgt, vk->FVC.rv0, (vk->m_fitterControl).get());
        }
        IERR = fitVertexCascade( vk, 0);     if(IERR)return IERR;   //fit 
        IERR = setVTrackMass(vk);            if(IERR)return IERR;   //mass of combined particle
@@ -373,24 +364,24 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 	                    vk->fitMom[0], vk->fitMom[1], vk->fitMom[2] };
           vk->FVC.Charge=getVertexCharge(vk);
 	  vpderiv(vk->passWithTrkCov, vk->FVC.Charge, dparst, vk->fitCovXYZMom, 
-	     vk->FVC.vrt, vk->FVC.covvrt, vk->FVC.cvder, vk->FVC.ywgt, vk->FVC.rv0);
+	     vk->FVC.vrt, vk->FVC.covvrt, vk->FVC.cvder, vk->FVC.ywgt, vk->FVC.rv0, (vk->m_fitterControl).get());
        }
-       if (forcft_.irob != 0) {robtest(vk, 0);}  // ROBUSTIFICATION new data structure
-       if (forcft_.irob != 0) {robtest(vk, 1);}  // ROBUSTIFICATION new data structure
+       if (vk->m_fitterControl->m_forcft.irob != 0) {robtest(vk, 0);}  // ROBUSTIFICATION new data structure
+       if (vk->m_fitterControl->m_forcft.irob != 0) {robtest(vk, 1);}  // ROBUSTIFICATION new data structure
        IERR = fitVertexCascade( vk, 1 );   if(IERR) break;              //with passNear for last vertex in cascade if needed
        IERR = setVTrackMass(vk);           if(IERR) break;               //mass of combined particle
 //
 //Get full constraint matrix and left side for vertex
        cascadeEvent_.matrixPnt[iv]=NStart;
-       NParCur = FullMCNSTfill( vk, workarray_.ader, tmpLSide);
+       NParCur = FullMCNSTfill( vk, vk->ader, tmpLSide);
 //
 //Move them to cascade full matrix and left side
-       copyFullMtx( workarray_.ader, NParCur, NParCur, fullMatrix, NStart, fullNPar); 
+       copyFullMtx( vk->ader, NParCur, NParCur, fullMatrix, NStart, fullNPar); 
 //
 //Copy error matrix for left side vector (measured part T,U1,..,Un - see Billoir)
 //  to correct place in iniCovMatrix matrix. Only at last step and without constraint part!!! CHECK IT!!!
        if(Iter==NFitIterationMax || fullSTOP || badStepCount>=badStepCountMax) 
-       copyFullMtx( workarray_.ader, 3+3*vk->TrackList.size(), NParCur, iniCovMatrix, NStart, fullNPar); 
+       copyFullMtx( vk->ader, 3+3*vk->TrackList.size(), NParCur, iniCovMatrix, NStart, fullNPar); 
 //
 // Fill left part of the system
        for(i=0; i<NParCur; i++) fullLSide[i+NStart] = tmpLSide[i];
@@ -517,7 +508,6 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
   //if(tmpc1)std::cout<<(*tmpc1)<<'\n';
 
   delete[] fullMatrix; delete[] fullLSide; delete[] tmpLSide; delete[] iniCovMatrix;
-  workarray_.myWorkArrays = 0;    //Safety for VTCFIT.  tmpArrays object is removed automatically.
 //-------------------------------- Check constraints status
   cnstRemnants=cascadeCnstRemnants();
 //std::cout<<"fullcnst="<<cnstRemnants<<" lim="<<cnstRemnants/minCnstRemnants<<'\n';
@@ -532,21 +522,22 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
  int processCascadePV( double *primVrt, double *primVrtCov )
 {
     double aermd[6],tmpd[6];  // temporary arrays
-    forcft_.vrt[0] = primVrt[0];
-    forcft_.vrt[1] = primVrt[1];
-    forcft_.vrt[2] = primVrt[2];
-    forcft_.covvrt[0] = primVrtCov[0];
-    forcft_.covvrt[1] = primVrtCov[1];
-    forcft_.covvrt[2] = primVrtCov[2];
-    forcft_.covvrt[3] = primVrtCov[3];
-    forcft_.covvrt[4] = primVrtCov[4];
-    forcft_.covvrt[5] = primVrtCov[5];
     VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1]; //Main vertex
 
+    vk->m_fitterControl->m_forcft.vrt[0] = primVrt[0];
+    vk->m_fitterControl->m_forcft.vrt[1] = primVrt[1];
+    vk->m_fitterControl->m_forcft.vrt[2] = primVrt[2];
+    vk->m_fitterControl->m_forcft.covvrt[0] = primVrtCov[0];
+    vk->m_fitterControl->m_forcft.covvrt[1] = primVrtCov[1];
+    vk->m_fitterControl->m_forcft.covvrt[2] = primVrtCov[2];
+    vk->m_fitterControl->m_forcft.covvrt[3] = primVrtCov[3];
+    vk->m_fitterControl->m_forcft.covvrt[4] = primVrtCov[4];
+    vk->m_fitterControl->m_forcft.covvrt[5] = primVrtCov[5];
+
     vk->useApriorVertex = 1;
-    cfdcopy(forcft_.covvrt, tmpd,   6);
+    cfdcopy(vk->m_fitterControl->m_forcft.covvrt, tmpd,   6);
     int IERR=cfdinv(tmpd, aermd, -3); if (IERR) {  IERR = -4; return IERR; }
-    cfdcopy(forcft_.vrt, vk->apriorV,   3);
+    cfdcopy(vk->m_fitterControl->m_forcft.vrt, vk->apriorV,   3);
     cfdcopy(      aermd, vk->apriorVWGT,6);
 
     return processCascade();
@@ -609,7 +600,10 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 	           +(vk->refV[1]-targetVertex[1])*(vk->refV[1]-targetVertex[1])
                    +(vk->refV[2]-targetVertex[2])*(vk->refV[2]-targetVertex[2]) );
 //std::cout<<"target="<<targetVertex[0]<<", "<<targetVertex[1]<<", "<<targetVertex[2]<<" vsht="<<vShift<<'\n';
-     if(!myPropagator.checkTarget(targetVertex)) { return -16; }       //Vertex is definitely outside working volume
+     bool insideGoodVolume=false;
+     if(vk->m_fitterControl && vk->m_fitterControl->m_objProp) { insideGoodVolume = vk->m_fitterControl->m_objProp->checkTarget(targetVertex);}
+     else                                                      { insideGoodVolume = myPropagator.checkTarget(targetVertex); }
+     if(!insideGoodVolume) { return -16; }       //Vertex is definitely outside working volume
      for(it=0; it<NTRK; it++){
        trk=vk->TrackList[it];
        if(trk->Id < 0){                // pseudo-track from cascade vertex
@@ -618,11 +612,11 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
           trk->fitP[2] =trk->iniP[2]+ Step*(trk->fitP[2]-trk->iniP[2]);
           continue;
        }
-       myPropagator.Propagate(trk, vk->refV,  targetVertex, tmpPer, tmpCov);
+       myPropagator.Propagate(trk, vk->refV,  targetVertex, tmpPer, tmpCov, (vk->m_fitterControl).get());
  //Check!!!And protection if needed.
        double eig5=cfSmallEigenvalue(tmpCov,5 );
        if(eig5<1.e-15 || tmpCov[0]>1.e7) {  //Bad propagation with material. Try without it.
-          myPropagator.Propagate(-999, trk->Charge,trk->refPerig,trk->refCovar, vk->refV, targetVertex, tmpPer, tmpCov);
+          myPropagator.Propagate(-999, trk->Charge,trk->refPerig,trk->refCovar, vk->refV, targetVertex, tmpPer, tmpCov, (vk->m_fitterControl).get());
 	  if(cfSmallEigenvalue(tmpCov,5 )<1.e-15){    //Final protection
 	        tmpCov[1]=0.;tmpCov[3]=0.;tmpCov[6]=0.;tmpCov[10]=0.;
 		             tmpCov[4]=0.;tmpCov[7]=0.;tmpCov[11]=0.;
@@ -750,7 +744,6 @@ void getFittedCascade( std::vector< Vect3DF > & cVertices,
      vrtPos.Y=vk->refIterV[1] + vk->fitV[1];
      vrtPos.Z=vk->refIterV[2] + vk->fitV[2];
      cVertices.push_back(vrtPos);
-     myMagFld.getMagFld(vrtPos.X,vrtPos.Y,vrtPos.Z,vBx,vBy,vBz); vkalvrtbmag.bmag  = vBz; //correct field in vertex
      NTRK = vk->TrackList.size();            // Number of tracks at vertex
      momCollector.clear();
      int DIM=3*(NTRK+1);
@@ -760,8 +753,10 @@ void getFittedCascade( std::vector< Vect3DF > & cVertices,
      DPhys[pntPhys+0][cascadeEvent_.matrixPnt[iv]+0]=1.;
      DPhys[pntPhys+1][cascadeEvent_.matrixPnt[iv]+1]=1.;
      DPhys[pntPhys+2][cascadeEvent_.matrixPnt[iv]+2]=1.;
+     myMagFld.getMagFld(vk->refIterV[0]+vk->fitV[0], vk->refIterV[1]+vk->fitV[1], vk->refIterV[2]+vk->fitV[2],
+                                                      vBx,vBy,vBz,(vk->m_fitterControl).get());
      for(it=0; it<NTRK; it++){
-       std::vector<double> pp = getFitParticleMom( vk->TrackList[it] );
+       std::vector<double> pp = getFitParticleMom( vk->TrackList[it], vBz );
        prtMom.Px=pp[0]; prtMom.Py=pp[1]; prtMom.Pz=pp[2]; prtMom.E=pp[3]; 
        momCollector.push_back( prtMom );
        if(vk->TrackList[it]->Id >= 0) particleChi2.push_back( vk->TrackList[it]->Chi2 ); //Only real tracks

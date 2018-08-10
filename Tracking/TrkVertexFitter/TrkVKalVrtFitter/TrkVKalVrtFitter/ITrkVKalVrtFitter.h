@@ -97,7 +97,7 @@ namespace Trk{
       virtual StatusCode VKalGetTrkWeights(std::vector<double>& Weights) =0;
       virtual StatusCode VKalGetTrkCov(long int, long int, std::vector<double>& CovMtx) =0;
       virtual StatusCode VKalGetFullCov(long int, std::vector<double>& CovMtx, int =0) =0;
-      virtual StatusCode VKalGetMassError(std::vector<int> ListOfTracks, double& Mass, double& MassError) =0;
+      virtual StatusCode VKalGetMassError(double& Mass, double& MassError) =0;
       virtual int VKalGetNDOF() =0;
 
       virtual void setApproximateVertex(double,double,double)=0;
@@ -106,7 +106,6 @@ namespace Trk{
       virtual void setRobustness(int)=0;
       virtual void setRobustScale(double)=0;
       virtual void setCascadeCnstPrec(double)=0;
-      virtual void setCnstType(int)=0;
       virtual void setMomCovCalc(int)=0;
       virtual void setIterations(int, double)=0;
       virtual void setVertexForConstraint(const xAOD::Vertex &)=0;
