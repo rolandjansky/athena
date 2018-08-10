@@ -1108,6 +1108,13 @@ else:
             InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
                                                          InDetKeys.UnslimmedDetailedTracksTruth(),
                                                          InDetKeys.UnslimmedTracksTruth())
+
+            if InDetFlags.doStoreTrackSeeds():
+              include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+              InDetTracksTruthSegemnts = ConfiguredInDetTrackTruth(InDetKeys.SiSPSeedSegments(),
+                                                                   InDetKeys.SiSPSeedSegments()+'DetailedTruth',
+                                                                   InDetKeys.SiSPSeedSegments()+'TruthCollection')
+
           #
           # add final output for statistics
           #
