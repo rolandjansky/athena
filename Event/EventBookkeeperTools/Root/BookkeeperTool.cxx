@@ -210,7 +210,6 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
         }
         else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
       }
-      ATH_MSG_INFO("GLARB incout_name" << incout_name);
       ATH_CHECK(outputMetaStore()->record(outinc,incout_name));
       ATH_CHECK(outputMetaStore()->record(outinc_aux,incout_name+"Aux."));
     }  // markIncomplete
@@ -241,7 +240,6 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
       }
       else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
     }
-    ATH_MSG_INFO("GLARB m_outputCollName " << m_outputCollName);
     ATH_CHECK(outputMetaStore()->record(outcom,m_outputCollName));
     ATH_CHECK(outputMetaStore()->record(outcom_aux,m_outputCollName+"Aux."));
   } // inputCollName if
@@ -254,7 +252,6 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
   else {
     ATH_MSG_DEBUG("Cutflow information written into container before metaDataStop");
   }
-  //ATH_MSG_INFO("BLARG 2 " << outputMetaStore()->dump());
 
   // Reset after metadata stop
   m_cutflowTaken = false;
@@ -306,20 +303,14 @@ StatusCode BookkeeperTool::initOutputContainer( const std::string& sgkey)
   // Do the same for the auxiliary container
   std::string auxkey(key+"Aux.");
   MetaCont<xAOD::CutBookkeeperAuxContainer>* acont = new MetaCont<xAOD::CutBookkeeperAuxContainer>(DataObjID("xAOD::CutBookkeeperAuxContainer",auxkey));
-  ATH_MSG_INFO("GLARB mcont key " << key);
-  ATH_MSG_INFO("GLARB mcont auxkey " << auxkey);
   ATH_CHECK(outputMetaStore()->record(std::move(mcont),key));
   ATH_CHECK(outputMetaStore()->record(std::move(acont),auxkey));
-  //ATH_MSG_INFO("BLARG 1 " << outputMetaStore()->dump());
-  /*
-  */
   ATH_CHECK(outputMetaStore()->symLink
           (
             ClassID_traits<MetaCont<xAOD::CutBookkeeperAuxContainer> >::ID(),
             auxkey,
             ClassID_traits<xAOD::CutBookkeeperAuxContainer>::ID()
           ));
-  ATH_MSG_INFO("BLARG 2 " << outputMetaStore()->dump());
 
   return StatusCode::SUCCESS;
 }
@@ -356,7 +347,6 @@ StatusCode BookkeeperTool::buildAthenaInterface(const std::string& inputName,
   // Get the input bookkeeper of the input metadata store
   const xAOD::CutBookkeeperContainer* cbc;
   if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(inputName) ) {
-    ATH_MSG_INFO("BLARG input " << inputMetaStore()->dump());
     StatusCode ssc = inputMetaStore()->retrieve( cbc, inputName );
     if (ssc.isSuccess()) {
       // Insert input bookkeeper into MetaCont for this sid
