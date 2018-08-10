@@ -60,22 +60,42 @@ namespace VKalVrtAthena {
      private:
 
        StatusCode doTrackParticleMethod();
-       StatusCode doTrkTrackMethod();
  
-       bool m_doTrkTrackMethod;
+       std::string        m_outputVtxContainer;
+       std::string        m_parentxAODTrkContainer;
+       std::string        m_childxAODTrkContainer;
+
+       bool               m_doHitPatternMatching;
+       bool               m_doAngularMatching;
+       bool               m_doRadiusSorting;
+
+       int                m_maxVtxPerEvent;
+
+       float              m_vtxQuality;
+       float              m_minVtxRadius;
+       float              m_maxVtxRadius;
+
+       float              m_parentPt;
+       float              m_parentMinEta;
+       float              m_parentMaxEta;
+
+       float              m_childMinPt;
+       float              m_childMaxPt;
+       int                m_childBLayerHits;
+       int                m_childNextToInPixLayerHits;
+       int                m_childPixHits;
+       int                m_childSCTHits;
 
        struct VtxObj {
          std::vector<const xAOD::TrackParticle*> inputTrks;
          xAOD::Vertex* vtx;
-
          VtxObj(xAOD::Vertex* _vtx,std::vector<const xAOD::TrackParticle*> _inputTrks) :
            inputTrks(_inputTrks), vtx(_vtx) {}
        };
 
 
        // Preselection of soft tracks
-       std::vector<const xAOD::TrackParticle*> PreSelectTracks(const xAOD::TrackParticleContainer* tracks);
-       std::vector<const Trk::Track*> PreSelectTracks(const TrackCollection* tracks);
+       std::vector<const xAOD::TrackParticle*> preselectTracks(const xAOD::TrackParticleContainer* tracks);
 
        // Note: cleans up the vtx if it doesn't pass the selection
        bool passVtxSelection(xAOD::Vertex*& vtx);

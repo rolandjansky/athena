@@ -13,6 +13,8 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+from InDetRecExample.InDetKeys import InDetKeys
+
 #
 # --- load vertex fitter
 #
@@ -22,35 +24,33 @@ InDetSecVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxF
                                              IterationNumber     = 30,
                                              AtlasMagFieldSvc    = "AtlasFieldSvc" )
 
-
-                                             #FirstMeasuredPoint         = VertexCuts.Fitter_FirstMeasuredPoint(),
-                                             #Robustness                 = VertexCuts.Fitter_Robustness(),
-                                             #InputParticleMasses        = VertexCuts.Fitter_InputParticleMasses(),
-                                             #VertexForConstraint        = VertexCuts.Fitter_VertexForConstraint(),
-                                             #CovVrtForConstraint        = VertexCuts.Fitter_CovVrtForConstraint(),
-                                             #FirstMeasuredPointLimit    = VertexCuts.FirstMeasuredPointLimit(),
-                                             #usePhiCnst                 = VertexCuts.usePhiCnst(),
-                                             #useThetaCnst               = VertexCuts.useThetaCnst())
-
 ToolSvc += InDetSecVxFitterTool
 
 #
 # Add driving algorithm
 #
 from VrtSecDecay.VrtSecDecayConf import VKalVrtAthena__VrtSecDecay
-VrtSecDecayFinder = VKalVrtAthena__VrtSecDecay(name                 = "VrtSecDecayFinder",
-                                               VertexFitterTool     = InDetSecVxFitterTool )
+VrtSecDecayFinder = VKalVrtAthena__VrtSecDecay(name                         = "VrtSecDecayFinder",
+                                               VertexFitterTool             = InDetSecVxFitterTool,
+                                               OutputVtxContainer           = InDetKeys.xAODSecVertexDecayContainer(),
+                                               ParentxAODContainer          = InDetKeys.xAODPixelThreeLayerTrackParticleContainer(),
+                                               ChildxAODContainer           = InDetKeys.xAODTrackParticleContainer(),
+                                               DoHitPatternMatching         = False,
+                                               DoAngularMatching            = True,
+                                               DoRadiusSorting              = False,
+                                               MaxVtxPerEvent               = 200,
+                                               VtxQuality                   = 10.0,
+                                               VtxMinRadius                 = 85.0,
+                                               VtxMaxRadius                 = 300.0,
+                                               ParentPt                     = 20000.0,
+                                               ParentMinEta                 = 0.1,
+                                               ParentMaxEta                 = 20.0,
+                                               ChildMinPt                   = 100.0,
+                                               ChildMaxPt                   = 1500.0,
+                                               ChildBLayerHits              = 0,
+                                               ChildNextToInPixLayerHits    = 0,
+                                               ChildPixHits                 = 1,
+                                               ChildSCTHits                 = 6 )
 
-# Add to top sequence!
+# Add to top sequence
 topSequence += VrtSecDecayFinder 
-
-#topSequence.StreamESD.ItemList+=["xAOD::VertexContainer#VrtSecDecay"]
-#topSequence.StreamESD.ItemList+=["xAOD::VertexAuxContainer#VrtSecDecayAux."]
-
-# TODO: These are only here for now... move eventually
-#StreamESD.ItemList+=["xAOD::VertexContainer#VrtSecDecay"]
-#StreamESD.ItemList+=["xAOD::VertexAuxContainer#VrtSecDecayAux."]
-#InDetESDList+=["xAOD::VertexContainer*"]
-#InDetESDList+=["xAOD::VertexAuxContainer*"]
-
-# DONE!
