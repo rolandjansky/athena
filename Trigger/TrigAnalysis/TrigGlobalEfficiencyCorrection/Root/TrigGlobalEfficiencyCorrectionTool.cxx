@@ -581,8 +581,8 @@ bool TrigGlobalEfficiencyCorrectionTool::getEgammaTriggerLegEfficiencies(const P
 	auto pp = reinterpret_cast<const xAOD::IParticle*>(p);
 	ATH_MSG_DEBUG("Retrieving efficiencies for " << ptype() << ' ' << p << " (pt=" << pp->pt() << ", eta=" << pp->eta() 
 		<< ", tag='" << m_dictionary[tag] << "') for trigger leg " << m_dictionary[leg]);
-	auto itrSf = GetScaleFactorToolIndex(p).find(ToolKey(leg, tag, runNumber)); // sfToolIndex.find(ToolKey(leg, tag, runNumber));
-	auto itrEff = GetEfficiencyToolIndex(p).find(ToolKey(leg, tag, runNumber)); // effToolIndex.find(ToolKey(leg, tag, runNumber));
+	auto itrSf = GetScaleFactorToolIndex(p).find(ToolKey(leg, tag, runNumber));
+	auto itrEff = GetEfficiencyToolIndex(p).find(ToolKey(leg, tag, runNumber));
 	if(itrSf==GetScaleFactorToolIndex(p).end() || itrEff==GetEfficiencyToolIndex(p).end())
 	{
 		if(!tag) ATH_MSG_ERROR("Unable to find " << ptype() << " tools needed for trigger leg " << m_dictionary[leg] << " (run number = " << runNumber << ")");

@@ -120,7 +120,6 @@ int main(int argc, char* argv[])
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
     muonTool.setProperty("CalibrationRelease", "180516_HighEtaUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
-    // muonTool.setProperty("Isolation", "GradientLoose").ignore();
 	muonTool.setProperty("OutputLevel", MSG::ERROR).ignore();
     if(muonTool.initialize() != StatusCode::SUCCESS)
     {

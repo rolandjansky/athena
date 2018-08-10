@@ -126,7 +126,6 @@ int main(int argc, char* argv[])
     muonTool.setProperty("CalibrationRelease", "180516_HighEtaUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
     muonTool.setProperty("useRel207", true).ignore();
-    // muonTool.setProperty("Isolation", "GradientLoose").ignore();
     if(muonTool.initialize() != StatusCode::SUCCESS)
     {
         Error(MSGSOURCE, "Unable to initialize the muon CP tool!");
