@@ -128,9 +128,9 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
     }
 
     if ( MNBTight_PsVetoCut ) {
-      failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
+      failSetWARN |=(!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Warning));
       // Set reason why event was flagged
-      failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT_PSVETO));
+      failSetWARNREASON |=(!eventInfo->updateEventFlagBit(xAOD::EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT_PSVETO));
     }
 
     if ( MNBLooseCut ) { //FIXME Tight cut actually implies loose cut too
