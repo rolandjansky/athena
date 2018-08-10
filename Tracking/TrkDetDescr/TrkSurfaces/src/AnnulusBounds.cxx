@@ -141,11 +141,11 @@ Trk::AnnulusBounds::AnnulusBounds(double minR, double maxR, double R, double phi
     
 
 
-    m_k_L = tan( (M_PI+phi)/2. + phiS);
-    m_k_R = tan( (M_PI-phi)/2. + phiS);
+    m_k_L = tan( (M_PI+phi)/2. - phiS);
+    m_k_R = tan( (M_PI-phi)/2. - phiS);
     
-    m_d_L = R*sin(phiS)*tan( (M_PI-phi)/2 - phiS) + R*(1.-cos(phiS));	
-    m_d_R = R*sin(phiS)*tan( (M_PI+phi)/2 - phiS) + R*(1.-cos(phiS));
+    m_d_L = R*sin(-phiS)*tan( (M_PI-phi)/2 + phiS) + R*(1.-cos(-phiS));	
+    m_d_R = R*sin(-phiS)*tan( (M_PI+phi)/2 + phiS) + R*(1.-cos(-phiS));
     
     
 
