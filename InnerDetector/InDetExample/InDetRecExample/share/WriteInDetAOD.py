@@ -34,8 +34,8 @@ if InDetFlags.doxAOD():
   InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
 
   if InDetFlags.doVrtSecDecay():
-    InDetAODList+=['xAOD::VertexContainer#VrtSecDecay']
-    InDetAODList+=['xAOD::VertexAuxContainer#VrtSecDecayAux.' + excludedVertexAuxData]
+    InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODSecVertexDecayContainer()]
+    InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODSecVertexDecayContainer()+'Aux.' + excludedVertexAuxData]
   if InDetFlags.doTrackSegmentsPixel():
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]
