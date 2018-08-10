@@ -1105,6 +1105,64 @@ if hasattr(runArgs,"preDigiInclude"):
 #--------------------------------------------------------------
 
 from Digitization.DigitizationFlags import digitizationFlags
+PileUpConfigOverride=False
+import math
+
+## First check for depreacted command-line options
+if hasattr(runArgs,"numberOfLowPtMinBias"):
+    if not math.fabs(digitizationFlags.numberOfLowPtMinBias.get_Value()-runArgs.numberOfLowPtMinBias)<0.00000001: #FIXME comparing two floats
+        fast_chain_log.info( "Changing digitizationFlags.numberOfLowPtMinBias from %s to %s", digitizationFlags.numberOfLowPtMinBias.get_Value(),runArgs.numberOfLowPtMinBias)
+        digitizationFlags.numberOfLowPtMinBias=float(runArgs.numberOfLowPtMinBias)
+        PileUpConfigOverride=True
+if hasattr(runArgs,"numberOfHighPtMinBias"):
+    if not math.fabs(digitizationFlags.numberOfHighPtMinBias.get_Value()-runArgs.numberOfHighPtMinBias)<0.00000001: #FIXME comparing two floats
+        fast_chain_log.info( "Changing digitizationFlags.numberOfHighPtMinBias from %s to %s", digitizationFlags.numberOfHighPtMinBias.get_Value(),runArgs.numberOfHighPtMinBias)
+        digitizationFlags.numberOfHighPtMinBias=float(runArgs.numberOfHighPtMinBias)
+        PileUpConfigOverride=True
+if hasattr(runArgs,"numberOfBeamHalo"):
+    if not math.fabs(digitizationFlags.numberOfBeamHalo.get_Value()-runArgs.numberOfBeamHalo)<0.00000001: #FIXME comparing two floats
+        fast_chain_log.info( "Changing digitizationFlags.numberOfBeamHalo from %s to %s", digitizationFlags.numberOfBeamHalo.get_Value(),runArgs.numberOfBeamHalo)
+        digitizationFlags.numberOfBeamHalo=float(runArgs.numberOfBeamHalo)
+        PileUpConfigOverride=True
+if hasattr(runArgs,"numberOfBeamGas"):
+    if not math.fabs(digitizationFlags.numberOfBeamGas.get_Value()-runArgs.numberOfBeamGas)<0.00000001: #FIXME comparing two floats
+        fast_chain_log.info( "Changing digitizationFlags.numberOfBeamGas from %s to %s", digitizationFlags.numberOfBeamGas.get_Value(),runArgs.numberOfBeamGas)
+        digitizationFlags.numberOfBeamGas=float(runArgs.numberOfBeamGas)
+        PileUpConfigOverride=True
+if hasattr(runArgs,"numberOfCavernBkg"):
+    if not digitizationFlags.numberOfCavern.get_Value()==runArgs.numberOfCavernBkg:
+        fast_chain_log.info( "Changing digitizationFlags.cavernEvents from %s to %s", digitizationFlags.numberOfCavern.get_Value(),runArgs.numberOfCavernBkg)
+        digitizationFlags.numberOfCavern=runArgs.numberOfCavernBkg
+        PileUpConfigOverride=True
+if hasattr(runArgs,"bunchSpacing"):
+    if  digitizationFlags.BeamIntensityPattern.statusOn:
+        fast_chain_log.warning("Redefine bunch-structure with a fixed %s ns bunchSpacing. Overwriting the previous setting of %s", runArgs.bunchSpacing,digitizationFlags.BeamIntensityPattern.get_Value())
+    else:
+        fast_chain_log.info( "Setting up job to run with a fixed %s ns bunchSpacing.", runArgs.bunchSpacing)
+    digitizationFlags.bunchSpacing = 25
+    digitizationFlags.BeamIntensityPattern.createConstBunchSpacingPattern(int(runArgs.bunchSpacing)) #FIXME This runArg should probably inherit from argInt rather than argFloat
+    fast_chain_log.info( "New bunch-structure = %s", digitizationFlags.BeamIntensityPattern.get_Value())
+    from AthenaCommon.BeamFlags import jobproperties
+    jobproperties.Beam.bunchSpacing = int(runArgs.bunchSpacing) #FIXME This runArg should probably inherit from argInt rather than argFloat
+    PileUpConfigOverride=True
+if hasattr(runArgs,"pileupInitialBunch"):
+    if not (digitizationFlags.initialBunchCrossing.get_Value()==runArgs.pileupInitialBunch):
+        fast_chain_log.info( "Changing digitizationFlags.initialBunchCrossing from %s to %s", digitizationFlags.initialBunchCrossing.get_Value(),runArgs.pileupInitialBunch)
+        digitizationFlags.initialBunchCrossing=runArgs.pileupInitialBunch
+        PileUpConfigOverride=True
+if hasattr(runArgs,"pileupFinalBunch"):
+    if not (digitizationFlags.finalBunchCrossing.get_Value()==runArgs.pileupFinalBunch):
+        fast_chain_log.info( "Changing digitizationFlags.finalBunchCrossing from %s to %s", digitizationFlags.finalBunchCrossing.get_Value(),runArgs.pileupFinalBunch)
+        digitizationFlags.finalBunchCrossing=runArgs.pileupFinalBunch
+        PileUpConfigOverride=True
+if hasattr(runArgs,"digiSteeringConf"):
+    if not (digitizationFlags.digiSteeringConf.get_Value()==runArgs.digiSteeringConf+"PileUpToolsAlg"):
+        fast_chain_log.info( "Changing digitizationFlags.digiSteeringConf from %s to %s", digitizationFlags.digiSteeringConf.get_Value(),runArgs.digiSteeringConf)
+        digitizationFlags.digiSteeringConf=runArgs.digiSteeringConf+"PileUpToolsAlg"
+        PileUpConfigOverride=True
+if PileUpConfigOverride:
+    fast_chain_log.info( "NB Some pile-up (re-)configuration was done on the command-line.")
+del PileUpConfigOverride
 
 #--------------------------------------------------------------
 # Get the flags
@@ -1131,18 +1189,139 @@ if hasattr(runArgs,"conditionsTag"):
     if(runArgs.conditionsTag!='NONE'):
         digitizationFlags.IOVDbGlobalTag = runArgs.conditionsTag
 
+if hasattr(runArgs,"PileUpPremixing"):
+    fast_chain_log.info("Doing pile-up premixing")
+    digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
+
 ### Avoid meta data reading
 digitizationFlags.overrideMetadata=['ALL']
 
-if hasattr(runArgs,"digiSteeringConf"):
-    if not (digitizationFlags.digiSteeringConf.get_Value()==runArgs.digiSteeringConf+"PileUpToolsAlg"):
-        digilog.info( "Changing digitizationFlags.digiSteeringConf from %s to %s", digitizationFlags.digiSteeringConf.get_Value(),runArgs.digiSteeringConf)
-        digitizationFlags.digiSteeringConf=runArgs.digiSteeringConf+"PileUpToolsAlg"
-        PileUpConfigOverride=True
+#--------------------------------------------------------------
+# Pileup configuration
+#--------------------------------------------------------------
+def HasInputFiles(runArgs, key):
+    if hasattr(runArgs, key):
+        cmd='runArgs.%s' % key
+        if eval(cmd):
+            return True
+    return False
 
-#--------------------------------------------------------------
-# Pileup configuration - removed as pileup will be handled on-the-fly
-#--------------------------------------------------------------
+def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossings):
+    uberList = []
+    refreshrate = 1.0
+
+    nSignalEvts = 1000
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if (athenaCommonFlags.EvtMax.get_Value()>0):
+        nSignalEvts = int(athenaCommonFlags.EvtMax.get_Value())
+        fast_chain_log.info('Number of signal events (from athenaCommonFlags.EvtMax) = %s.', nSignalEvts )
+    else:
+        nSignalEvts = 0
+        import PyUtils.AthFile as athFile
+        for inFile in athenaCommonFlags.PoolEvgenInput.get_Value():
+            try:
+                inputFile = athFile.fopen(inFile)
+                nSignalEvts += int(inputFile.nentries)
+                del inputFile
+            except:
+                fast_chain_log.warning("Unable to open file [%s]"%inFile)
+                fast_chain_log.warning('caught:\n%s',err)
+                import traceback
+                traceback.print_exc()
+        fast_chain_log.info('Number of signal events (read from files) = %s.', nSignalEvts )
+
+    nBkgEventsPerFile = 5000
+    try:
+        import PyUtils.AthFile as athFile
+        inputFile = athFile.fopen(initialList[0])
+        nBkgEventsPerFile = int(inputFile.nentries)
+        fast_chain_log.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile )
+        del inputFile
+    except:
+        import traceback
+        traceback.print_exc()
+        fast_chain_log.warning('Failed to count the number of background events in %s. Assuming 5000 - if this is an overestimate the job may die.', initialList[0])
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    from AthenaCommon.BeamFlags import jobproperties
+    Nbunches = 1 + digitizationFlags.finalBunchCrossing.get_Value() - digitizationFlags.initialBunchCrossing.get_Value()
+    nbunches = int(Nbunches)
+    if correctForEmptyBunchCrossings:
+        nbunches = int(math.ceil(float(nbunches) * float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value())))
+    fast_chain_log.info('Simulating a maximum of %s colliding-bunch crossings (%s colliding+non-colliding total) per signal event', nbunches, Nbunches)
+    nBkgEventsForJob = pileUpCalc(float(nSignalEvts), 1.0, float(nBkgEvtsPerCrossing), nbunches)
+    fast_chain_log.info('Number of background events required: %s. Number of background events in input files: %s', nBkgEventsForJob, (nBkgEventsPerFile*len(initialList)) )
+    numberOfRepetitionsRequired =float(nBkgEventsForJob)/float(nBkgEventsPerFile*len(initialList))
+    NumberOfRepetitionsRequired = 1 + int(math.ceil(numberOfRepetitionsRequired))
+    for i in range(0, NumberOfRepetitionsRequired):
+        uberList+=initialList
+    fast_chain_log.info('Expanding input list from %s to %s', len(initialList), len(uberList))
+    return uberList
+
+## Low Pt minbias set-up
+bkgArgName="LowPtMinbiasHitsFile"
+if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
+    bkgArgName="inputLowPtMinbiasHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.LowPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+                                                              digitizationFlags.numberOfLowPtMinBias.get_Value(), True)
+if digitizationFlags.LowPtMinBiasInputCols.statusOn:
+    digitizationFlags.doLowPtMinBias = True
+else:
+    digitizationFlags.doLowPtMinBias = False
+
+## High Pt minbias set-up
+bkgArgName="HighPtMinbiasHitsFile"
+if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
+    bkgArgName="inputHighPtMinbiasHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.HighPtMinBiasInputCols = makeBkgInputCol(bkgArg,
+                                                               digitizationFlags.numberOfHighPtMinBias.get_Value(), True)
+if digitizationFlags.HighPtMinBiasInputCols.statusOn:
+    digitizationFlags.doHighPtMinBias = True
+else:
+    digitizationFlags.doHighPtMinBias = False
+
+## Cavern Background set-up
+bkgArgName="cavernHitsFile"
+if hasattr(runArgs, "inputCavernHitsFile"):
+    bkgArgName="inputCavernHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.cavernInputCols = makeBkgInputCol(bkgArg,
+                                                        digitizationFlags.numberOfCavern.get_Value(), (not digitizationFlags.cavernIgnoresBeamInt.get_Value()))
+if digitizationFlags.cavernInputCols.statusOn:
+    digitizationFlags.doCavern = True
+else:
+    digitizationFlags.doCavern = False
+
+## Beam Halo set-up
+bkgArgName="beamHaloHitsFile"
+if hasattr(runArgs, "inputBeamHaloHitsFile"):
+    bkgArgName="inputBeamHaloHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.beamHaloInputCols = makeBkgInputCol(bkgArg,
+                                                          digitizationFlags.numberOfBeamHalo.get_Value(), True)
+if digitizationFlags.beamHaloInputCols.statusOn:
+    digitizationFlags.doBeamHalo = True
+else:
+    digitizationFlags.doBeamHalo = False
+
+## Beam Gas set-up
+bkgArgName="beamGasHitsFile"
+if hasattr(runArgs, "inputBeamGasHitsFile"):
+    bkgArgName="inputBeamGasHitsFile"
+if HasInputFiles(runArgs, bkgArgName):
+    exec("bkgArg = runArgs."+bkgArgName)
+    digitizationFlags.beamGasInputCols = makeBkgInputCol(bkgArg,
+                                                         digitizationFlags.numberOfBeamGas.get_Value(), True)
+if digitizationFlags.beamGasInputCols.statusOn:
+    digitizationFlags.doBeamGas = True
+else:
+    digitizationFlags.doBeamGas = False
 
 #--------------------------------------------------------------
 # Other configuration: LVL1, turn off sub detectors, calo noise

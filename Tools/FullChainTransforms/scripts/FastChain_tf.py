@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-#  FastChain_tf.py 
+#  FastChain_tf.py
 #  One step transform to run SIM+DIGI as one job, then reco
 #  to ESD/AOD output
 #  Richard Hawkings, adapted from FullChain_tf.py by Graeme Stewart
@@ -21,14 +21,14 @@ from PyJobTransforms.trfExe import athenaExecutor
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments, addTriggerArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 from RecJobTransforms.recTransformUtils import addRecoSubsteps, addAllRecoArgs
-from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addForwardDetTrfArgs, addCommonSimTrfArgs, addBasicDigiArgs, addCommonSimDigTrfArgs, addTrackRecordArgs, addSim_tfArgs
+from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addCommonSimTrfArgs, addBasicDigiArgs, addCommonSimDigTrfArgs, addTrackRecordArgs, addSim_tfArgs, addPileUpTrfArgs
 
 from PyJobTransforms.trfArgClasses import argFactory,argList
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
 def main():
-    
+
     msg.info('This is %s' % sys.argv[0])
 
     trf = getTransform()
@@ -41,12 +41,12 @@ def main():
 
 def getTransform():
     executorSet = set()
-    
+
     addRecoSubsteps(executorSet)
 
     # Sim + Digi - factor these out into an importable function in time
     executorSet.add(athenaExecutor(name = 'EVNTtoRDO', skeletonFile = 'FullChainTransforms/FastChainSkeleton.EVGENtoRDO.py',
-                                   substep = 'simdigi', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz', 
+                                   substep = 'simdigi', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData=['NULL','EVNT'],
                                    outData=['RDO','NULL'] ))
 
@@ -58,20 +58,20 @@ def getTransform():
     addAthenaArguments(trf.parser)
     addDetectorArguments(trf.parser)
     addTriggerArguments(trf.parser)
-    
+
     # Reconstruction arguments and outputs (use the factorised 'do it all' function)
     addAllRecoArgs(trf)
-    
+
     # Simulation and digitisation options
     addCommonSimTrfArgs(trf.parser)
     addCommonSimDigTrfArgs(trf.parser)
     addBasicDigiArgs(trf.parser)
     addSim_tfArgs(trf.parser)
     # addForwardDetTrfArgs(trf.parser)
-    addCommonSimDigTrfArgs(trf.parser)
+    addPileUpTrfArgs(trf.parser)
     addTrackRecordArgs(trf.parser)
     addFastChainTrfArgs(trf.parser)
-    
+
     return trf
 
 def addFastChainTrfArgs(parser):
