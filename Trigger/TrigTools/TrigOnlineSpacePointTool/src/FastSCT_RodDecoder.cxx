@@ -530,7 +530,7 @@ int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId
 	    ATH_MSG_DEBUG<< "add strip " <<strip<<" groupSize="<<groupSize<<" HashId "<<(int)hashId<<"  "<<
 	      m_sct_id->print_to_string(idColl)<<endmsg;
 	  */
-	  m_pClusterization->addHit(idColl, hashId,strip);
+	  m_pClusterization->addHit(idColl, hashId, strip, p_element);
 	}
     }
   else
@@ -545,7 +545,7 @@ int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId
 	    ATH_MSG_DEBUG<< "add strip " <<strip<<" groupSize="<<groupSize<<" HashId "<<(int)hashId<<"  "<<
 	      m_sct_id->print_to_string(idColl)<<endmsg;
 	  */
-	  m_pClusterization->addHit(idColl, hashId,strip);
+	  m_pClusterization->addHit(idColl, hashId, strip, p_element);
 	}
     }
   return groupSize;

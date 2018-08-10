@@ -11,6 +11,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/IdentifierHash.h" 
 
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include <string>
 #include <sstream>
@@ -26,6 +27,8 @@ using eformat::helper::SourceIdentifier;
 
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
+
+#include "StoreGate/ReadCondHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -160,6 +163,8 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
     m_timer[4] = timerSvc->addItem("SCT_CLTot");
   }
 
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   return sc;
 }
 
@@ -183,6 +188,14 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
     {
       m_timer[4]->start();
     }
+
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
 
   if(!evtStore()->contains<InDet::SCT_ClusterContainer>(m_containerName))
     {
@@ -382,6 +395,7 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
       int nstrips=0;
       for (std::vector<IdentifierHash>::iterator it=reducedList.begin(); it != reducedList.end(); ++it)        
 	{
+          const InDetDD::SiDetectorElement* element = elements->getDetectorElement((*it));
 	  SCT_RDO_Container::const_iterator collIt=m_rdoContainer->indexFind((*it));
 	  if(collIt==m_rdoContainer->end())
 	    continue;
@@ -396,13 +410,13 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 		      int strip=m_sct_id->strip(stripId);
 		      nstrips++;
 		      m_clusterization.addHit((*collIt)->identify(),(*collIt)->identifyHash(),
-					      strip);
+					      strip, element);
 		      int groupSize=(*rdoIt)->getGroupSize();
 		      for(int ig=1;ig<groupSize;ig++)
 			{
 			  strip++;
 			  m_clusterization.addHit((*collIt)->identify(),(*collIt)->identifyHash(),
-						  strip);
+						  strip, element);
 			  nstrips++;
 			}
 		    }
