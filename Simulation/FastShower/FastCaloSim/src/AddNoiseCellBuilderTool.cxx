@@ -18,8 +18,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "GaudiKernel/ListItem.h"
 
-//#include "TRandom3.h"
-
 #include <map>
 #include <iomanip>
 #include <fstream>
@@ -40,7 +38,6 @@ AddNoiseCellBuilderTool::AddNoiseCellBuilderTool(
   declareProperty("doNoise",               m_donoise);
   declareProperty("RandomStreamName",      m_randomEngineName,     "Name of the random number stream");
 
-  //m_rand = new TRandom3();
 }
 
 
@@ -106,10 +103,8 @@ StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer
   while(rseed==0) {
     rseed=(unsigned int)( CLHEP::RandFlat::shoot(m_randomEngine) * std::numeric_limits<unsigned int>::max() );
   }
-  //m_rand->SetSeed(rseed);
 
   log << MSG::INFO << "Executing start calo size=" <<theCellContainer->size()<<" Event="<<m_nEvent;//<<" rseed="<<rseed;
-  //if(m_rand)  log<<" seed(m_rand="<<m_rand->ClassName()<<")="<<m_rand->GetSeed();
   log<< endreq;
 
   ++m_nEvent;
@@ -140,7 +135,6 @@ StatusCode AddNoiseCellBuilderTool::process(CaloCellContainer * theCellContainer
 
       if(m_donoise) {
         double sigma=m_noiseTool->elecNoiseRMS(cell);
-        //double enoise=m_rand->Gaus(0.0,1.0)*sigma;
         double enoise=CLHEP::RandGaussZiggurat::shoot(m_randomEngine,0.0,1.0)*sigma;
 
 

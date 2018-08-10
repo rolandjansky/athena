@@ -11,13 +11,10 @@
 // Michael Duehrssen
 
 #include "FastCaloSim/BasicCellBuilderTool.h"
-//#include "CaloUtils/ICaloNoiseTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include <string>
-
-class TRandom;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -41,8 +38,6 @@ private:
   std::string m_noiseToolName;
   //NoiseTool
   ICaloNoiseTool* m_noiseTool;
-
-  //TRandom* m_rand;
 
   ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
   CLHEP::HepRandomEngine*        m_randomEngine;
