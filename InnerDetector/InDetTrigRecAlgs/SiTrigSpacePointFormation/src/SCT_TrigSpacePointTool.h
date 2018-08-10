@@ -34,11 +34,7 @@
 #include "InDetTrigToolInterfaces/ITrigSCT_SpacePointTool.h"
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"  
-#include "InDetReadoutGeometry/PixelDetectorManager.h"  
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 
 #include <string>
@@ -121,7 +117,6 @@ namespace InDet {
     std::string m_SiSpacePointMakerToolName;
 
 
-    const InDetDD::SCT_DetectorManager *m_manager; 
     const SCT_ID* m_idHelper;
 
     const SCT_ClusterContainer* m_Sct_clcontainer;
