@@ -248,18 +248,10 @@ if hasattr(runArgs, "postExec"):
         exec(cmd)
 
 
+## disable the looper killer by default
+simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool', ['Step'])
 ## enable the looper killer, if requested
 if hasattr(runArgs, "enableLooperKiller") and runArgs.enableLooperKiller:
-    # add non-MT looperKiller
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    # add default configurable
-
-    UAStore.addAction('LooperKiller',['Step'])
-    # add MT looperkiller
-    from G4UserActions import G4UserActionsConfig
-    try:
-        G4UserActionsConfig.addLooperKillerTool()
-    except AttributeError:
-        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
+    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
