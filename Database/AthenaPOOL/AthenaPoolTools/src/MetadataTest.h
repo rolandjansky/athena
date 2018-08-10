@@ -41,7 +41,7 @@ public:
 private:
   SG::ReadMetaHandleKey<xAOD::CutBookkeeperContainer> m_hkey;
   SG::ReadMetaHandleKey<EventStreamInfo> m_eihkey;
-  SG::ReadMetaHandleKey<EventStreamInfo> m_eihkey2;
+  //SG::ReadMetaHandleKey<EventStreamInfo> m_eihkey2;
 
   bool m_esidone;
 
