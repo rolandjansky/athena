@@ -30,20 +30,17 @@ public:
   ~AddNoiseCellBuilderTool();
 
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
 private:
-  std::string m_noiseToolName;
-  //NoiseTool
-  ICaloNoiseTool* m_noiseTool;
 
+  ToolHandle<ICaloNoiseTool> m_noiseTool;   //NoiseTool - public
   ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
-  CLHEP::HepRandomEngine*        m_randomEngine;
-  std::string                    m_randomEngineName;         //!< Name of the random number stream
-
-  bool m_donoise;
+  CLHEP::HepRandomEngine*        m_randomEngine{};
+  std::string                    m_randomEngineName{"FastCaloSimNoiseRnd"};         //!< Name of the random number stream
+  bool m_donoise{true};
 };
 
 #endif
