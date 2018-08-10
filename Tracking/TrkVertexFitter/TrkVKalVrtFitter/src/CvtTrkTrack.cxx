@@ -9,6 +9,7 @@
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 //-------------------------------------------------
 // Other stuff
 //----
@@ -69,8 +70,6 @@ namespace Trk{
        tmp_refFrameZ += perGlobalPos.z() ;	// magnetic field
        TrkMatControl tmpMat;
        tmpMat.trkRefGlobPos=Amg::Vector3D(perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
-       tmpMat.rotateToField=false; if(m_useMagFieldRotation)tmpMat.rotateToField=true;
-       tmpMat.trkRotation = Amg::RotationMatrix3D::Identity();
        tmpMat.extrapolationType=2;                   // Perigee point strategy
        tmpMat.TrkPnt=mPer;
        tmpMat.prtMass = 139.5702;
@@ -116,9 +115,7 @@ namespace Trk{
 	  for(int i=0; i<5; i++) pari[i]=m_apar[ntrk][i];
 	  for(int i=0; i<15;i++) covi[i]=m_awgt[ntrk][i];
           long int Charge = (long int) mPer->charge();  
-//VK 17.06/2008 Wrong!!! m_fitPropagator is defined only when InDet extrapolator is provided!!!
-          //m_fitPropagator->Propagate(ntrk,Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0]);
-          myPropagator.Propagate(ntrk,Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0]);
+          myPropagator.Propagate(ntrk,Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0],m_vkalFitControl);
        }
 
 //

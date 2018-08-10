@@ -14,9 +14,7 @@
 #include<iostream>
 
 namespace Trk {
-    extern vkalMagFld      myMagFld;
-    extern vkalPropagator  myPropagator;
-    extern int makeCascade(long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
+    extern int makeCascade(const VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, double *wm, double *inp_Trk5, double *inp_CovTrk5,
                    std::vector< std::vector<int> > vertexDefinition,
                    std::vector< std::vector<int> > cascadeDefinition,
 		   double definedCnstAccuracy=1.e-4);
@@ -34,9 +32,6 @@ namespace Trk {
     extern int setCascadeMassConstraint(long int IV, double Mass);
     extern int setCascadeMassConstraint(long int IV, std::vector<int> &, std::vector<int> &, double Mass);
 
-
- extern vkalMagFld      myMagFld;
- extern vkalPropagator  myPropagator;
 
 
    /** Interface for  cascade fit*/
@@ -320,12 +315,6 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     std::vector<double>  particleChi2;
 //
     if(!m_isFieldInitialized)setInitializedField();    //to allow callback for init
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
 //
     long int ntrk=0;
     StatusCode sc; sc.setChecked();
@@ -350,13 +339,13 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     }
     if(sc.isFailure())return 0;
 
-    VKalVrtSetOptions( ntrk );
+    VKalVrtConfigureFitterCore(ntrk);
 
     makeSimpleCascade(m_vertexDefinition, m_cascadeDefinition);
 
     double * partMass=new double[ntrk];
     for(int i=0; i<ntrk; i++) partMass[i]  = m_partMassForCascade[i];
-    int IERR = makeCascade( ntrk, m_ich, partMass, &m_apar[0][0], &m_awgt[0][0],
+    int IERR = makeCascade(*m_vkalFitControl, ntrk, m_ich, partMass, &m_apar[0][0], &m_awgt[0][0],
                             m_vertexDefinition,
                             m_cascadeDefinition,
 			    m_cascadeCnstPrecision);  delete[] partMass; if(IERR){ cleanCascade(); return 0;}
@@ -452,7 +441,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        cleanCascade();
        partMass=new double[ntrk];
        for(int i=0; i<ntrk; i++) partMass[i]  = m_partMassForCascade[i];
-       int IERR = makeCascade( ntrk, m_ich, partMass, &m_apar[0][0], &m_awgt[0][0],
+       int IERR = makeCascade(*m_vkalFitControl, ntrk, m_ich, partMass, &m_apar[0][0], &m_awgt[0][0],
                                new_vertexDefinition,
                                new_cascadeDefinition);        delete[] partMass;  if(IERR){ cleanCascade(); return 0;}
 //------Set up mass constraints

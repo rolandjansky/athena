@@ -5,7 +5,7 @@
 #include <math.h>
 #include <algorithm>
 #include <iostream>
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 
 namespace Trk {
 

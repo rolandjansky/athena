@@ -4,7 +4,7 @@
 
 #include <math.h>
 #include <iostream>
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Derivt.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
 
@@ -13,10 +13,9 @@ namespace Trk {
 extern CascadeEvent    cascadeEvent_;
 
 extern vkalMagFld      myMagFld;
-extern VKalVrtBMag  vkalvrtbmag;
 
-extern std::vector<double> getFitParticleMom( VKTrack *);
-extern std::vector<double> getIniParticleMom( VKTrack *);
+extern std::vector<double> getIniParticleMom( VKTrack *, VKTrack *);
+extern std::vector<double> getIniParticleMom( VKTrack *, double );
 
 //  Add to system matrix the derivatives due to pseudotrack constraints
 //
@@ -32,7 +31,7 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide)
    std::vector<double> vMagFld; double vBx,vBy,vBz;
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
       vk = cascadeEvent_.cascadeVertexList[iv];
-      myMagFld.getMagFld( vk->refIterV[0]+vk->iniV[0], vk->refIterV[1]+vk->iniV[1], vk->refIterV[2]+vk->iniV[2],vBx,vBy,vBz);
+      myMagFld.getMagFld(vk->refIterV[0]+vk->iniV[0], vk->refIterV[1]+vk->iniV[1], vk->refIterV[2]+vk->iniV[2],vBx,vBy,vBz,(vk->m_fitterControl).get());
       vMagFld.push_back(vBz);  // fill mag.fields for all vertices
    }
 //
@@ -60,21 +59,19 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide)
 //
 // Momentum of pseudo track in next vertex
         for(int ivt=0; ivt<NPar; ivt++)DerivC[ivt]=DerivP[ivt]=DerivT[ivt]=0.;
-        vkalvrtbmag.bmag=vMagFld[ivnext];
         DerivC[posCombTrk+2]=-1.;
         DerivT[posCombTrk+0]=-1.;
         DerivP[posCombTrk+1]=-1.;
-        std::vector<double> ppsum = getIniParticleMom( vk->nextCascadeVrt->TrackList[indCombTrk] ); // INI for pseudo
-	double csum=vk->nextCascadeVrt->TrackList[indCombTrk]->iniP[2];                             // INI for pseudo
+        std::vector<double> ppsum = getIniParticleMom( vk->nextCascadeVrt->TrackList[indCombTrk], vMagFld[ivnext] ); // INI for pseudo
+	double csum=vk->nextCascadeVrt->TrackList[indCombTrk]->iniP[2];                                              // INI for pseudo
         double ptsum=sqrt(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1]);
         double sinth2sum=(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1])/(ppsum[0]*ppsum[0] + ppsum[1]*ppsum[1] + ppsum[2]*ppsum[2]);
         
 //
 // Momenta+Derivatives of tracks in vertex itself
-        vkalvrtbmag.bmag=vMagFld[iv];
 	double tpx,tpy; tpx=tpy=0;
         for(it=0; it<(int)vk->TrackList.size(); it++){
-          std::vector<double> pp =    getIniParticleMom( vk->TrackList[it] );
+          std::vector<double> pp =    getIniParticleMom( vk->TrackList[it], vMagFld[iv]);
 	  double curv=vk->TrackList[it]->iniP[2];
           double pt=sqrt(pp[0]*pp[0] + pp[1]*pp[1]);
           double cth=pp[2]/pt;

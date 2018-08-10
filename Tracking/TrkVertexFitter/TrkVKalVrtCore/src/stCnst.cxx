@@ -5,9 +5,10 @@
 //    Management of constraints 
 //
 //----------------------------------------------------
+#include "TrkVKalVrtCore/ForCFT.h"
 #include "TrkVKalVrtCore/Derivt.h"
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include <iostream>
 
 namespace Trk {
@@ -18,7 +19,6 @@ extern void  calcPhiConstraint( VKPhiConstraint * );
 extern void  calcThetaConstraint( VKThetaConstraint * );
 extern void  calcPointConstraint( VKPointConstraint * );
 extern void  calcPlaneConstraint( VKPlaneConstraint * );
-
 
 
 void applyConstraints(VKVertex * vk)

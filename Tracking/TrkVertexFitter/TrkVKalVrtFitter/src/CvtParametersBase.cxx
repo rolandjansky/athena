@@ -15,13 +15,9 @@
 // Other stuff
 //----
 #include  "TrkParameters/TrackParameters.h"
-#include  "TrkSurfaces/StraightLineSurface.h"
-//----
 #include <iostream> 
 
 namespace Trk {
-
- extern vkalPropagator  myPropagator;
 
 //--------------------------------------------------------------------
 //  Extract TrackParameters
@@ -35,7 +31,6 @@ namespace Trk {
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
     Amg::Vector3D perGlobalPos,perGlobalVrt;
     const Trk::Perigee* mPer=0;
-    const Trk::AtaStraightLine* Line=0; 
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
     double fx,fy,fz,BMAG_FIXED;
@@ -48,7 +43,7 @@ namespace Trk {
      m_refFrameX=m_refFrameY=m_refFrameZ=0.;
      m_fitField->setAtlasMagRefFrame( 0., 0., 0.);
 
-     if( m_InDetExtrapolator == 0 && m_PropagatorType != 3 ){
+     if( m_InDetExtrapolator == 0 ){
        //log << MSG::WARNING  << "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        return StatusCode::FAILURE;        
@@ -67,8 +62,6 @@ namespace Trk {
        tmp_refFrameZ += perGlobalPos.z() ;
        TrkMatControl tmpMat;                                    // Here we create structure to control material effects
        tmpMat.trkRefGlobPos=Amg::Vector3D(perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
-       tmpMat.rotateToField=false; if(m_useMagFieldRotation)tmpMat.rotateToField=true;
-       tmpMat.trkRotation = Amg::RotationMatrix3D::Identity();
        if(m_firstMeasuredPoint){ tmpMat.extrapolationType=0;}   //First measured point strategy
        else{                     tmpMat.extrapolationType=1;}   //Any measured point strategy
        tmpMat.TrkPnt=(*i_pbase);
@@ -86,8 +79,6 @@ namespace Trk {
     m_refGVertex = Amg::Vector3D(tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ);
 //
     m_fitField->getMagFld( tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ, fx,fy,fz);  //Rotation parameters in case of rotation use   
-    Amg::RotationMatrix3D magFldRot=getMagFldRotation(fx,fy,fz, tmp_refFrameX, tmp_refFrameY, 0.);
-    StraightLineSurface lineTarget(new Amg::Transform3D( magFldRot.inverse() , Amg::Vector3D(tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ) ));
 //
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //  TracksParameters are extrapolated to common point and converted to Perigee
@@ -97,7 +88,6 @@ namespace Trk {
     counter=0;
     for (i_pbase = InpTrk.begin(); i_pbase != InpTrk.end(); ++i_pbase) {
        const TrackParameters* trkparO = (*i_pbase);
-     if(!m_useMagFieldRotation){
        if( trkparO ){
          const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapWithMatUpdate( ntrk, trkparO, &m_refGVertex );
          if(trkparN == 0) return StatusCode::FAILURE;
@@ -116,28 +106,6 @@ namespace Trk {
        m_fitField->getMagFld(  perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),  // Magnetic field
                                fx, fy, BMAG_FIXED);                                 // at perigee point
        if(fabs(BMAG_FIXED) < 0.01) BMAG_FIXED=0.01;
-     }else{                   // For rotation case only!!!
-       if( trkparO ){
-         const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapToLine((long int)counter, trkparO, &m_refGVertex, lineTarget);
-         if(trkparN == 0) return StatusCode::FAILURE;
-         Line = dynamic_cast<const Trk::AtaStraightLine*>(trkparN); 
-         if( Line == 0) {   delete trkparN;  return StatusCode::FAILURE; }
-         VectPerig    =  Line->parameters(); 
-         perGlobalPos =  Line->position();    //Global position of perigee point
-         Amg::Vector3D perMomentum(Line->momentum().x(),Line->momentum().y(),Line->momentum().z());
-         Amg::Vector3D rotatedMomentum=magFldRot*perMomentum;
-//         VectPerig[2] += atan2(rotatedMomentum.y(),rotatedMomentum.x());  //VK wrong 27.09.10
-         VectPerig[2] = atan2(rotatedMomentum.y(),rotatedMomentum.x());
-         VectPerig[3] = atan2(rotatedMomentum.perp(),rotatedMomentum.z());
-         if( !convertAmg5SymMtx(Line->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
-         delete trkparN;
-         BMAG_FIXED=sqrt(fx*fx+fy*fy+fz*fz);
-         m_fitRotatedField->setAtlasMag(BMAG_FIXED);  //set fixed ROTATED field in corresponding VKal oblect
-       }else{  return StatusCode::FAILURE;   }
-       m_trkControl[counter].trkRotation=magFldRot;
-       m_trkControl[counter].trkRotationVertex=   Amg::Vector3D( m_refGVertex.x(), m_refGVertex.y(), m_refGVertex.z());
-       m_trkControl[counter].trkSavedLocalVertex= Amg::Vector3D(0.,0.,0.);
-     }
        counter++;
 //std::cout<<"TESTVK="<<'\n'; std::cout.precision(16); for(int ik=0; ik<15; ik++)std::cout<<CovVertTrk[ik]<<'\n';
        VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
@@ -183,7 +151,7 @@ namespace Trk {
     m_refFrameX=m_refFrameY=m_refFrameZ=0.;
     m_fitField->setAtlasMagRefFrame( 0., 0., 0.);
 
-    if( m_InDetExtrapolator == 0 && m_PropagatorType != 3 ){
+    if( m_InDetExtrapolator == 0 ){
        //log << MSG::WARNING  << "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        return StatusCode::FAILURE;        
@@ -202,8 +170,6 @@ namespace Trk {
        tmp_refFrameZ += perGlobalPos.z() ;
        TrkMatControl tmpMat;                                    // Here we create structure to control material effects
        tmpMat.trkRefGlobPos=Amg::Vector3D(perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z()); // on track extrapolation
-       tmpMat.rotateToField=false;
-       tmpMat.trkRotation = Amg::RotationMatrix3D::Identity();
        tmpMat.extrapolationType=0;   //First measured point strategy
        tmpMat.TrkPnt=NULL;           //No reference point for neutral track for the moment  !!!
        tmpMat.prtMass = 139.5702;
@@ -219,8 +185,6 @@ namespace Trk {
     m_refGVertex = Amg::Vector3D(tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ);
 //
     m_fitField->getMagFld( tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ, fx,fy,fz);  //Rotation parameters in case of rotation use   
-    Amg::RotationMatrix3D magFldRot=getMagFldRotation(fx,fy,fz, tmp_refFrameX, tmp_refFrameY, 0.);
-    StraightLineSurface lineTarget(new Amg::Transform3D( magFldRot.inverse() , Amg::Vector3D(tmp_refFrameX, tmp_refFrameY, tmp_refFrameZ) ));
 //
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //  TracksParameters are extrapolated to common point and converted to Perigee
@@ -229,7 +193,6 @@ namespace Trk {
 //
     counter=0;
     for (i_pbase = InpTrk.begin(); i_pbase != InpTrk.end(); ++i_pbase) {
-      if(!m_useMagFieldRotation){
          const Trk::NeutralParameters* neuparO = (*i_pbase);
          if(neuparO == 0) return StatusCode::FAILURE;
          const Trk::NeutralParameters* neuparN = m_fitPropagator->myExtrapNeutral( neuparO, &m_refGVertex );
@@ -245,9 +208,6 @@ namespace Trk {
          m_fitField->getMagFld(  perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),  // Magnetic field
                                fx, fy, BMAG_FIXED);                                 // at perigee point
          if(fabs(BMAG_FIXED) < 0.01) BMAG_FIXED=0.01;
-       }else{                   // For rotation case only!!!
-         return StatusCode::FAILURE; 
-       }
        counter++;
 
 //std::cout<<" BaseEMtx="<<CovMtx.fast(1,1)<<", "<<CovMtx.fast(2,2)<<", "<<CovMtx.fast(3,3)<<", "

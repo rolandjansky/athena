@@ -3,7 +3,7 @@
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Derivt.h"
 
 namespace Trk {
@@ -14,7 +14,7 @@ namespace Trk {
 /* Author: V.Kostyukhin                                */
 /* --------------------------------------------------- */
 
-#define ader_ref(a_1,a_2) ader[(a_2)*(NTrkM*3+3) + a_1]
+#define ader_ref(a_1,a_2) ader[(a_2)*(vkalNTrkM*3+3) + a_1]
 
 void FullMTXfill(VKVertex * vk, double * ader)
 {

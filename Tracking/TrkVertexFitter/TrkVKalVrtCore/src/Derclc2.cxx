@@ -6,40 +6,41 @@
 #include "TrkVKalVrtCore/Derivt.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 
 namespace Trk {
-
-extern VKalVrtBMag vkalvrtbmag;
-
-
 
 //
 //   Pointing constraint calculation in new data model.
 //
 //      cnstV and cnstP values are used!!!
 //-----------------------------------------------
- extern void cfnewp(long int*, double*, double*, double*, double*, double*);
- extern std::vector<double> getCnstParticleMom( VKTrack * );
-
+extern void cfnewp(long int*, double*, double*, double*, double*, double*);
+extern std::vector<double> getCnstParticleMom( VKTrack *, double );
+extern vkalMagFld      myMagFld;
 
 void  calcPointConstraint( VKPointConstraint * cnst )
 {
+    VKConstraintBase * base_cnst = (VKConstraintBase*) cnst;
+    VKVertex * vk=cnst->getOriginVertex();
 //
 //  Magnetic field in fitted vertex position
-    double magConst =vkalvrtbmag.bmag  * vkalMagCnvCst;
+    double cnstPos[3];
+    cnstPos[0]=vk->refIterV[0]+vk->cnstV[0];
+    cnstPos[1]=vk->refIterV[1]+vk->cnstV[1];
+    cnstPos[2]=vk->refIterV[2]+vk->cnstV[2];
+    double localField = myMagFld.getMagFld(cnstPos,(vk->m_fitterControl).get());
+    double magConst = localField * vkalMagCnvCst;
 //
 //
     int it,Charge=0;
     double ptot[4]={0.,0.,0.,0.};  
-    VKConstraintBase * base_cnst = (VKConstraintBase*) cnst;
-    VKVertex * vk=cnst->getOriginVertex();
     int NTRK = vk->TrackList.size();
     VKTrack * trk;
     std::vector< std::vector<double> > pp(NTRK);
     for( it=0; it<NTRK; it++){
       trk = vk->TrackList[it];
-      pp[it]=getCnstParticleMom( trk );
+      pp[it]=getCnstParticleMom( trk, localField );
       ptot[0] += pp[it][0];    
       ptot[1] += pp[it][1];    
       ptot[2] += pp[it][2];    

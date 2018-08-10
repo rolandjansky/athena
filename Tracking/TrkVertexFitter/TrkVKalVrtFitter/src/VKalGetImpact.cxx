@@ -5,6 +5,7 @@
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 //-------------------------------------------------
 //
 #include<iostream>
@@ -13,9 +14,8 @@ namespace Trk {
  extern   
   void cfimp(long int TrkID, long int  ICH, long int IFL, double* PAR, double* ERR,
               double* VRT, double* VCOV,
-	      double* RIMP, double* RCOV, double*  SIGN);
- extern vkalMagFld      myMagFld;
- extern vkalPropagator  myPropagator;
+	      double* RIMP, double* RCOV, double*  SIGN, const VKalVrtControlBase * FitCONTROL );
+
 }
 //
 //__________________________________________________________________________
@@ -41,12 +41,6 @@ namespace Trk{
     long int vkCharge=Charge;
 
     if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
 //
 //------  extract information about selected tracks
 //
@@ -66,7 +60,7 @@ namespace Trk{
     double VrtCov[6]={0.,0.,0.,0.,0.,0.};
 //
 //
-    Trk::cfimp( 0, vkCharge, 0, &m_apar[0][0], &m_awgt[0][0], &VrtInp[0], &VrtCov[0], &RIMP[0], &RCOV[0], &SIGNIF);
+    Trk::cfimp( 0, vkCharge, 0, &m_apar[0][0], &m_awgt[0][0], &VrtInp[0], &VrtCov[0], &RIMP[0], &RCOV[0], &SIGNIF, m_vkalFitControl);
 
     Impact.push_back(RIMP[0]);
     Impact.push_back(RIMP[1]);
@@ -101,12 +95,6 @@ namespace Trk{
     long int vkCharge=Charge;
 
     if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
 //
 //------  extract information about selected tracks
 //
@@ -126,7 +114,7 @@ namespace Trk{
     double VrtCov[6]={0.,0.,0.,0.,0.,0.};
 //
 //
-    Trk::cfimp( 0, vkCharge, 0, &m_apar[0][0], &m_awgt[0][0], &VrtInp[0], &VrtCov[0], &RIMP[0], &RCOV[0], &SIGNIF);
+    Trk::cfimp( 0, vkCharge, 0, &m_apar[0][0], &m_awgt[0][0], &VrtInp[0], &VrtCov[0], &RIMP[0], &RCOV[0], &SIGNIF, m_vkalFitControl);
 
     Impact.push_back(RIMP[0]);
     Impact.push_back(RIMP[1]);
@@ -158,12 +146,6 @@ namespace Trk{
     long int vkCharge=Charge;
 
     if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
-    if(m_PropagatorType <=1 ){                           // needed for reenterability
-       Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
-    }else{                                               // needed for reenterability
-       Trk::myPropagator.setPropagator(m_fitPropagator); // needed for reenterability
-    }
 //
 //------  extract information about selected tracks
 //
@@ -183,7 +165,7 @@ namespace Trk{
     double VrtCov[6]={0.,0.,0.,0.,0.,0.};
 //
 //
-    Trk::cfimp( 0, vkCharge, 0, &m_apar[0][0], &m_awgt[0][0], &VrtInp[0], &VrtCov[0], &RIMP[0], &RCOV[0], &SIGNIF);
+    Trk::cfimp( 0, vkCharge, 0, &m_apar[0][0], &m_awgt[0][0], &VrtInp[0], &VrtCov[0], &RIMP[0], &RCOV[0], &SIGNIF, m_vkalFitControl);
 
     Impact.push_back(RIMP[0]);
     Impact.push_back(RIMP[1]);
