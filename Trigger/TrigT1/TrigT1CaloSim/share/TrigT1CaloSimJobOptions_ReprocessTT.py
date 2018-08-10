@@ -17,14 +17,15 @@ svcMgr +=  LVL1ConfigSvc
 
 from IOVDbSvc.CondDB import conddb
 
-# Must block folder we want
+conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels")
+conddb.blockFolder("/TRIGGER/L1Calo/V2/Conditions/DisabledTowers")
+conddb.blockFolder("/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults")
 conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
-conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib<tag>V2-PHYSICS-CHANCALIB-00-00</tag>", force=True)
 
-# The other three folders do not require modification
-conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels<tag></tag>")
-conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults<tag></tag>")
-conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Conditions/DisabledTowers<tag></tag>")
+conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib<tag>V2-PHYSICS-CHANCALIB-00-00</tag>", force=True)
+conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels<tag>V2-DEADCHANNELS-00-00</tag>", force=True)
+conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults<tag>V2-CHANDEFAULTS-00-00</tag>", force=True)
+conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Conditions/DisabledTowers<tag>V2-DISABLEDTOWERS-00-00</tag>", force=True)
 
 #reprocess
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2TriggerTowerMaker
