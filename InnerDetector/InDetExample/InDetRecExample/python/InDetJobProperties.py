@@ -1846,7 +1846,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control to run alternative InDetV0Finder
       self.doSecVertexFinder        = self.postProcessing() and self.doSecVertexFinder()
-      self.doVrtSecDecay            = (self.postProcessing() or self.doxAOD()) and self.doVrtSecDecay()
+      self.doVrtSecDecay            = self.postProcessing() and self.doVrtSecDecay()
 
       #
       # control to run InDetConversionFinder
