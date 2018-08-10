@@ -112,7 +112,7 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    time cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+    time cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthenaP1SrcDir} 2>&1 | tee cmake_config.log
 fi
@@ -125,13 +125,13 @@ fi
 
 # make:
 if [ -n "$EXE_MAKE" ]; then
-    time make -k 2>&1 | tee cmake_build.log
+    time ${BUILDTOOL} 2>&1 | tee cmake_build.log
 fi
 
 # Install the results:
 if [ -n "$EXE_INSTALL" ]; then
-    time make install/fast \
-	DESTDIR=${BUILDDIR}/install/AthenaP1/${NICOS_PROJECT_VERSION} 2>&1 | tee cmake_install.log
+    time DESTDIR=${BUILDDIR}/install/AthenaP1/${NICOS_PROJECT_VERSION} ${BUILDTOOL} ${INSTALLRULE} \
+	 2>&1 | tee cmake_install.log
 fi
 
 # Build an RPM for the release:
