@@ -1202,14 +1202,14 @@ SGImplSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersion
                                const TKEY& requestedKey) const {
   lock_t lock (m_mutex);
   StatusCode sc(StatusCode::FAILURE);
-  const DataHandle<T> i,e;
+  SG::ConstIterator<T> i,e;
   if ((this->retrieve<T>(i,e)).isSuccess()){
     SG::VersionedKey reqVK(requestedKey);
     while (i != e) {
       SG::VersionedKey vk(i.key());
       if (reqVK.sameKey(vk)) {
         sc = StatusCode::SUCCESS;
-        SG::ObjectWithVersion<T> okOWV(vk, i);
+        SG::ObjectWithVersion<T> okOWV(vk, i.proxy());
         allVersions.push_back(okOWV);
       }
       ++i;
