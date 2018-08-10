@@ -104,7 +104,7 @@ void eflowLayerIntegrator::resetAllClustersIntegralForNewTrack(const eflowTrackC
     if ( fabs(em2Eta) > 2.5 ) em2Eta = 2.49;  //sometimes track extrapolator returns e.g. 2.51 for em2Eta, which causes depth array to be filled with zeroes.
   }
   else{
-    if(em2Eta<-998. && trackCalo.getEM1eta()<-998.) em2Eta = trackCalo.getFCAL0eta();
+    if ( em2Eta<-998.) em2Eta = trackCalo.getFCAL0eta();
     if ( fabs(em2Eta) > 4.0 ) { em2Eta = 3.99; }   //sometimes track extrapolator returns e.g. 4.01 for em2Eta, which causes depth array to be filled with zeroes.
   }
     
