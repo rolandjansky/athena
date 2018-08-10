@@ -51,5 +51,8 @@ class LArPedestalMC: public ILArPedestal {
   std::vector<float> m_vPedestal, m_vPedestalRMS;
 };
 
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArPedestalMC, 27770770,1)
+CONDCONT_DEF(LArPedestalMC,251521960, ILArPedestal);
+
 #endif 
