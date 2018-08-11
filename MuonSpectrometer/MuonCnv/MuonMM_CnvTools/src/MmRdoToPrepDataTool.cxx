@@ -140,14 +140,13 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
     const MM_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
-    const Identifier elementId = m_mmIdHelper->elementID(rdoId);
     const int time = rdo->time();
     const int charge = rdo->charge();
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
     
     // get the local and global positions
-    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(elementId);
+    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(rdoId);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(rdoId,localPos);
