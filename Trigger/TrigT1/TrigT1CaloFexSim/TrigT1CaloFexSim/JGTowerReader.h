@@ -1,5 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TRIGT1CALOFEXSIM_JGTOWERREADER_H
-#define TRIGT1CALOFEXSIM_JGTOWERREADER_H 1
+#define TRIGT1CALOFEXSIM_JGTOWERREADER_H 
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "StoreGate/WriteHandle.h"
@@ -23,52 +27,27 @@
 #include "Identifier/IdentifierHash.h"
 #include "TH1.h"
 #include "TH2.h"
-
+#include "TrigT1CaloFexSim/JetAlg.h"
+#include "TrigT1CaloFexSim/METAlg.h"
 class JGTowerReader: public ::AthAlgorithm { 
  public: 
   JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~JGTowerReader(); 
 
-
-
-  struct L1Jet{
-
-    float eta;
-    float phi;
-    float et;
-  // constructor for convenience
-    L1Jet(float eta_j, float phi_j, float et_j){
-      eta = eta_j;
-      phi = phi_j;
-      et  = et_j;
-    };
-  };
-
-  struct Seed{
-
-    std::vector<float> eta;
-    std::vector<std::vector<float>> phi;
-    std::vector<std::vector<float>> et;
-    std::vector<std::vector<bool>> local_max;
-  };
-
-
-  struct MET{
-    float phi;
-    float et;
-
-  };
-
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
   virtual StatusCode  beginInputFile();
-
-   private: 
+  virtual StatusCode  ProcessObject();
+ private: 
   bool m_outputNoise;
+  float m_jJet_thr;
   float m_jSeed_size;
+  float m_jMax_r;
   float m_jJet_r;
+  float m_gJet_thr;
   float m_gSeed_size;
+  float m_gMax_r;
   float m_gJet_r;
   std::string m_noise_file;
  
@@ -79,22 +58,18 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode JFexAlg(const xAOD::JGTowerContainer*jTs);
   virtual StatusCode GFexAlg(const xAOD::JGTowerContainer*gTs); 
 
-  virtual StatusCode SeedGrid(const xAOD::JGTowerContainer*towers, JGTowerReader::Seed*seeds);
-  virtual StatusCode SeedFinding(const xAOD::JGTowerContainer*towers, JGTowerReader::Seed*seeds, float seed_size,float range, std::vector<float> noise);
-
-  virtual StatusCode BuildJet(const xAOD::JGTowerContainer*towers,std::vector<float> noise, JGTowerReader::Seed*seeds, std::vector<JGTowerReader::L1Jet> &js, float jet_size);
-  virtual StatusCode BuildMET(const xAOD::JGTowerContainer*towers,std::vector<float> noise,JGTowerReader::MET* met);
-
-  virtual StatusCode ProcessObject();
-
   std::vector<float> jT_noise;
+  std::vector<float> jJet_thr;
   std::vector<float> gT_noise;
-  JGTowerReader::Seed*   jSeeds=new JGTowerReader::Seed;
-  JGTowerReader::Seed*   gSeeds=new JGTowerReader::Seed;
-  JGTowerReader::MET*    jMET=new  JGTowerReader::MET;
-  JGTowerReader::MET*    gMET=new  JGTowerReader::MET;
-  std::vector<JGTowerReader::L1Jet>  jL1Jets;
-  std::vector<JGTowerReader::L1Jet>  gL1Jets;
+  std::vector<float> gJet_thr;
+
+
+  JetAlg::Seed*   jSeeds=new JetAlg::Seed;
+  JetAlg::Seed*   gSeeds=new JetAlg::Seed;
+  METAlg::MET*    jMET=new  METAlg::MET;
+  METAlg::MET*    gMET=new  METAlg::MET;
+  std::vector<JetAlg::L1Jet>  jL1Jets;
+  std::vector<JetAlg::L1Jet>  gL1Jets;
   std::map<TString, TH1*> hName;
   std::map<TString, TH2*> h2Name;
   int m_jTowerHashMax;
