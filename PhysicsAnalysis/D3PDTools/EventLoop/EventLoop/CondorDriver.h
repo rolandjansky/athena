@@ -59,7 +59,8 @@ namespace EL
   private:
     virtual void
     batchSubmit (const std::string& location, const SH::MetaObject& options,
-		 std::size_t njob) const override;
+ 		 std::vector<std::size_t> jobIndices, bool resubmit)
+      const override;
 
     /// effects: special initialization for condor scripts: export PATH
     /// guarantee: strong

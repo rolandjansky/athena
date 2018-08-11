@@ -48,22 +48,21 @@ namespace EL
 
   void LSFDriver ::
   batchSubmit (const std::string& location, const SH::MetaObject& options,
-	       std::size_t njob) const
+               std::vector<std::size_t> jobIndices, bool resubmit) const
   {
+    (void) resubmit;
     RCU_READ_INVARIANT (this);
 
+    std::ostringstream cmd;
+    cmd << "cd " << location << "/submit";
+    for (std::size_t iter : jobIndices)
     {
-      std::ostringstream cmd;
-      cmd << "cd " << location << "/submit";
-      for (unsigned iter = 0, end = njob; iter != end; ++ iter)
-      {
-	cmd << " && bsub " << options.castString (Job::optSubmitFlags);
-	if (options.castBool (Job::optResetShell, true))
-	  cmd << " -L /bin/bash";
-	cmd << " " << location << "/submit/run " << iter;
-      }
-      if (gSystem->Exec (cmd.str().c_str()) != 0)
-	RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+      cmd << " && bsub " << options.castString (Job::optSubmitFlags);
+      if (options.castBool (Job::optResetShell, true))
+        cmd << " -L /bin/bash";
+      cmd << " " << location << "/submit/run " << iter;
     }
+    if (gSystem->Exec (cmd.str().c_str()) != 0)
+      RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
   }
 }

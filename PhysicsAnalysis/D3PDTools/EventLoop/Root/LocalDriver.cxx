@@ -58,16 +58,20 @@ namespace EL
 
 
   void LocalDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& /*options*/,
-	       std::size_t njob) const
+  batchSubmit (const std::string& location, const SH::MetaObject& options,
+               std::vector<std::size_t> jobIndices, bool resubmit) const
   {
+    (void) options;
     RCU_READ_INVARIANT (this);
 
     std::ostringstream basedirName;
     basedirName << location << "/tmp";
-    if (gSystem->MakeDirectory (basedirName.str().c_str()) != 0)
-      RCU_THROW_MSG ("failed to create directory " + basedirName.str());
-    for (std::size_t index = 0; index != njob; ++ index)
+    if (!resubmit)
+    {
+      if (gSystem->MakeDirectory (basedirName.str().c_str()) != 0)
+        RCU_THROW_MSG ("failed to create directory " + basedirName.str());
+    }
+    for (std::size_t index : jobIndices)
     {
       std::ostringstream dirName;
       dirName << basedirName.str() << "/" << index;
@@ -76,10 +80,6 @@ namespace EL
 
       std::ostringstream cmd;
       cmd << "cd " << dirName.str() << " && ";
-#ifndef USE_CMAKE
-      if (!options.castBool (Job::optLocalNoUnsetup, false))
-	cmd << " source $ROOTCOREDIR/scripts/unsetup.sh && ";
-#endif
       cmd << location << "/submit/run " << index;
       RCU::Shell::exec (cmd.str());
     }
