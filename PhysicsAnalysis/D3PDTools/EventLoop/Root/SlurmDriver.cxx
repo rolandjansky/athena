@@ -58,7 +58,9 @@ namespace EL
     return "export PATH LD_LIBRARY_PATH PYTHONPATH";
   }
   //****************************************************
-  void SlurmDriver :: batchSubmit (const std::string& location, const SH::MetaObject& options, std::size_t njob) const
+  void SlurmDriver ::
+  batchSubmit (const std::string& location, const SH::MetaObject& options,
+               std::vector<std::size_t> jobIndices, bool resubmit) const
   {
     auto all_set = m_b_job_name && m_b_account && m_b_partition && m_b_run_time && m_b_memory && m_b_constraint;
     if (!all_set)
@@ -75,6 +77,13 @@ namespace EL
     }
 
     RCU_READ_INVARIANT (this);
+
+    if (resubmit)
+      RCU_THROW_MSG ("resubmission not supported for this driver");
+
+    assert (!jobIndices.empty());
+    assert (jobIndices.back() + 1 == jobIndices.size());
+    const std::size_t njob = jobIndices.size();
 
     if(!options.castBool(Job::optBatchSharedFileSystem,true))
     {

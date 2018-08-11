@@ -48,20 +48,21 @@ namespace EL
 
   void GEDriver ::
   batchSubmit (const std::string& location, const SH::MetaObject& options,
-	       std::size_t njob) const
+               std::vector<std::size_t> jobIndices, bool resubmit) const
   {
+    (void) resubmit;
     RCU_READ_INVARIANT (this);
 
+    std::ostringstream cmd;
+    cmd << "cd " << location << "/submit";
+    for (std::size_t iter : jobIndices)
     {
-      std::ostringstream cmd;
-      cmd << "cd " << location << "/submit";
-      for (unsigned iter = 0, end = njob; iter != end; ++ iter)
-	cmd << " && qsub " << options.castString (Job::optSubmitFlags)
-            << " -o " << location << "/submit/log-" << iter << ".out"
-            << " -e " << location << "/submit/log-" << iter << ".err"
-	    << " run " << iter;
-      if (gSystem->Exec (cmd.str().c_str()) != 0)
-	RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+      cmd << " && qsub " << options.castString (Job::optSubmitFlags)
+          << " -o " << location << "/submit/log-" << iter << ".out"
+          << " -e " << location << "/submit/log-" << iter << ".err"
+          << " run " << iter;
     }
+    if (gSystem->Exec (cmd.str().c_str()) != 0)
+      RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
   }
 }

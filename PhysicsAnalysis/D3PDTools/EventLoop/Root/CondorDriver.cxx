@@ -58,19 +58,22 @@ namespace EL
 
   void CondorDriver ::
   batchSubmit (const std::string& location, const SH::MetaObject& options,
-	       std::size_t njob) const
+               std::vector<std::size_t> jobIndices, bool resubmit) const
   {
     RCU_READ_INVARIANT (this);
 
     // name of tarball being made (this needs to match BatchDriver.cxx)
     const std::string tarballName("AnalysisPackage.tar.gz");
 
-    if(!options.castBool(Job::optBatchSharedFileSystem,true))
+    if (!resubmit)
     {
-      const std::string newLocation = location + "/submit/" + tarballName;
-      int status=gSystem->CopyFile(tarballName.c_str(),newLocation.c_str());
-      if(status != 0)
-      RCU_THROW_MSG( ("failed to copy " + tarballName + " to " + newLocation).c_str() );
+      if(!options.castBool(Job::optBatchSharedFileSystem,true))
+      {
+        const std::string newLocation = location + "/submit/" + tarballName;
+        int status=gSystem->CopyFile(tarballName.c_str(),newLocation.c_str());
+        if(status != 0)
+          RCU_THROW_MSG( ("failed to copy " + tarballName + " to " + newLocation).c_str() );
+      }
     }
 
     {
@@ -78,8 +81,8 @@ namespace EL
       file << "executable              = run\n";
       file << "universe                = vanilla\n";
       file << "log                     = submit/run.log\n";
-      file << "output                  = submit/log-$(Process).out\n";
-      file << "error                   = submit/log-$(Process).err\n";
+      file << "output                  = submit/log-$(Item).out\n";
+      file << "error                   = submit/log-$(Item).err\n";
       file << "initialdir              = " << location << "\n";
       if(!options.castBool(Job::optBatchSharedFileSystem,true))
 	{ // Transfer data with non-shared file-systems
@@ -89,9 +92,19 @@ namespace EL
 	  file << "transfer_output_files   = fetch, status\n";
 	  file << "x509userproxy           = " << gSystem->Getenv("X509_USER_PROXY") <<"\n";
 	}
-      file << "arguments               = $(Process)\n";
+      file << "arguments               = $(Item)\n";
       file << "\n" << options.castString (Job::optCondorConf) << "\n";
-      file << "queue " << njob << "\n";
+      file << "queue ( ";
+      bool first {true};
+      for (std::size_t index : jobIndices)
+      {
+        if (first)
+          first = false;
+        else
+          file << ", ";
+        file << index;
+      }
+      file << " )\n";
     }
 
     {

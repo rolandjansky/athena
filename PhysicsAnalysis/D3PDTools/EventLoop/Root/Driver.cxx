@@ -146,6 +146,19 @@ namespace EL
 
 
 
+  void Driver ::
+  resubmit (const std::string& location,
+            const std::string& option)
+  {
+    TFile file ((location + "/driver.root").c_str(), "READ");
+    std::auto_ptr<Driver> driver (dynamic_cast<Driver*>(file.Get ("driver")));
+    RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
+
+    driver->doResubmit (location, option);
+  }
+
+
+
   bool Driver ::
   retrieve (const std::string& location)
   {
@@ -375,6 +388,18 @@ namespace EL
     RCU_READ_INVARIANT (this);
 
     RCU_THROW_MSG (std::string ("Driver::doSubmit not overridden in class ") + typeid(*this).name());
+  }
+
+
+
+  void Driver ::
+  doResubmit (const std::string& location,
+              const std::string& option) const
+  {
+    (void) location;
+    (void) option;
+    RCU_READ_INVARIANT (this);
+    RCU_THROW_MSG ("job resubmission not supported for this driver");
   }
 
 

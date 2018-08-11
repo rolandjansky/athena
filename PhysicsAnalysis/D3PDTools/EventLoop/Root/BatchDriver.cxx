@@ -22,6 +22,7 @@
 #include <EventLoop/BatchSegment.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
+#include <RootCoreUtils/ShellExec.h>
 #include <RootCoreUtils/StringUtil.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <RootCoreUtils/hadd.h>
@@ -262,6 +263,7 @@ namespace EL
 		      const SH::MetaObject& meta)
     {
       fillJob (myjob, job, location);
+      *myjob.job.options() = meta;
 
       for (std::size_t sampleIndex = 0, end = job.sampleHandler().size();
 	   sampleIndex != end; ++ sampleIndex)
@@ -357,7 +359,70 @@ namespace EL
     makeScript (location, myjob.segments.size(),
 		meta.castBool(Job::optBatchSharedFileSystem,true));
 
-    batchSubmit (location, meta, myjob.segments.size());
+    std::vector<std::size_t> jobIndices;
+    for (std::size_t index = 0; index != myjob.segments.size(); ++ index)
+      jobIndices.push_back (index);
+
+    batchSubmit (location, meta, jobIndices, false);
+  }
+
+
+
+  void BatchDriver ::
+  doResubmit (const std::string& location,
+              const std::string& option) const
+  {
+    RCU_READ_INVARIANT (this);
+
+    bool all_missing = false;
+    if (option == "ALL_MISSING")
+    {
+      all_missing = true;
+    } else
+    {
+      RCU_THROW_MSG ("unknown resubmit option " + option);
+    }
+
+    std::auto_ptr<TFile> file
+      (TFile::Open ((location + "/submit/config.root").c_str(), "READ"));
+    RCU_ASSERT_SOFT (file.get() != 0);
+    std::auto_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
+    RCU_ASSERT_SOFT (config.get() != 0);
+
+    std::vector<std::size_t> jobIndices;
+    for (std::size_t segment = 0; segment != config->segments.size(); ++ segment)
+    {
+      if (all_missing)
+      {
+        std::ostringstream completed_file;
+        completed_file << location << "/status/completed-" << segment;
+        if (gSystem->AccessPathName (completed_file.str().c_str()) != 0)
+          jobIndices.push_back (segment);
+      } else
+      {
+        std::ostringstream fail_file;
+        fail_file << location << "/status/fail-" << segment;
+        if (gSystem->AccessPathName (fail_file.str().c_str()) == 0)
+          jobIndices.push_back (segment);
+      }
+    }
+
+    if (jobIndices.empty())
+    {
+      RCU_PRINT_MSG ("found no jobs to resubmit");
+      return;
+    }
+
+    for (std::size_t segment : jobIndices)
+    {
+      std::ostringstream command;
+      command << "rm -rf";
+      command << " " << location << "/status/completed-" << segment;
+      command << " " << location << "/status/fail-" << segment;
+      command << " " << location << "/status/done-" << segment;
+      RCU::Shell::exec (command.str());
+    }
+    batchSubmit (location, *config->job.options(), jobIndices, true);
   }
 
 

@@ -97,6 +97,23 @@ namespace EL
     void submitOnly (const Job& job, const std::string& location) const;
 
 
+    /// \brief resubmit all failed sub-jobs for the job in the given
+    ///   location
+    ///
+    /// \parm option driver-specific option string selecting which
+    ///   jobs to resubmit (and how)
+    /// \par Guarantee
+    ///   basic, may partially resubmit
+    /// \par Failures
+    ///   out of memory III\n
+    ///   job resubmission errors\n
+    ///   job can't be read\n
+    ///   job was made with different driver
+  public:
+    static void resubmit (const std::string& location,
+                          const std::string& option);
+
+
     /// \brief retrieve all the output for the job in the given
     ///   location
     ///
@@ -264,6 +281,15 @@ namespace EL
   private:
     virtual void
     doSubmit (const Job& job, const std::string& location) const;
+
+
+    /// \copydoc resubmit
+    /// \par Rationale
+    ///   the virtual part of \ref resubmit
+  private:
+    virtual void
+    doResubmit (const std::string& location,
+                const std::string& option) const;
 
 
     /// \copydoc retrieve
