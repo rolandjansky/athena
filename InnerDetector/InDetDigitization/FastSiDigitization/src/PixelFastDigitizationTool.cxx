@@ -263,7 +263,6 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int /*bunchXing*/,
                                                        SubEventIterator bSubEvents,
                                                        SubEventIterator eSubEvents)
 {
-
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
   if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }

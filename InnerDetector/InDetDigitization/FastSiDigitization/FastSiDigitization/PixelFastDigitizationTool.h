@@ -131,7 +131,6 @@ private:
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
-  std::vector<std::pair<unsigned int, int> > m_seen;
   std::list<SiHitCollection*> m_siHitCollList;
 
   double                                m_pixTanLorentzAngleScalor; //!< scale the lorentz angle effect
