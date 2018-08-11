@@ -385,16 +385,30 @@ template <typename T>
 StatusCode SGImplSvc::retrieve(const T*& ptr) const
 {
   lock_t lock (m_mutex);
-  const DataHandle<T> handle; 
-  StatusCode sc = retrieve(handle);
-  try {
-    ptr = sc.isSuccess() ? handle.cptr() : 0;
-  } catch (...) {
-    ptr = 0;
+  SG::DataProxy* dp =proxy(ClassID_traits<T>::ID());
+  if (!dp || !dp->isValid()) {
+    warning() 
+          << "retrieve(default): No valid proxy for default object \n" 
+          << " of type "  << ClassID_traits<T>::typeName() << "(CLID " 
+          << ClassID_traits<T>::ID() << ')' << endmsg;
+    return StatusCode::FAILURE;
   }
-  if (0 == ptr) sc = StatusCode::FAILURE; 
-  return sc;
+  ptr = SG::DataProxy_cast<T> (dp);
+  if (!ptr) {
+    return StatusCode::FAILURE;
+  }
+
+  //for types with an associated store, try to retrieve it and associate it
+  this->associateAux (ptr, SG::DEFAULTKEY);
+#ifndef NDEBUG
+  SG_MSG_DEBUG("retrieve(default): Retrieved const pointer to default object \n" 
+               << " of type "  << ClassID_traits<T>::typeName() 
+               << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+
+  return StatusCode::SUCCESS;
 }
+
 
 //////////////////////////////////////////////////////////////////
 // Retrieve the default object (with no key) as a pointer (non-const)
@@ -403,15 +417,29 @@ template <typename T>
 StatusCode SGImplSvc::retrieve(T*& ptr) const
 {
   lock_t lock (m_mutex);
-  DataHandle<T> handle;
-  StatusCode sc = retrieve(handle);
-  try {
-    ptr = sc.isSuccess() ? handle.ptr() : 0;
-  } catch (...) {
-    ptr = 0;
+  SG::DataProxy* dp =proxy(ClassID_traits<T>::ID());
+  if (!dp || !dp->isValid() || dp->isConst()) {
+    warning() 
+          << "retrieve(default): No valid proxy for default object " 
+          << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
+          << ClassID_traits<T>::ID() << ")\n Try to use a const retrieve " 
+          << endmsg;
+    return StatusCode::FAILURE;
   }
-  if (0 == ptr) sc = StatusCode::FAILURE; 
-  return sc;
+  ptr = SG::DataProxy_cast<T> (dp);
+  if (!ptr) {
+    return StatusCode::FAILURE;
+  }
+
+  //for types with an associated store, try to retrieve it and associate it
+  this->associateAux (ptr, SG::DEFAULTKEY);
+#ifndef NDEBUG
+  SG_MSG_DEBUG("retrieve(default): Retrieved non-const pointer to default object \n" 
+               << " of type "  << ClassID_traits<T>::typeName() 
+               << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -420,17 +448,34 @@ StatusCode SGImplSvc::retrieve(T*& ptr) const
 template <typename T, typename TKEY>
 StatusCode SGImplSvc::retrieve(const T*& ptr, const TKEY& key) const
 {
-
+#ifndef __clang__
+  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
+#endif
   lock_t lock (m_mutex);
-  const DataHandle<T> handle;
-  StatusCode sc = retrieve(handle, key);
-  try {
-    ptr = sc.isSuccess() ? handle.cptr() : 0;
-  } catch (...) {
-    ptr = 0;
+  SG::DataProxy* dp =proxy (ClassID_traits<T>::ID(),
+                            static_cast<std::string> (key),
+                            false);
+  if (!dp || !dp->isValid()) {
+    warning() 
+          << "retrieve(const): No valid proxy for object " << key  << ' ' 
+          << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
+          << ClassID_traits<T>::ID() << ')' << endmsg;
+    return StatusCode::FAILURE;
   }
-  if (0 == ptr) sc = StatusCode::FAILURE; 
-  return sc;
+  ptr = SG::DataProxy_cast<T> (dp);
+  if (!ptr) {
+    return StatusCode::FAILURE;
+  }
+
+  //for types with an associated store, try to retrieve it and associate it
+  this->associateAux (ptr, key);
+#ifndef NDEBUG
+  SG_MSG_DEBUG( "Retrieved const pointer to object " << key  << ' '
+                << " of type "  << ClassID_traits<T>::typeName() 
+                << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+
+  return StatusCode::SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -439,18 +484,35 @@ StatusCode SGImplSvc::retrieve(const T*& ptr, const TKEY& key) const
 template <typename T, typename TKEY>
 StatusCode SGImplSvc::retrieve(T*& ptr, const TKEY& key) const
 {
-
+#ifndef __clang__
+  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
+#endif
   lock_t lock (m_mutex);
-  DataHandle<T> handle;
-  StatusCode sc = retrieve(handle, key);
-  try {
-    ptr = sc.isSuccess() ? handle.ptr() : 0;
-  } catch (...) {
-    ptr = 0;
+  SG::DataProxy* dp =proxy (ClassID_traits<T>::ID(),
+                            static_cast<std::string> (key),
+                            false);
+  if (!dp || !dp->isValid() || dp->isConst()) {
+    SG_MSG_WARNING("retrieve(non-const): No valid proxy for object "
+                   << (std::string)key  << ' ' 
+                   << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
+                   << ClassID_traits<T>::ID() 
+                   << ") \n Try to use a const retrieve" );
+    return StatusCode::FAILURE;
   }
-  if (0 == ptr) sc = StatusCode::FAILURE;
+  ptr = SG::DataProxy_cast<T> (dp);
+  if (!ptr) {
+    return StatusCode::FAILURE;
+  }
 
-  return sc;
+  //for types with an associated store, try to retrieve it and associate it
+  this->associateAux (ptr, key);
+#ifndef NDEBUG
+  SG_MSG_DEBUG("Retrieved non-const pointer to object " << (std::string)key  
+               << ' ' << " of type "  << ClassID_traits<T>::typeName() 
+               << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+
+  return StatusCode::SUCCESS;
 }
 
 
@@ -608,7 +670,6 @@ StatusCode SGImplSvc::retrieve(SG::ConstIterator<T>& cibegin,
     return StatusCode::FAILURE;
   }
 
-  //FIXME no associateAux
   return StatusCode::SUCCESS;
 }
 
@@ -682,26 +743,30 @@ template <typename T>
 T* SGImplSvc::tryRetrieve () const
 {
   lock_t lock (m_mutex);
-  //FIXME should call addNewPersObject
-  DataHandle<T> handle;
-  if (handle.setState(proxy(ClassID_traits<T>::ID())).isSuccess()) {
-    //for types with an associated store, try to retrieve it and associate it
-    this->associateAux(handle);
-    return handle.ptr();
-  } else return 0;
+  SG::DataProxy* dp = proxy (ClassID_traits<T>::ID());
+  if (dp && dp->isValid() && !dp->isConst()) {
+    T* ptr = SG::DataProxy_cast<T> (dp);
+    if (ptr) {
+      this->associateAux (ptr, SG::DEFAULTKEY);
+      return ptr;
+    }
+  }
+  return nullptr;
 }
 
 template <typename T>
 const T* SGImplSvc::tryConstRetrieve() const
 {
   lock_t lock (m_mutex);
-  //FIXME should call addNewPersObject
-  const DataHandle<T> handle;
-  if (handle.setState(proxy(ClassID_traits<T>::ID())).isSuccess()) {
-    //for types with an associated store, try to retrieve it and associate it
-    this->associateAux(handle);
-    return handle.cptr();
-  } else return 0;
+  SG::DataProxy* dp = proxy (ClassID_traits<T>::ID());
+  if (dp && dp->isValid()) {
+    const T* ptr = SG::DataProxy_cast<T> (dp);
+    if (ptr) {
+      this->associateAux (ptr, SG::DEFAULTKEY);
+      return ptr;
+    }
+  }
+  return nullptr;
 }
 
 /**
@@ -712,57 +777,41 @@ const T* SGImplSvc::tryConstRetrieve() const
 template <typename T, class TKEY>
 T* SGImplSvc::tryRetrieve (const TKEY& key) const
 {
+#ifndef __clang__
+  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
+#endif
   lock_t lock (m_mutex);
-  DataHandle<T> handle;
-  if ( handle.setState(proxy(ClassID_traits<T>::ID(), key, false)).isSuccess() ) {
-    //for types with an associated store, try to retrieve it and associate it
-    this->associateAux(handle);
-    return handle.ptr();
-  } else return 0;
+  SG::DataProxy* dp = proxy (ClassID_traits<T>::ID(),
+                             static_cast<std::string> (key),
+                             false);
+  if (dp && dp->isValid() && !dp->isConst()) {
+    T* ptr = SG::DataProxy_cast<T> (dp);
+    if (ptr) {
+      this->associateAux (ptr, key);
+      return ptr;
+    }
+  }
+  return nullptr;
 }
 
 template <typename T, class TKEY>
 const T* SGImplSvc::tryConstRetrieve (const TKEY& key) const
 {
+#ifndef __clang__
+  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
+#endif
   lock_t lock (m_mutex);
-  const DataHandle<T> handle;
-  if ( handle.setState(proxy(ClassID_traits<T>::ID(), key, false)).isSuccess() ) {
-    //for types with an associated store, try to retrieve it and associate it
-    this->associateAux(handle);
-    return handle.cptr();
-  } else return 0;
-}
-
-/**
- * @brief Retrieve an object of type @c T from StoreGate and associate it
- *        to its auxiliary store
- *        Return 0 the object or the aux store is not found.
- * @param key The key to use for the lookup.
- **/
-template <typename T, class TKEY>
-T* SGImplSvc::retrieveAux (const TKEY& key) const
-{
-  lock_t lock (m_mutex);
-  //FIXME should call addNewPersObject
-  DataHandle<T> handle;
-  StatusCode sc = retrieve(handle, key);
-  const bool REQUIREAUX(false);
-  return (sc.isSuccess() && associateAux(handle, REQUIREAUX)) ? 
-    handle.ptr() : 
-    0;
-}
-
-template <typename T, class TKEY>
-const T* SGImplSvc::constRetrieveAux (const TKEY& key) const
-{
-  lock_t lock (m_mutex);
-  //FIXME should call addNewPersObject
-  const DataHandle<T> handle;
-  StatusCode sc = retrieve(handle, key);
-  const bool REQUIREAUX(false);
-  return (sc.isSuccess() && associateAux(handle, REQUIREAUX)) ? 
-    handle.cptr() : 
-    0;
+  SG::DataProxy* dp = proxy (ClassID_traits<T>::ID(),
+                             static_cast<std::string> (key),
+                             false);
+  if (dp && dp->isValid()) {
+    const T* ptr = SG::DataProxy_cast<T> (dp);
+    if (ptr) {
+      this->associateAux (ptr, key);
+      return ptr;
+    }
+  }
+  return nullptr;
 }
 
 template <typename T>
@@ -1298,6 +1347,51 @@ bool SGImplSvc::associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE
   return hasAux;
 }
 
+
+/**
+ * @brief associate a data object to its auxiliary store
+ *        Return false if the aux store is not found.
+ * @param key The key to use for the lookup.
+ **/
+template <class DOBJ, class AUXSTORE>
+bool SGImplSvc::associateAux_impl(DOBJ* ptr,
+                                  const std::string& key,
+                                  const AUXSTORE*) const
+{
+  SG_MSG_VERBOSE("called associateAux_impl non const for key " + key);
+  bool hasAux(0 != ptr->hasStore());
+  // no Aux store set yet
+  if (!hasAux) {
+    AUXSTORE* pAux = tryRetrieve<AUXSTORE>(key + "Aux." );
+    hasAux = (0 != pAux);
+    if (hasAux) ptr->setStore( pAux );
+  }
+  return hasAux;
+}
+
+
+/**
+ * @brief associate a data object to its auxiliary store
+ *        Return false if the aux store is not found.
+ * @param key The key to use for the lookup.
+ **/
+template <class DOBJ, class AUXSTORE>
+bool SGImplSvc::associateAux_impl(const DOBJ* ptr,
+                                  const std::string& key,
+                                  const AUXSTORE*) const
+{
+  SG_MSG_VERBOSE("called associateAux_impl const for key " + key);
+  bool hasAux(0 != ptr->hasStore());
+  // no Aux store set yet
+  if (!hasAux) {
+    const AUXSTORE* pAux = tryConstRetrieve<AUXSTORE>(key + "Aux." );
+    hasAux = (0 != pAux);
+    if (hasAux) const_cast< DOBJ* >(ptr)->setStore( const_cast< AUXSTORE* >(pAux) );
+  }
+  return hasAux;
+}
+
+
 /**
  * @brief associate a data object to its auxiliary store
  *        Return false if the aux store is not found.
@@ -1328,4 +1422,43 @@ bool SGImplSvc::associateAux (const DataHandle<DOBJ>& handle, bool ignoreMissing
                               << ClassID_traits<DOBJ>::ID() << ") with key " << handle.key() << endmsg);
   return hasAux;
 }
+
+
+/**
+ * @brief associate a data object to its auxiliary store
+ *        Return false if the aux store is not found.
+ * @param key The key to use for the lookup.
+ **/
+template <class DOBJ>
+bool SGImplSvc::associateAux (DOBJ* ptr,
+                              const std::string& key,
+                              bool ignoreMissing) const
+{
+  lock_t lock (m_mutex);
+  typename SG::AuxStore_traits<DOBJ>::type* pDummy(0); //used to pass down auxstore type
+  bool hasAux=associateAux_impl(ptr, key, pDummy) || ignoreMissing;
+  if (!hasAux) SG_MSG_WARNING("associateAux const: Could not associate AuxStore of type "  
+                              << SG::AuxStore_traits<DOBJ>::const_typeName()
+                              << "\n to object of type "  << ClassID_traits<DOBJ>::typeName() << "(CLID " 
+                              << ClassID_traits<DOBJ>::ID() << ") with key " << key << endmsg);
+  return hasAux;
+}
+
+
+template <class DOBJ>
+bool SGImplSvc::associateAux (const DOBJ* ptr,
+                              const std::string& key,
+                              bool ignoreMissing) const
+{
+  lock_t lock (m_mutex);
+  typename SG::AuxStore_traits<DOBJ>::const_type* pDummy(0); //used to pass down auxstore type
+  bool hasAux=associateAux_impl(ptr, key, pDummy) || ignoreMissing;
+  if (!hasAux) SG_MSG_WARNING("associateAux const: Could not associate AuxStore of type "  
+                              << SG::AuxStore_traits<DOBJ>::const_typeName()
+                              << "\n to object of type "  << ClassID_traits<DOBJ>::typeName() << "(CLID " 
+                              << ClassID_traits<DOBJ>::ID() << ") with key " << key << endmsg);
+  return hasAux;
+}
+
+
 #endif   // STOREGATE_SGIMPLSVC_ICC
