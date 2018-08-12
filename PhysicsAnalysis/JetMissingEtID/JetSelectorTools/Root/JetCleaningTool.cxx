@@ -103,16 +103,16 @@ JetCleaningTool::JetCleaningTool(const std::string& name)
   , m_cutName("")
   , m_cutLevel(LooseBad)
   , m_doUgly(false)
-  , m_useDecorations(false)
+  , m_useDecorations(true)
   , m_jetCleanDFName("")
   , m_acc_jetClean("DFCommonJets_jetClean_LooseBad")
   , m_acc_looseClean("DFCommonJets_jetClean_LooseBad")
   , m_hotCellsFile("")
-  , m_hotCellsMap(NULL)
+  , m_hotCellsMap(nullptr)
 {
   declareProperty( "CutLevel" , m_cutName = "" );
   declareProperty( "DoUgly"   , m_doUgly = false);
-  declareProperty( "UseDecorations"   , m_useDecorations = false);
+  declareProperty( "UseDecorations"   , m_useDecorations = true);
   declareProperty( "HotCellsFile" , m_hotCellsFile = "");
 }
 
@@ -150,7 +150,7 @@ JetCleaningTool::~JetCleaningTool()
                     if (cellVec->at(index))
                     {
                         delete cellVec->at(index);
-                        cellVec->at(index) = NULL;
+                        cellVec->at(index) = nullptr;
                     }
                 delete cellVec;
             }
@@ -337,9 +337,10 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
 }
 
 
-void missingVariable(const char* varName)
+void JetCleaningTool::missingVariable(const std::string& varName) const
 {
-    throw std::string(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName));
+    ATH_MSG_FATAL(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName.c_str()));
+    throw std::string(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName.c_str()));
 }
 
 const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
@@ -361,7 +362,7 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
  
   //start jet cleaning 
   int isJetClean = 0; 
-  if( m_useDecorations ) { //decoration is already available for all jets 
+  if( m_useDecorations && m_acc_jetClean.isAvailable(jet) ) { //decoration is already available for all jets 
           isJetClean = m_acc_jetClean(jet);
           return accept (isJetClean, FracSamplingMaxIndex);
   }
@@ -369,25 +370,34 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
 	  ATH_MSG_DEBUG("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
 	  // Get all of the required variables
 	  // Do it this way so we can gracefully handle missing variables (rather than segfaults)
-	  float EMFrac = 0;
+	  
+      float EMFrac = 0;
 	  if (!jet.getAttribute(xAOD::JetAttribute::EMFrac,EMFrac))
 		  missingVariable("EMFrac");
+      
 	  float HECFrac = 0;
 	  if (!jet.getAttribute(xAOD::JetAttribute::HECFrac,HECFrac))
 		  missingVariable("HECFrac");
-	  float LArQuality = 0;
+	  
+      float LArQuality = 0;
 	  if (!jet.getAttribute(xAOD::JetAttribute::LArQuality,LArQuality))
 		  missingVariable("LArQuality");
-	  float HECQuality = 0;
+	
+     
+      float HECQuality = 0;
 	  if (!jet.getAttribute(xAOD::JetAttribute::HECQuality,HECQuality))
 		  missingVariable("HECQuality");
+
+     
 	  float NegativeE = 0;
 	  if (!jet.getAttribute(xAOD::JetAttribute::NegativeE,NegativeE))
 		  missingVariable("NegativeE");
+
+     
+
 	  float AverageLArQF = 0;
 	  if (!jet.getAttribute(xAOD::JetAttribute::AverageLArQF,AverageLArQF))
 		  missingVariable("AverageLArQF");
-
 
 	  return accept (EMFrac,
 			  HECFrac,
