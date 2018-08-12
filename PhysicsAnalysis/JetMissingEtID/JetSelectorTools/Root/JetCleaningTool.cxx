@@ -367,7 +367,6 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
           return accept (isJetClean, FracSamplingMaxIndex);
   }
   else{   //running over AOD, need to use all variables
-      m_useDecorations = false;
       ATH_MSG_DEBUG("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
       // Get all of the required variables
       // Do it this way so we can gracefully handle missing variables (rather than segfaults)
