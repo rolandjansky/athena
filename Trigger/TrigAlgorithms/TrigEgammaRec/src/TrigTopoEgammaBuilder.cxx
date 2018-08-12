@@ -60,6 +60,7 @@ PURPOSE:  Modification of TrigEgammaRec to make use of superclusters at HLT
 #include "xAODEventShape/EventShape.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
+#include "CaloUtils/CaloClusterStoreHelper.h"
 #include "AthContainers/ConstDataVector.h"
 #include "xAODCore/ShallowCopy.h"
 
@@ -650,7 +651,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         HLT::TriggerElement* outputTE )
 {
 
-    ATH_MSG_DEBUG( "Executing HLT alg. TrigTopoEgammaBuilder p03" );
+    ATH_MSG_DEBUG( "Executing HLT alg. TrigTopoEgammaBuilder p04" );
     ATH_MSG_DEBUG( "inputTE->getId(): " << inputTE->getId() );
 
     // Time total TrigTopoEgammaBuilder execution time.
@@ -720,7 +721,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     }
 
     //**********************************************************************
-    // Create an EgammaRec container  
+    // Create an EgammaRec container
     m_eg_container = new EgammaRecContainer();
     std::string electronContSGKey="";
     std::string electronKey="";
@@ -739,13 +740,13 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // Create collections used in the navigation
     // Electrons
     m_electron_container = new xAOD::ElectronContainer();
-    xAOD::ElectronTrigAuxContainer electronAux;
-    m_electron_container->setStore(&electronAux);
+    xAOD::ElectronAuxContainer *electronAux = new xAOD::ElectronAuxContainer();
+    m_electron_container->setStore(electronAux);
 
     // Photons
     m_photon_container = new xAOD::PhotonContainer();
-    xAOD::PhotonTrigAuxContainer photonAux;
-    m_photon_container->setStore(&photonAux);
+    xAOD::PhotonAuxContainer *photonAux = new xAOD::PhotonAuxContainer();
+    m_photon_container->setStore(photonAux);
 
     //***************************************************************************************************************
     // Retrieve from TE containers needed for tool execution, set corresponding flag to be used in execution
@@ -888,66 +889,49 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     ATH_MSG_DEBUG( "clusContainer: getStore = " << clusContainer->getStore() << ", getConstStore = " << clusContainer->getConstStore() );
     ATH_MSG_DEBUG( "clusContainer: hasStore = " << clusContainer->hasStore() << ", hasNonConstStore = " << clusContainer->hasNonConstStore() );
 
-    xAOD::CaloClusterContainer clusContainer_tmp;
-    xAOD::CaloClusterAuxContainer clusContainer_tmpAux;
-    clusContainer_tmp.setStore(&clusContainer_tmpAux);
-
     static SG::AuxElement::Accessor < ElementLink < xAOD::CaloClusterContainer > > sisterCluster("SisterCluster");
     static const SG::AuxElement::Accessor < ElementLink < xAOD::CaloClusterContainer > > const_sisterCluster("SisterCluster");
 
     ATH_MSG_DEBUG( "before copy " << clusContainer->size() << " clusters");
 
-    xAOD::CaloClusterContainer::const_iterator cciter = clusContainer->begin();
-    xAOD::CaloClusterContainer::const_iterator ccend  = clusContainer->end();
-    for (; cciter != ccend; ++cciter) {
-        ATH_MSG_DEBUG("->CHECKING Cluster " << (cciter-clusContainer->begin()) <<
-                       " at eta, phi, et: " << (*cciter)->eta() << ", " <<
-                       (*cciter)->phi() << ", " << (*cciter)->et() << 
-                       ", NCells=" << (*cciter)->size() <<
-                       ", cell_begin==cell_end " << ( (*cciter)->cell_begin() == (*cciter)->cell_end() ) );
-        ATH_MSG_DEBUG("           getCellLinks=" << (*cciter)->getCellLinks() );
+    // Make a copy in CaloClusterSnapShot way
 
-        if (ATH_UNLIKELY(msgLvl (MSG::DEBUG))) {
-            double emfrac(-11111);
-            if(!(*cciter)->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
-                ATH_MSG_WARNING("No EM fraction momement stored in original cluster");
-            }
-            ATH_MSG_DEBUG(" >CHECKING Cluster: em_fraction=" << emfrac );
-        }
-        ATH_MSG_DEBUG(" >CHECKING Cluster: sisterCluster.isAvailable=" << sisterCluster.isAvailable( **cciter ) );
-
-        xAOD::CaloCluster * _tmp_clus = new xAOD::CaloCluster( **cciter );
-
-        // make a link from copy to original
-        const ElementLink< xAOD::CaloClusterContainer > clusterLink( *clusContainer, (cciter-clusContainer->begin()) );
-        sisterCluster(*_tmp_clus) = clusterLink;
-
-        clusContainer_tmp.push_back( _tmp_clus );
-
-        ATH_MSG_DEBUG("->CHECKING _tmp_clus=" << _tmp_clus  );
-        ATH_MSG_DEBUG("           at eta, phi, et: " << _tmp_clus->eta() << ", " << _tmp_clus->phi() << ", " << _tmp_clus->et() );
-        ATH_MSG_DEBUG("           NCells=" << _tmp_clus->size() );
-        ATH_MSG_DEBUG("           getCellLinks=" << _tmp_clus->getCellLinks() );
-        ATH_MSG_DEBUG(" >CHECKING copy Cluster: sisterCluster.isAvailable=" << const_sisterCluster.isAvailable( *_tmp_clus ) );
-
+    std::string clusContainer_tmp_SGKey="";
+    sc = getUniqueKey( (const xAOD::CaloClusterContainer *)0, clusContainer_tmp_SGKey, "input_tmp");
+    if (sc != HLT::OK) {
+        ATH_MSG_ERROR( "Could not retrieve the clusContainer_tmp xAOD::CaloClusterContainer key" );
+        return sc;
     }
 
-    ATH_MSG_DEBUG( "before xAOD::shallowCopyContainer, clusContainer_tmp.size=" << clusContainer_tmp.size() );
+    xAOD::CaloClusterContainer* clusContainer_tmp = CaloClusterStoreHelper::makeContainer(&(*evtStore()), clusContainer_tmp_SGKey, msg());
+    CaloClusterStoreHelper::copyContainer(clusContainer, clusContainer_tmp);
 
-    std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer( clusContainer_tmp );
+    for (size_t i=0; i<clusContainer->size(); ++i) {
+        ElementLink< xAOD::CaloClusterContainer > clusterLink( *clusContainer, i );
+        sisterCluster( *( (*clusContainer_tmp)[i] ) ) = clusterLink;
+        ATH_MSG_DEBUG( "Setting AOD::CaloCluster sister assoc. new ("<< (*clusContainer_tmp)[i] <<") -> orig ("<< (*clusContainer)[i] <<")");
+    }
+
+    TRIG_CHECK_SC(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()), clusContainer_tmp, clusContainer_tmp_SGKey, msg()));
+
+
+    ATH_MSG_DEBUG( "before xAOD::shallowCopyContainer, clusContainer_tmp->size=" << clusContainer_tmp->size() );
+
+    std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer( *clusContainer_tmp );
 
     ATH_MSG_DEBUG( "inputShallowcopy.first->size=" << inputShallowcopy.first->size() );
 
-
     for( unsigned int i = 0; i<inputShallowcopy.first->size(); i++) {
-        ATH_MSG_DEBUG("Before accessing clusters_copy->at("<<i<<")");
+        ATH_MSG_DEBUG("Before accessing inputShallowcopy.first->at("<<i<<")");
         xAOD::CaloCluster *clus = inputShallowcopy.first->at(i);
         ATH_MSG_DEBUG("->CHECKING inputShallowcopy.first Cluster i=" << i << ", clus=" << clus );
         ATH_MSG_DEBUG("           at eta, phi, et: " << clus->eta() << ", " << clus->phi() << ", " << clus->et() );
         ATH_MSG_DEBUG("           getCellLinks=" << clus->getCellLinks() );
         ATH_MSG_DEBUG(" >CHECKING inputShallowcopy.first Cluster: sisterCluster.isAvailable=" << const_sisterCluster.isAvailable( *clus ) );
 
-        const xAOD::CaloCluster * other = clusContainer_tmp.at(i);
+        // Transfer CellLinks
+        const xAOD::CaloCluster * other = clusContainer_tmp->at(i);
+        ATH_MSG_DEBUG("Transfer CellLinks");
         const CaloClusterCellLink* links=other->getCellLinks();
         if (links) {
             clus->addCellLink(new CaloClusterCellLink(*links));
@@ -960,6 +944,18 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     //i.e the collection we create does not really
     //own its elements
     ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
+
+    std::string intrmClusContSGKey="";
+    sc = getUniqueKey( (const xAOD::CaloClusterContainer *)0, intrmClusContSGKey, "input_intermidiate");
+    if (sc != HLT::OK) {
+        ATH_MSG_ERROR( "Could not retrieve the intermidiate xAOD::CaloClusterContainer key" );
+        return sc;
+    }
+
+    // Register collections to be able to reference elements from them and be able to persist
+    TRIG_CHECK_SC(evtStore()->overwrite(inputShallowcopy.first, "tmp_shallow_"+intrmClusContSGKey));
+    TRIG_CHECK_SC(evtStore()->overwrite(inputShallowcopy.second,"tmp_shallow_"+intrmClusContSGKey+"Aux."));
+    TRIG_CHECK_SC(evtStore()->record(viewCopy, "view_"+intrmClusContSGKey));
 
     //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
     TRIG_CHECK_SC(m_topoclustercopier->hltExecute(inputShallowcopy, viewCopy));
@@ -974,6 +970,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // loop over clusters.
     // Add egammaRec into container
     // then do next steps
+    m_eg_container->reserve( clusters_copy->size() );
     for( unsigned int i = 0; i<clusters_copy->size(); i++){
         ATH_MSG_DEBUG("Before accessing clusters_copy->at("<<i<<")");
         const xAOD::CaloCluster *clus = clusters_copy->at(i);
@@ -988,6 +985,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         egammaRec* egRec = new egammaRec(); 
         egRec->setCaloClusters( elClusters );
         m_eg_container->push_back( egRec );
+        ATH_MSG_DEBUG("new egammaRec created egRec=" << egRec );
     } // End attaching clusters to egammaRec
 
     ATH_MSG_DEBUG("m_eg_container->size: "<< m_eg_container->size() );
@@ -1074,15 +1072,30 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
   //Electron superclusters Builder
 
   // prepare output objects for SuperCluster Builder
+
+    std::string _egcl_SGKey="";
+    sc = getUniqueKey( (xAOD::CaloClusterContainer*)0, _egcl_SGKey, std::to_string(inputTE->getId()) );
+    if (sc != HLT::OK) {
+        ATH_MSG_ERROR( "Could not retrieve the base key for output eg el ph" );
+        return sc;
+    }
+
     //Create new EgammaRecContainer
     ATH_MSG_DEBUG("Prepare to create electron superclusters" );
     EgammaRecContainer *electronSuperRecs = new EgammaRecContainer();
-    ATH_MSG_DEBUG("electronSuper EgammaRecContainer created" );
+    ATH_MSG_DEBUG("electronSuper EgammaRecContainer created: " << electronSuperRecs );
+
+    TRIG_CHECK_SC(evtStore()->record(electronSuperRecs, _egcl_SGKey+"ElEgamma_"+m_electronContainerName ));
 
     // Electrons
     xAOD::CaloClusterContainer* electron_CSCContainer = new xAOD::CaloClusterContainer();
-    xAOD::CaloClusterAuxContainer electron_CSCAux;
-    electron_CSCContainer->setStore(&electron_CSCAux);
+    xAOD::CaloClusterAuxContainer *electron_CSCAux = new xAOD::CaloClusterAuxContainer();
+    electron_CSCContainer->setStore(electron_CSCAux);
+
+
+    TRIG_CHECK_SC(evtStore()->record(electron_CSCContainer, _egcl_SGKey+"ElClus_"+m_electronContainerName ));
+    TRIG_CHECK_SC(evtStore()->record(electron_CSCAux, _egcl_SGKey+"ElClus_"+m_electronContainerName+"Aux." ));
+
 
     ATH_MSG_DEBUG("Before call of electron superclusters builder" << m_electronSCBuilder);
     TRIG_CHECK_SC(m_electronSCBuilder->hltExecute(m_eg_container,
@@ -1108,13 +1121,17 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     //Create new EgammaRecContainer
     ATH_MSG_DEBUG("Prepare to create photon superclusters" );
     EgammaRecContainer *photonSuperRecs = new EgammaRecContainer();
-    ATH_MSG_DEBUG("photonSuper EgammaRecContainer created" );
+    ATH_MSG_DEBUG("photonSuper EgammaRecContainer created: " << photonSuperRecs);
+
+    TRIG_CHECK_SC(evtStore()->record(photonSuperRecs, _egcl_SGKey+"PhEgamma_"+m_photonContainerName ));
 
     // Photons
     xAOD::CaloClusterContainer* photon_CSCContainer = new xAOD::CaloClusterContainer();
-    xAOD::CaloClusterAuxContainer photon_CSCAux;
-    photon_CSCContainer->setStore(&photon_CSCAux);
+    xAOD::CaloClusterAuxContainer *photon_CSCAux = new xAOD::CaloClusterAuxContainer();
+    photon_CSCContainer->setStore(photon_CSCAux);
 
+    TRIG_CHECK_SC(evtStore()->record(photon_CSCContainer, _egcl_SGKey+"PhClus_"+m_photonContainerName ));
+    TRIG_CHECK_SC(evtStore()->record(photon_CSCAux, _egcl_SGKey+"PhClus_"+m_photonContainerName+"Aux." ));
 
     ATH_MSG_DEBUG("Before call of photon superclusters builder" << m_photonSCBuilder);
     TRIG_CHECK_SC(m_photonSCBuilder->hltExecute(m_eg_container,
@@ -1154,6 +1171,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
   ATH_MSG_DEBUG("Build xAOD::Electron objects");
 
   //Build xAOD::Electron objects
+  m_electron_container->reserve( electronSuperRecs->size() );
   for (const auto& electronRec : *electronSuperRecs) {
 
     unsigned int author = xAOD::EgammaParameters::AuthorElectron;
@@ -1204,6 +1222,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
 
   ATH_MSG_DEBUG("Build xAOD::Photon objects");
   //Build xAOD::Photon objects.
+  m_photon_container->reserve( photonSuperRecs->size() );
   for (const auto& photonRec : *photonSuperRecs) {
     unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
     xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
@@ -1417,14 +1436,33 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         ATH_MSG_DEBUG("REGTEST: xAOD::ElectronContainer created and attached to TE: " << m_electronContainerName); 
     }
 
+    std::string electronAux_SGKey="";
+    sc = getUniqueKey( m_electron_container, electronAux_SGKey, "sc");
+    if (sc != HLT::OK) {
+        ATH_MSG_ERROR( "Could not retrieve the sc xAOD::ElectronAuxContainer key" );
+        return sc;
+    }
+
+    TRIG_CHECK_SC(evtStore()->record(electronAux, m_electronContainerName+electronAux_SGKey+std::to_string(inputTE->getId())+"Aux."));
+
+
     // attach photon container to the TE
     if (HLT::OK != attachFeature( outputTE, m_photon_container, m_photonContainerName) ){
         ATH_MSG_ERROR("REGTEST: trigger xAOD::PhotonContainer attach to TE and record into StoreGate failed");
         return HLT::NAV_ERROR;
-    } 
+    }
     else{
         ATH_MSG_DEBUG("REGTEST: xAOD::PhotonContainer created and attached to TE: " << m_photonContainerName); 
     }
+
+    std::string photonAux_SGKey="";
+    sc = getUniqueKey( m_photon_container, photonAux_SGKey, "sc");
+    if (sc != HLT::OK) {
+        ATH_MSG_ERROR( "Could not retrieve the sc xAOD::PhotonAuxContainer key" );
+        return sc;
+    }
+
+    TRIG_CHECK_SC(evtStore()->record(photonAux, m_photonContainerName+photonAux_SGKey+std::to_string(inputTE->getId())+"Aux."));
 
     ATH_MSG_DEBUG("HLTAlgo Execution of xAOD TrigTopoEgammaBuilder completed successfully");
     // Time total TrigTopoEgammaBuilder execution time.
@@ -1449,13 +1487,17 @@ bool TrigTopoEgammaBuilder::getElectron(const egammaRec* egRec,
     acc(*electron)=type;
 
     std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
+    clusterLinks.reserve( egRec->getNumberOfClusters() );
     for (size_t i = 0 ; i < egRec->getNumberOfClusters(); ++i){
+        ATH_MSG_DEBUG("Attaching xAOD::CaloCluster "<<i<<": "<< *(egRec->caloClusterElementLink(i)) << " to electron " << electron);
         clusterLinks.push_back( egRec->caloClusterElementLink(i) );
     }
     electron->setCaloClusterLinks( clusterLinks );
 
     std::vector< ElementLink< xAOD::TrackParticleContainer > > trackLinks;
+    trackLinks.reserve( egRec->getNumberOfTrackParticles() );
     for (size_t i = 0 ; i < egRec->getNumberOfTrackParticles(); ++i){
+        ATH_MSG_DEBUG("Attaching xAOD::TrackParticle "<<i<<": "<< *(egRec->trackParticleElementLink(i)) << " to electron " << electron);
         trackLinks.push_back( egRec->trackParticleElementLink(i) );
     }
     electron->setTrackParticleLinks( trackLinks );
@@ -1512,14 +1554,18 @@ bool TrigTopoEgammaBuilder::getPhoton(const egammaRec* egRec,
 
     // Transfer the links to the clusters
     std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
+    clusterLinks.reserve( egRec->getNumberOfClusters() );
     for (size_t i = 0 ; i < egRec->getNumberOfClusters(); ++i){
+        ATH_MSG_DEBUG("Attaching xAOD::CaloCluster "<<i<<": "<< *(egRec->caloClusterElementLink(i)) << " to photon " << photon);
         clusterLinks.push_back( egRec->caloClusterElementLink(i) );
     }
     photon->setCaloClusterLinks( clusterLinks );
 
     // Transfer the links to the vertices
     std::vector< ElementLink< xAOD::VertexContainer > > vertexLinks;
+    vertexLinks.reserve( egRec->getNumberOfVertices() );
     for (size_t i = 0 ; i < egRec->getNumberOfVertices(); ++i){
+        ATH_MSG_DEBUG("Attaching xAOD::VertexContainer "<<i<<": "<< *(egRec->vertexElementLink(i)) << " to photon " << photon);
         vertexLinks.push_back( egRec->vertexElementLink(i) );
     }
     photon->setVertexLinks( vertexLinks );
@@ -1544,6 +1590,7 @@ bool TrigTopoEgammaBuilder::getPhoton(const egammaRec* egRec,
 void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
     // This will return exception if string not correct
     // Safe method to pass value to fill
+    ATH_MSG_DEBUG("TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg="<<eg<<")");
     unsigned int isEMbit=0;
     ATH_MSG_DEBUG("isEMVLoose " << eg->selectionisEM(isEMbit,"isEMVLoose"));
     ATH_MSG_DEBUG("isEMVLoose bit " << std::hex << isEMbit); 
@@ -1589,8 +1636,13 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
         ATH_MSG_DEBUG( " REGTEST: problems with electron pointer" );
     }
 
+    static const SG::AuxElement::Accessor< std::vector< float > > etaAcc( "eta_sampl" );
+    static const SG::AuxElement::Accessor< std::vector< float > > eAcc( "e_sampl" );
+
     ATH_MSG_DEBUG(" REGTEST: cluster variables");
     if (eg->caloCluster()) {
+        const xAOD::CaloCluster *cluster = eg->caloCluster();
+        ATH_MSG_DEBUG( " REGTEST: electron cluster itself: " << cluster );
         ATH_MSG_DEBUG( " REGTEST: electron cluster transverse energy: " << eg->caloCluster()->et() );
         ATH_MSG_DEBUG( " REGTEST: electron cluster eta: " << eg->caloCluster()->eta() );
         ATH_MSG_DEBUG( " REGTEST: electron cluster phi: " << eg->caloCluster()->phi() );
@@ -1600,6 +1652,25 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi); 
         ATH_MSG_DEBUG(" REGTEST: electron Calo-frame coords. etaCalo = " << tmpeta); 
         ATH_MSG_DEBUG(" REGTEST: electron Calo-frame coords. phiCalo = " << tmpphi);
+
+        ATH_MSG_DEBUG(" REGTEST: Sampling info");
+
+        if ( etaAcc.isAvailable(*cluster) ) {
+            ATH_MSG_DEBUG("eta_sampl in El Cluster is available");
+            ATH_MSG_DEBUG("eta_sampl size=" << etaAcc(*cluster).size() );
+        } else {
+            ATH_MSG_WARNING("No eta_sampl in El Cluster");
+        }
+
+        if ( eAcc.isAvailable(*cluster) ) {
+            ATH_MSG_DEBUG("e_sampl in El Cluster is available");
+            ATH_MSG_DEBUG("e_sampl size=" << eAcc(*cluster).size() );
+        } else {
+            ATH_MSG_WARNING("No e_sampl in El Cluster");
+        }
+
+        ATH_MSG_DEBUG(" REGTEST: energyBE(2): " << eg->caloCluster()->energyBE(2) );
+        ATH_MSG_DEBUG(" REGTEST: etaBE(2): " << eg->caloCluster()->etaBE(2) );
     } else{
         ATH_MSG_DEBUG( " REGTEST: problems with electron cluster pointer" );
     }
@@ -1637,12 +1708,15 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
     } else{
         ATH_MSG_DEBUG( " REGTEST: no electron eg->trackParticle() pointer" );
     }
+
+    ATH_MSG_DEBUG("TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg="<<eg<<") complete");
 }
 
 /** @brief Decoration debug method for photons */
 void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg) const {
     // This will return exception if string not correct
     // Safe method to pass value to fill
+    ATH_MSG_DEBUG("TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg="<<eg<<")");
     unsigned int isEMbit=0;
     //ATH_MSG_DEBUG("isEMLoose " << eg->selectionisEM(isEMbit,"isEMLoose"));
     //ATH_MSG_DEBUG("isEMLoose " << std::hex << isEMbit); 
@@ -1663,8 +1737,13 @@ void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg) const {
         ATH_MSG_DEBUG( " REGTEST: problems with photon pointer" );
     }
 
+    static const SG::AuxElement::Accessor< std::vector< float > > etaAcc( "eta_sampl" );
+    static const SG::AuxElement::Accessor< std::vector< float > > eAcc( "e_sampl" );
+
     ATH_MSG_DEBUG(" REGTEST: cluster variables");
     if (eg->caloCluster()) {
+        const xAOD::CaloCluster *cluster = eg->caloCluster();
+        ATH_MSG_DEBUG( " REGTEST: photon cluster itself: " << cluster );
         ATH_MSG_DEBUG( " REGTEST: photon cluster transverse energy: " << eg->caloCluster()->et() );
         ATH_MSG_DEBUG( " REGTEST: photon cluster eta: " << eg->caloCluster()->eta() );
         ATH_MSG_DEBUG( " REGTEST: photon cluster phi: " << eg->caloCluster()->phi() );
@@ -1674,6 +1753,25 @@ void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg) const {
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi);
         ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. etaCalo = " << tmpeta);
         ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. phiCalo = " << tmpphi);
+
+        ATH_MSG_DEBUG(" REGTEST: Sampling info");
+
+        if ( etaAcc.isAvailable(*cluster) ) {
+            ATH_MSG_DEBUG("eta_sampl in El Cluster is available");
+            ATH_MSG_DEBUG("eta_sampl size=" << etaAcc(*cluster).size() );
+        } else {
+            ATH_MSG_WARNING("No eta_sampl in El Cluster");
+        }
+
+        if ( eAcc.isAvailable(*cluster) ) {
+            ATH_MSG_DEBUG("e_sampl in El Cluster is available");
+            ATH_MSG_DEBUG("e_sampl size=" << eAcc(*cluster).size() );
+        } else {
+            ATH_MSG_WARNING("No e_sampl in El Cluster");
+        }
+
+        ATH_MSG_DEBUG(" REGTEST: energyBE(2): " << eg->caloCluster()->energyBE(2) );
+        ATH_MSG_DEBUG(" REGTEST: etaBE(2): " << eg->caloCluster()->etaBE(2) );
     } else{
         ATH_MSG_DEBUG( " REGTEST: problems with photon cluster pointer" );
     }
@@ -1697,9 +1795,7 @@ void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg) const {
     eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2tsts1); 
     ATH_MSG_DEBUG(" REGTEST: e2tsts1  =  " << val_float);
 
-    //DEBUG info for Electrons which by definition have a track match
-    ATH_MSG_DEBUG(" REGTEST: trackmatch variables");
-
+    ATH_MSG_DEBUG("TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg="<<eg<<") complete");
 }
 
 // Taken from IsolationBuilder to set the decoration -- should not need to do this ourselves
