@@ -22,7 +22,7 @@ Description: Class for selecting jets that pass some cleaning cuts
 #include <iostream>
 #include <cmath>
 #include <cfloat>
-
+#include <stdexcept>
 // ROOT includes
 #include "TEnv.h"
 
@@ -340,7 +340,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
 void JetCleaningTool::missingVariable(const std::string& varName) const
 {
     ATH_MSG_FATAL(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName.c_str()));
-    throw std::string(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName.c_str()));
+    throw std::runtime_error(Form("JetCleaningTool failed to retrieve a required variable - please confirm that the xAOD::Jet being passed contains the variable named %s",varName.c_str()));
 }
 
 const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
