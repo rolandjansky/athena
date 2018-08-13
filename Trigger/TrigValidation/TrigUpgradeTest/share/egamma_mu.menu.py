@@ -88,7 +88,7 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
         unpack.SourceDecisions="L1MU"
   
 # this is a temporary hack to include new test chains
-EnabledChainNamesToCTP = [str(n)+":"+c.name for n,c in enumerate(testChains)]
+EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
 topSequence.L1DecoderTest.ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
 
 EnabledElChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in egammaChains]

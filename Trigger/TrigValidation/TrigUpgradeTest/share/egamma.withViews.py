@@ -250,7 +250,7 @@ from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionC
 mon = TrigSignatureMoniMT()
 mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
-mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
+mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
 mon.OutputLevel = DEBUG
 
 step1Collector = DecisionCollectorTool("Step1Collector")
