@@ -38,7 +38,7 @@ HelloAlg::HelloAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 		  m_myDict,
 		  "A little dictionary" );
   // some default values;
-  m_myDict["Bonjour"]      = "Guten Tag";
+  m_myDict["Bonjour"]      = "Konnichiwa";
   m_myDict["Good Morning"] = "Bonjour";
   m_myDict["one"]          = "uno";
 
