@@ -27,7 +27,7 @@ class PixelSiPropertiesCondAlg : public AthAlgorithm {
 
   private:
     const PixelID* m_pixid;
-    const InDetDD::SiDetectorManager * m_detManager;
+    const InDetDD::PixelDetectorManager * m_detManager;
     
     ServiceHandle<ICondSvc> m_condSvc;
     SG::ReadCondHandleKey<PixelDCSConditionsData> m_readKeyTemp      {this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
