@@ -3,7 +3,6 @@
 # reductionConf flag SUSY15 in Reco_tf.py  
 #********************************************************************
 
-# TODO: check what of this is still needed /CO
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
@@ -100,11 +99,8 @@ InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVx
 ToolSvc +=  InclusiveVxFitterTool;
 InclusiveVxFitterTool.OutputLevel = INFO
 
-
-
 TrackRandomizingSuffices = [ "0p5", "1p0", "2p0", "3p0", "4p0" ]
 RandomizingSigmas        = [ 0.5, 1.0, 2.0, 3.0, 4.0 ]
-
 
 # Temporary flag
 
@@ -128,8 +124,7 @@ if doDissolvedVertexing:
     
     SeqSUSY15 += randomizer
     SeqSUSY15 += vsi
-    
-    
+        
   MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
                                                   'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
                                                   'xAOD::VertexContainer#VrtSecInclusive*',
@@ -422,7 +417,7 @@ SUSY15SlimmingHelper.AllVariables = [
                                      ]
 
 SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-                                        "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF",
+                                        "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF.EnergyLossSigma.MeasEnergyLoss.MeasEnergyLossSigma.ParamEnergyLoss.ParamEnergyLossSigma.ParamEnergyLossSigmaMinus.ParamEnergyLossSigmaPlus",
 					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing",
 					"GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY",
 					"InDetTrackParticles.truthOrigin.truthType.hitPattern.patternRecoInfo.vx.vy.vz.beamlineTiltX.beamlineTiltY.radiusOfFirstHit",
@@ -431,18 +426,18 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant
 					"TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
 					"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.decayVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType.charge",
 					"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType", # from Dominik (DVANALYSUSY-53)
+                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType",
 					"Electrons.bkgMotherPdgId.bkgTruthOrigin",
-                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV", # Laura J via Hide March 2018
-                                        "InDetTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons", # Laura J via Hide March 2018
-                                        "Electrons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs", # Laura J via Hide March 2018
-                                        "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs", # Laura J via Hide March 2018
-                                        "MET_LocHadTopo.source.name.mpx.mpy.sumet", #Laura J April 2018 removing allVariables
-                                        "MET_Track.source.name.mpx.mpy.sumet", #Laura J April 2018 removing allVariables
+                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
+                                        "InDetTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons",
+                                        "Electrons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
+                                        "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
+                                        "MET_LocHadTopo.source.name.mpx.mpy.sumet",
+                                        "MET_Track.source.name.mpx.mpy.sumet",
 ]
-SUSY15SlimmingHelper.IncludeMuonTriggerContent = True # needed? /CO
-SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True # can change to photons only? /CO
-SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True # Added /CO
+SUSY15SlimmingHelper.IncludeMuonTriggerContent = True
+SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True
+SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
@@ -454,6 +449,5 @@ if DerivationFrameworkIsMonteCarlo:
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   
   SUSY15SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
-
 
 SUSY15SlimmingHelper.AppendContentToStream(SUSY15Stream)
