@@ -56,7 +56,10 @@ execFile = "bch.py"
 comment = ""
 verbose = False
 update = False
-user=os.getlogin()
+try:
+    user=os.getlogin()
+except:
+    user="UnknownUser"
 
 for o, a in opts:
     if o in ("-f","--folder"):

@@ -77,7 +77,10 @@ comment = ""
 prefix = ""
 update = False
 keep=[]
-user=os.getlogin()
+try:
+    user=os.getlogin()
+except:
+    user="UnknownUser"
 
 for o, a in opts:
     if o in ("-f","--folder"):
