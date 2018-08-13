@@ -46,8 +46,8 @@ public:
 		  MEAN10TOTRUE, MEAN20TOTRUE, MEDIAN10TOTRUE, MEDIAN20TOTRUE, 
 		  NSHIFTCORRECTIONS};
 
-  float getEnergy(const xAOD::Egamma* eg,
-		  const xAOD::CaloCluster* clus) const override final;
+  float getEnergy(const xAOD::CaloCluster& clus,
+                  const xAOD::Egamma* eg) const override final;
 
 private:
   Gaudi::Property<int> m_particleType {this, 

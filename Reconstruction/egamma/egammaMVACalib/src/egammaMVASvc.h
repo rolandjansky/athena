@@ -39,7 +39,7 @@ public:
 		     const xAOD::Egamma& eg) const override final;
 
   StatusCode execute(xAOD::CaloCluster& cluster,
-		     xAOD::EgammaParameters::EgammaType egType) const override final;
+		     const xAOD::EgammaParameters::EgammaType egType) const override final;
 
 private:
 
