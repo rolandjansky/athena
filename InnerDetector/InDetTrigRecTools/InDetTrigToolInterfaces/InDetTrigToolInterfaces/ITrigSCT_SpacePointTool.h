@@ -27,6 +27,9 @@
 //fwd decl
 class SpacePointCollection;
 class SpacePointOverlapCollection;
+namespace InDetDD {
+  class SiDetectorElementCollection;
+}
 
 namespace InDet {
   class SiElementPropertiesTable;
@@ -44,37 +47,31 @@ namespace InDet {
      * @param[in]  clusCollection        Cluster collection
      * @param[in]  clusterContainer      Cluster container
      * @param[in]  properties            SiElementPropertiesTable
-     * @param[out] spacepointCollection  SpacePoint collection
-     */
-    virtual void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
-                                     const SCT_ClusterContainer* clusterContainer,
-                                     const SiElementPropertiesTable* properties,
-                                     SpacePointCollection* spacepointCollection)=0;
-
-    /**
-     * Convert clusters to SpacePoints
-     * @param[in]  clusCollection        Cluster collection
-     * @param[in]  clusterContainer      Cluster container
-     * @param[in]  properties            SiElementPropertiesTable
+     * @param[in]  elements              SiDetectorElementCollection
      * @param[out] spacepointCollection  SpacePoint collection
      * @param      overlapColl           collection of SP with overlaps
      */
     virtual void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
                                      const SCT_ClusterContainer* clusterContainer,
                                      const SiElementPropertiesTable* properties,
+                                     const InDetDD::SiDetectorElementCollection* elements,
                                      SpacePointCollection* spacepointCollection,
                                      SpacePointOverlapCollection* overlapColl)=0;
 
     virtual void checkForSCT_Points (const SCT_ClusterCollection* clusters1,
-				     const IdentifierHash& id2, double minDiff, 
-				     double maxDiff,
-				     SpacePointCollection* spacepointCollection, 
-				     bool overlapColl) = 0;
+                                     const IdentifierHash& id2,
+                                     const InDetDD::SiDetectorElementCollection* elements,
+                                     double minDiff,
+                                     double maxDiff,
+                                     SpacePointCollection* spacepointCollection,
+                                     bool overlapColl) = 0;
 
     virtual void checkForSCT_Points (const SCT_ClusterCollection* clusters1, 
-				     const IdentifierHash& id2, double min1, 
-				     double max1,
-				     double min2, double max2) = 0;
+                                     const IdentifierHash& id2,
+                                     const InDetDD::SiDetectorElementCollection* elements,
+                                     double min1,
+                                     double max1,
+                                     double min2, double max2) = 0;
 
   };
 

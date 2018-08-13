@@ -110,6 +110,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       if (itViewMap != viewMap.end()){
 	int iview=itViewMap->second;
 	newd->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ));//adding view to TC
+	ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
 	//	need to check if this View has parent views? can we have more than one parent views?
       }
       else{
@@ -137,6 +138,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 	// link decision to this view
 	newd->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
       	viewMap[roiDescriptor]=viewVector->size()-1;
+	ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component "<<viewVector->size()-1);
       
 	// see if there is a view linked to the decision object, if so link it to the view that is just made
 	if ( Idecision->hasObjectLink( "view" ) ) {

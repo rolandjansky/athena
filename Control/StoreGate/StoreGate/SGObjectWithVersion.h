@@ -10,11 +10,11 @@
 #define STOREGATE_SGOBJECTWITHVERSION_H 1
 
 #include "SGTools/SGVersionedKey.h"
-#include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadHandle.h"
 namespace SG {
   /// @class ObjectWithVersion
   /// @brief associate a data object with its VersionedKey
-  /// The object is held by a DataHandle to delay its retrieval
+  /// The object is held by a ReadHandle to delay its retrieval
   /// in case the user is interested only in the versionedKey
   template <typename T>
   class ObjectWithVersion {
@@ -22,8 +22,10 @@ namespace SG {
     ObjectWithVersion(): versionedKey(), dataObject() {}
     ObjectWithVersion(const ObjectWithVersion& rhs):
       versionedKey(rhs.versionedKey), dataObject(rhs.dataObject) {}
-    ObjectWithVersion(const VersionedKey& vk, const DataHandle<T>& dh):
+    ObjectWithVersion(const VersionedKey& vk, const SG::ReadHandle<T>& dh):
       versionedKey(vk), dataObject(dh) {}
+    ObjectWithVersion(const VersionedKey& vk, SG::DataProxy* proxy):
+      versionedKey(vk), dataObject(proxy) {}
     ObjectWithVersion& operator= (const ObjectWithVersion& rhs)
     {
       if (this != &rhs) {
@@ -33,7 +35,7 @@ namespace SG {
       return *this;
     }
     SG::VersionedKey versionedKey;
-    DataHandle<T> dataObject;
+    SG::ReadHandle<T> dataObject;
   };
 }
 /// sort according to highest key version

@@ -36,7 +36,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 // Conditions
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
@@ -366,7 +365,7 @@ SCTHitEffMonTool::initialize() {
   ATH_CHECK( m_TrackName.initialize() );
   ATH_CHECK( m_sctContainerName.initialize() );
 
-  ATH_CHECK(m_sctDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -1137,10 +1136,10 @@ SCTHitEffMonTool::fillHistograms() {
     }
   }
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_FATAL(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in fillHistograms()");
     return StatusCode::FAILURE;
   }
 
@@ -1811,10 +1810,10 @@ StatusCode
 SCTHitEffMonTool::procHistograms() {                                                                             // hidetoshi
                                                                                                                  // 14.01.22
   if (m_superDetailed) {
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
     const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
     if (elements==nullptr) {
-      ATH_MSG_FATAL(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
       return StatusCode::FAILURE;
     }
 

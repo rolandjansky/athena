@@ -36,7 +36,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 //STL includes
 #include <string>

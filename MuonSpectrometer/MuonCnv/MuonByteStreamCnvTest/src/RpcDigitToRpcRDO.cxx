@@ -113,7 +113,9 @@ StatusCode RpcDigitToRpcRDO::initialize()
     // }
 
   ATH_CHECK( m_padContainerKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_padContainerKey );
   ATH_CHECK( m_digitContainerKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_digitContainerKey );
 
   return StatusCode::SUCCESS;
 }
@@ -131,6 +133,7 @@ StatusCode RpcDigitToRpcRDO::execute() {
   // create an empty pad container and record it
   SG::WriteHandle<RpcPadContainer> padContainer (m_padContainerKey);
   ATH_CHECK(padContainer.record((std::make_unique<RpcPadContainer>(600))));
+  ATH_MSG_DEBUG("Recorded RpcPadContainer called " << padContainer.name() << " in store " << padContainer.store());
 
   RPCsimuData data;         // instantiate the container for the RPC digits
 
@@ -225,6 +228,11 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data)  {
     typedef RpcDigitCollection::const_iterator digit_iterator;
 
   SG::ReadHandle<RpcDigitContainer> container (m_digitContainerKey);
+  if (!container.isValid()) {
+    ATH_MSG_ERROR("Could not find RpcDigitContainer called " << container.name() << " in store " << container.store());
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_DEBUG("Found RpcDigitContainer called " << container.name() << " in store " << container.store());
 
     collection_iterator it1_coll= container->begin(); 
     collection_iterator it2_coll= container->end(); 

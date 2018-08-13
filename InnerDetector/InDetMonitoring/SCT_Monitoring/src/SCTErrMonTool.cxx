@@ -34,7 +34,6 @@
 #include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "cArrayUtilities.h"
 #include "StoreGate/ReadCondHandle.h"
@@ -266,7 +265,7 @@ StatusCode SCTErrMonTool::initialize() {
   ATH_CHECK( m_dataObjectName.initialize() );
   ATH_CHECK( m_eventInfoKey.initialize() );
 
-  ATH_CHECK(m_sctDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return ManagedMonitorToolBase::initialize();
 }
@@ -2694,10 +2693,10 @@ bool SCTErrMonTool::SyncErrorSCT()
 
   m_errorGeoSCT.clear();
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_ERROR(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncErrorSCT()");
     return false;
   }
 
@@ -2737,10 +2736,10 @@ bool SCTErrMonTool::SyncDisabledSCT()
 
   m_disabledGeoSCT.clear();
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_ERROR(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
     return false;
   }
 

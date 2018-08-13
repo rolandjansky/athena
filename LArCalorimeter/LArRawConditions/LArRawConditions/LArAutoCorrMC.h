@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -42,13 +42,12 @@ class LArAutoCorrMC: public LArAutoCorrComplete {
  protected:
 
   // helper for MC z-phi symmetry 
-  //  LArMCSym m_larmc;
   ToolHandle<ILArMCSymTool> m_larmcsym;
 
 
 };
 
-
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArAutoCorrMC, 217258659,1)
-SG_BASE(LArAutoCorrMC, LArAutoCorrComplete);
+CONDCONT_DEF(LArAutoCorrMC ,139308879 , ILArAutoCorr );
 #endif 

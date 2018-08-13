@@ -214,6 +214,17 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
       ToolSvc += InDetTrigTRT_SeededSiRoadMaker
       if (InDetTrigFlags.doPrintConfigurables()):
         print      InDetTrigTRT_SeededSiRoadMaker
+      # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
+        IBLDistFolderKey = "/Indet/IBLDist"
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        if athenaCommonFlags.isOnline():
+          IBLDistFolderKey = "/Indet/Onl/IBLDist"
+        from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
+        condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
+                                                      IBLDistFolderKey = IBLDistFolderKey)
 
       # Local combinatorial track finding using space point seed and detector element road
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder

@@ -39,8 +39,6 @@
 // InDet 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 // Root
 #include "TTree.h"
 #include "TFile.h"
@@ -54,8 +52,6 @@
 iFatras::PlanarDetLayerBuilder::PlanarDetLayerBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   base_class(t,n,p),
   m_pixelCase(true),
-  m_siMgr(0),
-  m_siMgrLocation("Pixel"),
   m_pixIdHelper(0),
   m_sctIdHelper(0),
   m_detElementMapName("Pixel_IdHashDetElementMap"),
@@ -97,7 +93,6 @@ iFatras::PlanarDetLayerBuilder::PlanarDetLayerBuilder(const std::string& t, cons
 {
   // general steering
   declareProperty("PixelCase"                        , m_pixelCase);
-  declareProperty("SiDetManagerLocation"             , m_siMgrLocation);
   declareProperty("SetLayerAssociation"              , m_setLayerAssociation);
   
   // identification
@@ -202,27 +197,11 @@ StatusCode iFatras::PlanarDetLayerBuilder::initialize()
 
   // get Pixel Detector Description Manager
   if (m_pixelCase) {
-    const InDetDD::PixelDetectorManager* pixMgr = 0;
-    if ((detStore()->retrieve(pixMgr, m_siMgrLocation)).isFailure()) {
-      ATH_MSG_ERROR( "Could not get PixelDetectorManager '" << m_siMgrLocation << "', no layers for Pixel Detector will be built. " );
-    } else {
-      ATH_MSG_VERBOSE( "PlanarDetLayerBuilder: PixelDetectorManager retrieved with key '" << m_siMgrLocation <<"'." );
-      // assign the detector manager to the silicon manager
-      m_siMgr = pixMgr;
-      if (detStore()->retrieve(m_pixIdHelper, "PixelID").isFailure())
-	ATH_MSG_ERROR("Could not get Pixel ID helper");
-    }
+    if (detStore()->retrieve(m_pixIdHelper, "PixelID").isFailure())
+      ATH_MSG_ERROR("Could not get Pixel ID helper");
   } else {
-    const InDetDD::SCT_DetectorManager* sctMgr = 0;
-    if ((detStore()->retrieve(sctMgr, m_siMgrLocation)).isFailure()) {
-      ATH_MSG_ERROR( "Could not get SCT_DetectorManager '" << m_siMgrLocation << "', no layers for SCT Detector will be built." );
-    } else {
-      ATH_MSG_VERBOSE( "SCT_DetectorManager retrieved with key '" << m_siMgrLocation <<"'." );
-      // assign the detector manager to the silicon manager
-      m_siMgr = sctMgr;
-      if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure())
-	ATH_MSG_ERROR("Could not get SCT ID helper");
-    }
+    if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure())
+      ATH_MSG_ERROR("Could not get SCT ID helper");
   }
  
   if (!m_layerEquidistantBinning)

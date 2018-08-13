@@ -3,13 +3,13 @@
 from AthenaCommon import CfgMgr
 
 def getTgcOverlay(name="TgcOverlay", **kwargs):
-    kwargs.setdefault("mainInputTGC_Name", "TGC_DIGITS")
-    kwargs.setdefault("overlayInputTGC_Name", "TGC_DIGITS")
-    kwargs.setdefault("DigitizationTool", "Tgc_OverlayDigitizationTool")
-    kwargs.setdefault("ConvertRDOToDigitTool", "TgcRdoToTgcDigitOverlay")
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("MainInputDigitKey",overlayFlags.dataStore()+"+TGC_DIGITS")
+    kwargs.setdefault("OverlayInputDigitKey",overlayFlags.evtStore()+"+TGC_DIGITS")
+    kwargs.setdefault("OutputDigitKey",overlayFlags.outputStore()+"+TGC_DIGITS")
     kwargs.setdefault("MCStore",overlayFlags.evtStore())
     kwargs.setdefault("DataStore", overlayFlags.dataStore())
+    kwargs.setdefault("CopySDO",not overlayFlags.isDataOverlay())
     if overlayFlags.doSignal():
         kwargs.setdefault("CopyObject", True)
     return CfgMgr.TgcOverlay(name, **kwargs)
