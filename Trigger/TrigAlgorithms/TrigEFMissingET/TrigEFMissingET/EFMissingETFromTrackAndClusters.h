@@ -45,7 +45,7 @@ CREATED:  Aug 05, 2018
 
 
 /**
-  $class EFMissingETFromClusters
+  $class EFMissingETFromTrackAndClusters
   Updates transient helper object with topo. clusters
  **/
 
@@ -73,9 +73,6 @@ public:
 
     void setCVF(std::vector<xAOD::CaloCluster>, const xAOD::TrackParticleContainer*, std::vector<const xAOD::TrackParticle*>, std::vector<float>&);
     float ExtrapolationEstimate(float,float,float);
-    double deltaPhi(double phi1, double phi2);
-    double deltaR2(double eta1, double phi1, double eta2, double phi2);
-    double deltaR(double eta1, double phi1, double eta2, double phi2);
 
     StatusCode makeVoronoiClusters(std::vector<fastjet::PseudoJet>& clusters, std::vector< std::pair<fastjet::PseudoJet,std::vector<float> > >&) const;
     void spreadPt(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec, float spreadr=0.4, float alpha=2) const;
@@ -93,8 +90,8 @@ private:
     std::vector<fastjet::PseudoJet> makeSKClust(std::vector<fastjet::PseudoJet> clustPJ) const;
 
 
-    bool  m_saveuncalibrated;
-    int   m_methelperposition;
+    bool  m_saveUncalibrated;
+    int   m_metHelperPosition;
     xAOD::CaloCluster_v1::State m_clusterstate;
 
     bool m_debug = false;
@@ -120,6 +117,7 @@ private:
     mutable double m_minPtHCal;
 
 
+   float m_deltaR;
 };
 
 #endif // TRIGEFMISSINGET_EFMissingETFromTrackAndClusters_H

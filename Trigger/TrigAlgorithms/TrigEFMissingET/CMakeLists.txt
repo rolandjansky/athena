@@ -18,6 +18,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCaloEvent
    Event/xAOD/xAODJet
    Event/xAOD/xAODTrigMissingET
+   Event/FourMomUtils
    GaudiKernel
    LArCalorimeter/LArIdentifier
    LArCalorimeter/LArTools

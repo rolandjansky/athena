@@ -23,6 +23,7 @@ CREATED:  Aug 05, 2018
 
 #include "EventKernel/ISignalState.h"
 #include "EventKernel/SignalStateHelper.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 #include <cmath>
 #include <string>
@@ -91,28 +92,26 @@ EFMissingETFromTrackAndClusters::EFMissingETFromTrackAndClusters(const std::stri
         const IInterface* parent) :
     EFMissingETBaseTool(type, name, parent)
 {
-    declareProperty("SaveUncalibrated", m_saveuncalibrated = false ,"save uncalibrated topo. clusters");
+    declareProperty("SaveUncalibrated", m_saveUncalibrated = false ,"save uncalibrated topo. clusters");
     // standalone module.
 
     // declare configurables
-
     m_fextype = FexType::TOPO;
+    m_metHelperPosition = 18;
 
-    m_methelperposition = 18;
-
-
+    // Properties are as follows:
     m_lambdaCalDivide = 317;
-    m_isCaloSplit = false;
-    m_gridSpacing = 0.6;
-    m_eCalGrid = 0.5;
-    m_hCalGrid = 0.5;
-    m_rapmin = 0.0;
-    m_rapmax = 2.5;
-    m_rapminApplied = 0;
-    m_rapmaxApplied = 10;
+    m_isCaloSplit = false; //If false, SK is run the same on all clusters. If true, SK is run separately for clusters in the ECal and the  HCal.
+    m_gridSpacing = 0.6;   // The grid size that should be applied for the SK algorithm. Suggested values between 0.3 and 0.6
+    m_eCalGrid = 0.5;    //Only necessary if isCaloSplit == true. The SK grid spacing used for the ECal.
+    m_hCalGrid = 0.5;    // Only necessary if isCaloSplit == true. The SK grid spacing used for the HCal.
+    m_rapmin = 0.0;      //The minimum (absolute) rapidity over which to calculate SK
+    m_rapmax = 2.5;      //The maximum (absolute) rapidity over which to calculate SK
+    m_rapminApplied = 0;  //The minimum (absolute) rapidity over which to apply SK
+    m_rapmaxApplied = 10; //The maximum (absolute) rapidity over which to apply SK
 
 
-
+    m_deltaR = 0.01;
     //initialization to make coverity happy:
     m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
 
@@ -139,10 +138,11 @@ StatusCode EFMissingETFromTrackAndClusters::initialize()
         m_glob_timer = m_timersvc->addItem(basename);
     } // if timing service
 
-    if(m_saveuncalibrated) m_methelperposition = 13;
+    if(m_saveUncalibrated) m_metHelperPosition = 13;
 
-    if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
-    else m_clusterstate = xAOD::CaloCluster_v1::CALIBRATED;
+
+    m_clusterstate = (m_saveUncalibrated) ? xAOD::CaloCluster_v1::UNCALIBRATED : xAOD::CaloCluster_v1::CALIBRATED;
+
 
 
     return StatusCode::SUCCESS;
@@ -177,7 +177,7 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
 
     /// fetching the topo. cluster component
     TrigEFMissingEtComponent* metComp = nullptr;
-    metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
+    metComp = metHelper->GetComponent(metHelper->GetElements() - m_metHelperPosition); // fetch Cluster component
     if (metComp==0) {
         ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
         return StatusCode::FAILURE;
@@ -202,7 +202,7 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
 
     ATH_MSG_DEBUG( " Fetch topo cluster component " );
 
-    metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
+    metComp = metHelper->GetComponent(metHelper->GetElements() - m_metHelperPosition); // fetch Cluster component
 
     if (metComp==0) {
         ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
@@ -244,7 +244,7 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
             bool find_duplicate(false);
             for(std::vector<const xAOD::TrackParticle*>::size_type idx=0; idx<vecOfMuonTrk.size(); idx++) {
                 float deltaR_ = idtrk->p4().DeltaR(vecOfMuonTrk[idx]->p4());
-                if(deltaR_<0.01) {
+                if(deltaR_< m_deltaR) {
                     find_duplicate = true;
                     break;
                 }
@@ -318,7 +318,7 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
                     bool findMuonTrack(false);
                     for(std::vector<const xAOD::TrackParticle*>::size_type idx=0; idx<vecOfMuonTrk.size(); idx++) {
                         float deltaR_ = itrk->p4().DeltaR(vecOfMuonTrk[idx]->p4());
-                        if(deltaR_<0.01) {
+                        if(deltaR_<m_deltaR) {
                             findMuonTrack=true;
                             break;
                         }
@@ -427,7 +427,6 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
     else RunSplitClusters(VoronoiWeightedTopoClusters);
 
     std::vector<xAOD::CaloCluster> SKWeightedTopoClusters;
-    SKWeightedTopoClusters.clear();
 
     for(xAOD::CaloCluster cl : VoronoiWeightedTopoClusters) {
         int w = 1;
@@ -452,8 +451,7 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
     //######################################################################
 
     size_t iclus=0;
-    vector<float> HStopocl_eta;
-    vector<float> HStopocl_phi;
+    std::vector<xAOD::CaloCluster> HStopocls;
     for(auto clust: SKWeightedTopoClusters) { //Es are sorted by default order
 
         float phi = clust.phi();
@@ -483,8 +481,7 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
             metComp->m_usedChannels += 1;
             metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,Et)+0.5));
 
-            HStopocl_eta.push_back(eta);
-            HStopocl_phi.push_back(phi);
+            HStopocls.push_back(clust);
         }
 
         iclus++;
@@ -505,8 +502,8 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
         if(trkpt<1000) continue;
 
         float dRmin(999);
-        for(size_t c=0; c<HStopocl_eta.size(); c++) {
-            float dR = deltaR(HStopocl_eta[c], HStopocl_phi[c],trketa, newtrkphi);
+        for(auto clust: HStopocls) {
+            float dR = xAOD::P4Helpers::deltaR(clust,trketa, newtrkphi);
             if(dR<dRmin) dRmin=dR;
         }
 
@@ -535,27 +532,6 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
 }
 
 
-double EFMissingETFromTrackAndClusters::deltaPhi(double phi1, double phi2)
-{
-    double result = phi1 - phi2;
-    while (result > M_PI) result -= 2*M_PI;
-    while (result <= -M_PI) result += 2*M_PI;
-    return result;
-}
-
-double EFMissingETFromTrackAndClusters::deltaR2(double eta1, double phi1, double eta2, double phi2)
-{
-    double deta = eta1 - eta2;
-    double dphi = deltaPhi(phi1, phi2);
-    return deta*deta + dphi*dphi;
-}
-
-double EFMissingETFromTrackAndClusters::deltaR(double eta1, double phi1, double eta2, double phi2)
-{
-    return std::sqrt(deltaR2 (eta1, phi1, eta2, phi2));
-}
-
-
 void EFMissingETFromTrackAndClusters::setCVF(
     std::vector<xAOD::CaloCluster> clusters,
     const xAOD::TrackParticleContainer* tracks,
@@ -569,7 +545,6 @@ void EFMissingETFromTrackAndClusters::setCVF(
         float den = 0;
 
         float cleta = clust.eta();
-        float clphi = clust.phi();
 
         for(auto track: *tracks) {
 
@@ -588,7 +563,7 @@ void EFMissingETFromTrackAndClusters::setCVF(
             float newtrkphi = -999.0;
             if(deltaphi>-998.0) newtrkphi = trkphi-deltaphi;
 
-            float dR = deltaR(cleta, clphi, trketa, newtrkphi);
+            float dR = xAOD::P4Helpers::deltaR(clust,trketa,newtrkphi);
             isTrackClusterMatched &= (dR<0.1);
 
             if(isTrackClusterMatched) {
@@ -598,7 +573,7 @@ void EFMissingETFromTrackAndClusters::setCVF(
                 bool isfromPV(false);
                 for( const xAOD::TrackParticle* itrkPV : TrackVec_FTK_PV ) {
                     float deltaR_ = track->p4().DeltaR(itrkPV->p4());
-                    if(deltaR_ < 0.01) {
+                    if(deltaR_ < m_deltaR) {
                         isfromPV=true;
                         break;
                     }
@@ -624,9 +599,9 @@ void EFMissingETFromTrackAndClusters::setCVF(
 }
 
 
-const float params[3] = { -14.6027571, -44.7818374, 540.656643};
 float EFMissingETFromTrackAndClusters::ExtrapolationEstimate(float pt, float eta, float charge)
 {
+    const float params[3] = { -14.6027571, -44.7818374, 540.656643};
     float eptsindeltaphi = params[0]*pow(eta,4)+params[1]*pow(eta,2)+params[2]*pow(eta,0);
     float sindeltaphi = eptsindeltaphi/(pt*charge);
     if (fabs(sindeltaphi)>1.0) return -999.0; //never reaches the detector
