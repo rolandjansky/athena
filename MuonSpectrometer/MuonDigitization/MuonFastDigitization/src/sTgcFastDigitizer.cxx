@@ -411,6 +411,7 @@ StatusCode sTgcFastDigitizer::execute() {
       double sp = hitOnSurface.x();
       double resolution = 0;
       if( type == 1 ){
+// switch off smearing
 	resolution = getResolution(inAngle_time);
 	sp = CLHEP::RandGauss::shoot(m_rndmEngine, hitOnSurface.x(), resolution);
       }
@@ -533,6 +534,14 @@ StatusCode sTgcFastDigitizer::execute() {
       id = m_idHelper->channelID(parentId, m_idHelper->multilayer(id), m_idHelper->gasGap(id),type,stripNumber,m_checkIds);
       ATH_MSG_VERBOSE(" Unsmeared hit id " << m_idHelperTool->toString(id) );
 
+      Amg::Vector2D  posFromStrip;
+      bool getLocalPos = detEl->stripPosition(id,posFromStrip);
+      if ( !getLocalPos ) {
+        ATH_MSG_WARNING("Failed to obtain localPosition"); 
+        continue;
+      }
+      ATH_MSG_VERBOSE(" CHECK smeared posOnSurf " << posOnSurf.x() << " unsmeared locHitPosOnSurf " << locHitPosOnSurf.x() <<  " posFromStrip nr  " << posFromStrip.x()); 
+       
       int& counts = hitsPerChannel[id];
       ++counts;
       if( counts > 1 ) continue;
@@ -557,8 +566,8 @@ StatusCode sTgcFastDigitizer::execute() {
 								<< " eta " <<  m_idHelper->stationEta(id)
 								<< " local pos " << slpos );
 
-      // assign strip position to PRD for wires and pads
-      if( type != 1 ){
+      // assign strip position to PRD 
+      if( type != 10 ){
 	Amg::Vector2D locpos(0,0);
 	if( !detEl->stripPosition(id,locpos ) ){
 	  ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelperTool->toString(id) );
@@ -566,7 +575,8 @@ StatusCode sTgcFastDigitizer::execute() {
 	  m_ntuple->Fill();
 	  continue; 
 	}
-	posOnSurf = locpos;
+	posOnSurf[0] = locpos[0];
+	posOnSurf[1] = locpos[1];
       }
 
       std::vector<Identifier> rdoList;
@@ -579,11 +589,20 @@ StatusCode sTgcFastDigitizer::execute() {
 	if( !design ){
 	  ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(id) );
 	}else{
-	  errX = fabs(design->inputPitch)/sqrt(12);
+	  errX = design->groupWidth*fabs(design->inputPitch)/sqrt(12);
+          ATH_MSG_DEBUG(" wires inputPitch " << design->inputPitch << " groupWidth " << design->groupWidth << " error " << errX);
 	}
       }else if( type == 1 ){
-        errX = resolution;
-      }
+	const MuonGM::MuonChannelDesign* design = detEl->getDesign(id);
+	if( !design ){
+	  ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(id) );
+	}else{
+	  errX = fabs(design->inputPitch)/sqrt(12);
+          ATH_MSG_DEBUG(" strips inputPitch " << design->inputPitch << " error from stripPitch " << errX);
+          errX = sqrt(resolution*resolution+errX*errX);
+	}
+        ATH_MSG_DEBUG(" eta strip total resolution that is used " << errX );
+      } 
       if( type == 0 ){
 
 	const MuonGM::MuonPadDesign* design = detEl->getPadDesign(id);
@@ -601,13 +620,20 @@ StatusCode sTgcFastDigitizer::execute() {
       
       Amg::MatrixX* cov = new Amg::MatrixX(1,1);
       cov->setIdentity();
-      (*cov)(0,0) = errX*errX;      
+      double scaleError = 1.;
+      (*cov)(0,0) = scaleError*errX*errX;      
 
 //      ATH_MSG_DEBUG(" New hit " << m_idHelperTool->toString(id) << " chtype " << type << " lpos " << posOnSurf << " from truth "
 //                    << hitOnSurface << " error " << locErrMat->error(Trk::locX) << " m_pull " << (posOnSurf.x()-hitOnSurface.x())/locErrMat->error(Trk::locX) );
 
-      //sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,locErrMat,detEl);
+//    for eta strip use centre of strip (for wires and pads this is done already using locpos)
+
+
       sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,cov,detEl, bctag);
+
+      ATH_MSG_VERBOSE(" type " << type << " Prd: local x " << posOnSurf.x() << " y " << 0 );
+      ATH_MSG_VERBOSE(" Prd: locx " << prd->localPosition()[Trk::locX]  << "  locy " << prd->localPosition()[Trk::locY]);
+      ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
 
       if(type!=1 || lastHit || !m_mergePrds) {
         // always store last hit
