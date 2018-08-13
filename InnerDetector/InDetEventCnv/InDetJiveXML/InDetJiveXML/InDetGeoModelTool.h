@@ -30,8 +30,6 @@ namespace JiveXML{
 
       /// Provide the Pixel geometry manager
       const InDetDD::PixelDetectorManager* PixelGeoManager() const { return m_PixelGeoManager; }
-      /// Provide the SCT geometry manager
-      const InDetDD::SCT_DetectorManager* SCTGeoManager() const { return m_SCTGeoManager; }
       /// Provide the TRT geometry manager
       const InDetDD::TRT_DetectorManager* TRTGeoManager() const { return m_TRTGeoManager; }
 
@@ -47,7 +45,6 @@ namespace JiveXML{
       const InDetDD::PixelDetectorManager* m_PixelGeoManager{};
       const PixelID* m_PixelIDHelper{};
       
-      const InDetDD::SCT_DetectorManager* m_SCTGeoManager{};
       const SCT_ID* m_SCTIDHelper{};
 
       const InDetDD::TRT_DetectorManager* m_TRTGeoManager{};
