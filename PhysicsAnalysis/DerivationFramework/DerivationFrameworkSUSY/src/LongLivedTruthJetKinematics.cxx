@@ -119,7 +119,7 @@ bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* spa
   if(!sparticle->hasDecayVtx()) return false;
   bool isLLP = false;
   for(int i=0; i<m_llp_pdgids.size(); i++){
-    if( sparticle->pdgId() == m_llp_pdgids[i] ) {
+    if( fabs(sparticle->pdgId()) == m_llp_pdgids[i] ) {
       isLLP = true;
     }
   }
@@ -129,11 +129,10 @@ bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* spa
   for(unsigned int j=0; j<sparticle->decayVtx()->nOutgoingParticles(); j++){
     if(!sparticle->decayVtx()->outgoingParticle(j)) continue;
     for(int i=0; i<m_llp_pdgids.size(); i++){
-      if( sparticle->decayVtx()->outgoingParticle(j)->pdgId() == m_llp_pdgids[i] ) {
+      if( fabs(sparticle->decayVtx()->outgoingParticle(j)->pdgId()) == m_llp_pdgids[i] ) {
         isRealDecay = false;
       }
     }
-    if( MC::PID::isSUSY(sparticle->decayVtx()->outgoingParticle(j)->pdgId()) ) isRealDecay = false;
   }
 
   const xAOD::TruthVertex* vert = sparticle->decayVtx();
