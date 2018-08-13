@@ -357,15 +357,26 @@ StatusCode MM_FastDigitizer::execute() {
     double tdrift = 0;
 
     // resolution = -.01/3 * angle + .64/3.
+// smearing needed due to depth of gasgap  
     double resolution;
     if (fabs(inAngle_XZ)<3)
       resolution = .07;
     else
       resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
     double sp = CLHEP::RandGauss::shoot(m_rndmEngine, 0, resolution);
-
     ATH_MSG_VERBOSE("slpos.z " << slpos.z() << ", ldir " << ldir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() );
     
+    double errX = 0;
+    const MuonGM::MuonChannelDesign* design = detEl->getDesign(layid);
+    if( !design ){
+      ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(layid) );
+    }else{
+      errX = fabs(design->inputPitch)/sqrt(12);
+      ATH_MSG_DEBUG(" strips inputPitch " << design->inputPitch << " error " << errX);
+    }
+// add strip width to error 
+    resolution = sqrt(resolution*resolution+errX*errX); 
+
     if( fabs(hitOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("bad propagation to surface " << hitOnSurface );
     if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
     // smeared local position
@@ -505,6 +516,8 @@ StatusCode MM_FastDigitizer::execute() {
     ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z());
     ATH_MSG_VERBOSE(" Calculated truth hitOnSurfaceGlobal: r " << hitOnSurfaceGlobal.perp() << " phi " << hitOnSurfaceGlobal.phi() << " z " << hitOnSurfaceGlobal.z());
     ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
+    Amg::Vector3D  gdir = surf.transform().linear()*Amg::Vector3D(0.,1.,0.);
+    ATH_MSG_DEBUG(" MM detector surface direction phi " << gdir.phi());
     ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
     ATH_MSG_VERBOSE("Local hit in Det Element Frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
     ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " hitOnSurface.x() " << hitOnSurface.x() << " residual " << posOnSurf.x() - hitOnSurface.x()
@@ -514,8 +527,15 @@ StatusCode MM_FastDigitizer::execute() {
     if (!m_microTPC) {
       Amg::MatrixX* cov = new Amg::MatrixX(1,1);
       cov->setIdentity();
-      (*cov)(0,0) = resolution*resolution;
-      MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(posOnSurf.x(),0.),rdoList,cov,detEl,(int)tdrift,0);
+      double scaleError = 1.;
+      (*cov)(0,0) = scaleError*resolution*resolution;
+
+      double locx = posOnSurf.x();
+      Amg::Vector2D localPrd;
+      bool getLocalPos = detEl->stripPosition(id,localPrd);
+      if ( !getLocalPos ) continue;
+      ATH_MSG_VERBOSE(" posOnSurf.x locx " << locx << " from strip position locx " << localPrd[0] << " locy " << localPrd[1]); 
+      MMPrepData* prd = new MMPrepData( id,hash,localPrd,rdoList,cov,detEl,(int)tdrift,0);
       prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
       col->push_back(prd);
 
@@ -552,26 +572,28 @@ StatusCode MM_FastDigitizer::execute() {
             CurrentHitInDriftGap += stepInDriftGap;
             continue;
           }
-        
-          MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(CurrenPosOnSurf.x(),0.),rdoList,cov,detEl,(int)tdrift,0);
-          prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
-          col->push_back(prd);
+          Amg::Vector2D localPrd;
+          bool getLocalPos = detEl->stripPosition(id,localPrd);
+          if(getLocalPos) {
+           MMPrepData* prd = new MMPrepData( id,hash,localPrd,rdoList,cov,detEl,(int)tdrift,0);
+           prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
+           col->push_back(prd);
 
-          std::vector<MuonSimData::Deposit> deposits;
-          MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(CurrenPosOnSurf.x(),CurrenPosOnSurf.y()));
-          deposits.push_back(deposit);
+           std::vector<MuonSimData::Deposit> deposits;
+           MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(CurrenPosOnSurf.x(),CurrenPosOnSurf.y()));
+           deposits.push_back(deposit);
+ 
+           MuonSimData simdata(deposits,0);
+           Amg::Vector3D SDO_GP = surf.transform()*CurrentHitInDriftGap;
+           simdata.setPosition(SDO_GP);
+           simdata.setTime(m_globalHitTime);
+           h_sdoContainer->insert ( std::make_pair ( id, simdata ) );
 
-          MuonSimData simdata(deposits,0);
-          Amg::Vector3D SDO_GP = surf.transform()*CurrentHitInDriftGap;
-          simdata.setPosition(SDO_GP);
-          simdata.setTime(m_globalHitTime);
-          h_sdoContainer->insert ( std::make_pair ( id, simdata ) );
-
-          ATH_MSG_VERBOSE(" Local CurrentHitInDriftGap.x() " << CurrentHitInDriftGap.x() << " CurrentHitInDriftGap.y() " << CurrentHitInDriftGap.y() << " CurrentHitInDriftGap.z() " << CurrentHitInDriftGap.z() << " drift time " << (int)tdrift );
-          ATH_MSG_VERBOSE(" Prd: local x " << CurrentHitInDriftGap.x() << " y " << 0 << " drift time " << (int)tdrift << " identifier " << id );
-          ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
-          ATH_MSG_VERBOSE(" SDO: True Global position: x  " << SDO_GP.x() << "  y " << SDO_GP.y() << " z " << SDO_GP.z());
-
+           ATH_MSG_VERBOSE(" Local CurrentHitInDriftGap.x() " << CurrentHitInDriftGap.x() << " CurrentHitInDriftGap.y() " << CurrentHitInDriftGap.y() << " CurrentHitInDriftGap.z() " << CurrentHitInDriftGap.z() << " drift time " << (int)tdrift );
+           ATH_MSG_VERBOSE(" Prd: local x " << CurrentHitInDriftGap.x() << " y " << 0 << " drift time " << (int)tdrift << " identifier " << id );
+           ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
+           ATH_MSG_VERBOSE(" SDO: True Global position: x  " << SDO_GP.x() << "  y " << SDO_GP.y() << " z " << SDO_GP.z());
+          }
           CurrentHitInDriftGap += stepInDriftGap;
         }
       }
