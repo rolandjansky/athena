@@ -17,6 +17,7 @@
 /// ///////////////////////////////
 
 #include <string>
+#include <unordered_set>
 
 namespace xAOD {
 
@@ -83,9 +84,19 @@ namespace xAOD {
       EMPFlowCSSK,
       EMPFlowVorSK,
       TruthCharged, // Truth jets with only charged particles
+      EMTopoOriginTime,
+      EMTopoOriginSKTime,
+      EMTopoOriginCSSKTime,
+      EMTopoOriginVorSKTime,
+      EMPFlowTime,
+      EMPFlowSKTime,
+      EMPFlowCSSKTime,
+      EMPFlowVorSKTime,
       Other = 100,
       Uncategorized= 1000
     };
+
+    bool isValidConstitType(Type t);
     
     const std::string& typeName(Type t);
 
