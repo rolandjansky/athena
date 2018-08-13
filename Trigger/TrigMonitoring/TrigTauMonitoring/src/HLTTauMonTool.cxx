@@ -704,10 +704,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_1P is OK.");
 	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_3P");
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_3P is OK.");
-//	if(!m_isData) sc = fillEFTau(*CI, trigItem, "RNN_inTrack");
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_inTrack is OK.");
-//	if(!m_isData) sc = fillEFTau(*CI, trigItem, "RNN_inCluster");
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_inCluster is OK.");
+	sc = fillEFTau(*CI, trigItem, "RNN_inTrack");
+//	ATH_MSG_WARNING("In fillEFTau. RNN_inTrack is OK.");
+	sc = fillEFTau(*CI, trigItem, "RNN_inCluster");
+//	ATH_MSG_WARNING("In fillEFTau. RNN_inCluster is OK.");
 	sc = fillEFTau(*CI, trigItem, "RNN_out");
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_out is OK.");
 	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
@@ -927,10 +927,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_1P is OK.");
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P");
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_3P is OK.");
-//       		if(*tauItr){if(!m_isData) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack");}
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_inTrack is OK.");
-//		if(*tauItr){if(!m_isData) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster");}
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_inCluster is OK.");
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack");
+//		ATH_MSG_WARNING("In fillEFTau. RNN_inTrack is OK.");
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster");
+//		ATH_MSG_WARNING("In fillEFTau. RNN_inCluster is OK.");
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out");
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_out is OK.");
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
@@ -1210,7 +1210,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	    if(is1P) hist("hScoreSigTrans1p")->Fill(BDTJetScoreSigTrans);
 	    if(isMP) hist("hScoreSigTransmp")->Fill(BDTJetScoreSigTrans);
 	  }
-      }
+      } // end of if(monBDT)
 
     }
   else if(BDTinput_type == "1p_NonCorr")
@@ -1531,7 +1531,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	}
       }
     } 
-  else if(BDTinput_type == "RNN_inTrack")
+  else if( (BDTinput_type == "RNN_inTrack") && monRNN)
     {
       // can't retrieve tau tracks in data due to broken links
       //if(m_isData) return StatusCode::SUCCESS;
@@ -1591,7 +1591,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	} // end for-loop for tracks
       } // end if(is1P||isMP)
     }
-  else if(BDTinput_type == "RNN_inCluster")
+  else if( (BDTinput_type == "RNN_inCluster") && monRNN)
     {
       // can't retrieve tau clusters in data due to broken links
       //if(m_isData) return StatusCode::SUCCESS;
@@ -1909,11 +1909,19 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
 #endif
       hist2("hEFvsOffnWideTrks")->Fill(OffnWideTrack,EFnWideTrack); 
 
-
-      FillRelDiffHist(hist("hptRatio"), aOfflineTau->pt(), aEFTau->pt(), 0, 1);
+      if ((trigItem.find("tracktwoMVA")!=std::string::npos) || (trigItem.find("tracktwoEFmvaTES")!=std::string::npos)) {
+        FillRelDiffHist(hist("hptRatio"), aOfflineTau->ptFinalCalib(), aEFTau->pt(), 0, 1);
+      } else {
+        FillRelDiffHist(hist("hptRatio"), aOfflineTau->pt(), aEFTau->pt(), 0, 1);
+      }
+      
       if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))
 	{
-	  FillRelDiffProfile<float>(profile("hEtRatiovspt"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->pt()/GeV, 0, 1);
+	  if ((trigItem.find("tracktwoMVA")!=std::string::npos) || (trigItem.find("tracktwoEFmvaTES")!=std::string::npos)) {
+	  	  FillRelDiffProfile<float>(profile("hEtRatiovspt"), aOfflineTau->ptFinalCalib(), aEFTau->pt(),  aOfflineTau->ptFinalCalib()/GeV, 0, 1);	  
+	  } else {
+	  	  FillRelDiffProfile<float>(profile("hEtRatiovspt"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->pt()/GeV, 0, 1);
+	  }
 	  FillRelDiffProfile<float>(profile("hEtRatiovseta"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->eta(), 0, 1);
 	  FillRelDiffProfile<float>(profile("hEtRatiovsphi"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->phi(), 0, 1);
 	  FillRelDiffProfile<float>(profile("hEtRatiovsmu"), aOfflineTau->pt(), aEFTau->pt(), mu, 0, 1);
