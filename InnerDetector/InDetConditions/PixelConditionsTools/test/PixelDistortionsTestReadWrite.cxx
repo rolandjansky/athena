@@ -10,7 +10,7 @@
 
 // Gaudi includes
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "Identifier/Identifier.h"

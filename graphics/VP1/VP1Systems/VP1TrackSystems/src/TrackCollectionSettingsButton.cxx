@@ -35,7 +35,7 @@ public:
   Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0),
   last_trackTubeRadius(0.0),last_cutTruthFromIROnly{}, last_cutExcludeBarcodeZero{}, 
   last_cutTruthExcludeNeutrals{},last_cutOnlyVertexAssocTracks{},last_useDefaultCuts{},
-  dim(0){
+  dim(0), serialization_version(0){
     //nop
   }
   TrackCollectionSettingsButton * theclass;
@@ -64,6 +64,8 @@ public:
   QPoint dragStartPosition;
   
   void initEditWindow();
+
+  int serialization_version;
 };
 
 //____________________________________________________________________
@@ -94,6 +96,10 @@ TrackCollectionSettingsButton::TrackCollectionSettingsButton(QWidget * parent,in
   m_d->theclass = this;
   m_d->initEditWindow();
   
+  // declare the current serialization version number
+  m_d->serialization_version = 2;
+
+
   //Draw Styles / Complexity:
   VP1QtInventorUtils::setLimitsLineWidthSlider(m_d->editwindow_ui.horizontalSlider_trackWidth);
   VP1QtInventorUtils::setValueLineWidthSlider(m_d->editwindow_ui.horizontalSlider_trackWidth,1.0);  
@@ -384,7 +390,10 @@ void TrackCollectionSettingsButton::dropEvent(QDropEvent *event)
 QByteArray TrackCollectionSettingsButton::saveState() const{
   // messageVerbose("getState");
   // if (m_d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
-  VP1Serialise serialise(2/*version*/);
+  
+  // start serializing data with the current version number,
+  // which is declared in the contructor
+  VP1Serialise serialise(m_d->serialization_version/*version*/);
   
   serialise.save(m_d->matButton);  
   // serialise.disableUnsavedChecks();
@@ -427,8 +436,11 @@ QByteArray TrackCollectionSettingsButton::saveState() const{
 void TrackCollectionSettingsButton::restoreFromState( const QByteArray& ba){
    
   VP1Deserialise state(ba,systemBase());
-  if (state.version()<0||state.version()>1)
+
+  if (state.version()<0||state.version()>2) {
+    message("Version of 'TrackCollectionSettingsButton' settings file not recognized: "+QString::number(state.version())+" [current: "+QString::number(m_d->serialization_version)+"]. Ignoring...");
     return;//Ignore silently
+    }
   state.restore(m_d->matButton);
   state.restore(m_d->editwindow_ui.horizontalSlider_trackWidth);
   state.restore(m_d->editwindow_ui.checkBox_trackTubes);

@@ -90,6 +90,10 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
     ATH_CHECK( muonHandle.isValid() );
     ATH_MSG_DEBUG( "Muinfo handle size: " << muonHandle->size() << " ..." );
 
+    // It is posisble that no muons are found, in this case we go to the next decision
+    if(muonHandle->size()==0) continue;
+
+    // this code only gets muon 0. The EF algorithms can potentially make more than 1 muon, so may need to revisit this
     auto muonEL = ViewHelper::makeLink( *viewEL, muonHandle, 0 );
     ATH_CHECK( muonEL.isValid() );
 
@@ -140,8 +144,8 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
       for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
 	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
       }
-      ATH_MSG_WARNING( "Output decisions are NOT valid with key : " << decisionOutput().key() );
-    }
+      
+    } else ATH_MSG_WARNING( "Output decisions are NOT valid with key : " << decisionOutput().key() );
   }
 
   ATH_MSG_DEBUG("StatusCode TrigMuonEFMSonlyHypoAlg::execute_r success");

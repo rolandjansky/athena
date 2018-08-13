@@ -228,7 +228,9 @@ StatusCode MdtDigitizationTool::initialize() {
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputObjectKey.initialize());
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputObjectKey );
   ATH_CHECK(m_outputSDOKey.initialize());
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_outputSDOKey );
   ATH_MSG_DEBUG ( "Output Digits: '" << m_outputObjectKey.key() << "'" );
 
   //simulation identifier helper	
@@ -428,12 +430,12 @@ StatusCode MdtDigitizationTool::mergeEvent() {
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey);
   ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelper->module_hash_max())));
-  ATH_MSG_DEBUG ( "MdtDigitContainer recorded in StoreGate." );
+  ATH_MSG_DEBUG("Recorded MdtDigitContainer called " << digitContainer.name() << " in store " << digitContainer.store());
 
   // create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDOKey);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
-  ATH_MSG_DEBUG ( "MdtSDOCollection recorded in StoreGate." );
+  ATH_MSG_DEBUG("Recorded MuonSimDataCollection called " << sdoContainer.name() << " in store " << sdoContainer.store());
 
   StatusCode status = doDigitization(digitContainer.ptr(), sdoContainer.ptr());
   if (status.isFailure())  {
@@ -465,12 +467,12 @@ StatusCode MdtDigitizationTool::processAllSubEvents() {
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey);
   ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelper->module_hash_max())));
-  ATH_MSG_DEBUG ( "MdtDigitContainer recorded in StoreGate." );
+  ATH_MSG_DEBUG("Recorded MdtDigitContainer called " << digitContainer.name() << " in store " << digitContainer.store());
 
   // create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDOKey);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
-  ATH_MSG_DEBUG ( "MdtSDOCollection recorded in StoreGate." );
+  ATH_MSG_DEBUG("Recorded MuonSimDataCollection called " << sdoContainer.name() << " in store " << sdoContainer.store());
 
   StatusCode status = StatusCode::SUCCESS;
   if (0 == m_thpcMDT ) {
