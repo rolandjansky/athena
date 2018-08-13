@@ -33,23 +33,25 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/ParticleData.hh"
 
-#include "InDetIdentifier/PixelID.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/TRT_ID.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/shared_ptr.hpp>
 #include <fstream>
+
+class PixelID;
+class SCT_ID;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
 
 /** This class interface the ID hits with the FTK simulation
     implemented in Athena. Original code */   
@@ -72,8 +74,7 @@ private:
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;
 
-  const InDetDD::SiDetectorManager*     m_PIX_mgr;
-  const InDetDD::SiDetectorManager*     m_SCT_mgr;    
+  const InDetDD::PixelDetectorManager*     m_PIX_mgr;
 
   const InDet::SiClusterContainer*  m_pixelContainer;
   const InDet::SiClusterContainer*  m_sctContainer;
@@ -85,6 +86,8 @@ private:
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator;
   ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   std::string  	 m_pixelClustersName;
   std::string	 m_sctClustersName;
