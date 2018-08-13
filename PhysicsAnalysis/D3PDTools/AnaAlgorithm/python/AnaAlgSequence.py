@@ -40,7 +40,8 @@ class AnaAlgSequence( AlgSequence ):
 
         return
 
-    def configure( self, inputName, outputName, affectingSystematics = None ):
+    def configure( self, inputName, outputName, affectingSystematics = None,
+                   hiddenLayerPrefix = "" ):
         """Perform a post-configuration on the analysis algorithm sequence
 
         This function needs to be called once the sequence is configured to
@@ -63,6 +64,10 @@ class AnaAlgSequence( AlgSequence ):
           affectingSystematics -- Regular expression(s) describing which
                                   systematic variation(s) are already affecting
                                   the input object(s)/container(s)
+          hiddenLayerPrefix -- Possible unique string prefix for
+                               object(s)/container(s) in "hidden layers" of the
+                               algorithm sequence. To avoid name clashes when
+                               scheduling multiple instances of the sequence.
         """
 
         # Make sure that all internal variables are of the same size:
@@ -73,6 +78,8 @@ class AnaAlgSequence( AlgSequence ):
             raise RuntimeError( 'Analysis algorithm sequence is in an ' \
                                 'inconsistent state' )
 
+        # Make the inputs and outputs dictionaries. Allowing simple sequences to
+        # be configured using simple string names.
         if isinstance( inputName, dict ):
             inputNameDict = inputName
         else:
@@ -116,22 +123,27 @@ class AnaAlgSequence( AlgSequence ):
 
             # Set up the output name(s):
             if outName:
+
+                # Make a temporary deep copy of the affectingSystematics
+                # dictionary, which we'll be able to use in the following
+                # loop. Without using a copy, the logic would get messed up
+                # for multi input / multi output algorithms.
+                currentAffectingSystematics = \
+                  copy.deepcopy( affectingSystematics )
+
+                # Loop over the outputs of the algorithm.
                 for outputLabel, outputPropName in outName.iteritems():
                     if outputLabel not in tmpIndex.keys():
                         tmpIndex[ outputLabel ] = 1
                         pass
-                    if outputLabel in inputNameDict.keys():
-                        currentInputs[ outputLabel ] = \
-                          '%s_tmp%i' % ( inputNameDict[ outputLabel ],
-                                         tmpIndex[ outputLabel ] )
-                    elif outputLabel in outputNameDict.keys():
+                    if outputLabel in outputNameDict.keys():
                         currentInputs[ outputLabel ] = \
                           '%s_tmp%i' % ( outputNameDict[ outputLabel ],
                                          tmpIndex[ outputLabel ] )
                     else:
                         currentInputs[ outputLabel ] = \
-                          '%s_tmp%i' % ( outputLabel,
-                                         tmpIndex[ outputLabel ] )
+                          '%s%s_tmp%i' % ( hiddenLayerPrefix, outputLabel,
+                                           tmpIndex[ outputLabel ] )
                         pass
                     if currentInputs[ outputLabel ].find( '%SYS%' ) == -1:
                         currentInputs[ outputLabel ] = \
@@ -150,10 +162,13 @@ class AnaAlgSequence( AlgSequence ):
                     # Assume that the variation on *all* of the inputs affect
                     # all of the outputs.
                     for label in inName.keys():
-                        if label in affectingSystematics.keys():
+                        # Don't do a self-check.
+                        if label == outputLabel:
+                            continue
+                        if label in currentAffectingSystematics.keys():
                             # If it starts with '(^$)' (it should), then remove
                             # that for the following operations.
-                            pattern = affectingSystematics[ label ]
+                            pattern = currentAffectingSystematics[ label ]
                             if pattern.find( '(^$)|' ) == 0:
                                 pattern = pattern[ 5 : ]
                                 pass
