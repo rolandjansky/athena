@@ -31,10 +31,8 @@ def TrigTauMonitoringTool():
 	ditau_topo_chains = [
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo', # 2tau non-L1TOPO
-        			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I',
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J
         			#'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30', # no longer in physics menu?
-        			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I',
         			'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J
         			'tau80_medium1_tracktwo_L1TAU60_tau35_medium1_tracktwo_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I', # 2tau L1TOPO
                                 # 2018 chains  
@@ -62,18 +60,15 @@ def TrigTauMonitoringTool():
 	MVA_chains = [
 			'tau25_idperf_tracktwoMVA',
 			'tau25_perf_tracktwoMVA',
-			'tau25_verylooseRNN_tracktwoMVA',
 			'tau25_looseRNN_tracktwoMVA',
 			'tau25_mediumRNN_tracktwoMVA',
 			'tau25_tightRNN_tracktwoMVA',
 	]
 
 	RNN_chains = [
-			'tau25_verylooseRNN_tracktwo',
 			'tau25_looseRNN_tracktwo',
 			'tau25_mediumRNN_tracktwo',
 			'tau25_tightRNN_tracktwo',
-			'tau25_verylooseRNN_tracktwoMVA',
 			'tau25_looseRNN_tracktwoMVA',
 			'tau25_mediumRNN_tracktwoMVA',
 			'tau25_tightRNN_tracktwoMVA',

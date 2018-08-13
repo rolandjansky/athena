@@ -1146,18 +1146,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   //Pileup
   mu = m_mu_offline;
 
-  // special treatment for the track multiplicity plot depending on the "quality" of the tau charged tracks.
-  // if a charged track has been recovered via the "failTrackFilter" flag, 
-  // then treat this tau as 0-track for the track multiplicity plot. 
-  bool failsTrackFilter = m_isData ? false : aEFTau->nTracks(xAOD::TauJetParameters::failTrackFilter);
-
-  bool isMVAtrig_here (false);
-  for (unsigned int i=0; i<m_trigMVA_chains.size(); i++) {
-    if ( trigItem == m_trigMVA_chains.at(i) ) {
-      isMVAtrig_here = true;
-      break;
-    }
-  }
   bool monRNN (false);
   for (unsigned int i=0; i<m_trigRNN_chains.size(); i++) {
     if ( trigItem == m_trigRNN_chains.at(i) ) {
@@ -1186,11 +1174,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       hist("hEFNUM")->Fill(num_vxt);
       hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
       hist("hEFPhi")->Fill(aEFTau->phi());
-      if ( isMVAtrig_here && failsTrackFilter && (trigItem != "tau25_idperf_tracktwoMVA") ) {
-        hist("hEFnTrack")->Fill(0);
-      } else {
-        hist("hEFnTrack")->Fill(EFnTrack);
-      }   
+      hist("hEFnTrack")->Fill(EFnTrack);
       int EFWidenTrack(-1); 
 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
       EFWidenTrack = aEFTau->nWideTracks();
@@ -2602,6 +2586,9 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
   float mu(Pileup());
   int nvtx(PrimaryVertices());
 
+  bool noBiasCheck = RNNTrigBiasCheck();
+  if ( !noBiasCheck ) {ATH_MSG_DEBUG("Not computing efficiencies for this Trigger, due to RNN Bias."); return StatusCode::SUCCESS;};
+
   // build vector of taus in denominator:
   if(TauDenom.find("Truth")!=std::string::npos && m_truth){
     for(unsigned int truth=0;truth<m_true_taus.size();truth++){
@@ -3811,6 +3798,26 @@ float HLTTauMonTool::Pileup(){
   }
   Pileup = evtInfo->averageInteractionsPerCrossing();
   return Pileup;
+}
+
+bool HLTTauMonTool::RNNTrigBiasCheck(){
+  // Check if event fired RNN but no BDT triggers. In that case it introduces bias.
+  bool noVeto = false; // Will become true if no bias is introduced. 
+
+  bool fireRNN = false;
+  bool fireBDT = false;
+
+  auto chainGroup = getTDT()->getChainGroup("HLT_.*tau.*");
+  for(auto &trig : chainGroup->getListOfTriggers()) {
+    auto cg =  getTDT()->getChainGroup(trig);
+    if(trig.find("RNN")!=string::npos && cg->isPassed()) fireRNN = true;
+    if(trig.find("medium1")!=string::npos && cg->isPassed()) fireBDT = true;    
+  } 
+
+  bool vetoCondition = (fireRNN==true && fireBDT==false); // we want to veto events where the RNN trig is fired but not the BDT.
+  if ( !vetoCondition ) noVeto=true; // all other cases are accepted.
+  
+  return noVeto;
 }
 
 ///////////////////////////////////////////////////////////

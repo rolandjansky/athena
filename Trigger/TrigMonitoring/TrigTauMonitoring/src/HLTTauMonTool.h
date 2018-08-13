@@ -114,6 +114,7 @@ class HLTTauMonTool : public IHLTMonTool {
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   bool PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
+  bool RNNTrigBiasCheck();
   //  bool  emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min);
   //StatusCode test2StepTracking();
   void testClusterNavigation(const xAOD::TauJet *aEFTau);
