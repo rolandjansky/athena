@@ -294,8 +294,7 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
   TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
     OutputContainer = "AntiKt4LLPTruthJets",
-    LLP_PDGIDS = [1000021],
-    #LLPType = 1,
+    LLPType = 1,
   )
   ToolSvc += TruthJetKinematicsTool
   AugmentationTools.append(TruthJetKinematicsTool)
