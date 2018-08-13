@@ -20,6 +20,7 @@ def usage():
     print "-l, --lumi=     specify lumi block number, default is 0"
     print "-m, --mode=     specify update mode: 1 or 2; if not set - choosen automatically, depending on schema"
     print "-c, --comment=    specify comment which should be written to DB"
+    print "-U, --user=       specify username for comment"
     print "-e, --execfile=   specify python file which should be executed, default is bch.py"
     print "-i, --inschema=   specify the input schema to use, default is 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2'"
     print "-o, --outschema=  specify the output schema to use, default is 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
@@ -29,8 +30,8 @@ def usage():
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
     print "-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated"
     
-letters = "hr:l:m:s:i:o:t:f:e:c:npvu"
-keywords = ["help","run=","lumi=","mode=","schema=","inschema=","outschema=","tag=","folder=","execfile=","comment=","online","upd4","verbose","update"]
+letters = "hr:l:m:s:i:o:t:f:e:c:U:npvu"
+keywords = ["help","run=","lumi=","mode=","schema=","inschema=","outschema=","tag=","folder=","execfile=","comment=","user=","online","upd4","verbose","update"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:], letters, keywords)
@@ -55,6 +56,7 @@ execFile = "bch.py"
 comment = ""
 verbose = False
 update = False
+user=os.getlogin()
 
 for o, a in opts:
     if o in ("-f","--folder"):
@@ -85,6 +87,8 @@ for o, a in opts:
         execFile = a
     elif o in ("-c","--comment"):
         comment = a
+    elif o in ("-U","--user"):
+        user = a
     elif o in ("-v","--verbose"):
         verbose = True
     elif o in ("-h","--help"):
@@ -187,7 +191,7 @@ if len(execFile):
 
     #=== commit changes
     dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if update else 'RECREATE'))
-    mgr.commitToDb(dbw, folderPath, folderTag, (TileBchDecoder.BitPat_onl01 if onl else TileBchDecoder.BitPat_ofl01), os.getlogin(), comment, since, until)
+    mgr.commitToDb(dbw, folderPath, folderTag, (TileBchDecoder.BitPat_onl01 if onl else TileBchDecoder.BitPat_ofl01), user, comment, since, until)
 else:
     dbw = None
 
@@ -224,7 +228,7 @@ if len(curSuffix) and not onl and "sqlite" in outSchema:
 
     #=== commit changes
     dbW = TileCalibTools.openDbConn(curSchema,('UPDATE' if update else 'RECREATE'))
-    mgr.commitToDb(dbW, folderPath, folderTagUPD4, TileBchDecoder.BitPat_ofl01, os.getlogin(), comment, since, until)
+    mgr.commitToDb(dbW, folderPath, folderTagUPD4, TileBchDecoder.BitPat_ofl01, user, comment, since, until)
     dbW.closeDatabase()
 
 
@@ -318,7 +322,7 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
     #=== commit changes
     onlSchema = outSchema.replace(".db", onlSuffix + ".db")
     dbW = TileCalibTools.openDbConn(onlSchema,('UPDATE' if update else 'RECREATE'))
-    mgrOnl.commitToDb(dbW, folderOnl, folderTagOnl, TileBchDecoder.BitPat_onl01, os.getlogin(), comment, since, until)
+    mgrOnl.commitToDb(dbW, folderOnl, folderTagOnl, TileBchDecoder.BitPat_onl01, user, comment, since, until)
     dbW.closeDatabase()
 
 #=== close DB
