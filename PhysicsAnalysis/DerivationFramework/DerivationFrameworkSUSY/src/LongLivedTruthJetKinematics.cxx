@@ -20,11 +20,32 @@ LongLivedTruthJetKinematics::LongLivedTruthJetKinematics(const std::string& t, c
   declareProperty("CalorimeterRadius", m_caloRad = 1800, "The radius of the calorimeter");
   declareProperty("DeltaRMatching", m_dR_matching = 0.3, "The maximum deltaR between particle and jet which is considered a match");
   declareProperty("MinRadius", m_minRadius = 1, "The minimum radius considered as a long-lived decay");
+  declareProperty("LLP_PDGIDS", m_llp_pdgids, "The pdgids of the long-lived particle");
+  declareProperty("LLPType", m_llpType = None, "For pre-defined lists of LLPs, if None, then defaults to the vector");
 }
 
 StatusCode LongLivedTruthJetKinematics::initialize() {
   ATH_MSG_INFO("Initializing tool " << name() << "...");
   ATH_MSG_DEBUG("initializing version with data handles");
+
+  if(m_llp_pdgids.size() > 0 && m_llpType != None){
+    ATH_MSG_ERROR("Cannot both define a list of pdgIds and state the type of decays. Please either use one or the other");
+    return StatusCode::FAILURE;
+  }
+  
+  switch(m_llpType){
+    case RHadron:
+      m_llp_pdgids = {1000993, 1009113, 1009213, 1009223, 1009313, 1009323, 1009333, 1091114, 1092114, 1092214, 1092224, 1093114, 1093214, 1093224, 1093314, 1093324, 1093334, 1000612, 1000622, 1000632, 1000642, 1000652, 1006113, 1006211, 1006213, 1006223, 1006311, 1006313, 1006321, 1006323, 1006333};
+      break;
+    default:
+      break;
+  }
+
+  if(m_llp_pdgids.size() ==0){
+
+    ATH_MSG_ERROR("No long-lived particles specified");
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
   
@@ -95,15 +116,26 @@ bool LongLivedTruthJetKinematics::matchJets(TLorentzVector& truthJetTLV) const{
 
 // Want to check if the particle has a decay, and that it does not decay to itself
 bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* sparticle) const{
-  if( !  MC::PID::isSUSY(sparticle->pdgId()) ) return false;
   if(!sparticle->hasDecayVtx()) return false;
+  bool isLLP = false;
+  for(int i=0; i<m_llp_pdgids.size(); i++){
+    if( sparticle->pdgId() == m_llp_pdgids[i] ) {
+      isLLP = true;
+    }
+  }
+  if(!isLLP) return false;
 
   bool isRealDecay = true;
   for(unsigned int j=0; j<sparticle->decayVtx()->nOutgoingParticles(); j++){
     if(!sparticle->decayVtx()->outgoingParticle(j)) continue;
-    if( sparticle->pdgId() == sparticle->decayVtx()->outgoingParticle(j)->pdgId()) isRealDecay = false;
+    for(int i=0; i<m_llp_pdgids.size(); i++){
+      if( sparticle->decayVtx()->outgoingParticle(j)->pdgId() == m_llp_pdgids[i] ) {
+        isRealDecay = false;
+      }
+    }
     if( MC::PID::isSUSY(sparticle->decayVtx()->outgoingParticle(j)->pdgId()) ) isRealDecay = false;
   }
+
   const xAOD::TruthVertex* vert = sparticle->decayVtx();
   double radius = sqrt(vert->x() * vert->x() + vert->y() * vert->y() + vert->z() * vert->z());
   if(radius < m_minRadius) isRealDecay = false;
@@ -111,6 +143,7 @@ bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* spa
   return isRealDecay;
 
 }
+
 
 TLorentzVector LongLivedTruthJetKinematics::getDVKine(const TLorentzVector longLivedParticle, const TLorentzVector decayProduct, double r_dv, double R_cal) const{
   double ph = longLivedParticle.Phi();

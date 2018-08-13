@@ -19,9 +19,12 @@
 #include "xAODTruth/TruthParticleContainer.h" 
 #include "xAODTruth/TruthVertex.h" 
 #include "xAODJet/JetContainer.h" 
+
 #include <string>
+#include <vector>
 
 namespace DerivationFramework {
+
 
 class LongLivedTruthJetKinematics: public AthAlgTool, public IAugmentationTool{
 
@@ -31,6 +34,8 @@ class LongLivedTruthJetKinematics: public AthAlgTool, public IAugmentationTool{
     ~LongLivedTruthJetKinematics(){};
     virtual StatusCode initialize();
     virtual StatusCode addBranches() const;
+
+    enum llpTypes{None, RHadron}; 
   
 protected:
   std::string m_inputTruthJetContainer = ""; //!
@@ -39,12 +44,17 @@ protected:
   double m_caloRad; //!
   double m_dR_matching; //!
   double m_minRadius; //!
+  std::vector<int> m_llp_pdgids; //!
+  int m_llpType; //!
+
 
   double getEtaFromTheta(double theta) const;
   double getThetaFromEta(double eta) const;
   TLorentzVector getDVKine(const TLorentzVector longLivedParticle, const TLorentzVector decayProduct, double r_dv, double R_cal) const;
   bool isDecayParticle(const xAOD::TruthParticle* particle) const;
   bool matchJets(TLorentzVector& mytruthJet) const;
+
+
 
 };
 }
