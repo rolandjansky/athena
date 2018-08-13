@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2018 CERN for the benefit of the ATLAS collaboration
 */
 #include <vector>
 #include <string>
@@ -85,13 +85,14 @@ StatusCode FTK_HashIDTool::initialize(){
     } 
     
   }  
-  StoreGateSvc* detStore;
-  ATH_CHECK(service("DetectorStore", detStore));
-
-  ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
-  ATH_CHECK(detStore->retrieve(m_id_helper, "AtlasID"));
-  ATH_CHECK(detStore->retrieve(m_pixelManager));
-
+  if (ret.isSuccess()) {
+    StoreGateSvc* detStore;
+    ATH_CHECK(service("DetectorStore", detStore));
+    
+    ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
+    ATH_CHECK(detStore->retrieve(m_id_helper, "AtlasID"));
+    ATH_CHECK(detStore->retrieve(m_pixelManager));
+  }
   return ret; 
 }
 
