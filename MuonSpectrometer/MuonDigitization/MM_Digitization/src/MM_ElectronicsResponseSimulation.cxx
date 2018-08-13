@@ -100,7 +100,7 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(co
 	return tmp;
 }
 /*******************************************************************************/
-void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip){
 
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 
@@ -165,7 +165,7 @@ void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int
 
 
 
-void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip){
 
 
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
