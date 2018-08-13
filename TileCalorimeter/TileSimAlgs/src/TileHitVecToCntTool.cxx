@@ -1049,7 +1049,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     ATH_CHECK( hitContainer_DigiHSTruth.record(std::move(hits)) );
 
     ATH_MSG_DEBUG("TileHit container registered to the TES with name" << m_hitContainer_DigiHSTruthKey.key());
-    CHECK(evtStore()->record(m_hits_DigiHSTruth, m_hitContainer_DigiHSTruth, false));
+    CHECK(evtStore()->record(m_hits_DigiHSTruth, hitContainer_DigiHSTruth, false));
   }
 
   ATH_MSG_DEBUG("Exiting mergeEvent in TileHitVecToCntTool");
@@ -1206,7 +1206,7 @@ void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, T
 }
 
 
-void TileHitVecToCntTool::findAndMergeMBTS(const TileHitCollection* const_coll, int frag_id, TileHitContainer* &m_hitCont) {
+void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitContainer* &m_hitCont) {
   int module = frag_id & 0x3F;
 
   TileHitCollection::iterator hitIt = coll->begin();

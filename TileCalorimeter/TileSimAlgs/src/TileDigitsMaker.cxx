@@ -533,7 +533,7 @@ StatusCode TileDigitsMaker::execute() {
   TileHitContainer::const_iterator lastColl = hitContainer->end();
   // Hit Container and signal hit container are the same size (1 entry per channel)
   TileHitContainer::const_iterator collItr_DigiHSTruth;
-  if(m_doDigiTruth) collItr_DigiHSTruth = hitCont_DigiHSTruth->begin();
+  if(m_doDigiTruth) collItr_DigiHSTruth = hitContainer_DigiHSTruth->begin();
 
   /* ----------------------------------------------------------------- */
   /* Begin loop over the Hit collections.  All collections are defined */
@@ -1243,12 +1243,12 @@ StatusCode TileDigitsMaker::execute() {
 
   // step3: register the Digit container in the TES
   //ATH_CHECK( evtStore()->record(pDigitsContainer, m_digitsContainer, false) );
-  if(m_doDigiTruth && digitsContainer_DigiHSTruth != nullptr){
+  if(m_doDigiTruth && digitsContainer_DigiHSTruth){
     SG::WriteHandle<TileDigitsContainer> digitsContainer_DigiHSTruth(m_digitsContainer_DigiHSTruthKey);
     ATH_CHECK( digitsContainer_DigiHSTruth.record(std::move(digitsContainer_DigiHSTruth)) );
   }
 
-  if (m_filteredContainer.size() > 0) {
+  if (filteredContainer) {
     SG::WriteHandle<TileDigitsContainer> filteredDigitsContainer(m_filteredDigitsContainerKey);
     ATH_CHECK( filteredDigitsContainer.record(std::move(filteredContainer)) );
   }

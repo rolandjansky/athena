@@ -613,7 +613,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 
   m_larOFC=NULL;
   if(m_RndmEvtOverlay  && !m_isMcOverlay) {
-    sc=detStore()->retrieve(m_larOFC);
+    StatusCode sc=detStore()->retrieve(m_larOFC);
     if (sc.isFailure())
     {
       ATH_MSG_ERROR("Can't retrieve LArOFC from Conditions Store");
