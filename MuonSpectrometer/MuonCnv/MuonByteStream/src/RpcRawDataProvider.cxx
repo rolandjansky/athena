@@ -71,7 +71,9 @@ StatusCode Muon::RpcRawDataProvider::execute() {
       m_regionSelector->DetROBIDListUint(RPC,*roi,rpcrobs);
 
       // decode the ROBs
-      m_rawDataTool->convert(rpcrobs);
+      if(m_rawDataTool->convert(rpcrobs).isFailure()) {
+        ATH_MSG_ERROR( "RoI seeded BS conversion into RDOs failed"  );
+      }
       // clear vector of ROB IDs ready for next RoI
       rpcrobs.clear();
     }
