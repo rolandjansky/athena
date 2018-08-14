@@ -13,12 +13,12 @@ double ZDCFermiExpFit(double* xvec, double* pvec);
 
 class ZDCFitWrapper
 {
-  TF1* _wrapperTF1;
+  TF1* m_wrapperTF1;
 
 public:
-  ZDCFitWrapper(TF1* wrapperTF1) : _wrapperTF1(wrapperTF1) {}
+  ZDCFitWrapper(TF1* wrapperTF1) : m_wrapperTF1(wrapperTF1) {}
 
-  virtual ~ZDCFitWrapper() {delete _wrapperTF1;}
+  virtual ~ZDCFitWrapper() {delete m_wrapperTF1;}
 
   virtual void Initialize(float initialAmp, float initialT0) = 0;
 
@@ -34,8 +34,8 @@ public:
 
   virtual double operator()(double *x, double *p) = 0;
 
-  virtual TF1* GetWrapperTF1() {return _wrapperTF1;}
-  virtual const TF1* GetWrapperTF1() const {return _wrapperTF1;}
+  virtual TF1* GetWrapperTF1() {return m_wrapperTF1;}
+  virtual const TF1* GetWrapperTF1() const {return m_wrapperTF1;}
 };
 
 class ZDCPrePulseFitWrapper : public ZDCFitWrapper
@@ -48,11 +48,11 @@ public:
 
 class ZDCFitExpFermiVariableTaus : public ZDCFitWrapper
 {
-  bool _fixTau1;
-  bool _fixTau2;
+  bool m_fixTau1;
+  bool m_fixTau2;
 
-  float _tau1;
-  float _tau2;
+  float m_tau1;
+  float m_tau2;
 
 public:
 
@@ -107,20 +107,20 @@ public:
 
 class ZDCFitExpFermiFixedTaus : public ZDCFitWrapper
 {
-  float _tau1;
-  float _tau2;
+  float m_tau1;
+  float m_tau2;
 
-  float _norm;
-  float _timeCorr;
+  float m_norm;
+  float m_timeCorr;
 
-  TF1* _expFermiFunc;
+  TF1* m_expFermiFunc;
 
 public:
 
   ZDCFitExpFermiFixedTaus(std::string tag, float tmin, float tmax, float tau1, float tau2);
 
   ~ZDCFitExpFermiFixedTaus() { 
-    delete _expFermiFunc; 
+    delete m_expFermiFunc; 
   }
 
   virtual void Initialize(float initialAmp, float initialT0);
@@ -128,22 +128,22 @@ public:
   virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
   virtual float GetAmpError() const {return GetWrapperTF1()->GetParError(0); }
 
-  virtual float GetTau1() const {return _tau1;}
-  virtual float GetTau2() const {return _tau2;}
+  virtual float GetTau1() const {return m_tau1;}
+  virtual float GetTau2() const {return m_tau2;}
 
   virtual float GetTime() const {
     float fitT0 =  GetWrapperTF1()->GetParameter(1);
 
     // Correct the time to the maximum (the factor of 1/2 is still not fully understood)
     //
-    fitT0 += _timeCorr; 
+    fitT0 += m_timeCorr; 
     return fitT0;
   }
 
   virtual float GetShapeParameter(size_t index) const
   {
-    if (index == 0) return _tau1;
-    else if (index == 1) return _tau2;
+    if (index == 0) return m_tau1;
+    else if (index == 1) return m_tau2;
     else throw;
   }
 
@@ -165,7 +165,7 @@ public:
 
     double bckgd = p[2]*x[0]; 
 
-    double expFermi =  amp*_norm*_expFermiFunc->operator()(deltaT);
+    double expFermi =  amp*m_norm*m_expFermiFunc->operator()(deltaT);
 
     return expFermi + bckgd;
   }
@@ -173,11 +173,11 @@ public:
 
 class ZDCFitExpFermiPrePulse : public ZDCPrePulseFitWrapper
 {
-  float _tau1;
-  float _tau2;
-  float _norm;
-  float _timeCorr;
-  TF1* _expFermiFunc;
+  float m_tau1;
+  float m_tau2;
+  float m_norm;
+  float m_timeCorr;
+  TF1* m_expFermiFunc;
 
 public:
   ZDCFitExpFermiPrePulse(std::string tag, float tmin, float tmax, float tau1, float tau2);
@@ -190,22 +190,22 @@ public:
   virtual float GetAmplitude() const {return GetWrapperTF1()->GetParameter(0); }
   virtual float GetAmpError() const {return GetWrapperTF1()->GetParError(0); }
 
-  virtual float GetTau1() const {return _tau1;}
-  virtual float GetTau2() const {return _tau2;}
+  virtual float GetTau1() const {return m_tau1;}
+  virtual float GetTau2() const {return m_tau2;}
 
   virtual float GetTime() const {
     float fitT0 =  GetWrapperTF1()->GetParameter(1);
 
     // Correct the time to the maximum (the factor of 1/2 is still not fully understood)
     //
-    fitT0 += _timeCorr; 
+    fitT0 += m_timeCorr; 
     return fitT0;
   }
 
   virtual float GetShapeParameter(size_t index) const
   {
-    if (index == 0) return _tau1;
-    else if (index == 1) return _tau2;
+    if (index == 0) return m_tau1;
+    else if (index == 1) return m_tau2;
     else if (index < 5) return GetWrapperTF1()->GetParameter(index);
     else throw;
   }
@@ -223,8 +223,8 @@ public:
 
     double deltaTPre = maxTime - preT0;
 
-    double background = slope*maxTime + preAmp*_norm*(_expFermiFunc->operator()(deltaTPre) - 
-							 _expFermiFunc->operator()(-preT0));
+    double background = slope*maxTime + preAmp*m_norm*(m_expFermiFunc->operator()(deltaTPre) - 
+							 m_expFermiFunc->operator()(-preT0));
 
     return background/amp;
   }
@@ -244,9 +244,9 @@ public:
 
     double bckgd = linSlope*t; 
 
-    double pulse1 =  amp*_norm*_expFermiFunc->operator()(deltaT);
-    double pulse2 =  preAmp*_norm*(_expFermiFunc->operator()(deltaTPre) - 
-				   _expFermiFunc->operator()(-preT0));
+    double pulse1 =  amp*m_norm*m_expFermiFunc->operator()(deltaT);
+    double pulse2 =  preAmp*m_norm*(m_expFermiFunc->operator()(deltaTPre) - 
+				   m_expFermiFunc->operator()(-preT0));
 
     return pulse1 + pulse2 + bckgd;
   }
@@ -254,16 +254,16 @@ public:
 
 class ZDCFitExpFermiPulseSequence : public ZDCFitWrapper
 {
-  float _tau1;
-  float _tau2;
-  float _norm;
-  float _timeCorr;
+  float m_tau1;
+  float m_tau2;
+  float m_norm;
+  float m_timeCorr;
 
-  size_t _numPulses;
-  std::vector<float> _pulseDeltaT;
+  size_t m_numPulses;
+  std::vector<float> m_pulseDeltaT;
 
-  TF1* _fitFunc;
-  TF1* _expFermiFunc;
+  TF1* m_fitFunc;
+  TF1* m_expFermiFunc;
 
 
 public:
@@ -271,36 +271,36 @@ public:
 
   ~ZDCFitExpFermiPulseSequence() 
   {
-    delete _fitFunc;
-    delete _expFermiFunc;
+    delete m_fitFunc;
+    delete m_expFermiFunc;
   }
 
-  virtual TF1* GetWrapperTF1() {return _fitFunc;}
-  virtual const TF1* GetWrapperTF1() const {return _fitFunc;}
+  virtual TF1* GetWrapperTF1() {return m_fitFunc;}
+  virtual const TF1* GetWrapperTF1() const {return m_fitFunc;}
 
   virtual void Initialize(float initialAmp, float initialT0);
   //  void InitializePrePulseT0(float initPreT0) {  GetWrapperTF1()->SetParameter(3, initPreT0);}
 
-  virtual float GetAmplitude() const {return _fitFunc->GetParameter(0); }
-  virtual float GetAmpError() const {return _fitFunc->GetParError(0); }
+  virtual float GetAmplitude() const {return m_fitFunc->GetParameter(0); }
+  virtual float GetAmpError() const {return m_fitFunc->GetParError(0); }
 
-  virtual float GetTau1() const {return _tau1;}
-  virtual float GetTau2() const {return _tau2;}
+  virtual float GetTau1() const {return m_tau1;}
+  virtual float GetTau2() const {return m_tau2;}
 
   virtual float GetTime() const {
-    float fitT0 =  _fitFunc->GetParameter(1);
+    float fitT0 =  m_fitFunc->GetParameter(1);
 
     // Correct the time to the maximum (the factor of 1/2 is still not fully understood)
     //
-    fitT0 += _timeCorr; 
+    fitT0 += m_timeCorr; 
     return fitT0;
   }
 
   virtual float GetShapeParameter(size_t index) const
   {
-    if (index == 0) return _tau1;
-    else if (index == 1) return _tau2;
-    else if (index < _numPulses + 2) return _fitFunc->GetParameter(index);
+    if (index == 0) return m_tau1;
+    else if (index == 1) return m_tau2;
+    else if (index < m_numPulses + 2) return m_fitFunc->GetParameter(index);
     else throw;
   }
 
@@ -317,13 +317,13 @@ public:
     double t0 = p[1];
 
     double mainDeltaT = t - t0;
-    double funcValue =  mainAmp*_norm*_expFermiFunc->operator()(mainDeltaT);
+    double funcValue =  mainAmp*m_norm*m_expFermiFunc->operator()(mainDeltaT);
 
-    for (size_t ipulse = 0; ipulse < _numPulses - 1; ipulse++) {
-      double deltaT = mainDeltaT - _pulseDeltaT[ipulse];
+    for (size_t ipulse = 0; ipulse < m_numPulses - 1; ipulse++) {
+      double deltaT = mainDeltaT - m_pulseDeltaT[ipulse];
       double amp = p[2 + ipulse];
 
-      double pulse = amp*_norm*_expFermiFunc->operator()(deltaT);
+      double pulse = amp*m_norm*m_expFermiFunc->operator()(deltaT);
       funcValue += pulse;
     }
 

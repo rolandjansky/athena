@@ -41,6 +41,7 @@ class TileTBID;
 class TileHWID;
 class TileCablingService;
 
+class TH1I_LW;
 class TH2I_LW;
 class TProfile_LW;
 
@@ -178,6 +179,11 @@ protected:
 
   TMultiGraph* bookMultiGraph (std::string dir, std::string nam, std::string tit);
 
+
+  TH1I_LW* book1ILW(std::string dir, std::string nam, std::string tit, 
+                    int nx, double xmin, double xmax, 
+                    Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                    std::string trigChain = "", std::string mergeAlgo = "");
 
   TH2I_LW* book2ILW(std::string dir, std::string nam, std::string tit, 
                     int nx, double xmin, double xmax, 

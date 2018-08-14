@@ -219,7 +219,10 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   TFCSSimulationState simulstate;
 
-  m_param->simulate(simulstate, &truth, &extrapol);
+  FCSReturnCode status = m_param->simulate(simulstate, &truth, &extrapol);
+  if (status != FCSSuccess) {
+    return StatusCode::FAILURE;
+  }
 
   ATH_MSG_INFO("Energy returned: " << simulstate.E());
   ATH_MSG_INFO("Energy fraction for layer: ");

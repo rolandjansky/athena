@@ -17,8 +17,8 @@
 void
 ZdcRawChannelCnv_p1::persToTrans(const ZdcRawChannel_p1* persObj, ZdcRawChannel* transObj, MsgStream &log)
 {
-  //log << MSG::INFO << "ZdcRawChannelCnv_p1::persToTrans called " << endreq;
-  log << MSG::VERBOSE << "ZdcRawChannelCnv_p1::persToTrans called " << endreq;
+  //log << MSG::INFO << "ZdcRawChannelCnv_p1::persToTrans called " << endmsg;
+  log << MSG::VERBOSE << "ZdcRawChannelCnv_p1::persToTrans called " << endmsg;
 
   size_t sz = persObj->m_energy.size();
 
@@ -40,7 +40,7 @@ ZdcRawChannelCnv_p1::persToTrans(const ZdcRawChannel_p1* persObj, ZdcRawChannel*
 void
 ZdcRawChannelCnv_p1::transToPers(const ZdcRawChannel* transObj, ZdcRawChannel_p1* persObj, MsgStream &log)
 {
-  log << MSG::VERBOSE << "ZdcRawChannelCnv_p1::transToPers called " << endreq;
+  log << MSG::VERBOSE << "ZdcRawChannelCnv_p1::transToPers called " << endmsg;
 
   persObj->m_id = transObj->identify().get_identifier32().get_compact();
 
