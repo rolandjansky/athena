@@ -38,21 +38,6 @@ class eflowCellEOverPTool_mc12_LC : public IEFlowCellEOverPTool {
 
  private:
 
-  std::vector<std::vector<std::vector<std::vector<std::vector<double> > > > > m_theEnergyEtaFirstIntLayerShapeParams;
-  std::vector<std::vector<double> > m_theLayerShapeParams;
-  std::vector<std::vector<std::vector<double> > > m_theEnergyEtaRingThicknesses;
-  std::vector<std::vector<double> > m_theRingThicknesses;
-  std::vector<double> m_theEOverPMeans;
-  std::vector<double> m_theEOverPStdDevs;
-  std::vector<std::vector<std::vector<double> > >  m_theEnergyEtaFirstIntLayerEOverPMeans;
-  std::vector<std::vector<std::vector<double> > >  m_theEnergyEtaFirstIntLayerEOverPStandardDeviations;
-  std::vector<std::vector<double> > m_test2;
-
-  //const int m_nEBins;
-  //const int m_nEtaBins;
-  //const int m_nFirstIntLayerBins;
-  //const int m_nCaloRegionBins;
-
   std::vector<double>  m_eBinValues;
   std::vector<double> m_etaBinBounds;
   std::vector<std::string> m_eBinLabels;
