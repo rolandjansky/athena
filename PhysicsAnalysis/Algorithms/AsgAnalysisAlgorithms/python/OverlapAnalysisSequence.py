@@ -7,7 +7,10 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 def makeOverlapAnalysisSequence( dataType,
                                  inputLabel = '', outputLabel = 'passesOR',
                                  linkOverlapObjects = False,
-                                 doEleEleOR = False, bJetLabel = '',
+                                 doEleEleOR = False, doElectrons = True,
+                                 doMuons = True, doJets = True, doTaus = True,
+                                 doPhotons = True, doFatJets = False,
+                                 bJetLabel = '',
                                  boostedLeptons = False ):
     """Function creating the overlap removal algorithm sequence
 
@@ -59,6 +62,9 @@ def makeOverlapAnalysisSequence( dataType,
                      objects passing the overlap removal.
       linkOverlapObjects -- Set up an element link between overlapping objects
       doEleEleOR -- Set up electron-electron overlap removal
+      doXXXX     -- these flags enable/disable object types to
+                    configure tools for: doElectrons, doMuons,
+                    doJets, doTaus, doPhotons, doFatJets.
       bJetLabel -- Flag to select b-jets with. If left empty, no b-jets are used
                    in the overlap removal.
       boostedLeptons -- Set to True to enable boosted lepton overlap removal
@@ -78,12 +84,6 @@ def makeOverlapAnalysisSequence( dataType,
     alg.overlapTool.InputLabel = inputLabel
     alg.overlapTool.OutputLabel = outputLabel
 
-    # Since in this setup we pre-configure every overlap removal tool, before
-    # knowing exactly which objects we want to remove overlaps between, we need
-    # to tell the main tool that we won't be necessarily providing valid
-    # pointers for all types that we have set up tools for.
-    alg.overlapTool.RequireExpectedPointers = False
-
     # By default the OverlapRemovalTool would flag objects that need to be
     # suppressed, with a "true" value. But since the analysis algorithms expect
     # the opposite behaviour from selection flags, we need to tell the tool
@@ -91,12 +91,8 @@ def makeOverlapAnalysisSequence( dataType,
     # removal.
     alg.overlapTool.OutputPassValue = True
 
-    # Since at this point we don't know yet which inputs the user will provide
-    # for overlap removal, let's set up every possible tool. It's a bit of a
-    # memory waste, but hopefully it will be okay.
-
     # Set up the electron-electron overlap removal, if requested.
-    if doEleEleOR:
+    if doElectrons and doEleEleOR:
         addPrivateTool( alg, 'overlapTool.EleEleORT',
                         'ORUtils::EleEleOverlapTool' )
         alg.overlapTool.EleEleORT.InputLabel = inputLabel
@@ -106,101 +102,123 @@ def makeOverlapAnalysisSequence( dataType,
         pass
 
     # Set up the electron-muon overlap removal.
-    addPrivateTool( alg, 'overlapTool.EleMuORT',
-                    'ORUtils::EleMuSharedTrkOverlapTool' )
-    alg.overlapTool.EleMuORT.InputLabel = inputLabel
-    alg.overlapTool.EleMuORT.OutputLabel = outputLabel
-    alg.overlapTool.EleMuORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.EleMuORT.OutputPassValue = True
+    if doElectrons and doMuons:
+        addPrivateTool( alg, 'overlapTool.EleMuORT',
+                        'ORUtils::EleMuSharedTrkOverlapTool' )
+        alg.overlapTool.EleMuORT.InputLabel = inputLabel
+        alg.overlapTool.EleMuORT.OutputLabel = outputLabel
+        alg.overlapTool.EleMuORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.EleMuORT.OutputPassValue = True
+        pass
 
     # Set up the electron-(narrow-)jet overlap removal.
-    addPrivateTool( alg, 'overlapTool.EleJetORT',
-                    'ORUtils::EleJetOverlapTool' )
-    alg.overlapTool.EleJetORT.InputLabel = inputLabel
-    alg.overlapTool.EleJetORT.OutputLabel = outputLabel
-    alg.overlapTool.EleJetORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.EleJetORT.BJetLabel = bJetLabel
-    alg.overlapTool.EleJetORT.UseSlidingDR = boostedLeptons
-    alg.overlapTool.EleJetORT.OutputPassValue = True
+    if doElectrons and doJets:
+        addPrivateTool( alg, 'overlapTool.EleJetORT',
+                        'ORUtils::EleJetOverlapTool' )
+        alg.overlapTool.EleJetORT.InputLabel = inputLabel
+        alg.overlapTool.EleJetORT.OutputLabel = outputLabel
+        alg.overlapTool.EleJetORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.EleJetORT.BJetLabel = bJetLabel
+        alg.overlapTool.EleJetORT.UseSlidingDR = boostedLeptons
+        alg.overlapTool.EleJetORT.OutputPassValue = True
+        pass
 
     # Set up the muon-(narrow-)jet overlap removal.
-    addPrivateTool( alg, 'overlapTool.MuJetORT',
-                    'ORUtils::MuJetOverlapTool' )
-    alg.overlapTool.MuJetORT.InputLabel = inputLabel
-    alg.overlapTool.MuJetORT.OutputLabel = outputLabel
-    alg.overlapTool.MuJetORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.MuJetORT.BJetLabel = bJetLabel
-    alg.overlapTool.MuJetORT.UseSlidingDR = boostedLeptons
-    alg.overlapTool.MuJetORT.OutputPassValue = True
+    if doMuons and doJets:
+        addPrivateTool( alg, 'overlapTool.MuJetORT',
+                        'ORUtils::MuJetOverlapTool' )
+        alg.overlapTool.MuJetORT.InputLabel = inputLabel
+        alg.overlapTool.MuJetORT.OutputLabel = outputLabel
+        alg.overlapTool.MuJetORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.MuJetORT.BJetLabel = bJetLabel
+        alg.overlapTool.MuJetORT.UseSlidingDR = boostedLeptons
+        alg.overlapTool.MuJetORT.OutputPassValue = True
+        pass
 
     # Set up the tau-electron overlap removal.
-    addPrivateTool( alg, 'overlapTool.TauEleORT',
-                    'ORUtils::DeltaROverlapTool' )
-    alg.overlapTool.TauEleORT.InputLabel = inputLabel
-    alg.overlapTool.TauEleORT.OutputLabel = outputLabel
-    alg.overlapTool.TauEleORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.TauEleORT.DR = 0.2
-    alg.overlapTool.TauEleORT.OutputPassValue = True
+    if doTaus and doElectrons:
+        addPrivateTool( alg, 'overlapTool.TauEleORT',
+                        'ORUtils::DeltaROverlapTool' )
+        alg.overlapTool.TauEleORT.InputLabel = inputLabel
+        alg.overlapTool.TauEleORT.OutputLabel = outputLabel
+        alg.overlapTool.TauEleORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.TauEleORT.DR = 0.2
+        alg.overlapTool.TauEleORT.OutputPassValue = True
+        pass
 
     # Set up the tau-muon overlap removal.
-    addPrivateTool( alg, 'overlapTool.TauMuORT',
-                    'ORUtils::DeltaROverlapTool' )
-    alg.overlapTool.TauMuORT.InputLabel = inputLabel
-    alg.overlapTool.TauMuORT.OutputLabel = outputLabel
-    alg.overlapTool.TauMuORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.TauMuORT.DR = 0.2
-    alg.overlapTool.TauMuORT.OutputPassValue = True
+    if doTaus and doMuons:
+        addPrivateTool( alg, 'overlapTool.TauMuORT',
+                        'ORUtils::DeltaROverlapTool' )
+        alg.overlapTool.TauMuORT.InputLabel = inputLabel
+        alg.overlapTool.TauMuORT.OutputLabel = outputLabel
+        alg.overlapTool.TauMuORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.TauMuORT.DR = 0.2
+        alg.overlapTool.TauMuORT.OutputPassValue = True
+        pass
 
     # Set up the tau-(narrow-)jet overlap removal.
-    addPrivateTool( alg, 'overlapTool.TauJetORT',
-                    'ORUtils::DeltaROverlapTool' )
-    alg.overlapTool.TauJetORT.InputLabel = inputLabel
-    alg.overlapTool.TauJetORT.OutputLabel = outputLabel
-    alg.overlapTool.TauJetORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.TauJetORT.DR = 0.2
-    alg.overlapTool.TauJetORT.OutputPassValue = True
+    if doTaus and doJets:
+        addPrivateTool( alg, 'overlapTool.TauJetORT',
+                        'ORUtils::DeltaROverlapTool' )
+        alg.overlapTool.TauJetORT.InputLabel = inputLabel
+        alg.overlapTool.TauJetORT.OutputLabel = outputLabel
+        alg.overlapTool.TauJetORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.TauJetORT.DR = 0.2
+        alg.overlapTool.TauJetORT.OutputPassValue = True
+        pass
 
     # Set up the photon-electron overlap removal.
-    addPrivateTool( alg, 'overlapTool.PhoEleORT',
-                    'ORUtils::DeltaROverlapTool' )
-    alg.overlapTool.PhoEleORT.InputLabel = inputLabel
-    alg.overlapTool.PhoEleORT.OutputLabel = outputLabel
-    alg.overlapTool.PhoEleORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.PhoEleORT.OutputPassValue = True
+    if doPhotons and doElectrons:
+        addPrivateTool( alg, 'overlapTool.PhoEleORT',
+                        'ORUtils::DeltaROverlapTool' )
+        alg.overlapTool.PhoEleORT.InputLabel = inputLabel
+        alg.overlapTool.PhoEleORT.OutputLabel = outputLabel
+        alg.overlapTool.PhoEleORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.PhoEleORT.OutputPassValue = True
+        pass
 
     # Set up the photon-muon overlap removal.
-    addPrivateTool( alg, 'overlapTool.PhoMuORT',
-                    'ORUtils::DeltaROverlapTool' )
-    alg.overlapTool.PhoMuORT.InputLabel = inputLabel
-    alg.overlapTool.PhoMuORT.OutputLabel = outputLabel
-    alg.overlapTool.PhoMuORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.PhoMuORT.OutputPassValue = True
+    if doPhotons and doMuons:
+        addPrivateTool( alg, 'overlapTool.PhoMuORT',
+                        'ORUtils::DeltaROverlapTool' )
+        alg.overlapTool.PhoMuORT.InputLabel = inputLabel
+        alg.overlapTool.PhoMuORT.OutputLabel = outputLabel
+        alg.overlapTool.PhoMuORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.PhoMuORT.OutputPassValue = True
+        pass
 
     # Set up the photon-(narrow-)jet overlap removal.
-    addPrivateTool( alg, 'overlapTool.PhoJetORT',
-                    'ORUtils::DeltaROverlapTool' )
-    alg.overlapTool.PhoJetORT.InputLabel = inputLabel
-    alg.overlapTool.PhoJetORT.OutputLabel = outputLabel
-    alg.overlapTool.PhoJetORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.PhoJetORT.OutputPassValue = True
+    if doPhotons and doJets:
+        addPrivateTool( alg, 'overlapTool.PhoJetORT',
+                        'ORUtils::DeltaROverlapTool' )
+        alg.overlapTool.PhoJetORT.InputLabel = inputLabel
+        alg.overlapTool.PhoJetORT.OutputLabel = outputLabel
+        alg.overlapTool.PhoJetORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.PhoJetORT.OutputPassValue = True
+        pass
 
     # Set up the electron-fat-jet overlap removal.
-    addPrivateTool( alg, 'overlapTool.EleFatJetORT',
-                    'ORUtils::DeltaROverlapTool' )
-    alg.overlapTool.EleFatJetORT.InputLabel = inputLabel
-    alg.overlapTool.EleFatJetORT.OutputLabel = outputLabel
-    alg.overlapTool.EleFatJetORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.EleFatJetORT.DR = 1.0
-    alg.overlapTool.EleFatJetORT.OutputPassValue = True
+    if doElectrons and doFatJets:
+        addPrivateTool( alg, 'overlapTool.EleFatJetORT',
+                        'ORUtils::DeltaROverlapTool' )
+        alg.overlapTool.EleFatJetORT.InputLabel = inputLabel
+        alg.overlapTool.EleFatJetORT.OutputLabel = outputLabel
+        alg.overlapTool.EleFatJetORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.EleFatJetORT.DR = 1.0
+        alg.overlapTool.EleFatJetORT.OutputPassValue = True
+        pass
 
     # Set up the (narrow-)jet-fat-jet overlap removal.
-    addPrivateTool( alg, 'overlapTool.JetFatJetORT',
-                    'ORUtils::DeltaROverlapTool' )
-    alg.overlapTool.JetFatJetORT.InputLabel = inputLabel
-    alg.overlapTool.JetFatJetORT.OutputLabel = outputLabel
-    alg.overlapTool.JetFatJetORT.LinkOverlapObjects = linkOverlapObjects
-    alg.overlapTool.JetFatJetORT.DR = 1.0
-    alg.overlapTool.JetFatJetORT.OutputPassValue = True
+    if doJets and doFatJets:
+        addPrivateTool( alg, 'overlapTool.JetFatJetORT',
+                        'ORUtils::DeltaROverlapTool' )
+        alg.overlapTool.JetFatJetORT.InputLabel = inputLabel
+        alg.overlapTool.JetFatJetORT.OutputLabel = outputLabel
+        alg.overlapTool.JetFatJetORT.LinkOverlapObjects = linkOverlapObjects
+        alg.overlapTool.JetFatJetORT.DR = 1.0
+        alg.overlapTool.JetFatJetORT.OutputPassValue = True
+        pass
 
     # Add the algorithm to the analysis sequence.
     seq.append( alg,
@@ -218,14 +236,23 @@ def makeOverlapAnalysisSequence( dataType,
                                    'fatJets'   : 'fatJetsOut' } )
 
     # Add view container creation algorithms for all types.
-    for container in [ 'electrons', 'muons', 'jets', 'taus', 'photons',
-                       'fatJets' ]:
+    for container in [ ( 'electrons', doElectrons ),
+                       ( 'muons',     doMuons ),
+                       ( 'jets',      doJets ),
+                       ( 'taus',      doTaus ),
+                       ( 'photons',   doPhotons ),
+                       ( 'fatJets',   doFatJets ) ]:
+
+        # Skip setting up a view container if the type is not being processed.
+        if not container[ 1 ]:
+            continue
+
+        # Set up a view container for the type.
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                               'OverlapRemovalViewMaker_%s' % container )
-        alg.allowMissing = True
+                               'OverlapRemovalViewMaker_%s' % container[ 0 ] )
         alg.selection = [ '%s,as_char' % outputLabel ]
-        seq.append( alg, inputPropName = { container : 'input' },
-                    outputPropName = { container : 'output' } )
+        seq.append( alg, inputPropName = { container[ 0 ] : 'input' },
+                    outputPropName = { container[ 0 ] : 'output' } )
         pass
 
     # Return the sequence:
