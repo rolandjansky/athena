@@ -20,6 +20,7 @@ std::string JetTagUtils::getJetAuthor(xAOD::Jet& jetToTag) {
   std::string size = std::to_string(int(jetToTag.getSizeParameter()*10));
 
   // Special test for HI jet collections
+  // (the attribute JetUnsubtractedScaleMomentum is specific to them)
   xAOD::JetFourMom_t v;
   if ( jetToTag.getAttribute<xAOD::JetFourMom_t>("JetUnsubtractedScaleMomentum",v) ) {
     type = "HI";
