@@ -74,6 +74,7 @@ namespace xAOD {
       static bool inited = false;
       if(inited) return;
       // name in the atlas convention
+<<<<<<< HEAD
       nameToTypemap["LCTopo"] =             LCTopo;            
       nameToTypemap["EMTopo"] =             EMTopo;            
       nameToTypemap["LCTopoOrigin"] =       LCTopoOrigin;
