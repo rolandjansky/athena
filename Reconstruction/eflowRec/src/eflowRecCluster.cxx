@@ -15,7 +15,7 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink) :
-  m_clusterId(-1), m_cluster(*clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_type(0), m_matchCluster(0) {
+  m_clusterId(-1), m_cluster(*clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_calorimeterType(UNASSIGNED), m_matchCluster(0) {
   m_matchCluster = new eflowMatchCluster(this);
 }
 
@@ -24,7 +24,7 @@ eflowRecCluster::eflowRecCluster(const eflowRecCluster& anEFlowRecCluster) {
   m_cluster = anEFlowRecCluster.m_cluster;
   m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
   m_isTouchable = anEFlowRecCluster.m_isTouchable;
-  m_type = anEFlowRecCluster.m_type;
+  m_calorimeterType = anEFlowRecCluster.m_calorimeterType;
   m_matchCluster = new eflowMatchCluster(this);
 }
 
@@ -87,7 +87,7 @@ double eflowRecCluster::getVarianceOfSumExpectedEnergy() {
 }
 
 int eflowRecCluster::getClusterType() {
-  if(m_type!=0) return m_type;
+  if(m_calorimeterType!=UNASSIGNED) return m_calorimeterType;
   CaloClusterKineHelper::calculateKine(const_cast<xAOD::CaloCluster*>(m_cluster), true, true);
 
   double EMB_E = m_cluster->eSample(xAOD::CaloCluster::CaloSample::PreSamplerB)
@@ -125,16 +125,16 @@ int eflowRecCluster::getClusterType() {
   double ratioFCAL = (FCAL_E + MiniFCAL_E)/totalEnergy;
 
   if(ratioEM > 0.5) {
-    m_type = 1;
+    m_calorimeterType = ECAL;
   } else if (ratioHCAL > 0.5) {
-    m_type = 2;
+    m_calorimeterType = HCAL;
   } else if (ratioFCAL > 0.5) {
-    m_type = 3;
+    m_calorimeterType = FCAL;
   } else {
-    m_type = 4;
+    m_calorimeterType = UNKNOWN;
   }
 
-  assert(m_type!=0);
-  return m_type;
+  assert(m_calorimeterType!=UNASSIGNED);
+  return m_calorimeterType;
 
 }
