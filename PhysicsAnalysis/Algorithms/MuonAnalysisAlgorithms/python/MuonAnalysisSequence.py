@@ -4,11 +4,14 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeMuonAnalysisSequence( dataType ):
+def makeMuonAnalysisSequence( dataType, deepCopyOutput = False ):
     """Create a muon analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
+      deepCopyOutput -- If set to 'True', the output containers will be
+                        standalone, deep copies (slower, but needed for xAOD
+                        output writing)
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -81,6 +84,14 @@ def makeMuonAnalysisSequence( dataType ):
     alg = createAlgorithm( 'CP::KinematicHistAlg', 'MuonKinematicDumperAlg' )
     alg.histPattern = 'muon_%VAR%_%SYS%'
     seq.append( alg, inputPropName = 'input' )
+
+    # Set up a final deep copy making algorithm if requested:
+    if deepCopyOutput:
+        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+                               'MuonDeepCopyMaker' )
+        alg.deepCopy = True
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+        pass
 
     # Return the sequence:
     return seq
