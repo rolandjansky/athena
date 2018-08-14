@@ -136,7 +136,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
   }
 
-  std::vector<MMPrepData*> MMprds;
+  std::vector<MMPrepData> MMprds;
   std::vector<int> MMflag;
 
   // convert the RDO collection to a PRD collection
@@ -207,13 +207,10 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
     cov->setIdentity();
     (*cov)(0,0) = resolution*resolution;  
 
-    MMPrepData* mmPrd = new MMPrepData(rdoId,hash,localPos,
-				       rdoList,cov,detEl,time,charge);
-
     if(!m_merge) {
-      prdColl->push_back(mmPrd);
+      prdColl->push_back(new MMPrepData(rdoId,hash,localPos,rdoList,cov,detEl,time,charge));
     } else {
-       MMprds.push_back(mmPrd);
+       MMprds.push_back(MMPrepData(rdoId,hash,localPos,rdoList,cov,detEl,time,charge));
        MMflag.push_back(0);
     } 
   }
@@ -225,13 +222,13 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
  
          bool merge = false;
          unsigned int jmerge = -1;
-         Identifier id_prd = MMprds[i]->identify();
+         Identifier id_prd = MMprds[i].identify();
          int strip = m_mmIdHelper->channel(id_prd);
          int gasGap  = m_mmIdHelper->gasGap(id_prd);
          int layer   = m_mmIdHelper->multilayer(id_prd);
-         ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i]->globalPosition().z() );
+         ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
          for (unsigned int j=i+1; j<MMprds.size(); ++j){
-           Identifier id_prdN = MMprds[j]->identify();
+           Identifier id_prdN = MMprds[j].identify();
            int stripN = m_mmIdHelper->channel(id_prdN);
            int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
            int layerN   = m_mmIdHelper->multilayer(id_prdN);
@@ -249,11 +246,11 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
            ATH_MSG_VERBOSE(" add isolated MMprds strip " << strip << " gasGap " << gasGap << " layer " << layer );
            std::vector<Identifier> rdoList;
            rdoList.push_back(id_prd);
-           double covX = MMprds[i]->localCovariance()(Trk::locX,Trk::locX);
+           double covX = MMprds[i].localCovariance()(Trk::locX,Trk::locX);
            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
            covN->setIdentity();
            (*covN)(0,0) = covX;
-           MMPrepData* prdN = new MMPrepData(id_prd, hash, MMprds[i]->localPosition(), rdoList, covN, MMprds[i]->detectorElement());
+           MMPrepData* prdN = new MMPrepData(id_prd, hash, MMprds[i].localPosition(), rdoList, covN, MMprds[i].detectorElement());
            prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
            prdColl->push_back(prdN);
          } else {
@@ -270,7 +267,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
            for (unsigned int k=0; k < nmergeStripsMax; ++k) {
              for (unsigned int j=jmerge; j<MMprds.size(); ++j){
                if(MMflag[j] == 1) continue;
-               Identifier id_prdN = MMprds[j]->identify();
+               Identifier id_prdN = MMprds[j].identify();
                int stripN = m_mmIdHelper->channel(id_prdN);
                if( abs(mergeStrips[k]-stripN) <= 1 ) {
                  int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
@@ -307,14 +304,14 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
            }
            ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
  
-           double covX = MMprds[j]->localCovariance()(Trk::locX, Trk::locX);
+           double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
            covN->setIdentity();
            (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
            if(nmerge<=1) (*covN)(0,0) = covX;
-           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j]->identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
+           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
 
-           MMPrepData* prdN = new MMPrepData(MMprds[j]->identify(), hash, MMprds[j]->localPosition(), rdoList, covN, MMprds[j]->detectorElement());
+           MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, MMprds[j].localPosition(), rdoList, covN, MMprds[j].detectorElement());
            prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
            prdColl->push_back(prdN);
          }
@@ -394,7 +391,10 @@ StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVec
 {
   // clear the output vector of selected data
   idWithDataVect.clear();
-  
+
+  //is idVect a right thing to use here? to be reviewed maybe
+  ATH_MSG_DEBUG("Size of the RDO container to be decoded: " << idVect.size() );
+
   SetupMM_PrepDataContainerStatus containerRecordStatus = setupMM_PrepDataContainer();
 
   if ( containerRecordStatus == FAILED ) {

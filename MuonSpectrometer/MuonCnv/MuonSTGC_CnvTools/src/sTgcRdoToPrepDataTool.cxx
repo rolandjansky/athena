@@ -132,9 +132,9 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 
   }
 
-  std::vector<sTgcPrepData*> sTgcprds;
+  std::vector<sTgcPrepData> sTgcprds;
   std::vector<int> sTgcflag;
-  std::vector<sTgcPrepData*> sTgcWireprds;
+  std::vector<sTgcPrepData> sTgcWireprds;
   // convert the RDO collection to a PRD collection
   STGC_RawDataCollection::const_iterator it = rdoColl->begin();
   for ( ; it != rdoColl->end() ; ++it ) {
@@ -207,22 +207,19 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     cov->setIdentity();
     (*cov)(0,0) = resolution*resolution;  
 
-    sTgcPrepData* stgcPrd = new sTgcPrepData(rdoId,hash,localPos,
-					     rdoList,cov,detEl);
-
     ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel << " type: " << channelType << " resolution " << resolution );
 
     if(m_merge&&(channelType==1||channelType==2)) {
 // eta strips and wires
       if(channelType==1) {
         sTgcflag.push_back(0);
-        sTgcprds.push_back(stgcPrd);
+        sTgcprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
        } else { 
-        sTgcWireprds.push_back(stgcPrd);
+        sTgcWireprds.push_back(sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
        }
     } else {
 // Pads no merging
-      prdColl->push_back(stgcPrd);
+      prdColl->push_back(new sTgcPrepData(rdoId,hash,localPos,rdoList,cov,detEl));
     } 
   } //end it = rdoColl
 
@@ -234,9 +231,10 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
 // j == 0 loop over eta strips prds
 // j == 1 loop over phi wire prds 
       if(j==1) {
+        sTgcprds.insert(sTgcprds.end(), sTgcWireprds.begin(), sTgcWireprds.end());
         for (unsigned int i=0; i<sTgcWireprds.size(); ++i){
           sTgcflag.push_back(0);
-          sTgcprds.push_back(*(&sTgcWireprds[i]));
+//          sTgcprds.push_back(sTgcWireprds[i]);
         }
 //      if(sTgcWireprds.size()>0) sTgcWireprds.clear();
       }
@@ -246,14 +244,14 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
  
          bool merge = false;
          unsigned int jmerge = -1;
-         Identifier id_prd = sTgcprds[i]->identify();
+         Identifier id_prd = sTgcprds[i].identify();
          int strip = m_stgcIdHelper->channel(id_prd);
          int gasGap  = m_stgcIdHelper->gasGap(id_prd);
          int layer   = m_stgcIdHelper->multilayer(id_prd);
          int channelType = m_stgcIdHelper->channelType(id_prd);
          ATH_MSG_VERBOSE("  sTgcprds " <<  sTgcprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " channelType " << channelType);
          for (unsigned int j=i+1; j<sTgcprds.size(); ++j){
-           Identifier id_prdN = sTgcprds[j]->identify();
+           Identifier id_prdN = sTgcprds[j].identify();
            int stripN = m_stgcIdHelper->channel(id_prdN);
            int gasGapN  = m_stgcIdHelper->gasGap(id_prdN);
            int layerN   = m_stgcIdHelper->multilayer(id_prdN);
@@ -272,11 +270,11 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            ATH_MSG_VERBOSE(" add isolated sTgcprds strip " << strip << " gasGap " << gasGap << " layer " << layer << " channelType " << channelType);
            std::vector<Identifier> rdoList;
            rdoList.push_back(id_prd);
-           double covX = sTgcprds[i]->localCovariance()(Trk::locX,Trk::locX);
+           double covX = sTgcprds[i].localCovariance()(Trk::locX,Trk::locX);
            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
            covN->setIdentity();
            (*covN)(0,0) = covX;
-           sTgcPrepData* prdN = new sTgcPrepData(id_prd, hash, sTgcprds[i]->localPosition(), rdoList, covN, sTgcprds[i]->detectorElement(), sTgcprds[i]->getBcBitMap());
+           sTgcPrepData* prdN = new sTgcPrepData(id_prd, hash, sTgcprds[i].localPosition(), rdoList, covN, sTgcprds[i].detectorElement(), sTgcprds[i].getBcBitMap());
            prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
            prdColl->push_back(prdN);
          } else {
@@ -293,7 +291,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            for (unsigned int k=0; k < nmergeStripsMax; ++k) {
              for (unsigned int j=jmerge; j<sTgcprds.size(); ++j){
                if(sTgcflag[j] == 1) continue;
-               Identifier id_prdN = sTgcprds[j]->identify();
+               Identifier id_prdN = sTgcprds[j].identify();
                int stripN = m_stgcIdHelper->channel(id_prdN);
                if( abs(mergeStrips[k]-stripN) <= 1 ) {
                  int gasGapN  = m_stgcIdHelper->gasGap(id_prdN);
@@ -331,14 +329,14 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            }
            ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
  
-           double covX = sTgcprds[j]->localCovariance()(Trk::locX, Trk::locX);
+           double covX = sTgcprds[j].localCovariance()(Trk::locX, Trk::locX);
            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
            covN->setIdentity();
            (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
            if(nmerge<=1) (*covN)(0,0) = covX;
-           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_stgcIdHelper->channel(sTgcprds[j]->identify())  << " channelType " << channelType << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
+           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_stgcIdHelper->channel(sTgcprds[j].identify())  << " channelType " << channelType << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
  
-           sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j]->identify(), hash, sTgcprds[j]->localPosition(), rdoList, covN, sTgcprds[j]->detectorElement(), sTgcprds[j]->getBcBitMap());
+           sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j].identify(), hash, sTgcprds[j].localPosition(), rdoList, covN, sTgcprds[j].detectorElement(), sTgcprds[j].getBcBitMap());
            prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
            prdColl->push_back(prdN);
          }
@@ -346,6 +344,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
        // clear vector and delete elements
        sTgcflag.clear();
        sTgcprds.clear();
+       sTgcWireprds.clear();
      } // loop over eta and Wire prds
   }
 
