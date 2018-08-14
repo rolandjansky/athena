@@ -18,6 +18,7 @@
 #include <vector>
 #include <iostream>
 #include <iterator>
+#include <unordered_map>
 
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigConfHLTData/HLTSignature.h"
@@ -253,7 +254,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 
 
 const HLT::Chain* Trig::CacheGlobalMemory::chain(const std::string& name) const {
-  std::map<std::string, const HLT::Chain*>::const_iterator i = m_efchainsByName.find(name);
+  std::unordered_map<std::string, const HLT::Chain*>::const_iterator i = m_efchainsByName.find(name);
   if (i != m_efchainsByName.end()) {
     return i->second;
   }

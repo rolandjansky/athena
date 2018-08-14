@@ -46,13 +46,14 @@ namespace Trig {
 
   StatusCode DecisionUnpackerAthena::unpackChains(const std::vector<uint32_t>& serialized_chains,
 						   std::map<unsigned, HLT::Chain*>& cache,
-						   std::map<std::string, const HLT::Chain*>& output) {
+						   std::unordered_map<std::string, const HLT::Chain*>& output) {
    
     if( serialized_chains.size() == 0 ) {
       ATH_MSG_WARNING("ChainResult is empty");
       return StatusCode::FAILURE;
     }
 
+    output.reserve( output.size() + cache.size() );
 
     std::vector<uint32_t>::const_iterator rawIt = serialized_chains.begin();
     rawIt++; // skip first number as it is count
@@ -77,9 +78,9 @@ namespace Trig {
 
   StatusCode DecisionUnpackerAthena::unpackDecision(std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
 						    std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
-						    std::map<std::string, const HLT::Chain*>& l2chainsByName,
+						    std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& l2chainsCache,
-						    std::map<std::string, const HLT::Chain*>& efchainsByName,
+						    std::unordered_map<std::string, const HLT::Chain*>& efchainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& efchainsCache,
 						    char& bgCode,
 						    bool unpackHLT

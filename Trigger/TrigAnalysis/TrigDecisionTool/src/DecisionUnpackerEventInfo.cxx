@@ -78,7 +78,8 @@ namespace Trig {
 
   StatusCode DecisionUnpackerEventInfo::unpackChains(const std::vector<uint32_t>& chainTriggerInfo,
 						     std::map<unsigned, HLT::Chain*>& cache,
-						     std::map<std::string, const HLT::Chain*>& output) {
+						     std::unordered_map<std::string, const HLT::Chain*>& output) {
+    output.reserve( output.size() + cache.size() );
     for( auto& cntr_chain : cache){
       auto cntr = cntr_chain.first;      
       auto chain = cntr_chain.second;
@@ -114,9 +115,9 @@ namespace Trig {
 
   StatusCode DecisionUnpackerEventInfo::unpackDecision(std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
 						    std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
-						    std::map<std::string, const HLT::Chain*>& l2chainsByName,
+						    std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& l2chainsCache,
-						    std::map<std::string, const HLT::Chain*>& efchainsByName,
+						    std::unordered_map<std::string, const HLT::Chain*>& efchainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& efchainsCache,
                                                     char& /*bgCode*/,
 						    bool unpackHLT

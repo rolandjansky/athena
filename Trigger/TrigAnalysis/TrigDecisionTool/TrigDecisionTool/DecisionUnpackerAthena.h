@@ -37,9 +37,9 @@ namespace Trig{
     virtual ~DecisionUnpackerAthena();
     virtual StatusCode unpackDecision(std::map<std::string, const LVL1CTP::Lvl1Item*>&,
 				      std::map<CTPID, LVL1CTP::Lvl1Item*>&,
-				      std::map<std::string, const HLT::Chain*>&,
+				      std::unordered_map<std::string, const HLT::Chain*>&,
 				      std::map<CHAIN_COUNTER, HLT::Chain*>&,
-				      std::map<std::string, const HLT::Chain*>&,
+				      std::unordered_map<std::string, const HLT::Chain*>&,
 				      std::map<CHAIN_COUNTER, HLT::Chain*>&,
 				      char&,
 				      bool
@@ -55,7 +55,7 @@ namespace Trig{
 			   std::map<std::string, const LVL1CTP::Lvl1Item*>&);
     StatusCode unpackChains(const std::vector<uint32_t>& serialized_chains,
 			    std::map<unsigned, HLT::Chain*>& cache,
-			    std::map<std::string, const HLT::Chain*>& output);
+			    std::unordered_map<std::string, const HLT::Chain*>& output);
 
   };
 
