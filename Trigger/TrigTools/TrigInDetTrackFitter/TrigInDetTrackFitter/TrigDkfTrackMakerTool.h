@@ -13,16 +13,17 @@
 #include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
 #include <vector>
 
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/PixelID.h" 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TrkTrack/Track.h"
 
 
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+  class SCT_DetectorManager;
+}
 
 class TrigDkfTrackMakerTool : virtual public ITrigDkfTrackMakerTool, public AthAlgTool {
  public:

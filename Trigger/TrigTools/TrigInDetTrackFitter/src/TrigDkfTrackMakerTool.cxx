@@ -20,8 +20,12 @@
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/PixelCluster.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
