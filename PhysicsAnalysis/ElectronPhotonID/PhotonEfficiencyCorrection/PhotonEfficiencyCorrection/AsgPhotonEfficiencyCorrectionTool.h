@@ -24,8 +24,6 @@
 // Utility includes
 #include "boost/algorithm/string.hpp" // this one to replace std::string names
 
-// Include the return object and the underlying ROOT tool
-#include "PATCore/TResult.h"
 
 //xAOD includes
 #include "AsgTools/AsgTool.h"
@@ -36,9 +34,6 @@
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "xAODEgamma/Egamma.h"
-
-
-
 
 class AsgPhotonEfficiencyCorrectionTool
   : virtual public IAsgPhotonEfficiencyCorrectionTool,
@@ -63,13 +58,15 @@ public:
   virtual StatusCode finalize();
 
 
-  // Main methods from IUserDataCalcTool
+
 public:
+  typedef Root::TPhotonEfficiencyCorrectionTool::Result Result;
   /// The main calculate method: the actual correction factors are determined here
-  const Root::TResult& calculate( const xAOD::IParticle* part ) const;
-  const Root::TResult& calculate( const xAOD::Egamma* egam ) const;
-  const Root::TResult& calculate( const xAOD::Egamma& egam ) const{  
- 		    return calculate(&egam);} // pass the Egamma obj by reference
+  const Result calculate( const xAOD::IParticle* part ) const;
+  const Result calculate( const xAOD::Egamma* egam ) const;
+  const Result calculate( const xAOD::Egamma& egam ) const{  
+ 		    return calculate(&egam);
+  } // pass the Egamma obj by reference
 
   ///Add some method for now as a first step to move the tool to then new interface 
   virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Egamma& inputObject, double& efficiencyScaleFactor) const;
@@ -104,9 +101,6 @@ private:
   Root::TPhotonEfficiencyCorrectionTool* m_rootTool_unc;
   Root::TPhotonEfficiencyCorrectionTool* m_rootTool_con;
   
-  /// A dummy return TResult object
-  Root::TResult m_resultDummy;
-
   /// Systematics filter map
   std::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
   
