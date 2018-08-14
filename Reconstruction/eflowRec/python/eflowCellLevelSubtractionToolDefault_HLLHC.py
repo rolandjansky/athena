@@ -31,7 +31,6 @@ class eflowCellLevelSubtractionToolDefault_HLLHC(eflowCellLevelSubtractionTool) 
         except:
             mlog.error("could not import eflowRec.PFTrackClusterMatchingTool")
             print traceback.format_exc()
-            return False
 
         MatchingTool_Pull_015.TrackPositionType   = 'EM2EtaPhi' # str
         MatchingTool_Pull_015.ClusterPositionType = 'PlainEtaPhi' # str
