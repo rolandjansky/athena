@@ -44,6 +44,7 @@ m_windowRms(0.032),
 m_theEOverPTool("eflowCellEOverPTool",this),
 m_matchingTool("PFTrackClusterMatchingTool/RcvrSpltMatchingTool", this),
 m_binnedParameters(new eflowEEtaBinnedParameters()),
+m_integrator(nullptr),
 m_subtractionSigmaCut(1.5),
 m_recoverIsolatedTracks(false),
 m_nTrackClusterMatches(0),
@@ -59,7 +60,10 @@ m_useUpdated2015ChargedShowerSubtraction(true)
   eflowRingSubtractionManager::setRMaxAndWeightRange(m_rCell, 1.0e6);
 }
 
-eflowRecoverSplitShowersTool::~eflowRecoverSplitShowersTool() {}
+eflowRecoverSplitShowersTool::~eflowRecoverSplitShowersTool() {
+  if (m_binnedParameters) { delete m_binnedParameters; m_binnedParameters = nullptr;}
+  if (m_integrator) { delete m_integrator; m_integrator = nullptr;}
+}
 
 StatusCode eflowRecoverSplitShowersTool::initialize(){
 
@@ -114,8 +118,8 @@ StatusCode eflowRecoverSplitShowersTool::finalize(){
 
   msg(MSG::INFO) << "Produced " << m_nTrackClusterMatches << " track-cluster matches." << endmsg;
 
-  delete m_binnedParameters;
-  delete m_integrator;
+  if (m_binnedParameters) { delete m_binnedParameters; m_binnedParameters = nullptr;}
+  if (m_integrator) { delete m_integrator; m_integrator = nullptr;}
 
   return StatusCode::SUCCESS;
 

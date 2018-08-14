@@ -89,8 +89,10 @@ eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& 
 }
 
 eflowCellLevelSubtractionTool::~eflowCellLevelSubtractionTool() {
-  delete m_binnedParameters;
-  delete m_integrator;
+
+  if (m_binnedParameters) { delete m_binnedParameters; m_binnedParameters = nullptr;}
+  if (m_integrator) { delete m_integrator; m_integrator = nullptr;}
+
 }
 
 StatusCode eflowCellLevelSubtractionTool::initialize(){
@@ -471,6 +473,8 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
 }
 
 StatusCode eflowCellLevelSubtractionTool::finalize(){    
+  if (m_binnedParameters) { delete m_binnedParameters; m_binnedParameters = nullptr;}
+  if (m_integrator) { delete m_integrator; m_integrator = nullptr;}
   return StatusCode::SUCCESS;
 }
 
