@@ -434,6 +434,7 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant
                                         "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
                                         "MET_LocHadTopo.source.name.mpx.mpy.sumet",
                                         "MET_Track.source.name.mpx.mpy.sumet",
+                                        "MuonSegments.x.y.z.chamberIndex.sector.etaIndex.nPhiLayers.nTrigEtaLayers.nPrecisionHits.t0.clusterTime",
 ]
 SUSY15SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True
