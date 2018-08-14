@@ -1,8 +1,8 @@
 /////////////////////////////////////////////////////////////////
-// PixelOfflineMonitoring.cxx, (c) ATLAS Detector software
+// PixelNtupleMaker.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "DerivationFrameworkInDet/PixelOfflineMonitoring.h"
+#include "DerivationFrameworkInDet/PixelNtupleMaker.h"
 
 #include "xAODCore/ShallowCopy.h"
 #include "xAODTracking/TrackParticle.h"
@@ -12,7 +12,7 @@
 
 #include "TLorentzVector.h"
 
-DerivationFramework::PixelOfflineMonitoring::PixelOfflineMonitoring(const std::string& t, const std::string& n, const IInterface* p) : 
+DerivationFramework::PixelNtupleMaker::PixelNtupleMaker(const std::string& t, const std::string& n, const IInterface* p) : 
   AthAlgTool(t,n,p),
   m_containerName("InDetTrackParticles")
 {
@@ -20,19 +20,19 @@ DerivationFramework::PixelOfflineMonitoring::PixelOfflineMonitoring(const std::s
   declareProperty("ContainerName", m_containerName="InDetTrackParticles");
 }
 
-DerivationFramework::PixelOfflineMonitoring::~PixelOfflineMonitoring() {
+DerivationFramework::PixelNtupleMaker::~PixelNtupleMaker() {
 }  
 
-StatusCode DerivationFramework::PixelOfflineMonitoring::initialize() {
+StatusCode DerivationFramework::PixelNtupleMaker::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode DerivationFramework::PixelOfflineMonitoring::finalize()
+StatusCode DerivationFramework::PixelNtupleMaker::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
-bool DerivationFramework::PixelOfflineMonitoring::eventPassesFilter() const {
+bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
 
   const xAOD::TrackParticleContainer* tracks=0;
   CHECK(evtStore()->retrieve(tracks, m_containerName));
@@ -297,7 +297,7 @@ bool DerivationFramework::PixelOfflineMonitoring::eventPassesFilter() const {
   return pass;
 }  
 
-void DerivationFramework::PixelOfflineMonitoring::GetLayerEtaPhiFromId(uint64_t id,int *barrelEC, int *layer, int *eta, int *phi) const {
+void DerivationFramework::PixelNtupleMaker::GetLayerEtaPhiFromId(uint64_t id,int *barrelEC, int *layer, int *eta, int *phi) const {
   *eta =(id>>43) % 0x20 - 10;
   *phi =(id>>43) % 0x800 / 0x20;
   int layer_index = ((id>>43) / 0x800) & 0xF;

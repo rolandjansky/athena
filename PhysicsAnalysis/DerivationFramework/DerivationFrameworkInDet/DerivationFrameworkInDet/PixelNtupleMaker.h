@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////
-// PixelOfflineMonitoring.h, (c) ATLAS Detector software
+// PixelNtupleMaker.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef DERIVATIONFRAMEWORK_PIXELOFFLINEMONITORING_H
@@ -22,11 +22,11 @@ namespace ExpressionParsing {
 
 namespace DerivationFramework {
 
-  class PixelOfflineMonitoring : public AthAlgTool, public ISkimmingTool {
+  class PixelNtupleMaker : public AthAlgTool, public ISkimmingTool {
     public: 
-      PixelOfflineMonitoring(const std::string& t, const std::string& n, const IInterface* p);
+      PixelNtupleMaker(const std::string& t, const std::string& n, const IInterface* p);
 
-      ~PixelOfflineMonitoring();
+      ~PixelNtupleMaker();
 
       StatusCode initialize();
       StatusCode finalize();

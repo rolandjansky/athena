@@ -75,8 +75,8 @@ if DRAWZSel:
     print DRAW_ZMUMU_SkimmingTool
 
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__PixelOfflineMonitoring
-PixelMonitoringSkimmingTool = DerivationFramework__PixelOfflineMonitoring(name = "PixelMonitoringSkimmingTool",ContainerName="InDetTrackParticles")
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__PixelNtupleMaker
+PixelMonitoringSkimmingTool = DerivationFramework__PixelNtupleMaker(name = "PixelMonitoringSkimmingTool",ContainerName="InDetTrackParticles")
 
 ToolSvc += PixelMonitoringSkimmingTool
 
