@@ -43,44 +43,31 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
   
   std::set<unsigned int> bf;
   std::vector<HWIdentifier> MNBfeb;
-  StoreGateSvc* pStore;
-  if (!(service("ConditionStore", pStore)).isSuccess() || 0 == pStore) {
-     ATH_MSG_WARNING("Could not locate ConditionService");
-  } else {
-     if (!pStore->contains<CondCont<LArBadFebCont> >(m_knownBadFEBsVecKey.key())) { 
-       ATH_MSG_WARNING("No Bad FEBs object existing, assume empty list");
-     } else {   
-       SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey, ctx);
-       const LArBadFebCont* badCont=*badHdl;
-       if(badCont) {
-          for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
-             bf.insert(i->first);
-          }
-          if(bf.size() == 0) {
-             ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
-          }
-       }
+  SG::ReadCondHandle<LArBadFebCont> badHdl(m_knownBadFEBsVecKey, ctx);
+  const LArBadFebCont* badCont=*badHdl;
+  if(badCont) {
+     for(LArBadFebCont::BadChanVec::const_iterator i = badCont->begin(); i!=badCont->end(); i++) {
+        bf.insert(i->first);
      }
+     if(bf.size() == 0) {
+        ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+     }
+  }
   
-     if (!pStore->contains<CondCont<LArBadFebCont> >(m_knownMNBFEBsVecKey.key())) {
-       ATH_MSG_WARNING("No MNB FEBs object existing, assume empty list");
-     } else {
-       SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey, ctx);
-       const LArBadFebCont* MNBCont=*MNBHdl;
-       if(MNBCont) {
-          for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
-             MNBfeb.push_back(HWIdentifier(i->first));
-          } 
-          if(MNBfeb.size() == 0) {
-             ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
-          } 
-       }
-     }
+  SG::ReadCondHandle<LArBadFebCont> MNBHdl(m_knownMNBFEBsVecKey, ctx);
+  const LArBadFebCont* MNBCont=*MNBHdl;
+  if(MNBCont) {
+     for(LArBadFebCont::BadChanVec::const_iterator i = MNBCont->begin(); i!=MNBCont->end(); i++) {
+        MNBfeb.push_back(HWIdentifier(i->first));
+     } 
+     if(MNBfeb.size() == 0) {
+        ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
+     } 
   }
   const std::set<unsigned int> knownBadFEBs(bf);
   ATH_MSG_DEBUG("Number of known Bad FEBs: "<<knownBadFEBs.size());
   const std::vector<HWIdentifier> knownMNBFEBs(MNBfeb);
-  ATH_MSG_INFO("Number of known MNB FEBs: "<<knownMNBFEBs.size());
+  ATH_MSG_DEBUG("Number of known MNB FEBs: "<<knownMNBFEBs.size());
 
 
 
