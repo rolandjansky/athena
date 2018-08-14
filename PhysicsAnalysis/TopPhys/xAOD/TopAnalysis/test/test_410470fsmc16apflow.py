@@ -15,7 +15,7 @@ import subprocess, sys, shlex, random, shutil, os, glob
 os.system('art.py createpoolfile')
 
 # -- Settings --
-cutfilename    = "artcut_"+sys.argv[0].replace(".py",".txt")
+cutfilename    = "artcut_"+os.path.basename( sys.argv[0] ).replace(".py",".txt")
 inputfilenames = glob.glob("*.root*")
 
 # -- Get the validation file path from the most recent location --
