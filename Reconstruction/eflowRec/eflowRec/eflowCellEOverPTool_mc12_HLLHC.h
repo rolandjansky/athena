@@ -1,26 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EFLOWCELLEOVERPTOOL_MC12_HLLHC_H
 #define EFLOWCELLEOVERPTOOL_MC12_HLLHC_H
 
-/********************************************************************
-
-NAME:     eflowCellEOverPTool_mc12_HLLHC.h
-PACKAGE:  offline/Reconstruction/eflowRec
-
-AUTHORS:  M.Hodgkinson
-CREATED:  March 2014
-
-Description: New EM e/p for DC14 - JetMET ONLY - this is because taus already tuned PanTau on eflowRec, and hence prefer no updates for DC14
-
-********************************************************************/
-
 #include "eflowRec/IEFlowCellEOverPTool.h"
 
 class eflowBaseParameters;
 
+/**
+Class to store reference e/p mean and widths, as well as reference energy density radial profile fit parameters. The data is input to an eflowEEtaBinnedParameters object in the execute method. Stores data at the uncalibrated (EM) scale and is for HLLHC setup. This inherits from IEFlowCellEOverPTool. The values are derived using single pions with the AMI tags e3895_s3020_r9063.
+*/
 class eflowCellEOverPTool_mc12_HLLHC : public IEFlowCellEOverPTool {
 
  public:
@@ -34,21 +25,6 @@ class eflowCellEOverPTool_mc12_HLLHC : public IEFlowCellEOverPTool {
   StatusCode finalize() ;
 
  private:
-
-  std::vector<std::vector<std::vector<std::vector<std::vector<double> > > > > m_theEnergyEtaFirstIntLayerShapeParams;
-  std::vector<std::vector<double> > m_theLayerShapeParams;
-  std::vector<std::vector<std::vector<double> > > m_theEnergyEtaRingThicknesses;
-  std::vector<std::vector<double> > m_theRingThicknesses;
-  std::vector<double> m_theEOverPMeans;
-  std::vector<double> m_theEOverPStdDevs;
-  std::vector<std::vector<std::vector<double> > >  m_theEnergyEtaFirstIntLayerEOverPMeans;
-  std::vector<std::vector<std::vector<double> > >  m_theEnergyEtaFirstIntLayerEOverPStandardDeviations;
-  std::vector<std::vector<double> > m_test2;
-
-  //const int m_nEBins;
-  //const int m_nEtaBins;
-  //const int m_nFirstIntLayerBins;
-  //const int m_nCaloRegionBins;
 
   enum E_BINS        { E001bin = 0, E003point5bin, E010bin, E020bin, E032point5bin, E040bin };
     
