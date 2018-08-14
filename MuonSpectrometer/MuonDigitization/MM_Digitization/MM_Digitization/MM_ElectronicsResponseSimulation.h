@@ -58,10 +58,6 @@
 //VMM Mapping
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
 
-using std::vector;
-using std::cout;
-using std::endl;
-
 /// ROOT Classed
 class TF1;
 class TH1;
@@ -80,8 +76,8 @@ public :
   void initialize();
 
   void clearValues ();
-  void vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  void vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  void vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
+  void vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
   MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput);
   MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput);
 
@@ -114,9 +110,9 @@ public :
   float getARTdeadtime() const { return m_artDeadTime;};
 
 
-  vector <float>  getTStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
-  vector <float>  getQStripElectronics      () const { return m_qStripElectronics;};
-  vector <int>    getNStripElectronics      () const { return m_nStripElectronics;};
+  std::vector <float>  getTStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
+  std::vector <float>  getQStripElectronics      () const { return m_qStripElectronics;};
+  std::vector <int>    getNStripElectronics      () const { return m_nStripElectronics;};
 
 private:
 
@@ -134,9 +130,9 @@ private:
 
   int  m_decoupleShaperFunctionParamaters;
 
-  vector <float> m_tStripElectronicsAbThr;
-  vector <float> m_qStripElectronics;
-  vector <int>   m_nStripElectronics;
+  std::vector <float> m_tStripElectronicsAbThr;
+  std::vector <float> m_qStripElectronics;
+  std::vector <int>   m_nStripElectronics;
 
   TF1 *m_h_intFn;
 
