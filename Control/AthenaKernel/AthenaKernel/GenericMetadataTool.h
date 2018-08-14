@@ -7,25 +7,19 @@
 
 /** @file GenericMetadataTool.h
  *  @brief This file contains the class definition for the GenericMetadataTool class.
- *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: GenericMetadataTool.h 663679 2015-04-29 08:31:54Z krasznaa $
+ *  @author Jack Cranshaw <cranshaw@anl.gov>
+ *  $Id: $
  **/
 
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "AsgTools/AsgMetadataTool.h"
 #include "AthenaKernel/IMetaDataTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
-//#include "AthenaKernel/ICutFlowSvc.h"
-
-//#include "xAODCutFlow/CutBookkeeper.h"
-//#include "xAODCutFlow/CutBookkeeperContainer.h"
-//#include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
 #include <string>
 
 /** @class GenericMetadataTool
- *  @brief This class provides an example for reading with a ISelectorTool to veto events on AttributeList.
+ *  @brief This class provides the basic functionality for processing metadata in the athena framework. The derived class must simply implement merge functionality in the updateContainer method.
  **/
 
 template <typename T, typename U>
@@ -45,58 +39,55 @@ public:
    virtual StatusCode endInputFile(const SG::SourceID& sid = "Serial");
    virtual StatusCode initialize();
    virtual StatusCode finalize();
+
 protected:
    ServiceHandle<StoreGateSvc> inputMetaStore() const;
    ServiceHandle<StoreGateSvc> outputMetaStore() const;
 
-private:
-  
-  /// Helper class to update a container with information from another one
-  //StatusCode updateContainer( T* contToUpdate,
-  //                            const T* otherCont );
+   /// Helper class to update a container with information from another one
+   virtual StatusCode updateContainer( T* contToUpdate,
+                                 const T* otherCont ) = 0;
 
-  StatusCode initOutputContainer(const std::string& sgkey);
+   StatusCode initOutputContainer(const std::string& sgkey);
 
-  StatusCode buildAthenaInterface(const std::string& inputName,
-                                  const std::string& outputName,
-                                  const SG::SourceID& sid);
+   StatusCode buildAthenaInterface(const std::string& inputName,
+                                   const std::string& outputName,
+                                   const SG::SourceID& sid);
 
-  /// Fill Cutflow information
-  StatusCode addProcessMetadata();
+   /// Fill Cutflow information
+   StatusCode addProcessMetadata();
  
-  /// Pointer to cut flow svc 
-  ServiceHandle<StoreGateSvc> m_inputMetaStore;
-  ServiceHandle<StoreGateSvc> m_outputMetaStore;
+   /// Pointer to cut flow svc 
+   ServiceHandle<StoreGateSvc> m_inputMetaStore;
+   ServiceHandle<StoreGateSvc> m_outputMetaStore;
 
-  /// The name of the output Container
-  std::string m_outputCollName;
-  
-  /// The name of the input Container
-  std::string  m_inputCollName;
+   /// The name of the output Container
+   std::string m_outputCollName;
+   /// The name of the input Container
+   std::string  m_inputCollName;
+   /// The name of the process Container
+   std::string m_procMetaName;
 
-  /// The name of the process Container
-  std::string m_procMetaName;
+   bool m_processMetadataTaken;
+   bool m_markIncomplete;
 
-  bool m_processMetadataTaken;
-  bool m_markIncomplete;
-
-  /// List of source ids which have reached end file
-  std::set<SG::SourceID> m_fullreads;
-  std::set<SG::SourceID> m_read;
-  std::set<SG::SourceID> m_written;
+   /// List of source ids which have reached end file
+   std::set<SG::SourceID> m_fullreads;
+   std::set<SG::SourceID> m_read;
+   std::set<SG::SourceID> m_written;
 
 };
 
 template <typename T, typename U>
 inline ServiceHandle<StoreGateSvc> GenericMetadataTool<T,U>::inputMetaStore() const
 {
-  return m_inputMetaStore;
+   return m_inputMetaStore;
 }
 
 template <typename T, typename U>
 inline ServiceHandle<StoreGateSvc> GenericMetadataTool<T,U>::outputMetaStore() const
 {
-  return m_outputMetaStore;
+   return m_outputMetaStore;
 }
 
 #include "GenericMetadataTool.icc"
