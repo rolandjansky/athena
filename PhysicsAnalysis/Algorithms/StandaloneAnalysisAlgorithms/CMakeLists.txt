@@ -25,7 +25,7 @@ find_package( ROOT COMPONENTS Core RIO )
 atlas_add_library( StandaloneAnalysisAlgorithmsLib
    StandaloneAnalysisAlgorithms/*.h Root/*.cxx
    PUBLIC_HEADERS StandaloneAnalysisAlgorithms
-   LINK_LIBRARIES xAODRootAccess AnaAlgorithmLib
+   LINK_LIBRARIES xAODRootAccess SystematicsHandlesLib AnaAlgorithmLib
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers EventLoop )
 
