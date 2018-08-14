@@ -52,11 +52,11 @@ def setL2HypoTENames( HLTMuonMon, hltmonList):
 
 	if hltmonList._get_monitoring_mode_success == False:
 		# what should be done in this case?
-		print "HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used."
+		#print "HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used."
+		pass
 	
 	
 	elif hltmonList.pp_mode == True:
-		print "pp mode"
 		HLTMuonMon.monitoring_muonNonIso_L2SAHypo = muon.monitoring_muonNonIso_pp_L2SAHypo
 		HLTMuonMon.monitoring_muonIso_L2SAHypo = muon.monitoring_muonIso_pp_L2SAHypo
 		HLTMuonMon.monitoring_MSonly_L2SAHypo = muon.monitoring_MSonly_pp_L2SAHypo
@@ -73,7 +73,6 @@ def setL2HypoTENames( HLTMuonMon, hltmonList):
 
 		
 	elif hltmonList.HI_mode == True:
-		print "HI mode"
 		HLTMuonMon.monitoring_muonNonIso_L2SAHypo = muon.monitoring_muonNonIso_HI_L2SAHypo
 		HLTMuonMon.monitoring_muonIso_L2SAHypo = muon.monitoring_muonIso_HI_L2SAHypo
 		HLTMuonMon.monitoring_MSonly_L2SAHypo = muon.monitoring_MSonly_HI_L2SAHypo
