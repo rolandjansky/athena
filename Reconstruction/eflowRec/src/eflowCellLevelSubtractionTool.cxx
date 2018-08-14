@@ -112,7 +112,11 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
     msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
   }
 
-  m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0, m_isHLLHC);
+  const double gaussianRadius = 0.032;
+  const double gaussianRadiusError = 1.0e-3;
+  const double maximumRadiusSigma = 3.0;
+  
+  m_integrator = new eflowLayerIntegrator(gaussianRadius, gaussianRadiusError, maximumRadiusSigma, m_isHLLHC);
   m_binnedParameters = new eflowEEtaBinnedParameters();
 
   sc = m_theEOverPTool->execute(m_binnedParameters);
