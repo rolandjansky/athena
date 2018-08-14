@@ -6,7 +6,6 @@
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include <cmath>
 //#define GCDEBUG 

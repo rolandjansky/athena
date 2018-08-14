@@ -17,7 +17,6 @@
 
 #include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
 #include "Identifier/IdContext.h" 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
@@ -27,6 +26,10 @@
 class FastSCT_Clusterization;
 class ISCT_CablingSvc;
 class TrigTimer;
+
+namespace InDetDD {
+  class SCT_DetectorManager;
+}
 
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ;
 

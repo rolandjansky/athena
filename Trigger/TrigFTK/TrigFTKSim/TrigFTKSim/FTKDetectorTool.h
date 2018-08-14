@@ -54,7 +54,6 @@ class ITruthParameters;
 class TruthSelector;
 class PixelID;
 class SCT_ID;
-class TRT_ID;
 class IBeamCondSvc;
 class EventID;
 

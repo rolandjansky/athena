@@ -2,35 +2,30 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
-#include "InDetPrepRawData/SiClusterContainer.h"
 #include "TrigOnlineSpacePointTool/SCT_ClusterCacheTool.h"
+
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "Identifier/IdentifierHash.h" 
-
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include <string>
-#include <sstream>
-
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
-#include "eformat/SourceIdentifier.h" 
-using eformat::helper::SourceIdentifier;
 #include "ByteStreamData/ROBData.h" 
-#include "SCT_Cabling/ISCT_CablingSvc.h"
-
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-
+#include "eformat/SourceIdentifier.h"
+#include "Identifier/IdentifierHash.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
-
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetPrepRawData/SCT_ClusterCollection.h"
+#include "InDetPrepRawData/SiClusterContainer.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+
+#include <sstream>
+#include <string>
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+using eformat::helper::SourceIdentifier;
 
 SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type, 
 					    const std::string& name, 

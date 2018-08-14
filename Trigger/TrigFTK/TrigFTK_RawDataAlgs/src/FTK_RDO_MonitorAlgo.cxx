@@ -13,6 +13,7 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
