@@ -26,11 +26,11 @@ class eflowCellEOverPTool_mc12_HLLHC : public IEFlowCellEOverPTool {
 
  private:
 
-  enum E_BINS        { E001bin = 0, E003point5bin, E010bin, E020bin, E032point5bin, E040bin };
+  enum E_BINS        { ENERGY_BIN_START = 0, E001bin = ENERGY_BIN_START, E003point5bin = 1, E010bin = 2, E020bin = 3, E032point5bin = 4, E040bin = 5, ENERGY_BIN_END = 6 };
     
-  enum ETA_BINS      { eta050bin = 0, eta100bin, eta150bin, eta250bin, eta350bin, eta450bin};
+  enum ETA_BINS      { ETA_BIN_START = 0, eta050bin = ETA_BIN_START, eta100bin = 1, eta150bin = 2, eta250bin = 3, eta350bin = 4, eta450bin = 5, ETA_BIN_END = 6};
 
-  enum SHAPE_PARAMS  { NORM1 = 0, WIDTH1, NORM2, WIDTH2 };
+  enum SHAPE_PARAMS  { SHAPE_START = 0, NORM1 = SHAPE_START, WIDTH1 = 1, NORM2 = 2, WIDTH2 = 3, SHAPE_END = 4 };
 
   std::vector<double>  m_eBinValues;
   std::vector<double> m_etaBinBounds;
