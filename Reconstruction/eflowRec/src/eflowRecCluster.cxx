@@ -25,7 +25,7 @@ eflowRecCluster::eflowRecCluster(const eflowRecCluster& originalEflowRecCluster)
   m_clusElementLink = originalEflowRecCluster.m_clusElementLink;
   m_originalClusElementLink = originalEflowRecCluster.m_originalClusElementLink;
   m_isTouchable = originalEflowRecCluster.m_isTouchable;
-  m_calorimeterType = anEFlowRecCluster.m_calorimeterType;
+  m_calorimeterType = originalEflowRecCluster.m_calorimeterType;
   m_matchCluster = std::make_unique<eflowMatchCluster>(this);
 }
 
@@ -37,6 +37,7 @@ eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& originalEflow
     m_clusElementLink = originalEflowRecCluster.m_clusElementLink;
     m_originalClusElementLink = originalEflowRecCluster.m_originalClusElementLink;
     m_isTouchable = originalEflowRecCluster.m_isTouchable;
+    m_calorimeterType = originalEflowRecCluster.m_calorimeterType;
     m_matchCluster = std::make_unique<eflowMatchCluster>(this);
     return *this;
   }//if not assigning to self, then we have copied the data to the new object
