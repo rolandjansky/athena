@@ -271,6 +271,20 @@ listESDtoDPD.append(WriteDESDM_EXOTHIPStream.StreamName)
 ## ByteStream DPDs, skimming (event selection) ONLY!
 ##---------------
 
+class WriteRAWPhysDPD_RPVLL(JobProperty):
+    """ Produce the RPVLL in Byte Stream format."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_RPVLL"
+    FileName       = ""
+    Prescale       = 1
+    isVirtual      = False
+    DPDMakerScript = "LongLivedParticleDPDMaker/PhysDRAW_RPVLL.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteRAWPhysDPD_RPVLL)
+listRAWtoDPD.append(WriteRAWPhysDPD_RPVLL.StreamName)
+
 class WriteRAWPerfDPD_ZMUMU(JobProperty):
     """ Produce the primary DPD Zmumu in Byte Stream format."""
     statusOn       = True
@@ -420,19 +434,6 @@ listRAWtoDPD.append(WriteDRAW_TOPSLMU.StreamName)
 ##--------------------------------------------
 ## Skimmed ESD
 ##--------------------------------------------
-
-class WriteDAOD_RPVLLStream(JobProperty):
-    """ Produce the xAOD for DPD RPVLL and UEH groups searches """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    StreamName   = "StreamDAOD_RPVLL"
-    FileName     = ""
-    isVirtual      = False
-    DPDMakerScript = "LongLivedParticleDPDMaker/DAOD_RPVLL.py"
-    pass
-jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_RPVLLStream)
-listESDtoDPD.append(WriteDAOD_RPVLLStream.StreamName)
 
 class WriteDAOD_IDNCBStream(JobProperty):
     """ Produce the DPD for DAOD_IDNCB - AOD with PrepRawData """
