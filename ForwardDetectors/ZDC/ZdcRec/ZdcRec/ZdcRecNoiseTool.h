@@ -55,7 +55,7 @@ public:
 private:
 
 	//ZdcRawChannelCollection      m_ChannelCollection;
-	unsigned int     m_nsamples;
+	//unsigned int     m_nsamples;
 
 	std::string  m_pedestalDir;
 	std::string  m_pedestalFile;
