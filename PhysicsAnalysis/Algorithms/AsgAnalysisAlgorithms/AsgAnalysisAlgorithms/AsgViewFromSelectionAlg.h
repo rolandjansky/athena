@@ -62,8 +62,13 @@ namespace CP
   private:
     std::vector<SelectionType> m_ignore;
 
+    /// \brief Sort the objects according to their transverse momentum
   private:
     bool m_sortPt {false};
+
+    /// \brief Perform a deep copy for creating the output container
+  private:
+    bool m_deepCopy {false};
 
   private:
     std::size_t m_sizeLimit {std::numeric_limits<std::size_t>::max()};
@@ -76,6 +81,11 @@ namespace CP
   private:
     template<typename Type> StatusCode
     executeTemplate (const CP::SystematicSet& sys);
+
+    /// \brief The templated version of the deep copy function
+  private:
+    template<typename Type> StatusCode
+    executeDeepTemplate (const CP::SystematicSet& sys);
 
     /// \brief the version of execute to find the type
   private:

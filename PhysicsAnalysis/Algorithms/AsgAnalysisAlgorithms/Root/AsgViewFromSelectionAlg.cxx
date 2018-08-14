@@ -13,6 +13,7 @@
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 
 #include <CxxUtils/fpcompare.h>
+#include <xAODCore/AuxContainerBase.h>
 #include <xAODEgamma/PhotonContainer.h>
 #include <xAODEgamma/ElectronContainer.h>
 #include <xAODJet/JetContainer.h>
@@ -28,10 +29,10 @@ namespace CP
   template<typename Type> StatusCode AsgViewFromSelectionAlg ::
   executeTemplate (const CP::SystematicSet& sys)
   {
-    Type *input = nullptr;
+    const Type *input = nullptr;
     ANA_CHECK (evtStore()->retrieve (input, m_inputHandle.getName (sys)));
     auto output = std::make_unique<Type> (SG::VIEW_ELEMENTS);
-    for (auto particle : *input)
+    for (const auto particle : *input)
     {
       bool keep = true;
       for (const auto& accessor : m_accessors)
@@ -43,7 +44,11 @@ namespace CP
         }
       }
       if (keep)
-        output->push_back (particle);
+      {
+        typename Type::value_type particleNC =
+          const_cast<typename Type::value_type>(particle);
+        output->push_back (particleNC);
+      }
     }
 
     if (m_sortPt)
@@ -69,23 +74,118 @@ namespace CP
 
 
 
+  template<typename Type> StatusCode AsgViewFromSelectionAlg ::
+  executeDeepTemplate (const CP::SystematicSet& sys)
+  {
+     // Retrieve the input container.
+     const Type *input = nullptr;
+     ANA_CHECK( evtStore()->retrieve( input, m_inputHandle.getName( sys ) ) );
+
+     // Create a view container first. This is necessary to speed up possible
+     // sorting / trimming operations, which would be *much* slower on the deep
+     // copy.
+     Type viewCopy( SG::VIEW_ELEMENTS );
+     for( const auto* particle : *input ) {
+        bool keep = true;
+        for( const auto& accessor : m_accessors ) {
+           if( ( accessor.first->getBits( *particle ) | accessor.second ) !=
+               selectionAccept() ) {
+              keep = false;
+              break;
+           }
+        }
+        if( keep ) {
+           typename Type::value_type particleNC =
+              const_cast< typename Type::value_type >( particle );
+           viewCopy.push_back( particleNC );
+        }
+     }
+
+     // Sort the view copy if necessary.
+     if( m_sortPt ) {
+        std::sort( viewCopy.begin(), viewCopy.end(),
+                   []( const xAOD::IParticle *a,
+                       const xAOD::IParticle *b ) {
+                       return CxxUtils::fpcompare::greater( a->pt(), b->pt() );
+                   } );
+     }
+
+     // Trim the view container if necessary.
+     if( viewCopy.size() > m_sizeLimit ) {
+        viewCopy.resize( m_sizeLimit );
+     }
+
+     // Now finally make the deep copy.
+     auto output = std::make_unique< Type >();
+     auto aux = std::make_unique< xAOD::AuxContainerBase >();
+     output->setStore( aux.get() );
+     output->reserve( viewCopy.size() );
+     for( auto particle : viewCopy ) {
+        typename Type::value_type pcopy = new typename Type::base_value_type();
+        output->push_back( pcopy );
+        *pcopy = *particle;
+     }
+
+     // Record the deep copy into the event store.
+     ANA_CHECK( evtStore()->record( output.release(),
+                                    m_outputHandle.getName( sys ) ) );
+     ANA_CHECK( evtStore()->record( aux.release(),
+                                    m_outputHandle.getName( sys ) + "Aux." ) );
+
+     // Return gracefully.
+     return StatusCode::SUCCESS;
+
+  }
+
+
+
   StatusCode AsgViewFromSelectionAlg ::
   executeFindType (const CP::SystematicSet& sys)
   {
     const xAOD::IParticleContainer *input = nullptr;
     ANA_CHECK (m_inputHandle.retrieve (input, sys));
 
-    if (dynamic_cast<const xAOD::ElectronContainer*> (input))
-      m_function = &AsgViewFromSelectionAlg::executeTemplate<xAOD::ElectronContainer>;
-    else if (dynamic_cast<const xAOD::PhotonContainer*> (input))
-      m_function = &AsgViewFromSelectionAlg::executeTemplate<xAOD::PhotonContainer>;
-    else if (dynamic_cast<const xAOD::JetContainer*> (input))
-      m_function = &AsgViewFromSelectionAlg::executeTemplate<xAOD::JetContainer>;
-    else if (dynamic_cast<const xAOD::MuonContainer*> (input))
-      m_function = &AsgViewFromSelectionAlg::executeTemplate<xAOD::MuonContainer>;
-    else if (dynamic_cast<const xAOD::TauJetContainer*> (input))
-      m_function = &AsgViewFromSelectionAlg::executeTemplate<xAOD::TauJetContainer>;
-    else
+    if (dynamic_cast<const xAOD::ElectronContainer*> (input)) {
+       if (m_deepCopy) {
+          m_function =
+            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::ElectronContainer>;
+       } else {
+          m_function =
+            &AsgViewFromSelectionAlg::executeTemplate<xAOD::ElectronContainer>;
+       }
+    } else if (dynamic_cast<const xAOD::PhotonContainer*> (input)) {
+       if (m_deepCopy) {
+          m_function =
+            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::PhotonContainer>;
+       } else {
+          m_function =
+            &AsgViewFromSelectionAlg::executeTemplate<xAOD::PhotonContainer>;
+       }
+    } else if (dynamic_cast<const xAOD::JetContainer*> (input)) {
+       if (m_deepCopy) {
+          m_function =
+            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::JetContainer>;
+       } else {
+          m_function =
+            &AsgViewFromSelectionAlg::executeTemplate<xAOD::JetContainer>;
+       }
+    } else if (dynamic_cast<const xAOD::MuonContainer*> (input)) {
+       if (m_deepCopy) {
+          m_function =
+            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::MuonContainer>;
+       } else {
+          m_function =
+            &AsgViewFromSelectionAlg::executeTemplate<xAOD::MuonContainer>;
+       }
+    } else if (dynamic_cast<const xAOD::TauJetContainer*> (input)) {
+       if (m_deepCopy) {
+          m_function =
+            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::TauJetContainer>;
+       } else {
+          m_function =
+            &AsgViewFromSelectionAlg::executeTemplate<xAOD::TauJetContainer>;
+       }
+    } else
     {
       ANA_MSG_ERROR ("unknown type contained in AsgViewFromSelectionAlg, please extend it");
       return StatusCode::FAILURE;
@@ -107,6 +207,7 @@ namespace CP
     declareProperty ("ignore", m_ignore, "the list of cuts to *ignore* for each selection");
     declareProperty ("sortPt", m_sortPt, "whether to sort objects in pt");
     declareProperty ("sizeLimit", m_sizeLimit, "the limit on the size of the output container");
+    declareProperty ("deepCopy", m_deepCopy, "perform a deep copy");
   }
 
 
