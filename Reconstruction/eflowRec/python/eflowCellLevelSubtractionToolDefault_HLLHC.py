@@ -23,15 +23,10 @@ class eflowCellLevelSubtractionToolDefault_HLLHC(eflowCellLevelSubtractionTool) 
         else:
             self.nMatchesInCellLevelSubtraction = 1
 
-        try:
-            from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
-            MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
-            MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
-            MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
-        except:
-            mlog.error("could not import eflowRec.PFTrackClusterMatchingTool")
-            print traceback.format_exc()
-
+        from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
+        MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
+        MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
+        MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
         MatchingTool_Pull_015.TrackPositionType   = 'EM2EtaPhi' # str
         MatchingTool_Pull_015.ClusterPositionType = 'PlainEtaPhi' # str
         MatchingTool_Pull_015.DistanceType        = 'EtaPhiSquareDistance' # str
