@@ -88,6 +88,7 @@ namespace xAOD {
       nameToTypemap["EMPFlow"] =            EMPFlow;             
       nameToTypemap["EMCPFlow"] =           EMCPFlow;   
       nameToTypemap["TrackCaloCluster"] =   TrackCaloCluster;         
+      nameToTypemap["HI"] =                 HI;
       nameToTypemap[c_unCategorized] = Uncategorized;
 
 
