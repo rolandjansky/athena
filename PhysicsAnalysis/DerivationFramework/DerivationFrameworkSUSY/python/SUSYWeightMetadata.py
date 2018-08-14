@@ -4,7 +4,7 @@
 def addSUSYWeights(seq, pref = ""):
 
   from AthenaCommon.AppMgr import ToolSvc
-  from ReweightUtils.ReweightUtilsConf import SumOfWeightsAlg
+  from ReweightUtils.ReweightUtilsConf import SumOfWeightsAlg,McEventWeight
   from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import SUSYIDWeight
 
   #Load standard generator event weight
