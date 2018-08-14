@@ -1,7 +1,4 @@
 // emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 /** @file AnalysisConfig_Ntuple.h */
 
 #ifndef TrigInDetAnalysisExample_AnalysisConfig_Ntuple_H

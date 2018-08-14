@@ -5,6 +5,7 @@
 /***************************************************************************
  * Muon Calibration Input Event Data Model
  * -----------------------------------------
+ * Copyright (C) 2004 by ATLAS Collaboration
  *
  * Author       : Martin Woudstra
  * Creation Date: 12 May 2004

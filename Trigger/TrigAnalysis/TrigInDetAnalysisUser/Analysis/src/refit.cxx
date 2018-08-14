@@ -1,6 +1,3 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 //
 //   @file    refit.cxx         
 //            navigates through the directory structure of a file copying 
@@ -9,6 +6,7 @@
 //            
 //   @author M.Sutton
 // 
+//   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: refit.cxx, v0.0   Thu  5 Sep 2013 20:32:47 CEST sutt $
 

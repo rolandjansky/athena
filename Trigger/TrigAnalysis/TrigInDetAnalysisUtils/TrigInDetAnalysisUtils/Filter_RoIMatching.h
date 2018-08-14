@@ -1,6 +1,3 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 /** @file Filter_RoIMatching.h */
 
 #ifndef TrigInDetAnalysisUtils_Filter_RoIMatching_H

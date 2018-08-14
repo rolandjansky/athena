@@ -5,6 +5,7 @@
 /***************************************************************************
 Muon Cluster Readout Element properties
  -----------------------------------------
+ Copyright (C) 2013 by ATLAS Collaboration
 ***************************************************************************/
 
 #ifndef MUONGEOMODEL_MUONCLUSTERREADOUTELEMENT_H

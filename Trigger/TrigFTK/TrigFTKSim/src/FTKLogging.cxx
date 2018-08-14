@@ -18,26 +18,26 @@
  *
  */
 
-int FTKLogging::s_printLevel=4;
+int FTKLogging::sPrintLevel=4;
 
-int FTKLogging::s_abortLevel=2;
+int FTKLogging::sAbortLevel=2;
 
 void FTKLogging::SetPrintLevel(int level) {
-   s_printLevel=level;
+   sPrintLevel=level;
 }
 
 void FTKLogging::SetAbortLevel(int level) {
-   s_abortLevel=level;
+   sAbortLevel=level;
 }
 
 std::string FTKLogging::GetHeader(const char *where) const {
-   return m_name+"::"+where+" ";
+   return fName+"::"+where+" ";
 }
 
 std::ostream &FTKLogging::GetStream(const char *name,int level) const {
-   m_out->rdbuf(FTKLogger::GetLogger(level,s_printLevel,s_abortLevel));
-   if(name) (*m_out)<<GetHeader(name);
-   return *m_out;
+   fOut->rdbuf(FTKLogger::GetLogger(level,sPrintLevel,sAbortLevel));
+   if(name) (*fOut)<<GetHeader(name);
+   return *fOut;
 }
 
 
@@ -66,7 +66,7 @@ void FTKLogging::ShowProgress(const char *text) {
 }
 
 FTKLogging::~FTKLogging() {
-   if (m_out) delete m_out;
+   if (fOut) delete fOut;
 }
 
 /* class FTKLogger
@@ -79,33 +79,33 @@ FTKLogging::~FTKLogging() {
  *
  */
 
-FTKLogger *FTKLogger::s_logger=0;
+FTKLogger *FTKLogger::logger=0;
 
 FTKLogger::FTKLogger(void) {
-   m_buffer=0;
-   m_type=0;
-   m_abortLevel = 0;
-   m_printLevel = 0;
+   fBuffer=0;
+   fType=0;
+   fAbortLevel = 0;
+   fPrintLevel = 0;
 }
 
 FTKLogger::~FTKLogger() {
-   if(s_logger==this) SetLogger(0);
+   if(logger==this) SetLogger(0);
 }
 
 FTKLogger *FTKLogger::GetLogger(int type,int printLevel,int abortLevel) {
-   if(!s_logger) SetLogger(new FTKLogger());
-   s_logger->SetType(type,printLevel,abortLevel);
-   return s_logger;
+   if(!logger) SetLogger(new FTKLogger());
+   logger->SetType(type,printLevel,abortLevel);
+   return logger;
 }
 
 void FTKLogger::SetLogger(FTKLogger *ftkLogger) {
-   s_logger=ftkLogger;
+   logger=ftkLogger;
 }
 
 void FTKLogger::SetType(int type,int printLevel,int abortLevel) {
-   m_type=type;
-   m_printLevel=printLevel;
-   m_abortLevel=abortLevel;
+   fType=type;
+   fPrintLevel=printLevel;
+   fAbortLevel=abortLevel;
 }
 
 int FTKLogger::overflow (int c) {
@@ -116,13 +116,13 @@ int FTKLogger::overflow (int c) {
 
 std::streamsize FTKLogger::xsputn(const char * s, std::streamsize n) {
    for(int i=0;i<n;i++) {
-      if(!m_buffer) m_buffer=new std::ostringstream();
+      if(!fBuffer) fBuffer=new std::ostringstream();
       if(s[i]=='\n') {
          PostMessage();
-	 delete m_buffer;
-	 m_buffer=0;
+	 delete fBuffer;
+	 fBuffer=0;
       } else {
-	 (*m_buffer)<<s[i];
+	 (*fBuffer)<<s[i];
       }
    }
    return n;
@@ -130,10 +130,10 @@ std::streamsize FTKLogger::xsputn(const char * s, std::streamsize n) {
 
 void FTKLogger::PostMessage(void) {
    static char const *text[]={"FATAL","ERROR","WARNING","INFO","DEBUG"};
-   if(m_type<m_printLevel) {
-      std::cout<<text[m_type]<<"\t"<<m_buffer->str()<<"\n";
+   if(fType<fPrintLevel) {
+      std::cout<<text[fType]<<"\t"<<fBuffer->str()<<"\n";
    }
-   if(m_type<m_abortLevel) {
-      exit(1+m_type);
+   if(fType<fAbortLevel) {
+      exit(1+fType);
    }
 }

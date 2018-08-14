@@ -5,6 +5,7 @@
 /***************************************************************************
  * Mdt Calibration Input Event Data Model
  * --------------------------------------
+ * Copyright (C) 2004 by ATLAS Collaboration
  *
  * Author       : Martin Woudstra
  * Creation Date: 18 February 2004

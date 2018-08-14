@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 __author__ = "Callum Kilby"
+__copyright__ = "Copyright 2016, Callum Kilby"
 
 import sys
 import getopt

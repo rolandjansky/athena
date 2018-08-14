@@ -5,6 +5,7 @@
 /***************************************************************************
  test MuonGeoModel from digits to pos. in space
  ----------------------------------------------
+ Copyright (C) 2004 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef MUONGEOMODEL_MUONGMTESTONPRD_H

@@ -59,7 +59,7 @@ void TFCS2DFunctionHistogram::Initialize(TH2* hist)
   for(ibin=0;ibin<nbins;++ibin) m_HistoContents[ibin]/=integral;
 }
 
-void TFCS2DFunctionHistogram::rnd_to_fct(float& valuex,float& valuey,float rnd0,float rnd1) const
+void TFCS2DFunctionHistogram::rnd_to_fct(float& valuex,float& valuey,float rnd0,float rnd1)
 {
   if(m_HistoContents.size()==0) {
     valuex=0;
@@ -105,7 +105,7 @@ void TFCS2DFunctionHistogram::unit_test(TH2* hist)
   }
   TFCS2DFunctionHistogram rtof(hist);
   nbinsx=hist->GetNbinsX();
-  nbinsy=hist->GetNbinsY();
+  nbinsy=hist->GetNbinsX();
   
   float value[2];
   float rnd[2];

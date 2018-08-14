@@ -1,7 +1,4 @@
 // emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 
 #ifndef __ASSOCIATOR_TRUTHMATCH_H
 #define __ASSOCIATOR_TRUTHMATCH_H

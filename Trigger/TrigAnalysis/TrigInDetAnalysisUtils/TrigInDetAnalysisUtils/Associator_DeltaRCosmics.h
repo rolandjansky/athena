@@ -1,7 +1,4 @@
 // emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 /** @file Associator_DeltaRCosmics.h */
 
 #ifndef TrigInDetAnalysisUtils_Associator_DeltaRCosmics_H

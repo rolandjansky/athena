@@ -52,7 +52,6 @@ public:
          fSteering->AddIntPar("NPATTERN",1,0);
 
          fSteering->AddIntPar("maxSectorId",1,0);
-         fSteering->AddIntPar("rebinSlices",1,0);
 
          fSteering->AddDoublePar("absetarange",2,0.0);
 
@@ -66,9 +65,6 @@ public:
 
          fSteering->AddStringPar("pattern_bank_path");
          fSteering->AddStringPar("slices_file_path");
-
-         fSteering->AddStringPar("maximum_input_file");
-         fSteering->AddStringPar("maximum_output_file");
 
       }
       return fSteering;
@@ -85,12 +81,6 @@ public:
    const char *GetSlicesFilePath(void) const {
       return *(*this)["slices_file_path"];
    }
-   const char *GetMaximumInputFile(void) const {
-      return *(*this)["maximum_input_file"];
-   }
-   const char *GetMaximumOutputFile(void) const {
-      return *(*this)["maximum_output_file"];
-   }
    double GetAbsEtaRangePar(int i) const {
       return (*(*this)["absetarange"])[i];
    }
@@ -105,9 +95,6 @@ public:
    }
    int GetMaxSectorId(void) const {
       return (*this)["maxSectorId"][0];
-   }
-   int GetRebinSlices(void) const {
-      return (*this)["rebinSlices"][0];
    }
    int GetNPattern(void) const {
       return (*this)["NPATTERN"][0];
@@ -186,9 +173,6 @@ int main(int argc, char const *argv[]) {
    // this is a limit on the maximum allowed sector ID
    //   -> sectorIDs >= max will not be written to the partition file
    int maxSectorId=PartitionSteering::Instance()->GetMaxSectorId();
-   //
-   // this combines several half-slices into one bin
-   int rebinSlices=PartitionSteering::Instance()->GetRebinSlices();
 
    cout<<"abs(eta) range: "<<absetamin<<"..."<<absetamax<<"\n";
    cout<<"etabinOffset: "<<etabinOffset<<"\n";
@@ -205,46 +189,8 @@ int main(int argc, char const *argv[]) {
    TH2D *originalPerSlice2(0),*partitionedPerSlice2(0);
    TH1D *etaPerSlice2(0),*cosThetaPerSlice2(0);
 
-   vector<map<int,int> > knownMax(nreg);
-   char const *maximumInputFile=PartitionSteering::Instance()->GetMaximumInputFile();
-   if(maximumInputFile) {
-      ifstream in(maximumInputFile);
-      int line=1;
-      while(!in.eof()) {
-         int ireg,sector,maximum;
-         in>>ireg>>sector>>maximum;
-         if(in.fail()) break;
-         if((ireg<0)||(ireg>=(int)knownMax.size())) {
-            logging.Error("maximumFromFile")<<"bad region="<<ireg<<" at line="<<line<<"\n";
-            break;
-         }
-         if(knownMax[ireg].find(sector)!=knownMax[ireg].end()) {
-            logging.Error("maximumFromFile")<<"duplicate sector="<<sector<<" in region="<<ireg<<" at line="<<line<<"\n";
-            break;
-         }
-         if(maximum<=0) {
-            logging.Error("maximumFromFile")<<"max maximum="<<maximum<<" in sector="<<sector<<" region="<<ireg<<" at line="<<line<<"\n";
-            break;
-         }
-         knownMax[ireg][sector]=maximum;
-         line++;
-      }
-   }
-
-   ofstream *dumpMaximum=0;
-   char const *maximumOutputFile= PartitionSteering::Instance()->GetMaximumOutputFile();
-   if(maximumOutputFile) {
-      dumpMaximum=new ofstream(maximumOutputFile);
-   }
-
    for(int reg=0;reg<nreg;reg++) {
-
-      struct SectorPatternData {
-         int fNPattern;
-         int fNMax;
-      };
-
-      logging.Info("loop")<<"Processing region "<<reg<<" known max for "<<knownMax[reg].size()<<" sector(s)\n";
+      logging.Info("loop")<<"Processing region "<<reg<<"\n";
       // read slices
       TString sliceFileName=
          PartitionSteering::Instance()->GetSlicesFilePath()+
@@ -255,7 +201,7 @@ int main(int argc, char const *argv[]) {
          // ctheta contains for each slice in cos(theta) a bitvector
          //  the bits correspond to sector IDs
          //  if the bit is on, the sector may have patterns
-         //  in the given cos(theta) bin
+         //  in teh given cos(theta) bin
          TClonesArray *ctheta;
          TString name("c_bits_ctheta");
          slices->GetObject(name,ctheta);
@@ -272,16 +218,12 @@ int main(int argc, char const *argv[]) {
          // either read one subregion or read nSub subregions
 
          // this variable will contain the number of patterns per sector
-         //   first : patterns per sector
-         //   second :  1 if at limit, -1 or 0 otherwise
-         map<int,SectorPatternData> patternsPerSector;
-
+         map<int,int> patternsPerSector;
          // this variable will contain the total number of patterns
          int nPatternRead=0;
          for(int isubRead=0;isubRead<nsub;isubRead++) {
             // read pattern bank(s) and determine number of patterns
             //   per sector
-            int nPatternSub=0;
             TString bankName=
                PartitionSteering::Instance()->GetPatternBankPath()+
                TString::Format("/*_reg%d_sub%d.p*.root",reg,isubRead);
@@ -324,104 +266,46 @@ int main(int argc, char const *argv[]) {
             //
             // count sector multiplicities
             // for the given bank, read the sectorID of all patterns
-            // and count the (original) number of patterns per sector ID
+            // and cout the (original) number of patterns per sector ID
             TTree *tree;
-            patternBank->GetObject("Sector",tree);
-            if(tree) {
-               int sector,first,last,allPatternsUsed;
-               tree->SetBranchAddress("sector",&sector);
-               tree->SetBranchAddress("first",&first);
-               tree->SetBranchAddress("last",&last);
-               tree->SetBranchAddress("allPatternsUsed",&allPatternsUsed);
-               for(int i=0;i<tree->GetEntries();i++) {
-                  allPatternsUsed=0;
-                  tree->GetEntry(i);
-                  int n=last+1-first;
-                  for(int special=((first-1) & 0xfffe0000)+0x20000;special<=last;special += 0x20000) {
-                     n--; // special patterns are not counted
-                  }
-                  SectorPatternData &pps=patternsPerSector[sector];
-                  pps.fNPattern = n;
-                  pps.fNMax = (allPatternsUsed==1) ? n : PartitionSteering::Instance()->GetNPattern();
-                  nPatternSub+=n;                  
-               }
+            patternBank->GetObject("Bank",tree);
+            if(!tree) {
+               logging.Fatal("subregion")<<"can not find TTree \"Bank\"\n";
+            }
+            int nPattern=tree->GetEntriesFast();
+            FTKPattern *pattern=new FTKPattern();
+            if(tree->SetBranchAddress("Pattern",&pattern)!=0) {
+               // no match, assume this is a flat file
+               logging.Info("subregion")<<"try to read flat format\n";
+               delete pattern;
+               pattern=0;
+            }
+            TBranch *branch_sectorID=0;
+            int sectorID;
+            if(!pattern) {
+               // flat format
+               // access branches and set addresses
+               branch_sectorID=tree->GetBranch("sectorID");
+               branch_sectorID->SetAddress(&sectorID);
             } else {
-               patternBank->GetObject("Bank",tree);
-               if(!tree) {
-                  logging.Fatal("subregion")<<"can not find TTree \"Bank\"\n";
+               branch_sectorID=tree->GetBranch("m_sectorID");
+            }
+            for(int iPattern=0;iPattern<nPattern;++iPattern) {
+               branch_sectorID->GetEntry(iPattern);
+               if(pattern) {
+		 sectorID=pattern->getSectorID();
                }
-               int nPattern=tree->GetEntriesFast();
-               FTKPattern *pattern=new FTKPattern();
-               if(tree->SetBranchAddress("Pattern",&pattern)!=0) {
-                  // no match, assume this is a flat file
-                  logging.Info("subregion")<<"try to read flat format\n";
-                  delete pattern;
-                  pattern=0;
-               }
-               TBranch *branch_sectorID=0;
-               int sectorID;
-               if(!pattern) {
-                  // flat format
-                  // access branches and set addresses
-                  branch_sectorID=tree->GetBranch("sectorID");
-                  branch_sectorID->SetAddress(&sectorID);
-               } else {
-                  branch_sectorID=tree->GetBranch("m_sectorID");
-               }
-               for(int iPattern=0;iPattern<nPattern;++iPattern) {
-                  branch_sectorID->GetEntry(iPattern);
-                  if(pattern) {
-                     sectorID=pattern->getSectorID();
-                  }
-                  patternsPerSector[sectorID].fNPattern++;
-                  patternsPerSector[sectorID].fNMax=PartitionSteering::Instance()->GetNPattern();
-                  nPatternSub++;
-               }
+               patternsPerSector[sectorID]++;
+               nPatternRead++;
             }
             globfree(&globStruct);
             logging.Info("subregion")
-               <<"read subregion="<<isubRead<<" nPattern="<<nPatternSub<<"\n";
-            nPatternRead += nPatternSub;
+               <<"read subregion="<<isubRead<<" nPattern="<<nPattern<<"\n";
          }
          logging.Info("readpattern")
             <<"total sectors (bank): "<<patternsPerSector.size()
             <<" total patterns: "<<nPatternRead<<"\n";
 
-         // add information abount known maxima
-         for(map<int,int>::const_iterator i=knownMax[reg].begin();
-             i!=knownMax[reg].end();i++) {
-            map<int,SectorPatternData>::iterator
-               i2=patternsPerSector.find((*i).first);
-            if(i2==patternsPerSector.end()) {
-               SectorPatternData &pps=patternsPerSector[(*i).first];
-               pps.fNPattern=0;
-               pps.fNMax=(*i).second;
-            } else if((*i2).second.fNMax==
-                      PartitionSteering::Instance()->GetNPattern()) {
-               logging.Info("setMaximum")
-                  <<"reg="<<reg<<" sector="<<(*i2).first
-                  <<" fMax "<<(*i2).second.fNMax
-                  <<" -> "<<(*i).second<<"\n";
-               (*i2).second.fNMax=(*i).second;
-            } else if((*i2).second.fNMax!=(*i).second) {
-               logging.Error("setMaximum")
-                  <<"reg="<<reg<<" sector="<<(*i2).first
-                  <<" fMax="<<(*i2).second.fNMax
-                  <<" fMax(iteration-1)="<<(*i).second<<"\n";
-            }
-         }
-
-         // dump information about maximum per sector
-         if(dumpMaximum) {
-            for(map<int,SectorPatternData>::const_iterator i=patternsPerSector.begin();
-                i!=patternsPerSector.end();i++) {
-               if((*i).second.fNMax<
-                  PartitionSteering::Instance()->GetNPattern()) {
-                  (*dumpMaximum)<<reg<<" "<<(*i).first
-                                <<" "<<(*i).second.fNMax<<"\n";
-               }
-            }
-         }
 
          // here we have:
          //  ctheta[] : sectors per cos(theta) slice
@@ -469,73 +353,49 @@ int main(int argc, char const *argv[]) {
             // This sets the number of partitions along eta
             //   there is one partition for each possible half-integer number
             //   empty partitions will be skipped.
-
-            int nSliceTimes2=2*nSlice1;
-            int nSliceRebin=nSliceTimes2/(rebinSlices>0 ? rebinSlices : 1);
-            if((rebinSlices>0)&&(nSliceTimes2 % rebinSlices)) {
-               nSliceRebin++;
-            }
+            int nSlice2=2*nSlice1;
 
             if(!originalPerSlice2) {
                outputRoot->cd();
                originalPerSlice2=new TH2D("originalPerSlice2",
                                            ";slice;tower",
-                                           nSliceRebin,-0.5,nSliceRebin-0.5,
+                                           nSlice2,-0.5,nSlice2-0.5,
                                            nreg,-0.5,nreg-0.5);
                partitionedPerSlice2=new TH2D("partitionedPerSlice2",
                                               ";slice;tower",
-                                              nSliceRebin,-0.5,nSliceRebin-0.5,
+                                              nSlice2,-0.5,nSlice2-0.5,
                                               nreg,-0.5,nreg-0.5);
                etaPerSlice2=new TH1D("etaPerSlice2",";slice;eta",
-                                     nSliceRebin,-0.5,nSliceRebin-0.5);
+                                     nSlice2,-0.5,nSlice2-0.5);
                cosThetaPerSlice2=new TH1D("cosThetaPerSlice2",
                                           ";slice;cos(theta)",
-                                          nSliceRebin,-0.5,nSliceRebin-0.5);
+                                          nSlice2,-0.5,nSlice2-0.5);
             }
             // next, each sector is assigned to one partition "nslice2"
-            // first : number of patterns
-            // second : if zero, all sectors are at limit
-            vector<SectorPatternData > patternPerSlice(nSliceRebin);
-            vector<vector<int> > sectorList(nSliceRebin);
+            vector<int> patternPerSlice(nSlice2);
+            vector<vector<int> > sectorList(nSlice2);
             for(map<int,double>::const_iterator is=sum0.begin();
               is!=sum0.end();is++) {
                int sector=(*is).first;
-               int sliceRebin=
-                  ((int)(2.*sum1[sector]/(*is).second))/
-                  (rebinSlices>0 ? rebinSlices : 0);
-               if(sliceRebin>=nSliceRebin) sliceRebin=nSliceRebin-1;
+               int slice2=(int)(2.*sum1[sector]/(*is).second);
                //sliceNumber[sector]=slice;
-               sectorList[sliceRebin].push_back(sector);
+               sectorList[slice2].push_back(sector);
                if(patternsPerSector.find(sector)!=patternsPerSector.end()) {
-                  SectorPatternData &ppSlice=patternPerSlice[sliceRebin];
-                  SectorPatternData &ppSector=patternsPerSector[sector];
-                  ppSlice.fNPattern += ppSector.fNPattern;
-                  ppSlice.fNMax += ppSector.fNMax;
-                  if(ppSlice.fNMax>PartitionSteering::Instance()->GetNPattern()) {
-                     ppSlice.fNMax=PartitionSteering::Instance()->GetNPattern();
-                  }
-               }
-            }
-            for(int i=0;i<nSliceRebin;i++) {
-               if((patternPerSlice[i].fNMax>0)&&(patternPerSlice[i].fNMax<PartitionSteering::Instance()->GetNPattern())) {
-                  logging.Info("Truncation")<<"isub="<<isub<<" islice="<<i<<" nmax="<<patternPerSlice[i].fNMax
-                                            <<" npattern="<<patternPerSlice[i].fNPattern<<"\n";
+                  patternPerSlice[slice2]+=patternsPerSector[sector];
                }
             }
             // here:
             //   sectorList[partition][] :  the sectors in this partition 
-            //   patternPerSlice[partition]
-            //     : number of patterns and maximum in partition
+            //   patternPerSlice[partition] : number of patterns in partition
 
             // (2) for each slice determine the efficiency and add up
             //   the target number of patterns
-            vector<double> targetPatterns(nSliceRebin);
+            vector<double> targetPatterns(nSlice2);
             double ctheta0=TMath::SinH(-3.),ctheta1=TMath::SinH(3.);
             double total=0.;
-            for(int i2=0;i2<nSliceTimes2;i2++) {
+            for(int i=0;i<nSlice2;i++) {
                // get cos(theta) from slice number
-               double ctheta=(i2+etabinOffset)*(ctheta1-ctheta0)/
-                  nSliceTimes2+ctheta0;
+               double ctheta=(i+etabinOffset)*(ctheta1-ctheta0)/nSlice2+ctheta0;
                // get eta coordinate (for efficiency plot)
                double eta=TMath::ASinH(ctheta);
                double abseta=TMath::Abs(eta);
@@ -543,13 +403,11 @@ int main(int argc, char const *argv[]) {
                double epsilon=efficiencyPlot->Eval(eta);
                double epsilon0=
                   PartitionSteering::Instance()->GetEpsilonLimit();
-               int i=i2/(rebinSlices>0 ? rebinSlices : 1);
-               if(i>=nSliceRebin) i=nSliceRebin-1;
                cosThetaPerSlice2->SetBinContent(i+1,ctheta);
                etaPerSlice2->SetBinContent(i+1,eta);
                if(((absetamin>=absetamax)||
                    ((abseta>=absetamin)&&(abseta<=absetamax)))&&
-                  (patternPerSlice[i].fNPattern>0)) {
+                  (patternPerSlice[i]>0)) {
                   double weight=PartitionSteering::Instance()
                      ->GetWeightLimit();
                   if(epsilon<epsilon0) {
@@ -559,23 +417,26 @@ int main(int argc, char const *argv[]) {
                         weight=PartitionSteering::Instance()->GetWeightLimit();
                      }
                   }
-                  // weight: desired weighting factor for which the predicted
+                  // weight: desired weighting factor fro which the predicted
                   //   efficiency reaches the target efficiency
 
-                  targetPatterns[i]+= patternPerSlice[i].fNPattern*weight;
+                  targetPatterns[i]+= patternPerSlice[i]*weight;
                   total+= targetPatterns[i];
                }
-               originalPerSlice2->SetBinContent
-                  (i+1,reg+1,patternPerSlice[i].fNPattern);
+               originalPerSlice2->SetBinContent(i+1,reg+1,patternPerSlice[i]);
             }
             // here:
             //   targetPatterns[partition] : patterns needed to reach target
             //                                 efficiency
             //   total : total number of patterns needed to reach target
 
-            // (3) normalize
+            // (3) normalize and round
             //   targetPatterns[] should be scaled down by the factor
             //     nPattern/total 
+            //  Problem: finally, all number have to be integer
+            //    fractional patterns have to be rounded up or down
+            //
+            int tot=0;
             // target number of patterns in this subregion
             int nPattern=nPatternRead/nsub;
             if(PartitionSteering::Instance()->GetNPattern())
@@ -583,105 +444,53 @@ int main(int argc, char const *argv[]) {
             if(total==0) {
                logging.Warning("subregion")
                   <<"no sectors accepted, store one pattern per partition\n";
-               nPattern=nSliceTimes2;
+               nPattern=nSlice2;
             }
-            for(int i=0;i<nSliceRebin;i++) {
-               targetPatterns[i]*=((double)nPattern)/total;
-            }
-            // (4) take into account truncation
-            double truncate=0.;
-            do {
-               total=0.;
-               double free=0.;
-               truncate=0.;
-               for(int i=0;i<nSliceRebin;i++) {
-                  if(targetPatterns[i]>=patternPerSlice[i].fNMax) {
-                     truncate += targetPatterns[i]-patternPerSlice[i].fNMax;
-                     if(targetPatterns[i]>0.0) {
-                        logging.Info("target")<<" slice="<<i<<" change from "<<targetPatterns[i]<<" to "<<patternPerSlice[i].fNMax<<"\n";
-                     }
-                     targetPatterns[i]=patternPerSlice[i].fNMax;
-                  } else {
-                     free+=targetPatterns[i];
-                  }
-                  total+=targetPatterns[i];
-               }
-               logging.Info("target")<<" total="<<total<<" nPattern="<<nPattern<<" free="<<free<<" truncate="<<truncate<<"\n";
-               if(free<=0.) break;
-               // truncate: excess patterns to be distributed
-               double scale=truncate/free;
-               for(int i=0;i<nSliceRebin;i++) {
-                  if(targetPatterns[i]<patternPerSlice[i].fNMax-0.5) {
-                     double n=targetPatterns[i]*scale;
-                     targetPatterns[i] += n;
-                     truncate -= n;
-                  }
-               }
-            } while(truncate>1.0);
-
-            //  (5) finally, all numbers have to be integer
-            //    fractional patterns have to be rounded up or down
-            //    also, take into account truncation
-
-            // round to integer
-            int tot=0;
-            for(int i=0;i<nSliceRebin;i++) {
+            for(int i=0;i<nSlice2;i++) {
                // skip empty partitions
-               if(patternPerSlice[i].fNPattern==0) continue;
+               if(patternPerSlice[i]==0) continue;
                if(total>0) {
-                  int target=(int)(targetPatterns[i]+0.5);
-                  if(patternPerSlice[i].fNMax>target) {
-                     // set new normalized target number of patterns
-                     // (only for those partitions which are not at limit)
-                     patternPerSlice[i].fNPattern=target;
-                  } else {
-                     patternPerSlice[i].fNPattern=patternPerSlice[i].fNMax;
-                  }
-                  tot+= patternPerSlice[i].fNPattern;
+                  // normalized targen number of patterns
+                  patternPerSlice[i]=
+                     (int)((targetPatterns[i]*nPattern)/total+0.5);
                } else {
-                  patternPerSlice[i].fNPattern=1;
+                  patternPerSlice[i]=1;
                }
+               tot+= patternPerSlice[i];
             }
-            logging.Info("adjust")<<"isub="<<isub<<" tot="<<tot<<" nPattern="<<nPattern<<"\n";
-            // execute this loop to adjust the number of patterns
+            // here:
+            //  patternPerSlice[i] : renormalized target number of patterns
+            //                         integer
+            //                  !!! the original content is overwritten !!!
+            //  tot : sum of renormalizerd target number of patterns
+
+            // execute tis loop to adjust the number of patterns
             //   until the integer number: tot
             //   equals the target number: nPattern
-            int nAdjustTotal=0;
-            int nLimitTotal=0;
             while(tot-nPattern) {
                // try all partitions in sequence
-               int nAdjust=0;
-               int nLimit=0;
-               for(int i=0;i<nSliceRebin;i++) {
+               for(int i=0;i<nSlice2;i++) {
                   // do not adjust empty partitions
-                  if(patternPerSlice[i].fNPattern<=0) continue;
-                  // do not adjust partitions which are at limit
+                  if(patternPerSlice[i]<=0) continue;
                   int delta=tot-nPattern;
                   if(!delta) break; // done
                   else if(delta>0) {
                      // too many patterns, subtract one in this partition
                      tot--;
-                     patternPerSlice[i].fNPattern--;
-                     nAdjust++;
+                     patternPerSlice[i]--;
                   } else if(delta<0) {
                      // too few patterns, add one in this partition
-                     if(patternPerSlice[i].fNPattern<patternPerSlice[i].fNMax) {
+                     // (the if is redundant???)
+                     if(patternPerSlice[i]>0) {
                         tot++;
-                        patternPerSlice[i].fNPattern++;
-                        nAdjust++;
-                     } else {
-                        nLimit++;
+                        patternPerSlice[i]++;
                      }
                   }
                }
-               nAdjustTotal+=nAdjust;
-               nLimitTotal+=nLimit;
-               if(nAdjust==0) break;
             }
-            logging.Info("adjust")<<"total="<<tot<<" nPattern="<<nPattern<<" adjustTotal="<<nAdjustTotal<<" limit="<<nLimitTotal<<"\n";
-            for(int i=0;i<nSliceRebin;i++) {
-               partitionedPerSlice2->SetBinContent
-                  (i+1,reg+1,patternPerSlice[i].fNPattern);
+            for(int i=0;i<nSlice2;i++) {
+               partitionedPerSlice2->SetBinContent(i+1,reg+1,
+                                                   patternPerSlice[i]);
             }
             // done
             // write out partition file
@@ -689,11 +498,10 @@ int main(int argc, char const *argv[]) {
             int nSectorUsed=0;
             int nSectorUsedBank=0;
             int nSliceUsed=0;
-            for(int i=0;i<nSliceRebin;i++) {
-               if(sectorList[i].size() && patternPerSlice[i].fNPattern) {
-                  sum += patternPerSlice[i].fNPattern;
-                  (*outputFile)<<"PARTITION "<<iPart<<" "
-                               <<patternPerSlice[i].fNPattern
+            for(int i=0;i<nSlice2;i++) {
+               if(sectorList[i].size() && patternPerSlice[i]) {
+                  sum += patternPerSlice[i];
+                  (*outputFile)<<"PARTITION "<<iPart<<" "<<patternPerSlice[i]
                                <<" "<<sectorList[i].size();
                   for(unsigned j=0;j<sectorList[i].size();j++) {
                      if(!j) (*outputFile)<<"\n";
@@ -708,11 +516,6 @@ int main(int argc, char const *argv[]) {
                   }
                   nSectorUsed+=sectorList[i].size();
                   (*outputFile)<<"\n";
-                  logging.Info("result")
-                     <<"ipart="<<iPart<<" isub="<<isub <<" islice="<<i
-                     <<" npattern="<<patternPerSlice[i].fNPattern
-                     <<" nmax="<<patternPerSlice[i].fNMax
-                     <<"\n";
                   iPart++;
                   nSliceUsed++;
                }
@@ -754,9 +557,6 @@ int main(int argc, char const *argv[]) {
    etaPerSlice2->Write();
    cosThetaPerSlice2->Write();
    delete outputRoot;
-
-   if(dumpMaximum) delete dumpMaximum;
-
    logging.Info("output")
       <<"maxSector="<<totalMaxSector<<" maxSectorUsed="<<totalMaxSectorUsed
       <<" nSectorTotal="<<totalNsectorTotal<<" nSectorUsed="<<totalNsectorUsed

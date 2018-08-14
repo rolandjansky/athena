@@ -5,6 +5,7 @@
 /***************************************************************************
  * Muon Calib Identifiers
  * -----------------------------------------
+ * Copyright (C) 2005 by ATLAS Collaboration
  *
  * Author       : Martin Woudstra
  * Creation Date: 03 May 2005

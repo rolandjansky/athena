@@ -13,7 +13,6 @@ namespace G4UA
                                                        const IInterface* parent)
     : ActionToolBase<StoppedParticleAction>(type, name, parent)
   {
-    declareProperty("StoppingCondition",m_stoppingCondition=-1,"Negative ignores gasses; number indicates condition (effectively an enum)");
     declareInterface<IG4SteppingActionTool>(this);
   }
 
@@ -21,7 +20,7 @@ namespace G4UA
   std::unique_ptr<StoppedParticleAction> StoppedParticleActionTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<StoppedParticleAction>(m_stoppingCondition);
+    return std::make_unique<StoppedParticleAction>();
   }
 
 } // namespace G4UA

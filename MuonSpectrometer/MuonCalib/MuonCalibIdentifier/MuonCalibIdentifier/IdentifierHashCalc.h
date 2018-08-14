@@ -5,6 +5,7 @@
 /***************************************************************************
  * Identifier hashes
  * -----------------------------------------
+ * Copyright (C) 2004 by ATLAS Collaboration
  *
  * Author       : Martin Woudstra
  * Creation Date: 7 May 2004

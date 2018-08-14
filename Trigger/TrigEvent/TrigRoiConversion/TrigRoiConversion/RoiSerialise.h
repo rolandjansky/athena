@@ -1,7 +1,4 @@
 // emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 //
 //   @file    RoiSerialise.h        
 //
@@ -9,6 +6,7 @@
 //            std::vector<IRoiDescriptor*> TrigRoiDescriptorCollection etc
 //                   
 //  
+//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: serialise.h, v0.0   Sat 31 Oct 2015 08:21:54 CET sutt $
 

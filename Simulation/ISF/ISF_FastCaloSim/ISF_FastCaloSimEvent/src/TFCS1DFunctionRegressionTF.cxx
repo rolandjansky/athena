@@ -22,14 +22,14 @@ TFCS1DFunctionRegressionTF::TFCS1DFunctionRegressionTF(float rangeval, float sta
 }
 
 
-double TFCS1DFunctionRegressionTF::retransform(double value) const
+double TFCS1DFunctionRegressionTF::retransform(double value)
 {
  
  return (value*m_rangeval+m_startval);
  
 }
 
-double TFCS1DFunctionRegressionTF::rnd_to_fct(double rnd) const
+double TFCS1DFunctionRegressionTF::rnd_to_fct(double rnd)
 {
   
   double value=regression_value(rnd);

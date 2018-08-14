@@ -1,7 +1,4 @@
 // emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 //
 //   @file    grl_run.h        
 //
@@ -9,6 +6,7 @@
 //            run number and a vector of ( first, last ) pairs of valid 
 //            lumi block ranges                   
 //  
+//   Copyright (C) 2016 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: grl_run.h, v0.0   Mon 24 Oct 2016 17:12:10 CEST sutt $
 

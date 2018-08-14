@@ -1,7 +1,4 @@
 // emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 //
 //   @file    TrigRoiDescriptor.h        
 //
@@ -9,6 +6,7 @@
 //             for enforcement of correct roi sizes       
 //  
 //   @author sutt@cern.ch
+//   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigRoiDescriptor.h, v0.1   Fri 08 Jun 2013 23:52:09 CEST sutt $
 

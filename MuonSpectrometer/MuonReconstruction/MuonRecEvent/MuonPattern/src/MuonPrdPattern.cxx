@@ -5,6 +5,7 @@
 /***************************************************************************
  * Muon Pattern Recognition Event Data Model
  * -----------------------------------------
+ * Copyright (C) 2004 by ATLAS Collaboration
  *
  * Author       : Niels van Eldik
  * Creation Date: 27 July 2005

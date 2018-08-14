@@ -1,6 +1,3 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 //
 //   @file    TrigCostAtlasStyle.h
 //
@@ -9,6 +6,7 @@
 //
 //   @author M.Sutton
 //
+//   Copyright (C) 2010 Atlas Collaboration
 //
 //   $Id: TrigCostAtlasStyle.h, v0.0   Thu 25 Mar 2010 10:34:20 CET $
 

@@ -5,6 +5,7 @@
 /***************************************************************************
  * Mdt Calibration Database Service Base Class
  * -------------------------------------------
+ * Copyright (C) 2005 by ATLAS Collaboration
  *
  * Author       : Martin Woudstra
  * Creation Date: 02 May 2005
