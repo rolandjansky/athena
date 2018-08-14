@@ -7,12 +7,11 @@
 #include <iostream>
 #include <string>
 #include <tuple>
-using namespace std;
 
 
 //returns ADDC, MMFE, VMM
 
-int electronics::elec(int stripNumber, string tech, int off_stationEta, int chMax)
+int electronics::elec(int stripNumber, std::string tech, int off_stationEta, int chMax)
 {
 
         off_stationEta = abs(off_stationEta);
