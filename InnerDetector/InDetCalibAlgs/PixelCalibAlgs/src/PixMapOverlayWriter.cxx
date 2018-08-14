@@ -71,8 +71,7 @@ StatusCode PixMapOverlayWriter::initialize(){
 
 StatusCode PixMapOverlayWriter::execute(){
 
-  DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap();
-
+  auto spm = std::make_unique<DetectorSpecialPixelMap>();
   for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i++){
     spm->push_back(new ModuleSpecialPixelMap());
   }
@@ -348,15 +347,13 @@ StatusCode PixMapOverlayWriter::execute(){
   }
 
 
-  sc = m_specialPixelMapSvc->registerCondAttrListCollection(spm);
+  sc = m_specialPixelMapSvc->registerCondAttrListCollection(spm.get());
   
   if( !sc.isSuccess() ){
     ATH_MSG_FATAL( "Unable to register CondAttrListCollection" );
     return StatusCode::FAILURE;
   }
  
-  delete spm;
-
   return StatusCode::SUCCESS;
 }
 

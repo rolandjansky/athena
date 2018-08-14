@@ -20,7 +20,7 @@ public:
   // simulated one hit position with weight that should be put into simulstate
   // sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
   // someone also needs to map all hits into cells
-  virtual void simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
   // Init and fill sigma
   bool Initialize(const char* filepath, const char* histname);
@@ -45,7 +45,7 @@ private:
   TRandom3 *m_rnd;
 
 
-  ClassDef(TFCSSimpleLateralShapeParametrization,1)  //TFCSSimpleLateralShapeParametrization
+  ClassDefOverride(TFCSSimpleLateralShapeParametrization,1)  //TFCSSimpleLateralShapeParametrization
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

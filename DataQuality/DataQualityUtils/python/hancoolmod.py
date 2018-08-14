@@ -507,8 +507,7 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
         globname = fnames[0][0]
         filename = os.path.basename(globname)    
         since, until = getLimits(filename)
-        # disabled until fixed
-        #defects += pix_defect.execute(runNumber, globname, until-1)
+        defects += pix_defect.execute(runNumber, globname, until-1)
 
     from DQDefects import DefectsDB
     ddb = DefectsDB(dbConnection, read_only=False)
@@ -532,4 +531,3 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
     #ddb = DefectsDB(dbConnection, read_only=False, tag="HEAD")
     #import pix_defect
     #pix_defect.execute(runNumber, globname_pix, until-1, 'sys:hancool', ddb)
-

@@ -2,7 +2,9 @@
 
 # art-description: BSOverlayFilter_tf legacy test
 # art-type: grid
-# art-ci: 21.0
+# art-include: 21.0/Athena
+# art-include: 21.3/Athena
+# art-include: master/Athena
 
 # art-output: trigs_tar.txt
 # art-output: log.*

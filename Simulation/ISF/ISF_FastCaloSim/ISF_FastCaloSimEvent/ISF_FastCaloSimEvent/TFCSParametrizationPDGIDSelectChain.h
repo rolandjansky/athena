@@ -21,15 +21,15 @@ public:
   void set_SimulateOnlyOnePDGID() {SetBit(kSimulateOnlyOnePDGID);};
   void reset_SimulateOnlyOnePDGID() {ResetBit(kSimulateOnlyOnePDGID);};
 
-  virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr,TFCSExtrapolationState* extrapol=nullptr);
 protected:
-  virtual void recalc();
+  virtual void recalc() override;
 
 private:
 
-  ClassDef(TFCSParametrizationPDGIDSelectChain,1)  //TFCSParametrizationPDGIDSelectChain
+  ClassDefOverride(TFCSParametrizationPDGIDSelectChain,1)  //TFCSParametrizationPDGIDSelectChain
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

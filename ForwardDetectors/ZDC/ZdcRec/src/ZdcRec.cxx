@@ -57,7 +57,7 @@ StatusCode ZdcRec::initialize()
 	StatusCode sc = m_storeGate.retrieve();
 	if (sc.isFailure())
 	{
-		mLog << MSG::FATAL << "--> ZDC: Unable to retrieve pointer to StoreGateSvc" << endreq;
+		mLog << MSG::FATAL << "--> ZDC: Unable to retrieve pointer to StoreGateSvc" << endmsg;
 		return sc;
 	}
 
@@ -66,30 +66,30 @@ StatusCode ZdcRec::initialize()
 	StatusCode scTool = m_ChannelTool.retrieve();
 	if (scTool.isFailure())
 	{
-		mLog << MSG::WARNING << "--> ZDC: Could not retrieve " << m_ChannelTool << endreq;
+		mLog << MSG::WARNING << "--> ZDC: Could not retrieve " << m_ChannelTool << endmsg;
 		return StatusCode::FAILURE;
 	}
-	mLog << MSG::INFO << "--> ZDC: SUCCESS retrieving " << m_ChannelTool << endreq;
+	mLog << MSG::INFO << "--> ZDC: SUCCESS retrieving " << m_ChannelTool << endmsg;
 
 	// Noise and Pedestal Tool
 	scTool = m_NoiseTool.retrieve();
 	if (scTool.isFailure())
 	{
-		mLog << MSG::WARNING << "--> ZDC: Could not retrieve " << m_NoiseTool << endreq;
+		mLog << MSG::WARNING << "--> ZDC: Could not retrieve " << m_NoiseTool << endmsg;
 		return StatusCode::FAILURE;
 	}
-	mLog << MSG::INFO << "--> ZDC: SUCCESS retrieving " << m_NoiseTool << endreq;
+	mLog << MSG::INFO << "--> ZDC: SUCCESS retrieving " << m_NoiseTool << endmsg;
 
 	// Container output name
 	//TODO: change MESSAGE !!
-	mLog << MSG::INFO << " Output Container Name " << m_rawContainerName << endreq;
+	mLog << MSG::INFO << " Output Container Name " << m_rawContainerName << endmsg;
 	if (m_ownPolicy == SG::OWN_ELEMENTS)
-		mLog << MSG::INFO << "...will OWN its cells." << endreq;
+		mLog << MSG::INFO << "...will OWN its cells." << endmsg;
 	else
-		mLog << MSG::INFO << "...will VIEW its cells." << endreq;
+		mLog << MSG::INFO << "...will VIEW its cells." << endmsg;
 
 
-	mLog << MSG::INFO  << "--> ZDC: ZdcRec initialization complete" << endreq;
+	mLog << MSG::INFO  << "--> ZDC: ZdcRec initialization complete" << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -99,7 +99,7 @@ StatusCode ZdcRec::initialize()
 StatusCode ZdcRec::execute()
 {
 
-  ZdcRawChannelCollection::const_iterator iter;
+  ZdcRawChannelCollection::iterator iter;
   int ncha = 0;
 
   MsgStream mLog(msgSvc(), name());
@@ -107,14 +107,14 @@ StatusCode ZdcRec::execute()
 	     << "--> ZDC: ZdcRec execute starting on "
 	     << m_eventCount
 	     << "th event"
-		 << endreq;
+		 << endmsg;
 
 	m_eventCount++;
 
 	//Look for the container presence
 	bool dg = m_storeGate->contains<ZdcDigitsCollection>( m_digitsContainerName);
 	if (!dg) {
-	  if (m_complainContain) mLog << MSG::WARNING << "--> ZDC: StoreGate does not contain " << m_digitsContainerName << endreq;
+	  if (m_complainContain) mLog << MSG::WARNING << "--> ZDC: StoreGate does not contain " << m_digitsContainerName << endmsg;
 	  m_complainContain = 0;
 	  return StatusCode::SUCCESS;
 	}
@@ -128,7 +128,7 @@ StatusCode ZdcRec::execute()
 		 << "--> ZDC: Could not retrieve "
 		 << m_digitsContainerName
 		 << " from StoreGate"
-		 << endreq;
+		 << endmsg;
 	  m_complainRetrieve = 0;
 	  return StatusCode::SUCCESS;
 	}
@@ -138,7 +138,7 @@ StatusCode ZdcRec::execute()
 		mLog << MSG::ERROR
 			 << "--> ZDC: Storegate returned zero pointer for "
 			 << m_digitsContainerName
-			 << endreq;
+			 << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -161,7 +161,7 @@ StatusCode ZdcRec::execute()
 		 << "--> ZDC: ZdcRawChannelCollection size recorded into SG: "
 		 << m_rawCollection->size()
 		 << ".. and from tool " << ncha
-		 << endreq;
+		 << endmsg;
 
 	// For Debugging only
 	/*
@@ -185,7 +185,7 @@ StatusCode ZdcRec::execute()
 		mLog << MSG::WARNING
 				<< "execute() : cannot record Container "
 				<< m_rawContainerName
-				<< endreq;
+				<< endmsg;
 
 		return StatusCode::SUCCESS;
 	}
@@ -193,7 +193,7 @@ StatusCode ZdcRec::execute()
 	if (tmpCollection != NULL) {
 		mLog << MSG::DEBUG
 				<< "--> ZDC: Deleting tmpCollection"
-				<< endreq;
+				<< endmsg;
 		delete tmpCollection;
 	}
 
@@ -209,7 +209,7 @@ StatusCode ZdcRec::finalize()
 
   mLog << MSG::INFO
 		  << "--> ZDC: ZdcRec finalize complete"
-		  << endreq;
+		  << endmsg;
   return StatusCode::SUCCESS;
 }
 //==================================================================================================

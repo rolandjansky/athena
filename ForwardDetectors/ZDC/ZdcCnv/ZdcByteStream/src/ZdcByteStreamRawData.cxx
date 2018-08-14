@@ -56,7 +56,7 @@ ZdcByteStreamRawData::~ZdcByteStreamRawData()
 StatusCode ZdcByteStreamRawData::initialize()
 {
 	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION
-			<< endreq;
+			<< endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -76,12 +76,12 @@ StatusCode ZdcByteStreamRawData::execute()
 	//ZdcDigitsCollection* ttCollection = 0;
 	const DataHandle<ZdcDigitsCollection> ttCollection;
 
-	msg(MSG::DEBUG) << "Looking for ZDC Digits Collection at " << m_ZdcDigitsCollectionLocation << endreq;
+	msg(MSG::DEBUG) << "Looking for ZDC Digits Collection at " << m_ZdcDigitsCollectionLocation << endmsg;
 	//std::cout << "Looking for ZDC Digits Collection at " << m_ZdcDigitsCollectionLocation << std::endl;
 	StatusCode sc = evtStore()->retrieve(ttCollection, m_ZdcDigitsCollectionLocation);
 	if (sc.isFailure() || !ttCollection || ttCollection->empty())
 	{
-		msg() << "No Zdc Digits found" << endreq;
+		msg() << "No Zdc Digits found" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -103,7 +103,7 @@ StatusCode ZdcByteStreamRawData::finalize()
 //FIXME There is no such thing like ZdcDigitsMap
 void ZdcByteStreamRawData::printZdcDigits() const
 {
-	msg() << "Number of ZdcDigits = " << m_ZdcDigitsMap.size() << endreq;
+	msg() << "Number of ZdcDigits = " << m_ZdcDigitsMap.size() << endmsg;
 // 	ZdcDigitsMap::const_iterator mapIter = m_ZdcDigitsMap.begin();
 // 	ZdcDigitsMap::const_iterator mapEnd = m_ZdcDigitsMap.end();
 }
