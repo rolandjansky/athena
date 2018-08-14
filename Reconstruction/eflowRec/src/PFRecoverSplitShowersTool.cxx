@@ -55,8 +55,7 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
     return StatusCode::SUCCESS;
   }
 
-  if (!m_isHLLHC) m_integrator = std::make_unique<eflowLayerIntegrator>(0.032, 1.0e-3, 3.0, false);
-  else m_integrator = std::make_unique<eflowLayerIntegrator>(0.032, 1.0e-3, 3.0, true);
+  m_integrator = std::make_unique<eflowLayerIntegrator>(0.032, 1.0e-3, 3.0, m_isHLLHC);
 
   return StatusCode::SUCCESS;
 }
