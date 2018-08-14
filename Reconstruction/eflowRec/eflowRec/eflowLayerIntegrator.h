@@ -33,7 +33,7 @@ class eflowLayerIntegrator {
 
  public:
 
-  eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev, bool isHLLHC);
+  eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev, bool isHLLHC = false);
   eflowLayerIntegrator(const eflowLayerIntegrator& anEFlowLayerIntegrator);
   void operator=(const eflowLayerIntegrator& anEFlowLayerIntegrator);
   ~eflowLayerIntegrator();
