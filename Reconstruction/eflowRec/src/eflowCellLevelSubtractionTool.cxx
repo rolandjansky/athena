@@ -89,8 +89,8 @@ eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& 
 }
 
 eflowCellLevelSubtractionTool::~eflowCellLevelSubtractionTool() {
-  delete m_integrator;
   delete m_binnedParameters;
+  delete m_integrator;
 }
 
 StatusCode eflowCellLevelSubtractionTool::initialize(){
@@ -466,8 +466,7 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
   }
 }
 
-StatusCode eflowCellLevelSubtractionTool::finalize(){
-
+StatusCode eflowCellLevelSubtractionTool::finalize(){    
   return StatusCode::SUCCESS;
 }
 
