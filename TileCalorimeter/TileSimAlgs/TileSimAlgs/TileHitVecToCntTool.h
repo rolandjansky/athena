@@ -94,10 +94,10 @@ class TileHitVecToCntTool: public PileUpToolBase {
     StatusCode createContainers();
     void processHitVectorForOverlay(const TileHitVector* inputHits, int& nHit, double& eHitTot);
     void processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit, double& eHitTot, bool isSignal = false);
-    void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitContainer* &m_hitCont);
+    void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &m_hitCont);
     double applyPhotoStatistics(double energy, Identifier pmt_id);    //!< Method to apply photostatistics effect
-    void findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitContainer* &m_hitCont);
-    void findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitContainer* &m_hitCont);
+    void findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &m_hitCont);
+    void findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &m_hitCont);
 
     std::vector<std::string> m_hitVectorNames;  //!< vector with the names of TileHitVectors to use
 

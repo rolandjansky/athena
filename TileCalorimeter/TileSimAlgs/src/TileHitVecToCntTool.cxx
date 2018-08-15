@@ -346,7 +346,6 @@ StatusCode TileHitVecToCntTool::createContainers() {
     }
 
     if(m_doDigiTruth){
-      //m_hits_DigiHSTruth = new TileHitContainer(true, SG::OWN_ELEMENTS);
       m_hits_DigiHSTruth = new TileHitNonConstContainer(SG::OWN_ELEMENTS);
       iHit = m_allHits_DigiHSTruth.begin();
       lastHit = m_allHits_DigiHSTruth.end();
@@ -563,7 +562,7 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
   return;
 }
 
-void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitContainer* &m_hitCont) {
+void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &m_hitCont) {
 
   TileHitVecConstIterator inpItr = inputHits->begin();
   TileHitVecConstIterator end = inputHits->end();
@@ -956,14 +955,14 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
       else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS(coll.get(), frag_id, m_hits);
     }
     if(m_doDigiTruth){
-      collIt = m_hits_DigiHSTruth->begin();
-      endcollIt = m_hits_DigiHSTruth->end();
+      TileHitNonConstContainer::iterator collIt = m_hits_DigiHSTruth->begin();
+      TileHitNonConstContainer::iterator endcollIt = m_hits_DigiHSTruth->end();
 
       for (; collIt != endcollIt; ++collIt) {
         int frag_id = (*collIt)->identify();
         IdentifierHash frag_hash = m_fragHashFunc(frag_id);
-        if (m_E1merged[frag_hash]) findAndMergeE1((*collIt), frag_id, m_hits_DigiHSTruth);
-        else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS((*collIt), frag_id, m_hits_DigiHSTruth);
+        if (m_E1merged[frag_hash]) findAndMergeE1((*collIt).get(), frag_id, m_hits_DigiHSTruth);
+        else if (m_MBTSmerged[frag_hash]) findAndMergeMBTS((*collIt).get(), frag_id, m_hits_DigiHSTruth);
       }
     }
   }
@@ -972,11 +971,11 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   //loop over all hits in TileHitContainer and take energy deposited in certain period of time
   //std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
   
-  TileHitContainer::const_iterator collIt = m_hits->begin();
-  TileHitContainer::const_iterator endcoll = m_hits->end();
+  TileHitNonConstContainer::iterator collIt = m_hits->begin();
+  TileHitNonConstContainer::iterator endcoll = m_hits->end();
 
-  TileHitContainer::const_iterator collIt_DigiHSTruth; 
-  TileHitContainer::const_iterator endColl_DigiHSTruth;
+  TileHitNonConstContainer::iterator collIt_DigiHSTruth; 
+  TileHitNonConstContainer::iterator endColl_DigiHSTruth;
 	if(m_doDigiTruth) collIt_DigiHSTruth = m_hits_DigiHSTruth->begin();
 	if(m_doDigiTruth) endColl_DigiHSTruth = m_hits_DigiHSTruth->end();
 
@@ -984,7 +983,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     TileHitCollection* coll_DigiHSTruth;
     TileHitCollection::iterator hitItr_DigiHSTruth;
     TileHitCollection::iterator hitEnd_DigiHSTruth;
-		if(m_doDigiTruth) coll_DigiHSTruth = (*collIt_DigiHSTruth).getDataPtr();
+		if(m_doDigiTruth) coll_DigiHSTruth = (*collIt_DigiHSTruth).get();
 		if(m_doDigiTruth) hitItr_DigiHSTruth = coll_DigiHSTruth->begin();
 		if(m_doDigiTruth) hitEnd_DigiHSTruth = coll_DigiHSTruth->end();
 
@@ -1045,11 +1044,15 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   //  }
 
 	if(m_doDigiTruth){
-    SG::WriteHandle<TileHitContainer> hitContainer_DigiHSTruth(m_hitContainerKey_DigiHSTruth);
-    ATH_CHECK( hitContainer_DigiHSTruth.record(std::move(hits)) );
+    auto hits_DigiHSTruth = std::make_unique<TileHitContainer>
+                 (false, m_pileUp ? SG::VIEW_ELEMENTS : SG::OWN_ELEMENTS);
+    size_t hashId_DigiHSTruth = 0;
+    for (std::unique_ptr<TileHitCollection>& coll : *m_hits_DigiHSTruth ) {
+      ATH_CHECK(hits_DigiHSTruth->addCollection (coll.release(), hashId++));
+    }
 
-    ATH_MSG_DEBUG("TileHit container registered to the TES with name" << m_hitContainer_DigiHSTruthKey.key());
-    CHECK(evtStore()->record(m_hits_DigiHSTruth, hitContainer_DigiHSTruth, false));
+    SG::WriteHandle<TileHitContainer> hitContainer_DigiHSTruth(m_hitContainer_DigiHSTruthKey);
+    ATH_CHECK( hitContainer_DigiHSTruth.record(std::move(hits_DigiHSTruth)) );
   }
 
   ATH_MSG_DEBUG("Exiting mergeEvent in TileHitVecToCntTool");
@@ -1153,7 +1156,7 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
 }
 
 
-void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitContainer* &m_hitCont) {
+void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &m_hitCont) {
   int module = frag_id & 0x3F;
 
   TileHitCollection::iterator hitIt = coll->begin();
@@ -1206,7 +1209,7 @@ void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, T
 }
 
 
-void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitContainer* &m_hitCont) {
+void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &m_hitCont) {
   int module = frag_id & 0x3F;
 
   TileHitCollection::iterator hitIt = coll->begin();

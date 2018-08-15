@@ -412,8 +412,10 @@ StatusCode TileDigitsMaker::execute() {
   // step1: Get hit container from TES 
   SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
   ATH_CHECK( hitContainer.isValid() );
+
+  SG::ReadHandle<TileHitContainer> hitContainer_DigiHSTruth;
   if(m_doDigiTruth){
-      SG::ReadHandle<TileHitContainer> hitContainer_DigiHSTruth(m_hitContainer_DigiHSTruthKey);
+      hitContainer_DigiHSTruth = SG::ReadHandle<TileHitContainer> (m_hitContainer_DigiHSTruthKey);
       ATH_CHECK( hitContainer_DigiHSTruth.isValid() );
   }
 
@@ -439,9 +441,9 @@ StatusCode TileDigitsMaker::execute() {
 
   SG::WriteHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey);
   ATH_CHECK( digitsContainer.record(std::make_unique<TileDigitsContainer>(true)) );
+  std::unique_ptr<TileDigitsContainer> digitsContainer_DigiHSTruth;
   if(m_doDigiTruth){
-    SG::WriteHandle<TileDigitsContainer> digitsContainer_DigiHSTruth(m_digitsContainer_DigiHSTruthKey);
-    ATH_CHECK( digitsContainer_DigiHSTruth.record(std::make_unique<TileDigitsContainer>(true)) );
+    digitsContainer_DigiHSTruth = std::make_unique<TileDigitsContainer>(true, SG::VIEW_ELEMENTS);
   }
 
   std::unique_ptr<TileDigitsContainer> filteredContainer;
@@ -1242,10 +1244,9 @@ StatusCode TileDigitsMaker::execute() {
   }
 
   // step3: register the Digit container in the TES
-  //ATH_CHECK( evtStore()->record(pDigitsContainer, m_digitsContainer, false) );
   if(m_doDigiTruth && digitsContainer_DigiHSTruth){
-    SG::WriteHandle<TileDigitsContainer> digitsContainer_DigiHSTruth(m_digitsContainer_DigiHSTruthKey);
-    ATH_CHECK( digitsContainer_DigiHSTruth.record(std::move(digitsContainer_DigiHSTruth)) );
+    SG::WriteHandle<TileDigitsContainer> digits_DigiHSTruth(m_digitsContainer_DigiHSTruthKey);
+    ATH_CHECK( digits_DigiHSTruth.record(std::move(digitsContainer_DigiHSTruth)) );
   }
 
   if (filteredContainer) {
