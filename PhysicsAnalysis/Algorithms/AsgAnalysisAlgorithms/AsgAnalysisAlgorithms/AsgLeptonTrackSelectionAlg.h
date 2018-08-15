@@ -48,6 +48,7 @@ namespace CP
     /// algorithm properties
     /// \{
 
+  private:
     float m_maxD0Significance {0};
     float m_maxDeltaZ0SinTheta {0};
 
