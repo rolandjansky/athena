@@ -60,7 +60,8 @@ namespace EL
   //****************************************************
   void SlurmDriver ::
   batchSubmit (const std::string& location, const SH::MetaObject& options,
-               std::vector<std::size_t> jobIndices, bool resubmit) const
+               const std::vector<std::size_t>& jobIndices, bool resubmit)
+    const
   {
     auto all_set = m_b_job_name && m_b_account && m_b_partition && m_b_run_time && m_b_memory && m_b_constraint;
     if (!all_set)
