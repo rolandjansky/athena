@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include <string>
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -44,7 +44,7 @@ PixelSpacePointTool::PixelSpacePointTool( const std::string& type,
 StatusCode PixelSpacePointTool::initialize()  {
   ATH_MSG_DEBUG(name() << " in initialize");
 
-  const InDetDD::SiDetectorManager * mgr;
+  const InDetDD::PixelDetectorManager * mgr;
   StatusCode sc=detStore()->retrieve(mgr, "Pixel");
   if (sc.isFailure()) {
     ATH_MSG_ERROR(name() << "failed to get Pixel Manager");

@@ -155,7 +155,6 @@ l1Decoder.prescaler.EventInfo=""
 l1Decoder.Chains="HLTChainsResult"
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
-ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
 l1Decoder.ctpUnpacker = ctpUnpacker
 
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )

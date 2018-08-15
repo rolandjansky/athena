@@ -60,7 +60,6 @@ StatusCode SiSpacePointMakerTool::finalize() {
 Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluster& cluster1, 
   const InDet::SiCluster& cluster2, const Amg::Vector3D& vertexVec, 
   const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2, double stripLengthGapTolerance) const {
-// -ME fixme- const InDetDD::SCT_DetectorManager *m_manager, const SCT_ID* m_idHelper) {
 
   // Find intersection of a line through a cluster on one sct detector and
   // a line through a cluster on its stereo pair. Return zero if lines 

@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Trigger/TrigEvent/TrigSteeringEvent
-			  Control/AthViews			  
+			  Control/AthViews
                           )
 
 find_package( Boost COMPONENTS filesystem thread system )
@@ -46,8 +46,8 @@ atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh
 
 
 atlas_add_test( merge
-                SCRIPT test/test_merge.sh 
-		PROPERTIES TIMEOUT 500 
+                SCRIPT test/test_merge.sh
+		PROPERTIES TIMEOUT 500
 	      )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_IDRunMC )
@@ -70,7 +70,7 @@ atlas_add_test( IDRunData SCRIPT test/test_id_run_data.sh
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData )
 atlas_add_test( egammaRunData
 		SCRIPT test/test_egamma_run_data.sh
-                PROPERTIES TIMEOUT 500 
+                PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData
               )
 
@@ -83,30 +83,30 @@ atlas_add_test( photonMenu
 #		EXTRA_PATTERNS "TriggerSummary"
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )
 atlas_add_test( egammaMenu
-		SCRIPT test/test_egamma_menu.sh	
-                PROPERTIES TIMEOUT 500 
+		SCRIPT test/test_egamma_menu.sh
+                PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu
               )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muRunData )
 atlas_add_test( muRunData
-		SCRIPT test/test_mu_run_data.sh		
-                PROPERTIES TIMEOUT 500 
+		SCRIPT test/test_mu_run_data.sh
+                PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muRunData
               )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu )
 atlas_add_test( muMenu
-		SCRIPT test/test_mu_menu.sh     
-		PROPERTIES TIMEOUT 500 
+		SCRIPT test/test_mu_menu.sh
+		PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
               )
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMuMenu )
-atlas_add_test( egammaMuMenu
-		SCRIPT test/test_egamma_mu_menu.sh	
-                PROPERTIES TIMEOUT 500 
-		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMuMenu
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu )
+atlas_add_test( fullMenu
+		SCRIPT test/test_full_menu.sh
+                PROPERTIES TIMEOUT 500
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu
               )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_idCaloRunData )
@@ -123,20 +123,20 @@ atlas_add_test( EmuL1Decoding
 
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
-		EXTRA_PATTERNS "-s TriggerMonitorFinal"		
+		EXTRA_PATTERNS "-s TriggerMonitorFinal"
 )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
-atlas_add_test( NewJO 
+atlas_add_test( NewJO
 		SCRIPT test/test_newJO.sh
-                PROPERTIES TIMEOUT 500 
+                PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
 		)
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )
 atlas_add_test( l1sim
 		SCRIPT test/test_l1sim.sh
-                PROPERTIES TIMEOUT 500 
+                PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim
 		)
 
