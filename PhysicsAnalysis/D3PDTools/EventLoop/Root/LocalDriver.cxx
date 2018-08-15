@@ -58,11 +58,10 @@ namespace EL
 
 
   void LocalDriver ::
-  batchSubmit (const std::string& location, const SH::MetaObject& options,
+  batchSubmit (const std::string& location, const SH::MetaObject& /*options*/,
                const std::vector<std::size_t>& jobIndices, bool resubmit)
     const
   {
-    (void) options;
     RCU_READ_INVARIANT (this);
 
     std::ostringstream basedirName;

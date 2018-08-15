@@ -393,11 +393,9 @@ namespace EL
 
 
   void Driver ::
-  doResubmit (const std::string& location,
-              const std::string& option) const
+  doResubmit (const std::string& /*location*/,
+              const std::string& /*option*/) const
   {
-    (void) location;
-    (void) option;
     RCU_READ_INVARIANT (this);
     RCU_THROW_MSG ("job resubmission not supported for this driver");
   }
