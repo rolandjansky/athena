@@ -143,11 +143,12 @@ namespace G4UA{
                                                                                       m_config.truthVolLevel,
                                                                                       m_geoIDSvcQuick);
 
-          ISF::ISFParticle *tmpISP = ::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
-                                                                                          *curISP,
-                                                                                          nullptr, // truthBinding
-                                                                                          new HepMcParticleLink(tHelp.GetParticleLink())
-                                                                                          );
+          std::unique_ptr<ISF::ISFParticle> tmpISP
+            = ::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
+                                                                   *curISP,
+                                                                   nullptr, // truthBinding
+                                                                   new HepMcParticleLink(tHelp.GetParticleLink())
+                                                                   );
           tmpISP->setNextGeoID(nextGeoID);
           tmpISP->setNextSimID(ISF::fUndefinedSimID);
 
@@ -157,9 +158,7 @@ namespace G4UA{
           tmpISP->setNextGeoID( nextGeoID );
 
           // inform the entry layer tool about this particle
-          m_entryLayerToolQuick->registerParticle( *tmpISP, layer);
-
-          delete tmpISP;
+          m_entryLayerToolQuick->registerParticle( *(tmpISP.get()), layer);
         }
 
       }

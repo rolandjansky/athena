@@ -268,10 +268,10 @@ namespace G4UA {
       else {
         partLink = std::make_unique<HepMcParticleLink>(::iGeant4::ISFG4Helper::getParticleBarcode(*aTrack));
       }
-      std::unique_ptr<ISF::ISFParticle> isp(::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
-                                                                                                 *parentISP,
-                                                                                                 tBinding.release(),
-                                                                                                 partLink.release() ));
+      std::unique_ptr<ISF::ISFParticle> isp = ::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
+                                                                                                   *parentISP,
+                                                                                                   tBinding.release(),
+                                                                                                   partLink.release() );
 
       if (nextGeoID!=AtlasDetDescr::fUndefinedAtlasRegion) {
         isp->setNextGeoID( AtlasDetDescr::AtlasRegion(nextGeoID) );
