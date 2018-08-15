@@ -7,6 +7,7 @@
 
 #include "DerivationFrameworkSUSY/LongLivedTruthJetKinematics.h"
 #include "TruthUtils/PIDHelpers.h"
+#include <cmath> 
 
 namespace DerivationFramework {
 
@@ -119,7 +120,7 @@ bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* spa
   if(!sparticle->hasDecayVtx()) return false;
   bool isLLP = false;
   for(int i=0; i<m_llp_pdgids.size(); i++){
-    if( fabs(sparticle->pdgId()) == m_llp_pdgids[i] ) {
+    if( std::abs(sparticle->pdgId()) == m_llp_pdgids[i] ) {
       isLLP = true;
     }
   }
@@ -129,7 +130,7 @@ bool LongLivedTruthJetKinematics::isDecayParticle(const xAOD::TruthParticle* spa
   for(unsigned int j=0; j<sparticle->decayVtx()->nOutgoingParticles(); j++){
     if(!sparticle->decayVtx()->outgoingParticle(j)) continue;
     for(int i=0; i<m_llp_pdgids.size(); i++){
-      if( fabs(sparticle->decayVtx()->outgoingParticle(j)->pdgId()) == m_llp_pdgids[i] ) {
+      if( std::abs(sparticle->decayVtx()->outgoingParticle(j)->pdgId()) == m_llp_pdgids[i] ) {
         isRealDecay = false;
       }
     }
@@ -181,7 +182,7 @@ TLorentzVector LongLivedTruthJetKinematics::getDVKine(const TLorentzVector longL
 
 
 double LongLivedTruthJetKinematics::getEtaFromTheta(double theta) const{
-  double eta = - log( fabs(tan(theta / 2.)));
+  double eta = - log( std::abs(tan(theta / 2.)));
   return eta;
 }
 
