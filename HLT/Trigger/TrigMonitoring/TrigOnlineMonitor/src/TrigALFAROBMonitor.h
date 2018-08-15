@@ -105,6 +105,7 @@ private:
   TH1F*                            m_hist_goodData;
   TH2F*                            m_hist_goodDataLB15;
   TH2F*                            m_hist_goodDataLB18;
+  TH2F*                            m_hist_corruptedROD_LB;
   BooleanProperty                  m_doODDistance;
   TH1F*                            m_hist_PosDetector[8][2];
   TH1F*                            m_hist_DistStation[8][2];

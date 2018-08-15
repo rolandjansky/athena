@@ -575,6 +575,11 @@ StatusCode TrigALFAROBMonitor::beginRun() {
     if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodDataLB18->GetName(), m_hist_goodDataLB18).isFailure() ) {
 	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_goodDataLB18->GetName());
     }
+    histTitle = "corruptedROD";
+    m_hist_corruptedROD_LB = new TH2F (histTitle.c_str(), (histTitle + " perLB").c_str(), 1000, -0.5, 999.5, 2, -0.5, 1.5);
+    if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_corruptedROD_LB->GetName(), m_hist_corruptedROD_LB).isFailure() ) {
+	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_corruptedROD_LB->GetName());
+    }
   }
 
 
@@ -936,6 +941,7 @@ uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 	    //AlfaEventObj->framingStatus |= 0x4;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *lwcPtr);
+            m_hist_corruptedROD_LB->Fill(m_LB, rodId&0x1);
     	    ATH_MSG_DEBUG("ROD "<< MSG::hex<<rodId<<" skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
     	    ATH_MSG_INFO("ROD "<< MSG::hex<<rodId<<"skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
             return (1); //continue;
@@ -944,6 +950,7 @@ uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 	    //AlfaEventObj->framingStatus |= 0x8;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *twcPtr);
+            m_hist_corruptedROD_LB->Fill(m_LB, rodId&0x1);
     	    ATH_MSG_DEBUG( "ROD "<< MSG::hex<<rodId<<" skipped - TWC: "<< *twcPtr );
     	    ATH_MSG_INFO( "ROD "<< MSG::hex<<rodId<<" skipped - TWC(-1): "<< *(twcPtr-1)<< " TWC: "<< *twcPtr <<" TWC+1: " << *(twcPtr+1) 
                            <<" LWC: " << *lwcPtr << " mbNb: "<< mbNb);
