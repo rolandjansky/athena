@@ -613,7 +613,7 @@ namespace Muon {
 	  double dist = clusterDistanceToSeed( *cit, seed);
 	  double timedist = std::abs(clusterDistanceToSeed( *cit, seed)) + std::abs(tdrift*0.015); // std::abs(tdrift*0.015) is an ad hoc penalty factor, to be optimised when time resolution is known
 	  double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	  if (!tight) error += 1.;
+	  if (!tight) error += 15.;
 	  ATH_MSG_VERBOSE(" lay " << layer << " tdrift " << tdrift << " dist " << dist  << " timedist " << timedist << " pull " << dist/error
 			<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
 	  if( std::abs(dist/error) < m_maxClustDist) {
@@ -630,7 +630,7 @@ namespace Muon {
 	    double dist = clusterDistanceToSeed( *cit, seed);
 	    double window = std::abs(2.*5.*0.047 * ((*cit)->globalPosition().perp() / (*cit)->globalPosition().z()));  // all hits in the range [bestDist-window;bestDist-window] will be accepted; 2-safety factor; 5-time resolution; 0.047-drift velocity; (hardcoded values to be removed once time resolution model is known) 
 	    double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	    if (!tight) error += 1.;
+	    if (!tight) error += 15.;
 	    ATH_MSG_VERBOSE(" Current RIO : distance " << dist << " window " << window << " to be attached " << ( (std::abs(std::abs(dist)-bestDist) < window) && (std::abs(dist/error) < m_maxClustDist) ) );
 	    if( (std::abs(dist-bestDist) < window) && (std::abs(dist/error) < m_maxClustDist) ) {
 	      rios.push_back( (*cit) );
