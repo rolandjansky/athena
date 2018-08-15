@@ -215,7 +215,7 @@ bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
   uint32_t  decodePMT0 (uint32_t dataWord);
 
   /// find tacks in ALFA detectors
-  void findALFATracks(LVL1CTP::Lvl1Result &resultL1);
+  void findALFATracks(const LVL1CTP::Lvl1Result &resultL1);
 
   // find OD tracks and calculate distance
   void findODTracks ();

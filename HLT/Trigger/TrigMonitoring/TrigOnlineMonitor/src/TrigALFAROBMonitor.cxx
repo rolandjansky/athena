@@ -239,7 +239,8 @@ StatusCode TrigALFAROBMonitor::initialize(){
 
   const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
   if (chainlist) {
-         BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
+         //BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
+         for (auto *chain: *chainlist) {
             if (chain->chain_name() == "HLT_costmonitor") {
                m_HLTcostMon_chain = chain;               
                ATH_MSG_INFO ("found HLT_costmonitor chain with prescale " << m_HLTcostMon_chain->prescale()
@@ -1215,7 +1216,7 @@ void TrigALFAROBMonitor::reset60LBhistos(int lbNumber) {
 
 
 
-void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
+void TrigALFAROBMonitor::findALFATracks( const LVL1CTP::Lvl1Result &resultL1 ) {
 	float x_Rec[8];
 	float y_Rec[8];
 	
@@ -1352,7 +1353,7 @@ void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
                                 x_Rec[iDet] = (RecPos_U-RecPos_V)/2.;
                                 y_Rec[iDet] = sign*(-(RecPos_V+RecPos_U)/2.-115.);
 
-       		                std::vector<uint32_t>& itemsBP = resultL1.itemsBeforePrescale();
+       		                const std::vector<uint32_t>& itemsBP = resultL1.itemsBeforePrescale();
                                 for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
                                        int word = it->first>>5;
                                        int offset = (it->first)%32;
@@ -1382,7 +1383,7 @@ void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
 
         }
 
-        std::vector<uint32_t>& itemsBP = resultL1.itemsBeforePrescale();
+        const std::vector<uint32_t>& itemsBP = resultL1.itemsBeforePrescale();
         if (itemsBP.at(m_elast15>>5) & (1 <<(m_elast15%32))) {
            m_hist_goodData->Fill(1.);
            m_hist_goodDataLB15->Fill(m_LB, 1.);
