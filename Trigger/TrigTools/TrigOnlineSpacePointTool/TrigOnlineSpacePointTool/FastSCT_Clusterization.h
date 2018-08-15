@@ -6,12 +6,17 @@
 #define SCT_CLUSTERIZATION_H
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "Identifier/Identifier.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetPrepRawData/SCT_ClusterCollection.h"
+
 #include <vector>
+
+namespace InDetDD {
+  class SCT_DetectorManager;
+  class SiDetectorElement;
+}
 
 class FastSCT_Clusterization{
 public:
@@ -39,7 +44,8 @@ public:
   void setLorentzAngleTool(const ISiLorentzAngleTool* lorentzAngleTool) { m_lorentzAngleTool = lorentzAngleTool; }
 
   void addHit( const Identifier elementId, const IdentifierHash
-	       hashId, const unsigned int strip );
+	       hashId, const unsigned int strip,
+               const InDetDD::SiDetectorElement* detElement);
   void finishHits();
 
   void initializeGeometry(const InDetDD::SCT_DetectorManager* manager);
@@ -56,7 +62,8 @@ public:
 
 private:
   void setupNewElement(const Identifier elementId, const IdentifierHash
-                       hashId, const unsigned int strip );
+                       hashId, const unsigned int strip,
+                       const InDetDD::SiDetectorElement* detElement);
 
   void addCluster();
   
@@ -65,8 +72,8 @@ private:
   bool m_firstWord;
 
   unsigned int m_clusterId;
-  InDetDD::SCT_DetectorManager* m_man;
-  InDetDD::SiDetectorElement* m_detEl;
+  const InDetDD::SCT_DetectorManager* m_man;
+  const InDetDD::SiDetectorElement* m_detEl;
 
   Identifier m_element;
   

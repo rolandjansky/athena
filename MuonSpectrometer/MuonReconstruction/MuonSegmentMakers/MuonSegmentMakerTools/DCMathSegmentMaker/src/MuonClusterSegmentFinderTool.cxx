@@ -59,7 +59,7 @@ namespace Muon {
     
   }
 
-  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::find(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters) {
+  std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::find(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters) const {
     ATH_MSG_DEBUG("Entering MuonClusterSegmentFinderTool with " << muonClusters.size() << " clusters to be fit" );
     if(belowThreshold(muonClusters,4)) return 0;
     std::vector<const Muon::MuonSegment*>* segs = findPrecisionSegments(muonClusters);

@@ -113,7 +113,7 @@ if  TriggerFlags.doMuon==True:
             unpack.SourceDecisions="L1MU"
            
     # this is a temporary hack to include new test chains
-    EnabledChainNamesToCTP = [str(n)+":"+c.name for n,c in enumerate(MenuChains)]
+    EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in MenuChains])
     topSequence.L1DecoderTest.ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
 
     EnabledMuChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in MenuChains]

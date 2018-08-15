@@ -6,10 +6,13 @@
 #define PIXELGCBUILDER_H
 #include "InDetIdentifier/PixelID.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 
 class TrigSiSpacePoint;
 class TrigSiSpacePoint;
+
+namespace InDetDD {
+  class SiDetectorManager;
+}
 
 class PixelGCBuilder { 
 public:

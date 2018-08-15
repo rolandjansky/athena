@@ -1,7 +1,7 @@
 #This file is to run standard reconstruction + pflow + jet finding on an ESD file
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=["/data/hodgkinson/dataFiles/mc16_13TeV/ESDFiles/mc16_valid.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e3698_s2995_r8905/ESD.10230993._000008.pool.root.1"]
+athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
 
 doDumpProperties=True
 
@@ -20,6 +20,6 @@ rec.doWriteTAG.set_Value_and_Lock(False)
 
 athenaCommonFlags.EvtMax=1
 #Run pflopw jet finding - this cannot be enabled via reconstruction flags currently! (without enabling other things we don't want)
-UserAlgs = ["jetAlgs.py"]
+UserAlgs = ["eflowRec/jetAlgs.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
 

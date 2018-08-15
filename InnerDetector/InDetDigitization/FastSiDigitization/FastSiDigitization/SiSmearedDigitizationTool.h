@@ -44,6 +44,9 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <tuple>
 typedef std::tuple< Amg::Vector2D, InDet::SiWidth, Amg::MatrixX * > ClusterInfo;
 
@@ -66,7 +69,6 @@ namespace InDet {
 
 namespace InDetDD
 {
-  class SCT_DetectorManager;
   class PixelDetectorManager;
 }
 
@@ -128,7 +130,7 @@ public:
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;             //!< Random number service
 
   const InDetDD::PixelDetectorManager* m_manager_pix;
-  const InDetDD::SCT_DetectorManager* m_manager_sct;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   const PixelID* m_pixel_ID;                             //!< Handle to the ID helper
   const SCT_ID* m_sct_ID;                             //!< Handle to the ID helper

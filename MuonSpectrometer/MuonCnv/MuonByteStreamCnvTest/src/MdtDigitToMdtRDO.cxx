@@ -39,7 +39,9 @@ StatusCode MdtDigitToMdtRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_csmContainerKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized WriteHandleKey: " << m_csmContainerKey );
   ATH_CHECK( m_digitContainerKey.initialize() );
+  ATH_MSG_VERBOSE("Initialized ReadHandleKey: " << m_digitContainerKey );
   ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
   ATH_CHECK( m_cabling.retrieve() );
 
@@ -77,10 +79,16 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
   // create an empty pad container and record it
   SG::WriteHandle<MdtCsmContainer> csmContainer(m_csmContainerKey);
   ATH_CHECK(csmContainer.record(std::make_unique<MdtCsmContainer>()));
+  ATH_MSG_DEBUG("Recorded MdtCsmContainer called " << csmContainer.name() << " in store " << csmContainer.store());
 
   IdContext mdtContext = m_mdtIdHelper->module_context();
 
   SG::ReadHandle<MdtDigitContainer> container (m_digitContainerKey);
+  if (!container.isValid()) {
+    ATH_MSG_ERROR("Could not find MdtDigitContainer called " << container.name() << " in store " << container.store());
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_DEBUG("Found MdtDigitContainer called " << container.name() << " in store " << container.store());
 
   typedef MdtDigitContainer::const_iterator collection_iterator;
   typedef MdtDigitCollection::const_iterator digit_iterator;

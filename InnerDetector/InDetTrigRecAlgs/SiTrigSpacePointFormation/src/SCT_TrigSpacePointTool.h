@@ -34,11 +34,7 @@
 #include "InDetTrigToolInterfaces/ITrigSCT_SpacePointTool.h"
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"  
-#include "InDetReadoutGeometry/PixelDetectorManager.h"  
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 
 #include <string>
@@ -53,6 +49,7 @@ class SCT_NeighboursTable;
 class IBeamCondSvc;
 
 namespace InDet { class SiElementPropertiesTable;}
+namespace InDetDD { class SiDetectorElementCollection; }
 typedef InDet::SCT_ClusterContainer SCT_ClusterContainer; 
 typedef InDet::SiClusterCollection SiClusterCollection; 
 typedef InDet::SiCluster SiCluster; 
@@ -84,25 +81,24 @@ namespace InDet {
     void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
                              const SCT_ClusterContainer* clusterContainer,
                              const SiElementPropertiesTable* properties,
+                             const InDetDD::SiDetectorElementCollection* elements,
                              SpacePointCollection* spacepointCollection,
                              SpacePointOverlapCollection* overlapColl);
 
-    void addSCT_SpacePoints (const SCT_ClusterCollection* clusCollection,
-                             const SCT_ClusterContainer* clusterContainer,
-                             const SiElementPropertiesTable* properties,
-                             SpacePointCollection* spacepointCollection);
-
+    void checkForSCT_Points (const SCT_ClusterCollection* clusters1,
+                             const IdentifierHash& id2,
+                             const InDetDD::SiDetectorElementCollection* elements,
+                             double minDiff,
+                             double maxDiff,
+                             SpacePointCollection* spacepointCollection,
+                             bool overlapColl);
 
     void checkForSCT_Points (const SCT_ClusterCollection* clusters1,
-			     const IdentifierHash& id2, double minDiff, 
-			     double maxDiff,
-			     SpacePointCollection* spacepointCollection, 
-			     bool overlapColl); 
-
-    void checkForSCT_Points (const SCT_ClusterCollection* clusters1, 
-			     const IdentifierHash& id2, double min1, 
-			     double max1,
-			     double min2, double max2);
+                             const IdentifierHash& id2,
+                             const InDetDD::SiDetectorElementCollection* elements,
+                             double min1,
+                             double max1,
+                             double min2, double max2);
 
 
   private:
@@ -121,7 +117,6 @@ namespace InDet {
     std::string m_SiSpacePointMakerToolName;
 
 
-    const InDetDD::SCT_DetectorManager *m_manager; 
     const SCT_ID* m_idHelper;
 
     const SCT_ClusterContainer* m_Sct_clcontainer;

@@ -17,15 +17,7 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-// Gaudi
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/AlgTool.h"
-
 #include "AthenaKernel/IAtRndmGenSvc.h"
-
-#include "boost/shared_ptr.hpp"
-#include <string>
 
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/SiHit.h"
@@ -34,19 +26,30 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"  // typedef
 #include "InDetPrepRawData/SiClusterContainer.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
 #include "TrkEventTPCnv/TrkEventPrimitives/HepSymMatrix_p1.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+
+// Gaudi
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/AlgTool.h"
+
+#include "boost/shared_ptr.hpp"
 
 #include <vector>
 #include <list>
 #include <utility> /* pair */
 #include <map>
+#include <string>
 
 //FIXME - not used anywhere?
 // #ifndef MAXSTEPS
@@ -64,11 +67,6 @@ class SCT_ID;
 
 class SiChargedDiodeCollection;
 class StoreGateService;
-
-namespace InDetDD
-{
-  class SCT_DetectorManager;
-}
 
 namespace InDet {
   class ClusterMakerTool;
@@ -121,7 +119,6 @@ private:
   std::list<SiHitCollection*> m_siHitCollList;
 
   const SCT_ID* m_sct_ID;                              //!< Handle to the ID helper
-  const InDetDD::SCT_DetectorManager* m_manager;
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;            //!< PileUp Merge service
   int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
   bool                      m_HardScatterSplittingSkipper;
@@ -142,6 +139,7 @@ private:
 
   SG::WriteHandle<InDet::SCT_ClusterContainer>  m_sctClusterContainer; //!< the SCT_ClusterContainer
   SG::WriteHandle<PRD_MultiTruthCollection>     m_sctPrdTruth;         //!< the PRD truth map for SCT measurements
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   double m_sctSmearPathLength;       //!< the 2. model parameter: smear the path
   bool m_sctSmearLandau;           //!< if true : landau else: gauss

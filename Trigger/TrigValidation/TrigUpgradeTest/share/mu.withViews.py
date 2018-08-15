@@ -1,4 +1,4 @@
-# 
+#
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
 # 
 #  OutputLevel: INFO < DEBUG < VERBOSE 
@@ -125,15 +125,6 @@ if TriggerFlags.doMuon:
   if doEFSA:
 
     efMuViewNode = seqAND("efMuViewNode")
-    efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
-    efMuViewsMaker.ViewFallThrough = True
-    # probably wrong input to the EVMaker
-    efMuViewsMaker.InputMakerInputDecisions = ["MURoIDecisions"]
-    efMuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutputEF"]
-    efMuViewsMaker.RoIsLink = "initialRoI" # -||-
-    efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
-    efMuViewsMaker.Views = "EFMUViewRoIs"
-    efMuViewsMaker.ViewNodeName = efMuViewNode.name()
 
   if doEFSA or doL2SA:
     ### ==================== Data prepartion needed for the EF and L2 SA #######################333
@@ -236,6 +227,7 @@ if TriggerFlags.doMuon:
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
       MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "MuonRpcRawDataProviderTool",
                                                                  Decoder = RPCRodDecoder )
+
       ToolSvc += MuonRpcRawDataProviderTool
   
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
@@ -326,17 +318,18 @@ if TriggerFlags.doMuon:
 #               Setup L2MuonSA
 # ===============================================================================================
  
+
+
+  svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
+
+  ### set up L1RoIsFilter ###
+  filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
+  filterL1RoIsAlg.Input = ["MURoIDecisions"]
+  filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
+  filterL1RoIsAlg.Chains = testChains
+  filterL1RoIsAlg.OutputLevel = DEBUG
+
   if doL2SA:
-
-    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
-
-    ### set up L1RoIsFilter ###
-    filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-    filterL1RoIsAlg.Input = ["MURoIDecisions"]
-    filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
-    filterL1RoIsAlg.Chains = testChains
-    filterL1RoIsAlg.OutputLevel = DEBUG
-
     # set the EVCreator
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
     l2MuViewsMaker.ViewFallThrough = True
@@ -488,10 +481,27 @@ if TriggerFlags.doMuon:
 # ===============================================================================================
 
   if doEFSA:
- ### RoRSeqFilter step2 ###
+
+    efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
+    efMuViewsMaker.ViewFallThrough = True
+    # probably wrong input to the EVMaker
+    efMuViewsMaker.InputMakerInputDecisions = filterL1RoIsAlg.Output
+    efMuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutputEF"]
+    efMuViewsMaker.RoIsLink = "initialRoI" # -||-
+    efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+    efMuViewsMaker.Views = "EFMUViewRoIs"
+    efMuViewsMaker.ViewNodeName = efMuViewNode.name()
+
+    
+    ### RoRSeqFilter step2 ###
     filterEFSAAlg = RoRSeqFilter("filterEFSAAlg")
-    filterEFSAAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
-    filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.HypoOutputDecisions]
+    if doL2CB and doL2SA:
+      filterEFSAAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
+      filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.HypoOutputDecisions]
+    else :
+      # for now just use the L1 input when L2 is not running
+      filterEFSAAlg.Input = ["MURoIDecisions"]
+      filterEFSAAlg.Output = ["FilteredMURoIDecisionsForEF"]
     filterEFSAAlg.Chains = testChains
     filterEFSAAlg.OutputLevel = DEBUG
     
@@ -593,7 +603,7 @@ if TriggerFlags.doMuon:
 
     trigMuonEFSAHypo.MuonDecisions = "Muons"
     trigMuonEFSAHypo.HypoOutputDecisions = "EFMuonSADecisions"
-    trigMuonEFSAHypo.HypoInputDecisions = efMuViewsMaker.InputMakerInputDecisions[0]
+    trigMuonEFSAHypo.HypoInputDecisions = efMuViewsMaker.InputMakerOutputDecisions[0]
 
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
@@ -639,7 +649,7 @@ if TriggerFlags.doMuon==True:
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.Decisions, "WhateverElse" ] 
+    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )

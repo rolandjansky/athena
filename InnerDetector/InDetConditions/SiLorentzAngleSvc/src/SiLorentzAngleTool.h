@@ -10,21 +10,21 @@
 #define SiLorentzAngleTool_h
 
 #include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //Gaudi Includes
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "Identifier/IdentifierHash.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
-// Amg
-#include "GeoPrimitives/GeoPrimitives.h"
-
+class IdentifierHash;
 namespace InDetDD {
-  class SiDetectorManager;
-}  
+  class SiDetectorElement;
+}
 
 /**
  * @class SiLorentzAngleTool
@@ -88,9 +88,10 @@ private:
 
   double getValue(const IdentifierHash& elementHash, const Amg::Vector2D& locPos, Variable variable) const;
   double getCorrectionFactor() const;
-  Amg::Vector3D getMagneticField(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) const;
+  Amg::Vector3D getMagneticField(const Amg::Vector3D& pointvec) const;
   const SiLorentzAngleCondData* getCondData() const;
- 
+  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash) const;
+
   // Properties
   std::string              m_detectorName;
   bool                     m_isPixel;  
@@ -98,11 +99,10 @@ private:
   bool                     m_useMagFieldSvc;
   bool                     m_ignoreLocalPos;   // Makes methods using localPosition behave as method without passing localPosition.
   SG::ReadCondHandleKey<SiLorentzAngleCondData> m_condData;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey{this, "DetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT or Pixel"};
 
   // needed services
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-
-  const InDetDD::SiDetectorManager* m_detManager;
 
   static const double s_invalidValue;
 };

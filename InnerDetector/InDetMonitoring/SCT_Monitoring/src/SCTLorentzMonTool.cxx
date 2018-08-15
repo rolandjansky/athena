@@ -26,7 +26,6 @@
 #include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrkParameters/TrackParameters.h"
@@ -82,7 +81,7 @@ StatusCode SCTLorentzMonTool::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
 
   ATH_CHECK( m_tracksName.initialize() );
-  ATH_CHECK(m_sctDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   ATH_CHECK(m_trackToVertexTool.retrieve());
 
@@ -165,10 +164,10 @@ SCTLorentzMonTool::fillHistograms() {
 
   ATH_MSG_DEBUG("enters fillHistograms");
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_WARNING(m_sctDetEleCollKey.fullKey() << " could not be retrieved");
+    ATH_MSG_WARNING(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::SUCCESS;
   }
 

@@ -8,6 +8,12 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+
+#include "StoreGate/ReadCondHandle.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -25,7 +31,6 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   , m_detStore( 0 )
   , m_evtStore( 0 )
   , m_PIX_mgr( 0 )
-  , m_SCT_mgr( 0 )
   , m_pixelContainer( 0 )
   , m_sctContainer( 0 )
   , m_pixelCondSummaryTool("PixelConditionsSummaryTool",this)
@@ -87,10 +92,6 @@ StatusCode FTKDetectorTool::initialize()
     m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endmsg;
-    return StatusCode::FAILURE;
-  }
   if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
     m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
@@ -130,6 +131,10 @@ StatusCode FTKDetectorTool::initialize()
 		return StatusCode::FAILURE;
 	  }
   }
+
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -170,10 +175,11 @@ void FTKDetectorTool::makeBadModuleMap(){
   }
 
   // take the list of the dead SCT modules
-  for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
-    const InDetDD::SiDetectorElement* sielement( *i );
-    Identifier id = sielement->identify();
-    IdentifierHash idhash = sielement->identifyHash();
+  SCT_ID::const_id_iterator wafer_it = m_sctId->wafer_begin();
+  SCT_ID::const_id_iterator wafer_end = m_sctId->wafer_end();
+  for (; wafer_it!=wafer_end; wafer_it++) {
+    const Identifier id = *wafer_it;
+    const IdentifierHash idhash = m_sctId->wafer_hash(id);
     bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
     if(m_dumpAllModules) is_bad =true;
     if(is_bad){
@@ -242,10 +248,11 @@ void FTKDetectorTool::dumpDeadModuleSummary()
 				 << std::endl;
     }
   }
-  for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd(); i!=f; ++i ) {
-    const InDetDD::SiDetectorElement* sielement( *i );
-    Identifier id = sielement->identify();
-    IdentifierHash idhash = sielement->identifyHash();
+  SCT_ID::const_id_iterator wafer_it = m_sctId->wafer_begin();
+  SCT_ID::const_id_iterator wafer_end = m_sctId->wafer_end();
+  for (; wafer_it!=wafer_end; wafer_it++) {
+    const Identifier id = *wafer_it;
+    const IdentifierHash idhash = m_sctId->wafer_hash(id);
     bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
     if(m_dumpAllModules) is_bad =true;
     if(is_bad){
@@ -295,10 +302,11 @@ void FTKDetectorTool::dumpModuleIDMap()
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
   }
-  for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd(); i!=f; ++i ) {
-    const InDetDD::SiDetectorElement* sielement( *i );
-    Identifier id = sielement->identify();
-    IdentifierHash idhash = sielement->identifyHash();
+  SCT_ID::const_id_iterator wafer_it = m_sctId->wafer_begin();
+  SCT_ID::const_id_iterator wafer_end = m_sctId->wafer_end();
+  for (; wafer_it!=wafer_end; wafer_it++) {
+    const Identifier id = *wafer_it;
+    const IdentifierHash idhash = m_sctId->wafer_hash(id);
   }
 #endif
 }
@@ -347,10 +355,11 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
 
   countForSRAM = 0;
 
-  for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
-    const InDetDD::SiDetectorElement* sielement( *i );
-    Identifier id = sielement->identify();
-    IdentifierHash idhash = sielement->identifyHash();
+  SCT_ID::const_id_iterator wafer_it = m_sctId->wafer_begin();
+  SCT_ID::const_id_iterator wafer_end = m_sctId->wafer_end();
+  for (; wafer_it!=wafer_end; wafer_it++) {
+    const Identifier id = *wafer_it;
+    const IdentifierHash idhash = m_sctId->wafer_hash(id);
 
     FTKRawHit tmpmodraw;
 
@@ -456,8 +465,13 @@ void FTKDetectorTool::dumpIDMap()
   }
 
   // take the list of the dead SCT modules
-  for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
-    const InDetDD::SiDetectorElement* sielement( *i );
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* sctElements(sctDetEle.retrieve());
+  if (sctElements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return;
+  }
+  for (const InDetDD::SiDetectorElement* sielement: *sctElements) {
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
     const bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
@@ -483,6 +497,14 @@ void FTKDetectorTool::dumpIDMap()
 
 void FTKDetectorTool::dumpModulePositions() {
    m_log << MSG::INFO << "dumpModulePositions"<< endmsg; 
+
+   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+   const InDetDD::SiDetectorElementCollection* sctElements(sctDetEle.retrieve());
+   if (sctElements==nullptr) {
+     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+     return;
+   }
+
    TFile *output=new TFile("FTKmodulePositions.root","recreate");
    TTree *t=new TTree("modulePositions","modulePositions");
    Int_t idhash;
@@ -519,8 +541,8 @@ void FTKDetectorTool::dumpModulePositions() {
    t->Branch("isbad",&isbad,"isbad/I");
    t->Branch("hitSector",&hitSector,"hitSector/I");
    InDetDD::SiDetectorElementCollection::const_iterator iStart[2],iEnd[2];
-   iStart[0]=m_SCT_mgr->getDetectorElementBegin();
-   iEnd[0]=m_SCT_mgr->getDetectorElementEnd();
+   iStart[0]=sctElements->begin();
+   iEnd[0]=sctElements->end();
    iStart[1]=m_PIX_mgr->getDetectorElementBegin();
    iEnd[1]=m_PIX_mgr->getDetectorElementEnd();
    for(isPixel=0;isPixel<2;isPixel++) {

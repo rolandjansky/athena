@@ -21,17 +21,19 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/InDetRawDataCollection.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
+#include "PileUpTools/PileUpMergeSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
-#include "PileUpTools/PileUpMergeSvc.h"
 
 // Gaudi headers
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/WriteHandle.h"
-#include "StoreGate/ReadHandleKey.h"
 
 // STL headers
 #include "boost/shared_ptr.hpp"
@@ -55,7 +57,6 @@ class StoreGateService;
 
 namespace InDetDD
 {
-  class SCT_DetectorManager;
   class SiDetectorElement;
 }
 
@@ -160,7 +161,6 @@ private:
   SG::ReadHandleKey<ComTime>        m_ComTimeKey ; //!< Handle to retrieve commissioning timing info from SG
 
   const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
-  const InDetDD::SCT_DetectorManager*                m_detMgr;                            //!< Handle to Si detector manager
   ToolHandle<ISCT_FrontEnd>                          m_sct_FrontEnd;                      //!< Handle the Front End Electronic tool
   ToolHandle<ISCT_SurfaceChargesGenerator>           m_sct_SurfaceChargesGenerator;       //!< Handle the surface chage generator tool
   ToolHandle<ISCT_RandomDisabledCellGenerator>       m_sct_RandomDisabledCellGenerator;   //!< Handle the Ampilifier tool for the Front End
@@ -171,6 +171,7 @@ private:
   SG::WriteHandle<SCT_RDO_Container>                 m_rdoContainer; //!< RDO container handle
   SG::WriteHandleKey<InDetSimDataCollection>         m_simDataCollMapKey; //!< SDO Map key
   SG::WriteHandle<InDetSimDataCollection>            m_simDataCollMap; //!< SDO Map handle
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   std::string                                        m_inputObjectName;     //! name of the sub event  hit collections.
   ServiceHandle <IAtRndmGenSvc>                      m_rndmSvc;             //!< Random number service

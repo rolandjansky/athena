@@ -12,10 +12,9 @@
 
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetIdentifier/PixelID.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
@@ -41,6 +40,9 @@ class SCT_OnlineId;
 class IdentifierHash;
 class ITrigFTKClusterConverterTool;
 
+namespace InDetDD {
+  class PixelDetectorManager;
+}
 
 class FTKRegionalWrapper : public AthAlgorithm {
 public:
@@ -67,8 +69,9 @@ private:
   const PixelID * m_pixelId;
   const SCT_ID * m_sctId;
   const AtlasDetectorID* m_idHelper;
-  const InDetDD::SiDetectorManager*  m_PIX_mgr;
-  const InDetDD::SiDetectorManager*  m_SCT_mgr;
+  const InDetDD::PixelDetectorManager*  m_PIX_mgr;
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // variables to manage the distribution of the hits
   int m_IBLMode; //  global FTK setup variable to handle IBL

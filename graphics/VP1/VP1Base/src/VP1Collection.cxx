@@ -107,9 +107,11 @@ VP1CollStates VP1Collection::getStates(QList<VP1Collection*> cols)
 //____________________________________________________________________
 void VP1Collection::applyStates(QList<VP1Collection*> cols, const VP1CollStates& states)
 {
+	VP1Msg::messageDebug("VP1Collection::applyStates() - start...");
   foreach (VP1Collection* col,cols)
     if (states.contains(col->persistifiableID()))
       col->setState(states.value(col->persistifiableID()));
+	VP1Msg::messageDebug("VP1Collection::applyStates() - end.");
 }
 
 //____________________________________________________________________

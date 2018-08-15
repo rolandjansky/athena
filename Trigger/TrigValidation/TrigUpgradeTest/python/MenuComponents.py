@@ -193,9 +193,10 @@ class ComboMaker(AlgNode):
     def addChain(self, chain):
         if log.isEnabledFor(logging.DEBUG):
             log.debug("ComboMaker %s adding chain %s"%(self.algname,chain))
-        seeds=chain.strip().split("_")
-        seeds.pop(0)
-        for seed in seeds:
+        from MenuChains import getConfFromChainName
+        confs=getConfFromChainName(chain)
+        for conf in confs:
+            seed=conf.replace("HLT_", "")
             integers = map(int, re.findall(r'^\d+', seed))
             multi=0
             if len(integers)== 0:
@@ -263,7 +264,6 @@ class MenuSequence():
         filter_output = sfilter.getOutputList()
         inputs=[filter_output[i] for i,fseed in enumerate (sfilter.seeds) if self.seed in fseed  ]
         if log.isEnabledFor(logging.DEBUG):
-#            log.debug("MenuSequence %s: filter out=%s, seeds=%s, seq.seeds=%s",self.name, filter_output, sfilter.seeds, self.seed)        
             log.debug("connectToFilter: found %d inputs to sequence::%s from Filter::%s (from seed %s)",
                           len(inputs), self.name, sfilter.algname, self.seed)
             for i in inputs: log.debug("- "+i)
@@ -411,9 +411,9 @@ class ChainStep:
         self.combo = ComboMaker("ComboHypo_%s"%self.name)
         for sequence in Sequences:
             new_sequence=copy.deepcopy(sequence)
-            new_sequence.name=("Combo_%s"%sequence.name)
+            new_sequence.name=("%s_Combo"%sequence.name)
             oldhypo=sequence.hypo.Alg
-            new_hypoAlg=oldhypo.clone("Combo_%s"%oldhypo.name())
+            new_hypoAlg=oldhypo.clone("%s_Combo"%oldhypo.name())
             new_sequence.replaceHypoForCombo(new_hypoAlg)
             self.sequences.append(new_sequence)
 

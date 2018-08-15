@@ -228,7 +228,7 @@ void VarHandleKey::parseKey (const std::string& key,
     st = StoreID::findStoreID(sn);
   // }
 
-  if (st != StoreID::CONDITION_STORE) {
+    if (st != StoreID::CONDITION_STORE && st != StoreID::METADATA_STORE) {
     if (m_sgKey.find("/") != std::string::npos) {
       throw SG::ExcBadHandleKey("key \"" + key 
                                 + "\": keys with \"/\" only allowed for "

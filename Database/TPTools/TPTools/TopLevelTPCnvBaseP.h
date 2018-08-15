@@ -42,6 +42,9 @@ public:
 
   virtual ~TopLevelTPCnvBaseP()  { deleteTLPersObject(); }
 
+  TopLevelTPCnvBaseP (const TopLevelTPCnvBaseP&) = delete;
+  TopLevelTPCnvBaseP& operator= (const TopLevelTPCnvBaseP&) = delete;
+
  
   // ---------------  internals - "non-public" use
 
