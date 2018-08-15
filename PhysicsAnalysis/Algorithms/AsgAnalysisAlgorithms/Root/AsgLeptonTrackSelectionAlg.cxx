@@ -88,17 +88,19 @@ namespace CP
       {
         if (vertex->vertexType() == xAOD::VxType::PriVtx)
         {
-          /// \todo If there is more than one primary vertex
-          /// available, this will pick up the primary vertex
-          /// (semi-)randomly.  The tracking group recommends to pick
-          /// the one with the maximum sum-pt, but I don't have any
-          /// example of that, and anyways we probably want to make
-          /// sure we pick it up once and provide it centrally.
-          /// Again, I'm not quite sure how to do that.  This should
-          /// probably be addressed at some point in the future (06
-          /// Aug 18).
+          // The default "PrimaryVertex" container is ordered in
+          // sum-pt, and the tracking group recommends to pick the one
+          // with the maximum sum-pt, so this will do the right thing.
+          // If the user needs a different primary vertex, he needs to
+          // provide a reordered primary vertex container and point
+          // this algorithm to it.  Currently there is no central
+          // algorithm to do that, so users will have to write their
+          // own (15 Aug 18).
           if (primaryVertex == nullptr)
+          {
             primaryVertex = vertex;
+            break;
+          }
         }
       }
     }
