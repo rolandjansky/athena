@@ -31,6 +31,7 @@ class ComponentHelper
         TString param;
         TString massDefStr;
         TString scale;
+        TString topologyStr;
         TString interpolStr;
         TString special;
         TString uncNameList;
@@ -49,6 +50,7 @@ class ComponentHelper
         CompParametrization::TypeEnum parametrization;
         CompMassDef::TypeEnum massDef;
         CompScaleVar::TypeEnum scaleVar;
+        JetTopology::TypeEnum topology;
         bool isSpecial;
         PileupComp::TypeEnum pileupType;
         FlavourComp::TypeEnum flavourType;

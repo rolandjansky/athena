@@ -226,6 +226,11 @@ namespace CompScaleVar
             case C2Beta1:       return "C2Beta1";
             case Qw:            return "Qw";
             case MassRes:       return "MassRes";
+            case MassResAbs:    return "MassResAbs";
+            case PtRes:         return "PtRes";
+            case PtResAbs:      return "PtResAbs";
+            case FourVecRes:    return "FourVecRes";
+            case FourVecResAbs: return "FourVecResAbs";
             default:            return "UNKNOWN";
         }
     }
@@ -258,7 +263,85 @@ namespace CompScaleVar
             return Qw;
         if (!type.CompareTo("MassRes",TString::kIgnoreCase))
             return MassRes;
+        if (!type.CompareTo("MassResAbs",TString::kIgnoreCase))
+            return MassResAbs;
+        if (!type.CompareTo("PtRes",TString::kIgnoreCase))
+            return PtRes;
+        if (!type.CompareTo("PtResAbs",TString::kIgnoreCase))
+            return PtResAbs;
+        if (!type.CompareTo("FourVecRes",TString::kIgnoreCase))
+            return FourVecRes;
+        if (!type.CompareTo("FourVecResAbs",TString::kIgnoreCase))
+            return FourVecResAbs;
         return UNKNOWN;
+    }
+
+    bool isScaleType(const TypeEnum type)
+    {
+        switch (type)
+        {
+            case FourVec:
+            case Pt:
+            case Mass:
+            case D12:
+            case D23:
+            case Tau21:
+            case Tau32:
+            case Tau21WTA:
+            case Tau32WTA:
+            case D2Beta1:
+            case C2Beta1:
+            case Qw:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    bool isResolutionType(const TypeEnum type)
+    {
+        switch (type)
+        {
+            case MassRes:
+            case MassResAbs:
+            case PtRes:
+            case PtResAbs:
+            case FourVecRes:
+            case FourVecResAbs:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    bool isAbsResolutionType(const TypeEnum type)
+    {
+        switch (type)
+        {
+            case MassResAbs:
+            case PtResAbs:
+            case FourVecResAbs:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    bool isRelResolutionType(const TypeEnum type)
+    {
+        switch (type)
+        {
+            case MassRes:
+            case PtRes:
+            case FourVecRes:
+                return true;
+
+            default:
+                return false;
+        }
     }
 }
 
@@ -390,6 +473,7 @@ namespace JetTopology
             case WZ:    return "WZ";
             case Hbb:   return "Hbb";
             case Top:   return "Top";
+            case MIXED: return "MIXED";
             default:    return "UNKNOWN";
         }
     }

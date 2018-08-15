@@ -3061,15 +3061,20 @@ function HLInputs \
 
 function HLCompare \
 {
+    composition="DIJET"
+
     jetDefinition="AntiKt4EMTopo"
     MCtype="MC15"
     CalibArea=""
-    configFile="HL/HL-Optimistic.config"
-    outFile="HL-compare-Baseline-Optimistic.pdf"
+    configFile="HL2018/HL-Optimistic-${composition}.config"
+    #outFile="HL-compare-Run2-Optimistic-UNKNOWN.pdf"
+    outFile="HL-compare-Baseline-Optimistic-${composition}.pdf"
     compList="EffectiveNP_#;Flavor_Comp#;FlavorResp#;Pileup#"
-    compLabels="Absolute #it{in situ} JES;Flav. composition;Flav. response;Pileup"
-    #options="prefix=JET_;fixedEtaVals=0;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";doCompare=JES_2016/Moriond2017/JES2016_21NP.config&MC15&Run 2 uncertainty;totalUncName=\"HL-LHC uncertainty, optimistic\""
-    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";doCompare=HL/HL-Baseline.config&MC15&HL-LHC uncertainty, baseline;totalUncName=\"HL-LHC uncertainty, optimistic\""
+    #compLabels="Absolute #it{in situ} JES;Flav. composition, unknown composition;Flav. response, unknown composition;Pileup"
+    compLabels="Absolute #it{in situ} JES;Flav. composition, inclusive jets;Flav. response, inclusive jets;Pileup"
+    #options="prefix=JET_;isDijet=false;fixedEtaVals=0;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";doCompare=JES_2016/Moriond2017/JES2016_21NP.config&MC15&Run 2 uncertainty;totalUncName=\"HL-LHC uncertainty, optimistic\""
+    #options="prefix=JET_;isDijet=true;fixedEtaVals=0;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";doCompare=HL/HL-Baseline.config&MC15&HL-LHC uncertainty, baseline;totalUncName=\"HL-LHC uncertainty, optimistic\""
+    options="prefix=JET_;isDijet=true;fixedEtaVals=0;fixedPtVals=NONE;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/\";doCompare=HL2018/HL-Baseline-${composition}.config&MC15&HL-LHC uncertainty, baseline;totalUncName=\"HL-LHC uncertainty, optimistic\""
 }
 
 

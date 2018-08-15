@@ -7,6 +7,7 @@
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
 #include "JetUncertainties/ConfigHelper.h"
+#include "JetUncertainties/ResolutionHelper.h"
 #include "JetUncertainties/CorrelationMatrix.h"
 
 // UncertaintyHistogram types
@@ -45,7 +46,6 @@
 #include "TROOT.h"
 #include "TEnv.h"
 #include "TH2D.h"
-#include "TRandom3.h"
 
 // C++ includes
 #include <unordered_set>
@@ -91,8 +91,11 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(0)
-    , m_rand(new TRandom3())
+    , m_rand()
     , m_massSmearPar(0.66)
+    , m_isData(ExtendedBool::UNSET)
+    , m_isSimpleRes(true)
+    , m_resHelper(NULL)
     , m_namePrefix("JET_")
 {
     declareProperty("JetDefinition",m_jetDef);
@@ -103,6 +106,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     declareProperty("AnalysisFile",m_analysisFile);
     declareProperty("AnalysisHistPattern",m_analysisHistPattern);
     declareProperty("VariablesToShift",m_systFilters);
+    declareProperty("IsData",m_isData); // TODO test this works with bool values
 
     ATH_MSG_DEBUG("Creating JetUncertaintiesTool named "<<m_name);
 
@@ -145,8 +149,11 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(toCopy.m_userSeed)
-    , m_rand(toCopy.m_rand ? new TRandom3(*toCopy.m_rand) : NULL)
+    , m_rand(toCopy.m_rand)
     , m_massSmearPar(toCopy.m_massSmearPar)
+    , m_isData(toCopy.m_isData)
+    , m_isSimpleRes(toCopy.m_isSimpleRes)
+    , m_resHelper(new ResolutionHelper(*toCopy.m_resHelper))
     , m_namePrefix(toCopy.m_namePrefix)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
@@ -181,7 +188,7 @@ JetUncertaintiesTool::~JetUncertaintiesTool()
         JESUNC_SAFE_DELETE(iter->second);
     m_systSetMap.clear();
 
-    JESUNC_SAFE_DELETE(m_rand);
+    JESUNC_SAFE_DELETE(m_resHelper);
 }
 
 StatusCode JetUncertaintiesTool::setScaleToMeV()
@@ -1787,6 +1794,25 @@ bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const 
 }
 
 
+double JetUncertaintiesTool::getNominalResolution(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const bool readMC) const
+{
+    // Get the nominal histogram and parametrization from the helper
+    std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> resolution = m_resHelper->getNominalResolution(smearType,m_currentUncSet->getTopology(),readMC);
+
+    // Check that we retrieved them successfully
+    if (!resolution.first || resolution.second == CompParametrization::UNKNOWN)
+        return JESUNC_ERROR_CODE;
+
+    // Now read the uncertainty from the histogram
+    return readHistoFromParam(jet,*resolution.first,resolution.second);
+}
+
+
+double JetUncertaintiesTool::readHistoFromParam(const xAOD::Jet& jet, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
+{
+    return readHistoFromParam(jet.jetP4(),histo,param);
+}
+
 double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
 {
     double resolution = 0;
@@ -2041,10 +2067,12 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
         const CompScaleVar::TypeEnum scaleVar = uncSet.at(iVar).first;
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
+        const double smear = uncSet.at(iVar).second;
         
 
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
+        double smearingFactor = 1;
         switch (scaleVar)
         {
             case CompScaleVar::FourVec:
@@ -2093,8 +2121,32 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
-                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),getMassSmearingFactor(jet,shift,m_massSmearPar)*jet.m()));
+            case CompScaleVar::MassResAbs:
+                if (m_currentUncSet->getTopology() == JetTopology::UNKNOWN)
+                {
+                    // The JMR requires that there is a topology specified
+                    // (JMR uncertainties are topology-specific)
+                    ATH_MSG_ERROR("Smearing the mass without specifying the topology is not supported");
+                    return CP::CorrectionCode::Error;
+                }
+                if (m_currentUncSet->getTopology() == JetTopology::MIXED)
+                {
+                    // We can't handle multi-topology JMR uncertainties
+                    ATH_MSG_ERROR("Smearing the mass using multiple topology definitions is not supported");
+                    return CP::CorrectionCode::Error;
+                }
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),smearingFactor*jet.m()));
                 break;
+            case CompScaleVar::PtRes:
+            case CompScaleVar::PtResAbs:
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(smearingFactor*jet.pt(),jet.eta(),jet.phi(),jet.m()));
+                break;
+            case CompScaleVar::FourVecRes:
+            case CompScaleVar::FourVecResAbs:
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(smearingFactor*jet.pt(),jet.eta(),jet.phi(),smearingFactor*jet.m()));
             default:
                 ATH_MSG_ERROR("Asked to scale an UNKNOWN variable for set: " << m_currentUncSet->getName());
                 return CP::CorrectionCode::Error;
@@ -2210,7 +2262,116 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
 
 
 
-// Courtest of Francesco Spano
+
+double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const double variation) const
+{
+    /*
+        Below follows discussion between B Malaescu, C Young, and S Schramm on 14/08/2018
+
+        sigma_smear^2 = (sigma_nominal + n*x + m*y + ...)^2 - (sigma_nominal)^2
+            sigma_smear: width of the Gaussian to smear with
+            sigma_nominal: the nominal resolution in either (pseudo-)data OR mc (see below)
+            n: #sigma variation for NP1
+            m: #sigma variation for NP2
+            x: uncertainty from NP1
+            y: uncertainty from NP2
+        Note that n,m,x,y all are signed quantities
+            n,m are + for upward variations and - for downward variations
+            x,y are + or - to differentiate regions of anticorrelations within a given NP
+
+        The source of sigma_nominal depends on what is being smeared
+            (nx+my+...) > 0  -->  smear MC, so use sigma_nominal^MC
+            (nx+my+...) < 0  -->  smear (pseudo-)data, so use sigma_nominal^data
+            (nx+my+...) = 0  -->  no smearing is required
+
+        In some cases, it is not desireable to smear (pseudo-)data
+        Result: two correlation smearing options, "full" and "simple"
+            Full = full correlations preserved, smear both (peudo-)data and MC
+            Simple = simplified correlations (= loss of correlations), smear only MC
+
+        In "simple" case, we are smearing MC even if we should ideally smear (pseudo-)data
+            sign(nx+my+...)  -->  no longer matters, always use sigma_nominal^MC
+        Furthermore, take the absolute value as we are forcing an upward variation
+            sigma_smear^2 = (sigma_nom^MC + |n*x + m*y + ...|)^2 - (sigma_nom^MC)^2
+            In the case of 1 NP, analysis gets same result if n is positive or negative
+            Analysis must symmetrize uncertainties themselves to get downward variations
+
+        The above is all for absolute resolution uncertainties
+            In the case of relative resolution uncertainties, not much changes
+            n*x --> n*sigma_nominal^data*x
+                n: unchanged from before, #sigma variation for NP1
+                x: now this is a fractional uncertainty, but it is still the value of NP1
+                sigma_nominal^data: uncertainty measurement is with respect to data, not MC
+            In other words, all of the above is directly extended using sigma_nominal^data
+
+        In the end, smear by a Gaussian of mean 1 and width sigma_smear
+
+        ----------
+        
+        Given this, the arguments to the function are:
+            jet: jet to smear, needed for the kinematic dependence of nominal resolutions
+            smearType: the resolution type to select the relevant nominal resolutions
+            variation: the signed value of n*x + m*y + ... (for both relative and absolute)
+
+        Dedicated class member variables used by this function are:
+            m_isData: needed to control whether or not to smear the jet
+            m_isSimpleRes: needed to control whether we smear data+MC or only MC
+            m_*NomResData: the relevant nominal resolution histogram for data
+            m_*NomResMC: the relevant nominal resolution histogram for MC
+            m_*NomResParamData: the parametrization of the nominal data resolution
+            m_*NomResParamMC: the parametrization of the nominal MC resolution
+            m_rand: the random number generator
+            m_userSeed: the optional user-specified seed to use for the random generator
+
+        Technical detail on relative uncertainties:
+            The input value of "variation" is always n*x + m*y + ...
+            This is trivially correct for absolute uncertainties, but not relative
+            However, for relative uncertainties, all NPs are with respect to same nominal
+            As such, it factors out, and we can take variation*sigma_nominal^data
+    */
+
+    // Check if we need to do anything at all
+    if (variation == 0)
+        return 1; // No smearing if the variation is 0
+    else if (m_isData)
+    {
+        if (m_isSimpleRes)
+            return 1; // No smearing if this is data and we are in the simple scenario
+        if (variation > 0)
+            return 1; // No smearing if this is data and the sign says to smear MC
+    }
+    else if (variation < 0)
+        return 1; // No smearing if this is MC and the sign says to smear data
+    
+    // Figure out which resolution is nominal (MC or data)
+    const bool nominalIsMC = (m_isSimpleRes || variation > 0);
+
+    // Get the relevant nominal resolution
+    const double sigmaNom = getNominalResolution(jet,smearType,nominalIsMC);
+
+    // If this is a relative uncertainty, get the relevant nominal data histogram
+    // This is used to scale the input relative variation to get the absolute impact
+    const double relativeFactor = CompScaleVar::isRelResolutionType(smearType)
+                                    ? getNominalResolution(jet,smearType,false)
+                                    : 1;
+
+    // We now have the required information, so let's calculate the smearing factor
+    // Note that relativeFactor is 1 if this is an absolute uncertainty
+    const double sigmaSmear = m_isSimpleRes
+                                ? sqrt(pow(sigmaNom + fabs(variation)*relativeFactor,2) - pow(sigmaNom,2))
+                                : sqrt(pow(sigmaNom +      variation *relativeFactor,2) - pow(sigmaNom,2));
+
+    // We have the smearing factor, so prepare to smear
+    // If the user specified a seed, then use it
+    // If not, then use the jet's phi times 10^5
+    const long long int seed = m_userSeed != 0 ? m_userSeed : 1.e+5*fabs(jet.phi());
+    m_rand.SetSeed(seed);
+
+    // Calculate and return the smearing factor
+    return m_rand.Gaus(1.,sigmaSmear);
+}
+
+// Courtesy of Francesco Spano
 float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const
 {
     //----input discussion---
@@ -2226,15 +2387,15 @@ float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double s
     // Set the seed; same procedure as in JERSmearingTool::getSmearingFactor(const xAOD::Jet* jet, double sigma)
     long long int seed = m_userSeed;
     if(seed == 0) seed = 1.e+5*std::abs(jet.phi());  
-    m_rand->SetSeed(seed);
+    m_rand.SetSeed(seed);
     
     //  get the Gaussian random number associated to the relative resolution
     // 1st way : a la JetRes use a relative standard deviation
-    //double smearingFact1=m_rand->Gaus(1.,0.66*frac_sigma_nominal);
-    double smearingFact1=m_rand->Gaus(1.,massSmearPar*frac_sigma_nominal);
+    //double smearingFact1=m_rand.Gaus(1.,0.66*frac_sigma_nominal);
+    double smearingFact1=m_rand.Gaus(1.,massSmearPar*frac_sigma_nominal);
 
     // 2nd alternative way : use the relative standard deviation 
-    //  const double GaussZeroOne = m_rand->Gaus(0.,1.); 
+    //  const double GaussZeroOne = m_rand.Gaus(0.,1.); 
     //  double smearingFact2=1+0.66*GaussZeroOne*frac_sigma_nominal;
     double smearingFact=smearingFact1;
 

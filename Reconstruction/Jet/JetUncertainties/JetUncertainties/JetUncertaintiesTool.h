@@ -13,6 +13,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "TRandom3.h"
+
 namespace jet
 {
     class UncertaintyHistogram;
@@ -23,11 +25,11 @@ namespace jet
     class ConfigHelper;
     class GroupHelper;
     class ComponentHelper;
+    class ResolutionHelper;
 }
 
 class TFile;
 class TH2D;
-class TRandom3;
 
 namespace xAOD
 {
@@ -210,8 +212,11 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
  
         // Smearing information
         long long int m_userSeed;
-        TRandom3* m_rand; // pointer so it can be changed in a const function (volatile wasn't working)
+        mutable TRandom3 m_rand; // mutable as this we want to call in a const function (everything else is fixed, the random generator is modifiable)
         double m_massSmearPar;
+        bool m_isData;
+        bool m_isSimpleRes;
+        jet::ResolutionHelper* m_resHelper;
 
         // Default prefix for each component name
         const std::string m_namePrefix;
@@ -225,7 +230,10 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         jet::UncertaintyComponent* buildUncertaintyComponent(const jet::ComponentHelper& component) const;
         const xAOD::EventInfo* getDefaultEventInfo() const;
         StatusCode checkIndexInput(const size_t index) const;
+        double getSmearingFactor(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const double variation) const;
         float getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const;
+        double getNominalResolution(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const bool readMC) const;
+        double readHistoFromParam(const xAOD::Jet& jet, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
         double readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
 
         // Helper methods for setting shifted moments

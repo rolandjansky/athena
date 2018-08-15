@@ -41,6 +41,7 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     param       = settings.GetValue(compPrefix+"Param","");
     massDefStr  = settings.GetValue(compPrefix+"MassDef","");
     scale       = settings.GetValue(compPrefix+"Scale","FourVec");
+    topologyStr = settings.GetValue(compPrefix+"Topology","");
     interpolStr = settings.GetValue(compPrefix+"Interp","true");
     special     = settings.GetValue(compPrefix+"Special","");
     uncNameList = TString(settings.GetValue(compPrefix+"Hists","")).ReplaceAll("MCTYPE",MCtype);
@@ -61,6 +62,7 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     parametrization = CompParametrization::stringToEnum(param);
     massDef         = CompMassDef::stringToEnum(massDefStr);
     scaleVar        = CompScaleVar::stringToEnum(scale);
+    topology        = JetTopology::stringToEnum(topologyStr);
     isSpecial       = (!special.CompareTo("true",TString::kIgnoreCase)) || (!special.CompareTo("yes",TString::kIgnoreCase));
     pileupType      = PileupComp::stringToEnum(name);
     flavourType     = FlavourComp::stringToEnum(name);
