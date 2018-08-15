@@ -73,14 +73,14 @@ namespace CP
   StatusCode AsgLeptonTrackSelectionAlg ::
   execute ()
   {
-    const xAOD::EventInfo *eventInfo {};
+    const xAOD::EventInfo *eventInfo {nullptr};
     if (m_maxD0Significance > 0)
       ANA_CHECK (evtStore()->retrieve (eventInfo, "EventInfo"));
 
-    const xAOD::Vertex *primaryVertex {};
+    const xAOD::Vertex *primaryVertex {nullptr};
     if (m_maxDeltaZ0SinTheta > 0)
     {
-      const xAOD::VertexContainer *vertices {};
+      const xAOD::VertexContainer *vertices {nullptr};
       ANA_CHECK (evtStore()->retrieve (vertices, "PrimaryVertices"));
       for (const xAOD::Vertex *vertex : *vertices)
       {
@@ -107,9 +107,9 @@ namespace CP
         for (xAOD::IParticle *particle : *particles)
         {
           m_accept.clear();
-          std::size_t cutIndex {};
+          std::size_t cutIndex {0};
 
-          const xAOD::TrackParticle *track {};
+          const xAOD::TrackParticle *track {nullptr};
           if (const xAOD::Muon *muon = dynamic_cast<xAOD::Muon*>(particle))
             track = muon->primaryTrackParticle();
           else if (const xAOD::Electron *electron = dynamic_cast<xAOD::Electron*>(particle))
