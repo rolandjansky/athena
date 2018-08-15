@@ -1601,6 +1601,7 @@ def setupMenu():
         ['xe120_trkmht_xe110_mht_xe80_L1XE55','L1_XE55', ['L1_XE55','L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_trkmht','xe110_mht','xe80_L1XE55'] ]],
         ['xe120_trkmht_xe110_mht_xe80_L1XE60','L1_XE60', ['L1_XE60','L1_XE60','L1_XE60'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_trkmht','xe110_mht','xe80_L1XE60'] ]],
 	
+        ['xe110_trktc_lcw_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 			 ]
     if TriggerFlags.doFTK():
         TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
@@ -1629,6 +1630,7 @@ def setupMenu():
             ['xe100_trkmht_FTK_L1KF-XE75', 'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
             ['xe110_trkmht_FTK_L1KF-XE75', 'L1_KF-XE75',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
+            ['xe110_trktc_lcw_FTK_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
             ]
 
     

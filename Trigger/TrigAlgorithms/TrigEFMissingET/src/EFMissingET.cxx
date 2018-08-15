@@ -52,6 +52,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareProperty("doTimers", m_doTimers = true, "switch on/off internal timers");
   declareProperty("DecodeDetMask", m_decodeDetMask = false, "switch on/off DetMask decoding");
   declareProperty("doTopoClusters", m_doTopoClusters = false, "run with or without topo. clusters");
+  declareProperty("doTrackTopoClusters", m_doTrackTopoClusters = false, "run with or without track and topo. clusters");
   declareProperty("doJets", m_doJets = false, "run with or without jets");
   declareProperty("doTracks", m_doTracks = false, "run with or without tracks");
   declareProperty("doPUC", m_doPUC = false, "run with or without pile-up correction fit");
@@ -526,7 +527,7 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerElement*> >& tes_in)
 {
 
-  if(m_doTopoClusters == false && m_doJets == false && m_doJets == false)
+  if(m_doTopoClusters == false && m_doJets == false)
      m_n_sizePers = 25;
   else if(m_doTopoClusters == true && m_doJets == true && m_doTracks==true)
     m_n_sizePers = 3;
@@ -536,6 +537,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
      m_n_sizePers = 3;
    else
      m_n_sizePers = 9;
+
 
 
   // Setup xAOD EDM
@@ -609,12 +611,10 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 	    if(status_vtx!=HLT::OK || !m_vertices) {
 	      ATH_MSG_ERROR( "Failed to get vertices" ); return HLT::NAV_ERROR;
 	    } else {
-	      if (true){//msgLvl(MSG::DEBUG) ) {
 		ATH_MSG_INFO( "size of vertex container " << m_vertices->size() );
 		for (auto& ivtx : *m_vertices)
 		  ATH_MSG_INFO( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
 				 << ivtx->nTrackParticles() );
-	      }
 	    }//retrieve vertex container
 	  }//retrieve te3 
 	}//more than 3 tes (0-3)
@@ -651,6 +651,24 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
       }//do jets and tracks 
    } else { // fetched all topo. clusters
 
+
+     // fetched all topo. clusters
+     if (m_doTrackTopoClusters && tes_in.size() > 0) { // safe-guard
+      for (const auto& te_in : tes_in.at(0) ) {
+         HLT::ErrorCode status = getFeature(  te_in , m_caloCluster );
+
+         if(status!=HLT::OK || !m_caloCluster) {
+            // Changed to prevent abortions of combined chains during cosmic data taking
+            // This should not be in during collisions
+            //ATH_MSG_ERROR( "Failed to get ClusterContainer" ); return HLT::NAV_ERROR;
+            ATH_MSG_ERROR( "Failed to get ClusterContainer" ); return HLT::OK;
+         } else {
+           ATH_MSG_DEBUG( "size of cluster container " << m_caloCluster->size() );
+         }
+
+      } // end loop over topoclusters
+    }
+
    // fetch jets for later use
    if (m_doJets && tes_in.size() > 0) { // safe-guard
       for (const auto& te_in : tes_in.at(0) ) {
@@ -666,12 +684,12 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
             }
          }
 
-      } // end loop over topoclusters
-   } // fetched all topo. clusters
+      } // end loop over jets
+   } // fetched all jets
 
 
    //fetch tracks for later use
-   if (m_doJets && m_doTracks && tes_in.size() > 0) { // safe-guard
+   if ((m_doJets||m_doTrackTopoClusters) && m_doTracks && tes_in.size() > 0) { // safe-guard
       for (const auto& te_in : tes_in.at(1) ) {
          HLT::ErrorCode status = getFeature(  te_in , m_tracks );
 
@@ -686,13 +704,13 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
             }
          }
 
-      } // end loop over topoclusters
-   } // fetched all topo. clusters
+      } // end loop over tracks
+   } // fetched all tracks
 
 
 
    //fetch vertex for later use
-   if (m_doJets  && m_doTracks && tes_in.size() > 0) { // safe-guard
+   if ((m_doJets||m_doTrackTopoClusters)  && m_doTracks && tes_in.size() > 0) { // safe-guard
       for (const auto& te_in : tes_in.at(1) ) {
          HLT::ErrorCode status = getFeature(  te_in , m_vertices );
 
@@ -707,12 +725,12 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
             }
          }
 
-      } // end loop over topoclusters
-   } // fetched all topo. clusters
+      } // end loop over vertex
+   } // fetched all vertex
 
 
    //fetch muons for later use
-   if (m_doJets  && m_doTracks && tes_in.size() > 2) { // safe-guard
+   if ((m_doJets||m_doTrackTopoClusters)  && m_doTracks && tes_in.size() > 2) { // safe-guard
       for (HLT::TEVec::const_iterator it = tes_in[2].begin(); it != tes_in[2].end(); ++it) {
          HLT::ErrorCode status = getFeature(  (*it) , m_muons );
 
@@ -724,11 +742,10 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
             }
          }
 
-      } // end loop over topoclusters
-   } // fetched all topo. clusters
+      } // end loop muons
+   } // fetched all muons
 
    }
-
 
   if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present
      ATH_MSG_INFO( " Error: configured to run over topo. clusters but no TriggerElement was passed to the FEX -- check menu configuration!! " );
@@ -742,6 +759,11 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
   if(m_doTracks && (!m_tracks || !m_vertices)) {  // check if one should process jets and if pointer is present
      ATH_MSG_INFO( " Error: configured to run over tracks and jets but no TriggerElement was passed to the FEX -- check menu configuration!! " );
+     return HLT::ERROR;
+  }
+
+  if(m_doTrackTopoClusters && ( !m_caloCluster || !m_tracks || !m_vertices)) {  // check if one should process jets and if pointer is present
+     ATH_MSG_INFO( " Error: configured to run over tracks and TopoClusters but no TriggerElement was passed to the FEX -- check menu configuration!! " );
      return HLT::ERROR;
   }
 
