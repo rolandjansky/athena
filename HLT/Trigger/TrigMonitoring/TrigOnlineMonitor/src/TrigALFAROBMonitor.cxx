@@ -936,16 +936,16 @@ uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
 	    //AlfaEventObj->framingStatus |= 0x4;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *lwcPtr);
-    	    ATH_MSG_DEBUG("ROD skipped - LWC(-1): "<< MSG::hex << *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
-    	    ATH_MSG_INFO("ROD skipped - LWC(-1): "<< MSG::hex << *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
+    	    ATH_MSG_DEBUG("ROD "<< MSG::hex<<rodId<<" skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
+    	    ATH_MSG_INFO("ROD "<< MSG::hex<<rodId<<"skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
             return (1); //continue;
         }
         if ((*twcPtr & 0xff000000) != 0x8a000000) {
 	    //AlfaEventObj->framingStatus |= 0x8;
 	    //char hex_display[100];
 	    //sprintf(hex_display, "0x%x", *twcPtr);
-    	    ATH_MSG_DEBUG( "ROD skipped - TWC: "<< *twcPtr );
-    	    ATH_MSG_INFO( "ROD skipped - TWC(-1): "<< MSG::hex << *(twcPtr-1)<< " TWC: "<< *twcPtr <<" TWC+1: " << *(twcPtr+1) 
+    	    ATH_MSG_DEBUG( "ROD "<< MSG::hex<<rodId<<" skipped - TWC: "<< *twcPtr );
+    	    ATH_MSG_INFO( "ROD "<< MSG::hex<<rodId<<" skipped - TWC(-1): "<< *(twcPtr-1)<< " TWC: "<< *twcPtr <<" TWC+1: " << *(twcPtr+1) 
                            <<" LWC: " << *lwcPtr << " mbNb: "<< mbNb);
             return (1); //continue;
         }
