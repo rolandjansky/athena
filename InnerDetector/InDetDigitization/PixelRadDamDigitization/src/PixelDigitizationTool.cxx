@@ -16,7 +16,7 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"

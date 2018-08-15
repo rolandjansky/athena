@@ -10,7 +10,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
@@ -74,7 +74,7 @@ StatusCode
 PrintSiElements::printElements(const std::string & managerName){
   const InDetDD::SiDetectorElementCollection * elements = nullptr;
   if (managerName=="Pixel") {
-    const InDetDD::SiDetectorManager * manager;
+    const InDetDD::PixelDetectorManager * manager;
     ATH_CHECK(detStore()->retrieve(manager,managerName));
     elements = manager->getDetectorElementCollection();
   } else if (managerName=="SCT") {
