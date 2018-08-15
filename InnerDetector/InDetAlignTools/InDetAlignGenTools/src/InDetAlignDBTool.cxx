@@ -25,12 +25,10 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/InDetDetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 #include "InDetIdentifier/PixelID.h"
@@ -166,17 +164,8 @@ StatusCode InDetAlignDBTool::initialize()
 
     for (int i=0;i<3;++i) chan[i]=100*i;
     std::string man_name;
-    InDetDD::SiDetectorElementCollection::const_iterator iter,itermin,itermax;
     for (int idet=1;idet<3;++idet) {
-      if (idet==1) {
-	itermin=m_pixman->getDetectorElementBegin();
-	itermax=m_pixman->getDetectorElementEnd();
-      } else {
-	itermin=m_sctman->getDetectorElementBegin();
-	itermax=m_sctman->getDetectorElementEnd();
-      }
-      for (iter=itermin;iter!=itermax;++iter) {
-        const InDetDD::SiDetectorElement* element=*iter;
+      for (const InDetDD::SiDetectorElement* element: *(idet==1 ? m_pixman->getDetectorElementCollection() : m_sctman->getDetectorElementCollection())) {
         if (element!=0) {
           const Identifier ident=element->identify();
           int det,bec,layer,ring,sector,side;
@@ -317,17 +306,8 @@ void InDetAlignDBTool::createDB() const
 
   // now loop over all detector modules and add null level 3 transforms
   std::vector<std::string> level2;
-  InDetDD::SiDetectorElementCollection::const_iterator iter,itermin,itermax;
   for (int idet=1;idet<3;++idet) {
-    if (idet==1) {
-      itermin=m_pixman->getDetectorElementBegin();
-      itermax=m_pixman->getDetectorElementEnd();
-    } else {
-      itermin=m_sctman->getDetectorElementBegin();
-      itermax=m_sctman->getDetectorElementEnd();
-    }
-    for (iter=itermin;iter!=itermax;++iter) {
-      const InDetDD::SiDetectorElement* element=*iter;
+    for (const InDetDD::SiDetectorElement* element: *(idet==1 ? m_pixman->getDetectorElementCollection() : m_sctman->getDetectorElementCollection())) {
       if (element!=0) {
         const Identifier ident=element->identify();
         std::string key=dirkey(ident,3);
@@ -545,17 +525,8 @@ void InDetAlignDBTool::dispGroup(const int dettype, const int bec,
   std::vector<Identifier> lvl12id;
   // loop over all pixel and SCT modules
   AlignableTransform* pat;
-  InDetDD::SiDetectorElementCollection::const_iterator iter,itermin,itermax;
   for (int idet=1;idet<3;++idet) {
-    if (idet==1) {
-      itermin=m_pixman->getDetectorElementBegin();
-      itermax=m_pixman->getDetectorElementEnd();
-    } else {
-      itermin=m_sctman->getDetectorElementBegin();
-      itermax=m_sctman->getDetectorElementEnd();
-    }
-    for (iter=itermin;iter!=itermax;++iter) {
-      const InDetDD::SiDetectorElement* element=*iter;
+    for (const InDetDD::SiDetectorElement* element: *(idet==1 ? m_pixman->getDetectorElementCollection() : m_sctman->getDetectorElementCollection())) {
       if (element!=0) {
         const Identifier ident=element->identify();
         int mdet,mbec,mlayer,mring,msector,mside;
