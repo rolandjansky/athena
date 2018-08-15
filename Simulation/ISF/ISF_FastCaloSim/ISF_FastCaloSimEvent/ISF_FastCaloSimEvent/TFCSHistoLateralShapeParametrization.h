@@ -30,12 +30,12 @@ public:
   float get_number_of_expected_hits() const {return m_nhits;};
 
   /// default for this class is to simulate poisson(integral histogram) hits
-  int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+  int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   /// simulated one hit position with weight that should be put into simulstate
   /// sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
   /// someone also needs to map all hits into cells
-  virtual void simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
   /// Init from histogram. The integral of the histogram is used as number of expected hits to be generated
   bool Initialize(TH2* hist);
@@ -44,13 +44,13 @@ public:
   TFCS2DFunctionHistogram& histogram() {return m_hist;};
   const TFCS2DFunctionHistogram& histogram() const {return m_hist;};
   
-  void Print(Option_t *option = "") const;
+  void Print(Option_t *option = "") const override;
 private:
   /// Histogram to be used for the shape simulation
   TFCS2DFunctionHistogram m_hist;
   float m_nhits;
 
-  ClassDef(TFCSHistoLateralShapeParametrization,1)  //TFCSHistoLateralShapeParametrization
+  ClassDefOverride(TFCSHistoLateralShapeParametrization,1)  //TFCSHistoLateralShapeParametrization
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

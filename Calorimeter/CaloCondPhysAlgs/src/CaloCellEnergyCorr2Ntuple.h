@@ -52,8 +52,6 @@ class CaloCellEnergyCorr2Ntuple : public AthAlgorithm {
   //=== blob storage
   ITHistSvc* m_thistSvc;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   const CaloCell_ID*       m_calo_id;
 
   std::string m_key;

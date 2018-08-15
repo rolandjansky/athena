@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./L1TopoSimulation.h"
@@ -182,19 +182,6 @@ L1TopoSimulation::initialize() {
    return StatusCode::SUCCESS;
 }
 
-// Exectued at every run-number change both online and offline
-StatusCode 
-L1TopoSimulation::beginRun() {
-   m_scaler->reset();
-   return StatusCode::SUCCESS;
-}
-
-// Exectued at every run-number change both online and offline
-StatusCode 
-L1TopoSimulation::endRun() {
-   return StatusCode::SUCCESS;
-}
-
 // Exectued once per offline job and for every new run online
 StatusCode
 L1TopoSimulation::stop() {
@@ -213,6 +200,8 @@ L1TopoSimulation::stop() {
 StatusCode
 L1TopoSimulation::start() {
    ATH_MSG_DEBUG("start");
+
+   m_scaler->reset();
 
    // monitoring : book histogram
    for (auto mt : m_monitors )

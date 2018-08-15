@@ -6,12 +6,14 @@
 #include "InDetGlobalErrorMonTool.h"
 
 #include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "TH2F.h"
 
@@ -21,7 +23,8 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
   ManagedMonitorToolBase(type, name, parent),
   m_pixID( 0 ),
   m_pixManager( 0 ),
-  m_sctManager( 0 ),
+  m_sctID( 0 ),
+  m_pixCond("PixelConditionsSummarySvc", name),
   m_ErrorSvc("PixelByteStreamErrorsSvc",name),
   m_errorGeoPixel(),
   m_disabledGeoPixel(),
@@ -51,8 +54,8 @@ StatusCode InDetGlobalErrorMonTool::initialize() {
     msg(MSG::ERROR) << "Could not retrieve Pixel Detector Manager" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (detStore()->retrieve(m_sctManager, "SCT").isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve SCT Detector Manager" << endmsg;
+  if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()){
+    msg(MSG::ERROR) << "Could not retrieve SCT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -60,6 +63,8 @@ StatusCode InDetGlobalErrorMonTool::initialize() {
 
   ATH_CHECK(m_ConfigurationTool.retrieve());
   ATH_CHECK(m_byteStreamErrTool.retrieve());
+
+  ATH_CHECK(m_sctDetEleCollKey.initialize());
   
   return ManagedMonitorToolBase::initialize();
 }
@@ -250,6 +255,13 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   double deltaZ = 0;
   
   m_errorGeoSCT.clear();
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_ERROR(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncErrorSCT()");
+    return false;
+  }
   
   for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
     {
@@ -266,12 +278,11 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
 	  {
 	    moduleGeo_t moduleGeo;
 	    
-	    InDetDD::SiDetectorElement * newElement = m_sctManager->getDetectorElement( (*fit) );
+	    const InDetDD::SiDetectorElement * newElement = elements->getDetectorElement( (*fit) );
 	    newElement->getEtaPhiRegion( deltaZ,
 					 moduleGeo.first.first,  moduleGeo.first.second,
 					 moduleGeo.second.first, moduleGeo.second.second,
 					 rz );
-	    
 	    m_errorGeoSCT.insert( std::pair<IdentifierHash, moduleGeo_t>( (*fit), moduleGeo ) );
 	  }
       }
@@ -335,6 +346,14 @@ bool InDetGlobalErrorMonTool::SyncDisabledSCT()
   double deltaZ = 0;
   
   m_disabledGeoSCT.clear();
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_ERROR(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+    return false;
+  }
+
   const std::set<Identifier>* badModules = m_ConfigurationTool->badModules();
   std::set<Identifier>::const_iterator fit = badModules->begin();
   std::set<Identifier>::const_iterator fitEnd = badModules->end();
@@ -349,8 +368,10 @@ bool InDetGlobalErrorMonTool::SyncDisabledSCT()
 	{
 	  altered = true;
 	  moduleGeo_t moduleGeo;
+
+          const IdentifierHash waferHash = m_sctID->wafer_hash( (*fit) );
 	  
-	  InDetDD::SiDetectorElement * newElement = m_sctManager->getDetectorElement( (*fit) );
+	  const InDetDD::SiDetectorElement * newElement = elements->getDetectorElement( waferHash );
 	  newElement->getEtaPhiRegion( deltaZ,
 				       moduleGeo.first.first,  moduleGeo.first.second,
 				       moduleGeo.second.first, moduleGeo.second.second,

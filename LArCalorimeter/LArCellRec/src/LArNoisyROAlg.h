@@ -18,30 +18,32 @@
 
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ILArNoisyROTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "LArRecEvent/LArNoisyROSummary.h"
 
 class CaloCellContainer;
-class LArNoisyROSummary; 
 
-class LArNoisyROAlg : public AthAlgorithm
+class LArNoisyROAlg : public AthReentrantAlgorithm
 {
  public:
 
   LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator);
-  virtual StatusCode initialize();
-  virtual StatusCode execute();   
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute_r (const EventContext& ctx) const override;   
+  virtual StatusCode finalize() override;
 
  
  private: 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
  
-  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerName;
-  SG::WriteHandleKey<LArNoisyROSummary> m_outputKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
+  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerName{this, "CaloCellContainer", "AllCalo", "Name of input cell container"};
+  SG::WriteHandleKey<LArNoisyROSummary> m_outputKey{this, "OutputKey", "LArNoisyROSummary", "Output summary object name"};
 
 };
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -74,7 +74,7 @@ class TrigSubDetListWriter : public HLT::AllTEAlgo
 
     HLT::ErrorCode fillPEBInfo(PartialEventBuildingInfo& pebInfo);
 
-    HLT::ErrorCode hltBeginRun();
+    HLT::ErrorCode hltStart();
 
     TH1I* bookAndRegisterTH1I(const char* name, std::string outpath, int nBins, int minX, int maxX);
 

@@ -34,18 +34,19 @@ if svcMgr.MessageSvc.OutputLevel <= DEBUG :
 
 from IOVDbSvc.CondDB import conddb
 
-larCondDBFolders = ["/LAR/ElecCalibMC/Ramp",
-                    "/LAR/ElecCalibMC/AutoCorr",
-                    "/LAR/ElecCalibMC/DAC2uA",
-                    "/LAR/ElecCalibMC/Pedestal",
-                    "/LAR/ElecCalibMC/Noise",
-                    "/LAR/ElecCalibMC/fSampl",
-                    "/LAR/ElecCalibMC/uA2MeV",
-                    "/LAR/ElecCalibMC/MinBias",
-                    "/LAR/ElecCalibMC/MinBiasAverage"]
+larCondDBFolders = [("LArRampMC","/LAR/ElecCalibMC/Ramp"),
+                    ("LArAutoCorrMC","/LAR/ElecCalibMC/AutoCorr"),
+                    ("LArDAC2uAMC","/LAR/ElecCalibMC/DAC2uA"),
+                    ("LArPedestalMC","/LAR/ElecCalibMC/Pedestal"),
+                    ("LArNoiseMC","/LAR/ElecCalibMC/Noise"),
+                    ("LArfSamplMC","/LAR/ElecCalibMC/fSampl"),
+                    ("LAruA2MeVMC","/LAR/ElecCalibMC/uA2MeV"),
+                    ("LArMinBiasMC","/LAR/ElecCalibMC/MinBias"),
+                    ("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage")
+                    ]
 
 if larCondFlags.useMCShape():
-    larCondDBFolders += ["/LAR/ElecCalibMC/Shape"]
+    larCondDBFolders += [("LArShape32MC","/LAR/ElecCalibMC/Shape")]
 
 include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
 
@@ -57,7 +58,7 @@ condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
 ## these may be conditional. 
 if larCondFlags.hasMphys() :
-  larCondDBFolders += ["/LAR/ElecCalibMC/MphysOverMcal"]
+  larCondDBFolders += [("LArMphysOverMcalMC","/LAR/ElecCalibMC/MphysOverMcal")]
 
 # HV Scale Corr
 if larCondFlags.hasHVCorr() :

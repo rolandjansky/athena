@@ -22,15 +22,15 @@ namespace InDet
         PixelCluster_p2() {}
 
         // replace this:
-        Identifier::value_type                    m_clusId; 
-        std::vector<rdo_diff_type>                m_rdoList;
-        float                                     m_localPosX;
-        float                                     m_localPosY;
-        float 					m_mat00;
-        float 					m_mat01;
-        float 					m_mat11;
-        float                                     m_omX;
-        float                                     m_omY;
+        Identifier::value_type                    m_clusId{}; 
+        std::vector<rdo_diff_type>                m_rdoList{};
+        float                                     m_localPosX{};
+        float                                     m_localPosY{};
+        float 					m_mat00{};
+        float 					m_mat01{};
+        float 					m_mat11{};
+        float                                     m_omX{};
+        float                                     m_omY{};
 
         //SiWidth_p2
         InDet::SiWidth_p2			m_width;

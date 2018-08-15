@@ -5,7 +5,7 @@
 #ifndef L1CALORAMPDATACONTAINER_H
 #define L1CALORAMPDATACONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibConditions/L1CaloRampData.h"

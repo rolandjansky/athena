@@ -30,7 +30,7 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-  StatusCode beginRun();  
+  StatusCode start();  
 
 private:
 

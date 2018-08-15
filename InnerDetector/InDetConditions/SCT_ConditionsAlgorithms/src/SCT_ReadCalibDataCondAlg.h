@@ -9,6 +9,7 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_CalibDefectData.h"
@@ -22,7 +23,6 @@
 
 // Forward declarations
 class SCT_ID;
-namespace InDetDD{ class SCT_DetectorManager; }
 
 class SCT_ReadCalibDataCondAlg : public AthAlgorithm 
 {  
@@ -38,6 +38,7 @@ class SCT_ReadCalibDataCondAlg : public AthAlgorithm
 
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyGain{this, "ReadKeyGain", "/SCT/DAQ/Calibration/NPtGainDefects", "Key of input (raw) gain defect conditions folder"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyNoise{this, "ReadKeyNoise", "/SCT/DAQ/Calibration/NoiseOccupancyDefects", "Key of input (raw) noise defect conditions folder"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::WriteCondHandleKey<SCT_CalibDefectData> m_writeKeyGain{this, "WriteKeyGain", "SCT_CalibDefectNPtGain", "Key of output (derived) gain defect conditions data"};
   SG::WriteCondHandleKey<SCT_CalibDefectData> m_writeKeyNoise{this, "WriteKeyNoise", "SCT_CalibDefectNPtNoise", "Key of output (derived) noise defect conditions data"};
   SG::WriteCondHandleKey<SCT_AllGoodStripInfo> m_writeKeyInfo{this, "WriteKeyInfo", "SCT_AllGoodStripInfo", "Key of output (derived) good strip information conditions data"};
@@ -50,7 +51,6 @@ class SCT_ReadCalibDataCondAlg : public AthAlgorithm
 
   ServiceHandle<ICondSvc> m_condSvc;
   const SCT_ID* m_id_sct; //!< Handle to SCT ID helper
-  const InDetDD::SCT_DetectorManager* m_SCTdetMgr; //!< Handle to SCT detector manager
 };
 
 #endif // SCT_ReadCalibDataCondAlg_h

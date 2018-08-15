@@ -10,6 +10,7 @@
 
 // STL includes:
 #include <vector>
+#include <limits>
 
 // Local includes:
 #include "RingerSelectorTools/RingerSelectorToolsDefs.h"
@@ -22,13 +23,13 @@
 #include "RingerSelectorTools/tools/cxx/final.h"
 #include "RingerSelectorTools/tools/cxx/override.h"
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer {
 
-/** 
- * @brief Namespace dedicated for Ringer Discrimination utilities 
+/**
+ * @brief Namespace dedicated for Ringer Discrimination utilities
  **/
 namespace Discrimination {
 
@@ -40,10 +41,6 @@ class UniqueThreshold : virtual public IThreshold,
 
   RINGER_IO_VARDEP_BASE(UniqueThreshold)
 
-  private:
-    float m_threshold;
-  protected:
-    UniqueThreshold(const float threshold):m_threshold(threshold){;}
   public:
 
     UniqueThreshold():
@@ -51,18 +48,73 @@ class UniqueThreshold : virtual public IThreshold,
 
     /** Execute threshold */
     virtual void execute(const std::vector<float> &input,
-        std::vector<bool> &output) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+        std::vector<bool> &output, const DepVarStruct &depVar) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
 
     float threshold() const { return m_threshold; }
     void setThreshold(float val) { m_threshold = val; }
 
     /** Ensure virtual dtor */
     virtual ~UniqueThreshold(){;}
+
+  protected:
+    UniqueThreshold(const float threshold):m_threshold(threshold){;}
+
+  private:
+    float m_threshold;
+
     /** Define it as a Root TObjebt, disable I/O */
     //ClassDef(UniqueThreshold,0)
 };
 
 RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( UniqueThreshold )
+
+/// @}
+
+class LinearPileupCorrectionThreshold : virtual public IThreshold,
+                          public RedirectMsgStream
+{
+
+  RINGER_IO_VARDEP_BASE(LinearPileupCorrectionThreshold)
+
+  public:
+
+    LinearPileupCorrectionThreshold():
+      m_intercept(0.),
+      m_slope(0.),
+      m_maxPileupValue(std::numeric_limits<float>::infinity()){;}
+
+    /** Execute threshold */
+    virtual void execute(const std::vector<float> &input,
+        std::vector<bool> &output, const DepVarStruct &depVar) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+
+    float intercept() const { return m_intercept; }
+    float slope() const { return m_slope; }
+    float maxPileupValue() const { return m_maxPileupValue; }
+
+    void setIntercept(float val) { m_intercept = val; }
+    void setSlope(float val) { m_slope = val; }
+    void setMaxPileupValue(float val) { m_maxPileupValue = val; }
+
+    /** Ensure virtual dtor */
+    virtual ~LinearPileupCorrectionThreshold(){;}
+
+  protected:
+    LinearPileupCorrectionThreshold( const float intercept, const float slope
+                                   , const float maxPileupValue = std::numeric_limits<float>::infinity()):
+      m_intercept(intercept),
+      m_slope(slope),
+      m_maxPileupValue(maxPileupValue){;}
+
+  private:
+    float m_intercept;
+    float m_slope;
+    float m_maxPileupValue;
+
+    /** Define it as a Root TObjebt, disable I/O */
+    //ClassDef(LinearPileupCorrectionThreshold,0)
+};
+
+RINGER_DEFINE_PROCEDURE_DEFAULT_METHODS( LinearPileupCorrectionThreshold )
 
 /// @}
 
@@ -91,6 +143,30 @@ class UniqueThresholdVarDep : virtual public IThresholdVarDep,
     //ClassDef(UniqueThresholdVarDep,1)
 };
 
+/**
+ * @brief Linear pile-up correction threshold with variable dependency
+ **/
+class LinearPileupCorrectionThresholdVarDep : virtual public IThresholdVarDep,
+                              public RingerIOVarDepObj < LinearPileupCorrectionThresholdVarDep >,
+                              public LinearPileupCorrectionThreshold
+{
+  RINGER_IO_VARDEP_OBJ(LinearPileupCorrectionThresholdVarDep, LinearPileupCorrectionThreshold)
+  public:
+
+    /** Default ctor (needed by ClassDef) */
+    LinearPileupCorrectionThresholdVarDep(){;}
+
+    /** Obj ctor */
+    LinearPileupCorrectionThresholdVarDep( const float intercept, const float slope
+                                         , const float maxPileupValue = std::numeric_limits<float>::infinity() ):
+      LinearPileupCorrectionThreshold(intercept, slope, maxPileupValue){;}
+
+    /** Ensure virtual dtor */
+    virtual ~LinearPileupCorrectionThresholdVarDep(){;}
+
+    /** Define it as a Root TObjebt, set version 1 */
+    //ClassDef(LinearPileupCorrectionThresholdVarDep,1)
+};
 } // namespace Discrimination
 } // namespace Ringer
 

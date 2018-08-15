@@ -12,7 +12,7 @@
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
-#include "PixelConditionsServices/IPixelTDAQSvc.h"
+#include "PixelConditionsTools/IPixelTDAQSvc.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"

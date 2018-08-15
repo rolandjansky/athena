@@ -73,31 +73,9 @@ StoreGateSvc::currentSlot() {
 /////////////////////////////////////////////////////////////////
 
 
-bool 
-StoreGateSvc::newDataObjectsPresent() {
-  _SGXCALL(newDataObjectsPresent, (), false);
-}
-
-StatusCode 
-StoreGateSvc::getNewDataObjects(DataObjIDColl& products) {
-  _SGXCALL(getNewDataObjects, (products), StatusCode::FAILURE);
-}
-
 void
 StoreGateSvc::commitNewDataObjects() {
   _SGVOIDCALL(commitNewDataObjects, ());
-}
-
-///a new object transient object has been recorded
-void 
-StoreGateSvc::addedNewTransObject(CLID clid, const std::string& key) {
-  _SGVOIDCALL(addedNewTransObject, (clid, key));
-}
-
-///a new object persistent object has been recorded
-void 
-StoreGateSvc::addedNewPersObject(CLID clid, SG::DataProxy* dp) {
-  _SGVOIDCALL(addedNewPersObject, (clid, dp));
 }
 
 /// Create a proxy object using an IOpaqueAddress and a transient key
@@ -330,17 +308,6 @@ StoreGateSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                             bool returnExisting)
 {
   _SGXCALL(recordObject, (std::move(obj), key, allowMods, returnExisting), nullptr);
-}
-
-
-/**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode StoreGateSvc::updatedObject (CLID id, const std::string& key)
-{
-  _SGXCALL(updatedObject, (id, key), StatusCode::FAILURE);
 }
 
 

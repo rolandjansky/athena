@@ -79,16 +79,6 @@ TrigEFTrackHypo::~TrigEFTrackHypo()
 // sub-algorithms.  The framework takes care of it.
 /////////////////////////////////////////////////////////////////////
 //
-//----------------------------------
-//          beginRun method:
-//----------------------------------------------------------------------------
-HLT::ErrorCode TrigEFTrackHypo::hltBeginRun(){
-
-  msg() << MSG::INFO << "TrigEFTrackHypo::beginRun()" << endmsg;
-  return HLT::OK;
-
-}
-//----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 HLT::ErrorCode TrigEFTrackHypo::hltInitialize() {

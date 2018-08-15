@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Control/AthContainers
 			  Control/AthLinks 
                           PRIVATE
-                          #Control/AthViews
+                          Control/AthViews
                          # Control/StoreGate
                           Control/AthenaBaseComps
                          # Control/CxxUtils

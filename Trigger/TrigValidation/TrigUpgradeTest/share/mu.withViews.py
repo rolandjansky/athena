@@ -1,10 +1,12 @@
-# 
+#
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
 # 
 #  OutputLevel: INFO < DEBUG < VERBOSE 
 # 
   
 include("TrigUpgradeTest/testHLT_MT.py") 
+
+from AthenaCommon.DetFlags import DetFlags
 
 ### workaround to prevent online trigger folders to be enabled ###
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -110,7 +112,6 @@ if TriggerFlags.doMuon:
   muonRecFlags.doTrackPerformance    = True
   muonRecFlags.TrackPerfSummaryLevel = 2
   muonRecFlags.TrackPerfDebugLevel   = 5
-  muonRecFlags.doCSCs                = True
   muonRecFlags.doNSWNewThirdChain    = False
   muonCombinedRecFlags.doCaloTrkMuId = False
   muonCombinedRecFlags.printSummary = False
@@ -124,15 +125,6 @@ if TriggerFlags.doMuon:
   if doEFSA:
 
     efMuViewNode = seqAND("efMuViewNode")
-    efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
-    efMuViewsMaker.ViewFallThrough = True
-    # probably wrong input to the EVMaker
-    efMuViewsMaker.InputMakerInputDecisions = ["MURoIDecisions"]
-    efMuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutputEF"]
-    efMuViewsMaker.RoIsLink = "initialRoI" # -||-
-    efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
-    efMuViewsMaker.Views = "EFMUViewRoIs"
-    efMuViewsMaker.ViewNodeName = efMuViewNode.name()
 
   if doEFSA or doL2SA:
     ### ==================== Data prepartion needed for the EF and L2 SA #######################333
@@ -185,8 +177,8 @@ if TriggerFlags.doMuon:
       if doEFSA: 
         efMuViewNode += CscRdoToCscPrepData  
         efMuViewNode += CscClusterBuilder 
-      if doL2SA:
-        l2MuViewNode += CscRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += CscRawDataProvider
    
     ### MDT RDO data ###
     if muonRecFlags.doMDTs():
@@ -222,8 +214,8 @@ if TriggerFlags.doMuon:
                                                     OutputLevel  = INFO)
       if doEFSA:
         efMuViewNode += MdtRdoToMdtPrepData
-      if doL2SA:
-        l2MuViewNode += MdtRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += MdtRawDataProvider
 
     ### RPC RDO data ###
     if muonRecFlags.doRPCs():
@@ -235,13 +227,14 @@ if TriggerFlags.doMuon:
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
       MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "MuonRpcRawDataProviderTool",
                                                                  Decoder = RPCRodDecoder )
+
       ToolSvc += MuonRpcRawDataProviderTool
   
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
       RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool",
-                                                           OutputLevel         = INFO,
-                                                           RawDataProviderTool = MuonRpcRawDataProviderTool,
-                                                           useBStoRdoTool      = True)
+                                                           OutputLevel         = INFO)
+
+
       ToolSvc += RpcRdoToRpcPrepDataTool
   
       from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
@@ -257,9 +250,10 @@ if TriggerFlags.doMuon:
                                                     ProviderTool = MuonRpcRawDataProviderTool,
                                                     OutputLevel  = INFO)
       if doEFSA:
+        efMuViewNode += RpcRawDataProvider
         efMuViewNode += RpcRdoToRpcPrepData
-      if doL2SA:
-        l2MuViewNode += RpcRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += RpcRawDataProvider
 
     ### TGC RDO data ###
     if muonRecFlags.doTGCs():
@@ -296,8 +290,8 @@ if TriggerFlags.doMuon:
                                                     OutputLevel  = INFO)
       if doEFSA:
         efMuViewNode += TgcRdoToTgcPrepData
-      if doL2SA:
-        l2MuViewNode += TgcRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += TgcRawDataProvider
 
     
     #Run clustering
@@ -324,17 +318,18 @@ if TriggerFlags.doMuon:
 #               Setup L2MuonSA
 # ===============================================================================================
  
+
+
+  svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
+
+  ### set up L1RoIsFilter ###
+  filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
+  filterL1RoIsAlg.Input = ["MURoIDecisions"]
+  filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
+  filterL1RoIsAlg.Chains = testChains
+  filterL1RoIsAlg.OutputLevel = DEBUG
+
   if doL2SA:
-
-    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
-
-    ### set up L1RoIsFilter ###
-    filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-    filterL1RoIsAlg.Input = ["MURoIDecisions"]
-    filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
-    filterL1RoIsAlg.Chains = testChains
-    filterL1RoIsAlg.OutputLevel = DEBUG
-
     # set the EVCreator
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
     l2MuViewsMaker.ViewFallThrough = True
@@ -355,6 +350,48 @@ if TriggerFlags.doMuon:
     muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
     muFastAlg.forID = "forID"
     muFastAlg.forMS = "forMS"
+
+    ### To create BS->RDO data ###
+    ### RPCRDO ###
+    if muonRecFlags.doRPCs():
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
+      L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(OutputLevel = DEBUG,
+                                                            RpcPrepDataProvider = RpcRdoToRpcPrepDataTool,
+                                                            RpcRawDataProvider = MuonRpcRawDataProviderTool,
+                                                            DecodeBS = DetFlags.readRDOBS.RPC_on())
+      ToolSvc += L2RpcDataPreparator
+       
+      muFastAlg.DataPreparator.RPCDataPreparator = L2RpcDataPreparator
+
+    ### TGCRDO ###
+    if muonRecFlags.doTGCs():
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
+      L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(OutputLevel         = DEBUG,
+                                                            TgcPrepDataProvider = TgcRdoToTgcPrepDataTool,
+                                                            TGC_RawDataProvider = MuonTgcRawDataProviderTool)
+      ToolSvc += L2TgcDataPreparator
+       
+      muFastAlg.DataPreparator.TGCDataPreparator = L2TgcDataPreparator
+
+    ### MDTRDO ###
+    if muonRecFlags.doMDTs():
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
+      L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(OutputLevel = DEBUG,
+                                                            MDT_RawDataProvider = MuonMdtRawDataProviderTool,
+                                                            MdtPrepDataProvider = MdtRdoToMdtPrepDataTool)
+      ToolSvc += L2MdtDataPreparator
+      
+      muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
+
+    ### CSCRDO ###
+    if muonRecFlags.doCSCs():
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
+      L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(OutputLevel = DEBUG,
+                                                            CscPrepDataProvider = CscRdoToCscPrepDataTool)
+      ToolSvc += L2CscDataPreparator
+       
+      muFastAlg.DataPreparator.CSCDataPreparator = L2CscDataPreparator
+
     l2MuViewNode += muFastAlg
     
     # set up MuFastHypo
@@ -372,6 +409,7 @@ if TriggerFlags.doMuon:
     # make sequences
     l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode, trigMufastHypo ])
     muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2muFastSequence,  muFastDecisionsDumper ] )
+
 
 
 # ===============================================================================================
@@ -443,10 +481,27 @@ if TriggerFlags.doMuon:
 # ===============================================================================================
 
   if doEFSA:
- ### RoRSeqFilter step2 ###
+
+    efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
+    efMuViewsMaker.ViewFallThrough = True
+    # probably wrong input to the EVMaker
+    efMuViewsMaker.InputMakerInputDecisions = filterL1RoIsAlg.Output
+    efMuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutputEF"]
+    efMuViewsMaker.RoIsLink = "initialRoI" # -||-
+    efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+    efMuViewsMaker.Views = "EFMUViewRoIs"
+    efMuViewsMaker.ViewNodeName = efMuViewNode.name()
+
+    
+    ### RoRSeqFilter step2 ###
     filterEFSAAlg = RoRSeqFilter("filterEFSAAlg")
-    filterEFSAAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
-    filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.HypoOutputDecisions]
+    if doL2CB and doL2SA:
+      filterEFSAAlg.Input = [trigmuCombHypo.HypoOutputDecisions]
+      filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.HypoOutputDecisions]
+    else :
+      # for now just use the L1 input when L2 is not running
+      filterEFSAAlg.Input = ["MURoIDecisions"]
+      filterEFSAAlg.Output = ["FilteredMURoIDecisionsForEF"]
     filterEFSAAlg.Chains = testChains
     filterEFSAAlg.OutputLevel = DEBUG
     
@@ -546,15 +601,13 @@ if TriggerFlags.doMuon:
     trigMuonEFSAHypo = TrigMuonEFMSonlyHypoConfig("MuonEFSAHypoAlg")
     trigMuonEFSAHypo.OutputLevel = DEBUG
 
-    trigMuonEFSAHypo.ViewRoIs = efMuViewsMaker.Views
     trigMuonEFSAHypo.MuonDecisions = "Muons"
-    trigMuonEFSAHypo.RoIs = efMuViewsMaker.InViewRoIs
-    trigMuonEFSAHypo.Decisions = "EFMuonSADecisions"
-    trigMuonEFSAHypo.L1Decisions = efMuViewsMaker.InputMakerInputDecisions[0]
+    trigMuonEFSAHypo.HypoOutputDecisions = "EFMuonSADecisions"
+    trigMuonEFSAHypo.HypoInputDecisions = efMuViewsMaker.InputMakerOutputDecisions[0]
 
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
-    muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.Decisions )
+    muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.HypoOutputDecisions )
     muonEFSAStep = seqAND("muonEFSAStep", [filterEFSAAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
 
 
@@ -569,9 +622,12 @@ if TriggerFlags.doMuon==True:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+    summary.OutputLevel = DEBUG
+
+#    step = seqAND("firstStep", [parOR("FilterStep1",[filterL1RoIsAlg]), muFastStep])
+
+    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
@@ -585,14 +641,15 @@ if TriggerFlags.doMuon==True:
   if doEFSA==True and doL2SA==False and doL2CB==False:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
+    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muonEFSAStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.Decisions, "WhateverElse" ] 
+    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
@@ -607,7 +664,9 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     step1 = parOR("step1", [ muCombStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, step1, summary ]  ) 
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    step1filter = parOR("step1filter", [ filterL2SAAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
@@ -623,16 +682,21 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
+    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     step1 = parOR("step1", [ muCombStep ] )
     step2 = parOR("step2", [ muonEFSAStep ] )
-    HLTsteps = seqAND("HLTsteps", [ step0, step1, step2, summary ]  ) 
+
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    step1filter = parOR("step1filter", [ filterL2SAAlg ] )
+    step2filter = parOR("step2filter", [ filterEFSAAlg ] )
+
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.Decisions, "WhateverElse" ] 
+    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )

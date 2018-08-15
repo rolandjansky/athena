@@ -545,10 +545,12 @@ namespace InDetDD {
             if (!child) { // CID 113112
               // shouldn't be happening, if child is null then something is terribly wrong
               ATH_MSG_ERROR("Child can't be null if frame is 'other'");
+              return false;
+            } else {
+	            const HepGeom::Transform3D & xfChild = child->getDefAbsoluteTransform();
+	            const HepGeom::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform();
+	            extXF->alignableTransform()->setDelta(xfChild.inverse() * xfFrame * Amg::EigenTransformToCLHEP(delta) * xfFrame.inverse() * xfChild);
             }
-            const HepGeom::Transform3D & xfChild = child->getDefAbsoluteTransform();
-            const HepGeom::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform();
-            extXF->alignableTransform()->setDelta(xfChild.inverse() * xfFrame * Amg::EigenTransformToCLHEP(delta) * xfFrame.inverse() * xfChild);
         }
 
         return true;

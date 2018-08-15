@@ -29,43 +29,43 @@ else:
 # Pixel module distortions
 conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist")
 # IBL stave distortions 
-conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist")
+conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection")
 
-# Adding protection against new dynamic folder scheme;
+# Control loading of the dynamic folder scheme;
 # In future we might want to add also to MC DB
-# Solution below is not pretty but in response to JIRA ATLASSIM-2746
-useDynamicAlignFolders = False
-try:
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-        useDynamicAlignFolders = True
-except ImportError:
-    pass
-if useDynamicAlignFolders:
+# related to JIRA ATLASSIM-2746
+
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+if InDetGeometryFlags.useDynamicAlignFolders():
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection")
-    conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX")
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection")
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection")
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/AlignL1/TRT","/TRT/AlignL1/TRT")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/AlignL2","/TRT/AlignL2")
 else:
-    if DetFlags.simulate.any_on():
-        # Simulation does not use condition algorithms for alignment
-        conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align")
-    else:
+    if ((not DetFlags.simulate.SCT_on()) or (not DetFlags.simulate.pixel_on())) or (DetFlags.overlay.SCT_on() or DetFlags.overlay.pixel_on()):
         conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer")
+    else:
+        conddb.addFolderSplitOnline("INDET","/Indet/Onl/Align","/Indet/Align")
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Align","/TRT/Align")
 
-# Condition algorithms for ID alignment only for non-simulation jobs
-if not DetFlags.simulate.any_on():
+# Condition algorithms for ID alignment
+if (not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on():
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "SCT_AlignCondAlg"):
         from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-        condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
-                                    UseDynamicAlignFolders = useDynamicAlignFolders)
-    if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
-        from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
-        condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
-
-del useDynamicAlignFolders #tidy up
+        if athenaCommonFlags.isOnline():
+            condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
+                                        UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders(),
+                                        ReadKeyStatic = "/Indet/Onl/Align",
+                                        ReadKeyDynamicL1 = "/Indet/Onl/AlignL1/ID",
+                                        ReadKeyDynamicL2 = "/Indet/Onl/AlignL2/SCT",
+                                        ReadKeyDynamicL3 = "/Indet/Onl/AlignL3")
+        else:
+            condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
+                                        UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
+            if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
+                from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+                condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")

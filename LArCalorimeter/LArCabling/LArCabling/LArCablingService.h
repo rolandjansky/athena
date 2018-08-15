@@ -56,6 +56,13 @@ public:
    *   "iterator" on LArReadoutModuleIDs  <p>
    */
   const std::vector<HWIdentifier>& getLArRoModIDvec();
+
+
+  /**
+   * @brief Make sure the onOff map is initialized.
+   */
+  StatusCode checkOnOff();
+
   
 private:
   std::vector<std::vector<HWIdentifier> > m_onlHashToCalibLines;

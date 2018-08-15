@@ -3,6 +3,8 @@
 include.block ("InDetRecExample/InDetRecConditionsAccess.py")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.DetFlags import DetFlags
+
 isData = (globalflags.DataSource == 'data')
 
 eventInfoKey = "ByteStreamEventInfo"

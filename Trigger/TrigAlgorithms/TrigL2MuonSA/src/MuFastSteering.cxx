@@ -233,15 +233,8 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
 }
 
 // --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
 
-HLT::ErrorCode MuFastSteering::hltBeginRun() {
-  ATH_MSG_DEBUG("hltBeginRun");
-  return HLT::OK;
-}
-
-HLT::ErrorCode MuFastSteering::hltEndRun() {
-  ATH_MSG_DEBUG("hltEndRun");
+HLT::ErrorCode MuFastSteering::hltStop() {
    // close the calibration stream 
    if (m_doCalStream) { 
      if ( !m_calDataScouting ) {

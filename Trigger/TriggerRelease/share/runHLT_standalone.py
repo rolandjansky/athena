@@ -226,7 +226,7 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'enableHotIDMasking',
                                 'openThresholdRPCCabling',
                                 #special streaming setup
-                                'enable7BitL1TTStreaming',
+                                #'enable7BitL1TTStreaming',
 ]
 
 if setupForMC:  # MC modifiers

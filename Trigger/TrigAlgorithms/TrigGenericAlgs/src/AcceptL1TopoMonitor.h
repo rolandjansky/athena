@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGENERICALGS_ACCEPTL1TOPOMONITOR_H
@@ -66,8 +66,8 @@ public:
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltExecute(std::vector<HLT::TEVec>&, unsigned int outputTeType);
     HLT::ErrorCode hltFinalize();
-    HLT::ErrorCode hltBeginRun();
-    HLT::ErrorCode hltEndRun();
+    HLT::ErrorCode hltStart();
+    HLT::ErrorCode hltStop();
 private:
     static const unsigned int m_nTopoCTPOutputs = 128; //! Number of CTP outputs, used for histogram ranges and loops
     /**

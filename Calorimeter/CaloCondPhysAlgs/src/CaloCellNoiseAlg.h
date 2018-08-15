@@ -57,8 +57,7 @@
   //---------------------------------------------------
   ITHistSvc* m_thistSvc;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloDetDescrManager* m_calodetdescrmgr;
   const CaloCell_ID*       m_calo_id;
   const DataHandle<ILArNoise> m_dd_noise;
   const DataHandle<ILArPedestal> m_dd_pedestal;

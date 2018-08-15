@@ -5,7 +5,7 @@
 #ifndef TRIGBPHYSICSEVENT_TRIG_JPSICONTAINER_CONTAINER
 #define TRIGBPHYSICSEVENT_TRIG_JPSICONTAINER_CONTAINER
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigBphysicsEvent/TrigJpsi.h"
 
 typedef std::vector<TrigJpsi> TrigJpsiContainer;

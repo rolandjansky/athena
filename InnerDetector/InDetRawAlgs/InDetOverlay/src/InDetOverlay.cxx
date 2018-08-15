@@ -301,7 +301,7 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("mainOutputPixelKey", m_mainOutputPixelKey);    
   
   
-  declareProperty("TRTinputSDO_Name", m_TRTinputSDO_Name="TRT_SDO_Map");
+  declareProperty("TRTinputSDO_Key", m_TRTinputSDO_Key);
   declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.160);
   declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.130);
   declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.105);
@@ -333,6 +333,8 @@ StatusCode InDetOverlay::overlayInitialize()
   ATH_CHECK( m_mainInputPixelKey.initialize() );
   ATH_CHECK( m_overlayInputPixelKey.initialize() );
   ATH_CHECK( m_mainOutputPixelKey.initialize() );
+  ATH_CHECK( m_TRTinputSDO_Key.initialize() );
+
 
   if(m_do_TRT){
   
@@ -372,34 +374,34 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_TRT) {
     ATH_MSG_VERBOSE("Retrieving data input TRT container");
-    SG::ReadHandle<TRT_RDO_Container> dataContainer(m_mainInputTRTKey);
-    if(!dataContainer.isValid()) {   
-      ATH_MSG_WARNING("Could not get data TRT container \"" << m_mainInputTRTKey.key() << "\"");
+    const TRT_RDO_Container* dataContainer = SG::get(m_mainInputTRTKey);
+    if(!dataContainer) {   
+      ATH_MSG_WARNING("Could not get data TRT container \"" << m_mainInputTRTKey.key() << "\" in " << m_mainInputTRTKey.storeHandle().name());
     }
 
-    ATH_MSG_INFO("TRT Data   = "<<shortPrint(dataContainer.cptr()));
+    ATH_MSG_INFO("TRT Data   = "<<shortPrint(dataContainer));
 
     ATH_MSG_VERBOSE("Retrieving MC  input TRT container");
-    SG::ReadHandle<TRT_RDO_Container> mcContainer(m_overlayInputTRTKey);
-    if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC TRT container \"" << m_overlayInputTRTKey.key() << "\"");
+    const TRT_RDO_Container* mcContainer = SG::get(m_overlayInputTRTKey);
+    if(!mcContainer) {
+      ATH_MSG_WARNING("Could not get MC TRT container \"" << m_overlayInputTRTKey.key() << "\" in " << m_overlayInputTRTKey.storeHandle().name());
     }
-    ATH_MSG_INFO("TRT MC     = "<<shortPrint(mcContainer.cptr()));
+    ATH_MSG_INFO("TRT MC     = "<<shortPrint(mcContainer));
    
     SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainOutputTRTKey);
-    outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(dataContainer->size());
+    outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(mcContainer->size());
 
-    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
+    if(dataContainer && mcContainer && outputContainer.isValid()) {
       if (m_do_TRT_background ){ 
-        SG::ReadHandle<InDetSimDataCollection> sdoContainer(m_TRTinputSDO_Name, m_storeGateMC->name());
+        const InDetSimDataCollection* sdoContainer=SG::get(m_TRTinputSDO_Key);
 
         // Calculate occupancy here
-        std::map<int, double> occupancy = m_TRT_LocalOccupancyTool->getDetectorOccupancy( dataContainer.cptr() );
+        std::map<int, double> occupancy = m_TRT_LocalOccupancyTool->getDetectorOccupancy( dataContainer );
         //Merge containers
-        overlayTRTContainers(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr(), occupancy, *sdoContainer);
+        overlayTRTContainers(dataContainer, mcContainer, outputContainer.ptr(), occupancy, *sdoContainer);
       } else if(!m_do_TRT_background){
         TRT_RDO_Container* nobkg = nullptr;
-        overlayContainerNew( nobkg , mcContainer.cptr() , outputContainer.ptr());
+        overlayContainerNew( nobkg , mcContainer , outputContainer.ptr());
       }
       ATH_MSG_INFO("TRT Result = "<<shortPrint(outputContainer.cptr()));
     }
@@ -408,27 +410,27 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_SCT) {
     ATH_MSG_VERBOSE("Retrieving data input SCT container");
-    SG::ReadHandle<SCT_RDO_Container> dataContainer(m_mainInputSCTKey);
-    if(!dataContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get data SCT container \"" << m_mainInputSCTKey.key() << "\"");
+    const SCT_RDO_Container* dataContainer = SG::get(m_mainInputSCTKey);
+    if(!dataContainer) {
+      ATH_MSG_WARNING("Could not get data SCT container \"" << m_mainInputSCTKey.key() << "\" in " << m_mainInputSCTKey.storeHandle().name());
     }
-    ATH_MSG_INFO("SCT Data   = "<<shortPrint(dataContainer.cptr(), 50));
+    ATH_MSG_INFO("SCT Data   = "<<shortPrint(dataContainer, 50));
 
     ATH_MSG_VERBOSE("Retrieving MC  input SCT container");
-    SG::ReadHandle<SCT_RDO_Container> mcContainer(m_overlayInputSCTKey);
-    if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC SCT container \"" << m_overlayInputSCTKey.key() << "\"");
+    const SCT_RDO_Container* mcContainer = SG::get(m_overlayInputSCTKey);
+    if(!mcContainer) {
+      ATH_MSG_WARNING("Could not get MC SCT container \"" << m_overlayInputSCTKey.key() << "\" in " << m_overlayInputSCTKey.storeHandle().name());
     }
-    ATH_MSG_INFO("SCT MC     = "<<shortPrint(mcContainer.cptr(), 50));
+    ATH_MSG_INFO("SCT MC     = "<<shortPrint(mcContainer, 50));
    
     SG::WriteHandle<SCT_RDO_Container> outputContainer(m_mainOutputSCTKey);
-    outputContainer = CxxUtils::make_unique<SCT_RDO_Container>(dataContainer->size());
+    outputContainer = CxxUtils::make_unique<SCT_RDO_Container>(mcContainer->size());
     
-    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
-      if(m_do_SCT_background) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
+    if(dataContainer && mcContainer && outputContainer.isValid()) {
+      if(m_do_SCT_background) overlayContainerNew(dataContainer, mcContainer, outputContainer.ptr());
       else if(!m_do_SCT_background){
         SCT_RDO_Container *nobkg = nullptr;
-	overlayContainerNew(nobkg , mcContainer.cptr() , outputContainer.ptr());
+	overlayContainerNew(nobkg , mcContainer , outputContainer.ptr());
        }
       ATH_MSG_INFO("SCT Result = "<<shortPrint(outputContainer.ptr(), 50));   
     }
@@ -437,18 +439,18 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_Pixel) {
     ATH_MSG_VERBOSE("Retrieving data input Pixel container");
-    SG::ReadHandle<PixelRDO_Container> dataContainer(m_mainInputPixelKey);
-    if(!dataContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get data Pixel container \"" << m_mainInputPixelKey.key() << "\"");
+    const PixelRDO_Container* dataContainer = SG::get(m_mainInputPixelKey);
+    if(!dataContainer) {
+      ATH_MSG_WARNING("Could not get data Pixel container \"" << m_mainInputPixelKey.key() << "\" in " << m_mainInputPixelKey.storeHandle().name());
     }
-    ATH_MSG_INFO("Pixel Data   = "<<shortPrint(dataContainer.cptr()));
+    ATH_MSG_INFO("Pixel Data   = "<<shortPrint(dataContainer));
 
     ATH_MSG_VERBOSE("Retrieving MC  input Pixel container");
-    SG::ReadHandle<PixelRDO_Container> mcContainer(m_overlayInputPixelKey);
-    if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC Pixel container \"" << m_overlayInputPixelKey.key() << "\"");
+    const PixelRDO_Container* mcContainer = SG::get(m_overlayInputPixelKey);
+    if(!mcContainer) {
+      ATH_MSG_WARNING("Could not get MC Pixel container \"" << m_overlayInputPixelKey.key() << "\" in " << m_overlayInputPixelKey.storeHandle().name());
     }
-    ATH_MSG_INFO("Pixel MC     = "<<shortPrint(mcContainer.cptr()));
+    ATH_MSG_INFO("Pixel MC     = "<<shortPrint(mcContainer));
 
 /*
 // Get geo model manager
@@ -485,13 +487,13 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
 }
 */
     SG::WriteHandle<PixelRDO_Container> outputContainer(m_mainOutputPixelKey);
-    outputContainer = CxxUtils::make_unique<PixelRDO_Container>(dataContainer->size());
+    outputContainer = CxxUtils::make_unique<PixelRDO_Container>(mcContainer->size());
     
-    if(dataContainer.isValid() && mcContainer.isValid()&&outputContainer.isValid()) {  
-      if(m_do_Pixel_background) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
+    if(dataContainer && mcContainer&&outputContainer.isValid()) {  
+      if(m_do_Pixel_background) overlayContainerNew(dataContainer, mcContainer, outputContainer.ptr());
       else if(!m_do_Pixel_background){
         PixelRDO_Container *nobkg = nullptr;
-	overlayContainerNew(nobkg, mcContainer.cptr() , outputContainer.ptr());
+	overlayContainerNew(nobkg, mcContainer , outputContainer.ptr());
        }
       ATH_MSG_INFO("Pixel Result = "<<shortPrint(outputContainer.ptr()));
     }

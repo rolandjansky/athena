@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -77,11 +77,9 @@ namespace InDet {
     
     // Basic algorithm methods:
     virtual HLT::ErrorCode hltInitialize();
-    virtual HLT::ErrorCode hltBeginRun();
     virtual HLT::ErrorCode hltExecute(const HLT::TriggerElement* input,
 				      HLT::TriggerElement* output);
     virtual HLT::ErrorCode hltFinalize();
-    virtual HLT::ErrorCode hltEndRun();
 
     // Method to prepare ROB id list
     using HLT::FexAlgo::prepareRobRequests;
@@ -110,7 +108,6 @@ namespace InDet {
     std::vector<int> m_ClusHashId;
     std::vector<int> m_PixBSErr;
     
-    //ToolHandle<ClusterMakerTool>        m_globalPosAlg;   //!< global position maker 
     ToolHandle<ITrigRawDataProviderTool>     m_rawDataProvider;
     ToolHandle<PixelGangedAmbiguitiesFinder> m_gangedAmbiguitiesFinder; 
     //!< class to find out which
@@ -123,9 +120,9 @@ namespace InDet {
     std::string              m_clustersName; 
     std::string              m_ambiguitiesMapName;
     
-    const PixelID*           m_idHelper;
-    PixelClusterContainer*   m_clusterContainer;
-    const SiDetectorManager* m_manager;
+    const PixelID*           m_idHelper{};
+    PixelClusterContainer*   m_clusterContainer{};
+    const SiDetectorManager* m_manager{};
     
     ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
     bool m_doFullScan;             //!< support for FullScan mode

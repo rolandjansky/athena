@@ -76,9 +76,8 @@ StatusCode CopyEventStreamInfo::beginInputFile()
          return StatusCode::FAILURE;
       }
       EventStreamInfo* evtStrInfo_out = 0;
-      for (std::list<SG::ObjectWithVersion<EventStreamInfo> >::const_iterator iter = allVersions.begin(),
-		      iterEnd = allVersions.end(); iter != iterEnd; iter++) {
-         const EventStreamInfo* evtStrInfo_in = iter->dataObject;
+      for (SG::ObjectWithVersion<EventStreamInfo>& obj : allVersions) {
+         const EventStreamInfo* evtStrInfo_in = obj.dataObject.cptr();
          if (!m_metaDataStore->contains<EventStreamInfo>(m_key)) {
             evtStrInfo_out = new EventStreamInfo(*evtStrInfo_in);
             if (!m_metaDataStore->record(evtStrInfo_out, m_key).isSuccess()) {

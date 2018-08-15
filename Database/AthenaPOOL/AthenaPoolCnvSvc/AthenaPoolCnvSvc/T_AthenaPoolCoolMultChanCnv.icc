@@ -64,16 +64,17 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createObj(IOpaqu
 
     CondAttrListCollAddress* addr = dynamic_cast<CondAttrListCollAddress*>(pAddr);
 
-    COLL_T* obj = 0;
+    std::unique_ptr<COLL_T> obj;
     if (addr) {
 	// Successful cast - situation 1)
 
 	// Loop over tokens inside the CondAttrListCollection, read
 	// them in and add them to the data object.
 	CondAttrListCollection* coll = addr->attrListColl();
-	StatusCode sc = attrListCollToObject(coll, obj);
+        COLL_T* pobj = nullptr;
+	StatusCode sc = attrListCollToObject(coll, pobj);
+        obj = std::unique_ptr<COLL_T>(pobj);
 	if (sc != StatusCode::SUCCESS) {
-            delete obj ; obj = 0;
 	    ATH_MSG_ERROR("Unable to read in tokens from CondAttrListCollection");
 	    return(StatusCode::FAILURE);
 	}
@@ -81,9 +82,10 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createObj(IOpaqu
     } else {
 	// Situation 2) - read in the CondMultChanCollImpl and build a
 	// CondAttrListCollection from the CondMultChanCollImpl
-	StatusCode sc = condMultChanCollImplToObject( *(pAddr->par()), obj);
+        COLL_T* pobj = nullptr;
+	StatusCode sc = condMultChanCollImplToObject( *(pAddr->par()), pobj);
+        obj = std::unique_ptr<COLL_T>(pobj);
 	if (sc != StatusCode::SUCCESS) {
-            delete obj ; obj = 0;
 	    ATH_MSG_ERROR("Unable to read in CondMultChanCollImpl");
 	    return(StatusCode::FAILURE);
 	}
@@ -98,7 +100,7 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createObj(IOpaqu
     }
 
     // Convert to DataObject
-    pObj = SG::asStorable(obj);
+    pObj = SG::asStorable (std::move (obj));
     if (!pObj) {
 	ATH_MSG_ERROR("Cannot get DataObject from COLL_T");
 	return(StatusCode::FAILURE);

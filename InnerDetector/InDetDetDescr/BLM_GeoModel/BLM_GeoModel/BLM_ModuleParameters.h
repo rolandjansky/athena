@@ -34,16 +34,16 @@ class BLM_ModuleParameters
 
   
  private:
-  int m_module_number;
-  double m_trans_X;
-  double m_trans_Y;
-  double m_trans_Z;
-  double m_rot_X;
-  double m_rot_Y;
-  double m_rot_Z;
-  double m_diamond_trans_X;
-  double m_diamond_trans_Y;
-  double m_diamond_trans_Z;
+  int m_module_number{};
+  double m_trans_X{};
+  double m_trans_Y{};
+  double m_trans_Z{};
+  double m_rot_X{};
+  double m_rot_Y{};
+  double m_rot_Z{};
+  double m_diamond_trans_X{};
+  double m_diamond_trans_Y{};
+  double m_diamond_trans_Z{};
 };
 
 #endif

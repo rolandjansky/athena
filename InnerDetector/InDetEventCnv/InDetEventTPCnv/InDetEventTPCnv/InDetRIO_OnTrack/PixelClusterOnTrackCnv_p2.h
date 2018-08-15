@@ -13,22 +13,23 @@
 #include "AthLinks/ElementLink.h" 
 #include "InDetPrepRawData/PixelClusterContainer.h"
 
-#include "TrkEventTPCnv/TrkEventPrimitives/ErrorMatrixCnv_p1.h"
-#include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"
+//#include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "InDetIdentifier/PixelID.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkEventCnvTools/IEventCnvSuperTool.h"
 
 class MsgStream;
+class PixelID;
+class ErrorMatrixCnv_p1;
+class LocalParametersCnv_p1;
 
 
 class PixelClusterOnTrackCnv_p2 : public T_AthenaPoolTPPolyCnvBase< Trk::MeasurementBase, InDet::PixelClusterOnTrack, InDet::PixelClusterOnTrack_p2 >
 {
 public:
-    PixelClusterOnTrackCnv_p2() :  m_eventCnvTool("Trk::EventCnvSuperTool/EventCnvSuperTool"), m_localParCnv(0), m_errorMxCnv(0), m_isInitialized(0) {}
+    PixelClusterOnTrackCnv_p2() :  m_eventCnvTool("Trk::EventCnvSuperTool/EventCnvSuperTool"), m_localParCnv(0), m_errorMxCnv(0), m_pixId{}, m_isInitialized(0) {}
 
     void persToTrans( const InDet :: PixelClusterOnTrack_p2 *persObj, InDet :: PixelClusterOnTrack    *transObj, MsgStream &log );
     void transToPers( const InDet :: PixelClusterOnTrack    *transObj,InDet :: PixelClusterOnTrack_p2 *persObj, MsgStream  &log );

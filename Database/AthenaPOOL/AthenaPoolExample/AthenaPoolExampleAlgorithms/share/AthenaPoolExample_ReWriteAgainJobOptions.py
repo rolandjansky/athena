@@ -76,6 +76,7 @@ from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolE
 topSequence += AthPoolEx__WriteTag("WriteTag")
 MagicWriteTag = AthPoolEx__WriteTag( "MagicWriteTag" )
 MagicWriteTag.Key = "MagicTag"
+MagicWriteTag.TagKey = "MagicTag"
 MagicWriteTag.Magic = 24
 topSequence += MagicWriteTag
 

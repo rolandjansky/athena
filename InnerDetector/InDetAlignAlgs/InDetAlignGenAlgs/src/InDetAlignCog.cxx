@@ -11,11 +11,8 @@
 
 
 #include "InDetAlignGenAlgs/InDetAlignCog.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -27,6 +24,9 @@
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <limits>
 
 namespace {
@@ -84,7 +84,6 @@ static const double onemrad  = 0.001;
 InDetAlignCog::InDetAlignCog(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), 
     m_Pixel_Manager(0),
-    m_SCT_Manager(0),
     m_TRT_Manager(0),
     m_pixid(0),
     m_sctid(0),
@@ -203,9 +202,7 @@ StatusCode InDetAlignCog::initialize(){
 
   ATH_CHECK(  detStore()->retrieve(m_pixid));
   
-  // get SCT manager and helper
-  ATH_CHECK( detStore()->retrieve(m_SCT_Manager, "SCT"));
-
+  // get SCT helper
   ATH_CHECK( detStore()->retrieve(m_sctid));
   
   // get TRT manager and helper
@@ -220,6 +217,9 @@ StatusCode InDetAlignCog::initialize(){
   // Get TRTAlignDBTool
   ATH_CHECK( m_TRTAlignDbTool.retrieve() );
 
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   ATH_MSG_DEBUG ( "Retrieved tool " << m_TRTAlignDbTool );
   
   return StatusCode::SUCCESS;
@@ -231,6 +231,17 @@ StatusCode InDetAlignCog::initialize(){
 //===================================================
 StatusCode InDetAlignCog::execute() {
   ATH_MSG_DEBUG( "execute()" );
+
+  const InDetDD::SiDetectorElementCollection* sctElements(nullptr);
+  if (m_det==2) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+    sctElements = *sctDetEleHandle;
+    if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
+  }
+
   if (m_firstEvent) {
     m_firstEvent = false;
     m_counter = 0;
@@ -251,8 +262,8 @@ StatusCode InDetAlignCog::execute() {
     
     // first loop to calculate cog
     //StatusCode sc;
-    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(m_Pixel_Manager,false,params) );
-    if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(m_SCT_Manager,false,params) );
+    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(m_Pixel_Manager->getDetectorElementCollection(),false,params) );
+    if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(sctElements,false,params) );
     if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(false, params) );
     //if(sc.isFailure())
     //  ATH_MSG_ERROR( "Problem getting elements from managers" );
@@ -313,8 +324,8 @@ StatusCode InDetAlignCog::execute() {
     m_counter=0;
 
     // second loop to compute residual transform after substracting cog
-    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(m_Pixel_Manager,true, params) );
-    if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(m_SCT_Manager,true, params) );
+    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(m_Pixel_Manager->getDetectorElementCollection(),true, params) );
+    if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(sctElements,true, params) );
     if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(true, params) );
     // if(sc.isFailure())
     //          ATH_MSG_ERROR( "Problem getting elements from managers" );
@@ -431,15 +442,12 @@ StatusCode InDetAlignCog::finalize() {
 //===================================================
 // getSiElements
 //===================================================
-StatusCode InDetAlignCog::getSiElements(const InDetDD::SiDetectorManager *manager,
+StatusCode InDetAlignCog::getSiElements(const InDetDD::SiDetectorElementCollection *elements,
 					bool cog_already_calculated,
                                         InDetAlignCog::Params_t &params
                                         ){
  
-  InDetDD::SiDetectorElementCollection::const_iterator iter;  
-  for(iter=manager->getDetectorElementBegin(); iter!=manager->getDetectorElementEnd(); ++iter){
-
-    const InDetDD::SiDetectorElement *element = *iter; 
+  for (const InDetDD::SiDetectorElement *element: *elements) {
     // @TODO can element be null ?
     if (element) {
       Identifier id = element->identify();

@@ -36,36 +36,31 @@ public:
 	   const std::string& p1 = "",
 	   const std::string& p2 = "",
 	   unsigned long ip = 0,
-	   const Token* pt = 0) : GenericAddress(svc, clid, p1, p2, ip), m_token(pt), m_par()
-  {
-    setPar();
+	   const Token* pt = 0) : GenericAddress(svc, clid, p1, p2, ip), m_token(pt), m_par() {
+     setPar();
   }
 
    virtual ~TokenAddress() { delete m_token; m_token = 0; }
 
    const Token* getToken() const { return m_token; }
-   void setToken(const Token* token)
-   {
-     delete m_token;
-     m_token = token;
-     setPar();
+   void setToken(const Token* token) {
+      delete m_token;
+      m_token = token;
+      setPar();
    }
    const std::string* par() const {
-     return m_par;
+      return m_par;
    }
 
 private:
-   void setPar()
-   {
-     m_par[0] = this->GenericAddress::par()[0];
-     m_par[1] = this->GenericAddress::par()[1];
-     m_par[2] = this->GenericAddress::par()[2];
-
-     if (m_par[0].empty() && m_token) {
-       m_par[0] = m_token->toString();
-     }
+   void setPar() {
+      m_par[0] = this->GenericAddress::par()[0];
+      m_par[1] = this->GenericAddress::par()[1];
+      m_par[2] = this->GenericAddress::par()[2];
+      if (m_par[0].empty() && m_token) {
+         m_par[0] = m_token->toString();
+      }
    }
-
    const Token* m_token;
    std::string m_par[3];
 };

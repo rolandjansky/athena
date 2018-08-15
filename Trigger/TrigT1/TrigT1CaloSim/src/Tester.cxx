@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                           Tester.cxx  -  description
                              -------------------
     begin                : Mon Apr 23 2001
-    copyright            : (C) 2000 by moyse
     email                : e.moyse@qmw.ac.uk
  ***************************************************************************/
 //

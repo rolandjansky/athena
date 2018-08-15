@@ -243,18 +243,20 @@ int  LArHEC_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
       m_full_channel_range = dict()->build_multirange(exp_region_id, group_name, prefix);
       m_full_region_range = dict()->build_multirange(exp_region_id, group_name, prefix, "region");  
 
-      std::string strg0 = "initialize_from_dict : " ;
-      std::string strg1 = " channel range -> " + (std::string)m_full_channel_range;
-      std::string strg2 = " region range -> "  + (std::string)m_full_region_range;
-      if(m_msgSvc) {
-	log << MSG::DEBUG << strg0 << endmsg;
-	log << MSG::DEBUG << strg1 << endmsg;
-	log << MSG::DEBUG << strg2 << endmsg;
-      }
-      else {
-	std::cout << strg0 << std::endl;
-	std::cout << strg1 << std::endl;
-	std::cout << strg2 << std::endl;
+      if (!m_quiet) {
+        std::string strg0 = "initialize_from_dict : " ;
+        std::string strg1 = " channel range -> " + (std::string)m_full_channel_range;
+        std::string strg2 = " region range -> "  + (std::string)m_full_region_range;
+        if(m_msgSvc) {
+          log << MSG::DEBUG << strg0 << endmsg;
+          log << MSG::DEBUG << strg1 << endmsg;
+          log << MSG::DEBUG << strg2 << endmsg;
+        }
+        else {
+          std::cout << strg0 << std::endl;
+          std::cout << strg1 << std::endl;
+          std::cout << strg2 << std::endl;
+        }
       }
 
 
@@ -682,27 +684,29 @@ int LArHEC_Base_ID::initLevelsFromDict (const std::string& /*group_name*/)
   m_slar_impl     = region.m_implementation[m_SLAR_INDEX]; 
 
 
-  if(m_msgSvc) {
-    log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
-    log << MSG::DEBUG << "lar  "  << m_lar_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "hec  "  << m_hec_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "pn   "  << m_pn_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "samp "  << m_sampling_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "reg  "  << m_region_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "eta  "  << m_eta_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "phi  "  << m_phi_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "is-slar  " << m_slar_impl.show_to_string() << endmsg;
-  } 
-  else {
-    std::cout << "decode index and bit fields for each level: " << std::endl;
-    std::cout << "lar  "  << m_lar_impl.show_to_string() << std::endl;
-    std::cout << "hec  "  << m_hec_impl.show_to_string() << std::endl;
-    std::cout << "pn   "  << m_pn_impl.show_to_string() << std::endl;
-    std::cout << "samp "  << m_sampling_impl.show_to_string() << std::endl;
-    std::cout << "reg  "  << m_region_impl.show_to_string() << std::endl;
-    std::cout << "eta  "  << m_eta_impl.show_to_string() << std::endl;
-    std::cout << "phi  "  << m_phi_impl.show_to_string() << std::endl;
-    std::cout << "is-slar  " << m_slar_impl.show_to_string() << std::endl;
+  if (!m_quiet) {
+    if(m_msgSvc) {
+      log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
+      log << MSG::DEBUG << "lar  "  << m_lar_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "hec  "  << m_hec_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "pn   "  << m_pn_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "samp "  << m_sampling_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "reg  "  << m_region_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "eta  "  << m_eta_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "phi  "  << m_phi_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "is-slar  " << m_slar_impl.show_to_string() << endmsg;
+    } 
+    else {
+      std::cout << "decode index and bit fields for each level: " << std::endl;
+      std::cout << "lar  "  << m_lar_impl.show_to_string() << std::endl;
+      std::cout << "hec  "  << m_hec_impl.show_to_string() << std::endl;
+      std::cout << "pn   "  << m_pn_impl.show_to_string() << std::endl;
+      std::cout << "samp "  << m_sampling_impl.show_to_string() << std::endl;
+      std::cout << "reg  "  << m_region_impl.show_to_string() << std::endl;
+      std::cout << "eta  "  << m_eta_impl.show_to_string() << std::endl;
+      std::cout << "phi  "  << m_phi_impl.show_to_string() << std::endl;
+      std::cout << "is-slar  " << m_slar_impl.show_to_string() << std::endl;
+    }
   }
     
   return(0) ;
@@ -1146,11 +1150,13 @@ int LArHEC_Base_ID::init_neighbors(void)
 
   const std::vector<const IdDictRegion*>& vecOfDictRegions = dictRegions();
 
-  if(m_msgSvc) {
-    log << MSG::DEBUG << "init_neighbors" << endmsg;
-  }
-  else {
-    std::cout << " LArHEC_Base_ID::init_neighbors " << std::endl;
+  if (!m_quiet) {
+    if(m_msgSvc) {
+      log << MSG::DEBUG << "init_neighbors" << endmsg;
+    }
+    else {
+      std::cout << " LArHEC_Base_ID::init_neighbors " << std::endl;
+    }
   }
 
   //

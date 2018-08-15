@@ -22,6 +22,33 @@ dumpPseudojets = dumpAnything and True
 dumpUngroomed  = dumpAnything and True
 dumpGroomed    = dumpAnything and True
 
+# Specify input file.
+# infile = "/afs/cern.ch/user/d/dadams/pubdata/xaod_clusters.root"
+# doEventShape = False
+# if 0:
+#   # 16sep2014 run 1 data
+#   jetFlags.useTruth = False
+#   doEventShape = True
+#   #infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.CurrentRef.AOD.pool.root"
+#   infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.00209109.physics_JetTauEtmiss.merge.AOD.19_0_2_1._lb0186._SFO-1._0001.pool.root.1"
+# else:
+#   # rdotoesd result from Dec05 devval rel_6
+#   #infile = "/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root"
+#   infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/MC/AOD/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.simul.AOD.e1728_s1581.20_7_.039772.pool.root.1"
+doEventShape = True
+infile = "/atlas/data3/userdata/khoo/Data17/AOD_mc16_21/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000366.pool.root.1"
+
+#--------------------------------------------------------------
+# Input stream
+#--------------------------------------------------------------
+
+from AthenaCommon.AppMgr import ServiceMgr
+import AthenaPoolCnvSvc.ReadAthenaPool
+ServiceMgr.EventSelector.InputCollections = [infile]
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput = [infile]
+
 # import the jet flags.
 from JetRec.JetRecFlags import jetFlags
 jetFlags.containerNamePrefix = "Run2"
@@ -31,23 +58,8 @@ jetFlags.skipTools = []
 
 # Tag with track jets. This is now done by default.
 isTrackJetTagged = True
-
-# Specify input file.
-infile = "/afs/cern.ch/user/d/dadams/pubdata/xaod_clusters.root"
-clname = "Clusters"
-vertexCollectionName = ""
-doEventShape = False
-if 0:
-  # 16sep2014 run 1 data
-  jetFlags.useTruth = False
-  doEventShape = True
-  #infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.CurrentRef.AOD.pool.root"
-  infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/AOD/data12_8TeV.00209109.physics_JetTauEtmiss.merge.AOD.19_0_2_1._lb0186._SFO-1._0001.pool.root.1"
-else:
-  # rdotoesd result from Dec05 devval rel_6
-  #infile = "/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root"
-  infile = "/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/MC/AOD/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.simul.AOD.e1728_s1581.20_7_.039772.pool.root.1"
-
+clname = "CaloCalTopoClusters"
+vertexCollectionName = "PrimaryVertices"
 
 # Flag to show messges while running.
 #   0 - no messages
@@ -55,7 +67,7 @@ else:
 #   2 - Details about jetrec execution including which modfier
 #   3 - Plus messages from the finder
 #   4 - Plus messages from the jet builder
-jetFlags.debug = 0
+jetFlags.debug = 4
 
 # Timing flags for JetToolRunner and JetRecTool.
 # 0 for none, 1 for some, 2 for detailed
@@ -68,19 +80,16 @@ if doEventShape:
   jetFlags.eventShapeTools = ["emtopo", "lctopo"]
 
 #--------------------------------------------------------------
-# Input stream
-#--------------------------------------------------------------
-
-from AthenaCommon.AppMgr import ServiceMgr
-import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections = [infile]
-
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 
 # Number of events to be processed. Default is end [-1].
 theApp.EvtMax = 2
+
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
 
 #--------------------------------------------------------------
 # Import the jet tool manager.
@@ -214,7 +223,7 @@ if dumpUngroomed:
     names += ["Run2AntiKt4TruthWZJets"]
   if jetFlags.useTracks():
     names += ["Run2AntiKt4TrackJets"]
-    names += ["Run2AntiKt4ZTrackJets"]
+    #names += ["Run2AntiKt4ZTrackJets"]
     names += ["Run2AntiKt2PV0TrackJets"]
     names += ["Run2AntiKt3PV0TrackJets"]
     names += ["Run2AntiKt4PV0TrackJets"]

@@ -92,8 +92,10 @@ namespace SG {
     
     /**
      * @brief forward the initialization to the member VarHandleKeys
+     * @param used If false, then this handle is not to be used.
+     *             Instead of normal initialization, the key will be cleared.
      */
-    StatusCode initialize();
+    StatusCode initialize (bool used = true);
 
     /**
      * @brief Set the contents of the VarHandleKeyArray from a 

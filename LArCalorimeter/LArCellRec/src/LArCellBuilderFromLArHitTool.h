@@ -62,6 +62,7 @@ process(CaloCellContainer * theCellContainer)
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "LArElecCalib/ILArfSampl.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <CLHEP/Random/Randomize.h>
 
@@ -120,6 +121,7 @@ private:
   const LArHEC_ID*       m_hecID;
   const LArFCAL_ID*      m_fcalID;
 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
   const DataHandle<ILArfSampl> m_dd_fSampl;
 
 

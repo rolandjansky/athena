@@ -18,8 +18,11 @@
 #include "RingerPreProcessorWrapper.h"
 #undef RINGER_DISCRIMINATOR_WRAPPER_INCLUDE
 
-/** 
- * @brief Namespace dedicated for Ringer utilities 
+#include "RingerSelectorTools/procedures/Normalizations.h"
+#include "RingerSelectorTools/ExtraDescriptionPatterns.h"
+
+/**
+ * @brief Namespace dedicated for Ringer utilities
  **/
 namespace Ringer {
 
@@ -73,15 +76,20 @@ class IRingerProcedureWrapper< Discrimination::IDiscriminator > :
      **/
     virtual SegmentationType getSegType() const = 0;
 
+    /**
+     * @brief Get extra description patterns being used
+     **/
+    virtual const Ringer::ExtraDescriptionPatterns& getExtraDescriptionPatterns() const = 0;
+
 #endif
 
     /**
      * @brief Apply discriminator to obtain its output representation
      *
      * This method will pass @name input information to the
-     * pre-processors (if any) and afterwards feed the classifier. 
+     * pre-processors (if any) and afterwards feed the classifier.
      *
-     * This overload is only available if SegmentationType is set to 
+     * This overload is only available if SegmentationType is set to
      * NoSegmentation (there is no section/layer segmentation
      * information available on this method).
      **/
@@ -90,7 +98,7 @@ class IRingerProcedureWrapper< Discrimination::IDiscriminator > :
         const std::vector<float> &input,
         std::vector<float> &output) const = 0;
     ///@}
- 
+
     /**
      * @brief Returns this wrapper name
      **/
@@ -99,9 +107,9 @@ class IRingerProcedureWrapper< Discrimination::IDiscriminator > :
     }
 
 #if RINGER_USE_NEW_CPP_FEATURES
-    static constexpr const char* wrapName = "RingerDiscriminatorWrapper"; 
+    static constexpr const char* wrapName = "RingerDiscriminatorWrapper";
 #else
-    static const char* wrapName; 
+    static const char* wrapName;
 #endif
 
     /**
@@ -112,14 +120,14 @@ class IRingerProcedureWrapper< Discrimination::IDiscriminator > :
     /**
      * @brief Write all wrappers on discrWrapperCol to TDirectory
      **/
-    static void writeCol(const WrapperCollection &discrWrapperCol, 
+    static void writeCol(const WrapperCollection &discrWrapperCol,
         const char *fileName);
 
     /**
      * @brief Read all discriminator on file at the path and append them to
      * IPreProcWrapperCollection
      **/
-    static void read(WrapperCollection &discrWrapperCol, 
+    static void read(WrapperCollection &discrWrapperCol,
         const char* fileName);
 
   protected:
@@ -168,19 +176,28 @@ class RingerProcedureWrapper<
      * @brief typedef to base wrapper
      **/
     //typedef typename RingerProcedureWrapper::template
-    //    IRingerProcedureWrapper< Discrimination::IDiscriminator > 
+    //    IRingerProcedureWrapper< Discrimination::IDiscriminator >
     //    wrapper_t;
 
     /**
      * @brief typedef to the Ringer Interface variable dependency collection
      *
      * Collection Dimension: [segType][etBin][etaBin]:
-     *  
+     *
      **/
-    typedef typename std::vector< 
-        std::vector < 
+    typedef typename std::vector<
+        std::vector <
         std::vector < procedure_t* > >
       > DiscrDepProcCollection;
+
+    /**
+     * Extra patterns normalization vector
+     *
+     * Collection Dimension [etBin][etaBin]
+     **/
+    typedef typename std::vector<
+        std::vector< Ringer::PreProcessing::Norm::ExtraPatternsNorm* >
+      > ExtraPatternsNormCollection;
     ///@}
 
     /// Ctors:
@@ -195,24 +212,24 @@ class RingerProcedureWrapper<
       m_discr(nullptr),
       m_rsRawConfCol(nullptr),
       m_nRings(0)
-    { 
-      checkDiscrCol(); 
+    {
+      checkDiscrCol();
     }
 
     /**
      * @brief Build RProc Wrapper with all functionallities
      **/
     RingerProcedureWrapper(
-        const IPreProcWrapperCollection &ppCol, 
+        const IPreProcWrapperCollection &ppCol,
         const DiscrDepProcCollection &discrDepCol):
       m_ppWrapperCol(ppCol),
       m_discrCol(discrDepCol),
       m_discr(nullptr),
       m_rsRawConfCol(nullptr),
       m_nRings(0)
-    { 
-      checkPPWrapperCol(); 
-      checkDiscrCol(); 
+    {
+      checkPPWrapperCol();
+      checkDiscrCol();
     }
     ///@}
 
@@ -239,9 +256,9 @@ class RingerProcedureWrapper<
      * @brief Apply discriminator to obtain its output representation
      *
      * This method will pass @name input information to the
-     * pre-processors (if any) and afterwards feed the classifier. 
+     * pre-processors (if any) and afterwards feed the classifier.
      *
-     * This overload is only available if SegmentationType is set to 
+     * This overload is only available if SegmentationType is set to
      * NoSegmentation (there is no section/layer segmentation
      * information available on this method).
      **/
@@ -258,8 +275,8 @@ class RingerProcedureWrapper<
      * @brief Set the holden CaloRings raw configuration collection.
      **/
     virtual void setRawConfCol(
-        const xAOD::RingSetConf::RawConfCollection *crRawConfCol) 
-      ATH_RINGER_FINAL ATH_RINGER_OVERRIDE 
+        const xAOD::RingSetConf::RawConfCollection *crRawConfCol)
+      ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
     {
       for ( auto &ppWrapper : m_ppWrapperCol ) {
         ppWrapper->setRawConfCol( crRawConfCol );
@@ -280,14 +297,43 @@ class RingerProcedureWrapper<
 #endif
 
     /**
+     * @brief Get extra description patterns being used
+     **/
+    virtual const Ringer::ExtraDescriptionPatterns& getExtraDescriptionPatterns() const
+      ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
+    {
+      return m_extraDescriptionPatterns;
+    }
+
+    /**
+     * @brief Get extra description patterns being used
+     **/
+    void setExtraDescriptionPatterns( const Ringer::ExtraDescriptionPatterns &extraPat )
+    {
+      m_extraDescriptionPatterns = extraPat;
+    }
+
+    /**
+     * @brief Get extra description patterns being used
+     **/
+    ExtraPatternsNormCollection& getExtraDescriptionNorms() { return m_extraDescriptionNorms; }
+
+    /**
+     * @brief Get extra description patterns being used
+     **/
+    void setExtraDescriptionNorms( const ExtraPatternsNormCollection& extraNorms ){
+      m_extraDescriptionNorms = extraNorms;
+      checkExtraPatNorm();
+    }
+
+    /**
      * @brief Get segmentation type for this pre-processor
      **/
-    virtual SegmentationType getSegType() const 
+    virtual SegmentationType getSegType() const
       ATH_RINGER_FINAL ATH_RINGER_OVERRIDE
     {
       return static_cast<SegmentationType>(segType);
     }
-
 
     /**
      * @brief Returns whether holden interface collection is empty.
@@ -341,7 +387,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Print wrapper content
      **/
-    void print(MSG::Level lvl = MSG::DEBUG) const ATH_RINGER_OVERRIDE 
+    void print(MSG::Level lvl = MSG::DEBUG) const ATH_RINGER_OVERRIDE
       ATH_RINGER_FINAL;
 
     /**
@@ -352,7 +398,7 @@ class RingerProcedureWrapper<
     /**
      * @brief Read collection from TDirectory
      **/
-    static RingerProcedureWrapper* read(TDirectory *configDir, 
+    static RingerProcedureWrapper* read(TDirectory *configDir,
         unsigned version);
     ///@}
 
@@ -363,12 +409,17 @@ class RingerProcedureWrapper<
      * @brief Check if input PP Wrapper collection is in good status
      * (Throws otherwise)
      **/
-    void checkPPWrapperCol();
+    void checkPPWrapperCol() const;
     /**
-     * @brief Check if discriminators interface collection is in good status 
+     * @brief Check if exra pattern is in good status
      * (Throws otherwise)
      **/
-    void checkDiscrCol(); 
+    void checkExtraPatNorm() const;
+    /**
+     * @brief Check if discriminators interface collection is in good status
+     * (Throws otherwise)
+     **/
+    void checkDiscrCol() const;
     ///@}
 
     /// Properties
@@ -377,9 +428,12 @@ class RingerProcedureWrapper<
     const IPreProcWrapperCollection m_ppWrapperCol;
     /// @brief holden discriminator collection:
     DiscrDepProcCollection m_discrCol;
+    /// @brief Hold the normalization to be used by each bin to the extra patterns
+    ExtraPatternsNormCollection m_extraDescriptionNorms;
+    /// @brief contains a pointer into the CaloRings configuration
+    ExtraDescriptionPatterns m_extraDescriptionPatterns;
     /// @brief hold pointer to first collection position:
     procedure_t *m_discr;
-
 
 #ifndef RINGER_STANDALONE
     /// @brief contains a pointer into the CaloRings configuration

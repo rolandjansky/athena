@@ -25,9 +25,9 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
    kwargs.setdefault("MaskedStations", [])
    kwargs.setdefault("UseDeadChamberSvc", True)
    kwargs.setdefault("DiscardEarlyHits", True)
-   
+
    kwargs.setdefault("UseTof", jobproperties.Beam.beamType != "cosmics")
-   
+
    if 'RT_Relation_DB_DigiTool' in jobproperties.Digitization.experimentalDigi():
       kwargs.setdefault("DigitizationTool","RT_Relation_DB_DigiTool")
    else:
@@ -41,7 +41,7 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
          kwargs.setdefault("DoQballCharge", False)
    else:
       kwargs.setdefault("DoQballCharge", False)
-   
+
    mdtRndm = kwargs.setdefault("RndmEngine","MDT_Digitization")
    mdtTwinRndm = kwargs.setdefault("TwinRndmEngine","MDT_DigitizationTwin")
    jobproperties.Digitization.rndmSeedList.addSeed(mdtRndm, 49261510, 105132394 )
@@ -75,14 +75,14 @@ def RT_Relation_DB_DigiTool(name="RT_Relation_DB_DigiTool",**kwargs):
    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
    mdtRndm = kwargs.setdefault("RndmEngine", "RTRelationDB")
    jobproperties.Digitization.rndmSeedList.addSeed(mdtRndm, 49261510,105132394 )
-   
+
    return CfgMgr.RT_Relation_DB_DigiTool(name,**kwargs)
 
 
 def MDT_Response_DigiTool(name="MDT_Response_DigiTool",**kwargs):
    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc())
    mdtRndm = kwargs.setdefault("RndmEngine", "MDTResponse")
-   
+
    if jobproperties.Digitization.specialConfiguration.statusOn:
       specialConfigDict = jobproperties.Digitization.specialConfiguration.get_Value()
       if 'MDT_QballConfig' in specialConfigDict.keys():
@@ -91,14 +91,18 @@ def MDT_Response_DigiTool(name="MDT_Response_DigiTool",**kwargs):
          kwargs.setdefault("DoQballGamma", False)
    else:
       kwargs.setdefault("DoQballGamma", False)
-   
+
    jobproperties.Digitization.rndmSeedList.addSeed(mdtRndm, 49261510,105132394 )
    return CfgMgr.MDT_Response_DigiTool(name,**kwargs)
-   
+
 def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+MDT_DIGITS")
-    kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+MDT_SDO")
     kwargs.setdefault("GetT0FromBD", overlayFlags.isDataOverlay())
+    if not overlayFlags.isDataOverlay():
+        kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+MDT_SDO")
     return MdtDigitizationTool(name,**kwargs)
+
+def getMDT_OverlayDigitizer(name="MDT_OverlayDigitizer", **kwargs):
+    kwargs.setdefault("MDT_DigitizationTool","Mdt_OverlayDigitizationTool")
+    return CfgMgr.MDT_Digitizer(name,**kwargs)

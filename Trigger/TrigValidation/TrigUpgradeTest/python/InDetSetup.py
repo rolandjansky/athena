@@ -235,8 +235,17 @@ def makeInDetAlgs():
                                                                     #OutputLevel=INFO)
 
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
-  
-  
+
+  # Condition algorithm for SiTrackerSpacePointFinder
+  if InDetSiTrackerSpacePointFinder.ProcessSCTs:
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+      # Setup alignment folders and conditions algorithms
+      from InDetCondFolders import InDetAlignFolders
+      from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
+
   from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 

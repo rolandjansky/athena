@@ -7,7 +7,6 @@
 
 #include "PixelGeoModel/GeoVPixelFactory.h"
 #include "CLHEP/Geometry/Point3D.h"
-#include <sstream>
 
 class GeoLogVol;
 class GeoPhysVol;
@@ -15,8 +14,8 @@ class GeoPhysVol;
 class GeoPixelLadderServices : public GeoVPixelFactory {
  public:
   GeoPixelLadderServices(int ladderType);
+  virtual ~GeoPixelLadderServices();
   virtual GeoVPhysVol* Build();
-  //double Thickness();
   const HepGeom::Point3D<double> & envelopeCornerA1() {return  m_envelopeCornerA1;}
   const HepGeom::Point3D<double> & envelopeCornerA2() {return  m_envelopeCornerA2;}
   const HepGeom::Point3D<double> & envelopeCornerC1() {return  m_envelopeCornerC1;}

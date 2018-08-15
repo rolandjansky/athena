@@ -15,6 +15,7 @@
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
@@ -24,7 +25,6 @@
 
 // Forward declarations
 class SCT_ID;
-namespace InDetDD {class SCT_DetectorManager; }
 
 class SCT_ConfigurationCondAlg : public AthAlgorithm 
 {  
@@ -42,11 +42,13 @@ class SCT_ConfigurationCondAlg : public AthAlgorithm
   StatusCode fillChannelData(SCT_ConfigurationCondData* writeCdo);
   StatusCode fillModuleData(SCT_ConfigurationCondData* writeCdo);
   StatusCode fillLinkStatus(SCT_ConfigurationCondData* writeCdo);
-  Identifier getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber) const;
+  Identifier getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber,
+                        const InDetDD::SiDetectorElementCollection* elements) const;
 
   EventIDRange m_rangeChannel;
   EventIDRange m_rangeModule;
   EventIDRange m_rangeMur;
+  EventIDRange m_rangeDetEle;
 
   static const std::string s_coolChannelFolderName;
   static const std::string s_coolChannelFolderName2;
@@ -58,11 +60,11 @@ class SCT_ConfigurationCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyChannel{this, "ReadKeyChannel", "/SCT/DAQ/Configuration/Chip", "Key of input (raw) conditions folder of chips"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyModule{this, "ReadKeyModule", "/SCT/DAQ/Config/Module", "Key of input (raw) conditions folder of modules"};
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyMur{this, "ReadKeyMur", "/SCT/DAQ/Config/MUR", "Key of input (raw) conditions folder of Murs"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_sctDetEleCollKey{this, "SctDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::WriteCondHandleKey<SCT_ConfigurationCondData> m_writeKey{this, "WriteKey", "SCT_ConfigurationCondData", "Key of output (derived) conditions data"};
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
   const SCT_ID* m_pHelper; //!< ID helper for SCT
-  const InDetDD::SCT_DetectorManager* m_pManager; //!< SCT detector manager
   ToolHandle<ISCT_ReadoutTool> m_readoutTool{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle on readout tool"}; //!< Handle on readout tool
 };
 

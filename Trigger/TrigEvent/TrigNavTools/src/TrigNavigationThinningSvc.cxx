@@ -149,14 +149,6 @@ TrigNavigationThinningSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj
 }
 
 
-/// Inform HIVE that an object has been updated.
-StatusCode
-TrigNavigationThinningSvc::updatedObject (CLID id, const std::string& key)
-{
-  return m_workerThinning->updatedObject (id, key);
-}
-
-
 /**
  * @brief Find the key for a string/CLID pair.
  * @param str The string to look up.

@@ -19,10 +19,11 @@ flags.set( "global.isMC", False )
 flags.set( "global.InputFiles",
            ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] )
 
-flags.set( "Trigger.inputLVL1ConfigFile", "LVL1config_Physics_pp_v7.xml" )
-flags.set( "Trigger.L1Decoder.doMuon", True )
+flags.set( "Trigger.LVL1ConfigFile", "LVL1config_Physics_pp_v7.xml" )
+flags.set( "Trigger.L1Decoder.forceEnableAllChains", True)
 
 flags.lock()
+
 from AthenaCommon.Constants import INFO,DEBUG
 acc = ComponentAccumulator()
 
@@ -57,14 +58,25 @@ acc.merge(TrigBSReadCfg(flags ))
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
-acc.addSequence( seqOR( "hltTop") )
+def menu( mf ):
+    menuAcc = ComponentAccumulator()
+    HLTSteps =  seqAND( "HLTSteps")
+    menuAcc.addSequence( HLTSteps )
+    menuAcc.addSequence( parOR("HLTStep_1_filters"), parentName="HLTSteps" )
+    menuAcc.addSequence( parOR("HLTStep_1"), parentName="HLTSteps" )
+    menuAcc.addSequence( parOR("HLTStep_2_filters"), parentName="HLTSteps" )
+    menuAcc.addSequence( parOR("HLTStep_2"), parentName="HLTSteps" )
 
-from L1Decoder.L1DecoderConfig import L1DecoderCfg
-accL1,l1=L1DecoderCfg(flags)# sequenc="hltTop" )
-from TrigUpgradeTest.TestUtils import applyMenu
-applyMenu( l1 )
-acc.merge(accL1)
-acc.addEventAlgo(l1,"hltTop")
+    from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
+    accECM,seqECM=EgammaCaloMod(flags)
+    menuAcc.merge(accECM)
+    menuAcc.addSequence(seqECM, parentName="HLTStep_1" )
+    return menuAcc, HLTSteps
+
+
+from TriggerJobOpts.TriggerConfig import triggerRunCfg
+acc.merge( triggerRunCfg(flags, menu) )
+
 
 from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
 tagInfoMgr = TagInfoMgr()
@@ -80,28 +92,24 @@ from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
 athenaPoolSvcSvc = AthenaPoolCnvSvc()
 athenaPoolSvcSvc.PoolAttributes = ["DEFAULT_SPLITLEVEL ='0'", "STREAM_MEMBER_WISE = '1'", "DEFAULT_BUFFERSIZE = '32000'", "ContainerName = 'POOLContainer(DataHeader)'; BRANCH_BASKET_SIZE = '256000'", "ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '1024000'", "ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '99'"]
 acc.addService( athenaPoolSvcSvc )
-acc.getService("EventPersistencySvc").CnvServices += [ athenaPoolSvcSvc.getName() ]
+acc.getService( "EventPersistencySvc" ).CnvServices += [ athenaPoolSvcSvc.getName() ]
 
-acc.addSequence( seqAND("hltSteps"), parentName="hltTop" )
-acc.addSequence( parOR("hltStep_1"), parentName="hltSteps" )
-acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
 
 # setup algorithm sequences here, need few additional components
 from TrigUpgradeTest.RegSelConfig import RegSelConfig
-acc.merge(RegSelConfig(flags ))
+acc.merge( RegSelConfig( flags ) )
 
+acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
+print acc.getEventAlgo( "TrigSignatureMoniMT" )
 
-from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
-accECM,seqECM=EgammaCaloMod(flags)
+from TrigUpgradeTest.TestUtils import applyMenu
+applyMenu( acc.getEventAlgo( "L1Decoder" ) )
+acc.getEventAlgo( "L1Decoder" ).OutputLevel=DEBUG
+acc.getEventAlgo( "L2CaloHypo" ).OutputLevel=DEBUG
 
-acc.merge(accECM)
-acc.addSequence(seqECM, parentName="hltStep_1" )
-
-# adding calo requires  more infrastructure than we actually have
-#from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
-#acc.addConfig( EgammaCaloMod, flags, sequence="hltStep1" )
 
 acc.printConfig()
+
 
 fname = "newJOtest.pkl"
 print "Storing config in the config", fname

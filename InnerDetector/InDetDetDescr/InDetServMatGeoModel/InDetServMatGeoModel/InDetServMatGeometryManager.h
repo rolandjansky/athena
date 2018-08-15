@@ -18,6 +18,12 @@ public:
  
   ~InDetServMatGeometryManager();
   
+  ///Delete assignment
+  InDetServMatGeometryManager & operator = (const InDetServMatGeometryManager &) = delete;
+  
+  ///Delete copy c'tor
+  InDetServMatGeometryManager(const InDetServMatGeometryManager &) = delete;
+  
   // Access to geometry database
   const IGeometryDBSvc * db() const {return m_athenaComps->geomDB();}
 

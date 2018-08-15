@@ -101,7 +101,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.LVL1TopoConfigFile',
                 lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
 
-
+    
     # trigger reconstruction 
 
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)

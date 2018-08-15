@@ -4,7 +4,7 @@
 
 #ifndef PixelByteStreamErrorsSvc_h
 #define PixelByteStreamErrorsSvc_h
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "PixelConditionsTools/IPixelByteStreamErrorsSvc.h"
 
 //STL includes
 #include <string>

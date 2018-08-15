@@ -403,11 +403,11 @@ double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id
     slope = m_TRTCalDbSvc2->driftSlope(drifttime,id,foundslope);
     ATH_MSG_DEBUG ("Overlay TRTCalDbSvc2 gives slope: "<<slope<<", found="<<foundslope);
   }
-  
+
   if(founderr && foundslope) {
     return error+mu*slope;
 //to add condition for old setup
-  } 
+  }
   else if ((founderr && !foundslope)  || (mu<0)) {
 		return error; }
   else {  //interpolate
@@ -425,7 +425,7 @@ double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id
 }
 
 //
-// returns the time over threshold correction in ns 
+// returns the time over threshold correction in ns
 double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id)
 {
 
@@ -434,69 +434,75 @@ double TRT_DriftFunctionTool::driftTimeToTCorrection(double tot, Identifier id)
     const CondAttrListCollection* atrlistcol;
     SG::ReadCondHandle<CondAttrListCollection> rch(m_ToTkey);
     atrlistcol=*rch;
-    if(!atrlistcol) ATH_MSG_ERROR ("Problem reading condDB ToT correction constants.");
-    int channel;
-    std::ostringstream var_name;
-    for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
-          citr!=atrlistcol->end();++citr) {
+    if(!atrlistcol) {
+      ATH_MSG_ERROR ("Problem reading condDB ToT correction constants.");
+    } else {
+      int channel;
+      std::ostringstream var_name;
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
+            citr!=atrlistcol->end();++citr) {
 
-       //get Barrel (1) or Endcap (2)
-       channel = citr->first;
+        //get Barrel (1) or Endcap (2)
+        channel = citr->first;
 
-       if ((channel == 1) || (channel == 2)) {
+        if ((channel == 1) || (channel == 2)) {
           const coral::AttributeList& atrlist = citr->second;
 
-	  for (int i = 0; i < 20; ++i ) {
-       	    var_name << "TRT_ToT_" << std::dec << i;
-	    m_tot_corrections[channel-1][i] = atrlist[var_name.str()].data<float>();
-	    var_name.str("");
-	  }	 
-       } 
+          for (int i = 0; i < 20; ++i ) {
+            var_name << "TRT_ToT_" << std::dec << i;
+            m_tot_corrections[channel-1][i] = atrlist[var_name.str()].data<float>();
+            var_name.str("");
+          }
+        }
+      }
     }
-    m_setupToT=false;	
+    m_setupToT=false;
   }
 
 
   int tot_index = tot/3.125;
   if (tot_index < 0) tot_index = 0;
   if (tot_index > 19) tot_index = 19;
-  
+
   int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
-  
+
   return m_tot_corrections[bec_index][tot_index];
 }
 
-// Returns high threshold correction to the drift time (ns) 
+// Returns high threshold correction to the drift time (ns)
 double TRT_DriftFunctionTool::driftTimeHTCorrection(Identifier id)
 {
 
-  if(m_setupHT) {
+if(m_setupHT) {
     std::lock_guard<std::mutex> lock(m_cacheMutex);
     const CondAttrListCollection* atrlistcol;
     SG::ReadCondHandle<CondAttrListCollection> rch(m_HTkey);
     atrlistcol=*rch;
-    if(!atrlistcol) ATH_MSG_ERROR ("Problem reading condDB HT correction constants.");
-    int channel;
-    std::ostringstream var_name;
-    for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
-          citr!=atrlistcol->end();++citr) {
+    if (!atrlistcol) {
+      ATH_MSG_ERROR ("Problem reading condDB HT correction constants.");
+    } else {
+      int channel;
+      std::ostringstream var_name;
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
+           citr!=atrlistcol->end();++citr) {
 
-	   channel = citr->first;
-	   if (channel == 1) {
-             const coral::AttributeList& atrlist = citr->second;
+        channel = citr->first;
+        if (channel == 1) {
+          const coral::AttributeList& atrlist = citr->second;
 
-	     for (int i = 0; i < 2; ++i ) {
-	       var_name << "TRT_HT_" << std::dec << i;
-       	       m_ht_corrections[i] = atrlist[var_name.str()].data<float>();
-	       var_name.str("");
-	     }	 
-	   } 
+          for (int i = 0; i < 2; ++i ) {
+            var_name << "TRT_HT_" << std::dec << i;
+            m_ht_corrections[i] = atrlist[var_name.str()].data<float>();
+            var_name.str("");
+          }
+        }
+      }
     }
-    m_setupHT=false;	
+    m_setupHT=false;
   }
 
   int bec_index = abs(m_trtid->barrel_ec(id)) - 1;
-  
+
   return m_ht_corrections[bec_index];
 }
 

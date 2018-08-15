@@ -225,7 +225,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
 }
 
 
-HLT::ErrorCode TrigEFPhotonHypo::hltBeginRun() {
+HLT::ErrorCode TrigEFPhotonHypo::hltStart() {
   prepareMonitoringVars();
   return HLT::OK;
 }

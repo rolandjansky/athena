@@ -41,9 +41,10 @@ StatusCode
 CaloNoiseDbExample::initialize()
 {
   ATH_MSG_DEBUG ("in initialize()" );
-  
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
+
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
+  m_calo_id      = mgr->getCaloCell_ID();
   
   
   //=== Bind noise DataHandle to COOL folder
@@ -132,8 +133,6 @@ CaloNoiseDbExample::printSomeInfo()
     Identifier id=m_calo_id->cell_id(idHash);
     if (m_calo_id->is_tile(id)) {
 
-      //    const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
-    
       int ngain = 4;
       for (int igain=0;igain<ngain;igain++) {
 

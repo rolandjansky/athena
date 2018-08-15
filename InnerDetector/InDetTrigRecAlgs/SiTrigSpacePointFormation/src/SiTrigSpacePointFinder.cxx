@@ -16,11 +16,9 @@ ATLAS Collaboration
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 
-#include "GaudiKernel/ITHistSvc.h"
-
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h" 
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
 
 // Space point Classes,
 #include "TrkSpacePoint/SpacePoint.h" 
@@ -30,11 +28,12 @@ ATLAS Collaboration
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-
 // Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
+
+#include "GaudiKernel/ITHistSvc.h"
 
 namespace InDet{
 
@@ -57,6 +56,7 @@ namespace InDet{
     m_selectPixels(true),
     m_selectSCTs(true),
     m_overlap(false),
+    m_managerSCT(nullptr),
     m_SpacePointContainerSCT(0),
     m_SpacePointContainerPixel(0),
     m_spOverlapColl(0),
@@ -104,15 +104,6 @@ namespace InDet{
   }
   //----------------------------------  
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SiTrigSpacePointFinder::hltBeginRun(){
-
-    ATH_MSG_INFO( "SiTrigSpacePointFinder::hltBeginRun()" );
-
-    return HLT::OK;
-  }
 
   //----------------------------------
   //          Initialize method:
@@ -182,7 +173,12 @@ namespace InDet{
       ATH_MSG_FATAL( "Cannot retrieve SCT ID helper!" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
-  
+    // SCT detector manager
+    sc = detStore()->retrieve(m_managerSCT, "SCT");
+    if (sc.isFailure()) {
+      ATH_MSG_FATAL( "Cannot retrieve SCT detector manager!" );
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
 
     // register the IdentifiableContainer into StoreGate
     // ------------------------------------------------------
@@ -269,6 +265,18 @@ namespace InDet{
 	}
       }
       //    m_spOverlapColl->addRef();
+    }
+
+    if (m_selectSCTs) {
+      // ReadCondHandleKey for SCT alignment conditions
+      if (m_SCTDetEleCollKey.initialize().isFailure()) {
+        ATH_MSG_FATAL( "Failed to initialize " << m_SCTDetEleCollKey.fullKey() );
+        return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      }
+      if (m_SCTPropertiesKey.initialize().isFailure()) {
+        ATH_MSG_FATAL( "Failed to initialize " << m_SCTPropertiesKey.fullKey() );
+        return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      }
     }
 
     // initializing the IdentifiableContainers for clusters:
@@ -429,6 +437,22 @@ namespace InDet{
     }
 
     if (m_selectSCTs &&  doSCT ){ 
+      // ReadCondHandle for SCT alignment conditions
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+      const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+      if (elements==nullptr) {
+        ATH_MSG_FATAL("Pointer of SiDetectorElementCollection (" << m_SCTDetEleCollKey.fullKey() << ") could not be retrieved");
+        return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      }
+      if (m_useDetectorManager) {
+        elements = m_managerSCT->getDetectorElementCollection();
+      }
+      SG::ReadCondHandle<SiElementPropertiesTable> sctProperties(m_SCTPropertiesKey);
+      const SiElementPropertiesTable* properties(sctProperties.retrieve());
+      if (properties==nullptr) {
+        ATH_MSG_FATAL("Pointer of SiElementPropertiesTable (" << m_SCTPropertiesKey.fullKey() << ") could not be retrieved");
+        return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+      }
 
       if(!m_doFullScan){
 	//   Get the SCT RDO's:
@@ -479,6 +503,8 @@ namespace InDet{
 	  
 	    m_trigSpacePointTool->addSCT_SpacePoints(SCTClusterCollection,
 						     m_sctClusterContainer,
+                                                     properties,
+                                                     elements,
 						     spacepointCollection,
 						     m_spOverlapColl);
 	  }
@@ -529,6 +555,8 @@ namespace InDet{
 
 	    m_trigSpacePointTool->addSCT_SpacePoints(colNext,
 						     m_sctClusterContainer,
+                                                     properties,
+                                                     elements,
 						     spacepointCollection,
 						     m_spOverlapColl);
 	  }
@@ -765,15 +793,4 @@ namespace InDet{
     return HLT::OK;
   }
 
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode SiTrigSpacePointFinder::hltEndRun(){
- 
-    // Get the messaging service, print where you are
-    ATH_MSG_INFO( "SiTrigSpacePointFinder::endRun()" );
- 
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
 }

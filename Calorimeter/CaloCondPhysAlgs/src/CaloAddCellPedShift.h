@@ -58,8 +58,6 @@ class CaloAddCellPedShift : public AthAlgorithm {
 
   ITHistSvc* m_thistSvc;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   ToolHandle<LArCablingService> m_cablingService;
   const CaloCell_ID*       m_calo_id;
   const LArOnlineID*      m_onlineID;

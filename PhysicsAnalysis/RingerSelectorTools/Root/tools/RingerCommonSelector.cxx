@@ -12,6 +12,7 @@
 #include "RingerSelectorTools/tools/RingerCommonSelector.h"
 #include "RingerSelectorTools/tools/VariableDependency.h"
 #include "RingerSelectorTools/procedures/RingerProcedureWrapper.icc"
+#include "RingerSelectorTools/AsgElectronRingerSelector.h"
 
 // STL includes:
 #include <vector>
@@ -27,15 +28,13 @@ RingerCommonSelector::RingerCommonSelector(
     const Ringer::IDiscrWrapperCollection *discrWrapperCol,
     const Ringer::IThresWrapper *thresWrapper,
     Root::TAccept *partDecMsk,
-    const bool useTrackPat,
-    const bool useRawTrackPat,
-    const bool useCaloCommittee)
+    const RingerConfStruct &fileConf)
   : m_discrWrapperCol(discrWrapperCol),
     m_thresWrapper(thresWrapper),
     m_partDecMsk(partDecMsk),
-    m_useTrackPat(useTrackPat),
-    m_useRawTrackPat(useRawTrackPat),
-    m_useCaloCommittee(useCaloCommittee),
+    m_useTrackPat(fileConf.useTrackPat),
+    m_useRawTrackPat(fileConf.useRawTrackPat),
+    m_useCaloCommittee(fileConf.useCaloCommittee),
     m_fstDiscrLayer(0),
     m_lastDiscrLayer(0)
 {
@@ -95,7 +94,7 @@ StatusCode RingerCommonSelector::execute(
     }
 
     if ( m_useCaloCommittee && !m_useRawTrackPat && !m_nonSegmentedDiscr )
-    { 
+    {
 #ifndef NDEBUG
       ATH_MSG_DEBUG( "Using CaloCommite with nonSegmented discriminator.");
 #endif
@@ -104,13 +103,13 @@ StatusCode RingerCommonSelector::execute(
       // output from the track discriminator output, thus we execute the
       // discrimination layer two times, one for each type of input and get the
       // output space representation within two vectors:
-      m_fstDiscrLayer->execute( depVar, 
-          clRings, 
-          nullptr, 
+      m_fstDiscrLayer->execute( depVar,
+          clRings,
+          nullptr,
           m_output);
-      m_fstDiscrLayer->execute( depVar, 
-          nullptr, 
-          localTrackPat, 
+      m_fstDiscrLayer->execute( depVar,
+          nullptr,
+          localTrackPat,
           m_trackDiscr_output);
     } else {
 #ifndef NDEBUG
@@ -136,7 +135,7 @@ StatusCode RingerCommonSelector::execute(
     // classification layer input space:
     if ( m_useRawTrackPat && !m_useCaloCommittee ) {
       trackPat->exportPatternsTo(m_input);
-    } 
+    }
 
     // Set input to be same as last layer output, so that we can continue
     // applying our chain:
@@ -146,19 +145,19 @@ StatusCode RingerCommonSelector::execute(
     if ( m_discrWrapperColSize > 2 ){
       // We use the output from first discrimination layer to work with the
       // sequential layers (except the last):
-      for (size_t discrIdx = 1; discrIdx < m_discrWrapperColSize - 1; 
+      for (size_t discrIdx = 1; discrIdx < m_discrWrapperColSize - 1;
           ++discrIdx ){
 
-        (*m_discrWrapperCol)[discrIdx]->execute( 
-            depVar, 
-            m_input, 
+        (*m_discrWrapperCol)[discrIdx]->execute(
+            depVar,
+            m_input,
             m_output );
         // Set input to be same as last layer output, so that we can continue
         // applying our chain:
         m_input = m_output;
       }
     }
-    
+
     // If we did calorimeter only committee, then we need to add track
     // information to last discrimination layer:
     if ( m_useCaloCommittee ) {
@@ -170,16 +169,16 @@ StatusCode RingerCommonSelector::execute(
         // otherwise we need to add track discrimination output, executed by
         // first layer into the last layer input space:
         // Copy trackDiscr output to input space:
-        m_input.insert( m_input.end(), 
-            m_trackDiscr_output.begin(), 
+        m_input.insert( m_input.end(),
+            m_trackDiscr_output.begin(),
             m_trackDiscr_output.end());
       }
     }
 
     // Apply our last discriminator
-    m_lastDiscrLayer->execute( 
-        depVar, 
-        m_input, 
+    m_lastDiscrLayer->execute(
+        depVar,
+        m_input,
         m_output);
 #ifndef NDEBUG
             ATH_MSG_DEBUG("Final output space is :" << m_output);

@@ -4608,7 +4608,10 @@ def format_obj (x, name=None):
     if tname.startswith ('std::vector<') or tname.startswith ('vector<'):
         ipos = tname.find('<')
         tname2 = tname[ipos+1:]
-        if tname2.startswith('char,') or tname2.startswith ('unsigned char,'):
+        if (tname2.startswith('char,') or
+            tname2.startswith('char>') or
+            tname2.startswith ('unsigned char,') or
+            tname2.startswith ('unsigned char>')):
             l = ', '.join ([str(ord(x[i])) for i in range(len(x))])
         elif tname2.startswith('bool,') or tname2 == 'bool>':
             l = ', '.join ([str(bool(xx)) for xx in x])
@@ -5003,6 +5006,12 @@ dumpspecs = [
     ['xAOD::MBTSModuleContainer',            dump_xAOD],
     ['DataVector<xAOD::ZdcModule_v1>',       dump_xAOD],
     ['xAOD::ZdcModuleContainer',             dump_xAOD],
+    ['DataVector<xAOD::CPMTower_v2>',        dump_xAOD],
+    ['xAOD::CPMTowerContainer',              dump_xAOD],
+    ['DataVector<xAOD::JetElement_v2>',      dump_xAOD],
+    ['xAOD::JetElementContainer',            dump_xAOD],
+    ['DataVector<xAOD::TriggerTower_v2>',    dump_xAOD],
+    ['xAOD::TriggerTowerContainer',          dump_xAOD],
     ['xAOD::MissingETContainer_v1',          dump_xAOD],
     ['xAOD::MissingETContainer',             dump_xAOD],
     ['xAOD::MissingETComponentMap_v1',       dump_xAOD],

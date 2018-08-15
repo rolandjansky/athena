@@ -16,7 +16,7 @@
 /**
  * @brief Static counter.
  *
- * Made by David Krauss, used with author concent. 
+ * Made by David Krauss, used with author concent.
  *
  * Counts up to 64, taken from http://stackoverflow.com/a/6174263/1162884
  **/
@@ -32,7 +32,7 @@
   COUNTER_READ_CRUMB( TAG, 16,                                                 \
   COUNTER_READ_CRUMB( TAG, 32,                                                 \
   COUNTER_READ_CRUMB( TAG, 64, 0 ) ) ) ) ) ) )
- 
+
 /**
  * Increment tagged macro
  **/
@@ -62,7 +62,7 @@ constexpr constant_index< acc > counter_crumb( id,
  **/
 #define DEFINE_COUNTER( counter )                                             \
 struct counter {};
- 
+
 /**
  * Makes counter_crumb fcn available at the namespace.
  **/
@@ -88,7 +88,7 @@ struct counter {};
       " ran out of bits!!");                                                  \
                                                                               \
   COUNTER_INC( bit_counter )
-  
+
 #endif // RINGERSELECTORTOOLS_TOOLS_DECLARE_BIT_H
 
 #endif // RINGER_STANDALONE

@@ -1617,8 +1617,9 @@ const CaloDetDescrManager* CaloDetDescrManager::instance()
 	if(detStore->contains<CaloDetDescrManager>("CaloMgr")) 
 	{
 	  // The instance already exists - retrieve it and save it locally.
-	  status = detStore->retrieve(theMgr);
-	  s_instance = const_cast<CaloDetDescrManager*>(theMgr);
+	  if (detStore->retrieve(theMgr).isSuccess()) {
+            s_instance = const_cast<CaloDetDescrManager*>(theMgr);
+          }
 	}
       } 
       else {

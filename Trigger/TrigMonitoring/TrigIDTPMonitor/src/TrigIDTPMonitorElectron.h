@@ -38,7 +38,6 @@ class TrigIDTPMonitorElectron: public HLT::FexAlgo{
   ~TrigIDTPMonitorElectron();
 
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun(); 
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode acceptInput(const HLT::TriggerElement* inputTE, bool& pass);
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE);

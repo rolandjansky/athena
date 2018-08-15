@@ -32,9 +32,9 @@ public:
 
   /// modify one hit position to emulate the LAr accordeon shape
   /// and then fills all hits into calorimeter cells
-  virtual void simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
-  void Print(Option_t *option="") const;
+  void Print(Option_t *option="") const override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr, TFCSExtrapolationState* extrapol=nullptr);
 
@@ -44,7 +44,7 @@ private:
   std::vector< const TFCS1DFunction* > m_functions = {nullptr};
   std::vector< float > m_bin_low_edge = {0,static_cast<float>(init_eta_max)};
 
-  ClassDef(TFCSHitCellMappingWiggle,1)  //TFCSHitCellMappingWiggle
+  ClassDefOverride(TFCSHitCellMappingWiggle,1)  //TFCSHitCellMappingWiggle
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

@@ -63,10 +63,8 @@ class MuFastSteering : public HLT::FexAlgo,
   MuFastSteering(const std::string& name, ISvcLocator* svc);
   ~MuFastSteering();
   
-  /** hltBeginRun() */
-  HLT::ErrorCode hltBeginRun();
-  /** hltEndRun() */
-  HLT::ErrorCode hltEndRun();
+  /** hltStop() */
+  HLT::ErrorCode hltStop();
   
   /** hltInitialize() */
   HLT::ErrorCode hltInitialize();

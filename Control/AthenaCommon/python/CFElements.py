@@ -16,6 +16,7 @@ def seqAND(name, subs=[]):
     seq = AthSequencer( name )
     seq.ModeOR = False
     seq.Sequential = True
+#    seq.StopOverride = True
     seq.StopOverride = False
     for s in subs:
         seq += s
@@ -83,29 +84,36 @@ def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
                     return found                
 
     return None
-    
 
-def flatAlgorithmSequences( start, collector={} ):
-    """ Converts tree like structure of sequences into dictionary keyed by sequence name containing lists of of algorithms & sequences."""
-    collector[start.name()] = []
-    for c in start.getChildren():        
-        collector[start.name()].append( c )
-        if isSequence( c ):                        
-            flatAlgorithmSequences( c, collector )
-    return collector
+def flatAlgorithmSequences( start ):
+    """ Converts tree like structure of sequences into dictionary 
+    keyed by top/start sequence name containing lists of of algorithms & sequences."""
 
+    def __inner( seq, collector ):
+        for c in seq.getChildren():        
+            collector[seq.name()].append( c )
+            if isSequence( c ):                        
+                __inner( c, collector )
+                
+    from collections import defaultdict
+    c = defaultdict(list)
+    __inner(start, c)
+    return c
 
-
-def flatSequencers( start, collector={} ):
+def flatSequencers( start ):
     """ Flattens sequences """
-    collector[start.name()] = []
-    for c in start.getChildren():        
-        collector[start.name()].append( c )
-        if isSequence( c ):            
-            flatAlgorithmSequences( c, collector )
-    return collector
-
     
+    def __inner( seq, collector ):
+        for c in seq.getChildren():        
+            collector[seq.name()].append( c )
+            if isSequence( c ):            
+                __inner( c, collector )
+
+    from collections import defaultdict
+    c = defaultdict(list)
+    __inner(start, c)
+    return c
+
 
 # self test
 if __name__ == "__main__":
@@ -161,11 +169,11 @@ if __name__ == "__main__":
     assert owner.name() == "top", "Wrong owner %s" % owner.name()
 
     flat = flatAlgorithmSequences( top )
-    expected = [ "top", "nest1", "nest2", "deep_nest1", "deep_nest2" ]
-    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, expected %s present %s "% ( " ".join( flat.keys() ), " ".join( expected ) )    
+    expected = [ "top", "nest2", "deep_nest2" ]
+    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, present %s expected %s "% ( " ".join( flat.keys() ), " ".join( expected ) )    
 
     flat = flatSequencers(top)
-    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, expected %s present %s "% ( " ".join( flat.keys() ), " ".join( expected ) )    
+    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, present %s expected %s "% ( " ".join( flat.keys() ), " ".join( expected ) )    
 
     a1 = findAlgorithm( top, "SomeAlg0" )
     assert a1, "Can't find algorithm present in sequence"

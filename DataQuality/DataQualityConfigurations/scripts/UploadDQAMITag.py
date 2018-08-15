@@ -78,7 +78,70 @@ def get_next_tag(latestTag):
     #nextTag='h8'
     return nextTag
 
-def update_dict_for_configs(updict, indir):
+#if reading from afs, use the old system, looking for the most current hcfg files and setting the symlink as phconfig
+def update_dict_for_configs_afs(updict, indir):
+
+    basedir = os.path.abspath(indir)
+
+    print 'Looking for configurations in subdirectories of', indir
+
+    types = ['minutes10', 'minutes30', 'run']
+    searchparams = [('Cosmics', 'cosmics'), ('Collisions', 'collisions'),
+                    ('HeavyIons', 'heavyions')]
+
+    filepathdict = {}
+    filelist = []
+
+    for dir1, fn in searchparams:
+        print dir1
+        filepathdict[dir1] = {}
+        for t in types:
+            print '  ', t, '...',
+            fname = os.path.join(basedir, dir1,
+                                '%s_%s.current.hcfg' % (fn, t))
+            if os.access(fname, os.R_OK):
+                print 'found,',
+                if os.path.islink(fname) and os.path.isfile(fname):
+                    realname = os.readlink(fname)
+                    if not os.path.isabs(realname):
+                        realname = os.path.join(os.path.dirname(fname), realname)
+                    print 'is symlink to', realname
+                    filepathdict[dir1][t] = realname
+                    filelist.append(realname)
+                else:
+                    print 'but is not valid symlink'
+            else:
+                print 'not found'
+        if filepathdict[dir1] == {}:
+            del filepathdict[dir1]
+
+    commonpart = os.path.dirname(os.path.commonprefix(filelist)) + os.sep
+
+    filepathdict['basename'] = commonpart
+
+    # clean up common part
+    for dir1, fn in searchparams:
+        for t in types:
+            try:
+                filepathdict[dir1][t] =  filepathdict[dir1][t].replace(commonpart, '')
+            except KeyError:
+                pass
+
+    print
+    print '-------------------------------------'
+    print 'File path dictionary to upload:'
+    print filepathdict
+    print '-------------------------------------'
+    print
+
+    val = updict.get('phconfig', {})
+    if isinstance(val, basestring):
+        val = {}
+    val['filepaths'] = filepathdict
+    updict['phconfig'] = '"%s"' % val
+
+#if reading hcfgs from a cvmfs directory, only one set of files should be present. Use those for phconfig
+def update_dict_for_configs_cvmfs(updict, indir):
   
     basedir = os.path.abspath(indir)
 
@@ -241,8 +304,14 @@ if __name__ == '__main__':
     nextTag = get_next_tag(latestTag)
     
     if args[0].lower() == 'configs':
-        update_dict_for_configs(cfgdict, args[1])
+        if '/afs/cern.ch/user/a/atlasdqm/' in args[1]:
+            update_dict_for_configs_afs(cfgdict, args[1])
+        elif 'cvmfs' in args[1]:
+            update_dict_for_configs_cvmfs(cfgdict, args[1])
+        else:
+            s="Invalid directory given. hcfg files should exist in cvmfs or the atlasdqm afs space"
+            raise RuntimeError(s)
     elif args[0].lower() == 'release':
         update_dict_for_release(cfgdict, args[1])
 
-    upload_new_config(amiclient, nextTag, cfgdict)
+    #upload_new_config(amiclient, nextTag, cfgdict)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
+#include <mutex>
 
 #include "TrigConfL1Data/HelperFunctions.h"
 
@@ -28,7 +29,7 @@ using namespace std;
 
 //
 // \brief function used to generate uniqu  ID (integer) from string
-//        In fact uniqueness is not 100% guaranteed
+//        In fact uniqueness is not 100% guaranteed. Thread safe
 // \param s string to be hashed
 //
 // \return key for this string (this function never fails)
@@ -38,6 +39,8 @@ namespace HashChecking {
   typedef std::map<std::string, HashMap> CategoryMap;
   static CategoryMap AllHashesByCategory;
   void checkGeneratedHash (HLTHash hash,  const std::string& s,   const std::string& category) {
+    static std::mutex s_mutex;
+    std::lock_guard<std::mutex> lock(s_mutex);
     HashMap& hashes = AllHashesByCategory[category];
     if ( hashes[hash] == "" )
       hashes[hash] = s;
@@ -69,6 +72,8 @@ HLTHash HLTUtils::string2hash( const std::string& s, const std::string& category
 }
 
 const std::string HLTUtils::hash2string( HLTHash hash, const std::string& category ) {
+  static std::mutex s_mutex;
+  std::lock_guard<std::mutex> lock(s_mutex);
   HashChecking::CategoryMap::const_iterator mapForCategoryIt = HashChecking::AllHashesByCategory.find(category);
   if ( mapForCategoryIt == HashChecking::AllHashesByCategory.end() ) {
     return "UNKNOWN CATEGORY";

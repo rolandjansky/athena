@@ -97,6 +97,7 @@ WriteTag.Magic = 1
 topSequence += WriteTag
 MagicWriteTag = AthPoolEx__WriteTag( "MagicWriteTag" )
 MagicWriteTag.Key = "MagicTag"
+MagicWriteTag.TagKey = "MagicTag"
 MagicWriteTag.Magic = 24
 topSequence += MagicWriteTag
 

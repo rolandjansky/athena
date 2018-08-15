@@ -273,6 +273,12 @@ class SiTrigSpacePointFinder_EF( InDet__SiTrigSpacePointFinder ):
          print SCT_TrigSpacePointTool 
       ToolSvc +=  SCT_TrigSpacePointTool
 
+      # Condition algorithm for SiTrigSpacePointFinder
+      from AthenaCommon.AlgSequence import AthSequencer
+      condSeq = AthSequencer("AthCondSeq")
+      if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+         from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+         condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
       self.SiSpacePointMakerTool = InDetTrigSiSpacePointMakerTool
       self.SCTSpacePointTrigHelperTool = SCT_TrigSpacePointTool

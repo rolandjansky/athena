@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -52,11 +52,9 @@ namespace InDet
   public:
     TrigParticleCreator(const std::string &name, ISvcLocator *pSvcLocator);
     virtual ~TrigParticleCreator();
-    HLT::ErrorCode hltBeginRun();
     HLT::ErrorCode hltInitialize();
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize();
-    HLT::ErrorCode hltEndRun();
 
   private:
     void ResetMon();

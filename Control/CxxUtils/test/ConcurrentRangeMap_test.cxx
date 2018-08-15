@@ -104,6 +104,7 @@ public:
 
   void discard (std::unique_ptr<T> p)
   {
+    std::lock_guard<std::mutex> g (m_mutex);
     m_garbage.push_back (p.release());
     m_inGrace = ((1<<nslots)-1);
   }

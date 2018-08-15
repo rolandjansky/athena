@@ -15,6 +15,7 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 
 #include "GaudiKernel/SmartDataPtr.h"

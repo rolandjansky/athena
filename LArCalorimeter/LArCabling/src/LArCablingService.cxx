@@ -217,3 +217,19 @@ HWIdentifier LArCablingService::getReadoutModuleIDByHash(const IdentifierHash& f
   else
     return m_hwidEmpty;
 }
+
+
+/**
+ * @brief Make sure the onOff map is initialized.
+ */
+StatusCode LArCablingService::checkOnOff()
+{
+  if (!m_onOffValid) {
+    readOnlOffMap();
+  }
+  if (m_onOffValid) {
+    return StatusCode::SUCCESS;
+  }
+  return StatusCode::FAILURE;
+}
+

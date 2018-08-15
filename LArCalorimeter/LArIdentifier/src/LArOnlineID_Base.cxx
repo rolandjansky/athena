@@ -314,12 +314,14 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 /* =================================================================== */
 {
     MsgStream log(m_msgSvc, "LArOnlineID_Base" );
-    std::string strg = "initialize_from_dictionary";
-    if(m_msgSvc) {
+    if (!m_quiet) {
+      std::string strg = "initialize_from_dictionary";
+      if(m_msgSvc) {
         log << MSG::INFO << strg << endmsg;
-    }
-    else {
+      }
+      else {
         std::cout << strg << std::endl;
+      }
     }
   
     // Check whether this helper should be reinitialized
@@ -336,7 +338,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     m_dict = dict_mgr.find_dictionary ("LArCalorimeter"); 
     if(!m_dict) {
 
-        strg = " initialize_from_dictionary - cannot access LArCalorimeter dictionary ";
+        std::string strg = " initialize_from_dictionary - cannot access LArCalorimeter dictionary ";
         if(m_msgSvc) {
             log << MSG::ERROR << strg << endmsg;
         }
@@ -365,7 +367,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     if (atlasDict->get_label_value("subdet", "LArCalorimeter", larField)) {
         std::stringstream strm;
         strm << atlasDict->m_name;
-        strg= " Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary "+strm.str();
+        std::string strg= " Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary "+strm.str();
         if(m_msgSvc) {
             log << MSG::ERROR << strg << endmsg;
         }
@@ -380,7 +382,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("part", "LArOnline", larOnlineField)) {
         std::stringstream strm;
         strm <<  m_dict->m_name;      
-        strg = "Could not get value for label 'LArOnline' of field 'part' in dictionary "+strm.str(); 
+        std::string strg = "Could not get value for label 'LArOnline' of field 'part' in dictionary "+strm.str(); 
         if(m_msgSvc) {
             log << MSG::ERROR << strg << endmsg;
         }
@@ -395,7 +397,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     if (m_dict->get_label_value("part", "LArOnlineCalib", larOnlineCalibField)) {
         std::stringstream strm;
         strm <<  m_dict->m_name;      
-        strg = "Could not get value for label 'LArOnlineCalib' of field 'part' in dictionary "+strm.str();
+        std::string strg = "Could not get value for label 'LArOnlineCalib' of field 'part' in dictionary "+strm.str();
         if(m_msgSvc) {
             log << MSG::ERROR << strg << endmsg;
         }
@@ -442,7 +444,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     /* Setup the hash tables */
     std::stringstream strm;
     strm << dictionaryVersion();
-    strg="[initialize_from_dictionary] version= " + strm.str();      
+    std::string strg="[initialize_from_dictionary] version= " + strm.str();      
     if(m_msgSvc) {
         log << MSG::DEBUG << strg << endmsg;
     }
@@ -1113,31 +1115,32 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
   if ( m_this_is_slar ) 
    m_slar_impl           = region.m_implementation[m_slar_index];
 
-  if(m_msgSvc) {
-    log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
-    log << MSG::DEBUG << "lar     " << m_lar_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "online  " << m_laronline_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "bec     " << m_bec_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "side    " << m_side_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "ft      " << m_feedthrough_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "slot    " << m_slot_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "channel " << m_channel_in_slot_impl.show_to_string() << endmsg;
-    if ( m_this_is_slar )
-      log << MSG::DEBUG << "is-slar " << m_slar_impl.show_to_string() << endmsg;
+  if (!m_quiet) {
+    if(m_msgSvc) {
+      log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
+      log << MSG::DEBUG << "lar     " << m_lar_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "online  " << m_laronline_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "bec     " << m_bec_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "side    " << m_side_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "ft      " << m_feedthrough_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "slot    " << m_slot_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "channel " << m_channel_in_slot_impl.show_to_string() << endmsg;
+      if ( m_this_is_slar )
+        log << MSG::DEBUG << "is-slar " << m_slar_impl.show_to_string() << endmsg;
+    }
+    else {
+      std::cout << "decode index and bit fields for each level: " << std::endl;
+      std::cout << "lar     "  << m_lar_impl.show_to_string() << std::endl;
+      std::cout << "online  "  << m_laronline_impl.show_to_string() << std::endl;
+      std::cout << "bec     "  << m_bec_impl.show_to_string() << std::endl;
+      std::cout << "side    "  << m_side_impl.show_to_string() << std::endl;
+      std::cout << "ft      "  << m_feedthrough_impl.show_to_string() << std::endl;
+      std::cout << "solt    "  << m_slot_impl.show_to_string() << std::endl;
+      std::cout << "channel "  << m_channel_in_slot_impl.show_to_string() << std::endl;
+      if ( m_this_is_slar )
+        std::cout << "slar    "  << m_slar_impl.show_to_string() << std::endl;
+    }
   }
-  else {
-    std::cout << "decode index and bit fields for each level: " << std::endl;
-    std::cout << "lar     "  << m_lar_impl.show_to_string() << std::endl;
-    std::cout << "online  "  << m_laronline_impl.show_to_string() << std::endl;
-    std::cout << "bec     "  << m_bec_impl.show_to_string() << std::endl;
-    std::cout << "side    "  << m_side_impl.show_to_string() << std::endl;
-    std::cout << "ft      "  << m_feedthrough_impl.show_to_string() << std::endl;
-    std::cout << "solt    "  << m_slot_impl.show_to_string() << std::endl;
-    std::cout << "channel "  << m_channel_in_slot_impl.show_to_string() << std::endl;
-    if ( m_this_is_slar )
-       std::cout << "slar    "  << m_slar_impl.show_to_string() << std::endl;
-  }
-  
 
   return(0) ;
 }

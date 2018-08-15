@@ -27,7 +27,6 @@ atlas_add_poolcnv_library( LArAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities CaloDetDescrLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GaudiKernel LArTPCnv LArRawEvent LArRecEvent )
 
 # Install files from the package:
-atlas_install_headers( LArAthenaPool )
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):

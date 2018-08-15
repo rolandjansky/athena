@@ -209,6 +209,11 @@ if opts.run_batch and not opts.dbg_stage:
    if os.isatty( sys.stdin.fileno() ):
       os.close( sys.stdin.fileno() )
 else:
+   # Make sure ROOT gets initialized early, so that it shuts down last.
+   # Otherwise, ROOT can get shut down before Gaudi, leading to crashes
+   # when Athena components dereference ROOT objects that have been deleted.
+   import ROOT
+
  # readline support
    import rlcompleter, readline
 

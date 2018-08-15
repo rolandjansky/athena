@@ -106,7 +106,7 @@ else:
     DetFlags.LAr_setOn()
     DetFlags.Tile_setOn()
 
-    if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
+    if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig == "NONE":
         DetFlags.LVL1_setOff()
     else:
         DetFlags.LVL1_setOn()

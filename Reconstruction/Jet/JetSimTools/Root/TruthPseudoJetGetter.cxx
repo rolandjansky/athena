@@ -32,9 +32,6 @@ StatusCode TruthPseudoJetGetter::initialize() {
   ATH_CHECK( m_incolltruth.initialize() );
   ATH_CHECK( m_outcoll.initialize() );
 
-  m_outcollRead = m_outcoll.key();
-  ATH_CHECK( m_outcollRead.initialize() );
-
   return StatusCode::SUCCESS;
 
 }
@@ -46,14 +43,7 @@ const PseudoJetContainer* TruthPseudoJetGetter::getC() const {
   std::vector<PseudoJet> vpj;
   const PseudoJetContainer * pjcont;
 
-  // check if not already existing
-  auto handle_inOut = SG::makeHandle (m_outcollRead);
-  if ( handle_inOut.isValid() ) {
-    ATH_MSG_DEBUG("Fetching existing pseudojets." << m_outcollRead.key());
-    pjcont = handle_inOut.cptr();
-    return pjcont;
-  }
-  // else we build and record the container
+  // build and record the container
   // retrieve the input.
   const xAOD::TruthParticleContainer* cont;
   auto handle_in = SG::makeHandle(m_incolltruth);

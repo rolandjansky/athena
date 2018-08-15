@@ -736,12 +736,12 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
 }
 //______________________________________________________________________________
 void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
+   ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
    if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObjR_ALL");
    }
    if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
 		   && m_outputStreamingTool[m_streamServer]->isServer()) {
-      ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
       if (token->dbID() == Guid::null()) {
          int num = token->oid().first;
          // Get object from SHM
@@ -1100,6 +1100,9 @@ StatusCode AthenaPoolCnvSvc::decodeOutputSpec(std::string& fileSpec,
    } else if (fileSpec.find("ROOTTREE:") == 0) {
       outputTech = pool::ROOTTREE_StorageType;
       fileSpec.erase(0, 9);
+   } else if (fileSpec.find("ROOTTREEINDEX:") == 0) {
+      outputTech = pool::ROOTTREEINDEX_StorageType;
+      fileSpec.erase(0, 14);
    }
    return(StatusCode::SUCCESS);
 }

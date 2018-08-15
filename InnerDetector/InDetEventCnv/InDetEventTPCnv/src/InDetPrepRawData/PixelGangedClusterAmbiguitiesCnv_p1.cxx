@@ -156,7 +156,10 @@ void  PixelGangedClusterAmbiguitiesCnv_p1::persToTrans(const InDet::PixelGangedC
   } else
   {    
   const InDet::PixelClusterContainer* pCC(0);
-  StatusCode sc = m_storeGate->retrieve(pCC, persObj->m_pixelClusterContainerName);
+  if (m_storeGate->retrieve(pCC, persObj->m_pixelClusterContainerName).isFailure()) {
+    log << MSG::FATAL << "PixelGangedClusterAmbiguitiesCnv_p1: Cannot retrieve "
+        << persObj->m_pixelClusterContainerName << endmsg;
+  }
     
   std::vector< std::pair<uint32_t, std::vector<uint32_t> > >::const_iterator persItr  = persObj->m_ambiguityMap.begin();
   std::vector< std::pair<uint32_t, std::vector<uint32_t> > >::const_iterator persItrE = persObj->m_ambiguityMap.end();

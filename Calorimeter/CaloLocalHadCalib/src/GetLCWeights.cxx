@@ -32,6 +32,7 @@
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "AthenaKernel/errorcheck.h"
 
@@ -334,6 +335,9 @@ StatusCode GetLCWeights::initialize()
       }
     }
   }
+
+  ATH_CHECK( m_clusterCollName.initialize() );
+  ATH_CHECK( m_CalibrationHitContainerNames.initialize() );
   
   return StatusCode::SUCCESS;
 }
@@ -359,33 +363,13 @@ StatusCode GetLCWeights::finalize()
 
 StatusCode GetLCWeights::execute()
 {
-  const DataHandle<xAOD::CaloClusterContainer> cc ;
-  StatusCode sc = evtStore()->retrieve(cc,m_clusterCollName);
+  const EventContext& ctx = getContext();
+  SG::ReadHandle<xAOD::CaloClusterContainer> cc (m_clusterCollName, ctx);
 
-  if(sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "Could not retrieve ClusterContainer " 
-	<< m_clusterCollName << " from StoreGate" );
-    return sc;
-  }
-
-  const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  std::vector<std::string>::iterator iter;
-  for (iter=m_CalibrationHitContainerNames.begin();
-       iter!=m_CalibrationHitContainerNames.end();iter++) {
-    if ( !evtStore()->contains<CaloCalibrationHitContainer>(*iter)) {
-      ATH_MSG_ERROR( "SG does not contain calibration hit container " << *iter );
-      return StatusCode::FAILURE;
-    }
-    else {
-      sc = evtStore()->retrieve(cchc,*iter);
-      if (sc.isFailure() ) {
-	ATH_MSG_ERROR( "Cannot retrieve calibration hit container " << *iter );
-	return sc;
-      } 
-      else
-	v_cchc.push_back(cchc);
-    }
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_CalibrationHitContainerNames) {
+    SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
+    v_cchc.push_back(cchc.cptr());
   }
 
   std::vector<ClusWeight *> cellVector[CaloCell_ID::NSUBCALO];
@@ -404,13 +388,9 @@ StatusCode GetLCWeights::execute()
   // total calib hit energy of all clusters 
   double eCalibTot(0.); 
 
-  xAOD::CaloClusterContainer::const_iterator clusIter = cc->begin();
-  xAOD::CaloClusterContainer::const_iterator clusIterEnd = cc->end();
   unsigned int iClus = 0;
   double nClusECalibGt0 = 0.0;
-  for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
-    const xAOD::CaloCluster * theCluster = (*clusIter);
-    
+  for (const xAOD::CaloCluster* theCluster : *cc) {
     double eC=999; 
     if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eC)) {
       ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_TOT");

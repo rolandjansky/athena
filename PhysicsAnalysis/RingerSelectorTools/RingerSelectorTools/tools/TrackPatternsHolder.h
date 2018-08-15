@@ -81,7 +81,7 @@ class TrackPatternsHolder : public RedirectMsgStream {
      * @brief Export Track Patterns to @name vec end
      *
      * We apply transformations on the raw patterns extracted to obtain the
-     * true patterns applied. This method must be called after 
+     * true patterns applied. This method must be called after
      * extrackPatternsFrom method is called.
      **/
     void exportPatternsTo( std::vector<float> &vec ) const;
@@ -153,45 +153,45 @@ class TrackPatternsHolder : public RedirectMsgStream {
     /// Coefficients to aproximate Number of TRT hits:
     ///@{
 #if RINGER_USE_NEW_CPP_FEATURES
-    static constexpr double m_a0 = 33.14; 
-    static constexpr double m_b0 = -129.1; 
+    static constexpr double m_a0 = 33.14;
+    static constexpr double m_b0 = -129.1;
     static constexpr double m_c0 = 1455.;
-    static constexpr double m_a1 = 29.42; 
-    static constexpr double m_b1 = 27.93; 
-    static constexpr double m_c1 = -89.96; 
+    static constexpr double m_a1 = 29.42;
+    static constexpr double m_b1 = 27.93;
+    static constexpr double m_c1 = -89.96;
     static constexpr double m_d1 = 91.51;
-    static constexpr double m_a2 = 196.3; 
-    static constexpr double m_b2 = -403.; 
+    static constexpr double m_a2 = 196.3;
+    static constexpr double m_b2 = -403.;
     static constexpr double m_c2 = 230.2;
-    static constexpr double m_a3 = -10.59; 
+    static constexpr double m_a3 = -10.59;
     static constexpr double m_b3 = 37.29;
-    static constexpr double m_a4 = -640.9; 
-    static constexpr double m_b4 = 1323.; 
-    static constexpr double m_c4 = -851.8; 
+    static constexpr double m_a4 = -640.9;
+    static constexpr double m_b4 = 1323.;
+    static constexpr double m_c4 = -851.8;
     static constexpr double m_d4 = 180.8;
-    static constexpr double m_a5 = 159.8; 
+    static constexpr double m_a5 = 159.8;
     static constexpr double m_b5 = -70.9;
     static constexpr std::array<float,6> m_cutBinEta_TRT{{
       0.1, 0.625, 1.07, 1.304, 1.752, 2.0
     }};
 #else
-    static const double m_a0; 
-    static const double m_b0; 
+    static const double m_a0;
+    static const double m_b0;
     static const double m_c0;
-    static const double m_a1; 
-    static const double m_b1; 
-    static const double m_c1; 
+    static const double m_a1;
+    static const double m_b1;
+    static const double m_c1;
     static const double m_d1;
-    static const double m_a2; 
-    static const double m_b2; 
+    static const double m_a2;
+    static const double m_b2;
     static const double m_c2;
-    static const double m_a3; 
+    static const double m_a3;
     static const double m_b3;
-    static const double m_a4; 
-    static const double m_b4; 
-    static const double m_c4; 
+    static const double m_a4;
+    static const double m_b4;
+    static const double m_c4;
     static const double m_d4;
-    static const double m_a5; 
+    static const double m_a5;
     static const double m_b5;
     static const std::vector<float> m_cutBinEta_TRT;
 #endif

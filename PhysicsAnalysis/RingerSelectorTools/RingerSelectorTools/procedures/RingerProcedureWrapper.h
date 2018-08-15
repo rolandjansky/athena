@@ -38,7 +38,7 @@
  * TODO List
  *
  * - Maybe we want to put PreProcessor Wrapper into the RingerCommonSelector
- *   and add to the Discriminator Wrapper a post-processing wrapper. This would 
+ *   and add to the Discriminator Wrapper a post-processing wrapper. This would
  *   make implementation much more flexible.
  *
  * - We also need to deal with the pattern space segmentation being different
@@ -47,7 +47,7 @@
  *   This means that we might want to change the configuration classes into
  *   segmentation representation, which is what really we need.
  *
- * - The PreProcessings can be propagated into a Processing space, to merge it 
+ * - The PreProcessings can be propagated into a Processing space, to merge it
  *   with the PostProcessings. They might be applied as both, that is, they
  *   will inherit from both interfaces, and we might want to apply the direct
  *   transformation, but also the inverse transformation (if it exists), that
@@ -62,7 +62,7 @@
  *   be created dependent on segment information, or even eta/et dependency.
  */
 
-/* 
+/*
  * FIXME List:
  *
  * - Can't apply more than one PreProcessing Wrapper when on the first
@@ -126,7 +126,7 @@ class IRingerProcedureWrapperBase {
 };
 
 /**
- * Reduce verbosity 
+ * Reduce verbosity
  **/
 typedef IRingerProcedureWrapperBase IProcWrapperBase;
 
@@ -161,9 +161,9 @@ class IRingerProcedureWrapper;
  * There is a bool template for determining the procedure specialization type:
  * it must not be explicitely declared.
  *
- * We implement specializations for each procedure type on dedicated files. 
+ * We implement specializations for each procedure type on dedicated files.
  **/
-template < 
+template <
   class procedure_t,
   /*EtaDependency*/int etaDependency = EtaIndependent,
   /*EtDependency*/int etDependency = EtIndependent,
@@ -171,9 +171,9 @@ template <
   // Below template parameters are not supposed to be set directly by user:
   bool isPreProcessor = RingerProcedureType< procedure_t >::is_pre_processor,
   bool isDiscriminator = RingerProcedureType< procedure_t >::is_discriminator,
-  bool isThreshold     = RingerProcedureType< procedure_t >::is_threshold 
+  bool isThreshold     = RingerProcedureType< procedure_t >::is_threshold
 >
-class RingerProcedureWrapper; 
+class RingerProcedureWrapper;
 
 } // namespace Ringer
 

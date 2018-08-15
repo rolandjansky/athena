@@ -102,23 +102,6 @@ namespace xAODMaker {
       // Sub-events for the main EventInfo object:
       std::vector< xAOD::EventInfo::SubEvent > subEvents;
 
-      // A map translating between the AOD and xAOD pileup event types:
-      static std::map< PileUpEventInfo::SubEvent::pileup_type,
-                       xAOD::EventInfo::PileUpType > pileupTypeMap;
-      if( ! pileupTypeMap.size() ) {
-#define DECLARE_SE_TYPE( TYPE )                                         \
-         pileupTypeMap[ PileUpTimeEventIndex::TYPE ] = xAOD::EventInfo::TYPE
-
-         DECLARE_SE_TYPE( Unknown );
-         DECLARE_SE_TYPE( Signal );
-         DECLARE_SE_TYPE( MinimumBias );
-         DECLARE_SE_TYPE( Cavern );
-         DECLARE_SE_TYPE( HaloGas );
-         DECLARE_SE_TYPE( ZeroBias );
-
-#undef DECLARE_SE_TYPE
-      }
-
       // A convenience type declaration:
       typedef ElementLink< xAOD::EventInfoContainer > EiLink;
 
@@ -132,12 +115,25 @@ namespace xAODMaker {
          // Fill it with information:
          CHECK( m_cnvTool->convert( pu_itr->pSubEvt, ei, true, false ) );
          // And now add a sub-event to the temporary list:
-         auto typeItr = pileupTypeMap.find( pu_itr->type() );
          xAOD::EventInfo::PileUpType type = xAOD::EventInfo::Unknown;
-         if( typeItr == pileupTypeMap.end() ) {
-            ATH_MSG_WARNING( "PileUpType not recognised: " << pu_itr->type() );
-         } else {
-            type = typeItr->second;
+         switch (pu_itr->type()) {
+         case PileUpTimeEventIndex::Signal:
+           type = xAOD::EventInfo::Signal;
+           break;
+         case PileUpTimeEventIndex::MinimumBias:
+           type = xAOD::EventInfo::MinimumBias;
+           break;
+         case PileUpTimeEventIndex::Cavern:
+           type = xAOD::EventInfo::Cavern;
+           break;
+         case PileUpTimeEventIndex::HaloGas:
+           type = xAOD::EventInfo::HaloGas;
+           break;
+         case PileUpTimeEventIndex::ZeroBias:
+           type = xAOD::EventInfo::ZeroBias;
+           break;
+         default:
+           break;
          }
          subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
                                                          pu_itr->index(),

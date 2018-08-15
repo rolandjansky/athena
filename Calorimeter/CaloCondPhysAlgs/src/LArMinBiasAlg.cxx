@@ -72,9 +72,10 @@
        return StatusCode::SUCCESS;
      }
 
-    ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-    m_larem_id   = m_caloIdMgr->getEM_ID();
-    m_calo_id      = m_caloIdMgr->getCaloCell_ID();
+    const CaloIdManager* mgr = nullptr;
+    ATH_CHECK( detStore()->retrieve( mgr ) );
+    m_larem_id   = mgr->getEM_ID();
+    m_calo_id    = mgr->getCaloCell_ID();
 
 //  retrieve CaloDetDescrMgr 
     ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );

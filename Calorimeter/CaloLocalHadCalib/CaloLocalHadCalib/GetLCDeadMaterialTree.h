@@ -21,7 +21,7 @@ class StoreGateSvc;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-//#include "CaloEvent/CaloClusterMoment.h"
+#include "StoreGate/ReadHandleKey.h"
 #include <vector>
 #include <string>
 
@@ -71,11 +71,11 @@ class GetLCDeadMaterialTree : public AthAlgorithm {
 
     /**
      * @brief Name of the uncalibrated CaloClusterContainer to use. */
-    std::string m_clusterCollName;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterCollName;
 
     /**
      * @brief Name of the calibrated CaloClusterContainer to use. */
-    std::string m_clusterCollNameCalib;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterCollNameCalib;
 
     /**
      * @brief Collection of dead material correction coeffitients */

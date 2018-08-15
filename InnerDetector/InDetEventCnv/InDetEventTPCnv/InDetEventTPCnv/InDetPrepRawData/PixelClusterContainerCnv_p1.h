@@ -32,10 +32,10 @@ class PixelClusterContainerCnv_p1 : public T_AthenaPoolTPCnvBase< InDet::PixelCl
    virtual void transToPers(const TRANS* transCont, PERS* persCont, MsgStream &log);
    virtual InDet::PixelClusterContainer* createTransient(const InDet::InDetPRD_Container_p1* persObj, MsgStream& log);
  private:
-   const PixelID *m_pixId;
-   StoreGateSvc *m_storeGate;
-   const InDetDD::PixelDetectorManager* m_pixMgr;
-   bool m_isInitialized;
+   const PixelID *m_pixId{};
+   StoreGateSvc *m_storeGate{};
+   const InDetDD::PixelDetectorManager* m_pixMgr{};
+   bool m_isInitialized{};
    StatusCode initialize(MsgStream &log);
 };
  

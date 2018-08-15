@@ -33,7 +33,7 @@ pat="$2 $3"
 if [[ "$pat" = "-s "* ]]; then
     selectpatterns=`echo "$pat" | sed 's/-s\s*//'`
 else
-    extrapatterns="$pat"
+    extrapatterns="$2"
 fi
 
 #verbose="1"
@@ -109,7 +109,7 @@ PP="$PP"'|PluginMgr +INFO loaded plugin info for'
 # ignore HistorySvc registered count
 PP="$PP"'|HistorySvc +INFO Registered'
 # ignore clid registry entries count
-PP="$PP"'|ClassIDSvc[ 0]+INFO  getRegistryEntries: read'
+PP="$PP"'|ClassIDSvc[ [:digit:]]+INFO  getRegistryEntries: read'
 # ignore existsDir path WARNINGS
 PP="$PP"'|DirSearchPath::existsDir: WARNING not a directory'
 # ignore warnings about duplicate services/converters.

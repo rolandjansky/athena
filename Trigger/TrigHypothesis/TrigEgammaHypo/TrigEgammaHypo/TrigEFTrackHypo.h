@@ -43,7 +43,6 @@ class TrigEFTrackHypo : public HLT::HypoAlgo {
   ~TrigEFTrackHypo();
 
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
   HLT::ErrorCode hltFinalize();
   

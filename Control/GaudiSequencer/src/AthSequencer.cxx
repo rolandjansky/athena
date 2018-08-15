@@ -546,7 +546,7 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
           status = StatusCode::FAILURE;
         }
       }
-      if ( status.isSuccess( ) ) {
+      if ( status.isSuccess( ) && theAlgorithm != nullptr ) {
         
         // The specified Algorithm already exists - 
         // just append it to the membership list.

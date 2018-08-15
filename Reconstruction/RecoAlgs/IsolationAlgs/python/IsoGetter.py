@@ -18,6 +18,9 @@ from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectio
 IsoCorrectionTool = ToolFactory(ICT,
                                 name = "NewLeakageCorrTool")
 
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
 doPFlow = False
 PFlowObjectsInConeTool = None
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -37,13 +40,20 @@ if recAlgs.doEFlow() :
 
   from JetRec.JetRecStandard import jtm
   from JetRec.JetRecConf import PseudoJetGetter
-  jtm += PseudoJetGetter(
+  emnpflowget = PseudoJetGetter(
     name               = "emnpflowget",
     Label              = "EMNPFlow",
     InputContainer = "CHSNeutralParticleFlowObjects",
     OutputContainer = "PseudoJetEMNPFlow",
     SkipNegativeEnergy = True,
     )
+  jtm += emnpflowget
+  # PseudoJetGetters are now run in their own dedicated algs
+  from JetRec.JetRecConf import PseudoJetAlgorithm
+  # EMTopo (non-origin corrected) clusters
+  topSequence += PseudoJetAlgorithm("pjalg_"+jtm.emget.Label,PJGetter=jtm.emget)
+  # EM Neutral PFOs
+  topSequence += PseudoJetAlgorithm("pjalg_"+emnpflowget.Label,PJGetter=emnpflowget)
 
 # tool to collect topo clusters in cone
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
@@ -62,12 +72,12 @@ def configureEDCorrection(tool):
   OutputLevel = min(getPropertyValue(tool, 'OutputLevel'), INFO)
   try:
     from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.AlgSequence import AlgSequence
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
-    from JetRec.JetRecStandard import jtm
+    from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     if not hasattr(topSequence,'EDtpIsoCentralAlg'):
-      tccc = configEventDensityTool("EDtpIsoCentralTool", jtm.emget,
+      tccc = configEventDensityTool("EDtpIsoCentralTool",
+                                    inputlabel = jtm.emget.Label,
                                     radius          = 0.5,
                                     AbsRapidityMin  = 0.0,
                                     AbsRapidityMax  = 1.5,
@@ -78,7 +88,8 @@ def configureEDCorrection(tool):
       topSequence += EventDensityAthAlg("EDtpIsoCentralAlg", EventDensityTool = tccc)
 
     if not hasattr(topSequence,'EDtpIsoForwardAlg'):
-      tfcc = configEventDensityTool("EDtpIsoForwardTool", jtm.emget,
+      tfcc = configEventDensityTool("EDtpIsoForwardTool",
+                                    inputlabel = jtm.emget.Label,
                                     radius          = 0.5,
                                     AbsRapidityMin  = 1.5,
                                     AbsRapidityMax  = 3.0,
@@ -89,7 +100,8 @@ def configureEDCorrection(tool):
       topSequence += EventDensityAthAlg("EDtpIsoForwardAlg", EventDensityTool = tfcc)
 
     if not hasattr(topSequence,'EDtpIsoVeryForwardAlg'):
-      tvfcc = configEventDensityTool("EDtpIsoVeryForwardTool", jtm.emget,
+      tvfcc = configEventDensityTool("EDtpIsoVeryForwardTool",
+                                     inputlabel = jtm.emget.Label,
                                      radius          = 0.5,
                                      AbsRapidityMin  = 2.5,
                                      AbsRapidityMax  = 4.5,
@@ -101,7 +113,8 @@ def configureEDCorrection(tool):
 
     if doPFlow:
       if not hasattr(topSequence,'EDpfIsoCentralAlg'):
-        tcpf = configEventDensityTool("EDpfIsoCentralTool", jtm.empflowget,
+        tcpf = configEventDensityTool("EDpfIsoCentralTool",
+                                      inputlabel = jtm.empflowget.Label,
                                       radius          = 0.5,
                                       AbsRapidityMin  = 0.0,
                                       AbsRapidityMax  = 1.5,
@@ -112,7 +125,8 @@ def configureEDCorrection(tool):
         topSequence += EventDensityAthAlg("EDpfIsoCentralAlg", EventDensityTool = tcpf)
 
       if not hasattr(topSequence,'EDpfIsoForwardAlg'):
-        tfpf = configEventDensityTool("EDpfIsoForwardTool", jtm.empflowget,
+        tfpf = configEventDensityTool("EDpfIsoForwardTool",
+                                      inputlabel = jtm.empflowget.Label,
                                       radius          = 0.5,
                                       AbsRapidityMin  = 1.5,
                                       AbsRapidityMax  = 3.0,
@@ -124,7 +138,8 @@ def configureEDCorrection(tool):
 
       ## Try a neutral density
       if not hasattr(topSequence,'EDnpfIsoCentralAlg'):
-        tcnpf = configEventDensityTool("EDnpfIsoCentralTool", jtm.emnpflowget,
+        tcnpf = configEventDensityTool("EDnpfIsoCentralTool",
+                                       inputlabel = jtm.emnpflowget.Label,
                                        radius          = 0.5,
                                        AbsRapidityMin  = 0.0,
                                        AbsRapidityMax  = 1.5,
@@ -135,7 +150,8 @@ def configureEDCorrection(tool):
         topSequence += EventDensityAthAlg("EDnpfIsoCentralAlg", EventDensityTool = tcnpf)
 
       if not hasattr(topSequence,'EDnpfIsoForwardAlg'):
-        tfnpf = configEventDensityTool("EDnpfIsoForwardTool", jtm.emnpflowget,
+        tfnpf = configEventDensityTool("EDnpfIsoForwardTool",
+                                       inputlabel = jtm.emnpflowget.Label,
                                        radius          = 0.5,
                                        AbsRapidityMin  = 1.5,
                                        AbsRapidityMax  = 3.0,

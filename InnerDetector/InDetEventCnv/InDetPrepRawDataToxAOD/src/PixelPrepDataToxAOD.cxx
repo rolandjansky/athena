@@ -47,7 +47,8 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   m_useSiHitsGeometryMatching(true),
   m_calibSvc("PixelCalibSvc", name),
   m_pixelBSErrorsSvc("PixelByteStreamErrorsSvc", name),
-  m_firstEventWarnings(true)
+  m_firstEventWarnings(true),
+  m_need_sihits{false}
 { 
   // --- Steering and configuration flags
  
@@ -773,9 +774,9 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
     Identifier rId =  *rdosBegin;
     int absphiPixelIndex = m_PixelHelper->phi_index(rId)-phiPixelIndexWeightedPosition    + centralIndexX;
     int absetaPixelIndex = m_PixelHelper->eta_index(rId)-etaPixelIndexWeightedPosition + centralIndexY;
-  
-    ATH_MSG_VERBOSE( " Phi Index: " << m_PixelHelper->phi_index(rId) << " absphiPixelIndex: " << absphiPixelIndex << " eta Idx: " << m_PixelHelper->eta_index(rId) << " absetaPixelIndex: " << absetaPixelIndex << " charge " << *charge );
-  
+    if (charge != chList.end()){
+      ATH_MSG_VERBOSE( " Phi Index: " << m_PixelHelper->phi_index(rId) << " absphiPixelIndex: " << absphiPixelIndex << " eta Idx: " << m_PixelHelper->eta_index(rId) << " absetaPixelIndex: " << absetaPixelIndex << " charge " << *charge );
+    }
     if (absphiPixelIndex <0 || absphiPixelIndex >= (int)sizeX)
     {
       ATH_MSG_DEBUG(" problem with index: " << absphiPixelIndex << " min: " << 0 << " max: " << sizeX);

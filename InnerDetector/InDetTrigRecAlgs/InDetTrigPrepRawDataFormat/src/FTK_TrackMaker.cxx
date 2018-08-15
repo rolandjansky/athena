@@ -43,14 +43,6 @@ namespace InDet{
     m_timerDPS=nullptr;
   }
   
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode FTK_TrackMaker::hltBeginRun(){
-
-    // Get the messaging service, print where you are
-    ATH_MSG_INFO( "FTK_TrackMaker::hltBeginRun()");
-    return HLT::OK;
-  }
-
 
   //----------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::hltInitialize() {
@@ -177,16 +169,6 @@ namespace InDet{
 
   //----------------------------------------------------------------------------
   HLT::ErrorCode FTK_TrackMaker::hltFinalize() {
-
-    return HLT::OK;
-  }
-
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode FTK_TrackMaker::hltEndRun()
-  {
-    ATH_MSG_INFO( "FTK_TrackMaker::endRun()" );
-
-    //errorSvc statistics
 
     return HLT::OK;
   }
