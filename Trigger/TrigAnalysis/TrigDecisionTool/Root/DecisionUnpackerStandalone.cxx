@@ -53,7 +53,7 @@ namespace Trig {
   
   StatusCode
   DecisionUnpackerStandalone::
-  unpackDecision( std::map< std::string,
+  unpackDecision( std::unordered_map< std::string,
                              const LVL1CTP::Lvl1Item* >& itemsByName,
                    std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
                    std::unordered_map< std::string, const HLT::Chain* >& l2chainsByName,
@@ -200,9 +200,9 @@ namespace Trig {
    StatusCode
    DecisionUnpackerStandalone::
    unpackItems( std::map< unsigned, LVL1CTP::Lvl1Item* >& itemsCache,
-                std::map< std::string,
+                std::unordered_map< std::string,
                           const LVL1CTP::Lvl1Item* >& itemsByName ) {
-
+      itemsByName.reserve( itemsByName.size() + itemsCache.size() );
       auto cacheItr = itemsCache.begin();
       auto cacheEnd = itemsCache.end();
       for( ; cacheItr != cacheEnd; ++cacheItr ) {

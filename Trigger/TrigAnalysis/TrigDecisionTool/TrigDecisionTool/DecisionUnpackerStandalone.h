@@ -51,7 +51,7 @@ namespace Trig {
 
     /// Function unpacking the payload of the trigger decision
     virtual StatusCode
-    unpackDecision( std::map< std::string,
+    unpackDecision( std::unordered_map< std::string,
 		    const LVL1CTP::Lvl1Item* >& itemsByName,
 		    std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
 		    std::unordered_map< std::string,
@@ -78,7 +78,7 @@ namespace Trig {
   private:
     /// Function unpacking the decision of the LVL1 items
     StatusCode unpackItems( std::map< CTPID, LVL1CTP::Lvl1Item* >& itemsCache,
-			    std::map< std::string,
+			    std::unordered_map< std::string,
 			    const LVL1CTP::Lvl1Item*>& itemsByName );
     /// Function unpacking the decision of the HLT chains
     StatusCode unpackChains( std::map< unsigned, HLT::Chain* >& cache,

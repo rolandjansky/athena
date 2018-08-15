@@ -29,8 +29,9 @@ namespace Trig {
   }
 
 
-  StatusCode DecisionUnpackerAthena::unpackItems(const LVL1CTP::Lvl1Result& result,std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
-    std::map<unsigned, LVL1CTP::Lvl1Item*>::iterator cacheIt;
+  StatusCode DecisionUnpackerAthena::unpackItems(const LVL1CTP::Lvl1Result& result,std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
+    itemsByName.reserve( itemsByName.size() + itemsCache.size() );
+    auto cacheIt;
     for ( cacheIt = itemsCache.begin(); cacheIt != itemsCache.end(); ++cacheIt ) {    
       unsigned int ctpid = cacheIt->first;
       LVL1CTP::Lvl1Item* item = cacheIt->second;
@@ -76,7 +77,7 @@ namespace Trig {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode DecisionUnpackerAthena::unpackDecision(std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
+  StatusCode DecisionUnpackerAthena::unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
 						    std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
 						    std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& l2chainsCache,

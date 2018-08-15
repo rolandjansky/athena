@@ -182,7 +182,7 @@ namespace Trig {
     //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_l2chains; //!< chains keyed by chain counter (chainging every event)
     //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_efchains;
     
-    std::map<std::string, const LVL1CTP::Lvl1Item*>    m_itemsByName;     //!< items keyed by configuration name (chainging every event)
+    std::unordered_map<std::string, const LVL1CTP::Lvl1Item*> m_itemsByName;     //!< items keyed by configuration name (chainging every event)
     std::unordered_map<std::string, const HLT::Chain*> m_l2chainsByName;  //!< L2 chains keyed by chain name (chainging every event)
     std::unordered_map<std::string, const HLT::Chain*> m_efchainsByName;  //!< L2 chains keyed by chain name (chainging every event)
     
