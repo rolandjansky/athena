@@ -31,7 +31,7 @@ namespace CP
   {
     const Type *input = nullptr;
     ANA_CHECK (evtStore()->retrieve (input, m_inputHandle.getName (sys)));
-    auto output = std::make_unique<Type> (SG::VIEW_ELEMENTS);
+    auto viewCopy = std::make_unique<Type> (SG::VIEW_ELEMENTS);
     for (const auto particle : *input)
     {
       bool keep = true;
@@ -47,13 +47,13 @@ namespace CP
       {
         typename Type::value_type particleNC =
           const_cast<typename Type::value_type>(particle);
-        output->push_back (particleNC);
+        viewCopy->push_back (particleNC);
       }
     }
 
     if (m_sortPt)
     {
-      std::sort (output->begin(), output->end(), [] (const xAOD::IParticle *a, const xAOD::IParticle *b) {return CxxUtils::fpcompare::greater (a->pt(), b->pt());});
+      std::sort (viewCopy->begin(), viewCopy->end(), [] (const xAOD::IParticle *a, const xAOD::IParticle *b) {return CxxUtils::fpcompare::greater (a->pt(), b->pt());});
     }
 
     // If anyone might be concerned about efficiency here, this will
@@ -64,78 +64,38 @@ namespace CP
     // decided to keep the code above simpler and just do this as a
     // separate step, instead of trying to optimize this by
     // integrating it with the code above.
-    if (output->size() > m_sizeLimit)
-      output->resize (m_sizeLimit);
+    if (viewCopy->size() > m_sizeLimit)
+      viewCopy->resize (m_sizeLimit);
 
-    ANA_CHECK (evtStore()->record (output.release(), m_outputHandle.getName (sys)));
+    // In case we want to output a view copy, do that here.
+    if (!m_deepCopy)
+    {
+      ANA_CHECK (evtStore()->record (viewCopy.release(),
+                                     m_outputHandle.getName (sys)));
+      return StatusCode::SUCCESS;
+    }
+
+    // Apparently we want to make a deep copy. So set that one up.
+    auto deepCopy = std::make_unique<Type> ();
+    auto aux = std::make_unique<xAOD::AuxContainerBase> ();
+    deepCopy->setStore (aux.get());
+    deepCopy->reserve (viewCopy->size());
+    for (auto particle : *viewCopy)
+    {
+      typename Type::value_type pcopy = new typename Type::base_value_type();
+      deepCopy->push_back (pcopy);
+      *pcopy = *particle;
+    }
+
+    // Record the deep copy into the event store.
+    ANA_CHECK (evtStore()->record (deepCopy.release(),
+                                   m_outputHandle.getName (sys)));
+    ANA_CHECK (evtStore()->record (aux.release(),
+                                   m_outputHandle.getName (sys) + "Aux."));
 
     return StatusCode::SUCCESS;
   }
 
-
-
-  template<typename Type> StatusCode AsgViewFromSelectionAlg ::
-  executeDeepTemplate (const CP::SystematicSet& sys)
-  {
-     // Retrieve the input container.
-     const Type *input = nullptr;
-     ANA_CHECK( evtStore()->retrieve( input, m_inputHandle.getName( sys ) ) );
-
-     // Create a view container first. This is necessary to speed up possible
-     // sorting / trimming operations, which would be *much* slower on the deep
-     // copy.
-     Type viewCopy( SG::VIEW_ELEMENTS );
-     for( const auto* particle : *input ) {
-        bool keep = true;
-        for( const auto& accessor : m_accessors ) {
-           if( ( accessor.first->getBits( *particle ) | accessor.second ) !=
-               selectionAccept() ) {
-              keep = false;
-              break;
-           }
-        }
-        if( keep ) {
-           typename Type::value_type particleNC =
-              const_cast< typename Type::value_type >( particle );
-           viewCopy.push_back( particleNC );
-        }
-     }
-
-     // Sort the view copy if necessary.
-     if( m_sortPt ) {
-        std::sort( viewCopy.begin(), viewCopy.end(),
-                   []( const xAOD::IParticle *a,
-                       const xAOD::IParticle *b ) {
-                       return CxxUtils::fpcompare::greater( a->pt(), b->pt() );
-                   } );
-     }
-
-     // Trim the view container if necessary.
-     if( viewCopy.size() > m_sizeLimit ) {
-        viewCopy.resize( m_sizeLimit );
-     }
-
-     // Now finally make the deep copy.
-     auto output = std::make_unique< Type >();
-     auto aux = std::make_unique< xAOD::AuxContainerBase >();
-     output->setStore( aux.get() );
-     output->reserve( viewCopy.size() );
-     for( auto particle : viewCopy ) {
-        typename Type::value_type pcopy = new typename Type::base_value_type();
-        output->push_back( pcopy );
-        *pcopy = *particle;
-     }
-
-     // Record the deep copy into the event store.
-     ANA_CHECK( evtStore()->record( output.release(),
-                                    m_outputHandle.getName( sys ) ) );
-     ANA_CHECK( evtStore()->record( aux.release(),
-                                    m_outputHandle.getName( sys ) + "Aux." ) );
-
-     // Return gracefully.
-     return StatusCode::SUCCESS;
-
-  }
 
 
 
@@ -145,47 +105,31 @@ namespace CP
     const xAOD::IParticleContainer *input = nullptr;
     ANA_CHECK (m_inputHandle.retrieve (input, sys));
 
-    if (dynamic_cast<const xAOD::ElectronContainer*> (input)) {
-       if (m_deepCopy) {
-          m_function =
-            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::ElectronContainer>;
-       } else {
-          m_function =
-            &AsgViewFromSelectionAlg::executeTemplate<xAOD::ElectronContainer>;
-       }
-    } else if (dynamic_cast<const xAOD::PhotonContainer*> (input)) {
-       if (m_deepCopy) {
-          m_function =
-            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::PhotonContainer>;
-       } else {
-          m_function =
-            &AsgViewFromSelectionAlg::executeTemplate<xAOD::PhotonContainer>;
-       }
-    } else if (dynamic_cast<const xAOD::JetContainer*> (input)) {
-       if (m_deepCopy) {
-          m_function =
-            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::JetContainer>;
-       } else {
-          m_function =
-            &AsgViewFromSelectionAlg::executeTemplate<xAOD::JetContainer>;
-       }
-    } else if (dynamic_cast<const xAOD::MuonContainer*> (input)) {
-       if (m_deepCopy) {
-          m_function =
-            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::MuonContainer>;
-       } else {
-          m_function =
-            &AsgViewFromSelectionAlg::executeTemplate<xAOD::MuonContainer>;
-       }
-    } else if (dynamic_cast<const xAOD::TauJetContainer*> (input)) {
-       if (m_deepCopy) {
-          m_function =
-            &AsgViewFromSelectionAlg::executeDeepTemplate<xAOD::TauJetContainer>;
-       } else {
-          m_function =
-            &AsgViewFromSelectionAlg::executeTemplate<xAOD::TauJetContainer>;
-       }
-    } else
+    if (dynamic_cast<const xAOD::ElectronContainer*> (input))
+    {
+      m_function =
+        &AsgViewFromSelectionAlg::executeTemplate<xAOD::ElectronContainer>;
+    }
+    else if (dynamic_cast<const xAOD::PhotonContainer*> (input))
+    {
+      m_function =
+        &AsgViewFromSelectionAlg::executeTemplate<xAOD::PhotonContainer>;
+    }
+    else if (dynamic_cast<const xAOD::JetContainer*> (input))
+    {
+      m_function =
+        &AsgViewFromSelectionAlg::executeTemplate<xAOD::JetContainer>;
+    }
+    else if (dynamic_cast<const xAOD::MuonContainer*> (input)) {
+      m_function =
+        &AsgViewFromSelectionAlg::executeTemplate<xAOD::MuonContainer>;
+    }
+    else if (dynamic_cast<const xAOD::TauJetContainer*> (input))
+    {
+      m_function =
+        &AsgViewFromSelectionAlg::executeTemplate<xAOD::TauJetContainer>;
+    }
+    else
     {
       ANA_MSG_ERROR ("unknown type contained in AsgViewFromSelectionAlg, please extend it");
       return StatusCode::FAILURE;

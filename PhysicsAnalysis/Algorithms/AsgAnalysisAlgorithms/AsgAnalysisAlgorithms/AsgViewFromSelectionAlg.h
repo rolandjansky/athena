@@ -82,11 +82,6 @@ namespace CP
     template<typename Type> StatusCode
     executeTemplate (const CP::SystematicSet& sys);
 
-    /// \brief The templated version of the deep copy function
-  private:
-    template<typename Type> StatusCode
-    executeDeepTemplate (const CP::SystematicSet& sys);
-
     /// \brief the version of execute to find the type
   private:
     StatusCode executeFindType (const CP::SystematicSet& sys);
