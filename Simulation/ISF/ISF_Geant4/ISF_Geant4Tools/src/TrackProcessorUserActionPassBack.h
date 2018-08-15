@@ -70,8 +70,8 @@ namespace G4UA{
                                 HepMC::GenParticle* truthParticle,
                                 AtlasDetDescr::AtlasRegion nextGeoID );
 
-      ISF::IParticleBroker                *m_particleBrokerQuick; //!< quickaccess avoiding gaudi ovehead
-      ISF::IGeoIDSvc                      *m_geoIDSvcQuick; //!< quickaccess avoiding gaudi ovehead
+      ISF::IParticleBroker                *m_particleBrokerQuick{}; //!< quickaccess avoiding gaudi ovehead
+      ISF::IGeoIDSvc                      *m_geoIDSvcQuick{}; //!< quickaccess avoiding gaudi ovehead
 
     }; // class TrackProcessorUserActionPassBack
 

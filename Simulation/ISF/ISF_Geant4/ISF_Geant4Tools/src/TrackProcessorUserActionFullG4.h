@@ -63,16 +63,16 @@ namespace G4UA{
       ISF::EntryLayer entryLayer(const G4Step* aStep);
 
       /** access to the ISF Entry Layer tool which is used to record entry-layer collections */
-      ISF::IEntryLayerTool                *m_entryLayerToolQuick; //!< quickaccess avoiding gaudi ovehead
+      ISF::IEntryLayerTool                *m_entryLayerToolQuick{}; //!< quickaccess avoiding gaudi ovehead
 
       /** access to the central ISF GeoID serice*/
-      ISF::IGeoIDSvc                      *m_geoIDSvcQuick; //!< quickaccess avoiding gaudi ovehead
+      ISF::IGeoIDSvc                      *m_geoIDSvcQuick{}; //!< quickaccess avoiding gaudi ovehead
 
 
       std::map<std::string, int, std::less<std::string> > m_entryLayerMap;
 
       AtlasDetDescr::AtlasRegion m_nextGeoID;
-      const G4Track* m_currentTrack;
+      const G4Track* m_currentTrack{};
 
     }; // class TrackProcessorUserActionFullG4
 

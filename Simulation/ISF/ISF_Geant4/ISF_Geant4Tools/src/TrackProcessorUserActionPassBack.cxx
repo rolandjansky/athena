@@ -46,12 +46,11 @@ namespace G4UA {
   namespace iGeant4{
 
     TrackProcessorUserActionPassBack::TrackProcessorUserActionPassBack(const Config& config):
-      m_config(config),m_particleBrokerQuick(0), m_geoIDSvcQuick(0){
+      m_config(config) {
 
-      if(4<m_config.verboseLevel)
-        {
-          G4cout << "Initializing TrackProcessorUserActionPassBack" << G4endl;
-        }
+      if(4<m_config.verboseLevel) {
+        G4cout << "Initializing TrackProcessorUserActionPassBack" << G4endl;
+      }
 
       if ( !m_config.particleBroker.empty() ) {
         if (m_config.particleBroker.retrieve().isFailure()) {
@@ -158,16 +157,19 @@ namespace G4UA {
         //               " but is below Ekin threshold. Not returned to ISF.");
         if ( m_config.killBoundaryParticlesBelowThreshold ) {
           aTrack->SetTrackStatus( fStopAndKill );
-        } else {
+        }
+        else {
           // TODO: link G4Track to ISF particle with the new GeoID
         }
-      } else if ( aTrackStatus!=fAlive ) {
+      }
+      else if ( aTrackStatus!=fAlive ) {
         // particle is killed by G4 in this step
         // TODO: do we need to handle this case specifically?
         // ATH_MSG_DEBUG(" -> G4Track enters geoID = " << nextGeoID <<
         //               " but is destroyed in this step. Not returned to ISF.");
 
-      } else {
+      }
+      else {
         // particle is above kinetic energy threshold and alive after this step
         // -> push new ISFParticle back to ISF particle broker
         // ATH_MSG_DEBUG(" -> G4Track enters geoID = " << nextGeoID <<
@@ -203,10 +205,12 @@ namespace G4UA {
             if ( m_config.killBoundaryParticlesBelowThreshold ) {
               // TODO: should we use fKillTrackAndSecondaries instead?
               aTrack_2nd->SetTrackStatus( fStopAndKill );
-            } else {
+            }
+            else {
               // TODO: link G4Track to ISF particle with the new GeoID
             }
-          } else {
+          }
+          else {
             // secondary particle is above kinetic energy threshold
             // -> return it to ISF
             // ATH_MSG_DEBUG(" -> Secondary particle generated in this G4Step is returned to ISF.");

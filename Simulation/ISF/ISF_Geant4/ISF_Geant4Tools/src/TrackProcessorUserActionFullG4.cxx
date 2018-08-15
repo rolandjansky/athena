@@ -41,16 +41,13 @@ namespace G4UA{
   namespace iGeant4{
 
     TrackProcessorUserActionFullG4::TrackProcessorUserActionFullG4(const Config& config)
-      : TrackProcessorUserActionBase(),m_config(config),
-        m_entryLayerToolQuick(nullptr),
-        m_geoIDSvcQuick(nullptr),
-	m_currentTrack(nullptr)
+      : TrackProcessorUserActionBase()
+      , m_config(config)
     {
-      
-      if(4<m_config.verboseLevel)
-        {
-          G4cout << "create TrackProcessorUserActionFullG4" << G4endl;
-        }
+
+      if (4<m_config.verboseLevel) {
+        G4cout << "create TrackProcessorUserActionFullG4" << G4endl;
+      }
 
       m_nextGeoID = m_config.truthVolLevel>1?AtlasDetDescr::fAtlasCavern:AtlasDetDescr::fUndefinedAtlasRegion;
 
@@ -91,9 +88,9 @@ namespace G4UA{
       const G4StepPoint *preStep  = aStep->GetPreStepPoint();
       const G4StepPoint *postStep = aStep->GetPostStepPoint();
 
-      
+
       AtlasDetDescr::AtlasRegion nextG4GeoID = ::iGeant4::ISFG4GeoHelper::nextGeoId(aStep,
-										    m_config.
+                                                                                    m_config.
                                                                                     truthVolLevel,
                                                                                     m_geoIDSvcQuick);
       if ( curISP->nextGeoID()!=nextG4GeoID ) {
