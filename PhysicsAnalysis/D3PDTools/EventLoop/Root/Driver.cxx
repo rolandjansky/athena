@@ -114,9 +114,9 @@ namespace EL
      	myjob.algsAdd (new MetricsSvc);
 
     {
-      TFile file ((mylocation + "/driver.root").c_str(), "RECREATE");
-      file.WriteObject (this, "driver");
-      file.Close ();
+      std::unique_ptr<TFile> file (TFile::Open ((mylocation + "/driver.root").c_str(), "RECREATE"));
+      file->WriteObject (this, "driver");
+      file->Close ();
     }
     myjob.sampleHandler().save (mylocation + "/input");
     {
@@ -130,7 +130,7 @@ namespace EL
     {
       const std::string histfile
 	= mylocation + "/hist-" + (*sample)->name() + ".root";
-      std::auto_ptr<SH::SampleHist> hist
+      std::unique_ptr<SH::SampleHist> hist
 	(new SH::SampleHist ((*sample)->name(), histfile));
       hist->meta()->fetch (*(*sample)->meta());
       sh_hist.add (hist.release());
@@ -150,8 +150,8 @@ namespace EL
   resubmit (const std::string& location,
             const std::string& option)
   {
-    TFile file ((location + "/driver.root").c_str(), "READ");
-    std::auto_ptr<Driver> driver (dynamic_cast<Driver*>(file.Get ("driver")));
+    std::unique_ptr<TFile> file (TFile::Open ((location + "/driver.root").c_str(), "READ"));
+    std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
 
     driver->doResubmit (location, option);
@@ -162,8 +162,8 @@ namespace EL
   bool Driver ::
   retrieve (const std::string& location)
   {
-    TFile file ((location + "/driver.root").c_str(), "READ");
-    std::auto_ptr<Driver> driver (dynamic_cast<Driver*>(file.Get ("driver")));
+    std::unique_ptr<TFile> file (TFile::Open ((location + "/driver.root").c_str(), "READ"));
+    std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
 
     return driver->doRetrieve (location);
@@ -245,12 +245,12 @@ namespace EL
   {
     try
     {
-      TFile file ((location + "/hist-" + name + ".root").c_str(), "RECREATE");
+      std::unique_ptr<TFile> file (TFile::Open ((location + "/hist-" + name + ".root").c_str(), "RECREATE"));
       TIter iter (&output);
       TObject *object = 0;
       while ((object = iter.Next()))
       {
-	TDirectory *dir = &file;
+	TDirectory *dir = file.get();
 	std::string path = object->GetName();
 	std::string name;
 	std::string::size_type split = path.rfind ("/");
@@ -264,11 +264,11 @@ namespace EL
 	  TNamed *named = dynamic_cast<TNamed*>(object);
 	  if (named)
 	    named->SetName (name.c_str());
-	  dir = dynamic_cast<TDirectory*>(file.Get (dirname.c_str()));
+	  dir = dynamic_cast<TDirectory*>(file->Get (dirname.c_str()));
 	  if (!dir)
 	  {
-	    file.mkdir (dirname.c_str());
-	    dir = dynamic_cast<TDirectory*>(file.Get (dirname.c_str()));
+	    file->mkdir (dirname.c_str());
+	    dir = dynamic_cast<TDirectory*>(file->Get (dirname.c_str()));
 	  }
 	  RCU_ASSERT (dir != 0);
 	}
@@ -276,7 +276,7 @@ namespace EL
 	if (!RCU::SetDirectory (object, dir))
 	  dir->WriteObject (object, name.c_str());
       }
-      file.Write ();
+      file->Write ();
       output.Clear ("nodelete");
     } catch (...)
     {
@@ -324,7 +324,7 @@ namespace EL
 	     end = job.sampleHandler().end(); sample != end; ++ sample)
       {
 	const std::string name2 = name + "/" + (*sample)->name() + ".root";
-	std::auto_ptr<SH::SampleLocal> mysample
+	std::unique_ptr<SH::SampleLocal> mysample
 	  (new SH::SampleLocal ((*sample)->name()));
 	mysample->add (name2);
 	sh.add (mysample.release());
@@ -351,7 +351,7 @@ namespace EL
       {
 	SH::Sample *histSample = sh_hist.get ((*sample)->name());
 	RCU_ASSERT (histSample != 0);
-	std::auto_ptr<SH::SampleLocal> mysample
+	std::unique_ptr<SH::SampleLocal> mysample
 	  (new SH::SampleLocal ((*sample)->name()));
 	TList *list = dynamic_cast<TList*>(histSample->readHist ("EventLoop_OutputStream_" + out->label()));
 	if (list != 0)

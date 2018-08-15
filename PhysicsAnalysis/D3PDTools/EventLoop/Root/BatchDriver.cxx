@@ -343,7 +343,7 @@ namespace EL
     fillFullJob (myjob, job, location, meta);
     myjob.location=getWriteLocation(location);
     {
-      std::auto_ptr<TFile> file
+      std::unique_ptr<TFile> file
 	(TFile::Open ((location + "/submit/config.root").c_str(), "RECREATE"));
       myjob.Write ("job");
     }
@@ -383,10 +383,10 @@ namespace EL
       RCU_THROW_MSG ("unknown resubmit option " + option);
     }
 
-    std::auto_ptr<TFile> file
+    std::unique_ptr<TFile> file
       (TFile::Open ((location + "/submit/config.root").c_str(), "READ"));
     RCU_ASSERT_SOFT (file.get() != 0);
-    std::auto_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
+    std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
     RCU_ASSERT_SOFT (config.get() != 0);
 
     std::vector<std::size_t> jobIndices;
@@ -432,10 +432,10 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-    std::auto_ptr<TFile> file
+    std::unique_ptr<TFile> file
       (TFile::Open ((location + "/submit/config.root").c_str(), "READ"));
     RCU_ASSERT_SOFT (file.get() != 0);
-    std::auto_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
+    std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
     RCU_ASSERT_SOFT (config.get() != 0);
 
     bool merged = mergeHists (location, *config);
