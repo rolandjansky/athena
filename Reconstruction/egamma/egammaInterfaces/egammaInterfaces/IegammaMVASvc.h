@@ -29,7 +29,7 @@ public:
   /// An execute that just has cluster and egType. A converted photon
   /// is treated like an unconverted photon since no access to vertex.
   virtual StatusCode execute(xAOD::CaloCluster& cluster,
-			     xAOD::EgammaParameters::EgammaType egType) const = 0;
+			     const xAOD::EgammaParameters::EgammaType egType) const = 0;
 
 
 };
