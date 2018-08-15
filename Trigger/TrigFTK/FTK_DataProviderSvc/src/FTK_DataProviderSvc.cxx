@@ -254,6 +254,10 @@ std::string FTK_DataProviderSvc::getFastVertexCacheName(const bool withRefit) {
 StatusCode FTK_DataProviderSvc::initialize() {
 
   /// Setup StoreGateSvc ///
+  if (m_remove_duplicates && m_processAuxTracks) {
+    ATH_MSG_WARNING(" Both RemoveDuplicates and ProcessAuxTracks requested, but can't do Duplicate Track Removal when processing Aux tracks - returning StatusCode::FAILURE");
+    return StatusCode::FAILURE;
+  }
 
   ATH_CHECK(service( "StoreGateSvc", m_storeGate ));
   StoreGateSvc* detStore;
@@ -285,13 +289,8 @@ StatusCode FTK_DataProviderSvc::initialize() {
     ATH_MSG_INFO( " Vertex Finding is Disabled");
   }
   if (m_remove_duplicates) {
-    if (m_processAuxTracks) {
-      ATH_MSG_WARNING(" Can't do Duplicate Track Removal when processing Aux tracks");
-      m_remove_duplicates=false;
-    } else {
-      ATH_MSG_INFO( " getting DuplicateTrackRemovalTool tool with name " << m_DuplicateTrackRemovalTool.name());
-      ATH_CHECK(m_DuplicateTrackRemovalTool.retrieve());
-    }
+    ATH_MSG_INFO( " getting DuplicateTrackRemovalTool tool with name " << m_DuplicateTrackRemovalTool.name());
+    ATH_CHECK(m_DuplicateTrackRemovalTool.retrieve());
   }
   if (m_processAuxTracks or m_getHashIDfromConstants) {
     ATH_MSG_INFO( " getting HashIDTool tool with name " << m_hashIDTool.name());
@@ -1249,9 +1248,9 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
       if (m_processAuxTracks){//get all tracks, and then call hashIDTool to create new collection with track parameters & module ids set
 	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate, now processing Aux Tracks");
 	
-	const FTK_RawTrackContainer* new_tracks = m_hashIDTool->processTracks(*temporaryTracks,m_reverseIBLlocx);
+	const FTK_RawTrackContainer* processed_tracks = m_hashIDTool->processTracks(*temporaryTracks,m_reverseIBLlocx);
 	
-	temporaryTracks = new_tracks;
+	temporaryTracks = processed_tracks;
 	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  After Aux Track processing " << temporaryTracks->size() << " Tracks");
       } else if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
 	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate before removeDuplicates");
