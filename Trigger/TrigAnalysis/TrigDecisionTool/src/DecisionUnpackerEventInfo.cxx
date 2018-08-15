@@ -63,8 +63,7 @@ namespace Trig {
     std::vector<uint32_t> tav(begin,end);
 
     itemsByName.reserve( itemsByName.size() + itemsCache.size() );
-    auto cacheIt;
-    for ( cacheIt = itemsCache.begin(); cacheIt != itemsCache.end(); ++cacheIt ) {    
+    for ( auto cacheIt = itemsCache.begin(); cacheIt != itemsCache.end(); ++cacheIt ) {
       unsigned int ctpid = cacheIt->first;
       LVL1CTP::Lvl1Item* item = cacheIt->second;
       ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());

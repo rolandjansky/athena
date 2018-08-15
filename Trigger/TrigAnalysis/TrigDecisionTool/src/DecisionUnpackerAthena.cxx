@@ -31,8 +31,7 @@ namespace Trig {
 
   StatusCode DecisionUnpackerAthena::unpackItems(const LVL1CTP::Lvl1Result& result,std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
     itemsByName.reserve( itemsByName.size() + itemsCache.size() );
-    auto cacheIt;
-    for ( cacheIt = itemsCache.begin(); cacheIt != itemsCache.end(); ++cacheIt ) {    
+    for ( auto cacheIt = itemsCache.begin() ; cacheIt != itemsCache.end(); ++cacheIt ) {
       unsigned int ctpid = cacheIt->first;
       LVL1CTP::Lvl1Item* item = cacheIt->second;
       ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());
@@ -63,7 +62,7 @@ namespace Trig {
       unsigned cntr = HLT::Chain::inquireChainCounter(*rawIt);
 
       // localte now the chain
-      std::map<unsigned, HLT::Chain*>::iterator cacheIt = cache.find(cntr);
+      auto cacheIt = cache.find(cntr);
       if ( cacheIt == cache.end() ) {
 	ATH_MSG_WARNING("Missing chain of counter in the configuration: " << cntr);
 	return StatusCode::FAILURE;
