@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////
-// PixelNtupleMaker.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
-#ifndef DERIVATIONFRAMEWORK_PIXELOFFLINEMONITORING_H
-#define DERIVATIONFRAMEWORK_PIXELOFFLINEMONITORING_H
+#ifndef DERIVATIONFRAMEWORK_PIXELNTUPLEMAKER_H
+#define DERIVATIONFRAMEWORK_PIXELNTUPLEMAKER_H
 
 
 #include <string>
@@ -38,8 +38,7 @@ namespace DerivationFramework {
 
       typedef std::vector<ElementLink< xAOD::TrackStateValidationContainer > > MeasurementsOnTrack;
       typedef std::vector<ElementLink< xAOD::TrackStateValidationContainer > >::const_iterator MeasurementsOnTrackIter;
-
   }; 
 }
 
-#endif // DERIVATIONFRAMEWORK_PIXELOFFLINEMONITORING_H
+#endif
