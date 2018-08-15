@@ -45,7 +45,6 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 
 #include "StoreGate/ReadCondHandle.h"
 

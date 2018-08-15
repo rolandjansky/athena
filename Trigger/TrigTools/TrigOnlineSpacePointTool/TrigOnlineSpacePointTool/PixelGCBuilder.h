@@ -11,12 +11,12 @@ class TrigSiSpacePoint;
 class TrigSiSpacePoint;
 
 namespace InDetDD {
-  class SiDetectorManager;
+  class PixelDetectorManager;
 }
 
 class PixelGCBuilder { 
 public:
-  PixelGCBuilder(const InDetDD::SiDetectorManager* &manager, const PixelID*, int); 
+  PixelGCBuilder(const InDetDD::PixelDetectorManager* &manager, const PixelID*, int); 
   ~PixelGCBuilder();
 
   void formSpacePoints (const InDet::PixelClusterCollection& clusterColl,
@@ -24,7 +24,7 @@ public:
 
 private:
   const PixelID* m_pixelID;
-  const InDetDD::SiDetectorManager* m_manager;
+  const InDetDD::PixelDetectorManager* m_manager;
   int m_OffsetEndcapPixels;
 };
 

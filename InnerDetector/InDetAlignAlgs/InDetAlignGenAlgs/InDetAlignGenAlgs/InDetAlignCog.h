@@ -32,7 +32,6 @@ class TRT_ID;
 class ITRT_AlignDbSvc;
 
 namespace InDetDD {
-  class SiDetectorManager;
   class PixelDetectorManager;
   class TRT_DetectorManager;
   class SiDetectorElement;
