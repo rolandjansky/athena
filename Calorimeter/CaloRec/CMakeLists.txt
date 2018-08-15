@@ -55,7 +55,7 @@ atlas_add_library( CaloRecLib
    Identifier xAODCaloEvent GaudiKernel CaloDetDescrLib CaloUtilsLib
    StoreGateLib LArToolsLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
-   ${EIGEN_LIBRARIES} AthAllocators DataModel IdDictParser EventKernel
+   ${EIGEN_LIBRARIES} AthAllocators IdDictParser EventKernel
    FourMom NavFourMom )
 
 atlas_add_component( CaloRec
