@@ -66,7 +66,7 @@ namespace EL
   private:
     virtual void
     batchSubmit (const std::string& location, const SH::MetaObject& options,
- 		 std::vector<std::size_t> jobIndices, bool resubmit)
+ 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
       const override;
 
     /// effects: special initialization for slurm scripts: export PATH

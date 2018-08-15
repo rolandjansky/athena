@@ -132,7 +132,8 @@ namespace EL
   private:
     virtual void
     batchSubmit (const std::string& location, const SH::MetaObject& options,
- 		 std::vector<std::size_t> jobIndices, bool resubmit) const = 0;
+ 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
+      const = 0;
 
 
 

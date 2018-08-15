@@ -57,7 +57,8 @@ namespace EL
 
   void TorqueDriver ::
   batchSubmit (const std::string& location, const SH::MetaObject& options,
-               std::vector<std::size_t> jobIndices, bool resubmit) const
+               const std::vector<std::size_t>& jobIndices, bool resubmit)
+    const
   {
     RCU_READ_INVARIANT (this);
 
