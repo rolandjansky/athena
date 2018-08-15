@@ -32,6 +32,8 @@ namespace CP
     declareProperty ("maxD0Significance", m_maxD0Significance, "maximum d0 significance (or 0 for no cut)");
     declareProperty ("maxDeltaZ0SinTheta", m_maxDeltaZ0SinTheta, "maximum Delta z0 sin theta (or 0 for no cut)");
     declareProperty ("selectionDecoration", m_selectionDecoration, "the decoration for the asg selection");
+    declareProperty ("eventInfo", m_eventInfo, "the name of the EventInfo object to retrieve");
+    declareProperty ("primaryVertices", m_primaryVertices, "the name of the PrimaryVertex container to retrieve");
   }
 
 
@@ -75,13 +77,13 @@ namespace CP
   {
     const xAOD::EventInfo *eventInfo {nullptr};
     if (m_maxD0Significance > 0)
-      ANA_CHECK (evtStore()->retrieve (eventInfo, "EventInfo"));
+      ANA_CHECK (evtStore()->retrieve (eventInfo, m_eventInfo));
 
     const xAOD::Vertex *primaryVertex {nullptr};
     if (m_maxDeltaZ0SinTheta > 0)
     {
       const xAOD::VertexContainer *vertices {nullptr};
-      ANA_CHECK (evtStore()->retrieve (vertices, "PrimaryVertices"));
+      ANA_CHECK (evtStore()->retrieve (vertices, m_primaryVertices));
       for (const xAOD::Vertex *vertex : *vertices)
       {
         if (vertex->vertexType() == xAOD::VxType::PriVtx)

@@ -51,6 +51,9 @@ namespace CP
   private:
     float m_maxD0Significance {0};
     float m_maxDeltaZ0SinTheta {0};
+    std::string m_selectionDecoration {"trackSelection"};
+    std::string m_eventInfo {"EventInfo"};
+    std::string m_primaryVertices {"PrimaryVertices"};
 
     /// \}
     
@@ -71,10 +74,6 @@ namespace CP
   private:
     SysCopyHandle<xAOD::IParticleContainer> m_particlesHandle {
       this, "particles", "", "the asg collection to run on"};
-
-    /// \brief the decoration for the asg selection
-  private:
-    std::string m_selectionDecoration {"trackSelection"};
 
     /// \brief the accessor for \ref m_selectionDecoration
   private:
