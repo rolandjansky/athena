@@ -5,16 +5,19 @@ from AthenaCommon import CfgMgr
 def getTTL1Overlay(name="OverlayTTL1", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
-    kwargs.setdefault("EmTTL1MainKey", overlayFlags.dataStore() + "/LArTTL1EM");
-    kwargs.setdefault("EmTTL1OverlayKey", overlayFlags.evtStore() + "/LArTTL1EM");
-    kwargs.setdefault("EmTTL1OutputKey", overlayFlags.outputStore() + "/LArTTL1EM");
+    # Tile TTL1 overlay is currently not needed as Tile trigger towers are created from the overlaid container
+    kwargs.setdefault("EnableTileTTL1Overlay", False)
 
-    kwargs.setdefault("HadTTL1MainKey", overlayFlags.dataStore() + "/LArTTL1HAD");
-    kwargs.setdefault("HadTTL1OverlayKey", overlayFlags.evtStore() + "/LArTTL1HAD");
-    kwargs.setdefault("HadTTL1OutputKey", overlayFlags.outputStore() + "/LArTTL1HAD");
+    kwargs.setdefault("BkgEmTTL1Key", overlayFlags.dataStore() + "+LArTTL1EM");
+    kwargs.setdefault("SignalEmTTL1Key", overlayFlags.evtStore() + "+LArTTL1EM");
+    kwargs.setdefault("OutputEmTTL1Key", overlayFlags.outputStore() + "+LArTTL1EM");
 
-    kwargs.setdefault("TileTTL1MainKey", overlayFlags.dataStore() + "/TileTTL1Cnt");
-    kwargs.setdefault("TileTTL1OverlayKey", overlayFlags.evtStore() + "/TileTTL1Cnt");
-    kwargs.setdefault("TileTTL1OutputKey", overlayFlags.outputStore() + "/TileTTL1Cnt");
+    kwargs.setdefault("BkgHadTTL1Key", overlayFlags.dataStore() + "+LArTTL1HAD");
+    kwargs.setdefault("SignalHadTTL1Key", overlayFlags.evtStore() + "+LArTTL1HAD");
+    kwargs.setdefault("OutputHadTTL1Key", overlayFlags.outputStore() + "+LArTTL1HAD");
+
+    kwargs.setdefault("BkgTileTTL1Key", overlayFlags.dataStore() + "+TileTTL1Cnt");
+    kwargs.setdefault("SignalTileTTL1Key", overlayFlags.evtStore() + "+TileTTL1Cnt");
+    kwargs.setdefault("OutputTileTTL1Key", overlayFlags.outputStore() + "+TileTTL1Cnt");
 
     return CfgMgr.LVL1__OverlayTTL1(name, **kwargs)

@@ -16,7 +16,6 @@ atlas_depends_on_subdirs(
    Control/AthContainers
    Control/PileUpTools
    Control/StoreGate
-   Event/EventOverlay/OverlayAlgBase
    Event/xAOD/xAODTrigL1Calo
    GaudiKernel
    LArCalorimeter/LArRawEvent
@@ -53,7 +52,7 @@ atlas_add_library( TrigT1CaloSimLib
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier CaloTTDetDescr
    AthenaBaseComps AthContainers xAODTrigL1Calo GaudiKernel LArRawEvent
-   OverlayAlgBase TileEvent TrigConfL1Data TrigT1CaloCalibConditions 
+   TileEvent TrigConfL1Data TrigT1CaloCalibConditions 
    TrigT1CaloCalibToolInterfaces TrigT1CaloToolInterfaces TrigT1Interfaces
    CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
    TileConditionsLib TrigT1CaloEventLib TrigT1CaloUtilsLib LumiBlockCompsLib

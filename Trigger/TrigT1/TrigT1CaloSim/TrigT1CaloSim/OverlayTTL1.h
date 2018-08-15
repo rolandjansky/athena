@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -28,21 +28,13 @@
 #define TRIGT1CALOSIM_OVERLAYTTL1_H
 
 // STL
-#include <array>
 #include <map>
 #include <string>
-#include <utility> // for std::pair, std::make_pair
 #include <vector>
 
 // Athena/Gaudi
-#include "OverlayAlgBase/OverlayAlgBase.h"
-//#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "DataModel/DataVector.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
-
 
 //Calorimeter tower includes
 #include "LArRawEvent/LArTTL1Container.h"
@@ -51,10 +43,7 @@
 namespace LVL1
 {
 
-class IL1CaloMappingTool;
-
-
-class OverlayTTL1 : public OverlayAlgBase
+class OverlayTTL1 : public AthAlgorithm
 {
 public:
   //-------------------------
@@ -70,55 +59,36 @@ public:
   //------------------------------------------------------
   // Methods used by Athena to run the algorithm
   //------------------------------------------------------
-  StatusCode overlayInitialize();
-  StatusCode overlayExecute();
-  StatusCode overlayFinalize();
+  StatusCode initialize();
+  StatusCode execute();
+  StatusCode finalize();
 
 private:
+  // Enable/disable Tile TTL1 overlay
+  bool m_enableTileTTL1Overlay;
 
-  // locations within the TES to store collections of Trigger Towers
-  std::string m_outputLocation;
-  //SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_outputKey;
+  // locations of background TTL1 data
+  SG::ReadHandleKey<LArTTL1Container> m_bkgEmTTL1Key{this,"BkgEmTTL1Key","OriginalEvent_SG+LArTTL1EM","ReadHandleKey for Background Input EM LArTTL1Container"};
+  SG::ReadHandleKey<LArTTL1Container> m_bkgHadTTL1Key{this,"BkgHadTTL1Key","OriginalEvent_SG+LArTTL1HAD","ReadHandleKey for Background Input Had LArTTL1Container"};
+  SG::ReadHandleKey<TileTTL1Container> m_bkgTileTTL1Key{this,"BkgTileTTL1Key","OriginalEvent_SG+TileTTL1Cnt","ReadHandleKey for Background Input TileTTL1Container"};
 
-  // location of TTL1 data
-  SG::ReadHandleKey<LArTTL1Container> m_EmTTL1MainKey;
-  SG::ReadHandleKey<LArTTL1Container> m_HadTTL1MainKey;
-  SG::ReadHandleKey<TileTTL1Container> m_TileTTL1MainKey;
-
-  // locations of overlay TTL1 data
-  SG::ReadHandleKey<LArTTL1Container> m_EmTTL1OverlayKey;
-  SG::ReadHandleKey<LArTTL1Container> m_HadTTL1OverlayKey;
-  SG::ReadHandleKey<TileTTL1Container> m_TileTTL1OverlayKey;
+  // locations of signal TTL1 data
+  SG::ReadHandleKey<LArTTL1Container> m_signalEmTTL1Key{this,"SignalEmTTL1Key","BkgEvent_0_SG+LArTTL1EM","ReadHandleKey for Signal Input EM LArTTL1Container"};
+  SG::ReadHandleKey<LArTTL1Container> m_signalHadTTL1Key{this,"SignalHadTTL1Key","BkgEvent_0_SG+LArTTL1HAD","ReadHandleKey for Signal Input Had LArTTL1Container"};
+  SG::ReadHandleKey<TileTTL1Container> m_signalTileTTL1Key{this,"SignalTileTTL1Key","BkgEvent_0_SG+TileTTL1Cnt","ReadHandleKey for Signal Input TileTTL1Container"};
 
   // locations of output TTL1 data
-  SG::WriteHandleKey<LArTTL1Container> m_EmTTL1OutputKey;
-  SG::WriteHandleKey<LArTTL1Container> m_HadTTL1OutputKey;
-  SG::WriteHandleKey<TileTTL1Container> m_TileTTL1OutputKey;
-
-  const CaloLVL1_ID* m_caloId; //non-owning ptr
-
-  ToolHandle<IL1CaloMappingTool> m_mappingTool;
-
-
-  std::vector<std::vector<double>> m_towersAmps; // stores the Amps (vector<double>) for each xaodTower
-
-  std::size_t m_curIndex = 0u;
-  std::map<unsigned int, std::size_t> m_towersIndex; 
-
-  std::map<std::string, std::vector<LArTTL1*>> m_emTowerMap; 
-  std::map<std::string, std::vector<LArTTL1*>> m_hecTowerMap; 
-  std::map<std::string, std::vector<TileTTL1*>> m_tileTowerMap; 
-
-  /** fetch Calorimeter Towers */
-  StatusCode getTowers();
+  SG::WriteHandleKey<LArTTL1Container> m_outputEmTTL1Key{this,"OutputEmTTL1Key","StoreGateSvc+LArTTL1EM","WriteHandleKey for Output EM LArTTL1Container"};
+  SG::WriteHandleKey<LArTTL1Container> m_outputHadTTL1Key{this,"OutputHadTTL1Key","StoreGateSvc+LArTTL1HAD","WriteHandleKey for Output Had LArTTL1Container"};
+  SG::WriteHandleKey<TileTTL1Container> m_outputTileTTL1Key{this,"OutputTileTTL1Key","StoreGateSvc+TileTTL1Cnt","WriteHandleKey for Output TileTTL1Container"};
 
   /** overlay amplitudes from other TTL1 */
-  void groupLArTowers(SG::ReadHandle<LArTTL1Container>& towers, std::map<std::string, std::vector<LArTTL1*>> &towerMap);
-  void groupTileTowers(SG::ReadHandle<TileTTL1Container>& towers);
+  void groupLArTowers(SG::ReadHandle<LArTTL1Container>& towers, std::map<Identifier, std::vector<const LArTTL1*>> &towerMap) const;
+  void groupTileTowers(SG::ReadHandle<TileTTL1Container>& towers, std::map<Identifier, std::vector<const TileTTL1*>> &towerMap) const;
 
-  /** Merge tower amplitudes */
-  StatusCode mergeTowers();
-
+  /** specialised overlay functions */
+  StatusCode overlayLArTTL1(const SG::ReadHandleKey<LArTTL1Container> &bkgKey, const SG::ReadHandleKey<LArTTL1Container> &signalKey, const SG::WriteHandleKey<LArTTL1Container> &outputKey, const std::string &label);
+  StatusCode overlayTileTTL1(const SG::ReadHandleKey<TileTTL1Container> &bkgKey, const SG::ReadHandleKey<TileTTL1Container> &signalKey, const SG::WriteHandleKey<TileTTL1Container> &outputKey);
 };
 
 } // namespace LVL1
