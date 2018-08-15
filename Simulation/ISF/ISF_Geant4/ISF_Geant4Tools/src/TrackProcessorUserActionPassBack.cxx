@@ -233,7 +233,7 @@ namespace G4UA {
       return;
     }
 
-    ISF::TruthBinding* TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack, HepMC::GenParticle* truthParticle) const
+    std::unique_ptr<ISF::TruthBinding> TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack, HepMC::GenParticle* truthParticle) const
     {
       auto* trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aTrack);
       if (!trackInfo) {
@@ -248,30 +248,30 @@ namespace G4UA {
       HepMC::GenParticle*         primaryHepParticle = const_cast<HepMC::GenParticle*>(trackInfo->GetPrimaryHepMCParticle());
       HepMC::GenParticle*  generationZeroHepParticle = const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle());
 
-      ISF::TruthBinding* tBinding = new ISF::TruthBinding(truthParticle, primaryHepParticle, generationZeroHepParticle);
+      std::unique_ptr<ISF::TruthBinding> tBinding = std::make_unique<ISF::TruthBinding>(truthParticle, primaryHepParticle, generationZeroHepParticle);
 
       return tBinding;
     }
 
-    ISF::ISFParticle* TrackProcessorUserActionPassBack::newISFParticle(G4Track* aTrack,
-                                                                       const ISF::ISFParticle* parentISP,
-                                                                       HepMC::GenParticle* truthParticle,
-                                                                       AtlasDetDescr::AtlasRegion  nextGeoID)
+    std::unique_ptr<ISF::ISFParticle> TrackProcessorUserActionPassBack::newISFParticle(G4Track* aTrack,
+                                                                                       const ISF::ISFParticle* parentISP,
+                                                                                       HepMC::GenParticle* truthParticle,
+                                                                                       AtlasDetDescr::AtlasRegion  nextGeoID)
     {
-      ISF::TruthBinding* tBinding = newTruthBinding(aTrack, truthParticle);
+      std::unique_ptr<ISF::TruthBinding> tBinding = newTruthBinding(aTrack, truthParticle);
 
       //Create corresponding HepMcParticleLink object keeping track of correct event index and McEventCollection
-      HepMcParticleLink *partLink(nullptr);
+      std::unique_ptr<HepMcParticleLink> partLink(nullptr);
       if(parentISP->getParticleLink()) {
-        partLink = new HepMcParticleLink(::iGeant4::ISFG4Helper::getParticleBarcode(*aTrack), parentISP->getParticleLink()->eventIndex(), parentISP->getParticleLink()->getEventCollection());
+        partLink = std::make_unique<HepMcParticleLink>(::iGeant4::ISFG4Helper::getParticleBarcode(*aTrack), parentISP->getParticleLink()->eventIndex(), parentISP->getParticleLink()->getEventCollection());
       }
       else {
-        partLink = new HepMcParticleLink(::iGeant4::ISFG4Helper::getParticleBarcode(*aTrack));
+        partLink = std::make_unique<HepMcParticleLink>(::iGeant4::ISFG4Helper::getParticleBarcode(*aTrack));
       }
-      ISF::ISFParticle* isp = ::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
-                                                                                   *parentISP,
-                                                                                   tBinding,
-                                                                                   partLink );
+      std::unique_ptr<ISF::ISFParticle> isp(::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
+                                                                                                 *parentISP,
+                                                                                                 tBinding.release(),
+                                                                                                 partLink.release() ));
 
       if (nextGeoID!=AtlasDetDescr::fUndefinedAtlasRegion) {
         isp->setNextGeoID( AtlasDetDescr::AtlasRegion(nextGeoID) );
@@ -290,15 +290,15 @@ namespace G4UA {
       aTrack->SetTrackStatus( fStopAndKill );
 
       // create new ISFParticle and attach it to current G4Track
-      ISF::ISFParticle *newISP = newISFParticle( aTrack, parentISP, truthParticle, nextGeoID );
+      std::unique_ptr<ISF::ISFParticle> newISP = newISFParticle( aTrack, parentISP, truthParticle, nextGeoID );
 
       // update TrackInformation
       auto trackInfo = ::iGeant4::ISFG4Helper::getISFTrackInfo(*aTrack);
       trackInfo->SetReturnedToISF( true );
-      trackInfo->SetBaseISFParticle( newISP );
+      trackInfo->SetBaseISFParticle( newISP.get() );
 
       // push the particle back to ISF
-      m_particleBrokerQuick->push(newISP, parentISP);
+      m_particleBrokerQuick->push(newISP.release(), parentISP);
 
       return;
     }
