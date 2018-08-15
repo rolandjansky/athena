@@ -58,7 +58,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
         // Declare the needed properties
         declareProperty("CorrectionFileNameList", m_corrFileNameList,
                 "List of file names that store the correction factors for simulation.");
-        declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map5.txt" ,
+        declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map6.txt" ,
                 "Full path to the map file");
         declareProperty("RecoKey", m_recoKey = "" ,
                 "Key associated with reconstruction");
@@ -147,6 +147,13 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         }
         if (m_corrFileNameList.at(i).find("efficiencySF.offline.RecoTrk") != std::string::npos) {
             m_sysSubstring = "Reco_";
+        }
+        if (m_corrFileNameList.at(i).find("efficiencySF.offline.Fwd") != std::string::npos) {
+            m_sysSubstring = "FwdID_";
+	    if ( m_correlation_model_name == "SIMPLIFIED" ) {
+	      ATH_MSG_ERROR("The SIMPLIFIED correlation model is not implemented for fwd electrons");
+	      return StatusCode::FAILURE;
+	    }
         }
         if (m_corrFileNameList.at(i).find("efficiencySF.Isolation") != std::string::npos) {
             m_sysSubstring = "Iso_";
@@ -282,7 +289,14 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
         ATH_MSG_ERROR("ERROR no cluster associated to the Electron \n"); 
         return CP::CorrectionCode::Error; 
     }
-    cluster_eta = cluster->etaBE(2);
+
+    // we need to use different variables for central and forward electrons
+    static const SG::AuxElement::ConstAccessor< uint16_t > accAuthor( "author" );
+    if( accAuthor.isAvailable(inputObject) && accAuthor(inputObject) == xAOD::EgammaParameters::AuthorFwdElectron ) { 
+      cluster_eta = cluster->eta();
+    } else {
+      cluster_eta = cluster->etaBE(2);
+    }
 
     size_t CorrIndex{0};
     size_t MCToysIndex{0};

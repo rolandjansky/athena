@@ -272,7 +272,9 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
         ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
         return StatusCode::FAILURE; 
       } else { 
-        m_calibClasses.push_back(m_insituDataCorr); 
+        m_calibClasses.push_back(m_insituDataCorr);
+	m_relInsituPtMax.push_back(m_insituDataCorr->getRelHistoPtMax());
+	m_absInsituPtMax.push_back(m_insituDataCorr->getAbsHistoPtMax());
         return StatusCode::SUCCESS; 
       }
     } else{
@@ -286,7 +288,9 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
           ATH_MSG_FATAL("Couldn't initialize the In-situ data correction. Aborting"); 
           return StatusCode::FAILURE; 
         } else {     		
-          m_insituTimeDependentCorr.push_back(insituTimeDependentCorr_Tmp); 
+          m_insituTimeDependentCorr.push_back(insituTimeDependentCorr_Tmp);
+	  m_relInsituPtMax.push_back(insituTimeDependentCorr_Tmp->getRelHistoPtMax());
+	  m_absInsituPtMax.push_back(insituTimeDependentCorr_Tmp->getAbsHistoPtMax());
         }
       }
       return StatusCode::SUCCESS; 

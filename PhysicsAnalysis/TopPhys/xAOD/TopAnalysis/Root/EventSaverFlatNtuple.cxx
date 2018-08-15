@@ -624,7 +624,9 @@ namespace top {
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
                 systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
                 systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
+                systematicTree->makeOutputVariable(m_el_true_firstEgMotherPdgId, "el_true_firstEgMotherPdgId");
 		systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
+		systematicTree->makeOutputVariable(m_el_true_isChargeFl, "el_true_isChargeFl");
               }
             }
 
@@ -1310,8 +1312,9 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_type,   "mu_true_type");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
        m_upgradeTreeManager->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
-       m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_z, "mu_prodVtx_z");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_z,    "mu_prodVtx_z");
        m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_perp, "mu_prodVtx_perp");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_prodVtx_phi,  "mu_prodVtx_phi");
 
        // jets
        m_upgradeTreeManager->makeOutputVariable(m_jet_pt, "jet_pt");
@@ -1714,7 +1717,9 @@ namespace top {
               m_el_true_origin.resize(n_electrons);
               m_el_true_firstEgMotherTruthOrigin.resize(n_electrons);
               m_el_true_firstEgMotherTruthType.resize(n_electrons);
+              m_el_true_firstEgMotherPdgId.resize(n_electrons);
 	      m_el_true_isPrompt.resize(n_electrons);
+	      m_el_true_isChargeFl.resize(n_electrons);
             }
 
             for (const auto* const elPtr : event.m_electrons) {
@@ -1748,18 +1753,22 @@ namespace top {
                   m_el_true_origin[i] = 0;
                   m_el_true_firstEgMotherTruthType[i] = 0;
                   m_el_true_firstEgMotherTruthOrigin[i] = 0;
+                  m_el_true_firstEgMotherPdgId[i] = 0;
                   static SG::AuxElement::Accessor<int> typeel("truthType");
                   static SG::AuxElement::Accessor<int> origel("truthOrigin");
 		  static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
                   static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
+                  static SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
 
                   if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
                   if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
 		  if (firstEgMotherTruthType.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthType[i] = firstEgMotherTruthType(*elPtr);
 		  if (firstEgMotherTruthOrigin.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthOrigin[i] = firstEgMotherTruthOrigin(*elPtr);
+		  if (firstEgMotherPdgId.isAvailable(*elPtr)) m_el_true_firstEgMotherPdgId[i] = firstEgMotherPdgId(*elPtr);
 
-		  m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
-		  
+		  std::pair<bool,bool> isPrompt_isChargeFl = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i], m_el_true_firstEgMotherPdgId[i], m_el_charge[i]);
+		  m_el_true_isPrompt[i] = isPrompt_isChargeFl.first;
+  		  m_el_true_isChargeFl[i] = isPrompt_isChargeFl.second;
                 }
                 ++i;
             }
@@ -2357,7 +2366,6 @@ namespace top {
 	// VarRC jets
 	if (m_makeVarRCJets){
           std::string VarRC = "vrcjet";
-	  std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > VarRCJets=event.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
@@ -2369,7 +2377,7 @@ namespace top {
 
 	      // Initialize the vectors to be saved as branches
 	      
-	      xAOD::JetContainer* vrc_jets = VarRCJets[name].get();
+	      xAOD::JetContainer* vrc_jets = event.m_VarRCJets[name].get();
               unsigned int sizeOfRCjets = vrc_jets->size();
 	      m_VarRCjetBranches[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
@@ -3348,7 +3356,6 @@ namespace top {
 	// VarRC jets
 	if (m_makeVarRCJets){
           std::string VarRC = "vrcjet";
-	  std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > VarRCJets=plEvent.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
@@ -3360,7 +3367,7 @@ namespace top {
 
 	      // Initialize the vectors to be saved as branches
 	      
-	      xAOD::JetContainer* vrc_jets = VarRCJets[name].get();
+	      xAOD::JetContainer* vrc_jets = plEvent.m_VarRCJets[name].get();
               unsigned int sizeOfRCjets = vrc_jets->size();
 	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
@@ -3611,8 +3618,9 @@ namespace top {
        m_mu_true_type.resize(upgradeEvent.m_muons->size());
        m_mu_true_origin.resize(upgradeEvent.m_muons->size());
        m_mu_true_isPrompt.resize(upgradeEvent.m_muons->size());
-       m_mu_prodVtx_z.resize(upgradeEvent.m_muons->size());
+       m_mu_prodVtx_z.   resize(upgradeEvent.m_muons->size());
        m_mu_prodVtx_perp.resize(upgradeEvent.m_muons->size());
+       m_mu_prodVtx_phi. resize(upgradeEvent.m_muons->size());
 
        for (const auto  muPtr : * upgradeEvent.m_muons) {
          m_mu_pt[i] = muPtr->pt();
@@ -3624,8 +3632,9 @@ namespace top {
 	 m_mu_true_type[i] = 0;
 	 m_mu_true_origin[i] = 0;
 	 m_mu_true_isPrompt[i] = 0;
-         m_mu_prodVtx_z[i] = -999;
+         m_mu_prodVtx_z[i]    = -999;
          m_mu_prodVtx_perp[i] = -999;
+         m_mu_prodVtx_phi[i]  = -999;
 	 if (muPtr->isAvailable<unsigned int>("particleType")) {
 	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("particleType");
 	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleType")) {
@@ -3646,6 +3655,9 @@ namespace top {
          }
          if (muPtr->isAvailable<float>("prodVtx_perp")) {
            m_mu_prodVtx_perp[i] = muPtr->auxdata<float>("prodVtx_perp");
+         }
+         if (muPtr->isAvailable<float>("prodVtx_phi")) {
+           m_mu_prodVtx_phi[i] = muPtr->auxdata<float>("prodVtx_phi");
          }
 
          ++i;
@@ -3985,22 +3997,35 @@ namespace top {
       return out;
     }
   
-  bool EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin){
+  //new prompt lepton classification below based on https://twiki.cern.ch/twiki/pub/AtlasProtected/IsolationFakeForum/MakeTruthClassification.hxx
+  //these represent the latest IFF recommendations
+  std::pair<bool, bool> EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin, int egMotherPdgId, int RecoCharge){
     // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
-    bool prompt            = (type == 2 &&
-			      (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
-    // New recovery using first Non-Geant 
-    bool recovered_FSRConv = (type == 4 && egMotherType == 40);
-    bool recovered_Other   = (type == 4 && egMotherType == 2 &&			      
-			      (egMotherOrigin == 10 || egMotherOrigin == 12 || egMotherOrigin == 13 || egMotherOrigin == 14 || egMotherOrigin == 43) );
+    bool isprompt = (type == 2 || 
+		(type == 4 && origin == 5 && fabs(egMotherPdgId) == 11) ||
+		// bkg electrons from ElMagDecay with origin top, W or Z, higgs, diBoson
+		(type == 4 && origin == 7 && egMotherType == 2 && (egMotherOrigin == 10 || egMotherOrigin == 12 || egMotherOrigin == 13 || egMotherOrigin == 14 || egMotherOrigin == 43) && fabs(egMotherPdgId) == 11) ||
+		// unknown electrons from multi-boson (sherpa 222, di-boson)
+		(type == 1 && egMotherType == 2 && egMotherOrigin == 47 && fabs(egMotherPdgId) == 11) );
 
-    return (prompt || recovered_FSRConv || recovered_Other);
+    bool isChargeFl = false;
+    if (egMotherPdgId*RecoCharge>0) isChargeFl = true;
+    if (isprompt) return std::make_pair(true,isChargeFl); //charge flipped electrons are also considered prompt
+
+    // bkg photons from photon conv from FSR (must check!!)
+    if (type == 4 && origin == 5 && egMotherOrigin == 40) return std::make_pair(true,false);  
+    // non-iso photons from FSR for the moment but we must check!! (must check!!)
+    if (type == 15 && origin == 40) return std::make_pair(true,false);  
+    // mainly in Sherpa Zee, but some also in Zmumu
+    if (type == 4 && origin == 7 && egMotherType == 15 && egMotherOrigin == 40) return std::make_pair(true,false); 
+
+    return std::make_pair(false,false);
   }
 
   bool EventSaverFlatNtuple::isPromptMuon(int type, int origin){
     // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
     bool prompt = (type == 6 &&
-		   (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
+		   (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 15 || origin == 22 || origin == 43) ); 
 
     return prompt;
   }

@@ -23,7 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/AssociationUtils
                           Reconstruction/Jet/JetInterface
                           PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
-                          Reconstruction/Jet/JetJvtEfficiency
                           PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
                           Reconstruction/PFlow/PFlowUtils
                           Tools/PathResolver )

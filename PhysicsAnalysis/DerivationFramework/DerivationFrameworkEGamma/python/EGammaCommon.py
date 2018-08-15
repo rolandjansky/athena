@@ -82,6 +82,14 @@ ElectronLHSelectorLooseBL = AsgElectronLikelihoodTool("ElectronLHSelectorLooseBL
 ElectronLHSelectorLooseBL.primaryVertexContainer = "PrimaryVertices"
 ToolSvc += ElectronLHSelectorLooseBL
 
+#====================================================================
+# ELECTRON CHARGE SELECTION
+#====================================================================
+from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronChargeIDSelectorTool
+ElectronChargeIDSelector = AsgElectronChargeIDSelectorTool("ElectronChargeIDSelectorLoose")
+ElectronChargeIDSelector.primaryVertexContainer = "PrimaryVertices"
+ElectronChargeIDSelector.TrainingFile = "ElectronPhotonSelectorTools/ChargeID/ECIDS_20180731rel21Summer2018.root"
+ToolSvc += ElectronChargeIDSelector
 
 
 
@@ -191,6 +199,16 @@ ElectronPassLHTight = DerivationFramework__EGSelectionToolWrapper( name = "Elect
 ToolSvc += ElectronPassLHTight
 print ElectronPassLHTight
 
+# decorate electrons with the output of ECIDS ----------------------------------------------------------------------
+ElectronPassECIDS = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassECIDS",
+                                                                 EGammaSelectionTool = ElectronChargeIDSelector,
+                                                                 EGammaFudgeMCTool = "",
+                                                                 CutType = "",
+                                                                 StoreGateEntryName = "DFCommonElectronsECIDS",
+                                                                 ContainerName = "Electrons")
+ToolSvc += ElectronPassECIDS
+print ElectronPassECIDS
+
 
 # decorate photons with the output of IsEM loose
 # on MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
@@ -249,7 +267,7 @@ print PhotonPassCleaning
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
-                       PhotonPassIsEMLoose, PhotonPassIsEMTight, PhotonPassCleaning]
+                       ElectronPassECIDS,PhotonPassIsEMLoose, PhotonPassIsEMTight, PhotonPassCleaning]
 
 
 #==================================================

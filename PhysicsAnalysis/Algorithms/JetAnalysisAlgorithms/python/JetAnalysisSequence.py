@@ -68,7 +68,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     if runJetSmearing:
         alg = createAlgorithm( 'CP::JetSmearingAlg', 'JetSmearingAlg' )
         addPrivateTool( alg, 'smearingTool', 'JERSmearingTool' )
-        JERTool = createPublicTool( 'MyJERTool', 'JERTool' )
+        JERTool = createPublicTool( 'JERTool', 'MyJERTool' )
         JERTool.PlotFileName = \
             'JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root'
         JERTool.CollectionName = jetCollection

@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <SelectionHelpers/SelectionAccessorRegular.h>
+#include <SelectionHelpers/SelectionAccessorBits.h>
 
 //
 // method implementations
@@ -17,14 +17,14 @@
 
 namespace CP
 {
-  SelectionAccessorRegular ::
-  SelectionAccessorRegular (const std::string& name)
+  SelectionAccessorBits ::
+  SelectionAccessorBits (const std::string& name)
     : m_accessor (name)
   {}
 
 
 
-  SelectionType SelectionAccessorRegular ::
+  SelectionType SelectionAccessorBits ::
   getBits (const xAOD::IParticle& particle) const
   {
     return m_accessor (particle);
@@ -32,7 +32,7 @@ namespace CP
 
 
 
-  void SelectionAccessorRegular ::
+  void SelectionAccessorBits ::
   setBits (xAOD::IParticle& particle,
            SelectionType selection) const
   {
@@ -41,7 +41,7 @@ namespace CP
 
 
 
-  bool SelectionAccessorRegular ::
+  bool SelectionAccessorBits ::
   getBool (const xAOD::IParticle& particle) const
   {
     return m_accessor (particle) == selectionAccept();
@@ -49,7 +49,7 @@ namespace CP
 
 
 
-  void SelectionAccessorRegular ::
+  void SelectionAccessorBits ::
   setBool (xAOD::IParticle& particle,
            bool selection) const
   {

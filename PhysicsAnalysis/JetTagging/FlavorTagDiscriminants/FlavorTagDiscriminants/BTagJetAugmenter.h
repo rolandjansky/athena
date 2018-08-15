@@ -23,6 +23,7 @@ private:
   AE::Decorator<double> abs_eta_uncalib;
 
   AE::ConstAccessor<std::vector<float> > ip2d_weightBOfTracks;
+  AE::Decorator<int> ip2d_nTrks;
   AE::ConstAccessor<double> ip2d_pu;
   AE::ConstAccessor<double> ip2d_pc;
   AE::ConstAccessor<double> ip2d_pb;
@@ -32,6 +33,7 @@ private:
   AE::Decorator<double> ip2d_bc;
 
   AE::ConstAccessor<std::vector<float> > ip3d_weightBOfTracks;
+  AE::Decorator<int> ip3d_nTrks;
   AE::ConstAccessor<double> ip3d_pu;
   AE::ConstAccessor<double> ip3d_pc;
   AE::ConstAccessor<double> ip3d_pb;

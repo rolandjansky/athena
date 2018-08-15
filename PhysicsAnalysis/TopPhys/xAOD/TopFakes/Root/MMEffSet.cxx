@@ -446,19 +446,29 @@ void MMEffSet::SetLepton(MMEvent event,MMLepton lepton){
   // set the used variables
   float input[] = {0,0,0,0,0,0,0,0,0,0};
   int k = 0;
-  if(_Estimate.find(":eta_dR")!=string::npos)    { input[k] = eta;   k++; input[k] = dR; k++; }
-  else if(_Estimate.find(":eta")!=string::npos)  { input[k] = eta;   k++; }
-  if(_Estimate.find(":pt_dR")!=string::npos)     { input[k] = pt;    k++; input[k] = dR; k++; }
-  else if(_Estimate.find(":pt_jetpt")!=string::npos)     { input[k] = pt;    k++; input[k] = jetpt; k++; }
-  else if(_Estimate.find(":pt")!=string::npos)   { input[k] = pt;    k++; }
-  if(_Estimate.find(":jetpt_dR")!=string::npos)  { input[k] = jetpt; k++; input[k] = dR; k++; }
-  else if(_Estimate.find(":jetpt")!=string::npos){ input[k] = jetpt; k++; }
-  if(_Estimate.find(":sumet")!=string::npos)  { input[k] = sumet; k++; }
-  if(_Estimate.find(":dR")!=string::npos && _Estimate.find(":dRpt")==string::npos)  { input[k] = dR; k++; }
-  if(_Estimate.find(":dRpt")!=string::npos)   { input[k] = dRpt;  k++; }
-  if(_Estimate.find(":dPhi")!=string::npos)   { input[k] = dPhi;  k++; }
-  if(_Estimate.find(":d0sig")!=string::npos)   { input[k] = d0sig;  k++; }
-  if(_Estimate.find(":nbjets")!=string::npos)   { input[k] = ntag;  k++; }
+  std::string expected_parameters = "";
+  if(_Estimate.find(":eta_dR")!=string::npos)    { input[k] = eta;   k++; input[k] = dR; k++; expected_parameters += ":eta_dR";}
+  else if(_Estimate.find(":eta")!=string::npos)  { input[k] = eta;   k++; expected_parameters += ":eta";}
+  if(_Estimate.find(":pt_dR")!=string::npos)     { input[k] = pt;    k++; input[k] = dR; k++; expected_parameters += ":pt_dR";}
+  else if(_Estimate.find(":pt_jetpt")!=string::npos)     { input[k] = pt;    k++; input[k] = jetpt; k++; expected_parameters += ":pt_jetpt";}
+  else if(_Estimate.find(":pt")!=string::npos)   { input[k] = pt;    k++; expected_parameters += ":pt";}
+  if(_Estimate.find(":jetpt_dR")!=string::npos)  { input[k] = jetpt; k++; input[k] = dR; k++; expected_parameters += ":jetpt_dR";}
+  else if(_Estimate.find(":jetpt")!=string::npos){ input[k] = jetpt; k++; expected_parameters += ":jetpt";}
+  if(_Estimate.find(":sumet")!=string::npos)  { input[k] = sumet; k++; expected_parameters += ":sumet";}
+  if(_Estimate.find(":dR")!=string::npos && _Estimate.find(":dRpt")==string::npos)  { input[k] = dR; k++; expected_parameters += ":dR";}
+  if(_Estimate.find(":dRpt")!=string::npos)   { input[k] = dRpt;  k++; expected_parameters += ":dRpt";}
+  if(_Estimate.find(":dPhi")!=string::npos)   { input[k] = dPhi;  k++; expected_parameters += ":dPhi";}
+  if(_Estimate.find(":d0sig")!=string::npos)   { input[k] = d0sig;  k++; expected_parameters += ":d0sig";}
+  if(_Estimate.find(":nbjets")!=string::npos)   { input[k] = ntag;  k++; expected_parameters += ":nbjets";}
+
+  // Perform a sanitity check to ensure no mismatched ordering is permitted
+  if(_Estimate.find(expected_parameters) == std::string::npos){
+    std::cerr << "TopFakes ERROR - Parameterisation mismatch   " << std::endl;
+    std::cerr << "TopFakes ERROR - Provided parameterisation : " << _Estimate << std::endl;
+    std::cerr << "TopFakes ERROR - Expected parameterisation -> " << expected_parameters << std::endl;
+    std::cerr << "TopFakes ERROR - Please reorder your parameterisation to match the expectation" << std::endl;
+    throw std::runtime_error("TopFakes matrix method parameterisation incorrectly configured. Terminate.");
+  }
 
   SetLepton(input[0],input[1],input[2],input[3],input[4],input[5],input[6],input[7],input[8],input[9]);
 }

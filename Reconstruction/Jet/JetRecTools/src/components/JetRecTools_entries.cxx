@@ -12,6 +12,7 @@
 #include "JetRecTools/SoftKillerWeightTool.h"
 #include "JetRecTools/VoronoiWeightTool.h"
 #include "JetRecTools/ClusterAtEMScaleTool.h"
+#include "JetRecTools/ConstitTimeCutTool.h"
 #include "JetRecTools/ConstituentSubtractorTool.h"
 #include "JetRecTools/JetInputElRemovalTool.h"
 #include "JetRecTools/CorrectPFOTool.h"
@@ -34,3 +35,5 @@ DECLARE_COMPONENT( JetInputElRemovalTool )
 DECLARE_COMPONENT( CorrectPFOTool )
 DECLARE_COMPONENT( ChargedHadronSubtractionTool )
 DECLARE_COMPONENT( PuppiWeightTool )
+DECLARE_COMPONENT( ConstitTimeCutTool )
+

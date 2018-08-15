@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <SelectionHelpers/SelectionAccessorOR.h>
+#include <SelectionHelpers/SelectionAccessorChar.h>
 
 //
 // method implementations
@@ -17,14 +17,14 @@
 
 namespace CP
 {
-  SelectionAccessorOR ::
-  SelectionAccessorOR (const std::string& name)
+  SelectionAccessorChar ::
+  SelectionAccessorChar (const std::string& name)
     : m_accessor (name)
   {}
 
 
 
-  SelectionType SelectionAccessorOR ::
+  SelectionType SelectionAccessorChar ::
   getBits (const xAOD::IParticle& particle) const
   {
     if (m_accessor (particle))
@@ -35,7 +35,7 @@ namespace CP
 
 
 
-  void SelectionAccessorOR ::
+  void SelectionAccessorChar ::
   setBits (xAOD::IParticle& particle,
            SelectionType selection) const
   {
@@ -47,7 +47,7 @@ namespace CP
 
 
 
-  bool SelectionAccessorOR ::
+  bool SelectionAccessorChar ::
   getBool (const xAOD::IParticle& particle) const
   {
     return m_accessor (particle);
@@ -55,7 +55,7 @@ namespace CP
 
 
 
-  void SelectionAccessorOR ::
+  void SelectionAccessorChar ::
   setBool (xAOD::IParticle& particle,
            bool selection) const
   {

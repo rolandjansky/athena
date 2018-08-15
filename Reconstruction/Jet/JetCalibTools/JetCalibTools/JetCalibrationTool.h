@@ -69,6 +69,10 @@ public:
 
   virtual int modify(xAOD::JetContainer&) const;
   virtual int modifyJet(xAOD::Jet&) const;
+
+  // Retrieve pTmax from in situ corrections
+  virtual VecD retrieveEtaIntercalPtMax(){return m_relInsituPtMax;}
+  virtual VecD retrieveAbsoluteInsituPtMax(){return m_absInsituPtMax;}
   
 protected:
   /// This is where the actual calibration code goes.
@@ -110,6 +114,9 @@ private:
   bool m_doResidual;
   bool m_doOrigin;
   bool m_doGSC;
+
+  // vector with pTmax of each in situ correction
+  VecD m_relInsituPtMax, m_absInsituPtMax;
 
   //Class objects for each calibration step
   std::vector<JetCalibrationToolBase*> m_calibClasses;

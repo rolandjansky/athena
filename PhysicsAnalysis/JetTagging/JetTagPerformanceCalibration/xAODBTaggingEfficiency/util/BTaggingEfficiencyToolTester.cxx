@@ -30,7 +30,7 @@ int main() {
   code = tool->setProperty("JetAuthor",           "AntiKt4EMTopoJets");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool JetAuthor property" << std::endl;
   // name of the CDI file
-  code = tool->setProperty("ScaleFactorFileName", "13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root");
+  code = tool->setProperty("ScaleFactorFileName", "13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool ScaleFactorFileName property" << std::endl;
   // calibration specification (there should always be a "default" available so this doesn't need to be set
   // tool->setProperty("ScaleFactorBCalibration", "ttbar_PDF_7b_SF");
@@ -44,6 +44,13 @@ int main() {
   // tool->setProperty("EigenvectorReductionB", "Medium");
   // tool->setProperty("EigenvectorReductionC", "Medium");
   // tool->setProperty("EigenvectorReductionLight", "Medium");
+  // use the following to exclude pre-determined sets of uncertainty from the eigenvector treatment
+  // tool->setProperty("ExcludeRecommendedFromEigenVectorTreatment", true);
+  // use the following to add a (per-flavour) suffix to the variations as seen at the user end (NB an underscore will be added if not provided)
+  // tool->setProperty("UncertaintyBSuffix", "test");
+  // tool->setProperty("UncertaintyCSuffix", "test");
+  // tool->setProperty("UncertaintyTSuffix", "test");
+  // tool->setProperty("UncertaintyLightSuffix", "test");
   // specify that the file is to be looked for in the PathResolver "development" area (don't use this for official productions)
   // tool->setProperty("UseDevelopmentFile",  true);
   // specify the use of the cone-based labelling rather than the ghost association

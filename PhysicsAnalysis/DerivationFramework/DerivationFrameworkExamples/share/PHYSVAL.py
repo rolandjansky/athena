@@ -56,10 +56,7 @@ addDefaultTrimmedJets(DerivationFrameworkJob,"PHYSVAL",dotruth=True)
 #===================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+addVRJets(DerivationFrameworkJob)
 
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 

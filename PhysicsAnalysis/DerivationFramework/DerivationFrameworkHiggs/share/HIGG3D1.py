@@ -162,15 +162,6 @@ higg3d1Seq = CfgMgr.AthSequencer("HIGG3d1Sequence")
 higg3d1PreSeq = CfgMgr.AthSequencer("HIGG3d1PreSelectionSequence")
 
 #====================================================================
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
-#====================================================================
-
-#addVRJets(higg3d1Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-#          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
-#          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-#          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
-
-#====================================================================
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
 

@@ -264,14 +264,37 @@ if globalflags.DataSource()=='geant4':
 #==============================================================================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
+# these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
-    BPHY9tthffiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("BPHY9TTbarPlusHeavyFlavorFilterTool")
-    ToolSvc += BPHY9tthffiltertool
+    
+    BPHY9ttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("BPHY9TTbarPlusBFilterTool")
+    BPHY9ttbarBfiltertool.SelectB = True
+    BPHY9ttbarBfiltertool.BpTMinCut = 5000
+    BPHY9ttbarBfiltertool.BMultiplicityCut = 1 # >=
+    ToolSvc += BPHY9ttbarBfiltertool
+
+    BPHY9ttbarBBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("BPHY9TTbarPlusBBFilterTool")
+    BPHY9ttbarBBfiltertool.SelectB = True
+    BPHY9ttbarBBfiltertool.BpTMinCut = 15000
+    BPHY9ttbarBBfiltertool.BMultiplicityCut = 2 # >=
+    ToolSvc += BPHY9ttbarBBfiltertool
+
+    BPHY9ttbarCfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("BPHY9TTbarPlusCFilterTool")
+    BPHY9ttbarCfiltertool.SelectC = True
+    BPHY9ttbarCfiltertool.CpTMinCut = 15000
+    BPHY9ttbarCfiltertool.CMultiplicityCut = 1 # >=
+    # these two are the default values
+    # B-hadrons have precedence; if one B is found, it won't pass the CFilter
+    BPHY9ttbarCfiltertool.BpTMinCut = 5000
+    BPHY9ttbarCfiltertool.BMultiplicityCut = 1 # >=
+    ToolSvc += BPHY9ttbarCfiltertool
    
     from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation
     BPHY9TopHFFilterAugmentation = DerivationFramework__TopHeavyFlavorFilterAugmentation(name = "BPHY9TopHFFilterAugmentation")
-    BPHY9TopHFFilterAugmentation.FilterTool = BPHY9tthffiltertool
+    BPHY9TopHFFilterAugmentation.BFilterTool  = BPHY9ttbarBfiltertool
+    BPHY9TopHFFilterAugmentation.BBFilterTool = BPHY9ttbarBBfiltertool
+    BPHY9TopHFFilterAugmentation.CFilterTool  = BPHY9ttbarCfiltertool
     ToolSvc += BPHY9TopHFFilterAugmentation
     augmentationTools.append(BPHY9TopHFFilterAugmentation)
     print "BPHY9TopHFFilterAugmentationTool: ", BPHY9TopHFFilterAugmentation

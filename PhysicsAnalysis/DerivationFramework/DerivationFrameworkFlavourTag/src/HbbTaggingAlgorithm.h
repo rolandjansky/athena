@@ -28,6 +28,7 @@ private:
   ToolHandle<HbbTaggerDNN> m_tagger;
   ToolHandle<JetCalibrationTool> m_jet_calib_tool;
   std::vector<SG::AuxElement::ConstAccessor<float> > m_var_checkers;
+  std::vector<SG::AuxElement::Decorator<float> > m_default_filler;
 };
 
 #endif

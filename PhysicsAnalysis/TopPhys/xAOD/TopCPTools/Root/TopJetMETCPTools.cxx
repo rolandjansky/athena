@@ -623,6 +623,8 @@ IJetSelector* JetMETCPTools::setupJetCleaningTool(const std::string& WP) {
                   "Failed to set CutLevel to " + WP + " for " + name);
       top::check(asg::setProperty(tool, "DoUgly", false),
                   "Failed to set DoUgly for " + name);
+      top::check(asg::setProperty(tool, "UseDecorations", true),
+		 "Failed to set UserDecorations for " + name );
       top::check(tool->initialize(), "Failed to initialize " + name);
     }
   return tool;

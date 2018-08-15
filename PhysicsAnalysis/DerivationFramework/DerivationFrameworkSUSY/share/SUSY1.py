@@ -324,7 +324,7 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 )
 
 # Add VR jets
-addVRJets(SeqSUSY1, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet", VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", ghostArea = 0 , ptmin = 2000, ptminFilter = 7000, variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+addVRJets(SeqSUSY1)
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 

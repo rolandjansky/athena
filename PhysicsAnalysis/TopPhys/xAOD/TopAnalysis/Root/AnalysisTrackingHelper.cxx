@@ -47,7 +47,7 @@ std::vector<std::string> listToolStore() {
    }
    std::vector<std::string> result;
    {
-      boost::regex re("([\\w+:]+)\\s*=.*/\\1\\s*");
+      boost::regex re("(\\S+)\\s+=\\s+[^/]+/\\1\\s*");
       for (std::string line; std::getline(buffer, line); ) {
          boost::cmatch m;
          if (boost::regex_match(line.c_str(), m, re)) {

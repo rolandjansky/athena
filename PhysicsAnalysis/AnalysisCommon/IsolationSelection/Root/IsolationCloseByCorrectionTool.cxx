@@ -91,9 +91,8 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
             ATH_CHECK(m_trkselTool.setProperty("CutLevel", "Loose"));
         }
         if (!m_ttvaTool.isUserConfigured()){
-            m_ttvaTool.setTypeAndName("CP::TightTrackVertexAssociationTool/ttva_selection_tool");
-            ATH_CHECK(m_ttvaTool.setProperty("dzSinTheta_cut", 3.));
-            ATH_CHECK(m_ttvaTool.setProperty("doPV",true));
+            m_ttvaTool.setTypeAndName("CP::TrackVertexAssociationTool/ttva_selection_tool");
+            ATH_CHECK(m_ttvaTool.setProperty("WorkingPoint", "Loose"));
         }
         ATH_CHECK(m_trkselTool.retrieve());
         ATH_CHECK(m_ttvaTool.retrieve());

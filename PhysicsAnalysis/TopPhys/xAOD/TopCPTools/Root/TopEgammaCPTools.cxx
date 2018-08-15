@@ -381,16 +381,16 @@ std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
 
     std::string file_path;
     if(type == "reco") {
-      file_path = "map5.txt";
+      file_path = "map6.txt";
     }
     else if(type == "ID"){
-      file_path = "map5.txt";
+      file_path = "map6.txt";
     }
     else if(type == "isolation"){
-      file_path = "map5.txt";
+      file_path = "map6.txt";
     }
     else if(type == "trigger"){
-      file_path = "map5.txt";
+      file_path = "map6.txt";
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");
