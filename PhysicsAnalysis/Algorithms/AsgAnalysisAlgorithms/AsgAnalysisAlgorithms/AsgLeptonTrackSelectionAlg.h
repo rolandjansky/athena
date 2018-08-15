@@ -83,7 +83,7 @@ namespace CP
 
     /// \brief the \ref TAccept we are using
   private:
-    mutable Root::TAccept m_accept;
+    Root::TAccept m_accept;
   };
 }
 
