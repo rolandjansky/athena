@@ -8,6 +8,7 @@
 #include "TrigEFMissingET/EFMissingETFromFEBHeader.h"
 #include "TrigEFMissingET/EFMissingETFromJets.h"
 #include "TrigEFMissingET/EFMissingETFromTrackAndJets.h"
+#include "TrigEFMissingET/EFMissingETFromTrackAndClusters.h"
 //#include "TrigEFMissingET/EFMissingETFromLvl1Ppr.h"
 #include "TrigEFMissingET/EFMissingETFlags.h"
 #include "TrigEFMissingET/EFMissingETFromHelper.h"
@@ -23,6 +24,7 @@ DECLARE_TOOL_FACTORY( EFMissingETFromClustersTracksPUC )
 DECLARE_TOOL_FACTORY( EFMissingETFromFEBHeader )
 DECLARE_TOOL_FACTORY( EFMissingETFromJets )
 DECLARE_TOOL_FACTORY( EFMissingETFromTrackAndJets )
+DECLARE_TOOL_FACTORY( EFMissingETFromTrackAndClusters )
 //DECLARE_TOOL_FACTORY( EFMissingETFromLvl1Ppr )
 DECLARE_TOOL_FACTORY( EFMissingETFlags )
 DECLARE_TOOL_FACTORY( EFMissingETFromHelper )
@@ -38,6 +40,7 @@ DECLARE_FACTORY_ENTRIES(TrigEFMissingET) {
     DECLARE_TOOL( EFMissingETFromFEBHeader );
     DECLARE_TOOL( EFMissingETFromJets );
     DECLARE_TOOL( EFMissingETFromTrackAndJets );
+    DECLARE_TOOL( EFMissingETFromTrackAndClusters );
     //DECLARE_TOOL( EFMissingETFromLvl1Ppr );
     DECLARE_TOOL( EFMissingETFlags );
     DECLARE_TOOL( EFMissingETFromHelper );

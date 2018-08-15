@@ -335,7 +335,7 @@ METChainParts = {
     'calib'        : ['lcw','had','em'],    
     'jetCalib'     : JetChainParts['jetCalib'],
     'L2recoAlg'    : ['','l2fsperf','L2FS'],
-    'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit', 'pufittrack'],
+    'EFrecoAlg'    : ['tc','cell','pueta','mht','trkmht','pufit', 'pufittrack', 'trktc'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
     'addInfo'      : ['FStracks','FTK'],
