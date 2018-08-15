@@ -85,10 +85,9 @@ namespace EL
 
   void LLDriver ::
   batchSubmit (const std::string& location, const SH::MetaObject& options,
-               const std::vector<std::size_t>& jobIndices, bool resubmit)
+               const std::vector<std::size_t>& jobIndices, bool /*resubmit*/)
     const
   {
-    (void) resubmit;
     RCU_READ_INVARIANT (this);
 
     // Submit n jobs with loadleveler
