@@ -5,6 +5,8 @@
 # import flags
 include("TrigUpgradeTest/testHLT_MT.py")
 
+#Currently only runs egamma and mu chains but expect to expand
+
 
 ##########################################
 # menu
@@ -31,7 +33,7 @@ egammaChains  = [
     Chain(name='HLT_e5_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  ),
     Chain(name='HLT_e7_etcut',      Seed="L1_EM3",  ChainSteps=[step1, step2]  )
     ]
- 
+
 
 
 # muon chains
@@ -46,7 +48,7 @@ if TriggerFlags.doID==True:
     MuonChains += [Chain(name='HLT_mu6Comb', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
     MuonChains += [Chain(name='HLT_2mu6Comb', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
 
-    
+
 # combo chains
 comboChains= []
 comboStep=ChainStep("Step1_mufast_et", [muFastStep,fastCaloStep])
@@ -77,16 +79,16 @@ for unpack in topSequence.L1DecoderTest.roiUnpackers:
     if unpack.name() is "MURoIsUnpackingTool":
         unpack.Decisions="L1MU"
         muUnpacker=unpack
-        
+
 for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
     if unpack.name() is "EMRerunRoIsUnpackingTool":
         unpack.Decisions="RerunL1EM"
         unpack.SourceDecisions="L1EM"
-   
+
     if unpack.name() is "MURerunRoIsUnpackingTool":
         unpack.Decisions="RerunL1MU"
         unpack.SourceDecisions="L1MU"
-  
+
 # this is a temporary hack to include new test chains
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
 topSequence.L1DecoderTest.ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
@@ -98,7 +100,7 @@ for c in comboChains:
         seeds.pop(0) #remove first L1 string
         for s in seeds:
             if "MU" in s: EnabledMuComboChains.append(s +" : "+ c.name)
-            if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name) 
+            if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name)
 
 muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
 emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
@@ -115,11 +117,8 @@ makeHLTTree(testChains)
 
 
 
-##########################################  
+##########################################
 # Some debug
-##########################################  
+##########################################
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
-
-
-
