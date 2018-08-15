@@ -18,6 +18,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
+   Event/xAOD/xAODCore
    Event/xAOD/xAODJet
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTau
@@ -30,7 +31,8 @@ atlas_add_library( AsgAnalysisAlgorithmsLib
    LINK_LIBRARIES AthContainers AthContainersInterfaces AsgTools xAODBase
      xAODEventInfo SelectionHelpersLib SystematicsHandlesLib PATCoreLib
      PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces AssociationUtilsLib
-   PRIVATE_LINK_LIBRARIES xAODJet xAODMuon xAODTau xAODEgamma RootCoreUtils )
+   PRIVATE_LINK_LIBRARIES xAODCore xAODJet xAODMuon xAODTau xAODEgamma
+     RootCoreUtils )
 
 atlas_add_dictionary( AsgAnalysisAlgorithmsDict
    AsgAnalysisAlgorithms/AsgAnalysisAlgorithmsDict.h

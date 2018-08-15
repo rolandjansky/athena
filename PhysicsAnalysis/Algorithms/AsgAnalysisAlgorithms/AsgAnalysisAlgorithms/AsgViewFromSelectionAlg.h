@@ -70,6 +70,10 @@ namespace CP
   private:
     bool m_allowMissing {false};
 
+    /// \brief Perform a deep copy for creating the output container
+  private:
+    bool m_deepCopy {false};
+
   private:
     std::size_t m_sizeLimit {std::numeric_limits<std::size_t>::max()};
 
