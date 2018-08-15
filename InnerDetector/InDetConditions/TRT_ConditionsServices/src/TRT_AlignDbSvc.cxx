@@ -19,7 +19,6 @@
 
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
-#include "InDetReadoutGeometry/InDetDetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
