@@ -83,5 +83,4 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
     if overlayFlags.doSignal==True:
         include ("EventOverlayJobTransforms/InDetMcSignal_jobOptions.py")
 
-    job += CfgGetter.getAlgorithm("InDetOverlay")
     job += CfgGetter.getAlgorithm("InDetSDOOverlay")
