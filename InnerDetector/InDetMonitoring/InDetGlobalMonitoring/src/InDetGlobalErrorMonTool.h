@@ -12,7 +12,7 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-// STSTST #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
