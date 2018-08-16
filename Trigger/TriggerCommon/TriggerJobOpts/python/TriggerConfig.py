@@ -68,7 +68,17 @@ def triggerMonitoringCfg(flags, hypos):
 
     return acc, mon
 
+def setupL1DecoderFromMenu( flags, l1Decoder ):
+    """ Post setup of the L1Decoder, once approved, it should be moved to L1DecoderCfg function """
+    l1Decoder.ctpUnpacker.CTPToChainMapping = {} 
+    from TriggerJobOpts.MenuConfigFlags import MenuUtils
+    l1Decoder.ctpUnpacker.CTPToChainMapping.update( MenuUtils.toCTPSeedingDict( flags ) )
 
+    # this will go away once full L1 config info will be used by L1 Decoder
+    for c in flags.get( "Trigger.menu.electrons" ) + flags.get( "Trigger.menu.photons" ) :
+        chain, l1item = c.split()[:2]
+        threshold = l1item.split("_")[1] 
+        l1Decoder.roiUnpackers["EMRoIsUnpackingTool"].ThresholdToChainMapping += [ "%s : %s" % (threshold, chain) ]
 
 
 def triggerRunCfg(flags, menu=None):
@@ -81,14 +91,15 @@ def triggerRunCfg(flags, menu=None):
         pass
     
     acc = ComponentAccumulator()
-    
+
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
     #TODO
     # information about the menu has to be injected into L1 decoder config
     # necessary ingreedient is list of mappings from L1 item to chain
     # and item to threshold (the later can be maybe extracted from L1 config file)
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
-    acc.merge( l1DecoderAcc)    
+    setupL1DecoderFromMenu( flags, l1DecoderAlg )
+    acc.merge( l1DecoderAcc )    
             
 
     # detour to the menu here, (missing now, instead a temporary hack)

@@ -22,6 +22,7 @@ flags.set( "global.InputFiles",
 flags.set( "Trigger.LVL1ConfigFile", "LVL1config_Physics_pp_v7.xml" )
 flags.set( "Trigger.L1Decoder.forceEnableAllChains", True)
 
+
 flags.lock()
 
 from AthenaCommon.Constants import INFO,DEBUG
@@ -59,23 +60,26 @@ from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig(flags ))
 
 def menu( mf ):
-    menuAcc = ComponentAccumulator()
-    HLTSteps =  seqAND( "HLTSteps")
-    menuAcc.addSequence( HLTSteps )
-    menuAcc.addSequence( parOR("HLTStep_1_filters"), parentName="HLTSteps" )
-    menuAcc.addSequence( parOR("HLTStep_1"), parentName="HLTSteps" )
-    menuAcc.addSequence( parOR("HLTStep_2_filters"), parentName="HLTSteps" )
-    menuAcc.addSequence( parOR("HLTStep_2"), parentName="HLTSteps" )
+    from TrigUpgradeTest.MenuComponents import HLTMenuAccumulator
+    menuAcc = HLTMenuAccumulator()
 
-    from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
-    accECM,seqECM=EgammaCaloMod(flags)
-    menuAcc.merge(accECM)
-    menuAcc.addSequence(seqECM, parentName="HLTStep_1" )
-    return menuAcc, HLTSteps
+    # here menu generation starts
+
+    if flags.get("Trigger.menu.electrons"): # maybe it is better if this check is done in generateElectrons 
+        from TrigUpgradeTest.ElectronMenuConfig import generateElectrons
+        accElectrons, electronSteps = generateElectrons( flags ) 
+        if len( electronSteps ) != 0:
+            menuAcc.setupSteps( electronSteps )         
+            menuAcc.merge( accElectrons )
+
+    # here setting of the Summary + top level Monitoring algs should be done
+    menuAcc.printConfig()    
+    
+    return menuAcc, menuAcc.steps()
 
 
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
-acc.merge( triggerRunCfg(flags, menu) )
+acc.merge( triggerRunCfg( flags, menu ) )
 
 
 from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
@@ -102,10 +106,13 @@ acc.merge( RegSelConfig( flags ) )
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
 print acc.getEventAlgo( "TrigSignatureMoniMT" )
 
-from TrigUpgradeTest.TestUtils import applyMenu
-applyMenu( acc.getEventAlgo( "L1Decoder" ) )
+
+
+# from TrigUpgradeTest.TestUtils import applyMenu
+# applyMenu( acc.getEventAlgo( "L1Decoder" ) )
 acc.getEventAlgo( "L1Decoder" ).OutputLevel=DEBUG
-acc.getEventAlgo( "L2CaloHypo" ).OutputLevel=DEBUG
+acc.getEventAlgo( "L2ElectronCaloHypo" ).OutputLevel=DEBUG
+acc.getEventAlgo( "FastEMCaloAlgo" ).OutputLevel=DEBUG
 
 
 acc.printConfig()
