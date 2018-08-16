@@ -48,6 +48,8 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
             #   conddb.addFolderSplitOnline("SCT","/SCT/DAQ/Calibration/ChipNoise","/SCT/DAQ/Calibration/ChipNoise",forceMC=True)
 
         job += CfgGetter.getAlgorithm("SCT_OverlayDigitization")
+        job += CfgGetter.getAlgorithm("SCTOverlay")
+
         if overlayFlags.isDataOverlay():
             job.InDetSCTRawDataProvider.RDOKey = overlayFlags.dataStore()+"+SCT_RDOs"
             job.InDetSCTRawDataProvider.LVL1IDKey = overlayFlags.dataStore()+"+SCT_LVL1ID"
