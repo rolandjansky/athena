@@ -293,7 +293,7 @@ int FTK_HashIDTool::readModuleIds(unsigned int itower, ftk_sectormap& hashID) {
    std::string pattfilename=ssPat.str();
    ATH_MSG_DEBUG("Sectors file: "<<pattfilename);
    const char * cpattfilename = pattfilename.c_str();
-   ftk_dcap::istream *patt_8L=ftk_dcap::open_for_read(cpattfilename);
+   std::unique_ptr<ftk_dcap::istream> patt_8L = std::unique_ptr<ftk_dcap::istream> (ftk_dcap::open_for_read(cpattfilename));
    if(!patt_8L) {
      ATH_MSG_WARNING("readSectorDefinition failed to open file "<<cpattfilename
 		     <<" for reading, skipping");
@@ -308,7 +308,6 @@ int FTK_HashIDTool::readModuleIds(unsigned int itower, ftk_sectormap& hashID) {
      ATH_MSG_WARNING("readSectorDefinition failed to open file "<<charconnfilename
 		     <<" for reading, skipping");
 
-     delete(patt_8L);
      return ERROR_CONNFILE;
    }
 
@@ -365,8 +364,6 @@ int FTK_HashIDTool::readModuleIds(unsigned int itower, ftk_sectormap& hashID) {
    }
 
      
-
-   delete(patt_8L);
 
    return error;
 }
