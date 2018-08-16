@@ -110,15 +110,10 @@ namespace CP
                  return StatusCode::FAILURE;
               }
               // ...and record it.
-              if( store.record( originCopy.first,
-                                outputName + ORIGIN_POSTFIX ).isFailure() ) {
-                 return StatusCode::FAILURE;
-              }
-              if( store.record( originCopy.second,
-                                outputName + ORIGIN_POSTFIX +
-                                "Aux." ).isFailure() ) {
-                 return StatusCode::FAILURE;
-              }
+              ANA_CHECK( store.record( originCopy.first,
+                                       outputName + ORIGIN_POSTFIX ) );
+              ANA_CHECK( store.record( originCopy.second,
+                                       outputName + ORIGIN_POSTFIX + "Aux." ) );
               // Make a view copy on top of it.
               auto viewCopy = std::make_unique< T >( SG::VIEW_ELEMENTS );
               auto viewCopyPtr = viewCopy.get();
@@ -136,9 +131,7 @@ namespace CP
                  }
               }
               // Finally, record the view container with the requested name.
-              if( store.record( viewCopy.release(), outputName ).isFailure() ) {
-                 return StatusCode::FAILURE;
-              }
+              ANA_CHECK( store.record( viewCopy.release(), outputName ) );
               // The copy is done.
               object = viewCopyPtr;
               return StatusCode::SUCCESS;
@@ -147,9 +140,7 @@ namespace CP
               // container, and that's that...
               auto viewCopy = std::make_unique< T >( SG::VIEW_ELEMENTS );
               auto viewCopyPtr = viewCopy.get();
-              if( store.record( viewCopy.release(), outputName ).isFailure() ) {
-                 return StatusCode::FAILURE;
-              }
+              ANA_CHECK( store.record( viewCopy.release(), outputName ) );
               // The copy is done.
               object = viewCopyPtr;
               return StatusCode::SUCCESS;
@@ -170,12 +161,8 @@ namespace CP
               return StatusCode::FAILURE;
            }
 
-           if (store.record (copy.second, auxName).isFailure()) {
-              return StatusCode::FAILURE;
-           }
-           if (store.record (copy.first, outputName).isFailure()) {
-              return StatusCode::FAILURE;
-           }
+           ANA_CHECK (store.record (copy.second, auxName));
+           ANA_CHECK (store.record (copy.first, outputName));
            object = copy.first;
            return StatusCode::SUCCESS;
         }
@@ -230,15 +217,11 @@ namespace CP
                   return StatusCode::FAILURE;
                }
                // ...and record it.
-               if( store.record( originCopy.first,
-                                 outputName + ORIGIN_POSTFIX ).isFailure() ) {
-                  return StatusCode::FAILURE;
-               }
-               if( store.record( originCopy.second,
-                                 outputName + ORIGIN_POSTFIX +
-                                 "Aux." ).isFailure() ) {
-                  return StatusCode::FAILURE;
-               }
+               ANA_CHECK( store.record( originCopy.first,
+                                        outputName + ORIGIN_POSTFIX ) );
+               ANA_CHECK( store.record( originCopy.second,
+                                        outputName + ORIGIN_POSTFIX +
+                                        "Aux." ) );
                // Make a view copy on top of it.
                auto viewCopy = std::make_unique< T >( SG::VIEW_ELEMENTS );
                auto viewCopyPtr = viewCopy.get();
@@ -246,9 +229,7 @@ namespace CP
                   viewCopy->push_back( originCopy.first->at( element->index() ) );
                }
                // Finally, record the view container with the requested name.
-               if( store.record( viewCopy.release(), outputName ).isFailure() ) {
-                  return StatusCode::FAILURE;
-               }
+               ANA_CHECK( store.record( viewCopy.release(), outputName ) );
                // The copy is done.
                object = viewCopyPtr;
                return StatusCode::SUCCESS;
@@ -257,9 +238,7 @@ namespace CP
                // container, and that's that...
                auto viewCopy = std::make_unique< T >( SG::VIEW_ELEMENTS );
                auto viewCopyPtr = viewCopy.get();
-               if( store.record( viewCopy.release(), outputName ).isFailure() ) {
-                  return StatusCode::FAILURE;
-               }
+               ANA_CHECK( store.record( viewCopy.release(), outputName ) );
                // The copy is done.
                object = viewCopyPtr;
                return StatusCode::SUCCESS;
@@ -276,12 +255,8 @@ namespace CP
                return StatusCode::FAILURE;
             }
 
-            if (store.record (copy.second, auxName).isFailure()) {
-               return StatusCode::FAILURE;
-            }
-            if (store.record (copy.first, outputName).isFailure()) {
-               return StatusCode::FAILURE;
-            }
+            ANA_CHECK (store.record (copy.second, auxName));
+            ANA_CHECK (store.record (copy.first, outputName));
             object = copy.first;
             return StatusCode::SUCCESS;
          }
@@ -314,12 +289,8 @@ namespace CP
              return StatusCode::FAILURE;
           }
 
-          if (store.record (copy.second, auxName).isFailure()) {
-             return StatusCode::FAILURE;
-          }
-          if (store.record (copy.first, outputName).isFailure()) {
-             return StatusCode::FAILURE;
-          }
+          ANA_CHECK (store.record (copy.second, auxName));
+          ANA_CHECK (store.record (copy.first, outputName));
           object = copy.first;
           return StatusCode::SUCCESS;
        }
