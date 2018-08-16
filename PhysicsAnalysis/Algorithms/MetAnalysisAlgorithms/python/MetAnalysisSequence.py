@@ -7,8 +7,32 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 def makeMetAnalysisSequence( dataType, metSuffix ):
     """Create a met analysis algorithm sequence
 
+    After creating the sequence object, it needs to be configured with a call
+    like:
+
+       metSequence.configure( inputName = {
+                                 'jets'      : 'AntiKt4EMTopoJets_%SYS%',
+                                 'electrons' : 'AnalysisElectrons_%SYS%',
+                                 'photons'   : 'AnalysisPhotons_%SYS%',
+                                 'muons'     : 'AnalysisMuons_%SYS%',
+                                 'taus'      : 'AnalysisTaus_%STS%',
+                              },
+                              outputName = 'AnalysisMET_%SYS%',
+                              affectingSystematics = {
+                                 'jets'      : '(^$)|(^JET_.*)',
+                                 'electrons' : '(^$)|(^EG_.*)|(^EL_.*)',
+                                 'photons'   : '(^$)|(^EG_.*)|(^PH_.*)',
+                                 'muons'     : '(^$)|(^MUON_.*)',
+                                 'taus'      : '(^$)|(^TAUS_.*)',
+                              } )
+
+    Note that defining a jet container is mandatory, but all other input
+    containers are optional.
+
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
+      metSuffix -- Suffix for the (core) MET objects to use from the input
+                   (file)
     """
 
     if not dataType in ["data", "mc", "afii"] :
