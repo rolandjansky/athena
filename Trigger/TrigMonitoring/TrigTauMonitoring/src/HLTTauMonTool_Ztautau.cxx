@@ -121,7 +121,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
     }
 
   //Tau Selection
-  for(auto recoTau : m_taus)
+  for(auto recoTau : m_taus_BDT)
     {
     TLorentzVector TauTLV = recoTau->p4();
     double pt_Tau     = TauTLV.Pt();

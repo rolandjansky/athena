@@ -1444,12 +1444,12 @@ void HLTTauMonTool::bookHistogramsAllItem(){
 
     }
 
-  if (m_doFailTrackFilterBitMonitoring) {
+/*  if (m_doFailTrackFilterBitMonitoring) {
     for(unsigned int i=0;i<m_trigMVA_chains.size(); ++i){    
       addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+m_trigMVA_chains.at(i)+"/FailTrackFilterMonitor",run));
       setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigMVA_chains.at(i)+"/FailTrackFilterMonitor");
       addHistogram(new TH1F("hFailTrackFilterPt", "pT distribution of taus with (xAOD::TauJetParameters::failTrackFilter)==1 ; pT; Events",nbin_pt-1,bins_pt));        
     }
   } // end of m_doFailTrackFilterBitMonitoring
-
+*/
 }

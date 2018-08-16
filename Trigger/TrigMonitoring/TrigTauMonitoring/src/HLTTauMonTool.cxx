@@ -133,7 +133,6 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
   declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
   declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
   // this feature should not be used on data until the broken tau track link issue is fixed
-  declareProperty("doFailTrackFilterBitMonitoring",    m_doFailTrackFilterBitMonitoring=false);
   declareProperty("domuCut40", 		m_domuCut40=false);    
   declareProperty("doL1TopoLeptonsMonitoringWarnings",	m_doL1TopoLeptonsMonitoringWarnings=false);
   declareProperty("topo_ditau_chains",    m_topo_chains_ditau);
@@ -461,7 +460,9 @@ StatusCode HLTTauMonTool::fill() {
   }// end if(m_truth)
 
   // good reco taus
-  m_taus.clear();
+  //m_taus.clear();
+  m_taus_BDT.clear();
+  m_taus_RNN.clear();
   m_tauCont = 0;
   sc = m_storeGate->retrieve(m_tauCont, "TauJets");
   if( !sc.isSuccess()  ){
@@ -481,10 +482,15 @@ StatusCode HLTTauMonTool::fill() {
 	int ntrack_TAU = (*offlinetau)->nTracks();
 	if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
 	// THIS WILL HAVE TO BE ADAPTED FOR RNN ID
-	bool good_tau = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
-	if(m_selection_BDT && !good_tau) continue;		
+	//bool good_tau = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
+	bool good_tau_BDT = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
+	bool good_tau_RNN = (*offlinetau)->isTau(xAOD::TauJetParameters::JetRNNSigMedium);
+	//if(m_selection_BDT && !good_tau) continue;		
 	if(!Selection(*offlinetau)) continue;
-	m_taus.push_back( *offlinetau );
+	//m_taus.push_back( *offlinetau );
+	if( !(good_tau_BDT || good_tau_BDT) ) continue;
+	if (good_tau_BDT) m_taus_BDT.push_back( *offlinetau );
+	if (good_tau_RNN) m_taus_RNN.push_back( *offlinetau );
       }
     }
   } //end if_else !sc.isSuccess() 
@@ -510,17 +516,41 @@ StatusCode HLTTauMonTool::fill() {
       //testL1TopoNavigation(m_trigItems[j]);
       //testPrescaleRetrieval(m_trigItems[j]);
 
+			bool monRNN (false);
+			for (unsigned int i=0; i<m_trigRNN_chains.size(); i++) {
+				if ( m_trigItems[j] == m_trigRNN_chains.at(i) ) {
+				  monRNN = true;
+				  break;
+				}
+			}
+			bool monBDT (false);
+			for (unsigned int i=0; i<m_trigBDTRNN_chains.size(); i++) {
+				if ( m_trigItems[j] == m_trigBDTRNN_chains.at(i) ) {
+				  if (!monRNN) monRNN = true;
+				  if (!monBDT) monBDT = true;
+				  break;
+				}
+			} 
+			if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
+	
+			std::string goodTauRefType;
+			if (monRNN) {
+				goodTauRefType = "RNN";
+			} else {
+				goodTauRefType = "BDT";
+			}
+
       // muCut on Filling the Histograms
       if (muCut40Passed)
 	{
-	  sc = fillHistogramsForItem(m_trigItems[j]);
+	  sc = fillHistogramsForItem(m_trigItems[j], monRNN, monBDT, goodTauRefType);
 	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed at fillHistogramsForItem"); } //return sc;}  
 	  if(m_doTrackCurves){
-	    sc = trackCurves (m_trigItems[j]);
+	    sc = trackCurves (m_trigItems[j], goodTauRefType);
 	    if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed trackCurves()"); } //return sc;}
 	  }
 	  if(m_doEfficiencyRatioPlots){
-	    sc = efficiencyRatioPlots (m_trigItems[j]);
+	    sc = efficiencyRatioPlots (m_trigItems[j], goodTauRefType);
 	    if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed efficiencyRatioPlots()"); } //return sc;}
 	  }
 	}
@@ -545,15 +575,6 @@ StatusCode HLTTauMonTool::fill() {
     sc = L1TopoLeptons (m_topo_chains_eltau.at(i), "eltau");
     if(!sc.isSuccess())	ATH_MSG_WARNING("Failed TopoLeptons() for eltau");
   }
-
-  if (m_doFailTrackFilterBitMonitoring && !m_isData) {
-    for(unsigned int i=0;i<m_trigMVA_chains.size(); ++i){
-      // monitor failtrackfilter bit 
-      sc = FailTrackFilterMonitor ( m_trigMVA_chains.at(i) );
-      if(!sc.isSuccess()) ATH_MSG_WARNING("Failed FailTrackFilterMonitor()");
-    }
-  }
-
 
   // muCut on filling the histograms
   if (muCut40Passed)
@@ -627,7 +648,7 @@ void HLTTauMonTool::cloneHistogram2(const std::string name, const std::string fo
 
 
 
-StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
+StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT, const std::string & goodTauRefType){
     
   ATH_MSG_DEBUG ("HLTTauMonTool::fillHistogramsForItem " << trigItem);
     
@@ -637,23 +658,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
   std::string trig_item_L1(LowerChain( trig_item_EF ) );
   if(trig_item_L1=="") {ATH_MSG_DEBUG("L1 chain for "<< trig_item_EF << " not found");}
 
-  bool monRNN (false);
-  for (unsigned int i=0; i<m_trigRNN_chains.size(); i++) {
-    if ( trigItem == m_trigRNN_chains.at(i) ) {
-      monRNN = true;
-      break;
-    }
-  }
-  bool monBDT (false);
-  for (unsigned int i=0; i<m_trigBDTRNN_chains.size(); i++) {
-    if ( trigItem == m_trigBDTRNN_chains.at(i) ) {
-      if (!monRNN) monRNN = true;
-      if (!monBDT) monBDT = true;
-      break;
-    }
-  } 
-  if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
-    
   if(trigItem=="Dump"){
 
     const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
@@ -673,7 +677,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1RoI");
       sc = fillL1Tau(*itEMTau);	
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
-      sc = fillL1TauVsOffline(*itEMTau);
+      sc = fillL1TauVsOffline(*itEMTau, goodTauRefType);
 
       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to retrieve L1 tau. Exiting!"); return sc;}
     }
@@ -690,32 +694,32 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
          
     for(; CI!=tauJetCont_end; ++CI){
       if(!Selection(*CI)) continue;
-      sc = fillEFTau(*CI, trigItem, "basicVars");
+      sc = fillEFTau(*CI, trigItem, "basicVars", monRNN, monBDT);
       if (monBDT) {
-	sc = fillEFTau(*CI, trigItem, "1p_NonCorr");
-	sc = fillEFTau(*CI, trigItem, "mp_NonCorr");
+	sc = fillEFTau(*CI, trigItem, "1p_NonCorr", monRNN, monBDT);
+	sc = fillEFTau(*CI, trigItem, "mp_NonCorr", monRNN, monBDT);
 	//sc = fillEFTau(*CI, trigItem, "1p_muCorr");
 	//sc = fillEFTau(*CI, trigItem, "mp_muCorr");
       }
       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
       if(monRNN) {
 	    //ATH_MSG_WARNING("In fillEFTau. monRNN.");
-	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_1P");
+	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_1P", monRNN, monBDT);
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_1P is OK.");
-	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_3P");
+	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_3P", monRNN, monBDT);
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_3P is OK.");
-	sc = fillEFTau(*CI, trigItem, "RNN_inTrack");
+	sc = fillEFTau(*CI, trigItem, "RNN_inTrack", monRNN, monBDT);
 //	ATH_MSG_WARNING("In fillEFTau. RNN_inTrack is OK.");
-	sc = fillEFTau(*CI, trigItem, "RNN_inCluster");
+	sc = fillEFTau(*CI, trigItem, "RNN_inCluster", monRNN, monBDT);
 //	ATH_MSG_WARNING("In fillEFTau. RNN_inCluster is OK.");
-	sc = fillEFTau(*CI, trigItem, "RNN_out");
+	sc = fillEFTau(*CI, trigItem, "RNN_out", monRNN, monBDT);
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_out is OK.");
 	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
       }
-      sc = fillEFTauVsOffline(*CI, trigItem, "basicVars");
+      sc = fillEFTauVsOffline(*CI, trigItem, "basicVars", goodTauRefType);
       if (monBDT) {
-	sc = fillEFTauVsOffline(*CI, trigItem, "1p_NonCorr");
-	sc = fillEFTauVsOffline(*CI, trigItem, "mp_NonCorr");
+	sc = fillEFTauVsOffline(*CI, trigItem, "1p_NonCorr", goodTauRefType);
+	sc = fillEFTauVsOffline(*CI, trigItem, "mp_NonCorr", goodTauRefType);
       }
       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return sc;}
     }
@@ -780,7 +784,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 		sc = fillL1Tau(*itEMTau);
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill L1RoI histo. Exiting!"); return sc;}
 		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/L1VsOffline");
-		sc = fillL1TauVsOffline(*itEMTau);
+		sc = fillL1TauVsOffline(*itEMTau, goodTauRefType);
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill L1VsOffline histo. Exiting!"); return sc;}
 		break;
 	      }
@@ -893,7 +897,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 		if(*tauItr) sc = fillPreselTau(*tauItr);
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill PreselTau histo. Exiting!"); return sc;}	
 		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/PreselectionVsOffline");
-		if(*tauItr) sc = fillPreselTauVsOffline(*tauItr);
+		if(*tauItr) sc = fillPreselTauVsOffline(*tauItr, goodTauRefType);
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill PreselectionVsOffline histo. Exiting!"); return sc;}
 	      }
 
@@ -913,33 +917,33 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 
 	    for(; tauItr != tauEnd; ++tauItr) {
 	      if(!Selection(*tauItr)) continue;
-	      if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "basicVars");
+	      if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "basicVars", monRNN, monBDT);
 	      if (monBDT) {
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_NonCorr");
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_NonCorr");
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_NonCorr", monRNN, monBDT);
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_NonCorr", monRNN, monBDT);
 		//if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_muCorr");
 		//if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
 	      }
 	      if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
 	      if(monRNN) {
 	    //ATH_MSG_WARNING("In fillEFTau. monRNN.");
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P");
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P", monRNN, monBDT);
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_1P is OK.");
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P");
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P", monRNN, monBDT);
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_3P is OK.");
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack");
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack", monRNN, monBDT);
 //		ATH_MSG_WARNING("In fillEFTau. RNN_inTrack is OK.");
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster");
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster", monRNN, monBDT);
 //		ATH_MSG_WARNING("In fillEFTau. RNN_inCluster is OK.");
-		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out");
+		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out", monRNN, monBDT);
 	    //ATH_MSG_WARNING("In fillEFTau. RNN_out is OK.");
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
 	      }
 	      if(m_truth) if(*tauItr) sc = fillEFTauVsTruth(*tauItr, trigItem);
-	      if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "basicVars");
+	      if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "basicVars", goodTauRefType);
 	      if (monBDT) {
-		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "1p_NonCorr");
-		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "mp_NonCorr");
+		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "1p_NonCorr", goodTauRefType);
+		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "mp_NonCorr", goodTauRefType);
 	      }
 	      if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return sc;}
 	    }
@@ -951,13 +955,13 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
     
   if( m_turnOnCurves) {
     if(m_truth){ 
-      sc = TruthTauEfficiency(trigItem, "Truth");
+      sc = TruthTauEfficiency(trigItem, "Truth", goodTauRefType);
       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill Truth eff curves");} //return StatusCode::FAILURE;}
-      sc = TruthTauEfficiency(trigItem, "Truth+Reco");
+      sc = TruthTauEfficiency(trigItem, "Truth+Reco", goodTauRefType);
       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill Truth+Reco eff curves");} //return StatusCode::FAILURE;}
     }
 
-    sc = TauEfficiency(trigItem,m_turnOnCurvesDenom);
+    sc = TauEfficiency(trigItem,m_turnOnCurvesDenom, goodTauRefType);
     if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to fill Reco eff curves"); } //return StatusCode::FAILURE;}
     //      if(m_truth) sc = TauEfficiencyCombo(trigItem);
     //      if(sc.isFailure()){ ATH_MSG_WARNING("Failed to fill combo eff curves. Exiting!"); return StatusCode::FAILURE;}
@@ -1085,7 +1089,7 @@ StatusCode HLTTauMonTool::fillPreselTau(const xAOD::TauJet *aEFTau){
 
 }
 
-StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type){
+StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const bool & monRNN, const bool & monBDT){
     
   ATH_MSG_DEBUG ("HLTTauMonTool::fillEFTau");
   
@@ -1145,23 +1149,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   if(EFnTrack>1) isMP = true;
   //Pileup
   mu = m_mu_offline;
-
-  bool monRNN (false);
-  for (unsigned int i=0; i<m_trigRNN_chains.size(); i++) {
-    if ( trigItem == m_trigRNN_chains.at(i) ) {
-      monRNN = true;
-      break;
-    }
-  }
-  bool monBDT (false);
-  for (unsigned int i=0; i<m_trigBDTRNN_chains.size(); i++) {
-    if ( trigItem == m_trigBDTRNN_chains.at(i) ) {
-      if (!monRNN) monRNN = true;
-      if (!monBDT) monBDT = true;
-      break;
-    }
-  } 
-  if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
 
   if(BDTinput_type == "basicVars")
     {
@@ -1679,7 +1666,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTTauMonTool::fillL1TauVsOffline(const xAOD::EmTauRoI *aL1Tau){
+StatusCode HLTTauMonTool::fillL1TauVsOffline(const xAOD::EmTauRoI *aL1Tau, const std::string & goodTauRefType){
 
   ATH_MSG_DEBUG ("HLTTauMonTool::fillL1TauVsOffline");
     
@@ -1688,15 +1675,22 @@ StatusCode HLTTauMonTool::fillL1TauVsOffline(const xAOD::EmTauRoI *aL1Tau){
     return StatusCode::FAILURE;
   }
 
+  std::vector<const xAOD::TauJet *> m_taus_here;
+	if (goodTauRefType == "RNN") {
+		m_taus_here = m_taus_RNN;
+	} else {
+		m_taus_here = m_taus_BDT;
+	}
+
   const xAOD::TauJet *aOfflineTau = 0;
   float tmpR = 0.3;
   float eta = aL1Tau->eta();
   float phi = aL1Tau->phi();
-  for(unsigned int t=0;t<m_taus.size();t++){
-    float dR = (float)deltaR(eta,m_taus.at(t)->eta(),phi,m_taus.at(t)->phi());
+  for(unsigned int t=0;t<m_taus_here.size();t++){
+    float dR = (float)deltaR(eta,m_taus_here.at(t)->eta(),phi,m_taus_here.at(t)->phi());
     if(dR < tmpR){
       tmpR = dR;
-      aOfflineTau = m_taus.at(t);
+      aOfflineTau = m_taus_here.at(t);
     }
   }
 
@@ -1715,7 +1709,7 @@ StatusCode HLTTauMonTool::fillL1TauVsOffline(const xAOD::EmTauRoI *aL1Tau){
 }
 
 
-StatusCode HLTTauMonTool::fillPreselTauVsOffline(const xAOD::TauJet *aEFTau){
+StatusCode HLTTauMonTool::fillPreselTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & goodTauRefType){
     
   ATH_MSG_DEBUG ("HLTTauMonTool::fillPreselTauVsOffline");
     
@@ -1724,13 +1718,20 @@ StatusCode HLTTauMonTool::fillPreselTauVsOffline(const xAOD::TauJet *aEFTau){
     return StatusCode::FAILURE;
   }
     
+  std::vector<const xAOD::TauJet *> m_taus_here;
+	if (goodTauRefType == "RNN") {
+		m_taus_here = m_taus_RNN;
+	} else {
+		m_taus_here = m_taus_BDT;
+	}
+
   const xAOD::TauJet *aOfflineTau = 0;
   float tmpR = 0.2;
-  for(unsigned int t=0;t<m_taus.size();t++){
-    float dR = (float)m_taus.at(t)->p4().DeltaR(aEFTau->p4());
+  for(unsigned int t=0;t<m_taus_here.size();t++){
+    float dR = (float)m_taus_here.at(t)->p4().DeltaR(aEFTau->p4());
     if(dR < tmpR){ 
       tmpR = dR; 
-      aOfflineTau = m_taus.at(t);
+      aOfflineTau = m_taus_here.at(t);
     }
   }
     
@@ -1801,7 +1802,7 @@ StatusCode HLTTauMonTool::fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type)
+StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const std::string & goodTauRefType)
 {
   ATH_MSG_DEBUG ("HLTTauMonTool::fillEFTauVsOffline");
   if(!aEFTau)
@@ -1810,6 +1811,13 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
       return StatusCode::FAILURE;
     }
  
+  std::vector<const xAOD::TauJet *> m_taus_here;
+	if (goodTauRefType == "RNN") {
+		m_taus_here = m_taus_RNN;
+	} else {
+		m_taus_here = m_taus_BDT;
+	}
+
   float innerTrkAvgDist = 0;
   float etOverPtLeadTrk = 0;
   float ipSigLeadTrk = 0;
@@ -1872,12 +1880,12 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
   const xAOD::TauJet *aOfflineTau = 0;
   float tmpR = 0.2;
   
-  for(unsigned int t=0;t<m_taus.size();t++){
-    float dR = (float)m_taus.at(t)->p4().DeltaR(aEFTau->p4());
+  for(unsigned int t=0;t<m_taus_here.size();t++){
+    float dR = (float)m_taus_here.at(t)->p4().DeltaR(aEFTau->p4());
     if(dR < tmpR)
       { 
 	tmpR = dR;
-	aOfflineTau = m_taus.at(t);
+	aOfflineTau = m_taus_here.at(t);
       }
   }
   if(aOfflineTau)
@@ -2580,7 +2588,7 @@ void HLTTauMonTool::examineTruthTau(const xAOD::TruthParticle& xTruthParticle) c
 }
 
 
-StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std::string & TauDenom){
+StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType){
   ATH_MSG_DEBUG("Efficiency wrt "<< TauDenom << " for trigItem" << trigItem);
   if(trigItem == "Dump") {ATH_MSG_DEBUG("Not computing efficiencies for Dump"); return StatusCode::SUCCESS;};
 
@@ -2590,6 +2598,13 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
   std::vector<int> ntrk_TauDenom;
   std::vector<bool> good_TauDenom;
   std::vector<TLorentzVector> tlv_tmp;
+
+  std::vector<const xAOD::TauJet *> m_taus_here;
+	if (goodTauRefType == "RNN") {
+		m_taus_here = m_taus_RNN;
+	} else {
+		m_taus_here = m_taus_BDT;
+	}
 
   float mu(Pileup());
   int nvtx(PrimaryVertices());
@@ -2611,14 +2626,14 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     bool addToDenom(false);
     if(TauDenom.find("Truth")==std::string::npos || !m_truth) addToDenom = true;
 
-    for(unsigned int t=0;t<m_taus.size();t++){
+    for(unsigned int t=0;t<m_taus_here.size();t++){
       if(addToDenom){	
-	tlv_TauDenom.push_back(m_taus.at(t)->p4());
-	ntrk_TauDenom.push_back(m_taus.at(t)->nTracks());
+	tlv_TauDenom.push_back(m_taus_here.at(t)->p4());
+	ntrk_TauDenom.push_back(m_taus_here.at(t)->nTracks());
 	good_TauDenom.push_back(true);		
       }
       if(!addToDenom){
-	tlv_tmp.push_back(m_taus.at(t)->p4());
+	tlv_tmp.push_back(m_taus_here.at(t)->p4());
       }
     }
 		
@@ -2776,12 +2791,12 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
   }
 
   // HLT/TauMon/Expert/HLTefficiency plots:
-  for(unsigned int t=0;t<m_taus.size();t++){
-    TLorentzVector TauTLV = m_taus.at(t)->p4();
+  for(unsigned int t=0;t<m_taus_here.size();t++){
+    TLorentzVector TauTLV = m_taus_here.at(t)->p4();
     float eta = (float)TauTLV.Eta();
     float phi = (float)TauTLV.Phi();
     float pt = (float)TauTLV.Pt();
-    int ntracks = m_taus.at(t)->nTracks();
+    int ntracks = m_taus_here.at(t)->nTracks();
 
     //	      std::cout<<"HLT"<<trigItem<<std::endl;
     if(trigItem=="tau160_idperf_tracktwo_L1TAU100"){
@@ -3416,7 +3431,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 // return StatusCode::SUCCESS;
 //}
 
-StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type)
+StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type, const std::string & goodTauRefType)
 {
   ATH_MSG_DEBUG("Truth Tau Matching to Offline and Online Taus for trigItem" << trigItem);
   
@@ -3433,6 +3448,13 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
   std::vector<bool> truth_matched_to_reco;
   std::vector<bool> truthReco_matched_to_L1;
   std::vector<bool> truthReco_matched_to_hlt;
+
+  std::vector<const xAOD::TauJet *> m_taus_here;
+	if (goodTauRefType == "RNN") {
+		m_taus_here = m_taus_RNN;
+	} else {
+		m_taus_here = m_taus_BDT;
+	}
 
   for(unsigned int truth=0;truth<m_true_taus.size();truth++){
 
@@ -3454,8 +3476,8 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
     mu = Pileup();
 	  
     // get list of truth-matched reco taus
-    for(unsigned int t=0;t<m_taus.size();t++){
-      float dR = (float)m_taus.at(t)->p4().DeltaR(TruthTauTLV);
+    for(unsigned int t=0;t<m_taus_here.size();t++){
+      float dR = (float)m_taus_here.at(t)->p4().DeltaR(TruthTauTLV);
       if(dR <= 0.2) truth_matched_to_reco.back()=true;
     }
 	  

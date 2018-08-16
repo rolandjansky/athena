@@ -158,7 +158,6 @@ def TrigTauMonitoringTool():
 #				doTestTracking		= False,
 				doL1JetPlots		= False,
 				doEFTProfiles		= False,
-				doFailTrackFilterBitMonitoring = False,
 				domuCut40		= False,
 				doEfficiencyRatioPlots = True, #False
 				doL1TopoLeptonsMonitoringWarnings = False,
