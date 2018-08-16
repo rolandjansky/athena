@@ -19,6 +19,7 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
 #include "MuonPrepRawData/MMPrepDataContainer.h"
+#include "TrkEventPrimitives/LocalDirection.h"
 
 // BS access
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -35,9 +36,9 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_muonMgr(0),
   m_mmIdHelper(0),
-  m_muonIdHelper(0),
+  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_fullEventDone(false),
-  m_mmPrepDataContainer(0)
+  m_mmPrepDataContainer(0) 
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
@@ -47,6 +48,7 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   declareProperty("InputCollection",    m_rdoContainerKey = std::string("MMRDO"),
 		  "Muon::MMPrepDataContainer to record");
   
+  declareProperty("MergePrds", m_merge = true);
 }
 
 
@@ -75,11 +77,12 @@ StatusCode Muon::MmRdoToPrepDataTool::initialize()
   }
   
   m_mmIdHelper = m_muonMgr->mmIdHelper();
+  
+  ATH_CHECK( m_idHelperTool.retrieve() );
 
   // check if the initialization of the data container is success
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
-
 
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
@@ -119,6 +122,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
       ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
     } 
     else {
+      ATH_MSG_DEBUG(" dump moduleId " << moduleId );
       prdColl->setIdentifier(moduleId);
     }
 
@@ -130,6 +134,9 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
   }
 
+  std::vector<MMPrepData> MMprds;
+  std::vector<int> MMflag;
+
   // convert the RDO collection to a PRD collection
   MM_RawDataCollection::const_iterator it = rdoColl->begin();
   for ( ; it != rdoColl->end() ; ++it ) {
@@ -138,32 +145,178 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 
     const MM_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
+//    const Identifier elementId = m_mmIdHelper->elementID(rdoId);
+    ATH_MSG_DEBUG(" dump rdo " << m_idHelperTool->toString(rdoId ));
     const int time = rdo->time();
     const int charge = rdo->charge();
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
-    
+    Identifier parentID = m_mmIdHelper->parentID(rdoId);
+    Identifier layid = m_mmIdHelper->channelID(parentID, m_mmIdHelper->multilayer(rdoId), m_mmIdHelper->gasGap(rdoId),1);
     // get the local and global positions
-    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(rdoId);
+    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(layid);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(rdoId,localPos);
     if ( !getLocalPos ) {
       ATH_MSG_ERROR("Could not get the local strip position for MM");
       return StatusCode::FAILURE;
-    } 
+    }
+    int stripNumberRDOId = detEl->stripNumber(localPos,layid);
+    ATH_MSG_DEBUG(" check strip nr RDOId " << stripNumberRDOId );
+    Amg::Vector3D globalPos;
+    bool getGlobalPos = detEl->stripGlobalPosition(rdoId,globalPos);
+    if ( !getGlobalPos ) {
+      ATH_MSG_ERROR("Could not get the global strip position for MM");
+      return StatusCode::FAILURE;
+    }
+
+//    const Trk::Surface& surf = detEl->surface(rdoId);
+//    const Amg::Vector3D* globalPos = surf.localToGlobal(localPos);
+    const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
+    Trk::LocalDirection localDir;
+    const Trk::PlaneSurface& psurf = detEl->surface(layid);
+    Amg::Vector2D lpos;
+    psurf.globalToLocal(globalPos,globalPos,lpos);
+    psurf.globalToLocalDirection(globalDir, localDir);
+    float inAngle_XZ = fabs( localDir.angleXZ() / CLHEP::degree);
+   
+    ATH_MSG_DEBUG(" Surface centre x " << psurf.center().x() << " y " << psurf.center().y() << " z " << psurf.center().z() );
+    ATH_MSG_DEBUG(" localPos x " << localPos.x() << " localPos y " << localPos.y() << " lpos recalculated 0 " << lpos[0] << " lpos y " << lpos[1]);
+
+    Amg::Vector3D  gdir = psurf.transform().linear()*Amg::Vector3D(0.,1.,0.);
+    ATH_MSG_DEBUG(" MM detector surface direction phi " << gdir.phi() << " global radius hit " << globalPos.perp() << " phi pos " << globalPos.phi() << " global z " << globalPos.z());      
 
     // get for now a temporary error matrix -> to be fixed
     double resolution = 0.07;
+    if (fabs(inAngle_XZ)>3) resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
+    double errX = 0;
+    const MuonGM::MuonChannelDesign* design = detEl->getDesign(layid);
+    if( !design ){
+      ATH_MSG_WARNING("Failed to get design for " << m_idHelperTool->toString(layid) );
+    }else{
+      errX = fabs(design->inputPitch)/sqrt(12);
+      ATH_MSG_DEBUG(" strips inputPitch " << design->inputPitch << " error " << errX);
+    }
+// add strip width to error
+    resolution = sqrt(resolution*resolution+errX*errX);
+
     Amg::MatrixX* cov = new Amg::MatrixX(1,1);
     cov->setIdentity();
     (*cov)(0,0) = resolution*resolution;  
 
-    MMPrepData* mmPrd = new MMPrepData(rdoId,hash,localPos,
-				       rdoList,cov,detEl,time,charge);
+    if(!m_merge) {
+      prdColl->push_back(new MMPrepData(rdoId,hash,localPos,rdoList,cov,detEl,time,charge));
+    } else {
+       MMprds.push_back(MMPrepData(rdoId,hash,localPos,rdoList,cov,detEl,time,charge));
+       MMflag.push_back(0);
+    } 
+  }
 
-    prdColl->push_back(mmPrd);
+  if(m_merge) {
+     for (unsigned int i=0; i<MMprds.size(); ++i){
+         // skip the merged prds
+         if(MMflag[i]==1) continue;
+ 
+         bool merge = false;
+         unsigned int jmerge = -1;
+         Identifier id_prd = MMprds[i].identify();
+         int strip = m_mmIdHelper->channel(id_prd);
+         int gasGap  = m_mmIdHelper->gasGap(id_prd);
+         int layer   = m_mmIdHelper->multilayer(id_prd);
+         ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
+         for (unsigned int j=i+1; j<MMprds.size(); ++j){
+           Identifier id_prdN = MMprds[j].identify();
+           int stripN = m_mmIdHelper->channel(id_prdN);
+           int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
+           int layerN   = m_mmIdHelper->multilayer(id_prdN);
+           if( gasGapN==gasGap && layerN==layer ) {
+             ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
+             if(abs(strip-stripN)<2) {
+               merge = true;
+               jmerge = j;
+               break;
+             }
+           }
+         }
+ 
+         if(!merge) {
+           ATH_MSG_VERBOSE(" add isolated MMprds strip " << strip << " gasGap " << gasGap << " layer " << layer );
+           std::vector<Identifier> rdoList;
+           rdoList.push_back(id_prd);
+           double covX = MMprds[i].localCovariance()(Trk::locX,Trk::locX);
+           Amg::MatrixX* covN = new Amg::MatrixX(1,1);
+           covN->setIdentity();
+           (*covN)(0,0) = covX;
+           MMPrepData* prdN = new MMPrepData(id_prd, hash, MMprds[i].localPosition(), rdoList, covN, MMprds[i].detectorElement());
+           prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
+           prdColl->push_back(prdN);
+         } else {
+           unsigned int nmerge = 0;
+           std::vector<Identifier> rdoList;
+           std::vector<unsigned int> mergeIndices;
+           std::vector<int> mergeStrips;
+           rdoList.push_back(id_prd);
+           MMflag[i] = 1;
+           mergeIndices.push_back(i);
+           mergeStrips.push_back(strip);
+           unsigned int nmergeStrips = 1;
+           unsigned int nmergeStripsMax = 25;
+           for (unsigned int k=0; k < nmergeStripsMax; ++k) {
+             for (unsigned int j=jmerge; j<MMprds.size(); ++j){
+               if(MMflag[j] == 1) continue;
+               Identifier id_prdN = MMprds[j].identify();
+               int stripN = m_mmIdHelper->channel(id_prdN);
+               if( abs(mergeStrips[k]-stripN) <= 1 ) {
+                 int gasGapN  = m_mmIdHelper->gasGap(id_prdN);
+                 int layerN   = m_mmIdHelper->multilayer(id_prdN);
+                 if( gasGapN==gasGap && layerN==layer ) {
+                   if(mergeStrips[k]==stripN) {
+                     MMflag[j] = 1;
+                     continue;
+                   }
+                   nmerge++;
+                   rdoList.push_back(id_prdN);
+                   MMflag[j] = 1;
+                   mergeIndices.push_back(j);
+                   mergeStrips.push_back(stripN);
+                   nmergeStrips++;
+                 }
+               }
+             }
+             if(k>=nmergeStrips) break;
+           }
+           ATH_MSG_VERBOSE(" add merged MMprds nmerge " << nmerge << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
+ 
+           // start off from strip in the middle
+           int stripSum = 0;
+           for (unsigned int k =0; k<mergeStrips.size(); ++k) {
+             stripSum += mergeStrips[k];
+           }
+           stripSum = stripSum/mergeStrips.size();
+ 
+           unsigned int j = jmerge;
+           for (unsigned int k =0; k<mergeStrips.size(); ++k) {
+             if(mergeStrips[k]==stripSum) j = mergeIndices[k];
+             ATH_MSG_VERBOSE(" merged strip nr " << k <<  " strip " << mergeStrips[k] << " index " << mergeIndices[k]);
+           }
+           ATH_MSG_VERBOSE(" Look for strip nr " << stripSum << " found at index " << j);
+ 
+           double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
+           Amg::MatrixX* covN = new Amg::MatrixX(1,1);
+           covN->setIdentity();
+           (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
+           if(nmerge<=1) (*covN)(0,0) = covX;
+           ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
 
+           MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, MMprds[j].localPosition(), rdoList, covN, MMprds[j].detectorElement());
+           prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
+           prdColl->push_back(prdN);
+         }
+       } // end loop MMprds[i]
+     // clear vector and delete elements
+     MMflag.clear();
+     MMprds.clear();
   }
 
 
@@ -236,9 +389,10 @@ StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVec
 {
   // clear the output vector of selected data
   idWithDataVect.clear();
-
-  ATH_MSG_DEBUG("Size of the RDO container to be decoded: " << idVect.size() ); 
   
+  //is idVect a right thing to use here? to be reviewed maybe
+  ATH_MSG_DEBUG("Size of the RDO container to be decoded: " << idVect.size() ); 
+
   SetupMM_PrepDataContainerStatus containerRecordStatus = setupMM_PrepDataContainer();
 
   if ( containerRecordStatus == FAILED ) {
@@ -288,3 +442,4 @@ void Muon::MmRdoToPrepDataTool::printPrepData() {
 
   return;
 }
+
