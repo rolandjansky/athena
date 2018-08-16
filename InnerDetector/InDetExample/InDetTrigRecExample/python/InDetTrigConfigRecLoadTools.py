@@ -19,10 +19,6 @@ log = logging.getLogger("InDetTrigConfigRecLoadTools.py")
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
-if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-    from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-    pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
-
 if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
     from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
@@ -38,7 +34,7 @@ InDetTrigClusterMakerTool = \
                              PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                              #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
                              #UseLorentzAngleCorrections = False
-                             PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool,
+                             PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
                              SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
@@ -84,10 +80,6 @@ if InDetTrigFlags.loadRotCreator():
   if (InDetTrigFlags.doPrintConfigurables()):
     print SCT_ClusterOnTrackTool
 
-  if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-    from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-    pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
-
   # tool to always make conservative pixel cluster errors
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
@@ -104,7 +96,7 @@ if InDetTrigFlags.loadRotCreator():
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
       TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
-                                                                    PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
+                                                                    PixelLorentzAngleTool= ToolSvc.InDetTrigPixelLorentzAngleTool,
                                                                     NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                     doRunI = True,
                                                                     useToT = False,
@@ -116,7 +108,7 @@ if InDetTrigFlags.loadRotCreator():
                                                                     LoadWithTrackNetwork = True)
     else:
         TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
-                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
+                                                                      PixelLorentzAngleTool= ToolSvc.InDetTrigPixelLorentzAngleTool,
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       LoadNoTrackNetwork   = True,
                                                                       useToT = InDetTrigFlags.doNNToTCalibration(),
@@ -140,7 +132,7 @@ if InDetTrigFlags.loadRotCreator():
   InDetTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackTool",
                                                                     PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                     ErrorStrategy = 2,
-                                                                    LorentzAngleTool = ToolSvc.PixelLorentzAngleTool,
+                                                                    LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
                                                                     NnClusterizationFactory= TrigNnClusterizationFactory,
   )
 
@@ -164,7 +156,7 @@ if InDetTrigFlags.loadRotCreator():
   InDetTrigBroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackTool",
                                                                          PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                          ErrorStrategy = 0,
-                                                                         LorentzAngleTool = ToolSvc.PixelLorentzAngleTool,
+                                                                         LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
                                                                          NnClusterizationFactory= TrigNnClusterizationFactory
   )
   ToolSvc += InDetTrigBroadPixelClusterOnTrackTool
@@ -641,7 +633,7 @@ if InDetTrigFlags.loadFitter():
 
 
 if DetFlags.haveRIO.pixel_on():
-  InDetTrigPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
+  InDetTrigPixelConditionsSummaryTool = ToolSvc.InDetTrigPixelConditionsSummaryTool
 else:
   InDetTrigPixelConditionsSummaryTool = None
 

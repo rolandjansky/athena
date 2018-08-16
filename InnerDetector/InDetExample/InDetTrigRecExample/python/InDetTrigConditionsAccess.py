@@ -17,7 +17,6 @@ if InDetTrigFlags.useConditionsClasses():
   from InDetTrigRecExample.InDetTrigConfigConditions import PixelConditionsSetup
   PixelConditionsSetup.config(useDCS=_useDCS,onlineMode=_onlineMode,prefix=_prefix)
   PixelConditionsSetup.lock()
-  PixelConditionsSetup.createSvc()
   PixelConditionsSetup.createTool()
 
   from InDetTrigRecExample.InDetTrigConfigConditions import SCT_ConditionsSetup

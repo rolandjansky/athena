@@ -68,10 +68,6 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
         
         # SiLorentzAngleTool
-        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
-
         if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
             from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
             sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
@@ -84,7 +80,7 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
             myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",
                                                                           PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                           ErrorStrategy = 0,
-                                                                          LorentzAngleTool = ToolSvc.PixelLorentzAngleTool)
+                                                                          LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
 
         else:
             myL2_SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool("TrigL2_SCT_ClusterOnTrackTool",
@@ -94,7 +90,7 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
             myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",
                                                                           PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                           ErrorStrategy = 1,
-                                                                          LorentzAngleTool = ToolSvc.PixelLorentzAngleTool)
+                                                                          LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
 
                     
         from AthenaCommon.AppMgr import ToolSvc
