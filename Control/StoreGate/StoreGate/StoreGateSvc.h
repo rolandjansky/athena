@@ -965,10 +965,6 @@ private:
   bool m_DumpStore; ///<  property Dump: triggers dump() at EndEvent 
   bool m_ActivateHistory; ///< property: activate the history service
 
-  ///get the IOVSvc "just in time" (breaks recursion at initialize)
-  IIOVSvc* getIIOVSvc();
-  IIOVSvc* m_pIOVSvc;
-
   /// Cache store type in the facade class.
   StoreID::type m_storeID;
 

@@ -210,14 +210,6 @@ void StoreGateSvc::handle(const Incident &inc) {
 }
 
 //////////////////////////////////////////////////////////////
-IIOVSvc* StoreGateSvc::getIIOVSvc() {
-  // Get hold of the IOVSvc
-  if (0 == m_pIOVSvc && !(service("IOVSvc", m_pIOVSvc)).isSuccess()) {
-    warning() << "Could not locate IOVSvc "
-              << endmsg;
-  }
-  return m_pIOVSvc;
-}
 
 StatusCode
 StoreGateSvc::finalize() {
