@@ -885,7 +885,7 @@ unsigned int Root::TElectronLikelihoodTool::getIpBin(double ip) const{
 
  // Gets the Histogram Eta bin [0,s_fnEtaBins-1] given the eta
 unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtaBin(double eta) const{
- const unsigned int nEtaBins = s_fnEtaBins;
+  const unsigned int nEtaBins = s_fnEtaBins;
   const double etaBins[nEtaBins] = {0.1,0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37,2.47};
   for(unsigned int etaBin = 0; etaBin < nEtaBins; ++etaBin){
     if(fabs(eta) < etaBins[etaBin])
