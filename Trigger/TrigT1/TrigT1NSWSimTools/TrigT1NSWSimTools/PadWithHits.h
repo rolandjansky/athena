@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
+//S.I 26-07-18 : This class and the structure is too problematic in terms of memory management while using raw pointers
 #ifndef NSW_PADWITHITS_H
 #define NSW_PADWITHITS_H
 
@@ -16,11 +16,12 @@
 #include <vector>
 
 #include "TrigT1NSWSimTools/PadData.h"
-
+#include <memory>
 //namespace NSWL1 {
 //class PadData;
 //}
 namespace nsw {
+typedef std::shared_ptr<NSWL1::PadData> spPadData;
 
   struct Pad {
     int ieta;
@@ -28,46 +29,48 @@ namespace nsw {
     int multiplet;
     int layer;
     int sector;
+    int sectortype;
     int side; //!< A(==0) side is z>0, facing LHCb; C(==1) side is z<0, facing ALICE
     int module;
-    float m_loPhi;     //!< low edge in phi of the pad surface
-    float m_hiPhi;     //!< high edge in phi of the pad surface
-    float m_loHei;     //!< low edge in height of the pad surface
-    float m_hiHei;     //!< high edge in height of the pad surface
-    float m_loEta;     //!< low edge in eta of the pad surface
-    float m_hiEta;     //!< high edge in eta of the pad surface
-    float m_loLocalY;  //!< low edge in local y
-    float m_hiLocalY;  //!< low edge in local y
-    float m_cornerXyz[4][3]; //!< (x,y,z) coordinates of the 4 pad corners (in the order low to high phi, low to high R)
-    const NSWL1::PadData *m_padData; ///< if this pad was created from a PadData object, pointer to it
 
+    float m_cornerXyz[4][3]; //!< (x,y,z) coordinates of the 4 pad corners (in the order low to high phi, low to high R)
+    
+    
+     //const NSWL1::PadData *m_padData; ///< if this pad was created from a PadData object, pointer to it
+    spPadData m_padData;
+    
     Pad(const int &eta, const int &phi,
         const int &multi, const int &layerType, const int &sn, const int &si, const int &mod) :
-      ieta(eta), iphi(phi), multiplet(multi), layer(layerType), sector(sn), side(si), module(mod),
-      m_loPhi(0.), m_hiPhi(0.), m_loHei(0.), m_hiHei(0.),
-      m_loEta(0.), m_hiEta(0.),
-      m_loLocalY(0.), m_hiLocalY(0.),
+      ieta(eta), iphi(phi), multiplet(multi), layer(layerType), sector(sn), sectortype(sn), side(si), module(mod),
       m_padData(nullptr)
-    { memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); }
+    { 
+        memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
+        
+    }
+/*
     Pad(const NSWL1::PadData &pData ) :
-      ieta(pData.padEtaId()), iphi(pData.padPhiId()), multiplet(pData.multipletId()), layer(pData.gasGapId()), sector(pData.sectorId()), side(pData.sideId()), module(pData.moduleId()),
-      m_loPhi(0.), m_hiPhi(0.), m_loHei(0.), m_hiHei(0.),
-      m_loEta(0.), m_hiEta(0.),
-      m_loLocalY(0.), m_hiLocalY(0.),
+      ieta(pData.padEtaId()), iphi(pData.padPhiId()), multiplet(pData.multipletId()), layer(pData.gasGapId()), sector(pData.sectorId()), sectortype(pData.sectorType()), side(pData.sideId()), module(pData.moduleId()),
       m_padData(&pData)
-    { memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); }
-    Pad& setLowPhi (const float &v) {m_loPhi=v; return *this;}
-    Pad& setHighPhi(const float &v) {m_hiPhi=v; return *this;}
-    Pad& setLowH   (const float &v) {m_loHei=v; return *this;}
-    Pad& setHighH  (const float &v) {m_hiHei=v; return *this;}
+    { 
+        memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
+    }
+*/
+
+ //S.I
+     Pad(spPadData pData ) :
+      ieta(pData->padEtaId()), iphi(pData->padPhiId()), multiplet(pData->multipletId()), layer(pData->gasGapId()), sector(pData->sectorId()), sectortype(pData->sectorType()), side(pData->sideId()), module(pData->moduleId()),
+      m_padData(pData)
+    { 
+        memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
+    }
+ //S.I
+    
+    
     std::string pickle() const; //!< simple dict-like representation (might differ from '<<')
-    //! must be called after setting lo/hi Phi/H; angleToSec5 is the angle by which we rotate to align with the y axis (the one used in determinePad)
-    Pad& fillCornerCoords(float zPos, float angleToSec5) { return fillCornerCoords(m_loHei, m_hiHei, m_loPhi, m_hiPhi, zPos, angleToSec5); }
-    Pad& fillCornerCoords(float loHeight, float hiHeight,
-                          float loPhi, float hiPhi,
-                          float zPos, float angleToSec5);
+
     Pad& fillCornerCoords(float corners[4][3]);
     static int sideFromZ(float z) {return (z>0.0 ? 0:1);}
+    
   };
   float midSectorPhi(int sector);         //!< angle phi at the center of the sector
   float phi_mpi_pi(const double &val);    //!< bring phi to [-pi,+pi)
@@ -127,9 +130,12 @@ namespace nsw {
   public:
     PadWithHits(const int &ieta, const int &iphi,
                 const int &multiplet,
-                const int &layerType, const int &sector, const int &side, const int &module);
+                const int &layerType, const int &sector, const int &sectortype, const int &side, const int &module);
     PadWithHits(const Pad &p);
-    PadWithHits(const NSWL1::PadData &pData);
+    //PadWithHits(const NSWL1::PadData &pData);
+    
+    PadWithHits(spPadData pData);
+    
     const std::vector<size_t>& hitIndices() const { return m_hitIndices; }
     float totEnergy() const { return m_totEnergy; }
     float avgEta() const { return m_avgEta; }
@@ -149,27 +155,17 @@ namespace nsw {
 
   }; // class PadWithHits
 
+  
+  
   // helper functions
-  std::vector<size_t> filterPadIndicesBySector(const std::vector<Pad>         &pads, int sector);
-  std::vector<size_t> filterPadIndicesBySector(const std::vector<PadWithHits> &pads, int sector);
-  std::vector<size_t> filterPadIndicesBySide(const std::vector<Pad>    &pads,
-                                             const std::vector<size_t> &padSelectedIndices,
-                                             int side);
-  std::vector<size_t> filterPadIndicesBySide(const std::vector<PadWithHits> &pads,
-                                             const std::vector<size_t>      &padSelectedIndices,
-                                             int side);
-  std::vector<size_t> filterPadIndicesByLayer(const std::vector<Pad>    &pads, 
-                                              const std::vector<size_t> &padSelectedIndices,
-                                              int layer);
-  std::vector<size_t> filterPadIndicesByLayer(const std::vector<PadWithHits> &pads,
-                                              const std::vector<size_t> &padSelectedIndices,
-                                              int layer);
-  std::vector<size_t> filterPadIndicesByMultiplet(const std::vector<Pad>    &pads, 
-                                                  const std::vector<size_t> &padSelectedIndices,
-                                                  int multiplet);
-  std::vector<size_t> filterPadIndicesByMultiplet(const std::vector<PadWithHits> &pads,
-                                                  const std::vector<size_t> &padSelectedIndices,
-                                                  int multiplet);
+  std::vector<size_t> filterBySector(const std::vector<Pad>         &pads, int sector);
+  std::vector<size_t> filterBySector(const std::vector<PadWithHits> &pads, int sector);
+  std::vector<size_t> filterBySide(const std::vector<Pad>    &pads,const std::vector<size_t> &padSelectedIndices,int side);
+  std::vector<size_t> filterBySide(const std::vector<PadWithHits> &pads,const std::vector<size_t> &padSelectedIndices,int side);
+  std::vector<size_t> filterByLayer(const std::vector<Pad>    &pads, const std::vector<size_t> &padSelectedIndices,int layer);
+  std::vector<size_t> filterByLayer(const std::vector<PadWithHits> &pads,const std::vector<size_t> &padSelectedIndices,int layer);
+  std::vector<size_t> filterByMultiplet(const std::vector<Pad>    &pads, const std::vector<size_t> &padSelectedIndices,int multiplet);
+  std::vector<size_t> filterByMultiplet(const std::vector<PadWithHits> &pads,const std::vector<size_t> &padSelectedIndices,int multiplet);
 
 } // end namespace nsw
 

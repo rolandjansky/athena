@@ -77,19 +77,19 @@ namespace NSWL1 {
 
     virtual void handle (const Incident& inc);
 
-    StatusCode gather_strip_data(std::vector<StripData*>& strips,std::vector<NSWL1::PadTrigger*>& padTriggers);
+    StatusCode gather_strip_data(std::vector<upStripData>& strips,const std::vector<upPadTrigger>& padTriggers);
  
 
   private:
     // methods implementing the internal data processing
-    cStatus fill_strip_cache( std::vector<NSWL1::PadTrigger*>& padTriggers);   //!< loop over the digit container, apply the additional processing then fill the cache
+    cStatus fill_strip_cache( const std::vector<upPadTrigger>& padTriggers);   //!< loop over the digit container, apply the additional processing then fill the cache
     void clear_cache();                                     //!< clear the strip hit cache deleting the StripData pointers
 
     StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior
     void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple
     void fill_strip_validation_id();                        //!< fill the ntuple branch for the StripTdsOffline
-    bool readStrip(unsigned int bandID,StripData* strip,std::vector<std::vector<float>> pad_strip_info);
+    bool readStrip(unsigned int bandID, StripData* strip,const std::vector<std::vector<float>>& pad_strip_info);
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
@@ -99,7 +99,7 @@ namespace NSWL1 {
     const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
     // hidden variables
-    std::vector<StripData*>  m_strip_cache;                 //!< cache for the STRIP hit data in the event
+    std::vector<upStripData>  m_strip_cache;                 //!< cache for the STRIP hit data in the event
     int     m_strip_cache_runNumber;                          //!< run number associated to the current STRIP cache
     int     m_strip_cache_eventNumber;                        //!< event number associated to the current STRIP cache
     cStatus m_strip_cache_status;                             //!< status of the current cache

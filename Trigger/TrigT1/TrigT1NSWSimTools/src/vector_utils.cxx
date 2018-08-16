@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "vector_utils.h"
+#include "TrigT1NSWSimTools/vector_utils.h"
 
-#include "PadWithHits.h"
+#include "TrigT1NSWSimTools/PadWithHits.h"
 
 #include <sstream>
 #include <iterator>

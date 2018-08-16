@@ -16,7 +16,7 @@
 //local includes
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
 #include "PadTdsValidationTree.h"
-
+#include <memory>
 
 
 //forward declarations
@@ -39,7 +39,6 @@ class MuonDetectorManager;
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
-
 /**
  *
  *   @short interface for the PadTDS tools
@@ -78,7 +77,7 @@ public:
     virtual ~PadTdsOfflineTool();
     virtual StatusCode initialize();
     virtual void handle (const Incident& inc);
-    StatusCode gather_pad_data(std::vector<PadData*>& pads, int side=-1, int sector=-1);
+    StatusCode gather_pad_data(std::vector<spPadData>& pads, int side=-1, int sector=-1);
 
 public:
     /** @name Sector indices
@@ -149,7 +148,7 @@ private:
     const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
     // hidden variables
-    std::vector< std::vector<PadData*> > m_pad_cache;       //!< cache for the PAD hit data in the event (one per sector)
+    std::vector< std::vector<spPadData> > m_pad_cache;       //!< cache for the PAD hit data in the event (one per sector)
     int     m_pad_cache_runNumber;                          //!< run number associated to the current PAD cache
     int     m_pad_cache_eventNumber;                        //!< event number associated to the current PAD cache
     cStatus m_pad_cache_status;                             //!< status of the current cache

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SectorTriggerCandidate.h"
-#include "PadWithHits.h" // shouldn't be needed, need to fix it DG
+#include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
+#include "TrigT1NSWSimTools/PadWithHits.h" // shouldn't be needed, need to fix it DG
 
 #include <cassert>
 #include <sstream>
@@ -26,23 +26,28 @@ Stc::SectorTriggerCandidate(const nsw::SingleWedgePadTrigger &innerOrOuterInTran
   m_wedgeTrigs.push_back(innerOrOuterInTransition);
 }
 
-nsw::EtaPhiRectangle Stc::triggerRegion() const
-{
+
+Polygon Stc::triggerRegion3() const{
   assert(m_wedgeTrigs.size()>0); // cannot have any trig with any wedge
   bool hasBothInnerOuter(m_wedgeTrigs.size()>1);
   if(hasBothInnerOuter){
     const SingleWedgePadTrigger &inner = m_wedgeTrigs[0];
-    return SingleWedgePadTrigger::padOverlap(inner.pads());
+    const SingleWedgePadTrigger &outer = m_wedgeTrigs[1];
+    Polygon inner_overlap=SingleWedgePadTrigger::padOverlap3(inner.pads());
+    Polygon outer_overlap=SingleWedgePadTrigger::padOverlap3(outer.pads());
+    //project the outer overlap into first one's plane
+    float Z1=outer.pads()[0].m_cornerXyz[1][2];
+    float Z0=inner.pads()[0].m_cornerXyz[1][2];
+    //write the outer overlap in Z0 and overlap inner+outer to calculate the overall overlap laplaplap
+    
+    //mproject ? from Z1->Z0
+    return GeoUtils::largestIntersection(inner_overlap,GeoUtils::Project(outer_overlap,Z1,Z0));
+    //end of S.I
   } else {
-    return SingleWedgePadTrigger::padOverlap(m_wedgeTrigs[0].pads());
+    return SingleWedgePadTrigger::padOverlap3(m_wedgeTrigs[0].pads());
   }
 }
 
-float Stc::deltaR() const
-{
-  if(m_wedgeTrigs.size()<2) return 0.0;
-  else return m_wedgeTrigs[0].direction().DeltaR(m_wedgeTrigs[1].direction());
-}
 
 std::string vec2pickle(const std::vector< nsw::SingleWedgePadTrigger > &trigs){
     std::ostringstream oo;
@@ -57,16 +62,4 @@ std::string Stc::pickle() const
   std::ostringstream oo;
   oo<<"'wedgeTrigs' : "<<vec2pickle(m_wedgeTrigs)<<", ";
   return oo.str();
-}
-
-std::string Stc::summaryString() const
-{
-  std::ostringstream oo;
-  EtaPhiRectangle r(triggerRegion());
-  oo<<"SectorTriggerCandidate "
-    <<" sector "<<m_wedgeTrigs[0].pads()[0].sector // get the sector from the first pad
-    <<" eta ["<<r.etaMin()<<", "<<r.etaMax()<<"]"
-    <<" phi ["<<r.phiMin()<<", "<<r.phiMax()<<"]";
-  return oo.str();
-  
 }

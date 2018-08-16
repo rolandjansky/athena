@@ -4,7 +4,7 @@
 
 
 //Local includes
-#include "StripOfflineData.h"
+#include "TrigT1NSWSimTools/StripOfflineData.h"
 
 #include <string>
 
@@ -21,7 +21,26 @@ namespace NSWL1 {
       m_strip_time=digit->time();
     }
 
-    StripOfflineData::~StripOfflineData() {
+    //S.I : 26-07-2018
+  StripOfflineData::StripOfflineData(StripOfflineData* sod):m_id(sod->m_id),m_helper(sod->m_helper){
+    m_trig_bcid=sod->m_trig_bcid;
+    m_strip_charge=sod->m_strip_charge;
+    m_strip_time=sod->m_strip_time;
+    m_strip_charge_10bit=sod->m_strip_charge_10bit;
+    m_strip_charge_6bit=sod->m_strip_charge_6bit;
+    m_band_id=sod->m_band_id;
+    m_phi_id=sod->m_phi_id;
+    m_x=sod->m_x;
+    m_y=sod->m_y;
+    m_z=sod->m_z;
+    m_lx=sod->m_lx;
+    m_ly=sod->m_ly;
+    m_lz=sod->m_lz;
+    m_read_strip=sod->m_read_strip;
+  }
+  //eof S.I
+
+  StripOfflineData::~StripOfflineData() {
         // StripOfflineData doesn't own the helper, so nothing to do here
     }
 

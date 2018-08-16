@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PadTdsValidationTree.h"
+#include "TrigT1NSWSimTools/PadTdsValidationTree.h"
 
-#include "PadOfflineData.h"
+#include "TrigT1NSWSimTools/PadOfflineData.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 

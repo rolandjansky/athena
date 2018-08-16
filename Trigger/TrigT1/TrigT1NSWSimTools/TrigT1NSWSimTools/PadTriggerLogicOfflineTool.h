@@ -15,6 +15,7 @@
 //local includes
 #include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
 #include "PadTriggerValidationTree.h"
+#include <memory>
 
 //forward declarations
 class IIncidentSvc;
@@ -61,6 +62,14 @@ namespace NSWL1 {
 
 */
 
+
+typedef std::shared_ptr<PadTrigger> spPadTrigger;
+typedef std::unique_ptr<PadTrigger> upPadTrigger;
+typedef std::shared_ptr<PadData> spPadData;
+
+
+
+
 class PadTrigger;
 
 class PadTriggerLogicOfflineTool:
@@ -76,14 +85,14 @@ public:
     virtual StatusCode initialize();
     virtual void handle (const Incident& inc);
 
-    StatusCode compute_pad_triggers(const std::vector<PadData*>& pads, std::vector<PadTrigger*> &triggers);
+    StatusCode compute_pad_triggers(const std::vector<spPadData>& pads, std::vector<upPadTrigger> &triggers);
 
     /**
        @brief simplified trigger: require 4 aligned pads on 4 subsequent layers
        This is meant mainly to test the machinery.
        See test/test_4on4padTrigger.cxx
      */
-    static std::vector<PadTrigger*> build4of4SingleWedgeTriggers(const std::vector<PadData*> &pads);
+    static std::vector<upPadTrigger> build4of4SingleWedgeTriggers(const std::vector<spPadData> &pads);
     ///// from PadData to the TDR-style PadWithHits
     //static nsw::PadWithHits convert(const PadData &pd);
     /**
@@ -91,8 +100,11 @@ public:
        Note: it needs to access the MuonDetectorManager
      */
     bool fillGeometricInformation(const PadData &pd, nsw::PadWithHits &pwh);
+    int Pad2BandId(const nsw::PadWithHits  &p, const float Yfrac);
+    
     /// from TDR-style SectorTriggerCandidate to PadTrigger
-    static NSWL1::PadTrigger convert(const nsw::SectorTriggerCandidate &t);
+     NSWL1::PadTrigger convert(const nsw::SectorTriggerCandidate &t);
+        
 private:
     /// get the output tree from the athena histogram service
     TTree* get_tree_from_histsvc();

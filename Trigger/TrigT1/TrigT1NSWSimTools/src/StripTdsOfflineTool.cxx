@@ -7,8 +7,8 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 // local includes
-#include "StripTdsOfflineTool.h"
-#include "StripOfflineData.h"
+#include "TrigT1NSWSimTools/StripTdsOfflineTool.h"
+#include "TrigT1NSWSimTools/StripOfflineData.h"
 
 //Event info includes
 #include "EventInfo/EventInfo.h"
@@ -80,7 +80,7 @@ namespace NSWL1 {
 
       // reserve enough slots for the trigger sectors and fills empty vectors
       // std::vector< std::vector<StripData*> >::iterator it = m_strip_cache.begin();
-      std::vector<StripData*>::iterator it = m_strip_cache.begin();
+      //std::vector<upStripData>::iterator it = m_strip_cache.begin();
     }
 
     StripTdsOfflineTool::~StripTdsOfflineTool() {
@@ -97,7 +97,7 @@ namespace NSWL1 {
     void StripTdsOfflineTool::clear_cache() {
       ATH_MSG_INFO( "Clearing Strip Cache"); 
       for(unsigned int i = 0; i < m_strip_cache.size(); ++i)
-	delete m_strip_cache[i];
+	    //delete m_strip_cache[i];
       m_strip_cache.clear();     
     }
   
@@ -308,7 +308,7 @@ namespace NSWL1 {
     
     for (unsigned int p=0; p<m_strip_cache.size(); p++) {
       m_nStripHits++;
-      ATH_MSG_INFO("Hits :" << m_nStripHits << " index " <<  p << " Cache strip  " << m_strip_cache.at(p) << "  " << m_strip_cache.size() );	
+      ATH_MSG_INFO("Hits :" << m_nStripHits << " index " <<  p << " Cache strip  " << m_strip_cache.at(p).get() << "  " << m_strip_cache.size() );	
 
       m_stripCharge->push_back(m_strip_cache.at(p)->strip_charge());
       m_stripCharge_6bit->push_back(m_strip_cache.at(p)->strip_charge_6bit());
@@ -326,7 +326,7 @@ namespace NSWL1 {
   }
 
 
-  StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<StripData*>& strips, std::vector<NSWL1::PadTrigger*>& padTriggers) {
+  StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<upStripData>& strips, const std::vector<upPadTrigger>& padTriggers) {
       ATH_MSG_INFO( "gather_strip_data: start gathering all strip htis");
 
       // No sector implemented yet!!!
@@ -361,7 +361,7 @@ namespace NSWL1 {
       for (unsigned int i=0; i< m_strip_cache.size(); i++) 
 	{ 
 	  // Check if a stip should be read according to pad triggers
-	  strips.push_back(m_strip_cache.at(i));
+	  strips.push_back(std::move(m_strip_cache.at(i)));
 	}
       ATH_MSG_DEBUG( "delivered n. " << strips.size() << " STRIP hits." );
 
@@ -369,7 +369,7 @@ namespace NSWL1 {
   }
 
 
-    StripTdsOfflineTool::cStatus StripTdsOfflineTool::fill_strip_cache( std::vector<NSWL1::PadTrigger*>& padTriggers) {
+    StripTdsOfflineTool::cStatus StripTdsOfflineTool::fill_strip_cache( const std::vector<upPadTrigger>& padTriggers) {
       ATH_MSG_DEBUG( "fill_strip_cache: clearing existing STRIP hit cache" );
       this->clear_cache();
 
@@ -413,7 +413,6 @@ namespace NSWL1 {
 	  //	  ATH_MSG_DEBUG( "Grabbed local pos" );
 	  rdoEl->surface(Id).localToGlobal(strip_lpos, strip_gpos, strip_gpos);
 	  //strip_gpos = rdoEl->localToGlobalCoords(pos,Id);
-	  	  
 
 
 
@@ -474,15 +473,17 @@ namespace NSWL1 {
 
 
 
-
-	  StripOfflineData* strip = new StripOfflineData(Id,m_sTgcIdHelper,digit);
-	  strip->set_locX(strip_lpos.x());
+      //S.I
+	  //StripOfflineData* strip = new StripOfflineData(Id,m_sTgcIdHelper,digit);
+	  auto strip=std::make_unique<StripOfflineData>(Id,m_sTgcIdHelper,digit);
+      //S.I
+      strip->set_locX(strip_lpos.x());
 	  strip->set_locY(strip_lpos.y());
 
 
 	  bool read_strip=false;
 	  bool _tmp=false;
-	  for( auto p : padTriggers){
+	  for( const auto& p : padTriggers){
 	    //	    if(p->sectorId()!=stationPhi)
 	    //  {
 	    //		ATH_MSG_INFO("ReadStrip Trigger Candidate in different sector " << p->sectorId() << "  " <<stationPhi );
@@ -493,7 +494,7 @@ namespace NSWL1 {
 	      ATH_MSG_DEBUG(" ReadStrip Trigger Candidate in different side " << p->sideId() << "  " <<strip->sideId() );
 	      continue;
 	    }
-	    _tmp=readStrip(p->bandId(),strip,p->m_pad_strip_info); //this readStrip is the function
+	    _tmp=readStrip(p->bandId(),strip.get(),p->m_pad_strip_info); //this readStrip is the function
 	    if( _tmp and read_strip) ATH_MSG_DEBUG("Multiple pad trigger candidate in a single wedge for strip "<<read_strip );
 	    read_strip=read_strip || _tmp;
 	  }
@@ -514,9 +515,7 @@ namespace NSWL1 {
 	  strip->set_locX(strip_lpos.x());
 	  strip->set_locY(strip_lpos.y());
 	  strip->set_locZ(0             );
-
-
-	  m_strip_cache.push_back(strip);
+      m_strip_cache.push_back(std::move(strip));
 	}
 
       }
@@ -528,7 +527,7 @@ namespace NSWL1 {
 
 
 
-  bool  StripTdsOfflineTool::readStrip(unsigned int bandID,StripData* strip,std::vector<std::vector<float>> pad_strip_info)
+  bool  StripTdsOfflineTool::readStrip(unsigned int bandID,StripData* strip,const std::vector<std::vector<float>>& pad_strip_info)
   {
     /*!
      * ReadStrip(BandId_t bandID,StripData* strip): Simple function to return wether a fired strip should 
@@ -555,6 +554,7 @@ namespace NSWL1 {
     // 	  }
     //   }
 
+    
     //End test
     if (strip->bandId() !=-1){
       ATH_MSG_DEBUG("StripTdsOfflineTool:ReadStrip: BandId already set\n" <<"moduleID:"<< strip->moduleId() +1 << "\n"
@@ -589,11 +589,10 @@ namespace NSWL1 {
 		 <<"loc_x:"<< strip->locX()<< "\n");
 
     for( auto pad_data: pad_strip_info){
-      if (pad_data.size()!=4)
-	{
+      if (pad_data.size()!=4){
 	  ATH_MSG_WARNING("StripTdsOfflineTool:ReadStrip: pad data of incorrect size:\n");
 	  continue;
-	}
+	  }
       float wedge = pad_data.at(0);
       float layer = pad_data.at(1);
       int loc_min_y = pad_data.at(2);

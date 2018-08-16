@@ -74,9 +74,16 @@ public:
        \todo update trigger patterns
     */
     static std::vector<std::string> sTGC_triggerPatterns();
+    static std::vector<std::string> sTGC_triggerPatternsEtaUp();
+    static std::vector<std::string> sTGC_triggerPatternsEtaDown();
+    static std::vector<std::string> sTGC_triggerPatternsPhiUp();
+    static std::vector<std::string> sTGC_triggerPatternsPhiDown();
+    static std::vector<std::string> sTGC_triggerPatternsPhiDownUp();
+    static std::vector<std::string> sTGC_triggerPatternsPhiUpDown();
+
 public:
     static bool hitPattern(const nsw::Pad &firstPad, const nsw::Pad &otherPad,
-                           std::string &pattern, bool verbose);
+                           std::string &pattern);
 	static bool hitPattern(const int &iEta0, const int &iPhi0,
                            const int &iEta1, const int &iPhi1,
                            std::string &pattern);
@@ -86,20 +93,17 @@ public:
                                                     const nsw::vsize_t &padIndicesLayer2,
                                                     const nsw::vsize_t &padIndicesLayer3,
                                                     bool isLayer1, bool isLayer2,
-                                                    bool isLayer3, bool isLayer4,
-                                                    bool verbose=false);
-    static nsw::vswptrig_t build3of4SingleWedgeTriggers(const nsw::vpads_t &pads,
+                                                    bool isLayer3, bool isLayer4);
+    static nsw::vswptrig_t build34swt(const nsw::vpads_t &pads,
                                                         const nsw::vsize_t &padIndicesLayer0,
                                                         const nsw::vsize_t &padIndicesLayer1,
                                                         const nsw::vsize_t &padIndicesLayer2,
-                                                        const nsw::vsize_t &padIndicesLayer3,
-                                                        bool verbose=false);
-    static nsw::vswptrig_t build4of4SingleWedgeTriggers(const nsw::vpads_t &pads,
+                                                        const nsw::vsize_t &padIndicesLayer3);
+    static nsw::vswptrig_t build44swt(const nsw::vpads_t &pads,
                                                         const nsw::vsize_t &padIndicesLayer0,
                                                         const nsw::vsize_t &padIndicesLayer1,
                                                         const nsw::vsize_t &padIndicesLayer2,
-                                                        const nsw::vsize_t &padIndicesLayer3,
-                                                        bool verbose=false);
+                                                        const nsw::vsize_t &padIndicesLayer3);
 public:
     bool m_verbose;
     bool m_writePickle; /// after computing the triggers, write the canditates to 'pickle' files (for event display)

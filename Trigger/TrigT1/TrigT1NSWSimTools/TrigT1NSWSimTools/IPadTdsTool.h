@@ -16,6 +16,8 @@
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
+typedef std::shared_ptr<PadData> spPadData;
+
 class PadTrigger;
 
   /**
@@ -36,7 +38,7 @@ class PadTrigger;
   public:
     virtual ~IPadTdsTool() {}
 
-    virtual StatusCode gather_pad_data(std::vector<PadData*>& pads, int side=-1, int sector=-1) = 0;
+    virtual StatusCode gather_pad_data(std::vector<spPadData>& pads, int side=-1, int sector=-1) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IPadTdsTool("NSWL1::IPadTdsTool", 1 ,0);

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PadTriggerValidationTree.h"
+#include "TrigT1NSWSimTools/PadTriggerValidationTree.h"
 
 #include "TrigT1NSWSimTools/PadTrigger.h"
 
@@ -21,6 +21,7 @@ PadTriggerValidationTree::PadTriggerValidationTree():
     m_nPadTriggers(0),
     m_padTriggerBCID(NULL),
     m_padTriggerSectorID(NULL),
+    m_padTriggerSectorType(NULL),
     m_padTriggerSideID(NULL),
     m_padTriggerBandID(NULL),
     m_padTriggerEta(NULL),
@@ -28,7 +29,13 @@ PadTriggerValidationTree::PadTriggerValidationTree():
     m_padTriggerEtaID(NULL),
     m_padTriggerPhiID(NULL),
     m_padTriggerMultipletID(NULL),
-    m_padTriggerGasGapID(NULL)
+    m_padTriggerGasGapID(NULL),
+    m_padTriggerEtamin(NULL),
+    m_padTriggerEtamax(NULL),
+    m_padTriggerPhimin(NULL),
+    m_padTriggerPhimax(NULL),
+    m_padTriggerlocalminY(NULL),
+    m_padTriggerlocalmaxY(NULL)
     // m_nPadHits(0),
     // m_padGlobalX(NULL),
     // m_padGlobalY(NULL),
@@ -61,6 +68,7 @@ bool PadTriggerValidationTree::init_tree(TTree *tree)
         m_nPadTriggers       = 0;
         m_padTriggerBCID     = new std::vector<unsigned int>();
         m_padTriggerSectorID = new std::vector<int>();
+        m_padTriggerSectorType = new std::vector<int>();
         m_padTriggerSideID   = new std::vector<int>();
         m_padTriggerBandID   = new std::vector<unsigned int>();
         m_padTriggerEta      = new std::vector<float>();
@@ -69,6 +77,12 @@ bool PadTriggerValidationTree::init_tree(TTree *tree)
         m_padTriggerPhiID    = new std::vector<int>();
         m_padTriggerMultipletID = new std::vector<int>();
         m_padTriggerGasGapID    = new std::vector<int>();
+        m_padTriggerEtamin      =new std::vector<float>();
+        m_padTriggerEtamax      =new std::vector<float>();
+        m_padTriggerPhimin      =new std::vector<float>();
+        m_padTriggerPhimax      =new std::vector<float>();
+        m_padTriggerlocalminY   =new std::vector<std::vector<float>>();
+        m_padTriggerlocalmaxY   =new std::vector<std::vector<float>>();
         // m_nPadHits = 0;
         // m_padGlobalX = new std::vector<float>();
         // m_padGlobalY = new std::vector<float>();
@@ -88,6 +102,7 @@ bool PadTriggerValidationTree::init_tree(TTree *tree)
         m_tree->Branch("nPadTriggers",                 &m_nPadTriggers,"nPadTriggers/i");
         m_tree->Branch("padTriggerBCID",               &m_padTriggerBCID);
         m_tree->Branch("padTriggerSectorID",           &m_padTriggerSectorID);
+        m_tree->Branch("padTriggerSectorType",         &m_padTriggerSectorType);
         m_tree->Branch("padTriggerSideID",             &m_padTriggerSideID);
         m_tree->Branch("padTriggerBandID",             &m_padTriggerBandID);
         m_tree->Branch("padTriggerEta",                &m_padTriggerEta);
@@ -96,6 +111,14 @@ bool PadTriggerValidationTree::init_tree(TTree *tree)
         m_tree->Branch("padTriggerPhiID",              &m_padTriggerPhiID);
         m_tree->Branch("padTriggerMultipletID",        &m_padTriggerMultipletID);
         m_tree->Branch("padTriggerGasGapID",           &m_padTriggerGasGapID);
+
+        m_tree->Branch("padTriggerEtamin",           &m_padTriggerEtamin);
+        m_tree->Branch("padTriggerEtamax",           &m_padTriggerEtamax);
+        m_tree->Branch("padTriggerPhimin",           &m_padTriggerPhimin);
+        m_tree->Branch("padTriggerPhimax",           &m_padTriggerPhimax);
+        
+        m_tree->Branch("padTriggerlocalminY",           &m_padTriggerlocalminY);
+        m_tree->Branch("padTriggerlocalmaxY",           &m_padTriggerlocalmaxY);
         // m_tree->Branch("nPadHits",                  &m_nPadHits,"nPadHits/i");
         // m_tree->Branch("padGlobalX",                &m_padGlobalX);
         // m_tree->Branch("padGlobalY",                &m_padGlobalY);
@@ -122,6 +145,7 @@ void PadTriggerValidationTree::reset_ntuple_variables()
         m_nPadTriggers       = 0;
         m_padTriggerBCID     ->clear();
         m_padTriggerSectorID ->clear();
+        m_padTriggerSectorType ->clear();
         m_padTriggerSideID   ->clear();
         m_padTriggerBandID   ->clear();
         m_padTriggerEta      ->clear();
@@ -130,6 +154,12 @@ void PadTriggerValidationTree::reset_ntuple_variables()
         m_padTriggerPhiID    ->clear();
         m_padTriggerMultipletID ->clear();
         m_padTriggerGasGapID    ->clear();
+        m_padTriggerEtamin->clear();
+        m_padTriggerEtamax->clear();
+        m_padTriggerPhimin->clear();
+        m_padTriggerPhimax->clear();
+        m_padTriggerlocalminY->clear();
+        m_padTriggerlocalmaxY->clear();
         // m_nPadHits = 0;
         // m_padGlobalX->clear();
         // m_padGlobalY->clear();
@@ -153,6 +183,7 @@ void PadTriggerValidationTree::clear_ntuple_variables()
     m_nPadTriggers       = 0;
     m_padTriggerBCID     = NULL;
     m_padTriggerSectorID = NULL;
+    m_padTriggerSectorType = NULL;
     m_padTriggerSideID   = NULL;
     m_padTriggerBandID   = NULL;
     m_padTriggerEta      = NULL;
@@ -161,6 +192,12 @@ void PadTriggerValidationTree::clear_ntuple_variables()
     m_padTriggerPhiID    = NULL;
     m_padTriggerMultipletID = NULL;
     m_padTriggerGasGapID    = NULL;
+    m_padTriggerEtamax=NULL;
+    m_padTriggerEtamin=NULL;
+    m_padTriggerPhimin=NULL;
+    m_padTriggerPhimax=NULL;
+    m_padTriggerlocalminY=NULL;
+    m_padTriggerlocalmaxY=NULL;
     // m_nPadHits = 0;
     // m_padGlobalX = NULL;
     // m_padGlobalY = NULL;
@@ -183,10 +220,11 @@ void PadTriggerValidationTree::fill_num_pad_triggers(size_t num)
     m_nPadTriggers = num;
 }
 //------------------------------------------------------------------------------
-void PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<PadTrigger*> &triggers) {
+void PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<upPadTrigger> &triggers) {
   for(auto& trigger : triggers) {
     m_padTriggerBCID       ->push_back(trigger->bctag());
     m_padTriggerSectorID   ->push_back(trigger->sectorId());
+    m_padTriggerSectorType   ->push_back((trigger->isSmall()+1)%2);//1 for L 0 for S
     m_padTriggerSideID     ->push_back(trigger->sideId()); 
     m_padTriggerBandID     ->push_back(trigger->bandId()); 
     m_padTriggerEta        ->push_back(trigger->eta()); 
@@ -195,6 +233,13 @@ void PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<PadTrig
     m_padTriggerPhiID      ->push_back(trigger->phiId()); 
     m_padTriggerMultipletID->push_back(trigger->multipletId()); 
     m_padTriggerGasGapID   ->push_back(trigger->gasGapId()); 
+    m_padTriggerEtamin->push_back(trigger->etaMin());
+    m_padTriggerEtamax->push_back(trigger->etaMax());
+    m_padTriggerPhimin->push_back(trigger->phiMin());
+    m_padTriggerPhimax->push_back(trigger->phiMax());
+    m_padTriggerlocalminY->push_back(trigger->trglocalminY());
+    m_padTriggerlocalmaxY->push_back(trigger->trglocalmaxY());
+
   }
 }
 

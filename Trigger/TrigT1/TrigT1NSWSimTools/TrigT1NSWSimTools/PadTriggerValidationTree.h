@@ -11,7 +11,7 @@
 #include <string>
 #include <utility> // pair
 #include <vector>
-
+#include <memory>
 class TTree;
 
 namespace NSWL1 {
@@ -27,6 +27,11 @@ bb
    davide.gerbaudo@gmail.com
    Oct 2015
 */
+
+
+typedef std::shared_ptr<PadTrigger> spPadTrigger;
+typedef std::unique_ptr<PadTrigger> upPadTrigger;
+
 class PadTriggerValidationTree {
 
 public:
@@ -40,7 +45,7 @@ public:
     void reset_ntuple_variables(); ///< clear all vectors of internal containers
     void clear_ntuple_variables(); ///< set to 0 all pointers of internal containers
     void fill_num_pad_triggers(size_t num);                                  ///< store the number of pad triggers per event
-    void fill_pad_trigger_basics(const std::vector<PadTrigger*> &triggers);  ///< store basic information about the pad triggers 
+    void fill_pad_trigger_basics(const std::vector<upPadTrigger> &triggers);  ///< store basic information about the pad triggers 
     /*
     void fill_num_pad_hits(size_t num); ///< store the number of hits for one pad
     void fill_hit_global_pos(const Amg::Vector3D& pos); ///< store global position of a hit
@@ -52,6 +57,7 @@ private:
     int m_nPadTriggers; ///< number of triggers per event
     std::vector<unsigned int>* m_padTriggerBCID;      ///< BCID of the pad trigger
     std::vector<int>*          m_padTriggerSectorID;  ///< Sector ID of the pad trigger
+    std::vector<int>*          m_padTriggerSectorType;
     std::vector<int>*          m_padTriggerSideID;    ///< Side ID of the pad trigger
     std::vector<unsigned int>* m_padTriggerBandID;    ///< band ID used to determine which strips are read out    
     std::vector<float>*        m_padTriggerEta;       ///< Trigger halfpad eta    
@@ -60,6 +66,14 @@ private:
     std::vector<int>*          m_padTriggerPhiID;     ///< Trigger halfpad phi id   
     std::vector<int>*          m_padTriggerMultipletID;  ///< Multiplet ID of the pad trigger   
     std::vector<int>*          m_padTriggerGasGapID;     ///< GasGap ID of the pad trigger
+    
+    std::vector<float>*        m_padTriggerEtamin;  
+    std::vector<float>*        m_padTriggerEtamax;
+    std::vector<float>*        m_padTriggerPhimin;
+    std::vector<float>*        m_padTriggerPhimax;
+    
+    std::vector<std::vector<float>>* m_padTriggerlocalminY;
+    std::vector<std::vector<float>>* m_padTriggerlocalmaxY;
     // int m_nPadHits;                                         ///< number of PAD hit delivered
     // std::vector<float>* m_padGlobalX;                       ///< global position X of the PAD hit
     // std::vector<float>* m_padGlobalY;                       ///< global position Y of the PAD hit

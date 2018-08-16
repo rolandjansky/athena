@@ -6,9 +6,9 @@
 #include "GaudiKernel/MsgStream.h"
 
 // local includes
-#include "sTGCenumeration.h"
-#include "sTGCgeometry.h"
-#include "PadOfflineData.h"
+#include "TrigT1NSWSimTools/sTGCenumeration.h"
+#include "TrigT1NSWSimTools/sTGCgeometry.h"
+#include "TrigT1NSWSimTools/PadOfflineData.h"
 
 #include "TMath.h"
 #include "TRotation.h"
@@ -17,7 +17,7 @@
 #include <utility>
 #include <cassert>
 
-#include "PadUtil.h"
+#include "TrigT1NSWSimTools/PadUtil.h"
 
 namespace NSWL1 {
 

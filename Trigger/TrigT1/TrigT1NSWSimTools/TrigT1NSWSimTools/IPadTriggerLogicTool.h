@@ -16,6 +16,10 @@ namespace NSWL1 {
 class PadData;
 class PadTrigger;
 
+typedef std::shared_ptr<PadTrigger> spPadTrigger;
+typedef std::unique_ptr<PadTrigger> upPadTrigger;
+typedef std::shared_ptr<PadData> spPadData;
+
 /**
 
    @short interface for the PadTriggerLogic tools
@@ -39,7 +43,7 @@ class IPadTriggerLogicTool: public virtual IAlgTool {
 public:
     virtual ~IPadTriggerLogicTool() {}
 
-    virtual StatusCode compute_pad_triggers(const std::vector<PadData*>& pads, std::vector<PadTrigger*> &triggers) = 0;
+    virtual StatusCode compute_pad_triggers(const std::vector<spPadData>& pads, std::vector<upPadTrigger> &triggers) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IPadTriggerLogicTool("NSWL1::IPadTriggerLogicTool", 1 ,0);

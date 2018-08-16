@@ -9,8 +9,7 @@
 #define NSW_SECTORTRIGGERCANDIDATE_H
 
 #include "SingleWedgePadTrigger.h"
-#include "EtaPhiRectangle.h"
-
+#include "TrigT1NSWSimTools/GeoUtils.h"
 #include <string>
 #include <vector>
 
@@ -33,10 +32,8 @@ namespace nsw {
     SectorTriggerCandidate(const nsw::SingleWedgePadTrigger &innerOrOuterInTransition);
     std::string pickle() const; //!< simple dict-like representation
     const std::vector< nsw::SingleWedgePadTrigger >& wedgeTrigs() const { return m_wedgeTrigs;}
-    nsw::EtaPhiRectangle triggerRegion() const;
-    //! difference in direction between inner and outer; return 0. if only one is available
-    float deltaR() const;
-    std::string summaryString() const; //!< a string summarizing the trigger position
+    Polygon triggerRegion3() const;
+
   private:
     std::vector< nsw::SingleWedgePadTrigger > m_wedgeTrigs;
   }; // end class SectorTriggerCandidate

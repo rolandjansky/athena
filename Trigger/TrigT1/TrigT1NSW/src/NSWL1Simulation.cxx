@@ -200,7 +200,10 @@ namespace NSWL1 {
 
     m_counters.push_back(1.);  // a new event is being processed
 
-
+    std::vector<spPadData> pads;
+    std::vector<upPadTrigger> padTriggers;
+    std::vector<upStripData> strips;
+    std::vector< upStripClusterData > clusters;
     // retrieve the PAD hit and compute pad trigger
     if(m_dosTGC){
         // DG-2015-10-02
@@ -208,22 +211,24 @@ namespace NSWL1 {
         // Perhaps we could do here for(sector) instead of inside
         // PadTriggerLogicOfflineTool (since all the pad and
         // pad-trigger info is per-sector...)
-      std::vector<PadData*> pads;
+      
+        //std::vector<PadData*> pads;
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
 
-      std::vector<NSWL1::PadTrigger*> padTriggers; // will be passed on to m_strip_tds
+      //std::vector<NSWL1::PadTrigger*> padTriggers; // will be passed on to m_strip_tds
       if(m_doPadTrigger){
           ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
-
+      pads.clear();
       // retrieve the STRIP hit data
-      std::vector<StripData*> strips;
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
-      std::vector< NSWL1::StripClusterData* > clusters;
+      padTriggers.clear();
+      //std::vector< NSWL1::StripClusterData* > clusters;
       // Cluster STRIPs readout by TDS
       ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
+      strips.clear();
       ATH_CHECK( m_strip_segment->find_segments(clusters) );
-
+      clusters.clear();
     } // if(dosTGC)
 
 

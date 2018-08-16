@@ -8,7 +8,9 @@
 #ifndef NSW_SINGLEPADWEDGETRIGGER_H
 #define NSW_SINGLEPADWEDGETRIGGER_H
 
-#include "EtaPhiRectangle.h"
+#include "TrigT1NSWSimTools/PadWithHits.h"
+#include "TrigT1NSWSimTools/GeoUtils.h"
+
 
 #include "TVector3.h"
 
@@ -22,9 +24,7 @@ A trigger with coincident hits in at least 3 out of 4 layers within a wedge.
 davide.gerbaudo@gmail.com, April 2013
 */
 
-namespace nsw {
-  class PadWithHits;
-}
+
 
 namespace nsw {
   class SingleWedgePadTrigger {
@@ -52,15 +52,8 @@ namespace nsw {
                                         bool verbose=false);
     static EtaPhiHalf bandIndices(const EtaPhiHalf &inner, const EtaPhiHalf &outer);
     //! area that is overlapping between the pads that cause the trigger (pads are staggered)
-    static nsw::EtaPhiRectangle padOverlap(const vpads_t &pads);
-    //! direction of this trigger wrt. the origin
-    /*!
-      Direction defined by the origin of the detector and the center of
-      the quarter-pad area (corresponding to the overlap with the
-      other pads) on the first pad
-    */
-    static TVector3 direction(const nsw::PadWithHits &firstPad,
-                              const nsw::EtaPhiRectangle &overlap);
+    static Polygon padOverlap3(const vpads_t & pads);
+    
   public:
     SingleWedgePadTrigger(const std::string &pattern,
                           const vpads_t &pads,

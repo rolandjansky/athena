@@ -2,12 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SingleWedgePadTrigger.h"
-
-#include "PadWithHits.h"
-#include "vector_utils.h"
-#include "tdr_compat_enum.h"
-
+#include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
+#include "TrigT1NSWSimTools/vector_utils.h"
+#include "TrigT1NSWSimTools/tdr_compat_enum.h"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -16,7 +13,6 @@
 
 using nsw::SingleWedgePadTrigger;
 typedef SingleWedgePadTrigger Swpt; // just to get shorter lines
-using nsw::EtaPhiRectangle;
 
 
 bool sortByLayer(const nsw::PadWithHits &p0, const nsw::PadWithHits& p1) {
@@ -25,8 +21,7 @@ bool sortByLayer(const nsw::PadWithHits &p0, const nsw::PadWithHits& p1) {
 Swpt::SingleWedgePadTrigger(const std::string &pattern,
                             const vpads_t &pads,
                             const std::vector<size_t> &padIndices) :
-  m_pattern(pattern), m_halfPadIndices(-999,-999), m_padIndices(padIndices),
-  m_alreadyCombined(false)
+  m_pattern(pattern), m_halfPadIndices(-999,-999), m_padIndices(padIndices),m_alreadyCombined(false)
 {
   //std::cout<<"SingleWedgePadTrigger: "<<pattern<<" padIndices :"<<nsw::vec2str(padIndices)<<std::endl;
   assert(m_padIndices.size()>0); // a trigger without pads doesn't make sense
@@ -61,6 +56,8 @@ Swpt::EtaPhiHalf Swpt::halfPadCoordinates() const {
   assert(validLayerCombination); // probably got a pattern we don't know how to interpret
   (void) validLayerCombination; // to get rid of weird unused variable warning...
 
+
+//YR: the following is wrong but we keep it for phi as it isn't used much - for eta we use the simple calculation that follows.
   EtaPhiHalf pos(-999,-999);
   EtaPhi posA(-999,-999), posB(-999,-999);
   if       (missLast) { posA = EtaPhi(pad0.ieta, pad0.iphi); posB = EtaPhi(pad1.ieta, pad1.iphi); }
@@ -68,7 +65,13 @@ Swpt::EtaPhiHalf Swpt::halfPadCoordinates() const {
   else if (missFirst) { posA = EtaPhi(pad1.ieta, pad1.iphi); posB = EtaPhi(pad0.ieta, pad0.iphi); }
   pos.ieta = ((posA.ieta==posB.ieta) ? (posA.ieta * 2) : (posA.ieta * 2 + 1));
   pos.iphi = ((posA.iphi==posB.iphi) ? (posA.iphi * 2) : (posA.iphi * 2 + 1));
-
+  //cout<<"Half Pad Eta Index= "<<pos.ieta<<endl;
+  //S.I Shouldnt it  be pad0.ieta+pad1.ieta ??? SI 13-06-2018
+  pos.ieta =   pad0.ieta+pad2.ieta -1; //YR 1-5-2018 any of the first two layers define the 2-bandids and any of the last two layers select the bandid from that pair
+  //YR Module specific corrections:
+  if(pad0.sectortype==1 && pad0.module==1) pos.ieta +=1;
+  if(pad0.sectortype==0 && pad0.module!=1) pos.ieta +=1;
+  //cout<<"Corrected Half Pad Eta Index, CandidateY, ieta12, ieta34, pad2, layerp0  "<<pos.ieta<<"   "<<(pad0.m_cornerXyz[2][0]+pad0.m_cornerXyz[1][0]+pad2.m_cornerXyz[2][0]+pad2.m_cornerXyz[1][0])/4<<" "<<pad0.ieta<<" "<<pad2.ieta<<" "<<pad0.layer<< endl;
   return pos;
 }
 
@@ -76,7 +79,7 @@ bool Swpt::isSmallSector() const
 { 
     // small sectors are the even ones (when counting 1-16, but sectorId is 0-15)
     const PadWithHits &firstPad = m_pads[0];
-    bool isEven = ((firstPad.sector + 1) %2 )==1;
+    bool isEven = (firstPad.sectortype)==0;
     return isEven;
 }
 
@@ -85,25 +88,47 @@ float Swpt::avgEtaFromFirstPad() const
   return m_pads[0].avgEta();
 }
 
-bool Swpt::isInTransitionRegion() const
-{
-  bool small(isSmallSector());
-  float absEta = std::abs(avgEtaFromFirstPad());
-  // DG don't know whether these numbers are from the parameter book...ask Shikma
-  const double transitionEtaLow_S [3] = {1.43, 1.73, 2.07};
-  const double transitionEtaHigh_S[3] = {1.54, 1.87, 2.37};
-  const double transitionEtaLow_L [3] = {1.41, 1.67, 2.05};
-  const double transitionEtaHigh_L[3] = {1.53, 1.82, 2.35};
-  const double* trEtaLo(small ? transitionEtaLow_S  : transitionEtaLow_L  );
-  const double* trEtaHi(small ? transitionEtaHigh_S : transitionEtaHigh_L );
-  bool isTr((absEta > trEtaLo[0] && absEta < trEtaHi[0]) ||
-            (absEta > trEtaLo[1] && absEta < trEtaHi[1]) ||
-            (absEta > trEtaLo[2] && absEta < trEtaHi[2]) );
+bool Swpt::isInTransitionRegion() const{
+	//return false;
+	Polygon ROI=padOverlap3(this->pads());
+	 if(GeoUtils::area(ROI)==0) return false;
+
+	const float PI=TMath::Pi();
+	float phi0=m_pads[0].sectortype==1 ? (PI/4)*(m_pads[0].sector-1) : (PI/8)+(PI/4)*(m_pads[0].sector-1);
+	if(phi0>PI) phi0-=2*PI;
+
+	float ROIx=GeoUtils::centroid(ROI).x();
+	float ROIy=GeoUtils::centroid(ROI).y(); //YR 8-18 using the center local Y of the ROI for the decision if in the TR
+	float ROIr=sqrt(ROIx*ROIx+ROIy*ROIy);
+	float ROIphi=ROIy/ROIx;
+	float ROILocalPhi=abs(ROIphi-phi0);
+	float ROILocalY=ROIr*cos(ROILocalPhi);
+
+	bool isTr=false;
+	float TransitonSmall[7] ={2104,2243,3248,3445,4216,4411,ROILocalY}; // YR should be taken from the XML (H1 active_max, H2 active min... projected from 7 to 1)
+	float TransitonLarge[7] ={2144,2278,3294,3483,4406,4596,ROILocalY};
+
+	if(m_pads[0].multiplet==2){
+		for(int i= 0; i<6; i++){
+			TransitonSmall[i] = TransitonSmall[i]*1.048; //Z5/Z1 ratio
+			TransitonLarge[i] = TransitonLarge[i]*1.044;
+		}
+	}
+
+if (isSmallSector()){
+	std::sort(TransitonSmall, TransitonSmall + 7);
+	if(TransitonSmall[1]==ROILocalY || TransitonSmall[3]==ROILocalY || TransitonSmall[5]==ROILocalY)  return true;
+}
+else{
+	std::sort(TransitonLarge, TransitonLarge + 7);
+	if(TransitonLarge[1]==ROILocalY || TransitonLarge[3]==ROILocalY || TransitonLarge[5]==ROILocalY)  return true;
+}
+
   return isTr;
 }
 
-EtaPhiRectangle Swpt::padOverlap(const vpads_t &pads)
-{ // \todo some duplication with halfPadCoordinates()...refactor
+//S.I 3
+Polygon Swpt::padOverlap3(const vpads_t &pads){ // \todo some duplication with halfPadCoordinates()...refactor
   using std::cout; using std::endl;
   size_t nPads(pads.size());
   bool haveEnoughPads(nPads>2);
@@ -120,47 +145,37 @@ EtaPhiRectangle Swpt::padOverlap(const vpads_t &pads)
   // if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
   assert(validLayerCombination); // probably got a pattern we don't know how to interpret
   (void) validLayerCombination;
-  // ASM-2017-07-07
-  // ASM-2017-07-07
-  // ASM-2017-07-07
-  //const PadWithHits &padA = pad0;
-  //const PadWithHits &padB = (hasL1L4 ? pad2 : pad1);
-  //return EtaPhiRectangle::overlappingRectangle(EtaPhiRectangle(padA.m_loEta, padA.m_hiEta,
-  //                                                             padA.m_loPhi, padA.m_hiPhi),
-  //                                             EtaPhiRectangle(padB.m_loEta, padB.m_hiEta,
-  //                                                             padB.m_loPhi, padB.m_hiPhi));
-  EtaPhiRectangle overlap = EtaPhiRectangle::overlappingRectangle(EtaPhiRectangle(pads[0].m_loEta, pads[0].m_hiEta,
-                                                                                  pads[0].m_loPhi, pads[0].m_hiPhi),
-                                                                  EtaPhiRectangle(pads[1].m_loEta, pads[1].m_hiEta,
-                                                                                  pads[1].m_loPhi, pads[1].m_hiPhi));
-  for(unsigned int i=2; i<pads.size(); i++) {
-    overlap = EtaPhiRectangle::overlappingRectangle(overlap,
-                                                    EtaPhiRectangle(pads[i].m_loEta, pads[i].m_hiEta,
-                                                                    pads[i].m_loPhi, pads[i].m_hiPhi));
+ 
+  
+  //make a vector of pad etaphi polygons
+  //calculate the intersection and return it
+  std::vector<Polygon> projected_pads;
+  //one pad --> one polygon
+  //S.I VERY IMPORTANT : A polygon is an ordered set of vertices. So order matters !
+  //According to the previous experience (our drawing tool) vertices are connected in the order :
+  std::vector<int> vertexordering={0,1,3,2};
+  //project each pad polygon onto the first plane of the wedge
+  float Zproj=pads[0].m_cornerXyz[1][2];//second index x:0 y:1 z:2
+  for(auto pad : pads){
+      Vertices vts;
+      for(unsigned int i=0;i<4;i++){
+        int icorner=vertexordering[i];
+        float x=pad.m_cornerXyz[icorner][0];
+        float y=pad.m_cornerXyz[icorner][1];
+        vts.push_back(Vertex(x,y));
+      } 
+      Polygon padPolygon=GeoUtils::buildPolygon(vts);
+      if(pad.layer==1 && pad.multiplet==1){
+          //GeoUtils::print(padPolygon);
+      }
+      projected_pads.push_back(GeoUtils::Project(padPolygon,pad.m_cornerXyz[2][2],Zproj));
   }
-  return overlap;
-  // ASM-2017-07-07
-  // ASM-2017-07-07
-  // ASM-2017-07-07
+  Polygon res=GeoUtils::intersectionRegion(projected_pads);
+  return res;
 }
 
-TVector3 Swpt::direction(const nsw::PadWithHits &firstPad,
-                         const nsw::EtaPhiRectangle &overlap)
-{
-  TVector3 v;
-  // DG need to think about how this should be implemented
-  float z(firstPad.m_cornerXyz[0][2]); // all corners have the same z
-  float thetaC(2.0*atan(exp(-overlap.eta()))), phiC(overlap.phi());
-  float r(z*tan(thetaC));
-  v.SetXYZ(r*sin(thetaC)*cos(phiC), r*sin(thetaC)*sin(phiC), z);
-  return v;
-}
-TVector3 Swpt::direction() const
-{
-  // DG assuming again pads are sorted by layer
-  return SingleWedgePadTrigger::direction(m_pads[0],
-                                          SingleWedgePadTrigger::padOverlap(m_pads));
-}
+
+//eof S.I
 
 std::string vec2pickle(const Swpt::vpads_t &pads){
     std::ostringstream oo;
@@ -169,8 +184,7 @@ std::string vec2pickle(const Swpt::vpads_t &pads){
     oo<<"]";
     return oo.str();
 }
-std::string Swpt::pickle() const
-{
+std::string Swpt::pickle() const{
     std::ostringstream oo;
     oo<<"'pattern' : "<<     "'"<<m_pattern<<"'"<<           ", "
       <<"'padIndices' : "       <<vec2str(m_padIndices)<<    ", "

@@ -17,6 +17,10 @@
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
+class StripOfflineData;
+typedef std::unique_ptr<PadTrigger> upPadTrigger;
+typedef std::unique_ptr<StripOfflineData> upStripOfflineData;
+typedef std::unique_ptr<StripData> upStripData;
   /**
    *
    *   @short interface for the StripTDS tools
@@ -35,7 +39,7 @@ namespace NSWL1 {
   public:
     virtual ~IStripTdsTool() {}
 
-    virtual StatusCode gather_strip_data(std::vector<StripData*>& strips, std::vector<NSWL1::PadTrigger*>& padTriggers) = 0;
+    virtual StatusCode gather_strip_data(std::vector<upStripData>& strips, const std::vector<upPadTrigger>& padTriggers) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IStripTdsTool("NSWL1::IStripTdsTool", 1 ,0);

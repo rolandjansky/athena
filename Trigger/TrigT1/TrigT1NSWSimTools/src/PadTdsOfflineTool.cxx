@@ -9,8 +9,8 @@
 #include "AGDDKernel/AGDDDetectorStore.h"
 
 // local includes
-#include "PadTdsOfflineTool.h"
-#include "PadOfflineData.h"
+#include "TrigT1NSWSimTools/PadTdsOfflineTool.h"
+#include "TrigT1NSWSimTools/PadOfflineData.h"
 
 //Event info includes
 #include "EventInfo/EventInfo.h"
@@ -33,7 +33,7 @@
 // local includes
 #include "TTree.h"
 #include "TVector3.h"
-#include "PadUtil.h"
+#include "TrigT1NSWSimTools/PadUtil.h"
 
 #include <functional>
 #include <algorithm>
@@ -45,13 +45,15 @@ using namespace std;
 
 namespace NSWL1 {
 
+typedef std::shared_ptr<PadOfflineData> spPadOfflineData;  
+    
 struct PadHits {
     Identifier      t_id;
-    PadOfflineData* t_pad;
+    spPadOfflineData t_pad;
     int             t_cache_index;
 
     // constructor
-    PadHits(Identifier id, PadOfflineData* p, int c) { t_id = id; t_pad=p; t_cache_index=c; }
+    PadHits(Identifier id, spPadOfflineData p, int c) { t_id = id; t_pad=p; t_cache_index=c; }
 };
 
 
@@ -104,8 +106,8 @@ PadTdsOfflineTool::PadTdsOfflineTool( const std::string& type, const std::string
 
     // reserve enough slots for the trigger sectors and fills empty vectors
     m_pad_cache.reserve(PadTdsOfflineTool::numberOfSectors());
-    std::vector< std::vector<PadData*> >::iterator it = m_pad_cache.begin();
-    m_pad_cache.insert(it, PadTdsOfflineTool::numberOfSectors(), std::vector<PadData*>());
+    std::vector< std::vector<spPadData> >::iterator it = m_pad_cache.begin();
+    m_pad_cache.insert(it, PadTdsOfflineTool::numberOfSectors(), std::vector<spPadData>());
 }
 //------------------------------------------------------------------------------
 PadTdsOfflineTool::~PadTdsOfflineTool() {
@@ -115,10 +117,15 @@ PadTdsOfflineTool::~PadTdsOfflineTool() {
 //------------------------------------------------------------------------------
 void PadTdsOfflineTool::clear_cache() {
     for (unsigned int i=0; i<m_pad_cache.size(); i++) {
-        std::vector<PadData*>& sector_pads = m_pad_cache.at(i);
+        std::vector<spPadData>& sector_pads = m_pad_cache.at(i);
+        //S.I we dont need it below anymore 
+        /*
         for (unsigned int p=0; p< sector_pads.size(); p++) {
-            delete sector_pads.at(p);
+            //delete sector_pads.at(p) 
+            //delete sector_pads.at(p).get();
+            std::cout<<"@!# refcount PadTdsOfflineTool::clear_cache() = "<<sector_pads.at(p).use_count()<<std::endl;
         }
+        */
         sector_pads.clear();
     }
 }
@@ -226,10 +233,10 @@ Amg::Vector3D local_position_to_global_position(const MuonSimData::Deposit &d, c
 void PadTdsOfflineTool::fill_pad_validation_id() {
     float bin_offset = +0.; // used to center the bin on the value of the Pad Id
     for (unsigned int i=0; i<m_pad_cache.size(); i++) { 
-        std::vector<PadData*>& pad = m_pad_cache.at(i);
+        std::vector<spPadData>& pad = m_pad_cache.at(i);
         m_validation_tree.fill_num_pad_hits(pad.size());
         for (unsigned int p=0; p<pad.size(); p++) {
-            PadData* pd = pad.at(p);
+            spPadData pd = pad.at(p);
             Identifier Id( pd->id() );
             const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
             const Trk::PlaneSurface &surface = rdoEl->surface(Id);
@@ -259,7 +266,7 @@ void PadTdsOfflineTool::fill_pad_validation_id() {
             m_validation_tree.fill_hit_global_corner_pos(global_pad_corners);
 
             // gathers the Offline PAD EDM from the interface
-            PadOfflineData* pad_offline = dynamic_cast<PadOfflineData*>( pd );
+            PadOfflineData* pad_offline = dynamic_cast<PadOfflineData*>( pd.get() );
             m_validation_tree.fill_hit_global_pos(pad_gpos);
             m_validation_tree.fill_offlineid_info(*pad_offline, bin_offset);
 
@@ -273,7 +280,7 @@ void PadTdsOfflineTool::fill_pad_validation_id() {
     }
 }
 //------------------------------------------------------------------------------
-StatusCode PadTdsOfflineTool::gather_pad_data(std::vector<PadData*>& pads, int side, int sector) {
+StatusCode PadTdsOfflineTool::gather_pad_data(std::vector<spPadData>& pads, int side, int sector) {
     ATH_MSG_DEBUG( "gather_pad_data: start gathering the PAD hits for side " << side << ", sector " << sector );
     // check side and sector parameters
     if ( side <-1 || side >1 ) {
@@ -377,8 +384,13 @@ PadTdsOfflineTool::cStatus PadTdsOfflineTool::fill_pad_cache() {
                     uint16_t BCP1 = 1, BC0 = 0, BCM1 = ~BCP1;
                     if(digit->bcTag()==BCM1 || digit->bcTag()==BC0 || digit->bcTag()==BCP1) { 
                         print_digit(digit);
-                        PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
-                        pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
+                        //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                        //S.I
+                        //spPadOfflineData pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
+                        auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                        //pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
+                        pad_hits.emplace_back(Id, pad, cache_index(digit));//avoids extra copy
+                        //S.I
                     }
                 }
             } 
@@ -449,7 +461,8 @@ void PadTdsOfflineTool::simulateDeadTime(std::vector<PadHits>& h) const {
             if ( p_next!=hits.end() &&
                  std::fabs((*p_next).t_pad->time()-(*p).t_pad->time())<=m_VMMDeadTime) {
                 // remove the PAD hits, clearing the memory for the PadOfflineData
-                delete (*p_next).t_pad;
+                //delete (*p_next).t_pad;
+                delete (*p_next).t_pad.get();
                 p = hits.erase(p_next);
                 p = hits.begin();  // restart from the beginning
             } else ++p;
@@ -614,7 +627,7 @@ void PadTdsOfflineTool::store_pads(const std::vector<PadHits> &pad_hits)
         //m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
         ////////////////////
         // ASM-2017-06-21
-        const std::vector<PadData*>& pad = m_pad_cache.at(pad_hits[i].t_cache_index);
+        const std::vector<spPadData>& pad = m_pad_cache.at(pad_hits[i].t_cache_index);
         bool fill = pad.size() == 0 ? true : false;
         for(unsigned int p=0; p<pad.size(); p++)  {
             Identifier Id(pad.at(p)->id());
@@ -683,7 +696,7 @@ void PadTdsOfflineTool::print_pad_cache() const
 {
     if ( msgLvl(MSG::DEBUG) ) {
         for (unsigned int i=0; i<m_pad_cache.size(); i++) {
-            const std::vector<PadData*>& pad = m_pad_cache.at(i);
+            const std::vector<spPadData>& pad = m_pad_cache.at(i);
             for (unsigned int p=0; p<pad.size(); p++)
                 ATH_MSG_DEBUG("PAD hit cache: hit at side " << ( (pad.at(p)->sideId())? "A":"C")
                               << ", trigger sector " << pad.at(p)->sectorId()
