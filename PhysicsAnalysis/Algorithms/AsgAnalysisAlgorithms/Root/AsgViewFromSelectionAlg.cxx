@@ -102,6 +102,14 @@ namespace CP
   StatusCode AsgViewFromSelectionAlg ::
   executeFindType (const CP::SystematicSet& sys)
   {
+    if( m_allowMissing ) {
+      const std::string& name = m_inputHandle.getName( sys );
+      if( ! evtStore()->contains< xAOD::IParticleContainer >( name ) ) {
+        m_function = &AsgViewFromSelectionAlg::executeMissing;
+        return StatusCode::SUCCESS;
+      }
+    }
+
     const xAOD::IParticleContainer *input = nullptr;
     ANA_CHECK (m_inputHandle.retrieve (input, sys));
 
@@ -140,6 +148,14 @@ namespace CP
 
 
 
+  StatusCode AsgViewFromSelectionAlg ::
+  executeMissing (const CP::SystematicSet&)
+  {
+    return StatusCode::SUCCESS;
+  }
+
+
+
   AsgViewFromSelectionAlg ::
   AsgViewFromSelectionAlg (const std::string& name, 
                            ISvcLocator* pSvcLocator)
@@ -150,6 +166,8 @@ namespace CP
     declareProperty ("selection", m_selection, "the list of selection decorations");
     declareProperty ("ignore", m_ignore, "the list of cuts to *ignore* for each selection");
     declareProperty ("sortPt", m_sortPt, "whether to sort objects in pt");
+    declareProperty ("allowMissing", m_allowMissing,
+                     "Allow the input container to be missing");
     declareProperty ("sizeLimit", m_sizeLimit, "the limit on the size of the output container");
     declareProperty ("deepCopy", m_deepCopy, "perform a deep copy");
   }
