@@ -94,6 +94,7 @@ namespace Muon
       Muon::sTgcPrepDataContainer* m_stgcPrepDataContainer;
       SG::ReadHandleKey<STGC_RawDataContainer> m_rdoContainerKey;//"TGCRDO"
       SG::WriteHandleKey<sTgcPrepDataContainer> m_stgcPrepDataContainerKey;
+      bool m_merge; // merge Prds
 
    }; 
 } // end of namespace
