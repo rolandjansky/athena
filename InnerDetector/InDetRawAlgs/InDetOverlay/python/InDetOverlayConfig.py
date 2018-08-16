@@ -27,6 +27,29 @@ def getSCTOverlay(name="SCTOverlay", **kwargs):
     return CfgMgr.SCTOverlay(name, **kwargs)
 
 
+def getTRTOverlay(name="TRTOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    from Digitization.DigitizationFlags import digitizationFlags
+
+    kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TRT_RDOs");
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+TRT_RDOs");
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TRT_RDOs");
+    kwargs.setdefault("SignalInputSDOKey", overlayFlags.evtStore() + "+TRT_SDO_Map");
+
+    kwargs.setdefault("includeBkg", True);
+
+    kwargs.setdefault("RndmEngine", "TRTOverlay")
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc.get_Value())
+
+    kwargs.setdefault("TRT_LocalOccupancyTool", "TRT_LocalOccupancy")
+
+    # HT hit correction fraction
+    kwargs.setdefault("TRT_HT_OccupancyCorrectionBarrel", 0.160)
+    kwargs.setdefault("TRT_HT_OccupancyCorrectionEndcap", 0.130)
+
+    return CfgMgr.TRTOverlay(name, **kwargs)
+
+
 def getInDetSDOOverlay(name="InDetSDOOverlay", **kwargs):
     from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.DetFlags import DetFlags
