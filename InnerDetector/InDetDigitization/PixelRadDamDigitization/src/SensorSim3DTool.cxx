@@ -95,92 +95,47 @@ StatusCode SensorSim3DTool::initialize() {
   else if(m_fluence==1){
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl0em10.root") );  //IBL  PL - Barrel
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );    //B-Layer - Barrel                                                                                                  
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );    //Layer-1 - Barrel
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl2e13.root") );    //Layer-2 - Barrel
 
     fluence_layers.push_back(1e-10);
-    fluence_layers.push_back(7e13);
-    fluence_layers.push_back(3e13);
-    fluence_layers.push_back(2e13);
 
   }
   else if(m_fluence==2){
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl1e14.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1.2e14.root") );                                                                                                            
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl5e13.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );
 
     fluence_layers.push_back(1e14);
-    fluence_layers.push_back(1.2e14);
-    fluence_layers.push_back(5e13);
-    fluence_layers.push_back(3e13);
 
   }else if(m_fluence==3){
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl2e14.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1.7e14.root") );                                                                                                            
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl4e13.root") );
 
     fluence_layers.push_back(2e14);
-    fluence_layers.push_back(1.7e14);
-    fluence_layers.push_back(7e13);
-    fluence_layers.push_back(4e13);
 
   }else if(m_fluence==4){
 
     mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_150V_fl2e14.root") );
-    mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl1.7e14.root") );                                                                                                            
-    mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl7e13.root") );
-    mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl4e13.root") );
 
     fluence_layers.push_back(2e14);
-    fluence_layers.push_back(1.7e14);
-    fluence_layers.push_back(7e13);
-    fluence_layers.push_back(4e13);
 
   }else if(m_fluence==5){
 
-//    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_350V_fl5e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_1e14_20V.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl3.1e14.root") );                                                                                                            
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl1.3e14.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl8e13.root") );
-
+    ///cvmfs/atlas.cern.ch/repo/sw/database/GroupData/
     fluence_layers.push_back(5e14);
-    fluence_layers.push_back(3.1e14);
-    fluence_layers.push_back(1.3e14);
-    fluence_layers.push_back(8e13);
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FLUENCE 5 BEING USED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ATLAS 3D SENSOR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! LOADING THE 3D TCAD FLUENCE MAP !!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   }else if(m_fluence==6){
 
     mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_400V_fl8_7e14.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_400V_fl4_6e14.root", "DATAPATH") );
-    
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_250V_fl2_1e14.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_150V_fl1_3e14.root", "DATAPATH") );
 
     fluence_layers.push_back(8.7e14);
-    fluence_layers.push_back(4.6e14);
-    fluence_layers.push_back(2.1e14);
-    fluence_layers.push_back(1.3e14);
 
   }else if(m_fluence==7){
 
     mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_endLHC.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_blayer_endLHC.root", "DATAPATH") );
-
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L1_endLHC.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L2_endLHC.root", "DATAPATH") );
 
     fluence_layers.push_back(2*8.7e14);
-    fluence_layers.push_back(2*4.6e14);
-    fluence_layers.push_back(2*2.1e14);
-    fluence_layers.push_back(2*1.3e14);
 
   }
   
@@ -204,8 +159,8 @@ StatusCode SensorSim3DTool::initialize() {
     //Setup ramo weighting field map
     TH3F* ramoPotentialMap_hold;
     ramoPotentialMap_hold=0;
-    ramoPotentialMap_hold=(TH3F*)mapsFile->Get("hramomap1");
-    if (ramoPotentialMap_hold==0) ramoPotentialMap_hold=(TH3F*)mapsFile->Get("ramo3d");
+    ramoPotentialMap_hold=(TH3F*)mapsFile->Get("ramo");
+    //ALEX if (ramoPotentialMap_hold==0) ramoPotentialMap_hold=(TH3F*)mapsFile->Get("ramo3d");
     if (ramoPotentialMap_hold==0){
     ATH_MSG_INFO("Did not find a Ramo potential map.  Will use an approximate form.");
     return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
@@ -218,7 +173,7 @@ StatusCode SensorSim3DTool::initialize() {
     //Now setup the E-field.
     TH1F* eFieldMap_hold;
     eFieldMap_hold=0;
-    eFieldMap_hold=(TH1F*)mapsFile->Get("hEfield1D");
+    eFieldMap_hold=(TH1F*)mapsFile->Get("efield");
     if (eFieldMap_hold == 0){ 
     ATH_MSG_INFO("Unable to load sensor e-field map, so generating one using approximations.");
     return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
@@ -228,35 +183,28 @@ StatusCode SensorSim3DTool::initialize() {
     //eFieldMap.push_back(eFieldMap_hold);
     eFieldMap[Layer]=eFieldMap_hold;
 
-    TH2F* lorentzMap_e_hold;
-    TH2F* lorentzMap_h_hold;
     TH2F* distanceMap_h_hold;
     TH2F* distanceMap_e_hold;
     TH1F* timeMap_e_hold;
     TH1F* timeMap_h_hold;
 
-    lorentzMap_e_hold=0;
-    lorentzMap_h_hold=0;
     distanceMap_e_hold=0;
     distanceMap_h_hold=0;
     timeMap_e_hold=0;
     timeMap_h_hold=0;
-    lorentzMap_e_hold=(TH2F*)mapsFile->Get("lorentz_map_e");
-    lorentzMap_h_hold=(TH2F*)mapsFile->Get("lorentz_map_h");
     distanceMap_h_hold=(TH2F*)mapsFile->Get("hdistance");
     distanceMap_e_hold=(TH2F*)mapsFile->Get("edistance");
     timeMap_e_hold=(TH1F*)mapsFile->Get("etimes");
     timeMap_h_hold=(TH1F*)mapsFile->Get("htimes");
     //Now, determine the time to reach the electrode and the trapping position.
-    if (distanceMap_e_hold == 0 || distanceMap_h_hold == 0 || timeMap_e_hold == 0 || timeMap_h_hold == 0 || lorentzMap_e_hold == 0 || lorentzMap_h_hold == 0){
+    if (distanceMap_e_hold == 0 || distanceMap_h_hold == 0 || timeMap_e_hold == 0 || timeMap_h_hold == 0){
     
-      ATH_MSG_INFO("Unable to load at least one of teh distance/time/Lorentz angle maps, so generating all using approximations.");
+      ATH_MSG_INFO("Unable to load at least one of teh distance/time maps, so generating all using approximations.");
       return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
       //TODO
-      //CHECK(m_radDamageUtil->generateDistanceTimeMap( distanceMap_e, distanceMap_h, timeMap_e, timeMap_h, lorentzMap_e, lorentzMap_h, eFieldMap, p_design_dummy ));
+      //CHECK(m_radDamageUtil->generateDistanceTimeMap( distanceMap_e, distanceMap_h, timeMap_e, timeMap_h, eFieldMap, p_design_dummy ));
     }
-    lorentzMap_e[Layer]=lorentzMap_e_hold;
-    lorentzMap_h[Layer]=lorentzMap_h_hold;
+    
     distanceMap_e[Layer]=distanceMap_e_hold;
     distanceMap_h[Layer]=distanceMap_h_hold;
     timeMap_e[Layer]=timeMap_e_hold;
@@ -298,6 +246,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
     Layer.first=bec;                  //Barrel (0) or End Cap (1)   -    Maps only for Barrel at the moment. isBarrel will avoid zsh
     Layer.second=layer;               //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
                                       //IBL Barrel doesn't exist. So the possible idexes should be: 0-0, 0-1, 0-2, 0-3, 1-1, 1-2, 1-3
+    //3D sensors only in IBL. So only possible index is 0-0
 
     if(m_doRadDamage && isBarrel && m_fluence>0){
      std::pair<double,double> trappingTimes = m_radDamageUtil->getTrappingTimes( fluence_layersMaps[Layer] );
@@ -339,8 +288,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
 
   double collectionDist = 0.2*CLHEP::mm;//kept for consistency with previosu version of digi. Does someone know where this number comes from?
   double smearScale = 1. + 0.35*smearRand;//ditto...
-  double tanLorentz = Module.getTanLorentzAnglePhi();
-  double coLorentz=sqrt(1+pow(tanLorentz,2));
   
   //**************************************//
   //*** Now diffuse charges to surface *** //
@@ -447,28 +394,20 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
         double depth_f_h = distanceMap_h[Layer]->GetBinContent( nbin_z_h_xbin,nbin_z_h_ybin );
         double dz_h = fabs(depth_f_h - dist_electrode);           
 
-        //Apply drift due to Lorentz force and diffusion
+        //Apply drift due to diffusion
         double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
-        int  nbin_Lorentz_e = lorentzMap_e[Layer]->FindBin(dist_electrode,depth_f_e);
-        tanLorentz = lorentzMap_e[Layer]->GetBinContent(nbin_Lorentz_e);       
-        coLorentz=sqrt(1+pow(tanLorentz,2));
-
         //Apply diffusion. rdif is teh max. diffusion
-        double rdif_e=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_e)*coLorentz/0.3);
-        double phi_f_e=phi_i + dz_e*tanLorentz + rdif_e*phiRand;
+        double rdif_e=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_e)*coLorentz/0.3); //ALEX: Why is this coLorentz even here? 
+        double phi_f_e=phi_i + rdif_e*phiRand;
         double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
         double eta_f_e=eta_i + rdif_e*etaRand;
   
         phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
-        int  nbin_Lorentz_h = lorentzMap_h[Layer]->FindBin(dist_electrode,depth_f_h);
-        tanLorentz = lorentzMap_h[Layer]->GetBinContent(nbin_Lorentz_h);       
-        coLorentz=sqrt(1+pow(tanLorentz,2));
+        double rdif_h=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_h)*coLorentz/0.3); //ALEX: Same...
 
-        double rdif_h=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_h)*coLorentz/0.3);
-
-        double phi_f_h=phi_i + dz_h*tanLorentz + rdif_h*phiRand;
+        double phi_f_h=phi_i + rdif_h*phiRand;
         etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
         double eta_f_h=eta_i + rdif_h*etaRand;
 
@@ -572,10 +511,10 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
         } //for p
       }else { //If no radDamage, run original
         
-	      double rdif=this->m_diffusionConstant*sqrt(dist_electrode*coLorentz/0.3);
+	      double rdif=this->m_diffusionConstant*sqrt(dist_electrode*coLorentz/0.3); //ALEX: ????
 	      // position at the surface
 	      double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-	      double phi_drifted=phi_i+dist_electrode*tanLorentz+rdif*phiRand;
+	      double phi_drifted=phi_i+rdif*phiRand;
 	      double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 	      double eta_drifted=eta_i+rdif*etaRand;
 
