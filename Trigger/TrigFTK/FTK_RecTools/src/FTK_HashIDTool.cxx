@@ -175,7 +175,7 @@ FTK_RawTrackContainer* FTK_HashIDTool::processTracks(const FTK_RawTrackContainer
 	  newTrack->setPixelCluster(ipix,clus);
 	  if (id !=0xffffffff) {
 	    ATH_MSG_DEBUG("newTrack->getPixelCluster(ipix).getModuleID() 0x"<<std::hex <<   newTrack->getPixelCluster(ipix).getModuleID() << std::dec);
-	    Amg::Vector3D point(this->getPixelClusterPosition(clus,reverseIBL).x(), this->getPixelClusterPosition(clus,reverseIBL).y(), this->getPixelClusterPosition(clus,reverseIBL).z());
+	    const Amg::Vector3D point = this->getPixelClusterPosition(clus,reverseIBL);
 	    pointsOnTrack.push_back(point);
 	  }
 	}
