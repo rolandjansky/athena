@@ -1,9 +1,14 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef GEOUTILS_H
 #define GEOUTILS_H
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 #include <vector>
+
 
 
 //You don't have to instantiate the class. Most methods are static and are wrappers on top of boost ones
@@ -52,9 +57,10 @@ typedef std::vector<Vertex> Vertices;
         //get the first of the intersections of two polygons. We expect to get only one of them for sTGC pad geometry
         static Polygon firstIntersection(const Polygon&,const Polygon&);
 
-        //given a two polygon calculate the overlap with largest area       
+        //given  two polygons, calculate the overlap with the largest area       
         static Polygon largestIntersection(const Polygon&,const Polygon&);
         //given a set of polygons calculate the overlap if there is any at the end...
+        
         //we take the first overlap(s) into account. For the pad geometry we, in principle, should have only one overlap at each selected pair of layers
         static Polygon intersectionRegion(const std::vector<Polygon>&);
 

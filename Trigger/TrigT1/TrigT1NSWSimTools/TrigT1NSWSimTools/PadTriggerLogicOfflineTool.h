@@ -63,13 +63,6 @@ namespace NSWL1 {
 */
 
 
-typedef std::shared_ptr<PadTrigger> spPadTrigger;
-typedef std::unique_ptr<PadTrigger> upPadTrigger;
-typedef std::shared_ptr<PadData> spPadData;
-
-
-
-
 class PadTrigger;
 
 class PadTriggerLogicOfflineTool:
