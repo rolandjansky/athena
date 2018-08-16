@@ -40,8 +40,6 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-#include "boost/foreach.hpp"
-
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 #   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
@@ -239,7 +237,6 @@ StatusCode TrigALFAROBMonitor::initialize(){
 
   const TrigConf::HLTChainList *chainlist = m_configSvc->chainList();
   if (chainlist) {
-         //BOOST_FOREACH(TrigConf::HLTChain* chain, *chainlist) {
          for (auto *chain: *chainlist) {
             if (chain->chain_name() == "HLT_costmonitor") {
                m_HLTcostMon_chain = chain;               
