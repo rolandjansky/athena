@@ -499,6 +499,12 @@ StatusCode JetUncertaintiesTool::initialize()
         ATH_MSG_INFO(Form("  VariablesToShift: %s",varString.c_str()));
     }
 
+    // Attempt to read in nominal resolution information
+    // There may be no such information - this is perfectly normal
+    m_resHelper = new ResolutionHelper(m_name+"_ResHelper",m_jetDef);
+    if(m_resHelper->initialize(settings,histFile).isFailure())
+        return StatusCode::FAILURE;
+
     // Prepare for reading components and groups
     // Components can be a group by themself (single component groups) if "Group" == 0
     // Components can also form simple groups with "SubComp"
@@ -2061,6 +2067,47 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
     if (!allValid)
         return CP::CorrectionCode::OutOfValidityRange;
     
+    // Ensure that we don't mix relative and absolute resolution uncertainties of the same type
+    // Such situations violate the current code structure
+    std::vector<CompScaleVar::TypeEnum> scaleVars = m_currentUncSet->getScaleVars();
+    bool hasMassRes = false;
+    bool hasPtRes   = false;
+    bool hasFvRes   = false;
+    for (CompScaleVar::TypeEnum var : scaleVars)
+    {
+        if (var == CompScaleVar::MassRes || var == CompScaleVar::MassResAbs)
+        {
+            if (hasMassRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative mass resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasMassRes = true;
+        }
+        else if (var == CompScaleVar::PtRes || var == CompScaleVar::PtResAbs)
+        {
+            if (hasPtRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative pT resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasPtRes = true;
+        }
+        else if (var == CompScaleVar::FourVecRes || var == CompScaleVar::FourVecResAbs)
+        {
+            if (hasFvRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative four-vector resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasFvRes = true;
+        }
+    }
+
+
     // Handle each case as needed
     for (size_t iVar = 0; iVar < uncSet.size(); ++iVar)
     {
@@ -2298,11 +2345,16 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
 
         The above is all for absolute resolution uncertainties
             In the case of relative resolution uncertainties, not much changes
-            n*x --> n*sigma_nominal^data*x
+            n*x --> n*sigma_nominal*x
                 n: unchanged from before, #sigma variation for NP1
                 x: now this is a fractional uncertainty, but it is still the value of NP1
-                sigma_nominal^data: uncertainty measurement is with respect to data, not MC
-            In other words, all of the above is directly extended using sigma_nominal^data
+                sigma_nominal: uncertainty measurement varies (sign unaffected by nominal)
+            In other words, all of the above is directly extended
+
+        This all relies on the fact that absolute and relative resolutions are not mixed
+            This is enforced by the tool enums, which are one or the other
+            Asking for both relative and absolute smearing is two separate scale variables
+            The tool checks for such cases and explicitly blocks them
 
         In the end, smear by a Gaussian of mean 1 and width sigma_smear
 

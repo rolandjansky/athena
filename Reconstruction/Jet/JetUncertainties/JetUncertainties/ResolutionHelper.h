@@ -13,6 +13,7 @@
 #include <map>
 
 class TEnv;
+class TFile;
 
 namespace jet
 {
@@ -20,15 +21,17 @@ namespace jet
 class ResolutionHelper : public asg::AsgMessaging
 {
     public:
-        ResolutionHelper(std::string name = "ResolutionHelper");
+        ResolutionHelper(const std::string& name, const std::string& jetDef);
         ResolutionHelper(const ResolutionHelper& toCopy);
-        virtual StatusCode initialize(TEnv& settings);
+        virtual StatusCode initialize(TEnv& settings, TFile* histFile);
         virtual ~ResolutionHelper();
 
         // Information retrieval
         std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> getNominalResolution(const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology, const bool readMC) const;
 
     private:
+        std::string m_name;
+        std::string m_jetDef;
         bool m_isInit;
 
         // Nominal resolution histograms
@@ -42,11 +45,28 @@ class ResolutionHelper : public asg::AsgMessaging
         UncertaintyHistogram* m_fvNomHistMC;
         CompParametrization::TypeEnum m_fvNomParamMC;
 
-        std::map<JetTopology::TypeEnum,UncertaintyHistogram*> m_mNomHistData;
-        std::map<JetTopology::TypeEnum,CompParametrization::TypeEnum> m_mNomParamData;
-        std::map<JetTopology::TypeEnum,UncertaintyHistogram*> m_mNomHistMC;
-        std::map<JetTopology::TypeEnum,CompParametrization::TypeEnum> m_mNomParamMC;
+        UncertaintyHistogram* m_mQCDNomHistData;
+        CompParametrization::TypeEnum m_mQCDNomParamData;
+        UncertaintyHistogram* m_mQCDNomHistMC;
+        CompParametrization::TypeEnum m_mQCDNomParamMC;
 
+        UncertaintyHistogram* m_mWZNomHistData;
+        CompParametrization::TypeEnum m_mWZNomParamData;
+        UncertaintyHistogram* m_mWZNomHistMC;
+        CompParametrization::TypeEnum m_mWZNomParamMC;
+
+        UncertaintyHistogram* m_mHbbNomHistData;
+        CompParametrization::TypeEnum m_mHbbNomParamData;
+        UncertaintyHistogram* m_mHbbNomHistMC;
+        CompParametrization::TypeEnum m_mHbbNomParamMC;
+
+        UncertaintyHistogram* m_mTopNomHistData;
+        CompParametrization::TypeEnum m_mTopNomParamData;
+        UncertaintyHistogram* m_mTopNomHistMC;
+        CompParametrization::TypeEnum m_mTopNomParamMC;
+
+        // Helper methods
+        StatusCode parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram* hist, CompParametrization::TypeEnum& param);
 
 };
 
