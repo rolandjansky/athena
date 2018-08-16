@@ -13,6 +13,7 @@
 #define ATHENAKERNEL_CONDCONT_H
 
 #include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/RCUUpdater.h"
 #include "AthenaKernel/IConditionsCleanerSvc.h"
