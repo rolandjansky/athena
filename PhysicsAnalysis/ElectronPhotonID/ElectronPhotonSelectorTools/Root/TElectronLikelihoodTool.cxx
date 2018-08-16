@@ -800,10 +800,10 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
       if (et > 7000. || !DiscHardCutForPileupTransform4GeV.size()){
 	unsigned int etfinebinLH = getLikelihoodEtDiscBin(et,true);
     unsigned int ibin_combined = etfinebinLH*s_fnEtaBins+etabin;
-	disc_hard_cut_ref       = m_discHardCutForPileupTransform[ibin_combined];
-	disc_hard_cut_ref_slope = m_discHardCutSlopeForPileupTransform[ibin_combined];
-	if (m_doCentralityTransform) disc_hard_cut_ref_quad  = m_discHardCutQuadForPileupTransform[ibin_combined];
-	disc_loose_ref          = m_discLooseForPileupTransform[ibin_combined];
+	disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
+	disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
+	if (doCentralityTransform) disc_hard_cut_ref_quad  = DiscHardCutQuadForPileupTransform[ibin_combined];
+	disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
       } else {
 	if( DiscHardCutForPileupTransform4GeV.size() == 0 || DiscHardCutSlopeForPileupTransform4GeV.size() == 0 || DiscLooseForPileupTransform4GeV.size() == 0){
 	  ATH_MSG_WARNING("Vectors needed for pileup-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
