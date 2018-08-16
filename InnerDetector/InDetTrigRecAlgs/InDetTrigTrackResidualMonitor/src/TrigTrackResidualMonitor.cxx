@@ -24,8 +24,6 @@
 #include "InDetIdentifier/SiliconID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictDetDescr/IdDictManager.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
@@ -248,15 +246,6 @@ namespace InDet
     m_idHelperSCT = IdHelperSCT;
     
 
-    // Pixel Manager
-    if(detStore->retrieve(m_Pixel_Manager, "Pixel").isFailure()){
-      msg() << MSG::FATAL   << "Could not get Pixel_Manager !" << endmsg;
-    }
-    else{
-      msg() << MSG::DEBUG << "Pixel manager found !" << endmsg;
-    }
-    
-    
     //Get Updator
     if (m_updator.retrieve().isFailure()) {
       msg() << MSG::FATAL << "Can not retrieve Updator of type  " << m_updator.typeAndName() << endmsg;
@@ -567,7 +556,6 @@ namespace InDet
                 PropagatedPixelUnbiasedTrackParams = m_updator->removeFromState(*tsos->trackParameters(), 
                                 tsos->measurementOnTrack()->localParameters(), 
                                 tsos->measurementOnTrack()->localCovariance());
-                //  const Identifier& PixelID = m_Pixel_Manager->getDetectorElement(id)->identify();
                 const Trk::Surface* TempSurfacePixel = &(PixelSideHit->measurementOnTrack()->associatedSurface());
                 const Trk::MagneticFieldProperties* TempFieldPixel = 0;
         
