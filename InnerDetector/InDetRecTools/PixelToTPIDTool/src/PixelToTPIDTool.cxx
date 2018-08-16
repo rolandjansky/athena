@@ -46,6 +46,7 @@ InDet::PixelToTPIDTool::PixelToTPIDTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_IBLParameterSvc("IBLParameterSvc",n),
   m_overflowIBLToT(0),
+  m_pixelid(nullptr),
   m_offlineCalibSvc("PixelOfflineCalibSvc", n)
 {
   declareInterface<IPixelToTPIDTool>(this);

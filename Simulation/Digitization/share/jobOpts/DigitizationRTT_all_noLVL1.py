@@ -10,15 +10,15 @@
 #--------------------------------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax=25
-athenaCommonFlags.PoolHitsInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1"]
+athenaCommonFlags.PoolHitsInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1"]
 athenaCommonFlags.PoolRDOOutput="DigitizationOutput.pool.root"
 
 #--------------------------------------------------------------
 # Digitiziation and Pileup configuration
 #--------------------------------------------------------------
 from Digitization.DigitizationFlags import digitizationFlags
-digitizationFlags.IOVDbGlobalTag='OFLCOND-RUN12-SDR-25'
-#digitizationFlags.dataRunNumber=222500
+digitizationFlags.IOVDbGlobalTag='OFLCOND-MC16-SDR-16'
+digitizationFlags.dataRunNumber=284500
 # digitizationFlags.doInDetNoise=True
 # digitizationFlags.doCaloNoise=True
 # digitizationFlags.doMuonNoise=True
@@ -36,7 +36,7 @@ digitizationFlags.IOVDbGlobalTag='OFLCOND-RUN12-SDR-25'
 # Global flags. Like eg the DD version:
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
+globalflags.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 
 #--------------------------------------------------------------------
 # DetFlags. Use to turn on/off individual subdetector or LVL1 trigger

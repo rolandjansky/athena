@@ -21,13 +21,13 @@ void ZdcRawChannelCollectionCnv_p1::transToPers(const ZdcRawChannelCollection* t
 
 void ZdcRawChannelCollectionCnv_p1::persToTrans(const ZdcRawChannelCollection_p1* persObj, ZdcRawChannelCollection* transObj, MsgStream& log) {
 
-  //log << MSG::INFO << " size = " << persObj->size() << endreq;
+  //log << MSG::INFO << " size = " << persObj->size() << endmsg;
 
   transObj->reserve(persObj->size());
   
   for (unsigned int i=0; i<persObj->size(); ++i) {
     
-    //log << MSG::INFO << " i = " << i << endreq;
+    //log << MSG::INFO << " i = " << i << endmsg;
     const ZdcRawChannel_p1* rawchannel = &((*persObj)[i]);
     
     transObj->push_back(rawchannelConv.createTransient(rawchannel,log));

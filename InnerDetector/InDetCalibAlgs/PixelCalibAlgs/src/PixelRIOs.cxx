@@ -29,8 +29,95 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 						std::string input,
 						std::string final_tag,
 						std::string collection):
-			m_timer(0), m_Calibration(0), m_Validation(0),
-			m_StartingTag(starting_tag), m_FinalTag(final_tag){
+      b_event_number(nullptr),
+      b_number_cluster_per_event(nullptr),
+      b_type_of_trigger(nullptr),
+      b_PixClusLocX(nullptr),
+      b_PixClusLocY(nullptr),
+      b_PixClusLocXcentroid(nullptr),
+      b_PixClusLocYcentroid(nullptr),
+      b_PixClusLocX_LorentzCorrection(nullptr),
+      b_PixClusGloX(nullptr),
+      b_PixClusGloY(nullptr),
+      b_PixClusGloZ(nullptr),
+      b_PixClusEta(nullptr),
+      b_PixClusPhi(nullptr),
+      b_PixECBarrel(nullptr),
+      b_PixClusLayer(nullptr),
+      b_PixEtaModule(nullptr),
+      b_PixPhiModule(nullptr),
+      b_PixClusGroupsize(nullptr),
+      b_PixClusRow(nullptr),
+      b_PixClusCol(nullptr),
+      b_PixDeltaRow(nullptr),
+      b_PixDeltaCol(nullptr),
+      b_PixOmegaPhi(nullptr),
+      b_PixOmegaEta(nullptr),
+      b_PixClusToT(nullptr),
+      b_PixClusCharge(nullptr),
+      b_PixClusLvl1(nullptr),
+      b_PixClusGanged(nullptr),
+      b_PixClusFake(nullptr),
+      b_PixClusAmbiguous(nullptr),
+      b_PixClusEtaIndex(nullptr),
+      b_PixClusPhiIndex(nullptr),
+      b_PixClusChargeList(nullptr),
+      b_PixClusToTList(nullptr),
+      b_PixClusLVLAList(nullptr),
+      b_number_hits_per_event(nullptr),
+      b_PixHitXstartpos(nullptr),
+      b_PixHitYstartpos(nullptr),
+      b_PixHitZstartpos(nullptr),
+      b_PixHitXendpos(nullptr),
+      b_PixHitYendpos(nullptr),
+      b_PixHitZendpos(nullptr),
+      b_PixHitBarrelEndcap(nullptr),
+      b_PixHitLayerDisk(nullptr),
+      b_PixHitEtaModule(nullptr),
+      b_PixHitPhiModule(nullptr),
+      b_PixHitEtaIndex(nullptr),
+      b_PixHitPhiIndex(nullptr),
+      b_PixHitAngle(nullptr),
+      b_PixHitAngle2(nullptr),
+      b_PixHitAngle_Lorcorr(nullptr),
+      b_PixHitEnergyLoss(nullptr),
+      b_PixHitTime(nullptr),
+      b_PixHitPDGParticle(nullptr),
+      b_PixHitParticlePt(nullptr),
+      b_PixHitFlag(nullptr),
+      b_MC_Xpos(nullptr),
+      b_MC_Ypos(nullptr),
+      b_MC_IncidentAngle(nullptr),
+      b_MC_IncidentAngle2(nullptr),
+      b_MC_IncidentAngle_Lorcorr(nullptr),
+      b_MC_EnergyLoss(nullptr),
+      b_MC_Time(nullptr),
+      b_MC_PDGParticle(nullptr),
+      b_MC_ParticlePt(nullptr),
+      b_MC_Flag(nullptr),
+      b_PixClusLocXana(nullptr),
+      b_PixClusLocYana(nullptr),
+      b_PixClusErrX(nullptr),
+      b_PixClusErrY(nullptr),
+      b_NotAssociated_Xpos(nullptr),
+      b_NotAssociated_Ypos(nullptr),
+      b_NotAssociated_BarrelEndcap(nullptr),
+      b_NotAssociated_LayerDisk(nullptr),
+      b_NotAssociated_EtaModule(nullptr),
+      b_NotAssociated_PhiModule(nullptr),
+      b_NotAssociated_IncidentAngle(nullptr),
+      b_NotAssociated_IncidentAngle2(nullptr),
+      b_NotAssociated_IncidentAngle_Lorcorr(nullptr),
+      b_NotAssociated_EnergyLoss(nullptr),
+      b_NotAssociated_Time(nullptr),
+      b_NotAssociated_PDGParticle(nullptr),
+      b_NotAssociated_ParticlePt(nullptr),
+      b_NotAssociated_Flag(nullptr),
+      m_timer(0), 
+      m_Calibration(0), 
+      m_Validation(0),
+      m_StartingTag(starting_tag), 
+      m_FinalTag(final_tag){
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
 	ROOT::Cintex::Cintex::Enable();
@@ -83,6 +170,9 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 		}
 	}
 
+        PixelEventNumber = 0;
+        PixelClusNum = 0;
+        LVL1TriggerType = 0;
 	PixClusLocX = 0;
 	PixClusLocY = 0;
 	PixClusLocXcentroid = 0;
@@ -115,7 +205,8 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 	PixClusChargeList = 0;
 	PixClusToTList = 0;
 	PixClusLVLAList = 0;
-	PixHitXstartpos = 0;
+	PixelHitsNum = 0;
+        PixHitXstartpos = 0;
 	PixHitYstartpos = 0;
 	PixHitZstartpos = 0;
 	PixHitXendpos = 0;
@@ -166,6 +257,8 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 
 	fChain = clusters_tree;
 	fCurrent = -1;
+
+  if (!fChain) { return; }
 
 	fChain->SetBranchAddress("PixelEventNumber", &PixelEventNumber, &b_event_number);
 	fChain->SetBranchAddress("PixelClusNum", &PixelClusNum, &b_number_cluster_per_event);

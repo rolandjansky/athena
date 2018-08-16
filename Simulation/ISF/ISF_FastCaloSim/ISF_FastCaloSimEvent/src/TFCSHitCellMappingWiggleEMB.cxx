@@ -73,7 +73,7 @@ double TFCSHitCellMappingWiggleEMB::doWiggle()
  return wiggle;
 }
 
-void TFCSHitCellMappingWiggleEMB::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSHitCellMappingWiggleEMB::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
 
@@ -85,5 +85,5 @@ void TFCSHitCellMappingWiggleEMB::simulate_hit(Hit& hit,TFCSSimulationState& sim
   double hit_phi_shifted=hit.phi()-wiggle;
   hit.phi()=TVector2::Phi_mpi_pi(hit_phi_shifted);
 
-  TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
+  return TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
 }

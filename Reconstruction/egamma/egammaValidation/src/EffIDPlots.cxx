@@ -13,17 +13,17 @@ namespace egammaMonitoring {
     gROOT->ForceStyle();
     gStyle->SetOptStat(0);
 
-    LLH_pT_Eff = new TH1D("LLH_pT_Eff", ";p_{T} [GeV];p_{T} Efficiency LLH",  200, 0, 200);
-    MLH_pT_Eff = new TH1D("MLH_pT_Eff", ";p_{T} [GeV];p_{T} Efficiency MLH",  200, 0, 200); 
-    TLH_pT_Eff = new TH1D("TLH_pT_Eff", ";p_{T} [GeV];p_{T} Efficiency TLH",  200, 0, 200);
+    LLH_pT_Eff = new TH1D("LLH_pT_Eff", ";p_{T} [GeV];p_{T} Efficiency LLH",  40, 0, 200);
+    MLH_pT_Eff = new TH1D("MLH_pT_Eff", ";p_{T} [GeV];p_{T} Efficiency MLH",  40, 0, 200); 
+    TLH_pT_Eff = new TH1D("TLH_pT_Eff", ";p_{T} [GeV];p_{T} Efficiency TLH",  40, 0, 200);
 
-    LLH_eta_Eff = new TH1D("LLH_eta_Eff", ";#eta;#eta Efficiency LLH",  120, -3, 3);
-    MLH_eta_Eff = new TH1D("MLH_eta_Eff", ";#eta;#eta Efficiency MLH",  120, -3, 3);
-    TLH_eta_Eff = new TH1D("TLH_eta_Eff", ";#eta;#eta Efficiency TLH",  120, -3, 3);
+    LLH_eta_Eff = new TH1D("LLH_eta_Eff", ";#eta;#eta Efficiency LLH",  40, -3, 3);
+    MLH_eta_Eff = new TH1D("MLH_eta_Eff", ";#eta;#eta Efficiency MLH",  40, -3, 3);
+    TLH_eta_Eff = new TH1D("TLH_eta_Eff", ";#eta;#eta Efficiency TLH",  40, -3, 3);
 
-    LLH_phi_Eff = new TH1D("LLH_phi_Eff", ";#phi;#phi Efficiency LLH",  50, -TMath::Pi(), TMath::Pi());
-    MLH_phi_Eff = new TH1D("MLH_phi_Eff", ";#phi;#phi Efficiency MLH",  50, -TMath::Pi(), TMath::Pi());
-    TLH_phi_Eff = new TH1D("TLH_phi_Eff", ";#phi;#phi Efficiency TLH",  50, -TMath::Pi(), TMath::Pi());
+    LLH_phi_Eff = new TH1D("LLH_phi_Eff", ";#phi;#phi Efficiency LLH",  20, -TMath::Pi(), TMath::Pi());
+    MLH_phi_Eff = new TH1D("MLH_phi_Eff", ";#phi;#phi Efficiency MLH",  20, -TMath::Pi(), TMath::Pi());
+    TLH_phi_Eff = new TH1D("TLH_phi_Eff", ";#phi;#phi Efficiency TLH",  20, -TMath::Pi(), TMath::Pi());
 
   } // initializePlots
 

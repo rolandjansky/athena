@@ -57,18 +57,22 @@ const std::string TFCSParametrizationBinnedChain::get_bin_text(int bin) const
   return std::string(Form("bin %d",bin));
 }
 
-void TFCSParametrizationBinnedChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSParametrizationBinnedChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   for(unsigned int ichain=0;ichain<m_bin_start[0];++ichain) {
     ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
-    chain()[ichain]->simulate(simulstate,truth,extrapol);
+    if (simulate_and_retry(chain()[ichain], simulstate, truth, extrapol) != FCSSuccess) {
+      return FCSFatal;
+    }
   }
   if(get_number_of_bins()>0) {
     int bin=get_bin(simulstate,truth,extrapol);
     if(bin>=0 && bin<(int)get_number_of_bins()) {
       for(unsigned int ichain=m_bin_start[bin];ichain<m_bin_start[bin+1];++ichain) {
         ATH_MSG_DEBUG("for "<<get_variable_text(simulstate,truth,extrapol)<<" run "<<get_bin_text(bin)<<": "<<chain()[ichain]->GetName());
-        chain()[ichain]->simulate(simulstate,truth,extrapol);
+        if (simulate_and_retry(chain()[ichain], simulstate, truth, extrapol) != FCSSuccess) {
+          return FCSFatal;
+        }
       }
     } else {
       ATH_MSG_WARNING("for "<<get_variable_text(simulstate,truth,extrapol)<<": "<<get_bin_text(bin));
@@ -78,8 +82,12 @@ void TFCSParametrizationBinnedChain::simulate(TFCSSimulationState& simulstate,co
   }  
   for(unsigned int ichain=m_bin_start.back();ichain<size();++ichain) {
     ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
-    chain()[ichain]->simulate(simulstate,truth,extrapol);
+    if (simulate_and_retry(chain()[ichain], simulstate, truth, extrapol) != FCSSuccess) {
+      return FCSFatal;
+    }
   }
+
+  return FCSSuccess;
 }
 
 void TFCSParametrizationBinnedChain::Print(Option_t *option) const
@@ -164,4 +172,3 @@ void TFCSParametrizationBinnedChain::unit_test(TFCSSimulationState* simulstate,c
   chain.simulate(*simulstate,truth,extrapol);
   std::cout<<"==================================="<<std::endl<<std::endl;
 }
-

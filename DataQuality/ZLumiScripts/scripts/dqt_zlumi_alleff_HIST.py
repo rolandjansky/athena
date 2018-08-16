@@ -15,11 +15,17 @@ parser.add_argument('--out', type=str, help='output ROOT file')
 parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
                     default='plots')
 parser.add_argument('--debug', action='store_true', help='Be verbose in output')
+parser.add_argument('--mode', type=str, help='Zee or Zmumu')
+
 
 args = parser.parse_args()
 
 infilename = args.infile
 infile = ROOT.TFile.Open(infilename, 'READ')
+
+runmode = args.mode
+print 'Running in', runmode, 'mode'
+
 
 runname = None
 for k in infile.GetListOfKeys():
@@ -85,11 +91,18 @@ from DQUtils import fetch_iovs
 #print rset
 lblb = fetch_iovs("LBLB", runs=int(runname[4:])).by_run
 for lb in sorted(lbdirs):
-    h = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_mutrigtp_matches' % (runname, lb))
-    hmo = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_match_os' % (runname, lb))
-    hms = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_match_ss' % (runname, lb))
-    hno = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_os' % (runname, lb))
-    hns = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_ss' % (runname, lb))
+    if runmode == "Zee":
+        h = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_eltrigtp_matches' % (runname, lb))
+        hmo = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_ele_tight_good_os' % (runname, lb))
+        hms = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_ele_tight_good_ss' % (runname, lb))
+        hno = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_ele_tight_bad_os' % (runname, lb))
+        hns = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_ele_tight_bad_ss' % (runname, lb))
+    if runmode == "Zmumu":
+        h = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_mutrigtp_matches' % (runname, lb))
+        hmo = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_match_os' % (runname, lb))
+        hms = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_match_ss' % (runname, lb))
+        hno = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_os' % (runname, lb))
+        hns = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_ss' % (runname, lb))
     lbnum = int(lb[3:])
     yld = (h[2], h[3])
     ylderr = (h.GetBinError(2), h.GetBinError(3))
@@ -128,7 +141,7 @@ for lb in sorted(lbdirs):
     Aerr = (matchoserr**2+matchsserr**2)**.5
     B = float(nomatchos-nomatchss)
     Berr = (nomatchoserr**2+nomatchsserr**2)**.5
-    if B == 0: Berr = 1.
+    if Berr == 0: Berr = 1.
     if A == 0 or B/A == -1: 
         eff = 1.
         inverrsq = 1.
@@ -175,8 +188,12 @@ c1.Print(os.path.join(args.plotdir, '%s_reco_efficiency.eps' % runname[4:]))
 fout.WriteTObject(effcyr)
 fout.Close()
 
-sumweights = infile.Get('%s/GLOBAL/DQTDataFlow/m_sumweights' % runname)
-ctr = infile.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % runname)
+if runmode == "Zee":
+    sumweights = infile.Get('%s/GLOBAL/DQTDataFlow/m_sumweights' % runname)
+    ctr = infile.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_el' % runname)
+if runmode == "Zmumu":
+    sumweights = infile.Get('%s/GLOBAL/DQTDataFlow/m_sumweights' % runname)
+    ctr = infile.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_mu' % runname)
 if sumweights:
     for ibin in xrange(1,sumweights.GetNbinsX()+1):
         o_lb[0] = int(sumweights.GetBinCenter(ibin))

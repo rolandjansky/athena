@@ -4,12 +4,12 @@
 
 /**
 
- @mainpage
+@page PathResolver_page 
 
  <center><b>This utility finds files or directories from a search path list.</b></center>
 
 <hr />
-@section Principle Principle
+@section PathResolver_Principle Principle
 
    Assuming that a path-like environment variable is defined and
    filled in with the possible prioritized locations where a category
@@ -47,7 +47,7 @@
    </p>
 
 <hr />
-@section Using Using the PathResolver
+@section PathResolver_Using Using the PathResolver
 
    @subsection Accessing Accessing the PathResolver package.
 
