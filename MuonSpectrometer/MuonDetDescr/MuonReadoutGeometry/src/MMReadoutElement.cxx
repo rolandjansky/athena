@@ -245,7 +245,7 @@ namespace MuonGM {
       
       m_nStrips.push_back(m_etaDesign[il].nch);
 
-      reLog()<<MSG::INFO
+      reLog()<<MSG::DEBUG
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << " stereo " <<  m_etaDesign[il].sAngle << endmsg;
 
     }
@@ -282,7 +282,7 @@ namespace MuonGM {
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
 // get phi direction of MM eta strip 
-      *m_MsgStream << MSG::INFO << " MMReadoutElement layer " << layer << " sAngle " << sAngle << " phi direction MM eta strip " << (m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,1.,0.)).phi() << endmsg; 
+      *m_MsgStream << MSG::DEBUG << " MMReadoutElement layer " << layer << " sAngle " << sAngle << " phi direction MM eta strip " << (m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,1.,0.)).phi() << endmsg; 
     }
   }
 
