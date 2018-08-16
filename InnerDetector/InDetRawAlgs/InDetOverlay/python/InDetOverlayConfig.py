@@ -3,6 +3,18 @@
 from AthenaCommon import CfgMgr
 
 
+def getPixelOverlay(name="PixelOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+PixelRDOs");
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+PixelRDOs");
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+PixelRDOs");
+
+    kwargs.setdefault("includeBkg", True);
+
+    return CfgMgr.PixelOverlay(name, **kwargs)
+
+
 def getInDetSDOOverlay(name="InDetSDOOverlay", **kwargs):
     from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.DetFlags import DetFlags

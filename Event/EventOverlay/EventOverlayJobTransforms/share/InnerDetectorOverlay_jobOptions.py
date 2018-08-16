@@ -21,6 +21,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
     if DetFlags.overlay.pixel_on():
         job += CfgGetter.getAlgorithm("PixelOverlayDigitization")
+        job += CfgGetter.getAlgorithm("PixelOverlay")
 
         if overlayFlags.isDataOverlay():
             job.InDetPixelRawDataProvider.RDOKey = overlayFlags.dataStore()+"+PixelRDOs"
