@@ -24,7 +24,7 @@
 
 
 /** convert the given G4Track into an ISFParticle */
-ISF::ISFParticle*
+std::unique_ptr<ISF::ISFParticle>
 iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                   const ISF::ISFParticle& parent,
                                                   ISF::TruthBinding* truth,
@@ -33,10 +33,10 @@ iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
   const G4ThreeVector& g4pos = aTrack.GetPosition();
   const double         gTime = aTrack.GetGlobalTime();
   const Amg::Vector3D  position(g4pos.x(),g4pos.y(),g4pos.z());
-  
+
   const G4ThreeVector& g4mom = aTrack.GetMomentum();
   const Amg::Vector3D  momentum(g4mom.x(),g4mom.y(),g4mom.z());
-  
+
   const G4ParticleDefinition &particleDefinition = *aTrack.GetDefinition();
   double mass    = particleDefinition.GetPDGMass();
   double charge  = particleDefinition.GetPDGCharge();
@@ -45,17 +45,17 @@ iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
   auto* genParticle = (truth) ? truth->getTruthParticle(): nullptr;
   Barcode::ParticleBarcode barcode = (genParticle) ? genParticle->barcode() : Barcode::fUndefinedBarcode;
 
-  ISF::ISFParticle *isp = new ISF::ISFParticle( position,
-                                                momentum,
-                                                mass,
-                                                charge,
-                                                pdgID,
-                                                gTime,
-                                                parent,
-                                                barcode,
-                                                truth,
-                                                partLink
-                                               );
+  std::unique_ptr<ISF::ISFParticle> isp = std::make_unique<ISF::ISFParticle>( position,
+                                                                              momentum,
+                                                                              mass,
+                                                                              charge,
+                                                                              pdgID,
+                                                                              gTime,
+                                                                              parent,
+                                                                              barcode,
+                                                                              truth,
+                                                                              partLink
+                                                                              );
 
   return isp;
 }
@@ -63,7 +63,7 @@ iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
 
 /** return a valid UserInformation object of the G4Track for use within the ISF */
 VTrackInformation *
-iGeant4::ISFG4Helper::getISFTrackInfo(const G4Track& aTrack) 
+iGeant4::ISFG4Helper::getISFTrackInfo(const G4Track& aTrack)
 {
   VTrackInformation* trackInfo = static_cast<VTrackInformation*>(aTrack.GetUserInformation());
   return trackInfo;
@@ -124,4 +124,3 @@ iGeant4::ISFG4Helper::getEventInformation()
 {
   return ( static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation()) );
 }
-
