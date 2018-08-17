@@ -117,7 +117,7 @@ Trig::FeatureContainer::ordering_by_objects_attached2::weakOrder(const HLT::Trig
 //this is a helper method to weakly order feature access helpers.
 class order_by_clid_and_index {
 public:
-  bool operator()(const Trig::TypelessFeature& a,const Trig::TypelessFeature& b){
+  bool operator()(const Trig::TypelessFeature& a,const Trig::TypelessFeature& b) const {
     if ( a.accessHelper().getCLID() == b.accessHelper().getCLID()) {
       return a.accessHelper().getIndex() < b.accessHelper().getIndex();
     }
