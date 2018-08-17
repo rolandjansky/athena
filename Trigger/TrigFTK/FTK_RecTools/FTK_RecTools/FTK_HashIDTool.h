@@ -34,6 +34,8 @@ class FTK_HashIDTool : public AthAlgTool, virtual public IFTK_HashIDTool {
   virtual StatusCode initialize();
   
   unsigned int getHash(unsigned int tower, unsigned int sector,  unsigned int plane);
+
+  unsigned int getHashFromAuxSector(unsigned int tower, unsigned int sector,  unsigned int plane);
   
   bool findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane);
   
@@ -122,6 +124,7 @@ class FTK_HashIDTool : public AthAlgTool, virtual public IFTK_HashIDTool {
   size_t m_max_tower;
   
   std::vector<ftk_sectormap*> m_moduleFromSector;
+  std::vector<std::vector<int>> m_sector8toSector12;
   
   std::string m_ConstantsDir;
   std::string m_PatternsVersion;

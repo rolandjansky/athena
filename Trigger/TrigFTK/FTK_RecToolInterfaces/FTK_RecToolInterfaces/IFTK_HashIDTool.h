@@ -19,6 +19,8 @@ class IFTK_HashIDTool: virtual public IAlgTool {
   {  return IID_IFTK_HashIDTool; }  	
 
   virtual unsigned int getHash(unsigned int tower, unsigned int sector,  unsigned int plane)=0;
+
+  virtual unsigned int getHashFromAuxSector(unsigned int tower, unsigned int sector,  unsigned int plane)=0;
   
   virtual bool findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane)=0;
 

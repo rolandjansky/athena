@@ -73,12 +73,12 @@ StatusCode FTK_HashIDTool::initialize(){
 
   StatusCode ret=StatusCode::SUCCESS;
   m_moduleFromSector.resize(m_max_tower);
+  m_sector8toSector12.resize(m_max_tower);
   for (unsigned int itower=0; itower<m_max_tower; itower++) {
     
     m_moduleFromSector[itower] = new ftk_sectormap();
     unsigned int returnCode = (this)->readModuleIds(itower, *(m_moduleFromSector[itower]));
-    
-    if (returnCode) {
+  if (returnCode) {
       ATH_MSG_WARNING("Error " << returnCode << " loading constants for tower " << itower);
       ret=StatusCode::FAILURE;
       break;
@@ -162,7 +162,7 @@ FTK_RawTrackContainer* FTK_HashIDTool::processTracks(const FTK_RawTrackContainer
       for( unsigned int ipix = 0; ipix < track->getPixelClusters().size(); ++ipix,++layer){
 	if (!track->isMissingPixelLayer(ipix)){
 	  FTK_RawPixelCluster clus(track->getPixelWordA(ipix),track->getPixelWordB(ipix),track->getPixelBarcode(ipix));
-	  uint32_t id = this->getHash(idtower, idsector, layer);
+	  uint32_t id = this->getHashFromAuxSector(idtower, idsector, layer);
 	  if (id == 0xffffffff) {
 	    ATH_MSG_WARNING(" Failed to get ID for pixel module with tower " << idtower << " sector " << idsector << "  layer " << layer);
 	    layermap &= ~(0x1 << layer); // clear bit for layer 
@@ -182,7 +182,7 @@ FTK_RawTrackContainer* FTK_HashIDTool::processTracks(const FTK_RawTrackContainer
       }
       for( unsigned int isct = 0; isct < track->getSCTClusters().size(); ++isct,++layer){
 	if (!track->isMissingSCTLayer(isct)){
-	  uint32_t id = this->getHash(idtower, idsector, layer);
+	  uint32_t id = this->getHashFromAuxSector(idtower, idsector, layer);
 	  if (id == 0xffffffff) {
 	    ATH_MSG_WARNING(" Failed to get ID for SCT module with tower " << idtower << " sector " << idsector << "  layer " << layer);
 	    layermap &= ~(0x1 << layer); // clear bit for layer 
@@ -277,6 +277,24 @@ unsigned int FTK_HashIDTool::getHash(unsigned int tower, unsigned int sector,  u
 }
 
 
+unsigned int FTK_HashIDTool::getHashFromAuxSector(unsigned int tower, unsigned int sector,  unsigned int plane) {
+  unsigned int hash =  0xffffffff;
+  if (plane >= 12) {
+    ATH_MSG_ERROR("getHashFromAuxSector: Invalid plane " << plane);
+    return hash;
+  }
+  if (sector>m_sector8toSector12[tower].size()) {
+    ATH_MSG_ERROR("getHashFromAuxSector: Invalid sector " << sector << " max " << m_sector8toSector12.size()-1);
+    return hash;
+  }
+  unsigned int remappedSector=m_sector8toSector12[tower][sector];
+  if (m_moduleFromSector[tower]==nullptr) return hash;
+  if ((*m_moduleFromSector[tower]).size() <= remappedSector) return hash;
+  if (plane >=(*m_moduleFromSector[tower])[remappedSector].size()) return hash;
+  return (unsigned int)(*m_moduleFromSector[tower])[remappedSector][plane];
+}
+
+
 int FTK_HashIDTool::readModuleIds(unsigned int itower, ftk_sectormap& hashID) {
    int nSector8L,nPlane8L;
    // define which 8L plane goes to which 12L plane
@@ -317,6 +335,8 @@ int FTK_HashIDTool::readModuleIds(unsigned int itower, ftk_sectormap& hashID) {
    int lastSector8=-1;
    int lastSector12=-1;
    int error=0;
+
+   unsigned int icount=0;
    while(!((*patt_8L).eof()||conn.eof())) {
       int iSectorPatt,iSectorConn;
       (*patt_8L)>>iSectorPatt;
@@ -332,6 +352,9 @@ int FTK_HashIDTool::readModuleIds(unsigned int itower, ftk_sectormap& hashID) {
          // file is corrupted
          break;
       }
+
+      m_sector8toSector12[itower].push_back(icount);
+
       vector<int> moduleData(remapPlanes.size());
       // read 8L module IDs
       for(int k=0;k<nPlane8L;k++) {
@@ -355,8 +378,9 @@ int FTK_HashIDTool::readModuleIds(unsigned int itower, ftk_sectormap& hashID) {
          for(unsigned int k=nPlane8L;k<remapPlanes.size();k++) {
             conn>>moduleData[remapPlanes[k]];
          }
-         hashID.push_back(moduleData);
+	 hashID.push_back(moduleData);
          lastSector12=sector12;
+	 icount++;
       }
       if(error) break;
 
