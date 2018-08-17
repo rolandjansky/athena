@@ -48,7 +48,7 @@ public:
   virtual void UserSteppingAction(const G4Step*) override final;
 
 protected:
-  EventInformation* m_eventInfo;   //!< event-global G4 UserInformation
+  EventInformation* m_eventInfo{};   //!< event-global G4 UserInformation
 
   /** This method is called by TrackProcessorUserActionBase after the
    *  G4Track->ISFParticle association has been established for the current G4Track */
@@ -73,7 +73,7 @@ private:
                                int regenerationNumber) const;
 
   /// The most recent ISFParticle ancestor that triggers the currently processed G4Track
-  ISF::ISFParticle* m_curBaseISP;
+  ISF::ISFParticle* m_curBaseISP{};
 
 }; // class TrackProcessorUserActionBase
 

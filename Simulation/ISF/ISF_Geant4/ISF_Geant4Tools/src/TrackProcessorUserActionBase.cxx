@@ -48,10 +48,8 @@ namespace G4UA {
 
 namespace iGeant4 {
 
-TrackProcessorUserActionBase::TrackProcessorUserActionBase():
-  m_eventInfo(nullptr),
-  m_curBaseISP(nullptr)
-{;
+TrackProcessorUserActionBase::TrackProcessorUserActionBase()
+{
 }
 
 void TrackProcessorUserActionBase::BeginOfEventAction(const G4Event*)
@@ -110,7 +108,8 @@ void TrackProcessorUserActionBase::PreUserTrackingAction(const G4Track* aTrack)
   if (isPrimary) {
     G4Track* nonConstTrack = const_cast<G4Track*> (aTrack); // love it :)
     setupPrimary(*nonConstTrack);
-  } else {
+  }
+  else {
     setupSecondary(*aTrack);
   }
 
