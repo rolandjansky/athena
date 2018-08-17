@@ -74,8 +74,8 @@ namespace ISF {
         << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
         << " barcode=" << m_barcode << " mass=" << m_mass << " order=" << m_order << " bcid=" << m_bcid;
     if (m_truth) {
-        out << " truth=" << *m_truth->getTruthParticle();
-        if (m_truth->getTruthParticle()) out << " with parent_event=" << m_truth->getTruthParticle()->parent_event();
+      out << " truth=" << m_truth->getTruthParticle();
+      if (m_truth->getTruthParticle()) out << " with parent_event=" << m_truth->getTruthParticle()->parent_event();
     } else
       out << " without TruthBinding";
     if (m_partLink)
@@ -90,8 +90,8 @@ namespace ISF {
         << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
         << " barcode=" << m_barcode << " mass=" << m_mass << " order=" << m_order << " bcid=" << m_bcid;
     if (m_truth) {
-	out << " truth=" << *m_truth->getTruthParticle();    
-	if (m_truth->getTruthParticle()) out << " with parent_event=" << m_truth->getTruthParticle()->parent_event();
+      out << " truth=" << m_truth->getTruthParticle();
+      if (m_truth->getTruthParticle()) out << " with parent_event=" << m_truth->getTruthParticle()->parent_event();
     } else
       out << " without TruthBinding";
     if (m_partLink)
