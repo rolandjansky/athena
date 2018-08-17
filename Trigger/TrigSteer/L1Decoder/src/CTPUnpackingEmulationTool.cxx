@@ -54,13 +54,6 @@ StatusCode CTPUnpackingEmulationTool::parseInputFile() {
 StatusCode CTPUnpackingEmulationTool::initialize() {
 
   CHECK( CTPUnpackingToolBase::initialize() );
-  CHECK( decodeCTPToChainMapping() ); 
-
-  for( auto ctpid : m_ctpToChain ){
-    for ( auto chain : ctpid.second ){
-      ATH_MSG_DEBUG( ctpid.first << " " << chain );
-    }
-  }
   return parseInputFile();
 }
 

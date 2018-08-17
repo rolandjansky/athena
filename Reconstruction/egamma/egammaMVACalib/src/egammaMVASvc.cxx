@@ -68,7 +68,7 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
 
   if (xAOD::EgammaHelpers::isElectron(&eg)) {
     if (m_mvaElectron.isEnabled()) {
-      mvaE = m_mvaElectron->getEnergy(&eg, &cluster);
+      mvaE = m_mvaElectron->getEnergy(cluster,&eg);
     } else {
       ATH_MSG_FATAL("Trying to calibrate an electron, but disabled");
       return StatusCode::FAILURE;
@@ -76,14 +76,14 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
   } else if (xAOD::EgammaHelpers::isConvertedPhoton(&eg) && 
 	     xAOD::EgammaHelpers::conversionRadius(static_cast<const xAOD::Photon*>(&eg)) < m_maxConvR) {
     if (m_mvaConvertedPhoton.isEnabled()) {
-      mvaE = m_mvaConvertedPhoton->getEnergy(&eg, &cluster);
+      mvaE = m_mvaConvertedPhoton->getEnergy(cluster,&eg);
     } else {
       ATH_MSG_FATAL("Trying to calibrate a converted photon, but disabled");
       return StatusCode::FAILURE;
     }
   } else if (xAOD::EgammaHelpers::isPhoton(&eg)) {
     if (m_mvaUnconvertedPhoton.isEnabled()) {
-      mvaE = m_mvaUnconvertedPhoton->getEnergy(&eg, &cluster);
+      mvaE = m_mvaUnconvertedPhoton->getEnergy(cluster,&eg);
     } else {
       ATH_MSG_FATAL("Trying to calibrate an unconverted photon, but disabled");
       return StatusCode::FAILURE;
@@ -106,7 +106,7 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
 }
 
 StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
-				 xAOD::EgammaParameters::EgammaType egType) const
+				 const xAOD::EgammaParameters::EgammaType egType) const
 {
 
   ATH_MSG_DEBUG("calling execute with cluster and egType (" << egType <<")");
@@ -115,7 +115,7 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
   switch (egType) {
   case xAOD::EgammaParameters::electron:
     if (m_mvaElectron.isEnabled()) {
-      mvaE = m_mvaElectron->getEnergy(nullptr, &cluster);
+      mvaE = m_mvaElectron->getEnergy(cluster,nullptr);
     } else {
       ATH_MSG_FATAL("Trying to calibrate an electron, but disabled");
       return StatusCode::FAILURE;
@@ -125,7 +125,7 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster& cluster,
   case xAOD::EgammaParameters::unconvertedPhoton:
     // treat converted photons like unconverted photons since don't have access to vertex
     if (m_mvaUnconvertedPhoton.isEnabled()) {
-      mvaE = m_mvaUnconvertedPhoton->getEnergy(nullptr, &cluster);
+      mvaE = m_mvaUnconvertedPhoton->getEnergy(cluster,nullptr);
     } else {
       ATH_MSG_FATAL("Trying to calibrate an unconverted photon, but disabled");
       return StatusCode::FAILURE;

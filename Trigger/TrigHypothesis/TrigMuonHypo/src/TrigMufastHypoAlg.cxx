@@ -9,6 +9,7 @@
 #include "AthLinks/ElementLink.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/TrigMufastHypoAlg.h"
+#include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils; 
 
@@ -76,29 +77,21 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //get RoI
     auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-    CHECK( roiEL.isValid() );
+    ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
     // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
-    CHECK( viewEL.isValid() );
-    const SG::View* view_const = *viewEL;
-    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
+    ATH_CHECK( viewEL.isValid() );
 
-    // get info of that view
-    auto muFastHandle = SG::makeHandle( m_muFastKey, context );    
-    CHECK( muFastHandle.setProxyDict( view ) );
+    //// get info of that view
+    auto muFastHandle = ViewHelper::makeHandle( *viewEL, m_muFastKey, context );
+    ATH_CHECK( muFastHandle.isValid() );
     ATH_MSG_DEBUG ( "Muinfo handle size: " << muFastHandle->size() << "..." );
 
-  
-    auto muonEL = ElementLink<xAOD::L2StandAloneMuonContainer>( view->name()+"_"+m_muFastKey.key(), 0 );
-    CHECK( muonEL.isValid() );
+    auto muonEL = ViewHelper::makeLink( *viewEL, muFastHandle, 0 );
+    ATH_CHECK( muonEL.isValid() );
     const xAOD::L2StandAloneMuon* muon = *muonEL;
-
-    // or instead:
-    //const xAOD::L2StandAloneMuon* muon = muFastHandle.cptr()->at(0);
-    //auto muonEL = ElementLink<xAOD::L2StandAloneMuonContainer>( muFastHandle.cptr(), 0 );
-    //    CHECK( muonEL.isValid() );
 
     // create new decision
     auto newd = newDecisionIn( decisions.get() );
@@ -115,7 +108,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
     ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
     ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<view->name()  );
+    ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
     counter++;
   }
 
@@ -137,7 +130,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
 
   {// make output handle and debug, in the base class
     auto outputHandle = SG::makeHandle(decisionOutput(), context);
-    CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
+    ATH_CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
     ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
     TrigCompositeUtils::DecisionIDContainer allPassingIDs;
     if ( outputHandle.isValid() ) {

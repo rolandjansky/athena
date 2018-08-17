@@ -46,7 +46,7 @@ LArADC2MeVCondAlg::LArADC2MeVCondAlg(const std::string& name, ISvcLocator* pSvcL
   declareProperty("LArADC2MeVKey",m_ADC2MeVKey,"SG key of the resulting LArADC2MeV object");
   declareProperty("isSuperCell",m_isSuperCell,"switch to true to use the SuperCell Identfier helper");
   declareProperty("FebConfigReader",m_febCfgReader);
-
+  declareProperty("UseFEBGainTresholds",m_useFEBGainThresholds=true);
 }
 
 LArADC2MeVCondAlg::~LArADC2MeVCondAlg() {}
@@ -91,9 +91,11 @@ StatusCode LArADC2MeVCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
-
-  ATH_CHECK(m_febCfgReader.retrieve());
-
+  if (m_useFEBGainThresholds) {
+    ATH_CHECK(m_febCfgReader.retrieve());
+  } else {
+    m_febCfgReader.disable();
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -277,7 +279,7 @@ StatusCode LArADC2MeVCondAlg::execute() {
 	}
 
 	//Determine if the intercept is to be used:
-	if (igain==0 || (igain==1 && m_febCfgReader->lowerGainThreshold(chid)<5)) { 
+	if (igain==0 || (igain==1 && m_useFEBGainThresholds && m_febCfgReader->lowerGainThreshold(chid)<5)) { 
 	  //Don't use ramp intercept in high gain and in medium gain if the no high gain is used
 	  //(eg lowerGainThreshold is ~zero)
 	  ADC2MeV.push_back(0.);

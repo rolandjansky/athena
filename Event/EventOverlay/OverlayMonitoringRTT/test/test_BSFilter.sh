@@ -11,6 +11,9 @@
 # art-output: mem.summary.*
 # art-output: mem.full.*
 
+#creating empty PoolFileCatalog.xml required by ART
+art.py createpoolfile
+
 BSOverlayFilter_tf.py \
 --jobNumber 23 \
 --inputBSCONFIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/test23.tar \

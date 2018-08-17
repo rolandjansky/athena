@@ -18,10 +18,10 @@ def get_and_fix_PDGTABLE(replace):
             lines.append('M' + str(pdgid).rjust(8) +''.ljust(26) +
                          ('%11.5E' % mass).ljust(15) +
                          '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
-                         name.strip() + ''.ljust(6) + charge.strip() + '\n')
+                         name.strip() + ''.ljust(6) + charge.strip()+''.rjust(20-len(name.strip())) + '\n')
             lines.append('W' + str(pdgid).rjust(8) +''.ljust(26) +
                          '0.E+00'.ljust(15) + '+0.0E+00'.ljust(9) + '-0.0E+00'.ljust(9) +
-                         name.strip() + ''.ljust(6) + charge.strip() + '\n')
+                         name.strip() + ''.ljust(6) + charge.strip()+''.rjust(20-len(name.strip())) + '\n')
         else:
             for i in xrange(len(lines)):
                 if re.search(r'M\s+'+str(pdgid)+'\s+\S+', lines[i]):
@@ -33,6 +33,7 @@ def get_and_fix_PDGTABLE(replace):
     update.close()
 
     print 'modfied PDGTABLE\n%s\n' % ''.join(lines)
+    sys.stdout.flush()
 
 def load_files_for_GMSB_scenario(simdict):
 

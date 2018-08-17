@@ -1,5 +1,12 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon.Include import Include, IncludeError, include
-include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
+from IOVDbSvc.CondDB import conddb
+
+if conddb.isMC:
+    include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
+else:
+    include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg 
 from AthenaCommon.AlgSequence import AthSequencer
@@ -15,8 +22,19 @@ def LArADC2MeVCondAlgDefault():
         return getattr(condSeq,"LArADC2MeVCondAlg")
 
     theADC2MeVCondAlg=LArADC2MeVCondAlg()
-    
-    from LArRecUtils.LArFEBConfigReaderDefault import LArFEBConfigReaderDefault
-    theADC2MeVCondAlg.FebConfigReader=LArFEBConfigReaderDefault()
+ 
+    if conddb.isMC:
+        from LArConditionsCommon.LArCondFlags import larCondFlags 
+        if not larCondFlags.hasMphys():
+            theADC2MeVCondAlg.LArMphysOverMcalKey="" #No MphysOVerMcal
+
+        if not larCondFlags.hasHVCorr():
+            theADC2MeVCondAlg.LArHVScaleCorrKey=""
+        theADC2MeVCondAlg.UseFEBGainTresholds=False
+    else: # not MC:
+        from LArRecUtils.LArFEBConfigReaderDefault import LArFEBConfigReaderDefault
+        theADC2MeVCondAlg.FebConfigReader=LArFEBConfigReaderDefault()
+
+
     condSeq+=theADC2MeVCondAlg
     return theADC2MeVCondAlg

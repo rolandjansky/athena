@@ -3,13 +3,13 @@
 from AthenaCommon import CfgMgr
 
 def getRpcOverlay(name="RpcOverlay", **kwargs):
-    kwargs.setdefault("mainInputRPC_Name", "RPC_DIGITS")
-    kwargs.setdefault("overlayInputRPC_Name", "RPC_DIGITS")
-    kwargs.setdefault("DigitizationTool", "Rpc_OverlayDigitizationTool")
-    kwargs.setdefault("ConvertRDOToDigitTool", "RpcRdoToRpcDigitOverlay")
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("MainInputDigitKey",overlayFlags.dataStore()+"+RPC_DIGITS")
+    kwargs.setdefault("OverlayInputDigitKey",overlayFlags.evtStore()+"+RPC_DIGITS")
+    kwargs.setdefault("OutputDigitKey",overlayFlags.outputStore()+"+RPC_DIGITS")
     kwargs.setdefault("MCStore",overlayFlags.evtStore())
     kwargs.setdefault("DataStore", overlayFlags.dataStore())
+    kwargs.setdefault("CopySDO",not overlayFlags.isDataOverlay())
     if overlayFlags.doSignal():
         kwargs.setdefault("CopyObject", True)
     return CfgMgr.RpcOverlay(name, **kwargs)

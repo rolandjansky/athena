@@ -10,35 +10,24 @@
 // Local include
 #include "SCTSiLorentzAngleCondAlg.h"
 
-// STL include
+// Athena includes
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "SiPropertiesSvc/SiliconProperties.h"
 
 // Gaudi include
-#include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
-// Athena includes
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
+// STL include
 
 SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthAlgorithm(name, pSvcLocator),
-  m_readKeyTemp{"SCT_SiliconTempCondData"},
-  m_readKeyHV{"SCT_SiliconBiasVoltCondData"},
-  m_readKeyBFieldSensor{"/EXT/DCS/MAGNETS/SENSORDATA"}, 
-  // The /GLOBAL/BField/Maps folder is run-lumi folder and has just one IOV. The folder is not used for IOV determination.
-  m_writeKey{"SCTSiLorentzAngleCondData"},
   m_condSvc{"CondSvc", name},
   m_magFieldSvc{"AtlasFieldSvc", name},
-  m_detManager{nullptr},
   m_maxHash{0}
 {
-  declareProperty("ReadKeyTemp", m_readKeyTemp, "Key of input SCT temperature");
-  declareProperty("ReadKeyHV", m_readKeyHV, "Key of input SCT HV");
-  declareProperty("ReadKeyBFieldSensor", m_readKeyBFieldSensor, "Key of input B-field sensor");
-  declareProperty("WriteKey", m_writeKey, "Key of output SiLorentzAngleCondData");
   // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCTLorentzAngleTool!!!
   declareProperty("MagFieldSvc", m_magFieldSvc);
   declareProperty("Temperature", m_temperature = -7., "Default temperature in Celcius.");
@@ -58,7 +47,7 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
   if (m_siConditionsTool.empty()) m_sctDefaults = true;
 
   if (not m_sctDefaults) {
-    // SCTSiliconConditionsSvc
+    // SCTSiliconConditionsTool
     ATH_CHECK(m_siConditionsTool.retrieve());
     // Read Cond handle
     if (not m_useGeoModel) {
@@ -78,6 +67,8 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
     }
   }
 
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   // Write Cond Handle
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_writeKey.initialize());
@@ -86,9 +77,6 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  // SiDetectorManager
-  ATH_CHECK(detStore()->retrieve(m_detManager, "SCT"));
-  
   // Get maximum hash for vector sizes. We need the idhelper for this.
   const SCT_ID* idHelper{nullptr};
   ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
@@ -117,6 +105,19 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
   eidStop.set_time_stamp_ns_offset(EventIDBase::UNDEFNUM);
   EventIDRange rangeSCT{eidStart, eidStop};
   EventIDRange rangeBField{eidStart, eidStop};
+
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+  EventIDRange rangeDetEle; // Run-LB IOV
+  if (not sctDetEle.range(rangeDetEle)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_SCTDetEleCollKey.key());
+    return StatusCode::FAILURE;
+  }
 
   if ((not m_sctDefaults) and (not m_useGeoModel)) {
     // Read Cond Handle (temperature)
@@ -220,7 +221,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     // Calculate depletion depth. If biasVoltage is less than depletionVoltage
     // the detector is not fully depleted and we need to take this into account.
     // We take absolute values just in case voltages are signed.
-    const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
+    const InDetDD::SiDetectorElement* element{elements->getDetectorElement(elementHash)};
     double depletionDepth{element->thickness()};
     if (deplVoltage==0.0) {
       ATH_MSG_WARNING("Depletion voltage in "<<__FILE__<<" is zero, which might be a bug.");
@@ -238,7 +239,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     double mobility{siProperties.signedHallMobility(element->carrierType())};
 
     // Get magnetic field. This first checks that field cache is valid.
-    Amg::Vector3D magneticField{getMagneticField(elementHash)};
+    Amg::Vector3D magneticField{getMagneticField(element)};
 
     // The angles are in the hit frame. This is because that is what is needed by the digization and also
     // gives a more physical sign of the angle (ie dosen't flip sign when the detector is flipped).
@@ -291,9 +292,8 @@ StatusCode SCTSiLorentzAngleCondAlg::finalize()
   return StatusCode::SUCCESS;
 }
 
-Amg::Vector3D SCTSiLorentzAngleCondAlg::getMagneticField(const IdentifierHash& elementHash) const {
+Amg::Vector3D SCTSiLorentzAngleCondAlg::getMagneticField(const InDetDD::SiDetectorElement* element) const {
   if (m_useMagFieldSvc) {
-    const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
     Amg::Vector3D pointvec{element->center()};
     ATH_MSG_VERBOSE("Getting magnetic field from magnetic field service.");
     double point[3];

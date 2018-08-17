@@ -1,9 +1,9 @@
 
-def TrigL2ElectronHypoToolFromName( name ):
+def TrigL2ElectronHypoToolFromName( name, conf ):
     """ provides configuration of the hypo tool giben the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
-    bname = name.split('_')
+    bname = conf.split('_')
 
     threshold = bname[1]
     from TrigEgammaHypo.TrigL2CaloHypoTool import decodeThreshold

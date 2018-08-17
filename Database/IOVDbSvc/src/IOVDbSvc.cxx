@@ -41,7 +41,9 @@ namespace {
       for ( std::size_t i=0, iEnd=properties->size(); i!=iEnd; ++i ) {
         const Property* ip=(*properties)[i];
         if ( ip->name()==p.name() ) {
-          ip->load(p);
+          if (!ip->load(p)) {
+            return StatusCode::FAILURE;
+          }
           return StatusCode::SUCCESS;
         }
       }

@@ -24,7 +24,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetAlignGenTools/InDetAlignFillSiCluster.h"
@@ -82,15 +81,6 @@ StatusCode InDetAlignFillSiCluster::initialize() {
     return StatusCode::FAILURE;
   }
   else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endmsg;
-  
-  // get SCTDetectorManager
-  const InDetDD::SCT_DetectorManager* mgr;
-  if (detStore()->retrieve(mgr, "SCT").isFailure()) {
-    ATH_MSG_FATAL("Could not get SCT_DetectorManager!");
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_DEBUG ("Manager found!");
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"SCT ID is : "<< m_sctID << endmsg;
   
   // get PixelDetectorManager
   const InDetDD::PixelDetectorManager* pixelmgr;

@@ -389,6 +389,20 @@ protected:
   void setStore (const DataLink< SG::IConstAuxStore >& store);
 
 
+  /**
+   * @brief Set the store associated with this object.
+   * @param store The new store.
+   *
+   * This will set both the const and non-const store pointers, and also
+   * clear the cache.
+   * This is the same as setStore() above with the same signature.
+   * It exists so that it can be called from python; pyroot would not
+   * be able to call the non-const overload of setStore due to its
+   * simplistic overload resolution.
+   */
+  void setNonConstStore (SG::IAuxStore* store);
+
+
   //@}
   //========================================================================
   /** @name Data access. */

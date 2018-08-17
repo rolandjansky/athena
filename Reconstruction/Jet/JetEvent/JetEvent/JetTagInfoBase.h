@@ -27,9 +27,10 @@ namespace Analysis {
     
     //!< to set the tag likelihood for one tagger
     virtual void setTagLikelihood(const std::vector<double>&) = 0;
+    virtual void setTagLikelihood(std::vector<double>&&) = 0;
     
     //!< returns the tag likelihood of one tagger
-    virtual std::vector<double> tagLikelihood(void) const = 0;
+    virtual const std::vector<double>& tagLikelihood(void) const = 0;
     
     //!< set the weight for one tagger
     virtual void setWeight(double weight) = 0;

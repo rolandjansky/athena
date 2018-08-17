@@ -17,6 +17,6 @@ DummyTrackSlimmingTool::DummyTrackSlimmingTool(const std::string& type, const st
       configured
  */
 Trk::Track*
-DummyTrackSlimmingTool::slim(const Trk::Track& track) {
+DummyTrackSlimmingTool::slim(const Trk::Track& track) const {
   return new Trk::Track(track);
 }

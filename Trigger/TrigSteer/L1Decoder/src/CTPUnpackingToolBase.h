@@ -36,14 +36,14 @@ public:
    
 protected:
 
-  StatusCode decodeCTPToChainMapping();
+
   typedef std::map<size_t, HLT::IDVec> IndexToIdentifiers;
   IndexToIdentifiers       m_ctpToChain;
 
   ///@{ @name Properties
-  Gaudi::Property<std::vector<std::string>> m_ctpToChainProperty{
-    this, "CTPToChainMapping", {}, "Mapping of the form: '34:HLT_x', '35:HLT_y', ..., both "
-                                   "CTP ID and chain may appear many times"};
+  Gaudi::Property<std::map<std::string, std::string>> m_ctpToChainProperty{
+    this, "CTPToChainMapping", {}, "Mapping of the form: 'L1_X:HLT_x', 'L1_Y:HLT_y', ..., both "
+                                   "CTP item name and chain may appear many times"};
 
   Gaudi::Property<bool> m_forceEnable{
     this, "ForceEnableAllChains", false, "Enables all chains in each event, testing mode"};

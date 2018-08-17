@@ -294,7 +294,7 @@ def EgammaCaloMod( flags ):
 
     from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
     for chain in chains:
-        tool  = TrigL2CaloHypoToolFromName( chain )
+        tool  = TrigL2CaloHypoToolFromName( chain, chain )
         hypo.HypoTools +=  [ tool ]
 
     #acc.addEventAlgo( hypo, sequenceName = 'L2CaloEgamma' )

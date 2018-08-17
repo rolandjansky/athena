@@ -17,7 +17,6 @@ ATLAS Collaboration
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 // Space point Classes,
 #include "TrkSpacePoint/SpacePoint.h"
@@ -32,6 +31,7 @@ ATLAS Collaboration
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 
 namespace InDet {
 
@@ -149,8 +149,9 @@ StatusCode SiTrackerSpacePointFinder::initialize()
     // also need the SCT Manager to get the detectorElementCollection
     ATH_CHECK(detStore()->retrieve(m_manager,"SCT"));
 
-    // Initialize the key of input SiElementPropertiesTable for SCT
+    // Initialize the key of input SiElementPropertiesTable and SiDetectorElementCollection for SCT
     ATH_CHECK(m_SCTPropertiesKey.initialize());
+    ATH_CHECK(m_SCTDetEleCollKey.initialize());
   }
 
   ATH_CHECK(m_SiSpacePointMakerTool.retrieve());
@@ -178,8 +179,18 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
 
 
   ++m_numberOfEvents;
+  const InDetDD::SiDetectorElementCollection* elements = nullptr;
   const SiElementPropertiesTable* properties = nullptr;
   if (m_selectSCTs) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
+    elements = sctDetEle.retrieve();
+    if (elements==nullptr) {
+      ATH_MSG_FATAL("Pointer of SiDetectorElementCollection (" << m_SCTDetEleCollKey.fullKey() << ") could not be retrieved");
+      return StatusCode::SUCCESS;
+    }
+    if (m_useDetectorManager) {
+      elements = m_manager->getDetectorElementCollection();
+    }
     SG::ReadCondHandle<SiElementPropertiesTable> sctProperties(m_SCTPropertiesKey, ctx);
     properties = sctProperties.retrieve();
     if (properties==nullptr) {
@@ -267,7 +278,7 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
       spacepointCollection->setIdentifier(elementID);
 
       if ( colNext->size() != 0){
-        addSCT_SpacePoints(colNext, properties,
+        addSCT_SpacePoints(colNext, properties, elements,
                            spacepointCollection.get(), spacepointoverlapCollection.ptr(), r_cache);
       } else {
         ATH_MSG_DEBUG( "Empty SCT cluster collection" );
@@ -390,6 +401,7 @@ StatusCode SiTrackerSpacePointFinder::finalize()
 void SiTrackerSpacePointFinder::
 addSCT_SpacePoints(const SCT_ClusterCollection* next,
                    const SiElementPropertiesTable* properties,
+                   const InDetDD::SiDetectorElementCollection* elements,
     SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache &r_cache) const
 {
 
@@ -397,7 +409,7 @@ addSCT_SpacePoints(const SCT_ClusterCollection* next,
   IdentifierHash thisHash(next->identifyHash());
 
   // if it is not the stereo side
-  const InDetDD::SiDetectorElement *element = m_manager->getDetectorElement(thisHash);
+  const InDetDD::SiDetectorElement *element = elements->getDetectorElement(thisHash);
   if (element && !(element->isStereo())){
     //if (m_idHelper->side(thisID)==1){
     // Space points are created from clusters for all possibly
@@ -416,8 +428,9 @@ addSCT_SpacePoints(const SCT_ClusterCollection* next,
     bool overlapColl = false;
     // check opposite wafer
     checkForSCT_Points(next, *otherHash,
-        -m_overlapLimitOpposite, +m_overlapLimitOpposite,
-        spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
+                       elements,
+                       -m_overlapLimitOpposite, +m_overlapLimitOpposite,
+                       spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
 
     if (! m_overlap) return;
 
@@ -429,13 +442,15 @@ addSCT_SpacePoints(const SCT_ClusterCollection* next,
     // half-width of wafer
 
     checkForSCT_Points(next, *otherHash,
-        -hwidth, -hwidth+m_overlapLimitPhi,
-        +hwidth-m_overlapLimitPhi, +hwidth,spacepointOverlapCollection, r_cache);
+                       elements,
+                       -hwidth, -hwidth+m_overlapLimitPhi,
+                       +hwidth-m_overlapLimitPhi, +hwidth,spacepointOverlapCollection, r_cache);
     ++otherHash;
     if (otherHash == others->end() ) return;
     checkForSCT_Points(next, *otherHash,
-        +hwidth-m_overlapLimitPhi, +hwidth,
-        -hwidth, -hwidth+m_overlapLimitPhi,spacepointOverlapCollection, r_cache);
+                       elements,
+                       +hwidth-m_overlapLimitPhi, +hwidth,
+                       -hwidth, -hwidth+m_overlapLimitPhi,spacepointOverlapCollection, r_cache);
 
     // if barrel, check the eta overlaps too.
     // In this case, action depends on whether layer is even or odd
@@ -452,26 +467,34 @@ addSCT_SpacePoints(const SCT_ClusterCollection* next,
       //if (m_idHelper->layer_disk(thisID)==0 || m_idHelper->layer_disk(thisID)==2)
       if (m_idHelper->layer_disk(thisID)%2 == 0)
       {
-        checkForSCT_Points(next, *otherHash, +m_overlapLimitEtaMin, 
-            +m_overlapLimitEtaMax,
-            spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
+        checkForSCT_Points(next, *otherHash,
+                           elements,
+                           +m_overlapLimitEtaMin,
+                           +m_overlapLimitEtaMax,
+                           spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
         ++otherHash;
         if (otherHash == others->end() )  return;
 
-        checkForSCT_Points(next, *otherHash, -m_overlapLimitEtaMax, 
-            -m_overlapLimitEtaMin,
-            spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
+        checkForSCT_Points(next, *otherHash,
+                           elements,
+                           -m_overlapLimitEtaMax,
+                           -m_overlapLimitEtaMin,
+                           spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
       }else{
-        checkForSCT_Points(next, *otherHash, -m_overlapLimitEtaMax, 
-            -m_overlapLimitEtaMin,
-            spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
+        checkForSCT_Points(next, *otherHash,
+                           elements,
+                           -m_overlapLimitEtaMax,
+                           -m_overlapLimitEtaMin,
+                           spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
         ++otherHash;
         if (otherHash == others->end() )  return;
 
 
-        checkForSCT_Points(next, *otherHash, +m_overlapLimitEtaMin,
-            +m_overlapLimitEtaMax,
-            spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
+        checkForSCT_Points(next, *otherHash,
+                           elements,
+                           +m_overlapLimitEtaMin,
+                           +m_overlapLimitEtaMax,
+                           spacepointCollection,overlapColl,spacepointOverlapCollection, r_cache);
       }
     }
   }
@@ -481,8 +504,10 @@ addSCT_SpacePoints(const SCT_ClusterCollection* next,
 
 void SiTrackerSpacePointFinder::
 checkForSCT_Points(const SCT_ClusterCollection* clusters1,
-    const IdentifierHash id2, double min, double max,
-    SpacePointCollection* spacepointCollection, bool overlapColl, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache &r_cache) const
+                   const IdentifierHash id2,
+                   const InDetDD::SiDetectorElementCollection* elements,
+                   double min, double max,
+                   SpacePointCollection* spacepointCollection, bool overlapColl, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache &r_cache) const
 {
 
 
@@ -495,16 +520,17 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
   if (clusters2==nullptr) return;
 
   if (!overlapColl) {
-    m_SiSpacePointMakerTool->fillSCT_SpacePointCollection(clusters1, clusters2, min, max, m_allClusters, r_cache.vertex, m_manager, spacepointCollection);
+    m_SiSpacePointMakerTool->fillSCT_SpacePointCollection(clusters1, clusters2, min, max, m_allClusters, r_cache.vertex, elements, spacepointCollection);
   }
   else {
-    m_SiSpacePointMakerTool->fillSCT_SpacePointEtaOverlapCollection(clusters1, clusters2, min, max, m_allClusters, r_cache.vertex, m_manager, spacepointOverlapCollection);
+    m_SiSpacePointMakerTool->fillSCT_SpacePointEtaOverlapCollection(clusters1, clusters2, min, max, m_allClusters, r_cache.vertex, elements, spacepointOverlapCollection);
   }
 }
 //--------------------------------------------------------------------------
 void SiTrackerSpacePointFinder::
 checkForSCT_Points(const SCT_ClusterCollection* clusters1,
-    const IdentifierHash id2,
+                   const IdentifierHash id2,
+                   const InDetDD::SiDetectorElementCollection* elements,
     double min1, double max1, double min2, double max2, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache &r_cache) const
 {
 
@@ -514,7 +540,7 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
   const SCT_ClusterCollection * clusters2 (r_cache.SCTCContainer->indexFindPtr(id2));
   if (clusters2==nullptr) return;
 
-  m_SiSpacePointMakerTool->fillSCT_SpacePointPhiOverlapCollection(clusters1, clusters2, min1, max1, min2, max2, m_allClusters, r_cache.vertex, m_manager, spacepointOverlapCollection);
+  m_SiSpacePointMakerTool->fillSCT_SpacePointPhiOverlapCollection(clusters1, clusters2, min1, max1, min2, max2, m_allClusters, r_cache.vertex, elements, spacepointOverlapCollection);
 }
 
 } //namespace
