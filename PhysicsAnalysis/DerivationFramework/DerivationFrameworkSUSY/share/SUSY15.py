@@ -291,28 +291,41 @@ if DerivationFrameworkIsMonteCarlo:
 
   
   from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
-  TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
+  TruthJetKinematicsToolRHadron = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsRHadron",
     OutputContainer = "AntiKt4LLP_RHadronTruthJets",
     LLPType = 1,
   )
-  ToolSvc += TruthJetKinematicsTool
-  AugmentationTools.append(TruthJetKinematicsTool)
+  ToolSvc += TruthJetKinematicsToolRHadron
+  AugmentationTools.append(TruthJetKinematicsTool)RHadron
 
-  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
-  TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
+  TruthJetKinematicsToolChargino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsChargino",
     OutputContainer = "AntiKt4LLP_CharginoTruthJets",
     LLP_PDGIDS = [1000024],
   )
-  ToolSvc += TruthJetKinematicsTool
-  AugmentationTools.append(TruthJetKinematicsTool)
+  ToolSvc += TruthJetKinematicsToolChargino
+  AugmentationTools.append(TruthJetKinematicsTool)Chargino
 
-  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
-  TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
+  TruthJetKinematicsToolNeutralino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsNeutralino",
     OutputContainer = "AntiKt4LLP_NeutralinoTruthJets",
     LLP_PDGIDS = [1000022],
   )
-  ToolSvc += TruthJetKinematicsTool
-  AugmentationTools.append(TruthJetKinematicsTool)
+  ToolSvc += TruthJetKinematicsToolNeutralino
+  AugmentationTools.append(TruthJetKinematicsToolNeutralino)
+
+  TruthJetKinematicsToolGluino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsGluino",
+    OutputContainer = "AntiKt4LLP_GluinoTruthJets",
+    LLP_PDGIDS = [1000021],
+  )
+  ToolSvc += TruthJetKinematicsToolGluino
+  AugmentationTools.append(TruthJetKinematicsToolGluino)
+
+  TruthJetKinematicsToolSquark = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsSquark",
+    OutputContainer = "AntiKt4LLP_SquarkTruthJets",
+    LLP_PDGIDS = [2000001, 2000002, 2000003, 2000004, 2000005, 2000006],
+  )
+  ToolSvc += TruthJetKinematicsToolSquark
+  AugmentationTools.append(TruthJetKinematicsToolSquark)
+
 
 
 #=============================================================================================
