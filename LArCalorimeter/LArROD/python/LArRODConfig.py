@@ -23,7 +23,6 @@ def getLArRawChannelBuilder(name="LArRawChannelBuilder" , **kwargs):
     from LArROD.LArRODFlags import larRODFlags
     kwargs.setdefault('firstSample',larRODFlags.firstSample())
     
-<<<<<<< HEAD
     return CfgMgr.LArRawChannelBuilderAlg(name, **kwargs)
 
 def getLArRawChannelBuilder_DigiHSTruth(name="LArRawChannelBuilder_DigiHSTruth" , **kwargs):
