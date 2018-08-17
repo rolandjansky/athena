@@ -274,9 +274,9 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
       addHistogram(new TH1F("hEFRNNInput_Track_dPhi", "dPhi ; dPhi; Events",100,-3.2,3.2));
       addHistogram(new TH1F("hEFRNNInput_Track_d0_abs_log", "d0_abs_log ; d0_abs_log; Events",50,-7.,2.));//50,-5.,5.));
       addHistogram(new TH1F("hEFRNNInput_Track_z0sinThetaTJVA_abs_log", "z0sinThetaTJVA_abs_log ; z0sinThetaTJVA_abs_log; Events",50,-10,4));//15,-200.,200.));   
-      addHistogram(new TH1F("hEFRNNInput_Track_nInnermostPixelHits", "nInnermostPixelHits ; nInnermostPixelHits; Events",3,0.,3));
-      addHistogram(new TH1F("hEFRNNInput_Track_nPixelHits", "nPixelHits ; nPixelHits; Events",11,0.,11));  
-      addHistogram(new TH1F("hEFRNNInput_Track_nSCTHits", "nSCTHits ; nSCTHits; Events",20,0.,20));     
+      addHistogram(new TH1F("hEFRNNInput_Track_nIBLHitsAndExp", "nIBLHitsAndExp ; nIBLHitsAndExp; Events",3,0.,3));
+      addHistogram(new TH1F("hEFRNNInput_Track_nPixelHitsPlusDeadSensors", "nPixelHitsPlusDeadSensors ; nPixelHitsPlusDeadSensors; Events",11,0.,11));  
+      addHistogram(new TH1F("hEFRNNInput_Track_nSCTHitsPlusDeadSensors", "nSCTHitsPlusDeadSensors ; nSCTHitsPlusDeadSensors; Events",20,0.,20));     
       // Cluster input variables
       addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster",run));
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster");

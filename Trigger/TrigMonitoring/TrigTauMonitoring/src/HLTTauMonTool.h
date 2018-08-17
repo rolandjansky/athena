@@ -109,13 +109,14 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode trackCurves(const std::string & trigItem, const std::string & goodTauRefType);
   StatusCode efficiencyRatioPlots (const std::string & trigItem, const std::string & goodTauRefType);
   StatusCode L1TopoLeptons(const std::string & trigItem, const std::string & typeOfChain);
-  //StatusCode FailTrackFilterMonitor(const std::string & trigItem);
+	StatusCode getTracks(const xAOD::TauJet *aEFTau, std::vector<const xAOD::TauTrack *> &out);
+	StatusCode getClusters(const xAOD::TauJet *aEFTau, std::vector<const xAOD::CaloCluster *> &out);
 
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   bool PresTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
   bool L1TauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
-  bool RNNTrigBiasCheck();
+  bool TrigBiasCheck();
   //  bool  emulate2StepTracking(float RoI_eta, float RoI_phi, bool do2step, bool doReject0trk, float track_pt_min);
   //StatusCode test2StepTracking();
   void testClusterNavigation(const xAOD::TauJet *aEFTau);

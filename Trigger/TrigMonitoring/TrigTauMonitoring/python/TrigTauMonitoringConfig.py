@@ -179,7 +179,6 @@ def TrigTauMonitoringTool():
 				AbsEtaMin			= -1.,
 				AbsPhiMax			= -1.,
 				AbsPhiMin			= -1.,
-				BDTMedium			= True,
                                 isData                          = (globalflags.DataSource == 'data'));
 
 	#from AthenaCommon.AppMgr import ToolSvc

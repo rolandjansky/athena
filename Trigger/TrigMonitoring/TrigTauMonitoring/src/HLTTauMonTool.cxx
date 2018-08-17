@@ -154,7 +154,6 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
   declareProperty("AbsEtaMin",		m_selection_absEtaMin=-1.);
   declareProperty("AbsPhiMax",		m_selection_absPhiMax=-1.);
   declareProperty("AbsPhiMin",		m_selection_absPhiMin=-1.);
-  declareProperty("BDTMedium",                m_selection_BDT=true);
   declareProperty("isData",                   m_isData=true);
 
   m_L1TriggerCondition = 0;
@@ -485,7 +484,6 @@ StatusCode HLTTauMonTool::fill() {
 	//bool good_tau = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
 	bool good_tau_BDT = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
 	bool good_tau_RNN = (*offlinetau)->isTau(xAOD::TauJetParameters::JetRNNSigMedium);
-	//if(m_selection_BDT && !good_tau) continue;		
 	if(!Selection(*offlinetau)) continue;
 	//m_taus.push_back( *offlinetau );
 	if( !(good_tau_BDT || good_tau_BDT) ) continue;
@@ -1532,50 +1530,55 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       float RNN_tracks_dPhi(-999.);
       float RNN_tracks_z0sinThetaTJVA_abs_log(-999.);
       float RNN_tracks_d0_abs_log(-999.);
-      bool success_InPixHits(false);
-      uint8_t RNN_tracks_nInnermostPixelHits = 0;
-      bool success_PixHits(false);
-      uint8_t RNN_tracks_nPixelHits = 0;
-      bool success_SCTHits(false);
-      uint8_t RNN_tracks_nSCTHits = 0;
+			double RNN_tracks_nIBLHitsAndExp(0.);
+			double RNN_tracks_nPixelHitsPlusDeadSensors(0.);
+			double RNN_tracks_nSCTHitsPlusDeadSensors(0.);
 
       if (is1P || isMP) {
-	for (int track = 0; track < EFnTrack; ++track){
-	  const xAOD::TrackParticle* trk = 0;
-	  if ( (aEFTau->track(track) != NULL) ) {
-	    trk = aEFTau->track(track)->track();
-	    if ( trk != NULL ) {
-	      RNN_tracks_pt_log = TMath::Log10( trk->pt() );
-	      hist("hEFRNNInput_Track_pt_log")->Fill(RNN_tracks_pt_log);
-	      RNN_tracks_pt_jetseed_log = TMath::Log10( aEFTau->ptJetSeed() );
-	      hist("hEFRNNInput_Track_pt_jetseed_log")->Fill(RNN_tracks_pt_jetseed_log);
-	      RNN_tracks_dEta = trk->eta() - aEFTau->eta();
-	      hist("hEFRNNInput_Track_dEta")->Fill(RNN_tracks_dEta);
-	      RNN_tracks_dPhi = trk->p4().DeltaPhi(aEFTau->p4());
-	      hist("hEFRNNInput_Track_dPhi")->Fill(RNN_tracks_dPhi);
-	      RNN_tracks_z0sinThetaTJVA_abs_log = TMath::Log10(TMath::Abs( aEFTau->track(track)->z0sinThetaTJVA(*aEFTau) ));
-	      hist("hEFRNNInput_Track_z0sinThetaTJVA_abs_log")->Fill(RNN_tracks_z0sinThetaTJVA_abs_log);					
-	      RNN_tracks_d0_abs_log = TMath::Log10( TMath::Abs(trk->d0()) + 1e-6);
-	      hist("hEFRNNInput_Track_d0_abs_log")->Fill(RNN_tracks_d0_abs_log);
-	      success_InPixHits =  trk->summaryValue(RNN_tracks_nInnermostPixelHits, xAOD::numberOfInnermostPixelLayerHits);
-	      if (success_InPixHits){
-		hist("hEFRNNInput_Track_nInnermostPixelHits")->Fill(RNN_tracks_nInnermostPixelHits);
-	      }
-	      success_PixHits =  trk->summaryValue(RNN_tracks_nPixelHits, xAOD::numberOfPixelHits);
-	      if (success_PixHits){
-		hist("hEFRNNInput_Track_nPixelHits")->Fill(RNN_tracks_nPixelHits);
-	      }
-	      success_SCTHits =  trk->summaryValue(RNN_tracks_nSCTHits, xAOD::numberOfSCTHits);
-	      if (success_SCTHits){
-		hist("hEFRNNInput_Track_nSCTHits")->Fill(RNN_tracks_nSCTHits);
-	      }
-	    } else {
-	      ATH_MSG_WARNING("->track() does not exists in: " << track);
-	    }//end if trk exists
-	  } else {
-	    ATH_MSG_WARNING("->track(track) does not exists in: " << track);
-	  }
-	} // end for-loop for tracks
+				std::vector<const xAOD::TauTrack *> tracks;
+				StatusCode sc = getTracks(aEFTau, tracks);
+				if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed in getTracks."); return StatusCode::SUCCESS; } //return sc;}  
+
+				for(std::vector<const xAOD::TauTrack *>::iterator trkItr = tracks.begin(); trkItr != tracks.end(); ++trkItr) {
+
+			    RNN_tracks_pt_log = TMath::Log10( (*trkItr)->pt() );
+			    hist("hEFRNNInput_Track_pt_log")->Fill(RNN_tracks_pt_log);
+			    RNN_tracks_pt_jetseed_log = TMath::Log10( aEFTau->ptJetSeed() );
+			    hist("hEFRNNInput_Track_pt_jetseed_log")->Fill(RNN_tracks_pt_jetseed_log);
+			    RNN_tracks_dEta = (*trkItr)->eta() - aEFTau->eta();
+			    hist("hEFRNNInput_Track_dEta")->Fill(RNN_tracks_dEta);
+			    RNN_tracks_dPhi = (*trkItr)->p4().DeltaPhi(aEFTau->p4());
+			    hist("hEFRNNInput_Track_dPhi")->Fill(RNN_tracks_dPhi);
+					RNN_tracks_z0sinThetaTJVA_abs_log = TMath::Log10(TMath::Abs( (*trkItr)->z0sinThetaTJVA(*aEFTau) ));
+					hist("hEFRNNInput_Track_z0sinThetaTJVA_abs_log")->Fill(RNN_tracks_z0sinThetaTJVA_abs_log);					
+					RNN_tracks_d0_abs_log = TMath::Log10( TMath::Abs((*trkItr)->track()->d0()) + 1e-6);
+					hist("hEFRNNInput_Track_d0_abs_log")->Fill(RNN_tracks_d0_abs_log);
+
+					uint8_t inner_pixel_hits, inner_pixel_exp;
+					const auto success1_innerPixel_hits = (*trkItr)->track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);
+					const auto success2_innerPixel_exp = (*trkItr)->track()->summaryValue(inner_pixel_exp, xAOD::expectInnermostPixelLayerHit);
+					if (success1_innerPixel_hits && success2_innerPixel_exp) {
+						RNN_tracks_nIBLHitsAndExp =  inner_pixel_exp ? inner_pixel_hits : 1.;
+						hist("hEFRNNInput_Track_nIBLHitsAndExp")->Fill(RNN_tracks_nIBLHitsAndExp);
+					}
+
+					uint8_t pixel_hits, pixel_dead;
+					const auto success1_pixel_hits = (*trkItr)->track()->summaryValue(pixel_hits, xAOD::numberOfPixelHits);
+					const auto success2_pixel_dead = (*trkItr)->track()->summaryValue(pixel_dead, xAOD::numberOfPixelDeadSensors);
+					if (success1_pixel_hits && success2_pixel_dead) {
+						RNN_tracks_nPixelHitsPlusDeadSensors =  pixel_hits + pixel_dead;
+						hist("hEFRNNInput_Track_nPixelHitsPlusDeadSensors")->Fill(RNN_tracks_nPixelHitsPlusDeadSensors);
+					}
+
+					uint8_t sct_hits, sct_dead;
+					const auto success1_sct_hits = (*trkItr)->track()->summaryValue(sct_hits, xAOD::numberOfSCTHits);
+					const auto success2_sct_dead = (*trkItr)->track()->summaryValue(sct_dead, xAOD::numberOfSCTDeadSensors);
+					if (success1_sct_hits && success2_sct_dead) {
+						RNN_tracks_nSCTHitsPlusDeadSensors =  sct_hits + sct_dead;
+						hist("hEFRNNInput_Track_nSCTHitsPlusDeadSensors")->Fill(RNN_tracks_nSCTHitsPlusDeadSensors);
+					}
+				} // end for-loop for tracks
+
       } // end if(is1P||isMP)
     }
   else if( (BDTinput_type == "RNN_inCluster") && monRNN)
@@ -1594,37 +1597,37 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       double RNN_clusters_SECOND_LAMBDA(-999.);
       double RNN_clusters_CENTER_LAMBDA(-999.);
       const xAOD::CaloClusterContainer *caloCont;
-      if ( m_storeGate->retrieve( caloCont, "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker").isSuccess() ){//"TauPi0Clusters").isSuccess() ){
-	ATH_MSG_INFO("caloCluster retrieved!");
-	xAOD::CaloClusterContainer::const_iterator clusItr  = caloCont->begin();
-	xAOD::CaloClusterContainer::const_iterator clusItrE = caloCont->end();
-	for (; clusItr != clusItrE; ++clusItr) {
-	  RNN_clusters_et_log = TMath::Log10( (*clusItr)->et() );
-	  hist("hEFRNNInput_Cluster_et_log")->Fill(RNN_clusters_et_log);
-	  RNN_clusters_pt_jetseed_log = TMath::Log10( aEFTau->ptJetSeed() );
-	  hist("hEFRNNInput_Cluster_pt_jetseed_log")->Fill(RNN_clusters_pt_jetseed_log);
-	  RNN_clusters_dEta = ((*clusItr)->eta() - (aEFTau->eta()));
-	  hist("hEFRNNInput_Cluster_dEta")->Fill(RNN_clusters_dEta);
-	  RNN_clusters_dPhi = (*clusItr)->p4().DeltaPhi(aEFTau->p4());//deltaPhi((*clusItr)->phi(),(aEFTau->phi()));
-	  hist("hEFRNNInput_Cluster_dPhi")->Fill(RNN_clusters_dPhi);
-	  const auto success_SECOND_R = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, RNN_clusters_SECOND_R);
-	  if ( (success_SECOND_R) ) {
-	    RNN_clusters_SECOND_R =TMath::Log10(RNN_clusters_SECOND_R + 0.1);
-	    hist("hEFRNNInput_Cluster_SECOND_R_log10")->Fill(RNN_clusters_SECOND_R);
-	  }
-	  const auto success_SECOND_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, RNN_clusters_SECOND_LAMBDA);
-	  if ( (success_SECOND_LAMBDA) ) {
-	    RNN_clusters_SECOND_LAMBDA =TMath::Log10(RNN_clusters_SECOND_LAMBDA + 0.1);
-	    hist("hEFRNNInput_Cluster_SECOND_LAMBDA_log10")->Fill(RNN_clusters_SECOND_LAMBDA);
-	  }
-	  const auto success_CENTER_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, RNN_clusters_CENTER_LAMBDA);
-	  if ( (success_CENTER_LAMBDA) ) {
-	    RNN_clusters_CENTER_LAMBDA =TMath::Log10(RNN_clusters_CENTER_LAMBDA + 1e-6);
-	    hist("hEFRNNInput_Cluster_CENTER_LAMBDA_log10")->Fill(RNN_clusters_CENTER_LAMBDA);
-	  }
+
+			std::vector<const xAOD::CaloCluster *> clusters;
+			StatusCode sc = getClusters(aEFTau, clusters);
+			if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed in getClusters."); return StatusCode::SUCCESS;} //return sc;}  
+
+			for(std::vector<const xAOD::CaloCluster *>::iterator clusItr = clusters.begin(); clusItr != clusters.end(); ++clusItr) {
+				RNN_clusters_et_log = TMath::Log10( (*clusItr)->et() );
+				hist("hEFRNNInput_Cluster_et_log")->Fill(RNN_clusters_et_log);
+				RNN_clusters_pt_jetseed_log = TMath::Log10( aEFTau->ptJetSeed() );
+				hist("hEFRNNInput_Cluster_pt_jetseed_log")->Fill(RNN_clusters_pt_jetseed_log);
+				RNN_clusters_dEta = ((*clusItr)->eta() - (aEFTau->eta()));
+				hist("hEFRNNInput_Cluster_dEta")->Fill(RNN_clusters_dEta);
+				RNN_clusters_dPhi = (*clusItr)->p4().DeltaPhi(aEFTau->p4());//deltaPhi((*clusItr)->phi(),(aEFTau->phi()));
+				hist("hEFRNNInput_Cluster_dPhi")->Fill(RNN_clusters_dPhi);
+				const auto success_SECOND_R = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, RNN_clusters_SECOND_R);
+				if ( (success_SECOND_R) ) {
+					RNN_clusters_SECOND_R =TMath::Log10(RNN_clusters_SECOND_R + 0.1);
+					hist("hEFRNNInput_Cluster_SECOND_R_log10")->Fill(RNN_clusters_SECOND_R);
+				}
+				const auto success_SECOND_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, RNN_clusters_SECOND_LAMBDA);
+				if ( (success_SECOND_LAMBDA) ) {
+					RNN_clusters_SECOND_LAMBDA =TMath::Log10(RNN_clusters_SECOND_LAMBDA + 0.1);
+					hist("hEFRNNInput_Cluster_SECOND_LAMBDA_log10")->Fill(RNN_clusters_SECOND_LAMBDA);
+				}
+				const auto success_CENTER_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, RNN_clusters_CENTER_LAMBDA);
+				if ( (success_CENTER_LAMBDA) ) {
+					RNN_clusters_CENTER_LAMBDA =TMath::Log10(RNN_clusters_CENTER_LAMBDA + 1e-6);
+					hist("hEFRNNInput_Cluster_CENTER_LAMBDA_log10")->Fill(RNN_clusters_CENTER_LAMBDA);
+				}
+			} // end of for loop 
 	}
-      } 
-    }
   else if(BDTinput_type == "RNN_out")
     {
       //ATH_MSG_WARNING("In fillEFTau. In RNN_out. Init.");
@@ -2609,7 +2612,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
   float mu(Pileup());
   int nvtx(PrimaryVertices());
 
-  bool noBiasCheck = RNNTrigBiasCheck();
+  bool noBiasCheck = TrigBiasCheck();
   if ( !noBiasCheck ) {ATH_MSG_DEBUG("Not computing efficiencies for this Trigger, due to RNN Bias."); return StatusCode::SUCCESS;};
 
   // build vector of taus in denominator:
@@ -3830,8 +3833,9 @@ float HLTTauMonTool::Pileup(){
   return Pileup;
 }
 
-bool HLTTauMonTool::RNNTrigBiasCheck(){
+bool HLTTauMonTool::TrigBiasCheck(){
   // Check if event fired RNN but no BDT triggers. In that case it introduces bias.
+  // Check if event fired BDT but no RNN triggers. In that case it introduces bias.
   bool noVeto = false; // Will become true if no bias is introduced. 
 
   bool fireRNN = false;
@@ -3844,11 +3848,72 @@ bool HLTTauMonTool::RNNTrigBiasCheck(){
     if(trig.find("medium1")!=string::npos && cg->isPassed()) fireBDT = true;    
   } 
 
-  bool vetoCondition = (fireRNN==true && fireBDT==false); // we want to veto events where the RNN trig is fired but not the BDT.
-  if ( !vetoCondition ) noVeto=true; // all other cases are accepted.
+  noVeto = ( (fireRNN==true && fireBDT==true) ); // we want to veto events where the RNN trig is fired but not the BDT and vice versa.
   
   return noVeto;
 }
+
+StatusCode HLTTauMonTool::getTracks(const xAOD::TauJet *aEFTau, std::vector<const xAOD::TauTrack *> &out) {
+	auto tracks = aEFTau->allTracks();
+
+	//Sort by descending pt
+	auto cmp_pt = [](const xAOD::TauTrack *lhs, const xAOD::TauTrack *rhs) {
+		return lhs->pt() > rhs->pt();
+	};
+	std::sort(tracks.begin(), tracks.end(), cmp_pt);
+
+	// Truncate tracks
+	int m_max_tracks = 10;
+	if (tracks.size() > m_max_tracks) {
+		tracks.resize(m_max_tracks);
+	}
+
+	out = std::move(tracks);
+	return StatusCode::SUCCESS;
+}
+
+StatusCode HLTTauMonTool::getClusters(const xAOD::TauJet *aEFTau, std::vector<const xAOD::CaloCluster *> &out) {
+    std::vector<const xAOD::CaloCluster *> clusters;
+		float m_max_cluster_dr = 1.0;
+
+    const xAOD::Jet *jet_seed = *(aEFTau->jetLink());
+    if (!jet_seed) {
+        ATH_MSG_ERROR("Tau jet link is invalid.");
+        return StatusCode::FAILURE;
+    }
+
+    for (const auto jc : jet_seed->getConstituents()) {
+        auto cl = dynamic_cast<const xAOD::CaloCluster *>(jc->rawConstituent());
+        if (!cl) {
+            ATH_MSG_ERROR("Calorimeter cluster is invalid.");
+            return StatusCode::FAILURE;
+        }
+
+        // Select clusters in cone centered on the tau detector axis
+        const auto lc_p4 = aEFTau->p4(xAOD::TauJetParameters::DetectorAxis);
+        if (lc_p4.DeltaR(cl->p4()) < m_max_cluster_dr) {
+            clusters.push_back(cl);
+        }
+    }
+
+    // Sort by descending et
+    auto et_cmp = [](const xAOD::CaloCluster *lhs,
+                     const xAOD::CaloCluster *rhs) {
+        return lhs->et() > rhs->et();
+    };
+    std::sort(clusters.begin(), clusters.end(), et_cmp);
+
+    // Truncate clusters
+		int m_max_clusters = 6;
+    if (clusters.size() > m_max_clusters) {
+        clusters.resize(m_max_clusters);
+    }
+    out = std::move(clusters);
+
+    return StatusCode::SUCCESS;
+}
+
+
 
 ///////////////////////////////////////////////////////////
 // Function to fill relative difference histograms
