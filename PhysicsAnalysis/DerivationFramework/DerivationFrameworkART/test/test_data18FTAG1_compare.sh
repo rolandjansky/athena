@@ -3,7 +3,7 @@
 # art-include
 # art-description: DAOD compare to ref FTAG1 data18
 # art-type: grid
-
+# art-output: *.pool.root
 
 set -e
 
