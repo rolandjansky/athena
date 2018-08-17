@@ -10,7 +10,8 @@
 
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+//#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" //added
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "RegionSelector/IRegSelSvc.h"
 #include "Identifier/IdentifierHash.h"
@@ -123,13 +124,15 @@ namespace TrigL2MuonSA {
 
     // Reference to StoreGateSvc;
     ServiceHandle<StoreGateSvc>    m_storeGateSvc;
-    ActiveStoreSvc* m_activeStore;
+    ServiceHandle<ActiveStoreSvc> m_activeStore;
     
     // Tools for the Raw data conversion
     ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider;
+    //ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider {
+    // 	this, "MDT_RawDataProvider", "Muon::MDT_RawDataProviderTool", "MDTRawDataProviderTool"};
     
     // Cabling
-    MuonMDT_CablingSvc* m_mdtCabling;
+    ServiceHandle<MuonMDT_CablingSvc> m_mdtCabling;
     
     // Geometry Services
     const MuonGM::MuonDetectorManager* m_muonMgr;
@@ -139,10 +142,10 @@ namespace TrigL2MuonSA {
     IdentifierHash m_hash_id;
     
     // Region Selector
-    IRegSelSvc*          m_regionSelector;
+    ServiceHandle<IRegSelSvc> m_regionSelector;
     
     // ROB DataProvider
-    ROBDataProviderSvc*  m_robDataProvider;
+    ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
     
     // Utils
     TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
@@ -152,6 +155,8 @@ namespace TrigL2MuonSA {
 
     // handles to data access
     ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
+    //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider {
+    // 	this, "MdtPrepDataProvider", "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool", "MdtPrepDataProviderTool"};
 
     SG::ReadHandleKey<MdtCsmContainer> m_mdtCsmContainerKey{
 	this, "MDTCSMContainer", "MDTCSM", "Name of the MDTRDO to read in"};

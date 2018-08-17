@@ -7,9 +7,6 @@
 #ifndef IJetFinder_H
 #define IJetFinder_H
 
-// David Adsams
-// January 2014
-
 /// @class IJetFinder
 /// IJetFinder is a dual-use tool interface for for a tool that
 /// modifies a jet collection.
@@ -21,7 +18,11 @@
 
 namespace fastjet {
 class PseudoJet;
+ class ClusterSequence;
 }
+
+class PseudoJetContainer;
+
 
 /// Typedef for a vector of pseudojets.
 typedef std::vector<fastjet::PseudoJet> PseudoJetVector;
@@ -41,8 +42,16 @@ public:
   /// The last arguments are the input type for the found jets and
   /// the list of ghost constituent labels.
   /// Returns 0 for success.
-  virtual int find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-                   xAOD::JetInput::Type contype, const NameList& ghostlabs) const =0;
+  virtual int find(const PseudoJetContainer& cont,
+                   xAOD::JetContainer & finalJets,
+                   xAOD::JetInput::Type contype) const = 0;
+
+  // Trigger-friendly form of find - no writes to event store.
+  virtual int findNoSave(const PseudoJetContainer& cont, 
+                         xAOD::JetContainer & finalJets,
+                         xAOD::JetInput::Type contype,
+                         fastjet::ClusterSequence*&) const = 0;
+
 
 };
 

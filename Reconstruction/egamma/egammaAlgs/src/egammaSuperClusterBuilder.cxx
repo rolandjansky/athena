@@ -145,10 +145,11 @@ StatusCode egammaSuperClusterBuilder::initialize() {
     m_clusterCorrectionTool.disable();
   }
   if (m_calibrateClusters) {
-    ATH_CHECK(m_MVACalibTool.retrieve());
-  } else {
-    m_MVACalibTool.disable();
-  }
+    ATH_CHECK(m_MVACalibSvc.retrieve());
+  } 
+  // else {
+  //   m_MVACalibSvc.disable();
+  // }
 
   return StatusCode::SUCCESS;
 }
@@ -381,7 +382,7 @@ StatusCode egammaSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newClu
   ATH_MSG_DEBUG("Cluster phiBE(2) no correction/calibration: "<<newCluster->phiBE(2));
   // first do the corrections
   if (m_correctClusters) {
-    ATH_CHECK(m_clusterCorrectionTool->execute(newCluster,egType,xAOD::EgammaHelpers::isBarrel(newCluster)));
+    ATH_CHECK(m_clusterCorrectionTool->execute(Gaudi::Hive::currentContext(),newCluster,egType,xAOD::EgammaHelpers::isBarrel(newCluster)));
   }
   newCluster->setRawE(newCluster->e());
   newCluster->setRawEta(newCluster->eta());
@@ -400,7 +401,7 @@ StatusCode egammaSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newClu
   //So We will need at the end to do the final update in the EMClusterTool
   //For now apply just cluster info only calibration.
   if (m_calibrateClusters) {
-    ATH_CHECK(m_MVACalibTool->execute(newCluster,egType));
+    ATH_CHECK(m_MVACalibSvc->execute(*newCluster,egType));
   }
   ATH_MSG_DEBUG("========== cluster only calibration ==== ");
   ATH_MSG_DEBUG("Cluster Energy after cluster only calibration: "<<newCluster->e());

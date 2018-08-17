@@ -41,8 +41,7 @@ m_evtInfoDone(false),
 m_eventInfo{},
 m_nEvent(0),
 m_indexFile(0),
-m_lastIndexFile(0),
-m_poolSvc("PoolSvc", name)
+m_lastIndexFile(0)
 {
 	declareProperty("VP1ConfigFile", m_inputVP1CfgFile="");
 	declareProperty("DestinationDirectory", m_destinationDir=""); // produce files in the run directory by default
@@ -73,11 +72,6 @@ StatusCode VP1BatchOnLatestEvent::initialize()
 		msg(MSG::WARNING) << "Unable to get IncidentSvc!" << endmsg;
 	else
 		incsvc->addListener(this, "BeginEvent", 0);
-
-	// get hold of the PoolSvc
-	status = m_poolSvc.retrieve();
-	if(status.isFailure())
-		msg(MSG::WARNING) << "Unable to get PoolSvc" << endmsg;
 
 	return result;
 }

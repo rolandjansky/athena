@@ -264,7 +264,7 @@ def toolSpecialTrackAssociator(name, useBTagFlagsDefaults = True, **options):
 
 #------------------------------------------------------------------
 
-metaIP3DNewLikelihoodTool = { 'CalibrationFolders' : ['IP3D',],
+metaIP3DNewLikelihoodTool = { 'CalibrationTaggers' : ['IP3D',],
                               'DependsOn'          : ['BTagCalibrationBrokerTool',],
                               'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                               'ToolCollection'     : 'IP3DTag' }

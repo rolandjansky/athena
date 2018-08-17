@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -40,11 +40,13 @@ namespace InDet
     : HLT::FexAlgo (name, pSvcLocator),
       m_particleCreatorTool("Trk::ParticleCreatorTool"),
       m_residualCalc("Trk::ResidualPullCalculator"),
+      m_idHelper{},
+      m_pixelId{},
       m_tracks(0),
       m_doIBLresidual(false),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
-      m_mon_counter(0),
+      m_mon_counter(1),
       m_mon_prescale(1),
       m_mon_ptmin(1)
   {
@@ -58,6 +60,7 @@ namespace InDet
     declareProperty("MonPtmin",         m_mon_ptmin);
     // Common for all slices
     declareMonitoredStdContainer("trk_d0",     m_dqm_d0);
+    declareMonitoredStdContainer("trk_d0sig",  m_dqm_d0sig);    
     declareMonitoredStdContainer("trk_z0",     m_dqm_z0);
     declareMonitoredStdContainer("trk_phi",    m_dqm_phi);
     declareMonitoredStdContainer("trk_eta",    m_dqm_eta);
@@ -115,16 +118,6 @@ namespace InDet
   TrigTrackingxAODCnv::~TrigTrackingxAODCnv()
   {}
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackingxAODCnv::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackingxAODCnv::beginRun()" << endmsg;
-    m_mon_counter = 1;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
 
   ///////////////////////////////////////////////////////////////////
   // Initialisation
@@ -257,7 +250,7 @@ namespace InDet
     tpCont->setStore( &tpAuxCont );
 
 
-    if(m_tracks && runAlg) {
+    if(runAlg) { //m_tracks should not be checked here, it has been dereferenced already
       for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
         const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
 
@@ -333,18 +326,6 @@ namespace InDet
     return HLT::OK;
   }
 
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackingxAODCnv::hltEndRun() {
-
-    msg() << MSG::INFO << "TrigTrackingxAODCnv::endRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
-
-
   //---------------------------------------------------------------------------
   //  update the monitoring arrays
   //---------------------------------------------------------------------------
@@ -390,6 +371,19 @@ namespace InDet
     }
     else {
       m_dqm_ibl_hit_expected_found.push_back(-1.);
+    }
+
+    if (numberOfInnermostHits){
+      if (!particle->definingParametersCovMatrixVec().empty()){
+	double sigmad02 = particle->definingParametersCovMatrixVec()[0];
+	if (sigmad02>0.){
+	  m_dqm_d0sig.push_back(particle->d0()/ std::sqrt(sigmad02));
+	} else {
+	  ATH_MSG_WARNING("Negative d0^2 " << sigmad02 << " for xAOD::TrackParticle");
+	}
+      } else {
+	ATH_MSG_WARNING("Non-existing Cov Matrix for xAOD::TrackParticle");
+      }
     }
 
     if(particle->numberDoF()>0) {
@@ -484,7 +478,7 @@ namespace InDet
 
     //+++ Prescale
     if (m_mon_counter >= m_mon_prescale) {
-      m_mon_counter = 0;
+      m_mon_counter = 1;
     } else {
       return;
     }
@@ -638,6 +632,7 @@ namespace InDet
 
     // Common
     m_dqm_d0.clear();
+    m_dqm_d0sig.clear();    
     m_dqm_z0.clear();
     m_dqm_phi.clear();
     m_dqm_eta.clear();

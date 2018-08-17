@@ -13,7 +13,6 @@
 
 
 #include "StorageSvc/Shape.h"
-#include "StorageSvc/poolDb.h"
 #include "StorageSvc/IStorageSvc.h"
 #include "StorageSvc/IStorageExplorer.h"
 #include "StorageSvc/DbSelect.h"
@@ -55,19 +54,15 @@ TestDriver::testWriting()
   }
   storSvc->addRef();
   pool::Session* sessionHandle = 0;
-  if ( ! ( storSvc->startSession( poolDb::CREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+  if ( ! ( storSvc->startSession( pool::CREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a session." );
   }
 
   pool::FileDescriptor fd( file, file );
-  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd ).isSuccess() ) ) {
+  if ( ! ( storSvc->connect( sessionHandle, pool::CREATE, fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a connection." );
   }
   pool::DatabaseConnection* connection = fd.dbc();
-  pool::Transaction* transaction = 0;
-  if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-    throw std::runtime_error( "Could not start a transaction." );
-  }
 
   // Retrieve the dictionary
   const RootType class_SimpleTestClass  ( "SimpleTestClass" );
@@ -112,7 +107,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token_SimpleTestClass;
-    if ( ! ( storSvc->allocate( transaction, fd,
+    if ( ! ( storSvc->allocate( fd,
 				container, pool::ROOTKEY_StorageType.type(),
 				myObject_SimpleTestClass, shape_SimpleTestClass, token_SimpleTestClass ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -138,7 +133,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token_TestClassPrimitives;
-    if ( ! ( storSvc->allocate( transaction, fd,
+    if ( ! ( storSvc->allocate( fd,
 				container, pool::ROOTKEY_StorageType.type(),
 				myObject_TestClassPrimitives, shape_TestClassPrimitives, token_TestClassPrimitives ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -149,7 +144,7 @@ TestDriver::testWriting()
   }
 
   // Closing the transaction.
-  if ( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+  if ( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end a transaction." );
   }
 
@@ -190,21 +185,17 @@ TestDriver::testReadingParallelSameContainer()
   }
 
   pool::Session* sessionHandle = 0;
-  if ( ! ( storSvc->startSession( poolDb::READ, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+  if ( ! ( storSvc->startSession( pool::READ, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a session." );
   }
 
   pool::FileDescriptor* fd = new pool::FileDescriptor( file, file );
-  sc = storSvc->connect( sessionHandle, poolDb::READ, *fd );
+  sc = storSvc->connect( sessionHandle, pool::READ, *fd );
   if ( sc != pool::DbStatus::Success ) {
     throw std::runtime_error( "Could not start a connection." );
   }
 
   pool::DatabaseConnection* connection = fd->dbc();
-  pool::Transaction* transaction = 0;
-  if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-    throw std::runtime_error( "Could not start a transaction." );
-  }
 
   // Fetch the containers
   std::vector<const Token*> containerTokens;
@@ -315,7 +306,7 @@ TestDriver::testReadingParallelSameContainer()
   }
 
   // Closing the transaction.
-  if ( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+  if ( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end a transaction." );
   }
 

@@ -421,7 +421,7 @@ std::vector<Trk::HitInfo>* ISF::FastCaloSimSvc::caloHits(const ISF::ISFParticle&
   Trk::PathLimit pathLim(-1.,0);
   //if (absPdg!=999 && pHypothesis<99) pathLim = m_samplingTool->sampleProcess(mom,isp.charge(),pHypothesis);
      
-  Trk::GeometrySignature nextGeoID=Trk::GeometrySignature(isp.nextGeoID()); 
+  Trk::GeometrySignature nextGeoID = static_cast<Trk::GeometrySignature>(isp.nextGeoID());
 
   // save Calo entry hit (fallback info)
   hitVector->push_back(Trk::HitInfo(inputPar.clone(),isp.timeStamp(),nextGeoID,0.));  

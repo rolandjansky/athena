@@ -105,6 +105,7 @@ public:
   virtual unsigned getNRPCHits() const { return 0; }
   virtual unsigned getNTGCHits() const { return 0; }
   virtual unsigned getNCSCHits() const { return 0; }
+  virtual unsigned getNMuonPrecisionHits() const { return getNMDTHits() + getNCSCHits(); } // This should really only count eta csc hits. 
   virtual const Trk::FitQuality* getFitQuality() const {return 0;}
 
   QList<AssociatedObjectHandleBase*>  getVisibleMeasurements() const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<vector>
@@ -47,7 +47,6 @@ bool is_file_exist(const char *fileName)
   return infile.good();
 }
 
-//double ComputeMuChip(TH2D* modhisto,int chip)
 double ComputeMuChip(TH2D* modhisto, int chip)
 {
   static const int nchip = 16;
@@ -85,12 +84,9 @@ double ComputeMuChipIBL(TH2D* modhisto, int chip)
   static const int ncol  = 80;
   static const int nrow  = 336; // not encoded in ModuleSpecialPixelMap
   static const int nlongcol=2;
-  //static const int ngangedrow=0;
   static const int totalpixels = nchip*ncol*nrow;
   static const double fr10 = (ncol-nlongcol)*nrow/double(totalpixels); // fraction of normal pixels
   static const double fr15 = nlongcol*nrow/double(totalpixels);   // fraction of long pixels
-  //static const double fr20 = (ncol-nlongcol)*ngangedrow/double(totalpixels);        // fraction of ganged pixels
-  //static const double fr30 = nlongcol*ngangedrow/double(totalpixels);               // fraction of long-ganged pixels
   double totalhits=0.;
   int colmin = 0;
   if (chip == 1) colmin = 80;
@@ -104,7 +100,6 @@ double ComputeMuChipIBL(TH2D* modhisto, int chip)
   return mu/(fr10+1.5*fr15);
 }
 
-//double ComputeMuAve(TH2D* modhisto)
 double ComputeMuAve(TH2D* modhisto, int barrel_ec, int layer)
 {
   double muave = 0.;
@@ -115,7 +110,6 @@ double ComputeMuAve(TH2D* modhisto, int barrel_ec, int layer)
     double muchip = 0.;
     if (barrel_ec == 0 && layer == 0) muchip = ComputeMuChipIBL(modhisto, i);
     else muchip = ComputeMuChip(modhisto, i);
-    //double muchip = ComputeMuChip(modhisto,i);
     if ( muchip > 0. ) {
       muave += muchip;
       ngoodchip++;
@@ -130,7 +124,6 @@ int ComputePoisson(double probcut, double mu) {
   // compute the smallest value of n such that
   // Probability(x>=n)<probcut;
 
-  //double term = exp(-mu);
   if (mu < 1) mu = 1;
   int nhits = static_cast<int>(mu);
   double prob = ROOT::Math::poisson_cdf_c(nhits, mu); // set starting point
@@ -199,10 +192,6 @@ int main(int argc, char* argv[]){
   types.push_back("Ganged");
   types.push_back("LongGanged");
 
-  //std::map<unsigned int, TH2D*> hitMaps;
-  //std::map<unsigned int, TH2C*> noiseMaps;
-  //std::map<unsigned int, TH1D*> lumiMaps;
-  //std::map<unsigned int, TH2C*> noiseMapsOnline;
   std::map<std::string, TH2D*> hitMaps;
   std::map<std::string, TH2C*> noiseMaps;
   std::map<std::string, TH1D*> lumiMaps;
@@ -337,39 +326,25 @@ int main(int argc, char* argv[]){
         std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.str().c_str())))
                 ->GetListOfKeys()->At(phi)))->GetName());
 
-        //int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
-        //hitMaps[i] =
         hitMaps[name] =
           static_cast<TH2D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(hitMapsPath.str().c_str())))
                   ->GetListOfKeys())->At(phi)))->ReadObj());
-        //hitMaps[name]->SetName(("hMap_" + name).c_str());
-        //lumiMaps[i] =
         lumiMaps[name] =
           static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(lumiMapsPath.str().c_str())))
                   ->GetListOfKeys())->At(phi)))->ReadObj());
-        //lumiMaps[name]->SetName(("lMap_" + name).c_str());
 
         if( optionOnline ){
 
-          //std::string DCSID = PixelConvert::DCSID(PixelConvert::OnlineID(i));
 
-          //noiseMapsOnline[i] = new TH2C(DCSID.c_str(), ("occupancy: " + DCSID).c_str(), 144, 0., 144., 320, 0., 320.);
           noiseMapsOnline[name] = new TH2C(name.c_str(), ("occupancy: " + name).c_str(), 144, 0., 144., 320, 0., 320.);
           TDirectory* noiseMapDir = noiseMapFile->mkdir(name.c_str());
-          //noiseMapsOnline[i]->SetDirectory( noiseMapDir );
           noiseMapsOnline[name]->SetDirectory( noiseMapDir );
         }
         else{
-          //hitMaps[i]->SetName(name.c_str());
-          //hitMaps[i]->SetDirectory(hitMapSubDir);
-          //lumiMaps[i]->SetName(name.c_str());
-          //lumiMaps[i]->SetDirectory(lumiMapSubDir);
+         
           lumiMaps[name]->SetDirectory(lumiMapSubDir);
-          //hitMaps[name]->SetName(name.c_str());
           hitMaps[name]->SetDirectory(hitMapSubDir);
 
-          //noiseMaps[i] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
-          //noiseMaps[i]->SetDirectory(noiseMapSubDir);
           noiseMaps[name] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
           noiseMaps[name]->SetDirectory(noiseMapSubDir);
         }
@@ -410,18 +385,15 @@ int main(int argc, char* argv[]){
   std::cout << "reading hit maps of barrels from input file" << std::endl;
 
   for(unsigned int layer = 0; layer < layers.size(); layer++)
-  //for(unsigned int k = 0; k < staves.size(); k++)
   {
 
     std::ostringstream hitMapsPath;
 
     hitMapsPath << "hitMaps_barrel/" << layers[layer];
-    //std::cout << "DEBUG: " << "hitMapsPath = " << hitMapsPath.str() << std::endl;
 
     std::ostringstream lumiMapsPath;
 
     lumiMapsPath << "LBdep_barrel/" << layers[layer];
-    //std::cout << "DEBUG: " << "lumiMapsPath = " << lumiMapsPath.str() << std::endl;
 
     TDirectory* hitMapSubDir = 0;
     TDirectory* noiseMapSubDir = 0;
@@ -436,7 +408,6 @@ int main(int argc, char* argv[]){
     int nModulesPerStave = 13;
     if (isIBL && layer == 0) nModulesPerStave = 20; // --- IBL --- //
     for(int module = 0; module < staves[layer] * nModulesPerStave; module++) // loop on modules
-    //for(int j = 0; j < (staves[layer] * 13); j++)
     {
 
       std::string name(
@@ -446,11 +417,7 @@ int main(int argc, char* argv[]){
              )->GetListOfKeys()->At(module) )
           )->GetName());
 
-      //std::cout << "DEBUG: " << "module = " << module << ", name = " << name << std::endl;
-      //int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
 
-      //std::cout << "DEBUG: " << "hitMapsPath = " << hitMapsPath.str() << std::endl;
-      //hitMaps[i] =
       hitMaps[name] =
         static_cast<TH2D*>
         (
@@ -467,17 +434,12 @@ int main(int argc, char* argv[]){
           )
          )->ReadObj()
         );
-      //hitMaps[name]->SetName((std::string("hMap_") + name).c_str());
-      //std::cout << "DEBUG: " << "hitMap of " << name << "was successfully read" << std::endl;
       lumiMaps[name] =
         static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(lumiMapsPath.str().c_str())))
                 ->GetListOfKeys())->At(module)))->ReadObj());
-      //lumiMaps[name]->SetName((std::string("lMap_") + name).c_str());
-      //std::cout << "DEBUG: " << "lumiMap of " << name << "was successfully read" << std::endl;
-      if( optionOnline ){
-        //std::string DCSID = PixelConvert::DCSID(PixelConvert::OnlineID(i));
 
-        //noiseMapsOnline[i] = new TH2C(DCSID.c_str(), ("occupancy: " + DCSID).c_str(), 144, 0., 144., 320, 0., 320.);
+      if( optionOnline ){
+
         if(isIBL && layer == 0) noiseMapsOnline[name] = new TH2C(name.c_str(), ("occupancy: " + name).c_str(), 160, 0., 160., 336, 0., 336.);
         else noiseMapsOnline[name] = new TH2C(name.c_str(), ("occupancy: " + name).c_str(), 144, 0., 144., 320, 0., 320.);
         TDirectory* noiseMapDir = noiseMapFile->mkdir(name.c_str());
@@ -485,20 +447,14 @@ int main(int argc, char* argv[]){
 
       }
       else{
-        //hitMaps[i]->SetName(name.c_str());
-        //hitMaps[i]->SetDirectory(hitMapSubDir);
         hitMaps[name]->SetDirectory(hitMapSubDir);
-        //lumiMaps[i]->SetName(name.c_str());
-        //lumiMaps[i]->SetDirectory(lumiMapSubDir);
+        
         lumiMaps[name]->SetDirectory(lumiMapSubDir);
 
-        //noiseMaps[i] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
-        //noiseMaps[i]->SetDirectory(noiseMapSubDir);
-        //std::cout << "DEBUG: " << "initializing noiseMap of " << name << std::endl;
+        
         if(isIBL && layer == 0) noiseMaps[name] = new TH2C(name.c_str(), name.c_str(), 160, 0., 160., 336, 0., 336.);
         else noiseMaps[name] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
         noiseMaps[name]->SetDirectory(noiseMapSubDir);
-        //std::cout << "DEBUG: " << "noiseMap of " << name << "initialized" << std::endl;
       }
     }
   }
@@ -519,11 +475,7 @@ int main(int argc, char* argv[]){
   unsigned int nBCReadout = 1;
 
   double occucut = 1.E-7;
-  //double occucut = 1.E-4;
-  //std::cout << std::endl
-  //  << "Using probability for a normal pixel to be flagged as noisy: "
-  //  << std::endl;
-
+  
   cuts["Disk1A"] = occucut;
   cuts["Disk2A"] = occucut;
   cuts["Disk3A"] = occucut;
@@ -562,21 +514,21 @@ int main(int argc, char* argv[]){
     std::cout << "Occupancy calculated per event" << std::endl << std::endl;
   }
 
-  //std::string testarea = std::getenv("TestArea");
   char* tmppath = std::getenv("DATAPATH");
-  if(tmppath == nullptr){
+  const unsigned int maxPathStringLength{3000};
+  if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
       std::cout << "FATAL: Unable to retrieve environmental DATAPATH" << std::endl;
-      exit(EXIT_FAILURE);    
+      exit(EXIT_FAILURE);
   }
-  std::string cmtpath(tmppath);
+  std::stringstream tmpSstr{};
+  tmpSstr<<tmppath;
+  std::string cmtpath(tmpSstr.str());
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
   for (const auto& x : paths){
     if(is_file_exist((x + "/PixelMapping_Run2.dat").c_str())){
       if(isIBL){
-      //  ifs.open(testarea + "/InstallArea/share/PixelMapping_Run2.dat");
-      // else
-      //  ifs.open(testarea + "/InstallArea/share/PixelMapping_May08.dat");
+    
         ifs.open(x + "/PixelMapping_Run2.dat");
       } else {
         ifs.open(x + "/PixelMapping_May08.dat");
@@ -596,68 +548,15 @@ int main(int argc, char* argv[]){
     }
   }
 
-  //// convert moduleID to phi/eta
-  //std::map<std::string, int> phi2M_ECA;
-  //phi2M_ECA[std::string("1")] = 0;
-  //phi2M_ECA[std::string("6")] = 1;
-  //phi2M_ECA[std::string("2")] = 2;
-  //phi2M_ECA[std::string("5")] = 3;
-  //phi2M_ECA[std::string("3")] = 4;
-  //phi2M_ECA[std::string("4")] = 5;
-  //std::map<std::string, int> phi2M_ECC;
-  //phi2M_ECC[std::string("4")] = 0;
-  //phi2M_ECC[std::string("3")] = 1;
-  //phi2M_ECC[std::string("5")] = 2;
-  //phi2M_ECC[std::string("2")] = 3;
-  //phi2M_ECC[std::string("6")] = 4;
-  //phi2M_ECC[std::string("1")] = 5;
-  //std::map<std::string, int> eta2moduleID_IBL;
-  //eta2moduleID_IBL[std::string("A_M4_A8_2")] = 9;
-  //eta2moduleID_IBL[std::string("A_M4_A8_1")] = 8;
-  //eta2moduleID_IBL[std::string("A_M4_A7_2")] = 7;
-  //eta2moduleID_IBL[std::string("A_M4_A7_1")] = 6;
-  //eta2moduleID_IBL[std::string("A_M3_A6")] = 5;
-  //eta2moduleID_IBL[std::string("A_M3_A5")] = 4;
-  //eta2moduleID_IBL[std::string("A_M2_A4")] = 3;
-  //eta2moduleID_IBL[std::string("A_M2_A3")] = 2;
-  //eta2moduleID_IBL[std::string("A_M1_A2")] = 1;
-  //eta2moduleID_IBL[std::string("A_M1_A1")] = 0;
-  //eta2moduleID_IBL[std::string("C_M1_C1")] = -1;
-  //eta2moduleID_IBL[std::string("C_M1_C2")] = -2;
-  //eta2moduleID_IBL[std::string("C_M2_C3")] = -3;
-  //eta2moduleID_IBL[std::string("C_M2_C4")] = -4;
-  //eta2moduleID_IBL[std::string("C_M3_C5")] = -5;
-  //eta2moduleID_IBL[std::string("C_M3_C6")] = -6;
-  //eta2moduleID_IBL[std::string("C_M4_C7_1")] = -7;
-  //eta2moduleID_IBL[std::string("C_M4_C7_2")] = -8;
-  //eta2moduleID_IBL[std::string("C_M4_C8_1")] = -9;
-  //eta2moduleID_IBL[std::string("C_M4_C8_2")] = -10;
-  ////
-  //std::map<std::string, int> eta2moduleID_PixelBarrel;
-  //eta2moduleID_PixelBarrel[std::string("M6A")] = 6;
-  //eta2moduleID_PixelBarrel[std::string("M5A")] = 5;
-  //eta2moduleID_PixelBarrel[std::string("M4A")] = 4;
-  //eta2moduleID_PixelBarrel[std::string("M3A")] = 3;
-  //eta2moduleID_PixelBarrel[std::string("M2A")] = 2;
-  //eta2moduleID_PixelBarrel[std::string("M1A")] = 1;
-  //eta2moduleID_PixelBarrel[std::string("_M0")] = 0;
-  //eta2moduleID_PixelBarrel[std::string("M1C")] = -1;
-  //eta2moduleID_PixelBarrel[std::string("M2C")] = -2;
-  //eta2moduleID_PixelBarrel[std::string("M3C")] = -3;
-  //eta2moduleID_PixelBarrel[std::string("M4C")] = -4;
-  //eta2moduleID_PixelBarrel[std::string("M5C")] = -5;
-  //eta2moduleID_PixelBarrel[std::string("M6C")] = -6;
 
   //------------------------------------
   // calculate noise maps
   //-----------------------------------
 
-  //for(std::map<unsigned int, TH2D*>::const_iterator module = hitMaps.begin(); module != hitMaps.end(); ++module)
   for(std::map<std::string, TH2D*>::const_iterator module = hitMaps.begin(); module != hitMaps.end(); ++module)
   {
 
     std::string moduleID = (*module).first;
-    //unsigned int moduleID = (*module).first;
 
     TH2C* noiseMap = 0;
 
@@ -673,57 +572,7 @@ int main(int argc, char* argv[]){
     int layer = position[1];
     int module_phi = position[2];
     int module_eta = position[3];
-    //int barrel = -999;
-    //int layer = -999;
-    //int module_phi = -999;
-    //int module_eta = -999;
-    //if (moduleID.substr(0,1) == "D") { // Endcap
-    //  int B = std::stoi(moduleID.substr(5,2)); // e.g.) D3A_B02_S2_M4, phi = 17
-    //  int S = std::stoi(moduleID.substr(moduleID.size() - 4, 1));
-    //  if (moduleID.substr(2,1) == "A") {
-    //    barrel = 2;
-    //    int M = phi2M_ECA[moduleID.substr(moduleID.size() - 1, 1)];
-    //    if(B == 1 && S == 1) module_phi = 42 + M;
-    //    else module_phi = (B - 1) * 12 + (S - 1) * 6 + M - 6;
-    //  } else if (moduleID.substr(2,1) == "C") {
-    //    barrel = -2;
-    //    int M = phi2M_ECC[moduleID.substr(moduleID.size() - 1, 1)];
-    //    if(B == 1 && S == 1) module_phi = 42 + M;
-    //    else module_phi = (B - 1) * 12 + (S - 1) * 6 + M - 6;
-    //  }
-    //  layer = std::stoi( moduleID.substr(1,1) ) - 1;
-    //  module_eta = barrel;
-    //} else if (moduleID.substr(0,1) == "L") { // Barrel
-    //  barrel = 0;
-    //  if (moduleID.substr(1,1) == "I") { // IBL
-    //    layer = 0;
-    //    module_phi = std::stoi(moduleID.substr(4,2)) - 1; // e.g.) LI_S12_A_M2_A4
-    //    module_eta = eta2moduleID_IBL[moduleID.substr(7,std::string::npos)];
-    //  } else { // Pixel
-    //    layer = std::stoi( moduleID.substr(1,1) ) + 1; // Pixel
-    //    int B = std::stoi(moduleID.substr(4,2)); // e.g.) L0_B07_S1_M1A, phi = 13, eta = 1
-    //    int S = std::stoi(moduleID.substr(8,1));
-    //    module_eta = eta2moduleID_PixelBarrel[moduleID.substr(moduleID.size() - 3, std::string::npos)];
-    //    if (layer == 1) { // BLayer
-    //      if (moduleID.substr(0,9) == "L0_B11_S2") module_phi = 0;
-    //      else module_phi = (B - 1) * 2 + S;
-    //    } else if (layer == 2) { // Layer-1
-    //      module_phi = (B - 1) * 2 + (S - 1);
-    //    } else if (layer == 3) { // Layer-2
-    //      if (moduleID.substr(0,9) == "L2_B01_S1") module_phi = 51;
-    //      else module_phi = (B - 1) * 2 + (S - 1) - 1;
-    //    }
-    //  }
-    //} // end if barrel
 
-    /**
-    int barrel = ((moduleID >> 25) & 3);
-    barrel = 2*(barrel-1);
-    int layer = ((moduleID >> 23) & 3);
-    int module_phi = ((moduleID >> 17) & 63);
-    int module_eta = ((moduleID >> 13) & 15);
-    module_eta -= 6;
-    */
 
     unsigned int component_index = 0;
 
@@ -743,11 +592,7 @@ int main(int argc, char* argv[]){
 
       if( barrel !=0 ) disablePlot = disablePlotEC;
       else{
-        /**
-        if(layer == 0) disablePlot = disablePlotB0;
-        else if(layer == 1) disablePlot = disablePlotB1;
-        else if(layer == 2) disablePlot = disablePlotB2;
-        */
+
         if(layer == 0) disablePlot = disablePlotBI;
         else if(layer == 1) disablePlot = disablePlotB0;
         else if(layer == 2) disablePlot = disablePlotB1;
@@ -764,21 +609,14 @@ int main(int argc, char* argv[]){
 
     double muave = ComputeMuAve(module->second, barrel, layer);
     double normalpixelcut = ComputePoisson(cut,muave);
-    //double normalpixelcut = cut;
     double longpixelcut = ComputePoisson(cut,muave*longPixelMultiplier);
-    //double longpixelcut = cut*longPixelMultiplier;
     double gangedpixelcut = ComputePoisson(cut,muave*gangedPixelMultiplier);
     double longgangedpixelcut = ComputePoisson(cut,muave*longgangedPixelMultiplier);
-    //double gangedpixelcut = cut*gangedPixelMultiplier;
-    //double longgangedpixelcut = cut*longgangedPixelMultiplier;
     bool isIBL3D = ( isIBL && barrel == 0 && layer == 0 && (module_eta <= -7 || module_eta >= 6) ) ? true : false;
-    // std::cout << module->second->GetTitle() << "  mu=" << muave << " cut at: " << normalpixelcut << std::endl;
     int pixel_eta_max = (barrel == 0 && layer == 0) ? 160 : 144;
     int pixel_phi_max = (barrel == 0 && layer == 0) ? 336 : 328;
-    //for(int pixel_eta = 0; pixel_eta < 144; pixel_eta++)
     for(int pixel_eta = 0; pixel_eta < pixel_eta_max; pixel_eta++)
     {
-      //for(int pixel_phi = 0; pixel_phi < 328; pixel_phi++)
       for(int pixel_phi = 0; pixel_phi < pixel_phi_max; pixel_phi++)
       {
 
@@ -786,8 +624,6 @@ int main(int argc, char* argv[]){
 
 
         unsigned int type = 0;
-        //unsigned int pixelType = ModuleSpecialPixelMap::
-        //  pixelType( pixel_eta % 18, (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi );
         int pixel_eta_on_chip = (isIBL && barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
         int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
         if (isIBL && barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
@@ -797,7 +633,6 @@ int main(int argc, char* argv[]){
           if( !isIBL3D && (pixel_eta_on_chip == 0 || pixel_eta_on_chip == 80 - 1) ){
             pixelType = 1; // long
           }
-          //else if(pixel_eta_on_chip > 0 && pixel_eta_on_chip < 80 - 1) // pixel size = 50x250 um2
           else { // pixel size = 50x250 um2
             pixelType = 0; // normal
           }
@@ -859,7 +694,6 @@ int main(int argc, char* argv[]){
             break;
         }
 
-        //std::cout << "Debug: thisPixelCut = " << thisPixelCut << std::endl;
 
         if( type != 4 ){ // valid
 
@@ -873,8 +707,6 @@ int main(int argc, char* argv[]){
           }
 
           if( nHits >= thisPixelCut && occupancy > 1e-3)
-          //if( nHits >= thisPixelCut )
-          //if( occupancy >= thisPixelCut ) /////////////////////////////
           {
 
             if( optionOnline ) {
@@ -962,15 +794,12 @@ int main(int argc, char* argv[]){
           }
         } else if (layer > 0) { // Pixel
           if( disablePlot->GetBinContent(module_eta+7, module_phi+1) < 0. )
-            //if( disablePlot->GetBinContent(module_eta, module_phi) < 0. )
           {
             disablePlot->SetBinContent(module_eta+7, module_phi+1, -1.);
-            //disablePlot->SetBinContent(module_eta, module_phi, -1.);
           }
           else
           {
             disablePlot->SetBinContent(module_eta+7, module_phi+1, thisModuleCut);
-            //disablePlot->SetBinContent(module_eta, module_phi, thisModuleCut);
           }
         }
       } // end if barrel
@@ -978,36 +807,29 @@ int main(int argc, char* argv[]){
       else if (barrel == 2)
       {
         if( disablePlot->GetBinContent(layer+5, module_phi+1) < 0. )
-        //if( disablePlot->GetBinContent(layer, module_phi) < 0. )
         {
           disablePlot->SetBinContent(layer+5, module_phi+1, -1.);
-          //disablePlot->SetBinContent(layer, module_phi, -1.);
         }
         else
         {
           disablePlot->SetBinContent(layer+5, module_phi+1, thisModuleCut);
-          //disablePlot->SetBinContent(layer, module_phi, thisModuleCut);
         }
       } // end if eca
       else if (barrel == -2)
       {
         if( disablePlot->GetBinContent(3-layer, module_phi+1) < 0. )
-        //if( disablePlot->GetBinContent(-layer, module_phi) < 0. )
         {
           disablePlot->SetBinContent(3-layer, module_phi+1, -1.);
-          //disablePlot->SetBinContent(-layer, module_phi, -1.);
         }
         else
         {
           disablePlot->SetBinContent(3-layer, module_phi+1, thisModuleCut);
-          //disablePlot->SetBinContent(-layer, module_phi, thisModuleCut);
         }
       } // end if ecc
     }
   }
 
   if( !optionOnline ){
-    //double nPixels = 80363520.;
     double nPixels = 80363520.;
     double nModules = 1744.;
     if (isIBL) {

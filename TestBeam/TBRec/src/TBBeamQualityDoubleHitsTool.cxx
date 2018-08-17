@@ -13,16 +13,10 @@
 //#####################################################
 
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/AlgTool.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/Property.h"
+#include "TBBeamQualityDoubleHitsTool.h"
 
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBScintillator.h"
-#include "TBRec/TBBeamQualityDoubleHitsTool.h"
 
 #include <string>
 #include <ios>

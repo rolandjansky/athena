@@ -47,7 +47,7 @@ public:
    virtual void prepareForRun(const daq::rc::TransitionCmd&);
    virtual void stopArchiving(const daq::rc::TransitionCmd&);
 
-   hltca::JobConfig& conf() { return fJobConfig; }
+   hltca::JobConfig& conf() { return m_jobConfig; }
 
 private:
 
@@ -55,10 +55,10 @@ private:
 
    bool getRunNumberFromIS();
 
-   hltca::JobConfig             fJobConfig; // object to hold different job configuration parameters
-   hltca::HLTCountCoolWriter    fCoolWriter; // the class that does the writing to COOL
-   IPCPartition*                fIPCPartition; // the ipc partition object
-   hltca::HLTCountOHReceiver*   fReceiver;
+   hltca::JobConfig             m_jobConfig; // object to hold different job configuration parameters
+   hltca::HLTCountCoolWriter    m_coolWriter; // the class that does the writing to COOL
+   IPCPartition*                m_IPCPartition; // the ipc partition object
+   hltca::HLTCountOHReceiver*   m_receiver;
 
 };
 

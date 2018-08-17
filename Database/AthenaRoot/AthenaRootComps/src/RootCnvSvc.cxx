@@ -36,8 +36,6 @@ RootCnvSvc::RootCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
 	m_treeName("CollectionTree") {
 }
 
-RootCnvSvc::~RootCnvSvc() {}
-
 StatusCode RootCnvSvc::initialize() {
   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
   if (!::AthCnvSvc::initialize().isSuccess()) {

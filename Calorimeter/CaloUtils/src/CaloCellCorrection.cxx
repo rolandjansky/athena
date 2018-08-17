@@ -55,7 +55,8 @@ CaloCellCorrection::~CaloCellCorrection()
 // EXECUTE method: Correct cells in input cell container
 //////////////////////////////////////////////////////////////
 
-StatusCode CaloCellCorrection::execute(CaloCellContainer* cellCollection) 
+StatusCode CaloCellCorrection::execute (CaloCellContainer* cellCollection,
+                                        const EventContext& ctx) const
 {
 
   ATH_MSG_DEBUG("Executing CaloCellCorrection");
@@ -69,12 +70,8 @@ StatusCode CaloCellCorrection::execute(CaloCellContainer* cellCollection)
   // Note that this is the base class of all the concrete correction
   // classes which implement a Make Correction method.
 
-  CaloCellContainer::iterator cellIter = cellCollection->begin();
-  CaloCellContainer::iterator cellIterEnd = cellCollection->end();
-
-  for (; cellIter != cellIterEnd; ++cellIter)
-  { 
-    MakeCorrection( *cellIter );
+  for (CaloCell* cell : *cellCollection) {
+    MakeCorrection ( cell, ctx );
   }
 
   // Done, Return success
@@ -89,17 +86,17 @@ StatusCode CaloCellCorrection::execute(CaloCellContainer* cellCollection)
 //////////////////////////////////////////////////////////////
 
 
-void CaloCellCorrection::setenergy(CaloCell* theCell, float energy)
+void CaloCellCorrection::setenergy(CaloCell* theCell, float energy) const
 {
   theCell->setEnergy( energy );
 }
 
-void CaloCellCorrection::addenergy(CaloCell* theCell, float energy)
+void CaloCellCorrection::addenergy(CaloCell* theCell, float energy) const
 {
   theCell->addEnergy( energy );
 }
 
-void CaloCellCorrection::scaleenergy(CaloCell* theCell, float scale)
+void CaloCellCorrection::scaleenergy(CaloCell* theCell, float scale) const
 {
   theCell->scaleEnergy( scale );
 }

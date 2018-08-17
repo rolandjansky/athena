@@ -43,8 +43,8 @@ SCT_BaseBoard::build()
 {
   // Make BaseBoard. Just a simple box.
   const GeoBox * simpleBaseBoardShape = new GeoBox(0.5*m_thickness,
-						   0.5*m_width,
-						   0.5*m_length);
+                                                   0.5*m_width,
+                                                   0.5*m_length);
 
   const GeoLogVol * simpleBaseBoardLog = 
     new GeoLogVol(getName(), simpleBaseBoardShape, m_material);

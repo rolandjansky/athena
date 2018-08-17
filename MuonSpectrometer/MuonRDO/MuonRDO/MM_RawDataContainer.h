@@ -6,7 +6,7 @@
 #define MUONRDO_MM_RAWDATACONAINTER_H
 
 #include "MuonRDO/MM_RawDataCollection.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
 namespace Muon {

@@ -143,7 +143,7 @@ int InDetAlignTrackSelTool::nShared(const Trk::Track& track) const {
 
     nshared = nshpix + nshsct;
   }
-
+  delete summary;
   return nshared;
 }
 
@@ -173,7 +173,7 @@ int InDetAlignTrackSelTool::nHoles(const Trk::Track& track) const {
 
     nholes =  nhpix + nhsct;
   }
-
+  delete summary;
   return nholes;
 }
 

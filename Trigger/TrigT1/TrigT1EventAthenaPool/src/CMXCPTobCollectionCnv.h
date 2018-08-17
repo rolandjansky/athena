@@ -33,8 +33,6 @@ public:
      {}
   
 protected:
-
-  ~CMXCPTobCollectionCnv() {}
   
   virtual CMXCPTobCollection_PERS*   createPersistent (CMXCPTobCollection* transCont);
   virtual CMXCPTobCollection*        createTransient ();

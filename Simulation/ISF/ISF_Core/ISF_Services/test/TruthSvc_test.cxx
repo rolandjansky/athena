@@ -61,7 +61,7 @@ namespace ISFTesting {
     virtual ~MockTruthStrategy() {};
 
     // This TruthStrategy only applies to the Inner Detector region
-    bool appliesToRegion(unsigned short geoID) const override { return (AtlasDetDescr::fAtlasID==geoID); }
+    bool appliesToRegion(unsigned short geoID) const { return (AtlasDetDescr::fAtlasID==geoID); }
     // mock methods which will be called by tested code
     MOCK_CONST_METHOD1(pass, bool(ISF::ITruthIncident&));
   };

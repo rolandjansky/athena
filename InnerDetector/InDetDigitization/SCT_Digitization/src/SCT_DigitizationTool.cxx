@@ -20,7 +20,6 @@
 #include "Identifier/Identifier.h"
 
 // Det Descr includes
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
@@ -30,6 +29,7 @@
 #include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
 
 // Data Handle
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 // C++ Standard Library
@@ -54,7 +54,6 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   m_HardScatterSplittingSkipper{false},
   m_ComTimeKey{"ComTime"},
   m_detID{nullptr},
-  m_detMgr{nullptr},
   m_sct_FrontEnd{"SCT_FrontEnd", this},
   m_sct_SurfaceChargesGenerator{"SCT_SurfaceChargesGenerator", this},
   m_sct_RandomDisabledCellGenerator{"SCT_RandomDisabledCellGenerator", this},
@@ -126,6 +125,9 @@ StatusCode SCT_DigitizationTool::initialize() {
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_simDataCollMapKey.initialize());
   ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
+
+  // Initialize ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   ATH_MSG_DEBUG("SiDigitizationTool::initialize() complete");
 
@@ -217,19 +219,9 @@ StatusCode SCT_DigitizationTool::initRandomEngine() {
 // Initialize the different services
 // ----------------------------------------------------------------------
 StatusCode SCT_DigitizationTool::initServices() {
-  // +++ Get SCT detector manager
-  std::string managerName{"SCT"};
-  StatusCode sc{detStore()->retrieve(m_detMgr, managerName)};
-
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve the SCT detector manager:" << managerName);
-    return sc;
-  }
-  ATH_MSG_DEBUG("Retrieved the SCT detector manager " << managerName);
-
   // Get SCT ID helper for hash function and Store them using methods from the
   // SiDigitization.
-  sc = detStore()->retrieve(m_detID, "SCT_ID");
+  StatusCode sc = detStore()->retrieve(m_detID, "SCT_ID");
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Failed to get SCT ID helper");
     return sc;
@@ -412,6 +404,14 @@ void SCT_DigitizationTool::digitizeNonHits() {
   ATH_MSG_DEBUG("processing elements without hits");
   m_chargedDiodes = new SiChargedDiodeCollection;
 
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return;
+  }
+
   for (unsigned int i{0}; i < m_processedElements.size(); i++) {
     if (!m_processedElements[i]) {
       IdentifierHash idHash{i};
@@ -419,7 +419,7 @@ void SCT_DigitizationTool::digitizeNonHits() {
         ATH_MSG_ERROR("SCT Detector element id hash is invalid = " << i);
       }
 
-      const InDetDD::SiDetectorElement* element{m_detMgr->getDetectorElement(idHash)};
+      const InDetDD::SiDetectorElement* element{elements->getDetectorElement(idHash)};
       if (element) {
         ATH_MSG_DEBUG("In digitize of untouched elements: layer - phi - eta  "
                       << m_detID->layer_disk(element->identify()) << " - "
@@ -470,6 +470,7 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
   // create the identifier for the collection:
   ATH_MSG_DEBUG("create ID for the hit collection");
   Identifier id;
+  IdentifierHash waferHash;
   const TimedHitPtr<SiHit>& firstHit{*i};
 
   int Barrel{firstHit->getBarrelEndcap()};
@@ -489,11 +490,19 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
                          firstHit->getPhiModule(),
                          firstHit->getEtaModule(),
                          firstHit->getSide());
+    waferHash = sctID->wafer_hash(id);
   }
 
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return false;
+  }
 
   // get the det element from the manager
-  InDetDD::SiDetectorElement* sielement{m_detMgr->getDetectorElement(id)};
+  const InDetDD::SiDetectorElement* sielement{elements->getDetectorElement(waferHash)};
 
   if (sielement == nullptr) {
     ATH_MSG_DEBUG("Barrel=" << Barrel << " layer=" << firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule() << " Phi=" << firstHit->getPhiModule() << " Side=" << firstHit->getSide());

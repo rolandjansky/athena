@@ -12,7 +12,7 @@
 #include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "ViewAlgs/ViewAlgs.h"
+
 
 #include "./MergeRoIsAlg.h"
 

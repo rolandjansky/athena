@@ -5,8 +5,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "StoreGate/ActiveStoreSvc.h"
-
 #include "CLHEP/Random/RandomEngine.h"
 //#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
@@ -37,7 +35,6 @@ const uint16_t MAX_AMPL = 4095; // 12-bit ADC
 CscDigitToCscRDOTool::CscDigitToCscRDOTool
 (const std::string& type,const std::string& name,const IInterface* pIID)
   : AthAlgTool(type, name, pIID), 
-    m_rdoContainer("CSCRDO"),
     m_cscCablingSvc("CSCcablingSvc", name),
     m_cscCalibTool("CscCalibTool"),
     m_rndmSvc("AtRndmGenSvc", name ),
@@ -67,11 +64,6 @@ StatusCode CscDigitToCscRDOTool::initialize()
     return StatusCode::FAILURE;
   }
     
-  if ( service("ActiveStoreSvc", m_activeStore).isFailure() ) {
-    ATH_MSG_FATAL ( "Could not get active store service" );
-    return StatusCode::FAILURE;
-  }
-  
   if ( detStore()->retrieve(m_cscHelper, "CSCIDHELPER").isFailure()) {
     ATH_MSG_FATAL ( "Could not get CscIdHelper !" );
     return StatusCode::FAILURE;
@@ -111,7 +103,8 @@ StatusCode CscDigitToCscRDOTool::initialize()
   m_numberOfIntegration =
     static_cast<uint16_t>(m_cscCalibTool->getNumberOfIntegration()); //12
 
-  ATH_CHECK( m_rdoContainer.initialize() );
+  ATH_CHECK( m_rdoContainerKey.initialize() );
+  ATH_CHECK( m_digitContainerKey.initialize() );
   
   return StatusCode::SUCCESS;
 }
@@ -120,11 +113,6 @@ StatusCode CscDigitToCscRDOTool::digitize()
 {
   ATH_MSG_DEBUG ( "in execute()" );
 
-  m_activeStore->setStore( &*evtStore() );
-  
-
-  ATH_CHECK( m_rdoContainer.record(std::unique_ptr<CscRawDataContainer>(new CscRawDataContainer())) );
-
   if ( fill_CSCdata().isFailure() )
     ATH_MSG_ERROR ( " CscDigitToCscRdo failed to execute " );
 
@@ -132,13 +120,6 @@ StatusCode CscDigitToCscRDOTool::digitize()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode CscDigitToCscRDOTool::finalize() {
- 
-  ATH_MSG_INFO ( "in finalize()" );
-   
-  return StatusCode::SUCCESS;
-}
 
 StatusCode CscDigitToCscRDOTool::fill_CSCdata()
 {
@@ -156,7 +137,8 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
   rodReadOut.setChamberBitVaue(1);
 
 
-  m_activeStore->setStore( &*evtStore() );
+  SG::WriteHandle<CscRawDataContainer> rdoContainer(m_rdoContainerKey);
+  ATH_CHECK( rdoContainer.record(std::make_unique<CscRawDataContainer>()) );
 
   /** initialization of data collection map */
   m_cscRdoMap.clear();
@@ -166,12 +148,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
   typedef CscDigitCollection::const_iterator digit_iterator;
 
   /** Retrieve the digit container */
-  std::string key = "CSC_DIGITS";
-  const CscDigitContainer * container = 0;
-  if ( evtStore()->retrieve(container,key).isFailure() )  {
-    ATH_MSG_ERROR ( "Cannot retrieve CSC DIGIT Container" );
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<CscDigitContainer> container(m_digitContainerKey);
 
   /** loop over digit collections from the simulation */
   collection_iterator it_coll   = container->begin();
@@ -527,8 +504,6 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
   
   ATH_MSG_DEBUG ( "Adding RDOs to the RdoContainer" );
   /** Add RDOs to the RdoContainer */
-  m_activeStore->setStore( &*evtStore() );
-  //  m_activeStore->setStore( &*m_EvtStore );
   std::map<uint16_t, CscRawDataCollection *>::iterator itM  =m_cscRdoMap.begin();
   std::map<uint16_t, CscRawDataCollection *>::iterator itM_e=m_cscRdoMap.end();  
   for (; itM != itM_e; ++itM) {
@@ -545,7 +520,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
       for (unsigned int i=0; i<10; ++i) (itM->second)->set_spuCount(i,clusterCounts[i]);
 
       /** save collections into StoreGate */
-      ATH_CHECK( m_rdoContainer->addCollection(itM->second, itM->first) );
+      ATH_CHECK( rdoContainer->addCollection(itM->second, itM->first) );
   }
   ATH_MSG_DEBUG ( "Added RDOs to the RdoContainer" );
   

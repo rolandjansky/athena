@@ -50,8 +50,8 @@
 inline double sqr(double x) {return x * x;}
 
 SCT_Layer::SCT_Layer(const std::string & name,
-				 int iLayer,
-				 const SCT_Module * module)
+                     int iLayer,
+                     const SCT_Module * module)
   : SCT_UniqueComponentFactory(name), 
     m_iLayer(iLayer), 
     m_module(module)
@@ -180,20 +180,20 @@ SCT_Layer::preBuild()
   
   double bracketOffset   = m_skiPhiStart - tiltSign * m_bracketPhiOffset;
   double powerTapeOffset = bracketOffset - tiltSign * 0.5*divisionAngle; 
-          // tiltSign not really necessary in powerTapeOffset calculate
-          // - but keeps the bracket and powertape pair associated with the same ski
+  // tiltSign not really necessary in powerTapeOffset calculate
+  // - but keeps the bracket and powertape pair associated with the same ski
   
  
   // Make the SkiAux. This is layer dependent.
   m_skiAux = new SCT_SkiAux("SkiAux"+layerNumStr, 
-				  m_ski, 
-				  m_bracket,
-			          m_harness,
-				  m_skiPowerTape, 
-				  m_outerRadiusOfSupport,
-				  bracketOffset, 
-				  powerTapeOffset,
-				  divisionAngle);
+                            m_ski, 
+                            m_bracket,
+                            m_harness,
+                            m_skiPowerTape, 
+                            m_outerRadiusOfSupport,
+                            bracketOffset, 
+                            powerTapeOffset,
+                            divisionAngle);
 
   // Build the clamp: we cannot do this until we have the dimensions of SkiAux
   m_clamp = new SCT_Clamp("Clamp"+layerNumStr, m_iLayer, m_skiAux->outerRadius());
@@ -250,8 +250,8 @@ SCT_Layer::preBuild()
   const GeoTube * layerEnvelopeTube = new GeoTube(m_innerRadius, m_outerRadius, 0.5 * length);
 
   //  std::cout << "Layer " << m_iLayer << " envelope, rmin, rmax, length = " 
-  //  	    << m_innerRadius << ", " <<m_outerRadius << ", " << length
-  //  	    << std::endl;
+  //       << m_innerRadius << ", " <<m_outerRadius << ", " << length
+  //       << std::endl;
 
   GeoLogVol * layerLog = new GeoLogVol(getName(), layerEnvelopeTube, materials.gasMaterial());
 
@@ -331,10 +331,10 @@ SCT_Layer::build(SCT_Identifier id) const
   // Envelope for brackets and powertapes.
   //
   //  std::cout << "Making Aux Layer: rmin,rmax,len = " << m_skiAux->innerRadius() 
-  //	    << " " << m_skiAux->outerRadius() << " " << 0.5 * m_skiAux->length() 
+  //     << " " << m_skiAux->outerRadius() << " " << 0.5 * m_skiAux->length() 
   //       << std::endl;
   const GeoTube * auxLayerEnvelopeShape = new GeoTube(m_skiAux->innerRadius(), m_skiAux->outerRadius(),
-						       0.5*m_skiAux->length());
+                                                      0.5*m_skiAux->length());
   GeoLogVol * auxLayerLog = new GeoLogVol(getName()+"Aux", auxLayerEnvelopeShape, materials.gasMaterial());
   GeoPhysVol * auxLayer = new GeoPhysVol(auxLayerLog);
 
@@ -360,7 +360,7 @@ SCT_Layer::build(SCT_Identifier id) const
   //       << std::endl;
   const GeoTube * supportLayerTube = new GeoTube(m_innerRadius, m_outerRadiusOfSupport, 0.5 * m_cylinderLength); 
   GeoLogVol * supportLayerLog = new GeoLogVol(getName()+"Support", supportLayerTube, 
-						materials.gasMaterial());
+                                              materials.gasMaterial());
   GeoPhysVol * supportLayer = new GeoPhysVol(supportLayerLog);
   
   // Position flanges. One at each end.
@@ -383,10 +383,10 @@ SCT_Layer::build(SCT_Identifier id) const
 
     // Position FSI End jewels
     double jewelRadius = std::sqrt(m_fibreMask->innerRadius()*m_fibreMask->innerRadius() - 0.25 * m_endJewel->rPhiWidth()*m_endJewel->rPhiWidth()) - 0.5 * m_endJewel->radialWidth();
-  //  std::cout << "jewelRadius = " << jewelRadius << std::endl;
+    //  std::cout << "jewelRadius = " << jewelRadius << std::endl;
     for ( int i=0; i<m_nRepeatEndJewel; i++) {
       double jewelAngle = m_phiEndJewel + i * 360.*CLHEP::degree/m_nRepeatEndJewel;
-    //    std::cout << "jewelAngle = " << jewelAngle << std::endl;
+      //    std::cout << "jewelAngle = " << jewelAngle << std::endl;
       supportLayer->add(new GeoTransform(HepGeom::RotateZ3D(jewelAngle)*HepGeom::TranslateX3D(jewelRadius)*HepGeom::TranslateZ3D(m_zEndJewel)));
       supportLayer->add(m_endJewel->getVolume());
       supportLayer->add(new GeoTransform(HepGeom::RotateZ3D(jewelAngle)*HepGeom::TranslateX3D(jewelRadius)*HepGeom::TranslateZ3D(-m_zEndJewel)));
@@ -395,10 +395,10 @@ SCT_Layer::build(SCT_Identifier id) const
 
     // Position FSI Scorpions
     double scorpionRadius = std::sqrt(m_supportCyl->innerRadius()*m_supportCyl->innerRadius() - 0.25 * m_scorpion->rPhiWidth()*m_scorpion->rPhiWidth()) - 0.5 * m_scorpion->radialWidth();
-  //  std::cout << "scorpionRadius = " << scorpionRadius << std::endl;
+    //  std::cout << "scorpionRadius = " << scorpionRadius << std::endl;
     for ( int i=0; i<m_nRepeatScorpion; i++) {
       double scorpionAngle = m_phiScorpion + i * 360.*CLHEP::degree/m_nRepeatScorpion;
-    //    std::cout << "scorpionAngle = " << scorpionAngle << std::endl;
+      //    std::cout << "scorpionAngle = " << scorpionAngle << std::endl;
       supportLayer->add(new GeoTransform(HepGeom::RotateZ3D(scorpionAngle)*HepGeom::TranslateX3D(scorpionRadius)*HepGeom::TranslateZ3D(m_zScorpion)));
       supportLayer->add(m_scorpion->getVolume());
       supportLayer->add(new GeoTransform(HepGeom::RotateZ3D(scorpionAngle)*HepGeom::TranslateX3D(scorpionRadius)*HepGeom::TranslateZ3D(-m_zScorpion)));
@@ -428,15 +428,15 @@ SCT_Layer::activeEnvelopeExtent(double & rmin, double & rmax)
 
   //CLHEP::Hep3Vector c0();
   CLHEP::Hep3Vector c1(-(m_ski->env1RefPointVector()->x()) - 0.5*(m_ski->env1Thickness()),
-		-(m_ski->env1RefPointVector()->y()) + 0.5*(m_ski->env1Width()),
-		0.0);
+                       -(m_ski->env1RefPointVector()->y()) + 0.5*(m_ski->env1Width()),
+                       0.0);
   CLHEP::Hep3Vector c2(-(m_ski->env2RefPointVector()->x()) - 0.5*(m_ski->env2Thickness()),
-		-(m_ski->env2RefPointVector()->y()) + 0.5*(m_ski->env2Width()),
-		0.0);
+                       -(m_ski->env2RefPointVector()->y()) + 0.5*(m_ski->env2Width()),
+                       0.0);
   //CLHEP::Hep3Vector c3();
   CLHEP::Hep3Vector c4(-(m_ski->env1RefPointVector()->x()) + 0.5*(m_ski->env1Thickness()),
-		-(m_ski->env1RefPointVector()->y()) - 0.5*(m_ski->env1Width()),
-		0.0);
+                       -(m_ski->env1RefPointVector()->y()) - 0.5*(m_ski->env1Width()),
+  0.0);
 
   //c0.rotateZ(m_tilt);
   c1.rotateZ(m_tilt);

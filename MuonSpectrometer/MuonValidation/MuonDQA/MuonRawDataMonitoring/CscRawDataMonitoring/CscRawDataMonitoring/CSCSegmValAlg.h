@@ -110,8 +110,6 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   bool evtSelTriggersPassed();
     
 
-  StoreGateSvc* m_storeGate;
-    
   //!< TDT handle
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
         
@@ -187,8 +185,6 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
     
   TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA;
   TH2F* m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC;
-
-  SegmHistType* m_cscSegmDetailEA, m_cscSegmDetailEC;
 
   // Tool handles
   ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;

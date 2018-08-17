@@ -34,8 +34,6 @@ public:
      {}
   
 protected:
-
-  ~CMMRoICnv() {}
   
   virtual CMMRoI_PERS*   createPersistent (LVL1::CMMRoI* transCont);
   virtual LVL1::CMMRoI*  createTransient ();

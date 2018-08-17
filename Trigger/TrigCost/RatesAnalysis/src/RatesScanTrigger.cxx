@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesScanTrigger.h"
@@ -12,9 +12,9 @@ RatesScanTrigger::RatesScanTrigger( const std::string& name,
                                     const std::string& seedName, const double seedPrescale,
                                     const ExtrapStrat_t extrapolation) :
   RatesTrigger(name, log, prescale, -1, seedName, seedPrescale, false, extrapolation),
-  m_rateScanHist(nullptr), m_thresholdPassed(0), m_behaviour(behaviour)
+  m_rateScanHist(nullptr), m_givenRateScanHist(false), m_thresholdPassed(0), m_behaviour(behaviour)
   {
-    m_rateScanHist = new TH1D(TString(std::to_string(m_histoID++)),TString(name + ";Threshold;Rate [Hz]"), thresholdBins, thresholdMin, thresholdMax);
+    m_rateScanHist = new TH1D(std::to_string(m_histoID++).data(),TString(name + ";Threshold;Rate [Hz]"), thresholdBins, thresholdMin, thresholdMax);
     m_rateScanHist->SetName("rateVsThreshold");
   }
 
@@ -33,11 +33,13 @@ RatesScanTrigger::RatesScanTrigger( const std::string& name,
       return;
     }
     size_t nBins = thresholdBinEdged.size() - 1;
-    m_rateScanHist = new TH1D(TString(std::to_string(m_histoID++)),TString(name + ";Threshold;Rate [Hz]"), nBins, thresholdBinEdged.data());
+    m_rateScanHist = new TH1D(std::to_string(m_histoID++).data(),TString(name + ";Threshold;Rate [Hz]"), nBins, thresholdBinEdged.data());
     m_rateScanHist->SetName("rateVsThreshold");
   }
 
-RatesScanTrigger::~RatesScanTrigger() {}
+RatesScanTrigger::~RatesScanTrigger() {
+  if (!m_givenRateScanHist) delete m_rateScanHist;
+}
 
 void RatesScanTrigger::passThreshold(const double t, const bool unbiasedEvent) {
   if (m_seedsFromRandom == true && unbiasedEvent == false) return;
@@ -51,6 +53,10 @@ void RatesScanTrigger::setPassedAndExecute(const double t, const WeightingValues
   execute(weights);
 }
 
+TH1D* RatesScanTrigger::getThresholdHist(bool clientIsTHistSvc) { 
+  if (clientIsTHistSvc) m_givenRateScanHist = true;
+  return m_rateScanHist;
+}
 
 void RatesScanTrigger::execute(const WeightingValuesSummary_t& weights) {
   if (m_thresholdPassed == std::numeric_limits<double>::min()) return; // Did not pass
@@ -87,8 +93,8 @@ const std::string RatesScanTrigger::printRate(const double ratesDenominator) con
   std::stringstream ss;
   const int nBins = m_rateScanHist->GetNbinsX();
   ss << std::setfill(' '); 
-  if (m_seed != "") ss << m_seed << " [PS:" << m_seedPrescale << "] -> ";
   ss << m_name << " [PS:" << m_prescale << "]" << std::endl;
+  if (m_seed != "") ss << " <- " << m_seed << " [PS:" << m_seedPrescale << "]";
 
   if (m_behaviour == kTriggerBelowThreshold) {
 

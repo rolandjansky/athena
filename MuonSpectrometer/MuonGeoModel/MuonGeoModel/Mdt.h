@@ -33,12 +33,9 @@ public:
    GeoFullPhysVol* build();
    GeoFullPhysVol* build(std::vector<Cutout*>);
    void print();
-   void setGeoVersion(int ver);
-   int getGeoVersion() {return m_geo_version;}
 
 private:
    MdtComponent* m_component;
-   int m_geo_version;
    Mdt & operator=(const Mdt &right);
    Mdt(const Mdt&);
 

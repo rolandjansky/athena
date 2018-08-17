@@ -72,13 +72,9 @@ namespace {//anonymous namespace introduces file-scoped functions
 
 SCT_ConditionsParameterCondAlg::SCT_ConditionsParameterCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DAQ/Configuration/Chip"}
-  , m_writeKey{"SCT_CondParameterData"}
   , m_cablingSvc{"SCT_CablingSvc", name}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) chip conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) average threshold conditions folder");
 }
 
 StatusCode SCT_ConditionsParameterCondAlg::initialize() {

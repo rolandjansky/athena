@@ -14,7 +14,7 @@
 #define POOL_ROOTSTORAGESVC_ROOTOODB_H 1
 
 // Framework include files
-#include "StorageSvc/OODatabaseImp.h"
+#include "StorageSvc/IOODatabase.h"
 
 #include "Gaudi/PluginService.h"
 
@@ -35,22 +35,35 @@ namespace pool  {
     * @author  M.Frank
     * @version 1.0
     */
-  class RootOODb  : public OODatabaseImp  {
+  class RootOODb  : public IOODatabase  {
   public:
-    typedef Gaudi::PluginService::Factory<IOODatabase*> Factory;
+    typedef Gaudi::PluginService::Factory<IOODatabase*()> Factory;
 
     /// Standard Constructor
     RootOODb(DbType typ=ROOT_StorageType);
     /// Standard Destructor
     virtual ~RootOODb();
+
+    /// Name of the Database implementation
+    virtual const std::string&  name () const;
+
     /// Label of the specific class
     static const char* catalogLabel()  {   return "ROOT_All";       }
-    /// Create Root Domain object
+
+/// Create Root Domain object
     IDbDomain* createDomain();
     /// Create Root Database object (TFile)
     IDbDatabase* createDatabase();
     /// Create Root Container object
     IDbContainer* createContainer(const DbType& typ);
+  };
+
+  class RootOOKey : public RootOODb {
+  public:
+    /// Standard Constructor
+    RootOOKey() : RootOODb(ROOTKEY_StorageType)   {   }
+    /// Label of the specific class
+    static const char* catalogLabel()  {   return "ROOT_Key";         }
   };
 
   class RootOOTree : public RootOODb {
@@ -60,15 +73,15 @@ namespace pool  {
     /// Label of the specific class
     static const char* catalogLabel()  {   return "ROOT_Tree";        }
   };
-   
-  class RootOOKey : public RootOODb {
+
+  class RootOOTreeIndex : public RootOODb {
   public:
     /// Standard Constructor
-    RootOOKey() : RootOODb(ROOTKEY_StorageType)   {   }
+    RootOOTreeIndex() : RootOODb(ROOTTREEINDEX_StorageType)   {  }
     /// Label of the specific class
-    static const char* catalogLabel()  {   return "ROOT_Key";         }
+    static const char* catalogLabel()  {   return "ROOT_TreeIndex";        }
   };
-   
+
 }       // end namespace pool
 
 #endif  /* POOL_ROOTSTORAGESVC_ROOTOODB_H  */

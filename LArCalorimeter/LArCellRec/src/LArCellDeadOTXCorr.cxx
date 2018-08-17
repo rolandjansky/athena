@@ -31,7 +31,7 @@
 
 
 
-#include "LArCellRec/LArCellDeadOTXCorr.h" //Needs to be changed to correct package
+#include "LArCellDeadOTXCorr.h" //Needs to be changed to correct package
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

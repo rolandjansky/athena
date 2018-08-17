@@ -15,8 +15,6 @@
       m_converter_p0(),
       m_storeGate(nullptr)
   {}
-  PixelClusterContainerCnv::~PixelClusterContainerCnv() {}
-
 
 
 StatusCode PixelClusterContainerCnv::initialize() {

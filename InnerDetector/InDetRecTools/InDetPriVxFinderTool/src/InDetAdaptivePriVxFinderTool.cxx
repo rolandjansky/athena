@@ -39,7 +39,7 @@
 //#include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 

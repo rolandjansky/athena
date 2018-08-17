@@ -80,20 +80,20 @@ public:
 
  protected:
 
-  int m_histosBooked;
+  int m_histosBooked{};
 
   enum m_eta_region { incl, barrel, eca, ecc, Nregions };
   std::vector<std::string> m_region_strings;
 
   // event histos
 
-  TH1F* m_Nevents;
+  TH1F* m_Nevents{};
 
-  TH1F* m_Wenu_met_sel;
-  TH1F* m_Wenu_transmass_sel;
-  TH1F* m_Wenu_trk_transmass_sel;
-  TH1F* m_Wenu_trk_transmass_sel_scaled;
-  TH1F* m_Wenu_clus_pt;
+  TH1F* m_Wenu_met_sel{};
+  TH1F* m_Wenu_transmass_sel{};
+  TH1F* m_Wenu_trk_transmass_sel{};
+  TH1F* m_Wenu_trk_transmass_sel_scaled{};
+  TH1F* m_Wenu_clus_pt{};
 
   // cluster histos
 
@@ -173,14 +173,14 @@ public:
   std::string m_metName;
   std::string m_triggerChainName;
   std::string m_metRefFinalName;
-  double m_eoverp_tight_min;
-  double m_eoverp_tight_max;
-  double m_eoverp_standard_min;
-  double m_eoverp_standard_max;
-  int m_checkrate;
-  bool m_rejectSecondCluster;
+  double m_eoverp_tight_min{};
+  double m_eoverp_tight_max{};
+  double m_eoverp_standard_min{};
+  double m_eoverp_standard_max{};
+  int m_checkrate{};
+  bool m_rejectSecondCluster{};
   std::string m_electronIDLevel;
-  bool m_doIDCuts;
+  bool m_doIDCuts{};
   //Likelihood tool:
   std::unique_ptr<AsgElectronLikelihoodTool> m_LHTool2015; //!
 

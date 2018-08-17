@@ -60,21 +60,9 @@ void VxContainerCnv_tlp1::setPStorage( Trk::VxContainer_tlp1 *storage )
 T_TPCnv<VxContainer, Trk::VxContainer_tlp1 >::T_TPCnv()
 {
   TPObjRef::typeID_t tid (m_MVFVxContainerCnv_tlp1.getConverterID(), 0);
-  m_MVFVxContainerCnv_tlp1.setTopConverter (this, tid);
-  addExtTPConverterForReading (&m_MVFVxContainerCnv_tlp1);
+  // Attention Scott:
+  // m_MVFVxContainerCnv_tlp1.setTopConverter (this, tid);
+  // addExtTPConverterForReading (&m_MVFVxContainerCnv_tlp1);
   m_MVFVxContainerCnv_tlp1.addTPConvertersTo (this);
-  
-  
-  
-  
 }
 
-
-void T_TPCnv<VxContainer, Trk::VxContainer_tlp1 >::
-persToTrans (const Trk::VxContainer_tlp1* pers,
-             VxContainer* trans,
-             MsgStream& msg)
-{
-  setPStorage (const_cast<Trk::VxContainer_tlp1*> (pers));
-  m_mainConverter.pstoreToTrans (0, trans, msg);
-}

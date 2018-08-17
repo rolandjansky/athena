@@ -204,7 +204,7 @@ def toolIP2DTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
 #------------------------------------------------------------------
 
-metaIP2DNewLikelihoodTool = { 'CalibrationFolders' : ['IP2D',],
+metaIP2DNewLikelihoodTool = { 'CalibrationTaggers' : ['IP2D',],
                               'DependsOn'          : ['BTagCalibrationBrokerTool',],
                               'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                               'ToolCollection'     : 'IP2DTag' }

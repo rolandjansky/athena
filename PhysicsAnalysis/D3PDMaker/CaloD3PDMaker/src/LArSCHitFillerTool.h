@@ -16,12 +16,12 @@
 #define CALOD3PDMAKER_LARSCHITFILLERTOOL_H
 
 // Gaudi/Athena include(s):
-#include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "D3PDMakerUtils/SGCollectionGetterTool.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArElecCalib/ILArfSampl.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include <vector>
 #include <list>
 #include <map>
@@ -38,7 +38,6 @@ class CaloDetDescrManager ;
 class Identifier;
 
 class CaloSuperCellDetDescrManager;
-class ICaloSuperCellIDTool;
 
 class CaloCell_SuperCell_ID; 
 
@@ -79,7 +78,7 @@ private:
   const TileID     *m_tileid;    
   const LArOnlineID* m_onlineHelper;
   ToolHandle<LArCablingService> m_larCablingSvc;
-  const DataHandle<ILArfSampl>    m_dd_fSampl;
+  const ILArfSampl*   m_dd_fSampl;
 
   /// parameters
   int *m_nSC;

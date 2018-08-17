@@ -36,6 +36,8 @@
 #include "CscClusterization/ICscClusterUtilTool.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include "TrkRIO_OnTrack/check_cast.h"
+
 using std::vector;
 using std::setw;
 using std::atan2;
@@ -55,7 +57,6 @@ namespace Muon {
       m_cscIdHelper(0),
       m_rpcIdHelper(0),
       m_tgcIdHelper(0),
-      m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
       m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
       m_clusterFitter("QratCscClusterFitter/QratCscClusterFitter"),
       m_clusterUtilTool("CscClusterUtilTool/CscClusterUtilTool"),
@@ -69,10 +70,6 @@ namespace Muon {
     declareProperty("doCSC",  m_doCsc = true);
     declareProperty("doRPC",  m_doRpc = true);
     declareProperty("doTGC",  m_doTgc = true);
-    declareProperty("DoRpcErrorScaling", m_scaleRpcCov = false );
-    declareProperty("DoTgcErrorScaling", m_scaleTgcCov = false );
-    declareProperty("DoCscErrorScaling", m_scaleCscCov = false );
-    declareProperty("ErrorScalingTool", m_errorScalingTool );
     declareProperty("CscStripFitter",   m_stripFitter );
     declareProperty("CscClusterFitter", m_clusterFitter );
     declareProperty("CscClusterUtilTool", m_clusterUtilTool );
@@ -119,15 +116,14 @@ namespace Muon {
 
     // get error scaling tool
     //
-    if ( m_errorScalingTool.retrieve().isFailure() )   {
-      ATH_MSG_WARNING ( "Can not get error scaling tool " << m_errorScalingTool
-                        << ", will trigger failure." );
-      return StatusCode::SUCCESS;
-    } else {
-      m_scaleCscCov = m_errorScalingTool->needToScaleCsc();
-      m_scaleRpcCov = m_errorScalingTool->needToScaleRpc();
-      m_scaleTgcCov = m_errorScalingTool->needToScaleTgc();
-      ATH_MSG_DEBUG ( "initialise() successful in " << name() );
+    if (!m_cscErrorScalingKey.key().empty() ) {
+      ATH_CHECK( m_cscErrorScalingKey.initialize() );
+    }
+    if (!m_tgcErrorScalingKey.key().empty() ) {
+      ATH_CHECK( m_tgcErrorScalingKey.initialize() );
+    }
+    if (!m_rpcErrorScalingKey.key().empty() ) {
+      ATH_CHECK( m_rpcErrorScalingKey.initialize() );
     }
 
     if ( m_stripFitter.retrieve().isFailure() ) {
@@ -210,31 +206,29 @@ namespace Muon {
 
     // Error matrix production - expect more intelligent code here.
     //
-    Amg::MatrixX* cov  = 0;
-    Amg::MatrixX  oldLocalCov = RIO.localCovariance();
-    
+    Amg::MatrixX  loce = RIO.localCovariance();
+
     if ( m_cscIdHelper
          && m_cscIdHelper->is_csc(RIO.identify())
-         && m_scaleCscCov ) {
-      cov = m_errorScalingTool->createScaledCscCovariance(oldLocalCov);
-      ATH_MSG_VERBOSE ( "CSC: new cov(0,0) is " << (*cov)(0,0) );
+         && !m_cscErrorScalingKey.key().empty()) {
+      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_cscErrorScalingKey );
+      loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
+      ATH_MSG_VERBOSE ( "CSC: new cov(0,0) is " << loce(0,0) );
     }
     if ( m_rpcIdHelper
 	 && m_rpcIdHelper->is_rpc(RIO.identify())
-	 && m_scaleRpcCov ) {
-      cov = m_errorScalingTool->createScaledRpcCovariance(oldLocalCov);
-      ATH_MSG_VERBOSE ( "RPC: new cov(0,0) is " << (*cov)(0,0) );
+	 && !m_rpcErrorScalingKey.key().empty()) {
+      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_rpcErrorScalingKey );
+      loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
+      ATH_MSG_VERBOSE ( "RPC: new cov(0,0) is " << loce(0,0) );
     }
     if ( m_tgcIdHelper
 	 && m_tgcIdHelper->is_tgc(RIO.identify())
-	 && m_scaleTgcCov ) {
-      cov = m_errorScalingTool->createScaledTgcCovariance(oldLocalCov);
-      ATH_MSG_VERBOSE ( "TGC: new cov(1,1) is " << (*cov)(0,0) );
+	 && !m_tgcErrorScalingKey.key().empty() ) {
+      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_tgcErrorScalingKey );
+      loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
+      ATH_MSG_VERBOSE ( "TGC: new cov(1,1) is " << loce(0,0) );
     }
-
-    Amg::MatrixX loce = (cov)                   ?
-      Amg::MatrixX(*cov)                       :
-      Amg::MatrixX(RIO.localCovariance()) ;
 
     if(  m_rpcIdHelper && m_rpcIdHelper->is_rpc(RIO.identify()) ){
       // cast to RpcPrepData
@@ -357,14 +351,14 @@ namespace Muon {
 
     // Error matrix production - expect more intelligent code here.
     //
-    Amg::MatrixX* cov  = 0;
-    Amg::MatrixX  oldLocalCov = RIO.localCovariance();
+    Amg::MatrixX  loce = RIO.localCovariance();
     
     if ( m_cscIdHelper 
 	 && m_cscIdHelper->is_csc(RIO.identify())
-	 && m_scaleCscCov ) {
-      cov = m_errorScalingTool->createScaledCscCovariance(oldLocalCov);
-      ATH_MSG_VERBOSE ( "CSC: new cov(0,0) is " << (*cov)(0,0) );
+         && !m_cscErrorScalingKey.key().empty()) {
+      SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_cscErrorScalingKey );
+      loce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( loce, Trk::distPhi);
+      ATH_MSG_VERBOSE ( "CSC: new cov(0,0) is " << loce(0,0) );
     }
 
     // postion Error is re-estimate only for precision fit cluster (eta)
@@ -372,9 +366,6 @@ namespace Muon {
          && MClus->status() != Muon::CscStatusUnspoiled
          && MClus->status() != Muon::CscStatusSplitUnspoiled ) {
       // current not changing CscClusterStatus but passing status of RIO
-      Amg::MatrixX loce = (cov) ?  Amg::MatrixX(*cov)
-	:  Amg::MatrixX(RIO.localCovariance()) ;
-      delete cov;
       MClT = new CscClusterOnTrack(MClus,locpar,loce,positionAlongStrip,MClus->status(),MClus->timeStatus(),MClus->time());
       
     } else {
@@ -400,14 +391,10 @@ namespace Muon {
       if ( fitresult ) {
         ATH_MSG_VERBOSE ( "  Precision fit failed which was succeeded: return="
                           << "cluStatus: " << res.clusterStatus << "fitStatus: " << res.fitStatus );
-	Amg::MatrixX loce = (cov) ?  Amg::MatrixX(*cov)
-	  : Amg::MatrixX(RIO.localCovariance()) ;
-	delete cov;
 	return new CscClusterOnTrack(MClus,locpar,loce,positionAlongStrip,MClus->status(),MClus->timeStatus(),MClus->time());
       } else {
         ATH_MSG_VERBOSE ( "  Precision fit succeeded" );
       }
-      
 
       ATH_MSG_VERBOSE ( "  Angle from Segment:  " << " :: tanangle :  " << tantheta );
       
@@ -420,18 +407,18 @@ namespace Muon {
       double errorCorrected = sqrt( nominal_error*nominal_error*m_errorScaler*m_errorScaler + m_errorScalerBeta*m_errorScalerBeta);
       if( errorCorrected < m_minimumError ) errorCorrected = m_minimumError;
 
-      Amg::MatrixX* pcov = 0;
-      Amg::MatrixX mat = Amg::MatrixX(1,1);
-      mat.setIdentity();
+      Amg::MatrixX newloce( Amg::MatrixX(1,1) );
+      newloce.setIdentity();
       //        mat *= res.dposition*res.dposition;
-      mat *= errorCorrected*errorCorrected;
-      pcov = m_errorScalingTool->createScaledCscCovariance(mat);
+      newloce *= errorCorrected*errorCorrected;
+      if (!m_cscErrorScalingKey.key().empty()) {
+        SG::ReadCondHandle<RIO_OnTrackErrorScaling> error_scaling( m_cscErrorScalingKey );
+        newloce = check_cast<MuonEtaPhiRIO_OnTrackErrorScaling>(*error_scaling)->getScaledCovariance( newloce, Trk::distPhi);
+      }
+
       //        pcov = pcov_beforeScale;
       //        Trk::ErrorMatrix* newloce = new Trk::ErrorMatrix(pcov);
       
-      Amg::MatrixX newloce = (pcov)   ? Amg::MatrixX(*pcov)
-	:  Amg::MatrixX(RIO.localCovariance()) ;
-      delete pcov;
       ATH_MSG_VERBOSE ( "All: new err matrix is " << newloce );
       ATH_MSG_VERBOSE ( "  dpos changed ====> " << Amg::error(newloce,Trk::loc1) ); 
       

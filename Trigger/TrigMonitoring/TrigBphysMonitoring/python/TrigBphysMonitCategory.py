@@ -3,7 +3,7 @@
 monitoring_bphys = [
                     'HLT_mu11_mu6_bDimu', 
                     'HLT_mu11_mu6_bBmumuxv2', 
-                    'HLT_3mu4_bDimu', 
+                    'HLT_mu6_2mu4_bJpsi',
                     'HLT_mu20_bJpsi_Trkloose', 
                     'HLT_mu10_bJpsi_TrkPEBmon', 
                     'HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 
@@ -29,7 +29,7 @@ monitoring_bphys = [
 primary_bphys = [ 
                  'HLT_mu11_mu6_bDimu', 
                  'HLT_mu11_mu6_bBmumuxv2', 
-                 'HLT_3mu4_bDimu', 
+                 'HLT_mu6_2mu4_bJpsi',
                  'HLT_mu10_bJpsi_TrkPEBmon', 
                  'HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 
                  'HLT_2mu6_bUpsimumu_L1BPH-8M15-2MU6_BPH-0DR22-2MU6', 

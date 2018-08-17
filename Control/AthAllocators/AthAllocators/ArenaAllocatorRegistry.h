@@ -45,10 +45,13 @@ class ArenaAllocatorRegistry
 public:
   /**
    * @brief Register a new allocator type.
-   * @param name The name of the allocator type.  Must not already exist.
+   * @param name The name of the allocator type.
    * @param creator The factory object to create instances of this type.
    *                The registry takes ownership of this pointer.
    * @return The new integer index for this allocator type.
+   *
+   * If the allocator type already exists, then the index of the existing
+   * one is returned (and the object passed as @c creator is deleted).
    */
   size_t registerCreator (const std::string& name,
                           std::unique_ptr<ArenaAllocatorCreator> creator);

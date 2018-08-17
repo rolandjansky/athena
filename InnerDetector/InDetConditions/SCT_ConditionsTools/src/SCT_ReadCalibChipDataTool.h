@@ -81,8 +81,8 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_GainCalibData> m_condDataGain;
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_NoiseCalibData> m_condDataNoise;
   // Read Cond Handles
-  SG::ReadCondHandleKey<SCT_GainCalibData> m_condKeyGain;
-  SG::ReadCondHandleKey<SCT_NoiseCalibData> m_condKeyNoise;
+  SG::ReadCondHandleKey<SCT_GainCalibData> m_condKeyGain{this, "CondKeyGain", "SCT_GainCalibData", "SCT calibration data of gains of chips"};
+  SG::ReadCondHandleKey<SCT_NoiseCalibData> m_condKeyNoise{this, "CondKeyNoise", "SCT_NoiseCalibData", "SCT calibration data of noises of chips"};
 
   // Noise level for isGood::Side
   float m_noiseLevel;

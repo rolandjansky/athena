@@ -7,9 +7,8 @@ atlas_subdir( TBDetDescr )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           PRIVATE
                           GaudiKernel )
@@ -24,12 +23,12 @@ atlas_add_library( TBDetDescr
                    PUBLIC_HEADERS TBDetDescr
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} DataModel SGTools GeoPrimitives
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers GeoPrimitives
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( TBDetDescrDict
                       TBDetDescr/TBDetDescrDict.h
                       TBDetDescr/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} DataModel SGTools GeoPrimitives GaudiKernel TBDetDescr )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthContainers GeoPrimitives GaudiKernel TBDetDescr )
 

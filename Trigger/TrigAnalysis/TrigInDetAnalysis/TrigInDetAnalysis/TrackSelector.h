@@ -19,7 +19,7 @@ class TrackSelector {
   
 public:
   
-  TrackSelector( /*TrigInDetAnalysis::*/TrackFilter* selector=0 ) :  mselector(selector) {  } 
+  TrackSelector( /*TrigInDetAnalysis::*/TrackFilter* selector=0 ) :  m_selector(selector) {  } 
   virtual ~TrackSelector() {}
 
   // add a track, do the selection while adding?
@@ -27,7 +27,7 @@ public:
   virtual bool addTrack(TIDA::Track* t, bool (*f)(const TIDA::Track*)=0 ) {
     //std::cout << "addtrack()  before f: t  " << *t << " " << size() << "\t f  " << f << std::endl;
     if ( f==0 ) { 
-      if ( mselector && mselector->select(t) )  { mtracks.push_back(t);/*std::cout << "addtrack() after filter: t: " << *t << " f: " << f << "   " << size() << std::endl;*/ return true; }
+      if ( m_selector && m_selector->select(t) )  { mtracks.push_back(t);/*std::cout << "addtrack() after filter: t: " << *t << " f: " << f << "   " << size() << std::endl;*/ return true; }
       else                                      { cleanup(t); }
     }
     else { 
@@ -70,13 +70,16 @@ protected:
   virtual void cleanup(TIDA::Track* ) { } 
   // virtual void cleanup(TIDA::Track* t) { delete t; } 
   
-protected:
-  
+
+public:  
+  /// FIXME: public for now, to avoid warnings about naming convention
+  ///        violations.  Should be fixed properly after run2 finishes.
   std::vector<TIDA::Track*> mtracks;
  
+protected:
   // selection function
-  // static bool (*mselector)(const /*TrigInDetAnalysis::*/Track*);
-  /*TrigInDetAnalysis::*/TrackFilter*  mselector;
+  // static bool (*m_selector)(const /*TrigInDetAnalysis::*/Track*);
+  /*TrigInDetAnalysis::*/TrackFilter*  m_selector;
  
 };
 

@@ -5,14 +5,11 @@ from FTK_DataProviderSvc.FTK_DataProviderSvcConf import FTK_DataProviderSvc, FTK
 
 class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
-    def __init__(self, name = "TrigFTK_DataProviderSvc"):
+    def __init__(self, name = "TrigFTK_DataProviderSvc", SCTLorentzAngleTool=None):
         print "In FTK_DataProviderSvc_Config.py"  
         FTK_DataProviderSvc.__init__(self, name) 
 
-        from AthenaCommon.AppMgr import ToolSvc
-
-
-        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK, \
+        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK, TrigFTK_VertexCollectionSortingTool, \
         TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
         
@@ -34,12 +31,11 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.TrackParticleCreatorTool=InDetTrigTrackParticleCreatorToolFTK
         self.RawVertexFinderTool=TrigFTK_RawVertexFinderTool
         self.VertexFinderTool=InDetTrigPriVxFinderTool
+        self.VertexCollectionSortingTool=TrigFTK_VertexCollectionSortingTool
         self.ROTcreatorTool= InDetTrigRotCreatorFTK 
-
 
         from RecExConfig.RecFlags import rec
         self.doTruth= rec.doTruth()
 
-        
-
-
+        if SCTLorentzAngleTool is not None:
+            FTK_DataProviderSvc.SCTLorentzAngleTool = SCTLorentzAngleTool

@@ -12,14 +12,16 @@
 
 #include "TrkTrack/TrackCollection.h" //
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
 
 #include "TrigFTK_RawData/FTK_RawTrack.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "TrkEventPrimitives/VertexType.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -36,7 +38,7 @@ class SCT_ID;
 
 namespace InDetDD {
   class PixelDetectorManager;
-  class SCT_DetectorManager;
+  class SiDetectorElement;
 }
 
 enum FTK_MonHistType{Raw,Raw_wid1,Raw_wid2, Raw_wid3, Raw_wid4, Cnv, Rft};
@@ -62,9 +64,10 @@ public:
 							 std::map<unsigned int,double>& offlinetrackSctLocx,
 							 bool& uniqueMatch);
   
-  double getSctLocX(const IdentifierHash hash, const float stripCoord, const int clusterWidth);
+  double getSctLocX(const InDetDD::SiDetectorElement* pDE, const float stripCoord, const int clusterWidth);
   const std::pair<double,double> getPixLocXlocY(const IdentifierHash hash, const float rawLocalPhiCoord, const float rawLocalEtaCoord);
   void compareTracks(const FTK_RawTrack* ftkTrack, 
+                     const InDetDD::SiDetectorElementCollection* sctElements,
 		     std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
 		     std::map<unsigned int,double>& offlinetrackSctLocx);
 
@@ -98,9 +101,12 @@ public:
   const SCT_ID*  m_sctId;
   
   const InDetDD::PixelDetectorManager* m_pixelManager;
-  const InDetDD::SCT_DetectorManager*  m_SCT_Manager;
 
   const AtlasDetectorID* m_id_helper;
+
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /// Histograms ///
   TH1D* m_h_FTK_RawTrack_n;

@@ -37,6 +37,7 @@ RCUUpdater<T>::RCUUpdater (IRCUSvc& rcusvc, Args&&... args)
  * be referenced by any thread.
  */
 template <class T>
+inline
 void RCUUpdater<T>::update (std::unique_ptr<T> p, const Context_t& ctx)
 {
   m_obj.updater(ctx).update (std::move (p));
@@ -58,6 +59,7 @@ const T& RCUUpdater<T>::get() const
  * @brief Mark that an event slot is not referencing this object.
  */
 template <class T>
+inline
 void RCUUpdater<T>::quiescent (const Context_t& ctx)
 {
   m_obj.quiescent (ctx);
@@ -65,9 +67,28 @@ void RCUUpdater<T>::quiescent (const Context_t& ctx)
 
 
 /**
+ * @brief Queue an object for later deletion.
+ * @param p The object to delete.
+ *
+ * The object @c p will be queued for deletion once a grace period
+ * has passed for all slots.  In contrast to using @c updater,
+ * this does not change the current object.  It also does not mark
+ * the current slot as having completed the grace period (so this can
+ * be called by a thread running outside of a slot context).
+ */
+template <class T>
+inline
+void RCUUpdater<T>::discard (std::unique_ptr<T> p)
+{
+  m_obj.discard (std::move (p));
+}
+
+
+/**
  * @brief Return the current event context.
  */
 template <class T>
+inline
 const typename RCUUpdater<T>::Context_t&
 RCUUpdater<T>::defaultContext()
 {

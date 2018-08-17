@@ -58,7 +58,6 @@ namespace InDet{
 //            Secondary track list is ready
 //            Now common vertex fit
 //
-      std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk, i_found;
       Amg::Vector3D          FitVertex;
       std::vector<double> ErrorMatrix;
       std::vector< std::vector<double> > TrkAtVrt; 

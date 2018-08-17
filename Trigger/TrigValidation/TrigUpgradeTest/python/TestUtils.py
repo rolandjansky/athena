@@ -12,20 +12,22 @@ def writeEmulationFiles(data):
 
 # Testing menu used in the L1 decoders
 class MenuTest:
-    CTPToChainMapping = ["0:HLT_e3_etcut",
-                         "0:HLT_e5_etcut",
-                         "0:HLT_g5_etcut",
-                         "1:HLT_e7_etcut",
-                         "23:HLT_2e3_etcut",
-                         "23:HLT_e3e5_etcut",
-                         "15:HLT_mu6",
-                         "33:HLT_2mu6",
-                         "15:HLT_mu6idperf",
-                         "42:HLT_e15mu4",
-                         "68:HLT_xe10", # the item is L1_XE10
-                         "152:HLT_xs20",
-                         "50:HLT_te15", # the seed is L1_TE15.0ETA24
-                         ]
+    
+    CTPToChainMapping = {"LT_e3_etcut":   "L1_EM3",        
+                         "LT_e5_etcut":   "L1_EM3",        
+                         "LT_g5_etcut":   "L1_EM3",        
+                         "LT_e7_etcut":   "L1_EM7",        
+                         "HLT_mu6idperf": "L1_EM7",        
+                         "HLT_mu6":       "L1_EM7",        
+                         "HLT_xs20":      "L1_EM7",        
+                         "HLT_2e3_etcut": "L1_2EM3",        
+                         "HLT_e3e5_etcut":"L1_2EM3",        
+                         "HLT_2mu6":      "L1_2MU4",        
+                         "HLT_e15mu24":    "L1_EM7_MU15",    
+                         "HLT_xe10":      "L1_XE10",   
+                         "HLT_te15":      "L1_TE15.0ETA24", 
+                         "HLT_j85":       "L1_J30",         
+                         "HLT_j60":       "L1_J30"      }
 
     EMThresholdToChainMapping = ["EM3 : HLT_e3_etcut",
                                  "EM3 : HLT_e5_etcut",
@@ -36,10 +38,15 @@ class MenuTest:
                                  "EM7 : HLT_e7_etcut",
                                  "EM15 : HLT_e15mu4_etcut"]
 
+    TAUThresholdToChainMapping = ["HA8 : HLT_tau10"]
+
+    JThresholdToChainMapping = ["J20 : HLT_j85",
+                                "J20 : HLT_j60"]
+
     MUThresholdToChainMapping = ["MU6 : HLT_mu6",
                                  "MU6 : HLT_mu6idperf",
-                                 "MU4 : HLT_e15mu4"]
-
+                                 "MU4 : HLT_e15mu4",
+                                 "MU6 : HLT_2mu6"]
 
     METThresholdToChainMapping = ["UNUSED : HLT_xe10",
                                   "UNUSED : HLT_xs20",
@@ -62,12 +69,13 @@ class L1DecoderTest(L1Decoder) :
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
         from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
+        from L1Decoder.L1DecoderConf import TAURoIsUnpackingTool, JRoIsUnpackingTool
         from L1Decoder.L1DecoderConf import RerunRoIsUnpackingTool
         # CTP unpacker
 
         ctpUnpacker = CTPUnpackingTool(OutputLevel = self.OutputLevel,
                                        ForceEnableAllChains = True)
-        ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
+        #ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
         # Hard-coded CTP IDs from v7 menu
         ctpUnpacker.CTPToChainMapping = MenuTest.CTPToChainMapping
         self.ctpUnpacker = ctpUnpacker
@@ -90,6 +98,21 @@ class L1DecoderTest(L1Decoder) :
                                                OutputTrigRoI = "METRoI")
             metUnpacker.ThresholdToChainMapping = MenuTest.METThresholdToChainMapping            
             self.roiUnpackers += [metUnpacker]
+
+            tauUnpacker = TAURoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                             Decisions = "TAURoIDecisions",
+                                             OutputTrigRoIs = "TAURoIs")
+            tauUnpacker.ThresholdToChainMapping = MenuTest.TAUThresholdToChainMapping
+            tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
+            self.roiUnpackers += [tauUnpacker]
+
+            jUnpacker = JRoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                             Decisions = "JRoIDecisions",
+                                             OutputTrigRoIs = "JRoIs")
+            jUnpacker.ThresholdToChainMapping = MenuTest.JThresholdToChainMapping
+            jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
+            self.roiUnpackers += [jUnpacker]
+
 
         # MU unpacker
         if TriggerFlags.doMuon():

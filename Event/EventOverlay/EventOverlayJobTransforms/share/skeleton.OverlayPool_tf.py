@@ -39,10 +39,10 @@ if hasattr(runArgs,"inputHITSFile"):
 else:
     raise RuntimeError ("No input HITS file defined")
 
-if hasattr(runArgs,"outputRDOFile"): 
+if hasattr(runArgs,"outputRDOFile"):
     athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
     OverlayCollection = runArgs.outputRDOFile
-    
+
 if not hasattr(runArgs, 'outputRDO_SGNLFile') or runArgs.outputRDO_SGNLFile=="NONE":
     overlayFlags.doSignal=False
     SignalCollection = "NONE"
@@ -60,8 +60,8 @@ if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runAr
 if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 
-readBS = False
-isRealData = False
+readBS = overlayFlags.isDataOverlay()
+isRealData = overlayFlags.isDataOverlay()
 
 from RecExConfig.RecFlags import rec
 rec.projectName = 'IS_SIMULATION'
@@ -74,9 +74,9 @@ import MagFieldServices.SetupField
 from IOVDbSvc.CondDB import conddb
 
 if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
-   globalflags.ConditionsTag=runArgs.conditionsTag
-   if len(globalflags.ConditionsTag())!=0:
-      conddb.setGlobalTag(globalflags.ConditionsTag())
+    globalflags.ConditionsTag=runArgs.conditionsTag
+    if len(globalflags.ConditionsTag())!=0:
+        conddb.setGlobalTag(globalflags.ConditionsTag())
 
 # LVL1 Trigger Menu
 if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
@@ -105,20 +105,16 @@ else:
     DetFlags.Muon_setOn()
     DetFlags.LAr_setOn()
     DetFlags.Tile_setOn()
+    DetFlags.BCM_setOn()
+    DetFlags.Lucid_setOn()
+    DetFlags.Truth_setOn()
 
-    if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
+    if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig == "NONE":
         DetFlags.LVL1_setOff()
     else:
         DetFlags.LVL1_setOn()
 
     DetFlags.digitize.LVL1_setOff()
-
-    DetFlags.BCM_setOn()
-    DetFlags.Lucid_setOn()
-    DetFlags.Truth_setOn()
-    DetFlags.simulateLVL1.Lucid_setOn()
-    DetFlags.simulateLVL1.LAr_setOn()
-    DetFlags.simulateLVL1.Tile_setOn()
 
 DetFlags.Print()
 
@@ -139,7 +135,7 @@ except:
     overlaylog.warning('Could not add TimingAlg, no timing info will be written out.')
 
 
-include ( "RecExCond/AllDet_detDescr.py" )
+include ( "RecExCond/AllDet_detDescr.py" ) #FIXME Dangerous to use this one
 
 from AthenaCommon.AppMgr import theApp
 theApp.EventLoop = "PileUpEventLoopMgr"

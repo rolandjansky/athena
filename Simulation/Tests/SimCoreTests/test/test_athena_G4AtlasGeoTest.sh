@@ -9,4 +9,6 @@
 
 athena G4AtlasTests/test_G4AtlasGeo.py
 
+echo  "art-result: $? simulation"
+
 #TODO need to add a test to grep log files.

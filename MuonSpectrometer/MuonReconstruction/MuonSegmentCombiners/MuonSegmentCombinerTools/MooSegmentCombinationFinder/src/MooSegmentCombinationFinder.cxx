@@ -103,34 +103,15 @@ StatusCode
 Muon::MooSegmentCombinationFinder::initialize()
 {
 
-    if (AthAlgTool::initialize().isFailure()) return StatusCode::FAILURE;
     m_auditorExecute = dynamic_cast<const BooleanProperty&>(getProperty("AuditTools")).value();
     
-    if(m_edmPrinter.retrieve().isFailure()){
-      ATH_MSG_FATAL("Could not get " << m_edmPrinter); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_helperTool.retrieve().isFailure()){
-      ATH_MSG_FATAL("Could not get " << m_helperTool); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_FATAL("Could not get " << m_idHelperTool); 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_edmPrinter.retrieve() );
+    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_idHelperTool.retrieve() );
 
     if( m_doCscSegments ){
-      if (m_csc2dSegmentFinder.retrieve().isFailure()){
-        ATH_MSG_FATAL("Could not get " << m_csc2dSegmentFinder); 
-        return StatusCode::FAILURE;
-      }
-      
-      if (m_csc4dSegmentFinder.retrieve().isFailure()){
-        ATH_MSG_FATAL("Could not get " << m_csc4dSegmentFinder); 
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( m_csc2dSegmentFinder.retrieve() );
+      ATH_CHECK( m_csc4dSegmentFinder.retrieve() ); 
     }
     else{
       m_csc2dSegmentFinder.disable();
@@ -138,22 +119,9 @@ Muon::MooSegmentCombinationFinder::initialize()
     }
 
     if( m_doMdtSegments ){
-
-      if (m_houghPatternFinder.retrieve().isFailure()){
-        ATH_MSG_FATAL("Could not get " << m_houghPatternFinder); 
-        return StatusCode::FAILURE;
-      }
-      
-      if (m_patternSegmentMaker.retrieve().isFailure()){
-        ATH_MSG_FATAL("Could not get " << m_patternSegmentMaker); 
-        return StatusCode::FAILURE;
-      }
-      
-      
-      if (m_overlapRemovalTool.retrieve().isFailure()){
-	ATH_MSG_FATAL("Could not get " << m_overlapRemovalTool); 
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( m_houghPatternFinder.retrieve() );
+      ATH_CHECK( m_patternSegmentMaker.retrieve() );
+      ATH_CHECK( m_overlapRemovalTool.retrieve() );
     }
     else{
       m_houghPatternFinder.disable();
@@ -161,28 +129,16 @@ Muon::MooSegmentCombinationFinder::initialize()
       m_overlapRemovalTool.disable();
     }
 
-    
-    if (m_segmentSelector.retrieve().isFailure()){
-      ATH_MSG_FATAL("Could not get " << m_segmentSelector); 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_segmentSelector.retrieve() ); 
 
     if( m_doSegmentCombinations ){
 
-      if (m_curvedSegmentCombiner.retrieve().isFailure()){
-        ATH_MSG_FATAL("Could not get " << m_curvedSegmentCombiner); 
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( m_curvedSegmentCombiner.retrieve() ); 
       
-      if ( m_doSegmentCombinationCleaning ) {
-	if (m_segmentCombinationCleaner.retrieve().isFailure()){
-	  ATH_MSG_FATAL("Could not get " << m_segmentCombinationCleaner); 
-	  return StatusCode::FAILURE;
-	}
-      }
-      else{
+      if ( m_doSegmentCombinationCleaning )
+	ATH_CHECK( m_segmentCombinationCleaner.retrieve() ); 
+      else
 	m_segmentCombinationCleaner.disable();
-      }
     }
     else{
       m_curvedSegmentCombiner.disable();
@@ -214,8 +170,7 @@ Muon::MooSegmentCombinationFinder::finalize()
 		 << " Discarded overlap segments:    " << std::setw(12) << m_nremovedSegments << " per event " << m_nremovedSegments/nevents << std::endl
 		 << " Discarded bad segments:        " << std::setw(12) << m_nremovedBadSegments << " per event " << m_nremovedBadSegments/nevents);
 
-    StatusCode sc = AthAlgTool::finalize();
-    return sc;
+    return StatusCode::SUCCESS;
 }
 
 void Muon::MooSegmentCombinationFinder::auditorBefore( IAlgTool* /*tool*/ ) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build simple stave support as a box
@@ -11,14 +11,15 @@
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 
-#include "GeoModelKernel/GeoTransform.h"
 
-#include <algorithm>
-using std::max;
 
 GeoPixelSimpleStaveSupport::GeoPixelSimpleStaveSupport()
 {
   m_physVol = Build();
+  m_physVol->ref();
+}
+GeoPixelSimpleStaveSupport::~GeoPixelSimpleStaveSupport(){
+  m_physVol->unref();
 }
 
 GeoVPhysVol* GeoPixelSimpleStaveSupport::Build() {

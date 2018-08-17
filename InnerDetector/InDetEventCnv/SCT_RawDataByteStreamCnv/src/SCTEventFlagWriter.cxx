@@ -36,10 +36,9 @@ StatusCode SCTEventFlagWriter::execute()
     //// retrieve EventInfo.  
     /// First the xAOD one
     bool setOK_xAOD{false};
-    SG::ReadHandle<xAOD::EventInfo> xevtInfo_const{m_xevtInfoKey};
-    if (xevtInfo_const.isValid()) {
-      xAOD::EventInfo* xevtInfo{const_cast<xAOD::EventInfo*>(&*xevtInfo_const)};
-      setOK_xAOD = xevtInfo->setErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
+    SG::ReadHandle<xAOD::EventInfo> xevtInfo{m_xevtInfoKey};
+    if (xevtInfo.isValid()) {
+      setOK_xAOD = xevtInfo->updateErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
     } 
 
     /// Second the old-style one

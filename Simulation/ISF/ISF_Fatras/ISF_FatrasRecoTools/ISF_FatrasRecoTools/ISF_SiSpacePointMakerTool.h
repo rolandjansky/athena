@@ -13,21 +13,6 @@
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-namespace Trk
-{
-  class SpacePoint;
-}
-
-namespace InDetDD
-{
-  class SCT_DetectorManager;
-  class SiDetectorElement;
-}
-
-namespace InDet{
-  class SiCluster;
-}
-
 namespace iFatras{
   class ISF_SiSpacePointMakerTool : public AthAlgTool {
     

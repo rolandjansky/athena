@@ -12,8 +12,10 @@ def GeoModelCfg(configFlags):
 
     result=ComponentAccumulator()
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-    result.addService(GeoModelSvc(AtlasVersion=version,
-                                  SupportedGeometry = int(relversion[0])))
+    gms=GeoModelSvc(AtlasVersion=version,
+                    SupportedGeometry = int(relversion[0]))
+
+    result.addService(gms)
     
     from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
     from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
@@ -23,4 +25,10 @@ def GeoModelCfg(configFlags):
     result.addService(detDescrCnvSvc)
     result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[detDescrCnvSvc.getName(),])) #No service handle yet???
 
-    return result
+    from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg
+    tim_ca,tagInfoMgr=TagInfoMgrCfg(configFlags)
+    result.addService(tagInfoMgr)
+    result.merge(tim_ca)
+    #TagInfoMgr used by GeoModelSvc but no ServiceHandle. Relies on string-name
+
+    return result,gms

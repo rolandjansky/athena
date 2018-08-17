@@ -70,7 +70,7 @@ RegSelSvc.DisableSCTFromConditions = False
 from InDetTrigRecExample.InDetTrigConfigConditions import \
          SCT_ConditionsSetup, TRT_ConditionsSetup
 RegSelSvc.PixConditionsSvc = ""      #empty as it does not work
-RegSelSvc.SCTConditionsSvc = "SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvc")
+RegSelSvc.SCTConditionsTool = "SCT_ConditionsSummaryTool/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummaryTool")
 RegSelSvc.TRTConditionsSvc = "TRT_ConditionsSummarySvc/"+TRT_ConditionsSetup.instanceName("InDetTRTConditionsSummaryService")
 
 #this should be our common cabling setup/

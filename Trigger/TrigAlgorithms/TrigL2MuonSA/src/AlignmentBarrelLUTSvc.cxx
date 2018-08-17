@@ -15,7 +15,6 @@ TrigL2MuonSA::AlignmentBarrelLUTSvc::AlignmentBarrelLUTSvc(const std::string& na
   AthService(name,sl),
   m_alignmentBarrelLUT("TrigL2MuonSA::AlignmentBarrelLUT")
 {
-  declareProperty( "LUTfile", m_lut_fileName="dZ_barrel.lut" );
 }
 
 // --------------------------------------------------------------------------------

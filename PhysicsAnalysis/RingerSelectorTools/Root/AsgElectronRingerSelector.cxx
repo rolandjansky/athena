@@ -28,6 +28,13 @@
 # include "xAODCaloRings/RingSetConf.h"
 # include "xAODTracking/TrackParticle.h"
 # include "xAODEgamma/Electron.h"
+
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+
+#ifndef XAOD_ANALYSIS
+#include "PATCore/AcceptData.h"
+#endif
 #endif // ndef RINGER_STANDALONE
 
 // Local includes:
@@ -44,7 +51,7 @@
 
 /*
  * TODO List:
- * 
+ *
  * - We need to change getTAccept logic so that it works exactly for egamma
  *   particle, and then checks if particle is electron. If true, gets track
  *   information and feed it into the RingerCommonSelector.
@@ -64,8 +71,8 @@ namespace {
  **/
 //inline
 //void getCluster2EMEtaEt(
-//    const xAOD::CaloCluster *cluster, 
-//    float &eta2, 
+//    const xAOD::CaloCluster *cluster,
+//    float &eta2,
 //    float &et)
 //{
 //  eta2 = std::fabs(cluster->etaBE(2));
@@ -83,7 +90,7 @@ namespace {
  **/
 //inline
 //bool isDecToBeUsed(
-//    const int bitIntHolder, 
+//    const int bitIntHolder,
 //    const Ringer::ElectronTAccept::bitMskWord &decsToUse)
 //{
 //  return decsToUse.test(bitIntHolder);
@@ -108,26 +115,33 @@ AsgElectronRingerSelector::AsgElectronRingerSelector(std::string asgToolName) :
   m_metaIsOnOutput(false) // Check first input
 {
 
-  declareProperty("DiscriminationFileName", m_discrFileName="", 
+  declareProperty("DiscriminationFileName", m_discrFileName="",
       "The configuration file in which we will retrieve the "
       "discrimination chain.");
 
-  declareProperty("ThresholdFileName", m_thresFileName="", 
+  declareProperty("ThresholdFileName", m_thresFileName="",
       "The configuration file in which we will retrieve the "
       "");
 
-  declareProperty("CutsMask", m_cutsMask, 
+  declareProperty("CutsMask", m_cutsMask,
       "The required cuts to apply (IsEM Mask)");
 
-  declareProperty("CutIDSelector", m_cutIDSelector, 
+  declareProperty("CutIDSelector", m_cutIDSelector,
       "The CutID Tool Handle to run track (if required by discrimation "
       "configuration file)");
 
   declareProperty("RingSetConfContainerName", m_rsMetaName,
       "The RingSetConfContainer key in the MetaData StoreGate");
 
-  declareProperty("CacheConfData",m_cacheMetaData = true,
+  declareProperty("CacheConfData", m_cacheMetaData = true,
       "Whether to cache metadata configuration or not");
+
+  declareProperty("DefaultNvtx", m_defaultNvtx = 0,
+      "Default value for nvtx when not using it");
+
+  declareProperty("primaryVertexContainer",
+                  m_primVtxContName="PrimaryVertices",
+                  "The primary vertex container name" );
 
   m_ringsELReader = xAOD::getCaloRingsReader();
 
@@ -139,9 +153,9 @@ AsgElectronRingerSelector::AsgElectronRingerSelector(std::string asgToolName) :
 AsgElectronRingerSelector::~AsgElectronRingerSelector()
 {
   // Release discriminator wrapper collection memory:
-  for ( size_t discrColIdx = 0; 
-      discrColIdx < m_discrWrapperCol.size(); 
-      ++discrColIdx ) 
+  for ( size_t discrColIdx = 0;
+      discrColIdx < m_discrWrapperCol.size();
+      ++discrColIdx )
   {
     if (m_discrWrapperCol[discrColIdx]) {
       m_discrWrapperCol[discrColIdx]->releaseMemory();
@@ -179,10 +193,36 @@ StatusCode AsgElectronRingerSelector::initialize()
   ATH_MSG_DEBUG("Cut mask was set to: " << m_cutsToUse.to_string());
 
   // Set our configuration:
-  CHECK( readConfigFiles() );
+  ATH_CHECK( readConfigFiles() );
 
   return StatusCode::SUCCESS;
 }
+
+//==============================================================================
+// External initialize method
+//==============================================================================
+StatusCode AsgElectronRingerSelector::initialize(
+    const char* metaName, unsigned int cutMask,
+    IDiscrWrapperCollection &discrWrapper, IThresWrapper* thresWrapper,
+    RingerConfStruct &fileConf
+    )
+{
+  setRSMetaName( metaName );
+
+  // Set the unsigned mask into the bitset
+  m_cutsToUse = ElectronTAccept::bitMskWord(cutMask);
+  ATH_MSG_DEBUG("Cut mask was set to: " << m_cutsToUse.to_string());
+
+  m_discrWrapperCol = discrWrapper;
+
+  /// @brief The discriminator chain collection
+  m_thresWrapper = thresWrapper;
+
+  ATH_CHECK( configureFromStruct(fileConf) );
+
+  return StatusCode::SUCCESS;
+}
+
 
 //==============================================================================
 StatusCode AsgElectronRingerSelector::readConfigFiles()
@@ -209,24 +249,37 @@ StatusCode AsgElectronRingerSelector::readConfigFiles()
 
   ATH_MSG_INFO( "Using DiscriminationFile: " << discrFileName.c_str());
 
+  // Read discrimination wrapper collection
+  IThresWrapper::read(m_thresWrapper, thresFileName.c_str() );
+
+  ATH_MSG_INFO( "Using ThresholdFile: " << thresFileName.c_str());
+
+  // Get discrimination information flow configuration
+  Ringer::RingerConfStruct fileConf;
+  fileConf.retrieveConf( discrFileName.c_str() );
+  fileConf.printConf( &(this->msg()), MSG::DEBUG );
+
+  ATH_CHECK( configureFromStruct(fileConf) );
+
+  return StatusCode::SUCCESS;
+
+}
+
+//=============================================================================
+// Private method to be called by initialize methods
+//=============================================================================
+StatusCode AsgElectronRingerSelector::configureFromStruct(RingerConfStruct &fileConf)
+{
   // Set message stream and print configuration:
-  for ( unsigned discrIdx = 0; 
-      discrIdx < m_discrWrapperCol.size(); 
+  for ( unsigned discrIdx = 0;
+      discrIdx < m_discrWrapperCol.size();
       ++discrIdx)
   {
     m_discrWrapperCol[discrIdx]->setMsgStream( &(this->msg()));
     m_discrWrapperCol[discrIdx]->print();
   }
 
-  // Get configuration for discrimination information flow
-  IOConfStruct fileConf;
-  retrieveFileConf( discrFileName.c_str(), fileConf );
-  printConf( fileConf, &(this->msg()) );
-
-  // Read discrimination wrapper collection
-  IThresWrapper::read(m_thresWrapper, thresFileName.c_str() );
-
-  ATH_MSG_INFO( "Using ThresholdFile: " << thresFileName.c_str());
+  this->m_useNvtx = fileConf.useNvtx;
 
   // Set message stream and print configuration:
   m_thresWrapper->setMsgStream( &(this->msg() ));
@@ -237,9 +290,7 @@ StatusCode AsgElectronRingerSelector::readConfigFiles()
       &m_discrWrapperCol,
       m_thresWrapper,
       &m_partDecMsk,
-      fileConf.useTrackPat,
-      fileConf.useRawTrackPat,
-      fileConf.useCaloCommittee);
+      fileConf);
 
   // Set RingerCommonSelector message stream:
   m_ringSelCommon->setMsgStream( &(this->msg()) );
@@ -262,7 +313,7 @@ StatusCode AsgElectronRingerSelector::readConfigFiles()
 
   // Create track pattern and make it redirect its stream as if it
   // was AsgElectronRingerSelector:
-  m_trackPat = new Ringer::TrackPatternsHolder( 
+  m_trackPat = new Ringer::TrackPatternsHolder(
       fileConf.useBLOutliers,
       fileConf.usePIXOutliers,
       fileConf.useSCTOutliers,
@@ -272,11 +323,11 @@ StatusCode AsgElectronRingerSelector::readConfigFiles()
   m_trackPat->setMsgStream( &(this->msg()) );
 
   return StatusCode::SUCCESS;
-
 }
 
+
 //=============================================================================
-const Root::TAccept& AsgElectronRingerSelector::accept( 
+const Root::TAccept& AsgElectronRingerSelector::accept(
     const xAOD::IParticle* part ) const
 {
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
@@ -293,12 +344,12 @@ const Root::TAccept& AsgElectronRingerSelector::accept(
 
 
 // =============================================================================
-const Root::TAccept& AsgElectronRingerSelector::accept( 
-    const xAOD::Electron* el) const
+const Root::TAccept& AsgElectronRingerSelector::accept(
+    const xAOD::Electron* el, const double mu) const
 {
   ATH_MSG_DEBUG("Entering accept( const xAOD::Electron* el)");
 
-  StatusCode sc = execute(el);
+  StatusCode sc = execute(el, mu);
 
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Error while on particle AsgSelector execution.");
@@ -309,12 +360,12 @@ const Root::TAccept& AsgElectronRingerSelector::accept(
 
 
 // =============================================================================
-const Root::TAccept& AsgElectronRingerSelector::accept( 
-    const xAOD::Egamma* eg ) const
+const Root::TAccept& AsgElectronRingerSelector::accept(
+    const xAOD::Egamma* eg, const double mu ) const
 {
   ATH_MSG_DEBUG("Entering accept( const xAOD::Egamma* part )");
 
-  StatusCode sc = execute(eg);
+  StatusCode sc = execute(eg, mu);
 
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Error while on particle AsgSelector execution.");
@@ -326,7 +377,7 @@ const Root::TAccept& AsgElectronRingerSelector::accept(
 
 // =============================================================================
 StatusCode AsgElectronRingerSelector::execute(
-    const xAOD::Electron* el) const
+    const xAOD::Electron* el, const double mu) const
 {
 
   ATH_MSG_DEBUG("Entering execute(const xAOD::Electron* el...)");
@@ -334,14 +385,11 @@ StatusCode AsgElectronRingerSelector::execute(
 #if RINGER_USE_NEW_CPP_FEATURES
   // In this case, we only do this to have a more harmonic code:
   Root::TAccept &partDecMsk_ref = m_partDecMsk;
-  TrackPatternsHolder *trackPat_ref = m_trackPat;
 #else
   // Well, since we do not have mutable properties, we need to do this ugly
   // things...
-  Root::TAccept &partDecMsk_ref = 
+  Root::TAccept &partDecMsk_ref =
     const_cast<Root::TAccept&>(m_partDecMsk);
-  TrackPatternsHolder *trackPat_ref = 
-    const_cast<TrackPatternsHolder*>(m_trackPat);
 #endif
 
   // Clear particle decision mask and previous result (set everything as if it
@@ -351,20 +399,20 @@ StatusCode AsgElectronRingerSelector::execute(
   m_ringSelCommon->clear();
 
   // No error occurred so far, flag it:
-  partDecMsk_ref.setCutResult( 
-      BitdefElectron::NoErrorBit, 
+  partDecMsk_ref.setCutResult(
+      BitdefElectron::NoErrorBit,
       true);
 
   // Set if it was requested to execute CutID:
-  partDecMsk_ref.setCutResult( 
-      BitdefElectron::ExecCutID, 
+  partDecMsk_ref.setCutResult(
+      BitdefElectron::ExecCutID,
       m_useCutIDDecision );
 
   if (!el){
     ATH_MSG_ERROR("Invalid electron pointer.");
 
-    partDecMsk_ref.setCutResult( 
-        BitdefElectron::NoErrorBit, 
+    partDecMsk_ref.setCutResult(
+        BitdefElectron::NoErrorBit,
         false);
 
     return StatusCode::FAILURE;
@@ -375,7 +423,7 @@ StatusCode AsgElectronRingerSelector::execute(
   try {
     caloRingsLinks = &(m_ringsELReader->operator()(*el));
   } catch ( const std::exception &e) {
-    ATH_MSG_ERROR("Couldn't retrieve CaloRingsLinks. Reason: " 
+    ATH_MSG_ERROR("Couldn't retrieve CaloRingsLinks. Reason: "
         << e.what());
   }
 
@@ -383,8 +431,8 @@ StatusCode AsgElectronRingerSelector::execute(
 
     ATH_MSG_ERROR("Particle does not have CaloRings decoratorion.");
 
-    partDecMsk_ref.setCutResult( 
-        BitdefElectron::NoErrorBit, 
+    partDecMsk_ref.setCutResult(
+        BitdefElectron::NoErrorBit,
         false);
 
     return StatusCode::FAILURE;
@@ -395,54 +443,67 @@ StatusCode AsgElectronRingerSelector::execute(
   if ( !caloRingsLinks->at(0).isValid() ){
     ATH_MSG_DEBUG("Ignoring candidate with invalid ElementLink.");
 
-    partDecMsk_ref.setCutResult( 
-        BitdefElectron::NoErrorBit, 
+    partDecMsk_ref.setCutResult(
+        BitdefElectron::NoErrorBit,
         false);
 
     return StatusCode::SUCCESS;
   }
 
-
-  // For now, we are using only the first cluster 
+  // For now, we are using only the first cluster
   const xAOD::CaloRings *clrings = *(caloRingsLinks->at(0));
-  
+
   // Check if everything is ok with CaloRings ElementLink vector:
   if (caloRingsLinks->empty() || !(clrings) ){
 
-    ATH_MSG_ERROR("There isn't CaloRings Decoration available" 
+    ATH_MSG_ERROR("There isn't CaloRings Decoration available"
         " for input particle." );
 
-    partDecMsk_ref.setCutResult( 
-        BitdefElectron::NoErrorBit, 
+    partDecMsk_ref.setCutResult(
+        BitdefElectron::NoErrorBit,
         false );
 
     return StatusCode::FAILURE;
   }
 
   // Get track information:
-  const xAOD::TrackParticle *track = el->trackParticle();
+  TrackPatternsHolder *trackPat_ref{nullptr};
+  if( el->type()==xAOD::Type::Electron ){
+    const xAOD::TrackParticle *track = el->trackParticle();
+    trackPat_ref = m_trackPat;
+    // Fill track pattern holder with new information:
+    trackPat_ref->extractPatternsFrom( track, el );
+  }
 
-  // Fill track pattern holder with new information:
-  trackPat_ref->extractPatternsFrom( track, el );
+  float pileup_estimation{0};
+  // Determine pile-up estimator and retrieve its value (based on Likelihood tool code)
+  //bool doCentralityTransform = m_rootTool->doCentralityTransform;
+  if( mu < 0 ){ // use npv if mu is negative (not given)
+    //if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
+    pileup_estimation = m_nVtx;
+  } else {
+    pileup_estimation = mu;
+  }
 
-  // Put cluster calibrated eta/et into DepVarStruct:
+  // Put cluster calibrated eta/et into DepVarStruct
   const xAOD::CaloCluster *cluster = el->caloCluster();
-  const DepVarStruct depVar( cluster->eta(), 
-      cluster->et() * .001 );
+  const DepVarStruct depVar( cluster->et() * 1e-3,
+                             cluster->eta(),
+                             pileup_estimation );
   // We head now into the RingerChain execution:
   try {
     // Execute Ringer Selector Common:
     if ( m_ringSelCommon->execute(
-          depVar, 
-          clrings, 
+          depVar,
+          clrings,
           trackPat_ref).isFailure() )
     {
 
       ATH_MSG_ERROR("Error while executing "
           "RingerCommonSelector.");
 
-      partDecMsk_ref.setCutResult( 
-          BitdefElectron::NoErrorBit, 
+      partDecMsk_ref.setCutResult(
+          BitdefElectron::NoErrorBit,
           false);
 
     }
@@ -451,17 +512,17 @@ StatusCode AsgElectronRingerSelector::execute(
     ATH_MSG_ERROR("Error while executing "
         "RingerCommonSelector. Reason: " << e.what() );
 
-    partDecMsk_ref.setCutResult( 
-        BitdefElectron::NoErrorBit, 
+    partDecMsk_ref.setCutResult(
+        BitdefElectron::NoErrorBit,
         false);
 
   }
-  
+
   // Add the CutID track decision bit (if requested):
   if ( m_useCutIDDecision ) {
     try {
-      partDecMsk_ref.setCutResult( 
-          BitdefElectron::CutIDDec, 
+      partDecMsk_ref.setCutResult(
+          BitdefElectron::CutIDDec,
           static_cast<bool>(m_cutIDSelector->accept(el)) );
 
     } catch ( const std::exception &e ) {
@@ -469,20 +530,20 @@ StatusCode AsgElectronRingerSelector::execute(
       ATH_MSG_ERROR("Error while executing "
           "AsgElectronRingerSelector. Reason:" << e.what() );
 
-      partDecMsk_ref.setCutResult( 
-          BitdefElectron::NoErrorBit, 
+      partDecMsk_ref.setCutResult(
+          BitdefElectron::NoErrorBit,
           false );
 
-      partDecMsk_ref.setCutResult( 
-          BitdefElectron::CutIDDec , 
+      partDecMsk_ref.setCutResult(
+          BitdefElectron::CutIDDec ,
           false );
 
     }
-  } else { 
+  } else {
 
     // If we do not run it, set track decision to true:
-    partDecMsk_ref.setCutResult( 
-        BitdefElectron::CutIDDec , 
+    partDecMsk_ref.setCutResult(
+        BitdefElectron::CutIDDec ,
         true );
 
   }
@@ -491,7 +552,7 @@ StatusCode AsgElectronRingerSelector::execute(
   fillTAccept();
 
   // Check if an error occurred, and flag it:
-  if ( partDecMsk_ref.getCutResult( 
+  if ( partDecMsk_ref.getCutResult(
         BitdefElectron::NoErrorBit ) )
   {
     return StatusCode::SUCCESS;
@@ -501,12 +562,13 @@ StatusCode AsgElectronRingerSelector::execute(
 }
 
 //==============================================================================
-StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg) const
+StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg, const double mu) const
 {
   ATH_MSG_DEBUG("entering execute(const xAOD::Egamma* eg...)");
 
   if (eg){
-    //size_t cDiscr = 0;
+    // We cast it to electron and use xAOD::type to determine whether it is an electron or not
+    this->execute( static_cast<const xAOD::Electron*>(eg), mu );
   } else {
     ATH_MSG_ERROR("Egamma pointer is null.");
     return StatusCode::FAILURE;
@@ -518,7 +580,7 @@ StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg) const
 //=============================================================================
 // Fill the m_accept from the m_partDecMsk mask using the m_cutsToUse
 //=============================================================================
-void AsgElectronRingerSelector::fillTAccept() const 
+void AsgElectronRingerSelector::fillTAccept() const
 {
 #if RINGER_USE_NEW_CPP_FEATURES
   // In this case, we only do this to have a more harmonic code:
@@ -531,7 +593,7 @@ void AsgElectronRingerSelector::fillTAccept() const
   for (unsigned bit = 0; bit < BitdefElectron::NUsedBits(); ++bit ){
     // m_partDec mask is set to true if passed cut.
     // m_cutsToUse is set to true if cut is to be used.
-    accept_ref.setCutResult( bit, 
+    accept_ref.setCutResult( bit,
         (m_partDecMsk.getCutResult(bit)) || !m_cutsToUse[bit] );
   }
 }
@@ -539,9 +601,13 @@ void AsgElectronRingerSelector::fillTAccept() const
 //==============================================================================
 StatusCode AsgElectronRingerSelector::beginInputFile()
 {
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+  ATH_MSG_VERBOSE( "inputMetaStore: \n " << inputMetaStore()->dump() );
+  ATH_MSG_VERBOSE( "outputMetaStore: \n " << outputMetaStore()->dump() );
+#endif
 
   // Tell the user what's happening:
-  ATH_MSG_DEBUG( "Entered new file, checking if it is needed to " 
+  ATH_MSG_DEBUG( "Entered new file, checking if it is needed to "
       "update metadata information.");
 
   if ( m_cacheMetaData && m_metaDataCached ) {
@@ -552,49 +618,38 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
   // Read the metadata object:
   m_rsConfCont = nullptr;
 
-  bool failedToRetrieveInInput(false);
+  bool readFromInput(false), readFromOutput(false);
 
   // First we try to obtain configuration on the inputMetaStore. If this does
   // not work, we try to obtain it on the outputMetaStore.
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
-  if ( !m_metaIsOnOutput && ( ( m_rsConfCont = inputMetaStore()->
-        tryConstRetrieve< xAOD::RingSetConfContainer >( m_rsMetaName ) )
-      == nullptr ) ) 
-  {
-    if ( !m_metaIsOnOutput ) {
-      failedToRetrieveInInput = true;
-      ATH_MSG_DEBUG("Couldn't retrieve on inputMetaStore, will "
-          "try to retrieve from outputMetaStore.");
-    }
-  } else {
-    ATH_MSG_DEBUG("Retrieved meta from inputMetaStore.");
-  }
+  m_rsConfCont = inputMetaStore()->tryConstRetrieve< xAOD::RingSetConfContainer >( m_rsMetaName );
+  readFromInput = !m_metaIsOnOutput && ( m_rsConfCont != nullptr );
 #else
-  if ( !m_metaIsOnOutput && 
-      inputMetaStore()->retrieve( m_rsConfCont, m_rsMetaName ) )
-  {
-    if ( !m_metaIsOnOutput ) {
-      failedToRetrieveInInput = true;
-      ATH_MSG_DEBUG("Couldn't retrieve on inputMetaStore, will "
-          "try to retrieve from outputMetaStore.");
-    }
-  } else {
-    ATH_MSG_DEBUG("Retrieved meta from inputMetaStore.");
-  }
+  readFromInput = !m_metaIsOnOutput && inputMetaStore()->retrieve( m_rsConfCont, m_rsMetaName ).isSuccess();
 #endif
 
+  if ( !readFromInput )
+  {
+    ATH_MSG_DEBUG("Retrieved meta from inputMetaStore.");
+  } else if ( !m_metaIsOnOutput ) {
+    ATH_MSG_DEBUG("Couldn't retrieve on inputMetaStore, "
+        "trying to retrieve from outputMetaStore.");
+  }
+
+  readFromOutput = ( m_metaIsOnOutput || !readFromInput ) && outputMetaStore()->retrieve( m_rsConfCont, m_rsMetaName ).isSuccess();
+
   // We also attempt to retrieve on outputMetaStore if inputMetaStore failed:
-  if ( ( m_metaIsOnOutput || failedToRetrieveInInput ) &&
-      outputMetaStore()->retrieve( m_rsConfCont, m_rsMetaName ).isFailure())
+  if ( !readFromOutput )
   {
     // FIXME: This should be done by manually setting the metadata information
-    // if it is not set (if manually set, do not attempt to retrieve on the 
+    // if it is not set (if manually set, do not attempt to retrieve on the
     // metadata store).
     ATH_MSG_WARNING( "Couldn't retrieve rings configuration on both "
         "inputMetaStore and outputMetaStore. Setting default value, "
         "(which might be wrong)." );
     m_rawConfCol.clear();
-    m_rawConfCol = { 
+    m_rawConfCol = {
         {8,
           std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
           Ringer::CalJointLayer::PS,
@@ -614,28 +669,28 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
           Ringer::CalJointLayer::EM2,
           Ringer::CalJointSection::EM,
           false, false,
-          72, 80, 
+          72, 80,
         0, 88},
         {8,
           std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
           Ringer::CalJointLayer::EM3,
           Ringer::CalJointSection::EM,
           false, false,
-          80, 88, 
+          80, 88,
         0, 88},
         {4,
           std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
           Ringer::CalJointLayer::HAD1,
           Ringer::CalJointSection::HAD,
           false, false,
-          88, 92, 
+          88, 92,
         88, 100},
         {4,
           std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
           Ringer::CalJointLayer::HAD2,
           Ringer::CalJointSection::HAD,
           false, false,
-          92, 96, 
+          92, 96,
         88, 100},
         {4,
           std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
@@ -647,180 +702,229 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
     for ( auto &discrWrapper : m_discrWrapperCol ) {
       discrWrapper->setRawConfCol( &m_rawConfCol );
     }
+
     xAOD::RingSetConf::print( m_rawConfCol, msg() );
     m_metaDataCached = true;
   } else {
-    // Flag that meta is on outputMeta rather than the input 
-    if ( failedToRetrieveInInput ){
+    // Flag that meta is on outputMeta rather than the input
+    if ( !readFromInput ){
       m_metaIsOnOutput = true;
       ATH_MSG_DEBUG("Retrieved meta from outputMetaStore.");
     }
+    // A little sanity check:
+    if( !m_rsConfCont || m_rsConfCont->empty() ) {
+       ATH_MSG_ERROR( "Metadata " << m_rsMetaName << " is not available on file." );
+       return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("Successfully retrieved store, "
+        "trying to get RawConfiguration Collection.");
+
+    // Retrieve the raw configuration:
+    xAOD::RingSetConf::getRawConfCol( m_rawConfCol, m_rsConfCont );
+
+    // Sign that it can be cached, if we want to cache it for the whole run:
+    m_metaDataCached = true;
+
+    // Pass its pointer into each wrapper in the discrimination chain:
+    for ( auto &discrWrapper : m_discrWrapperCol ) {
+      discrWrapper->setRawConfCol( &m_rawConfCol );
+    }
+    xAOD::RingSetConf::print( m_rawConfCol, msg() );
+
+    ATH_MSG_DEBUG( "Successfully retrieve configuration info.");
   }
-
-  ATH_MSG_DEBUG("Successfully retrieved store, "
-      "trying to get RawConfiguration Collection.");
-
-  // A little sanity check:
-  if( !m_rsConfCont || m_rsConfCont->empty() ) {
-     ATH_MSG_ERROR( "Metadata " << m_rsMetaName << " is not available on file." );
-     return StatusCode::FAILURE;
-  }
-
-  // Retrieve the raw configuration:
-  xAOD::RingSetConf::getRawConfCol( m_rawConfCol, m_rsConfCont );
-
-  // Sign that it can be cached, if we want to cache it for the whole run:
-  m_metaDataCached = true;
-
-  // Pass its pointer into each wrapper in the discrimination chain:
-  for ( auto &discrWrapper : m_discrWrapperCol ) {
-    discrWrapper->setRawConfCol( &m_rawConfCol );
-  }
-  xAOD::RingSetConf::print( m_rawConfCol, msg() );
-
-  ATH_MSG_DEBUG( "Successfully retrieve configuration info.");
 
   return StatusCode::SUCCESS;
+
 }
+
+//=============================================================================
+// Helper method to get the number of primary vertices (copied from
+// ElectronLikelihoodTool)
+//
+// This probably should be added to another tool which would provide this
+// calculated to every other tool which needs it
+//=============================================================================
+unsigned int AsgElectronRingerSelector::getNPrimVertices() const
+{
+  static bool PVExists = true;
+  unsigned int nVtx(0);
+  const xAOD::VertexContainer* vxContainer(0);
+  if(PVExists)
+  {
+    if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
+    {
+      ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
+      PVExists = false; // if retrieve failed, don't try to retrieve again
+      return nVtx;
+    }
+    for ( unsigned int i=0; i<vxContainer->size(); i++ )
+    {
+      const xAOD::Vertex* vxcand = vxContainer->at(i);
+      if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
+    }
+  }
+  return nVtx;
+}
+
 
 //==============================================================================
 StatusCode AsgElectronRingerSelector::beginEvent(){
-  // This doesn't do anything for now, return gracefully:
+  // Fill the number of vertex
+  this->m_nVtx = (this->m_useNvtx)?(getNPrimVertices()):m_defaultNvtx;
   return StatusCode::SUCCESS;
 }
 
 #endif // RINGER_STANDALONE
 
 // =============================================================================
-void AsgElectronRingerSelector::retrieveFileConf(const char *fileName, 
-    IOConfStruct &fileConf)
+void RingerConfStruct::retrieveConf(const char *fileName)
 {
   // Try to open file and check if nothing wrong happened:
   TFile file(fileName, "READ");
   IOHelperFcns::checkFile( file );
 
-  TDirectory* configDir = file.GetDirectory("");
+  TDirectory* configDir = file.GetDirectory("RingerConfStruct");
 
-  // When start using a version that this properties MUST be defined
-  // in the file, change the max to the version value and implement
-  // the else routine where it does throw.
-  if ( IOHelperFcns::getWrittenVersion(configDir) 
-      < std::numeric_limits<unsigned int>::max() )
-  {
-    try {
-      IOHelperFcns::readVar( configDir, 
-          "useTrackPat", 
-          fileConf.useTrackPat );
-    } catch( std::runtime_error & ){;}
-    try {
-      IOHelperFcns::readVar( configDir, 
-          "useRawTrackPat", 
-          fileConf.useRawTrackPat );
-    } catch( std::runtime_error & ){;}
-    //try {
-    //  IOHelperFcns::readVar( configDir,
-    //      "useRawCalStdPat",
-    //      fileConf.useRawCalStdPat );
-    //} catch( std::runtime_error & ){;}
-    //try {
-    //  IOHelperFcns::readVar( configDir,
-    //      "useCalStdPat",
-    //      fileConf.useCaloCommittee );
-    //} catch( std::runtime_error & ){;}
-    try {
-      IOHelperFcns::readVar( configDir,
-          "useCaloCommittee",
-          fileConf.useCaloCommittee );
-    } catch( std::runtime_error & ){;}
-    try {
-      IOHelperFcns::readVar( configDir,
-          "useBLOutliers",
-          fileConf.useBLOutliers );
-    } catch( std::runtime_error & ){;}
-    try {
-      IOHelperFcns::readVar( configDir,
-          "usePIXOutliers",
-          fileConf.usePIXOutliers );
-    } catch( std::runtime_error & ){;}
-    try {
-      IOHelperFcns::readVar( configDir,
-          "useSCTOutliers",
-          fileConf.useSCTOutliers );
-    } catch( std::runtime_error & ){;}
-    try {
-      IOHelperFcns::readVar( configDir,
-          "useTRTOutliers",
-          fileConf.useTRTOutliers );
-    } catch( std::runtime_error & ){;}
-    try {
-      IOHelperFcns::readVar( configDir,
-          "useTRTXenonHits",
-          fileConf.useTRTXenonHits );
-    } catch( std::runtime_error & ){;}
-  } /* else if */
+  this->version = 0;
+
+  // Get io conf struct version:
+  try {
+    IOHelperFcns::readVar( configDir,
+        "RingerConfStruct__version__",
+        this->version );
+  } catch( std::runtime_error & ){;}
+
+  try {
+    IOHelperFcns::readVar( configDir,
+        "useTrackPat",
+        this->useTrackPat );
+  } catch( std::runtime_error & ){;}
+  try {
+    IOHelperFcns::readVar( configDir,
+        "useRawTrackPat",
+        this->useRawTrackPat );
+  } catch( std::runtime_error & ){;}
+  //try {
+  //  IOHelperFcns::readVar( configDir,
+  //      "useRawCalStdPat",
+  //      this->useRawCalStdPat );
+  //} catch( std::runtime_error & ){;}
+  //try {
+  //  IOHelperFcns::readVar( configDir,
+  //      "useCalStdPat",
+  //      this->useCaloCommittee );
+  //} catch( std::runtime_error & ){;}
+  try {
+    IOHelperFcns::readVar( configDir,
+        "useCaloCommittee",
+        this->useCaloCommittee );
+  } catch( std::runtime_error & ){;}
+  try {
+    IOHelperFcns::readVar( configDir,
+        "useBLOutliers",
+        this->useBLOutliers );
+  } catch( std::runtime_error & ){;}
+  try {
+    IOHelperFcns::readVar( configDir,
+        "usePIXOutliers",
+        this->usePIXOutliers );
+  } catch( std::runtime_error & ){;}
+  try {
+    IOHelperFcns::readVar( configDir,
+        "useSCTOutliers",
+        this->useSCTOutliers );
+  } catch( std::runtime_error & ){;}
+  try {
+    IOHelperFcns::readVar( configDir,
+        "useTRTOutliers",
+        this->useTRTOutliers );
+  } catch( std::runtime_error & ){;}
+  try {
+    IOHelperFcns::readVar( configDir,
+        "useTRTXenonHits",
+        this->useTRTXenonHits );
+  } catch( std::runtime_error & ){;}
+  try {
+    IOHelperFcns::readVar( configDir,
+        "useNvtx",
+        this->useNvtx );
+  } catch( std::runtime_error & ){;}
+
+  if ( version < 1 ){
+    // nvtx only started being used on version 17
+    this->useNvtx = false;
+  }
 
   file.Close();
   return;
 }
 
 // =============================================================================
-void AsgElectronRingerSelector::writeConf(const char* fileName, 
-    IOConfStruct &fileConf)
+void RingerConfStruct::writeConf( char* fileName )
 {
   // Try to open file and check if nothing wrong happened:
   TFile file(fileName, "UPDATE");
   IOHelperFcns::checkFile( file );
 
-  TDirectory* configDir = file.GetDirectory("");
+  TDirectory* configDir = file.mkdir("RingerConfStruct");
 
-  IOHelperFcns::writeVar( configDir, 
-      "useTrackPat", 
-      fileConf.useTrackPat );
-  IOHelperFcns::writeVar( configDir, 
-      "useRawTrackPat", 
-      fileConf.useRawTrackPat );
+  IOHelperFcns::writeVar( configDir,
+      "useTrackPat",
+      this->useTrackPat );
+  IOHelperFcns::writeVar( configDir,
+      "useRawTrackPat",
+      this->useRawTrackPat );
   //IOHelperFcns::writeVar( configDir,
   //    "useRawCalStdPat",
-  //    fileConf.useRawCalStdPat );
+  //    this->useRawCalStdPat );
   //IOHelperFcns::writeVar( configDir,
   //    "useCalStdPat",
-  //    fileConf.useCaloCommittee );
+  //    this->useCaloCommittee );
   IOHelperFcns::writeVar( configDir,
       "useCaloCommittee",
-      fileConf.useCaloCommittee );
+      this->useCaloCommittee );
   IOHelperFcns::writeVar( configDir,
       "useBLOutliers",
-      fileConf.useBLOutliers );
+      this->useBLOutliers );
   IOHelperFcns::writeVar( configDir,
       "usePIXOutliers",
-      fileConf.usePIXOutliers );
+      this->usePIXOutliers );
   IOHelperFcns::writeVar( configDir,
       "useSCTOutliers",
-      fileConf.useSCTOutliers );
+      this->useSCTOutliers );
   IOHelperFcns::writeVar( configDir,
       "useTRTOutliers",
-      fileConf.useTRTOutliers );
+      this->useTRTOutliers );
   IOHelperFcns::writeVar( configDir,
       "useTRTXenonHits",
-      fileConf.useTRTXenonHits );
+      this->useTRTXenonHits );
+  IOHelperFcns::writeVar( configDir,
+      "useNvtx",
+      this->useNvtx );
+  IOHelperFcns::writeVar( configDir,
+      "RingerConfStruct__version__",
+      this->version );
   file.Close();
 }
 
 // =============================================================================
-void AsgElectronRingerSelector::printConf( IOConfStruct &fileConf, 
-    MsgStream *msg, MSG::Level lvl)
+void RingerConfStruct::printConf( MsgStream *msg, MSG::Level lvl )
 {
   if ( msg && msg->level() <= lvl ){
     auto flags = static_cast<std::ios_base::fmtflags>(msg->flags());
-    (*msg) << lvl << "File configuration is: " << endmsg;
-    (*msg) << lvl << std::boolalpha << "useTrackPat: " << fileConf.useTrackPat 
-      << " | useRawTrackPat: " << fileConf.useRawTrackPat 
-      << " | useCaloCommittee: " << fileConf.useCaloCommittee
-      << " | useBLOutliers: " << fileConf.useBLOutliers
-      << " | usePIXOutliers: " << fileConf.usePIXOutliers
-      << " | useSCTOutliers: " << fileConf.useSCTOutliers
-      << " | useTRTOutliers: " << fileConf.useTRTOutliers
-      << " | useTRTXenonHits: " << fileConf.useTRTXenonHits 
+    (*msg) << lvl << "Ringer Configuration is: " << endmsg;
+    (*msg) << lvl << std::boolalpha
+      << "\n * useTrackPat      : " << (( this->useTrackPat      )?"yes":"no")
+      << "\n * useRawTrackPat   : " << (( this->useRawTrackPat   )?"yes":"no")
+      << "\n * useCaloCommittee : " << (( this->useCaloCommittee )?"yes":"no")
+      << "\n * useBLOutliers    : " << (( this->useBLOutliers    )?"yes":"no")
+      << "\n * usePIXOutliers   : " << (( this->usePIXOutliers   )?"yes":"no")
+      << "\n * useSCTOutliers   : " << (( this->useSCTOutliers   )?"yes":"no")
+      << "\n * useTRTOutliers   : " << (( this->useTRTOutliers   )?"yes":"no")
+      << "\n * useTRTXenonHits  : " << (( this->useTRTXenonHits  )?"yes":"no")
+      << "\n * useNvtx          : " << (( this->useNvtx          )?"yes":"no")
       << endmsg;
     // reset previous cout flags
     msg->flags(flags);

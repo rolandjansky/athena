@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecEvent
+                          Control/CxxUtils
                           PRIVATE
                           AtlasTest/TestTools
                           Calorimeter/CaloIdentifier
@@ -71,6 +72,12 @@ atlas_add_test( LArNoisyROSummaryCnv_p3_test
 atlas_add_test( LArNoisyROSummaryCnv_p4_test
                 SOURCES
                 test/LArNoisyROSummaryCnv_p4_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LArRawEvent LArRecEvent TestTools CaloIdentifier AthenaKernel Identifier LArTPCnv )
+
+atlas_add_test( LArNoisyROSummaryCnv_p5_test
+                SOURCES
+                test/LArNoisyROSummaryCnv_p5_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib LArRawEvent LArRecEvent TestTools CaloIdentifier AthenaKernel Identifier LArTPCnv )
 

@@ -24,7 +24,8 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
   AthAlgTool(type, name, parent),
   m_roadData(0),
   m_rWidth_RPC_Failed(0), m_use_rpc(true),
-  m_regionSelector(0), m_mdtIdHelper(0)
+  m_regionSelector( "RegSelSvc", name ), 
+  m_mdtIdHelper(0)
 {
   declareInterface<TrigL2MuonSA::RpcRoadDefiner>(this);
 }
@@ -76,7 +77,8 @@ void TrigL2MuonSA::RpcRoadDefiner::setRpcGeometry(bool use_rpc)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::RpcRoadDefiner::setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper)
+void TrigL2MuonSA::RpcRoadDefiner::setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
+                                                   const MdtIdHelper* mdtIdHelper)
 {
   m_regionSelector = regionSelector;
   m_mdtIdHelper = mdtIdHelper;

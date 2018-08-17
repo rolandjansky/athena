@@ -6,20 +6,22 @@
 #ifndef TrackClusterAssValidation_H
 #define TrackClusterAssValidation_H
 
-#include <string>
-#include <map>
+
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "HepMC/GenParticle.h"
-#include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "StoreGate/ReadHandleKey.h"
-
 #include "TrkTrack/TrackCollection.h"
+#include <string>
+#include <map>
+
+namespace HepPDT{
+  class ParticleDataTable;
+}
 
 namespace InDet {
 
@@ -33,18 +35,22 @@ namespace InDet {
       // Public methods:
       ///////////////////////////////////////////////////////////////////
     public:
-
+      ///default c'tor
       Barcode()  {};
-      Barcode(const Barcode&);
-      Barcode(int,int);
+      ///copy c'tor defaulted
+      Barcode(const Barcode&) = default;
+      ///c'tor 
+      Barcode(int charge,int rapidity);
+      ///destructor does nothing
       ~Barcode() {};
-      Barcode& operator = (const Barcode&);
+      ///assignment defaulted
+      Barcode& operator = (const Barcode&) = default;
+      ///getters
       int barcode () const {return abs(m_barcharge);}
-      int charge  () const {if(m_barcharge<0) return -1; if(m_barcharge>0) return 1; return 0;}
+      int charge  () const {return ((m_barcharge>0) - (m_barcharge<0));} //returns 1, -1 or 0 depending on sign
       int rapidity() const {return m_rapidity;}
 
     protected:
-
       int m_barcharge;
       int m_rapidity;
     };
@@ -53,19 +59,6 @@ namespace InDet {
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline Barcode::Barcode(const Barcode& BC)
-    {
-      *this = BC;
-    }
-
-  inline Barcode& Barcode::operator = (const Barcode& BC)
-    {
-      if(&BC!=this) {
-	m_barcharge = BC.m_barcharge;
-	m_rapidity  = BC.m_rapidity ;
-      }
-      return(*this);
-    }
   inline Barcode::Barcode (int bc,int rap)
     {
       m_barcharge = bc ;
@@ -119,9 +112,9 @@ namespace InDet {
         int                                m_ntracksNEGDBM;
         int                                m_total        [50] ;
         int                                m_fake         [50] ;
-        int                                m_events                 ;
-        int                                m_eventsPOS              ;
-        int                                m_eventsNEG              ;
+        int                                m_events{}                 ;
+        int                                m_eventsPOS{}              ;
+        int                                m_eventsNEG{}              ;
         int                                m_eventsBTE[4]           ;
 
         TrackCollectionStat_t()

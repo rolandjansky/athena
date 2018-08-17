@@ -27,6 +27,7 @@
 
 class AtlasDetectorID;
 class GeoVFullPhysVol;
+class GeoAlignmentStore;
 
 namespace Trk{
  class Surface;
@@ -110,9 +111,10 @@ namespace InDetDD {
     
       /// Constructor:
       SiDetectorElement(const Identifier &id, 
-    		    const SiDetectorDesign *design,
-    		    const GeoVFullPhysVol *geophysvol,
-    		    SiCommonItems * commonItems);
+                        const SiDetectorDesign *design,
+                        const GeoVFullPhysVol *geophysvol,
+                        SiCommonItems * commonItems,
+                        const GeoAlignmentStore* geoAlignStore=nullptr);
     
       /// Destructor:
       virtual ~SiDetectorElement();
@@ -567,6 +569,8 @@ namespace InDetDD {
       void setOtherSide(const SiDetectorElement *); // For SCT only
     
       //@}
+
+      const SiCommonItems* getCommonItems() const;
     
       ///////////////////////////////////////////////////////////////////
       // Private methods:
@@ -679,6 +683,7 @@ namespace InDetDD {
       mutable Trk::Surface * m_surface;
       mutable std::vector<const Trk::Surface*> m_surfaces;
 
+      const GeoAlignmentStore* m_geoAlignStore;
     };
     
     ///////////////////////////////////////////////////////////////////
@@ -930,6 +935,11 @@ namespace InDetDD {
     inline void SiDetectorElement::setOtherSide(const SiDetectorElement * element) // For SCT only
     {
       m_otherSide = element;
+    }
+
+    inline const SiCommonItems* SiDetectorElement::getCommonItems() const
+    {
+      return m_commonItems;
     }
     
     inline bool SiDetectorElement::swapPhiReadoutDirection() const

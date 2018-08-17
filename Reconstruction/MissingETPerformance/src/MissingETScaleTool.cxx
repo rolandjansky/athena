@@ -258,5 +258,3 @@ double MissingETScaleTool::invTTmass(double pxMiss, double pyMiss,
 
   return myTTmassd;
 }
-//------------------------------------------------------------------------------
-MissingETScaleTool::~MissingETScaleTool() {}

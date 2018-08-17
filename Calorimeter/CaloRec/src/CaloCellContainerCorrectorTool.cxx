@@ -15,18 +15,11 @@ PURPOSE:  Apply cell correction to CaloCellContainer
 ********************************************************************/
 
 #include "CaloCellContainerCorrectorTool.h"
-
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 
 /////////////////////////////////////////////////////////////////////
 // CONSTRUCTOR:
@@ -140,31 +133,26 @@ StatusCode CaloCellContainerCorrectorTool::process(CaloCellContainer * theCont )
 
 StatusCode CaloCellContainerCorrectorTool::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd )
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
   // not clear what s the best way to do the loop
-
-  CellCorrectionToolIterator itrToolBeg = m_cellCorrectionTools.begin();
-  CellCorrectionToolIterator itrToolEnd = m_cellCorrectionTools.end();
-  CellCorrectionToolIterator itrTool ;
-
-
   CaloCellContainer::iterator itrCell;
 
   //if only one tool do not iterate (optimisation)
   if (m_cellCorrectionTools.size()==1) {
+    const ToolHandle<CaloCellCorrection>& tool = *m_cellCorrectionTools.begin();
     for (itrCell=itrCellBeg;itrCell!=itrCellEnd;++itrCell) {
-      (*itrToolBeg)->MakeCorrection(*itrCell);
+      tool->MakeCorrection (*itrCell, ctx);
     }
   }else {
     for (itrCell=itrCellBeg;itrCell!=itrCellEnd;++itrCell) {
-      for (itrTool=itrToolBeg;itrTool!=itrToolEnd;++itrTool) {
-	(*itrTool)->MakeCorrection(*itrCell);
+      for (const ToolHandle<CaloCellCorrection>& tool : m_cellCorrectionTools) {
+	tool->MakeCorrection (*itrCell, ctx);
       }
     }
   }
 
   return StatusCode::SUCCESS;
-  
-
 }
 
 

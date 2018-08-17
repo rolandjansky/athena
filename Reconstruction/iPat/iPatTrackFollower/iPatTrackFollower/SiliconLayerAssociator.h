@@ -17,6 +17,7 @@
 #include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "iPatInterfaces/ISiliconLayerAssociator.h"
 #include "iPatTrackFollower/LayerAssociation.h"
 #include "iPatTrackFollower/SiliconClusterMap.h"
@@ -70,7 +71,8 @@ private:
     void	       	makeEndcapStereoAssociations (LayerPrediction*	prediction);
 
     ServiceHandle<IInDetConditionsSvc>	m_pixelConditions;
-    ServiceHandle<IInDetConditionsSvc>	m_sctConditions;
+    ToolHandle<IInDetConditionsTool>	m_sctConditions{this, "SCT_ConditionsTool",
+        "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"};
     association_vector			m_associations;
     const SiliconClusterMap*		m_clusterMap;
     double				m_cosPhi;

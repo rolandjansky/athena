@@ -11,7 +11,7 @@
 //
 //-----------------------------------------------------------------------------
 #include "SiWidth_p2.h"
-#include "Identifier/Identifier.h"
+#include <vector>
 namespace InDet
 {
    class PixelCluster_p3
@@ -25,17 +25,17 @@ namespace InDet
 
       // m_clustId - stores the pixel cluster id only for 32-bit ids,
       // otherwise the cluster id is stored in the m_rdoList
-      unsigned int                          m_clusId; 
+      unsigned int                          m_clusId{}; 
       std::vector<rdo_diff_type>            m_rdoList;
-      float                                 m_localPosX;
-      float                                 m_localPosY;
-      float                                 m_mat00;
-      float                                 m_mat01; 
-      float                                 m_mat11;
-      float                                 m_omegax;
-      float                                 m_omegay;
-      unsigned int                          m_properties;
-      int                                   m_splitInfo;
+      float                                 m_localPosX{};
+      float                                 m_localPosY{};
+      float                                 m_mat00{};
+      float                                 m_mat01{}; 
+      float                                 m_mat11{};
+      float                                 m_omegax{};
+      float                                 m_omegay{};
+      unsigned int                          m_properties{};
+      int                                   m_splitInfo{};
       std::vector<float>                    m_chargeList;
       //SiWidth_p2                          
       InDet::SiWidth_p2                     m_width;

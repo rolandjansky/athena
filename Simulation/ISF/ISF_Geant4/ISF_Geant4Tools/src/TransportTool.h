@@ -88,6 +88,9 @@ namespace iGeant4
 
   private:
 
+    /// This command prints a message about a G4Command depending on its returnCode
+    void commandLog(int returnCode, const std::string& commandString) const;
+
     HepMC::GenEvent* genEvent() const;
 
     /// @name Configurable Properties

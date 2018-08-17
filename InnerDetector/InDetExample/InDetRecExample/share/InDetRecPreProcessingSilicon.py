@@ -25,13 +25,21 @@ if InDetFlags.doPRDFormation():
    
    if DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on():
       #
+      # --- SiLorentzAngleTool for SCT
+      #
+      if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+
+      #
       # --- ClusterMakerTool (public), needed by Pixel and SCT Clusterization
       #
       from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
       InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
                                                       PixelCalibSvc        = None,
                                                       PixelOfflineCalibSvc = None,
-                                                      UsePixelCalibCondDB  = False)
+                                                      UsePixelCalibCondDB  = False,
+                                                      SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
 
       if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline() or InDetFlags.doSLHC()):
          InDetClusterMakerTool.PixelCalibSvc        = InDetPixelCalibSvc
@@ -184,7 +192,7 @@ if InDetFlags.doPRDFormation():
       from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
       InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
                                                           globalPosAlg      = InDetClusterMakerTool,
-                                                          conditionsService = InDetSCT_ConditionsSummarySvcWithoutFlagged)
+                                                          conditionsTool = InDetSCT_ConditionsSummaryToolWithoutFlagged)
       if InDetFlags.selectSCTIntimeHits():
          if InDetFlags.InDet25nsec(): 
             InDetSCT_ClusteringTool.timeBins = "01X" 
@@ -206,7 +214,7 @@ if InDetFlags.doPRDFormation():
                                                           DetectorManagerName     = InDetKeys.SCT_Manager(), 
                                                           DataObjectName          = InDetKeys.SCT_RDOs(),
                                                           ClustersName            = InDetKeys.SCT_Clusters(),
-                                                          conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged)
+                                                          conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
       if InDetFlags.cutSCTOccupancy():
         InDetSCT_Clusterization.maxRDOs = 384 #77
       else:
@@ -222,7 +230,7 @@ if InDetFlags.doPRDFormation():
                                                               DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                               DataObjectName          = InDetKeys.SCT_PU_RDOs(),
                                                               ClustersName            = InDetKeys.SCT_PU_Clusters(),
-                                                              conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged)
+                                                              conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
         if InDetFlags.cutSCTOccupancy():
           InDetSCT_ClusterizationPU.maxRDOs = 384 #77
         else:
@@ -266,6 +274,13 @@ if InDetFlags.doSpacePointFormation():
                                                                      ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                      ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                      ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
+
+   # Condition algorithm for SiTrackerSpacePointFinder
+   from AthenaCommon.AlgSequence import AthSequencer
+   condSeq = AthSequencer("AthCondSeq")
+   if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+      from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
 #   if InDetFlags.doDBM():
 #     InDetSiTrackerSpacePointFinderDBM = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinderDBM",

@@ -5,14 +5,10 @@
 #ifndef AFP_TDDigiCollection_h
 #define AFP_TDDigiCollection_h
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AFP_DigiEv/AFP_TDDigi.h"
 #include "HitManagement/AtlasHitsVector.h"
-
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
 
 typedef AtlasHitsVector<AFP_TDDigi> AFP_TDDigiCollection;
 typedef AtlasHitsVector<AFP_TDDigi>::iterator AFP_TDDigiIter;

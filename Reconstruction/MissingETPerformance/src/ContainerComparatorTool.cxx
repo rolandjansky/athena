@@ -177,9 +177,6 @@ StatusCode ContainerComparatorTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-//------------------------------------------------------------------------------
-ContainerComparatorTool::~ContainerComparatorTool() {}
-
 ContainerComparatorTool::DiffContainers::DiffContainers(const std::string &s, const std::string &s2,ITHistSvc * thistSvc) 
 {
   StatusCode sc = StatusCode::SUCCESS;

@@ -80,13 +80,13 @@ GeoVPhysVol * SCT_FwdSubSpine::build()
   if (m_ringType != 3) spineShape2 = new GeoBox( m_thickness2/2., m_width2/2., m_length2/2.);
   const GeoBox * spineShape3 = new GeoBox( m_thickness3/2., m_width3/2., m_length3/2.);
 
-	
+
   double position, position2;
-	 
+
   int HybPos;
   
   if (m_ringType == 0) {  HybPos = -1; } // outer module, hybrid in inner side
-    		  else {  HybPos = 1;  } //hybrid in outer side
+                  else {  HybPos = 1;  } //hybrid in outer side
      
 
   double widthMain =  parameters->fwdSpineWidth(m_ringType);  // width of main spine

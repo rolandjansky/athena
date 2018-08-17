@@ -44,12 +44,18 @@ const CLID& T_AthenaPoolCnvBase<T>::classID() {
 }
 //__________________________________________________________________________
 template <class T>
-StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
    const std::string className = ClassName<T>::name();
    if (!m_classDesc) {
       ATH_MSG_DEBUG("Retrieve class description for class (type/key) " << className << "/" << pObj->name());
       m_classDesc = RootType( typeid(T) );
    }
+   return(StatusCode::SUCCESS);
+}
+//__________________________________________________________________________
+template <class T>
+StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+   const std::string className = ClassName<T>::name();
    if (pObj->clID() == 1 && pObj->registry()->address() != nullptr) {
       ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
       if (!PoolToDataObject(pObj, this->m_i_poolToken).isSuccess()) {

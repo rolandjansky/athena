@@ -16,13 +16,8 @@
 */
 
 // Include the interfaces
-#include "PATCore/IAsgSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
 
-// Forward declarations
-namespace Root{
-  class TAccept;
-}
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/EgammaFwd.h"

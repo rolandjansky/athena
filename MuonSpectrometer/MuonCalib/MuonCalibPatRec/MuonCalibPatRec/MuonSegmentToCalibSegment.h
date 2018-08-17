@@ -14,17 +14,17 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegment/MuonSegment.h"
+#include "MuonCalibITools/IIdToFixedIdTool.h"
+#include "MuonRecToolInterfaces/IMuonPatternSegmentAssociationTool.h"
+#include "MdtCalibSvc/MdtCalibrationSvc.h"
 
 class MdtIdHelper;
 class CscIdHelper;
 class RpcIdHelper;
 class TgcIdHelper;
-class MdtCalibrationSvc;
 
 namespace Muon{
   class MuonPatternCombination;
-  class IMuonPatternSegmentAssociationTool;
-
 }
 
 namespace MuonGM {
@@ -32,8 +32,6 @@ namespace MuonGM {
 }
 
 namespace MuonCalib {
-
-   class IIdToFixedIdTool;
 
 /** @class MuonSegmentToCalibSegment
 Algorithm to retrieve MuonSegments or MuonSegmentCombinations from StoreGate and 

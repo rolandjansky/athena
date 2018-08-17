@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TRTBinnedRtRelation.h 
@@ -34,7 +34,10 @@ namespace TRTCond
       : m_status(stat), m_tmin(tmin), m_tmax(tmax), m_values(values) {}
 
     /** copy constructor */
-    BinnedRtRelation(const BinnedRtRelation& rhs) : RtRelation(rhs) { *this = rhs ; }
+    BinnedRtRelation(const BinnedRtRelation& rhs) = default;
+    
+    /** assignment **/
+    BinnedRtRelation & operator=(const BinnedRtRelation& rhs) = default;
 
     /** desctructor */
     virtual ~BinnedRtRelation() {}

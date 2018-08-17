@@ -1,4 +1,3 @@
-
 include.block ( "EventOverlayJobTransforms/TruthOverlay_jobOptions.py" )
 
 # McEventCollection copying.  Alghough logically it belongs to
@@ -7,7 +6,7 @@ include.block ( "EventOverlayJobTransforms/TruthOverlay_jobOptions.py" )
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 if overlayFlags.doBkg==True:
-    from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects   
+    from OverlayCommonAlgs.OverlayCommonAlgsConf import DeepCopyObjects
     job += DeepCopyObjects("BkgRdo")
     job.BkgRdo.EvtInfoObjects = True
     job += DeepCopyObjects("BkgRdo0")
@@ -15,9 +14,9 @@ if overlayFlags.doBkg==True:
 
 from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyMcEventCollection
 job += CopyMcEventCollection()
-if readBS and isRealData:
+if overlayFlags.isDataOverlay():
     job.CopyMcEventCollection.RealData = True
 
-if not isRealData:
+if not overlayFlags.isDataOverlay():
     from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyTruthInfo
     job += CopyTruthInfo()

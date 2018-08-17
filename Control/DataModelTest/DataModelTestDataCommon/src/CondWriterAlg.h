@@ -21,9 +21,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-
-class IAthenaOutputStreamTool;
+#include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 
 namespace DMTest {

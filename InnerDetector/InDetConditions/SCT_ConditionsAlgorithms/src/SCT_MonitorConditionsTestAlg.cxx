@@ -28,6 +28,7 @@ SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg( const std::string& n
   m_select_run(1),
   m_select_event(1)
 {
+  declareProperty("EventInfoKey", m_evtKey);
   declareProperty("RunNumber",m_select_run);
   declareProperty("EventNumber",m_select_event);
 }

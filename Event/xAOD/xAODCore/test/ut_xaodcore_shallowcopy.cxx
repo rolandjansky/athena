@@ -13,11 +13,15 @@
 #include <cmath>
 
 // EDM include(s):
+#ifdef XAOD_STANDALONE
 #define private public
 #define protected public
 #   include "AthLinks/DataLink.h"
 #undef protected
 #undef private
+#else
+# include "AthLinks/DataLink.h"
+#endif
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/DataVector.h"
 
@@ -36,24 +40,10 @@
       }                                                                      \
    } while( 0 )
 
-int main() {
 
-   // Create a test container that we'll make a copy of later on:
-   xAOD::AuxContainerBase origAux;
-   DataVector< SG::AuxElement > origVec;
-   origVec.setStore( &origAux );
-   for( int i = 0; i < 10; ++i ) {
-      SG::AuxElement* e = new SG::AuxElement();
-      origVec.push_back( e );
-      e->auxdata< int >( "IntVar" ) = i;
-      e->auxdata< float >( "FloatVar" ) = i + 1;
-   }
-
-   // Make a shallow copy of it:
-   xAOD::ShallowAuxContainer copyAux;
-   DataLink< SG::IConstAuxStore > link;
-   link.m_object = &origAux;
-   copyAux.setParent( link );
+int testCopy (const DataVector<SG::AuxElement>& origVec,
+               xAOD::ShallowAuxContainer& copyAux)
+{
    DataVector< SG::AuxElement > copyVec;
    for( size_t i = 0; i < origVec.size(); ++i ) {
       copyVec.push_back( new SG::AuxElement() );
@@ -110,6 +100,46 @@ int main() {
    SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 1 );
    copyAux.setShallowIO( false );
    SIMPLE_ASSERT( copyAux.getSelectedAuxIDs().size() == 2 );
+
+   return 0;
+}
+
+
+int main() {
+
+   // Create a test container that we'll make a copy of later on:
+   xAOD::AuxContainerBase origAux;
+   DataVector< SG::AuxElement > origVec;
+   origVec.setStore( &origAux );
+   for( int i = 0; i < 10; ++i ) {
+      SG::AuxElement* e = new SG::AuxElement();
+      origVec.push_back( e );
+      e->auxdata< int >( "IntVar" ) = i;
+      e->auxdata< float >( "FloatVar" ) = i + 1;
+   }
+
+#ifdef XAOD_STANDALONE
+   DataLink< SG::IConstAuxStore > link;
+   link.m_object = &origAux;
+#else
+   DataLink< SG::IConstAuxStore > link (&origAux);
+#endif
+
+   // Make a shallow copy of it:
+   {
+     xAOD::ShallowAuxContainer copyAux;
+     copyAux.setParent( link );
+     if (testCopy (origVec, copyAux))
+       return 1;
+   }
+
+   {
+     xAOD::ShallowAuxContainer copyAux (link);
+     if (testCopy (origVec, copyAux))
+       return 1;
+     xAOD::ShallowAuxContainer copyAux2 (copyAux);
+     SIMPLE_ASSERT( copyAux2.getAuxIDs().size() == 3 );
+   }
 
    // Tell the user that everything went okay:
    std::cout << "All tests with xAOD::ShallowAuxContainer succeeded"

@@ -62,4 +62,5 @@ obj 293847295 StoreGateSvc+tee
 obj 293847295 StoreGateSvc+thh.rrr
 test2
 arrtool2            ERROR Explicit circular data dependency found for id  ( 'AthenaBaseCompsTest::MyObj' , 'StoreGateSvc+aaa' ) 
-arrtool2            FATAL /home/leggett/work/v30r1.002/src/Control/AthenaBaseComps/src/AthAlgTool.cxx:73 (StatusCode AthAlgTool::sysInitialize()): code 0: AlgTool::sysInitialize()
+arrtool2            FATAL ../AthCommonDataStore.icc (StatusCode AthCommonDataStore<PBASE>::sysInitialize() [with PBASE = AthCommonMsg<AlgTool>]): code 0: PBASE::sysInitialize()
+

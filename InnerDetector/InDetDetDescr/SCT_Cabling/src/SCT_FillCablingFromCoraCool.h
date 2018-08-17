@@ -66,7 +66,7 @@ public:
   /**Fill the cabling maps
    * @param[in] @c SCT_CablingSvc& , reference to the underlying data service
    */
-  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling);
+  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling) const;
   
   /**Report whether the map was filled
    * @return @c bool
@@ -79,13 +79,13 @@ public:
   virtual bool canFillDuringInitialize() const {return false;}
 private:
   //read from db
-  StatusCode readDataFromDb(ISCT_CablingSvc* cabling);
+  StatusCode readDataFromDb(ISCT_CablingSvc* cabling) const;
   //determine which folder to use; COMP200 style or CONDBR2 style
   std::string determineFolder(const std::string& option1, const std::string& option2) const;
   
   //retrieve a IOVDbSvc coracool dataset, give error message if it is empty or the pointer is zero
-  bool successfulFolderRetrieve(const DataHandle<CondAttrListVec>& pDataVec, const std::string& folderName);
-  bool m_filled;
+  bool successfulFolderRetrieve(const DataHandle<CondAttrListVec>& pDataVec, const std::string& folderName) const;
+  mutable bool m_filled;
   std::string m_source;
   ServiceHandle<StoreGateSvc> m_detStore;
 };//end of class

@@ -77,6 +77,19 @@ public:
 
 
   /**
+   * @brief Queue an object for later deletion.
+   * @param p The object to delete.
+   *
+   * The object @c p will be queued for deletion once a grace period
+   * has passed for all slots.  In contrast to using @c updater,
+   * this does not change the current object.  It also does not mark
+   * the current slot as having completed the grace period (so this can
+   * be called by a thread running outside of a slot context).
+   */
+  void discard (std::unique_ptr<T> p);
+
+
+  /**
    * @brief Return the current event context.
    */
   static const Context_t& defaultContext();

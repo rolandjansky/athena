@@ -55,7 +55,6 @@ class LArFebHeaderContByteStreamCnv: public Converter {
 private: 
    BYTESTREAMTOOL* m_tool ; 
    ByteStreamCnvSvc* m_ByteStreamEventAccess;
-   LArFebHeaderContainer* m_container ; 
    IROBDataProviderSvc *m_rdpSvc;
    StoreGateSvc* m_storeGate; 
 };

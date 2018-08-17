@@ -79,8 +79,6 @@ class CaloTowerCmbGetter ( Configured )  :
         theLArFCalTowerBuilderTool.MinimumEt = 0 * MeV
         
         theTileTowerBuilderTool.CellContainerName=theCaloCellGetter.outputKey()        
-        theTileTowerBuilderTool.DumpTowers = False
-        theTileTowerBuilderTool.DumpWeightMap = False         
 
 
         # add tool to alg . From now on theCaloClusterBuilderSW will point

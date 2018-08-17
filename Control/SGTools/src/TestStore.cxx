@@ -112,17 +112,6 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
 }
 
 
-StatusCode TestStore::updatedObject (CLID /*id*/,
-                                     const std::string& key)
-{
-  lock_t lock (m_mutex);
-  m_updated.push_back (key);
-  if (m_failUpdatedObject)
-    return StatusCode::FAILURE;
-  return StatusCode::SUCCESS;
-}
-
-
 const std::string& TestStore::name() const
 {
   static const std::string nm = "TestStore";

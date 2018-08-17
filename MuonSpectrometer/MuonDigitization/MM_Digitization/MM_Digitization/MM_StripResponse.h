@@ -5,7 +5,7 @@
 #ifndef MM_DIGITIZATION_MM_STRIPRESPONSE_H
 #define MM_DIGITIZATION_MM_STRIPRESPONSE_H
 //
-// MM_StripResponse.cxx
+// MM_MM_StripResponse.cxx
 //     Simulate strip response
 //
 
@@ -29,7 +29,7 @@ class MM_StripResponse {
   // First argument is time bin, second argument is strip ID
   std::map< int, std::map<int,float> > m_stripCharges;
 
-  // Useful info for clustering later 
+  // Useful info for clustering later
   std::map<int, int> m_stripTimeThreshold;
   std::map<int, float> m_stripTotalCharge;
   std::map<int, float> m_stripMaxCharge;
@@ -45,24 +45,26 @@ class MM_StripResponse {
  public:
 
   MM_StripResponse();
-  MM_StripResponse(const std::vector<MM_IonizationCluster>& IonizationClusters, float timeResolution, float stripPitch, int stripID, int maxstripID);
+  MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int maxstripID);
   void timeOrderElectrons();
   void calculateTimeSeries(float thetaD, int gasgap);
   //  void calculateTimeSeries();
-  void simulateCrossTalk(float crossTalk1, float crossTalk2);      
+  void simulateCrossTalk(float crossTalk1, float crossTalk2);
   void calculateSummaries(float chargeThreshold);
   std::map<int, int> getTimeThreshold() const;
   std::map<int, float> getTotalCharge() const;
   std::map<int, float> getMaxCharge() const;
   std::map<int, int> getTimeMaxCharge() const;
-  
+
   std::vector<int> getStripVec() const;
   std::vector < std::vector < float > > getTimeThresholdVec() const;
   std::vector < std::vector < float > >getTotalChargeVec() const;
   std::vector<float> getMaxChargeVec() const;
   std::vector<float> getTimeMaxChargeVec() const;
 
-  
+  int getNElectrons();
+  std::vector<MM_Electron*> getElectrons();
+
 };
 
 #endif

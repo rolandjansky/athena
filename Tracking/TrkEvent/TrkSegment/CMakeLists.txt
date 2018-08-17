@@ -7,9 +7,8 @@ atlas_subdir( TrkSegment )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           Tracking/TrkEvent/TrkMeasurementBase
                           PRIVATE
@@ -26,12 +25,12 @@ atlas_add_library( TrkSegment
                    src/*.cxx
                    PUBLIC_HEADERS TrkSegment
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools Identifier TrkMeasurementBase
+                   LINK_LIBRARIES AthContainers Identifier TrkMeasurementBase
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks GaudiKernel TrkSurfaces TrkEventPrimitives )
 
 atlas_add_dictionary( TrkSegmentDict
                       TrkSegment/TrkSegmentDict.h
                       TrkSegment/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier TrkMeasurementBase AthLinks GaudiKernel TrkSurfaces TrkEventPrimitives TrkSegment )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers Identifier TrkMeasurementBase AthLinks GaudiKernel TrkSurfaces TrkEventPrimitives TrkSegment )
 

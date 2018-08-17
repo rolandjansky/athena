@@ -22,6 +22,7 @@
 
 //need this for MAXSIZE, NUMEMSAMP, and NUMHADSAMP
 #include "TrigCaloEvent/TrigTauCluster.h"
+#include "CxxUtils/unused.h"
 
 class TrigTauCluster_p1
 {
@@ -32,27 +33,29 @@ class TrigTauCluster_p1
   
  private:
   
+  // Some of these are unused, but we shouldn't delete them
+  // since they're part of the persistent data.
   float m_EMenergy;
   float m_HADenergy;
-  float m_eEMCalib;
+  float ATH_UNUSED_MEMBER(m_eEMCalib);
   float m_eCalib;
-  float m_EnergyS[MAXSIZE];
+  float ATH_UNUSED_MEMBER(m_EnergyS[MAXSIZE]);
   float m_Eta;
   float m_Phi;
   float m_EMRadius[NUMEMSAMP];
   float m_IsoFrac;
   float m_EMenergyWidth[NUMEMSAMP];
-  float m_HADenergyWidth[NUMHADSAMP];
+  float ATH_UNUSED_MEMBER(m_HADenergyWidth[NUMHADSAMP]);
   int    m_numStripCells;
   float m_stripWidth;
   
-  float m_EMenergyNor[NUMEMSAMP];
-  float m_EMenergyWid[NUMEMSAMP];
-  float m_EMenergyNar[NUMEMSAMP];
+  float ATH_UNUSED_MEMBER(m_EMenergyNor[NUMEMSAMP]);
+  float ATH_UNUSED_MEMBER(m_EMenergyWid[NUMEMSAMP]);
+  float ATH_UNUSED_MEMBER(m_EMenergyNar[NUMEMSAMP]);
   
-  float m_HADenergyNor[NUMHADSAMP];
-  float m_HADenergyWid[NUMHADSAMP];
-  float m_HADenergyNar[NUMHADSAMP];
+  float ATH_UNUSED_MEMBER(m_HADenergyNor[NUMHADSAMP]);
+  float ATH_UNUSED_MEMBER( m_HADenergyWid[NUMHADSAMP]);
+  float ATH_UNUSED_MEMBER(m_HADenergyNar[NUMHADSAMP]);
   
   //the TrigCaloCluster base class
   TPObjRef m_trigCaloCluster;

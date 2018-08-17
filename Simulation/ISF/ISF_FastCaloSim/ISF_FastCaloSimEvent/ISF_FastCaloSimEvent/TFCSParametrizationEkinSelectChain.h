@@ -10,25 +10,34 @@
 
 class TFCSParametrizationEkinSelectChain:public TFCSParametrizationFloatSelectChain {
 public:
-  TFCSParametrizationEkinSelectChain(const char* name=nullptr, const char* title=nullptr):TFCSParametrizationFloatSelectChain(name,title) {};
-  TFCSParametrizationEkinSelectChain(const TFCSParametrizationEkinSelectChain& ref):TFCSParametrizationFloatSelectChain(ref) {};
+  TFCSParametrizationEkinSelectChain(const char* name=nullptr, const char* title=nullptr):TFCSParametrizationFloatSelectChain(name,title) {reset_DoRandomInterpolation();};
+  TFCSParametrizationEkinSelectChain(const TFCSParametrizationEkinSelectChain& ref):TFCSParametrizationFloatSelectChain(ref) {reset_DoRandomInterpolation();};
+
+  ///Status bit for Ekin Selection
+  enum FCSEkinStatusBits {
+     kDoRandomInterpolation = BIT(15) ///< Set this bit in the TObject bit field if a random selection between neighbouring Ekin bins should be done
+  };
+
+  bool DoRandomInterpolation() const {return TestBit(kDoRandomInterpolation);};
+  void set_DoRandomInterpolation() {SetBit(kDoRandomInterpolation);};
+  void reset_DoRandomInterpolation() {ResetBit(kDoRandomInterpolation);};
 
   using TFCSParametrizationFloatSelectChain::push_back_in_bin;
   virtual void push_back_in_bin(TFCSParametrizationBase* param);
   //selects on truth->Ekin()
   //return -1 if outside range
-  virtual int get_bin(TFCSSimulationState&,const TFCSTruthState* truth, const TFCSExtrapolationState*) const;
-  virtual const std::string get_variable_text(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const;
-  virtual const std::string get_bin_text(int bin) const;
+  virtual int get_bin(TFCSSimulationState&,const TFCSTruthState* truth, const TFCSExtrapolationState*) const override;
+  virtual const std::string get_variable_text(TFCSSimulationState& simulstate,const TFCSTruthState*, const TFCSExtrapolationState*) const override;
+  virtual const std::string get_bin_text(int bin) const override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);
 
 protected:
-  void recalc();
+  virtual void recalc() override;
 
 private:
 
-  ClassDef(TFCSParametrizationEkinSelectChain,1)  //TFCSParametrizationEkinSelectChain
+  ClassDefOverride(TFCSParametrizationEkinSelectChain,1)  //TFCSParametrizationEkinSelectChain
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

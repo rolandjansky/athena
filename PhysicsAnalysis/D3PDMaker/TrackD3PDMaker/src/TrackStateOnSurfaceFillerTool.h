@@ -11,6 +11,9 @@
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 
 class AtlasDetectorID;
 class PixelID;
@@ -20,14 +23,11 @@ class MdtIdHelper;
 class CscIdHelper;
 class RpcIdHelper;
 class TgcIdHelper;
-class ITRT_CalDbSvc;
 
 namespace Trk {
   class TrackStateOnSurface;
-  class IResidualPullCalculator;
 }
 
-class ITRT_DriftFunctionTool;
 
 namespace D3PD {
 

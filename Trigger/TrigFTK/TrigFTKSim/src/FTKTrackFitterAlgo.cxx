@@ -486,7 +486,8 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 	moduleIDvec.clear();
 
 	Int_t Max_1stStage_sectors = 16383;
-        for(Int_t isec=0;isec<Max_1stStage_sectors;isec++){
+  Int_t applied_sector_max = bank8->getNSectors() > Max_1stStage_sectors ? Max_1stStage_sectors : bank8->getNSectors();
+  for(Int_t isec=0;isec<applied_sector_max;isec++){
 	  
 	  if((int)sector->getNSimilarSectors(isec) == 0 )break;
 

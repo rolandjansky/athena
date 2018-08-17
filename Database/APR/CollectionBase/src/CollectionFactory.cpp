@@ -54,7 +54,8 @@ pool::CollectionFactory::create_callPlugin( const pool::ICollectionDescription& 
 					    pool::ISession* session ) const
 {
    std::string type( description.type() );
-   ICollection *coll = Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*>::create( type, &description, openMode, session );
+   //   ICollection *coll = Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*>::create( type, &description, openMode, session ).release();
+   ICollection *coll = Gaudi::PluginService::Factory<ICollection*( const ICollectionDescription*, ICollection::OpenMode, ISession*)>::create( type, &description, openMode, session ).release();
    if( !coll ) {
       std::string errorMsg = "APR::CollectionFactory::create(" + type + "," + description.name() + ") FAILED!  Plugin for that collection technology could not be loaded.";
       if( type == "MemoryCollection" ) {

@@ -6,7 +6,7 @@
 ## Author:      Werner Spolidoro Freund (LPS/UFRJ)
 ## Created:     Mar 2015
 ##
-## Description: Retrieve selector from mask mapping 
+## Description: Retrieve selector from mask mapping
 ##=============================================================================
 
 import cppyy

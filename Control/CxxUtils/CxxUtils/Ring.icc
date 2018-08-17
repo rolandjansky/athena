@@ -1,0 +1,77 @@
+/*
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file CxxUtils/Ring.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date May, 2018
+ * @brief A simple ring buffer.
+ */
+
+
+namespace CxxUtils {
+
+
+/** 
+ * @brief Clear the buffer and set its size.
+ * @param size New size of the buffer.
+ */
+template <class T>
+inline
+void Ring<T>::reset (size_t size)
+{
+  m_data.clear();
+  m_data.resize (size);
+  m_pos = 0;
+}
+
+
+/**
+ * @brief Add a new item to the buffer.
+ * @param x Item to add.
+ */
+template <class T>
+inline
+void Ring<T>::push (const T& x)
+{
+  m_data[m_pos++] = x;
+  if (m_pos >= m_data.size()) {
+    m_pos = 0;
+  }
+}
+
+
+/**
+ * @brief Return a copy of keys in the buffer.
+ *
+ * Immediately adjacent duplicates and unfilled entries will be removed,
+ * so the result may be smaller than the size of the buffer.
+ */
+template <class T>
+std::vector<T>
+Ring<T>::getKeysDedup() const
+{
+  size_t sz = m_data.size();
+  std::vector<T> keys;
+  keys.reserve (sz);
+  T last_key = T();
+
+  for (size_t pos = m_pos; pos < sz; ++pos) {
+    if (m_data[pos] != last_key) {
+      last_key = m_data[pos];
+      keys.push_back (last_key);
+    }
+  }
+
+  for (size_t pos = 0; pos < m_pos; ++pos) {
+    if (m_data[pos] != last_key) {
+      last_key = m_data[pos];
+      keys.push_back (last_key);
+    }
+  }
+
+  return keys;
+}
+
+
+} // namespace CxxUtils

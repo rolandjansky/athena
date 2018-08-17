@@ -3,7 +3,7 @@
 */
 
 
-#include "TBRec/TBXMLWriterToolBase.h"
+#include "TBXMLWriterToolBase.h"
 
 #include <iostream>
 #include <string>

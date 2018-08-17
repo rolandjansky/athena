@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModel/IBLParameterSvc.h"
@@ -19,6 +19,13 @@
  **/
 IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
   : base_class(name,svc),
+    m_IBLpresent{},
+    m_DBMpresent{},
+    m_LayerColumnsPerFE{},
+    m_LayerRowsPerFE{},
+    m_LayerFEsPerHalfModule_planar{},
+    m_LayerFEsPerHalfModule_3d{},
+    m_layout{},
     m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_disablePixMapCondDB(false),

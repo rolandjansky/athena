@@ -14,12 +14,10 @@
 #ifndef TRT_SeededTrackFinder_H
 #define TRT_SeededTrackFinder_H
 
-#include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "InDetRecToolInterfaces/ITRT_SeededTrackFinder.h" 
 
 ///Track Collection to store the tracks
 #include "TrkTrack/TrackCollection.h"
@@ -35,8 +33,11 @@
 
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "InDetRecToolInterfaces/ITRT_SeededTrackFinder.h" 
+
 
 class MsgStream;
+
 
 namespace InDet {
 
@@ -57,7 +58,7 @@ namespace InDet {
     public:
       
       ///////////////////////////////////////////////////////////////////
-      /** Standard Algotithm methods                                   */
+      /** Standard Algorithm methods                                   */
       ///////////////////////////////////////////////////////////////////
 
       TRT_SeededTrackFinder(const std::string &name, ISvcLocator *pSvcLocator);
@@ -107,33 +108,33 @@ namespace InDet {
       double m_maxZImp;         //!< maximal z impact parameter cut
 
       /** Global Counters for final algorithm statistics */
-      int m_nTrtSeg          ;  /** Number of TRT segments to be investigated per event  */
-      int m_nTrtFailSel      ;  /** Number of TRT segments failing input selection */
-      int m_nTrtSegGood      ;  /** Number of TRT segments that will be investigated per event  */
-      int m_nTrtLimit        ;  /** Number of TRT segments lost in busy events */
-      int m_nTrtNoSiExt      ;  /** Number of TRT segments not extended in Si */
-      int m_nExtCut          ;  /** Number of Si extensions failing cuts */
-      int m_nBckTrkTrt       ;  /** Number of back tracks found without a Si extension per event */
-      int m_nTrtExtCalls     ;  /** Number of times the TRT extension is called */
-      int m_nTrtExt          ;  /** Number of good TRT extensions */
-      int m_nTrtExtBad       ;  /** Number of shorter TRT extensions */
-      int m_nTrtExtFail      ;  /** Number of failed TRT extensions */
-      int m_nBckTrkSi        ;  /** Number of back tracks found with Si extension per event */
-      int m_nBckTrk          ;  /** Number of back tracks found with or without Si extension per event */
+      int m_nTrtSeg{}          ;  /** Number of TRT segments to be investigated per event  */
+      int m_nTrtFailSel{}      ;  /** Number of TRT segments failing input selection */
+      int m_nTrtSegGood{}      ;  /** Number of TRT segments that will be investigated per event  */
+      int m_nTrtLimit{}        ;  /** Number of TRT segments lost in busy events */
+      int m_nTrtNoSiExt{}      ;  /** Number of TRT segments not extended in Si */
+      int m_nExtCut{}          ;  /** Number of Si extensions failing cuts */
+      int m_nBckTrkTrt{}       ;  /** Number of back tracks found without a Si extension per event */
+      int m_nTrtExtCalls{}     ;  /** Number of times the TRT extension is called */
+      int m_nTrtExt{}          ;  /** Number of good TRT extensions */
+      int m_nTrtExtBad{}       ;  /** Number of shorter TRT extensions */
+      int m_nTrtExtFail{}      ;  /** Number of failed TRT extensions */
+      int m_nBckTrkSi{}        ;  /** Number of back tracks found with Si extension per event */
+      int m_nBckTrk{}          ;  /** Number of back tracks found with or without Si extension per event */
 
-      int m_nTrtSegTotal     ;  /** Total number of TRT segments to be investigated  */
-      int m_nTrtFailSelTotal ;  /** Total number of TRT segments failing input selection */
-      int m_nTrtSegGoodTotal ;  /** Total number of TRT segments that will be investigated  */
-      int m_nTrtLimitTotal   ;  /** Total number of TRT segments lost in busy events */
-      int m_nTrtNoSiExtTotal ;  /** Total number of TRT segments not extended in Si */
-      int m_nExtCutTotal     ;  /** Total number of Si extensions failing cuts */
-      int m_nBckTrkTrtTotal  ;  /** Total number of back tracks found without a Si extension */
-      int m_nTrtExtCallsTotal;  /** Total number of times the TRT extension is called */
-      int m_nTrtExtTotal     ;  /** Total number of good TRT extensions */
-      int m_nTrtExtBadTotal  ;  /** Total number of shorter TRT extensions */
-      int m_nTrtExtFailTotal ;  /** Total number of failed TRT extensions */
-      int m_nBckTrkSiTotal   ;  /** Total number of back tracks found with Si extension */
-      int m_nBckTrkTotal     ;  /** Total number of back tracks found with or without Si extension  */
+      int m_nTrtSegTotal{}     ;  /** Total number of TRT segments to be investigated  */
+      int m_nTrtFailSelTotal{} ;  /** Total number of TRT segments failing input selection */
+      int m_nTrtSegGoodTotal{} ;  /** Total number of TRT segments that will be investigated  */
+      int m_nTrtLimitTotal{}   ;  /** Total number of TRT segments lost in busy events */
+      int m_nTrtNoSiExtTotal{} ;  /** Total number of TRT segments not extended in Si */
+      int m_nExtCutTotal{}     ;  /** Total number of Si extensions failing cuts */
+      int m_nBckTrkTrtTotal{}  ;  /** Total number of back tracks found without a Si extension */
+      int m_nTrtExtCallsTotal{};  /** Total number of times the TRT extension is called */
+      int m_nTrtExtTotal{}     ;  /** Total number of good TRT extensions */
+      int m_nTrtExtBadTotal{}  ;  /** Total number of shorter TRT extensions */
+      int m_nTrtExtFailTotal{} ;  /** Total number of failed TRT extensions */
+      int m_nBckTrkSiTotal{}   ;  /** Total number of back tracks found with Si extension */
+      int m_nBckTrkTotal{}     ;  /** Total number of back tracks found with or without Si extension  */
 
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */

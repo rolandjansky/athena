@@ -64,13 +64,11 @@ StatusCode MergeTruthJetsTool::processBunchXing(int bunchXing,
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents)
     {
-      StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
       const xAOD::JetContainer* inputJetContainer = 0;
-      if (seStore.contains<xAOD::JetContainer>(m_inputJetCollKey))
-        {
+      if (m_pMergeSvc->retrieveSingleSubEvtData(m_inputJetCollKey, inputJetContainer,
+						bunchXing, bSubEvents).isSuccess())
+	{
           ATH_MSG_VERBOSE("Found an xAOD::JetContainer in storeGate.");
-          inputJetContainer = seStore.retrieve<const xAOD::JetContainer>(m_inputJetCollKey);
-          //Back-compatibility with inputs which contain old JetCollections
           if ( inputJetContainer==0 )
             {
               ATH_MSG_ERROR("Unable to retrieve input jet container: " << m_inputJetCollKey);

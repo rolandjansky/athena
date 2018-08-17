@@ -32,7 +32,7 @@ TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
      m_ptEndcapLUT(0),
      m_tgcFit("TrigL2MuonSA::TgcFit"),
      m_rWidth_TGC_Failed(0),
-     m_regionSelector(0),
+     m_regionSelector( "RegSelSvc", name ),
      m_mdtIdHelper(0)
 {
   declareInterface<TrigL2MuonSA::TgcRoadDefiner>(this);
@@ -73,7 +73,8 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper)
+void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
+                                                   const MdtIdHelper* mdtIdHelper)
 {
   m_regionSelector = regionSelector;
   m_mdtIdHelper = mdtIdHelper;

@@ -12,12 +12,13 @@ TrigJetFromPseudojet::TrigJetFromPseudojet(std::string name)
 
 
 xAOD::Jet*
-TrigJetFromPseudojet::add(const fastjet::PseudoJet& pj, xAOD::JetContainer& jets,
-                      const xAOD::Jet* pparent) const
+TrigJetFromPseudojet::add(const fastjet::PseudoJet& pj,
+                          const PseudoJetContainer& pjContainer,
+                          xAOD::JetContainer& jets,
+                          const xAOD::Jet* pparent) const
 {
     // Build the jet without the parent to avoid the creation of a dynamic link
-    std::vector<std::string> noghosts;
-    xAOD::Jet* pjet = addjet(pj, jets, 0, &noghosts);
+    xAOD::Jet* pjet = addjet(pj, pjContainer, jets, 0);
     if (!pjet) return pjet;
 
     // Now add information from the parent

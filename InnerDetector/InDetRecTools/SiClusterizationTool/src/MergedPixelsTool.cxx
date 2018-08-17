@@ -18,7 +18,6 @@
 
 #include "SiClusterizationTool/MergedPixelsTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-//#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetRawData/InDetRawDataCollection.h"
@@ -116,47 +115,10 @@ namespace InDet {
 	m_IBLParameterSvc->setBoolParameters(m_IBLAbsent,"IBLAbsent");
       }  
 
-
-    //// Get an Identifier helper object
-    //sc = m_detStore.retrieve();
-    //if(!sc.isSuccess()){
-      //  ATH_MSG_FATAL("Unable to retrieve detector store");
-        //return StatusCode::FAILURE;
-    //}
-    //else {
-      //  msg(MSG::DEBUG) << "DetectorStore service found" << endmsg;
-    //}
- 
-    //// Get the PixelID Helper
-    //if (m_detStore->retrieve(m_idHelper, "PixelID").isFailure()) {
-      //  msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
-        //return StatusCode::FAILURE;
-    //}
-    
 // for the cluster splitting
-        if (!m_splitProbTool.empty() && m_splitProbTool.retrieve().isFailure()) {
-            ATH_MSG_FATAL( "Could not retrieve the split probability tool " << m_splitProbTool << "'.");
-            return StatusCode::FAILURE;
-        }      
-        if (!m_clusterSplitter.empty() && m_clusterSplitter.retrieve().isFailure()) {
-            ATH_MSG_FATAL( "Could not retrieve the cluster splitter '" << m_clusterSplitter << "'.");
-            return StatusCode::FAILURE;
-        }
-
-        if (m_incidentSvc.retrieve().isFailure()){
-            ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
-            return StatusCode::FAILURE;
-        }
-        // register to the incident service: 
-        // (a) BeginEvent needed for the recording of the Split ambiguity map (always need to be there for merging)
-//        m_incidentSvc->addListener( this, IncidentType::BeginEvent);
-        // (b) EndEvent needed for memory cleanup
-//        m_incidentSvc->addListener( this, IncidentType::EndEvent);
-
-        if (m_pixofflinecalibSvc.retrieve().isFailure()){
-            ATH_MSG_ERROR("Could not retrieve " << m_pixofflinecalibSvc);
-            return StatusCode::FAILURE;
-        }
+        ATH_CHECK(m_splitProbTool.retrieve( EnableTool{not m_splitProbTool.empty()}));
+        ATH_CHECK(m_clusterSplitter.retrieve( EnableTool{not m_clusterSplitter.empty()} ));
+        ATH_CHECK(m_pixofflinecalibSvc.retrieve());
 
         if (m_minToT.size() != 7){
  		ATH_MSG_ERROR("Number of entries for ToT Cut is:" << m_minToT.size() << " . 7 Values are needed, so fix jO.");
@@ -513,8 +475,14 @@ namespace InDet {
 		  
 		  ATH_MSG_VERBOSE( "--> Processing new splitCluster with n. " << splitClusterParts.size() << " subClusters. ");
 		  
+		  const InDetDD::PixelModuleDesign* design (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+		  if (not design){
+		    ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
+		    delete cluster;
+		    delete clusterCollection;
+		    return nullptr;
+		  }
 		  for ( size_t iclus = 0 ; splitClusterPartsIter != splitClusterPartsIterEnd; ++splitClusterPartsIter, ++iclus ){
-		    
 		    const Amg::Vector2D& position=(*(*splitClusterPartsIter).localPosition());
 		    const Amg::MatrixX&   error=(*(*splitClusterPartsIter).errorMatrix());
 		    const std::vector<int>&   totGroup=(*splitClusterPartsIter).totGroup();
@@ -563,12 +531,7 @@ namespace InDet {
 			  colMax = col;
 			}
 		      }
-		    const InDetDD::PixelModuleDesign* design
-		      (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-		    if (not design){
-		      ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
-		      return nullptr;
-		    }
+		    
 		    int colWidth = colMax-colMin+1;
 		    int rowWidth = rowMax-rowMin+1;
 		    double etaWidth = design->widthFromColumnRange(colMin, colMax);

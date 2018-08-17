@@ -40,12 +40,6 @@ PixelRawContByteStreamCnv::PixelRawContByteStreamCnv(ISvcLocator* svcloc) :
 {}
 
 ////////////////////////
-// destructor
-////////////////////////
-PixelRawContByteStreamCnv::~PixelRawContByteStreamCnv() {
-}
-
-////////////////////////
 // initialize()
 ////////////////////////
 StatusCode PixelRawContByteStreamCnv::initialize() {

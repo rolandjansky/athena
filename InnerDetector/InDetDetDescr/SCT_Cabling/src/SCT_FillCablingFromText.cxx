@@ -116,7 +116,7 @@ SCT_FillCablingFromText::filled() const {
 
 //
 StatusCode
-SCT_FillCablingFromText::fillMaps(ISCT_CablingSvc* cabling) {
+SCT_FillCablingFromText::fillMaps(ISCT_CablingSvc* cabling) const {
   if (readDataFromFile(cabling).isFailure()) {
     ATH_MSG_FATAL("Could not read cabling from file");
     return StatusCode::FAILURE;
@@ -127,7 +127,7 @@ SCT_FillCablingFromText::fillMaps(ISCT_CablingSvc* cabling) {
 
 //
 StatusCode
-SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) {
+SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) const {
   ServiceHandle<StoreGateSvc> detStore{"DetectorStore", name()};
   if (detStore.retrieve().isFailure()) {
     ATH_MSG_FATAL("Detector service  not found !");
@@ -177,12 +177,17 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) {
                       <<", it may be badly formatted in the following line: \n"<<inString);
         continue;
       } 
-      // Let's Get the Online Id From the link and the ROD
-      try {
-        link = SCT_Cabling::stringToInt(Link);
-      } catch (const std::ios_base::failure&) {
+      // Check Link variable looks OK
+      // The maximum value of an int is 2147483647 in decimal and 0x7fffffff in hexadecimal.
+      if (Link.size()==0 or Link.size()>10) {
         ATH_MSG_ERROR("An error occurred while reading the cabling file "<<m_source
                       <<", Link ("<<Link<<") cannot be converted to an integer");
+        continue;
+      }
+      // Let's Get the Online Id From the link and the ROD
+      link = std::stoi(Link, nullptr, 0); // 0 means the base used in deterimed by the format in the sequence
+      if (link<0) {
+        ATH_MSG_ERROR("link " << link << " seems invalid. This was obtained from Link " << Link << ". Will not be used.");
         continue;
       }
       if (link==disabledFibre) {

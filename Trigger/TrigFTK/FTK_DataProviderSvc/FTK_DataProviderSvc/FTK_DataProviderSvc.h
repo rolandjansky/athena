@@ -7,8 +7,11 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/EventContext.h"
 
 #include "AthenaBaseComps/AthService.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 //#include "IRegionSelector/IRoiDescriptor.h"
@@ -27,12 +30,17 @@
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
+
+#include <mutex>
+#include <vector>
 
 /// Forward Declarations ///
 class AtlasDetectorID;
@@ -52,14 +60,11 @@ namespace Trk {
   class ITrackSummaryTool;
   class ITrackParticleCreatorTool;
   class IRIO_OnTrackCreator;
-  //  class RIO_OnTrack;
-  //  class VxCandidate;
-  //class IVxCandidateXAODVertex;
+  class IVertexCollectionSortingTool;
 }
 
 namespace InDetDD {
   class PixelDetectorManager;
-  class SCT_DetectorManager;
 }
 
 namespace InDet {
@@ -154,8 +159,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
  private:
 
- float dphi(const float phi1, const float phi2) const;
-
+  float dphi(const float phi1, const float phi2) const;
+  const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash hash) const;
 
   std::string m_RDO_key;
   StoreGateSvc* m_storeGate;
@@ -164,18 +169,21 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   const SCT_ID*  m_sctId;
   
   const InDetDD::PixelDetectorManager* m_pixelManager;
-  const InDetDD::SCT_DetectorManager*  m_SCT_Manager;
 
   const AtlasDetectorID* m_id_helper;
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
   ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;
   ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
   ToolHandle< InDet::IVertexFinder > m_VertexFinderTool;
+  ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool;
   ToolHandle< IFTK_VertexFinderTool > m_RawVertexFinderTool;
   ToolHandle< Trk::IRIO_OnTrackCreator >      m_ROTcreator;
   ToolHandle< IFTK_DuplicateTrackRemovalTool > m_DuplicateTrackRemovalTool;
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retrieve Lorentz angle of SCT"};
 
   double m_trainingBeamspotX;
   double m_trainingBeamspotY;
@@ -262,7 +270,14 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   std::vector<unsigned int> m_nMissingPixelClusters;
 
   bool m_reverseIBLlocx;
+  bool m_doVertexSorting;
 
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
+  // Pointer of InDetDD::SiDetectorElementCollection
+  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;  
 };
 
 inline bool compareFTK_Clusters (const Trk::RIO_OnTrack* cl1, const Trk::RIO_OnTrack* cl2) {

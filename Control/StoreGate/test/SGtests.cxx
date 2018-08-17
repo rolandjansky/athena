@@ -17,6 +17,7 @@
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
+#include <atomic>
 
 #include <boost/config.hpp>
 
@@ -37,6 +38,7 @@
 #include "AthenaKernel/IProxyProviderSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
+#include "CxxUtils/checker_macros.h"
 
 using namespace std;
 using namespace SG;
@@ -47,7 +49,7 @@ using std::make_unique;
 class Base {};
 class Foo : public Base {
 public:
-  static std::vector<int> dtor_log;
+  static std::vector<int> dtor_log ATLAS_THREAD_SAFE;
   Foo() : m_i(0) {}
   Foo(int i) : m_i(i) {}
   int i() const { return m_i; }
@@ -77,7 +79,7 @@ private:
 };
 
 //-----------------------------------
-static int b1_dtor = 0;
+static std::atomic<int> b1_dtor { 0 };
 struct B1 { B1() : b(0){} virtual ~B1() { ++b1_dtor; } int b; };
 struct D1 : virtual public B1 { int d; };
 CLASS_DEF(B1, 8111, 1)

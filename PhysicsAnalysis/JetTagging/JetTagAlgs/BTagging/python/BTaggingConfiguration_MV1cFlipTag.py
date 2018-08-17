@@ -12,7 +12,7 @@ metaMV1cFlipTag = { 'IsATagger'          : True,
                                             'IP3DNegTag',
                                             'JetFitterTagCOMBNNIP3DNeg',
                                             'SV1FlipTag'],
-                    'CalibrationFolders' : ['MV1c',],
+                    'CalibrationTaggers' : ['MV1c',],
                     'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                     'ToolCollection'     : 'MV1cFlipTag' }
 

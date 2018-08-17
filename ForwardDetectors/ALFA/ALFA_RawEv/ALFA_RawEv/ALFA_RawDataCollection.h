@@ -5,9 +5,8 @@
 #ifndef  ALFA_RAWDATACOLLECTION_H
 #define  ALFA_RAWDATACOLLECTION_H
 
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "ALFA_RawEv/ALFA_RawData.h"
 
 #include<stdint.h>

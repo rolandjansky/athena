@@ -23,17 +23,12 @@
 namespace TrigCompositeUtils {
 
   // alias types, for readability and to simplify future evolution
-  typedef xAOD::TrigComposite Decision;
-  typedef xAOD::TrigCompositeContainer DecisionContainer;
-  typedef xAOD::TrigCompositeAuxContainer DecisionAuxContainer;
-
   typedef SG::WriteHandle<DecisionContainer> DecisionWriteHandle;
   /**
    * @brief creates and right away stores the DecisionContainer under the key
    **/
   DecisionWriteHandle createAndStore(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx);
 
-  
   /**
    * @brief helper method to that created the Decision objects, places it in the container and returns
    * This is to make this:
@@ -41,13 +36,8 @@ namespace TrigCompositeUtils {
    * instead of:
    * auto d = new Decision; 
    * output->push_back(d);    
-   **/
-  
+   **/  
   Decision* newDecisionIn (DecisionContainer* dc);
-
-  // aliases for the decision IDs, in fact this are just ints
-  typedef unsigned int DecisionID;
-  typedef std::set<DecisionID> DecisionIDContainer;
 
   /**
    * @brief Appends the decision (given as ID) to the decision object
@@ -77,7 +67,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief Checks if any of the DecisionIDs passed in arg required is availble in Decision object
    **/
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required);
+  bool isAnyIDPassing( const Decision* d,  const DecisionIDContainer& required);
 
   /**
    * @brief checks if required ID is in the set of the decisions

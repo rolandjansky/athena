@@ -29,9 +29,6 @@
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODTracking/VertexFwd.h"
 
-// Include the return object and the underlying ROOT tool
-#include "PATCore/TAccept.h"
-
 namespace Root{
   class TPhotonIsEMSelector;
 }
@@ -41,7 +38,7 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
 
 {
   ASG_TOOL_CLASS3(AsgPhotonIsEMSelector, IAsgPhotonIsEMSelector,
-		  IAsgEGammaIsEMSelector,IAsgSelectionTool)
+		  IAsgEGammaIsEMSelector, CP::ISelectionTool)
 
   public:
 
@@ -52,34 +49,31 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
   ~AsgPhotonIsEMSelector();
 	
   /** @brief AlgTool initialize method*/
-  StatusCode initialize();
-  /** @brief AlgTool finalize method*/
-  StatusCode finalize();
+  virtual StatusCode initialize();
+
+  /** Method to get the plain AcceptInfo.
+      This is needed so that one can already get the AcceptInfo 
+      and query what cuts are defined before the first object 
+      is passed to the tool. */
+  virtual const asg::AcceptInfo& getAcceptInfo() const;
 
   /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const ;
+  virtual asg::AcceptData accept( const xAOD::IParticle* part ) const ;
   
   /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const ;
+  virtual asg::AcceptData accept( const xAOD::Egamma* part) const ;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
+  virtual asg::AcceptData accept( const xAOD::Photon* part ) const ;
 
   /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const ;
-
-  /** The value of the isem **/
-  virtual unsigned int IsemValue() const ;
+  virtual asg::AcceptData accept( const xAOD::Electron* part ) const ;
 
    /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
 
   /** The basic isem */
-  virtual StatusCode execute(const xAOD::Egamma* eg) const;
-
-  /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
-
+  virtual StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const;
 
 private:
 
@@ -94,9 +88,6 @@ private:
 
   /** @brief use f3core or f3 (default: use f3)*/
   bool m_useF3core;
-
-  /** A dummy return TAccept object */
-  Root::TAccept m_acceptDummy;
 
   /// Flag for calo only cut-base 
   bool m_caloOnly; 

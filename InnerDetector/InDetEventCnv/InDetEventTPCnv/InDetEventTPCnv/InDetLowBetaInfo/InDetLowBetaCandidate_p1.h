@@ -14,7 +14,7 @@
    //private:
  
    std::vector<float> m_data;
-   int	m_TRTNLastBits;
+   int	m_TRTNLastBits{};
   
  };
  

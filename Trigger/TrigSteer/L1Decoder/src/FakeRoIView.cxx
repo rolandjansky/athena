@@ -126,7 +126,7 @@ namespace AthViews {
   StatusCode FakeRoIView::execute() {
 
    //Create the view object
-    m_views.record( CxxUtils::make_unique< std::vector< SG::View* > >() );
+    m_views.record( CxxUtils::make_unique< ViewContainer >() );
     SG::View * newView = new SG::View( m_viewName );
     m_views->push_back( newView );
    

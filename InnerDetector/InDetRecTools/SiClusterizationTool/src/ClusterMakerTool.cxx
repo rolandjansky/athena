@@ -15,7 +15,6 @@
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
@@ -104,6 +103,8 @@ StatusCode  ClusterMakerTool::initialize(){
       ATH_MSG_INFO ( "Retrieved tool " <<  m_calibSvc.type() ) ;
      }
    }
+
+   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
    return StatusCode::SUCCESS;
 
@@ -496,7 +497,7 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
                          const InDetDD::SiDetectorElement* element,
                          int errorStrategy) const{
 
-        double shift = element->getLorentzCorrection();
+        double shift = m_sctLorentzAngleTool->getLorentzShift(element->identifyHash());
 //        const InDetDD::SiLocalPosition& localPosition = 
 //                        InDetDD::SiLocalPosition(localPos[Trk::locY),
 //                                        localPos[Trk::locX)+shift,0);

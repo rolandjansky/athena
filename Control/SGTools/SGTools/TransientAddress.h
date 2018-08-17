@@ -145,6 +145,13 @@ namespace SG {
     const EventContext& contextFromStore (IProxyDict* store) const;
 
     
+    // PLEASE NOTE: The data members of this class are ordered so that
+    // the most frequently accessed members are grouped together, within
+    // the first cache line, when it is embedded in DataProxy.  See the layout
+    // at the end of DataProxy.h.
+    // Be aware of this when making changes to the layout of this class.
+
+
     ///< clid of the concrete class (persistent clid)
     CLID m_clid;
 

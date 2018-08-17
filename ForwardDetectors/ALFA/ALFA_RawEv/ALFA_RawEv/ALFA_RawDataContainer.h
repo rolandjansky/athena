@@ -8,9 +8,8 @@
 #include <vector>
 #include <string>
 #include "ALFA_RawEv/ALFA_RawDataCollection.h"
-#include "SGTools/CLASS_DEF.h"
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 //#include "EventContainers/IdentifiableContainer.h" 
 
 /** This container provides acces to the PMF RDOs

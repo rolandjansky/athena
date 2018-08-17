@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -209,26 +209,21 @@ Trk::Extrapolator::initialize() {
 
   m_fieldProperties = m_fastField ? Trk::MagneticFieldProperties(Trk::FastField) : Trk::MagneticFieldProperties(
     Trk::FullField);
-  if (m_propagators.size() == 0) {
+  if (m_propagators.empty()) {
     m_propagators.push_back("Trk::RungeKuttaPropagator/DefaultPropagator");
   }
-  if (m_updators.size() == 0) {
+  if (m_updators.empty()) {
     m_updators.push_back("Trk::MaterialEffectsUpdator/DefaultMaterialEffectsUpdator");
   }
-  if (m_msupdators.size() == 0) {
+  if (m_msupdators.empty()) {
     m_msupdators.push_back("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator");
   }
-  if (m_elossupdators.size() == 0) {
+  if (m_elossupdators.empty()) {
     m_elossupdators.push_back("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator");
   }
 
-  if (m_propagators.size()) {
-    if (m_propagators.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_propagators);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tools " << m_propagators);
-    }
+  if ( not m_propagators.empty()) {
+    ATH_CHECK( m_propagators.retrieve() ); 
   }
 
 
@@ -244,24 +239,17 @@ Trk::Extrapolator::initialize() {
   }
 
   // Get the Navigation AlgTools
-  if (m_navigator.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_navigator);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_navigator);
-  }
+  ATH_CHECK( m_navigator.retrieve() );
+ 
   // Get the Material Updator
-  if (m_includeMaterialEffects && m_updators.size()) {
-    if (m_updators.retrieve().isFailure()) {
-      ATH_MSG_FATAL("None of the defined material updatros could be retrieved!");
-      ATH_MSG_FATAL("No multiple scattering and energy loss material update will be done.");
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tools: " << m_updators);
+  if (m_includeMaterialEffects && not m_updators.empty()) {
+    ATH_CHECK( m_updators.retrieve() );
       for (auto& tool : m_updators) {
+
+        // @TODO tools, that are already used, should not be disabled. Those are currently disabled to silence the warning 
+        // issued by the tool usage detection, which is circumvented in case of the m_updators. 
         tool.disable();
-      }
-    }
+      }    
   }
 
   // from the number of retrieved propagators set the configurationLevel
@@ -270,12 +258,12 @@ Trk::Extrapolator::initialize() {
   // -----------------------------------------------------------
   // Sanity check 1
 
-  if (!m_propNames.size() && m_propagators.size()) {
+  if (m_propNames.empty() && not m_propagators.empty()) {
     ATH_MSG_DEBUG("Inconsistent setup of Extrapolator, no sub-propagators configured, doing it for you. ");
     m_propNames.push_back(m_propagators[0]->name().substr(8, m_propagators[0]->name().size() - 8));
   }
 
-  if (!m_updatNames.size() && m_updators.size()) {
+  if (m_updatNames.empty() && not m_updators.empty()) {
     ATH_MSG_DEBUG("Inconsistent setup of Extrapolator, no sub-materialupdators configured, doing it for you. ");
     m_updatNames.push_back(m_updators[0]->name().substr(8, m_updators[0]->name().size() - 8));
   }
@@ -318,13 +306,7 @@ Trk::Extrapolator::initialize() {
                   << "  -- At least one IPropagator and IMaterialUpdator instance have to be given.! ");
   }
 
-  if (m_stepPropagator.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve tool " << m_stepPropagator);
-    ATH_MSG_ERROR("Configure STEP Propagator for extrapolation through active volumes");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_stepPropagator);
-  }
+  ATH_CHECK( m_stepPropagator.retrieve() );
   
   m_maxNavigSurf = 1000;
   m_navigSurfs.reserve(m_maxNavigSurf);
@@ -1663,21 +1645,21 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const IPropagator &prop,
   // m_navigSurfs contains destination surface (if it exists), static volume boundaries
   // complete with TG m_layers/dynamic layers, m_denseBoundaries, m_navigBoundaries, m_detachedBoundaries
 
-  if (m_layers.size()) {
+  if (not m_layers.empty()) {
     m_navigSurfs.insert(m_navigSurfs.end(), m_layers.begin(), m_layers.end());
   }
-  if (m_denseBoundaries.size()) {
+  if (not m_denseBoundaries.empty()) {
     m_navigSurfs.insert(m_navigSurfs.end(), m_denseBoundaries.begin(), m_denseBoundaries.end());
   }
-  if (m_navigBoundaries.size()) {
+  if (not m_navigBoundaries.empty()) {
     m_navigSurfs.insert(m_navigSurfs.end(), m_navigBoundaries.begin(), m_navigBoundaries.end());
   }
-  if (m_detachedBoundaries.size()) {
+  if (not m_detachedBoundaries.empty()) {
     m_navigSurfs.insert(m_navigSurfs.end(), m_detachedBoundaries.begin(), m_detachedBoundaries.end());
   }
   // current dense
   m_currentDense = m_highestVolume;
-  if (m_dense && !m_denseVols.size()) {
+  if (m_dense && m_denseVols.empty()) {
     m_currentDense = m_currentStatic;
   } else {
     for (unsigned int i = 0; i < m_denseVols.size(); i++) {
@@ -1702,7 +1684,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const IPropagator &prop,
     Amg::Vector3D tp = currPar->position() + 2 * m_tolerance * dir * currPar->momentum().normalized();
     if (!(m_currentDense->inside(tp, 0.))) {
       m_currentDense = m_highestVolume;
-      if (m_dense && !m_denseVols.size()) {
+      if (m_dense && m_denseVols.empty()) {
         m_currentDense = m_currentStatic;
       } else {
         for (unsigned int i = 0; i < m_denseVols.size(); i++) {
@@ -2110,7 +2092,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const IPropagator &prop,
               m_currentDense = currVol;
             } else if (!nextVol || !nextVol->inside(tp, m_tolerance)) {   // search for dense volumes
               m_currentDense = m_highestVolume;
-              if (m_dense && !m_denseVols.size()) {
+              if (m_dense && m_denseVols.empty()) {
                 m_currentDense = m_currentStatic;
               } else {
                 for (unsigned int i = 0; i < m_denseVols.size(); i++) {
@@ -2790,7 +2772,7 @@ Trk::Extrapolator::extrapolate(const Trk::Track &trk,
   const IPropagator *searchProp = 0;
 
   // use global propagator for the search
-  if (m_searchLevel < 2 && m_subPropagators.size()) {
+  if (m_searchLevel < 2 && not m_subPropagators.empty()) {
     searchProp = m_subPropagators[Trk::Global];
   }
 
@@ -3085,6 +3067,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(
 
   // ---------------------------- main loop over next material layers
   // ---------------------------------------------------
+  const ::Trk::TrackParameters *last_boudnary_parameters = nullptr;
   while (nextParameters) {
     Trk::BoundaryCheck bchk = false;
     const Trk::TrackParameters *onNextLayer = extrapolateToNextMaterialLayer(prop,
@@ -3147,8 +3130,20 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(
       if (m_parametersAtBoundary.nextVolume && (m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::MS ||
                                                 (m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::Calo &&
                                                  m_useDenseVolumeDescription))) {
+        // @TODO compare and store position rather than comparing pointers
         if (m_parametersAtBoundary.nextParameters) {
+          if (last_boudnary_parameters == m_parametersAtBoundary.nextParameters) {
+            ATH_MSG_WARNING( "  [!] Already tried parameters at boundary -> exit: pos="
+			    << positionOutput(m_parametersAtBoundary.nextParameters->position())
+			    << " momentum=" << momentumOutput(m_parametersAtBoundary.nextParameters->momentum()));
+	    m_parametersAtBoundary.boundaryInformation(0, 0, 0);
+            return nullptr;
+          }
           onNextLayer = m_parametersAtBoundary.nextParameters;
+          last_boudnary_parameters=m_parametersAtBoundary.nextParameters;
+          ATH_MSG_DEBUG( "  [+] Try parameters at boundary: pos="
+			<< positionOutput(m_parametersAtBoundary.nextParameters->position())
+			<< " momentum=" << momentumOutput(m_parametersAtBoundary.nextParameters->momentum()));
         }
         currVol = m_parametersAtBoundary.nextVolume;
       }
@@ -4117,7 +4112,7 @@ Trk::Extrapolator::initializeNavigation(
       // non-perigee surface
       resetRecallInformation();
       associatedVolume = m_navigator->volume(parm.position());
-      associatedLayer = associatedVolume->associatedLayer(parm.position());
+      associatedLayer = (associatedVolume) ? associatedVolume->associatedLayer(parm.position()) : nullptr;
 
       // change the association type
       startSearchType = "global search";
@@ -4606,12 +4601,10 @@ Trk::Extrapolator::extrapolateWithPathLimit(
   if (!m_stepPropagator) {
     // Get the STEP_Propagator AlgTool
     if (m_stepPropagator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve tool " << m_stepPropagator);
-      ATH_MSG_ERROR("Configure STEP Propagator for extrapolation with path limit");
-      return 0;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_stepPropagator);
-    }
+       ATH_MSG_ERROR("Failed to retrieve tool " << m_stepPropagator);
+       ATH_MSG_ERROR("Configure STEP Propagator for extrapolation with path limit");
+       return 0;
+     }  
   }
 
   // reset the path
@@ -5434,7 +5427,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(
             m_currentDense = currVol;
           } else if (!nextVol || !nextVol->inside(tp, 0.)) {   // search for dense volumes
             m_currentDense = m_highestVolume;
-            if (m_dense && !m_denseVols.size()) {
+            if (m_dense && m_denseVols.empty()) {
               m_currentDense = m_currentStatic;
             } else {
               for (unsigned int i = 0; i < m_denseVols.size(); i++) {

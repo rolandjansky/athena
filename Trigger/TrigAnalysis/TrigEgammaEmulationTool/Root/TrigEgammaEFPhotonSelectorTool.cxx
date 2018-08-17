@@ -12,6 +12,7 @@
  *
  **********************************************************************/
 #include "TrigEgammaEmulationTool/TrigEgammaEFPhotonSelectorTool.h"
+#include "PATCore/AcceptData.h"
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include "boost/algorithm/string.hpp"
@@ -81,13 +82,13 @@ bool TrigEgammaEFPhotonSelectorTool::ApplyPhotonPid(const xAOD::Photon *eg, cons
   bool passSel=false;
   eg->passSelection(passSel,pidname);
   if (pidname == "Tight") {
-    passTool = m_photonOnlIsEMTool[0]->accept(eg);
+    passTool = (bool) m_photonOnlIsEMTool[0]->accept(eg);
   }
   else if (pidname == "Medium") {
-    passTool = m_photonOnlIsEMTool[1]->accept(eg);
+    passTool = (bool) m_photonOnlIsEMTool[1]->accept(eg);
   }
   else if (pidname == "Loose") {
-    passTool = m_photonOnlIsEMTool[2]->accept(eg);
+    passTool = (bool) m_photonOnlIsEMTool[2]->accept(eg);
   }
   else {
     ATH_MSG_DEBUG("No Pid tool, continue without PID");

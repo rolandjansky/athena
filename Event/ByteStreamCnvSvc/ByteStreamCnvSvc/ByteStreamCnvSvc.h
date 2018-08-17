@@ -6,6 +6,7 @@
 #define BYTESTREAMCNVSVC_BYTESTREAMCNVSVC_H
 
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <map>
@@ -72,6 +73,9 @@ private:
    Gaudi::Property<bool> m_isCalibration;
    /// flags for getting Detector Mask from COOL
    Gaudi::Property<bool> m_getDetectorMask;
+
+   /// Event store.
+   ServiceHandle<StoreGateSvc> m_evtStore;
 
    /// user type
    std::string m_userType;

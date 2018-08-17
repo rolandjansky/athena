@@ -29,6 +29,7 @@ public:
 //  typedef std::vector<TMatrixD>     TMatrixD_vec;
 
   ParticleEnergyParametrization(int id=22,double E=10000,double eta=20);
+  ~ParticleEnergyParametrization();
   
   double& weight(int calosample)                             {return m_weights[calosample];};
   double& weight_err(int calosample)                         {return m_weights_err[calosample];};

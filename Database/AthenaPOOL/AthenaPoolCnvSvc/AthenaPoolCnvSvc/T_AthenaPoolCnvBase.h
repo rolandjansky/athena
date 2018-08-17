@@ -32,6 +32,11 @@ protected:
    /// Gaudi Service Interface method implementations:
    virtual StatusCode initialize();
 
+   /// Convert an object into Persistent.
+   /// @param pObj [IN] pointer to the transient object.
+   /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
+   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key);
+
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name

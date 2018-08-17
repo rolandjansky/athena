@@ -21,6 +21,7 @@
 #include "AthContainersInterfaces/IAuxTypeVectorFactory.h"
 #include "AthContainersInterfaces/IAuxTypeVector.h"
 #include "RootUtils/Type.h"
+#include "CxxUtils/checker_macros.h"
 
 
 class TClass;
@@ -261,14 +262,18 @@ public:
 
   /**
    * @brief Return the @c TClass for the overall object.
+   *
+   * (Returning non-const TClass* ok here; TClass is internally thread-safe.)
    */
-  TClass* objClass() const { return m_objClass; }
+  TClass* objClass ATLAS_NOT_CONST_THREAD_SAFE () const { return m_objClass; }
 
 
   /**
    * @brief Return the @c TClass for the @c std::vector.
+   *
+   * (Returning non-const TClass* ok here; TClass is internally thread-safe.)
    */
-  TClass* vecClass() const { return m_vecClass; }
+  TClass* vecClass ATLAS_NOT_CONST_THREAD_SAFE () const { return m_vecClass; }
 
 
   /**

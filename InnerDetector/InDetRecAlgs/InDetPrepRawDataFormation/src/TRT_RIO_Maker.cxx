@@ -93,11 +93,12 @@ namespace InDet {
 
       for(const auto& rdoCollections : *rdoContainer) {
         const InDetRawDataCollection<TRT_RDORawData>* currentCollection(rdoCollections);
-        if( rioContainer->tryFetch( currentCollection->identifyHash() )) continue;
+        InDet::TRT_DriftCircleContainer::IDC_WriteHandle lock = rioContainer->getWriteHandle(currentCollection->identifyHash());
+        if( lock.alreadyPresent() ) continue;
         std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
           currentCollection , m_trtBadChannels));
         if(p_rio && !p_rio->empty()) {
-           ATH_CHECK(rioContainer->addOrDelete(std::move(p_rio), p_rio->identifyHash()));
+           ATH_CHECK(lock.addOrDelete(std::move(p_rio)));
         }
      }
     }else{
@@ -114,7 +115,8 @@ namespace InDet {
 		     << listOfTRTIds.size() << " det. Elements" );
 #endif   
          for(auto &id : listOfTRTIds){
-            if( rioContainer->tryFetch( id )) continue;
+            InDet::TRT_DriftCircleContainer::IDC_WriteHandle lock = rioContainer->getWriteHandle(id);
+            if( lock.alreadyPresent() ) continue;
             const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection (rdoContainer->indexFindPtr(id));
             if (!RDO_Collection) continue;
             // Use one of the specific clustering AlgTools to make clusters
@@ -125,7 +127,7 @@ namespace InDet {
                  ATH_MSG_VERBOSE( "REGTEST: TRT : DriftCircleCollection contains "
                  << p_rio->size() << " clusters" );
 #endif
-                 ATH_CHECK(rioContainer->addOrDelete(std::move(p_rio), p_rio->identifyHash()));
+                 ATH_CHECK(lock.addOrDelete(std::move(p_rio)));
 
             }
          }

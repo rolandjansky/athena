@@ -27,20 +27,13 @@ const InterfaceID& CscSegmentMaker::interfaceID() { return IID_CscSegmentMaker; 
 
 
 CscSegmentMaker::CscSegmentMaker(const std::string& type, const std::string& name, const IInterface*  parent)
-  : AthAlgTool(type, name, parent), m_util(0), m_cscregdict("TrigL2MuonSA::CscRegDict")
+  : AthAlgTool(type, name, parent), 
+  m_util(0) 
 #ifndef XAOD_ANALYSIS
   ,m_muonMgr(0)
 #endif
 {
   declareInterface<TrigL2MuonSA::CscSegmentMaker>(this);
-  declareProperty("CscRegDict", m_cscregdict);
-  declareProperty("UseGeometry", m_use_geometry=false);
-  declareProperty("max_chisquare", m_max_chisquare=25.);
-  declareProperty("max_residual_eta", m_max_residual_eta=100.);
-  declareProperty("max_residual_phi", m_max_residual_phi=250.);
-  declareProperty("err_eta", m_err_eta=3.);
-  declareProperty("err_phi", m_err_phi=6.);
-  declareProperty("err_ip", m_err_ip=250.);
 }
 
 

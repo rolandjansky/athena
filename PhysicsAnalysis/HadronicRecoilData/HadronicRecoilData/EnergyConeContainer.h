@@ -5,8 +5,8 @@
 #ifndef ENERGYCONECONTAINER_H
 #define ENERGYCONECONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include <vector>
 
 #include "HadronicRecoilData/EnergyCone.h"

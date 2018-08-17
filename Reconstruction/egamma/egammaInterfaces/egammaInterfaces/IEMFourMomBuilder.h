@@ -45,9 +45,9 @@ class IEMFourMomBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method */
-  virtual StatusCode execute(xAOD::Egamma* eg) = 0;
+  virtual StatusCode execute(xAOD::Egamma* eg) const = 0;
   /** @brief execute method for the HLT*/
-  virtual StatusCode hltExecute(xAOD::Egamma* eg) = 0;
+  virtual StatusCode hltExecute(xAOD::Egamma* eg) const = 0;
 };
 
 inline const InterfaceID& IEMFourMomBuilder::interfaceID()

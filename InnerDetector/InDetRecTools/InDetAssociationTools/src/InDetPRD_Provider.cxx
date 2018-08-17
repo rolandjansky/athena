@@ -10,9 +10,13 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
+//
+#include "InDetPrepRawData/SCT_ClusterContainer.h"
 
 // AtlasDetDescr  
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 // InDetIdentifier
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -44,48 +48,33 @@ StatusCode InDet::InDetPRD_Provider::initialize()
 {
      ATH_MSG_VERBOSE("Initializing ...");           
      // Set up ATLAS ID helper to be able to identify the PRD's det-subsystem
-     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-         ATH_MSG_ERROR ("Could not get AtlasDetectorID helper. Aborting ...");
-         return StatusCode::FAILURE;
-     }     
+     ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
      // Get Pixel helpers                                                                                                                         
-     if (detStore()->retrieve(m_pixIdHelper, "PixelID").isFailure()) { 
-         ATH_MSG_ERROR ("Could not get PixelID helper. Aborting ...");
-        return StatusCode::FAILURE; 
-     }     
+     ATH_CHECK(detStore()->retrieve(m_pixIdHelper, "PixelID"));
      // Get SCT helpers                                                                                                                         
-     if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure()) { 
-         ATH_MSG_ERROR ("Could not get SCT_ID helper. Aborting ...");
-        return StatusCode::FAILURE; 
-     }     
+     ATH_CHECK(detStore()->retrieve(m_sctIdHelper, "SCT_ID"));
      // Get TRT helpers
-     if (detStore()->retrieve(m_trtIdHelper, "TRT_ID").isFailure()) { 
-         ATH_MSG_ERROR ("Could not get TRT_ID helper. Aborting ...");
-        return StatusCode::FAILURE; 
-     }     
+     ATH_CHECK(detStore()->retrieve(m_trtIdHelper, "TRT_ID"));
      return StatusCode::SUCCESS;
 }           
 
 StatusCode InDet::InDetPRD_Provider::finalize()
 {
-     ATH_MSG_VERBOSE("Initializing ...");
+     ATH_MSG_VERBOSE("Finalizing ...");
      return StatusCode::SUCCESS;
 }       
        
 StatusCode InDet::InDetPRD_Provider::retrieveCollection() {
-   if (m_pixClusterContainerName!="" && evtStore()->retrieve(m_pixClusterContainer,m_pixClusterContainerName).isFailure() ){
-       ATH_MSG_ERROR("Could not retrieve " << m_pixClusterContainerName << ". Aborting." );
-       return StatusCode::FAILURE;
-   }
-   if (m_sctClusterContainerName!="" && evtStore()->retrieve(m_sctClusterContainer,m_sctClusterContainerName).isFailure() ){
-       ATH_MSG_ERROR("Could not retrieve " << m_sctClusterContainerName << ". Aborting." );
-       return StatusCode::FAILURE;
-   }
-   if (m_trtDriftCircleContainerName!="" && evtStore()->retrieve(m_trtDriftCircleContainer,m_trtDriftCircleContainerName).isFailure() ){
-       ATH_MSG_ERROR("Could not retrieve " << m_trtDriftCircleContainerName << ". Aborting." );
-       return StatusCode::FAILURE;
-   }
-   return StatusCode::SUCCESS; 
+  if (not m_pixClusterContainerName.empty()){
+    ATH_CHECK(evtStore()->retrieve(m_pixClusterContainer,m_pixClusterContainerName));
+  }
+  if (not m_sctClusterContainerName.empty()){
+    ATH_CHECK(evtStore()->retrieve(m_sctClusterContainer,m_sctClusterContainerName));
+  }
+  if (not m_trtDriftCircleContainerName.empty()){
+    ATH_CHECK(evtStore()->retrieve(m_trtDriftCircleContainer,m_trtDriftCircleContainerName));
+  }
+  return StatusCode::SUCCESS; 
 }
        
        

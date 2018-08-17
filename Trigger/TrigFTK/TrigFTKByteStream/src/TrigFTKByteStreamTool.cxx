@@ -22,10 +22,13 @@ static const InterfaceID IID_ITrigFTKByteStreamTool("TrigFTKByteStreamTool", 1, 
 FTK::TrigFTKByteStreamTool::TrigFTKByteStreamTool( const std::string& type, const std::string& name, const IInterface* parent )
   :  AthAlgTool(type,name,parent),
      m_decoder("FTK::FTKByteStreamDecoderEncoderTool"),
-     m_isAuxFormat(false)
+     m_decoderAux("FTK::FTKByteStreamDecoderEncoderAuxTool"),
+     m_AuxFormat(0x0001),
+     m_decodeAux(false)
 {
   declareInterface< FTK::TrigFTKByteStreamTool  >( this );
-  declareProperty("FTKAuxDataFormat", m_isAuxFormat);
+  declareProperty("AuxDataFormatID", m_AuxFormat);
+  declareProperty("decodeAuxData", m_decodeAux);
   declareProperty("ROBIDlist",m_robID={0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,0x10});
 }
 
@@ -44,12 +47,17 @@ const InterfaceID& FTK::TrigFTKByteStreamTool::interfaceID( )
 StatusCode FTK::TrigFTKByteStreamTool::initialize()
 {
   ATH_MSG_DEBUG( "TrigFTKByteStreamTool has been loaded");
-  if (m_isAuxFormat) {
-    ToolHandle <IFTKByteStreamDecoderEncoderTool> decoder("FTK::FTKByteStreamDecoderEncoderAuxTool");
-    m_decoder= decoder;
-    ATH_MSG_INFO( "TrigFTKByteStreamTool is in a special configuration for 8 layer Aux format data");
+  if (m_decodeAux) {
+    if (m_decoderAux.retrieve().isFailure()){
+      ATH_MSG_ERROR("could not retrieve " << m_decoderAux);
+      return StatusCode::FAILURE;
+    }
+    else {
+      ATH_MSG_DEBUG(m_decoderAux.name() << " retrieved successfully");
+    }  
+    ATH_MSG_INFO( "TrigFTKByteStreamTool will decode 8 layer Aux format data identified by Format ID 0x"<<std::hex<<m_AuxFormat<<std::dec);
   } else {
-    ATH_MSG_INFO( "TrigFTKByteStreamTool is configured for standard 12 layer FLIC format data");
+    ATH_MSG_INFO( "TrigFTKByteStreamTool will skip decoding of 8 layer Aux format data identified by Format ID 0x"<<std::hex<<m_AuxFormat<<std::dec);
   }
   if (m_decoder.retrieve().isFailure()){
     ATH_MSG_ERROR("could not retrieve " << m_decoder);
@@ -60,6 +68,7 @@ StatusCode FTK::TrigFTKByteStreamTool::initialize()
   }
   
   ATH_MSG_DEBUG(" ROBIDlist " << m_robID);
+
   return AlgTool::initialize();
 }
 
@@ -146,9 +155,27 @@ StatusCode FTK::TrigFTKByteStreamTool::convert(IROBDataProviderSvc& dataProvider
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData = 0;
     (*rob)->rod_data(rodData);
 
-    StatusCode scdc = m_decoder->decode(nData, rodData, result);    
-    if (scdc.isFailure()){
-      ATH_MSG_WARNING("problem in decoding the rob fragment");
+    eformat::helper::Version ver((*rob)->rod_version());
+    uint16_t rodMinorVersion= ver.minor_version();
+
+    if (rodMinorVersion==m_AuxFormat) {
+      ATH_MSG_DEBUG("Unpacking Data in AUX Format with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec);
+      if (m_decodeAux) {
+	StatusCode scdca = m_decoderAux->decode(nData, rodData, result);    
+	if (scdca.isFailure()){
+	  ATH_MSG_WARNING("problem in decoding the Aux format rob fragment");
+	}
+      } else {
+	ATH_MSG_DEBUG("Skipping Data in AUX Format  with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec);
+	continue;
+      }
+    } else {
+      ATH_MSG_DEBUG("Unpacking Data in FLIC Format with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec);
+      
+      StatusCode scdc = m_decoder->decode(nData, rodData, result);    
+      if (scdc.isFailure()){
+	ATH_MSG_WARNING("problem in decoding the rob fragment");
+      }
     }
   }
   return StatusCode::SUCCESS;

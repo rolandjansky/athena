@@ -22,7 +22,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <cmath>
 #include <memory>
-#include <iostream>
+#include <ostream>
 
 // Private Helpers
 
@@ -45,7 +45,6 @@
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkTruthData/TrackTruth.h"
 #include "TrkTruthData/TrackTruthCollection.h"
-//#include "TrkTruthToTrack/TruthToTrack.h"
 #include "TrkEventPrimitives/JacobianThetaPToCotThetaPt.h"
 #include "TrkParameters/TrackParameters.h"       //vv
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -691,6 +690,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   ATH_MSG_INFO("(or for guaranteed latest version: http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/InnerDetector/InDetValidation/InDetRecStatistics/doc/mainpage.h?&view=markup )");
   ATH_MSG_INFO(" ********************************************************************");
   //  if(msgSvc.outputLevel() >= MSG::INFO){
+  const auto prec=std::cout.precision();
   StreamState restore_precision (std::cout);
   std::cout << MSG::INFO 
 	    << std::setiosflags(std::ios::fixed | std::ios::showpoint)  
@@ -835,7 +835,7 @@ void InDet :: InDetRecStatisticsAlg :: printStatistics() {
   }
   ATH_MSG_INFO(" ********** Ending InDetRecStatistics Statistics Table ***********");
   std::cout << s_linestr << std::endl; 
-  
+  std::cout.precision(prec);
 }
 
 

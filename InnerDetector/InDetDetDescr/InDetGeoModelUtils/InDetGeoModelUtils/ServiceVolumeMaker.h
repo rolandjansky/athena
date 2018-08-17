@@ -138,6 +138,8 @@ namespace InDetDD {
 		       IRDBRecordset_ptr table, 
 		       const ServiceVolumeSchema & schema,
 		       const InDetDD::AthenaComps *);
+		ServiceVolumeMaker(const ServiceVolumeMaker &) = delete;
+		ServiceVolumeMaker & operator =(const ServiceVolumeMaker &) = delete;
     ~ServiceVolumeMaker();
     const std::vector<const ServiceVolume *> & makeAll();
     ServiceVolume * make(int index);

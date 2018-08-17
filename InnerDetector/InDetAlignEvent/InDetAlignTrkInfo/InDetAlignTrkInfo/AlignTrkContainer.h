@@ -8,10 +8,8 @@
 // Richard Hawkings, started 13/4/04
 
 // magic copied from iPatRecEvent/iPatTrackContainer.h
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "InDetAlignTrkInfo/AlignTrk.h"
 
 class AlignTrkContainer : public DataVector<AlignTrk> {

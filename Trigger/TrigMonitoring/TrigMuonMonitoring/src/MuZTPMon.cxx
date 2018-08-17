@@ -405,7 +405,6 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     Trig::FeatureContainer fL1 = getTDT()->features(m_ztp_l1map[itmap->first]);
     Trig::FeatureContainer fHLT = getTDT()->features(itmap->first,TrigDefs::alsoDeactivateTEs);
     
-    std::vector<Trig::Combination>::const_iterator jL1;    
     std::vector<Trig::Combination>::const_iterator jL2;    
     std::vector<Trig::Combination>::const_iterator jEF;    
         

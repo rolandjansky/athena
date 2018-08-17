@@ -167,6 +167,21 @@ void test2()
   Gaudi::Hive::setCurrentContextId(3);
   rcuo.quiescent ();
   assert (Payload::getlog() == std::vector<int>{0});
+
+  rcuo.discard (std::make_unique<Payload> (3));
+  {
+    RCURead<Payload> r (rcuo);
+    r->check(2);
+  }
+  assert (Payload::getlog().empty());
+  rcuo.quiescent (EventContext (0, 1));
+  assert (Payload::getlog().empty());
+  rcuo.quiescent (EventContext (0, 2));
+  assert (Payload::getlog().empty());
+  rcuo.quiescent (EventContext (0, 3));
+  assert (Payload::getlog().empty());
+  rcuo.quiescent (EventContext (0, 0));
+  assert (Payload::getlog() == std::vector<int>{3});
 }
 
 
@@ -237,6 +252,9 @@ void ThreadedTest::testThread::operator()()
       EventContext ctx (0, m_iworker);
       RCUObject<Payload>::Update_t u (m_test.m_rcuobj, ctx);
       u.update (std::make_unique<Payload> (u->a));
+    }
+    else if (i%29 == 0) {
+      m_test.m_rcuobj.discard (std::make_unique<Payload> (i));
     }
 
     if (i%13 == 0)

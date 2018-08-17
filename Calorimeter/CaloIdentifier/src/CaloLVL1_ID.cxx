@@ -932,22 +932,23 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
   m_phi_impl      = region.m_implementation[m_PHI_INDEX]; 
   m_layer_impl    = region.m_implementation[m_LAYER_INDEX]; 
 
-  strm1 << m_calo_impl.show_to_string();
-  strm2 << m_lvl1_impl.show_to_string();
-  strm3 << m_sampling_impl.show_to_string();
-  strm4 << m_region_impl.show_to_string();
-  strm5 << m_eta_impl.show_to_string();
-  strm6 << m_phi_impl.show_to_string();
-  strm7 << m_layer_impl.show_to_string();
-  strg = "decode index and bit fields for each level: ";
-  strg1= "calo  "+strm1.str();
-  strg2= "detzside  "+strm2.str();
-  strg3= "samp  "+strm3.str();
-  strg4= "reg  "+strm4.str();
-  strg5= "eta  "+strm5.str();
-  strg6= "phi  "+strm6.str();
-  strg7= "layer  "+strm7.str();
-  if(m_msgSvc) 
+  if (!m_quiet) {
+    strm1 << m_calo_impl.show_to_string();
+    strm2 << m_lvl1_impl.show_to_string();
+    strm3 << m_sampling_impl.show_to_string();
+    strm4 << m_region_impl.show_to_string();
+    strm5 << m_eta_impl.show_to_string();
+    strm6 << m_phi_impl.show_to_string();
+    strm7 << m_layer_impl.show_to_string();
+    strg = "decode index and bit fields for each level: ";
+    strg1= "calo  "+strm1.str();
+    strg2= "detzside  "+strm2.str();
+    strg3= "samp  "+strm3.str();
+    strg4= "reg  "+strm4.str();
+    strg5= "eta  "+strm5.str();
+    strg6= "phi  "+strm6.str();
+    strg7= "layer  "+strm7.str();
+    if(m_msgSvc) 
     {
       log << MSG::DEBUG << strg << endmsg;
       log << MSG::DEBUG << strg1 << endmsg;
@@ -958,7 +959,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
       log << MSG::DEBUG << strg6 << endmsg;
       log << MSG::DEBUG << strg7 << endmsg;
     }
-  else 
+    else 
     {
       std::cout << strg << std::endl;
       std::cout << strg1 << std::endl;
@@ -969,6 +970,7 @@ int   CaloLVL1_ID::initLevelsFromDict(void)
       std::cout << strg6 << std::endl;
       std::cout << strg7 << std::endl;
     }
+  }
   
   return(0) ;
 }

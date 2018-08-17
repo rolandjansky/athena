@@ -15,13 +15,11 @@
 
 #include "StorageSvc/DbOption.h"
 #include "StorageSvc/DbSelect.h"
-#include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DataCallBack.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbArray.h"
-#include "StorageSvc/DbTransaction.h"
 #include "StorageSvc/DbReflex.h"
 
 // Local implementation files
@@ -40,8 +38,7 @@
 
 using namespace pool;
 
-RootKeyContainer::RootKeyContainer(IOODatabase* idb)
-: DbContainerImp(idb), m_dbH(POOL_StorageType) {
+RootKeyContainer::RootKeyContainer() : m_dbH(POOL_StorageType) {
   DbInstanceCount::increment(this);
   m_ioHandler  = new RootKeyIOHandler;
   m_policy     = TObject::kOverwrite;    // On update write new versions
@@ -90,30 +87,19 @@ long long int RootKeyContainer::size()    {
   return -1;
 }
 
-/// Execute object modification requests during a transaction
-DbStatus RootKeyContainer::endTransaction(DbTransaction& refTr)   {
-  DbStatus status = Success;
-  switch(refTr.state()) {
-  case Transaction::TRANSACT_COMMIT:
-    break;
-  case Transaction::TRANSACT_FLUSH:
-    if ( m_dir )  {
-      m_dir->SaveSelf();
-    }
-    else {
-      status = Error;
-    }
-    break;
-  case Transaction::TRANSACT_START:
-    break;
-  case Transaction::TRANSACT_ROLLBACK:
-    break;
-  default:
-    status = Error;
-    break;
-  }
-  return status;
+/// Execute transaction action
+DbStatus RootKeyContainer::transAct(Transaction::Action action) 
+{
+   // execure action on the base class first
+   DbStatus status = DbContainerImp::transAct(action);
+   if( !status.isSuccess() ) return status;
+
+   if( action != Transaction::TRANSACT_FLUSH ) return Success;
+   if( !m_dir ) return Error;
+   m_dir->SaveSelf();
+   return Success;
 }
+   
 
 // Interface Implementation: Find entry in container
 DbStatus RootKeyContainer::fetch(const Token::OID_t& linkH, Token::OID_t& stmt) {

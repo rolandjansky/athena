@@ -651,7 +651,7 @@ def exeResourceReport(exe, report):
         exeResource['cpuTimePerWorker'] = report.roundoff(exe.cpuTime/exe.athenaMP)
     if exe.dbMonitor:
         exeResource['dbData'] = exe.dbMonitor['bytes']
-        exeResource['dbTime'] = exe.dbMonitor['time']
+        exeResource['dbTime'] = report.roundoff(exe.dbMonitor['time'])
         report._dbDataTotal += exeResource['dbData']
         report._dbTimeTotal += exeResource['dbTime']
     return exeResource

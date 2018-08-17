@@ -9,7 +9,7 @@
 //-------------------------------------------------
 // Other stuff
 #include <map>
-//#include <iostream>
+#include <cmath>
 
 
 
@@ -28,26 +28,26 @@ namespace InDet {
      int Selector=2;   // Initial choice
      int NTrkInList = 0;
      SelectedParticles.clear(); SelectedTracks.clear();
-     if( ListParticles.size() == 0 && ListTracks.size() == 0 )return;
-     if( ListParticles.size() != 0 && ListTracks.size() == 0 ){ Selector =1; NTrkInList=ListParticles.size(); }
-     if( ListParticles.size() == 0 && ListTracks.size() != 0 ){ Selector =2; NTrkInList=ListTracks.size();}
+     if( ListParticles.empty() && ListTracks.empty() ) return;
+     if( (not ListParticles.empty()) && ListTracks.empty() ){ Selector =1; NTrkInList=ListParticles.size(); }
+     if( ListParticles.empty() && (not ListTracks.empty()) ){ Selector =2; NTrkInList=ListTracks.size();}
 //
 //  track selection for given vertex candidates
      std::vector<double>  Impact, ImpactError;
      double Signif=0.;
      for(int i=0; i < NTrkInList; i++) {
-	  if(Selector==1)Signif=m_fitSvc->VKalGetImpact( ListParticles[i], IniVertex, 1, Impact, ImpactError);
-	  if(Selector==2)Signif=m_fitSvc->VKalGetImpact( ListTracks[i],    IniVertex, 1, Impact, ImpactError);
-	  if ( fabs(Impact[0])/sqrt(ImpactError[0])  > m_RImpSelCut)   continue;
-	  if ( fabs(Impact[1])/sqrt(ImpactError[2])  > m_ZImpSelCut)   continue;
-	  if (  Signif                               > m_SignifSelCut) continue;
-	  if ( fabs(Impact[0])                 > m_RDistSelCut)       continue;
-	  if ( fabs(Impact[1]*sin(Impact[2]))  > m_ZDistSelCut)       continue;
-	  if(Selector==1)SelectedParticles.push_back( ListParticles[i] );
-	  if(Selector==2)SelectedTracks.push_back( ListTracks[i] );
+        if(Selector==1)Signif=m_fitSvc->VKalGetImpact( ListParticles[i], IniVertex, 1, Impact, ImpactError);
+        if(Selector==2)Signif=m_fitSvc->VKalGetImpact( ListTracks[i],    IniVertex, 1, Impact, ImpactError);
+        if ( std::fabs(Impact[0])/std::sqrt(ImpactError[0])  > m_RImpSelCut)   continue;
+        if ( std::fabs(Impact[1])/std::sqrt(ImpactError[2])  > m_ZImpSelCut)   continue;
+        if (  Signif                               > m_SignifSelCut) continue;
+        if ( std::fabs(Impact[0])                 > m_RDistSelCut)       continue;
+        if ( std::fabs(Impact[1]*sin(Impact[2]))  > m_ZDistSelCut)       continue;
+        if(Selector==1)SelectedParticles.push_back( ListParticles[i] );
+        if(Selector==2)SelectedTracks.push_back( ListTracks[i] );
       }
-      if(Selector==1 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Chosen for vertex fit="<<SelectedParticles.size()<<endmsg;
-      if(Selector==2 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Chosen for vertex fit="<<SelectedTracks.size()<<endmsg;
+      if(Selector==1) ATH_MSG_DEBUG( "Chosen for vertex fit="<<SelectedParticles.size());
+      if(Selector==2) ATH_MSG_DEBUG( "Chosen for vertex fit="<<SelectedTracks.size());
       return;
    }
 
@@ -97,7 +97,6 @@ namespace InDet {
 //
 //-- Perigee in TrackParticle
 //
-//     return i_ntrk->Perigee();
      const Trk::Perigee* mPer;
      mPer = dynamic_cast<const Trk::Perigee*>( &(i_ntrk->definingParameters()) );
      return mPer;
@@ -106,19 +105,7 @@ namespace InDet {
   const Trk::Perigee* InDetVKalPriVxFinderTool::GetPerigee( const Trk::Track* i_ntrk) 
   {
      return i_ntrk->perigeeParameters();
-//
-//-- Perigee in Trk::Track
-//
-//     const Trk::Perigee* mPer=NULL;
-//     const DataVector<const Trk::TrackParameters>* AllTrkPar;
-//     DataVector<const Trk::TrackParameters>::const_iterator i_apar;
-//     AllTrkPar = i_ntrk->trackParameters();
-//     i_apar=AllTrkPar->begin();
-//     while( i_apar < AllTrkPar->end() ){
-//       if( (mPer=dynamic_cast<const Trk::Perigee*>(*i_apar)) == 0 ){ i_apar++;}
-//       else { break;}
-//     }
-//     return mPer;
+
   }
 //-----------------------------------------------------------------------------------------------
   void InDetVKalPriVxFinderTool::RemoveEntryInList(std::vector<const Trk::Track*>& ListTracks, int Outlier)
@@ -181,15 +168,10 @@ namespace InDet {
     List.erase( TransfEnd,List.end());
   }
 
-
-
-
-
-
-
   double InDetVKalPriVxFinderTool::GetLimitAngle(double Phi){
-  while ( Phi < 0.) { Phi += 2.*3.1415926536;}
-  while ( Phi > 2.*3.1415926536) {Phi -=2.*3.1415926536;}
+  constexpr double twoPi (2.*M_PI);
+  while ( Phi < 0.) { Phi += twoPi;}
+  while ( Phi > twoPi) {Phi -=twoPi;}
   return Phi;
   }
 
@@ -210,23 +192,6 @@ namespace InDet {
       TransfEnd =  unique(List.begin(),List.end());
       List.erase( TransfEnd, List.end());
   }
-
-
-/*   const vector<const Trk::TrackParticleBase*> 
-       InDetVKalPriVxFinderTool::Base(const vector<const Rec::TrackParticle*> & listPart)
-   {
-     vector <const Trk::TrackParticleBase*> listBase;
-     for(int i=0; i<(int)listPart.size(); i++) {
-        listBase.push_back( (const Trk::TrackParticleBase*)listPart[i]); 
-     }
-     return listBase;
-    }
-
-   const Trk::TrackParticleBase* InDetVKalPriVxFinderTool::Base(const Rec::TrackParticle* Part)
-   {
-       return (const Trk::TrackParticleBase*) Part;
-    }
-*/
 
   double** InDetVKalPriVxFinderTool::getWorkArr2(long int dim1,long int dim2)
   { 
@@ -279,30 +244,35 @@ namespace InDet {
 
 
 
-  Amg::Vector3D InDetVKalPriVxFinderTool::findIniXY(const TrackCollection* trackTES)
-  {
+  Amg::Vector3D 
+  InDetVKalPriVxFinderTool::findIniXY(const TrackCollection* trackTES){
     //.............................................
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee* mPer=NULL;
+    AmgVector(5) VectPerig; 
+    VectPerig<<0.,0.,0.,0.,0.;
+    const Trk::Perigee* mPer=nullptr;
     std::map<double, const Trk::Track*>  mapTracks;
     std::map<double, const Trk::Track*>::reverse_iterator  map_i;
 //
     const DataVector<Trk::Track>*    newTrkCol = trackTES;
     DataVector<Trk::Track>::const_iterator    i_ntrk;
     for (i_ntrk = newTrkCol->begin(); i_ntrk < newTrkCol->end(); ++i_ntrk) {
-       mPer=GetPerigee( (*i_ntrk) ); if( mPer == NULL )continue; 
+       mPer=GetPerigee( (*i_ntrk) ); 
+       if( not mPer )continue; 
        VectPerig = mPer->parameters(); 
-       double pmom = sin(VectPerig[3])/fabs(VectPerig[4]);
+       double pmom = std::sin(VectPerig[3])/std::fabs(VectPerig[4]);
 //----------------------------------- Summary tools
        if(m_SummaryToolExist) {
           const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
-          if( testSum->get(Trk::numberOfInnermostPixelLayerHits) <= 0) continue;
+          if( testSum->get(Trk::numberOfInnermostPixelLayerHits) <= 0){
+            delete testSum;
+            testSum=nullptr;
+            continue;
+          } 
+          delete testSum;
        }
        mapTracks.insert( std::pair<double, const Trk::Track*>(pmom,(*i_ntrk)));
     }
-
     std::vector<const Trk::Track*>  SelectedTracks;
-
     int cnt=0;
     for(map_i=mapTracks.rbegin(); map_i != mapTracks.rend(); map_i++){
       SelectedTracks.push_back((*map_i).second);
@@ -311,7 +281,7 @@ namespace InDet {
     Amg::Vector3D Vertex(0.,0.,0.);
     if(cnt>=2){
       StatusCode sc=m_fitSvc->VKalVrtFitFast(SelectedTracks,Vertex);
-      if(sc.isFailure())Vertex<<0.,0.,0.;
+      if(sc.isFailure()) Vertex<<0.,0.,0.;
     }
     return Vertex;
   } 

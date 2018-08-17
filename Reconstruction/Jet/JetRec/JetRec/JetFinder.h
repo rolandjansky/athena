@@ -7,9 +7,7 @@
 #ifndef JetFinder_H
 #define JetFinder_H
 
-// David Adams
-// January 2014
-//
+
 // Tool to find jets using fastjet.
 // The output collection is of type xAOD::JetContainer.
 
@@ -20,6 +18,8 @@
 #include "fastjet/JetDefinition.hh"
 #include "xAODJet/JetContainer.h"
 #include "AsgTools/ToolHandle.h"
+#include "JetRec/PseudoJetContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace fastjet {
   class ClusterSequence;
@@ -35,6 +35,7 @@ namespace fastjet {
 ///   GhostArea - Approximate (starting) area (dy x dphi) for ghost finding
 ///   RandomOption - Option for area random seets (0=fastjet default, 1=run,event)
 ///   JetBuilder - Tool used to build jets, interface IJetFromPseudojet
+///                (code now moved into this class).
 /// Jet active area is evaluated if GhostArea > 0.
 /// Variable-R jet finding is performed if VariableRMinRadius >= 0 and VariableRMassScale >= 0.
 /// Units are MeV assuming these are the input units
@@ -47,15 +48,20 @@ ASG_TOOL_CLASS(JetFinder, IJetFinder)
 
 public:
 
-  // Ctor.
   JetFinder(std::string name);
 
-  // Initialization.
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  // Find jets and put them in a container.
-  int find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-           xAOD::JetInput::Type contype, const NameList& ghostlabs) const;
+  // Find jets and put them in a container. Save ClusterSequence to evtstore
+  virtual int find(const PseudoJetContainer& cont,
+                   xAOD::JetContainer & finalJets,
+                   xAOD::JetInput::Type contype ) const override;
+
+  // Find jets and put them in a container - no writes to evet store
+  virtual int findNoSave(const PseudoJetContainer& cont, 
+                         xAOD::JetContainer & finalJets,
+                         xAOD::JetInput::Type contype,
+                         fastjet::ClusterSequence*& cs) const override;
 
   // Save a cluster sequence in the event store.
   // So it lives as long as this event.
@@ -65,24 +71,35 @@ public:
   bool isVariableR() const;
 
   // Dump to log.
-  void print() const;
+  virtual void print() const override;
 
 private:  //data
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventinfokey;
+  SG::ReadHandleKey<fastjet::ClusterSequence> m_cnameRKey;
+  SG::WriteHandleKey<fastjet::ClusterSequence> m_cnameWKey;
 
   // Job options.
-  std::string m_jetalg;                 // Kt, AntiKt, CamKt
-  float m_jetrad;                       // Jet size parameter.
-  float m_minrad;                       // Variable-R min radius
-  float m_massscale;                    // Variable-R mass scale
-  float m_ptmin;                        // pT min in MeV
-  float m_ghostarea;                    // Area for ghosts. 0==>no ghosts.
-  int m_ranopt;                         // Rand option: 0=fj default, 1=run/event
-  ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
+  std::string m_jetalg;            // Kt, AntiKt, CamKt
+  float m_jetrad;                  // Jet size parameter.
+  float m_minrad;                  // Variable-R min radius
+  float m_massscale;               // Variable-R mass scale
+  float m_ptmin;                   // pT min in MeV
+  float m_ghostarea;               // Area for ghosts. 0==>no ghosts.
+  int m_ranopt;                    // Rand option: 0=fj default, 1=run/event
+
+  ToolHandle<IJetFromPseudojet> m_bld;  
 
   // Data
   fastjet::JetAlgorithm m_fjalg;
   bool m_isVariableR;
 
+  // Implmentation of find(), findNoSave()
+  int _find(const PseudoJetContainer& cont,
+            xAOD::JetContainer & finalJets,
+            xAOD::JetInput::Type contype,
+            bool doSave,
+            fastjet::ClusterSequence*&) const;
+  
 };
 
 #endif

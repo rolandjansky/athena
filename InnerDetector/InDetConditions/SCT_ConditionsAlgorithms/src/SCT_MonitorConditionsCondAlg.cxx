@@ -10,12 +10,8 @@
 
 SCT_MonitorConditionsCondAlg::SCT_MonitorConditionsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/Derived/Monitoring"}
-  , m_writeKey{"SCT_MonitorConditionsCondData", "SCT_MonitorConditionsCondData"}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey);
-  declareProperty("WriteKey", m_writeKey);
 }
 
 StatusCode SCT_MonitorConditionsCondAlg::initialize()

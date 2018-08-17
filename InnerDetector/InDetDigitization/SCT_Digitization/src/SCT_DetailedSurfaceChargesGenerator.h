@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,8 +16,6 @@
 //Inheritance
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
-#include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
-#include "SiPropertiesSvc/ISiPropertiesTool.h"
 
 // C++ Standard Library
 #include <iostream>
@@ -28,6 +26,9 @@
 // Athena
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
+#include "SiPropertiesSvc/ISiPropertiesTool.h"
 
 // Charges and hits
 class SiHit;
@@ -191,6 +192,7 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine

@@ -14,16 +14,10 @@
 SCT_SiliconHVCondAlg::SCT_SiliconHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_useState{true}
-  , m_readKeyState{"SCT_DCSStatCondData"}
-  , m_readKeyHV{"SCT_DCSHVCondData"}
-  , m_writeKey{"SCT_SiliconBiasVoltCondData"}
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
 {
   declareProperty("UseState", m_useState, "Flag to use state conditions folder");
-  declareProperty("ReadKeyState", m_readKeyState, "Key of input state conditions folder");
-  declareProperty("ReadKeyHV", m_readKeyHV, "Key of input HV conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output bias voltage conditions folder");
 }
 
 StatusCode SCT_SiliconHVCondAlg::initialize() {

@@ -72,7 +72,6 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
 
   // Create SiCommonItems. These are items that are shared by all elements
   SiCommonItems * commonItems = new SiCommonItems(athenaComps->getIdHelper());
-  commonItems->setLorentzAngleSvc(athenaComps->lorentzAngleSvc());
   m_geometryManager->setCommonItems(commonItems);
   
 

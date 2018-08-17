@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELRINGSLHC_H
@@ -16,7 +16,6 @@ class GeoPixelRingSLHC : public GeoVPixelFactory {
 
  private:  
   GeoPixelSiCrystal& m_sensor;
-  GeoLogVol* m_ringLog;
 };
 
 #endif

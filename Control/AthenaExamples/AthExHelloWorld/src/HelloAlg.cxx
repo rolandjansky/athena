@@ -146,18 +146,18 @@ StatusCode HelloAlg::finalize() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode HelloAlg::beginRun() {
+StatusCode HelloAlg::start() {
   // Part 1: print where you are
-  ATH_MSG_INFO ("beginRun()");
+  ATH_MSG_INFO ("start()");
 
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode HelloAlg::endRun() {
+StatusCode HelloAlg::stop() {
   // Part 1: print where you are
-  ATH_MSG_INFO ("endRun()");
+  ATH_MSG_INFO ("stop()");
 
   return StatusCode::SUCCESS;
 }

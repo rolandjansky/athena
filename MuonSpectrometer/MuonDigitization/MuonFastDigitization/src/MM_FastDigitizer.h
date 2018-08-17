@@ -133,6 +133,7 @@ class MM_FastDigitizer : public AthAlgorithm {
   double m_energyThreshold;
   bool   m_checkIds;
   int    m_maskMultiplet;
+  bool   m_microTPC;
 };
 
 #endif // MUONDIGITIZATION_MM_DIGITIZER_H

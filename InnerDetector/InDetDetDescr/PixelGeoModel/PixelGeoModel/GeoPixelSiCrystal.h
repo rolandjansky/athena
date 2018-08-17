@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSICRYSTAL_H
@@ -29,11 +29,10 @@ class GeoPixelSiCrystal : public GeoVPixelFactory {
   InDetDD::SiDetectorDesign* m_design;
   bool m_isBLayer;
   bool m_isModule3D;
-  GeoLogVol* m_logVolume;
 };
 //
 // Add this method to store the ID in the factory. This is used by the
-// module factory to pass it to the alignement class.
+// module factory to pass it to the alignment class.
 //
 Identifier GeoPixelSiCrystal::getID() {return m_id;}
 #endif

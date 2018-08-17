@@ -37,24 +37,35 @@ SCTMonMan.LumiBlock    = DQMonFlags.monManLumiBlock()
 
 from IOVDbSvc.CondDB import conddb
 
-if not conddb.folderRequested('/SCT/DAQ/Configuration/Chip'):
-        conddb.addFolder("SCT","/SCT/DAQ/Configuration/Chip")
-if not conddb.folderRequested('/SCT/DAQ/Configuration/Module'):
-        conddb.addFolder("SCT","/SCT/DAQ/Configuration/Module")
+SCTConfigurationFolderPath="/SCT/DAQ/Configuration/"
+
+if not conddb.folderRequested(SCTConfigurationFolderPath+"Chip"):
+        conddb.addFolder("SCT",SCTConfigurationFolderPath+"Chip")
+if not conddb.folderRequested(SCTConfigurationFolderPath+"Module"):
+        conddb.addFolder("SCT",SCTConfigurationFolderPath+"Module")
+if not conddb.folderRequested(SCTConfigurationFolderPath+"MUR"):
+        conddb.addFolder("SCT",SCTConfigurationFolderPath+"MUR")
 
 
-# Load condtions service
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-SCT_MonConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "SCT_MonConditionsSummarySvc")#for new instance change name = pigeon
-ServiceMgr += SCT_MonConditionsSummarySvc
+# Load condtions tool
+from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+sct_ConditionsSummaryToolSetup.setToolName("SCT_MonConditionsSummaryTool")
+sct_ConditionsSummaryToolSetup.setup()
+SCT_MonConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
 
-# Load conditions configuration service
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
-SCT_MonConfigurationConditionsSvc = SCT_ConfigurationConditionsSvc(name = "SCT_MonConfigurationConditionsSvc")
-ServiceMgr += SCT_MonConfigurationConditionsSvc
+# Load conditions configuration tool
+from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
+sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
+sct_ConfigurationConditionsToolSetup.setToolName("SCT_MonConfigurationConditionsTool")
+sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
+sct_ConfigurationConditionsToolSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
+sct_ConfigurationConditionsToolSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
+sct_ConfigurationConditionsToolSetup.setup()
+SCT_MonConfigurationConditionsTool = sct_ConfigurationConditionsToolSetup.getTool()
 
-SCT_MonConditionsSummarySvc.ConditionsServices=["SCT_MonConfigurationConditionsSvc"]#,"InDetSCT_FlaggedConditionSvc", "InDetSCT_MonitorConditionsSvc"]
-#SCT_MonConditionsSummarySvc.checkStripsInsideModule = False  If we have already vetoed against bad wafera or modules, this will improve performance when checking strips.
+SCT_MonConditionsSummaryTool.ConditionsTools=[SCT_MonConfigurationConditionsTool.getFullName()]#,"InDetSCT_FlaggedConditionSvc", "InDetSCT_MonitorConditionsSvc"]
+#SCT_MonConditionsSummaryTool.checkStripsInsideModule = False  If we have already vetoed against bad wafera or modules, this will improve performance when checking strips.
 
 
 from SCT_Monitoring.SCT_MonitoringConf import SCTInitialiseTool
@@ -121,11 +132,13 @@ SCTHitEffMonTool.OutputLevel = 4
 SCTHitEffMonTool.IsCosmic = False
 SCTHitEffMonTool.UseMasks = False
 SCTHitEffMonTool.LookAtDatabase = True
-## Load flagged condition service
-#from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_FlaggedConditionSvc
-#InDetSCT_FlaggedConditionSvc = SCT_FlaggedConditionSvc(name = "InDetSCT_FlaggedConditionSvc")
-#ServiceMgr += InDetSCT_FlaggedConditionSvc
-SCTHitEffMonTool.FlaggedConditionService = ServiceMgr.InDetSCT_FlaggedConditionSvc
+## Load flagged condition tool
+from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
+sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
+sct_FlaggedConditionToolSetup.setup()
+InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
+
+SCTHitEffMonTool.FlaggedConditionTool = InDetSCT_FlaggedConditionTool
 SCTHitEffMonTool.ChronoTime = False
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 
@@ -133,7 +146,7 @@ SCT_MonHoleSearch = InDet__InDetTrackHoleSearchTool(name ="SCT_MonHoleSearch",
                                                     Extrapolator = InDetExtrapolator,
                                                     ExtendedListOfHoles = True,
                                                     Cosmics =InDetFlags.doCosmics(),
-                                                    SctSummarySvc=InDetSCT_ConditionsSummarySvc)
+                                                    SctSummaryTool=SCT_MonConditionsSummaryTool)
    
 ToolSvc += SCT_MonHoleSearch
 if (InDetFlags.doPrintConfigurables()):

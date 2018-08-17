@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,8 +47,7 @@ class SCTRawDataProvider : public AthAlgorithm
   SCTRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
 
   //! Destructur
-  ~SCTRawDataProvider() {
-  }
+  ~SCTRawDataProvider() = default;
 
   //! Initialize
   virtual StatusCode initialize() override;

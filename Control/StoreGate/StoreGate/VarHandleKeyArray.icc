@@ -2,19 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+#include "CxxUtils/checker_macros.h"
+
+
 namespace SG {
-  //
-  // Forward the initialization to the member VarHandleKeys
-  //
+  /**
+   * @brief forward the initialization to the member VarHandleKeys
+   * @param used If false, then this handle is not to be used.
+   *             Instead of normal initialization, the key will be cleared.
+   */
   template <class Base>
   inline
-  StatusCode VarHandleKeyArrayCommon<Base>::initialize() {
+  StatusCode VarHandleKeyArrayCommon<Base>::initialize (bool used /*= true*/) {
     StatusCode sc(StatusCode::SUCCESS);
-    typename std::vector<Base>::iterator itr;
-    for (itr = this->begin(); itr != this->end(); ++itr) {
-      if (! itr->initialize() ) {
-        sc = StatusCode::FAILURE;
+    if (used) {
+      for (Base& b : *this) {
+        if ( b.initialize().isFailure() ) {
+          sc = StatusCode::FAILURE;
+        }
       }
+    }
+    else {
+      this->clear();
     }
     return sc;
   }
@@ -67,11 +77,11 @@ namespace SG {
   inline  
   std::vector<SG::VarHandleKey*> VarHandleKeyArrayCommon<Base>::keys() const {
     std::vector<SG::VarHandleKey*> keys;
-    typename std::vector<Base>::const_iterator itr;
-    for (itr = this->begin(); itr != this->end(); ++itr) {
-      SG::VarHandleKey* vk = 
-        const_cast<SG::VarHandleKey*>( (const SG::VarHandleKey*) &(*itr) );
-      keys.push_back( vk );
+    for (const SG::VarHandleKey& k : *this) {
+      // FIXME: This is a rule violation, but we can't really fix it without
+      // changing the IDataHandleHolder base class from Gaudi.
+      SG::VarHandleKey* k_nc ATLAS_THREAD_SAFE = const_cast<SG::VarHandleKey*>(&k);
+      keys.push_back (k_nc);
     }
     return keys;
   }      

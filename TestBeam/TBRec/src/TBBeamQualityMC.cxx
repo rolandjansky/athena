@@ -2,17 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/TBBeamQualityMC.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "TBBeamQualityMC.h"
 
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"
 #include "LArG4TBSimEvent/LArG4H6FrontHitCollection.h"
 #include "CaloEvent/CaloClusterContainer.h"
+#include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <string>
 #include <math.h>
-#include "PathResolver/PathResolver.h"
 
 
 TBBeamQualityMC::TBBeamQualityMC(const std::string & name, ISvcLocator * pSvcLocator) :

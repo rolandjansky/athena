@@ -41,8 +41,6 @@ IDAlignMonSivsTRT::IDAlignMonSivsTRT( const std::string & type, const std::strin
   m_trackSumTool = ToolHandle<Trk::ITrackSummaryTool>("Trk::TrackSummaryTool/InDetTrackSummaryTool");
   m_triggerChainName = "NoTriggerSelection";
 
-  InitializeHistograms();
-
 
   declareProperty("CheckRate"              , m_checkrate = 1000);
   declareProperty("triggerChainName"       , m_triggerChainName);
@@ -54,69 +52,12 @@ IDAlignMonSivsTRT::IDAlignMonSivsTRT( const std::string & type, const std::strin
 
 //---------------------------------------------------------------------------------------
 
-void IDAlignMonSivsTRT::InitializeHistograms(){
-  
-  
-  m_delta_phi0 = 0 ;
-  m_delta_eta0 = 0 ;
-  m_delta_R = 0 ;
-  m_delta_qoverp = 0 ;
-  m_delta_charge = 0 ;
-  m_delta_d0 = 0 ;
-  m_delta_z0 = 0 ;
-  m_delta_pt = 0 ;
-  m_reldelta_pt = 0 ;
-  m_nhitstrt = 0 ;
- 
-  m_delta_phi0_b = 0 ;
-  m_delta_eta0_b = 0 ;
-  m_delta_R_b = 0 ;
-  m_delta_qoverp_b = 0 ;
-  m_delta_charge_b = 0 ;
-  m_delta_d0_b = 0 ;
-  m_delta_z0_b = 0 ;
-  m_delta_pt_b = 0 ;
-  m_reldelta_pt_b = 0 ;
- 
-  m_alltrks_phi0 = 0 ;
-  m_alltrks_phi0_b = 0 ;
-  m_alltrks_phi0_eca = 0 ;
-  m_alltrks_phi0_ecc = 0 ;
-  m_alltrks_eta0 = 0 ;
-  m_si_phi0 = 0 ;
-  m_si_eta0 = 0 ;
-  m_trt_phi0 = 0 ;
-  m_trt_phi0_b = 0 ;
-  m_trt_phi0_eca = 0 ;
-  m_trt_phi0_ecc = 0 ;
-  m_trt_eta0 = 0 ;
-  m_matched_phi0 = 0 ;
-  m_matched_eta0 = 0;
-  
-  m_sieff_phi0 = 0 ;
-  m_sieff_eta0 = 0 ;
-  m_trteff_phi0 = 0 ;
-  m_trteff_phi0_b = 0 ;
-  m_trteff_phi0_eca = 0 ;
-  m_trteff_phi0_ecc = 0 ;
-  m_trteff_eta0 = 0 ;
-  
-
-}
-
-
-
-
-
 
 IDAlignMonSivsTRT::~IDAlignMonSivsTRT() { }
 
 
 StatusCode IDAlignMonSivsTRT::initialize()
 {
-
-  m_events = 0;
-  m_histosBooked = 0;
 
   StatusCode sc;                                      
   sc = ManagedMonitorToolBase::initialize();

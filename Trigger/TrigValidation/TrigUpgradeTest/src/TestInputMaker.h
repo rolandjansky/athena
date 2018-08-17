@@ -36,6 +36,7 @@ namespace HLTTest {
   private: 
     TestInputMaker();
  
+    // Use this to customise the example for a different input feature
     typedef TrigRoiDescriptor FeatureOBJ;
     typedef TrigRoiDescriptorCollection FeatureContainer;
 

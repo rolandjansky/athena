@@ -12,15 +12,10 @@
 
 SCT_DCSConditionsHVCondAlg::SCT_DCSConditionsHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DCS/HV"}
-  , m_writeKey{"SCT_DCSHVCondData"}
   , m_condSvc{"CondSvc", name}
   , m_returnHVTemp{true}
 {
   declareProperty("ReturnHVTemp", m_returnHVTemp);
-  
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) HV conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) HV conditions folder");
 }
 
 StatusCode SCT_DCSConditionsHVCondAlg::initialize() {

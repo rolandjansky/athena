@@ -51,7 +51,7 @@ LockedAllocator ArenaHeader::allocator (const EventContext& ctx, size_t i)
       }
     }
   }
-  return m_defaultArena.allocator (i);
+  return allocator (i);
 }
 
 

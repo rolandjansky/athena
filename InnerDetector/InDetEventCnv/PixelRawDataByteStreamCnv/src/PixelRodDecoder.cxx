@@ -6,7 +6,6 @@
 
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "ExtractCondensedIBLhits.h"
@@ -55,7 +54,6 @@ PixelRodDecoder::PixelRodDecoder
       m_pixel_id(nullptr),
       m_det(eformat::SubDetector()),
       m_cablingData(nullptr),
-      m_condsummary("PixelConditionsSummarySvc",name),
       m_errors("PixelByteStreamErrorsSvc",name)
 {
     declareInterface< IPixelRodDecoder  >( this );
@@ -84,30 +82,17 @@ StatusCode PixelRodDecoder::initialize() {
     } else
         ATH_MSG_INFO("Retrieved service " << m_pixelCabling);
 
-    if (detStore()->retrieve(m_pixel_id, "PixelID").isFailure()) {
-        ATH_MSG_FATAL( "Could not get Pixel ID helper" );
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(m_pixel_id, "PixelID"));
 
     const InDetDD::PixelDetectorManager* pixelManager;
 
-    if (detStore()->retrieve(pixelManager, "Pixel").isFailure()) {
-        ATH_MSG_FATAL("failed to get Pixel Manager");
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(pixelManager, "Pixel"));
 
     // check if the ibl layer is present or not (this is necessary for backward compatibility with non-IBL geometries)
     m_is_ibl_present = false;
     const InDetDD::SiNumerology& pixSiNum = pixelManager->numerology();
     m_is_ibl_present = (pixSiNum.numLayers() == 4);
     ATH_MSG_DEBUG( "m_is_ibl_present = " << m_is_ibl_present );
-
-    // Retrieve Pixel Conditions Summary
-    if (m_condsummary.retrieve().isFailure()) {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_condsummary );
-        return StatusCode::FAILURE;
-    } else
-        ATH_MSG_INFO ("Retrieved tool " << m_condsummary );
 
     // Retrieve Pixel Errors Service
     if (m_errors.retrieve().isFailure()) {
@@ -1081,13 +1066,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
     if (corruptionError) {
       //Set EventInfo error
-      const xAOD::EventInfo* ei_cst=nullptr;
-      ATH_CHECK(evtStore()->retrieve(ei_cst));
-      xAOD::EventInfo* eventInfo=const_cast< xAOD::EventInfo* >(ei_cst);
-      if (!eventInfo->setErrorState(xAOD::EventInfo::Pixel,xAOD::EventInfo::Error)) {
+      const xAOD::EventInfo* eventInfo=nullptr;
+      ATH_CHECK(evtStore()->retrieve(eventInfo));
+      if (!eventInfo->updateErrorState(xAOD::EventInfo::Pixel,xAOD::EventInfo::Error)) {
 	ATH_MSG_WARNING(" cannot set EventInfo error state for Pixel " );
       }
-      if (!eventInfo->setEventFlagBit(xAOD::EventInfo::Pixel,0x1)) { //FIXME an enum at some appropriate place to indicating 0x1 as 
+      if (!eventInfo->updateEventFlagBit(xAOD::EventInfo::Pixel,0x1)) { //FIXME an enum at some appropriate place to indicating 0x1 as 
 	ATH_MSG_WARNING(" cannot set flag bit for Pixel " );
       }
     } // end if corruption error 

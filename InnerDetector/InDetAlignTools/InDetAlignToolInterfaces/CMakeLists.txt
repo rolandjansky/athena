@@ -7,7 +7,7 @@ atlas_subdir( InDetAlignToolInterfaces )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           GaudiKernel )
 
 # Install files from the package:

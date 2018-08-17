@@ -23,5 +23,19 @@ atlas_add_component( AthExHelloWorld
 atlas_install_headers( AthExHelloWorld )
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/HelloWorldConfig.py )
-atlas_install_runtime( test/AthExHelloWorld_TestConfiguration.xml )
 
+atlas_add_test( AthExHelloWorld
+    ENVIRONMENT THREADS=0
+		SCRIPT test/test_AthExHelloWorld.sh
+		)
+
+atlas_add_test( AthExHelloWorldMT_1
+    ENVIRONMENT THREADS=1
+		SCRIPT test/test_AthExHelloWorld.sh
+		)
+
+atlas_add_test( AthExHelloWorldMT_2
+    ENVIRONMENT THREADS=2
+		SCRIPT test/test_AthExHelloWorld.sh
+    EXTRA_PATTERNS "AthenaHiveEventLoopMgr.* processing event" #processing order can change
+		)

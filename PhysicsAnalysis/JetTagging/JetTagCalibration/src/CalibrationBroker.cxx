@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagCalibration/CalibrationBroker.h"
@@ -7,7 +7,8 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "DetDescrCondTools/ICoolHistSvc.h"
+#include "PoolSvc/IPoolSvc.h"
+#include "FileCatalog/IFileCatalog.h"
 #include "TH1.h"
 #include "TObject.h"
 #include "TTree.h"
@@ -17,6 +18,7 @@
 #include <list>
 #include <algorithm>
 #include <sys/types.h>
+
 
 namespace Analysis {
 
@@ -34,13 +36,12 @@ namespace Analysis {
   CalibrationBroker::CalibrationBroker(const std::string& type, 
 				       const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent), 
-    p_detstore(0),
-    p_coolhistsvc(0),
+    m_poolsvc(nullptr),
     m_nrefresh(0),
     m_callBackRegistered(false) {
     declareInterface<CalibrationBroker>(this);
     declareProperty("folderRoot", m_folderRoot = "/GLOBAL/BTagCalib/");
-    declareProperty("folders", m_folders);
+    declareProperty("taggers", m_taggers);
     declareProperty("channels", m_originalChannels);
     declareProperty("channelAliases", m_channelAliases);
     declareProperty("shadowFoldersAndChannels", m_shadowFoldersAndChannels = true);
@@ -60,8 +61,8 @@ namespace Analysis {
     m_histos.clear();
     ATH_MSG_DEBUG( "#BTAG# CalibrationBroker::initialize() called " << name() );
     // List of folders:
-    for(uint i=0;i<m_folders.size();i++) {
-      ATH_MSG_DEBUG( "#BTAG# Folder " << m_folders[i]);
+    for(uint i=0;i<m_taggers.size();i++) {
+      ATH_MSG_DEBUG( "#BTAG# Tagger " << m_taggers[i]);
     }
     // List of channels:
     ATH_MSG_DEBUG( "#BTAG# Original channels " );
@@ -90,37 +91,22 @@ namespace Analysis {
       }
     }
     // Prepare histo maps:
-    // m_histos.reserve(m_folders.size()*m_channels.size());
-    m_histos.reserve(m_folders.size());
-    for(uint i=0;i<m_folders.size();i++) {
-      //for(uint j=0;j<m_channels.size();j++) {
-      //	if(this->channelAlias(m_channels[j])==m_channels[j]) { // skip aliased channels
+    m_histos.reserve(m_taggers.size());
+    for(uint i=0;i<m_taggers.size();i++) {
           std::map<std::string, std::pair<TObject*, bool> > hmap;
           m_histos.push_back(hmap);
 	  std::vector<std::string> hvect;
-	  m_foldersHists.push_back(hvect);
-	  //	}
-	  // }
+	  m_taggersHists.push_back(hvect);
     }
-    // Detector store:
-    if(StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-      ATH_MSG_FATAL( "#BTAG# Detector store not found");
-      return StatusCode::FAILURE;
-    }
-    // CoolHistSvc:
-    if(StatusCode::SUCCESS!=service("CoolHistSvc",p_coolhistsvc)) {
-      ATH_MSG_FATAL("#BTAG# Could not get CoolHistSvc" );
-      return StatusCode::FAILURE;
-    }
+
+    // get PoolSvc
+    ATH_CHECK(service("PoolSvc",m_poolsvc));
+
     // Register call back function:
-    if(StatusCode::SUCCESS!=this->registerCallBack()) {
-      ATH_MSG_FATAL("#BTAG# Could not register call back");
-      return StatusCode::FAILURE;
-    }
-    //
+    ATH_CHECK(this->registerCallBack());
+
     return StatusCode::SUCCESS;
   }
-
 
   StatusCode CalibrationBroker::registerCallBack() {
     if(!m_callBackRegistered) {
@@ -130,7 +116,7 @@ namespace Analysis {
         const DataHandle<CondAttrListCollection> aptr;
 	std::string folder(m_folderRoot); folder+=m_singleFolderName;
         ATH_MSG_DEBUG( "#BTAG# Registering IoV callback for single folder "<< folder);
-        if(StatusCode::SUCCESS==p_detstore->regFcn(&Analysis::CalibrationBroker::callBack,
+        if(StatusCode::SUCCESS==detStore()->regFcn(&Analysis::CalibrationBroker::callBack,
 	  					   this, aptr, folder)) {
 	  ATH_MSG_DEBUG(  "#BTAG# Registered.");
 	} else {
@@ -138,46 +124,29 @@ namespace Analysis {
                << " failed" );
         }
       } else {
-        const DataHandle<CondAttrListCollection> aptr[s_nmax_callbacks];
-        for(uint i=0;i<m_folders.size();i++) {
-	  if(i<s_nmax_callbacks) {
-            ATH_MSG_DEBUG( "#BTAG# Registering IoV callback for folder " << m_folders[i] );
-            if(StatusCode::SUCCESS==p_detstore->regFcn(&Analysis::CalibrationBroker::callBack,
-						       this, aptr[i], m_folders[i])) {
-             ATH_MSG_DEBUG(" #BTAG# Registered.");
-            } else {
-              ATH_MSG_ERROR( "#BTAG# Registration of IoV callback for folder " << m_folders[i]
-			     << " failed");
-            }
-	  } else {
-	    ATH_MSG_ERROR( "#BTAG# More than " << s_nmax_callbacks << " callbacks registered! "
-		 << " Registration of IoV callback for folder " << m_folders[i]
-			   << " failed" );
-	  }
-        }
-      } 
+        ATH_MSG_DEBUG(  "#BTAG# The multiple folders DB schema has been deprecated in Run2. Contact Flavour Tagging software team if you get this message.");
+      }
       m_callBackRegistered = true;
     }
     return StatusCode::SUCCESS;
   }
 
 
-  void CalibrationBroker::registerHistogram(const std::string& folder, const std::string& hname) {
-    std::string longFolder(m_folderRoot); longFolder+=folder;
+  void CalibrationBroker::registerHistogram(const std::string& tagger, const std::string& hname) {
     ATH_MSG_DEBUG(  "#BTAG# registering histogram " << hname << " in " 
-		    << ( m_shadowFoldersAndChannels ? "(shadow)" : "" ) << " folder " << longFolder );
+		    << ( m_shadowFoldersAndChannels ? "(shadow)" : "" ) << " tagger " << tagger );
     bool registered = false;
-    for(uint i=0;i<m_folders.size();i++) {
-      if(longFolder==m_folders[i]) {
-	ATH_MSG_DEBUG( "#BTAG# folder " << longFolder << " found in pos " << i
+    for(uint i=0;i<m_taggers.size();i++) {
+      if(tagger==m_taggers[i]) {
+	ATH_MSG_DEBUG( "#BTAG# tagger " << tagger << " found in pos " << i
 		       << " , registrating " << hname );
 	
-	m_foldersHists[i].push_back(hname);     
+	m_taggersHists[i].push_back(hname);
 	registered = true;
       }
     }
     if(!registered) {
-      ATH_MSG_DEBUG( "#BTAG# folder " << longFolder << " not found."
+      ATH_MSG_DEBUG( "#BTAG# tagger " << tagger << " not found."
 		     << " Registrating of " << hname << " not possible.");
     }
   }
@@ -186,15 +155,15 @@ namespace Analysis {
   void CalibrationBroker::printStatus() const {
 
     ATH_MSG_DEBUG( "#BTAG# Status: #refresh= " << m_nrefresh
-		   << ( m_shadowFoldersAndChannels ? " #shadow_" : " #" ) << "folders= " << m_folders.size()
+		   << ( m_shadowFoldersAndChannels ? " #shadow_" : " #" ) << "taggers= " << m_taggers.size()
 		   << ( m_shadowFoldersAndChannels ? " #shadow_" : " #" ) << "channels= " << m_channels.size());
     if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG) << "#BTAG# Channels: ";
     for(uint i=0;i<m_channels.size();i++) {
       if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG)<< " " << m_channels[i];
     }
     if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG)<<endmsg;
-    for(uint i=0;i<m_folders.size();i++) {
-      ATH_MSG_DEBUG("#BTAG#         folder " << m_folders[i] 
+    for(uint i=0;i<m_taggers.size();i++) {
+      ATH_MSG_DEBUG("#BTAG#         tagger " << m_taggers[i] 
 		    << " contains " << m_histos[i].size() << " histograms:" );
       std::map<std::string, std::pair<TObject*, bool> >::const_iterator hI = m_histos[i].begin();
       std::map<std::string, std::pair<TObject*, bool> >::const_iterator hE = m_histos[i].end();
@@ -220,20 +189,19 @@ namespace Analysis {
     return this->retrieveTObject<TH1>(folder,channel,hname);
   }
 
-  void CalibrationBroker::updateHistogramStatus(const std::string& folder, const std::string& channel, const std::string& hname, bool status) {
+  void CalibrationBroker::updateHistogramStatus(const std::string& tagger, const std::string& channel, const std::string& hname, bool status) {
 
-    std::string longFolder(m_folderRoot); longFolder+=folder;
     std::string channelAlias = this->channelAlias(channel);
     ATH_MSG_DEBUG("#BTAG# retrieving " << hname 
 		  << " (channel " << channel << " -> " << channelAlias << ") "
-		  << " in folder " << longFolder );
+      		  << " in tagger " << tagger );
     std::string fname = this->fullHistoName(channelAlias,hname);
     if(status){
-      updateHistoStatusTaggerList(longFolder, fname);
+      updateHistoStatusTaggerList(tagger, fname);
     }
-    for(uint i=0;i<m_folders.size();i++) {
-      if(longFolder==m_folders[i]) {
-	ATH_MSG_DEBUG( "#BTAG#    folder " << longFolder << " found in pos " << i
+    for(uint i=0;i<m_taggers.size();i++) {
+      if(tagger==m_taggers[i]) {
+	ATH_MSG_DEBUG( "#BTAG#    tagger " << tagger << " found in pos " << i
 		       << " , retrieving " << fname );
 	std::map<std::string, std::pair<TObject*, bool> >::iterator mI = m_histos[i].find(fname);
 	std::map<std::string, std::pair<TObject*, bool> >::iterator mE = m_histos[i].end();
@@ -249,229 +217,156 @@ namespace Analysis {
   }
 
 
-  bool CalibrationBroker::updatedTagger(const std::string& folder, const std::string& channel,const std::string& hname, const std::string& taggerName){
+  bool CalibrationBroker::updatedTagger(const std::string& tagger, const std::string& channel,const std::string& hname){
 
-    std::string longFolder(m_folderRoot); longFolder+=folder;
     std::string channelAlias = this->channelAlias(channel);
     ATH_MSG_DEBUG("#BTAG# updatedTagger " << hname 
 		  << " (channel " << channel << " -> " << channelAlias << ") "
-		  << " in folder " << longFolder );
+		  << " in tagger " << tagger );
       
     std::string fname = this->fullHistoName(channelAlias,hname);
-    std::string key = longFolder+"#"+fname;
+    std::string key = tagger+"#"+fname;
 
     std::map<std::string, std::set<std::string> >::iterator iter = m_folderTaggerUpdateAliases.find(key);
     if(iter == m_folderTaggerUpdateAliases.end()){
       return false;
     }
 
-    return iter->second.count(taggerName);
+    return iter->second.count(tagger);
 
   }
 
 
 
-  void CalibrationBroker::updateHistogramStatusPerTagger(const std::string& folder, const std::string& channel, const std::string& hname, bool status, const std::string& taggerName) {
+  void CalibrationBroker::updateHistogramStatusPerTagger(const std::string& tagger, const std::string& channel, const std::string& hname, bool status) {
 
 
-    std::string longFolder(m_folderRoot); longFolder+=folder;
     std::string channelAlias = this->channelAlias(channel);
     ATH_MSG_DEBUG("#BTAG# per tagger update " << hname 
 		  << " (channel " << channel << " -> " << channelAlias << ") "
-		  << " in folder " << longFolder );
+		  << " in tagger " << tagger );
       
     std::string fname = this->fullHistoName(channelAlias,hname);
-    std::string key = longFolder+"#"+fname;
+    std::string key = tagger+"#"+fname;
 
     if(status){
       std::map<std::string, std::set<std::string> >::iterator iter = m_folderTaggerUpdateAliases.find(key);
       if(iter != m_folderTaggerUpdateAliases.end()){
-	iter->second.erase(taggerName);
+	iter->second.erase(tagger);
       }
     }
     else{
-      m_folderTaggerUpdateAliases[key].insert(taggerName);
+      m_folderTaggerUpdateAliases[key].insert(tagger);
     }
 
   }
 
-  void CalibrationBroker::updateHistoStatusTaggerList(const std::string& longfolder, const std::string& fname){
+  void CalibrationBroker::updateHistoStatusTaggerList(const std::string& tagger, const std::string& fname){
 
-    std::string key = longfolder+"#"+fname;
+    std::string key = tagger+"#"+fname;
 
     m_folderTaggerUpdateAliases.erase(key);
 
-
   }
 
-
-  StatusCode CalibrationBroker::createHistoMap(std::list<std::string> keys  ){
+     
+                   
+  StatusCode CalibrationBroker::createHistoMap(TFile* pfile  ){
 
     ATH_MSG_DEBUG("#BTAG# in createHistoMap" );
 
     m_channels.clear();
     m_channelAliasesMap.clear();
+    std::vector< std::string > mappedAlias; 
 
     for(unsigned int j=0; j<m_originalChannels.size(); ++j){
       m_channels.push_back(m_originalChannels[j]);
     }
 
-    if(m_shadowFoldersAndChannels) {
-      std::string folder(m_folderRoot); folder+=m_singleFolderName;
-      // check all the keys, if we find the histogram folder, update the pointers
-      for(std::list<std::string>::const_iterator itr=keys.begin();
-   	  itr!=keys.end();++itr) {
-	if((*itr)==folder) {
-	  ATH_MSG_DEBUG( "#BTAG# Key and actual folder match: " << (*itr));
+    std::string folder(m_folderRoot); folder+=m_singleFolderName;
 
-          for(uint i=0;i<m_folders.size();++i) {
-	    std::string tagger = this->taggerName(m_folders[i]);
+    for(uint i=0;i<m_taggers.size();++i) {
+      std::string tagger = m_taggers[i];
 
-	    for(unsigned int j=0; j<m_originalChannels.size(); ++j){
+      for(unsigned int j=0; j<m_originalChannels.size(); ++j){
 
-	      /// get all aliases
-	      std::map<std::string, std::vector<std::string> >::iterator ialiaslist 
-		= m_channelAliasesMultiMap.find(m_originalChannels[j]);
-	      if(ialiaslist == m_channelAliasesMultiMap.end()){
-		ATH_MSG_DEBUG( "#BTAG#  no alias for original channel" << m_originalChannels[j] );
-		if(!p_coolhistsvc->objectExists(folder, m_singleFolderName, tagger+"/"+m_originalChannels[j])){
-		  ATH_MSG_WARNING( "#BTAG# no calibration for jet collection " << m_originalChannels[j]
-				   << " consider using aliases " );
-		}
-		continue;
-	      }
-	      std::vector<std::string> aliaslist = ialiaslist->second;
-	      if(aliaslist.size() == 1){
-		if("none" == aliaslist[0]){
-		  ATH_MSG_DEBUG("#BTAG#  no alias for original channel" << m_originalChannels[j]);
+        /// get all aliases
+        std::map<std::string, std::vector<std::string> >::iterator ialiaslist 
+          = m_channelAliasesMultiMap.find(m_originalChannels[j]);
+	if(ialiaslist == m_channelAliasesMultiMap.end()){
+	  ATH_MSG_DEBUG( "#BTAG#  no alias for original channel" << m_originalChannels[j] );
+	  if(!objectTDirExists(tagger+"/"+m_originalChannels[j], pfile)){
+	    ATH_MSG_WARNING( "#BTAG# no calibration for jet collection " << m_originalChannels[j]
+			   << " consider using aliases " );
+	  }
+	  continue;
+	}
+	std::vector<std::string> aliaslist = ialiaslist->second;
+	if(aliaslist.size() == 1){
+	  if("none" == aliaslist[0]){
+	    ATH_MSG_DEBUG("#BTAG#  no alias for original channel" << m_originalChannels[j]);
 				
-		  if(!p_coolhistsvc->objectExists(folder, m_singleFolderName,  tagger+"/"+m_originalChannels[j])){
-		    ATH_MSG_WARNING( "#BTAG# no calibration for jet collection " << m_originalChannels[j]
+            if(objectTDirExists(tagger+"/"+m_originalChannels[j], pfile)){
+	      ATH_MSG_WARNING( "#BTAG# no calibration for jet collection " << m_originalChannels[j]
 				     << " consider using aliases " );
-		  }
-		  continue;
-		}
-	      }
+            }
+            continue;
+	  }
+	}
 
-	      bool foundalias=false;
+	bool foundalias=false;
 
-	      for(unsigned int k=0; k<aliaslist.size(); ++k){
+	for(unsigned int k=0; k<aliaslist.size(); ++k){
 
-		std::string aliasentry = aliaslist[k];
-		if("none" == aliasentry){
-		  ATH_MSG_DEBUG("#BTAG# first alias entry is none - replace with original channel" 
+	  std::string aliasentry = aliaslist[k];
+	  if("none" == aliasentry){
+	    ATH_MSG_DEBUG("#BTAG# first alias entry is none - replace with original channel" 
 				<< m_originalChannels[j] );
-		  aliasentry= m_originalChannels[j];
-		}
-		/// now see if the jet collection exists in db
-		std::string hFullName(tagger); 
-		hFullName+="/"; hFullName+=aliasentry; 
-		if(p_coolhistsvc->objectExists(folder, m_singleFolderName, hFullName)){
-		  ATH_MSG_INFO( "#BTAG# found alias entry " << aliasentry );
-		  if("none"!=aliaslist[k]){
-		    std::vector<std::string>::const_iterator pos = find(m_channels.begin(), 
-									m_channels.end(), aliasentry);
-		    if(pos==m_channels.end()) {
-		      ATH_MSG_DEBUG("#BTAG# Alias is pointing to undefined channel: " <<  aliasentry
+            aliasentry= m_originalChannels[j];
+	  }
+	  /// now see if the jet collection exists in db
+	  std::string hFullName(tagger); 
+	  hFullName+="/"; hFullName+=aliasentry; 
+          // Check if jet collection already in channel alias map
+          if (std::count(mappedAlias.begin(), mappedAlias.end(), aliasentry) > 0) {
+	    ATH_MSG_INFO( "#BTAG# found alias entry in Map " << aliasentry );
+	    ATH_MSG_INFO( "#BTAG# found alias entry folder " << folder<< " and " << m_singleFolderName);
+            m_channelAliasesMap.insert(std::make_pair(m_originalChannels[j],aliasentry));
+            foundalias=true;
+            break;
+          }
+          else {
+            if (objectTDirExists(hFullName, pfile)) {
+	      ATH_MSG_INFO( "#BTAG# found alias entry in DB " << aliasentry );
+	      ATH_MSG_INFO( "#BTAG# found alias entry folder " << folder<< " and " << m_singleFolderName);
+              if("none"!=aliaslist[k]){
+		std::vector<std::string>::const_iterator pos = find(m_channels.begin(), 
+								m_channels.end(), aliasentry);
+		if(pos==m_channels.end()) {
+		  ATH_MSG_DEBUG("#BTAG# Alias is pointing to undefined channel: " <<  aliasentry
 				    << ". Adding it to channel list.");
-		      m_channels.push_back(aliasentry);
-		    }
-		    m_channelAliasesMap.insert(std::make_pair(m_originalChannels[j],aliasentry));
-		  }
-		  foundalias=true;
-		  break;
-		}
-		else{
-		 ATH_MSG_INFO( "#BTAG# no alias entry " << aliasentry 
-			       << " trying next alias ");
-		}
+		  m_channels.push_back(aliasentry);
+	        }
+	        m_channelAliasesMap.insert(std::make_pair(m_originalChannels[j],aliasentry));
+                mappedAlias.push_back(aliasentry);
 	      }
-	      if(!foundalias){
-		ATH_MSG_WARNING( "#BTAG# none of the aliases exist for jet collection " 
-				 << m_originalChannels[j]);
-	      }
-
+	      foundalias=true;
+	      break;
 	    }
-	    break ; /// check alias for the first tagger. same jet collections for all taggers for now
-
-	  }
-	}
-      }
-    } else {
-      //// for the old db 
-      for(std::list<std::string>::const_iterator itr=keys.begin();
-	  itr!=keys.end();++itr) {
-	for(uint i=0;i<m_folders.size();i++) {
-	  if((*itr)==m_folders[i]) {
-	    ATH_MSG_DEBUG( "#BTAG# Key and folder match: " << (*itr) );
-
-	    for(unsigned int j=0; j<m_originalChannels.size(); ++j){
-
-	      /// get all aliases
-	      std::map<std::string, std::vector<std::string> >::iterator ialiaslist 
-		= m_channelAliasesMultiMap.find(m_originalChannels[j]);
-	      if(ialiaslist == m_channelAliasesMultiMap.end()){
-		ATH_MSG_DEBUG("#BTAG#  no alias for original channel" << m_originalChannels[j]);
-		/// now that the channel is in the DB check if the file exist by checking the GUID
-		if(!p_coolhistsvc->objectExists(m_folders[i],m_originalChannels[j], "fileGUID")){
-		  ATH_MSG_WARNING( "#BTAG# no calibration for jet collection " << m_originalChannels[j]
-				   << " consider using aliases ");
-		}
-		continue;
-	      }
-	      std::vector<std::string> aliaslist = ialiaslist->second;
-	      if(aliaslist.size() == 1){
-		if("none" == aliaslist[0]){
-		  ATH_MSG_DEBUG("#BTAG#  no alias for original channel" << m_originalChannels[j]);
-		  if(!p_coolhistsvc->objectExists(m_folders[i],m_originalChannels[j], "fileGUID")){
-		    ATH_MSG_WARNING("#BTAG# no calibration for jet collection " << m_originalChannels[j]
-				    << " consider using aliases ");
-		  }
-		  continue;
-		}
-	      }
-
-	      bool foundalias=false;
-
-	      for(unsigned int k=0; k<aliaslist.size(); ++k){
-
-		std::string aliasentry = aliaslist[k];
-		if("none" == aliasentry){
-		   ATH_MSG_DEBUG("#BTAG# first alias entry is none - replace with original channel" 
-				 << m_originalChannels[j] );
-		  aliasentry= m_originalChannels[j];
-		}
-		/// now see if the jet collection exists in db
-		if(p_coolhistsvc->objectExists(m_folders[i],aliasentry, "fileGUID")){
-		  ATH_MSG_INFO( "#BTAG# found alias entry " << aliasentry);
-		  if("none"!=aliaslist[k]){
-		    std::vector<std::string>::const_iterator pos = find(m_channels.begin(), 
-									m_channels.end(), aliasentry);
-		    if(pos==m_channels.end()) {
-		      ATH_MSG_DEBUG( "#BTAG# Alias is pointing to undefined channel: " <<  aliasentry
-				     << ". Adding it to channel list.");
-		      m_channels.push_back(aliasentry);
-		    }
-		    m_channelAliasesMap.insert(std::make_pair(m_originalChannels[j],aliasentry));
-		  }
-		  foundalias=true;
-		  break;
-		}
-		else{
-		  ATH_MSG_INFO( "#BTAG# no alias entry " << aliasentry 
-				<< " trying next alias " );
-
-		}
-	      }
-	      if(!foundalias){
-		ATH_MSG_WARNING( "#BTAG# none of the aliases exist for jet collection " 
-				 << m_originalChannels[j]);
-	      }
-
+	    else{
+	      ATH_MSG_INFO( "#BTAG# no alias entry " << aliasentry 
+		       << " trying next alias ");
 	    }
 	  }
 	}
+	if(!foundalias){
+	  ATH_MSG_WARNING( "#BTAG# none of the aliases exist for jet collection " 
+			 << m_originalChannels[j]);
+	}
+
       }
+      break ; /// check alias for the first tagger. same jet collections for all taggers for now
+
     }
 
     ATH_MSG_INFO( "#BTAG# final registered channels " );
@@ -488,19 +383,19 @@ namespace Analysis {
 
     // now that we know which alias to use register the histograms
 
-    for(unsigned int i=0; i<m_folders.size(); ++i){
+    ATH_MSG_DEBUG( "#BTAG# m_taggers size " << m_taggers.size());
+    for(unsigned int i=0; i<m_taggers.size(); ++i){
 
-      std::vector<std::string> histnames = m_foldersHists[i];
-
+      std::vector<std::string> histnames = m_taggersHists[i];
       for(unsigned int h=0; h<histnames.size(); ++h){
 
 	std::string hname = histnames[h];
-	ATH_MSG_DEBUG( "#BTAG# registrating folder "<< m_folders[i] <<" with " 
+	ATH_MSG_DEBUG( "#BTAG# registrating tagger "<< m_taggers[i] <<" with " 
 		       << m_channels.size() << " histograms (1 per channel): ");
 	for(uint j=0;j<m_channels.size();j++) {
 	  if(this->channelAlias(m_channels[j])==m_channels[j]) { // skip aliased channels
 	    std::string fname = this->fullHistoName(m_channels[j],hname);
-	    TObject* dummy = 0;
+	    TObject* dummy = nullptr;
 	    m_histos[i].insert(std::make_pair(fname, std::make_pair(dummy, false)));
 	  } else {
 	    ATH_MSG_DEBUG( "#BTAG# " << m_channels[j] << " is aliased to " << this->channelAlias(m_channels[j]) 
@@ -514,31 +409,106 @@ namespace Analysis {
 
   }
 
+  StatusCode CalibrationBroker::objectTDirExists(const std::string& histname, TFile * pfile) const {
+    
+    ATH_MSG_DEBUG("#BTAG# in objectTDirExists" );
+
+     // now read the histogram into memory
+     ATH_MSG_DEBUG("Getting object "+histname+" from file");
+     TObject* hist = nullptr;
+     pfile->GetObject(histname.c_str(),hist);
+     if (hist==nullptr) {
+       ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
+       return StatusCode::FAILURE;
+     }
+
+     return StatusCode::SUCCESS;
+  }
+
+  StatusCode CalibrationBroker::getTObject(const std::string& histname, TFile * pfile, TObject*& hist) const {
+     // now read the histogram into memory
+     ATH_MSG_DEBUG("Getting object "+histname+" from file");
+     pfile->GetObject(histname.c_str(),hist);
+     if (hist==nullptr) {
+       ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
+       return StatusCode::FAILURE;
+     }
+     else {
+       // make this histogram unassociated with the TFile, so file can be closed
+       // only for histogram objects, others do not get associated
+       // TTrees have special treatment 
+       TH1* ihist=dynamic_cast<TH1*>(hist);
+       if (ihist!=nullptr) ihist->SetDirectory(0);
+       // if it is a TDirectory, also need special treatment to unassociate parent
+       TDirectory* idir=dynamic_cast<TDirectory*>(hist);
+       if (idir!=nullptr) {
+         TDirectory* mdir=idir->GetMotherDir();
+         if (mdir!=nullptr) {
+           ATH_MSG_DEBUG("Disconnecting TDirectory "+histname+" from parent");
+           mdir->GetList()->Remove(idir);
+           idir->SetMother(0);
+         } else {
+           ATH_MSG_WARNING("Could not get MotherDir for TDirectory "+histname);
+         }
+       }
+     }
+
+     return StatusCode::SUCCESS;
+   }
+
   StatusCode CalibrationBroker::callBack( IOVSVC_CALLBACK_ARGS_P(/*I*/,keys) ) {
  
     // printout the list of keys invoked - will normally only be for our
     // histogram folder
-    ATH_MSG_DEBUG ( "#BTAG# CoolHistExample callback invoked for keys:");
+    ATH_MSG_DEBUG ( "#BTAG# CalibrationBroker callback invoked for keys:");
 
-    if(0 == m_nrefresh || m_recreateHistoMap){
-      StatusCode sc = createHistoMap( keys );
-      if(sc != StatusCode::SUCCESS){
-	/// do nothing for the moment
-      }
-    }
 
-    m_nrefresh++;
-    for(std::list<std::string>::const_iterator itr=keys.begin();
-	itr!=keys.end();++itr) ATH_MSG_DEBUG ( *itr );
     if(m_shadowFoldersAndChannels) {
       std::string folder(m_folderRoot); folder+=m_singleFolderName;
       // check all the keys, if we find the histogram folder, update the pointers
       for(std::list<std::string>::const_iterator itr=keys.begin();
-   	  itr!=keys.end();++itr) {
-	if((*itr)==folder) {
-	  ATH_MSG_DEBUG("#BTAG# Key and actual folder match: " << (*itr));
-          for(uint i=0;i<m_folders.size();i++) {
-	    std::string tagger = this->taggerName(m_folders[i]);
+          itr!=keys.end();++itr) {
+          ATH_MSG_DEBUG( "#BTAG# Key : " << (*itr));
+          if((*itr)==folder) {
+            ATH_MSG_DEBUG( "#BTAG# Key and actual folder match: " << (*itr));
+
+            // Get the GUID
+            const CondAttrListCollection* atrcol = nullptr;
+            if (StatusCode::SUCCESS!=detStore()->retrieve(atrcol,folder)) {
+              ATH_MSG_DEBUG("#BTAG# Cannot retrieve CondAttrListCollection for " << folder);
+              return StatusCode::FAILURE;
+            }
+            unsigned int channel=1; //Always 1 in old version with CoolHistSvc
+            CondAttrListCollection::const_iterator citr = atrcol->chanAttrListPair(channel);
+            if (citr==atrcol->end()) {
+              ATH_MSG_WARNING("#BTAG# Cannot find valid reference for " << folder << " channel " << channel);
+              return StatusCode::FAILURE;
+            }
+
+            const std::string coolguid=citr->second["fileGUID"].data<std::string>();
+            ATH_MSG_DEBUG("#BTAG# Folder key "+folder+" has current file GUID "+coolguid);
+    
+            // Open the file
+            std::string pfname, tech;
+            m_poolsvc->catalog()->getFirstPFN(coolguid, pfname, tech );
+            TFile* pfile = TFile::Open(pfname.c_str(),"READ");
+            if (pfile==nullptr || !pfile->IsOpen()) {
+              delete pfile;
+              ATH_MSG_WARNING("Problems opening input file "+pfname);
+              return StatusCode::FAILURE;
+            }
+
+            if(0 == m_nrefresh || m_recreateHistoMap){
+              StatusCode sc = createHistoMap(pfile);
+              if(sc != StatusCode::SUCCESS){
+	        /// do nothing for the moment
+              }
+            }
+
+            m_nrefresh++;
+          // check all the keys, if we find the histogram folder, update the pointers
+		for(uint i=0;i<m_taggers.size();i++) {
+	    std::string tagger = m_taggers[i];
 	    std::map<std::string, std::pair<TObject*, bool> >::iterator mI = m_histos[i].begin();
 	    std::map<std::string, std::pair<TObject*, bool> >::iterator mE = m_histos[i].end();
 	    for(; mI!=mE; ++mI) {
@@ -550,10 +520,10 @@ namespace Analysis {
 	      hFullName+="/"; hFullName+=channel; 
 	      hFullName+="/"; hFullName+=hname;
 	      ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
-	      TObject* hPointer = 0;
+	      TObject* hPointer = nullptr;
+              if (getTObject(hFullName, pfile, hPointer)) {
+              
 
-	      if(p_coolhistsvc->objectExists(folder, m_singleFolderName, hFullName)){
-		if(p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer).isSuccess()){
 		    if(hPointer) {
 		      ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram: " << hPointer);
 		      const TString rootClassName=hPointer->ClassName();
@@ -563,57 +533,26 @@ namespace Analysis {
 		      }
                       (*mI).second.first = hPointer;
 		      (*mI).second.second = true;
-		      updateHistoStatusTaggerList(m_folders[i],fname);
+		      updateHistoStatusTaggerList(m_taggers[i],fname);
 		    } else {
 		      ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " << fname );
 		    }
-		} else {
-		  ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hFullName << " from COOL");
-		}
 	      } else {
 		ATH_MSG_WARNING("#BTAG# error: histogram "<<hFullName
 				<<" does not exist - you are probably using an old database tag");
 	      }
 	    } //end loop histos
-	  }
-        }
+        } // end loop taggers
+        
+        // close the file
+        pfile->Close();
+        delete pfile;
+
+        }// loop on keys
       }
-    } else {
-      // check all the keys, if we find the histogram folder, update the pointers
-      for(std::list<std::string>::const_iterator itr=keys.begin();
-	  itr!=keys.end();++itr) {
-	for(uint i=0;i<m_folders.size();i++) {
-	  if((*itr)==m_folders[i]) {
-	    ATH_MSG_DEBUG( "#BTAG# Key and folder match: " << (*itr) );
-	    std::map<std::string, std::pair<TObject*, bool> >::iterator mI = m_histos[i].begin();
-	    std::map<std::string, std::pair<TObject*, bool> >::iterator mE = m_histos[i].end();
-	    for(; mI!=mE; ++mI) {
-	      std::string fname = (*mI).first;
-	      ATH_MSG_DEBUG( "#BTAG# Retrieving " << fname );
-	      std::string channel = this->channelName(fname);
-	      std::string hname = this->histoName(fname);
-	      ATH_MSG_DEBUG( "#BTAG# Channel= " << channel 
-			     << " hname= " << hname);
-	      TObject* hPointer = 0;
-	      StatusCode sc = p_coolhistsvc->getTObject(m_folders[i], channel, hname, hPointer);
-	      if(sc.isSuccess()) {
-		if(hPointer) {
-		  ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram: " 
-				 << hPointer );
-		  (*mI).second.first = hPointer;
-		  (*mI).second.second = true;
-		  updateHistoStatusTaggerList(m_folders[i],fname);
-		} else {
-		  ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " 
-				 << fname );
-		}
-	      } else {
-		ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hname << " from COOL" );
-	      }
-	    }
-	  }
-	}
-      }
+    }
+    else {
+      ATH_MSG_DEBUG(  "#BTAG# The multiple folders DB schema has been deprecated in Run2. Contact Flavour Tagging software team if you get this message.");
     }
     return StatusCode::SUCCESS;
   }
@@ -637,13 +576,6 @@ namespace Analysis {
     std::string::size_type sPos;
     sPos = fname.find_first_of(delim);
     std::string hname = fname.substr(sPos+1);
-    return hname;
-  }
-
-  std::string CalibrationBroker::taggerName(const std::string& fname) const {
-    std::string::size_type sPos;
-    sPos = fname.find(m_folderRoot);
-    std::string hname = fname.substr(sPos+m_folderRoot.size());
     return hname;
   }
 
@@ -676,9 +608,6 @@ namespace Analysis {
     }
     return tokens;
 }
-
-
-
 
 }
 

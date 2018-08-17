@@ -9,14 +9,10 @@
 #define IINDETZVTOP_AMBIGUITYSOLVER_H
 
 #include "GaudiKernel/IAlgTool.h"
-
 //xAOD includes --David S.
-#include "xAODTracking/Vertex.h"
+#include "xAODTracking/Vertex.h" //typedef
+#include <vector>
 
-//namespace Trk --David S.
-//{
-// class VxCandidate;
-//}
 
 namespace InDet 
 {
@@ -29,7 +25,6 @@ namespace InDet
     static const InterfaceID& interfaceID( ) ;
 
     // enter declaration of your interface-defining member functions here
-    //virtual  std::vector<Trk::VxCandidate*> solveAmbiguities(std::vector<Trk::VxCandidate*> VxContainer) = 0; --David S.
     virtual std::vector< xAOD::Vertex* > solveAmbiguities(std::vector< xAOD::Vertex* > VertexContainer) = 0;
   };
 

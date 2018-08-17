@@ -36,5 +36,7 @@ addService( "MuonCnvExample.MuonCalibConfig.MdtCalibrationSvc", "MdtCalibrationS
 # Tools/algorithms/services from MuonCnvExample.MuonCnvConfig
 ################################################################################
 addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool", "CscDigitToCscRDOTool" )
+addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool2", "CscDigitToCscRDOTool2" )
+addTool( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDOTool4", "CscDigitToCscRDOTool4" )
 addAlgorithm( "MuonCnvExample.MuonCnvConfig.CscDigitToCscRDO", "CscDigitToCscRDO" )
 

@@ -62,15 +62,9 @@ StatusCode PixelRawContByteStreamTool::initialize() {
   }
    
   // Get PixelID
-  if (detStore()->retrieve(m_PixelID, "PixelID").isFailure()) {
-   msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_PixelID, "PixelID"));
 
-  if (detStore()->retrieve(m_pixelManager, "Pixel").isFailure()) {
-    msg(MSG::FATAL) << "Failed to get Pixel Manager" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
    
   return sc;
 }

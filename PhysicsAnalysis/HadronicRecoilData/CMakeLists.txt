@@ -8,9 +8,8 @@ atlas_subdir( HadronicRecoilData )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           Reconstruction/MuonIdentification/muonEvent
                           Reconstruction/Particle
@@ -24,5 +23,5 @@ atlas_add_library( HadronicRecoilData
                    src/*.cxx
                    PUBLIC_HEADERS HadronicRecoilData
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent DataModel SGTools McParticleEvent muonEvent Particle egammaEvent )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthContainers McParticleEvent muonEvent Particle egammaEvent )
 

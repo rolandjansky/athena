@@ -1356,12 +1356,12 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD("LArClusterEM7_11Nocorr")
 
             from egammaRec.egammaRecFlags import jobproperties
-            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4  :
+            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
 
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-            if rec.readESD() or muonCombinedRecFlags.doMuonClusters():
+            if ( rec.readESD() or muonCombinedRecFlags.doMuonClusters() ) and rec.doMuon:
                 addClusterToCaloCellAOD("MuonClusterCollection")
 
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
@@ -1531,11 +1531,6 @@ try:
 except Exception:
      # protect until doPyDump is defined in all releases
      treatException("problem with the dumpers")
-
-#Trigger ntuple (from Clemencia Mora). Not if not rec.doTrigger
-if rec.readESD() and rec.doTrigger() and  TriggerFlags.NtupleProductionFlags.produceNtuples():
-    #old Tier0TriggerFlags.doTier0TriggerNtuple():
-    protectedInclude("TriggerRelease/TriggerNTupleProduction.py")
 
 if rec.doCBNT():
     # AANTupleStream should be at the very end
@@ -1712,3 +1707,6 @@ if rec.readAOD():
 
 include("RecExCommon/RecoUtils.py")
 include("RecExCommon/PrintRecoSummary.py")
+
+from RecAlgs.RecAlgsConf import AppStopAlg
+topSequence+=AppStopAlg()

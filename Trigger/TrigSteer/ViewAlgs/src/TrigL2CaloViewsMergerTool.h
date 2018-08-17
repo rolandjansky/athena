@@ -15,7 +15,7 @@ public:
 				 const std::string& name, 
 				 const IInterface* parent );
   StatusCode initialize() override;
-  StatusCode merge( const EventContext& context, const std::vector<SG::View*>& ) const override;
+  StatusCode merge( const EventContext& context, const ViewContainer& ) const override;
 
 private:
   SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_inViewClustersKey {this, "InViewClusters", "L2CaloClustersInView", "Input"};

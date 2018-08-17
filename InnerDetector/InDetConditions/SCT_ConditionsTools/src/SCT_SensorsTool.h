@@ -57,7 +57,7 @@ class SCT_SensorsTool: public extends<AthAlgTool, ISCT_SensorsTool> {
   // Pointer of SCT_TdaqEnabledCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_SensorsCondData> m_condData;
   // ReadCondHandleKey
-  SG::ReadCondHandleKey<SCT_SensorsCondData> m_condKey;
+  SG::ReadCondHandleKey<SCT_SensorsCondData> m_condKey{this, "CondKey", "SCT_SensorsCondData", "SCT sensor conditions"};
   // Provides SCT_SensorsCondData pointer
   const SCT_SensorsCondData* getCondData(const EventContext& ctx) const;
 };

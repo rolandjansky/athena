@@ -50,9 +50,6 @@ public:
   virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS) override;
   virtual StatusCode loadAlignmentError(IOVSVC_CALLBACK_ARGS) override;
   
-
-       
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
 

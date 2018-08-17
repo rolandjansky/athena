@@ -86,9 +86,9 @@ private:
   // Pointers of SCT_DCSFloatCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesHV;
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesTemp0;
-  SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState;
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0;
+  SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState{this, "CondKeyState", "SCT_DCSStatCondData", "SCT DCS state"};
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV{this, "CondKeyHV", "SCT_DCSHVCondData", "SCT DCS HV"};
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0{this, "CondKeyTemp0", "SCT_DCSTemp0CondData", "SCT DCS temperature on side 0"};
   const SCT_ID* m_pHelper;
   static const Identifier s_invalidId;
   static const float s_defaultHV;

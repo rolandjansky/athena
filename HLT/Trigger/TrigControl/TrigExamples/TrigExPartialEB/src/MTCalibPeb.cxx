@@ -443,10 +443,10 @@ unsigned int MTCalibPeb::randomCPUBurn(int burntime) {
 }
 
 void MTCalibPeb::streamTagRobDetHelper(std::string input_str, std::set<TriggerInfo::number_type>& output_set) {
-  typedef boost::tokenizer<boost::char_separator<char> > _tokenizer_;
-  boost::char_separator<char> _separator_(",[] ");
-  _tokenizer_ tokens(input_str,_separator_);
-  for (_tokenizer_::const_iterator tok_iter = tokens.begin();tok_iter != tokens.end();tok_iter++) {
+  typedef boost::tokenizer<boost::char_separator<char> > tokenizer_;
+  boost::char_separator<char> separator_(",[] ");
+  tokenizer_ tokens(input_str,separator_);
+  for (tokenizer_::const_iterator tok_iter = tokens.begin();tok_iter != tokens.end();tok_iter++) {
     TriggerInfo::number_type tmp_int = strtoul((*tok_iter).c_str(),0,0);
     if (tmp_int != 0) output_set.insert(tmp_int);
   }

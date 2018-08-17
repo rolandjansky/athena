@@ -20,8 +20,11 @@
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/PixelCluster.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
@@ -31,13 +34,17 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+#include "StoreGate/ReadCondHandle.h"
+
 #include "TrkDistributedKalmanFilter/TrkFilteringNodes.h"
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
 
 
 TrigDkfTrackMakerTool::TrigDkfTrackMakerTool(const std::string& t, 
 					     const std::string& n,
-					     const IInterface*  p ): AthAlgTool(t,n,p)
+					     const IInterface*  p ): AthAlgTool(t,n,p),
+  m_mutex{},
+  m_cacheSCTElements{}
 {
   declareInterface< ITrigDkfTrackMakerTool >( this );
   m_idHelper=NULL;
@@ -69,12 +76,8 @@ StatusCode TrigDkfTrackMakerTool::initialize()
       ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore."); 
       return sc;
    } 
-  sc = detStore()->retrieve(m_SCT_Manager);
-  if( sc.isFailure() ) 
-    {
-      ATH_MSG_ERROR("Could not retrieve SCT DetectorManager from detStore.");
-      return sc;
-    } 
+
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   ATH_MSG_INFO("TrigDkfTrackMakerTool constructed ");
   return sc;
@@ -125,13 +128,13 @@ bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>&
 	  if((pCL[0]==NULL)||(pCL[1]==NULL)) continue;
 
 	  IdentifierHash idHash[2];
-	  InDetDD::SiDetectorElement* pEL[2];
+	  const InDetDD::SiDetectorElement* pEL[2];
 	  double RadVec[2];
 	  int index[2];
 	  for(i=0;i<2;i++)
 	    {
 	      idHash[i]=m_sctId->wafer_hash(m_sctId->wafer_id(pCL[i]->identify()));
-	      pEL[i]=m_SCT_Manager->getDetectorElement(idHash[i]);	      
+	      pEL[i]=getSCTDetectorElement(idHash[i]);
 	      const Trk::Surface& rSurf=pEL[i]->surface();
 
 	      // const Trk::Surface& rSurf=pCL[i]->detectorElement()->surface();
@@ -345,3 +348,23 @@ bool TrigDkfTrackMakerTool::createDkfTrack(const Trk::Track& track,
 	return true;
 }
 
+const InDetDD::SiDetectorElement* TrigDkfTrackMakerTool::getSCTDetectorElement(const IdentifierHash& waferHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheSCTElements.size()) {
+    m_cacheSCTElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheSCTElements[slot]!=evt) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_SCTDetectorElements.set(*condData);
+    m_cacheSCTElements[slot] = evt;
+  }
+  return (m_SCTDetectorElements.isValid() ? m_SCTDetectorElements->getDetectorElement(waferHash) : nullptr);
+}

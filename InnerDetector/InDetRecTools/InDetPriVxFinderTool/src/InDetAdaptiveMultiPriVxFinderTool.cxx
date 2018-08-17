@@ -39,7 +39,7 @@
 #include "VxMultiVertex/MvfFitInfo.h"
 #include "VxMultiVertex/MVFVxTrackAtVertex.h"
 #include "VxMultiVertex/TrackToVtxLink.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkVertexFitters/AdaptiveMultiVertexFitter.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"

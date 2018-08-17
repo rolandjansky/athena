@@ -14,7 +14,7 @@
 #include "TriggerD3PDMaker/TriggerKeyTool.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigConfigSvc/DSConfigSvc.h"
-#include "SGTools/crc64.h"
+#include "CxxUtils/crc64.h"
 #include "AthenaKernel/errorcheck.h"
 #include <sstream>
 
@@ -89,7 +89,7 @@ TriggerKeyTool::Keys TriggerKeyTool::getKeys() const
       // Turn the configuration source name (probably an XML file in this case)
       // into an imaginary Super Master Key:
       keys =
-        std::make_pair( ( SG::crc64( dsSvc->configurationSource() ) & 0xffff ),
+        std::make_pair( ( CxxUtils::crc64( dsSvc->configurationSource() ) & 0xffff ),
                         std::make_pair( 0, 0 ) );
     }
   }

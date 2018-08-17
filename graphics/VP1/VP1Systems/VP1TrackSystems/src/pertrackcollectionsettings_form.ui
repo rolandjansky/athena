@@ -322,6 +322,9 @@
              </property>
             </widget>
            </item>
+           <item row="4" column="1">
+            <widget class="QSpinBox" name="spinBox_cut_nhits_muon"/>
+           </item>
            <item row="3" column="1">
             <widget class="QSpinBox" name="spinBox_cut_nhits_trt"/>
            </item>
@@ -332,8 +335,15 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QSpinBox" name="spinBox_cut_nhits_muon"/>
+           <item row="5" column="0">
+            <widget class="QCheckBox" name="checkBox_cut_nprecisionhits_muon">
+             <property name="text">
+              <string>Require Precision Muon hits:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QSpinBox" name="spinBox_cut_nprecisionhits_muon"/>
            </item>
           </layout>
          </item>

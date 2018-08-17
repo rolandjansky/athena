@@ -18,10 +18,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrackCaloClusterRecInterfaces/IParticleExtrapolationTool.h"
+#include "TrkToolInterfaces/ITrackSelectorTool.h"
 
-namespace Trk {
-  class ITrackSelectorTool;
-}
 namespace Rec {
   class IParticleCaloCellAssociationTool;
 }

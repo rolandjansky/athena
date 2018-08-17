@@ -7,9 +7,8 @@ atlas_subdir( FastCaloSimAthenaPool )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Database/AthenaPOOL/AthenaPoolUtilities
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolCnvSvc )
@@ -22,17 +21,17 @@ atlas_add_library( FastCaloSimAthenaPool
                    src/*.cxx
                    PUBLIC_HEADERS FastCaloSimAthenaPool
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools AthenaPoolUtilities AthenaPoolCnvSvcLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaPoolUtilities AthenaPoolCnvSvcLib )
 
 atlas_add_poolcnv_library( FastCaloSimAthenaPoolPoolCnv
                            src/*.cxx
                            FILES FastCaloSimAthenaPool/FastShowerInfoContainer.h FastCaloSimAthenaPool/FastShowerInfo.h
                            INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools AthenaPoolUtilities AthenaPoolCnvSvcLib FastCaloSimAthenaPool )
+                           LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaPoolUtilities AthenaPoolCnvSvcLib FastCaloSimAthenaPool )
 
 atlas_add_dictionary( FastCaloSimAthenaPoolDict
                       FastCaloSimAthenaPool/FastCaloSimAthenaPoolDict.h
                       FastCaloSimAthenaPool/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools AthenaPoolUtilities AthenaPoolCnvSvcLib FastCaloSimAthenaPool )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaPoolUtilities AthenaPoolCnvSvcLib FastCaloSimAthenaPool )
 

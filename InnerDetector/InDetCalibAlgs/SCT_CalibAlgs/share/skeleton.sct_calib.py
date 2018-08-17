@@ -381,7 +381,7 @@ conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring
 sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
+from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MonitorConditionsCondAlg
 condSeq += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg", ReadKey = sctDerivedMonitoringFolder)
 
 

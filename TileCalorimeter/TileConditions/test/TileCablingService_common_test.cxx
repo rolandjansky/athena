@@ -33,15 +33,16 @@
 
 class TileCablingSvc {
  public:
-  static void init_idhelpers(std::string idDictFile = "IdDictTileCalorimeter.xml", 
-                             TileCablingService::TileCablingType cablingType = TileCablingService::RUN2aCabling) {
+  static void init_idhelpers (IdDictParser& parser,
+                              std::string idDictFile = "IdDictTileCalorimeter.xml", 
+                              TileCablingService::TileCablingType cablingType = TileCablingService::RUN2aCabling)
+  {
 
      TileHWID* tileHWID = new TileHWID();
      TileID* tileID = new TileID();
      TileTBID* tileTBID = new TileTBID();
 
      tileID->set_do_neighbours (false);
-     IdDictParser parser;
      parser.register_external_entity ("TileCalorimeter", idDictFile);
      IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
      assert (tileHWID->initialize_from_dictionary (idd) == 0);

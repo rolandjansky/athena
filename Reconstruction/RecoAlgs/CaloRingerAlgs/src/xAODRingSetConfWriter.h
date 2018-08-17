@@ -19,13 +19,12 @@ extern "C" {
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CaloRingerTools/ICaloRingsBuilder.h"
 
 // EDM include(s):
 #include "xAODCaloRings/RingSetConfContainer.h"
 
 namespace Ringer {
-
-class ICaloRingsBuilder;
 
 /**
 *  @short Algorithm used to write the RingSets configuration

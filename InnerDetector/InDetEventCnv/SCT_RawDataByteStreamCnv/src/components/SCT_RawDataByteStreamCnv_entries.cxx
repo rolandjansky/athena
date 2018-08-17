@@ -1,8 +1,8 @@
 #include "../SCTRawContByteStreamCnv.h"
 DECLARE_CONVERTER( SCTRawContByteStreamCnv )
 
-#include "../SCTRawContByteStreamService.h"
-DECLARE_COMPONENT( SCTRawContByteStreamService )  
+#include "../SCTRawContByteStreamTool.h"
+DECLARE_COMPONENT( SCTRawContByteStreamTool )
 
 #include "../SCTRawDataProvider.h"
 DECLARE_COMPONENT( SCTRawDataProvider )

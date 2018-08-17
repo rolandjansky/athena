@@ -118,9 +118,6 @@ StatusCode  EgammaTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-EgammaTagTool::~EgammaTagTool() {}
-
 
 bool EgammaTagTool::ZeeSelection (const xAOD::ElectronContainer* eleColl,
                                   const DataHandle<EventInfo>& eventInfo)

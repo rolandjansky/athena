@@ -37,19 +37,19 @@ StatusCode MergeTrackRecordCollTool::processBunchXing(int bunchXing,
     {
     if (bSubEvents != eSubEvents)
       {
-        StoreGateSvc& seStore(*bSubEvents->ptr()->evtStore());
         const TrackRecordCollection* oldColl(0);
-        if (seStore.retrieve(oldColl, m_trRecCollKey.value()).isSuccess())
-          {
-            TrackRecordCollection* newColl = new TrackRecordCollection();
-            for(auto trcit : *oldColl)
-              {
-                newColl->push_back( TrackRecord(trcit) );
-              }
-            CHECK(evtStore()->record(newColl, m_trRecCollKey));
-            ATH_MSG_DEBUG( "processBunchXing: copied original event TrackRecordCollection" );
-            m_firstSubEvent=false;
-          }
+	if (m_pMergeSvc->retrieveSingleSubEvtData(m_trRecCollKey.value(), oldColl,
+						  bunchXing, bSubEvents).isSuccess())
+	    {
+	      TrackRecordCollection* newColl = new TrackRecordCollection();
+	      for(auto trcit : *oldColl)
+		{
+		  newColl->push_back( TrackRecord(trcit) );
+		}
+	      CHECK(evtStore()->record(newColl, m_trRecCollKey));
+	      ATH_MSG_DEBUG( "processBunchXing: copied original event TrackRecordCollection" );
+	      m_firstSubEvent=false;
+	    }
         else
           {
             ATH_MSG_ERROR ( "processBunchXing: TimedTruthList is empty" );
@@ -60,9 +60,10 @@ StatusCode MergeTrackRecordCollTool::processBunchXing(int bunchXing,
         ATH_MSG_ERROR ( "processBunchXing: Can not find TimedTruthList" );
       }
     }
-
+  
   return StatusCode::SUCCESS;
 }
+
 StatusCode MergeTrackRecordCollTool::mergeEvent()
 {
   //Nothing to do here;

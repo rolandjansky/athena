@@ -15,7 +15,7 @@ Holds info corresponding to the calibration process, such as applicable plots
 and graphs. The monitoring system can pick out what graphs it wants.
  ****************************************************************************/
 #include "CscCalibData/CscCalibReportBase.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 //#include "TGraphErrors.h"
 //#include "TProfile.h"

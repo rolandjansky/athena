@@ -71,7 +71,7 @@ macro( _add_test name )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore xAODRootAccess
       PROPERTIES TIMEOUT 600
-      EXTRA_PATTERNS "Opened file:|find dictionary for type|is already in" )
+      EXTRA_PATTERNS "Opened file:|find dictionary for type|is already in|[0-9]+ bytes" )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:

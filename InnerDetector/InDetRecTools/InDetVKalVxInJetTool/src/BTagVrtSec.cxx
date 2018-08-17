@@ -9,9 +9,12 @@
 // Other stuff
 #include  "AnalysisUtils/AnalysisMisc.h"
 #include  "TrkToolInterfaces/ITrackSummaryTool.h"
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+
+#include "TProfile.h"
+#include "TH2D.h"
 #include  "TMath.h"
 //
-#include<iostream>
 
 //----------------------------------------------------------------------------------------
 //  GetVrtSec resurns the vector Results with the following
@@ -22,7 +25,7 @@
 //   5) Number of track in secondary vertex
 //   6) 3D SV-PV significance with sign
 //   7) Jet energy used in (2) calculation 
-//   8) Mininal distance between vertex and any material layer
+//   8) Minimal distance between vertex and any material layer
 //   9) Transverse vertex/jet energy fraction. Jet pT independent.
 //   10) "Product" variable
 //   11) "Boost" variable
@@ -1054,9 +1057,7 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
                   sc=VKalVrtFitBase(TracksForFit, FitVertexV0, MomentumV0, Charge,
                                     ErrorMatrix,Chi2PerTrk,TrkAtVrt0,Chi2_0);
                   if(sc.isSuccess()) {
-                    //std::cout<<" cnst result="<< massV0( TrkAtVrt,m_massPi,m_massPi)<<", "
-                    //                          << massV0( TrkAtVrt,m_massP,m_massPi)<<", "
-                    //                          << massV0( TrkAtVrt,m_massE,m_massE)<<", "<<i<<", "<<j<<'\n';
+                
                     sc=m_fitSvc->VKalVrtCvtTool(FitVertexV0,MomentumV0,ErrorMatrix,0,VKPerigee,CovPerigee);
                     if(sc.isSuccess()) {
                       const Trk::Track* TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
@@ -1074,10 +1075,7 @@ for (auto atrk : AdditionalTracks)ListSecondTracks.push_back(atrk.second);      
              if(m_FillHist){  m_hb_r2d->Fill( FitVertex.perp(), m_w_1); }
 	     if(m_useMaterialRejection && Dist2D>m_Rbeampipe-2.){
 	        float ptLim=TMath::Max(m_hadronIntPtCut,m_JetPtFractionCut*JetDir.Perp());
-              //if(m_materialMap){
-              //  if(m_materialMap->inMaterial(FitVertex)) BadTracks=4;
-              //  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" MaterialMap test="<< BadTracks<<endreq;
-	      //}else{   
+               
                 if( TMath::Min(TrackPt[i],TrackPt[j])<ptLim ){
                    if(  insideMatLayer(FitVertex.x(), FitVertex.y()) ) BadTracks = 4;
                 } 

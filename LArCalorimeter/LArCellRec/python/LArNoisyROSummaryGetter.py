@@ -45,9 +45,9 @@ class LArNoisyROSummaryGetter ( Configured )  :
         theLArNoisyROTool=LArNoisyROTool(CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
-                                         KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs(),
                                          MNBLooseCut=larNoisyROFlags.MNBLooseCut(),
-                                         MNBTightCut=larNoisyROFlags.MNBTightCut()
+                                         MNBTightCut=larNoisyROFlags.MNBTightCut(),
+                                         MNBTight_PsVetoCut=larNoisyROFlags.MNBTight_PsVetoCut()
                                          )
 
 
@@ -62,6 +62,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore
         objKeyStore.addStreamESD(self.outputType(),self.outputKey())
+        objKeyStore.addTransient(self.outputType(),self.outputKey())
         
         # now add algorithm to topSequence
         # this should always come at the end

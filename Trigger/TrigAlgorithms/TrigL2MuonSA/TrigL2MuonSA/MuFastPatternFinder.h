@@ -68,7 +68,7 @@ class MuFastPatternFinder: public AthAlgTool
 
    private:
       // MDT calibration service
-      MdtCalibrationSvc*     m_mdtCalibrationSvc;
+      ServiceHandle<MdtCalibrationSvc> m_mdtCalibrationSvc;
 
       // Id helper
       const MdtIdHelper* m_mdtIdHelper;

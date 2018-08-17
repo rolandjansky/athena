@@ -246,11 +246,13 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
       int k=i+951;
       
       GeoNameTag* tag = new GeoNameTag("BCM Module"); 
-      GeoVPhysVol* bcmModPhys = bcm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
-      Phys->add(tag);
-      Phys->add(new GeoIdentifierTag(k));
-      Phys->add(xform);
-      Phys->add(bcmModPhys);	      
+      if (mat_mgr){
+        GeoVPhysVol* bcmModPhys = bcm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
+        Phys->add(tag);
+        Phys->add(new GeoIdentifierTag(k));
+        Phys->add(xform);
+        Phys->add(bcmModPhys);	
+      }      
     }
   
   ATH_MSG_DEBUG("Registering BCM_GeometryManager."); 

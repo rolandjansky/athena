@@ -43,7 +43,6 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent),
-	    m_detStore(0),
             m_IOVSvc(0),
             m_mdtIdHelper(0),
             m_chronoSvc(0),
@@ -98,17 +97,7 @@ StatusCode MDT_DCSConditionsTool::initialize()
 
   m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_dropchamberFolder <<" / LV "<<m_lvFolder<< " / HV "<<m_hvFolder<< endmsg;
    
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
-
-
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
       m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;
@@ -238,7 +227,7 @@ StatusCode MDT_DCSConditionsTool::loadDropChamber(IOVSVC_CALLBACK_ARGS_P(I,keys)
   const CondAttrListCollection * atrc;
   m_log << MSG::INFO << "Try to read from folder <"<<m_dropchamberFolder<<">"<<endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_dropchamberFolder);
+  sc=detStore()->retrieve(atrc,m_dropchamberFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder " 
@@ -303,7 +292,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   if( m_debug ) m_log << MSG::DEBUG << endmsg;
   
 
-  sc=m_detStore->retrieve(atrc,m_hvFolder);
+  sc=detStore()->retrieve(atrc,m_hvFolder);
   
   if(sc.isFailure())  {
     m_log << MSG::ERROR
@@ -321,7 +310,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   const CondAttrListCollection * atrc_v0;
   m_log << MSG::INFO << "Try to read from folder <"<<m_setPointsV0Folder<<">"<<endmsg;
 
-  sc=m_detStore->retrieve(atrc_v0,m_setPointsV0Folder);
+  sc=detStore()->retrieve(atrc_v0,m_setPointsV0Folder);
   
   if(sc.isFailure())  {
     m_log << MSG::ERROR
@@ -339,7 +328,7 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   const CondAttrListCollection * atrc_v1;
   m_log << MSG::INFO << "Try to read from folder <"<<m_setPointsV1Folder<<">"<<endmsg;
 
-  sc=m_detStore->retrieve(atrc_v1,m_setPointsV1Folder);
+  sc=detStore()->retrieve(atrc_v1,m_setPointsV1Folder);
   
   if(sc.isFailure())  {
     m_log << MSG::ERROR
@@ -560,7 +549,7 @@ StatusCode MDT_DCSConditionsTool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
   if( m_debug ) m_log << MSG::DEBUG << endmsg;
 
-  sc=m_detStore->retrieve(atrc,m_lvFolder);
+  sc=detStore()->retrieve(atrc,m_lvFolder);
 
   if(sc.isFailure())  {
     m_log << MSG::ERROR
@@ -674,7 +663,7 @@ StatusCode MDT_DCSConditionsTool::loadJTAG(IOVSVC_CALLBACK_ARGS_P(I,keys))
   for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
   if( m_debug ) m_log << MSG::DEBUG << endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_jtagFolder);
+  sc=detStore()->retrieve(atrc,m_jtagFolder);
   
   if(sc.isFailure())  {
     m_log << MSG::ERROR

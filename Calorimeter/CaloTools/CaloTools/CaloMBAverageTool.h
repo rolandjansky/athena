@@ -30,8 +30,8 @@ class CaloDetDescrElement;
 #include "AthenaKernel/IOVSvcDefs.h"
 
 
-class CaloMBAverageTool: public AthAlgTool,
-	             virtual public ICaloMBAverageTool
+class CaloMBAverageTool
+  : public extends<AthAlgTool, ICaloMBAverageTool>
 {
 private: 
 //Database  
@@ -53,9 +53,9 @@ private:
   std::vector<float> m_shift;
 
 //Functions
-  StatusCode initialize();
+  StatusCode initialize() override;
 
-  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
 
 public:    
   
@@ -64,9 +64,9 @@ public:
 		const IInterface* parent); 
   virtual ~CaloMBAverageTool();  
 
-  float average(const CaloCell* caloCell);
+  float average(const CaloCell* caloCell) const override;
 
-  float average(const CaloDetDescrElement* caloDDE,const CaloGain::CaloGain gain);
+  float average(const CaloDetDescrElement* caloDDE,const CaloGain::CaloGain gain) const override;
 
 
 };

@@ -6,6 +6,7 @@
 #define G4UserActions_RadiationMapsMaker_H
 
 #include <vector>
+#include <string>
 #include "G4UserRunAction.hh"
 #include "G4UserSteppingAction.hh"
 
@@ -26,6 +27,8 @@ namespace G4UA
 	/// bin sizes and ranges match the requirements for the
 	/// Radiation Estimate Web tool for the default values given here.
 	/// They can be configured to other values/ranges for other purposes.
+
+	std::string material = std::string("");
 
 	int nBinsr = 120;
 	int nBinsz = 240;
@@ -63,6 +66,13 @@ namespace G4UA
         /// vector of >20 MeV hadron flux seen by thread in zoomed area
 	std::vector<double> m_rz_h20;
 
+	///  next two vectors are used only in case maps are needed for a particular material instead of all
+
+        /// vector to measure volume fraction of target material in zoomed area
+	std::vector<double> m_rz_vol;
+        /// vector to normalize the volume fraction in zoomed area
+	std::vector<double> m_rz_norm;
+
         /// vector of tid seen by thread in full area
 	std::vector<double> m_full_rz_tid;
         /// vector of ionizing energy density seen by thread in full area
@@ -72,6 +82,13 @@ namespace G4UA
         /// vector of >20 MeV hadron flux seen by thread in full area
 	std::vector<double> m_full_rz_h20;
 
+	///  next two vectors are used only in case maps are needed for a particular material instead of all
+
+        /// vector to measure volume fraction of target material in full area
+	std::vector<double> m_full_rz_vol;
+        /// vector to normalize the volume fraction in full area
+	std::vector<double> m_full_rz_norm;
+
         /// vector of tid seen by thread in 3d
 	std::vector<double> m_3d_tid;
         /// vector of ionizing energy density seen by thread in 3d
@@ -80,6 +97,13 @@ namespace G4UA
 	std::vector<double> m_3d_niel;
         /// vector of >20 MeV hadron flux seen by thread in 3d
 	std::vector<double> m_3d_h20;
+
+	///  next two vectors are used only in case maps are needed for a particular material instead of all
+
+        /// vector to measure volume fraction of target material in 3d
+	std::vector<double> m_3d_vol;
+        /// vector to normalize the volume fraction in 3d
+	std::vector<double> m_3d_norm;
 
 	void merge(const Report& maps);
       };

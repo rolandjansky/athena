@@ -27,14 +27,20 @@
 
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
-#include "InDetConversionFinderTools/InDetConversionFinderTools.h"
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"
+
+#include "ITrackToVertex/ITrackToVertex.h"
+
 
 #include "GaudiKernel/IPartPropSvc.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh" // for chi2prob calculation
 
 #include "xAODTracking/TrackingPrimitives.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+
+#include "HepPDT/ParticleDataTable.hh"
+#include "xAODTracking/VertexContainer.h"
+
 
 #include <vector>
 #include <cmath>

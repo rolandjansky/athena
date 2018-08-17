@@ -5,8 +5,8 @@
 #ifndef TRKSEGMENT_SEGMENTCOLLECTION_H
 #define TRKSEGMENT_SEGMENTCOLLECTION_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrkSegment/Segment.h"
 
 namespace Trk {

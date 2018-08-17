@@ -61,10 +61,8 @@ StatusCode MBTSTimeDiffEventInfoAlg::finalize() {
 
 StatusCode MBTSTimeDiffEventInfoAlg::execute() {
 
-  const EventInfo * eventInfo_c = 0;
-  CHECK( evtStore()->retrieve(eventInfo_c));
-
-  EventInfo* eventInfo = const_cast<EventInfo*>(eventInfo_c);
+  const EventInfo * eventInfo = 0;
+  CHECK( evtStore()->retrieve(eventInfo));
 
   float eneA = 0.F;
   float eneC = 0.F;
@@ -133,16 +131,16 @@ StatusCode MBTSTimeDiffEventInfoAlg::execute() {
     if (timediff > m_timeDiffThreshold) {
       ATH_MSG_DEBUG( "Event identified as background, set bit 'MBTSTimeDiffHalo' in EventInfo Background word" );
       
-      if (eventInfo->setEventFlagBit(EventInfo::Background,
-                                     EventInfo::MBTSTimeDiffHalo) == false)
+      if (eventInfo->updateEventFlagBit(EventInfo::Background,
+                                        EventInfo::MBTSTimeDiffHalo) == false)
         
         ATH_MSG_WARNING( "Failed to set EventInfo Background word!" );
     } //end if above theshold
     else {
       ATH_MSG_DEBUG( "Event identified as collision, set bit 'MBTSTimeDiffCol' in EventInfo Background word" );
       
-      if (eventInfo->setEventFlagBit(EventInfo::Background,
-                                     EventInfo::MBTSTimeDiffCol) == false)
+      if (eventInfo->updateEventFlagBit(EventInfo::Background,
+                                        EventInfo::MBTSTimeDiffCol) == false)
         ATH_MSG_WARNING( "Failed to set EventInfo Background word!" );
     } //end if below threshold
   } else {

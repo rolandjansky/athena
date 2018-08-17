@@ -42,12 +42,11 @@ using namespace TrigConf;
 TrigConf::StorageMgr::StorageMgr( const std::string& cs,
                                   const std::string& user,
                                   const std::string& pass,
-                                  std::ostream & o) :
+                                  std::ostream & /*o*/) :
    TrigConfMessaging("DBStorageMgr")
    , m_cs( cs )
    , m_user( user )
    , m_password( pass )
-   , m_ostream( o )
 {}
 
 TrigConf::StorageMgr::StorageMgr( const std::string& type,
@@ -55,14 +54,13 @@ TrigConf::StorageMgr::StorageMgr( const std::string& type,
                                   const std::string& name,
                                   const std::string& user,
                                   const std::string& pass,
-                                  std::ostream & o) :
+                                  std::ostream & /*o*/) :
    TrigConfMessaging("DBStorageMgr")
    , m_dbtype( type )
    , m_dbserver( server )
    , m_dbname( name )    
    , m_user( user )
    , m_password( pass )
-   , m_ostream( o )
 {}
 
 

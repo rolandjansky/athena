@@ -26,7 +26,6 @@
 #include "InDetRawData/TRT_RDORawData.h"
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/SCT3_RawData.h"
-//#include "InDetRawData/Pixel1RawData.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -123,7 +122,7 @@ namespace Overlay {
 
   template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *mc_coll,
                                       InDetRawDataCollection<SCT_RDORawData> *data_coll,
-				      InDetRawDataCollection<SCT_RDORawData> *out_coll,
+                                      InDetRawDataCollection<SCT_RDORawData> *out_coll,
                                       IDC_OverlayBase *tmp)
   {
     // We want to use the SCT_ID helper provided by InDetOverlay, thus the constraint
@@ -193,20 +192,18 @@ namespace Overlay {
       if (source==InDetOverlay::MCSource) { // MC
         rdo = mc.begin();
         rdoEnd = mc.end();
-      } else if (source==InDetOverlay::DataSource) { // Data
+      } else { // Data
         rdo = data.begin();
         rdoEnd = data.end();
-      } else {
-        parent->msg(MSG::WARNING) << "Invalid source " << source << " in mergeCollectionsNew for SCT" << endmsg;
-        continue;
-      }
+      } 
       // Loop over all RDOs in the wafer
-      for (; rdo!=rdoEnd; rdo++) {
+      for (; rdo!=rdoEnd; ++rdo) {
         const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*rdo);
         if (!rdo3) {
           std::ostringstream os;
+          const auto& elt = **rdo;
           os<<"mergeCollectionNew<SCT_RDORawData>(): wrong datum format. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay."
-            <<"For the supplied datum  typeid(datum).name() = "<<typeid(**rdo).name();
+            <<"For the supplied datum  typeid(datum).name() = "<<typeid(elt).name();
           throw std::runtime_error(os.str());
         }
         int strip = parent->get_sct_id()->strip(rdo3->identify());
@@ -303,8 +300,12 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("overlayInputPixelKey", m_overlayInputPixelKey);
   declareProperty("mainOutputPixelKey", m_mainOutputPixelKey);    
   
-  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.1);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.9);
+  
+  declareProperty("TRTinputSDO_Key", m_TRTinputSDO_Key);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.160);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.130);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.105);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE",m_HTOccupancyCorrectionEC_noE=0.080);
 
   declareProperty("RndmSvc",    m_rndmSvc,       "Random Number Service");
   declareProperty("RndmEngine", m_rndmEngineName,"Random engine name");
@@ -332,6 +333,8 @@ StatusCode InDetOverlay::overlayInitialize()
   ATH_CHECK( m_mainInputPixelKey.initialize() );
   ATH_CHECK( m_overlayInputPixelKey.initialize() );
   ATH_CHECK( m_mainOutputPixelKey.initialize() );
+  ATH_CHECK( m_TRTinputSDO_Key.initialize() );
+
 
   if(m_do_TRT){
   
@@ -371,32 +374,34 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_TRT) {
     ATH_MSG_VERBOSE("Retrieving data input TRT container");
-    SG::ReadHandle<TRT_RDO_Container> dataContainer(m_mainInputTRTKey);
-    if(!dataContainer.isValid()) {   
-      ATH_MSG_WARNING("Could not get data TRT container \"" << m_mainInputTRTKey.key() << "\"");
+    const TRT_RDO_Container* dataContainer = SG::get(m_mainInputTRTKey);
+    if(!dataContainer) {   
+      ATH_MSG_WARNING("Could not get data TRT container \"" << m_mainInputTRTKey.key() << "\" in " << m_mainInputTRTKey.storeHandle().name());
     }
 
-    ATH_MSG_INFO("TRT Data   = "<<shortPrint(dataContainer.cptr()));
+    ATH_MSG_INFO("TRT Data   = "<<shortPrint(dataContainer));
 
     ATH_MSG_VERBOSE("Retrieving MC  input TRT container");
-    SG::ReadHandle<TRT_RDO_Container> mcContainer(m_overlayInputTRTKey);
-    if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC TRT container \"" << m_overlayInputTRTKey.key() << "\"");
+    const TRT_RDO_Container* mcContainer = SG::get(m_overlayInputTRTKey);
+    if(!mcContainer) {
+      ATH_MSG_WARNING("Could not get MC TRT container \"" << m_overlayInputTRTKey.key() << "\" in " << m_overlayInputTRTKey.storeHandle().name());
     }
-    ATH_MSG_INFO("TRT MC     = "<<shortPrint(mcContainer.cptr()));
+    ATH_MSG_INFO("TRT MC     = "<<shortPrint(mcContainer));
    
     SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainOutputTRTKey);
-    outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(dataContainer->size());
+    outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(mcContainer->size());
 
-    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
+    if(dataContainer && mcContainer && outputContainer.isValid()) {
       if (m_do_TRT_background ){ 
+        const InDetSimDataCollection* sdoContainer=SG::get(m_TRTinputSDO_Key);
+
         // Calculate occupancy here
-        std::map<int, double> occupancy = m_TRT_LocalOccupancyTool->getDetectorOccupancy( dataContainer.cptr() );
+        std::map<int, double> occupancy = m_TRT_LocalOccupancyTool->getDetectorOccupancy( dataContainer );
         //Merge containers
-        overlayTRTContainers(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr(), occupancy);
+        overlayTRTContainers(dataContainer, mcContainer, outputContainer.ptr(), occupancy, *sdoContainer);
       } else if(!m_do_TRT_background){
         TRT_RDO_Container* nobkg = nullptr;
-        overlayContainerNew( nobkg , mcContainer.cptr() , outputContainer.ptr());
+        overlayContainerNew( nobkg , mcContainer , outputContainer.ptr());
       }
       ATH_MSG_INFO("TRT Result = "<<shortPrint(outputContainer.cptr()));
     }
@@ -405,27 +410,27 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_SCT) {
     ATH_MSG_VERBOSE("Retrieving data input SCT container");
-    SG::ReadHandle<SCT_RDO_Container> dataContainer(m_mainInputSCTKey);
-    if(!dataContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get data SCT container \"" << m_mainInputSCTKey.key() << "\"");
+    const SCT_RDO_Container* dataContainer = SG::get(m_mainInputSCTKey);
+    if(!dataContainer) {
+      ATH_MSG_WARNING("Could not get data SCT container \"" << m_mainInputSCTKey.key() << "\" in " << m_mainInputSCTKey.storeHandle().name());
     }
-    ATH_MSG_INFO("SCT Data   = "<<shortPrint(dataContainer.cptr(), 50));
+    ATH_MSG_INFO("SCT Data   = "<<shortPrint(dataContainer, 50));
 
     ATH_MSG_VERBOSE("Retrieving MC  input SCT container");
-    SG::ReadHandle<SCT_RDO_Container> mcContainer(m_overlayInputSCTKey);
-    if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC SCT container \"" << m_overlayInputSCTKey.key() << "\"");
+    const SCT_RDO_Container* mcContainer = SG::get(m_overlayInputSCTKey);
+    if(!mcContainer) {
+      ATH_MSG_WARNING("Could not get MC SCT container \"" << m_overlayInputSCTKey.key() << "\" in " << m_overlayInputSCTKey.storeHandle().name());
     }
-    ATH_MSG_INFO("SCT MC     = "<<shortPrint(mcContainer.cptr(), 50));
+    ATH_MSG_INFO("SCT MC     = "<<shortPrint(mcContainer, 50));
    
     SG::WriteHandle<SCT_RDO_Container> outputContainer(m_mainOutputSCTKey);
-    outputContainer = CxxUtils::make_unique<SCT_RDO_Container>(dataContainer->size());
+    outputContainer = CxxUtils::make_unique<SCT_RDO_Container>(mcContainer->size());
     
-    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
-      if(m_do_SCT_background) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
+    if(dataContainer && mcContainer && outputContainer.isValid()) {
+      if(m_do_SCT_background) overlayContainerNew(dataContainer, mcContainer, outputContainer.ptr());
       else if(!m_do_SCT_background){
         SCT_RDO_Container *nobkg = nullptr;
-	overlayContainerNew(nobkg , mcContainer.cptr() , outputContainer.ptr());
+	overlayContainerNew(nobkg , mcContainer , outputContainer.ptr());
        }
       ATH_MSG_INFO("SCT Result = "<<shortPrint(outputContainer.ptr(), 50));   
     }
@@ -434,18 +439,18 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_Pixel) {
     ATH_MSG_VERBOSE("Retrieving data input Pixel container");
-    SG::ReadHandle<PixelRDO_Container> dataContainer(m_mainInputPixelKey);
-    if(!dataContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get data Pixel container \"" << m_mainInputPixelKey.key() << "\"");
+    const PixelRDO_Container* dataContainer = SG::get(m_mainInputPixelKey);
+    if(!dataContainer) {
+      ATH_MSG_WARNING("Could not get data Pixel container \"" << m_mainInputPixelKey.key() << "\" in " << m_mainInputPixelKey.storeHandle().name());
     }
-    ATH_MSG_INFO("Pixel Data   = "<<shortPrint(dataContainer.cptr()));
+    ATH_MSG_INFO("Pixel Data   = "<<shortPrint(dataContainer));
 
     ATH_MSG_VERBOSE("Retrieving MC  input Pixel container");
-    SG::ReadHandle<PixelRDO_Container> mcContainer(m_overlayInputPixelKey);
-    if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC Pixel container \"" << m_overlayInputPixelKey.key() << "\"");
+    const PixelRDO_Container* mcContainer = SG::get(m_overlayInputPixelKey);
+    if(!mcContainer) {
+      ATH_MSG_WARNING("Could not get MC Pixel container \"" << m_overlayInputPixelKey.key() << "\" in " << m_overlayInputPixelKey.storeHandle().name());
     }
-    ATH_MSG_INFO("Pixel MC     = "<<shortPrint(mcContainer.cptr()));
+    ATH_MSG_INFO("Pixel MC     = "<<shortPrint(mcContainer));
 
 /*
 // Get geo model manager
@@ -482,13 +487,13 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
 }
 */
     SG::WriteHandle<PixelRDO_Container> outputContainer(m_mainOutputPixelKey);
-    outputContainer = CxxUtils::make_unique<PixelRDO_Container>(dataContainer->size());
+    outputContainer = CxxUtils::make_unique<PixelRDO_Container>(mcContainer->size());
     
-    if(dataContainer.isValid() && mcContainer.isValid()&&outputContainer.isValid()) {  
-      if(m_do_Pixel_background) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
+    if(dataContainer && mcContainer&&outputContainer.isValid()) {  
+      if(m_do_Pixel_background) overlayContainerNew(dataContainer, mcContainer, outputContainer.ptr());
       else if(!m_do_Pixel_background){
         PixelRDO_Container *nobkg = nullptr;
-	overlayContainerNew(nobkg, mcContainer.cptr() , outputContainer.ptr());
+	overlayContainerNew(nobkg, mcContainer , outputContainer.ptr());
        }
       ATH_MSG_INFO("Pixel Result = "<<shortPrint(outputContainer.ptr()));
     }
@@ -502,7 +507,8 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
 void InDetOverlay::overlayTRTContainers(const TRT_RDO_Container *pileupContainer,
                                         const TRT_RDO_Container *signalContainer,
                                         TRT_RDO_Container *outputContainer,
-                                        std::map<int,double>&  occupancyMap) 
+                                        std::map<int,double>&  occupancyMap,
+                                        const InDetSimDataCollection& SDO_Map) 
 {
 
    //There are some use cases where this is empty
@@ -543,7 +549,7 @@ void InDetOverlay::overlayTRTContainers(const TRT_RDO_Container *pileupContainer
          Retrieve q */
          std::unique_ptr <TRT_RDO_Collection> coll_data ((TRT_RDO_Collection *) *q );
          int det =  m_trt_id->barrel_ec( (*p_ovl)->identify() );
-         mergeTRTCollections(coll_data.get(),coll_ovl.get(),coll_out.get(), occupancyMap[det] );
+         mergeTRTCollections(coll_data.get(),coll_ovl.get(),coll_out.get(), occupancyMap[det], SDO_Map);
          
          outputContainer->removeCollection(p_ovl.hashId());
          if (outputContainer->addCollection(coll_out.release(), p_ovl.hashId()).isFailure() ) {
@@ -566,7 +572,8 @@ void InDetOverlay::overlayTRTContainers(const TRT_RDO_Container *pileupContainer
 void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll, 
                                        TRT_RDO_Collection *data_coll, 
                                        TRT_RDO_Collection *out_coll, 
-                                       double occupancy) 
+                                       double occupancy,
+                                       const InDetSimDataCollection& SDO_Map) 
 {
    
   if(mc_coll->identify() != data_coll->identify()) {
@@ -639,10 +646,34 @@ void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll,
         
           //If the hit is not already a high level hit 
           if( !(pr1->getWord() & 0x04020100) ) {
+            
+            //Determine if the hit is from an electron or not
+            bool isElectron = false;
+            Identifier rdoId = p_rdo->identify();
+            InDetSimDataCollection::const_iterator sdoIter(SDO_Map.find(rdoId));
+            if( sdoIter != SDO_Map.end() ){
+              const std::vector< InDetSimData::Deposit >& deposits = sdoIter->second.getdeposits();
+              for ( const auto& deposit: deposits ){
+                const auto& particleLink = deposit.first;
+                if( particleLink.isValid() ){
+                  if( abs( particleLink->pdg_id() ) == 11 ){
+                    isElectron = true;
+                  }
+                }
+              }
+            }
+
+            
             unsigned int newword = 0;
             //Get random number 
             int det =  m_trt_id->barrel_ec( pr1->identify() );
-            float HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;  
+            float HTOccupancyCorrection = 0;
+            if(isElectron){ 
+              HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;  
+            } else { 
+              HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE; 
+            }
+
             if( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) 
               newword += 1 << (26-9);
             //

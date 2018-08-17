@@ -60,23 +60,23 @@ class T2CaloEgammaReFastAlgo: public AthReentrantAlgorithm {
     MsgStream* m_log;
     /** To support new monitoring. Values must be copied to
 	this monitored Cluster for each RoI. */
-    const xAOD::TrigEMCluster* m_monitoredCluster;
+    //const xAOD::TrigEMCluster* m_monitoredCluster;
     /** To monitor rCore */
-    float m_rCore;
+    //float m_rCore;
     /** To monitor eRatio */
-    float m_eRatio;
+    //float m_eRatio;
     /** To monitor r strips */
-    float m_stripRatio;
+    //float m_stripRatio;
     /** Forced LVL1 eta */
     float m_l1eta;
     /** Forced LVL1 phi */
     float m_l1phi;
     /** counter for conversion error */
-    unsigned int m_conversionError;
+    //unsigned int m_conversionError;
     /** counter for algorithm error */
-    unsigned int m_algorithmError;
+    //unsigned int m_algorithmError;
     /** Monitored Eta and Phi */
-    float m_MonEta, m_MonPhi;
+    //float m_MonEta, m_MonPhi;
 
     //int m_index;
     /** Calibration tools for the Barrel*/

@@ -19,8 +19,7 @@ namespace CoWTools{
       inode(0),
       m_ms(summary),
       dmin(0),
-      dmaj(0),
-      m_summary(summary)
+      dmaj(0)
     {}
     unsigned long addrStart,addrEnd;
     short perms;
@@ -29,8 +28,6 @@ namespace CoWTools{
     CoWRecordStats m_ms;
     unsigned int dmin,dmaj;
     void parseRecord(std::istream& in);    
-  private:
-    bool m_summary;
   public:
     friend CoWRecord operator-(CoWRecord lhs, const CoWRecord& rhs){
       return lhs-=rhs;

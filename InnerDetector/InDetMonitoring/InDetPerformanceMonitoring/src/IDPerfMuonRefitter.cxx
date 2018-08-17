@@ -9,16 +9,13 @@
 // Include files...
 //==================================================================================
 
-// This files header
+// This file's header
 #include "InDetPerformanceMonitoring/IDPerfMuonRefitter.h"
 
-// Standard headers
-#include <string>
-#include "TTree.h"
 
-// Package Headers
-#include "InDetPerformanceMonitoring/PerfMonServices.h"
-#include "InDetPerformanceMonitoring/ZmumuEvent.h"
+// Need containers
+#include "xAODMuon/Muon.h"
+#include "xAODMuon/MuonContainer.h"
 
 //Interface Headers
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"

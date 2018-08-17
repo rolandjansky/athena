@@ -18,10 +18,10 @@
 #include <string>
 
 #include "TileGeoG4SD/TileSDOptions.h"
+#include "TileG4Interfaces/ITileCalculator.h"
 
 // Members
 class G4VSensitiveDetector;
-class ITileCalculator;
 
 class TileGeoG4CalibSDTool: public SensitiveDetectorBase {
 public:

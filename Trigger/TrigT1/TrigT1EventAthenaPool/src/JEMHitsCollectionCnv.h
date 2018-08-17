@@ -34,8 +34,6 @@ public:
 
 protected:
   
-  ~JEMHitsCollectionCnv() {}
-  
   virtual JEMHitsCollection_PERS*   createPersistent (JEMHitsCollection* transCont);
   virtual JEMHitsCollection*        createTransient ();
 

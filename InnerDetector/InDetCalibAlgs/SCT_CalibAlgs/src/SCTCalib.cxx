@@ -58,7 +58,6 @@
 
 //InnerDetector
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
 using namespace SCT_CalibAlgs;
 using namespace std;
@@ -161,10 +160,7 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
     p_sgSvc                     ("StoreGateSvc",name),
     m_thistSvc(0),
     m_pSCTHelper(0),
-    m_pManager(0),
     m_pCalibWriteSvc            ("SCTCalibWriteSvc",name),
-    m_DCSConditionsSvc          ("SCT_DCSConditionsSvc",name),
-    m_ReadCalibDataSvc          ("SCT_ReadCalibDataSvc",name),
     m_CablingSvc                ("SCT_CablingSvc",name),
     m_calibHitmapSvc            ("SCT_CalibHitmapSvc",name),
     m_calibBsErrSvc             ("SCT_CalibBsErrorSvc",name),
@@ -320,29 +316,20 @@ StatusCode SCTCalib::initialize() {
     m_waferItrBegin  = m_pSCTHelper->wafer_begin();
     m_waferItrEnd  = m_pSCTHelper->wafer_end();
     //
-    if ( detStore()->retrieve( m_pManager, "SCT").isFailure() ) return msg( MSG::ERROR) << "Unable to retrieve SCTManager" << endmsg,StatusCode::FAILURE;
     if ( not retrievedService(m_pCalibWriteSvc)) return StatusCode::FAILURE;
     if ( m_doHV) msg( MSG::FATAL ) << "Not yet properly implemented and tested!" << endmsg;
-    if ( !m_useDCS ) {
-        ATH_MSG_DEBUG( "DCSConditionsSvc was removed in initialization" );
-        if ( m_doHV ) {
-            ATH_MSG_ERROR( "DCSConditionsSvc has to be initialized for HvSvc" );
-            return StatusCode::FAILURE ;
-        }
-    } else {
-        if (not retrievedService(m_DCSConditionsSvc)) return StatusCode::FAILURE;
-    }
 
     ATH_CHECK(m_ConfigurationConditionsTool.retrieve( EnableTool {m_useConfiguration} ) );
 
     if ( !m_useCalibration ) {
-        ATH_MSG_DEBUG( "ReadCalibDataSvc was removed in initialization" );
+        ATH_MSG_DEBUG( "ReadCalibDataTool was removed in initialization" );
+        m_ReadCalibDataTool.disable();
     } else {
-        if (not retrievedService(m_ReadCalibDataSvc)) return StatusCode::FAILURE;
+      if (m_ReadCalibDataTool.retrieve().isFailure()) return StatusCode::FAILURE;
     }
 
     if ( !m_useMajority ) {
-        ATH_MSG_DEBUG( "MajorityConditionsSvc was removed in initialization" );
+        ATH_MSG_DEBUG( "MajorityConditionsTool was removed in initialization" );
     } else {
       if (m_MajorityConditionsTool.retrieve().isFailure()) return StatusCode::FAILURE;
     }
@@ -481,9 +468,6 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
 StatusCode SCTCalib::beginRun() {
     ATH_MSG_INFO ("----- in beginRun() -----" );
     //--- Check if calibration data is available or not
-    if ( m_useCalibration and m_doNoisyStrip ) {
-        if ( not m_ReadCalibDataSvc->filled() ) return msg( MSG::ERROR ) << "Calibration data is not available" << endmsg, StatusCode::FAILURE;
-    }
     return StatusCode::SUCCESS;
 }
 
@@ -859,6 +843,14 @@ StatusCode SCTCalib::getDeadStrip() {
         }
     }
 
+    // Get SCT_DetectorElementCollection
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+    if (elements==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+
     //Dead identification
     bool hasDeadStrip=false;
     bool hasDeadChip=false;
@@ -971,7 +963,7 @@ StatusCode SCTCalib::getDeadStrip() {
 
         //retrieving #hits in each strip
         for(int j=0; j<n_stripPerChip*n_chipPerSide; j++) {
-            const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement(waferHash);
+            const InDetDD::SiDetectorElement* pElement = elements->getDetectorElement(waferHash);
             bool swap=(pElement->swapPhiReadoutDirection()) ? true : false;
             int chipNum=0;
             if(side==0) chipNum = swap ? 5-j/n_stripPerChip : j/n_stripPerChip;
@@ -2785,7 +2777,7 @@ SCTCalib::addStripsToList( Identifier& waferId, std::set<Identifier>& stripIdLis
                     stripIdList.insert( stripId );
                 } else { //--- New noisy strips : compared with configuration and calibration
                     const bool isGoodInConfiguration = m_useConfiguration ? m_ConfigurationConditionsTool->isGood( stripId, InDetConditions::SCT_STRIP ) : true;
-                    const bool isGoodInCalibration   = m_useCalibration   ? m_ReadCalibDataSvc->isGood( stripId, InDetConditions::SCT_STRIP )           : true;
+                    const bool isGoodInCalibration   = m_useCalibration   ? m_ReadCalibDataTool->isGood( stripId, InDetConditions::SCT_STRIP )           : true;
                     if ( m_useConfiguration or m_useCalibration ) {
                         if ( isGoodInConfiguration && isGoodInCalibration ) {
                             stripIdList.insert( stripId );
@@ -3325,6 +3317,15 @@ std::set<int>
 SCTCalib::getNoisyChips( const std::set<Identifier>& stripIdList ) const {
     std::set<int> chipIdList;
     chipIdList.clear();
+
+    // Get SCT_DetectorElementCollection
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+    if (elements==nullptr) {
+        ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+        return chipIdList;
+    }
+
     //--- Minimum number of noisy strips for a noisy chip
     unsigned int noisyChipThr = m_noisyChipFraction*n_stripPerChip;
     if ( stripIdList.size() > noisyChipThr ) {
@@ -3337,7 +3338,7 @@ SCTCalib::getNoisyChips( const std::set<Identifier>& stripIdList ) const {
             int stripOffline = m_pSCTHelper->strip( stripId );
             //--- Chip number : taken from SCT_ConfigurationConditionsSvc::getChip
             IdentifierHash waferHash = m_pSCTHelper->wafer_hash( m_pSCTHelper->wafer_id( stripId ) );
-            const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement( waferHash );
+            const InDetDD::SiDetectorElement* pElement = elements->getDetectorElement( waferHash );
             if ( !pElement ) {
                 msg( MSG::FATAL ) << "Element pointer is NULL" << endmsg;
                 continue;

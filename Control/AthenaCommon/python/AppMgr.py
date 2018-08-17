@@ -299,10 +299,7 @@ class AthAppMgr( AppMgr ):
          ipa2=IPA("IncidentProcAlg2")
          athEndSeq += ipa2
 
-         # unroll AthFilterSeq to save some function calls and
-         # stack size on the C++ side
-         for c in athFilterSeq.getChildren():
-            athMasterSeq += c
+         athMasterSeq += athFilterSeq
 
          # XXX: should we discard empty sequences ?
          #      might save some CPU and memory...
@@ -324,8 +321,8 @@ class AthAppMgr( AppMgr ):
          athAlgEvtSeq += athAllAlgSeq
          athAlgEvtSeq += athEndSeq
 
-         athMasterSeq += athAlgEvtSeq
-         athMasterSeq += athOutSeq
+         athFilterSeq += athAlgEvtSeq
+         athFilterSeq += athOutSeq
          athMasterSeq += athRegSeq
          
          Logging.log.debug ("building master sequence... [done]")
@@ -975,8 +972,8 @@ def AuditorSvc():             # backwards compatibility
 #                        +--- athEndSeq
 #                |
 #                +--- athOutSeq
-#                |
-#                +--- athRegStreams
+#         |
+#         +--- athRegStreams
 athMasterSeq = AlgSequence.AthSequencer( "AthMasterSeq" )
 athFilterSeq = AlgSequence.AthSequencer( "AthFilterSeq" )
 athCondSeq   = AlgSequence.AthSequencer( "AthCondSeq" )

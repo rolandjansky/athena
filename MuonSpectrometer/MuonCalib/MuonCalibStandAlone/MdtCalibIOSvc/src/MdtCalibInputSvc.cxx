@@ -64,7 +64,6 @@ StatusCode MdtCalibInputSvc::finalize(void) {
 }
 
 StatusCode MdtCalibInputSvc::queryInterface(const InterfaceID &riid, void **ppvUnknown) {
-  ATH_MSG_INFO( "StatusCode MdtCalibInputSvc::queryInterface" );
 
   if (IID_IMdtCalibInputSvc.versionMatch(riid)) { 
     *ppvUnknown = (MdtCalibInputSvc *)this; 

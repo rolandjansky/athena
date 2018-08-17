@@ -22,12 +22,6 @@ TrackParticleContainerCnv::TrackParticleContainerCnv( ISvcLocator *svcloc ):
  {}
  
 //-----------------------------------------------------------------------------
-// Destructor
-//-----------------------------------------------------------------------------
-TrackParticleContainerCnv::~TrackParticleContainerCnv()
-{}
-
-//-----------------------------------------------------------------------------
 // Initializer
 //-----------------------------------------------------------------------------
 StatusCode TrackParticleContainerCnv::initialize()

@@ -26,6 +26,12 @@ T_AthenaPoolCustomCnv<TRANS, PERS>::T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocat
 }
 
 template <class TRANS, class PERS>
+StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
+   ATH_MSG_VERBOSE("In DataObjectToPers() for key = " << pObj->name());
+   return(StatusCode::SUCCESS);
+}
+
+template <class TRANS, class PERS>
 StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
    ATH_MSG_VERBOSE("In DataObjectToPool() for key = " << pObj->name());
    bool skipDHE = false;

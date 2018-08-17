@@ -34,7 +34,7 @@ private:
   Gaudi::Property< std::string > m_clustersViewInput { this, "ClustersViewInput", "ClustersViewInput", "" };
   Gaudi::Property< std::string > m_viewNodeName { this, "ViewNodeName", "", "Name of CF node to attach views to" };
 
-  SG::WriteHandleKey< std::vector< SG::View* > > m_views { this, "Views", "Views", "Name of the generated view collection" };
+  SG::WriteHandleKey< ViewContainer > m_views { this, "Views", "Views", "Name of the generated view collection" };
   
   ServiceHandle< IScheduler > m_scheduler { this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
   Gaudi::Property< int > m_roITypeInViews { this, "RoITypeInViews", 1, "0 - place TrigRoiDesciptor in views, 1 - place Collections wiht single RoI, 2 - place entrie collection in the view, 3 - place SuperRoI in single view " };

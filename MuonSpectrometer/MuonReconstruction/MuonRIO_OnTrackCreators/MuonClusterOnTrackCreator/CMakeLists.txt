@@ -18,15 +18,15 @@ atlas_depends_on_subdirs( PRIVATE
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
+                          Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkEvent/TrkPrepRawData )
 
 # Component(s) in the package:
 atlas_add_component( MuonClusterOnTrackCreator
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps EventPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPrepRawData MuonRIO_OnTrack MuonRecToolInterfaces TrkSurfaces TrkEventPrimitives TrkParameters TrkPrepRawData TrkToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps EventPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPrepRawData MuonRIO_OnTrack MuonRecToolInterfaces TrkSurfaces TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -1,0 +1,27 @@
+Populating initial TC object
+Set detail ok.
+Testing initial TC object
+FloatVecValue = [1.23, 2.34]
+Simple getDetail API ok.
+Missing details handled ok.
+Basic link functionality OK
+Link recovery OK
+Testing copy constructor
+FloatVecValue = [1.23, 2.34]
+Simple getDetail API ok.
+Missing details handled ok.
+Basic link functionality OK
+Link recovery OK
+Testing assignment operator (standalone object)
+FloatVecValue = [1.23, 2.34]
+Simple getDetail API ok.
+Missing details handled ok.
+Basic link functionality OK
+Link recovery OK
+Testing assignment operator (object with store)
+FloatVecValue = [1.23, 2.34]
+Simple getDetail API ok.
+Missing details handled ok.
+Basic link functionality OK
+Link recovery OK
+All tests successful.

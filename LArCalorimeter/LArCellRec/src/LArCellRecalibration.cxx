@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCellRec/LArCellRecalibration.h" 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "LArCellRecalibration.h" 
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloGain.h"
 
@@ -37,8 +35,9 @@ StatusCode LArCellRecalibration::initialize() {
 }
 
 
-void LArCellRecalibration::MakeCorrection(CaloCell* theCell) {
-
+void LArCellRecalibration::MakeCorrection (CaloCell* theCell,
+                                           const EventContext& /*ctx*/) const
+{
   Identifier id = theCell->ID();
   CaloGain::CaloGain gain = theCell->gain();
   float newEnergy=theCell->energy();

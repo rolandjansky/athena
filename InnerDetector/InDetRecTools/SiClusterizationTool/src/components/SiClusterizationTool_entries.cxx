@@ -1,7 +1,3 @@
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-//#include "SCT_ConditionsServices/SCT_ConditionsSummarySvc.h"
-//#include "PixelConditionsServices/PixelConditionsSummarySvc.h"
-
 #include "SiClusterizationTool/MergedPixelsTool.h"
 #include "SiClusterizationTool/SCT_ClusteringTool.h"
 #include "SiClusterizationTool/SCT_ReClustering.h"

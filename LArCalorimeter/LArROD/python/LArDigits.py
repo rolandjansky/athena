@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from LArROD.LArRODConf import LArDigitThinner
+from LArCabling.LArCablingAccess import LArOnOffIdMapping 
         
 class DefaultLArDigitThinner (LArDigitThinner) :
      def __init__(self, name = 'LArDigitThinner', addToAlgSeq = True) :
@@ -24,8 +25,10 @@ class DefaultLArDigitThinner (LArDigitThinner) :
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                 if not "LArDigitContainer/FREE" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
                     svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
+                self.InputContainerName="FREE"
 
-        
+        LArOnOffIdMapping()
+
         if addToAlgSeq : 
           from AthenaCommon.AlgSequence import AlgSequence
           topSequence = AlgSequence()

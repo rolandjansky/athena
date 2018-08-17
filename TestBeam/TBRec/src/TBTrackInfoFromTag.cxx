@@ -3,11 +3,7 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/Property.h"
-
-#include "TBRec/TBTrackInfoFromTag.h"
+#include "TBTrackInfoFromTag.h"
 
 
 // template functions for copying the contents of a 1- and 2-dim array into a vector

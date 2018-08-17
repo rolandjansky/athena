@@ -5,8 +5,8 @@
 #ifndef PIXELRAWDATABYTESTREAMCNV_TIMECOLLECTION_H
 #define PIXELRAWDATABYTESTREAMCNV_TIMECOLLECTION_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 typedef DataVector< unsigned int > TimeCollection;

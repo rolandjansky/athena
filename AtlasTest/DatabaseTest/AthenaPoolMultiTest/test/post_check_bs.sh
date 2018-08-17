@@ -1,28 +1,28 @@
-#!/bin/sh -xv
-#/** @file post_check_co.sh
+#!/bin/sh
+#/** @file post_check_bs.sh
 # @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available). Modified to restrict checks
 # to output from AthenaPoolMultiTest CheckOutput test.
 # @param test_name
 #
 # @author Jack Cranshaw (Jack.Cranshaw@cern.ch), Paolo Calafiura (pcalafiura@lbl.gov).
-# $Id: post_check_co.sh,v 1.4 2006-04-27 21:03:11 cranshaw Exp $
+# $Id: post_check_bs.sh,v 1.4 2006-04-27 21:03:11 cranshaw Exp $
 # @param test_name 
 #
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
-# $Id: post_check_co.sh,v 1.4 2006-04-27 21:03:11 cranshaw Exp $
+# $Id: post_check_bs.sh,v 1.4 2006-04-27 21:03:11 cranshaw Exp $
 # **/
 test=$1
 status=${?}
 if [ -z "$status" ]
     then
-    echo "[93;1m post_check_co.sh> Warning: athena exit status is not available [m"
+    echo "[93;1m post_check_bs.sh> Warning: athena exit status is not available [m"
 else 
     # check exit status
     joblog=${test}.log
     if [ "$status" = 0 ]
 	then 
-	echo "[92;1m post_check_co.sh> OK: ${test} exited normally. Output is in $joblog [m"
+	echo "[92;1m post_check_bs.sh> OK: ${test} exited normally. Output is in $joblog [m"
 	reflog=../share/${test}.ref
         grep -e 'RunEventTag' \
              -e 'ByteStreamAtt' \
@@ -36,7 +36,7 @@ else
 	joblog=${joblog}.small
 	if [ -r $reflog ]
 	    then
-#	    echo " post_check_co.sh> Now comparing output with reference"
+#	    echo " post_check_bs.sh> Now comparing output with reference"
 	    diff -a -b -B  $joblog $reflog |\
                 # ignore diff annotations
 	        egrep -a -v '^---|^[[:digit:]]+[acd,][[:digit:]]+' |\
@@ -86,27 +86,27 @@ else
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 
 		then
-		echo "[97;101;1m post_check_co.sh> ERROR: $joblog and $reflog differ [m"
+		echo "[97;101;1m post_check_bs.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1
 	    else
-		echo "[92;1m post_check_co.sh> OK: $joblog and $reflog identical [m"
+		echo "[92;1m post_check_bs.sh> OK: $joblog and $reflog identical [m"
 	    fi
 	else
 	    tail $joblog
-	    echo "[93;1m post_check_co.sh> WARNING: reference output $reflog not available [m"
-	    echo  " post_check_co.sh> Please check ${PWD}/$joblog"
+	    echo "[93;1m post_check_bs.sh> WARNING: reference output $reflog not available [m"
+	    echo  " post_check_bs.sh> Please check ${PWD}/$joblog"
             exit 1
 	fi
     else
 	tail $joblog
-	echo  "[97;101;1m post_check_co.sh> ERROR: Athena exited abnormally! Exit code: $status [m"
-	echo  " post_check_co.sh> Please check ${PWD}/$joblog"
+	echo  "[97;101;1m post_check_bs.sh> ERROR: Athena exited abnormally! Exit code: $status [m"
+	echo  " post_check_bs.sh> Please check ${PWD}/$joblog"
     fi
 fi
 
 # Check output for ERROR/FATAL
 joblog=${test}.log
-echo 
+#echo 
 
 exit $status
 

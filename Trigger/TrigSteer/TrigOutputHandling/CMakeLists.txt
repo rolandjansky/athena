@@ -9,15 +9,16 @@ atlas_subdir( TrigOutputHandling )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-			              Control/AthContainers
-			              Control/AthLinks 
+			  Control/AthContainers
+			  Control/AthLinks 
                           Control/AthenaBaseComps
-			              Trigger/TrigEvent/TrigSteeringEvent
-			              Event/xAOD/xAODTrigCalo
-			              Event/xAOD/xAODTrigEgamma
-			              Event/xAOD/xAODTrigger
-			              Event/xAOD/xAODTracking
-			              )
+                          Control/AthViews
+			  Trigger/TrigEvent/TrigSteeringEvent
+			  Event/xAOD/xAODTrigCalo
+			  Event/xAOD/xAODTrigEgamma
+			  Event/xAOD/xAODTrigger
+			  Event/xAOD/xAODTracking
+			  )
 
 
 # Component(s) in the package:

@@ -11,18 +11,15 @@
 // This files header
 #include "InDetPerformanceMonitoring/IDPerfMonZmumu.h"
 // Standard headers
-#include <string>
 #include "TTree.h"
 #include "TLorentzVector.h"
 
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "InDetPerformanceMonitoring/ZmumuEvent.h"
 
-//#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-//#include "xAODTruth/xAODTruthHelpers.h"
 //For extrapolation
 
 // ATLAS headers
@@ -54,7 +51,6 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   m_refit1TreeName("Refit1Params"),
   m_refit2TreeName("Refit2Params"),
   m_truthTreeName("TruthParams"),
-  //  m_meStacoTreeName("MEStacoParams"),  //not existent in xAOD anymore
   m_combStacoTreeName("CombStacoParams"),
   m_combMuidTreeName("CombMuidParams"),
   m_ValidationTreeDescription("Small Tree for Zmumu fits"),
@@ -62,13 +58,11 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
   m_refit1TreeFolder("/ZmumuValidation/refit1"),
   m_refit2TreeFolder("/ZmumuValidation/refit2"),
   m_truthTreeFolder("/ZmumuValidation/truth"),
-  //  m_meStacoTreeFolder("/ZmumuValidation/mestaco"),
   m_combStacoTreeFolder("/ZmumuValidation/combstaco"),
   m_defaultTree(0),
   m_refit1Tree(0),
   m_refit2Tree(0),
   m_truthTree(0),
-  //  m_meStacoTree(0),   // not existent in xAOD anymore
   m_combStacoTree(0),
   m_combMuidTree(0)
 
@@ -89,8 +83,6 @@ IDPerfMonZmumu::IDPerfMonZmumu(const std::string& name,
 
   declareProperty("TrackTruthName",     m_truthName="TrackTruthCollection");
   declareProperty("TrackParticleName",  m_trackParticleName="InDetTrackParticles");
-  //    declareProperty("TrackParticleName",  m_trackParticleName="TruthParticles");
-  //  declareProperty("TrackParticleName",  m_trackParticleName="CombinedMuonTrackParticles");
 
   declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
 
@@ -346,11 +338,6 @@ StatusCode IDPerfMonZmumu::initialize()
     m_validationMode = false;
   }
 
-  //  if ((tHistSvc->regTree(m_meStacoTreeFolder, m_meStacoTree)).isFailure() ) {
-  //ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !");
-  //delete m_meStacoTree; m_meStacoTree = 0;
-  //m_validationMode = false;
-  //}
 
   if ((tHistSvc->regTree(m_combStacoTreeFolder, m_combStacoTree)).isFailure() ) {
     ATH_MSG_ERROR("initialize() Could not register the validation Tree -> Switching ValidationMode Off !");
@@ -398,41 +385,35 @@ StatusCode IDPerfMonZmumu::execute()
 
   //Fill Staco muon parameters only
   m_xZmm.setContainer(PerfMonServices::MUON_COLLECTION);
-  //  m_xZmm.Reco();
   if(!m_xZmm.Reco()){
     //failed reconstruction
     return StatusCode::SUCCESS;
   }
     const xAOD::Muon* muon_pos = m_xZmm.getCombMuon(m_xZmm.getPosMuon(ZmumuEvent::CB));
     const xAOD::Muon* muon_neg = m_xZmm.getCombMuon(m_xZmm.getNegMuon(ZmumuEvent::CB));
+    //already here, muon_pos and muon_neg may not be nullptr
+    if ((not muon_pos) or (not muon_neg)){
+      ATH_MSG_WARNING("No muon here!");
+      return StatusCode::SUCCESS;
+    }
     const xAOD::TrackParticle* p1_comb = muon_pos->trackParticle(xAOD::Muon::CombinedTrackParticle);
     const xAOD::TrackParticle* p2_comb = muon_neg->trackParticle(xAOD::Muon::CombinedTrackParticle);
-  if ( m_xZmm.EventPassed() ) {
+    if ( m_xZmm.EventPassed() ) {
     //fill Combined Staco parameters
-    if (!muon_pos || !muon_neg) {
-      ATH_MSG_WARNING("CB Staco Muons missing!");
-    } else {
-      //       FillRecParameters(muon_pos->combinedMuonTrackParticle()->originalTrack(), muon_pos->combinedMuonTrackParticle()->charge());
-      //       FillRecParameters(muon_neg->combinedMuonTrackParticle()->originalTrack(), muon_neg->combinedMuonTrackParticle()->charge());
-      FillRecParameters(p1_comb->track(), p1_comb->charge());
-      FillRecParameters(p2_comb->track(), p2_comb->charge());
-      m_combStacoTree->Fill();
-    }
+    FillRecParameters(p1_comb->track(), p1_comb->charge());
+    FillRecParameters(p2_comb->track(), p2_comb->charge());
+    m_combStacoTree->Fill();
+    
 
   }
 
 
-  //Now use MUID collection to find ID tracks
-  //m_xZmm.setContainer(PerfMonServices::MUID_COLLECTION);
-  //m_xZmm.Reco();
-
+ 
   if ( !m_xZmm.EventPassed() ) {
     //failed cuts, continue to next event
     return StatusCode::SUCCESS;
   }
-  //const std::string region = m_xZmm.getRegion();
-  //  const xAOD::TrackParticle* p1 = m_xZmm.getIDTrack(m_xZmm.getPosMuon(ZmumuEvent::ID));
-  //  const xAOD::TrackParticle* p2 = m_xZmm.getIDTrack(m_xZmm.getNegMuon(ZmumuEvent::ID));
+ 
   TrackCollection* muonTrks  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit1  = new TrackCollection(SG::OWN_ELEMENTS);
   TrackCollection* muonTrksRefit2  = new TrackCollection(SG::OWN_ELEMENTS);
@@ -440,6 +421,9 @@ StatusCode IDPerfMonZmumu::execute()
   // changed refitting to combinedparticles since run II DESDM_ZMUMU did not store InDetTrackParticles
   if (!p1_comb->track() || !p2_comb->track()) {
      ATH_MSG_WARNING("Track missing!  Skipping Event");
+     delete muonTrks;
+     delete muonTrksRefit1;
+     delete muonTrksRefit2;
      return StatusCode::SUCCESS;
   }
 
@@ -461,6 +445,9 @@ StatusCode IDPerfMonZmumu::execute()
     fitStatus = m_TrackRefitter1->refitTrack( p1_comb->track(),egam );
     if (fitStatus.isFailure()) {
        ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");
+       delete muonTrks;
+       delete muonTrksRefit1;
+       delete muonTrksRefit2;
        return StatusCode::SUCCESS;
     } else {
       refit1MuonTrk1 = m_TrackRefitter1->refittedTrack();
@@ -472,6 +459,9 @@ StatusCode IDPerfMonZmumu::execute()
     fitStatus = m_TrackRefitter2->refitTrack( p1_comb->track(),egam );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
+      delete muonTrks;
+      delete muonTrksRefit1;
+      delete muonTrksRefit2;
       return StatusCode::SUCCESS;
     } else {
       refit2MuonTrk1 = m_TrackRefitter2->refittedTrack();
@@ -483,10 +473,9 @@ StatusCode IDPerfMonZmumu::execute()
 
   if( p2_comb->track() ) {
     defaultMuonTrk2 = new Trk::Track(*p2_comb->track());
-
     fitStatus = m_TrackRefitter1->refitTrack( p2_comb->track(),egam );
     if (fitStatus.isFailure()) {
-      ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");
+      ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");      
       return StatusCode::SUCCESS;
     } else {
       refit1MuonTrk2 = m_TrackRefitter1->refittedTrack();
@@ -536,11 +525,11 @@ StatusCode IDPerfMonZmumu::execute()
   if (m_isMC) {
 
      if (FillTruthParameters(p1_comb).isFailure()){
-	ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
+	     ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
   	return StatusCode::SUCCESS;
      }
      if (FillTruthParameters(p2_comb).isFailure()){
-	ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
+	     ATH_MSG_WARNING("Failed to fill truth parameters - skipping event");
   	return StatusCode::SUCCESS;
      }
      ATH_MSG_DEBUG("fill truthTree with parameters : ");
@@ -607,13 +596,10 @@ StatusCode IDPerfMonZmumu::execute()
     m_refit2Tree->Fill();
   }
 
-  if (!muon_pos || !muon_neg) {
-    ATH_MSG_WARNING("CB Muons missing!");
-  } else {
-    FillRecParameters(p1_comb->track(), p1_comb->charge());
-    FillRecParameters(p2_comb->track(), p2_comb->charge());
-    m_combMuidTree->Fill();
-  }
+  FillRecParameters(p1_comb->track(), p1_comb->charge());
+  FillRecParameters(p2_comb->track(), p2_comb->charge());
+  m_combMuidTree->Fill();
+  
 
   return StatusCode::SUCCESS;
 }
@@ -627,19 +613,14 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
     return;
   }
   const Trk::Perigee* trkPerigee = track->perigeeParameters();
-  //  const AmgSymMatrix(5)* covariance = trkPerigee ? trkPerigee->covariance() : NULL;
-  //  if (covariance == NULL) {
-  //    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg;
-  //  }
+  
 
   double px = 0;
   double py = 0;
   double pz = 0;
   double d0 = 0;
   double z0 = 0;
-  //  double d0_err = 0;
-  //  double z0_err = 0;
-
+ 
   if(trkPerigee){
     double qOverP   = trkPerigee->parameters()[Trk::qOverP];
     if (qOverP) {
@@ -662,8 +643,7 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
       pz = atBL->momentum().z();
       d0 = atBL->parameters()[Trk::d0];
       z0 = atBL->parameters()[Trk::z0];
-      //      z0_err = Amg::error(*trkPerigee->covariance(),Trk::z0);
-      //      d0_err = Amg::error(*trkPerigee->covariance(),Trk::d0);
+      
     }
   }
 
@@ -675,8 +655,7 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
     m_positive_z0 = z0;
     m_positive_d0 = d0;
     ATH_MSG_DEBUG("(Filled charge == 1 ) (reco)-> px : "<< px <<" py: "<<py <<" pz: "<<pz <<" d0: "<<d0<<" z0: "<< z0);
-    //    m_positive_z0_err = z0_err;
-    //    m_positive_d0_err = d0_err;
+    
   } else  if (charge == -1) {
     m_negative_px = px;
     m_negative_py = py;
@@ -684,8 +663,7 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
     m_negative_z0 = z0;
     m_negative_d0 = d0;
     ATH_MSG_DEBUG("(Filled charge == -1 ) (reco)-> px : "<< px <<" py: "<<py <<" pz: "<<pz <<" d0: "<<d0<<" z0: "<<z0 );
-    //    m_negative_z0_err = z0_err;
-    //    m_negative_d0_err = d0_err;
+    
   }
 
   return;
@@ -694,8 +672,7 @@ void IDPerfMonZmumu::FillRecParameters(const Trk::Track* track, double charge)
 StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackParticle)
 {
   double momX(0),momY(0),momZ(0), vtxX(0),vtxY(0),vtxZ(0);
-  //  const xAOD::TruthParticle* truthParticle = xAOD::TruthHelpers::getTruthParticle( *trackParticle );
-  //  const xAOD::TruthParticle* truthParticle = xAOD::EgammaHelpers::getTruthParticle( trackParticle );
+  
   const xAOD::TruthParticle* truthParticle = getTruthParticle( *trackParticle );
         if(truthParticle->hasProdVtx()){
 	  vtxX = truthParticle->prodVtx()->x();
@@ -710,7 +687,6 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
     double charge = 0;
     if(truthParticle->pdgId() == 13) charge = -1.;
     else if(truthParticle->pdgId() == -13) charge = 1.;
-    //    Trk::Perigee* candidatePerigee  = new Trk::Perigee(pos,mom,charge,pos);
     Trk::TrackParameters* parameters  = new Trk::Perigee(pos,mom,charge,pos);
 
     const Trk::AtaStraightLine*  atBLi =

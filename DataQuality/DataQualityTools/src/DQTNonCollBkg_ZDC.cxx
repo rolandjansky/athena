@@ -229,7 +229,6 @@ StatusCode DQTNonCollBkg_ZDC::fillHistograms()
 
   std::vector<std::vector<int> > wfm;
   std::vector<std::vector<int> >::iterator vit;
-  std::vector<int>::iterator it;
 
 
   Identifier id;
@@ -445,7 +444,6 @@ int  DQTNonCollBkg_ZDC::getEnergyAndTimeByModule(const Identifier& id,
   ZdcSignalSinc* zdcSignalSinc;
 
   std::vector<std::vector<int> >::const_iterator vit;
-  std::vector<int>::const_iterator it;
   std::vector<int>  y;
 
   Identifier32::value_type x;

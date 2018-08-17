@@ -6,10 +6,7 @@
 /// Type converter for the TruthInfo persistent/transient classes
 ///
 
-#define private public
 #include "JetTagInfo/AtlfInfo.h"
-#undef private
-
 #include "JetTagInfoTPCnv/AtlfInfoCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -25,19 +22,19 @@ namespace Analysis {
     persObj->m_BaseTagInfo = baseToPersistent(&m_baseTagCnv, transObj, msg);
 
     /// Now, our particular members.
-    persObj->m_isBTagged = transObj->m_isBTagged;
-    persObj->m_isTauTagged = transObj->m_isTauTagged;
-    persObj->m_isTau1PTagged = transObj->m_isTau1PTagged;
-    persObj->m_isTau3PTagged = transObj->m_isTau3PTagged;
+    persObj->m_isBTagged = transObj->isBTagged();
+    persObj->m_isTauTagged = transObj->isTauTagged();
+    persObj->m_isTau1PTagged = transObj->isTau1PTagged();
+    persObj->m_isTau3PTagged = transObj->isTau3PTagged();
     
-    persObj->m_calFactLight = transObj->m_calFactLight;
-    persObj->m_calFactTau = transObj->m_calFactTau;
-    persObj->m_calFactTau1P3P = transObj->m_calFactTau1P3P;
-    persObj->m_calFactB = transObj->m_calFactB;
+    persObj->m_calFactLight = transObj->LightHypoCalFactor();
+    persObj->m_calFactTau = transObj->TauHypoCalFactor();
+    persObj->m_calFactTau1P3P = transObj->Tau1P3PHypoCalFactor();
+    persObj->m_calFactB = transObj->BHypoCalFactor();
 
-    persObj->m_distanceToBQuark = transObj->m_distanceToBQuark;
-    persObj->m_distanceToCQuark = transObj->m_distanceToCQuark;
-    persObj->m_distanceToTLepton = transObj->m_distanceToTLepton;
+    persObj->m_distanceToBQuark = transObj->deltaRMinTo ("B");
+    persObj->m_distanceToCQuark = transObj->deltaRMinTo ("C");
+    persObj->m_distanceToTLepton = transObj->deltaRMinTo ("T");
   }
 
   void AtlfInfoCnv_p1::persToTrans (const AtlfInfo_p1 *persObj,
@@ -49,19 +46,19 @@ namespace Analysis {
     //m_baseTagCnv.persToTrans(&persObj->m_BaseTagInfo, transObj, msg);
 
     /// Now, our particular members.
-    transObj->m_isBTagged = persObj->m_isBTagged;
-    transObj->m_isTauTagged = persObj->m_isTauTagged;
-    transObj->m_isTau1PTagged = persObj->m_isTau1PTagged;
-    transObj->m_isTau3PTagged = persObj->m_isTau3PTagged;
+    transObj->isBTagged (persObj->m_isBTagged);
+    transObj->isTauTagged (persObj->m_isTauTagged);
+    transObj->isTau1PTagged (persObj->m_isTau1PTagged);
+    transObj->isTau3PTagged (persObj->m_isTau3PTagged);
     
-    transObj->m_calFactLight = persObj->m_calFactLight;
-    transObj->m_calFactTau = persObj->m_calFactTau;
-    transObj->m_calFactTau1P3P = persObj->m_calFactTau1P3P;
-    transObj->m_calFactB = persObj->m_calFactB;
+    transObj->LightHypoCalFactor (persObj->m_calFactLight);
+    transObj->TauHypoCalFactor (persObj->m_calFactTau);
+    transObj->Tau1P3PHypoCalFactor (persObj->m_calFactTau1P3P);
+    transObj->BHypoCalFactor (persObj->m_calFactB);
 
-    transObj->m_distanceToBQuark = persObj->m_distanceToBQuark;
-    transObj->m_distanceToCQuark = persObj->m_distanceToCQuark;
-    transObj->m_distanceToTLepton = persObj->m_distanceToTLepton;
+    transObj->deltaRMinTo ("B", persObj->m_distanceToBQuark);
+    transObj->deltaRMinTo ("C", persObj->m_distanceToCQuark);
+    transObj->deltaRMinTo ("T", persObj->m_distanceToTLepton);
 
   }
 

@@ -5,7 +5,7 @@
 #ifndef TRK_SEGMENTCOLLECTIONCNV_TLP4_H
 #define TRK_SEGMENTCOLLECTIONCNV_TLP4_H
 
-#include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPConverter.h"
+#include "TPTools/TopLevelTPConverter.h"
 
 #include "SegmentCollection_tlp4.h"
 
@@ -25,7 +25,7 @@
 #include "MuonEventTPCnv/MuonMeasurementsCnv_tlp2.h"
 #include "InDetEventTPCnv/InDetTrackCnv_tlp2.h"
 
-typedef AthenaPoolTopLevelTPConverter< SegmentCollectionCnv_p1, Trk::SegmentCollection_tlp4 > BaseSegmentCollectionCnv;
+typedef TopLevelTPConverter< SegmentCollectionCnv_p1, Trk::SegmentCollection_tlp4 > BaseSegmentCollectionCnv;
 
 class SegmentCollectionCnv_tlp4 : public BaseSegmentCollectionCnv
 {

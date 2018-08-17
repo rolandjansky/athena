@@ -84,7 +84,8 @@ AtlasDetectorIDHelper::~AtlasDetectorIDHelper(void)
 
 
 int         
-AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
+AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr,
+                                                  bool quiet)
 {
 
     if(m_initialized) return(0);
@@ -452,16 +453,18 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	    if (group) {
 	        size = group->regions().size();
 	    }
-	    if(m_msgSvc) {
+            if (!quiet) {
+              if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::DEBUG << "initialize_from_dictionary - unable to find mm region index: group, region size "  
                     << group << " " << size
                     << endmsg;
-            }
-            else {
+              }
+              else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size "  
                           << group << " " << size
                           << std::endl;
+              }
             }
 	}
 
@@ -477,16 +480,18 @@ AtlasDetectorIDHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	    if (group) {
 	        size = group->regions().size();
 	    }
-	    if(m_msgSvc) {
+            if (!quiet) {
+              if(m_msgSvc) {
                 MsgStream log(m_msgSvc, "AtlasDetectorIDHelper" );
                 log << MSG::DEBUG << "initialize_from_dictionary - unable to find stgc region index: group, region size "  
                     << group << " " << size
                     << endmsg;
-            }
-            else {
+              }
+              else {
                 std::cout << "AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size "  
                           << group << " " << size
                           << std::endl;
+              }
             }
 	}
     }

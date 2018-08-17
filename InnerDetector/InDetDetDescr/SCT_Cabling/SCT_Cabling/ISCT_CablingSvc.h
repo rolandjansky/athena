@@ -41,19 +41,19 @@ class ISCT_CablingSvc: virtual public IInterface {
   static const InterfaceID& interfaceID();
 
   /// return offline hash, given the online Id (used by decoders)
-  virtual IdentifierHash getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool withWarnings = true) = 0;
+  virtual IdentifierHash getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool withWarnings = true) const = 0;
 
   /// return the online Id, given a hash (used by simulation encoders)
-  virtual SCT_OnlineId getOnlineIdFromHash(const IdentifierHash& hash) = 0;
+  virtual SCT_OnlineId getOnlineIdFromHash(const IdentifierHash& hash) const = 0;
 
   /// return the rob/rod Id, given a hash (used by simulation encoders)
-  virtual std::uint32_t getRobIdFromHash(const IdentifierHash& hash) = 0;
+  virtual std::uint32_t getRobIdFromHash(const IdentifierHash& hash) const = 0;
 
   /// return the online Id, given an offlineId
-  virtual SCT_OnlineId getOnlineIdFromOfflineId(const Identifier& offlineId) = 0;
+  virtual SCT_OnlineId getOnlineIdFromOfflineId(const Identifier& offlineId) const = 0;
 
   /// return the rob/rod Id, given an offlineId (used by simulation encoders)
-  virtual std::uint32_t getRobIdFromOfflineId(const Identifier& offlineId) = 0;
+  virtual std::uint32_t getRobIdFromOfflineId(const Identifier& offlineId) const = 0;
 
   /// size of the data structure (for the SCT should be 8176, one for each module side)
   virtual unsigned int size() const = 0;
@@ -62,16 +62,16 @@ class ISCT_CablingSvc: virtual public IInterface {
   virtual bool empty() const = 0;
 
   /// get hash from a module serial number, needed in the conditions service because configurations are stored by module s/n
-  virtual IdentifierHash getHashFromSerialNumber(const SCT_SerialNumber& sn) = 0;
+  virtual IdentifierHash getHashFromSerialNumber(const SCT_SerialNumber& sn) const = 0;
 
   /// get module serial number from hash, needed during filling of data structure
-  virtual SCT_SerialNumber getSerialNumberFromHash(const IdentifierHash& hash) = 0;
+  virtual SCT_SerialNumber getSerialNumberFromHash(const IdentifierHash& hash) const = 0;
 
   /// fill a users vector with all the RodIds
-  virtual void getAllRods(std::vector<std::uint32_t>& usersVector) = 0;
+  virtual void getAllRods(std::vector<std::uint32_t>& usersVector) const = 0;
 
   /// fill a user's vector with all the hash ids which belong to a given rod
-  virtual void getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId) = 0;
+  virtual void getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId) const = 0;
 
   /// insert the hashId, onlineId and serial number to the data, used only within this package to fill the data structure
   virtual bool insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn) = 0;

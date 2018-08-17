@@ -132,3 +132,30 @@ SCT_GeometryManager::distortedMatManager() const
   return m_distortedMatManager;
 }
 
+SCT_GeometryManager&
+SCT_GeometryManager::operator=(const SCT_GeometryManager& right) {
+  if (this != &right) {
+    m_options = right.m_options;
+    m_athenaComps = right.m_athenaComps;
+    m_commonItems = right.m_commonItems;
+    m_barrelParameters = nullptr;
+    m_barrelModuleParameters = nullptr;
+    m_forwardParameters = nullptr;
+    m_forwardModuleParameters = nullptr;
+    m_generalParameters = nullptr;
+    m_distortedMatManager = nullptr;
+  }
+  return *this;
+}
+
+SCT_GeometryManager::SCT_GeometryManager(const SCT_GeometryManager& right) {
+  m_options = right.m_options;
+  m_athenaComps = right.m_athenaComps;
+  m_commonItems = right.m_commonItems;
+  m_barrelParameters = nullptr;
+  m_barrelModuleParameters = nullptr;
+  m_forwardParameters = nullptr;
+  m_forwardModuleParameters = nullptr;
+  m_generalParameters = nullptr;
+  m_distortedMatManager = nullptr;
+}

@@ -68,7 +68,7 @@ public:
   bool m_useDatabase;
 
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
-  SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey;
+  SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey{this, "CondKey", "SCT_TdaqEnabledCondData", "Active SCT RODs"};
 
   const SCT_TdaqEnabledCondData* getCondData(const EventContext& ctx) const;
 };

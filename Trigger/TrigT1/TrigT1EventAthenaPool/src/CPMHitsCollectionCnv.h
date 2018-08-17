@@ -33,8 +33,6 @@ public:
      {}
   
 protected:
-
-  ~CPMHitsCollectionCnv() {}
   
   virtual CPMHitsCollection_PERS*   createPersistent (CPMHitsCollection* transCont);
   virtual CPMHitsCollection*        createTransient ();

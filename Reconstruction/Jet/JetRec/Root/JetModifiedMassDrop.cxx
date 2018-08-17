@@ -69,7 +69,9 @@ StatusCode JetModifiedMassDrop::initialize() {
 
 //**********************************************************************
 
-int JetModifiedMassDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
+int JetModifiedMassDrop::groom(const xAOD::Jet& jin,
+                               const PseudoJetContainer& pjContainer,
+                               xAOD::JetContainer& jets) const {
   if ( pseudojetRetriever() == nullptr ) {
     ATH_MSG_WARNING("Pseudojet retriever is null.");
     return 1;
@@ -108,7 +110,7 @@ int JetModifiedMassDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) c
   }
 
   int npMMDT = filtpjMMDT.pieces().size();
-  xAOD::Jet* pjet = m_bld->add(filtpjMMDT, jets, &jin);
+  xAOD::Jet* pjet = m_bld->add(filtpjMMDT, pjContainer, jets, &jin);
   //pjet->SetAttribute<int>("TransformType", xAOD::JetTransform::MMDT); // Possibly not needed
   pjet->setAttribute("didMMDT", didMMDT);
   pjet->setAttribute("ZCut", m_zcut);

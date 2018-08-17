@@ -6,8 +6,8 @@
 #define MUONRDO_MDTCSM_H
 
 #include "MuonRDO/MdtAmtHit.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 

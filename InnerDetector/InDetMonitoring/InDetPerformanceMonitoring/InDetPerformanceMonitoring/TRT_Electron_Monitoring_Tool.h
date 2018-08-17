@@ -6,7 +6,6 @@
 #define TRT_ELECTRON_MONITORING_TOOL_H
 
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -25,15 +24,12 @@
 
 
 #include <vector>
-#include <sstream>
-#include <stdlib.h>
 #include <string>
-#include "TF1.h"
-#include "TMath.h"
-#include "TProfile.h"
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-#include "LWHists/TProfile_LW.h"
+
+
+class TH1F_LW;
+class TH2F_LW;
+class TProfile_LW;
 
 
 
@@ -47,41 +43,41 @@ class Identifier;
 
 struct lw_geo_hists_t
 {
-	int N;
+	int N{};
 
-	TH1F_LW				*hNTracks;
-	TH1F_LW				*hHTFracTrack;
-	TProfile_LW			*pHTFracTrackPhi;
-	TProfile_LW			*pHTFracStrawZR;
-	TProfile_LW			*pHTFracStrawZAI;
-	TProfile_LW			*pHTFracStrawZCO;
+	TH1F_LW				*hNTracks{};
+	TH1F_LW				*hHTFracTrack{};
+	TProfile_LW			*pHTFracTrackPhi{};
+	TProfile_LW			*pHTFracStrawZR{};
+	TProfile_LW			*pHTFracStrawZAI{};
+	TProfile_LW			*pHTFracStrawZCO{};
 
-	TProfile_LW			*pHTFracGammaEl;
-	TProfile_LW			*pHTFracGammaPosEl;
-	TProfile_LW			*pHTFracGammaNegEl;
+	TProfile_LW			*pHTFracGammaEl{};
+	TProfile_LW			*pHTFracGammaPosEl{};
+	TProfile_LW			*pHTFracGammaNegEl{};
 
-	TProfile_LW			*pHTFracGammaMu;
-	TProfile_LW			*pHTFracGammaPosMu;
-	TProfile_LW			*pHTFracGammaNegMu;
+	TProfile_LW			*pHTFracGammaMu{};
+	TProfile_LW			*pHTFracGammaPosMu{};
+	TProfile_LW			*pHTFracGammaNegMu{};
 
-	TProfile_LW			*pHTFracGammaPi;
-	TProfile_LW			*pHTFracGammaPosPi;
-	TProfile_LW			*pHTFracGammaNegPi;
+	TProfile_LW			*pHTFracGammaPi{};
+	TProfile_LW			*pHTFracGammaPosPi{};
+	TProfile_LW			*pHTFracGammaNegPi{};
 
-	TProfile_LW			*pHTFracGammaAll;
-	TProfile_LW			*pHTFracGammaPosAll;
-	TProfile_LW			*pHTFracGammaNegAll;
+	TProfile_LW			*pHTFracGammaAll{};
+	TProfile_LW			*pHTFracGammaPosAll{};
+	TProfile_LW			*pHTFracGammaNegAll{};
 };
 
 struct lw_partcand_hists_t
 {
-	int N;
+	int N{};
 
-	TH1F_LW				*hNCand;
-	TH1F_LW				*hPIDProb;
-	TH1F_LW				*hHTFrac;
-	TProfile_LW			*pPIDProbEta;
-	TProfile_LW			*pHTFracEta;
+	TH1F_LW				*hNCand{};
+	TH1F_LW				*hPIDProb{};
+	TH1F_LW				*hHTFrac{};
+	TProfile_LW			*pPIDProbEta{};
+	TProfile_LW			*pHTFracEta{};
 };
 
 class TRT_Electron_Monitoring_Tool : public ManagedMonitorToolBase
@@ -105,7 +101,7 @@ public:
 
 	const TRT_ID*	m_pTRTHelper;
 
-  	const InDetDD::TRT_DetectorManager *m_mgr;
+	const InDetDD::TRT_DetectorManager *m_mgr;
 
 	void bookGeoHistograms( lw_geo_hists_t &hists, const std::string& name);
 	void bookPCandHistograms( MonGroup &monGroup, lw_partcand_hists_t &hists, const std::string& name);
@@ -135,20 +131,20 @@ public:
 
 private:
 
-  	const DataVector<xAOD::TrackParticle> *m_trkpCollection;
+	const DataVector<xAOD::TrackParticle> *m_trkpCollection{};
 	std::string m_tracksName;
 
-  	const xAOD::ElectronContainer* m_electronContainer;
+	const xAOD::ElectronContainer* m_electronContainer{};
 	std::string m_electronsName;
 
-  	const xAOD::MuonContainer* m_muonContainer;
+	const xAOD::MuonContainer* m_muonContainer{};
 	std::string m_muonsName;
 
-	const xAOD::VertexContainer* m_conversionContainer;
+	const xAOD::VertexContainer* m_conversionContainer{};
 	std::string m_conversionName;
 
 	std::string m_isEMFlag;
-	myIsEMType m_isEMType;
+	myIsEMType m_isEMType{ISEMLOOSE};
 
 	bool m_doTracksMon;
 	bool m_doElectronMon;
@@ -169,14 +165,14 @@ private:
 	float m_ZRMax;
 	float m_PionTRTHitCut;
 
-	lw_geo_hists_t m_tBarrelA;
-	lw_geo_hists_t m_tBarrelC;
-	lw_geo_hists_t m_tEndCapA;
-	lw_geo_hists_t m_tEndCapC;
+	lw_geo_hists_t m_tBarrelA{};
+	lw_geo_hists_t m_tBarrelC{};
+	lw_geo_hists_t m_tEndCapA{};
+	lw_geo_hists_t m_tEndCapC{};
 
-	lw_partcand_hists_t m_tEl;
-	lw_partcand_hists_t m_tMu;
-	lw_partcand_hists_t m_tPi;
+	lw_partcand_hists_t m_tEl{};
+	lw_partcand_hists_t m_tMu{};
+	lw_partcand_hists_t m_tPi{};
 
 };
 #endif

@@ -36,13 +36,11 @@ public:
   
   virtual ~HanOutput();
   
-  virtual void addListener( const std::string& name, dqm_core::OutputListener* listener )
-    throw (dqm_core::Exception);
+  virtual void addListener( const std::string& name, dqm_core::OutputListener* listener );
   
   virtual void addListener( const dqm_core::Parameter& parameter, dqm_core::OutputListener* listener );
   
-  virtual void publishResult( const std::string& name, const dqm_core::Result& result )
-    throw (dqm_core::Exception);
+  virtual void publishResult( const std::string& name, const dqm_core::Result& result );
 
   virtual void flushResults();
   
@@ -74,7 +72,7 @@ protected:
   
   class RegionNameComp {
   public:
-    bool operator()( const dqm_core::Region* a, const dqm_core::Region* b );
+    bool operator()( const dqm_core::Region* a, const dqm_core::Region* b ) const;
   };
 
   

@@ -99,7 +99,7 @@ StatusCode ByteStreamAttListMetadataSvc::serialize(const std::vector<std::string
 StatusCode ByteStreamAttListMetadataSvc::toBSMetadata(const std::vector<std::string>& keys)
 {
    msg() << MSG::INFO << "ByteStreamAttListMetadataSvc::toBSMetadata" << endmsg;
-   const DataHandle< AthenaAttributeList > attList;
+   const AthenaAttributeList* attList = nullptr;
    StoreGateSvc* inStore;
    StatusCode sc = service(m_inputStoreName.toString(),inStore);
    if (sc.isFailure()) return StatusCode::FAILURE;
@@ -184,7 +184,7 @@ StatusCode ByteStreamAttListMetadataSvc::fromBSMetadata(const std::vector<std::s
   if (sc.isFailure()) return StatusCode::FAILURE;
   std::vector<std::string>::const_iterator it = keys.begin();
   while (it != keys.end()) {
-    const DataHandle< ByteStream::FreeMetadata > metacont;
+    const ByteStream::FreeMetadata* metacont = nullptr;
     sc = inStore->retrieve( metacont, *it );
 
     if (sc.isSuccess()) {

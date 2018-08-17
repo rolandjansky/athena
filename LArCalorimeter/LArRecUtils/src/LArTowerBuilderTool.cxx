@@ -9,7 +9,7 @@
 
 #include "CaloUtils/CaloTowerBuilderTool.h"
 
-#include "LArRecUtils/LArTowerBuilderTool.h"
+#include "LArTowerBuilderTool.h"
 
 #include <string>
 
@@ -22,25 +22,30 @@ LArTowerBuilderTool::LArTowerBuilderTool(const std::string& name,
 LArTowerBuilderTool::~LArTowerBuilderTool()
 { }
 
-StatusCode LArTowerBuilderTool::initializeTool()
-{
-  // allow only LAREM and LARHEC cells!
-  for ( size_t iCalos=0; iCalos<m_includedCalos.size(); iCalos++ )
-    {
-      if ( m_includedCalos[iCalos] == "LAREM" )
-	{
-	  m_caloIndices.push_back(CaloCell_ID::LAREM);
-	}
-      else if ( m_includedCalos[iCalos] == "LARHEC" )
-	{
-	  m_caloIndices.push_back(CaloCell_ID::LARHEC);
-	}
-      else if ( m_includedCalos[iCalos] == "LARFCAL" )
-	{
-	  ATH_MSG_INFO( "use LArFCalTowerBuilderTool for the FCal - request ignored" );
-	}
-    }
 
-  // check setup
-  return this->checkSetup(msg());
+/**
+ * @brief Convert calorimeter strings to enums.
+ * @param includedCalos Property with calorimeter strings.
+ */
+std::vector<CaloCell_ID::SUBCALO>
+LArTowerBuilderTool::parseCalos 
+  (const std::vector<std::string>& includedCalos) const
+{
+  // convert to enumerators
+  std::vector<CaloCell_ID::SUBCALO> indices;
+
+  for (const std::string& s : includedCalos) {
+    if ( s == "LAREM" ) {
+      indices.push_back(CaloCell_ID::LAREM);
+    }
+    else if ( s == "LARHEC" ) {
+      indices.push_back(CaloCell_ID::LARHEC);
+    }
+    else if ( s == "LARFCAL" ) {
+      ATH_MSG_INFO( "use LArFCalTowerBuilderTool for the FCal - request ignored" );
+    }
+  }
+
+  return indices;
 }
+

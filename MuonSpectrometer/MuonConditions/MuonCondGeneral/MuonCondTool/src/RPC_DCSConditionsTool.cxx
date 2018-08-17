@@ -40,7 +40,6 @@ RPC_DCSConditionsTool::RPC_DCSConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent), 
-	    m_detStore(0),
             m_IOVSvc(0),
             m_rpcIdHelper(0),
 	    m_log( msgSvc(), name ),
@@ -81,17 +80,7 @@ StatusCode RPC_DCSConditionsTool::initialize()
 
   m_log << MSG::INFO << "Initializing - folders names are: Panel Off  "<<m_offPanelFolder <<" / Panel Dead"<<m_deadPanelFolder<< endmsg;
    
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
-
-
-  sc = m_detStore->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
+  StatusCode sc = detStore()->retrieve(m_rpcIdHelper, "RPCIDHELPER" );
   if (sc.isFailure())
   {
     m_log << MSG::FATAL << " Cannot retrieve RpcIdHelper " << endmsg;
@@ -180,7 +169,7 @@ StatusCode RPC_DCSConditionsTool::loadPanelOff(IOVSVC_CALLBACK_ARGS_P(I,keys))
   const CondAttrListCollection * atrc;
   m_log << MSG::INFO << "Try to read from folder <"<<m_offPanelFolder<<">"<<endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_offPanelFolder);
+  sc=detStore()->retrieve(atrc,m_offPanelFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR
           << "could not retreive the CondAttrListCollection from DB folder " 
@@ -261,7 +250,7 @@ StatusCode RPC_DCSConditionsTool::loadPanelDead(IOVSVC_CALLBACK_ARGS_P(I,keys))
   const CondAttrListCollection * atrc;
   m_log << MSG::INFO << "Try to read from folder <"<<m_deadPanelFolder<<">"<<endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_deadPanelFolder);
+  sc=detStore()->retrieve(atrc,m_deadPanelFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR
           << "could not retreive the CondAttrListCollection from DB folder " 

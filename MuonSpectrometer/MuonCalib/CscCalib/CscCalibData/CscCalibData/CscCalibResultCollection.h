@@ -17,7 +17,7 @@
 *******************************************************************/
 
 #include "CscCalibData/CscCalibResult.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include <string>
 
 class CscCalibResultCollection : public DataVector<CscCalibResult> 

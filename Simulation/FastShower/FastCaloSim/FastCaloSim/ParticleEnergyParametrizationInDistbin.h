@@ -21,6 +21,7 @@ public:
   TMatrixD  m_corr;
   
   ParticleEnergyParametrizationInDistbin();
+  ~ParticleEnergyParametrizationInDistbin();
 
   void SetNoDirectoryHisto();
 

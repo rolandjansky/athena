@@ -19,8 +19,7 @@ SCT_MajorityConditionsTool::SCT_MajorityConditionsTool(const std::string& type, 
   m_majorityFraction{0.9},
   m_mutex{},
   m_cache{},
-  m_condData{},
-  m_condKey{std::string{"SCT_MajorityCondData"}}
+  m_condData{}
  {
   declareProperty("UseOverall", m_overall);
   declareProperty("MajorityFraction", m_majorityFraction);

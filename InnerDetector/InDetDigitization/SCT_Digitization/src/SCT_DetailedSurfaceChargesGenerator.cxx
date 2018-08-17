@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DetailedSurfaceChargesGenerator.h"
@@ -229,6 +229,8 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
    m_distortionsTool.disable();
  }
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
+
   return sc ;
 }
 
@@ -403,7 +405,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
 
   //get sensor thickness and tg lorentz from SiDetectorDesign
   const float sensorThickness  = p_design->thickness();  
-  const float tanLorentz       = m_element->getTanLorentzAnglePhi();
+  const float tanLorentz       = m_lorentzAngleTool->getTanLorentzAngle(hashId);
   
   //phit.Print() ; // for debuging
 

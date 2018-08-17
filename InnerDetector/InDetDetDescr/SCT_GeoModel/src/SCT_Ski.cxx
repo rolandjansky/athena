@@ -37,10 +37,10 @@
 #include <cmath>
 
 SCT_Ski::SCT_Ski(const std::string & name,
-			     const SCT_Module * module,
-			     int stereoSign,
-		             double tilt,
- 		             double length)
+                 const SCT_Module * module,
+                 int stereoSign,
+                 double tilt,
+                 double length)
   : SCT_UniqueComponentFactory(name), 
     m_stereoSign(stereoSign),
     m_tilt(tilt), 
@@ -147,17 +147,17 @@ SCT_Ski::preBuild()
   //CLHEP::Hep3Vector c2(0.0, -0.5*(m_module->env1Width()), -0.5*(m_module->env1Length()));
   //CLHEP::Hep3Vector c3(0.0, 0.5*(m_module->env1Width()), -0.5*(m_module->env1Length()));
   //CLHEP::Hep3Vector c4(0.0,
-  //		-(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
-  //		-(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
+  //  -(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
+  //  -(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
   //CLHEP::Hep3Vector c5(0.0,
-  //		-(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
-  //		-(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
+  //  -(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
+  //  -(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
   //CLHEP::Hep3Vector c6(0.0,
-  //		-(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
-  //		-(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
+  //  -(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
+  //  -(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
   //CLHEP::Hep3Vector c7(0.0,
-  //		-(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
-  //		-(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
+  //  -(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
+  //  -(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
 
   //double moduleYMax = c4.y();
   //double moduleYMin = c5.y();
@@ -193,16 +193,16 @@ SCT_Ski::preBuild()
   // Position the cooling block m_coolingBlockPhiOffset from the lower egde 
   // of the module and m_coolingBlockRadialOffset from surface of the module.
   // double  xCoolingBlockOffset = -(m_coolingBlockRadialOffset + 
-  //				  0.5 * m_module->thickness() + 
-  //				  0.5 * m_coolingBlock->thickness()) + epsilon();
+  //      0.5 * m_module->thickness() + 
+  //      0.5 * m_coolingBlock->thickness()) + epsilon();
   // 10th Aug 2005 S.Mima modified.
   double xCoolingBlockOffset = - m_coolingBlockRadialOffset + coolingBlockOffsetX();
   // Works for both tilts.
   // *** 18:00 Wed 15th Jun 2005 D.Naito modified. (00)*********************************
   // *** 14:00 Fri 27th May 2005 D.Naito modified. (03)*********************************
   //double  yCoolingBlockOffset = -tiltSign *(0.5 * m_module->baseBoard()->width() 
-  //					    - 0.5 *  m_coolingBlock->width()
-  //					    - m_coolingBlockPhiOffset );
+  //         - 0.5 *  m_coolingBlock->width()
+  //         - m_coolingBlockPhiOffset );
   //double  zCoolingBlockOffset = m_module->baseBoardCenter();
   // *** -->>                                      (03)*********************************
   //double  yCoolingBlockOffset = tiltSign *(m_module->baseBoard()->bb1OffsetY() - 0.5*(m_module->baseBoard()->bb1()->width()) 
@@ -224,11 +224,11 @@ SCT_Ski::preBuild()
   //
   // *** 17:00 Fri 27th May 2005 D.Naito modified. (06)*********************************
   //double xDoglegOffset = - (m_doglegRadialOffset + 0.5 *m_dogleg->thickness()
-  //			    + 0.5 * m_module->thickness())
+  //       + 0.5 * m_module->thickness())
   // *** -->>                                      (06)*********************************
   // 15th Aug 2005 S.Mima modified.
   //  double xDoglegOffset = - (m_doglegRadialOffset + 0.5 *m_dogleg->thickness()
-  //		    + 0.5 * m_module->env2Thickness() + epsilon());
+  //      + 0.5 * m_module->env2Thickness() + epsilon());
   double xDoglegOffset = doglegOffsetX() - m_doglegRadialOffset; 
   // *** End of modified lines. ------------------ (06)*********************************
 
@@ -250,7 +250,7 @@ SCT_Ski::preBuild()
   //double yCoolingBlockPosMin =  yCoolingBlockOffset;
   // 10th Aug 2005 S.Mima modified. 
   //  double xCoolingPipePos = xCoolingBlockPosMin - (m_coolingPipeRadialOffset + 
-  //						  0.5 * m_coolingBlock->thickness() + m_coolingPipe->pipeRadius());
+  //        0.5 * m_coolingBlock->thickness() + m_coolingPipe->pipeRadius());
   double xCoolingPipePos = coolingPipeOffsetX() - m_coolingPipeRadialOffset;
   //double yCoolingPipePos = yCoolingBlockPosMin + m_coolingPipePhiOffset;
   double yCoolingPipePos = coolingPipeOffsetY() + m_coolingPipePhiOffset; 
@@ -302,7 +302,7 @@ SCT_Ski::preBuild()
     m_doglegPos.push_back(new GeoTransform(HepGeom::Translate3D(xDoglegPos, yDoglegPos, zDoglegPos))); 
 
     // alternate staggering
-    stagger_sign = - stagger_sign;	
+    stagger_sign = - stagger_sign; 
 
    
   }
@@ -313,29 +313,29 @@ SCT_Ski::preBuild()
   //
 
   CLHEP::Hep3Vector c0(0.0,
-		-(m_module->env1RefPointVector()->y()) + 0.5*(m_module->env1Width()),
-		-(m_module->env1RefPointVector()->z()) + 0.5*(m_module->env1Length()));
+                       -(m_module->env1RefPointVector()->y()) + 0.5*(m_module->env1Width()),
+                       -(m_module->env1RefPointVector()->z()) + 0.5*(m_module->env1Length()));
   CLHEP::Hep3Vector c1(0.0,
-		-(m_module->env1RefPointVector()->y()) - 0.5*(m_module->env1Width()),
-		-(m_module->env1RefPointVector()->z()) + 0.5*(m_module->env1Length()));
+                       -(m_module->env1RefPointVector()->y()) - 0.5*(m_module->env1Width()),
+                       -(m_module->env1RefPointVector()->z()) + 0.5*(m_module->env1Length()));
   CLHEP::Hep3Vector c2(0.0,
-		-(m_module->env1RefPointVector()->y()) - 0.5*(m_module->env1Width()),
-		-(m_module->env1RefPointVector()->z()) - 0.5*(m_module->env1Length()));
+                       -(m_module->env1RefPointVector()->y()) - 0.5*(m_module->env1Width()),
+                       -(m_module->env1RefPointVector()->z()) - 0.5*(m_module->env1Length()));
   CLHEP::Hep3Vector c3(0.0,
-		-(m_module->env1RefPointVector()->y()) + 0.5*(m_module->env1Width()),
-		-(m_module->env1RefPointVector()->z()) - 0.5*(m_module->env1Length()));
+                       -(m_module->env1RefPointVector()->y()) + 0.5*(m_module->env1Width()),
+                       -(m_module->env1RefPointVector()->z()) - 0.5*(m_module->env1Length()));
   CLHEP::Hep3Vector c4(0.0,
-		-(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
-		-(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
+                       -(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
+                       -(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
   CLHEP::Hep3Vector c5(0.0,
-		-(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
-		-(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
+                       -(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
+                       -(m_module->env2RefPointVector()->z()) + 0.5*(m_module->env2Length()));
   CLHEP::Hep3Vector c6(0.0,
-		-(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
-		-(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
+                       -(m_module->env2RefPointVector()->y()) - 0.5*(m_module->env2Width()),
+                       -(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
   CLHEP::Hep3Vector c7(0.0,
-		-(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
-		-(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
+                       -(m_module->env2RefPointVector()->y()) + 0.5*(m_module->env2Width()),
+                       -(m_module->env2RefPointVector()->z()) - 0.5*(m_module->env2Length()));
 
   double moduleYMax = c4.y();
   double moduleYMin = c5.y();
@@ -379,8 +379,8 @@ SCT_Ski::preBuild()
 
   // *** 17:00 Fri 27th May 2005 D.Naito modified. (07)*********************************
   //double maxWidth =  std::max(std::max(std::abs(-yModuleOffset + yDoglegOffset) +  0.5*m_dogleg->length(),
-  //				       std::abs(+yModuleOffset + yDoglegOffset) +  0.5*m_dogleg->length()),
-  //			      0.5*skiWidth);
+  //           std::abs(+yModuleOffset + yDoglegOffset) +  0.5*m_dogleg->length()),
+  //         0.5*skiWidth);
   //double ymax1 = maxWidth;
   //double ymin1 = -maxWidth;
   // *** -->>                                      (07)*********************************
@@ -390,12 +390,12 @@ SCT_Ski::preBuild()
   double ymin2,ymax2;
   if (tiltSign > 0) {
     ymax2 = std::max(-yModuleOffset + yCoolingBlockOffset + 0.5*m_coolingBlock->width(),
-		     yCoolingPipePos + m_coolingPipe->pipeRadius());
+                     yCoolingPipePos + m_coolingPipe->pipeRadius());
     ymin2 = ymin1;
   } else {
     ymax2 = ymax1;
     ymin2 = std::min(-yModuleOffset + yCoolingBlockOffset - 0.5*m_coolingBlock->width(),
-		     yCoolingPipePos - m_coolingPipe->pipeRadius());
+                     yCoolingPipePos - m_coolingPipe->pipeRadius());
   }
   
 
@@ -450,7 +450,7 @@ SCT_Ski::preBuild()
 
   //GeoPhysVol * ski = new GeoPhysVol(skiLog);
 
-   // Make names once only so we don't recreate them again again.
+  // Make names once only so we don't recreate them again again.
   for (int iModule = 0; iModule < m_modulesPerSki; iModule++) {
     // Add identifier to name.
     std::ostringstream name;
@@ -474,15 +474,15 @@ SCT_Ski::preBuild()
   // module distance
 
   //std::cout << "Clearance Module to Module:        " 
-  //	    <<  m_radialSep - m_module->env1Thickness() << std::endl;
+  //     <<  m_radialSep - m_module->env1Thickness() << std::endl;
   //std::cout << "Clearance Module to Dogleg:        " 
-  //	    << std::abs(xDoglegOffset) - 0.5*m_dogleg->thickness() - 0.5*m_module->thickness() << std::endl;
+  //     << std::abs(xDoglegOffset) - 0.5*m_dogleg->thickness() - 0.5*m_module->thickness() << std::endl;
   //std::cout << "Clearance Module to Cooling Block: " 
-  //	    << std::abs(xCoolingBlockOffset) - 0.5*m_coolingBlock->thickness() - 0.5 * m_module->baseBoard()->thickness() - m_safety
-  //	    << std::endl;
+  //     << std::abs(xCoolingBlockOffset) - 0.5*m_coolingBlock->thickness() - 0.5 * m_module->baseBoard()->thickness() - m_safety
+  //     << std::endl;
   //std::cout << "Cooling block to pipe: " <<  std::abs(-xModuleOffset + xCoolingBlockOffset - xCoolingPipePos) 
   // - 0.5*m_coolingBlock->thickness() - m_coolingPipe->pipeRadius() 
-  //	    << std::endl;
+  //    << std::endl;
 
   return skiLog;
 

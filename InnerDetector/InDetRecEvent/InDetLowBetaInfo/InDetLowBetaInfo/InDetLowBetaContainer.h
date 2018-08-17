@@ -5,9 +5,9 @@
 #ifndef INDETLOWBETACONTAINER_H
 #define INDETLOWBETACONTAINER_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "InDetLowBetaInfo/InDetLowBetaCandidate.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 /**

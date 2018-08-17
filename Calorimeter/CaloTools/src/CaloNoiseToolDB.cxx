@@ -16,8 +16,6 @@
 #include "CLHEP/Random/RandGauss.h"
 
 #include "TMath.h"
-#include <boost/math/special_functions/erf.hpp>
-
 
 using CLHEP::RandGauss;
 
@@ -254,6 +252,14 @@ CaloNoiseToolDB::updateCache()
   // the different COOL channels are also up to date. 
   //
 {
+  // FIXME: The locking logic here works as long as we only need to run
+  // update once.  It will likely fail in a MT job if conditions change
+  // during a run.  What's here is probably sufficient for running on MC,
+  // but this tool needs a rewrite to properly handle running on real
+  // data in MC.
+  lock_t lock (m_mutex);
+  if (m_cacheValid) return;
+
   ATH_MSG_INFO( " in update Cache "  );
 
  if (m_noiseBlobMap.size()!=7) {
@@ -602,8 +608,6 @@ CaloNoiseToolDB::getNoise(const CaloDetDescrElement* caloDDE, CalorimeterNoiseTy
 float
 CaloNoiseToolDB::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
 {
-
-  if (!m_cacheValid) this->updateCache(); 
   const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
   float Nminbias=-1;
   if( m_Nminbias>0 )
@@ -663,8 +667,6 @@ CaloNoiseToolDB::getNoise(const CaloCell* caloCell, CalorimeterNoiseType type)
 float
 CaloNoiseToolDB::getNoise(const CaloCell* caloCell, float energy, CalorimeterNoiseType type)
 {
-
-  if (!m_cacheValid) this->updateCache(); 
   const CaloDetDescrElement* caloDDE = caloCell->caloDDE();
   float Nminbias=-1;
   if( m_Nminbias>0 )
@@ -752,13 +754,8 @@ CaloNoiseToolDB::calcSig(double e, double sigma1, double ratio, double sigma2) {
   //  return z;
  
   // if instead you want to return the sigma-equivalent C.L.
-  // (with sign!) use the following lines
-  
-  //erf_inv throws an exception for z >= 1.0: TMath::ErfInverse() returns 0, so keep this behaviour
-  if (std::abs(z) < 1.0) { 
-    return sqrt2*boost::math::erf_inv(z);
-  }
-  return 0.0;
+  // (with sign!) use the following line
+  return sqrt2*TMath::ErfInverse(z);
 
 }
 
@@ -1017,7 +1014,6 @@ CaloNoiseToolDB::totalNoiseRMS(const CaloDetDescrElement* caloDDE,
 			     const float energy, 
 			     const int /*step*/) {
   //  std::cout << "totalNoiseRMS e " << energy << " gain " << gain << std::endl;
-  if (!m_cacheValid) this->updateCache(); 
   int i = (int)(caloDDE->calo_hash());
   if (i>m_ncell) return -1;
   float lumi = (Nminbias>0) ? Nminbias*lumiPerNMinbias : m_lumi0;
@@ -1026,6 +1022,7 @@ CaloNoiseToolDB::totalNoiseRMS(const CaloDetDescrElement* caloDDE,
 			 ICaloNoiseToolStep::CELLS); //Includes HV correction is applicable
   float b = this->getB(i,gain);
 
+  if (!m_cacheValid) this->updateCache(); 
   int objver = m_noiseBlobMap[TILE]->getObjVersion();
   if(objver==1){
     //=== Total noise parameterized as

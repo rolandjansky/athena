@@ -15,7 +15,7 @@ an RDO
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include <vector>
 #include <bitset>

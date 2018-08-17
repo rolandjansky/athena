@@ -18,15 +18,12 @@
 //*****************************************************************************
 
 // Gaudi includes
-#include <sstream>  // TEMP workaround for gcc5 build.  Need to remove this hack.
-#define private public
-#include "StoreGate/StoreGateSvc.h" // to be able to remove TileInfo from DetectorStore
-#undef private
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Athena includes
+#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthenaKernel/errorcheck.h"

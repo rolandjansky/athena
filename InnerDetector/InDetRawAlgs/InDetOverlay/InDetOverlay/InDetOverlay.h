@@ -27,11 +27,13 @@
 #include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
 typedef  InDetRawDataCollection<TRT_RDORawData> TRT_RDO_Collection;
 
+#include "InDetSimData/InDetSimDataCollection.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
 
 class StoreGateSvc;
 class SCT_ID;
 class TRT_ID;
-class IAtRndmGenSvc;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -60,13 +62,15 @@ private:
   void overlayTRTContainers(const TRT_RDO_Container *pileupContainer,
                             const TRT_RDO_Container *signalContainer,
                             TRT_RDO_Container *outputContainer,
-                            std::map<int,double>&  occupancyMap);
+                            std::map<int,double>&  occupancyMap,
+                            const InDetSimDataCollection& SDO_Map);
 
 
   void mergeTRTCollections(TRT_RDO_Collection *mc_coll, 
                            TRT_RDO_Collection *data_coll, 
                            TRT_RDO_Collection *out_coll, 
-                           double occupancy);
+                           double occupancy, 
+                           const InDetSimDataCollection& SDO_Map);
 
 private:
 
@@ -98,8 +102,11 @@ private:
   std::string                   m_rndmEngineName;
   CLHEP::HepRandomEngine *      m_rndmEngine;
   
+  SG::ReadHandleKey<InDetSimDataCollection> m_TRTinputSDO_Key;
   double                                      m_HTOccupancyCorrectionB;
   double                                      m_HTOccupancyCorrectionEC;
+  double                                      m_HTOccupancyCorrectionB_noE;
+  double                                      m_HTOccupancyCorrectionEC_noE;
   ToolHandle< InDet::ITRT_LocalOccupancy >    m_TRT_LocalOccupancyTool; 
 };
 

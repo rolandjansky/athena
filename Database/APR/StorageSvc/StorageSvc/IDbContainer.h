@@ -16,6 +16,7 @@
 #include "PersistentDataModel/Token.h"
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/DbSection.h"
+#include "StorageSvc/Transaction.h"
 
 #include <vector>
 
@@ -29,7 +30,6 @@ namespace pool    {
   class DbDatabase;
   class DbContainer;
   class DataCallBack;
-  class DbTransaction;
   class DbOption;
   class DbSelect;
 
@@ -153,12 +153,8 @@ namespace pool    {
       */
     virtual DbStatus destroy( const Token::OID_t& linkH) = 0;
 
-    /// Start/Commit/Rollback Database Transaction
-    /** @param refTransaction [IN/OUT]  Transaction context.
-      *
-      * @return DbStatus code indicating success or failure.  
-      */
-    virtual DbStatus transAct(DbTransaction& refTransaction) = 0;
+    /// Execute Transaction Action
+    virtual DbStatus transAct(Transaction::Action) = 0;
 
     /// Query the pending transaction stack
     virtual bool updatesPending() const = 0;

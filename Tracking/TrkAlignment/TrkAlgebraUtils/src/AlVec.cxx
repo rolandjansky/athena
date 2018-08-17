@@ -12,6 +12,7 @@
 #include <fstream>
 #include <stdint.h>
 #include <math.h>
+#include <exception>
 
 namespace Trk {
 
@@ -53,8 +54,7 @@ AlVec::~AlVec()
 //______________________________________________________________________________
 void AlVec::copy(const AlVec& v) {
   if(m_size!=v.m_size) {
-    std::cerr << "AlVec Assignment: size does not match!" << std::endl;
-    return;
+    throw std::range_error( "AlVec Assignment: size does not match!" );
   }
 
   double*  p = m_ptr_data + m_size;
@@ -76,8 +76,7 @@ AlVec& AlVec::operator=(const AlVec& v) {
   if (this==&v) return *this;
 
   if(m_size!=0 && m_size!=v.m_size) {
-    std::cerr << "AlVec Assignment: size does not match!" << std::endl;
-    return *this;
+    throw std::range_error( "AlVec Assignment: size does not match!" );
   }
 
   if ( m_ptr_data != v.m_ptr_data )  copy(v);
@@ -88,8 +87,7 @@ AlVec& AlVec::operator=(const AlVec& v) {
 //______________________________________________________________________________
 AlVec AlVec::operator+(const AlVec& v) const {
   if( m_size != v.m_size ) {
-    std::cerr << "operator+: vectors size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "operator+: vectors size does not match!" );
   }
 
   AlVec b(m_size);
@@ -105,8 +103,7 @@ AlVec AlVec::operator+(const AlVec& v) const {
 //______________________________________________________________________________
 AlVec& AlVec::operator+=(const AlVec& v) {
   if( m_size != v.m_size ) {
-    std::cerr << "operator+=: vectors size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "operator+=: vectors size does not match!" );
   }
 
   double*  p = m_ptr_data + m_size;
@@ -119,8 +116,7 @@ AlVec& AlVec::operator+=(const AlVec& v) {
 //______________________________________________________________________________
 AlVec AlVec::operator-(const AlVec& v) const {
   if( m_size != v.m_size ) {
-    std::cerr << "operator-: vectors size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "operator-: vectors size does not match!" );
   }
 
   AlVec b(m_size);
@@ -136,8 +132,7 @@ AlVec AlVec::operator-(const AlVec& v) const {
 //______________________________________________________________________________
 AlVec& AlVec::operator-=(const AlVec& v) {
   if( m_size != v.m_size ) {
-    std::cerr << "operator+=: vectors size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "operator+=: vectors size does not match!" );
   }
 
   double*  p = m_ptr_data + m_size;
@@ -151,8 +146,7 @@ AlVec& AlVec::operator-=(const AlVec& v) {
 double AlVec::operator*(const AlVec& v) const {
   double  b=0.;
   if( m_size != v.m_size ) {
-    std::cerr << "scalar product: vectors size does not match!" << std::endl;
-    return b;
+    throw std::range_error(  "scalar product: vectors size does not match!" );
   }
 
   double*  p = m_ptr_data + m_size;
@@ -165,8 +159,7 @@ double AlVec::operator*(const AlVec& v) const {
 //______________________________________________________________________________
 AlVec AlVec::operator*(const AlMat& m) const {
   if (m_size != m.nrow()) {
-    std::cerr << "Left hand vector-matrix multiplication: size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "Left hand vector-matrix multiplication: size does not match!" );
   }
 
   AlVec b(m.ncol());
@@ -180,8 +173,7 @@ AlVec AlVec::operator*(const AlMat& m) const {
 //______________________________________________________________________________
 AlVec  AlVec::operator*(const AlSymMatBase& m) const {
   if (m_size != m.size()) {
-    std::cerr << "Left hand vector-matrix multiplication: size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "Left hand vector-matrix multiplication: size does not match!" );
   }
 
   AlVec b(m_size);
@@ -224,7 +216,6 @@ void AlVec::reSize(int Nnew) {
     m_ptr_data = new double[Nnew];
     m_size = Nnew;
     int k = m_size <= size_old ? m_size : size_old;
-
     p += k;
     double*  q = m_ptr_data + k;
     while (q > m_ptr_data) *(--q) = *(--p);
@@ -268,12 +259,10 @@ int AlVec::RemoveElements(std::vector<int> indices)
 {
   int n = indices.size();
   if (n==0) {
-    std::cerr<<"Vector of indices to remove is empty."<<std::endl;
     return m_size;
   }
   if (n>m_size) {
-    std::cerr<<"Vector of indices larger than matrix size."<<std::endl;
-    return m_size;
+    throw std::range_error( "Vector of indices larger than matrix size." );
   }
 
   // first sort the list of indices descending
@@ -290,7 +279,7 @@ int AlVec::RemoveElements(std::vector<int> indices)
   for (int i=0;i<n;i++) {
     int index = indices[i];
     if (index > m_size-1) {
-      std::cerr<<"Index "<<index<<" goes beyond matrix (size "<<m_size<<")."<<std::endl;
+      throw std::out_of_range( "AlVec::RemoveElements: Index  goes beyond matrix " );
       continue;
     }
 
@@ -490,13 +479,13 @@ StatusCode AlVec::ReadPartial(const std::string &filename, double &scale,
 {
   bool stdUnits = true;
   if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, stdUnits)) {
-    std::cout<<"CheckVecVersion failed"<<std::endl;
+    //std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
 
   std::ifstream invec((m_pathbin+filename).c_str(), std::ios::binary);
   if(invec.fail()) {
-    std::cout<<"ifstream failed"<<std::endl;
+    //std::cout<<"ifstream failed"<<std::endl;
     return StatusCode::FAILURE;
   }
 
@@ -569,6 +558,7 @@ StatusCode AlVec::Read(const std::string &filename, double &scale,
   bool stdUnits = true;
   if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, stdUnits)) {
     std::cout<<"CheckVecVersion failed"<<std::endl;
+    //std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
 

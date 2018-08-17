@@ -109,17 +109,6 @@ ActiveStoreSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
 
 
 /**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode ActiveStoreSvc::updatedObject (CLID id, const std::string& key)
-{
-  return activeStore()->updatedObject (id, key);
-}
-
-
-/**
  * @brief Find the key for a string/CLID pair.
  * @param str The string to look up.
  * @param clid The CLID associated with the string.

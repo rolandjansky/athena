@@ -33,7 +33,6 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type,
 				      const std::string& name,
 				      const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_detStore(0),
     m_IOVSvc(0),
     m_chronoSvc(0),
     log( msgSvc(), name ),
@@ -76,18 +75,10 @@ StatusCode TGC_STATUSConditionsTool::initialize()
 
   log << MSG::INFO << "Initializing - folders names are: Chamber Status "<<m_FolderName << endmsg;
    
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-     if( m_debug ) log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
   // Get interface to IOVSvc
   m_IOVSvc = 0;
   bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
+  StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
       log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
@@ -106,7 +97,7 @@ StatusCode TGC_STATUSConditionsTool::initialize()
   }
   if(sc.isFailure()) return StatusCode::FAILURE;
 
-  sc = m_detStore->retrieve(m_tgcIdHelper, "TGCIDHELPER" );
+  sc = detStore()->retrieve(m_tgcIdHelper, "TGCIDHELPER" );
   if (sc.isFailure())
     {
       log<< MSG::FATAL << " Cannot retrieve TgcIdHelper " << endmsg;
@@ -164,7 +155,7 @@ StatusCode TGC_STATUSConditionsTool::loadTgcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,ke
   const CondAttrListCollection * atrc = nullptr;
   log << MSG::INFO << "Try to read from folder <"<< m_FolderName <<">"<<endmsg;
 
-  sc=m_detStore->retrieve(atrc,m_FolderName);
+  sc=detStore()->retrieve(atrc,m_FolderName);
   if(sc.isFailure())  {
     log << MSG::ERROR
 	<< "could not retreive the CondAttrListCollection from DB folder " 

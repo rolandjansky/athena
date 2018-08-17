@@ -11,17 +11,26 @@
 #include "EventInfoAccessors_v1.h"
 
 /// Helper macro for defining the different accessor objects
-#define DEFINE_ACCESSOR( ENUM_NAME, AUX_NAME )                    \
-   case EventInfo_v1::ENUM_NAME:                                  \
-   {                                                              \
-      static EventInfo_v1::Accessor< uint32_t > a( #AUX_NAME );   \
-      return &a;                                                  \
-   }                                                              \
+#define DEFINE_ACCESSOR( ENUM_NAME, AUX_NAME )                           \
+   case EventInfo_v1::ENUM_NAME:                                         \
+   {                                                                     \
+      static const SG::AtomicDecorator< uint32_t > a( #AUX_NAME );       \
+      return &a;                                                         \
+   }                                                                     \
+   break
+
+/// Helper macro for defining the different accessor objects
+#define DEFINE_CONST_ACCESSOR( ENUM_NAME, AUX_NAME )                     \
+   case EventInfo_v1::ENUM_NAME:                                         \
+   {                                                                     \
+      static const SG::AtomicConstAccessor< uint32_t > a( #AUX_NAME );   \
+      return &a;                                                         \
+   }                                                                     \
    break
 
 namespace xAOD {
 
-   EventInfo_v1::Accessor< uint32_t >*
+   const SG::AtomicDecorator< uint32_t >*
    eventFlagsAccessorsV1( EventInfo_v1::EventFlagSubDet subDet ) {
 
       switch( subDet ) {
@@ -36,6 +45,30 @@ namespace xAOD {
          DEFINE_ACCESSOR( Core, coreFlags );
          DEFINE_ACCESSOR( Background, backgroundFlags );
          DEFINE_ACCESSOR( Lumi, lumiFlags );
+
+      default:
+         std::cerr << "xAOD::EventInfo_v1 ERROR Unknown sub-detector ("
+                   << subDet << ") requested" << std::endl;
+         return 0;
+      }
+   }
+
+
+   const SG::AtomicConstAccessor< uint32_t >*
+   eventFlagsConstAccessorsV1( EventInfo_v1::EventFlagSubDet subDet ) {
+
+      switch( subDet ) {
+
+         DEFINE_CONST_ACCESSOR( Pixel, pixelFlags );
+         DEFINE_CONST_ACCESSOR( SCT, sctFlags );
+         DEFINE_CONST_ACCESSOR( TRT, trtFlags );
+         DEFINE_CONST_ACCESSOR( LAr, larFlags );
+         DEFINE_CONST_ACCESSOR( Tile, tileFlags );
+         DEFINE_CONST_ACCESSOR( Muon, muonFlags );
+         DEFINE_CONST_ACCESSOR( ForwardDet, forwardDetFlags );
+         DEFINE_CONST_ACCESSOR( Core, coreFlags );
+         DEFINE_CONST_ACCESSOR( Background, backgroundFlags );
+         DEFINE_CONST_ACCESSOR( Lumi, lumiFlags );
 
       default:
          std::cerr << "xAOD::EventInfo_v1 ERROR Unknown sub-detector ("

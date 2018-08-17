@@ -50,7 +50,7 @@ private:
   ///@}
   
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
+  std::vector<TrigConf::TriggerThreshold*> m_tauThresholds;
 
 }; 
 

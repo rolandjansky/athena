@@ -17,6 +17,7 @@
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -68,8 +69,8 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
     m_pITK(0), 
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false),m_doEvtHeartbeat(false),
-    m_pEvent(nullptr)
-
+    m_pEvent(nullptr),
+    m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam )
 {
   declareProperty("EvtSel", m_evtsel, 
 		  "Name of Event Selector to use. If empty string (default) "
@@ -347,6 +348,8 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
 
   // Listen to the BeforeFork incident
   m_incidentSvc->addListener(this,"BeforeFork",0);
+
+  CHECK( m_conditionsCleaner.retrieve() );
 
   return sc;
 }
@@ -733,7 +736,9 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   if(toolsPassed) {
     // Fire BeginEvent "Incident"
     //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent",*evtContext));
-    
+
+
+    CHECK( m_conditionsCleaner->event (*evtContext, true) );
     
     // Now add event to the scheduler 
     debug() << "Adding event " << evtContext->evt() 

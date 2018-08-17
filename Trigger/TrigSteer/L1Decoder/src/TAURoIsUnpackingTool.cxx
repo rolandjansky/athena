@@ -15,20 +15,19 @@
 // Constructors
 ////////////////
 TAURoIsUnpackingTool::TAURoIsUnpackingTool( const std::string& type, 
-                                          const std::string& name, 
-                                          const IInterface* parent ) 
+					    const std::string& name, 
+					    const IInterface* parent ) 
   : RoIsUnpackingToolBase(type, name, parent),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name )
-{
+    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ){
 }
 
 
 StatusCode TAURoIsUnpackingTool::initialize() {
 
-  CHECK( RoIsUnpackingToolBase::initialize() );
-  CHECK( m_configSvc.retrieve() );
-  CHECK( m_trigRoIsKey.initialize() );
-  CHECK( m_recRoIsKey.initialize() );
+  ATH_CHECK( RoIsUnpackingToolBase::initialize() );
+  ATH_CHECK( m_configSvc.retrieve() );
+  ATH_CHECK( m_trigRoIsKey.initialize() );
+  ATH_CHECK( m_recRoIsKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -36,41 +35,20 @@ StatusCode TAURoIsUnpackingTool::initialize() {
 StatusCode TAURoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
 
-  m_emThresholds.clear();
-
-  const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-  auto filteredThresholds= thresholdConfig->getThresholdVector( L1DataDef::TAU );
-  ATH_MSG_DEBUG( "Number of filtered thresholds " << filteredThresholds.size() );
-  for ( auto th :  filteredThresholds ) {
-    if ( th != nullptr ) {
-      ATH_MSG_INFO( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
-      m_emThresholds.push_back( th );
-    } else {
-      ATH_MSG_DEBUG( "Nullptr to the threshold" ); 
-    }
-  }
-  
-  if ( m_emThresholds.empty() ) {
-    ATH_MSG_WARNING( "No TAU thresholds configured" );
-  } else {
-    ATH_MSG_INFO( "Configured " << m_emThresholds.size() << " thresholds" );
-  }
-
-  
-
+  m_tauThresholds.clear();
+  ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::TAU ), m_tauThresholds ) );
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TAURoIsUnpackingTool::finalize()
-{
+StatusCode TAURoIsUnpackingTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
-          const ROIB::RoIBResult& roib,
-          const HLT::IDSet& activeChains ) const {
+					 const ROIB::RoIBResult& roib,
+					 const HLT::IDSet& activeChains ) const {
   using namespace TrigCompositeUtils;
   auto decisionOutput = std::make_unique<DecisionContainer>();
   auto decisionAux    = std::make_unique<DecisionAuxContainer>();
@@ -84,32 +62,32 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
     for ( auto& roi : emTauFragment.roIVec() ) {
       uint32_t roIWord = roi.roIWord();      
       if ( not ( LVL1::TrigT1CaloDefs::TauRoIWordType == roi.roIType() ) )  {
-  ATH_MSG_DEBUG( "Skipping RoI as it is not TAU threshold " << roIWord );
-  continue;
+	ATH_MSG_DEBUG( "Skipping RoI as it is not TAU threshold " << roIWord );
+	continue;
       }
       
-      auto recRoI = new LVL1::RecEmTauRoI( roIWord, &m_emThresholds );
+      auto recRoI = new LVL1::RecEmTauRoI( roIWord, &m_tauThresholds );
       recRoIs->push_back( recRoI );
       
       auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
-              recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
-              recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
+					    recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
+					    recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
       trigRoIs->push_back( trigRoI );
         
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
 
       auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
       
-      for ( auto th: m_emThresholds ) {
-  ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
-  if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
-    ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
-    addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
-    ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
-        TrigCompositeUtils::DecisionIDContainer ids; 
-        TrigCompositeUtils::decisionIDs( decision, ids ); 
-        return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
-  }
+      for ( auto th: m_tauThresholds ) {
+	ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
+	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
+	  ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
+	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
+	  ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
+	      TrigCompositeUtils::DecisionIDContainer ids; 
+	      TrigCompositeUtils::decisionIDs( decision, ids ); 
+	      return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
+	}
       }
       
 
@@ -134,15 +112,15 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
   // recording
   {
     SG::WriteHandle<TrigRoiDescriptorCollection> handle( m_trigRoIsKey, ctx );
-    CHECK( handle.record ( std::move( trigRoIs ) ) );
+    ATH_CHECK( handle.record ( std::move( trigRoIs ) ) );
   }
   {
     SG::WriteHandle<DataVector<LVL1::RecEmTauRoI>> handle( m_recRoIsKey, ctx );
-    CHECK( handle.record( std::move( recRoIs ) ) );    
+    ATH_CHECK( handle.record( std::move( recRoIs ) ) );    
   }
   {
     auto handle = SG::makeHandle( m_decisionsKey, ctx );
-    CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
+    ATH_CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
   }
 
   return StatusCode::SUCCESS; // what else

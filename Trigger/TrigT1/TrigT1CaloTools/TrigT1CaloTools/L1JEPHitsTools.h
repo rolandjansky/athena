@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "TrigT1CaloToolInterfaces/IL1JEPHitsTools.h"
 

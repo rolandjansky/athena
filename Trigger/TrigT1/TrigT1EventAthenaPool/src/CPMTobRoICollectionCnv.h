@@ -33,8 +33,6 @@ public:
      {}
   
 protected:
-
-  ~CPMTobRoICollectionCnv() {}
   
   virtual CPMTobRoICollection_PERS*   createPersistent (CPMTobRoICollection* transCont);
   virtual CPMTobRoICollection*        createTransient ();

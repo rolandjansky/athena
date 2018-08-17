@@ -11,9 +11,8 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include <ostream>
 #include <iomanip>
-#include <utility>
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -21,7 +20,8 @@
 #include "SiTrackMakerTool_xk/SiTrackMaker_xk.h"
 
 #include "TrkCaloClusterROI/CaloClusterROI.h"
-//#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
+
 
 ///////////////////////////////////////////////////////////////////
 // Constructor

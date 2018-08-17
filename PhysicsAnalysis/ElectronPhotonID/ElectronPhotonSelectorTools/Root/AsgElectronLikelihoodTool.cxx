@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
    @class AsgElectronLikelihoodTool
-   @brief Electron selector tool to select objects in Asgena using an underlying pure ROOT tool.
+   @brief Electron selector tool to select objects in Athena using an underlying pure ROOT tool.
 
    @author Karsten Koeneke
    @date   October 2012
-
-   09-APR-2014, convert to ASGTool (Jovan Mitrevski)
+   @update April 2014, converted to ASGTool by Jovan Mitrevski
 
 */
 
@@ -28,9 +27,7 @@
 //EDM includes
 #include "xAODEgamma/Electron.h"
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODHIEvent/HIEventShapeContainer.h"
 #include "TEnv.h"
 
 #include "PathResolver/PathResolver.h"
@@ -66,71 +63,67 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   // pdf file name. Managed in the Asg tool.
   declareProperty("inputPDFFileName",  m_pdfFileName="", "The input ROOT file name that holds the PDFs" );
   // the variable names, if non-standard - nope, it's done above!
-  declareProperty("VariableNames",m_rootTool->VariableNames,"Variable names input to the LH");
+  declareProperty("VariableNames",m_rootTool->m_variableNames,"Variable names input to the LH");
   // The likelihood cut values
-  declareProperty("CutLikelihood",m_rootTool->CutLikelihood,"Cut on likelihood discriminant");
+  declareProperty("CutLikelihood",m_rootTool->m_cutLikelihood,"Cut on likelihood discriminant");
   // The pileup-correction part of the likelihood cut values
-  declareProperty("CutLikelihoodPileupCorrection",m_rootTool->CutLikelihoodPileupCorrection,"Pileup correction for LH discriminant");
+  declareProperty("CutLikelihoodPileupCorrection",m_rootTool->m_cutLikelihoodPileupCorrection,"Pileup correction for LH discriminant");
   // The likelihood cut values - 4 GeV
-  declareProperty("CutLikelihood4GeV",m_rootTool->CutLikelihood4GeV,"Cut on likelihood discriminant, 4 GeV special bin");
+  declareProperty("CutLikelihood4GeV",m_rootTool->m_cutLikelihood4GeV,"Cut on likelihood discriminant, 4 GeV special bin");
   // The pileup-correction part of the likelihood cut values - 4 GeV
-  declareProperty("CutLikelihoodPileupCorrection4GeV",m_rootTool->CutLikelihoodPileupCorrection4GeV,"Pileup correction for LH discriminant, 4 GeV special bin");
-  // do the conversion cut
-  declareProperty("doCutConversion",m_rootTool->doCutConversion,"Apply the conversion bit cut");
+  declareProperty("CutLikelihoodPileupCorrection4GeV",m_rootTool->m_cutLikelihoodPileupCorrection4GeV,"Pileup correction for LH discriminant, 4 GeV special bin");
   // do the ambiguity cut
-  declareProperty("CutAmbiguity" ,m_rootTool->CutAmbiguity ,"Apply a cut on the ambiguity bit");
+  declareProperty("CutAmbiguity" ,m_rootTool->m_cutAmbiguity ,"Apply a cut on the ambiguity bit");
   // cut on b-layer
-  declareProperty("CutBL",m_rootTool->CutBL,"Cut on b-layer");
+  declareProperty("CutBL",m_rootTool->m_cutBL,"Cut on b-layer");
   // cut on pixel hits
-  declareProperty("CutPi",m_rootTool->CutPi,"Cut on pixel hits");
+  declareProperty("CutPi",m_rootTool->m_cutPi,"Cut on pixel hits");
   // cut on d0
-  declareProperty("CutA0",m_rootTool->CutA0,"Cut on d0");
+  declareProperty("CutA0",m_rootTool->m_cutA0,"Cut on d0");
   // cut on deltaEta
-  declareProperty("CutDeltaEta",m_rootTool->CutDeltaEta,"Cut on deltaEta");
+  declareProperty("CutDeltaEta",m_rootTool->m_cutDeltaEta,"Cut on deltaEta");
   // cut on deltaPhiRes
-  declareProperty("CutDeltaPhiRes",m_rootTool->CutDeltaPhiRes,"Cut on deltaPhiRes");
+  declareProperty("CutDeltaPhiRes",m_rootTool->m_cutDeltaPhiRes,"Cut on deltaPhiRes");
   // cut on precision hits
-  declareProperty("CutSi",m_rootTool->CutSi,"Cut on precision hits");
+  declareProperty("CutSi",m_rootTool->m_cutSi,"Cut on precision hits");
   // turn off f3 at high Et
-  declareProperty("doRemoveF3AtHighEt",m_rootTool->doRemoveF3AtHighEt,"Turn off f3 at high Et");
+  declareProperty("doRemoveF3AtHighEt",m_rootTool->m_doRemoveF3AtHighEt,"Turn off f3 at high Et");
   // turn off TRTPID at high Et
-  declareProperty("doRemoveTRTPIDAtHighEt",m_rootTool->doRemoveTRTPIDAtHighEt,"Turn off TRTPID at high Et");
+  declareProperty("doRemoveTRTPIDAtHighEt",m_rootTool->m_doRemoveTRTPIDAtHighEt,"Turn off TRTPID at high Et");
   // use smooth interpolation between LH bins
-  declareProperty("doSmoothBinInterpolation",m_rootTool->doSmoothBinInterpolation,"use smooth interpolation between LH bins");
-  // use binning for high ET LH
-  declareProperty("useHighETLHBinning",m_rootTool->useHighETLHBinning,"Use binning for high ET LH");
+  declareProperty("doSmoothBinInterpolation",m_rootTool->m_doSmoothBinInterpolation,"use smooth interpolation between LH bins");
   // use one extra bin for high ET LH
-  declareProperty("useOneExtraHighETLHBin",m_rootTool->useOneExtraHighETLHBin,"Use one extra bin for high ET LH");
+  declareProperty("useOneExtraHighETLHBin",m_rootTool->m_useOneExtraHighETLHBin,"Use one extra bin for high ET LH");
   // cut on Wstot above HighETBinThreshold
-  declareProperty("CutWstotAtHighET",m_rootTool->CutWstotAtHighET,"Cut on Wstot above HighETBinThreshold");
+  declareProperty("CutWstotAtHighET",m_rootTool->m_cutWstotAtHighET,"Cut on Wstot above HighETBinThreshold");
   // cut on EoverP above HighETBinThreshold 
-  declareProperty("CutEoverPAtHighET",m_rootTool->CutEoverPAtHighET,"Cut on EoverP above HighETBinThreshold");
+  declareProperty("CutEoverPAtHighET",m_rootTool->m_cutEoverPAtHighET,"Cut on EoverP above HighETBinThreshold");
   // ET threshold for using high ET cuts and bin
-  declareProperty("HighETBinThreshold",m_rootTool->HighETBinThreshold,"ET threshold for using high ET cuts and bin");
+  declareProperty("HighETBinThreshold",m_rootTool->m_highETBinThreshold,"ET threshold for using high ET cuts and bin");
   // do pileup-dependent transform on discriminant value
-  declareProperty("doPileupTransform",m_rootTool->doPileupTransform,"Do pileup-dependent transform on discriminant value");
+  declareProperty("doPileupTransform",m_rootTool->m_doPileupTransform,"Do pileup-dependent transform on discriminant value");
   // do centrality-dependent transform on discriminant value
-  declareProperty("doCentralityTransform",m_rootTool->doCentralityTransform,"Do centrality-dependent transform on discriminant value");
+  declareProperty("doCentralityTransform",m_rootTool->m_doCentralityTransform,"Do centrality-dependent transform on discriminant value");
   // reference disc for very hard cut; used by pileup transform
-  declareProperty("DiscHardCutForPileupTransform",m_rootTool->DiscHardCutForPileupTransform,"Reference disc for very hard cut; used by pileup transform");
+  declareProperty("DiscHardCutForPileupTransform",m_rootTool->m_discHardCutForPileupTransform,"Reference disc for very hard cut; used by pileup transform");
   // reference slope on disc for very hard cut; used by pileup transform
-  declareProperty("DiscHardCutSlopeForPileupTransform",m_rootTool->DiscHardCutSlopeForPileupTransform,"Reference slope on disc for very hard cut; used by pileup transform");
+  declareProperty("DiscHardCutSlopeForPileupTransform",m_rootTool->m_discHardCutSlopeForPileupTransform,"Reference slope on disc for very hard cut; used by pileup transform");
   // reference quadratic par on disc for very hard cut; used by centrality transform
-  declareProperty("DiscHardCutQuadForPileupTransform",m_rootTool->DiscHardCutQuadForPileupTransform,"Reference quadratic par on disc for very hard cut; used by centrality transform");
+  declareProperty("DiscHardCutQuadForPileupTransform",m_rootTool->m_discHardCutQuadForPileupTransform,"Reference quadratic par on disc for very hard cut; used by centrality transform");
   // reference disc for a pileup independent loose menu; used by pileup transform
-  declareProperty("DiscLooseForPileupTransform",m_rootTool->DiscLooseForPileupTransform,"Reference disc for pileup indepdendent loose menu; used by pileup transform");
+  declareProperty("DiscLooseForPileupTransform",m_rootTool->m_discLooseForPileupTransform,"Reference disc for pileup indepdendent loose menu; used by pileup transform");
   // reference disc for very hard cut; used by pileup transform - 4-7 GeV bin
-  declareProperty("DiscHardCutForPileupTransform4GeV",m_rootTool->DiscHardCutForPileupTransform4GeV,"Reference disc for very hard cut; used by pileup transform. 4-7 GeV bin");
+  declareProperty("DiscHardCutForPileupTransform4GeV",m_rootTool->m_discHardCutForPileupTransform4GeV,"Reference disc for very hard cut; used by pileup transform. 4-7 GeV bin");
   // reference slope on disc for very hard cut; used by pileup transform - 4-7 GeV bin
-  declareProperty("DiscHardCutSlopeForPileupTransform4GeV",m_rootTool->DiscHardCutSlopeForPileupTransform4GeV,"Reference slope on disc for very hard cut; used by pileup transform. 4-7 GeV bin");
+  declareProperty("DiscHardCutSlopeForPileupTransform4GeV",m_rootTool->m_discHardCutSlopeForPileupTransform4GeV,"Reference slope on disc for very hard cut; used by pileup transform. 4-7 GeV bin");
   // reference quadratic par on disc for very hard cut; used by centrality transform in 4-7 GeV bin
-  declareProperty("DiscHardCutQuadForPileupTransform4GeV",m_rootTool->DiscHardCutQuadForPileupTransform4GeV,"Reference quadratic par on disc for very hard cut; used by centrality transform in 4-7 GeV bin");
+  declareProperty("DiscHardCutQuadForPileupTransform4GeV",m_rootTool->m_discHardCutQuadForPileupTransform4GeV,"Reference quadratic par on disc for very hard cut; used by centrality transform in 4-7 GeV bin");
   // reference disc for a pileup independent loose menu; used by pileup transform - 4-7 GeV bin
-  declareProperty("DiscLooseForPileupTransform4GeV",m_rootTool->DiscLooseForPileupTransform4GeV,"Reference disc for pileup indepdendent loose menu; used by pileup transform. 4-7 GeV bin");
+  declareProperty("DiscLooseForPileupTransform4GeV",m_rootTool->m_discLooseForPileupTransform4GeV,"Reference disc for pileup indepdendent loose menu; used by pileup transform. 4-7 GeV bin");
   // max discriminant for which pileup transform is to be used
-  declareProperty("DiscMaxForPileupTransform",m_rootTool->DiscMaxForPileupTransform,"Max discriminant for which pileup transform is to be used");
+  declareProperty("DiscMaxForPileupTransform",m_rootTool->m_discMaxForPileupTransform,"Max discriminant for which pileup transform is to be used");
   // max nvtx or mu to be used in pileup transform
-  declareProperty("PileupMaxForPileupTransform",m_rootTool->PileupMaxForPileupTransform,"Max nvtx or mu to be used in pileup transform");
+  declareProperty("PileupMaxForPileupTransform",m_rootTool->m_pileupMaxForPileupTransform,"Max nvtx or mu to be used in pileup transform");
   // Flag to tell the tool if it is a calo-only LH
   declareProperty("caloOnly", m_caloOnly=false, "Flag to tell the tool if it is a calo-only LH");
 }
@@ -154,6 +147,8 @@ AsgElectronLikelihoodTool::~AsgElectronLikelihoodTool()
 StatusCode AsgElectronLikelihoodTool::initialize()
 {
 
+    ATH_MSG_INFO("initialize : WP " << m_WorkingPoint.size() << " " << m_configFile.size());
+    
   std::string PDFfilename(""); //Default
 
   if(!m_WorkingPoint.empty()){
@@ -197,57 +192,63 @@ StatusCode AsgElectronLikelihoodTool::initialize()
       return StatusCode::FAILURE;
     }
 
-    m_rootTool->VariableNames =  env.GetValue("VariableNames","");
-    m_rootTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
-    m_rootTool->CutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);
-    m_rootTool->CutLikelihood4GeV = AsgConfigHelper::HelperDouble("CutLikelihood4GeV",env);
-    m_rootTool->CutLikelihoodPileupCorrection4GeV = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection4GeV", env);
-    // do the conversion cut
-    m_rootTool->doCutConversion = env.GetValue("doCutConversion", false);
+    // Setup primary vertex key handle
+    m_primVtxContKey = m_primVtxContName;
+    ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
+
+    m_rootTool->m_variableNames =  env.GetValue("VariableNames","");
+    m_rootTool->m_cutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
+    m_rootTool->m_cutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);
+    m_rootTool->m_cutLikelihood4GeV = AsgConfigHelper::HelperDouble("CutLikelihood4GeV",env);
+    m_rootTool->m_cutLikelihoodPileupCorrection4GeV = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection4GeV", env);
     // do the ambiguity cut
-    m_rootTool->CutAmbiguity  = AsgConfigHelper::HelperInt("CutAmbiguity", env);
+    m_rootTool->m_cutAmbiguity  = AsgConfigHelper::HelperInt("CutAmbiguity", env);
     // cut on b-layer
-    m_rootTool->CutBL = AsgConfigHelper::HelperInt("CutBL",env);
+    m_rootTool->m_cutBL = AsgConfigHelper::HelperInt("CutBL",env);
     // cut on pixel hits
-    m_rootTool->CutPi = AsgConfigHelper::HelperInt("CutPi", env);
+    m_rootTool->m_cutPi = AsgConfigHelper::HelperInt("CutPi", env);
     // cut on precision hits
-    m_rootTool->CutSi = AsgConfigHelper::HelperInt("CutSi", env);
+    m_rootTool->m_cutSi = AsgConfigHelper::HelperInt("CutSi", env);
     // cut on d0
-    m_rootTool->CutA0 = AsgConfigHelper::HelperDouble("CutA0", env);
+    m_rootTool->m_cutA0 = AsgConfigHelper::HelperDouble("CutA0", env);
     // cut on deltaEta
-    m_rootTool->CutDeltaEta = AsgConfigHelper::HelperDouble("CutDeltaEta", env);
+    m_rootTool->m_cutDeltaEta = AsgConfigHelper::HelperDouble("CutDeltaEta", env);
     // cut on deltaPhiRes
-    m_rootTool->CutDeltaPhiRes = AsgConfigHelper::HelperDouble("CutDeltaPhiRes", env);
+    m_rootTool->m_cutDeltaPhiRes = AsgConfigHelper::HelperDouble("CutDeltaPhiRes", env);
     // turn off f3 at high Et
-    m_rootTool->doRemoveF3AtHighEt = env.GetValue("doRemoveF3AtHighEt", false);
+    m_rootTool->m_doRemoveF3AtHighEt = env.GetValue("doRemoveF3AtHighEt", false);
     // turn off TRTPID at high Et
-    m_rootTool->doRemoveTRTPIDAtHighEt = env.GetValue("doRemoveTRTPIDAtHighEt", false);
+    m_rootTool->m_doRemoveTRTPIDAtHighEt = env.GetValue("doRemoveTRTPIDAtHighEt", false);
     // do smooth interpolation between bins
-    m_rootTool->doSmoothBinInterpolation = env.GetValue("doSmoothBinInterpolation", false);
+    m_rootTool->m_doSmoothBinInterpolation = env.GetValue("doSmoothBinInterpolation", false);
     m_caloOnly = env.GetValue("caloOnly", false);
 
-    m_rootTool->useHighETLHBinning = env.GetValue("useHighETLHBinning", false);
-    m_rootTool->useOneExtraHighETLHBin = env.GetValue("useOneExtraHighETLHBin", false);
+    m_rootTool->m_useOneExtraHighETLHBin = env.GetValue("useOneExtraHighETLHBin", false);
     // cut on Wstot above HighETBinThreshold
-    m_rootTool->CutWstotAtHighET = AsgConfigHelper::HelperDouble("CutWstotAtHighET", env);
+    m_rootTool->m_cutWstotAtHighET = AsgConfigHelper::HelperDouble("CutWstotAtHighET", env);
     // cut on EoverP above HighETBinThreshold
-    m_rootTool->CutEoverPAtHighET = AsgConfigHelper::HelperDouble("CutEoverPAtHighET", env);
-    m_rootTool->HighETBinThreshold = env.GetValue("HighETBinThreshold", 125);
+    m_rootTool->m_cutEoverPAtHighET = AsgConfigHelper::HelperDouble("CutEoverPAtHighET", env);
+    m_rootTool->m_highETBinThreshold = env.GetValue("HighETBinThreshold", 125);
 
-    m_rootTool->doPileupTransform = env.GetValue("doPileupTransform", false);
-    m_rootTool->doCentralityTransform = env.GetValue("doCentralityTransform", false);
-    m_rootTool->DiscHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);
-    m_rootTool->DiscHardCutSlopeForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform",env);
-    m_rootTool->DiscHardCutQuadForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutQuadForPileupTransform",env);
-    m_rootTool->DiscLooseForPileupTransform = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform",env);
-    m_rootTool->DiscHardCutForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform4GeV",env);
-    m_rootTool->DiscHardCutSlopeForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform4GeV",env);
-    m_rootTool->DiscHardCutQuadForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutQuadForPileupTransform4GeV",env);
-    m_rootTool->DiscLooseForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform4GeV",env);
-    m_rootTool->DiscMaxForPileupTransform = env.GetValue("DiscMaxForPileupTransform", 2.0);
-    m_rootTool->PileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
+    m_rootTool->m_doPileupTransform = env.GetValue("doPileupTransform", false);
+    m_rootTool->m_doCentralityTransform = env.GetValue("doCentralityTransform", false);
+    m_rootTool->m_discHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);
+    m_rootTool->m_discHardCutSlopeForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform",env);
+    m_rootTool->m_discHardCutQuadForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutQuadForPileupTransform",env);
+    m_rootTool->m_discLooseForPileupTransform = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform",env);
+    m_rootTool->m_discHardCutForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform4GeV",env);
+    m_rootTool->m_discHardCutSlopeForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutSlopeForPileupTransform4GeV",env);
+    m_rootTool->m_discHardCutQuadForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscHardCutQuadForPileupTransform4GeV",env);
+    m_rootTool->m_discLooseForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform4GeV",env);
+    m_rootTool->m_discMaxForPileupTransform = env.GetValue("DiscMaxForPileupTransform", 2.0);
+    m_rootTool->m_pileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
 
 
+    // Setup HI container key handle (must come after init from env)
+    m_HIESContKey = m_CaloSumsContName;
+    bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
+    ATH_CHECK( m_HIESContKey.initialize(doCentralityTransform) );
+    
   } else{  //Error if it cant find the conf
       ATH_MSG_ERROR("Could not find configuration file");
       return StatusCode::FAILURE;
@@ -262,15 +263,11 @@ StatusCode AsgElectronLikelihoodTool::initialize()
   m_rootTool->msg().setLevel(this->msg().level());
   
   // We need to initialize the underlying ROOT TSelectorTool
-  if ( 0 == m_rootTool->initialize() )
+  if ( m_rootTool->initialize().isFailure() )
     {
       ATH_MSG_ERROR ( "ERROR! Could not initialize the TElectronLikelihoodTool!" );
       return StatusCode::FAILURE;
     }
-
-  // Copy the now filled TAccept and TResult to the dummy
-  m_acceptDummy = m_rootTool->getTAccept();
-  m_resultDummy = m_rootTool->getTResult();
 
   return StatusCode::SUCCESS ;
 }
@@ -281,42 +278,45 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 //=============================================================================
 StatusCode AsgElectronLikelihoodTool::finalize()
 {
-  if ( !(m_rootTool->finalize()) )
-    {
-      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
-      return StatusCode::FAILURE;
-    }
-
   return StatusCode::SUCCESS;
 }
 
+//=============================================================================
+// return the accept info object
+//=============================================================================
+
+const asg::AcceptInfo& AsgElectronLikelihoodTool::getAcceptInfo() const
+{
+    return m_rootTool->getAcceptInfo();
+}
 
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, double mu ) const
+asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, double mu ) const
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 
-  const xAOD::CaloCluster* cluster = eg->caloCluster();
+ const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }  
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 
-  const double energy =  cluster->e();
-  const float eta = (cluster->etaBE(2)); 
+  const double energy = cluster->e();
+  const float  eta    = (cluster->etaBE(2)); 
 
   if( isForwardElectron(eg,eta) ){
-    return m_acceptDummy;
+    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+    return m_rootTool->accept();    
   }
   
   // transverse energy of the electron (using the track eta) 
@@ -334,7 +334,6 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   float d0(0.0);
   float deltaEta=0, deltaPhiRescaled2=0;
   float wstot=0, EoverP=0;
-  int convBit(0); // this no longer works
   uint8_t ambiguityBit(0); 
   double ip(0);
 
@@ -348,7 +347,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   }
 
   // get the ambiguity type from the decoration
-  if ( m_rootTool->CutAmbiguity.size() ) {
+  if ( m_rootTool->m_cutAmbiguity.size() ) {
     if ( eg->isAvailable<uint8_t>("ambiguityType") ) {
       static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
       ambiguityBit = acc(*eg);
@@ -370,7 +369,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
       }
       else {
         ATH_MSG_ERROR( "Failed, no track particle. et= " << et << "eta= " << eta );
-        return m_acceptDummy;
+        return m_rootTool->accept();
       }
 
       if( !eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1) ){
@@ -385,7 +384,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   } //if not calo ONly
 
   // Get the number of primary vertices or FCal ET in this event
-  bool doCentralityTransform = m_rootTool->doCentralityTransform;
+  bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
     if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
     else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
@@ -397,16 +396,16 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
+  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
 			likelihood, eta, et,
 			nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors,
 			passBLayerRequirement,
-			convBit, ambiguityBit, d0, deltaEta, deltaPhiRescaled2,
+			ambiguityBit, d0, deltaEta, deltaPhiRescaled2,
 			wstot, EoverP, ip ));
   
   if (!allFound) {
     ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
   
   // Get the answer from the underlying ROOT tool
@@ -416,7 +415,6 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
                              nSiHitsPlusDeadSensors,
                              nPixHitsPlusDeadSensors,
                              passBLayerRequirement,
-                             convBit,
                              ambiguityBit,
                              d0,
                              deltaEta,
@@ -430,11 +428,11 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 //=============================================================================
 // Accept method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, double mu) const
+asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, double mu) const
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 
   // Call the main accept if this is not a calo-only LH
@@ -443,22 +441,24 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
     return accept(el, mu); 
   }
 
+  
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }  
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
   
   const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
 
   if( isForwardElectron(eg,eta) ){
-    return m_acceptDummy;
+    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+    return m_rootTool->accept();
   }
   
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
@@ -467,13 +467,12 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   uint8_t nSiHitsPlusDeadSensors(0);
   uint8_t nPixHitsPlusDeadSensors(0);
   bool passBLayerRequirement(false); 
-  int convBit(0); // this no longer works
   uint8_t ambiguityBit(0);
 
   // Get the pileup or centrality information
   double ip(0);
 
-  bool doCentralityTransform = m_rootTool->doCentralityTransform;
+  bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
     if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
     else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
@@ -497,16 +496,16 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
     notFoundList += "wtots1 ";
   }
 
-  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, ip=%8.5f, wstot=%8.5f",
+  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, ambiguityBit=%i, ip=%8.5f, wstot=%8.5f",
 			likelihood, eta, et,
 			nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
 			passBLayerRequirement,
-			convBit, ambiguityBit, ip, wstot));
+			ambiguityBit, ip, wstot));
   
 
   if (!allFound) {
     ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 
   // Get the answer from the underlying ROOT tool
@@ -516,7 +515,6 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
                              nSiHitsPlusDeadSensors,
                              nPixHitsPlusDeadSensors,
                              passBLayerRequirement,
-                             convBit,
                              ambiguityBit,
                              d0,
                              deltaEta,
@@ -534,29 +532,30 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 //=============================================================================
 // The main result method: the actual likelihood is calculated here
 //=============================================================================
-const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu ) const
+double AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu ) const
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_resultDummy;
+    return -999;
   }
 
-  const xAOD::CaloCluster* cluster = eg->caloCluster();
+ const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
-    return m_resultDummy;
+    return -999;
   }  
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
-    return m_resultDummy;
+    return -999;
   }
 
   const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
 
   if( isForwardElectron(eg,eta) ){
-    return m_resultDummy;
+    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+    return -999;
   }
 
   //double et = cluster->e()/cosh(eta); 
@@ -625,7 +624,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
     else
       {
         ATH_MSG_ERROR( "Failed, no track particle. et= " << et << "eta= " << eta );
-        return m_resultDummy;
+        return -999;
       }
   }  // if not calo Only
 
@@ -689,7 +688,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   // Get the number of primary vertices or FCal ET in this event
   double ip = static_cast<double>(m_nPVdefault);
 
-  bool doCentralityTransform = m_rootTool->doCentralityTransform;
+  bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
     if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
     else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
@@ -709,7 +708,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 
   if (!allFound) {
     ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << notFoundList);
-    return m_resultDummy;
+    return -999;
   }
 
   // Get the answer from the underlying ROOT tool
@@ -736,11 +735,11 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 //=============================================================================
 // Calculate method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const
+double AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const
 {
   if ( !eg ){
     ATH_MSG_ERROR ("Failed, no egamma object.");
-    return m_resultDummy;
+    return -999;
   }
 
   if( !m_caloOnly ){
@@ -748,22 +747,23 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
     return calculate(el, mu);
   }
 
-  const xAOD::CaloCluster* cluster = eg->caloCluster();
+ const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
-    return m_resultDummy;
+    return -999;
   }  
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
-    return m_resultDummy;
+    return -999;
   }
   
   const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
 
   if( isForwardElectron(eg,eta) ){
-    return m_resultDummy;
+     ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+    return -999;
   }
   
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
@@ -826,7 +826,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
   // Get the pileup or centrality information
   double ip(0);
 
-  bool doCentralityTransform = m_rootTool->doCentralityTransform;
+  bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   if( mu < 0 ){ // use npv if mu is negative (not given)
     if (doCentralityTransform) ip = static_cast<double>(m_useCaloSumsCont ? this->getFcalEt() : m_fcalEtDefault);
     else ip = static_cast<double>(m_usePVCont ? this->getNPrimVertices() : m_nPVdefault);
@@ -846,7 +846,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 
   if (!allFound) {
     ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << notFoundList);
-    return m_resultDummy;
+    return -999;
   }
 
   // Get the answer from the underlying ROOT tool
@@ -870,16 +870,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
                                 );
 }
 
-/** Method to get the plain TAccept */
-const Root::TAccept& AsgElectronLikelihoodTool::getTAccept( ) const{
-  return m_rootTool->getTAccept();
-}
-
-/** Method to get the plain TResult */
-const Root::TResult& AsgElectronLikelihoodTool::getTResult( ) const{
-  return m_rootTool->getTResult();
-}
-
 
 //=============================================================================
 /// Get the name of the current operating point
@@ -889,32 +879,29 @@ std::string AsgElectronLikelihoodTool::getOperatingPointName() const
   return m_WorkingPoint;
 }
 //=============================================================================
-const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const
+asg::AcceptData AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const
 {
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
-  if(eg)
-    {
+  if(eg) {
       return accept(eg);
-    }
-  else{
+  }
+  else {
     ATH_MSG_ERROR("AsgElectronLikelihoodTool::could not cast to const Electron");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 }
 
-const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
+double AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
 {
   const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
-  if (eg)
-    {
+  if (eg) {
       return calculate(eg);
-    }
-  else
-    {
+  }
+  else {
       ATH_MSG_ERROR ( " Could not cast to const Electron " );
-      return m_resultDummy;
-    }
+      return -999;
+  }
 }
 
 
@@ -927,22 +914,11 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate(const xAOD::IParticle*
 //=============================================================================
 unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 {
-  static bool PVExists = true; 
   unsigned int nVtx(0);
-  const xAOD::VertexContainer* vxContainer(0);
-  if(PVExists)
-  {
-    if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
-    {
-      ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
-      PVExists = false; // if retrieve failed, don't try to retrieve again
-      return nVtx;
-    }
-    for ( unsigned int i=0; i<vxContainer->size(); i++ )
-    {
-      const xAOD::Vertex* vxcand = vxContainer->at(i);
+  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey); 
+  for ( unsigned int i = 0; i < vtxCont->size(); i++ ) {
+      const xAOD::Vertex* vxcand = vtxCont->at(i);
       if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
-    }
   }
   return nVtx;
 }
@@ -952,23 +928,14 @@ unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 //=============================================================================
 double AsgElectronLikelihoodTool::getFcalEt() const
 {
-  static bool CaloSumsExists = true; 
   double fcalEt(0.);
-  const xAOD::HIEventShapeContainer* HIESContainer(0);
-  if(CaloSumsExists){
-    if ( StatusCode::SUCCESS != evtStore()->retrieve( HIESContainer, m_CaloSumsContName ) )
-    {
-      ATH_MSG_WARNING ( "CaloSums container not found with name: " << m_CaloSumsContName );
-      CaloSumsExists = false; // if retrieve failed, don't try to retrieve again
-      return fcalEt;
-    }
-    xAOD::HIEventShapeContainer::const_iterator es_itr = HIESContainer->begin();
-    xAOD::HIEventShapeContainer::const_iterator es_end = HIESContainer->end();
-    for (; es_itr != es_end; es_itr++){
+  SG::ReadHandle<xAOD::HIEventShapeContainer> HIESCont (m_HIESContKey); 
+  xAOD::HIEventShapeContainer::const_iterator es_itr = HIESCont->begin();
+  xAOD::HIEventShapeContainer::const_iterator es_end = HIESCont->end();
+  for (; es_itr != es_end; es_itr++){
       double et = (*es_itr)->et();
       const std::string name = (*es_itr)->auxdataConst<std::string>("Summary");
       if (name == "FCal") fcalEt = et*1.e-6;
-    }
   }
   return fcalEt;
 }

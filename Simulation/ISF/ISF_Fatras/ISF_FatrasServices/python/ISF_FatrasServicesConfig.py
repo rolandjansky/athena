@@ -542,7 +542,7 @@ def getFatrasHitCreatorPixel(name="ISF_FatrasHitCreatorPixel", **kwargs):
     kwargs.setdefault("CollectionName"  , hits_collection_name)
 
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
-    kwargs.setdefault("UseConditionsSvc", False)
+    kwargs.setdefault("UseConditionsTool", False)
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorSilicon
     return iFatras__HitCreatorSilicon(name, **kwargs )
@@ -559,7 +559,7 @@ def getFatrasHitCreatorSCT(name="ISF_FatrasHitCreatorSCT", **kwargs):
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("IdHelperName"    , 'SCT_ID')
     kwargs.setdefault("CollectionName"  , hits_collection_name)
-    kwargs.setdefault("UseConditionsSvc", False)
+    kwargs.setdefault("UseConditionsTool", False)
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorSilicon
     return iFatras__HitCreatorSilicon(name, **kwargs )

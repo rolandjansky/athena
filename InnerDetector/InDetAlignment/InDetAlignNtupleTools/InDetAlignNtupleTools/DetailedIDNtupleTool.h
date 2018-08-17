@@ -28,7 +28,8 @@ namespace Trk
 	class AlignTrack;
 	class ITrackSummaryTool;
 	class IAlignModuleTool;
-        class Track; 
+  class Track; 
+  //class TrackParameters; <- typedef, cant fw declare
 }
 
 namespace InDetDD

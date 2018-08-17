@@ -2,32 +2,30 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
-#include "InDetPrepRawData/SiClusterContainer.h"
 #include "TrigOnlineSpacePointTool/SCT_ClusterCacheTool.h"
+
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "Identifier/IdentifierHash.h" 
-
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include <string>
-#include <sstream>
-
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
-#include "eformat/SourceIdentifier.h" 
-using eformat::helper::SourceIdentifier;
 #include "ByteStreamData/ROBData.h" 
-#include "SCT_Cabling/ISCT_CablingSvc.h"
-
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-
+#include "eformat/SourceIdentifier.h"
+#include "Identifier/IdentifierHash.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetPrepRawData/SCT_ClusterCollection.h"
+#include "InDetPrepRawData/SiClusterContainer.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+
+#include <sstream>
+#include <string>
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+using eformat::helper::SourceIdentifier;
 
 SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type, 
 					    const std::string& name, 
@@ -37,7 +35,6 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
     m_cablingSvc(nullptr),
     m_indet_mgr(nullptr),
     m_sct_id(nullptr),
-    m_decoder(nullptr),
     m_offlineDecoder("SCT_RodDecoder",this), 
     m_clusteringTool("InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool"),
     m_rdoContainer(nullptr),
@@ -81,14 +78,6 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
   m_clusterization.setSctID(m_sct_id);
   m_clusterization.initializeGeometry(m_indet_mgr);
 
-  IToolSvc* toolSvc;
-  sc=service("ToolSvc",toolSvc);
-  if(sc.isFailure()) 
-    {
-      ATH_MSG_ERROR( name() << "failed to get ToolSvc");
-      return sc; 
-    }  
-
   if(m_doBS) {
  
     sc=service("SCT_CablingSvc",m_cablingSvc);
@@ -129,10 +118,7 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
     m_rdoContainer = new SCT_RDO_Container(m_sct_id->wafer_hash_max());
     m_rdoContainer->addRef();
 
-    if(StatusCode::SUCCESS !=toolSvc->retrieveTool("FastSCT_RodDecoder",m_decoder)) {
-      ATH_MSG_ERROR( "initialize(): Can't get FastSCT_RodDecoder ");
-      return StatusCode::FAILURE; 
-    }
+    ATH_CHECK(m_decoder.retrieve());
     
     if(StatusCode::SUCCESS !=m_offlineDecoder.retrieve()) {
       ATH_MSG_ERROR( "initialize(): Can't get "<<m_offlineDecoder);
@@ -140,6 +126,7 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
     } 
 
   } else {
+    m_decoder.disable();
     m_offlineDecoder.disable();
   }
 
@@ -171,6 +158,8 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
     m_timer[4] = timerSvc->addItem("SCT_CLTot");
   }
 
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   return sc;
 }
 
@@ -194,6 +183,14 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
     {
       m_timer[4]->start();
     }
+
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
 
   if(!evtStore()->contains<InDet::SCT_ClusterContainer>(m_containerName))
     {
@@ -393,6 +390,7 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
       int nstrips=0;
       for (std::vector<IdentifierHash>::iterator it=reducedList.begin(); it != reducedList.end(); ++it)        
 	{
+          const InDetDD::SiDetectorElement* element = elements->getDetectorElement((*it));
 	  SCT_RDO_Container::const_iterator collIt=m_rdoContainer->indexFind((*it));
 	  if(collIt==m_rdoContainer->end())
 	    continue;
@@ -407,13 +405,13 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 		      int strip=m_sct_id->strip(stripId);
 		      nstrips++;
 		      m_clusterization.addHit((*collIt)->identify(),(*collIt)->identifyHash(),
-					      strip);
+					      strip, element);
 		      int groupSize=(*rdoIt)->getGroupSize();
 		      for(int ig=1;ig<groupSize;ig++)
 			{
 			  strip++;
 			  m_clusterization.addHit((*collIt)->identify(),(*collIt)->identifyHash(),
-						  strip);
+						  strip, element);
 			  nstrips++;
 			}
 		    }

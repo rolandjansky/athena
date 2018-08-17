@@ -11,17 +11,18 @@ from DCubeUtils import DCubeObject, DCubeException
 from DCubePlotter import DCubePlotter
 import ROOT
 import unittest
+import math
 
 ##
 # @class DCubeTester
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
-# @brief perform statictics tests and plotting  
+# @brief perform statictics tests and plotting
 class DCubeTester( DCubeObject ):
 
     ## XML DOM Document instance
     xmldoc = None
 
-    ## XML DOM Element instance 
+    ## XML DOM Element instance
     node = None
 
     ## handle for monitored root object
@@ -35,7 +36,7 @@ class DCubeTester( DCubeObject ):
 
     ## intarnal histogram counter
     __nbObjs = 0
-    
+
     ## statistics summary table
     sumTable = { "KS"   : { "OK"   : 0,
                             "WARN" : 0,
@@ -57,15 +58,15 @@ class DCubeTester( DCubeObject ):
                   2 : "there is bin in ref hist with low then 1 exp number of event",
                   3 : "there are bins in both histograms with less than 1 event" }
 
-    
+
     ## summary status
     __status = ""
-    
+
     ## c'tor
     # @param self "Me, myself and Irene"
     # @param xmldoc XML DOM Document instance
     def __init__( self, xmldoc, parsed ):
-        
+
         super( DCubeTester, self ).__init__( self )
         self.xmldoc = xmldoc
         self.opts, self.args = parsed
@@ -73,22 +74,21 @@ class DCubeTester( DCubeObject ):
                        "bbb"  : self.__testBBB,
                        "chi2" : self.__testChi2,
                        "meanY": self.__testMeanY }
-       
+
 
         if ( self.opts.makeplots ):
             self.info("will produce plot files")
             self.__plotter = DCubePlotter( xmldoc, parsed )
         else:
             self.warn("making of plots disabled")
-            
-    ## 
+
+    ##
     # @param self "Me, myself and Irene"
-    # @param node DOM XML  node 
+    # @param node DOM XML  node
     # @param mon monitored ROOT object
     # @param ref reference ROOT object
-    # @return modified XML node 
-    def test( self, node, mon=None, ref=None ):
-
+    # @return modified XML node
+    def test(self, node, mon=None, ref=None):
         self.__nbObjs += 1
 
         self.node = self.mon = self.ref = None
@@ -100,29 +100,28 @@ class DCubeTester( DCubeObject ):
         self.ref = ref
 
         # mon exists?
-        if ( not self.mon ):
+        if not self.mon:
             status = "FAIL;monitored not found"
-            self.node.setAttribute( "status", status )
+            self.node.setAttribute("status", status)
             if status not in self.errors.keys():
-                self.errors[ status ] = 1
+                self.errors[status] = 1
             else:
-                self.errors[ status ] = self.errors[ status ] + 1
+                self.errors[status] = self.errors[status] + 1
             self.error("monitored object not found!")
             return "FAIL"
 
-        cl = self.mon.Class().GetName() 
-        isHist = False
-        if ( cl[:2] in ( "TH", "TP") ): isHist = True
-       
+        cl = self.mon.Class().GetName()
+        isHist = (cl[:2] in ("TH", "TP"))
+
         # dimension OK?
-        if ( isHist and self.mon.GetDimension() > 2 ):
+        if (isHist and self.mon.GetDimension() > 2):
             status = "FAIL;unsupported object, dimension bigger than 2"
-            self.node.setAttribute( "status", status )
-            if ( status not in self.errors.keys() ):
-                self.errors[ status ] = 1
+            self.node.setAttribute("status", status)
+            if status not in self.errors.keys():
+                self.errors[status] = 1
             else:
-                self.errors[ status ] = self.errors[ status ] + 1
-            self.error( "unsuported object found" )
+                self.errors[status] = self.errors[status] + 1
+            self.error("unsuported object found")
             return "FAIL"
 
         # reference exists?
@@ -134,7 +133,7 @@ class DCubeTester( DCubeObject ):
                 self.errors[ status ] = 1
             else:
                 self.errors[ status ] = self.errors[ status ] + 1
-    
+
         if ( self.mon and self.ref ):
             # same class?
             monClassName = self.mon.Class().GetName()
@@ -152,44 +151,60 @@ class DCubeTester( DCubeObject ):
 
 
         if ( isHist ):
-            self.monBins = [ self.mon.GetNbinsX(), self.mon.GetNbinsY() ]  
+            self.monBins = [ self.mon.GetNbinsX(), self.mon.GetNbinsY() ]
         if ( isHist and self.ref ):
             self.refBins = [ self.ref.GetNbinsX(), self.ref.GetNbinsY() ]
-      
+
         if ( isHist and self.mon and self.ref ):
             # same binnig?
             monBins = [ "%s=%d" % ( x, y) for ( x, y) in zip(["x", "y"], self.monBins ) ]
-            refBins = [ "%s=%d" % ( x, y) for ( x, y) in zip(["x", "y"], self.refBins ) ]                         
+            refBins = [ "%s=%d" % ( x, y) for ( x, y) in zip(["x", "y"], self.refBins ) ]
             diffBins = [ "mon %s ref %s" % (x, y) for (x,y) in zip(monBins,refBins) if x != y ]
             if ( diffBins  ):
-                status = "FAIL;different binnig"
+                status = "FAIL;different binning"
                 self.node.setAttribute( "status", status + " %s" % " ".join(diffBins) )
                 if ( status not in self.errors.keys() ):
                     self.errors[ status ] = 1
                 else:
                     self.errors[ status ] = self.errors[ status ] + 1
                 self.error("different binning for mon and ref objects!")
-                return "FAIL" 
+                return "FAIL"
 
-        status = "OK"                    
+        if cl == "TEfficiency":
+            # Replace with TGraphAsymmErrors for stats and plotting
+            self.mon = mon.CreateGraph("AP")
+            self.ref = ref.CreateGraph("AP")
+            # remove x-error bars
+            for i in range( self.mon.GetN() ):
+                self.mon.SetPointEXlow( i, 0.0 )
+                self.mon.SetPointEXhigh( i, 0.0 )
+            for i in range( self.ref.GetN() ):
+                self.ref.SetPointEXlow( i, 0.0 )
+                self.ref.SetPointEXhigh( i, 0.0 )
+            isHist = False
+
+        status = "OK"
         if ( isHist ):
             status = self.__grabHistogramStat()
         else:
-            status = self.__grabGraphStat() 
+            status = self.__grabGraphStat()
 
         plotStatus = "OK"
         if ( self.opts.makeplots ):
-            plotStatus = self.__makePlots() 
+            plotStatus = self.__makePlots()
         else:
             plotStatus = "WARN;plots not reqested"
         self.node.setAttribute( "plots", plotStatus)
 
         return status
-        
 
-    ## grab statistic info for TGraphXXX  
+
+    ## grab statistic info for TGraphXXX
     # @param self "Me, myself and Irene"
     def __grabGraphStat( self ):
+        if self.mon.GetHistogram().GetDimension() == 1: axis = 2  # change to y-mean and y-RMS (10/7/2017)
+        else:                                           axis = 1  # TGraph2D probably not supported anyway
+
         statNode = self.xmldoc.createElement( "stat" )
         self.node.appendChild( statNode )
 
@@ -200,15 +215,15 @@ class DCubeTester( DCubeObject ):
         nbPointsNode.appendChild( nbPointsCData )
 
         meanNode = self.xmldoc.createElement( "mean" )
-        meanCData = self.xmldoc.createTextNode( "%4.3f" % self.mon.GetMean() )
+        meanCData = self.xmldoc.createTextNode( "%4.3f" % self.mon.GetMean(axis) )
         if ( self.ref ):
-            meanNode.setAttribute( "ref" , "%4.3f" % self.ref.GetMean() )
+            meanNode.setAttribute( "ref" , "%4.3f" % self.ref.GetMean(axis) )
         meanNode.appendChild( meanCData )
 
         rmsNode = self.xmldoc.createElement( "rms" )
-        rmsCData = self.xmldoc.createTextNode( "%d" % self.mon.GetRMS() )
+        rmsCData = self.xmldoc.createTextNode( "%4.3f" % self.mon.GetRMS(axis) )
         if ( self.ref ):
-            rmsNode.setAttribute( "ref" , "%d" % self.ref.GetRMS() )
+            rmsNode.setAttribute( "ref" , "%4.3f" % self.ref.GetRMS(axis) )
         rmsNode.appendChild( rmsCData )
 
         statNode.appendChild( nbPointsNode )
@@ -216,9 +231,9 @@ class DCubeTester( DCubeObject ):
         statNode.appendChild( rmsNode )
 
         return "OK"
-        
-        
-        
+
+
+
     ## grab basic statistics - nb of entries, mean and RMS
     # @param self "Me, myself and Irene"
     def __grabHistogramStat( self ):
@@ -235,33 +250,54 @@ class DCubeTester( DCubeObject ):
 
         statNode.appendChild( entriesNode )
 
-        dim = self.mon.GetDimension() 
+        dim = self.mon.GetDimension()
 
         ### To dump MeanY values
         if ( "TProfile" in self.mon.Class().GetName() ): dim = 2
 
-        # store under and overflows 
+        # store under and overflows
         monU = []
         monO = []
         refU = []
         refO = []
 
+        #store underflows and overflows to check is some of them are inf or nan
+        vals = []
+
         if ( dim == 1 ):
             monU.append( self.mon.GetBinContent(0) )
+            vals.append( self.mon.GetBinContent(0) )
             monO.append( self.mon.GetBinContent( self.mon.GetNbinsX()+1 ) )
+            vals.append( self.mon.GetBinContent( self.mon.GetNbinsX()+1 ) )
             if ( self.ref ):
                 refU.append( self.ref.GetBinContent(0) )
+                vals.append( self.ref.GetBinContent(0) )
                 refO.append( self.ref.GetBinContent( self.ref.GetNbinsX()+1 ) )
+                vals.append( self.ref.GetBinContent( self.ref.GetNbinsX()+1 ) )
         elif ( dim == 2 ):
             monU.append( self.mon.GetBinContent( 0, 0 ) )
+            vals.append( self.mon.GetBinContent( 0, 0 ) )
             monO.append( self.mon.GetBinContent( self.mon.GetNbinsX()+1, 0 ) )
+            vals.append( self.mon.GetBinContent( self.mon.GetNbinsX()+1, 0 ) )
             monU.append( self.mon.GetBinContent( 0,  self.mon.GetNbinsY()+1) )
-            monO.append( self.mon.GetBinContent( self.mon.GetNbinsX()+1, self.mon.GetNbinsY()+1 ) )  
+            vals.append( self.mon.GetBinContent( 0,  self.mon.GetNbinsY()+1) )
+            monO.append( self.mon.GetBinContent( self.mon.GetNbinsX()+1, self.mon.GetNbinsY()+1 ) )
+            vals.append( self.mon.GetBinContent( self.mon.GetNbinsX()+1, self.mon.GetNbinsY()+1 ) )
             if ( self.ref ):
                 refU.append( self.ref.GetBinContent( 0, 0 ) )
+                vals.append( self.ref.GetBinContent( 0, 0 ) )
                 refO.append( self.ref.GetBinContent( self.ref.GetNbinsX()+1, 0 ) )
+                vals.append( self.ref.GetBinContent( self.ref.GetNbinsX()+1, 0 ) )
                 refU.append( self.ref.GetBinContent( 0,  self.ref.GetNbinsY()+1) )
-                refO.append( self.ref.GetBinContent( self.ref.GetNbinsX()+1, self.ref.GetNbinsY()+1 ) )  
+                vals.append( self.ref.GetBinContent( 0,  self.ref.GetNbinsY()+1) )
+                refO.append( self.ref.GetBinContent( self.ref.GetNbinsX()+1, self.ref.GetNbinsY()+1 ) )
+                vals.append( self.ref.GetBinContent( self.ref.GetNbinsX()+1, self.ref.GetNbinsY()+1 ) )
+
+        #check if some values are inf or nan
+        if ( self.__checkValues(vals) != "OK" ):
+            self.warn( "some values in histogram are infinity or NaN, skipping!")
+            self.node.setAttribute( "status", "FAIL;monitored or reference histogram contains inf or NaN values")
+            return "FAIL"
 
         underflowNode = self.xmldoc.createElement( "underflow" )
         underflowCData = self.xmldoc.createTextNode( "%d" % sum( monU ) )
@@ -277,7 +313,7 @@ class DCubeTester( DCubeObject ):
 
         statNode.appendChild( underflowNode )
         statNode.appendChild( overflowNode )
-        
+
         dimName = [ "x", "y", "z" ]
         for i in range( 1, dim+1 ):
             self.debug( "gathering statistics along %s axis" % dimName[i-1] )
@@ -285,7 +321,7 @@ class DCubeTester( DCubeObject ):
             dimNode = self.xmldoc.createElement( "dim" )
             dimNode.setAttribute( "name", dimName[i-1] )
             dimNode.setAttribute( "bins", "%d" % self.monBins[i-1])
-        
+
             underflowNode = self.xmldoc.createElement( "underflow" )
             underflowCData  = self.xmldoc.createTextNode( "%d" % monU[i-1] )
             if ( self.ref ):
@@ -293,7 +329,7 @@ class DCubeTester( DCubeObject ):
             underflowNode.appendChild( underflowCData )
 
             dimNode.appendChild( underflowNode )
-        
+
             overflowNode = self.xmldoc.createElement( "overflow" )
             overflowCData  = self.xmldoc.createTextNode( "%d" % monO[i-1] )
             if ( self.ref ):
@@ -301,27 +337,27 @@ class DCubeTester( DCubeObject ):
             overflowNode.appendChild( overflowCData )
 
             dimNode.appendChild( overflowNode )
-            
+
             meanNode = self.xmldoc.createElement( "mean" )
             if ( self.ref ):
                 meanNode.setAttribute( "ref", "%3.2e" % self.ref.GetMean(i) )
 
             meanCData = self.xmldoc.createTextNode( "%3.2e" % self.mon.GetMean( i ) )
             meanNode.appendChild( meanCData )
-            
+
             meanErrorNode = self.xmldoc.createElement( "mean_unc" )
             if ( self.ref ):
                 meanErrorNode.setAttribute( "ref", "%3.2e" % self.ref.GetMeanError(i) )
 
             meanErrorCData = self.xmldoc.createTextNode( "%3.2e" % self.mon.GetMeanError( i ) )
             meanErrorNode.appendChild( meanErrorCData )
-            
+
             rmsNode = self.xmldoc.createElement( "rms" )
             if ( self.ref ):
                 rmsNode.setAttribute( "ref", "%3.2e" % self.ref.GetRMS(i) )
             rmsCData = self.xmldoc.createTextNode( "%3.2e" % self.mon.GetRMS(i) )
             rmsNode.appendChild( rmsCData )
-        
+
             rmsErrorNode = self.xmldoc.createElement( "rms_unc" )
             if ( self.ref ):
                 rmsErrorNode.setAttribute( "ref", "%3.2e" % self.ref.GetRMSError(i) )
@@ -340,31 +376,52 @@ class DCubeTester( DCubeObject ):
         status = [ ]
 
         tests = [t for t in self.node.getAttribute('tests').strip().split(',') if t]
-        
+
+
+        if ( self.node.getAttribute('pwarn') ):
+            try:
+                pwarn = float ( self.node.getAttribute('pwarn').strip() )
+            except TypeError, value:
+                raise DCubeException( "histogram %s pvalue limit for WARN is NAN" % self.node.getAttribute('name') )
+            self.info("overriding pvalue limits for histogram %s: new WARN limit is pwarn=%s" % ( self.node.getAttribute('name'), pwarn ) )
+        else:
+            pwarn = self.opts.pwarn
+
+        if ( self.node.getAttribute('pfail') ):
+            try:
+                pfail = float ( self.node.getAttribute('pfail').strip() )
+            except TypeError, value:
+                raise DCubeException( "histogram %s pvalue limit for FAIL is NAN" % self.node.getAttribute('name') )
+            self.info("overriding pvalue limits for histogram %s: new FAIL limit is pfail=%s" % ( self.node.getAttribute('name'), pfail ) )
+        else:
+            pfail = self.opts.pfail
+
+
+
         if ( "all" in tests ): tests = [ "KS", "chi2", "bbb", "meany" ]
 
         if ( None not in ( self.mon, self.ref ) ):
-             
+
             if ( "TProfile" in self.mon.Class().GetName() ):
                 if ( "meany" in tests ):
                     status.append( self.__testMeanY.__call__( statNode ) )
             else:
                 for test in tests:
                     if ( test != "meany" ):
-                        status.append( self.tests[ test ].__call__( statNode ) )
-                    
+                        status.append( self.tests[ test ].__call__( statNode, pwarn, pfail ) )
+
         statusAttr = "OK"
         if ( "FAIL" in status ): statusAttr = "FAIL"
         elif ( "WARN" in status ): statusAttr = "WARN"
-        
+
         self.node.setAttribute( "stest", statusAttr )
 
         return statusAttr
-                    
+
     ## perform @f$\chi^2@f$ test
     # @param self "Me, myself and Irene"
     # @param statNode <stat> element
-    def __testChi2( self, statNode ):
+    def __testChi2( self, statNode, pwarn, pfail ):
 
         chi2 = ROOT.Double( 0.0 )
         igood = ROOT.Long( 0 )
@@ -389,8 +446,8 @@ class DCubeTester( DCubeObject ):
             else:
                 self.warn( ig )
 
-        status = self.__getTestStatus( pval ) 
-        self.sumTable["chi2"][status] = self.sumTable["chi2"][status] + 1   
+        status = self.__getTestStatus( pval, pwarn, pfail )
+        self.sumTable["chi2"][status] = self.sumTable["chi2"][status] + 1
 
         if ( ndf != 0 ):
             self.info( "*** Pearson's chi2 *** chi2 (/ndf) = %4.3f (/%d = %4.3f) status=%s" % ( chi2,
@@ -407,7 +464,7 @@ class DCubeTester( DCubeObject ):
 
         pValueNode.setAttribute( "test", "chi2" )
         pValueNode.setAttribute( "status", status )
-       
+
         counter = self.parent.getAttribute( "chi2" + status )
         if ( not counter ): counter = "0"
         self.parent.setAttribute( "chi2" + status, "%d" % ( int(counter) + 1 )  )
@@ -422,7 +479,7 @@ class DCubeTester( DCubeObject ):
     ## perform Kolmogorov-Smirnoff test
     # @param self "Me, myself and Irene"
     # @param statNode <stat> element
-    def __testKS( self, statNode ):
+    def __testKS( self, statNode, pwarn, pfail ):
 
         nbBins,nbBinsSame,nbBinsDiff = self.__testEqual()
         self.debug("*** Kolmogorov-Smirnoff *** all none-empty bins=%d all equal non-empty bins=%d" % ( nbBins, nbBinsSame ) )
@@ -434,9 +491,9 @@ class DCubeTester( DCubeObject ):
             self.debug( "*** Kolmogorov-Smirnoff *** both histograms are equal!" )
         else:
             pval = self.mon.KolmogorovTest( self.ref, "D" )
-        
-        status = self.__getTestStatus( pval ) 
-        self.sumTable["KS"][status] = self.sumTable["KS"][status] + 1     
+
+        status = self.__getTestStatus( pval, pwarn, pfail )
+        self.sumTable["KS"][status] = self.sumTable["KS"][status] + 1
 
         self.info( "*** Kolmogorov-Smirnoff *** (D) p-value=%4.3f status=%s" % ( pval, status ) )
 
@@ -454,7 +511,7 @@ class DCubeTester( DCubeObject ):
 
         statNode.appendChild( pValueNode )
         return status
-        
+
     ##  ** provide check if equal **
     # returns (nbBins,nbBinsSame,nbBinsDiff)
     #   nbBins - nb of bins not zero
@@ -480,14 +537,14 @@ class DCubeTester( DCubeObject ):
     ## perform "bin-by-bin" statistic test
     # @param self "Me, myself and Irene"
     # @param statNode <stat> element
-    def __testBBB( self, statNode ):
+    def __testBBB( self, statNode, pwarn, pfail ):
 
         nbBins,nbBinsSame,nbBinsDiff = self.__testEqual()
         self.debug("*** bin-by-bin *** all none-empty bins=%d all equal non-empty bins=%d" % ( nbBins, nbBinsSame ) )
 
         pval = 0.0
         if ( nbBins != 0.0 ):
-            pval = nbBinsSame / nbBins  
+            pval = nbBinsSame / nbBins
             self.debug("*** bin-by-bin *** p-value=%4.3f" % pval )
         elif ( nbBinsSame == 0.0 ):
             pval = 1.0
@@ -497,11 +554,11 @@ class DCubeTester( DCubeObject ):
             # AS: this part is never called?!
             self.warn( "*** bin-by-bin *** reference histogram is empty, while monitored has some entries" )
             self.debug( "*** bin-by-bin *** test failed" )
-        
-        status = self.__getTestStatus( pval )
+
+        status = self.__getTestStatus( pval, pwarn, pfail )
         self.info("*** bin-by-bin *** p-value=%4.3f status=%s" % ( pval, status ) )
 
-        self.sumTable["bbb"][status] = self.sumTable["bbb"][status] + 1     
+        self.sumTable["bbb"][status] = self.sumTable["bbb"][status] + 1
 
         pValueNode = self.xmldoc.createElement( "pvalue" )
         pValueCData = self.xmldoc.createTextNode( "%4.3f" % pval )
@@ -529,13 +586,13 @@ class DCubeTester( DCubeObject ):
         avgEffref = self.ref.GetMean( 2 ) * 100
 
         self.debug("*** MeanY Test *** refMean=%4.3f and monMean=%4.3f" % ( avgEffref, avgEffmon ) )
-        
+
         pval = abs(avgEffmon - avgEffref)
 
         status = self.__getMeanTestStatus( pval )
         self.info("*** Mean Test *** p-value=%4.3f status=%s" % ( pval, status ) )
 
-        self.sumTable["meanY"][status] = self.sumTable["meanY"][status] + 1     
+        self.sumTable["meanY"][status] = self.sumTable["meanY"][status] + 1
 
         pValueNode = self.xmldoc.createElement( "pvalue" )
         pValueCData = self.xmldoc.createTextNode( "%4.3f" % pval )
@@ -552,19 +609,19 @@ class DCubeTester( DCubeObject ):
         statNode.appendChild( pValueNode )
 
         return status
-    
-    
-    ## get test status for given pvalue 
+
+
+    ## get test status for given pvalue
     # @param self "Me, myself and Irene"
     # @param pval p-value from test
-    def __getTestStatus( self, pval ):
-        if ( ( pval < 0.0 or pval > 1.0 ) or  
-             ( pval <= self.opts.pfail ) ): return "FAIL"
-        if ( pval > self.opts.pwarn ): return "OK"
+    def __getTestStatus( self, pval, pwarn, pfail ):
+        if ( ( pval < 0.0 or pval > 1.0 ) or
+             ( pval <= pfail ) ): return "FAIL"
+        if ( pval > pwarn ): return "OK"
         return "WARN"
 
 
-    ## get test status for given pvalue 
+    ## get test status for given pvalue
     # @param self "Me, myself and Irene"
     # @param pval p-value from test
     def __getMeanTestStatus( self, pval ):
@@ -580,10 +637,10 @@ class DCubeTester( DCubeObject ):
             plotOpts = self.node.getAttribute( "plotopts" )
             status = self.__plotter.plot( self.node, self.mon, self.ref, plotOpts  )
             return status
-    
+
 
     ## string representation of DCubeTester
-    # @param self "Me, myself and Irene" 
+    # @param self "Me, myself and Irene"
     def __str__( self ):
         out  = "*"*61 + "\n"
         out += "* RUN SUMMARY\n"
@@ -591,7 +648,7 @@ class DCubeTester( DCubeObject ):
         out += "* objects processed = %d\n" % self.__nbObjs
         out += "* STATISTICS TESTS TABLE\n"
         out += "* " + "-"*45 + "\n"
-        out += "* | %-8s | %8s | %8s | %8s |\n" % ( "test", "OK", "WARN", "FAIL") 
+        out += "* | %-8s | %8s | %8s | %8s |\n" % ( "test", "OK", "WARN", "FAIL")
         self.allGOOD = 0
         self.allWARN = 0
         self.allFAIL = 0
@@ -605,20 +662,20 @@ class DCubeTester( DCubeObject ):
             self.allFAIL += nbFAIL
             out += "* " + "-"*45+"\n"
             out += "* | %-8s | %8d | %8d | %8d |\n" % ( key, nbGOOD, nbWARN, nbFAIL )
-            
+
         out += "* " + "-"*45+"\n"
 
-        
+
         out += "* | %-8s | %8d | %8d | %8d |\n" % ( "all", self.allGOOD, self.allWARN, self.allFAIL )
         out += "* " + "-"*45+"\n"
 
         self.fracGOOD = 0.0
         self.fracWARN = 0.0
         self.fracFAIL = 0.0
-        all = float( self.allGOOD + self.allWARN + self.allFAIL ) 
+        all = float( self.allGOOD + self.allWARN + self.allFAIL )
         if ( all ):
-            self.fracGOOD = 100 * float( self.allGOOD ) / all 
-            self.fracWARN = 100 * float( self.allWARN ) / all 
+            self.fracGOOD = 100 * float( self.allGOOD ) / all
+            self.fracWARN = 100 * float( self.allWARN ) / all
             self.fracFAIL = 100 * float( self.allFAIL ) / all
         out += "* | %%        |    %04.2f |    %04.2f |    %04.2f |\n" % ( self.fracGOOD, self.fracWARN, self.fracFAIL )
         out += "* " + "-"*45+"\n"
@@ -629,16 +686,16 @@ class DCubeTester( DCubeObject ):
         i = 1
         for key, value in self.errors.iteritems( ):
             sev, what = key.split(";")
-            
+
             out += "* [%02d] %4s %-30s - occured %d " %  (i, sev, what, value )
             if ( value == 1 ): out += "time\n"
             else: out += "times\n"
             i += 1
 
         out += "*"*61+"\n"
-        
+
         self.__status = ""
-        
+
         if ( self.allFAIL != 0 ):
             self.__status = "FAIL"
         elif ( self.allWARN != 0 or self.nbErrors != 0 ):
@@ -647,17 +704,17 @@ class DCubeTester( DCubeObject ):
             self.__status = "OK"
 
         out += "* OVERALL STATISTICS STATUS: %-4s\n" % self.__status
-                    
+
         out += "*"*61
-        
+
         return out
 
-    ## put summary to the logger and create summary node 
+    ## put summary to the logger and create summary node
     # @param self "Me, myself and Irene"
     # @return summary XML Element
     def summary( self ):
-        
-        for line in str(self).split("\n"): 
+
+        for line in str(self).split("\n"):
             self.info( line )
 
         summaryNode = self.xmldoc.createElement( "summary" )
@@ -667,18 +724,18 @@ class DCubeTester( DCubeObject ):
 
         testTable = self.xmldoc.createElement( "table" )
         testTable.appendChild( self.__sumTableRow( [ "test", "OK", "WARN", "FAIL" ] ) )
-        for test, results in self.sumTable.iteritems(): 
+        for test, results in self.sumTable.iteritems():
             testTable.appendChild( self.__sumTableRow( [ test,
                                                          results["OK"],
                                                          results["WARN"],
                                                          results["FAIL"] ] ) )
-            
+
         testTable.appendChild( self.__sumTableRow( ["sum", self.allGOOD, self.allWARN, self.allFAIL ] ) )
         testTable.appendChild( self.__sumTableRow( ["fraction",
                                                     "%4.2f" % self.fracGOOD,
                                                     "%4.2f" % self.fracWARN,
                                                     "%4.2f" % self.fracFAIL ] ) )
-        
+
         summaryNode.appendChild( testTable )
 
         errorsNode = self.xmldoc.createElement( "errors" )
@@ -690,12 +747,12 @@ class DCubeTester( DCubeObject ):
             errorNode.setAttribute( "times", "%d" % times )
             errorNode.setAttribute( "what", error )
             errorsNode.appendChild( errorNode )
-            
-        summaryNode.appendChild( errorsNode )
-        
-        return summaryNode 
 
-    ## produce summary table row 
+        summaryNode.appendChild( errorsNode )
+
+        return summaryNode
+
+    ## produce summary table row
     # @param self "Me, myself and Irene"
     def __sumTableRow( self, what ):
         row = self.xmldoc.createElement( "tr" )
@@ -710,11 +767,18 @@ class DCubeTester( DCubeObject ):
     # @param self "Me, myself and Irene"
     def status( self ):
         return self.__status
-        
-        
+
+    #check that values in histogram are not infinity or nan
+    def __checkValues( self, values ):
+        for val in values:
+            if ( math.isinf(abs( val ) ) or math.isnan( val ) ) :
+                return "BAD"
+        return "OK"
+
+
 ##
 # @class test_DCubeTester
-# @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com) 
+# @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief test case for DCubeTester class
 class test_DCubeTester( unittest.TestCase ):
 
@@ -732,5 +796,5 @@ class test_DCubeTester( unittest.TestCase ):
 ## test case execution
 if __name__ == "__main__":
     pass
-    
+
 

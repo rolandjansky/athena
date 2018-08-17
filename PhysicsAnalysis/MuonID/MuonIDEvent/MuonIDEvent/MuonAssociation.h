@@ -30,7 +30,7 @@ namespace Analysis
       
     public:
       MuonAssociation() ;      //!< constructor
-      MuonAssociation(NameType& name) ;      //!< constructor
+      MuonAssociation(const NameType& name) ;      //!< constructor
       ~MuonAssociation() ;      //!< destructor
       
       virtual JetAssociationBase* clone() const; 
@@ -47,7 +47,7 @@ namespace Analysis
 		    const Muon* the_muon,  double weight=1);
       
       void set_muon(const MuonContainer* theContainer,
-		    index_type& theIndex,   double weight=1);
+		    const index_type& theIndex,   double weight=1);
       
       void set_association(const MuonContainer* theContainer,
 			   const Muon* the_muon,  double weight=1) 
@@ -56,7 +56,7 @@ namespace Analysis
 	}
       
       void set_association(const MuonContainer* theContainer,
-			   index_type& theIndex,   double weight=1)
+			   const index_type& theIndex,   double weight=1)
 	{
 	  set_muon(theContainer, theIndex, weight);
 	}
@@ -64,7 +64,7 @@ namespace Analysis
       double getMuonWeight(const Muon* the_muon) const ;
       
       double getMuonWeight(const MuonContainer* theContainer,
-			   index_type& theIndex) const;
+			   const index_type& theIndex) const;
       
     };
   

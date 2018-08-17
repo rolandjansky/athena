@@ -42,7 +42,7 @@ namespace InDet {
 
     private:
         /**ID pixel helper*/
-        const AtlasDetectorID* m_atlasId;
+        const AtlasDetectorID* m_atlasId{};
     };
 }
 

@@ -58,6 +58,10 @@ class CaloClusterMaker : public AthReentrantAlgorithm
       CaloClusterContainer */
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_clusterOutput;
 
+  /** @brief the name of the key in StoreGate for the output
+      CaloClusterCellLinkContainer */
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterCellLinkOutput;
+
   /**
    * @brief a list of names for tools to make clusters
    * 

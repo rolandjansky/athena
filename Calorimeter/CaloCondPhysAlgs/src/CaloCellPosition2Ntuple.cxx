@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloCondPhysAlgs/CaloCellPosition2Ntuple.h"
+#include "CaloCellPosition2Ntuple.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -42,10 +42,10 @@ StatusCode CaloCellPosition2Ntuple::initialize()
   ATH_MSG_DEBUG ("CaloCellPosition2Ntuple initialize()" );
   ATH_CHECK( service("THistSvc",m_thistSvc) );
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
+  m_calo_id      = mgr->getCaloCell_ID();
 
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
   ATH_CHECK( detStore()->regHandle(m_cellPos,m_key) );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
@@ -82,6 +82,9 @@ StatusCode CaloCellPosition2Ntuple::stop()
 
   int nread = (int)(m_cellPos->size());
 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   if (nread > ncell) {
     ATH_MSG_WARNING ( " CaloCellPosition size different from max lar hash " << m_cellPos->size() << " " << ncell );
     return StatusCode::SUCCESS;
@@ -90,7 +93,7 @@ StatusCode CaloCellPosition2Ntuple::stop()
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
-       const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
+       const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(id);
 
        m_Hash =  i;
        m_OffId = (int)(id.get_identifier32().get_compact());

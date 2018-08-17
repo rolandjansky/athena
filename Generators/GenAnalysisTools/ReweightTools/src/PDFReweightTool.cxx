@@ -18,7 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "HepMC/GenEvent.h"

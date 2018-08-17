@@ -59,7 +59,6 @@ class sTgcIdHelper;
 class sTgcDigitMaker;
 class sTgcHitIdHelper;
 class IAtRndmGenSvc;
-class MsgStream;
 
 class TFile;
 class TH2F;

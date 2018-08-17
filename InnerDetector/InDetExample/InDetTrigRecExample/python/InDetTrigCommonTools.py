@@ -11,22 +11,29 @@ ___version___ = "$Id: $"
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
 from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon.GlobalFlags import globalflags
+
+# TRT_DriftFunctionTool
+isMC = False
+if globalflags.DataSource == "geant4" :
+    isMC = True
 
 from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
+
 InDetTrigTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTrigTRT_DriftFunctionTool",
                                                        AllowDataMCOverride = True,
-                                                       ForceData = True )
+                                                       ForceData = True,
+                                                       IsMC = isMC,
+                                                       TRTCalDbTool = "TRT_CalDbSvc/TRT_CalDbSvc" )
 
-#
+ToolSvc += InDetTrigTRT_DriftFunctionTool
+
+# TRT_RodDecoder
 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
-from AthenaCommon.GlobalFlags import globalflags
+
 InDetTrigTRTRodDecoder = TRT_RodDecoder(name = "InDetTrigTRTRodDecoder",
                                         LoadCompressTableDB = (globalflags.DataSource() != 'geant4'))
 ToolSvc += InDetTrigTRTRodDecoder
-
-#InDetTrigTRT_DriftFunctionTool.TRTCalDbTool='TRT_CalDbSvc/'+TRT_ConditionsSetup.instanceName("TRT_CalDbSvc")
-InDetTrigTRT_DriftFunctionTool.TRTCalDbTool='TRT_CalDbSvc/TRT_CalDbSvc'
-ToolSvc += InDetTrigTRT_DriftFunctionTool
 
 # TRT_DriftCircleTool
 from TRT_DriftCircleTool.TRT_DriftCircleToolConf import InDet__TRT_DriftCircleTool

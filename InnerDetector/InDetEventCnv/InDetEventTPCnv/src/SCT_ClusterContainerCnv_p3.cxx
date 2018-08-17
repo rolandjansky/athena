@@ -241,5 +241,7 @@ StatusCode SCT_ClusterContainerCnv_p3::initialize(MsgStream &log) {
    return StatusCode::SUCCESS;
 }
 
-
-
+// Method for test/SCT_ClusterContainerCnv_p3_test.cxx
+void SCT_ClusterContainerCnv_p3::setIdHelper(const SCT_ID* sct_id) {
+  m_sctId = sct_id;
+}

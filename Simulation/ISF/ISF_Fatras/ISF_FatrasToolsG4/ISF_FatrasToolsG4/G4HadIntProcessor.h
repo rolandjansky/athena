@@ -134,8 +134,6 @@ namespace iFatras {
       mutable G4RunManager*                m_g4runManager;
       G4VUserPhysicsList*                  m_g4physicsList;
       G4LayerDetectorConstruction*         m_g4detector;
-      G4LayerPrimaryGeneratorAction*       m_g4generatorAction;
-      G4LayerTrackingAction*               m_g4trackingAction;
 
       //!< Geant4 processes <PDGcode, process>  TODO : fission, capture
       mutable std::map<int, G4VProcess*>   m_g4HadrInelasticProcesses;

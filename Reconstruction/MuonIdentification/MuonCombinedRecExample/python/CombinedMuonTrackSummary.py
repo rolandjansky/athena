@@ -107,7 +107,7 @@ if DetFlags.haveRIO.pixel_on():
 
   
 if DetFlags.haveRIO.SCT_on():
-  ToolSvc.CombinedMuonIDHoleSearch.SctSummarySvc      = ServiceMgr.InDetSCT_ConditionsSummarySvc
+  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool      = ToolSvc.InDetSCT_ConditionsSummaryTool
 
 # check configuration
 #print ToolSvc.CombinedMuonIDHoleSearch

@@ -46,6 +46,8 @@
 #include "CxxUtils/AthDsoCbk.h"
 #include "CxxUtils/read_athena_statm.h"
 
+#include "RootUtils/PyAthenaGILStateEnsure.h"
+
 // AIDA includes
 #include "AIDA/IBaseHistogram.h"
 
@@ -180,7 +182,7 @@ PerfMonSvc::PerfMonSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_nalgs    (   0  ),
   m_corrector(      ),
   m_pmonsd   (   0  ),
-  m_pf       ( false)
+  m_pf       ( true )
 {
 
   //
@@ -271,6 +273,8 @@ PerfMonSvc::postFinalize()
   }
 
   fflush(NULL); //> flushes all output streams...
+
+  RootUtils::PyGILStateEnsure gil;
 
   if ( m_pySvc ) {
     /// loop over the perf-tools and harvest 'finalize' perf-data
@@ -445,6 +449,7 @@ PerfMonSvc::io_reinit()
 ////////////////////////////
 StatusCode PerfMonSvc::initialize()
 {
+  m_pf = false;
   if (m_semiDetMonLvl>0)
     m_pmonsd = new PMonSD::SemiDetHelper(m_jobStartJiffies);
 
@@ -489,6 +494,8 @@ StatusCode PerfMonSvc::initialize()
     const std::string step = "usr";
     m_ntuple.comp.insert(std::make_pair(step, CompStore_t()));
   }
+
+  RootUtils::PyGILStateEnsure gil;
 
   PMON_INFO("Retrieving PyPerfMonSvc object...");
   const std::string moduleName = "PerfMonComps.PyPerfMon";
@@ -752,6 +759,8 @@ void
 PerfMonSvc::domain(const std::string& compName, std::string& domain) const
 {
   domain = "N/A";
+
+  RootUtils::PyGILStateEnsure gil;
 
   PyObject* db = PyObject_CallMethod
     ( m_pySvc,

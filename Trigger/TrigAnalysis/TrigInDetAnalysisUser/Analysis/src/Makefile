@@ -32,8 +32,9 @@ endif
 ifeq ($(TestArea),)
     ATLASBASE = $(HOME)/atlas/TIDA
 else
-    ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
+#   ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
 #   ATLASBASE = /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.1-dev/2018-04-09T2234/AthenaP1/21.1.24/InstallArea/x86_64-slc6-gcc62-opt/src/Trigger/TrigAnalysis
+    ATLASBASE = /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.1-dev/2018-05-15T2242/AthenaP1/21.1.27/InstallArea/x86_64-slc6-gcc62-opt/src/Trigger/TrigAnalysis
 endif
 
 CMTCONFIG=
@@ -41,7 +42,6 @@ CMTCONFIG=
 
 
 ifeq ($(CMTCONFIG),)
-
 
 
 #    ATLAS_ARCH = $(shell ./setarch.sh)
@@ -67,11 +67,13 @@ ifeq ($(CMTCONFIG),)
 #      TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser/TrigInDetAnalysisUser-00-01-11
 #       TIDUB = ../..
 #    else
+
        TID   = $(ATLASBASE)/TrigInDetAnalysis
-       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils
+#      TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils
+       TIDU  = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUtils
        TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample
-       TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser
-#      TIDUB = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUser
+#      TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser
+       TIDUB = $(TestArea)/Trigger/TrigAnalysis/TrigInDetAnalysisUser
 #    endif
 
     CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) -fPIC 	

@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloUtils
 			  Calorimeter/CaloGeoHelpers
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/IdDictDetDescr
                           Event/EventPrimitives
@@ -54,7 +54,7 @@ atlas_add_component( egammaTrackTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib CaloGeoHelpers AthenaBaseComps DataModel AtlasDetDescr IdDictDetDescr EventPrimitives xAODCaloEvent xAODEgamma xAODTracking FourMomUtils GaudiKernel InDetIdentifier RecoToolInterfaces TrkSurfaces TrkCaloCluster_OnTrack TrkCaloExtension TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters TrkParametersIdentificationHelpers TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexOnTrack VxVertex TrkExInterfaces TrkFitterInterfaces TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib CaloGeoHelpers AthenaBaseComps AthContainers AtlasDetDescr IdDictDetDescr EventPrimitives xAODCaloEvent xAODEgamma xAODTracking FourMomUtils GaudiKernel InDetIdentifier RecoToolInterfaces TrkSurfaces TrkCaloCluster_OnTrack TrkCaloExtension TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters TrkParametersIdentificationHelpers TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexOnTrack VxVertex TrkExInterfaces TrkFitterInterfaces TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( egammaTrackTools )

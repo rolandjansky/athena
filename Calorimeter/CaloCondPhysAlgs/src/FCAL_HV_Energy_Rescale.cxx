@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // CaloCondPhysAlgs includes
-#include "CaloCondPhysAlgs/FCAL_HV_Energy_Rescale.h"
+#include "FCAL_HV_Energy_Rescale.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaKernel/errorcheck.h"
 //#include "LArElecCalib/ILArHVCorrTool.h"

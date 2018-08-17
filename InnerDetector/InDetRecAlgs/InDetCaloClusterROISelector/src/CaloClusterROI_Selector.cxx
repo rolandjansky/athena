@@ -37,7 +37,7 @@ PURPOSE:   For each cluster create a new CaloClusterROI object and fills it then
 #include "GaudiKernel/MsgStream.h"
 
 #include <algorithm> 
-#include <math.h>
+#include <cmath>
 
 //  END OF HEADER FILES INCLUDE
 
@@ -81,11 +81,6 @@ InDet::CaloClusterROI_Selector::CaloClusterROI_Selector(const std::string& name,
     //
     declareProperty("CaloClusterROIBuilder",                  m_caloClusterROI_Builder,"Handle of the CaloClusterROI_Builder Tool");
     //
-    // Other properties.
-    //
-    // declareProperty("CheckEMSamples",                         m_CheckEMsamples =true);
-    // declareProperty("CheckHadronicEnergy",                    m_CheckHadronicEnergy=true);
-
     //
     declareProperty("HadRatioCut",                            m_HadRatioCut  =0.12,    " Cut on Hadronic Leakage");
     declareProperty("RetaCut",                                m_RetaCut      =0.65,   " Cut on Reta");
@@ -164,7 +159,6 @@ StatusCode InDet::CaloClusterROI_Selector::execute_r(const EventContext& ctx) co
     // athena execute method
     //
 
-    //bool do_trackMatch = true;
     ATH_MSG_DEBUG("Executing CaloClusterROI_Selector");
 
     // Chrono name for each Tool
@@ -234,13 +228,13 @@ bool InDet::CaloClusterROI_Selector::PassClusterSelection(const xAOD::CaloCluste
     }
 
     // transverse energy in calorimeter (using eta position in second sampling)
-    double eta2   = fabs(cluster->etaBE(2));  
+    double eta2   = std::fabs(cluster->etaBE(2));  
     if (eta2>2.47 || eta2<0.) {
         ATH_MSG_DEBUG("Cluster failed acceptance test: dont make ROI");
         return false;
     }
 
-    double et = cosh(eta2)!=0. ? cluster->e()/cosh(eta2) : 0.;
+    double et = std::cosh(eta2)!=0. ? cluster->e()/std::cosh(eta2) : 0.;
 
     if ( et < m_ClusterEtCut ){
         ATH_MSG_DEBUG("Cluster failed Energy Cut: dont make ROI");
@@ -283,8 +277,8 @@ bool InDet::CaloClusterROI_Selector::PassClusterSelection(const xAOD::CaloCluste
             delete HADccl;
             double ethad1 = info.ethad1;
             double ethad  = info.ethad;
-            double raphad1 = fabs(et) > 0. ? ethad1/et : 0.;
-            double raphad = fabs(et) > 0. ? ethad/et : 0.;
+            double raphad1 = std::fabs(et) > 0. ? ethad1/et : 0.;
+            double raphad = std::fabs(et) > 0. ? ethad/et : 0.;
             if (eta2 >= 0.8 && eta2 < 1.37){
                 if (raphad >m_HadRatioCut){
                     ATH_MSG_DEBUG("Cluster failed Hadronic Leakage test: dont make ROI");

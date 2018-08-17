@@ -390,15 +390,18 @@ uint32_t MurmurHashAligned2 ( const void * key, int len, uint32_t seed )
       uint32_t k = (t >> sr) | (d << sl);
       MIX(h,k,m);
 
+      // At this point, we know that len < 4 and align > 0.
       data += align;
       len -= align;
+      // So here, we must have 0 >= len < 3.
 
       //----------
       // Handle tail bytes
 
       switch(len)
       {
-      case 3: h ^= data[2] << 16;
+      // can't happen --- see above.
+      //case 3: h ^= data[2] << 16;
       // FALLTHROUGH
       case 2: h ^= data[1] << 8;
       // FALLTHROUGH

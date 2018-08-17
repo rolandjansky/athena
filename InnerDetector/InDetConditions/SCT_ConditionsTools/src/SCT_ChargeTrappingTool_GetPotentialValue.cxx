@@ -4,7 +4,7 @@
 
 #include "SCT_ChargeTrappingTool.h"
 
-double SCT_ChargeTrappingTool::GetPotentialValue(int& ix, int& iy) {
+double SCT_ChargeTrappingTool::getPotentialValue(int& ix, int& iy) {
 double PotentialArray[81][115] = {
 //--- PotentialArray[81][115] 
 //      ix = 0 -  80 : 5um step, 40um - 440 um

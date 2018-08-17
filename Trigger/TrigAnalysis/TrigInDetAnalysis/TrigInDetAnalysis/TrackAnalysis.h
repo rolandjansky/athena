@@ -108,12 +108,15 @@ public:
   TIDARoiDescriptor*  roi() const               { return m_roi; }
   void             setroi(TIDARoiDescriptor* r) { m_roi=r; }
 
-protected:
- 
+
+public:
+  /// FIXME: public for now, to avoid warnings about naming convention
+  ///        violations.  Should be fixed properly after run2 finishes.
   /// identifier of the of the analysis - also used for the root
   ///  directory into which the histograms are put
   std::string   mname;
 
+protected:
   /// lookup table for the histograms by name - does this 
   /// need to be in the base class?  
   std::map<std::string, TH1*> m_histos;

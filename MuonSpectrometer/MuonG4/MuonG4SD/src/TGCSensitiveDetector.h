@@ -44,6 +44,8 @@ We describe in the following, how each field of the identifier is retrieved.
 1) since the volume copy numbers strongly depend on the database
    layout, the volume name (whether it contains the string "Q02", for instance)
    is used to retrieve geometry information.
+   In the year 2018 and even some years before there are not any more other
+   database layouts / volumes than MUONQ02 and therefore some logic was removed.
 
 2) for each hit, the time of flight (the G4 globalTime), is recorded and
    associated to the hit.
@@ -77,10 +79,8 @@ class TGCSensitiveDetector : public G4VSensitiveDetector {
     
  private:
   /** member data */
-  enum layout { P03 , Q02 , Unknown };
   SG::WriteHandle<TGCSimHitCollection>  myTGCHitColl;
   TgcHitIdHelper* muonHelper;
-  layout m_layout;
 };
 
 #endif

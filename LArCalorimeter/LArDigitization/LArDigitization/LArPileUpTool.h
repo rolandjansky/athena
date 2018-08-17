@@ -29,7 +29,7 @@
 #include "LArElecCalib/ILArfSampl.h"
 
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArRecConditions/ILArBadChanTool.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include "StoreGate/DataHandle.h"
 
@@ -39,6 +39,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "LArRawConditions/LArADC2MeV.h"
 
 class StoreGateSvc;
 class PileUpMergeSvc;
@@ -81,6 +83,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   virtual StatusCode processAllSubEvents() override final;
 
   virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal) override final;
+
+  virtual StatusCode fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal);
 
   static const InterfaceID& interfaceID() {
     return ILArPileUpTool::interfaceID();}
@@ -194,10 +198,11 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   const DataHandle<ILArfSampl>    m_dd_fSampl;
   const DataHandle<ILArPedestal>  m_dd_pedestal;
   const DataHandle<ILArShape>     m_dd_shape;
-  ToolHandle<ILArADC2MeVTool>     m_adc2mevTool;
+  SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey;
+
   ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
+  SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey;
   ToolHandle<ITriggerTime> m_triggerTimeTool;
 
   const LArEM_ID*        m_larem_id;

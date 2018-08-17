@@ -32,45 +32,44 @@ public:
 
   /** Get the Lorentz angle shift in the local x (phiDist) direction
       Assumes the center of the detector and is generally cached. */
-  virtual double getLorentzShift(const IdentifierHash& elementHash) = 0;
+  virtual double getLorentzShift(const IdentifierHash& elementHash) const = 0;
 
   /** As above, but provide the local position. 
       More accurate but slower */
-  virtual double getLorentzShift(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) = 0;
+  virtual double getLorentzShift(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) const = 0;
 
   /** Get the Lorentz angle shift in the local y (etaDist) direction
       Assumes the center of the detector and is generally cached.*/
-  virtual double getLorentzShiftEta(const IdentifierHash& elementHash) = 0;
+  virtual double getLorentzShiftEta(const IdentifierHash& elementHash) const = 0;
 
   /** As above, but provide the local position. 
       More accurate but slower. */
-  virtual double getLorentzShiftEta(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) = 0;
+  virtual double getLorentzShiftEta(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) const = 0;
 
   /** Get tan af the Lorentz angle in the local x (phiDist) direction
       Assumes the center of the detector and is generally cached. */
-  virtual double getTanLorentzAngle(const IdentifierHash& elementHash) = 0;
+  virtual double getTanLorentzAngle(const IdentifierHash& elementHash) const = 0;
 
   /** As above, but provide the local position. 
       More accurate but slower. */
-  virtual double getTanLorentzAngle(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) = 0;
+  virtual double getTanLorentzAngle(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) const = 0;
 
   /** Get tan af the Lorentz angle in the local y (etaDist) direction
       Assumes the center of the detector and is generally cached */
-  virtual double getTanLorentzAngleEta(const IdentifierHash& elementHash) = 0;
+  virtual double getTanLorentzAngleEta(const IdentifierHash& elementHash) const = 0;
 
   /** As above, but provide the local position. 
       More accurate but slower. */
-  virtual double getTanLorentzAngleEta(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) = 0;
+  virtual double getTanLorentzAngleEta(const IdentifierHash& elementHash, const Amg::Vector2D& locPos) const = 0;
 
   /** Get bias voltage */
-  virtual double getBiasVoltage(const IdentifierHash& elementHash) = 0;
+  virtual double getBiasVoltage(const IdentifierHash& elementHash) const = 0;
 
   /** Get temperature */
-  virtual double getTemperature(const IdentifierHash& elementHash) = 0;
+  virtual double getTemperature(const IdentifierHash& elementHash) const = 0;
 
   /** Get depletion voltage */
-  virtual double getDepletionVoltage(const IdentifierHash& elementHash) = 0;
-
+  virtual double getDepletionVoltage(const IdentifierHash& elementHash) const = 0;
 };
 
 #endif // ISiLorentzAngleTool_h

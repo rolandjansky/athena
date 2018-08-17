@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -14,29 +14,17 @@ PURPOSE: Class for calibrating a TRT sub-level
           
 ********************************************************************/
 
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <iostream>
-#include <TNtuple.h>
-#include <TFile.h>
-#include <TKey.h>
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TGraphErrors.h>
-#include <TF1.h>
-#include <TStyle.h>
-#include <TCanvas.h>
-#include <THStack.h>
-#include <TText.h>
-#include <TPaveText.h>
-#include <TROOT.h>
+#include <vector>
 #include <map>
 #include <set>
-using namespace std;
+#include <string>
+
+class TH1F;
+class TH2F;
+class TF1;
+class TH1D;
+class TDirectory;
+class TGraphErrors;
 
 /**
 A class for generating a r-t and t-r graphs by binning the 2D histograms in Calibrator::rtHists in r ot t bins. 
@@ -45,16 +33,19 @@ class RtGraph{
 public:
   /** the constructor*/ RtGraph(TH2F*, int, const char*, bool, TDirectory*);
   /** the destructor */ ~RtGraph();
+  //explicitly delete these, code to implement them would be horrible due to use of raw arrays
+  /** copy constructor */ RtGraph(const RtGraph & other) =  delete;
+  /** assignment */ RtGraph & operator=(const RtGraph & other) = delete;
   /** array of the histograms for all bins*/ TH1D** hslizes;
-  /** the r values*/ vector<double> rval;
-  /** the r values*/ vector<double> tval;
+  /** the r values*/ std::vector<double> rval;
+  /** the r values*/ std::vector<double> tval;
   /** the t(r) graph*/ TGraphErrors* trgr;
   /** the r(t) graph*/ TGraphErrors* rtgr;
   /** the number of graph points */ int npoints;
   /** the minimum t-value*/ float mintime;
 private:
-  /** the histogram name*/ string m_chname;
-  /** the histogram title*/ string m_chtit;
+  /** the histogram name*/ std::string m_chname;
+  /** the histogram title*/ std::string m_chtit;
   /***/ enum  bintype {LOW, GOOD, HIGH, EMPTY};
   /***/ bintype* m_btype;
   /***/ float *m_rightsig;
@@ -195,7 +186,7 @@ public:
      @param[in] rtr which rt-relation to use
      @param[in] rtb which rt binning to use
   */
-  Calibrator(int,string,int,int,string,string,float);
+  Calibrator(int,std::string,int,int,std::string,std::string,float);
 
   /**
      Destructor
@@ -241,7 +232,7 @@ public:
      @param[in] binhist an integer arry containing the histogram data for a single straw
      @return 1 if the sub-module is seen for the first time and 0 if it has been seen before
   */
-  int AddHit(string,databundle,int*,bool);
+  int AddHit(std::string,databundle,int*,bool);
 
   /**
      Creates root histograms, performs the t0 and R-t calibration for a given sub-module and writes the resulting histograms to a root directory tree (if not told otherwise). The new t0 values are calculated here.
@@ -250,7 +241,7 @@ public:
      @param[in] caldata_above the caldata object from the sub-module above the one to be calibrated
      @return the root directory where the histgrams were written
   */
-  TDirectory* Calibrate(TDirectory*, string, string, caldata*);
+  TDirectory* Calibrate(TDirectory*, std::string, std::string, caldata*);
 
   /**
      Makes the R-t fit
@@ -258,7 +249,7 @@ public:
      @param[in] rtHist the 2D root histogram with the R-t data
      @return the t0 from the R-t fit
   */
-  float FitRt(string,string,TH2F*,TDirectory*);
+  float FitRt(std::string,std::string,TH2F*,TDirectory*);
 
   /**
      Makes the time residual fit
@@ -266,7 +257,7 @@ public:
      @param[in] tresHist the 1D root histogram with the time residuals
      @return the mean value of the time residual fit
   */
-  float FitTimeResidual(string,TH1F*);
+  float FitTimeResidual(std::string,TH1F*);
 
   /**
      Makes the residual fit
@@ -274,7 +265,7 @@ public:
      @param[in] resHist the 1D root histogram with the residuals
      @return the mean value of the residual fit
   */
-  float FitResidual(string,TH1F*);
+  float FitResidual(std::string,TH1F*);
 
   /**
      Creates an ntuple with entries containing data associated with the sub-modules in a sub level
@@ -286,19 +277,19 @@ public:
 
   /**
   */
-  string GetBinnedRt(string);
+  std::string GetBinnedRt(std::string);
 
   /**
      Prints some sub-level statistics
   */
-  string PrintStat();
+  std::string PrintStat();
 
-  string PrintInfo();
+  std::string PrintInfo();
 
   /**
      ...
   */
-  bool HasKey(string);
+  bool HasKey(std::string);
 
   /**
      ...
@@ -321,7 +312,7 @@ public:
      Creates a string summarizing what is being done at this sub-level
      @return the string
   */
-  string GetOptString();
+  std::string GetOptString();
 
   /**
      ...
@@ -332,12 +323,12 @@ public:
      Creates a string summarizing which modules are being calibrated at this sub-level
      @return the string
   */
-  string GetSelString();
+  std::string GetSelString();
 
-  float oldt0(string key) {return data[key].sumt0/float(data[key].ntres);}
-  float xmean(string key) {return data[key].sumx/float(data.size());}
-  float ymean(string key) {return data[key].sumy/float(data.size());}
-  float zmean(string key) {return data[key].sumz/float(data.size());}
+  float oldt0(std::string key) {return data[key].sumt0/float(data[key].ntres);}
+  float xmean(std::string key) {return data[key].sumx/float(data.size());}
+  float ymean(std::string key) {return data[key].sumy/float(data.size());}
+  float zmean(std::string key) {return data[key].sumz/float(data.size());}
 
   /**A map between the sub-module identifier string and the calibration data structure (caldata)*/
   std::map<std::string,caldata> data;
@@ -355,13 +346,13 @@ public:
   /**if true the 0th order coeficcient of the rt fit function is not set to 0 in the calibration output file*/  bool usep0;
   /**if true the 3rd order coeficcient of the rt fit function is not fixed to 0*/  bool floatp3;
   /**if true a shift of -0.75 ns is applied for straws in layer ==0, strawlayer < 9, and when doing calibration in a granuralyty different from chip or straw*/  bool useshortstraws;
-  /**a set containing the sub-modules to be calibrated*/ set<int> selection;
+  /**a set containing the sub-modules to be calibrated*/ std::set<int> selection;
   /**the sub-level of the Calibrator instance*/ int level;
 
 private:
 
-  /**The name of the Calibrator instance*/ string m_name;
-  /**The direction to do the R-t binning*/ string m_rtbinning;
+  /**The name of the Calibrator instance*/ std::string m_name;
+  /**The direction to do the R-t binning*/ std::string m_rtbinning;
   /**minimum number of hits in a sub-module required to do an R-t calibration*/ int m_minrtstat;
   /**minimum number of hits in a sub-module required to do a t0 calibration*/ int m_mint0stat;
   /**the t0 shift*/ float m_t0shift;

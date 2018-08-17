@@ -9,24 +9,23 @@
 #ifndef SiClusterizationTool_SCT_ClusteringTool_H
 #define SiClusterizationTool_SCT_ClusteringTool_H
 
+//Athena
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "Identifier/Identifier.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SiClusterizationTool/ISCT_ClusteringTool.h"
+#include "SiClusterizationTool/ClusterMakerTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
 //STL
 #include <vector>
 #include <string>
-//Gaudi
-//#include "GaudiKernel/AlgTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-//#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
-//Athena
-#include "Identifier/Identifier.h"
-#include "SiClusterizationTool/ISCT_ClusteringTool.h"
-#include "SiClusterizationTool/ClusterMakerTool.h"
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
 class StatusCode;
-class IInDetConditionsSvc;
 
 namespace InDetDD{
   class SCT_ModuleSideDesign;
@@ -63,8 +62,8 @@ namespace InDet {
     //    mutable MsgStream                         m_log;
     int                                       m_errorStrategy;
     bool                                      m_checkBadChannels;
-    //ServiceHandle<SCT_ConditionsSummarySvc> m_conditionsSvc;
-    ServiceHandle<IInDetConditionsSvc>        m_conditionsSvc;
+    ToolHandle<IInDetConditionsTool>          m_conditionsTool{this, "conditionsTool",
+        "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
     ToolHandle< ClusterMakerTool >            m_clusterMaker;
     typedef std::vector<Identifier>           IdVec_t;
     std::string                               m_timeBinStr;
@@ -73,7 +72,10 @@ namespace InDet {
     bool                                      m_innertwoBarrelX1X;
     bool                                      m_majority01X;
     bool                                      m_useRowInformation;
-    
+
+    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
     ///Add strips to a cluster vector without checking for bad strips
     void  addStripsToCluster(const Identifier & firstStripId, const unsigned int nStrips,IdVec_t & clusterVector,const SCT_ID& idHelper) const;
                                   

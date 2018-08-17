@@ -79,7 +79,7 @@ class L1TopoRDO {
   uint32_t m_sourceID;
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(L1TopoRDO, 138978439, 0)
 
 #endif  // L1TOPORDO_L1TOPORDO_H

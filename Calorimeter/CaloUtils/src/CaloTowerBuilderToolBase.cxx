@@ -17,8 +17,6 @@ CaloTowerBuilderToolBase::CaloTowerBuilderToolBase(const std::string& name,
     const std::string& type, const IInterface* parent)
   : AthAlgTool(name, type, parent)
   , m_cellContainerName("AllCalo")
-  , m_storeGate("StoreGateSvc", name)
-  , m_cacheValid(false)
   , m_caloAlignTool("CaloAlignTool")
 {
 
@@ -31,9 +29,9 @@ CaloTowerBuilderToolBase::~CaloTowerBuilderToolBase()
 { }
 
 StatusCode CaloTowerBuilderToolBase::initialize() {
-  // StoreGate
-//  CHECK(service("StoreGateSvc",m_storeGate));
-  CHECK(m_storeGate.retrieve());
+  if (!m_cellContainerName.key().empty()) {
+    ATH_CHECK( m_cellContainerName.initialize() );
+  }
 
   bool LArDD = true;
 
@@ -74,7 +72,6 @@ StatusCode CaloTowerBuilderToolBase::initialize() {
   const long priority = std::numeric_limits<long>::min(); //Very low priority
   incSvc->addListener(this, "BeginRun", priority, true, true);
 
-  m_cacheValid = false;
 
  // invoke internal initialization
   return this->initializeTool();
@@ -92,6 +89,34 @@ void CaloTowerBuilderToolBase::setTowerSeg(const CaloTowerSeg& theTowerSeg) {
 StatusCode CaloTowerBuilderToolBase::LoadCalibration(IOVSVC_CALLBACK_ARGS){
 
   ATH_MSG_DEBUG(" in CaloTowerBuilderToolBase::LoadCalibration ");
-  m_cacheValid = false;
+  ATH_CHECK( invalidateCache() );
   return StatusCode::SUCCESS;
 }
+
+
+/**
+ * @brief Return the tower segmentation.
+ */
+const CaloTowerSeg& CaloTowerBuilderToolBase::towerSeg() const
+{
+  return m_theTowerSeg;
+}
+
+
+/**
+ * @brief Retrieve cells from StoreGate.
+ */
+const CaloCellContainer* CaloTowerBuilderToolBase::getCells() const
+{
+  const CaloCellContainer* cells = nullptr;
+  if (!m_cellContainerName.key().empty()) {
+    cells = SG::get (m_cellContainerName);
+    if (!cells) {
+      ATH_MSG_WARNING("no CaloCellContainer with key <"
+                      << m_cellContainerName.key() << "> found, skip tool!");
+      
+    }
+  }
+  return cells;
+}
+

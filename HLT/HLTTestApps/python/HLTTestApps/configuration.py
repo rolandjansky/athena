@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 '''
 Created on Jun 14, 2013
@@ -10,7 +10,7 @@ Created on Jun 14, 2013
 from pausable_istream import pausable_istream
 from HLTTestApps import ptree, ers_debug_level, get_ers_debug_level
 from HLTTestApps import tdaq_time_str_from_microsec
-from HLTTestApps import set_ros2rob_map as set_dc_ros2rob, set_l1r_robs
+from HLTTestApps import set_ros2rob_map as set_dc_ros2rob, set_l1r_robs, set_dcm_strategy
 from eformat import EventStorage as ES
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil as CoolUtil
 from CoolConvUtilities import AtlCoolLib
@@ -121,13 +121,15 @@ class configuration(dict):
     # run-number in interactive mode on purpose, to force usage of the 
     # run-number from the event stream.
     self.__update_run_number()
-    rparams= self.__get_run_params()
+    rparams = self.__get_run_params()
+
+    # In case there are no run params use some sensible defaults
     innerpt, pt = ptree(), ptree()
     innerpt['timeSOR']           = self.__get_sor(rparams)
     innerpt['det_mask']          = self.__get_dmask(rparams)
-    innerpt['run_number']        = str(rparams['RunNumber'])
-    innerpt['run_type']          = str(rparams['RunType'])
-    innerpt['recording_enabled'] = str(rparams['RecordingEnabled']).lower()
+    innerpt['run_number']        = str(self['run-number'])
+    innerpt['run_type']          = str(rparams['RunType']) if rparams else 'Physics'
+    innerpt['recording_enabled'] = str(rparams['RecordingEnabled']).lower() if rparams else 'true'
     pt.add_child('RunParams', innerpt)
     logging.debug('Prepare ptree:\n%s' % pt)
     return pt
@@ -330,6 +332,7 @@ class configuration(dict):
       self['ros2rob'] = literal_eval(self['ros2rob'])
     except ValueError: # not a proper dict -> must be a module
       self['ros2rob'] = __import__(self['ros2rob']).ros2rob
+    set_dcm_strategy([self['dcm-prefetch-strategy']])
     set_dc_ros2rob(self['ros2rob'])
     set_l1r_robs(self['extra-l1r-robs'])
       
@@ -377,9 +380,12 @@ class configuration(dict):
   def __get_dmask(self, rparams):
     if self['detector-mask']:
       dmask = hex(self['detector-mask'])
-    else:
+    elif rparams is not None:
       dmask = (rparams['DetectorMask'] if self['run-number'] >= dblim_rnum
                                        else hex(rparams['DetectorMask']))
+    else:
+      dmask = hex(0xffffffffffffffff)
+
     dmask = dmask.lower().replace('0x', '').replace('l', '')
     return '0' * (32 - len(dmask)) + dmask # (pad with 0s)
     
@@ -448,9 +454,12 @@ class configuration(dict):
     # one single line nor overwrite sor). Otherwise: 1) GC comes into play; 
     # 2) the object is deleted; 3) since it's a shared_ptr, the internal 
     # cool::IObject also gets deleted; 4) payload is not valid any longer
-    sor = folder.findObject(self['run-number'] << 32, 0) 
+    try:
+      sor = folder.findObject(self['run-number'] << 32, 0)
+    except Exception:
+      return None        # This can happen for unknown run numbers
+
     payload = sor.payload()
-    
     return {k: payload[k] for k in payload}
   
   @contextmanager

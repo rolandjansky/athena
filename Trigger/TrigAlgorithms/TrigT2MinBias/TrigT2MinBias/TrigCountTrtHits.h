@@ -29,7 +29,6 @@ class TrigCountTrtHits: public HLT::AllTEAlgo {
   virtual ~TrigCountTrtHits(void);
   
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun();  
   HLT::ErrorCode hltFinalize();  
   HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& input, unsigned int output);
   StatusCode fillCollections( bool, bool, std::vector<int>&, std::vector<int>& );

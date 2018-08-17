@@ -15,11 +15,20 @@
 #ifndef SiZvertexMaker_xk_H
 #define SiZvertexMaker_xk_H
 
-#include <list>
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h"  
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
+#include "Identifier/IdentifierHash.h"
+#include <list>
+#include <vector>
+#include <iosfwd>
+
+namespace Trk{
+  class Vertex;
+}
+
 
 class MsgStream;
 
@@ -72,17 +81,17 @@ namespace InDet{
       // Protected data and methods
       ///////////////////////////////////////////////////////////////////
       
-      int*                                       m_histogram     ;
-      double*                                    m_z_histogram   ;
-      int                                        m_outputlevel   ;
-      int                                        m_nprint        ;
-      int                                        m_nspoint       ;
-      int                                        m_histsize      ;
-      int                                        m_mincontent    ;
-      int                                        m_maxcontent    ;
-      double                                     m_zmin          ;
-      double                                     m_zmax          ;
-      double                                     m_ratio         ;
+      int*                                       m_histogram{}     ;
+      double*                                    m_z_histogram{}   ;
+      int                                        m_outputlevel{}   ;
+      int                                        m_nprint {}       ;
+      int                                        m_nspoint{}       ;
+      int                                        m_histsize{}      ;
+      int                                        m_mincontent{}    ;
+      int                                        m_maxcontent{}    ;
+      double                                     m_zmin{}          ;
+      double                                     m_zmax {}         ;
+      double                                     m_ratio {}        ;
       std::list<Trk::Vertex>                     m_vertex        ;
       ToolHandle<InDet::ISiSpacePointsSeedMaker> m_seedsgenerator; 
 

@@ -7,9 +7,12 @@
 
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
 #include "InDetJiveXML/IInDetGeoModelTool.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace JiveXML {
 
@@ -56,6 +59,9 @@ namespace JiveXML {
 
     /// The StoreGate key for the SCTRDO container
     SG::ReadHandleKey<SCT_RDO_Container> m_SCTRDOContainerName;
+
+    /// Condition object key of SiDetectorElementCollection for SCT
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   };
 }
 #endif

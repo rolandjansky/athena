@@ -59,8 +59,8 @@ namespace LArG4 {
       // yet, but you can never tell).  Use the enum (defined in
       // VCalibrationCalculator.h) to control any special processing.
 
-      virtual G4bool Process (const G4Step* step, LArG4Identifier & _identifier,
-                              std::vector<G4double> & _energies,
+      virtual G4bool Process (const G4Step* step, LArG4Identifier & identifier,
+                              std::vector<G4double> & energies,
                               const eCalculatorProcessing p = kEnergyAndID) const override final;
 
     private:
@@ -69,19 +69,19 @@ namespace LArG4 {
       CaloG4::SimulationEnergies m_energyCalculator;
 
       // Access to parameters.
-      LArVG4DetectorParameters* m_parameters;
+      LArVG4DetectorParameters* m_parameters{nullptr};
 
       // For the default calculator (hopefully temporary).
       ServiceHandle<ILArCalibCalculatorSvc> m_defaultCalculator;
 
-      double m_rhoOutOfEmecHec;      // used as const after init
-      double m_zInFrontOfPresampler; // used as const after init
-      double m_zEMECRefPoint;        // used as const after init
-      double m_zInFrontOfSpanishFan; // used as const after init
-      double m_zInFrontOfHEC;        // used as const after init
-      double m_zBehindTile;          // used as const after init
-      double m_endZHEC1Wheel;        // used as const after init
-      double m_startZHEC2Wheel;      // used as const after init
+      double m_rhoOutOfEmecHec{0.};      // used as const after init
+      double m_zInFrontOfPresampler{0.}; // used as const after init
+      double m_zEMECRefPoint{0.};        // used as const after init
+      double m_zInFrontOfSpanishFan{0.}; // used as const after init
+      double m_zInFrontOfHEC{0.};        // used as const after init
+      double m_zBehindTile{0.};          // used as const after init
+      double m_endZHEC1Wheel{0.};        // used as const after init
+      double m_startZHEC2Wheel{0.};      // used as const after init
       inline double rhoOutOfEmecHec() const { return m_rhoOutOfEmecHec; };
       inline double zInFrontOfPresampler() const { return m_zInFrontOfPresampler; };
       inline double zEMECRefPoint() const { return m_zEMECRefPoint; };

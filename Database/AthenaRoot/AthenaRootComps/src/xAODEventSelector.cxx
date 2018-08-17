@@ -292,7 +292,11 @@ StatusCode xAODEventSelector::initialize()
     }
     if(!foundSvc) {
       propVal.push_back("MetaDataSvc");
-      CHECK( dynamic_cast<IProperty*>(&*m_ppSvc)->setProperty("ProviderNames", Gaudi::Utils::toString( propVal ) ));
+      IProperty* prop = dynamic_cast<IProperty*>(&*m_ppSvc);
+      if (!prop) {
+        return StatusCode::FAILURE;
+      }
+      CHECK( prop->setProperty("ProviderNames", Gaudi::Utils::toString( propVal ) ));
     }
   }
 
@@ -596,6 +600,9 @@ xAODEventSelector::seek (Context& refCtxt, int evtnum) const
   if (coll_idx != m_collIdx) {
     // tell everyone we switched files...
     xAODEventContext* rctx = dynamic_cast<xAODEventContext*>(&refCtxt);
+    if (!rctx) {
+      return StatusCode::FAILURE;
+    }
     rctx->setFile("");
   }
 

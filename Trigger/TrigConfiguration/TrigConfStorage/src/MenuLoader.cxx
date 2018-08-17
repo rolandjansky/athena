@@ -247,7 +247,6 @@ TrigConf::TriggerItemNode*
 TrigConf::MenuLoader::constructTree(const LogicExpression& def, const std::vector<ThrInfo>& thr_infos) {
    TriggerItemNode* top_node=0;
    vector<LogicExpression*> sub_logics = def.subLogics();
-   vector<LogicExpression*>::const_iterator p;
 
    switch (def.state()) {
    case LogicExpression::kELEMENT: {

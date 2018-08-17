@@ -14,6 +14,7 @@
 
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonRDO/CscRawDataCollection.h"
+#include "MuonDigitContainer/CscDigitContainer.h"
 
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "CSCcabling/CSCcablingSvc.h"
@@ -34,9 +35,8 @@ class CscDigitToCscRDOTool : virtual public IMuonDigitizationTool, public AthAlg
   CscDigitToCscRDOTool (const std::string& type, const std::string& name, const IInterface* pIID);
   ~CscDigitToCscRDOTool() {}
 
-  StatusCode initialize();
-  StatusCode digitize();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode digitize() override;
 
  private:
 
@@ -57,9 +57,8 @@ class CscDigitToCscRDOTool : virtual public IMuonDigitizationTool, public AthAlg
 
  protected:
 
-  ActiveStoreSvc*             m_activeStore;
-
-  SG::WriteHandle<CscRawDataContainer> m_rdoContainer;
+  SG::WriteHandleKey<CscRawDataContainer> m_rdoContainerKey{this,"OutputObjectName","CSCRDO","WriteHandleKey for Output CswRawDataContainer"};
+  SG::ReadHandleKey<CscDigitContainer> m_digitContainerKey{this,"InputObjectName","CSC_DIGITS","ReadHandleKey for Input CscDigitContainer"};
   const CscIdHelper   * m_cscHelper;
   ServiceHandle<CSCcablingSvc> m_cscCablingSvc;
   ToolHandle<ICscCalibTool>  m_cscCalibTool;

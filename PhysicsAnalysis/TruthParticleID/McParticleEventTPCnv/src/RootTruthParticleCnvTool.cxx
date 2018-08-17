@@ -39,7 +39,8 @@ static const boost::array<int, 100> qcharge = {
 //         Implementation of the ITruthParticleCnvTool function(s)
 //
 
-StatusCode RootTruthParticleCnvTool::execute() { abort(); }
+StatusCode RootTruthParticleCnvTool::execute() const { abort(); }
+StatusCode RootTruthParticleCnvTool::execute(const EventContext&) const { abort(); }
 
 StatusCode
 RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,

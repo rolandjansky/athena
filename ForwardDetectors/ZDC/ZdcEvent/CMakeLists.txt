@@ -7,9 +7,8 @@ atlas_subdir( ZdcEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           PRIVATE
                           ForwardDetectors/ZDC/ZdcConditions
@@ -23,12 +22,12 @@ atlas_add_library( ZdcEvent
                    src/*.cxx
                    PUBLIC_HEADERS ZdcEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools Identifier
+                   LINK_LIBRARIES AthContainers Identifier
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ZdcConditions ZdcIdentifier )
 
 atlas_add_dictionary( ZdcEventDict
                       ZdcEvent/ZdcEventDict.h
                       ZdcEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier ZdcConditions ZdcIdentifier ZdcEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers Identifier ZdcConditions ZdcIdentifier ZdcEvent )
 

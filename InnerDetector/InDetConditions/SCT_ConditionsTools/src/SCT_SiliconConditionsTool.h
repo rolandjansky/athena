@@ -19,9 +19,9 @@
 
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 
-class IGeoModelSvc;
-class IRDBAccessSvc;
 class SCT_ID;
 
 /**
@@ -77,8 +77,8 @@ class SCT_SiliconConditionsTool: public extends<AthAlgTool, ISiliconConditionsTo
   float                                       m_geoModelDepletionVoltage;
   bool                                        m_useGeoModel;
 
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
-  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV{this, "CondKeyHV", "SCT_SiliconBiasVoltCondData", "SCT silicon bias voltage"};
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp{this, "CondKeyTemp", "SCT_SiliconTempCondData", "SCT silicon temperature"};
 
   const SCT_ID* m_sct_id;
 

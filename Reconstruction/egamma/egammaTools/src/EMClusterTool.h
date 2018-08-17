@@ -12,7 +12,7 @@
 #include "egammaBaseTool.h"
 
 #include "egammaInterfaces/IegammaSwTool.h"
-#include "egammaMVACalib/IegammaMVATool.h"
+#include "egammaInterfaces/IegammaMVASvc.h"
 
 #include "xAODCaloEvent/CaloCluster.h" // cannot use CaloClusterFwd b/c of ClusterSize
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -45,7 +45,7 @@ class CaloClusterCellLink;
    @author C. Anastopoulos
 */
 
-class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
+class EMClusterTool : public AthAlgTool, virtual public IEMClusterTool {
 
  public:
 
@@ -109,9 +109,9 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
     * name taken from containter name */
   SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputTopoSeededClusterContainerCellLinkKey;
 
-  /** Handle to the MVA calibration Tool **/
-  PublicToolHandle<IegammaMVATool> m_MVACalibTool {this,
-      "MVACalibTool", "egammaMVATool", "calibration tool"};
+  /** Handle to the MVA calibration service **/
+  ServiceHandle<IegammaMVASvc> m_MVACalibSvc {this,
+      "MVACalibSvc", "egammaMVASvc", "calibration service"};
 
   /** @brief Name of the input electron container **/
   std::string m_electronContainerName;

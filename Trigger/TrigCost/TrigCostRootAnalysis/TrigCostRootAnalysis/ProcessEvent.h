@@ -72,6 +72,8 @@ namespace TrigCostRootAnalysis {
     Timer m_dataPrepTimer; //!< Record how long it takes to link together all the flat info in the D3PD
     Timer m_processTime; //!< Record how long it takes to execute all the event processors
     const std::vector< Int_t >* m_useOnlyTheseBCIDs; //!< For if we are filtering per BCID
+    Bool_t m_needsHLTPassInformation; //!< Using monitors which require info on if the event was accepted or not
+    Bool_t m_invertFilter; //!< Cache this configuration property (if we should invert the per-chain filters)
   }; //class ProcessEvent
 } // namespace TrigCostRootAnalysis
 

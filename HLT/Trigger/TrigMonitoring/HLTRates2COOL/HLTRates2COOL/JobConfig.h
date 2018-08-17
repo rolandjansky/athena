@@ -17,22 +17,22 @@ namespace hltca {
       JobConfig();
       ~JobConfig();
 
-      std::string&     PartitionName()    { return fPartitionName; }
-      std::string&     CoolDb()           { return fCoolDb; }
-      std::string&     ISServer()         { return fISServer; }
-      std::string&     Provider(const std::string& lvl) { return fProvider[lvl=="L2"?0:1]; }
-      std::string&     Histogram(const std::string& lvl) { return fHistogram[lvl=="L2"?0:1]; }
-      uint32_t&        CurrentRunNumber() { return fCurrentRunNumber; }
-      bool&            COOLconnStat()     { return fCOOLconnStat; }
+      std::string&     PartitionName()    { return m_partitionName; }
+      std::string&     CoolDb()           { return m_coolDb; }
+      std::string&     ISServer()         { return m_ISServer; }
+      std::string&     Provider(const std::string& lvl) { return m_provider[lvl=="L2"?0:1]; }
+      std::string&     Histogram(const std::string& lvl) { return m_histogram[lvl=="L2"?0:1]; }
+      uint32_t&        CurrentRunNumber() { return m_currentRunNumber; }
+      bool&            COOLconnStat()     { return m_COOLconnStat; }
 
    private:
-      std::string        fPartitionName;
-      std::string        fCoolDb;
-      std::string        fISServer;
-      std::string        fProvider[2];
-      std::string        fHistogram[2];
-      uint32_t           fCurrentRunNumber;
-      bool               fCOOLconnStat;
+      std::string        m_partitionName;
+      std::string        m_coolDb;
+      std::string        m_ISServer;
+      std::string        m_provider[2];
+      std::string        m_histogram[2];
+      uint32_t           m_currentRunNumber;
+      bool               m_COOLconnStat;
    };
 }
 #endif

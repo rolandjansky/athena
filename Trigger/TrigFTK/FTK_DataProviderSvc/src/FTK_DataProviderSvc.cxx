@@ -7,7 +7,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
@@ -26,6 +25,7 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
@@ -54,6 +54,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
 #include "FTK_RecToolInterfaces/IFTK_VertexFinderTool.h"
+#include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
@@ -78,12 +79,17 @@
 using Gaudi::Units::micrometer;
 using namespace InDet;
 
+using Amg::Vector3D;
+
+
 namespace {
   inline double square(const double x){
     return x*x;
   }
   const double ONE_TWELFTH = 1./12.;
 }
+
+
 
 FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* svc):
   AthService(name, svc),
@@ -93,13 +99,13 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_pixelId(0),
   m_sctId(0),
   m_pixelManager(0),
-  m_SCT_Manager(0),
   m_id_helper(0),
   m_uncertaintyTool("FTK_UncertaintyTool"),
   m_trackFitter("Trk::ITrackFitter/InDetTrigTrackFitter"),
   m_trackSumTool("Trk::TrackSummaryTool"),
   m_particleCreatorTool("Trk::ParticleCreatorTool"),
   m_VertexFinderTool("InDet::InDetIterativePriVxFinderTool"),
+  m_VertexCollectionSortingTool ("Trk::VertexCollectionSortingTool"),
   m_RawVertexFinderTool("FTK_VertexFinderTool"),
   m_ROTcreator("Trk::IRIO_OnTrackCreator/FTK_ROTcreatorTool"),
   m_DuplicateTrackRemovalTool("FTK_DuplicateTrackRemovalTool"),
@@ -151,7 +157,10 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_dPhiCut(0.4),
   m_dEtaCut(0.6),
   m_nErrors(0),
-  m_reverseIBLlocx(false)
+  m_reverseIBLlocx(false),
+  m_doVertexSorting(true),
+  m_mutex{},
+  m_cacheSCTElements{}
 {
 
   declareProperty("TrackCollectionName",m_trackCacheName);
@@ -165,6 +174,8 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("VertexFinderTool",m_VertexFinderTool);
   declareProperty("ROTcreatorTool",m_ROTcreator);
   declareProperty("RawVertexFinderTool",m_RawVertexFinderTool);
+  declareProperty("VertexCollectionSortingTool",m_VertexCollectionSortingTool );
+  declareProperty("doVertexSorting",m_doVertexSorting );
   declareProperty("doTruth",m_doTruth);
   declareProperty("PixelTruthName",m_ftkPixelTruthName);
   declareProperty("SctTruthName",m_ftkSctTruthName);
@@ -240,7 +251,6 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
   ATH_CHECK(detStore->retrieve(m_sctId, "SCT_ID"));
   ATH_CHECK(detStore->retrieve(m_pixelManager));
-  ATH_CHECK(detStore->retrieve(m_SCT_Manager));
   ATH_CHECK(detStore->retrieve(m_id_helper, "AtlasID"));
   ATH_MSG_INFO( " getting UncertaintyTool with name " << m_uncertaintyTool.name());
   ATH_CHECK(m_uncertaintyTool.retrieve());
@@ -252,12 +262,20 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(m_particleCreatorTool.retrieve());
   ATH_MSG_INFO( " getting vertexFinderTool tool with name " << m_VertexFinderTool.name());
   ATH_CHECK(m_VertexFinderTool.retrieve());
+  if (m_doVertexSorting) { 
+    ATH_MSG_INFO( " getting vertexCollectionSortingTool tool with name " << m_VertexCollectionSortingTool.name());
+    ATH_CHECK(m_VertexCollectionSortingTool.retrieve());
+  }
   ATH_MSG_INFO( " getting DuplicateTrackRemovalTool tool with name " << m_DuplicateTrackRemovalTool.name());
   ATH_CHECK(m_DuplicateTrackRemovalTool.retrieve());
   ATH_MSG_INFO( " getting FTK_RawTrackVertexFinderTool tool with name " << m_RawVertexFinderTool.name());
   ATH_CHECK(m_RawVertexFinderTool.retrieve());
   ATH_MSG_INFO( " getting ROTcreator tool with name " << m_ROTcreator.name());
   ATH_CHECK(m_ROTcreator.retrieve());
+  ATH_CHECK(m_sctLorentzAngleTool.retrieve());
+
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // Register incident handler
   ServiceHandle<IIncidentSvc> iincSvc( "IncidentSvc", name());
@@ -302,6 +320,9 @@ StatusCode FTK_DataProviderSvc::initialize() {
     m_nMissingSCTClusters.push_back(0);
   }
 
+#ifdef  FTK_useViewVector
+  ATH_MSG_INFO( "FTK_DataProviderSvc configured to use ViewVectors for storage");
+#endif
 
   return StatusCode::SUCCESS;
 
@@ -806,31 +827,49 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getFastVertices(const ftk::FTK_Track
 bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer* tps) {
 
   bool gotVertices = false;
-  if (tps->size() > 0) {
+  if (tps->size() > 1) {
     ATH_MSG_DEBUG( "fillVertexContainerCache: finding vertices from " << tps->size() << " TrackParticles ");
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> vertices = m_VertexFinderTool->findVertex(tps);
-    if (vertices.first == nullptr) return gotVertices;
+
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> theXAODContainers = m_VertexFinderTool->findVertex(tps);
+
+    ATH_MSG_DEBUG( "fillVertexContainerCache: got "<< theXAODContainers.first->size() << " vertices");
+    if (theXAODContainers.first == nullptr) return gotVertices;
+
+    xAOD::VertexContainer* myVertexContainer = 0;
+    xAOD::VertexAuxContainer* myVertexAuxContainer = 0;
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainers = std::make_pair( myVertexContainer, myVertexAuxContainer );
+    
+    if (theXAODContainers.first->size() >1 && m_doVertexSorting) {
+      myVxContainers = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainers.first);
+      delete theXAODContainers.first; 
+      delete theXAODContainers.second; 
+    } else {
+      myVxContainers.first = theXAODContainers.first;
+      myVxContainers.second = theXAODContainers.second;
+    }
+    if (myVxContainers.first == nullptr) return gotVertices;
+    if (not myVxContainers.first->hasStore()) return gotVertices;
 
     std::string cacheName= m_vertexCacheName;
     if (withRefit) cacheName+="Refit";
 
-    StatusCode sc = m_storeGate->record(vertices.first, cacheName);
+    StatusCode sc = m_storeGate->record(myVxContainers.first, cacheName);
     if (sc.isFailure()) {
       ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexCollection " << cacheName );
-      delete(vertices.first);
-      delete(vertices.second);
+      delete(myVxContainers.first);
+      delete(myVxContainers.second);
       return gotVertices;
     }
-    sc = m_storeGate->record(vertices.second, cacheName+"Aux.");
+    sc = m_storeGate->record(myVxContainers.second, cacheName+"Aux.");
     if (sc.isFailure()) {
       ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
-      delete(vertices.second);
+      delete(myVxContainers.second);
       return gotVertices;
     }
     if (withRefit) {
-      m_refit_vertex = vertices.first;
+      m_refit_vertex = myVxContainers.first;
     } else {
-      m_conv_vertex = vertices.first;
+      m_conv_vertex = myVxContainers.first;
     }
     gotVertices=true;
   }
@@ -1471,8 +1510,6 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   // Create the SCT Clusters
   //
 
-
-
   std::vector<const Trk::RIO_OnTrack*> SCT_Clusters;
 
   ATH_MSG_VERBOSE( "   ConvertTrack: SCTClusterLoop: SCT Clusters size = " << track.getSCTClusters().size());
@@ -1618,7 +1655,7 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
 
   int strip = (int) stripCoord;
 
-  const InDetDD::SiDetectorElement* pDE = m_SCT_Manager->getDetectorElement(hash);
+  const InDetDD::SiDetectorElement* pDE = getSCTDetectorElement(hash);
 
 
   ATH_MSG_VERBOSE( " SCT FTKHit HitCoord rawStripCoord" << rawStripCoord << " hashID 0x" << std::hex << hash << std::dec << " " << m_id_helper->print_to_string(pDE->identify()));
@@ -1662,7 +1699,7 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
   const double width((double(nStrips)/double(nStrips+1))*( lastStripPos.xPhi()-firstStripPos.xPhi()));
   const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
 
-  double shift = pDE->getLorentzCorrection();
+  const double shift = m_sctLorentzAngleTool->getLorentzShift(hash);
   Amg::Vector2D localPos(centre.xPhi()+shift,  centre.xEta());
 
   ATH_MSG_VERBOSE(" centre.xPhi() " << centre.xPhi()  << " centre.xEta() " << centre.xEta());
@@ -1719,8 +1756,6 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
     }
 
      if (!m_correctSCTClusters || sct_cluster_on_track == nullptr) {
-      double shift = pDE->getLorentzCorrection();
-
       Amg::Vector2D locPos(pCL->localPosition()[Trk::locX]+shift,pCL->localPosition()[Trk::locY]);
       ATH_MSG_VERBOSE("locX "<< pCL->localPosition()[Trk::locX] << " locY " << pCL->localPosition()[Trk::locY] << " lorentz shift " << shift);
 
@@ -2145,4 +2180,25 @@ void FTK_DataProviderSvc::handle(const Incident& incident) {
     for (auto& it :  m_nMissingPixelClusters) it=0;
 
   }
+}
+
+const InDetDD::SiDetectorElement* FTK_DataProviderSvc::getSCTDetectorElement(const IdentifierHash hash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheSCTElements.size()) {
+    m_cacheSCTElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheSCTElements[slot]!=evt) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_SCTDetectorElements.set(*condData);
+    m_cacheSCTElements[slot] = evt;
+  }
+  return (m_SCTDetectorElements.isValid() ? m_SCTDetectorElements->getDetectorElement(hash) : nullptr);
 }

@@ -10,12 +10,9 @@
 //==============================================================================
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetPerformanceMonitoring/ZmumuEvent.h"
-#include "InDetPerformanceMonitoring/EventAnalysis.h"
 
-//#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "xAODTruth/TruthVertex.h"
 #include "xAODTruth/TruthParticle.h"
-//#include "xAODTruth/xAODTruthHelpers.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 
@@ -25,17 +22,11 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/EgammaTruthxAODHelpers.h"
 
-#include <map>
-#include "TH1.h"
-#include "TH2.h"
-#include "TProfile.h"
-#include "TProfile2D.h"
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
-
+class TTree; 
 class IegammaTrkRefitterTool;
 
 
@@ -87,7 +78,6 @@ class IDPerfMonZmumu : public AthAlgorithm
   std::string                     m_refit1TreeName;        //Refit ID Tracks
   std::string                     m_refit2TreeName;        //Refit ID Tracks
   std::string                     m_truthTreeName;         //Truth Tracks
-  //  std::string                     m_meStacoTreeName;       //Extrapolated Staco not existent in xAOD anymore
   std::string                     m_combStacoTreeName;     //Combined Staco
   std::string                     m_combMuidTreeName;      //Combined Muid
   //!< validation tree description - second argument in TTree
@@ -110,30 +100,29 @@ class IDPerfMonZmumu : public AthAlgorithm
   TTree*                          m_refit1Tree;
   TTree*                          m_refit2Tree;
   TTree*                          m_truthTree;
-  //TTree*                          m_meStacoTree;
   TTree*                          m_combStacoTree;
   TTree*                          m_combMuidTree;
 
-  mutable unsigned int            m_runNumber;
-  mutable unsigned int            m_evtNumber;
-  mutable unsigned int            m_lumi_block;
+  mutable unsigned int            m_runNumber{};
+  mutable unsigned int            m_evtNumber{};
+  mutable unsigned int            m_lumi_block{};
 
-  double m_positive_px;
-  double m_positive_py;
-  double m_positive_pz;
-  double m_positive_z0;
-  double m_positive_d0;
-  double m_positive_z0_err;
-  double m_positive_d0_err;
+  double m_positive_px{};
+  double m_positive_py{};
+  double m_positive_pz{};
+  double m_positive_z0{};
+  double m_positive_d0{};
+  double m_positive_z0_err{};
+  double m_positive_d0_err{};
 
 
-  double m_negative_px;
-  double m_negative_py;
-  double m_negative_pz;
-  double m_negative_z0;
-  double m_negative_d0;
-  double m_negative_z0_err;
-  double m_negative_d0_err;
+  double m_negative_px{};
+  double m_negative_py{};
+  double m_negative_pz{};
+  double m_negative_z0{};
+  double m_negative_d0{};
+  double m_negative_z0_err{};
+  double m_negative_d0_err{};
 
   std::string m_sTriggerChainName;
   std::string m_outputTracksName;

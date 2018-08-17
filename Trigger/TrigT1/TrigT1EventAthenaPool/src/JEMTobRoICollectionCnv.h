@@ -34,8 +34,6 @@ public:
 
 protected:
   
-  ~JEMTobRoICollectionCnv() {}
-  
   virtual JEMTobRoICollection_PERS*   createPersistent (JEMTobRoICollection* transCont);
   virtual JEMTobRoICollection*        createTransient ();
 

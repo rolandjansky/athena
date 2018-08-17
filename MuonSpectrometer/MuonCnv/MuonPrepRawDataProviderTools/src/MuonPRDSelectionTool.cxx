@@ -89,6 +89,16 @@ namespace Muon {
       calibrateAndSelectCluster(intersection,*col,layerROTs);
     }
 
+    // loop over STGC collections
+    for( auto col : layerPrepRawData.stgcs ){
+      calibrateAndSelectCluster(intersection,*col,layerROTs);
+    }
+
+    // loop over MM collections
+    for( auto col : layerPrepRawData.mms ){
+      calibrateAndSelectCluster(intersection,*col,layerROTs);
+    }
+
     return true;
   }
 

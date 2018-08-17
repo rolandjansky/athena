@@ -6,9 +6,7 @@
 /// Type converter for the LifetimeInfo persistent/transient classes
 ///
 
-#define private public
 #include "JetTagInfo/LifetimeInfo.h"
-#undef private
 #include "JetTagInfoTPCnv/LifetimeInfoCnv_p1.h"
 #include "JetTagInfoTPCnv/BaseTagInfoCnv_p1.h"
 
@@ -26,10 +24,13 @@ namespace Analysis {
 					      msg);
 
     /// Now, our particular members.
-    persObj->m_trackSIP.assign(transObj->m_trackSIP.begin(), transObj->m_trackSIP.end());
-    persObj->m_trackSignificance.assign(transObj->m_trackSignificance.begin(), transObj->m_trackSignificance.end());
-    persObj->m_vectorOfTrackProb.assign(transObj->m_vectorOfTrackProb.begin(), transObj->m_vectorOfTrackProb.end());
-    persObj->m_nTrackProb = transObj->m_nTrackProb;
+    persObj->m_trackSIP.assign (transObj->signedIP().begin(),
+                                transObj->signedIP().end());
+    persObj->m_trackSignificance.assign (transObj->significance().begin(),
+                                         transObj->significance().end());
+    persObj->m_vectorOfTrackProb.assign (transObj->vectorTrackProb().begin(),
+                                         transObj->vectorTrackProb().end());
+    persObj->m_nTrackProb = transObj->nTrackProb();
   }
 
   void LifetimeInfoCnv_p1::persToTrans (const LifetimeInfo_p1 *persObj,
@@ -40,10 +41,14 @@ namespace Analysis {
     fillTransFromPStore (&m_baseTagCnv, persObj->m_BaseTagInfo, transObj, msg);
 
     /// Now, our particular members.
-    transObj->m_trackSIP.assign(persObj->m_trackSIP.begin(), persObj->m_trackSIP.end());
-    transObj->m_trackSignificance.assign(persObj->m_trackSignificance.begin(), persObj->m_trackSignificance.end());
-    transObj->m_vectorOfTrackProb.assign(persObj->m_vectorOfTrackProb.begin(), persObj->m_vectorOfTrackProb.end());
-    transObj->m_nTrackProb = persObj->m_nTrackProb;
+    std::vector<double> v;
+    v.assign (persObj->m_trackSIP.begin(), persObj->m_trackSIP.end());
+    transObj->setIP(std::move(v));
+    v.assign (persObj->m_trackSignificance.begin(), persObj->m_trackSignificance.end());
+    transObj->setSignificance(std::move(v));
+    v.assign (persObj->m_vectorOfTrackProb.begin(), persObj->m_vectorOfTrackProb.end());
+    transObj->setTrackProb (std::move(v));
+    transObj->setNTrackProb (persObj->m_nTrackProb);
   }
 
 }

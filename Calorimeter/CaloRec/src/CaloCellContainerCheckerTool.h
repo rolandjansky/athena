@@ -10,10 +10,8 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloInterface/ICaloConstCellMakerTool.h"
 
-class CaloCellContainerCheckerTool: public AthAlgTool,
-				    virtual public ICaloCellMakerTool,
-				    virtual public ICaloConstCellMakerTool 
-
+class CaloCellContainerCheckerTool
+  : public extends<AthAlgTool, ICaloCellMakerTool, ICaloConstCellMakerTool>
 {
  
 public:    
@@ -23,16 +21,16 @@ public:
 			       const IInterface* parent) ;
 
 
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override; 
 
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
-  virtual StatusCode process( CaloConstCellContainer * theCellContainer) ;
+  virtual StatusCode process (CaloCellContainer* theCellContainer) override;
+  virtual StatusCode process (CaloConstCellContainer* theCellContainer) override;
 
  private:
-  StatusCode doProcess( const CaloCellContainer * theCellContainer) ;
+  StatusCode doProcess (const CaloCellContainer* theCellContainer,
+                        const EventContext& ctx) const;
 
-  int m_eventsToCheck;
-  int m_eventsLeftToCheck;
+  size_t m_eventsToCheck;
 };
 
 #endif

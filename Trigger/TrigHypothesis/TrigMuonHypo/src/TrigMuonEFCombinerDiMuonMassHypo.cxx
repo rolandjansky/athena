@@ -67,10 +67,8 @@ HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltFinalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltBeginRun()
+HLT::ErrorCode TrigMuonEFCombinerDiMuonMassHypo::hltStart()
 {
-  msg() << MSG::INFO << "in hltBeginRun : " << name() << endmsg;
-
   msg() << MSG::INFO << "sign requirement flag : " << m_signRequirement << endmsg;
   msg() << MSG::INFO << "mass threshold low    : " << m_massThresLow << endmsg;
   msg() << MSG::INFO << "mass threshold high   : " << m_massThresHigh << endmsg;

@@ -14,11 +14,15 @@
   <class name="Ringer::AsgElectronRingerSelector" />
   <class pattern="Ringer::ElectronTAccept*" />
   <class pattern="Ringer::BitdefElectron*" />
+  <class name="Ringer::ExtraDescriptionPatterns" />
+  <class name="Ringer::RingerConfStruct" />
 
   <!-- The procedures -->
   <class name="Ringer::PreProcessing::Norm::Norm1VarDep" />
+  <class name="Ringer::PreProcessing::Norm::ExtraPatternsNorm" />
   <class name="Ringer::Discrimination::NNFeedForwardVarDep" />
   <class name="Ringer::Discrimination::UniqueThresholdVarDep" />
+  <class name="Ringer::Discrimination::LinearPileupCorrectionThresholdVarDep" />
 
   <!-- The wrapper templates -->
   <class name="Ringer::IPreProcWrapper" />
@@ -34,6 +38,16 @@
   <!-- Add every enum/fnc within Ringer namespace -->
   <enum pattern="Ringer::*"/>
   <function pattern="Ringer::*"/>
+
+  <!--<class name="Ringer::ROOT6_NamespaceAutoloadHook" />
+  <class name="Ringer::IOHelperFcns::ROOT6_NamespaceAutoloadHook" />
+  <class name="IOHelperFcns::ROOT6_NamespaceAutoloadHook" />
+  <function name="Ringer::ROOT6_NamespaceAutoloadHook" />
+  <enum pattern="Ringer::ROOT6_NamespaceAutoloadHook"/>
+  <function name="Ringer::IOHelperFcns::*" /> -->
+
+	<!-- <variable pattern="egammaPID::*"/> -->
+	<!-- <class name="Ringer::ROOT6_NamespaceAutoloadHook" /> -->
 
   <!-- <class pattern="Ringer::*" /> -->
 

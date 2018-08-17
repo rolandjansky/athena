@@ -51,7 +51,7 @@ class TubeVolData
   double m_rmax2;
   double m_length;
   double m_zMid;
-  VolShape m_shape;
+  VolShape m_shape{CONS};
 };
 
 } // end namespace

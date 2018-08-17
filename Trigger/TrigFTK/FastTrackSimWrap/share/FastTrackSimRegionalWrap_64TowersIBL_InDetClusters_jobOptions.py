@@ -31,8 +31,14 @@ FTKSGInput.ReadTruthTracks = True
 
 ToolSvc += FTKSGInput
 
+# SiLorentzAngleTool for SCT
+if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+
 from TrigFTKTrackConverter.TrigFTKTrackConverterConf import  TrigFTKClusterConverterTool
-ClusterConvTool = TrigFTKClusterConverterTool(UsePixelCalibSvc = False)
+ClusterConvTool = TrigFTKClusterConverterTool(UsePixelCalibSvc = False,
+                                              SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
 
 ToolSvc += ClusterConvTool
 

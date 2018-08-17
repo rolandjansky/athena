@@ -14,6 +14,7 @@
 #include "G4MTRunManager.hh"
 #include "G4TransportationManager.hh"
 #include "G4VUserDetectorConstruction.hh"
+#include "G4UImanager.hh"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -66,6 +67,34 @@ void G4AtlasWorkerRunManager::Initialize()
 
   // Setup geometry and physics via the base class
   G4RunManager::Initialize();
+
+  /*
+  ** The following fragment of code applies all UI commangs from the master command stack.
+  ** It has been moved over here from G4InitTool::initThread() because in its previous
+  ** location the code had no effect (invalid application state).
+  **
+  ** Having this code here is OK, but placing it here we are changing some assumptions
+  ** implemented in the design of Geant4. This has to do with the handling of multiple
+  ** (G4)Runs in the same job. If a second run is executed and no physics or geometry
+  ** changes happened between the two runs [Worker]::Initialize() is not called. But UI
+  ** commands need to be called anyway, which is not going to happen with our implementation.
+  **
+  ** If ATLAS ever decides to run multiple G4 runs in the same job, all the MT initialization
+  ** will have to be thoroughly reviewed.
+  */
+  ATH_MSG_DEBUG("G4 Command: Trying at the end of Initialize()");
+  G4MTRunManager* masterRM = G4MTRunManager::GetMasterRunManager();
+  std::vector<G4String> cmds = masterRM->GetCommandStack();
+  G4UImanager* uimgr = G4UImanager::GetUIpointer();
+  for(const auto& it : cmds) {
+    int retVal = uimgr->ApplyCommand(it);
+    CommandLog(retVal, it);
+    if(retVal!=fCommandSucceeded) {
+       std::string errMsg{"Failed to apply command <"};
+       errMsg += (it + ">. Return value " + std::to_string(retVal));
+       throw GaudiException(errMsg,methodName,StatusCode::FAILURE);
+    }
+  }
 
   // Does some extra setup that we need.
   ConstructScoringWorlds();
@@ -176,6 +205,25 @@ void G4AtlasWorkerRunManager::RunTermination()
   // Not sure what I should put here...
   // Maybe I can just use the base class?
   G4WorkerRunManager::RunTermination();
+}
+
+void G4AtlasWorkerRunManager::CommandLog(int returnCode, const std::string& commandString) const
+{
+  switch(returnCode) {
+  case 0: { ATH_MSG_DEBUG("G4 Command: " << commandString << " - Command Succeeded"); } break;
+  case 100: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Command Not Found!"); } break;
+  case 200: {
+    auto* stateManager = G4StateManager::GetStateManager();
+    ATH_MSG_DEBUG("G4 Command: " << commandString << " - Illegal Application State (" <<
+                    stateManager->GetStateString(stateManager->GetCurrentState()) << ")!");
+  } break;
+  case 300: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Range!"); } break;
+  case 400: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Unreadable!"); } break;
+  case 500: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Candidates!"); } break;
+  case 600: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Alias Not Found!"); } break;
+  default: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Unknown Status!"); } break;
+  }
+
 }
 
 #endif // G4MULTITHREADED

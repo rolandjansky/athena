@@ -9,7 +9,7 @@ metaMV2c20Tag = { 'IsATagger'          : False,#True,
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['MV2c20',],
+                  'CalibrationTaggers' : ['MV2c20',],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                   'ToolCollection'     : 'MV2c20Tag'}
 

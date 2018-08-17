@@ -18,7 +18,6 @@ TGCSensitiveDetectorCosmics::TGCSensitiveDetectorCosmics(const std::string& name
   , momMag(0)
   , m_globalTime(0)
   , myTGCHitColl( hitCollectionName )
-  , m_layout(Unknown)
 {
   muonHelper = TgcHitIdHelper::GetHelper();
 }
@@ -44,20 +43,6 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
   G4ThreeVector           position  = aStep->GetPreStepPoint()->GetPosition();
   const G4AffineTransform trans     = track->GetTouchable()->GetHistory()->GetTopTransform();
-
-  // helps computing 'gasGap' FIXME
-  //    std::string technology = "";
-
-  //
-  // davide costanzo 01/05/05 Get geometry info from the volume name
-  //
-  if(m_layout == Unknown) {
-    m_layout=P03; // default layout
-    for (int i=touchHist->GetHistoryDepth();i>=0;i--) {
-      std::string volName = touchHist->GetVolume(i)->GetName();
-      if ((volName.find("Q02")) != std::string::npos) m_layout=Q02;
-    }
-  }
 
   // fields for the TGC identifier construction
   std::string stationName;
@@ -127,11 +112,9 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
           stationPhi += abs(volCopyNo/100);
         }
 
-        if (m_layout == Q02) {
-          stationPhi -= 1;
-          if (stationPhi <= 0) {
-            stationPhi = 24 - stationPhi;
-          }
+        stationPhi -= 1;
+        if (stationPhi <= 0) {
+          stationPhi = 24 - stationPhi;
         }
 
       } else if (stationName.substr(2,1) == "E") {
@@ -139,28 +122,24 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
           stationPhi = (abs(volCopyNo%100)-1)*3+abs(volCopyNo/100);
 
-          if (m_layout == Q02) { // layout Q02
-            if (abs(volCopyNo%100) < 4) {
-              stationPhi = stationPhi - 1;
-              if (stationPhi <= 0) {
-                stationPhi = 21 - stationPhi;
-              }
-            } else if(abs(volCopyNo%100) < 7) {
-              stationPhi = stationPhi - 1 - 1;
-            } else {
-              stationPhi = stationPhi - 2 - 1;
+          if (abs(volCopyNo%100) < 4) {
+            stationPhi = stationPhi - 1;
+            if (stationPhi <= 0) {
+              stationPhi = 21 - stationPhi;
             }
+          } else if(abs(volCopyNo%100) < 7) {
+            stationPhi = stationPhi - 1 - 1;
+          } else {
+            stationPhi = stationPhi - 2 - 1;
           }
 
         } else {
 
           stationPhi = (abs(volCopyNo%100)-1)*6+abs(volCopyNo/100);
 
-          if (m_layout == Q02) {
-            stationPhi -= 2;
-            if (stationPhi <= 0) {
-              stationPhi = 48 - stationPhi;
-            }
+          stationPhi -= 2;
+          if (stationPhi <= 0) {
+            stationPhi = 48 - stationPhi;
           }
         }
       }

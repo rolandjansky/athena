@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,6 +24,9 @@
 
 class IRDBRecordset;
 class IRDBQuery;
+namespace psc {
+  class Psc;
+}
 
 typedef std::shared_ptr<IRDBRecordset> IRDBRecordset_ptr;
 
@@ -47,6 +50,7 @@ class IRDBAccessSvc : virtual public IInterface
   // Special friends who need to call connect()/disconnect() methods
   friend class GeoModelSvc;
   friend class SourceCompAlg;
+  friend class psc::Psc;        // HLT/Trigger/TrigControl/TrigPSC
 
  public:
 

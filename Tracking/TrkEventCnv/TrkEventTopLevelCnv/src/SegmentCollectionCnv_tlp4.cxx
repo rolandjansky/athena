@@ -71,10 +71,8 @@ void SegmentCollectionCnv_tlp4::setPStorage( PERS *storage )
 BaseSegmentCollectionCnv::PERS* SegmentCollectionCnv_tlp4::createPersistent(const TRANS* transObj, MsgStream &log)
  {
     PERS *pers = BaseSegmentCollectionCnv::createPersistent(transObj, log);
-    pers->m_muonMeasurementsExt = m_muonMeasurementsCnv.getTLPersObject();
-    m_muonMeasurementsCnv.clearTLPersObject();
-    pers->m_inDetTrackExt = m_inDetTrackCnv.getTLPersObject();
-    m_inDetTrackCnv.clearTLPersObject();
+    pers->m_muonMeasurementsExt = m_muonMeasurementsCnv.releaseTLPersObject();
+    pers->m_inDetTrackExt = m_inDetTrackCnv.releaseTLPersObject();
     return pers;
  }
 

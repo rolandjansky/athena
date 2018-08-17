@@ -35,7 +35,8 @@
 //tool/service handle template parameters
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "IRegionSelector/IRegSelSvc.h"
-
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
@@ -43,19 +44,17 @@ class SiDetectorManager;
 class ISvcLocator;
 class StatusCode;
 
-class IInDetConditionsSvc;
 namespace InDetDD{
   class SiDetectorManager;
 }
 
 
 namespace InDet {
-  class ISCT_ClusteringTool;
 /**
  *    @class SCT_Clusterization
  *    @brief Form clusters from SCT Raw Data Objects
  *    The class loops over an RDO grouping strips and creating collections of clusters, subsequently recorded in StoreGate
- *    Uses SCT_ConditionsServices to determine which strips to include.
+ *    Uses SCT_ConditionsTools to determine which strips to include.
  */
 class SCT_Clusterization : public AthAlgorithm {
 public:
@@ -97,7 +96,8 @@ private:
   SG::WriteHandleKey<SCT_FlaggedCondData> m_flaggedCondDataKey;
   const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
-  ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
+  ToolHandle<IInDetConditionsTool>         m_pSummaryTool{this, "conditionsTool",
+      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
   bool                                     m_checkBadModules;
   std::set<IdentifierHash>                 m_flaggedModules;
   unsigned int                             m_maxTotalOccupancyPercent;

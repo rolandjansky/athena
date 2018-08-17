@@ -5,10 +5,7 @@
 #ifndef MUONTGRECTOOLS_MUONTGHITNTUPLE_H
 #define MUONTGRECTOOLS_MUONTGHITNTUPLE_H
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthLinks/DataLink.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -101,8 +98,6 @@ class MuonTGHitNtuple : public AthAlgorithm
   mutable const Trk::TrackingGeometry* m_trackingGeometry;
   std::string  m_trackingGeometryName;  
   ToolHandle<Trk::IExtrapolator>      m_extrapolator;
-
-  StoreGateSvc                    *m_detStore;       
 
   ActiveStoreSvc*                  m_activeStore;
   StoreGateSvc                    *m_StoreGate;         //!< transient event store providing the tracks

@@ -6,7 +6,10 @@
 #define IINDETZVTOP_TRKPARTVERTEXSTATE_H 
 
 #include "VxVertex/Vertex.h"
-#include "Particle/TrackParticle.h"
+#include <vector>
+namespace Rec{
+  class TrackParticle;
+}
 /**
  *  ZVTOP_Tool helper class
  *  to store the full vertex/tracks & vtx_probability
@@ -31,7 +34,7 @@ public:
 
     /**Copy Constructor */
     ZVTOP_TrkPartVertexState (const ZVTOP_TrkPartVertexState& vs); //copy-constructor
-    //ZVTOP_VertexState &operator=  (const ZVTOP_VertexState &);  //assignement operator
+    ZVTOP_TrkPartVertexState &operator=  (const ZVTOP_TrkPartVertexState &) = default;
     
     double& vtx_prob(void);
 

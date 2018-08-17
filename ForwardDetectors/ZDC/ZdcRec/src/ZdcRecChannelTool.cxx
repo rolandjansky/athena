@@ -204,10 +204,6 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 	std::vector<float>  time_sratio;
 	std::vector<float>  chi;
 
-	std::vector<std::vector<float> >::iterator vfit;
-	std::vector<float>::iterator fit;
-
-
 	std::vector<int>  v;
 	std::vector<int>  vd;
 	std::vector<int>  vi;
@@ -215,8 +211,6 @@ int  ZdcRecChannelTool::makeRawFromDigits(
 	std::vector<float> vcfd1;
 	std::vector<float> vcfd2;
 	std::vector<float> vcfd3;
-	std::vector<float>::iterator v_ft;
-	std::vector<float>::iterator v_ft1;
 
 	//Identifier::value_type zId;
 
@@ -799,7 +793,6 @@ int ZdcRecChannelTool::getTimingSinc2(const Identifier& id, const std::vector<st
 	  bool corr=0;
 
 	  std::vector<std::vector<int> >::const_iterator vit;
-	  std::vector<int>::const_iterator it;
 	  std::vector<int>  y;
 
 	  int mType    = 0;

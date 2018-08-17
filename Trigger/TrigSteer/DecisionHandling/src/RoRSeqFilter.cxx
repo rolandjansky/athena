@@ -8,7 +8,7 @@
 #include "GaudiKernel/Property.h"
 
 RoRSeqFilter::RoRSeqFilter( const std::string& name, 
-			  ISvcLocator* pSvcLocator ) : 
+  ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator )
 {}
 
@@ -28,14 +28,11 @@ StatusCode RoRSeqFilter::initialize()
     CHECK( m_inputKeys.size() == m_outputKeys.size() );
   }
 
-  // for ( auto key: m_inputKeys ) {
-  //   renounce( key );
-  // }
   CHECK( m_inputKeys.initialize() );
   CHECK( m_outputKeys.initialize() );
 
   renounceArray(m_inputKeys);
-  // is this needed? renounceArray(m_outputKeys);
+  // is this needed? renounceArray(m_outputKeys); // TimM - I don't think so
 
   ATH_MSG_DEBUG("Will consume implicit ReadDH:" );
   for (auto& input: m_inputKeys){  
@@ -46,7 +43,6 @@ StatusCode RoRSeqFilter::initialize()
     ATH_MSG_DEBUG(" - "<<output.key());
   }
 
-  
   CHECK( not m_chainsProperty.empty() );
   
   for ( const std::string& el: m_chainsProperty ) 
@@ -55,7 +51,7 @@ StatusCode RoRSeqFilter::initialize()
   for ( const HLT::Identifier& id: m_chains )
     ATH_MSG_DEBUG( "Configured to require chain " << id );
   
-  ATH_MSG_DEBUG( "mergeInputs is "<<m_mergeInputs);
+  ATH_MSG_DEBUG( "mergeInputs is " << m_mergeInputs);
 
   return StatusCode::SUCCESS;
 }
@@ -69,7 +65,7 @@ StatusCode RoRSeqFilter::execute() {
 
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
-  
+
   bool validInputs=false;
   for ( auto inputHandle: inputHandles ) {
     if( inputHandle.isValid() ) {// this is because input is implicit
@@ -81,24 +77,25 @@ StatusCode RoRSeqFilter::execute() {
     ATH_MSG_DEBUG ( "No valid inputs found, filter failed. Return...." );
     return StatusCode::SUCCESS;
   }
-  
-
 
   ATH_MSG_DEBUG( "Running on "<< inputHandles.size() <<" input keys");
   
   size_t passCounter = 0;
   size_t outputIndex = 0;
   if ( m_mergeInputs ) {
-    auto output = std::make_unique< ConstDataVector< TrigCompositeUtils::DecisionContainer > > ();
-    output->clear( SG::VIEW_ELEMENTS );
 
-    for ( auto inputHandle: inputHandles ) {
+    auto output    = std::make_unique< TrigCompositeUtils::DecisionContainer > ();
+    auto outputAux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer > ();
+    output->setStore( outputAux.get() );
+
+    for ( auto inputKey: m_inputKeys ) {
+      auto inputHandle = SG::makeHandle( inputKey );
       if( inputHandle.isValid() )
-	passCounter += copyPassing( *inputHandle, *output );
+        passCounter += copyPassing( *inputHandle, inputKey.key(),  *output );
     }
 
     ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
-    CHECK( outputHandles[0].record( std::move( output ) ) );
+    CHECK( outputHandles[0].record( std::move(output), std::move(outputAux) ) );
     outputIndex++;
 
   } else {
@@ -106,19 +103,20 @@ StatusCode RoRSeqFilter::execute() {
     for ( auto inputKey: m_inputKeys ) {
       auto inputHandle = SG::makeHandle( inputKey );
 
-      if( not inputHandle.isValid() ) continue;//implicit
+      if( not inputHandle.isValid() ) continue;  // implicit
       
       ATH_MSG_DEBUG( "Checking inputHandle "<< inputKey.key() <<" with " << inputHandle->size() <<" elements");
-      auto output = std::make_unique< ConstDataVector< TrigCompositeUtils::DecisionContainer > > ();
-      output->clear( SG::VIEW_ELEMENTS );
+      auto output    = std::make_unique< TrigCompositeUtils::DecisionContainer > ();
+      auto outputAux = std::make_unique< TrigCompositeUtils::DecisionAuxContainer > ();
+      output->setStore( outputAux.get() );
       
-      passCounter += copyPassing( *inputHandle, *output );
+      passCounter += copyPassing( *inputHandle, inputKey.key(), *output );
 
       if (output->size() >0){ // data handle reduction       
-	ATH_MSG_DEBUG( "Recording output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
-	CHECK( outputHandles[outputIndex].record( std::move( output ) ) );
-	outputIndex++;
+        ATH_MSG_DEBUG( "Recording output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
+        CHECK( outputHandles[outputIndex].record( std::move(output), std::move(outputAux) ) );
       }
+      outputIndex++; // Keep the mapping of inputKey<->outputKey correct
     }
   }
 
@@ -131,13 +129,15 @@ StatusCode RoRSeqFilter::execute() {
 }
   
 size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& input, 
-				  ConstDataVector<TrigCompositeUtils::DecisionContainer>& output ) const {
+                                  const std::string& inputKey,
+                                  TrigCompositeUtils::DecisionContainer& output ) const {
   size_t passCounter = 0;
   ATH_MSG_DEBUG( "Input size " << input.size() );
-  for ( const TrigCompositeUtils::Decision* i: input ) {
-    
+  for (size_t i = 0; i < input.size(); ++i) {
+    const TrigCompositeUtils::Decision* inputDecision = input.at(i);
+
     TrigCompositeUtils::DecisionIDContainer objDecisions;      
-    TrigCompositeUtils::decisionIDs( i, objDecisions );
+    TrigCompositeUtils::decisionIDs( inputDecision, objDecisions );
 
     ATH_MSG_DEBUG("Number of positive decisions for this input: " << objDecisions.size() );
 
@@ -147,11 +147,14 @@ size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& i
 
     std::vector<TrigCompositeUtils::DecisionID> intersection;
     std::set_intersection( m_chains.begin(), m_chains.end(),
-			   objDecisions.begin(), objDecisions.end(),
-			   std::back_inserter( intersection ) );
-    
+         objDecisions.begin(), objDecisions.end(),
+         std::back_inserter( intersection ) );
+
     if ( not intersection.empty() ) {
-      output.push_back( i );
+      TrigCompositeUtils::Decision* decisionCopy = new TrigCompositeUtils::Decision();
+      output.push_back( decisionCopy );
+      *decisionCopy = *inputDecision; // copies auxdata from one auxstore to the other
+      TrigCompositeUtils::linkToPrevious(decisionCopy, inputKey, i); // Update seed
       passCounter ++;
       ATH_MSG_DEBUG("Input satisfied at least one active chain");
     }

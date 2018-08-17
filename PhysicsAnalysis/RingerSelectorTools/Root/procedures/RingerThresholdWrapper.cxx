@@ -7,13 +7,13 @@
 
 namespace Ringer {
 #if !(RINGER_USE_NEW_CPP_FEATURES)
-const char* IThresWrapper::wrapName = "RingerThresholdWrapper"; 
+const char* IThresWrapper::wrapName = "RingerThresholdWrapper";
 #else
-constexpr const char* IThresWrapper::wrapName; 
+constexpr const char* IThresWrapper::wrapName;
 #endif
 
 // =============================================================================
-void IThresWrapper::writeWrapper(const IThresWrapper *thresWrapper, 
+void IThresWrapper::writeWrapper(const IThresWrapper *thresWrapper,
     const char *fileName)
 {
   TFile wrapperFile(fileName, "UPDATE");
@@ -32,7 +32,7 @@ void IThresWrapper::writeWrapper(const IThresWrapper *thresWrapper,
 }
 
 // =============================================================================
-void IThresWrapper::read(IThresWrapper *&thresWrapper, 
+void IThresWrapper::read(IThresWrapper *&thresWrapper,
     const char* fileName)
 {
   // Try to open file and check if nothing wrong happened:
@@ -52,7 +52,7 @@ void IThresWrapper::read(IThresWrapper *&thresWrapper,
   if ( thresDir == nullptr || thresDir == configDir )
   {
     throw std::runtime_error(std::string("Could not find directory \"")
-          + folderName + "\" containing Discriminatior Wrapper" 
+          + folderName + "\" containing Discriminatior Wrapper"
           "information.");
   }
 
@@ -63,17 +63,17 @@ void IThresWrapper::read(IThresWrapper *&thresWrapper,
   thresEnum_t thresType;
   EtaDependency fileEtaDep;
   EtDependency fileEtDep;
-  IOHelperFcns::readVar<thresEnum_t, unsigned int>( thresDir, 
+  IOHelperFcns::readVar<thresEnum_t, unsigned int>( thresDir,
       "thresType",
       thresType);
-  IOHelperFcns::readVar<EtaDependency, unsigned int>( thresDir, 
+  IOHelperFcns::readVar<EtaDependency, unsigned int>( thresDir,
       "etaDependency",
       fileEtaDep);
-  IOHelperFcns::readVar<EtDependency, unsigned int>( thresDir, 
+  IOHelperFcns::readVar<EtDependency, unsigned int>( thresDir,
       "etDependency",
       fileEtDep);
   //ATH_MSG_DEBUG("It's type is " << toStr(thresType) << " and dependency is :["
-  //    << toStr(fileEtaDep) << "," 
+  //    << toStr(fileEtaDep) << ","
   //    << toStr(fileEtDep) << "]");
   // Create wrapper. Here we make some checks whether the wrapper preprocessing
   // type is not IThresholdVarDep.  For some cases, we have some template
@@ -83,13 +83,26 @@ void IThresWrapper::read(IThresWrapper *&thresWrapper,
     case Discrimination::Type::UniqueThreshold:
     {
       // We create a specialized unique threshold for the UniqueThreshold
-      // configuration: 
-      READ_ETA_ET_DEP_WRAPPER(thresWrapperCol, 
-          Discrimination::UniqueThresholdVarDep, 
-          NoSegmentation, 
-          fileEtaDep, 
-          fileEtDep, 
-          thresDir, 
+      // configuration:
+      READ_ETA_ET_DEP_WRAPPER(thresWrapperCol,
+          Discrimination::UniqueThresholdVarDep,
+          NoSegmentation,
+          fileEtaDep,
+          fileEtDep,
+          thresDir,
+          version)
+      break;
+    }
+    case Discrimination::Type::LinearPileupCorrectionThreshold:
+    {
+      // We create a specialized unique threshold for the UniqueThreshold
+      // configuration:
+      READ_ETA_ET_DEP_WRAPPER(thresWrapperCol,
+          Discrimination::LinearPileupCorrectionThresholdVarDep,
+          NoSegmentation,
+          fileEtaDep,
+          fileEtDep,
+          thresDir,
           version)
       break;
     }

@@ -3,7 +3,7 @@
  */
 // $Id$
 /**
- * @file CxxUtils/test/MDt5_test.cxx
+ * @file CxxUtils/test/MD5_test.cxx
  * @author scott snyder
  * @date Aug 2017
  * @brief Regression tests for MD5

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -34,33 +34,31 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
 #include "Identifier/IdentifierHash.h"
+#include "IRegionSelector/IRegSelSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "SiClusterizationTool/ISCT_ClusteringTool.h"
+#include "InDetTrigToolInterfaces/ITrigRawDataProviderTool.h"
 
 //typedefs - cannot be declared forward
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
-
-class IRegSelSvc;
 class TrigTimer;
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
 
-class IInDetConditionsSvc;
-
-class IROBDataProviderSvc;
 
 namespace InDetDD {
   class SiDetectorManager;
 }
 
 namespace InDet {
-  
-  class ISCT_ClusteringTool;
-  class ITrigRawDataProviderTool;
-  
+    
   class SCT_TrgClusterization : public HLT::FexAlgo {
     
     ///////////////////////////////////////////////////////////////////
@@ -73,11 +71,9 @@ namespace InDet {
     
     //!<  Basic algorithm methods:
     virtual HLT::ErrorCode hltInitialize();
-    virtual HLT::ErrorCode hltBeginRun();
     virtual HLT::ErrorCode hltExecute(const HLT::TriggerElement* input,
 				      HLT::TriggerElement* output);
     virtual HLT::ErrorCode hltFinalize();
-    virtual HLT::ErrorCode hltEndRun();
 
     // Method to prepare ROB id list
     using HLT::FexAlgo::prepareRobRequests;
@@ -126,7 +122,8 @@ namespace InDet {
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
 
     //conditions
-    ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
+    ToolHandle<IInDetConditionsTool>         m_pSummaryTool{this, "conditionsSummaryTool",
+        "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
     bool                                     m_checkBadModules;
     unsigned int                             m_maxRDOs;
     std::set<IdentifierHash>                 m_flaggedModules;

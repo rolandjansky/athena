@@ -84,7 +84,7 @@ class SCT_ConditionsParameterTool: public extends<AthAlgTool, ISCT_ConditionsPar
   
  private:
   //the data structure
-  SG::ReadCondHandleKey<SCT_CondParameterData> m_condKey;
+  SG::ReadCondHandleKey<SCT_CondParameterData> m_condKey{this, "CondKey", "SCT_CondParameterData", "SCT parameters"};
   const SCT_CondParameterData* getCondData() const;
 };
 

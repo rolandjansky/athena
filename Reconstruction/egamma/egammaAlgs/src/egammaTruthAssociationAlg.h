@@ -43,11 +43,11 @@ public:
   virtual ~egammaTruthAssociationAlg();
 
   /** @brief initialize method */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
   /** @brief execute on container */
-  virtual StatusCode execute();
+  virtual StatusCode execute() override final;
   /** @brief finalize method */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override final;
   
 private:
  

@@ -7,7 +7,7 @@
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRDISABLEDCHANNELCONTAINERRUN2_H
 #define TRIGT1CALOCALIBCONDITIONS_L1CALOPPRDISABLEDCHANNELCONTAINERRUN2_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "GaudiKernel/DataObject.h"
 #include "TrigT1CaloCalibConditions/AbstractL1CaloPersistentCondition.h"

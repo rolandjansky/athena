@@ -11,7 +11,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           PRIVATE
+                          Database/APR/FileCatalog
                           Database/AthenaPOOL/AthenaPoolUtilities
+                          Database/AthenaPOOL/PoolSvc
                           DetectorDescription/DetDescrCond/DetDescrCondTools )
 
 # External dependencies:
@@ -22,13 +24,13 @@ atlas_add_library( JetTagCalibrationLib
                    src/*.cxx
                    PUBLIC_HEADERS JetTagCalibration
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests FileCatalog
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities )
 
 atlas_add_component( JetTagCalibration
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel AthenaPoolUtilities JetTagCalibrationLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel FileCatalog AthenaPoolUtilities JetTagCalibrationLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -5,9 +5,8 @@
 #ifndef AFP_RAWDATACOLLECTION_H
 #define AFP_RAWDATACOLLECTION_H
 
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AFP_RawEv/AFP_RawData.h"
 
 #include <stdint.h>

@@ -55,6 +55,7 @@ class AuxStoreInternalTest
 public:
   using SG::AuxStoreInternal::addAuxID;
   using SG::AuxStoreInternal::addVector;
+  using SG::AuxStoreInternal::getIODataInternal;
 };
 
 
@@ -133,6 +134,7 @@ void test1()
   const std::vector<int>* v1 =
     reinterpret_cast<const std::vector<int>*> (s.getIOData(ityp1));
   assert (&*v1->begin() == i1c);
+  assert (s.getIOData(ityp1) == s.getIODataInternal(ityp1, false));
 
   const SG::auxid_set_t& ids = s.getAuxIDs();
   assert (ids.size() == 3);

@@ -21,6 +21,12 @@ ParticleEnergyParametrization::ParticleEnergyParametrization(int id,double E,dou
   }
 }
 
+ParticleEnergyParametrization::~ParticleEnergyParametrization() {
+  m_DistPara.Delete();
+  delete m_Ecal_vs_dist;
+  delete m_h_layer_d_fine;
+}
+
 void  ParticleEnergyParametrization::set_Ecal_vs_dist(TH2* h) {
   m_Ecal_vs_dist=h;
   m_DistPara.Expand(h->GetNbinsX()+2);

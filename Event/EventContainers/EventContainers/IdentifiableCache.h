@@ -45,15 +45,25 @@ public:
   {
   }
 
+  IdentifiableCache (IdentifierHash maxHash, const Maker* maker, size_t lockBucketSize)
+    : IdentifiableCacheBase (maxHash, maker)
+  {
+  }
+
   ~IdentifiableCache()
   {
     IdentifiableCacheBase::cleanUp (void_unique_ptr::Deleter<T>::deleter);
   }
 
   // Return payload if there, null if not there.
-  const T* find (IdentifierHash hash) const
+  const T* find (IdentifierHash hash)
   {
     return reinterpret_cast<const T*> (IdentifiableCacheBase::find (hash));
+  }
+
+  const T* findWait (IdentifierHash hash)
+  {
+    return reinterpret_cast<const T*> (IdentifiableCacheBase::findWait (hash));
   }
 
   const T* get (IdentifierHash hash)
@@ -63,9 +73,9 @@ public:
 
   // ids
 
-  bool add (IdentifierHash hash, const T* p, bool TakeOwnerShip = false)
+  bool add (IdentifierHash hash, const T* p)
   {
-    return IdentifiableCacheBase::add (hash, p, TakeOwnerShip);
+    return IdentifiableCacheBase::add (hash, p);
   }
 
   bool add (IdentifierHash hash, std::unique_ptr<T> p)

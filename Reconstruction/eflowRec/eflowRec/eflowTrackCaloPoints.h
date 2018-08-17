@@ -24,7 +24,9 @@ CREATED:  4th January, 2006
 
 class MsgStream;
 
-
+/**
+This class stores a map of calorimeter layers and track parameters (the result of the track extrapolation to the calorimeter layers). It also stores maps from calorimeter layers to positions, directions and eflowEtaPhiPositions. 
+*/
 class eflowTrackCaloPoints {
  public:
 
@@ -42,7 +44,8 @@ class eflowTrackCaloPoints {
   const eflowEtaPhiPosition& getEM2etaPhiPos() const  {return getEtaPhiPos(getEM2Layer()); }
   double getEM2eta() const {return getEM2etaPhiPos().getEta(); }
   double getEM1eta() const {return getEtaPhiPos(getEM1Layer()).getEta(); }
-
+  double getFCAL0eta() const {return getEtaPhiPos(eflowCalo::FCAL0).getEta(); }
+  
   Amg::Vector3D getPosition(eflowCalo::LAYER layer);
   Amg::Vector3D getDirection(eflowCalo::LAYER layer);
 

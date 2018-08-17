@@ -11,7 +11,7 @@
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Trk
 #include "TrkEventPrimitives/ParticleHypothesis.h"

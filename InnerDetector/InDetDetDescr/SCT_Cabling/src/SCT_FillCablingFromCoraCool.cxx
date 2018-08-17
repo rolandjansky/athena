@@ -229,7 +229,7 @@ SCT_FillCablingFromCoraCool::filled() const {
 
 //
 StatusCode 
-SCT_FillCablingFromCoraCool::fillMaps(ISCT_CablingSvc* cabling) {
+SCT_FillCablingFromCoraCool::fillMaps(ISCT_CablingSvc* cabling) const {
   m_filled=false;
   if (readDataFromDb(cabling).isFailure()) {
     ATH_MSG_FATAL("Could not read cabling from database");
@@ -241,7 +241,7 @@ SCT_FillCablingFromCoraCool::fillMaps(ISCT_CablingSvc* cabling) {
 
 //
 StatusCode
-SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
+SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) const {
   const SCT_ID* idHelper{nullptr};
   if (m_detStore->retrieve(idHelper,"SCT_ID").isFailure()) {
     ATH_MSG_ERROR("SCT mgr failed to retrieve");
@@ -492,7 +492,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
   return (numEntries==0) ? (StatusCode::FAILURE) : (StatusCode::SUCCESS);
 }
 
-bool  SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const DataHandle<CondAttrListVec>& pDataVec, const std::string& folderName) {
+bool  SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const DataHandle<CondAttrListVec>& pDataVec, const std::string& folderName) const {
   if (!m_detStore) {
     ATH_MSG_FATAL("The detector store pointer is NULL");
     return false;

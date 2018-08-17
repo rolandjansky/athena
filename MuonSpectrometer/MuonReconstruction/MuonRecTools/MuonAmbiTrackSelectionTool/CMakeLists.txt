@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
-                          Control/DataModel
+                          Control/AthContainers
                           Control/StoreGate
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MuonAmbiTrackSelectionTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkToolInterfaces DataModel StoreGateLib SGtests MuonIdHelpersLib MuonRecHelperToolsLib TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkToolInterfaces AthContainers StoreGateLib SGtests MuonIdHelpersLib MuonRecHelperToolsLib TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( MuonAmbiTrackSelectionTool )

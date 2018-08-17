@@ -8,8 +8,7 @@
 #ifndef CaloG4_VEscapedEnergyProcessing_H
 #define CaloG4_VEscapedEnergyProcessing_H
 
-#include "G4TouchableHandle.hh"
-#include "G4ThreeVector.hh"
+#include "G4Step.hh"
 #include "globals.hh"
 
 namespace CaloG4
@@ -46,13 +45,7 @@ namespace CaloG4
     /// Virtual destructor
     virtual ~VEscapedEnergyProcessing() {}
 
-    /// Method: The G4TouchableHandle for the volume in which "point" is
-    /// located; the value of "point" itself in case additional
-    /// processing is necessary, and the amount of escaped energy.
-    ///
-    virtual G4bool Process( G4TouchableHandle& handle,
-                            G4ThreeVector& point,
-                            G4double energy ) = 0;
+    virtual G4bool Process( G4Step* fakeStep ) = 0;
   };
 
 } // namespace CaloG4

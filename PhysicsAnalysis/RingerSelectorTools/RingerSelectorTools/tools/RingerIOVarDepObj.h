@@ -205,7 +205,7 @@ class RingerIOVarDepObj : virtual public VariableDependency
 
     // Make sure we initialize the variable dependency
     RingerIOVarDepObj():VariableDependency(){;}
-    
+
     /**
      * Retrieve name for this RingerIOVarDepObj
      **/

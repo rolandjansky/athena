@@ -11,7 +11,6 @@
 
 #include <string>
 
-class ISiLorentzAngleSvc;
 class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
@@ -52,7 +51,6 @@ private:
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
-  ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;
 };
 
 #endif // SCT_SLHC_GeoModel_SCT_DETECTORTOOL_H

@@ -62,7 +62,6 @@ ErrorCode ResultBuilder::setConfiguredChains(const std::vector<HLT::SteeringChai
 
   // find highest TriggerType bit configured for this run
   std::vector<HLT::SteeringChain*>::const_iterator chainIt;
-  std::vector<TrigConf::HLTTriggerType*>::const_iterator ttIt;
   for ( chainIt = configuredChains.begin(); chainIt != configuredChains.end(); ++chainIt ) {
     if ( (int)m_highestTriggerTypeBit < (int)(*chainIt)->getChainCounter() ) {
       m_highestTriggerTypeBit = (int)(*chainIt)->getChainCounter();

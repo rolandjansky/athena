@@ -53,11 +53,11 @@ class egammaForwardBuilder : public AthAlgorithm
   ~egammaForwardBuilder();
 
   /** @brief initialize method*/
-  StatusCode initialize();
+  StatusCode initialize() override final;
   /** @brief finalize method*/
-  StatusCode finalize();
+  StatusCode finalize() override final;
   /** @brief execute method*/
-  StatusCode execute();
+  StatusCode execute() override final;
 
   /** @brief retrieve object quality tool */
   void RetrieveObjectQualityTool();

@@ -41,8 +41,6 @@ public:
 
   virtual void acceptDHVisitor(IDataHandleVisitor*) const override { std::abort(); }
 
-  virtual void commitHandles() override { std::abort(); }
-
   virtual const DataObjIDColl& inputDataObjs() const override { std::abort(); }
   virtual const DataObjIDColl& outputDataObjs() const override { std::abort(); }
 

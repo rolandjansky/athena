@@ -26,7 +26,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SiClusterizationTool/SCT_ReClustering.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -55,7 +54,6 @@ namespace InDet{
     AthAlgTool(type,name,parent),
     m_errorStrategy(1),
     m_checkBadChannels(true),
-    m_conditionsSvc("SCT_ConditionsSummarySvc",name),
     m_clusterMaker("InDet::ClusterMakerTool", this),
     m_timeBinStr(""),
     m_innermostBarrelX1X(false),
@@ -67,7 +65,6 @@ namespace InDet{
     declareProperty("globalPosAlg" , m_clusterMaker);
     declareProperty("errorStrategy", m_errorStrategy);
     declareProperty("checkBadChannels",m_checkBadChannels);
-    declareProperty("conditionsService" , m_conditionsSvc);
     declareProperty("timeBins" , m_timeBinStr);
     declareProperty("majority01X" , m_majority01X);
     declareProperty("innermostBarrelX1X" , m_innermostBarrelX1X);
@@ -152,7 +149,9 @@ namespace InDet{
 
     if (m_checkBadChannels){
       ATH_MSG_INFO("Clustering has been asked to look at bad channel info");
-      ATH_CHECK(m_conditionsSvc.retrieve());
+      ATH_CHECK(m_conditionsTool.retrieve());
+    } else {
+      m_conditionsTool.disable();
     }
     
     if (decodeTimeBins().isFailure()) return StatusCode::FAILURE;
@@ -182,6 +181,8 @@ namespace InDet{
                    (m_innertwoBarrelX1X  ? "m_innertwoBarrelX1X"  : "") <<
                    " is true and used for clustering");
     }
+
+    ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -437,7 +438,20 @@ namespace InDet{
 
     // Find detector element for these digits
     Identifier elementID(collection.identify());
-    const  InDetDD::SiDetectorElement* element = manager.getDetectorElement(elementID);
+    const  InDetDD::SiDetectorElement* element = nullptr;
+    if (m_useDetectorManager) {
+      element = manager.getDetectorElement(elementID);
+    } else {
+      const Identifier waferId{idHelper.wafer_id(elementID)};
+      const IdentifierHash waferHash{idHelper.wafer_hash(waferId)};
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+      const InDetDD::SiDetectorElementCollection* sctDetEle{*sctDetEleHandle};
+      if (not sctDetEleHandle.isValid() or sctDetEle==nullptr) {
+        ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+        return nullResult;
+      }
+      element = sctDetEle->getDetectorElement(waferHash);
+    }
     if (!element) {
       ATH_MSG_WARNING("Element not in the element map, ID = "<< elementID);
       return nullResult;
@@ -541,6 +555,6 @@ namespace InDet{
 
   
   bool SCT_ClusteringTool::isBad(const Identifier & stripId) const{
-    return (not m_conditionsSvc->isGood(stripId, InDetConditions::SCT_STRIP));
+    return (not m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP));
   }
 }

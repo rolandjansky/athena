@@ -9,8 +9,9 @@ def factoriesInfo ( log):
   logFactories = logging.getLogger( 'Factories' )
   logFactories.info(log)        
 
+# tools
 def isAlreadyInToolSvc( name ):
-  "isAlreadyInToolSvc ( mane of the tool ) --> check if the tool with name is already in the service"
+  "isAlreadyInToolSvc ( name of the tool ) --> check if the tool with name is already in the service"
   from AthenaCommon.AppMgr import ToolSvc
   if hasattr(ToolSvc, name):
     return True
@@ -28,6 +29,27 @@ def addToToolSvc( tool ):
   ToolSvc += tool
   return tool
 
+# services
+def isAlreadyInServiceMgr( name ):
+  "isAlreadyInServiceMgr ( mane of the service ) --> check if the service with name is already in the manager"
+  from AthenaCommon.AppMgr import ServiceMgr
+  if hasattr(ServiceMgr, name):
+    return True
+  else:
+    return False 
+
+def getFromServiceMgr( name ):
+  "getFromServiceMgr ( name of the service ) --> Get the service from manager by name "
+  from AthenaCommon.AppMgr import ServiceMgr
+  return getattr (ServiceMgr,name)
+  
+def addToServiceMgr( service ):
+  "addToServiceMgr( service ) --> add service to ServiceMgr"
+  from AthenaCommon.AppMgr import ServiceMgr
+  ServiceMgr += service
+  return service
+
+# algs
 def isAlreadyInTopSequence( name ):
   "isAlreadyInTopSequence ( mane of the alg ) --> check if the alg  with name is already in the Alg sequence"
   from AthenaCommon.AlgSequence import AlgSequence
@@ -146,7 +168,7 @@ class Factory:
     
     # Call FcnWrapper or ToolFactory parameters 
     # (or if they are inside a list, for ToolHandleArray)
-    classes = (FcnWrapper, ToolFactory, PublicToolFactory)
+    classes = (FcnWrapper, ToolFactory, PublicToolFactory, ServiceFactory)
     for paramName, value in params.items():
       if isinstance(value, classes) or \
         (isinstance(value, list) and any(isinstance(v, classes) for v in value) ):
@@ -220,6 +242,20 @@ class PublicToolFactory( Factory ):
       addToToolSvc(obj)
     else :
       factoriesInfo("Tool with name ==> %s  already in ToolSvc, use existing instance" %  obj.getFullName() )
+
+class ServiceFactory( Factory ):
+  """ServiceFactory: to instantiate services. Adds to ServiceMgr. See Factory"""
+
+  def __init__(self, iclass, **defaults ):
+    self.iclass = iclass
+    self.defaults = dict({'doAdd': True}, **defaults)
+
+  def add(self, obj):
+    if not isAlreadyInServiceMgr(obj.getName()):
+      factoriesInfo("Adding new Service ===> %s" % obj.getFullName())
+      addToServiceMgr(obj)
+    else :
+      factoriesInfo("Service with name ==> %s  already in ServiceMgr, use existing instance" %  obj.getFullName() )
 
 class AlgFactory( Factory ):
   """AlgFactory: to instantiate algs and add them to TopSequence. See Factory"""

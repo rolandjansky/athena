@@ -37,6 +37,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "PATCore/AcceptData.h"
 
 using namespace xAOD;
 
@@ -1410,13 +1411,13 @@ namespace MissingEtDQA {
   bool PhysValMET::Accept(const xAOD::Electron* el)
   {
     if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
-    return m_elecSelLHTool->accept(el);
+    return static_cast<bool> (m_elecSelLHTool->accept(el));
   }
 
   bool PhysValMET::Accept(const xAOD::Photon* ph)
   {
     if( !(ph->author()&20) || fabs(ph->eta())>2.47 || ph->pt()<10e3 ) return false;
-    return m_photonSelIsEMTool->accept(ph);
+    return static_cast<bool>(m_photonSelIsEMTool->accept(ph));
   }
 
   bool PhysValMET::Accept(const xAOD::TauJet* tau)

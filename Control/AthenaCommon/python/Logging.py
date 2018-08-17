@@ -5,7 +5,7 @@
 
 """Athena Python-side logging."""
 
-import Constants
+from AthenaCommon import Constants
 
 
 ### data _____________________________________________________________________

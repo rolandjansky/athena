@@ -33,8 +33,6 @@ public:
      {}
   
 protected:
-
-  ~CMXCPHitsCollectionCnv() {}
   
   virtual CMXCPHitsCollection_PERS*   createPersistent (CMXCPHitsCollection* transCont);
   virtual CMXCPHitsCollection*        createTransient ();

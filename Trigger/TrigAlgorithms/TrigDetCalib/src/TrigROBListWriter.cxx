@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -45,9 +45,8 @@ HLT::ErrorCode TrigROBListWriter::hltInitialize()
 }
 
 
-HLT::ErrorCode TrigROBListWriter::hltBeginRun()
+HLT::ErrorCode TrigROBListWriter::hltStart()
 {
-  msg() << MSG::INFO << "in hltBeginRun() " << endmsg;
   return m_robSelector->setupMonitoring();
 }
 

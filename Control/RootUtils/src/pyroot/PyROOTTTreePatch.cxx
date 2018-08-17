@@ -15,6 +15,7 @@
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "RootUtils/PyROOTTTreePatch.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 #include "Utility.h"
 #include "Converters.h"
 
@@ -141,6 +142,7 @@ TreeNotifier::TreeNotifier (TTree* tree,
  */
 TreeNotifier::~TreeNotifier()
 {
+  RootUtils::PyGILStateEnsure gil;
   Py_XDECREF (m_elements);
   Py_XDECREF (m_treeobj_ref);
 }
@@ -151,6 +153,7 @@ TreeNotifier::~TreeNotifier()
  */
 Bool_t TreeNotifier::Notify()
 {
+  RootUtils::PyGILStateEnsure gil;
   // Clear the element cache.
   PyDict_Clear (m_elements);
 

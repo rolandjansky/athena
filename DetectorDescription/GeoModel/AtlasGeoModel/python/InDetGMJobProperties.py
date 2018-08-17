@@ -70,7 +70,7 @@ class InDetGMFlags(CommonGMFlags, object):
         self.__dict__["SLHC"] = False
         if _layout in ['IBL'] : self.__dict__["IBL"] = True
         if self.__dict__["IBL"] == False: self.__dict__["IBLlayout"]="noIBL"
-        if _layout not in ['SLHC'] and CommonGeometryFlags.Run().lower()=="run2": self.__dict__["IBL"] = True
+        if _layout not in ['SLHC'] and ( CommonGeometryFlags.Run() in ["RUN2", "RUN3"] ) : self.__dict__["IBL"] = True
         if _layout in ['SLHC'] : self.__dict__["SLHC"] = True
 
 
@@ -127,6 +127,13 @@ class isDBM(JobProperty):
      allowedTypes = ['bool']
      StoredValue  = False
 
+class useDynamicAlignFolders(JobProperty):
+    """ Use to turn on dynamic alignment constants folder scheme (first deployed in 2016) """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+
 
 # add to jobproperties
 class InDetGeometryFlags_JobProperties(JobPropertyContainer):
@@ -156,6 +163,7 @@ class InDetGeometryFlags_JobProperties(JobPropertyContainer):
         self.IBLLayout.unlock()
         self.GeoVersionName.unlock()
         self.GeoLayout.unlock()
+        self.useDynamicAlignFolders.unlock()
 
 
     def dump(self):
@@ -167,6 +175,7 @@ class InDetGeometryFlags_JobProperties(JobPropertyContainer):
         print "SLHC flag : ", self.isSLHC()
         print "IBL flag   : ", self.isIBL()
         print "IBL layout : ", self.IBLLayout()
+        print "Dynamic alignment : ", self.useDynamicAlignFolders()
 
 
 jobproperties.add_Container(InDetGeometryFlags_JobProperties)
@@ -176,9 +185,11 @@ jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(isIBL)
 jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(IBLLayout)
 jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(isSLHC)
 jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(isDBM)
+jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(useDynamicAlignFolders)
 
 InDetGeometryFlags = jobproperties.InDetGeometryFlags_JobProperties
 InDetGeometryFlags.setupValuesFromDB()
+
 
 
 

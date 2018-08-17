@@ -49,11 +49,6 @@ parent);
   virtual StatusCode execute(TagFragmentCollection& eventTagCol);  
   virtual StatusCode finalize();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~GlobalEventTagTool( );
-
 private:
 
    /** the various components to build their own fragments of tag */

@@ -16,6 +16,7 @@
 #include "egammaMVACalib/IegammaMVATool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
+#include "PATCore/AcceptData.h"
 
 #include "string"
 #include <algorithm>
@@ -154,27 +155,27 @@ StatusCode TrigEgammaNavBaseTool::executeNavigation( const TrigInfo info ){
 bool TrigEgammaNavBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
     
     if (pidname == "Tight"){
-        const Root::TAccept& accept=m_electronIsEMTool[0]->accept(eg);
+        bool accept = (bool) m_electronIsEMTool[0]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "Medium"){
-        const Root::TAccept& accept=m_electronIsEMTool[1]->accept(eg);
+        bool accept = (bool) m_electronIsEMTool[1]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "Loose"){
-        const Root::TAccept& accept=m_electronIsEMTool[2]->accept(eg);
+        bool accept = (bool) m_electronIsEMTool[2]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHTight"){
-        const Root::TAccept& accept=m_electronLHTool[0]->accept(eg);
+        bool accept = (bool) m_electronLHTool[0]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHMedium"){
-        const Root::TAccept& accept=m_electronLHTool[1]->accept(eg);
+        bool accept = (bool) m_electronLHTool[1]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHLoose"){
-        const Root::TAccept& accept=m_electronLHTool[2]->accept(eg);
+        bool accept = (bool) m_electronLHTool[2]->accept(eg);
         return static_cast<bool>(accept);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");

@@ -3,7 +3,7 @@
 */
 
 /** @file AthenaOutputStream_test.cxx
- * @brief  unit test for AtRndSvc
+ * @brief  unit test for AthenaOutputStream
  *
  * @author Paolo Calafiura <pcalafiura@lbl.gov> -ATLAS Collaboration
  * $Id: AthenaOutputStream_test.cxx,v 1.5 2007-05-18 17:02:25 calaf Exp $

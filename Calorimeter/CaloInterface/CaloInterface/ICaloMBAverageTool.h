@@ -16,19 +16,14 @@ class Identifier;
 class CaloDetDescrElement;
 class CaloCell;
 
-class ICaloMBAverageTool: virtual public IAlgTool
+class ICaloMBAverageTool : virtual public IAlgTool
 {  
 public:
+  DeclareInterfaceID (ICaloMBAverageTool, 1, 0);
 
-  static const InterfaceID& interfaceID() { 
-    static const InterfaceID IID_ICaloMBAverageTool("ICaloMBAverageTool", 1 , 0);
-    return IID_ICaloMBAverageTool; 
-  }
+  virtual float average(const CaloCell* caloCell) const =0;
 
-
-  virtual float average(const CaloCell* caloCell)=0;
-
-  virtual float average(const CaloDetDescrElement* caloDDE, const CaloGain::CaloGain gain)=0;
+  virtual float average(const CaloDetDescrElement* caloDDE, const CaloGain::CaloGain gain) const =0;
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) = 0;
  

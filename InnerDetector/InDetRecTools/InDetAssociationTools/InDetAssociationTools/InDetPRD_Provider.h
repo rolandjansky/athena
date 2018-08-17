@@ -12,7 +12,7 @@
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-// InDet includes
+// InDet includes; these are needed (cannot be fwd declared) for template type deduction
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
@@ -20,15 +20,14 @@
 #include "TrkToolInterfaces/IPRD_Provider.h"
 #include "TrkPrepRawData/PrepRawDataContainer.h"
 #include "TrkPrepRawData/PrepRawDataCollection.h"
-// Identifier
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
+
  
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 class TRT_ID; 
-  
+class Identifier;
+class IdentifierHash;
 namespace InDet {
  
   /**

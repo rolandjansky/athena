@@ -39,19 +39,19 @@ class CaloTopoTowerBuilderToolBase : public AthAlgTool,
   virtual ~CaloTopoTowerBuilderToolBase();
 
   /// common initialization
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual void setTowerSeg(const CaloTowerSeg& theTowerSeg);
+  virtual void setTowerSeg(const CaloTowerSeg& theTowerSeg) override;
 
-  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
 
   /// execute is abstract
-  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) = 0;
+  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const override = 0;
 
-  virtual StatusCode initializeTool() = 0;
+  virtual StatusCode initializeTool() override = 0;
 
   // abstract to be implemented by derived class (Tile, LarFCal, Calo)
-  virtual void handle(const Incident&) = 0;
+  virtual void handle(const Incident&) override = 0;
 
  protected:
 

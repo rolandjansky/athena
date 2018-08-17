@@ -13,10 +13,8 @@ SCT_LinkMaskingTool::SCT_LinkMaskingTool(const std::string &type, const std::str
   m_sctHelper{nullptr},
   m_mutex{},
   m_cache{},
-  m_condData{},
-  m_condKey{"SCT_LinkMaskingCondData"}
+  m_condData{}
 { 
-  // nop
 }
 
 // Initialize

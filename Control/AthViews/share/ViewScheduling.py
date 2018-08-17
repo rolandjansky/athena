@@ -66,6 +66,12 @@ makeViewSequence += CfgMgr.AthViews__ViewMergeAlg("merge_alg")
 
 job += makeViewSequence
 
+# Conditions alg - creates an object that dflow_alg3 will retrieve
+condSeq = AthSequencer("AthCondSeq")
+condSeq += CfgMgr.AthViews__ConditionTestAlg( "condTestAlg" )
+
+svcMgr.ConditionStore.OutputLevel = VERBOSE
+
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------

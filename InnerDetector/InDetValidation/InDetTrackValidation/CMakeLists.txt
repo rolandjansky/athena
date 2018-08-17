@@ -21,7 +21,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkTrack
    Tracking/TrkValidation/TrkValInterfaces
    PRIVATE
-   Control/DataModel
+   Control/AthContainers
    DetectorDescription/AtlasDetDescr
    DetectorDescription/GeoModel/GeoModelInterfaces
    Event/EventPrimitives
@@ -56,7 +56,7 @@ atlas_add_component( InDetTrackValidation
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES}
    AthenaBaseComps AthenaKernel StoreGateLib SGtests xAODEventInfo GaudiKernel InDetRawData InDetPrepRawData
-   InDetSimEvent TrkParameters TrkSpacePoint TrkTrack TrkValInterfaces DataModel AtlasDetDescr
+   InDetSimEvent TrkParameters TrkSpacePoint TrkTrack TrkValInterfaces AthContainers AtlasDetDescr
    EventPrimitives GeneratorObjects TRT_ConditionsData
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib
    InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkMeasurementBase

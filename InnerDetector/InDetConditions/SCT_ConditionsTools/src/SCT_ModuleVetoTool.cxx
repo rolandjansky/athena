@@ -29,8 +29,7 @@ SCT_ModuleVetoTool::SCT_ModuleVetoTool(const std::string &type, const std::strin
   m_maskSide{-1},
   m_mutex{},
   m_cache{},
-  m_condData{},
-  m_condKey{"SCT_ModuleVetoCondData"}
+  m_condData{}
   {
     declareProperty("BadModuleIdentifiers", m_badElements);
     declareProperty("MaskLayers",  m_maskLayers, "Mask full layers/disks in overlay" ); 

@@ -1,17 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This is a test cxx file for IdentifiableContainerMT. 
 //  
 #include "EventContainers/IdentifiableContainerMT.h" 
-#include "EventContainers/SelectAllObjectMT.h" 
+#include "EventContainers/SelectAllObjectMT.h"
+#include "EventContainers/IdentifiableContTemp.h"
 #include "ID_ContainerTest.h" 
 #include "GaudiKernel/System.h" 
 #include "CLIDSvc/CLASS_DEF.h"
 
 // define a bunch of fake data classes 
-
+using namespace std;
 namespace IDC_TEST
 {
 
@@ -142,9 +143,12 @@ int ID_ContainerTest::initialize()
     return 0;
 } 
 
-// ------ finalize() 
-int ID_ContainerTest::finalize()  
-{ return 0;} 
+// ------ finalize()
+int ID_ContainerTest::finalize()
+{
+delete m_container;
+m_container=nullptr;
+return 0;}
 
 //------ execute() 
 
@@ -243,7 +247,7 @@ int ID_ContainerTest::execute(){
     startOfKernelTime  = System::kernelTime   ( System::microSec );
     startOfElapsedTime = System::ellapsedTime ( System::microSec );
     // Access all COllections
-/*    auto hashes= m_container->GetAllCurrentHashs(); 
+/*    auto hashes= m_container->GetAllCurrentHashes(); 
     int nc1 = 0 ; 
     for (auto hash : hashes) {
         auto coll = m_container->indexFindPtr(hash); 
@@ -273,13 +277,13 @@ int ID_ContainerTest::execute(){
 
     std::cout <<"  Number of Collection  Accessed "<<nc1<<std::endl;
 
-    std::cout << "By GetAllCurrentHashs search\n";
+    std::cout << "By GetAllCurrentHashes search\n";
 
     startOfUserTime    = System::userTime( System::microSec );
     startOfKernelTime  = System::kernelTime   ( System::microSec );
     startOfElapsedTime = System::ellapsedTime ( System::microSec );
     // Access all COllections
-    auto hashes= m_container->GetAllCurrentHashs(); 
+    auto hashes= m_container->GetAllCurrentHashes(); 
     nc1 = 0 ; 
     for (auto hash : hashes) {
         auto coll = m_container->indexFindPtr(hash); 
@@ -298,7 +302,7 @@ int ID_ContainerTest::execute(){
 
 
     // Print out some hash ids via iterator
-    hashes= m_container->GetAllCurrentHashs();  
+    hashes= m_container->GetAllCurrentHashes();  
     nc1 = 0 ; 
     unsigned int skip1 = 0;
     for ( auto h = hashes.cbegin() ; h!=hashes.cend() && nc1 < 10; ++h, ++skip1) {
@@ -564,8 +568,8 @@ int ID_ContainerTest::execute(){
         std::cout << __FILE__ << " cache does not contain correct elements" << std::endl;
         std::abort();
     }
-    assert(containerOnline->GetAllCurrentHashs().size() == 2);
-    if(containerOnline->GetAllCurrentHashs() != IDCshouldContain){
+    assert(containerOnline->GetAllCurrentHashes().size() == 2);
+    if(containerOnline->GetAllCurrentHashes() != IDCshouldContain){
         std::cout << __FILE__ << " IDC does not contain correct elements" << std::endl;
         std::abort();
     }
@@ -596,11 +600,16 @@ int ID_ContainerTest::execute(){
        std::cout << "count is " << count << " should be 20 " << std::endl;
        if(count !=20) std::abort();
     }
+    {
+    MyCollectionContainer::IDC_WriteHandle lock;
+    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(50)));
+    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(50)));//Try to break the locks
+    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(60)));
+    lock = containerOnline->getWriteHandle(IdentifierHash(70));
+    }
 
-
-
-    delete cache;
     delete containerOnline;
+    delete cache;
     std::cout << "MyDigits left undeleted " << MyDigit::s_total << std::endl;    
 }
     return 0;
@@ -615,5 +624,8 @@ int main (int /*argc*/, char** /*argv[]*/)
     test.initialize();
     for (unsigned int i = 0; i < 5; i++) test.execute();
     test.finalize();
+    EventContainers::IdentifiableContTemp<MyCollection> emptyContContainer(10); //Put here to test compilation of IdentifiableContTemp
+    emptyContContainer.cleanup();
+    return 0;
 }
 

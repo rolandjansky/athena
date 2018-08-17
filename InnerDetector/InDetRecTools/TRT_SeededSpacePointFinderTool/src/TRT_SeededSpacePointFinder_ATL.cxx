@@ -10,16 +10,14 @@
 // Version 1.0 04/15/2006 T.Koffas
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <iomanip>
-#include <set>
+
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h" 
 #include "TRT_SeededSpacePointFinderTool/TRT_SeededSpacePointFinder_ATL.h"
-//#include "TrkParameters/MeasuredAtaStraightLine.h"
+#include "SiSpacePointsSeed/SiSpacePointsSeed.h"
 
 //Cluster collections
 //
@@ -28,17 +26,15 @@
 //
 #include "InDetIdentifier/SCT_ID.h"
 
-//Magnetic field
-//
-//#include "TrkMagFieldInterfaces/IMagneticFieldTool.h"
-//#include "TrkMagFieldUtils/MagneticFieldMapSolenoid.h"
-//#include "MagFieldInterfaces/IMagFieldSvc.h"
-
 //Association tool
 //
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include "StoreGate/ReadHandle.h"
+
+#include <ostream>
+#include <iomanip>
+#include <set>
 
 using namespace std;
 
@@ -507,39 +503,41 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out ) co
 {
   const double pi2    = 2.*M_PI;
   out<<"|---------------------------------------------------------------------|"
-     <<std::endl;
+     <<"\n";
   out<<"| m_ns                    | "
      <<std::setw(12)<<m_ns
-     <<"                              |"<<std::endl;
+     <<"                              |"<<"\n";
   out<<"|---------------------------------------------------------------------|"
-     <<std::endl;
+     <<"\n";
 
   if(msgLvl(MSG::DEBUG)) return out; 
 
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
   out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
+     <<"\n";
 
   out<<"|  Azimuthal  |    n   | z[ 0] | z[ 1] | z[ 2] | z[ 3] | z[4]  |";
   out<<" z[ 5] | z[ 6] | z[ 7] | z[ 8] | z[ 9] | z[10] |"
-     <<std::endl;
+     <<"\n";
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
   out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
+     <<"\n";
   
   double sF1 = pi2/double(m_fNmax+1);
   
-  StreamState restore_precision(cout); 
+  //StreamState restore_precision(out);
+  auto prec(out.precision());
   for(int f=0; f<=m_fNmax; ++f) {
     out<<"|  "
        <<std::setw(10)<<std::setprecision(4)<<sF1*double(f)<<" | "
        <<std::setw(6)<<m_rf_map[f]<<" |";
-    out<<std::endl;
+    out<<"\n";
   }
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
   out<<"-------|-------|-------|-------|-------|-------|"
-     <<std::endl;
-  out<<std::endl;
+     <<"\n";
+  out<<endmsg;
+  out.precision(prec);
   return out;
 }
 

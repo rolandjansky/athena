@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build The TMT.
@@ -18,13 +18,17 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-
-#include <algorithm>
-using std::max;
+#include <utility> //std::swap
+#include <cmath>
 
 GeoPixelTMT::GeoPixelTMT()
 {
   m_physVol = Build();
+  m_physVol->ref();
+}
+
+GeoPixelTMT::~GeoPixelTMT(){
+  m_physVol->unref();
 }
 
 GeoVPhysVol* GeoPixelTMT::Build() {
@@ -59,19 +63,8 @@ GeoVPhysVol* GeoPixelTMT::Build() {
 
     double theta = 0;  
     if (w1 != w2 || xbase1 != xbase2) {
-      theta = atan((xbase2 - xbase1 - 0.5*(w2-w1))/length);
+      theta = std::atan((xbase2 - xbase1 - 0.5*(w2-w1))/length);
     }
-
-    //std::cout << "ii = " << ii << std::endl;
-    //std::cout << " xbase1 = " << xbase1 << std::endl;
-    //std::cout << " xbase2 = " << xbase2 << std::endl;
-    //std::cout << " w1 = " << w1 << std::endl;
-    //std::cout << " w2 = " << w2 << std::endl;
-    //std::cout << " widthy = " << widthy << std::endl;
-    //std::cout << " z1 = " << z1 << std::endl;
-    //std::cout << " z2 = " << z2 << std::endl;
-    //std::cout << " ypos = " << ypos << std::endl;
-    //std::cout << " theta(CLHEP::deg) = " << theta/CLHEP::deg << std::endl;
 
     double phi = 0;
     double angleydzn = 0;
@@ -85,9 +78,9 @@ GeoVPhysVol* GeoPixelTMT::Build() {
       shape = new GeoTrap(0.5*length, theta, phi, 0.5*widthy, 0.5*w1, 0.5*w1, angleydzn, 
 			  0.5*widthy, 0.5*w2, 0.5*w2, angleydzp);
       // Test GeoModel volume calculation. OK.
-      //double testVolume = 0.5*(w1+w2)*length*widthy;
-      //std::cout << "Volume Trap: GeoModel: " << shape->volume() << "   My calc: " << testVolume << std::endl;
     }
+    //assuming 'shape' cannot be null.
+    shape->ref();
 
     if (!perModule) { // For middle section and others
       totVolume += shape->volume();
@@ -96,16 +89,17 @@ GeoVPhysVol* GeoPixelTMT::Build() {
 
     } else { // Once per module, copied in +z and -z side.
       for (int ii = 0; ii < halfNModule; ii++) {
-	totVolume += shape->volume() * 2;// added twice below
-	double zshift = m_gmt_mgr->PixelModuleZPosition(1) * ii;
+        totVolume += shape->volume() * 2;// added twice below
+        double zshift = m_gmt_mgr->PixelModuleZPosition(1) * ii;
 
-	HepGeom::Translate3D transPos(xpos,ypos,zpos+zshift);
-	lastShape = addShape(lastShape, shape, transPos); 
+        HepGeom::Translate3D transPos(xpos,ypos,zpos+zshift);
+        lastShape = addShape(lastShape, shape, transPos); 
 
-	HepGeom::Transform3D transNeg = HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg);
-	lastShape = addShape(lastShape, shape, transNeg); 
+        HepGeom::Transform3D transNeg = HepGeom::Translate3D(xpos,ypos,-(zpos+zshift))*HepGeom::RotateX3D(180*CLHEP::deg);
+        lastShape = addShape(lastShape, shape, transNeg); 
       }      
-    } 
+    }
+    shape->unref(); //this will delete shape if it was never added 
   }
 
   if(lastShape==0) {

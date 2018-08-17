@@ -5,7 +5,6 @@
 ///////////////////////////////////////////////////////////////////
 //  Header file for class  PixelClusterOnTrackTool
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Interface for PixelClusterOnTrack production
 ///////////////////////////////////////////////////////////////////
@@ -19,19 +18,25 @@
 
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
+#include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
+/** The following cannot be fwd declared for interesting reason; the return type of
+ * 'correct' is InDet::PixelClusterOnTrack* here, but in the baseclass is 
+ * Trk::RIO_OnTrack*. This works if the inheritance is known, but fwd declaration results
+ * in an error:
+ * invalid covariant return type for 'virtual const InDet::PixelClusterOnTrack* 
+ InDet::PixelClusterOnTrackTool::correct(const Trk::PrepRawData&, 
+ const TrackParameters&) const'
+ * because the return type has changed and the compiler has no information to cast.
+ **/
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "TrkParameters/TrackParameters.h"
-//#include "InDetIdentifier/PixelID.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
 
-//#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
-//#include "PixelConditionsTools/IModuleDistortionsTool.h"
-
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 class PixelID;
 class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
@@ -98,22 +103,21 @@ public:
   virtual const InDet::PixelClusterOnTrack* correct(const Trk::PrepRawData&,
                                                     const Trk::TrackParameters&) const override;
 
-  virtual const InDet::PixelClusterOnTrack* correctDefault(const Trk::PrepRawData&, 
+  virtual const InDet::PixelClusterOnTrack* correctDefault(const Trk::PrepRawData&,
                                                            const Trk::TrackParameters&) const;
 
   virtual const InDet::PixelClusterOnTrack* correctNN(const Trk::PrepRawData&, const Trk::TrackParameters&) const;
-	
-  virtual bool getErrorsDefaultAmbi( const InDet::PixelCluster*, const Trk::TrackParameters&, 
+  virtual bool getErrorsDefaultAmbi( const InDet::PixelCluster*, const Trk::TrackParameters&,
                            Amg::Vector2D&,  Amg::MatrixX&) const;
-													 
-	virtual bool getErrorsTIDE_Ambi( const InDet::PixelCluster*, const Trk::TrackParameters&,  
-                        Amg::Vector2D&,  Amg::MatrixX&) const;
+
+  virtual bool getErrorsTIDE_Ambi( const InDet::PixelCluster*, const Trk::TrackParameters&,
+                           Amg::Vector2D&,  Amg::MatrixX&) const;
 
   virtual const InDet::PixelClusterOnTrack* correct
     (const Trk::PrepRawData&, const Trk::TrackParameters&, 
      const InDet::PixelClusterStrategy) const;
 
-     
+
   ///////////////////////////////////////////////////////////////////
   // Private methods:
   ///////////////////////////////////////////////////////////////////
@@ -134,9 +138,14 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
-  ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
+
+  //  SG::ReadCondHandleKey<PixelRIO_OnTrackErrorScaling> m_pixelErrorScalingKey
+  //    {this,"PixelErrorScalingKey", "/Indet/TrkErrorScalingPixel", "Key for pixel error scaling conditions data."};
+  SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_pixelErrorScalingKey
+    {this,"PixelErrorScalingKey", "/Indet/TrkErrorScalingPixel", "Key for pixel error scaling conditions data."};
+
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
     IHistogram1D* m_h_Resy;
@@ -150,7 +159,6 @@ public:
 
   //! toolhandle for central error scaling
   //! flag storing if errors need scaling or should be kept nominal
-  bool                               m_scalePixelCov     ;
   bool                               m_disableDistortions;
   bool                               m_rel13like         ;
   int                                m_positionStrategy  ;
@@ -175,8 +183,8 @@ public:
   /** Enable NN based calibration (do only if NN calibration is applied) **/
   mutable bool                      m_applyNNcorrection;
   mutable bool                      m_applydRcorrection;
-  bool				    m_NNIBLcorrection;
-  bool				    m_IBLAbsent;
+  bool                              m_NNIBLcorrection;
+  bool                              m_IBLAbsent;
   
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
@@ -189,8 +197,7 @@ public:
   
   bool                                                  m_doNotRecalibrateNN;
   bool                                                  m_noNNandBroadErrors;
-	
-	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
+       /** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
   SG::ReadHandleKey<InDet::PixelGangedClusterAmbiguities>    m_splitClusterHandle; 
   mutable std::vector< std::vector<float> > m_fX, m_fY, m_fB, m_fC, m_fD;

@@ -8,6 +8,7 @@ atlas_subdir( AthenaPoolExampleConverter )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/DataModelAthenaPool
+                          Control/CxxUtils
                           Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleData
                           Database/AthenaPOOL/AthenaPoolServices
                           Database/AthenaPOOL/AthenaPoolUtilities

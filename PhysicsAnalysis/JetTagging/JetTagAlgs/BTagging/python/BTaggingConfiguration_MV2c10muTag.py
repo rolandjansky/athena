@@ -10,7 +10,7 @@ metaMV2c10muTag = { 'IsATagger'          : False,#True,
                                           'BTagCalibrationBrokerTool',
                                           'SoftMuonTag',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['MV2c10mu',],
+                  'CalibrationTaggers' : ['MV2c10mu',],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                   'ToolCollection'     : 'MV2c10muTag'}
 

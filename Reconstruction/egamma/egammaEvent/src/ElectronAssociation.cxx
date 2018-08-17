@@ -10,7 +10,7 @@ namespace Analysis
   ElectronAssociation::ElectronAssociation()
   {  } 
   
-  ElectronAssociation::ElectronAssociation(NameType& name)
+  ElectronAssociation::ElectronAssociation(const NameType& name)
   {
     this->setName(name);
   }  
@@ -54,7 +54,7 @@ namespace Analysis
   }
   
   void  ElectronAssociation::set_electron(const ElectronContainer* theContainer,
-					  index_type& theIndex,
+					  const index_type& theIndex,
 					  double weight)
   {
     double newWeight = weight;
@@ -80,7 +80,7 @@ namespace Analysis
   }
   
   double ElectronAssociation::getElectronWeight(const ElectronContainer* theContainer,
-						index_type& theIndex) const
+						const index_type& theIndex) const
   {
     // from Navigable
     return (this->contains(theContainer,theIndex))

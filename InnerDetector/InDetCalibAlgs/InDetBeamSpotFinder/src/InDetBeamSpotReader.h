@@ -15,7 +15,10 @@
 #include <map>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h" 
+#include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "VxVertex/VxContainer.h"
+#include "EventInfo/EventInfo.h"
 
 class IBeamCondSvc;
 
@@ -25,20 +28,25 @@ namespace InDet {
       being read. Otherwise an error will occur.
    */
   class InDetBeamSpotReader : public AthAlgorithm {
-    
+
   public:
     //Standard constructor and methods
     InDetBeamSpotReader  (const std::string& name, ISvcLocator* pSvcLocator);
     StatusCode initialize();
     StatusCode execute();
     StatusCode finalize();
-    
-  
+
+
   private:
     ServiceHandle<IToolSvc> m_toolSvc;
     ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
+
+    SG::ReadHandleKey<EventInfo> m_eventInfo
+      {this, "EvtInfo", "EventInfo", "EventInfo name"};
+    SG::ReadHandleKey<VxContainer> m_vxContainer
+      {this, "VxContainer", "VxPrimaryCandidate", "Vertex container name"};
   };
-    
+
 }//end namespace 
 
 #endif

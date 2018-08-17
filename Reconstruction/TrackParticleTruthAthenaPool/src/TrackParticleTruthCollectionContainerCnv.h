@@ -13,6 +13,7 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "ParticleTruth/TrackParticleTruthCollectionContainer.h"
+#include "ParticleTruth/TrackParticleTruthVector.h"
 
 class TrackParticleTruthCollectionContainer_tlp1;
 
@@ -30,8 +31,8 @@ class TrackParticleTruthCollectionContainerCnv : public TrackParticleTruthCollec
 protected:
 public:
    TrackParticleTruthCollectionContainerCnv(ISvcLocator* svcloc);
-protected:
    ~TrackParticleTruthCollectionContainerCnv();
+protected:
   virtual TrackParticleTruthCollectionContainer* createTransient();
   virtual TrackParticleTruthCollectionContainerPERS* createPersistent(TrackParticleTruthCollectionContainer*);
 private:

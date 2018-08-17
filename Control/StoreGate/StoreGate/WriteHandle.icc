@@ -171,7 +171,7 @@ WriteHandle<T>::~WriteHandle()
 template <class T>
 inline
 typename WriteHandle<T>::pointer_type
-WriteHandle<T>::operator->() const
+WriteHandle<T>::operator->()
 {
   return WriteHandle<T>::checkedCachedPtr();
 }
@@ -184,7 +184,7 @@ WriteHandle<T>::operator->() const
 template <class T>
 inline
 typename WriteHandle<T>::reference_type
-WriteHandle<T>::operator*() const
+WriteHandle<T>::operator*()
 {
   return *WriteHandle<T>::checkedCachedPtr();
 }
@@ -199,7 +199,7 @@ inline
 typename WriteHandle<T>::const_pointer_type
 WriteHandle<T>::cptr() const
 {
-  return cachedPtr();
+  return reinterpret_cast<pointer_type>(this->m_ptr);
 }
 
 
@@ -210,7 +210,7 @@ WriteHandle<T>::cptr() const
 template <class T>
 inline
 typename WriteHandle<T>::pointer_type
-WriteHandle<T>::ptr() const
+WriteHandle<T>::ptr()
 {
   return cachedPtr();
 }
@@ -222,7 +222,7 @@ WriteHandle<T>::ptr() const
 template <class T>
 inline
 typename WriteHandle<T>::pointer_type
-WriteHandle<T>::cachedPtr() const
+WriteHandle<T>::cachedPtr()
 {
   return reinterpret_cast<pointer_type>(this->m_ptr);
 }
@@ -692,7 +692,7 @@ StatusCode WriteHandle<T>::symLink (const WriteHandleKey<U>& other)
  */
 template <class T>
 typename WriteHandle<T>::pointer_type
-WriteHandle<T>::checkedCachedPtr() const
+WriteHandle<T>::checkedCachedPtr()
 {
   if (!m_ptr)
     throwExcNullWriteHandle (clid(), key(), store());

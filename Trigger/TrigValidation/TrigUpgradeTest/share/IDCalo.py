@@ -60,18 +60,103 @@ if TriggerFlags.doID:
   (viewAlgs, eventAlgs) = makeInDetAlgs()
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
-  
-  TrigFastTrackFinder_eGamma.isRoI_Seeded = True
-  TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
-  viewAlgs.append(TrigFastTrackFinder_eGamma())
 
+  theTrigFastTrackFinder_eGamma = TrigFastTrackFinder_eGamma()
+  theTrigFastTrackFinder_eGamma.isRoI_Seeded = True
+  theTrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
+  #theTrigFastTrackFinder_eGamma.OutputLevel=VERBOSE
+  viewAlgs.append(theTrigFastTrackFinder_eGamma)
 
   for eventAlg in eventAlgs:
     viewSeq += eventAlg
 
   for viewAlg in viewAlgs:
     allViewAlgorithms += viewAlg
-  
+
+
+   #
+   # --- Ambiguity solver algorithm
+   #
+ 
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
+  from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+  InDetTrigMTAmbiScoringTool =  InDet__InDetAmbiScoringTool( name                        = 'InDetTrigMTScoringTool',
+                                                             Extrapolator                = InDetTrigExtrapolator,
+                                                             InputEmClusterContainerName = '', #need to be reset to empty string
+                                                             doEmCaloSeed                = False,
+                                                             SummaryTool                 = InDetTrigTrackSummaryTool)
+
+
+
+  ToolSvc += InDetTrigMTAmbiScoringTool
+
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
+  from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
+  InDetTrigMTAmbiguityProcessor = ProcessorTool(name          = 'InDetTrigMTAmbiguityProcessor',
+                                                Fitter        = InDetTrigTrackFitter,
+                                                ScoringTool   = InDetTrigMTAmbiScoringTool,
+                                                SelectionTool = InDetTrigAmbiTrackSelectionTool)
+
+
+  ToolSvc += InDetTrigMTAmbiguityProcessor
+
+
+  from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
+  InDetTrigMTAmbiguitySolver = Trk__TrkAmbiguitySolver(name         = 'InDetTrigMTAmbiguitySolver',
+                                                 TrackInput         =['TrigFastTrackFinder_Tracks'], #FTF default
+                                                 TrackOutput        = 'AmbiSolver_Tracks' , #Change
+                                                 AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
+
+
+  allViewAlgorithms += InDetTrigMTAmbiguitySolver
+
+
+  #
+  # --- Track particle conversion algorithm
+  #
+
+
+  from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
+  InDetTrigMTxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name =  "InDetTrigMTxAODParticleCreatorTool",
+                                                                     Extrapolator = InDetTrigExtrapolator,
+                                                                     #ForceTrackSummaryUpdate = False,
+                                                                     #TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits) 
+                                                                     TrackSummaryTool = InDetTrigTrackSummaryTool)
+
+  ToolSvc += InDetTrigMTxAODParticleCreatorTool
+  print InDetTrigMTxAODParticleCreatorTool
+
+
+  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
+  InDetTrigMTxAODTrackCollectionCnvTool= xAODMaker__TrackCollectionCnvTool(name = "InDetTrigMTxAODTrackCollectionCnvTool",
+                                                                           TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
+
+  ToolSvc += InDetTrigMTxAODTrackCollectionCnvTool
+  print InDetTrigMTxAODTrackCollectionCnvTool
+
+  from xAODTrackingCnv.xAODTrackingCnvConf import  xAODMaker__RecTrackParticleContainerCnvTool
+  InDetTrigMTRecTrackParticleContainerCnvTool=  xAODMaker__RecTrackParticleContainerCnvTool(name = "InDetTrigMTRecTrackContainerCnvTool",
+                                                                           TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
+
+  ToolSvc += InDetTrigMTRecTrackParticleContainerCnvTool
+  print InDetTrigMTRecTrackParticleContainerCnvTool
+
+  from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+  InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetTrigMTxAODParticleCreatorAlg",
+                                                                      TrackContainerName = 'InDetTrigMTAmbiSolTracks',
+                                                                      xAODContainerName = 'InDetTrigMTAmbiSolxAODTracks',
+                                                                      TrackCollectionCnvTool = InDetTrigMTxAODTrackCollectionCnvTool,
+                                                                      RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
+                                                                      TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool
+                                                                            )
+
+
+  allViewAlgorithms += InDetTrigMTxAODTrackParticleCnvAlg
+  print  InDetTrigMTxAODTrackParticleCnvAlg
+
+
 
 if TriggerFlags.doCalo:
   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False

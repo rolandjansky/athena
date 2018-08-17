@@ -7,8 +7,8 @@
 
 #include <inttypes.h>
 #include "MuonRDO/TgcRawData.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/IdentifierHash.h"
 
 // This cast is needed to remove warning: dereferencing type-punned pointer will break strict-aliasing rules 

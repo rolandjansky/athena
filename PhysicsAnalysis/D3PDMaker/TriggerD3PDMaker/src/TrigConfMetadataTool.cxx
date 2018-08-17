@@ -6,7 +6,6 @@
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
-#include "SGTools/crc64.h"
 
 // STL include(s):
 #include "limits.h"

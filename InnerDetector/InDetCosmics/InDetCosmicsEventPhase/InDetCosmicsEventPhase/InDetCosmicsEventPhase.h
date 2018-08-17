@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -10,16 +10,13 @@
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "CommissionEvent/ComTime.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include <string>
 
 /////////////////////////////////////////////////////////////////////////////
 //class TrackCollection;
 class ITRT_CalDbSvc ;
 
-namespace Trk
-{
-  class ITrackSummaryTool;
-}
 namespace InDet 
 {
   class IInDetCosmicsEventPhaseTool;

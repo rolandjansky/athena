@@ -199,6 +199,12 @@ LVL1CTP::CTPSimulation::initialize() {
    // TrigConfigSvc for the trigger configuration
    CHECK(m_configSvc.retrieve());
 
+   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "CTPSimulation");
+   CHECK(incidentSvc.retrieve());
+   incidentSvc->addListener(this,"BeginRun", 100);
+   incidentSvc.release().ignore();
+
+   
 	
    //
    // Set up the logger object:
@@ -270,6 +276,17 @@ LVL1CTP::CTPSimulation::initialize() {
    ATH_MSG_DEBUG("Done initializing");
 	
    return StatusCode::SUCCESS;
+}
+
+
+void LVL1CTP::CTPSimulation::handle(const Incident& incident) {
+  
+  if (incident.type()!="BeginRun") return;
+  ATH_MSG_DEBUG( "In CTPSimulation BeginRun incident");
+  
+  if( loadFixedConditions().isFailure() ) {
+    ATH_MSG_ERROR( "ERROR in CTPSimulation configuration");
+  }
 }
 
 
@@ -453,8 +470,8 @@ LVL1CTP::CTPSimulation::bookHists() {
 
 
 StatusCode
-LVL1CTP::CTPSimulation::beginRun() {
-   ATH_MSG_DEBUG("beginRun()");
+LVL1CTP::CTPSimulation::loadFixedConditions() {
+   ATH_MSG_DEBUG("loadFixedConditions()");
 
    //
    // monitoring
@@ -480,7 +497,7 @@ LVL1CTP::CTPSimulation::beginRun() {
 
    unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
 	
-   ATH_MSG_INFO("SMK to be simulated: " << m_configSvc->masterKey());
+   //ATH_MSG_INFO("SMK to be simulated: " << m_configSvc->masterKey());
    ATH_MSG_INFO("CTP version from the menu: " << ctpVersion);
    
    m_ctpDataformat = new CTPdataformatVersion(ctpVersion);
@@ -879,7 +896,7 @@ LVL1CTP::CTPSimulation::beginRun() {
    // build prescale vector (for monitoring)
    m_prescales = m_configSvc->ctpConfig()->prescaleSet().prescales_float();
 	
-   ATH_MSG_INFO("done beginRun()");
+   ATH_MSG_INFO("done loadFixeConditions()");
 
    return StatusCode::SUCCESS;
 }

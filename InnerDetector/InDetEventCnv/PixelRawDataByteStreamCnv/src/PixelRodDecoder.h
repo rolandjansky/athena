@@ -14,7 +14,6 @@
 
 class IPixelCablingSvc;
 class PixelID;
-class IInDetConditionsSvc;
 class IPixelByteStreamErrorsSvc;
 class PixelCablingData;
 
@@ -137,7 +136,6 @@ public:
   eformat::SubDetector        m_det;
   PixelCablingData*           m_cablingData;
   
-  ServiceHandle<IInDetConditionsSvc>   m_condsummary;
   ServiceHandle<IPixelByteStreamErrorsSvc>   m_errors;
   
 };

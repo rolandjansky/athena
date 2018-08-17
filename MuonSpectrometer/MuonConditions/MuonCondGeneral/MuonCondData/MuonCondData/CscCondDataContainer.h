@@ -14,8 +14,8 @@
         Holds conditions constants from the cool database. Designed for internal use by CscCoolStrSvc.
 **/
 
-#include "DataModel/DataVector.h"
-//#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+//#include "AthenaKernel/CLASS_DEF.h"
 #include "MuonCondData/CscCondDataCollectionBase.h"
 
 namespace MuonCalib {

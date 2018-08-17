@@ -10,7 +10,7 @@
 #include "TrkSegment/TrackSegment.h"
 #include "TrkSurfaces/Surface.h"
 #include "GaudiKernel/MsgStream.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 
 // default constructor

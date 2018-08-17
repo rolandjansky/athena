@@ -15,6 +15,7 @@
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/EventContextClid.h"
+#include "AthenaKernel/errorcheck.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -61,8 +62,8 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
     m_pITK(nullptr), 
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false), 
-    m_chronoStatSvc( "ChronoStatSvc", nam )
-
+    m_chronoStatSvc( "ChronoStatSvc", nam ),
+    m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam )
 {
   declareProperty("EvtStore", m_eventStore, "The StoreGateSvc instance to interact with for event payload" );
   declareProperty("EvtSel", m_evtsel, 
@@ -305,6 +306,8 @@ StatusCode AthenaEventLoopMgr::initialize()
 
   // Listen to the BeforeFork incident
   m_incidentSvc->addListener(this,"BeforeFork",0);
+
+  CHECK( m_conditionsCleaner.retrieve() );
 
   return sc;
 }
@@ -763,6 +766,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 
   // Execute Algorithms
   //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
+
+  CHECK( m_conditionsCleaner->event (m_eventContext, false) );
 
   // Call the execute() method of all top algorithms 
   StatusCode sc = executeAlgorithms(m_eventContext);

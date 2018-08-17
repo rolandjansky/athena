@@ -12,7 +12,7 @@
 
 
 #include "SGTools/StringPool.h"
-#include "SGTools/crc64.h"
+#include "CxxUtils/crc64.h"
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -231,8 +231,8 @@ StringPool::~StringPool()
 StringPool::sgkey_t StringPool::stringToKey (const std::string& str,
                                              sgaux_t aux /*= 0*/)
 {
-  uint64_t crc = crc64 (str);
-  if (aux) crc = crc64addint (crc, aux);
+  uint64_t crc = CxxUtils::crc64 (str);
+  if (aux) crc = CxxUtils::crc64addint (crc, aux);
   sgkey_t key = (crc & sgkey_t_max);
   if (!m_impl->registerKey (key, str, aux))
     std::abort();

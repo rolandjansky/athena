@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,6 +15,7 @@
 
 ///STL
 #include <vector>
+#include <cstdint>
 
 #include "GaudiKernel/IAlgTool.h"
 
@@ -22,21 +23,19 @@
 /** needed for typedef, cannot fwd declare */
 #include "InDetRawData/SCT_RDO_Container.h"
 
-class InterfaceID;
-class StatusCode;
 class SCT_RDORawData;
 
 class ISCT_RodEncoder : virtual public IAlgTool {
  public:
 
-  typedef SCT_RDORawData RDO ;
-  typedef std::vector<const RDO*> vRDOs ;
+  typedef SCT_RDORawData RDO;
+  typedef std::vector<const RDO*> vRDOs;
   
   /** destructor */
-  virtual ~ISCT_RodEncoder() {}; 
+  virtual ~ISCT_RodEncoder() = default;
 
-  /** AlgTool InterfaceID */
-  static const InterfaceID& interfaceID() ;
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISCT_RodEncoder, 1, 0);
 
   /** convert all collections of RDO's in the current  list to vector of 32bit words */
   virtual void fillROD(std::vector<uint32_t>&, uint32_t, vRDOs&) = 0;
@@ -46,11 +45,4 @@ class ISCT_RodEncoder : virtual public IAlgTool {
 
 }; 
 
-
-inline const InterfaceID& ISCT_RodEncoder::interfaceID() {
-  static const InterfaceID ISCT_RodEncoderIID("ISCT_RodEncoder",1,0);
-  return ISCT_RodEncoderIID;
-}
-
-
-#endif
+#endif // SCT_RAWDATABYTESTREAM_ISCT_RODENCODER_H

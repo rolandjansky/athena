@@ -36,14 +36,14 @@
 inline double sqr(double x) {return x*x;}
 
 SCT_FwdRing::SCT_FwdRing(const std::string & name, 
-			 //int ringType, 
-			 const SCT_FwdModule * module, 
-			 //const SCT_FwdRingCooling * cooling,
-			 //int stereoSign,
-			 //int ringSide)
-			 int iWheel,
-			 int iRing,
-			 int ec)
+                         //int ringType, 
+                         const SCT_FwdModule * module, 
+                         //const SCT_FwdRingCooling * cooling,
+                         //int stereoSign,
+                         //int ringSide)
+                         int iWheel,
+                         int iRing,
+                         int ec)
   : SCT_UniqueComponentFactory(name), 
     //    m_ringType(ringType), 
     // m_ringSide(ringSide), 
@@ -96,13 +96,13 @@ SCT_FwdRing::~SCT_FwdRing()
 const GeoLogVol * 
 SCT_FwdRing::preBuild()
 {
-//   std::cout << getName() << std::endl;
-//   std::cout << "Wheel, Ring = " << m_iWheel << ", " << m_iRing << std::endl;
-//   std::cout << "m_module->thickness() = " << m_module->thickness() << std::endl;
-//   std::cout << "m_moduleStagger = " << m_moduleStagger << std::endl;
-//   std::cout << "m_refStartAngle = " << m_refStartAngle << std::endl;
-//   std::cout << "m_refFirstStagger = " << m_refFirstStagger << std::endl;
-//   std::cout << "m_ringOffset = " << m_ringOffset << std::endl;
+  //   std::cout << getName() << std::endl;
+  //   std::cout << "Wheel, Ring = " << m_iWheel << ", " << m_iRing << std::endl;
+  //   std::cout << "m_module->thickness() = " << m_module->thickness() << std::endl;
+  //   std::cout << "m_moduleStagger = " << m_moduleStagger << std::endl;
+  //   std::cout << "m_refStartAngle = " << m_refStartAngle << std::endl;
+  //   std::cout << "m_refFirstStagger = " << m_refFirstStagger << std::endl;
+  //   std::cout << "m_ringOffset = " << m_ringOffset << std::endl;
 
   // Make a ring. This is made of two half rings. They are identical but as
   // we need different identifiers they are made seperately.
@@ -134,7 +134,7 @@ SCT_FwdRing::preBuild()
   // Now we choose module 0 as the first module with -0.5 * divAngle <  phi <=  0.5 * divAngle   
   double moduleCount = angle / divisionAngle;
   int moduleCountInt = static_cast<int>(floor(moduleCount +0.5 -0.0001)); // The -0.0001 allows slightly positive 
-                                                                        // in case of rounding errors.
+  // in case of rounding errors.
   m_startAngle = divisionAngle * (moduleCount - moduleCountInt);
   
   // Determine numbering for -ve endcap.
@@ -149,11 +149,11 @@ SCT_FwdRing::preBuild()
   m_firstStagger = m_refFirstStagger;
   if (moduleCountInt % 2) m_firstStagger = -m_refFirstStagger;
 
-//   std::cout << "RingType, RingSide, Stereo, rotated = " << m_iRing << " " << m_ringSide << " "
-//   	      << m_stereoSign << " " << m_discRotated << std::endl;
-//   std::cout << "Ref   Start angle and stagger " << m_refStartAngle/CLHEP::deg << " " << m_refFirstStagger << std::endl;
-//   std::cout << "First Start angle and stagger " << m_startAngle/CLHEP::deg << " " << m_firstStagger << std::endl;
-//   std::cout << "Module zero in -ve endcap " << m_moduleZero << std::endl;
+  //   std::cout << "RingType, RingSide, Stereo, rotated = " << m_iRing << " " << m_ringSide << " "
+  //          << m_stereoSign << " " << m_discRotated << std::endl;
+  //   std::cout << "Ref   Start angle and stagger " << m_refStartAngle/CLHEP::deg << " " << m_refFirstStagger << std::endl;
+  //   std::cout << "First Start angle and stagger " << m_startAngle/CLHEP::deg << " " << m_firstStagger << std::endl;
+  //   std::cout << "Module zero in -ve endcap " << m_moduleZero << std::endl;
 
 
   makeModuleServices();
@@ -164,7 +164,7 @@ SCT_FwdRing::preBuild()
 
   m_innerRadius = m_module->innerRadius() - 0.5*m_module->stereoAngle()*(0.5*m_module->innerWidth()) - moduleClearanceR;
   m_outerRadius = sqrt(sqr(m_module->outerRadius()) + sqr(0.5*m_module->outerWidth())) 
-                  + 0.5*m_module->stereoAngle()*(0.5*m_module->outerWidth()) + moduleClearanceR;
+    + 0.5*m_module->stereoAngle()*(0.5*m_module->outerWidth()) + moduleClearanceR;
 
   // Calculate clearance we have. NB. This is an approximate.
   //std::cout << "Module clearance (radial value does not take into account stereo rotation:" << std::endl;
@@ -174,14 +174,14 @@ SCT_FwdRing::preBuild()
   //std::cout << " Hi Module to cooling block: " << +m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesHiOuterZPos << std::endl;
   //std::cout << " Module to Module: " << m_moduleStagger-m_module->thickness() << std::endl;
   //std::cout << " towards disc in z "   
-  //	    << std::min(m_moduleStagger-m_module->thickness(), 
-  //			std::min(-m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesLoOuterZPos,
-  //				 +m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesHiOuterZPos)) / CLHEP::mm << " mm" << std::endl;
+  //     << std::min(m_moduleStagger-m_module->thickness(), 
+  //   std::min(-m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesLoOuterZPos,
+  //     +m_moduleStagger-0.5*m_module->thickness() - m_moduleServicesHiOuterZPos)) / CLHEP::mm << " mm" << std::endl;
 
   m_thicknessOuter = 0.5 * m_module->thickness() + m_moduleStagger + moduleClearanceZ;
   m_thicknessInner = m_maxModuleServicesBaseToRingCenter + 2*m_safety;
-      // We have to at least include 1*m_safety as the moduleservices envelope is increased by this amount.
-      // m_maxModuleServicesBaseToRingCenter is calculated in makeModuleServices()
+  // We have to at least include 1*m_safety as the moduleservices envelope is increased by this amount.
+  // m_maxModuleServicesBaseToRingCenter is calculated in makeModuleServices()
     
   m_thickness = m_thicknessOuter + m_thicknessInner;
 
@@ -240,12 +240,12 @@ SCT_FwdRing::build(SCT_Identifier id) const
     }
 
     //std::cout << "Endcap# = " <<id.getBarrelEC() 
-    //	      << ", idModule = " << idModule 
-    // 	      << ", idModuleSimulation = " <<  idModuleSimulation 
-    //	      << ", idModule2 = " << (idModuleSimulation & 0xffff)
-    //	      << ", max    = " << ((idModuleSimulation & 0x00ff0000) >> 16)
-    //	      << ", moduleZero = " << ((idModuleSimulation & 0xff000000) >> 24)
-    //	      << std::endl;
+    //       << ", idModule = " << idModule 
+    //        << ", idModuleSimulation = " <<  idModuleSimulation 
+    //       << ", idModule2 = " << (idModuleSimulation & 0xffff)
+    //       << ", max    = " << ((idModuleSimulation & 0x00ff0000) >> 16)
+    //       << ", moduleZero = " << ((idModuleSimulation & 0xff000000) >> 24)
+    //       << std::endl;
 
     
     // The module is a TRD with length along z-axis. 
@@ -262,9 +262,9 @@ SCT_FwdRing::build(SCT_Identifier id) const
     double phi = i * deltaPhi + m_startAngle;
 
     //std::cout << "Endcap# = " <<id.getBarrelEC() 
-    //	      << ", idModule = " << idModule 
-    //	      << ", i = " << i 
-    //	      << ", phi = " << phi/CLHEP::degree << std::endl;
+    //       << ", idModule = " << idModule 
+    //       << ", i = " << i 
+    //       << ", phi = " << phi/CLHEP::degree << std::endl;
 
     CLHEP::HepRotation rot;
     rot.rotateY(90*CLHEP::degree);    
@@ -322,8 +322,8 @@ SCT_FwdRing::build(SCT_Identifier id) const
 
 
 
-  // These are offset in z by m_moduleStagger and one is rotated relative to the other by the
-  // 360/m_numModules.
+// These are offset in z by m_moduleStagger and one is rotated relative to the other by the
+// 360/m_numModules.
 
 
 
@@ -377,11 +377,11 @@ SCT_FwdRing::makeModuleServices()
   
   SCT_MaterialManager materials;
   const GeoBox * moduleServicesHiShape = new GeoBox(0.5*moduleServicesHiLength    + m_safety,  
-						    0.5*moduleServicesHiWidth     + m_safety, 
-						    0.5*moduleServicesHiThickness + m_safety);
+                                                    0.5*moduleServicesHiWidth     + m_safety, 
+                                                    0.5*moduleServicesHiThickness + m_safety);
   const GeoBox * moduleServicesLoShape = new GeoBox(0.5*moduleServicesLoLength    + m_safety,
-						    0.5*moduleServicesLoWidth     + m_safety, 
-						    0.5*moduleServicesLoThickness + m_safety);
+                                                    0.5*moduleServicesLoWidth     + m_safety, 
+                                                    0.5*moduleServicesLoThickness + m_safety);
   const GeoLogVol *  moduleServicesHiLog = new GeoLogVol("ModuleServicesHi", moduleServicesHiShape,  materials.gasMaterial());
   const GeoLogVol *  moduleServicesLoLog = new GeoLogVol("ModuleServicesLo", moduleServicesLoShape,  materials.gasMaterial());
     

@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // CaloCondPhysAlgs includes
-#include "CaloCondPhysAlgs/CaloCellCalcEnergyCorr.h"
+#include "CaloCellCalcEnergyCorr.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -46,9 +46,10 @@
 CaloCellCalcEnergyCorr::CaloCellCalcEnergyCorr( const std::string& name, 
 						ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),
-  m_larem_id(0),
-  m_larhec_id(0),
-  m_larfcal_id(0)
+  m_calodetdescrmgr(nullptr),
+  m_larem_id(nullptr),
+  m_larhec_id(nullptr),
+  m_larfcal_id(nullptr)
 {
   declareProperty("Folder",m_folder="/LAR/CellCorrOfl/EnergyCorr");
   std::vector<int> ivec; ivec.push_back(-1);
@@ -79,13 +80,13 @@ StatusCode CaloCellCalcEnergyCorr::initialize()
 
 // retrieve LArEM id helpers
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
 
-  m_larem_id   = m_caloIdMgr->getEM_ID();
-  m_larhec_id   = m_caloIdMgr->getHEC_ID();
-  m_larfcal_id   = m_caloIdMgr->getFCAL_ID();
+  m_larem_id   = mgr->getEM_ID();
+  m_larhec_id  = mgr->getHEC_ID();
+  m_larfcal_id = mgr->getFCAL_ID();
 
-//  retrieve CaloDetDescrMgr 
   ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
   return StatusCode::SUCCESS;

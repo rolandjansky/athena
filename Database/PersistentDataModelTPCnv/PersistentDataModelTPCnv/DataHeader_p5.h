@@ -30,12 +30,11 @@ friend class DataHeaderCnv_p5;
 friend class DataHeaderElementCnv_p5;
 
    const std::string& token() const;
-   unsigned int oid2() const;
-   void overwriteOid2(unsigned int oid2);
+   long long int oid2() const;
 
 private:
    std::string m_token;
-   unsigned int m_oid2;
+   long long int m_oid2;
 };
 
 /** @class DataHeaderForm_p5

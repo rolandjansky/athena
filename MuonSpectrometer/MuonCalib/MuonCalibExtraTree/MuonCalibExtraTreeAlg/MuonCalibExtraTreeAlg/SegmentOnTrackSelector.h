@@ -13,11 +13,8 @@
 #include <vector>
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCalibExtraTreeAlg/ISegmentOnTrackSelector.h"
-
-namespace Muon {
-  class MuonEDMHelperTool;
-  class MuonIdHelperTool;
-}
+#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 namespace Trk {
   class Track;

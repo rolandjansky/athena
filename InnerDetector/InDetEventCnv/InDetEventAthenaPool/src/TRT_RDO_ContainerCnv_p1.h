@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -19,6 +20,7 @@ class TRT_RDO_ContainerCnv_p1  : public T_AthenaPoolTPCnvBase<TRT_RDO_Container,
   const TRT_ID *m_trtId;
   StoreGateSvc *m_storeGate;
 public:
+	TRT_RDO_ContainerCnv_p1() : m_trtId(nullptr), m_storeGate(nullptr) {}
   virtual void   persToTrans(const TRT_RDO_Container_p1* persObj, TRT_RDO_Container* transObj, MsgStream &log) ;
   virtual void   transToPers(const TRT_RDO_Container* transObj, TRT_RDO_Container_p1* persObj, MsgStream &log) ;
   virtual TRT_RDO_Container* createTransient(const TRT_RDO_Container_p1* persObj, MsgStream& log) ;

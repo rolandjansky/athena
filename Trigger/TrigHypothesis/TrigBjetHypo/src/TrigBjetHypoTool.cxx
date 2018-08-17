@@ -23,53 +23,35 @@ TrigBjetHypoTool::TrigBjetHypoTool( const std::string& type,
 		    const std::string& name, 
 		    const IInterface* parent ) :
   AthAlgTool( type, name, parent ),
-  m_id( name ),
-  m_monTool( "GenericMonitoringTool/MOnTool", this )
-{
-  declareProperty ("AcceptAll", m_acceptAll         );
-  //  declareProperty ("JetKey",    m_jetKey     = ""   ); //"EFJet" or "" needed for default config, "SplitJet" for new config - not sure if needed, with some changes new configuration may be established
-  declareProperty ("CutMV2c20", m_xcutMV2c20 = -20  );
-  declareProperty ("CutMV2c10", m_xcutMV2c10 = -20  );
-  declareProperty ("MethodTag", m_methodTag  = ""   );
-  declareProperty ("Instance",  m_instance          );
-
-  declareProperty ("UseBeamSpotFlag", m_useBeamSpotFlag = false);
-  declareProperty ("OverrideBeamSpotValid", m_overRideBeamSpotValid = false);
-
-  declareProperty( "MonTool", m_monTool=ToolHandle<GenericMonitoringTool>( "", this ) );
-
-
-}
-
+  m_id( name ) {}
 
 // -----------------------------------------------------------------------------------------------------------------
 
-
 TrigBjetHypoTool::~TrigBjetHypoTool() {}
-
 
 // -----------------------------------------------------------------------------------------------------------------
 
 StatusCode TrigBjetHypoTool::initialize()  {
 
-  // Get message service 
- 
-  ATH_MSG_INFO("Initializing TrigBjetHypoTool");
+  // Get message service  
 
+  ATH_MSG_INFO("Initializing TrigBjetHypoTool");
  
   ATH_MSG_DEBUG(  "declareProperty review:"  );
   ATH_MSG_DEBUG(  " AcceptAll = "   <<     m_acceptAll        ); 
   ATH_MSG_DEBUG(  " MethodTag = "   <<     m_methodTag        ); 
-  ATH_MSG_DEBUG(  " Instance = "    <<     m_instance         ); 
   ATH_MSG_DEBUG(  " UseBeamSpotFlag = " <<  m_useBeamSpotFlag  ); 
-  //  ATH_MSG_DEBUG(  " JetKey = "     <<      m_jetKey           ); 
 
   if (m_xcutMV2c20 != -20) ATH_MSG_DEBUG( " CutMV2c20 = " <<  m_xcutMV2c20  ); 
   if (m_xcutMV2c10 != -20) ATH_MSG_DEBUG( " CutMV2c10 = " <<  m_xcutMV2c10  ); 
  
+  // Retrieve Tools
+  // =====================================
+  if ( retrieveTool( "Monitoring Tool",m_monTool ).isFailure() ) return StatusCode::FAILURE;
+  // =====================================
+
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_id  );
   return StatusCode::SUCCESS;
-
 }
 
 
@@ -82,10 +64,9 @@ bool TrigBjetHypoTool::decide(  const xAOD::BTagging* bTag, const TrigRoiDescrip
 
   ATH_MSG_DEBUG(  "Executing TrigBjetHypoTool"  );
 
-  using namespace Monitored;
   // initialise monitoring variables 
-  auto PassedCuts   = MonitoredScalar::declare<int>( "CutCounter", -1 );
-  auto monitorIt = MonitoredScope::declare( m_monTool, PassedCuts );
+  Monitored::MonitoredScalar::MonitoredScalar< int > PassedCuts = Monitored::MonitoredScalar::declare<int>( "CutCounter", -1 );
+  Monitored::MonitoredScope monitorIt  = Monitored::MonitoredScope::declare( m_monTool, PassedCuts );
   // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
@@ -134,7 +115,7 @@ bool TrigBjetHypoTool::decide(  const xAOD::BTagging* bTag, const TrigRoiDescrip
   bool result = false;
 
 
-  // Need to check if Btagging is retereived
+  // Need to check if Btagging is retreived
 
   // to separate bad input TE and true behaviour 
   PassedCuts=1;
@@ -229,3 +210,19 @@ StatusCode TrigBjetHypoTool::finalize()  {
   return StatusCode::SUCCESS;
 }
 
+template<typename T>
+StatusCode TrigBjetHypoTool::retrieveTool( const std::string& toolName,PublicToolHandle< T >& tool) {
+  ATH_MSG_DEBUG( "Retrieving " << toolName );
+  if ( tool.name().empty() ) {
+    ATH_MSG_WARNING( "No " << toolName << " to initialize." );
+    return StatusCode::SUCCESS;
+  }
+  
+  if ( tool.retrieve().isFailure() ) {
+    ATH_MSG_ERROR( "Failed to Retrieve " << toolName );
+    return StatusCode::FAILURE;
+  } else
+    ATH_MSG_DEBUG( "Retrieved "<< toolName );
+  
+  return StatusCode::SUCCESS;
+}

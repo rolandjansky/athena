@@ -19,6 +19,10 @@ log = logging.getLogger("InDetTrigConfigRecLoadTools.py")
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
+# SiLorentzAngleTool for SCT
+if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 #
 # common ClusterMakerTool
@@ -31,6 +35,7 @@ InDetTrigClusterMakerTool = \
                              PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                              #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
                              #UseLorentzAngleCorrections = False
+                             SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigClusterMakerTool
@@ -60,12 +65,17 @@ ToolSvc +=  SCT_TrigSpacePointTool
 #
 
 if InDetTrigFlags.loadRotCreator():
+  # SiLorentzAngleTool
+  if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
   #4 clusterOnTrack Tools
   #
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
   SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("SCT_ClusterOnTrackTool",
                                                           CorrectionStrategy = 0,  # do correct position bias
-                                                          ErrorStrategy      = 2)  # do use phi dependent errors
+                                                          ErrorStrategy      = 2,  # do use phi dependent errors
+                                                          LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
   ToolSvc += SCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print SCT_ClusterOnTrackTool
@@ -87,7 +97,8 @@ if InDetTrigFlags.loadRotCreator():
   InDetTrigBroadSCT_ClusterOnTrackTool = \
       InDet__SCT_ClusterOnTrackTool ("InDetTrigBroadSCT_ClusterOnTrackTool",
                                      CorrectionStrategy = 0,  # do correct position bias
-                                     ErrorStrategy      = 0)  # do use broad errors
+                                     ErrorStrategy      = 0,  # do use broad errors
+                                     LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
   ToolSvc += InDetTrigBroadSCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigBroadSCT_ClusterOnTrackTool
@@ -133,20 +144,20 @@ if InDetTrigFlags.loadRotCreator():
 
 
   # load error scaling
-  from IOVDbSvc.CondDB import conddb
-  if not (conddb.folderRequested( "/Indet/TrkErrorScaling" ) or \
-            conddb.folderRequested( "/Indet/Onl/TrkErrorScaling" )):
-    conddb.addFolderSplitOnline("INDET", "/Indet/Onl/TrkErrorScaling", "/Indet/TrkErrorScaling" )
+  from InDetRecExample.TrackingCommon import createAndAddCondAlg, getRIO_OnTrackErrorScalingCondAlg
+  createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
 
   #
   # smart ROT creator in case we do the TRT LR in the refit
   #
   if InDetTrigFlags.redoTRT_LR():
 
+    from InDetRecExample.TrackingCommon import getTRT_DriftCircleOnTrackTool
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import \
         InDet__TRT_DriftCircleOnTrackUniversalTool
     InDetTrigTRT_RefitRotCreator = \
         InDet__TRT_DriftCircleOnTrackUniversalTool(name  = 'InDetTrigTRT_RefitRotCreator',
+                                                   RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
                                                    ScaleHitUncertainty = 2.5) # fix from Thijs
 #    if InDetTrigFlags.doCommissioning():    #introduced for cosmics do not use for collisions
 #      InDetTrigTRT_RefitRotCreator.ScaleHitUncertainty = 5.
@@ -578,18 +589,18 @@ if InDetTrigFlags.loadFitter():
 
 
 if DetFlags.haveRIO.pixel_on():
-  from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+  from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
   InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
 else:
   InDetTrigPixelConditionsSummaryTool = None
 
 if DetFlags.haveRIO.SCT_on():
-  from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-  InDetTrigSCTConditionsSummarySvc = SCT_ConditionsSummarySvc(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummarySvc'))
+  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+  InDetTrigSCTConditionsSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
 else:
-  InDetTrigSCTConditionsSummarySvc = None
+  InDetTrigSCTConditionsSummaryTool = None
 
 #
 # ------load association tool from Inner Detector to handle pixel ganged ambiguities
@@ -631,7 +642,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                             usePixel      = DetFlags.haveRIO.pixel_on(),
                                                             useSCT        = DetFlags.haveRIO.SCT_on(),
                                                             PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                            SctSummarySvc = InDetTrigSCTConditionsSummarySvc,
+                                                            SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
                                                             PixelLayerTool=InDetTrigTestPixelLayerTool,
                                                             )
                                                             #Commissioning = InDetTrigFlags.doCommissioning()) #renamed
@@ -863,7 +874,18 @@ if InDetTrigFlags.doNewTracking():
                                                                    RoadWidth    = InDetTrigCutValues.RoadWidth()
                                                                    )
   ToolSvc += InDetTrigSiDetElementsRoadMaker
-
+  # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
+  if DetFlags.haveRIO.SCT_on():
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
+      IBLDistFolderKey = "/Indet/IBLDist"
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      if athenaCommonFlags.isOnline():
+        IBLDistFolderKey = "/Indet/Onl/IBLDist"
+      from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
+      condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
+                                                    IBLDistFolderKey = IBLDistFolderKey)
 
   # Local combinatorial track finding using space point seed and detector element road
   #
@@ -879,9 +901,16 @@ if InDetTrigFlags.doNewTracking():
                                                                  PixelClusterContainer = 'PixelTrigClusters',
                                                                  SCT_ClusterContainer = 'SCT_TrigClusters',
                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                                 SctSummarySvc = InDetTrigSCTConditionsSummarySvc
+                                                                 SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
   ToolSvc += InDetTrigSiComTrackFinder
+  if DetFlags.haveRIO.SCT_on():
+    # Condition algorithm for SiCombinatorialTrackFinder_xk
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+      from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
   #to here
 
 #move 

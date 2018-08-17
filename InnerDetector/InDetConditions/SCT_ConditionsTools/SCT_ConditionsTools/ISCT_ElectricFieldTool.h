@@ -32,7 +32,7 @@ class ISCT_ElectricFieldTool: virtual public IAlgTool
                                   double fluence,
                                   double depletionVoltage,
                                   double sensorThickness,
-                                  double biasVoltage)=0;
+                                  double biasVoltage) const =0;
   
 };
 

@@ -5,7 +5,7 @@
 #ifndef L1CALOENERGYSCANRESULTSCONTAINER_H
 #define L1CALOENERGYSCANRESULTSCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "GaudiKernel/DataObject.h"
 

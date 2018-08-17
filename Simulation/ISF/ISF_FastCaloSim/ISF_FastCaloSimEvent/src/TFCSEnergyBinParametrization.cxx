@@ -99,24 +99,27 @@ void TFCSEnergyBinParametrization::Print(Option_t *option) const
   }  
 }
 
-void TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSEnergyBinParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* /*extrapol*/)
 {
   int pdgid=truth->pdgid();
   if(!is_match_pdgid(pdgid)) {
     ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate pdgid="<<pdgid);
-    return;
+    return FCSFatal;
   }
   float searchRand=gRandom->Rndm();
   int chosenBin=TMath::BinarySearch(n_bins()+1, m_pdgid_Ebin_probability[pdgid].data(), searchRand)+1;
   if(chosenBin<1 || chosenBin>n_bins()) {
     ATH_MSG_ERROR("TFCSEnergyBinParametrization::simulate(): cannot simulate bin="<<chosenBin);
+    ATH_MSG_ERROR("  This error could probably be retried.");
     if(msgLvl(MSG::ERROR)) {
       ATH_MSG(ERROR)<<"in "<<GetName()<<": E="<<simulstate.E()<<" Ebin="<<chosenBin<<" rnd="<<searchRand<<" array=";
       for(int iEbin=0;iEbin<=n_bins();++iEbin) msg()<<m_pdgid_Ebin_probability[pdgid][iEbin]<<" ";
       msg()<<std::endl;
     }  
-    return;
+    return FCSFatal;
   }
   simulstate.set_Ebin(chosenBin);
   ATH_MSG_DEBUG("Ebin="<<chosenBin);
+
+  return FCSSuccess;
 }

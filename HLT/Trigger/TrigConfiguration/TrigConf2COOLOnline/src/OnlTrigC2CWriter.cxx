@@ -92,12 +92,12 @@ using namespace TrigConf;
 
 OnlTrigC2CWriter::OnlTrigC2CWriter(const std::string & partitionName, const std::string& cooldb, const std::string& triggerdb, bool l1is, bool l1cool, bool mckcool ) :
    Controllable()
-   , fConf2Cool( new TrigConfCoolWriter(cooldb) )
-   , fTriggerDB(triggerdb)
-   , fInfoRec(0)
-   , fIPCPartition(0)
-   , fHLTFrame(0)
-   , fCTPConfig(0)
+   , m_conf2Cool( new TrigConfCoolWriter(cooldb) )
+   , m_triggerDB(triggerdb)
+   , m_infoRec(0)
+   , m_IPCPartition(0)
+   , m_HLTFrame(0)
+   , m_CTPConfig(0)
 {
     conf().CoolDb()        = cooldb;
     conf().L1toIS()        = l1is;
@@ -105,15 +105,15 @@ OnlTrigC2CWriter::OnlTrigC2CWriter(const std::string & partitionName, const std:
     conf().PartitionName() = partitionName;
     conf().MCKtoCOOL()     = mckcool;
 
-    fIPCPartition = new IPCPartition( conf().PartitionName() );
+    m_IPCPartition = new IPCPartition( conf().PartitionName() );
 }
 
 TrigConf::OnlTrigC2CWriter::~OnlTrigC2CWriter() noexcept {
-   delete fIPCPartition;
-   delete fHLTFrame;
-   delete fCTPConfig;
-   delete fConf2Cool;
-   delete fInfoRec;
+   delete m_IPCPartition;
+   delete m_HLTFrame;
+   delete m_CTPConfig;
+   delete m_conf2Cool;
+   delete m_infoRec;
 }
 
 
@@ -202,10 +202,10 @@ TrigConf::OnlTrigC2CWriter::subscribeToIS() {
 
     ERS_INFO("subscribing to IS (RunParams).");
 
-    if(!fInfoRec) fInfoRec = new ISInfoReceiver(*fIPCPartition);
+    if(!m_infoRec) m_infoRec = new ISInfoReceiver(*m_IPCPartition);
 
     try {
-        fInfoRec->subscribe("RunParams.SOR_RunParams", &OnlTrigC2CWriter::runNumberCallback, this);
+        m_infoRec->subscribe("RunParams.SOR_RunParams", &OnlTrigC2CWriter::runNumberCallback, this);
     }
     catch (const daq::is::Exception & ex ) {
         ers::fatal(ex);
@@ -220,7 +220,7 @@ TrigConf::OnlTrigC2CWriter::readRunNumberFromIS() {
 
     ERS_INFO("readRunNumberFromIS entered");
 
-    RunParamsNamed rp(*fIPCPartition,"RunParams.SOR_RunParams");
+    RunParamsNamed rp(*m_IPCPartition,"RunParams.SOR_RunParams");
 
     rp.checkout();
 
@@ -249,19 +249,19 @@ void
 TrigConf::OnlTrigC2CWriter::publishToIS() {
     ERS_INFO("Publish to IS");
 
-    TrigConfSmKeyNamed sm(*fIPCPartition,"RunParams.TrigConfSmKey");
+    TrigConfSmKeyNamed sm(*m_IPCPartition,"RunParams.TrigConfSmKey");
     sm.SuperMasterKey     = conf().DBSMK();
     sm.SuperMasterComment = conf().DBSMcomment();
 
-    TrigConfL1PsKeyNamed l1ps(*fIPCPartition,"RunParams.TrigConfL1PsKey");
+    TrigConfL1PsKeyNamed l1ps(*m_IPCPartition,"RunParams.TrigConfL1PsKey");
     l1ps.L1PrescaleKey     = conf().DBL1PSK();
     l1ps.L1PrescaleComment = conf().DBL1PScomment();
 
-    TrigConfHltPsKeyNamed hltps(*fIPCPartition,"RunParams.TrigConfHltPsKey");
+    TrigConfHltPsKeyNamed hltps(*m_IPCPartition,"RunParams.TrigConfHltPsKey");
     hltps.HltPrescaleKey     = conf().DBHLTPSK();
     hltps.HltPrescaleComment = conf().DBHLTPScomment();
 
-    TrigConfReleaseNamed rel(*fIPCPartition,"RunParams.TrigConfRelease");
+    TrigConfReleaseNamed rel(*m_IPCPartition,"RunParams.TrigConfRelease");
     rel.HLTReleaseVersion = getenv("AtlasVersion")?getenv("AtlasVersion"):"Unknown Version";
 
     if(getenv("AtlasProject")) {
@@ -310,14 +310,14 @@ TrigConf::OnlTrigC2CWriter::readTriggerDb() {
     m_forceTriggerDBReadAtPrepareForRun = false;
 
     // clear the menu
-    delete fHLTFrame; fHLTFrame = 0;
+    delete m_HLTFrame; m_HLTFrame = 0;
 
 
     // get the TriggerDB connection
     std::string conn, user, pw;
     conf().TriggerDbConnectionParams(conn,user,pw);
-    if(fTriggerDB!="") {
-        conn = fTriggerDB;
+    if(m_triggerDB!="") {
+        conn = m_triggerDB;
     }
     cout << "Using triggerdb connection : " << conn << endl;
     //    cout << "user : " << user << endl;
@@ -331,22 +331,22 @@ TrigConf::OnlTrigC2CWriter::readTriggerDb() {
 
     if(conf().DBSMK()!=0 && conf().DBHLTPSK()!=0) {
 
-        fHLTFrame = new HLTFrame();
+        m_HLTFrame = new HLTFrame();
 
         ERS_INFO("Reading HLT menu from the TriggerDB with SMK " << conf().DBSMK() << " and HLT PSK " << conf().DBHLTPSK() << ".");
 
-        fHLTFrame->setSMK(conf().DBSMK());
-        fHLTFrame->thePrescaleSetCollection().set_prescale_key_to_load( conf().DBHLTPSK() );
+        m_HLTFrame->setSMK(conf().DBSMK());
+        m_HLTFrame->thePrescaleSetCollection().set_prescale_key_to_load( conf().DBHLTPSK() );
         try {
-            sm->hltFrameLoader().load( *fHLTFrame );
+            sm->hltFrameLoader().load( *m_HLTFrame );
         }
         catch(const std::exception & e) {
             TrigConf::TriggerDBReadError issue(ERS_HERE, e.what());
             ers::fatal(issue);
         }
-        //fHLTPrescaleSet->fillFromFrame(fHLTFrame);
-        conf().DBSMcomment() = fHLTFrame->name();
-        conf().DBHLTPScomment() = fHLTFrame->getPrescaleSetCollection().prescaleSet()->name();
+        //fHLTPrescaleSet->fillFromFrame(m_HLTFrame);
+        conf().DBSMcomment() = m_HLTFrame->name();
+        conf().DBHLTPScomment() = m_HLTFrame->getPrescaleSetCollection().prescaleSet()->name();
 
         ERS_INFO("Done reading HLT menu");
 
@@ -393,12 +393,12 @@ TrigConf::OnlTrigC2CWriter::readTriggerDb() {
 
             // write also the L1 stuff to COOL (key+menu+prescales)
             // should only happen in rare circumstances
-            delete fCTPConfig;
-            fCTPConfig = new CTPConfig();
+            delete m_CTPConfig;
+            m_CTPConfig = new CTPConfig();
 
-            fCTPConfig->setSuperMasterTableId(conf().DBSMK());
+            m_CTPConfig->setSuperMasterTableId(conf().DBSMK());
             try {
-                sm->masterTableLoader().load(*fCTPConfig);
+                sm->masterTableLoader().load(*m_CTPConfig);
             }
             catch(std::exception e) {
                 TrigConf::TriggerDBReadError issue(ERS_HERE, e.what());
@@ -418,7 +418,7 @@ TrigConf::OnlTrigC2CWriter::readTriggerDb() {
             }
             ERS_INFO("LVL1 prescales read");
 
-            fCTPConfig->setPrescaleSet( l1pss );
+            m_CTPConfig->setPrescaleSet( l1pss );
 
         }
     } else {
@@ -447,7 +447,7 @@ TrigConf::OnlTrigC2CWriter::connect(const daq::rc::TransitionCmd& cmd) {
     // first thing to do is to check the connection to COOL. We quickly open and close.
     ERS_INFO("Checking COOL DB connection.");
     try {
-        fConf2Cool->checkDbConnection(false);
+        m_conf2Cool->checkDbConnection(false);
     }
     catch(cool::Exception& e) {
         TrigConf::BadCoolDB issue(ERS_HERE, e.what());
@@ -499,30 +499,30 @@ TrigConf::OnlTrigC2CWriter::prepareForRun(const daq::rc::TransitionCmd& cmd) {
     // write the payload
     std::cout << "Configuration source: " << configurationSource << std::endl;
     std::cout << "=====================================================" << std::endl;
-    std::cout << fCTPConfig << std::endl;
-    if(fCTPConfig)
-        std::cout << *fCTPConfig << std::endl;
+    std::cout << m_CTPConfig << std::endl;
+    if(m_CTPConfig)
+        std::cout << *m_CTPConfig << std::endl;
     std::cout << "=====================================================" << std::endl;
-    std::cout << fHLTFrame << std::endl;
-    if(fHLTFrame)
-        std::cout << *fHLTFrame << std::endl;
+    std::cout << m_HLTFrame << std::endl;
+    if(m_HLTFrame)
+        std::cout << *m_HLTFrame << std::endl;
     std::cout << "=====================================================" << std::endl;
 
 
-    if(fHLTFrame) {
-        if(0!=fHLTFrame && 0!=fCTPConfig) {
-            fConf2Cool->writeRunPayload(conf().CurrentRunNumber(),
+    if(m_HLTFrame) {
+        if(0!=m_HLTFrame && 0!=m_CTPConfig) {
+            m_conf2Cool->writeRunPayload(conf().CurrentRunNumber(),
                                         (unsigned int) conf().DBSMK(),
                                         (unsigned int) conf().DBHLTPSK(), // if 0 then no menu will be saved
                                         thrcfg,  // ignored
-                                        *fCTPConfig,
+                                        *m_CTPConfig,
                                         ci, // ignored
-                                        *fHLTFrame,
+                                        *m_HLTFrame,
                                         configurationSource);
-        } else if (0!=fHLTFrame && 0==fCTPConfig) {
-            fConf2Cool->writeHLTPayload( ValidityRange( conf().CurrentRunNumber() ), *fHLTFrame, configurationSource);
-            ERS_INFO("Prescale Set ptr = " << (void*)fHLTFrame->getPrescaleSetCollection().prescaleSet());
-            fConf2Cool->writeHltPrescalePayload( conf().CurrentRunNumber(), 1, *fHLTFrame->getPrescaleSetCollection().prescaleSet());
+        } else if (0!=m_HLTFrame && 0==m_CTPConfig) {
+            m_conf2Cool->writeHLTPayload( ValidityRange( conf().CurrentRunNumber() ), *m_HLTFrame, configurationSource);
+            ERS_INFO("Prescale Set ptr = " << (void*)m_HLTFrame->getPrescaleSetCollection().prescaleSet());
+            m_conf2Cool->writeHltPrescalePayload( conf().CurrentRunNumber(), 1, *m_HLTFrame->getPrescaleSetCollection().prescaleSet());
         }
     } else {
         ERS_INFO("Menu will not be written to COOL, since it was not read from the TriggerDB");
@@ -530,7 +530,7 @@ TrigConf::OnlTrigC2CWriter::prepareForRun(const daq::rc::TransitionCmd& cmd) {
 
     if(conf().MCKtoCOOL()) {
         if (conf().DBMCK() != 0){
-            fConf2Cool->writeMCKPayload( conf().CurrentRunNumber(), conf().DBMCK(), conf().DBMCKrelease(), conf().DBMCKinfo());
+            m_conf2Cool->writeMCKPayload( conf().CurrentRunNumber(), conf().DBMCK(), conf().DBMCKrelease(), conf().DBMCKinfo());
             ERS_INFO("Done writing MCK " << conf().DBMCK() << " for release " << conf().DBMCKrelease() << " to COOL.");
         } else {
             ERS_INFO("MCK not written to COOL since it is 0");
@@ -545,11 +545,11 @@ TrigConf::OnlTrigC2CWriter::unconfigure(const daq::rc::TransitionCmd& cmd) {
 
     // unsubscribe from IS
     try {
-        fInfoRec->unsubscribe(".*");
+        m_infoRec->unsubscribe(".*");
     }
     catch(ers::Issue & e) {
     }
-    delete fInfoRec; fInfoRec = 0;
+    delete m_infoRec; m_infoRec = 0;
 }
 
 
@@ -561,7 +561,7 @@ TrigConf::OnlTrigC2CWriter::writeHLTPrescaleSetToCool(unsigned int lb, unsigned 
 
     if(!conf().UseTriggerDB()) return;
 
-    if(!fHLTFrame) {
+    if(!m_HLTFrame) {
         ERS_INFO("Running without the HLT, can not write HLT prescales to COOL");
         return;
     }
@@ -580,9 +580,9 @@ TrigConf::OnlTrigC2CWriter::writeHLTPrescaleSetToCool(unsigned int lb, unsigned 
 
     ERS_INFO("writeHLTPrescaleSetToCool: HLT psk " << pskey << ", name " << name << " for Run " << conf().CurrentRunNumber() << " and LB " << lb);
 
-    fHLTFrame->thePrescaleSetCollection().addPrescaleSet( lb, hltPrescaleSet );
+    m_HLTFrame->thePrescaleSetCollection().addPrescaleSet( lb, hltPrescaleSet );
 
-    fConf2Cool->writeHltPrescalePayload( conf().CurrentRunNumber(), lb, *hltPrescaleSet );
+    m_conf2Cool->writeHltPrescalePayload( conf().CurrentRunNumber(), lb, *hltPrescaleSet );
 }
 
 
@@ -647,7 +647,7 @@ TrigConf::OnlTrigC2CWriter::user(const daq::rc::UserCmd& usrCmd) {
 
 
         // publish to IS RunParams
-        TrigConfHltPsKeyNamed hltps(*fIPCPartition,"RunParams.TrigConfHltPsKey");
+        TrigConfHltPsKeyNamed hltps(*m_IPCPartition,"RunParams.TrigConfHltPsKey");
         hltps.HltPrescaleKey = pskey;
         hltps.HltPrescaleComment = pssname;
 

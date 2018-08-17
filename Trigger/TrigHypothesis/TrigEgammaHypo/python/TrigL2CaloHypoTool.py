@@ -132,11 +132,12 @@ def decodeThreshold( threshold ):
     # inclusive, return as 1 element list
     return [ threshold[1:] ] 
 
-def TrigL2CaloHypoToolFromName( name ):
+
+def TrigL2CaloHypoToolFromName( name, conf ):
     from AthenaCommon.Constants import DEBUG
-    """ decode the name ( chain ) and figure out the threshold and selection from it """
+    """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
     #print "Configuring ", name
-    bname = name.split('_')
+    bname = conf.split('_')
     threshold = bname[1]
     sel = bname[2]
 
@@ -159,33 +160,33 @@ def TrigL2CaloHypoToolFromName( name ):
 if __name__ == "__main__":    
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
-    t = TrigL2CaloHypoToolFromName( "HLT_e10_nocut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_e10_nocut_mu6", "HLT_e10_nocut" )
     assert t, "cant configure NoCut"    
     #print t
 
-    t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut_mu6","HLT_e10_etcut" )
     assert t, "cant configure EtCut"
     #print t
 
-    t  = TrigL2CaloHypoToolFromName( "HLT_e10_tight" )
+    t  = TrigL2CaloHypoToolFromName( "HLT_e10_tight_mu6", "HLT_e10_tight" )
     assert t, "cant configure rel selection - tight"
     #print t    
 
-    t  = TrigL2CaloHypoToolFromName( "HLT_e10_perf" )
+    t  = TrigL2CaloHypoToolFromName( "HLT_e10_perf_mu6", "HLT_e10_perf" )
     assert t, "cant configure rel selection - perf"
     #print t    
 
-    t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut_mu6", "HLT_2e5_etcut" )
     assert t, "cant configure symmetric selection"
     assert len(t.SubTools) == 2, "Sub-tools not configured"
     #print t    
 
-    t = TrigL2CaloHypoToolFromName( "HLT_3e5_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_3e5_etcut_mu6", "HLT_3e5_etcut" )
     assert t, "cant configure symmetric selection"
     assert len(t.SubTools) == 3, "Sub-tools not configured"
 
 
-    t = TrigL2CaloHypoToolFromName( "HLT_e5e3_etcut" )
+    t = TrigL2CaloHypoToolFromName( "HLT_e5e3_etcut_mu6",  "HLT_e5e3_etcut" )
     assert t, "cant configure asymmetric selection"
     assert len(t.SubTools) == 2, "Sub-tools not configured"
     #print t    

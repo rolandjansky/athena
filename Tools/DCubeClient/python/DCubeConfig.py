@@ -539,7 +539,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
                 else:
                     self.warn("dimension > 2 for histogram '%s', skipping" % fp)
 
-            elif ( isa.InheritsFrom("TGraph") ):
+            elif ( isa.InheritsFrom("TGraph") or isa.InheritsFrom("TEfficiency") ):
 
                 self.debug( nbsp + " --> found object '%s' at location '%s' of name '%s'" % ( cl, path, name) )
 

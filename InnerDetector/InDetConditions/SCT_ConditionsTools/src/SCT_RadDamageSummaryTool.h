@@ -10,10 +10,7 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ChargeTrappingTool.h"
-#include "CLHEP/Vector/ThreeVector.h"
 
 class IdentifierHash;
 
@@ -35,24 +32,12 @@ class SCT_RadDamageSummaryTool: public extends<AthAlgTool, ISCT_RadDamageSummary
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
  
-  // virtual double RamoPotential(const IdentifierHash & elementHash, const Hep3Vector & pos);
-  virtual double ChargeTrappingProbability(const IdentifierHash & elementHash, const double & zpos) const override;
-  virtual double TrappingConstant(const IdentifierHash & elementHash, const double & zpos) const override;
-  virtual double ElectricField(const IdentifierHash & elementHash, const double & zpos) const override;
-  virtual double TrappingTime(const IdentifierHash & elementHash, const double & zpos) const override;
-  virtual double TimeToElectrode(const IdentifierHash & elementHash, const double & zpos) const override;
-  virtual double TrappingPositionZ(const IdentifierHash & elementHash, const double & zpos) const override;
-  virtual double HoleDriftMobility(const IdentifierHash & elementHash, const double & zpos) const override; 
-  virtual bool doCTrap(const IdentifierHash & elementHash,  const double & zpos) const override;
-  virtual void HoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 ) const override;
-  virtual void InitPotentialValue() const override;
+  virtual void initPotentialValue() override;
+  virtual void holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const override;
+  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, const double& zpos) const override;
 
  private:
   ToolHandle<ISCT_ChargeTrappingTool> m_chargeTrappingTool{this, "ChargeTrappingTool", "SCT_ChargeTrappingTool", "Tool to retrieve charge trapping properties"};
-  
-  bool m_useTrapping;
-  mutable bool m_doCTrap;
-
 };
 
 #endif // SCT_RADDAMAGESUMMARYTOOL_H

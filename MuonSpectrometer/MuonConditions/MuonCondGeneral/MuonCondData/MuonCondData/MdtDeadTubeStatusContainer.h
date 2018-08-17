@@ -5,8 +5,8 @@
 #ifndef MUONCONDDATA_MDTDEADTUBESTATUSCONTAINER_H
 #define MUONCONDDATA_MDTDEADTUBESTATUSCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "MuonCondData/MdtDeadTubeStatus.h"
 class MdtDeadTubeStatusContainer : public DataVector<MdtDeadTubeStatus>
 {

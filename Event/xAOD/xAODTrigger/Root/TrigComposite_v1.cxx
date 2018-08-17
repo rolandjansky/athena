@@ -16,13 +16,28 @@
 
 namespace xAOD {
 
-   TrigComposite_v1::TrigComposite_v1() {
+  const std::string TrigComposite_v1::s_collectionSuffix = "__COLL";
 
-   }
+  TrigComposite_v1::TrigComposite_v1() {
+  }
+
+  TrigComposite_v1::TrigComposite_v1( const TrigComposite_v1& parent ) : SG::AuxElement() {
+    this->makePrivateStore( parent );
+  }
+
+  TrigComposite_v1& TrigComposite_v1::operator=( const TrigComposite_v1& rhs ) {
+    if(this == &rhs) return *this;
+    if( ( ! hasStore() ) && ( ! container() ) ) this->makePrivateStore();
+
+    // Copy the auxiliary variables:
+    SG::AuxElement::operator=( rhs );
+
+    // Return this object:
+    return *this;
+  }
 
    AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigComposite_v1, std::string,
                                       name, setName )
-
 
    template<>     
    bool TrigComposite_v1::hasDetail<unsigned int>( const std::string& name ) const {
@@ -33,8 +48,6 @@ namespace xAOD {
    bool TrigComposite_v1::hasDetail<std::vector<unsigned int>>( const std::string& name ) const {
      return hasDetail<std::vector<int>>(name);
    }
-
-
 
    /////////////////////////////////////////////////////////////////////////////
    //
@@ -227,7 +240,7 @@ namespace xAOD {
    }
 
    bool TrigComposite_v1::hasObjectCollectionLinks( const std::string& collectionName ) const {
-      const std::string mangledName = collectionName + m_collectionSuffix;
+      const std::string mangledName = collectionName + s_collectionSuffix;
       return hasObjectLink( mangledName );
    }
 

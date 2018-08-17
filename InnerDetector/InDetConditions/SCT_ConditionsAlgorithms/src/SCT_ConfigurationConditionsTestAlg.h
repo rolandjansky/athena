@@ -22,8 +22,6 @@
 // Forward declarations
 class SCT_ID;
 
-namespace InDetDD{class SCT_DetectorManager;}
-
 /** 
  * This class acts as a test/sample client for the SCT_ConfigurationSConditionsSvc class. 
  */

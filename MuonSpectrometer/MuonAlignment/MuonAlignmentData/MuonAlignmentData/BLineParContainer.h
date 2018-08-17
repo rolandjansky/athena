@@ -5,8 +5,8 @@
 #ifndef MUONALIGNMENTDATA_BLINEPARCONTAINER_H
 #define MUONALIGNMENTDATA_BLINEPARCONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "MuonAlignmentData/BLinePar.h"
 
 class BLineParContainer : public DataVector<BLinePar>

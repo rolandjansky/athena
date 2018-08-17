@@ -29,7 +29,6 @@
 #include <cstdlib>
 
 using namespace std;
-using namespace SCT_ConditionsServices;
 using namespace SCT_ConditionsAlgorithms;
 
 SCT_ConditionsParameterTestAlg::SCT_ConditionsParameterTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 

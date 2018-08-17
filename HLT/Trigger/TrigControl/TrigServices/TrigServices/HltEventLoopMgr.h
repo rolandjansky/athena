@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -36,6 +36,7 @@
 // Forward declarations
 class IIncidentSvc;
 class IAlgContextSvc;
+class IAlgExecStateSvc;
 class StoreGateSvc;
 class IROBDataProviderSvc;
 class ITHistSvc;
@@ -69,9 +70,6 @@ class HltEventLoopMgr : public MinimalEventLoopMgr,
 {
 
 public:
-  /// Creator friend class
-  friend class SvcFactory<HltEventLoopMgr>;
-
   /// Standard Constructor
   HltEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
   /// Standard Destructor
@@ -294,6 +292,9 @@ private:
   // check whether a subdetector is in the run, according to the current detmask
   bool isSubDetectorIn(eformat::SubDetector sd) const;
 
+  // Helper to create EventContext
+  StatusCode installEventContext (const EventInfo* pEvent, EventID::number_type run);
+
   /** Handles to required services/tools **/
   typedef ServiceHandle<IIncidentSvc> IIncidentSvc_t;
   IIncidentSvc_t         m_incidentSvc;
@@ -308,6 +309,8 @@ private:
 
   typedef ServiceHandle<ITHistSvc> ITHistSvc_t;
   ITHistSvc_t            m_THistSvc;
+
+  ServiceHandle<IAlgExecStateSvc> m_aess;
 
   ToolHandle<TrigISHelper>            m_isHelper;
   ToolHandle<TrigCOOLUpdateHelper>    m_coolHelper;
@@ -382,7 +385,10 @@ private:
   
   StringProperty            m_jobOptionsType;        //!< JobOptions type (="NONE" or "DB", same as in PSC)
 
-  Histo1DProperty           m_histProp_Hlt_result_size;  
+  Histo1DProperty           m_histProp_Hlt_result_size;
+  Histo1DProperty           m_histProp_Hlt_result_size_physics;
+  Histo1DProperty           m_histProp_Hlt_result_size_express;
+  Histo1DProperty           m_histProp_Hlt_result_size_DataScouting;
   Histo1DProperty           m_histProp_numStreamTags;              
   Histo1DProperty           m_histProp_streamTagNames;  
   Histo1DProperty           m_histProp_num_partial_eb_robs;
@@ -443,7 +449,7 @@ private:
   /// we need this maintain the data
   uint32_t                  m_status_words[3] = {0};
 
-  EventContext* m_eventContext;
+  EventContext m_eventContext;
 };
 
 //=========================================================================

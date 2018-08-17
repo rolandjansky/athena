@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,6 +38,7 @@
 
 #include "SCT_ConditionsTools/ISCT_RadDamageSummaryTool.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include <iostream>
@@ -127,7 +128,6 @@ private:
   bool   m_doTrapping ;   //!< Flag to set Charge Trapping
   bool   m_doHistoTrap;   //!< Flag that allows to fill the histograms
   bool   m_doRamo;        //!< Flag to use Ramo potential dor charge trapping 
-  mutable bool   m_doCTrap;       //!< Flag that allows to get the quantities from ChargeTrappingSvc
 
   // -- Histograms
   ITHistSvc *m_thistSvc; 
@@ -161,6 +161,7 @@ private:
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
   ToolHandle<ISCT_RadDamageSummaryTool> m_radDamageTool{this, "RadDamageSummaryTool", "SCT_RadDamageSummaryTool", "Tool to retrieve SCT radiation damages"};
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine

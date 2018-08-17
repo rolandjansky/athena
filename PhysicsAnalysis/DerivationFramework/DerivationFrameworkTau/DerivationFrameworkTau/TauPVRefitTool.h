@@ -17,6 +17,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 
 /**
  * refit any primary vertex in the PV collection that contains any
@@ -24,8 +25,6 @@
  * set links to original PV container and decorate PV container with
  * links to the refitted PV container
 */
-
-namespace Analysis { class PrimaryVertexRefitter; }
 
 namespace DerivationFramework {
 

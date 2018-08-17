@@ -7,7 +7,7 @@ atlas_subdir( xAODTauCnv )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           Event/xAOD/xAODTau
                           Reconstruction/tauEvent
                           PRIVATE
@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( xAODTauCnv
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES DataModel xAODTau tauEvent AthenaBaseComps AthenaKernel GaudiKernel )
+                     LINK_LIBRARIES AthContainers xAODTau tauEvent AthenaBaseComps AthenaKernel GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( xAODTauCnv )

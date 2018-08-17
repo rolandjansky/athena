@@ -496,7 +496,7 @@ private:
   RegSelSiLUT* m_newcsc;
   
   StringProperty m_PixConditionsSvc;
-  StringProperty m_SCTConditionsSvc;
+  StringProperty m_SCTConditionsTool;
   StringProperty m_TRTConditionsSvc;
 
   BooleanProperty                    m_initFTK;

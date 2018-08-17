@@ -37,8 +37,8 @@ class SCT_ReadCalibChipGainCondAlg : public AthAlgorithm
  private:
   void insertNptGainFolderData(SCT_ModuleGainCalibData& theseCalibData, const coral::AttributeList& folderData);
 
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-  SG::WriteCondHandleKey<SCT_GainCalibData> m_writeKey;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DAQ/Calibration/ChipGain", "Key of input (raw) gain conditions folder"};
+  SG::WriteCondHandleKey<SCT_GainCalibData> m_writeKey{this, "WriteKey", "SCT_GainCalibData", "Key of output (derived) gain conditions data"};
   ServiceHandle<ICondSvc> m_condSvc;
   const SCT_ID* m_id_sct; //!< Handle to SCT ID helper
 };

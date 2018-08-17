@@ -6,7 +6,7 @@
 #define TRIGFTK_RAWDATA_FTK_RAWPIXELCLUSTER_H
 
 #include <stdint.h>
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class FTK_RawPixelCluster {
 private:

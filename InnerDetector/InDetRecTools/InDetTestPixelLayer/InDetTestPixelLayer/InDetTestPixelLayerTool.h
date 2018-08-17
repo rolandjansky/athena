@@ -22,7 +22,6 @@
 
 namespace Trk {  class Track; class IExtrapolator;  class TrackParticleBase; class IResidualPullCalculator;}
 namespace Rec { class TrackParticle; }
-class IInDetConditionsSvc;
 class AtlasDetectorID;
 class Identifier;
 class PixelID;

@@ -305,7 +305,6 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
             SCT_LayerBuilder.PixelCase                       = False
             SCT_LayerBuilder.Identification                  = 'SCT'
             SCT_LayerBuilder.InputLayerMaterialProvider      = ISF_InputLayerMaterialProvider  
-            SCT_LayerBuilder.SiDetManagerLocation            = 'SCT'
             # SCT barrel specifications
             SCT_LayerBuilder.BarrelLayerBinsZ                = TrkDetFlags.SCT_BarrelLayerMaterialBinsZ()
             SCT_LayerBuilder.BarrelLayerBinsPhi              = TrkDetFlags.SCT_BarrelLayerMaterialBinsPhi()

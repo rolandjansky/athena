@@ -17,6 +17,13 @@ CREATED:  18th Aug, 2005
 
 #include "eflowRec/eflowCaloRegions.h"
 
+/**
+The class calculates the depth of each layer, in interaction lengths, for a given EM2 eta. This is used by eflowLayerIntegrator.
+
+This holds m_layerDepth (returned by getDepthArray) which is an array of double. Each double is the depth of a calorimeter layer in nuclear interaction lengths, and this is filled in calcDepthArray. This is needed in eflowLayerIntegrator::getFirstIntLayer() to calculate dy/dx, which uses the cluster integral in each calorimeter layer to calculate the gaussian weighted density.
+
+It has an enum (depthLayerENUM) which designates where in the detector we are, and this includes additional calorimeter positions such as EMB_back.
+*/
 class eflowDepthCalculator {
 
  public:

@@ -7,7 +7,7 @@ atlas_subdir( TrkFitterInterfaces )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           Event/EventPrimitives
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -17,5 +17,5 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_library( TrkFitterInterfaces
                    PUBLIC_HEADERS TrkFitterInterfaces
-                   LINK_LIBRARIES DataModel EventPrimitives GaudiKernel TrkEventPrimitives TrkParameters TrkFitterUtils )
+                   LINK_LIBRARIES AthContainers EventPrimitives GaudiKernel TrkEventPrimitives TrkParameters TrkFitterUtils )
 

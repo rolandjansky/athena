@@ -26,8 +26,8 @@ class SCT_ConditionsParameterCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<CondAttrListVec> m_readKey;
-  SG::WriteCondHandleKey<SCT_CondParameterData> m_writeKey;
+  SG::ReadCondHandleKey<CondAttrListVec> m_readKey{this, "ReadKey", "/SCT/DAQ/Configuration/Chip", "Key of input (raw) chip conditions folder"};
+  SG::WriteCondHandleKey<SCT_CondParameterData> m_writeKey{this, "WriteKey", "SCT_CondParameterData", "Key of output (derived) average threshold conditions data"};
 
   ServiceHandle<ISCT_CablingSvc> m_cablingSvc;//!< Handle on SCT cabling service
   ServiceHandle<ICondSvc> m_condSvc;

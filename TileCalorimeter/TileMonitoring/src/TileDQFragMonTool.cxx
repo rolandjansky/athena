@@ -181,11 +181,11 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   for (int p = 0; p < NumPart; p++) {
     for (int m = 1; m < 65; m++) {
       ss.str("");
-      if (m % 2 == 1) {
+//      if (m % 2 == 1) {
         ss << m_PartNames[p] << std::setfill('0') << std::setw(2) << m << std::setfill(' '); //EBA01, EBA03,...
-      } else {
-        ss.str(" ");
-      }
+//      } else {
+//        ss.str(" ");
+//      }
       m_moduleLabel[p].push_back(ss.str());
     }
     for (int ch = 0; ch < 48; ch++) {
@@ -311,11 +311,13 @@ void TileDQFragMonTool::bookFirstHist(  )
       m_hist_BadChannelNeg2D[p] = book2S(badDrawersDir, "TileBadChannelsNegMap" + m_PartNames[p],
                                        "# Negative Amp in " + m_PartNames[p], 64, 0.5, 64.5, 48, -0.5, 47.5);
       SetBinLabel(m_hist_BadChannelNeg2D[p]->GetXaxis(), m_moduleLabel[p]);
+      m_hist_BadChannelNeg2D[p]->GetXaxis()->LabelsOption("v");
       SetBinLabel(m_hist_BadChannelNeg2D[p]->GetYaxis(), m_cellchLabel[p]);
       
       m_hist_BadChannelNeg2D_nonmask[p] = book2S(badDrawersDir, "TileBadChannelsNegMapNonMask" + m_PartNames[p],
                                                "# Not Masked Negative Amp in " + m_PartNames[p], 64, 0.5, 64.5, 48, -0.5, 47.5);
       SetBinLabel(m_hist_BadChannelNeg2D_nonmask[p]->GetXaxis(), m_moduleLabel[p]);
+      m_hist_BadChannelNeg2D_nonmask[p]->GetXaxis()->LabelsOption("v");
       SetBinLabel(m_hist_BadChannelNeg2D_nonmask[p]->GetYaxis(), m_cellchLabel[p]);
 
       m_badPulseQuality[p] = book2I(badDrawersDir, "TileBadPulseQuality" + m_PartNames[p],
@@ -323,6 +325,7 @@ void TileDQFragMonTool::bookFirstHist(  )
                                     " Bad pulse shape or #chi^{2} from Optimal filtering algorithm",
                                     64, 0.5, 64.5, 48, -0.5, 47.5);
       SetBinLabel(m_badPulseQuality[p]->GetXaxis(), m_moduleLabel[p]);
+      m_badPulseQuality[p]->GetXaxis()->LabelsOption("v");
       SetBinLabel(m_badPulseQuality[p]->GetYaxis(), m_cellchLabel[p]);
 
     }
@@ -346,11 +349,13 @@ void TileDQFragMonTool::bookFirstHist(  )
       m_hist_BadChannelJump2D[p] = book2S(badDrawersDir, "TileBadChannelsJumpMap" + m_PartNames[p],
                                         "# Jump errors in " + m_PartNames[p], 64, 0.5, 64.5, 48, -0.5, 47.5);
       SetBinLabel(m_hist_BadChannelJump2D[p]->GetXaxis(), m_moduleLabel[p]);
+      m_hist_BadChannelJump2D[p]->GetXaxis()->LabelsOption("v");
       SetBinLabel(m_hist_BadChannelJump2D[p]->GetYaxis(), m_cellchLabel[p]);
       
       m_hist_BadChannelJump2D_nonmask[p] = book2S(badDrawersDir, "TileBadChannelsJumpMapNonMask" + m_PartNames[p],
                                                 "# not masked Jump errors in " + m_PartNames[p], 64, 0.5, 64.5, 48, -0.5, 47.5);
       SetBinLabel(m_hist_BadChannelJump2D_nonmask[p]->GetXaxis(), m_moduleLabel[p]);
+      m_hist_BadChannelJump2D_nonmask[p]->GetXaxis()->LabelsOption("v");
       SetBinLabel(m_hist_BadChannelJump2D_nonmask[p]->GetYaxis(), m_cellchLabel[p]);
     }
   } else {
@@ -367,6 +372,21 @@ void TileDQFragMonTool::bookFirstHist(  )
   }
 
   memset(m_globalErrCount,0,sizeof(m_globalErrCount));
+
+  /* tibor.zenis@cern.ch */
+  /* histograms of errors from eventinfo */
+
+  m_hist_EventinfoError_LB = book1I(badDrawersDir, "TileEventsWithErrEventinfo", "# events with errors in eventinfo", m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+  m_hist_EventinfoError_LB->GetXaxis()->SetTitle("LumiBlock");
+  m_hist_EventinfoError_LB->GetYaxis()->SetTitle("# events with error");
+
+  m_hist_nConsecBad_LB = book2I(badDrawersDir, "TileConsecutiveBadLB", "Max # consecutive bad modules", m_nLumiblocks, -0.5, m_nLumiblocks - 0.5, 17, -0.5, 16.5);
+  m_hist_nConsecBad_LB->GetXaxis()->SetTitle("LumiBlock");
+  m_hist_nConsecBad_LB->GetYaxis()->SetTitle("# consecutive bad modules");
+
+  m_hist_nConsecBad = book1I(badDrawersDir, "TileConsecutiveBad", "Max # consecutive bad modules", 17, -0.5, 16.5);
+  m_hist_nConsecBad->GetXaxis()->SetTitle("# consecutive bad modules");
+  m_hist_nConsecBad->GetYaxis()->SetTitle("n");
 
   for (int ros = 0; ros < 4; ros++) {
     for (int drawer = 0; drawer < 64; ++drawer){
@@ -421,7 +441,6 @@ void TileDQFragMonTool::bookErrHist(int ros, int drawer) {
   }
   m_hist_error_lb[ros][drawer]->GetYaxis()->SetTitle("Fraction of Digital errors");
 
-
 }
 /*---------------------------------------------------------*/
 
@@ -430,6 +449,7 @@ StatusCode TileDQFragMonTool::fillHistograms() {
 /*---------------------------------------------------------*/
 
 
+  int nbad;
   fillEvtInfo();
   m_UpdateCount++;
 
@@ -444,6 +464,10 @@ StatusCode TileDQFragMonTool::fillHistograms() {
   }
 
   fillBadDrawer();
+  nbad = gettileError_error() ? 16 : ((gettileFlag() >> 16) & 0xF);
+  m_hist_EventinfoError_LB->Fill(getLumiBlock(), gettileError_error() ? 1 : 0);
+  m_hist_nConsecBad_LB->Fill(getLumiBlock(), nbad);
+  m_hist_nConsecBad->Fill(nbad);
   for (int ros = 0; ros < 4; ros++) {
     for (int drawer = 0; drawer < 64; ++drawer){
       fillErrHist(ros, drawer);

@@ -54,13 +54,15 @@ namespace TrigCostRootAnalysis {
     m_cacheAlgTimer("Event", "Alg Monitor Caching"),
     m_cacheROSTimer("Event", "ROS Monitor Caching"),
     m_dataPrepTimer("Event", "Data Preperation"),
-    m_processTime("Event", "Executing Monitors") {
+    m_processTime("Event", "Executing Monitors"),
+    m_needsHLTPassInformation(kFALSE) {
     m_costData->setParent(this);
     m_nThread = Config::config().getInt(kNThread);
     m_threadFnPtr = &newEventThreaded;
     m_ratesOnly = Config::config().getInt(kRatesOnly);
     m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
     m_useOnlyTheseBCIDs = &(Config::config().getIntVec(kUseOnlyTheseBCIDs));
+    m_invertFilter = Config::config().getInt(kPatternsInvert);
     m_pass = 0;
   }
 
@@ -121,6 +123,7 @@ namespace TrigCostRootAnalysis {
         switch (type) {
         case kDoChainMonitor:
           costMonitor = new MonitorChain(m_costData);
+          m_needsHLTPassInformation = kTRUE;
           break;
 
         case kDoChainAlgorithmMonitor:
@@ -169,6 +172,7 @@ namespace TrigCostRootAnalysis {
 
         case kDoGlobalsMonitor:
           costMonitor = new MonitorGlobals(m_costData);
+          m_needsHLTPassInformation = kTRUE;
           break;
 
         case kDoEventProfileMonitor:
@@ -251,9 +255,6 @@ namespace TrigCostRootAnalysis {
     if (isZero(weight) == kTRUE) return false;
 
 
-    // HACK!
-    //if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) return kFALSE;
-
     // Do any monitors want to take this event?
     m_takeEventTimer.start();
     Int_t takeEvent = kFALSE;
@@ -299,6 +300,29 @@ namespace TrigCostRootAnalysis {
       if (chainPasses == 0) Config::config().set(kIgnoreRerun, 1, ign, kUnlocked);
       // Then ignore RERUN chains in this event.
       else Config::config().set(kIgnoreRerun, 0, ign, kUnlocked);
+    }
+
+    // Figure out if the event was accepted for physics
+    if (m_needsHLTPassInformation) {
+      //Did HLT pass?
+      Int_t hltPass = 0;
+      for (UInt_t i = 0; i < m_costData->getNChains(); ++i) {
+        if (m_costData->getIsChainPassed(i) == kFALSE) {
+          continue; // I didn't passed
+        }
+        if (m_costData->getIsChainResurrected(i) == kTRUE) {
+          continue; // I was rerun (cannot cause event to be accepted)
+        }
+        const std::string chainName = TrigConfInterface::getHLTNameFromChainID(m_costData->getChainID(i));
+        if (TrigConfInterface::getChainIsMainStream(chainName) == kFALSE) {
+          continue; // Only look at physics accepts
+        }
+        if (checkPatternNameMonitor(chainName, m_invertFilter, m_costData->getIsChainResurrected(i)) == kFALSE) continue;
+        hltPass = 1;
+        break;
+      }
+      static const std::string passStr = "HLTPass";
+      Config::config().set(kHLTPass, hltPass, passStr, kUnlocked);
     }
 
     if (m_nThread == 1 || m_ratesOnly == kTRUE) {

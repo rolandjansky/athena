@@ -35,9 +35,6 @@ extern long ByteStream_StorageType;
 class TgcRdoContByteStreamCnv: public Converter
 {
 
-protected:
-  ~TgcRdoContByteStreamCnv();
-
 public:
   TgcRdoContByteStreamCnv(ISvcLocator* svcloc);
 

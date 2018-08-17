@@ -22,7 +22,8 @@
 TRTRawContByteStreamTool::TRTRawContByteStreamTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
-     m_trt_CablingSvc ("TRT_CablingSvc", name )
+     m_trt_CablingSvc ("TRT_CablingSvc", name ),
+     m_trt_idHelper(nullptr)
 {
   declareInterface< ITRTRawContByteStreamTool  >( this );
   declareProperty("RodBlockVersion",m_RodBlockVersion=3);

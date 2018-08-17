@@ -16,8 +16,7 @@
 #ifndef TRT_DetElementsRoadMaker_xk_H
 #define TRT_DetElementsRoadMaker_xk_H
 
-#include <list>
-#include <vector>
+
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -33,6 +32,9 @@
 #include "TrkSurfaces/CylinderBounds.h"
 
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsLayer_xk.h"
+#include <list>
+#include <vector>
+#include <iosfwd>
 
 class MsgStream;
 
@@ -97,17 +99,17 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
-      MagField::IMagFieldSvc*               m_fieldService      ;
+      MagField::IMagFieldSvc*               m_fieldService{}      ;
       ToolHandle<Trk::IPropagator>          m_proptool ;  // Propagator     tool
       Trk::MagneticFieldProperties          m_fieldprop;  // Magnetic field properties
 
-      int                                  m_outputlevel;
-      int                                  m_nprint   ;
-      int                                  m_sizeroad ;
-      double                               m_zfield   ;
-      float                                m_width    ;  // Width of the roadInnerDetector/InDetRecTools/
-      double                               m_step     ;  // Max step allowed
-      double                               m_rminTRT  ;
+      int                                  m_outputlevel{};
+      int                                  m_nprint{}   ;
+      int                                  m_sizeroad{} ;
+      double                               m_zfield{}   ;
+      float                                m_width{}    ;  // Width of the roadInnerDetector/InDetRecTools/
+      double                               m_step{}     ;  // Max step allowed
+      double                               m_rminTRT{}  ;
       Trk::CylinderBounds                  m_bounds   ;  //  
       int                                  m_map  [3] ;
       std::vector<TRT_DetElementsLayer_xk> m_layer[3] ;  // Layers

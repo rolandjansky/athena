@@ -6,7 +6,7 @@
  * @file SCT_MonitorConditionsTool.cxx
  *
  * @brief Implementation file for the SCT_MonitorConditionsTool class 
- * in package SCT_ConditionsServices
+ * in package SCT_ConditionsTools
  *
  * @author Kazu
  * @date 5 March 2008
@@ -41,8 +41,7 @@ SCT_MonitorConditionsTool::SCT_MonitorConditionsTool(const std::string& type, co
   m_pHelper{nullptr},
   m_mutex{},
   m_cache{},
-  m_condData{},
-  m_condKey{std::string{"SCT_MonitorConditionsCondData"}}
+  m_condData{}
 {
   declareProperty("Nnoisychip",    m_nhits_noisychip);
   declareProperty("Nnoisywafer",   m_nhits_noisywafer);

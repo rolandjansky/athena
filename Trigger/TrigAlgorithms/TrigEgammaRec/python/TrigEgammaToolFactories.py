@@ -36,7 +36,6 @@ PhotonPidTools()
 
 # Following tools have TrigEgamma factories
 from egammaTools.egammaToolsFactories import EMTrackMatchBuilder, EMFourMomBuilder, EMShowerBuilder
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
 from egammaTools.egammaToolsConf import EMPIDBuilder
 from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
@@ -116,6 +115,7 @@ TrigPhotonPIDBuilder = PublicToolFactory( EMPIDBuilder, name = "TrigPhotonPIDBui
 
 def appendtoTrigEMTrackMatchBuilder(tool):
     "add track to calo tool "
+    from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
     if not hasattr(tool,"EMExtrapolationTools"):
         tool += EMExtrapolationTools()
 
@@ -136,12 +136,9 @@ TrigEMShowerBuilder = EMShowerBuilder.copyPublic(
 )
 
 from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
-from egammaMVACalib import egammaMVACalibConf 
 mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
 mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
 EgammaSliceFlags.calibMVAVersion.set_On()
-TrigEgammaMVACalibTool = PublicToolFactory(egammaMVACalibConf.egammaMVATool,name="TrigEgammaMVACalibTool",
-        folder=EgammaSliceFlags.calibMVAVersion(),use_layer_corrected = False)
 
 from TrigCaloRec.TrigCaloRecConf import TrigCaloClusterMaker
 

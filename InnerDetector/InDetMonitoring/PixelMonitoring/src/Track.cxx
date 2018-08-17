@@ -70,50 +70,24 @@ StatusCode PixelMainMon::bookTrackMon(void) {
   sc = trackHistos.regHist(m_track_chi2 = TH1F_LW::create("Track_chi2", ("chi2 of rec. track" + m_histTitleExt + ";#chi^{2}/DoF;#tracks").c_str(), 50, -0., 10.));
   sc = trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB" + m_histTitleExt + ";lumi block;tracks/event").c_str(), nbins_LB, min_LB, max_LB));
 
-  hname = makeHistname("LorentzAngle_IBL", false);
-  htitles = makeHisttitle("Lorentz angle IBL", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_IBL = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 14, -0.5, 13.5));
-  hname = makeHistname("LorentzAngle_IBL2D", false);
-  htitles = makeHisttitle("Lorentz angle IBL2D", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_IBL2D = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 14, -0.5, 13.5));
-  hname = makeHistname("LorentzAngle_IBL3D", false);
-  htitles = makeHisttitle("Lorentz angle IBL3D", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_IBL3D = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 14, -0.5, 13.5));
-  hname = makeHistname("LorentzAngle_B0", false);
-  htitles = makeHisttitle("Lorentz angle B0", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_B0 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 22, -0.5, 21.5));
-  hname = makeHistname("LorentzAngle_B1", false);
-  htitles = makeHisttitle("Lorentz angle B1", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_B1 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 38, -0.5, 37.5));
-  hname = makeHistname("LorentzAngle_B2", false);
-  htitles = makeHisttitle("Lorentz angle B2", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_B2 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 52, -0.5, 51.5));
-
-  if (m_LorentzAngle_IBL) m_LorentzAngle_IBL->SetOption("colz");
-  if (m_LorentzAngle_IBL2D) m_LorentzAngle_IBL2D->SetOption("colz");
-  if (m_LorentzAngle_IBL3D) m_LorentzAngle_IBL3D->SetOption("colz");
-  if (m_LorentzAngle_B0) m_LorentzAngle_B0->SetOption("colz");
-  if (m_LorentzAngle_B1) m_LorentzAngle_B1->SetOption("colz");
-  if (m_LorentzAngle_B2) m_LorentzAngle_B2->SetOption("colz");
-
   if (m_do2DMaps && !m_doOnline) {
-    m_tsos_hitmap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
+    m_tsos_hitmap = std::make_unique<PixelMon2DMapsLW>("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true);
     sc = m_tsos_hitmap->regHist(trackHistos);
-    m_tsos_holemap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
+    m_tsos_holemap = std::make_unique<PixelMon2DMapsLW>("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true);
     sc = m_tsos_holemap->regHist(trackHistos);
-    m_tsos_outliermap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
+    m_tsos_outliermap = std::make_unique<PixelMon2DMapsLW>("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true);
     sc = m_tsos_outliermap->regHist(trackHistos);
   }
 
-  m_tsos_holeratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HolesRatio", ("Holes per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+  m_tsos_holeratio_tmp = std::make_unique<PixelMon2DProfilesLW>("HolesRatio", ("Holes per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
   sc = m_tsos_holeratio_tmp->regHist(trackHistos);
-  m_misshits_ratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatio", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+  m_misshits_ratio_tmp = std::make_unique<PixelMon2DProfilesLW>("MissHitsRatio", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
   sc = m_misshits_ratio_tmp->regHist(trackHistos);
 
   if (m_doOnline) {
-    m_tsos_holeratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HolesRatio_mon", ("Holes per track reset every 5 min" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+    m_tsos_holeratio_mon = std::make_unique<PixelMon2DProfilesLW>("HolesRatio_mon", ("Holes per track reset every 5 min" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
     sc = m_tsos_holeratio_mon->regHist(trackHistos);
-    m_misshits_ratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatio_mon", ("Hole+Outlier per track reset every 5 min" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
+    m_misshits_ratio_mon = std::make_unique<PixelMon2DProfilesLW>("MissHitsRatio_mon", ("Hole+Outlier per track reset every 5 min" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
     sc = m_misshits_ratio_mon->regHist(trackHistos);
   }
 
@@ -135,6 +109,7 @@ StatusCode PixelMainMon::bookTrackMon(void) {
     hname = makeHistname("NPixhits_per_track_last100lb", false);
     htitles = makeHisttitle("Number of pixhits per track last 100 LB", ";last 100 lumi blocks;number of hits", false);
     sc = trackHistos.regHist(m_npixhits_per_track_lastXlb = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 10, -0.5, 9.5));
+    if (m_npixhits_per_track_lastXlb) m_npixhits_per_track_lastXlb->SetOption("colz");
   }
 
   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Track histograms");
@@ -144,9 +119,8 @@ StatusCode PixelMainMon::bookTrackMon(void) {
 StatusCode PixelMainMon::fillTrackMon(void) {
   ATH_MSG_DEBUG("Filling Track Monitoring Histograms");
 
-  StatusCode sc;
-  sc = evtStore()->retrieve(m_tracks, m_TracksName);
-  if (sc.isFailure()) {
+  auto tracks = SG::makeHandle(m_TracksName);
+  if (!(tracks.isValid())) {
     ATH_MSG_INFO("No tracks in StoreGate found");
     if (m_storegate_errors) m_storegate_errors->Fill(4., 3.);
     return StatusCode::SUCCESS;
@@ -161,8 +135,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
     m_ClusterIDs.clear();
   }
 
-  TrackCollection::const_iterator itrack = m_tracks->begin();
-  TrackCollection::const_iterator itrack_end = m_tracks->end();
+  TrackCollection::const_iterator itrack = tracks->begin();
+  TrackCollection::const_iterator itrack_end = tracks->end();
   for (; itrack != itrack_end; ++itrack) {
     const Trk::Track *track0 = (*itrack);
     if (track0 == 0 || track0->perigeeParameters() == 0 || track0->trackSummary() == 0 || track0->trackSummary()->get(Trk::numberOfPixelHits) == 0) {
@@ -180,7 +154,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
     }
     int nPixelHits = 0;
     bool passJOTrkTightCut = m_trackSelTool->accept(*track0);
-    bool passTightCut = (passJOTrkTightCut && npixholes == 0);                                 // lorentz angle
     bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 1.0));  // misshit ratios
     bool pass1hole5GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 5.0));  // eff vs lumi
 
@@ -206,10 +179,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
       if (!m_idHelper->is_pixel(surfaceID)) continue;
       int pixlayer = getPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
-      int pixlayeribl2d3d = pixlayer;
-      if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL) {
-        pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_pixelid->eta_module(surfaceID), m_doIBL);
-      }
       if (pixlayer == 99) continue;
 
       float nOutlier = 0.;
@@ -240,7 +209,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         continue;
         // working only with real hits (not outliers or holes) from now on
       }
-
+      //need the mesb to be sensible before dereferencing it
+      if (not mesb) continue;
       const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(mesb->associatedSurface().associatedDetectorElement());
       const InDet::SiClusterOnTrack *clus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesb);
       if (!side || !clus) continue;
@@ -248,21 +218,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
       if (!RawDataClus || !RawDataClus->detectorElement()->isPixel()) continue;
 
       nPixelHits++;  //add another pixel hit
-
-      bool passClusterSelection = false;
-      float npixHitsInCluster = 0;
-      float rowWidthOfCluster = 0;
-      const InDet::PixelCluster *pixelCluster = dynamic_cast<const InDet::PixelCluster *>(RawDataClus);
-      if (pixelCluster) {
-        if (!RawDataClus->gangedPixel() &&  // not include ganged-pixel
-            !pixelCluster->isFake() &&      // not fake
-            ((pixlayer == PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX]) < 8.3) || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX]) < 8.1)) &&
-            ((pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && fabs(clus->localParameters()[Trk::locY]) < 19.7) || (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && fabs(clus->localParameters()[Trk::locY]) < 9.5) || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locY]) < 28.7))) {
-          passClusterSelection = true;
-        }
-        npixHitsInCluster = pixelCluster->rdoList().size();
-        rowWidthOfCluster = pixelCluster->width().colRow().x();
-      }
 
       const Trk::AtaPlane *trackAtPlane = dynamic_cast<const Trk::AtaPlane *>(trkParameters);
       if (trackAtPlane) {
@@ -286,19 +241,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         if (m_track_pull_eta) m_track_pull_eta->Fill(pull);
 
         Amg::Vector3D mynormal = side->normal();
-        Amg::Vector3D myphiax = side->phiAxis();
         Amg::Vector3D mytrack = trackAtPlane->momentum();
-        double trkphicomp = mytrack.dot(myphiax);
         double trknormcomp = mytrack.dot(mynormal);
-        double phiIncident = atan2(trkphicomp, trknormcomp);
-        if (npixHitsInCluster > 0 && passTightCut && passClusterSelection) {
-          if (pixlayer == PixLayer::kIBL && m_LorentzAngle_IBL) m_LorentzAngle_IBL->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && m_LorentzAngle_IBL2D) m_LorentzAngle_IBL2D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && m_LorentzAngle_IBL3D) m_LorentzAngle_IBL3D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayer == PixLayer::kB0 && m_LorentzAngle_B0) m_LorentzAngle_B0->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayer == PixLayer::kB1 && m_LorentzAngle_B1) m_LorentzAngle_B1->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayer == PixLayer::kB2 && m_LorentzAngle_B2) m_LorentzAngle_B2->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-        }
 
         // Fill containers, which hold id's of hits and clusters on track _and_ incident angle information for later normalization
         double mytrack_mag = mytrack.mag();
@@ -342,14 +286,14 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
 StatusCode PixelMainMon::procTrackMon(void) {
   if (m_doOnline) {
-    unsigned int lastlb = m_manager->lumiBlockNumber()-1; //remove -1 for testing
+    int lastlb = m_manager->lumiBlockNumber()-1; //remove -1 for testing
     double cont(0.0);
     int entr(0), entries(0);
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_hiteff_incl_mod[i] && m_hiteff_lastXlb_mod[i]) {
-	unsigned int bing = m_hiteff_incl_mod[i]->GetXaxis()->FindBin(lastlb);
+	int bing = m_hiteff_incl_mod[i]->GetXaxis()->FindBin(lastlb);
 
-	unsigned int nXbins = m_hiteff_lastXlb_mod[i]->GetNbinsX();
+	int nXbins = m_hiteff_lastXlb_mod[i]->GetNbinsX();
 	m_hiteff_lastXlb_mod[i]->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
 	m_hiteff_lastXlb_mod[i]->Reset();
 
@@ -366,21 +310,23 @@ StatusCode PixelMainMon::procTrackMon(void) {
 	    bing--;
 	  } 
 	}
+	m_hiteff_lastXlb_mod[i]->SetMinimum(0.8);
+        m_hiteff_lastXlb_mod[i]->SetMaximum(1.01);
 	m_hiteff_lastXlb_mod[i]->SetEntries(entries);
 	//m_hiteff_lastXlb_mod[i]->SetEntries(lastlb);      // for testing
       }
     }
     if (m_npixhits_per_track_lumi && m_npixhits_per_track_lastXlb) {
-      unsigned int bingx = m_npixhits_per_track_lumi->GetXaxis()->FindBin(lastlb);
-      unsigned int nbingy = m_npixhits_per_track_lumi->GetNbinsY();
+      int bingx = m_npixhits_per_track_lumi->GetXaxis()->FindBin(lastlb);
+      int nbingy = m_npixhits_per_track_lumi->GetNbinsY();
 
-      unsigned int nXbins = m_npixhits_per_track_lastXlb->GetNbinsX();
+      int nXbins = m_npixhits_per_track_lastXlb->GetNbinsX();
       m_npixhits_per_track_lastXlb->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
       m_npixhits_per_track_lastXlb->Reset();
 
       for (int binfx=m_npixhits_per_track_lastXlb->GetNbinsX(); binfx>0; binfx--) {
 	if (bingx>0) {
-	  for (unsigned int bingy = 1; bingy <= nbingy; bingy++) {
+	  for (int bingy = 1; bingy <= nbingy; bingy++) {
 	    cont = m_npixhits_per_track_lumi->GetBinContent(bingx, bingy);
 	    if (cont!=0) {
 	      m_npixhits_per_track_lastXlb->SetBinContent(binfx, bingy, cont);
@@ -394,8 +340,10 @@ StatusCode PixelMainMon::procTrackMon(void) {
   }
   if (m_doOffline) {
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
-      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
+      if (m_hiteff_incl_mod[i]) {
+	m_hiteff_incl_mod[i]->SetMinimum(0.8);
+	m_hiteff_incl_mod[i]->SetMaximum(1.01);
+      }
     }
   }
   return StatusCode::SUCCESS;

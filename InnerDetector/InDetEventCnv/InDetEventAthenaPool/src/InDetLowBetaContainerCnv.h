@@ -32,8 +32,8 @@ class InDetLowBetaContainerCnv : public InDetLowBetaContainerCnvBase {
    
 public:
   InDetLowBetaContainerCnv(ISvcLocator *svcloc);
-protected:
   ~InDetLowBetaContainerCnv();
+protected:
  
   virtual InDetLowBetaContainer_PERS *createPersistent(InDet::InDetLowBetaContainer *transObj);
   virtual InDet::InDetLowBetaContainer *createTransient();

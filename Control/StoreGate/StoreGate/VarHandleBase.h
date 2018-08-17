@@ -35,8 +35,11 @@
 #include "SGTools/StlVectorClids.h"
 #include "SGTools/StlMapClids.h"
 
+namespace SGTest {
+  class TestStore;
+}
 namespace Athena_test {
-  void varHandleTest(void);
+  void varHandleTest(SGTest::TestStore&);
   void resetableTest(void);
   void refCountTest(void);
 }
@@ -85,7 +88,7 @@ namespace SG {
   class VarHandleBase : public IResetable
   {
     // For testing.
-    friend void Athena_test::varHandleTest(void);
+    friend void Athena_test::varHandleTest(SGTest::TestStore&);
     friend void Athena_test::resetableTest(void);
     friend void Athena_test::refCountTest(void);
     friend std::ostream& operator<<( std::ostream&, const VarHandleBase&);
@@ -125,6 +128,17 @@ namespace SG {
      * current event context will be read.
      */
     explicit VarHandleBase (const VarHandleKey& key, const EventContext* ctx);
+
+
+    /**
+     * @brief Constructor from a DataProxy.
+     * @param proxy The proxy to which to bind.
+     * @param mode Mode of this handle (read/write/update).
+     *
+     * This handle will be bound to the given proxy.
+     */
+    explicit VarHandleBase (SG::DataProxy* proxy,
+                            Gaudi::DataHandle::Mode mode);
 
 
     /**

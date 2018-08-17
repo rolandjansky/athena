@@ -12,6 +12,7 @@
  *
  **********************************************************************/
 #include "TrigEgammaEmulationTool/TrigEgammaEFCaloSelectorTool.h"
+#include "PATCore/AcceptData.h"
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include "boost/algorithm/string.hpp"
@@ -106,31 +107,31 @@ bool TrigEgammaEFCaloSelectorTool::ApplyCaloPid(const xAOD::Egamma *eg, const st
   //float lhValue=0.0;
   //eg->passSelection(passSel,pidname);
   if (pidname == "Tight") {
-    passTool = m_electronCaloIsEMTool[0]->accept(eg);
+    passTool = (bool) m_electronCaloIsEMTool[0]->accept(eg);
   }
   else if (pidname == "Medium") {
-    passTool = m_electronCaloIsEMTool[1]->accept(eg);
+    passTool = (bool) m_electronCaloIsEMTool[1]->accept(eg);
   }
   else if (pidname == "Loose") {
-    passTool = m_electronCaloIsEMTool[2]->accept(eg);
+    passTool = (bool) m_electronCaloIsEMTool[2]->accept(eg);
   }
   else if (pidname == "VLoose") {
-    passTool = m_electronCaloIsEMTool[3]->accept(eg);
+    passTool = (bool) m_electronCaloIsEMTool[3]->accept(eg);
   }
   else if (pidname == "LHTight") {
-    passTool = m_electronCaloLHTool[0]->accept(eg,avg_mu);
+    passTool = (bool) m_electronCaloLHTool[0]->accept(eg,avg_mu);
     //lhValue = m_electronCaloLHTool[0]->getTResult().getResult(0);
   }
   else if (pidname == "LHMedium") {
-    passTool = m_electronCaloLHTool[1]->accept(eg,avg_mu);
+    passTool = (bool) m_electronCaloLHTool[1]->accept(eg,avg_mu);
     //lhValue = m_electronCaloLHTool[1]->getTResult().getResult(0);
   }
   else if (pidname == "LHLoose") {
-    passTool = m_electronCaloLHTool[2]->accept(eg,avg_mu);
+    passTool = (bool) m_electronCaloLHTool[2]->accept(eg,avg_mu);
     //lhValue = m_electronCaloLHTool[2]->getTResult().getResult(0);
   }
   else if (pidname == "LHVLoose") {
-    passTool = m_electronCaloLHTool[3]->accept(eg,avg_mu);
+    passTool = (bool) m_electronCaloLHTool[3]->accept(eg,avg_mu);
     //lhValue = m_electronCaloLHTool[3]->getTResult().getResult(0);
   }
   else {

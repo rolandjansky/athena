@@ -7,9 +7,8 @@ atlas_subdir( MuonAlignmentData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           MuonSpectrometer/MuonIdHelpers )
 
@@ -22,5 +21,5 @@ atlas_add_library( MuonAlignmentData
                    PUBLIC_HEADERS MuonAlignmentData
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} DataModel SGTools Identifier MuonIdHelpersLib )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers Identifier MuonIdHelpersLib )
 

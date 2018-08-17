@@ -12,7 +12,7 @@
 CaloMBAverageTool::CaloMBAverageTool (const std::string& type, 
 				  const std::string& name, 
 				  const IInterface* parent) :
-    AthAlgTool(type, name, parent),
+    base_class(type, name, parent),
     m_OFCTool("LArOFCTool"),
     m_calo_id(nullptr),
     m_Nminbias(-1),m_deltaBunch(1),m_keyShape("LArShape"), m_keyfSampl("LArfSampl"), m_keyMinBiasAverage("LArMinBiasAverage"),
@@ -150,7 +150,7 @@ StatusCode CaloMBAverageTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 
 //-------------------------------------------------
 
-float CaloMBAverageTool::average(const CaloCell* caloCell)
+float CaloMBAverageTool::average(const CaloCell* caloCell) const
 {
   CaloGain::CaloGain igain = caloCell->gain();
   return this->average(caloCell->caloDDE(),igain);
@@ -159,7 +159,7 @@ float CaloMBAverageTool::average(const CaloCell* caloCell)
 
 //-------------------------------------------------
 
-float CaloMBAverageTool::average(const CaloDetDescrElement* caloDDE,CaloGain::CaloGain gain)
+float CaloMBAverageTool::average(const CaloDetDescrElement* caloDDE,CaloGain::CaloGain gain) const
 {
   const IdentifierHash idCaloHash = caloDDE->calo_hash();
   int igain=static_cast<int>(gain);

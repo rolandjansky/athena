@@ -11,6 +11,7 @@
 
 #include "InDetSurveyConstraintTool/SimpleConstraintPointMinimizer.h"
 #include <iostream>
+#include <limits>
 using std::cout;
 using std::endl;
 
@@ -176,7 +177,11 @@ double  SimpleConstraintPointMinimizer::secondMinimum(const std::vector<SurveyCo
       distsum += (cur - sur).mag();
     }
   }
-  retval = distsum/ngood;
+  if (ngood!=0){
+    retval = distsum/ngood;
+  } else {
+    retval = std::numeric_limits<double>::infinity();
+  }
 //   cout
 //       <<"SimpleConstraintPointMinimizer().secondMinimum: aRotat2.mag(): "<<aRotat2.mag()
 //       <<", (aRotat2.cross(wPoint)).mag(): "<<(aRotat2.cross(wPoint)).mag()

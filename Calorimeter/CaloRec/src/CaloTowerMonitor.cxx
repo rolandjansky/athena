@@ -6,7 +6,7 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -202,146 +202,133 @@ StatusCode CaloTowerMonitor::initialize()
 		       "Cell Phi vs Tower Phi FCal3",
 		       100, -200., 200., 100, -200., 200.);
 
+  ATH_CHECK( m_collectionNames.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode CaloTowerMonitor::execute()
 {
+  const EventContext& ctx = getContext();
   // constant
   //  double mathPi = 2. * asin(1.);
   // retrieve data container
-  std::vector<std::string>::const_iterator fColl = m_collectionNames.begin();
-  std::vector<std::string>::const_iterator lColl = m_collectionNames.end();
-  for ( ; fColl != lColl; fColl++ )
-    {
-      // pointer to tower container
-      const CaloTowerContainer* theTowers;
-      StatusCode checkOut = evtStore()->retrieve(theTowers,*fColl);
-      if ( ! checkOut.isFailure() )
-	{
-	  CaloTowerContainer::const_iterator fTower = theTowers->begin();
-	  CaloTowerContainer::const_iterator lTower = theTowers->end();
-	  m_nTowers->fill((double)theTowers->size(),1.);
-	  for ( ; fTower != lTower; fTower++ )
-	    {
-	      const CaloTower* aTower = *fTower;
-	      // check tower properties
-	      //	      if ( aTower->eta() == 0 || aTower->getNumberOfCells() == 0 )
-		//		{
-		  //		  log << MSG::WARNING
-		  //		      << "CaloTower @ "
-		  //		      << aTower
-		  //		      << " with (eta/phi) = ("
-		  //		      << aTower->eta()
-		  //		      << "/"
-		  //		      << aTower->phi()
-		  //		      << ") has e = "
-		  //		      << aTower->e() / GeV
-		  //		      << " GeV and #cells = "
-		  //		      << aTower->getNumberOfCells()
-		  //		      << endmsg;
-		  //		}
-	      //	      else
-	      if ( aTower->getNumberOfCells() != 0 )
-		{
-		  // variables
-		  double e     = aTower->e()  * (1./GeV);
-		  double et    = aTower->et() * (1./GeV);
-		  double eta   = aTower->eta();
-		  double phi   = aTower->phi();
-		  //		  if ( phi > mathPi ) phi -= 2. * mathPi;
-		  double cells = (double) aTower->getNumberOfCells();
-		  ATH_MSG_DEBUG( "Tower @"
-		      << aTower
-		      << " E = "
-		      << e << " GeV (eta,phi) = ("
-                                 << eta << "," << phi << ")"  );
-		  // fill distributions
-		  m_nTowersVsEta->fill(eta,1.);
-		  m_nTowersVsPhi->fill(phi*(1/deg),1.);
-		  // ATH_MSG_INFO( "fill tower e   " << e  );
-		  m_eTowers->fill(e,1.);
-		  m_eTowersVsEta->fill(eta,e,1.);
-		  m_eTowersVsPhi->fill(phi*(1./deg),e,1.);
-		  if ( e > 0. )
-		    {
-		      m_eLogTowers->fill(log10(e),1.);
-		    }
-		  // ATH_MSG_INFO( "fill tower et  " << et  );
-		  m_etTowers->fill(et,1.);
-		  m_etTowersVsEta->fill(eta,et,1.);
-		  m_etTowersVsPhi->fill(phi*(1./deg),et,1.);
-		  if ( et > 0. )
-		    {
-		      m_etLogTowers->fill(log10(et),1.);
-		    }
-		  // tower shape
-		  // ATH_MSG_INFO( "fill tower cls " << cells  );
-		  m_nCellsInTower->fill(cells,1.);
-		  m_nCellsInTowerVsEta->fill(eta,cells,1.);
-		  m_nCellsInTowerVsPhi->fill(phi*(1./deg),cells,1.);
-		  CaloTower::cell_iterator fCell = aTower->begin();
-		  CaloTower::cell_iterator lCell = aTower->end();
-		  CaloPhiRange correctPhi;
-		  for ( ; fCell != lCell; fCell++ )
-		    {
-		      const CaloCell* aCell = *fCell;
-		      // calculate distance
-		      double cellEta  = aCell->eta();
-		      double cellPhi  = aCell->phi();
-		      //  if ( cellPhi > mathPi ) cellPhi -= 2. * mathPi;
-		      double deltaEta = eta - aCell->eta();
-		      double deltaPhi = correctPhi.diff(phi, aCell->phi());
-		      // log << MSG::INFO << "fill cell deta,dphi " 
-		      //  << deltaEta << "," << deltaPhi << endmsg;
-		      m_cellsInEtaVsPhi->fill(deltaEta,deltaPhi,1.);
-		      // direction matches
-		      //log << MSG::INFO << "fill cell eta " 
-		      //	  << cellEta << endmsg;
-		      m_etaTowerVsCell->fill(cellEta,eta,1.);
-		      //log << MSG::INFO << "fill tower phi " 
-		      //		  << cellPhi/deg << endmsg;
-		      m_phiTowerVsCell->fill(cellPhi*(1./deg),phi*(1./deg),1.);
-		      CaloSampling::CaloSample theSample = aCell->caloDDE()->getSampling();
-		      CaloSampling::CaloSample takeSample = theSample;
-		      switch ( theSample )
-			{
-			case CaloSampling::EMB2:
-			case CaloSampling::EMB3:
-			  takeSample = CaloSampling::EMB1;
-			  break;
-			case CaloSampling::EME2:
-			case CaloSampling::EME3:
-			  takeSample = CaloSampling::EME1;
-			  break;
-			case CaloSampling::HEC1:
-			case CaloSampling::HEC2:
-			case CaloSampling::HEC3:
-			  takeSample = CaloSampling::HEC0;
-			  break;
-			case CaloSampling::TileBar1:
-			case CaloSampling::TileBar2:
-			case CaloSampling::TileGap1:
-			case CaloSampling::TileGap2:
-			case CaloSampling::TileGap3:
-			  takeSample = CaloSampling::TileBar0;
-			  break;
-			case CaloSampling::TileExt1:
-			case CaloSampling::TileExt2:
-			  takeSample = CaloSampling::TileExt0;
-			  break;
-			default:
-			  break;
-			}
-		      m_etaTowerVsCellCalos[takeSample]->fill(cellEta,eta,1.);
-		      m_phiTowerVsCellCalos[takeSample]->fill(cellPhi*(1./deg),
-							      phi*(1./deg),1.);
-		    } // cell loop
-		} // tower kinematics ok
-	    } // tower loop
-	} // check out test
-    } // collection loop
+  for (const SG::ReadHandleKey<CaloTowerContainer>& k : m_collectionNames) {
+    // pointer to tower container
+    SG::ReadHandle<CaloTowerContainer> theTowers (k, ctx);
+    for (const CaloTower* aTower : *theTowers) {
+      // check tower properties
+      //	      if ( aTower->eta() == 0 || aTower->getNumberOfCells() == 0 )
+      //		{
+      //		  log << MSG::WARNING
+      //		      << "CaloTower @ "
+      //		      << aTower
+      //		      << " with (eta/phi) = ("
+      //		      << aTower->eta()
+      //		      << "/"
+      //		      << aTower->phi()
+      //		      << ") has e = "
+      //		      << aTower->e() / GeV
+      //		      << " GeV and #cells = "
+      //		      << aTower->getNumberOfCells()
+      //		      << endmsg;
+      //		}
+      //	      else
+      if ( aTower->getNumberOfCells() != 0 )
+      {
+        // variables
+        double e     = aTower->e()  * (1./GeV);
+        double et    = aTower->et() * (1./GeV);
+        double eta   = aTower->eta();
+        double phi   = aTower->phi();
+        //		  if ( phi > mathPi ) phi -= 2. * mathPi;
+        double cells = (double) aTower->getNumberOfCells();
+        ATH_MSG_DEBUG( "Tower @"
+                       << aTower
+                       << " E = "
+                       << e << " GeV (eta,phi) = ("
+                       << eta << "," << phi << ")"  );
+        // fill distributions
+        m_nTowersVsEta->fill(eta,1.);
+        m_nTowersVsPhi->fill(phi*(1/deg),1.);
+        // ATH_MSG_INFO( "fill tower e   " << e  );
+        m_eTowers->fill(e,1.);
+        m_eTowersVsEta->fill(eta,e,1.);
+        m_eTowersVsPhi->fill(phi*(1./deg),e,1.);
+        if ( e > 0. )
+        {
+          m_eLogTowers->fill(log10(e),1.);
+        }
+        // ATH_MSG_INFO( "fill tower et  " << et  );
+        m_etTowers->fill(et,1.);
+        m_etTowersVsEta->fill(eta,et,1.);
+        m_etTowersVsPhi->fill(phi*(1./deg),et,1.);
+        if ( et > 0. )
+        {
+          m_etLogTowers->fill(log10(et),1.);
+        }
+        // tower shape
+        // ATH_MSG_INFO( "fill tower cls " << cells  );
+        m_nCellsInTower->fill(cells,1.);
+        m_nCellsInTowerVsEta->fill(eta,cells,1.);
+        m_nCellsInTowerVsPhi->fill(phi*(1./deg),cells,1.);
+        for (const CaloCell* aCell : *aTower)
+        {
+          // calculate distance
+          double cellEta  = aCell->eta();
+          double cellPhi  = aCell->phi();
+          //  if ( cellPhi > mathPi ) cellPhi -= 2. * mathPi;
+          double deltaEta = eta - aCell->eta();
+          double deltaPhi = CaloPhiRange::diff(phi, aCell->phi());
+          // log << MSG::INFO << "fill cell deta,dphi " 
+          //  << deltaEta << "," << deltaPhi << endmsg;
+          m_cellsInEtaVsPhi->fill(deltaEta,deltaPhi,1.);
+          // direction matches
+          //log << MSG::INFO << "fill cell eta " 
+          //	  << cellEta << endmsg;
+          m_etaTowerVsCell->fill(cellEta,eta,1.);
+          //log << MSG::INFO << "fill tower phi " 
+          //		  << cellPhi/deg << endmsg;
+          m_phiTowerVsCell->fill(cellPhi*(1./deg),phi*(1./deg),1.);
+          CaloSampling::CaloSample theSample = aCell->caloDDE()->getSampling();
+          CaloSampling::CaloSample takeSample = theSample;
+          switch ( theSample )
+          {
+          case CaloSampling::EMB2:
+          case CaloSampling::EMB3:
+            takeSample = CaloSampling::EMB1;
+            break;
+          case CaloSampling::EME2:
+          case CaloSampling::EME3:
+            takeSample = CaloSampling::EME1;
+            break;
+          case CaloSampling::HEC1:
+          case CaloSampling::HEC2:
+          case CaloSampling::HEC3:
+            takeSample = CaloSampling::HEC0;
+            break;
+          case CaloSampling::TileBar1:
+          case CaloSampling::TileBar2:
+          case CaloSampling::TileGap1:
+          case CaloSampling::TileGap2:
+          case CaloSampling::TileGap3:
+            takeSample = CaloSampling::TileBar0;
+            break;
+          case CaloSampling::TileExt1:
+          case CaloSampling::TileExt2:
+            takeSample = CaloSampling::TileExt0;
+            break;
+          default:
+            break;
+          }
+          m_etaTowerVsCellCalos[takeSample]->fill(cellEta,eta,1.);
+          m_phiTowerVsCellCalos[takeSample]->fill(cellPhi*(1./deg),
+                                                  phi*(1./deg),1.);
+        } // cell loop
+      } // tower kinematics ok
+    } // tower loop
+  } // collection loop
   return StatusCode::SUCCESS;
 }		    
 

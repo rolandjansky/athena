@@ -7,7 +7,7 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrkTrack/TrackStateOnSurface.h"
 

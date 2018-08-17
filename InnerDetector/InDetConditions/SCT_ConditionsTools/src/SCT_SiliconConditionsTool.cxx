@@ -23,8 +23,6 @@ SCT_SiliconConditionsTool::SCT_SiliconConditionsTool(const std::string& type, co
   m_geoModelSvc{"GeoModelSvc", name},
   m_rdbSvc{"RDBAccessSvc", name},
   m_useGeoModel{false},
-  m_condKeyHV{"SCT_SiliconBiasVoltCondData"},
-  m_condKeyTemp{"SCT_SiliconTempCondData"},
   m_sct_id{nullptr}
 {
   declareProperty("Temperature",      m_defaultTemperature     );

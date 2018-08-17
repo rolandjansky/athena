@@ -156,4 +156,11 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
 def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+RPC_DIGITS")
+    if not overlayFlags.isDataOverlay():
+        kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+RPC_SDO")
     return RpcDigitizationTool(name, **kwargs)
+
+def getRPC_OverlayDigitizer(name="RPC_OverlayDigitizer", **kwargs):
+    kwargs.setdefault("RPC_DigitizationTool","Rpc_OverlayDigitizationTool")
+    return CfgMgr.RPC_Digitizer(name,**kwargs)

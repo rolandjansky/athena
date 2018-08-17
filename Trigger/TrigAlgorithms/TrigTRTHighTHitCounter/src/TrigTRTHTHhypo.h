@@ -21,7 +21,6 @@ class TrigTRTHTHhypo: public HLT::HypoAlgo {
   TrigTRTHTHhypo(const std::string & name, ISvcLocator* pSvcLocator);
   
   HLT::ErrorCode hltInitialize();
-  HLT::ErrorCode hltBeginRun();  
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
   

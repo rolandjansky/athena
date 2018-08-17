@@ -13,18 +13,14 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
+#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1CaloToolInterfaces/IL1JetTools.h"
+#include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 // Forward declaration(s):
 class StoreGateSvc;
 class LVL1_ROI;
-namespace TrigConf {
-  class ILVL1ConfigSvc;
-}
-namespace LVL1 {
-  class RecMuonRoiSvc;
-  class IL1EmTauTools;
-  class IL1JetTools;
-}
 namespace ROIB {
   class RoIBResult;
 }

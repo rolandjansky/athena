@@ -29,9 +29,9 @@
 #include <iostream>
 
 SCT_FwdCylinderServices::SCT_FwdCylinderServices(const std::string & name,
-						 double rmin,
-						 double rmax,
-						 double length)
+                                                 double rmin,
+                                                 double rmax,
+                                                 double length)
   : SCT_SharedComponentFactory(name), m_innerRadius(rmin), m_outerRadius(rmax), m_length(length)
 {
   getParameters();
@@ -135,8 +135,8 @@ SCT_FwdCylinderServices::build()
   double coolingRmax2 = coolingRmin + 1.8 * m_coolingDeltaR;
   double coolingDPhi = m_coolingRPhi / coolingRmin;
   const GeoCons* coolingShape = new GeoCons(coolingRmin, coolingRmin, coolingRmax1, coolingRmax2, 
-					    0.5 * m_length, 
-					    -0.5 * coolingDPhi * CLHEP::radian, coolingDPhi * CLHEP::radian);
+                                            0.5 * m_length, 
+                                            -0.5 * coolingDPhi * CLHEP::radian, coolingDPhi * CLHEP::radian);
   const GeoLogVol * coolingLog = new GeoLogVol("CoolingPipe", coolingShape, materials.getMaterialForVolume(m_coolingMaterialName, coolingShape->volume()));
   GeoPhysVol * coolingPipe = new GeoPhysVol(coolingLog);
 
@@ -146,7 +146,7 @@ SCT_FwdCylinderServices::build()
   double lmtRmax2 = lmtRmin + 1.8 * m_lmtDeltaR;
   double lmtDPhi = m_lmtRPhi / lmtRmin;
   const GeoCons* lmtShape = new GeoCons(lmtRmin, lmtRmin, lmtRmax1, lmtRmax2, 0.5 * m_length, 
-					-0.5 * lmtDPhi * CLHEP::radian, lmtDPhi * CLHEP::radian);
+                                        -0.5 * lmtDPhi * CLHEP::radian, lmtDPhi * CLHEP::radian);
   const GeoLogVol * lmtLog = new GeoLogVol("LMT", lmtShape, materials.getMaterialForVolume(m_lmtMaterialName,lmtShape->volume()));
   GeoPhysVol * lmt = new GeoPhysVol(lmtLog);
 
@@ -156,7 +156,7 @@ SCT_FwdCylinderServices::build()
   double lmtCoolingDPhi = m_lmtCoolingRPhi / lmtCoolingRmin;
   double lmtLength = m_length - 2. * m_lmtCoolingZOffset;
   const GeoTubs* lmtCoolingShape = new GeoTubs(lmtCoolingRmin, lmtCoolingRmax, 0.5 * lmtLength, 
-					       -0.5 * lmtCoolingDPhi * CLHEP::radian, lmtCoolingDPhi * CLHEP::radian);
+                                               -0.5 * lmtCoolingDPhi * CLHEP::radian, lmtCoolingDPhi * CLHEP::radian);
   const GeoLogVol * lmtCoolingLog = new GeoLogVol("LMTCooling", lmtCoolingShape, materials.getMaterialForVolume(m_lmtCoolingMaterialName,lmtCoolingShape->volume()));
   GeoPhysVol * lmtCooling = new GeoPhysVol(lmtCoolingLog);
 
@@ -166,7 +166,7 @@ SCT_FwdCylinderServices::build()
   double fibreRmax2 = fibreRmin + 1.8 * m_fibreDeltaR;
   double fibreDPhi = m_fibreRPhi / fibreRmin;
   const GeoCons* fibreShape = new GeoCons(fibreRmin, fibreRmin, fibreRmax1, fibreRmax2, 0.5 * m_length,
-					  -0.5 * fibreDPhi * CLHEP::radian, fibreDPhi * CLHEP::radian);
+                                          -0.5 * fibreDPhi * CLHEP::radian, fibreDPhi * CLHEP::radian);
   const GeoLogVol * fibreLog = new GeoLogVol("Fibres", fibreShape, materials.getMaterialForVolume(m_fibreMaterialName,fibreShape->volume()));
   GeoPhysVol * fibres = new GeoPhysVol(fibreLog);
 
@@ -175,7 +175,7 @@ SCT_FwdCylinderServices::build()
   double nPipeRmax = nPipeRmin + m_nPipeDeltaR;
   double nPipeDPhi = m_nPipeRPhi / nPipeRmin;
   const GeoTubs* nPipeShape = new GeoTubs(nPipeRmin, nPipeRmax, 0.5 * m_length, 
-					  -0.5 * nPipeDPhi * CLHEP::radian, nPipeDPhi * CLHEP::radian);
+                                          -0.5 * nPipeDPhi * CLHEP::radian, nPipeDPhi * CLHEP::radian);
   const GeoLogVol * nPipeLog = new GeoLogVol("NPipe", nPipeShape, materials.getMaterialForVolume(m_nPipeMaterialName,nPipeShape->volume()));
   GeoPhysVol * nPipe = new GeoPhysVol(nPipeLog);
 
@@ -184,7 +184,7 @@ SCT_FwdCylinderServices::build()
   double railRmax = railRmin + m_railDeltaR;
   double railDPhi = m_railRPhi / railRmin;
   const GeoTubs* railShape = new GeoTubs(railRmin, railRmax,
-					 0.5 * m_length, -0.5 * railDPhi * CLHEP::radian, railDPhi * CLHEP::radian);
+                                         0.5 * m_length, -0.5 * railDPhi * CLHEP::radian, railDPhi * CLHEP::radian);
   const GeoLogVol * railLog = new GeoLogVol("Rail", railShape, materials.getMaterialForVolume(m_railMaterialName,railShape->volume()));
   GeoPhysVol * rail = new GeoPhysVol(railLog);
 

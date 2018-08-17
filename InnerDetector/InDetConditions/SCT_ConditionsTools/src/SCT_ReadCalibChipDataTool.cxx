@@ -27,9 +27,7 @@ SCT_ReadCalibChipDataTool::SCT_ReadCalibChipDataTool (const std::string& type, c
   m_cacheGain{},
   m_cacheNoise{},
   m_condDataGain{},
-  m_condDataNoise{},
-  m_condKeyGain{"SCT_GainCalibData"},
-  m_condKeyNoise{"SCT_NoiseCalibData"}
+  m_condDataNoise{}
   {
     declareProperty("NoiseLevel",          m_noiseLevel = 1800.0,        "Noise Level for isGood if ever used");
   }

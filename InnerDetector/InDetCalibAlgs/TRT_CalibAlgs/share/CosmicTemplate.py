@@ -301,6 +301,13 @@ from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTCondWrite
 TRTCondWrite = TRTCondWrite( name = "TRTCondWrite")
 topSequence+=TRTCondWrite 
 
+# DCS Data Folders
+if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
+    if InDetFlags.useTrtDCS():
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>",classname='CondAttrListCollection')
+
  
 #==============================
 #====  Straw Status stuff  ====

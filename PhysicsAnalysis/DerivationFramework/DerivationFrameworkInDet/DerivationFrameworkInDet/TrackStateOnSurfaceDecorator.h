@@ -18,23 +18,22 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthLinks/ElementLink.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
-
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TrkToolInterfaces/IUpdator.h"
 
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
-class ITRT_CalDbSvc;
-class ITRT_ToT_dEdx;
-
 
 namespace Trk {
   class IUpdator;
-  class IResidualPullCalculator;
-  class ITrackHoleSearchTool;
   class PrepRawData;
-  class IExtrapolator;
-  class IPRD_AssociationTool;
 }
 
 namespace DerivationFramework {

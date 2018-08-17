@@ -27,6 +27,8 @@
 // PyROOT includes
 #include "AthenaPyRoot.h"
 
+#include "RootUtils/PyAthenaGILStateEnsure.h"
+
 #include <string>
 #include <vector>
 #include <algorithm> // for stable_partition
@@ -132,6 +134,7 @@ AthenaInternal::thinContainer( IThinningSvc* self,
 			       PyObject* filter_,
 			       int op )
 {
+  RootUtils::PyGILStateEnsure gil;
   // unlikely to happen, but checking is cheap
    if ( ! self ) {
       PyErr_SetString( PyExc_RuntimeError, 
@@ -276,6 +279,7 @@ AthenaInternal::thinIdxContainer( IThinningSvc* self,
 				  PyObject* container, 
 				  std::size_t idx )
 {
+  RootUtils::PyGILStateEnsure gil;
   // unlikely to happen, but checking is cheap
    if ( ! self ) {
       PyErr_SetString( PyExc_RuntimeError, 
@@ -358,6 +362,7 @@ namespace SG {
 
   PyIdcThinningHdlr::~PyIdcThinningHdlr()
   {
+    RootUtils::PyGILStateEnsure gil;
     for ( Backups_t::iterator 
 	    itr = m_backup.begin(),
 	    iEnd= m_backup.end();
@@ -372,6 +377,7 @@ namespace SG {
    */
   void PyIdcThinningHdlr::remove( const std::size_t idx )
   {
+    RootUtils::PyGILStateEnsure gil;
     PyObject *res = PyObject_CallMethod ((PyObject*)(m_container),
 					 (char*)"removeCollection",
 					 (char*)"I", idx); // unsigned int
@@ -403,6 +409,7 @@ namespace SG {
    */
   void PyIdcThinningHdlr::rollback()
   {
+    RootUtils::PyGILStateEnsure gil;
     for ( Backups_t::iterator 
 	    itr = m_backup.begin(),
 	    iEnd= m_backup.end();

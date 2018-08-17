@@ -14,7 +14,7 @@ PURPOSE:
 
 ********************************************************************/
 
-#include "LArCellRec/LArCellMerger.h"
+#include "LArCellMerger.h"
 
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "CaloEvent/CaloCellContainer.h"

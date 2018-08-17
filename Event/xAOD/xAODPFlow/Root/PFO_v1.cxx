@@ -42,12 +42,10 @@ namespace xAOD {
     }//getAccessor
   };
 
-  PFO_v1::PFO_v1()
-    : IParticle(), m_floatCompressionFactor(1000) {
-    
+  PFO_v1::PFO_v1() : IParticle() {
   }
 
-  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_floatCompressionFactor(1000) {
+  PFO_v1::PFO_v1(const PFO_v1& other) : IParticle(){
     this->makePrivateStore(other);
   }
 
@@ -249,7 +247,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
 
-
+  bool PFO_v1::isCharged() const{
+     return (fabs(this->charge())>FLT_MIN);
+  }
 
   /** specaial implementations for floats, for eflowRec JetETMiss variables, to reduce disk space usage */
 
@@ -272,8 +272,8 @@ namespace xAOD {
 
   template<> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const float& anAttribute) {
     if (this->isJetETMissFloatForCompression(AttributeType)){
-      float dummy = anAttribute*m_floatCompressionFactor;
-      int maxIntSize = 1000000000;
+      float dummy = anAttribute*s_floatCompressionFactor;
+      const static int maxIntSize = 1000000000;
       int internalAttribute = maxIntSize;
       if (dummy < 0) internalAttribute *= -1;//if we had a large -ve energy, then we should set the max size to a -ve value         
       if (dummy < maxIntSize && dummy > -maxIntSize) internalAttribute = static_cast<int>(dummy);
@@ -290,7 +290,7 @@ namespace xAOD {
     if (this->isJetETMissFloatForCompression(AttributeType)){
       int internalAttribute;
       isValid = attribute<int>(AttributeType,internalAttribute);
-      if (true == isValid && 0 != internalAttribute) anAttribute = static_cast<float>(internalAttribute)/m_floatCompressionFactor;
+      if (true == isValid && 0 != internalAttribute) anAttribute = static_cast<float>(internalAttribute)/s_floatCompressionFactor;
       else anAttribute = 0.0;
       return isValid;
     }

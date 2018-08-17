@@ -59,7 +59,9 @@ StatusCode JetPruner::initialize() {
 
 //**********************************************************************
 
-int JetPruner::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
+int JetPruner::groom(const xAOD::Jet& jin,
+                     const PseudoJetContainer& pjContainer,
+                     xAOD::JetContainer& jets) const {
   if ( pseudojetRetriever() == nullptr ) {
     ATH_MSG_WARNING("Pseudojet retriever is null.");
     return 1;
@@ -75,7 +77,7 @@ int JetPruner::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   ATH_MSG_VERBOSE("   Input cluster sequence: " << ppjin->associated_cluster_sequence());
   ATH_MSG_VERBOSE(" Pruned cluster sequence: " << pjprun.associated_cluster_sequence());
   // Add jet to collection.
-  xAOD::Jet* pjet = m_bld->add(pjprun, jets, &jin);
+  xAOD::Jet* pjet = m_bld->add(pjprun, pjContainer, jets, &jin);
   pjet->setAttribute("RCut", m_rcut);
   pjet->setAttribute("ZCut", m_zcut);
   pjet->setAttribute<int>("TransformType", xAOD::JetTransform::Prune);

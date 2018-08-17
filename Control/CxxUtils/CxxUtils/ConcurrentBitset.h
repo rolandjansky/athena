@@ -16,6 +16,7 @@
 
 
 #include "CxxUtils/atomic_fetch_minmax.h"
+#include "CxxUtils/features.h"
 #include "CxxUtils/bitscan.h"
 #include "CxxUtils/ones.h"
 #include <climits>
@@ -894,9 +895,22 @@ private:
     bool test (bit_t bit) const;
 
 
+    // Use popcnt instruction if available.  This ugliness needed
+    // because our default compilation options do not enable
+    // use of this instruction.
+#if defined(__x86_64__) && HAVE_FUNCTION_MULTIVERSIONING
     /**
      * @brief Count the number of 1 bits in the set.
      */
+    __attribute__ ((target ("popcnt")))
+    bit_t count() const;
+#endif
+    /**
+     * @brief Count the number of 1 bits in the set.
+     */
+#if HAVE_FUNCTION_MULTIVERSIONING
+    __attribute__ ((target ("default")))
+#endif
     bit_t count() const;
 
 

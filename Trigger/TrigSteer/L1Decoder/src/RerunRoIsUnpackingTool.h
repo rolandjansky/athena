@@ -31,8 +31,8 @@ class RerunRoIsUnpackingTool : public RoIsUnpackingToolBase
 			  const IInterface* parent );
 
   virtual ~RerunRoIsUnpackingTool(); 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   virtual StatusCode updateConfiguration() override;
 
   StatusCode unpack( const EventContext& ctx,

@@ -21,12 +21,12 @@
 #include "xAODPrimitives/IsolationType.h"
 #include "xAODPrimitives/IsolationFlavour.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "RecoToolInterfaces/ICaloCellIsolationTool.h"
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include <string>
 
 namespace xAOD {
 class IParticle;
-class ITrackIsolationTool;
-class ICaloCellIsolationTool;
 }
 
 

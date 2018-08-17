@@ -14,6 +14,8 @@
 
 #include <vector>
 
+class IdentifierHash;
+
 namespace InDetDD {
 
     class SiDetectorElement;
@@ -25,9 +27,16 @@ namespace InDetDD {
        @author Grant Gorfine
     */
 
-    class SiDetectorElementCollection : public std::vector<SiDetectorElement *>
-{};
+    class SiDetectorElementCollection : public std::vector<SiDetectorElement *> {
+     public:
+      const SiDetectorElement* getDetectorElement(const IdentifierHash& hash) const;
+    };
 
 } // namespace InDetDD
+
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( InDetDD::SiDetectorElementCollection , 1330395642 , 1 )
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( InDetDD::SiDetectorElementCollection, 1098715294 );
 
 #endif // INDETREADOUTGEOMETRY_SIDETECTORELEMENTCOLLECTION_H

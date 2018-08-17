@@ -57,7 +57,6 @@ HanAlgorithmConfig::
 TObject*
 HanAlgorithmConfig::
 getReference() const
-throw (dqm_core::BadConfig)
 {
   if (m_ref) { 
     TObject* rv = m_ref->Clone();

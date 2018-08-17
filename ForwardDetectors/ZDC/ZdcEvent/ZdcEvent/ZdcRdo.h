@@ -5,7 +5,7 @@
 #ifndef ZDCRDO_H
 #define ZDCRDO_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /** @class ZdcRdo
  * @author W. H. Bell <W.Bell@cern.ch>

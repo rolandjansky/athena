@@ -105,7 +105,7 @@ private:
    /// Reference count
    int m_refCount;
    /// Technology identifier
-   int m_technology;
+   unsigned int m_technology;
    /// Database identifier
    Guid m_dbID;
    /// Container identifier
