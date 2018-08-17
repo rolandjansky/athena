@@ -8,7 +8,6 @@
 #include "../BSFilter.h"
 #include "../G4HitMerger.h"
 #include "../ByteStreamMultipleOutputStreamCopyTool.h"
-#include "../RemoveTempBkgObjects.h"
 
 DECLARE_COMPONENT( CopyMcEventCollection )
 DECLARE_COMPONENT( CopyObjects )
@@ -19,6 +18,5 @@ DECLARE_COMPONENT( RemoveObjects )
 DECLARE_COMPONENT( UpdateEventInfo )
 DECLARE_COMPONENT( BSFilter )
 DECLARE_COMPONENT( G4HitMerger )
-DECLARE_COMPONENT( RemoveTempBkgObjects )
 
 DECLARE_COMPONENT( ByteStreamMultipleOutputStreamCopyTool )
