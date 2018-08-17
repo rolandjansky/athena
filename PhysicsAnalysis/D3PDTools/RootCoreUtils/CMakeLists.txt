@@ -32,7 +32,3 @@ atlas_add_test( test_message_svc
 atlas_add_test( ut_expression
    SOURCES test/ut_expression.cxx
    LINK_LIBRARIES RootCoreUtils )
-
-atlas_add_test( ut_ran_packages_false
-   SOURCES test/ut_ran_packages_false.cxx
-   LINK_LIBRARIES RootCoreUtils )
