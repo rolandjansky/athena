@@ -82,7 +82,7 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
 
   // Record validity of the output cond obbject
   if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_ERROR("Could not record SCT_TdaqEnabledCondData " << writeHandle.key()
+    ATH_MSG_ERROR("Could not record SCT_MonitorConditionsCondData " << writeHandle.key()
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
     return StatusCode::FAILURE;

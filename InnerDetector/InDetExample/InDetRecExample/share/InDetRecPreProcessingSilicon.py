@@ -214,7 +214,6 @@ if InDetFlags.doPRDFormation():
       InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
                                                           clusteringTool          = InDetSCT_ClusteringTool,
                                                           # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                          DetectorManagerName     = InDetKeys.SCT_Manager(), 
                                                           DataObjectName          = InDetKeys.SCT_RDOs(),
                                                           ClustersName            = InDetKeys.SCT_Clusters(),
                                                           conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -230,7 +229,6 @@ if InDetFlags.doPRDFormation():
         InDetSCT_ClusterizationPU = InDet__SCT_Clusterization(name                    = "InDetSCT_ClusterizationPU",
                                                               clusteringTool          = InDetSCT_ClusteringTool,
                                                               # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                              DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                               DataObjectName          = InDetKeys.SCT_PU_RDOs(),
                                                               ClustersName            = InDetKeys.SCT_PU_Clusters(),
                                                               conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)

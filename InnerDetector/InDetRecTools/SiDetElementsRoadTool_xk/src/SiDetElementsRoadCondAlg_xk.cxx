@@ -9,7 +9,6 @@
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "SiDetElementsRoadUtils_xk.h"
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +18,6 @@
 InDet::SiDetElementsRoadCondAlg_xk::SiDetElementsRoadCondAlg_xk(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator),
   m_pixmgr{nullptr},
-  m_sctmgr{nullptr},
   m_condSvc{"CondSvc", name}
 {
 }
@@ -46,7 +44,6 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::initialize()
   
   // Get  SCT Detector Manager and SCT ID helper
   if (m_useSCT) {
-    ATH_CHECK(detStore()->retrieve(m_sctmgr, m_sct));
     ATH_CHECK(m_SCTDetEleCollKey.initialize());
   }
 
@@ -131,9 +128,6 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute()
     if (not sctDetEleHandle.isValid() or sctDetEle==nullptr) {
       ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " is not available.");
       return StatusCode::FAILURE;
-    }
-    if (m_useDetectorManager) {
-      sctDetEle = m_sctmgr->getDetectorElementCollection();
     }
     for (const InDetDD::SiDetectorElement* s: *sctDetEle) {
       if      (s->isBarrel()       ) pW[1].push_back(s); // Barrel
