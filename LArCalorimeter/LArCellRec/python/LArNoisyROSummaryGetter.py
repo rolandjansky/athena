@@ -45,9 +45,9 @@ class LArNoisyROSummaryGetter ( Configured )  :
         theLArNoisyROTool=LArNoisyROTool(CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
-                                         KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs(),
                                          MNBLooseCut=larNoisyROFlags.MNBLooseCut(),
-                                         MNBTightCut=larNoisyROFlags.MNBTightCut()
+                                         MNBTightCut=larNoisyROFlags.MNBTightCut(),
+                                         MNBTight_PsVetoCut=larNoisyROFlags.MNBTight_PsVetoCut()
                                          )
 
 
