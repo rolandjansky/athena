@@ -19,7 +19,7 @@
 
 #include "xAODTracking/TrackingPrimitives.h"
 #include <math.h>
-
+#include <memory>
 
 namespace Rec {
 
@@ -297,7 +297,7 @@ namespace Rec {
     }
 
     // get the extrapolation into the calo
-    const Trk::CaloExtension* caloExtension = 0;
+    std::unique_ptr<Trk::CaloExtension> caloExtension = nullptr;
     if( !m_caloExtensionTool->caloExtension(particle,caloExtension) ) {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
