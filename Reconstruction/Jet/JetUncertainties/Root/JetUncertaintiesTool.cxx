@@ -94,7 +94,6 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_rand()
     , m_massSmearPar(0.66)
     , m_isData(ExtendedBool::UNSET)
-    , m_isSimpleRes(true)
     , m_resHelper(NULL)
     , m_namePrefix("JET_")
 {
@@ -152,7 +151,6 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_rand(toCopy.m_rand)
     , m_massSmearPar(toCopy.m_massSmearPar)
     , m_isData(toCopy.m_isData)
-    , m_isSimpleRes(toCopy.m_isSimpleRes)
     , m_resHelper(new ResolutionHelper(*toCopy.m_resHelper))
     , m_namePrefix(toCopy.m_namePrefix)
 {
@@ -655,114 +653,6 @@ StatusCode JetUncertaintiesTool::initialize()
     }
 
 
-    /*
-    // Deal with subgroups
-    // Have to do this carefully to ensure we can have multiple levels of subgroups (groups of groups of groups of ...)
-
-    // First split into complex groups and basic groups (groups which include subgroups and groups which do not include subgroups)
-    // Also get the full list of subgroup requests to ensure there are no duplicates
-    std::vector<size_t> complexGroupIndices;
-    std::vector<size_t> basicGroupIndices;
-    std::set<int> subgroupsRequested;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-    {
-        const std::vector<int> subgroupNums = m_groups.at(iGroup)->getSubgroupNums();
-        if (subgroupNums.size())
-        {
-            for (size_t iSubgroup = 0; iSubgroup < subgroupNums.size(); ++iSubgroup)
-            {
-                const int subgroupNum = subgroupNums.at(iSubgroup);
-                if (subgroupNum == 0)
-                {
-                    ATH_MSG_ERROR("Requested group number 0 as a subgroup, which is forbidden (0 is a simple group)");
-                    return StatusCode::FAILURE;
-                }
-                else if (subgroupsRequested.count(subgroupNum))
-                {
-                    ATH_MSG_ERROR(Form("Requested group number %d as a subgroup of multiple complex groups",subgroupNum));
-                    return StatusCode::FAILURE;
-                }
-                else
-                    subgroupsRequested.insert(subgroupNum);
-            }
-            complexGroupIndices.push_back(iGroup);
-        }
-        else
-            basicGroupIndices.push_back(iGroup);
-    }
-
-    // Match indices to each of the requested subgroups
-    std::vector< std::pair<int,size_t> > subgroupPairs;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-    {
-        const int groupNum = m_groups.at(iGroup)->getGroupNum();
-        if (groupNum == 0) continue;
-        
-        for (std::set<int>::const_iterator iter = subgroupsRequested.begin(); iter != subgroupsRequested.end(); ++iter)
-        {
-            if ( (*iter) == groupNum )
-            {
-                subgroupPairs.push_back(std::make_pair(groupNum,iGroup));
-                break;
-            }
-        }
-    }
-
-    // We now have the map of (group-->index)
-    // Combine all of the groups as applicable
-    // Leave all of the groups in the class member vector for now until we have completed the merger
-    for (size_t iCompGroup = 0; iCompGroup < complexGroupIndices.size(); ++iCompGroup)
-    {
-        const size_t compGroupIndex = complexGroupIndices.at(iCompGroup);
-        const std::vector<int> subgroupNums = m_groups.at(compGroupIndex)->getSubgroupNums();
-        for (size_t iSubgroupPair = 0; iSubgroupPair < subgroupPairs.size(); ++iSubgroupPair)
-        {
-            for (size_t iSubgroup = 0; iSubgroup < subgroupNums.size(); ++iSubgroup)
-            {
-                // Ensure we're not adding a cyclic group
-                if (m_groups.at(compGroupIndex)->getGroupNum() == subgroupNums.at(iSubgroup))
-                {
-                    ATH_MSG_ERROR(Form("Blocking the request to add group number %d as a subgroup of itself",subgroupNums.at(iSubgroup)));
-                    return StatusCode::FAILURE;
-                }
-
-                // Now add the subgroup to the complex group
-                if (subgroupNums.at(iSubgroup) == subgroupPairs.at(iSubgroupPair).first)
-                {
-                    if (m_groups.at(compGroupIndex)->addSubgroup(m_groups.at(subgroupPairs.at(iSubgroupPair).second)).isFailure())
-                    {
-                        ATH_MSG_ERROR(Form("Failed to add subgroup \"%s\" to complex group \"%s\"",m_groups.at(subgroupPairs.at(iSubgroupPair).second)->getName().Data(),m_groups.at(compGroupIndex)->getName().Data()));
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    // Clean up all of the subgroups, leaving only the outermost complex groups and independent groups in the class member variable
-    // Faster to do it this way rather than deleting individual entries of the vector
-    std::vector<UncertaintyGroup*> localGroupVec;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-        localGroupVec.push_back(m_groups.at(iGroup));
-    m_groups.clear();
-    for (size_t iGroup = 0; iGroup < localGroupVec.size(); ++iGroup)
-    {
-        // Check if this group should be retained
-        bool retainGroup = true;
-        for (size_t iSubgroupPair = 0; iSubgroupPair < subgroupPairs.size(); ++iSubgroupPair)
-        {
-            if (subgroupPairs.at(iSubgroupPair).second == iGroup)
-            {
-                retainGroup = false;
-                break;
-            }
-        }
-        // Keep the group if applicable
-        if (retainGroup)
-            m_groups.push_back(localGroupVec.at(iGroup));
-    }
-    */
-
     
     // Initialize all of the groups (and thus all of the components)
     // Also ensure that there are no empty groups
@@ -789,6 +679,25 @@ StatusCode JetUncertaintiesTool::initialize()
         if (addAffectingSystematic(systVar,isRecommended) != CP::SystematicCode::Ok)
             return StatusCode::FAILURE;
     }
+
+    // Ensure that we have nominal resolutions for any requested resolution uncertainties
+    // Do this at initialization, even if it is also checked in execution
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    {
+        std::set<CompScaleVar::TypeEnum> scaleVars = m_groups.at(iGroup)->getScaleVars();
+        for (CompScaleVar::TypeEnum var : scaleVars)
+        {
+            if (CompScaleVar::isResolutionType(var))
+            {
+                if (!m_resHelper->hasRelevantInfo(var,m_groups.at(iGroup)->getTopology()))
+                {
+                    ATH_MSG_ERROR("Config file requests a resolution uncertainty without specifying the corresponding nominal resolution: " << CompScaleVar::enumToString(var).Data());
+                    return StatusCode::FAILURE;
+                }
+            }
+        }
+    }
+
 
     // Ensure that the filters are sane (they are all associated to at least one group)
     for (size_t iFilter = 0; iFilter < m_systFilters.size(); ++iFilter)
@@ -2367,11 +2276,11 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
 
         Dedicated class member variables used by this function are:
             m_isData: needed to control whether or not to smear the jet
-            m_isSimpleRes: needed to control whether we smear data+MC or only MC
-            m_*NomResData: the relevant nominal resolution histogram for data
-            m_*NomResMC: the relevant nominal resolution histogram for MC
-            m_*NomResParamData: the parametrization of the nominal data resolution
-            m_*NomResParamMC: the parametrization of the nominal MC resolution
+            m_resHelper: contains lots of global resolution information
+                - Whether to smear MC and data, or only MC
+                - Nominal resolution histograms for data
+                - Nominal resolution histograms for MC
+                - Parametrizations of nominal resolution histograms
             m_rand: the random number generator
             m_userSeed: the optional user-specified seed to use for the random generator
 
@@ -2380,6 +2289,8 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
             This is trivially correct for absolute uncertainties, but not relative
             However, for relative uncertainties, all NPs are with respect to same nominal
             As such, it factors out, and we can take variation*sigma_nominal^data
+            Furthermore, as it factors out, the nominal doesn't matter to determine the sign
+            This is important as the sign sets whether data or MC is the nominal
     */
 
     // Check if we need to do anything at all
@@ -2387,7 +2298,7 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
         return 1; // No smearing if the variation is 0
     else if (m_isData)
     {
-        if (m_isSimpleRes)
+        if (m_resHelper->smearOnlyMC())
             return 1; // No smearing if this is data and we are in the simple scenario
         if (variation > 0)
             return 1; // No smearing if this is data and the sign says to smear MC
@@ -2396,20 +2307,18 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
         return 1; // No smearing if this is MC and the sign says to smear data
     
     // Figure out which resolution is nominal (MC or data)
-    const bool nominalIsMC = (m_isSimpleRes || variation > 0);
+    const bool nominalIsMC = (m_resHelper->smearOnlyMC() || variation > 0);
 
     // Get the relevant nominal resolution
     const double sigmaNom = getNominalResolution(jet,smearType,nominalIsMC);
 
     // If this is a relative uncertainty, get the relevant nominal data histogram
     // This is used to scale the input relative variation to get the absolute impact
-    const double relativeFactor = CompScaleVar::isRelResolutionType(smearType)
-                                    ? getNominalResolution(jet,smearType,false)
-                                    : 1;
+    const double relativeFactor = CompScaleVar::isRelResolutionType(smearType) ? sigmaNom : 1;
 
     // We now have the required information, so let's calculate the smearing factor
     // Note that relativeFactor is 1 if this is an absolute uncertainty
-    const double sigmaSmear = m_isSimpleRes
+    const double sigmaSmear = m_resHelper->smearOnlyMC()
                                 ? sqrt(pow(sigmaNom + fabs(variation)*relativeFactor,2) - pow(sigmaNom,2))
                                 : sqrt(pow(sigmaNom +      variation *relativeFactor,2) - pow(sigmaNom,2));
 

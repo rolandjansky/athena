@@ -17,6 +17,7 @@ ResolutionHelper::ResolutionHelper(const std::string& name, const std::string& j
     , m_name(name)
     , m_jetDef(jetDef)
     , m_isInit(false)
+    , m_smearOnlyMC(false)
     , m_ptNomHistData(NULL)
     , m_ptNomParamData(CompParametrization::UNKNOWN)
     , m_ptNomHistMC(NULL)
@@ -48,6 +49,7 @@ ResolutionHelper::ResolutionHelper(const ResolutionHelper& toCopy)
     , m_name(toCopy.m_name)
     , m_jetDef(toCopy.m_jetDef)
     , m_isInit(toCopy.m_isInit)
+    , m_smearOnlyMC(toCopy.m_smearOnlyMC)
     , m_ptNomHistData(!toCopy.m_ptNomHistData ? NULL : new UncertaintyHistogram(*toCopy.m_ptNomHistData))
     , m_ptNomParamData(toCopy.m_ptNomParamData)
     , m_ptNomHistMC(!toCopy.m_ptNomHistMC ? NULL : new UncertaintyHistogram(*toCopy.m_ptNomHistMC))
@@ -234,6 +236,57 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
         return StatusCode::FAILURE;
     }
 
+    // Check if the user has specified if this is full correlations or MC-only
+    TString smearType = settings.GetValue("ResolutionSmearOnlyMC","");
+    if (smearType != "")
+    {
+        if (!smearType.CompareTo("true",TString::kIgnoreCase))
+            m_smearOnlyMC = true;
+        else if (!smearType.CompareTo("false",TString::kIgnoreCase))
+            m_smearOnlyMC = false;
+        else
+        {
+            ATH_MSG_ERROR("The value of ResolutionSmearOnlyMC doesn't look like the expected boolean: " << smearType.Data());
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_INFO(Form("  ResolutionSmearOnlyMC: \"%s\"",m_smearOnlyMC ? "true" : "false"));
+    }
+
+    // If we are also smearing data, we need the data histograms for any MC histogram
+    if (!m_smearOnlyMC)
+    {
+        if (m_ptNomHistMC && !m_ptNomHistData)
+        {
+            ATH_MSG_ERROR("Requested full smearing correlations (both data and MC), but only provided the MC nominal histogram for pT");
+            return StatusCode::FAILURE;
+        }
+        if (m_fvNomHistMC && !m_fvNomHistMC)
+        {
+            ATH_MSG_ERROR("Requested full smearing correlations (both data and MC), but only provided the MC nominal histogram for fourvec");
+            return StatusCode::FAILURE;
+        }
+        if (m_mQCDNomHistMC && !m_mQCDNomHistData)
+        {
+            ATH_MSG_ERROR("Requested full smearing correlations (both data and MC), but only provided the MC nominal histogram for mQCD");
+            return StatusCode::FAILURE;
+        }
+        if (m_mWZNomHistMC && !m_mWZNomHistData)
+        {
+            ATH_MSG_ERROR("Requested full smearing correlations (both data and MC), but only provided the MC nominal histogram for mWZ");
+            return StatusCode::FAILURE;
+        }
+        if (m_mHbbNomHistMC && !m_mHbbNomHistData)
+        {
+            ATH_MSG_ERROR("Requested full smearing correlations (both data and MC), but only provided the MC nominal histogram for mHbb");
+            return StatusCode::FAILURE;
+        }
+        if (m_mTopNomHistMC && !m_mTopNomHistData)
+        {
+            ATH_MSG_ERROR("Requested full smearing correlations (both data and MC), but only provided the MC nominal histogram for mTop");
+            return StatusCode::FAILURE;
+        }
+    }
+
 
     m_isInit = true;
     return StatusCode::SUCCESS;
@@ -245,6 +298,13 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
     const jet::UncertaintyHistogram* resolution = NULL;
     CompParametrization::TypeEnum param         = CompParametrization::UNKNOWN;
     
+    if (!m_isInit)
+    {
+        ATH_MSG_ERROR("Asking for the nominal resolution before initialization");
+        return std::pair<UncertaintyHistogram*,CompParametrization::TypeEnum>(NULL,CompParametrization::UNKNOWN);
+    }
+
+
     switch (smearType)
     {
         case CompScaleVar::MassRes:
@@ -353,6 +413,54 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
             return std::pair<UncertaintyHistogram*,CompParametrization::TypeEnum>(NULL,CompParametrization::UNKNOWN);
     }
     return std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum>(resolution,param);
+}
+
+bool ResolutionHelper::hasRelevantInfo(const CompScaleVar::TypeEnum type, const JetTopology::TypeEnum topology) const
+{
+    if (!m_isInit)
+    {
+        ATH_MSG_ERROR("Asking for nominal resolution information before initialization");
+        return false;
+    }
+
+    // Check that the nominal MC histograms for the specified type exist
+    //      We have already checked that the parametrizations exist for each histogram
+    //      We have already checked that the data histograms exist for each MC if relevant
+    switch (type)
+    {
+        case CompScaleVar::PtRes:
+        case CompScaleVar::PtResAbs:
+            return m_ptNomHistMC != NULL;
+
+        case CompScaleVar::FourVecRes:
+        case CompScaleVar::FourVecResAbs:
+            return m_fvNomHistMC != NULL;
+
+        case CompScaleVar::MassRes:
+        case CompScaleVar::MassResAbs:
+            switch (topology)
+            {
+                case JetTopology::QCD:
+                    return m_mQCDNomHistMC != NULL;
+
+                case JetTopology::WZ:
+                    return m_mWZNomHistMC  != NULL;
+
+                case JetTopology::Hbb:
+                    return m_mHbbNomHistMC != NULL;
+
+                case JetTopology::Top:
+                    return m_mTopNomHistMC != NULL;
+
+                default:
+                    ATH_MSG_ERROR("Unexpected topology type, cannot determine if relevant info exists: " << JetTopology::enumToString(topology).Data());
+                    return false;
+            }
+
+        default:
+            ATH_MSG_ERROR("Unexpected variable type, cannot determine if relevant info exists: " << CompScaleVar::enumToString(type).Data());
+            return false;
+    }
 }
 
 } // end jet namespace

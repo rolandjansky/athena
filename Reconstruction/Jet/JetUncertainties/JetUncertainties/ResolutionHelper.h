@@ -29,10 +29,17 @@ class ResolutionHelper : public asg::AsgMessaging
         // Information retrieval
         std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> getNominalResolution(const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology, const bool readMC) const;
 
+        bool smearOnlyMC()    const { return  m_smearOnlyMC; }
+        bool smearDataAndMC() const { return !m_smearOnlyMC; }
+
+        bool hasRelevantInfo(const CompScaleVar::TypeEnum type, const JetTopology::TypeEnum topology) const;
+
     private:
         std::string m_name;
         std::string m_jetDef;
         bool m_isInit;
+
+        bool m_smearOnlyMC;
 
         // Nominal resolution histograms
         UncertaintyHistogram* m_ptNomHistData;

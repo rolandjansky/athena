@@ -215,7 +215,6 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         mutable TRandom3 m_rand; // mutable as this we want to call in a const function (everything else is fixed, the random generator is modifiable)
         double m_massSmearPar;
         bool m_isData;
-        bool m_isSimpleRes;
         jet::ResolutionHelper* m_resHelper;
 
         // Default prefix for each component name
