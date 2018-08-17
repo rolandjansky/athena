@@ -67,7 +67,7 @@ StatusCode InDetGlobalErrorMonTool::initialize() {
   ATH_CHECK(m_ConfigurationTool.retrieve());
   ATH_CHECK(m_byteStreamErrTool.retrieve());
 
-  ATH_CHECK(m_sctDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   return ManagedMonitorToolBase::initialize();
 }
@@ -259,10 +259,10 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   
   m_errorGeoSCT.clear();
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_ERROR(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncErrorSCT()");
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncErrorSCT()");
     return false;
   }
   
@@ -350,10 +350,10 @@ bool InDetGlobalErrorMonTool::SyncDisabledSCT()
   
   m_disabledGeoSCT.clear();
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_ERROR(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
     return false;
   }
 

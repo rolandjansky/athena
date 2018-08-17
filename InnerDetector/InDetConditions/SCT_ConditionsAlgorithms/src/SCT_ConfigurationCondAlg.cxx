@@ -60,7 +60,7 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
   ATH_CHECK(m_readKeyChannel.initialize());
   ATH_CHECK(m_readKeyModule.initialize());
   ATH_CHECK(m_readKeyMur.initialize());
-  ATH_CHECK(m_sctDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
@@ -177,10 +177,10 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   }
 
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_FATAL(m_sctDetEleCollKey.fullKey() << " could not be retrieved");
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
   }
   // Get EventIDRange

@@ -201,7 +201,6 @@ def makeInDetAlgs():
   InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
                                                       clusteringTool          = InDetSCT_ClusteringTool,
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                      DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)

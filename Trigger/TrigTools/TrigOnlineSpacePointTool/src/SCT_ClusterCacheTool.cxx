@@ -420,7 +420,6 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 		{
 		  const InDetRawDataCollection<SCT_RDORawData>* pRdoColl = (*collIt);
 		  const InDet::SCT_ClusterCollection* pColl = m_clusteringTool->clusterize(*pRdoColl,
-											   *m_indet_mgr,
 											   *m_sct_id);
 		  if(pColl!=NULL) 
 		    {

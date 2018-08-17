@@ -13,7 +13,6 @@ ATLAS Collaboration
 #include "SiSpacePointFormation/SiTrackerSpacePointFinder.h"
 
 // For processing clusters
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -57,7 +56,6 @@ namespace InDet {
     m_numberOfEvents(0), m_numberOfPixel(0), m_numberOfSCT(0),
     m_sctCacheHits(0), m_pixCacheHits(0),
     m_cachemode(false),
-    m_manager(0),
     m_idHelper(nullptr),
     m_idHelperPixel(nullptr),
     m_SpacePointContainer_SCTKey("SCT_SpacePoints"),
@@ -146,9 +144,6 @@ StatusCode SiTrackerSpacePointFinder::initialize()
   if (m_selectSCTs) {
     ATH_CHECK(detStore()->retrieve(m_idHelper,"SCT_ID"));
 
-    // also need the SCT Manager to get the detectorElementCollection
-    ATH_CHECK(detStore()->retrieve(m_manager,"SCT"));
-
     // Initialize the key of input SiElementPropertiesTable and SiDetectorElementCollection for SCT
     ATH_CHECK(m_SCTPropertiesKey.initialize());
     ATH_CHECK(m_SCTDetEleCollKey.initialize());
@@ -187,9 +182,6 @@ StatusCode SiTrackerSpacePointFinder::execute_r (const EventContext& ctx) const
     if (elements==nullptr) {
       ATH_MSG_FATAL("Pointer of SiDetectorElementCollection (" << m_SCTDetEleCollKey.fullKey() << ") could not be retrieved");
       return StatusCode::SUCCESS;
-    }
-    if (m_useDetectorManager) {
-      elements = m_manager->getDetectorElementCollection();
     }
     SG::ReadCondHandle<SiElementPropertiesTable> sctProperties(m_SCTPropertiesKey, ctx);
     properties = sctProperties.retrieve();

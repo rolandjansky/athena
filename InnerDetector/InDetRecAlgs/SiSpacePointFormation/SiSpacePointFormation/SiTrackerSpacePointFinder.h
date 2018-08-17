@@ -78,10 +78,6 @@ class SCT_ID;
 class PixelID;
 class IBeamCondSvc;
 
-namespace InDetDD {
-  class SCT_DetectorManager;
-}
-
 namespace InDet {
 
   class SiTrackerSpacePointFinder:public AthReentrantAlgorithm {
@@ -165,7 +161,6 @@ namespace InDet {
     mutable std::atomic<int> m_sctCacheHits;
     mutable std::atomic<int> m_pixCacheHits;
     bool m_cachemode; //used for online MT counters
-    const InDetDD::SCT_DetectorManager* m_manager; 
     const SCT_ID* m_idHelper;
     const PixelID* m_idHelperPixel;
     
@@ -176,7 +171,6 @@ namespace InDet {
     SG::UpdateHandleKey<SpacePointCache> m_SpacePointCache_PixKey;
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
 
-    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     SG::ReadCondHandleKey<InDet::SiElementPropertiesTable> m_SCTPropertiesKey{this, "SCTPropertiesKey", "SCT_ElementPropertiesTable", "Key of input SiElementPropertiesTable for SCT"};
   };

@@ -48,7 +48,9 @@ class ComponentAccumulator(object):
     def __del__(self):
         if not self._wasMerged and not self.empty():
             #raise ConfigurationError("This componentAccumulator was never merged!")
-            print "ERROR, this componentAccumulator was never merged!"
+            log = logging.getLogger("ComponentAccumulator")
+            log.error("The ComponentAccumulator listed below was never merged!")
+            self.printConfig()
         pass
     
 
@@ -663,6 +665,32 @@ if __name__ == "__main__":
     s = pickle.load(f)
     f.close()
     assert s['hltSteps']['Members'] != '[]', "Empty set of members in hltSteps, Sequences recording order metters"
+
+
+    # test if an algorithm (or sequence) can be controlled by more than one sequence
+    accTop = ComponentAccumulator()
+
     
+    recoSeq = seqAND("seqReco")
+    recoAlgAcc, recoAlg = AlgsConf2( dummyCfgFlags )
+    recoSeq += recoAlg
+
+    acc1 = ComponentAccumulator()
+    acc1.addSequence( seqAND("seq1") )
+    acc1.addSequence( recoSeq, parentName="seq1" )
+
+    acc2 = ComponentAccumulator()
+    acc2.addSequence( seqAND("seq2") )
+    acc2.addSequence( recoSeq, parentName="seq2" )
+    
+
+    accTop.merge( acc1 )
+    accTop.merge( acc2 )
+
+    accTop.merge( recoAlgAcc ) 
+
+    accTop.printConfig()
+    #accTop.store(open("testFileDummy.pkl", "w"))
+
     print( "\nAll OK" )
 
