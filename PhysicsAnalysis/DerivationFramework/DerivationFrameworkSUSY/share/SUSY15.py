@@ -290,11 +290,26 @@ if DerivationFrameworkIsMonteCarlo:
   #AugmentationTools.append(TrkParam4Truth)
 
   
-  #from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__llpTypes
   from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
   TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
-    OutputContainer = "AntiKt4LLPTruthJets",
+    OutputContainer = "AntiKt4LLP_RHadronTruthJets",
     LLPType = 1,
+  )
+  ToolSvc += TruthJetKinematicsTool
+  AugmentationTools.append(TruthJetKinematicsTool)
+
+  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
+  TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
+    OutputContainer = "AntiKt4LLP_CharginoTruthJets",
+    LLP_PDGIDS = [1000024],
+  )
+  ToolSvc += TruthJetKinematicsTool
+  AugmentationTools.append(TruthJetKinematicsTool)
+
+  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
+  TruthJetKinematicsTool = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJets",
+    OutputContainer = "AntiKt4LLP_NeutralinoTruthJets",
+    LLP_PDGIDS = [1000022],
   )
   ToolSvc += TruthJetKinematicsTool
   AugmentationTools.append(TruthJetKinematicsTool)
