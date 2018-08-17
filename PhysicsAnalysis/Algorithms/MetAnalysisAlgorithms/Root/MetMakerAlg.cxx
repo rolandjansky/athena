@@ -76,26 +76,30 @@ namespace CP
 
         metMap->resetObjSelectionFlags();
 
-// Macro helping with calculating the MET terms coming from the leptons
-// (and photons).
-#define PROCESS_PARTICLES(HANDLE,TYPE,TERM)                          \
-        if (HANDLE)                                                  \
-        {                                                            \
-          const xAOD::IParticleContainer* particles = nullptr;       \
-          ANA_CHECK (HANDLE.retrieve (particles, sys));              \
-          ANA_CHECK (m_makerTool->rebuildMET (TERM, TYPE, met.get(), \
-                                              particles, metMap));   \
-        }
+        // Lambda helping with calculating the MET terms coming from the leptons
+        // (and photons).
+        auto processParticles =
+          [&] (SysReadHandle<xAOD::IParticleContainer>& handle,
+               xAOD::Type::ObjectType type,
+               const std::string& term) -> StatusCode {
+            if (!handle) {
+              return StatusCode::SUCCESS;
+            }
+            const xAOD::IParticleContainer* particles = nullptr;
+            ANA_CHECK (handle.retrieve (particles, sys));
+            ANA_CHECK (m_makerTool->rebuildMET (term, type, met.get(),
+                                                particles, metMap));
+            return StatusCode::SUCCESS;
+          };
 
         // Calculate the terms coming from the user's selected objects.
-        PROCESS_PARTICLES (m_electronsHandle, xAOD::Type::Electron,
-                           m_electronsKey)
-        PROCESS_PARTICLES (m_photonsHandle, xAOD::Type::Photon, m_photonsKey)
-        PROCESS_PARTICLES (m_muonsHandle, xAOD::Type::Muon, m_muonsKey)
-        PROCESS_PARTICLES (m_tausHandle, xAOD::Type::Tau, m_tausKey)
-
-// Remove the helper macro.
-#undef PROCESS_PARTICLES
+        ANA_CHECK (processParticles (m_electronsHandle, xAOD::Type::Electron,
+                                     m_electronsKey));
+        ANA_CHECK (processParticles (m_photonsHandle, xAOD::Type::Photon,
+                                     m_photonsKey));
+        ANA_CHECK (processParticles (m_muonsHandle, xAOD::Type::Muon,
+                                     m_muonsKey));
+        ANA_CHECK (processParticles (m_tausHandle, xAOD::Type::Tau, m_tausKey));
 
         const xAOD::JetContainer *jets {nullptr};
         ANA_CHECK (m_jetsHandle.retrieve (jets, sys));
