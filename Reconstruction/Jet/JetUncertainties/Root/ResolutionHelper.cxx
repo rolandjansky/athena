@@ -92,7 +92,7 @@ ResolutionHelper::~ResolutionHelper()
     JESUNC_SAFE_DELETE(m_mTopNomHistMC);
 }
 
-StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram* hist, CompParametrization::TypeEnum& param)
+StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram*& hist, CompParametrization::TypeEnum& param)
 {
     // Get the string
     TString value = settings.GetValue(key,defaultValue);

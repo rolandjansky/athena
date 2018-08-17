@@ -73,7 +73,7 @@ class ResolutionHelper : public asg::AsgMessaging
         CompParametrization::TypeEnum m_mTopNomParamMC;
 
         // Helper methods
-        StatusCode parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram* hist, CompParametrization::TypeEnum& param);
+        StatusCode parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram*& hist, CompParametrization::TypeEnum& param);
 
 };
 

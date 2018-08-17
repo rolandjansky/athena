@@ -126,6 +126,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual double getNormalizedCaloMassWeight(const xAOD::Jet& jet) const;
         virtual double getNormalizedTAMassWeight(  const xAOD::Jet& jet) const;
 
+        virtual double getNominalResolutionMC(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology = jet::JetTopology::UNKNOWN) const;
+        virtual double getNominalResolutionData(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology = jet::JetTopology::UNKNOWN) const;
+
         // Inherited methods from CP::IJetUncertaintiesTool to implement
         // Apply a systematic variation or get a new copy
         virtual CP::CorrectionCode applyCorrection(xAOD::Jet& jet) const;
@@ -231,7 +234,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         StatusCode checkIndexInput(const size_t index) const;
         double getSmearingFactor(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const double variation) const;
         float getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const;
-        double getNominalResolution(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const bool readMC) const;
+        double getNominalResolution(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology, const bool readMC) const;
         double readHistoFromParam(const xAOD::Jet& jet, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
         double readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
 

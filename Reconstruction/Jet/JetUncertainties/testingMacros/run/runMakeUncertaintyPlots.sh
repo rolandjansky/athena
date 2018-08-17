@@ -3077,6 +3077,20 @@ function HLCompare \
     options="prefix=JET_;isDijet=true;fixedEtaVals=0;fixedPtVals=NONE;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/\";doCompare=HL2018/HL-Baseline-${composition}.config&MC15&HL-LHC uncertainty, baseline;totalUncName=\"HL-LHC uncertainty, optimistic\""
 }
 
+function JERTest \
+{
+    scaleVar="MassRes"
+    topology="Top"
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="JER/R4_GlobalReduction_JER.config"
+    outFile="JER-test.pdf"
+    compList="PtResUnc;FourVecResUnc;MassResUncQCD;MassResUncWZ;MassResUncHbb;MassResUncTop;NOMINALRESMC;NOMINALRESDATA"
+    compLabels="pT resolution;four-vector resolution;mass resolution, QCD;mass resolution, WZ;mass resolution, Hbb;mass resolution, top;nominal MC resolution;nominal data resolution"
+    options="prefix=JET_;fixedEtaVals=0,2;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";scaleVar=${scaleVar};topology=${topology}"
+}
+
 
 
 

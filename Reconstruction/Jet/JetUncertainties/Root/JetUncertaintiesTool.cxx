@@ -499,7 +499,7 @@ StatusCode JetUncertaintiesTool::initialize()
 
     // Attempt to read in nominal resolution information
     // There may be no such information - this is perfectly normal
-    m_resHelper = new ResolutionHelper(m_name+"_ResHelper",m_jetDef);
+    m_resHelper = new ResolutionHelper(m_name+"_RH",m_jetDef);
     if(m_resHelper->initialize(settings,histFile).isFailure())
         return StatusCode::FAILURE;
 
@@ -1709,10 +1709,31 @@ bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const 
 }
 
 
-double JetUncertaintiesTool::getNominalResolution(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const bool readMC) const
+double JetUncertaintiesTool::getNominalResolutionMC(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology) const
 {
+    return getNominalResolution(jet,smearType,topology,true);
+}
+
+double JetUncertaintiesTool::getNominalResolutionData(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology) const
+{
+    return getNominalResolution(jet,smearType,topology,false);
+}
+
+double JetUncertaintiesTool::getNominalResolution(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology, const bool readMC) const
+{
+    if (!m_isInit)
+    {
+        ATH_MSG_FATAL("Tool must be initialized before calling getNominalResolution");
+        return JESUNC_ERROR_CODE;
+    }
+    if (!m_resHelper)
+    {
+        ATH_MSG_ERROR("The ResolutionHelper class was not created");
+        return JESUNC_ERROR_CODE;
+    }
+
     // Get the nominal histogram and parametrization from the helper
-    std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> resolution = m_resHelper->getNominalResolution(smearType,m_currentUncSet->getTopology(),readMC);
+    std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> resolution = m_resHelper->getNominalResolution(smearType,topology,readMC);
 
     // Check that we retrieved them successfully
     if (!resolution.first || resolution.second == CompParametrization::UNKNOWN)
@@ -1730,41 +1751,41 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::Jet& jet, const Unce
 
 double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
 {
-    double resolution = 0;
+    double value = 0;
     switch (param)
     {
         case CompParametrization::Pt:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale);
+            value = histo.getValue(jet4vec.Pt()*m_energyScale);
             break;
         case CompParametrization::PtEta:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
             break;
         case CompParametrization::PtAbsEta:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
             break;
         case CompParametrization::PtMass:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
             break;
         case CompParametrization::PtMassEta:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
             break;
         case CompParametrization::PtMassAbsEta:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),fabs(jet4vec.Eta()));
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),fabs(jet4vec.Eta()));
             break;
         case CompParametrization::eLOGmOe:
-            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()));
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()));
             break;
         case CompParametrization::eLOGmOeEta:
-            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),jet4vec.Eta());
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),jet4vec.Eta());
             break;
         case CompParametrization::eLOGmOeAbsEta:
-            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),fabs(jet4vec.Eta()));
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),fabs(jet4vec.Eta()));
             break;
         default:
             ATH_MSG_ERROR("Failed to read histogram due to unknown parametrization type in " << getName());
             break;
     }
-    return resolution == 0 ? 0 : 1./(resolution*resolution);
+    return value;
 }
 
 
@@ -1775,14 +1796,13 @@ double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) c
     static JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
     static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
-
     const double caloRes = m_caloMassWeight ? readHistoFromParam(caloScale(jet),*m_caloMassWeight,m_combMassParam) : 0;
     const double TARes   = m_TAMassWeight ? readHistoFromParam(TAScale(jet),*m_TAMassWeight,m_combMassParam) : 0;
 
     if (caloRes == 0 || TARes == 0) return 0;
 
-    const double caloFactor = 1./(caloRes*caloRes);
-    const double TAFactor   = 1./(TARes*TARes);
+    const double caloFactor = (caloRes == 0) ? 0 : 1./(caloRes*caloRes);
+    const double TAFactor   = ( TARes  == 0) ? 0 : 1./(TARes*TARes);
     
     if (caloFactor + TAFactor == 0) return 0;
 
@@ -2310,7 +2330,7 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
     const bool nominalIsMC = (m_resHelper->smearOnlyMC() || variation > 0);
 
     // Get the relevant nominal resolution
-    const double sigmaNom = getNominalResolution(jet,smearType,nominalIsMC);
+    const double sigmaNom = getNominalResolution(jet,smearType,m_currentUncSet->getTopology(),nominalIsMC);
 
     // If this is a relative uncertainty, get the relevant nominal data histogram
     // This is used to scale the input relative variation to get the absolute impact

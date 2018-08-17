@@ -682,6 +682,19 @@ double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const s
         else
             unc = provider->getNormalizedTAMassWeight(jet)/10.;
     }
+    else if (compIndices.size() == 1 && (compIndices.at(0) == 6666 || compIndices.at(0) == 7777)) // SPECIAL: nominal MC or data resolution
+    {
+        std::vector<jet::CompScaleVar::TypeEnum> scaleVars = optHelper.GetScaleVars();
+        if (scaleVars.size() != 1)
+            printf("WARNING: cannot parse multiple scale variable resolutions at once, using index 0");
+
+        jet::JetTopology::TypeEnum topology = optHelper.GetTopology();
+
+        if (compIndices.at(0) == 6666)
+            unc = provider->getNominalResolutionMC(jet,scaleVars.at(0),topology);
+        else
+            unc = provider->getNominalResolutionData(jet,scaleVars.at(0),topology);
+    }
     else if (compIndices.size() == 1 && !optHelper.AbsValue())
     {
         const double factor = abs(compIndices.at(0)) != PTindex ? 1 : GetPunchthroughProb(provider,jet);
@@ -696,6 +709,7 @@ double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const s
         for (size_t iComp = 0; iComp < compIndices.size(); ++iComp)
         {
             if (compIndices.at(iComp) == 8888 || compIndices.at(iComp) == 9999) continue;
+            if (compIndices.at(iComp) == 6666 || compIndices.at(iComp) == 7777) continue;
 
             const double factor = compIndices.at(iComp) != PTindex ? 1 : GetPunchthroughProb(provider,jet);
             double localUnc = 0;
@@ -739,6 +753,8 @@ std::vector<int> getComponentIndicesFromName(const JetUncertaintiesTool* provide
         const bool ALLCOMP    = !subComponents.at(iSubComp).CompareTo("total",TString::kIgnoreCase) || !subComponents.at(iSubComp).CompareTo("#");
         const bool CALOWEIGHT = !subComponents.at(iSubComp).CompareTo("caloweight",TString::kIgnoreCase);
         const bool TAWEIGHT   = !subComponents.at(iSubComp).CompareTo("taweight",TString::kIgnoreCase);
+        const bool NOMRESMC   = !subComponents.at(iSubComp).CompareTo("nominalresmc",TString::kIgnoreCase);
+        const bool NOMRESDATA = !subComponents.at(iSubComp).CompareTo("nominalresdata",TString::kIgnoreCase);
         const bool inverted   = subComponents.at(iSubComp).BeginsWith("INV__");
         const TString toFind  = midWild ? subComponents.at(iSubComp) : TString(subComponents.at(iSubComp)).ReplaceAll("#","").ReplaceAll("INV__","");
 
@@ -775,6 +791,18 @@ std::vector<int> getComponentIndicesFromName(const JetUncertaintiesTool* provide
             {
                 foundIndex = true;
                 indices.push_back(9999);
+                break;
+            }
+            else if (NOMRESMC)
+            {
+                foundIndex = true;
+                indices.push_back(6666);
+                break;
+            }
+            else if (NOMRESDATA)
+            {
+                foundIndex = true;
+                indices.push_back(7777);
                 break;
             }
             else if (midWild)

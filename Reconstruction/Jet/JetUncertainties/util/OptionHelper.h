@@ -76,6 +76,7 @@ class OptionHelper : public asg::AsgMessaging
         // Variable control
         std::vector<CompScaleVar::TypeEnum> GetScaleVars() const { checkInit(); return m_scaleVars; }
         const std::vector<std::string> VariablesToShift() const { checkInit(); return m_systFilters; }
+        JetTopology::TypeEnum GetTopology() const { checkInit(); return m_topology; }
   
         // Layout control
         TString GetInputsDir() const {  checkInit(); return m_inputsDir; }
@@ -128,6 +129,7 @@ class OptionHelper : public asg::AsgMessaging
         
         std::vector<CompScaleVar::TypeEnum> m_scaleVars;
         std::vector<std::string> m_systFilters;
+        JetTopology::TypeEnum m_topology;
   
         // allowing MakeUncertaintyPlots to be run from outside
         // of the testInputs/run/ directory
@@ -191,6 +193,7 @@ OptionHelper::OptionHelper(const std::string& name)
 
     , m_scaleVars()
     , m_systFilters()
+    , m_topology(JetTopology::UNKNOWN)
   
     , m_inputsDir("/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/")
 
@@ -288,6 +291,16 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
         std::vector<TString> localScaleVarVec = jet::utils::vectorize<TString>(localScaleVar,"&");
         for (size_t iVar = 0; iVar < localScaleVarVec.size(); ++iVar)
             m_scaleVars.push_back(CompScaleVar::stringToEnum(localScaleVarVec.at(iVar)));
+    }
+    const TString jetTopology = getOptionValue(options,"topology");
+    if (jetTopology != "")
+    {
+        m_topology = JetTopology::stringToEnum(jetTopology);
+        if (m_topology == JetTopology::UNKNOWN)
+        {
+            ATH_MSG_ERROR("The topology specified is invalid: " << jetTopology.Data());
+            throw std::string("Topology failure");
+        }
     }
 
     const TString systFilterString = getOptionValue(options,"VariablesToShift");
