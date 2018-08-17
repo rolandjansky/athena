@@ -194,6 +194,7 @@ private:
   
   unsigned int m_max_hashes;
   bool m_readESD;
+  std::string m_BSErrContainerKey;
 };
 
 #endif

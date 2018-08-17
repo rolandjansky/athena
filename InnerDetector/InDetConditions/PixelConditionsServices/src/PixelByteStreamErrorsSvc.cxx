@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelByteStreamErrorsSvc.h"
@@ -37,6 +37,7 @@ PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name,
   m_readESD(false)
 { 
   declareProperty("ReadingESD",     m_readESD,"Get summary of BS errors from StoreGate, if available"); 
+  declareProperty("BSErrContainer", m_BSErrContainerKey=std::string("PixelByteStreamErrs"));
   resetCounts();
 }
 
@@ -53,10 +54,10 @@ StatusCode PixelByteStreamErrorsSvc::initialize() {
   // Pixel ID
   CHECK(m_detStore->retrieve(m_pixel_id,"PixelID"));
 
-  m_BSErrContReadKey=std::string("PixelByteStreamErrs");
+  m_BSErrContReadKey=m_BSErrContainerKey;
   ATH_CHECK(m_BSErrContReadKey.initialize());
 
-  m_BSErrContWriteKey=std::string("PixelByteStreamErrs");
+  m_BSErrContWriteKey=m_BSErrContainerKey;
   ATH_CHECK(m_BSErrContWriteKey.initialize());
 
   m_max_hashes = m_pixel_id->wafer_hash_max();
@@ -155,7 +156,7 @@ StatusCode PixelByteStreamErrorsSvc::finalize() {
 void PixelByteStreamErrorsSvc::handle(const Incident&) {
   reset();
 
-  if (m_readESD && m_storeGate->contains<InDetBSErrContainer>(m_BSErrContReadKey.key())) {
+  if (m_readESD) {
     if (readData().isFailure()) {
       ATH_MSG_ERROR("PixelByteStreamErrs container is registered in SG, but cannot be retrieved");
     }
