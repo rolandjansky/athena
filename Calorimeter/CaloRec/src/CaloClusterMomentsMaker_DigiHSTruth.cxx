@@ -12,7 +12,7 @@
 //
 //-----------------------------------------------------------------------
 
-#include "CaloRec/CaloClusterMomentsMaker_DigiHSTruth.h"
+#include "CaloClusterMomentsMaker_DigiHSTruth.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
@@ -130,7 +130,6 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
     m_caloDepthTool("CaloDepthTool",this),
     m_noiseTool("CaloNoiseTool"),
     m_larHVScaleRetriever("LArHVScaleRetriever"),
-    m_larHVFraction(nullptr),
     m_absOpt(false) 
 {
   // Name(s) of Moments to calculate
@@ -173,28 +172,6 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
 //###############################################################################
 
 StatusCode CaloClusterMomentsMaker_DigiHSTruth::initialize()
-{
-
-  const IGeoModelSvc *geoModel=0;
-  ATH_CHECK(service("GeoModelSvc", geoModel));
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    return StatusCode::SUCCESS;
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-CaloClusterMomentsMaker_DigiHSTruth::geoInit(IOVSVC_CALLBACK_ARGS)
 {
 
   //FIXME: All that could be done at initialize!
@@ -319,7 +296,10 @@ struct cellinfo {
 
 } // namespace CaloClusterMomentsMaker_detail
 
-StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContainer *theClusColl)
+StatusCode
+CaloClusterMomentsMaker_DigiHSTruth::execute(const EventContext& /*ctx*/,
+                                 xAOD::CaloClusterContainer *theClusColl)
+  const
 {
 
   ATH_MSG_DEBUG("Executing " << name());
@@ -391,9 +371,10 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 
   // setup LAr HV Fraction class in case the corresponding moments are
   // requested
-  if ( m_calculateLArHVFraction ) {
-    m_larHVFraction = new LArHVFraction(m_larHVScaleRetriever.operator->());
-  }
+  const ILArHVCorrTool* hvCorrTool = nullptr;
+  if (m_calculateLArHVFraction)
+    hvCorrTool = &*m_larHVScaleRetriever;
+  LArHVFraction larHVFraction (hvCorrTool);
   
   // Move allocation of temporary arrays outside the cluster loop.
   // That way, we don't need to delete and reallocate them
@@ -503,14 +484,12 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 	if ( ene > 0 ) {
 	  ePos += ene*weight;
 	}
-	//if ( m_calculateLArHVFraction ) {
-  if ( m_calculateLArHVFraction && (!m_larHVFraction) ) {
-
-	  if ( m_larHVFraction->isHVAffected(pCell) ) {
-	    eBadLArHV += ene*weight;
-	    nBadLArHV ++;
-	  }
-	}
+  if ( m_calculateLArHVFraction ) {
+    if ( larHVFraction.isHVAffected(pCell) ) {
+      eBadLArHV += ene*weight;
+      nBadLArHV ++;
+    }
+  }
 	if ( m_calculateSignificance ) {
 	  double sigma = 0;
 	  if ( m_usePileUpNoise ) {
@@ -1000,9 +979,5 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 
 StatusCode CaloClusterMomentsMaker_DigiHSTruth::finalize()
 {
-  if ( m_calculateLArHVFraction && m_larHVFraction ) {
-    delete m_larHVFraction;
-  }
-
   return StatusCode::SUCCESS;
 }

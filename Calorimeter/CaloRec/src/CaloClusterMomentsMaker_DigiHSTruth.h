@@ -48,15 +48,13 @@ class CaloClusterMomentsMaker_DigiHSTruth final: public extends<AthAlgTool, Calo
   CaloClusterMomentsMaker_DigiHSTruth(const std::string& type, const std::string& name,
 			  const IInterface* parent);
 
-  virtual StatusCode execute(xAOD::CaloClusterContainer* theClusColl) override;
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* theClusColl) const override final;
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
   
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  private: 
   
   /** 
