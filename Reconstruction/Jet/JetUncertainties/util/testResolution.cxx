@@ -25,6 +25,8 @@
 
 #include "TH1D.h"
 #include "TCanvas.h"
+#include "TF1.h"
+#include "TLatex.h"
 
 int main (int argc, char* argv[])
 {
@@ -39,7 +41,8 @@ int main (int argc, char* argv[])
         printf("\t2. Jet definition\n");
         printf("\t3. MC type\n");
         printf("\t4. Config file\n");
-        printf("\t5. Component name\n");
+        printf("\t5. Component name and variation\n");
+        printf("\t\tExample: \"FourVecResUnc,+1\"\n");
         printf("\t6. IsData (\"true\" or \"false\")\n");
         printf("\t7. Options (optional argument), semi-colon delimited, examples:\n");
         printf("\t\tisDijet=false\n");
@@ -60,6 +63,14 @@ int main (int argc, char* argv[])
         printf("Only pdf output files are currently supported\n");
         exit(1);
     }
+
+    if (jet::utils::vectorize<TString>(component,",").size() != 2)
+    {
+        printf("Bad component formatting, got \"%s\"\n",component.Data());
+        exit(1);
+    }
+    TString compName = jet::utils::vectorize<TString>(component,",").at(0);
+    float   shift    = atof(jet::utils::vectorize<TString>(component,",").at(1));
 
     bool isData = false;
     if (!isDataStr.CompareTo("true",TString::kIgnoreCase))
@@ -106,10 +117,10 @@ int main (int argc, char* argv[])
 
     // Ensure that the specified component is a valid systematic
     // This is a +1sigma variation
-    CP::SystematicVariation variation(Form("JET_%s",component.Data()),1);
+    CP::SystematicVariation variation(Form("JET_%s",compName.Data()),shift);
     if (!tool->isAffectedBySystematic(variation))
     {
-        printf("The specified variation was not recognized: JET_%s\n",component.Data());
+        printf("The specified variation was not recognized: JET_%s\n",compName.Data());
         exit(1);
     }
     CP::SystematicSet syst;
@@ -120,6 +131,14 @@ int main (int argc, char* argv[])
         exit(1);
     }
 
+    // Get info on the variation
+    const size_t compIndex = tool->getComponentIndex("JET_"+compName);
+    const std::set<jet::CompScaleVar::TypeEnum> scaleVars = tool->getComponentScaleVars(compIndex);
+    const jet::CompScaleVar::TypeEnum scaleVar = scaleVars.size() == 1 ? *(scaleVars.begin()) : jet::CompScaleVar::UNKNOWN;
+    const jet::JetTopology::TypeEnum topology = tool->getComponentTopology(compIndex);
+
+    printf("Component is index %zu, with ScaleVar %s and topology %s\n",compIndex,jet::CompScaleVar::enumToString(scaleVar).Data(),jet::JetTopology::enumToString(topology).Data());
+
     // Prepare the canvas
     TCanvas canvas("canvas");
     canvas.SetMargin(0.12,0.04,0.15,0.04);
@@ -129,6 +148,13 @@ int main (int argc, char* argv[])
     canvas.cd();
     canvas.Print(outFile+"[");
     
+
+    // Prepare to add labels
+    TLatex tex;
+    tex.SetNDC();
+    tex.SetTextFont(42);
+    tex.SetTextSize(0.04);
+
 
     // Define the jet that we want to smear repeatedly
     // Center the jet around pT of 1 TeV and mass of 100 GeV (easy numbers)
@@ -144,6 +170,14 @@ int main (int argc, char* argv[])
         // Prepare a histogram to fill repeatedly as we smear the value
         TH1D smearPt(Form("smearPt_eta%.2f",eta),"",100,500,1500);
         TH1D smearMass(Form("smearMass_eta%.2f",eta),"",100,50,150);
+        smearPt.Sumw2();
+        smearMass.Sumw2();
+        smearPt.SetStats(0);
+        smearMass.SetStats(0);
+        smearPt.GetXaxis()->SetTitle("#it{p}_{T} [GeV]");
+        smearMass.GetXaxis()->SetTitle("#it{m} [GeV]");
+        smearPt.GetYaxis()->SetTitle("Number of events");
+        smearMass.GetYaxis()->SetTitle("Number of events");
 
         // Now smear repeatedly from the same starting jet
         for (int iSmear = 0; iSmear < numSmear; ++iSmear)
@@ -158,11 +192,55 @@ int main (int argc, char* argv[])
             smearPt.Fill(jet->pt());
             smearMass.Fill(jet->m());
         }
+        
+        // Get info on the expected values
+        jet->setJetP4(xAOD::JetFourMom_t(pT,eta,phi,mass));
+        const double nomData = tool->getNominalResolutionData(*jet,scaleVar,topology);
+        const double nomMC   = tool->getNominalResolutionMC(*jet,scaleVar,topology);
+        const double uncert  = tool->getUncertainty(compIndex,*jet,*eInfo,scaleVar);
+        
+        const double fullUncMC   = jet::CompScaleVar::isRelResolutionType(scaleVar) ? nomMC * uncert : uncert;
+        const double fullUncData = jet::CompScaleVar::isRelResolutionType(scaleVar) ? nomData * uncert : uncert;
+        const double smearMC   = sqrt(pow(nomMC + fabs(shift*fullUncMC),2) - pow(nomMC,2));
+        const double smearData = sqrt(pow(nomData + fabs(shift*fullUncData),2) - pow(nomData,2));
+
+        // Fit a Gaussian
+        TF1 fitPt("fitPt","gaus");
+        smearPt.Fit(&fitPt,"E");
+        TF1 fitMass("fitMass","gaus");
+        smearMass.Fit(&fitMass,"E");
 
         // Draw and print the plot
         smearPt.Draw();
+        tex.DrawLatex(0.70,0.9,"Gaussian fit results");
+        tex.DrawLatex(0.70,0.85,Form("#mu = %.0f GeV",fitPt.GetParameter(1)));
+        tex.DrawLatex(0.70,0.80,Form("#sigma = %.1f GeV",fitPt.GetParameter(2)));
+        tex.DrawLatex(0.70,0.75,Form("#mu/#sigma = %.1f%%",fitPt.GetParameter(2)/fitPt.GetParameter(1)*100));
+        tex.DrawLatex(0.15,0.9,"Expectation from tool");
+        tex.DrawLatex(0.15,0.85,"#sigma_{smear}^{2} = (#sigma_{nom} + |N#delta#sigma|)^{2} - (#sigma_{nom})^{2}");
+        tex.DrawLatex(0.15,0.80,Form("#sigma_{nom}^{data}/#it{p}_{T} = %.1f%%",100*nomData));
+        tex.DrawLatex(0.15,0.75,Form("#sigma_{nom}^{MC}/#it{p}_{T} = %.1f%%",100*nomMC));
+        tex.DrawLatex(0.15,0.70,Form("#delta#sigma/#it{p}_{T} = %.1f%%",100*uncert));
+        tex.DrawLatex(0.15,0.65,Form("N_{sigma} = %+.1f",shift));
+        tex.DrawLatex(0.15,0.55,Form("#sigma_{smear}^{data}/#it{p}_{T} = %.1f%%",100*smearData));
+        tex.DrawLatex(0.15,0.50,Form("#sigma_{smear}^{MC}/#it{p}_{T} = %.1f%%",100*smearMC));
         canvas.Print(outFile);
+
+
+
         smearMass.Draw();
+        tex.DrawLatex(0.70,0.9,"Gaussian fit results");
+        tex.DrawLatex(0.70,0.85,Form("#mu = %.0f GeV",fitMass.GetParameter(1)));
+        tex.DrawLatex(0.70,0.80,Form("#sigma = %.1f GeV",fitMass.GetParameter(2)));
+        tex.DrawLatex(0.70,0.75,Form("#mu/#sigma = %.1f%%",fitMass.GetParameter(2)/fitMass.GetParameter(1)*100));
+        tex.DrawLatex(0.15,0.9,"Expectation from tool");
+        tex.DrawLatex(0.15,0.85,"#sigma_{smear}^{2} = (#sigma_{nom} + |N#delta#sigma|)^{2} - (#sigma_{nom})^{2}");
+        tex.DrawLatex(0.15,0.80,Form("#sigma_{nom}^{data}/#it{p}_{T} = %.1f%%",100*nomData));
+        tex.DrawLatex(0.15,0.75,Form("#sigma_{nom}^{MC}/#it{p}_{T} = %.1f%%",100*nomMC));
+        tex.DrawLatex(0.15,0.70,Form("#delta#sigma/#it{p}_{T} = %.1f%%",100*uncert));
+        tex.DrawLatex(0.15,0.65,Form("N_{sigma} = %+.1f",shift));
+        tex.DrawLatex(0.15,0.55,Form("#sigma_{smear}^{data}/#it{p}_{T} = %.1f%%",100*smearData));
+        tex.DrawLatex(0.15,0.50,Form("#sigma_{smear}^{MC}/#it{p}_{T} = %.1f%%",100*smearMC));
         canvas.Print(outFile);
     }
     

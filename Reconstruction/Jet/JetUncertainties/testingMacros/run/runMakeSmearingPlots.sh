@@ -11,9 +11,9 @@ function ResTest \
     CalibArea=""
     configFile="JER/R4_GlobalReduction_JER.config"
     outFile="JER-smear.pdf"
-    component="PtResUnc"
+    component="FourVecResUnc,-2"
     #"PtResUnc;FourVecResUnc;MassResUncQCD;MassResUncWZ;MassResUncHbb;MassResUncTop;NOMINALRESMC;NOMINALRESDATA"
-    isData="false"
+    isData="true"
     options="prefix=JET_;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\""
 }
 

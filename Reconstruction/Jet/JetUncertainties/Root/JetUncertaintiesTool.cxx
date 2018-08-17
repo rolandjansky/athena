@@ -92,7 +92,6 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(0)
     , m_rand()
-    , m_massSmearPar(0.66)
     , m_isData(ExtendedBool::UNSET)
     , m_resHelper(NULL)
     , m_namePrefix("JET_")
@@ -149,7 +148,6 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(toCopy.m_userSeed)
     , m_rand(toCopy.m_rand)
-    , m_massSmearPar(toCopy.m_massSmearPar)
     , m_isData(toCopy.m_isData)
     , m_resHelper(new ResolutionHelper(*toCopy.m_resHelper))
     , m_namePrefix(toCopy.m_namePrefix)
@@ -1553,6 +1551,16 @@ bool JetUncertaintiesTool::getComponentScalesMultiple(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return m_groups.at(index)->getScaleVars().size() > 1;
 }
+std::set<CompScaleVar::TypeEnum> JetUncertaintiesTool::getComponentScaleVars(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return std::set<CompScaleVar::TypeEnum>();
+    return m_groups.at(index)->getScaleVars();
+}
+JetTopology::TypeEnum JetUncertaintiesTool::getComponentTopology(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return JetTopology::UNKNOWN;
+    return m_groups.at(index)->getTopology();
+}
 
 
 bool JetUncertaintiesTool::getValidity(size_t index, const xAOD::Jet& jet) const
@@ -2123,6 +2131,7 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
             case CompScaleVar::FourVecResAbs:
                 smearingFactor = getSmearingFactor(jet,scaleVar,smear);
                 jet.setJetP4(xAOD::JetFourMom_t(smearingFactor*jet.pt(),jet.eta(),jet.phi(),smearingFactor*jet.m()));
+                break;
             default:
                 ATH_MSG_ERROR("Asked to scale an UNKNOWN variable for set: " << m_currentUncSet->getName());
                 return CP::CorrectionCode::Error;
@@ -2244,7 +2253,7 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
     /*
         Below follows discussion between B Malaescu, C Young, and S Schramm on 14/08/2018
 
-        sigma_smear^2 = (sigma_nominal + n*x + m*y + ...)^2 - (sigma_nominal)^2
+        sigma_smear^2 = (sigma_nominal + |n*x + m*y + ...|)^2 - (sigma_nominal)^2
             sigma_smear: width of the Gaussian to smear with
             sigma_nominal: the nominal resolution in either (pseudo-)data OR mc (see below)
             n: #sigma variation for NP1
@@ -2338,9 +2347,7 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
 
     // We now have the required information, so let's calculate the smearing factor
     // Note that relativeFactor is 1 if this is an absolute uncertainty
-    const double sigmaSmear = m_resHelper->smearOnlyMC()
-                                ? sqrt(pow(sigmaNom + fabs(variation)*relativeFactor,2) - pow(sigmaNom,2))
-                                : sqrt(pow(sigmaNom +      variation *relativeFactor,2) - pow(sigmaNom,2));
+    const double sigmaSmear = sqrt(pow(sigmaNom + fabs(variation)*relativeFactor,2) - pow(sigmaNom,2));
 
     // We have the smearing factor, so prepare to smear
     // If the user specified a seed, then use it
@@ -2350,37 +2357,6 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
 
     // Calculate and return the smearing factor
     return m_rand.Gaus(1.,sigmaSmear);
-}
-
-// Courtesy of Francesco Spano
-float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const
-{
-    //----input discussion---
-    // input should the standard deviation of mass response, sigma(M_smear/M_nominal), recover that deviation
-    // even if it is the fractional deviation of the mass response, it is fine as long as the mass is calibrated
-    // sigma(M_smear/M_nominal)/<M_smear/M_nominal>~ sigma(M_smear/M_nominal) as   <M_smear/M_nominal> ~ 1
-    //----
-
-    // the input shift is the fractional resolution + 1--> recover the nominal fractional resolution
-    // we should have the resolution of the mass response, but
-    double frac_sigma_nominal = fabs(shift-1);
-
-    // Set the seed; same procedure as in JERSmearingTool::getSmearingFactor(const xAOD::Jet* jet, double sigma)
-    long long int seed = m_userSeed;
-    if(seed == 0) seed = 1.e+5*std::abs(jet.phi());  
-    m_rand.SetSeed(seed);
-    
-    //  get the Gaussian random number associated to the relative resolution
-    // 1st way : a la JetRes use a relative standard deviation
-    //double smearingFact1=m_rand.Gaus(1.,0.66*frac_sigma_nominal);
-    double smearingFact1=m_rand.Gaus(1.,massSmearPar*frac_sigma_nominal);
-
-    // 2nd alternative way : use the relative standard deviation 
-    //  const double GaussZeroOne = m_rand.Gaus(0.,1.); 
-    //  double smearingFact2=1+0.66*GaussZeroOne*frac_sigma_nominal;
-    double smearingFact=smearingFact1;
-
-    return smearingFact;
 }
 
 

@@ -57,7 +57,6 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
         // Control methods
         virtual void setRandomSeed(long long int seed) { m_userSeed = seed; }
-        virtual void setMassSmearPar(double massSmearPar) { m_massSmearPar = massSmearPar; }
 
         
         // Tool information retrieval methods
@@ -101,6 +100,8 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual bool        getComponentScalesC2Beta1(const size_t index)  const;
         virtual bool        getComponentScalesQw(const size_t index)       const;
         virtual bool        getComponentScalesMultiple(const size_t index) const;
+        virtual std::set<jet::CompScaleVar::TypeEnum> getComponentScaleVars(const size_t index) const;
+        virtual jet::JetTopology::TypeEnum            getComponentTopology( const size_t index) const;
         // Retrieve multi-component information
         virtual std::vector<std::string> getComponentCategories() const;
         virtual std::vector<size_t>      getComponentsInCategory(const std::string& category) const;
@@ -216,7 +217,6 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         // Smearing information
         long long int m_userSeed;
         mutable TRandom3 m_rand; // mutable as this we want to call in a const function (everything else is fixed, the random generator is modifiable)
-        double m_massSmearPar;
         bool m_isData;
         jet::ResolutionHelper* m_resHelper;
 
@@ -233,7 +233,6 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         const xAOD::EventInfo* getDefaultEventInfo() const;
         StatusCode checkIndexInput(const size_t index) const;
         double getSmearingFactor(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const double variation) const;
-        float getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const;
         double getNominalResolution(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology, const bool readMC) const;
         double readHistoFromParam(const xAOD::Jet& jet, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
         double readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
