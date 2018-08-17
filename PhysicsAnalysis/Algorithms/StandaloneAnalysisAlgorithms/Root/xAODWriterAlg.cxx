@@ -35,6 +35,10 @@ namespace CP {
 
    StatusCode xAODWriterAlg::initialize() {
 
+      // Make sure that the xAOD::TEvent object managed by EventLoop is the
+      // "active" one.
+      evtStore()->event()->setActive();
+
       // Set up the systematics list.
       ATH_CHECK( m_systematicsList.initialize() );
 

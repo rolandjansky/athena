@@ -19,12 +19,6 @@ import ROOT
 import os
 ROOT.xAOD.Init().ignore()
 
-# this forces the met algorithms dictionary to be loaded before
-# anything else, which works around some strange dictionary issues I
-# don't understand.
-ROOT.CP.MetMakerAlg ("dummy", None)
-ROOT.CP.MetSignificanceAlg ("dummy", None)
-
 from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
 
 # ideally we'd run over all of them, but we don't have a mechanism to
@@ -89,20 +83,33 @@ print( viewalg ) # For debugging
 
 # Include, and then set up the met analysis algorithm sequence:
 from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-# Touch the ObjectType enum to trigger dict loading
-from ROOT import xAOD
-xAOD.Type.ObjectType
-metSequence = makeMetAnalysisSequence( dataType, metSuffix="AntiKt4EMTopo",
-                                       jetContainer="AntiKt4EMTopoJets", jetSystematics="(^$)",
-                                       components=[
-                                        {"containerName":"Muons", "regex":"(^$)", "type":xAOD.Type.Muon, "termName":"RefMuon"},
-                                        {"containerName":"METElectrons_%SYS%", "regex":"(^$)", "type":xAOD.Type.Electron, "termName":"RefEle"}] )
+metSequence = makeMetAnalysisSequence( dataType, metSuffix = 'AntiKt4EMTopo' )
+metSequence.configure( inputName = { 'jets'      : 'AntiKt4EMTopoJets',
+                                     'muons'     : 'Muons',
+                                     'electrons' : 'METElectrons_%SYS%' },
+                       outputName = 'AnalysisMET_%SYS%',
+                       affectingSystematics = { 'jets'      : '(^$)',
+                                                'muons'     : '(^$)',
+                                                'electrons' : '(^$)' } )
 print( metSequence ) # For debugging
 
 # Add all algorithms to the job:
 for alg in metSequence:
     job.algsAdd( alg )
     pass
+
+# Write the freshly produced MET object(s) to an output file:
+ntupleMaker = AnaAlgorithmConfig( 'CP::AsgxAODNTupleMakerAlg/NTupleMaker' )
+ntupleMaker.TreeName = 'met'
+ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
+                         'EventInfo.eventNumber   -> eventNumber',
+                         'AnalysisMET_%SYS%.mpx   -> met_%SYS%_mpx',
+                         'AnalysisMET_%SYS%.mpy   -> met_%SYS%_mpy',
+                         'AnalysisMET_%SYS%.sumet -> met_%SYS%_sumet',
+                         'AnalysisMET_%SYS%.name  -> met_%SYS%_name', ]
+ntupleMaker.systematicsRegex = '.*'
+job.algsAdd( ntupleMaker )
+job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
 
 # Run the job using the direct driver.
 driver = ROOT.EL.DirectDriver()
