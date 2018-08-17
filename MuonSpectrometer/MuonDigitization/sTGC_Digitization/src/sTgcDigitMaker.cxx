@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
 #include <fstream>
 
 #include "MuonDigitContainer/sTgcDigitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHit.h"
+#include "MuonSimEvent/sTGCSimHit.h"
 #include "MuonSimEvent/sTgcHitIdHelper.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
@@ -119,7 +119,7 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
 //---------------------------------------------------
 // Execute Digitization
 //---------------------------------------------------
-sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, const float /*globalHitTime*/)
+sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const float /*globalHitTime*/)
 { 
 
   // check the digitization channel type
@@ -133,7 +133,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
 
   //////////  convert ID for this digitizer system 
   sTgcSimIdToOfflineId simToOffline(*m_idHelper);  
-  int simId = hit->GenericId();
+  int simId = hit->sTGCId();
   Identifier layid = simToOffline.convert(simId);
   ATH_MSG_VERBOSE("sTgc hit:  time " << hit->globalTime() << " position " << hit->globalPosition().x() << "  " << hit->globalPosition().y() << "  " << hit->globalPosition().z() << " mclink " << hit->particleLink() << " PDG ID " << hit->particleEncoding() );
 
