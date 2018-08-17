@@ -945,8 +945,8 @@ unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string var
 // Note that this will only perform the cut interpolation up to ~45 GeV, so 
 // no smoothing is done above this for the high ET LH binning yet
 double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const{
-  int etbinLH = getLikelihoodEtDiscBin(et,true);
-  int etabin = getLikelihoodEtaBin(eta);
+  const int etbinLH = getLikelihoodEtDiscBin(et,true);
+  const int etabin = getLikelihoodEtaBin(eta);
   unsigned int ibin_combinedLH = etbinLH*s_fnEtaBins+etabin;
   double cut = cuts.at(ibin_combinedLH);
   if (cuts_4gev.size() && et < 7000.) {cut = cuts_4gev.at(etabin);}
