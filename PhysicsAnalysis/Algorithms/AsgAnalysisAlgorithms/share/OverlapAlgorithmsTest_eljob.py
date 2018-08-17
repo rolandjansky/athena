@@ -49,29 +49,29 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
+# Import(s) needed for the job configuration.
+from AnaAlgorithm.AlgSequence import AlgSequence
+from AnaAlgorithm.DualUseConfig import createAlgorithm
+
+# Set up the main analysis algorithm sequence.
+algSeq = AlgSequence( 'AnalysisSequence' )
+
 # Skip events with no primary vertex:
-from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-config = AnaAlgorithmConfig( 'CP::VertexSelectionAlg/PrimaryVertexSelectorAlg',
-                             VertexContainer = 'PrimaryVertices',
-                             MinVertices = 1 )
-job.algsAdd( config )
+algSeq += createAlgorithm( 'CP::VertexSelectionAlg',
+                           'PrimaryVertexSelectorAlg' )
+algSeq.PrimaryVertexSelectorAlg.VertexContainer = 'PrimaryVertices'
+algSeq.PrimaryVertexSelectorAlg.MinVertices = 1
 
 # Set up the systematics loader/handler algorithm:
-config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
-config.sigmaRecommended = 1
-job.algsAdd( config )
+algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
+algSeq.SysLoaderAlg.sigmaRecommended = 1
 
 # Include, and then set up the pileup analysis sequence:
 from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
     makePileupAnalysisSequence
 pileupSequence = makePileupAnalysisSequence( dataType )
 pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
-print( pileupSequence ) # For debugging
-
-# Add the pileup algorithm(s) to the job:
-for alg in pileupSequence:
-    job.algsAdd( alg )
-    pass
+algSeq += pileupSequence
 
 # Include, and then set up the electron analysis sequence:
 from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
@@ -80,12 +80,7 @@ electronSequence = makeElectronAnalysisSequence( dataType,
                                                  recomputeLikelihood = True )
 electronSequence.configure( inputName = 'Electrons',
                             outputName = 'AnalysisElectrons_%SYS%' )
-print( electronSequence ) # For debugging
-
-# Add the electron algorithm(s) to the job:
-for alg in electronSequence:
-    job.algsAdd( alg )
-    pass
+algSeq += electronSequence
 
 # Include, and then set up the photon analysis sequence:
 from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
@@ -93,24 +88,14 @@ from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
 photonSequence = makePhotonAnalysisSequence( dataType, recomputeIsEM = True )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons_%SYS%' )
-print( photonSequence ) # For debugging
-
-# Add the photon algorithm(s) to the job:
-for alg in photonSequence:
-    job.algsAdd( alg )
-    pass
+algSeq += photonSequence
 
 # Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 muonSequence = makeMuonAnalysisSequence( dataType )
 muonSequence.configure( inputName = 'Muons',
                         outputName = 'AnalysisMuons_%SYS%' )
-print( muonSequence ) # For debugging
-
-# Add all algorithms to the job:
-for alg in muonSequence:
-    job.algsAdd( alg )
-    pass
+algSeq += muonSequence
 
 # Include, and then set up the jet analysis algorithm sequence:
 jetContainer = 'AntiKt4EMTopoJets'
@@ -118,24 +103,14 @@ from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
 jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
 jetSequence.configure( inputName = jetContainer,
                        outputName = 'AnalysisJets_%SYS%' )
-print( jetSequence ) # For debugging
-
-# Add all algorithms to the job:
-for alg in jetSequence:
-    job.algsAdd( alg )
-    pass
+algSeq += jetSequence
 
 # Include, and then set up the tau analysis algorithm sequence:
 from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
 tauSequence = makeTauAnalysisSequence( dataType )
 tauSequence.configure( inputName = 'TauJets',
                        outputName = 'AnalysisTauJets_%SYS%' )
-print( tauSequence ) # For debugging
-
-# Add all algorithms to the job:
-for alg in tauSequence:
-  job.algsAdd( alg )
-  pass
+algSeq += tauSequence
 
 # Include, and then set up the overlap analysis algorithm sequence:
 from AsgAnalysisAlgorithms.OverlapAnalysisSequence import \
@@ -160,15 +135,10 @@ overlapSequence.configure(
       'muons'     : '(^$)|(^MUON_.*)',
       'jets'      : '(^$)|(^JET_.*)',
       'taus'      : '(^$)|(^TAUS_.*)' } )
-print( overlapSequence ) # For debugging
-
-# Add all algorithms to the job:
-for alg in overlapSequence:
-    job.algsAdd( alg )
-    pass
+algSeq += overlapSequence
 
 # Set up an ntuple to check the job with:
-ntupleMaker = AnaAlgorithmConfig( 'CP::AsgxAODNTupleMakerAlg/NTupleMaker' )
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'particles'
 ntupleMaker.Branches = [
     'EventInfo.runNumber   -> runNumber',
@@ -204,7 +174,17 @@ ntupleMaker.Branches = [
     'AnalysisTauJetsOR_%SYS%.phi -> tau_OR_%SYS%_phi',
     'AnalysisTauJetsOR_%SYS%.pt  -> tau_OR_%SYS%_pt' ]
 ntupleMaker.systematicsRegex = '.*'
-job.algsAdd( ntupleMaker )
+algSeq += ntupleMaker
+
+# For debugging.
+print( algSeq )
+
+# Add all algorithms from the sequence to the job.
+for alg in algSeq:
+    job.algsAdd( alg )
+    pass
+
+# Set up an output file for the job:
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
 
 # Find the right output directory:
