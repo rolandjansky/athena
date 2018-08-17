@@ -17,24 +17,22 @@ theApp.EvtMax = 500
 testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
-# Access the main algorithm sequence of the job:
-from AthenaCommon.AlgSequence import AlgSequence
-topSeq = AlgSequence()
+# Import(s) needed for the job configuration.
+from AnaAlgorithm.AlgSequence import AlgSequence
+from AnaAlgorithm.DualUseConfig import createAlgorithm
 
-# Set up a job-specific sequence on top of that, one that we can stop with
-# filter algorithms if necessary:
-algSeq = AlgSequence( "AnalysisSequence" )
-topSeq += algSeq
+# Set up the main analysis algorithm sequence.
+algSeq = AlgSequence( 'AnalysisSequence' )
 
 # Skip events with no primary vertex:
-algSeq += CfgMgr.CP__VertexSelectionAlg( 'PrimaryVertexSelectorAlg',
-                                         VertexContainer = 'PrimaryVertices',
-                                         MinVertices = 1 )
+algSeq += createAlgorithm( 'CP::VertexSelectionAlg',
+                           'PrimaryVertexSelectorAlg' )
+algSeq.PrimaryVertexSelectorAlg.VertexContainer = 'PrimaryVertices'
+algSeq.PrimaryVertexSelectorAlg.MinVertices = 1
 
 # Set up the systematics loader/handler algorithm:
-sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
-sysLoader.sigmaRecommended = 1
-algSeq += sysLoader
+algSeq += createAlgorithm( 'CP::SysListLoaderAlg', 'SysLoaderAlg' )
+algSeq.SysLoaderAlg.sigmaRecommended = 1
 
 # Include, and then set up the pileup analysis sequence:
 from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
@@ -108,7 +106,7 @@ overlapSequence.configure(
 algSeq += overlapSequence
 
 # Set up an ntuple to check the job with:
-ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
+ntupleMaker = createAlgorithm( 'CP::AsgxAODNTupleMakerAlg', 'NTupleMaker' )
 ntupleMaker.TreeName = 'particles'
 ntupleMaker.Branches = [
     'EventInfo.runNumber   -> runNumber',
@@ -146,8 +144,11 @@ ntupleMaker.Branches = [
 ntupleMaker.systematicsRegex = '.*'
 algSeq += ntupleMaker
 
-# For debugging:
+# For debugging.
 print( algSeq )
+
+# Add all algorithms from the sequence to the job.
+athAlgSeq += algSeq
 
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
