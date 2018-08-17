@@ -321,7 +321,7 @@ if DerivationFrameworkIsMonteCarlo:
 
   TruthJetKinematicsToolSquark = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsSquark",
     OutputContainer = "AntiKt4LLP_SquarkTruthJets",
-    LLP_PDGIDS = [2000001, 2000002, 2000003, 2000004, 2000005, 2000006],
+    LLP_PDGIDS = [1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 2000001, 2000002, 2000003, 2000004, 2000005, 2000006],
   )
   ToolSvc += TruthJetKinematicsToolSquark
   AugmentationTools.append(TruthJetKinematicsToolSquark)
