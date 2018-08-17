@@ -26,7 +26,6 @@ class SCT_ID;
 
 namespace InDetDD {
   class PixelDetectorManager;
-  class SCT_DetectorManager;
 }
 
 namespace InDet {
@@ -68,9 +67,7 @@ namespace InDet {
     StringProperty m_pix{this, "PixManagerLocation", "Pixel", "PIX manager location"};
     StringProperty m_sct{this, "SCTManagerLocation", "SCT", "SCT manager location"};
     const InDetDD::PixelDetectorManager* m_pixmgr;
-    const InDetDD::SCT_DetectorManager*   m_sctmgr;
     ServiceHandle<ICondSvc> m_condSvc;
-    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
 
     ///////////////////////////////////////////////////////////////////
     // Methods

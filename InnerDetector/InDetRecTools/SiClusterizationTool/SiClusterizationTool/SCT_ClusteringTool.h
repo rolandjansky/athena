@@ -47,7 +47,6 @@ namespace InDet {
     /// Clusterize the SCT RDOs... deprecated form passes explicit channel status object
     virtual SCT_ClusterCollection *
     clusterize( const InDetRawDataCollection<SCT_RDORawData> & RDOs,
-                const InDetDD::SiDetectorManager& manager,
                 const SCT_ID& idHelper,
                 const SCT_ChannelStatusAlg* status,
                 const bool CTBBadChannels) const;
@@ -55,7 +54,6 @@ namespace InDet {
     /// Clusterize the SCT RDOs...
     virtual SCT_ClusterCollection *
     clusterize( const InDetRawDataCollection<SCT_RDORawData> & RDOs,
-                const InDetDD::SiDetectorManager& manager,
                 const SCT_ID& idHelper) const;
     
   private:
@@ -73,7 +71,6 @@ namespace InDet {
     bool                                      m_majority01X;
     bool                                      m_useRowInformation;
 
-    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
     ///Add strips to a cluster vector without checking for bad strips

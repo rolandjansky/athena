@@ -10,6 +10,8 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "TrkSurfaces/Surface.h"
+#include "TrkGeometry/Layer.h"
 
 SCT_DetectorElementCondAlg::SCT_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -103,6 +105,7 @@ StatusCode SCT_DetectorElementCondAlg::execute()
   }
 
   // Set neighbours and other side
+  // Set layer to surface
   InDetDD::SiDetectorElementCollection::const_iterator oldIt{oldColl->begin()};
   for (InDetDD::SiDetectorElement* newEl: *writeCdo) {
     if (oldToNewMap[(*oldIt)]!=newEl) {
@@ -113,6 +116,11 @@ StatusCode SCT_DetectorElementCondAlg::execute()
     newEl->setNextInPhi(oldToNewMap[(*oldIt)->nextInPhi()]);
     newEl->setPrevInPhi(oldToNewMap[(*oldIt)->prevInPhi()]);
     newEl->setOtherSide(oldToNewMap[(*oldIt)->otherSide()]);
+    // Layer of old element is set by InDet::SiLayerBuilder::registerSurfacesToLayer.
+    const Trk::Layer* layer{(*oldIt)->surface().associatedLayer()};
+    if (layer) {
+      newEl->surface().associateLayer(*layer);
+    }
     oldIt++;
   }
 
