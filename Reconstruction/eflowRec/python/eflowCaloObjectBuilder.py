@@ -7,8 +7,8 @@ from RecExConfig.Configured import Configured # import base class
 
 def setup_eflowObjectBuilderTools(Configured, nameModifier,mlog):
 
-    if nameModifier != "EM" and nameModifier != "LC":
-        mlog.error("Invalid calorimeter scale was specified : should be LC or EM, but was "+nameModifier)
+    if nameModifier != "EM" and nameModifier != "EM_HLLHC" and nameModifier != "LC":
+        mlog.error("Invalid calorimeter scale was specified : should be LC or EM/EM_HLLHC, but was "+nameModifier)
         return False
 
     try:
@@ -26,14 +26,24 @@ def setup_eflowObjectBuilderTools(Configured, nameModifier,mlog):
     ObjectBuilder_Tools.PrivateToolList  = []
 
     if jobproperties.eflowRecFlags.eflowAlgType == "CellLevel" or jobproperties.eflowRecFlags.eflowAlgType == "EOverP" :
-        try:
-            from eflowRec.eflowCellLevelSubtractionToolDefault import eflowCellLevelSubtractionToolDefault
-            CellLevelSubtractionTool = eflowCellLevelSubtractionToolDefault("eflowCellLevelSubtractionTool_"+nameModifier)
-        except:
-            mlog.error("could not import eflowRec.eflowCellLevelSubtractionTool")
-            print traceback.format_exc()
-            return False
-        
+        if nameModifier == "EM":
+            try:
+                from eflowRec.eflowCellLevelSubtractionToolDefault import eflowCellLevelSubtractionToolDefault
+                CellLevelSubtractionTool = eflowCellLevelSubtractionToolDefault("eflowCellLevelSubtractionTool_"+nameModifier)
+            except:
+                mlog.error("could not import eflowRec.eflowCellLevelSubtractionTool")
+                print traceback.format_exc()
+                return False
+
+        elif nameModifier == "EM_HLLHC":
+            try:
+                from eflowRec.eflowCellLevelSubtractionToolDefault import eflowCellLevelSubtractionTool_HLLHC
+                CellLevelSubtractionTool = eflowCellLevelSubtractionTool_HLLHC("eflowCellLevelSubtractionTool_"+nameModifier)
+            except:
+                mlog.error("could not import eflowRec.eflowCellLevelSubtractionTool")
+                print traceback.format_exc()
+                return False
+            
         # Toggle e/p mode
         if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
             CellLevelSubtractionTool.CalcEOverP = True
@@ -41,7 +51,7 @@ def setup_eflowObjectBuilderTools(Configured, nameModifier,mlog):
         ObjectBuilder_Tools.PrivateToolList += [CellLevelSubtractionTool]
         
     if jobproperties.eflowRecFlags.useSplitShowers == True and jobproperties.eflowRecFlags.eflowAlgType != "EOverP":
-        if nameModifier == "EM":  
+        if nameModifier == "EM" or nameModifier == "EM_HLLHC":  
             try:
                 from eflowRec.eflowRecoverSplitShowersToolDefault import eflowRecoverSplitShowersToolDefault
                 RecoverSplitShowersToolDefault=eflowRecoverSplitShowersToolDefault("eflowRecoverSplitShowers_"+nameModifier)

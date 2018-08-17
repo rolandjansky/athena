@@ -58,12 +58,16 @@ public:
   const bool& isTouchable() { return m_isTouchable;}
 
 private:
+  /** ENUM that defines calorimeter regions as ECAL, HCAL or FCAL  */
+  enum CalorimeterType { CALORIMETER_START = 0, UNASSIGNED = CALORIMETER_START, ECAL = 1, HCAL = 2, FCAL = 3, UNKNOWN = 4, CALORIMETER_END = 5};
+  
   int m_clusterId;
   const xAOD::CaloCluster* m_cluster;
   ElementLink<xAOD::CaloClusterContainer> m_clusElementLink;
   bool m_isTouchable;
-  /* 1: ECAL, 2: HCAL */
-  int m_type;
+
+  /** Specifies if we have a cluster mainly in ECAL, HCAL or FCAL  */
+  CalorimeterType m_calorimeterType;
 
   /* for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
   std::map<IdentifierHash,double> m_cellsWeightMap;

@@ -8,8 +8,8 @@ from RecExConfig.Configured import Configured # import base class
 def setup_eflowObjectBuilder(Configured, nameModifier,mlog):
     print "eflowObjectBuilderSetup.py : setup_eflowObjectBuilder"
 
-    if nameModifier != "EM" and nameModifier != "LC":
-        mlog.error("Invalid calorimeter scale was specified : should be LC or EM, but was "+nameModifier)
+    if nameModifier != "EM" and nameModifier != "EM_HLLHC" and nameModifier != "LC":
+        mlog.error("Invalid calorimeter scale was specified : should be LC or EM/HL_LHC, but was "+nameModifier)
         return False
 
     try:
@@ -39,7 +39,7 @@ def setup_eflowObjectBuilder(Configured, nameModifier,mlog):
 
     ObjectBuilder.PrivateToolList += [MomentCalculatorTool]
 
-    if nameModifier == "EM" and not jobproperties.eflowRecFlags.CalType == "NoCal":        
+    if (nameModifier == "EM" or nameModifier == "EM_HLHLC") and not jobproperties.eflowRecFlags.CalType == "NoCal": 
         try:
             from eflowRec.eflowLCCalibToolDefault import eflowLCCalibToolDefault
             LCCalibTool = eflowLCCalibToolDefault("eflowLCCalibTool_"+nameModifier)

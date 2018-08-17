@@ -5,15 +5,13 @@ import traceback
 # import the base class
 from eflowRec.eflowRecConf import eflowCellLevelSubtractionTool
 
-from eflowRec.eflowRecFlags import jobproperties
+class eflowCellLevelSubtractionToolDefault_HLLHC(eflowCellLevelSubtractionTool) :
 
-class eflowCellLevelSubtractionToolDefault(eflowCellLevelSubtractionTool) :
-
-    def __init__(self, name="eflowCellLevelSubtractionToolDefault"): 
+    def __init__(self, name="eflowCellLevelSubtractionToolDefault_HLLHC"): 
 
         eflowCellLevelSubtractionTool.__init__( self, name )
 
-        mlog = logging.getLogger( 'eflowCellLevelSubtractionToolDefault::__init__ ' )
+        mlog = logging.getLogger( 'eflowCellLevelSubtractionToolDefault_HLLHC::__init__ ' )
         mlog.info("entering")
 
         self.SubtractionSigmaCut = 1.2
@@ -28,7 +26,7 @@ class eflowCellLevelSubtractionToolDefault(eflowCellLevelSubtractionTool) :
         from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
         MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
         MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
-        MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")        
+        MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
         MatchingTool_Pull_015.TrackPositionType   = 'EM2EtaPhi' # str
         MatchingTool_Pull_015.ClusterPositionType = 'PlainEtaPhi' # str
         MatchingTool_Pull_015.DistanceType        = 'EtaPhiSquareDistance' # str
@@ -50,11 +48,12 @@ class eflowCellLevelSubtractionToolDefault(eflowCellLevelSubtractionTool) :
 
         
         from eflowRec.eflowCellLevelSubtractionSetup import setup_eflowCellLevelSubtraction
-        return setup_eflowCellLevelSubtraction(self, "EM", mlog)
+        return setup_eflowCellLevelSubtraction(self, "EM_HLLHC", mlog)
     
         if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
             self.useUpdated2015ChargedShowerSubtraction = False
-        
+
+        self.isHLLHC=True        
 
         gmFlag=""# default set to "golden1" for goldenMode. In the end this should come from this flag jobproperties.eflowRecFlags.goldenModeString()
         self.goldenModeString=gmFlag

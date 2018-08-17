@@ -44,7 +44,7 @@ m_windowRms(0.032),
 m_theEOverPTool("eflowCellEOverPTool",this),
 m_matchingTool("PFTrackClusterMatchingTool/RcvrSpltMatchingTool", this),
 m_binnedParameters(new eflowEEtaBinnedParameters()),
-m_integrator(new eflowLayerIntegrator(m_windowRms, 1.0e-3, 3.0)),
+m_integrator(nullptr),
 m_subtractionSigmaCut(1.5),
 m_recoverIsolatedTracks(false),
 m_nTrackClusterMatches(0),
@@ -56,10 +56,14 @@ m_useUpdated2015ChargedShowerSubtraction(true)
   declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
   declareProperty("RecoverIsolatedTracks",m_recoverIsolatedTracks,"Whether to recover isolated tracks also");
   declareProperty("useUpdated2015ChargedShowerSubtraction",m_useUpdated2015ChargedShowerSubtraction,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region");
+  declareProperty("isHLLHC",m_isHLLHC,"Toggle whether we have the HLLHC setup");
   eflowRingSubtractionManager::setRMaxAndWeightRange(m_rCell, 1.0e6);
 }
 
-eflowRecoverSplitShowersTool::~eflowRecoverSplitShowersTool() {}
+eflowRecoverSplitShowersTool::~eflowRecoverSplitShowersTool() {
+  if (m_binnedParameters) { delete m_binnedParameters; m_binnedParameters = nullptr;}
+  if (m_integrator) { delete m_integrator; m_integrator = nullptr;}
+}
 
 StatusCode eflowRecoverSplitShowersTool::initialize(){
 
@@ -85,6 +89,12 @@ StatusCode eflowRecoverSplitShowersTool::initialize(){
     return StatusCode::SUCCESS;
   }
 
+  const double gaussianRadius = 0.032;
+  const double gaussianRadiusError = 1.0e-3;
+  const double maximumRadiusSigma = 3.0;
+  
+  m_integrator = new eflowLayerIntegrator(gaussianRadius, gaussianRadiusError, maximumRadiusSigma, m_isHLLHC);
+
   return StatusCode::SUCCESS;
 }
 
@@ -108,8 +118,8 @@ StatusCode eflowRecoverSplitShowersTool::finalize(){
 
   msg(MSG::INFO) << "Produced " << m_nTrackClusterMatches << " track-cluster matches." << endmsg;
 
-  delete m_binnedParameters;
-  delete m_integrator;
+  if (m_binnedParameters) { delete m_binnedParameters; m_binnedParameters = nullptr;}
+  if (m_integrator) { delete m_integrator; m_integrator = nullptr;}
 
   return StatusCode::SUCCESS;
 

@@ -66,6 +66,11 @@ void eflowCaloObject::simulateShower(eflowLayerIntegrator *integrator, eflowEEta
     }
 
     double trackEM1eta = thisEfRecTrack->getTrackCaloPoints().getEM1eta();
+    /* if a track is in the forward EM (2.5 < eta < 3.2) then there is no EM1 -> need to use EM2 */
+    if(trackEM1eta<-998.) trackEM1eta = thisEfRecTrack->getTrackCaloPoints().getEM2eta();
+    /* if a track is not in the EM region (3.2 < eta < 4.0) then should use FCAL0 */
+    if(trackEM1eta<-998.) trackEM1eta = thisEfRecTrack->getTrackCaloPoints().getFCAL0eta();
+
     double trackE = thisEfRecTrack->getTrack()->e();
 
     if (!binnedParameters->binExists(trackE, trackEM1eta)) {

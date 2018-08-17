@@ -33,7 +33,7 @@ class eflowLayerIntegrator {
 
  public:
 
-  eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev);
+  eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev, bool isHLLHC = false);
   eflowLayerIntegrator(const eflowLayerIntegrator& anEFlowLayerIntegrator);
   void operator=(const eflowLayerIntegrator& anEFlowLayerIntegrator);
   ~eflowLayerIntegrator();
@@ -54,7 +54,10 @@ class eflowLayerIntegrator {
   void measureCell(const CaloCell* cell, const eflowTrackCaloPoints& trackCalo);
 
   double m_rMax;
-
+  
+  /* Defines whether we are in HLLHC (Run4) setup or not (Runs 1,2 or 3) */
+  bool m_isHLLHC;
+  
   std::vector<double> m_allClustersIntegral;
   std::vector<double> m_singleClusterIntegral;
   

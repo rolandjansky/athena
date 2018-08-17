@@ -6,8 +6,8 @@ from RecExConfig.Configured import Configured # import base class
 
 def setup_eflowRecoverSplitShowers(Configured, nameModifier,mlog):
 
-    if nameModifier != "EM" and nameModifier != "LC":
-        mlog.error("Invalid calorimeter scale was specified : should be LC or EM, but was "+nameModifier)
+    if nameModifier != "EM" and nameModifier != "LC" and nameModifier != "EM_HLLHC":
+        mlog.error("Invalid calorimeter scale was specified : should be LC or EM/EM_HLLHC, but was "+nameModifier)
         return False
 
     if "EM" == nameModifier:
@@ -22,6 +22,17 @@ def setup_eflowRecoverSplitShowers(Configured, nameModifier,mlog):
         
         Configured.eflowCellEOverPTool=CellEOverPTool
 
+    elif "EM_HLLHC" == nameModifier:
+        try:
+            from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_HLLHC
+            CellEOverPTool=eflowCellEOverPTool_mc12_HLLHC()
+        except:
+            mlog.error("could not import eflowRec.eflowCellEOverPTool_mc12")
+            print traceback.format_exc()
+            return False
+
+        Configured.eflowCellEOverPTool=CellEOverPTool
+        
     elif "LC" == nameModifier:
         try:
             from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_LC
@@ -55,4 +66,7 @@ def setup_eflowRecoverSplitShowers(Configured, nameModifier,mlog):
     MatchingTool.MatchCut = 0.2*0.2 # float
     Configured.PFTrackClusterMatchingTool = MatchingTool
 
+    if "EM_HLLHC" == nameModifier:
+        Configured.isHLLHC=True   
+    
     return True
