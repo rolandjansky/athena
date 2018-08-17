@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 			{
 				msg += "   - tool with key \"" + kv.first + "\" chosen for legs " + kv.second + '\n';
 			}
-			Info(APP_NAME, msg.c_str());
+			Info(APP_NAME, "%s", msg.c_str());
 		}
 	}
 	else
