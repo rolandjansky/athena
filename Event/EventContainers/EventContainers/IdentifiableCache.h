@@ -45,7 +45,7 @@ public:
   {
   }
 
-  IdentifiableCache (IdentifierHash maxHash, const Maker* maker, size_t lockBucketSize)
+  IdentifiableCache (IdentifierHash maxHash, const Maker* maker, size_t /*lockBucketSize*/)
     : IdentifiableCacheBase (maxHash, maker)
   {
   }
