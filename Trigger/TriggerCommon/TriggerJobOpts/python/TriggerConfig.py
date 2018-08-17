@@ -40,7 +40,7 @@ def triggerSummaryCfg(flags, hypos):
         
     return acc, summaryAlg
 
-def triggerMonitoringCfg(flags, hypos):
+def triggerMonitoringCfg(flags, hypos, l1Decoder):
     """
     Configures components needed for monitoring chains
     """
@@ -51,10 +51,9 @@ def triggerMonitoringCfg(flags, hypos):
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
-    from AthenaCommon.Constants import DEBUG
     allChains = []
     for stepName, stepHypos in hypos.iteritems():
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, OutputLevel=DEBUG )
+        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName )
         for hypo in stepHypos:
             dcTool.Decisions += [ hypo.HypoOutputDecisions ]
             for t in hypo.HypoTools:
@@ -64,8 +63,9 @@ def triggerMonitoringCfg(flags, hypos):
     
     mon.FinalDecisions = mon.CollectorTools[-1].Decisions
     __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )
-    mon.ChainsList = list( set(allChains) )
 
+    mon.ChainsList = list( set( allChains + l1Decoder.ctpUnpacker.CTPToChainMapping.keys()) )
+    
     return acc, mon
 
 def setupL1DecoderFromMenu( flags, l1Decoder ):
@@ -115,7 +115,7 @@ def triggerRunCfg(flags, menu=None):
     
     #once menu is included we should configure monitoring here as below
     
-    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos )
+    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
     acc.merge( monitoringAcc )
     
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )

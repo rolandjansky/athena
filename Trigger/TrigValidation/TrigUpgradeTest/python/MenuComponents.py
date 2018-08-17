@@ -471,8 +471,11 @@ class InViewReco( ComponentAccumulator ):
     #     self.merge( acc )
     #     self.addEventAlgo( alg, self.viewsSeq.name() )
 
-    def sequence(self):
+    def sequence( self ):
         return self.mainSeq
+
+    def inputMaker( self ):
+        return self.viewMakerAlg 
 
 
 class RecoFragmentsPool:
@@ -513,11 +516,13 @@ class FilterHypoSequence(  ComponentAccumulator ):
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
         self.filterAlg =  None
+        self.reco = None
         self.hypoAlg = None
 
     def addReco( self, reco ):
         """ Adds reconstruction sequence, has to be one of InViewReco or InEventReco objects """
         assert self.filterAlg, "The filter alg has to be setup first"
+        self.reco = reco
         reco.addInputFromFilter( self.filterAlg )
         self.addSequence( reco.sequence(), self.mainSeq.name() )
         self.merge( reco )
@@ -529,10 +534,13 @@ class FilterHypoSequence(  ComponentAccumulator ):
         self.filterAlg.Input       = [ inKey ]
         self.filterAlg.Output      = [ outKey ] if outKey else [ 'Filtered'+self.name ]        
         self.filterAlg.Chains      = chains
+        from AthenaCommon.Constants import DEBUG
+        self.filterAlg.OutputLevel = DEBUG
         self.addEventAlgo( self.filterAlg, self.mainSeq.name() )
 
     def addHypo( self, hypo ):
         self.hypoAlg = hypo
+        self.hypoAlg.HypoInputDecisions = self.reco.inputMaker().InputMakerOutputDecisions[-1]
         self.addEventAlgo( hypo, self.mainSeq.name() )
 
     def sequence( self ):
