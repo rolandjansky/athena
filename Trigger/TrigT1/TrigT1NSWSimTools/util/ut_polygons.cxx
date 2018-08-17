@@ -2,7 +2,7 @@
 
 int main(){
     
-    //GeoUtils *geo=GeoUtils::init();
+    using namespace GeoUtils;
     
     Vertices vts1;
     //a trapezoid
@@ -30,40 +30,40 @@ int main(){
     };
     
     
-    Polygon pol1=GeoUtils::buildPolygon(vts1);
-    Polygon pol2=GeoUtils::buildPolygon(vts2);
-    Polygon pol3=GeoUtils::buildPolygon(vts3);
-    GeoUtils::print(pol1);
-    GeoUtils::print(pol2);
-    GeoUtils::print(pol3);
+    Polygon pol1=buildPolygon(vts1);
+    Polygon pol2=buildPolygon(vts2);
+    Polygon pol3=buildPolygon(vts3);
+    print(pol1);
+    print(pol2);
+    print(pol3);
     
-    std::cout<<"polygon 1 has "<<GeoUtils::nVertices(pol1)<<" vertices"<<std::endl;
-    Vertex v=GeoUtils::getVertex(pol1,3);
-    std::cout<<"Whose fourth vertex coordinate of x is :"<<GeoUtils::coordinate<0>(v)<<std::endl;
-    std::cout<<"Whose fourth vertex coordinate of y is :"<<GeoUtils::coordinate<1>(v)<<std::endl;
+    std::cout<<"polygon 1 has "<<nVertices(pol1)<<" vertices"<<std::endl;
+    Vertex v=getVertex(pol1,3);
+    std::cout<<"Whose fourth vertex coordinate of x is :"<<coordinate<0>(v)<<std::endl;
+    std::cout<<"Whose fourth vertex coordinate of y is :"<<coordinate<1>(v)<<std::endl;
     
     
-    std::vector<Polygon> overlaps=GeoUtils::allIntersections(pol1,pol3);
+    std::vector<Polygon> overlaps=allIntersections(pol1,pol3);
     //test the firstoverlap method
-    Polygon overlap0_13=GeoUtils::firstIntersection(pol1,pol3);
+    Polygon overlap0_13=firstIntersection(pol1,pol3);
     std::cout<<"There are "<<overlaps.size()<<" intersections in between polygon1-3"<<std::endl;
-    GeoUtils::print(overlap0_13);
+    print(overlap0_13);
     
     std::vector<Polygon> polygons={pol1,pol2,pol3};
     
-    Polygon overallintersection=GeoUtils::intersectionRegion(polygons);
+    Polygon overallintersection=intersectionRegion(polygons);
     
-    unsigned int nvtx=GeoUtils::nVertices(overallintersection);
+    unsigned int nvtx=nVertices(overallintersection);
     std::cout<<"The resulting overlap between (1)/(2)/(3) : "<<std::endl;
-    GeoUtils::print(overallintersection);
+    print(overallintersection);
     
     std::cout<<"X-Y Coordinates of the overlapping region polygons 1-2-3 are : "<<std::endl;
     for(unsigned int i=0;i<nvtx;i++){
-        Vertex v=GeoUtils::getVertex(overallintersection,i);
-        std::cout<<GeoUtils::coordinate<0>(v)<<" "<<GeoUtils::coordinate<1>(v)<<std::endl;
+        Vertex v=getVertex(overallintersection,i);
+        std::cout<<coordinate<0>(v)<<" "<<coordinate<1>(v)<<std::endl;
     }
     
-    std::cout<<"Area of the overlap (1)/(2)/(3) : "<<GeoUtils::area(overallintersection)<<std::endl;
+    std::cout<<"Area of the overlap (1)/(2)/(3) : "<<area(overallintersection)<<std::endl;
     
     return 0;
 }

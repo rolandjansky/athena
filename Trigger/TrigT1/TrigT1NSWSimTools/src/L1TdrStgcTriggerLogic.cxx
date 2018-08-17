@@ -28,6 +28,7 @@ using namespace std;
 using namespace nsw;
 typedef L1TdrStgcTriggerLogic L1TdrStgcTriggerLogic; // just to get shorter lines
 typedef SingleWedgePadTrigger Swpt;
+using namespace GeoUtils;
 
 const int triggerLogicDbgLevel = 0;
 const double padTimingEfficiency = 0.95; // set to -1 to disable

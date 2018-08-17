@@ -24,7 +24,7 @@ A trigger with coincident hits in at least 3 out of 4 layers within a wedge.
 davide.gerbaudo@gmail.com, April 2013
 */
 
-
+using namespace GeoUtils;
 
 namespace nsw {
   class SingleWedgePadTrigger {

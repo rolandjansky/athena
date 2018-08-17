@@ -58,7 +58,6 @@
 
 using namespace std;
 using nsw::PadWithHits;
-
 namespace NSWL1 {
 
 //------------------------------------------------------------------------------
@@ -418,7 +417,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCa
     //S.I 15.08.18 : This method probably needs to be refactored
     PadTrigger pt;
     
-    const Polygon roi=t.triggerRegion3();    
+    const GeoUtils::Polygon roi=t.triggerRegion3();    
     Vertex trgCntr=GeoUtils::centroid(roi);
     nsw::SingleWedgePadTrigger swtrg = t.wedgeTrigs()[0];
     

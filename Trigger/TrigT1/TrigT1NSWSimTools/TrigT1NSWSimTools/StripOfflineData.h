@@ -49,8 +49,6 @@ namespace NSWL1 {
 
   public:
     StripOfflineData(Identifier id, const sTgcIdHelper* helper, const sTgcDigit* digit);
-    //S.I add this for std::make_unique
-    StripOfflineData(StripOfflineData*);
     ~StripOfflineData();
 
     void setTrigBCID(int bcid);          //!< set the trig BCID

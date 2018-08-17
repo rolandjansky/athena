@@ -44,7 +44,7 @@ typedef std::shared_ptr<NSWL1::PadData> spPadData;
       ieta(eta), iphi(phi), multiplet(multi), layer(layerType), sector(sn), sectortype(sn), side(si), module(mod),
       m_padData(nullptr)
     { 
-        memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
+        memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3);
         
     }
 /*

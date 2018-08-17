@@ -7,30 +7,33 @@
 #include <TVector3.h>
 #include <algorithm>
 
-float GeoUtils::eta(float x,float y,float z){
+
+namespace GeoUtils{
+
+float eta(float x,float y,float z){
     TVector3 V(x,y,z);
     return V.Eta();
 }
 
 
-float GeoUtils::phi(float x,float y){
+float phi(float x,float y){
     TVector2 V(x,y); 
    float angle= V.Phi();
    return TVector2::Phi_mpi_pi(angle);
 }
 
-float GeoUtils::phi(float x, float y, float z){
+float phi(float x, float y, float z){
     TVector3 V(x,y,z);
     return V.Phi();
     
 }
 
-Polygon GeoUtils::etaphi2xyTransform(const Polygon& p, float Z){
+Polygon etaphi2xyTransform(const Polygon& p, float Z){
     //loop over vertices :
     Vertices vts;
-    for(auto v : boost::geometry::exterior_ring(p)){
-     float eta=GeoUtils::coordinate<0>(v);
-     float phi=GeoUtils::coordinate<1>(v);
+    for(const auto& v : boost::geometry::exterior_ring(p)){
+     float eta=coordinate<0>(v);
+     float phi=coordinate<1>(v);
      float z=Z;
      float theta=2*TMath::ATan(TMath::Exp(-1*eta));
      float x=z*TMath::Tan(theta)*TMath::Cos(phi);
@@ -44,10 +47,10 @@ Polygon GeoUtils::etaphi2xyTransform(const Polygon& p, float Z){
 
 
 
-Polygon GeoUtils::Project(const Polygon& p,float Zinit,float Zfin){
+Polygon Project(const Polygon& p,float Zinit,float Zfin){
     //loop over vertices
     Vertices vt;
-    for(auto v : boost::geometry::exterior_ring(p)){
+    for(const auto& v : boost::geometry::exterior_ring(p)){
         float x=coordinate<0>(v);
         float y=coordinate<1>(v);
         float z=Zinit;        
@@ -64,32 +67,17 @@ Polygon GeoUtils::Project(const Polygon& p,float Zinit,float Zfin){
     
 }
 
-int GeoUtils::nVertices(const Polygon& p){
+int nVertices(const Polygon& p){
     return boost::geometry::num_points(p);
 }
 
-Vertex GeoUtils::getVertex(const Polygon& p,unsigned int i){
+Vertex getVertex(const Polygon& p,unsigned int i){
     
     return boost::geometry::exterior_ring(p)[i];
 }
 
-GeoUtils* GeoUtils::m_instance=NULL;
 
-GeoUtils* GeoUtils::init(){
-    if(m_instance==NULL){
-        m_instance=new GeoUtils();
-    }
-    return m_instance;
-}
-
-GeoUtils::GeoUtils(){
-}
-
-GeoUtils::~GeoUtils(){
-    delete m_instance;
-}
-
-Polygon GeoUtils::buildPolygon(const Vertices pts){
+Polygon buildPolygon(const Vertices pts){
     Polygon shape;
     Vertices vts=pts;
     //to complete the loop...
@@ -100,17 +88,17 @@ Polygon GeoUtils::buildPolygon(const Vertices pts){
     return shape;
 }
 
-float GeoUtils::area(const Polygon& p){
+float area(const Polygon& p){
     return boost::geometry::area(p);
 }
 
-Vertex GeoUtils::centroid(const Polygon& p){
+Vertex centroid(const Polygon& p){
     Vertex v;
     boost::geometry::centroid(p, v);
     return v;
 }
 
- std::vector<Polygon> GeoUtils::allIntersections(const Polygon& p1, const Polygon& p2){
+ std::vector<Polygon> allIntersections(const Polygon& p1, const Polygon& p2){
     std::vector<Polygon> out;
     boost::geometry::intersection(p1, p2, out);
     return out;
@@ -118,29 +106,29 @@ Vertex GeoUtils::centroid(const Polygon& p){
 }
 
 
-Polygon GeoUtils::firstIntersection(const Polygon& p1,const Polygon& p2){
-    std::vector<Polygon> pols=GeoUtils::allIntersections(p1,p2);
+Polygon firstIntersection(const Polygon& p1,const Polygon& p2){
+    std::vector<Polygon> pols=allIntersections(p1,p2);
      //we have to return something
     if(pols.size()==0) return NilPolygon();
-    return GeoUtils::allIntersections(p1,p2).at(0);
+    return allIntersections(p1,p2).at(0);
 }
 
-Polygon GeoUtils::largestIntersection(const Polygon& p1,const Polygon& p2){
-    std::vector<Polygon> pols=GeoUtils::allIntersections(p1,p2);
+Polygon largestIntersection(const Polygon& p1,const Polygon& p2){
+    std::vector<Polygon> pols=allIntersections(p1,p2);
      if(pols.size()==0) return NilPolygon();
      
-     std::sort(pols.begin(),pols.end(),[](const Polygon& a,const Polygon& b){return GeoUtils::area(a)>GeoUtils::area(b);});
+     std::sort(pols.begin(),pols.end(),[](const Polygon& a,const Polygon& b){return area(a)>area(b);});
      return pols[0];
     
 }
 
 
 
-Polygon GeoUtils::intersectionRegion(const std::vector<Polygon>& polygons){
+Polygon intersectionRegion(const std::vector<Polygon>& polygons){
     Polygon ovl=polygons[0];
     for(unsigned int i=1;i<polygons.size();i++){
         Polygon curr=polygons[i];
-        Polygon overlap=GeoUtils::largestIntersection(curr,ovl);
+        Polygon overlap=largestIntersection(curr,ovl);
         ovl=overlap;
     }
     return ovl;
@@ -148,9 +136,7 @@ Polygon GeoUtils::intersectionRegion(const std::vector<Polygon>& polygons){
 
 
 
-
-
-Polygon GeoUtils::NilPolygon(){
+Polygon NilPolygon(){
     Vertices nil={
         Vertex(0,0),
         Vertex(0,0),
@@ -158,5 +144,7 @@ Polygon GeoUtils::NilPolygon(){
         Vertex(0,0),
         Vertex(0,0) 
     };
-    return GeoUtils::buildPolygon(nil);
+    return buildPolygon(nil);
+}
+
 }

@@ -11,7 +11,7 @@
 
 using nsw::SectorTriggerCandidate;
 typedef SectorTriggerCandidate Stc; // just to get shorter lines
-
+using namespace GeoUtils;
 
 
 Stc::SectorTriggerCandidate(const nsw::SingleWedgePadTrigger &inner,

@@ -13,7 +13,7 @@
 
 using nsw::SingleWedgePadTrigger;
 typedef SingleWedgePadTrigger Swpt; // just to get shorter lines
-
+using namespace GeoUtils;
 
 bool sortByLayer(const nsw::PadWithHits &p0, const nsw::PadWithHits& p1) {
   return p0.layer<p1.layer;

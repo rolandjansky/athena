@@ -32,7 +32,7 @@ namespace nsw {
     SectorTriggerCandidate(const nsw::SingleWedgePadTrigger &innerOrOuterInTransition);
     std::string pickle() const; //!< simple dict-like representation
     const std::vector< nsw::SingleWedgePadTrigger >& wedgeTrigs() const { return m_wedgeTrigs;}
-    Polygon triggerRegion3() const;
+    GeoUtils::Polygon triggerRegion3() const;
 
   private:
     std::vector< nsw::SingleWedgePadTrigger > m_wedgeTrigs;
