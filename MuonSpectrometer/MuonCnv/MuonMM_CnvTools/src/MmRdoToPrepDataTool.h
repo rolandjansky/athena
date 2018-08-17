@@ -83,7 +83,7 @@ namespace Muon
     
     /// MM and muon identifier helper
     const MmIdHelper * m_mmIdHelper;
-    const MuonIdHelper * m_muonIdHelper;
+    ToolHandle <Muon::MuonIdHelperTool> m_idHelperTool; 
     
     bool m_fullEventDone;
     
@@ -93,7 +93,7 @@ namespace Muon
     SG::ReadHandleKey< MM_RawDataContainer >         m_rdoContainerKey;
 
     std::string m_outputCollectionLocation;            
-    
+    bool m_merge; 
   }; 
 } // end of namespace
 
