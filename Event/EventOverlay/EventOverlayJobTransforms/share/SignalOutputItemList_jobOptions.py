@@ -27,9 +27,7 @@ include ( "EventOverlayJobTransforms/TileMcSignal_jobOptions.py" )
 
 include ( "EventOverlayJobTransforms/L1Signal_jobOptions.py" ) 
 
-from OverlayCommonAlgs.OverlayCommonAlgsConf import UpdateEventInfo
-job += UpdateEventInfo()
-job.UpdateEventInfo.InfoType="McEventInfo"
+# TODO: some event info update will probably be needed
 
 # The output - signal
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
