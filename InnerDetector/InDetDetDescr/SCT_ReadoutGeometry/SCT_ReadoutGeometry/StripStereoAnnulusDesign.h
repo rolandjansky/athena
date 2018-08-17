@@ -206,15 +206,24 @@ inline double StripStereoAnnulusDesign::stripPitch() const { // Don't use; which
 }
 
 inline double StripStereoAnnulusDesign::phiPitch(const SiLocalPosition &pos) const {
-    return phiPitch(cellIdOfPosition(pos));
+// Return pitch in mm for the strip at this position, at this point's distance along the strip.
+    const SiCellId cellId = cellIdOfPosition(pos);
+    const int row = cellId.etaIndex();
+    const double radius = sqrt(pos.xEta() * pos.xEta() + pos.xPhi() * pos.xPhi());
+    return m_pitch[row] * radius;
 }
 
 inline double StripStereoAnnulusDesign::phiPitch(const SiCellId &cellId) const {
-    return m_pitch[cellId.etaIndex()];
+// Return pitch in mm for centre of this strip.
+    const int row = cellId.etaIndex();
+    return m_pitch[row] * (m_stripStartRadius[row] + m_stripEndRadius[row]) / 2.;
 }
 
 inline double StripStereoAnnulusDesign::phiPitch() const {
-    return stripPitch(SiCellId(0, 0));
+// Return pitch in mm for the row just below or including the centre
+    const int middleRow = m_nRows / 2;
+    const int middleStrip = m_nStrips[middleRow] / 2; 
+    return phiPitch(SiCellId(middleStrip, middleRow));
 }
 
 /*
