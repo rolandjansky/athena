@@ -3,21 +3,19 @@ include.block ( "EventOverlayJobTransforms/SignalOutputItemList_jobOptions.py" )
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.DetFlags import DetFlags
 
-#copy stuff back into the MC before persistency
-from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyObjects
-
-if DetFlags.overlay.Truth_on():
-   job += CopyObjects("CopyTruth")
-   job.CopyTruth.TruthObjects = True
+# TODO: copy stuff back into the MC before persistency if this will still be maintained
+# if DetFlags.overlay.Truth_on():
+   # job += CopyObjects("CopyTruth")
+   # job.CopyTruth.TruthObjects = True
 
 # copy InDet objects back into Signal event store
-if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
-   job += CopyObjects("CopyInDet")
-   job.CopyInDet.InDetObjects = True
+# if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
+   # job += CopyObjects("CopyInDet")
+   # job.CopyInDet.InDetObjects = True
 
-if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
-   job += CopyObjects("CopyMuons")
-   job.CopyMuons.MuonObjects = True
+# if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
+   # job += CopyObjects("CopyMuons")
+   # job.CopyMuons.MuonObjects = True
 
 # convert Digit to RDO for both signal store and temporary background store
 
@@ -115,4 +113,3 @@ if DetFlags.overlay.LVL1_on():
 # Write all IOV meta data containers
 StreamRDO_MC.MetadataItemList += [ "IOVMetaDataContainer#*" ]
 StreamRDO_MC.MetadataItemList += [ "LumiBlockCollection#*" ]
-

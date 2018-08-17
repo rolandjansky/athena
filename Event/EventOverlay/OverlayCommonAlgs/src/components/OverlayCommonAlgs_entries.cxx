@@ -1,5 +1,4 @@
 #include "../CopyMcEventCollection.h"
-#include "../CopyObjects.h"
 #include "../CopyTimings.h"
 #include "../CopyTruthInfo.h"
 #include "../SaveInDetObjects.h"
@@ -10,7 +9,6 @@
 #include "../ByteStreamMultipleOutputStreamCopyTool.h"
 
 DECLARE_COMPONENT( CopyMcEventCollection )
-DECLARE_COMPONENT( CopyObjects )
 DECLARE_COMPONENT( CopyTimings )
 DECLARE_COMPONENT( CopyTruthInfo )
 DECLARE_COMPONENT( SaveInDetObjects )
