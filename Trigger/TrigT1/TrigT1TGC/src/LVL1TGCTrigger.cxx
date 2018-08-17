@@ -89,7 +89,7 @@ namespace LVL1TGCTrigger {
     m_debuglevel(false)
 {
     declareProperty("EventStore", m_sgSvc, "Event Store"); 
-    declareProperty("MuCTPIInput_TGC",     m_keyMuCTPIInput_TGC="/Event/L1MuctpiStoreTGC");
+    declareProperty("MuCTPIInput_TGC",     m_keyMuCTPIInput_TGC="L1MuctpiStoreTGC");
     declareProperty("InputData_perEvent",  m_keyTgcDigit="TGC_DIGITS");
     declareProperty("TileMuRcv_Input",     m_keyTileMu="TileMuRcvCnt");
     declareProperty("ProcessAllBunhes",    m_ProcessAllBunches=true);
