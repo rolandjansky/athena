@@ -13,6 +13,7 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "TrkCaloExtension/CaloExtension.h"
+#include "TrkCaloExtension/CaloExtensionCollection.h"
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -65,20 +66,20 @@ public:
   /** Method that can be used by algorithms that :
    * A. Have an  IParticleCollection
    * B. Define a mask of the size of that collection
-   * C. Want back a vector alligned with the input collection 
+   * C. Want back a Calo Extension Collection alligned with the input collection 
    * i.e 1 to 1 correspondance with the input collection.
-   * The vector can then be used as such to retrieve the extensions
+   * The Collection can then be used as such to retrieve the extensions
    * or manipulated and written to storegate.
    *
    * @param particles The input collection
    * @param mask      contains true for the elements for which to permorm an extension, false otherwise          
    * @* @param caloextension Output to be filled,
-   * will contain nullptr where the mask was false, otherwise it contains the relevant
+   * will contain unfilled CaloExtension where the mask was false, otherwise it contains the relevant
    * result. 
    */  
    virtual StatusCode  caloExtensionCollection( const xAOD::IParticleContainer& particles, 
                                                 const std::vector<bool>& mask,
-                                                std::vector<std::unique_ptr<CaloExtension>>& caloextensions) const = 0;
+                                                CaloExtensionCollection& caloextensions) const = 0;
 
   /**
    * Method returning a unique_ptr to the caloExtension given the relevant 

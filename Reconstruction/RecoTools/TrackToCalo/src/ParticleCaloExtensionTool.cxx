@@ -114,7 +114,7 @@ bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
 
 StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IParticleContainer& particles, 
                                                                const std::vector<bool>& mask,
-                                                               std::vector<std::unique_ptr<CaloExtension>>& caloextensions) const{
+                                                               CaloExtensionCollection& caloextensions) const{
   const size_t numparticles=particles.size();   
   if(mask.size()!=numparticles){
     ATH_MSG_ERROR("mask does not have the same size as in input collection");
@@ -127,11 +127,15 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
         caloextensions.push_back(std::move(extension));
       }
       else {
-        caloextensions.push_back(nullptr);
+        std::vector<const CurvilinearParameters*> dummyPar;
+        std::unique_ptr<Trk::CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,nullptr,std::move(dummyPar));
+        caloextensions.push_back(std::move (dummyExt));
       }
     }
     else{
-      caloextensions.push_back(nullptr);
+      std::vector<const CurvilinearParameters*> dummyPar;
+      std::unique_ptr<CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,nullptr,std::move(dummyPar));
+      caloextensions.push_back(std::move (dummyExt));
     }
   }
   return StatusCode::SUCCESS;

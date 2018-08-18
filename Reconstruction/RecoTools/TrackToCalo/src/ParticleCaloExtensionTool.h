@@ -50,7 +50,7 @@ public:
   
   virtual StatusCode  caloExtensionCollection( const xAOD::IParticleContainer& particles, 
                                                const std::vector<bool>& mask,
-                                               std::vector<std::unique_ptr<CaloExtension>>& caloextensions) const override final;
+                                               CaloExtensionCollection& caloextensions) const override final;
   
   virtual std::unique_ptr<Trk::CaloExtension> caloExtension( const TrackParameters& startPars, 
                                                              PropDirection propDir, 
