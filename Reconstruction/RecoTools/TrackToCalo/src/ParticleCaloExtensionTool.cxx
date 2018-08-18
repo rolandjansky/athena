@@ -69,11 +69,11 @@ const xAOD::TrackParticle* ParticleCaloExtensionTool::getTrackParticle(const xAO
 }
 
 bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
-                                                std::unique_ptr<Trk::CaloExtension>& extension) const {
+                                               std::unique_ptr<Trk::CaloExtension>& extension) const {
 
   ATH_MSG_DEBUG(" caloExtension: index " << particle.index());
   // work out the type of particle and get the extension
-  
+
   extension = nullptr;
   const xAOD::TrackParticle* trackParticle = getTrackParticle(particle);
   if( trackParticle ) {
@@ -92,47 +92,53 @@ bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
     ATH_MSG_WARNING("Unsupported IParticle type");
     return false;
   }
-
   return extension.get()!=nullptr;
 }
+
 bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, Trk::CaloExtension*  extension, 
                                                std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>& cache ) const{
-
-  /*
-   * if CaloExtension is in the cache return it
-   * if not try to constuct it and add it in the cache
-   * else return false
-   * The cache owns the elements 
-   * */
-
   extension=nullptr;
   auto findExtension= cache.find(particle.index());
   if (findExtension!=cache.end()){
     ATH_MSG_DEBUG(" Found cached caloExtension for index: " << particle.index());
     extension=findExtension->second.get();
-   return true;
   }
   std::unique_ptr<Trk::CaloExtension> tmpExtension;
   if(caloExtension(particle,tmpExtension)){
     ATH_MSG_DEBUG(" Adding  caloExtension to cahce for index: " << particle.index());
     auto insertedExtension=cache.emplace(std::make_pair(size_t(particle.index()),std::move(tmpExtension)));
     extension=insertedExtension.first->second.get();
-    return true;
   }
   return extension!=nullptr;
 }
 
+StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IParticleContainer& particles, 
+                                                               const std::vector<bool>& mask,
+                                                               std::vector<std::unique_ptr<CaloExtension>>& caloextensions) const{
+  const size_t numparticles=particles.size();   
+  if(mask.size()!=numparticles){
+    ATH_MSG_ERROR("mask does not have the same size as in input collection");
+    return StatusCode::FAILURE;
+  }
+  for (size_t i=0 ; i<numparticles; ++i){
+    if (mask[i]==true){
+      std::unique_ptr<Trk::CaloExtension> extension;
+      if(caloExtension(*(particles[i]),extension)){
+        caloextensions.push_back(std::move(extension));
+      }
+      else {
+        caloextensions.push_back(nullptr);
+      }
+    }
+    else{
+      caloextensions.push_back(nullptr);
+    }
+  }
+  return StatusCode::SUCCESS;
+}
 
 std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const xAOD::TruthParticle& particle ) const {
 
-  // get particle type
-  /*
-   * For electron we do not want actually any energy loss
-   * I think this is one of the reason we modify the 
-   * material effect updators
-   * and one of the reason that one should have been carefull with sharing
-   * any cache among domains without proper care ...
-   */
   ParticleHypothesis particleType = muon;  
   if( abs(particle.pdgId()) == 11 )      {particleType = muon;} 
   else if( abs(particle.pdgId()) == 13 ) {particleType = muon;}
