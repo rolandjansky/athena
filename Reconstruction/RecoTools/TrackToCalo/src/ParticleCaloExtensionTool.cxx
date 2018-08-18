@@ -1,18 +1,15 @@
 /*
    Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
- */
+*/
 
 #include "ParticleCaloExtensionTool.h"
-// forward declares
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-#define private public
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
-#define public private 
 #include "xAODTracking/TrackingPrimitives.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
@@ -242,8 +239,9 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
 }
 
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars, PropDirection propDir, 
-                                                                              ParticleHypothesis particleType ) const {
+std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( 
+                                                                             const TrackParameters& startPars, PropDirection propDir, 
+                                                                             ParticleHypothesis particleType ) const {
 
   ATH_MSG_DEBUG("looking up calo states: r " << startPars.position().perp() << " z " << startPars.position().z()
                 << " momentum " << startPars.momentum().mag() );
@@ -280,10 +278,12 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   ATH_MSG_DEBUG( " Found calo parameters: " << caloParameters->size() );
   for( const auto& p : *caloParameters ){
 
-    const TrackParameters* param = p.first;
-    if( !param ) continue;
-    ATH_MSG_DEBUG( " param " << param << " id " << p.second /*<< " type " << p.first->type()*/ << " pos: r " << param->position().perp() << " z " << param->position().z() 
-                   << " pt " << param->momentum().perp() << " cov " << param->covariance() );
+    if( !p.first ) {
+      continue;
+    }
+    ATH_MSG_DEBUG( " param " << p.first << " id " << p.second  
+                   << " pos: r " << p.first->position().perp() << " z " << p.first->position().z() 
+                   << " pt " << p.first->momentum().perp() << " cov " << p.first->covariance() );
 
     // assign parameters
     if( p.second == 1 && propDir == Trk::alongMomentum)         {caloEntry = p.first;}
@@ -295,14 +295,30 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
       TrackParametersIdentifier id = parsIdHelper.encode( AtlasDetDescr::fFirstAtlasCaloTechnology, 
                                                           static_cast<CaloSampling::CaloSample>( abs(p.second)%1000 ),
                                                           isEntry );
-      const CurvilinearParameters* cpars = dynamic_cast<const CurvilinearParameters*>(p.first);
-      if( !cpars ){
-        cpars = new CurvilinearParameters(p.first->position(),p.first->momentum(),p.first->charge(),nullptr,id);
+
+      const CurvilinearParameters* cparams = dynamic_cast<const CurvilinearParameters*>(p.first);
+      /*
+       * We need to handle the case of no cparams, or if cparams 
+       * make sure we have the right id and
+       * covariance (if present)
+       */
+      if( !cparams ){
+        const CurvilinearParameters* cpars = new CurvilinearParameters(p.first->position(),
+                                                                       p.first->momentum(),p.first->charge(),nullptr,id); 
+        caloLayers.push_back( cpars );
         delete p.first;
       }else{
-        const_cast<CurvilinearParameters*>(cpars)->m_cIdentifier = id;
+        AmgSymMatrix(5)* covariance(nullptr);
+        if(cparams->covariance()){
+          (*covariance)=*(cparams->covariance());
+        }
+        /*Note that the curvilinear parameters now own the covariance
+         * it will be deleted by the ParameterT dtor*/
+        const CurvilinearParameters* cpars = new CurvilinearParameters(cparams->position(),cparams->momentum(),
+                                                                       cparams->charge(),covariance,id);
+        caloLayers.push_back( cpars );
+        delete cparams;
       }
-      caloLayers.push_back( cpars );
     }      
   }
 
@@ -313,7 +329,9 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
 
   if( muonEntry ) {
     if( muonEntry->covariance() ) { 
-      ATH_MSG_VERBOSE (" p at MuonEntry " << muonEntry->momentum().mag() << " cov 00 " << (*(muonEntry->covariance()))(0,0) << " cov 11 " << (*(muonEntry->covariance()))(1,1));
+      ATH_MSG_VERBOSE (" p at MuonEntry " << muonEntry->momentum().mag() 
+                       << " cov 00 " << (*(muonEntry->covariance()))(0,0) 
+                       << " cov 11 " << (*(muonEntry->covariance()))(1,1));
     }
   }
   delete caloParameters;

@@ -13,10 +13,8 @@ authors : Niels van Eldik (CERN PH-ATC)
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#define private public
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "xAODTracking/TrackParticle.h"
-#define public private
 #include "TrkEventPrimitives/ParticleHypothesis.h" 
 #include "xAODTracking/NeutralParticle.h"
 #include "xAODTruth/TruthParticle.h"
