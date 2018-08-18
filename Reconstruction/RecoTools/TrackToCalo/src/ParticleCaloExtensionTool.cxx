@@ -310,7 +310,7 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension(
       }else{
         AmgSymMatrix(5)* covariance(nullptr);
         if(cparams->covariance()){
-          (*covariance)=*(cparams->covariance());
+          covariance=new AmgSymMatrix(5)(*(cparams->covariance()));
         }
         /*Note that the curvilinear parameters now own the covariance
          * it will be deleted by the ParameterT dtor*/
