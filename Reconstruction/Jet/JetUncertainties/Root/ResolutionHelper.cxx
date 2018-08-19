@@ -20,28 +20,40 @@ ResolutionHelper::ResolutionHelper(const std::string& name, const std::string& j
     , m_smearOnlyMC(false)
     , m_ptNomHistData(NULL)
     , m_ptNomParamData(CompParametrization::UNKNOWN)
+    , m_ptNomMassDefData(CompMassDef::UNKNOWN)
     , m_ptNomHistMC(NULL)
     , m_ptNomParamMC(CompParametrization::UNKNOWN)
+    , m_ptNomMassDefMC(CompMassDef::UNKNOWN)
     , m_fvNomHistData(NULL)
     , m_fvNomParamData(CompParametrization::UNKNOWN)
+    , m_fvNomMassDefData(CompMassDef::UNKNOWN)
     , m_fvNomHistMC(NULL)
     , m_fvNomParamMC(CompParametrization::UNKNOWN)
+    , m_fvNomMassDefMC(CompMassDef::UNKNOWN)
     , m_mQCDNomHistData(NULL)
     , m_mQCDNomParamData(CompParametrization::UNKNOWN)
+    , m_mQCDNomMassDefData(CompMassDef::UNKNOWN)
     , m_mQCDNomHistMC(NULL)
     , m_mQCDNomParamMC(CompParametrization::UNKNOWN)
+    , m_mQCDNomMassDefMC(CompMassDef::UNKNOWN)
     , m_mWZNomHistData(NULL)
     , m_mWZNomParamData(CompParametrization::UNKNOWN)
+    , m_mWZNomMassDefData(CompMassDef::UNKNOWN)
     , m_mWZNomHistMC(NULL)
     , m_mWZNomParamMC(CompParametrization::UNKNOWN)
+    , m_mWZNomMassDefMC(CompMassDef::UNKNOWN)
     , m_mHbbNomHistData(NULL)
     , m_mHbbNomParamData(CompParametrization::UNKNOWN)
+    , m_mHbbNomMassDefData(CompMassDef::UNKNOWN)
     , m_mHbbNomHistMC(NULL)
     , m_mHbbNomParamMC(CompParametrization::UNKNOWN)
+    , m_mHbbNomMassDefMC(CompMassDef::UNKNOWN)
     , m_mTopNomHistData(NULL)
     , m_mTopNomParamData(CompParametrization::UNKNOWN)
+    , m_mTopNomMassDefData(CompMassDef::UNKNOWN)
     , m_mTopNomHistMC(NULL)
     , m_mTopNomParamMC(CompParametrization::UNKNOWN)
+    , m_mTopNomMassDefMC(CompMassDef::UNKNOWN)
 { }
 
 ResolutionHelper::ResolutionHelper(const ResolutionHelper& toCopy)
@@ -52,28 +64,40 @@ ResolutionHelper::ResolutionHelper(const ResolutionHelper& toCopy)
     , m_smearOnlyMC(toCopy.m_smearOnlyMC)
     , m_ptNomHistData(!toCopy.m_ptNomHistData ? NULL : new UncertaintyHistogram(*toCopy.m_ptNomHistData))
     , m_ptNomParamData(toCopy.m_ptNomParamData)
+    , m_ptNomMassDefData(toCopy.m_ptNomMassDefData)
     , m_ptNomHistMC(!toCopy.m_ptNomHistMC ? NULL : new UncertaintyHistogram(*toCopy.m_ptNomHistMC))
     , m_ptNomParamMC(toCopy.m_ptNomParamMC)
+    , m_ptNomMassDefMC(toCopy.m_ptNomMassDefMC)
     , m_fvNomHistData(!toCopy.m_fvNomHistData ? NULL : new UncertaintyHistogram(*toCopy.m_fvNomHistData))
     , m_fvNomParamData(toCopy.m_fvNomParamData)
+    , m_fvNomMassDefData(toCopy.m_fvNomMassDefData)
     , m_fvNomHistMC(!toCopy.m_fvNomHistMC ? NULL : new UncertaintyHistogram(*toCopy.m_fvNomHistMC))
     , m_fvNomParamMC(toCopy.m_fvNomParamMC)
+    , m_fvNomMassDefMC(toCopy.m_fvNomMassDefMC)
     , m_mQCDNomHistData(!toCopy.m_mQCDNomHistData ? NULL : new UncertaintyHistogram(*toCopy.m_mQCDNomHistData))
     , m_mQCDNomParamData(toCopy.m_mQCDNomParamData)
+    , m_mQCDNomMassDefData(toCopy.m_mQCDNomMassDefData)
     , m_mQCDNomHistMC(!toCopy.m_mQCDNomHistMC ? NULL : new UncertaintyHistogram(*toCopy.m_mQCDNomHistMC))
     , m_mQCDNomParamMC(toCopy.m_mQCDNomParamMC)
+    , m_mQCDNomMassDefMC(toCopy.m_mQCDNomMassDefMC)
     , m_mWZNomHistData(!toCopy.m_mWZNomHistData ? NULL : new UncertaintyHistogram(*toCopy.m_mWZNomHistData))
     , m_mWZNomParamData(toCopy.m_mWZNomParamData)
+    , m_mWZNomMassDefData(toCopy.m_mWZNomMassDefData)
     , m_mWZNomHistMC(!toCopy.m_mWZNomHistMC ? NULL : new UncertaintyHistogram(*toCopy.m_mWZNomHistMC))
     , m_mWZNomParamMC(toCopy.m_mWZNomParamMC)
+    , m_mWZNomMassDefMC(toCopy.m_mWZNomMassDefMC)
     , m_mHbbNomHistData(!toCopy.m_mHbbNomHistData ? NULL : new UncertaintyHistogram(*toCopy.m_mHbbNomHistData))
     , m_mHbbNomParamData(toCopy.m_mHbbNomParamData)
+    , m_mHbbNomMassDefData(toCopy.m_mHbbNomMassDefData)
     , m_mHbbNomHistMC(!toCopy.m_mHbbNomHistMC ? NULL : new UncertaintyHistogram(*toCopy.m_mHbbNomHistMC))
     , m_mHbbNomParamMC(toCopy.m_mHbbNomParamMC)
+    , m_mHbbNomMassDefMC(toCopy.m_mHbbNomMassDefMC)
     , m_mTopNomHistData(!toCopy.m_mTopNomHistData ? NULL : new UncertaintyHistogram(*toCopy.m_mTopNomHistData))
     , m_mTopNomParamData(toCopy.m_mTopNomParamData)
+    , m_mTopNomMassDefData(toCopy.m_mTopNomMassDefData)
     , m_mTopNomHistMC(!toCopy.m_mTopNomHistMC ? NULL : new UncertaintyHistogram(*toCopy.m_mTopNomHistMC))
     , m_mTopNomParamMC(toCopy.m_mTopNomParamMC)
+    , m_mTopNomMassDefMC(toCopy.m_mTopNomMassDefMC)
 { }
 
 ResolutionHelper::~ResolutionHelper()
@@ -92,7 +116,7 @@ ResolutionHelper::~ResolutionHelper()
     JESUNC_SAFE_DELETE(m_mTopNomHistMC);
 }
 
-StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram*& hist, CompParametrization::TypeEnum& param)
+StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const TString& key, const TString& defaultValue, UncertaintyHistogram*& hist, CompParametrization::TypeEnum& param, CompMassDef::TypeEnum& massDef)
 {
     // Get the string
     TString value = settings.GetValue(key,defaultValue);
@@ -112,12 +136,12 @@ StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const T
     std::vector<TString> splitValue = utils::vectorize<TString>(value,", ");
     if (splitValue.size() < 2)
     {
-        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (less than 2 strings):" << value.Data());
+        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (less than 2 strings): " << value.Data());
         return StatusCode::FAILURE;
     }
-    else if (splitValue.size() > 2)
+    else if (splitValue.size() > 3)
     {
-        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (more than 2 strings):" << value.Data());
+        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (more than 3 strings): " << value.Data());
         return StatusCode::FAILURE;
     }
     
@@ -125,8 +149,24 @@ StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const T
     param = CompParametrization::stringToEnum(splitValue.at(1));
     if (param == CompParametrization::UNKNOWN)
     {
-        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected parametrization value:" << splitValue.at(1));
+        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected parametrization value: " << splitValue.at(1));
         return StatusCode::FAILURE;
+    }
+
+    // If this is a mass parametrization, ensure that a mass definition was specified
+    if (CompParametrization::includesMass(param))
+    {
+        if (splitValue.size() != 3)
+        {
+            ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (missing mass definition): " << value.Data());
+            return StatusCode::FAILURE;
+        }
+        massDef = CompMassDef::stringToEnum(splitValue.at(2));
+        if (massDef == CompMassDef::UNKNOWN)
+        {
+            ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected mass definition: " << splitValue.at(2));
+            return StatusCode::FAILURE;
+        }
     }
 
     // Create the histogram
@@ -156,20 +196,25 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     // However, there are some expectations
     //  There should be no cases of data resolution without MC resolution
     //  There can be cases of MC resolution without data resolution
-    //  Histograms and their parametrizations must be paired
+    //  Histograms and their parametrizations must be paired (potentially also with mass)
 
     // Expected format:
     //      KeyString: HistName,Parametrization
+    //      KeyString: HistName,Parametrization,MassDef
     //  Example:
     //      NominalPtResData: PtResData,PtAbsEta
     //          Histogram name is PtResData_JETDEF
     //          Parametrization is pT vs |eta|
+    //      NominalMassResMC: MassResMC,PtMass,Calo
+    //          Histogram name is MassResMC_JETDEF
+    //          Parametrization is pT vs m/pt
+    //          Mass definition is calorimeter (not track-assisted or combined)
 
 
     // Start with nominal pT resolution
-    if (parseInput(settings,histFile,"NominalPtResData","",m_ptNomHistData,m_ptNomParamData).isFailure())
+    if (parseInput(settings,histFile,"NominalPtResData","",m_ptNomHistData,m_ptNomParamData,m_ptNomMassDefData).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalPtResMC","",m_ptNomHistMC,m_ptNomParamMC).isFailure())
+    if (parseInput(settings,histFile,"NominalPtResMC","",m_ptNomHistMC,m_ptNomParamMC,m_ptNomMassDefMC).isFailure())
         return StatusCode::FAILURE;
     if (m_ptNomHistData && !m_ptNomHistMC)
     {
@@ -178,9 +223,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     }
 
     // Now the nominal four-vector resolution
-    if (parseInput(settings,histFile,"NominalFourVecResData","",m_fvNomHistData,m_fvNomParamData).isFailure())
+    if (parseInput(settings,histFile,"NominalFourVecResData","",m_fvNomHistData,m_fvNomParamData,m_fvNomMassDefData).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalFourVecResMC","",m_fvNomHistMC,m_fvNomParamMC).isFailure())
+    if (parseInput(settings,histFile,"NominalFourVecResMC","",m_fvNomHistMC,m_fvNomParamMC,m_fvNomMassDefMC).isFailure())
         return StatusCode::FAILURE;
     if (m_fvNomHistData && !m_fvNomHistMC)
     {
@@ -193,9 +238,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     // Lots of code duplication, but time is of the essence, and it works
 
     // QCD topology
-    if (parseInput(settings,histFile,"NominalMassResDataQCD","",m_mQCDNomHistData,m_mQCDNomParamData).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResDataQCD","",m_mQCDNomHistData,m_mQCDNomParamData,m_mQCDNomMassDefData).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalMassResMCQCD","",m_mQCDNomHistMC,m_mQCDNomParamMC).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResMCQCD","",m_mQCDNomHistMC,m_mQCDNomParamMC,m_mQCDNomMassDefMC).isFailure())
         return StatusCode::FAILURE;
     if (m_mQCDNomHistData && !m_mQCDNomHistMC)
     {
@@ -204,9 +249,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     }
 
     // WZ topology
-    if (parseInput(settings,histFile,"NominalMassResDataWZ","",m_mWZNomHistData,m_mWZNomParamData).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResDataWZ","",m_mWZNomHistData,m_mWZNomParamData,m_mWZNomMassDefData).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalMassResMCWZ","",m_mWZNomHistMC,m_mWZNomParamMC).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResMCWZ","",m_mWZNomHistMC,m_mWZNomParamMC,m_mWZNomMassDefMC).isFailure())
         return StatusCode::FAILURE;
     if (m_mWZNomHistData && !m_mWZNomHistMC)
     {
@@ -215,9 +260,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     }
 
     // Hbb topology
-    if (parseInput(settings,histFile,"NominalMassResDataHbb","",m_mHbbNomHistData,m_mHbbNomParamData).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResDataHbb","",m_mHbbNomHistData,m_mHbbNomParamData,m_mHbbNomMassDefData).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalMassResMCHbb","",m_mHbbNomHistMC,m_mHbbNomParamMC).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResMCHbb","",m_mHbbNomHistMC,m_mHbbNomParamMC,m_mHbbNomMassDefMC).isFailure())
         return StatusCode::FAILURE;
     if (m_mHbbNomHistData && !m_mHbbNomHistMC)
     {
@@ -226,9 +271,9 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     }
 
     // Top topology
-    if (parseInput(settings,histFile,"NominalMassResDataTop","",m_mTopNomHistData,m_mTopNomParamData).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResDataTop","",m_mTopNomHistData,m_mTopNomParamData,m_mTopNomMassDefData).isFailure())
         return StatusCode::FAILURE;
-    if (parseInput(settings,histFile,"NominalMassResMCTop","",m_mTopNomHistMC,m_mTopNomParamMC).isFailure())
+    if (parseInput(settings,histFile,"NominalMassResMCTop","",m_mTopNomHistMC,m_mTopNomParamMC,m_mTopNomMassDefMC).isFailure())
         return StatusCode::FAILURE;
     if (m_mTopNomHistData && !m_mTopNomHistMC)
     {
@@ -292,16 +337,17 @@ StatusCode ResolutionHelper::initialize(TEnv& settings, TFile* histFile)
     return StatusCode::SUCCESS;
 }
 
-std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionHelper::getNominalResolution(const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology, const bool readMC) const
+std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum> ResolutionHelper::getNominalResolution(const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology, const bool readMC) const
 {
     // First get the resolution histogram and parametrization
     const jet::UncertaintyHistogram* resolution = NULL;
     CompParametrization::TypeEnum param         = CompParametrization::UNKNOWN;
+    CompMassDef::TypeEnum massDef               = CompMassDef::UNKNOWN;
     
     if (!m_isInit)
     {
         ATH_MSG_ERROR("Asking for the nominal resolution before initialization");
-        return std::pair<UncertaintyHistogram*,CompParametrization::TypeEnum>(NULL,CompParametrization::UNKNOWN);
+        return std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum>(NULL,CompParametrization::UNKNOWN,CompMassDef::UNKNOWN);
     }
 
 
@@ -316,11 +362,13 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
                     {
                         resolution = m_mQCDNomHistMC;
                         param      = m_mQCDNomParamMC;
+                        massDef    = m_mQCDNomMassDefMC;
                     }
                     else
                     {
                         resolution = m_mQCDNomHistData;
                         param      = m_mQCDNomParamData;
+                        massDef    = m_mQCDNomMassDefData;
                     }
                     break;
 
@@ -329,11 +377,13 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
                     {
                         resolution = m_mWZNomHistMC;
                         param      = m_mWZNomParamMC;
+                        massDef    = m_mWZNomMassDefMC;
                     }
                     else
                     {
                         resolution = m_mWZNomHistData;
                         param      = m_mWZNomParamData;
+                        massDef    = m_mWZNomMassDefData;
                     }
                     break;
 
@@ -342,11 +392,13 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
                     {
                         resolution = m_mHbbNomHistMC;
                         param      = m_mHbbNomParamMC;
+                        massDef    = m_mHbbNomMassDefMC;
                     }
                     else
                     {
                         resolution = m_mHbbNomHistData;
                         param      = m_mHbbNomParamData;
+                        massDef    = m_mHbbNomMassDefData;
                     }
                     break;
 
@@ -355,11 +407,13 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
                     {
                         resolution = m_mTopNomHistMC;
                         param      = m_mTopNomParamMC;
+                        massDef    = m_mTopNomMassDefMC;
                     }
                     else
                     {
                         resolution = m_mTopNomHistData;
                         param      = m_mTopNomParamData;
+                        massDef    = m_mTopNomMassDefData;
                     }
                     break;
 
@@ -367,13 +421,13 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
                     // We shouldn't read this, as it was checked at a higher level
                     // Just to be safe, check it and return error code
                     ATH_MSG_ERROR("Mass resolution depends on a single jet topology, not a mixed topology");
-                    return std::pair<UncertaintyHistogram*,CompParametrization::TypeEnum>(NULL,CompParametrization::UNKNOWN);
+                    return std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum>(NULL,CompParametrization::UNKNOWN,CompMassDef::UNKNOWN);
 
                 default:
                     // We shouldn't read this, as it was checked at a higher level
                     // Just to be safe, check it and return error code
                     ATH_MSG_ERROR("Mass resolution depends on the jet topology, which was not specified");
-                    return std::pair<UncertaintyHistogram*,CompParametrization::TypeEnum>(NULL,CompParametrization::UNKNOWN);
+                    return std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum>(NULL,CompParametrization::UNKNOWN,CompMassDef::UNKNOWN);
             }
             break;
 
@@ -383,11 +437,13 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
             {
                 resolution = m_ptNomHistMC;
                 param      = m_ptNomParamMC;
+                massDef    = m_ptNomMassDefMC;
             }
             else
             {
                 resolution = m_ptNomHistData;
                 param      = m_ptNomParamData;
+                massDef    = m_ptNomMassDefData;
             }
             break;
         
@@ -397,11 +453,13 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
             {
                 resolution = m_fvNomHistMC;
                 param      = m_fvNomParamMC;
+                massDef    = m_fvNomMassDefMC;
             }
             else
             {
                 resolution = m_fvNomHistData;
                 param      = m_fvNomParamData;
+                massDef    = m_fvNomMassDefData;
             }
             break;
 
@@ -410,9 +468,9 @@ std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> ResolutionH
             // We should not get here
             // Print an erorr and return error code
             ATH_MSG_ERROR("Asked for the smearing factor for a non-resolution component");
-            return std::pair<UncertaintyHistogram*,CompParametrization::TypeEnum>(NULL,CompParametrization::UNKNOWN);
+            return std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum>(NULL,CompParametrization::UNKNOWN,CompMassDef::UNKNOWN);
     }
-    return std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum>(resolution,param);
+    return std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum>(resolution,param,massDef);
 }
 
 bool ResolutionHelper::hasRelevantInfo(const CompScaleVar::TypeEnum type, const JetTopology::TypeEnum topology) const

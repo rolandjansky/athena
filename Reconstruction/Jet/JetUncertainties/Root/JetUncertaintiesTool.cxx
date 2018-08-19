@@ -1740,21 +1740,33 @@ double JetUncertaintiesTool::getNominalResolution(const xAOD::Jet& jet, const Co
         return JESUNC_ERROR_CODE;
     }
 
-    // Get the nominal histogram and parametrization from the helper
-    std::pair<const UncertaintyHistogram*,CompParametrization::TypeEnum> resolution = m_resHelper->getNominalResolution(smearType,topology,readMC);
+    // Get the nominal histogram, parametrization, and mass def (if relevant) from the helper
+    std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum> resolution = m_resHelper->getNominalResolution(smearType,topology,readMC);
 
     // Check that we retrieved them successfully
-    if (!resolution.first || resolution.second == CompParametrization::UNKNOWN)
+    if (!std::get<0>(resolution) || std::get<1>(resolution) == CompParametrization::UNKNOWN)
         return JESUNC_ERROR_CODE;
+    if (CompParametrization::includesMass(std::get<1>(resolution)) && std::get<2>(resolution) == CompMassDef::UNKNOWN)
+    {
+        // We should never reach this, as it was also checked during initialization
+        ATH_MSG_ERROR("Parametrization involves mass but mass def is unknown");
+        return JESUNC_ERROR_CODE;
+    }
 
     // Now read the uncertainty from the histogram
-    return readHistoFromParam(jet,*resolution.first,resolution.second);
+    return readHistoFromParam(jet,*std::get<0>(resolution),std::get<1>(resolution),std::get<2>(resolution));
 }
 
 
-double JetUncertaintiesTool::readHistoFromParam(const xAOD::Jet& jet, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
+double JetUncertaintiesTool::readHistoFromParam(const xAOD::Jet& jet, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param, const jet::CompMassDef::TypeEnum massDef) const
 {
-    return readHistoFromParam(jet.jetP4(),histo,param);
+    // Simple case (no mass dependence)
+    if (!CompParametrization::includesMass(param))
+        return readHistoFromParam(jet.jetP4(),histo,param);
+    
+    // Complex case (need to check the mass type to use)
+    JetFourMomAccessor massScaleAccessor(CompMassDef::getJetScaleString(massDef).Data());
+    return readHistoFromParam(massScaleAccessor(jet),histo,param);
 }
 
 double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
@@ -2332,8 +2344,8 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
         if (variation > 0)
             return 1; // No smearing if this is data and the sign says to smear MC
     }
-    else if (variation < 0)
-        return 1; // No smearing if this is MC and the sign says to smear data
+    else if (variation < 0 && !m_resHelper->smearOnlyMC())
+        return 1; // No smearing if this is MC and the sign says to smear data and this is not the simple scenario
     
     // Figure out which resolution is nominal (MC or data)
     const bool nominalIsMC = (m_resHelper->smearOnlyMC() || variation > 0);

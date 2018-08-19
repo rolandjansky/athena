@@ -58,6 +58,7 @@ namespace CompParametrization
     TString enumToString(const TypeEnum type);
     TypeEnum stringToEnum(const TString type);
     bool isAbsEta(const TypeEnum type);
+    bool includesMass(const TypeEnum type);
 }
 
 namespace CompMassDef

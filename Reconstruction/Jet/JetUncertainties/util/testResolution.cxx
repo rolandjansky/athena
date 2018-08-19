@@ -28,6 +28,25 @@
 #include "TF1.h"
 #include "TLatex.h"
 
+
+void setJetKinematics(xAOD::Jet& jet, double pt, double eta, double phi, double mass)
+{
+    static jet::JetFourMomAccessor scaleCalo(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CaloMass).Data());
+    static jet::JetFourMomAccessor scaleTA(jet::CompMassDef::getJetScaleString(jet::CompMassDef::TAMass).Data());
+    static jet::JetFourMomAccessor scaleCombQCD(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CombMassQCD).Data());
+    static jet::JetFourMomAccessor scaleCombWZ(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CombMassWZ).Data());
+    static jet::JetFourMomAccessor scaleCombHbb(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CombMassHbb).Data());
+    static jet::JetFourMomAccessor scaleCombTop(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CombMassTop).Data());
+    
+    jet.setJetP4(                  xAOD::JetFourMom_t(pt,eta,phi,mass));
+    scaleCalo.setAttribute(   jet, xAOD::JetFourMom_t(pt,eta,phi,mass));
+    scaleTA.setAttribute(     jet, xAOD::JetFourMom_t(pt,eta,phi,mass));
+    scaleCombQCD.setAttribute(jet, xAOD::JetFourMom_t(pt,eta,phi,mass));
+    scaleCombWZ.setAttribute( jet, xAOD::JetFourMom_t(pt,eta,phi,mass));
+    scaleCombHbb.setAttribute(jet, xAOD::JetFourMom_t(pt,eta,phi,mass));
+    scaleCombTop.setAttribute(jet, xAOD::JetFourMom_t(pt,eta,phi,mass));
+}
+
 int main (int argc, char* argv[])
 {
     StatusCode::enableFailure();
@@ -162,8 +181,8 @@ int main (int argc, char* argv[])
     const double pT   = 1000;
     const double mass = 100;
     const double phi  = 0;
-    const std::vector<double> etaVals = {0,0.1,0.45,1.0,1.55,2.15,2.85,3.35,4.0};
-    const int numSmear = 10000;
+    const std::vector<double> etaVals = optHelper.GetFixedEtaVals();
+    const int numSmear = 100000;
 
     for (const double eta : etaVals)
     {
@@ -182,7 +201,7 @@ int main (int argc, char* argv[])
         // Now smear repeatedly from the same starting jet
         for (int iSmear = 0; iSmear < numSmear; ++iSmear)
         {
-            jet->setJetP4(xAOD::JetFourMom_t(pT,eta,phi,mass));
+            setJetKinematics(*jet,pT,eta,phi,mass);
             if (tool->applyCorrection(*jet,*eInfo) != CP::CorrectionCode::Ok)
             {
                 printf("Error while smearing, iteration %d\n",iSmear);
@@ -194,7 +213,7 @@ int main (int argc, char* argv[])
         }
         
         // Get info on the expected values
-        jet->setJetP4(xAOD::JetFourMom_t(pT,eta,phi,mass));
+        setJetKinematics(*jet,pT,eta,phi,mass);
         const double nomData = tool->getNominalResolutionData(*jet,scaleVar,topology);
         const double nomMC   = tool->getNominalResolutionMC(*jet,scaleVar,topology);
         const double uncert  = tool->getUncertainty(compIndex,*jet,*eInfo,scaleVar);
@@ -202,7 +221,7 @@ int main (int argc, char* argv[])
         const double fullUncMC   = jet::CompScaleVar::isRelResolutionType(scaleVar) ? nomMC * uncert : uncert;
         const double fullUncData = jet::CompScaleVar::isRelResolutionType(scaleVar) ? nomData * uncert : uncert;
         const double smearMC   = sqrt(pow(nomMC + fabs(shift*fullUncMC),2) - pow(nomMC,2));
-        const double smearData = sqrt(pow(nomData + fabs(shift*fullUncData),2) - pow(nomData,2));
+        const double smearData = nomData != JESUNC_ERROR_CODE ? sqrt(pow(nomData + fabs(shift*fullUncData),2) - pow(nomData,2)) : 0;
 
         // Fit a Gaussian
         TF1 fitPt("fitPt","gaus");
@@ -218,11 +237,17 @@ int main (int argc, char* argv[])
         tex.DrawLatex(0.70,0.75,Form("#mu/#sigma = %.1f%%",fitPt.GetParameter(2)/fitPt.GetParameter(1)*100));
         tex.DrawLatex(0.15,0.9,"Expectation from tool");
         tex.DrawLatex(0.15,0.85,"#sigma_{smear}^{2} = (#sigma_{nom} + |N#delta#sigma|)^{2} - (#sigma_{nom})^{2}");
-        tex.DrawLatex(0.15,0.80,Form("#sigma_{nom}^{data}/#it{p}_{T} = %.1f%%",100*nomData));
+        if (nomData != JESUNC_ERROR_CODE)
+            tex.DrawLatex(0.15,0.80,Form("#sigma_{nom}^{data}/#it{p}_{T} = %.1f%%",100*nomData));
+        else
+            tex.DrawLatex(0.15,0.80,Form("#sigma_{nom}^{data}/#it{p}_{T} = N/A"));
         tex.DrawLatex(0.15,0.75,Form("#sigma_{nom}^{MC}/#it{p}_{T} = %.1f%%",100*nomMC));
         tex.DrawLatex(0.15,0.70,Form("#delta#sigma/#it{p}_{T} = %.1f%%",100*uncert));
         tex.DrawLatex(0.15,0.65,Form("N_{sigma} = %+.1f",shift));
-        tex.DrawLatex(0.15,0.55,Form("#sigma_{smear}^{data}/#it{p}_{T} = %.1f%%",100*smearData));
+        if (nomData != JESUNC_ERROR_CODE)
+            tex.DrawLatex(0.15,0.55,Form("#sigma_{smear}^{data}/#it{p}_{T} = %.1f%%",100*smearData));
+        else
+            tex.DrawLatex(0.15,0.55,Form("#sigma_{smear}^{data}/#it{p}_{T} = N/A"));
         tex.DrawLatex(0.15,0.50,Form("#sigma_{smear}^{MC}/#it{p}_{T} = %.1f%%",100*smearMC));
         canvas.Print(outFile);
 
@@ -235,11 +260,17 @@ int main (int argc, char* argv[])
         tex.DrawLatex(0.70,0.75,Form("#mu/#sigma = %.1f%%",fitMass.GetParameter(2)/fitMass.GetParameter(1)*100));
         tex.DrawLatex(0.15,0.9,"Expectation from tool");
         tex.DrawLatex(0.15,0.85,"#sigma_{smear}^{2} = (#sigma_{nom} + |N#delta#sigma|)^{2} - (#sigma_{nom})^{2}");
-        tex.DrawLatex(0.15,0.80,Form("#sigma_{nom}^{data}/#it{p}_{T} = %.1f%%",100*nomData));
+        if (nomData != JESUNC_ERROR_CODE)
+            tex.DrawLatex(0.15,0.80,Form("#sigma_{nom}^{data}/#it{p}_{T} = %.1f%%",100*nomData));
+        else
+            tex.DrawLatex(0.15,0.80,Form("#sigma_{nom}^{data}/#it{p}_{T} = N/A"));
         tex.DrawLatex(0.15,0.75,Form("#sigma_{nom}^{MC}/#it{p}_{T} = %.1f%%",100*nomMC));
         tex.DrawLatex(0.15,0.70,Form("#delta#sigma/#it{p}_{T} = %.1f%%",100*uncert));
         tex.DrawLatex(0.15,0.65,Form("N_{sigma} = %+.1f",shift));
-        tex.DrawLatex(0.15,0.55,Form("#sigma_{smear}^{data}/#it{p}_{T} = %.1f%%",100*smearData));
+        if (nomData != JESUNC_ERROR_CODE)
+            tex.DrawLatex(0.15,0.55,Form("#sigma_{smear}^{data}/#it{p}_{T} = %.1f%%",100*smearData));
+        else
+            tex.DrawLatex(0.15,0.55,Form("#sigma_{smear}^{data}/#it{p}_{T} = N/A"));
         tex.DrawLatex(0.15,0.50,Form("#sigma_{smear}^{MC}/#it{p}_{T} = %.1f%%",100*smearMC));
         canvas.Print(outFile);
     }

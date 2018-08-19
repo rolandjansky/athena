@@ -139,6 +139,24 @@ namespace CompParametrization
             default:            return false;
         }
     }
+
+    bool includesMass(const TypeEnum type)
+    {
+        switch(type)
+        {
+            case PtMass:
+            case PtMassEta:
+            case PtMassAbsEta:
+            case eLOGmOe:
+            case eLOGmOeEta:
+            case eLOGmOeAbsEta:
+                return true;
+            
+            default:
+                return false;
+        }
+    }
+
 } // end CompParametrization namespace
 
 

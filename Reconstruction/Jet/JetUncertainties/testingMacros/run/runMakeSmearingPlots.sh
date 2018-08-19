@@ -11,10 +11,22 @@ function ResTest \
     CalibArea=""
     configFile="JER/R4_GlobalReduction_JER.config"
     outFile="JER-smear.pdf"
-    component="FourVecResUnc,-2"
+    component="MassResUncWZ,-2"
     #"PtResUnc;FourVecResUnc;MassResUncQCD;MassResUncWZ;MassResUncHbb;MassResUncTop;NOMINALRESMC;NOMINALRESDATA"
     isData="true"
-    options="prefix=JET_;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\""
+    options="prefix=JET_;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";fixedEtaVals=0,0.1,0.45,1.0,1.55,2.15,2.85,3.35,4.0"
+}
+
+function TestRelJMR \
+{
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16a"
+    CalibArea=""
+    configFile="rel21/Moriond2018/R10_CaloMass_strong.config"
+    outFile="JMR-smear.pdf"
+    component="MassRes_Top,+1"
+    isData="false"
+    options="prefix=JET_;path=\"/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/CalibArea-05\";fixedEtaVals=0,0.4,1.2,1.8"
 }
 
 
