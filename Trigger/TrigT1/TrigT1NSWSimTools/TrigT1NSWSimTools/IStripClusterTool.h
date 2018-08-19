@@ -8,17 +8,20 @@
 //basic includes
 #include "GaudiKernel/IAlgTool.h"
 //local includes
+#include "TriggerTypes.h"
 #include "TrigT1NSWSimTools/StripData.h"
 #include "TrigT1NSWSimTools/StripClusterData.h"
 #include <vector>
-#include <memory>
+
 class Identfier;
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
   class PadTrigger;
+  /*
   typedef std::unique_ptr<StripData> upStripData;
   typedef std::unique_ptr<NSWL1::StripClusterData> upStripClusterData;
+  */
   /**
    *
    *   @short interface for the Strip Cluster Tools

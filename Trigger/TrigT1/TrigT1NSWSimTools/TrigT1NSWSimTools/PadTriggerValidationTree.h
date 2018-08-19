@@ -7,11 +7,11 @@
 #define NSWL1_PADTRIGGERVALIDATIONTREE_H
 
 #include "GeoPrimitives/GeoPrimitives.h" // Amg::Vector3D (cannot fw declare typedef)
-
+#include "TrigT1NSWSimTools/TriggerTypes.h"
 #include <string>
 #include <utility> // pair
 #include <vector>
-#include <memory>
+
 class TTree;
 
 namespace NSWL1 {
@@ -28,9 +28,6 @@ bb
    Oct 2015
 */
 
-
-typedef std::shared_ptr<PadTrigger> spPadTrigger;
-typedef std::unique_ptr<PadTrigger> upPadTrigger;
 
 class PadTriggerValidationTree {
 

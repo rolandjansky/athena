@@ -20,22 +20,21 @@ A trigger trigger candidate for a stgc sector
 davide.gerbaudo@gmail.com, April 2013
 */
 
-namespace nsw {
-  class SingleWedgePadTrigger;
-}
 
-namespace nsw {
+namespace NSWL1 {
+  class SingleWedgePadTrigger;
+  
   class SectorTriggerCandidate {
   public:
-    SectorTriggerCandidate(const nsw::SingleWedgePadTrigger &inner,
-                           const nsw::SingleWedgePadTrigger &outer);
-    SectorTriggerCandidate(const nsw::SingleWedgePadTrigger &innerOrOuterInTransition);
+    SectorTriggerCandidate(const SingleWedgePadTrigger &inner,
+                           const SingleWedgePadTrigger &outer);
+    SectorTriggerCandidate(const SingleWedgePadTrigger &innerOrOuterInTransition);
     std::string pickle() const; //!< simple dict-like representation
-    const std::vector< nsw::SingleWedgePadTrigger >& wedgeTrigs() const { return m_wedgeTrigs;}
-    GeoUtils::Polygon triggerRegion3() const;
+    const std::vector< SingleWedgePadTrigger >& wedgeTrigs() const { return m_wedgeTrigs;}
+   Polygon triggerRegion3() const;
 
   private:
-    std::vector< nsw::SingleWedgePadTrigger > m_wedgeTrigs;
+    std::vector< SingleWedgePadTrigger > m_wedgeTrigs;
   }; // end class SectorTriggerCandidate
 
 } // end namespace nsw

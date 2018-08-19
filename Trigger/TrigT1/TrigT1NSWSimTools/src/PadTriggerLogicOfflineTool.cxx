@@ -48,7 +48,6 @@
 // root
 #include "TTree.h"
 #include "TVector3.h"
-#include "TMath.h"
 // std
 #include <functional>
 #include <algorithm>
@@ -56,10 +55,7 @@
 #include <utility> // make_pair
 
 
-using namespace std;
-using nsw::PadWithHits;
 namespace NSWL1 {
-
 //------------------------------------------------------------------------------
 PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
                                                         const std::string& name,
@@ -114,9 +110,9 @@ PadTriggerLogicOfflineTool::~PadTriggerLogicOfflineTool() {
 StatusCode PadTriggerLogicOfflineTool::initialize() {
     ATH_MSG_INFO( "initializing " << name() );
     ATH_MSG_INFO( name() << " configuration:");
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left)<< m_rndmEngineName.name() << m_rndmEngineName.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left)<< m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left)<< m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left)<< m_rndmEngineName.name() << m_rndmEngineName.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left)<< m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left)<< m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
     // DG-todo print out other parameters
 
     const IInterface* parent = this->parent();
@@ -258,7 +254,7 @@ std::vector<upPadTrigger> PadTriggerLogicOfflineTool::build4of4SingleWedgeTrigge
     return triggers;
 }
 ////------------------------------------------------------------------------------
-//nsw::PadWithHits PadTriggerLogicOfflineTool::convert(const PadData &pd)
+//PadWithHits PadTriggerLogicOfflineTool::convert(const PadData &pd)
 //{
 //    PadWithHits pwh(pd);
 //    //PadWithHits pwh(pd.padEtaId(), pd.padPhiId(),
@@ -283,11 +279,11 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<sp
                       <<", pad eta "<<pad->padEtaId()
                       <<", pad phi "<<pad->padPhiId());
     }
-    const vector<size_t> sides = {0, 1}; // see PadTdsOfflineTool::sideLabel()
-    const vector<size_t> sectors = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    const std::vector<size_t> sides = {0, 1}; // see PadTdsOfflineTool::sideLabel()
+    const std::vector<size_t> sectors = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     for(const size_t &side : sides){
         for(const size_t &sector : sectors){
-            vector<spPadData> sector_pads;
+            std::vector<spPadData> sector_pads;
             copy_if(pads.begin(), pads.end(),
                     back_inserter(sector_pads),
                     [&](spPadData p) { return (p->sideId()==static_cast<int>(side) &&
@@ -301,10 +297,10 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<sp
                               <<" : "<<sector_pads.size()<<" pads");
                 if(m_useSimple4of4) {
                     const int innerMultiplet(1), outerMultiplet(2); // DG-2015-10-07 move to enum?
-                    vector<spPadData> padsInner(filterByMultiplet(sector_pads, innerMultiplet));
-                    vector<spPadData> padsOuter(filterByMultiplet(sector_pads, outerMultiplet));
-                    vector<upPadTrigger> triggersInner = build4of4SingleWedgeTriggers(padsInner);
-                    vector<upPadTrigger> triggersOuter = build4of4SingleWedgeTriggers(padsOuter);
+                    std::vector<spPadData> padsInner(filterByMultiplet(sector_pads, innerMultiplet));
+                    std::vector<spPadData> padsOuter(filterByMultiplet(sector_pads, outerMultiplet));
+                    std::vector<upPadTrigger> triggersInner = build4of4SingleWedgeTriggers(padsInner);
+                    std::vector<upPadTrigger> triggersOuter = build4of4SingleWedgeTriggers(padsOuter);
                     ATH_MSG_DEBUG("found "
                                   <<triggersInner.size()<<" inner triggers"
                                   <<" and "
@@ -317,18 +313,18 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<sp
                     triggers.insert(triggers.end(),std::make_move_iterator(triggersOuter.begin()),std::make_move_iterator(triggersOuter.end()));
                 } 
                 else {
-                  vector<PadWithHits> pwhs;
+                  std::vector<PadWithHits> pwhs;
                   for(const spPadData& p : sector_pads){
                      PadWithHits pwh(p);
                         fillGeometricInformation(*p,pwh);
                         pwhs.push_back(pwh);
                         //pwhs.push_back(convert(*p));
                   }
-                     nsw::L1TdrStgcTriggerLogic tdrLogic;
+                     L1TdrStgcTriggerLogic tdrLogic;
                      tdrLogic.m_writePickle = false;
                      tdrLogic.m_verbose = true;
-                     tdrLogic.buildSectorTriggers(pwhs, nsw::indices(pwhs));
-                     for( const nsw::SectorTriggerCandidate &st : tdrLogic.candidates()){
+                     tdrLogic.buildSectorTriggers(pwhs, indices(pwhs));
+                     for( const SectorTriggerCandidate &st : tdrLogic.candidates()){
                         //S.I
                         auto p=std::make_unique<PadTrigger>(convert(st));
                          
@@ -404,8 +400,8 @@ bool PadTriggerLogicOfflineTool::fillGeometricInformation(const PadData &pd, Pad
 }
 
 //------------------------------------------------------------------------------
-int PadTriggerLogicOfflineTool::Pad2BandId(const nsw::PadWithHits  &p, const float Yfrac){
-	int offset[2][2][3][4] ={1,1,0,0, 35,35,36,36, 67,67,66,66, 0,0,-1,-1, 34,34,33,33, 64,64,63,63  ,  0,0,1,1, 33,33,33,33, 62,62,63,62, 0,0,-1,-1, 33,33,32,32, 61,61,60,60 }; //type,mult,module,layer
+int PadTriggerLogicOfflineTool::Pad2BandId(const PadWithHits  &p, const float Yfrac){
+	const static int offset[2][2][3][4] ={1,1,0,0, 35,35,36,36, 67,67,66,66, 0,0,-1,-1, 34,34,33,33, 64,64,63,63  ,  0,0,1,1, 33,33,33,33, 62,62,63,62, 0,0,-1,-1, 33,33,32,32, 61,61,60,60 }; //type,mult,module,layer
 	int bandid = (Yfrac < 0.5) ? p.ieta*2-1 : p.ieta*2 ;
 	bandid+=offset[p.sectortype][p.multiplet-1][p.module-1][p.layer-1];
 	return bandid;
@@ -413,17 +409,17 @@ int PadTriggerLogicOfflineTool::Pad2BandId(const nsw::PadWithHits  &p, const flo
 
 
 //------------------------------------------------------------------------------
-NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCandidate &t){
+NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandidate &t){
     //S.I 15.08.18 : This method probably needs to be refactored
     PadTrigger pt;
     
-    const GeoUtils::Polygon roi=t.triggerRegion3();    
-    Vertex trgCntr=GeoUtils::centroid(roi);
-    nsw::SingleWedgePadTrigger swtrg = t.wedgeTrigs()[0];
+    const Polygon roi=t.triggerRegion3();    
+    Vertex trgCntr=centroid(roi);
+    SingleWedgePadTrigger swtrg = t.wedgeTrigs()[0];
     
     //*********** assign central etaphi cordinates of the triggering region *****************
-    const float xcntr=GeoUtils::coordinate<0>(trgCntr);
-    const float ycntr=GeoUtils::coordinate<1>(trgCntr);
+    const float xcntr=coordinate<0>(trgCntr);
+    const float ycntr=coordinate<1>(trgCntr);
     const float zcntr=swtrg.pads()[0].m_cornerXyz[1][2];
     TVector3 trigVector(xcntr,ycntr,zcntr);
     const float etaTrig=trigVector.Eta();
@@ -440,11 +436,11 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCa
     //************** assign extrema of the trigger region coordinates in eta-phi **************
     std::vector<std::pair<float,float>> trg_etaphis;
     for(auto v : boost::geometry::exterior_ring(roi)){
-        const float xcurr=GeoUtils::coordinate<0>(v);
-        const float ycurr=GeoUtils::coordinate<1>(v);
+        const float xcurr=coordinate<0>(v);
+        const float ycurr=coordinate<1>(v);
         const float zcurr=zcntr;
-        const float etacurr=GeoUtils::eta(xcurr,ycurr,zcurr);
-        const float phicurr=GeoUtils::phi(xcurr,ycurr,zcurr);
+        const float etacurr=eta(xcurr,ycurr,zcurr);
+        const float phicurr=phi(xcurr,ycurr,zcurr);
         trg_etaphis.emplace_back(etacurr,phicurr);
     }
     const auto trg_etaminmax=std::minmax_element(trg_etaphis.begin(),trg_etaphis.end(),[](const auto& l,const auto& r){return l.first<r.first;});
@@ -457,12 +453,12 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCa
 
      //S.I value of Z where trigger region is calculated.
      //from Z0 --> <Z of a pad> --->local coordinate
-    for(const nsw::SingleWedgePadTrigger& swt : t.wedgeTrigs()){
-    	for(const nsw::PadWithHits &p : swt.pads()){
+    for(const SingleWedgePadTrigger& swt : t.wedgeTrigs()){
+    	for(const PadWithHits &p : swt.pads()){
     		if(p.m_padData) {//this is either overkill or ...
                 //S.I 17-07-18
                 const float padZ=p.m_cornerXyz[0][2];
-    			const Polygon pol=GeoUtils::Project(roi,zcntr,padZ);
+    			const Polygon pol=Project(roi,zcntr,padZ);
     			Identifier Id( p.m_padData->id());
     			const Trk::PlaneSurface &padsurface = m_detManager->getsTgcReadoutElement(Id)->surface(Id);
     			std::vector<Amg::Vector2D> local_trgcorners;// corners of the triggering region as projected on the detector layer
@@ -475,8 +471,8 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCa
                     local_padcorners.push_back(local_padcorner);                }
 
     			for(auto v : boost::geometry::exterior_ring(pol)){
-    				float x=GeoUtils::coordinate<0>(v);
-    				float y=GeoUtils::coordinate<1>(v);
+    				float x=coordinate<0>(v);
+    				float y=coordinate<1>(v);
     				const Amg::Vector3D globalcorner(x,y,padZ);
     				Amg::Vector2D localcorner;
     				padsurface.globalToLocal(globalcorner,globalcorner,localcorner);
@@ -533,7 +529,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCa
                 //S.I 17-07-18 
     		}
     		else
-    			cerr<<"PadTriggerLogicOfflineTool::convert: do not push back null pointers"<<endl;
+    			std::cerr<<"PadTriggerLogicOfflineTool::convert: do not push back null pointers"<<std::endl;
     		// so how do you handle it rather than printing something out ?
     	} // for(p)
     } // for (st)
@@ -558,7 +554,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCa
     //S.I it seems we dont use the helper below. Let it stay there for now, we'll need it later
     sTGC = sTGC_helper.Get_sTGCDetector(type,stationEta,stationPhi,layer,side);
     if(sTGC == nullptr) {
-        cerr<<"PadTriggerLogicOfflineTool::convert :: Could not find detector, no trigger bandid offset being applied"<<endl; 
+        std::cerr<<"PadTriggerLogicOfflineTool::convert :: Could not find detector, no trigger bandid offset being applied"<<std::endl; 
     }
     else {
         sTGCReadoutParameters  roParams=sTGC->GetReadoutParameters();

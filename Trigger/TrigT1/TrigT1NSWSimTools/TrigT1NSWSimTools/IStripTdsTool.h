@@ -7,7 +7,7 @@
 
 //basic includes
 #include "GaudiKernel/IAlgTool.h"
-
+#include "TriggerTypes.h"
 //local includes
 #include "TrigT1NSWSimTools/StripData.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
@@ -18,9 +18,13 @@
 namespace NSWL1 {
 
 class StripOfflineData;
+
+/*
 typedef std::unique_ptr<PadTrigger> upPadTrigger;
 typedef std::unique_ptr<StripOfflineData> upStripOfflineData;
 typedef std::unique_ptr<StripData> upStripData;
+*/
+
   /**
    *
    *   @short interface for the StripTDS tools

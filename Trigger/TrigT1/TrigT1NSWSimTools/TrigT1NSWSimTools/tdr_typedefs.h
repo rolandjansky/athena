@@ -18,22 +18,26 @@
 
 #include <string>
 #include <vector>
-
+/*
 namespace nsw{
   class Pad;
   class PadWithHits;
   class SingleWedgePadTrigger;
   class SectorTriggerCandidate;
 }
-
-namespace nsw {
-typedef std::vector< bool >                      vbool_t;
-typedef std::vector< size_t >                    vsize_t;
-typedef std::vector< int >                       vint_t;
-typedef std::vector< vint_t >                    vvint_t;
-typedef std::vector< nsw::PadWithHits >          vpads_t;
-typedef std::vector< SingleWedgePadTrigger >     vswptrig_t;
-typedef std::vector< SectorTriggerCandidate >    vstcand_t;
+*/
+namespace NSWL1 {
+    class Pad;
+    class PadWithHits;
+    class SingleWedgePadTrigger;
+    class SectorTriggerCandidate;
+    typedef std::vector< bool >                      vbool_t;
+    typedef std::vector< size_t >                    vsize_t;
+    typedef std::vector< int >                       vint_t;
+    typedef std::vector< vint_t >                    vvint_t;
+    typedef std::vector< PadWithHits >               vpads_t;
+    typedef std::vector< SingleWedgePadTrigger >     vswptrig_t;
+    typedef std::vector< SectorTriggerCandidate >    vstcand_t;
 }
 
 #endif

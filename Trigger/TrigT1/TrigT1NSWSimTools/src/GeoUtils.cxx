@@ -8,7 +8,7 @@
 #include <algorithm>
 
 
-namespace GeoUtils{
+namespace NSWL1{
 
 float eta(float x,float y,float z){
     TVector3 V(x,y,z);
@@ -44,9 +44,6 @@ Polygon etaphi2xyTransform(const Polygon& p, float Z){
 }
 
 
-
-
-
 Polygon Project(const Polygon& p,float Zinit,float Zfin){
     //loop over vertices
     Vertices vt;
@@ -63,7 +60,6 @@ Polygon Project(const Polygon& p,float Zinit,float Zfin){
         vt.push_back(Vertex(xproj,yproj));
     }
     return buildPolygon(vt);
-    
     
 }
 

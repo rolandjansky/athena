@@ -17,9 +17,9 @@
    @author davide.gerbaudo@gmail.com
    @date 2013
  */
-namespace nsw {
-std::string vec2str(const nsw::vsize_t &vec);
-std::string vec2str(const nsw::vpads_t &vec);
+namespace NSWL1 {
+std::string vec2str(const vsize_t &vec);
+std::string vec2str(const vpads_t &vec);
 
 /// given a vector, return something like range(len(vec))
 template <typename Container>

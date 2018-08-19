@@ -16,7 +16,7 @@
 //local includes
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
 #include "PadTdsValidationTree.h"
-#include <memory>
+
 
 
 //forward declarations

@@ -8,18 +8,18 @@
 #define NSWL1_IPADTDSTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-
+#include "TriggerTypes.h"
 #include <vector>
 
 namespace NSWL1 {
 
 class PadData;
 class PadTrigger;
-
+/*
 typedef std::shared_ptr<PadTrigger> spPadTrigger;
 typedef std::unique_ptr<PadTrigger> upPadTrigger;
 typedef std::shared_ptr<PadData> spPadData;
-
+*/
 /**
 
    @short interface for the PadTriggerLogic tools

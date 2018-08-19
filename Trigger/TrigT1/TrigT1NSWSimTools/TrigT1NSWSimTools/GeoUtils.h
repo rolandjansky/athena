@@ -10,32 +10,29 @@
 #include <vector>
 
 
-
-//You don't have to instantiate the class. Most methods are static and are wrappers on top of boost ones
- 
 /*
- author :   Serhat Istin
+ author :   Serhat Istin / S.I
  */ 
  
-namespace GeoUtils{ 
-	typedef boost::geometry::model::d2::point_xy<double> Vertex;//A two dimensional vertex model
-	typedef boost::geometry::model::polygon<Vertex> Polygon;//A polygon made out of "Vertices"...
-	typedef std::vector<Vertex> Vertices;
+namespace NSWL1{ 
+    using Vertex=boost::geometry::model::d2::point_xy<double>;
+    using Polygon=boost::geometry::model::polygon<Vertex>;
+    using Vertices=std::vector<Vertex>;
 	    
     //to convert from cartesian coordinates
      float eta(float,float,float);
      float phi(float,float);
      float phi(float,float,float);
-    //write a function that convers a polygon in eta/phi to x,y on a  a Z-plane.
+    //a function that convers a polygon in eta/phi to x,y on a  a Z-plane.
      Polygon etaphi2xyTransform(const Polygon&,float);
-
-        
+     
     //given a polygon written on a plane Z=Z0, move it into another Z=Z1 plane keeping eta phi same
      Polygon Project(const Polygon& ,float ,float );
         
         
     //Print something on the screen in a well defined format
      Polygon buildPolygon(const Vertices);
+     
     template <class T>
      void print(const T& t){std::cout<<boost::geometry::wkt(t)<<std::endl;}
     //given two  polygons, the number of intersections can be more than one in general

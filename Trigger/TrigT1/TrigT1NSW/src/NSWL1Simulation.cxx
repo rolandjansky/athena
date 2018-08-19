@@ -211,11 +211,7 @@ namespace NSWL1 {
         // Perhaps we could do here for(sector) instead of inside
         // PadTriggerLogicOfflineTool (since all the pad and
         // pad-trigger info is per-sector...)
-      
-        //std::vector<PadData*> pads;
       ATH_CHECK( m_pad_tds->gather_pad_data(pads) );
-
-      //std::vector<NSWL1::PadTrigger*> padTriggers; // will be passed on to m_strip_tds
       if(m_doPadTrigger){
           ATH_CHECK( m_pad_trigger->compute_pad_triggers(pads, padTriggers) );
       }
@@ -223,7 +219,6 @@ namespace NSWL1 {
       // retrieve the STRIP hit data
       ATH_CHECK( m_strip_tds->gather_strip_data(strips,padTriggers) );
       padTriggers.clear();
-      //std::vector< NSWL1::StripClusterData* > clusters;
       // Cluster STRIPs readout by TDS
       ATH_CHECK( m_strip_cluster->cluster_strip_data(strips,clusters) );
       strips.clear();

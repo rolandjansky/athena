@@ -8,7 +8,7 @@
 #ifndef NSW_TDR_COMPAT_ENUM_H
 #define NSW_TDR_COMPAT_ENUM_H
 
-namespace nsw {
+namespace NSWL1 {
 /**
    @defgroup tdr_compat_enum "enum values needed for compatibility with TDR code"
 

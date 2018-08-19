@@ -37,9 +37,6 @@
 #include <utility>
 #include <math.h>      
 
-using namespace std;
-
-
 namespace NSWL1 {
 
     StripSegmentTool::StripSegmentTool( const std::string& type, const std::string& name, const IInterface* parent) :
@@ -87,8 +84,8 @@ namespace NSWL1 {
           return sc;
         }
 
-        char ntuple_name[40];
-        memset(ntuple_name,'\0',40*sizeof(char));
+        char ntuple_name[40]={'\0'};
+        //memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
 
         m_tree = 0;

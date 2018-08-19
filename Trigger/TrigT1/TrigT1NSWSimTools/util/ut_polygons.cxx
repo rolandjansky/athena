@@ -1,8 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "TrigT1NSWSimTools/GeoUtils.h"
 
 int main(){
     
-    using namespace GeoUtils;
+    using namespace NSWL1;
     
     Vertices vts1;
     //a trapezoid

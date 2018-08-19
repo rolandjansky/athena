@@ -8,14 +8,6 @@
 #include "TrigT1NSWSimTools/PadData.h"
 #include <iostream>
 
-inline float H(float ETA,float PHI,float Z){
-  return  Z*TMath::Cos(PHI)*TMath::Tan(2*TMath::ATan(TMath::Exp(-1*ETA)));
-}
-
-
-
-using NSWL1::PadData;
-
 namespace NSWL1 {
 
 BcTag_t PadTrigger::bctag() const {

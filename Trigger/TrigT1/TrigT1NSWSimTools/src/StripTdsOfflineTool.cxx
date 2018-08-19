@@ -38,8 +38,6 @@
 #include <map>
 #include <utility>
 
-using namespace std;
-
 
 namespace NSWL1 {
 
@@ -105,11 +103,11 @@ namespace NSWL1 {
     ATH_MSG_INFO( "initializing " << name() ); 
     
     ATH_MSG_INFO( name() << " configuration:");
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
-    ATH_MSG_INFO(" " << setw(32) << setfill('.') << setiosflags(ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
-                       << setfill(' ') << setiosflags(ios::right) );
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_rndmEngineName.name() << m_rndmEngineName.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcDigitContainer.name() << m_sTgcDigitContainer.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_sTgcSdoContainer.name() << m_sTgcSdoContainer.value());
+    ATH_MSG_INFO(" " << std::setw(32) << std::setfill('.') << std::setiosflags(std::ios::left) << m_doNtuple.name() << ((m_doNtuple)? "[True]":"[False]")
+                       << std::setfill(' ') << std::setiosflags(std::ios::right) );
 
  
 
@@ -125,8 +123,8 @@ namespace NSWL1 {
           return sc;
         }
 
-        char ntuple_name[40];
-        memset(ntuple_name,'\0',40*sizeof(char));
+        char ntuple_name[40]={'\0'};
+        //memset(ntuple_name,'\0',40*sizeof(char));
         sprintf(ntuple_name,"%sTree",algo_name.c_str());
 
         m_tree = 0;

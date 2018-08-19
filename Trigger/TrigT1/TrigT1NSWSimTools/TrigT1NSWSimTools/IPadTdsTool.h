@@ -11,12 +11,12 @@
 //local includes
 #include "TrigT1NSWSimTools/PadData.h"
 #include <vector>
-
+#include "TriggerTypes.h"
 
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
-typedef std::shared_ptr<PadData> spPadData;
+//typedef std::shared_ptr<PadData> spPadData;
 
 class PadTrigger;
 

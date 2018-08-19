@@ -5,13 +5,12 @@
 #include "TrigT1NSWSimTools/vector_utils.h"
 
 #include "TrigT1NSWSimTools/PadWithHits.h"
-
 #include <sstream>
 #include <iterator>
 
-namespace nsw {
+namespace NSWL1 {
 
-std::string vec2str(const nsw::vsize_t &vec){
+std::string vec2str(const vsize_t &vec){
     std::ostringstream oss;
     oss<<"[";
     if(!vec.empty()) {
@@ -21,9 +20,9 @@ std::string vec2str(const nsw::vsize_t &vec){
     oss<<"]";
     return oss.str();
 }
-std::string vec2str(const nsw::vpads_t &vec){
+std::string vec2str(const vpads_t &vec){
     std::ostringstream oss;
-    for(nsw::vpads_t::const_iterator it=vec.begin(); it!=vec.end(); ++it)
+    for(vpads_t::const_iterator it=vec.begin(); it!=vec.end(); ++it)
         oss<<(*it)<<", ";
     return oss.str();
 }

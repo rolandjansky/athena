@@ -36,7 +36,6 @@
 #include <map>
 #include <utility>
 
-using namespace std;
 
 
 namespace NSWL1 {

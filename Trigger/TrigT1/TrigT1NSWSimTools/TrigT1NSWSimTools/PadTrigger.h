@@ -19,13 +19,13 @@ enum SECTYPE{SMALL,LARGE};
 const int MAXLAYERSHIT=4;
 
 
-namespace nsw {class SectorTriggerCandidate;}
+//namespace nsw {class SectorTriggerCandidate;}
 
 
 namespace NSWL1 {
 
 class PadData;
-typedef std::shared_ptr<PadData> spPadData;
+class SectorTriggerCandidate;
 /**
    @brief Holder of the pad trigger information
    

@@ -10,10 +10,6 @@
 #include "TrigT1NSWSimTools/vector_utils.h"
 
 #include "TrigT1NSWSimTools/GeoUtils.h"
-
-
-#include "TMath.h"
-#include "TVector3.h"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -24,645 +20,625 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-using namespace nsw;
-typedef L1TdrStgcTriggerLogic L1TdrStgcTriggerLogic; // just to get shorter lines
-typedef SingleWedgePadTrigger Swpt;
-using namespace GeoUtils;
-
-const int triggerLogicDbgLevel = 0;
-const double padTimingEfficiency = 0.95; // set to -1 to disable
-
-//-------------------------------------
-L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic()
-    : m_verbose(false), m_writePickle(false), m_picklePrefix("./") {
-  rand.SetSeed(0);
-}
-//-------------------------------------
-L1TdrStgcTriggerLogic::~L1TdrStgcTriggerLogic() {}
-//-------------------------------------
-bool L1TdrStgcTriggerLogic::hitPattern(const Pad &firstPad, const Pad &otherPad,
-                       string &pattern) {
-  return L1TdrStgcTriggerLogic::hitPattern(firstPad.ieta, firstPad.iphi, otherPad.ieta,
-                           otherPad.iphi, pattern);
-}
-//-------------------------------------
-bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1,
-                       const int &iPhi1, string &pattern) {
-  // A la ATL-MUON-INT-2014-003 =>>
-  pattern = "33";
-  //  if(iPhi1 >= iPhi0 + 2 || iPhi1 < iPhi0) return false;
-  //  if(iEta1 >= iEta0 + 2 || iEta1 < iEta0) return false;
-  //  if(iPhi0 == iPhi1) pattern = (iEta0==iEta1 ? "11" : "21");
-  //  else               pattern = (iEta0==iEta1 ? "12" : "22");
-  // <<== A la ATL-MUON-INT-2014-003
-  // New Logic - DeltaEtaDeltaPhi
-  if (iEta1 >= iEta0 + 2 || iEta1 <= iEta0 - 2)
-    return false;
-  if (iPhi1 >= iPhi0 + 2 || iPhi1 <= iPhi0 - 2)
-    return false;
-  // DeltaEta
-  if (iEta1 == iEta0 - 1)
-    pattern = "0";
-  else if (iEta1 == iEta0)
-    pattern = "1";
-  else if (iEta1 == iEta0 + 1)
-    pattern = "2";
-  // DeltaPhi
-  if (iPhi1 == iPhi0 - 1)
-    pattern.append("0");
-  else if (iPhi1 == iPhi0)
-    pattern.append("1");
-  else if (iPhi1 == iPhi0 + 1)
-    pattern.append("2");
-
-  return true;
-}
-//-------------------------------------
-vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::buildSingleWedgeTriggers(
-    const vector< PadWithHits > &pads, const vector< size_t > &padIndicesLayer0,
-    const vector< size_t > &padIndicesLayer1, const vector< size_t > &padIndicesLayer2,
-    const vector< size_t > &padIndicesLayer3, bool isLayer1, bool isLayer2,
-    bool isLayer3, bool isLayer4) {
-  vector< SingleWedgePadTrigger > triggers;
 
 
-  const vector< size_t > &hitIdxs0 = padIndicesLayer0;
-  const vector< size_t > &hitIdxs1 = padIndicesLayer1;
-  const vector< size_t > &hitIdxs2 = padIndicesLayer2;
-  const vector< size_t > &hitIdxs3 = padIndicesLayer3;
-  bool isL1(isLayer1), isL2(isLayer2), isL3(isLayer3), isL4(isLayer4);
-  size_t nHL1 = (isL1 ? hitIdxs0.size() : 1);
-  size_t nHL2 = (isL2 ? hitIdxs1.size() : 1);
-  size_t nHL3 = (isL3 ? hitIdxs2.size() : 1);
-  size_t nHL4 = (isL4 ? hitIdxs3.size() : 1);
+using std::vector;
+using std::string;
+using std::endl;
+using std::distance;
+using std::set_intersection;
 
-  if (isL1 && nHL1 == 0)
-    return triggers;
-  if (isL2 && nHL2 == 0)
-    return triggers;
-  if (isL3 && nHL3 == 0)
-    return triggers;
-  if (isL4 && nHL4 == 0)
-    return triggers;
-  // const vector<string> &allPatterns = sTGC_triggerPatterns();
-
-
-
-  const vector<string> PatternsEtaUp = sTGC_triggerPatternsEtaUp();
-  const vector<string> PatternsEtaDown = sTGC_triggerPatternsEtaDown();
-  const vector<string> PatternsPhiUp = sTGC_triggerPatternsPhiUp();
-  const vector<string> PatternsPhiDown = sTGC_triggerPatternsPhiDown();
-  const vector<string> PatternsPhiDownUp = sTGC_triggerPatternsPhiDownUp();
-  const vector<string> PatternsPhiUpDown = sTGC_triggerPatternsPhiUpDown();
-
-  int iL1st = -1; // first layer index
-  for (size_t il1 = 0; il1 < nHL1; il1++) {
-    int l1Idx = -1;
-    string sl1("33");
-    if (isL1) {
-      l1Idx = hitIdxs0[il1];
-      //cout<<"L1DX "<<l1Idx<<" mult= "<<pads[l1Idx].multiplet<<"  "<<il1<<endl;
-      sl1 = "11";
-      iL1st = l1Idx;
-    } // if l1 is considered  its indices are always 11
-    for (size_t il2 = 0; il2 < nHL2; il2++) {
-      int l2Idx = -1;
-      string sl2("33");
-      if (isL2) {
-        l2Idx = hitIdxs1[il2];
-        if (iL1st == -1) {
-          sl2 = "11";
-          iL1st = l2Idx;
-        } // l1 was not considered, l2 gets the first indices
-        else if (!hitPattern(pads[iL1st], pads[l2Idx], sl2))
-          continue;
-      } // end if(isL2)
-      for (size_t il3 = 0; il3 < nHL3; il3++) {
-        int l3Idx = -1;
-        string sl3("33");
-        if (isL3) {
-          l3Idx = hitIdxs2[il3];
-          if (!hitPattern(pads[iL1st], pads[l3Idx], sl3))
-            continue;
-        }
-        for (size_t il4 = 0; il4 < nHL4; il4++) {
-          int l4Idx = -1;
-          string sl4("33");
-          if (isL4) {
-            l4Idx = hitIdxs3[il4];
-            if (!hitPattern(pads[iL1st], pads[l4Idx], sl4))
-              continue;
-          }
-          // checked all layers, now store the trigger if it's a valid pattern
-
-          string pattern(sl4 + sl3 + sl2 + sl1);
-          // the above line is replaced by a normal order l1,l2,l3,l4 and
-          // separated in phi and eta but it remains the same for later usage in
-          // the trigger selection
-          // Hence the following is only for internal ease of calculation. The
-          // pattern to be passed is the "pattern" not "patternPhi" or
-          // "patternEta"
-          string patternPhi;
-          patternPhi.push_back(sl1.at(1));
-          patternPhi.push_back(sl2.at(1));
-          patternPhi.push_back(sl3.at(1));
-          patternPhi.push_back(sl4.at(1));
-
-          string patternEta;
-          patternEta.push_back(sl1.at(0));
-          patternEta.push_back(sl2.at(0));
-          patternEta.push_back(sl3.at(0));
-          patternEta.push_back(sl4.at(0));
-
-//          cout << " Pattern: " << pattern << endl;
-//          cout << " pattern eta " << patternEta <<" multiplet="<<pads[0].multiplet<<endl;
-//          cout << " pattern phi " << patternPhi << endl;
-          // look for the pattern in the LUT
-          // compare eta and phi patterns in LUT
-          // first find if wedge us UP or DOWN type in phi and eta
-         int    multipletid ;
-         int    moduleid ;
-         int    sectortype ;
-
-
-          if (sl1 == "11") {
-              multipletid = pads[l1Idx].multiplet;
-                moduleid = pads[l1Idx].module;
-                sectortype = pads[l1Idx].sectortype;
-
-          } else if (sl2 == "11") {
-              multipletid = pads[l2Idx].multiplet;
-                moduleid = pads[l2Idx].module;
-                sectortype = pads[l2Idx].sectortype;
-
-             }
-
-          string etamove, phimove;
-          if (sectortype == 1) {
-            if (multipletid == 1) {
-
-                etamove = "D";
-                phimove = "U";
-
-              if (moduleid == 2) {
-                etamove = "U";
-                phimove = "U";
-              }
-
-            } else { // multiplet = 2   15-7-18 YR - Confirm   new geometry
-
-                etamove = "U";
-                phimove = "DU";
-              }
-
-
-          }
-
-          if (sectortype == 0) {
-            if (multipletid == 1) { // 15-7-18 YR - Confirm   new geometry
-              if (moduleid == 1) {
-                etamove = "U";
-                phimove = "DU";
-              }
-              if (moduleid == 2) {
-                etamove = "D";
-                phimove = "UD";
-              }
-              if (moduleid == 3) {
-                etamove = "U";
-                phimove = "UD";
-              }
-            } else { // multiplet = 2
-              if (moduleid == 1) {
-                etamove = "U";
-                phimove = "D";
-              }
-              else
-              {
-                etamove = "U";
-                phimove = "U";
-              }
-            }
-          }
-    //      cout << "eta and phi moves " << etamove << " " << phimove << endl;
-
-
-
-          if (etamove == "D") {
-            if (find(PatternsEtaDown.begin(), PatternsEtaDown.end(),
-                          patternEta) == PatternsEtaDown.end()) {
-              continue;
-            }
-          }
-
-          if (etamove == "U") {
-            if (find(PatternsEtaUp.begin(), PatternsEtaUp.end(),
-                          patternEta) == PatternsEtaUp.end()) {
-              continue;
-            }
-          }
-
-          if (phimove == "U") {
-            if (find(PatternsPhiUp.begin(), PatternsPhiUp.end(),
-                          patternPhi) == PatternsPhiUp.end()) {
-              continue;
-            }
-          }
-          if (phimove == "D") {
-            if (find(PatternsPhiDown.begin(), PatternsPhiDown.end(),
-                          patternPhi) == PatternsPhiDown.end()) {
-              continue;
-            }
-          }
-          if (phimove == "UD") {
-            if (find(PatternsPhiUpDown.begin(), PatternsPhiUpDown.end(),
-                          patternPhi) == PatternsPhiUpDown.end()) {
-              continue;
-            }
-          }
-          if (phimove == "DU") {
-            if (find(PatternsPhiDownUp.begin(), PatternsPhiDownUp.end(),
-                          patternPhi) == PatternsPhiDownUp.end()) {
-              continue;
-            }
-          }
-
-          //cout << " Pattern: " << pattern << endl;
-          //cout << " pattern eta " << patternEta <<" multiplet="<<multipletid<<endl;
-          //cout << " pattern phi " << patternPhi << endl;
-
-
-          //            if(find(allPatterns.begin(), allPatterns.end(),
-          //            pattern)==allPatterns.end()){
-          //              if(verbose) cout <<" ---> NOT triggered" << endl ;
-          //              continue;
-          //            }
-          vector< size_t > padIndices;
-          // assert : gcc is fine with a negative size_t values; however, here
-          // we should detect
-          // buggy patterns (i.e. the index cannot be negative if isL_ is true).
-          if (isL1) {
-            assert(l1Idx > -1);
-            padIndices.push_back(l1Idx);
-          }
-          if (isL2) {
-            assert(l2Idx > -1);
-            padIndices.push_back(l2Idx);
-          }
-          if (isL3) {
-            assert(l3Idx > -1);
-            padIndices.push_back(l3Idx);
-          }
-          if (isL4) {
-            assert(l4Idx > -1);
-            padIndices.push_back(l4Idx);
-          }
-          triggers.push_back(SingleWedgePadTrigger(pattern, pads, padIndices));
-          //////////////////////////////////////////////////
-          // ASM-2017-06-21
-          // Don't build more than 5 SingleWedgePadTrigger
-          //cout << " trigger size " << triggers.size() << endl;
-          if (triggers.size() > 4) {
-            cout << "STOP building SingleWedgeTriggers after reaching a total "
-                    "of 5 candidates!"
-                 << endl;
-            return triggers;
-          }
-          //////////////////////////////////////////////////
-        } // end for(il4)
-      }   // end for(il3)
-    }     // end for(il2)
-  }       // end for(il1)
-          //    cout <<"pattern wedge " << endl;
-
-  return triggers;
+namespace {
+    const int triggerLogicDbgLevel = 0;
+    const double padTimingEfficiency = 0.95; // set to -1 to disable
 }
 
-//-------------------------------------
-vector< size_t > L1TdrStgcTriggerLogic::removeRandomPadIndices(const vector< size_t > &padIndices) {
-  vector< size_t > out;
-  out.reserve(padIndices.size());
-  for (size_t i = 0; i < padIndices.size(); ++i) {
-    if (rand.Uniform(1) < padTimingEfficiency)
-      out.push_back(padIndices[i]);
-  }
-  return out;
-}
-//-------------------------------------Inner:
-vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::build34swt(const vector< PadWithHits > &pads, const vector< size_t > &iL0, const vector< size_t > &iL1,const vector< size_t > &iL2, const vector< size_t > &iL3){
 
-
-  vector< SingleWedgePadTrigger > trigNoL0(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, false,true, true, true));
-  vector< SingleWedgePadTrigger > trigNoL1(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true,false, true, true));
-  vector< SingleWedgePadTrigger > trigNoL2(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true,true, false, true));
-  vector< SingleWedgePadTrigger > trigNoL3(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true,true, true, false));
-  vector< SingleWedgePadTrigger > triggers;
-  triggers.insert(triggers.end(), trigNoL0.begin(), trigNoL0.end());
-  triggers.insert(triggers.end(), trigNoL1.begin(), trigNoL1.end());
-  triggers.insert(triggers.end(), trigNoL2.begin(), trigNoL2.end());
-  triggers.insert(triggers.end(), trigNoL3.begin(), trigNoL3.end());
-  return triggers;
-}
-vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::build44swt(const vector< PadWithHits > &pads, const vector< size_t > &iL0, const vector< size_t > &iL1,const vector< size_t > &iL2, const vector< size_t > &iL3) {
-  return buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true, true, true,true);
-}
-
-//-------------------------------------
-/**
-   @brief whether all pad indices of one trigger are a subset of another one
-   A functor used to remove redundancies 3/4 from 4/4
- */
-struct TrigIsSubsetOf
-    : public unary_function<const SingleWedgePadTrigger &, bool> {
-  vector< size_t > indices; // indices of the pads from the four layers
-  TrigIsSubsetOf(const SingleWedgePadTrigger &tr)
-      : indices(tr.padIndices()) {
-    assert(indices.size() ==
-           4); // we want to use it with the 4 out of 4 triggers
-    sort(indices.begin(), indices.end());
-      //cout << " checking for redundancies of [" << vec2str(indices) << "]"<< endl;
-  }
-  bool operator()(const SingleWedgePadTrigger &tr) const {
-    vector< size_t > idxes(tr.padIndices());
-    sort(idxes.begin(),
-              idxes.end()); // need to be sorted for set_intersection to work
-    vector< size_t > commonIndices(indices.size() > idxes.size() ? indices.size()
-                                                        : idxes.size());
-    bool allIdsPresent(
-        distance(commonIndices.begin(),
-                      set_intersection(indices.begin(), indices.end(),
-                                            idxes.begin(), idxes.end(),
-                                            commonIndices.begin())) ==
-        static_cast<int>(idxes.size()));
-    return allIdsPresent;
-  }
-};
-void remove3of4Redundant4of4(const vector< SingleWedgePadTrigger > &trigs4of4,vector< SingleWedgePadTrigger > &trigs3of4) {
-  for (vector< SingleWedgePadTrigger >::const_iterator t4 = trigs4of4.begin(); t4 != trigs4of4.end();++t4) {
-    trigs3of4.erase(remove_if(trigs3of4.begin(), trigs3of4.end(),TrigIsSubsetOf(*t4)),trigs3of4.end());
-  }
-}
-//-------------------------------------
-bool L1TdrStgcTriggerLogic::buildSectorTriggers(const vector< PadWithHits > &pads,const vector< size_t > &indicesSecN) {
-  // inner/outer refers to |z|
-  // it used to be (pivot/confirm) x (large/small) ... now obsolete nomenclature
-    m_secTrigCand.clear();
-  const int innerMultiplet(1), outerMultiplet(2);
-  vector< size_t > indicesInner = filterByMultiplet(pads, indicesSecN, innerMultiplet);
-  vector< size_t > indicesOuter = filterByMultiplet(pads, indicesSecN, outerMultiplet);
-//  for(int ip=0; ip<pads.size(); ip++){
-//	  cout<<"pad and MUltiplet "<<pads[ip].multiplet<<" "<<ip<<endl;
-//  }
-  vector< size_t > idxesI1(filterByLayer(pads, indicesInner, STGC_LAYER_1));
-  vector< size_t > idxesI2(filterByLayer(pads, indicesInner, STGC_LAYER_2));
-  vector< size_t > idxesI3(filterByLayer(pads, indicesInner, STGC_LAYER_3));
-  vector< size_t > idxesI4(filterByLayer(pads, indicesInner, STGC_LAYER_4));
-  vector< size_t > idxesO1(filterByLayer(pads, indicesOuter, STGC_LAYER_1));
-  vector< size_t > idxesO2(filterByLayer(pads, indicesOuter, STGC_LAYER_2));
-  vector< size_t > idxesO3(filterByLayer(pads, indicesOuter, STGC_LAYER_3));
-  vector< size_t > idxesO4(filterByLayer(pads, indicesOuter, STGC_LAYER_4));
-  vector< SingleWedgePadTrigger > i4of4trig(build44swt(pads, idxesI1, idxesI2, idxesI3, idxesI4));
-  vector< SingleWedgePadTrigger > i3of4trig(build34swt(pads, idxesI1, idxesI2, idxesI3, idxesI4));
-  vector< SingleWedgePadTrigger > o4of4trig(build44swt(pads, idxesO1, idxesO2, idxesO3, idxesO4));
-  vector< SingleWedgePadTrigger > o3of4trig(build34swt(pads, idxesO1, idxesO2, idxesO3, idxesO4));
-
-  remove3of4Redundant4of4(i4of4trig, i3of4trig);
-  remove3of4Redundant4of4(o4of4trig, o3of4trig);
-  
-  if (m_verbose)
-    cout << "SingleWedge triggers :"
-         << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
-         << "(4/4)"
-         << " outer : " << o3of4trig.size() << "(3/4) " << o4of4trig.size()
-         << "(4/4)" << endl;
-
-  vector< SingleWedgePadTrigger > innerTrigs, outerTrigs; // merge 4/4 and 3/4
-  innerTrigs.insert(innerTrigs.end(), i3of4trig.begin(), i3of4trig.end());
-  innerTrigs.insert(innerTrigs.end(), i4of4trig.begin(), i4of4trig.end());
-  outerTrigs.insert(outerTrigs.end(), o3of4trig.begin(), o3of4trig.end());
-  outerTrigs.insert(outerTrigs.end(), o4of4trig.begin(), o4of4trig.end());
-  bool acceptSingleWedgeInTransition = true;
-  bool skipInnerOuterMatchHack = false;
-  //vstcand_t trigCandidates;
-  /**
-     @todo fix hack DG-2015-10-08
-
-     I am having some issue with determining the corners of the pad.
-     The matching between inner/outer candidates becomes thus
-     pointless.  As a temporary hack, just create one
-     SectorTriggerCandidate for each SingleWedgePadTrigger.
-
-     At this stage, we probably don't even need this feature, since
-     we're using the pads only to determine the strip band. In the TDR
-     we used it to check the resolution (from the pads measurements)
-     of the pointing direction.
-   */
-  if (skipInnerOuterMatchHack) {
-    for (SingleWedgePadTrigger &swpt : innerTrigs)
-      m_secTrigCand.emplace_back(swpt.setCombined());
-    for (SingleWedgePadTrigger &swpt : outerTrigs)
-      m_secTrigCand.emplace_back(swpt.setCombined());
-  } 
-  else {
-    for (auto it = innerTrigs.begin(); it != innerTrigs.end(); ++it) {
-   //   if (acceptSingleWedgeInTransition && it->isInTransitionRegion()) continue; // there is a small 2wedge trig inside the TR so the line is commented
-      for (auto ot = outerTrigs.begin(); ot != outerTrigs.end();++ot) {
-        // Inner-Outer matching based on area
-        //S.I EtaPhiRectangle is dprecated
-        //EtaPhiRectangle innerArea = SingleWedgePadTrigger::padOverlap(it->pads());
-        //EtaPhiRectangle outerArea = SingleWedgePadTrigger::padOverlap(ot->pads());
-        Polygon innerArea=SingleWedgePadTrigger::padOverlap3(it->pads());
-        Polygon outerArea=SingleWedgePadTrigger::padOverlap3(ot->pads());
-        //double overlap = EtaPhiRectangle::overlappingArea(innerArea, outerArea);
-        
-        float Z1=ot->pads()[0].m_cornerXyz[1][2];
-        float Z0=it->pads()[0].m_cornerXyz[1][2];
-        
-        Polygon inoutovl=GeoUtils::largestIntersection(innerArea,GeoUtils::Project(outerArea,Z1,Z0));
-        
-        float overlap=GeoUtils::area(inoutovl);
-        //cout<<"OVERLAP  "<<overlap<<" Inner "<<innerArea.area()<<" Outer "<<outerArea.area()<<endl;
-        cout<<"OVERLAP  "<<overlap<<" Inner "<<GeoUtils::area(innerArea)<<" Outer "<<GeoUtils::area(outerArea)<<endl;
-        if (overlap >0) {
-          m_secTrigCand.emplace_back(it->setCombined(), ot->setCombined());
-        }
-      } // end for(ot)
-    }   // end for(it)
-    //***** Transition Region *****
-    
-    
-    if (acceptSingleWedgeInTransition) {
-      for ( auto it = innerTrigs.begin(); it != innerTrigs.end();++it){
-        if (it->alreadyCombined()){
-          continue;
-        }
-        else if (it->is4outOf4Layers() && it->isInTransitionRegion()){
-           m_secTrigCand.emplace_back(it->setCombined());
-          //m_secTrigCand.push_back(SectorTriggerCandidate(it->setCombined()));
-            
-
-        }
-      }
-      for ( auto ot = outerTrigs.begin(); ot != outerTrigs.end();++ot) {
-        if (ot->alreadyCombined()){
-            continue;
-        }
-        else if (ot->is4outOf4Layers() && ot->isInTransitionRegion()){
-            m_secTrigCand.emplace_back(ot->setCombined());
-        }
-      }
-    } // end if(acceptSingleWedgeInTransition)
-  }   // if(not skipInnerOuterMatchHack)
-  //m_secTrigCand = trigCandidates;
-
-  
-  if (m_verbose) {
-    cout << "found " << m_secTrigCand.size() << " triggerCandidates from "
-         << pads.size() << " pads" << endl;
-    for (vstcand_t::const_iterator tc = m_secTrigCand.begin();
-         tc != m_secTrigCand.end(); ++tc) {
-      //cout << "trigger region : " << tc->triggerRegion()<< " deltaR inner/outer : " << tc->deltaR() << endl;
-      std::cout << "trigger region area : " << GeoUtils::area(tc->triggerRegion3())<<std::endl;
-    } // end for(tc)
-  }
-
-  if (m_writePickle) {
-    if (m_secTrigCand.size() > 0) {
-      int sector = m_secTrigCand[0].wedgeTrigs()[0].pads()[0].sector;
-      char buf[1024] = "";
-      sprintf(buf, "%s/sector%02d.txt", m_picklePrefix.c_str(), sector);
-      ofstream fileDump;
-      fileDump.open(buf);
-      fileDump << "[";
-      for (size_t i = 0; i < m_secTrigCand.size(); ++i)
-        fileDump << "{" << m_secTrigCand[i].pickle() << "},\n";
-      fileDump << "]";
-      fileDump.close();
+namespace NSWL1{
+    //-------------------------------------
+    L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic()
+        : m_verbose(false), m_writePickle(false), m_picklePrefix("./") {
+    rand.SetSeed(0);
     }
-  } // if(m_writePickle)
-  return (m_secTrigCand.size() > 0);
-}
+    //-------------------------------------
+    L1TdrStgcTriggerLogic::~L1TdrStgcTriggerLogic() {}
+    //-------------------------------------
+    bool L1TdrStgcTriggerLogic::hitPattern(const Pad &firstPad, const Pad &otherPad,
+                        string &pattern) {
+    return L1TdrStgcTriggerLogic::hitPattern(firstPad.ieta, firstPad.iphi, otherPad.ieta,
+                            otherPad.iphi, pattern);
+    }
+    //-------------------------------------
+    bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1,
+                        const int &iPhi1, string &pattern) {
+    // A la ATL-MUON-INT-2014-003 =>>
+    pattern = "33";
+    //  if(iPhi1 >= iPhi0 + 2 || iPhi1 < iPhi0) return false;
+    //  if(iEta1 >= iEta0 + 2 || iEta1 < iEta0) return false;
+    //  if(iPhi0 == iPhi1) pattern = (iEta0==iEta1 ? "11" : "21");
+    //  else               pattern = (iEta0==iEta1 ? "12" : "22");
+    // <<== A la ATL-MUON-INT-2014-003
+    // New Logic - DeltaEtaDeltaPhi
+    if (iEta1 >= iEta0 + 2 || iEta1 <= iEta0 - 2)
+        return false;
+    if (iPhi1 >= iPhi0 + 2 || iPhi1 <= iPhi0 - 2)
+        return false;
+    // DeltaEta
+    if (iEta1 == iEta0 - 1)
+        pattern = "0";
+    else if (iEta1 == iEta0)
+        pattern = "1";
+    else if (iEta1 == iEta0 + 1)
+        pattern = "2";
+    // DeltaPhi
+    if (iPhi1 == iPhi0 - 1)
+        pattern.append("0");
+    else if (iPhi1 == iPhi0)
+        pattern.append("1");
+    else if (iPhi1 == iPhi0 + 1)
+        pattern.append("2");
 
-/**
-   The trigger 3 out of 4 masks
-   using the following translation from Daniel ....
-   feaaa8  R: .+-+ -+-+  Phi: .--+ -+-+  Best R/Phi: 2/1 (out of 4)
-   2013/02/10 now calculating per wedge
-*/
+    return true;
+    }
+    //-------------------------------------
+    //S.I : a method should not have so many arguments..
+    std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::buildSingleWedgeTriggers(
+        const std::vector< PadWithHits > &pads, const std::vector< size_t > &padIndicesLayer0,
+        const std::vector< size_t > &padIndicesLayer1, const std::vector< size_t > &padIndicesLayer2,
+        const std::vector< size_t > &padIndicesLayer3, bool isLayer1, bool isLayer2,
+        bool isLayer3, bool isLayer4) {
+    
+        std::vector< SingleWedgePadTrigger > triggers;
 
-vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() {
-  vector<string> patterns;
-  patterns.push_back("1111");
-  patterns.push_back("1122");
-  patterns.push_back("3111");
-  patterns.push_back("3122");
-  patterns.push_back("1311");
-  patterns.push_back("1322");
-  patterns.push_back("1131");
-  patterns.push_back("1132");
-  patterns.push_back("1113");
-  patterns.push_back("1123");
+    size_t nHL1 = (isLayer1 ? padIndicesLayer0.size() : 1);
+    size_t nHL2 = (isLayer2 ? padIndicesLayer1.size() : 1);
+    size_t nHL3 = (isLayer3 ? padIndicesLayer2.size() : 1);
+    size_t nHL4 = (isLayer4 ? padIndicesLayer3.size() : 1);
 
-  return patterns;
-}
+    if (isLayer1 && nHL1 == 0)
+        return triggers;
+    if (isLayer2 && nHL2 == 0)
+        return triggers;
+    if (isLayer3 && nHL3 == 0)
+        return triggers;
+    if (isLayer4 && nHL4 == 0)
+        return triggers;
+    
+    const std::vector<string> PatternsEtaUp = sTGC_triggerPatternsEtaUp();
+    const std::vector<string> PatternsEtaDown = sTGC_triggerPatternsEtaDown();
+    const std::vector<string> PatternsPhiUp = sTGC_triggerPatternsPhiUp();
+    const std::vector<string> PatternsPhiDown = sTGC_triggerPatternsPhiDown();
+    const std::vector<string> PatternsPhiDownUp = sTGC_triggerPatternsPhiDownUp();
+    const std::vector<string> PatternsPhiUpDown = sTGC_triggerPatternsPhiUpDown();
 
-vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() {
-  vector<string> patterns;
-  patterns.push_back("1111");
-  patterns.push_back("1100");
-  patterns.push_back("3111");
-  patterns.push_back("3100");
-  patterns.push_back("1311");
-  patterns.push_back("1300");
-  patterns.push_back("1131");
-  patterns.push_back("1130");
-  patterns.push_back("1113");
-  patterns.push_back("1103");
+    int iL1st = -1; // first layer index
+    for (size_t il1 = 0; il1 < nHL1; il1++) {
+        int l1Idx = -1;
+        string sl1("33");
+        if (isLayer1) {
+        l1Idx = padIndicesLayer0.at(il1);
+        sl1 = "11";
+        iL1st = l1Idx;
+        } // if l1 is considered  its indices are always 11
+        for (size_t il2 = 0; il2 < nHL2; il2++) {
+        int l2Idx = -1;
+        string sl2("33");
+        if (isLayer2) {
+            l2Idx = padIndicesLayer1.at(il2);
+            if (iL1st == -1) {
+            sl2 = "11";
+            iL1st = l2Idx;
+            } // l1 was not considered, l2 gets the first indices
+            else if (!hitPattern(pads.at(iL1st), pads.at(l2Idx), sl2))
+            continue;
+        } // end if(isLayer2)
+        for (size_t il3 = 0; il3 < nHL3; il3++) {
+            int l3Idx = -1;
+            string sl3("33");
+            if (isLayer3) {
+            l3Idx = padIndicesLayer2.at(il3);
+            if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
+                continue;
+            }
+            for (size_t il4 = 0; il4 < nHL4; il4++) {
+            int l4Idx = -1;
+            string sl4("33");
+            if (isLayer4) {
+                l4Idx = padIndicesLayer3.at(il4);
+                if (!hitPattern(pads.at(iL1st), pads.at(l4Idx), sl4))
+                continue;
+            }
+            // checked all layers, now store the trigger if it's a valid pattern
 
-  return patterns;
-}
+            string pattern(sl4 + sl3 + sl2 + sl1);
+            // the above line is replaced by a normal order l1,l2,l3,l4 and
+            // separated in phi and eta but it remains the same for later usage in
+            // the trigger selection
+            // Hence the following is only for internal ease of calculation. The
+            // pattern to be passed is the "pattern" not "patternPhi" or
+            // "patternEta"
+            string patternPhi;
+            patternPhi.push_back(sl1.at(1));
+            patternPhi.push_back(sl2.at(1));
+            patternPhi.push_back(sl3.at(1));
+            patternPhi.push_back(sl4.at(1));
 
-vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUp() {
-  vector<string> patterns;
-  patterns.push_back("1111");
-  patterns.push_back("1112");
-  patterns.push_back("1122");
-  patterns.push_back("1222");
-  patterns.push_back("1113");
-  patterns.push_back("1123");
-  patterns.push_back("1223");
-  patterns.push_back("1131");
-  patterns.push_back("1132");
-  patterns.push_back("1232");
-  patterns.push_back("1311");
-  patterns.push_back("1312");
-  patterns.push_back("1322");
-  patterns.push_back("3111");
-  patterns.push_back("3112");
-  patterns.push_back("3122");
+            string patternEta;
+            patternEta.push_back(sl1.at(0));
+            patternEta.push_back(sl2.at(0));
+            patternEta.push_back(sl3.at(0));
+            patternEta.push_back(sl4.at(0));
 
-  return patterns;
-}
+    //          cout << " Pattern: " << pattern << endl;
+    //          cout << " pattern eta " << patternEta <<" multiplet="<<pads[0].multiplet<<endl;
+    //          cout << " pattern phi " << patternPhi << endl;
+            // look for the pattern in the LUT
+            // compare eta and phi patterns in LUT
+            // first find if wedge us UP or DOWN type in phi and eta
+            int    multipletid ;
+            int    moduleid ;
+            int    sectortype ;
 
-vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDown() {
-  vector<string> patterns;
-  patterns.push_back("1111");
-  patterns.push_back("1110");
-  patterns.push_back("1100");
-  patterns.push_back("1000");
-  patterns.push_back("1113");
-  patterns.push_back("1103");
-  patterns.push_back("1003");
-  patterns.push_back("1131");
-  patterns.push_back("1130");
-  patterns.push_back("1230");
-  patterns.push_back("1311");
-  patterns.push_back("1310");
-  patterns.push_back("1300");
-  patterns.push_back("3111");
-  patterns.push_back("3110");
-  patterns.push_back("3100");
 
-  return patterns;
-}
+            if (sl1 == "11") {
+                multipletid = pads.at(l1Idx).multiplet;
+                    moduleid = pads.at(l1Idx).module;
+                    sectortype = pads.at(l1Idx).sectortype;
 
-vector<string>
-L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUpDown() {
-  vector<string> patterns;
-  patterns.push_back("1111");
-  patterns.push_back("1212");
-  patterns.push_back("1113");
-  patterns.push_back("1213");
-  patterns.push_back("1131");
-  patterns.push_back("1232");
-  patterns.push_back("1311");
-  patterns.push_back("1312");
-  patterns.push_back("3111");
-  patterns.push_back("3101");
+            } else if (sl2 == "11") {
+                multipletid = pads.at(l2Idx).multiplet;
+                    moduleid = pads.at(l2Idx).module;
+                    sectortype = pads.at(l2Idx).sectortype;
 
-  return patterns;
-}
+                }
 
-vector<string>
-L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDownUp() {
-  vector<string> patterns;
-  patterns.push_back("1111");
-  patterns.push_back("1010");
-  patterns.push_back("1113");
-  patterns.push_back("1013");
-  patterns.push_back("1131");
-  patterns.push_back("1030");
-  patterns.push_back("1311");
-  patterns.push_back("1310");
-  patterns.push_back("3111");
-  patterns.push_back("3121");
+            string etamove, phimove;
+            if (sectortype == 1) {
+                if (multipletid == 1) {
 
-  return patterns;
-}
+                    etamove = "D";
+                    phimove = "U";
 
-vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatterns() {
-  vector<string> patterns;
+                if (moduleid == 2) {
+                    etamove = "U";
+                    phimove = "U";
+                }
 
-  return patterns;
+                } else { // multiplet = 2   15-7-18 YR - Confirm   new geometry
+
+                    etamove = "U";
+                    phimove = "DU";
+                }
+
+
+            }
+
+            if (sectortype == 0) {
+                if (multipletid == 1) { // 15-7-18 YR - Confirm   new geometry
+                if (moduleid == 1) {
+                    etamove = "U";
+                    phimove = "DU";
+                }
+                if (moduleid == 2) {
+                    etamove = "D";
+                    phimove = "UD";
+                }
+                if (moduleid == 3) {
+                    etamove = "U";
+                    phimove = "UD";
+                }
+                } else { // multiplet = 2
+                if (moduleid == 1) {
+                    etamove = "U";
+                    phimove = "D";
+                }
+                else
+                {
+                    etamove = "U";
+                    phimove = "U";
+                }
+                }
+            }
+        //      cout << "eta and phi moves " << etamove << " " << phimove << endl;
+
+
+
+            if (etamove == "D") {
+                if (find(PatternsEtaDown.begin(), PatternsEtaDown.end(),
+                            patternEta) == PatternsEtaDown.end()) {
+                continue;
+                }
+            }
+
+            if (etamove == "U") {
+                if (find(PatternsEtaUp.begin(), PatternsEtaUp.end(),
+                            patternEta) == PatternsEtaUp.end()) {
+                continue;
+                }
+            }
+
+            if (phimove == "U") {
+                if (find(PatternsPhiUp.begin(), PatternsPhiUp.end(),
+                            patternPhi) == PatternsPhiUp.end()) {
+                continue;
+                }
+            }
+            if (phimove == "D") {
+                if (find(PatternsPhiDown.begin(), PatternsPhiDown.end(),
+                            patternPhi) == PatternsPhiDown.end()) {
+                continue;
+                }
+            }
+            if (phimove == "UD") {
+                if (find(PatternsPhiUpDown.begin(), PatternsPhiUpDown.end(),
+                            patternPhi) == PatternsPhiUpDown.end()) {
+                continue;
+                }
+            }
+            if (phimove == "DU") {
+                if (find(PatternsPhiDownUp.begin(), PatternsPhiDownUp.end(),
+                            patternPhi) == PatternsPhiDownUp.end()) {
+                continue;
+                }
+            }
+
+            //cout << " Pattern: " << pattern << endl;
+            //cout << " pattern eta " << patternEta <<" multiplet="<<multipletid<<endl;
+            //cout << " pattern phi " << patternPhi << endl;
+
+
+            //            if(find(allPatterns.begin(), allPatterns.end(),
+            //            pattern)==allPatterns.end()){
+            //              if(verbose) cout <<" ---> NOT triggered" << endl ;
+            //              continue;
+            //            }
+            vector< size_t > padIndices;
+            // assert : gcc is fine with a negative size_t values; however, here
+            // we should detect
+            // buggy patterns (i.e. the index cannot be negative if isL_ is true).
+            if (isLayer1) {
+                assert(l1Idx > -1);
+                padIndices.push_back(l1Idx);
+            }
+            if (isLayer2) {
+                assert(l2Idx > -1);
+                padIndices.push_back(l2Idx);
+            }
+            if (isLayer3) {
+                assert(l3Idx > -1);
+                padIndices.push_back(l3Idx);
+            }
+            if (isLayer4) {
+                assert(l4Idx > -1);
+                padIndices.push_back(l4Idx);
+            }
+            triggers.push_back(SingleWedgePadTrigger(pattern, pads, padIndices));
+
+            if (triggers.size() > 4) {
+                return triggers;
+            }
+            //////////////////////////////////////////////////
+            } // end for(il4)
+        }   // end for(il3)
+        }     // end for(il2)
+    }       // end for(il1)
+            //    cout <<"pattern wedge " << endl;
+
+    return triggers;
+    }
+
+    //-------------------------------------
+    std::vector< size_t > L1TdrStgcTriggerLogic::removeRandomPadIndices(const std::vector< size_t > &padIndices) {
+        std::vector< size_t > out;
+        out.reserve(padIndices.size());
+        for (size_t i = 0; i < padIndices.size(); ++i) {
+            if (rand.Uniform(1) < padTimingEfficiency)
+            out.push_back(padIndices.at(i));
+        }
+        return out;
+    }
+    //-------------------------------------Inner:
+    std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::build34swt(const std::vector< PadWithHits > &pads,
+                                                                           const std::vector< size_t > &iL0,
+                                                                           const std::vector< size_t > &iL1,
+                                                                           const std::vector< size_t > &iL2,
+                                                                           const std::vector< size_t > &iL3){
+        
+        std::vector< SingleWedgePadTrigger > trigNoL0(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, false,true, true, true));
+        std::vector< SingleWedgePadTrigger > trigNoL1(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true,false, true, true));
+        std::vector< SingleWedgePadTrigger > trigNoL2(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true,true, false, true));
+        std::vector< SingleWedgePadTrigger > trigNoL3(buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true,true, true, false));
+        std::vector< SingleWedgePadTrigger > triggers;
+        triggers.insert(triggers.end(), trigNoL0.begin(), trigNoL0.end());
+        triggers.insert(triggers.end(), trigNoL1.begin(), trigNoL1.end());
+        triggers.insert(triggers.end(), trigNoL2.begin(), trigNoL2.end());
+        triggers.insert(triggers.end(), trigNoL3.begin(), trigNoL3.end());
+        return triggers;
+    }
+    std::vector< SingleWedgePadTrigger > L1TdrStgcTriggerLogic::build44swt(const std::vector< PadWithHits > &pads,
+                                                                      const std::vector< size_t > &iL0,
+                                                                      const std::vector< size_t > &iL1,
+                                                                      const std::vector< size_t > &iL2,
+                                                                      const std::vector< size_t > &iL3) {
+        return buildSingleWedgeTriggers(pads, iL0, iL1, iL2, iL3, true, true, true,true);
+    }
+
+    //-------------------------------------
+    /**
+    @brief whether all pad indices of one trigger are a subset of another one
+    A functor used to remove redundancies 3/4 from 4/4
+    */
+    struct TrigIsSubsetOf : public std::unary_function<const SingleWedgePadTrigger &, bool> {
+        std::vector< size_t > indices; // indices of the pads from the four layers
+        TrigIsSubsetOf(const SingleWedgePadTrigger &tr) : indices(tr.padIndices()) {
+            assert(indices.size() ==4);                        // we want to use it with the 4 out of 4 triggers
+            sort(indices.begin(), indices.end());
+        }
+        bool operator()(const SingleWedgePadTrigger &tr) const {
+            std::vector< size_t > idxes(tr.padIndices());
+            sort(idxes.begin(),idxes.end()); // need to be sorted for set_intersection to work
+            std::vector< size_t > commonIndices(indices.size() > idxes.size() ? indices.size(): idxes.size());
+            bool allIdsPresent(
+                 distance(commonIndices.begin(),set_intersection(indices.begin(), indices.end(),idxes.begin(), idxes.end(),commonIndices.begin())) ==static_cast<int>(idxes.size())
+              );
+        return allIdsPresent;
+       }
+    };
+    
+    void remove3of4Redundant4of4(const std::vector< SingleWedgePadTrigger > &trigs4of4,std::vector< SingleWedgePadTrigger > &trigs3of4){
+      for (std::vector< SingleWedgePadTrigger >::const_iterator t4 = trigs4of4.begin(); t4 != trigs4of4.end();++t4) {
+         trigs3of4.erase(remove_if(trigs3of4.begin(), trigs3of4.end(),TrigIsSubsetOf(*t4)),trigs3of4.end());
+      }
+    }
+    //-------------------------------------
+    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const vector< PadWithHits > &pads,const vector< size_t > &indicesSecN) {
+    // inner/outer refers to |z|
+    // it used to be (pivot/confirm) x (large/small) ... now obsolete nomenclature
+        m_secTrigCand.clear();
+    const int innerMultiplet(1), outerMultiplet(2);
+    std::vector< size_t > indicesInner = filterByMultiplet(pads, indicesSecN, innerMultiplet);
+    std::vector< size_t > indicesOuter = filterByMultiplet(pads, indicesSecN, outerMultiplet);
+    std::vector< size_t > idxesI1(filterByLayer(pads, indicesInner, STGC_LAYER_1));
+    std::vector< size_t > idxesI2(filterByLayer(pads, indicesInner, STGC_LAYER_2));
+    std::vector< size_t > idxesI3(filterByLayer(pads, indicesInner, STGC_LAYER_3));
+    std::vector< size_t > idxesI4(filterByLayer(pads, indicesInner, STGC_LAYER_4));
+    std::vector< size_t > idxesO1(filterByLayer(pads, indicesOuter, STGC_LAYER_1));
+    std::vector< size_t > idxesO2(filterByLayer(pads, indicesOuter, STGC_LAYER_2));
+    std::vector< size_t > idxesO3(filterByLayer(pads, indicesOuter, STGC_LAYER_3));
+    std::vector< size_t > idxesO4(filterByLayer(pads, indicesOuter, STGC_LAYER_4));
+    std::vector< SingleWedgePadTrigger > i4of4trig(build44swt(pads, idxesI1, idxesI2, idxesI3, idxesI4));
+    std::vector< SingleWedgePadTrigger > i3of4trig(build34swt(pads, idxesI1, idxesI2, idxesI3, idxesI4));
+    std::vector< SingleWedgePadTrigger > o4of4trig(build44swt(pads, idxesO1, idxesO2, idxesO3, idxesO4));
+    std::vector< SingleWedgePadTrigger > o3of4trig(build34swt(pads, idxesO1, idxesO2, idxesO3, idxesO4));
+
+    remove3of4Redundant4of4(i4of4trig, i3of4trig);
+    remove3of4Redundant4of4(o4of4trig, o3of4trig);
+    
+    if (m_verbose)
+        std::cout << "SingleWedge triggers :"
+            << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
+            << "(4/4)"
+            << " outer : " << o3of4trig.size() << "(3/4) " << o4of4trig.size()
+            << "(4/4)" << std::endl;
+
+    std::vector< SingleWedgePadTrigger > innerTrigs, outerTrigs; // merge 4/4 and 3/4
+    innerTrigs.insert(innerTrigs.end(), i3of4trig.begin(), i3of4trig.end());
+    innerTrigs.insert(innerTrigs.end(), i4of4trig.begin(), i4of4trig.end());
+    outerTrigs.insert(outerTrigs.end(), o3of4trig.begin(), o3of4trig.end());
+    outerTrigs.insert(outerTrigs.end(), o4of4trig.begin(), o4of4trig.end());
+    bool acceptSingleWedgeInTransition = true;
+    bool skipInnerOuterMatchHack = false;
+    //vstcand_t trigCandidates;
+    /**
+        @todo fix hack DG-2015-10-08
+
+        I am having some issue with determining the corners of the pad.
+        The matching between inner/outer candidates becomes thus
+        pointless.  As a temporary hack, just create one
+        SectorTriggerCandidate for each SingleWedgePadTrigger.
+
+        At this stage, we probably don't even need this feature, since
+        we're using the pads only to determine the strip band. In the TDR
+        we used it to check the resolution (from the pads measurements)
+        of the pointing direction.
+    */
+    if (skipInnerOuterMatchHack) {
+        for (SingleWedgePadTrigger &swpt : innerTrigs){
+            m_secTrigCand.emplace_back(swpt.setCombined());
+        }
+        for (SingleWedgePadTrigger &swpt : outerTrigs){
+            m_secTrigCand.emplace_back(swpt.setCombined());
+        }
+    } 
+    else {
+        for (auto it : innerTrigs) {
+            for (auto ot: outerTrigs) {
+                // Inner-Outer matching based on area
+                //S.I EtaPhiRectangle is dprecated
+                //EtaPhiRectangle innerArea = SingleWedgePadTrigger::padOverlap(it->pads());
+                //EtaPhiRectangle outerArea = SingleWedgePadTrigger::padOverlap(ot->pads());
+                Polygon innerArea=SingleWedgePadTrigger::padOverlap3(it.pads());
+                Polygon outerArea=SingleWedgePadTrigger::padOverlap3(ot.pads());
+                //double overlap = EtaPhiRectangle::overlappingArea(innerArea, outerArea);
+                
+                float Z1=ot.pads().at(0).m_cornerXyz[1][2];
+                float Z0=it.pads().at(0).m_cornerXyz[1][2];
+                
+                Polygon inoutovl=largestIntersection(innerArea,Project(outerArea,Z1,Z0));
+                
+                float overlap=area(inoutovl);
+                std::cout<<"OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea)<<std::endl;
+                if (overlap >0) {
+                m_secTrigCand.emplace_back(it.setCombined(), ot.setCombined());
+                }
+            } // end for(ot)
+        }   // end for(it)
+        //***** Transition Region *****
+        
+        
+        if (acceptSingleWedgeInTransition) {
+            for ( auto it : innerTrigs){
+                if (it.alreadyCombined()){
+                continue;
+                }
+                else if (it.is4outOf4Layers() && it.isInTransitionRegion()){
+                m_secTrigCand.emplace_back(it.setCombined());                
+                }
+            }
+            for ( auto ot : outerTrigs) {
+                if (ot.alreadyCombined()){
+                    continue;
+                }
+                else if (ot.is4outOf4Layers() && ot.isInTransitionRegion()){
+                    m_secTrigCand.emplace_back(ot.setCombined());
+                }
+            }
+        } // end if(acceptSingleWedgeInTransition)
+    }   // if(not skipInnerOuterMatchHack)
+    //m_secTrigCand = trigCandidates;
+
+    
+    if (m_verbose) {
+        std::cout << "found " << m_secTrigCand.size() << " triggerCandidates from "
+            << pads.size() << " pads" << std::endl;
+        for (const auto& tc : m_secTrigCand) {
+            std::cout << "trigger region area : " << area(tc.triggerRegion3())<<std::endl;
+        } // end for(tc)
+    }
+
+    if (m_writePickle) {
+        if (m_secTrigCand.size() > 0) {
+        int sector = m_secTrigCand.at(0).wedgeTrigs().at(0).pads().at(0).sector;
+        char buf[1024] = "";
+        sprintf(buf, "%s/sector%02d.txt", m_picklePrefix.c_str(), sector);
+        std::ofstream fileDump;
+        fileDump.open(buf);
+        fileDump << "[";
+        for (size_t i = 0; i < m_secTrigCand.size(); ++i)
+            fileDump << "{" << m_secTrigCand.at(i).pickle() << "},\n";
+        fileDump << "]";
+        fileDump.close();
+        }
+    } // if(m_writePickle)
+    return (m_secTrigCand.size() > 0);
+    }
+
+    /**
+    The trigger 3 out of 4 masks
+    using the following translation from Daniel ....
+    feaaa8  R: .+-+ -+-+  Phi: .--+ -+-+  Best R/Phi: 2/1 (out of 4)
+    2013/02/10 now calculating per wedge
+    */
+
+    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() {
+        std::vector<string> patterns;
+        patterns.push_back("1111");
+        patterns.push_back("1122");
+        patterns.push_back("3111");
+        patterns.push_back("3122");
+        patterns.push_back("1311");
+        patterns.push_back("1322");
+        patterns.push_back("1131");
+        patterns.push_back("1132");
+        patterns.push_back("1113");
+        patterns.push_back("1123");
+
+        return patterns;
+    }
+
+    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() {
+        std::vector<string> patterns;
+        patterns.push_back("1111");
+        patterns.push_back("1100");
+        patterns.push_back("3111");
+        patterns.push_back("3100");
+        patterns.push_back("1311");
+        patterns.push_back("1300");
+        patterns.push_back("1131");
+        patterns.push_back("1130");
+        patterns.push_back("1113");
+        patterns.push_back("1103");
+
+        return patterns;
+    }
+
+    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUp() {
+        std::vector<string> patterns;
+        patterns.push_back("1111");
+        patterns.push_back("1112");
+        patterns.push_back("1122");
+        patterns.push_back("1222");
+        patterns.push_back("1113");
+        patterns.push_back("1123");
+        patterns.push_back("1223");
+        patterns.push_back("1131");
+        patterns.push_back("1132");
+        patterns.push_back("1232");
+        patterns.push_back("1311");
+        patterns.push_back("1312");
+        patterns.push_back("1322");
+        patterns.push_back("3111");
+        patterns.push_back("3112");
+        patterns.push_back("3122");
+
+        return patterns;
+    }
+
+    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDown() {
+        std::vector<string> patterns;
+        patterns.push_back("1111");
+        patterns.push_back("1110");
+        patterns.push_back("1100");
+        patterns.push_back("1000");
+        patterns.push_back("1113");
+        patterns.push_back("1103");
+        patterns.push_back("1003");
+        patterns.push_back("1131");
+        patterns.push_back("1130");
+        patterns.push_back("1230");
+        patterns.push_back("1311");
+        patterns.push_back("1310");
+        patterns.push_back("1300");
+        patterns.push_back("3111");
+        patterns.push_back("3110");
+        patterns.push_back("3100");
+
+        return patterns;
+    }
+
+    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUpDown() {
+        std::vector<string> patterns;
+        patterns.push_back("1111");
+        patterns.push_back("1212");
+        patterns.push_back("1113");
+        patterns.push_back("1213");
+        patterns.push_back("1131");
+        patterns.push_back("1232");
+        patterns.push_back("1311");
+        patterns.push_back("1312");
+        patterns.push_back("3111");
+        patterns.push_back("3101");
+
+        return patterns;
+    }
+
+    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDownUp() {
+        std::vector<string> patterns;
+        patterns.push_back("1111");
+        patterns.push_back("1010");
+        patterns.push_back("1113");
+        patterns.push_back("1013");
+        patterns.push_back("1131");
+        patterns.push_back("1030");
+        patterns.push_back("1311");
+        patterns.push_back("1310");
+        patterns.push_back("3111");
+        patterns.push_back("3121");
+        return patterns;
+    }
+
+    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatterns() {
+        std::vector<string> patterns;
+        return patterns;
+    }
 }

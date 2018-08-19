@@ -16,12 +16,12 @@
 #include <vector>
 
 #include "TrigT1NSWSimTools/PadData.h"
-#include <memory>
+#include "TrigT1NSWSimTools/TriggerTypes.h"
+
 //namespace NSWL1 {
 //class PadData;
 //}
-namespace nsw {
-typedef std::shared_ptr<NSWL1::PadData> spPadData;
+namespace NSWL1 {
 
   struct Pad {
     int ieta;
@@ -42,29 +42,18 @@ typedef std::shared_ptr<NSWL1::PadData> spPadData;
     Pad(const int &eta, const int &phi,
         const int &multi, const int &layerType, const int &sn, const int &si, const int &mod) :
       ieta(eta), iphi(phi), multiplet(multi), layer(layerType), sector(sn), sectortype(sn), side(si), module(mod),
-      m_padData(nullptr)
+      m_cornerXyz{},m_padData(nullptr)
     { 
-        memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3);
+        //memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3);
+        
         
     }
-/*
-    Pad(const NSWL1::PadData &pData ) :
-      ieta(pData.padEtaId()), iphi(pData.padPhiId()), multiplet(pData.multipletId()), layer(pData.gasGapId()), sector(pData.sectorId()), sectortype(pData.sectorType()), side(pData.sideId()), module(pData.moduleId()),
-      m_padData(&pData)
-    { 
-        memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
-    }
-*/
 
- //S.I
      Pad(spPadData pData ) :
-      ieta(pData->padEtaId()), iphi(pData->padPhiId()), multiplet(pData->multipletId()), layer(pData->gasGapId()), sector(pData->sectorId()), sectortype(pData->sectorType()), side(pData->sideId()), module(pData->moduleId()),
-      m_padData(pData)
+      ieta(pData->padEtaId()), iphi(pData->padPhiId()), multiplet(pData->multipletId()), layer(pData->gasGapId()), sector(pData->sectorId()), sectortype(pData->sectorType()), side(pData->sideId()), module(pData->moduleId()),m_cornerXyz{},m_padData(pData)
     { 
-        memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
+        //memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
     }
- //S.I
-    
     
     std::string pickle() const; //!< simple dict-like representation (might differ from '<<')
 

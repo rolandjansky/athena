@@ -20,12 +20,8 @@
 #include <math.h>  // M_PI
 #include <sstream>
 
-namespace nsw {
-  using std::vector;
-  using std::for_each;
-  using std::cout;
-  using std::endl;
 
+namespace NSWL1 {
  std::string Pad::pickle() const
   {
     std::ostringstream oo;
@@ -64,7 +60,6 @@ namespace nsw {
   float midSectorPhi(int sector){
     float nSectors=16.0;
     float sectorDphi(TMath::TwoPi()/nSectors);
-    // if(sector<1) cout<<"sector "<<sector<<endl;
     assert(sector>0); // we are assuming that the sector N starts from 1
     return (sector-1)*sectorDphi;
   }
@@ -170,26 +165,26 @@ namespace nsw {
   struct inSector: public std::unary_function<const Pad&, void>{
     int sector_;
     size_t index_;
-    vector<size_t> indices_;
+    std::vector<size_t> indices_;
     inSector(int sector) : sector_(sector), index_(0) {}
     void operator() (const Pad &p) { if(sector_==p.sector) indices_.push_back(index_); ++index_; }
   };
   //-------------------------------------
   
 
-  vector<size_t> filterBySector(const vector<Pad> &pads, int sector){
-    return (for_each(pads.begin(), pads.end(), inSector(sector))).indices_;
+  std::vector<size_t> filterBySector(const std::vector<Pad> &pads, int sector){
+    return (std::for_each(pads.begin(), pads.end(), inSector(sector))).indices_;
   }
   //-------------------------------------
-  vector<size_t> filterBySector(const vector<PadWithHits> &pads, int sector){
-    return (for_each(pads.begin(), pads.end(), inSector(sector))).indices_;
+  std::vector<size_t> filterBySector(const std::vector<PadWithHits> &pads, int sector){
+    return (std::for_each(pads.begin(), pads.end(), inSector(sector))).indices_;
   }
   //-------------------------------------
-  vector<size_t> filterBySide(const vector<Pad>    &pads,
-                                        const vector<size_t> &padSelectedIndices,
+  std::vector<size_t> filterBySide(const std::vector<Pad>    &pads,
+                                        const std::vector<size_t> &padSelectedIndices,
                                         int side)
   { // can this be done with std::algo without building a copy? (later)
-    vector<size_t> indices;
+    std::vector<size_t> indices;
     for(size_t i=0; i<padSelectedIndices.size(); i++){
       const size_t &idx=padSelectedIndices[i];
       if(side==pads[idx].side) indices.push_back(idx);
@@ -197,11 +192,11 @@ namespace nsw {
     return indices;
   }
   //-------------------------------------
-  vector<size_t> filterBySide(const vector<PadWithHits>    &pads,
-                                        const vector<size_t> &padSelectedIndices,
+  std::vector<size_t> filterBySide(const std::vector<PadWithHits>    &pads,
+                                        const std::vector<size_t> &padSelectedIndices,
                                         int side)
   { // can this be done with std::algo without building a copy? (later)
-    vector<size_t> indices;
+    std::vector<size_t> indices;
     for(size_t i=0; i<padSelectedIndices.size(); i++){
       const size_t &idx=padSelectedIndices[i];
       if(side==pads[idx].side) indices.push_back(idx);
@@ -209,11 +204,11 @@ namespace nsw {
     return indices;
   }
   //-------------------------------------
-  vector<size_t> filterByLayer(const vector<Pad>    &pads,
-                                         const vector<size_t> &padSelectedIndices,
+  std::vector<size_t> filterByLayer(const std::vector<Pad>    &pads,
+                                         const std::vector<size_t> &padSelectedIndices,
                                          int layer)
   { // can this be done with std::algo without building a copy? (later)
-    vector<size_t> indices;
+    std::vector<size_t> indices;
     for(size_t i=0; i<padSelectedIndices.size(); i++){
       const size_t &idx=padSelectedIndices[i];
       if(layer==pads[idx].layer) indices.push_back(idx);
@@ -221,11 +216,11 @@ namespace nsw {
     return indices;
   }
   //-------------------------------------
-  vector<size_t> filterByLayer(const vector<PadWithHits> &pads,
-                                         const vector<size_t> &padSelectedIndices,
+  std::vector<size_t> filterByLayer(const std::vector<PadWithHits> &pads,
+                                         const std::vector<size_t> &padSelectedIndices,
                                          int layer)
   {
-    vector<size_t> indices;
+    std::vector<size_t> indices;
     for(size_t i=0; i<padSelectedIndices.size(); i++){
       const size_t &idx=padSelectedIndices[i];
       if(layer==pads[idx].layer) indices.push_back(idx);
@@ -233,11 +228,11 @@ namespace nsw {
     return indices;
   }
   //-------------------------------------
-  vector<size_t> filterByMultiplet(const vector<Pad>    &pads,
-                                             const vector<size_t> &padSelectedIndices,
+  std::vector<size_t> filterByMultiplet(const std::vector<Pad>    &pads,
+                                             const std::vector<size_t> &padSelectedIndices,
                                              int multiplet)
   { // can this be done with std::algo without building a copy? (later)
-    vector<size_t> indices;
+    std::vector<size_t> indices;
     for(size_t i=0; i<padSelectedIndices.size(); i++){
       const size_t &idx=padSelectedIndices[i];
       if(multiplet==pads[idx].multiplet) indices.push_back(idx);
@@ -245,11 +240,11 @@ namespace nsw {
     return indices;
   }
   //-------------------------------------
-  vector<size_t> filterByMultiplet(const vector<PadWithHits> &pads,
-                                             const vector<size_t> &padSelectedIndices,
+  std::vector<size_t> filterByMultiplet(const std::vector<PadWithHits> &pads,
+                                             const std::vector<size_t> &padSelectedIndices,
                                              int multiplet)
   {
-    vector<size_t> indices;
+    std::vector<size_t> indices;
     for(size_t i=0; i<padSelectedIndices.size(); i++){
       const size_t &idx=padSelectedIndices[i];
       if(multiplet==pads[idx].multiplet) indices.push_back(idx);

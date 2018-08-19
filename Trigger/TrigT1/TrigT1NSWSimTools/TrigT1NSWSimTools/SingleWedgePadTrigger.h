@@ -24,12 +24,10 @@ A trigger with coincident hits in at least 3 out of 4 layers within a wedge.
 davide.gerbaudo@gmail.com, April 2013
 */
 
-using namespace GeoUtils;
-
-namespace nsw {
+namespace NSWL1 {
   class SingleWedgePadTrigger {
   public:
-    typedef std::vector< nsw::PadWithHits >   vpads_t;
+    typedef std::vector< PadWithHits >   vpads_t;
   public:
     struct EtaPhi{  // just to have better naming than std::pair
       int ieta, iphi;
