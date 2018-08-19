@@ -27,16 +27,6 @@ static const InterfaceID IID_IParticleCaloExtensionTool("Trk::IParticleCaloExten
 class IParticleCaloExtensionTool : virtual public IAlgTool {
 public:
 
-  /* 
-   * Notes on the AthenaMT migration 
-   * The tool was using direct StoreGate access both
-   * as a way to implement the cache
-   * and as a way to handle the ownership/lifetime of the caloExtension.
-   * For a 0th order migration the semantics of the cache and the ownership
-   * were changed.
-   */
-
-
   /** Method returning the calo layers crossed 
    * by an IParticle track or itself if it is a TruthParticle
    * @param particle     reference to the Particle
@@ -45,22 +35,39 @@ public:
    */
   virtual bool caloExtension( const xAOD::IParticle& particle, 
                               std::unique_ptr<Trk::CaloExtension>& extension ) const = 0;
-  
+
+  /** Method returning a cached  calo layers crossed 
+   * by an IParticle track or itself if it is a TruthParticle
+   * It just returns the result stored in a CaloExtensionCollection
+   * created by (or in a similar way as ) the caloExtensionCollection
+   * method below.
+   * The pointer is owned by the cache
+   *
+   * @param particle     reference to the Particle
+   * @param extension    ptr to a const CaloExtesion. 
+   * @param cache        The caloExtensiinCollections   
+   * @return true if the call was successful
+   */  
+  virtual bool caloExtension( const xAOD::IParticle& particle, 
+                              const Trk::CaloExtension* extension, 
+                              const CaloExtensionCollection& cache ) const = 0;
+
+
   /** Method returning the calo layers crossed 
    * by an IParticle track or itself if it is a TruthParticle
    * An alg using the same IParticle multiple times can pass a cache of
    * the form std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>, 
    * where the key is the  value of IParticle::index().
    * This method can add elements to the cache.  
-   * The cache retains ownership of the pointers (unique_ptr) 
+   * The cache retains ownership of the pointer
    *
-   * @param particle     reference to the Particle
-   * @param extension     ptr to a CaloExtesion. 
+   * @param particle      reference to the Particle
+   * @param extension     ptr to a const CaloExtesion. 
    * @param cache         the cache 
    * @return true if the call was successful
    */  
   virtual bool caloExtension( const xAOD::IParticle& particle, 
-                              Trk::CaloExtension* extension, 
+                              const Trk::CaloExtension* extension, 
                               std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>& cache ) const = 0;
 
   /** Method that can be used by algorithms that :
@@ -77,9 +84,9 @@ public:
    * will contain unfilled CaloExtension where the mask was false, otherwise it contains the relevant
    * result. 
    */  
-   virtual StatusCode  caloExtensionCollection( const xAOD::IParticleContainer& particles, 
-                                                const std::vector<bool>& mask,
-                                                CaloExtensionCollection& caloextensions) const = 0;
+  virtual StatusCode  caloExtensionCollection( const xAOD::IParticleContainer& particles, 
+                                               const std::vector<bool>& mask,
+                                               CaloExtensionCollection& caloextensions) const = 0;
 
   /**
    * Method returning a unique_ptr to the caloExtension given the relevant 

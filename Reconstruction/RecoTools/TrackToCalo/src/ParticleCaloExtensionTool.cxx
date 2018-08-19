@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+ */
 
 #include "ParticleCaloExtensionTool.h"
 #include "TrkSurfaces/PerigeeSurface.h"
@@ -92,7 +92,26 @@ bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
   return extension.get()!=nullptr;
 }
 
-bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, Trk::CaloExtension*  extension, 
+bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
+                                               const Trk::CaloExtension* extension, 
+                                               const CaloExtensionCollection& cache ) const{
+  size_t index=particle.index();
+  /*
+   * Protect against no proper usage
+   */
+  if(index < cache.size()){ 
+    extension=cache[index];
+  }else{
+    ATH_MSG_WARNING("cache size smaller than particle index");
+    extension=nullptr;
+    return false; 
+  }
+  /* If the CaloExtension has been properly created it will have intersections*/
+  return (extension->caloLayerIntersections().size()>0);
+}
+
+bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
+                                               const Trk::CaloExtension*  extension, 
                                                std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>& cache ) const{
   extension=nullptr;
   auto findExtension= cache.find(particle.index());
@@ -124,13 +143,13 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
         caloextensions.push_back(std::move(extension));
       }
       else {
-        std::vector<const CurvilinearParameters*> dummyPar;
+        std::vector<const CurvilinearParameters*> dummyPar{};
         std::unique_ptr<Trk::CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,nullptr,std::move(dummyPar));
         caloextensions.push_back(std::move (dummyExt));
       }
     }
     else{
-      std::vector<const CurvilinearParameters*> dummyPar;
+      std::vector<const CurvilinearParameters*> dummyPar{};
       std::unique_ptr<CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,nullptr,std::move(dummyPar));
       caloextensions.push_back(std::move (dummyExt));
     }
@@ -143,13 +162,11 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   ParticleHypothesis particleType = muon;  
   if( abs(particle.pdgId()) == 11 )      {particleType = muon;} 
   else if( abs(particle.pdgId()) == 13 ) {particleType = muon;}
-
   // get start parameters
   const xAOD::TruthVertex* pvtx = particle.prodVtx();
   if ( pvtx == 0 ) {
     return nullptr;
   }
-
   double charge = particle.charge();
   Amg::Vector3D  pos( pvtx->x() , pvtx->y() , pvtx->z() );
   Amg::Vector3D  mom( particle.px() , particle.py() , particle.pz() );
@@ -160,7 +177,6 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
     mom *= 1e10;
   }
   Trk::CurvilinearParameters startPars(pos,mom,charge);
-
   // get extension
   return caloExtension( startPars, alongMomentum, particleType );
 }
@@ -184,10 +200,13 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
 
   //Determine if the track was fit electron hypothesis -- so extrapolate as if the particles is non interacting
   ParticleHypothesis particleType = m_particleType;
+
+  /* 
+   * Electrons done separately here
+   */
   if( particle.particleHypothesis() ==  xAOD::electron ){  
     ATH_MSG_DEBUG("Fitting using electron hypothesis");
     particleType = muon;//nonInteracting;
-
     if(!m_startFromPerigee){
       unsigned int index(0);
       if (!particle.indexOfParameterAtPosition(index, xAOD::LastMeasurement)){    
@@ -198,6 +217,9 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
     }
   }
 
+  /*
+   * More muon oriented logic
+   */
   if(m_startFromPerigee || !particle.track()){
     bool idExit = true;
     // Muon Entry is around z 6783 and r  4255 
@@ -208,7 +230,6 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   }
 
   const Track& track = *particle.track();
-
   // look-up the parameters closest to the calorimeter in ID and muon system
   ATH_MSG_DEBUG("trying to add calo layers" );
   const TrackParameters* idExitParamers = 0;
@@ -221,12 +242,10 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
     if( m_detID->is_indet(id) ) idExitParamers = (**itTSoS).trackParameters();
     if( m_detID->is_muon(id) && !muonEntryParamers ) muonEntryParamers = (**itTSoS).trackParameters();
   }
-
   // require at least one of them
   if( !idExitParamers && !muonEntryParamers) {
     idExitParamers = track.perigeeParameters();
   }
-
   // pick start parameters, start in ID if possible
   const TrackParameters* startPars = idExitParamers ? idExitParamers : muonEntryParamers;
   if( !startPars ){
@@ -240,7 +259,8 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
 
 
 std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( 
-                                                                             const TrackParameters& startPars, PropDirection propDir, 
+                                                                             const TrackParameters& startPars, 
+                                                                             PropDirection propDir, 
                                                                              ParticleHypothesis particleType ) const {
 
   ATH_MSG_DEBUG("looking up calo states: r " << startPars.position().perp() << " z " << startPars.position().z()
@@ -296,28 +316,28 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension(
                                                           static_cast<CaloSampling::CaloSample>( abs(p.second)%1000 ),
                                                           isEntry );
 
-      const CurvilinearParameters* cparams = dynamic_cast<const CurvilinearParameters*>(p.first);
+      const CurvilinearParameters* tmpcparams = dynamic_cast<const CurvilinearParameters*>(p.first);
       /*
        * We need to handle the case of no cparams, or if cparams 
        * make sure we have the right id and
        * covariance (if present)
        */
-      if( !cparams ){
+      if( !tmpcparams ){
         const CurvilinearParameters* cpars = new CurvilinearParameters(p.first->position(),
                                                                        p.first->momentum(),p.first->charge(),nullptr,id); 
         caloLayers.push_back( cpars );
         delete p.first;
       }else{
         AmgSymMatrix(5)* covariance(nullptr);
-        if(cparams->covariance()){
-          covariance=new AmgSymMatrix(5)(*(cparams->covariance()));
+        if(tmpcparams->covariance()){
+          covariance=new AmgSymMatrix(5)(*(tmpcparams->covariance()));
         }
-        /*Note that the curvilinear parameters now own the covariance
+        /*Note that the curvilinear parameters (cpars) now own the covariance
          * it will be deleted by the ParameterT dtor*/
-        const CurvilinearParameters* cpars = new CurvilinearParameters(cparams->position(),cparams->momentum(),
-                                                                       cparams->charge(),covariance,id);
+        const CurvilinearParameters* cpars = new CurvilinearParameters(tmpcparams->position(),tmpcparams->momentum(),
+                                                                       tmpcparams->charge(),covariance,id);
         caloLayers.push_back( cpars );
-        delete cparams;
+        delete tmpcparams;
       }
     }      
   }
