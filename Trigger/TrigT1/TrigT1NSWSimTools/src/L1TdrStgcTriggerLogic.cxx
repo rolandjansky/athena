@@ -21,10 +21,6 @@
 #include <vector>
 
 
-
-using std::vector;
-using std::string;
-using std::endl;
 using std::distance;
 using std::set_intersection;
 
@@ -44,13 +40,13 @@ namespace NSWL1{
     L1TdrStgcTriggerLogic::~L1TdrStgcTriggerLogic() {}
     //-------------------------------------
     bool L1TdrStgcTriggerLogic::hitPattern(const Pad &firstPad, const Pad &otherPad,
-                        string &pattern) {
+                        std::string &pattern) {
     return L1TdrStgcTriggerLogic::hitPattern(firstPad.ieta, firstPad.iphi, otherPad.ieta,
                             otherPad.iphi, pattern);
     }
     //-------------------------------------
     bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1,
-                        const int &iPhi1, string &pattern) {
+                        const int &iPhi1, std::string &pattern) {
     // A la ATL-MUON-INT-2014-003 =>>
     pattern = "33";
     //  if(iPhi1 >= iPhi0 + 2 || iPhi1 < iPhi0) return false;
@@ -104,17 +100,17 @@ namespace NSWL1{
     if (isLayer4 && nHL4 == 0)
         return triggers;
     
-    const std::vector<string> PatternsEtaUp = sTGC_triggerPatternsEtaUp();
-    const std::vector<string> PatternsEtaDown = sTGC_triggerPatternsEtaDown();
-    const std::vector<string> PatternsPhiUp = sTGC_triggerPatternsPhiUp();
-    const std::vector<string> PatternsPhiDown = sTGC_triggerPatternsPhiDown();
-    const std::vector<string> PatternsPhiDownUp = sTGC_triggerPatternsPhiDownUp();
-    const std::vector<string> PatternsPhiUpDown = sTGC_triggerPatternsPhiUpDown();
+    const std::vector<std::string> PatternsEtaUp = sTGC_triggerPatternsEtaUp();
+    const std::vector<std::string> PatternsEtaDown = sTGC_triggerPatternsEtaDown();
+    const std::vector<std::string> PatternsPhiUp = sTGC_triggerPatternsPhiUp();
+    const std::vector<std::string> PatternsPhiDown = sTGC_triggerPatternsPhiDown();
+    const std::vector<std::string> PatternsPhiDownUp = sTGC_triggerPatternsPhiDownUp();
+    const std::vector<std::string> PatternsPhiUpDown = sTGC_triggerPatternsPhiUpDown();
 
     int iL1st = -1; // first layer index
     for (size_t il1 = 0; il1 < nHL1; il1++) {
         int l1Idx = -1;
-        string sl1("33");
+        std::string sl1("33");
         if (isLayer1) {
         l1Idx = padIndicesLayer0.at(il1);
         sl1 = "11";
@@ -122,7 +118,7 @@ namespace NSWL1{
         } // if l1 is considered  its indices are always 11
         for (size_t il2 = 0; il2 < nHL2; il2++) {
         int l2Idx = -1;
-        string sl2("33");
+        std::string sl2("33");
         if (isLayer2) {
             l2Idx = padIndicesLayer1.at(il2);
             if (iL1st == -1) {
@@ -134,7 +130,7 @@ namespace NSWL1{
         } // end if(isLayer2)
         for (size_t il3 = 0; il3 < nHL3; il3++) {
             int l3Idx = -1;
-            string sl3("33");
+            std::string sl3("33");
             if (isLayer3) {
             l3Idx = padIndicesLayer2.at(il3);
             if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
@@ -142,7 +138,7 @@ namespace NSWL1{
             }
             for (size_t il4 = 0; il4 < nHL4; il4++) {
             int l4Idx = -1;
-            string sl4("33");
+            std::string sl4("33");
             if (isLayer4) {
                 l4Idx = padIndicesLayer3.at(il4);
                 if (!hitPattern(pads.at(iL1st), pads.at(l4Idx), sl4))
@@ -150,20 +146,20 @@ namespace NSWL1{
             }
             // checked all layers, now store the trigger if it's a valid pattern
 
-            string pattern(sl4 + sl3 + sl2 + sl1);
+            std::string pattern(sl4 + sl3 + sl2 + sl1);
             // the above line is replaced by a normal order l1,l2,l3,l4 and
             // separated in phi and eta but it remains the same for later usage in
             // the trigger selection
             // Hence the following is only for internal ease of calculation. The
             // pattern to be passed is the "pattern" not "patternPhi" or
             // "patternEta"
-            string patternPhi;
+            std::string patternPhi;
             patternPhi.push_back(sl1.at(1));
             patternPhi.push_back(sl2.at(1));
             patternPhi.push_back(sl3.at(1));
             patternPhi.push_back(sl4.at(1));
 
-            string patternEta;
+            std::string patternEta;
             patternEta.push_back(sl1.at(0));
             patternEta.push_back(sl2.at(0));
             patternEta.push_back(sl3.at(0));
@@ -192,7 +188,7 @@ namespace NSWL1{
 
                 }
 
-            string etamove, phimove;
+            std::string etamove, phimove;
             if (sectortype == 1) {
                 if (multipletid == 1) {
 
@@ -292,7 +288,7 @@ namespace NSWL1{
             //              if(verbose) cout <<" ---> NOT triggered" << endl ;
             //              continue;
             //            }
-            vector< size_t > padIndices;
+            std::vector< size_t > padIndices;
             // assert : gcc is fine with a negative size_t values; however, here
             // we should detect
             // buggy patterns (i.e. the index cannot be negative if isL_ is true).
@@ -391,7 +387,7 @@ namespace NSWL1{
       }
     }
     //-------------------------------------
-    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const vector< PadWithHits > &pads,const vector< size_t > &indicesSecN) {
+    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< PadWithHits > &pads,const std::vector< size_t > &indicesSecN) {
     // inner/outer refers to |z|
     // it used to be (pivot/confirm) x (large/small) ... now obsolete nomenclature
         m_secTrigCand.clear();
@@ -530,8 +526,8 @@ namespace NSWL1{
     2013/02/10 now calculating per wedge
     */
 
-    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() {
-        std::vector<string> patterns;
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() {
+        std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1122");
         patterns.push_back("3111");
@@ -546,8 +542,8 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() {
-        std::vector<string> patterns;
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() {
+        std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1100");
         patterns.push_back("3111");
@@ -562,8 +558,8 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUp() {
-        std::vector<string> patterns;
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUp() {
+        std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1112");
         patterns.push_back("1122");
@@ -584,8 +580,8 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDown() {
-        std::vector<string> patterns;
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDown() {
+        std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1110");
         patterns.push_back("1100");
@@ -606,8 +602,8 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUpDown() {
-        std::vector<string> patterns;
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiUpDown() {
+        std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1212");
         patterns.push_back("1113");
@@ -622,8 +618,8 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDownUp() {
-        std::vector<string> patterns;
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsPhiDownUp() {
+        std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1010");
         patterns.push_back("1113");
@@ -637,8 +633,8 @@ namespace NSWL1{
         return patterns;
     }
 
-    std::vector<string> L1TdrStgcTriggerLogic::sTGC_triggerPatterns() {
-        std::vector<string> patterns;
+    std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatterns() {
+        std::vector<std::string> patterns;
         return patterns;
     }
 }
