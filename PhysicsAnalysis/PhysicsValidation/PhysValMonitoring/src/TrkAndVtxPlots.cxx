@@ -19,7 +19,7 @@ void TrkAndVtxPlots::initializePlots(){
   vtx_y  = Book1D("y", "Vertex y; y ;Events", 300, -1.5, 1.5);
   vtx_z  = Book1D("z", "Vertex z; z ;Events", 200, -250., 250);
 
-  mu  = Book1D("mu", "Pileup; mu ;Events", 50, 0., 50);
+  mu  = Book1D("mu", "Pileup; mu ;Events", 120, 0., 120);
 }
 
 void TrkAndVtxPlots::fill(const xAOD::Vertex* vtx){
