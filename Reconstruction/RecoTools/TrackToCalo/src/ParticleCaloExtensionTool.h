@@ -1,13 +1,13 @@
 /*
    Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
+ */
 
-/***************************************************************************
-  ParticleCaloExtensionTool.h  -  Description
-  -------------------
-begin   : Summer 2014
-authors : Niels van Eldik (CERN PH-ATC)
-***************************************************************************/
+/*
+ * ParticleCaloExtensionTool.h  - implements the IParticleCaloExtenions Interface
+ * begin : Summer 2014
+ * updated : 2018 for AthenaMT
+ * authors : Niels van Eldik (CERN PH-ATC),Christos Anastopoulos
+ */
 
 #ifndef TRKPARTICLECREATOR_PARTICLECALOEXTENSIONTOOL_H
 #define TRKPARTICLECREATOR_PARTICLECALOEXTENSIONTOOL_H
@@ -15,6 +15,7 @@ authors : Niels van Eldik (CERN PH-ATC)
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 #include "xAODTracking/TrackParticle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h" 
 #include "xAODTracking/NeutralParticle.h"
@@ -42,14 +43,13 @@ public:
   virtual bool caloExtension( const xAOD::IParticle& particle, 
                               std::unique_ptr<Trk::CaloExtension>& extension ) const override final;
 
+  virtual bool caloExtension( const xAOD::IParticle& particle, 
+                              const Trk::CaloExtension* extension, 
+                              IParticleCaloExtensionTool::Cache& cache ) const override final;
 
   virtual bool caloExtension( const xAOD::IParticle& particle,
                               const Trk::CaloExtension* extension, 
                               const CaloExtensionCollection& cache ) const override final;
-
-  virtual bool caloExtension( const xAOD::IParticle& particle, 
-                              const Trk::CaloExtension* extension, 
-                              std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>& cache ) const override final;
 
   virtual StatusCode  caloExtensionCollection( const xAOD::IParticleContainer& particles, 
                                                const std::vector<bool>& mask,
@@ -67,11 +67,14 @@ private:
   std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::NeutralParticle& particle ) const;
   std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TrackParticle& particle ) const;
 
-  const AtlasDetectorID*       m_detID;
-  ToolHandle< IExtrapolator >  m_extrapolator;
-  ParticleHypothesis      m_particleType;
-  std::string             m_particleTypeName;
-  bool                    m_startFromPerigee;
+  ToolHandle<IExtrapolator >  m_extrapolator{this,"Extrapolator",
+    "Trk::Extrapolator/AtlasExtrapolator","The extrapolator Tool"};  
+  Gaudi::Property<std::string>  m_particleTypeName{this,"muon", 
+    "the particle type : muon, pion, nonInteracting"};
+  Gaudi::Property<bool>  m_startFromPerigee{this,"StartFromPerigee",false, "start from Perigee"};
+
+  const AtlasDetectorID* m_detID;
+  ParticleHypothesis  m_particleType ;
 };
 }
 

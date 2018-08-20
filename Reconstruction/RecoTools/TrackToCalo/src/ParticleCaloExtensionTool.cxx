@@ -7,7 +7,6 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
 #include "xAODTracking/TrackingPrimitives.h"
@@ -21,14 +20,8 @@ namespace Trk
 ParticleCaloExtensionTool::ParticleCaloExtensionTool(const std::string& t, const std::string& n, const IInterface*  p )
   : AthAlgTool(t,n,p),
   m_detID(nullptr),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_particleType(muon)
-  {
-
+  m_particleType(muon){
     declareInterface<IParticleCaloExtensionTool>(this);
-    declareProperty("Extrapolator",   m_extrapolator );
-    declareProperty("ParticleType",   m_particleTypeName = "muon" );
-    declareProperty("StartFromPerigee", m_startFromPerigee = false);
   }
 
 ParticleCaloExtensionTool::~ParticleCaloExtensionTool() {}
@@ -92,27 +85,9 @@ bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
   return extension.get()!=nullptr;
 }
 
-bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
-                                               const Trk::CaloExtension* extension, 
-                                               const CaloExtensionCollection& cache ) const{
-  size_t index=particle.index();
-  /*
-   * Protect against no proper usage
-   */
-  if(index < cache.size()){ 
-    extension=cache[index];
-  }else{
-    ATH_MSG_WARNING("cache size smaller than particle index");
-    extension=nullptr;
-    return false; 
-  }
-  /* If the CaloExtension has been properly created it will have intersections*/
-  return (extension->caloLayerIntersections().size()>0);
-}
-
 bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
                                                const Trk::CaloExtension*  extension, 
-                                               std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>& cache ) const{
+                                               IParticleCaloExtensionTool::Cache& cache ) const{
   extension=nullptr;
   auto findExtension= cache.find(particle.index());
   if (findExtension!=cache.end()){
@@ -128,6 +103,25 @@ bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
   return extension!=nullptr;
 }
 
+
+bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
+                                               const Trk::CaloExtension* extension, 
+                                               const CaloExtensionCollection& cache ) const{
+  size_t index=particle.index();
+  /*
+   * Protect against no proper usage
+   */
+  if(index < cache.size()){ 
+    extension=cache[index];
+  }else{
+    ATH_MSG_WARNING("cache size smaller than particle index");
+    extension=nullptr;
+    return false; 
+  }
+  /* If the CaloExtension has been properly created, then it will have intersections*/
+  return (extension->caloLayerIntersections().size()>0);
+}
+
 StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IParticleContainer& particles, 
                                                                const std::vector<bool>& mask,
                                                                CaloExtensionCollection& caloextensions) const{
@@ -136,6 +130,10 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
     ATH_MSG_ERROR("mask does not have the same size as in input collection");
     return StatusCode::FAILURE;
   }
+ 
+  /* Either create a proper CaloExtension or otherwise a dummy one
+   * i.e one with no intersections
+   */
   for (size_t i=0 ; i<numparticles; ++i){
     if (mask[i]==true){
       std::unique_ptr<Trk::CaloExtension> extension;
@@ -200,7 +198,6 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
 
   //Determine if the track was fit electron hypothesis -- so extrapolate as if the particles is non interacting
   ParticleHypothesis particleType = m_particleType;
-
   /* 
    * Electrons done separately here
    */
@@ -217,9 +214,7 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
     }
   }
 
-  /*
-   * More muon oriented logic
-   */
+  /* This is more muon system oriented part */
   if(m_startFromPerigee || !particle.track()){
     bool idExit = true;
     // Muon Entry is around z 6783 and r  4255 
@@ -318,8 +313,8 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension(
 
       const CurvilinearParameters* tmpcparams = dynamic_cast<const CurvilinearParameters*>(p.first);
       /*
-       * We need to handle the case of no cparams, or if cparams 
-       * make sure we have the right id and
+       * We need to handle the case of no tmpcparams, 
+       * or if tmpcparams  make sure we have the right id and
        * covariance (if present)
        */
       if( !tmpcparams ){
