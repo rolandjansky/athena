@@ -285,7 +285,7 @@ StatusCode MuGirlRecoTool::MuGirlReco(const InDetCandidateCollection& InDetSeeds
         /**
            get the extrapolation to the MS entry
         */
-        const Trk::CaloExtension* extension = 0;
+        std::unique_ptr<Trk::CaloExtension> extension = nullptr;
 
 	if (m_caloExtensionTool.empty()) continue;
 	if (!m_caloExtensionTool->caloExtension(tp_id, extension)) continue;

@@ -59,7 +59,7 @@ StatusCode TrackTools::finalize(){
 const Trk::TrackParameters* TrackTools::getTrackInCellSampling(const TRACK* track, CaloSampling::CaloSample sampling){
 //==================================================================================================
   if( !m_caloExtensionTool.empty() ){
-    const Trk::CaloExtension* extension = 0;
+    std::unique_ptr<Trk::CaloExtension> extension = nullptr;
     m_caloExtensionTool->caloExtension(*track, extension);
     if(!extension) return 0;
 
@@ -91,7 +91,7 @@ std::vector< double > TrackTools::getXYZEtaPhiInCellSampling(const TRACK* track,
 //==================================================================================================
   std::vector<double> coordinates;
   if( !m_caloExtensionTool.empty() ){
-    const Trk::CaloExtension* extension = 0;
+    std::unique_ptr<Trk::CaloExtension> extension = nullptr;
     m_caloExtensionTool->caloExtension(*track, extension);
     if(!extension) return coordinates;
 
