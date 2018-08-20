@@ -119,7 +119,7 @@ namespace xAOD {
     /// Convert jet transformation enum to string.
     std::string name(Type t);
     /// Convert string to jet transformation enum.
-    Type type(std::string name);
+    Type type(const std::string& name);
   }
 
 }
