@@ -298,9 +298,11 @@ def l2ElectronCaloStep( flags, chains ):
 def generateElectrons( flags ):
     acc = ComponentAccumulator()
 
+    electronChains = [ f.split()[0] for f in flags.get("Trigger.menu.electrons") + flags.get("Trigger.menu.electronsNoID") ]    
+    if not electronChains:
+        return None,None
 
     # L2 calo
-    electronChains = [ f.split()[0] for f in flags.get("Trigger.menu.electrons") + flags.get("Trigger.menu.electronsNoID") ]    
     l2CaloSequence = l2ElectronCaloStep( flags, electronChains )
     acc.merge( l2CaloSequence ) 
     
