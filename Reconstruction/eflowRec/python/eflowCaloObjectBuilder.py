@@ -37,8 +37,8 @@ def setup_eflowObjectBuilderTools(Configured, nameModifier,mlog):
 
         elif nameModifier == "EM_HLLHC":
             try:
-                from eflowRec.eflowCellLevelSubtractionToolDefault import eflowCellLevelSubtractionTool_HLLHC
-                CellLevelSubtractionTool = eflowCellLevelSubtractionTool_HLLHC("eflowCellLevelSubtractionTool_"+nameModifier)
+                from eflowRec.eflowCellLevelSubtractionToolDefault_HLLHC import eflowCellLevelSubtractionToolDefault_HLLHC
+                CellLevelSubtractionTool = eflowCellLevelSubtractionToolDefault_HLLHC("eflowCellLevelSubtractionTool_"+nameModifier)
             except:
                 mlog.error("could not import eflowRec.eflowCellLevelSubtractionTool")
                 print traceback.format_exc()

@@ -10,12 +10,12 @@ from eflowRec.eflowPreparationGetter import eflowPreparationGetter
 CaloObjectBuilderGetter = eflowPreparationGetter()
 
 #Need HLLHC specific items, so use HLLHC version
-from eflowRec.eflowCaloObjectBuilderGetter import eflowCaloObjectBuilderGetter_HLLHC
-ObjectBuilderToolsGetter = eflowCaloObjectBuilderGetter()
+from eflowRec.eflowCaloObjectBuilderGetter_HLLHC import eflowCaloObjectBuilderGetter_HLLHC
+ObjectBuilderToolsGetter = eflowCaloObjectBuilderGetter_HLLHC()
 
 #Need HLLHC specific items, so use HLLHC version
-from eflowRec.eflowObjectBuilderGetter import eflowObjectBuilderGetter_HLLHC
-ObjectBuilderGetter = eflowObjectBuilderGetter()
+from eflowRec.eflowObjectBuilderGetter_HLLHC import eflowObjectBuilderGetter_HLLHC
+ObjectBuilderGetter = eflowObjectBuilderGetter_HLLHC()
 
 if not jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
     from eflowRec.eflowRecConf import eflowVertexInformationSetter
