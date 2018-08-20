@@ -47,6 +47,7 @@ objects = [
 'xAOD::MuonAuxContainer_v1',
 'xAOD::MuonAuxContainer_v2',
 'xAOD::MuonAuxContainer_v3',
+'xAOD::MuonAuxContainer_v4',
 'xAOD::TrackParticleContainer_v1',
 'xAOD::TrackParticleAuxContainer_v1',
 'xAOD::TrackParticleAuxContainer_v2',
