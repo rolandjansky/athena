@@ -8,8 +8,10 @@
 find_package( FastJet )
 
 if( FASTJET_FOUND )
-  set( MADGRAPHCONTROLENVIRONMENT_ENVIRONMENT
-     FORCESET FASTJETPATH "${FASTJET_INCLUDE_DIR}/../" )
+  get_filename_component( _fastjetPath "${FASTJET_INCLUDE_DIR}" DIRECTORY )
+  set( MADGRAPHCONTROLENVIRONMENT_ENVIRONMENT 
+     FORCESET FASTJETPATH ${_fastjetPath} )
+  unset( _fastjetPath )
 endif()
 
 # Silently declare the module found:
