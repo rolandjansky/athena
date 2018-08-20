@@ -104,7 +104,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     declareProperty("AnalysisFile",m_analysisFile);
     declareProperty("AnalysisHistPattern",m_analysisHistPattern);
     declareProperty("VariablesToShift",m_systFilters);
-    declareProperty("IsData",m_isData); // TODO test this works with bool values
+    declareProperty("IsData",m_isData);
 
     ATH_MSG_DEBUG("Creating JetUncertaintiesTool named "<<m_name);
 
@@ -680,6 +680,7 @@ StatusCode JetUncertaintiesTool::initialize()
 
     // Ensure that we have nominal resolutions for any requested resolution uncertainties
     // Do this at initialization, even if it is also checked in execution
+    // Also ensure that it was specified whether this is data or MC if resolutions are specified
     for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
     {
         std::set<CompScaleVar::TypeEnum> scaleVars = m_groups.at(iGroup)->getScaleVars();
@@ -690,6 +691,11 @@ StatusCode JetUncertaintiesTool::initialize()
                 if (!m_resHelper->hasRelevantInfo(var,m_groups.at(iGroup)->getTopology()))
                 {
                     ATH_MSG_ERROR("Config file requests a resolution uncertainty without specifying the corresponding nominal resolution: " << CompScaleVar::enumToString(var).Data());
+                    return StatusCode::FAILURE;
+                }
+                if (m_isData == ExtendedBool::UNSET)
+                {
+                    ATH_MSG_ERROR("The tool has been configured including resolution uncertainties, but the user has not specified whether this is data or MC.  Please make sure to set the \"IsData\" tool property");
                     return StatusCode::FAILURE;
                 }
             }
@@ -2306,6 +2312,25 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
             Asking for both relative and absolute smearing is two separate scale variables
             The tool checks for such cases and explicitly blocks them
 
+        There is one exception to the above: a "data-MC difference" smearing
+            If MC is below data, then we smear MC to match data (nominal smearing)
+                This occurs if (sigma_nom^data - sigma_nom^MC) > 0
+            If data is below MC, we don't want to degrade the resolution of data to match MC
+                This occurs if (sigma_nom^data - sigma_nom^MC) < 0
+            We also can't anti-smear MC (at least not with Gaussian smearing)
+        Instead, smear by sigma_smear^2 = (sigma_nom + |Nsigma*[sigma_nom^data - sigma_nom^MC]|)^2 - (sigma_nom)^2
+            This should be smearing of data (sigma_nom = sigma_nom^data)
+            However, in the simple scenario, we only smear MC
+                Still apply the uncertainty as-is, with sigma_nom = sigma_nom^MC
+            Analysers need to symmetrize this uncertainty themselves
+        This does not need to be handled any different than other uncertainties in the code
+            However, the inputs will need to be made carefully to do the correct thing
+            In particular, smear data occurs if sign(unc) < 0
+            That is why it is written above as (sigma_nom^data - sigma_nom^MC) < 0
+            In other words, the histogram must be created to be <= 0
+            It should be <0 when data is below MC, and =0 when data is above MC
+                
+
         In the end, smear by a Gaussian of mean 1 and width sigma_smear
 
         ----------
@@ -2335,9 +2360,16 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
     */
 
     // Check if we need to do anything at all
-    if (variation == 0)
+    if (m_isData == ExtendedBool::UNSET)
+    {
+        // This has already been checked during initialize, so we should not end up here
+        // However, still ensure that the user has specified if this is data or MC
+        ATH_MSG_ERROR("Cannot apply resolution uncertainties as the user has not specified whether this is data or MC");
+        return JESUNC_ERROR_CODE;
+    }
+    else if (variation == 0)
         return 1; // No smearing if the variation is 0
-    else if (m_isData)
+    else if (m_isData == ExtendedBool::TRUE)
     {
         if (m_resHelper->smearOnlyMC())
             return 1; // No smearing if this is data and we are in the simple scenario
