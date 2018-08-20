@@ -25,7 +25,6 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IIoComponent.h"
 
 #include "AthenaBaseComps/FilteredAlgorithm.h"
@@ -55,7 +54,6 @@ namespace SG
  */
 
 class RegistrationStream : public FilteredAlgorithm,
-                           virtual public IIncidentListener,
                            virtual public IIoComponent 
 {
   friend class AlgFactory<RegistrationStream>;
@@ -67,7 +65,7 @@ public:
     /// Terminate RegistrationStream
     virtual StatusCode finalize();
 
-    virtual void handle(const Incident& incident);
+    virtual StatusCode stop();
 
     /// Working entry point
     virtual StatusCode execute();
