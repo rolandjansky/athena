@@ -1,4 +1,6 @@
-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include <cstdio>
 #include <iostream>
 #include <iomanip>
@@ -75,32 +77,6 @@ namespace LVL1MUONIF {
     return out;
 
   }
-
-  // void Lvl1MuSectorLogicDataPhase1::printOut( std::ostream& out ) const {
-
-  //   out << "Bit 0     " << " >2candidates in a sector ";
-  //   out << std::setw( 8 ) << m_2candidatesInSector << std::endl;
-
-  //   out << "Bit 1-9   " << " ROI<1>  +         OVL<1> ";
-  //   out << std::setw( 8 ) << m_roi[ 0 ] << " : " << m_ovl[ 0 ] << std::endl;
-  //   out << "Bit 10-18 " << " ROI<2>  +         OVL<2> ";
-  //   out << std::setw( 8 ) << m_roi[ 1 ] << " : " << m_ovl[ 1 ] << std::endl;
-  //   out << "Bit 19-21 " << " Pt1                      ";
-  //   out << std::setw( 8 ) << m_pt[ 0 ] << std::endl;
-  //   out << "Bit 22-24 " << " Pt2                      ";
-  //   out << std::setw( 8 ) << m_pt[ 1 ] << std::endl;
-  //   out << "Bit 25    " << " >2candidates in ROI1     ";
-  //   out << std::setw( 8 ) << m_2candidates[ 0 ] << std::endl;
-  //   out << "Bit 26    " << " >2candidates in ROI2     ";
-  //   out << std::setw( 8 ) << m_2candidates[ 1 ] << std::endl;
-  //   out << "Bit 27-29 " << " BCID                     ";
-  //   out << std::setw( 8 ) << m_bcid << std::endl;
-  //   out << "Bit 30    " << " charge in ROI1           ";
-  //   out << std::setw( 8 ) << m_charge[ 0 ] << std::endl;
-  //   out << "Bit 31    " << " charge in ROI2           ";
-  //   out << std::setw( 8 ) << m_charge[ 1 ] << std::endl;
-
-  // }
 
   void Lvl1MuSectorLogicDataPhase1::clear() {
     m_2candidatesInSector = false;

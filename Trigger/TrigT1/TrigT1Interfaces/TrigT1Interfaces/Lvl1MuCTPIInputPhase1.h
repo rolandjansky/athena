@@ -1,5 +1,7 @@
-
 // Dear emacs, this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef TRIGT1INTERFACES_LVL1MUCTPIINPUTPHASE1_H
 #define TRIGT1INTERFACES_LVL1MUCTPIINPUTPHASE1_H
 
@@ -108,23 +110,9 @@ namespace LVL1MUONIF {
 	return false;
       }
 
-     // for testing purposes only
-     // void duplicateToOtherBC(int bcidOffset);
-
      friend std::ostream& operator<<( std::ostream&, const Lvl1MuCTPIInputPhase1& );
 
-      /// To store object to file. (NOT TO BE USED ANYMORE...)
-      //bool storeInWordFormat( std::ofstream& fOut, bool ascii = true );
-
-      /// To retrieve object from file. (NOT TO BE USED ANYMORE...)
-      //bool retrieveInWordFormat( std::ifstream& fIn, bool ascii = true );
-
    private:
-     //bool storeInWordFormat( std::ofstream& fOut,
-     //                          bool ascii,
-     //                         size_t systemAddress,
-     //                         size_t subSystemAddress,
-     //                         size_t sectorAddress );
 
       size_t reserve( size_t systemAddress ,
 		      int    bcid=0         );

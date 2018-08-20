@@ -1,4 +1,6 @@
-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include <iostream>
 #include <iomanip>
 
@@ -173,7 +175,6 @@ namespace LVL1MUONIF {
 
   /////////////
   void Lvl1MuCTPIInputPhase1::clear( size_t systemAddress ) {
-    std::cout << "TW: SysAd: in " << systemAddress << "  size: " << m_data[systemAddress].size()  << std::endl;
     m_data[systemAddress].clear();
   }
 
@@ -185,36 +186,6 @@ namespace LVL1MUONIF {
 
 
   }
-
-//// routine for testing purposes only
-  // void Lvl1MuCTPIInputPhase1::duplicateToOtherBC(int bcidOffset) {
-
-  //   std::cout << "I am faking candidates for testing - do you really want that??" << std::endl;
-
-  //   std::vector<Lvl1MuVectWithBC> dataCopy[ NumberOfMuonSystem ];
-
-  //   for ( size_t id = 0; id < NumberOfMuonSystem; id++ ) {
-  //     dataCopy[ id ] = m_data[ id ];
-  //   }
-
-  //   for (std::vector<Lvl1MuVectWithBC>::iterator itb = dataCopy[Barrel].begin(); itb !=dataCopy[Barrel].end(); ++itb){
-  //     (*itb).first =bcidOffset ;
-  //   }
-  //   std::vector<Lvl1MuVectWithBC>::iterator itb = m_data[Barrel].end();
-  //   m_data[Barrel].insert(itb, dataCopy[Barrel].begin(), dataCopy[Barrel].end());
-
-  //   for (std::vector<Lvl1MuVectWithBC>::iterator ite = dataCopy[Endcap].begin(); ite !=dataCopy[Endcap].end(); ++ite){
-  //     (*ite).first =bcidOffset ;
-  //   }
-  //   std::vector<Lvl1MuVectWithBC>::iterator ite = m_data[Endcap].end();
-  //   m_data[Endcap].insert(ite, dataCopy[Endcap].begin(), dataCopy[Endcap].end());
-
-  //   for (std::vector<Lvl1MuVectWithBC>::iterator itf = dataCopy[Forward].begin(); itf !=dataCopy[Forward].end(); ++itf){
-  //     (*itf).first =bcidOffset ;
-  //   }
-  //   std::vector<Lvl1MuVectWithBC>::iterator itf = m_data[Forward].end();
-  //   m_data[Forward].insert(itf, dataCopy[Forward].begin(), dataCopy[Forward].end());
-  // }
 
 
   std::ostream& operator<<( std::ostream& out, const Lvl1MuCTPIInputPhase1& right ) {

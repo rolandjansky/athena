@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include <iomanip>
 #include <iostream>
 
@@ -217,74 +220,6 @@ namespace LVL1MUONIF {
 
     out << "Bit 12 " << " >2candidates in a sector ";
     out << std::setw( 8 ) << m_2candidatesInSector << std::endl;
-
-
-
-
-
-    // out << "Bit 0     " << " >2candidates in a sector ";
-    // out << std::setw( 8 ) << m_2candidatesInSector << std::endl;
-
-    // out << "Bit 1-5   " << " ROI<1>                   ";
-    // if ( m_roi[ 0 ] == -1 ) {
-    //   out << std::setw( 8 ) << "NA" << std::endl;
-    // } else {
-    //   out << std::setw( 8 ) << m_roi[ 0 ] << std::endl;
-    // }
-    // out << "Bit  6-7  " << " NA    " << std::endl;
-    // out << "Bit  8-9  " << " OVL<1>                   ";
-    // if ( m_ovl[ 0 ] == 0 ) {
-    //   out << std::setw( 8 ) << "No Ovl" << std::endl;
-    // } else if ( m_ovl[ 0 ] == 1 ) {
-    //   out << std::setw( 8 ) << "Phi" << std::endl;
-    // } else if ( m_ovl[ 0 ] == 2 ) {
-    //   out << std::setw( 8 ) << "Eta" << std::endl;
-    // } else if ( m_ovl[ 0 ] == 3 ) {
-    //   out << std::setw( 8 ) << "Phi,Eta" << std::endl;
-    // } else {
-    //   out << std::setw( 8 ) << "NA" << std::endl;
-    // }
-    // out << "Bit 10-14 " << " ROI<2>                   ";
-    // if ( m_roi[ 1 ] == -1 ) {
-    //   out << std::setw( 8 ) << "NA" << std::endl;
-    // } else {
-    //   out << std::setw( 8 ) << m_roi[ 1 ] << std::endl;
-    // }
-    // out << "Bit 15-16 " << " NA    " << std::endl;
-    // out << "Bit 17-18 " << " OVL<2>                   ";
-    // if ( m_ovl[ 1 ] == 0 ) {
-    //   out << std::setw( 8 ) << "No Ovl" << std::endl;
-    // } else if ( m_ovl[ 1 ] == 1 ) {
-    //   out << std::setw( 8 ) << "Phi" << std::endl;
-    // } else if ( m_ovl[ 1 ] == 2 ) {
-    //   out << std::setw( 8 ) << "Eta" << std::endl;
-    // } else if ( m_ovl[ 1 ] == 3 ) {
-    //   out << std::setw( 8 ) << "Phi,Eta" << std::endl;
-    // } else {
-    //   out << std::setw( 8 ) << "NA" << std::endl;
-    // }
-    // out << "Bit 19-21 " << " Pt1                      ";
-    // if ( m_pt[ 0 ] == -1 ) {
-    //   out << std::setw( 8 ) << "No Hit" << std::endl;
-    // } else {
-    //   out << std::setw( 8 ) << m_pt[ 0 ] << std::endl;
-    // }
-    // out << "Bit 22-24 " << " Pt2                      ";
-    // if ( m_pt[ 1 ] == -1 ) {
-    //   out << std::setw( 8 ) << "No Hit" << std::endl;
-    // } else {
-    //   out << std::setw( 8 ) << m_pt[ 1 ] << std::endl;
-    // }
-    // out << "Bit 25    " << " >2candidates in ROI1     ";
-    // out << std::setw( 8 ) << m_2candidates[ 0 ] << std::endl;
-    // out << "Bit 26    " << " >2candidates in ROI2     ";
-    // out << std::setw( 8 ) << m_2candidates[ 1 ] << std::endl;
-    // out << "Bit 27-29 " << " BCID                     ";
-    // out << std::setw( 8 ) << m_bcid << std::endl;
-    // out << "Bit 30    " << " charge in ROI1           ";
-    // out << std::setw( 8 ) << m_charge[ 0 ] << std::endl;
-    // out << "Bit 31    " << " charge in ROI2           ";
-    // out << std::setw( 8 ) << m_charge[ 1 ] << std::endl;
   }
 
 } // namespace LVL1MUONIF
