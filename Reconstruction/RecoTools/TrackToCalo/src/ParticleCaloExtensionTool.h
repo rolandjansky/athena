@@ -67,11 +67,9 @@ private:
   std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::NeutralParticle& particle ) const;
   std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TrackParticle& particle ) const;
 
-  ToolHandle<IExtrapolator >  m_extrapolator{this,"Extrapolator",
-    "Trk::Extrapolator/AtlasExtrapolator","The extrapolator Tool"};  
-  Gaudi::Property<std::string>  m_particleTypeName{this,"muon", 
-    "the particle type : muon, pion, nonInteracting"};
-  Gaudi::Property<bool>  m_startFromPerigee{this,"StartFromPerigee",false, "start from Perigee"};
+  PublicToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"}; 
+  Gaudi::Property<std::string>  m_particleTypeName{this,"ParticleType","muon","The particle type : muon, pion, nonInteracting"};
+  Gaudi::Property<bool>  m_startFromPerigee{this,"StartFromPerigee",false, "Start from Perigee"};
 
   const AtlasDetectorID* m_detID;
   ParticleHypothesis  m_particleType ;
