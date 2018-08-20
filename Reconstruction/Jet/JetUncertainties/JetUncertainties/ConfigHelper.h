@@ -55,7 +55,7 @@ class ComponentHelper
         PileupComp::TypeEnum pileupType;
         FlavourComp::TypeEnum flavourType;
         CombMassComp::TypeEnum combMassType;
-        bool interpolate;
+        Interpolate::TypeEnum interpolate;
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
         std::vector<int> truthLabels;

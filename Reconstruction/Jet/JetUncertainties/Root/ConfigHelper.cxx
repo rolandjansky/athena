@@ -67,7 +67,7 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     pileupType      = PileupComp::stringToEnum(name);
     flavourType     = FlavourComp::stringToEnum(name);
     combMassType    = CombMassComp::stringToEnum(combMassStr);
-    interpolate     = utils::getTypeObjFromString<bool>(interpolStr);
+    interpolate     = Interpolate::stringToEnum(interpolStr);
     uncNames        = utils::vectorize<TString>(uncNameList,", ");
     subComps        = utils::vectorize<TString>(subCompList,", ");
     truthLabels     = utils::vectorize<int>(truthLabelStr,", ");

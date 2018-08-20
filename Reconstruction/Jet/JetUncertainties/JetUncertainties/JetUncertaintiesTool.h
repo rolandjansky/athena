@@ -218,7 +218,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         // Smearing information
         long long int m_userSeed;
         mutable TRandom3 m_rand; // mutable as this we want to call in a const function (everything else is fixed, the random generator is modifiable)
-        jet::ExtendedBool::TypeEnum m_isData;
+        bool m_isData;
         jet::ResolutionHelper* m_resHelper;
 
         // Default prefix for each component name

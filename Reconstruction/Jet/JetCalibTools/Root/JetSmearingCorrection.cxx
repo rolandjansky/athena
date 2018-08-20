@@ -17,7 +17,9 @@ JetSmearingCorrection::JetSmearingCorrection(const std::string name)
     , m_jetOutScale("")
     , m_smearType(SmearType::UNKNOWN)
     , m_histType(HistType::UNKNOWN)
-    , m_smearingHist(NULL)
+    , m_interpType(InterpType::UNKNOWN)
+    , m_smearResolutionMC(NULL)
+    , m_smearResolutionData(NULL)
 { }
 
 JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool dev)
@@ -31,12 +33,23 @@ JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* conf
     , m_jetOutScale("")
     , m_smearType(SmearType::UNKNOWN)
     , m_histType(HistType::UNKNOWN)
-    , m_smearingHist(NULL)
+    , m_interpType(InterpType::UNKNOWN)
+    , m_smearResolutionMC(NULL)
+    , m_smearResolutionData(NULL)
 { }
  
 JetSmearingCorrection::~JetSmearingCorrection()
 {
-    // Nothing to do so far
+    if (m_smearResolutionMC)
+    {
+        delete m_smearResolutionMC;
+        m_smearResolutionMC = NULL;
+    }
+    if (m_smearResolutionData)
+    {
+        delete m_smearResolutionData;
+        m_smearResolutionData = NULL;
+    }
 }
 
 StatusCode JetSmearingCorrection::initializeTool(const std::string&)
@@ -97,6 +110,27 @@ StatusCode JetSmearingCorrection::initializeTool(const std::string&)
         return StatusCode::FAILURE;
     }
 
+    // Determine the histogram interpolation strategy
+    TString interpType = m_config->GetValue("SmearingCorrectionInterpType","");
+    if (interpType == "")
+    {
+        ATH_MSG_FATAL("No jet smearing histogram interpolation type was specified.  Aborting.");
+        return StatusCode::FAILURE;
+    }
+    else if (!interpType.CompareTo("full",TString::kIgnoreCase))
+        m_interpType = InterpType::Full;
+    else if (!interpType.CompareTo("none",TString::kIgnoreCase))
+        m_interpType = InterpType::None;
+    else if (!interpType.CompareTo("onlyx",TString::kIgnoreCase))
+        m_interpType = InterpType::OnlyX;
+    else if (!interpType.CompareTo("onlyy",TString::kIgnoreCase))
+        m_interpType = InterpType::OnlyY;
+    else
+    {
+        ATH_MSG_FATAL("Unrecognized jet smearing interpolation type: " << interpType.Data());
+        return StatusCode::FAILURE;
+    }
+
     // Find the ROOT file containing the smearing histogram, path comes from the config file
     TString smearingFile = m_config->GetValue("SmearingCorrectionFile","");
     if (smearingFile == "")
@@ -105,11 +139,17 @@ StatusCode JetSmearingCorrection::initializeTool(const std::string&)
         return StatusCode::FAILURE;
     }
 
-    // Find the name of the smearing histogram, from the config file
-    TString smearingHistName = m_config->GetValue("SmearingCorrectionHistName","");
-    if (smearingHistName == "")
+    // Find the name of the MC nominal resolution histogram, from the config file
+    TString smearingHistNameMC = m_config->GetValue("SmearingHistNameResolutionMC","");
+    if (smearingHistNameMC == "")
     {
-        ATH_MSG_FATAL("No jet smearing histogram name specified.  Aborting.");
+        ATH_MSG_FATAL("No MC jet smearing histogram name specified.  Aborting.");
+        return StatusCode::FAILURE;
+    }
+    TString smearingHistNameData = m_config->GetValue("SmearingHistNameResolutionData","");
+    if (smearingHistNameData == "")
+    {
+        ATH_MSG_FATAL("No data jet smearing histogram name specified.  Aborting.");
         return StatusCode::FAILURE;
     }
 
@@ -130,11 +170,17 @@ StatusCode JetSmearingCorrection::initializeTool(const std::string&)
         return StatusCode::FAILURE;
     }
 
-    //  Retrieve the histogram from the file
-    m_smearingHist = dynamic_cast<TH1*>(inputFile->Get(smearingHistName));
-    if (!m_smearingHist)
+    //  Retrieve the histogram froms the file
+    m_smearResolutionMC = dynamic_cast<TH1*>(inputFile->Get(smearingHistNameMC));
+    if (!m_smearResolutionMC)
     {
-        ATH_MSG_FATAL("Failed to get specified histogram from the file: " << smearingHistName.Data());
+        ATH_MSG_FATAL("Failed to get specified histogram from the file: " << smearingHistNameMC.Data());
+        return StatusCode::FAILURE;
+    }
+    m_smearResolutionData = dynamic_cast<TH1*>(inputFile->Get(smearingHistNameData));
+    if (!m_smearResolutionData)
+    {
+        ATH_MSG_FATAL("Failed to get specified histogram from the file: " << smearingHistNameData.Data());
         return StatusCode::FAILURE;
     }
 
@@ -143,18 +189,28 @@ StatusCode JetSmearingCorrection::initializeTool(const std::string&)
     switch (m_histType)
     {
         case HistType::Pt:
-            if (m_smearingHist->GetDimension() != 1)
+            if (m_smearResolutionMC->GetDimension() != 1)
             {
-                ATH_MSG_FATAL("Specified histogram has " << m_smearingHist->GetDimension() << " dimensions, but parametrization expects 1 dimension");
+                ATH_MSG_FATAL("Specified MC histogram has " << m_smearResolutionMC->GetDimension() << " dimensions, but parametrization expects 1 dimension");
+                return StatusCode::FAILURE;
+            }
+            if (m_smearResolutionData->GetDimension() != 1)
+            {
+                ATH_MSG_FATAL("Specified data histogram has " << m_smearResolutionData->GetDimension() << " dimensions, but parametrization expects 1 dimension");
                 return StatusCode::FAILURE;
             }
             break;
 
         case HistType::PtEta:
         case HistType::PtAbsEta:
-            if (m_smearingHist->GetDimension() != 2)
+            if (m_smearResolutionMC->GetDimension() != 2)
             {
-                ATH_MSG_FATAL("Specified histogram has " << m_smearingHist->GetDimension() << " dimensions, but parametrization expects 2 dimensions");
+                ATH_MSG_FATAL("Specified MC histogram has " << m_smearResolutionMC->GetDimension() << " dimensions, but parametrization expects 2 dimensions");
+                return StatusCode::FAILURE;
+            }
+            if (m_smearResolutionData->GetDimension() != 2)
+            {
+                ATH_MSG_FATAL("Specified data histogram has " << m_smearResolutionData->GetDimension() << " dimensions, but parametrization expects 2 dimensions");
                 return StatusCode::FAILURE;
             }
             break;
@@ -191,8 +247,23 @@ StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, dou
     else if ( x <= minX )
         x = minX + 1.e-6;
 
-    // All good!
-    returnValue = histo->Interpolate(x);
+    // Get the result, interpolating as appropriate
+    switch (m_interpType)
+    {
+        case InterpType::Full:
+        case InterpType::OnlyX:
+            returnValue = histo->Interpolate(x);
+            break;
+        
+        case InterpType::None:
+            returnValue = histo->GetBinContent(histo->GetXaxis()->FindBin(x));
+            break;
+
+        default:
+            ATH_MSG_ERROR("Unsupported interpolation type for a 1D histogram");
+            return StatusCode::FAILURE;
+    }
+
     return StatusCode::SUCCESS;
 }
 
@@ -226,8 +297,50 @@ StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, dou
     else if ( y <= minY )
         y = minY + 1.e-6;
 
-    // All good!
-    returnValue = histo->Interpolate(x);
+    // Get the result, interpolating as appropriate
+    // We need to use this as a 2D histogram to have access to the projection methods
+    // We also need a histogram to project into
+    TH2* localHist  = NULL;
+    TH1* projection = NULL;
+    switch (m_interpType)
+    {
+        case InterpType::Full:
+            returnValue = histo->Interpolate(x,y);
+            break;
+        
+        case InterpType::None:
+            returnValue = histo->GetBinContent(histo->GetXaxis()->FindBin(x),histo->GetYaxis()->FindBin(y));
+            break;
+
+        case InterpType::OnlyX:
+            localHist = dynamic_cast<TH2*>(histo);
+            if (!localHist)
+            {
+                ATH_MSG_ERROR("Could not convert the histogram to a TH2, please check inputs");
+                return StatusCode::FAILURE;
+            }
+            projection = localHist->ProjectionX("projx_2D",histo->GetYaxis()->FindBin(y),histo->GetYaxis()->FindBin(y));
+            returnValue = projection->Interpolate(x);
+            delete projection;
+            break;
+
+        case InterpType::OnlyY:
+            localHist = dynamic_cast<TH2*>(histo);
+            if (!localHist)
+            {
+                ATH_MSG_ERROR("Could not convert the histogram to a TH2, please check inputs");
+                return StatusCode::FAILURE;
+            }
+            projection = localHist->ProjectionY("projy_2D",histo->GetXaxis()->FindBin(x),histo->GetXaxis()->FindBin(x));
+            returnValue = projection->Interpolate(y);
+            delete projection;
+            break;
+
+        default:
+            ATH_MSG_ERROR("Unsupported interpolation type for a 2D histogram");
+            return StatusCode::FAILURE;
+    }
+
     return StatusCode::SUCCESS;
 }
 
@@ -267,36 +380,55 @@ StatusCode JetSmearingCorrection::readHisto(double& returnValue, TH1* histo, dou
     else if ( z <= minZ )
         z = minZ + 1.e-6;
 
-    // All good!
-    returnValue = histo->Interpolate(x);
+    // Get the result, interpolating as appropriate
+    // We need to use this as a 3D histogram to have access to the projection methods
+    // We also need a histogram to project into
+    TH3* localHist  = NULL;
+    TH1* projection = NULL;
+    switch (m_interpType)
+    {
+        case InterpType::Full:
+            returnValue = histo->Interpolate(x,y,z);
+            break;
+        
+        case InterpType::None:
+            returnValue = histo->GetBinContent(histo->GetXaxis()->FindBin(x),histo->GetYaxis()->FindBin(y),histo->GetZaxis()->FindBin(z));
+            break;
+
+        case InterpType::OnlyX:
+            localHist = dynamic_cast<TH3*>(histo);
+            if (!localHist)
+            {
+                ATH_MSG_ERROR("Could not convert the histogram to a TH3, please check inputs");
+                return StatusCode::FAILURE;
+            }
+            projection = localHist->ProjectionX("projx_3D",histo->GetYaxis()->FindBin(y),histo->GetYaxis()->FindBin(y),histo->GetZaxis()->FindBin(z),histo->GetZaxis()->FindBin(z));
+            returnValue = projection->Interpolate(x);
+            delete projection;
+            break;
+
+        case InterpType::OnlyY:
+            localHist = dynamic_cast<TH3*>(histo);
+            if (!localHist)
+            {
+                ATH_MSG_ERROR("Could not convert the histogram to a TH3, please check inputs");
+                return StatusCode::FAILURE;
+            }
+            projection = localHist->ProjectionY("projy_3D",histo->GetXaxis()->FindBin(x),histo->GetXaxis()->FindBin(x),histo->GetZaxis()->FindBin(z),histo->GetZaxis()->FindBin(z));
+            returnValue = projection->Interpolate(y);
+            delete projection;
+            break;
+
+        default:
+            ATH_MSG_ERROR("Unsupported interpolation type for a 3D histogram");
+            return StatusCode::FAILURE;
+    }
+
     return StatusCode::SUCCESS;
 }
 
 StatusCode JetSmearingCorrection::getSigmaSmear(xAOD::Jet& jet, double& sigmaSmear) const
 {
-    switch (m_histType)
-    {
-        case HistType::Pt:
-            return readHisto(sigmaSmear,m_smearingHist,jet.pt());
-
-        case HistType::PtEta:
-            return readHisto(sigmaSmear,m_smearingHist,jet.pt(),jet.eta());
-
-        case HistType::PtAbsEta:
-            return readHisto(sigmaSmear,m_smearingHist,jet.pt(),fabs(jet.eta()));
-
-        default:
-            // We should never reach this, it was checked during initialization
-            ATH_MSG_ERROR("Cannot get the smearing factor, the smearing histogram type was not set");
-            return StatusCode::FAILURE;
-    }
-}
-
-
-StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const
-{
-    // Apply the jet smearing correction
-
     /*
         Nominal jet smearing
             If sigma_data > sigma_MC, then we want to smear MC to match data
@@ -310,6 +442,54 @@ StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) c
 
         Note that data is never smeared, as blocked in JetCalibrationTool.cxx
     */
+
+    double resolutionMC   = 0;
+    double resolutionData = 0;
+
+    switch (m_histType)
+    {
+        case HistType::Pt:
+            if (readHisto(resolutionMC,m_smearResolutionMC,jet.pt()).isFailure())
+                return StatusCode::FAILURE;
+            if (readHisto(resolutionData,m_smearResolutionData,jet.pt()).isFailure())
+                return StatusCode::FAILURE;
+            break;
+
+        case HistType::PtEta:
+            if (readHisto(resolutionMC,m_smearResolutionMC,jet.pt(),jet.eta()).isFailure())
+                return StatusCode::FAILURE;
+            if (readHisto(resolutionData,m_smearResolutionData,jet.pt(),jet.eta()).isFailure())
+                return StatusCode::FAILURE;
+            break;
+
+        case HistType::PtAbsEta:
+            if (readHisto(resolutionMC,m_smearResolutionMC,jet.pt(),fabs(jet.eta())).isFailure())
+                return StatusCode::FAILURE;
+            if (readHisto(resolutionData,m_smearResolutionData,jet.pt(),fabs(jet.eta())).isFailure())
+                return StatusCode::FAILURE;
+            break;
+
+        default:
+            // We should never reach this, it was checked during initialization
+            ATH_MSG_ERROR("Cannot get the smearing factor, the smearing histogram type was not set");
+            return StatusCode::FAILURE;
+    }
+    
+    // Nominal smearing only if data resolution is larger than MC resolution
+    // This is because we want to smear the MC to match the data
+    // if MC is larger than data, don't make the nominal data worse, so smear is 0
+    if (resolutionMC < resolutionData)
+        sigmaSmear = sqrt(resolutionData - resolutionMC);
+    else
+        sigmaSmear = 0;
+
+    return StatusCode::SUCCESS;
+}
+
+
+StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const
+{
+    // Apply the jet smearing correction
 
     // Calculate the smearing width to use
     double sigmaSmear = 0;

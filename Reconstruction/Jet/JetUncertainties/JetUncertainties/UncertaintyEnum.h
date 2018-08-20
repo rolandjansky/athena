@@ -184,6 +184,20 @@ namespace ExtendedBool
     };
 }
 
+namespace Interpolate
+{
+    enum TypeEnum
+    {
+        UNKNOWN=0,      // Failure/unset/etc
+        None,           // No interpolation
+        Full,           // Full interpolation
+        OnlyX,          // Interpolate only in the x-direction (hold y,z fixed)
+        OnlyY           // Interpolate only in the y-direction (hold x,z fixed)
+    };
+    TString enumToString(const TypeEnum type);
+    TypeEnum stringToEnum(const TString type);
+}
+
 } // end jet namespace
 
 #endif

@@ -134,14 +134,14 @@ StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const T
 
     // Split the string
     std::vector<TString> splitValue = utils::vectorize<TString>(value,", ");
-    if (splitValue.size() < 2)
+    if (splitValue.size() < 3)
     {
-        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (less than 2 strings): " << value.Data());
+        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (less than 3 strings): " << value.Data());
         return StatusCode::FAILURE;
     }
-    else if (splitValue.size() > 3)
+    else if (splitValue.size() > 4)
     {
-        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (more than 3 strings): " << value.Data());
+        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (more than 4 strings): " << value.Data());
         return StatusCode::FAILURE;
     }
     
@@ -153,24 +153,32 @@ StatusCode ResolutionHelper::parseInput(TEnv& settings, TFile* histFile, const T
         return StatusCode::FAILURE;
     }
 
+    // Ensure that the interpolation type is valid
+    Interpolate::TypeEnum interp = Interpolate::stringToEnum(splitValue.at(2));
+    if (interp == Interpolate::UNKNOWN)
+    {
+        ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected interpolation type: " << splitValue.at(2));
+        return StatusCode::FAILURE;
+    }
+
     // If this is a mass parametrization, ensure that a mass definition was specified
     if (CompParametrization::includesMass(param))
     {
-        if (splitValue.size() != 3)
+        if (splitValue.size() != 4)
         {
             ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected value format (missing mass definition): " << value.Data());
             return StatusCode::FAILURE;
         }
-        massDef = CompMassDef::stringToEnum(splitValue.at(2));
+        massDef = CompMassDef::stringToEnum(splitValue.at(3));
         if (massDef == CompMassDef::UNKNOWN)
         {
-            ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected mass definition: " << splitValue.at(2));
+            ATH_MSG_ERROR("Key of " << key.Data() << " has unexpected mass definition: " << splitValue.at(3));
             return StatusCode::FAILURE;
         }
     }
 
     // Create the histogram
-    hist = new UncertaintyHistogram(splitValue.at(0)+"_"+m_jetDef.c_str(),true);
+    hist = new UncertaintyHistogram(splitValue.at(0)+"_"+m_jetDef.c_str(),interp);
 
     // Initialize the histogram
     if (hist->initialize(histFile).isFailure())

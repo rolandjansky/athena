@@ -510,5 +510,40 @@ namespace JetTopology
     }
 }
 
+
+//////////////////////////////////////////////////
+//                                              //
+//  Histogram interpolation enumeration methods //
+//                                              //
+//////////////////////////////////////////////////
+
+namespace Interpolate
+{
+    TString enumToString(const TypeEnum type)
+    {
+        switch(type)
+        {
+            case None:  return "None";
+            case Full:  return "Full";
+            case OnlyX: return "X";
+            case OnlyY: return "Y";
+            default:    return "UNKNOWN";
+        }
+    }
+
+    TypeEnum stringToEnum(const TString type)
+    {
+        if (!type.CompareTo("None",TString::kIgnoreCase) || !type.CompareTo("false",TString::kIgnoreCase))
+            return None;
+        if (!type.CompareTo("Full",TString::kIgnoreCase) || !type.CompareTo("true",TString::kIgnoreCase))
+            return Full;
+        if (!type.CompareTo("OnlyX",TString::kIgnoreCase))
+            return OnlyX;
+        if (!type.CompareTo("OnlyY",TString::kIgnoreCase))
+            return OnlyY;
+        return UNKNOWN;
+    }
+}
+
 } // end jet namespace
 

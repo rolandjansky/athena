@@ -67,7 +67,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
-    , m_calibArea("CalibArea-03")
+    , m_calibArea("CalibArea-04")
     , m_path("")
     , m_analysisFile("")
     , m_analysisHistPattern("")
@@ -92,7 +92,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(0)
     , m_rand()
-    , m_isData(ExtendedBool::UNSET)
+    , m_isData(true)
     , m_resHelper(NULL)
     , m_namePrefix("JET_")
 {
@@ -396,8 +396,8 @@ StatusCode JetUncertaintiesTool::initialize()
     const TString TAMassWeight   = TString(settings.GetValue("CombMassWeightTAHist",""));
     if (caloMassWeight != "" && TAMassWeight != "")
     {
-        m_caloMassWeight = new UncertaintyHistogram(caloMassWeight+"_"+m_jetDef.c_str(),true);
-        m_TAMassWeight = new UncertaintyHistogram(TAMassWeight+"_"+m_jetDef.c_str(),true);
+        m_caloMassWeight = new UncertaintyHistogram(caloMassWeight+"_"+m_jetDef.c_str(),Interpolate::Full);
+        m_TAMassWeight = new UncertaintyHistogram(TAMassWeight+"_"+m_jetDef.c_str(),Interpolate::Full);
 
         if (m_caloMassWeight->initialize(histFile).isFailure())
             return StatusCode::FAILURE;
@@ -461,7 +461,7 @@ StatusCode JetUncertaintiesTool::initialize()
             m_refNPV = utils::getTypeObjFromString<float>(refNPV);
         else
         {
-            m_refNPVHist = new UncertaintyHistogram(refNPV+"_"+m_jetDef,false);
+            m_refNPVHist = new UncertaintyHistogram(refNPV+"_"+m_jetDef,Interpolate::None);
             if (m_refNPVHist->initialize(histFile).isFailure())
                 return StatusCode::FAILURE;
         }
@@ -470,7 +470,7 @@ StatusCode JetUncertaintiesTool::initialize()
             m_refMu = utils::getTypeObjFromString<float>(refMu);
         else
         {
-            m_refMuHist = new UncertaintyHistogram(refMu+"_"+m_jetDef,false);
+            m_refMuHist = new UncertaintyHistogram(refMu+"_"+m_jetDef,Interpolate::None);
             if (m_refMuHist->initialize(histFile).isFailure())
                 return StatusCode::FAILURE;
         }
@@ -691,11 +691,6 @@ StatusCode JetUncertaintiesTool::initialize()
                 if (!m_resHelper->hasRelevantInfo(var,m_groups.at(iGroup)->getTopology()))
                 {
                     ATH_MSG_ERROR("Config file requests a resolution uncertainty without specifying the corresponding nominal resolution: " << CompScaleVar::enumToString(var).Data());
-                    return StatusCode::FAILURE;
-                }
-                if (m_isData == ExtendedBool::UNSET)
-                {
-                    ATH_MSG_ERROR("The tool has been configured including resolution uncertainties, but the user has not specified whether this is data or MC.  Please make sure to set the \"IsData\" tool property");
                     return StatusCode::FAILURE;
                 }
             }
@@ -2314,22 +2309,35 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
 
         There is one exception to the above: a "data-MC difference" smearing
             If MC is below data, then we smear MC to match data (nominal smearing)
-                This occurs if (sigma_nom^data - sigma_nom^MC) > 0
+                Occurs if (sigma_nom^MC - sigma_nom^data) < 0, or equivalently (sigma_nom^data - sigma_nom^MC) > 0
             If data is below MC, we don't want to degrade the resolution of data to match MC
-                This occurs if (sigma_nom^data - sigma_nom^MC) < 0
+                Occurs if (sigma_nom^MC - sigma_nom^data) > 0, or equivalently (sigma_nom^data - sigma_nom^MC) < 0
             We also can't anti-smear MC (at least not with Gaussian smearing)
         Instead, smear by sigma_smear^2 = (sigma_nom + |Nsigma*[sigma_nom^data - sigma_nom^MC]|)^2 - (sigma_nom)^2
-            This should be smearing of data (sigma_nom = sigma_nom^data)
-            However, in the simple scenario, we only smear MC
-                Still apply the uncertainty as-is, with sigma_nom = sigma_nom^MC
-            Analysers need to symmetrize this uncertainty themselves
+            This uses the second form of the above inequalities to stick with convention
+            This way, we signify that we are smearing data (uncertainty < 0 if Nsigma > 0)
+        This should be smearing of data (sigma_nom = sigma_nom^data)
+            However, in the simple scenario, we still only smear MC
+                Apply the uncertainty as-is, with sigma_nom = sigma_nom^MC
+                This is actually "conservative" (in magnitude, not necessarily in correlations)
+                    |Nsigma*(sigma_nom^data - sigma_nom^MC)| is a fixed value independent of choice, call it X
+                    sigma_smear^2 = (sigma_nom + X)^2 - (sigma_nom)^2
+                    sigma_smear^2 = sigma_nom^2 [ (1 + X/sigma_nom)^2 - 1 ]
+                    Taylor expand: sigma_smear^2 ~ sigma_nom^2 ( 1 + 2*X/sigma_nom - 1 )
+                    sigma_smear^2 ~ sigma_nom^2 * 2 X / sigma_nom
+                    sigma_smear^2 ~ sigma_nom * 2 X
+                    Therefore, larger sigma_nom --> larger sigma_smear
+                    In this case, we know that sigma_nom^MC > sigma_nom^data (motivation for uncertainty)
+                    As such, sigma_nom = sigma_nom^MC is conservative
         This does not need to be handled any different than other uncertainties in the code
             However, the inputs will need to be made carefully to do the correct thing
             In particular, smear data occurs if sign(unc) < 0
             That is why it is written above as (sigma_nom^data - sigma_nom^MC) < 0
             In other words, the histogram must be created to be <= 0
             It should be <0 when data is below MC, and =0 when data is above MC
-                
+            This *could* be calculated on-the-fly from the two nominal histograms
+                This requires substantial code development, as now this one NP is different from all others
+                In the interest of time and code re-use, instead demand an extra histogram input
 
         In the end, smear by a Gaussian of mean 1 and width sigma_smear
 
@@ -2360,16 +2368,9 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
     */
 
     // Check if we need to do anything at all
-    if (m_isData == ExtendedBool::UNSET)
-    {
-        // This has already been checked during initialize, so we should not end up here
-        // However, still ensure that the user has specified if this is data or MC
-        ATH_MSG_ERROR("Cannot apply resolution uncertainties as the user has not specified whether this is data or MC");
-        return JESUNC_ERROR_CODE;
-    }
-    else if (variation == 0)
+    if (variation == 0)
         return 1; // No smearing if the variation is 0
-    else if (m_isData == ExtendedBool::TRUE)
+    else if (m_isData)
     {
         if (m_resHelper->smearOnlyMC())
             return 1; // No smearing if this is data and we are in the simple scenario

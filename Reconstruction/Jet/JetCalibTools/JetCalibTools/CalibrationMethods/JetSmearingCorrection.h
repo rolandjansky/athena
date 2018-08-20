@@ -49,6 +49,14 @@ class JetSmearingCorrection
             PtEta,      // 2D histogram, binned in x=pT y=eta
             PtAbsEta    // 2D histogram, binned in x=pT y=|eta|
         };
+        enum class InterpType
+        {
+            UNKNOWN=0,  // Unknown/unset/etc
+            Full,       // Full interpolation
+            None,       // No interpolation
+            OnlyX,      // Interpolate only in the x dimension
+            OnlyY       // Interpolate only in the y dimension
+        };
 
         // Class variables from constructor
         TEnv* m_config;
@@ -60,9 +68,11 @@ class JetSmearingCorrection
         // Class variables read in from the config file
         TString m_jetStartScale;
         TString m_jetOutScale;
-        SmearType m_smearType;
-        HistType  m_histType;
-        TH1* m_smearingHist;
+        SmearType  m_smearType;
+        HistType   m_histType;
+        InterpType m_interpType;
+        TH1* m_smearResolutionMC;
+        TH1* m_smearResolutionData;
 };
 
 

@@ -53,7 +53,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         const CompScaleVar::TypeEnum m_scaleVar;
         const JetTopology::TypeEnum m_topology;
         const float m_energyScale;
-        const bool m_interpolate;
+        const Interpolate::TypeEnum m_interpolate;
         const int m_splitNumber;
         
         int m_numExpectedHist;
