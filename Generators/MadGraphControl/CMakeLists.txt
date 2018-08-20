@@ -15,3 +15,9 @@ atlas_install_generic( share/*.dat share/lhapdf-config share/fastjet-config
                        DESTINATION share
                        EXECUTABLE )
 
+# Set up the general runtime environment:
+set( MadGraphControlEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of MadGraphControlEnvironment.cmake" )
+find_package( MadGraphControlEnvironment )
+
+
