@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# art-description: DirectIOART AthenaMP inputFile:RDO protocol=DAVS
+# art-description: DirectIOART AthenaMP Reco_tf.py inputFile:RDO protocol=DAVS
 # art-type: grid
 # art-output: *.pool.root
 # art-include: 21.0/Athena
