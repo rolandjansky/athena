@@ -18,7 +18,7 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
-#include "SCT_ConditionsData/SCT_MonitorConditionsCondData.h"
+#include "SCT_ConditionsData/SCT_MonitorCondData.h"
 
 // Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
@@ -107,11 +107,11 @@ private:
   mutable std::mutex m_mutex;
   // Cache to store events for slots
   mutable std::vector<EventContext::ContextEvt_t> m_cache;
-  // Pointer of SCT_MonitorConditionsCondData
-  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MonitorConditionsCondData> m_condData;
+  // Pointer of SCT_MonitorCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MonitorCondData> m_condData;
 
-  SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey{this, "CondKey", "SCT_MonitorConditionsCondData", "SCT noisy strips"};
-  const SCT_MonitorConditionsCondData* getCondData(const EventContext& ctx) const;
+  SG::ReadCondHandleKey<SCT_MonitorCondData> m_condKey{this, "CondKey", "SCT_MonitorCondData", "SCT noisy strips"};
+  const SCT_MonitorCondData* getCondData(const EventContext& ctx) const;
 };
 
 #endif // SCT_MONITORCONDITIONSTOOL_SCT_MONITORCONDITIONSTOOL_H

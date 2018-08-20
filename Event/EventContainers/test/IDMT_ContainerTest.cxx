@@ -602,9 +602,9 @@ int ID_ContainerTest::execute(){
     }
     {
     MyCollectionContainer::IDC_WriteHandle lock;
-    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(50)));
-    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(50)));//Try to break the locks
-    lock = std::move(containerOnline->getWriteHandle(IdentifierHash(60)));
+    lock = containerOnline->getWriteHandle(IdentifierHash(50));
+    lock = containerOnline->getWriteHandle(IdentifierHash(50));//Try to break the locks
+    lock = containerOnline->getWriteHandle(IdentifierHash(60));
     lock = containerOnline->getWriteHandle(IdentifierHash(70));
     }
 

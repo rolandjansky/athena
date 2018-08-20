@@ -6,24 +6,24 @@
 // Implementation file for the data object class for SCT_MonitorConditionsSvc
 //----------------------------------------------------------------------
 
-#include "SCT_ConditionsData/SCT_MonitorConditionsCondData.h"
+#include "SCT_ConditionsData/SCT_MonitorCondData.h"
 
 #include <utility>
 
 //----------------------------------------------------------------------
 // Constructor
-SCT_MonitorConditionsCondData::SCT_MonitorConditionsCondData():
+SCT_MonitorCondData::SCT_MonitorCondData():
   m_defectListMap{}
 {}
 
 //----------------------------------------------------------------------
 // Destructor
-SCT_MonitorConditionsCondData::~SCT_MonitorConditionsCondData()
+SCT_MonitorCondData::~SCT_MonitorCondData()
 {}
 
 //----------------------------------------------------------------------
 // Check if a module has a defect (a list of bad strips). If it does not have defect return false.
-bool SCT_MonitorConditionsCondData::find(const int& channelNumber, std::string& defectList) const
+bool SCT_MonitorCondData::find(const int& channelNumber, std::string& defectList) const
 {
   std::map<const int, const std::string>::const_iterator it{m_defectListMap.find(channelNumber)};
   if(it!=m_defectListMap.end()) {
@@ -37,14 +37,14 @@ bool SCT_MonitorConditionsCondData::find(const int& channelNumber, std::string& 
 
 //----------------------------------------------------------------------
 // Insert a new defect (a list of bad strips) for a module
-void SCT_MonitorConditionsCondData::insert(const int& channelNumber, const std::string& defectList)
+void SCT_MonitorCondData::insert(const int& channelNumber, const std::string& defectList)
 {
   m_defectListMap.insert(std::make_pair(channelNumber, defectList));
 }
 
 //----------------------------------------------------------------------
 // Clear m_defectListMap
-void SCT_MonitorConditionsCondData::clear()
+void SCT_MonitorCondData::clear()
 {
   m_defectListMap.clear();
 }

@@ -3,13 +3,13 @@
 */
 
 /**
- * @file SCT_MonitorConditionsCondData.h
+ * @file SCT_MonitorCondData.h
  * header file for data object
  * @author Susumu Oda - 2017-07-26
  **/
 
-#ifndef SCT_MONITORCONDITIONSCONDDATA_H
-#define SCT_MONITORCONDITIONSCONDDATA_H
+#ifndef SCT_MONITORCONDDATA_H
+#define SCT_MONITORCONDDATA_H
 
 #include <map>
 #include <string>
@@ -17,14 +17,14 @@
 // Include Athena stuff
 #include "AthenaKernel/CLASS_DEF.h"
 
-class SCT_MonitorConditionsCondData {
+class SCT_MonitorCondData {
 public:
 
   // Constructor
-  SCT_MonitorConditionsCondData();
+  SCT_MonitorCondData();
 
   // Destructor
-  virtual ~SCT_MonitorConditionsCondData();
+  virtual ~SCT_MonitorCondData();
 
   // Check if a module has a defect (a list of bad strips). If it does not have defect return false.
   bool find(const int& channelNumber, std::string& defectList) const;
@@ -41,10 +41,10 @@ private:
 
 };
 
-CLASS_DEF( SCT_MonitorConditionsCondData , 153824898 , 1 )
+CLASS_DEF( SCT_MonitorCondData , 190515334 , 1 )
 
 #include "AthenaKernel/CondCont.h"
-CONDCONT_DEF( SCT_MonitorConditionsCondData, 30296880 );
+CONDCONT_DEF( SCT_MonitorCondData, 164599336 );
 
 
-#endif // SCT_MONITORCONDITIONSCONDDATA_H
+#endif // SCT_MONITORCONDDATA_H
