@@ -653,14 +653,14 @@ def main():
             for qtest in qTestsToRun:
                 q=str(qtest)
 
-                def mycleanqtest():
+                def mycleanqtest(q=q):
                     if RunSim:
                         RunCleanSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
                         RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
 
-                def mypatchedqtest():
+                def mypatchedqtest(q=q):
                     if RunSim:
                         RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
                     else:
@@ -680,7 +680,7 @@ def main():
             for qtest in qTestsToRun:
                 q=str(qtest)
 
-                def mypatchedqtest():
+                def mypatchedqtest(q=q):
                     if RunSim:
                         RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     else:
@@ -699,14 +699,14 @@ def main():
             for qtest in qTestsToRun:
                 q=str(qtest)
 
-                def mycleanqtest():
+                def mycleanqtest(q=q):
                     if RunSim:
                         RunCleanSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
                     else:   
                         RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,trigConfig=trigRun2Config)
                     pass
                 
-                def mypatchedqtest():
+                def mypatchedqtest(q=q):
                     if RunSim:
                         RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
                     else:   
