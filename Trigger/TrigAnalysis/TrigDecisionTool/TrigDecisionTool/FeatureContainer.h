@@ -145,7 +145,7 @@ namespace Trig {
     public:
       template<class T>
       bool operator()(Feature<T> a, Feature<T> b) const;
-      bool weakOrder(const HLT::TriggerElement* te_a, const HLT::TriggerElement* te_b, void* obj_a, void* obj_b);
+      bool weakOrder(const HLT::TriggerElement* te_a, const HLT::TriggerElement* te_b, void* obj_a, void* obj_b) const;
     };
 
   };

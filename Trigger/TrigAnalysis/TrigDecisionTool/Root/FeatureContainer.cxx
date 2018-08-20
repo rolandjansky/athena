@@ -79,7 +79,7 @@ Trig::FeatureContainer::navigation() const {
 
 bool 
 Trig::FeatureContainer::ordering_by_objects_attached2::weakOrder(const HLT::TriggerElement* a, const HLT::TriggerElement* b,
-                                                                 void* obj_a, void* obj_b) {
+                                                                 void* obj_a, void* obj_b) const {
   // returning False -> no insertion into set
   // returning True -> insertion into set
   // each pair of candidates is tested twice (if test returns False twice, then no insertion into set)
