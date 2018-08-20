@@ -208,7 +208,15 @@ higg5d1Seq += CfgMgr.DerivationFramework__DerivationKernel(
 if not "HIGG5D1Jets" in OutputJets:
     OutputJets["HIGG5D1Jets"] = []
 
-    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
+    # TCC JETS reconstruction
+    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+    # Set up geometry and BField
+    import AthenaCommon.AtlasUnixStandardJob
+
+    include("RecExCond/AllDet_detDescr.py")
+    runTCCReconstruction(higg5d1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", 'AntiKt10TrackCaloClusterJets']
     if jetFlags.useTruth:
         reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
     replaceAODReducedJets(reducedJetList, higg5d1Seq, "HIGG5D1Jets")
@@ -217,15 +225,7 @@ if not "HIGG5D1Jets" in OutputJets:
     if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg5d1Seq,'HIGG5D1Jets')
 
-    #=======================================
-    # TCC JETS
-    #=======================================
-    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
-    # Set up geometry and BField
-    import AthenaCommon.AtlasUnixStandardJob
-
-    include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(higg5d1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    # TCC trimmed jets
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
     addTCCTrimmedJets(higg5d1Seq, "HIGG5D1Jets")
 
