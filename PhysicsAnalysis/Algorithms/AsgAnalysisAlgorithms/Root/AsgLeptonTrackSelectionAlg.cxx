@@ -132,7 +132,7 @@ namespace CP
               const float d0sig = xAOD::TrackingHelpers::d0significance
                 (track, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(),
                  eventInfo->beamPosSigmaXY());
-              m_accept.setCutResult (cutIndex ++, d0sig < m_maxD0Significance);
+              m_accept.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
             }
             if (m_maxDeltaZ0SinTheta > 0)
             {
