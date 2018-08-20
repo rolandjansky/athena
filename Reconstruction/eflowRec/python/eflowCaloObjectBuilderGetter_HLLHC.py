@@ -4,7 +4,7 @@ from AthenaCommon.Logging import logging  # loads logger
 import traceback # to allow printout of trace back
 from RecExConfig.Configured import Configured # import base class
 
-class eflowCaloObjectBuilderGetter ( Configured )  :
+class eflowCaloObjectBuilderGetter_HLLHC ( Configured )  :
 
     def configure(self):
 
