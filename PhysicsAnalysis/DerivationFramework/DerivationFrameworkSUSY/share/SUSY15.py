@@ -147,7 +147,6 @@ SUSY15ThinningHelper.AppendToStream( SUSY15Stream )
 
 ### Thinning for now taken from SUSY 2 with minor modifications as indicated /CO
 
-
 #====================================================================
 # THINNING TOOLS
 #====================================================================
@@ -284,6 +283,44 @@ if DerivationFrameworkIsMonteCarlo:
   # commented out until the problem is fixed
   #ToolSvc += TrkParam4Truth
   #AugmentationTools.append(TrkParam4Truth)
+
+  
+  from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__LongLivedTruthJetKinematics
+  TruthJetKinematicsToolRHadron = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsRHadron",
+    OutputContainer = "AntiKt4LLP_RHadronTruthJets",
+    LLPType = 1,
+  )
+  ToolSvc += TruthJetKinematicsToolRHadron
+  AugmentationTools.append(TruthJetKinematicsTool)RHadron
+
+  TruthJetKinematicsToolChargino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsChargino",
+    OutputContainer = "AntiKt4LLP_CharginoTruthJets",
+    LLP_PDGIDS = [1000024],
+  )
+  ToolSvc += TruthJetKinematicsToolChargino
+  AugmentationTools.append(TruthJetKinematicsTool)Chargino
+
+  TruthJetKinematicsToolNeutralino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsNeutralino",
+    OutputContainer = "AntiKt4LLP_NeutralinoTruthJets",
+    LLP_PDGIDS = [1000022],
+  )
+  ToolSvc += TruthJetKinematicsToolNeutralino
+  AugmentationTools.append(TruthJetKinematicsToolNeutralino)
+
+  TruthJetKinematicsToolGluino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsGluino",
+    OutputContainer = "AntiKt4LLP_GluinoTruthJets",
+    LLP_PDGIDS = [1000021],
+  )
+  ToolSvc += TruthJetKinematicsToolGluino
+  AugmentationTools.append(TruthJetKinematicsToolGluino)
+
+  TruthJetKinematicsToolSquark = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsSquark",
+    OutputContainer = "AntiKt4LLP_SquarkTruthJets",
+    LLP_PDGIDS = [1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 2000001, 2000002, 2000003, 2000004, 2000005, 2000006],
+  )
+  ToolSvc += TruthJetKinematicsToolSquark
+  AugmentationTools.append(TruthJetKinematicsToolSquark)
+
 
 
 #=============================================================================================
@@ -439,6 +476,9 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant
 SUSY15SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True
 SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True
+
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLPTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLPTruthJetsAux.")
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
