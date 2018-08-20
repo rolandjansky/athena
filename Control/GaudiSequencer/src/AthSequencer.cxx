@@ -555,9 +555,9 @@ AthSequencer::decodeNames( Gaudi::Property<std::vector<std::string>>& theNames,
           ATH_MSG_DEBUG 
             (theName << " already exists - appended to member list");
         } else {
-          ATH_MSG_WARNING 
-            (theName << " already exists - append failed!!!");
-          result = StatusCode::FAILURE;
+          ATH_MSG_INFO
+            (theName << " already exists - skipping!!!");
+          result = StatusCode::SUCCESS;
         }
       } else {
         
