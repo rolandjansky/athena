@@ -7,6 +7,14 @@
 // STL includes 
 #include <algorithm>
 
+//Utility functions at file scope
+namespace {
+  //make a number even
+  IdentifierHash even(const IdentifierHash& hash) {
+    return (hash>>1) << 1;
+  }
+}
+
 const IdentifierHash SCT_CablingData::s_invalidHash{};
 const SCT_OnlineId SCT_CablingData::s_invalidId{};
 const SCT_SerialNumber SCT_CablingData::s_invalidSn{};
@@ -77,13 +85,14 @@ void SCT_CablingData::invalidateSerialNumbersForHashes() {
 }
 
 bool SCT_CablingData::setSerialNumberForHash(const SCT_SerialNumber& sn, const IdentifierHash& hash) {
-  if (m_hash2SnArray[hash]!=s_invalidSn) return false; //don't insert if there's already a valid online id there
-  m_hash2SnArray[hash] = sn;
+  const IdentifierHash evenHash{even(hash)};
+  if (m_hash2SnArray[evenHash]!=s_invalidSn) return false; //don't insert if there's already a valid online id there
+  m_hash2SnArray[evenHash] = sn;
   return true;
 }
 
 SCT_SerialNumber SCT_CablingData::getSerialNumberFromHash(const IdentifierHash& hash) const {
-  return hash.is_valid() ? m_hash2SnArray[hash] : s_invalidSn;
+  return hash.is_valid() ? m_hash2SnArray[even(hash)] : s_invalidSn;
 }
 
 void SCT_CablingData::invalidateRods() {
@@ -99,5 +108,5 @@ void SCT_CablingData::getRods(std::vector<std::uint32_t>& usersVector) const {
 }
 
 unsigned int SCT_CablingData::getHashEntries() const {
-  return m_rodIdSet.size();
+  return m_sn2HashMap.size();
 }
