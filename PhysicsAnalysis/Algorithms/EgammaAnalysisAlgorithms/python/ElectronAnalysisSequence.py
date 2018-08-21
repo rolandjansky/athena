@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
+# Framework import(s):
+import ROOT
+
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
@@ -15,11 +18,11 @@ def makeElectronAnalysisSequence( dataType,
       isolationWP -- The isolation selection working point to use
       likelihoodWP -- The likelihood selection working point to use
       recomputeLikelihood -- Whether to rerun the LH. If not, use derivation flags
-      prefilterLikelihood -- Creates intermediate selection on LH, in case of cluster thinning etc
     """
 
-    if not dataType in ["data", "mc", "afii"] :
-        raise ValueError ("invalid data type: " + dataType)
+    # Make sure we received a valid data type.
+    if not dataType in [ 'data', 'mc', 'afii' ]:
+        raise ValueError( 'Invalid data type: %' % dataType )
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "ElectronAnalysisSequence" )
@@ -59,10 +62,19 @@ def makeElectronAnalysisSequence( dataType,
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut' )
 
-    # Only run subsequent processing on the objects passing eta and LH cut
-    # The later is needed e.g. for top derivations that thin the clusters
-    # from the electrons failing Loose(LH)
-    # Basically invalidates the first cutflow step
+    # Select electrons only with good object quality.
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronObjectQualityAlg' )
+    alg.selectionDecoration = 'goodOQ'
+    addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
+    alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSELECTRON
+    seq.append( alg, inputPropName = 'particles',
+                outputPropName = 'particlesOut' )
+    _selectionDecorNames.append( alg.selectionDecoration )
+    _selectionDecorCount.append( 1 )
+
+    # Only run subsequent processing on the objects passing all of these cuts.
+    # Since these are independent of the electron calibration, and this speeds
+    # up the job.
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'ElectronLHViewFromSelectionAlg' )
     alg.selection = _selectionDecorNames
