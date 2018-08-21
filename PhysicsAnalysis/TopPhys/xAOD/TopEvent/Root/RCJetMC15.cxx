@@ -289,14 +289,16 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	   for (auto rcjet : *myJets){
 	   
 	     std::vector<fastjet::PseudoJet> clusters;
-	     // //  //EMTOPO CLUSTERS
-	     getEMTopoClusters(clusters,rcjet);
-	     //	//  // LCTOPO CLUSTERS
-	     //getLCTopoClusters(clusters,rcjet);
-		
+	     
+	     
+	     if(m_config->sgKeyJetsTDS(hash_factor*m_config->nominalHashValue(),false).find("AntiKt4EMTopoJets")!=std::string::npos)getEMTopoClusters(clusters,rcjet); // //  // use subjet constituents
+	     else getLCTopoClusters(clusters,rcjet); //	//  // use LCTOPO CLUSTERS matched to subjet
+	     top::check(!clusters.empty(),"RCJetMC15::execute(const top::Event& event): Failed to get vector of clusters! Unable to calculate RC jets substructure variables!\n Aborting!");
+	     
 	     // Now rebuild the large jet from the small jet constituents aka the original clusters
 	     fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
 	     std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
+	     
      
 	     fastjet::PseudoJet correctedJet;
 	     correctedJet = my_pjets[0];
