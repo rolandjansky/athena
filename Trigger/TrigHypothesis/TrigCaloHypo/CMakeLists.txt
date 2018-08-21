@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArRecEvent
+                          LArCalorimeter/LArRecConditions
                           Reconstruction/Jet/JetUtils )
 
 # External dependencies:
@@ -41,7 +42,7 @@ atlas_add_library( TrigCaloHypoLib
 atlas_add_component( TrigCaloHypo
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} xAODJet GaudiKernel JetEvent TrigCaloEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloGeoHelpers EventKernel FourMomUtils xAODCaloEvent xAODEventInfo LArRecEvent JetUtils TrigCaloHypoLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} xAODJet GaudiKernel JetEvent TrigCaloEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloGeoHelpers EventKernel FourMomUtils xAODCaloEvent xAODEventInfo LArRecEvent LArRecConditions JetUtils TrigCaloHypoLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

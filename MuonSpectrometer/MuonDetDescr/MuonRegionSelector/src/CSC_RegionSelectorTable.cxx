@@ -82,7 +82,7 @@ StatusCode CSC_RegionSelectorTable::createTable() {
 
   const MuonGM::MuonDetectorManager*	p_MuonMgr = NULL;
   
-  StatusCode status = detStore()->retrieve( p_MuonMgr );
+  ATH_CHECK( detStore()->retrieve( p_MuonMgr ) );
   
   const CscIdHelper*  p_IdHelper = p_MuonMgr->cscIdHelper();
 

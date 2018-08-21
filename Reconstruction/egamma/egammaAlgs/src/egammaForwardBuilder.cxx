@@ -4,9 +4,6 @@
 
 #include "egammaForwardBuilder.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "PathResolver/PathResolver.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"

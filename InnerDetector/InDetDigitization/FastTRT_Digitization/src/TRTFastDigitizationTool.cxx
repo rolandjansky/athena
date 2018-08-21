@@ -148,7 +148,7 @@ StatusCode TRTFastDigitizationTool::prepareEvent( unsigned int )
 }
 
 
-StatusCode TRTFastDigitizationTool::processBunchXing( int /*bunchXing*/,
+StatusCode TRTFastDigitizationTool::processBunchXing( int bunchXing,
                                                       SubEventIterator bSubEvents,
                                                       SubEventIterator eSubEvents ) {
 
@@ -157,24 +157,32 @@ StatusCode TRTFastDigitizationTool::processBunchXing( int /*bunchXing*/,
   if ( m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if ( m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  SubEventIterator iEvt( bSubEvents );
-  while ( iEvt != eSubEvents ) {
-    StoreGateSvc& seStore( *iEvt->ptr()->evtStore() );
-    PileUpTimeEventIndex thisEventIndex( PileUpTimeEventIndex( static_cast< int >( iEvt->time() ),iEvt->index() ) );
-    const TRTUncompressedHitCollection* seHitColl( nullptr );
-    CHECK( seStore.retrieve( seHitColl, m_trtHitCollectionKey ) );
-    // copy Hit Collection
-    TRTUncompressedHitCollection* trtHitColl( new TRTUncompressedHitCollection( "TRTUncompressedHits") );
-    // read hits from this collection
-    for ( TRTUncompressedHitCollection::const_iterator itr = seHitColl->begin(); itr != seHitColl->end(); ++itr ) {
-      const TRTUncompressedHit trthit( *itr );
-      trtHitColl->Insert( trthit );
-    }
-    m_thpctrt->insert( thisEventIndex, trtHitColl );
-    // store these for deletion at the end of mergeEvent
-    m_trtHitCollList.push_back( trtHitColl );
+  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-    ++iEvt;
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_trtHitCollectionKey, hitCollList, bunchXing,
+                                          bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " TRTUncompressedHitCollections with key " <<
+                    m_trtHitCollectionKey << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  for( ; iColl != endColl; iColl++) {
+    TRTUncompressedHitCollection *hitCollPtr = new TRTUncompressedHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+    ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollPtr->size() <<
+                  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
+    m_thpctrt->insert(timeIndex, hitCollPtr);
+    m_trtHitCollList.push_back(hitCollPtr);
   }
 
   return StatusCode::SUCCESS;

@@ -16,10 +16,6 @@
 
 class SCT_ID;
 
-namespace InDetDD {
-  class SCT_DetectorManager;
-}
-
 namespace InDet {
 
   class SiElementPropertiesTableCondAlg : public AthAlgorithm {
@@ -36,11 +32,9 @@ namespace InDet {
     SG::WriteCondHandleKey<InDet::SiElementPropertiesTable> m_writeKey{this, "WriteKey", "SCT_ElementPropertiesTable", "Key of output SiElementPropertiesTable for SCT"};
 
     FloatProperty m_epsWidth{this, "EpsWidth", 0.02, "Safety margin for half-widths, in cm"};
-    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
 
     ServiceHandle<ICondSvc> m_condSvc;
     const SCT_ID* m_idHelper;
-    const InDetDD::SCT_DetectorManager* m_detManager;
   };
 
 }

@@ -16,6 +16,8 @@
 
 #include "TrigMuonHypo/TrigMuonEFMSonlyHypoTool.h"
 
+#include "DecisionHandling/HypoBase.h"
+
 class StoreGateSvc;
 class TriggerElement;
 
@@ -23,7 +25,7 @@ class TriggerElement;
 // --------------------------------------------------------------------------------
 
 class TrigMuonEFMSonlyHypoAlg
-   : public ::AthReentrantAlgorithm
+   : public ::HypoBase
 {
   public:
 
@@ -40,20 +42,9 @@ class TrigMuonEFMSonlyHypoAlg
     TrigMuonEFMSonlyHypoAlg(); 
     ToolHandleArray<TrigMuonEFMSonlyHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
-    SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
-	this, "Decisions", "MuonEFMSonlyHypo_Decisions", "Name of the decisions object attached by TrigMuonEFMSonlyHypo"};
-
-    SG::ReadHandleKey< ViewContainer > m_viewsKey{
-	this, "ViewRoIs", "MUViewRoIs", "Name of the input data on Views produced by EventCreatorAlgorithms"};
-
     SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{
 	this, "MuonDecisions", "MuonEFMSonly_MuonData", "Name of the input data on xAOD::MuonContainer produced by MuonCreatorAlg"};
 
-    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiKey{
-	this, "RoIs", "MURoIs", "Name of the input data from L1Decoder"};
-
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_previousDecisionsKey{
-	this, "L1Decisions", "MuonEFMSonly_Decisions", "Name of the input decisions object"};
 };
 
 #endif

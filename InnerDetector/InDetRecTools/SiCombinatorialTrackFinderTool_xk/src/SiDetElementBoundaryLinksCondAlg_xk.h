@@ -14,10 +14,6 @@
 
 #include "GaudiKernel/ICondSvc.h"
 
-namespace InDetDD {
-  class SCT_DetectorManager;
-}
-
 namespace InDet {
 
   class SiDetElementBoundaryLinksCondAlg_xk : public AthAlgorithm {
@@ -33,10 +29,7 @@ namespace InDet {
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_readKey{this, "ReadKey", "SCT_DetectorElementCollection", "Key of input SiDetectorElementCollection for SCT"};
     SG::WriteCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_writeKey{this, "WriteKey", "SCT_DetElementBoundaryLinks_xk", "Key of output SiDetElementBoundaryLinks_xk for SCT"};
 
-    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
-
     ServiceHandle<ICondSvc> m_condSvc;
-    const InDetDD::SCT_DetectorManager* m_detManager;
   };
 
 }

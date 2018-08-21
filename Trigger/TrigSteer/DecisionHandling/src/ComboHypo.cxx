@@ -41,7 +41,7 @@ StatusCode ComboHypo::initialize() {
 
   ATH_MSG_INFO( "with this multiplicity map: ");
   for ( auto m: m_multiplicitiesReqMap ) {
-    ATH_MSG_INFO("-- "<< m.first<<" multiplicities: ");
+    ATH_MSG_INFO("-- "<< m.first<<" multiplicities of size "<<m.second.size());
     for (auto mult: m.second){
       ATH_MSG_INFO("-- "<< mult<<", ");
     }
@@ -140,10 +140,10 @@ void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const E
   for ( size_t i = 0; i < m_inputs.size(); ++i ) {   
     auto inputHandle = SG::makeHandle( m_inputs.at(i), context );
     if ( inputHandle.isValid() ) {
-      ATH_MSG_DEBUG( "Found implicit RH from " << inputHandle.key() <<" with these decisions:"  );
+      ATH_MSG_DEBUG( "Found implicit RH from " << inputHandle.key() <<" with "<< inputHandle->size() << " elements:"  );
       MultiplicityMap thisInputDmap;
       for ( const Decision* decision : *inputHandle.cptr() ) {
-	ATH_MSG_DEBUG( decisionIDs( decision ).size() << " chains passed:" );
+	ATH_MSG_DEBUG( "Decision with "<< decisionIDs( decision ).size() << " chains passed:" );
 	for ( DecisionID id: decisionIDs( decision ) ) {
 	  ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
 	  thisInputDmap[id] ++;
@@ -159,10 +159,10 @@ void ComboHypo::fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const E
 
 
   //debug
-  ATH_MSG_DEBUG( "Decision map found :" );
+  ATH_MSG_DEBUG( "Decision map filled :" );
   int i=0;
   for (auto onemap: dmap){
-    ATH_MSG_DEBUG("map "<<i<<": ");
+    ATH_MSG_DEBUG("map ["<<i<<"]: ");
     for (auto m: onemap){
       ATH_MSG_DEBUG(" +++ " << HLT::Identifier( m.first ) <<" mult: "<<m.second);
     }

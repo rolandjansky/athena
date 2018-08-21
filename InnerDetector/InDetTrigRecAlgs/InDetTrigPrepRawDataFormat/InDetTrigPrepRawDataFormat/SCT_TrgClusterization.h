@@ -52,11 +52,6 @@ class TrigTimer;
 class SCT_ID;
 class SCT_ChannelStatusAlg;
 
-
-namespace InDetDD {
-  class SiDetectorManager;
-}
-
 namespace InDet {
     
   class SCT_TrgClusterization : public HLT::FexAlgo {
@@ -105,13 +100,11 @@ namespace InDet {
     
     ToolHandle<ITrigRawDataProviderTool>    m_rawDataProvider;
     ToolHandle<ISCT_ClusteringTool> m_clusteringTool; //!<  clustering algorithm
-    std::string             m_managerName; //!< detector manager name in StoreGate
     std::string             m_clustersName; 
     std::string             m_flaggedCondDataName;
     const SCT_ID*           m_idHelper;
     
     SCT_ClusterContainer*   m_clusterContainer;
-    const InDetDD::SiDetectorManager* m_manager;
     
     // !<  Trigger part
     ServiceHandle<IRegSelSvc>    m_regionSelector; //!<  region selector service

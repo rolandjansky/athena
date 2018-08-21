@@ -102,12 +102,6 @@ protected:
 
 
   /**
-   * @brief The proxy pointed at by this iterator.
-   */
-  DataProxy* proxy() const;
-
-
-  /**
    * @brief Const check: throw an exception if we're pointing at a const proxy.
    *
    * Called when dereferencing a non-const iterator.
@@ -116,6 +110,12 @@ protected:
 
 
 public:
+  /**
+   * @brief The proxy pointed at by this iterator.
+   */
+  DataProxy* proxy() const;
+
+
   /**
    * @brief Get the key string with which the current object was stored.
    */

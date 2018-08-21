@@ -114,6 +114,17 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
         kwargs.setdefault("FirstXing", FastSCT_FirstXing())
         kwargs.setdefault("LastXing",  FastSCT_LastXing() )
 
+    # Set up SCT_SiliconConditionsTool
+    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
+    sct_SiliconConditionsToolSetup.setup()
+    # Set up SCT_SiPropertiesTool
+    from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+    sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
+    sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
+    sct_SiPropertiesToolSetup.setup()
+
     # SiLorentzAngleTool for SCT_FastDigitizationTool
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "SCTLorentzAngleTool"):

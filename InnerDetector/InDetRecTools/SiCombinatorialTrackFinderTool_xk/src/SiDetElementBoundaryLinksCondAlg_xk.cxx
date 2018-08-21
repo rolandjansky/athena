@@ -4,7 +4,6 @@
 
 #include "SiDetElementBoundaryLinksCondAlg_xk.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
 #include "StoreGate/ReadCondHandle.h"
@@ -15,7 +14,6 @@ namespace InDet {
   SiDetElementBoundaryLinksCondAlg_xk::SiDetElementBoundaryLinksCondAlg_xk(const std::string& name, ISvcLocator* pSvcLocator)
     : ::AthAlgorithm(name, pSvcLocator)
     , m_condSvc{"CondSvc", name}
-    , m_detManager{nullptr}
 {
 }
 
@@ -32,8 +30,6 @@ namespace InDet {
     ATH_CHECK(m_condSvc.retrieve());
     // Register write handle
     ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
-
-    ATH_CHECK(detStore()->retrieve(m_detManager, "SCT"));
 
     return StatusCode::SUCCESS;
   }
@@ -66,10 +62,6 @@ namespace InDet {
     if (not readHandle.range(rangeW)) {
       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
-    }
-
-    if (m_useDetectorManager) { // For debugging: use SiDetectorElementCollection from SCT_DetectorManager
-      readCdo = m_detManager->getDetectorElementCollection();
     }
 
     // ____________ Construct new Write Cond Object ____________

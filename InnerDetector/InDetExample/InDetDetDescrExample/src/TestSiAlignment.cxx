@@ -8,7 +8,6 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiCellId.h"
@@ -18,7 +17,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-
+#include "StoreGate/ReadCondHandle.h"
 
 #include <iostream>
 #include <vector>
@@ -65,21 +64,38 @@ StatusCode TestSiAlignment::initialize(){
   ATH_MSG_INFO( " ErrorTranslation: " << m_errTrans );  
   // Retrieve Detector Manager
   ATH_CHECK(detStore()->retrieve(m_manager, m_managerName));
-  printAlignmentShifts();
+  if (m_managerName=="Pixel") {
+    // do nothing
+  } else if (m_managerName=="SCT") {
+    ATH_CHECK(m_detEleCollKey.initialize());
+  } else {
+    ATH_MSG_FATAL("m_managerName " << m_managerName << " is not appropriate name");
+  }
+  printAlignmentShifts(true);
   return StatusCode::SUCCESS;
 }
 
 
 void
-TestSiAlignment::printAlignmentShifts() {
+TestSiAlignment::printAlignmentShifts(const bool accessDuringInitialization) {
+  const bool useConditionStore = (m_managerName == "SCT" and (not accessDuringInitialization));
   static const Amg::Vector3D zeroPoint(0., 0., 0.); 
   static const Amg::Vector3D phiAxis(1, 0, 0);
   static const Amg::Vector3D etaAxis(0, 1, 0);
   static const Amg::Vector3D depAxis(0, 0, 1);
-  SiDetectorElementCollection::const_iterator iter(m_manager->getDetectorElementBegin());
-  const SiDetectorElementCollection::const_iterator elementEnd(m_manager->getDetectorElementEnd());
-  for (;iter != elementEnd; ++iter){
-    const SiDetectorElement * element = *iter; 
+  const SiDetectorElementCollection* elements = nullptr;
+  if (useConditionStore) {
+    // Get SiDetectorElementCollection from ConditionStore
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> detEle(m_detEleCollKey);
+    elements = detEle.retrieve();
+    if (elements==nullptr) {
+      ATH_MSG_FATAL(m_detEleCollKey.fullKey() << " could not be retrieved");
+      return;
+    }
+  } else {
+    elements = m_manager->getDetectorElementCollection();
+  }
+  for (const SiDetectorElement * element: *elements) {
     if (element) {
       // The id helper is available either through the manager or the elements
       cout << element->getIdHelper()->show_to_string(element->identify());
@@ -166,7 +182,7 @@ void  TestSiAlignment::extractAlphaBetaGamma(const Amg::Transform3D & trans, dou
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode TestSiAlignment::execute() {
-  printAlignmentShifts();
+  printAlignmentShifts(false);
   return StatusCode::SUCCESS;
 }
 

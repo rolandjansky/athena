@@ -31,7 +31,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TrkTrack/TrackCollection.h"
@@ -40,11 +39,15 @@
 
 #include "StoreGate/ReadHandleKey.h"
 
+// // forward declarations
 namespace AlignMon {
   class TrackSelectionTool;
 }
 
-// // forward declarations
+namespace InDetDD {
+  class SCT_DetectorManager;
+}
+
 namespace Trk {
   class ITruthToTrack;
   class ITrackSummaryTool;

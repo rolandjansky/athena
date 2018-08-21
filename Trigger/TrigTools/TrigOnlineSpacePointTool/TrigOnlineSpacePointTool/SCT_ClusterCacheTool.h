@@ -17,7 +17,8 @@
 
 #include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
 #include "Identifier/IdContext.h" 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
 #include "TrigOnlineSpacePointTool/ISCT_ClusterCacheTool.h"
 #include <vector>
@@ -25,6 +26,10 @@
 class FastSCT_Clusterization;
 class ISCT_CablingSvc;
 class TrigTimer;
+
+namespace InDetDD {
+  class SCT_DetectorManager;
+}
 
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ;
 
@@ -66,6 +71,7 @@ private:
   std::string m_bsErrContainerName;
   std::string m_bsFracContainerName;
   bool m_doBS;
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
 #define SCT_CL_CACHE_NTIMERS 5
   TrigTimer* m_timer[SCT_CL_CACHE_NTIMERS];

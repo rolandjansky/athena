@@ -242,10 +242,10 @@ StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::t
    if (!sc.isSuccess()) {
       ATH_MSG_WARNING("Could not retrieve all versions for DataHeader, will not read Metadata");
    } else {
-      int verNumber = 0;
-      for (std::list<SG::ObjectWithVersion<DataHeader> >::const_iterator iter = allVersions.begin(),
-	      last = allVersions.end(); iter != last; iter++, verNumber++) {
-         const DataHeader* dataHeader = iter->dataObject;
+      int verNumber = -1;
+      for (SG::ObjectWithVersion<DataHeader>& obj : allVersions) {
+         ++verNumber;
+         const DataHeader* dataHeader = obj.dataObject.cptr();
          if (dataHeader == nullptr) {
             ATH_MSG_ERROR("Could not get DataHeader, will not read Metadata");
             return(StatusCode::FAILURE);

@@ -43,8 +43,8 @@ namespace Muon {
         
     static const InterfaceID& interfaceID();
 
-    virtual StatusCode initialize(void);  
-    virtual StatusCode finalize(void);  
+    virtual StatusCode initialize(void) override;
+    virtual StatusCode finalize(void) override;
 
   private:
     ToolHandle<Trk::ITrackFitter>                 m_slTrackFitter;  //<! fitter, always use straightline
@@ -59,7 +59,7 @@ namespace Muon {
 
   public:
     //find segments given a list of MuonCluster
-    std::vector<const Muon::MuonSegment*>* find(std::vector< const Muon::MuonClusterOnTrack* >& clusters);
+    std::vector<const Muon::MuonSegment*>* find(std::vector< const Muon::MuonClusterOnTrack* >& clusters) const override;
     
   private:
     //reconstruct the segments in the precision (eta) plane

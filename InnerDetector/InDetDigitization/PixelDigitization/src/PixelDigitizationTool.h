@@ -83,7 +83,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     ServiceHandle <PileUpMergeSvc> m_mergeSvc;
 
     CLHEP::HepRandomEngine *m_rndmEngine;
-    const InDetDD::SiDetectorManager *m_detManager;
+    const InDetDD::PixelDetectorManager *m_detManager;
 
     std::string   m_inputObjectName;
     bool          m_createNoiseSDO;
