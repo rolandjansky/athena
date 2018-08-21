@@ -950,6 +950,9 @@ sub run_test($){
 	push @statuscodes, 'ATHENA_BAD_EXIT';
     }
 
+    my $pwd = `pwd`;
+    chomp $pwd;
+
     # Run HLTMPPU post-commands
     unlink "$postcmdout" if (-f "$postcmdout");
     my $post_command;
@@ -965,6 +968,7 @@ sub run_test($){
 	    mkdir $childFolder;
 	}
         push @postrc, systemcall("extractExpert.py >> $postcmdout 2>&1");
+	systemcall("cat $postcmdout");
         print "$prog debug: post_command #commands: ".@postrc."  return codes: @postrc \n" if ($debug);
     }	
     # Run any post-commands
@@ -972,7 +976,6 @@ sub run_test($){
 	and  @{$config{$id}->{'post_command'}}>0){
       #HLTMPPU: Creates sub-directory and expert-monitoring file for each child
       if ($athena_cmd=~/runHLTMPPy/){
-	my $pwd = `pwd`;
 	#my $post_command;
         foreach my $dir (glob "child_*"){
           for $post_command (@{$config{$id}->{'post_command'}}){
@@ -992,8 +995,6 @@ sub run_test($){
         systemcall("cat $postcmdout");
         print "$prog debug: post_command #commands: ".@postrc."  return codes: @postrc \n" if ($debug);
       }
-    }else{
-	systemcall("cat $postcmdout");
     }
 	
 
@@ -1009,34 +1010,33 @@ sub run_test($){
       my $post_test;
       my $total_rc = 0;
       @postrc=();
-      my $pwd = `pwd`;
       #HLTMPPU: Creates sub-directory and expert-monitoring file for each child
       if ($athena_cmd=~/runHLTMPPy/){
-      foreach my $dir (glob "child_*"){
-      open (POSTTEST, '>', "$dir/$posttestrc");
-      for $post_test (@{$config{$id}->{'post_test'}}){
-        # Each post test has its own log file
-        my $post_test_log = "post_test_$post_test->{'name'}.log";
-        # Replace '$logfile' with the actual file name
-        my $post_test_cmd = $post_test->{'cmd'};
-        $post_test_cmd =~ s/\$logfile/$logfile/;
-	# If there is a comparison to a reference file, make sure that the correct path is used
-        $post_test_cmd =~ s/latest/$nightly/g;
-	chdir $dir;
-        my $rc = systemcall("($post_test_cmd) > $post_test_log 2>&1");
-	chdir $pwd;
-        $total_rc += $rc;
-        # Save return codes in separate text file
-        print POSTTEST "$post_test->{'name'} $rc\n";
+          foreach my $dir (glob "child_*"){
+              chdir $dir;
+              open (POSTTEST, '>', "$posttestrc");
+              for $post_test (@{$config{$id}->{'post_test'}}){
+                  # Each post test has its own log file
+                  my $post_test_log = "post_test_$post_test->{'name'}.log";
+                  # Replace '$logfile' with the actual file name
+                  my $post_test_cmd = $post_test->{'cmd'};
+                  $post_test_cmd =~ s/\$logfile/$logfile/;
+                  # If there is a comparison to a reference file, make sure that the correct path is used
+                  $post_test_cmd =~ s/latest/$nightly/g;
+                  my $rc = systemcall("($post_test_cmd) > $post_test_log 2>&1");
+                  $total_rc += $rc;
+                  # Save return codes in separate text file
+                  print POSTTEST "$post_test->{'name'} $rc\n";
+              }
+              close POSTTEST;
+              if ($total_rc>0) {
+                  push @statuscodes, 'POST_TEST_BAD_EXIT';
+              }
+          chdir $pwd;
+	  }
       }
-      close POSTTEST;
-      if ($total_rc>0) {
-        push @statuscodes, 'POST_TEST_BAD_EXIT';
-      }}}
     }
 
-    my $pwd = `pwd`;
-    chomp $pwd;
     # make a URL by substituting the lxbuild local disk path for the web 
     # server URL if it does not match the lxbuild local disk path then it 
     # will be left as a file path instead. 
