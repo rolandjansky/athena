@@ -13,7 +13,6 @@ EMDefaultCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool
 EMParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
                                             name="EMParticleCaloExtensionTool",
                                             Extrapolator = egammaExtrapolator,
-                                            OutputContainerName="EGCaloExtension",
                                             ParticleType="muon",
                                             StartFromPerigee = True)
 
