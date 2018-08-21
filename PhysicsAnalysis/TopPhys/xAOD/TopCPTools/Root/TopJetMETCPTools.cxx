@@ -278,9 +278,10 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   if ( m_config->jetCalibSequence() == "JMS" )
    JMS_Uncertainty = "_JMSExtrap";
   
-  // Rel21 calibrations are stored in a non-default area - therefore configure
+  // Rel21 calibrations used to be stored in a non-default area - therefore configure
   // the tool to look for the calibration in the correct fille.
-  std::string calib_area = "CalibArea-03";
+  // Now it is default area, so back to not configuring it
+  std::string calib_area = "None";
 
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
@@ -435,7 +436,7 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
   std::string configDir("");
   std::vector<std::string>* variables = nullptr;
   std::string largeRJES_config = m_config->largeRJESUncertaintyConfig();
-  std::string calibArea  = "CalibArea-01";
+  std::string calibArea  = "None"; // Take the default JetUncertainties CalibArea tag
   std::string MC_type = "MC16";
 
   conference = "Moriond2018";
