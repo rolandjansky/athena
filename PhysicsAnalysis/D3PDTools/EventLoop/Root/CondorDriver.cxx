@@ -95,7 +95,7 @@ namespace EL
 	}
       file << "arguments               = $(Item)\n";
       file << "\n" << options.castString (Job::optCondorConf) << "\n";
-      file << "queue ( ";
+      file << "queue in ( ";
       bool first {true};
       for (std::size_t index : jobIndices)
       {
