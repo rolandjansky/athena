@@ -7,18 +7,18 @@
  * Original by Niels van Eldik (2014)
  * Modified by Christos Anastopoulos (2018) for AthenaMT
  *
- * The purpose of the tool is to handle extension
- * of TrackParticles attached to an IParticle
- * or of Neutral or Truth Particles.
+ * The purpose of the tool is to handle extensions
+ * of TrackParticles attached to an IParticle,
+ * or of Neutral/Truth Particles.
  *
  * There are 3 different usage patterns.
  *
  * 1. No-cachhing
  * The following method 
  * bool caloExtension( const xAOD::IParticle& particle, 
- * std::unique_ptr<Trk::CaloExtension>& extension )const
- * will provide back CaloExtention wrapped in a unique_ptr
- * the memory lifetime is determined by the unique_ptr
+ * std::unique_ptr<Trk::CaloExtension>& extension ) const
+ * will provide back a Trk:: CaloExtention wrapped in a unique_ptr.
+ * The memory lifetime is determined by the unique_ptr
  *
  * 2. In-Algorithm Caching.
  * An algorithm might extrapolate the same particle multiple times.
@@ -27,26 +27,26 @@
  * The method 
  * bool caloExtension( const xAOD::IParticle& particle,
  * const Trk::CaloExtension* extension,
- * Cache& cache ) const
- * then fills in the cache. The extension that is provided
+ * IParticleCaloExtensionTool::Cache& cache ) const
+ * fills in the cache. 
+ * The extension that is provided as a ptr to a const CaloExtension
  * is just the last element added to that cache.
  * The cache owns the elements.
  *
- * 3. Among algorithm/domain caching.
+ * 3. Among algorithms/domain caching.
  * In this case an central algorithm A 
- * creates a CaloExtensionCollection in SG .
+ * creates a CaloExtensionCollection in SG
+ * via the proper WriteHandle mechanism.
  * Algorithms B, C , D ... 
- * Can retrieve this collection.
+ * Can retrieve this collection via ReadHandles.
  * This scenario is facilitated by the pair of methods:
  * StatusCode caloExtensionCollection( const xAOD::IParticleContainer& particles,
  *                          const std::vector<bool>& mask,
- *                          CaloExtensionCollection& caloextensions) const = 0;
+ *                          CaloExtensionCollection& caloextensions) const
  * and
  * bool caloExtension( const xAOD::IParticle& particle,
  *                       const Trk::CaloExtension* extension,
- *                       const CaloExtensionCollection& cache )*
- *
- *
+ *                       const CaloExtensionCollection& cache ) const
  */
 
 
