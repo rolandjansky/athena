@@ -12,7 +12,7 @@
 
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 
-#include <xAODEgamma/Electron.h>
+#include <xAODEgamma/Egamma.h>
 #include <xAODBase/IParticle.h>
 #include <cmath>
 
@@ -70,14 +70,23 @@ namespace CP
       return StatusCode::FAILURE;
     }
 
-    if (m_minPt > 0)
-      m_accept.addCut ("minPt", "minimum pt cut");
-    if (m_useClusterEta)
-      m_accept.addCut ("castElectron", "cast to electron");
-    if (m_maxEta > 0)
-      m_accept.addCut ("maxEta", "maximum eta cut");
-    if (m_etaGapHigh > 0)
-      m_accept.addCut ("etaGap", "eta gap cut");
+    if (m_minPt > 0) {
+       ATH_MSG_DEBUG( "Performing pt > " << m_minPt << " MeV selection" );
+       m_minPtCutIndex = m_accept.addCut ("minPt", "minimum pt cut");
+    }
+    if (m_useClusterEta) {
+       ATH_MSG_DEBUG( "Performing eta cut on the e/gamma cluster" );
+       m_egammaCastCutIndex = m_accept.addCut ("castEgamma", "cast to egamma");
+    }
+    if (m_maxEta > 0) {
+       ATH_MSG_DEBUG( "Performing |eta| < " << m_maxEta << " selection" );
+       m_maxEtaCutIndex = m_accept.addCut ("maxEta", "maximum eta cut");
+    }
+    if (m_etaGapHigh > 0) {
+       ATH_MSG_DEBUG( "Performing !( " << m_etaGapLow << " < |eta| < "
+                      << m_etaGapHigh << " ) selection" );
+       m_etaGapCutIndex = m_accept.addCut ("etaGap", "eta gap cut");
+    }
     m_shouldPrintCastWarning = m_printCastWarning;
 
     return StatusCode::SUCCESS;
@@ -97,36 +106,42 @@ namespace CP
   accept (const xAOD::IParticle *particle) const
   {
     m_accept.clear();
-    std::size_t cutIndex {};
 
-    if (m_minPt > 0)
-      m_accept.setCutResult (cutIndex ++, particle->pt() >= m_minPt);
+    // Perform the tranverse momentum cut.
+    if (m_minPtCutIndex >= 0) {
+       m_accept.setCutResult (m_minPtCutIndex, particle->pt() >= m_minPt);
+    }
 
-    if (m_maxEta > 0 || m_etaGapHigh > 0 || m_useClusterEta)
+    // Perform the eta cut(s).
+    if (m_maxEtaCutIndex >= 0 || m_etaGapCutIndex >= 0)
     {
       float absEta = 0;
 
       if (m_useClusterEta == true)
       {
-        const xAOD::Electron *electron
-          = dynamic_cast<const xAOD::Electron*>(particle);
-        if (electron == nullptr)
+        const xAOD::Egamma *egamma
+          = dynamic_cast<const xAOD::Egamma*>(particle);
+        if (egamma == nullptr)
         {
           if (m_shouldPrintCastWarning)
             ANA_MSG_ERROR ("failed to cast input particle to electron");
           m_shouldPrintCastWarning = false;
           return m_accept;
         }
-        absEta = std::abs (electron->caloCluster()->etaBE(2));
+        m_accept.setCutResult (m_egammaCastCutIndex, true);
+        absEta = std::abs (egamma->caloCluster()->etaBE(2));
       } else
       {
         absEta = std::abs (particle->eta());
       }
 
-      if (m_maxEta > 0)
-        m_accept.setCutResult (cutIndex ++, absEta <= m_maxEta);
-      if (m_etaGapHigh > 0)
-        m_accept.setCutResult (cutIndex ++, absEta < m_etaGapLow || absEta > m_etaGapHigh);
+      if (m_maxEtaCutIndex >= 0) {
+        m_accept.setCutResult (m_maxEtaCutIndex, absEta <= m_maxEta);
+      }
+      if (m_etaGapCutIndex >= 0) {
+        m_accept.setCutResult (m_etaGapCutIndex, (absEta < m_etaGapLow ||
+                                                  absEta > m_etaGapHigh));
+      }
     }
 
     return m_accept;

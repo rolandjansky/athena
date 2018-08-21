@@ -80,6 +80,15 @@ namespace CP
 
     /// \}
 
+    /// Index for the minimum pT selection
+    int m_minPtCutIndex{ -1 };
+    /// Index for the maximum eta selection
+    int m_maxEtaCutIndex{ -1 };
+    /// Index for the eta gap selection
+    int m_etaGapCutIndex{ -1 };
+    /// Index for the e/gamma casting
+    int m_egammaCastCutIndex{ -1 };
+
     /// \brief a version of \ref m_printCastWarning that we modify
     /// once we printed the warning
     ///
