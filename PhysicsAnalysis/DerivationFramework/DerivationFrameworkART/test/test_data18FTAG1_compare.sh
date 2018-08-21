@@ -17,4 +17,4 @@ art-diff.py ./DAOD.pool.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/D
 
 echo  "art-result: $? diff-pool"
 
-rm DAOD.pool.root
+rm -f DAOD.pool.root
