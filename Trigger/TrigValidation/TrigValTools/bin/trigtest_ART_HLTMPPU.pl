@@ -7,6 +7,7 @@ use File::Basename;
 use File::Spec;
 use File::Copy;
 use File::Path;
+use Cwd;       
 use constant TRUE => 1;
 use constant FALSE => 0;
 use constant UNDEFINED => "undefined";
@@ -724,6 +725,7 @@ sub do_tests(){
 	    if ($#statuscodes>0){
 		$failures++;
 	    }
+	    print "--------------------\n";
 	    $statuscode = process_error_codes(@statuscodes);
 	    $testresults{$id}=$statuscode;	    
 	}
@@ -743,7 +745,7 @@ sub timer($){
     open TIMER, ">$timerout";
     printf TIMER "%d %f %f\n",$t1-$t0, $tuser+$tcuser, $tsystem+$tcsystem;
     close TIMER;
-    
+
 }
 
 sub results_summary(){
@@ -913,7 +915,7 @@ sub run_test($){
     print "=== Running '$athena_cmd $athena_args $local_jobopts $stdinfile $filter_cmd'\n";
     # the stderr redirection needs to be exactly at this place
     my $athenarc = systemcall("$athena_env ; $athena_cmd $athena_args $local_jobopts $stdinfile $filter_cmd > $logfile 2>&1");
-
+   
     # the way to recognise a timeout
     $timeout = FALSE;
     if (! open LOG, "tail -600 $logfile|"){
@@ -928,15 +930,13 @@ sub run_test($){
 	    $timeout = TRUE;
 	    last;
 	}
-
     }
     close LOG;
 
     print "$prog: debug: timeout=$timeout " . ($timeout?"true":"false") . " athenarc=$athenarc \n" if ($debug);
 
     # check athena return code
-    #print "-------------------------------------------------------\n";
-    if ($athenarc == 0 and not $timeout){
+        if ($athenarc == 0 and not $timeout){
 	print "=== $name OK: Athena exited normally\n";
         print "art-result: 0 athena.$name\n";
     } elsif ($timeout){
@@ -950,36 +950,70 @@ sub run_test($){
 	push @statuscodes, 'ATHENA_BAD_EXIT';
     }
 
-	
-    # run any post-commands
+    # Run HLTMPPU post-commands
     unlink "$postcmdout" if (-f "$postcmdout");
-#    if 
+    my $post_command;
+    @postrc=();
+    if ($athena_cmd=~/runHLTMPPy/){
+	my $numChildren=1;
+	if ($athena_cmd=~/--num-forks (\d+)/){
+	    $numChildren=$1;
+	}
+	for (my $k=1; $k<=$numChildren; $k++){
+	    my $childFolder="child_$k";
+	    print "Making directory $childFolder\n";
+	    mkdir $childFolder;
+	}
+        push @postrc, systemcall("extractExpert.py >> $postcmdout 2>&1");
+        print "$prog debug: post_command #commands: ".@postrc."  return codes: @postrc \n" if ($debug);
+    }	
+    # Run any post-commands
     if (defined $config{$id}->{'post_command'} 
-	and   @{$config{$id}->{'post_command'}}>0) {
-      my $post_command;
-      @postrc=();
-
-      for $post_command (@{$config{$id}->{'post_command'}}){
+	and  @{$config{$id}->{'post_command'}}>0){
+      #HLTMPPU: Creates sub-directory and expert-monitoring file for each child
+      if ($athena_cmd=~/runHLTMPPy/){
+	my $pwd = `pwd`;
+	#my $post_command;
+        foreach my $dir (glob "child_*"){
+          for $post_command (@{$config{$id}->{'post_command'}}){
+            # All post command share the same log file
+            chdir $dir;
+	    push @postrc, systemcall("($post_command) >> $postcmdout 2>&1; cat $postcmdout");
+            chdir $pwd;
+          }
+          #isystemcall("cat $postcmdout; cd ..");
+          print "$prog debug: post_command #commands: ".@postrc."  return codes: @postrc \n" if ($debug);
+	}
+      }else{
+	for $post_command (@{$config{$id}->{'post_command'}}){
         # All post command share the same log file
-	push @postrc, systemcall("($post_command) >> $postcmdout 2>&1");
+           push @postrc, systemcall("($post_command) >> $postcmdout 2>&1");
+         }
+        systemcall("cat $postcmdout");
+        print "$prog debug: post_command #commands: ".@postrc."  return codes: @postrc \n" if ($debug);
       }
-      systemcall("cat $postcmdout");
-      print "$prog debug: post_command #commands: ".@postrc."  return codes: @postrc \n" if ($debug);
+    }else{
+	systemcall("cat $postcmdout");
     }
+	
 
     my %reldata = release_metadata();
     my $nightly = (exists $reldata{'nightly name'} ? $reldata{'nightly name'} : "UNKNOWN");
     # modification for ART (ATR-17618)
     # $nightly = $nightly . "/latest";
     print "$prog: looking for histograms and references for nightly $nightly \n";
-
+    
     # run any post-tests    
     unlink "$posttestrc" if (-f "$posttestrc");
     if ( defined(@{$config{$id}->{'post_test'}}) ) {
       my $post_test;
       my $total_rc = 0;
       @postrc=();
-      open (POSTTEST, '>', $posttestrc);
+      my $pwd = `pwd`;
+      #HLTMPPU: Creates sub-directory and expert-monitoring file for each child
+      if ($athena_cmd=~/runHLTMPPy/){
+      foreach my $dir (glob "child_*"){
+      open (POSTTEST, '>', "$dir/$posttestrc");
       for $post_test (@{$config{$id}->{'post_test'}}){
         # Each post test has its own log file
         my $post_test_log = "post_test_$post_test->{'name'}.log";
@@ -988,7 +1022,9 @@ sub run_test($){
         $post_test_cmd =~ s/\$logfile/$logfile/;
 	# If there is a comparison to a reference file, make sure that the correct path is used
         $post_test_cmd =~ s/latest/$nightly/g;
+	chdir $dir;
         my $rc = systemcall("($post_test_cmd) > $post_test_log 2>&1");
+	chdir $pwd;
         $total_rc += $rc;
         # Save return codes in separate text file
         print POSTTEST "$post_test->{'name'} $rc\n";
@@ -996,7 +1032,7 @@ sub run_test($){
       close POSTTEST;
       if ($total_rc>0) {
         push @statuscodes, 'POST_TEST_BAD_EXIT';
-      }
+      }}}
     }
 
     my $pwd = `pwd`;
@@ -1007,7 +1043,11 @@ sub run_test($){
     # NB gives wrong address for incremental nightlies because the build is always done in atlrel_0 then copied to altrel_1-5 as appropriate
     my $logfileURL = $logfile;
     $logfileURL =~ s%/pool/build/atnight/localbuilds/nightlies%http://atlas-computing.web.cern.ch/atlas-computing/links/buildDirectory/nightlies%;
-    print "=== Log file: " . $pwd . "/$logfileURL\nNB replace rel_0 with actual nightly in this URL.\n";
+    if ($athena_cmd =~ /runHLTMPPy/) {
+        print "=== Mother's log file: " . $pwd . "/$logfileURL\nNB replace rel_0 with actual nightly in this URL.\n";	
+    }else{
+    	print "=== Log file: " . $pwd . "/$logfileURL\nNB replace rel_0 with actual nightly in this URL.\n";
+    }
     if (! -e $logfile or -z $logfile){
 	print "=== Error: log file does not exist or is empty, skipping the rest of this test\n";
 	return;
@@ -1020,46 +1060,63 @@ sub run_test($){
     }
     my $dataLFN="unknown";
     my $dataPFN="";
-    my $numForks=0;
-    my $childLogLFN="unknown";   #runHLTMPPy_athenaHLT
-    my $childNumber=1;           #runHLTMPPy_athenaHLT
-    my @childrenLog=("");        #runHLTMPPy_athenaHLT
-    my @childrenNumber=("");     #runHLTMPPU_athenaHLT
-    my $eventCounter=0;    
-    my $memUseChild="";          #runHLTMPPU_athenaHLT
-    my $memUsed=0;		 #runHLTMPPU_athenaHLT
+    my $eventCounter=0;
+    my $numForks=1;              #HLTMPPU
+    my $childLogOut="";          #HLTMPPU
+    my $childLogErr="";          #HLTMPPU
+    my $childOutFile="";         #HLTMPPU
+    my $childErrFile="";         #HLTMPPU
+    my $childFile="";            #HLTMPPU
+    my $motherFile="";           #HLTMPPU
+    my $childNumber=1;           #HLTMPPU
+    my @childrenLogOut=("");     #HLTMPPU
+    my @childrenLogErr=("");     #HLTMPPU
+    my @childrenLog=("");        #HLTMPPU
+    my @childrenNumber=("");     #HLTMPPU
+    my $childPartition="";       #HLTMPPU    
+  
     while (my $line = <LOG>){
-      if ($line =~ /InputCollections\s+\= \['(.*)'\]/){  # athena
+      # athena: data file
+      if ($line =~ /InputCollections\s+\= \['(.*)'\]/){
 	$dataLFN=$1;
       }
-      elsif ($line =~ /event stream from file list\s+\['(.*)'\]/){  # athenaHLT
+      # athenaHLT: data file
+      elsif ($line =~ /event stream from file list\s+\['(.*)'\]/){ 
 	$dataLFN=$1;
       }
-      elsif ($line =~ /<file>(.*)<\/file>/){  # runHLTMPPy_athenaHLT
+      # HLTMPPU: data file
+      elsif ($line =~ /<file>(.*)<\/file>/){ 
         $dataLFN=$1;
       }
-
-      # count events for athena job
+      # athena: number of events
       ++$eventCounter if ($line =~ /AthenaEventLoopMgr\s+INFO\s+===>>>  done processing event/);
-      # handle athenaHLT case
+      # athenaHLT: number of events
       if ($line =~ /Py:athenaHLT\s+INFO\s+Processed ([0-9]+) events/){
         $eventCounter=$1;
       }
-      elsif ($line =~ /I am the child \# (.*) with pid (.*). Redirecting stdout to (.*)/){
+      # HLTMPPU: finds paths to children's stdout and number of events
+      if ($line =~ /I am the child \# (.*) with pid (.*). Redirecting stdout to (.*)/){
         $childNumber=$1;
-        $childLogLFN=$3; 
-	push(@childrenLog, $childLogLFN);
+        $childLogOut=$3; 
+	push(@childrenLogOut, $childLogOut);
         push(@childrenNumber, $childNumber);
-        #print "=== Child #$childNumber with output file $childLogLFN\n";
       }
-
+      # HLTMPPU: finds paths to children's stdin
+      if ($line =~ /I am the child \# (.*) with pid (.*). Redirecting stderr to (.*)/){
+        $childLogErr=$3;
+        push(@childrenLogErr, $childLogErr);
+      }
+      # HLTMPPU: number of workers/forked children
       if ($line =~ /<numForks>(.*)<\/numForks>/){
         $numForks=$1;
-	#print "=== Number of forks: $numForks\n";
       }
+      # HLTMPPU: partition name
+      if ($line =~ /'DF_PARTITION_NAME' = '(.*)'/ ){
+        $childPartition=$1;
+     }
     }
     close LOG;
-
+  
     print "$prog debug: dataLFN=$dataLFN\n" if ($debug);
     if ($dataLFN ne "unknown"){
 	my $dataLFNstripped = $dataLFN;
@@ -1074,76 +1131,100 @@ sub run_test($){
     }
 
     print "=== Data file: $dataLFN   $dataPFN\n";
-    print "=== Number of forks: $numForks\n";
 
-    if ($childLogLFN ne "unknown"){
-        for (my $i=1; $i<=$numForks; $i++){
-            $childLogLFN=$childrenLog[$i];
+    if ($childLogOut ne "unknown"){
+	print "=== Partition Name: $childPartition\n";
+        print "=== Number of forked children: $numForks\n";
+	print "--------------------\n";
+    }else{
+        #write how many events processed
+        print "=== Events processed: $eventCounter\n";
+    }
+     
+    for (my $i=1; $i<=$numForks; $i++){
+
+	my $childDirectory="child_$i";
+
+	if ($childLogOut ne "unknown"){
+            $childLogOut=$childrenLogOut[$i];
+	    $childLogErr=$childrenLogErr[$i];
             $childNumber=$childrenNumber[$i];
 
-            open(CHILD, "<$childLogLFN") or die "Couldn't open file, $!";
+            open(CHILD, "<$childLogOut") or die "Couldn't open file, $!";
             while (my $line = <CHILD>){
-              if ($line =~ /HltEventLoopMgr\s+INFO\s+Total number of events processed :\s+(.*)/){
-                 $eventCounter=$1;
-              }
-	      if ($line =~ /Memory Usage:\s+(.*)\s+kb/){
-		 $memUseChild="memuse_child$i.log";
-                 $memUsed=$1;
-	         systemcall("echo $memUsed >> $memUseChild");
-	      }
+	        if ($line =~ /HltEventLoopMgr\s+INFO\s+Total number of events processed :\s+(.*)/){
+                    $eventCounter=$1;
+                }
 	    }
 	    close CHILD;
 
-            print "=== Child #$childNumber\n"; 
-	    print "====== Output file $childLogLFN\n";
-            print "====== Events processed: $eventCounter\n";
-	    print "====== Memory usage: $memUsed kb\n";
-
-            my $childfile="child$childNumber.log";
-            systemcall("mv $childLogLFN $childfile");
-        }
-	my $childrenLog="Children.log";
-	systemcall("cat child*.log > $childrenLog");
-	$logfile=$childrenLog;
-
-	if (length $memUseChild){
-        	my $memUseChildren="memuse_Children.log";
-        	systemcall("cat memuse_child*.log > $memUseChildren");
+	    if ($i>1){
+	    	print "---\n";
+            }
+	
+            print "== Child #$childNumber\n"; 
+	    print "= Stdout file: $childLogOut\n";
+	    print "= Stderr file: $childLogErr\n";
+         
+	    $childFile="child_$childNumber.log";
+            $motherFile="mother.log";
+	
+            print "= Child Log: $childFile\n";
+            print "= Events processed: $eventCounter\n";
+	    
+            my $childOutFile="child$childNumber.out";
+	    my $childErrFile="child$childNumber.err";
+	    if (length($filter_cmd)>0){
+		 # Apply filter to children logs
+		 my $filterHLTMPPU_cmd = $config{$id}->{'filterlog'};
+		 systemcall("$filterHLTMPPU_cmd < $childLogOut > $childOutFile; rm $childLogOut");
+		 systemcall("$filterHLTMPPU_cmd < $childLogErr > $childErrFile; rm $childLogErr");
+	    }else{
+                 move $childLogOut, $childOutFile;
+		 move $childLogErr, $childErrFile;
+	    }
+	    systemcall("sort -m $childOutFile $childErrFile > $childFile");
+	    copy $logfile, $motherFile;
+	    systemcall("sed -n '/IPC INIT SUCCEEDED/q;p' $motherFile > tmp.log; cat tmp.log $childFile > $logfile; rm tmp.log");
+	    systemcall("mv $childErrFile $childOutFile $childFile $logfile $childDirectory");
 	}
-    }
-    else {
-	# write how many events processed
-        print "=== Events processed: $eventCounter\n";
-    }
-
-    # write how many events processed
-    #print "=== Events processed: $eventCounter\n";
-
-    # check log file for likely errors and known false positives
-    if ($config{$id}->{'checklog'}){
-      my $checklog_opts =  $config{$id}->{'checklog_opts'};
-      # ERRORs
-      my $logrc = systemcall("check_log.pl $checklog_opts $logfile > $checklogout 2>&1");
-      systemcall("cat $checklogout");
-      if ($logrc != 0){
-	print "=== $name $failkey : problem detected in log file\n";
-        print "art-result: 1 $name.CheckLog\n";
-	push @statuscodes, 'ATHENA_ERROR_IN_LOG';
-      } else {
-        print "art-result: 0 $name.CheckLog\n";
-      }
-      # WARNINGs
-      $rc = systemcall("check_log.pl $checklog_opts --noerrors --warnings $logfile > $warnout 2>&1");
-      # Ignore rc.
-    }
-
-    #}
+  
+     if ($config{$id}->{'checklog'}){
+       my $checklog_opts =  $config{$id}->{'checklog_opts'};
+       # ERRORs
+       my $logrc = 0;
+       if ($childLogOut ne "unknown"){
+	   chdir $childDirectory;
+       }	
+       $logrc = systemcall("check_log.pl $checklog_opts $logfile > $checklogout 2>&1; cat $checklogout");
+       if ($logrc != 0){
+	 print "=== $name $failkey : problem detected in log file\n";
+         print "art-result: 1 $name.CheckLog\n";
+	 push @statuscodes, 'ATHENA_ERROR_IN_LOG';
+       }else{
+         print "art-result: 0 $name.CheckLog\n";
+       }
+       # WARNINGs
+       systemcall("check_log.pl $checklog_opts --noerrors --warnings $logfile > $warnout 2>&1");
+       if ($childLogOut ne "unknown"){
+           chdir $pwd;
+       }
+     }
 
     #make short file with last 600 lines only
-    systemcall("tail -600 $logfile > $logfiletail");
-
+    if ($childLogOut ne "unknown"){
+	chdir $childDirectory;
+        systemcall("tail -600 $logfile > $logfiletail");
+	chdir $pwd;
+    }else{
+	systemcall("tail -600 $logfile > $logfiletail");
+    }
+	
     # rootcomp
     if ($config{$id}->{'rootcomp'}){
+	if ($childLogOut ne "unknown"){
+	   chdir $childDirectory;   
+	}
       	my $rootcomp_file1 =  $config{$id}->{'rootcomp_file1'};
         my $rootcomp_file2 =  $config{$id}->{'rootcomp_file2'};
         if( $nightly ne "" ) {
@@ -1153,35 +1234,41 @@ sub run_test($){
         $rootcomp_file1 = resolveSymlinks($rootcomp_file1);
         $rootcomp_file2 = resolveSymlinks($rootcomp_file2);
     
-    if (-e $rootcomp_file1) {
-        if (-e $rootcomp_file2) {
-	my $rc=systemcall("$config{$id}->{'rootcomp_cmd'} $rootcomp_file1 $rootcomp_file2 > $rootcompout 2>&1", TRUE);
- 	if ($rc != 0){
-	    print "=== $name WARNING: monitoring histogram mismatch detected by rootcomp\n";
-            print "art-result: 1 $name.RootComp\n";
-	    push @statuscodes, 'ROOTCOMP_MISMATCH';
-	} else {
-	    print "=== $name: rootcomp: monitoring histograms match. \n";
-            print "art-result: 0 $name.RootComp\n";
-	}
-        }
-        else {
-            print "=== Alert: $rootcomp_file2 does not exist \n";
-            print "art-result: 2 $name.RootComp\n";
-        }
-    }
-        else {
+        if (-e $rootcomp_file1) {
+            if (-e $rootcomp_file2) {
+	        my $rc=systemcall("$config{$id}->{'rootcomp_cmd'} $rootcomp_file1 $rootcomp_file2 > $rootcompout 2>&1", TRUE);
+ 	        if ($rc != 0){
+	            print "=== $name WARNING: monitoring histogram mismatch detected by rootcomp\n";
+                    print "art-result: 1 $name.RootComp\n";
+	            push @statuscodes, 'ROOTCOMP_MISMATCH';
+	        }else{
+	            print "=== $name: rootcomp: monitoring histograms match. \n";
+                    print "art-result: 0 $name.RootComp\n";
+	        }
+            }else{
+                print "=== Alert: $rootcomp_file2 does not exist \n";
+                print "art-result: 2 $name.RootComp\n";
+            }
+        }else{
             print "=== Alert: $rootcomp_file1 does not exist \n";
             print "art-result: 2 $name.RootComp\n";
         }
-	#systemcall("cat $rootcompout");
         if (-e $rootcompout) {
-	systemcall("grep -A 5 '^Summary' $rootcompout");
+            systemcall("grep -A 5 '^Summary' $rootcompout");
+	    if ($childLogOut ne "unknown"){
+            	systemcall("mv $rootcompout $childDirectory");
+	    }
+        }	
+	if ($childLogOut ne "unknown"){
+           chdir $pwd;
         }
-      }
+    }
 
     # checkcount
     if ($config{$id}->{'checkcount'}){
+	if ($childLogOut ne "unknown"){
+	    chdir $childDirectory;
+	}
 	my $checkcount_file =  $config{$id}->{'checkcount_file'};
         my $checkcount_tolerance = $config{$id}->{'checkcount_tolerance'};
         my $checkcount_level = $config{$id}->{'checkcount_level'};
@@ -1196,19 +1283,24 @@ sub run_test($){
 	    print "=== $name WARNING: trigger count mismatch detected by checkcount\nSee $checkcountout for details.\n";
             print "art-result: 1 $name.CheckCounts\n";
 	    push @statuscodes, 'CHECKCOUNTS_FAILED';
-	} else {
+	}else{
 	    print "=== $name: countcheck: trigger counts match. \n";
             print "art-result: 0 $name.CheckCounts\n";
 	}
-	#systemcall("cat $rootcompout");
         #Grep for FAILURE here so that bad runs will be flagged as such  
 	systemcall("grep 'FAILURE' $checkcountout");
 	systemcall("grep 'test warning' $checkcountout");
-	systemcall("grep 'tolerance' $checkcountout");
+	systemcall("grep 'tolerance' $checkcountout; cd ..");
+	if ($childLogOut ne "unknown"){
+            chdir $pwd;
+        }
     }
 
  # checkmerge
     if ($config{$id}->{'checkmerge'}){
+	if ($childLogOut ne "unknown"){
+            chdir $childDirectory;
+        }
 	my $checkmerge_file =  $config{$id}->{'checkmerge_file'};
         my $checkmerge_tolerance = $config{$id}->{'checkmerge_tolerance'};
         my $checkmerge_reffile = $config{$id}->{'checkmerge_reffile'};
@@ -1230,12 +1322,18 @@ sub run_test($){
 	}
 	systemcall("grep 'ERROR' $checkmergeout");
 	systemcall("grep 'WARNING' $checkmergeout");
+	if ($childLogOut ne "unknown"){
+            chdir $pwd;
+        }
     }
     
    # EDM tests
     my $emdcheckresult=TRUE;
   EDMCHECK:
     for (@{$config{$id}->{'edmcheck'}}){
+	if ($childLogOut ne "unknown"){
+            chdir $childDirectory;
+        }
         # truncate algorithm name for 30 characters
 	my $algoname = $_->{'algoname'};
 	my $truncalgoname = substr($algoname, 0, 30);
@@ -1263,12 +1361,18 @@ sub run_test($){
 	    print "=== $name: edmcheck: files matched \n";
             print "art-result: 0 $name.EdmCheck\n";  
 	}
+	if ($childLogOut ne "unknown"){
+            chdir $pwd;
+        }
     }
 
     # regression tests
     my $regtestresult=TRUE;
   REGTEST:
     for (@{$config{$id}->{'regtest'}}){
+	if ($childLogOut ne "unknown"){
+            chdir $childDirectory;
+        }
         # truncate algorithm name for 15 characters
 	my $algoname = $_->{'algoname'};
 	my $truncalgoname = substr($algoname, 0, 30);
@@ -1396,6 +1500,9 @@ sub run_test($){
           print "=== Alert! old/reference file: $reffile does not exist - check if this is a new release!\n";  
           print "art-result: 2 $name.Regtest\n";
         }
+	if ($childLogOut ne "unknown"){
+	    chdir $pwd;
+	}
     }
     if (!$regtestresult){
 	push @statuscodes, 'ATHENA_REGTEST_FAILED';
@@ -1403,9 +1510,19 @@ sub run_test($){
 
     # compress log file
     if ($config{$id}->{'compresslog'}){
+	if ($childLogOut ne "unknown"){
+            chdir $childDirectory;
+        }
 	systemcall("gzip -9 $logfile");
+	if ($childLogOut ne "unknown"){
+            chdir $pwd;
+        }
     }
 
+    #if ($childLogOut ne "unknown"){
+	#systemcall("mv $childFile $childDirectory");
+    #}
+  }
 #    print "$prog debug: returning result $result (" 
 #	. ($result ? "true" : "false") . ")\n"      if ($debug);
     return;
