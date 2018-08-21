@@ -169,27 +169,13 @@ namespace{
     validLinkNumber(const int link) {
     return ((link>-1) and (link<96)) or (link==defaultLink) or (link==disabledFibre);
   }
-  //make a number even
-  IdentifierHash even(const IdentifierHash& hash) {
-    return (hash>>1) << 1;
-  }
 }//end of anonymous namespace
 
 // Constructor
 SCT_CablingCondAlgFromCoraCool::SCT_CablingCondAlgFromCoraCool(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_readKeyRod{"/SCT/DAQ/Config/ROD"},
-  m_readKeyRodMur{"/SCT/DAQ/Config/RODMUR"},
-  m_readKeyMur{"/SCT/DAQ/Config/MUR"},
-  m_readKeyGeo{"/SCT/DAQ/Config/Geog"},
-  m_writeKey{"SCT_CablingData"},
   m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKeyRod", m_readKeyRod, "Key of input (raw) conditions folder of Rods");
-  declareProperty("ReadKeyRodMur", m_readKeyRodMur, "Key of input (raw) conditions folder of RodMurs");
-  declareProperty("ReadKeyMur", m_readKeyMur, "Key of input (raw) conditions folder of Murs");
-  declareProperty("ReadKeyGeo", m_readKeyGeo, "Key of input (raw) conditions folder of Geography");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
 }
 
 //
@@ -566,10 +552,8 @@ SCT_CablingCondAlgFromCoraCool::insert(const IdentifierHash& hash, const SCT_Onl
   if (not data->setHashForOnlineId(hash, onlineId)) return false;
   if (not data->setOnlineIdForHash(onlineId, hash)) return false;
 
-  //only insert even hashes for serial numbers
-  IdentifierHash evenHash{even(hash)};
-  bool successfulInsert{data->setHashForSerialNumber(evenHash, sn)};
-  successfulInsert &= data->setSerialNumberForHash(sn, evenHash);
+  bool successfulInsert{data->setHashForSerialNumber(hash, sn)};
+  successfulInsert &= data->setSerialNumberForHash(sn, hash);
   // in this form, the data->getHashEntries() will be half the number of hashes
   if (successfulInsert) {
     data->setRod(onlineId.rod()); //move this here so insertion only happens for valid onlineId, hash
