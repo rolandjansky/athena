@@ -526,7 +526,8 @@ def TrigIDtrkMonitoringTool():
                 tidaftkfs_purity.pTCutOffline      = 500
 
                 tidaftkfs_purity.pixHitsOffline    = -1
-#               tidaftkfs_purity.sctHitsOffline    =  6
+                tidaftkfs_purity.pixHitsOffline    = -1
+                tidaftkfs_purity.sctHitsOffline    =  4
 #               tidaftkfs_purity.blayerHitsOffline = -1
 #               tidaftkfs_purity.pixHolesOffline   = 20
 		tidaftkfs_purity.siHitsOffline     = 6
