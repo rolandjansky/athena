@@ -321,13 +321,9 @@ namespace Rec {
     ParticleCellAssociation::CellIntersections cellIntersections;
     getCellIntersections(*caloExtension,cells,cellIntersections);
     
-//    for(auto it : cellIntersections){
-//      double f_exp = (it.second)->pathLength();
-//      double E_exp = (it.second)->expectedEnergyLoss();
-//      ATH_MSG_DEBUG( " path " << f_exp << " expected Eloss " << E_exp );
-//    }
-
-    ParticleCellAssociation* theAssocation = new ParticleCellAssociation( *caloExtension, std::move(cells), dr, 
+    //From here on the ParticleCellAssociation has ownership of the caloExtension
+    //We can not assume the CaloExtension stays alive in Storegate etc etc
+    ParticleCellAssociation* theAssocation = new ParticleCellAssociation( caloExtension.release(), std::move(cells), dr, 
                                                                           std::move(cellIntersections), container );
 
     // now add the extension to the output collection so we are not causing any leaks
