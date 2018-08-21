@@ -69,11 +69,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 
 job = AlgSequence()
 
-
-from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
-ToolSvc = ServiceMgr.ToolSvc
-ServiceMgr+=SCT_CablingSvc()
-
 #--------------------------------------------------------------
 # Load IOVDbSvc
 #--------------------------------------------------------------
@@ -97,7 +92,6 @@ job+= SCT_RODVetoTestAlg()
 
 
 import AthenaCommon.AtlasUnixGeneratorJob
-ServiceMgr.SCT_CablingSvc.OutputLevel = INFO
 ToolSvc.SCT_RODVetoTool.OutputLevel=VERBOSE
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000
 ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
