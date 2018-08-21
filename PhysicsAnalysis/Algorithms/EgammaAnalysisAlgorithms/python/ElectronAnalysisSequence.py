@@ -10,7 +10,8 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 def makeElectronAnalysisSequence( dataType,
                                   isolationWP = 'GradientLoose',
                                   likelihoodWP = 'LooseLHElectron',
-                                  recomputeLikelihood = False ):
+                                  recomputeLikelihood = False,
+                                  chargeIDSelection = False ):
     """Create an electron analysis algorithm sequence
 
     Keyword arguments:
@@ -18,6 +19,7 @@ def makeElectronAnalysisSequence( dataType,
       isolationWP -- The isolation selection working point to use
       likelihoodWP -- The likelihood selection working point to use
       recomputeLikelihood -- Whether to rerun the LH. If not, use derivation flags
+      chargeIDSelection -- Whether or not to perform charge ID/flip selection
     """
 
     # Make sure we received a valid data type.
@@ -76,7 +78,7 @@ def makeElectronAnalysisSequence( dataType,
     # Since these are independent of the electron calibration, and this speeds
     # up the job.
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-                           'ElectronLHViewFromSelectionAlg' )
+                           'ElectronPreSelViewFromSelectionAlg' )
     alg.selection = _selectionDecorNames
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
@@ -124,6 +126,23 @@ def makeElectronAnalysisSequence( dataType,
                 outputPropName = 'particlesOut' )
     _selectionDecorNames.append( 'trackSelection' )
     _selectionDecorCount.append( 3 )
+
+    # Select electrons only if they don't appear to have flipped their charge.
+    if chargeIDSelection:
+        alg = createAlgorithm( 'CP::AsgSelectionAlg',
+                               'ElectronChargeIDSelectionAlg' )
+        alg.selectionDecoration = 'chargeID'
+        addPrivateTool( alg, 'selectionTool',
+                        'AsgElectronChargeIDSelectorTool' )
+        alg.selectionTool.TrainingFile = \
+          'ElectronPhotonSelectorTools/ChargeID/ECIDS_20180731rel21Summer2018.root'
+        alg.selectionTool.WorkingPoint = 'Loose'
+        alg.selectionTool.CutOnBDT = -0.337671 # Loose 97%
+        seq.append( alg, inputPropName = 'particles',
+                    outputPropName = 'particlesOut' )
+        _selectionDecorNames.append( alg.selectionDecoration )
+        _selectionDecorCount.append( 1 )
+        pass
 
     # Set up the electron efficiency correction algorithm:
     alg = createAlgorithm( 'CP::ElectronEfficiencyCorrectionAlg',
