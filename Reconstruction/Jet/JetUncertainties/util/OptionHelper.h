@@ -8,6 +8,7 @@
 #include "AsgTools/AsgMessaging.h"
 #include <vector>
 #include <utility>
+#include <stdexcept>
 #include "TString.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
@@ -268,7 +269,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
         else
         {
             ATH_MSG_ERROR("The composition was double-specified, please check that you don't specify both \"Composition\" and \"isDijet\"");
-            throw std::string("Double composition failure");
+            throw std::runtime_error("Double composition failure");
         }
     }
 
@@ -299,7 +300,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
         if (m_topology == JetTopology::UNKNOWN)
         {
             ATH_MSG_ERROR("The topology specified is invalid: " << jetTopology.Data());
-            throw std::string("Topology failure");
+            throw std::runtime_error("Topology failure");
         }
     }
 
@@ -354,7 +355,7 @@ void OptionHelper::checkInit() const
     if (!m_isInit)
     {
         ATH_MSG_FATAL("Asked for a value before initializing the tool");
-        throw std::string("Initialization failure");
+        throw std::runtime_error("Initialization failure");
     }
 }
 
@@ -373,7 +374,7 @@ std::vector<double> OptionHelper::getBins(const TString& toParse) const
     if (tokens.size() != 4)
     {
         ATH_MSG_FATAL("Unexpected format for bins: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
 
     // Check the type
@@ -382,7 +383,7 @@ std::vector<double> OptionHelper::getBins(const TString& toParse) const
     if (!isUniform && !isLog)
     {
         ATH_MSG_FATAL("Unexpected binning type (token 0), only U/u and L/l are currently supported: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
 
     // Check the number of bins
@@ -390,7 +391,7 @@ std::vector<double> OptionHelper::getBins(const TString& toParse) const
     if (!jet::utils::getTypeObjFromString(tokens.at(1),numBins))
     {
         ATH_MSG_FATAL("Number of bins (token 1) was not an unsigned int: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
 
     // Check the min and max
@@ -398,17 +399,17 @@ std::vector<double> OptionHelper::getBins(const TString& toParse) const
     if (!jet::utils::getTypeObjFromString(tokens.at(2),minVal))
     {
         ATH_MSG_FATAL("Number of bins (token 2) was not a double: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
     if (!jet::utils::getTypeObjFromString(tokens.at(3),maxVal))
     {
         ATH_MSG_FATAL("Number of bins (token 3) was not a double: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
     if (maxVal < minVal)
     {
         ATH_MSG_FATAL("The maximum value is smaller than the minimum: " << toParse.Data());
-        throw std::string("Parse failure");
+        throw std::runtime_error("Parse failure");
     }
 
     // Done checking, finally return the bins
@@ -530,7 +531,7 @@ TString OptionHelper::GetCompositionPath() const
     }
     
     ATH_MSG_FATAL("Unable to interpret special composition path: " << m_composition);
-    throw std::string("Composition path failure");
+    throw std::runtime_error("Composition path failure");
     return "";
 }
 
@@ -559,7 +560,7 @@ TString OptionHelper::GetCompositionName() const
     }
 
     ATH_MSG_FATAL("Unable to interpret special composition name: " << m_composition);
-    throw std::string("Composition name failure");
+    throw std::runtime_error("Composition name failure");
     return "";
 }
 
