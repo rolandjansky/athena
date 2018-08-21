@@ -225,12 +225,3 @@ steeringEF = job.TrigSteer_EF
 #
 if 0 and doReadBS:
     ServiceMgr.ByteStreamCnvSvc.IsSimulation = True
-
-    # hack to force MC calbing loading for FDR2
-    if ServiceMgr.ByteStreamCnvSvc.IsSimulation:
-        from InDetCabling.InDetCablingConf import SCT_CablingSelector
-        SCT_CablingSelector = SCT_CablingSelector(Method = "MANUAL", Layout ="FromTextFile", Filename = "SCT_MC_FullCabling.dat")
-        ToolSvc            += SCT_CablingSelector
-        
-
-
