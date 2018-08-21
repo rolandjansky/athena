@@ -276,7 +276,7 @@ namespace NSWL1 {
       */
       m_clusters.clear();
     }
-void StripClusterTool::fill_strip_validation_id(std::vector<upStripClusterData>& clusters) {
+void StripClusterTool::fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters) {
 
     ATH_MSG_DEBUG("M_Clusters recieved " << m_clusters.size());
 
@@ -306,7 +306,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<upStripClusterData>&
       int n_strip=0;
       ATH_MSG_DEBUG(" Start cl " << cl_i  << " OF " << m_clusters.size());
 
-      //std::vector< upStripData >* this_cl=m_clusters.at(cl_i);
+      //std::vector< std::unique_ptr<StripData> >* this_cl=m_clusters.at(cl_i);
       auto this_cl=m_clusters.at(cl_i);
       ATH_MSG_DEBUG(" Start cl " << cl_i  << " OF " << m_clusters.size());
 
@@ -487,7 +487,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<upStripClusterData>&
   }
 
 
-  bool StripClusterTool::MatchModule(const upStripData& one, const StripData* two){
+  bool StripClusterTool::MatchModule(const std::unique_ptr<StripData>& one, const StripData* two){
     return one->sideId() == two->sideId()          // side
       && one->wedge()==two->wedge()    // Wedge
       && one->sectorId()==two->sectorId()       // Sector
@@ -495,14 +495,14 @@ void StripClusterTool::fill_strip_validation_id(std::vector<upStripClusterData>&
       && one->layer()==two->layer() ;       //layer
   }
 
-  StatusCode StripClusterTool::cluster_strip_data( std::vector<upStripData>& strips, std::vector< upStripClusterData >& clusters){
-      std::vector<upStripData>::iterator hit=strips.begin();
-      std::vector<upStripData>::iterator hit_end=strips.end();
+  StatusCode StripClusterTool::cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips, std::vector< std::unique_ptr<StripClusterData> >& clusters){
+      std::vector<std::unique_ptr<StripData>>::iterator hit=strips.begin();
+      std::vector<std::unique_ptr<StripData>>::iterator hit_end=strips.end();
       //auto hit std::make_move_iterator(strips.begin());
       //auto hit_end std::make_move_iterator(strips.end());
       if (hit==hit_end)return StatusCode::SUCCESS;
       
-      auto cr_cluster=std::make_shared< std::vector<upStripData> >();
+      auto cr_cluster=std::make_shared< std::vector<std::unique_ptr<StripData>> >();
       
       //      cr_cluster->push_back((*hit));
       StripData* p_hit=nullptr;
@@ -555,7 +555,7 @@ void StripClusterTool::fill_strip_validation_id(std::vector<upStripClusterData>&
 	      m_clusters.push_back(std::move(cr_cluster));
 	      ATH_MSG_DEBUG("Adding Cluster with " << cr_cluster->size() << "hits" << m_clusters.size() << " m_clusters so far");
           
-          cr_cluster=std::make_shared<std::vector<upStripData>>();
+          cr_cluster=std::make_shared<std::vector<std::unique_ptr<StripData>>>();
           cr_cluster->push_back(std::move(hit));
 	       // }
 	     }

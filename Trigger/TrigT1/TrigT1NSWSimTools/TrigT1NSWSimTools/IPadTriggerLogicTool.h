@@ -8,49 +8,45 @@
 #define NSWL1_IPADTDSTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "TriggerTypes.h"
+#include "TrigT1NSWSimTools/TriggerTypes.h"
 #include <vector>
 
 namespace NSWL1 {
 
-class PadData;
-class PadTrigger;
-/*
-typedef std::shared_ptr<PadTrigger> spPadTrigger;
-typedef std::unique_ptr<PadTrigger> upPadTrigger;
-typedef std::shared_ptr<PadData> spPadData;
-*/
-/**
+    class PadData;
+    class PadTrigger;
 
-   @short interface for the PadTriggerLogic tools
+    /**
 
-   This class implements the public interface of the TDS Tools.
-   It returns a vector of PadTrigger.
+    @short interface for the PadTriggerLogic tools
 
-   The design of this class is based on the one of IPadTdsTool.
+    This class implements the public interface of the TDS Tools.
+    It returns a vector of PadTrigger.
 
-   \todo
-   Note to self: Sandro's original design was to have an interface and
-   then an "Offline" and an "Online" tool. I don't know whether this
-   is still what we want...to be discussed.
+    The design of this class is based on the one of IPadTdsTool.
 
-   davide.gerbaudo@gmail.com
-   Oct 2015
-*/
+    \todo
+    Note to self: Sandro's original design was to have an interface and
+    then an "Offline" and an "Online" tool. I don't know whether this
+    is still what we want...to be discussed.
 
-class IPadTriggerLogicTool: public virtual IAlgTool {
+    davide.gerbaudo@gmail.com
+    Oct 2015
+    */
 
-public:
-    virtual ~IPadTriggerLogicTool() {}
+    class IPadTriggerLogicTool: public virtual IAlgTool {
 
-    virtual StatusCode compute_pad_triggers(const std::vector<spPadData>& pads, std::vector<upPadTrigger> &triggers) = 0;
+    public:
+        virtual ~IPadTriggerLogicTool() {}
 
-    static const InterfaceID& interfaceID() {
-        static const InterfaceID IID_IPadTriggerLogicTool("NSWL1::IPadTriggerLogicTool", 1 ,0);
-        return IID_IPadTriggerLogicTool;
-    }
-}; // IPadTriggerLogicTool
+        virtual StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers) = 0;
 
-} // NSWL1
+        static const InterfaceID& interfaceID() {
+            static const InterfaceID IID_IPadTriggerLogicTool("NSWL1::IPadTriggerLogicTool", 1 ,0);
+            return IID_IPadTriggerLogicTool;
+        }
+    };
+
+}
 
 #endif

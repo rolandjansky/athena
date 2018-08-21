@@ -8,7 +8,7 @@
 #ifndef NSW_SECTORTRIGGERCANDIDATE_H
 #define NSW_SECTORTRIGGERCANDIDATE_H
 
-#include "SingleWedgePadTrigger.h"
+#include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "TrigT1NSWSimTools/GeoUtils.h"
 #include <string>
 #include <vector>
@@ -22,7 +22,6 @@ davide.gerbaudo@gmail.com, April 2013
 
 
 namespace NSWL1 {
-  class SingleWedgePadTrigger;
   
   class SectorTriggerCandidate {
   public:
@@ -31,7 +30,7 @@ namespace NSWL1 {
     SectorTriggerCandidate(const SingleWedgePadTrigger &innerOrOuterInTransition);
     std::string pickle() const; //!< simple dict-like representation
     const std::vector< SingleWedgePadTrigger >& wedgeTrigs() const { return m_wedgeTrigs;}
-   Polygon triggerRegion3() const;
+    Polygon triggerRegion3() const;
 
   private:
     std::vector< SingleWedgePadTrigger > m_wedgeTrigs;

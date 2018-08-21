@@ -9,6 +9,7 @@
 // local includes
 #include "TrigT1NSWSimTools/StripSegmentTool.h"
 #include "TrigT1NSWSimTools/StripOfflineData.h"
+#include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
 //Event info includes
 #include "EventInfo/EventInfo.h"
@@ -148,11 +149,11 @@ namespace NSWL1 {
     }
 
   
-    StatusCode StripSegmentTool::find_segments(std::vector< upStripClusterData >& clusters){
+    StatusCode StripSegmentTool::find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters){
       
       
 
-      std::map<int, std::vector<upStripClusterData>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
+      std::map<int, std::vector<std::unique_ptr<StripClusterData>>[2] > cluster_map; // gather clusters by bandID and seperate in wedge
 
 
       for(  auto& cl : clusters){
@@ -237,10 +238,10 @@ namespace NSWL1 {
 	     phi=atan(gly/glx);
 	   }
 	   else if(glx<0 && gly>0){
-	     phi=3.14159-atan(abs(gly/glx));
+	     phi=PI-atan(abs(gly/glx));
 	   }
 	   else if(glx<0 && gly<0){
-	      phi=-3.14159+atan(gly/glx);
+	      phi=-1*PI+atan(gly/glx);
 	   }
 	   else if(glx>0 && gly<0){
 	      phi=-atan(abs(gly/glx));

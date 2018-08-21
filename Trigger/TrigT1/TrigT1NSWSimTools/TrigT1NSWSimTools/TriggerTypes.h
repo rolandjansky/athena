@@ -8,38 +8,26 @@
 #define NSWL1_TRIGGERTYPES_H
 #include <memory>
 #include <stdint.h>
+#include<vector>
+//S.I 20.08.18
+//Merged tdr_typedefs.h and This file(TriggerTypes.h) inside the common namespace NSWL1
+//to avoid namespace inflation.
 
 namespace NSWL1 {
-
-
-/** @defgroup TriggerTypes
- *  Define a few types to be used in the NSWL1 trigger simulation
- *  @{
- */
-
-/// bunch crossing tag
-typedef uint16_t BcTag_t;
-/// strip band id
-typedef uint16_t BandId_t;
-
-/** @} */ // end of group1
-
-class PadData;
-class PadTrigger;
-class StripData;
-class StripClusterData;
-class StripOfflineData;
-class PadOfflineData;
-
-using spPadData= std::shared_ptr<PadData>;
-using spPadOfflineData=std::shared_ptr<PadOfflineData>;
-using spPadTrigger=std::shared_ptr<PadTrigger>;
-using upPadTrigger=std::unique_ptr<PadTrigger>;
-using upStripData=std::unique_ptr<StripData>;
-using upStripClusterData=std::unique_ptr<StripClusterData>;
-using upStripOfflineData=std::unique_ptr<StripOfflineData>;
-
-
-
-} // NSWL1
+    /** @defgroup TriggerTypes
+    *  Define a few types to be used in the NSWL1 trigger simulation
+    */
+    
+    class Pad;
+    class PadData;
+    class PadOfflineData;
+    class PadWithHits;
+    class PadTrigger;
+    class SingleWedgePadTrigger;
+    class SectorTriggerCandidate;
+    
+    class StripData;
+    class StripClusterData;
+    class StripOfflineData;
+}
 #endif

@@ -42,7 +42,7 @@ public:
     void reset_ntuple_variables(); ///< clear all vectors of internal containers
     void clear_ntuple_variables(); ///< set to 0 all pointers of internal containers
     void fill_num_pad_triggers(size_t num);                                  ///< store the number of pad triggers per event
-    void fill_pad_trigger_basics(const std::vector<upPadTrigger> &triggers);  ///< store basic information about the pad triggers 
+    void fill_pad_trigger_basics(const std::vector<std::unique_ptr<PadTrigger>> &triggers);  ///< store basic information about the pad triggers 
     /*
     void fill_num_pad_hits(size_t num); ///< store the number of hits for one pad
     void fill_hit_global_pos(const Amg::Vector3D& pos); ///< store global position of a hit

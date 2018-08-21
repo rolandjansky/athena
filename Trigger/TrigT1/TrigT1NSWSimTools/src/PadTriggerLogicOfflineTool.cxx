@@ -9,14 +9,15 @@
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-
+#include "GaudiKernel/MsgStream.h"
 // local includes
 #include "TrigT1NSWSimTools/PadTriggerLogicOfflineTool.h"
 #include "TrigT1NSWSimTools/PadData.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/PadWithHits.h"
 #include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
-#include "TrigT1NSWSimTools/L1TdrStgcTriggerLogic.h"
+#include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
+
 #include "TrigT1NSWSimTools/vector_utils.h"
 
 //Event info includes
@@ -78,7 +79,6 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
     m_missingDetectorManagerErrorCounter(0),
     m_missingReadoutElementErrorCounter(0)
 {
-
     declareInterface<NSWL1::IPadTriggerLogicTool>(this);
     declareProperty("RndmEngineName", m_rndmEngineName = "PadTriggerLogicOfflineTool", "the name of the random engine");
     declareProperty("sTGC_DigitContainerName", m_sTgcDigitContainer = "sTGC_DIGITS", "the name of the sTGC digit container");
@@ -166,7 +166,9 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
 // DG-todo        //--ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
 // DG-todo    }
 // DG-todo
-
+    m_tdrLogic=L1TdrStgcTriggerLogic();
+    m_tdrLogic.m_writePickle = false;
+    m_tdrLogic.m_verbose = true;
     return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------
@@ -192,54 +194,52 @@ void PadTriggerLogicOfflineTool::handle(const Incident& inc) {
 // }
 
 ///! helper function: copy pads with a given multiplet
-std::vector<spPadData> filterByMultiplet(const std::vector<spPadData> &pads_in, const int &multiplet) {
-    std::vector<spPadData> pads_out;
+std::vector<std::shared_ptr<PadData>> filterByMultiplet(const std::vector<std::shared_ptr<PadData>> &pads_in, const int &multiplet) {
+    std::vector<std::shared_ptr<PadData>> pads_out;
     pads_out.reserve(0.5*pads_in.size()); // educated guess (half inner multiplet, half outer multiplet)
-    for(spPadData p : pads_in)
+    for(auto p : pads_in)
         if(p->multipletId()==multiplet)
             pads_out.push_back(p);
     return pads_out;
 }
 ///! helper function: copy pads with a given gas gap
-std::vector<spPadData> filterByGasGap(const std::vector<spPadData> &pads_in, const int &gasgap) {
-    std::vector<spPadData> pads_out;
+std::vector<std::shared_ptr<PadData>> filterByGasGap(const std::vector<std::shared_ptr<PadData>> &pads_in, const int &gasgap) {
+    std::vector<std::shared_ptr<PadData>> pads_out;
     pads_out.reserve(0.25*pads_in.size()); // educated guess (4 gas gaps)
-    for(spPadData p : pads_in)
+    for(auto p : pads_in)
         if(p->gasGapId()==gasgap)
             pads_out.push_back(p);
     return pads_out;
 }
 
-std::vector<upPadTrigger> PadTriggerLogicOfflineTool::build4of4SingleWedgeTriggers(const std::vector<spPadData> &pads) {
+std::vector<std::unique_ptr<PadTrigger>> PadTriggerLogicOfflineTool::build4of4SingleWedgeTriggers(const std::vector<std::shared_ptr<PadData>> &pads) {
     // dummy function: just count four pads on 4 different layers with ieta, iphi == i or i+1
-    std::vector<spPadData> padsLayer0 = filterByGasGap(pads, 1);
-    std::vector<spPadData> padsLayer1 = filterByGasGap(pads, 2);
-    std::vector<spPadData> padsLayer2 = filterByGasGap(pads, 3);
-    std::vector<spPadData> padsLayer3 = filterByGasGap(pads, 4);
-    std::vector<upPadTrigger> triggers;
-    for(spPadData p0 : padsLayer0){
+    std::vector<std::shared_ptr<PadData>> padsLayer0 = filterByGasGap(pads, 1);
+    std::vector<std::shared_ptr<PadData>> padsLayer1 = filterByGasGap(pads, 2);
+    std::vector<std::shared_ptr<PadData>> padsLayer2 = filterByGasGap(pads, 3);
+    std::vector<std::shared_ptr<PadData>> padsLayer3 = filterByGasGap(pads, 4);
+    std::vector<std::unique_ptr<PadTrigger>> triggers;
+    for(auto p0 : padsLayer0){
         int p0ieta = p0->padEtaId();
         int p0iphi = p0->padPhiId();
-        for(spPadData p1 : padsLayer1){
+        for(auto p1 : padsLayer1){
             int p1ieta = p1->padEtaId();
             int p1iphi = p1->padPhiId();
             bool p0_p1_match = ((p1ieta == p0ieta || p1ieta == p0ieta+1 ) &&
                                 (p1iphi == p0iphi || p1iphi == p0iphi+1 ) );
             if(not p0_p1_match) continue;
-            for(spPadData p2 : padsLayer2){
+            for(auto p2 : padsLayer2){
                 int p2ieta = p2->padEtaId();
                 int p2iphi = p2->padPhiId();
                 bool p1_p2_match = ((p2ieta == p1ieta || p2ieta == p1ieta+1 ) &&
                                     (p2iphi == p1iphi || p2iphi == p1iphi+1 ) );
                 if(not p1_p2_match) continue;
-                for(spPadData p3 : padsLayer3){
+                for(auto p3 : padsLayer3){
                     int p3ieta = p3->padEtaId();
                     int p3iphi = p3->padPhiId();
                     bool p2_p3_match = ((p3ieta == p2ieta || p3ieta == p2ieta+1 ) &&
                                         (p3iphi == p2iphi || p3iphi == p2iphi+1 ) );
                     if(p2_p3_match){
-                        //S.I
-                        //PadTrigger* trigger = new PadTrigger();
                         auto trg=std::make_unique<PadTrigger>();
                         trg->m_pads.push_back(p0);
                         trg->m_pads.push_back(p1);
@@ -263,12 +263,12 @@ std::vector<upPadTrigger> PadTriggerLogicOfflineTool::build4of4SingleWedgeTrigge
 //    return pwh;
 //}
 //------------------------------------------------------------------------------
-StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<spPadData>& pads,
-                                                            std::vector<upPadTrigger> &triggers)
+StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads,
+                                                            std::vector<std::unique_ptr<PadTrigger>> &triggers)
 {
     ATH_MSG_DEBUG(" <N> receiving "<<pads.size()<<" pad data");
     ATH_MSG_DEBUG("calling compute_pad_triggers() (pads.size() "<<pads.size()<<")");
-    for(const spPadData pad : pads){
+    for(const auto pad : pads){
         ATH_MSG_DEBUG(" <N> building trig from pad "
                       <<" side "<<pad->sideId()<<""
                       <<", sector "<<pad->sectorId()
@@ -283,55 +283,48 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<sp
     const std::vector<size_t> sectors = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     for(const size_t &side : sides){
         for(const size_t &sector : sectors){
-            std::vector<spPadData> sector_pads;
+            std::vector<std::shared_ptr<PadData>> sector_pads;
             copy_if(pads.begin(), pads.end(),
                     back_inserter(sector_pads),
-                    [&](spPadData p) { return (p->sideId()==static_cast<int>(side) &&
+                    [&](std::shared_ptr<PadData> p) { return (p->sideId()==static_cast<int>(side) &&
                                                     (2*p->sectorId()-1-p->sectorType())==static_cast<int>(sector));});
 
             if(sector_pads.size()){
-                const spPadData firstPad = sector_pads[0];
+                const std::shared_ptr<PadData> firstPad = sector_pads[0];
                 ATH_MSG_DEBUG("<N> side "
                               <<(firstPad->sideId()==0?"A":"C")
                               <<" trigger sector "<< (2*firstPad->sectorId()-1-firstPad->sectorType())
                               <<" : "<<sector_pads.size()<<" pads");
                 if(m_useSimple4of4) {
                     const int innerMultiplet(1), outerMultiplet(2); // DG-2015-10-07 move to enum?
-                    std::vector<spPadData> padsInner(filterByMultiplet(sector_pads, innerMultiplet));
-                    std::vector<spPadData> padsOuter(filterByMultiplet(sector_pads, outerMultiplet));
-                    std::vector<upPadTrigger> triggersInner = build4of4SingleWedgeTriggers(padsInner);
-                    std::vector<upPadTrigger> triggersOuter = build4of4SingleWedgeTriggers(padsOuter);
+                    std::vector<std::shared_ptr<PadData>> padsInner(filterByMultiplet(sector_pads, innerMultiplet));
+                    std::vector<std::shared_ptr<PadData>> padsOuter(filterByMultiplet(sector_pads, outerMultiplet));
+                    std::vector<std::unique_ptr<PadTrigger>> triggersInner = build4of4SingleWedgeTriggers(padsInner);
+                    std::vector<std::unique_ptr<PadTrigger>> triggersOuter = build4of4SingleWedgeTriggers(padsOuter);
                     ATH_MSG_DEBUG("found "
                                   <<triggersInner.size()<<" inner triggers"
                                   <<" and "
                                   <<triggersOuter.size()<<" outer triggers");
                      triggers.reserve(triggers.size() + triggersInner.size()+triggersOuter.size());
-                    //S.I we cant't copy them around anymore....
-                    //triggers.insert(triggers.end(), triggersInner.begin(), triggersInner.end());
-                    //triggers.insert(triggers.end(), triggersOuter.begin(), triggersOuter.end());
+
                     triggers.insert(triggers.end(),std::make_move_iterator(triggersInner.begin()),std::make_move_iterator(triggersInner.end()));
                     triggers.insert(triggers.end(),std::make_move_iterator(triggersOuter.begin()),std::make_move_iterator(triggersOuter.end()));
                 } 
                 else {
                   std::vector<PadWithHits> pwhs;
-                  for(const spPadData& p : sector_pads){
+                  for(const auto& p : sector_pads){
                      PadWithHits pwh(p);
                         fillGeometricInformation(*p,pwh);
                         pwhs.push_back(pwh);
-                        //pwhs.push_back(convert(*p));
                   }
-                     L1TdrStgcTriggerLogic tdrLogic;
-                     tdrLogic.m_writePickle = false;
-                     tdrLogic.m_verbose = true;
-                     tdrLogic.buildSectorTriggers(pwhs, indices(pwhs));
-                     for( const SectorTriggerCandidate &st : tdrLogic.candidates()){
+                     m_tdrLogic.buildSectorTriggers(pwhs, indices(pwhs));
+                     for( const SectorTriggerCandidate &st : m_tdrLogic.candidates()){
                         //S.I
                         auto p=std::make_unique<PadTrigger>(convert(st));
-                         
                         triggers.push_back(std::move(p));
                         //S.I
                      }
-                     ATH_MSG_DEBUG("found "<<tdrLogic.candidates().size()<<" triggers using the tdr logic");
+                     ATH_MSG_DEBUG("found "<<m_tdrLogic.candidates().size()<<" triggers using the tdr logic");
                }
             } // if(sector_pads)
         } // for(sector)
@@ -339,8 +332,6 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<sp
     // Fill Ntuple
     if(m_doNtuple) {
       m_validation_tree.fill_num_pad_triggers(triggers.size());
-      //if(triggers.size()>0)
-      //  ATH_MSG_INFO("SERHAN :: " << triggers.at(0)->m_pads.size());
       m_validation_tree.fill_pad_trigger_basics(triggers);
     }
     return StatusCode::SUCCESS;
@@ -468,7 +459,8 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
                     const Amg::Vector3D global_padcorner(p.m_cornerXyz[i][0],p.m_cornerXyz[i][1],padZ);
                     Amg::Vector2D local_padcorner;
                     padsurface.globalToLocal(global_padcorner,Amg::Vector3D(),local_padcorner);
-                    local_padcorners.push_back(local_padcorner);                }
+                    local_padcorners.push_back(local_padcorner);
+                }
 
     			for(auto v : boost::geometry::exterior_ring(pol)){
     				float x=coordinate<0>(v);
@@ -535,7 +527,6 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     } // for (st)
     pt.m_multiplet_id = pt.m_pads.at(0)->multipletId();//S.I inner outer wedge or module 1 2 3 ??
     pt.m_gasGap_id    = pt.m_pads.at(0)->gasGapId();//S.I does assigning a gasgap id to a pad trigger ever make sense ?
-     //cout << "PadStrip :: " << pt.m_pad_strip_info.size() << endl;
     // Offset to BandId - get from the first pad in the trigger
     sTGCDetectorHelper sTGC_helper;
     sTGCDetectorDescription *sTGC=nullptr;
@@ -546,11 +537,6 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     int layer      = pt.m_pads.at(0)->multipletId();
 
     int Offset[3] = {0,33,63};
-    //S.I try this? ok no
-    //int offsetLrg[3]={0,33,63};
-    //int offsetSml[3]={0,36,68};
-    //eof S.I
-    
     //S.I it seems we dont use the helper below. Let it stay there for now, we'll need it later
     sTGC = sTGC_helper.Get_sTGCDetector(type,stationEta,stationPhi,layer,side);
     if(sTGC == nullptr) {
@@ -563,8 +549,6 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
         
         //eof S.I
     }
-
-
     return pt;
 }
 

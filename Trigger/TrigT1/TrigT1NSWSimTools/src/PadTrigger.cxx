@@ -7,10 +7,10 @@
 
 #include "TrigT1NSWSimTools/PadData.h"
 #include <iostream>
-
+#include "TrigT1NSWSimTools/tdr_compat_enum.h"
 namespace NSWL1 {
 
-BcTag_t PadTrigger::bctag() const {
+uint16_t PadTrigger::bctag() const {
     return m_pads.size() ? m_pads[0]->BC_Tag() : 0x0;
 }
 

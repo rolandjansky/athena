@@ -3,6 +3,7 @@
 */
 
 #include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
+#include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
 #include "TrigT1NSWSimTools/PadWithHits.h" // shouldn't be needed, need to fix it DG
 
 #include <cassert>

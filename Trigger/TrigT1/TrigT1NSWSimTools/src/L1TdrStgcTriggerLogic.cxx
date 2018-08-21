@@ -112,9 +112,9 @@ namespace NSWL1{
         int l1Idx = -1;
         std::string sl1("33");
         if (isLayer1) {
-        l1Idx = padIndicesLayer0.at(il1);
-        sl1 = "11";
-        iL1st = l1Idx;
+            l1Idx = padIndicesLayer0.at(il1);
+            sl1 = "11";
+            iL1st = l1Idx;
         } // if l1 is considered  its indices are always 11
         for (size_t il2 = 0; il2 < nHL2; il2++) {
         int l2Idx = -1;
@@ -165,12 +165,6 @@ namespace NSWL1{
             patternEta.push_back(sl3.at(0));
             patternEta.push_back(sl4.at(0));
 
-    //          cout << " Pattern: " << pattern << endl;
-    //          cout << " pattern eta " << patternEta <<" multiplet="<<pads[0].multiplet<<endl;
-    //          cout << " pattern phi " << patternPhi << endl;
-            // look for the pattern in the LUT
-            // compare eta and phi patterns in LUT
-            // first find if wedge us UP or DOWN type in phi and eta
             int    multipletid ;
             int    moduleid ;
             int    sectortype ;
@@ -235,9 +229,6 @@ namespace NSWL1{
                 }
                 }
             }
-        //      cout << "eta and phi moves " << etamove << " " << phimove << endl;
-
-
 
             if (etamove == "D") {
                 if (find(PatternsEtaDown.begin(), PatternsEtaDown.end(),
@@ -278,20 +269,8 @@ namespace NSWL1{
                 }
             }
 
-            //cout << " Pattern: " << pattern << endl;
-            //cout << " pattern eta " << patternEta <<" multiplet="<<multipletid<<endl;
-            //cout << " pattern phi " << patternPhi << endl;
-
-
-            //            if(find(allPatterns.begin(), allPatterns.end(),
-            //            pattern)==allPatterns.end()){
-            //              if(verbose) cout <<" ---> NOT triggered" << endl ;
-            //              continue;
-            //            }
             std::vector< size_t > padIndices;
-            // assert : gcc is fine with a negative size_t values; however, here
-            // we should detect
-            // buggy patterns (i.e. the index cannot be negative if isL_ is true).
+
             if (isLayer1) {
                 assert(l1Idx > -1);
                 padIndices.push_back(l1Idx);
@@ -318,7 +297,6 @@ namespace NSWL1{
         }   // end for(il3)
         }     // end for(il2)
     }       // end for(il1)
-            //    cout <<"pattern wedge " << endl;
 
     return triggers;
     }
@@ -424,7 +402,7 @@ namespace NSWL1{
     outerTrigs.insert(outerTrigs.end(), o4of4trig.begin(), o4of4trig.end());
     bool acceptSingleWedgeInTransition = true;
     bool skipInnerOuterMatchHack = false;
-    //vstcand_t trigCandidates;
+    //std::vector< SectorTriggerCandidate > trigCandidates;
     /**
         @todo fix hack DG-2015-10-08
 
@@ -495,8 +473,7 @@ namespace NSWL1{
 
     
     if (m_verbose) {
-        std::cout << "found " << m_secTrigCand.size() << " triggerCandidates from "
-            << pads.size() << " pads" << std::endl;
+        //std::cout << "found " << m_secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads" << std::endl;
         for (const auto& tc : m_secTrigCand) {
             std::cout << "trigger region area : " << area(tc.triggerRegion3())<<std::endl;
         } // end for(tc)

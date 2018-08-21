@@ -19,7 +19,7 @@ namespace NSWL1{
         return p0.layer<p1.layer;
     }
     SingleWedgePadTrigger::SingleWedgePadTrigger(const std::string &pattern,
-                            const vpads_t &pads,
+                            const std::vector<PadWithHits> &pads,
                             const std::vector<size_t> &padIndices) :
     m_pattern(pattern), m_halfPadIndices(-999,-999), m_padIndices(padIndices),m_alreadyCombined(false){
         assert(m_padIndices.size()>0); // a trigger without pads doesn't make sense
@@ -35,7 +35,7 @@ namespace NSWL1{
     }
 
     SingleWedgePadTrigger::EtaPhiHalf SingleWedgePadTrigger::halfPadCoordinates() const {
-        const vpads_t &pads = m_pads;
+        const std::vector<PadWithHits> &pads = m_pads;
         size_t nPads(pads.size());
         bool haveEnoughPads(nPads>2);
         if(not haveEnoughPads)
@@ -82,7 +82,6 @@ namespace NSWL1{
     bool SingleWedgePadTrigger::isInTransitionRegion() const{
         Polygon ROI=padOverlap3(this->pads());
         if(area(ROI)==0) return false;
-        const float PI=TMath::Pi();
         float phi0=m_pads[0].sectortype==1 ? (PI/4)*(m_pads[0].sector-1) : (PI/8)+(PI/4)*(m_pads[0].sector-1);
         if(phi0>PI) phi0-=2*PI;
         float ROIx=centroid(ROI).x();
@@ -113,7 +112,7 @@ namespace NSWL1{
 }
 
     //S.I 3
-    Polygon SingleWedgePadTrigger::padOverlap3(const vpads_t &pads){ // \todo some duplication with halfPadCoordinates()...refactor
+    Polygon SingleWedgePadTrigger::padOverlap3(const std::vector<PadWithHits> &pads){ // \todo some duplication with halfPadCoordinates()...refactor
         size_t nPads(pads.size());
         bool haveEnoughPads(nPads>2);
         if(not haveEnoughPads){
@@ -158,7 +157,7 @@ namespace NSWL1{
     }
     //eof S.I
 
-    std::string vec2pickle(const SingleWedgePadTrigger::vpads_t &pads){
+    std::string vec2pickle(const std::vector<PadWithHits> &pads){
         std::ostringstream oo;
         oo<<"[";
         for(size_t i=0; i<pads.size(); ++i) oo<<"{"<<pads[i].pickle()<<"}, ";

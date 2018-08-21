@@ -77,12 +77,12 @@ namespace NSWL1 {
 
     virtual void handle (const Incident& inc);
 
-    StatusCode gather_strip_data(std::vector<upStripData>& strips,const std::vector<upPadTrigger>& padTriggers);
+    StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips,const std::vector<std::unique_ptr<PadTrigger>>& padTriggers);
  
 
   private:
     // methods implementing the internal data processing
-    cStatus fill_strip_cache( const std::vector<upPadTrigger>& padTriggers);   //!< loop over the digit container, apply the additional processing then fill the cache
+    cStatus fill_strip_cache( const std::vector<std::unique_ptr<PadTrigger>>& padTriggers);   //!< loop over the digit container, apply the additional processing then fill the cache
     void clear_cache();                                     //!< clear the strip hit cache deleting the StripData pointers
 
     StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior
@@ -99,7 +99,7 @@ namespace NSWL1 {
     const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
     // hidden variables
-    std::vector<upStripData>  m_strip_cache;                 //!< cache for the STRIP hit data in the event
+    std::vector<std::unique_ptr<StripData>>  m_strip_cache;                 //!< cache for the STRIP hit data in the event
     int     m_strip_cache_runNumber;                          //!< run number associated to the current STRIP cache
     int     m_strip_cache_eventNumber;                        //!< event number associated to the current STRIP cache
     cStatus m_strip_cache_status;                             //!< status of the current cache

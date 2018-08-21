@@ -5,25 +5,15 @@
 #ifndef ISTRIPTDSTOOL_H
 #define ISTRIPTDSTOOL_H
 
-//basic includes
 #include "GaudiKernel/IAlgTool.h"
-#include "TriggerTypes.h"
-//local includes
+#include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "TrigT1NSWSimTools/StripData.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include <vector>
 
-
-// namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
 class StripOfflineData;
-
-/*
-typedef std::unique_ptr<PadTrigger> upPadTrigger;
-typedef std::unique_ptr<StripOfflineData> upStripOfflineData;
-typedef std::unique_ptr<StripData> upStripData;
-*/
 
   /**
    *
@@ -43,15 +33,15 @@ typedef std::unique_ptr<StripData> upStripData;
   public:
     virtual ~IStripTdsTool() {}
 
-    virtual StatusCode gather_strip_data(std::vector<upStripData>& strips, const std::vector<upPadTrigger>& padTriggers) = 0;
+    virtual StatusCode gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips, const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IStripTdsTool("NSWL1::IStripTdsTool", 1 ,0);
         return IID_IStripTdsTool;
     }
 
-  };  // end of IStripTdsTools class
+  };
 
-} // namespace NSWL1
+}
 
 #endif

@@ -2,19 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
-// local includes
 #include "TrigT1NSWSimTools/StripTdsOfflineTool.h"
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 
-//Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-// Muon software includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
@@ -24,12 +20,11 @@
 #include "MuonSimData/MuonSimData.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-// random numbers
+
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-// local includes
 #include "TTree.h"
 #include "TVector3.h"
 
@@ -50,11 +45,9 @@ namespace NSWL1 {
       StripHits(Identifier id, StripOfflineData* p, int c) { t_id = id; t_strip=p; t_cache_index=c; }
     };
 
-
-    typedef std::map < Identifier,std::vector<StripHits> > STRIP_MAP;
-    typedef std::map < Identifier,std::vector<StripHits> >::iterator STRIP_MAP_IT;
-    typedef std::pair< Identifier,std::vector<StripHits> > STRIP_MAP_ITEM;
-
+    using STRIP_MAP=std::map < Identifier,std::vector<StripHits> >;
+    using STRIP_MAP_IT=std::map < Identifier,std::vector<StripHits> >::iterator;
+    using STRIP_MAP_ITEM=std::pair< Identifier,std::vector<StripHits> >;
 
     StripTdsOfflineTool::StripTdsOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
@@ -78,7 +71,7 @@ namespace NSWL1 {
 
       // reserve enough slots for the trigger sectors and fills empty vectors
       // std::vector< std::vector<StripData*> >::iterator it = m_strip_cache.begin();
-      //std::vector<upStripData>::iterator it = m_strip_cache.begin();
+      //std::vector<std::unique_ptr<StripData>>::iterator it = m_strip_cache.begin();
     }
 
     StripTdsOfflineTool::~StripTdsOfflineTool() {
@@ -324,7 +317,7 @@ namespace NSWL1 {
   }
 
 
-  StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<upStripData>& strips, const std::vector<upPadTrigger>& padTriggers) {
+  StatusCode StripTdsOfflineTool::gather_strip_data(std::vector<std::unique_ptr<StripData>>& strips, const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) {
       ATH_MSG_INFO( "gather_strip_data: start gathering all strip htis");
 
       // No sector implemented yet!!!
@@ -367,7 +360,7 @@ namespace NSWL1 {
   }
 
 
-    StripTdsOfflineTool::cStatus StripTdsOfflineTool::fill_strip_cache( const std::vector<upPadTrigger>& padTriggers) {
+    StripTdsOfflineTool::cStatus StripTdsOfflineTool::fill_strip_cache( const std::vector<std::unique_ptr<PadTrigger>>& padTriggers) {
       ATH_MSG_DEBUG( "fill_strip_cache: clearing existing STRIP hit cache" );
       this->clear_cache();
 
@@ -528,9 +521,9 @@ namespace NSWL1 {
   bool  StripTdsOfflineTool::readStrip(unsigned int bandID,StripData* strip,const std::vector<std::vector<float>>& pad_strip_info)
   {
     /*!
-     * ReadStrip(BandId_t bandID,StripData* strip): Simple function to return wether a fired strip should 
+     * ReadStrip(uint16_t bandID,StripData* strip): Simple function to return wether a fired strip should 
      *be readout base on a pad trigger bandID
-     * Inputs: Pad bandID (BandId_t), and StripData strip.
+     * Inputs: Pad bandID (uint16_t), and StripData strip.
      */
 
     // test

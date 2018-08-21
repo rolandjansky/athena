@@ -7,27 +7,17 @@
 #ifndef NSW_L1TDRSTGCTRIGGERLOGIC_H
 #define NSW_L1TDRSTGCTRIGGERLOGIC_H
 
-#include "tdr_typedefs.h"
+#include "TrigT1NSWSimTools/TriggerTypes.h"
+#include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
+#include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
 
 #include "TRandom.h"
 
 #include <string>
 #include <vector>
 
-/*
-namespace nsw{
-  class Pad;
-  class PadWithHits;
-  class SingleWedgePadTrigger;
-  class SectorTriggerCandidate;
-}
-*/
 
 namespace NSWL1 {
-  class Pad;
-  class PadWithHits;
-  class SingleWedgePadTrigger;
-  class SectorTriggerCandidate;
     
 /**
   @brief Initial version of the stgc pad trigger logic
@@ -68,11 +58,12 @@ public:
        efficiency)
 
      */
-    bool buildSectorTriggers(const vpads_t &pads, const vsize_t  &padIndicesThisSector);
+    
+    bool buildSectorTriggers(const std::vector<PadWithHits> &pads, const std::vector< size_t >  &padIndicesThisSector);
     /// access cached output of buildSectorTriggers()
-    const vstcand_t& candidates() const {return m_secTrigCand;}
+    const std::vector< SectorTriggerCandidate >& candidates() const {return m_secTrigCand;}
     /// simulate efficiency by dropping random pads (their indices)
-    vsize_t removeRandomPadIndices(const vsize_t &padIndices);
+    std::vector< size_t > removeRandomPadIndices(const std::vector< size_t > &padIndices);
     /**
        @brief trigger patterns that will be stored in the lookup table
 
@@ -88,36 +79,35 @@ public:
     static std::vector<std::string> sTGC_triggerPatternsPhiDownUp();
     static std::vector<std::string> sTGC_triggerPatternsPhiUpDown();
 
-public:
     static bool hitPattern(const Pad &firstPad, const Pad &otherPad,
                            std::string &pattern);
 	static bool hitPattern(const int &iEta0, const int &iPhi0,
                            const int &iEta1, const int &iPhi1,
                            std::string &pattern);
-    static vswptrig_t buildSingleWedgeTriggers(const vpads_t &pads,
-                                                    const vsize_t &padIndicesLayer0,
-                                                    const vsize_t &padIndicesLayer1,
-                                                    const vsize_t &padIndicesLayer2,
-                                                    const vsize_t &padIndicesLayer3,
+    static std::vector< SingleWedgePadTrigger > buildSingleWedgeTriggers(const std::vector<PadWithHits> &pads,
+                                                    const std::vector< size_t > &padIndicesLayer0,
+                                                    const std::vector< size_t > &padIndicesLayer1,
+                                                    const std::vector< size_t > &padIndicesLayer2,
+                                                    const std::vector< size_t > &padIndicesLayer3,
                                                     bool isLayer1, bool isLayer2,
                                                     bool isLayer3, bool isLayer4);
-    static vswptrig_t build34swt(const vpads_t &pads,
-                                                        const vsize_t &padIndicesLayer0,
-                                                        const vsize_t &padIndicesLayer1,
-                                                        const vsize_t &padIndicesLayer2,
-                                                        const vsize_t &padIndicesLayer3);
-    static vswptrig_t build44swt(const vpads_t &pads,
-                                                        const vsize_t &padIndicesLayer0,
-                                                        const vsize_t &padIndicesLayer1,
-                                                        const vsize_t &padIndicesLayer2,
-                                                        const vsize_t &padIndicesLayer3);
-public:
+    static std::vector< SingleWedgePadTrigger > build34swt(const std::vector<PadWithHits> &pads,
+                                                        const std::vector< size_t > &padIndicesLayer0,
+                                                        const std::vector< size_t > &padIndicesLayer1,
+                                                        const std::vector< size_t > &padIndicesLayer2,
+                                                        const std::vector< size_t > &padIndicesLayer3);
+    static std::vector< SingleWedgePadTrigger > build44swt(const std::vector<PadWithHits> &pads,
+                                                        const std::vector< size_t > &padIndicesLayer0,
+                                                        const std::vector< size_t > &padIndicesLayer1,
+                                                        const std::vector< size_t > &padIndicesLayer2,
+                                                        const std::vector< size_t > &padIndicesLayer3);
     bool m_verbose;
     bool m_writePickle; /// after computing the triggers, write the canditates to 'pickle' files (for event display)
     std::string m_picklePrefix; /// path where the pickle files will be written
 protected:
  	TRandom rand;
-    vstcand_t m_secTrigCand;
+    std::vector< SectorTriggerCandidate > m_secTrigCand;
+    
 };
 } // end namespace NSWL1
 #endif // NSW_L1TDRSTGCTRIGGERLOGIC_H

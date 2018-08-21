@@ -217,7 +217,7 @@ namespace NSWL1{
         m_nPadTriggers = num;
     }
     //------------------------------------------------------------------------------
-    void PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<upPadTrigger> &triggers) {
+    void PadTriggerValidationTree::fill_pad_trigger_basics(const std::vector<std::unique_ptr<PadTrigger>> &triggers) {
     for(auto& trigger : triggers) {
         m_padTriggerBCID       ->push_back(trigger->bctag());
         m_padTriggerSectorID   ->push_back(trigger->sectorId());

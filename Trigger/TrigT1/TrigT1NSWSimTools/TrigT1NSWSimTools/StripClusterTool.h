@@ -64,15 +64,15 @@ namespace NSWL1 {
     virtual ~StripClusterTool();
     virtual StatusCode initialize();
     virtual void handle (const Incident& inc);
-    StatusCode cluster_strip_data( std::vector<upStripData>& strips,std::vector<upStripClusterData>& clusters);
+    StatusCode cluster_strip_data( std::vector<std::unique_ptr<StripData>>& strips,std::vector<std::unique_ptr<StripClusterData>>& clusters);
   private:
     // methods implementing the internal data processing
 
     StatusCode book_branches();                             //!< book the branches to analyze the StripTds behavior                                                                                           
     void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple                                                                                              
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple                                                                                              
-    void fill_strip_validation_id(std::vector<upStripClusterData>& clusters);  //!< fill the ntuple branch for the StripTdsOffline   
-    bool MatchModule(const upStripData& one, const StripData* two);
+    void fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters);  //!< fill the ntuple branch for the StripTdsOffline   
+    bool MatchModule(const std::unique_ptr<StripData>& one, const StripData* two);
     
 
     // needed Servives, Tools and Helpers
@@ -124,9 +124,9 @@ namespace NSWL1 {
     // 2d-vector for eta/phi station coordinates
     // map from BandID to a set of strips
     
-    std::vector< std::vector < std::map<BandId_t, std::set<int> > > > *bandID_cache ;
-    //std::vector< std::vector<upStripData >* > m_clusters;
-    std::vector< std::shared_ptr<std::vector<upStripData >>  > m_clusters;
+    std::vector< std::vector < std::map<uint16_t, std::set<int> > > > *bandID_cache ;
+    //std::vector< std::vector<std::unique_ptr<StripData> >* > m_clusters;
+    std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > m_clusters;
 
   };  // end of StripClusterTool class
 

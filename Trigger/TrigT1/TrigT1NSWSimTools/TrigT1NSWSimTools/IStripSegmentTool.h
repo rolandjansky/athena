@@ -5,19 +5,16 @@
 #ifndef ISTRIPSEGMENTTOOL_H
 #define ISTRIPSEGMENTTOOL_H
 
-//basic includes
+
 #include "GaudiKernel/IAlgTool.h"
-#include "TriggerTypes.h"
-//local includes
+#include "TrigT1NSWSimTools/TriggerTypes.h"
 #include "TrigT1NSWSimTools/StripClusterData.h"
 #include <vector>
 
 
 class Identfier;
 
-// namespace for the NSW LVL1 related classes
 namespace NSWL1 {
-    //typedef std::unique_ptr<StripClusterData> upStripClusterData;
   /**
    *
    *   @short interface for the Strip Cluster Tools
@@ -30,21 +27,20 @@ namespace NSWL1 {
    *
    */
 
-
   class IStripSegmentTool: public virtual IAlgTool {
 
   public:
     virtual ~IStripSegmentTool() {}
 
-    virtual StatusCode find_segments(std::vector< upStripClusterData >& clusters) = 0;
+    virtual StatusCode find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters) = 0;
 
     static const InterfaceID& interfaceID() {
         static const InterfaceID IID_IStripSegmentTool("NSWL1::IStripSegmentTool", 1 ,0);
         return IID_IStripSegmentTool;
     }
 
-  };  // end of IStripSegmentTools class
+  };
 
-} // namespace NSWL1
+}
 
 #endif

@@ -8,15 +8,17 @@
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 
-// local includes
+
 #include "TrigT1NSWSimTools/PadTdsOfflineTool.h"
 #include "TrigT1NSWSimTools/PadOfflineData.h"
+#include "TrigT1NSWSimTools/PadUtil.h"
+#include "TrigT1NSWSimTools/tdr_compat_enum.h"
 
-//Event info includes
+
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-// Muon software includes
+
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
@@ -25,20 +27,18 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 
-// random numbers
+
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-// local includes
+
 #include "TTree.h"
 #include "TVector3.h"
-#include "TrigT1NSWSimTools/PadUtil.h"
-
 #include <functional>
 #include <algorithm>
 #include <map>
-#include <utility> // make_pair
+#include <utility>
 
 
 
@@ -46,19 +46,20 @@ namespace NSWL1 {
     
     struct PadHits {
         Identifier      t_id;
-        spPadOfflineData t_pad;
+        std::shared_ptr<PadOfflineData> t_pad;
         int             t_cache_index;
 
         // constructor
-        PadHits(Identifier id, spPadOfflineData p, int c) { t_id = id; t_pad=p; t_cache_index=c; }
+        PadHits(Identifier id, std::shared_ptr<PadOfflineData> p, int c) { t_id = id; t_pad=p; t_cache_index=c; }
     };
 
 
     bool order_padHits_with_increasing_time(PadHits i, PadHits j) { return i.t_pad->time() < j.t_pad->time(); }
-
-    typedef std::map < Identifier,std::vector<PadHits> > PAD_MAP;
-    typedef std::map < Identifier,std::vector<PadHits> >::iterator PAD_MAP_IT;
-    typedef std::pair< Identifier,std::vector<PadHits> > PAD_MAP_ITEM;
+    
+    using PAD_MAP=std::map < Identifier,std::vector<PadHits> >;
+    using PAD_MAP_IT=std::map < Identifier,std::vector<PadHits> >::iterator;
+    using PAD_MAP_ITEM=std::pair< Identifier,std::vector<PadHits> >;
+    
     //------------------------------------------------------------------------------
     PadTdsOfflineTool::PadTdsOfflineTool( const std::string& type, const std::string& name, const IInterface* parent) :
         AthAlgTool(type,name,parent),
@@ -103,8 +104,9 @@ namespace NSWL1 {
 
         // reserve enough slots for the trigger sectors and fills empty vectors
         m_pad_cache.reserve(PadTdsOfflineTool::numberOfSectors());
-        std::vector< std::vector<spPadData> >::iterator it = m_pad_cache.begin();
-        m_pad_cache.insert(it, PadTdsOfflineTool::numberOfSectors(), std::vector<spPadData>());
+        //std::vector< std::vector<std::shared_ptr<PadData>> >::iterator it = m_pad_cache.begin();
+        auto it = m_pad_cache.begin();
+        m_pad_cache.insert(it, PadTdsOfflineTool::numberOfSectors(), std::vector<std::shared_ptr<PadData>>());
     }
     //------------------------------------------------------------------------------
     PadTdsOfflineTool::~PadTdsOfflineTool() {
@@ -114,7 +116,7 @@ namespace NSWL1 {
     //------------------------------------------------------------------------------
     void PadTdsOfflineTool::clear_cache() {
         for (unsigned int i=0; i<m_pad_cache.size(); i++) {
-            std::vector<spPadData>& sector_pads = m_pad_cache.at(i);
+            std::vector<std::shared_ptr<PadData>>& sector_pads = m_pad_cache.at(i);
             sector_pads.clear();
         }
     }
@@ -216,10 +218,10 @@ namespace NSWL1 {
     void PadTdsOfflineTool::fill_pad_validation_id() {
         float bin_offset = +0.; // used to center the bin on the value of the Pad Id
         for (unsigned int i=0; i<m_pad_cache.size(); i++) { 
-            std::vector<spPadData>& pad = m_pad_cache.at(i);
+            std::vector<std::shared_ptr<PadData>>& pad = m_pad_cache.at(i);
             m_validation_tree.fill_num_pad_hits(pad.size());
             for (unsigned int p=0; p<pad.size(); p++) {
-                spPadData pd = pad.at(p);
+                std::shared_ptr<PadData> pd = pad.at(p);
                 Identifier Id( pd->id() );
                 const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(Id);
                 const Trk::PlaneSurface &surface = rdoEl->surface(Id);
@@ -232,7 +234,7 @@ namespace NSWL1 {
 
                 std::vector<MuonSimData::Deposit> deposits;
                 if(get_truth_hits_this_pad(Id, deposits)){
-                    for(auto d : deposits) {
+                    for(const auto& d : deposits) {
                         m_validation_tree.fill_truth_hit_global_pos(local_position_to_global_position(d, surface));
                     }
                 }
@@ -241,7 +243,7 @@ namespace NSWL1 {
                 std::vector<Amg::Vector2D> local_pad_corners;
                 rdoEl->padCorners(Id,local_pad_corners);
                 std::vector<Amg::Vector3D> global_pad_corners;
-                for(auto& local_corner : local_pad_corners) {
+                for(const auto& local_corner : local_pad_corners) {
                 Amg::Vector3D global_corner;
                 surface.localToGlobal(local_corner, global_corner, global_corner);
                 global_pad_corners.push_back(global_corner);
@@ -263,7 +265,7 @@ namespace NSWL1 {
         }
     }
     //------------------------------------------------------------------------------
-    StatusCode PadTdsOfflineTool::gather_pad_data(std::vector<spPadData>& pads, int side, int sector) {
+    StatusCode PadTdsOfflineTool::gather_pad_data(std::vector<std::shared_ptr<PadData>>& pads, int side, int sector) {
         ATH_MSG_DEBUG( "gather_pad_data: start gathering the PAD hits for side " << side << ", sector " << sector );
         // check side and sector parameters
         if ( side <-1 || side >1 ) {
@@ -369,7 +371,7 @@ namespace NSWL1 {
                             print_digit(digit);
                             //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
                             //S.I
-                            //spPadOfflineData pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
+                            //std::shared_ptr<PadOfflineData> pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
                             auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
                             //pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
                             pad_hits.emplace_back(Id, pad, cache_index(digit));//avoids extra copy
@@ -408,9 +410,6 @@ namespace NSWL1 {
         double distance = std::sqrt( pad_gpos.x()*pad_gpos.x() +
                                     pad_gpos.y()*pad_gpos.y() +
                                     pad_gpos.z()*pad_gpos.z() );
-
-        double c_inverse = 3.33564095198e-3;  // unit here is  [ns/mm]
-
         return distance * c_inverse;
     }
     //------------------------------------------------------------------------------
@@ -609,13 +608,13 @@ namespace NSWL1 {
             //m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
             ////////////////////
             // ASM-2017-06-21
-            const std::vector<spPadData>& pad = m_pad_cache.at(pad_hits[i].t_cache_index);
-            bool fill = pad.size() == 0 ? true : false;
-            for(unsigned int p=0; p<pad.size(); p++)  {
-                Identifier Id(pad.at(p)->id());
+            const std::vector<std::shared_ptr<PadData>>& pads = m_pad_cache.at(pad_hits[i].t_cache_index);
+            bool fill = pads.size() == 0 ? true : false;
+            for(unsigned int p=0; p<pads.size(); p++)  {
+                Identifier Id(pads.at(p)->id());
                 if(Id==pad_hits[i].t_id) {
                     fill = false;
-                    ATH_MSG_ERROR( "Pad Hits entered multiple times Discarding!!! Id:" << Id );
+                    ATH_MSG_WARNING( "Pad Hits entered multiple times Discarding!!! Id:" << Id );
                 }
                 else { fill = true; }
             }
@@ -666,7 +665,7 @@ namespace NSWL1 {
     {
         if ( msgLvl(MSG::DEBUG) ) {
             for (unsigned int i=0; i<m_pad_cache.size(); i++) {
-                const std::vector<spPadData>& pad = m_pad_cache.at(i);
+                const std::vector<std::shared_ptr<PadData>>& pad = m_pad_cache.at(i);
                 for (unsigned int p=0; p<pad.size(); p++)
                     ATH_MSG_DEBUG("PAD hit cache: hit at side " << ( (pad.at(p)->sideId())? "A":"C")
                                 << ", trigger sector " << pad.at(p)->sectorId()

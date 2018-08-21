@@ -7,7 +7,7 @@
 #include "TMath.h"
 #include "TVector3.h"
 
-#include "TrigT1NSWSimTools/tdr_typedefs.h"
+#include "TrigT1NSWSimTools/TriggerTypes.h"
 // #include "NSWNtuple/sTGCgeometry.h"
 #include "TrigT1NSWSimTools/vector_utils.h"
 // #include "NSWNtuple/NSW_sTGCHitPosition.h"
@@ -112,7 +112,7 @@ namespace NSWL1 {
     m_minEta(FLT_MAX), m_minPhi(FLT_MAX), m_maxEta(FLT_MIN), m_maxPhi(FLT_MIN)
     {}
   //-------------------------------------
-  PadWithHits::PadWithHits(spPadData pData) :
+  PadWithHits::PadWithHits(std::shared_ptr<PadData> pData) :
     Pad(pData),
     m_totEnergy(0.), m_avgEta(0.), m_avgPhi(0.),
     m_minEta(FLT_MAX), m_minPhi(FLT_MAX), m_maxEta(FLT_MIN), m_maxPhi(FLT_MIN)

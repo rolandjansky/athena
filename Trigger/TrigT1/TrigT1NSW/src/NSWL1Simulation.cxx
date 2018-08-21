@@ -125,12 +125,6 @@ namespace NSWL1 {
     } else {
       ATH_MSG_INFO (m_strip_tds.propertyName() << ": Retrieved tool " << m_strip_tds.type());
     }
-    if ( m_mmtrigger.retrieve().isFailure() ) {
-      ATH_MSG_FATAL (m_mmtrigger.propertyName() << ": Failed to retrieve tool " << m_mmtrigger.type());
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO (m_mmtrigger.propertyName() << ": Retrieved tool " << m_mmtrigger.type());
-    }
 
     if ( m_strip_cluster.retrieve().isFailure() ) {
       ATH_MSG_FATAL (m_strip_cluster.propertyName() << ": Failed to retrieve tool " << m_strip_cluster.type());
@@ -146,7 +140,14 @@ namespace NSWL1 {
       ATH_MSG_INFO (m_strip_segment.propertyName() << ": Retrieved tool " << m_strip_segment.type());
     }
 
-
+    if(m_doMM ){
+        if ( m_mmtrigger.retrieve().isFailure() ) {
+        ATH_MSG_FATAL (m_mmtrigger.propertyName() << ": Failed to retrieve tool " << m_mmtrigger.type());
+        return StatusCode::FAILURE;
+        } else {
+        ATH_MSG_INFO (m_mmtrigger.propertyName() << ": Retrieved tool " << m_mmtrigger.type());
+        }
+    }
     // Connect to Monitoring Service
     sc = m_monitors.retrieve();
     if ( sc.isFailure() ) {
@@ -200,10 +201,10 @@ namespace NSWL1 {
 
     m_counters.push_back(1.);  // a new event is being processed
 
-    std::vector<spPadData> pads;
-    std::vector<upPadTrigger> padTriggers;
-    std::vector<upStripData> strips;
-    std::vector< upStripClusterData > clusters;
+    std::vector<std::shared_ptr<PadData>> pads;
+    std::vector<std::unique_ptr<PadTrigger>> padTriggers;
+    std::vector<std::unique_ptr<StripData>> strips;
+    std::vector< std::unique_ptr<StripClusterData> > clusters;
     // retrieve the PAD hit and compute pad trigger
     if(m_dosTGC){
         // DG-2015-10-02

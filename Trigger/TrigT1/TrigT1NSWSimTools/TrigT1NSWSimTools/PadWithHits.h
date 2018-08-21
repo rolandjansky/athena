@@ -37,7 +37,7 @@ namespace NSWL1 {
     
     
      //const NSWL1::PadData *m_padData; ///< if this pad was created from a PadData object, pointer to it
-    spPadData m_padData;
+    std::shared_ptr<PadData> m_padData;
     
     Pad(const int &eta, const int &phi,
         const int &multi, const int &layerType, const int &sn, const int &si, const int &mod) :
@@ -49,7 +49,7 @@ namespace NSWL1 {
         
     }
 
-     Pad(spPadData pData ) :
+     Pad(std::shared_ptr<PadData> pData ) :
       ieta(pData->padEtaId()), iphi(pData->padPhiId()), multiplet(pData->multipletId()), layer(pData->gasGapId()), sector(pData->sectorId()), sectortype(pData->sectorType()), side(pData->sideId()), module(pData->moduleId()),m_cornerXyz{},m_padData(pData)
     { 
         //memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
@@ -123,7 +123,7 @@ namespace NSWL1 {
     PadWithHits(const Pad &p);
     //PadWithHits(const NSWL1::PadData &pData);
     
-    PadWithHits(spPadData pData);
+    PadWithHits(std::shared_ptr<PadData> pData);
     
     const std::vector<size_t>& hitIndices() const { return m_hitIndices; }
     float totEnergy() const { return m_totEnergy; }
