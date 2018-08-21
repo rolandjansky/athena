@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonSegmentTagTool::tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& xaodSegments ) const {
+  void MuonSegmentTagTool::tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& xaodSegments, InDetCandidateToTagMap* tagMap ) const {
 
     // loop over segments are extract MuonSegments + create links between segments and xAOD segments
     std::map< const Muon::MuonSegment*, ElementLink<xAOD::MuonSegmentContainer> > segmentToxAODSegmentMap;
@@ -181,10 +181,11 @@ namespace MuonCombined {
         segmentToxAODSegmentMap[mseg] = link;
       }
     }
-    tag(inDetCandidates, segments, &segmentToxAODSegmentMap);
+    tag(inDetCandidates, segments, &segmentToxAODSegmentMap, tagMap);
   }
   //todo: fix segmentToxAODSegmentMap
-  void MuonSegmentTagTool::tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap ) const {
+  void MuonSegmentTagTool::tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, 
+				SegmentMap* segmentToxAODSegmentMap, InDetCandidateToTagMap* tagMap ) const {
 
     std::vector<const Muon::MuonSegment*>  FilteredSegmentCollection;
     if (m_doSegmentsFilter) {
@@ -804,7 +805,7 @@ namespace MuonCombined {
         ATH_MSG_DEBUG( "make Segment Tag object for " << m_printer->print(*track) << " nr segments " << segmentsInfoTag.size() );          
         SegmentTag* tag = new SegmentTag(segmentsInfoTag);
         // FIXME const-cast changes object passed in as const
-        const_cast<InDetCandidate*>(tagCandidate)->addTag(*tag);
+	tagMap->addEntry(tagCandidate,tag);
       } 
     }   
 

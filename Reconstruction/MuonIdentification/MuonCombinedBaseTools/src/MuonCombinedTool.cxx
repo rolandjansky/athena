@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,6 @@ namespace MuonCombined {
     :	AthAlgTool(type, name, parent),
 	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
 	m_muonCombDebugger("MuonCombined::MuonCombinedDebuggerTool/MuonCombinedDebuggerTool")
-	//m_muonCombinedTagTools("MuonCombined::MuonCombinedStacoTagTool/MuonCombinedStacoTagTool")
   {
     declareInterface<IMuonCombinedTool>(this);
     declareProperty("Printer",m_printer );
@@ -62,11 +61,15 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCombinedTool::combine( const MuonCandidateCollection& muonCandidates,  const InDetCandidateCollection& inDetCandidates ) const {
+  void MuonCombinedTool::combine( const MuonCandidateCollection& muonCandidates, const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps) const {
    
       // check that there are tracks in both systems
     if( inDetCandidates.empty() ) return;
     if( muonCandidates.empty() )  return;
+    if(tagMaps.size()!=m_muonCombinedTagTools.size()){
+      ATH_MSG_ERROR("Number of tag maps does not match number of tag tools");
+      return;
+    }
 
     // debug tree
     if(m_runMuonCombinedDebugger) {
@@ -78,19 +81,21 @@ namespace MuonCombined {
       const Trk::Track& muonTrack = muonCandidate->extrapolatedTrack() ? *muonCandidate->extrapolatedTrack() : muonCandidate->muonSpectrometerTrack();
       ATH_MSG_DEBUG("MuonCandidate " << m_printer->print(muonTrack) << std::endl << m_printer->printStations(muonTrack) ); 
       // preselect ID candidates close to the muon
-      std::vector<InDetCandidate*> associatedIdCandidates;
+      std::vector<const InDetCandidate*> associatedIdCandidates;
       associate(*muonCandidate,inDetCandidates,associatedIdCandidates);
       if( associatedIdCandidates.empty() ) continue;
       ATH_MSG_DEBUG("Associated ID candidates " << associatedIdCandidates.size() );
       // build combined muons
-      for(auto& tool : m_muonCombinedTagTools) 
-	tool->combine(*muonCandidate,associatedIdCandidates);
-      
+      int count=0;
+      for(auto& tool : m_muonCombinedTagTools){
+	tool->combine(*muonCandidate,associatedIdCandidates,*(tagMaps.at(count)));
+	count++;
+      }
     }    
   }
 
   void MuonCombinedTool::associate( const MuonCandidate& muonCandidate, const InDetCandidateCollection& inDetCandidates,  
-				    std::vector<InDetCandidate*>& associatedIdCandidates ) const {
+				    std::vector<const InDetCandidate*>& associatedIdCandidates ) const {
 
     // define muon (eta,phi)
     double muonEta = 0.;
@@ -120,8 +125,7 @@ namespace MuonCombined {
       if (deltaEta            > m_deltaEtaPreSelection)  continue;
       if (fabs(deltaPhi)      > m_deltaPhiPreSelection)  continue;
       if (ptBal               > m_ptBalance) continue;
-      // FIXME: changing objects recorded in SG.
-      associatedIdCandidates.push_back(const_cast<InDetCandidate*>(x));
+      associatedIdCandidates.push_back(x);
     }
   }
 
