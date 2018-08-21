@@ -4,6 +4,7 @@
 # art-type: grid
 # art-output: *.pool.root
 # art-include: 21.0/Athena
+# art-include: master/Athena
 
 set -e
 
