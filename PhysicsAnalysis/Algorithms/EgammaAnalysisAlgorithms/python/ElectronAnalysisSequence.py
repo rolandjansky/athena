@@ -7,8 +7,7 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 def makeElectronAnalysisSequence( dataType,
                                   isolationWP = 'GradientLoose',
                                   likelihoodWP = 'LooseLHElectron',
-                                  recomputeLikelihood = False,
-                                  prefilterLikelihood = False ):
+                                  recomputeLikelihood = False ):
     """Create an electron analysis algorithm sequence
 
     Keyword arguments:
@@ -25,35 +24,40 @@ def makeElectronAnalysisSequence( dataType,
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "ElectronAnalysisSequence" )
 
+    # Variables keeping track of the selections being applied.
+    _selectionDecorNames = []
+    _selectionDecorCount = []
+
     # Set up the an eta-cut on all electrons prior to everything else
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronEtaCutAlg' )
     alg.selectionDecoration = 'selectEta'
-    etaNcuts = 2
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
     alg.selectionTool.maxEta = 2.47
     alg.selectionTool.useClusterEta = True
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut' )
+    _selectionDecorNames.append( alg.selectionDecoration )
+    _selectionDecorCount.append( 2 )
 
     # Set up the likelihood ID selection algorithm
     # It is safe to do this before calibration, as the cluster E is used
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' )
     alg.selectionDecoration = 'selectLikelihood'
-    lhNcuts = 1
+    _selectionDecorNames.append( alg.selectionDecoration )
     if recomputeLikelihood:
         # Rerun the likelihood ID
         addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
         alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
         alg.selectionTool.WorkingPoint = likelihoodWP
-        lhNcuts = 7
+        _selectionDecorCount.append( 7 )
     else:
         # Select from Derivation Framework flags
         addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
         dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
         alg.selectionTool.selectionFlags = [dfFlag]
-        lhNcuts = 1
+        _selectionDecorCount.append( 1 )
     seq.append( alg, inputPropName = 'particles',
-    outputPropName = 'particlesOut' )
+                outputPropName = 'particlesOut' )
 
     # Only run subsequent processing on the objects passing eta and LH cut
     # The later is needed e.g. for top derivations that thin the clusters
@@ -61,12 +65,7 @@ def makeElectronAnalysisSequence( dataType,
     # Basically invalidates the first cutflow step
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'ElectronLHViewFromSelectionAlg' )
-    if prefilterLikelihood:
-        alg.selection = [ 'selectEta', 'selectLikelihood' ]
-        pass
-    else :
-        alg.selection = [ 'selectEta' ]
-        pass
+    alg.selection = _selectionDecorNames
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the calibration and smearing algorithm:
@@ -106,10 +105,13 @@ def makeElectronAnalysisSequence( dataType,
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
                            'ElectronTrackSelectionAlg' )
-    alg.selectionDecoration = "trackSelection"
+    alg.selectionDecoration = 'trackSelection'
     alg.maxD0Significance = 5
     alg.maxDeltaZ0SinTheta = 0.5
-    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut' )
+    seq.append( alg, inputPropName = 'particles',
+                outputPropName = 'particlesOut' )
+    _selectionDecorNames.append( 'trackSelection' )
+    _selectionDecorCount.append( 3 )
 
     # Set up the electron efficiency correction algorithm:
     alg = createAlgorithm( 'CP::ElectronEfficiencyCorrectionAlg',
@@ -123,29 +125,35 @@ def makeElectronAnalysisSequence( dataType,
     alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
     alg.efficiencyDecoration = 'effCor'
     if dataType == 'afii':
-        alg.efficiencyCorrectionTool.ForceDataType = 3
-    else :
-        alg.efficiencyCorrectionTool.ForceDataType = 1
+        alg.efficiencyCorrectionTool.ForceDataType = \
+          ROOT.PATCore.ParticleDataType.Fast
+    elif dataType == 'mc':
+        alg.efficiencyCorrectionTool.ForceDataType = \
+          ROOT.PATCore.ParticleDataType.Full
         pass
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff'
-    seq.append( alg, inputPropName = 'electrons',
-                outputPropName = 'electronsOut',
-                affectingSystematics = '(^EL_EFF_.*)' )
+    if dataType != 'data':
+        seq.append( alg, inputPropName = 'electrons',
+                    outputPropName = 'electronsOut',
+                    affectingSystematics = '(^EL_EFF_.*)' )
+        _selectionDecorNames.append( 'bad_eff' )
+        _selectionDecorCount.append( 1 )
+        pass
 
     # Set up an algorithm used for debugging the electron selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                            'ElectronCutFlowDumperAlg' )
     alg.histPattern = 'electron_cflow_%SYS%'
-    alg.selection = [ 'selectLikelihood', 'isolated', 'trackSelection', 'bad_eff' ]
-    alg.selectionNCuts = [ 7, 1, 3, 1 ]
+    alg.selection = _selectionDecorNames
+    alg.selectionNCuts = _selectionDecorCount
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'ElectronViewFromSelectionAlg' )
-    alg.selection = [ 'selectLikelihood', 'isolated', 'trackSelection', 'bad_eff' ]
+    alg.selection = _selectionDecorNames
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the electrons, for
