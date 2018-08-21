@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -138,14 +138,15 @@ namespace MuonCombined {
   
   }
 
-  void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-					const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
-					const Muon::MMPrepDataContainer* mmPRDs ) {
+  void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
+					const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs, 
+					const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs ) {
     //shouldn't need this interface for this tool, I don't think
-    if(mdtPRDs && cscPRDs && rpcPRDs && tgcPRDs && stgcPRDs && mmPRDs) extend(inDetCandidates);
+    if(!mdtPRDs || !cscPRDs || !rpcPRDs || !tgcPRDs || !stgcPRDs || !mmPRDs) ATH_MSG_DEBUG("calo-tagging doesn't need PRDs");
+    extend(inDetCandidates, tagMap);
   }
 
-  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates ) {
+  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) {
     const xAOD::CaloClusterContainer* caloClusterCont=0;
     const CaloCellContainer* caloCellCont=0;
     if(m_doCaloLR){ //retrieve the xAOD::CaloClusterContainer
@@ -160,10 +161,10 @@ namespace MuonCombined {
       else if(!cells.isPresent()) ATH_MSG_DEBUG("CaloCellContainer "<<m_caloCellCont.key()<<" not present");
       else caloCellCont=cells.cptr();
     }
-    extend(inDetCandidates, caloCellCont, caloClusterCont);
+    extend(inDetCandidates, tagMap, caloCellCont, caloClusterCont);
   }
 
-  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates,
+  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
                                 const CaloCellContainer* caloCellCont,
                                 const xAOD::CaloClusterContainer* caloClusterCont) {
 
@@ -281,7 +282,7 @@ namespace MuonCombined {
       }
       
       // FIXME const-cast  changes object passed in as const
-      createMuon(const_cast<InDetCandidate&>(*idTP),  deposits, tag, likelihood);
+      createMuon(*idTP,  deposits, tag, likelihood, tagMap);
 
       // --- Count number of muons written to container 
       if ( abs(pdgId) == 13 )  m_nMuonsTagged++;
@@ -449,8 +450,8 @@ namespace MuonCombined {
   */
 
   
-  void MuonCaloTagTool::createMuon(InDetCandidate& muonCandidate,
-                                   const std::vector<DepositInCalo>& deposits, int tag, float likelihood) const {
+  void MuonCaloTagTool::createMuon(const InDetCandidate& muonCandidate,
+                                   const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const {
     
     std::vector<DepositInCalo>::const_iterator deposit  = deposits.begin();
     std::vector<DepositInCalo>::const_iterator depositE = deposits.end();
@@ -473,7 +474,7 @@ namespace MuonCombined {
       
 //      eLoss = m_muonIsolationTool->summedCellEnergy(ptcl, m_coreDR);
 //      caloTag->set_etCore(eLoss);
-      muonCandidate.addTag(*caloTag);
+      tagMap->addEntry(&muonCandidate,caloTag);
     }
   }
 

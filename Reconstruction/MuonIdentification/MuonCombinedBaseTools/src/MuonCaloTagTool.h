@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCALOTAGTOOL_H
@@ -53,21 +53,21 @@ namespace MuonCombined {
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */    
     virtual
-    void extend( const InDetCandidateCollection& inDetCandidates ) override;
+      void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) override;
 
     virtual
-    void extend( const InDetCandidateCollection& inDetCandidates,
-                 const CaloCellContainer* caloCellContainer,
-                 const xAOD::CaloClusterContainer* caloClusterContainer) override;
+      void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
+		   const CaloCellContainer* caloCellContainer,
+		   const xAOD::CaloClusterContainer* caloClusterContainer) override;
 
-    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-				const Muon::RpcPrepDataContainer* rpdPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs,
-                                const Muon::MMPrepDataContainer* mmPRDs) override;
+    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, 
+				const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpdPRDs, 
+				const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs, const Muon::MMPrepDataContainer* mmPRDs) override;
 
 
   private:
     
-    void createMuon(InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood) const;
+    void createMuon(const InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const;
     const Trk::TrackParameters* getTrackParameters(const Trk::Track* trk) const;
     //bool applyEnergyIsolation(const xAOD::IParticle* muon);
     bool selectTrack(const Trk::Track* trk, const Trk::Vertex* vertex) const;

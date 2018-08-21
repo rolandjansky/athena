@@ -26,11 +26,11 @@ namespace MuonCombined {
     virtual StatusCode finalize() override;
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */    
-    virtual void extend( const InDetCandidateCollection& inDetCandidates ) override;
+    virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) override;
 
-    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-				const Muon::RpcPrepDataContainer* rpdPRDs, const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs,
-                                const Muon::MMPrepDataContainer* mmPRDs) override;
+    virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, 
+				const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpdPRDs, 
+				const Muon::TgcPrepDataContainer* tgcPRDs, const Muon::sTgcPrepDataContainer* sTGCPRDs, const Muon::MMPrepDataContainer* mmPRDs) override;
 
 
   private:
