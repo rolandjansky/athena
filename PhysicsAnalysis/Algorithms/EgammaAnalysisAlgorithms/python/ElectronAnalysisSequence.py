@@ -112,9 +112,12 @@ def makeElectronAnalysisSequence( dataType,
     # Set up the isolation selection algorithm:
     alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
                            'ElectronIsolationSelectionAlg' )
+    alg.selectionDecoration = 'isolated'
     addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
     alg.selectionTool.ElectronWP = isolationWP
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut' )
+    _selectionDecorNames.append( alg.selectionDecoration )
+    _selectionDecorCount.append( 1 )
 
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
@@ -124,7 +127,7 @@ def makeElectronAnalysisSequence( dataType,
     alg.maxDeltaZ0SinTheta = 0.5
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut' )
-    _selectionDecorNames.append( 'trackSelection' )
+    _selectionDecorNames.append( alg.selectionDecoration )
     _selectionDecorCount.append( 3 )
 
     # Select electrons only if they don't appear to have flipped their charge.
