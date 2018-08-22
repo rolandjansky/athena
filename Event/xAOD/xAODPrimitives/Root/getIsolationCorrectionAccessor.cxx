@@ -5,7 +5,7 @@
 
 // Local include(s):
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
-
+#include <stdexcept>
 namespace xAOD {
 
 const SG::AuxElement::Accessor< uint32_t >
@@ -19,16 +19,18 @@ const SG::AuxElement::Accessor< float >
   getIsolationCorrectionAccessor( Iso::IsolationFlavour type, Iso::IsolationCaloCorrection corr, 
                                   Iso::IsolationCorrectionParameter param  ){
     std::string name(Iso::toCString(type));                                                                       
-    if (corr == Iso::coreCone || corr == Iso::coreConeSC)
+    if (corr == Iso::coreCone || corr == Iso::coreConeSC){
       name+=toCString(corr); 
-    else{
+    }else{
         name = toCString(corr);
     }
 
     if (param==xAOD::Iso::coreEnergy || param==xAOD::Iso::coreArea){
       name+=toCString(param );    
+    }else{
+      throw std::runtime_error("IsolationCorrectionParameter out of bounds");
     }
-    name+="Correction";
+      name+="Correction";
 
     return SG::AuxElement::Accessor< float >( name );                                                                                                              
   }

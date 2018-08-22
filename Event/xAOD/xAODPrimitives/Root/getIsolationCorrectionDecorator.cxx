@@ -4,7 +4,7 @@
 
 // Local include(s):
 #include "xAODPrimitives/tools/getIsolationCorrectionDecorator.h"
-
+#include <stdexcept>
 namespace xAOD {
 
 const SG::AuxElement::Decorator< uint32_t >
@@ -26,9 +26,10 @@ const SG::AuxElement::Decorator< float >
 
     if (param==xAOD::Iso::coreEnergy || param==xAOD::Iso::coreArea){
       name+=toCString(param );    
+     }else{
+      throw std::runtime_error("IsolationCorrectionParameter out of bounds");
     }
     name+="Correction";
-
     return SG::AuxElement::Decorator< float >( name );                                                                                                              
   }
 
