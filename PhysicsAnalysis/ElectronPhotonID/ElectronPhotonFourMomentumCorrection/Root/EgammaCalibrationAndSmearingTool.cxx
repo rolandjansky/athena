@@ -941,7 +941,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     m_syst_description[CP::SystematicVariation("EG_SCALE_ALL", +1)] = SysInfo{always, egEnergyCorr::Scale::AllUp};
     m_syst_description[CP::SystematicVariation("EG_SCALE_ALL", -1)] = SysInfo{always, egEnergyCorr::Scale::AllDown};
     // extra AF2 systematics in addition to the 1NP
-    if ( m_TESModel == egEnergyCorr::es2017_R21_v0 /* add for R21_v1*/) {
+    if ( m_TESModel == egEnergyCorr::es2017_R21_v0  || m_TESModel == egEnergyCorr::es2017_R21_v1) {
        m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",+1)] =  SysInfo{always, egEnergyCorr::Scale::af2Up};
        m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",-1)] =  SysInfo{always, egEnergyCorr::Scale::af2Down};
     }
@@ -1023,7 +1023,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     }
 
     // extra AF2 systematics for release 21 recommendations - Moriond 2018 - pending proper AF2 to FullSim correction with release 21
-    if ( m_TESModel == egEnergyCorr::es2017_R21_v0 /*or m_TESModel == egEnergyCorr::es2017_R21_v1*/){
+    if ( m_TESModel == egEnergyCorr::es2017_R21_v0 || m_TESModel == egEnergyCorr::es2017_R21_v1){
        m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",+1)] =  SysInfo{always, egEnergyCorr::Scale::af2Up};
        m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",-1)] =  SysInfo{always, egEnergyCorr::Scale::af2Down};
     }
@@ -1187,7 +1187,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     }
 
     // extra AF2 systematics for release 21 recommendations - Moriond 2018 - pending proper AF2 to FullSim correction with release 21
-    if ( m_TESModel == egEnergyCorr::es2017_R21_v0 /*m_TESModel == egEnergyCorr::es2017_R21_v1*/){
+    if ( m_TESModel == egEnergyCorr::es2017_R21_v0  || m_TESModel == egEnergyCorr::es2017_R21_v1){
        m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",+1)] =  SysInfo{always, egEnergyCorr::Scale::af2Up};
        m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",-1)] =  SysInfo{always, egEnergyCorr::Scale::af2Down};
     }

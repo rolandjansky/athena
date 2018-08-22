@@ -1159,20 +1159,20 @@ namespace AtlasRoot {
 
     if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
       h2dmat[0][0] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigA"));
-      h2dmat[0][1] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigEL"));
-      h2dmat[0][2] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigFMX"));
+      h2dmat[0][1] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigEpLp"));
+      h2dmat[0][2] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigFpMX"));
       h2dmat[0][3] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigN"));
       h2dmat[0][4] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigIBL"));
       h2dmat[0][5] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigPP0"));
       h2dmat[1][0] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigA"));
-      h2dmat[1][1] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigEL"));
-      h2dmat[1][2] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigFMX"));
+      h2dmat[1][1] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigEpLp"));
+      h2dmat[1][2] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigFpMX"));
       h2dmat[1][3] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigN"));
       h2dmat[1][4] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigIBL"));
       h2dmat[1][5] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigPP0"));
       h2dmat[2][0] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigA"));
-      h2dmat[2][1] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigEL"));
-      h2dmat[2][2] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigFMX"));
+      h2dmat[2][1] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigEpLp"));
+      h2dmat[2][2] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigFpMX"));
       h2dmat[2][3] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigN"));
       h2dmat[2][4] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigIBL"));
       h2dmat[2][5] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigPP0"));
