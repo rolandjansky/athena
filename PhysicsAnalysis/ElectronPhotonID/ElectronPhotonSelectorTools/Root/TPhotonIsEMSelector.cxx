@@ -13,7 +13,6 @@
 *
 *
 **/
-// This class header
 #include "TPhotonIsEMSelector.h"
 #include <cmath>
 
@@ -919,9 +918,6 @@ bool Root::TPhotonIsEMSelector::checkVar(const std::vector <T> &vec, int choice)
     const unsigned int etNB_photonsNonConv = m_cutBinEnergy_photonsNonConverted.size();
     const unsigned int etaStripsNB_photonsNonConv = m_cutBinEtaStrips_photonsNonConverted.size();
     const unsigned int etStripsNB_photonsNonConv =  m_cutBinEnergyStrips_photonsNonConverted.size();
-    const unsigned int etaNB_photonsConv =  m_cutBinEta_photonsConverted.size();
-    const unsigned int etNB_photonsConv =  m_cutBinEnergy_photonsConverted.size();
-
 
     unsigned int combinedStripsNB_photonsConv = etaStripsNB_photonsConv;
     unsigned int combinedStripsNB_photonsNonConv = etaStripsNB_photonsNonConv;

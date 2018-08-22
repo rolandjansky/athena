@@ -8,15 +8,17 @@
 #ifndef __TPHOTONISEMSELECTOR__
 #define __TPHOTONISEMSELECTOR__
 
-/**
-   @class TPhotonIsEMSelector
-   @brief Example tool to select objects in pure ROOT
 
-   @author Karsten Koeneke (CERN), Jovan Mitrevski (UCSC)
-   @date   April 2011 - Feb 2012
-
-   based on egammaPhotonCutIDTool from F. Derue
-
+/**  @class TPhotonIsEMSelector.
+ *
+ *   @date  Feb 2012 - Aug 2018
+ *   Original by  Jovan Mitrevski (Feb. 2012)
+ *   Modified by Roger Naranjo
+ * 
+ *   Package: PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+ * 
+ *   @brief This class in intented to apply a cut based identification criteria to photons
+ * 
 */
 
 
@@ -304,10 +306,6 @@ namespace Root {
 
         // would ideally be protected: only to be used by ARASelector
         asg::AcceptData fillAccept(unsigned int isEM);
-
-        bool checkVar(std::vector<float> vec, int choice) const;
-
-        bool checkVar(std::vector<int> vec, int choice) const;
 
         template<typename T>
         bool checkVar(const std::vector <T> &vec, int choice) const;
