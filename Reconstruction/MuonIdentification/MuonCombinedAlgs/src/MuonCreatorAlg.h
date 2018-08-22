@@ -56,6 +56,7 @@ class MuonCreatorAlg : public AthAlgorithm
   SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterContainerLinkName{this,"CaloClusterCellLinkName","MuonClusterCollection","Cluster links"};
   bool m_buildSlowMuon;
   bool m_doSA;
+  bool m_makeClusters;
 
 };
 
