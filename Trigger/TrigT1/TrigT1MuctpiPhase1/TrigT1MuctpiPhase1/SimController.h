@@ -10,17 +10,32 @@
 class description
 */
 
-class SimController
-{
+namespace LVL1MUONIF {
+  class Lvl1MuCTPIInputPhase1;
+}
 
- public:
+namespace LVL1MUCTPIPHASE1 {
 
-  SimController();
-  ~SimController();
+  class GenTestPattern;
 
+  class SimController
+  {
+    
+  public:
+    
+    SimController();
+    ~SimController();
+    
+    void genRandomSimData();
+    void run();
+    
+  private:
+  
+    LVL1MUONIF::Lvl1MuCTPIInputPhase1* m_muctpiInput;
+    GenTestPattern* m_patGen;
 
- private:
+  };
 
-};
+}
 
 #endif // TRIGT1MUCTPIPHASE1_SIMCONTROLLER_H
