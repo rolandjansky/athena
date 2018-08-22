@@ -1,6 +1,6 @@
 # DirectIOART - Testing direct I/O in recent ATLAS offline software releases using ART (rel21)
 ## The DirectIOART package
-DirectIOART is a package meant for testing and monitoring file access via direct I/O in (almost) all recent *ATLAS* offline software releases (**only** release 21 and master) making use of the ART ([*ATLAS* Release Tester](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ART/)) framework. Its tests range from simple `TFile::Open` command to more involved `Reco_tf.py` reconstruction or derivation tests as well as small analysis algorithms. Each test is performed three times, in order to test three different protocols:
+DirectIOART is a package meant for testing and monitoring file access via direct I/O in (almost) all recent *ATLAS* offline software releases (**only** release 21 and master) making use of the ART ([*ATLAS* Release Tester](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ART)) framework. Its tests range from simple `TFile::Open` command to more involved `Reco_tf.py` reconstruction or derivation tests as well as small analysis algorithms. Each test is performed three times, in order to test three different protocols:
 * **DAVS**  (davs://...)
 * **HTTPS**  (https://...)
 * **ROOT**  (root://...)
@@ -32,7 +32,7 @@ Detailed lists of the tests that are performed within the particular software re
 * **`xAODChecker`** with DAOD input files:
   * 21.2/AnalysisBase
 
-**Note:** For each test three test scripts have been generated except for the  `TFile::Open` test. At the moment the DirectIOART package contains 25 tests in total that are indivdually submitted.
+**Note:** For each test three test scripts have been generated except for the  `TFile::Open` test. At the moment the DirectIOART package contains 25 tests in total that are individually submitted.
 
 ##### Input files:
 * **AOD** input file:
@@ -40,7 +40,7 @@ Detailed lists of the tests that are performed within the particular software re
 * **DAOD** input file:
   * data18_13TeV:DAOD_MUON0.14316152._000001.pool.root.1 from dataset data18_13TeV:data18_13TeV.00348709.physics_Main.deriv.DAOD_MUON0.f937_m1972_p3553_tid14316152_00
 * **RAW** input file:
-  * data15_13TeV:00284285.physics_Main.daq.RAW._lb0856._SFO-1._0003.data from dataset data15_13TeV:data15_13TeV.00284285.physics_Main.daq.RAW
+  * data15_13TeV:data15_13TeV.00284285.physics_Main.daq.RAW._lb0856._SFO-1._0003.data from dataset data15_13TeV:data15_13TeV.00284285.physics_Main.daq.RAW
 * **RDO** input file:
   * mc16_13TeV:RDO.11373415._000001.pool.root.1 from dataset mc16_13TeV:mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s3126_r9546_tid11373415_00
 
@@ -55,7 +55,7 @@ After a nightly build is done, the athena repository is searched for all the ava
 #### ART results
 Usually, the ART results are downloaded by request to a specific EOS area: `/eos/atlas/atlascerngroupdisk/data-art/grid-output/`.
 #### Displaying ART jobs
-All the necessary information for a given job, panda ID, job name, package name and nightly branch environment variables, are sent by ART to the bigpanda. The results from the grid jobs are displayed in the so-called [ART display](https://bigpanda.cern.ch/art/), where you can select a specific package, brach and nightly tag, respectively.
+All the necessary information for a given job, panda ID, job name, package name and nightly branch environment variables, are sent by ART to the bigpanda. The results from the grid jobs are displayed in the so-called [ART display](https://bigpanda.cern.ch/art/), where you can select a specific package, branch and nightly tag, respectively.
 ## Running manually
 When developing new ART tests you might be interested in testing your code before submitting a new merge request and wait until your latest changes appear on the [ART display](https://bigpanda.cern.ch/art/). How to do so is shown to you by the following instructions.
 #### Setup
@@ -77,27 +77,26 @@ Afterwards, go to the `build/` directory and set up the *ATLAS* software release
 cd build/
 acmSetup 21.2,AthAnalysis,latest
 ```
-For getting the DirectIOART git repository in there, do a `sparse_checkout` as explained in the following. First of all, move to the `source/` directory and create a working copy of the ATLAS Offline Git repository (it might take a while).
+For getting the DirectIOART git repository in there, do a "sparse checkout" of the athena repository with `acm` (requires forking the atlas/athena repository first, as described [here](https://atlassoftwaredocs.web.cern.ch/gittutorial/gitlab-fork)):
 ```
-cd ../source/
-git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
+acm sparse_clone_project athena
 ```
-This will setup a sparse checkout but doesn’t check out any packages yet. It will also setup your personal fork of the athena repository as `origin` and the main repository as `upstream`. 
+This will create a working copy of the ATLAS Offline Git repository (it might take a while) and setup a sparse checkout but doesn’t check out any packages yet. It will also setup your personal fork of the athena repository as `origin` and the main repository as `upstream`. On top of that, `acm` makes sure that you are in the branch appropriate for the release you've set up locally and that everything is up-to-date with the upstream repository. Note that outside of `lxplus` you may have to do this sparse checkout differently (if you don't have a valid kerberos ticket for your CERN credentials), for example via ssh authentication (where `YOUR_GITLAB_NAME` is your gitlab user name):
+```
+acm sparse_clone_project ssh://git@gitlab.cern.ch:7999/YOUR_GITLAB_NAME/athena.git
+```
+
 In order to add the DirectIOART package to your checkout, execute
 ```
-cd athena/
-git atlas addpkg DirectIOART
+acm add_pkg athena/Tools/DirectIOART
 ```
-This will checkout the DirectIOART package (the full path resolves to `Tools/DirectIOART/`), but leaves the other parts out of the work tree. Use `addpkg` to add as many packages as you like, `rmpkg` to remove them and `listpkg` to check what you have.
+This will checkout the DirectIOART package (the full path resolves to `Tools/DirectIOART/`), but leaves the other parts out of the work tree. Use `acm add_pkg` to add as many packages as you like and `acm rm_pkg` to remove them. Note that `acm` will also take care of any necessary entries in the `package_filters.txt` file, which is used by cmake to filter packages for the build.
+
 After that, you should compile your code, using
 ```
 acm compile
 ```
-**Note:** Before that, add the `athena/Projects/` folder to the `package_filters.txt` file which is automatically created in the `build/` directory during the release setup. In order to make sure that the DirectIOART package will be compiled you have to explicitly add it to `package_filters.txt`:
-```
-echo " - athena/Projects/.*" >> ../../build/package_filters.txt
-echo " + athena/Tools/DirectIOART/.*" >> ../../build/package_filters.txt
-```
+
 After all this worked, go to the `run/` directory of your work area in order to launch the ART tests (as described in the following sections):
 ```
 cd ../../run/
@@ -120,7 +119,7 @@ In order to send jobs from the DirectIOART package to the grid instead of runnin
 ```
 art.py grid -v ../source/athena/Tools/DirectIOART/ DirectIOART_20180724_1
 ```
-After calling `"art.py"`, the keyword `"grid"` tells ART to prepare for grid submission. Again, the `"../source.DirectIOART/"` path has to be given, but now with a sequence tag which is composed of, firstly, the package name, secondly, the submission date, and third, a counting index. Every `"art.py grid ..."` command will create a separate job containing all executed tests as single tasks. Actually, what the sequence tag looks like doesn't matter unless it is unique, since it will be part of the grid job's output name as displayed on your [bigpanda](https://bigpanda.cern.ch/) page, e.g.:
+After calling `"art.py"`, the keyword `"grid"` tells ART to prepare for grid submission. Again, the `"../source.DirectIOART/"` path has to be given, but now with a sequence tag which is composed of, firstly, the package name, secondly, the submission date, and third, a counting index. Every `"art.py grid ..."` command will create a separate job containing all executed tests as single tasks. Actually, what the sequence tag looks like doesn't matter as long as it is unique, since it will be part of the grid job's output name as displayed on your [bigpanda](https://bigpanda.cern.ch/) page, e.g.:
 ```
 user.flfische.atlas.21.2.AnalysisBase.x86_64-slc6-gcc62-opt.2018-07-04T0335.DirectIOART_20180706_2.DirectIOART/
 ```
