@@ -24,7 +24,8 @@ InDet::TrackFilter::TrackFilter(const std::string& name, ISvcLocator* pSvcLocato
   AthAlgorithm(name,pSvcLocator),
   m_inputTrackCollectionNames(),
   m_evcount(0),
-  m_accept(0)
+  m_accept(0),
+  m_idHelper{}
 {
   //  template for property decalration
   declareProperty("MinTRTHits", m_minTRTHits=1);
@@ -49,19 +50,16 @@ StatusCode InDet::TrackFilter::initialize()
   // Code entered here will be executed once at program start.
   
  
-  msg(MSG::INFO) << name() << " initialize()" << endmsg;
+  ATH_MSG_DEBUG( " initialize()");
 
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK (detStore()->retrieve(m_idHelper, "AtlasID"));
   
-  if(m_inputTrackCollectionNames.size()==0){
-    msg(MSG::ERROR) << "Configuration problem: TrackFilter configured with empty list of TrackCollections. Please fix your jobOptions!"<<endmsg;
+  if(m_inputTrackCollectionNames.empty()){
+    ATH_MSG_ERROR( "Configuration problem: TrackFilter configured with empty list of TrackCollections. Please fix your jobOptions!");
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
+  ATH_MSG_DEBUG( "initialize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -70,8 +68,8 @@ StatusCode InDet::TrackFilter::initialize()
 StatusCode InDet::TrackFilter::finalize()
 {
   // Code entered here will be executed once at the end of the program run.
-  msg(MSG::INFO) << "finalize() successful in " << name() << endmsg;
-  msg(MSG::INFO) << "Events / accepted  = "<<m_evcount <<" / "<<m_accept<<endmsg;
+  ATH_MSG_DEBUG( "finalize() successful ");
+  ATH_MSG_INFO( "Events / accepted  = "<<m_evcount <<" / "<<m_accept);
 
   return StatusCode::SUCCESS;
 }
@@ -85,7 +83,7 @@ StatusCode InDet::TrackFilter::execute()
 
   m_evcount++;
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute() called in " << name() << endmsg;
+  ATH_MSG_DEBUG( "execute() called" );
 
 
   std::vector<std::string>::const_iterator it=m_inputTrackCollectionNames.begin();
@@ -98,8 +96,8 @@ StatusCode InDet::TrackFilter::execute()
     
     StatusCode sc = evtStore()->retrieve(tracks, *it);
     if(sc.isFailure()){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " could not open Track collection : " << *it << endmsg;
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " will skip this collection!!"<<endmsg;
+      ATH_MSG_WARNING(" could not open Track collection : " << *it );
+      ATH_MSG_WARNING( " will skip this collection!!");
     }else{
 
       //loop over trackcollection and try to find a "good" track
@@ -111,7 +109,7 @@ StatusCode InDet::TrackFilter::execute()
         
         int nscthits=0;
         int ntrthits=0;
-	int npixhits=0;
+	      int npixhits=0;
 
         for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
           
@@ -145,7 +143,7 @@ StatusCode InDet::TrackFilter::execute()
 
 
   setFilterPassed( passed );
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Set filter passed to " << filterPassed() << endmsg;
+  ATH_MSG_DEBUG( "Set filter passed to " << filterPassed() );
 
   return StatusCode::SUCCESS;
 }
