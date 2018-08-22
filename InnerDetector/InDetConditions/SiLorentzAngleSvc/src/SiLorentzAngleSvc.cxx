@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include <stdexcept>
 
 SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
@@ -354,6 +355,7 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Am
   // Pixel
   if (m_isPixel) {
     const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    if (not p_design) throw std::runtime_error("Dynamic cast to PixelModuleDesign* failed in SiLorentzAngleSvc.cxx");
     if (m_pixelDefaults) {
       temperature = m_temperaturePix + 273.15;
       if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
