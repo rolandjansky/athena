@@ -40,7 +40,7 @@ namespace CP {
 
             std::string name() const;
             xAOD::Iso::IsolationType  type() const;
-            SG::AuxElement::Accessor<float>* accessor() const;
+            const SG::AuxElement::Accessor<float>* accessor() const;
 
             virtual bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
             virtual bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
@@ -48,7 +48,7 @@ namespace CP {
         protected:
             std::string m_name;
             xAOD::Iso::IsolationType m_isolationType;
-            SG::AuxElement::Accessor<float>* m_acc;
+            const SG::AuxElement::Accessor<float>* m_acc;
             float m_cutValue;
     };
 }
