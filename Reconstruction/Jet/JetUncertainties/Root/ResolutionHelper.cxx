@@ -9,6 +9,8 @@
 #include "TEnv.h"
 #include "TFile.h"
 
+#include <stdexcept>
+
 namespace jet
 {
 
@@ -485,7 +487,7 @@ bool ResolutionHelper::hasRelevantInfo(const CompScaleVar::TypeEnum type, const 
 {
     if (!m_isInit)
     {
-        ATH_MSG_ERROR("Asking for nominal resolution information before initialization");
+        throw std::runtime_error("Asking for nominal resolution information before initialization");
         return false;
     }
 
@@ -519,12 +521,12 @@ bool ResolutionHelper::hasRelevantInfo(const CompScaleVar::TypeEnum type, const 
                     return m_mTopNomHistMC != NULL;
 
                 default:
-                    ATH_MSG_ERROR("Unexpected topology type, cannot determine if relevant info exists: " << JetTopology::enumToString(topology).Data());
+                    throw std::runtime_error(Form("Unexpected topology type, cannot determine if relevant info exists: %s",JetTopology::enumToString(topology).Data()));
                     return false;
             }
 
         default:
-            ATH_MSG_ERROR("Unexpected variable type, cannot determine if relevant info exists: " << CompScaleVar::enumToString(type).Data());
+            throw std::runtime_error(Form("Unexpected variable type, cannot determine if relevant info exists: %s",CompScaleVar::enumToString(type).Data()));
             return false;
     }
 }

@@ -9,6 +9,8 @@
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 
+#include <memory>
+
 #include "TRandom3.h"
 
 class JetSmearingCorrection
@@ -71,8 +73,8 @@ class JetSmearingCorrection
         SmearType  m_smearType;
         HistType   m_histType;
         InterpType m_interpType;
-        TH1* m_smearResolutionMC;
-        TH1* m_smearResolutionData;
+        std::unique_ptr<TH1> m_smearResolutionMC;
+        std::unique_ptr<TH1> m_smearResolutionData;
 };
 
 

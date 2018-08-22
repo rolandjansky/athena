@@ -214,38 +214,6 @@ for aHist in inFile.GetKeyNames():
                             newHist.SetBinContent(xBin,yBin,newBin,hist.GetBinContent(xBin,yBin,oldBin))
                             newHist.SetBinError(xBin,yBin,newBin,hist.GetBinError(xBin,yBin,oldBin))
 
-        #for xBin in range(1,hist.GetNbinsX()+1):
-        #    print xBin
-        #    if hist.GetDimension() == 1:
-        #        for oldBin,newBin in binPairs:
-        #            newHist.SetBinContent(newBin,hist.GetBinContent(oldBin))
-        #            newHist.SetBinError(newBin,hist.GetBinError(oldBin))
-        #    else:
-        #        for yBin in range(1,hist.GetNbinsY()+1):
-        #            if hist.GetDimension() == 2:
-        #                if axis == "x" or axis == "X":
-        #                    for oldBin,newBin in binPairs:
-        #                        newHist.SetBinContent(newBin,yBin,hist.GetBinContent(oldBin,yBin))
-        #                        newHist.SetBinError(newBin,yBin,hist.GetBinError(oldBin,yBin))
-        #                else:
-        #                    for oldBin,newBin in binPairs:
-        #                        newHist.SetBinContent(xBin,newBin,hist.GetBinContent(xBin,oldBin))
-        #                        newHist.SetBinError(xBin,newBin,hist.GetBinError(xBin,oldBin))
-        #            else:
-        #                for zBin in range(1,hist.GetNbinsZ()+1):
-        #                    if axis == "x" or axis == "X":
-        #                        for oldBin,newBin in binPairs:
-        #                            newHist.SetBinContent(newBin,yBin,zBin,hist.GetBinContent(oldBin,yBin,zBin))
-        #                            newHist.SetBinError(newBin,yBin,zBin,hist.GetBinError(oldBin,yBin,zBin))
-        #                    elif axis == "y" or axis == "Y":
-        #                        for oldBin,newBin in binPairs:
-        #                            newHist.SetBinContent(xBin,newBin,zBin,hist.GetBinContent(xBin,oldBin,zBin))
-        #                            newHist.SetBinError(xBin,newBin,zBin,hist.GetBinError(xBin,oldBin,zBin))
-        #                    else:
-        #                        for oldBin,newBin in binPairs:
-        #                            newHist.SetBinContent(xBin,yBin,newBin,hist.GetBinContent(xBin,yBin,oldBin))
-        #                            newHist.SetBinError(xBin,yBin,newBin,hist.GetBinError(xBin,yBin,oldBin))
-
         # Filled histogram, finally
         # Write it out with the old name
         outFile.cd()

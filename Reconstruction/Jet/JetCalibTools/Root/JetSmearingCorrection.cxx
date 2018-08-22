@@ -18,8 +18,8 @@ JetSmearingCorrection::JetSmearingCorrection(const std::string name)
     , m_smearType(SmearType::UNKNOWN)
     , m_histType(HistType::UNKNOWN)
     , m_interpType(InterpType::UNKNOWN)
-    , m_smearResolutionMC(NULL)
-    , m_smearResolutionData(NULL)
+    , m_smearResolutionMC()
+    , m_smearResolutionData()
 { }
 
 JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* config, TString jetAlgo, TString calibAreaTag, bool dev)
@@ -34,23 +34,12 @@ JetSmearingCorrection::JetSmearingCorrection(const std::string& name, TEnv* conf
     , m_smearType(SmearType::UNKNOWN)
     , m_histType(HistType::UNKNOWN)
     , m_interpType(InterpType::UNKNOWN)
-    , m_smearResolutionMC(NULL)
-    , m_smearResolutionData(NULL)
+    , m_smearResolutionMC()
+    , m_smearResolutionData()
 { }
  
 JetSmearingCorrection::~JetSmearingCorrection()
-{
-    if (m_smearResolutionMC)
-    {
-        delete m_smearResolutionMC;
-        m_smearResolutionMC = NULL;
-    }
-    if (m_smearResolutionData)
-    {
-        delete m_smearResolutionData;
-        m_smearResolutionData = NULL;
-    }
-}
+{ }
 
 StatusCode JetSmearingCorrection::initializeTool(const std::string&)
 {
@@ -163,7 +152,7 @@ StatusCode JetSmearingCorrection::initializeTool(const std::string&)
         smearingFile.Insert(14,m_calibAreaTag);
     
     TString fileName = PathResolverFindCalibFile(smearingFile.Data());
-    TFile* inputFile = TFile::Open(fileName);
+    std::unique_ptr<TFile> inputFile(TFile::Open(fileName));
     if (!inputFile || inputFile->IsZombie())
     {
         ATH_MSG_FATAL("Cannot open jet smearing correction file: " << fileName);
@@ -171,18 +160,24 @@ StatusCode JetSmearingCorrection::initializeTool(const std::string&)
     }
 
     //  Retrieve the histogram froms the file
-    m_smearResolutionMC = dynamic_cast<TH1*>(inputFile->Get(smearingHistNameMC));
+    m_smearResolutionMC = std::unique_ptr<TH1>(dynamic_cast<TH1*>(inputFile->Get(smearingHistNameMC)));
     if (!m_smearResolutionMC)
     {
         ATH_MSG_FATAL("Failed to get specified histogram from the file: " << smearingHistNameMC.Data());
         return StatusCode::FAILURE;
     }
-    m_smearResolutionData = dynamic_cast<TH1*>(inputFile->Get(smearingHistNameData));
+    m_smearResolutionMC->SetDirectory(0);
+
+    m_smearResolutionData = std::unique_ptr<TH1>(dynamic_cast<TH1*>(inputFile->Get(smearingHistNameData)));
     if (!m_smearResolutionData)
     {
         ATH_MSG_FATAL("Failed to get specified histogram from the file: " << smearingHistNameData.Data());
         return StatusCode::FAILURE;
     }
+    m_smearResolutionData->SetDirectory(0);
+
+    // Done with the input file, close it
+    inputFile->Close();
 
     // Ensure that the histogram we retrieved has the right number of dimensions
     // It must match the dimensionality of the parametrization
@@ -449,23 +444,23 @@ StatusCode JetSmearingCorrection::getSigmaSmear(xAOD::Jet& jet, double& sigmaSme
     switch (m_histType)
     {
         case HistType::Pt:
-            if (readHisto(resolutionMC,m_smearResolutionMC,jet.pt()).isFailure())
+            if (readHisto(resolutionMC,m_smearResolutionMC.get(),jet.pt()).isFailure())
                 return StatusCode::FAILURE;
-            if (readHisto(resolutionData,m_smearResolutionData,jet.pt()).isFailure())
+            if (readHisto(resolutionData,m_smearResolutionData.get(),jet.pt()).isFailure())
                 return StatusCode::FAILURE;
             break;
 
         case HistType::PtEta:
-            if (readHisto(resolutionMC,m_smearResolutionMC,jet.pt(),jet.eta()).isFailure())
+            if (readHisto(resolutionMC,m_smearResolutionMC.get(),jet.pt(),jet.eta()).isFailure())
                 return StatusCode::FAILURE;
-            if (readHisto(resolutionData,m_smearResolutionData,jet.pt(),jet.eta()).isFailure())
+            if (readHisto(resolutionData,m_smearResolutionData.get(),jet.pt(),jet.eta()).isFailure())
                 return StatusCode::FAILURE;
             break;
 
         case HistType::PtAbsEta:
-            if (readHisto(resolutionMC,m_smearResolutionMC,jet.pt(),fabs(jet.eta())).isFailure())
+            if (readHisto(resolutionMC,m_smearResolutionMC.get(),jet.pt(),fabs(jet.eta())).isFailure())
                 return StatusCode::FAILURE;
-            if (readHisto(resolutionData,m_smearResolutionData,jet.pt(),fabs(jet.eta())).isFailure())
+            if (readHisto(resolutionData,m_smearResolutionData.get(),jet.pt(),fabs(jet.eta())).isFailure())
                 return StatusCode::FAILURE;
             break;
 
