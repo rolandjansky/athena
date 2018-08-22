@@ -192,10 +192,8 @@ namespace xAOD {
     // This is independant of the size. At least for the time being
     // fill bitset
     const SG::AuxElement::Decorator< uint32_t > bitsetAcc = getIsolationCorrectionBitsetDecorator(Iso::isolationFlavour(cones[0]));
-
-    if( bitsetAcc.isAvailable(tp) ){
-      bitsetAcc(tp) = corrections.trackbitset.to_ulong();
-    }
+    bitsetAcc(tp) = corrections.trackbitset.to_ulong();
+    
     
     // fill corrections
     for( auto ctype : correctionTypes ){
@@ -205,9 +203,7 @@ namespace xAOD {
 	continue;
       }
       const SG::AuxElement::Decorator< float > isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype );
-      if( isoCorAcc.isAvailable(tp) ){
 	  isoCorAcc(tp) = el->second;
-      }        
     }
 
     // loop over cones

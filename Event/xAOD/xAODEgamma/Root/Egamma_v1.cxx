@@ -290,7 +290,6 @@ float Egamma_v1::isolationCaloCorrection(const Iso::IsolationFlavour flavour, co
 bool Egamma_v1::setIsolationCaloCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
                                            const Iso::IsolationCorrectionParameter param){
   const SG::AuxElement::Accessor< float > acc = getIsolationCorrectionAccessor(flavour,corr,param);
-  if( !acc.isAvailable(*this) ) return false;
   // Set the value:
   acc(*this) = value;
   return true;
@@ -314,8 +313,6 @@ float Egamma_v1::isolationCaloCorrection(Iso::IsolationType type, Iso::Isolation
 
 bool Egamma_v1::setIsolationCaloCorrection(float value, Iso::IsolationType type, Iso::IsolationCaloCorrection corr){
   const SG::AuxElement::Accessor< float > acc = getIsolationCorrectionAccessor(type,corr);
-  if( !acc.isAvailable(*this) ) return false;
-  // Set the value:
   acc(*this) = value;
   return true;
 }
@@ -338,7 +335,6 @@ float Egamma_v1::isolationTrackCorrection(const Iso::IsolationFlavour flavour, c
 
 bool Egamma_v1::setIsolationTrackCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection corr){
   const SG::AuxElement::Accessor< float > acc = getIsolationCorrectionAccessor(flavour,corr);
-  if( !acc.isAvailable(*this) ) return false;
   // Set the value:
   acc(*this) = value;
   return true;
@@ -362,7 +358,6 @@ std::bitset<32> Egamma_v1::isolationCorrectionBitset(const Iso::IsolationFlavour
 
 bool Egamma_v1::setIsolationCorrectionBitset(uint32_t value, const Iso::IsolationFlavour flavour ) {
   const SG::AuxElement::Accessor< uint32_t > acc = getIsolationCorrectionBitsetAccessor( flavour );
-  if( !acc.isAvailable(*this) ) return false;
   // Set the value:
   acc(*this) = value;
   return true;
