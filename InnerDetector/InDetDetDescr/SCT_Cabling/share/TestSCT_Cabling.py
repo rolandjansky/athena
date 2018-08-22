@@ -61,13 +61,7 @@ import AtlasGeoModel.GeoModelInit
 #--------------------------------------------------------------
 # Load ReadCalibData Alg and Service
 #--------------------------------------------------------------
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-ToolSvc = ServiceMgr.ToolSvc
-from SCT_Cabling.SCT_CablingConf import SCT_CablingTool
-SCT_CablingTool = SCT_CablingTool()
-ToolSvc += SCT_CablingTool
+DataSource = ''
 
 from IOVDbSvc.CondDB import conddb
 
@@ -91,15 +85,15 @@ if (letsTest=='ReadingFromCoraCool'):
   conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog <tag>HEAD</tag>", className="CondAttrListVec")
   '''
 
-  SCT_CablingTool.DataSource='CORACOOL'
+  DataSource='CORACOOL'
 elif (letsTest=='ReadingFromFile'):
-  SCT_CablingTool.DataSource='SCT_Sept08Cabling_svc.dat'
+  DataSource='SCT_Sept08Cabling_svc.dat'
   # File is available at https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetDetDescr/SCT_Cabling/trunk/share/
 elif (letsTest=='ReadingFromMCFile'):
-  SCT_CablingTool.DataSource='SCT_MC_FullCabling_svc.dat'
+  DataSource='SCT_MC_FullCabling_svc.dat'
   # File is available at https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetDetDescr/SCT_Cabling/trunk/share/
 elif (letsTest=='ReadingFromCVP'):
-  SCT_CablingTool.DataSource='COOLVECTOR'
+  DataSource='COOLVECTOR'
   #conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-MC-06</tag>", className="CondAttrListVec")
   #conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-MC-06</tag>", className="CondAttrListVec")
   #conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-MC-06</tag>", className="CondAttrListVec")
@@ -108,6 +102,9 @@ elif (letsTest=='ReadingFromCVP'):
   conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-Run2-10July2015</tag>", className="CondAttrListVec")
   conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-Run2-10July2015</tag>", className="CondAttrListVec")
   conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-Run2-10July2015</tag>", className="CondAttrListVec")
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
 if (letsTest=='ReadingFromCoraCool') or (letsTest=='ReadingFromCVP'):
   condAlgName = "SCT_CablingCondAlgFromCoraCool"
@@ -128,10 +125,13 @@ elif (letsTest=='ReadingFromFile') or (letsTest=='ReadingFromMCFile'):
   condAlgName = "SCT_CablingCondAlgFromText"
   from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromText
   topSequence+= SCT_CablingCondAlgFromText(name = condAlgName,
-                                           DataSource = SCT_CablingTool.DataSource)
+                                           DataSource = DataSource)
 
+from AthenaCommon.CfgGetter import getPrivateTool
+SCT_CablingTool = getPrivateTool("SCT_CablingTool")
 from SCT_Cabling.SCT_CablingConf import SCT_TestCablingAlg
 topSequence+= SCT_TestCablingAlg(SCT_CablingTool=SCT_CablingTool)
+topSequence.SCT_TestCablingAlg.SCT_CablingTool.DataSource = DataSource
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector
