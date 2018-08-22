@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+
 #ifndef BTAG_TRACK_AUGMENTER_HH
 #define BTAG_TRACK_AUGMENTER_HH
 

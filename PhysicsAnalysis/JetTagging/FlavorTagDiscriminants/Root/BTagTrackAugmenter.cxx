@@ -1,4 +1,8 @@
-#include "BTagTrackAugmenter.h"
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
 
 #include <cmath>
 #include <cstddef>

@@ -1,4 +1,8 @@
-#include "BTagJetAugmenter.hh"
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "FlavorTagDiscriminants/BTagJetAugmenter.h"
 
 #include <cmath>
 #include <cstddef>
@@ -61,7 +65,7 @@ BTagJetAugmenter::BTagJetAugmenter():
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
-  const xAOD::BTagging &btag = *jet.btagging();
+  const xAOD::BTagging& btag = *jet.btagging();
 
   pt_uncalib(btag) = uncalibrated_jet.pt();
   eta_uncalib(btag) = uncalibrated_jet.eta();
@@ -72,14 +76,14 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrat
 }
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
-  const xAOD::BTagging &btag = *jet.btagging();
+  const xAOD::BTagging& btag = *jet.btagging();
 
   if (ip2d_weightBOfTracks(btag).size() > 0) {
     ip2d_isDefaults(btag) = 0;
   } else {
     ip2d_isDefaults(btag) = 1;
   }
-  ip2d_nTrks(*btag) = ip2d_weightBOfTracks(*btag).size();
+  ip2d_nTrks(btag) = ip2d_weightBOfTracks(btag).size();
 
   ip2d_cu(btag) = std::log(ip2d_pc(btag) / ip2d_pu(btag));
   ip2d_bu(btag) = std::log(ip2d_pb(btag) / ip2d_pu(btag));
@@ -94,7 +98,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   ip3d_cu(btag) = std::log(ip3d_pc(btag) / ip3d_pu(btag));
   ip3d_bu(btag) = std::log(ip3d_pb(btag) / ip3d_pu(btag));
   ip3d_bc(btag) = std::log(ip3d_pb(btag) / ip3d_pc(btag));
-  ip3d_nTrks(*btag) = ip3d_weightBOfTracks(*btag).size();
+  ip3d_nTrks(btag) = ip3d_weightBOfTracks(btag).size();
 
   if (jf_vertices(btag).size() > 0 && (jf_nVtx(btag) > 0 || jf_nSingleTracks(btag) > 0)) {
     jf_isDefaults(btag) = 0;
