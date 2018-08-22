@@ -254,6 +254,8 @@ ghost_particles = [
     'WBosons',
     'ZBosons',
     'TQuarksFinal',
+    'BHadronsFinal',
+    'CHadronsFinal',
 ]
 ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
 ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
