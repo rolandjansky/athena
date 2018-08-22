@@ -34,7 +34,6 @@
 
 #include "LArHV/LArHVManager.h"
 
-#include "LArCabling/LArHVCablingTool.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 
@@ -108,8 +107,6 @@ StatusCode CaloCellCalcEnergyCorr::stop()
   const CaloCell_ID*    calocell_id;	
   CHECK(detStore()->retrieve(calocell_id,"CaloCell_ID"));
 
-  ToolHandle<LArHVCablingTool> HVcabling;
-  if(m_hvlines.size()>=1 && m_hvlines[0]>0) CHECK(HVcabling.retrieve());
 
   IdentifierHash hashMin,hashMax;
   if(m_calosample.size()==1 && m_calosample[0] < 0 ) {

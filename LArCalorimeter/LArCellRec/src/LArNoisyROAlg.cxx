@@ -30,6 +30,7 @@ StatusCode LArNoisyROAlg::initialize() {
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_knownBadFEBsVecKey.initialize() );
   ATH_CHECK(m_knownMNBFEBsVecKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
