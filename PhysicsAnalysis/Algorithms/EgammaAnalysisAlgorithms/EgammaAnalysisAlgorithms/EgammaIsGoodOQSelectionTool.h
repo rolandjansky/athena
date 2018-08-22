@@ -24,6 +24,9 @@ namespace CP {
    public asg::AsgTool, virtual public IAsgSelectionTool {
 
    public:
+      /// Declare the tool's interface to Gaudi
+      ASG_TOOL_CLASS( EgammaIsGoodOQSelectionTool, IAsgSelectionTool )
+
       /// AsgTool constructor
       EgammaIsGoodOQSelectionTool( const std::string& name );
 
