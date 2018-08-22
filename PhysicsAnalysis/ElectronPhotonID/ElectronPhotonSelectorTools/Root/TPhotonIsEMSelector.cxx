@@ -1,22 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/********************************************************************
-
-NAME:     TPhotonIsEMSelector.cxx
-PACKAGE:  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-
-AUTHORS:  J. Mitrevski
-CREATED:  Feb. 2012
-COMMENT:  evolved from egammaPhotonCutIDTool by (F. Derue)
-
-PURPOSE:  Cut based identification of photons
-
-UPDATED:
-
-*********************************************************************/
-
+/**  TPhotonIsEMSelector.cxx
+*
+*  Original by  Jovan Mitrevski (Feb. 2012)
+*  Modified by Roger Naranjo
+*
+*  Package: PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools 
+*  
+*  This class in intented to apply a cut based identification criteria to photons
+*
+*
+**/
 // This class header
 #include "TPhotonIsEMSelector.h"
 #include <cmath>
@@ -43,8 +39,6 @@ Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
   m_cutPositionClusterMiddleWidth_Photon(0),
   /** @brief fraction of energy found in 1st sampling */
   m_cutPositionClusterStripsEratio_Photon(0),
-  /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
-  // m_cutPositionClusterStripsDeltaEmax2_Photon(0),
   /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1) */
   m_cutPositionClusterStripsDeltaE_Photon(0),
   /** @brief shower width in 1st sampling */
@@ -79,11 +73,8 @@ Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
   m_cutNameClusterMiddleEratio33_Photon("ClusterMiddleEratio33_Photon"),
   /** @brief width in the second sampling */
   m_cutNameClusterMiddleWidth_Photon("ClusterMiddleWidth_Photon"),
-  
   /** @brief fraction of energy found in 1st sampling */
   m_cutNameClusterStripsEratio_Photon("ClusterStripsEratio_Photon"),
-  /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) */
-  // m_cutNameClusterStripsDeltaEmax2_Photon("ClusterStripsDeltaEmax2_Photon"),
   /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1) */
   m_cutNameClusterStripsDeltaE_Photon("ClusterStripsDeltaE_Photon"),
   /** @brief shower width in 1st sampling */
@@ -94,13 +85,10 @@ Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
   m_cutNameClusterStripsWeta1c_Photon("ClusterStripsWeta1c_Photon"),
   /** @brief difference between max and 2nd max in strips */
   m_cutNameClusterStripsDEmaxs1_Photon("ClusterStripsDEmaxs1_Photon"),
-  
   /** @brief energy-momentum match for photon selection*/
   m_cutNameTrackMatchEoverP_Photon("TrackMatchEoverP_Photon"),
-  
   /** @brief ambiguity resolution for photon (vs electron) */
   m_cutNameAmbiguityResolution_Photon("AmbiguityResolution_Photon"),
-  
   /** @brief isolation */
   m_cutNameIsolation_Photon("Isolation_Photon"),
   /** @brief calorimetric isolation for photon selection */
@@ -116,7 +104,6 @@ Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
   m_cutPositionClusterMiddleEratio33_Photon     = 0;
   m_cutPositionClusterMiddleWidth_Photon        = 0;
   m_cutPositionClusterStripsEratio_Photon       = 0;
-  //m_cutPositionClusterStripsDeltaEmax2_Photon = 0;
   m_cutPositionClusterStripsDeltaE_Photon       = 0;
   m_cutPositionClusterStripsWtot_Photon         = 0;
   m_cutPositionClusterStripsFracm_Photon        = 0;
@@ -133,15 +120,16 @@ Root::TPhotonIsEMSelector::~TPhotonIsEMSelector()
 {
 }
 
-// =================================================================
+/** The initialization of this tool registers all applied cuts
+    and make sure that they got registered
+    
+    The order of the cuts does matter since each cut corresponds
+    to a bit, i.e, Cut0 corresponds to bit 0, Cut1 to bit 1, etc.
+*/  
 StatusCode Root::TPhotonIsEMSelector::initialize() 
 {
 
    StatusCode sc(StatusCode::SUCCESS);
-
-  // --------------------------------------------------------------------------
-  // Register the cuts and check that the registration worked:
-  // NOTE: THE ORDER IS IMPORTANT!!! Cut0 corresponds to bit 0, Cut1 to bit 1,...
 
   /** @brief cluster eta range, bit 0*/
   m_cutPositionClusterEtaRange_Photon = 
@@ -207,10 +195,6 @@ StatusCode Root::TPhotonIsEMSelector::initialize()
     m_acceptInfo.addCut(m_cutNameClusterStripsEratio_Photon, "f1 > Cut");
   if (m_cutPositionClusterStripsEratio_Photon < 0) sc = StatusCode::FAILURE;
 
-  /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et), bit 16 */
-  //m_cutPositionClusterStripsDeltaEmax2_Photon = 
-  //  m_acceptInfo.addCut(m_cutNameClusterStripsDeltaEmax2_Photon, "DeltaEmax2 < Cut");
-  //if (m_cutPositionClusterStripsDeltaEmax2_Photon < 0) sc = StatusCode::FAILURE;
   voidcutpos = m_acceptInfo.addCut("VOID9", "No Cut"); // bit 16 is not used
   if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
@@ -300,9 +284,12 @@ asg::AcceptData Root::TPhotonIsEMSelector::fillAccept(unsigned int isEM)
   return acceptData;
 }
 
-//=============================================================================
-// Calculate the actual accept of each cut individually.
-//=============================================================================
+
+/** Method to alculate the actual accept of each cut individually.
+  * @param shower_shapes each shower shape
+  * @param isConverted   appy cuts to converted or unconverted photons
+  * @return AcceptData
+*/
 asg::AcceptData
 Root::TPhotonIsEMSelector::accept( 
     // eta position in second sampling
@@ -327,8 +314,6 @@ Root::TPhotonIsEMSelector::accept(
     float Eratio,
     // E(2nd max)-E(min) in strips
     float DeltaE,
-    //  E of 2nd max between max and min in strips
-    // float emax2,
     // shower width in 3 strips in 1st sampling
     float weta1c,
     // total shower width in strips
@@ -343,27 +328,25 @@ Root::TPhotonIsEMSelector::accept(
     bool isConversion)
 {
 
-  // -----------------------------------------------------------
   // Do the actual selection
 
-    unsigned int isEM = calcIsEm(eta2,
-                                 et,
-                                 Rhad1,
-                                 Rhad,
-                                 e277,
-                                 Reta,
-                                 Rphi,
-                                 weta2c,
-                                 f1,
-                                 Eratio,
-                                 DeltaE,
-                                 //emax2,
-                                 weta1c,
-                                 wtot,
-                                 fracm,
-                                 f3,
-                                 ep,
-                                 isConversion);
+   unsigned int isEM = calcIsEm(eta2,
+                                et,
+                                Rhad1,
+                                Rhad,
+                                e277,
+                                Reta,
+                                Rphi,
+                                weta2c,
+                                f1,
+                                Eratio,
+                                DeltaE,
+                                weta1c,
+                                wtot,
+                                fracm,
+                                f3,
+                                ep,
+                                isConversion);
 
   return fillAccept(isEM);
 }
@@ -396,8 +379,6 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
 						 // E(2nd max)-E(min) in strips
 						 float DeltaE,
 						 // shower width in 3 strips in 1st sampling
-						 //  E of 2nd max between max and min in strips
-						 // float emax2,
 						 float weta1c,
 						 // total shower width in strips
 						 float wtot,
@@ -426,7 +407,6 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
 				      f1,
 				      Eratio,
 				      DeltaE,
-				      //deltaemax2,
 				      weta1c,
 				      wtot,
 				      fracm,
@@ -446,7 +426,6 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
 					 f1,
 					 Eratio,
 					 DeltaE,
-					 //deltaemax2,
 					 weta1c,
 					 wtot,
 					 fracm,
@@ -464,7 +443,6 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
 				      f1,
 				      Eratio,
 				      DeltaE,
-				      //deltaemax2,
 				      weta1c,
 				      wtot,
 				      fracm,
@@ -478,8 +456,10 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
 }
 
 
-
-// ======================================================================
+/** Method that applies the selection to unconverted photons 
+ *  @params Shower Shapes
+ *  @return unsigned int with the bits that tells if the cuts passed
+*/
 unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
 								     // eta position in second sampling
 								     float eta2,
@@ -501,8 +481,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
 								     float Eratio,
 								     // difference of energy between max and min
 								     float DeltaE,
-								     // parametrization of E(2nd max)
-								     //float deltaemax2,
 								     // shower width in 3 strips in 1st sampling
 								     float weta1c,
 								     // total shower width in strips
@@ -513,10 +491,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
 								     float f3,
 								     unsigned int iflag) const
 {
-  // 
-  // apply selection for non converted photons
-  //
-
   int ibine = 0;
   // loop on ET range
   for (unsigned int ibe=1;ibe<=m_cutBinEnergy_photonsNonConverted.size();ibe++) {
@@ -560,7 +534,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   }
   if (m_e277_photonsNonConverted.size() > 0 && e277 >= m_e277_photonsNonConverted[0] ) {
     if (ibinEta==-1) {
-      //std::cout << " pb with eta range = " << eta2 << std::endl;
       iflag |= ( 0x1 << egammaPID::ClusterEtaRange_Photon);
       return iflag;
     }
@@ -662,13 +635,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
       }
     }
     
-    // Rmax2
-    // if (checkVar(emax2r_photonsNonConverted,26)) {
-    //   if (deltaemax2 > emax2r_photonsNonConverted[ibin_combinedStrips] ) {
-    //     iflag |= ( 0x1 << egammaPID::ClusterStripsDeltaEmax2_Photon);
-    //   }
-    // }
-    
     // Delta E
     if (checkVar(m_deltae_photonsNonConverted,26)) {
       if (DeltaE > m_deltae_photonsNonConverted[ibin_combinedStrips]) {
@@ -706,8 +672,11 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   return iflag;
 }
 
-// ======================================================================
-// ======================================================================
+/** Method that applies the selection to converted photons
+ *  @params Shower Shapes
+ *  @return unsigned int with the bits that tells if the cuts passed
+ * 
+ */
 unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
 								  // eta position in second sampling
 								  float eta2,
@@ -742,9 +711,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
 								  // E/p
 								  double ep,
 								  unsigned int iflag) const
-// 
-// apply selection for converted photons
-//
 {
   int ibine = 0;
   // loop on ET range
@@ -891,13 +857,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
       }  
     }
     
-    // Rmax2
-    // if (checkVar(emax2r_photonsConverted,16)) {
-    //   if (deltaemax2 > emax2r_photonsConverted[ibin_combinedStrips] ) {
-    //     iflag |= ( 0x1 << egammaPID::ClusterStripsDeltaEmax2_Photon);
-    //   }
-    // }
-    
     // Delta E
     if (checkVar(m_deltae_photonsConverted,16)) {
       if (DeltaE > m_deltae_photonsConverted[ibin_combinedStrips]) {
@@ -948,7 +907,7 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
 // ==============================================================
 bool Root::TPhotonIsEMSelector::checkVar(std::vector<float> vec, int choice) const
 {
-  //
+  
   // check vector size
   // 0 : size should be 1
   //
@@ -979,11 +938,6 @@ bool Root::TPhotonIsEMSelector::checkVar(std::vector<float> vec, int choice) con
   else
     combinedNB_photonsNonConv = etaNB_photonsNonConv;
 
-  //std::cout << " etaNB_photonsNonConv = " << etaNB_photonsNonConv
-  //    << " " << etNB_photonsNonConv
-  //    << " " << combinedNB_photonsNonConv
-  //    << std::endl;
-  
   unsigned int etaStripsNB_photonsNonConv = 
     m_cutBinEtaStrips_photonsNonConverted.size();
   unsigned int etStripsNB_photonsNonConv = 
@@ -996,10 +950,6 @@ bool Root::TPhotonIsEMSelector::checkVar(std::vector<float> vec, int choice) con
     combinedStripsNB_photonsNonConv = 
       etaStripsNB_photonsNonConv;
 
-  //std::cout << " etaStripsNB_photonsNonConv = " << etaStripsNB_photonsNonConv
-  //    << " " << etStripsNB_photonsNonConv
-  //    << " " << combinedStripsNB_photonsNonConv
-  //    << std::endl;
   
   // selection of  converted objects
   unsigned int etaNB_photonsConv = 
@@ -1014,11 +964,6 @@ bool Root::TPhotonIsEMSelector::checkVar(std::vector<float> vec, int choice) con
     combinedNB_photonsConv = 
       etaNB_photonsConv;
 
-  //std::cout << " etaNB_photonsConv = " << etaNB_photonsConv
-  //    << " " << etNB_photonsConv
-  //    << " " << combinedNB_photonsConv
-  //    << std::endl;
-
   unsigned int etaStripsNB_photonsConv = 
     m_cutBinEtaStrips_photonsConverted.size();
   unsigned int etStripsNB_photonsConv = 
@@ -1030,11 +975,6 @@ bool Root::TPhotonIsEMSelector::checkVar(std::vector<float> vec, int choice) con
   else
     combinedStripsNB_photonsConv =
       etaStripsNB_photonsConv;
-
-  //std::cout << " etaStripsNB_photonsConv = " << etaStripsNB_photonsConv
-  //    << " " << etStripsNB_photonsConv
-  //    << " " << combinedStripsNB_photonsConv
-  //    << std::endl;
 
   // if size of vector is 0 it means cut is not defined
   if (vec.size() == 0) return false;
@@ -1191,7 +1131,6 @@ bool Root::TPhotonIsEMSelector::checkVar(std::vector<int> vec, int choice) const
   // 24 : vs etaStripsNB_photonsNonConv
   // 25 : vs etStripsNB_photonsNonConv
   // 26 : combinedStripsNB_photonsNonConv
-  //
 
   // if size of vector is 0 it means cut is not defined
   if (vec.size() == 0) return false;
