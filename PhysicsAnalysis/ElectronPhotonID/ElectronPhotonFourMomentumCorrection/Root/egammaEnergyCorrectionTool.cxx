@@ -1130,12 +1130,22 @@ namespace AtlasRoot {
     m_matElectronCstTerm.push_back( (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigFpMX") );
     m_matElectronCstTerm.push_back( (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigGp") );
 
-    m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigA") );
-    m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") );
-    m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigEpLp") );
-    m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigFpMX") );
-    m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") );
-    m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigN") );
+    if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
+     // update dX0 plots for distorted geometry for case A, EL, FMX and N
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigA") ); 
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") );
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigEpLp") );
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigFpMX") );
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") );
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigN") );
+    }
+    else {
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigA") );
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") );
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigEpLp") );
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigFpMX") );
+      m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") );
+    }
 
     m_matElectronEtaBins =         (TAxis*) m_rootFile->Get("Material/LinearityEtaBins");
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigA") );
@@ -2931,19 +2941,28 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
     if(idx<1 || idx>m_matX0Additions[geoID]->GetNbinsX())
       DAlphaDXID = 0;
     else
-      DAlphaDXID /= m_matX0Additions[geoID]->GetBinContent(idx);
+    {
+      if (m_matX0Additions[geoID]->GetBinContent(idx) >0.) DAlphaDXID /= m_matX0Additions[geoID]->GetBinContent(idx);
+      else DAlphaDXID=0.;
+    }
 
     idx = m_matX0Additions[geoCryo]->FindBin( fabs(cl_eta) );
     if(idx<1 || idx>m_matX0Additions[geoCryo]->GetNbinsX())
       DAlphaDXCryo = 0;
     else
-      DAlphaDXCryo /= m_matX0Additions[geoCryo]->GetBinContent(idx);
+    {
+      if (m_matX0Additions[geoCryo]->GetBinContent(idx)>0.) DAlphaDXCryo /= m_matX0Additions[geoCryo]->GetBinContent(idx);
+      else DAlphaDXCryo=0.;
+    }
 
     idx = m_matX0Additions[geoCalo]->FindBin( fabs(cl_eta) );
     if(idx<1 || idx>m_matX0Additions[geoCalo]->GetNbinsX())
       DAlphaDXCalo = 0;
     else
-      DAlphaDXCalo /= m_matX0Additions[geoCalo]->GetBinContent(idx);
+    {
+      if (m_matX0Additions[geoCalo]->GetBinContent(idx)>0.) DAlphaDXCalo /= m_matX0Additions[geoCalo]->GetBinContent(idx);
+      else DAlphaDXCalo=0.;
+    }
 
     // final value
 
