@@ -241,7 +241,10 @@ namespace egEnergyCorr {
     ConfigCD,      // 10% services scaling
     ConfigEL,      // +7.5%X0 in SCT/TRT endcap; 10%X0, radial, in cryostat
     ConfigFMX,     // +7.5%X0 on ID endplate; 5%X0, radial, between PS and Strips
-    ConfigGp       // all together
+    ConfigGp,      // all together
+    ConfigN,       // material between PS and calo in EndCap (only used for release 21)
+    ConfigIBL,     // IBL systematics in run 2 geometry
+    ConfigPP0      // PP0 systematics in run 2 geometry
   };
 
   // Measured material categories
@@ -417,6 +420,8 @@ namespace AtlasRoot {
     double getAlphaMaterial( double cl_eta, egEnergyCorr::MaterialCategory imat, PATCore::ParticleType::Type ptype,
 			     egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
+    double getMaterialEffect(egEnergyCorr::Geometry geo,PATCore::ParticleType::Type ptype,double cl_eta,double ET) const;
+
     double getMaterialNonLinearity( double cl_eta, double energy, egEnergyCorr::MaterialCategory imat, PATCore::ParticleType::Type ptype,
 				    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
@@ -567,6 +572,10 @@ namespace AtlasRoot {
 
     TAxis*              m_matElectronEtaBins;
     std::vector<TList*> m_matElectronGraphs;
+
+    // 2D histograms for release 21 material systematics sensitivity parameterization
+    TH2D* h2dmat[3][6];
+
 
     // Fastsim -> Fullsim corrections
 

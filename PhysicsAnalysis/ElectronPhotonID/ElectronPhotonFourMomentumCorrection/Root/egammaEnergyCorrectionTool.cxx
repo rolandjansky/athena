@@ -1135,6 +1135,7 @@ namespace AtlasRoot {
     m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigEpLp") );
     m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigFpMX") );
     m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") );
+    m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigN") );
 
     m_matElectronEtaBins =         (TAxis*) m_rootFile->Get("Material/LinearityEtaBins");
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigA") );
@@ -1142,6 +1143,32 @@ namespace AtlasRoot {
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigEpLp") );
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigFpMX") );
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigGp") );
+
+
+    // ... new material distortions from release 21 parameterizations
+
+    if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
+      h2dmat[0][0] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigA"));
+      h2dmat[0][1] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigEL"));
+      h2dmat[0][2] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigFMX"));
+      h2dmat[0][3] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigN"));
+      h2dmat[0][4] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigIBL"));
+      h2dmat[0][5] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigPP0"));
+      h2dmat[1][0] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigA"));
+      h2dmat[1][1] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigEL"));
+      h2dmat[1][2] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigFMX"));
+      h2dmat[1][3] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigN"));
+      h2dmat[1][4] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigIBL"));
+      h2dmat[1][5] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigPP0"));
+      h2dmat[2][0] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigA"));
+      h2dmat[2][1] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigEL"));
+      h2dmat[2][2] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigFMX"));
+      h2dmat[2][3] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigN"));
+      h2dmat[2][4] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigIBL"));
+      h2dmat[2][5] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigPP0"));
+    }
+
+       
 
     // ... Fastsim to Fullsim corrections
 
@@ -1382,7 +1409,10 @@ namespace AtlasRoot {
     double daMatID, daMatCryo, daMatCalo;
     daMatID = daMatCryo = daMatCalo = 0;
 
-    if( ptype!=PATCore::ParticleType::Electron ) {
+    // for release 21 sensitivity use the same getMaterialNonLinearity for all particles
+    // while in sensitivities derived from run 1 this is only used for electrons
+
+    if( ptype!=PATCore::ParticleType::Electron  && m_esmodel != egEnergyCorr::es2017_R21_v1) {
 
       daMatID   = getAlphaMaterial( cl_eta, egEnergyCorr::MatID,   ptype, var, varSF );
       daMatCryo = getAlphaMaterial( cl_eta, egEnergyCorr::MatCryo, ptype, var, varSF );
@@ -1466,20 +1496,37 @@ namespace AtlasRoot {
     double dapp0 = 0.;
     // values from the histogram already are 0 for the Z->ee electrons
     if (var == egEnergyCorr::Scale::MatPP0Up or var == egEnergyCorr::Scale::MatPP0Down) {
-      decltype(m_pp0_conv) histo = nullptr;
-      if (ptype == PATCore::ParticleType::Electron) histo = m_pp0_elec;
-      else if (ptype == PATCore::ParticleType::ConvertedPhoton) histo = m_pp0_conv;
-      else if (ptype == PATCore::ParticleType::UnconvertedPhoton) histo = m_pp0_unconv;
 
-      if (histo) {
-        const double aeta = std::abs(cl_eta);
-        dapp0 = getValueHistAt(*histo, aeta, energy / GeV / cosh(cl_eta), false, true, false, true);
-        if (var == egEnergyCorr::Scale::MatPP0Down) { dapp0 = -dapp0; }
+// new parameterization for release 21 reconstruction with mc16 geometries + distortions
+      if (m_esmodel == egEnergyCorr::es2017_R21_v1) {
 
-        // normalize to pp0 systematics
-        if (aeta > 1.5 and aeta < 2.0) { dapp0 *= 2.6; }
-        else if (aeta >= 2.0 and aeta <= 2.5) { dapp0 *= 2.3; }
+          if (fabs(cl_eta)<1.5)
+           dapp0 = getMaterialEffect(egEnergyCorr::ConfigIBL,ptype ,cl_eta,energy / GeV / cosh(cl_eta))
+                  -getMaterialEffect(egEnergyCorr::ConfigIBL,PATCore::ParticleType::Electron, cl_eta,getZeeMeanET(cl_eta)/GeV);
+          else 
+           dapp0 = getMaterialEffect(egEnergyCorr::ConfigPP0,ptype ,cl_eta,energy / GeV / cosh(cl_eta))
+                  -getMaterialEffect(egEnergyCorr::ConfigPP0,PATCore::ParticleType::Electron, cl_eta,getZeeMeanET(cl_eta)/GeV);
+
+          if (var == egEnergyCorr::Scale::MatPP0Down) { dapp0 = -dapp0; }
       }
+
+      // release 20 run 2 systematics for mc15 like geometries
+      else {
+        decltype(m_pp0_conv) histo = nullptr;
+        if (ptype == PATCore::ParticleType::Electron) histo = m_pp0_elec;
+        else if (ptype == PATCore::ParticleType::ConvertedPhoton) histo = m_pp0_conv;
+        else if (ptype == PATCore::ParticleType::UnconvertedPhoton) histo = m_pp0_unconv;
+
+        if (histo) {
+          const double aeta = std::abs(cl_eta);
+          dapp0 = getValueHistAt(*histo, aeta, energy / GeV / cosh(cl_eta), false, true, false, true);
+          if (var == egEnergyCorr::Scale::MatPP0Down) { dapp0 = -dapp0; }
+
+          // normalize to pp0 systematics
+          if (aeta > 1.5 and aeta < 2.0) { dapp0 *= 2.6; }
+          else if (aeta >= 2.0 and aeta <= 2.5) { dapp0 *= 2.3; }
+        }
+     }
     }
 
     // Conversion systematics
@@ -2746,6 +2793,74 @@ namespace AtlasRoot {
 
   }
 
+double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,PATCore::ParticleType::Type ptype,double cl_eta,double ET) const {
+ 
+   TH2D* hmat=0;
+   if (ptype==PATCore::ParticleType::Electron) {
+      if (geo==egEnergyCorr::ConfigA) hmat=h2dmat[0][0];
+      if (geo==egEnergyCorr::ConfigEL) hmat=h2dmat[0][1];
+      if (geo==egEnergyCorr::ConfigFMX) hmat=h2dmat[0][2];
+      if (geo==egEnergyCorr::ConfigN) hmat=h2dmat[0][3];
+      if (geo==egEnergyCorr::ConfigIBL) hmat=h2dmat[0][4];
+      if (geo==egEnergyCorr::ConfigPP0) hmat=h2dmat[0][5];
+   }
+   if (ptype==PATCore::ParticleType::UnconvertedPhoton) {
+      if (geo==egEnergyCorr::ConfigA) hmat=h2dmat[1][0];
+      if (geo==egEnergyCorr::ConfigEL) hmat=h2dmat[1][1];
+      if (geo==egEnergyCorr::ConfigFMX) hmat=h2dmat[1][2];
+      if (geo==egEnergyCorr::ConfigN) hmat=h2dmat[1][3];
+      if (geo==egEnergyCorr::ConfigIBL) hmat=h2dmat[1][4];
+      if (geo==egEnergyCorr::ConfigPP0) hmat=h2dmat[1][5];
+   }
+   if (ptype==PATCore::ParticleType::ConvertedPhoton) {
+      if (geo==egEnergyCorr::ConfigA) hmat=h2dmat[2][0];
+      if (geo==egEnergyCorr::ConfigEL) hmat=h2dmat[2][1];
+      if (geo==egEnergyCorr::ConfigFMX) hmat=h2dmat[2][2];
+      if (geo==egEnergyCorr::ConfigN) hmat=h2dmat[2][3];
+      if (geo==egEnergyCorr::ConfigIBL) hmat=h2dmat[2][4];
+      if (geo==egEnergyCorr::ConfigPP0) hmat=h2dmat[2][5];
+   }
+  if (!hmat) return 0;
+
+   // use one bin in eta and linear interpolation in Et between 2 bins
+
+  double aeta=fabs(cl_eta);
+  int ieta = hmat->GetXaxis()->FindBin(aeta);
+
+  int ipt = hmat->GetYaxis()->FindBin(ET);
+  double ptBin = hmat->GetYaxis()->GetBinCenter(ipt);
+
+  int i1,i2;
+  double pt1,pt2;
+   if (ET>ptBin) {
+      i1=ipt;
+      i2=ipt+1;
+      pt1=ptBin;
+      pt2= hmat->GetYaxis()->GetBinCenter(i2);
+  }
+  else {
+     i1=ipt-1;
+     i2=ipt;
+     pt1=hmat->GetYaxis()->GetBinCenter(i1);
+     pt2=ptBin;
+  }
+
+  int nbins=hmat->GetYaxis()->GetNbins();
+  double value=0;
+  if (i1>=1 && i1 < nbins) {
+    double v1 = hmat->GetBinContent(ieta,i1);
+    double v2 = hmat->GetBinContent(ieta,i2);
+    value =  (v1*(pt2-ET) + v2*(ET-pt1)) / (pt2-pt1);
+  }
+  else{
+    if (ipt<1) ipt=1;
+    if (ipt>nbins) ipt=nbins;
+    value=hmat->GetBinContent(ieta,ipt);
+  }
+  return value;
+
+}
+
 
   // returns the energy dependence of the above (non-zero for electrons only).
 
@@ -2757,7 +2872,7 @@ namespace AtlasRoot {
     double value = 0;
     double ET = energy/cosh(cl_eta)/GeV;
 
-    if( ptype!=PATCore::ParticleType::Electron || var==egEnergyCorr::Scale::Nominal )
+    if( (ptype!=PATCore::ParticleType::Electron && m_esmodel != egEnergyCorr::es2017_R21_v1)  || var==egEnergyCorr::Scale::Nominal )
       return value;
 
     egEnergyCorr::Geometry geoID, geoCryo, geoCalo, geoGp;
@@ -2766,7 +2881,13 @@ namespace AtlasRoot {
       geoCryo = egEnergyCorr::ConfigEL;
     else
       geoCryo = egEnergyCorr::ConfigFMX;
-    geoCalo = egEnergyCorr::ConfigFMX;
+
+    //   G.Unal 21.08.2018
+    // for Calo material use correctly ConfigN material for endcap (PS to Calo) in release 21 (not done for run 1, which used FMX in this case)
+    if (fabs(cl_eta)>1.52 && m_esmodel == egEnergyCorr::es2017_R21_v1)
+      geoCalo = egEnergyCorr::ConfigN;
+    else   
+      geoCalo = egEnergyCorr::ConfigFMX;
     geoGp = egEnergyCorr::ConfigGp;
 
     // look up material bias
@@ -2775,14 +2896,26 @@ namespace AtlasRoot {
 
     // calculate scale change per unit added material
 
-    int ialpha = m_matElectronEtaBins->FindBin( fabs(cl_eta) ) - 1;
-    if (ialpha<0 || ialpha>=m_matElectronGraphs[geoGp]->GetSize())
-      return 0.;
+    // G.Unal 21.08.2019 new code called for release 21 sensivitities
 
-    double DAlphaDXGp   = ((TGraphErrors*)m_matElectronGraphs[geoGp]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
-    double DAlphaDXID   = ((TGraphErrors*)m_matElectronGraphs[geoID]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
-    double DAlphaDXCryo = ((TGraphErrors*)m_matElectronGraphs[geoCryo]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
-    double DAlphaDXCalo = ((TGraphErrors*)m_matElectronGraphs[geoCalo]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
+    double DAlphaDXGp,DAlphaDXID,DAlphaDXCryo,DAlphaDXCalo;
+
+    if (m_esmodel == egEnergyCorr::es2017_R21_v1) {
+       DAlphaDXGp = getMaterialEffect(egEnergyCorr::ConfigFMX,ptype,cl_eta,ET);   // no G' in release 21, use FMX for the crack
+       DAlphaDXID = getMaterialEffect(geoID,ptype,cl_eta,ET);
+       DAlphaDXCryo = getMaterialEffect(geoCryo,ptype,cl_eta,ET);
+       DAlphaDXCalo = getMaterialEffect(geoCalo,ptype,cl_eta,ET);
+
+    } else {
+      int ialpha = m_matElectronEtaBins->FindBin( fabs(cl_eta) ) - 1;
+      if (ialpha<0 || ialpha>=m_matElectronGraphs[geoGp]->GetSize())
+        return 0.;
+
+      DAlphaDXGp   = ((TGraphErrors*)m_matElectronGraphs[geoGp]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
+      DAlphaDXID   = ((TGraphErrors*)m_matElectronGraphs[geoID]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
+      DAlphaDXCryo = ((TGraphErrors*)m_matElectronGraphs[geoCryo]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
+      DAlphaDXCalo = ((TGraphErrors*)m_matElectronGraphs[geoCalo]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
+    }
 
     // when in crack, use G', exit
 
