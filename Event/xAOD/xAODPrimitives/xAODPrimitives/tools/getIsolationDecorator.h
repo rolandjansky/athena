@@ -25,7 +25,7 @@ namespace xAOD {
   /// @param type The Iso::IsolationType type
   /// @returns A pointer to the Decorator object if successful, or a
   ///          null-pointer if not
-  SG::AuxElement::Decorator< float >*
+  const SG::AuxElement::Decorator< float >*
   getIsolationDecorator( Iso::IsolationType type );
 
 } // namespace xAOD

@@ -25,7 +25,7 @@ namespace xAOD {
   /// @param type The Iso::IsolationType type
   /// @returns A pointer to the Accessor object if successful, or a
   ///          null-pointer if not
-  SG::AuxElement::Accessor< float >*
+  const SG::AuxElement::Accessor< float >*
   getIsolationAccessor( Iso::IsolationType type );
 
 } // namespace xAOD

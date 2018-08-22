@@ -191,10 +191,10 @@ namespace xAOD {
 
     // This is independant of the size. At least for the time being
     // fill bitset
-    SG::AuxElement::Decorator< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetDecorator(Iso::isolationFlavour(cones[0]));
+    const SG::AuxElement::Decorator< uint32_t > bitsetAcc = getIsolationCorrectionBitsetDecorator(Iso::isolationFlavour(cones[0]));
 
-    if( bitsetAcc ){
-      (*bitsetAcc)(tp) = corrections.trackbitset.to_ulong();
+    if( bitsetAcc.isAvailable(tp) ){
+      bitsetAcc(tp) = corrections.trackbitset.to_ulong();
     }
     
     // fill corrections
@@ -204,9 +204,9 @@ namespace xAOD {
 	ATH_MSG_WARNING("Correction value not found " << Iso::toCString(ctype) );         
 	continue;
       }
-      SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype );
-      if( isoCorAcc ){
-	(*isoCorAcc)(tp) = el->second;
+      const SG::AuxElement::Decorator< float > isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype );
+      if( isoCorAcc.isAvailable(tp) ){
+	  isoCorAcc(tp) = el->second;
       }        
     }
 
@@ -219,7 +219,7 @@ namespace xAOD {
 
       // fill main isolation
       if( result.ptcones.size() == cones.size() ){
-        SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
+        const SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
         if( isoTypeAcc ){
 	  ATH_MSG_DEBUG("Filling std cone " << result.ptcones[i]);
           (*isoTypeAcc)(tp) = result.ptcones[i];
@@ -231,7 +231,7 @@ namespace xAOD {
       // also fill var cone
       if( result.ptvarcones_10GeVDivPt.size() == cones.size() ){
         Iso::IsolationType varIsoType = Iso::isolationType( Iso::ptvarcone, coneSize );
-        SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(varIsoType);
+        const SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(varIsoType);
         if( isoTypeAcc ){
 	  ATH_MSG_DEBUG("Filling var cone " << result.ptvarcones_10GeVDivPt[i]);
           (*isoTypeAcc)(tp) = result.ptvarcones_10GeVDivPt[i];
