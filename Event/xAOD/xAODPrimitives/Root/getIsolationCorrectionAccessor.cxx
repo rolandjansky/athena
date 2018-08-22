@@ -1,8 +1,7 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-   */
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
-// $Id: getIsolationCorrectionAccessor.cxx 625328 2014-10-31 09:39:45Z laplace $
 
 // Local include(s):
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
