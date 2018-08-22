@@ -56,7 +56,6 @@ my $athenalogglob = "*_{tail,test}.log{,.gz}"; # add .gz
 my $atn_timeline = "atn_timeline.png";
 my $atn_order = "atn_timeline_order.txt";
 my $no_of_nightlies=7;
-my $childrenLog="Children.log";
 my %no_of_nightlies_exceptions = ('TrigMC',2);
 my %ERROR = (
           OK => 0,
@@ -333,6 +332,7 @@ function showBuildFailures(failures,link) {
 	my $warn = "-";
 	my $reg_tests = "-";
 	my $rootcomp = "-";
+	my $rootcompClean = "-";
 	my $checkcount = "-";
 	my $timer = "-";
 	my $exitcode = "-";
@@ -376,94 +376,188 @@ function showBuildFailures(failures,link) {
 		
 		# no checklog output file and no failure in exitcode
 		$error_msgs = testcode($exitcodes{$name},"ATHENA_ERROR_IN_LOG");
-		if (! -f "$name/$checklogout" and $error_msgs =~ /OK/){
-		    $error = "<font color=\"gray\">N/A</font>";
-		} else {
-		    my $error_count = '';
-		    if ($error_msgs !~ /OK/){
-			$error_count=qx(head -5 $name/$checklogout | grep 'Found messages in');
-			if ($error_count =~ /Found messages in.*\(([0-9]*)\).*/){
-			    $error_count="($1)";
-			}
-		    }
-		    print "error count: $error_count\n";
-		    $error = "<a type=\"text/plain\" href=\"$name/$checklogout\">$error_msgs$error_count</a>";
-		}
-		    
-		if (! -f "$name/$warnout"){
-		    $warn = "<font color=\"gray\">N/A</font>";
-		} else {
-                    my $warn_count=qx(head -5 $name/$warnout | grep 'Found messages in');
-		    if ($warn_count =~ /Found messages in.*\(([0-9]*)\).*/){
-                      $warn_count = $1;
-                      chomp $warn_count;
-                    }
-                    else {
-                      $warn_count = 'N/A'
-                    }
-		    print "warn count: $warn_count\n";
-		    $warn = "<a type=\"text/plain\" href=\"$name/$warnout\">$warn_count</a>";
-		}
-		if (! -e "$name/$regtestout"){
-		    $reg_tests = "<font color=\"gray\">N/A</font>";
-		} else {                  
-                    my $status = warncode($exitcodes{$name},"ATHENA_REGTEST_FAILED");
-                    my $tooltip = "";                    
-                    if ($status ne "OK") {
-                      my @diffs = `grep REGTEST $name/$regtestout | awk '{print \$2}' | sort -u`;
-                      chomp @diffs;
-                      if (scalar(@diffs) > 50) {
-                        $tooltip = "More than 50 sources of REGTEST differences!";
-                      }
-                      elsif (scalar(@diffs) > 0) {
-                        $tooltip = join(", ",@diffs);
-                      }
-                    }
-		    $reg_tests = "<a type=\"text/plain\" title=\"$tooltip\" href=\"$name/$regtestout\">" . $status . "</a>";
-                    if ($status ne "OK" and -e "$name/$htmldiffout"){
-                      $reg_tests .= " <a href=\"$name/$htmldiffout\">[ht]</a>"
-                    }
-		}
-		if (! -e "$name/$rootcompout"){
-		    $rootcomp = "<font color=\"gray\">N/A</font>";
-		} elsif ($rootcomp =~ /FAIL/){
-                    my @diffs = `egrep '^Different histograms:' $name/$rootcompout`;
-                    chomp @diffs;
-		    $rootcomp = "<a type=\"text/plain\" title=\"@diffs\" href=\"$name/$rootcompout\"><font color=\"red\">DIFF</font></a>";
-                    if (-e "$name/rootcomp.ps.gz") {
-                      $rootcomp .= " <a href=\"$name/rootcomp.ps.gz\">[ps]</a>";
-                    }
-		} elsif ($rootcomp =~ /OK/){
-		    $rootcomp = "<a type=\"text/plain\" href=\"$name/$rootcompout\"><font color=\"green\">MATCH</font></a>";
-		}
-		if (! -f "$name/$checkcountout"){
-		    $checkcount = "<font color=\"gray\">N/A</font>";
-		} else {
-		    my $checkcount1 = chaincountcheck("$name/$checkcountout");
-		    print "check chain counts: $checkcount1\n";
-		    $checkcount = "<a type=\"text/plain\" href=\"$name/$checkcountout\">$checkcount1</a>";
-		}
-		$postrc = 0;
-		if (! -e "$name/$posttestrc"){
-                  $postrc = "<font color=\"gray\">N/A</font>";
-                } elsif (($exitcodes{$name} & $ERROR{"POST_TEST_BAD_EXIT"})==0) {
-                  $postrc = "OK";
-                  $postrc .= gethistnumber($name);
-                } else {                  
-                  $postrc = getposttests($name);
-                  $postrc .= gethistnumber($name);
-		}
 
+		my @checklogoutPathArray=("");
+	        my @warnoutPathArray=("");
+		my @regtestoutPathArray=("");
+		my @htmldiffoutPathArray=("");
+		my @rootcompoutPathArray=("");
+		my @checkcountoutPathArray=("");
+		my @posttestrcPathArray=("");
+                my @childDirArray=("");
+
+	        my $checklogoutPath="$name/$checklogout";
+                my $warnoutPath="$name/$warnout";
+                my $regtestoutPath="$name/$regtestout";
+                my $htmldiffoutPath="$name/$htmldiffout";
+                my $rootcompoutPath="$name/$rootcompout";
+                my $checkcountoutPath="$name/$checkcountout";
+		my $posttestrcPath="$name/$posttestrc";
+		my $childDirectory="";
+
+		my $childrenDir=0;
+		
+		if ($name =~ /HLTMPPU/){
+		   foreach my $childDir (glob "$name/child_*"){ 
+			
+		   	$checklogoutPath="$childDir/$checklogout";
+			$warnoutPath="$childDir/$warnout";
+			$regtestoutPath="$childDir/$regtestout";
+			$htmldiffoutPath="$childDir/$htmldiffout";
+			$rootcompoutPath="$childDir/$rootcompout";
+			$checkcountoutPath="$childDir/$checkcountout";
+			$posttestrcPath="$childDir/$posttestrc";
+
+			push @checklogoutPathArray, $checklogoutPath;
+			push @warnoutPathArray, $warnoutPath;
+			push @regtestoutPathArray, $regtestoutPath;
+			push @htmldiffoutPathArray, $htmldiffoutPath;
+			push @rootcompoutPathArray, $rootcompoutPath;
+			push @checkcountoutPathArray, $checkcountoutPath;
+			push @posttestrcPathArray, $posttestrcPath;
+			push @childDirArray, $childDir;
+						
+			$childrenDir++;
+		   }
+		}else{ 
+              
+		   push @checklogoutPathArray, $checklogoutPath;
+		   push @warnoutPathArray, $warnoutPath;
+		   push @regtestoutPathArray, $regtestoutPath;
+		   push @htmldiffoutPathArray, $htmldiffoutPath;
+		   push @rootcompoutPathArray, $rootcompoutPath;
+		   push @checkcountoutPathArray, $checkcountoutPath;
+		   push @posttestrcPathArray, $posttestrcPath;
+		   push @childDirArray, $childDirectory;	
+		   
+		   $childrenDir=1;
+		}
+ 
+		for (my $i=1; $i<=$childrenDir; $i++){
+
+		    $checklogoutPath=$checklogoutPathArray[$i];
+		    $warnoutPath=$warnoutPathArray[$i];
+      		    $regtestoutPath=$regtestoutPathArray[$i];
+		    $htmldiffoutPath=$htmldiffoutPathArray[$i];
+		    $rootcompoutPath=$rootcompoutPathArray[$i];
+		    $checkcountoutPath=$checkcountoutPathArray[$i];
+		    $posttestrcPath=$posttestrcPathArray[$i];
+
+		    if ($name =~ /HLTMPPU/){
+			$childDirectory=$childDirArray[$i];			
+		    }else{
+			$childDirectory=$name;
+		    }
+
+		    if (! -f $checklogoutPath and $error_msgs =~ /OK/){
+		        $error .= "<font color=\"gray\">N/A</font> ";
+		    }else{
+		        my $error_count = '';
+		        if ($error_msgs !~ /OK/){
+			    $error_count=qx(head -5 $checklogoutPath | grep 'Found messages in');
+			    if ($error_count =~ /Found messages in.*\(([0-9]*)\).*/){
+			        $error_count="($1)";
+			    }
+		        }
+		        print "error count: $error_count\n";
+		        $error .= "<a type=\"text/plain\" href=\"$checklogoutPath\">$error_msgs$error_count</a> ";
+		    }
+		 
+		    if (! -f $warnoutPath){
+		        $warn .= "<font color=\"gray\">N/A</font> ";
+		    }else{
+                        my $warn_count=qx(head -5 $warnoutPath | grep 'Found messages in');
+		        if ($warn_count =~ /Found messages in.*\(([0-9]*)\).*/){
+                            $warn_count = $1;
+                            chomp $warn_count;
+                        }else{
+                             $warn_count = 'N/A'
+                        }
+		        print "warn count: $warn_count\n";
+		        $warn .= "<a type=\"text/plain\" href=\"$warnoutPath\">$warn_count</a> ";
+		    }
+
+		    if (! -e $regtestoutPath){
+		        $reg_tests .= "<font color=\"gray\">N/A</font> ";
+		    }else{                  
+                        my $status = warncode($exitcodes{$name},"ATHENA_REGTEST_FAILED");
+                        my $tooltip = "";                    
+                        if ($status ne "OK") {
+                            my @diffs = `grep REGTEST $regtestoutPath | awk '{print \$2}' | sort -u`;
+                            chomp @diffs;
+                            if (scalar(@diffs) > 50) {
+                               $tooltip = "More than 50 sources of REGTEST differences!";
+                            }elsif (scalar(@diffs) > 0) {
+                               $tooltip = join(", ",@diffs);
+                            }
+                        }
+		        $reg_tests .= "<a type=\"text/plain\" title=\"$tooltip\" href=\"$regtestoutPath\">" . $status . "</a> ";
+                        if ($status ne "OK" and -e "$htmldiffoutPath"){
+                            $reg_tests .= " <a href=\"$htmldiffoutPath\">[ht]</a> ";
+                        }
+		    }
+
+		    if (! -e $rootcompoutPath){
+			$rootcompClean .= "<font color=\"gray\">N/A</font> ";
+		    }elsif ($rootcomp =~ /FAIL/){
+                        my @diffs = `egrep '^Different histograms:' $rootcompoutPath`;
+                        chomp @diffs;
+			$rootcompClean .= "<a type=\"text/plain\" title=\"@diffs\" href=\"$rootcompoutPath\"><font color=\"red\">DIFF</font></a> ";
+                        if (-e "$childDirectory/rootcomp.ps.gz") {
+			    $rootcompClean .= " <a href=\"$childDirectory/rootcomp.ps.gz\">[ps]</a> ";
+                        }
+		    }elsif ($rootcomp =~ /OK/){
+		        $rootcompClean .= "<a type=\"text/plain\" href=\"$rootcompoutPath\"><font color=\"green\">MATCH</font></a> ";
+		    }
+
+		    if (! -f $checkcountoutPath){
+		        $checkcount = "<font color=\"gray\">N/A</font> ";
+		    }else{
+		        my $checkcount1 = chaincountcheck("$checkcountoutPath");
+		        print "check chain counts: $checkcount1\n";
+		        $checkcount .= "<a type=\"text/plain\" href=\"$checkcountoutPath\">$checkcount1</a> ";
+		    }
+
+		    $postrc = 0;
+		    if (! -e $posttestrcPath){
+                        $postrc = "<font color=\"gray\">N/A</font>";
+                    }elsif (($exitcodes{$name} & $ERROR{"POST_TEST_BAD_EXIT"})==0) {
+                        $postrc = "OK";
+                        $postrc .= gethistnumber($name);
+                    }else{                  
+                        $postrc = getposttests($name);
+                        $postrc .= gethistnumber($name);
+		    }
+		}
 	    }
 	}
-	my @logfiles = glob("$name/$athenalogglob");
-	for (@logfiles){
-	    my ($lfd, $lflabel) = split('/',$_);
-	    $lflabel = "[tail]" if ($lflabel =~ /tail/);
-	    $logfile .= "<a type=\"text/plain\" href=\"$_\"><font size=-2>$lflabel</font></a> ";
+
+	my $logfilesPath="$name/$athenalogglob";
+	my @logfilesPathArray=("");
+	my $childrenDir=0;
+
+	if ($name =~ /HLTMPPU/){
+	    foreach my $childDir (glob "$name/child_*"){
+		$logfilesPath="$childDir/$athenalogglob";
+                push @logfilesPathArray, $logfilesPath;
+		$childrenDir++;
+	    }
+	}else{
+	    push @logfilesPathArray, $logfilesPath;
+	    $childrenDir=1;
 	}
-	if (length($logfile)==0){
-	    $logfile = "&nbsp;";
+  
+	for (my $i=1; $i<=$childrenDir; $i++){
+	    $logfilesPath=$logfilesPathArray[$i];
+	    my @logfiles = glob($logfilesPath);
+	    for (@logfiles){
+	        my ($lfd, $lflabel) = split('/',$_);
+	        $lflabel = "[tail]" if ($lflabel =~ /tail/);
+	        $logfile .= "<a type=\"text/plain\" href=\"$_\"><font size=-2>$lflabel</font></a> ";
+	    }
+	    if (length($logfile)==0){
+	        $logfile = "&nbsp;";
+	    }
 	}
 	print "logfile=$logfile\n";
 	
@@ -476,18 +570,21 @@ function showBuildFailures(failures,link) {
 	if (! defined $logurl and -f "$name.log"){
 	    $logurl="$name.log";
 	}
-	if (defined $logurl){
+        if (defined $logurl){
 	    $thename = "<a type=\"text/plain\" href=\"$logurl\">$name</a>";
 	    print "found URL: $logurl\n";
-	} else {
+	}else{
 	    print "not found URL for $name\n";
-	}
+        }
 
 	if (exists $order{$name}) {
 	    $order = "suite=\"$order{$name}[1]\" sorttable_customkey=\"$order{$name}[0]\"";
 	}
-	print HTMLOUT "<tr class=\"hi\"><td $order title=\"$doc{$name}\">$thename</td> <td>$atn_script</td> <td>$athena_exit</td> <td>$error</td> <td>$warn</td> <td style=\"white-space:nowrap\">$reg_tests</td> <td style=\"white-space:nowrap\">$rootcomp</td> <td>$checkcount</td> <td><a type=\"text/plain\" href=\"$name/$timerout\">$timer</a></td> <td>$exitcode/$maskedcode</td> <td>$postrc</td> <td><a href=\"$name\">dir</a></td><td>$logfile</td></tr>\n";
+	print HTMLOUT "<tr class=\"hi\"><td $order title=\"$doc{$name}\">$thename</td> <td>$atn_script</td> <td>$athena_exit</td> <td>$error</td> <td>$warn</td> <td style=\"white-space:nowrap\">$reg_tests</td> <td style=\"white-space:nowrap\">$rootcompClean</td> <td>$checkcount</td> <td><a type=\"text/plain\" href=\"$name/$timerout\">$timer</a></td> <td>$exitcode/$maskedcode</td> <td>$postrc</td> <td><a href=\"$name\">dir</a></td><td>$logfile</td></tr>\n";
     }
+
+    my $graphMem=system("graphMem.py");
+
     print HTMLOUT "</tbody></table>";
     if (-e "$atn_timeline"){
       print HTMLOUT "<font face=\"monospace\"><br>";
@@ -496,7 +593,12 @@ function showBuildFailures(failures,link) {
       print HTMLOUT "<a href=\"atn_timeline.png\"> [timeline plot]</a>";
       print HTMLOUT "</font>";
     }
-    print HTMLOUT '<iframe onload="highlightDiffs(false)" id="DiffFrame" style="visibility:hidden;display:none;"></iframe></body></html>';
+    print HTMLOUT '<iframe onload="highlightDiffs(false)" id="DiffFrame" style="visibility:hidden;display:none;"></iframe>';
+    if (-e "PSS_t.png" and "PSS_t_summary.png" and $graphMem==0){
+    	print HTMLOUT '<div><img src="PSS_t.png" alt="PSS usage as a function of time" style="float: left; width: 50%; height: 500px"/></div>';
+    	print HTMLOUT '<div><img src="PSS_t_summary.png" alt="PSS usage as a function of the number of forks" style="float: right; width: 50%; height: 500px"/></div>';
+    }
+    print HTMLOUT '</body></html>';
     close HTMLOUT;
     
 }
