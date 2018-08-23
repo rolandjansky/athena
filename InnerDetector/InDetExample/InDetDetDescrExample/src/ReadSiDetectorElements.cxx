@@ -170,7 +170,6 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
                          << m_siConditionsTool->depletionVoltage(hashId));
         }
 
-        //msg(MSG::ALWAYS) << "Direct from SiLorentzAngleSvc:"
         ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
             << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
             << m_siLorentzAngleTool->getTanLorentzAngle(hashId));

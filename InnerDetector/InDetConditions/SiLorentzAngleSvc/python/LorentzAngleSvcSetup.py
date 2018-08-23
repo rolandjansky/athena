@@ -46,9 +46,6 @@ class LorentzAngleSvcSetup:
         from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
 
         from AthenaCommon.DetFlags      import DetFlags
-
-#        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
-
         ##
         ## Pixel
         ##

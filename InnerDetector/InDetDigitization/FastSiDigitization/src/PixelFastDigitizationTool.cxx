@@ -1019,7 +1019,6 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
 
   //bool m_useLorentzAngle = (hitSiDetElement->getLorentzCorrection() == 0.);
   bool useLorentzAngle = true;
-// STSTST  float lorentzAngle   = useLorentzAngle ? hitSiDetElement->hitDepthDirection()*hitSiDetElement->hitPhiDirection()*std::atan(hitSiDetElement->getTanLorentzAngle()) : 0.;
   const IdentifierHash detElHash = hitSiDetElement->identifyHash();
   float lorentzAngle   = useLorentzAngle ? hitSiDetElement->hitDepthDirection()*hitSiDetElement->hitPhiDirection()*std::atan(m_lorentzAngleTool->getTanLorentzAngle(detElHash)) : 0.;
 

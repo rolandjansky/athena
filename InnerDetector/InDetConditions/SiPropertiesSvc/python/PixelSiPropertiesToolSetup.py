@@ -8,7 +8,6 @@ class PixelSiPropertiesToolSetup:
         self.alg = None
         self.toolName = "PixelSiPropertiesTool"
         self.tool = None
-#        self.siliconTool = None
 
     def getAlgName(self):
         return self.algName
@@ -27,9 +26,6 @@ class PixelSiPropertiesToolSetup:
 
     def getTool(self):
         return self.tool
-
-#    def setSiliconTool(self, siliconTool):
-#        self.siliconTool = siliconTool
 
     def setAlg(self):
         from AthenaCommon.AppMgr import ToolSvc
