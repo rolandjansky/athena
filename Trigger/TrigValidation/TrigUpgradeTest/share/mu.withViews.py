@@ -67,9 +67,13 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
-doL2SA=True
-doL2CB=True
-doEFSA=True
+if not 'doL2SA' in dir():
+  doL2SA=True
+if not 'doL2CB' in dir():
+  doL2CB=True
+if not 'doEFSA' in dir():
+  doEFSA=True
+
 
 #TriggerFlags.doID=False
 
@@ -586,7 +590,7 @@ if TriggerFlags.doMuon:
     themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
-    themuoncreatoralg.ClusterContainerName=""
+    themuoncreatoralg.MakeClusters=False
 
     #Algorithms to views
     efMuViewNode += theSegmentFinderAlg
@@ -654,6 +658,30 @@ if TriggerFlags.doMuon==True:
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
     topSequence += hltTop 
+
+  if doL2SA==True and doEFSA==True and doL2CB==False:
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    summary.InputDecision = "HLTChains" 
+    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
+    summary.OutputLevel = DEBUG 
+    step0 = parOR("step0", [ muFastStep ] )
+    step1 = parOR("step1", [ muonEFSAStep ] )
+
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    step1filter = parOR("step1filter", [ filterEFSAAlg ] )
+
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, summary ]  ) 
+
+    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    mon.InputDecision = "HLTChains" 
+    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
+    mon.HLTSummary = "MonitoringSummary" 
+    mon.OutputLevel = DEBUG 
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+
+    topSequence += hltTop   
+
 
 if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
   if doL2SA==True and doL2CB==True and doEFSA==False:
