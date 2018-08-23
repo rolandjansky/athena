@@ -195,7 +195,7 @@ namespace InDet{
       }
     }
     ATH_CHECK(clusterContainer.setConst());
-
+    ATH_MSG_DEBUG("clusterContainer->numberOfCollections() " <<  clusterContainer->numberOfCollections());
     ATH_CHECK(ambiguitiesMap.isValid());
     ATH_MSG_DEBUG( "PixelClusterAmbiguitiesMap recorded in StoreGate");
     return StatusCode::SUCCESS;
