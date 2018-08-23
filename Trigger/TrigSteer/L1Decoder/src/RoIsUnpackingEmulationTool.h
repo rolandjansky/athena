@@ -28,7 +28,6 @@ class RoIsUnpackingEmulationTool : public RoIsUnpackingToolBase {
                             const HLT::IDSet& activeChains) const override;
   
   virtual StatusCode initialize() override;
-  virtual StatusCode updateConfiguration() override;
   
  private: 
 
@@ -59,6 +58,8 @@ class RoIsUnpackingEmulationTool : public RoIsUnpackingToolBase {
   std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
   std::vector<std::vector<RoIsUnpackingEmulationTool::FakeRoI>> m_inputData;
   unsigned m_currentRowNumber;
+
+  StatusCode decodeThresholdToChainMapping();
 
 }; 
 

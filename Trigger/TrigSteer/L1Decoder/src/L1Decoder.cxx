@@ -6,7 +6,7 @@
 #include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)    
 {
 }
 
@@ -24,15 +24,27 @@ StatusCode L1Decoder::initialize() {
   CHECK( m_roiUnpackers.retrieve() );
   CHECK( m_prescaler.retrieve() );
   CHECK( m_rerunRoiUnpackers.retrieve() );
+
+  ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "CTPSimulation");
+  CHECK(incidentSvc.retrieve());
+  incidentSvc->addListener(this,"BeginRun", 200);
+  incidentSvc.release().ignore();
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode L1Decoder::start() {
+
+void L1Decoder::handle(const Incident& incident) {
+  if (incident.type()!="BeginRun") return;
+  ATH_MSG_DEBUG( "In L1Decoder BeginRun incident" );
 
   for ( auto t: m_roiUnpackers )
-    CHECK( t->updateConfiguration() );
-
-  return StatusCode::SUCCESS;
+    if ( t->updateConfiguration( m_chainToCTPProperty ).isFailure() ) {
+      ATH_MSG_ERROR( "Problem in configuring " << t->name() );
+    }
+  if ( m_ctpUnpacker->updateConfiguration( m_chainToCTPProperty ).isFailure() ) {
+    ATH_MSG_ERROR( "Problem in configuring CTP unpacker tool" );
+  }
 }
 
 
