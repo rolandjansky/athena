@@ -79,7 +79,7 @@ def makeElectronAnalysisSequence( dataType,
     # up the job.
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'ElectronPreSelViewFromSelectionAlg' )
-    alg.selection = _selectionDecorNames
+    alg.selection = _selectionDecorNames[ : ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the calibration and smearing algorithm:
@@ -171,7 +171,7 @@ def makeElectronAnalysisSequence( dataType,
         seq.append( alg, inputPropName = 'electrons',
                     outputPropName = 'electronsOut',
                     affectingSystematics = '(^EL_EFF_.*)' )
-        _selectionDecorNames.append( 'bad_eff' )
+        _selectionDecorNames.append( alg.outOfValidityDeco )
         _selectionDecorCount.append( 1 )
         pass
 
@@ -179,15 +179,15 @@ def makeElectronAnalysisSequence( dataType,
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                            'ElectronCutFlowDumperAlg' )
     alg.histPattern = 'electron_cflow_%SYS%'
-    alg.selection = _selectionDecorNames
-    alg.selectionNCuts = _selectionDecorCount
+    alg.selection = _selectionDecorNames[ : ]
+    alg.selectionNCuts = _selectionDecorCount[ : ]
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'ElectronViewFromSelectionAlg' )
-    alg.selection = _selectionDecorNames
+    alg.selection = _selectionDecorNames[ : ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the electrons, for

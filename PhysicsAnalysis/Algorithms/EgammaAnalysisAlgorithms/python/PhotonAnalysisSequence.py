@@ -68,7 +68,7 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     # up the job.
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'PhotonPreSelViewFromSelectionAlg' )
-    alg.selection = _selectionDecorNames
+    alg.selection = _selectionDecorNames[ : ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the calibration ans smearing algorithm.
@@ -147,15 +147,15 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                            'PhotonCutFlowDumperAlg' )
     alg.histPattern = 'photon_cflow_%SYS%'
-    alg.selection = _selectionDecorNames
-    alg.selectionNCuts = _selectionDecorCount
+    alg.selection = _selectionDecorNames[ : ]
+    alg.selectionNCuts = _selectionDecorCount[ : ]
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'PhotonViewFromSelectionAlg' )
-    alg.selection = _selectionDecorNames
+    alg.selection = _selectionDecorNames[ : ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the photons, for debugging:
