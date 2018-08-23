@@ -283,14 +283,14 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
 void
 Acts::TrackingGeometrySvc::setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) 
 {
-  boost::unique_lock<boost::shared_mutex> lock(m_gasMapMutex);
+  std::lock_guard<std::mutex> lock(m_gasMapMutex);
   m_gasMap[ctx.slot()] = gas;
 }
 
 const GeoAlignmentStore*
 Acts::TrackingGeometrySvc::getGeoAlignmentStore(const EventContext& ctx) const
 {
-  boost::shared_lock<boost::shared_mutex> lock(m_gasMapMutex);
+  std::lock_guard<std::mutex> lock(m_gasMapMutex);
   if (m_gasMap.find(ctx.slot()) == m_gasMap.end()) return nullptr;
   return m_gasMap[ctx.slot()];
 }

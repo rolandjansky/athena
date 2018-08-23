@@ -77,7 +77,7 @@ private:
   Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
   
   mutable std::unordered_map<EventContext::ContextID_t, const GeoAlignmentStore*> m_gasMap;
-  mutable boost::shared_mutex m_gasMapMutex;
+  mutable std::mutex m_gasMapMutex;
 
 
 };
