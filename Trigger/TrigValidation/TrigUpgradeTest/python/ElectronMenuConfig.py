@@ -262,7 +262,7 @@ def l2CaloReco( flags ):
 
     return reco
 
-def l2ElectronCaloStep( flags, chains, reco ):
+def l2ElectronCaloStep( flags, chains ):
 
     from AthenaCommon.Constants import DEBUG
     acc = ComponentAccumulator()
@@ -273,7 +273,10 @@ def l2ElectronCaloStep( flags, chains, reco ):
     fhSeq = FilterHypoSequence( 'ElectronFastCalo' )
     fhSeq.addFilter( chains, inKey = 'EMRoIDecisions', outKey='FilteredElectronRoIDecisions' )
 
-    fhSeq.addReco( reco )
+    from TrigUpgradeTest.MenuComponents import RecoFragmentsPool 
+
+    # obtain the reconstruction CF fragment
+    fhSeq.addReco( RecoFragmentsPool.retrieve( l2CaloReco, flags ) )
 
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
     hypo                     = TrigL2CaloHypoAlgMT( 'L2ElectronCaloHypo' )
@@ -295,14 +298,12 @@ def l2ElectronCaloStep( flags, chains, reco ):
 def generateElectrons( flags ):
     acc = ComponentAccumulator()
 
-    from TrigUpgradeTest.MenuComponents import RecoFragmentsPool 
-    # obtain the reconstruction CF fragment
-    l2CaloR = RecoFragmentsPool.retrieve( l2CaloReco, flags )
+    electronChains = [ f.split()[0] for f in flags.get("Trigger.menu.electrons") + flags.get("Trigger.menu.electronsNoID") ]    
+    if not electronChains:
+        return None,None
 
     # L2 calo
-    electronChains = [ f.split()[0] for f in flags.get("Trigger.menu.electrons") + flags.get("Trigger.menu.electronsNoID") ]    
-    l2CaloSequence = l2ElectronCaloStep( flags, electronChains, l2CaloR )
-
+    l2CaloSequence = l2ElectronCaloStep( flags, electronChains )
     acc.merge( l2CaloSequence ) 
     
 
