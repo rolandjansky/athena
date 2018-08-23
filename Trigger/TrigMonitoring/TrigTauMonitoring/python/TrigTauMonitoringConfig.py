@@ -62,7 +62,6 @@ def TrigTauMonitoringTool():
 			'tau25_perf_tracktwoMVA',
 			'tau25_looseRNN_tracktwoMVA',
 			'tau25_mediumRNN_tracktwoMVA',
-			'tau25_tightRNN_tracktwoMVA',
 	]
 
 	RNN_chains = [
@@ -71,7 +70,6 @@ def TrigTauMonitoringTool():
 			'tau25_tightRNN_tracktwo',
 			'tau25_looseRNN_tracktwoMVA',
 			'tau25_mediumRNN_tracktwoMVA',
-			'tau25_tightRNN_tracktwoMVA',
 	]
 
 	BDTRNN_chains = [

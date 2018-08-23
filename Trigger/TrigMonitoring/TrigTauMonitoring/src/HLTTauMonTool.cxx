@@ -233,6 +233,8 @@ StatusCode HLTTauMonTool::init() {
 
   m_tauCont = 0;
 
+	LB = -1;
+
   // put all trigger names into one arry
   for(std::vector<std::string>::iterator it = m_monitoring_tau.begin(); it != m_monitoring_tau.end(); ++it) {
     m_trigItems.push_back(*it);
@@ -416,6 +418,13 @@ StatusCode HLTTauMonTool::fill() {
     ATH_MSG_DEBUG("online mu "<<avg_mu);
   }
   muCut40Passed = (!m_domuCut40 || (m_domuCut40 && (m_mu_offline<40.)));
+
+  const xAOD::EventInfo* evtInfo = 0;
+  if( !evtStore()->retrieve(evtInfo, "EventInfo" ).isSuccess() ){
+    ATH_MSG_DEBUG("Failed to retrieve EventInfo container, aborting!");
+    return StatusCode::SUCCESS;
+  }
+  LB = evtInfo->lumiBlock();
 
   // fill true taus vectors
   m_true_taus.clear(); 
@@ -1142,7 +1151,8 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 #else
   aEFTau->detail(xAOD::TauJetParameters::nChargedTracks, EFnTrack);
 #endif
-  bool is1P(false), isMP(false);   
+  bool is0P(false), is1P(false), isMP(false);   
+  if(EFnTrack==0) is0P = true;
   if(EFnTrack==1) is1P = true;
   if(EFnTrack>1) isMP = true;
   //Pileup
@@ -1596,7 +1606,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       double RNN_clusters_SECOND_R(-999.);
       double RNN_clusters_SECOND_LAMBDA(-999.);
       double RNN_clusters_CENTER_LAMBDA(-999.);
-      const xAOD::CaloClusterContainer *caloCont;
 
 			std::vector<const xAOD::CaloCluster *> clusters;
 			StatusCode sc = getClusters(aEFTau, clusters);
@@ -1656,10 +1665,17 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       } else {
 	ATH_MSG_WARNING(" RNNJetScoreSigTrans discriminant not available.");
       }
-      if(RNNJetScore) hist("hEFRNNJetScore")->Fill(RNNJetScore);
-    //ATH_MSG_WARNING("In fillEFTau. In RNN_out. hEFRNNJetScore is OK.");
-      if(RNNJetScoreSigTrans) hist("hEFRNNJetScoreSigTrans")->Fill(RNNJetScoreSigTrans);
-    //ATH_MSG_WARNING("In fillEFTau. In RNN_out. hEFRNNJetScoreSigTrans is OK.");
+			if (is0P) {
+		    if(RNNJetScore) hist("hEFRNNJetScore_0P")->Fill(RNNJetScore);
+		    if(RNNJetScoreSigTrans) hist("hEFRNNJetScoreSigTrans_0P")->Fill(RNNJetScoreSigTrans);
+			} else if (is1P) {
+		    if(RNNJetScore) hist("hEFRNNJetScore_1P")->Fill(RNNJetScore);
+		    if(RNNJetScoreSigTrans) hist("hEFRNNJetScoreSigTrans_1P")->Fill(RNNJetScoreSigTrans);
+			} else if (isMP) {
+		    if(RNNJetScore) hist("hEFRNNJetScore_3P")->Fill(RNNJetScore);
+		    if(RNNJetScoreSigTrans) hist("hEFRNNJetScoreSigTrans_3P")->Fill(RNNJetScoreSigTrans);
+			}
+
     }
   else
     {
@@ -3863,7 +3879,7 @@ StatusCode HLTTauMonTool::getTracks(const xAOD::TauJet *aEFTau, std::vector<cons
 	std::sort(tracks.begin(), tracks.end(), cmp_pt);
 
 	// Truncate tracks
-	int m_max_tracks = 10;
+	unsigned int m_max_tracks = 10;
 	if (tracks.size() > m_max_tracks) {
 		tracks.resize(m_max_tracks);
 	}
@@ -3904,7 +3920,7 @@ StatusCode HLTTauMonTool::getClusters(const xAOD::TauJet *aEFTau, std::vector<co
     std::sort(clusters.begin(), clusters.end(), et_cmp);
 
     // Truncate clusters
-		int m_max_clusters = 6;
+		unsigned int m_max_clusters = 6;
     if (clusters.size() > m_max_clusters) {
         clusters.resize(m_max_clusters);
     }

@@ -236,8 +236,12 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
       // output
       addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/Output",run));
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/Output");
-      addHistogram(new TH1F("hEFRNNJetScore", "RNNJetScore distribution ; RNNJetScore; Events",50,-1,1));        
-      addHistogram(new TH1F("hEFRNNJetScoreSigTrans", "RNNJetScoreSigTrans distribution ; RNNJetScoreSigTrans; Events",50,0,1));        
+      addHistogram(new TH1F("hEFRNNJetScore_0P", "RNNJetScore distribution (0Prong); RNNJetScore; Events",50,-1,1));        
+      addHistogram(new TH1F("hEFRNNJetScore_1P", "RNNJetScore distribution (1Prong); RNNJetScore; Events",50,-1,1));        
+      addHistogram(new TH1F("hEFRNNJetScore_3P", "RNNJetScore distribution (3Prong); RNNJetScore; Events",50,-1,1));        
+      addHistogram(new TH1F("hEFRNNJetScoreSigTrans_0P", "RNNJetScoreSigTrans distribution (0Prong); RNNJetScoreSigTrans; Events",50,0,1));        
+      addHistogram(new TH1F("hEFRNNJetScoreSigTrans_1P", "RNNJetScoreSigTrans distribution (1Prong); RNNJetScoreSigTrans; Events",50,0,1));        
+      addHistogram(new TH1F("hEFRNNJetScoreSigTrans_3P", "RNNJetScoreSigTrans distribution (3Prong); RNNJetScoreSigTrans; Events",50,0,1));        
 
       // Scalar input variables
       addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar1p",run));

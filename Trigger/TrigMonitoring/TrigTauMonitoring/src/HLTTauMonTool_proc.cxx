@@ -276,8 +276,12 @@ StatusCode HLTTauMonTool::proc()
 
 	  if(monRNN) {
 	    setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/RNN/Output");
-	    plotUnderOverFlow(hist("hEFRNNJetScore"));
-	    plotUnderOverFlow(hist("hEFRNNJetScoreSigTrans"));
+	    plotUnderOverFlow(hist("hEFRNNJetScore_0P"));
+	    plotUnderOverFlow(hist("hEFRNNJetScore_1P"));
+	    plotUnderOverFlow(hist("hEFRNNJetScore_3P"));
+	    plotUnderOverFlow(hist("hEFRNNJetScoreSigTrans_0P"));
+	    plotUnderOverFlow(hist("hEFRNNJetScoreSigTrans_1P"));
+	    plotUnderOverFlow(hist("hEFRNNJetScoreSigTrans_3P"));
 
 	    setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/RNN/InputScalar1p");	    
 	    plotUnderOverFlow(hist("hEFRNNInput_Scalar_centFrac_1P"));
@@ -745,8 +749,12 @@ StatusCode HLTTauMonTool::proc()
 	    cloneHistogram("hEFRNNInput_Cluster_SECOND_LAMBDA_log10","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster");
 	    cloneHistogram("hEFRNNInput_Cluster_CENTER_LAMBDA_log10","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster");
 	    // RNN outputs
-	    cloneHistogram("hEFRNNJetScore","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
-	    cloneHistogram("hEFRNNJetScoreSigTrans","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
+	    cloneHistogram("hEFRNNJetScore_0P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
+	    cloneHistogram("hEFRNNJetScore_1P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
+	    cloneHistogram("hEFRNNJetScore_3P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
+	    cloneHistogram("hEFRNNJetScoreSigTrans_0P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
+	    cloneHistogram("hEFRNNJetScoreSigTrans_1P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
+	    cloneHistogram("hEFRNNJetScoreSigTrans_3P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
 	  }
             
 	  setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_trigger_names.at(i)+"/L1VsOffline");
