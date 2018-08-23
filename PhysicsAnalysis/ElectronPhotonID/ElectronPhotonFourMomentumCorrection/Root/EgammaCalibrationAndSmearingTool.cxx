@@ -154,9 +154,8 @@ std::unique_ptr<egammaLayerRecalibTool> egammaLayerRecalibToolFactory(egEnergyCo
       tune = "es2017_20.7_final";
       break;
     case egEnergyCorr::es2017_R21_v0:
-      tune = "es2017_21.0_v0";
     case egEnergyCorr::es2017_R21_v1:
-      tune = "es2017_21.0_v1";
+      tune = "es2017_21.0_v0";
       break;
     default:
       return nullptr;

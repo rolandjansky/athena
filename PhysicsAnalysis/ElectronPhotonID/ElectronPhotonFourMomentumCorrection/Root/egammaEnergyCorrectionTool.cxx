@@ -72,7 +72,7 @@ namespace AtlasRoot {
 
     m_rootFile = nullptr;
 
-    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v18/egammaEnergyCorrectionData.root");
+    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v19/egammaEnergyCorrectionData.root");
     
     if (m_rootFileName.empty()) {
       ATH_MSG_FATAL("cannot find configuration file");
@@ -1431,11 +1431,11 @@ namespace AtlasRoot {
     } else {
 
       daMatID   = getMaterialNonLinearity( cl_eta, energy, egEnergyCorr::MatID,   ptype, var, varSF )
-	- getMaterialNonLinearity( cl_eta, meanE,  egEnergyCorr::MatID,   ptype, var, varSF );
+	- getMaterialNonLinearity( cl_eta, meanE,  egEnergyCorr::MatID,   PATCore::ParticleType::Electron, var, varSF );
       daMatCryo = getMaterialNonLinearity( cl_eta, energy, egEnergyCorr::MatCryo, ptype, var, varSF )
-	- getMaterialNonLinearity( cl_eta, meanE,  egEnergyCorr::MatCryo, ptype, var, varSF );
+	- getMaterialNonLinearity( cl_eta, meanE,  egEnergyCorr::MatCryo, PATCore::ParticleType::Electron, var, varSF );
       daMatCalo = getMaterialNonLinearity( cl_eta, energy, egEnergyCorr::MatCalo, ptype, var, varSF )
-	- getMaterialNonLinearity( cl_eta, meanE,  egEnergyCorr::MatCalo, ptype, var, varSF );
+	- getMaterialNonLinearity( cl_eta, meanE,  egEnergyCorr::MatCalo, PATCore::ParticleType::Electron, var, varSF );
 
     }
 
@@ -2122,15 +2122,20 @@ namespace AtlasRoot {
 //
 // in es02017_R21_v1 : AF2 to FullSim correction is in a 2D eta-Pt histogram
 
-        if (ptype == PATCore::ParticleType::Electron) { return getValueHistAt(*m_G4OverAFII_electron_2D, eta,ptGeV,true,true,true,true); }
-        else if (ptype == PATCore::ParticleType::ConvertedPhoton) { return getValueHistAt(*m_G4OverAFII_converted_2D, eta,ptGeV,true,true,true,true); }
-        else if (ptype == PATCore::ParticleType::UnconvertedPhoton) { return getValueHistAt(*m_G4OverAFII_unconverted_2D, eta,ptGeV,true,true,true,true); }
+        std::cout << " call AF2 correction eta,pt " << eta << " " << ptGeV <<
+         " electron: " <<  1.+getValueHistAt(*m_G4OverAFII_electron_2D, eta,ptGeV,true,true,true,true) <<
+         " unconv : " <<  1.+getValueHistAt(*m_G4OverAFII_unconverted_2D, eta,ptGeV,true,true,true,true) <<
+         " conv :   " << 1.+getValueHistAt(*m_G4OverAFII_converted_2D, eta,ptGeV,true,true,true,true) << std::endl;
+
+        if (ptype == PATCore::ParticleType::Electron) { return (1.+getValueHistAt(*m_G4OverAFII_electron_2D, aeta,ptGeV,true,true,true,true)); }
+        else if (ptype == PATCore::ParticleType::ConvertedPhoton) { return (1.+getValueHistAt(*m_G4OverAFII_converted_2D, aeta,ptGeV,true,true,true,true)); }
+        else if (ptype == PATCore::ParticleType::UnconvertedPhoton) { return (1.+getValueHistAt(*m_G4OverAFII_unconverted_2D, aeta,ptGeV,true,true,true,true)); }
         else { throw std::runtime_error("particle not valid"); }
       }
       else {
-        if (ptype == PATCore::ParticleType::Electron) { return getValueHistoAt(*m_G4OverAFII_electron, eta); }
-        else if (ptype == PATCore::ParticleType::ConvertedPhoton) { return getValueHistoAt(*m_G4OverAFII_converted, eta); }
-        else if (ptype == PATCore::ParticleType::UnconvertedPhoton) { return getValueHistoAt(*m_G4OverAFII_unconverted, eta); }
+        if (ptype == PATCore::ParticleType::Electron) { return getValueHistoAt(*m_G4OverAFII_electron, aeta); }
+        else if (ptype == PATCore::ParticleType::ConvertedPhoton) { return getValueHistoAt(*m_G4OverAFII_converted, aeta); }
+        else if (ptype == PATCore::ParticleType::UnconvertedPhoton) { return getValueHistoAt(*m_G4OverAFII_unconverted, aeta); }
         else { throw std::runtime_error("particle not valid"); }
       }
     }
@@ -2744,6 +2749,7 @@ namespace AtlasRoot {
 
     double DeltaX = getDeltaX(cl_eta, imat, var) - getDeltaX(cl_eta, imat, egEnergyCorr::Scale::Nominal);
 
+
     // calculate scale change per unit added material
 
     double DAlphaDXID, DAlphaDXCryo, DAlphaDXCalo, DAlphaDXGp;
@@ -2759,6 +2765,7 @@ namespace AtlasRoot {
       DAlphaDXCryo = m_matConvertedScale[geoCryo]->GetBinContent( m_matConvertedScale[geoCryo]->FindBin(cl_eta) );
       DAlphaDXCalo = m_matConvertedScale[geoCalo]->GetBinContent( m_matConvertedScale[geoCalo]->FindBin(cl_eta) );
     }
+
 
     // when in crack, use G', exit
 
@@ -2792,12 +2799,14 @@ namespace AtlasRoot {
 
     // final value
 
+
     if( imat==egEnergyCorr::MatID )
       value = DeltaX * (DAlphaDXID - DAlphaDXCryo);
     else if( imat==egEnergyCorr::MatCryo )
       value = DeltaX * DAlphaDXCryo;
     else if( imat==egEnergyCorr::MatCalo )
       value = DeltaX * DAlphaDXCalo;
+
 
     return value * varSF;
 
@@ -2904,6 +2913,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
 
     double DeltaX = getDeltaX(cl_eta, imat, var) - getDeltaX(cl_eta, imat, egEnergyCorr::Scale::Nominal);
 
+
     // calculate scale change per unit added material
 
     // G.Unal 21.08.2019 new code called for release 21 sensivitities
@@ -2926,6 +2936,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
       DAlphaDXCryo = ((TGraphErrors*)m_matElectronGraphs[geoCryo]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
       DAlphaDXCalo = ((TGraphErrors*)m_matElectronGraphs[geoCalo]->At(ialpha))->GetFunction("fNonLin")->Eval( ET );
     }
+
 
     // when in crack, use G', exit
 
@@ -2972,6 +2983,7 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
       value = DeltaX * DAlphaDXCryo;
     else if( imat==egEnergyCorr::MatCalo )
       value = DeltaX * DAlphaDXCalo;
+
 
     return value * varSF;
 
