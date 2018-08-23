@@ -492,7 +492,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "mcCampaign",           m_mcCampaign );
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
   declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
-  declareProperty( "PRWActualMuFile",      m_prwActualMuFile );
+  declareProperty( "PRWActualMu2017File",  m_prwActualMu2017File );
+  declareProperty( "PRWActualMu2018File",  m_prwActualMu2018File );
   declareProperty( "PRWMuUncertainty",     m_muUncert);
   declareProperty( "PRWDataScaleFactor",   m_prwDataSF);
   declareProperty( "PRWDataScaleFactorUP", m_prwDataSF_UP);
@@ -774,6 +775,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
       if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
       else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
+      else if ( amiTag.find("r10724")!=string::npos ) mcCampaignMD = "mc16e";
       else {
 	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
 	return StatusCode::FAILURE;
@@ -789,7 +791,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
       ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
       dsid = evtInfo->mcChannelNumber();
 
-      if ( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d") { 
+      if ( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d" || m_mcCampaign == "mc16e") { 
         std::string NoMetadataButPropertyOK("");
         NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
         NoMetadataButPropertyOK += m_mcCampaign;
@@ -825,8 +827,11 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
     m_prwConfFiles.clear();
     m_prwConfFiles.push_back( prwConfigFile );
     if ( mcCampaignMD == "mc16c" || mcCampaignMD == "mc16d") { 
-      m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMuFile) );
+      m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMu2017File) );
+    } else if (mcCampaignMD == "mc16e") {
+      m_prwConfFiles.push_back( PathResolverFindCalibFile(m_prwActualMu2018File) );
     }
+    
     ATH_MSG_INFO( "autoconfigurePileupRWTool(): configuring PRW tool using " << prwConfigFile.data() );
   }
   // Return gracefully
@@ -1068,11 +1073,11 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2015combination_diLep, "Trig.Dilep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50 || 2e12_lhloose_L12EM10VH || e17_lhloose_mu14 || e7_lhmedium_mu24 || mu18_mu8noL1 || 2mu10"); 
-  configFromFile(m_trig2016combination_diLep, "Trig.Dilep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || mu22_mu8noL1 || 2mu14"); 
-  configFromFile(m_trig2017combination_diLep, "Trig.Dilep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || mu22_mu8noL1 || 2mu14"); 
-  configFromFile(m_trig2015combination_multiLep, "Trig.Multi2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50 || 2e12_lhloose_L12EM10VH || 2e12_lhloose_mu10 || e12_lhloose_2mu10 || e17_lhloose_mu14 || e7_lhmedium_mu24 || mu18_mu8noL1 || 2mu10 || 3mu6"); 
-  configFromFile(m_trig2016combination_multiLep, "Trig.Multi2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
-  configFromFile(m_trig2017combination_multiLep, "Trig.Multi2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
+  configFromFile(m_trig2016combination_diLep, "Trig.Dilep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_L1EM22VHI_mu8noL1 || mu22_mu8noL1 || 2mu14"); 
+  configFromFile(m_trig2017combination_diLep, "Trig.Dilep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_mu8noL1 || mu22_mu8noL1 || 2mu14"); 
+  configFromFile(m_trig2015combination_multiLep, "Trig.Multi2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50 || 2e12_lhloose_L12EM10VH || e17_lhloose_2e9_lhloose || 2e12_lhloose_mu10 || e12_lhloose_2mu10 || e17_lhloose_mu14 || e7_lhmedium_mu24 || mu18_mu8noL1 || 2mu10 || 3mu6"); 
+  configFromFile(m_trig2016combination_multiLep, "Trig.Multi2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_L1EM22VHI_mu8noL1 || e17_lhloose_nod0_2e9_lhloose_nod0 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
+  configFromFile(m_trig2017combination_multiLep, "Trig.Multi2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50 || 2e24_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e26_lhmedium_nod0_mu8noL1 || e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10 || mu22_mu8noL1 || 2mu14 || 3mu6"); 
   //
   configFromFile(m_muBaselinePt, "MuonBaseline.Pt", rEnv, 10000.);
   configFromFile(m_muBaselineEta, "MuonBaseline.Eta", rEnv, 2.7);
@@ -1147,7 +1152,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //
-  configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false);
+  configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false); // Tight and Tenacious MET WPs can be used with fJVT by default
   configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
   configFromFile(m_fwdjetTightOp, "FwdJet.JvtUseTightOP", rEnv, false);
@@ -1216,12 +1221,13 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
   configFromFile(m_trkJetsyst, "MET.DoTrkJetSyst", rEnv, false);
   configFromFile(m_metsysConfigPrefix, "METSys.ConfigPrefix", rEnv, "METUtilities/data17_13TeV/prerec_Jan16");
-  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Tight (default), Loose, etc
+  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Loose, Tight (default), Tighter, Tenacious
   configFromFile(m_softTermParam, "METSig.SoftTermParam", rEnv, met::Random);
   configFromFile(m_treatPUJets, "METSig.TreatPUJets", rEnv, true);
   configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, true);
   //
-  configFromFile(m_prwActualMuFile, "PRW.ActualMuFile", rEnv, "GoodRunsLists/data17_13TeV/20180309/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
+  configFromFile(m_prwActualMu2017File, "PRW.ActualMu2017File", rEnv, "GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
+  configFromFile(m_prwActualMu2018File, "PRW.ActualMu2018File", rEnv, "GoodRunsLists/data18_13TeV/20180702/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-001.root");
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
   configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool

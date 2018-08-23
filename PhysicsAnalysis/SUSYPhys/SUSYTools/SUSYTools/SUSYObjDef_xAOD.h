@@ -490,7 +490,8 @@ namespace ST {
 
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
-    std::string m_prwActualMuFile;
+    std::string m_prwActualMu2017File;
+    std::string m_prwActualMu2018File;
 
     double m_muUncert;
     double m_prwDataSF;
