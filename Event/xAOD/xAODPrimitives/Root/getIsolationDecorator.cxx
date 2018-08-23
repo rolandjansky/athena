@@ -24,6 +24,11 @@ const SG::AuxElement::Decorator< float >*
       DEFINE_DECORATOR( etcone20 );
       DEFINE_DECORATOR( etcone30 );
       DEFINE_DECORATOR( etcone40 );
+        //PtCone variables      
+      DEFINE_DECORATOR( ptcone20 );
+      DEFINE_DECORATOR( ptcone30 ); 
+      DEFINE_DECORATOR( ptcone40 ); 
+      DEFINE_DECORATOR( ptcone50 ); 
       // TopoEtcone variables:
       DEFINE_DECORATOR( topoetcone20 );
       DEFINE_DECORATOR( topoetcone30 );

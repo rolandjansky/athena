@@ -24,6 +24,11 @@ const SG::AuxElement::Accessor< float >*
       DEFINE_ACCESSOR( etcone20 );
       DEFINE_ACCESSOR( etcone30 );
       DEFINE_ACCESSOR( etcone40 );
+      //PtCone variables      
+      DEFINE_ACCESSOR( ptcone20 );
+      DEFINE_ACCESSOR( ptcone30 ); 
+      DEFINE_ACCESSOR( ptcone40 ); 
+      DEFINE_ACCESSOR( ptcone50 );
       // TopoEtcone variables:
       DEFINE_ACCESSOR( topoetcone20 );
       DEFINE_ACCESSOR( topoetcone30 );
