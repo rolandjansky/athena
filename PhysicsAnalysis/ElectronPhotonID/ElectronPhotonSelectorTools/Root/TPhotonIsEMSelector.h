@@ -53,154 +53,154 @@ namespace Root {
 
     /** The main accept method: the actual cuts are applied here */
     asg::AcceptData accept(
-        // eta position in second sampling
-        float eta2,
-        // transverse energy in calorimeter (using eta position in second sampling)
-        double et,
-        // transverse energy in 1st scintillator of hadronic calorimeter/ET
-        float Rhad1,
-        // transverse energy in hadronic calorimeter/ET
-        float Rhad,
-        // E(7*7) in 2nd sampling
-        float e277,
-        // E(3*7)/E(7*7) in 2nd sampling
-        float Reta,
-        // E(3*3)/E(3*7) in 2nd sampling
-        float Rphi,
-        // shower width in 2nd sampling
-        float weta2c,
-        // fraction of energy reconstructed in strips
-        float f1,
-        // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
-        float Eratio,
-        // E(2nd max)-E(min) in strips
-        float DeltaE,
-        //  E of 2nd max between max and min in strips
-        // float emax2,
-        // shower width in 3 strips in 1st sampling
-        float weta1c,
-        // total shower width in strips
-        float wtot,
-        // E(+/-3)-E(+/-1)/E(+/-1)
-        float fracm,
-        // fraction of energy reconstructed in the 3rd sampling
-        float f3,
-        // E/p
-        double ep,
-        // is it a conversion
-        bool isConversion);
+      // eta position in second sampling
+      float eta2,
+      // transverse energy in calorimeter (using eta position in second sampling)
+      double et,
+      // transverse energy in 1st scintillator of hadronic calorimeter/ET
+      float Rhad1,
+      // transverse energy in hadronic calorimeter/ET
+      float Rhad,
+      // E(7*7) in 2nd sampling
+      float e277,
+      // E(3*7)/E(7*7) in 2nd sampling
+      float Reta,
+      // E(3*3)/E(3*7) in 2nd sampling
+      float Rphi,
+      // shower width in 2nd sampling
+      float weta2c,
+      // fraction of energy reconstructed in strips
+      float f1,
+      // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
+      float Eratio,
+      // E(2nd max)-E(min) in strips
+      float DeltaE,
+      //  E of 2nd max between max and min in strips
+      // float emax2,
+      // shower width in 3 strips in 1st sampling
+      float weta1c,
+      // total shower width in strips
+      float wtot,
+      // E(+/-3)-E(+/-1)/E(+/-1)
+      float fracm,
+      // fraction of energy reconstructed in the 3rd sampling
+      float f3,
+      // E/p
+      double ep,
+      // is it a conversion
+      bool isConversion);
 
     /** Return dummy accept with only info */
     asg::AcceptData accept() const { return asg::AcceptData(&m_acceptInfo); }
 
     // calculate the isEM. (Used internally by accept)
     unsigned int calcIsEm(
-        // eta position in second sampling
-        float eta2,
-        // transverse energy in calorimeter (using eta position in second sampling)
-        double et,
-        // transverse energy in 1st scintillator of hadronic calorimeter/ET
-        float Rhad1,
-        // transverse energy in hadronic calorimeter/ET
-        float Rhad,
-        // E(7*7) in 2nd sampling
-        float e277,
-        // E(3*7)/E(7*7) in 2nd sampling
-        float Reta,
-        // E(3*3)E(3*7) in 2nd sampling
-        float Rphi,
-        // shower width in 2nd sampling
-        float weta2c,
-        // fraction of energy reconstructed in strips
-        float f1,
-        // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
-        float Eratio,
-        // E(2nd max)-E(min) in strips
-        float DeltaE,
-        // shower width in 3 strips in 1st sampling
-        //  E of 2nd max between max and min in strips
-        // shower width in 3 strips in 1st sampling
-        float weta1c,
-        // total shower width in strips
-        float wtot,
-        // E(+/-3)-E(+/-1)/E(+/-1)
-        float fracm,
-        // fraction of energy reconstructed in the 3rd sampling
-        float f3,
-        // E/p
-        double ep,
-        // is it a conversion
-        bool isConversion) const;
+      // eta position in second sampling
+      float eta2,
+      // transverse energy in calorimeter (using eta position in second sampling)
+      double et,
+      // transverse energy in 1st scintillator of hadronic calorimeter/ET
+      float Rhad1,
+      // transverse energy in hadronic calorimeter/ET
+      float Rhad,
+      // E(7*7) in 2nd sampling
+      float e277,
+      // E(3*7)/E(7*7) in 2nd sampling
+      float Reta,
+      // E(3*3)E(3*7) in 2nd sampling
+      float Rphi,
+      // shower width in 2nd sampling
+      float weta2c,
+      // fraction of energy reconstructed in strips
+      float f1,
+      // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
+      float Eratio,
+      // E(2nd max)-E(min) in strips
+      float DeltaE,
+      // shower width in 3 strips in 1st sampling
+      //  E of 2nd max between max and min in strips
+      // shower width in 3 strips in 1st sampling
+      float weta1c,
+      // total shower width in strips
+      float wtot,
+      // E(+/-3)-E(+/-1)/E(+/-1)
+      float fracm,
+      // fraction of energy reconstructed in the 3rd sampling
+      float f3,
+      // E/p
+      double ep,
+      // is it a conversion
+      bool isConversion) const;
 
     /** @brief Apply calorimeter cuts for selection of converted photons*/
     unsigned int calocuts_photonsConverted(
-        // eta position in second sampling
-        float eta2,
-        // transverse energy in calorimeter
-        double et,
-        // hadronic leakage ratios
-        float Rhad1,
-        float Rhad,
-        // E(7*7) in 2nd sampling
-        float e277,
-        // ratios
-        float Reta,
-        float Rphi,
-        // shower width in 2nd sampling
-        float weta2c,
-        // fraction of energy reconstructed in strips
-        float f1,
-        // (Emax1-Emax2)/(Emax1+Emax2)
-        float Eratio,
-        // difference of energy between max and min
-        float DeltaE,
-        // parametrization of E(2nd max)
-        //float deltaemax2,
-        // shower width in 3 strips in 1st sampling
-        float weta1c,
-        // total shower width in strips
-        float wtot,
-        // E(+/-3)-E(+/-1)/E(+/-1)
-        float fracm,
-        // fraction of energy reconstructed in the 3rd sampling
-        float f3,
-        // E/p
-        double ep,
-        unsigned int iflag) const;
+      // eta position in second sampling
+      float eta2,
+      // transverse energy in calorimeter
+      double et,
+      // hadronic leakage ratios
+      float Rhad1,
+      float Rhad,
+      // E(7*7) in 2nd sampling
+      float e277,
+      // ratios
+      float Reta,
+      float Rphi,
+      // shower width in 2nd sampling
+      float weta2c,
+      // fraction of energy reconstructed in strips
+      float f1,
+      // (Emax1-Emax2)/(Emax1+Emax2)
+      float Eratio,
+      // difference of energy between max and min
+      float DeltaE,
+      // parametrization of E(2nd max)
+      //float deltaemax2,
+      // shower width in 3 strips in 1st sampling
+      float weta1c,
+      // total shower width in strips
+      float wtot,
+      // E(+/-3)-E(+/-1)/E(+/-1)
+      float fracm,
+      // fraction of energy reconstructed in the 3rd sampling
+      float f3,
+      // E/p
+      double ep,
+      unsigned int iflag) const;
 
     /** @brief Apply calorimeter cuts for selection of non converted photons*/
     unsigned int calocuts_photonsNonConverted(
-        // eta position in second sampling
-        float eta2,
-        // transverse energy in calorimeter
-        double et,
-        // hadronic leakage ratios
-        float Rhad1,
-        float Rhad,
-        // E(7*7) in 2nd sampling
-        float e277,
-        // ratios
-        float Reta,
-        float Rphi,
-        // shower width in 2nd sampling
-        float weta2c,
-        // fraction of energy reconstructed in strips
-        float f1,
-        // (Emax1-Emax2)/(Emax1+Emax2)
-        float Eratio,
-        // difference of energy between max and min
-        float DeltaE,
-        // parametrization of E(2nd max)
-        //float deltaemax2,
-        // shower width in 3 strips in 1st sampling
-        float weta1c,
-        // total shower width in strips
-        float wtot,
-        // E(+/-3)-E(+/-1)/E(+/-1)
-        float fracm,
-        // fraction of energy reconstructed in the 3rd sampling
-        float f3,
-        unsigned int iflag) const;
+      // eta position in second sampling
+      float eta2,
+      // transverse energy in calorimeter
+      double et,
+      // hadronic leakage ratios
+      float Rhad1,
+      float Rhad,
+      // E(7*7) in 2nd sampling
+      float e277,
+      // ratios
+      float Reta,
+      float Rphi,
+      // shower width in 2nd sampling
+      float weta2c,
+      // fraction of energy reconstructed in strips
+      float f1,
+      // (Emax1-Emax2)/(Emax1+Emax2)
+      float Eratio,
+      // difference of energy between max and min
+      float DeltaE,
+      // parametrization of E(2nd max)
+      //float deltaemax2,
+      // shower width in 3 strips in 1st sampling
+      float weta1c,
+      // total shower width in strips
+      float wtot,
+      // E(+/-3)-E(+/-1)/E(+/-1)
+      float fracm,
+      // fraction of energy reconstructed in the 3rd sampling
+      float f3,
+      unsigned int iflag) const;
 
     ///////////////////////////////////
     // Public members (the cut values)
