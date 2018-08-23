@@ -296,14 +296,14 @@ if DerivationFrameworkIsMonteCarlo:
     LLPType = 1,
   )
   ToolSvc += TruthJetKinematicsToolRHadron
-  AugmentationTools.append(TruthJetKinematicsTool)RHadron
+  AugmentationTools.append(TruthJetKinematicsToolRHadron)
 
   TruthJetKinematicsToolChargino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsChargino",
     OutputContainer = "AntiKt4LLP_CharginoTruthJets",
     LLP_PDGIDS = [1000024],
   )
   ToolSvc += TruthJetKinematicsToolChargino
-  AugmentationTools.append(TruthJetKinematicsTool)Chargino
+  AugmentationTools.append(TruthJetKinematicsToolChargino)
 
   TruthJetKinematicsToolNeutralino = DerivationFramework__LongLivedTruthJetKinematics(name = "LongLivedTruthJetsNeutralino",
     OutputContainer = "AntiKt4LLP_NeutralinoTruthJets",
@@ -481,8 +481,17 @@ SUSY15SlimmingHelper.IncludeMuonTriggerContent = True # needed? /CO
 SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True # can change to photons only? /CO
 SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True # Added /CO
 
-SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLPTruthJets")
-SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLPTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_RHadronTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_RHadronTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_CharginoTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_CharginoTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_NeutralinoTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_NeutralinoTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_GluinoTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_GluinoTruthJetsAux.")
+SUSY15Stream.AddItem("xAOD::JetContainer#AntiKt4LLP_SquarkTruthJets")
+SUSY15Stream.AddItem("xAOD::ShallowAuxContainer#AntiKt4LLP_SquarkTruthJetsAux.")
+
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
