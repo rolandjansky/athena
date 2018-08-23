@@ -226,15 +226,18 @@ namespace xAOD {
    //               Implementation for the link copy functions
    //
 
-  void TrigComposite_v1::copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index) {
-    this->linkColNamesNC().push_back(   other.linkColNames().at(   index ) );
+  void TrigComposite_v1::copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName) {
+    this->linkColNamesNC().push_back( newName );
     this->linkColKeysNC().push_back(    other.linkColKeys().at(    index ) );
     this->linkColIndicesNC().push_back( other.linkColIndices().at( index ) );
     this->linkColClidsNC().push_back(   other.linkColClids().at(   index ) );
   }
 
-  bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string name) {
-    if (name == "self") {
+  bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {
+    if (newName == "") {
+      newName = name;
+    }
+    if (newName == "self") {
       if (s_throwOnCopyError) throw std::runtime_error("Cannot copy the 'self' link in a logical way.");
       return false;
     }
@@ -244,10 +247,10 @@ namespace xAOD {
     locationIt = std::find(other.linkColNames().begin(), other.linkColNames().end(), name);
     if (locationIt != other.linkColNames().end()) {
       size_t index = std::distance(other.linkColNames().begin(), locationIt);
-      if (this->hasObjectLink(name)) {
-        if (s_throwOnCopyError) throw std::runtime_error("Already have link with name " + name);
+      if (this->hasObjectLink(newName)) {
+        if (s_throwOnCopyError) throw std::runtime_error("Already have link with name " + newName);
       } else {
-        copyLinkInternal(other, index);
+        copyLinkInternal(other, index, newName);
         didCopy = true;
       }
     }
@@ -255,22 +258,26 @@ namespace xAOD {
     return didCopy;
   }
 
-  bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string name) {
-    return copyLinkFrom(*other, name);
+  bool TrigComposite_v1::copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName) {
+    return copyLinkFrom(*other, name, newName);
   }
 
-  bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string name) {
+  bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName) {
     bool didCopy = false;
     // Check for the existence of a collection.
+    if (newName == "") {
+      newName = name;
+    }
     const std::string mangledName = name + s_collectionSuffix;
+    const std::string mangledNewName = newName + s_collectionSuffix;
     if (other.hasObjectLink(mangledName)) {
-      if (this->hasObjectLink(mangledName)) {
-        if (s_throwOnCopyError) throw std::runtime_error("Already have link collection with name " + name);
+      if (this->hasObjectLink(mangledNewName)) {
+        if (s_throwOnCopyError) throw std::runtime_error("Already have link collection with name " + newName);
       } else {
         // Copy all links in the collection. Just iterating through the source vector
         for (size_t index = 0; index < other.linkColNames().size(); ++index) {
           if (other.linkColNames().at(index) == mangledName) {
-            copyLinkInternal(other, index);
+            copyLinkInternal(other, index, mangledNewName);
           }
         }
         didCopy = true;
@@ -280,8 +287,8 @@ namespace xAOD {
     return didCopy;
   }
     
-  bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string name) {
-    return copyLinkCollectionFrom(*other, name);
+  bool TrigComposite_v1::copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName) {
+    return copyLinkCollectionFrom(*other, name, newName);
   }
 
   bool TrigComposite_v1::copyAllLinksFrom(const xAOD::TrigComposite_v1& other) {

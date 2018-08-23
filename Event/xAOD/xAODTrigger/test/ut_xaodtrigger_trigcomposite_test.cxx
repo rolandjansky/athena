@@ -258,10 +258,11 @@ int main() {
 
    SIMPLE_ASSERT( manualCopy->copyLinkFrom( fullCopy, "MuonRoI" ) == true );
    SIMPLE_ASSERT( manualCopy->copyLinkCollectionFrom( fullCopy, "ManyMuonRoIs" ) == true );
-   SIMPLE_ASSERT( manualCopy->copyLinkFrom( fullCopy, "feature" ) == true );
+   // Test also link renaming 
+   SIMPLE_ASSERT( manualCopy->copyLinkFrom( fullCopy, "feature", "featureWithNewName" ) == true );
    SIMPLE_ASSERT( testLinks(manualCopy, 4) == 0 );
 
-   ElementLink<xAOD::MuonRoIContainer> getFeatureLinkAgain = manualCopy->objectLink<xAOD::MuonRoIContainer>("feature");
+   ElementLink<xAOD::MuonRoIContainer> getFeatureLinkAgain = manualCopy->objectLink<xAOD::MuonRoIContainer>("featureWithNewName");
    SIMPLE_ASSERT(getFeatureLinkAgain == ElementLink<xAOD::MuonRoIContainer>( 111, 222 ));
 
    std::cout << "Copy link-by-link OK" << std::endl;

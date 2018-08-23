@@ -151,17 +151,19 @@ namespace xAOD {
       /// Will not overwrite an existing link
       /// @param other TrigComposite object to copy the link from
       /// @param name Name of link to copy
+      /// @param newName Optional parameter to rename the link during the copy
       /// @return True on successful copy
-      bool copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string name);
-      bool copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string name);
+      bool copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName = "");
+      bool copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName = "");
 
       /// Copy one named link collection from another object.
       /// Will not overwrite or append to an existing collection of links
       /// @param other TrigComposite object to copy the link collection from
       /// @param name Name of link collection
+      /// @param newName Optional parameter to rename the link collection during the copy
       /// @return True on successful copy
-      bool copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string name);
-      bool copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string name);
+      bool copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName = "");
+      bool copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName = "");
 
       /// Copy all single links and collections of links from another object.
       /// Will not overwrite existing links, or link collections, or append to existing link collections.
@@ -200,7 +202,7 @@ namespace xAOD {
       std::vector< uint32_t >& linkColClidsNC();
 
       /// Helper function, copy one link into this object
-      void copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index);
+      void copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName);
 
       static const std::string s_collectionSuffix;
 
