@@ -2122,11 +2122,6 @@ namespace AtlasRoot {
 //
 // in es02017_R21_v1 : AF2 to FullSim correction is in a 2D eta-Pt histogram
 
-        std::cout << " call AF2 correction eta,pt " << eta << " " << ptGeV <<
-         " electron: " <<  1.+getValueHistAt(*m_G4OverAFII_electron_2D, eta,ptGeV,true,true,true,true) <<
-         " unconv : " <<  1.+getValueHistAt(*m_G4OverAFII_unconverted_2D, eta,ptGeV,true,true,true,true) <<
-         " conv :   " << 1.+getValueHistAt(*m_G4OverAFII_converted_2D, eta,ptGeV,true,true,true,true) << std::endl;
-
         if (ptype == PATCore::ParticleType::Electron) { return (1.+getValueHistAt(*m_G4OverAFII_electron_2D, aeta,ptGeV,true,true,true,true)); }
         else if (ptype == PATCore::ParticleType::ConvertedPhoton) { return (1.+getValueHistAt(*m_G4OverAFII_converted_2D, aeta,ptGeV,true,true,true,true)); }
         else if (ptype == PATCore::ParticleType::UnconvertedPhoton) { return (1.+getValueHistAt(*m_G4OverAFII_unconverted_2D, aeta,ptGeV,true,true,true,true)); }
