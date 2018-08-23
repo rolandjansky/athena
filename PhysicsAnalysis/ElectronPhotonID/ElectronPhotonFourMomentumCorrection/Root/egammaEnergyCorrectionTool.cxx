@@ -1294,12 +1294,13 @@ namespace AtlasRoot {
       if( scaleVar == egEnergyCorr::Scale::Nominal ) {
         double alpha = getAlphaValue(runnumber, cl_eta, cl_etaCalo, fullyCorrectedEnergy, energyS2, eraw, ptype, scaleVar, varSF);
 	fullyCorrectedEnergy /= (1 + alpha);
-	if (fabs(cl_etaCalo)>2.5){ //  calo eta?
-	  int ieta_k = m_zeeFwdk->GetXaxis()->FindBin(cl_etaCalo);
+        // apply additional k.E+b corrections if histograms exist (like in es2017_R21_v1)
+	if (m_zeeFwdk &&  m_zeeFwdb && fabs(cl_eta)>2.5){ //  calo eta?
+	  int ieta_k = m_zeeFwdk->GetXaxis()->FindBin(cl_eta);
 	  double value_k = m_zeeFwdk->GetBinContent(ieta_k);
-	  int ieta_b = m_zeeFwdb->GetXaxis()->FindBin(cl_etaCalo);
+	  int ieta_b = m_zeeFwdb->GetXaxis()->FindBin(cl_eta);
           double value_b = m_zeeFwdb->GetBinContent(ieta_b);
-	  fullyCorrectedEnergy = value_k*fullyCorrectedEnergy + value_b;
+	  fullyCorrectedEnergy = value_k*fullyCorrectedEnergy + value_b*GeV;   // value is stored in GeV in the histogram file
 	}
         ATH_MSG_DEBUG("after alpha = " << boost::format("%.2f") % fullyCorrectedEnergy);
       }
