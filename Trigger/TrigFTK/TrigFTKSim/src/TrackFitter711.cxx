@@ -871,8 +871,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
        // majority track with bad chisq have no reason to be kept, recovery is not possible
        if (newtrkI.getNMissing() > 0) {
-           // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-           float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+           float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
            if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
            float chisqcut = m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut_maj;
            if (newtrkI.getChi2()>chisqcut)
@@ -932,8 +931,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        newtrkI = theCombos[idx];
        if( newtrkI.getNMissing() != 0 ) continue;
 
-       // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing(); 
-       float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+       float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing(); //Rui's change to match fw
        if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
        if( newtrkI.getChi2() < ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux : m_Chi2Cut ) ) {
@@ -946,8 +944,8 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
    for( unsigned int idx = 0; idx < theCombos.size(); idx++ ) {
      newtrkI = theCombos[idx];
 
-     // float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-     float dof = m_ncoords - m_npars - newtrkI.getNMissing();
+     // float dof = m_ncoords_incomplete - m_npars - m_newtrkI.getNMissing();
+     float dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
      // Try to recover majority if chi2 no good
@@ -1012,13 +1010,12 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
      } // end block to recover complete tracks with bad chi2
 
-     //dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
-     dof = m_ncoords - m_npars - newtrkI.getNMissing();
+     dof = m_ncoords_incomplete - m_npars - newtrkI.getNMissing();
      if( dof < 1 ) dof = 1e30; // Just pass all tracks with too few dof
 
      // check if the track pass the quality requirements
      if (newtrkI.getChi2()< ( m_Chi2DofCutAux > -1 ? dof*m_Chi2DofCutAux :
-                             (newtrkI.getNMissing() > 0 ? m_Chi2Cut_maj : m_Chi2Cut) )  &&
+                             (newtrkI.getNMissing() > 0 ? dof*m_Chi2DofCutAux : m_Chi2Cut) )  &&
          newtrkI.getChi2() != 0 ) {
 
        // appending pre-HW tracks to dump
