@@ -82,27 +82,7 @@ namespace TrigCompositeUtils {
 
 
   bool copyLinks(const Decision* src, Decision* dest) {
-    if ( not dest->linkColNames().empty() ) {
-      return false;
-    }
-
-    {
-      static SG::AuxElement::Accessor< std::vector< std::string > > accNames( "linkColNames" );
-      accNames( *dest ) = src->linkColNames(); 
-    }
-    {
-      static SG::AuxElement::Accessor< std::vector< uint32_t > > accKeys( "linkColKeys" );
-      accKeys( *dest ) = src->linkColKeys();
-    }
-    {
-      static SG::AuxElement::Accessor< std::vector< uint16_t > > accIndices( "linkColIndices" );
-      accIndices( *dest ) = src->linkColIndices();
-    }
-    {
-      static SG::AuxElement::Accessor< std::vector< uint32_t > > accClids( "linkColClids" );
-      accClids( *dest ) = src->linkColClids();
-    }
-    return true;
+    return dest->copyAllLinksFrom(src);
   }
 
 
