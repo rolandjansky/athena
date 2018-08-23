@@ -29,9 +29,9 @@ namespace Trig {
   }
 
 
-  StatusCode DecisionUnpackerAthena::unpackItems(const LVL1CTP::Lvl1Result& result,std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
-    std::map<unsigned, LVL1CTP::Lvl1Item*>::iterator cacheIt;
-    for ( cacheIt = itemsCache.begin(); cacheIt != itemsCache.end(); ++cacheIt ) {    
+  StatusCode DecisionUnpackerAthena::unpackItems(const LVL1CTP::Lvl1Result& result,std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
+    itemsByName.reserve( itemsByName.size() + itemsCache.size() );
+    for ( auto cacheIt = itemsCache.begin() ; cacheIt != itemsCache.end(); ++cacheIt ) {
       unsigned int ctpid = cacheIt->first;
       LVL1CTP::Lvl1Item* item = cacheIt->second;
       ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());
@@ -46,13 +46,14 @@ namespace Trig {
 
   StatusCode DecisionUnpackerAthena::unpackChains(const std::vector<uint32_t>& serialized_chains,
 						   std::map<unsigned, HLT::Chain*>& cache,
-						   std::map<std::string, const HLT::Chain*>& output) {
+						   std::unordered_map<std::string, const HLT::Chain*>& output) {
    
     if( serialized_chains.size() == 0 ) {
       ATH_MSG_WARNING("ChainResult is empty");
       return StatusCode::FAILURE;
     }
 
+    output.reserve( output.size() + cache.size() );
 
     std::vector<uint32_t>::const_iterator rawIt = serialized_chains.begin();
     rawIt++; // skip first number as it is count
@@ -61,7 +62,7 @@ namespace Trig {
       unsigned cntr = HLT::Chain::inquireChainCounter(*rawIt);
 
       // localte now the chain
-      std::map<unsigned, HLT::Chain*>::iterator cacheIt = cache.find(cntr);
+      auto cacheIt = cache.find(cntr);
       if ( cacheIt == cache.end() ) {
 	ATH_MSG_WARNING("Missing chain of counter in the configuration: " << cntr);
 	return StatusCode::FAILURE;
@@ -75,11 +76,11 @@ namespace Trig {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode DecisionUnpackerAthena::unpackDecision(std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
+  StatusCode DecisionUnpackerAthena::unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
 						    std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
-						    std::map<std::string, const HLT::Chain*>& l2chainsByName,
+						    std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& l2chainsCache,
-						    std::map<std::string, const HLT::Chain*>& efchainsByName,
+						    std::unordered_map<std::string, const HLT::Chain*>& efchainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& efchainsCache,
 						    char& bgCode,
 						    bool unpackHLT
