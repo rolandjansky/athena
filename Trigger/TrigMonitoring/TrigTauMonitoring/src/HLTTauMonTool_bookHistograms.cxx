@@ -777,6 +777,17 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
       addProfile(new TProfile("TProfRecoL1NTrackEfficiency", "L1 Vs Reco Efficiency; Number of tracks; Efficiency",10,0,10));
       addProfile(new TProfile("TProfRecoL1NVtxEfficiency", "L1 Vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
       addProfile(new TProfile("TProfRecoL1MuEfficiency", "L1 Vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+      addProfile(new TProfile("TProfRecoL1LBEfficiency", "L1 Vs Reco Efficiency; Lumi Block; Efficiency",75,0.,1500.));
+			// Unbiased (ie both RNN and BDT requirements are passed)
+      addProfile(new TProfile("TProfRecoL1PtEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1Pt1PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1Pt3PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoL1EtaEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco #eta; Efficiency",nbin_eta-1,bins_eta));
+      addProfile(new TProfile("TProfRecoL1PhiEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco #phi; Efficiency",16,-3.2,3.2));
+      addProfile(new TProfile("TProfRecoL1NTrackEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Number of tracks; Efficiency",10,0,10));
+      addProfile(new TProfile("TProfRecoL1NVtxEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
+      addProfile(new TProfile("TProfRecoL1MuEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+      addProfile(new TProfile("TProfRecoL1LBEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Lumi Block; Efficiency",75,0.,1500.));
         
 
 
@@ -784,6 +795,10 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
       addProfile(new TProfile("TProfRecoL1HighPtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
       addProfile(new TProfile("TProfRecoL1HighPt1PEfficiency", "L1 Vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
       addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency", "L1 Vs Reco Efficiency; Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+			// Unbiased (ie both RNN and BDT requirements are passed)
+      addProfile(new TProfile("TProfRecoL1HighPtEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoL1HighPt1PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoL1HighPt3PEfficiency_Unbiased", "L1 Vs Reco Efficiency (unbiased); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
 
       addProfile(new TProfile("TProfRecoHLTPtEfficiency", "HLT Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
       addProfile(new TProfile("TProfRecoHLTHighPtEfficiency", "HLT Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
@@ -796,6 +811,20 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
       addProfile(new TProfile("TProfRecoHLTNTrackEfficiency", "HLT Vs Reco Efficiency; Number of tracks; Efficiency",10,0,10));
       addProfile(new TProfile("TProfRecoHLTNVtxEfficiency", "HLT Vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
       addProfile(new TProfile("TProfRecoHLTMuEfficiency", "HLT Vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+      addProfile(new TProfile("TProfRecoHLTLBEfficiency", "HLT Vs Reco Efficiency; Lumi Block; Efficiency",75,0.,1500.));
+			// Unbiased (ie both RNN and BDT requirements are passed)
+      addProfile(new TProfile("TProfRecoHLTPtEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoHLTHighPtEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoHLTHighPt1pEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased) Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoHLTHighPt3pEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Reco p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
+      addProfile(new TProfile("TProfRecoHLTPt1PEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoHLTPt3PEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+      addProfile(new TProfile("TProfRecoHLTEtaEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Reco #eta; Efficiency",nbin_eta-1,bins_eta));
+      addProfile(new TProfile("TProfRecoHLTPhiEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Reco #phi; Efficiency",16,-3.2,3.2));
+      addProfile(new TProfile("TProfRecoHLTNTrackEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Number of tracks; Efficiency",10,0,10));
+      addProfile(new TProfile("TProfRecoHLTNVtxEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
+      addProfile(new TProfile("TProfRecoHLTMuEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+      addProfile(new TProfile("TProfRecoHLTLBEfficiency_Unbiased", "HLT Vs Reco Efficiency (unbiased); Lumi Block; Efficiency",75,0.,1500.));
         
         
     }

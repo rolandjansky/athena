@@ -2628,8 +2628,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
   float mu(Pileup());
   int nvtx(PrimaryVertices());
 
-  bool noBiasCheck = TrigBiasCheck();
-  if ( !noBiasCheck ) {ATH_MSG_DEBUG("Not computing efficiencies for this Trigger, due to RNN Bias."); return StatusCode::SUCCESS;};
+  bool noBiasVeto = TrigBiasCheck();
 
   // build vector of taus in denominator:
   if(TauDenom.find("Truth")!=std::string::npos && m_truth){
@@ -2782,6 +2781,22 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     profile("TProfRecoHLTNTrackEfficiency")->Fill(ntracks,HLTmatched);
     profile("TProfRecoHLTNVtxEfficiency")->Fill(nvtx,HLTmatched);
     profile("TProfRecoHLTMuEfficiency")->Fill(mu,HLTmatched);
+    profile("TProfRecoHLTLBEfficiency")->Fill(LB,HLTmatched);
+
+		if (noBiasVeto) {
+		  profile("TProfRecoHLTPtEfficiency_Unbiased")->Fill(pt/GeV,HLTmatched);
+		  if(ntracks == 1) profile("TProfRecoHLTPt1PEfficiency_Unbiased")->Fill(pt/GeV,HLTmatched);
+		  if(ntracks > 1) profile("TProfRecoHLTPt3PEfficiency_Unbiased")->Fill(pt/GeV,HLTmatched);
+		  profile("TProfRecoHLTHighPtEfficiency_Unbiased")->Fill(pt/GeV,HLTmatched);
+		  if(ntracks == 1) profile("TProfRecoHLTHighPt1pEfficiency_Unbiased")->Fill(pt/GeV,HLTmatched);
+		  if(ntracks > 1) profile("TProfRecoHLTHighPt3pEfficiency_Unbiased")->Fill(pt/GeV,HLTmatched);
+		  profile("TProfRecoHLTEtaEfficiency_Unbiased")->Fill(eta,HLTmatched);
+		  profile("TProfRecoHLTPhiEfficiency_Unbiased")->Fill(phi,HLTmatched);
+		  profile("TProfRecoHLTNTrackEfficiency_Unbiased")->Fill(ntracks,HLTmatched);
+		  profile("TProfRecoHLTNVtxEfficiency_Unbiased")->Fill(nvtx,HLTmatched);
+		  profile("TProfRecoHLTMuEfficiency_Unbiased")->Fill(mu,HLTmatched);
+		  profile("TProfRecoHLTLBEfficiency_Unbiased")->Fill(LB,HLTmatched);
+		}
 	  
     int L1matched(0);
     if(L1TauMatching(trigItem, tlv_TauDenom.at(i), 0.3)) L1matched=1;
@@ -2805,7 +2820,22 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     profile("TProfRecoL1NTrackEfficiency")->Fill(ntracks,L1matched);
     profile("TProfRecoL1NVtxEfficiency")->Fill(nvtx,L1matched);
     profile("TProfRecoL1MuEfficiency")->Fill(mu,L1matched);
+    profile("TProfRecoL1LBEfficiency")->Fill(LB,L1matched);
  
+		if (noBiasVeto) {
+		  if(ntracks == 1) profile("TProfRecoL1Pt1PEfficiency_Unbiased")->Fill(pt/GeV,L1matched);
+		  if(ntracks > 1) profile("TProfRecoL1Pt3PEfficiency_Unbiased")->Fill(pt/GeV,L1matched);
+		  if(ntracks == 1) profile("TProfRecoL1HighPt1PEfficiency_Unbiased")->Fill(pt/GeV,L1matched);
+		  if(ntracks > 1) profile("TProfRecoL1HighPt3PEfficiency_Unbiased")->Fill(pt/GeV,L1matched);
+		  profile("TProfRecoL1PtEfficiency_Unbiased")->Fill(pt/GeV,L1matched);
+		  profile("TProfRecoL1HighPtEfficiency_Unbiased")->Fill(pt/GeV,L1matched);
+		  profile("TProfRecoL1EtaEfficiency_Unbiased")->Fill(eta,L1matched);
+		  profile("TProfRecoL1PhiEfficiency_Unbiased")->Fill(phi,L1matched);
+		  profile("TProfRecoL1NTrackEfficiency_Unbiased")->Fill(ntracks,L1matched);
+		  profile("TProfRecoL1NVtxEfficiency_Unbiased")->Fill(nvtx,L1matched);
+		  profile("TProfRecoL1MuEfficiency_Unbiased")->Fill(mu,L1matched);
+		  profile("TProfRecoL1LBEfficiency_Unbiased")->Fill(LB,L1matched);
+		}
 	
   }
 
