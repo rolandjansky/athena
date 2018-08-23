@@ -188,13 +188,13 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
 
   //------------------------------------------------------------------------------------------------------------------------------------//
   //------------------- Create the extension, supports different methods of extrapolation (i.e last point, perigee, perigee rescaled ---//  
-  const Trk::CaloExtension* extension = 0;      
+  std::unique_ptr<Trk::CaloExtension> extension = nullptr;      
   double atPerigeePhi(-999);
   double PerigeeTrkParPhi(-999);
   //TRT  only track. Could be in the standard or GSF container.
   //Use the std tool and the cached result always. For TRT only it does not matter if perigee or rescaled requested.
   if (isTRT){
-    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
+    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension)){
       ATH_MSG_INFO("Could not create an extension for TRT only track with : "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
@@ -220,7 +220,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   }
   //GSF track Particles, extrapolate from perigee , using the egamma tool instance and the egamma dedicated cache.
   else if( trkPB->trackFitter() == xAOD::GaussianSumFilter && fromPerigee == extrapFrom){
-    if(!m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,extension, m_useCaching)){
+    if(!m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,extension)){
       ATH_MSG_INFO("Could not create an extension from perigee for a silicon GSF track with : "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
@@ -229,7 +229,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   }
   //GSF track Particles, from last measurement , the cache for GSF is used for the perigee so do not use it here 
   else if( trkPB->trackFitter() == xAOD::GaussianSumFilter && fromLastMeasurement == extrapFrom){
-    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension, false)){
+    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension)){
       ATH_MSG_INFO("Could not create an extension from last measurement for a silicon GSF track with : "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
@@ -238,7 +238,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   }
   //Else track Particles before GSF, or failed GSF, or last measurement use the std tool/cache
   else {
-    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
+    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension)){
       ATH_MSG_INFO("Could not create an extension from last measurement for a standard (non-GSF) track with : "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
@@ -446,7 +446,7 @@ bool EMExtrapolationTools::getHackEtaPhiAtCalo (const Trk::TrackParameters* trkP
 						) const
 
 {
-  const Trk::CaloExtension* extension = 0;      
+  std::unique_ptr<Trk::CaloExtension> extension = nullptr;      
   extension = m_perigeeParticleCaloExtensionTool->caloExtension( *trkPar, Trk::alongMomentum, Trk::muon );
 
   if(!extension){

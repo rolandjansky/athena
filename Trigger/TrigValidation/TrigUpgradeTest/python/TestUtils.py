@@ -13,10 +13,10 @@ def writeEmulationFiles(data):
 # Testing menu used in the L1 decoders
 class MenuTest:
     
-    CTPToChainMapping = {"LT_e3_etcut":   "L1_EM3",        
-                         "LT_e5_etcut":   "L1_EM3",        
-                         "LT_g5_etcut":   "L1_EM3",        
-                         "LT_e7_etcut":   "L1_EM7",        
+    CTPToChainMapping = {"HLT_e3_etcut":   "L1_EM3",        
+                         "HLT_e5_etcut":   "L1_EM3",        
+                         "HLT_g5_etcut":   "L1_EM3",        
+                         "HLT_e7_etcut":   "L1_EM7",        
                          "HLT_mu6idperf": "L1_EM7",        
                          "HLT_mu6":       "L1_EM7",        
                          "HLT_xs20":      "L1_EM7",        

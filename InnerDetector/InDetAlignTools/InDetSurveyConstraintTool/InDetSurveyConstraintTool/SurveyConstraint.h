@@ -9,12 +9,12 @@
 #include "InDetSurveyConstraintTool/ISurveyConstraint.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "GaudiKernel/IRndmGenSvc.h"
-#include "GaudiKernel/RndmGenerators.h"
+#include <vector>
+#include <map>
 
+class IRndmGenSvc;
 class AtlasDetectorID;
 class IToolSvc;
-//class StoreGateSvc;
 class IInDetAlignDBTool;
 class PixelID;
 class SCT_ID;
@@ -76,7 +76,6 @@ class SurveyConstraint : virtual public ISurveyConstraint, public AthAlgTool{
   IInDetAlignDBTool*                     m_current_IDAlignDBTool;
   IInDetAlignDBTool*                     m_survey_IDAlignDBTool;
   IRndmGenSvc*                           m_randsvc;
-  //ServiceHandle<IRndmGenSvc>             randsvc;
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

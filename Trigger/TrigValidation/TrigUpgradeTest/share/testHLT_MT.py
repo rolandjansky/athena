@@ -412,9 +412,9 @@ if opt.doL1Sim:
         # interesting is that this JO sets inexisting properties, commented out below
         LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
                                        InputData_perEvent  = "TGC_DIGITS", 
-                                      # ASDOutDataLocation = "/Event/ASDOutDataLocation",
+                                      # ASDOutDataLocation = "ASDOutDataLocation",
                                       # MuonTrigConfig     = "/Run/MuonTrigConfig",
-                                       MuCTPIInput_TGC     = "/Event/L1MuctpiStoreTGC",
+                                       MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
                                        MaskFileName        = "TrigT1TGCMaskedChannel.db",
                                        MaskFileName12      = "TrigT1TGCMaskedChannel._12.db",
                                        OutputLevel         = logLevel),

@@ -22,19 +22,7 @@ ByteStreamCnvSvc = svcMgr.ByteStreamCnvSvc
 ByteStreamCnvSvc.IsSimulation = True
 ByteStreamCnvSvc.ByteStreamOutputSvc ="ByteStreamEventStorageOutputSvc"
 
-# SCT cabling
-from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
-ServiceMgr+=SCT_CablingSvc()
-IOVDbSvc = Service("IOVDbSvc")
-from IOVDbSvc.CondDB import conddb
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/ROD","/SCT/DAQ/Configuration/ROD")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/MUR","/SCT/DAQ/Configuration/MUR")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/RODMUR","/SCT/DAQ/Configuration/RODMUR")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/Geog","/SCT/DAQ/Configuration/Geog")
-ServiceMgr.SCT_CablingSvc.DataSource = "CORACOOL"
-# hack to force MC calbing loading for FDR2
-#if svcMgr.ByteStreamCnvSvc.IsSimulation:
-#  ServiceMgr.SCT_CablingSvc.DataSource = "SCT_MC_FullCabling_svc.dat"
+include("InDetRecExample/InDetRecCabling.py")
 
 if DetFlags.haveRIO.pixel_on():
   ByteStreamCnvSvc.InitCnvs += ["PixelRDO_Container"]

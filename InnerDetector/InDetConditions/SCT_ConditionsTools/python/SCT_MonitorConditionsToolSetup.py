@@ -7,7 +7,7 @@ class SCT_MonitorConditionsToolSetup:
         self.folder = "/SCT/Derived/Monitoring"
         self.folderDb = None
         self.dbInstance = "SCT_OFL"
-        self.algName = "SCT_MonitorConditionsCondAlg"
+        self.algName = "SCT_MonitorCondAlg"
         self.alg = None
         self.toolName = "InDetSCT_MonitorConditionsTool"
         self.tool = None
@@ -34,20 +34,20 @@ class SCT_MonitorConditionsToolSetup:
     def getAlg(self):
         return self.alg
 
-    def setFolders(self):
+    def setFolder(self):
         from IOVDbSvc.CondDB import conddb
         if not conddb.folderRequested(self.folder):
             if self.folderDb is None:
                 self.folderDb = self.folder
             conddb.addFolder(self.dbInstance, self.folderDb, className="CondAttrListCollection")
 
-    def setAlgs(self):
+    def setAlg(self):
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MonitorConditionsCondAlg
-            condSeq += SCT_MonitorConditionsCondAlg(name = self.algName,
-                                              ReadKey = self.folder)
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MonitorCondAlg
+            condSeq += SCT_MonitorCondAlg(name = self.algName,
+                                          ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
@@ -74,6 +74,6 @@ class SCT_MonitorConditionsToolSetup:
         self.outputLevel = outputLevel
 
     def setup(self):
-        self.setFolders()
-        self.setAlgs()
+        self.setFolder()
+        self.setAlg()
         self.setTool()

@@ -110,7 +110,6 @@ StatusCode LArCalibLineMappingAlg::execute() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
-
  
   return StatusCode::SUCCESS;
 }

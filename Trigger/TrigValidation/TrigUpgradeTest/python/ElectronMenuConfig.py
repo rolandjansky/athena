@@ -45,7 +45,7 @@ def CaloLUMIBCIDTool( flags, name='CaloLumiBCIDToolDefault' ):
     return acc
             
 def TileCond( flags ):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
     acc = ComponentAccumulator()
 
     from TileConditions.TileConditionsConf import TileCondToolEmscale
@@ -130,7 +130,7 @@ def TileCond( flags ):
     return acc
 
 def TrigCaloDataAccessConfig(flags):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc                      = ComponentAccumulator()
     acc.merge(CaloLUMIBCIDTool(flags))
@@ -154,10 +154,13 @@ def TrigCaloDataAccessConfig(flags):
     # configure trigger tools
     return acc
 
+    
 
-def EgammaCaloMod( flags ):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaCommon.CFElements import parOR, seqOR, seqAND
+
+
+def l2CaloAlg( flags, roisKey="EMCaloRoIs" ):
+
+    #from AthenaCommon.CFElements import parOR, seqOR, seqAND
 
     from AthenaCommon.Constants import DEBUG
     acc = ComponentAccumulator()
@@ -176,35 +179,7 @@ def EgammaCaloMod( flags ):
     acc.merge(TrigCaloDataAccessConfig(flags ))
 
 
-    # setup algorithms
-    #acc.addSequence( seqAND('L2CaloEgamma'), parentName=parentSeq )
-    mainSeq=seqAND('L2CaloEgamma')
-    from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
-    filterL1RoIsAlg             = RoRSeqFilter('filterL1RoIsAlg')
-    filterL1RoIsAlg.Input       = ['EMRoIDecisions']
-    filterL1RoIsAlg.Output      = ['FilteredEMRoIDecisions']
-    from TrigUpgradeTest.TestUtils import MenuTest
-    filterL1RoIsAlg.Chains      = [ m.split(':')[1].strip() for m in MenuTest.EMThresholdToChainMapping ]
-    filterL1RoIsAlg.OutputLevel = DEBUG
 
-    #acc.addEventAlgo( filterL1RoIsAlg, sequenceName='L2CaloEgamma' )
-    mainSeq+=filterL1RoIsAlg
-    inViewAlgsSeqName = 'fastCaloInViewAlgs'
-
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-    from AthenaCommon.Constants import DEBUG
-    fastCaloViewsMaker                 = EventViewCreatorAlgorithm('fastCaloViewsMaker', OutputLevel=DEBUG)
-    fastCaloViewsMaker.ViewFallThrough = True
-    fastCaloViewsMaker.InputMakerInputDecisions  = ['FilteredEMRoIDecisions'] # from EMRoIsUnpackingTool
-    fastCaloViewsMaker.RoIsLink        = 'initialRoI' # -||-
-    fastCaloViewsMaker.InViewRoIs      = 'EMCaloRoIs' # contract with the fastCalo
-    fastCaloViewsMaker.Views           = 'EMCaloViews'
-    fastCaloViewsMaker.InputMakerOutputDecisions = [ 'L2CaloLinks']
-
-    fastCaloViewsMaker.ViewNodeName = inViewAlgsSeqName
-
-    #acc.addEventAlgo( fastCaloViewsMaker, sequenceName='L2CaloEgamma' )
-    mainSeq+=fastCaloViewsMaker
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerFexConfig
     ringer = RingerFexConfig('RingsMaker')
     ringer.RingsKey='CaloRings'
@@ -231,14 +206,16 @@ def EgammaCaloMod( flags ):
     __fex_tools = [ samp2, samp1, sampe, samph, ring ]
 
     #acc.addSequence( seqAND( inViewAlgsSeqName ),  parentName='L2CaloEgamma' )
-    inViewSeq=seqAND( inViewAlgsSeqName )
-    mainSeq+=inViewSeq
+#    inViewSeq=seqAND( inViewAlgsSeqName )
+#    mainSeq+=inViewSeq
+
+    
 
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo
-    fastCalo                         = T2CaloEgammaFastAlgo( 'FastCaloAlgo' )
+    fastCalo                         = T2CaloEgammaFastAlgo( 'FastEMCaloAlgo' )
     fastCalo.OutputLevel             = DEBUG
     fastCalo.ClustersName            = 'L2CaloClusters'
-    fastCalo.RoIs                    = 'EMCaloRoIs'
+    fastCalo.RoIs                    = roisKey
     fastCalo.EtaWidth                = 0.2
     fastCalo.PhiWidth                = 0.2
     # will be replace by the service, which should drive its confing via flags
@@ -269,47 +246,104 @@ def EgammaCaloMod( flags ):
     __endcapTools = [ EgammaSshapeCalibrationEndcapConfig(),
                       EgammaHitsCalibrationEndcapConfig(),
                       EgammaGapCalibrationConfig() ]
+
     #[ acc.addAlgTool( t ) for t in __endcapTools ]
     fastCalo.CalibListEndcap= __endcapTools
 
-    #acc.addEventAlgo( fastCalo, sequenceName=inViewAlgsSeqName )
-    inViewSeq+=fastCalo
+    return acc, fastCalo
+
+def l2CaloReco( flags ):
+    from TrigUpgradeTest.MenuComponents import InViewReco
+
+    reco = InViewReco("FastCaloEMReco")
+    algAcc, alg = l2CaloAlg( flags, roisKey = reco.name+'RoIs' )
+    reco.addRecoAlg( alg )
+    reco.merge( algAcc )
+
+    return reco
+
+def l2ElectronCaloStep( flags, chains ):
+
+    from AthenaCommon.Constants import DEBUG
+    acc = ComponentAccumulator()
+
+    # setup algorithms
+    #acc.addSequence( seqAND('L2CaloEgamma'), parentName=parentSeq )
+    from TrigUpgradeTest.MenuComponents import FilterHypoSequence
+    fhSeq = FilterHypoSequence( 'ElectronFastCalo' )
+    fhSeq.addFilter( chains, inKey = 'EMRoIDecisions', outKey='FilteredElectronRoIDecisions' )
+
+    from TrigUpgradeTest.MenuComponents import RecoFragmentsPool 
+
+    # obtain the reconstruction CF fragment
+    fhSeq.addReco( RecoFragmentsPool.retrieve( l2CaloReco, flags ) )
+
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-    hypo                     = TrigL2CaloHypoAlgMT( 'L2CaloHypo' )
-    hypo.HypoInputDecisions  = fastCaloViewsMaker.InputMakerOutputDecisions[0]
+    hypo                     = TrigL2CaloHypoAlgMT( 'L2ElectronCaloHypo' )
     hypo.CaloClusters        = 'L2CaloClusters'
-    hypo.HypoOutputDecisions = 'EgammaCaloDecisions'
+    hypo.HypoOutputDecisions = 'ElectronFastCaloDecisions'
+    hypo.OutputLevel = DEBUG
 
-    # Here the menu needs to be used.
-    # The other option is to do it later when all sequences are setup, 
-    # but that would mean relying on HypoAlg names that will need to be searched for 
-    # For now ... a hack
-    chains = ["HLT_e3_etcut",
-              "HLT_e5_etcut",
-              "HLT_2e3_etcut",
-              "HLT_e3e5_etcut",
-              "HLT_e3e5_etcut",
-              "HLT_g5_etcut",
-              "HLT_e7_etcut"]
-
-    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName    
     for chain in chains:
         tool  = TrigL2CaloHypoToolFromName( chain, chain )
         hypo.HypoTools +=  [ tool ]
+        
+    fhSeq.addHypo( hypo )
+    
+    return fhSeq
 
-    #acc.addEventAlgo( hypo, sequenceName = 'L2CaloEgamma' )
-    mainSeq+=hypo
 
-    return acc,mainSeq
+
+def generateElectrons( flags ):
+    acc = ComponentAccumulator()
+
+    electronChains = [ f.split()[0] for f in flags.get("Trigger.menu.electrons") + flags.get("Trigger.menu.electronsNoID") ]    
+    if not electronChains:
+        return None,None
+
+    # L2 calo
+    l2CaloSequence = l2ElectronCaloStep( flags, electronChains )
+    acc.merge( l2CaloSequence ) 
+    
+
+    # photonChains = [ f.split()[0] for f in flags.get("Trigger.menu.photons") ]    
+    # l2CaloAcc, l2CaloSequence = l2PhotonCaloStep( flags, electronChains, l2CaloR )
+    # acc.merge( l2CaloAcc ) 
+
+    # fast ID 
+    
+    # EF calo
+
+    # EF ID
+    
+    # offline egamma
+
+
+    return acc, [l2CaloSequence] # will be more steps here
 
 
 if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
+    from AthenaCommon.CFElements import parOR, seqOR, seqAND
     Configurable.configurableRun3Behavior=1
+
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.set( "global.InputFiles",
                      ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] )
+    ConfigFlags.set( "Trigger.menu.electrons", ["HLT_e5_etcut L1_EM3", "HLT_e10_etcut L1_EM3"] )
     ConfigFlags.lock()
-    acc,seq = EgammaCaloMod( ConfigFlags )
+
+    acc = ComponentAccumulator()
+    for n in range(10):
+        acc.addSequence( parOR("HLTStep_%d"%n ) )
+
+    elAcc, elSeq = generateElectrons( ConfigFlags )
+    for n,s in enumerate( elSeq, 1 ):
+        stepName = "HLTStep_%d"%n 
+        acc.addSequence( s.sequence(), stepName )    
+    acc.merge( elAcc )
+       
     acc.printConfig()
+    acc.store( open("test.pkl", "w") )
     print 'All ok'

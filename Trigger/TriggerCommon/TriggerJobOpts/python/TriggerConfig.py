@@ -40,7 +40,7 @@ def triggerSummaryCfg(flags, hypos):
         
     return acc, summaryAlg
 
-def triggerMonitoringCfg(flags, hypos):
+def triggerMonitoringCfg(flags, hypos, l1Decoder):
     """
     Configures components needed for monitoring chains
     """
@@ -51,10 +51,9 @@ def triggerMonitoringCfg(flags, hypos):
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
-    from AthenaCommon.Constants import DEBUG
     allChains = []
     for stepName, stepHypos in hypos.iteritems():
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, OutputLevel=DEBUG )
+        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName )
         for hypo in stepHypos:
             dcTool.Decisions += [ hypo.HypoOutputDecisions ]
             for t in hypo.HypoTools:
@@ -64,11 +63,22 @@ def triggerMonitoringCfg(flags, hypos):
     
     mon.FinalDecisions = mon.CollectorTools[-1].Decisions
     __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )
-    mon.ChainsList = list( set(allChains) )
 
+    mon.ChainsList = list( set( allChains + l1Decoder.ctpUnpacker.CTPToChainMapping.keys()) )
+    
     return acc, mon
 
+def setupL1DecoderFromMenu( flags, l1Decoder ):
+    """ Post setup of the L1Decoder, once approved, it should be moved to L1DecoderCfg function """
+    l1Decoder.ctpUnpacker.CTPToChainMapping = {} 
+    from TriggerJobOpts.MenuConfigFlags import MenuUtils
+    l1Decoder.ctpUnpacker.CTPToChainMapping.update( MenuUtils.toCTPSeedingDict( flags ) )
 
+    # this will go away once full L1 config info will be used by L1 Decoder
+    for c in flags.get( "Trigger.menu.electrons" ) + flags.get( "Trigger.menu.photons" ) :
+        chain, l1item = c.split()[:2]
+        threshold = l1item.split("_")[1] 
+        l1Decoder.roiUnpackers["EMRoIsUnpackingTool"].ThresholdToChainMapping += [ "%s : %s" % (threshold, chain) ]
 
 
 def triggerRunCfg(flags, menu=None):
@@ -81,14 +91,15 @@ def triggerRunCfg(flags, menu=None):
         pass
     
     acc = ComponentAccumulator()
-    
+
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
     #TODO
     # information about the menu has to be injected into L1 decoder config
     # necessary ingreedient is list of mappings from L1 item to chain
     # and item to threshold (the later can be maybe extracted from L1 config file)
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
-    acc.merge( l1DecoderAcc)    
+    setupL1DecoderFromMenu( flags, l1DecoderAlg )
+    acc.merge( l1DecoderAcc )    
             
 
     # detour to the menu here, (missing now, instead a temporary hack)
@@ -104,7 +115,7 @@ def triggerRunCfg(flags, menu=None):
     
     #once menu is included we should configure monitoring here as below
     
-    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos )
+    monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, l1DecoderAlg )
     acc.merge( monitoringAcc )
     
     HLTTop = seqOR( "HLTTop", [ l1DecoderAlg, HLTSteps, summaryAlg, monitoringAlg ] )

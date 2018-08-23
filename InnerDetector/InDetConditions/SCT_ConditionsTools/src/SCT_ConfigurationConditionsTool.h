@@ -80,7 +80,7 @@ private:
   // Cache to store events for slots
   mutable std::vector<EventContext::ContextEvt_t> m_cache;
   mutable std::vector<EventContext::ContextEvt_t> m_cacheElements;
-  // Pointer of SCT_MonitorConditionsCondData
+  // Pointer of SCT_ConfigurationCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ConfigurationCondData> m_condData;
   // Pointer of InDetDD::SiDetectorElementCollection
   mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_detectorElements;

@@ -2,19 +2,19 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_MonitorConditionsCondAlg.h"
+#include "SCT_MonitorCondAlg.h"
 
 #include <memory>
 
 #include "GaudiKernel/EventIDRange.h"
 
-SCT_MonitorConditionsCondAlg::SCT_MonitorConditionsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
+SCT_MonitorCondAlg::SCT_MonitorCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
 {
 }
 
-StatusCode SCT_MonitorConditionsCondAlg::initialize()
+StatusCode SCT_MonitorCondAlg::initialize()
 {
   ATH_MSG_DEBUG("initialize " << name());
 
@@ -35,12 +35,12 @@ StatusCode SCT_MonitorConditionsCondAlg::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_MonitorConditionsCondAlg::execute()
+StatusCode SCT_MonitorCondAlg::execute()
 {
   ATH_MSG_DEBUG("execute " << name());
 
   // Write Cond Handle
-  SG::WriteCondHandle<SCT_MonitorConditionsCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SCT_MonitorCondData> writeHandle{m_writeKey};
 
   // Do we have a valid Write Cond Handle for current time?
   if(writeHandle.isValid()) {
@@ -67,7 +67,7 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
   }
 
   // Construct the output Cond Object and fill it in
-  std::unique_ptr<SCT_MonitorConditionsCondData> writeCdo{std::make_unique<SCT_MonitorConditionsCondData>()};
+  std::unique_ptr<SCT_MonitorCondData> writeCdo{std::make_unique<SCT_MonitorCondData>()};
 
   // Fill Write Cond Handle
   static const unsigned int defectListIndex{7};
@@ -82,7 +82,7 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
 
   // Record validity of the output cond obbject
   if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_ERROR("Could not record SCT_MonitorConditionsCondData " << writeHandle.key()
+    ATH_MSG_ERROR("Could not record SCT_MonitorCondData " << writeHandle.key()
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
     return StatusCode::FAILURE;
@@ -92,7 +92,7 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_MonitorConditionsCondAlg::finalize()
+StatusCode SCT_MonitorCondAlg::finalize()
 {
   ATH_MSG_DEBUG("finalize " << name());
   return StatusCode::SUCCESS;
