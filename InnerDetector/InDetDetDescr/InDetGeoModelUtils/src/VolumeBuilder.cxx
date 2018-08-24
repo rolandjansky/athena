@@ -126,8 +126,8 @@ namespace InDetDD {
   VolumeBuilder::buildAndPlaceEnvelope(const std::string& region, GeoFullPhysVol* parent, int iParent, int iElement,
                                        double zcenter) {
     GeoPhysVol* physVol = dynamic_cast<GeoPhysVol*>(build(iElement));
-
     if (physVol) {
+      physVol->ref();
       for (unsigned int iChild = 0; iChild < services().size(); ++iChild) {
         if (isChildService(iElement, iChild) && services()[iChild]->envelopeNum() > 0) {
           // if volume is a child volume : build and place it
@@ -154,6 +154,7 @@ namespace InDetDD {
         else parent->add(getPlacementEnvelope(iElement, iCopy, iParent));
         parent->add(physVol);
       }
+      physVol->unref(); ///should delete even if it was never added
     }
   }
 
