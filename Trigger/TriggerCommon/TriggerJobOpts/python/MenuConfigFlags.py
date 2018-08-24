@@ -19,7 +19,7 @@ def createMenuFlags():
     # electrons w/o the ID selection
     flags.addFlag('Trigger.menu.electronsNoID', [])
 
-    flags.addFlag('Trigger.menu.photons', ['HLT_g10 L1_EM7', 'HLT_g15 L1_EM12'])
+    flags.addFlag('Trigger.menu.photons', ['HLT_g10_etcut L1_EM7', 'HLT_g15_etcut L1_EM12'])
 
     flags.addFlag('Trigger.menu.muons', [])
     flags.addFlag('Trigger.menu.MSMuons', [])

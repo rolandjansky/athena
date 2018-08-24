@@ -41,6 +41,8 @@ class LArNoisyROAlg : public AthReentrantAlgorithm
  
  private: 
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
+
+  Gaudi::Property<bool>  m_isMC     { this, "isMC", false, "Are we working with simu?" };
  
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo", "Key for EventInfo object"};
   SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerName {this, "CaloCellContainer", "AllCalo", "input cell container key"};
