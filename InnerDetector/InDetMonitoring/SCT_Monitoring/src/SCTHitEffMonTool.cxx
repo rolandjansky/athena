@@ -154,7 +154,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_minPt(1000.), // minimu pt in MeV/c
   m_effdistcut(2.),
   m_maxZ0sinTheta(0.),
-  m_maxTracks(250.),
+  m_maxTracks(500.),
   m_insideOutOnly(false),
   m_usemasks(true),
   m_detailed(false),
@@ -1129,7 +1129,7 @@ SCTHitEffMonTool::fillHistograms() {
   eventID = pEvent->event_ID();
   unsigned BCID = eventID->bunch_crossing_id();
   int BCIDpos = m_bunchCrossingTool->distanceFromFront(BCID);
-  bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
+  //bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
 
   typedef SCT_RDORawData SCTRawDataType;
 
@@ -1714,7 +1714,7 @@ SCTHitEffMonTool::fillHistograms() {
       m_Eff_hashCodeHisto->Fill(Double_t(sideHash), m_eff);// 15.12.2014
       m_Eff_LumiBlockHisto[isub]->Fill(eventID->lumi_block(), m_eff);// 20.01.2015
       m_Eff_LumiBlockHisto_Total->Fill(eventID->lumi_block(), m_eff);// 02.09.2016
-      if (BCIDpos == 0 && InTrain) {
+      if (BCIDpos <= 0) {
         m_Eff_summaryHistoFirstBCID[isub]->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
       }
       if (m_detailed) {
@@ -1767,7 +1767,7 @@ SCTHitEffMonTool::fillHistograms() {
         }
       }
       m_Eff_Total->Fill(Double_t(isub), m_eff);
-      if (BCIDpos == 0 && InTrain) {
+      if (BCIDpos <= 0) {
         m_Eff_TotalBCID->Fill(Double_t(isub), m_eff);
       }
       useDetector[isub] = true;
