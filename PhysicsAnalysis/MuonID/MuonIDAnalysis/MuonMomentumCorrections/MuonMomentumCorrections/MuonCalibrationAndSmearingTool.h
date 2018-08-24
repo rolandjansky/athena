@@ -122,7 +122,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
                                                  double& chi2) const;
     virtual CorrectionCode applyStatCombination( xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const;
-    virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC) const;
+    virtual CorrectionCode CorrectForCharge(double p2, double& pt, int q, bool isMC, double p2Kin=0) const;
     virtual CorrectionCode applySagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu, unsigned int iter, bool stop, bool isMC, InfoHelper& muonInfo) const;
 
 
@@ -159,6 +159,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
 
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
     virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
+
+    virtual void   SetPhaseSpaceSagittaHists(TProfile2D *pCB=NULL,TProfile2D *pID=NULL, TProfile2D* pME=NULL);
+    virtual void   SetPhaseSpaceSagittaHistsSingle(TProfile2D *pCB=NULL,unsigned int track=0);
 
     virtual bool isBadMuon( const xAOD::Muon& mu, InfoHelper& muonInfo ) const;
     //private:
