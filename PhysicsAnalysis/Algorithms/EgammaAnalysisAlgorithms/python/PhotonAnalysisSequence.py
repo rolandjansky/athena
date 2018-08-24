@@ -27,20 +27,20 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     seq = AnaAlgSequence( "PhotonAnalysisSequence" )
 
     # Variables keeping track of the selections being applied.
-    _selectionDecorNames = []
-    _selectionDecorCount = []
+    selectionDecorNames = []
+    selectionDecorCount = []
 
     # Set up the photon selection algorithm:
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonIsEMSelectorAlg' )
     alg.selectionDecoration = 'selectEM'
-    _selectionDecorNames.append( alg.selectionDecoration )
+    selectionDecorNames.append( alg.selectionDecoration )
     if recomputeIsEM:
         # Rerun the cut-based ID
         addPrivateTool( alg, 'selectionTool', 'AsgPhotonIsEMSelector' )
         alg.selectionTool.isEMMask = quality
         alg.selectionTool.ConfigFile = \
           'ElectronPhotonSelectorTools/offline/20180116/PhotonIsEMTightSelectorCutDefs.conf'
-        _selectionDecorCount.append( 32 )
+        selectionDecorCount.append( 32 )
     else:
         # Select from Derivation Framework flags
         addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
@@ -48,7 +48,7 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
                     ROOT.egammaPID.PhotonTight : 'Tight' }
         dfFlag = 'DFCommonPhotonsIsEM' + WPnames[ quality ]
         alg.selectionTool.selectionFlags = [ dfFlag ]
-        _selectionDecorCount.append( 1 )
+        selectionDecorCount.append( 1 )
         pass
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut' )
@@ -60,15 +60,15 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSPHOTON
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut' )
-    _selectionDecorNames.append( alg.selectionDecoration )
-    _selectionDecorCount.append( 1 )
+    selectionDecorNames.append( alg.selectionDecoration )
+    selectionDecorCount.append( 1 )
 
     # Only run subsequent processing on the objects passing all of these cuts.
     # Since these are independent of the photon calibration, and this speeds
     # up the job.
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'PhotonPreSelViewFromSelectionAlg' )
-    alg.selection = _selectionDecorNames[ : ]
+    alg.selection = selectionDecorNames[ : ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the calibration ans smearing algorithm.
@@ -115,8 +115,8 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
     addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
     alg.selectionTool.PhotonWP = isolationWP
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut' )
-    _selectionDecorNames.append( alg.selectionDecoration )
-    _selectionDecorCount.append( 1 )
+    selectionDecorNames.append( alg.selectionDecoration )
+    selectionDecorCount.append( 1 )
 
     # Set up the photon efficiency correction algorithm.
     alg = createAlgorithm( 'CP::PhotonEfficiencyCorrectionAlg',
@@ -139,23 +139,23 @@ def makePhotonAnalysisSequence( dataType, quality = ROOT.egammaPID.PhotonTight,
         seq.append( alg, inputPropName = 'photons',
                     outputPropName = 'photonsOut',
                     affectingSystematics = '(^PH_EFF_.*)' )
-        _selectionDecorNames.append( alg.outOfValidityDeco )
-        _selectionDecorCount.append( 1 )
+        selectionDecorNames.append( alg.outOfValidityDeco )
+        selectionDecorCount.append( 1 )
         pass
 
     # Set up an algorithm used for debugging the photon selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                            'PhotonCutFlowDumperAlg' )
     alg.histPattern = 'photon_cflow_%SYS%'
-    alg.selection = _selectionDecorNames[ : ]
-    alg.selectionNCuts = _selectionDecorCount[ : ]
+    alg.selection = selectionDecorNames[ : ]
+    alg.selectionNCuts = selectionDecorCount[ : ]
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'PhotonViewFromSelectionAlg' )
-    alg.selection = _selectionDecorNames[ : ]
+    alg.selection = selectionDecorNames[ : ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the photons, for debugging:
