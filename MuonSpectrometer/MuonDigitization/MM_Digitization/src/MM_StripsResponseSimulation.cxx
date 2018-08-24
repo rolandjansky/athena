@@ -26,7 +26,7 @@ Check Lorentz Angle is in correct direction...
 /*******************************************************************************/
 MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 
-	// Variables that should be set externally (MmDigitizationTool)
+	// Variables that should be set externally (MM_DigitizationTool)
 	m_qThreshold(0),                 // 0.001
 	m_transverseDiffusionSigma(0),   // 0.360/10.
 	m_longitudinalDiffusionSigma(0), // 0.190/10.
