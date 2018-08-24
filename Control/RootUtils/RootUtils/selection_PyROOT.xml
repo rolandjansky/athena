@@ -9,7 +9,6 @@
 
 <lcgdict>
     <class name="RootUtils::PyROOTTTreePatch" />
-    <class name="RootUtils::PyROOTTypePatch" />
     <class name="RootUtils::PyROOTPickle" />
     <class name="RootUtils::PyLogger" />
     <class name="RootUtils::PyBytes" />
