@@ -867,10 +867,8 @@ namespace xAOD {
   {
   
     m_objConstLinks.clear();
-    m_contribObjects.clear();
     m_objConstLinks.reserve(50);
     m_useObjectFlags = 0;
-    m_contribObjects.reserve(10);
   }
 
   void MissingETAssociation_v1::resetCache()

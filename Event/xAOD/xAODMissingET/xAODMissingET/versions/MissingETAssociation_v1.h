@@ -425,12 +425,9 @@ namespace xAOD
 
     /*! @name Internal data for local cache */
     /*!@{*/
-    mutable std::vector<std::vector<ElementLink<IParticleContainer> > > m_objConstLinks;   /*!< @brief Cache object constituents for overlap-finding
-											    */
+    std::vector<std::vector<ElementLink<IParticleContainer> > > m_objConstLinks;   /*!< @brief Cache object constituents for overlap-finding */
     mutable MissingETBase::Types::bitmask_t m_useObjectFlags;  /*< @brief Cache overlap removal decisions
 								*/
-    mutable std::vector<const IParticle*> m_contribObjects;  /*< @brief Cache pointers to accepted objects
-							      */
     /*!@}*/
   private:
     mutable std::map<const IParticle*,ConstVec> m_override;
