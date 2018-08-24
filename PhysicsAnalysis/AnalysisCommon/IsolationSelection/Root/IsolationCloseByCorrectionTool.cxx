@@ -470,7 +470,7 @@ namespace CP {
         if (fraction == 0) return fraction;
         float coreToBeRemoved = 0;
         auto acc = xAOD::getIsolationCorrectionAccessor(xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy);
-        if (!acc->isAvailable(*ToCorrect)) {
+        if (!acc.isAvailable(*ToCorrect)) {
             if (ToCorrect->type() == xAOD::Type::ObjectType::Muon) {
                 const xAOD::Muon* mu = dynamic_cast<const xAOD::Muon*>(ToCorrect);
                 mu->isolationCaloCorrection(coreToBeRemoved, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::IsolationCorrectionParameter::coreEnergy);
@@ -479,7 +479,7 @@ namespace CP {
                 EG->isolationCaloCorrection(coreToBeRemoved, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::IsolationCorrectionParameter::coreEnergy);
             } else ATH_MSG_WARNING("Could not retrieve topocore. No correction could be calculated.");
 
-        } else coreToBeRemoved = (*acc)(*ToCorrect);
+        } else coreToBeRemoved = acc(*ToCorrect);
 
         return coreToBeRemoved * fraction;
     }
@@ -548,7 +548,7 @@ namespace CP {
             return m_selectorTool->accept(x);
         }
         for (unsigned int i = 0; i < getIsolationTypes(&x)->size(); i++) {
-            SG::AuxElement::Accessor<float> *acc = xAOD::getIsolationAccessor(getIsolationTypes(&x)->at(i));
+            const SG::AuxElement::Accessor<float> *acc = xAOD::getIsolationAccessor(getIsolationTypes(&x)->at(i));
             float old = acc->operator()(x);
             ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toCString(getIsolationTypes(&x)->at(i)) << " from " << old << " to " << corrections.at(i));
             strPar.isolationValues[getIsolationTypes(&x)->at(i)] = corrections.at(i);

@@ -52,7 +52,11 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
         bf.insert(i->first);
      }
      if(bf.size() == 0) {
-        ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+        if(m_isMC) {
+          ATH_MSG_DEBUG("Empty ist of known Bad FEBs as expected ");
+        } else {   
+          ATH_MSG_WARNING("List of known Bad FEBs empty !? ");
+        }
      }
   }
   
@@ -63,7 +67,11 @@ StatusCode LArNoisyROAlg::execute_r (const EventContext& ctx) const
         MNBfeb.push_back(HWIdentifier(i->first));
      } 
      if(MNBfeb.size() == 0) {
-        ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
+        if(m_isMC) {
+          ATH_MSG_DEBUG("Empty ist of known Bad FEBs as expected ");
+        } else {   
+          ATH_MSG_WARNING("List of known MNB FEBs empty !? ");
+        }
      } 
   }
   const std::set<unsigned int> knownBadFEBs(bf);

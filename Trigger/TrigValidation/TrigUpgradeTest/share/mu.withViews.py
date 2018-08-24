@@ -587,7 +587,6 @@ if TriggerFlags.doMuon:
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
 
-
     #Algorithms to views
     efMuViewNode += theSegmentFinderAlg
 #    efMuViewNode += theNCBSegmentFinderAlg #The configuration still needs some sorting out for this so disabled for now.

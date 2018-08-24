@@ -53,3 +53,6 @@ atlas_add_sercnv_library ( DataModelTestDataCommonSerCnv
   TYPES_WITH_NAMESPACE DMTest::CVec DMTest::CView DMTest::CAuxContainer
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks TrigSerializeCnvSvcLib DataModelTestDataCommonLib )
+
+# Install files from the package:
+atlas_install_scripts( scripts/*.py )
