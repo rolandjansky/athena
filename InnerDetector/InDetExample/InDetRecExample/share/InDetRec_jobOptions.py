@@ -906,10 +906,14 @@ else:
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
                                                         MinDegreesOfFreedom = 1,
                                                         MinSiHits           =  InDetNewTrackingCuts.minClusters() )
-        if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
-            InDetTruthTrackBuilder.MinSiHitsForward = InDetNewTrackingCutsForwardTracks.minClusters()
-            InDetTruthTrackBuilder.ForwardBoundary  = InDetNewTrackingCutsForwardTracks.minEta()
-#        InDetTruthTrackBuilder.OutputLevel = VERBOSE
+        
+        if InDetFlags.useEtaDependentCuts() and InDetFlags.doSLHC():
+          InDetTruthTrackBuilder.UseEtaDependentCuts         = True
+          InDetTruthTrackBuilder.InDetEtaDependentCutsTool   = InDetEtaDependentCutsTool
+        else:
+          InDetTruthTrackBuilder.MinSiHits                   =  InDetNewTrackingCuts.minClusters()
+          
+          
         ToolSvc += InDetTruthTrackBuilder
         
         # --- the trajectory manipulator

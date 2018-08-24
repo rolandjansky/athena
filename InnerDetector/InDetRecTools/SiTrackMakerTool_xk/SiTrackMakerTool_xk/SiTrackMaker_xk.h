@@ -26,6 +26,7 @@
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h" 
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
@@ -159,6 +160,10 @@ namespace InDet{
       double m_etaWidth                              ;
       double m_p[9]                                  ;
       double m_xybeam[2]                             ;
+      int                            m_nPTCuts       ;
+      double                         m_PTCuts[10][2] ;
+      std::vector < double >         m_etabins       ;
+      
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
@@ -183,16 +188,39 @@ namespace InDet{
       bool isHadCaloCompatible();
       bool isDBMSeeds(const Trk::SpacePoint*);
       void clusterTrackMap(Trk::Track*);
+      
+      void rapidityCuts();
+      void setCutsForPT();
+      double pTmin(double T);
+      
       void       magneticFieldInit();
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;
+      
+      /** tool to get cut values depending on different variable */
+      ToolHandle<IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
+      bool                                       m_useEtaDependentCuts;
+      
     };
 
     MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);
     std::ostream& operator << (std::ostream&,const SiTrackMaker_xk&); 
 
+    ///////////////////////////////////////////////////////////////////
+    // min pT as function of fabs(dZ/dR) (T)
+    ///////////////////////////////////////////////////////////////////
+  
+    inline double SiTrackMaker_xk::pTmin(double T)
+    {
+      double aT = fabs(T);
+      for(int n = m_nPTCuts; n!=0; --n) {
+        if(aT > m_PTCuts[n][0]) return m_PTCuts[n][1];
+      }
+      return m_PTCuts[0][1];
+    }
+    
 } // end of name space
 
 #endif // SiTrackMaker_xk_H

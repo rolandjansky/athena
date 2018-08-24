@@ -67,10 +67,6 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
 
          InDetSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (name                   = "InDetSpSeedsMaker"+NewTrackingCuts.extension(),
-                                                               pTmin                  = NewTrackingCuts.minPT(),
-                                                               maxdImpact             = NewTrackingCuts.maxPrimaryImpact(),
-                                                               maxZ                   = NewTrackingCuts.maxZImpact(),
-                                                               minZ                   = -NewTrackingCuts.maxZImpact(),
                                                                usePixel               = NewTrackingCuts.usePixel(),
                                                                SpacePointsPixelName   = InDetKeys.PixelSpacePoints(),
                                                                # useSCT                 = NewTrackingCuts.useSCT(),
@@ -81,7 +77,18 @@ class  ConfiguredNewTrackingSiPattern:
                                                                SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                radMax                 = NewTrackingCuts.radMax(),
                                                                RapidityCut            = NewTrackingCuts.maxEta())
-            
+          
+         if not InDetFlags.useEtaDependentCuts() or not NewTrackingCuts.mode() == "SLHC":
+            InDetSiSpacePointsSeedMaker.pTmin                  =  NewTrackingCuts.minPT()
+            InDetSiSpacePointsSeedMaker.maxdImpact             =  NewTrackingCuts.maxPrimaryImpact()
+            InDetSiSpacePointsSeedMaker.maxZ                   =  NewTrackingCuts.maxZImpact()
+            InDetSiSpacePointsSeedMaker.minZ                   = -NewTrackingCuts.maxZImpact()
+         else:
+            InDetSiSpacePointsSeedMaker.pTmin                  =  NewTrackingCuts.minPT()[0]
+            InDetSiSpacePointsSeedMaker.maxdImpact             =  NewTrackingCuts.maxPrimaryImpact()[0]
+            InDetSiSpacePointsSeedMaker.maxZ                   =  NewTrackingCuts.maxZImpact()[0]
+            InDetSiSpacePointsSeedMaker.minZ                   = -NewTrackingCuts.maxZImpact()[0] 
+          
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
@@ -103,9 +110,10 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.minRadius1         = 0
             InDetSiSpacePointsSeedMaker.minRadius2         = 0
             InDetSiSpacePointsSeedMaker.minRadius3         = 0
-            InDetSiSpacePointsSeedMaker.maxRadius1         =1000.*Units.mm
-            InDetSiSpacePointsSeedMaker.maxRadius2         =1000.*Units.mm
-            InDetSiSpacePointsSeedMaker.maxRadius3         =1000.*Units.mm
+            InDetSiSpacePointsSeedMaker.maxRadius1         = 1000.*Units.mm
+            InDetSiSpacePointsSeedMaker.maxRadius2         = 1000.*Units.mm
+            InDetSiSpacePointsSeedMaker.maxRadius3         = 1000.*Units.mm
+            InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
          if NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks":
             InDetSiSpacePointsSeedMaker.checkEta           = True
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
@@ -174,29 +182,33 @@ class  ConfiguredNewTrackingSiPattern:
                                           usePixel                  = NewTrackingCuts.usePixel(),
                                           RoadTool                  = InDetSiDetElementsRoadMaker,
                                           CombinatorialTrackFinder  = InDetSiComTrackFinder,
-                                          pTmin                     = NewTrackingCuts.minPT(),
-                                          pTminBrem                 = NewTrackingCuts.minPTBrem(),
                                           pTminSSS                  = InDetFlags.pT_SSScut(),
-                                          nClustersMin              = NewTrackingCuts.minClusters(),
-                                          nHolesMax                 = NewTrackingCuts.nHolesMax(),
-                                          nHolesGapMax              = NewTrackingCuts.nHolesGapMax(),
                                           SeedsFilterLevel          = NewTrackingCuts.seedFilterLevel(),
-                                          Xi2max                    = NewTrackingCuts.Xi2max(),
-                                          Xi2maxNoAdd               = NewTrackingCuts.Xi2maxNoAdd(),
-                                          nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin(),
                                           CosmicTrack               = InDetFlags.doCosmics(),
-                                          Xi2maxMultiTracks         = NewTrackingCuts.Xi2max(), # was 3.
                                           useSSSseedsFilter         = InDetFlags.doSSSfilter(), 
                                           doMultiTracksProd         = True,
                                           useBremModel              = InDetFlags.doBremRecovery() and useBremMode, # only for NewTracking the brem is debugged !!!
                                           doCaloSeededBrem          = InDetFlags.doCaloSeededBrem(),
                                           doHadCaloSeedSSS          = InDetFlags.doHadCaloSeededSSS(),
-                                          phiWidth                  = NewTrackingCuts.phiWidthBrem(),
-                                          etaWidth                  = NewTrackingCuts.etaWidthBrem(),
                                           InputClusterContainerName = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
                                           InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
                                           UseAssociationTool        = usePrdAssociationTool)
-
+         if not InDetFlags.useEtaDependentCuts() or not NewTrackingCuts.mode() == "SLHC":
+            InDetSiTrackMaker.pTmin                     = NewTrackingCuts.minPT()
+            InDetSiTrackMaker.pTminBrem                 = NewTrackingCuts.minPTBrem()
+            InDetSiTrackMaker.Xi2max                    = NewTrackingCuts.Xi2max()
+            InDetSiTrackMaker.Xi2maxNoAdd               = NewTrackingCuts.Xi2maxNoAdd()
+            InDetSiTrackMaker.Xi2maxMultiTracks         = NewTrackingCuts.Xi2max()
+            InDetSiTrackMaker.nClustersMin              = NewTrackingCuts.minClusters()
+            InDetSiTrackMaker.nHolesMax                 = NewTrackingCuts.nHolesMax()
+            InDetSiTrackMaker.nHolesGapMax              = NewTrackingCuts.nHolesGapMax()
+            InDetSiTrackMaker.phiWidth                  = NewTrackingCuts.phiWidthBrem()
+            InDetSiTrackMaker.etaWidth                  = NewTrackingCuts.etaWidthBrem()
+            InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()
+         else:
+           InDetSiTrackMaker.UseEtaDependentCuts       = True
+           InDetSiTrackMaker.InDetEtaDependentCutsTool = InDetEtaDependentCutsTool
+         
          if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
             InDetSiTrackMaker.ITKGeometry = True
 
@@ -252,7 +264,9 @@ class  ConfiguredNewTrackingSiPattern:
               InDetSiTrackMaker.SeedSegmentsWrite=True
               InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversion
          #InDetSiTrackMaker.OutputLevel = VERBOSE				  
+         
          ToolSvc += InDetSiTrackMaker
+         
          if (InDetFlags.doPrintConfigurables()):
             print InDetSiTrackMaker
          #
@@ -337,19 +351,27 @@ class  ConfiguredNewTrackingSiPattern:
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
+         elif not InDetFlags.doTIDE_Ambi() and NewTrackingCuts.mode()=="SLHC" and not DetFlags.makeRIO.pixel_on() and DetFlags.readRIOPool.pixel_on() and DetFlags.haveRIO.pixel_on():
+           from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
          else:
            from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool as AmbiTrackSelectionTool
          InDetAmbiTrackSelectionTool = AmbiTrackSelectionTool(name                = 'InDetAmbiTrackSelectionTool'+NewTrackingCuts.extension(),
                                                               AssociationTool     = InDetPrdAssociationTool,
                                                               DriftCircleCutTool  = InDetTRTDriftCircleCut,
-                                                              minHits             = NewTrackingCuts.minClusters(),
-                                                              minNotShared        = NewTrackingCuts.minSiNotShared(),
-                                                              maxShared           = NewTrackingCuts.maxShared(),
                                                               minTRTHits          = 0, # used for Si only tracking !!!
                                                               sharedProbCut       = 0.10,
                                                               UseParameterization = False,
                                                               Cosmics             = InDetFlags.doCosmics(),
                                                               doPixelSplitting    = InDetFlags.doPixelClusterSplitting() and NewTrackingCuts.mode != "DBM")
+
+         if not InDetFlags.useEtaDependentCuts() or not NewTrackingCuts.mode() == "SLHC":
+           InDetAmbiTrackSelectionTool.minHits             = NewTrackingCuts.minClusters()
+           InDetAmbiTrackSelectionTool.minNotShared        = NewTrackingCuts.minSiNotShared()
+           InDetAmbiTrackSelectionTool.maxShared           = NewTrackingCuts.maxShared()
+         else:
+           InDetAmbiTrackSelectionTool.UseEtaDependentCuts       = True
+           InDetAmbiTrackSelectionTool.InDetEtaDependentCutsTool = InDetEtaDependentCutsTool
+
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            InDetAmbiTrackSelectionTool.sharedProbCut             = prob1
            InDetAmbiTrackSelectionTool.sharedProbCut2            = prob2
@@ -367,7 +389,6 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.phiWidthEM                = 0.05     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.etaWidthEM                = 0.05     #Split cluster ROI size
 
-
          if NewTrackingCuts.mode() == "DBM":
            InDetAmbiTrackSelectionTool.Cosmics = False
            InDetAmbiTrackSelectionTool.UseParameterization   = False
@@ -382,7 +403,7 @@ class  ConfiguredNewTrackingSiPattern:
          if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "DBM" or  NewTrackingCuts.mode() == "PixelFourLayer" or  NewTrackingCuts.mode() == "PixelThreeLayer"):
            InDetAmbiTrackSelectionTool.ObserverTool             = TrackObserverTool     #observerTool
            InDetAmbiTrackSelectionTool.MonitorAmbiguitySolving  = True
-        
+         
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiTrackSelectionTool.OutputLevel = VERBOSE
 
@@ -406,16 +427,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                DriftCircleCutTool      = InDetTRTDriftCircleCut,
                                                                useAmbigFcn             = True,  # this is NewTracking
                                                                useTRT_AmbigFcn         = False,
-                                                               minPt                   = NewTrackingCuts.minPT(),
-                                                               maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact(),
-                                                               maxZImp                 = NewTrackingCuts.maxZImpact(),
                                                                maxEta                  = NewTrackingCuts.maxEta(),
-                                                               minSiClusters           = NewTrackingCuts.minClusters(),
-                                                               minPixel                = NewTrackingCuts.minPixel(),                                     
-                                                               maxSiHoles              = NewTrackingCuts.maxHoles(),
-                                                               maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
-                                                               maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
-                                                               maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles(),
                                                                usePixel                = NewTrackingCuts.usePixel(),
                                                                useSCT                  = NewTrackingCuts.useSCT(),
                                                                InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer(),
@@ -428,6 +440,20 @@ class  ConfiguredNewTrackingSiPattern:
 
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #   InDetAmbiScoringTool.OutputLevel = VERBOSE   
+         
+         if not InDetFlags.useEtaDependentCuts() or not NewTrackingCuts.mode() == "SLHC":
+           InDetAmbiScoringTool.minPt                   = NewTrackingCuts.minPT()
+           InDetAmbiScoringTool.minSiClusters           = NewTrackingCuts.minClusters()
+           InDetAmbiScoringTool.minPixel                = NewTrackingCuts.minPixel()                                   
+           InDetAmbiScoringTool.maxSiHoles              = NewTrackingCuts.maxHoles()
+           InDetAmbiScoringTool.maxPixelHoles           = NewTrackingCuts.maxPixelHoles()
+           InDetAmbiScoringTool.maxSCTHoles             = NewTrackingCuts.maxSCTHoles()
+           InDetAmbiScoringTool.maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles()
+           InDetAmbiScoringTool.maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact()
+           InDetAmbiScoringTool.maxZImp                 = NewTrackingCuts.maxZImpact()
+         else:
+           InDetAmbiScoringTool.UseEtaDependentCuts       = True
+           InDetAmbiScoringTool.InDetEtaDependentCutsTool = InDetEtaDependentCutsTool
 
          ToolSvc += InDetAmbiScoringTool
          if (InDetFlags.doPrintConfigurables()):
@@ -453,7 +479,6 @@ class  ConfiguredNewTrackingSiPattern:
 	                                                 SuppressHoleSearch = False,
 	                                                 tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
 	                                                 caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
-	                                                 pTminBrem          = NewTrackingCuts.minPTBrem(),
 	                                                 RefitPrds          = True, 
 	                                                 RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
          else:
@@ -465,9 +490,12 @@ class  ConfiguredNewTrackingSiPattern:
                                                  SuppressHoleSearch = False,
                                                  tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                  caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
-                                                 pTminBrem          = NewTrackingCuts.minPTBrem(),
                                                  RefitPrds          = True)
-	
+         if not InDetFlags.useEtaDependentCuts() or not NewTrackingCuts.mode() == "SLHC":
+           InDetAmbiguityProcessor.pTminBrem          = NewTrackingCuts.minPTBrem()
+         else:
+           InDetAmbiguityProcessor.pTminBrem          = NewTrackingCuts.minPTBrem()[0]
+           
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            InDetAmbiguityProcessor.SplitProbTool             = NnPixelClusterSplitProbTool
            InDetAmbiguityProcessor.sharedProbCut             = prob1

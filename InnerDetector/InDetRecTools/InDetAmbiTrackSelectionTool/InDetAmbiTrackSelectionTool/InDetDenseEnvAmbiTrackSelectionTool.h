@@ -16,6 +16,8 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
+
 #include <map>
 #include <vector>
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -263,7 +265,7 @@ namespace InDet
       void fillTrackDetails(const Trk::Track*, TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails ) const; 
 
       /** Determine which hits to keep on this track*/      
-      bool decideWhichHitsToKeep(const Trk::Track*, const Trk::TrackScore score, TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int nCutTRT )const; 
+      bool decideWhichHitsToKeep(const Trk::Track*, const Trk::TrackScore score, TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int nCutTRT, int& maxshared, int minHits, int minNotShared )const; 
 
       /** Update the pixel clusters split information*/      
       void updatePixelClusterInformation(TSoS_Details& tsosDetails) const;
@@ -283,7 +285,7 @@ namespace InDet
           which has maxothernpixel pixe hits and blayer hit if maxotherhasblayer is true
           
         */
-      int checkOtherTracksValidity(const Trk::RIO_OnTrack*,bool isSplitable, int& maxiShared, int& maxothernpixel, bool& maxotherhasblayer, bool& failMinHits) const;
+      int checkOtherTracksValidity(const Trk::RIO_OnTrack*,bool isSplitable, int& maxiShared, int& maxothernpixel, bool& maxotherhasblayer, bool& failMinHits, int minNotShared) const;
 
 
       /** Returns the Trackparameters of the two tracks on the n'th TrackStateOnSurface of the first track*/
@@ -314,7 +316,6 @@ namespace InDet
       /** some cut values */
       int m_minHits;                // Min Number of hits on track            
       int m_minTRT_Hits;            // Min Number of TRT hits on track
-      mutable int m_maxShared;      // Max shared hits -- calulated from  m_maxSharedModules
       int m_maxSharedModules;       // Max number of shared modules
       int m_maxSharedModulesInROI;  // Max number of shared modules in ROI
       int m_maxTracksPerPRD;        // Max number of tracks per hit if it is nor split
@@ -370,6 +371,10 @@ namespace InDet
 
       bool m_monitorTracks; // to track observeration/monitoring (default is false)
       bool m_doSCTSplitting; //WPM
+      
+      /** tool to get cut values depending on different variable */
+      ToolHandle<IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
+      bool                                       m_useEtaDependentCuts;
 
       
     }; 

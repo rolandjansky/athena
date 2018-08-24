@@ -16,7 +16,9 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::TrackClusterAssValidation::TrackClusterAssValidation
-(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator)
+(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator),
+  m_etaDependentCutsTool("InDet::InDetEtaDependentCutsTool/InDetEtaDependentCutsTool"),
+  m_useEtaDependentCuts(false)
 {
 
   // TrackClusterAssValidation steering parameters
@@ -73,29 +75,31 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   m_truthTRT               = 0                                ;
   m_particleDataTable      = 0                                ; 
 
-  declareProperty("TracksLocation"        ,m_tracklocation         );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCTname    );
-  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixelname  );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlapname);
-  declareProperty("PixelClustesContainer" ,m_clustersPixelname     );
-  declareProperty("SCT_ClustesContainer"  ,m_clustersSCTname       );
-  declareProperty("TRT_ClustesContainer"  ,m_clustersTRTname       );
-  declareProperty("TruthLocationSCT"      ,m_truth_locationSCT     );
-  declareProperty("TruthLocationPixel"    ,m_truth_locationPixel   );
-  declareProperty("TruthLocationTRT"      ,m_truth_locationTRT     );
-  declareProperty("MomentumCut"           ,m_ptcut                 );
-  declareProperty("MomentumMaxCut"        ,m_ptcutmax              );
-  declareProperty("RapidityCut"           ,m_rapcut                );
-  declareProperty("RadiusMin"             ,m_rmin                  );
-  declareProperty("RadiusMax"             ,m_rmax                  );
-  declareProperty("MinNumberClusters"     ,m_clcut                 );
-  declareProperty("MinNumberClustersTRT"  ,m_clcutTRT              );
-  declareProperty("MinNumberSpacePoints"  ,m_spcut                 );
-  declareProperty("usePixel"              ,m_usePIX                );
-  declareProperty("useSCT"                ,m_useSCT                );
-  declareProperty("useTRT"                ,m_useTRT                );
-  declareProperty("useOutliers"           ,m_useOutliers           );
-  declareProperty("pdgParticle"           ,m_pdg                   );
+  declareProperty("TracksLocation"            ,m_tracklocation         );
+  declareProperty("SpacePointsSCTName"        ,m_spacepointsSCTname    );
+  declareProperty("SpacePointsPixelName"      ,m_spacepointsPixelname  );
+  declareProperty("SpacePointsOverlapName"    ,m_spacepointsOverlapname);
+  declareProperty("PixelClustesContainer"     ,m_clustersPixelname     );
+  declareProperty("SCT_ClustesContainer"      ,m_clustersSCTname       );
+  declareProperty("TRT_ClustesContainer"      ,m_clustersTRTname       );
+  declareProperty("TruthLocationSCT"          ,m_truth_locationSCT     );
+  declareProperty("TruthLocationPixel"        ,m_truth_locationPixel   );
+  declareProperty("TruthLocationTRT"          ,m_truth_locationTRT     );
+  declareProperty("MomentumCut"               ,m_ptcut                 );
+  declareProperty("MomentumMaxCut"            ,m_ptcutmax              );
+  declareProperty("RapidityCut"               ,m_rapcut                );
+  declareProperty("RadiusMin"                 ,m_rmin                  );
+  declareProperty("RadiusMax"                 ,m_rmax                  );
+  declareProperty("MinNumberClusters"         ,m_clcut                 );
+  declareProperty("MinNumberClustersTRT"      ,m_clcutTRT              );
+  declareProperty("MinNumberSpacePoints"      ,m_spcut                 );
+  declareProperty("usePixel"                  ,m_usePIX                );
+  declareProperty("useSCT"                    ,m_useSCT                );
+  declareProperty("useTRT"                    ,m_useTRT                );
+  declareProperty("useOutliers"               ,m_useOutliers           );
+  declareProperty("pdgParticle"               ,m_pdg                   );
+  declareProperty("InDetEtaDependentCutsTool" ,m_etaDependentCutsTool  );
+  declareProperty("UseEtaDependentCuts"       ,m_useEtaDependentCuts   );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -106,6 +110,16 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 {
   
   StatusCode sc; 
+  
+  if (m_useEtaDependentCuts) {
+    sc = m_etaDependentCutsTool.retrieve();
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_etaDependentCutsTool);
+      return sc;
+    }
+    else
+      ATH_MSG_INFO("Retrieved tool " << m_etaDependentCutsTool);
+  }
 
   m_rapcut ? m_tcut = 1./tan(2.*atan(exp(-m_rapcut))) : m_tcut = 0.;
 
@@ -192,7 +206,8 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
     m_particleSpacePointsBTE[i][3] = 0;
 
   }
-  if(!m_useTRT) m_clcutTRT = 0; if(!m_clcutTRT) m_useTRT = false;
+  if(!m_useTRT) m_clcutTRT = 0; 
+  if(!m_clcutTRT) m_useTRT = false;
   return sc;
 }
 
@@ -580,10 +595,17 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<std::endl;
   std::cout<<"|               Additional cuts for truth particles are                             |"
 	   <<std::endl;
+     
+  if (m_useEtaDependentCuts) {
+    std::cout<<"|                    number silicon clusters >=" 
+        << "eta dependent"
+        <<"                        |"<<std::endl;
+  } else {
+    std::cout<<"|                    number silicon clusters >=" 
+        << std::setw(13)<<m_clcut
+        <<"                        |"<<std::endl;
+  }
 
-  std::cout<<"|                    number silicon clusters >=" 
-	   <<std::setw(13)<<m_clcut
-	   <<"                        |"<<std::endl;
   std::cout<<"|                    number   trt   clusters >=" 
 	   <<std::setw(13)<<m_clcutTRT
 	   <<"                        |"<<std::endl;
@@ -1138,7 +1160,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TrackClusterAssValidation::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out); 
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1523,6 +1546,7 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   std::list<int> worskine;
 
   int          rp = 0;
+  double etaExact = 0.;
   int          t  = 0;
   int          k0 = (*c).first;
   int          q0 = k0*charge((*c),rp);
@@ -1531,7 +1555,7 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   for(++c; c!=m_kinecluster.end(); ++c) {
 
     if((*c).first==k0) {++nc; continue;}
-    q0 = charge((*c),rp)*k0;
+    q0 = charge((*c),rp, etaExact)*k0;
 
     nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];
     nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
@@ -1541,7 +1565,12 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
     ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
     ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
 
-    if     (nc                        < m_clcut   ) worskine.push_back(k0);
+    //     --> use the eta value and cuts_vs_eta to get the number of min clusters you are interested in
+    int minclusters = m_clcut;
+    if (m_useEtaDependentCuts) 
+      minclusters = m_etaDependentCutsTool->getMinSiHitsAtEta(etaExact);
+    
+    if     (nc                        < (unsigned int)minclusters   ) worskine.push_back(k0);
     else if(m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);
     else if(m_kineclusterTRT.count(k0)< m_clcutTRT) worskine.push_back(k0);
     else {
@@ -1549,7 +1578,7 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
     }
 
     k0 = (*c).first;
-    q0 =charge((*c),rp)*k0;
+    q0 =charge((*c),rp, etaExact)*k0;
     nc = 1         ;
   }
 
@@ -1559,7 +1588,12 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
   ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
 
-  if     (nc                        < m_clcut   ) worskine.push_back(k0);
+  //     --> use the eta value and cuts_vs_eta to get the number of min clusters you are interested in
+  int minclusters = m_clcut;
+  if (m_useEtaDependentCuts) 
+    minclusters = m_etaDependentCutsTool->getMinSiHitsAtEta(etaExact);
+  
+  if     (nc                        < (unsigned int)minclusters   ) worskine.push_back(k0);
   else if(m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);  
   else if(m_kineclusterTRT.count(k0)< m_clcutTRT) worskine.push_back(k0);
   else {
@@ -2054,6 +2088,48 @@ int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawDat
       double pt = sqrt(px*px+py*py)   ;
       double t  = atan2(pt,pz)        ;
       double ra = fabs(log(tan(.5*t)));
+        
+      // DBM
+      if (ra > 3.0)
+	rap = 3;
+      else
+      // other regions
+	ra > 1.6 ? rap = 2 : ra > .8 ?  rap = 1 : rap = 0;
+
+      int                         pdg = pat->pdg_id();  
+      const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
+      if(!pd) return 0;
+      double ch = pd->charge(); if(pdg < 0) ch = -ch;
+      if(ch >  .5) return  1;
+      if(ch < -.5) return -1;
+      return 0;
+    } 	
+  }
+  return 0;
+}
+
+int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawData*> pa,int& rap, double& etaExact)
+{
+  int                     k = pa.first;
+  const Trk::PrepRawData* d = pa.second;
+  PRD_MultiTruthCollection::const_iterator mce;
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+  
+  for(; mc!=mce; ++mc) {
+    if((*mc).second.cptr()->barcode()==k) {
+
+      const HepMC::GenParticle*   pat  = (*mc).second.cptr();
+      
+      rap       = 0;
+      double px =  pat->momentum().px();
+      double py =  pat->momentum().py();
+      double pz =  pat->momentum().pz();
+      double pt = sqrt(px*px+py*py)   ;
+      double t  = atan2(pt,pz)        ;
+      double ra = fabs(log(tan(.5*t)));
+      
+      etaExact = ra;
+      
       // DBM
       if (ra > 3.0)
 	rap = 3;

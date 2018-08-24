@@ -15,6 +15,8 @@
 #include "GaudiKernel/IIncidentListener.h"
 // Trk includes
 #include "TrkTruthTrackInterfaces/ITruthTrackBuilder.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
+
 
 class IPartPropSvc;
 class AtlasDetectorID;
@@ -74,6 +76,11 @@ namespace Trk {
         float                                       m_forwardBoundary;           //!< Boundary eta value defining the forward region
         
         bool                                        m_materialInteractions;      //!< run with material interactions
+        
+        /** tool to get cut values depending on different variable */
+        ToolHandle<InDet::IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
+        bool                                              m_useEtaDependentCuts;
+        
   };
 
 } // end of namespace

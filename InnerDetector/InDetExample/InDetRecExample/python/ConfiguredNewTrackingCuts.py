@@ -265,27 +265,61 @@ class ConfiguredNewTrackingCuts :
     # --- SLHC setup
     if mode == "SLHC":
       self.__extension               = "SLHC"
-      # --- higher pt cut and impact parameter cut
-      self.__minPT                   = 0.9 * Units.GeV      
-      self.__maxPrimaryImpact        = 2.0 * Units.mm # highlumi
-      self.__maxZImpact              = 250.0 * Units.mm
-
-      # --- cluster cuts
-      self.__minClusters             = 9
-      self.__minSiNotShared          = 8
-      #self.__maxShared               = 3 # cut is now on number of shared modules
-      #self.__maxHoles                = 3
-      #self.__maxPixelHoles           = D2
-      #self.__maxSctHoles             = 2
-      #self.__maxDoubleHoles          = 2
-      # --- also tighten pattern cuts 
-      self.__radMax                  = 1000. * Units.mm
-      #self.__seedFilterLevel         = 1
-      #self.__nHolesMax               = self.__maxHoles
-      #self.__nHolesGapMax            = self.__maxHoles
-      #self.__Xi2max                  = 15.0
-      #self.__Xi2maxNoAdd             = 35.0
-      #self.__nWeightedClustersMin    = self.__minClusters-1
+      if self.__indetflags.useEtaDependentCuts():
+        self.__maxEta                  = 4.0
+        self.__etaBins                 = [-1.0, 2.4, 2.6, 4.0]
+        self.__minPT                   = [0.9 * Units.GeV, 0.9 * Units.GeV, 0.4 * Units.GeV]
+     
+        # --- cluster cuts
+        self.__minClusters             = [9, 8, 7]
+        self.__minSiNotShared          = [7, 6, 5]
+        self.__maxShared               = [2]
+        self.__minPixel                = [1]
+        self.__maxHoles                = [2]
+        self.__maxPixelHoles           = [1]
+        self.__maxSctHoles             = [2]
+        self.__maxDoubleHoles          = [1]
+        self.__maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm]
+        self.__maxZImpact              = [200.0 * Units.mm]
+     
+        # --- general pattern cuts for NewTracking
+        self.__nHolesMax               = self.__maxHoles
+        self.__nHolesGapMax            = self.__maxHoles
+        self.__Xi2max                  = [9.0]
+        self.__Xi2maxNoAdd             = [25.0]
+        self.__nWeightedClustersMin    = [6]
+     
+        # --- seeding 
+        self.__maxdImpactSSSSeeds       = [20.0 * Units.mm]
+     
+        # --- min pt cut for brem
+        self.__minPTBrem                = [1000.0 * Units.mm]
+        self.__phiWidthBrem             = [0.3]
+        self.__etaWidthBrem             = [0.2]  
+        
+      else:
+        
+        # --- higher pt cut and impact parameter cut
+        self.__minPT                   = 0.9 * Units.GeV      
+        self.__maxPrimaryImpact        = 2.0 * Units.mm # highlumi
+        self.__maxZImpact              = 250.0 * Units.mm
+        
+        # --- cluster cuts
+        self.__minClusters             = 9
+        self.__minSiNotShared          = 8
+        #self.__maxShared               = 3 # cut is now on number of shared modules
+        #self.__maxHoles                = 3
+        #self.__maxPixelHoles           = D2
+        #self.__maxSctHoles             = 2
+        #self.__maxDoubleHoles          = 2
+        # --- also tighten pattern cuts 
+        self.__radMax                  = 1000. * Units.mm
+        #self.__seedFilterLevel         = 1
+        #self.__nHolesMax               = self.__maxHoles
+        #self.__nHolesGapMax            = self.__maxHoles
+        #self.__Xi2max                  = 15.0
+        #self.__Xi2maxNoAdd             = 35.0
+        #self.__nWeightedClustersMin    = self.__minClusters-1
      
     # --- IBL setup
     if mode == "IBL" :
@@ -840,6 +874,9 @@ class ConfiguredNewTrackingCuts :
 
   def minPT( self ) :
     return self.__minPT
+  
+  def etaBins( self ) :
+    return self.__etaBins
 
   def maxPT( self ) :
     return self.__maxPT
@@ -1032,12 +1069,20 @@ class ConfiguredNewTrackingCuts :
     print '*'
     print '* InDetFlags.cutLevel() = ', self.__indetflags.cutLevel()
     print '*'
+    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+      tmp_list = list(self.__etaBins)
+      tmp_list[0] = 0.
+      print '* Using dynamic cuts with eta ranges :', tmp_list
     print '* Pixel used                  :  ', self.__usePixel
     print '* SCT used                    :  ', self.__useSCT
     print '* TRT used                    :  ', self.__useTRT
     print '*'  
     print '* min pT                      :  ', self.__minPT, ' MeV'
+    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+      print '* min pT for seeding          :  ', self.__minPT[0], ' MeV'
     print '* max Z IP                    :  ', self.__maxZImpact, ' mm'
+    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+      print '* max Z IP for seeding        :  ', self.__maxZImpact[0], ' mm'
     print '* min eta                     :  ', self.__minEta
     print '* max eta                     :  ', self.__maxEta
     if self.__mode=="LowPt":
@@ -1046,6 +1091,8 @@ class ConfiguredNewTrackingCuts :
     print '* NewTracking cuts:'
     print '* -----------------'
     print '* max Rphi IP (primaries)     :  ', self.__maxPrimaryImpact, ' mm'
+    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+      print '* max Rphi IP for seeding     :  ', self.__maxPrimaryImpact[0], ' mm'
     print '* min number of clusters      :  ', self.__minClusters
     print '* min number of pixel hits    :  ', self.__minPixel
     print '* min number of NOT shared    :  ', self.__minSiNotShared
@@ -1061,7 +1108,10 @@ class ConfiguredNewTrackingCuts :
     print '* max holes gap in pattern    :  ', self.__nHolesGapMax
     print '* Xi2 max                     :  ', self.__Xi2max
     print '* Xi2 max no add              :  ', self.__Xi2maxNoAdd
-    print '* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds
+    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+      print '* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds[0]
+    else:
+      print '* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds
     print '* nWeightedClustersMin        :  ', self.__nWeightedClustersMin 
     if self.__useTRT:
       print '* min TRT on track extension  :  ', self.__minTRTonTrk

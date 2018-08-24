@@ -15,6 +15,8 @@
 // Trk includes
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryBuilder.h"
 #include "TrkTruthTrackInterfaces/PRD_TruthTrajectory.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
+
 
 class AtlasDetectorID;
 class PRD_MultiTruthCollection;  
@@ -76,8 +78,12 @@ namespace Trk {
         mutable std::vector< PRD_TruthTrajectory > m_prdTruthTrajectories; //!< the cache for the return (cleared by Incident)
         mutable std::map< const HepMC::GenParticle*, PRD_TruthTrajectory > m_gpPrdTruthTrajectories; //!< the cache for the return (cleared by Incident)
         
+        /** tool to get cut values depending on different variable */
+        ToolHandle<InDet::IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
+        bool                                              m_useEtaDependentCuts;
+        
   };
-
+  
 } // end of namespace
 
 #endif // TRK_TRUTHTRACKTOOLS_PRD_TRUTHTRAJECTORYBUILDER_H

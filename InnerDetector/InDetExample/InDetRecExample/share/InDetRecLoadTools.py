@@ -1890,3 +1890,41 @@ if InDetFlags.doTIDE_AmbiTrackMonitoring():
   if InDetFlags.doPrintConfigurables():
       print TrackObserverTool
 
+
+# ------------------------------------------------------------
+#
+# ----------- Loading of tool for dynamic cuts
+#
+# ------------------------------------------------------------
+if InDetFlags.useEtaDependentCuts() and InDetNewTrackingCuts.mode() == "SLHC":
+  from   InDetEtaDependentCutsTool.InDetEtaDependentCutsToolConf import InDet__InDetEtaDependentCutsTool
+  InDetEtaDependentCutsTool = InDet__InDetEtaDependentCutsTool("InDetEtaDependentCutsTool")
+  #Set the configurables
+  InDetEtaDependentCutsTool.etaBins                 = InDetNewTrackingCuts.etaBins()
+  InDetEtaDependentCutsTool.etaWidthBrem            = InDetNewTrackingCuts.etaWidthBrem()
+  InDetEtaDependentCutsTool.maxdImpactSSSSeeds      = InDetNewTrackingCuts.maxdImpactSSSSeeds()
+  InDetEtaDependentCutsTool.maxDoubleHoles          = InDetNewTrackingCuts.maxDoubleHoles()
+  InDetEtaDependentCutsTool.maxHoles                = InDetNewTrackingCuts.maxHoles()
+  InDetEtaDependentCutsTool.maxPixelHoles           = InDetNewTrackingCuts.maxPixelHoles()
+  InDetEtaDependentCutsTool.maxPrimaryImpact        = InDetNewTrackingCuts.maxPrimaryImpact()
+  InDetEtaDependentCutsTool.maxSctHoles             = InDetNewTrackingCuts.maxSCTHoles()
+  InDetEtaDependentCutsTool.maxShared               = InDetNewTrackingCuts.maxShared()
+  InDetEtaDependentCutsTool.maxZImpact              = InDetNewTrackingCuts.maxZImpact()
+  InDetEtaDependentCutsTool.minClusters             = InDetNewTrackingCuts.minClusters()
+  InDetEtaDependentCutsTool.minPixelHits            = InDetNewTrackingCuts.minPixel()
+  InDetEtaDependentCutsTool.minPT                   = InDetNewTrackingCuts.minPT()
+  InDetEtaDependentCutsTool.minPTBrem               = InDetNewTrackingCuts.minPTBrem()
+  InDetEtaDependentCutsTool.minSiNotShared          = InDetNewTrackingCuts.minSiNotShared()
+  InDetEtaDependentCutsTool.maxHolesGapPattern      = InDetNewTrackingCuts.nHolesGapMax()
+  InDetEtaDependentCutsTool.maxHolesPattern         = InDetNewTrackingCuts.nHolesMax()
+  InDetEtaDependentCutsTool.nWeightedClustersMin    = InDetNewTrackingCuts.nWeightedClustersMin()
+  InDetEtaDependentCutsTool.phiWidthBrem            = InDetNewTrackingCuts.phiWidthBrem()
+  InDetEtaDependentCutsTool.Xi2max                  = InDetNewTrackingCuts.Xi2max()
+  InDetEtaDependentCutsTool.Xi2maxNoAdd             = InDetNewTrackingCuts.Xi2maxNoAdd()
+
+  ToolSvc += InDetEtaDependentCutsTool
+  
+  if InDetFlags.doPrintConfigurables():
+    print InDetEtaDependentCutsTool
+
+

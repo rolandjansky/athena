@@ -17,6 +17,7 @@
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
 
 namespace InDet {
 
@@ -181,6 +182,10 @@ namespace InDet {
       std::list<int>                             m_difference[100];
       std::multimap<int,int>                     m_tracks[100]    ;
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
+      
+      /** tool to get cut values depending on different variable */
+      ToolHandle<IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
+      bool                                       m_useEtaDependentCuts;   
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -204,6 +209,7 @@ namespace InDet {
 	(const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&);
       
       int charge(std::pair<int,const Trk::PrepRawData*>,int&);
+      int charge(std::pair<int,const Trk::PrepRawData*>,int&, double&);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;
