@@ -118,12 +118,12 @@ StatusCode TileJetMonTool::initialize() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO("in initialize()");
+  ATH_MSG_INFO("value of m_do_jet_cleaning: " << m_do_jet_cleaning);
 
 //=== get TileBadChanTool
   ATH_MSG_DEBUG("TileJetMonTool: Retrieving tile bad channel tool");
   CHECK(m_tileBadChanTool.retrieve());
   ATH_MSG_DEBUG("TileJetMonTool: Retrieved tile bad channel tool");
-
 
   if (m_do_jet_cleaning) {
     ATH_MSG_DEBUG("TileJetMonTool: initializing JVT updater");
@@ -808,9 +808,9 @@ bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
   return (!isBadJet);
   */
 #ifdef JVT
+  if (! m_do_jet_cleaning) return true;
   if (jet.pt() < 20000) return false;
   if (! passesJvt(jet)) return false;
-  if (! m_do_jet_cleaning) return true;
   if (! m_cleaningTool->keep(jet)) return false;
   return true;
 
