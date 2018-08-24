@@ -316,7 +316,7 @@ CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactor(c
     return CP::CorrectionCode::OutOfValidityRange;
     }
   
-  double sf=calculate(&inputObject).getScaleFactor();
+  const double sf=calculate(&inputObject).getScaleFactor();
  
   /* 
    * The underlying TPhoton tool does not propagate the validity codes 
