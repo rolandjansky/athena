@@ -35,6 +35,12 @@ def getHIGG5Common() :
         "CaloCalTopoClusters.CENTER_MAG.calE.calEta.calM.calPhi.calPt.e_sampl.etaCalo.eta_sampl.phiCalo.phi_sampl.rawE.rawEta.rawM.rawPhi",
         "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity",
         "TrackCaloClustersCombinedAndNeutral.pt.eta.phi.m.taste.trackParticleLink.caloClusterLinks"
+        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.ExCoM2SubJets",
+        "AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsExCoM2SubJets.pt.eta.phi.m",
+        ("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.btaggingLink.m_persKey.m_persIndex.Parent"
+             ".GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt"
+             ".GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt"),
+        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
         ]
 
 def getHIGG5CommonTruthContainers() :
@@ -80,12 +86,16 @@ def getHIGG5CommonTruthDictionExtionson() :
 
 def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
   common_dict = {
-      "AntiKtVR30Rmax4Rmin02TrackJets"         : "xAOD::JetContainer"        ,
-      "AntiKtVR30Rmax4Rmin02TrackJetsAux"      : "xAOD::JetAuxContainer"     ,
-      "BTagging_AntiKtVR30Rmax4Rmin02Track"    : "xAOD::BTaggingContainer"   ,
-      "BTagging_AntiKtVR30Rmax4Rmin02TrackAux" : "xAOD::BTaggingAuxContainer",
-      "BTagging_AntiKt4EMPFlow"                : "xAOD::BTaggingContainer"   ,
-      "BTagging_AntiKt4EMPFlowAux"             : "xAOD::BTaggingAuxContainer"
+      "AntiKtVR30Rmax4Rmin02TrackJets"                                    : "xAOD::JetContainer"        ,
+      "AntiKtVR30Rmax4Rmin02TrackJetsAux"                                 : "xAOD::JetAuxContainer"     ,
+      "BTagging_AntiKtVR30Rmax4Rmin02Track"                               : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"                            : "xAOD::BTaggingAuxContainer",
+      "BTagging_AntiKt4EMPFlow"                                           : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKt4EMPFlowAux"                                        : "xAOD::BTaggingAuxContainer",
+      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 : "xAOD::JetContainer"        ,
+      "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              : "xAOD::JetAuxContainer"     ,
+      "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         : "xAOD::BTaggingAuxContainer"
       }
   from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
   if add_truth_if_mc and DerivationFrameworkIsMonteCarlo:
@@ -419,3 +429,14 @@ def addJetOutputs(slimhelper,contentlist,smartlist=[],vetolist=[]):
             if add_item :
                 dfjetlog.info( "Add full jet collection "+item )
                 slimhelper.AllVariables.append(item)
+
+def addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(sequence) :
+    ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+    #  doTrackJet = False
+    from AthenaCommon.AppMgr import ToolSvc
+    from DerivationFrameworkFlavourTag.HbbCommon import addExKtCoM
+    ExCoMJetCollection__SubJet = addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, 2, False, ["GhostBHadronsFinal","GhostCHadronsFinal"], 0, "CoM")
+
+    from BTagging.BTaggingFlags import BTaggingFlags
+    BTaggingFlags.CalibrationChannelAliases += [
+                   "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]

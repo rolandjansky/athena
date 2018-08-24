@@ -272,6 +272,8 @@ if not "HIGG2D4Jets" in OutputJets:
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
     addTCCTrimmedJets(higg2d4Seq, "HIGG2D4Jets")
 
+HIGG5Common.addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(higg2d4Seq)
+
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 #====================================================================
