@@ -225,9 +225,6 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     ATH_MSG_DEBUG( "Using custom configuration - if you are doing this, you may need to do some hardcoding because the tool is not flexible enough to change inputs ..." );
   }
 
-
-
-
   // configure the bdt
   m_bdtTagger->BookMVA( m_BDTmethod.c_str(), m_tmvaConfigFilePath.c_str() );
 
@@ -396,10 +393,11 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
 
     if(!jet.isAvailable<float>("Tau32_wta")){
       m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
-    if(m_Tau21_wta!=m_Tau21_wta){
-      m_undefInput = true;
+      if(m_Tau21_wta!=m_Tau21_wta){
+        m_undefInput = true;
+      }
     }
-    }else{
+    else{
         m_Tau32_wta = jet.getAttribute<float>("Tau32_wta");
     }
 
@@ -433,7 +431,7 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
     m_Aplanarity   = jet.getAttribute<float>("Aplanarity");
 
   }
-  if(m_TagClass == TAGCLASS::TopQuark){
+  else if(m_TagClass == TAGCLASS::TopQuark){
     ATH_MSG_DEBUG("Loading variables for top quark tagger");
 
     // mass and pT
@@ -462,10 +460,11 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
 
     if(!jet.isAvailable<float>("Tau32_wta")){
       m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
-    if(m_Tau21_wta!=m_Tau21_wta){
-      m_undefInput = true;
+      if(m_Tau21_wta!=m_Tau21_wta){
+        m_undefInput = true;
+      }
     }
-    }else{
+    else{
         m_Tau32_wta = jet.getAttribute<float>("Tau32_wta");
     }
 
@@ -491,8 +490,8 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
   }
   else{
     ATH_MSG_ERROR( "Loading variables failed because the tagger you are using is not clear to me");
-    return;
   }
+
   return;
 }
 
