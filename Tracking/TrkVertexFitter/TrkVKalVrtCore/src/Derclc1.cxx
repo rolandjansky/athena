@@ -26,11 +26,11 @@ void  calcMassConstraint( VKMassConstraint * cnst )
     double cth, invR, pp2, pt; 
     VKConstraintBase * base_cnst = (VKConstraintBase*) cnst;
     VKVertex * vk=cnst->getOriginVertex();
-    int usedNTRK = cnst->usedParticles.size();
+    int usedNTRK = cnst->m_usedParticles.size();
     VKTrack * trk;
     std::vector< std::vector<double> > pp(usedNTRK);
     for( itc=0; itc<usedNTRK; itc++){
-      it = cnst->usedParticles[itc];
+      it = cnst->m_usedParticles[itc];
       trk = vk->TrackList.at(it);
       pp[itc]=getCnstParticleMom( trk , vk);
       ptot[0] += pp[itc][0];    
@@ -58,11 +58,11 @@ void  calcMassConstraint( VKMassConstraint * cnst )
     int numCNST=0;   //constraint number. Single constraint in this case
 //
 //Difference   
-   base_cnst->aa[numCNST] = ( temp - cnst->targetMass ) * ( temp + cnst->targetMass ); 
+   base_cnst->aa[numCNST] = ( temp - cnst->m_targetMass ) * ( temp + cnst->m_targetMass ); 
 //
 //Derivatives               Here pp[][3] - particle energy, pp[][4] - squared particle mom
     for( itc=0; itc<usedNTRK; itc++){
-      it = cnst->usedParticles[itc];
+      it = cnst->m_usedParticles[itc];
       trk  = vk->TrackList.at(it);
       invR = trk->cnstP[2];
       cth  = 1. / tan( trk->cnstP[0] );
@@ -82,7 +82,7 @@ void  calcMassConstraint( VKMassConstraint * cnst )
     base_cnst->h0t[numCNST].Y = 0.;
     base_cnst->h0t[numCNST].Z = 0.;
 /* -- Relative normalisation. Now it is target mass (squared?) to make performance uniform */
-    double Scale=0.025/(2.*cnst->targetMass+1.); //28.03.2011 wrong idea for cascade. VK 06.05.2011 actually correct!
+    double Scale=0.025/(2.*cnst->m_targetMass+1.); //28.03.2011 wrong idea for cascade. VK 06.05.2011 actually correct!
     //Scale=0.01;
     for (it = 0; it < (int)vk->TrackList.size(); ++it) {
 	base_cnst->f0t[it][numCNST].X *=  Scale * 2;
@@ -91,7 +91,7 @@ void  calcMassConstraint( VKMassConstraint * cnst )
     }
     base_cnst->aa[numCNST] *= Scale;
 //std::cout.precision(11);
-//std::cout<<" mass="<<temp<<", "<<cnst->targetMass<<", "<<base_cnst->aa[numCNST]<<'\n';
+//std::cout<<" mass="<<temp<<", "<<cnst->m_targetMass<<", "<<base_cnst->aa[numCNST]<<'\n';
 //std::cout<<base_cnst->f0t[0][numCNST].X<<", "<<base_cnst->f0t[0][numCNST].Y<<", "
 //         <<base_cnst->f0t[0][numCNST].Z<<'\n';
 //std::cout<<base_cnst->f0t[1][numCNST].X<<", "<<base_cnst->f0t[1][numCNST].Y<<", "

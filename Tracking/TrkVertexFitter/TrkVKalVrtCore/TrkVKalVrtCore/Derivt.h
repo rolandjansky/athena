@@ -23,10 +23,11 @@ namespace Trk {
   class VKConstraintBase
   {
     public:
-      VKConstraintBase( int, int);
+      VKConstraintBase(const int, int);
       virtual ~VKConstraintBase();
     public:
-      int NCDim;                                  // constraint dimension
+      int m_NCDim;                                // constraint dimension
+      int m_NTrk;                                 // number of tracks
       std::vector<double> aa;                     // Constraint values
       std::vector< std::vector< Vect3DF > > f0t;  // Constraint momentum derivatives 
       std::vector< Vect3DF > h0t;	          // Constraint space derivatives
@@ -38,19 +39,18 @@ namespace Trk {
    {
       public:
         VKMassConstraint(int,double, VKVertex*); 
-        VKMassConstraint(int,double,std::vector<int>, VKVertex*); 
+        VKMassConstraint(int,double,std::vector<int>&, VKVertex*); 
         ~VKMassConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKMassConstraint& );
    
       public:
-        double targetMass;
-	std::vector<int> usedParticles;
+        double m_targetMass;
+	std::vector<int> m_usedParticles;
+        VKVertex * getOriginVertex() const { return m_originVertex;}
 
-     private:
-       VKVertex * m_originVertex;
+      private:
+        VKVertex * m_originVertex;
  
-     public:
-       VKVertex * getOriginVertex() const { return m_originVertex;}
    };
 //
 //  Angular constraints
@@ -90,8 +90,8 @@ namespace Trk {
         VKVertex * getOriginVertex() const { return m_originVertex;}
 
       public:
-         double targetVertex[3];   //Target vertex is in global reference system
-         bool onlyZ; 
+         double m_targetVertex[3];   //Target vertex is in global reference system
+         bool m_onlyZ; 
 
       private:
         VKVertex * m_originVertex;

@@ -23,8 +23,7 @@ namespace Trk {
 //  Extract TrackParameters
 //
 
- StatusCode TrkVKalVrtFitter::CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,
-        long int& ntrk) {
+ StatusCode TrkVKalVrtFitter::CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk, int& ntrk) {
 
     //MsgStream log(msgSvc(), name());
     std::vector<const TrackParameters*>::const_iterator   i_pbase;
@@ -85,11 +84,11 @@ namespace Trk {
 //  This is needed for VKalVrtCore engine.
 //
 //
-    counter=0;
     for (i_pbase = InpTrk.begin(); i_pbase != InpTrk.end(); ++i_pbase) {
+       long int TrkID=ntrk;
        const TrackParameters* trkparO = (*i_pbase);
        if( trkparO ){
-         const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapWithMatUpdate( ntrk, trkparO, &m_refGVertex );
+         const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapWithMatUpdate( TrkID, trkparO, &m_refGVertex );
          if(trkparN == 0) return StatusCode::FAILURE;
          mPer = dynamic_cast<const Trk::Perigee*>(trkparN); 
          if( mPer == 0) {   delete trkparN;  return StatusCode::FAILURE; }
@@ -100,13 +99,12 @@ namespace Trk {
          if( !convertAmg5SymMtx(mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!
          delete trkparN;
       }
-// std::cout<<" Tr="<<ntrk<<" GlobPosTrn="<<perGlobalPos.x()<<", "<<perGlobalPos.y()<<", "<<perGlobalPos.z()<<'\n';
+// std::cout<<" Tr="<<TrkID<<" GlobPosTrn="<<perGlobalPos.x()<<", "<<perGlobalPos.y()<<", "<<perGlobalPos.z()<<'\n';
 // std::cout<<" Common Ref. point="<<perGlobalVrt.x()<<", "<<perGlobalVrt.y()<<", "<<perGlobalVrt.z()<<'\n';
        m_refFrameX=m_refFrameY=m_refFrameZ=0.; m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //restore ATLAS frame for safety
        m_fitField->getMagFld(  perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),  // Magnetic field
                                fx, fy, BMAG_FIXED);                                 // at perigee point
        if(fabs(BMAG_FIXED) < 0.01) BMAG_FIXED=0.01;
-       counter++;
 //std::cout<<"TESTVK="<<'\n'; std::cout.precision(16); for(int ik=0; ik<15; ik++)std::cout<<CovVertTrk[ik]<<'\n';
        VKalTransform( BMAG_FIXED, (double)VectPerig[0], (double)VectPerig[1],
               (double)VectPerig[2], (double)VectPerig[3], (double)VectPerig[4], CovVertTrk,
@@ -131,8 +129,7 @@ namespace Trk {
  }
 
 
- StatusCode TrkVKalVrtFitter::CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,
-        long int& ntrk) {
+ StatusCode TrkVKalVrtFitter::CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk, int& ntrk) {
 
     //MsgStream log(msgSvc(), name());
     std::vector<const NeutralParameters*>::const_iterator   i_pbase;
@@ -152,7 +149,6 @@ namespace Trk {
     m_fitField->setAtlasMagRefFrame( 0., 0., 0.);
 
     if( m_InDetExtrapolator == 0 ){
-       //log << MSG::WARNING  << "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        if(msgLvl(MSG::WARNING))msg()<< "No InDet extrapolator given. Can't use TrackParameters!!!" << endmsg;
        return StatusCode::FAILURE;        
     }
@@ -191,7 +187,6 @@ namespace Trk {
 //  This is needed for VKalVrtCore engine.
 //
 //
-    counter=0;
     for (i_pbase = InpTrk.begin(); i_pbase != InpTrk.end(); ++i_pbase) {
          const Trk::NeutralParameters* neuparO = (*i_pbase);
          if(neuparO == 0) return StatusCode::FAILURE;
@@ -208,7 +203,6 @@ namespace Trk {
          m_fitField->getMagFld(  perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),  // Magnetic field
                                fx, fy, BMAG_FIXED);                                 // at perigee point
          if(fabs(BMAG_FIXED) < 0.01) BMAG_FIXED=0.01;
-       counter++;
 
 //std::cout<<" BaseEMtx="<<CovMtx.fast(1,1)<<", "<<CovMtx.fast(2,2)<<", "<<CovMtx.fast(3,3)<<", "
 //                       <<CovMtx.fast(4,4)<<", "<<CovMtx.fast(5,5)<<'\n';

@@ -55,14 +55,16 @@ namespace Trk {
       double Rlim=sqrt(Xend*Xend+Yend*Yend) / m_vkalFitSvc->m_IDsizeR;
       double Zlim=fabs(Zend)                / m_vkalFitSvc->m_IDsizeZ;
       double Scale = Rlim; if(Zlim>Rlim) Scale=Zlim;
+//std::cout<<"relative TARG="<<RefEnd[0]<<","<<RefEnd[1]<<","<<RefEnd[2]
+//<<" global ref.="<<m_vkalFitSvc->m_refFrameX<<","<<m_vkalFitSvc->m_refFrameY<<","<<m_vkalFitSvc->m_refFrameZ
+//<<" Limits="<<m_vkalFitSvc->m_IDsizeR<<","<<m_vkalFitSvc->m_IDsizeZ<<" scale="<<Scale<<'\n';
       return Scale;
   }
 
   bool VKalExtPropagator::checkTarget( double *RefEnd) const
   {
-      double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2];
-      double targV[3]={ vX, vY, vZ};
-      if( Protection(targV) >1. ) return false;
+      //double targV[3]={ RefEnd[0], RefEnd[1], RefEnd[2]};
+      if( Protection(RefEnd) >1. ) return false;
       return true;
   }
 /*----------------------------------------------------------------------------------*/
@@ -73,16 +75,19 @@ namespace Trk {
 //    it always use this point as starting point, 
 //     so ParOld,CovOld,RefStart are irrelevant
 //
+//  VKalVrtCore works in relative coordinates wrt (m_refFrameX,m_refFrameY,m_refFrameZ)
+//  For ATLAS propagator the Core coordinates must be moved back to global ref.frame
 /*------------------------------------------------------------------------------------*/
   void VKalExtPropagator::Propagate( long int trkID, long int Charge, 
                                      double *ParOld, double *CovOld, double *RefStart, 
                                      double *RefEnd, double *ParNew, double *CovNew) const
   {
       int trkID_loc=trkID; if(trkID_loc<0)trkID_loc=0;
-//std::cout<<" Ext.Propagator TrkID="<<trkID<<"to (local!!!)="<<RefEnd[0]<<", "<<RefEnd[1]<<", "<<RefEnd[2]<<'\n';
+//std::cout<<__func__<<" Ext.Propagator TrkID="<<trkID<<"to (local!!!)="<<RefEnd[0]<<", "<<RefEnd[1]<<", "<<RefEnd[2]<<'\n';
 //-----------
-      double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2];
-      Amg::Vector3D endPoint( vX + m_vkalFitSvc->m_refFrameX, vY + m_vkalFitSvc->m_refFrameY, vZ + m_vkalFitSvc->m_refFrameZ);
+      double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2]; //relative coords
+      // Propagation target in GLOBAL frame
+      Amg::Vector3D endPointG( vX + m_vkalFitSvc->m_refFrameX, vY + m_vkalFitSvc->m_refFrameY, vZ + m_vkalFitSvc->m_refFrameZ);
 //
 // ---- Make MeasuredPerigee from input. Mag.field at start point is used here
 //
@@ -95,23 +100,23 @@ namespace Trk {
 //        for(int i=0; i<15;i++) CovPerigeeIni.push_back(0.);
         CovPerigeeIni[0]=1.e6;CovPerigeeIni[2]=1.e6;CovPerigeeIni[5]=1.;CovPerigeeIni[9]=1.;CovPerigeeIni[14]=fabs(PerigeeIni[4]);
       }        
+      //--- This creates Perigee in GLOBAL frame from input in realtive coordinates
       const Perigee* inpPer = 
           m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni);
       const TrackParameters * inpPar= (const TrackParameters*) inpPer;
 //
-// ----- Magnetic field is taken at target point
+// ----- Magnetic field is taken at target point (GLOBAL calculated from relative frame input)
 //
-      double fx,fy,fz,BMAG_FIXED;
-      m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,fz);
-      BMAG_FIXED=fz;  // standard 
+      double fx,fy,BMAG_FIXED;
+      m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,BMAG_FIXED);
 //
 //-------------------- Extrapolation itself
 //
       const Trk::TrackParameters* endPer = 0;
       if(trkID<0){
-            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPoint);
+            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPointG);
       }else{
-            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPoint);
+            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPointG);
       }
 //-----------------------------------
       if( endPer == 0 ) {   // No extrapolation done!!!

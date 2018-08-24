@@ -16,14 +16,14 @@
 
  namespace Trk {
 
- extern void cfpest( long int* ntrk, double* vrt, long int* Charge,double* part, double* par0);
+ extern void cfpest( int ntrk, double *vrt, long int *Charge, double (*part)[5], double (*par0)[3]);
  extern void xyztrp( long int* Charge, double* vrt, double* Mom, double* CovVrtMom, double BMAG, double* Perig, double* CovPerig );
 
- extern int CFit(VKalVrtControl &FitControl, long int ifCovV0, long int NTRK, 
-	       long int *ich, double *xyz0, double *par0,
-	       double *inp_Trk5, double *inp_CovTrk5, 
-	       double *xyzfit, double *parfs, double *ptot,
-               double *covf, double *chi2, double *chi2tr);
+ extern int CFit(VKalVrtControl *FitCONTROL, int ifCovV0, int NTRK, 
+	      long int *ich, double xyz0[3], double (*par0)[3],
+	      double (*inp_Trk5)[5], double (*inp_CovTrk5)[15], 
+	      double xyzfit[3], double (*parfs)[3], double ptot[4],
+              double covf[21], double & chi2, double *chi2tr);
 
 
 //__________________________________________________________________________
@@ -45,11 +45,11 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
 //
     if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
 
-    long int ntrk=0;
+    int ntrk=0;
     StatusCode sc=CvtTrkTrack(InpTrk,ntrk);
     if(sc.isFailure())return StatusCode::FAILURE;
 
-    long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
@@ -71,7 +71,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0;
+    int ntrk=0;
     std::vector<const TrackParameters*>   tmpInputC(0);
     StatusCode sc; sc.setChecked(); 
     double closestHitR=1.e6;   //VK needed for FirstMeasuredPointLimit if this hit itself is absent
@@ -115,8 +115,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
     if(sc.isFailure())return StatusCode::FAILURE;
     if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk); if(sc.isFailure())return StatusCode::FAILURE;}
 //--
-    long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2 ) ;
 //
 //-- Check vertex position with respect to first measured hit and refit with plane constraint if needed
     m_planeCnstNDOF = 0;
@@ -142,12 +141,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
           m_ApproximateVertex[0]=cnstRefPoint.x();
           m_ApproximateVertex[1]=cnstRefPoint.y();
           m_ApproximateVertex[2]=cnstRefPoint.z();
-          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2 );
           m_vkalFitControl->setUsePlaneCnst(0.,0.,0.,0.);
-          if (ierr)  {
-	     ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge,   // refit without plane cnst
-	                  ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;        // if fit with it failed
+          if (ierr)  {                                                                             // refit without plane cnst
+	     ierr = VKalVrtFit3(ntrk,Vertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2); // if fit with it failed
              m_planeCnstNDOF = 0;
           }
 	  m_ApproximateVertex.swap(saveApproxV); 
@@ -174,7 +171,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0;
+    int ntrk=0;
     StatusCode sc;
     std::vector<const TrackParameters*> baseInpTrk;
     if(m_firstMeasuredPoint){               //First measured point strategy
@@ -187,7 +184,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
     }
     if(sc.isFailure())return StatusCode::FAILURE;
 
-    long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
@@ -209,7 +206,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0;
+    int ntrk=0;
     StatusCode sc; sc.setChecked();
     if(InpTrkC.size()>0){
       sc=CvtTrackParameters(InpTrkC,ntrk);
@@ -244,12 +241,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
           m_ApproximateVertex[0]=m_globalFirstHit->position().x();
           m_ApproximateVertex[1]=m_globalFirstHit->position().y();
           m_ApproximateVertex[2]=m_globalFirstHit->position().z();
-          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;
           m_vkalFitControl->setUsePlaneCnst(0.,0.,0.,0.);
-          if (ierr)  {
-	     ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge,   // refit without plane cnst
-	                  ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;        // if fit with it failed
+          if (ierr)  {                                                                                   // refit without plane cnst
+	     ierr = VKalVrtFit3(ntrk,Vertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2 ) ;     // if fit with it failed
              m_planeCnstNDOF = 0;
           }
 	  m_ApproximateVertex.swap(saveApproxV); 
@@ -267,7 +262,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 //--------------------------------------------------------------------------------------------------
 //  Main code
 //
-long int TrkVKalVrtFitter::VKalVrtFit3(long int ntrk,
+int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
         Amg::Vector3D& Vertex,
 	TLorentzVector&   Momentum,
 	long int& Charge,
@@ -282,11 +277,10 @@ long int TrkVKalVrtFitter::VKalVrtFit3(long int ntrk,
 //
 //------ Variables and arrays needed for fitting kernel
 //
-    long int ierr;
-    int i;
-    double xyz0[3],xyzfit[3],ptot[4],covf[21],chi2f=-10.;
-    ptot[0]=ptot[1]=ptot[2]=ptot[3]=0.;
-    xyzfit[0]=xyzfit[1]=xyzfit[2]=0.;
+    int ierr,i;
+    double xyz0[3],covf[21],chi2f=-10.;
+    double ptot[4]={0.};
+    double xyzfit[3]={0.};
 //
 //--- Set field value at (0.,0.,0.) - some safety 
 //
@@ -316,11 +310,10 @@ long int TrkVKalVrtFitter::VKalVrtFit3(long int ntrk,
     } else {
        xyz0[0]=xyz0[1]=xyz0[2]=0.;
     }
-    Trk::cfpest( &ntrk, xyz0, m_ich, &m_apar[0][0], &m_par0[0][0]);
+    Trk::cfpest( ntrk, xyz0, m_ich, m_apar, m_par0);
 
-    ierr=Trk::CFit( *m_vkalFitControl, m_ifcovv0, ntrk,
-                    m_ich, xyz0, &m_par0[0][0], &m_apar[0][0], &m_awgt[0][0],
-                    xyzfit, &m_parfs[0][0], ptot, covf, &chi2f, m_chi2tr); 
+    ierr=Trk::CFit( m_vkalFitControl, m_ifcovv0, ntrk, m_ich, xyz0, m_par0, m_apar, m_awgt,
+                    xyzfit, m_parfs, ptot, covf, chi2f, m_chi2tr); 
 
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "VKalVrt fit status="<<ierr<<" Chi2="<<chi2f<<endmsg;
 
@@ -336,13 +329,14 @@ long int TrkVKalVrtFitter::VKalVrtFit3(long int ntrk,
     if(m_ifcovv0 && m_vkalFitControl->m_fullCovariance){   //If full fit error matrix is returned by VKalVrtCORE 
        int SymCovMtxSize=(3*ntrk+3)*(3*ntrk+4)/2;
        m_ErrMtx = new double[ SymCovMtxSize  ];    //create new array for errors
-       std::move(m_vkalFitControl->m_fullCovariance,m_vkalFitControl->m_fullCovariance+SymCovMtxSize,m_ErrMtx);
+       std::copy(m_vkalFitControl->m_fullCovariance,m_vkalFitControl->m_fullCovariance+SymCovMtxSize,m_ErrMtx);
        delete[] m_vkalFitControl->m_fullCovariance; m_vkalFitControl->m_fullCovariance=0;
        ErrorMatrix.clear(); ErrorMatrix.reserve(21); ErrorMatrix.assign(covf,covf+21);
     } else {
        ErrorMatrix.clear(); ErrorMatrix.reserve(6);  ErrorMatrix.assign(covf,covf+6);
     }
 //---------------------------------------------------------------------------
+    Momentum.SetPxPyPzE( ptot[0], ptot[1], ptot[2], ptot[3] );
     Chi2 = (double) chi2f;
 
     Vertex[0]= xyzfit[0] + m_refFrameX;
@@ -360,25 +354,21 @@ long int TrkVKalVrtFitter::VKalVrtFit3(long int ntrk,
     if(fabs(BMAG_CUR) < 0.01) BMAG_CUR=0.01;  // Safety
 
 
-    double Px,Py,Pz,Ee,Pt; double pmom[4]; pmom[0]=pmom[1]=pmom[2]=pmom[3]=0;
-    for ( i=0; i<ntrk; i++){
-      Pt = m_CNVMAG*BMAG_CUR/fabs( m_parfs[i][2]);
-      Px = Pt*cos(m_parfs[i][1]);
-      Py = Pt*sin(m_parfs[i][1]);
-      Pz = Pt/tan(m_parfs[i][0]);
-      Ee = sqrt(Px*Px+Py*Py+Pz*Pz+m_wm[i]*m_wm[i]);
-      pmom[0] += Px; pmom[1] += Py; pmom[2] += Pz; pmom[3] += Ee;
-    }
+    //double pmom[4]={0.};
+    //for ( i=0; i<ntrk; i++){
+    //  double Pt = m_CNVMAG*BMAG_CUR/fabs( m_parfs[i][2]);
+    //  double Px = Pt*cos(m_parfs[i][1]);
+    //  double Py = Pt*sin(m_parfs[i][1]);
+    //  double Pz = Pt/tan(m_parfs[i][0]);
+    //  double Ee = sqrt(Px*Px+Py*Py+Pz*Pz+m_vkalFitControl->m_forcft.wm[i]*m_vkalFitControl->m_forcft.wm[i]);
+    //  pmom[0] += Px; pmom[1] += Py; pmom[2] += Pz; pmom[3] += Ee;
+    //}
+    //Momentum.SetPxPyPzE( pmom[0], pmom[1], pmom[2], pmom[3] );
 
     Charge=0; for(i=0; i<ntrk; i++){Charge+=m_ich[i];};
     Charge=-Charge; //VK 30.11.2009 Change sign acoording to ATLAS 
 
-    Momentum.SetPx( pmom[0] );
-    Momentum.SetPy( pmom[1] );
-    Momentum.SetPz( pmom[2] );
-    Momentum.SetE(  pmom[3] );
 //  std::cout.precision(8);
-//  std::cout<<" M1="<<m_wm[0]<<", "<<m_wm[1]<<" Cnst="<<m_iflag<<" Prec="<<m_IterationPrecision<<'\n';
 //  std::cout<<" Pmom="<<pmom[0]<<", "<<pmom[1]<<", "<<pmom[2]<<", "<<pmom[3]<<'\n';
 //  std::cout<<" Ptot="<<ptot[0]<<", "<<ptot[1]<<", "<<ptot[2]<<", "<<ptot[3]<<'\n';
 //  std::cout<<" Vertex="<<Vertex.x()<<", "<<Vertex.y()<<", "<<Vertex.z()

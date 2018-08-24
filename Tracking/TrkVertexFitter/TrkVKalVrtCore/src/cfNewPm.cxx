@@ -6,6 +6,7 @@
 #include <iostream>
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/Propagator.h"
+#include "TrkVKalVrtCore/TrkVKalUtils.h"
 
 namespace Trk {
 

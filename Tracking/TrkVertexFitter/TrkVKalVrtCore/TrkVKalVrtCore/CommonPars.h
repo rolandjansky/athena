@@ -19,13 +19,13 @@
 #ifndef _TrkVKalVrtCore_CommonPars_H
 #define _TrkVKalVrtCore_CommonPars_H
 
-#define vkalNTrkM 300
+#define vkalNTrkM  300
 #define vkalMagCnvCst 0.29979246
 #define vkalInternalStepLimit   20.
 #define vkalAllowedPtChange      3.
 #define vkalShiftToTrigExtrapolation      20.
-#define vkalMaxNMassCnst 8
-
-#define ARR_2D(name,N,i,j) (name)[(i)*(N) + (j)]
+#define vkalMaxNMassCnst  8
+//---Fortran style 2D array - first index changes first
+#define ARR2D_FS(name,N,i,j) (name)[(j)*(N) + (i)]
 
 #endif

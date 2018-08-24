@@ -18,18 +18,35 @@ namespace Trk {
    class VKConstraintBase;
    class VKVertex;
 
-  struct CascadeEvent 
-  {
-    int cascadeNV;
-    int nearPrmVertex;
-    double *fullCovMatrix;
-    double SCALE;
-    double accuracyConstraint;
-    std::vector< VKVertex *> cascadeVertexList; 
-    std::vector<int> matrixPnt;
-    CascadeEvent(){cascadeNV = 0; nearPrmVertex=0; fullCovMatrix=0; SCALE=1.; accuracyConstraint=1.e-4;};
+   struct CascadeEvent 
+   {
+     int cascadeNV;
+     int nearPrmVertex;
+     double *fullCovMatrix;
+     double SCALE;
+     double accuracyConstraint;
+     std::vector< VKVertex *> cascadeVertexList; 
+     std::vector<int> matrixPnt;
+     CascadeEvent(){cascadeNV = 0; nearPrmVertex=0; fullCovMatrix=0; SCALE=1.; accuracyConstraint=1.e-4;};
     ~CascadeEvent(){if(fullCovMatrix)delete[] fullCovMatrix;};
-  };
+   };
+
+   class TWRK       // collection of temporary arrays for 
+   {   
+    public:
+      TWRK();
+     ~TWRK();
+
+     public:
+       double   tt[3];    // U_i vector (see Billoir...)
+       double   wb[9];
+       double   wc[6]; 
+       double  wci[6];
+       double wbci[9];
+       double drdp[2][3]; // for "pass near" constraint
+       double parf0[3];   // parameter shifts during iteration
+       double part[3];    // temporary array for fostfit optimization
+   };
 
 //
 //   Main container for all track related information in vertex fit
@@ -97,24 +114,6 @@ namespace Trk {
    };
   
 
-   class TWRK       // collection of temporary arrays for 
-   {   
-    public:
-      TWRK();
-     ~TWRK();
-
-     public:
-       double   tt[3];    // U_i vector (see Billoir...)
-       double   wb[9];
-       double   wc[6]; 
-       double  wci[6];
-       double wbci[9];
-       double drdp[2][3]; // for "pass near" constraint
-       double parf0[3];   // parameter shifts during iteration
-       double part[3];    // temporary array for fostfit optimization
-   };
-
-
 
    class VKVertex
    {   
@@ -124,12 +123,6 @@ namespace Trk {
      ~VKVertex();
       VKVertex(const VKVertex & src);              //copy
       VKVertex& operator= (const VKVertex & src);  //assign
-
-     public:        // Object with defining information for VKalVrtCore library.
-                    // Each vertex has a copy of VKalVrtControl object what allows
-                    // to fit it independently with individual set of constraints.
-                    // See Cascade code. 
-       std::unique_ptr<VKalVrtControl>  m_fitterControl;
 
      public:        // Relative coordinates with respect to refIterV[]
        double Chi2;         // vertex Chi2
@@ -178,9 +171,15 @@ namespace Trk {
 				  // for correct cascade error definition 
      public: 
 
-       int existFullCov;
+       bool m_truncatedStep;
+       int m_existFullCov;
        double ader[(3*vkalNTrkM+3)*(3*vkalNTrkM+3)];  // was [903][903]
 
+     public:        // Object with defining information for VKalVrtCore library.
+                    // Each vertex has a copy of VKalVrtControl object what allows
+                    // to fit it independently with individual set of constraints.
+                    // See Cascade code. 
+       std::unique_ptr<VKalVrtControl>  m_fitterControl;
    };
 
 

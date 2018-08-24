@@ -46,7 +46,7 @@ namespace Trk {
        void setRobustScale(double Scale);
        void setRobustness(int Rob);
        void setMassCnstData(int Ntrk, double Mass);
-       void setMassCnstData(int Ntrk, std::vector<int> Index, double Mass);
+       void setMassCnstData(int Ntrk, std::vector<int> &Index, double Mass);
 
        void setUseMassCnst();
        void setUsePhiCnst();

@@ -16,7 +16,7 @@ extern int cfdinv(double *, double *, long int);
 #define max(a,b) ((a) >= (b) ? (a) : (b))
 
 
- void   cfimp(long int TrkID, long int ich, long int IFL, double *par, 
+ void   cfimp(long int TrkID, long int ich, int IFL, double *par, 
 	double *err, double *vrt, double *vcov, double *rimp, 
 	double *rcov, double *sign , const VKalVrtControlBase * FitCONTROL )
 {
@@ -108,7 +108,7 @@ extern int cfdinv(double *, double *, long int);
 } 
 
 
- void   cfimpc(long int TrkID, long int ich, long int IFL, double *par, 
+ void   cfimpc(long int TrkID, long int ich, int IFL, double *par, 
 	double *err, double *vrt, double *vcov, double *rimp, 
 	double *rcov, double *sign, const VKalVrtControlBase * FitCONTROL )
 {

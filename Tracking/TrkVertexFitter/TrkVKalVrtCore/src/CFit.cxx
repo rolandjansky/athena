@@ -26,9 +26,6 @@ vkalPropagator  myPropagator;
 #define min(a,b) ((a) <= (b) ? (a) : (b))
 #define max(a,b) ((a) >= (b) ? (a) : (b))
 
-void cfdcopy(double *source, double *target, int n)
-{   for(int i=0; i<n; i++) target[i]=source[i]; }
-
 void printT(double p[], double e[], std::string name){
   std::cout<<name<<p[0]<<", "<<p[1]<<", "<<p[2]<<", "<<p[3]<<", "<<p[4]<<'\n';
   std::cout<<e[0]<<'\n';
@@ -99,60 +96,75 @@ extern double cfSmallEigenvalue( double*, long int );
 
 
 
-VKVertex createVertex(long int NTRK, long int *ich, double *xyz0, double *par0,
-	              double *inp_Trk5, double *inp_CovTrk5, VKalVrtControl * currFitControl)
+void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*par0)[3],
+	              double (*inp_Trk5)[5], double (*inp_CovTrk5)[15])
 {
-    long int  tk;
 
-    VKVertex MainVRT(*currFitControl);           
-    ForCFT & vrtForCFT=currFitControl->m_forcft;
+//std::cout<<"_______________________NEW VERTEX_______________________________"<<'\n';
+//std::cout<<" CORE:"<<__func__ <<" vertex prop="<<vk->m_fitterControl->m_objProp
+//         <<" mag.field="<<vk->m_fitterControl->m_objMagFld<<" NTRK="<<NTRK<<'\n';
 
+    ForCFT & vrtForCFT=vk->m_fitterControl->m_forcft;
     double xyz[3]={0.,0.,0.};              // Perigee point
 //
 //VK 13.01.2009 New strategy with ref.point left at initial position
-    MainVRT.setRefV(xyz);      //ref point
-    MainVRT.setRefIterV(xyz0);  //iteration ref. point
-    for (tk=0; tk<NTRK ; tk++) {
-//     printT(&inp_Trk5[tk*5], &inp_CovTrk5[tk*15] , "Input track:");
-       MainVRT.TrackList.push_back(new VKTrack(tk, &inp_Trk5[tk*5], &inp_CovTrk5[tk*15], &MainVRT, vrtForCFT.wm[tk]));
-       MainVRT.tmpArr.push_back(new TWRK());
-       MainVRT.TrackList[tk]->Charge = ich[tk];           // Charge coinsides with sign of curvature
+    vk->setRefV(xyz);      //ref point
+    vk->setRefIterV(xyz0);  //iteration ref. point
+    vk->tmpArr.resize(NTRK);
+    vk->TrackList.resize(NTRK);
+    for (int tk=0; tk<NTRK ; tk++) {
+       long int TrkID=tk;
+       vk->TrackList[tk]= new VKTrack(TrkID, &inp_Trk5[tk][0], &inp_CovTrk5[tk][0], vk, vrtForCFT.wm[tk]);
+     //printT(&inp_Trk5[tk*5], &inp_CovTrk5[tk*15] , "Input track:");
+     //std::cout<<(*vk->TrackList[tk]);
+       vk->tmpArr[tk]=new TWRK();
+       vk->TrackList[tk]->Charge = ich[tk];           // Charge coinsides with sign of curvature
     }
 
-    MainVRT.FVC.Charge = 0; for (tk=0; tk<NTRK; ++tk)MainVRT.FVC.Charge += ich[tk];  // summary charge
-    cfdcopy(vrtForCFT.vrt,    MainVRT.FVC.vrt ,    3);
-    cfdcopy(vrtForCFT.covvrt, MainVRT.FVC.covvrt , 6);
+    vk->FVC.Charge = 0; for (int tk=0; tk<NTRK; ++tk)vk->FVC.Charge += ich[tk];  // summary charge
+    cfdcopy(vrtForCFT.vrt,    vk->FVC.vrt ,    3);
+    cfdcopy(vrtForCFT.covvrt, vk->FVC.covvrt , 6);
 
 /* --------------------------------------------------------*/
 /*           Initial value                                 */
 /* --------------------------------------------------------*/
-    VKTrack *trk; 
-    for( tk=0; tk<NTRK; tk++){
-      trk = MainVRT.TrackList[tk]; 
-      trk->iniP[0]=trk->cnstP[0]=trk->fitP[0]=par0[tk*3+0];   //initial guess
-      trk->iniP[1]=trk->cnstP[1]=trk->fitP[1]=par0[tk*3+1];
-      trk->iniP[2]=trk->cnstP[2]=trk->fitP[2]=par0[tk*3+2];
+    for(int tk=0; tk<NTRK; tk++){
+      VKTrack *trk = vk->TrackList[tk]; 
+      trk->iniP[0]=trk->cnstP[0]=trk->fitP[0]=par0[tk][0];   //initial guess
+      trk->iniP[1]=trk->cnstP[1]=trk->fitP[1]=par0[tk][1];
+      trk->iniP[2]=trk->cnstP[2]=trk->fitP[2]=par0[tk][2];
     }
-    MainVRT.setIniV(xyz); MainVRT.setCnstV(xyz);           // initial guess. 0 of course.
+    vk->setIniV(xyz); vk->setCnstV(xyz);           // initial guess. 0 of course.
 
-    return MainVRT;
+    return;
+}
+
+
+bool checkPosition(VKVertex * vk, double vertex[3]){
+    bool insideGoodVolume=true;
+    if(vk->m_fitterControl && vk->m_fitterControl->m_objProp) 
+           { insideGoodVolume = vk->m_fitterControl->m_objProp->checkTarget(vertex);}
+    else { insideGoodVolume = myPropagator.checkTarget(vertex); }
+    return insideGoodVolume;
 }
 
 
 extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = 0);
 extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
 extern void cfmasserr(VKVertex* , int*, double, double*, double*);
+extern std::vector<double> getFitParticleMom( VKTrack *, double);
 
 int fitVertex(VKVertex * vk) 
 {
-    long int  i, jerr, tk, it=0;
+    int  i, jerr, tk, it=0;
 
     double chi2df, dparst[6];
-    double chi2min, dxyzst[3],  chi21s=11., chi22s=10., vShift;
+    double chi2min, chi21s=11., chi22s=10., vShift;
     double aermd[30],tmpd[30];  // temporary array
     double tmpPer[5],tmpCov[15], tmpWgt[15];
     double VrtMomCov[21],PartMom[4];
     double cnstRemnants=0., iniCnstRem=0.;
+    double newVrtXYZ[3];
 
     const double ConstraintAccuracy=1.e-4;
 
@@ -168,7 +180,7 @@ int fitVertex(VKVertex * vk)
 
     long int IERR = 0;
                                 /* Type of the constraint for the fit */
-    long int NTRK = vk->TrackList.size();
+    int NTRK = vk->TrackList.size();
     ForCFT & vrtForCFT=vk->m_fitterControl->m_forcft;
     vk->passNearVertex=false;  //explicit setting - not to use
     vk->passWithTrkCov=false;  //explicit setting - not to use
@@ -182,11 +194,11 @@ int fitVertex(VKVertex * vk)
 
     if( vrtForCFT.nmcnst && vrtForCFT.useMassCnst )  {       //mass constraints are present
       std::vector<int> index;
-      for( int ic=0; ic<8; ic++){
-        if(vrtForCFT.wmfit[ic]>0){    // new mass constraint
+      for( int ic=0; ic<vkalMaxNMassCnst; ic++){
+       if(vrtForCFT.wmfit[ic]>0){    // new mass constraint
            index.clear();
-           for(tk=0; tk<NTRK; tk++){ if( vrtForCFT.indtrkmc[ic*vkalNTrkM + tk] )index.push_back(tk);}
-           vk->ConstraintList.push_back(new VKMassConstraint( NTRK, vrtForCFT.wmfit[ic], index, vk));
+           for(tk=0; tk<NTRK; tk++){ if( vrtForCFT.indtrkmc[ic][tk] )index.push_back(tk); }
+           vk->ConstraintList.push_back(new VKMassConstraint( NTRK, vrtForCFT.wmfit[ic], index, vk) );
         }
       }
       //VKMassConstraint *ctmp=dynamic_cast<VKMassConstraint*>( vk->ConstraintList[0]); std::cout<<(*ctmp)<<'\n';
@@ -197,7 +209,7 @@ int fitVertex(VKVertex * vk)
     }
     if( vrtForCFT.usePointingCnst==2 ){  //Z pointing
       VKPointConstraint *temp = new VKPointConstraint( NTRK, vrtForCFT.vrt, vk);
-      temp->onlyZ=true;
+      temp->m_onlyZ=true;
       vk->ConstraintList.push_back(temp);
       //VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( vk->ConstraintList[1]); std::cout<<(*ptmp)<<'\n';
     }
@@ -225,7 +237,7 @@ int fitVertex(VKVertex * vk)
 /* --------------------------------------------------------*/
 /*           Initial value                                 */
 /* --------------------------------------------------------*/
-    cfdcopy(vk->refIterV,dxyzst,3);                  // copy initial data to start values
+    cfdcopy(vk->refIterV,newVrtXYZ,3);               // copy initial data to start values
     vk->setIniV(zeroV);vk->setCnstV(zeroV);          // initial guess. 0 of course.
 /* ------------------------------------------------------------*/
 /*           MAIN FITTING CYCLE                                */
@@ -234,46 +246,34 @@ int fitVertex(VKVertex * vk)
      bool forcedExtrapolation=false;  //To force explicit extrapolation
      std::vector< Vect3DF > savedExtrapVertices(vrtForCFT.IterationNumber);
      double cnstRemnantsPrev=1.e20, Chi2Prev=0.; int countBadStep=0; // For consecutive bad steps
+
      for (it = 1; it <= vrtForCFT.IterationNumber; ++it) {
-        vShift = sqrt( (vk->refIterV[0]-dxyzst[0])*(vk->refIterV[0]-dxyzst[0])
-	              +(vk->refIterV[1]-dxyzst[1])*(vk->refIterV[1]-dxyzst[1])
-	              +(vk->refIterV[2]-dxyzst[2])*(vk->refIterV[2]-dxyzst[2]) );
-       savedExtrapVertices[it-1].X=dxyzst[0];   //it starts from 1 !!!
-       savedExtrapVertices[it-1].Y=dxyzst[1];
-       savedExtrapVertices[it-1].Z=dxyzst[2];
-       if(it==1){
-	 bool insideGoodVolume=false;
-         if(vk->m_fitterControl && vk->m_fitterControl->m_objProp) { insideGoodVolume = vk->m_fitterControl->m_objProp->checkTarget(dxyzst);}
-         else                                                      { insideGoodVolume = myPropagator.checkTarget(dxyzst); }
-         if(!insideGoodVolume) { IERR=-10; return IERR; }       // First guess is definitely outside working volume
-       }
+       vShift = cfddist3D( newVrtXYZ, vk->refIterV );       // Extrapolation distance 
+       savedExtrapVertices[it-1].Set(newVrtXYZ);            // Save new position. Index [it] starts from 1 !!!
 /* ---------------------------------------------------------------- */
-/*  Propagate parameters and errors at point dXYZST                 */
-/*   Also set up localBMAG in dXYZST if nonuniform field is used    */
+/*  Propagate parameters and errors to the point newVrtXYZ          */
+/*   Also set up localBMAG at newVrtXYZ if nonuniform field is used */
 /* ---------------------------------------------------------------- */
         extrapolationDone=false;
-        if( vShift>vkalShiftToTrigExtrapolation || it==1 || forcedExtrapolation){
+	bool insideGoodVolume=checkPosition(vk,newVrtXYZ);
+        if( vShift>vkalShiftToTrigExtrapolation || it==1 || forcedExtrapolation || !insideGoodVolume ){ //Propagation is needed
+          //--- Check whether propagation step must be truncated
+          if( forcedExtrapolation || vk->m_truncatedStep || !insideGoodVolume){
+	    insideGoodVolume=false;
+            while( !insideGoodVolume ){      //check extrapolation and limit step if needed
+              newVrtXYZ[0]=(2.*savedExtrapVertices[it-1].X + savedExtrapVertices[it-2].X)/3.; //Use 2/3 of the initial distance
+              newVrtXYZ[1]=(2.*savedExtrapVertices[it-1].Y + savedExtrapVertices[it-2].Y)/3.; //for extrapolation
+              newVrtXYZ[2]=(2.*savedExtrapVertices[it-1].Z + savedExtrapVertices[it-2].Z)/3.;
+              savedExtrapVertices[it-1].Set(newVrtXYZ);
+              insideGoodVolume=checkPosition(vk,newVrtXYZ);
+              if(!insideGoodVolume && savedExtrapVertices[it-1].Dist3D(savedExtrapVertices[it-2])<5.) { return -11; }
+          } }
+          //------------------------------
           extrapolationDone=true;
           forcedExtrapolation=false;
-          double oldX=0., oldY=0., oldZ=0.;
-          if(it>=2){ oldX=savedExtrapVertices[it-2].X; oldY=savedExtrapVertices[it-2].Y; oldZ=savedExtrapVertices[it-2].Z;}
-	  bool insideGoodVolume=false;
-          while( !insideGoodVolume ){      //check extrapolation and limit step if needed
-             dxyzst[0]=(savedExtrapVertices[it-1].X + oldX)/2.;
-             dxyzst[1]=(savedExtrapVertices[it-1].Y + oldY)/2.;
-             dxyzst[2]=(savedExtrapVertices[it-1].Z + oldZ)/2.;
-             savedExtrapVertices[it-1].X=dxyzst[0];
-             savedExtrapVertices[it-1].Y=dxyzst[1];
-             savedExtrapVertices[it-1].Z=dxyzst[2];
-             double ddx=savedExtrapVertices[it-1].X - oldX;
-             double ddy=savedExtrapVertices[it-1].Y - oldY;
-             double ddz=savedExtrapVertices[it-1].Z - oldZ;
-             if( sqrt(ddx*ddx+ddy*ddy+ddz*ddz)<5.) { IERR=-11; return IERR; }       // Impossible to extrapolate
-             if(vk->m_fitterControl && vk->m_fitterControl->m_objProp) { insideGoodVolume = vk->m_fitterControl->m_objProp->checkTarget(dxyzst);}
-             else                                                      { insideGoodVolume = myPropagator.checkTarget(dxyzst); }
-          }
-	  double targV[3]={dxyzst[0],dxyzst[1],dxyzst[2]};
+	  double targV[3]={newVrtXYZ[0],newVrtXYZ[1],newVrtXYZ[2]};  //Temporary to avoid overwriting
 	  for (tk = 0; tk < NTRK; ++tk) {
+//std::cout<<__func__<<" propagate trk="<<tk<<" X,Y,Z="<<targV[0]<<","<<targV[1]<<","<<targV[2]<<'\n';
             myPropagator.Propagate(vk->TrackList[tk], vk->refV,  targV, tmpPer, tmpCov, (vk->m_fitterControl).get());
             cfTrkCovarCorr(tmpCov);
             double eig5=cfSmallEigenvalue(tmpCov,5 );
@@ -283,8 +283,8 @@ int fitVertex(VKVertex * vk)
                myPropagator.Propagate(-999, vk->TrackList[tk]->Charge, vk->TrackList[tk]->refPerig,vk->TrackList[tk]->refCovar,
 	              	                vk->refV,  targV, tmpPer, tmpCov, (vk->m_fitterControl).get()); 
 
-	       if(cfSmallEigenvalue(tmpCov,5 )<1.e-15){    //Final protection
- 	           tmpCov[1]=0.;tmpCov[3]=0.;tmpCov[6]=0.;tmpCov[10]=0.;
+	       if(cfSmallEigenvalue(tmpCov,5 )<1.e-15){                    // Final protection. Zero non-diagonal terms 
+ 	           tmpCov[1]=0.;tmpCov[3]=0.;tmpCov[6]=0.;tmpCov[10]=0.;   // and make positive diagonal ones
 		                tmpCov[4]=0.;tmpCov[7]=0.;tmpCov[11]=0.;
 		                             tmpCov[8]=0.;tmpCov[12]=0.;
 		                                          tmpCov[13]=0.;
@@ -297,12 +297,10 @@ int fitVertex(VKVertex * vk)
 	    if(jerr)jerr=cfdinv(tmpCov, tmpWgt,5);
             if(jerr){ IERR=-7; return IERR; }       //Nothing helps. Break fit.
             vk->TrackList[tk]->setCurrent(tmpPer,tmpWgt);
-//VK	    if ( vShift > 200. ) vk->TrackList[tk]->setReference( tmpPer, tmpCov ); //Change reference for big shift
           }
-//VK          if ( vShift > 200. )vk->setRefV(dxyzst);  // Change reference vertex for big shift
 //
 /* Magnetic field in fitting point setting */
-          vk->setRefIterV(dxyzst);
+          vk->setRefIterV(targV);
           vrtForCFT.localbmag = myMagFld.getMagFld(vk->refIterV,(vk->m_fitterControl).get());
           vk->setIniV(zeroV);vk->setCnstV(zeroV);    // initial guess with respect to refIterV[]. 0 after extrap.
         }else{
@@ -330,23 +328,13 @@ int fitVertex(VKVertex * vk)
         applyConstraints( vk );
         if(it==1) { bool bsave = vk->passNearVertex; vk->passNearVertex=false; IERR = vtcfit( vk );  vk->passNearVertex=bsave;}
 	else IERR = vtcfit( vk );    // In first iteration data for PassNearVertex constraint don't exist!!!
-//std::cout<<" test1 IERR="<<IERR<<", "<<vk->Chi2<<'\n';
         if (IERR)  return IERR;
-
-	vShift = sqrt( (vk->fitV[0]- vk->iniV[0])*(vk->fitV[0]-vk->iniV[0])
-	              +(vk->fitV[1]- vk->iniV[1])*(vk->fitV[1]-vk->iniV[1])
-	              +(vk->fitV[2]- vk->iniV[2])*(vk->fitV[2]-vk->iniV[2]) );
+	vShift = cfddist3D( vk->fitV, vk->iniV );
 //----
-	if(extrapolationDone && chi21s*10.<vk->Chi2 && it>2){  //Extrapolation produced huge degradation
-          double ddx=savedExtrapVertices[it-1].X-savedExtrapVertices[it-2].X;
-          double ddy=savedExtrapVertices[it-1].Y-savedExtrapVertices[it-2].Y;
-          double ddz=savedExtrapVertices[it-1].Z-savedExtrapVertices[it-2].Z;
-          double ddstep=sqrt(ddx*ddx+ddy*ddy+ddz*ddz);
+	if(extrapolationDone && chi21s*10.<vk->Chi2 && it>2 && vk->Chi2>NTRK*5.){  //Extrapolation produced huge degradation
+          double ddstep=savedExtrapVertices[it-1].Dist3D(savedExtrapVertices[it-2]);
 //std::cout<<" Huge degradation due to extrapolation. Limit step! it="<<it<<" step="<<ddstep<<'\n';
-          if( ddstep > 10.*vkalShiftToTrigExtrapolation) { 
-            dxyzst[0]=(savedExtrapVertices[it-1].X + 2.*savedExtrapVertices[it-2].X)/3.;
-            dxyzst[1]=(savedExtrapVertices[it-1].Y + 2.*savedExtrapVertices[it-2].Y)/3.;
-            dxyzst[2]=(savedExtrapVertices[it-1].Z + 2.*savedExtrapVertices[it-2].Z)/3.;
+          if( ddstep > 5.*vkalShiftToTrigExtrapolation) { 
 	    forcedExtrapolation=true;
 	    continue;
 	  }
@@ -365,8 +353,7 @@ int fitVertex(VKVertex * vk)
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
 	    cfdcopy(  PartMom, vk->fitMom, 3);          //save Momentum
             cfdcopy(VrtMomCov, vk->fitCovXYZMom, 21);   //save XYZMom covariance
-	    vpderiv(vk->passWithTrkCov, vk->FVC.Charge, dparst, VrtMomCov, 
-	                       vk->FVC.vrt, vk->FVC.covvrt, 
+	    vpderiv(vk->passWithTrkCov, vk->FVC.Charge, dparst, VrtMomCov, vk->FVC.vrt, vk->FVC.covvrt, 
 		               vk->FVC.cvder, vk->FVC.ywgt, vk->FVC.rv0, (vk->m_fitterControl).get());
 	  }
 
@@ -380,26 +367,23 @@ int fitVertex(VKVertex * vk)
           applyConstraints( vk);
           if(it==1) { bool bsave = vk->passNearVertex; vk->passNearVertex=false; IERR = vtcfit( vk );  vk->passNearVertex=bsave;}
 	  else IERR = vtcfit( vk );    // In first iteration data for PassNearVertex constraint don't exist!!!
-//std::cout<<" test2 IERR="<<IERR<<", "<<vk->Chi2<<'\n';
  	  if ( IERR ) return IERR;
-	  vShift = sqrt( (vk->fitV[0]- vk->iniV[0])*(vk->fitV[0]-vk->iniV[0])
-	                +(vk->fitV[1]- vk->iniV[1])*(vk->fitV[1]-vk->iniV[1])
-	                +(vk->fitV[2]- vk->iniV[2])*(vk->fitV[2]-vk->iniV[2]) );
+	  vShift = cfddist3D( vk->fitV, vk->iniV );
           chi22s = vk->Chi2;
         }
 //
 // 
 	if (chi22s > 1e8) {  IERR = -1; return IERR; }      // TOO HIGH CHI2 - BAD FIT
-	for( i=0; i<3; i++) dxyzst[i] = vk->refIterV[i]+vk->fitV[i];  //   fitted vertex in global frame
+	for( i=0; i<3; i++) newVrtXYZ[i] = vk->refIterV[i]+vk->fitV[i];  //   fitted vertex in global frame
 	//std::cout.precision(11);
 	//std::cout<<"NNFIT Iter="<<it<<" Chi2ss="<< chi21s <<", "<<chi22s<<", "<<vShift<<'\n';
-	//std::cout<<"NNVertex="<<dxyzst[0]<<", "<<dxyzst[1]<<", "<<dxyzst[2]<<'\n';
+	//std::cout<<"NNVertex="<<newVrtXYZ[0]<<", "<<newVrtXYZ[1]<<", "<<newVrtXYZ[2]<<'\n';
 	//std::cout<<"-----------------------------------------------"<<'\n';
 /*  Test of convergence */
 	chi2df = fabs(chi21s - chi22s);
   /*---------------------Normal convergence--------------------*/
         double PrecLimit = min(chi22s*1.e-4, vrtForCFT.IterationPrecision);
-	//std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
+//std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
 	if ((chi2df < PrecLimit) && (vShift < 0.001) && it>1 && (cnstRemnants<ConstraintAccuracy)){
 	   double dstFromExtrapPnt=sqrt(vk->fitV[0]*vk->fitV[0] + vk->fitV[1]*vk->fitV[1]+ vk->fitV[2]*vk->fitV[2]);
 	   if( dstFromExtrapPnt>vkalShiftToTrigExtrapolation/2. && it < vrtForCFT.IterationNumber-15){
@@ -431,7 +415,7 @@ int fitVertex(VKVertex * vk)
 //
         cnstRemnants=0. ;
         for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
-          for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
+          for(int ic=0; ic<(int)vk->ConstraintList[ii]->m_NCDim; ic++){
             cnstRemnants +=  fabs( vk->ConstraintList[ii]->aa[ic] ); } }
         if(it==1){ if(cnstRemnants>0.){iniCnstRem=cnstRemnants;}else{iniCnstRem=1.e-12;} }
         if(it==10){   
@@ -460,63 +444,67 @@ int fitVertex(VKVertex * vk)
 }
 
 
-     int CFit(VKalVrtControl &FitCONTROL, long int ifCovV0, long int NTRK, 
-	      long int *ich, double *xyz0, double *par0,
-	      double *inp_Trk5, double *inp_CovTrk5, 
-	      double *xyzfit, double *parfs, double *ptot,
-              double *covf, double *chi2, double *chi2tr)
+     int CFit(VKalVrtControl *FitCONTROL, int ifCovV0, int NTRK, 
+	      long int *ich, double xyz0[3], double (*par0)[3],
+	      double (*inp_Trk5)[5], double (*inp_CovTrk5)[15], 
+	      double xyzfit[3], double (*parfs)[3], double ptot[4],
+              double covf[21], double &chi2, double *chi2tr)
 {
-    int IERR,tk;
-    double dptot[5], VrtMomCov[21];
 
-    ptot[0]=0.; ptot[0]=0.; ptot[0]=0.;     
+    std::fill_n(ptot,4,0.);
+    std::fill_n(covf,21,0.);
     cfdcopy(xyz0,xyzfit,3);
+    if(FitCONTROL->m_fullCovariance) delete[] FitCONTROL->m_fullCovariance; // Just safety
+    FitCONTROL->m_fullCovariance=0;                                         //
 
 //
 //   Create vertex
 //
-    VKVertex MainVRT = createVertex(NTRK, ich, xyz0, par0, inp_Trk5, inp_CovTrk5, &FitCONTROL);
+    std::unique_ptr<VKVertex> MainVRT(new VKVertex(*FitCONTROL));
+    fillVertex(MainVRT.get(), NTRK, ich, xyz0, par0, inp_Trk5, inp_CovTrk5);
 //
 //  Fit vertex
 //
-    IERR = fitVertex( &MainVRT); 
+    int IERR = fitVertex( MainVRT.get()); 
     if(IERR)   return IERR;
 //
 //  if successful - save results
 //
-    (*chi2) = 0.;
-    for (tk = 0; tk < NTRK; tk++) {
-	(*chi2)   += MainVRT.TrackList[tk]->Chi2;
-	chi2tr[tk] = MainVRT.TrackList[tk]->Chi2;
-        cfdcopy( MainVRT.TrackList[tk]->fitP, &parfs[tk*3], 3);
+    for(int i=0; i<3; i++) xyzfit[i] = MainVRT->refIterV[i]+MainVRT->fitV[i];  //   fitted vertex in global frame
+    MainVRT->m_fitterControl->m_forcft.localbmag = myMagFld.getMagFld(xyzfit,(MainVRT->m_fitterControl).get());
+    chi2 = 0.;
+    for (int tk = 0; tk < NTRK; tk++) {
+        VKTrack * trk = MainVRT->TrackList[tk];
+	chi2   += trk->Chi2;
+	chi2tr[tk] = trk->Chi2;
+        cfdcopy( trk->fitP, &parfs[tk][0], 3);
+        std::vector<double> pp = getFitParticleMom( trk, MainVRT->m_fitterControl->m_forcft.localbmag );
+        ptot[0]+=pp[0]; ptot[1]+=pp[1]; ptot[2]+=pp[2]; ptot[3]+=pp[3];
     }
-    for(int i=0; i<3; i++) xyzfit[i] = MainVRT.refIterV[i]+MainVRT.fitV[i];  //   fitted vertex in global frame
-    cfdcopy(MainVRT.fitVcov, covf  , 6);  //fitted vertex covariance
+    cfdcopy(MainVRT->fitVcov, covf  , 6);  //fitted vertex covariance
 //     
 //  If required - get full covariance matrix
 //
     if(ifCovV0){
-      MainVRT.m_fitterControl->m_forcft.localbmag = myMagFld.getMagFld(xyzfit,(MainVRT.m_fitterControl).get());
-      IERR = afterFit(&MainVRT, MainVRT.ader, MainVRT.FVC.dcv, dptot, VrtMomCov, (MainVRT.m_fitterControl).get());
+      double dptot[5], VrtMomCov[21];
+      IERR = afterFit(MainVRT.get(), MainVRT->ader, MainVRT->FVC.dcv, dptot, VrtMomCov, (MainVRT->m_fitterControl).get());
       if (IERR) return -2;   /* NONINVERTIBLE COV.MATRIX */
-      if(MainVRT.existFullCov){
-        if(FitCONTROL.m_fullCovariance) delete[] FitCONTROL.m_fullCovariance;
-        FitCONTROL.m_fullCovariance=new double( (3*NTRK+3)*(3*NTRK+3+1)/2 );
+      if(MainVRT->m_existFullCov){
+        FitCONTROL->m_fullCovariance=new double[ (3*NTRK+3)*(3*NTRK+3+1)/2 ];
         int out=0;
         for(int ti=0; ti<3+3*NTRK; ti++){
           for(int tj=ti; tj<3+3*NTRK; tj++){
-            FitCONTROL.m_fullCovariance[out] = ARR_2D(MainVRT.ader, 3*vkalNTrkM+3, ti, tj);
+            FitCONTROL->m_fullCovariance[out] = ARR2D_FS(MainVRT->ader, 3*vkalNTrkM+3, ti, tj);
             out++;
         } }
         int activeTrk[vkalNTrkM]={1};
-        cfmasserr(&MainVRT, activeTrk,MainVRT.m_fitterControl->m_forcft.localbmag, 
-                      &FitCONTROL.m_vrtMassTot, &FitCONTROL.m_vrtMassError);
+        cfmasserr(MainVRT.get(), activeTrk,MainVRT->m_fitterControl->m_forcft.localbmag, 
+                      &FitCONTROL->m_vrtMassTot, &FitCONTROL->m_vrtMassError);
       }
       cfdcopy( VrtMomCov,  covf, 21);  //XvYvZvPxPyPz covariance
-      cfdcopy( dptot,      ptot,  3);  //summary mom
-      cfdcopy( MainVRT.m_fitterControl->m_forcft.robres, FitCONTROL.m_forcft.robres, NTRK); //Track weights from robust fit
+      cfdcopy( MainVRT->m_fitterControl->m_forcft.robres, FitCONTROL->m_forcft.robres, NTRK); //Track weights from robust fit
       
-//std::cout<<" newcov="<<VrtMomCov[0]<<", "<<VrtMomCov[2]<<", "<<VrtMomCov[4]<<", "
+//std::cout<<__func__<<" newcov="<<VrtMomCov[0]<<", "<<VrtMomCov[2]<<", "<<VrtMomCov[4]<<", "
 //                     <<VrtMomCov[9]<<", "<<VrtMomCov[14]<<", "<<VrtMomCov[13]<<'\n';
     }
 

@@ -68,12 +68,12 @@ namespace Trk{
          bx = BField[0]/CLHEP::tesla;
          by = BField[1]/CLHEP::tesla;   // Field in TESLA!!!!
          bz = BField[2]/CLHEP::tesla;
-//std::cout<<" Exact mag="<<bz<<" at "<<fieldXYZ[0]<<", "<<fieldXYZ[1]<<", "<<fieldXYZ[2]<<", "<<'\n';
+//std::cout<<" Exact mag.="<<bz<<" at "<<fieldXYZ[0]<<", "<<fieldXYZ[1]<<", "<<fieldXYZ[2]<<", "<<'\n';
       }else{
          bx = 0.;
          by = 0.;
          bz = m_FIXED_ATLAS_FIELD;
-//std::cout<<" Fix mag="<<bz<<'\n';
+//std::cout<<" Fix mag.="<<bz<<'\n';
        }
    }
 //--------------------------------------------------------------------------

@@ -36,7 +36,6 @@ extern void setFittedParameters(double * , std::vector<int> & );
 extern int getCascadeNPar(int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
 extern void cleanCascade();
-extern void cfdcopy(double *source, double *target, int);
 extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
 extern std::vector<double> getFitParticleMom( VKTrack *, double);
 
@@ -100,7 +99,7 @@ double cascadeCnstRemnants(){
   for(int iv=0; iv<cascadeEvent_.cascadeNV; iv++){
      VKVertex * vk = cascadeEvent_.cascadeVertexList[iv];
      for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
-        for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
+        for(int ic=0; ic<(int)vk->ConstraintList[ii]->m_NCDim; ic++){
            cnstRemnants +=  fabs( vk->ConstraintList[ii]->aa[ic] ); 
      } }
   }
@@ -483,9 +482,9 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
         if(vk->nextCascadeVrt){
           int pntCnst = vk->ConstraintList.size() - 1;  // pointing constraint is always last in the list
           VKPointConstraint * pcnst = dynamic_cast<VKPointConstraint*>(vk->ConstraintList[pntCnst]);
-          pcnst->targetVertex[0] = vk->nextCascadeVrt->refIterV[0];
-          pcnst->targetVertex[1] = vk->nextCascadeVrt->refIterV[1];
-          pcnst->targetVertex[2] = vk->nextCascadeVrt->refIterV[2];
+          pcnst->m_targetVertex[0] = vk->nextCascadeVrt->refIterV[0];
+          pcnst->m_targetVertex[1] = vk->nextCascadeVrt->refIterV[1];
+          pcnst->m_targetVertex[2] = vk->nextCascadeVrt->refIterV[2];
         }
      }
 //
@@ -697,9 +696,9 @@ int restorePreviousPos( std::vector<VKVertex> &SV )
        int pntCnst = vk->ConstraintList.size() - 1;  // pointing constraint is always last in the list
        VKPointConstraint * pcnst = dynamic_cast<VKPointConstraint*>(vk->ConstraintList[pntCnst]);
        if(pcnst==0) return -1;
-       pcnst->targetVertex[0] = vk->nextCascadeVrt->refIterV[0];
-       pcnst->targetVertex[1] = vk->nextCascadeVrt->refIterV[1];
-       pcnst->targetVertex[2] = vk->nextCascadeVrt->refIterV[2];
+       pcnst->m_targetVertex[0] = vk->nextCascadeVrt->refIterV[0];
+       pcnst->m_targetVertex[1] = vk->nextCascadeVrt->refIterV[1];
+       pcnst->m_targetVertex[2] = vk->nextCascadeVrt->refIterV[2];
     }
   }
   return 0;
