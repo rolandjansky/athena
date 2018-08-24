@@ -31,7 +31,7 @@ namespace CP {
     m_SagittaCorrPhaseSpace(false),
     m_doSagittaCorrection(false),
     m_doSagittaMCDistortion(false),
-    m_SagittaRelease("sagittaBiasDataAll_02_08_17"){
+    m_SagittaRelease("sagittaBiasDataAll_30_07_18"){
 
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
@@ -42,9 +42,9 @@ namespace CP {
     declareProperty("StatComb", m_useStatComb = false);
     declareProperty("MinCombPt", m_StatCombPtThreshold=300.0);
     declareProperty("SagittaCorr", m_doSagittaCorrection = false);
-    declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_25_07_17");
+    declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_30_07_18");
     declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false);
-    declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
+    declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=true);
     declareProperty("sgItersCB",m_sgItersCB=11);
     declareProperty("sgItersID",m_sgItersID=11);
     declareProperty("sgItersME",m_sgItersME=11);
@@ -354,9 +354,9 @@ namespace CP {
 
       if(m_SagittaCorrPhaseSpace){
         // Load the mc sagitta bias maps 
-        m_sagittaPhaseSpaceCB=GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),0) + trackNames.at(i) + "_mc_NoCorr.root"),"inclusive",m_GlobalZScales.at(0));
-        m_sagittaPhaseSpaceID=GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),0) + trackNames.at(i) + "_mc_NoCorr.root"),"inclusive",m_GlobalZScales.at(1));
-        m_sagittaPhaseSpaceME=GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),0) + trackNames.at(i) + "_mc_NoCorr.root"),"inclusive",m_GlobalZScales.at(2));
+        m_sagittaPhaseSpaceCB=GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),0) + trackNames.at(0) + "_mc_NoCorr.root"),"inclusive",m_GlobalZScales.at(0));
+        m_sagittaPhaseSpaceID=GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),0) + trackNames.at(1) + "_mc_NoCorr.root"),"inclusive",m_GlobalZScales.at(1));
+        m_sagittaPhaseSpaceME=GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),0) + trackNames.at(2) + "_mc_NoCorr.root"),"inclusive",m_GlobalZScales.at(2));
       }
       else{
         m_sagittaPhaseSpaceCB=nullptr;
@@ -1988,8 +1988,7 @@ namespace CP {
       }
     }
 
-    std::cout<<"All else failed using expected resolution for weights"<<std::endl;
-
+    
     double wMS = muonInfo.ptms/muonInfo.ptcb/pow(SigmaMS,2);
     double wID = muonInfo.ptid/muonInfo.ptcb/pow(SigmaID,2);
     muonInfo.weightID =  wID/(wMS + wID);
