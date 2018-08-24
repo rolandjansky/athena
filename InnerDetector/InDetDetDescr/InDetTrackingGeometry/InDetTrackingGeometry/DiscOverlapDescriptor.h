@@ -58,9 +58,8 @@ namespace InDet {
     /** Destructor */
     virtual ~DiscOverlapDescriptor() {
       if (m_singleBinUtils) {
-	std::vector<Trk::BinUtility*>::iterator binIter = m_singleBinUtils->begin();
-	for ( ; binIter != m_singleBinUtils->end(); ++binIter)
-	  delete *binIter;
+        std::vector<Trk::BinUtility*>::iterator binIter = m_singleBinUtils->begin();
+        for ( ; binIter != m_singleBinUtils->end(); ++binIter) delete *binIter;
       }
       delete m_singleBinUtils;
     }
