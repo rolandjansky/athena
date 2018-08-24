@@ -64,6 +64,10 @@ thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D2
 
 #generic object thinning
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
+if DerivationFrameworkIsMonteCarlo :
+  thinningTools.append( HIGG5Common.getTruthThinningTool('HIGG5D2',HIGG5D2ThinningHelper) )
+  thinningTools.append( HIGG5Common.getAntiKt10TruthTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
+  thinningTools.append( HIGG5Common.getAntiKt10TruthWZTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
 
 #========================================================================
 # lepton selection (keep isolation failed leptons for QCD-MJ estimation)

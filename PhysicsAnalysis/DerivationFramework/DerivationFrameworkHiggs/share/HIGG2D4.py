@@ -69,6 +69,10 @@ thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG2D4
 
 #generic object thinning
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
+if DerivationFrameworkIsMonteCarlo :
+  thinningTools.append( HIGG5Common.getTruthThinningTool('HIGG2D4',HIGG2D4ThinningHelper) )
+  thinningTools.append( HIGG5Common.getAntiKt10TruthTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
+  thinningTools.append( HIGG5Common.getAntiKt10TruthWZTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
 
 # Truth particles
 # if DerivationFrameworkIsMonteCarlo:
