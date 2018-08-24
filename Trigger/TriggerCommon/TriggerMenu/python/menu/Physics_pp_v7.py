@@ -4261,6 +4261,13 @@ def setupMenu():
         ['rpcpeb_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['RPCNoise'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
         ['rpcpebsecondaryreadout', '', [], ['RPCsecondaryreadout'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
 
+        #ATR-17825, RPC triggers
+        ['mu26_ivarmedium_rpcpebsecondaryreadout', 'L1_MU20MU21', ['L1_MU20',''], ['RPCsecondaryreadout'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1,['serial',-1,['mu26_ivarmedium','rpcpebsecondaryreadout']]],
+        ['mu50_rpcpebsecondaryreadout', 'L1_MU20MU21', ['L1_MU20',''], ['RPCsecondaryreadout'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1,['serial',-1,['mu50','rpcpebsecondaryreadout']]],
+        ['mu22_mu8noL1_rpcpebsecondaryreadout', 'L1_MU20MU21', ['L1_MU20','',''], ['RPCsecondaryreadout'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1,['serial',-1,['mu22','mu8noL1','rpcpebsecondaryreadout']]],
+        #['mu20_ivarmedium_mu8noL1',    'L1_MU20MU21',  ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_ivarmedium','mu8noL1']]],
+
+
         ['idpsl1_L1IDprescaled','', [], ['IDprescaledL1'], ["RATE:SeededStreamers","BW:Other"], -1],
 
         ]
