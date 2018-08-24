@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -63,7 +63,7 @@ StatusCode CondWriterAlg::writeSCond (unsigned int count)
 
   ATH_CHECK( m_regSvc->registerIOV ("DMTest::S2",
                                     m_s2Key,
-                                    "tag S2_noTag",
+                                    "S2_noTag",
                                     IOVTime::MINRUN, IOVTime::MAXRUN,
                                     count, count+1) );
 
@@ -87,7 +87,7 @@ StatusCode CondWriterAlg::execute()
 
   ATH_CHECK( m_regSvc->registerIOV ("AthenaAttributeList",
                                     m_attrListKey,
-                                    "tag AttrList_noTag",
+                                    "AttrList_noTag",
                                     IOVTime::MINRUN, IOVTime::MAXRUN,
                                     count, count) );
 
