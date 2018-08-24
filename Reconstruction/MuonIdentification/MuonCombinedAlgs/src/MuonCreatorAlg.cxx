@@ -25,7 +25,7 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("MuonCreatorTool",m_muonCreatorTool);
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
   declareProperty("CreateSAmuons", m_doSA=false);
-
+  declareProperty("MakeClusters",m_makeClusters=true);
 }
 
 MuonCreatorAlg::~MuonCreatorAlg(){}
@@ -56,9 +56,9 @@ StatusCode MuonCreatorAlg::initialize()
   m_msOnlyExtrapolatedCollectionName = m_msOnlyExtrapolatedCollectionName.key()+"TrackParticles";
   ATH_CHECK(m_msOnlyExtrapolatedCollectionName.initialize());
   ATH_CHECK(m_msOnlyExtrapolatedTrkCollectionName.initialize());
-  ATH_CHECK(m_clusterContainerName.initialize());
+  ATH_CHECK(m_clusterContainerName.initialize(m_makeClusters));
   m_clusterContainerLinkName = m_clusterContainerName.key()+"_links";
-  ATH_CHECK(m_clusterContainerLinkName.initialize());
+  ATH_CHECK(m_clusterContainerLinkName.initialize(m_makeClusters));
 
   return StatusCode::SUCCESS; 
 }
@@ -126,16 +126,17 @@ StatusCode MuonCreatorAlg::execute()
   output.muonSegmentCollection=wh_segmentTrk.ptr();
 
   // calo clusters
-  xAOD::CaloClusterContainer *caloclusters = new xAOD::CaloClusterContainer();
-  xAOD::CaloClusterAuxContainer *caloclustersaux = new xAOD::CaloClusterAuxContainer();
-  caloclusters->setStore(caloclustersaux);
-  output.clusterContainer = caloclusters;
-  CaloClusterCellLinkContainer *clusterlinks = new CaloClusterCellLinkContainer();
-  SG::WriteHandle<xAOD::CaloClusterContainer> wh_clusters(m_clusterContainerName);
-  SG::WriteHandle<CaloClusterCellLinkContainer> wh_clusterslink(m_clusterContainerLinkName);
-
-  //record clusters and set the links
-  ATH_CHECK(wh_clusters.record(std::unique_ptr<xAOD::CaloClusterContainer>(caloclusters),std::unique_ptr<xAOD::CaloClusterAuxContainer>(caloclustersaux)));
+  SG::WriteHandle<xAOD::CaloClusterContainer> wh_clusters;
+  SG::WriteHandle<CaloClusterCellLinkContainer> wh_clusterslink;
+  if(m_makeClusters){
+    xAOD::CaloClusterContainer *caloclusters = new xAOD::CaloClusterContainer();
+    xAOD::CaloClusterAuxContainer *caloclustersaux = new xAOD::CaloClusterAuxContainer();
+    caloclusters->setStore(caloclustersaux);
+    wh_clusters=SG::WriteHandle<xAOD::CaloClusterContainer>(m_clusterContainerName);
+    wh_clusterslink=SG::WriteHandle<CaloClusterCellLinkContainer>(m_clusterContainerLinkName);
+    ATH_CHECK(wh_clusters.record(std::unique_ptr<xAOD::CaloClusterContainer>(caloclusters),std::unique_ptr<xAOD::CaloClusterAuxContainer>(caloclustersaux)));
+    output.clusterContainer = wh_clusters.ptr();
+  }
 
   const MuonCandidateCollection *muonCandidateCollection =0;
 
@@ -156,11 +157,14 @@ StatusCode MuonCreatorAlg::execute()
   
   m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection, tagMaps, output);
 
-  auto sg = wh_clusters.storeHandle().get();
-  for (xAOD::CaloCluster* cl : *caloclusters) {
-    cl->setLink(clusterlinks, sg);
+  if(m_makeClusters){
+    CaloClusterCellLinkContainer *clusterlinks = new CaloClusterCellLinkContainer();
+    auto sg = wh_clusters.storeHandle().get();
+    for (xAOD::CaloCluster* cl : *(wh_clusters.ptr())) {
+      cl->setLink(clusterlinks, sg);
+    }
+    ATH_CHECK(wh_clusterslink.record(std::unique_ptr<CaloClusterCellLinkContainer>(clusterlinks)));
   }
-  ATH_CHECK(wh_clusterslink.record(std::unique_ptr<CaloClusterCellLinkContainer>(clusterlinks)));
 
   return StatusCode::SUCCESS;
 }
