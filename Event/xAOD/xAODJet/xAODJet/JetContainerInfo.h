@@ -65,7 +65,6 @@ namespace xAOD {
       Jet,
       LCTopoOrigin,
       EMTopoOrigin,
-      HI,
       Other = 100,
       Uncategorized= 1000
     };
