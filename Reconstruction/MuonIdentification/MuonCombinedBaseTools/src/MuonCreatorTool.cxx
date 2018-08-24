@@ -1149,8 +1149,10 @@ namespace MuonCombined {
       for( auto candidate : *inDetCandidates ){
 	std::vector<const TagBase*> tags;
 	for(auto map : tagMaps){
-	  const TagBase* tag=map->getTag(candidate);
-	  if(tag) tags.push_back(tag);
+          if (map) {
+            const TagBase* tag=map->getTag(candidate);
+            if(tag) tags.push_back(tag);
+          }
 	}
         if( !tags.empty() ) {
           // sort the tags based on quality
