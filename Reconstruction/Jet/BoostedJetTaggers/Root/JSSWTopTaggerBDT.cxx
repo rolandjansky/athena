@@ -383,7 +383,7 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
 
     if(!jet.isAvailable<float>("Tau21_wta")){
       m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
-      if(m_Tau21_wta!=m_Tau21_wta){
+      if(isnan(m_Tau21_wta)){
         m_undefInput = true;
       }
     }
@@ -393,7 +393,7 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
 
     if(!jet.isAvailable<float>("Tau32_wta")){
       m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
-      if(m_Tau21_wta!=m_Tau21_wta){
+      if(isnan(m_Tau32_wta)){
         m_undefInput = true;
       }
     }
@@ -450,7 +450,7 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
 
     if(!jet.isAvailable<float>("Tau21_wta")){
       m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
-      if(m_Tau21_wta!=m_Tau21_wta){
+      if(isnan(m_Tau21_wta)){
         m_undefInput = true;
       }
     }
@@ -460,7 +460,7 @@ void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
 
     if(!jet.isAvailable<float>("Tau32_wta")){
       m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
-      if(m_Tau21_wta!=m_Tau21_wta){
+      if(isnan(m_Tau21_wta)){
         m_undefInput = true;
       }
     }

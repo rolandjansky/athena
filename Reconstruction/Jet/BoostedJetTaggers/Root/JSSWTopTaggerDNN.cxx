@@ -380,7 +380,7 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
 
     if(!jet.isAvailable<float>("Tau21_wta")){
       double tau21wta = tau2wta / tau1wta;
-      if(tau21wta!=tau21wta){
+      if(isnan(tau21wta)){
         m_undefInput = true;
       }
       DNN_inputValues["Tau21_wta"] = tau21wta;
@@ -443,7 +443,7 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
 
     if(!jet.isAvailable<float>("Tau21_wta")){
       double tau21wta = tau2wta / tau1wta;
-      if(tau21wta!=tau21wta){
+      if(isnan(tau21wta)){
         m_undefInput = true;
       }
       DNN_inputValues["Tau21_wta"] = tau21wta;
@@ -454,7 +454,7 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
 
     if(!jet.isAvailable<float>("Tau32_wta")){
       double tau32wta = tau3wta / tau2wta;
-      if(tau32wta!=tau32wta){
+      if(isnan(tau32wta)){
         m_undefInput = true;
       }
       DNN_inputValues["Tau32_wta"] = tau32wta;
