@@ -67,11 +67,15 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
-doL2SA=True
-doL2CB=True
+#doL2SA=True
+doL2SA=False
+#doL2CB=True
+doL2CB=False
 doEFSA=True
 
-#TriggerFlags.doID=False
+doEFIso=True
+
+TriggerFlags.doID=True
 
  ### muon thresholds ###
 testChains = ["HLT_mu6", "HLT_2mu6"]
@@ -638,7 +642,7 @@ if TriggerFlags.doMuon==True:
 
     topSequence += hltTop  
 
-  if doEFSA==True and doL2SA==False and doL2CB==False:
+  if doEFSA==True and doL2SA==False and doL2CB==False and doEFIso==False:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
@@ -702,6 +706,25 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
 
     topSequence += hltTop   
+
+if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
+  if doL2SA==False and doL2CB==False and doEFSA==True and doEFIso==True:
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    summary.InputDecision = "HLTChains" 
+    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
+    summary.OutputLevel = DEBUG 
+    step0 = parOR("step0", [ muonEFSAStep ] )
+    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
+
+    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    mon.InputDecision = "HLTChains" 
+    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
+    mon.HLTSummary = "MonitoringSummary" 
+    mon.OutputLevel = DEBUG 
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+    topSequence += hltTop 
 
    
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
