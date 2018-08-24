@@ -307,23 +307,38 @@ CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactor(c
         efficiencyScaleFactor=1;
         return  CP::CorrectionCode::Error;
     } 
-    // if not in the range: return OutOfVelidityRange with SF = 1 +/- 1
-  
+    // if not in the range: return OutOfVelidityRange with SF = 1 +/- 1 
     if(fabs(cluster->etaBE(2))>MAXETA || inputObject.pt()<MIN_ET){
+      efficiencyScaleFactor=1;
+    if(m_appliedSystematics!=nullptr) {
+      efficiencyScaleFactor+=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
+    }
+    return CP::CorrectionCode::OutOfValidityRange;
+    }
+  
+  double sf=calculate(&inputObject).getScaleFactor();
+ 
+  /* 
+   * The underlying TPhoton tool does not propagate the validity codes 
+   * of the TElectron but we can check on the -999 , default return of the tool
+   */
+  if (sf<-990){
     efficiencyScaleFactor=1;
-    if(m_appliedSystematics!=nullptr) efficiencyScaleFactor+=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
-	return CP::CorrectionCode::OutOfValidityRange;
+    if(m_appliedSystematics!=nullptr) {
+      efficiencyScaleFactor+=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
+    }
+    return CP::CorrectionCode::OutOfValidityRange;
   }
   
   if(m_appliedSystematics==nullptr){
-    efficiencyScaleFactor=calculate(&inputObject).getScaleFactor();
+    efficiencyScaleFactor=sf;
     return  CP::CorrectionCode::Ok;
   }
   
   //Get the result + the uncertainty
   float m_sigma(0);
   m_sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
-  efficiencyScaleFactor=calculate(&inputObject).getScaleFactor()+m_sigma*calculate(&inputObject).getTotalUncertainty();
+  efficiencyScaleFactor=sf+m_sigma*calculate(&inputObject).getTotalUncertainty();
   
   return  CP::CorrectionCode::Ok;
 }
