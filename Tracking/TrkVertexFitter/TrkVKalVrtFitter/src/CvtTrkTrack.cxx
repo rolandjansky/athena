@@ -29,8 +29,7 @@ namespace Trk{
 //
 
 
- StatusCode TrkVKalVrtFitter::CvtTrkTrack(const std::vector<const Trk::Track*>& InpTrk,
-        long int& ntrk) {
+ StatusCode TrkVKalVrtFitter::CvtTrkTrack(const std::vector<const Trk::Track*>& InpTrk, int& ntrk) {
 
     std::vector<const Track*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0;
@@ -87,6 +86,7 @@ namespace Trk{
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
+       long int TrkID=ntrk;
        mPer = (*i_ntrk)->perigeeParameters(); if( mPer == 0 ){ continue; } 
        VectPerig = mPer->parameters(); 
        perGlobalPos =  mPer->position();    //Global position of perigee point
@@ -115,7 +115,7 @@ namespace Trk{
 	  for(int i=0; i<5; i++) pari[i]=m_apar[ntrk][i];
 	  for(int i=0; i<15;i++) covi[i]=m_awgt[ntrk][i];
           long int Charge = (long int) mPer->charge();  
-          myPropagator.Propagate(ntrk,Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0],m_vkalFitControl);
+          myPropagator.Propagate(TrkID, Charge, pari, covi, vrtini, vrtend, &m_apar[ntrk][0], &m_awgt[ntrk][0], m_vkalFitControl);
        }
 
 //

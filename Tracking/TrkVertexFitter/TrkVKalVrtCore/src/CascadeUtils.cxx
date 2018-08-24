@@ -145,7 +145,7 @@ int getCascadeNPar(int Type=0)
   for( int iv=0; iv<cascadeEvent_.cascadeNV; iv++){
      VKVertex *vk = cascadeEvent_.cascadeVertexList[iv];
      NTrk += vk->TrackList.size();
-     for(int ic=0; ic<(int)vk->ConstraintList.size();ic++) NCnst += vk->ConstraintList[ic]->NCDim;
+     for(int ic=0; ic<(int)vk->ConstraintList.size();ic++) NCnst += vk->ConstraintList[ic]->m_NCDim;
   }
   if(Type==1) return 3*(NV+NTrk);                              // Return amount of physics parameters
   return 3*(NV+NTrk)+NCnst + 3*(cascadeEvent_.cascadeNV-1);  //additional 3 momentum constraints 

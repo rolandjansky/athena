@@ -12,7 +12,7 @@
 
 namespace Trk {
  extern   
-  void cfimp(long int TrkID, long int  ICH, long int IFL, double* PAR, double* ERR,
+  void cfimp(long int TrkID, long int  ICH, int IFL, double* PAR, double* ERR,
               double* VRT, double* VCOV,
 	      double* RIMP, double* RCOV, double*  SIGN, const VKalVrtControlBase * FitCONTROL );
 
@@ -38,13 +38,11 @@ namespace Trk{
     Impact.clear(); ImpactError.clear(); 
 //
 
-    long int vkCharge=Charge;
-
     if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrkTrack(InpTrkList,ntrk);
     if(sc.isFailure() || ntrk != 1) {    //Something is wrong in conversion
         std::vector<double> tmpImpact(5,1.e10);
@@ -53,6 +51,8 @@ namespace Trk{
         ImpactError.swap(tmpImpactError);
         return 1.e10; 
      }
+    long int vkCharge=m_ich[0];
+    if(Charge==0)vkCharge=0;
 //
 // Target vertex in ref.frame defined by track themself
 //
@@ -92,13 +92,11 @@ namespace Trk{
     Impact.clear(); ImpactError.clear();
 //
 
-    long int vkCharge=Charge;
-
     if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrackParticle(InpTrkList,ntrk);
     if(sc.isFailure() || ntrk != 1) {    //Something is wrong in conversion
         std::vector<double> tmpImpact(5,1.e10);
@@ -107,6 +105,8 @@ namespace Trk{
         ImpactError.swap(tmpImpactError);
         return 1.e10; 
      }
+    long int vkCharge=m_ich[0];
+    if(Charge==0)vkCharge=0;
 //
 // Target vertex in ref.frame defined by track itself
 //
@@ -136,20 +136,18 @@ namespace Trk{
     double RIMP[5],RCOV[3];
     double SIGNIF=0.;
 
-    std::vector<const xAOD::TrackParticle*> InpTrkList;
-    InpTrkList.push_back(InpTrk);
- //
+    std::vector<const xAOD::TrackParticle*> InpTrkList(1,InpTrk);
+//
 //--Preparation
     Impact.clear(); ImpactError.clear();
 //
 
-    long int vkCharge=Charge;
 
     if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
 //
 //------  extract information about selected tracks
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrackParticle(InpTrkList,ntrk);
     if(sc.isFailure() ||  ntrk != 1   )  {       //Something is wrong in conversion
         std::vector<double> tmpImpact(5,1.e10);
@@ -158,6 +156,8 @@ namespace Trk{
         ImpactError.swap(tmpImpactError);
         return 1.e10;
     }
+    long int vkCharge=m_ich[0];
+    if(Charge==0)vkCharge=0;
 //
 // Target vertex in ref.frame defined by track itself
 //

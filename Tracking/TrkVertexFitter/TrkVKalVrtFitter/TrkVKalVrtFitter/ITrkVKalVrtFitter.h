@@ -15,13 +15,14 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 // Gaudi includes
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+//#include "GaudiKernel/IToolSvc.h"
 //
 #include  "TrkTrack/Track.h"
 #include  "TrkParticleBase/TrackParticleBase.h"
-#include  "xAODTracking/TrackParticle.h" 
-#include  "xAODTracking/NeutralParticle.h" 
+#include  "xAODTracking/TrackParticleContainer.h" 
+#include  "xAODTracking/NeutralParticleContainer.h" 
+#include  "xAODTracking/VertexContainer.h"
 
 namespace MagField{
    class IMagFieldSvc;
@@ -106,6 +107,7 @@ namespace Trk{
       virtual void setRobustness(int)=0;
       virtual void setRobustScale(double)=0;
       virtual void setCascadeCnstPrec(double)=0;
+      virtual void setCnstType(int)=0;
       virtual void setMomCovCalc(int)=0;
       virtual void setIterations(int, double)=0;
       virtual void setVertexForConstraint(const xAOD::Vertex &)=0;
@@ -118,8 +120,8 @@ namespace Trk{
 //
 //  Interface with ATLAS reconstruction software
 //
-      virtual void setAthenaField(MagField::IMagFieldSvc*)=0;
-      virtual void setAthenaPropagator(const IExtrapolator*)=0;
+//      virtual void setAthenaField(MagField::IMagFieldSvc*)=0;
+//      virtual void setAthenaPropagator(const IExtrapolator*)=0;
 //----------------------------------------------------------------------------------------------------
 
       virtual double VKalGetImpact(const xAOD::TrackParticle*,const Amg::Vector3D& Vertex, const long int Charge,

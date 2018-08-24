@@ -146,6 +146,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
    void vkalPropagator::Propagate(long int TrkID, long int Charge, double *ParOld, double *CovOld, double *RefOld, 
                                   double *RefNew, double *ParNew, double *CovNew, const VKalVrtControlBase * FitControl) const
    {
+//std::cout<<"Core: propagator control="<<FitControl<<" oldX,Y="<<RefOld[0]<<","<<RefOld[1]<<" newX,Y="<<RefNew[0]<<","<<RefNew[1]<<'\n';
      if( RefOld[0]==RefNew[0] && RefOld[1]==RefNew[1] && RefOld[2]==RefNew[2]){
        for (int i=0; i<5;  i++) ParNew[i]=ParOld[i];
        if(CovOld != 0) { for (int i=0; i<15; i++) CovNew[i]=CovOld[i];}
@@ -155,12 +156,14 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //-- Propagation itself
 //
      if( FitControl==0 || (FitControl->m_objProp==0 && FitControl->m_funcProp==0) ){   // No external propagators, use internal ones
+//std::cout<<" Core: use INTERNAL propagator. Charge="<<Charge<<'\n';
        if(vkalUseRKMPropagator){ Trk::PropagateRKM( Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl); }
        else                    { Trk::PropagateSTD( TrkID,Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl); }
        return;
      }
 
      if (FitControl->m_objProp){
+//std::cout<<" Core: use EXTERNAL propagator. Charge="<<Charge<<'\n';
 	if( Charge == 0 ) {
 	  Trk::PropagateSTD( TrkID,Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl);
 	}else{

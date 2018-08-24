@@ -316,7 +316,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //
     if(!m_isFieldInitialized)setInitializedField();    //to allow callback for init
 //
-    long int ntrk=0;
+    int ntrk=0;
     StatusCode sc; sc.setChecked();
     std::vector<const TrackParameters*> baseInpTrk;
     if(m_firstMeasuredPoint){               //First measured point strategy

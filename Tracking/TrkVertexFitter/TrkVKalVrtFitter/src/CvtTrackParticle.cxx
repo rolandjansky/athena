@@ -26,8 +26,7 @@ namespace Trk {
 //  Extract xAOD::TrackParticles
 //
 
- StatusCode TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& InpTrk,
-         long int& ntrk) {
+ StatusCode TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& InpTrk, int& ntrk) {
 
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -80,8 +79,6 @@ namespace Trk {
 //  Common reference frame is ready. Start extraction of parameters for fit.
 //
 
-    m_refFrameX=m_refFrameY=m_refFrameZ=0.;        //set ATLAS frame
-    m_fitField->setAtlasMagRefFrame( 0., 0., 0.);  //set ATLAS frame
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //
 //-- (Measured)Perigee in TrackParticle
@@ -132,8 +129,7 @@ namespace Trk {
 //  Extract xAOD::NeutralParticles
 //
 
- StatusCode TrkVKalVrtFitter::CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& InpTrk,
-         long int& ntrk) {
+ StatusCode TrkVKalVrtFitter::CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& InpTrk, int& ntrk) {
 
     std::vector<const xAOD::NeutralParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -237,8 +233,7 @@ namespace Trk {
 //  Extract Trk::TrackParticlesBase
 //
 
- StatusCode TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const TrackParticleBase*>& InpTrk,
-         long int& ntrk) {
+ StatusCode TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const TrackParticleBase*>& InpTrk, int& ntrk) {
 
     std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -291,6 +286,7 @@ namespace Trk {
 
     Amg::Vector3D perGlobalVrt;
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
+       long int TrkID=ntrk;
 //
 //-- (Measured)Perigee in TrackParticle
 //
@@ -326,8 +322,7 @@ namespace Trk {
 	  double pari[5],covi[15]; double vrtini[3]={0.,0.,0.}; double vrtend[3]={dX,dY,dZ};
 	  for(int i=0; i<5; i++) pari[i]=m_apar[ntrk][i];
 	  for(int i=0; i<15;i++) covi[i]=m_awgt[ntrk][i];
-          long int Charge = m_ich[ntrk];  
-          myPropagator.Propagate(ntrk, Charge, pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0],m_vkalFitControl);
+          myPropagator.Propagate( TrkID, m_ich[ntrk], pari, covi, vrtini, vrtend,&m_apar[ntrk][0],&m_awgt[ntrk][0],m_vkalFitControl);
        }
 
        ntrk++; if(ntrk>=NTrMaxVFit) return StatusCode::FAILURE;

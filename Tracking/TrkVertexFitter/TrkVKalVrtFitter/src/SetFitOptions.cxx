@@ -8,28 +8,6 @@
 //-------------------------------------------------
 #include<iostream>
 
-//extern "C" {
-//  void prcfit_(const long int& ntrk,const double& wm,const double& wmfit,
-//               const double& BMAG,const double& vrt,const double& vrte,
-//	       const long int& irob);           
-//  void setmasscnst_(const long int& NCnstTrk,const long int& IndexTrk,const double& WMCNST);
-//}
-
-/*namespace Trk {
-extern void prcfit(long int *,double *,double* ,
-                    double* , double* , double*);           
-extern void setmasscnst_(long int* , long int* , double* );
-extern void vksetIterationNum(long int Iter);
-extern void vksetIterationPrec(double Prec);
-extern void vksetRobustness(long int Rob);
-extern void vksetRobustScale(double Scale);
-extern void vksetUseMassCnst();
-extern void vksetUsePhiCnst();
-extern void vksetUseThetaCnst();
-extern void vksetUseAprioriVrt();
-extern void vksetUsePointingCnst(int iType = 1 );
-extern void vksetUsePassNear(int iType = 1 );
-}*/
 
 namespace Trk{
 //
@@ -39,7 +17,9 @@ namespace Trk{
   void TrkVKalVrtFitter::VKalVrtConfigureFitterCore(int NTRK)
   {
     m_FitStatus = 0;     // Drop all previous fit results
-
+    ForCFT newforcft;    //Create fresh ForCFT
+    std::swap(m_vkalFitControl->m_forcft,newforcft);
+  
     //Set input particle masses
     for(int it=0; it<NTRK; it++){
       if( it<(int)m_MassInputParticles.size() ) { m_vkalFitControl->m_forcft.wm[it]  = (double)(m_MassInputParticles[it]); }
@@ -176,26 +156,25 @@ namespace Trk{
 */ 
 //Old logics. Left here for reference to compare with previous releases of VKalVrt
 //
-/*  void TrkVKalVrtFitter::setCnstType(int TYPE)
-  { if(TYPE>0)msg(MSG::DEBUG)<< "ConstraintType is changed at execution stage "<<m_iflag<<"=>"<<TYPE<< endmsg;
-    m_iflag = TYPE;
-    if(m_iflag<0)m_iflag=0;
-    if(m_iflag>14)m_iflag=0;
-    if( m_iflag == 2)  m_usePointingCnst   = true;    
-    if( m_iflag == 3)  m_useZPointingCnst  = true;    
-    if( m_iflag == 4)  m_usePointingCnst   = true;    
-    if( m_iflag == 5)  m_useZPointingCnst  = true;    
-    if( m_iflag == 6)  m_useAprioriVertex  = true;    
-    if( m_iflag == 7)  m_usePassWithTrkErr = true;    
-    if( m_iflag == 8)  m_usePassWithTrkErr = true;    
-    if( m_iflag == 9)  m_usePassNear       = true;    
-    if( m_iflag == 10) m_usePassNear       = true;    
-    if( m_iflag == 11) m_usePhiCnst = true;    
-    if( m_iflag == 12) { m_usePhiCnst = true; m_useThetaCnst = true;}
-    if( m_iflag == 13) { m_usePhiCnst = true; m_usePassNear  = true;}
-    if( m_iflag == 14) { m_usePhiCnst = true; m_useThetaCnst = true; m_usePassNear  = true;}
+  void TrkVKalVrtFitter::setCnstType(int TYPE)
+  { if(TYPE>0)msg(MSG::DEBUG)<< "ConstraintType is changed at execution stage. New type="<<TYPE<< endmsg;
+    if(TYPE<0)TYPE=0;
+    if(TYPE>14)TYPE=0;
+    if( TYPE == 2)  m_usePointingCnst   = true;    
+    if( TYPE == 3)  m_useZPointingCnst  = true;    
+    if( TYPE == 4)  m_usePointingCnst   = true;    
+    if( TYPE == 5)  m_useZPointingCnst  = true;    
+    if( TYPE == 6)  m_useAprioriVertex  = true;    
+    if( TYPE == 7)  m_usePassWithTrkErr = true;    
+    if( TYPE == 8)  m_usePassWithTrkErr = true;    
+    if( TYPE == 9)  m_usePassNear       = true;    
+    if( TYPE == 10) m_usePassNear       = true;    
+    if( TYPE == 11) m_usePhiCnst = true;    
+    if( TYPE == 12) { m_usePhiCnst = true; m_useThetaCnst = true;}
+    if( TYPE == 13) { m_usePhiCnst = true; m_usePassNear  = true;}
+    if( TYPE == 14) { m_usePhiCnst = true; m_useThetaCnst = true; m_usePassNear  = true;}
   }
-  int  TrkVKalVrtFitter::getCnstDOF(){
+/*  int  TrkVKalVrtFitter::getCnstDOF(){
      if(m_iflag==1)return   1;
      if(m_iflag==2)return   2;
      if(m_iflag==3)return   1;

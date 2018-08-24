@@ -70,14 +70,15 @@ namespace Trk {
 
   std::ostream &  operator << ( std::ostream& out, const VKTrack& track  )
   {
-	out.setf( std::ios::scientific); out.precision(3); out << std::endl;
+	//out.setf( std::ios::defaultfloat ); out.precision(5); out << std::endl;
+	out.precision(5); out << std::defaultfloat;
         out << " Track par:      Iteration   <->   Ref"       << std::endl;
 	out << " * a_0   : "<< track.a0()   <<"   "<< track.r_a0()   << std::endl;
 	out << " * z_0   : "<< track.z()    <<"   "<< track.r_z()    << std::endl;
 	out << " * theta : "<< track.theta()<<"   "<< track.r_theta()<< std::endl;
 	out << " * phi   : "<< track.phi()  <<"   "<< track.r_phi()  << std::endl;
 	out << " * q/R   : "<< track.invR() <<"   "<< track.r_invR() << std::endl;
-	out << " * Charge: "<< track.Charge                          << std::endl;
+	out << " * Charge: "<< track.Charge <<" Mass: "<<track.m_mass<< std::endl;
 	out << "-> with ref ErrorMatrix: "        << std::endl;out.precision(5);
 	out << track.refCovar[0] <<std::endl;
 	out << track.refCovar[1] <<", "<<track.refCovar[2] <<std::endl;
@@ -103,21 +104,19 @@ namespace Trk {
   VKVertex::VKVertex(const VKalVrtControl & FitControl): VKVertex() 
   {    m_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(FitControl));  }
 
-  VKVertex::VKVertex()
+  VKVertex::VKVertex(): 
+     useApriorVertex(0), passNearVertex(false), passWithTrkCov(false), 
+     TrackList(0), tmpArr(0), ConstraintList(0),nextCascadeVrt(0),includedVrt(0)
   { 
-     useApriorVertex=0;  //no apriori vertex position used
-     passNearVertex=false;   //no "pass near" constraint used
-     passWithTrkCov=false;   //no trk covariance for this constraint
-     for(int i=0; i<3; i++) apriorV[i]=refV[i]=iniV[i]=fitV[i]=cnstV[i]=0.;
+     for(int i=0; i<3; i++) apriorV[i]=refV[i]=iniV[i]=fitV[i]=cnstV[i]=fitMom[i]=0.;
      for(int i=0; i<6; i++) apriorVWGT[i]=0.;
-     nextCascadeVrt = 0;
-     for(int i=0; i<3;  i++) fitMom[i]=0.;
      for(int i=0; i<21; i++) fitCovXYZMom[i]=savedVrtMomCov[i]=0.;
      fitCovXYZMom[0]=savedVrtMomCov[0]=100.; fitCovXYZMom[2] =savedVrtMomCov[2] =100.; fitCovXYZMom[5] =savedVrtMomCov[5] =100.;
      fitCovXYZMom[9]=savedVrtMomCov[9]=100.; fitCovXYZMom[14]=savedVrtMomCov[14]=100.; fitCovXYZMom[20]=savedVrtMomCov[20]=100.;
      Chi2=0.;
-     existFullCov=0;
-     std::fill(ader,ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),0);
+     m_truncatedStep=false;
+     m_existFullCov=0;
+     std::fill_n(ader,(3*vkalNTrkM+3)*(3*vkalNTrkM+3),0);
   }
 
   VKVertex::~VKVertex()
@@ -135,12 +134,12 @@ namespace Trk {
 
 
   VKVertex::VKVertex(const VKVertex & src):        //copy constructor
-  m_fitterControl(new VKalVrtControl(*src.m_fitterControl)),
   Chi2(src.Chi2),                         // vertex Chi2
   useApriorVertex(src.useApriorVertex),   //for a priory vertex position knowledge usage
   passNearVertex(src.passNearVertex),     // needed for "passing near vertex" constraint
   passWithTrkCov(src.passWithTrkCov),     //  Vertex, CovVertex, Charge and derivatives 
-  FVC(src.FVC)
+  FVC(src.FVC),
+  m_fitterControl(new VKalVrtControl(*src.m_fitterControl))
   {
     for( int i=0; i<6; i++) {
       fitVcov[i]    =src.fitVcov[i];  // range[0:5]
@@ -159,9 +158,11 @@ namespace Trk {
        fitCovXYZMom[i]=src.fitCovXYZMom[i];
     }
     nextCascadeVrt = 0;
-    existFullCov = src.existFullCov;
+    m_truncatedStep = src.m_truncatedStep;
+    m_existFullCov = src.m_existFullCov;
     std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
     //----- Creation of track copies
+    TrackList.clear();
     for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.push_back( new VKTrack(*(src.TrackList[i])) );
   }
 
@@ -192,7 +193,8 @@ namespace Trk {
         fitCovXYZMom[i]=src.fitCovXYZMom[i];
       }
       nextCascadeVrt = 0;
-      existFullCov = src.existFullCov;
+      m_truncatedStep = src.m_truncatedStep;
+      m_existFullCov = src.m_existFullCov;
       std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
     //----- Creation of track copies
       TrackList.clear();
@@ -244,7 +246,7 @@ namespace Trk {
     }
     m_forcft.useMassCnst = 1;
   }
-  void VKalVrtControl::setMassCnstData(int Ntrk, std::vector<int> Index, double Mass){
+  void VKalVrtControl::setMassCnstData(int Ntrk, std::vector<int> & Index, double Mass){
     double sumM(0.);
     for(int it=0; it<Ntrk; it++) sumM +=   m_forcft.wm[Index[it]];                 //sum of particle masses
     if(sumM<Mass) {

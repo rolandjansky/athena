@@ -7,25 +7,25 @@
 #ifndef _TrkVKalVrtFitter_VKalVrtFitter_H
 #define _TrkVKalVrtFitter_VKalVrtFitter_H
 // Normal STL and physical vectors
-#include <vector>
+//#include <vector>
 // Gaudi includes
-#include "AthenaBaseComps/AthAlgTool.h"
+//#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-//
-//#include  "VxVertex/VxCandidate.h"
-#include  "xAODTracking/Vertex.h" 
-#include  "xAODTracking/NeutralParticleContainer.h" 
-#include  "xAODTracking/TrackParticleContainer.h" 
-#include  "TrkParameters/TrackParameters.h" 
-#include  "TrkNeutralParameters/NeutralParameters.h"
-//#include  "VxVertex/ExtendedVxCandidate.h"
-#include  "MagFieldInterfaces/IMagFieldSvc.h"
 //
 // Interfaces
 #include  "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include  "TrkVKalVrtFitter/ITrkVKalVrtFitter.h"
 #include  "TrkVKalVrtFitter/IVertexCascadeFitter.h"
+
+//#include  "xAODTracking/NeutralParticleContainer.h"
+//#include  "xAODTracking/TrackParticleContainer.h"
+//#include  "xAODTracking/VertexContainer.h"
+
+#include  "TrkParameters/TrackParameters.h" 
+#include  "TrkNeutralParameters/NeutralParameters.h"
+//#include  "VxVertex/ExtendedVxCandidate.h"
+#include  "MagFieldInterfaces/IMagFieldSvc.h"
 //
 
 class IChronoStatSvc;
@@ -35,7 +35,7 @@ namespace Trk{
 
   class VKalVrtControl;
 
-  static const int NTrMaxVFit=300;
+  enum { NTrMaxVFit=300 };
   typedef std::vector<double> dvect;
   class VKalAtlasMagFld;
   class IExtrapolator;
@@ -208,9 +208,8 @@ namespace Trk{
 //        VxCandidate * makeVxCandidate( int ,
 //                const Amg::Vector3D& , const std::vector<double> & , 
 //	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
-        xAOD::Vertex * makeXAODVertex( int ,
-                const Amg::Vector3D& , const std::vector<double> & , 
-	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
+        xAOD::Vertex * makeXAODVertex( int,  const Amg::Vector3D&,
+                            const dvect&, const dvect&, const std::vector< dvect >&, double); 
 //-----
 
         void setApproximateVertex(double,double,double);
@@ -219,11 +218,11 @@ namespace Trk{
         void setRobustness(int);
         void setRobustScale(double);
         void setCascadeCnstPrec(double);
+        void setCnstType(int);
         void setIterations(int, double);
         void setVertexForConstraint(const xAOD::Vertex & );
         void setVertexForConstraint(double,double,double);
-        void setCovVrtForConstraint(double,double,double,
-                                  double,double,double);
+        void setCovVrtForConstraint(double,double,double,double,double,double);
 				  
         void setMassInputParticles( std::vector<double>& );
         void setMomCovCalc(int);
@@ -231,22 +230,21 @@ namespace Trk{
         void setZeroCharge(int);
         void clearMemory();
       double VKalGetImpact(const xAOD::TrackParticle*,const Amg::Vector3D& Vertex, const long int Charge,
-                         std::vector<double>& Impact, std::vector<double>& ImpactError);
+                         dvect& Impact, dvect& ImpactError);
       double VKalGetImpact(const TrackParticleBase*,const Amg::Vector3D& Vertex, const long int Charge,
-                         std::vector<double>& Impact, std::vector<double>& ImpactError);
+                         dvect& Impact, dvect& ImpactError);
       double VKalGetImpact(const Track*,const Amg::Vector3D& Vertex, const long int Charge,
-                         std::vector<double>& Impact, std::vector<double>& ImpactError);
+                         dvect& Impact, dvect& ImpactError);
 
 
 //
 // ATLAS related code
 //
-        void setAthenaField(MagField::IMagFieldSvc*);
-        void setAthenaField(const double );
-        void setAthenaPropagator(const Trk::IExtrapolator*);
+    private:
 
-
-
+      void setAthenaField(MagField::IMagFieldSvc*);
+      void setAthenaField(const double );
+      void setAthenaPropagator(const Trk::IExtrapolator*);
 
     private:
 
@@ -331,9 +329,8 @@ namespace Trk{
 
       double m_BMAG;       /* const magnetic field  if needed */
       double m_CNVMAG;     /* Conversion constant */
-      long int m_ifcovv0;
-      long int m_iflag;
-      int  m_planeCnstNDOF;  /* NDOF addition if plane constraint is used */
+      int m_ifcovv0;
+      int m_planeCnstNDOF;  /* NDOF addition if plane constraint is used */
 //
 // Arrays needed for fitting kernel
 //
@@ -343,7 +340,7 @@ namespace Trk{
       long int m_ich[NTrMaxVFit];
       double m_chi2tr[NTrMaxVFit];
       double m_parfs[NTrMaxVFit][3];
-      double m_wm[NTrMaxVFit];
+      //double m_wm[NTrMaxVFit];     // obsolete now
       double m_VrtCst[3];
       double m_CovVrtCst[6];
 
@@ -382,17 +379,17 @@ namespace Trk{
                                     long int & Charge, double[], double[]);
 
   
-        StatusCode          CvtTrkTrack(const std::vector<const Track*>& list,              long int& ntrk);
-        StatusCode     CvtTrackParticle(const std::vector<const TrackParticleBase*>& list,  long int& ntrk);
-        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,   long int& ntrk);
-        StatusCode   CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& list, long int& ntrk);
-        StatusCode   CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,  long int& ntrk);
-        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,long int& ntrk);
+        StatusCode          CvtTrkTrack(const std::vector<const Track*>& list,                int& ntrk);
+        StatusCode     CvtTrackParticle(const std::vector<const TrackParticleBase*>& list,    int& ntrk);
+        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,  int& ntrk);
+        StatusCode   CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& list,int& ntrk);
+        StatusCode   CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,    int& ntrk);
+        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,  int& ntrk);
 
         void VKalVrtConfigureFitterCore(int NTRK);
         void VKalToTrkTrack( double, double  , double  , double , double& , double& , double& );
 
-        long int VKalVrtFit3( long int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
+        int VKalVrtFit3(  int ntrk, Amg::Vector3D& Vertex, TLorentzVector&   Momentum,
 	                   long int& Charge, dvect& ErrorMatrix, dvect& Chi2PerTrk, 
                            std::vector< std::vector<double> >& TrkAtVrt, double& Chi2 );
 

@@ -33,7 +33,6 @@ extern  int FullMCNSTfill(VKVertex * , double * , double * );
 extern int getCascadeNPar(int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
 extern void cleanCascade();
-extern void cfdcopy(double *source, double *target, int);
 extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *,const VKalVrtControl * =0);
 extern std::vector<double> transformCovar(int , double **, std::vector<double> );
 extern double cfVrtDstSig( VKVertex * , bool );
@@ -217,7 +216,7 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
   for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
      vk = cascadeEvent_.cascadeVertexList[iv];
      for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
-        for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
+        for(int ic=0; ic<(int)vk->ConstraintList[ii]->m_NCDim; ic++){
            cnstRemnants +=  fabs( vk->ConstraintList[ii]->aa[ic] ); 
      } }
   }

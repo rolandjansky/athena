@@ -12,7 +12,7 @@ namespace Trk {
 void cfmasserr(VKVertex * vk, int *list, double BMAG, double *MASS, double *sigM)
 {
   int NTRK=vk->TrackList.size();
-  double * deriv = new double(3*NTRK+3);
+  double * deriv = new double[3*NTRK+3];
   double ptot[4]={0.};
   std::vector< std::array<double,6> > pmom(NTRK);
   double dm2dpx, dm2dpy, dm2dpz, ee, pt, px, py, pz, cth;
@@ -57,7 +57,7 @@ void cfmasserr(VKVertex * vk, int *list, double BMAG, double *MASS, double *sigM
   double covM2=0;
   for(int i=0; i<NTRK*3; i++){
      for(int j=0; j<NTRK*3; j++){
-       covM2 += deriv[i] * ARR_2D(vk->ader, vkalNTrkM*3+3, i+3, j+3) *deriv[j];
+       covM2 += deriv[i] * ARR2D_FS(vk->ader, vkalNTrkM*3+3, i+3, j+3) *deriv[j];
      }
   }
 //----

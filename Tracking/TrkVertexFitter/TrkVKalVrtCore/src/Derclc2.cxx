@@ -82,11 +82,11 @@ void  calcPointConstraint( VKPointConstraint * cnst )
     double a0,t,z0;
     double dA0dPhi,dZdPhi,dZdTheta,dA0dR;
     if( Charge==0 ) {
-      a0 =-sinp * (cnst->targetVertex[0] - curV[0]) +     //Perigee with respect to targetVertex
-           cosp * (cnst->targetVertex[1] - curV[1]);
-      t  = cosp * (cnst->targetVertex[0] - curV[0]) +
-           sinp * (cnst->targetVertex[1] - curV[1]);
-      z0 = curV[2] + t*cott - cnst->targetVertex[2];
+      a0 =-sinp * (cnst->m_targetVertex[0] - curV[0]) +     //Perigee with respect to targetVertex
+           cosp * (cnst->m_targetVertex[1] - curV[1]);
+      t  = cosp * (cnst->m_targetVertex[0] - curV[0]) +
+           sinp * (cnst->m_targetVertex[1] - curV[1]);
+      z0 = curV[2] + t*cott - cnst->m_targetVertex[2];
 //----------------------------------------------------------------------
 // First constraint  a0=0
 //
@@ -129,8 +129,8 @@ void  calcPointConstraint( VKPointConstraint * cnst )
       double R = 1./invR;
       double xc = -R*sinp + curV[0]; // centre of circle
       double yc =  R*cosp + curV[1];
-      double diffx = cnst->targetVertex[0] - xc; 
-      double diffy = cnst->targetVertex[1] - yc;
+      double diffx = cnst->m_targetVertex[0] - xc; 
+      double diffy = cnst->m_targetVertex[1] - yc;
       double diff = sqrt(  diffx*diffx + diffy*diffy );
       double sindphi = (curV[0]-xc)*diffy - (curV[1]-yc)*diffx;
              sindphi =  sindphi/fabs(R)/diff;
@@ -138,7 +138,7 @@ void  calcPointConstraint( VKPointConstraint * cnst )
       double cosdphi=sqrt(fabs(1.-sindphi*sindphi)); if(cosdphi<1.e-10)cosdphi=1.e-10;
       a0 = R*(1.-diff/fabs(R));
       t  = dphi*R;
-      z0 = curV[2] + t*cott - cnst->targetVertex[2];
+      z0 = curV[2] + t*cott - cnst->m_targetVertex[2];
       double dTdXcur = fabs(R)/cosdphi * (cosp/diff-diffx*sindphi/(diff*diff)) * (-1.);
       double dTdYcur = fabs(R)/cosdphi * (sinp/diff-diffy*sindphi/(diff*diff)) * (-1.);
 //----------------------------------------------------------------------
@@ -186,7 +186,7 @@ void  calcPointConstraint( VKPointConstraint * cnst )
 // -----------------------Check of propagation
 //   double paro[5],parn[5],s,ref[3],pere[3]; long int ichg=0;
 //   paro[0]=0.; paro[1]=0.; paro[2]=theta; paro[3]=phi; paro[4]=invR;
-//   ref[0]=cnst->targetVertex[0]-curV[0]; ref[1]=cnst->targetVertex[1]-curV[1]; ref[2]=cnst->targetVertex[2]-curV[2]; 
+//   ref[0]=cnst->m_targetVertex[0]-curV[0]; ref[1]=cnst->m_targetVertex[1]-curV[1]; ref[2]=cnst->m_targetVertex[2]-curV[2]; 
 //   cfnewp(&ichg, paro, ref, &s, parn, pere);
 //   std::cout<<" testp="<<Charge<<", "<<parn[0]<<", "<<parn[1]<<", "<<s<<'\n';
 // -----------------------Derivatives
@@ -198,7 +198,7 @@ void  calcPointConstraint( VKPointConstraint * cnst )
 //std::cout<<base_cnst->h0t[1].X<<", "<<base_cnst->h0t[1].Y<<", "<<base_cnst->h0t[1].Z<<'\n';
 //std::cout<<"-------"<<'\n';   
 //--------------------------------------------------------------------------------------------------
-   if( cnst->onlyZ ) {      //Z only constraint  <= all Rphi ralated stuff is 0
+   if( cnst->m_onlyZ ) {      //Z only constraint  <= all Rphi ralated stuff is 0
       for( it=0; it<NTRK; it++){
          base_cnst->f0t[it][0].X  = 0.001;  
          base_cnst->f0t[it][0].Y  = 0.001;

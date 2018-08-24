@@ -38,7 +38,7 @@ namespace Trk{
 //
 //  Convert particles and setup reference frame
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrkTrack(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
@@ -102,7 +102,7 @@ namespace Trk{
 //
 //  Convert particles and setup reference frame
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrackParticle(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
@@ -166,7 +166,7 @@ namespace Trk{
 //
 //  Convert particles and setup reference frame
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrackParticle(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
@@ -230,7 +230,7 @@ namespace Trk{
 //
 //  Convert particles and setup reference frame
 //
-    long int ntrk=0; 
+    int ntrk=0; 
     StatusCode sc = CvtTrackParameters(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;

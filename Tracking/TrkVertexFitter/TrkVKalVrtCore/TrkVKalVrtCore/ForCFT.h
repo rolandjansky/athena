@@ -50,8 +50,10 @@ namespace Trk {
     ForCFT(){
       nmcnst=0;
       useMassCnst=0; usePhiCnst=0; useThetaCnst=0; usePointingCnst=0; usePlaneCnst=0;
-      useAprioriVrt=0; usePassNear=0; Ap=Bp=Dp=Cp=0.;
-      IterationNumber = 100; IterationPrecision=1.e-3;
+      useAprioriVrt=0; usePassNear=0;
+      Ap=Bp=Dp=Cp=0.;
+      IterationNumber = 50;
+      IterationPrecision=1.e-3;
       RobustScale = 1.; irob=0;
       for (int ic=0; ic<vkalMaxNMassCnst; ++ic) wmfit[ic] = -10000.;
       for (int it=0; it<vkalNTrkM; ++it) {

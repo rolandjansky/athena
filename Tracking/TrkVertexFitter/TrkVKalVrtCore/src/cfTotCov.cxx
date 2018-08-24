@@ -20,7 +20,7 @@ namespace Trk {
 //  Complete error matrix is recalculated here via getFullVrtCov,
 //            so CPU CONSUMING!!!
 //--------------------------------------------------------------
-extern int getFullVrtCov(VKVertex *, double *, double *, double *);
+extern int getFullVrtCov(VKVertex *, double *, double *, double[6][6]);
 extern void cfsetdiag(long int , double *, double );
 extern vkalMagFld      myMagFld;
 
@@ -28,7 +28,7 @@ int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * V
 {
     int i,j;
     double px,py,pz,pt,invR,cth;
-    double verr[6*6];   for (i=0; i<6*6; i++) verr[i]=0;
+    double verr[6][6]={0.};   //for (i=0; i<6*6; i++) verr[i]=0;
 
     int NTRK = vk->TrackList.size();
     int NVar = NTRK*3+3;
@@ -39,7 +39,7 @@ int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * V
     ptot[0] = 0.;
     ptot[1] = 0.;
     ptot[2] = 0.;
-    double constBF = myMagFld.getMagFld(vk->refV,CONTROL) * myMagFld.getCnvCst() ;
+    double constBF = myMagFld.getMagFld(vk->refIterV,CONTROL) * myMagFld.getCnvCst() ;
 
     for (i = 1; i <= NTRK; ++i) {
         VKTrack *trk=vk->TrackList[i-1];
@@ -64,9 +64,9 @@ int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * V
     dcv[14] = 1.;
     int IERR=getFullVrtCov(vk, ader, dcv, verr);     if (IERR) return IERR;
     int ijk = 0;
-    for ( i=1; i<=6; ++i) {
-	for (j=1; j<=i; ++j) {
-	    VrtMomCov[ijk++] = verr[i + j*6 - 7];
+    for ( i=0; i<6; ++i) {
+	for (j=0; j<=i; ++j) {
+	    VrtMomCov[ijk++] = verr[i][j];
 	}
     }
     return 0;
@@ -81,7 +81,7 @@ int afterFitWithIniPar(VKVertex *vk, double *ader, double * dcv, double * ptot, 
 {
     int i,j;
     double px,py,pz,pt,invR,cth;
-    double verr[6*6];    for (i=0; i<6*6; i++) verr[i]=0;
+    double verr[6][6]={0.};
 
 
     int NTRK = vk->TrackList.size();
@@ -93,7 +93,7 @@ int afterFitWithIniPar(VKVertex *vk, double *ader, double * dcv, double * ptot, 
     ptot[0] = 0.;
     ptot[1] = 0.;
     ptot[2] = 0.;
-    double constBF = myMagFld.getMagFld(vk->refV,CONTROL) * myMagFld.getCnvCst() ;
+    double constBF = myMagFld.getMagFld(vk->refIterV,CONTROL) * myMagFld.getCnvCst() ;
 
     for (i = 1; i <= NTRK; ++i) {
         VKTrack *trk=vk->TrackList[i-1];
@@ -118,9 +118,9 @@ int afterFitWithIniPar(VKVertex *vk, double *ader, double * dcv, double * ptot, 
     dcv[14] = 1.;
     int IERR=getFullVrtCov(vk, ader, dcv, verr);     if (IERR) return IERR;
     int ijk = 0;
-    for ( i=1; i<=6; ++i) {
-	for (j=1; j<=i; ++j) {
-	    VrtMomCov[ijk++] = verr[i + j*6 - 7];
+    for ( i=0; i<6; ++i) {
+	for (j=0; j<=i; ++j) {
+	    VrtMomCov[ijk++] = verr[i][j];
 	}
     }
     return 0;

@@ -105,7 +105,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     declareProperty("usePassNearCnst",        m_usePassNear);
     declareProperty("usePassWithTrkErrCnst",  m_usePassWithTrkErr);
 // 
-    m_iflag=0;
     m_ifcovv0=0;
     m_FitStatus=0;
     m_refFrameX = 0.;   
