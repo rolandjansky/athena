@@ -72,7 +72,9 @@ namespace top {
             return StatusCode::FAILURE;
           }
 
-          bool passes_jvt = jetPtr->auxdataConst< char >("passJVT");
+          int passes_jvt = jetPtr->auxdataConst< char >("passJVT");
+          if (!(passes_jvt >= 0))
+            continue;
 
           if (passes_jvt)
             top::check(m_jvt_tool->getEfficiencyScaleFactor(*jetPtr, jvtSF),
