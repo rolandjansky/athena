@@ -354,6 +354,18 @@ namespace InDetDD {
     }
     return *this;
   }
+  
+  GeoShapeHolder&
+  GeoShapeHolder::operator = (GeoShapeHolder&& rhs) {
+    if (&rhs != this) {
+      if (m_geoShape) m_geoShape->unref();//this geoshape will be overwritten, so decrement its reference
+      m_geoShape = rhs.m_geoShape; //simply equate the pointers
+      rhs.m_geoShape=nullptr;      //render the original unusable for safety
+      //if (m_geoShape) m_geoShape->ref(); << no need to increment the reference; the original is moved here
+      //                                      with its original refcount intact.
+    }
+    return *this;
+  }
 
   void
   GeoShapeHolder::set(const GeoShape* geoShape) {
