@@ -85,7 +85,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
-      accept &= (tcc->taste()!= 0);
+      accept &= (tcc->taste()!= 0)*(tcc->pt()>-1.*FLT_MIN);
     }
     // Reject object if outside maximum eta range
     accept &= fabs(part->eta()) <= m_maxEta;

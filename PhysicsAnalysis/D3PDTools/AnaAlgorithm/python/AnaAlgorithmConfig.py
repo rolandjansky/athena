@@ -160,7 +160,12 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         result = AnaAlgorithmConfig._printHeader( name )
         result += '\n'
         for key, value in sorted( self._props.iteritems() ):
-            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
+            if isinstance( value, str ):
+                printedValue = "'%s'" % value
+            else:
+                printedValue = value
+                pass
+            result += "|- %s: %s\n" % ( key, indentBy( printedValue, "| " ) )
             pass
         result += AnaAlgorithmConfig._printFooter( name )
         return result
@@ -325,7 +330,12 @@ class PrivateToolConfig( object ):
         result += AnaAlgorithmConfig._printHeader( name )
         result += '\n'
         for key, value in sorted( self._props.iteritems() ):
-            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
+            if isinstance( value, str ):
+                printedValue = "'%s'" % value
+            else:
+                printedValue = value
+                pass
+            result += "|- %s: %s\n" % ( key, indentBy( printedValue, "| " ) )
             pass
         result += AnaAlgorithmConfig._printFooter( name )
         return result

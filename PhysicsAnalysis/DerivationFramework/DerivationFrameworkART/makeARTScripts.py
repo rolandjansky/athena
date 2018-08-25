@@ -1,7 +1,7 @@
 import os
 
 makeDataDAODs=False
-makeMCDAODs=False
+makeMCDAODs=True
 makeTruthDAODs=False
 makeTrains=True
 
@@ -55,7 +55,7 @@ blsStreamLabel = "data17BPHYSLS"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
 mcFileBPHY14 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.13151497._000097.pool.root.1"
 mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000056.DAOD_RPVLL.pool.root"
-mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
+mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.14795494._005958.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data18_13TeV.00348403.physics_Main.merge.AOD.f920_m1947._lb0829._0001.1"
 dataFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.13679930._004714.pool.root.1"
 dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
@@ -161,5 +161,5 @@ if (makeTruthDAODs):
 if (makeTrains):
    for train in trainList:
       generateTrains(train,dataLabel,dataFile,False)
-      #generateTrains(train,mcLabel,mcFile,True)
+      generateTrains(train,mcLabel,mcFile,True)
    generateTrains(['TOPQ1','TOPQ2','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes

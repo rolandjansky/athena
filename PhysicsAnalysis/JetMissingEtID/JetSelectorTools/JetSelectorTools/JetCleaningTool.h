@@ -112,6 +112,8 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     std::string m_hotCellsFile;
     std::unordered_map<unsigned int, std::vector<JCT::HotCell*>*>* m_hotCellsMap;
     StatusCode readHotCells();
+    
+    void missingVariable(const std::string& varName) const;
 
 }; // End: class definition
 

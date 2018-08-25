@@ -7,6 +7,8 @@
 
 #include "AsgTools/AsgMessaging.h"
 
+#include "JetUncertainties/UncertaintyEnum.h"
+
 #include "TString.h"
 #include "TH1.h"
 
@@ -20,18 +22,18 @@ class UncertaintyHistogram : public asg::AsgMessaging
 {
     public:
         // Constructor/destructor/initialization
-        UncertaintyHistogram(const std::string& histName, const bool interpolate);
-        UncertaintyHistogram(const TString histName, const bool interpolate);
-        UncertaintyHistogram(const char* histName, const bool interpolate);
+        UncertaintyHistogram(const std::string& histName, const Interpolate::TypeEnum interpolate);
+        UncertaintyHistogram(const TString histName, const Interpolate::TypeEnum interpolate);
+        UncertaintyHistogram(const char* histName, const Interpolate::TypeEnum interpolate);
         UncertaintyHistogram(const UncertaintyHistogram& toCopy);
         virtual ~UncertaintyHistogram();
         virtual StatusCode initialize(TFile* histFile);
 
         // Member retrieval methods
-        const TString& getName()   const { return m_name;        }
-        const TH1*     getHisto()  const { return m_histo;       }
-        bool           getInterp() const { return m_interpolate; }
-        int            getNumDim() const { return m_nDim;        }
+        const TString&        getName()   const { return m_name;        }
+        const TH1*            getHisto()  const { return m_histo;       }
+        Interpolate::TypeEnum getInterp() const { return m_interpolate; }
+        int                   getNumDim() const { return m_nDim;        }
 
         // Histogram information access
         double getValue(const double var1) const;
@@ -42,7 +44,7 @@ class UncertaintyHistogram : public asg::AsgMessaging
         // Private members
         bool m_isInit;
         const TString m_name;
-        const bool m_interpolate;
+        const Interpolate::TypeEnum m_interpolate;
         TH1* m_histo;
         int  m_nDim;
 

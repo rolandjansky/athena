@@ -172,29 +172,30 @@ bool CheckConfig::advancedConfigChecks()
 	/// -> to be called as the last step of TrigGlobalEfficiencyCorrectionTool::initialize()
 	bool success = true;
 	
-	const auto& electronEffTools = m_parent.m_electronEffTools;
-	const auto& electronSfTools = m_parent.m_electronSfTools;
-	const auto& muonTools = m_parent.m_muonTools;
+	const auto& electronEffToolIndex = m_parent.m_electronEffToolIndex;
+	const auto& electronSfToolIndex = m_parent.m_electronSfToolIndex;
+	const auto& muonToolIndex = m_parent.m_muonToolIndex;
+	using ToolKey = TrigGlobalEfficiencyCorrectionTool::ToolKey;
 	
 	/// Check that for each electron efficiency tool there is an associated scale factor tool
 	/// with the same associated legs and tags. And vice versa. 
-	bool mismatch = (electronEffTools.size() != electronSfTools.size());
+	bool mismatch = (electronEffToolIndex.size() != electronSfToolIndex.size());
 	if(!mismatch)
 	{
-		for(auto& kv : electronSfTools)
+		for(auto& kv : electronSfToolIndex)
 		{
-			auto itr = electronEffTools.find(kv.first);
-			if(itr != electronEffTools.end())
+			auto itr = electronEffToolIndex.find(kv.first);
+			if(itr != electronEffToolIndex.end())
 			{
-				void *ptr1 = kv.second, *ptr2 = itr->second;
-				flat_set<std::size_t> pairs1, pairs2;
-				for(auto& kv : electronSfTools)
+				std::size_t index1 = kv.second, index2 = itr->second;
+				flat_set<ToolKey> pairs1, pairs2;
+				for(auto& kv : electronSfToolIndex)
 				{
-					if(kv.second==ptr1) pairs1.insert(kv.first);
+					if(kv.second==index1) pairs1.insert(kv.first);
 				}
-				for(auto& kv : electronEffTools)
+				for(auto& kv : electronEffToolIndex)
 				{
-					if(kv.second==ptr2) pairs2.insert(kv.first);
+					if(kv.second==index2) pairs2.insert(kv.first);
 				}
 				if(pairs1 != pairs2)
 				{
@@ -225,7 +226,7 @@ bool CheckConfig::advancedConfigChecks()
 			auto type = ImportData::associatedLeptonFlavour(m_parent.m_dictionary[leg],success);
 			if(type == xAOD::Type::Electron)
 			{
-				if(electronEffTools.find(tag ^ leg) == electronEffTools.end())
+				if(electronEffToolIndex.find(ToolKey(leg, tag)) == electronEffToolIndex.end())
 				{
 					ATH_MSG_ERROR("No electron tool provided for the combination of trigger leg '" << m_parent.m_dictionary[leg]
 						<< "' and selection tag '" << kv.first << "' mentioned in the property 'ListOfLegsPerTag'");
@@ -234,7 +235,7 @@ bool CheckConfig::advancedConfigChecks()
 			}
 			else if(type == xAOD::Type::Muon)
 			{
-				if(muonTools.find(tag) == muonTools.end())
+				if(muonToolIndex.find(ToolKey(0, tag)) == muonToolIndex.end())
 				{
 					ATH_MSG_ERROR("No muon tool provided for the combination of trigger leg '" << m_parent.m_dictionary[leg]
 						<< "' and selection tag '" << kv.first << "' mentioned in the property 'ListOfLegsPerTag'");

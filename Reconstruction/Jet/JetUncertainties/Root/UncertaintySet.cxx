@@ -271,5 +271,41 @@ std::vector< std::pair<CompScaleVar::TypeEnum,bool> > UncertaintySet::getValidUn
     return validity;
 }
 
+
+//////////////////////////////////////////////////
+//                                              //
+//  Specialty methods                           //
+//                                              //
+//////////////////////////////////////////////////
+
+JetTopology::TypeEnum UncertaintySet::getTopology(const CompScaleVar::TypeEnum scaleVar) const
+{
+    // The topology is not normally needed
+    // Most variables are topology-independent, and thus are listed as "UNKNOWN"
+    // Mixing topology-agnostic and topology-specific variables is expected
+    // Mixing topology-specific variables of different topologies is not expected
+
+    // Furthermore, the user can specify either a specific scale variable or not
+    // If the user doesn't specify (or specifies UNKNOWN, the default), then it checks all
+
+    JetTopology::TypeEnum result = JetTopology::UNKNOWN;
+
+    for (const UncertaintyGroup* group : m_groups)
+    {
+        if (group->getTopology() != JetTopology::UNKNOWN)
+        {
+            if (result == JetTopology::UNKNOWN)
+                result = group->getTopology();
+            else if (result != group->getTopology(scaleVar))
+                result = JetTopology::MIXED;
+        }
+        if (result == JetTopology::MIXED)
+            return result; // If it's mixed, it won't change any further
+    }
+
+    return result; // If we got here, it's not a mixed topology, so return what it is
+}
+
+
 } // end jet namespace
 

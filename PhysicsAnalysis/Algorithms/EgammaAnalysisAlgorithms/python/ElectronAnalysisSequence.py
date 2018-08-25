@@ -25,6 +25,16 @@ def makeElectronAnalysisSequence( dataType,
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "ElectronAnalysisSequence" )
 
+    # Set up the an eta-cut on all electrons prior to everything else
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronEtaCutAlg' )
+    alg.selectionDecoration = 'selectEta'
+    etaNcuts = 2
+    addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
+    alg.selectionTool.maxEta = 2.47
+    alg.selectionTool.useClusterEta = True
+    seq.append( alg, inputPropName = 'particles',
+                outputPropName = 'particlesOut' )
+
     # Set up the likelihood ID selection algorithm
     # It is safe to do this before calibration, as the cluster E is used
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' )
@@ -45,15 +55,19 @@ def makeElectronAnalysisSequence( dataType,
     seq.append( alg, inputPropName = 'particles',
     outputPropName = 'particlesOut' )
 
-    # Only run subsequent processing on the objects passing LH cut
-    # This is needed e.g. for top derivations that thin the clusters
+    # Only run subsequent processing on the objects passing eta and LH cut
+    # The later is needed e.g. for top derivations that thin the clusters
     # from the electrons failing Loose(LH)
     # Basically invalidates the first cutflow step
+    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+                           'ElectronLHViewFromSelectionAlg' )
     if prefilterLikelihood:
-        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
-        'ElectronLHViewFromSelectionAlg' )
-        alg.selection = [ 'selectLikelihood' ]
-        seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+        alg.selection = [ 'selectEta', 'selectLikelihood' ]
+        pass
+    else :
+        alg.selection = [ 'selectEta' ]
+        pass
+    seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
@@ -89,6 +103,14 @@ def makeElectronAnalysisSequence( dataType,
     alg.selectionTool.ElectronWP = isolationWP
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut' )
 
+    # Set up the track selection algorithm:
+    alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
+                           'ElectronTrackSelectionAlg' )
+    alg.selectionDecoration = "trackSelection"
+    alg.maxD0Significance = 5
+    alg.maxDeltaZ0SinTheta = 0.5
+    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut' )
+
     # Set up the electron efficiency correction algorithm:
     alg = createAlgorithm( 'CP::ElectronEfficiencyCorrectionAlg',
                            'ElectronEfficiencyCorrectionAlg' )
@@ -115,15 +137,15 @@ def makeElectronAnalysisSequence( dataType,
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                            'ElectronCutFlowDumperAlg' )
     alg.histPattern = 'electron_cflow_%SYS%'
-    alg.selection = [ 'selectLikelihood', 'isolated', 'bad_eff' ]
-    alg.selectionNCuts = [ 7, 1, 1 ]
+    alg.selection = [ 'selectLikelihood', 'isolated', 'trackSelection', 'bad_eff' ]
+    alg.selectionNCuts = [ 7, 1, 3, 1 ]
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'ElectronViewFromSelectionAlg' )
-    alg.selection = [ 'selectLikelihood', 'isolated', 'bad_eff' ]
+    alg.selection = [ 'selectLikelihood', 'isolated', 'trackSelection', 'bad_eff' ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the electrons, for
