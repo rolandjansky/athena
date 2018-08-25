@@ -42,25 +42,19 @@ class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
 
   StatusCode initialize() override;    
   StatusCode decide(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const ;
-  bool decideOnSingleObject(TrigMuonEFMSonlyHypoTool::MuonEFInfo& input, size_t cutIndex) const;
-  StatusCode inclusiveSelection(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const;
-  StatusCode multiplicitySelection(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const;
+  StatusCode decide(TrigMuonEFMSonlyHypoTool::MuonEFInfo& input) const;
 
  private:
 
   HLT::Identifier m_decisionId;
 
   // Properties:
-  Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
-    this, "PtBins", { {0, 2.5} }, "Bins range of each pT threshold" };
-  Gaudi::Property< std::vector<std::vector<double>> > m_ptThresholds {
-    this, "PtThresholds", { {5.49*CLHEP::GeV} }, "Track pT requirement ( separate threshold for each muon )" };
-  Gaudi::Property< bool > m_acceptAll {
-    this, "AcceptAll", false, "Ignore selection" };
-  Gaudi::Property<bool>  m_decisionPerRoI { 
-    this, "DecisionPerRoI", true, "Is multiplicity requirement refering to muons ( false ) or RoIs with muons ( true ), relevant only in when multiplicity > 1" };
+  std::vector<float> m_ptBins;
+  std::vector<float> m_ptThresholds; 
+  BooleanProperty m_acceptAll;
+
   // Other members:   
-  std::vector<size_t> m_bins={0};
+  std::vector<float>::size_type m_bins;
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 };
