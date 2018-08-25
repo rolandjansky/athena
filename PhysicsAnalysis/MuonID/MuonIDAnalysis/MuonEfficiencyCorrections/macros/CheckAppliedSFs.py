@@ -202,7 +202,7 @@ if __name__ == "__main__":
 
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
-#        if math.fabs(tree.Muon_eta) > 2.5 or  tree.Muon_author != 8 or tree.Muon_pt > 100.e3: continue
+        if math.fabs(tree.Muon_eta) > 2.5: continue # or  tree.Muon_author != 8 or tree.Muon_pt > 100.e3: continue
         
         for CR in calibReleases:
             for wp in WPs:

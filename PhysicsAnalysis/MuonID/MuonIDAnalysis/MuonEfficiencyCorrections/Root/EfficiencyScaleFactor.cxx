@@ -135,8 +135,8 @@ namespace CP {
     }
     bool EfficiencyScaleFactor::ReadFromFile(const std::string& file, const std::string& time_unit) {
         // open the file
-        TFile* f = TFile::Open(file.c_str(), "READ");
-        if (!f) {
+        std::unique_ptr<TFile> f (TFile::Open(file.c_str(), "READ"));
+        if (!f || !f->IsOpen()) {
             Error("EfficiencyScaleFactor", "Unable to open file %s", file.c_str());
             return false;
         }
@@ -164,8 +164,6 @@ namespace CP {
 
         }
         // and don't forget to close the file again!
-        f->Close();
-        delete f;
         return true;
     }
     bool EfficiencyScaleFactor::CheckConsistency() const {
@@ -181,6 +179,9 @@ namespace CP {
             return false;
         }
         return m_sf_sys != nullptr && m_sf != nullptr;
+    }
+    HistHandler_Ptr EfficiencyScaleFactor::ReadHistFromFile(const std::string& name, const std::unique_ptr<TFile> &f, const std::string& time_unit) {
+        return ReadHistFromFile(name,f.get(), time_unit);
     }
     HistHandler_Ptr EfficiencyScaleFactor::ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit) {
         TH1* histHolder = 0;
