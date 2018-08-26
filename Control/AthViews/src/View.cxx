@@ -16,3 +16,8 @@ View::View(const std::string& name, bool AllowFallThrough, std::string const& st
 View::~View () {
   delete m_implementation;
 }
+
+std::string View::dump( const std::string& delim ) const {
+  const SimpleView * impl = static_cast<const SimpleView*>( m_implementation );
+  return impl->dump( delim );
+}

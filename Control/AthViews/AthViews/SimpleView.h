@@ -170,6 +170,9 @@ class SimpleView : public IProxyDict
 		virtual const std::string* keyToString( IStringPool::sgkey_t key, CLID& clid ) const;
 		virtual void registerKey( IStringPool::sgkey_t key, const std::string& str, CLID clid );
 
+                // prints content of the view 
+                std::string dump( const std::string& delim = " " ) const;
+
 	protected:
 		//Connection to the whole event store
 		ServiceHandle< StoreGateSvc > m_store;
