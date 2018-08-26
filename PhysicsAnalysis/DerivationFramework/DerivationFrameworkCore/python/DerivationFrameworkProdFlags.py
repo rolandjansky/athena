@@ -1590,6 +1590,19 @@ class WriteDAOD_JETM13Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM13Stream)
 listAODtoDPD.append(WriteDAOD_JETM13Stream.StreamName)
 
+class WriteDAOD_JETM14Stream(JobProperty):
+    """JETM14: trigger MET efficiency study"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_JETM14'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkJetEtMiss/JETM14.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM14Stream)
+listAODtoDPD.append(WriteDAOD_JETM14Stream.StreamName)
+
 #####################################
 # Defined by the inner tracking group
 #####################################
