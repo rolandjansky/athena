@@ -44,7 +44,6 @@ namespace NSWL1 {
       ieta(eta), iphi(phi), multiplet(multi), layer(layerType), sector(sn), sectortype(sn), side(si), module(mod),
       m_cornerXyz{},m_padData(nullptr)
     { 
-        //memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3);
         
         
     }
@@ -52,7 +51,6 @@ namespace NSWL1 {
      Pad(std::shared_ptr<PadData> pData ) :
       ieta(pData->padEtaId()), iphi(pData->padPhiId()), multiplet(pData->multipletId()), layer(pData->gasGapId()), sector(pData->sectorId()), sectortype(pData->sectorType()), side(pData->sideId()), module(pData->moduleId()),m_cornerXyz{},m_padData(pData)
     { 
-        //memset(m_cornerXyz, 0, sizeof(m_cornerXyz[0][0])*4*3); 
     }
     
     std::string pickle() const; //!< simple dict-like representation (might differ from '<<')
