@@ -8,7 +8,6 @@
 
 //basic includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Property.h"
@@ -23,10 +22,7 @@
 //forward declarations
 class IIncidentSvc;
 class IAtRndmGenSvc;
-// class sTgcIdHelper;
-// class sTgcDigit;
 class TTree;
-// class MuonSimDataCollection;
 class sTgcDigitContainer;
 
 namespace CLHEP {
@@ -74,13 +70,6 @@ namespace NSWL1 {
         virtual void handle (const Incident& inc);
         /// Log a message using the Athena controlled logging system
         
-
-        MsgStream& msg( MSG::Level lvl ) const { return m_msg.get()<< lvl; }
-        /// Check whether the logging system is active at the provided verbosity level
-        bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-        
-        
-        
         StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers);
 
         /**
@@ -100,10 +89,8 @@ namespace NSWL1 {
         
         /// from TDR-style SectorTriggerCandidate to PadTrigger
         PadTrigger convert(const SectorTriggerCandidate &t);
-        L1TdrStgcTriggerLogic tdrLogic() const {return m_tdrLogic;}
             
     private:
-        L1TdrStgcTriggerLogic m_tdrLogic; 
         /// get the output tree from the athena histogram service
         TTree* get_tree_from_histsvc();
         // // methods implementing the internal data processing
@@ -132,7 +119,6 @@ namespace NSWL1 {
         StringProperty   m_rndmEngineName;                      //!< property, todo
         StringProperty   m_sTgcDigitContainer;                  //!< property, todo
         StringProperty   m_sTgcSdoContainer;                    //!< property, todo
-        mutable Athena::MsgStreamMember m_msg;
         // properties: configuration
         FloatProperty    m_PadEfficiency;                       //!< property, todo
 
@@ -143,6 +129,7 @@ namespace NSWL1 {
         PadTriggerValidationTree m_validation_tree;
         size_t m_missingDetectorManagerErrorCounter;            ///< how many times we errored b/c of missing m_detManager
         size_t m_missingReadoutElementErrorCounter;             ///< how many times we errored b/c of missing sTgcReadoutElement
+         L1TdrStgcTriggerLogic m_tdrLogic;
     };  // end of PadTriggerLogicOfflineTool class
 
 } // namespace NSWL1

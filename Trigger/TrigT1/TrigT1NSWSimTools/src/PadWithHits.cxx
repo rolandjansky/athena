@@ -36,7 +36,7 @@ namespace NSWL1 {
     return oo.str();
   }
 
-
+/*
   //-------------------------------------
   bool operator== (const Pad &lhs, const Pad &rhs) {
     return lhs.ieta  ==rhs.ieta
@@ -56,7 +56,10 @@ namespace NSWL1 {
       <<")";
     return oo;
   }
+  */
   //-------------------------------------
+  
+  //S.I : A lot of cleaning up can be done in this file. Most of the methods below are never used..
   float midSectorPhi(int sector){
     float nSectors=16.0;
     float sectorDphi(TMath::TwoPi()/nSectors);

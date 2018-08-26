@@ -79,9 +79,9 @@ namespace NSWL1 {
   /*! N.B. the layer is _not_ a int, but it starts from 0.
    */
   // float adjustHforZdifference(const float &h, const int &s, const int &layer);
-  bool operator== (const Pad &lhs, const Pad &rhs);
-  std::ostream& operator<<( std::ostream& oo, const Pad &p);
-
+ 
+    //bool operator== (const Pad &lhs, const Pad &rhs);
+    //std::ostream& operator<<( std::ostream& oo, const Pad &p);
 /**
   @brief Class that holds two pieces of information: pad geometry and hit indices.
   

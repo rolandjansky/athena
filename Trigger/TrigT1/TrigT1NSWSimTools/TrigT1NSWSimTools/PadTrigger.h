@@ -11,7 +11,6 @@
 #include "TrigT1NSWSimTools/GeoUtils.h"
 #include <ostream>
 #include <vector>
-#include <TMath.h>
 
 
 namespace NSWL1 {

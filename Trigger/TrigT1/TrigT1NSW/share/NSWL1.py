@@ -13,6 +13,12 @@
 #GeoModelSvc = GeoModelSvc()
 #GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.08.01-NSW"
 
+
+MessageSvc.defaultLimit=500
+MessageSvc.useColors = True
+MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M"
+
+
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.AllowIgnoreConfigError=False #This job will stop if an include fails.
 from AthenaCommon.GlobalFlags import globalflags
@@ -32,9 +38,10 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 svcMgr.EventSelector.InputCollections = [ "input.rdo.pool.root" ]
 
 from AthenaCommon.DetFlags import DetFlags
+
+#with tgc setOn we get sagfault and crash
 DetFlags.ID_setOff()
 DetFlags.Calo_setOff()
-
 DetFlags.Muon_setOff()
 DetFlags.MDT_setOff()
 DetFlags.CSC_setOff()
@@ -77,13 +84,28 @@ ServiceMgr += Agdd2GeoSvc
 
 include ('TrigT1NSW/TrigT1NSW_jobOptions.py')
 
-topSequence.NSWL1Simulation.OutputLevel=DEBUG
+#Switch on and off trigger simulaton components sTGC / MicroMegas
+topSequence.NSWL1Simulation.DosTGC=True
+topSequence.NSWL1Simulation.DoPadTrigger=True
+topSequence.NSWL1Simulation.DoMM=False
+
+
+#Select ntuples to be created
 topSequence.NSWL1Simulation.DoNtuple=True
 topSequence.NSWL1Simulation.PadTdsTool.DoNtuple=True
 topSequence.NSWL1Simulation.PadTriggerTool.DoNtuple=True
 topSequence.NSWL1Simulation.StripTdsTool.DoNtuple=True
-topSequence.NSWL1Simulation.DoMM=False
-#topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=VERBOSE
+
+
+#Tools' Messaging Levels
+topSequence.NSWL1Simulation.OutputLevel=WARNING
+topSequence.NSWL1Simulation.PadTdsTool.OutputLevel=WARNING
+topSequence.NSWL1Simulation.PadTriggerTool.OutputLevel=DEBUG
+topSequence.NSWL1Simulation.StripTdsTool.OutputLevel=WARNING
+topSequence.NSWL1Simulation.StripClusterTool.OutputLevel=WARNING
+topSequence.NSWL1Simulation.StripSegmentTool.OutputLevel=WARNING
+
+# Simulation parameters
 #topSequence.NSWL1Simulation.PadTdsTool.VMM_DeadTime=3
 #topSequence.NSWL1Simulation.PadTdsTool.ApplyVMM_DeatTime=True
 

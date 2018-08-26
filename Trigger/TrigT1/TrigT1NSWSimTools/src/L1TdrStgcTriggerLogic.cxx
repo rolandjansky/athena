@@ -8,8 +8,8 @@
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 #include "TrigT1NSWSimTools/vector_utils.h"
-
 #include "TrigT1NSWSimTools/GeoUtils.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -19,62 +19,61 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <numeric>//iota
 
 using std::distance;
 using std::set_intersection;
 
 namespace {
-    const int triggerLogicDbgLevel = 0;
     const double padTimingEfficiency = 0.95; // set to -1 to disable
+    MsgStream& operator>>(MsgStream& m, const MSG::Color&c) {m.setColor(c, MSG::BLACK);return m;}
 }
 
-
 namespace NSWL1{
-    //-------------------------------------
-    L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic()
-        : m_verbose(false), m_writePickle(false), m_picklePrefix("./") {
-    rand.SetSeed(0);
+    
+    
+    L1TdrStgcTriggerLogic::L1TdrStgcTriggerLogic(IMessageSvc*  M,  std::string source):
+         m_writePickle(false), m_picklePrefix("./"),m_msglvl(-1), m_msg(M, source){
     }
     //-------------------------------------
     L1TdrStgcTriggerLogic::~L1TdrStgcTriggerLogic() {}
     //-------------------------------------
     bool L1TdrStgcTriggerLogic::hitPattern(const Pad &firstPad, const Pad &otherPad,
                         std::string &pattern) {
-    return L1TdrStgcTriggerLogic::hitPattern(firstPad.ieta, firstPad.iphi, otherPad.ieta,
-                            otherPad.iphi, pattern);
+        return L1TdrStgcTriggerLogic::hitPattern(firstPad.ieta, firstPad.iphi, otherPad.ieta,
+                                otherPad.iphi, pattern);
     }
     //-------------------------------------
     bool L1TdrStgcTriggerLogic::hitPattern(const int &iEta0, const int &iPhi0, const int &iEta1,
                         const int &iPhi1, std::string &pattern) {
-    // A la ATL-MUON-INT-2014-003 =>>
-    pattern = "33";
-    //  if(iPhi1 >= iPhi0 + 2 || iPhi1 < iPhi0) return false;
-    //  if(iEta1 >= iEta0 + 2 || iEta1 < iEta0) return false;
-    //  if(iPhi0 == iPhi1) pattern = (iEta0==iEta1 ? "11" : "21");
-    //  else               pattern = (iEta0==iEta1 ? "12" : "22");
-    // <<== A la ATL-MUON-INT-2014-003
-    // New Logic - DeltaEtaDeltaPhi
-    if (iEta1 >= iEta0 + 2 || iEta1 <= iEta0 - 2)
-        return false;
-    if (iPhi1 >= iPhi0 + 2 || iPhi1 <= iPhi0 - 2)
-        return false;
-    // DeltaEta
-    if (iEta1 == iEta0 - 1)
-        pattern = "0";
-    else if (iEta1 == iEta0)
-        pattern = "1";
-    else if (iEta1 == iEta0 + 1)
-        pattern = "2";
-    // DeltaPhi
-    if (iPhi1 == iPhi0 - 1)
-        pattern.append("0");
-    else if (iPhi1 == iPhi0)
-        pattern.append("1");
-    else if (iPhi1 == iPhi0 + 1)
-        pattern.append("2");
+        // A la ATL-MUON-INT-2014-003 =>>
+        pattern = "33";
+        //  if(iPhi1 >= iPhi0 + 2 || iPhi1 < iPhi0) return false;
+        //  if(iEta1 >= iEta0 + 2 || iEta1 < iEta0) return false;
+        //  if(iPhi0 == iPhi1) pattern = (iEta0==iEta1 ? "11" : "21");
+        //  else               pattern = (iEta0==iEta1 ? "12" : "22");
+        // <<== A la ATL-MUON-INT-2014-003
+        // New Logic - DeltaEtaDeltaPhi
+        if (iEta1 >= iEta0 + 2 || iEta1 <= iEta0 - 2)
+            return false;
+        if (iPhi1 >= iPhi0 + 2 || iPhi1 <= iPhi0 - 2)
+            return false;
+        // DeltaEta
+        if (iEta1 == iEta0 - 1)
+            pattern = "0";
+        else if (iEta1 == iEta0)
+            pattern = "1";
+        else if (iEta1 == iEta0 + 1)
+            pattern = "2";
+        // DeltaPhi
+        if (iPhi1 == iPhi0 - 1)
+            pattern.append("0");
+        else if (iPhi1 == iPhi0)
+            pattern.append("1");
+        else if (iPhi1 == iPhi0 + 1)
+            pattern.append("2");
 
-    return true;
+        return true;
     }
     //-------------------------------------
     //S.I : a method should not have so many arguments..
@@ -122,8 +121,8 @@ namespace NSWL1{
         if (isLayer2) {
             l2Idx = padIndicesLayer1.at(il2);
             if (iL1st == -1) {
-            sl2 = "11";
-            iL1st = l2Idx;
+                sl2 = "11";
+                iL1st = l2Idx;
             } // l1 was not considered, l2 gets the first indices
             else if (!hitPattern(pads.at(iL1st), pads.at(l2Idx), sl2))
             continue;
@@ -132,7 +131,7 @@ namespace NSWL1{
             int l3Idx = -1;
             std::string sl3("33");
             if (isLayer3) {
-            l3Idx = padIndicesLayer2.at(il3);
+                l3Idx = padIndicesLayer2.at(il3);
             if (!hitPattern(pads.at(iL1st), pads.at(l3Idx), sl3))
                 continue;
             }
@@ -169,7 +168,7 @@ namespace NSWL1{
             int    moduleid ;
             int    sectortype ;
 
-
+//Please mind the indentation
             if (sl1 == "11") {
                 multipletid = pads.at(l1Idx).multiplet;
                     moduleid = pads.at(l1Idx).module;
@@ -202,7 +201,7 @@ namespace NSWL1{
 
 
             }
-
+ 
             if (sectortype == 0) {
                 if (multipletid == 1) { // 15-7-18 YR - Confirm   new geometry
                 if (moduleid == 1) {
@@ -365,135 +364,118 @@ namespace NSWL1{
       }
     }
     //-------------------------------------
-    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< PadWithHits > &pads,const std::vector< size_t > &indicesSecN) {
-    // inner/outer refers to |z|
-    // it used to be (pivot/confirm) x (large/small) ... now obsolete nomenclature
+    bool L1TdrStgcTriggerLogic::buildSectorTriggers(const std::vector< PadWithHits > &pads) {
+       
         m_secTrigCand.clear();
-    const int innerMultiplet(1), outerMultiplet(2);
-    std::vector< size_t > indicesInner = filterByMultiplet(pads, indicesSecN, innerMultiplet);
-    std::vector< size_t > indicesOuter = filterByMultiplet(pads, indicesSecN, outerMultiplet);
-    std::vector< size_t > idxesI1(filterByLayer(pads, indicesInner, STGC_LAYER_1));
-    std::vector< size_t > idxesI2(filterByLayer(pads, indicesInner, STGC_LAYER_2));
-    std::vector< size_t > idxesI3(filterByLayer(pads, indicesInner, STGC_LAYER_3));
-    std::vector< size_t > idxesI4(filterByLayer(pads, indicesInner, STGC_LAYER_4));
-    std::vector< size_t > idxesO1(filterByLayer(pads, indicesOuter, STGC_LAYER_1));
-    std::vector< size_t > idxesO2(filterByLayer(pads, indicesOuter, STGC_LAYER_2));
-    std::vector< size_t > idxesO3(filterByLayer(pads, indicesOuter, STGC_LAYER_3));
-    std::vector< size_t > idxesO4(filterByLayer(pads, indicesOuter, STGC_LAYER_4));
-    std::vector< SingleWedgePadTrigger > i4of4trig(build44swt(pads, idxesI1, idxesI2, idxesI3, idxesI4));
-    std::vector< SingleWedgePadTrigger > i3of4trig(build34swt(pads, idxesI1, idxesI2, idxesI3, idxesI4));
-    std::vector< SingleWedgePadTrigger > o4of4trig(build44swt(pads, idxesO1, idxesO2, idxesO3, idxesO4));
-    std::vector< SingleWedgePadTrigger > o3of4trig(build34swt(pads, idxesO1, idxesO2, idxesO3, idxesO4));
+        std::vector< size_t > indicesSecN(pads.size());
+        std::iota(indicesSecN.begin(),indicesSecN.end(),0);
+        const int innerMultiplet(1), outerMultiplet(2);
+        std::vector< size_t > indicesInner = filterByMultiplet(pads, indicesSecN, innerMultiplet);
+        std::vector< size_t > indicesOuter = filterByMultiplet(pads, indicesSecN, outerMultiplet);
+        std::vector< size_t > idxesI1(filterByLayer(pads, indicesInner, STGC_LAYER_1));
+        std::vector< size_t > idxesI2(filterByLayer(pads, indicesInner, STGC_LAYER_2));
+        std::vector< size_t > idxesI3(filterByLayer(pads, indicesInner, STGC_LAYER_3));
+        std::vector< size_t > idxesI4(filterByLayer(pads, indicesInner, STGC_LAYER_4));
+        std::vector< size_t > idxesO1(filterByLayer(pads, indicesOuter, STGC_LAYER_1));
+        std::vector< size_t > idxesO2(filterByLayer(pads, indicesOuter, STGC_LAYER_2));
+        std::vector< size_t > idxesO3(filterByLayer(pads, indicesOuter, STGC_LAYER_3));
+        std::vector< size_t > idxesO4(filterByLayer(pads, indicesOuter, STGC_LAYER_4));
+        std::vector< SingleWedgePadTrigger > i4of4trig(build44swt(pads, idxesI1, idxesI2, idxesI3, idxesI4));
+        std::vector< SingleWedgePadTrigger > i3of4trig(build34swt(pads, idxesI1, idxesI2, idxesI3, idxesI4));
+        std::vector< SingleWedgePadTrigger > o4of4trig(build44swt(pads, idxesO1, idxesO2, idxesO3, idxesO4));
+        std::vector< SingleWedgePadTrigger > o3of4trig(build34swt(pads, idxesO1, idxesO2, idxesO3, idxesO4));
 
-    remove3of4Redundant4of4(i4of4trig, i3of4trig);
-    remove3of4Redundant4of4(o4of4trig, o3of4trig);
-    
-    if (m_verbose)
-        std::cout << "SingleWedge triggers :"
-            << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
-            << "(4/4)"
-            << " outer : " << o3of4trig.size() << "(3/4) " << o4of4trig.size()
-            << "(4/4)" << std::endl;
-
-    std::vector< SingleWedgePadTrigger > innerTrigs, outerTrigs; // merge 4/4 and 3/4
-    innerTrigs.insert(innerTrigs.end(), i3of4trig.begin(), i3of4trig.end());
-    innerTrigs.insert(innerTrigs.end(), i4of4trig.begin(), i4of4trig.end());
-    outerTrigs.insert(outerTrigs.end(), o3of4trig.begin(), o3of4trig.end());
-    outerTrigs.insert(outerTrigs.end(), o4of4trig.begin(), o4of4trig.end());
-    bool acceptSingleWedgeInTransition = true;
-    bool skipInnerOuterMatchHack = false;
-    //std::vector< SectorTriggerCandidate > trigCandidates;
-    /**
-        @todo fix hack DG-2015-10-08
-
-        I am having some issue with determining the corners of the pad.
-        The matching between inner/outer candidates becomes thus
-        pointless.  As a temporary hack, just create one
-        SectorTriggerCandidate for each SingleWedgePadTrigger.
-
-        At this stage, we probably don't even need this feature, since
-        we're using the pads only to determine the strip band. In the TDR
-        we used it to check the resolution (from the pads measurements)
-        of the pointing direction.
-    */
-    if (skipInnerOuterMatchHack) {
-        for (SingleWedgePadTrigger &swpt : innerTrigs){
-            m_secTrigCand.emplace_back(swpt.setCombined());
-        }
-        for (SingleWedgePadTrigger &swpt : outerTrigs){
-            m_secTrigCand.emplace_back(swpt.setCombined());
-        }
-    } 
-    else {
-        for (auto it : innerTrigs) {
-            for (auto ot: outerTrigs) {
-                // Inner-Outer matching based on area
-                //S.I EtaPhiRectangle is dprecated
-                //EtaPhiRectangle innerArea = SingleWedgePadTrigger::padOverlap(it->pads());
-                //EtaPhiRectangle outerArea = SingleWedgePadTrigger::padOverlap(ot->pads());
-                Polygon innerArea=SingleWedgePadTrigger::padOverlap3(it.pads());
-                Polygon outerArea=SingleWedgePadTrigger::padOverlap3(ot.pads());
-                //double overlap = EtaPhiRectangle::overlappingArea(innerArea, outerArea);
-                
-                float Z1=ot.pads().at(0).m_cornerXyz[1][2];
-                float Z0=it.pads().at(0).m_cornerXyz[1][2];
-                
-                Polygon inoutovl=largestIntersection(innerArea,Project(outerArea,Z1,Z0));
-                
-                float overlap=area(inoutovl);
-                std::cout<<"OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea)<<std::endl;
-                if (overlap >0) {
-                m_secTrigCand.emplace_back(it.setCombined(), ot.setCombined());
-                }
-            } // end for(ot)
-        }   // end for(it)
-        //***** Transition Region *****
+        remove3of4Redundant4of4(i4of4trig, i3of4trig);
+        remove3of4Redundant4of4(o4of4trig, o3of4trig);
         
+        m_msg>>MSG::CYAN<<MSG::DEBUG <<  "SingleWedge triggers :"
+                << " inner : " << i3of4trig.size() << "(3/4) " << i4of4trig.size()
+                << "(4/4)"
+                << " outer : " << o3of4trig.size() << "(3/4) " << o4of4trig.size()
+                << "(4/4)" << endmsg;
         
-        if (acceptSingleWedgeInTransition) {
-            for ( auto it : innerTrigs){
-                if (it.alreadyCombined()){
-                continue;
-                }
-                else if (it.is4outOf4Layers() && it.isInTransitionRegion()){
-                m_secTrigCand.emplace_back(it.setCombined());                
-                }
+        std::vector< SingleWedgePadTrigger > innerTrigs, outerTrigs; // merge 4/4 and 3/4
+        innerTrigs.insert(innerTrigs.end(), i3of4trig.begin(), i3of4trig.end());
+        innerTrigs.insert(innerTrigs.end(), i4of4trig.begin(), i4of4trig.end());
+        outerTrigs.insert(outerTrigs.end(), o3of4trig.begin(), o3of4trig.end());
+        outerTrigs.insert(outerTrigs.end(), o4of4trig.begin(), o4of4trig.end());
+        bool acceptSingleWedgeInTransition = true;
+        //=============S.I this should absoultely be removed why do we keep this ? ======
+        bool skipInnerOuterMatchHack = false;
+        if (skipInnerOuterMatchHack) {
+            for (auto &swpt : innerTrigs){
+                m_secTrigCand.emplace_back(swpt.setCombined());
             }
-            for ( auto ot : outerTrigs) {
-                if (ot.alreadyCombined()){
-                    continue;
-                }
-                else if (ot.is4outOf4Layers() && ot.isInTransitionRegion()){
-                    m_secTrigCand.emplace_back(ot.setCombined());
-                }
+            for (auto &swpt : outerTrigs){
+                m_secTrigCand.emplace_back(swpt.setCombined());
             }
-        } // end if(acceptSingleWedgeInTransition)
-    }   // if(not skipInnerOuterMatchHack)
-    //m_secTrigCand = trigCandidates;
-
-    
-    if (m_verbose) {
-        //std::cout << "found " << m_secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads" << std::endl;
+        } 
+        //SI ================================================================================
+        else {
+            for (auto& it : innerTrigs) {
+                for (auto& ot: outerTrigs) {
+                    // Inner-Outer matching based on area
+                    Polygon innerArea=SingleWedgePadTrigger::padOverlap3(it.pads());
+                    Polygon outerArea=SingleWedgePadTrigger::padOverlap3(ot.pads());
+                    
+                    float Z1=ot.pads().at(0).m_cornerXyz[1][2];
+                    float Z0=it.pads().at(0).m_cornerXyz[1][2];
+                    
+                    Polygon inoutovl=largestIntersection(innerArea,Project(outerArea,Z1,Z0));
+                    float overlap=area(inoutovl);
+                     m_msg>>MSG::CYAN <<"OVERLAP  "<<overlap<<" Inner "<<area(innerArea)<<" Outer "<<area(outerArea)<<endmsg;
+                    if (overlap >0) {
+                        m_secTrigCand.emplace_back(it.setCombined(), ot.setCombined());
+                    }
+                } // end for(ot)
+            }   // end for(it)
+            //***** Transition Region *****
+            
+            
+            if (acceptSingleWedgeInTransition) {
+                for ( auto& it : innerTrigs){
+                    if (it.alreadyCombined()){
+                         m_msg>>MSG::CYAN<<MSG::DEBUG<<"Inner SingleWedge trigger already combined, skipping"<<endmsg;
+                        continue;
+                    }
+                    else if (it.is4outOf4Layers() && it.isInTransitionRegion()){
+                        m_secTrigCand.emplace_back(it.setCombined());                
+                    }
+                }
+                for ( auto& ot : outerTrigs) {
+                    if (ot.alreadyCombined()){
+                         m_msg>>MSG::CYAN<<MSG::DEBUG<<"Outer SingleWedge trigger already combined, skipping"<<endmsg;                        
+                        continue;
+                    }
+                    else if (ot.is4outOf4Layers() && ot.isInTransitionRegion()){
+                        m_secTrigCand.emplace_back(ot.setCombined());
+                    }
+                }
+            } // end if(acceptSingleWedgeInTransition)
+        }   // if(not skipInnerOuterMatchHack)
+        //m_secTrigCand = trigCandidates;
+        
+         m_msg>>MSG::CYAN<<MSG::DEBUG <<  "found " << m_secTrigCand.size() << " triggerCandidates from "<< pads.size() << " pads" << endmsg;
         for (const auto& tc : m_secTrigCand) {
-            std::cout << "trigger region area : " << area(tc.triggerRegion3())<<std::endl;
-        } // end for(tc)
-    }
-
-    if (m_writePickle) {
-        if (m_secTrigCand.size() > 0) {
-        int sector = m_secTrigCand.at(0).wedgeTrigs().at(0).pads().at(0).sector;
-        char buf[1024] = "";
-        sprintf(buf, "%s/sector%02d.txt", m_picklePrefix.c_str(), sector);
-        std::ofstream fileDump;
-        fileDump.open(buf);
-        fileDump << "[";
-        for (size_t i = 0; i < m_secTrigCand.size(); ++i)
-            fileDump << "{" << m_secTrigCand.at(i).pickle() << "},\n";
-        fileDump << "]";
-        fileDump.close();
+                 m_msg>>MSG::CYAN<<MSG::DEBUG<<"trigger region area : " << area(tc.triggerRegion3())<<endmsg;
         }
-    } // if(m_writePickle)
-    return (m_secTrigCand.size() > 0);
+
+        if (m_writePickle) {
+            if (m_secTrigCand.size() > 0) {
+                int sector = m_secTrigCand.at(0).wedgeTrigs().at(0).pads().at(0).sector;
+                char buf[1024] = "";
+                sprintf(buf, "%s/sector%02d.txt", m_picklePrefix.c_str(), sector);
+                std::ofstream fileDump;
+                fileDump.open(buf);
+                fileDump << "[";
+                for (size_t i = 0; i < m_secTrigCand.size(); ++i){
+                    fileDump << "{" << m_secTrigCand.at(i).pickle() << "},\n";
+                }
+                fileDump << "]";
+                fileDump.close();
+            }
+        } // if(m_writePickle)
+        return (m_secTrigCand.size() > 0);
     }
 
     /**
@@ -504,6 +486,7 @@ namespace NSWL1{
     */
 
     std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaUp() {
+        /*
         std::vector<std::string> patterns;
         patterns.push_back("1111");
         patterns.push_back("1122");
@@ -517,6 +500,10 @@ namespace NSWL1{
         patterns.push_back("1123");
 
         return patterns;
+        */
+        //at least write it like this... all the below
+        //why dont we make these members ? 
+        return std::vector<std::string>{"1111","1122","3111","3122","1311","1322","1131","1132","1113","1123"};
     }
 
     std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatternsEtaDown() {
@@ -609,9 +596,12 @@ namespace NSWL1{
         patterns.push_back("3121");
         return patterns;
     }
-
+    
+    //whats the function of this ??
     std::vector<std::string> L1TdrStgcTriggerLogic::sTGC_triggerPatterns() {
         std::vector<std::string> patterns;
         return patterns;
     }
+
 }
+

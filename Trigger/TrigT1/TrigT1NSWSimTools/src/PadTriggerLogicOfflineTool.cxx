@@ -9,7 +9,6 @@
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/MsgStream.h"
 // local includes
 #include "TrigT1NSWSimTools/PadTriggerLogicOfflineTool.h"
 #include "TrigT1NSWSimTools/PadData.h"
@@ -77,7 +76,8 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
     m_useSimple4of4(false),
     m_doNtuple(false),
     m_missingDetectorManagerErrorCounter(0),
-    m_missingReadoutElementErrorCounter(0)
+    m_missingReadoutElementErrorCounter(0),
+    m_tdrLogic(msgSvc(),"L1StgcTdrLogic")
 {
     declareInterface<NSWL1::IPadTriggerLogicTool>(this);
     declareProperty("RndmEngineName", m_rndmEngineName = "PadTriggerLogicOfflineTool", "the name of the random engine");
@@ -86,7 +86,7 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
     declareProperty("TimeJitter", m_PadEfficiency = 1.0, "pad trigger efficiency (tmp placeholder)");
     declareProperty("UseSimple4of4", m_useSimple4of4 = false, "use simplified logic requiring 4 hits on 4 gas gaps");
     declareProperty("DoNtuple", m_doNtuple = false, "save the trigger outputs in an analysis ntuple");
-
+    
     // DG-todo // reserve enough slots for the trigger sectors and fills empty vectors
     // DG-todo m_pad_cache.reserve(32);
     // DG-todo std::vector< std::vector<PadData*> >::iterator it = m_pad_cache.begin();
@@ -154,21 +154,12 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
     if( detStore()->retrieve( m_detManager ).isFailure() ) {
         ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
         return StatusCode::FAILURE;
-    } else {
+    } 
+    else {
         ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
     }
-
-// DG-todo    //  retrieve the sTGC offline Id helper
-// DG-todo    if( detStore()->retrieve( m_sTgcIdHelper ).isFailure() ){
-// DG-todo        //--ATH_MSG_FATAL("Failed to retrieve sTgcIdHelper");
-// DG-todo        return StatusCode::FAILURE;
-// DG-todo    } else {
-// DG-todo        //--ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
-// DG-todo    }
-// DG-todo
-    m_tdrLogic=L1TdrStgcTriggerLogic();
-    m_tdrLogic.m_writePickle = false;
-    m_tdrLogic.m_verbose = true;
+    m_tdrLogic.msgStream().setLevel(this->msg().level());
+    
     return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------
@@ -317,7 +308,7 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<st
                         fillGeometricInformation(*p,pwh);
                         pwhs.push_back(pwh);
                   }
-                     m_tdrLogic.buildSectorTriggers(pwhs, indices(pwhs));
+                     m_tdrLogic.buildSectorTriggers(pwhs);
                      for( const SectorTriggerCandidate &st : m_tdrLogic.candidates()){
                         //S.I
                         auto p=std::make_unique<PadTrigger>(convert(st));
@@ -496,11 +487,11 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
                 }     
                 
                 if(dymin>0 && dymin<tol && local_trigminy<local_padminy){
-                    ATH_MSG_INFO("Shifting trigger region minY[\u03BCmx10]: "<<int(local_trigminy*10000)<<"==>"<<int(local_padminy*10000));
+                    ATH_MSG_DEBUG("Shifting trigger region minY[\u03BCmx10]: "<<int(local_trigminy*10000)<<"==>"<<int(local_padminy*10000));
                     local_trigminy=local_padminy;
                 }
                 if(dymax>0 && dymax<tol && local_trigmaxy>local_padmaxy){
-                    ATH_MSG_INFO("Shifting trigger region maxY[\u03BCmx10]: "<<int(local_trigmaxy*10000)<<"==>"<<int(local_padmaxy*10000));
+                    ATH_MSG_DEBUG("Shifting trigger region maxY[\u03BCmx10]: "<<int(local_trigmaxy*10000)<<"==>"<<int(local_padmaxy*10000));
                     local_trigmaxy=local_padmaxy;
                 }
                 //******************************************************************************************************
@@ -521,7 +512,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
                 //S.I 17-07-18 
     		}
     		else
-    			std::cerr<<"PadTriggerLogicOfflineTool::convert: do not push back null pointers"<<std::endl;
+    			ATH_MSG_FATAL("PadTriggerLogicOfflineTool::convert: do not push back null pointers");
     		// so how do you handle it rather than printing something out ?
     	} // for(p)
     } // for (st)
