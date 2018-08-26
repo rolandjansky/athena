@@ -31,7 +31,11 @@ BTagTrackAugmenter::BTagTrackAugmenter():
 
 namespace {
   Amg::Vector3D get_vector3d(const std::vector<float> &input_vector) {
-    assert(input_vector.size() == 3);
+    if (input_vector.size() != 3) {
+      std::string size = std::to_string(input_vector.size());
+      throw std::logic_error(
+        "Tried to build an Eigen 3-vector from " + size + " elements");
+    }
     return Eigen::Vector3f(input_vector.data()).cast<double>();
   }
 }
