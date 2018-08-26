@@ -141,12 +141,14 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 	ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component "<<viewVector->size()-1);
       
 	// see if there is a view linked to the decision object, if so link it to the view that is just made
-	if ( Idecision->hasObjectLink( "view" ) ) {
-	  auto viewEL = Idecision->objectLink< ViewContainer >( "view" );
-	  CHECK( viewEL.isValid() );
-	  auto parentView = *viewEL;
+	TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(Idecision, "view" );
+	if ( parentViewLinkInfo.isValid() ) {
+	  CHECK( parentViewLinkInfo.link.isValid() );
+	  auto parentView = *parentViewLinkInfo.link;
 	  viewVector->back()->linkParent( parentView );
 	  ATH_MSG_DEBUG( "Parent view linked" );
+	} else {
+	  ATH_MSG_DEBUG( "Parent view not linked" );
 	}
 	
 	//store the RoI in the view
