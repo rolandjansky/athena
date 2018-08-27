@@ -12,11 +12,7 @@
 #include "AthLinks/ElementLink.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
-
-namespace xAOD {
-  class Jet_v1;
-  typedef Jet_v1 Jet;
-}
+#include "xAODJet/Jet.h"
 
 struct BTagSignedIP {
   double ip2d_signed_d0;

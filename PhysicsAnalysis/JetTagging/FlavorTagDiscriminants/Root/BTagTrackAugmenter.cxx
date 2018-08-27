@@ -7,8 +7,6 @@
 #include <cmath>
 #include <cstddef>
 
-#include "xAODJet/Jet.h"
-
 BTagTrackAugmenter::BTagTrackAugmenter():
   m_ip_d0("btag_ip_d0"),
   m_ip_z0("btag_ip_z0"),
