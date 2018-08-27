@@ -52,7 +52,6 @@ Prompt::DecoratePromptLepton::DecoratePromptLepton(const std::string& name,
 //=============================================================================
 StatusCode Prompt::DecoratePromptLepton::initialize()
 {   
-
   if(m_printTime) {
     //
     // Reset timers
@@ -116,7 +115,6 @@ StatusCode Prompt::DecoratePromptLepton::initialize()
 //=============================================================================
 StatusCode Prompt::DecoratePromptLepton::finalize()
 {
-
   if(m_printTime) {
     //
     // Print full time stopwatch
@@ -239,7 +237,7 @@ bool Prompt::DecoratePromptLepton::initializeTMVAReader()
   m_TMVAReader = new TMVA::Reader();
 
   for(Prompt::Def::Var &var: m_allVars) {
-    Float_t *new_var = new Float_t(0.0);    
+    Float_t *new_var = new Float_t(0.0);
     m_TMVAReader->AddVariable(Prompt::Def::AsStr(var), new_var);   
     m_varTMVA.push_back(new_var);
   }
@@ -452,7 +450,6 @@ void Prompt::DecoratePromptLepton::decorateElectron(const xAOD::Electron* electr
 void Prompt::DecoratePromptLepton::decorateMuon(const xAOD::Muon* muon, 
 						const xAOD::JetContainer* trackJets)
 { 
-
   //
   // Find nearest track jet to muon
   //

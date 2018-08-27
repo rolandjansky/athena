@@ -14,7 +14,7 @@ def ConfigureAntiKt4PV0TrackJets(privateSeq, name):
 
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 
-    # Run track jet clustering. B-tagging is run at conConfigureAntiKt4PV0Tstruction
+    # Run track jet clustering. B-tagging is run at construction
     replaceAODReducedJets(['AntiKt4PV0TrackJets'], privateSeq, name)
 
 #------------------------------------------------------------------------------
@@ -100,6 +100,7 @@ def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name, addSpectators=Fa
 
     # Prepare DecoratePromptLepton alg
     alg = Conf.Prompt__DecoratePromptLepton('%s_decorate%s' %(lepton_name, BDT_name))
+
     alg.LeptonContainerName   = lepton_name
     alg.TrackJetContainerName = track_jet_name
     alg.ConfigFileVersion     = 'InputData-2017-10-27/%s/%s' %(part_type, BDT_name)
