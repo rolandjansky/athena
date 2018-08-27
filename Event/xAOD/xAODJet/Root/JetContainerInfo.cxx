@@ -12,6 +12,11 @@ namespace xAOD {
 
     static const std::string c_unknownAlg = "UnknownAlg";
 
+    /// Map associating string names to enumeration values
+    ///
+    /// Note that multiple string names may be associated to the same
+    /// enum value.
+    ///
     static const std::map<std::string, ID> nameToIDmap = {
       // Names in the ATLAS convention
       { "Kt",            JetAlgorithmType::kt_algorithm },
@@ -36,6 +41,16 @@ namespace xAOD {
       { c_unknownAlg,    JetAlgorithmType::undefined_jet_algorithm }
     };
 
+    /// Map associating enum values to string names
+    ///
+    /// Note that this is *not* an inverse of the previous map! Here
+    /// the association from enum values to strings is 1-to-1. While
+    /// the previous map associates multiple strings to the same enum
+    /// value.
+    ///
+    /// Also note that the association is to the "ATLAS names", and
+    /// not to the "FastJet names".
+    ///
     static const std::map<ID, std::string> idToNamemap = {
       { JetAlgorithmType::kt_algorithm,                    "Kt" },
       { JetAlgorithmType::cambridge_algorithm,             "CamKt" },
@@ -73,6 +88,11 @@ namespace xAOD {
 
     static const std::string c_unCategorized = "Uncategorized";
 
+    /// Map associating string names to enumeration values
+    ///
+    /// Note that multiple string names may be associated to the same
+    /// enum value. Even though currently they aren't.
+    ///
     static const std::map<std::string, Type> nameToTypemap = {
       { "LCTopo",                LCTopo },
       { "EMTopo",                EMTopo },
@@ -114,6 +134,13 @@ namespace xAOD {
       { c_unCategorized,         Uncategorized }
     };
 
+    /// Map associating enum values to string names
+    ///
+    /// Note that this is *not* necessarily an inverse of the previous
+    /// map! Here the association from enum values to strings is 1-to-1.
+    /// While the previous map may associate multiple strings to the
+    /// same enum value.
+    ///
     static const std::map<Type, std::string> typeToNamemap {
       { LCTopo,                "LCTopo" },
       { EMTopo,                "EMTopo" },
