@@ -179,7 +179,6 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("DirName", m_dirName = "IDPerformanceMon/");
   declareProperty("SubFolder", m_folder);
   declareProperty("PileupSwitch", m_pileupSwitch = "All");
-  declareProperty("PileupPlots",m_pileupPlots = false);
 }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
@@ -225,17 +224,22 @@ InDetPhysValMonitoringTool::fillHistograms() {
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks
   //
 
-  int nMuEvents = 0;
+  unsigned int nMuEvents = 0;
   const xAOD::TruthPileupEventContainer* truthPileupEventContainer = 0;
-  
-  if (m_pileupPlots) {
-    ATH_MSG_VERBOSE("getting TruthPileupEvents container");
-    const char* truthPUEventCollName =
-      evtStore()->contains<xAOD::TruthPileupEventContainer>("TruthPileupEvents") ? "TruthPileupEvents" :
-      "TruthPileupEvent";
+  std::string truthPUEventCollName = "TruthPileupEvents";
+  if (evtStore()->contains<xAOD::TruthPileupEventContainer>(truthPUEventCollName)) {
     evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
+  }
+  else {
+    truthPUEventCollName = "TruthPileupEvent";
+    if (evtStore()->contains<xAOD::TruthPileupEventContainer>(truthPUEventCollName)) {
+      evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
+    }
+  }
+  if (NULL!=truthPileupEventContainer) {
     nMuEvents = (int) truthPileupEventContainer->size();
   }
+
   ATH_MSG_DEBUG("Filling vertex plots");
   const xAOD::VertexContainer* pvertex = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
   const xAOD::Vertex* pvtx = nullptr;
