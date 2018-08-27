@@ -586,7 +586,6 @@ if TriggerFlags.doMuon:
     themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
-    #themuoncreatoralg.ClusterContainerName=""
 
     #Algorithms to views
     efMuViewNode += theSegmentFinderAlg

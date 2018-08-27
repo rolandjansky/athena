@@ -64,21 +64,15 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     mon.FinalDecisions = mon.CollectorTools[-1].Decisions
     __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )
 
-    mon.ChainsList = list( set( allChains + l1Decoder.ctpUnpacker.CTPToChainMapping.keys()) )
+    mon.ChainsList = list( set( allChains + l1Decoder.ChainToCTPMapping.keys()) )
     
     return acc, mon
 
 def setupL1DecoderFromMenu( flags, l1Decoder ):
     """ Post setup of the L1Decoder, once approved, it should be moved to L1DecoderCfg function """
-    l1Decoder.ctpUnpacker.CTPToChainMapping = {} 
-    from TriggerJobOpts.MenuConfigFlags import MenuUtils
-    l1Decoder.ctpUnpacker.CTPToChainMapping.update( MenuUtils.toCTPSeedingDict( flags ) )
 
-    # this will go away once full L1 config info will be used by L1 Decoder
-    for c in flags.get( "Trigger.menu.electrons" ) + flags.get( "Trigger.menu.photons" ) :
-        chain, l1item = c.split()[:2]
-        threshold = l1item.split("_")[1] 
-        l1Decoder.roiUnpackers["EMRoIsUnpackingTool"].ThresholdToChainMapping += [ "%s : %s" % (threshold, chain) ]
+    from TriggerJobOpts.MenuConfigFlags import MenuUtils
+    l1Decoder.ChainToCTPMapping = MenuUtils.toCTPSeedingDict( flags )
 
 
 def triggerRunCfg(flags, menu=None):
