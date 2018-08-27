@@ -14,9 +14,11 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"  // typedef
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include <vector>
@@ -62,6 +64,10 @@ private:
     SG::ReadHandleKey<SCT_RDO_Container> m_dataObjectName;     //!< Data object name: for the SCT this is "SCT_RDOs"
     SG::ReadHandleKey<SpacePointContainer> m_spacePointContainerName;//!< SpacePoint container name: for the SCT this is "SCT_SpacePoints"
     SG::ReadHandleKey<TrackCollection> m_inputTrackCollection; //! TrackCollection name, needed for hits-on-tracks, default is "CombinedInDetTracks"
+
+    // For P->T converter of SCT_Clusters
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
     ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
     ServiceHandle<ISCT_CablingSvc> m_cabling;
     std::string m_ntupleFileName;     //!< jobOption: Ntuple file name

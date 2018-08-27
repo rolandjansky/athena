@@ -22,7 +22,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetRawData/SCT3_RawData.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "AthenaKernel/errorcheck.h"
 #include "SCT_Monitoring/SCT_ClusterStruct.h"
 #include "GaudiKernel/ITHistSvc.h"

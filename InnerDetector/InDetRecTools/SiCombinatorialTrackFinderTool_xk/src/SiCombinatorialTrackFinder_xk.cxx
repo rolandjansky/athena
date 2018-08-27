@@ -209,6 +209,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   ATH_CHECK( m_pixcontainerkey.initialize() );
   ATH_CHECK( m_sctcontainerkey.initialize() );
   ATH_CHECK( m_boundarySCTKey.initialize() );
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
 
   return sc;
 }

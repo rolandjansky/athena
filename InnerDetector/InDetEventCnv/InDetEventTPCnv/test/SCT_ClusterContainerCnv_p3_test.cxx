@@ -13,14 +13,16 @@
 #undef NDEBUG
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p3.h"
 #include "TestTools/leakcheck.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
 #include "CxxUtils/make_unique.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+
 #include "GaudiKernel/MsgStream.h"
+
 #include <cassert>
 #include <iostream>
 
@@ -91,6 +93,7 @@ void testit (const InDet::SCT_ClusterContainer& trans1, const SCT_ID& sct_id)
   MsgStream log (0, "test");
   SCT_ClusterContainerCnv_p3 cnv;
   cnv.setIdHelper(&sct_id);
+  cnv.setUseDetectorElement(false);
   InDet::SCT_ClusterContainer_p3 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<InDet::SCT_ClusterContainer> trans2
@@ -174,8 +177,6 @@ const SCT_ID& make_dd()
   assert ( svcLoc->service("DetectorStore", detStore).isSuccess() );
   assert ( detStore->record (std::move (sct_id), "SCT_ID") );
 
-  auto sct_dd = CxxUtils::make_unique<InDetDD::SCT_DetectorManager>(detStore);
-  assert ( detStore->record (std::move (sct_dd), "SCT_DetectorDescription") );
   return ret;
 }
 
