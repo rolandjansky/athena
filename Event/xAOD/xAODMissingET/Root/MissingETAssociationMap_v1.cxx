@@ -124,19 +124,19 @@ void MissingETAssociationMap_v1::f_clearJetConstMap()
   m_jetConstLinks.clear();  
 }
 
-bool MissingETAssociationMap_v1::setJetConstituents(const Jet* pJet) const
+bool MissingETAssociationMap_v1::setJetConstituents(const Jet* pJet)
 {
   std::vector<ElementLink<IParticleContainer> > jetconst = pJet->constituentLinks();
   return this->setJetConstituents(jetconst,pJet);
 }
 
-bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, const Jet* pJet) const
+bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, const Jet* pJet)
 {
   size_t jetIdx = findIndex(pJet);  
   return this->setJetConstituents(constLinks,jetIdx);
 }
 
-bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, size_t jetIndex) const
+bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, size_t jetIndex)
 {
   bool setConst = (jetIndex!=MissingETBase::Numerical::invalidIndex());
   if(setConst) {

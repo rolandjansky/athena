@@ -103,7 +103,7 @@ namespace xAOD
      *
      *  @param[in]  Pointer to the jet
      */
-    bool setJetConstituents(const Jet* pJet) const;
+    bool setJetConstituents(const Jet* pJet);
     /*! @brief Set constituent map for a jet
      *
      *  @return Boolean stating whether or not jet is linked to an association in the map.
@@ -111,7 +111,7 @@ namespace xAOD
      *  @param[in]  Pointer to the jet
      *  @param[in]  Non-modifiable vector of ElementLink to the jet constituents
      */
-    bool setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, const Jet* pJet) const;
+    bool setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, const Jet* pJet);
     /*! @brief Set constituent map for a jet
      *
      *  @return Boolean stating whether or not jet is linked to an association in the map.
@@ -119,7 +119,7 @@ namespace xAOD
      *  @param[in]  Index of the jet's association in the map
      *  @param[in]  Non-modifiable vector of ElementLink to the jet constituents
      */
-    bool setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, size_t jetIndex) const;
+    bool setJetConstituents(const std::vector<ElementLink<IParticleContainer> >& constLinks, size_t jetIndex);
     /*! @brief Do overlap-finding in all associations
      *
      *  @return Boolean stating whether any overlaps were identified
@@ -168,7 +168,7 @@ namespace xAOD
 
     void f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t> map);
     void f_clearJetConstMap();
-    mutable std::map<ElementLink<IParticleContainer>, size_t> m_jetConstLinks;  /*!< @brief Map jet constituents to the jet index */
+    std::map<ElementLink<IParticleContainer>, size_t> m_jetConstLinks;  /*!< @brief Map jet constituents to the jet index */
 
     /*! @name Internal find methods for constant access */
     /*!@{*/
