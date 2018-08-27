@@ -345,7 +345,7 @@ StatusCode PixelByteStreamErrorsSvc::recordData() {
   }
 
   StatusCode sc = StatusCode::SUCCESS;
-  if (cont->size()==2048) {
+  if (cont->size()==m_pixel_id->wafer_hash_max()) {
     m_checkError = -1;
   }
   else if (cont->size()!=m_checkError) {
