@@ -36,9 +36,16 @@ plots_distribution = ["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2"
 plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20","res_deta2"]
 
 # Define triggers for tagging 
-monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose',
+monitoring_tags = ['HLT_e5_lhloose',
+                   'HLT_e17_lhvloose_nod0',
+                   'HLT_e24_lhtight_nod0_ivarloose',
                    'HLT_e26_lhtight_nod0_ivarloose',
-                   'HLT_e28_lhtight_nod0_ivarloose']
+                   'HLT_e28_lhtight_nod0_ivarloose',
+                   'HLT_e60_lhmedium_nod0_L1EM24VHI',
+                   'HLT_e5_lhloose_gsf',
+                   'HLT_e17_lhvloose_nod0_gsf',
+                   'HLT_e28_lhtight_nod0_gsf_ivarloose',
+                   'HLT_e60_lhmedium_nod0_gsf_L1EM24VHI']
 
 monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut',
@@ -58,47 +65,49 @@ monitoring_jpsitags = [
 monitoring_L1Calo = []
 
 # Startup and high-pt electrons to monitor from inclusive electrons
-commission_electron = [
-        ]
+commission_electron = []
 
 monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
-                       'HLT_e140_lhloose_nod0_L1EM24VHI',
-                       'HLT_e60_lhmedium_nod0_L1EM24VHI',
-                       'HLT_e140_lhloose_nod0_L1EM24VHI',
-                       'HLT_e5_lhtight_nod0',
-                       'HLT_e9_lhtight_nod0',
-                       'HLT_e9_lhvloose_nod0',
-                       'HLT_e12_lhloose_nod0',
-                       'HLT_e14_lhtight_nod0',
+                       'HLT_e140_lhloose_nod0_L1EM24VHI'
                        ]
 # monitoring_electron += commission_electron
 
 # 2018 single electrons triggers to monitor from Zee TP, includes rerun
-commissionTP_electron = [
-                         'HLT_e28_lhtight_nod0_sc_ivarloose',
+commissionTP_electron = ['HLT_e28_lhtight_nod0_sc_ivarloose',
                          'HLT_e28_lhtight_nod0_gsf_ivarloose',
                          'HLT_e28_lhtight_nod0_sc_gsf_ivarloose',
                          'HLT_e24_lhvloose_nod0_gsf',
                          'HLT_e24_lhvloose_nod0_sc',
-                         'HLT_e24_lhvloose_nod0_sc_gsf']
+                         'HLT_e24_lhvloose_nod0_sc_gsf',
+                         'HLT_e5_lhloose',
+                         'HLT_e28_lhtight_nod0_ivarloose',
+                         'HLT_e60_lhmedium_nod0_L1EM24VHI',
+                         'HLT_e5_lhloose_gsf',
+                         'HLT_e17_lhvloose_nod0_gsf',
+                         'HLT_e28_lhtight_nod0_gsf_ivarloose',
+                         'HLT_e60_lhmedium_nod0_gsf_L1EM24VHI']
 
-monitoringTP_electron = ['HLT_e17_lhvloose_nod0_L1EM15VHI',
+monitoringTP_electron = [
                          'HLT_e28_lhtight_nod0_ivarloose',                        
-                         'HLT_e24_lhvloose_nod0'
+                         'HLT_e24_lhvloose_nod0_L1EM20VH',
+                         # low mu runs 2018
+                         'HLT_e15_lhloose_nod0_L1EM12' 
                          ]
 monitoringTP_electron += commissionTP_electron
 
-monitoringTP_Jpsiee = []#["HLT_e5_lhtight_nod0"]
+monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
+                     'HLT_g35_loose',
+                     'HLT_g120_loose',
                      'HLT_g25_medium_sc_L1EM20VH',
                      'HLT_g20_tight_icalovloose_L1EM15VHI',
-                     'HLT_g140_loose']
+                     'HLT_g200_loose']
 
 #Add the Menu-Aware monitoring; maps a trigger to a category
 monitoring_mam = {'primary_single_ele_iso':'HLT_e28_lhtight_nod0_ivarloose',
                   'primary_double_pho':'HLT_g25_medium_L1EM20VH',
-                  'primary_single_pho':'HLT_g140_loose',
+                  'primary_single_pho':'HLT_g200_loose',
                   'monitoring_Jpsiee' :'HLT_e5_lhtight_nod0'}
 
 # Cosmic items
@@ -119,6 +128,8 @@ validation_electron=[
 validation_electron.extend(monitoring_electron)
 
 validationTP_Jpsiee = [
+    'HLT_e9_lhtight_nod0',
+    'HLT_e14_lhtight_nod0',
     ]
 validationTP_Jpsiee.extend(monitoringTP_Jpsiee)
 
