@@ -25,6 +25,7 @@
 
 #include "SensorSimTool.h"
 #include "RadDamageUtil.h"
+#include "IChargeCollProbSvc.h"
 
 namespace RadDam{
 
@@ -39,16 +40,21 @@ class SensorSim3DTool : public SensorSimTool {
     virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions);  
     //Apply slim edge inefficiencies for IBL sensors
     virtual StatusCode applySlimEdges( double &energyPerStep, double &eta_drifted);
+    virtual StatusCode getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);    
+    virtual StatusCode getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit); 
+
 
     //Maps
     std::map<std::pair<int, int>, TH3F* > ramoPotentialMap;
-    std::map<std::pair<int, int>, TH1F*> eFieldMap;
-    std::map<std::pair<int, int>, TH2F*> distanceMap_e;
-    std::map<std::pair<int, int>, TH2F*> distanceMap_h;
-    std::map<std::pair<int, int>, TH1F*> timeMap_e;
-    std::map<std::pair<int, int>, TH1F*> timeMap_h;
-    std::map<std::pair<int, int>, TH2F*> lorentzMap_e;
-    std::map<std::pair<int, int>, TH2F*> lorentzMap_h;
+    std::map<std::pair<int, int>, TH2F*> eFieldMap;
+    std::map<std::pair<int, int>, TH3F*> xPositionMap_e;
+    std::map<std::pair<int, int>, TH3F*> xPositionMap_h;
+    std::map<std::pair<int, int>, TH3F*> yPositionMap_e;
+    std::map<std::pair<int, int>, TH3F*> yPositionMap_h;
+    std::map<std::pair<int, int>, TH2F*> timeMap_e;
+    std::map<std::pair<int, int>, TH2F*> timeMap_h;
+//    std::map<std::pair<int, int>, TH2F*> lorentzMap_e;
+//    std::map<std::pair<int, int>, TH2F*> lorentzMap_h;
 
     ToolHandle<RadDamageUtil>                     m_radDamageUtil;
   
@@ -66,6 +72,7 @@ class SensorSim3DTool : public SensorSimTool {
     std::map<std::pair<int, int>, double> fluence_layersMaps;
     double m_trappingTimeElectrons;
     double m_trappingTimeHoles;
+    ServiceHandle<IChargeCollProbSvc> m_chargeCollSvc;
 };
 
 }

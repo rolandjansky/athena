@@ -53,7 +53,8 @@ SensorSim3DTool::SensorSim3DTool(const std::string& type, const std::string& nam
   m_doRadDamage(true), //ALEX
   m_fluence(5), 
   m_trappingTimeElectrons(0.), //ALEX
-  m_trappingTimeHoles(0.) //ALEX
+  m_trappingTimeHoles(0.), //ALEX
+  m_chargeCollSvc("ChargeCollProbSvc",name) //ALEX (COPIED)
 { 
   declareProperty("RadDamageUtil",   m_radDamageUtil, "Rad Damage utility");
   declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelPlanar"); //ALEX: Pixel3D? many more in this file to change, etc
@@ -63,6 +64,7 @@ SensorSim3DTool::SensorSim3DTool(const std::string& type, const std::string& nam
   declareProperty("fluence",   m_fluence, "this is the fluence benchmark, 0-6.  0 is unirradiated, 1 is start of Run 2, 5 is end of 2018 and 6 is projected end of 2018");
   declareProperty("trappingTimeElectrons", m_trappingTimeElectrons, "Characteristic time till electron is trapped [ns]");
   declareProperty("trappingTimeHoles", m_trappingTimeHoles, "Characteristic time till hole is trapped [ns]");
+  declareProperty("ChargeCollProbSvc",m_chargeCollSvc);
 }
 
 class DetCondCFloat;
@@ -78,6 +80,9 @@ StatusCode SensorSim3DTool::initialize() {
  
   CHECK(m_radDamageUtil.retrieve());
   ATH_MSG_DEBUG ( "RadDamageUtil tool retrieved successfully");
+
+  CHECK(m_chargeCollSvc.retrieve());
+  ATH_MSG_DEBUG ( "THIS TOOL RETRIEVED SUCCESFFULLY" );
 
   //Calculate trapping times based on fluence (already includes check for fluence=0)
   if(m_doRadDamage){
@@ -120,7 +125,7 @@ StatusCode SensorSim3DTool::initialize() {
   }else if(m_fluence==5){
 
     mapsPath_list.push_back( PathResolverFindCalibFile("/afs/cern.ch/user/v/vewallan/public/TCADmaps/outputfiles/phi_1e14_20V.root") );
-    ///cvmfs/atlas.cern.ch/repo/sw/database/GroupData/
+    ///cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ <-- location for planar sensor maps
     fluence_layers.push_back(5e14);
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FLUENCE 5 BEING USED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ATLAS 3D SENSOR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -171,9 +176,9 @@ StatusCode SensorSim3DTool::initialize() {
     ramoPotentialMap[Layer]=ramoPotentialMap_hold;
     fluence_layersMaps[Layer]=fluence_layers.at(i);
     //Now setup the E-field.
-    TH1F* eFieldMap_hold;
+    TH2F* eFieldMap_hold;
     eFieldMap_hold=0;
-    eFieldMap_hold=(TH1F*)mapsFile->Get("efield");
+    eFieldMap_hold=(TH2F*)mapsFile->Get("efield");
     if (eFieldMap_hold == 0){ 
     ATH_MSG_INFO("Unable to load sensor e-field map, so generating one using approximations.");
     return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
@@ -183,34 +188,42 @@ StatusCode SensorSim3DTool::initialize() {
     //eFieldMap.push_back(eFieldMap_hold);
     eFieldMap[Layer]=eFieldMap_hold;
 
-    TH2F* distanceMap_h_hold;
-    TH2F* distanceMap_e_hold;
-    TH1F* timeMap_e_hold;
-    TH1F* timeMap_h_hold;
+    TH3F* xPositionMap_e_hold;
+    TH3F* xPositionMap_h_hold;
+    TH3F* yPositionMap_e_hold;
+    TH3F* yPositionMap_h_hold;
+    TH2F* timeMap_e_hold;
+    TH2F* timeMap_h_hold;
 
-    distanceMap_e_hold=0;
-    distanceMap_h_hold=0;
+    xPositionMap_e_hold=0;
+    xPositionMap_h_hold=0;
+    yPositionMap_e_hold=0;
+    yPositionMap_h_hold=0;
     timeMap_e_hold=0;
     timeMap_h_hold=0;
-    distanceMap_h_hold=(TH2F*)mapsFile->Get("hdistance");
-    distanceMap_e_hold=(TH2F*)mapsFile->Get("edistance");
-    timeMap_e_hold=(TH1F*)mapsFile->Get("etimes");
-    timeMap_h_hold=(TH1F*)mapsFile->Get("htimes");
+    xPositionMap_e_hold=(TH3F*)mapsFile->Get("xPosition_e");
+    xPositionMap_h_hold=(TH3F*)mapsFile->Get("xPosition_h");
+    yPositionMap_e_hold=(TH3F*)mapsFile->Get("yPosition_e");
+    yPositionMap_h_hold=(TH3F*)mapsFile->Get("yPosition_h");
+    timeMap_e_hold=(TH2F*)mapsFile->Get("etimes");
+    timeMap_h_hold=(TH2F*)mapsFile->Get("htimes");
     //Now, determine the time to reach the electrode and the trapping position.
-    if (distanceMap_e_hold == 0 || distanceMap_h_hold == 0 || timeMap_e_hold == 0 || timeMap_h_hold == 0){
+    if (xPositionMap_e_hold == 0 || xPositionMap_h_hold == 0 || yPositionMap_e_hold == 0 || yPositionMap_h_hold == 0 || timeMap_e_hold == 0 || timeMap_h_hold == 0){
     
       ATH_MSG_INFO("Unable to load at least one of teh distance/time maps, so generating all using approximations.");
       return StatusCode::FAILURE;//Obviously, remove this when gen. code is set up
       //TODO
       //CHECK(m_radDamageUtil->generateDistanceTimeMap( distanceMap_e, distanceMap_h, timeMap_e, timeMap_h, eFieldMap, p_design_dummy ));
     }
-    
-    distanceMap_e[Layer]=distanceMap_e_hold;
-    distanceMap_h[Layer]=distanceMap_h_hold;
+    xPositionMap_e[Layer]=xPositionMap_e_hold;
+    xPositionMap_h[Layer]=xPositionMap_h_hold;
+    yPositionMap_e[Layer]=yPositionMap_e_hold;
+    yPositionMap_h[Layer]=xPositionMap_h_hold;
     timeMap_e[Layer]=timeMap_e_hold;
     timeMap_h[Layer]=timeMap_h_hold;
     
   }
+  std::cout << "!!!!!!! MAP SETUP SUCCESSFUL !!!!!!!!!!!!!" << std::endl;
   return StatusCode::SUCCESS;
 }
 
@@ -221,333 +234,142 @@ StatusCode SensorSim3DTool::finalize() {
   ATH_MSG_DEBUG("SensorSim3DTool::finalize()");
   return StatusCode::SUCCESS;
 }
+
 //===============================================
 //    I N D U C E    C H A R G E
 //===============================================
 StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection &chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions) {
 
-  // So far, this is only discriminating variable from 3D sensor.
-  if (p_design.numberOfCircuits()<2){
-    if(!Module.isDBM()) {  //DBM modules also processed here
-      return StatusCode::SUCCESS; 
-    }
+
+  if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
+  if (p_design.getReadoutTechnology()!=InDetDD::PixelModuleDesign::FEI4) { return StatusCode::SUCCESS; }
+  if (p_design.numberOfCircuits()>1) { return StatusCode::SUCCESS; }
+
+ ATH_MSG_DEBUG("Applying SensorSim3D charge processor");
+  if( initialConditions.size() != 8 ){
+	  ATH_MSG_INFO("ERROR! Starting coordinates were not filled correctly in EnergyDepositionSvc.");
+	  return StatusCode::FAILURE;
   }
 
-    bool isBarrel = false;
-
-    const PixelID* p_pixelId = static_cast<const PixelID *>(Module.getIdHelper());
-    int layer=p_pixelId->layer_disk(Module.identify() );
-    int bec=1;
-    if(p_pixelId->is_barrel(Module.identify()) ) bec=0 ;
-    
-    if(Module.isBarrel()) isBarrel = true;
-
-    std::pair<int, int> Layer;        // index for layer/end cap position
-    Layer.first=bec;                  //Barrel (0) or End Cap (1)   -    Maps only for Barrel at the moment. isBarrel will avoid zsh
-    Layer.second=layer;               //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
-                                      //IBL Barrel doesn't exist. So the possible idexes should be: 0-0, 0-1, 0-2, 0-3, 1-1, 1-2, 1-3
-    //3D sensors only in IBL. So only possible index is 0-0
-
-    if(m_doRadDamage && isBarrel && m_fluence>0){
-     std::pair<double,double> trappingTimes = m_radDamageUtil->getTrappingTimes( fluence_layersMaps[Layer] );
-     m_trappingTimeElectrons = trappingTimes.first;
-     m_trappingTimeHoles = trappingTimes.second;
-    }
-    
-
-  //Load values from energyDeposition
   double eta_0 = initialConditions[0];
   double phi_0 = initialConditions[1];
   double depth_0  = initialConditions[2];
   double dEta = initialConditions[3];
   double dPhi = initialConditions[4];
   double dDepth = initialConditions[5];
-  double ncharges = initialConditions[6];
   double iTotalLength = initialConditions[7];
 
-  //Set up physical detector properties, switch on detector material
-  ATH_MSG_DEBUG("Applying 3D sensor simulation");
+
+  ATH_MSG_VERBOSE("Applying 3D sensor simulation.");
   double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
+  double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
 
-  int etaCells = p_design.columns();
-  int phiCells = p_design.rows();
-
-  double eleholePairEnergy = 0;
-  double smearRand = 0;
-
-  if (Module.isDBM()){
-    eleholePairEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
-    m_diffusionConstant = .00265;//diffusion contant for DBM - not changed wrt previous version of digitization. Does someone know where this comes from?
-    smearRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-  }
-  else{
-    eleholePairEnergy = siProperties.electronHolePairsPerEnergy(); // = 1 / 3.6 eV -> expressed in MeV^-1 = 276243 MeV^-1
-    m_diffusionConstant = .007;//diffusion length used in simulation, consistent with current simluation and previous version of digitization. Eventually to be changed to proper Einstein relation
- }
-
-  double collectionDist = 0.2*CLHEP::mm;//kept for consistency with previosu version of digi. Does someone know where this number comes from?
-  double smearScale = 1. + 0.35*smearRand;//ditto...
+  // Charge Collection Probability Map bin size
+  const double x_bin_size = 0.001;
+  const double y_bin_size = 0.001;
+ 
+  std::string readout;
+ 
+  // determine which readout is used
+  // FEI4 : 50 X 250 microns
+  double pixel_size_x = Module.width()/p_design.rows();
+  double pixel_size_y = Module.length()/p_design.columns();
+  double module_size_x = Module.width();
+  double module_size_y = Module.length();
   
+
   //**************************************//
   //*** Now diffuse charges to surface *** //
   //**************************************//
-  
-  for(unsigned int i = 0; i < trfHitRecord.size(); i++){
-    std::pair<double,double> iHitRecord = trfHitRecord[i];
+  for(unsigned int istep = 0; istep < trfHitRecord.size(); istep++) {
+    std::pair<double,double> iHitRecord = trfHitRecord[istep];
 
     double eta_i = eta_0;
     double phi_i = phi_0;
     double depth_i = depth_0;
+
     if (iTotalLength) {
       eta_i += 1.0*iHitRecord.first/iTotalLength*dEta;
       phi_i += 1.0*iHitRecord.first/iTotalLength*dPhi;
       depth_i  += 1.0*iHitRecord.first/iTotalLength*dDepth;
     }
 
-    //Find the position of the centre of the pixel in which the charge carriers are created, wrt centre of module
-    SiLocalPosition pos_i = Module.hitLocalToLocal(eta_i,phi_i);
-    SiCellId pixel_i = Module.cellIdOfPosition( pos_i );
+    double es_current = 1.0*iHitRecord.second/1.E+6;
 
-    //Check that the HIT isn't outside of the pixel matrix
-    if(  pixel_i.etaIndex() < 0 || pixel_i.phiIndex() < 0 || pixel_i.etaIndex() > std::pow(2.,10) || pixel_i.phiIndex() > std::pow(2.,10) ){
-      continue;
-    }
-
-    SiLocalPosition centreOfPixel_i;
-    double pixelEta_i = 0.;
-    double pixelPhi_i =0.;
-
-    int nnLoop_pixelEtaMax =0; 
-    int nnLoop_pixelEtaMin=0; 
-    int nnLoop_pixelPhiMax=0; 
-    int nnLoop_pixelPhiMin=0; 
-
-    int numBins_driftTime_e=0;
-    int numBins_driftTime_h=0;
-    int numBins_weightingPotential_x=0;
-    int numBins_weightingPotential_y=0;
-    int numBins_weightingPotential_z=0;
-
-    if (m_doRadDamage && m_fluence>0 && !(Module.isDBM()) && isBarrel) {
-        centreOfPixel_i = p_design.positionFromColumnRow(pixel_i.etaIndex(), pixel_i.phiIndex());
-
-        //Find the displacment of the charge carriers from the centre of the pixel in +ve quadrant
-        pixelEta_i =  eta_i - centreOfPixel_i.xEta();
-        pixelPhi_i =  phi_i - centreOfPixel_i.xPhi();
-        
-	//Make limits for NN loop
-        nnLoop_pixelEtaMax = std::min( 2,pixel_i.etaIndex() );
-        nnLoop_pixelEtaMin = std::max( -2, pixel_i.etaIndex() + 1 - etaCells );
-	
-        nnLoop_pixelPhiMax = std::min( 2,pixel_i.phiIndex() );
-        nnLoop_pixelPhiMin = std::max( -2, pixel_i.phiIndex() + 1 - phiCells );
-	
-	//Setup values to check for overflow when using maps
-	numBins_driftTime_e = distanceMap_e[Layer]->GetNbinsY(); //Returns nBins = totalBins - underflow - overflow 
-	numBins_driftTime_h = distanceMap_h[Layer]->GetNbinsY();   
-	
-        numBins_weightingPotential_x = ramoPotentialMap[Layer]->GetNbinsX();
-        numBins_weightingPotential_y = ramoPotentialMap[Layer]->GetNbinsY();
-        numBins_weightingPotential_z = ramoPotentialMap[Layer]->GetNbinsZ();        
-
-    }
-    
-    // Distance between charge and readout side.  p_design->readoutSide() is
-    // +1 if readout side is in +ve depth axis direction and visa-versa.
     double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
     if (dist_electrode<0) dist_electrode=0;
 
-     // nonTrapping probability: DBM trapping, independant of radDamage 
-    double nontrappingProbability = 1.0;
-    if (Module.isDBM()){
-      nontrappingProbability = exp(-dist_electrode/collectionDist);
-    }
- 
-    // amount of energy to be converted into charges at current step
-    double energy_per_step = 1.0*iHitRecord.second/1.E+6/ncharges;
+    CLHEP::Hep3Vector chargepos;
+    chargepos.setX(phi_i); chargepos.setY(eta_i);  chargepos.setZ(dist_electrode);
 
-    //Loop over charge-carrier pairs
-    for(int j=0 ; j<ncharges ; j++) {
+    bool coord = Module.isModuleFrame();
 
-    if( m_doRadDamage && m_fluence>0 && !(Module.isDBM()) && isBarrel){
-        double u = CLHEP::RandFlat::shoot(0.,1.);
-        double drifttime_e = (-1.)*m_trappingTimeElectrons*TMath::Log(u); //ns
-        u = CLHEP::RandFlat::shoot(0.,1.);
-        double drifttime_h = (-1.)*m_trappingTimeHoles*TMath::Log(u); //ns
+    ATH_MSG_DEBUG("ismoduleframe "<<coord << " -- startPosition (x,y,z) = " << chargepos.x() << ", " << chargepos.y() << ", " << chargepos.z());
 
-	//Now, need the z-position at the trap.
-        int nbin_z_e_xbin = distanceMap_e[Layer]->GetXaxis()->FindBin(dist_electrode);
-        int nbin_z_e_ybin = distanceMap_e[Layer]->GetYaxis()->FindBin(drifttime_e);
-        if (nbin_z_e_ybin >  numBins_driftTime_e  ) nbin_z_e_ybin = numBins_driftTime_e;
-        double depth_f_e = distanceMap_e[Layer]->GetBinContent( nbin_z_e_xbin,nbin_z_e_ybin );
-        double dz_e = fabs(dist_electrode - depth_f_e); 
-        
-	//TODO: the holes map does not currently extend for a drift time long enough that, any hole will reach
-	//the corresponding electrode. This needs to be rectified by either (a) extrapolating the current map or
-	//(b) making a new map with a y-axis (drift time) that extends to at least 18 ns so all charge carriers reach electrode.
-	//However, if choose (b), will need to reduce granularity of map. 
-        int nbin_z_h_xbin = distanceMap_h[Layer]->GetXaxis()->FindBin(dist_electrode);
-        int nbin_z_h_ybin = distanceMap_h[Layer]->GetYaxis()->FindBin(drifttime_h);
-        if (nbin_z_h_ybin >  numBins_driftTime_h  )
-        nbin_z_h_ybin = numBins_driftTime_h;
-        double depth_f_h = distanceMap_h[Layer]->GetBinContent( nbin_z_h_xbin,nbin_z_h_ybin );
-        double dz_h = fabs(depth_f_h - dist_electrode);           
+    // -- change origin of coordinates to the left bottom of module
+    double x_new = chargepos.x() + module_size_x/2.;
+    double y_new = chargepos.y() + module_size_y/2.;
 
-        //Apply drift due to diffusion
-        double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    // -- change from module frame to pixel frame
+    int nPixX = int(x_new/pixel_size_x);
+    int nPixY = int(y_new/pixel_size_y);
+    ATH_MSG_DEBUG(" -- nPixX = "<<nPixX<<"  nPixY = "<<nPixY);    
+    double x_pix = x_new - pixel_size_x*(nPixX);
+    double y_pix = y_new - pixel_size_y*(nPixY);
+    // -- change origin of coordinates to the center of the pixel
+    double x_pix_center = x_pix - pixel_size_x/2;
+    double y_pix_center = y_pix - pixel_size_y/2;
+    ATH_MSG_DEBUG(" -- current hit position w.r.t. pixel center = "<<x_pix_center<<"  "<<y_pix_center);    
 
-        //Apply diffusion. rdif is teh max. diffusion
-        double rdif_e=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_e)*coLorentz/0.3); //ALEX: Why is this coLorentz even here? 
-        double phi_f_e=phi_i + rdif_e*phiRand;
-        double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-        double eta_f_e=eta_i + rdif_e*etaRand;
-  
-        phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+    double x_neighbor;    double y_neighbor;   CLHEP::Hep3Vector pos_neighbor;
+    // -- Calculate signal in current pixel and in the neighboring ones
+    // -- loop in the x-coordinate
+    for (int i=-1; i<=1; i++){
+      x_neighbor = x_pix_center - i*pixel_size_x;
+      // -- loop in the y-coordinate
+      for (int j=-1; j<=1; j++){
+        y_neighbor = y_pix_center - j*pixel_size_y;
 
-        double rdif_h=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_h)*coLorentz/0.3); //ALEX: Same...
+        // -- check if the neighbor falls inside the charge collection prob map window
+        if ( (fabs(x_neighbor)<pixel_size_x) && (fabs(y_neighbor)<pixel_size_y) ){
 
-        double phi_f_h=phi_i + rdif_h*phiRand;
-        etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-        double eta_f_h=eta_i + rdif_h*etaRand;
+          // -- change origin of coordinates to the bottom left of the charge
+          //    collection prob map "window", i.e. shift of 1-pixel twd bottom left
+          double x_neighbor_map = x_neighbor + pixel_size_x;
+          double y_neighbor_map = y_neighbor + pixel_size_y;
 
-        // Slim Edge for IBL planar sensors:
-        if ( p_design.getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-            CHECK( applySlimEdges( energy_per_step, eta_f_e ) );
-            CHECK( applySlimEdges( energy_per_step, eta_f_h ) );
+          int x_bin_cc_map = static_cast<int>(x_neighbor_map / x_bin_size);
+          int y_bin_cc_map = static_cast<int>(y_neighbor_map / y_bin_size);
+
+          // -- retrieve the charge collection probability from Svc
+          // -- swap x and y bins to match Map coord convention
+          double ccprob_neighbor = m_chargeCollSvc->getProbMapEntry("FEI4",y_bin_cc_map,x_bin_cc_map);
+          if ( ccprob_neighbor == -1. ) return StatusCode::FAILURE;
+
+          double ed=es_current*eleholePairEnergy*ccprob_neighbor;
+
+          // -- pixel coordinates --> module coordinates
+          //double x_mod = x_neighbor - half_pixel_size_x + pixel_size_x*nPixX -module_size_x/2.;
+          //double y_mod = y_neighbor - half_pixel_size_y + pixel_size_y*nPixY -module_size_y/2.;
+          double x_mod = x_neighbor + pixel_size_x/2 + pixel_size_x*nPixX -module_size_x/2.;
+          double y_mod = y_neighbor + pixel_size_y/2 + pixel_size_y*nPixY -module_size_y/2.;
+          SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod,x_mod);
+
+          SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+          SiCellId diode = Module.cellIdOfPosition(scharge.position());
+          SiCharge charge = scharge.charge();
+          if (diode.isValid()) {
+            chargedDiodes.add(diode,charge);
+          }
         }
-   
-        //Loop over nearest neighbours in x and y
-        //We assume that the lateral diffusion is minimal
-        for (int p=nnLoop_pixelEtaMin; p<=nnLoop_pixelEtaMax; p++){ 
-            for (int q=nnLoop_pixelPhiMin; q<=nnLoop_pixelPhiMax; q++){
-
-              //Since both e-h charge carriers start in the same place, they have the same initial ramo value       
-              //Centre of nearest neighbour (nn) pixel
-              SiLocalPosition centreOfPixel_nn = p_design.positionFromColumnRow( pixel_i.etaIndex() - p, pixel_i.phiIndex() - q );
-
-              //What is the displacement of the nn pixel from the primary pixel. 
-              //This is to index the correct entry in the Ramo weighting potential map
-              double dPhi_nn_centre = centreOfPixel_nn.xPhi() - centreOfPixel_i.xPhi(); //in mm
-              double dEta_nn_centre = centreOfPixel_nn.xEta() - centreOfPixel_i.xEta(); //in mm
-
-              //Find weighting potential in initial position. This all has to be done relative to the (0,0) position since the 
-              //Ramo weighting potential is only mapped out for 1/8th of a pixel. Much of this logic is reflecting the charge
-              //carrier across the boundaries.
-              double dEta_i_e = pixelEta_i - dEta_nn_centre;
-              double dPhi_i_e = pixelPhi_i - dPhi_nn_centre;
-
-              int nbin_ramo_i_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_i_e )*1000. );
-              int nbin_ramo_i_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_i_e )*1000. );
-              int nbin_ramo_i_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( dist_electrode*1000 );
-              //int nbin_ramo_i = ramoPotentialMap[0]->FindBin( fabs( dEta_i_e )*1000. , fabs( dPhi_i_e )*1000., dist_electrode*1000);
-             
-	      //Boundary check on maps
-              double ramo_i=0.;
-              if( nbin_ramo_i_x <= numBins_weightingPotential_x && nbin_ramo_i_y <= numBins_weightingPotential_y && nbin_ramo_i_z <=numBins_weightingPotential_z ){
-               ramo_i =ramoPotentialMap[Layer]->GetBinContent( nbin_ramo_i_x,nbin_ramo_i_y,nbin_ramo_i_z );
-              }     	
-              //Find the displacment of the charge carriers from the centre of the pixel in +ve quadrant
-              double pixelEta_f_e = eta_f_e - centreOfPixel_i.xEta() ;
-              double pixelPhi_f_e = phi_f_e - centreOfPixel_i.xPhi() ;
-        
-              double pixelEta_f_h = eta_f_h - centreOfPixel_i.xEta() ;
-              double pixelPhi_f_h = phi_f_h - centreOfPixel_i.xPhi() ;
-	      
-	      //Final position of charge carriers wrt nn centre
-	      double dEta_f_e = pixelEta_f_e  - dEta_nn_centre ;
-              double dPhi_f_e = pixelPhi_f_e  - dPhi_nn_centre ;
-
-              int nbin_ramo_f_e_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_f_e )*1000. );
-              int nbin_ramo_f_e_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_f_e )*1000. );
-              int nbin_ramo_f_e_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( depth_f_e*1000 );
-              //int nbin_ramo_f_e = ramoPotentialMap[0]->FindBin( fabs( dEta_f_e )*1000. , fabs( dPhi_f_e )*1000., depth_f_e*1000);
-              double ramo_f_e=0.;
-              if( nbin_ramo_f_e_x <= numBins_weightingPotential_x && nbin_ramo_f_e_y <= numBins_weightingPotential_y && nbin_ramo_f_e_z <=numBins_weightingPotential_z ){
-               ramo_f_e =ramoPotentialMap[Layer]->GetBinContent( nbin_ramo_f_e_x,nbin_ramo_f_e_y,nbin_ramo_f_e_z );
-              }   
-
-              double dEta_f_h = pixelEta_f_h - dEta_nn_centre ;
-              double dPhi_f_h = pixelPhi_f_h - dPhi_nn_centre ;
-              
-              int nbin_ramo_f_h_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_f_h )*1000. );
-              int nbin_ramo_f_h_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_f_h )*1000. );
-              int nbin_ramo_f_h_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( depth_f_h*1000 );
-	      //int nbin_ramo_f_h = ramoPotentialMap->FindBin( fabs( dEta_f_h )*1000. , fabs( dPhi_f_h )*1000., depth_f_h*1000);
-              //Boundary check on maps
-              double ramo_f_h=0.;
-              if( nbin_ramo_f_h_x <= numBins_weightingPotential_x && nbin_ramo_f_h_y <= numBins_weightingPotential_y && nbin_ramo_f_h_z <=numBins_weightingPotential_z ){
-               ramo_f_h =ramoPotentialMap[Layer]->GetBinContent( nbin_ramo_f_h_x,nbin_ramo_f_h_y,nbin_ramo_f_h_z );
-              } 
-
-              //Account for the imperfect binning that would cause charge to be double-counted
-              if(ramoPotentialMap[Layer]->GetZaxis()->FindBin(depth_f_h*1000) == ramoPotentialMap[Layer]->GetNbinsZ()+1) ramo_f_h=0;//this means the hole has reached the back end  
-              if(ramoPotentialMap[Layer]->GetZaxis()->FindBin(depth_f_e*1000) ==  1){
-                if( fabs(dEta_f_e)>=Module.etaPitch()/2.  || fabs(dPhi_f_e)>=Module.phiPitch()/2. ) ramo_f_e=0;
-                else if (fabs(dEta_f_e)<Module.etaPitch()/2.  && fabs(dPhi_f_e)<Module.phiPitch()/2.  ) ramo_f_e=1.;
-              }
+      }
+    }
+  }
 
 
-              //Given final position of charge carrier, find induced charge. The difference in Ramo weighting potential gives the fraction of charge induced.
-              //The energy_per_step is transformed into charge with the eleholePair per Energy
-              double induced_charge_e = (ramo_f_e - ramo_i) * energy_per_step * eleholePairEnergy;
-              double induced_charge_h = -(ramo_f_h - ramo_i) * energy_per_step * eleholePairEnergy;
-          
-	                  
-              //Collect charge in centre of each pixel, since location within pixel doesn't matter for record
-              SiLocalPosition chargePos = Module.hitLocalToLocal( centreOfPixel_nn.xEta(), centreOfPixel_nn.xPhi() );
-
-              //The following lines are adapted from SiDigitization's Inserter class
-              SiSurfaceCharge scharge_e( chargePos,SiCharge( induced_charge_e,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
-              SiSurfaceCharge scharge_h( chargePos,SiCharge( induced_charge_h,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
-              SiCellId diode = Module.cellIdOfPosition(scharge_e.position());
-              SiCharge charge_e = scharge_e.charge();
-              SiCharge charge_h = scharge_h.charge();
-              if (diode.isValid()) {
-                chargedDiodes.add(diode,charge_e);
-                chargedDiodes.add(diode,charge_h);
-              } //IF
-            } //For q
-        } //for p
-      }else { //If no radDamage, run original
-        
-	      double rdif=this->m_diffusionConstant*sqrt(dist_electrode*coLorentz/0.3); //ALEX: ????
-	      // position at the surface
-	      double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-	      double phi_drifted=phi_i+rdif*phiRand;
-	      double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-	      double eta_drifted=eta_i+rdif*etaRand;
-
-
-	      // Slim Edge for IBL planar sensors:
-	      if ( !(Module.isDBM()) && p_design.getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-		      CHECK( applySlimEdges( energy_per_step, eta_drifted ) );
-	      }
-	      SiLocalPosition chargePos = Module.hitLocalToLocal(eta_drifted, phi_drifted);
-
-	      // The parametrization of the sensor efficiency
-	      double ed = 0;
-	      if (Module.isDBM()){
-		      ed=energy_per_step*eleholePairEnergy*nontrappingProbability*smearScale;
-	      }
-	      else {
-		      ed=energy_per_step*eleholePairEnergy;
-	      }
-
-	      //The following lines are adapted from SiDigitization's Inserter class
-	      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
-	      SiCellId diode = Module.cellIdOfPosition(scharge.position());
-	      SiCharge charge = scharge.charge();
-
-	      if (diode.isValid()) {
-		      chargedDiodes.add(diode,charge);
-	      }
-        
-      } //else: no radDamage, run original    
-    }//end cycle for charge
-  }//trfHitRecord.size()
   return StatusCode::SUCCESS;
- }
+}
 
 
 StatusCode SensorSim3DTool::applySlimEdges( double &energy_per_step, double &eta_drifted){
@@ -574,6 +396,48 @@ StatusCode SensorSim3DTool::applySlimEdges( double &energy_per_step, double &eta
 
   return StatusCode::SUCCESS;
 
+}
+
+StatusCode SensorSim3DTool::getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit){
+	std::pair<int, int> Layer;  // index for layer/end cap position
+	Layer.first=0;  //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at Layer.first=1
+	Layer.second=0; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
+
+	double finalX=initX;
+	if (!isHoleBit)	{
+		int n_binx = xPositionMap_e[Layer]->GetXaxis()->FindBin(initX*1000);
+		int n_biny = xPositionMap_e[Layer]->GetYaxis()->FindBin(initY*1000);
+		int n_bint = xPositionMap_e[Layer]->GetZaxis()->FindBin(driftTime);
+		finalX = xPositionMap_e[Layer]->GetBinContent(n_binx,n_biny,n_bint);
+	} else {
+		int n_binx = xPositionMap_h[Layer]->GetXaxis()->FindBin(initX*1000);
+		int n_biny = xPositionMap_h[Layer]->GetYaxis()->FindBin(initY*1000);
+		int n_bint = xPositionMap_h[Layer]->GetZaxis()->FindBin(driftTime);
+		finalX = xPositionMap_h[Layer]->GetBinContent(n_binx,n_biny,n_bint);
+	}
+
+  return finalX*1e-3; //[mm]
+}
+
+StatusCode SensorSim3DTool::getTrappingPositionY(double	initX, double initY, double driftTime, bool isHoleBit){
+        std::pair<int, int> Layer;  // index for layer/end cap position
+        Layer.first=0;  //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at Layer.first=1
+        Layer.second=0; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
+
+        double finalY=initY;
+        if (!isHoleBit) {
+                int n_binx = yPositionMap_e[Layer]->GetXaxis()->FindBin(initX*1000);
+                int n_biny = yPositionMap_e[Layer]->GetYaxis()->FindBin(initY*1000);
+               	int n_bint = yPositionMap_e[Layer]->GetZaxis()->FindBin(driftTime);
+                finalY = yPositionMap_e[Layer]->GetBinContent(n_binx,n_biny,n_bint);
+        } else {
+               	int n_binx = yPositionMap_h[Layer]->GetXaxis()->FindBin(initX*1000);
+                int n_biny = yPositionMap_h[Layer]->GetYaxis()->FindBin(initY*1000);
+                int n_bint = yPositionMap_h[Layer]->GetZaxis()->FindBin(driftTime);
+                finalY = yPositionMap_h[Layer]->GetBinContent(n_binx,n_biny,n_bint);
+       	}
+
+  return finalY*1e-3; //[mm]
 }
 
 //TODO: Lorentz angle: correct calculation. To test at a later time
