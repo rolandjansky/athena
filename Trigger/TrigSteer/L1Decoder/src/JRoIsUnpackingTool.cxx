@@ -26,7 +26,7 @@ StatusCode JRoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JRoIsUnpackingTool::updateConfiguration() {
+StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
   using namespace TrigConf;
 
   m_jetThresholds.clear();

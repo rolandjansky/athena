@@ -19,6 +19,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <mutex>
 #include <set>
 
 /** @class SCTRawDataProviderTool
@@ -58,10 +59,10 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
                              ISCT_RDO_Container& rdoIdc,
                              InDetBSErrContainer* errs,
-                             SCT_ByteStreamFractionContainer* bsFracCont) override;
+                             SCT_ByteStreamFractionContainer* bsFracCont) const override;
 
   /** Reset list of known ROB IDs */
-  virtual void beginNewEvent() override;
+  virtual void beginNewEvent() const override;
 
  private: 
 
@@ -69,11 +70,13 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   ToolHandle<ISCT_RodDecoder> m_decoder{this, "Decoder", "SCT_RodDecoder", "Decoder"};
   
   /** For bookkeeping of decoded ROBs */
-  std::set<uint32_t> m_robIdSet;
+  mutable std::set<uint32_t> m_robIdSet;
 
   /** Number of decode errors encountered in decoding. 
    * Turning off error message after 100 errors are counted */
-  int m_decodeErrCount;
+  mutable int m_decodeErrCount;
+
+  mutable std::mutex m_mutex;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H

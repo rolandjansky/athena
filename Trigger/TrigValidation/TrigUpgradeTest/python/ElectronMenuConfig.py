@@ -179,7 +179,6 @@ def l2CaloAlg( flags, roisKey="EMCaloRoIs" ):
     acc.merge(TrigCaloDataAccessConfig(flags ))
 
 
-
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerFexConfig
     ringer = RingerFexConfig('RingsMaker')
     ringer.RingsKey='CaloRings'
@@ -204,13 +203,7 @@ def l2CaloAlg( flags, roisKey="EMCaloRoIs" ):
     acc.addPublicTool( ring )
 
     __fex_tools = [ samp2, samp1, sampe, samph, ring ]
-
-    #acc.addSequence( seqAND( inViewAlgsSeqName ),  parentName='L2CaloEgamma' )
-#    inViewSeq=seqAND( inViewAlgsSeqName )
-#    mainSeq+=inViewSeq
-
     
-
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo
     fastCalo                         = T2CaloEgammaFastAlgo( 'FastEMCaloAlgo' )
     fastCalo.OutputLevel             = DEBUG

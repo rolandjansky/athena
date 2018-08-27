@@ -55,6 +55,9 @@ StatusCode InDet::InDetPRD_Provider::initialize()
      ATH_CHECK(detStore()->retrieve(m_sctIdHelper, "SCT_ID"));
      // Get TRT helpers
      ATH_CHECK(detStore()->retrieve(m_trtIdHelper, "TRT_ID"));
+
+     ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
      return StatusCode::SUCCESS;
 }           
 

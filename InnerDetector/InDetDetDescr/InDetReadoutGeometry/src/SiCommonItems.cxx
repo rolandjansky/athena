@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/SiCommonItems.h"
@@ -13,6 +13,7 @@ SiCommonItems::SiCommonItems(const AtlasDetectorID* const idHelper)
      m_idHelper(idHelper), 
      m_lorentzAngleSvcHandle("", "SiDetectorElement"),
      m_lorentzAngleSvc(0),
+     m_lorentzAngleTool(0),
      m_lorentzAngleSvcInit(false)
 {}
 
@@ -26,6 +27,10 @@ void
 SiCommonItems::setLorentzAngleSvc(const ServiceHandle<ISiLorentzAngleSvc> & lorentzAngleSvc)
 {
   m_lorentzAngleSvcHandle = lorentzAngleSvc;
+}
+
+void SiCommonItems::setLorentzAngleTool(const ISiLorentzAngleTool* lorentzAngleTool) {
+  m_lorentzAngleTool = lorentzAngleTool;
 }
   
 ISiLorentzAngleSvc * 
@@ -43,4 +48,9 @@ SiCommonItems::lorentzAngleSvc() const
   }
   return m_lorentzAngleSvc;
 }
+
+const ISiLorentzAngleTool* SiCommonItems::lorentzAngleTool() const {
+  return m_lorentzAngleTool;
+}
+
 } // End namespace InDetDD

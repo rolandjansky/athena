@@ -22,6 +22,9 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 #include "InDetAlignGenTools/IInDetAlignFillSiCluster.h"
 
 // Forward declaration
@@ -55,6 +58,9 @@ class InDetAlignFillSiCluster: virtual public IInDetAlignFillSiCluster, public A
 
   const InDet::PixelClusterContainer*          m_Pixel_clcontainer;
   const InDet::SCT_ClusterContainer*           m_Sct_clcontainer;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   
   // methods
   void bookNtuple();

@@ -23,11 +23,11 @@
   and threshods to chains is maintained in this algorithm and provided to unpacking tools.
  */
 
-class L1Decoder : public AthReentrantAlgorithm {
+class L1Decoder : public AthReentrantAlgorithm, public IIncidentListener {
 public:
   L1Decoder(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode initialize() override;
-  virtual StatusCode start() override;
+  virtual void handle(const Incident& incident) override;
   virtual StatusCode execute_r (const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
@@ -58,6 +58,10 @@ private:
 
   ToolHandleArray<IRoIsUnpackingTool> m_rerunRoiUnpackers{this, "rerunRoiUnpackers", {}, "Unpackers that unpack RoIs into separate collections"};
   ///@}
+
+  Gaudi::Property<std::map<std::string, std::string>> m_chainToCTPProperty{
+    this, "ChainToCTPMapping", {}, "Seeding in the form: HLT_chain : L1_item"};
+
 
 
 };

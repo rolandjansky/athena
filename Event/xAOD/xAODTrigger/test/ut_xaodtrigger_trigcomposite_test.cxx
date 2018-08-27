@@ -69,7 +69,7 @@ int populateObject(xAOD::TrigComposite* obj) {
    return 0;
 }
 
-int testObject(const xAOD::TrigComposite* obj) {
+int testDetails(const xAOD::TrigComposite* obj) {
    SIMPLE_ASSERT( obj->hasDetail<int>("IntValue") );
    SIMPLE_ASSERT( obj->hasDetail<unsigned int>("UnsignedIntValue") );
    SIMPLE_ASSERT( obj->hasDetail<std::vector<unsigned int> >("UnsignedIntVecValue") );
@@ -134,11 +134,15 @@ int testObject(const xAOD::TrigComposite* obj) {
    } catch (...) {}
    std::cout << "Missing details handled ok." << std::endl;
 
+   return 0;
+}
+
+int testLinks(const xAOD::TrigComposite* obj, const size_t expectedSize = 3) {
    SIMPLE_ASSERT( obj->hasObjectLink( "MuonRoI" ) );
-   SIMPLE_ASSERT( obj->linkColNames().size() == 3 );
-   SIMPLE_ASSERT( obj->linkColKeys().size() == 3 );
-   SIMPLE_ASSERT( obj->linkColIndices().size() == 3 );
-   SIMPLE_ASSERT( obj->linkColClids().size() == 3 );
+   SIMPLE_ASSERT( obj->linkColNames().size() == expectedSize );
+   SIMPLE_ASSERT( obj->linkColKeys().size() == expectedSize );
+   SIMPLE_ASSERT( obj->linkColIndices().size() == expectedSize );
+   SIMPLE_ASSERT( obj->linkColClids().size() == expectedSize );
    SIMPLE_ASSERT( obj->linkColKeys()[ 0 ] == 123 );
    SIMPLE_ASSERT( obj->linkColIndices()[ 0 ] == 456 );
    SIMPLE_ASSERT( obj->linkColClids()[ 0 ] ==
@@ -156,11 +160,18 @@ int testObject(const xAOD::TrigComposite* obj) {
    SIMPLE_ASSERT(getMuonRoILinks == elementLinks);
 
    std::cout << "Link recovery OK" << std::endl;
-
    return 0;
 }
 
+int testObject(const xAOD::TrigComposite* obj) {
+   int ret = testDetails(obj);
+   ret    |= testLinks(obj);
+   return ret;
+}
+
 int main() {
+
+   xAOD::TrigComposite::s_throwOnCopyError = true;
 
    // Create the container that we want to test:
    xAOD::TrigCompositeAuxContainer aux;
@@ -200,6 +211,61 @@ int main() {
 
    std::cout << "Testing assignment operator (object with store)" << std::endl;
    SIMPLE_ASSERT( testObject(obj2) == 0 );
+
+   // Make new objects to test the link copy
+   xAOD::TrigComposite* fullCopy = new xAOD::TrigComposite();
+   c.push_back( fullCopy );
+
+   // Copy over all other links
+   SIMPLE_ASSERT( fullCopy->copyAllLinksFrom( obj ) == true );
+   // Add another too
+   fullCopy->setObjectLink( "feature", ElementLink<xAOD::MuonRoIContainer>( 111, 222 ) );
+   SIMPLE_ASSERT( testLinks(fullCopy, 4) == 0 );
+
+   std::cout << "Full-copy of element links OK" << std::endl;
+
+   // Check that we throw on attempted copy of link which exists in target or 
+   // is non-existent in source
+   try {
+     fullCopy->copyLinkFrom(obj, "MuonRoI"); // Already copied
+     SIMPLE_ASSERT(false);
+   } catch (...) {}
+
+   try {
+     fullCopy->copyLinkFrom(obj, "NonExistent"); 
+     SIMPLE_ASSERT(false);
+   } catch (...) {}
+
+   try {
+     fullCopy->copyLinkCollectionFrom(obj, "ManyMuonRoIs");  // Already copied
+     SIMPLE_ASSERT(false);
+   } catch (...) {}
+
+   try {
+     fullCopy->copyLinkCollectionFrom(obj, "NonExistent"); 
+     SIMPLE_ASSERT(false);
+   } catch (...) {}
+
+   std::cout << "Throw on copy of existing links or non-existent links OK" << std::endl;
+
+   // Check we can still access the element link unique to fullCopy
+   ElementLink<xAOD::MuonRoIContainer> getFeatureLink = fullCopy->objectLink<xAOD::MuonRoIContainer>("feature");
+   SIMPLE_ASSERT(getFeatureLink == ElementLink<xAOD::MuonRoIContainer>( 111, 222 ));
+
+   // Make new objects to test the manual link copy
+   xAOD::TrigComposite* manualCopy = new xAOD::TrigComposite();
+   c.push_back( manualCopy );
+
+   SIMPLE_ASSERT( manualCopy->copyLinkFrom( fullCopy, "MuonRoI" ) == true );
+   SIMPLE_ASSERT( manualCopy->copyLinkCollectionFrom( fullCopy, "ManyMuonRoIs" ) == true );
+   // Test also link renaming 
+   SIMPLE_ASSERT( manualCopy->copyLinkFrom( fullCopy, "feature", "featureWithNewName" ) == true );
+   SIMPLE_ASSERT( testLinks(manualCopy, 4) == 0 );
+
+   ElementLink<xAOD::MuonRoIContainer> getFeatureLinkAgain = manualCopy->objectLink<xAOD::MuonRoIContainer>("featureWithNewName");
+   SIMPLE_ASSERT(getFeatureLinkAgain == ElementLink<xAOD::MuonRoIContainer>( 111, 222 ));
+
+   std::cout << "Copy link-by-link OK" << std::endl;
 
    // Apparently everything went well:
    std::cout << "All tests successful." << std::endl;

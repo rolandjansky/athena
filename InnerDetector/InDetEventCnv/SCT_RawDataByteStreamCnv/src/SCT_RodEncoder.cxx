@@ -41,7 +41,6 @@ SCT_RodEncoder::SCT_RodEncoder
   base_class(type, name, parent),
   m_cabling{"SCT_CablingSvc", name},
   m_sct_id{nullptr},
-  m_condensed{false},
   m_swapModuleId{},
   m_singleCondHitNumber{0},
   m_pairedCondHitNumber{0},
@@ -50,7 +49,7 @@ SCT_RodEncoder::SCT_RodEncoder
   m_lastExpHitNumber{0},
   m_headerNumber{0},
   m_trailerNumber{0} {
-    declareProperty("CondensedMode", m_condensed=true);
+    declareProperty("CondensedMode", m_condensed=false);
   }
 
 StatusCode SCT_RodEncoder::initialize() {
