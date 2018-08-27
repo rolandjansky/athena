@@ -30,6 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
   DetectorDescription/GeoModel/GeoModelUtilities
   InnerDetector/InDetConditions/PixelConditionsData
   InnerDetector/InDetConditions/PixelCoralClientUtils
+  InnerDetector/InDetConditions/PixelConditionsServices
   InnerDetector/InDetDetDescr/InDetIdentifier
   InnerDetector/InDetDetDescr/InDetReadoutGeometry
   TestPolicy

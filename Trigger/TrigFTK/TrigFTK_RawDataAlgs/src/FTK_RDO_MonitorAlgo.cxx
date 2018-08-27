@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FTK_RDO_MonitorAlgo.h"
@@ -144,6 +144,7 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   ATH_CHECK(detStore()->retrieve(m_pixelManager));
   ATH_CHECK(detStore()->retrieve(m_id_helper, "AtlasID"));
 
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   // ReadCondHandleKey
@@ -1463,7 +1464,7 @@ const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const Identif
   const InDetDD::SiLocalPosition localPositionOfCornerCell = design->localPositionOfCell(cornerCell);
 
 
-  double shift = pixelDetectorElement->getLorentzCorrection();
+  double shift = m_pixelLorentzAngleTool->getLorentzShift(hash);
 
   const double phi0 = localPositionOfCornerCell.xPhi();
   const double eta0 = localPositionOfCornerCell.xEta();
