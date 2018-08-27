@@ -7,6 +7,7 @@
 #include "EventViewCreatorAlgorithm.h"
 #include "AthLinks/ElementLink.h"
 #include "AthViews/ViewHelper.h"
+#include "AthViews/View.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
 
@@ -85,7 +86,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
     size_t input_counter = 0;
     for ( auto Idecision: *inputHandle ) {
       //make one TC decision output per input and connect to previous
-      auto newd = TrigCompositeUtils::newDecisionIn(OutputDecisions.get());
+      auto newd = TrigCompositeUtils::newDecisionIn( OutputDecisions.get(), name() );
       TrigCompositeUtils::linkToPrevious( newd, inputKey.key(), input_counter );
       {
 	//copy decisions ID
@@ -97,13 +98,12 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       }	
       
       // pull RoI descriptor
-      CHECK( Idecision->hasObjectLink( m_roisLink ) );    
-      auto roiDescriptorEL = Idecision->objectLink<TrigRoiDescriptorCollection>( m_roisLink );
-      CHECK( roiDescriptorEL.isValid() );
+      TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(Idecision, m_roisLink );
+      ATH_CHECK( roiELInfo.isValid() );
       // associate this RoI to output decisions
-      auto roiDescriptor = *roiDescriptorEL;
+      auto roiDescriptor = *roiELInfo.link;
       ATH_MSG_DEBUG( "Placing TrigRoiDescriptor " << *roiDescriptor );
-      newd->setObjectLink( "initialRoI", roiDescriptorEL );
+      newd->setObjectLink( "initialRoI", roiELInfo.link );
 
       // search for existing view
       itViewMap = viewMap.find(roiDescriptor);
@@ -148,7 +148,14 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 	  viewVector->back()->linkParent( parentView );
 	  ATH_MSG_DEBUG( "Parent view linked" );
 	} else {
-	  ATH_MSG_DEBUG( "Parent view not linked" );
+	  if ( m_requireParentView ) {
+	    ATH_MSG_ERROR( "Parent view not linked because it could not be found" );
+	    ATH_MSG_ERROR( TrigCompositeUtils::dump( Idecision, [](const xAOD::TrigComposite* tc){ 
+		  return "TC " + tc->name() + ( tc->hasObjectLink("view") ? " has view " : " has no view " );
+		    } ) );
+	    return StatusCode::FAILURE;
+	  }
+
 	}
 	
 	//store the RoI in the view
