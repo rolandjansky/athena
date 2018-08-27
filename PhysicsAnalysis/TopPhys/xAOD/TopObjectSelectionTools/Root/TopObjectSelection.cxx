@@ -287,22 +287,12 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets() {
 
     for (auto jetPtr : *jets) {
       ATH_MSG_DEBUG("   Jet pt = "<<(jetPtr)->pt());
-      char decoration = m_jetSelection->passSelection(*jetPtr);
-      jetPtr->auxdecor<char>( m_passPreORSelection ) = decoration;
-      // if JVT cut enabled: jets that pass JVT get a 2, otherwise the same as passPreORSelection
-      // if not, passPreORSelection * 2
-      if (jetPtr->isAvailable<char>("passJVT")) {
-        jetPtr->auxdecor<char>( m_ORToolDecoration ) = decoration + jetPtr->auxdataConst<char>( "passJVT" );
-      } else {
-        jetPtr->auxdecor<char>( m_ORToolDecoration ) = decoration * 2;
-      }
+      bool passed = m_jetSelection->passSelection(*jetPtr);
+      jetPtr->auxdecor<char>(m_passPreORSelection) = passed;
+      jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
       if (m_doLooseCuts) {
-        jetPtr->auxdecor<char>( m_passPreORSelectionLoose ) = decoration;
-        if (jetPtr->isAvailable<char>("passJVT")) {
-          jetPtr->auxdecor<char>( m_ORToolDecorationLoose ) = decoration + jetPtr->auxdataConst<char>( "passJVT" );
-        } else {
-          jetPtr->auxdecor<char>( m_ORToolDecorationLoose ) = decoration * 2;
-        }
+        jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = passed;
+        jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
       }
       //decorate with b-tagging flags
       std::vector<std::string> availableWPs = m_config->bTagWP_available();

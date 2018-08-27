@@ -491,7 +491,7 @@ bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent
 	return true;
 }
 
-Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned /* runNumber */, std::size_t leg, bool& success)
+Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned runNumber, std::size_t leg, bool& success)
 {
 	auto insertion = m_cachedEfficiencies.emplace(std::make_pair(&lepton,leg),Efficiencies());
 	Efficiencies& efficiencies = insertion.first->second;
@@ -501,13 +501,13 @@ Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, u
 		switch(lepton.type())
 		{
 		case xAOD::Type::Electron:
-			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.electron(), leg, lepton.tag(), efficiencies);
+			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.electron(), runNumber, leg, lepton.tag(), efficiencies);
 			break;
 		case xAOD::Type::Muon:
 			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.muon(), leg, lepton.tag(), efficiencies);
 			break;
 		case xAOD::Type::Photon:
-			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.photon(), leg, lepton.tag(), efficiencies);
+			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.photon(), runNumber, leg, lepton.tag(), efficiencies);
 			break;
 		default: ATH_MSG_ERROR("Unsupported particle type");
 		}

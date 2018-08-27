@@ -295,6 +295,27 @@ StatusCode JetCalibrationTool::getCalibClass(const std::string&name, TString cal
       }
       return StatusCode::SUCCESS; 
     }
+  } else if ( calibration.EqualTo("Smear") ) {
+    if (m_isData)
+    {
+      ATH_MSG_FATAL("Asked for smearing of data, which is not supported.  Aborting.");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_INFO("Initializing jet smearing correction");
+    suffix = "_Smear";
+    if (m_devMode) suffix += "_DEV";
+    
+    m_jetSmearCorr = new JetSmearingCorrection(name+suffix,m_globalConfig,jetAlgo,calibPath,m_devMode);
+    m_jetSmearCorr->msg().setLevel(this->msg().level());
+
+    if (m_jetSmearCorr->initializeTool(name+suffix).isFailure())
+    {
+      ATH_MSG_FATAL("Couldn't initialize the jet smearing correction.  Aborting.");
+      return StatusCode::FAILURE;
+    }
+    m_calibClasses.push_back(m_jetSmearCorr);
+    return StatusCode::SUCCESS;
   }
   ATH_MSG_FATAL("Calibration string not recognized: " << calibration << ", aborting.");
   //ATH_MSG_INFO("Initializing of sub tools is complete.");

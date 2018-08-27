@@ -62,8 +62,9 @@ job.algsAdd( sysLoader )
 
 # Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
-muonSequence = makeMuonAnalysisSequence( dataType )
-muonSequence.configure( inputName = 'Muons', outputName = 'AnalysisMuons' )
+muonSequence = makeMuonAnalysisSequence( dataType, deepCopyOutput = True )
+muonSequence.configure( inputName = 'Muons',
+                        outputName = 'AnalysisMuons_%SYS%' )
 print( muonSequence ) # For debugging
 
 # Add all algorithms to the job:
@@ -81,6 +82,18 @@ ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
                          'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
 ntupleMaker.systematicsRegex = '(^MUON_.*)'
 job.algsAdd( ntupleMaker )
+
+# Set up a mini-xAOD writer algorithm:
+xaodWriter = AnaAlgorithmConfig( 'CP::xAODWriterAlg/xAODWriter' )
+xaodWriter.ItemList = \
+   [ 'xAOD::EventInfo#EventInfo',
+     'xAOD::EventAuxInfo#EventInfoAux.-',
+     'xAOD::MuonContainer#AnalysisMuons_%SYS%',
+     'xAOD::AuxContainerBase#AnalysisMuons_%SYS%Aux.eta.phi.pt' ]
+xaodWriter.systematicsRegex = '.*'
+job.algsAdd( xaodWriter )
+
+# Make sure that both the ntuple and the xAOD dumper have a stream to write to.
 job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
 
 # Find the right output directory:

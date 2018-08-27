@@ -134,6 +134,8 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
 
 bool SUSYObjDef_xAOD::IsSignalTau(const xAOD::TauJet& input, float ptcut, float etacut) const {
 
+  dec_signal(input) = false;
+
   if ( !dec_baseline(input) ) return false;
 
   if (input.pt() <= ptcut) return false;
