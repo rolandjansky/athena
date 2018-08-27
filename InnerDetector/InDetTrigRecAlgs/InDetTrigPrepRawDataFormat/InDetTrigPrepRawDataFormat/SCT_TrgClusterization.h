@@ -47,6 +47,9 @@
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class TrigTimer;
 
 class SCT_ID;
@@ -122,7 +125,8 @@ namespace InDet {
     std::set<IdentifierHash>                 m_flaggedModules;
     bool                   m_doTimeOutChecks;   //check global timer
 
-
+    // For P->T converter of SCT_Clusters
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     
     // Timing
     TrigTimer*  m_timerSGate;      

@@ -2,30 +2,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetPrepRawData/SCT_Cluster.h"
-#include "InDetEventTPCnv/InDetPrepRawData/SCT_Cluster_p2.h"
-#include "InDetEventTPCnv/SCT_ClusterContainer_p2.h"
-#include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
-
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p2.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p2.h"
-#include "AthAllocators/DataPool.h"
-
-// Gaudi
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // Athena
+#include "AthenaKernel/errorcheck.h"
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
+#include "InDetEventTPCnv/InDetPrepRawData/SCT_Cluster_p2.h"
+#include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p2.h"
+#include "InDetPrepRawData/SCT_Cluster.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
+// Gaudi
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/StatusCode.h"
 
 void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* transCont, InDet::SCT_ClusterContainer_p2* persCont, MsgStream &log) {
 
@@ -61,7 +56,7 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
     //to retrieve the SCT_ID helper
     if(!m_isInitialized) {
       if (this->initialize(log) != StatusCode::SUCCESS) {
-	log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p2 " << endmsg;
+        log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p2 " << endmsg;
       }
     }
 
@@ -87,8 +82,8 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
         InDet::InDetPRD_Collection_p2& pcollection = persCont->m_collections[collIndex];
-	unsigned int deltaId = (collection.identifyHash()-idLast);
-	//        unsigned int deltaId = (collection.identify().get_compact()-idLast)/IDJUMP;
+        unsigned int deltaId = (collection.identifyHash()-idLast);
+        //        unsigned int deltaId = (collection.identify().get_compact()-idLast)/IDJUMP;
         // if(deltaId*IDJUMP != collection.identify().get_compact()-idLast ) 
         //   log << MSG::FATAL << "THere is a mistake in Identifiers of the collection" << endmsg;
         // if(deltaId > 0xFFFF) {
@@ -97,18 +92,18 @@ void SCT_ClusterContainerCnv_p2::transToPers(const InDet::SCT_ClusterContainer* 
         // pcollection.m_idDelta = (unsigned short) deltaId;
         // idLast = collection.identify().get_compact(); // then update the last identifier 
         pcollection.m_hashId = deltaId;
-	idLast=collection.identifyHash();
+        idLast=collection.identifyHash();
         pcollection.m_size = collection.size();
         // Add in channels
         //persCont->m_rawdata.resize(chanEnd);
         //persCont->m_prdDeltaId.resize(chanEnd);
-	//        if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "Reading collections with " <<  collection.size() << "PRDs " << endmsg;
+        //        if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "Reading collections with " <<  collection.size() << "PRDs " << endmsg;
         for (unsigned int i = 0; i < collection.size(); ++i) {
             InDet::SCT_Cluster_p2* pchan = &(persCont->m_rawdata[i + chanBegin]);
             const InDet::SCT_Cluster* chan = dynamic_cast<const InDet::SCT_Cluster*>(collection[i]);
             chanCnv.transToPers(chan, pchan, log);
             //persCont->m_prdDeltaId[i+chanBegin]=chan->m_clusId.get_compact()-collection.identify().get_compact();
-	    persCont->m_prdDeltaId[i+chanBegin]=m_sctId->calc_offset(collection.identify(), chan->identify() );
+            persCont->m_prdDeltaId[i+chanBegin]=m_sctId->calc_offset(collection.identify(), chan->identify() );
         }
     }
   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::SCT_ClusterContainer" << endmsg;
@@ -131,6 +126,15 @@ void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_
     // So here we loop over all collection and extract their channels
     // from the vector.
 
+    const InDetDD::SiDetectorElementCollection* elements(nullptr);
+    if (m_useDetectorElement) {
+        SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+        elements = *sctDetEleHandle;
+        if (not sctDetEleHandle.isValid() or elements==nullptr) {
+            log << MSG::FATAL << m_SCTDetEleCollKey.fullKey() << " is not available." << endmsg;
+            return;
+        }
+    }
 
     InDet::SCT_ClusterCollection* coll = 0;
 
@@ -144,7 +148,7 @@ void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - in NOT owner of SCT_DriftCircle (SG::VIEW_ELEMENTS)
-	// IDet collection don't have the Ownership policy c'tor
+        // IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p2& pcoll = persCont->m_collections[icoll];       
         idLast += pcoll.m_hashId;
         // Identifier collID= Identifier(idLast);
@@ -154,20 +158,20 @@ void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_
         coll->setIdentifier(Identifier(collID));
         unsigned int nchans           = pcoll.m_size;
         coll->resize(nchans);
-        InDetDD::SiDetectorElement * de = m_sctMgr->getDetectorElement(collIDHash);
+        const InDetDD::SiDetectorElement * de = (elements==nullptr ? nullptr : elements->getDetectorElement(collIDHash));
         // Fill with channels:
         // This is used to read the vector of errMat
         // values and lenght of the value are specified in separate vectors
         //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading collection with " << nchans << "Channels " << endmsg;
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const InDet::SCT_Cluster_p2* pchan = &(persCont->m_rawdata[ichan + collBegin]);
-	    Identifier clusId=m_sctId->strip_id_offset(coll->identify() , persCont->m_prdDeltaId[ichan + collBegin]);
+            Identifier clusId=m_sctId->strip_id_offset(coll->identify() , persCont->m_prdDeltaId[ichan + collBegin]);
             InDet::SCT_Cluster* chan = new InDet::SCT_Cluster
               (chanCnv.createSCT_Cluster (pchan, clusId, de, log));
-	    //            chan->m_rdoList.resize(1);
+            //            chan->m_rdoList.resize(1);
             //            chan->m_rdoList[0]=chan->m_clusId;
             //DC Bugfix: Set the idhash for this channel
-	    chan->setHashAndIndex(collIDHash,ichan);
+            chan->setHashAndIndex(collIDHash,ichan);
             (*coll)[ichan] = chan;
         }
         collBegin += pcoll.m_size;
@@ -177,9 +181,9 @@ void  SCT_ClusterContainerCnv_p2::persToTrans(const InDet::SCT_ClusterContainer_
         if (sc.isFailure()) {
             throw std::runtime_error("Failed to add collection to ID Container");
         }
-	//        if (log.level() <= MSG::DEBUG) {
-	//            log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << collID << ", added to Identifiable container." << endmsg;
-	//        }
+        //        if (log.level() <= MSG::DEBUG) {
+        //            log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << collID << ", added to Identifiable container." << endmsg;
+        //        }
     }
 
     //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading InDet::SCT_ClusterContainer" << endmsg;
@@ -235,17 +239,19 @@ StatusCode SCT_ClusterContainerCnv_p2::initialize(MsgStream &log) {
    //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endmsg;
    //   }
 
-   sc = detStore->retrieve(m_sctMgr);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get SCT_DetectorDescription" << endmsg;
-      return sc;
+   if (m_useDetectorElement) {
+     CHECK(m_SCTDetEleCollKey.initialize());
    }
 
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }
 
-// Method for test/SCT_ClusterContainerCnv_p2_test.cxx
+// Methods for test/SCT_ClusterContainerCnv_p2_test.cxx
 void SCT_ClusterContainerCnv_p2::setIdHelper(const SCT_ID* sct_id) {
   m_sctId = sct_id;
+}
+
+void SCT_ClusterContainerCnv_p2::setUseDetectorElement(const bool useDetectorElement) {
+  m_useDetectorElement = useDetectorElement;
 }

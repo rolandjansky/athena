@@ -33,4 +33,8 @@ void SCT_ClusterContainerCnv_tlp1::setPStorage( InDet::SCT_ClusterContainer_tlp1
  m_locPosCnv.setPStorage( &storage->m_locPos );
  m_errorMatCnv.setPStorage( &storage->m_errorMat );
 }   
- 
+
+// Method for test/SCT_ClusterCnv_p1_test.cxx
+void SCT_ClusterContainerCnv_tlp1::setUseDetectorElement(const bool useDetectorElement) {
+  m_mainConverter.setUseDetectorElement(useDetectorElement);
+}
