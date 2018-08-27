@@ -18,15 +18,12 @@ Purpose : build the TauJet Tag objects - TauJetTagCollection.h.
 
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
+#include "TauAnalysisTools/ITauSelectionTool.h"
 
 #include <map>
 
 /** Interface ID for TauJetTagTool*/  
 static const InterfaceID IID_TauJetTagTool("TauJetTagTool", 1, 0);
-
-namespace TauAnalysisTools {
-  class ITauSelectionTool;
-}
 
 class TauJetTagTool : public AthAlgTool {
 
@@ -43,11 +40,6 @@ public:
   virtual StatusCode attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap, const int max);
   virtual StatusCode execute(TagFragmentCollection& tauJetTagCol, const int max);
   virtual StatusCode finalize();
-
-protected:
-
-   /** Standard destructor */
-   virtual ~TauJetTagTool( );
 
 private:
 

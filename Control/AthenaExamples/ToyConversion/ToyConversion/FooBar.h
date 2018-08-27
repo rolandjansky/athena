@@ -5,7 +5,7 @@
 #ifndef TEST_FOOBAR_H
 # define TEST_FOOBAR_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 class Foo{
 private:
   double m_a;

@@ -193,6 +193,7 @@ namespace TrigCostRootAnalysis {
     UInt_t maxNumberFullEvents = 10;
     UInt_t ratesOverlapWarning = 80;
     UInt_t maxMultiSeed = 1;
+    UInt_t maxMultiSeedForGroup = 15;
     UInt_t runNumber = 0;
     UInt_t messageWait = 10;
     Float_t rateFallbackPrescaleL1 = FLT_MIN;
@@ -633,6 +634,9 @@ namespace TrigCostRootAnalysis {
         {
           "useOnlyTheseBCIDs", required_argument, 0, '8'
         }, // Hidden option
+        {
+          "maxMultiSeedForGroup", required_argument, 0, '9'
+        },
 
         {
           0, 0, 0, 0
@@ -895,7 +899,10 @@ namespace TrigCostRootAnalysis {
             "--scaleRatesByPS\t\t\t\tScale up chains by their L1 prescale to get their rate for L1 PS=1. Only for basic L1 and HLT chains, not combinations and global rates."
                     << std::endl;
           std::cout << "--maxMultiSeed " << maxMultiSeed <<
-            "\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from Union rate groups due to exploding (2^nL1) computational complexity."
+            "\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from global Union rate groups due to exploding (2^nL1) computational complexity."
+                    << std::endl;
+          std::cout << "--maxMultiSeedForGroup " << maxMultiSeedForGroup <<
+            "\t\t\tMaximum number of L1 seeds any individual Union group will allow due to exploding (2^nL1) computational complexity."
                     << std::endl;
           std::cout <<
             "--noOnlineDTCorrection\t\t\t\tFlag to prevent automated scaling to correct for L1 deadtime of EB data." <<
@@ -1231,9 +1238,15 @@ namespace TrigCostRootAnalysis {
         break;
 
       case 'X':
-        // Default lumiblock length
+        // Max multi seed for chains going into "big" groups such as total rates
         ss << optarg;
         ss >> maxMultiSeed;
+        break;
+
+      case '9':
+        // Max multi seed for an individual grouo
+        ss << optarg;
+        ss >> maxMultiSeedForGroup;
         break;
 
       case 'q':
@@ -1840,6 +1853,7 @@ namespace TrigCostRootAnalysis {
 
 
     set(kMaxMultiSeed, maxMultiSeed, "MaxMultiSeed");
+    set(kMaxMultiSeedForGroup, maxMultiSeedForGroup, "MaxMultiSeedForGroup");
     if (runNumber != 0) set(kRunNumber, runNumber, "RunNumber");
 
     // Load files to be accessed

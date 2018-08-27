@@ -12,6 +12,8 @@
  **/
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "AthenaKernel/IAthenaSelectorTool.h"
 
 #include <string>
@@ -38,7 +40,7 @@ public:
    virtual StatusCode finalize();
 
 private:
-   std::string m_attrListKey;
+   SG::ReadHandleKey<AthenaAttributeList> m_attrListKey;
 };
 
 } // end AthPoolEx namespace

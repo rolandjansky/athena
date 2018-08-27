@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "Rivet/AnalysisHandler.hh"
 

@@ -48,7 +48,7 @@ namespace pool    {
     * @version 1.0
     */
    class IOODatabase : public RefCounter  {
-   protected:  
+   public:  
     virtual ~IOODatabase() {}
 
    public:

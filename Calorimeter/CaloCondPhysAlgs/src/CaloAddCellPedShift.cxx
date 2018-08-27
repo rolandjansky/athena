@@ -57,10 +57,9 @@ StatusCode CaloAddCellPedShift::initialize()
 {
   ATH_MSG_DEBUG ("CaloAddCellPedShift initialize()" );
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
-
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
+  m_calo_id      = mgr->getCaloCell_ID();
 
   ATH_CHECK( detStore()->regFcn(&CaloAddCellPedShift::updateMap, this, m_noiseAttrListColl, m_folderName) );
   ATH_MSG_INFO ( " registered a callback for " << m_folderName << " folder " );
@@ -164,14 +163,17 @@ StatusCode CaloAddCellPedShift::stop()
   }
   fclose(finput);
   ATH_MSG_INFO ( " end of reading file" );
-  
+
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
 
   FILE* fp = fopen("calopedestal.txt","w");
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
-       const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
+       const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(id);
        int subCalo;
        IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);
 

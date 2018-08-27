@@ -18,7 +18,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "PixelConditionsServices/IPixelTDAQSvc.h"
+#include "PixelConditionsTools/IPixelTDAQSvc.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 //#include "PixelCablingSvc.h"
 

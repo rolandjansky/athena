@@ -45,11 +45,6 @@ public:
 
    inline void SetFolderName(const std::string& folderName) { m_folderName=folderName; }
 
-protected:
-
-   /** Standard destructor */
-   virtual ~BasicPlotsTool( );
-
  private:
   struct MissingETHists {
     TH1D* METphi;

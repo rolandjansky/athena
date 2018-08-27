@@ -42,7 +42,6 @@
 #include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" // ?
 
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 
@@ -356,6 +355,8 @@ StatusCode SCTHitsNoiseMonTool::initialize() {
   ATH_CHECK(m_eventInfoKey.initialize());
   ATH_CHECK(m_clusContainerKey.initialize());
   ATH_CHECK(m_tracksName.initialize());
+
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }

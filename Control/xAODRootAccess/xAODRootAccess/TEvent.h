@@ -320,9 +320,6 @@ namespace xAOD {
                     bool allowMods,
                     bool returnExisting ) override;
 
-      /// Inform HIVE that an object has been updated
-      StatusCode updatedObject( CLID id, const std::string& key ) override;
-
       /// Increment the reference count of Interface instance
       unsigned long addRef() override;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
@@ -17,8 +17,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
 #include "InDetReadoutGeometry/SiLocalPosition.h"
@@ -46,9 +44,6 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   AthAlgorithm(name, pSvcLocator),
   m_managerName("Pixel"),  // or SCT
   m_doLoop(true),
-  m_siLorentzAngleSvc("PixelLorentzAngleSvc",name),
-  m_siConditionsSvc("PixelSiliconConditionsSvc",name),
-  m_siPropertiesSvc("PixelSiPropertiesSvc",name),
   m_manager(0),
   m_idHelper(0),
   m_pixelIdHelper(0),
@@ -61,9 +56,6 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("DoInitialize", m_doInit = false);
   declareProperty("DoExecute",    m_doExec = true);
   declareProperty("UseConditionsTools", m_useConditionsTools = false);
-  declareProperty("SiLorentzAngleSvc", m_siLorentzAngleSvc);
-  declareProperty("SiConditionsSvc", m_siConditionsSvc);
-  declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -104,26 +96,18 @@ StatusCode ReadSiDetectorElements::initialize(){
     ATH_CHECK(m_siConditionsTool.retrieve());
     ATH_CHECK(m_siPropertiesTool.retrieve());
   } else {
-    StatusCode sc = m_siLorentzAngleSvc.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() );
-    }
-    sc = m_siPropertiesSvc.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
-    }
-    sc = m_siConditionsSvc.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
-    }
     m_siLorentzAngleTool.disable();
     m_siConditionsTool.disable();
     m_siPropertiesTool.disable();
   }
+
+  // Initialize ReadCondHandleKey
+  ATH_CHECK(m_detEleCollKey.initialize());
+
   // Print during initialize
   if (m_doInit) {
-    printAllElements();
-    printRandomAccess();
+    printAllElements(true);
+    printRandomAccess(true);
   }
   return StatusCode::SUCCESS;
 }
@@ -133,22 +117,34 @@ StatusCode ReadSiDetectorElements::execute() {
   // Only print out on first event
   if (m_first && m_doExec) {
     m_first = false;
-    printAllElements();
-    printRandomAccess();
+    printAllElements(false);
+    printRandomAccess(false);
   }
   return StatusCode::SUCCESS;
 }
 
-void ReadSiDetectorElements::printAllElements() {
+void ReadSiDetectorElements::printAllElements(const bool accessDuringInitialization) {
+  const bool useConditionStore = (m_managerName == "SCT" and (not accessDuringInitialization));
+  const SiDetectorElementCollection* elements = nullptr;
+  if (useConditionStore) {
+    // Get SiDetectorElementCollection from ConditionStore
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> detEle(m_detEleCollKey);
+    elements = detEle.retrieve();
+    if (elements==nullptr) {
+      ATH_MSG_FATAL(m_detEleCollKey.fullKey() << " could not be retrieved");
+      return;
+    }
+  } else {
+    elements = m_manager->getDetectorElementCollection();
+  }
+
   // There are various ways you can access the elements. eg
   // m_manager->getDetectorElement(idHash);
   // m_manager->getDetectorElement(identifier);
   //
   // or access the whole collection or the iterators. 
   if (m_doLoop) {
-    SiDetectorElementCollection::const_iterator iter;
-    for (iter = m_manager->getDetectorElementBegin(); iter != m_manager->getDetectorElementEnd(); ++iter){
-      const SiDetectorElement * element = *iter; 
+    for (const SiDetectorElement* element: *elements) {
       if (element) {
         ATH_MSG_ALWAYS(m_idHelper->show_to_string(element->identify()));
         // The id helper is also available through  the elements
@@ -172,29 +168,14 @@ void ReadSiDetectorElements::printAllElements() {
                          << m_siConditionsTool->temperature(hashId) << " "
                          << m_siConditionsTool->biasVoltage(hashId) << " "
                          << m_siConditionsTool->depletionVoltage(hashId));
-        } else {
-          ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
-                         << m_siConditionsSvc->temperature(hashId) << " "
-                         << m_siConditionsSvc->biasVoltage(hashId) << " "
-                         << m_siConditionsSvc->depletionVoltage(hashId));
         }
 
-        if (m_manager->getName() == "Pixel") {
-          //msg(MSG::ALWAYS) << "Via SiDetectorElement:"
-          ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
-                         << element->getLorentzCorrection()/CLHEP::mm << " "
-                         << element->getTanLorentzAnglePhi());
-        } else {
-          //msg(MSG::ALWAYS) << "Direct from SiLorentzAngleSvc:"
-          ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
-                         << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
-                         << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
-        }
+        ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
+            << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
+            << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
 
         // These are no longer accessed through the detector element.
-        const InDet::SiliconProperties & siProperties = m_useConditionsTools
-          ? m_siPropertiesTool->getSiProperties(hashId)
-          : m_siPropertiesSvc->getSiProperties(hashId);
+        const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(hashId);
         ATH_MSG_ALWAYS(" Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
                        << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
                        << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
@@ -211,17 +192,27 @@ void ReadSiDetectorElements::printAllElements() {
         // Make some consistency tests for the identifier.
         Identifier idTest;
         IdentifierHash idHashTest;
-        if (m_pixelIdHelper) {
-          const PixelID * idHelper = m_pixelIdHelper;
-          idTest = idHelper->wafer_id(hashId);
-          idHashTest = idHelper->wafer_hash(idTest);
+        if (m_managerName == "Pixel") {
+          idTest = m_pixelIdHelper->wafer_id(hashId);
+          idHashTest = m_pixelIdHelper->wafer_hash(idTest);
         } else if (m_sctIdHelper) {
-          const SCT_ID * idHelper = m_sctIdHelper;
-          idTest = idHelper->wafer_id(hashId);
-          idHashTest = idHelper->wafer_hash(idTest);
+          idTest = m_sctIdHelper->wafer_id(hashId);
+          idHashTest = m_sctIdHelper->wafer_hash(idTest);
         }
-        const SiDetectorElement * elementtest1 = m_manager->getDetectorElement(element->identify());
-        const SiDetectorElement * elementtest2 = m_manager->getDetectorElement(hashId);
+        const SiDetectorElement * elementtest1 = nullptr;
+        const SiDetectorElement * elementtest2 = nullptr;
+        if (useConditionStore) {
+          // SiDetectorElementCollection::getDetectorElement supports only IdentifierHash as the argument.
+          if (m_managerName == "Pixel") {
+            elementtest1 = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(element->identify()));
+          } else {
+            elementtest1 = elements->getDetectorElement(m_sctIdHelper->wafer_hash(element->identify()));
+          }
+          elementtest2 = elements->getDetectorElement(hashId);
+        } else {
+          elementtest1 = m_manager->getDetectorElement(element->identify());
+          elementtest2 = m_manager->getDetectorElement(hashId);
+        }
         bool idOK = true;
         if (idHashTest != hashId) {ATH_MSG_ALWAYS(" Id test 1 FAILED!"); idOK = false;}
         if (idTest != element->identify()) {ATH_MSG_ALWAYS(" Id test 2 FAILED!"); idOK = false;}
@@ -254,12 +245,22 @@ void ReadSiDetectorElements::printAllElements() {
           if (!iEta && siNumerology.skipEtaZeroForLayer(iLayer)) continue;
           for (int iSide = 0; iSide < nSides; iSide++) {
             Identifier id;
-            if (m_pixelIdHelper){
+            if (m_managerName == "Pixel"){
               id = m_pixelIdHelper->wafer_id(iBarrel,iLayer,iPhi,iEta);
             } else {
               id = m_sctIdHelper->wafer_id(iBarrel,iLayer,iPhi,iEta,iSide);
             }
-            const SiDetectorElement * element = m_manager->getDetectorElement(id);
+            const SiDetectorElement * element = nullptr;
+            if (useConditionStore) {
+              // SiDetectorElementCollection::getDetectorElement supports only IdentifierHash as the argument.
+              if (m_managerName == "Pixel") {
+                element = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(id));
+              } else {
+                element = elements->getDetectorElement(m_sctIdHelper->wafer_hash(id));
+              }
+            } else {
+              element = m_manager->getDetectorElement(id);
+            }
             barrelCount++;
             if (!element) {
               barrelCountError++;
@@ -292,12 +293,10 @@ void ReadSiDetectorElements::printAllElements() {
         for (int iPhi = 0; iPhi < siNumerology.numPhiModulesForDiskRing(iDisk,iEta); iPhi++) {
           for (int iSide = 0; iSide < nSides; iSide++) {
             Identifier id;
-            if (m_pixelIdHelper){
+            if (m_managerName == "Pixel"){
               id = m_pixelIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta);
             } else {
-              if (m_sctIdHelper){
-                id = m_sctIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta,iSide);
-              }
+              id = m_sctIdHelper->wafer_id(iEndcap,iDisk,iPhi,iEta,iSide);
             }
             const SiDetectorElement * element = m_manager->getDetectorElement(id);
             endcapCount++;
@@ -331,10 +330,23 @@ void ReadSiDetectorElements::printAllElements() {
 }
 
 
-void ReadSiDetectorElements::printRandomAccess() {
+void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitialization) {
   ATH_MSG_INFO("printRandomAccess()");
+
+  const bool useConditionStore = (m_managerName == "SCT" and (not accessDuringInitialization));
+  const SiDetectorElementCollection* elements = nullptr;
+  if (useConditionStore) {
+    // Get SiDetectorElementCollection from ConditionStore
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> detEle(m_detEleCollKey);
+    elements = detEle.retrieve();
+    if (elements==nullptr) {
+      ATH_MSG_FATAL(m_detEleCollKey.fullKey() << " could not be retrieved");
+      return;
+    }
+  }
+
   // Some random access
-  if (m_manager->getName() == "Pixel") {
+  if (m_managerName == "Pixel") {
     //const PixelID * idHelper = dynamic_cast<const PixelID *>(m_manager->getIdHelper());
     const PixelID * idHelper = m_pixelIdHelper;
     if (idHelper) {
@@ -361,7 +373,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       cellIds.push_back(SiCellId(1,143)); // phi,eta
       cellIds.push_back(SiCellId(1,144)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
       // A barrel element (B-Layer)
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -372,7 +384,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.clear();
       cellIds.push_back(SiCellId(32,8)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
       // An endcap element
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -385,10 +397,10 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.push_back(Amg::Vector2D(12*CLHEP::mm, -8.15*CLHEP::mm)); // eta,phi - near edge
       positions.push_back(Amg::Vector2D(12*CLHEP::mm, -8.25*CLHEP::mm)); // eta,phi - near edge
       positions.push_back(Amg::Vector2D(12*CLHEP::mm, -8.35*CLHEP::mm)); // eta,phi - outside
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
     }
-  } else if (m_manager->getName() == "SCT") {
+  } else if (m_managerName == "SCT") {
     
     //const SCT_ID * idHelper = dynamic_cast<const SCT_ID *>(m_manager->getIdHelper());
     const SCT_ID * idHelper = m_sctIdHelper;
@@ -416,7 +428,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
       // A barrel element (other side of above)
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -427,7 +439,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.clear();
       cellIds.push_back(SiCellId(32)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
       // A outer fwd
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -444,7 +456,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 20.534*CLHEP::mm)); // eta,phi
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, -20.534*CLHEP::mm)); // eta,phi
       positions.push_back(Amg::Vector2D(3*CLHEP::mm, -25*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
       ATH_MSG_ALWAYS("----------------------------------------------");
       ATH_MSG_ALWAYS(" A SCT Endcap element (outer type) other side");
@@ -456,7 +468,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 20.534*CLHEP::mm)); // eta,phi
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, -20.534*CLHEP::mm)); // eta,phi
       positions.push_back(Amg::Vector2D(3*CLHEP::mm, -25*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
       // A middle fwd
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -467,7 +479,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.clear();
       cellIds.push_back(SiCellId(532)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
       // A truncated middle
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -478,7 +490,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.clear();
       cellIds.push_back(SiCellId(532)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
 
       // A inner fwd
       ATH_MSG_ALWAYS("----------------------------------------------");
@@ -489,7 +501,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.clear();
       cellIds.push_back(SiCellId(532)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
-      testElement(id, cellIds, positions);
+      testElement(id, cellIds, positions, elements);
     }
   } // if manager = Pixel,SCT
 } 
@@ -498,9 +510,19 @@ void ReadSiDetectorElements::printRandomAccess() {
 void
 ReadSiDetectorElements::testElement(const Identifier & id, 
                                     const std::vector<SiCellId> & cellIdVec, 
-                                    const std::vector<Amg::Vector2D> & positionsVec) const{
+                                    const std::vector<Amg::Vector2D> & positionsVec,
+                                    const InDetDD::SiDetectorElementCollection* elements) const{
   ATH_MSG_ALWAYS("----------------------------------------------");
-  const SiDetectorElement * element = m_manager->getDetectorElement(id);
+  const SiDetectorElement * element = nullptr;
+  if (elements) {
+    if (m_managerName == "Pixel") {
+      element = elements->getDetectorElement(m_pixelIdHelper->wafer_hash(id));
+    } else {
+      element = elements->getDetectorElement(m_sctIdHelper->wafer_hash(id));
+    }
+  } else {
+    element = m_manager->getDetectorElement(id);
+  }
   if (element) {
     IdentifierHash hashId = element->identifyHash();
     ATH_MSG_ALWAYS(element->getIdHelper()->show_to_string(id));
@@ -529,32 +551,16 @@ ReadSiDetectorElements::testElement(const Identifier & id,
                    );
     ATH_MSG_ALWAYS(" center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
                    << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg);
-    const InDet::SiliconProperties & siProperties = m_useConditionsTools
-      ? m_siPropertiesTool->getSiProperties(hashId)
-      : m_siPropertiesSvc->getSiProperties(hashId);
-    if (m_manager->getName() == "Pixel") {
-      ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
-                     << element->getLorentzCorrection()/CLHEP::mm << " "
-                     << element->getLorentzCorrection()/CLHEP::mm << " "
-                     << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
-                     << element->getTanLorentzAnglePhi());
-    } else {
-      ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
-                     << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
-                     << element->getLorentzCorrection()/CLHEP::mm << " "
-                     << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
-                     << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
-    }
+    const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(hashId);
+    ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
+                   << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
+                   << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
+                   << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
     if (m_useConditionsTools) {
       ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
                      << m_siConditionsTool->temperature(hashId) << " "
                      << m_siConditionsTool->biasVoltage(hashId) << " "
                      << m_siConditionsTool->depletionVoltage(hashId));
-    } else {
-      ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
-                     << m_siConditionsSvc->temperature(hashId) << " "
-                     << m_siConditionsSvc->biasVoltage(hashId) << " "
-                     << m_siConditionsSvc->depletionVoltage(hashId));
     }
     ATH_MSG_ALWAYS(" sin(tilt), tilt (deg), sin(stereo), stereo (deg) = " 
                    << element->sinTilt() << ", " 

@@ -13,9 +13,7 @@
 #define JetTagD3PDMaker_JetTagMSVVtxInfoFillerTool_H
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-namespace Analysis{
-class MSVVtxInfo;
-}
+#include "JetTagInfo/MSVVtxInfo.h"
 
 
 namespace D3PD {

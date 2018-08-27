@@ -5,16 +5,14 @@
 /** header file */
 #include "SCTRawContByteStreamTool.h"
 
-#include "eformat/SourceIdentifier.h"
-
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/SrcIdMap.h" 
-
-///InDet
-#include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "eformat/SourceIdentifier.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
+#include "StoreGate/ReadCondHandle.h"
 
 /// ------------------------------------------------------------------------
 /// contructor 
@@ -23,7 +21,6 @@ SCTRawContByteStreamTool::SCTRawContByteStreamTool
 (const std::string& type, const std::string& name,const IInterface* parent):
   base_class(type, name, parent),
   m_cabling{"SCT_CablingSvc", name},
-  m_sct_mgr{nullptr},
   m_sct_idHelper{nullptr}
 {
   declareProperty("RodBlockVersion", m_RodBlockVersion=0);
@@ -40,11 +37,11 @@ SCTRawContByteStreamTool::initialize() {
   ATH_CHECK(m_cabling.retrieve());
   ATH_MSG_INFO("Retrieved service " << m_cabling);
 
-  /** Retrieve detector manager */
-  ATH_CHECK(detStore()->retrieve(m_sct_mgr, "SCT"));
-
   /** Get the SCT Helper */
   ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
+
+  // Initialize ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   return StatusCode::SUCCESS;
 }
@@ -64,6 +61,14 @@ SCTRawContByteStreamTool::finalize() {
 
 StatusCode
 SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) {
+  // Get SCT_DetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+
   m_fea.clear();   
   FullEventAssembler<SrcIdMap>::RODDATA* theROD; 
   
@@ -107,8 +112,7 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, Ms
       eformat::helper::SourceIdentifier sid_rod{sid_rob.subdetector_id(), sid_rob.module_id()};
       uint32_t rodid{sid_rod.code()};
       /** see if strip numbers go from 0 to 767 or vice versa for this wafer */
-      InDetDD::SiDetectorElement* siDetElement{m_sct_mgr->getDetectorElement(idColl)};
-      siDetElement->updateCache();
+      const InDetDD::SiDetectorElement* siDetElement{elements->getDetectorElement(idCollHash)};
       bool swapPhiReadoutDirection{siDetElement->swapPhiReadoutDirection()};
       
       /** loop over RDOs in the collection;  */

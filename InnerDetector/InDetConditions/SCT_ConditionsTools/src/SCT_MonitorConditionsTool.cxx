@@ -175,7 +175,7 @@ SCT_MonitorConditionsTool::getList(const Identifier& imodule) const {
   string currentDefectList = "";
   int channelNumber{static_cast<int>(imodule.get_identifier32().get_compact())};
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-  const SCT_MonitorConditionsCondData* condData{getCondData(ctx)};
+  const SCT_MonitorCondData* condData{getCondData(ctx)};
   if (condData) {
     condData->find(channelNumber, currentDefectList);
   } else {
@@ -369,7 +369,7 @@ SCT_MonitorConditionsTool::computeIstrip4moncond(const Identifier& elementId) co
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-const SCT_MonitorConditionsCondData*
+const SCT_MonitorCondData*
 SCT_MonitorConditionsTool::getCondData(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
@@ -379,7 +379,7 @@ SCT_MonitorConditionsTool::getCondData(const EventContext& ctx) const {
     m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
   if (m_cache[slot]!=evt) {
-    SG::ReadCondHandle<SCT_MonitorConditionsCondData> condData{m_condKey};
+    SG::ReadCondHandle<SCT_MonitorCondData> condData{m_condKey};
     if (not condData.isValid()) {
       ATH_MSG_ERROR("Failed to get " << m_condKey.key());
     }

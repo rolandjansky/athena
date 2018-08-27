@@ -35,6 +35,7 @@
 
 namespace Ringer {
 
+class RingerConfStruct;
 /*
  *  TODO List:
  *    - Add metadata on xAOD file with the AsgSelector configuration.
@@ -46,7 +47,7 @@ namespace Ringer {
  *
  * @author Werner Spolidoro Freund <wsfreund@cern.ch>
  *
- * Based on AsgElectronIsEMSelector by Jovan Mitrevski (UCSC) 
+ * Based on AsgElectronIsEMSelector by Jovan Mitrevski (UCSC)
  *   and Karsten Koeneke (CERN)
  *
  * and Metadata implementation based on xAODConfigTool by
@@ -58,28 +59,10 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
 {
 
   public:
-    /**
-     * @class IOConfStruct
-     * @brief Configuration structure for parameters in file
-     **/
-    struct IOConfStruct {
-      bool useTrackPat;
-      bool useRawTrackPat;
-      //bool useCalStdPat;
-      //bool useRawCalStdPat(false),
-      bool useCaloCommittee;
-      bool useBLOutliers;
-      bool usePIXOutliers;
-      bool useSCTOutliers;
-      bool useTRTOutliers;
-      bool useTRTXenonHits;
-
-      IOConfStruct();
-    };
 
     // Use ASG_TOOL macro for 2 interface base classes.
-    ASG_TOOL_CLASS2(AsgElectronRingerSelector, 
-                    IAsgElectronRingerSelector, 
+    ASG_TOOL_CLASS2(AsgElectronRingerSelector,
+                    IAsgElectronRingerSelector,
                     IAsgSelectionTool)
 
   public:
@@ -92,6 +75,11 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
 
     /** Gaudi Service Interface method implementations */
     virtual StatusCode initialize();
+
+    /** External initialize method */
+    StatusCode initialize( const char *metaName, unsigned int cutMask
+        , IDiscrWrapperCollection &discrWrapper, IThresWrapper* thresWrapper
+        , RingerConfStruct &confStruct);
 
     /** Gaudi Service Interface method implementations */
     virtual StatusCode finalize();
@@ -129,36 +117,55 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
      **/
     void setCacheMetaData( bool flag );
 
-    /** 
+    /**
      * @brief This method will bypass accept to xAOD::Electron if it is possible.
      **/
     const Root::TAccept& accept( const xAOD::IParticle* part ) const;
 
-    /** 
+    /**
      * @brief Identification procedure is done in this method
      **/
     const Root::TAccept& accept( const xAOD::Electron* part ) const;
 
-    /** 
+    /**
+     * @brief Identification procedure is done in this method
+     **/
+    const Root::TAccept& accept( const xAOD::Electron* part, const double mu ) const;
+
+    /**
      * @brief Identification procedure is done in this method
      **/
     const Root::TAccept& accept( const xAOD::Egamma* eg ) const;
 
-    /** 
-     * @brief Accept using Electron reference 
+    /**
+     * @brief Identification procedure is done in this method
+     **/
+    const Root::TAccept& accept( const xAOD::Egamma* eg, const double mu ) const;
+
+    /**
+     * @brief Accept using Electron reference
      **/
     const Root::TAccept& accept( const xAOD::Electron& part ) const;
-    /** 
-     * @brief Accept using IParticle reference 
+    /**
+     * @brief Accept using Electron reference
+     **/
+    const Root::TAccept& accept( const xAOD::Electron& part, const double mu ) const;
+    /**
+     * @brief Accept using IParticle reference
      **/
     const Root::TAccept& accept( const xAOD::IParticle& part ) const;
 
-    /** 
+    /**
      * @brief Identification procedure is done in this method
      **/
     const Root::TAccept& accept( const xAOD::Egamma& eg ) const;
-    
-    /** 
+
+    /**
+     * @brief Identification procedure is done in this method
+     **/
+    const Root::TAccept& accept( const xAOD::Egamma& eg, const double mu ) const;
+
+    /**
      * @brief Method to get the plain TAccept for the last particle.
      **/
     const Root::TAccept& getTAccept() const;
@@ -166,72 +173,69 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     /** Method to get output space representation */
     const std::vector<float>& getOutputSpace() const;
 
-    /** 
-     * @brief Main execute method
-     **/                                            
-    StatusCode execute(const xAOD::Electron* eg) const;              
+    /**
+     * @brief Execute without mu information
+     **/
+    StatusCode execute(const xAOD::Electron* eg) const;
 
-    /** 
+    /**
+     * @brief Main execute method
+     **/
+    StatusCode execute(const xAOD::Electron* eg, const double mu) const;
+
+    /**
      * @brief Execute without tracking information, potentially used by trigger.
      **/
-    StatusCode execute(const xAOD::Egamma* eg) const;                
+    StatusCode execute(const xAOD::Egamma* eg) const;
 
     /**
-     * @brief Retrieve configuration on file 
+     * @brief Execute without tracking information, potentially used by trigger.
      **/
-    static void retrieveFileConf(const char* fileName, 
-        IOConfStruct &fileConf);
-
-    /**
-     * @brief Write configuration on file
-     **/
-    static void writeConf(const char* fileName, 
-        IOConfStruct &fileConf);
-
-    /**
-     * @brief Print file configuration
-     **/
-    static void printConf( IOConfStruct &fileConf, 
-        MsgStream *msg, MSG::Level lvl = MSG::DEBUG);
+    StatusCode execute(const xAOD::Egamma* eg, const double mu) const;
     ///@}
+
+    /**
+     * @brief Retrieve the primary vertices
+     **/
+    unsigned int getNPrimVertices() const;
 
   protected:
 
-    /** 
+    /**
      * @brief Update metadata information held
      */
     StatusCode beginInputFile();
 
     /**
      * @brief Called when entering a new event
-     *
-     *  NOTE: This doesn't do anything for now
      **/
     StatusCode beginEvent();
-
 
   private:
 
     /// @name AsgElectronRingerSelector props (python configurables):
     /// @{
-    
+
     /// @brief Conf file in which we will retrieve the discrimination chain
     std::string m_discrFileName;
-    
+
     /// @brief Conf file in which we will retrieve the threshold values
     std::string m_thresFileName;
-    
+
     /// @brief The CutID Tool Handle to run track (if required by config file)
     ToolHandle<IAsgElectronIsEMSelector> m_cutIDSelector;
-    
+
     /// @brief The unsigned mask from which we will set m_cutsToUse (IsEM)
     unsigned m_cutsMask;
-    
+
     /// @brief RingSetConfContainer key in the MetaData StoreGate
     std::string m_rsMetaName;
-    
+
     /// @brief Whether to cache metadata configuration or not
     bool m_cacheMetaData;
+
+    /// The primary vertex container name
+    std::string m_primVtxContName;
     /// @}
 
     /// @name AsgElectronRingerSelector props (non-python configurables):
@@ -241,31 +245,31 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
 
     /// @brief The discriminator chain collection
     IThresWrapper *m_thresWrapper;
-    
+
     /// @brief The Ringer Common Selector which will be run by this AsgSelector:
     RingerCommonSelector *m_ringSelCommon;
-    
+
     /// @brief Hold the track patterns:
     ATH_RINGER_MUTABLE TrackPatternsHolder *m_trackPat;
-    
+
     /// @brief The particles CaloRings decorations reader
     xAOD::caloRingsReader_t* m_ringsELReader;
-    
+
     /// @brief Last particle decision bitmask (the inverse of the IsEM)
     ATH_RINGER_MUTABLE Root::TAccept m_partDecMsk;
-    
+
     /// @brief Last particle accept bitmask (already applying the m_cutsToUse)
     ATH_RINGER_MUTABLE Root::TAccept m_accept;
-    
+
     /// @brief Which subset of decisions to use
     ElectronTAccept::bitMskWord m_cutsToUse;
-    
+
     /// Whether to use CutID track decision
     bool m_useCutIDDecision;
-    
+
     /// Flag to whether metadata is cached or not
     bool m_metaDataCached;
-    
+
     /// Hold pointer into the CaloRingsConfContainer
     const xAOD::RingSetConfContainer* m_rsConfCont;
 
@@ -274,6 +278,15 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
 
     /// Cache if configuration info is on inputData
     bool m_metaIsOnOutput;
+
+    /// Default number of vertices when not using it
+    double m_defaultNvtx;
+
+    /// Whether to use or not the number of vertices
+    bool m_useNvtx;
+
+    /// Cached number of vertices for this event
+    double m_nVtx;
     /// @}
 
     /// Private methods:
@@ -290,58 +303,49 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     StatusCode registerDecisionBitMask();
 
     /**
+     * @brief Configure wrappers
+     **/
+    StatusCode configureFromStruct(RingerConfStruct &fileConf);
+
+    /**
      * Set TAccept value
      **/
     void fillTAccept() const;
     /// @}
 };
 
-#else // RINGER_STANDALONE is defined
-class AsgElectronRingerSelector 
-{
-  public:
-    /**
-     * @class IOConfStruct
-     * @brief Configuration structure for parameters in file
-     **/
-    struct IOConfStruct {
-      bool useTrackPat;
-      bool useRawTrackPat;
-      //bool useCalStdPat;
-      //bool useRawCalStdPat(false),
-      bool useCaloCommittee;
-      bool useBLOutliers;
-      bool usePIXOutliers;
-      bool useSCTOutliers;
-      bool useTRTOutliers;
-      bool useTRTXenonHits;
+#endif
 
-      IOConfStruct();
-    };
+/**
+ * @class RingerConfStruct
+ * @brief Configuration structure for parameters in file
+ **/
+struct RingerConfStruct {
+  bool useTrackPat;
+  bool useRawTrackPat;
+  //bool useCalStdPat;
+  //bool useRawCalStdPat(false),
+  bool useCaloCommittee;
+  bool useBLOutliers;
+  bool usePIXOutliers;
+  bool useSCTOutliers;
+  bool useTRTOutliers;
+  bool useTRTXenonHits;
+  bool useNvtx;
 
-    /**
-     * @brief Retrieve configuration on file 
-     **/
-    static void retrieveFileConf(IOConfStruct &fileConf);
+  unsigned version = 1;
 
-    /**
-     * @brief Write configuration on file
-     **/
-    static void writeConf(TFile *file, 
-        IOConfStruct &fileConf);
+  RingerConfStruct();
 
-    /**
-     * @brief Print file configuration
-     **/
-    static void printConf( IOConfStruct &fileConf, 
-        MsgStream *msg, MSG::Level lvl = MSG::DEBUG);
+  void retrieveConf(const char *fileName);
+  void writeConf( char* fileName );
+  void printConf( MsgStream *msg, MSG::Level lvl = MSG::INFO);
 };
-#endif // ifndef RINGER_STANDALONE
 
 // Inline methods:
 //=============================================================================
 inline
-AsgElectronRingerSelector::IOConfStruct::IOConfStruct()
+RingerConfStruct::RingerConfStruct()
   : useTrackPat(false),
     useRawTrackPat(false),
     //useCalStdPat,
@@ -351,7 +355,8 @@ AsgElectronRingerSelector::IOConfStruct::IOConfStruct()
     usePIXOutliers(false),
     useSCTOutliers(false),
     useTRTOutliers(false),
-    useTRTXenonHits(false){;}
+    useTRTXenonHits(false),
+    useNvtx(false){;}
 
 
 #ifndef RINGER_STANDALONE
@@ -371,15 +376,15 @@ void AsgElectronRingerSelector::setThresFile( const std::string path )
 }
 
 //=============================================================================
-inline 
+inline
 void AsgElectronRingerSelector::setCutMask( const unsigned int cutMask )
 {
   m_cutsMask = cutMask;
 }
 
 //=============================================================================
-inline 
-void AsgElectronRingerSelector::setCutIDSelector( 
+inline
+void AsgElectronRingerSelector::setCutIDSelector(
       IAsgElectronIsEMSelector *cutID )
 {
   m_cutIDSelector = ToolHandle<IAsgElectronIsEMSelector>(cutID);
@@ -401,38 +406,75 @@ void AsgElectronRingerSelector::setCacheMetaData( bool flag )
 
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept( 
-    const xAOD::Electron& part ) const 
+const Root::TAccept& AsgElectronRingerSelector::accept(
+    const xAOD::Electron& part, double mu = -99. ) const
 {
-  return accept (&part);
+  return accept (&part, mu);
 }
 
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept( 
-    const xAOD::IParticle& part ) const 
+const Root::TAccept& AsgElectronRingerSelector::accept(
+    const xAOD::IParticle& part ) const
 {
-  return accept (&part);
+  return accept(&part);
 }
 
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::accept( 
-    const xAOD::Egamma& part ) const 
+const Root::TAccept& AsgElectronRingerSelector::accept(
+    const xAOD::Egamma& part ) const
 {
-  return accept (&part);
+  return accept (&part, -99);
 }
 
 //=============================================================================
 inline
-const Root::TAccept& AsgElectronRingerSelector::getTAccept() const 
+StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg) const
+{
+  return execute( eg, -99 );
+}
+//=============================================================================
+inline
+StatusCode AsgElectronRingerSelector::execute(const xAOD::Electron* eg) const
+{
+  return execute( eg, -99 );
+}
+//=============================================================================
+inline
+const Root::TAccept& AsgElectronRingerSelector::accept( const xAOD::Egamma& eg, const double mu ) const
+{
+  return accept( &eg, mu );
+}
+//=============================================================================
+inline
+const Root::TAccept& AsgElectronRingerSelector::accept( const xAOD::Egamma* eg ) const
+{
+  return accept( eg, -99 );
+}
+//=============================================================================
+inline
+const Root::TAccept& AsgElectronRingerSelector::accept( const xAOD::Electron* part ) const
+{
+  return accept( part, -99 );
+}
+//=============================================================================
+inline
+const Root::TAccept& AsgElectronRingerSelector::accept( const xAOD::Electron& part ) const
+{
+  return accept( &part );
+}
+
+//=============================================================================
+inline
+const Root::TAccept& AsgElectronRingerSelector::getTAccept() const
 {
   return m_accept;
 }
 
 //=============================================================================
 inline
-const std::vector<float>& AsgElectronRingerSelector::getOutputSpace() const 
+const std::vector<float>& AsgElectronRingerSelector::getOutputSpace() const
 {
   if ( m_ringSelCommon ){
     return m_ringSelCommon->getOutputSpace();

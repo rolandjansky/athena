@@ -16,6 +16,7 @@ def seqAND(name, subs=[]):
     seq = AthSequencer( name )
     seq.ModeOR = False
     seq.Sequential = True
+#    seq.StopOverride = True
     seq.StopOverride = False
     for s in subs:
         seq += s
@@ -83,112 +84,136 @@ def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
                     return found                
 
     return None
-    
 
-def flatAlgorithmSequences( start, collector={} ):
-    """ Converts tree like structure of sequences into dictionary keyed by sequence name containing lists of of algorithms & sequences."""
-    collector[start.name()] = []
-    for c in start.getChildren():        
-        collector[start.name()].append( c )
-        if isSequence( c ):                        
-            flatAlgorithmSequences( c, collector )
-    return collector
+def flatAlgorithmSequences( start ):
+    """ Converts tree like structure of sequences into dictionary 
+    keyed by top/start sequence name containing lists of of algorithms & sequences."""
 
+    def __inner( seq, collector ):
+        for c in seq.getChildren():        
+            collector[seq.name()].append( c )
+            if isSequence( c ):                        
+                __inner( c, collector )
+                
+    from collections import defaultdict
+    c = defaultdict(list)
+    __inner(start, c)
+    return c
 
-
-def flatSequencers( start, collector={} ):
+def flatSequencers( start ):
     """ Flattens sequences """
-    collector[start.name()] = []
-    for c in start.getChildren():        
-        collector[start.name()].append( c )
-        if isSequence( c ):            
-            flatAlgorithmSequences( c, collector )
-    return collector
-
     
+    def __inner( seq, collector ):
+        if seq.name() not in collector:
+            collector[seq.name()] = []
+        for c in seq.getChildren():
+            collector[seq.name()].append( c )
+            if isSequence( c ):            
+                if c.name() in collector: # already visited
+                    pass
+                else:       
+                    __inner( c, collector )
+
+    from collections import defaultdict
+    c = defaultdict(list)
+    __inner(start, c)
+    return c
 
 # self test
-if __name__ == "__main__":
-    from AthenaCommon.Configurable import ConfigurablePyAlgorithm
-    top = parOR("top")
-    top += parOR("nest1")
-    top += seqAND("nest2")
-    top += ConfigurablePyAlgorithm("SomeAlg0")
+import unittest
+class TestCF( unittest.TestCase ):
+    def setUp( self ):
+        from AthenaCommon.Configurable import ConfigurablePyAlgorithm
+        from AthenaCommon.Configurable import Configurable
+        Configurable.configurableRun3Behavior=1
 
-    f = findSubSequence(top, "top")
-    assert f, "Can not find sequence at start"
-    assert f.name() == "top", "Wrong sequence"
-    # a one level deep search
-    nest2 = findSubSequence( top, "nest2" )
-    assert nest2, "Can not find sub sequence" 
-    assert nest2.name() == "nest2", "Sub sequence incorrect"
+        top = parOR("top")
+        top += parOR("nest1")
+        nest2 = seqAND("nest2")
+        top += nest2
+        top += ConfigurablePyAlgorithm("SomeAlg0")
+        nest2 += parOR("deep_nest1")
+        nest2 += parOR("deep_nest2")
+        
+        nest2 += ConfigurablePyAlgorithm("SomeAlg1")
+        nest2 += ConfigurablePyAlgorithm("SomeAlg2")
+        nest2 += ConfigurablePyAlgorithm("SomeAlg3")
+        self.top = top
 
-    nest2 += parOR("deep_nest1")
-    nest2 += parOR("deep_nest2")
+    def test_findTop( self ):
+        f = findSubSequence( self.top, "top")
+        self.assertIsNotNone( f, "Can not find sequence at start" )
+        self.assertEqual( f.name(), "top", "Wrong sequence" )
+        # a one level deep search
+        nest2 = findSubSequence( self.top, "nest2" )
+        self.assertIsNotNone( nest2, "Can not find sub sequence" )
+        self.assertEqual( nest2.name(), "nest2", "Sub sequence incorrect" )
+
+    def test_findDeep( self ):
+        # deeper search
+        d = findSubSequence( self.top, "deep_nest2")
+        self.assertIsNotNone( d, "Deep searching for sub seqeunce fails" )
+        self.assertEqual( d.name(), "deep_nest2", "Wrong sub sequence in deep search" )
+
+    def test_findMissing( self ):
+        # algorithm is not a sequence
+        d = findSubSequence( self.top, "SomeAlg1") 
+        self.assertIsNone( d, "Algorithm confused as a sequence" )
     
-    nest2 += ConfigurablePyAlgorithm("SomeAlg1")
-    nest2 += ConfigurablePyAlgorithm("SomeAlg2")
-
-    # deeper search
-    d = findSubSequence(top, "deep_nest2")
-    assert d, "Deep searching for sub seqeunce fails"
-    assert d.name() == "deep_nest2", "Wrong sub sequence in deep search"
-
-    d += ConfigurablePyAlgorithm("SomeAlg3")
-
-    # algorithm is not a sequence
-    d = findSubSequence(top, "SomeAlg1") 
-    assert d == None, "Algorithm confused as a sequence"
+        # no on demand creation
+        inexistent = findSubSequence( self.top, "not_there" )
+        self.assertIsNone( inexistent, "ERROR, found sub sequence that does not relay exist" )
     
-    # no on demand creation
-    inexistent = findSubSequence(top, "not_there")
-    assert inexistent == None, "ERROR, found sub sequence that does not relay exist %s" % inexistent.name()
+        # owner finding
+        inexistent = findOwningSequence(self.top, "not_there")
+        self.assertIsNone( inexistent, "ERROR, found owner of inexistent sequence " )
+
+    def test_findRespectingScope( self ):
+        owner = findOwningSequence( self.top, "deep_nest1")
+        self.assertEqual( owner.name(), "nest2", "Wrong owner %s" % owner.name() )
+
+        owner = findOwningSequence( self.top, "deep_nest2")
+        self.assertEqual( owner.name(), "nest2", "Wrong owner %s" % owner.name() )
+
+        owner = findOwningSequence( self.top, "SomeAlg1")
+        self.assertEqual( owner.name(), "nest2", "Wrong owner %s" % owner.name() )
+
+        owner = findOwningSequence( self.top, "SomeAlg0")
+        self.assertEqual( owner.name() , "top", "Wrong owner %s" % owner.name() )
+
+    def test_flatCollectors( self ):
+        flat = flatAlgorithmSequences( self.top )
+        #print "here", flat.keys()
+        expected = [ "top", "nest2" ]
+        self.assertEqual( set( flat.keys() ), set( expected ), "To many or to few sequences in flat structure, present: %s expected: %s "% ( " ".join( flat.keys() ), " ".join( expected ) ) )
+
+        expected = [ "top", "nest1", "nest2", "deep_nest1", "deep_nest2" ]
+        flat = flatSequencers( self.top )
+        self.assertEqual( set( flat.keys() ), set( expected ), "To many or to few sequences in flat structure, present: %s expected: %s "% ( " ".join( flat.keys() ), " ".join( expected ) ) )
+
+    def test_findAlgorithms( self ):
+        a1 = findAlgorithm( self.top, "SomeAlg0" )
+        self.assertIsNotNone( a1, "Can't find algorithm present in sequence" )
+
+        a1 = findAlgorithm( self.top, "SomeAlg1" )
+        self.assertIsNotNone( a1, "Can't find nested algorithm " )
+
+        nest2 = findSubSequence( self.top, "nest2" )
+
+        a1 = findAlgorithm( nest2, "SomeAlg0" )
+        self.assertIsNone( a1, "Finding algorithm that is in the upper sequence" )
     
-    # owner finding
-    inexistent = findOwningSequence(top, "not_there")
-    assert inexistent == None, "ERROR, found owner of inexistent sequence %s"% inexistent.name()
-
-    owner = findOwningSequence(top, "deep_nest1")
-    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
-
-    owner = findOwningSequence(top, "deep_nest2")
-    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
-
-    owner = findOwningSequence(top, "SomeAlg1")
-    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
-
-    owner = findOwningSequence(top, "SomeAlg0")
-    assert owner.name() == "top", "Wrong owner %s" % owner.name()
-
-    flat = flatAlgorithmSequences( top )
-    expected = [ "top", "nest1", "nest2", "deep_nest1", "deep_nest2" ]
-    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, expected %s present %s "% ( " ".join( flat.keys() ), " ".join( expected ) )    
-
-    flat = flatSequencers(top)
-    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, expected %s present %s "% ( " ".join( flat.keys() ), " ".join( expected ) )    
-
-    a1 = findAlgorithm( top, "SomeAlg0" )
-    assert a1, "Can't find algorithm present in sequence"
-    a1 = findAlgorithm( top, "SomeAlg1" )
-    assert a1, "Can't find nested algorithm "
-
-    a1 = findAlgorithm( nest2, "SomeAlg0" )
-    assert a1 == None, "Finding algorithm that is in the upper sequence"
-    
-    a1 = findAlgorithm( nest2, "NonexistentAlg" )
-    assert a1 == None, "Finding algorithm that is does not exist"
+        a1 = findAlgorithm( nest2, "NonexistentAlg" )
+        self.assertIsNone( a1, "Finding algorithm that is does not exist" )
              
-    a1 = findAlgorithm( top, "SomeAlg0", 1)
-    assert a1, "Could not find algorithm within the required nesting depth == 1"
+        a1 = findAlgorithm( self.top, "SomeAlg0", 1)
+        self.assertIsNotNone( a1, "Could not find algorithm within the required nesting depth == 1" )
 
-    a1 = findAlgorithm( top, "SomeAlg1", 1)
-    assert a1 == None, "Could find algorithm even if it is deep in sequences structure"
+        a1 = findAlgorithm( self.top, "SomeAlg1", 1)
+        self.assertIsNone( a1, "Could find algorithm even if it is deep in sequences structure" )
 
-    a1 = findAlgorithm( top, "SomeAlg1", 2)
-    assert a1, "Could not find algorithm within the required nesting depth == 2"
+        a1 = findAlgorithm( self.top, "SomeAlg1", 2)
+        self.assertIsNotNone( a1, "Could not find algorithm within the required nesting depth == 2" )
 
-    a1 = findAlgorithm( top, "SomeAlg3", 2)
-    assert a1 == None, "Could find algorithm evn if it is deep in sequences structure"    
-
-
-    print ("All OK")
+        a1 = findAlgorithm( self.top, "SomeAlg3", 2)
+        self.assertIsNotNone( a1 == None, "Could find algorithm evn if it is deep in sequences structure" )

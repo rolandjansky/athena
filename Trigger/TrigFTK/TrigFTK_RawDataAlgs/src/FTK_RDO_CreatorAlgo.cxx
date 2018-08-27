@@ -14,8 +14,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TBranch.h"
 #include "TMath.h"
 #include "TFile.h"
@@ -47,8 +45,6 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   m_NcheckFail(0),
   m_pixelId(nullptr),
   m_sctId(nullptr),
-  m_pixelManager(nullptr),
-  m_SCT_Manager(nullptr),
   m_id_helper(nullptr),
   m_trainingBeamspotX(0.),
   m_trainingBeamspotY(0.),
@@ -103,8 +99,6 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
   ATH_CHECK(service("DetectorStore", detStore));
   ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
   ATH_CHECK(detStore->retrieve(m_sctId, "SCT_ID"));
-  ATH_CHECK(detStore->retrieve(m_pixelManager));
-  ATH_CHECK(detStore->retrieve(m_SCT_Manager));
   ATH_CHECK(detStore->retrieve(m_id_helper, "AtlasID"));
 
   // prepare the input from the FTK tracks, merged in an external simulation

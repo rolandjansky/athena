@@ -22,8 +22,9 @@ using CLHEP::HepVector;
 //Constructor
 CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_thistSvc(NULL),
-  m_calo_id(NULL),
+  m_thistSvc(nullptr),
+  m_calodetdescrmgr(nullptr),
+  m_calo_id(nullptr),
   m_adc2mevTool("LArADC2MeVTool"),
   m_ncell(0),
   m_lumiblock(0),
@@ -104,8 +105,9 @@ StatusCode CaloCellNoiseAlg::initialize()
 {
   ATH_MSG_DEBUG ("CaloCellNoiseAlg initialize()" );
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
+  m_calo_id      = mgr->getCaloCell_ID();
 
   ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 

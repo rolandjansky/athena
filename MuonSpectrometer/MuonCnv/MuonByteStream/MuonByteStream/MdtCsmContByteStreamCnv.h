@@ -12,18 +12,15 @@
 
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h" 
 #include <string>
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "MuonMDT_CnvTools/IMDT_RDOtoByteStreamTool.h"
 
 //class DataObject;
 class IAddressCreator;
-class IByteStreamEventAccess;
 class StoreGateSvc; 
-
-namespace Muon {
-    class IMDT_RDOtoByteStreamTool;
-}
 
 // Abstract factory to create the converter
 template <class TYPE> class CnvFactory;
@@ -33,9 +30,6 @@ template <class TYPE> class CnvFactory;
 extern long ByteStream_StorageType;
 
 class MdtCsmContByteStreamCnv: public Converter {
-
- protected:
-  ~MdtCsmContByteStreamCnv();
 
  public:
   MdtCsmContByteStreamCnv(ISvcLocator* svcloc);

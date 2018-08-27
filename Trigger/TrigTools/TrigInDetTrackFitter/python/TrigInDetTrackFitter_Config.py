@@ -15,9 +15,8 @@ class ConfiguredTrigL2_Extrapolator(Trk__Extrapolator) :
         from AthenaCommon.AppMgr import ToolSvc
         from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
-        from IOVDbSvc.CondDB import conddb
-        if not (conddb.folderRequested( "/Indet/TrkErrorScaling" ) or conddb.folderRequested( "/Indet/Onl/TrkErrorScaling" )):
-            conddb.addFolderSplitOnline("INDET", "/Indet/Onl/TrkErrorScaling", "/Indet/TrkErrorScaling" )
+        from InDetRecExample.TrackingCommon import createAndAddCondAlg, getRIO_OnTrackErrorScalingCondAlg
+        createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
         
         from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
         TrigL2_StepPropagator = Trk__STEP_Propagator(name = 'TrigL2_StepPropagator')
@@ -80,13 +79,19 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
                                                                         LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
             myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",
                                                                           PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
-                                                                          ErrorStrategy = 0)
+                                                                          ErrorStrategy = 0,
+                                                                          LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
+
         else:
             myL2_SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool("TrigL2_SCT_ClusterOnTrackTool",
                                                                         CorrectionStrategy = 0,
                                                                         ErrorStrategy      = 2,
                                                                         LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
-            myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),ErrorStrategy = 1)
+            myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",
+                                                                          PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
+                                                                          ErrorStrategy = 1,
+                                                                          LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
+
                     
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += myL2_PixelClusterOnTrackTool

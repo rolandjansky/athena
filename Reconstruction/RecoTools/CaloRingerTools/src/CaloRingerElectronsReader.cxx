@@ -28,7 +28,7 @@ CaloRingerElectronsReader::CaloRingerElectronsReader(const std::string& type,
 
 // =============================================================================
 CaloRingerElectronsReader::~CaloRingerElectronsReader()
-{ 
+{
   delete m_clRingsBuilderElectronFctor;
 }
 
@@ -36,7 +36,7 @@ CaloRingerElectronsReader::~CaloRingerElectronsReader()
 StatusCode CaloRingerElectronsReader::initialize()
 {
 
-  CHECK( CaloRingerInputReader::initialize() );
+  ATH_CHECK( CaloRingerInputReader::initialize() );
 
   ATH_CHECK(m_inputElectronContainerKey.initialize());
 
@@ -44,16 +44,18 @@ StatusCode CaloRingerElectronsReader::initialize()
   m_selectorDecorHandleKeys.setContName(m_inputElectronContainerKey.key());
 
   if ( m_selectorsAvailable ) {
-    CHECK( retrieveSelectors() );
+    ATH_CHECK( retrieveSelectors() );
   }
 
   if ( m_builderAvailable ) {
     // Initialize our fctor
     m_clRingsBuilderElectronFctor =
-      new BuildCaloRingsFctor<const xAOD::Electron>(
+      new BuildCaloRingsFctor<xAOD::ElectronContainer>(
+        m_inputElectronContainerKey.key(),
         m_crBuilder,
         msg()
       );
+    ATH_CHECK( m_clRingsBuilderElectronFctor->initialize() );
   }
 
   return StatusCode::SUCCESS;
@@ -92,7 +94,7 @@ StatusCode CaloRingerElectronsReader::execute()
 
   ATH_MSG_DEBUG("Entering " << name() << " execute, m_builderAvailable = " << m_builderAvailable);
 
-   // Retrieve photons 
+   // Retrieve electrons
   SG::ReadHandle<xAOD::ElectronContainer> electrons(m_inputElectronContainerKey);
   // check is only used for serial running; remove when MT scheduler used
   if(!electrons.isValid()) {
@@ -102,14 +104,13 @@ StatusCode CaloRingerElectronsReader::execute()
 
   // Check if requested to run CaloRings Builder:
   if ( m_builderAvailable ) {
-    // Set current container size:
-    m_clRingsBuilderElectronFctor->prepareToLoopFor(electrons->size());
+    ATH_CHECK( m_clRingsBuilderElectronFctor->prepareToLoopFor(electrons->size()) );
 
     // loop over our particles:
-    std::for_each( 
-        electrons->begin(), 
-        electrons->end(), 
-        *m_clRingsBuilderElectronFctor );
+    for ( const auto& electron : *electrons ){
+      m_clRingsBuilderElectronFctor->operator()( electron );
+    }
+
   }
 
   StatusCode sc;
@@ -127,16 +128,16 @@ StatusCode CaloRingerElectronsReader::execute()
       sc &= lsc;
 
       if ( lsc.isFailure() ){
-        ATH_MSG_WARNING("Error while executing selector: " << 
+        ATH_MSG_WARNING("Error while executing selector: " <<
             selector->name());
       }
 
       // Retrieve results:
-      const Root::TAccept& accept = selector->getTAccept(); 
-      const std::vector<float> &outputSpace = selector->getOutputSpace(); 
+      const Root::TAccept& accept = selector->getTAccept();
+      const std::vector<float> &outputSpace = selector->getOutputSpace();
 
-      ATH_MSG_DEBUG( "Result for " << selector->name() << " is: " 
-          << std::boolalpha << static_cast<bool>(accept) 
+      ATH_MSG_DEBUG( "Result for " << selector->name() << " is: "
+          << std::boolalpha << static_cast<bool>(accept)
           << " and its outputSpace is: "
           << std::noboolalpha << outputSpace);
 

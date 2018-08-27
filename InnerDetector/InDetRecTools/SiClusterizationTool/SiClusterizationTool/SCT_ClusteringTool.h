@@ -9,17 +9,19 @@
 #ifndef SiClusterizationTool_SCT_ClusteringTool_H
 #define SiClusterizationTool_SCT_ClusteringTool_H
 
-//STL
-#include <vector>
-#include <string>
-//Gaudi
-#include "GaudiKernel/ToolHandle.h"
 //Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
+//STL
+#include <vector>
+#include <string>
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
@@ -45,7 +47,6 @@ namespace InDet {
     /// Clusterize the SCT RDOs... deprecated form passes explicit channel status object
     virtual SCT_ClusterCollection *
     clusterize( const InDetRawDataCollection<SCT_RDORawData> & RDOs,
-                const InDetDD::SiDetectorManager& manager,
                 const SCT_ID& idHelper,
                 const SCT_ChannelStatusAlg* status,
                 const bool CTBBadChannels) const;
@@ -53,7 +54,6 @@ namespace InDet {
     /// Clusterize the SCT RDOs...
     virtual SCT_ClusterCollection *
     clusterize( const InDetRawDataCollection<SCT_RDORawData> & RDOs,
-                const InDetDD::SiDetectorManager& manager,
                 const SCT_ID& idHelper) const;
     
   private:
@@ -70,7 +70,9 @@ namespace InDet {
     bool                                      m_innertwoBarrelX1X;
     bool                                      m_majority01X;
     bool                                      m_useRowInformation;
-    
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
     ///Add strips to a cluster vector without checking for bad strips
     void  addStripsToCluster(const Identifier & firstStripId, const unsigned int nStrips,IdVec_t & clusterVector,const SCT_ID& idHelper) const;
                                   

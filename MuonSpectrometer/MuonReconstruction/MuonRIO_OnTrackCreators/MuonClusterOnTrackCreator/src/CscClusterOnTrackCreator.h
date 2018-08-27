@@ -19,12 +19,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "TrkParameters/TrackParameters.h"
+#include "MuonRIO_OnTrack/MuonEtaPhiRIO_OnTrackErrorScaling.h"
 
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 
@@ -54,7 +54,7 @@ namespace Muon {
        - doCSC: switch on/off CSC ROT creation (default = true)
        - doRPC: switch on/off RPC ROT creation (default = true)
        - doTGC: switch on/off TGC ROT creation (default = true)
-       - ErrorScalingTool: Tool to scale errors (default = "Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool")
+       - [CSC,TGC,RPC]ErrorScalingKey: if not empty use error scaling conditions data to scale the corresponding muon covariances
        - CscClusterFitter: Tool to fit charge and width of CSC clusters
        - CscStripFitter: Tool to fit charge + time of a CSC strip
        - CscStripPrepDataLocation: Storegate key of the CscStripPrepData collection
@@ -101,14 +101,19 @@ namespace Muon {
     const CscIdHelper*                   m_cscIdHelper;
     const RpcIdHelper*                   m_rpcIdHelper;     
     const TgcIdHelper*                   m_tgcIdHelper;     
-    ToolHandle<Trk::IRIO_OnTrackErrorScalingTool>   m_errorScalingTool;
     ToolHandle<ICscStripFitter>                     m_stripFitter;
     ToolHandle<ICscClusterFitter>                   m_clusterFitter;
     ToolHandle<ICscClusterUtilTool>                 m_clusterUtilTool;
     bool m_have_csc_tools;
-    bool                                 m_scaleCscCov;
-    bool                                 m_scaleRpcCov;
-    bool                                 m_scaleTgcCov;
+
+  SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_cscErrorScalingKey
+   {this,"CSCErrorScalingKey", "" /*"/MUON/TrkErrorScalingCSC"*/, "Key for CSC error scaling conditions data. No error scaling if empty."};
+
+  SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_tgcErrorScalingKey
+   {this,"TGCErrorScalingKey", "" /*"/MUON/TrkErrorScalingTGC"*/, "Key for TGC error scaling conditions data. No error scaling if empty."};
+
+  SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_rpcErrorScalingKey
+   {this,"RPCErrorScalingKey", "" /*"/MUON/TrkErrorScalingRPC"*/, "Key for RPC error scaling conditions data. No error scaling if empty."};
 
     bool                                 m_doCsc;
     bool                                 m_doRpc;

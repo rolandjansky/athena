@@ -35,9 +35,6 @@ protected:
 
   ToolHandle<JetTruthParticleSelectorTool> m_selector;
 
-  /// Output collection name.
-  SG::WriteHandleKey<PseudoJetContainer> m_outcoll;      
-
 private:
   const PseudoJetContainer* getC() const;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 # ------------------------------------------------------------
@@ -19,7 +19,6 @@ log = logging.getLogger("InDetTrigConfigRecLoadTools.py")
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
-# SiLorentzAngleTool for SCT
 if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
     from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
@@ -35,12 +34,12 @@ InDetTrigClusterMakerTool = \
                              PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                              #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
                              #UseLorentzAngleCorrections = False
+                             PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
                              SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigClusterMakerTool
 ToolSvc += InDetTrigClusterMakerTool
-
 
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
 InDetTrigSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name="InDetTrigSiSpacePointMakerTool")
@@ -65,10 +64,10 @@ ToolSvc +=  SCT_TrigSpacePointTool
 #
 
 if InDetTrigFlags.loadRotCreator():
-  # SiLorentzAngleTool
   if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
     from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+
   #4 clusterOnTrack Tools
   #
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
@@ -76,6 +75,7 @@ if InDetTrigFlags.loadRotCreator():
                                                           CorrectionStrategy = 0,  # do correct position bias
                                                           ErrorStrategy      = 2,  # do use phi dependent errors
                                                           LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
+
   ToolSvc += SCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print SCT_ClusterOnTrackTool
@@ -84,31 +84,81 @@ if InDetTrigFlags.loadRotCreator():
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
-  InDetTrigPixelClusterOnTrackTool = \
-      InDet__PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackTool",
-                                     PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
-                                     ErrorStrategy = 2)
+  if InDetTrigFlags.doPixelClusterSplitting():
+    from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
+    NeuralNetworkToHistoTool=Trk__NeuralNetworkToHistoTool(name = "NeuralNetworkToHistoTool")
+      
+    ToolSvc += NeuralNetworkToHistoTool
+    if (InDetTrigFlags.doPrintConfigurables()):
+      print NeuralNetworkToHistoTool
+    
+    from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+    if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
+      TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
+                                                                    PixelLorentzAngleTool= ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                                    NetworkToHistoTool   = NeuralNetworkToHistoTool,
+                                                                    doRunI = True,
+                                                                    useToT = False,
+                                                                    useRecenteringNNWithoutTracks = True,
+                                                                    useRecenteringNNWithTracks = False,
+                                                                    correctLorShiftBarrelWithoutTracks = 0,
+                                                                    correctLorShiftBarrelWithTracks = 0.030,
+                                                                    LoadNoTrackNetwork   = True,
+                                                                    LoadWithTrackNetwork = True)
+    else:
+        TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
+                                                                      PixelLorentzAngleTool= ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                                      NetworkToHistoTool   = NeuralNetworkToHistoTool,
+                                                                      LoadNoTrackNetwork   = True,
+                                                                      useToT = InDetTrigFlags.doNNToTCalibration(),
+                                                                      LoadWithTrackNetwork = True)
+           
+    ToolSvc += TrigNnClusterizationFactory
+    
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
+      conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
+    if InDetTrigFlags.doTIDE_RescalePixelCovariances() :
+      if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
+        conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
+
+  else:
+    TrigNnClusterizationFactory = None
+
+  if (InDetTrigFlags.doPrintConfigurables()):
+    print TrigNnClusterizationFactory
+
+  InDetTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackTool",
+                                                                    PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
+                                                                    ErrorStrategy = 2,
+                                                                    LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                                    NnClusterizationFactory= TrigNnClusterizationFactory,
+  )
+
   ToolSvc += InDetTrigPixelClusterOnTrackTool
+
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigPixelClusterOnTrackTool
 
   # tool to always make conservative sct cluster errors
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
-  InDetTrigBroadSCT_ClusterOnTrackTool = \
-      InDet__SCT_ClusterOnTrackTool ("InDetTrigBroadSCT_ClusterOnTrackTool",
-                                     CorrectionStrategy = 0,  # do correct position bias
-                                     ErrorStrategy      = 0,  # do use broad errors
-                                     LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
+  InDetTrigBroadSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetTrigBroadSCT_ClusterOnTrackTool",
+                                         CorrectionStrategy = 0,  # do correct position bias
+                                         ErrorStrategy      = 0,  # do use broad errors
+                                         LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
   ToolSvc += InDetTrigBroadSCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigBroadSCT_ClusterOnTrackTool
 
   #--
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-  InDetTrigBroadPixelClusterOnTrackTool = \
-      InDet__PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackTool",
-                                     PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
-                                     ErrorStrategy = 0)
+  InDetTrigBroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackTool",
+                                                                         PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
+                                                                         ErrorStrategy = 0,
+                                                                         LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                                         NnClusterizationFactory= TrigNnClusterizationFactory
+  )
   ToolSvc += InDetTrigBroadPixelClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigBroadPixelClusterOnTrackTool
@@ -141,23 +191,22 @@ if InDetTrigFlags.loadRotCreator():
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigBroadInDetRotCreator
 
-
-
   # load error scaling
-  from IOVDbSvc.CondDB import conddb
-  if not (conddb.folderRequested( "/Indet/TrkErrorScaling" ) or \
-            conddb.folderRequested( "/Indet/Onl/TrkErrorScaling" )):
-    conddb.addFolderSplitOnline("INDET", "/Indet/Onl/TrkErrorScaling", "/Indet/TrkErrorScaling" )
+  #TODO - instanceName?
+  from InDetRecExample.TrackingCommon import createAndAddCondAlg, getRIO_OnTrackErrorScalingCondAlg
+  createAndAddCondAlg(getRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
 
   #
   # smart ROT creator in case we do the TRT LR in the refit
   #
   if InDetTrigFlags.redoTRT_LR():
 
+    from InDetRecExample.TrackingCommon import getTRT_DriftCircleOnTrackTool
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import \
         InDet__TRT_DriftCircleOnTrackUniversalTool
     InDetTrigTRT_RefitRotCreator = \
         InDet__TRT_DriftCircleOnTrackUniversalTool(name  = 'InDetTrigTRT_RefitRotCreator',
+                                                   RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
                                                    ScaleHitUncertainty = 2.5) # fix from Thijs
 #    if InDetTrigFlags.doCommissioning():    #introduced for cosmics do not use for collisions
 #      InDetTrigTRT_RefitRotCreator.ScaleHitUncertainty = 5.
@@ -165,7 +214,7 @@ if InDetTrigFlags.loadRotCreator():
       
     if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetTrigTRT_RefitRotCreator
-        
+  
     from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
     InDetTrigRefitRotCreator = Trk__RIO_OnTrackCreator(name              = 'InDetTrigRefitRotCreator',
                                                        ToolPixelCluster= InDetTrigPixelClusterOnTrackTool,
@@ -186,7 +235,6 @@ if InDetTrigFlags.loadRotCreator():
 #
 # ----------- control loading of the kalman updator
 #
-
 if InDetTrigFlags.loadUpdator():
    
   if InDetTrigFlags.kalmanUpdator() is "fast" :
@@ -256,7 +304,7 @@ if InDetTrigFlags.loadExtrapolator():
   ToolSvc += InDetTrigNavigator
   if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigNavigator
-  
+
   #
   # Setup the MaterialEffectsUpdator
   #
@@ -266,7 +314,6 @@ if InDetTrigFlags.loadExtrapolator():
   ToolSvc += InDetTrigMaterialUpdator
   if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigMaterialUpdator
-
 
   #
   # Set up extrapolator
@@ -301,7 +348,6 @@ if InDetTrigFlags.loadExtrapolator():
   ToolSvc += InDetTrigExtrapolator
   if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigExtrapolator                                          
-
 
 #
 # ----------- control loading of fitters
@@ -357,7 +403,7 @@ if InDetTrigFlags.loadFitter():
       ToolSvc += InDetTrigDNASeparator
       if (InDetTrigFlags.doPrintConfigurables()):
         print      InDetTrigDNASeparator
-            
+    
     else:
       InDetTrigDNAdjustor   = None
       InDetTrigDNASeparator = None
@@ -463,7 +509,6 @@ if InDetTrigFlags.loadFitter():
       InDetTrigTrackFitter.MaxOutliers        = 99
       #only switch off for cosmics InDetTrigTrackFitter.Acceleration       = False
       
-
     InDetTrigTrackFitterLowPt = Trk__GlobalChi2Fitter(name                  = 'InDetTrigTrackFitterLowPt',
                                                       ExtrapolationTool     = InDetTrigExtrapolator,
                                                       NavigatorTool         = InDetTrigNavigator,
@@ -587,11 +632,8 @@ if InDetTrigFlags.loadFitter():
     print      InDetTrigTrackFitterTRT
 
 
-
 if DetFlags.haveRIO.pixel_on():
-  from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-  from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-  InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
+  InDetTrigPixelConditionsSummaryTool = ToolSvc.InDetTrigPixelConditionsSummaryTool
 else:
   InDetTrigPixelConditionsSummaryTool = None
 
@@ -618,7 +660,6 @@ if InDetTrigFlags.loadAssoTool():
 # ----------- control loading of Summary Tool
 #
 if InDetTrigFlags.loadSummaryTool():
-
 
   # Load Pixel Layer tool
   from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
@@ -671,7 +712,6 @@ if InDetTrigFlags.loadSummaryTool():
     
 #   except:
 #     log.info("InDetTrigPixelToTPIDTool requested but not available")
-
   if (InDetTrigFlags.doPrintConfigurables()):
     print     'InDetTrigPixelToTPIDTool ', InDetTrigPixelToTPIDTool
 
@@ -799,7 +839,6 @@ if InDetTrigFlags.loadSummaryTool():
 #
 # ----------- control loading of tools which are needed by new tracking and backtracking
 #
-
 if InDetTrigFlags.doNewTracking() or InDetTrigFlags.doBackTracking() or InDetTrigFlags.doTrtSegments():
   # Igor's propagator and updator for the pattern
   #
@@ -875,6 +914,18 @@ if InDetTrigFlags.doNewTracking():
                                                                    )
   ToolSvc += InDetTrigSiDetElementsRoadMaker
 
+  # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
+  if DetFlags.haveRIO.SCT_on():
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
+      IBLDistFolderKey = "/Indet/IBLDist"
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      if athenaCommonFlags.isOnline():
+        IBLDistFolderKey = "/Indet/Onl/IBLDist"
+      from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
+      condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
+                                                    IBLDistFolderKey = IBLDistFolderKey)
 
   # Local combinatorial track finding using space point seed and detector element road
   #
@@ -893,6 +944,13 @@ if InDetTrigFlags.doNewTracking():
                                                                  SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
   ToolSvc += InDetTrigSiComTrackFinder
+  if DetFlags.haveRIO.SCT_on():
+    # Condition algorithm for SiCombinatorialTrackFinder_xk
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+      from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
   #to here
 
 #move 
@@ -917,8 +975,6 @@ if InDetTrigFlags.doAmbiSolving():
   ToolSvc += InDetTrigAmbiTrackSelectionTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigAmbiTrackSelectionTool
-
-
 
 if InDetTrigFlags.doNewTracking():
 

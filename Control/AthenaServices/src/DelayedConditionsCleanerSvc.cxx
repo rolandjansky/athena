@@ -436,7 +436,12 @@ DelayedConditionsCleanerSvc::cleanContainer (CondContInfo* ci,
     ++ci->m_removed2plus;
   }
 }
+  
+/**
+ * @brief Standard destructor.
+ */
 
+DelayedConditionsCleanerSvc::~DelayedConditionsCleanerSvc() {}
 
 /**
  * @brief Standard Gaudi finalize method.

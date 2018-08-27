@@ -8,10 +8,7 @@
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "HepMC/GenParticle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-namespace Trk {
-class ITruthToTrack;
-}
+#include "TrkToolInterfaces/ITruthToTrack.h"
 
 namespace D3PD {
 

@@ -48,7 +48,6 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator
   m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_mdtCalibSvc("MdtCalibrationSvc", na),
   m_mdtCalibDbSvc("MdtCalibrationDbSvc", na),
-  m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
   m_tofTool(""),
   m_invSpeed(1./299.792458),
   m_mdtCalibSvcSettings( 0 ),
@@ -66,7 +65,6 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator
   declareProperty("doMDT",  m_doMdt = true);
   declareProperty("TimingMode", m_timeCorrectionType = 0 );
   declareProperty("MuonTofTool", m_tofTool );
-  declareProperty("ErrorScalingTool", m_errorScalingTool );
   declareProperty("FixedError",m_fixedError = 1.);
   declareProperty("DiscardMaskedHits",m_discardMaskedHits = true);
   declareProperty("GlobalToLocalTolerance",m_globalToLocalTolerance = 1000., "Tolerance used for the Surface::globalToLocal" );
@@ -170,12 +168,6 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   } else {
     ATH_MSG_WARNING( " tool is configured such that MDT_DCs are only copied!" );
   }
-  
-  // get error scaling tool
-  if(m_errorScalingTool.retrieve().isFailure())   {
-    ATH_MSG_WARNING( "Can not get error scaling tool " << m_errorScalingTool << ", will trigger failure." );
-    return StatusCode::SUCCESS;
-  } 
   
   if( m_timeCorrectionType == COSMICS_TOF ){
     if( m_tofTool.empty() ) {

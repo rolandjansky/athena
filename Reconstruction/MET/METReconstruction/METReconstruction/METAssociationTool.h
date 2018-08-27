@@ -91,7 +91,6 @@ namespace met{
 
     /// Default constructor: 
     METAssociationTool();
-    virtual ~METAssociationTool();
 
     // Run the MET tools here
     StatusCode buildMET(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;

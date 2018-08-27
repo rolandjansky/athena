@@ -10,8 +10,8 @@
 
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonRDO/MdtCsmContainer.h"
+#include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
-class MuonMDT_CablingSvc;
 class MdtIdHelper;
 
 /////////////////////////////////////////////////////////////////////////////

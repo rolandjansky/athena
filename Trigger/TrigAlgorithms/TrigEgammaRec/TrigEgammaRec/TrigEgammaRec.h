@@ -69,7 +69,6 @@ public:
                              HLT::TriggerElement* outputTE );
 
   HLT::ErrorCode hltStart();
-  HLT::ErrorCode hltEndRun();
 
 private:
 

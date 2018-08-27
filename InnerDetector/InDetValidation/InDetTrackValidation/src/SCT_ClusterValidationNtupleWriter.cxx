@@ -15,7 +15,6 @@
 //#include "TrkEventPrimitives/GlobalPosition.h"
 //#include "TrkEventPrimitives/LocalPosition.h"
 //#include "TrkEventPrimitives/ErrorMatrix.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
 //#include "InDetTrackValidation/SCT_ClusterStruct.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
@@ -286,6 +285,11 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
     ATH_CHECK( m_dataObjectName.initialize(m_fillRDO) );
     ATH_CHECK( m_spacePointContainerName.initialize(m_fillSpacePoint) );
     ATH_CHECK( m_inputTrackCollection.initialize(m_fillRDO and m_doHitsOnTracks) );
+
+    // Read Cond Handle Key
+    if (m_fillCluster) {
+      ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+    }
 
     return sc;
 }

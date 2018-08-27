@@ -13,8 +13,6 @@ PlanarClusterContainerCnv::PlanarClusterContainerCnv (ISvcLocator* svcloc) :
   PlanarClusterContainerCnvBase(svcloc)
  {}
 
-PlanarClusterContainerCnv::~PlanarClusterContainerCnv() {}
-
 
 iFatras::PlanarClusterContainer* PlanarClusterContainerCnv::createTransient() {
   

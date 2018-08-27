@@ -9,9 +9,6 @@
 #include <fstream>
 
 #include "StoreGate/StoreGateSvc.h"
-//#include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "AthenaKernel/IOVRange.h"
 
 #include "AthenaDBTestRec/TestCoolRecRead.h"
@@ -102,20 +99,11 @@ StatusCode TestCoolRecRead::initialize() {
 
 StatusCode TestCoolRecRead::execute() {
   // find the run number for mismatch check
-  int run=0;
-  int event=0;
-  int lumib=0;
-  uint64_t nsTime=0;
-  // const xAOD::EventInfo* eventInfo(0);
-  const DataHandle<EventInfo> eventInfo;
-  if (StatusCode::SUCCESS==evtStore()->retrieve(eventInfo)) {
-    run=eventInfo->event_ID()->run_number();
-    event=eventInfo->event_ID()->event_number();
-    lumib=eventInfo->event_ID()->lumi_block();
-    nsTime=eventInfo->event_ID()->time_stamp()*1000000000LL;
-   } else {
-    ATH_MSG_WARNING("Could not get Event object to find runnumber");
-   }
+  const EventIDBase& eid = getContext().eventID();
+  int run = eid.run_number();
+  int event = eid.event_number();
+  int lumib = eid.lumi_block();
+  uint64_t nsTime = eid.time_stamp()*1000000000LL;
   IOVTime iovkey(run,lumib,nsTime);
   // loop through all folders and access data
   for (std::vector<TestCoolRecFolder>::iterator ifolder=m_folderlist.begin();

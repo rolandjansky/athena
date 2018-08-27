@@ -46,6 +46,8 @@ class LArMphysOverMcalMC: public LArMphysOverMcalComplete {
   ToolHandle<ILArMCSymTool> m_larmcsym;
 
 };
-
+//ConditionsContainer clid for athenaMT
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArMphysOverMcalMC, 135003373,1)
+CONDCONT_DEF(LArMphysOverMcalMC,46372179,ILArMphysOverMcal);
 #endif 

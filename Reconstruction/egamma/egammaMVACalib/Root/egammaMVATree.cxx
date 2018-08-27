@@ -21,7 +21,7 @@
 #include "egammaMVACalib/egammaMVATree.h"
 
 
-using namespace egammaMVATreeHelpers;
+using namespace egammaMVAFunctions;
 
 //ClassImp(egammaMVATreeEgamma)
 //#ifdef ROOTCORE

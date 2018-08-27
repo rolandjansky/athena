@@ -35,7 +35,6 @@ friend class DataHeaderElementCnv_p6;
    const std::string& token() const;
    unsigned long long oid1() const;
    unsigned long long oid2() const;
-   void overwriteOid2(unsigned long long oid2);
 
 private:
    std::string m_token;

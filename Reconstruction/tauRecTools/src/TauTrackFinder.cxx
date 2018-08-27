@@ -356,7 +356,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
                        << ", eta " << orgTrack->eta() 
                        << ", phi" << orgTrack->phi() );
 
-        const Trk::CaloExtension* caloExtension = 0;
+        std::unique_ptr<Trk::CaloExtension> caloExtension = nullptr;
         if (not m_caloExtensionTool->caloExtension(*orgTrack,caloExtension)
             or caloExtension->caloLayerIntersections().empty() )
         { 

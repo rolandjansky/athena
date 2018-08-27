@@ -28,8 +28,9 @@ public:
     IdentifiableContTemp(size_t size) : IdentifiableContTemp(size, nullptr) { } 
 
     IdentifiableContTemp(IdentifiableContainerMT< T > *extcache = nullptr) : IdentifiableContTemp(extcache->fullSize(), extcache)  {     }
-
+    IdentifiableContTemp() = delete;
     IdentifiableContTemp(const IdentifiableContTemp& that) = delete;
+    IdentifiableContTemp& operator= ( const IdentifiableContTemp& ) = delete;
 
     virtual ~IdentifiableContTemp(){
         for(auto &x : m_usedhashes){
@@ -49,8 +50,7 @@ public:
         return out;
     }
     
-    virtual StatusCode addCollection(const T* coll, IdentifierHash hashId, bool ownsColl = true) override{
-        if(ownsColl == false) return StatusCode::FAILURE; //not supported
+    virtual StatusCode addCollection(const T* coll, IdentifierHash hashId) override{
         if(hashId >=  m_randomcont.size()) return StatusCode::FAILURE;
         m_usedhashes.emplace_back(hashId, coll);
         m_randomcont[hashId] = coll;
@@ -61,7 +61,7 @@ public:
     virtual StatusCode addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId) override{
         if(hashId >=  m_randomcont.size()) return StatusCode::FAILURE;
         if(m_randomcont[hashId] == nullptr){
-            return addCollection(ptr.release(), hashId, true);
+            return addCollection(ptr.release(), hashId);
         }
         ptr.reset();
         return StatusCode::SUCCESS;

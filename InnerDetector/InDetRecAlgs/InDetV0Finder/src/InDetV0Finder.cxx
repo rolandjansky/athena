@@ -219,64 +219,65 @@ StatusCode InDetV0Finder::execute()
   }
 
 // InDetV0 container and its auxilliary store
-  xAOD::VertexContainer*    v0Container(0);
-  xAOD::VertexAuxContainer* v0AuxContainer(0);
-  xAOD::VertexContainer*    ksContainer(0);
-  xAOD::VertexAuxContainer* ksAuxContainer(0);
-  xAOD::VertexContainer*    laContainer(0);
-  xAOD::VertexAuxContainer* laAuxContainer(0);
-  xAOD::VertexContainer*    lbContainer(0);
-  xAOD::VertexAuxContainer* lbAuxContainer(0);
-
-// call InDetV0 finder
-  ATH_CHECK( m_v0FinderTool->performSearch(v0Container, v0AuxContainer,
+  xAOD::VertexContainer*    v0Container{};
+  xAOD::VertexAuxContainer* v0AuxContainer{};
+  xAOD::VertexContainer*    ksContainer{};
+  xAOD::VertexAuxContainer* ksAuxContainer{};
+  xAOD::VertexContainer*    laContainer{};
+  xAOD::VertexAuxContainer* laAuxContainer{};
+  xAOD::VertexContainer*    lbContainer{};
+  xAOD::VertexAuxContainer* lbAuxContainer{};
+					   
+	
+	//
+	const auto statusOfSearch = m_v0FinderTool->performSearch(v0Container, v0AuxContainer,
 					   ksContainer, ksAuxContainer,
 					   laContainer, laAuxContainer,
              lbContainer, lbAuxContainer,
-					   primaryVertex, importedVxContainer) );
-					   
-	auto cleanUpOnExit= [&](){
-	  delete v0Container;
-	  delete v0AuxContainer;
-	  delete ksContainer;
-	  delete ksAuxContainer;
-	  delete laContainer;
-	  delete laAuxContainer;
-	  delete lbContainer;
-	  delete lbAuxContainer;
-	};
-
+					   primaryVertex, importedVxContainer);
+	//
+	typedef std::unique_ptr<xAOD::VertexContainer> Container_p;
+	typedef std::unique_ptr<xAOD::VertexAuxContainer> Aux_p;
+	//create unique pointers for all containers and aux containers
+	Container_p pV = Container_p(v0Container);
+	Aux_p pVaux = Aux_p(v0AuxContainer);
+	//
+	Container_p pK = Container_p(ksContainer);
+	Aux_p pKaux = Aux_p(ksAuxContainer);
+	//
+	Container_p pLa = Container_p(laContainer);
+	Aux_p pLaaux = Aux_p(laAuxContainer);
+	//
+	Container_p pLb = Container_p(lbContainer);
+	Aux_p pLbaux = Aux_p(lbAuxContainer);
+	//
+	if (statusOfSearch != StatusCode::SUCCESS){
+	  ATH_MSG_ERROR("Vertex search of v0Container failed.");
+		return StatusCode::FAILURE;
+	}
+  //
   //---- Recording section: write the results to StoreGate ---//
-
   SG::WriteHandle<xAOD::VertexContainer> h_V0( m_v0Key );
-  if ( h_V0.record(std::unique_ptr<xAOD::VertexContainer>(v0Container), 
-			 std::unique_ptr<xAOD::VertexAuxContainer>(v0AuxContainer)) !=StatusCode::SUCCESS){
+  if ( h_V0.record(std::move(pV),std::move(pVaux)) !=StatusCode::SUCCESS){
 		ATH_MSG_ERROR("Storegate record of v0Container failed.");
-		cleanUpOnExit();
 		return StatusCode::FAILURE;
 	}
 
   SG::WriteHandle<xAOD::VertexContainer> h_Ks( m_ksKey );
-  if ( h_Ks.record(std::unique_ptr<xAOD::VertexContainer>(ksContainer), 
-			 std::unique_ptr<xAOD::VertexAuxContainer>(ksAuxContainer)) != StatusCode::SUCCESS){
+  if ( h_Ks.record(std::move(pK), std::move(pKaux)) != StatusCode::SUCCESS){
 	  ATH_MSG_ERROR("Storegate record of ksContainer failed.");
-	  cleanUpOnExit();
 	  return StatusCode::FAILURE;
 	}
 
   SG::WriteHandle<xAOD::VertexContainer> h_La( m_laKey );
-  if( h_La.record(std::unique_ptr<xAOD::VertexContainer>(laContainer), 
-			 std::unique_ptr<xAOD::VertexAuxContainer>(laAuxContainer)) !=  StatusCode::SUCCESS){
+  if( h_La.record(std::move(pLa),std::move(pLaaux)) !=  StatusCode::SUCCESS){
     ATH_MSG_ERROR("Storegate record of laContainer failed.");
-	  cleanUpOnExit();
 	  return StatusCode::FAILURE;
 
   }
   SG::WriteHandle<xAOD::VertexContainer> h_Lb( m_lbKey );
-  if(h_Lb.record(std::unique_ptr<xAOD::VertexContainer>(lbContainer), 
-			std::unique_ptr<xAOD::VertexAuxContainer>(lbAuxContainer)) != StatusCode::SUCCESS){
+  if(h_Lb.record(std::move(pLb), std::move(pLbaux)) != StatusCode::SUCCESS){
 	  ATH_MSG_ERROR("Storegate record of lbContainer failed.");
-	  cleanUpOnExit();
 	  return StatusCode::FAILURE;
 	}
 

@@ -53,10 +53,6 @@ RegistrationStreamTrig::RegistrationStreamTrig(const std::string& name,
     declareProperty("GetTriggerConf", m_gettriggerconf=true);
 }
 
-// Standard Destructor
-RegistrationStreamTrig::~RegistrationStreamTrig()   {
-}
-
 // initialize data writer
 StatusCode 
 RegistrationStreamTrig::initialize() 

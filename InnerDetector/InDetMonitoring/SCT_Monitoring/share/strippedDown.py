@@ -81,7 +81,6 @@ from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_C
 InDetSCT_Clusterization = InDet__SCT_Clusterization(name                = "InDetSCT_Clusterization",
                                                           clusteringTool      = InDetSCT_ClusteringTool,
                                                           #ChannelStatus       = InDetSCT_ChannelStatusAlg,
-                                                          DetectorManagerName = "SCT_Manager", 
                                                           DataObjectName      = "SCT_RDOs",
                                                           ClustersName        = "SCT_Clusters")
 topSequence += InDetSCT_Clusterization

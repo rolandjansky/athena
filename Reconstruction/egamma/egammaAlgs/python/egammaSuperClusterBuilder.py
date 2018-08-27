@@ -9,14 +9,14 @@ from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egamma
 from egammaRec import egammaKeys
 
 from egammaTools.egammaToolsFactories import \
-    EMTrackMatchBuilder, EMConversionBuilder, egammaSwTool, egammaMVATool
+    EMTrackMatchBuilder, EMConversionBuilder, egammaSwTool, egammaMVASvc
 
 electronSuperClusterBuilder = AlgFactory( egammaAlgsConf.electronSuperClusterBuilder,
                                           name = 'electronSuperClusterBuilder',
                                           InputEgammaRecContainerName=egammaKeys.EgammaRecKey(),
                                           SuperElectronRecCollectionName=egammaKeys.ElectronSuperRecKey(),
                                           ClusterCorrectionTool=egammaSwTool,
-                                          MVACalibTool=egammaMVATool,
+                                          MVACalibSvc=egammaMVASvc,
                                           EtThresholdCut=1000, 
                                           TrackMatchBuilderTool = EMTrackMatchBuilder
                                          )
@@ -26,6 +26,6 @@ photonSuperClusterBuilder = AlgFactory( egammaAlgsConf.photonSuperClusterBuilder
                                         InputEgammaRecContainerName=egammaKeys.EgammaRecKey(),
                                         SuperPhotonRecCollectionName=egammaKeys.PhotonSuperRecKey(),
                                         ClusterCorrectionTool=egammaSwTool,
-                                        MVACalibTool= egammaMVATool,
+                                        MVACalibSvc= egammaMVASvc,
                                         ConversionBuilderTool = EMConversionBuilder
                                         )

@@ -7,7 +7,6 @@
 
 
 TrigPassFlagsCnv::TrigPassFlagsCnv(ISvcLocator *svcloc): TrigPassFlagsCnvBase(svcloc) {}
-TrigPassFlagsCnv::~TrigPassFlagsCnv(){}
 
 //createPersistent
 TrigPassFlags_PERS* TrigPassFlagsCnv::createPersistent(TrigPassFlags* transObj) {

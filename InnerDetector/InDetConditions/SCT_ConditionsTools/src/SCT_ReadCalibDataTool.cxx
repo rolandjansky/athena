@@ -10,7 +10,6 @@
 
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 
@@ -25,7 +24,6 @@ SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std:
   m_condDataNoise{},
   m_condDataInfo{},
   m_cabling{"SCT_CablingSvc", name},
-  m_SCTdetMgr{nullptr},
   m_id_sct{nullptr} {
   }
 
@@ -33,35 +31,18 @@ SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std:
 StatusCode SCT_ReadCalibDataTool::initialize() {
   // Print where you are
   ATH_MSG_DEBUG("in initialize()");
-  // Get SCT detector manager
-  StatusCode sc{detStore()->retrieve(m_SCTdetMgr, "SCT")};
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Failed to get SCT detector manager");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE("Found SCT detector manager");
-  }
 
   // Get SCT helper
-  sc = detStore()->retrieve(m_id_sct, "SCT_ID");
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Failed to get SCT helper");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE("Found SCT helper");
-  }
+  ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
 
   // Retrieve SCT Cabling service
-  sc = m_cabling.retrieve();
-  if (sc.isFailure()) {  
-    ATH_MSG_ERROR("Failed to retrieve SCT cabling service");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_cabling.retrieve());
 
   // Read Cond Handle Key
   ATH_CHECK(m_condKeyGain.initialize());
   ATH_CHECK(m_condKeyNoise.initialize());
   ATH_CHECK(m_condKeyInfo.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataTool::initialize()
@@ -193,8 +174,10 @@ SCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const I
       // Get the strip/channel number to check
       int side{m_id_sct->side(stripId)};
       int strip{m_id_sct->strip(stripId)};
+      const Identifier waferId{m_id_sct->wafer_id(stripId)};
+      const IdentifierHash waferHash{m_id_sct->wafer_hash(waferId)};
       unsigned int stripNum;
-      const InDetDD::SiDetectorElement* p_element{m_SCTdetMgr->getDetectorElement(stripId)};
+      const InDetDD::SiDetectorElement* p_element{getDetectorElement(waferHash, ctx)};
       if (p_element->swapPhiReadoutDirection()) {
         if (side == 0) {
           stripNum =   STRIPS_PER_WAFER-1 - strip;
@@ -234,7 +217,7 @@ SCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const I
       if (theseSummaryDefects.scan.empty()) {
         ATH_MSG_VERBOSE("defectSummary(): can't retrieve the defects for this strip: " <<  stripNum << " since strip good");
       }     
-      break;    
+      break;
     }
   default:
     {
@@ -344,9 +327,9 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
                 IdentifierHash hashSide1;
                 m_id_sct->get_other_side(*hashIt, hashSide1);
                 waferId = m_id_sct->wafer_id(hashSide1);
-                p_element = (m_SCTdetMgr->getDetectorElement(hashSide1));  
+                p_element = (getDetectorElement(hashSide1, ctx));
               } else {
-                p_element = (m_SCTdetMgr->getDetectorElement(*hashIt));  
+                p_element = (getDetectorElement(*hashIt, ctx));
               }
               if (p_element->swapPhiReadoutDirection()) {
                 if (nside == 0) {
@@ -431,6 +414,28 @@ SCT_ReadCalibDataTool::getCondDataInfo(const EventContext& ctx) const {
     m_cacheInfo[slot] = evt;
   }
   return m_condDataInfo.get();
+}
+
+//----------------------------------------------------------------------
+
+const InDetDD::SiDetectorElement*
+SCT_ReadCalibDataTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  EventContext::ContextID_t slot{ctx.slot()};
+  EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cacheElements.size()) {
+    m_cacheElements.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
+  }
+  if (m_cacheElements[slot]!=evt) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_SCTDetEleCollKey.key());
+    }
+    m_detectorElements.set(*condData);
+    m_cacheElements[slot] = evt;
+  }
+  return m_detectorElements->getDetectorElement(waferHash);
 }
 
 //----------------------------------------------------------------------

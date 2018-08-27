@@ -19,9 +19,9 @@
 
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 
-class IGeoModelSvc;
-class IRDBAccessSvc;
 class SCT_ID;
 
 /**

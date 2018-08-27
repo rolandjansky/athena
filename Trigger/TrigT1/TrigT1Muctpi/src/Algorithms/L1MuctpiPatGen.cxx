@@ -16,8 +16,8 @@
 
 namespace LVL1MUCTPI {
 
-   static const std::string DEFAULT_L1MuctpiStoreLocationRPC = "/Event/L1MuctpiStoreRPC";
-   static const std::string DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
+   static const std::string DEFAULT_L1MuctpiStoreLocationRPC = "L1MuctpiStoreRPC";
+   static const std::string DEFAULT_L1MuctpiStoreLocationTGC = "L1MuctpiStoreTGC";
 
    //--------------
    // Constructor

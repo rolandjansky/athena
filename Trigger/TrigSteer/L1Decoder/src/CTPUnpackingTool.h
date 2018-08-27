@@ -8,9 +8,10 @@
 #include "CTPUnpackingToolBase.h"
 
 #include "DecisionHandling/HLTIdentifier.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "GaudiKernel/IIncidentListener.h"
 
-
-class CTPUnpackingTool : public CTPUnpackingToolBase {
+class CTPUnpackingTool : public CTPUnpackingToolBase, public IIncidentListener {
 public:
   
   CTPUnpackingTool( const std::string& type,
@@ -20,9 +21,11 @@ public:
   virtual StatusCode decode(const ROIB::RoIBResult& roib, HLT::IDVec& enabledChains) const override;
 
   virtual StatusCode initialize() override;
+  virtual void handle(const Incident& incident) override;
 
 private:
-
+  StatusCode decodeCTPToChainMapping();
+  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 }; 
 
 

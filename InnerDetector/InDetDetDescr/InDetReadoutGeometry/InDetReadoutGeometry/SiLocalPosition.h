@@ -36,11 +36,11 @@ namespace InDetDD {
     ///////////////////////////////////////////////////////////////////
   public:
 
-    /** Implicit constructor: */
+    /** Default constructor: */
     SiLocalPosition();
-
+    
     /** Copy constructor: */
-    SiLocalPosition(const SiLocalPosition &position);
+    SiLocalPosition(const SiLocalPosition &position) =  default;
 
     /** This allows one to pass a Amg::Vector2D  to a SiLocalPosition */
     SiLocalPosition(const Amg::Vector2D &position);
@@ -56,7 +56,10 @@ namespace InDetDD {
     ~SiLocalPosition();
 
     /** Assignment operator: */
-    SiLocalPosition &operator=(const SiLocalPosition &position);
+    SiLocalPosition &operator=(const SiLocalPosition &) = default;
+    
+    /** Move assignment **/
+    SiLocalPosition &operator=(SiLocalPosition &&) = default;
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -138,12 +141,12 @@ inline double SiLocalPosition::xDepth() const
 
 inline double SiLocalPosition::r() const
 {
-  return sqrt(m_xEta * m_xEta + m_xPhi * m_xPhi);
+  return std::sqrt(m_xEta * m_xEta + m_xPhi * m_xPhi);
 }
 
 inline double SiLocalPosition::phi() const
 {
-  return atan2(m_xPhi, m_xEta);
+  return std::atan2(m_xPhi, m_xEta);
 }
 
 inline double SiLocalPosition::xColumn() const

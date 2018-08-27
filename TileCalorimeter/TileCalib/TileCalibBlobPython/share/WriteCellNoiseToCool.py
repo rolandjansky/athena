@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # File:    WriteCellNoiseToCool.py
 # Purpose: Manual update of cell noise constants from ascii file
@@ -163,8 +163,17 @@ import cppyy
 from CaloCondBlobAlgs import CaloCondTools
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools
+if run<0:
+    cabling = 'RUN2a'
+elif run<222222 or 'COMP200' in ischema:
+    cabling = 'RUN1'
+else:
+    if ('OFLP200' in ischema and run>=310000) or run>=343000:
+        cabling = 'RUN2a'
+    else:
+        cabling = 'RUN2'
 hashMgr=None
-hashMgrDef=TileCellTools.TileCellHashMgr()
+hashMgrDef=TileCellTools.TileCellHashMgr(cabling=cabling)
 hashMgrA=TileCellTools.TileCellHashMgr("UpgradeA")
 hashMgrBC=TileCellTools.TileCellHashMgr("UpgradeBC")
 hashMgrABC=TileCellTools.TileCellHashMgr("UpgradeABC")

@@ -81,10 +81,6 @@ public:
   
 
   
-  virtual StatusCode updatedObject (CLID id, const std::string& key) {
-    return m_implementation->updatedObject(id, key);
-  }
-
   virtual void boundHandle (IResetable* handle) {
     return m_implementation->boundHandle(handle);
   }

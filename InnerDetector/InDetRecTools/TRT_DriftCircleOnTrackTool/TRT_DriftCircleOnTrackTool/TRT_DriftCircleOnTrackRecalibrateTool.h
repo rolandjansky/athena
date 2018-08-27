@@ -15,13 +15,11 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "InDetRIO_OnTrack/TRTRIO_OnTrackErrorScaling.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class ITRT_DriftFunctionTool;
 
-namespace Trk {
-
-  class IRIO_OnTrackErrorScalingTool;
-}
 
 namespace InDet {
 
@@ -57,10 +55,16 @@ public:
   // Private data:
   ///////////////////////////////////////////////////////////////////
 
-  ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackTube   ;  
+  ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackTube   ;
   ToolHandle<ITRT_DriftFunctionTool>            m_drifttool       ;
-  ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
-  bool                                          m_scaleTrtCov{}     ;
+
+  SG::ReadHandleKey<xAOD::EventInfo>                m_eventInfoKey
+      {this,"EventInfoKey","EventInfo","Key for xAOD::EventInfo"};
+
+  //  SG::ReadCondHandleKey<TRTRIO_OnTrackErrorScaling> m_trtErrorScalingKey
+  SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_trtErrorScalingKey
+      {this,"TRTErrorScalingKey", "/Indet/TrkErrorScalingTRT", "Key for TRT error scaling conditions data."};
+
   bool                                          m_useToTCorrection{};  //!< Shall the Time over Threshold correction be used?
   double                                        m_scalefactor{}     ; //scale factor for hit uncertainty
 

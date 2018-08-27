@@ -21,9 +21,7 @@
 #include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetRawData/SCT3_RawData.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "AthenaKernel/errorcheck.h"
 #include "SCT_Monitoring/SCT_ClusterStruct.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -41,7 +39,6 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "StoreGate/ReadHandle.h"
 
 //
@@ -230,7 +227,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_dataObjectName(std::string("SCT_RDOs")),
   m_eventInfoKey(std::string("EventInfo")),
   m_pSCTHelper(nullptr),
-  m_sctmgr(nullptr),
   m_checkBadModules(true),
   m_ignore_RDO_cut_online(true) {
   /** sroe 3 Sept 2015:
@@ -285,9 +281,6 @@ SCTRatioNoiseMonTool::bookHistogramsRecurrent() {
   } else {
     m_pSummaryTool.disable();
   }
-  // get the SCT detector manager
-  ATH_CHECK(detStore()->retrieve(m_sctmgr, "SCT"));
-  ATH_MSG_INFO("SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"");
   // Booking  Track related Histograms
   if (bookRatioNoiseHistos().isFailure()) {
     msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endmsg;
@@ -310,9 +303,6 @@ SCTRatioNoiseMonTool::bookHistograms() {
   } else {
     m_pSummaryTool.disable();
   }
-  // get the SCT detector manager
-  ATH_CHECK(detStore()->retrieve(m_sctmgr, "SCT"));
-  ATH_MSG_INFO("SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"");
   // Booking  Track related Histograms
   if (bookRatioNoiseHistos().isFailure()) {
     msg(MSG::WARNING) << "Error in bookRatioNoiseHistos()" << endmsg;

@@ -30,12 +30,12 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
+#include "MCTruthClassifier/IMCTruthClassifier.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandleKeyArray.h"
 
-class IMCTruthClassifier;
 class MuonSimDataCollection;
 class CscSimDataCollection;
 

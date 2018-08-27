@@ -8,8 +8,7 @@
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h" 
-
-class IBeamCondSvc;  
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 namespace JiveXML {
   

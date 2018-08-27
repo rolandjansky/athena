@@ -1,40 +1,38 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FTK_RDO_MonitorAlgo.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IHistogramSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/PixelID.h"
+
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
+#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+
+#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+
+#include "StoreGate/ReadCondHandle.h"
 
 #include "TrigFTKSim/ftk_dcap.h"
 
-
 #include "TrkSurfaces/Surface.h"
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
-#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+#include "GaudiKernel/IHistogramSvc.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "TMath.h"
 
@@ -48,7 +46,6 @@ FTK_RDO_MonitorAlgo::FTK_RDO_MonitorAlgo(const std::string& name, ISvcLocator* p
   m_pixelId(0),
   m_sctId(0),
   m_pixelManager(0),
-  m_SCT_Manager(0),
   m_id_helper(0),
   m_minPt(1000.),
   m_maxa0(1.),
@@ -145,10 +142,13 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
   ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
   ATH_CHECK(detStore()->retrieve(m_pixelManager));
-  ATH_CHECK(detStore()->retrieve(m_SCT_Manager));
   ATH_CHECK(detStore()->retrieve(m_id_helper, "AtlasID"));
 
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
+
+  // ReadCondHandleKey
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   ATH_MSG_INFO("RDO_CollectionName " << m_ftk_raw_trackcollection_Name);
   ATH_MSG_INFO("offlineTracksName "<<m_offlineTracksName);
@@ -217,6 +217,13 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
     const EventID* eventID( eventInfo->event_ID());
     ATH_MSG_DEBUG( "entered execution for run" << eventID->run_number()
 		   << "event" << eventID->event_number());
+  }
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
+  if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
   }
   
   // get FTK tracks
@@ -358,7 +365,7 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 	  
 	  if (eta> m_mineta && eta < m_maxeta && phi0> m_minphi && phi0 < m_maxphi) {
 	    if (uniqueMatch) { 
-	      if (m_getRawTracks)(this)->compareTracks(ftkRawTrack, offlinetrackPixLocxLocy, offlinetrackSctLocx);
+	      if (m_getRawTracks)(this)->compareTracks(ftkRawTrack, sctElements, offlinetrackPixLocxLocy, offlinetrackSctLocx);
 	      if (m_getTracks) {
 		const Trk::Track* ftktrack = m_DataProviderSvc->getCachedTrack(ftkTrackMatch.first,false);
 		if (ftktrack) (this)->compareTracks(ftktrack, offlinetrackPixLocxLocy, offlinetrackSctLocx, false);
@@ -1122,6 +1129,7 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
 }
 
 void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack, 
+                                        const InDetDD::SiDetectorElementCollection* sctElements,
 					std::map<unsigned int,std::pair<double,double> >& offlinetrackPixLocxLocy,
 					std::map<unsigned int,double>& offlinetrackSctLocx
 					) {
@@ -1261,8 +1269,8 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
       layername="SCTE";
     }
     
-
-    double ftkLocX  = (this)->getSctLocX(scthash,rawStripCoord,clusterWidth);
+    const InDetDD::SiDetectorElement* element = sctElements->getDetectorElement(scthash);
+    double ftkLocX  = (this)->getSctLocX(element,rawStripCoord,clusterWidth);
     
     auto p = offlinetrackSctLocx.find(scthash);
     if (p!=offlinetrackSctLocx.end()) {
@@ -1456,7 +1464,7 @@ const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const Identif
   const InDetDD::SiLocalPosition localPositionOfCornerCell = design->localPositionOfCell(cornerCell);
 
 
-  double shift = pixelDetectorElement->getLorentzCorrection();
+  double shift = m_pixelLorentzAngleTool->getLorentzShift(hash);
 
   const double phi0 = localPositionOfCornerCell.xPhi();
   const double eta0 = localPositionOfCornerCell.xEta();
@@ -1503,13 +1511,13 @@ const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const Identif
 }
   
 
-double FTK_RDO_MonitorAlgo::getSctLocX(const IdentifierHash hash, const float rawstripCoord, const int clusterWidth) {
+double FTK_RDO_MonitorAlgo::getSctLocX(const InDetDD::SiDetectorElement* pDE, const float rawstripCoord, const int clusterWidth) {
+
+  const IdentifierHash hash = pDE->identifyHash();
 
   double xloc=0.;
 
   float stripCoord = rawstripCoord/2.; // rawStribCoord is in units of half a strip
-
-  const InDetDD::SiDetectorElement* pDE = m_SCT_Manager->getDetectorElement(hash);
 	
   const InDetDD::SCT_ModuleSideDesign* design;
 

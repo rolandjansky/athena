@@ -12,7 +12,7 @@
 Sim_tf.py \
 --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
 --physicsList 'FTFP_BERT' \
---truthStrategy 'MC15aPlus' \
+--truthStrategy 'MC12' \
 --simulator 'ATLFASTIIF' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' 'G4AtlasTests/postInclude.DCubeTest.py' \
 --DataRunNumber '222525' \

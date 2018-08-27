@@ -11,6 +11,7 @@ def getInDetOverlay(name="InDetOverlay", **kwargs):
     kwargs.setdefault("mainInputTRTKey", overlayFlags.dataStore() + "+TRT_RDOs");
     kwargs.setdefault("overlayInputTRTKey", overlayFlags.evtStore() + "+TRT_RDOs");
     kwargs.setdefault("mainOutputTRTKey", overlayFlags.outputStore() + "+TRT_RDOs");
+    kwargs.setdefault("TRTinputSDO_Key", overlayFlags.evtStore() + "+TRT_SDO_Map");
     kwargs.setdefault("RndmEngine", "InDetOverlay")
     kwargs.setdefault("RndmSvc",digitizationFlags.rndmSvc.get_Value())
     kwargs.setdefault("TRT_LocalOccupancyTool","TRT_LocalOccupancy")

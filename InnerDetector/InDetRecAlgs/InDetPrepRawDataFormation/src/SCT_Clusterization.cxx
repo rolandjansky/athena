@@ -13,7 +13,6 @@
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 #include "InDetIdentifier/SCT_ID.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
@@ -37,7 +36,6 @@ namespace InDet{
     m_clusterContainerKey("SCT_Clusters"),
     m_clusterContainerLinkKey("SCT_Clusters"),
     m_flaggedCondDataKey("SCT_FlaggedCondData"),
-    m_manager(nullptr),
     m_maxRDOs(384), //(77),
     m_checkBadModules(true),
     m_flaggedModules(),
@@ -46,7 +44,6 @@ namespace InDet{
   {  
   // Get parameter values from jobOptions file    
     declareProperty("DataObjectName", m_rdoContainerKey, "SCT RDOs" );
-    declareProperty("DetectorManagerName",m_managerName);
     declareProperty("clusteringTool",m_clusteringTool);    //inconsistent nomenclature!
     declareProperty("RoIs", m_roiCollectionKey, "RoIs to read in");
     declareProperty("isRoI_Seeded", m_roiSeeded, "Use RoI");
@@ -83,9 +80,6 @@ namespace InDet{
 
     // Get the clustering tool
     ATH_CHECK (m_clusteringTool.retrieve());
-
-    // Get the SCT manager
-    ATH_CHECK (detStore()->retrieve(m_manager,"SCT"));
 
     // Get the SCT ID helper
     ATH_CHECK (detStore()->retrieve(m_idHelper,"SCT_ID"));
@@ -152,7 +146,9 @@ namespace InDet{
         for(; rdoCollections != rdoCollectionsEnd; ++rdoCollections){
           const InDetRawDataCollection<SCT_RDORawData>* rd(*rdoCollections);
           ATH_MSG_DEBUG("RDO collection size=" << rd->size() << ", Hash=" << rd->identifyHash());
-          if( clusterContainer->tryFetch( rdoCollections.hashId() )){ 
+          SCT_ClusterContainer::IDC_WriteHandle lock = clusterContainer->getWriteHandle(rdoCollections.hashId());
+
+          if( lock.alreadyPresent() ){ 
             ATH_MSG_DEBUG("Item already in cache , Hash=" << rd->identifyHash());
             continue;
           }
@@ -167,12 +163,12 @@ namespace InDet{
               continue;
             }
             // Use one of the specific clustering AlgTools to make clusters    
-            std::unique_ptr<SCT_ClusterCollection> clusterCollection ( m_clusteringTool->clusterize(*rd,*m_manager,*m_idHelper));
+            std::unique_ptr<SCT_ClusterCollection> clusterCollection ( m_clusteringTool->clusterize(*rd,*m_idHelper));
             if (clusterCollection) { 
               if (not clusterCollection->empty()) {
                 const IdentifierHash hash(clusterCollection->identifyHash());
                 //Using get because I'm unsure of move semantec status
-                ATH_CHECK(clusterContainer->addOrDelete(std::move(clusterCollection), hash));
+                ATH_CHECK(lock.addOrDelete(std::move(clusterCollection)));
                 ATH_MSG_DEBUG("Clusters with key '" << hash << "' added to Container\n");
               } else { 
                 ATH_MSG_DEBUG("Don't write empty collections\n");
@@ -196,23 +192,21 @@ namespace InDet{
           ATH_MSG_VERBOSE( "REGTEST: SCT : Roi contains " 
 		     << listOfSCTIds.size() << " det. Elements" );
           for (size_t i=0; i < listOfSCTIds.size(); i++) {
+            const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (rdoContainer->indexFindPtr(listOfSCTIds[i]));
+            if (!RDO_Collection) continue;
 
-            if( clusterContainer->tryFetch( listOfSCTIds[i] )){
+            SCT_ClusterContainer::IDC_WriteHandle lock = clusterContainer->getWriteHandle(listOfSCTIds[i]);
+            if( lock.alreadyPresent() ){
               ATH_MSG_DEBUG("Item already in cache , Hash=" << listOfSCTIds[i]);
               continue;
             }
-            
-            const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (rdoContainer->indexFindPtr(listOfSCTIds[i]));
-
-            if (!RDO_Collection) continue;
-
           // Use one of the specific clustering AlgTools to make clusters
-            std::unique_ptr<SCT_ClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
+            std::unique_ptr<SCT_ClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper));
             if (clusterCollection && !clusterCollection->empty()){
               ATH_MSG_VERBOSE( "REGTEST: SCT : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
               const IdentifierHash hash(clusterCollection->identifyHash());
-              ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), hash ));
+              ATH_CHECK(lock.addOrDelete( std::move(clusterCollection) ));
           }else{
               ATH_MSG_DEBUG("No SCTClusterCollection to write");
           }
@@ -224,7 +218,7 @@ namespace InDet{
     
     // Set container to const
     ATH_CHECK(clusterContainer.setConst());
-    
+    ATH_MSG_DEBUG("clusterContainer->numberOfCollections() " <<  clusterContainer->numberOfCollections());
     return StatusCode::SUCCESS;
   }
 

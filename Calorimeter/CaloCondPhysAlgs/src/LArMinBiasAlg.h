@@ -61,11 +61,9 @@
   double m_weight_lowPt;
   double m_weight_highPt;
   ToolHandle<LArCablingService> m_cablingService;
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloDetDescrManager* m_calodetdescrmgr = nullptr;
   const LArEM_ID*        m_larem_id = nullptr;
   const CaloCell_ID*       m_calo_id = nullptr;
-  const DataHandle<ILArMinBias>  m_dd_minbias;
   std::vector<double> m_eCell;
   
 

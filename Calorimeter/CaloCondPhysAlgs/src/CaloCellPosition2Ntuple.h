@@ -50,8 +50,6 @@ class CaloCellPosition2Ntuple : public AthAlgorithm {
   //---------------------------------------------------
   ITHistSvc* m_thistSvc;
 
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   const CaloCell_ID*       m_calo_id;
 
   const DataHandle<CaloRec::CaloCellPositionShift> m_cellPos;

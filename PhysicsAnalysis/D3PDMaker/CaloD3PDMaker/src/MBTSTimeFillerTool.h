@@ -19,8 +19,7 @@
 
 #include "D3PDMakerUtils/VoidBlockFillerTool.h"
 #include "GaudiKernel/ToolHandle.h"
-class MBTSTimeFilterTool;
-
+#include "PrimaryDPDMaker/MBTSTimeFilterTool.h"
 
 namespace D3PD {
 

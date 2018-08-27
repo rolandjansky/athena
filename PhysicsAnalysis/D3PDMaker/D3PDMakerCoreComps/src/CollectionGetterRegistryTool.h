@@ -21,10 +21,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
+
 #include <unordered_map>
 
 
-class IJobOptionsSvc;
 class IToolSvc;
 
 

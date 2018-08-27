@@ -59,8 +59,7 @@ class ISvcLocator;
 //
 TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_pCaloClusterContainer(NULL),
-    m_pTrigCaloQuality(NULL)
+    m_pCaloClusterContainer(NULL)
 {
 
   // Eta and Phi size of the RoI window...

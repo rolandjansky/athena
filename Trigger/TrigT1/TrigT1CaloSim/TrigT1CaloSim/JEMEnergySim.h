@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
  /***************************************************************************
                            JEMEnergySim.h  -  description
                               -------------------
      begin                : Monday 12 May 2014
-     copyright            : (C) 2014 by Alan Watson
      email                : Alan.Watson@CERN.CH
   ***************************************************************************/
 
@@ -64,9 +66,7 @@
    //------------------------------------------------------
 
    StatusCode initialize() ;
-   StatusCode beginRun() ;
    StatusCode execute() ;
-   StatusCode finalize() ;
 
 private: // Private attributes
   ToolHandle<LVL1::IL1EtTools> m_EtTool;

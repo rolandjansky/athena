@@ -57,8 +57,6 @@ TrigCaloCellMakerMT::TrigCaloCellMakerMT(const std::string& name, ISvcLocator* p
   : AthAlgorithm(name, pSvcLocator),
     m_counter(0),
     m_dataAccessSvc( "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", name ),
-    m_caloCellContainer(NULL),
-    m_trigCaloQuality(NULL),
     m_fullScanEnabled(false),
     m_trustRoiLimits(false),
     m_createRoiForID(false),

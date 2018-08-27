@@ -39,11 +39,12 @@
 #include "GaudiKernel/ToolHandle.h" //member
 #include "GaudiKernel/IIncidentSvc.h" //template parameter, so not fwd declared
 #include "GaudiKernel/IIncidentListener.h" //baseclass
-#include "StoreGate/StoreGateSvc.h"
 
 //Athena
 #include "AthenaBaseComps/AthAlgorithm.h"  //baseclass
 #include "AthenaKernel/IOVTime.h" //member
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/StoreGateSvc.h"
 
 // Include Event Info
 #include "EventInfo/EventID.h"
@@ -56,6 +57,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 // SCT Conditions
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h" //template parameter
@@ -86,9 +88,6 @@ class EventInfo;
 class SCT_PlanePosition;
 class Identifier;
 class Incident;
-namespace InDetDD {
-class  SCT_DetectorManager;
-}
 
 
 class SCTCalib : public AthAlgorithm {
@@ -107,7 +106,7 @@ class SCTCalib : public AthAlgorithm {
         ServiceHandle<StoreGateSvc>                     p_sgSvc;
         ITHistSvc *                                     m_thistSvc;
         const SCT_ID*                                   m_pSCTHelper;
-        const InDetDD::SCT_DetectorManager*             m_pManager;
+        SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
         ServiceHandle<SCTCalibWriteSvc>                 m_pCalibWriteSvc;
         ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration"};

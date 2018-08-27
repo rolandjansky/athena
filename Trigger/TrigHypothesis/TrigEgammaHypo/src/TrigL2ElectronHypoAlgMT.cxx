@@ -4,7 +4,7 @@
 #include <map>
 #include "GaudiKernel/Property.h"
 #include "TrigL2ElectronHypoAlgMT.h"
-
+#include "AthViews/ViewHelper.h"
 
 
 using TrigCompositeUtils::DecisionContainer;
@@ -76,19 +76,16 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
       // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     CHECK( viewEL.isValid() );
-    const SG::View* view_const = *viewEL;
-    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS! (checked with Scott in the past, will be fixed but low prio)
 
     // get electron from that view:
     size_t electronCounter = 0;
-    auto electronsHandle = SG::makeHandle( m_electronsKey, context );  
-    CHECK( electronsHandle.setProxyDict( view ) );
-    CHECK( electronsHandle.isValid() );
+    auto electronsHandle = ViewHelper::makeHandle( *viewEL, m_electronsKey, context );
+    ATH_CHECK( electronsHandle.isValid() );
     ATH_MSG_DEBUG ( "electron handle size: " << electronsHandle->size() << "..." );
 
     for ( auto electronIter = electronsHandle->begin(); electronIter != electronsHandle->end(); ++electronIter, electronCounter++ ) {
       auto d = newDecisionIn( decisions.get() );
-      d->setObjectLink( "feature", ElementLink<xAOD::TrigElectronContainer>( view->name()+"_"+m_electronsKey.key(), electronCounter ) );
+      d->setObjectLink( "feature", ViewHelper::makeLink<xAOD::TrigElectronContainer>( *viewEL, electronsHandle, electronCounter ) );
       
       auto clusterPtr = (*electronIter)->emCluster();
       CHECK( clusterPtr != nullptr );

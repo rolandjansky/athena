@@ -44,10 +44,6 @@ class DPDTagTool : public AthAlgTool {
   virtual StatusCode stop();
   virtual StatusCode finalize();
 
- protected:
-  // Standard destructor
-  virtual ~DPDTagTool();
-
  private:
   ServiceHandle<StoreGateSvc> m_pMetaDataStore;
 

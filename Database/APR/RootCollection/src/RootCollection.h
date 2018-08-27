@@ -70,7 +70,7 @@ namespace pool {
       class RootCollection :  public ICollection {
     
      public:
-	typedef Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;
+	typedef Gaudi::PluginService::Factory<ICollection*( const ICollectionDescription*, ICollection::OpenMode, ISession*)> Factory;
     
         /// Constructor
         /// @param session If you want to access the referenced objects you have to provide an ISession

@@ -199,17 +199,6 @@ ThinningSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
 }
 
 
-/**
- * @brief Inform HIVE that an object has been updated.
- * @param id The CLID of the object.
- * @param key The key of the object.
- */
-StatusCode ThinningSvc::updatedObject (CLID id, const std::string& key)
-{
-  return m_storeGate->updatedObject (id, key);
-}
-
-
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////

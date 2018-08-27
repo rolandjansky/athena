@@ -21,17 +21,16 @@
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 
-class IBeamCondSvc;
 class VxContainer;
 
 namespace Trk{
-
-class ITrackFitter;
-class IExtrapolator;
-class ITrackSummaryTool;
-class ITrackSelectorTool;
-class IPRD_AssociationTool;
 
  /** @brief Algorithm using an instance of a ITrackFitter
      to refit the tracks of a given track collection.

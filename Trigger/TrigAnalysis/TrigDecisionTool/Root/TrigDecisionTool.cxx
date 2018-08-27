@@ -84,7 +84,7 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
 }
 
 #ifdef ASGTOOL_ATHENA
-void Trig::TrigDecisionTool::outputlevelupdateHandler(Property& p) {
+void Trig::TrigDecisionTool::outputlevelupdateHandler(Property& /*p*/) {
    //call the original update handler
    Logger::msg().setLevel(AthMessaging::msg().level());
 }

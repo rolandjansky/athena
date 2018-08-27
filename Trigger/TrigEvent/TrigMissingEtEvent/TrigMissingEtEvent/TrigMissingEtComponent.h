@@ -17,7 +17,7 @@
 #ifndef TRIGCALOEVENT_TRIGMISSINGETCOMPONENT_H 
 #define TRIGCALOEVENT_TRIGMISSINGETCOMPONENT_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 
 /** MET trigger slice components

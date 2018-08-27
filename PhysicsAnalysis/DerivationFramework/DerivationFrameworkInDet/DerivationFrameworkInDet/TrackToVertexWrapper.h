@@ -15,11 +15,7 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/VertexContainer.h"
-
-namespace Trk
-{
-  class ITrackToVertexIPEstimator;
-}
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 namespace DerivationFramework {
 

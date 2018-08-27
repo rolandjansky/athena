@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_ALIGNMENTBARRELLUTSVC_H
@@ -35,7 +35,8 @@ namespace TrigL2MuonSA {
     virtual StatusCode finalize(void);
 
   private:
-    StringProperty m_lut_fileName;
+    Gaudi::Property< std::string > m_lut_fileName {
+	this, "LUTfile", "dZ_barrel.lut", ""};
 
     ToolHandle<AlignmentBarrelLUT>   m_alignmentBarrelLUT;
     

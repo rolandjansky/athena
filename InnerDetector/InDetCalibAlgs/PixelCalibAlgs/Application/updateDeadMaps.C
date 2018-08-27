@@ -405,14 +405,16 @@ int main(int argc, char* argv[]){
     }
   }
 
+
   char* tmppath = std::getenv("DATAPATH");
   const unsigned int maxPathStringLength{3000};
   if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
       std::cout << "FATAL: Unable to retrieve environmental DATAPATH" << std::endl;
       exit(EXIT_FAILURE);
   }
-  tmppath=strdup(tmppath);
-  std::string cmtpath(tmppath);
+  std::stringstream tmpSstr{};
+  tmpSstr<<tmppath;
+  std::string cmtpath(tmpSstr.str());
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
   for (const auto& x : paths){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -53,7 +53,7 @@ namespace PESA {
     HLT::ErrorCode hltInitialize() { return HLT::OK; } //!< hlt initialize, doing nothing here
     HLT::ErrorCode hltFinalize()   { return HLT::OK; } //!< hlt finalize, doing nothing here
 
-    virtual HLT::ErrorCode hltBeginRun();
+    virtual HLT::ErrorCode hltStart();
 
     /**
      * @brief implementation of the abstract hltExecute method in HLT::AllTEAlgo.

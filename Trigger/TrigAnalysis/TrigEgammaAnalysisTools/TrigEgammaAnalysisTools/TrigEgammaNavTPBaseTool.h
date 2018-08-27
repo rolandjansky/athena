@@ -29,7 +29,6 @@
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
-#include "egammaMVACalib/IegammaMVATool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
@@ -37,7 +36,6 @@
 namespace Trig{
             class FeatureContainer;
 }
-class IegammaMVATool;
 
 class TrigEgammaNavTPBaseTool
 : public TrigEgammaAnalysisBaseTool,

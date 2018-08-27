@@ -19,9 +19,6 @@
 // Include STL stuff
 #include <string>
 
-// Forward declarations
-namespace InDetDD{class SCT_DetectorManager;}
-
   /** This class acts as a test/sample client the DCSConditions class. 
   */
   class SCT_DCSConditionsTestAlg : public AthAlgorithm {

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXJOBOPTIONS_SUBALGORITHM_H
@@ -21,9 +21,9 @@ public:
 
    StatusCode initialize();        // called once, at start of job
    StatusCode reinitialize();      // can be called anytime after init
-   StatusCode beginRun();          // called at begin of every run
+   StatusCode start();             // called after initialize
    StatusCode execute();           // called every event
-   StatusCode endRun();            // called at end of every run
+   StatusCode stop();              // called before finalize
    StatusCode finalize();          // called once, at end of job
 
 private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -43,7 +43,7 @@ namespace InDet
       m_doIBLresidual(false),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
-      m_mon_counter(0),
+      m_mon_counter(1),
       m_mon_prescale(1),
       m_mon_ptmin(1),
       m_roiCollectionKey(""),
@@ -129,17 +129,6 @@ namespace InDet
 
   TrigTrackingxAODCnvMT::~TrigTrackingxAODCnvMT()
   {}
-
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  StatusCode TrigTrackingxAODCnvMT::beginRun() {
-    msg() << MSG::INFO << "TrigTrackingxAODCnvMT::beginRun()" << endmsg;
-    m_mon_counter = 1;
-
-    return StatusCode::SUCCESS;
-  }
-  //----------------------------------------------------------------------------
 
   ///////////////////////////////////////////////////////////////////
   // Initialisation
@@ -333,28 +322,6 @@ namespace InDet
     }
   }
 
-  ///////////////////////////////////////////////////////////////////
-  // Finalize
-  ///////////////////////////////////////////////////////////////////
-
-  StatusCode TrigTrackingxAODCnvMT::finalize() {
-
-    msg() << MSG::DEBUG << "finalize() success" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  StatusCode TrigTrackingxAODCnvMT::endRun() {
-
-    msg() << MSG::INFO << "TrigTrackingxAODCnvMT::endRun()" << endmsg;
-
-    return StatusCode::SUCCESS;
-  }
-  //---------------------------------------------------------------------------
-
-
   //---------------------------------------------------------------------------
   //  update the monitoring arrays
   //---------------------------------------------------------------------------
@@ -494,7 +461,7 @@ namespace InDet
 
     //+++ Prescale
     if (m_mon_counter >= m_mon_prescale) {
-      m_mon_counter = 0;
+      m_mon_counter = 1;
     } else {
       return;
     }

@@ -63,10 +63,6 @@ DummyLumirangeTool::DummyLumirangeTool(const std::string& name,
     declareProperty("LumiTot",      m_lumitot, "total number of lumiblocks to write");
 }
 
-// Standard Destructor
-DummyLumirangeTool::~DummyLumirangeTool()   {
-}
-
 // initialize data writer
 StatusCode 
 DummyLumirangeTool::initialize() 

@@ -486,7 +486,4 @@ StatusCode PhotonTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-PhotonTagTool::~PhotonTagTool() {}
-
 

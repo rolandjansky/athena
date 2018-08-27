@@ -36,20 +36,14 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
-class SiDetectorManager;
 class ISvcLocator;
 class StatusCode;
 
-namespace InDetDD{
-  class SiDetectorManager;
-}
-
-
 namespace InDet {
-  class ISCT_ClusteringTool;
 /**
  *    @class SCT_Clusterization
  *    @brief Form clusters from SCT Raw Data Objects
@@ -81,7 +75,6 @@ private:
   //@}
 
   ToolHandle< ISCT_ClusteringTool >        m_clusteringTool;       //!< Clustering algorithm
-  std::string                              m_managerName;   //REMOVE LATER       //!< Detector manager name in StoreGate
   const SCT_ID*                            m_idHelper;
 
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
@@ -94,7 +87,6 @@ private:
   SG::WriteHandleKey<SCT_ClusterContainer> m_clusterContainerKey;
   SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey;
   SG::WriteHandleKey<SCT_FlaggedCondData> m_flaggedCondDataKey;
-  const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
   ToolHandle<IInDetConditionsTool>         m_pSummaryTool{this, "conditionsTool",
       "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};

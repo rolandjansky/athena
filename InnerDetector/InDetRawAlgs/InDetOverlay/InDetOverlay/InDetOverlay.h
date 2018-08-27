@@ -28,12 +28,12 @@
 typedef  InDetRawDataCollection<TRT_RDORawData> TRT_RDO_Collection;
 
 #include "InDetSimData/InDetSimDataCollection.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 
 class StoreGateSvc;
 class SCT_ID;
 class TRT_ID;
-class IAtRndmGenSvc;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -102,7 +102,7 @@ private:
   std::string                   m_rndmEngineName;
   CLHEP::HepRandomEngine *      m_rndmEngine;
   
-  std::string m_TRTinputSDO_Name;
+  SG::ReadHandleKey<InDetSimDataCollection> m_TRTinputSDO_Key;
   double                                      m_HTOccupancyCorrectionB;
   double                                      m_HTOccupancyCorrectionEC;
   double                                      m_HTOccupancyCorrectionB_noE;

@@ -719,7 +719,7 @@ StatusCode TRT_StrawStatusSummarySvc::writeToTextFile(const std::string& filenam
 
 
 
-  if(getStrawStatusHTContainer()->numObjects()>0){
+  if(getStrawStatusContainer()->numObjects()>0){
     msg(MSG::INFO) << " Dump To File: StrawStatus "  << endmsg;
     outfile << " Status: " << std::endl;
     TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainer;

@@ -11,6 +11,7 @@
 #include "QueryTag.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "StoreGate/ReadHandle.h"
 
 using namespace AthPoolEx;
 
@@ -36,6 +37,8 @@ StatusCode QueryTag::initialize() {
          }
       }
    }
+
+   ATH_CHECK( m_attrListKey.initialize() );
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
@@ -48,14 +51,8 @@ StatusCode QueryTag::preNext() const {
 }
 //__________________________________________________________________________
 StatusCode QueryTag::postNext() const {
-   if (!evtStore()->contains<AthenaAttributeList>(m_attrListKey)) {
-      ATH_MSG_DEBUG("Can't get attributeList for preselection");
-      return StatusCode::SUCCESS;
-   }
-
-   const DataHandle<AthenaAttributeList> attrList;
-   StatusCode status = evtStore()->retrieve(attrList, m_attrListKey);
-   if (status.isFailure()) {
+   SG::ReadHandle<AthenaAttributeList> attrList (m_attrListKey);
+   if (!attrList.isValid()) {
       ATH_MSG_ERROR("Could not retrieve AthenaAttributeList");
       return StatusCode::FAILURE;
    }

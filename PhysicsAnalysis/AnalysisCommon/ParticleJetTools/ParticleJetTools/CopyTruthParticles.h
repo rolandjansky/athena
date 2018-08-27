@@ -7,7 +7,11 @@
 
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetExecuteTool.h"
-#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "AthContainers/ConstDataVector.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // Do I need IAsgTool? I need AsgTool for the eventStore()
 class CopyTruthParticles : public IJetExecuteTool, public asg::AsgTool {
@@ -21,10 +25,9 @@ public:
   /// @name Event loop algorithm methods
   //@{
   virtual int execute() const;
+
+  virtual StatusCode initialize();
   //@}
-
-
-
 
 
   /// Classifier function(s)
@@ -38,6 +41,13 @@ protected:
 
   /// Minimum pT for particle selection (in MeV)
   double m_ptmin;
+
+  /// Key for input truth event
+  SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventKey{this, "TruthEventKey", "TruthEvents", "SG Key for input truth event container"};
+
+  /// Key for output truth particles
+  SG::WriteHandleKey<ConstDataVector<xAOD::TruthParticleContainer> > m_outTruthPartKey{this, "OutputName", "TagInputs", "Name of the resulting TruthParticle collection"};
+  
 
 };
 

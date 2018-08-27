@@ -17,6 +17,7 @@
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArCalculatorSvcImp.h"
 #include "ILArBarrelGeometry.h"
+#include "MapEta.h"
 
 #include <stdexcept>
 #include <vector>
@@ -25,7 +26,7 @@
 
 class G4Step;
 class AccMap;
-class MapEta;
+
 class LArG4BirksLaw;
 
 class LArBarrelCalculator : public LArCalculatorSvcImp

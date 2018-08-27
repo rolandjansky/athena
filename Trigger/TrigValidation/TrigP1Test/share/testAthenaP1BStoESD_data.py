@@ -53,7 +53,6 @@ readBS=True
 #setModifiers = ['noCSCReadout',
 #                'enableHotIDMasking',
 #                'disableCaloAllSamples',
-#                'softTRTsettings',
 #                'openThresholdRPCCabling',
                                   #special streaming setup
 #                'enable7BitL1TTStreaming']

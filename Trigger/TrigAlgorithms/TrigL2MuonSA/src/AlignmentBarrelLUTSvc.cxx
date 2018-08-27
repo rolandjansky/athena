@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -15,7 +15,6 @@ TrigL2MuonSA::AlignmentBarrelLUTSvc::AlignmentBarrelLUTSvc(const std::string& na
   AthService(name,sl),
   m_alignmentBarrelLUT("TrigL2MuonSA::AlignmentBarrelLUT")
 {
-  declareProperty( "LUTfile", m_lut_fileName="dZ_barrel.lut" );
 }
 
 // --------------------------------------------------------------------------------

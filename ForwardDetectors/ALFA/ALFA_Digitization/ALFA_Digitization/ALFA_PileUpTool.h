@@ -21,6 +21,8 @@
 #include "ALFA_RawEv/ALFA_DigitCollection.h"
 #include "ALFA_RawEv/ALFA_ODDigitCollection.h"
 
+#include "PileUpTools/PileUpMergeSvc.h"
+
 #include <string>
 #include <iostream>
 #include <fstream> 
@@ -29,7 +31,6 @@
 #include <utility> /* pair */
 
 class IAtRndmGenSvc;
-class PileUpMergeSvc;
 
 class ALFA_PileUpTool: public PileUpToolBase {
 

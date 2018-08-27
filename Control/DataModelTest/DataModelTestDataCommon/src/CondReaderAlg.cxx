@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 // $Id$
 /**
@@ -50,7 +50,10 @@ StatusCode CondReaderAlg::initialize()
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_attrListKey.initialize() );
   ATH_CHECK( m_scondKey.initialize() );
-  ATH_CHECK( m_s2Key.initialize() );
+
+  // Allow running without POOL payload
+  if ( !m_s2Key.key().empty()) ATH_CHECK( m_s2Key.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -71,8 +74,10 @@ StatusCode CondReaderAlg::execute_r (const EventContext& ctx) const
   SG::ReadCondHandle<DMTest::S1> s1 (m_scondKey, ctx);
   ATH_MSG_INFO ("  scond " << s1->m_x );
 
-  SG::ReadCondHandle<DMTest::S1> s2 (m_s2Key, ctx);
-  ATH_MSG_INFO ("  s2 " << s2->m_x );
+  if (!m_s2Key.key().empty()) {
+    SG::ReadCondHandle<DMTest::S1> s2 (m_s2Key, ctx);
+    ATH_MSG_INFO ("  s2 " << s2->m_x );
+  }
 
   {
     std::string xint = "xint";

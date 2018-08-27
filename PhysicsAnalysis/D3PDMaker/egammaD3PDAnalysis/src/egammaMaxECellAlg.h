@@ -19,10 +19,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "LArCabling/LArCablingService.h"
+
 #include <vector>
 #include <string>
-
-class LArCablingService;
 
 
 namespace D3PD {

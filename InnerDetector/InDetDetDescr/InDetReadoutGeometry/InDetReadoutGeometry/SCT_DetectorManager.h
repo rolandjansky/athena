@@ -75,16 +75,6 @@ namespace InDetDD {
       /** access to individual elements via module numbering schema */
       SiDetectorElement * getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module, int side) const;
     
-      /** access to individual elements using Identifier using SiDetectorElementCollection */
-      virtual const SiDetectorElement* getDetectorElement(const Identifier &id, const SiDetectorElementCollection* coll) const;
-
-      /** access to individual elements using IdentiferHash using SiDetectorElementCollection */
-      virtual const SiDetectorElement* getDetectorElement(const IdentifierHash &idHash, const SiDetectorElementCollection* coll) const;
-
-      /** access to individual elements via module numbering schema using IdentiferHash using SiDetectorElementCollection */
-      const SiDetectorElement* getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module, int side,
-                                                  const SiDetectorElementCollection* coll) const;
-
       /** access to whole collectiom via iterators */
       virtual const SiDetectorElementCollection * getDetectorElementCollection() const;
       virtual SiDetectorElementCollection::const_iterator getDetectorElementBegin() const;

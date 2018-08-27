@@ -23,9 +23,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkDetElementBase
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
+                          DetectorDescription/DetDescrCond/DetDescrConditions
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/DetDescrCond/DetDescrConditions
                           DetectorDescription/IdDictDetDescr
                           InnerDetector/InDetConditions/TRT_ConditionsData )
 

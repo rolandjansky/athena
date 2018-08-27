@@ -201,7 +201,6 @@ def makeInDetAlgs():
   InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
                                                       clusteringTool          = InDetSCT_ClusteringTool,
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                      DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -235,8 +234,17 @@ def makeInDetAlgs():
                                                                     #OutputLevel=INFO)
 
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
-  
-  
+
+  # Condition algorithm for SiTrackerSpacePointFinder
+  if InDetSiTrackerSpacePointFinder.ProcessSCTs:
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiElementPropertiesTableCondAlg"):
+      # Setup alignment folders and conditions algorithms
+      from InDetCondFolders import InDetAlignFolders
+      from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
+      condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
+
   from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 

@@ -65,7 +65,6 @@ class TrigCaloCellMakerMT : public AthAlgorithm {
   int m_neta, m_nphi;
 
   /** Prescale factor for persistency **/
-  unsigned int m_persistencyPSF;
   std::string  m_persistencyKey;  
   unsigned int m_counter;
 
@@ -111,14 +110,6 @@ class TrigCaloCellMakerMT : public AthAlgorithm {
       "caloquality",                                             // default value of StoreGate key
       "output TrigCaloQuality"};
 
-
-  /** Produced Calorimeter Cell Container. */
-  CaloCellContainer* m_caloCellContainer;
-
-  
-  /** data preparation error */
-  //  unsigned int m_conversionError[6];
-  TrigCaloQuality * m_trigCaloQuality;
 
   //  double m_EtaL2, m_PhiL2;
   bool m_fullScanEnabled;

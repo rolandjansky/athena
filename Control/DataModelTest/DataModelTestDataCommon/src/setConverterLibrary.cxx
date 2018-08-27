@@ -29,9 +29,9 @@ void setPluginLibrary (const std::string& name, const std::string& lib)
     const_cast<Details::Registry::FactoryMap&>(reg.factories());
   Details::Registry::FactoryMap::iterator i = map.find (name);
   if (i == map.end())
-    map.insert (std::make_pair (name, Details::Registry::FactoryInfo(lib)));
+    map.insert (std::make_pair (name, Details::Registry::FactoryInfo{lib}));
   else
-    i->second = Details::Registry::FactoryInfo(lib);
+    i->second = Details::Registry::FactoryInfo{lib};
 }
 
 

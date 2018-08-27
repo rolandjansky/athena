@@ -29,7 +29,6 @@ class IdentifierHash;
 
 namespace InDetDD {
   class PixelDetectorManager;
-  class SCT_DetectorManager;
 }
 
 namespace InDet {
@@ -77,7 +76,6 @@ private:
   const SCT_ID* m_sctId;
   
   const InDetDD::PixelDetectorManager* m_pixelManager;
-  const InDetDD::SCT_DetectorManager* m_SCT_Manager;
 
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
   ToolHandle<ITrigFTKClusterConverterTool>  m_clusterConverterTool;

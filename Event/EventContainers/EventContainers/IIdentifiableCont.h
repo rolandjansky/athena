@@ -29,7 +29,7 @@ public:
 
     virtual StatusCode naughtyRetrieve(IdentifierHash hashId, T* &collToRetrieve)const =0;
 
-    virtual StatusCode addCollection(const T* coll, IdentifierHash hashId, bool ownsColl = true) =0;
+    virtual StatusCode addCollection(const T* coll, IdentifierHash hashId) =0;
 
     virtual void cleanup() = 0;
 };

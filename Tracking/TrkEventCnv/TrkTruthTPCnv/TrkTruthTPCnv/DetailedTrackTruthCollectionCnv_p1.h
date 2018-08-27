@@ -11,11 +11,12 @@
 #define DETAILEDTRACKTRUTHCOLLECTIONCNV_P1_H 
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
+#include "TrkTruthTPCnv/DetailedTrackTruthCollection_p1.h"
 
 class StoreGateSvc;
 class MsgStream;
 class DetailedTrackTruthCollection;
-namespace Trk { class DetailedTrackTruthCollection_p1; }
+//namespace Trk { class DetailedTrackTruthCollection_p1; }
 
 
 class DetailedTrackTruthCollectionCnv_p1 

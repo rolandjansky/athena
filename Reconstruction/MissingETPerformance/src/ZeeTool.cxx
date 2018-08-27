@@ -221,6 +221,3 @@ StatusCode ZeeTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-ZeeTool::~ZeeTool() {}

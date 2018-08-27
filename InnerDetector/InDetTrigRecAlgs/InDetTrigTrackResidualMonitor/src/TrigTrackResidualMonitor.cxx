@@ -24,8 +24,6 @@
 #include "InDetIdentifier/SiliconID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictDetDescr/IdDictManager.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
@@ -39,7 +37,6 @@
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -167,16 +164,6 @@ namespace InDet
   TrigTrackResidualMonitor::~TrigTrackResidualMonitor()
   {}
 
-  //----------------------------------
-  //          beginRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackResidualMonitor::hltBeginRun() {
-    msg() << MSG::INFO << "TrigTrackResidualMonitor::beginRun()" << endmsg;
-
-    return HLT::OK;
-  }
-  //----------------------------------------------------------------------------
-
   ///////////////////////////////////////////////////////////////////
   // Initialisation
   ///////////////////////////////////////////////////////////////////
@@ -259,24 +246,6 @@ namespace InDet
     m_idHelperSCT = IdHelperSCT;
     
 
-    ///SCT Manager
-    if(detStore->retrieve(m_SCT_Manager, "SCT").isFailure()){
-      msg() << MSG::FATAL   << "Could not get SCT_Manager !" << endmsg;
-    }
-    else{
-      msg() << MSG::DEBUG << "SCT manager found !" << endmsg;
-    }
-    
-    
-    // Pixel Manager
-    if(detStore->retrieve(m_Pixel_Manager, "Pixel").isFailure()){
-      msg() << MSG::FATAL   << "Could not get Pixel_Manager !" << endmsg;
-    }
-    else{
-      msg() << MSG::DEBUG << "Pixel manager found !" << endmsg;
-    }
-    
-    
     //Get Updator
     if (m_updator.retrieve().isFailure()) {
       msg() << MSG::FATAL << "Can not retrieve Updator of type  " << m_updator.typeAndName() << endmsg;
@@ -506,7 +475,10 @@ namespace InDet
                 const Identifier& idbECSCTUB = m_idHelperSCT->wafer_id(hitIdbec);
                 barrelECSCTUB = m_idHelperSCT->barrel_ec(idbECSCTUB);
                 const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
-                const Identifier& OtherModuleSideID = m_SCT_Manager->getDetectorElement(id)->otherSide()->identify();
+                const IdentifierHash waferHash = m_idHelperSCT->wafer_hash(id);
+                IdentifierHash otherSideHash;
+                m_idHelperSCT->get_other_side(waferHash, otherSideHash);
+                const Identifier OtherModuleSideID = m_idHelperSCT->wafer_id(otherSideHash);
                 //const Trk::RIO_OnTrack* hit(0);
         
                 for (const Trk::TrackStateOnSurface* TempTsos : *(*itResTrk)->trackStateOnSurfaces()) {
@@ -584,7 +556,6 @@ namespace InDet
                 PropagatedPixelUnbiasedTrackParams = m_updator->removeFromState(*tsos->trackParameters(), 
                                 tsos->measurementOnTrack()->localParameters(), 
                                 tsos->measurementOnTrack()->localCovariance());
-                //  const Identifier& PixelID = m_Pixel_Manager->getDetectorElement(id)->identify();
                 const Trk::Surface* TempSurfacePixel = &(PixelSideHit->measurementOnTrack()->associatedSurface());
                 const Trk::MagneticFieldProperties* TempFieldPixel = 0;
         
@@ -703,16 +674,6 @@ namespace InDet
     return HLT::OK;
   }
 
-  //----------------------------------
-  //          endRun method:
-  //----------------------------------------------------------------------------
-  HLT::ErrorCode TrigTrackResidualMonitor::hltEndRun() {
-   
-    msg() << MSG::INFO << "TrigTrackResidualMonitor::endRun()" << endmsg;
-   
-    return HLT::OK;
-  }
-  //---------------------------------------------------------------------------
 } // end namespace
 
 

@@ -28,9 +28,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 class StoreGateSvc;
-class IGeoModelSvc;
 
 class EventInfoReader : public AthAlgorithm {
 public:

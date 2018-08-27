@@ -59,10 +59,6 @@ namespace met {
     declareProperty( "TimingDetail",       m_timedetail = 0      );
   }
 
-  // Destructor
-  ///////////////
-  METRecoTool::~METRecoTool()
-  {}
 
   // Athena algtool's Hooks
   ////////////////////////////

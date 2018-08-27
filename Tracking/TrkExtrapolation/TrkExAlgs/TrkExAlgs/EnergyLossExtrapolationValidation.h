@@ -16,8 +16,7 @@
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/RndmGenerators.h"
 #include <string>
-// DataVector from DataModel
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 // CylinderSurfaces
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"

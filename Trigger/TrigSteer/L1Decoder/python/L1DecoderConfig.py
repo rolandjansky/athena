@@ -16,31 +16,23 @@ def L1DecoderCfg(flags):
     decoderAlg.ctpUnpacker = CTPUnpackingTool( ForceEnableAllChains = flags.get("Trigger.L1Decoder.forceEnableAllChains"),
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
 
-    if flags.get("Trigger.L1Decoder.doCalo") == True:
-        decoderAlg.roiUnpackers += [ EMRoIsUnpackingTool( Decisions = "EMRoIDecisions",
-                                                          OutputTrigRoIs = "EMRoIs",
-                                                          MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )) ]
 
-        decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = "METRoIDecisions",
-                                                          OutputTrigRoI = "METRoI") ]
+    decoderAlg.roiUnpackers += [ EMRoIsUnpackingTool( Decisions = "EMRoIDecisions",
+                                                      OutputTrigRoIs = "EMRoIs",
+                                                      MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )) ]
 
-    if flags.get("Trigger.L1Decoder.doMuon") == True:
-        from L1Decoder.L1MuonConfig import RPCCablingConfig, TGCCablingConfig
-        acc.merge(TGCCablingConfig(flags ))
-        acc.merge(RPCCablingConfig(flags ))
-        decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "MURoIDecisions",
-                                                          OutputTrigRoIs = "MURoIs",
-                                                          MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
+    decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = "METRoIDecisions",
+                                                      OutputTrigRoI = "METRoI") ]
+
+    from L1Decoder.L1MuonConfig import RPCCablingConfig, TGCCablingConfig
+    acc.merge(TGCCablingConfig(flags ))
+    acc.merge(RPCCablingConfig(flags ))
+    decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "MURoIDecisions",
+                                                      OutputTrigRoIs = "MURoIs",
+                                                      MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
     
-    from AthenaCommon.Constants import DEBUG
-    decoderAlg.OutputLevel=DEBUG
-    for u in decoderAlg.roiUnpackers:
-        u.OutputLevel=DEBUG
-
-
-
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
-    acc.merge(TrigConfigSvcCfg(flags ))
+    acc.merge( TrigConfigSvcCfg( flags ) )
 
     return acc,decoderAlg
 
@@ -49,8 +41,6 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.set("Trigger.L1Decoder.doCalo",True)
-    ConfigFlags.set("Trigger.L1Decoder.doMuon",True)
     ConfigFlags.set("Trigger.L1Decoder.forceEnableAllChains",True)
     ConfigFlags.set('global.InputFiles',["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",])
     ConfigFlags.lock()

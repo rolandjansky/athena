@@ -1,44 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-//  Header file for class  PixelClusterOnTrackTool
-///////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////
-// Interface for PixelClusterOnTrack production
-///////////////////////////////////////////////////////////////////
-// started 1/05/2004 I.Gavrilenko - see ChangeLog for details
-///////////////////////////////////////////////////////////////////
 #ifndef PixelClusterOnTrackTool_H
 #define PixelClusterOnTrackTool_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-/** The following cannot be fwd declared for interesting reason; the return type of
- * 'correct' is InDet::PixelClusterOnTrack* here, but in the baseclass is 
- * Trk::RIO_OnTrack*. This works if the inheritance is known, but fwd declaration results
- * in an error:
- * invalid covariant return type for 'virtual const InDet::PixelClusterOnTrack* 
- InDet::PixelClusterOnTrackTool::correct(const Trk::PrepRawData&, 
- const TrackParameters&) const'
- * because the return type has changed and the compiler has no information to cast.
- **/
+// STSTST #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
+
+#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class PixelID;
 class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
-namespace Trk{
-  class IRIO_OnTrackErrorScalingTool;
-}
 
 class StoreGateSvc;
 class IIBLParameterSvc;
@@ -46,18 +32,18 @@ class IIBLParameterSvc;
 namespace InDet {
 
   /** @brief creates PixelClusterOnTrack objects allowing to
-      calibrate cluster position and error using a given track hypothesis. 
+    calibrate cluster position and error using a given track hypothesis. 
 
-      See doxygen of Trk::RIO_OnTrackCreator for details.
-      Different strategies to calibrate the cluster error can be chosen
-      by job Option. Also the handle to the general hit-error scaling
-      is implemented.
+    See doxygen of Trk::RIO_OnTrackCreator for details.
+    Different strategies to calibrate the cluster error can be chosen
+    by job Option. Also the handle to the general hit-error scaling
+    is implemented.
 
-      Special strategies for correction can be invoked by calling the
-      correct method with an additional argument from the 
-      PixelClusterStrategy enumeration
+    Special strategies for correction can be invoked by calling the
+    correct method with an additional argument from the 
+    PixelClusterStrategy enumeration
 
-  */
+   */
 
   class NnClusterizationFactory;
 
@@ -67,7 +53,6 @@ namespace InDet {
     PIXELCLUSTER_SHARED =2,
     PIXELCLUSTER_SPLIT  =3
   };
-
 
   class PixelClusterOnTrackTool: 
         public AthAlgTool, virtual public Trk::IRIO_OnTrackCreator
@@ -102,22 +87,21 @@ public:
   virtual const InDet::PixelClusterOnTrack* correct(const Trk::PrepRawData&,
                                                     const Trk::TrackParameters&) const override;
 
-  virtual const InDet::PixelClusterOnTrack* correctDefault(const Trk::PrepRawData&, 
+  virtual const InDet::PixelClusterOnTrack* correctDefault(const Trk::PrepRawData&,
                                                            const Trk::TrackParameters&) const;
 
   virtual const InDet::PixelClusterOnTrack* correctNN(const Trk::PrepRawData&, const Trk::TrackParameters&) const;
-	
-  virtual bool getErrorsDefaultAmbi( const InDet::PixelCluster*, const Trk::TrackParameters&, 
+  virtual bool getErrorsDefaultAmbi( const InDet::PixelCluster*, const Trk::TrackParameters&,
                            Amg::Vector2D&,  Amg::MatrixX&) const;
-													 
-	virtual bool getErrorsTIDE_Ambi( const InDet::PixelCluster*, const Trk::TrackParameters&,  
-                        Amg::Vector2D&,  Amg::MatrixX&) const;
+
+  virtual bool getErrorsTIDE_Ambi( const InDet::PixelCluster*, const Trk::TrackParameters&,
+                           Amg::Vector2D&,  Amg::MatrixX&) const;
 
   virtual const InDet::PixelClusterOnTrack* correct
     (const Trk::PrepRawData&, const Trk::TrackParameters&, 
      const InDet::PixelClusterStrategy) const;
 
-     
+
   ///////////////////////////////////////////////////////////////////
   // Private methods:
   ///////////////////////////////////////////////////////////////////
@@ -138,9 +122,16 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
-  ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
+
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
+
+  //  SG::ReadCondHandleKey<PixelRIO_OnTrackErrorScaling> m_pixelErrorScalingKey
+  //    {this,"PixelErrorScalingKey", "/Indet/TrkErrorScalingPixel", "Key for pixel error scaling conditions data."};
+  SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_pixelErrorScalingKey
+    {this,"PixelErrorScalingKey", "/Indet/TrkErrorScalingPixel", "Key for pixel error scaling conditions data."};
+
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
     IHistogram1D* m_h_Resy;
@@ -154,7 +145,6 @@ public:
 
   //! toolhandle for central error scaling
   //! flag storing if errors need scaling or should be kept nominal
-  bool                               m_scalePixelCov     ;
   bool                               m_disableDistortions;
   bool                               m_rel13like         ;
   int                                m_positionStrategy  ;
@@ -179,8 +169,8 @@ public:
   /** Enable NN based calibration (do only if NN calibration is applied) **/
   mutable bool                      m_applyNNcorrection;
   mutable bool                      m_applydRcorrection;
-  bool				    m_NNIBLcorrection;
-  bool				    m_IBLAbsent;
+  bool                              m_NNIBLcorrection;
+  bool                              m_IBLAbsent;
   
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
@@ -193,8 +183,7 @@ public:
   
   bool                                                  m_doNotRecalibrateNN;
   bool                                                  m_noNNandBroadErrors;
-	
-	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
+       /** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
   SG::ReadHandleKey<InDet::PixelGangedClusterAmbiguities>    m_splitClusterHandle; 
   mutable std::vector< std::vector<float> > m_fX, m_fY, m_fB, m_fC, m_fD;

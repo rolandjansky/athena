@@ -56,7 +56,7 @@ DbStatus DbSessionObj::close()   {
 IOODatabase* DbSessionObj::db(const DbType& typ) {
    if( m_dbTypes[typ] == 0 ) {
       const std::string nam = typ.storageName();
-      IOODatabase* imp = Gaudi::PluginService::Factory<IOODatabase*>::create(nam);
+      IOODatabase* imp = Gaudi::PluginService::Factory<IOODatabase*()>::create(nam).release();
       if( imp )  {
          m_dbTypes[typ] = imp;
       } else {

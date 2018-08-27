@@ -20,8 +20,8 @@
 #define TRIGMISSINGETEVENT_TRIGMISSINGET_H
 
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "TrigMissingEtEvent/TrigMissingEtComponent.h"
 #include "GaudiKernel/MsgStream.h"
 

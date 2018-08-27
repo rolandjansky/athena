@@ -303,21 +303,23 @@ int  LArMiniFCAL_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     m_full_module_range = dict()->build_multirange(region_id, str, prefix, "module");
     m_full_depth_range = dict()->build_multirange(region_id, str, prefix, "depth-mfcal");
 
-    std::string strg0 = "initialize_from_dict : " ;
-    std::string strg1 = " channel range -> " + (std::string)m_full_channel_range;
-    std::string strg2 = " module range -> "  + (std::string)m_full_module_range;
-    std::string strg2a= " depth range -> "   + (std::string)m_full_depth_range;
-    if(m_msgSvc) {
-      log << MSG::DEBUG << strg0 << endmsg;
-      log << MSG::DEBUG << strg1 << endmsg;
-      log << MSG::DEBUG << strg2 << endmsg;
-      log << MSG::DEBUG << strg2a<< endmsg;
-    }
-    else {
-      std::cout << strg0 << std::endl;
-      std::cout << strg1 << std::endl;
-      std::cout << strg2 << std::endl;
-      std::cout << strg2a<< std::endl;
+    if (!m_quiet) {
+      std::string strg0 = "initialize_from_dict : " ;
+      std::string strg1 = " channel range -> " + (std::string)m_full_channel_range;
+      std::string strg2 = " module range -> "  + (std::string)m_full_module_range;
+      std::string strg2a= " depth range -> "   + (std::string)m_full_depth_range;
+      if(m_msgSvc) {
+        log << MSG::DEBUG << strg0 << endmsg;
+        log << MSG::DEBUG << strg1 << endmsg;
+        log << MSG::DEBUG << strg2 << endmsg;
+        log << MSG::DEBUG << strg2a<< endmsg;
+      }
+      else {
+        std::cout << strg0 << std::endl;
+        std::cout << strg1 << std::endl;
+        std::cout << strg2 << std::endl;
+        std::cout << strg2a<< std::endl;
+      }
     }
 
     // Setup the hash tables
@@ -618,26 +620,28 @@ int         LArMiniFCAL_ID::initLevelsFromDict(void)
   m_depth_impl    = region.m_implementation[m_DEPTH_INDEX]; 
   m_eta_impl      = region.m_implementation[m_ETA_INDEX]; 
   m_phi_impl      = region.m_implementation[m_PHI_INDEX];
- 
-  if(m_msgSvc) {
-    log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
-    log << MSG::DEBUG << "lar   "   << m_lar_impl.show_to_string()    << endmsg;
-    log << MSG::DEBUG << "fcal  "   << m_fcal_impl.show_to_string()   << endmsg;
-    log << MSG::DEBUG << "pn    "   << m_pn_impl.show_to_string()     << endmsg;
-    log << MSG::DEBUG << "mod   "   << m_module_impl.show_to_string() << endmsg;
-    log << MSG::DEBUG << "depth "   << m_depth_impl.show_to_string()  << endmsg;
-    log << MSG::DEBUG << "eta   "   << m_eta_impl.show_to_string()    << endmsg;
-    log << MSG::DEBUG << "phi   "   << m_phi_impl.show_to_string()    << endmsg;
-  }
-  else {
-    std::cout << "decode index and bit fields for each level: " << std::endl;
-    std::cout << "lar   "  << m_lar_impl.show_to_string()    << std::endl;
-    std::cout << "fcal  "  << m_fcal_impl.show_to_string()   << std::endl;
-    std::cout << "pn    "  << m_pn_impl.show_to_string()     << std::endl;
-    std::cout << "mod   "  << m_module_impl.show_to_string() << std::endl;
-    std::cout << "depth "  << m_depth_impl.show_to_string()  << std::endl;
-    std::cout << "eta   "  << m_eta_impl.show_to_string()    << std::endl;
-    std::cout << "phi   "  << m_phi_impl.show_to_string()    << std::endl;
+
+  if (!m_quiet) {
+    if(m_msgSvc) {
+      log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
+      log << MSG::DEBUG << "lar   "   << m_lar_impl.show_to_string()    << endmsg;
+      log << MSG::DEBUG << "fcal  "   << m_fcal_impl.show_to_string()   << endmsg;
+      log << MSG::DEBUG << "pn    "   << m_pn_impl.show_to_string()     << endmsg;
+      log << MSG::DEBUG << "mod   "   << m_module_impl.show_to_string() << endmsg;
+      log << MSG::DEBUG << "depth "   << m_depth_impl.show_to_string()  << endmsg;
+      log << MSG::DEBUG << "eta   "   << m_eta_impl.show_to_string()    << endmsg;
+      log << MSG::DEBUG << "phi   "   << m_phi_impl.show_to_string()    << endmsg;
+    }
+    else {
+      std::cout << "decode index and bit fields for each level: " << std::endl;
+      std::cout << "lar   "  << m_lar_impl.show_to_string()    << std::endl;
+      std::cout << "fcal  "  << m_fcal_impl.show_to_string()   << std::endl;
+      std::cout << "pn    "  << m_pn_impl.show_to_string()     << std::endl;
+      std::cout << "mod   "  << m_module_impl.show_to_string() << std::endl;
+      std::cout << "depth "  << m_depth_impl.show_to_string()  << std::endl;
+      std::cout << "eta   "  << m_eta_impl.show_to_string()    << std::endl;
+      std::cout << "phi   "  << m_phi_impl.show_to_string()    << std::endl;
+    }
   }
 
 

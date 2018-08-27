@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/InDetCondServices
+                          InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/SiPropertiesSvc
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -36,7 +37,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkExtrapolation/TrkExUtils )
+                          Tracking/TrkExtrapolation/TrkExUtils
+                          Tracking/TrkDigitization/TrkDigEvent
+                          Tracking/TrkDigitization/TrkDigInterfaces
+                          Tracking/TrkDigitization/GeoPrimitives )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -49,7 +53,7 @@ atlas_add_component( FastSiDigitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventPrimitives xAODEventInfo GaudiKernel SiPropertiesSvcLib InDetReadoutGeometry InDetSimData InDetPrepRawData SiClusterizationToolLib InDetSimEvent HitManagement ISF_FatrasDetDescrModel ISF_FatrasEvent TrkTruthData TrkEventTPCnv CxxUtils StoreGateLib SGtests Identifier GeneratorObjects InDetIdentifier TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkExUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventPrimitives xAODEventInfo GaudiKernel SiPropertiesSvcLib InDetReadoutGeometry InDetSimData InDetPrepRawData SiClusterizationToolLib InDetSimEvent HitManagement ISF_FatrasDetDescrModel ISF_FatrasEvent TrkTruthData TrkEventTPCnv CxxUtils StoreGateLib SGtests Identifier GeneratorObjects InDetIdentifier TrkDetDescrInterfaces TrkDigEvent TrkGeometry TrkSurfaces TrkExUtils )
 
 # Install files from the package:
 atlas_install_headers( FastSiDigitization )

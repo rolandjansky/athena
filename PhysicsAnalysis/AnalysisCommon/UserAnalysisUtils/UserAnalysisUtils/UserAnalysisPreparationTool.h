@@ -82,11 +82,6 @@ public:
   const std::pair<unsigned int, unsigned int>& trackParticleSummary() const;
   const std::pair<unsigned int, unsigned int>& caloClusterSummary() const;
 
-protected:
-
-   /** Standard destructor */
-   virtual ~UserAnalysisPreparationTool();
-
 private:
 
   /** container preparation */

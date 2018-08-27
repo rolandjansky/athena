@@ -50,8 +50,6 @@ class CaloFillCellPositionShift : public AthAlgorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   const CaloCell_ID*       m_calo_id;
 
   CaloRec::CaloCellPositionShift* m_cellPos;

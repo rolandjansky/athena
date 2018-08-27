@@ -10,6 +10,12 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+// interface to region selector service
+#include "IRegionSelector/IRegSelSvc.h"
+
+// ROI Descriptor classes
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+
 namespace Muon {
 class IMuonRawDataProviderTool;
 
@@ -35,7 +41,18 @@ public:
 
 private:
 
+  /// Tool handle for raw data provider tool
   ToolHandle<Muon::IMuonRawDataProviderTool>  m_rawDataTool;
+
+  /// Handle for region selector service
+  ServiceHandle<IRegSelSvc> m_regionSelector;
+
+  /// Property to decide whether or not to do RoI based decoding
+  Gaudi::Property< bool > m_seededDecoding { this, "DoSeededDecoding", false, "If true do decoding in RoIs"};
+
+  /// ReadHandle for the input RoIs
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{ this, "RoIs", "OutputRoIs",  "Name of RoI collection to read in" };
+
 };
 } // ns end
 

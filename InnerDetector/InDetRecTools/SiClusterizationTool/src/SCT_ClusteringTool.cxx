@@ -18,7 +18,6 @@
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "Identifier/IdentifierHash.h"
@@ -182,17 +181,18 @@ namespace InDet{
                    " is true and used for clustering");
     }
 
+    ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
   SCT_ClusterCollection*  SCT_ClusteringTool::clusterize(const InDetRawDataCollection<SCT_RDORawData> &collection,
-                                                         const InDetDD::SiDetectorManager& manager,
                                                          const SCT_ID& idHelper,
                                                          const SCT_ChannelStatusAlg* /*status */,
                                                          const bool /*CTBBadChannels */) const
   {
-    ATH_MSG_INFO( "You have invoked the deprecated form of clusterize(...), please use the new interface, of the form  clusterize(InDetRawDataCollection<SCT_RDORawData> & collection,InDetDD::SiDetectorManager& manager,SCT_ID& idHelper)");
-    return clusterize(collection, manager, idHelper);
+    ATH_MSG_INFO( "You have invoked the deprecated form of clusterize(...), please use the new interface, of the form  clusterize(InDetRawDataCollection<SCT_RDORawData> & collection,SCT_ID& idHelper)");
+    return clusterize(collection, idHelper);
   }
   
   void SCT_ClusteringTool::addStripsToCluster(const Identifier & firstStripId, const unsigned int nStrips, 
@@ -318,7 +318,7 @@ namespace InDet{
   
   SCT_ClusterCollection * 
   SCT_ClusteringTool::clusterize(const InDetRawDataCollection<SCT_RDORawData> & collection,
-                                 const InDetDD::SiDetectorManager& manager, const SCT_ID& idHelper) const
+                                 const SCT_ID& idHelper) const
   {
     ATH_MSG_VERBOSE ("SCT_ClusteringTool::clusterize()");
 
@@ -436,7 +436,15 @@ namespace InDet{
 
     // Find detector element for these digits
     Identifier elementID(collection.identify());
-    const  InDetDD::SiDetectorElement* element = manager.getDetectorElement(elementID);
+    const Identifier waferId{idHelper.wafer_id(elementID)};
+    const IdentifierHash waferHash{idHelper.wafer_hash(waferId)};
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* sctDetEle{*sctDetEleHandle};
+    if (not sctDetEleHandle.isValid() or sctDetEle==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
+      return nullResult;
+    }
+    const  InDetDD::SiDetectorElement* element = sctDetEle->getDetectorElement(waferHash);
     if (!element) {
       ATH_MSG_WARNING("Element not in the element map, ID = "<< elementID);
       return nullResult;

@@ -14,6 +14,8 @@
 
 #include <vector>
 
+class IdentifierHash;
+
 namespace InDetDD {
 
     class SiDetectorElement;
@@ -25,8 +27,10 @@ namespace InDetDD {
        @author Grant Gorfine
     */
 
-    class SiDetectorElementCollection : public std::vector<SiDetectorElement *>
-{};
+    class SiDetectorElementCollection : public std::vector<SiDetectorElement *> {
+     public:
+      const SiDetectorElement* getDetectorElement(const IdentifierHash& hash) const;
+    };
 
 } // namespace InDetDD
 

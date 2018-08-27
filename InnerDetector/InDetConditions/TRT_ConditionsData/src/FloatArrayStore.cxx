@@ -3,8 +3,8 @@
 */
 
 #include "TRT_ConditionsData/FloatArrayStore.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
-
 
 void FloatArrayStore::cleanUp(){
   std::multimap<int,Identifier> indexmap;
@@ -81,12 +81,22 @@ std::istream& operator>>(std::istream& is, FloatArrayStore& store){
                 if ((size>=0) and (size<maxSize)){
     			identifiers.resize(size) ;
     			for(int i=0; i<size; ++i) is >> (identifiers[i]) ;
-			}
+                }
+                else {
+                  MsgStream log(Athena::getMessageSvc(), "FloatArrayStore");
+                  log << MSG::ERROR << "size of identifier is incorrect" << endmsg;
+                  return is;
+                }
     		is >> size ;
                 if (size>=0){
     			data.resize(size) ;
     			for(int i=0; i<size; ++i) is >> (data[i]) ;
-			}
+                }
+                else {
+                  MsgStream log(Athena::getMessageSvc(), "FloatArrayStore");
+                  log << MSG::ERROR << "size of data is incorrect" << endmsg;
+                  return is;
+                }
     		Identifier reference(identifiers.front()) ;
     		store.push_back( reference, data ) ;
     		std::vector<int>::const_iterator it = identifiers.begin() ;

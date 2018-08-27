@@ -11,12 +11,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectorySelector.h"
-
-//#include "EventPrimitives/EventPrimitives.h"
-//#include "TrkEventPrimitives/LocalPosition.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkEventPrimitives/LocalParameters.h"
-//#include "CLHEP/Geometry/Transform3D.h"
 
 class ThreePointCircle {
     
@@ -32,6 +27,12 @@ class ThreePointCircle {
 		/** Translation */
         const Amg::Translation3D* frameTranslation() const;
         
+        //assignment is not safe unless a deep copy is made, so delete
+        ThreePointCircle & operator = (const ThreePointCircle &) = delete;
+        //copy is not safe unless a deep copy is made, so delete
+        ThreePointCircle(const ThreePointCircle &) = delete;
+      
+        
     	/* d0, z0, eta, phi, pt */
 		double d0() const;
 		double z0() const;
@@ -42,11 +43,11 @@ class ThreePointCircle {
 		
 	private :
 		void constructCircle(const Amg::Vector3D&, const Amg::Vector3D&, const Amg::Vector3D&);
-	    // the reference point
-        Amg::Translation3D*     m_translation;
-	    // the parameters
-		double 				m_d0, m_z0, m_phi0, m_eta, m_pt;
-		double              m_radius;
+	  // the reference point
+    Amg::Translation3D*     m_translation;
+	  // the parameters
+		double 	m_d0, m_z0, m_phi0, m_eta, m_pt;
+		double  m_radius{};
 		Amg::Vector2D 	m_center;
 	    
 };
@@ -92,7 +93,7 @@ namespace InDet {
     
     private:
         /**ID pixel helper*/
-        const AtlasDetectorID* m_atlasId;
+        const AtlasDetectorID* m_atlasId{};
     };
 }
 

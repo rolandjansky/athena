@@ -2,14 +2,14 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include<vector>
-#include<cmath>
-#include<map>
-#include<sstream>
-#include<string>
-#include<iostream>
-#include<fstream>
-#include<utility>
+#include <vector>
+#include <cmath>
+#include <map>
+#include <sstream>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <utility>
 
 #include "TFile.h"
 #include "TH1.h"
@@ -221,8 +221,9 @@ int main(int argc, char* argv[]){
       std::cout << "FATAL: Unable to retrieve environmental DATAPATH" << std::endl;
       exit(EXIT_FAILURE);
   }
-  tmppath=strdup(tmppath);
-  std::string cmtpath(tmppath);
+  std::stringstream tmpSstr{};
+  tmpSstr<<tmppath;
+  std::string cmtpath(tmpSstr.str());
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
   std::ifstream ifs2;

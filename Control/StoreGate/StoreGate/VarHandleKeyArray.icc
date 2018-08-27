@@ -7,18 +7,24 @@
 
 
 namespace SG {
-  //
-  // Forward the initialization to the member VarHandleKeys
-  //
+  /**
+   * @brief forward the initialization to the member VarHandleKeys
+   * @param used If false, then this handle is not to be used.
+   *             Instead of normal initialization, the key will be cleared.
+   */
   template <class Base>
   inline
-  StatusCode VarHandleKeyArrayCommon<Base>::initialize() {
+  StatusCode VarHandleKeyArrayCommon<Base>::initialize (bool used /*= true*/) {
     StatusCode sc(StatusCode::SUCCESS);
-    typename std::vector<Base>::iterator itr;
-    for (itr = this->begin(); itr != this->end(); ++itr) {
-      if (! itr->initialize() ) {
-        sc = StatusCode::FAILURE;
+    if (used) {
+      for (Base& b : *this) {
+        if ( b.initialize().isFailure() ) {
+          sc = StatusCode::FAILURE;
+        }
       }
+    }
+    else {
+      this->clear();
     }
     return sc;
   }

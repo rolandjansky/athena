@@ -58,7 +58,6 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
   std::vector<CaloClusterCollectionProcessor*> m_clusterMakerPointers;      //pointers to tools
   std::vector<CaloClusterProcessor*>           m_clusterCorrectionPointers; //pointers to tools
   xAOD::CaloClusterContainer* m_pCaloClusterContainer;
-  TrigCaloQuality*      m_pTrigCaloQuality;
 
 //   double m_Eta;
 //   double m_Phi;

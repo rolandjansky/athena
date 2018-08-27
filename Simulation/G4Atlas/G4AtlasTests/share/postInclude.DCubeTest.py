@@ -22,6 +22,7 @@ simFlags.ReleaseGeoModel=False;
 from AthenaCommon import CfgGetter
 if DetFlags.Truth_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TruthTestTool", checkType=True)]
+    job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("BeamTruthTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EvgenTruthTestTool", checkType=True)]
 if DetFlags.pixel_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("PixelHitsTestTool", checkType=True)]
@@ -48,7 +49,8 @@ if simFlags.CalibrationRun.get_Value()=='LAr+Tile':
 if DetFlags.Muon_on():
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MDTHitsTestTool", checkType=True)]
     job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("RPCHitsTestTool", checkType=True)]
-    if hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel():
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+    if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3"  :
         job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MMHitsTestTool",  checkType=True)]
         job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("sTGCHitsTestTool",  checkType=True)]
     else:

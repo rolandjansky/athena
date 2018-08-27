@@ -394,8 +394,3 @@ StatusCode PileUpTool::finalize()
   
   return StatusCode::SUCCESS;
 }
-
-
-PileUpTool::~PileUpTool()
-{
-}

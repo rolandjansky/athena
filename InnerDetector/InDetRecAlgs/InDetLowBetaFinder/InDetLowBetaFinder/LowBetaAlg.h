@@ -28,6 +28,7 @@ author Christopher.Marino <Christopher.Marino@cern.ch>
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetLowBetaInfo/InDetLowBetaContainer.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -35,8 +36,6 @@ class AtlasDetectorID;
 class Identifier;
 class TRT_ID;
 class TrtToolBetaLiklihood;
-class ITRT_ToT_dEdx;
-
 
 // Predeclare histogram classes that you use.
 

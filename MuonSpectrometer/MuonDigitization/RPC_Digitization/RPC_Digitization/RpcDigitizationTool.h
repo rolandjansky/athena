@@ -46,6 +46,7 @@ the same strip before the dead time is ignored.
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonCondInterface/IRPCConditionsSvc.h"
 
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
@@ -64,8 +65,6 @@ class PileUpMergeSvc;
 class IAtRndmGenSvc;
 class ITagInfoMgr;
  
-class IRPCConditionsSvc;
-
 namespace MuonGM{
   class MuonDetectorManager;
 }

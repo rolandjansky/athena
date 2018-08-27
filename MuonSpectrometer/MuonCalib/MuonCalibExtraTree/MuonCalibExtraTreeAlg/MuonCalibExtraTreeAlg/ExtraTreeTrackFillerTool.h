@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include <vector>
 #include <set>
@@ -16,7 +17,6 @@
 class MdtIdHelper;
 namespace Trk {
   class ITrackHoleSearchTool;
-  class IResidualPullCalculator;
   class MeasurementBase;
   class CompetingRIOsOnTrack;
   class TrackStateOnSurface;

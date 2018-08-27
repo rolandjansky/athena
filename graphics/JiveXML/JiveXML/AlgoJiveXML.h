@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
+#include "JiveXML/IDataRetriever.h"
 
 #include <vector>
 
@@ -16,7 +17,7 @@
 class StoreGateSvc;
 
 namespace JiveXML{
-  class IDataRetriever; 
+  //  class IDataRetriever; 
   class IFormatTool;
   class IStreamTool;
 }  

@@ -46,11 +46,6 @@ public:
 
   inline void SetFolderName(const std::string& folderName) { m_folderName=folderName; }
 
-protected:
-
-   /** Standard destructor */
-   virtual ~MuonTool( );
-
  private:
   std::string m_folderName;
 

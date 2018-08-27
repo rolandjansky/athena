@@ -201,9 +201,6 @@ void IParticleCollHandle_Jet::init(VP1MaterialButtonBase*)
   //  m_d->bTaggingTexture->ref();
   //  m_d->bTaggingMaterial->ref();
 
-  //updateBTaggingAllJets();
-  //==========
-
 }
 
 
@@ -240,7 +237,6 @@ void IParticleCollHandle_Jet::setupSettingsFromControllerSpecific(AODSystemContr
 
   // maxR
   connect(controller, SIGNAL(maxRChanged(const double&)), this, SLOT(setMaxR(const double&)));
-//  connect(controller, SIGNAL(signalMaxR(bool)), this, SLOT(setIsMaxR(bool)));
 
   // b-tagging
   connect(controller, SIGNAL(bTaggingEnabledChanged(const bool&)), this, SLOT(setBTaggingEnabled(const bool&)));
@@ -328,14 +324,19 @@ void IParticleCollHandle_Jet::setMaxR(const double& maxR)
   messageVerbose("IParticleCollHandle_Jet::setMaxR() - maxR: " + QString::number(maxR));
   //	messageVerbose("setMaxR to: " + str(maxR)+str(", from: ")+str(m_d->maxR));
 
-  if (m_d->maxR == maxR) // no changes
+  if (m_d->maxR == maxR){ // no changes
+    messageDebug("no changes, returning...");
     return;
+    }
 
   m_d->maxR = maxR;
 
-  if (!isLoaded())
+  if (!isLoaded()) {
+    messageDebug("is not loaded, returning...");
     return;
+    }
 
+  messageDebug("modifying MaxR for all jets...");
   largeChangesBegin();
   handleIterationBegin();
   AODHandleBase* handle=0;
@@ -812,6 +813,8 @@ void IParticleCollHandle_Jet::resetCachedValuesCuts()
 	setBTaggingEnabled(m_d->collSettingsButton->bTaggingEnabled());
 	setBTaggingTagger(m_d->collSettingsButton->bTaggingTagger());
 	setBTaggingCut(m_d->collSettingsButton->bTaggingCut());
+	// maxR
+	setMaxR(m_d->collSettingsButton->maxR());
 }
 
 void IParticleCollHandle_Jet::dumpToJSON( std::ofstream& str) const {

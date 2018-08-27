@@ -515,9 +515,6 @@ StatusCode  ElectronTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-ElectronTagTool::~ElectronTagTool() {}
-
 /** private function to get impact parameter */
 void ElectronTagTool::getElectronImpactParameter (const xAOD::Electron* elec, double& d0_significance, double& z0_sintheta) {
 

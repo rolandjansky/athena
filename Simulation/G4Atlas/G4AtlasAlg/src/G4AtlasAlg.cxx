@@ -14,6 +14,7 @@
 #include "G4AtlasRunManager.h"
 
 // Geant4 includes
+#include "G4StateManager.hh"
 #include "G4TransportationManager.hh"
 #include "G4RunManagerKernel.hh"
 #include "G4EventManager.hh"
@@ -199,8 +200,10 @@ void G4AtlasAlg::initializeOnce()
   }
 
   // Send UI commands
+  ATH_MSG_DEBUG("G4 Command: Trying at the end of initializeOnce()");
   for (auto g4command : m_g4commands) {
-    ui->ApplyCommand( g4command );
+    int returnCode = ui->ApplyCommand( g4command );
+    commandLog(returnCode, g4command);
   }
 
   // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
@@ -394,4 +397,23 @@ void G4AtlasAlg::releaseGeoModel()
   }
   m_releaseGeoModel=false; // Don't do that again...
   return;
+}
+
+void G4AtlasAlg::commandLog(int returnCode, const std::string& commandString) const
+{
+  switch(returnCode) {
+  case 0: { ATH_MSG_DEBUG("G4 Command: " << commandString << " - Command Succeeded"); } break;
+  case 100: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Command Not Found!"); } break;
+  case 200: {
+    auto* stateManager = G4StateManager::GetStateManager();
+    ATH_MSG_DEBUG("G4 Command: " << commandString << " - Illegal Application State (" <<
+                    stateManager->GetStateString(stateManager->GetCurrentState()) << ")!");
+  } break;
+  case 300: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Range!"); } break;
+  case 400: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Unreadable!"); } break;
+  case 500: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Parameter Out of Candidates!"); } break;
+  case 600: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Alias Not Found!"); } break;
+  default: { ATH_MSG_ERROR("G4 Command: " << commandString << " - Unknown Status!"); } break;
+  }
+
 }

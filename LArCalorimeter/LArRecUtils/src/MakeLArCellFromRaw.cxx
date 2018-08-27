@@ -147,6 +147,12 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   info0.eCorr=1.; 
   info0.elem = 0 ; 
 
+  // Make sure that the OnOff map has been set up.
+  if (!m_cablingSvc->checkOnOff().isSuccess()) {
+    MsgStream log(m_msgSvc, "MakeLArCellFromRaw");
+    log << MSG::ERROR << "Accessing OnOff map" << endmsg;
+  }
+
 
   // EM
   std::vector<Identifier>::const_iterator it = emIds.begin();

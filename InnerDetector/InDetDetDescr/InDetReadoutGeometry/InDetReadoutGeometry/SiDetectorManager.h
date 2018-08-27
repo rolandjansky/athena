@@ -75,10 +75,6 @@ class SiNumerology;
       virtual SiDetectorElement * getDetectorElement(const Identifier &id) const = 0;
       virtual SiDetectorElement * getDetectorElement(const IdentifierHash &idHash) const = 0;
     
-      /** access to individual elements using Identifier or IdentiferHash using SiDetectorElementCollection */
-      virtual const SiDetectorElement* getDetectorElement(const Identifier &id, const SiDetectorElementCollection* coll) const = 0;
-      virtual const SiDetectorElement* getDetectorElement(const IdentifierHash &idHash, const SiDetectorElementCollection* coll) const = 0;
-
       /** access to whole collectiom */
       virtual const SiDetectorElementCollection * getDetectorElementCollection() const = 0;
       virtual SiDetectorElementCollection::const_iterator getDetectorElementBegin() const = 0;

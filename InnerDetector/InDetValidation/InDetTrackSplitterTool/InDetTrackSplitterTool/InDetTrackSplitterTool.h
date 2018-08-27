@@ -168,8 +168,8 @@ namespace InDet{
       
       /** Helper Functions */
       ToolHandle<Trk::ITrackFitter>  m_trkfitter;
-      TRT_ID const* m_trtid ;
-      SCT_ID const* m_sctid ;
+      TRT_ID const* m_trtid{} ;
+      SCT_ID const* m_sctid{} ;
       
       /** Do we use the material on the input track
        */

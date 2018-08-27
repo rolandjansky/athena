@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -124,7 +124,6 @@ class TriggerTowerMaker : public AthAlgorithm,
     //------------------------------------------------------
 
     StatusCode initialize();
-    //StatusCode beginRun();
     StatusCode execute();
     StatusCode finalize();
 

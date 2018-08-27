@@ -21,8 +21,9 @@
 // when the TriggerObjectAssociationTool code is instantiated.
 class TrigElectron;
 class I4Momentum;
+class IAlgTool;
 namespace D3PD {
-bool lessForTriggerAssociation (void* tool,
+bool lessForTriggerAssociation (IAlgTool* tool,
                                 const I4Momentum* p0,
                                 const TrigElectron* p1,
                                 const TrigElectron* p2);
@@ -33,7 +34,6 @@ bool lessForTriggerAssociation (void* tool,
 #include "TrigObjectMatching/DistanceFunctor.h"
 #include "D3PDMakerUtils/IndexMap.h"
 #include "egammaEvent/egamma.h"
-#include "TrigParticle/TrigElectron.h"
 #include "TrigParticle/TrigElectronContainer.h"
 #include "GaudiKernel/ToolHandle.h"
 

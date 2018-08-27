@@ -55,10 +55,10 @@ public:
 
    const CLID& attListID();
 
-protected:
-
-   /// Standard Destructor
+     /// Standard Destructor
    virtual ~RegistrationStreamTagTool();
+
+protected:
 
    /// Dump values from AttributeList for DEBUG
    void dumpTagList(const TagAthenaAttributeList* attributes) const;

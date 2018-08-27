@@ -9,14 +9,13 @@
 
 
 //#include "CaloEvent/CaloShowerContainer.h"
-//#include "CaloTPCnv/CaloShowerContainer_p1.h"
+#include "CaloTPCnv/CaloShowerContainer_p1.h"
 #include "CaloTPCnv/CaloClusterMomentStoreCnv_p1.h"
 #include "CaloTPCnv/CaloSamplingDataCnv_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 
 class CaloShowerContainer;
-class CaloShowerContainer_p1;
 
 
 

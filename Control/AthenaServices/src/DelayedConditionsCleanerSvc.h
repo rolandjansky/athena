@@ -69,6 +69,11 @@ public:
    */
   DelayedConditionsCleanerSvc (const std::string& name, ISvcLocator* svc);
 
+  /**
+   * @brief Standard destructor. Needed to avoid problems with unique_ptr
+   */
+  ~DelayedConditionsCleanerSvc();
+
 
   /**
    * @brief Standard Gaudi initialize method.

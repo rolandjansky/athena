@@ -18,7 +18,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
+#include "InDetRIO_OnTrack/SCTRIO_OnTrackErrorScaling.h"
 #include "TrkParameters/TrackParameters.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
@@ -90,12 +90,10 @@ public:
   // Private data:
   ///////////////////////////////////////////////////////////////////
 
-   //! toolhandle for central error scaling
-   ToolHandle< Trk::IRIO_OnTrackErrorScalingTool > m_errorScalingTool;
    ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool;
    ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
-   //! flag storing if errors need scaling or should be kept nominal
-   bool                               m_scaleSctCov;
+   SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_sctErrorScalingKey
+      {this,"SCTErrorScalingKey", "" /* "/Indet/TrkErrorScalingSCT" */, "Key for SCT error scaling conditions data. No error scaling if empty."};
 
    //! job options
    bool                               m_option_make2dimBarrelClusters;
