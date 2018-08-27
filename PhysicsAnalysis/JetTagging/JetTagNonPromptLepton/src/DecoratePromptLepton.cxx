@@ -42,6 +42,8 @@ Prompt::DecoratePromptLepton::DecoratePromptLepton(const std::string& name,
 
   declareProperty("StringIntVars",               m_stringIntVars);
   declareProperty("StringFloatVars",             m_stringFloatVars);
+  declareProperty("StringIntSpecVars",           m_stringIntSpecVars);
+  declareProperty("StringFloatSpecVars",         m_stringFloatSpecVars);
   declareProperty("PrintAuxVars",                m_printAuxVars = false); 
   declareProperty("PrintTime",                   m_printTime    = false);
 }
@@ -50,6 +52,7 @@ Prompt::DecoratePromptLepton::DecoratePromptLepton(const std::string& name,
 //=============================================================================
 StatusCode Prompt::DecoratePromptLepton::initialize()
 {   
+
   if(m_printTime) {
     //
     // Reset timers
@@ -75,6 +78,13 @@ StatusCode Prompt::DecoratePromptLepton::initialize()
 
   m_allVars.insert(m_allVars.end(), m_intVars  .begin(), m_intVars  .end());
   m_allVars.insert(m_allVars.end(), m_floatVars.begin(), m_floatVars.end());
+
+  // Spectator variables
+  m_intSpecVars   = Prompt::Def::ReadVectorVars(m_stringIntSpecVars);
+  m_floatSpecVars = Prompt::Def::ReadVectorVars(m_stringFloatSpecVars);
+
+  m_allSpecVars.insert(m_allSpecVars.end(), m_intSpecVars  .begin(), m_intSpecVars  .end());
+  m_allSpecVars.insert(m_allSpecVars.end(), m_floatSpecVars.begin(), m_floatSpecVars.end());
 
   //
   // Fill decorator maps
@@ -106,6 +116,7 @@ StatusCode Prompt::DecoratePromptLepton::initialize()
 //=============================================================================
 StatusCode Prompt::DecoratePromptLepton::finalize()
 {
+
   if(m_printTime) {
     //
     // Print full time stopwatch
@@ -150,6 +161,7 @@ StatusCode Prompt::DecoratePromptLepton::finalize()
 //=============================================================================
 StatusCode Prompt::DecoratePromptLepton::execute()
 {  
+
   //
   // Start execute timer
   //
@@ -227,7 +239,7 @@ bool Prompt::DecoratePromptLepton::initializeTMVAReader()
   m_TMVAReader = new TMVA::Reader();
 
   for(Prompt::Def::Var &var: m_allVars) {
-    Float_t *new_var = new Float_t(0.0);
+    Float_t *new_var = new Float_t(0.0);    
     m_TMVAReader->AddVariable(Prompt::Def::AsStr(var), new_var);   
     m_varTMVA.push_back(new_var);
   }
@@ -323,11 +335,27 @@ void Prompt::DecoratePromptLepton::initializeDecorators()
     }
   }
 
+  for(Prompt::Def::Var &var: m_intSpecVars) {
+    SG::AuxElement::Decorator<short> shortDecorator(m_auxVarPrefix+Prompt::Def::AsStr(var));
+    if(!m_shortMap.insert(shortDecoratorMap::value_type(var, shortDecorator)).second) {
+      ATH_MSG_WARNING("Instantiation of Decorator class failed for short decorator map");
+    }
+  }
+
   //
   // Fill float variable map
   //
   for(Prompt::Def::Var &var: m_floatVars) {
     SG::AuxElement::Decorator<float> floatDecorator(m_auxVarPrefix+Prompt::Def::AsStr(var));
+    std::cout << "Make decorator for variable: " << m_auxVarPrefix+Prompt::Def::AsStr(var) << std::endl;
+    if(!m_floatMap.insert(floatDecoratorMap::value_type(var, floatDecorator)).second) {
+      ATH_MSG_WARNING("Instantiation of Decorator class failed for float decorator map");
+    }
+  }
+
+  for(Prompt::Def::Var &var: m_floatSpecVars) {
+    SG::AuxElement::Decorator<float> floatDecorator(m_auxVarPrefix+Prompt::Def::AsStr(var));
+    std::cout << "Make decorator for spectator variable: " << m_auxVarPrefix+Prompt::Def::AsStr(var) << std::endl;
     if(!m_floatMap.insert(floatDecoratorMap::value_type(var, floatDecorator)).second) {
       ATH_MSG_WARNING("Instantiation of Decorator class failed for float decorator map");
     }
@@ -356,6 +384,7 @@ void Prompt::DecoratePromptLepton::initializeConstAccessors()
 void Prompt::DecoratePromptLepton::decorateElectron(const xAOD::Electron* electron, 
 						    const xAOD::JetContainer* trackJets)
 { 
+
   //
   // Find nearest track jet to electron
   //
@@ -423,6 +452,7 @@ void Prompt::DecoratePromptLepton::decorateElectron(const xAOD::Electron* electr
 void Prompt::DecoratePromptLepton::decorateMuon(const xAOD::Muon* muon, 
 						const xAOD::JetContainer* trackJets)
 { 
+
   //
   // Find nearest track jet to muon
   //
@@ -673,6 +703,10 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   vars.AddVar(Prompt::Def::ip3_cu,         ip3_cu);
   vars.AddVar(Prompt::Def::SV1,            SV1);
   vars.AddVar(Prompt::Def::JetF,           JetF);
+  vars.AddVar(Prompt::Def::JetPt,          jet->pt());
+  vars.AddVar(Prompt::Def::JetEta,         jet->eta());
+  vars.AddVar(Prompt::Def::JetPhi,         jet->phi());
+  vars.AddVar(Prompt::Def::JetM,           jet->m());
 
   if(ntrack == 1) {
     ATH_MSG_DEBUG("Nearest track jet only contains one track");
@@ -796,6 +830,10 @@ void Prompt::DecoratePromptLepton::fillVarDefault(Prompt::VarHolder &vars)
   // Add default values to VarHolder
   //
   for(Prompt::Def::Var &var: m_allVars) {  
+    vars.AddVar(var, -99.0);
+  }
+
+  for(Prompt::Def::Var &var: m_allSpecVars) {  
     vars.AddVar(var, -99.0);
   }
 }

@@ -131,6 +131,8 @@ namespace Prompt
 
     std::vector<std::string>              m_stringIntVars;
     std::vector<std::string>              m_stringFloatVars;
+    std::vector<std::string>              m_stringIntSpecVars;
+    std::vector<std::string>              m_stringFloatSpecVars;
 
     bool                                  m_printAuxVars;
     bool                                  m_printTime;
@@ -143,6 +145,9 @@ namespace Prompt
     std::vector<Prompt::Def::Var>         m_intVars;
     std::vector<Prompt::Def::Var>         m_floatVars;
     std::vector<Prompt::Def::Var>         m_allVars;
+    std::vector<Prompt::Def::Var>         m_intSpecVars;
+    std::vector<Prompt::Def::Var>         m_floatSpecVars;
+    std::vector<Prompt::Def::Var>         m_allSpecVars;
 
     shortDecoratorMap                     m_shortMap;
     floatDecoratorMap                     m_floatMap;
