@@ -17,7 +17,7 @@
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 
 namespace InDet {
 
@@ -183,10 +183,9 @@ namespace InDet {
       std::multimap<int,int>                     m_tracks[100]    ;
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
       
-      /** tool to get cut values depending on different variable */
-      ToolHandle<IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
-      bool                                       m_useEtaDependentCuts;   
-
+      /** service to get cut values depending on different variable */
+      ServiceHandle<IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc;   
+      
       ///////////////////////////////////////////////////////////////////
       // Protected methods
       ///////////////////////////////////////////////////////////////////

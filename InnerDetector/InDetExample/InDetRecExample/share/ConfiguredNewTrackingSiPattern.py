@@ -206,8 +206,19 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiTrackMaker.etaWidth                  = NewTrackingCuts.etaWidthBrem()
             InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()
          else:
-           InDetSiTrackMaker.UseEtaDependentCuts       = True
-           InDetSiTrackMaker.InDetEtaDependentCutsTool = InDetEtaDependentCutsTool
+           InDetSiTrackMaker.etaBins                   = NewTrackingCuts.etaBins()
+           InDetSiTrackMaker.pTBins                    = NewTrackingCuts.minPT()
+           InDetSiTrackMaker.nClustersMin              = min(NewTrackingCuts.minClusters())
+           InDetSiTrackMaker.pTmin                     = NewTrackingCuts.minPT()[0]
+           InDetSiTrackMaker.pTminBrem                 = NewTrackingCuts.minPTBrem()[0]
+           InDetSiTrackMaker.Xi2max                    = NewTrackingCuts.Xi2max()[0]
+           InDetSiTrackMaker.Xi2maxNoAdd               = NewTrackingCuts.Xi2maxNoAdd()[0]
+           InDetSiTrackMaker.Xi2maxMultiTracks         = NewTrackingCuts.Xi2max()[0]
+           InDetSiTrackMaker.nHolesMax                 = NewTrackingCuts.nHolesMax()[0]
+           InDetSiTrackMaker.nHolesGapMax              = NewTrackingCuts.nHolesGapMax()[0]
+           InDetSiTrackMaker.phiWidth                  = NewTrackingCuts.phiWidthBrem()[0]
+           InDetSiTrackMaker.etaWidth                  = NewTrackingCuts.etaWidthBrem()[0]
+           InDetSiTrackMaker.nWeightedClustersMin      = NewTrackingCuts.nWeightedClustersMin()[0]
          
          if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
             InDetSiTrackMaker.ITKGeometry = True
@@ -369,8 +380,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minNotShared        = NewTrackingCuts.minSiNotShared()
            InDetAmbiTrackSelectionTool.maxShared           = NewTrackingCuts.maxShared()
          else:
-           InDetAmbiTrackSelectionTool.UseEtaDependentCuts       = True
-           InDetAmbiTrackSelectionTool.InDetEtaDependentCutsTool = InDetEtaDependentCutsTool
+           InDetAmbiTrackSelectionTool.InDetEtaDependentCutsSvc = InDetEtaDependentCutsSvc
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            InDetAmbiTrackSelectionTool.sharedProbCut             = prob1
@@ -452,8 +462,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiScoringTool.maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact()
            InDetAmbiScoringTool.maxZImp                 = NewTrackingCuts.maxZImpact()
          else:
-           InDetAmbiScoringTool.UseEtaDependentCuts       = True
-           InDetAmbiScoringTool.InDetEtaDependentCutsTool = InDetEtaDependentCutsTool
+           InDetAmbiScoringTool.InDetEtaDependentCutsSvc = InDetEtaDependentCutsSvc
 
          ToolSvc += InDetAmbiScoringTool
          if (InDetFlags.doPrintConfigurables()):

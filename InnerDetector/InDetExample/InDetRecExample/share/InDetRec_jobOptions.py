@@ -908,10 +908,9 @@ else:
                                                         MinSiHits           =  InDetNewTrackingCuts.minClusters() )
         
         if InDetFlags.useEtaDependentCuts() and InDetFlags.doSLHC():
-          InDetTruthTrackBuilder.UseEtaDependentCuts         = True
-          InDetTruthTrackBuilder.InDetEtaDependentCutsTool   = InDetEtaDependentCutsTool
+          InDetTruthTrackBuilder.InDetEtaDependentCutsSvc   = InDetEtaDependentCutsSvc
         else:
-          InDetTruthTrackBuilder.MinSiHits                   =  InDetNewTrackingCuts.minClusters()
+          InDetTruthTrackBuilder.MinSiHits                  =  InDetNewTrackingCuts.minClusters()
           
           
         ToolSvc += InDetTruthTrackBuilder

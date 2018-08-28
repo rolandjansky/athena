@@ -2,15 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IINDETETADEPENDENTCUTSTOOL_H
-#define IINDETETADEPENDENTCUTSTOOL_H
+#ifndef IINDETETADEPENDENTCUTSSVC_H
+#define IINDETETADEPENDENTCUTSSVC_H
 
-#include "GaudiKernel/IAlgTool.h"
-#include "TrkTrack/Track.h"
+#include "GaudiKernel/IInterface.h"
 
 namespace InDet {
   
-  static const InterfaceID IID_IInDetEtaDependentCutsTool("IInDetEtaDependentCutsTool", 1, 0);
+  static const InterfaceID IID_IInDetEtaDependentCutsSvc("IInDetEtaDependentCutsSvc", 1, 0);
 
   enum CutName {  
     etaBins, etaWidthBrem, maxdImpactSSSSeeds, maxDoubleHoles,
@@ -20,16 +19,18 @@ namespace InDet {
     nWeightedClustersMin, phiWidthBrem, Xi2max, Xi2maxNoAdd
   };
   
-  class IInDetEtaDependentCutsTool : virtual public IAlgTool {
+  class IInDetEtaDependentCutsSvc : virtual public IInterface {
     
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
   public: 
     
-    virtual ~IInDetEtaDependentCutsTool() {};
+    virtual ~IInDetEtaDependentCutsSvc() {};
     
     static const InterfaceID& interfaceID();
+    
+    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF)=0;
     
     virtual void getValue(InDet::CutName cutName, std::vector < double >& cut) = 0;
     virtual void getValue(InDet::CutName cutName,    std::vector < int >& cut) = 0;
@@ -55,11 +56,11 @@ namespace InDet {
   /////////////////////////////////////////////////////////////////// 
   /// Inline methods: 
   /////////////////////////////////////////////////////////////////// 
-  inline const InterfaceID& IInDetEtaDependentCutsTool::interfaceID() 
+  inline const InterfaceID& IInDetEtaDependentCutsSvc::interfaceID() 
   { 
-    return IID_IInDetEtaDependentCutsTool; 
+    return IID_IInDetEtaDependentCutsSvc; 
   }
 
 }// end namespace
 
-#endif //> !IINDETETADEPENDENTCUTSTOOL_H
+#endif //> !IINDETETADEPENDENTCUTSSVC_H

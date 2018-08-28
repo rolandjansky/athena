@@ -26,7 +26,6 @@
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h" 
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
-#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
@@ -160,9 +159,8 @@ namespace InDet{
       double m_etaWidth                              ;
       double m_p[9]                                  ;
       double m_xybeam[2]                             ;
-      int                            m_nPTCuts       ;
-      double                         m_PTCuts[10][2] ;
       std::vector < double >         m_etabins       ;
+      std::vector < double >         m_ptbins        ;
       
 
       ///////////////////////////////////////////////////////////////////
@@ -189,8 +187,6 @@ namespace InDet{
       bool isDBMSeeds(const Trk::SpacePoint*);
       void clusterTrackMap(Trk::Track*);
       
-      void rapidityCuts();
-      void setCutsForPT();
       double pTmin(double T);
       
       void       magneticFieldInit();
@@ -198,10 +194,6 @@ namespace InDet{
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;
-      
-      /** tool to get cut values depending on different variable */
-      ToolHandle<IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
-      bool                                       m_useEtaDependentCuts;
       
     };
 
@@ -214,11 +206,14 @@ namespace InDet{
   
     inline double SiTrackMaker_xk::pTmin(double T)
     {
-      double aT = fabs(T);
-      for(int n = m_nPTCuts; n!=0; --n) {
-        if(aT > m_PTCuts[n][0]) return m_PTCuts[n][1];
+      if (m_ptbins.size() == 0) return m_pTmin;
+      
+      double eta = fabs(-log(tan(0.5*T)));
+      for(int n = int(m_ptbins.size()-1); n>=0; --n) {
+        if(eta > m_etabins.at(n)) return m_ptbins.at(n);
       }
-      return m_PTCuts[0][1];
+      
+      return m_pTmin;
     }
     
 } // end of name space

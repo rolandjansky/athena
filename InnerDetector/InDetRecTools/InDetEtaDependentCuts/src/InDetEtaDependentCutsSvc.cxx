@@ -3,25 +3,20 @@
 */
 
 
-// InDetEtaDependentCutsTool includes
-#include "InDetEtaDependentCutsTool/InDetEtaDependentCutsTool.h"
-
-// FrameWork includes
-#include "GaudiKernel/IToolSvc.h"
+// InDetEtaDependentCutsSvc includes
+#include "InDetEtaDependentCuts/InDetEtaDependentCutsSvc.h"
 
 namespace InDet {
   
   ////////////////
   // Constructors
   ////////////////
-  InDetEtaDependentCutsTool::InDetEtaDependentCutsTool( const std::string& type, 
-                                              const std::string& name, 
-                                              const IInterface* parent ) : 
-    AthAlgTool(type, name, parent),
+  InDetEtaDependentCutsSvc::InDetEtaDependentCutsSvc(const std::string& name, 
+                                                     ISvcLocator* sl):
+    AthService(name, sl),
     m_noOfEtaBins(1),
     m_maxEta(2.7)
     {
-      declareInterface< IInDetEtaDependentCutsTool >(this);
       //
       // Property declaration
       //
@@ -53,12 +48,26 @@ namespace InDet {
     ///////////////
     // Destructor
     ///////////////
-    InDetEtaDependentCutsTool::~InDetEtaDependentCutsTool() {}
+    InDetEtaDependentCutsSvc::~InDetEtaDependentCutsSvc() {}
+    
+    
+    ///////////////
+    // queryInterface
+    ///////////////
+    StatusCode InDetEtaDependentCutsSvc::queryInterface(const InterfaceID& riid, void** ppvIF) {
+      if( IID_IInDetEtaDependentCutsSvc == riid ) {
+        *ppvIF = dynamic_cast< IInDetEtaDependentCutsSvc* >(this); 
+      } else{ 
+        return AthService::queryInterface(riid, ppvIF); 
+      }
+      addRef();
+      return StatusCode::SUCCESS; 
+    }
 
     ///////////////
     // Initialize
     ///////////////
-    StatusCode InDetEtaDependentCutsTool::initialize() {
+    StatusCode InDetEtaDependentCutsSvc::initialize() {
       
       ATH_MSG_INFO ("Initializing " << name() << "...");
       
@@ -128,13 +137,13 @@ namespace InDet {
     ///////////////
     // Finalize
     ///////////////
-    StatusCode InDetEtaDependentCutsTool::finalize() {
+    StatusCode InDetEtaDependentCutsSvc::finalize() {
       ATH_MSG_INFO ("Finalizing " << name() << "...");
       return StatusCode::SUCCESS;
     }
     
     template <class T>
-    StatusCode InDetEtaDependentCutsTool::checkSize(T& cuts) {
+    StatusCode InDetEtaDependentCutsSvc::checkSize(T& cuts) {
       for (auto *cut : cuts) {
         if (cut->size() == m_noOfEtaBins) continue;
         
@@ -151,7 +160,7 @@ namespace InDet {
       return StatusCode::SUCCESS;
     }
 
-    void InDetEtaDependentCutsTool::getIndexByEta(double eta, int& bin) {
+    void InDetEtaDependentCutsSvc::getIndexByEta(double eta, int& bin) {
       
       // setting the default value in case the bin is not found
       bin = -1;
@@ -171,7 +180,7 @@ namespace InDet {
     }
 
 
-    void InDetEtaDependentCutsTool::getValue(InDet::CutName cutName, std::vector < double >& cut) {
+    void InDetEtaDependentCutsSvc::getValue(InDet::CutName cutName, std::vector < double >& cut) {
       
       // resize the cut vector before setting it
       cut.resize(m_noOfEtaBins);
@@ -223,7 +232,7 @@ namespace InDet {
       }
     }
     
-    void InDetEtaDependentCutsTool::getValue(InDet::CutName cutName,    std::vector < int >& cut) {
+    void InDetEtaDependentCutsSvc::getValue(InDet::CutName cutName,    std::vector < int >& cut) {
 
       // resize the cut vector before setting it
       cut.resize(m_noOfEtaBins);
@@ -280,64 +289,64 @@ namespace InDet {
     }
   
     template <class T>
-    T InDetEtaDependentCutsTool::getValueAtEta(std::vector< T > cuts, double eta) {
+    T InDetEtaDependentCutsSvc::getValueAtEta(std::vector< T > cuts, double eta) {
      int bin;
      getIndexByEta(eta, bin);
      return cuts.at(bin);
     }
     
     template <class T>
-    void InDetEtaDependentCutsTool::getValue(InDet::CutName cutName, T& cut, double eta) {
+    void InDetEtaDependentCutsSvc::getValue(InDet::CutName cutName, T& cut, double eta) {
       std::vector < T > cuts; 
       getValue (cutName, cut);
       cut = getValueAtEta< T >(cuts, eta);
     }
     
-    double  InDetEtaDependentCutsTool::getMaxEta() {
+    double  InDetEtaDependentCutsSvc::getMaxEta() {
       return m_maxEta;
     }
     
-    double InDetEtaDependentCutsTool::getMinPtAtEta(double eta) {
+    double InDetEtaDependentCutsSvc::getMinPtAtEta(double eta) {
       return getValueAtEta<double>(m_minPT,eta);
     }
     
-    double  InDetEtaDependentCutsTool::getMaxZImpactAtEta      (double eta) {
+    double  InDetEtaDependentCutsSvc::getMaxZImpactAtEta      (double eta) {
       return getValueAtEta<double>(m_maxZImpact, eta);
     }
     
-    double  InDetEtaDependentCutsTool::getMaxPrimaryImpactAtEta(double eta) {
+    double  InDetEtaDependentCutsSvc::getMaxPrimaryImpactAtEta(double eta) {
       return getValueAtEta<double>(m_maxPrimaryImpact, eta);
     }
       
-    int     InDetEtaDependentCutsTool::getMinSiHitsAtEta       (double eta) {
+    int     InDetEtaDependentCutsSvc::getMinSiHitsAtEta       (double eta) {
       return getValueAtEta<int>(m_minClusters, eta);
     }
     
-    int     InDetEtaDependentCutsTool::getMinPixelHitsAtEta    (double eta) {
+    int     InDetEtaDependentCutsSvc::getMinPixelHitsAtEta    (double eta) {
       return getValueAtEta<int>(m_minPixelHits, eta);
     }
     
-    int     InDetEtaDependentCutsTool::getMaxSiHolesAtEta      (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxSiHolesAtEta      (double eta) {
       return getValueAtEta<int>(m_maxHoles, eta);
     }
     
-    int     InDetEtaDependentCutsTool::getMaxPixelHolesAtEta   (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxPixelHolesAtEta   (double eta) {
       return getValueAtEta<int>(m_maxPixelHoles, eta);
     }
     
-    int     InDetEtaDependentCutsTool::getMaxSctHolesAtEta     (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxSctHolesAtEta     (double eta) {
       return getValueAtEta<int>(m_maxSctHoles, eta);
     }
     
-    int     InDetEtaDependentCutsTool::getMaxDoubleHolesAtEta  (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxDoubleHolesAtEta  (double eta) {
       return getValueAtEta<int>(m_maxDoubleHoles, eta);
     }
     
-    int     InDetEtaDependentCutsTool::getMinSiNotSharedAtEta  (double eta) {
+    int     InDetEtaDependentCutsSvc::getMinSiNotSharedAtEta  (double eta) {
       return getValueAtEta<int>(m_minSiNotShared, eta);
     }
     
-    int     InDetEtaDependentCutsTool::getMaxSharedAtEta  (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxSharedAtEta  (double eta) {
       return getValueAtEta<int>(m_maxShared, eta);
     }
       

@@ -37,8 +37,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_incidentSvc("IncidentSvc", n),
   m_fieldOn(true),
   m_holesearch(false),
-  m_etaDependentCutsTool("InDet::InDetEtaDependentCutsTool/InDetEtaDependentCutsTool"),
-  m_useEtaDependentCuts(false)
+  m_etaDependentCutsSvc("",n)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
@@ -83,8 +82,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("etaWidthEM",        m_etaWidthEm   = 0.05  );
   declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName); 
   
-  declareProperty("InDetEtaDependentCutsTool"   , m_etaDependentCutsTool);
-  declareProperty("UseEtaDependentCuts"         , m_useEtaDependentCuts );       
+  declareProperty("InDetEtaDependentCutsSvc"   , m_etaDependentCutsSvc);
   
   //set values for scores
   m_summaryTypeScore[Trk::numberOfPixelHits]            =  20;
@@ -175,13 +173,8 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
     return StatusCode::FAILURE;
   }
   
-  if (m_useEtaDependentCuts and m_etaDependentCutsTool.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_etaDependentCutsTool);
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_INFO("Retrieved tool " << m_etaDependentCutsTool);
-  }
+  if (not m_etaDependentCutsSvc.name().empty())
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
   
   // register to the incident service: EndEvent needed for memory cleanup
   m_incidentSvc->addListener( this, "BeginEvent");
@@ -271,7 +264,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of double Holes
     if (numSCTDoubleHoles>=0) {
       int maxDoubleHoles = m_maxDoubleHoles;
-      if (m_useEtaDependentCuts) maxDoubleHoles = m_etaDependentCutsTool->getMaxDoubleHolesAtEta(trackEta);
+      if (m_etaDependentCutsSvc) maxDoubleHoles = m_etaDependentCutsSvc->getMaxDoubleHolesAtEta(trackEta);
       if (numSCTDoubleHoles > maxDoubleHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numSCTDoubleHoles <<" double holes, reject it!");
         return Trk::TrackScore(0);
@@ -280,7 +273,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of Si (Pixel+SCT) Holes
     if (numSCTHoles>=0 && numPixelHoles>=0) {
       int maxSiHoles = m_maxSiHoles;
-      if (m_useEtaDependentCuts) maxSiHoles = m_etaDependentCutsTool->getMaxSiHolesAtEta(trackEta);
+      if (m_etaDependentCutsSvc) maxSiHoles = m_etaDependentCutsSvc->getMaxSiHolesAtEta(trackEta);
       if (numPixelHoles+numSCTHoles > maxSiHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numPixelHoles <<" Pixel and " << numSCTHoles << " SCT holes, reject it!");
         return Trk::TrackScore(0);
@@ -289,7 +282,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of Pixel Holes
     if ( numPixelHoles>=0 ) {
       int maxPixelHoles = m_maxPixelHoles;
-      if (m_useEtaDependentCuts) maxPixelHoles = m_etaDependentCutsTool->getMaxPixelHolesAtEta(trackEta);
+      if (m_etaDependentCutsSvc) maxPixelHoles = m_etaDependentCutsSvc->getMaxPixelHolesAtEta(trackEta);
       if (numPixelHoles > maxPixelHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numPixelHoles <<" Pixel  holes, reject it!");
         return Trk::TrackScore(0);
@@ -298,7 +291,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of SCT Holes
     if ( numSCTHoles>=0 ) {
       int maxSctHoles = m_maxSctHoles;
-      if (m_useEtaDependentCuts) maxSctHoles = m_etaDependentCutsTool->getMaxSctHolesAtEta(trackEta);
+      if (m_etaDependentCutsSvc) maxSctHoles = m_etaDependentCutsSvc->getMaxSctHolesAtEta(trackEta);
       if ( numSCTHoles > maxSctHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numSCTHoles << " SCT holes, reject it!");
         return Trk::TrackScore(0);
@@ -317,7 +310,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of Si Clusters
     if ( numSCT>=0 && numPixel>=0) {
       int minSiClusters = m_minSiClusters;
-      if (m_useEtaDependentCuts) minSiClusters = m_etaDependentCutsTool->getMinSiHitsAtEta(trackEta);
+      if (m_etaDependentCutsSvc) minSiClusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
       if (numPixel+numSCT+numPixelDead+numSCTDead < minSiClusters) {
         ATH_MSG_DEBUG ("Track has " << numPixel+numSCT << " Si clusters and " << numPixelDead+numSCTDead << " dead sensors, reject it");
         return Trk::TrackScore(0);
@@ -326,7 +319,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of pixel clusters
     if (numPixel>=0) {
       int minPixel = m_minPixel;
-      if (m_useEtaDependentCuts) minPixel = m_etaDependentCutsTool->getMinPixelHitsAtEta(trackEta);
+      if (m_etaDependentCutsSvc) minPixel = m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta);
       if(numPixel < minPixel) {
         ATH_MSG_DEBUG ("Track has " << numPixel << " pixel hits, reject it");
         return Trk::TrackScore(0);
@@ -349,14 +342,14 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   // cuts on parameters
   if (m_magFieldSvc->solenoidOn()) {
     double minPt = m_minPt;
-    if (m_useEtaDependentCuts) minPt = m_etaDependentCutsTool->getMinPtAtEta(trackEta);
+    if (m_etaDependentCutsSvc) minPt = m_etaDependentCutsSvc->getMinPtAtEta(trackEta);
     if (fabs(input->pT()) < minPt) {
       ATH_MSG_DEBUG ("Track pt < "<<minPt<<", reject it");
       return Trk::TrackScore(0);
     } 
   }
   double maxEta = m_maxEta;
-  if (m_useEtaDependentCuts) maxEta = m_etaDependentCutsTool->getMaxEta();
+  if (m_etaDependentCutsSvc) maxEta = m_etaDependentCutsSvc->getMaxEta();
   if (fabs(trackEta) > maxEta) {
     ATH_MSG_DEBUG ("Track eta > "<<maxEta<<", reject it");
     return Trk::TrackScore(0);

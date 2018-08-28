@@ -35,9 +35,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
     m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
     m_seedtrack   ("InDet::SeedToTrackConversionTool"    ),
     m_caloCluster("InDetCaloClusterROIs"),
-    m_caloHad("InDetHadCaloClusterROIs"),
-    m_etaDependentCutsTool("InDet::InDetEtaDependentCutsTool/InDetEtaDependentCutsTool"),
-    m_useEtaDependentCuts(false)
+    m_caloHad("InDetHadCaloClusterROIs")
 {
   m_fieldmode    = "MapSolenoid"      ;
   m_patternName  = "SiSPSeededFinder" ; 
@@ -87,6 +85,8 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("Xi2max"                  ,m_xi2max      );
   declareProperty("Xi2maxNoAdd"             ,m_xi2maxNoAdd );
   declareProperty("Xi2maxlink"              ,m_xi2maxlink  );
+  declareProperty("etaBins"                 ,m_etabins     );
+  declareProperty("pTBins"                  ,m_ptbins      );
   declareProperty("pTmin"                   ,m_pTmin       );
   declareProperty("pTminBrem"               ,m_pTminBrem   );
   declareProperty("pTminSSS"                ,m_pTminSSS    );
@@ -116,8 +116,6 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("usePixel"                , m_usePix);
   declareProperty("ITKGeometry"             , m_ITKGeomtry);
   declareProperty("SeedSegmentsWrite"       , m_seedsegmentsWrite);
-  declareProperty("InDetEtaDependentCutsTool"   , m_etaDependentCutsTool);
-  declareProperty("UseEtaDependentCuts"         , m_useEtaDependentCuts ); 
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -186,18 +184,6 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     }
   }
   
-  if (m_useEtaDependentCuts) {
-    if (m_etaDependentCutsTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve AlgTool " << m_etaDependentCutsTool << endreq;
-      return sc;
-    }
-    else
-      msg(MSG::INFO) << "Retrieved tool " << m_etaDependentCutsTool << endreq;
-    
-    rapidityCuts();
-  }
-  setCutsForPT();
-
   m_heavyion = false;
 
   // TrackpatternRecoInfo preparation 
@@ -250,6 +236,23 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   }
   
   if(m_pTmin < 20.) m_pTmin = 20.;
+  
+  if (m_etabins.size()>0) {
+    if (m_ptbins.size() > (m_etabins.size()-1)) {
+      ATH_MSG_ERROR( "No. of cut values bigger than eta bins");
+      return StatusCode::FAILURE;
+    }
+    
+    if (m_ptbins.size() < (m_etabins.size()-1)) {
+      ATH_MSG_DEBUG( "No. of cut values smaller than eta bins. Extending size..." );
+      m_ptbins.resize(m_etabins.size()-1, m_ptbins.back());
+    }
+    
+    for (auto& pt : m_ptbins) {
+      if (pt < 20.) pt = 20.;
+    }
+  }
+   
   return StatusCode::SUCCESS;
 }
 
@@ -1207,80 +1210,3 @@ void InDet::SiTrackMaker_xk::globalDirections
   d2[0] = Sa*C2-Sb*S2; d2[1]= Sa*S2+Sb*C2; d2[2]=Ce;  
 }
 
-///////////////////////////////////////////////////////////////////
-// Cuts as function rapidity
-///////////////////////////////////////////////////////////////////
-
-void InDet::SiTrackMaker_xk::rapidityCuts() {
-    
-  std::vector< double > pTmin_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::minPT               , pTmin_vs_eta      );
-  std::vector< double > pTminBrem_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::minPTBrem           , pTminBrem_vs_eta  );
-  std::vector< double > xi2max_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::Xi2max              , xi2max_vs_eta     );
-  std::vector< double > xi2maxNoAdd_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::Xi2maxNoAdd         , xi2maxNoAdd_vs_eta);
-  std::vector< double > phiWidth_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::phiWidthBrem        , phiWidth_vs_eta   );
-  std::vector< double > etaWidth_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::etaWidthBrem        , etaWidth_vs_eta   );
-  std::vector< int > nclusmin_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::minClusters         , nclusmin_vs_eta   );
-  std::vector< int > nholesmax_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::maxHolesPattern     , nholesmax_vs_eta  );
-  std::vector< int > dholesmax_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::maxHolesGapPattern  , dholesmax_vs_eta  );
-  std::vector< int > nwclusmin_vs_eta;
-  m_etaDependentCutsTool->getValue(InDet::CutName::nWeightedClustersMin, nwclusmin_vs_eta  );
- 
-  m_nclusmin = *std::min_element(nclusmin_vs_eta.begin(), nclusmin_vs_eta.end());;
-  
-  // resetting the values to what should be used in the next of the program
-  
-  m_pTmin       = pTmin_vs_eta      .front();
-  m_pTminBrem   = pTminBrem_vs_eta  .front();
-  m_xi2max      = xi2max_vs_eta     .front();
-  m_xi2maxNoAdd = xi2maxNoAdd_vs_eta.front();
-  m_phiWidth    = phiWidth_vs_eta   .front();
-  m_etaWidth    = etaWidth_vs_eta   .front();
-  m_nholesmax   = nholesmax_vs_eta  .front();
-  m_dholesmax   = dholesmax_vs_eta  .front();
-  m_nwclusmin   = nwclusmin_vs_eta  .front();
-                
-  if(m_pTmin < 20.) m_pTmin = 20.;
-  
-  m_xi2multitracks = m_xi2max;
-  
-}
-
-///////////////////////////////////////////////////////////////////
-// pT dynamic cuts production
-///////////////////////////////////////////////////////////////////
-
-void InDet::SiTrackMaker_xk::setCutsForPT()
-{
-  if(not m_useEtaDependentCuts) {
-
-    m_PTCuts[0][0] = 0.     ;
-    m_PTCuts[1][0] = m_pTmin;
-    m_nPTCuts      = 0      ;
-    return;
-  }
-  int N = 0;
-  
-  for(double e = 0.02; e <= 4.0; e+=.02) {
-        
-    double T = 1./tan(2.*atan(exp(-e)));
-    double P = m_etaDependentCutsTool->getMinPtAtEta(e);
-
-    if    (N==0) {
-      m_PTCuts[0][0]=0.; m_PTCuts[0][1]=P; N=1;
-    }
-    else if(fabs(P-m_PTCuts[N-1][1]) > 10.) {
-      m_PTCuts[N][0] = T; m_PTCuts[N][1]=P; if(++N==10) break;
-    }
-  }
-  m_nPTCuts = N-1;
-  
-}

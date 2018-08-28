@@ -47,11 +47,8 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
   m_onlyPrimaries(false),
   m_primaryBarcodeCutOff(100000),
   m_minSiHits(7),
-  m_minSiHitsForward(m_minSiHits),
-  m_forwardBoundary(2.4),
   m_materialInteractions(true),
-  m_etaDependentCutsTool("InDet::InDetEtaDependentCutsTool/InDetEtaDependentCutsTool"),
-  m_useEtaDependentCuts(false)
+  m_etaDependentCutsSvc("",n)
 {
     declareInterface<Trk::ITruthTrackBuilder>(this);
     // TrackFitter
@@ -63,11 +60,8 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
     declareProperty("OnlyPrimaries",                     m_onlyPrimaries); 
     declareProperty("PrimaryBarcodeCutOff",              m_primaryBarcodeCutOff);
     declareProperty("MinSiHits",                         m_minSiHits);
-    declareProperty("MinSiHitsForward",                  m_minSiHitsForward);
-    declareProperty("ForwardBoundary",                   m_forwardBoundary);
     declareProperty("MaterialInteractions",              m_materialInteractions);
-    declareProperty("InDetEtaDependentCutsTool",         m_etaDependentCutsTool);
-    declareProperty("UseEtaDependentCuts",               m_useEtaDependentCuts );
+    declareProperty("InDetEtaDependentCutsSvc",          m_etaDependentCutsSvc);
 }
 
 
@@ -109,13 +103,8 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
         return StatusCode::FAILURE;
     }
     
-    if (m_useEtaDependentCuts and m_etaDependentCutsTool.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_etaDependentCutsTool);
-      return StatusCode::FAILURE;
-    }
-    else {
-      ATH_MSG_INFO("Retrieved tool " << m_etaDependentCutsTool);
-    }
+    if (not m_etaDependentCutsSvc.name().empty()) 
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
     
     // and the particle data table 
     m_particleDataTable = m_particlePropSvc->PDT();
@@ -254,10 +243,10 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    
    unsigned int minsihits = m_minSiHits;
    
-   if (m_useEtaDependentCuts)
-     minsihits = m_etaDependentCutsTool->getMinSiHitsAtEta(genPart->momentum().eta());
+   if (m_etaDependentCutsSvc)
+     minsihits = m_etaDependentCutsSvc->getMinSiHitsAtEta(genPart->momentum().eta());
      
-   if (/* ndof<0 */ (track.measurementsOnTrack()->size()<minsihits && fabs(genPart->momentum().eta())<=m_forwardBoundary) || (track.measurementsOnTrack()->size()<m_minSiHitsForward && fabs(genPart->momentum().eta())>m_forwardBoundary) || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
+   if (/* ndof<0 */ track.measurementsOnTrack()->size()<minsihits || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
        ATH_MSG_VERBOSE("Track does not fulfill requirements for refitting. Skipping it.");
        return 0;
    }

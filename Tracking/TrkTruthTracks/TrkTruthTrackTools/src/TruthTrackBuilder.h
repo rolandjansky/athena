@@ -15,7 +15,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 // Trk includes
 #include "TrkTruthTrackInterfaces/ITruthTrackBuilder.h"
-#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 
 
 class IPartPropSvc;
@@ -72,14 +72,11 @@ namespace Trk {
         bool                                        m_onlyPrimaries;             //!< restrict track creation to primaries
         int                                         m_primaryBarcodeCutOff;      //!< primary barcode cut off
         unsigned int                                m_minSiHits;                 //!< min number of Si hits for refit
-        unsigned int                                m_minSiHitsForward;          //!< min number of Si hits for refit in forward region (ITk specific)
-        float                                       m_forwardBoundary;           //!< Boundary eta value defining the forward region
         
         bool                                        m_materialInteractions;      //!< run with material interactions
         
-        /** tool to get cut values depending on different variable */
-        ToolHandle<InDet::IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
-        bool                                              m_useEtaDependentCuts;
+        /** service to get cut values depending on different variable */
+        ServiceHandle<InDet::IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc; 
         
   };
 

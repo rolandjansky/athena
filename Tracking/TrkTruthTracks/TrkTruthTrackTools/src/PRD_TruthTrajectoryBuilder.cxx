@@ -28,8 +28,7 @@ Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t
   m_msPrdProvider(""),
   m_minPt(400.),
   m_geantinos(false),
-  m_etaDependentCutsTool("InDet::InDetEtaDependentCutsTool/InDetEtaDependentCutsTool"),
-  m_useEtaDependentCuts(false)
+  m_etaDependentCutsSvc("", n)
 {
     declareInterface<Trk::IPRD_TruthTrajectoryBuilder>(this);
     // the PRD multi truth collections this builder works on
@@ -43,8 +42,7 @@ Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t
     declareProperty("MinimumPt",         m_minPt);
     // Track geantinos
     declareProperty("Geantinos",         m_geantinos);
-    declareProperty("InDetEtaDependentCutsTool"   , m_etaDependentCutsTool);
-    declareProperty("UseEtaDependentCuts"         , m_useEtaDependentCuts );
+    declareProperty("InDetEtaDependentCutsSvc"   , m_etaDependentCutsSvc);
 }
 
 // Athena algtool's Hooks - initialize
@@ -72,12 +70,8 @@ StatusCode  Trk::PRD_TruthTrajectoryBuilder::initialize()
         return StatusCode::FAILURE;
     }
     
-    if (m_useEtaDependentCuts and m_etaDependentCutsTool.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_etaDependentCutsTool);
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("Retrieved tool " << m_etaDependentCutsTool);
+    if (not m_etaDependentCutsSvc.name().empty())
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
 
     return StatusCode::SUCCESS;
 }
@@ -137,8 +131,8 @@ const std::vector< Trk::PRD_TruthTrajectory >& Trk::PRD_TruthTrajectoryBuilder::
             Identifier                curIdentifier = (*prdMtCIter).first;
             // apply the min pT cut 
             double minpt = m_minPt;
-            if (m_useEtaDependentCuts)
-              minpt = m_etaDependentCutsTool->getMinPtAtEta(curGenP->momentum().eta());
+            if (m_etaDependentCutsSvc)
+              minpt = m_etaDependentCutsSvc->getMinPtAtEta(curGenP->momentum().eta());
             if ( curGenP->momentum().perp() < minpt ) continue;
             // skip geantinos if required
             if (!m_geantinos && std::abs(curGenP->pdg_id())==999) continue;

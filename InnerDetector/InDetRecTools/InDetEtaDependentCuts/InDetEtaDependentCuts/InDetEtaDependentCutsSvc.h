@@ -1,25 +1,24 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef INDETETADEPENDENTCUTSTOOL_INDETETADEPENDENTCUTSTOOL_H
-#define INDETETADEPENDENTCUTSTOOL_INDETETADEPENDENTCUTSTOOL_H
+#ifndef INDETETADEPENDENTCUTS_INDETETADEPENDENTCUTSSVC_H
+#define INDETETADEPENDENTCUTS_INDETETADEPENDENTCUTSSVC_H
 
 // STL includes
 #include <string>
 #include <map>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthService.h"
 
 // InDetRecInterfaces includes
-#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 
-#include "TrkTrack/Track.h"
+#include "GaudiKernel/ISvcLocator.h"
 
 namespace InDet {
-  class InDetEtaDependentCutsTool: virtual public IInDetEtaDependentCutsTool,
-                                           public AthAlgTool {
+  class InDetEtaDependentCutsSvc: virtual public IInDetEtaDependentCutsSvc,
+                                  public AthService {
 
     /////////////////////////////////////////////////////////////////// 
     // Public methods: 
@@ -27,15 +26,15 @@ namespace InDet {
     public:
       
       /// Constructor with parameters: 
-      InDetEtaDependentCutsTool( const std::string& type,
-                                 const std::string& name, 
-                                 const IInterface* parent );
+      InDetEtaDependentCutsSvc(const std::string& name, ISvcLocator* sl); 
       
       /// Destructor: 
-      virtual ~InDetEtaDependentCutsTool(); 
+      virtual ~InDetEtaDependentCutsSvc(); 
       
-      virtual StatusCode  initialize();
-      virtual StatusCode  finalize();
+      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF); 
+      
+      StatusCode  initialize();
+      StatusCode  finalize();
       
       void getValue(InDet::CutName cutName, std::vector < double >& cut) ;
       void getValue(InDet::CutName cutName,    std::vector < int >& cut) ;
@@ -103,4 +102,4 @@ namespace InDet {
 
 
 
-#endif //> !INDETETADEPENDENTCUTSTOOL_INDETETADEPENDENTCUTSTOOL_H
+#endif //> !INDETETADEPENDENTCUTS_INDETETADEPENDENTCUTSSVC_H

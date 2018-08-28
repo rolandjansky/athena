@@ -17,8 +17,7 @@
 
 InDet::TrackClusterAssValidation::TrackClusterAssValidation
 (const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator),
-  m_etaDependentCutsTool("InDet::InDetEtaDependentCutsTool/InDetEtaDependentCutsTool"),
-  m_useEtaDependentCuts(false)
+  m_etaDependentCutsSvc("",name)
 {
 
   // TrackClusterAssValidation steering parameters
@@ -98,8 +97,7 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   declareProperty("useTRT"                    ,m_useTRT                );
   declareProperty("useOutliers"               ,m_useOutliers           );
   declareProperty("pdgParticle"               ,m_pdg                   );
-  declareProperty("InDetEtaDependentCutsTool" ,m_etaDependentCutsTool  );
-  declareProperty("UseEtaDependentCuts"       ,m_useEtaDependentCuts   );
+  declareProperty("InDetEtaDependentCutsSvc"  ,m_etaDependentCutsSvc  );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -111,15 +109,8 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   
   StatusCode sc; 
   
-  if (m_useEtaDependentCuts) {
-    sc = m_etaDependentCutsTool.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_etaDependentCutsTool);
-      return sc;
-    }
-    else
-      ATH_MSG_INFO("Retrieved tool " << m_etaDependentCutsTool);
-  }
+  if (not m_etaDependentCutsSvc.name().empty()) 
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
 
   m_rapcut ? m_tcut = 1./tan(2.*atan(exp(-m_rapcut))) : m_tcut = 0.;
 
@@ -596,7 +587,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   std::cout<<"|               Additional cuts for truth particles are                             |"
 	   <<std::endl;
      
-  if (m_useEtaDependentCuts) {
+  if (m_etaDependentCutsSvc) {
     std::cout<<"|                    number silicon clusters >=" 
         << "eta dependent"
         <<"                        |"<<std::endl;
@@ -1567,8 +1558,8 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
 
     //     --> use the eta value and cuts_vs_eta to get the number of min clusters you are interested in
     int minclusters = m_clcut;
-    if (m_useEtaDependentCuts) 
-      minclusters = m_etaDependentCutsTool->getMinSiHitsAtEta(etaExact);
+    if (m_etaDependentCutsSvc) 
+      minclusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(etaExact);
     
     if     (nc                        < (unsigned int)minclusters   ) worskine.push_back(k0);
     else if(m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);
@@ -1590,8 +1581,8 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
 
   //     --> use the eta value and cuts_vs_eta to get the number of min clusters you are interested in
   int minclusters = m_clcut;
-  if (m_useEtaDependentCuts) 
-    minclusters = m_etaDependentCutsTool->getMinSiHitsAtEta(etaExact);
+  if (m_etaDependentCutsSvc) 
+    minclusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(etaExact);
   
   if     (nc                        < (unsigned int)minclusters   ) worskine.push_back(k0);
   else if(m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);  

@@ -16,7 +16,7 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "InDetRecToolInterfaces/IInDetEtaDependentCutsTool.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 
 #include <map>
 #include <vector>
@@ -372,9 +372,8 @@ namespace InDet
       bool m_monitorTracks; // to track observeration/monitoring (default is false)
       bool m_doSCTSplitting; //WPM
       
-      /** tool to get cut values depending on different variable */
-      ToolHandle<IInDetEtaDependentCutsTool>     m_etaDependentCutsTool;   
-      bool                                       m_useEtaDependentCuts;
+      /** service to get cut values depending on different variable */
+      ServiceHandle<IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc; 
 
       
     }; 

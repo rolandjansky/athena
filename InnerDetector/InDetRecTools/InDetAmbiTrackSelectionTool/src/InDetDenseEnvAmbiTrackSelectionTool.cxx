@@ -47,8 +47,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_mapFilled(false),
   m_monitorTracks(false),
-  m_etaDependentCutsTool("InDet::InDetEtaDependentCutsTool/InDetEtaDependentCutsTool"),
-  m_useEtaDependentCuts(false)
+  m_etaDependentCutsSvc("",n)
 {
   declareInterface<IAmbiTrackSelectionTool>(this);
   //  template for property decalration
@@ -100,9 +99,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   declareProperty("pairDeltaPhi"          ,m_pairDeltaPhi    = 5e-2);//Seperation distance in rad
   declareProperty("pairDeltaEta"          ,m_pairDeltaEta    = 5e-2);
 
-  declareProperty("InDetEtaDependentCutsTool"   , m_etaDependentCutsTool);
-  declareProperty("UseEtaDependentCuts"         , m_useEtaDependentCuts );       
-  
+  declareProperty("InDetEtaDependentCutsSvc"   , m_etaDependentCutsSvc);
 }
 
 //================ Destructor =================================================
@@ -169,6 +166,9 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
     ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
     return StatusCode::FAILURE;
   }
+  
+  if (not m_etaDependentCutsSvc.name().empty())
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
   
   // register to the incident service: EndEvent needed for memory cleanup
   m_incidentSvc->addListener( this, "BeginEvent");
@@ -256,12 +256,12 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
   int minNotShared     = m_minNotShared;
   int maxSharedModules = m_maxSharedModules;
   
-  if (m_useEtaDependentCuts) {
+  if (m_etaDependentCutsSvc) {
     double trackEta = ptrTrack->trackParameters()->front()->eta();
     // resetting accordingly to the eta value
-    minHits          = m_etaDependentCutsTool->getMinSiHitsAtEta(trackEta);
-    minNotShared     = m_etaDependentCutsTool->getMinSiNotSharedAtEta(trackEta);
-    maxSharedModules = m_etaDependentCutsTool->getMaxSharedAtEta(trackEta);
+    minHits          = m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
+    minNotShared     = m_etaDependentCutsSvc->getMinSiNotSharedAtEta(trackEta);
+    maxSharedModules = m_etaDependentCutsSvc->getMaxSharedAtEta(trackEta);
   }
   
   // compute the number of shared hits from the number of max shared modules

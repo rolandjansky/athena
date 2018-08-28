@@ -115,8 +115,7 @@ class  ConfiguredInDetValidation:
       if InDetFlags.useEtaDependentCuts() and NewTrackingCuts.mode() == "SLHC":
         InDetTrackClusterAssValidation.MomentumCut               = 2. * NewTrackingCuts.minPT()[0]
         InDetTrackClusterAssValidation.MinNumberClusters         = NewTrackingCuts.minClusters()[0]
-        InDetTrackClusterAssValidation.UseEtaDependentCuts       = True
-        InDetTrackClusterAssValidation.InDetEtaDependentCutsTool = InDetEtaDependentCutsTool
+        InDetTrackClusterAssValidation.InDetEtaDependentCutsSvc  = InDetEtaDependentCutsSvc
       else:
         InDetTrackClusterAssValidation.MomentumCut            = 2. * NewTrackingCuts.minPT()
         InDetTrackClusterAssValidation.MinNumberClusters      = NewTrackingCuts.minClusters()
