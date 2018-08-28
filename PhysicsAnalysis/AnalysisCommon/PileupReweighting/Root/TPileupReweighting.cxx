@@ -306,9 +306,7 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString& configName) {
       Info("UsePeriodConfig","Using Run2 Period configuration, which assumes period assignment of 222222 to 999999");
       return 0;
    } else if(configName=="MC16") {
-     AddPeriod(284500,222222,324300); //MC16a: 2015 + 2016
-     AddPeriod(300000,324300,999999); //MC16c: 2017+  ... will need to update this when we know end of 2017 
-     //AddPeriod(310000,xxxxxx,999999); //MC16d: 2018+ .. to be added at end of 2017
+     /* period configs are now assigned through the parent tool for MC16 */
      
      SetUniformBinning(100,0,100);
      Info("UsePeriodConfig","Using MC16 Period configuration");

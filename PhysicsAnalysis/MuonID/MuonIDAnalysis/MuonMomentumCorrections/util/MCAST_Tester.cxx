@@ -145,9 +145,9 @@ int main( int argc, char* argv[] ) {
   corrTool.setProperty("StatComb",              false);
   //   corrTool.setProperty("MinCombPt",             300.0);
   corrTool.setProperty("SagittaCorr",           false);
-  corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_25_07_17");
+  corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_30_07_18");
   corrTool.setProperty("doSagittaMCDistortion", true);
-  //   corrTool.setProperty("SagittaCorrPhaseSpace", false);
+  corrTool.setProperty("SagittaCorrPhaseSpace", true);
   //   corrTool.setProperty("sgItersCB",             11);
   //   corrTool.setProperty("sgItersID",             11);
   //   corrTool.setProperty("sgItersME",             11);
