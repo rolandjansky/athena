@@ -335,13 +335,39 @@ const {
     throw std::runtime_error("Call to phiMeasureSegment, DEPRECATED, not implemented.");
 }
 
-void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
-                                            double & etaDist,
-                                            double & phiDist) const {
-  
-  etaDist = length()/2.0 - abs(pos.xEta()); 
-  phiDist = (minWidth() + maxWidth())/4.0 - abs(pos.xPhi());
+void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & pos, double & etaDist, double & phiDist) const {
+// For eta, we use the Strip frame. This is centred at the beamline, x along eta, y along phi, z along depth
+// Happens to coincide with SiLocalPosition; no transform needed.
+  double rInner = m_stripStartRadius[0];
+  double rOuter = m_stripEndRadius[m_nRows - 1];
+  double xEta = pos.xEta();
+  double xPhi = pos.xPhi();
+  double r = sqrt(xEta * xEta + xPhi * xPhi);
+  if (r < rInner)
+    etaDist = r - rInner;
+  else if (r > rOuter)
+    etaDist = rOuter - r;
+  else
+    etaDist = min(rOuter - r, r - rInner);
+ 
+// For phi, we use the Strip frame. Transform to Strip-frame:
+  double etaStrip = cos(-m_stereo) * (xEta - m_R) - sin(-m_stereo) * xPhi + m_R;
+  double phiStrip = sin(-m_stereo) * (xEta - m_R) + cos(-m_stereo) * xPhi;
+// Put these into polar coordinates
+  double rStrip = sqrt(etaStrip * etaStrip + phiStrip * phiStrip);
+  double phiAngleStrip = atan2(phiStrip, etaStrip);
 
+  double phiAngleMax = m_pitch[0] * m_nStrips[0] / 2.0;
+  double phiAngleMin = -phiAngleMax;
+
+  if (phiAngleStrip < phiAngleMin)
+    phiDist = rStrip * (phiAngleStrip - phiAngleMin);
+  else if (phiAngleStrip > phiAngleMax)
+    phiDist = rStrip * (phiAngleMax - phiAngleStrip);
+  else
+    phiDist = rStrip * min(phiAngleMax - phiAngleStrip, phiAngleStrip - phiAngleMin);
+
+  return;
 }
 
 DetectorShape StripStereoAnnulusDesign::shape() const
