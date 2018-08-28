@@ -22,6 +22,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
+#include "InDetRecToolInterfaces/IRoISeedTool.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkTrack/TrackCollection.h"
@@ -119,24 +120,6 @@ namespace InDet {
     // Protected data and methods
     ///////////////////////////////////////////////////////////////////
   
-    std::string m_RoiSeedTracks;
-    std::string m_tracksForIsolation;
-
-    float m_RoISeedTrackD0;
-    float m_RoISeedTrackPt;
-    int m_RoISeedTrackSCTHits;
-    int m_RoISeedTrackPixHits;
-    float m_RoISeedTrackIso;
-
-    float m_IsoTrackPtThr;
-    float m_IsoTrackConeSize;
-    
-    bool m_RoISeedTrackD0Sort;
-
-    float m_dThetaRoITrkSP;
-    float m_dPhiRoITrkSP;
-       
-
     ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle ;
     MagField::IMagFieldSvc*                m_fieldService       ;
         
@@ -221,8 +204,9 @@ namespace InDet {
     int rfzv_n[300],rfzv_i[300][6]                              ;
     float m_sF                                                  ;
     float m_sFv                                                 ;
-
     bool m_skipIBLcut                                           ;
+    float                       m_dThetaRoITrkSP                ;
+    float                       m_dPhiRoITrkSP                  ;
 
     ///////////////////////////////////////////////////////////////////
     // Tables for 3 space points seeds search
@@ -266,15 +250,12 @@ namespace InDet {
     // Space points container
     ///////////////////////////////////////////////////////////////////
       
-    //      std::string                        m_spacepointsSCTname     ;
-    //      std::string                        m_spacepointsPixelname   ;
-    //      std::string                        m_spacepointsOverlapname ; 
-    std::string                        m_beamconditions         ;
+    std::string                                 m_beamconditions         ;
     SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT         ;
     SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel       ;
     SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap     ;
-
-    ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool           ;
+    ToolHandle<Trk::IPRD_AssociationTool>       m_assoTool               ;
+    ToolHandle<InDet::IRoISeedTool>             m_RoISeedTool            ;
 
     ///////////////////////////////////////////////////////////////////
     // Protected methods
@@ -286,13 +267,8 @@ namespace InDet {
     void buildFrameWork()                                       ;
     void buildBeamFrameWork()                                   ;
 
-    std::vector<const Trk::MeasurementBase*> getTrkMeasSeeds()  ;
-
     std::vector<const Trk::MeasurementBase*> l_trkseeds;
     std::vector<const Trk::MeasurementBase*>::iterator i_trkseed ;
-
-    float getTrackPtCone(const TrackCollection* std_tracks,
-                         const Trk::Perigee* perigee) ;
 
     void newEvent (const Trk::MeasurementBase* tp)              ;
 

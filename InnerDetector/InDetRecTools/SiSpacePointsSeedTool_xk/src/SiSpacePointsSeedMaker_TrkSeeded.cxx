@@ -18,6 +18,7 @@
 
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_TrkSeeded.h"
+#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TVector2.h"
 
@@ -28,26 +29,13 @@
 InDet::SiSpacePointsSeedMaker_TrkSeeded::SiSpacePointsSeedMaker_TrkSeeded
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_RoiSeedTracks("ResolvedPixelThreeLayerTracks"),
-    m_tracksForIsolation("ResolvedTracks"),
     m_fieldServiceHandle("AtlasFieldSvc",n), 
     m_spacepointsSCT("SCT_SpacePoints"),
     m_spacepointsPixel("PixelSpacePoints"),
     m_spacepointsOverlap("OverlapSpacePoints"),
-    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
+    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
+    m_RoISeedTool("InDet::RoISeedTool")
 {
-
-  m_RoISeedTrackD0       = 10.0;
-  m_RoISeedTrackPt       = 20000.0;
-  m_RoISeedTrackSCTHits  = 0;
-  m_RoISeedTrackPixHits  = 3;
-  m_RoISeedTrackIso      = 0.1;
-  m_IsoTrackPtThr        = 400.0;
-  m_IsoTrackConeSize     = 0.4;
-  m_RoISeedTrackD0Sort   = true;
-  m_dPhiRoITrkSP         = 0.8;
-  m_dThetaRoITrkSP       = 0.8;
-
   m_useassoTool = false ;
   m_useOverlap= true    ;
   m_state     = 0       ;
@@ -100,6 +88,8 @@ InDet::SiSpacePointsSeedMaker_TrkSeeded::SiSpacePointsSeedMaker_TrkSeeded
   m_seedOutput= 0       ;
   m_maxNumberVertices = 99;
   m_skipIBLcut = false  ;
+  m_dThetaRoITrkSP = 0.8;
+  m_dPhiRoITrkSP   = 0.8;
   //
   m_xbeam[0]  = 0.      ; m_xbeam[1]= 1.; m_xbeam[2]=0.; m_xbeam[3]=0.;
   m_ybeam[0]  = 0.      ; m_ybeam[1]= 0.; m_ybeam[2]=1.; m_ybeam[3]=0.;
@@ -109,22 +99,8 @@ InDet::SiSpacePointsSeedMaker_TrkSeeded::SiSpacePointsSeedMaker_TrkSeeded
   //
   declareInterface<ISiSpacePointsSeedMaker>(this);
   //
-  declareProperty("RoISeedTrackContainer" ,m_RoiSeedTracks         );
-  declareProperty("TracksForIsolation"    ,m_tracksForIsolation    );
-  //
-  declareProperty("RoISeedRTrackD0"       ,m_RoISeedTrackD0        );
-  declareProperty("RoISeedTrackPt"        ,m_RoISeedTrackPt        );
-  declareProperty("RoISeedTrackSCTHits"   ,m_RoISeedTrackSCTHits   );
-  declareProperty("RoISeedTrackPixHits"   ,m_RoISeedTrackPixHits   );
-  declareProperty("RoISeedTrackIso"       ,m_RoISeedTrackIso       );
-  declareProperty("IsoTrackPtThr"         ,m_IsoTrackPtThr         );
-  declareProperty("IsoTrackConeSize"      ,m_IsoTrackConeSize      );
-  declareProperty("DoRoITrackD0Sort"      ,m_RoISeedTrackD0Sort    );
-  //
-  declareProperty("DeltaThetaRoISP"       ,m_dThetaRoITrkSP        );
-  declareProperty("DeltaPhiRoISP"         ,m_dPhiRoITrkSP          );
-  //
   declareProperty("AssociationTool"       ,m_assoTool              );
+  declareProperty("RoISeedTool"           ,m_RoISeedTool           );
   declareProperty("usePixel"              ,m_pixel                 );
   declareProperty("useSCT"                ,m_sct                   );
   declareProperty("checkEta"              ,m_checketa              );
@@ -169,6 +145,8 @@ InDet::SiSpacePointsSeedMaker_TrkSeeded::SiSpacePointsSeedMaker_TrkSeeded
   declareProperty("UseAssociationTool"    ,m_useassoTool           ); 
   declareProperty("MagFieldSvc"           , m_fieldServiceHandle   );
   declareProperty("SkipIBLcut"            , m_skipIBLcut           );
+  declareProperty("DeltaThetaRoISP"       ,m_dThetaRoITrkSP        );
+  declareProperty("DeltaPhiRoISP"         ,m_dPhiRoITrkSP          );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -240,6 +218,15 @@ StatusCode InDet::SiSpacePointsSeedMaker_TrkSeeded::initialize()
     }
   }
   
+  // Get the RoI seed tool
+  if( m_RoISeedTool.retrieve().isFailure() ){
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_RoISeedTool <<endreq;
+    return StatusCode::FAILURE;
+  }
+  else{
+    msg(MSG::INFO) << "Retrieved tool " << m_RoISeedTool << endreq;
+  }
+
   // Build framework
   //
   buildFrameWork();
@@ -263,138 +250,9 @@ StatusCode InDet::SiSpacePointsSeedMaker_TrkSeeded::finalize()
    StatusCode sc = AlgTool::finalize(); return sc;
 }
 
-///////////////////////////////////////////////////////////////////
-// Compute the ptcone for a given tracklet
-/////////////////////////////////////////////////////////////////////
-
-float InDet::SiSpacePointsSeedMaker_TrkSeeded::getTrackPtCone(const TrackCollection* std_tracks,
-                                                              const Trk::Perigee* perigee) 
-{
-  float ptcone = 0.0;
-  for( const auto& stdTrack : *std_tracks ){
-    const Trk::Perigee* std_perigee = stdTrack->perigeeParameters();
-    if( !std_perigee ){
-      ATH_MSG_WARNING("NO VALID perigee for standard resolved tracks. Ignoring this track...." );
-      continue;
-    }
-    if( std_perigee->momentum().perp()<m_IsoTrackPtThr ) continue;
-    if( abs( std_perigee->eta() - perigee->eta() ) > m_IsoTrackConeSize ) continue;
-    if( abs( TVector2::Phi_mpi_pi( std_perigee->momentum().phi() - perigee->momentum().phi()  ) ) > m_IsoTrackConeSize ) continue;
-    ptcone += std_perigee->momentum().perp();
-  }
-  return ptcone;
-}
-
-/////////////////////////////////////////////////////////////////////
-// Grab the measurements that will be used to generate seeds
-/////////////////////////////////////////////////////////////////////
-
-std::vector<const Trk::MeasurementBase*> InDet::SiSpacePointsSeedMaker_TrkSeeded::getTrkMeasSeeds()  
-{
-
-  // Clean slate
-  l_trkseeds.clear();
-
-  // For sorting entries
-  std::vector<std::pair<float,const Trk::MeasurementBase*>> trackSeedMap;
-  trackSeedMap.clear();
-
-  const TrackCollection* tracks = 0;
-  if( evtStore()->retrieve ( tracks, m_RoiSeedTracks ).isFailure() ){
-    ATH_MSG_WARNING( "Could not find " << m_RoiSeedTracks << " in StoreGate!!");
-    return l_trkseeds;
-  }
-  ATH_MSG_DEBUG("Starting with " << tracks->size() << "... Going to try and reduce this...");
-      
-  const TrackCollection* std_tracks = 0;
-  if( evtStore()->retrieve ( std_tracks, m_tracksForIsolation ).isFailure() ){
-    ATH_MSG_WARNING( "Could not find " << m_tracksForIsolation << " in StoreGate" );
-    return l_trkseeds;
-  }
-  
-  /*
-     Loop over all RoI tracks
-  */
-  for( const auto& sTrack : *tracks ){
-	
-    /*
-       Hit requirements 
-        - Maximum number of SCT hits
-        - Minumum number of Pixel hits
-    */
-    const Trk::TrackSummary* trkSum = sTrack->trackSummary();
-    if( !trkSum ){
-      ATH_MSG_WARNING("TrackSummary doesn't exist! Track will be ignored from seeding algorithm!" );
-      continue;
-    }
-    if( trkSum->get( Trk::SummaryType::numberOfSCTHits   )>m_RoISeedTrackSCTHits   ) continue;
-    if( trkSum->get( Trk::SummaryType::numberOfPixelHits )<m_RoISeedTrackPixHits   ) continue;
-	
-    /*
-      Perigee requirments
-        - Transverse momentum, 
-        - Track d0
-    */
-    const Trk::Perigee* perigee = sTrack->perigeeParameters();
-    if( !perigee ){
-      ATH_MSG_WARNING("No valid perigee. Track will be ignored from seeding algorithm!" );
-      continue;
-    }
-    if( perigee->momentum().perp()<m_RoISeedTrackPt            ) continue;
-    if( fabs(perigee->parameters()[Trk::d0])>m_RoISeedTrackD0  ) continue;
-	
-    /*
-      Isolation requirements
-        - Relative isolation cut
-    */
-
-    float ptcone = getTrackPtCone(std_tracks,perigee);
-    if( (ptcone/perigee->momentum().perp()) > m_RoISeedTrackIso ) continue;
-	
-    /*
-      Cache last MeasurementOnTrack, with its ranking variable
-        - Track d0
-    */
-    const DataVector<const Trk::MeasurementBase>* MoTs = sTrack->measurementsOnTrack();
-    if( MoTs->size()==0 ){
-      ATH_MSG_WARNING("NO TRACK PARAMETERS FOUND........." );
-      continue;
-    }
-
-    const Trk::MeasurementBase* MoT = 0;
-    for( auto& m : *MoTs ){
-      if( !MoT || m->globalPosition().perp()>MoT->globalPosition().perp() ){
-        MoT = m;
-      }
-    }
-    if( !MoT ) continue;
-    trackSeedMap.push_back( std::pair<float,const Trk::MeasurementBase*>(perigee->parameters()[Trk::d0],MoT) );
-
-  } // Lopp over RoI tracks
-
-  /*
-    Rank MeasurementsOnTrack by their d0 measured at the perigee
-  */
-  if( m_RoISeedTrackD0Sort ){
-    std::sort(trackSeedMap.begin(),trackSeedMap.end(), sortD0() );
-  }
-
-  ATH_MSG_DEBUG("Selected " << trackSeedMap.size() << " tracks for RoI seeding. Listing properties of their selected MeasurementsOnTrack...");
-  for(auto& m : trackSeedMap ){
-    ATH_MSG_DEBUG(" ----> d0 " << m.first);
-    l_trkseeds.push_back(m.second);
-  }
- 
-  // Finished
-  i_trkseed = l_trkseeds.begin();
-  return l_trkseeds;
-
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+// Seed a new event with a new Measurement
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 void InDet::SiSpacePointsSeedMaker_TrkSeeded::newEvent(const Trk::MeasurementBase* tp) 
 {
@@ -472,9 +330,6 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newEvent(const Trk::MeasurementBas
   fillLists();
   //
 
-  ATH_MSG_DEBUG("Total number of seeds passing radius selection :        " << nSeeds);
-  ATH_MSG_DEBUG("Number of accepted seeds within this radius selection : " << nAccepted << " giving a fraction of : " << float(nAccepted)/float(nSeeds) );
-
 }
 
 
@@ -521,7 +376,8 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newEvent(int iteration)
   m_ns = m_nr = 0;
 
   // Cache track seeds
-  getTrkMeasSeeds();
+  l_trkseeds.clear();
+  l_trkseeds = m_RoISeedTool->getRoIs();
 
   // Call for the first time
   i_trkseed = l_trkseeds.begin();
