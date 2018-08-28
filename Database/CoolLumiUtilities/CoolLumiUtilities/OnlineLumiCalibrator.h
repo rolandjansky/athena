@@ -23,6 +23,12 @@ class OnlineLumiCalibrator {
 
   OnlineLumiCalibrator();
 
+  OnlineLumiCalibrator (const OnlineLumiCalibrator&) = default;
+  OnlineLumiCalibrator& operator= (const OnlineLumiCalibrator&) = default;
+
+  OnlineLumiCalibrator (OnlineLumiCalibrator&&);
+  OnlineLumiCalibrator& operator= (OnlineLumiCalibrator&&);
+
   // Pass DB object to set parameters, return False on error
   bool setCalibration(const coral::AttributeList& attrList);
 

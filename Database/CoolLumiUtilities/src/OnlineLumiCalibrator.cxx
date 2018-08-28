@@ -20,6 +20,28 @@ OnlineLumiCalibrator::OnlineLumiCalibrator() :
   m_parVec.clear();
 }
 
+OnlineLumiCalibrator::OnlineLumiCalibrator (OnlineLumiCalibrator&& other)
+  : m_nPar (other.m_nPar),
+    m_fType (std::move (other.m_fType)),
+    m_muToLumi (other.m_muToLumi),
+    m_parVec (std::move (other.m_parVec))
+{
+}
+
+
+OnlineLumiCalibrator&
+OnlineLumiCalibrator::operator= (OnlineLumiCalibrator&& other)
+{
+  if (this != &other) {
+    m_nPar = other.m_nPar;
+    m_fType = std::move (other.m_fType);
+    m_muToLumi = other.m_muToLumi;
+    m_parVec = std::move (other.m_parVec);
+  }
+  return *this;
+}
+
+
 // Return false on error
 bool 
 OnlineLumiCalibrator::setCalibration(const coral::AttributeList& attrList)
