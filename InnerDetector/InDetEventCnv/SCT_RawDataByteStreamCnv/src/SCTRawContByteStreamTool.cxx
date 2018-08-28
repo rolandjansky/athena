@@ -19,7 +19,8 @@
 SCTRawContByteStreamTool::SCTRawContByteStreamTool
 (const std::string& type, const std::string& name,const IInterface* parent):
   base_class(type, name, parent),
-  m_sct_idHelper{nullptr}
+  m_sct_idHelper{nullptr},
+  m_mutex{}
 {
   declareProperty("RodBlockVersion", m_RodBlockVersion=0);
   return;
@@ -57,7 +58,7 @@ SCTRawContByteStreamTool::finalize() {
 /// ROD in turn.
 
 StatusCode
-SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) {
+SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) const {
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
@@ -66,8 +67,10 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, Ms
     return StatusCode::FAILURE;
   }
 
-  m_fea.clear();   
-  FullEventAssembler<SrcIdMap>::RODDATA* theROD; 
+  std::lock_guard<std::mutex> lock(m_mutex);
+
+  m_fea.clear();
+  FullEventAssembler<SrcIdMap>::RODDATA* theROD;
   
   /** set ROD Minor version */
   m_fea.setRodMinorVersion(m_RodBlockVersion);
@@ -80,21 +83,15 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, Ms
    *  every ROD, even if there are no hits in it for a particular event 
    *  (as there might be ByteStream errors e.g. TimeOut errors). */
 
-  std::vector<boost::uint32_t> listOfAllRODs;
+  std::vector<std::uint32_t> listOfAllRODs;
   m_cabling->getAllRods(listOfAllRODs);
-  std::vector<boost::uint32_t>::iterator rodIter{listOfAllRODs.begin()};
-  std::vector<boost::uint32_t>::iterator rodEnd{listOfAllRODs.end()};
-  for (; rodIter != rodEnd; ++rodIter) {
-    rdoMap[*rodIter].clear();
+  for (std::uint32_t rod: listOfAllRODs) {
+    rdoMap[rod].clear();
   }
 
   /**loop over the collections in the SCT RDO container */
-  SCTRawContainer::const_iterator it_coll{cont->begin()}; 
-  SCTRawContainer::const_iterator it_coll_end{cont->end()};
-  
-  for(; it_coll!=it_coll_end;++it_coll) {
-    const SCTRawCollection* coll{*it_coll};
-    if (coll == 0) {
+  for (const SCTRawCollection* coll: *cont) {
+    if (coll == nullptr) {
       ATH_MSG_WARNING("Null pointer to SCT RDO collection.");
       continue;
     } else {
@@ -113,10 +110,7 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, Ms
       bool swapPhiReadoutDirection{siDetElement->swapPhiReadoutDirection()};
       
       /** loop over RDOs in the collection;  */
-      SCTRawCollection::const_iterator it_b{coll->begin()};
-      SCTRawCollection::const_iterator it_e{coll->end()}; 
-      for(; it_b!=it_e; ++it_b) {
-        const RDO* theRdo{*it_b};          
+      for (const RDO* theRdo: *coll) {
         /** fill ROD/ RDO map */
         rdoMap[rodid].push_back(theRdo);
         if (swapPhiReadoutDirection) m_encoder->addSwapModuleId(idColl);
@@ -125,15 +119,11 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, Ms
   }  /** End loop over collections */
 
   /** now encode data for each ROD in turn */
-  
-  std::map<uint32_t,std::vector<const RDO*> >::iterator it_map{rdoMap.begin()};
-  std::map<uint32_t,std::vector<const RDO*> >::iterator it_map_end{rdoMap.end()};
-  
-  for (; it_map != it_map_end; ++it_map) { 
-    theROD = m_fea.getRodData(it_map->first); /** get ROD data address */
-    m_encoder->fillROD(*theROD,it_map->first, it_map->second);  /** encode ROD data */
+  for (std::pair<uint32_t, std::vector<const RDO*>> rodToRDOs: rdoMap) {
+    theROD = m_fea.getRodData(rodToRDOs.first); /** get ROD data address */
+    m_encoder->fillROD(*theROD, rodToRDOs.first, rodToRDOs.second); /** encode ROD data */
   }
-  m_fea.fill(re, log); 
+  m_fea.fill(re, log);
   
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
