@@ -1,7 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <vector>
 #include "JetRecTools/ConstitTimeCutTool.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/PFODefs.h"
 
 using namespace std;
 
@@ -13,6 +18,9 @@ ConstitTimeCutTool::ConstitTimeCutTool(const std::string& name) : JetConstituent
   declareProperty("TimeCutLargeQ", m_timeCutLargeQ = 5);
   declareProperty("TimeCutSmallQ", m_timeCutSmallQ = 15);
   declareProperty("MaxEtaForCut", m_etaMax = 2.5);
+
+  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs);
+
 }
 
 StatusCode ConstitTimeCutTool::initialize() {
@@ -22,6 +30,12 @@ StatusCode ConstitTimeCutTool::initialize() {
       ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
       return StatusCode::FAILURE;
     }
+    else if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
+		    <<  "will set all cPFOs to zero");
+      return StatusCode::FAILURE;
+    }
+
   } else {
     if(m_inputType!=xAOD::Type::CaloCluster) {
       ATH_MSG_ERROR("Incompatible configuration: ConstitTimeCutTool is not specialised for inputs of type "
@@ -38,10 +52,13 @@ StatusCode ConstitTimeCutTool::process_impl(xAOD::IParticleContainer* cont) cons
   switch(m_inputType) {
   case xAOD::Type::CaloCluster:
     {
-      xAOD::CaloClusterContainer* clusters = static_cast<xAOD::CaloClusterContainer*> (cont);
-      for(xAOD::CaloCluster* cl : *clusters) {
-	float time = cl->time();
-	ATH_CHECK( applyTimingCut(cl, time) );
+     xAOD::CaloClusterContainer* clusters = static_cast<xAOD::CaloClusterContainer*> (cont);
+     const static SG::AuxElement::ConstAccessor<float> acc_larq("AVG_LAR_Q");
+     const static SG::AuxElement::ConstAccessor<float> acc_clambda("CENTER_LAMBDA");
+
+     for(xAOD::CaloCluster* cl : *clusters) {
+        //quality is on [0,2^16-1] scale
+        ATH_CHECK( applyTimingCut(cl, cl->time(), acc_larq(*cl)/65535, acc_clambda(*cl)));
       }
     }
     break;
@@ -49,13 +66,19 @@ StatusCode ConstitTimeCutTool::process_impl(xAOD::IParticleContainer* cont) cons
     {
       xAOD::PFOContainer* pfos = static_cast<xAOD::PFOContainer*> (cont);
       for(xAOD::PFO* pfo : *pfos) {
-	if(fabs(pfo->charge())<FLT_MIN) { // only apply to neutrals
-	  float time(0);
+	if(fabs(pfo->charge())<FLT_MIN || m_applyToChargedPFO) { // only apply to neutrals if m_applyToChargedPFO is false. If m_applyToChargedPFO is true then apply to all POs.
+	  float time(0.);
+	  float quality(0.);
+	  float lambda_center(0.);
 	  // Only apply cut if retrieval succeeded, else warn
-	  if(pfo->attribute<float>(xAOD::PFODetails::eflowRec_TIMING,time)) {
-	    ATH_CHECK( applyTimingCut(pfo, time) );
+	  if(pfo->attribute(xAOD::PFODetails::eflowRec_TIMING,time) &&
+             pfo->attribute(xAOD::PFODetails::eflowRec_AVG_LAR_Q,quality) &&
+             pfo->attribute(xAOD::PFODetails::eflowRec_CENTER_LAMBDA,lambda_center)
+            ) {
+            //quality is on [0,2^16-1] scale
+	    ATH_CHECK( applyTimingCut(pfo, time, quality/65535, lambda_center) );
 	  } else {
-	    ATH_MSG_WARNING("Failed to retrieve PFO timing for PFO #" << pfo->index());
+	    ATH_MSG_WARNING("Failed to retrieve the PFO informations necessary for timing cut at PFO #" << pfo->index());
 	  }
 	}
       }
@@ -71,14 +94,8 @@ StatusCode ConstitTimeCutTool::process_impl(xAOD::IParticleContainer* cont) cons
 }
 
 
-StatusCode ConstitTimeCutTool::applyTimingCut(xAOD::IParticle* part, float time) const {
-  const static SG::AuxElement::ConstAccessor<float> acc_larq("AVG_LAR_Q");
-  const static SG::AuxElement::ConstAccessor<float> acc_clambda("CENTER_LAMBDA");
-
+StatusCode ConstitTimeCutTool::applyTimingCut(xAOD::IParticle* part, const float& time, const float& quality, const float& lambda_center) const {
   if(abs( part->eta() ) < m_etaMax){
-    //quality is on [0,2^16-1] scale
-    float quality = acc_larq(*part) / 65535;
-    float lambda_center = acc_clambda(*part);
 
     // Only apply to ECal by default (with depth cut)
     // Should switch to a test on the dominant sampling??
@@ -86,7 +103,7 @@ StatusCode ConstitTimeCutTool::applyTimingCut(xAOD::IParticle* part, float time)
       // Apply variable timing cut based on he cluster quality
       // -- a larger spread is observed for clusters with small Q
       float timeCut = quality > m_qualityCut ? m_timeCutLargeQ : m_timeCutSmallQ;
-      if( abs(time) > timeCut ) {setEnergyPt( part, 0., 0. );}
+      if( abs(time) > timeCut ) { ATH_CHECK( setEnergyPt( part, 0., 0. )); }
     }
   }
 
