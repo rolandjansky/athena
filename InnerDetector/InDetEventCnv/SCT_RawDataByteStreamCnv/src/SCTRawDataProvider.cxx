@@ -2,14 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <memory>
 #include "SCTRawDataProvider.h"
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "InDetIdentifier/SCT_ID.h"
 #include "EventContainers/IdentifiableContTemp.h"
+
+#include <memory>
+
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 /// --------------------------------------------------------------------
@@ -20,11 +21,9 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_regionSelector{"RegSelSvc", name},
   m_robDataProvider{"ROBDataProviderSvc", name},
-  m_cabling{"SCT_CablingSvc", name},
   m_sct_id{nullptr},
   m_rdoContainerCacheKey{""}
 {
-  declareProperty("CablingSvc", m_cabling);
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
 }
 
@@ -39,6 +38,7 @@ StatusCode SCTRawDataProvider::initialize() {
   if (m_roiSeeded.value()) {//Don't need SCT cabling if running in RoI-seeded mode
     ATH_CHECK(m_roiCollectionKey.initialize());
     ATH_CHECK(m_regionSelector.retrieve());
+    m_cabling.disable();
   } else {
     /** Retrieve Cabling service */ 
     ATH_CHECK(m_cabling.retrieve());

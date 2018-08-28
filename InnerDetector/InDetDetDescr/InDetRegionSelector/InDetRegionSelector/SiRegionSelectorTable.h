@@ -11,9 +11,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "PixelCabling/IPixelCablingSvc.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 
 class RegSelSiLUT;
+class ISCT_CablingSvc;
 
 #include <string>
 
@@ -47,7 +47,7 @@ private:
 
   // cablings
   ServiceHandle<IPixelCablingSvc> m_pixIdMapping;
-  ServiceHandle<ISCT_CablingSvc>  m_sctCablingSvc;
+  ServiceHandle<ISCT_CablingSvc>  m_sctCablingSvc; // Although SCT_CablingSvc migrated to SCT_CablingTool, this class accesses SCT cabling during initialization.
 
 };
 

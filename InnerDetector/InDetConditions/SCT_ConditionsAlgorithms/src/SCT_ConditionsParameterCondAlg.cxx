@@ -72,7 +72,6 @@ namespace {//anonymous namespace introduces file-scoped functions
 
 SCT_ConditionsParameterCondAlg::SCT_ConditionsParameterCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_cablingSvc{"SCT_CablingSvc", name}
   , m_condSvc{"CondSvc", name}
 {
 }
@@ -80,8 +79,8 @@ SCT_ConditionsParameterCondAlg::SCT_ConditionsParameterCondAlg(const std::string
 StatusCode SCT_ConditionsParameterCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
   
-  // Cabling service
-  ATH_CHECK(m_cablingSvc.retrieve());
+  // Cabling tool
+  ATH_CHECK(m_cablingTool.retrieve());
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
   // Read Cond Handle
@@ -137,7 +136,7 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
   for (; modItr != modEnd; modItr += nChipsPerModule) {
     // Get SN and identifiers (the channel number is serial number+1)
     const unsigned int truncatedSerialNumber{modItr->first - 1};
-    const IdentifierHash& moduleHash{m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& moduleHash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
     if (not moduleHash.is_valid()) continue;
     // Loop over chips within module
    

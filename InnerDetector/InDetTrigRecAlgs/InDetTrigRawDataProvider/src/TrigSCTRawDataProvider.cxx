@@ -10,7 +10,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 //#include "InDetRawData/InDetRawDataCLASS_DEF.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
@@ -35,7 +34,6 @@ namespace InDet {
     m_rawDataTool     ("SCTRawDataProviderTool"),
     m_storeGate       ("StoreGateSvc",name),
     m_detStore        ("DetectorStore",name),
-    m_cablingSvc      ("SCT_CablingSvc",name),
     m_id(nullptr),
     m_container(nullptr),
     m_bsErrCont(nullptr),
@@ -100,11 +98,11 @@ namespace InDet {
       msg(MSG::INFO) << "Retrieved service " << m_storeGate << endmsg;
   
     // Retrieve id mapping 
-    if (m_cablingSvc.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve service " << m_cablingSvc << endmsg;
+    if (m_cablingTool.retrieve().isFailure()) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_cablingTool << endmsg;
       return StatusCode::FAILURE;
     } else 
-      msg(MSG::INFO) << "Retrieved service " << m_cablingSvc << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_cablingTool << endmsg;
 
     //RDO Container
     m_container = new SCT_RDO_Container(m_id->wafer_hash_max()); 
@@ -208,7 +206,7 @@ namespace InDet {
 
 
     } else {
-      m_cablingSvc->getAllRods(robIDlist);
+      m_cablingTool->getAllRods(robIDlist);
     }
 
     StatusCode sg = initContainer();

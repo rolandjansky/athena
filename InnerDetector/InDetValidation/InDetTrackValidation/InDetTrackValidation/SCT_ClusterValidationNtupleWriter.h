@@ -17,6 +17,7 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkTrack/TrackCollection.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -27,7 +28,6 @@
 
 class SCT_ID;
 class TTree;
-class ISCT_CablingSvc;
 
 namespace InDet {
 
@@ -69,7 +69,7 @@ private:
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
     ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
-    ServiceHandle<ISCT_CablingSvc> m_cabling;
+    ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
     std::string m_ntupleFileName;     //!< jobOption: Ntuple file name
     std::string m_ntupleDirName;      //!< jobOption: Ntuple directory name
     std::string m_ntupleTreeName;     //!< jobOption: Ntuple tree name

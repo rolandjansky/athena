@@ -40,7 +40,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 /** forward declarations */
-template <class TYPE> class SvcFactory;
 class ISvcLocator;
 class SCT_ID;
 

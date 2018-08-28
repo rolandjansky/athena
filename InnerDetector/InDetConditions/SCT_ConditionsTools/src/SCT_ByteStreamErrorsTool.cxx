@@ -14,7 +14,6 @@
 ///Athena includes
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 ///Read Handle

@@ -98,6 +98,15 @@ SCT_CablingCondAlgFromText::finalize() {
 //
 StatusCode
 SCT_CablingCondAlgFromText::execute() {
+  // Write Cond Handle
+  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
+  if (writeHandle.isValid()) {
+    ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
+                  << ". In theory this should not be called, but may happen"
+                  << " if multiple concurrent events are being processed out of order.");
+    return StatusCode::SUCCESS;
+  }
+
   const SCT_ID* idHelper{nullptr};
   ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
 
@@ -217,8 +226,6 @@ SCT_CablingCondAlgFromText::execute() {
   const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0, 0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
   const EventIDBase stop{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
   const EventIDRange rangeW{start, stop};
-  // Write Cond Handle
-  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_CablingData " << writeHandle.key() 
                   << " with EventRange " << rangeW

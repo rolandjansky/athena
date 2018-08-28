@@ -32,6 +32,7 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 
 
+class ISCT_CablingSvc;
 class StoreGateSvc;
 
 /** @class RegSelSvc RegSelSvc.h
@@ -455,6 +456,7 @@ private:
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolLAR;
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolTile;
   ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+  ServiceHandle< ISCT_CablingSvc > m_SCTCablingSvc; // Retrieve SCT_CablingSvc in initialize of RegSelSvc so that SCT_RegionSelectorTable can use ready SCT_CablingSvc in BeginRun incident.
   std::vector<std::string> m_enabledDetectors;
   bool m_errorFlag;
   
