@@ -13,8 +13,8 @@ SiCommonItems::SiCommonItems(const AtlasDetectorID* const idHelper)
      m_idHelper(idHelper), 
      m_lorentzAngleSvcHandle("", "SiDetectorElement"),
      m_lorentzAngleSvc(0),
-     m_lorentzAngleTool(0),
-     m_lorentzAngleSvcInit(false)
+     m_lorentzAngleSvcInit(false),
+     m_lorentzAngleTool(0)
 {}
 
 void   
