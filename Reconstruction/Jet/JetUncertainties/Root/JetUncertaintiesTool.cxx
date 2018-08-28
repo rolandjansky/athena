@@ -248,6 +248,7 @@ StatusCode JetUncertaintiesTool::initialize()
     ATH_MSG_INFO(Form("  Initializing the JetUncertaintiesTool named %s",m_name.c_str()));
     ATH_MSG_INFO(Form("  Path is: \"%s\"",m_path.c_str()));
     ATH_MSG_INFO(Form("  CalibArea is: \"%s\"",m_calibArea.c_str()));
+    ATH_MSG_INFO(Form("  IsData is: \"%s\"",m_isData ? "true" : "false"));
     ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_configFile.c_str()));
     ATH_MSG_INFO(Form("    Location: %s",configFilePath.Data()));
     

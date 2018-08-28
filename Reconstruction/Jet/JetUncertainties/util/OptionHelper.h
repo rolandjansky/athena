@@ -35,6 +35,7 @@ class OptionHelper : public asg::AsgMessaging
         TString GetNamePrefix()   const { checkInit(); return m_compNamePrefix; }
         TString GetCalibArea()    const { checkInit(); return m_calibArea;      }
         TString GetPath()         const { checkInit(); return m_path;           }
+        bool    GetIsData()       const { checkInit(); return m_isData;         }
 
         // Plot control
         bool    DoATLASLabel()    const { checkInit(); return m_doATLASLabel;  }
@@ -94,6 +95,7 @@ class OptionHelper : public asg::AsgMessaging
         TString m_compNamePrefix;
         TString m_calibArea;
         TString m_path;
+        bool    m_isData;
 
         bool    m_doATLASLabel;
         TString m_ATLASLabel;
@@ -158,6 +160,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_compNamePrefix("JET_")
     , m_calibArea("")
     , m_path("")
+    , m_isData(false)
 
     , m_doATLASLabel(true)
     , m_ATLASLabel("Internal")
@@ -220,6 +223,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_compNamePrefix = getOptionValueWithDefault(options,"prefix",m_compNamePrefix);
     m_calibArea      = getOptionValueWithDefault(options,"CalibArea",m_calibArea);
     m_path           = getOptionValueWithDefault(options,"Path",m_path);
+    m_isData         = getOptionValueWithDefault(options,"IsData",m_isData);
 
     m_doATLASLabel   = getOptionValueWithDefault(options,"DoATLASLabel",m_doATLASLabel);
     m_ATLASLabel     = getOptionValueWithDefault(options,"ATLASLabel",m_ATLASLabel);

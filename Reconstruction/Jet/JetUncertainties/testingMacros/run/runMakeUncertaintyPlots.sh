@@ -2899,6 +2899,18 @@ function Moriond2018 \
     options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_"
 }
 
+function Moriond2018_EMvsPF \
+{
+
+    jetDefinition="AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config"
+    outFile="JetUncertainties-Moriond2018-Nominal-Compare.pdf"
+    compList="LAr#,Zjet#,Gjet#,MJB#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_;doCompare=rel21/Moriond2018/R4_AllNuisanceParameters.config&MC16&Total uncertainty, EMTopo&AntiKt4EMTopo;totalUncName=\"Total uncertainty, EMPFlow\""
+}
+
 function testRel21AFII \
 {
     jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
@@ -3091,6 +3103,18 @@ function JERTest \
     options="prefix=JET_;fixedEtaVals=0,2;fixedPtVals=NONE;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";scaleVar=${scaleVar};topology=${topology}"
 }
 
+function JER_August_2018 \
+{
+    scaleVar="FourVecResAbs"
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    CalibArea=""
+    configFile="JER_2018/R4_GlobalReduction.config;JER_2018/R4_GlobalReduction.config"
+    outFile="JER-August2018.pdf"
+    compList="JER#@JER#"
+    compLabels="Total JER uncertainty, EMTopo@Total JER uncertainty, EMPFlow"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=25;path=\"/afs/cern.ch/work/s/sschramm/private/rel21/athena/Reconstruction/Jet/JetUncertainties/share/\";drawTotal=false;scaleVar=${scaleVar};IsData=false"
+}
 
 
 

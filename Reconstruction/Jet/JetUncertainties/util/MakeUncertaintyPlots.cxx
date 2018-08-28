@@ -1341,16 +1341,22 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     TH1D* frameEtaScan = new TH1D("frameEtaScan","",etaScanValues.size()-1,&etaScanValues[0]);
     TH1D* framePtScan  = new TH1D("framePtScan","",ptScanValues.size()-1,&ptScanValues[0]);
     const TString yAxisLabel = optHelper.IsJER()?"Uncertainty on #sigma(#it{p}_{T})/#it{p}_{T}"
-                                : Form("Fractional J%sS uncertainty",
-                                      optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::FourVec  ? "E"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Pt       ? "Pt"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Mass     ? Form("M_{%s}",optHelper.getMassType().Data())
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D12      ? "D_{12}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D23      ? "D_{23}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Tau21WTA ? "#tau_{21}^{wta}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Tau32WTA ? "#tau_{32}^{wta}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D2Beta1  ? "D_{2}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Qw       ? "Qw"
+                                : Form("Fractional J%s uncertainty",
+                                      optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::FourVec  ? "ES"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Pt       ? "PtS"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Mass     ? Form("M_{%s}S",optHelper.getMassType().Data())
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D12      ? "D_{12}S"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D23      ? "D_{23}S"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Tau21WTA ? "#tau_{21}^{wta}S"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Tau32WTA ? "#tau_{32}^{wta}S"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D2Beta1  ? "D_{2}S"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Qw       ? "QwS"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::PtRes        ? "PtR"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::PtResAbs     ? "PtR"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::FourVecRes   ? "ER"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::FourVecResAbs? "ER"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::MassRes      ? "MR"
+                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::MassResAbs   ? "MR"
                                     : "?"
                                 );
     frameEtaScan->GetXaxis()->SetTitleOffset(1.4);
@@ -1430,6 +1436,7 @@ int main (int argc, char* argv[])
     StatusCode::enableFailure();
   
     bool doComparison = false;
+    bool compareJetDefs = false;
     TString compareMCType = "";
     TString totalLabel = "";
     TString otherJetDef = "";
@@ -1449,7 +1456,11 @@ int main (int argc, char* argv[])
       mcTypes.push_back(compareMCType);
       compSets.push_back("");
       labelSets.push_back(totalLabel);
-      if (comparisons.size()>3) jetDefs.push_back(comparisons.at(3));
+      if (comparisons.size()>3)
+      {
+        compareJetDefs = true;
+        jetDefs.push_back(comparisons.at(3));
+      }
     }
 
     bool doCompareOnly = optHelper.CompareOnly();
@@ -1544,7 +1555,7 @@ int main (int argc, char* argv[])
     }
 
     // Run once per jet type
-    if (!(jetDefs.size() == configs.size() && jetDefs.size() != 1) || (doComparison && jetDefs.size() != 1))
+    if (!(jetDefs.size() == configs.size() && jetDefs.size() != 1) || (doComparison && jetDefs.size() != 1 && !compareJetDefs))
     {
         std::cout << "Going to process for multiple jet types!" << std::endl;
     
@@ -1575,6 +1586,11 @@ int main (int argc, char* argv[])
                 {
                     printf("Failed to set ConfigFile to %s\n",configs.at(iConfig).Data());
                     exit(6);
+                }
+                if (providers.back()->setProperty("IsData",optHelper.GetIsData()).isFailure())
+                {
+                    printf("Failed to set IsData to %s\n",optHelper.GetIsData() ? "true" : "false");
+                    exit(7);
                 }
 
                 // Check if we want to change topology from unknown to dijet
@@ -1666,6 +1682,11 @@ int main (int argc, char* argv[])
             {
                 printf("Failed to set ConfigFile to %s\n",configs.at(iJetDef).Data());
                 exit(6);
+            }
+            if (providers.back()->setProperty("IsData",optHelper.GetIsData()).isFailure())
+            {
+                printf("Failed to set IsData to %s\n",optHelper.GetIsData() ? "true" : "false");
+                exit(7);
             }
 
             // Check if we want to change topology from unknown to dijet
