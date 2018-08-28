@@ -565,9 +565,9 @@ StatusCode HLTTauMonTool::proc()
       //std::vector<string> lowest_names, lowest_trigger_names;
       std::vector<string> lowest_trigger_names;
       //lowest_names.push_back("lowest_singletau"); 
-      lowest_trigger_names.push_back(m_lowest_singletau);
+      lowest_trigger_names.push_back(m_lowest_singletau_RNN);
       //lowest_names.push_back("lowest_singletauMVA"); 	
-      lowest_trigger_names.push_back(m_lowest_singletauMVA);
+      lowest_trigger_names.push_back(m_lowest_singletau_BDT);
       //lowest_names.push_back("lowest_ditau"); 	lowest_trigger_names.push_back(m_lowest_ditau);
       //lowest_names.push_back("lowest_etau"); 	lowest_trigger_names.push_back(m_lowest_etau);
       //lowest_names.push_back("lowest_mutau");	lowest_trigger_names.push_back(m_lowest_mutau);
@@ -733,9 +733,10 @@ StatusCode HLTTauMonTool::proc()
 	    cloneHistogram("hEFRNNInput_Track_dPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
 	    cloneHistogram("hEFRNNInput_Track_d0_abs_log","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
 	    cloneHistogram("hEFRNNInput_Track_z0sinThetaTJVA_abs_log","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
-	    cloneHistogram("hEFRNNInput_Track_nInnermostPixelHits","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
-	    cloneHistogram("hEFRNNInput_Track_nPixelHits","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
-	    cloneHistogram("hEFRNNInput_Track_nSCTHits","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
+	    cloneHistogram("hEFRNNInput_Track_nIBLHitsAndExp","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
+	    cloneHistogram("hEFRNNInput_Track_nPixelHitsPlusDeadSensors","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
+	    cloneHistogram("hEFRNNInput_Track_nSCTHitsPlusDeadSensors","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
+
 	    // cluster RNN inputs
 	    //cloneHistogram("hEFRNNInput_Cluster_e","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster");
 	    //cloneHistogram("hEFRNNInput_Cluster_et","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster");

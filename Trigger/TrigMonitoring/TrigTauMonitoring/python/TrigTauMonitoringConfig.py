@@ -92,8 +92,11 @@ def TrigTauMonitoringTool():
 #		'tau25_medium1_tracktwo_ptmin_no0reject_emulate'
 #	]
 
-	ztt_tau = [
-		'tau25_medium1_tracktwo',
+	ztt_RNN_tau = [
+		'tau25_mediumRNN_tracktwoMVA',
+	]
+	ztt_BDT_tau = [
+		'tau25_medium1_tracktwoEF',
 	]
 	# removed ztt_tau chains
 	# 'tau25_idperf_tracktwo',
@@ -136,10 +139,11 @@ def TrigTauMonitoringTool():
 				monitoring_tau		= hltmonList.monitoring_tau,
 				primary_tau		= full_tau, #[]
 				prescaled_tau		= [], #tau_track_test, #[],
-				LowestSingleTau		= hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
-				LowestSingleTauMVA	= "tau25_medium1_tracktwoEF",
+				LowestSingleTauRNN		= "tau25_mediumRNN_tracktwoMVA", #hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
+				LowestSingleTauBDT	= "tau25_medium1_tracktwoEF",
 				Highpt_tau		= highpt_tau,
-				Ztt_tau		 	= ztt_tau,
+				Ztt_RNN_tau		 	= ztt_RNN_tau,
+				Ztt_BDT_tau		 	= ztt_BDT_tau,
 				EffOffTauPtCut	 	= 25000.,  #MeV
 				TurnOnCurves		= True,
 				TurnOnCurvesDenom	= "Reco", # combined string with combination of "Truth", "Reco" and "Presel". For Truth doTruth=True!

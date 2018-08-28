@@ -103,7 +103,7 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType);
 //  StatusCode TauEfficiencyCombo(const std::string & trigItem);
 
-  StatusCode RealZTauTauEfficiency();
+  StatusCode RealZTauTauEfficiency(const std::string & goodTauRefType);
   StatusCode dijetFakeTausEfficiency();
   StatusCode FTKtest(const std::string & trigItem);
   StatusCode trackCurves(const std::string & trigItem, const std::string & goodTauRefType);
@@ -201,8 +201,11 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_trigItemsAll;
   std::vector<std::string> m_trigItemsHighPt;
   std::vector<std::string> m_trigItemsZtt;
+  std::vector<std::string> m_trigItemsZtt_RNN;
+  std::vector<std::string> m_trigItemsZtt_BDT;
   std::vector<std::string> m_highpt_tau;
-  std::vector<std::string> m_ztt_tau;
+  std::vector<std::string> m_ztt_RNN_tau;
+  std::vector<std::string> m_ztt_BDT_tau;
   std::vector<std::string> m_primary_tau;
   std::vector<std::string> m_monitoring_tau;
   std::vector<std::string> m_prescaled_tau;
@@ -221,8 +224,8 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_trigMVA_chains;
   std::vector<std::string> m_trigRNN_chains;
   std::vector<std::string> m_trigBDTRNN_chains;
-  std::string m_lowest_singletau;
-  std::string m_lowest_singletauMVA;
+  std::string m_lowest_singletau_RNN;
+  std::string m_lowest_singletau_BDT;
   //std::string m_lowest_ditau;
   //std::string m_lowest_etau;
   //std::string m_lowest_mutau;

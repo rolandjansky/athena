@@ -113,7 +113,8 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
   declareProperty("monitoring_tau", 		m_monitoring_tau);
   declareProperty("prescaled_tau", 		m_prescaled_tau);
   declareProperty("Highpt_tau",               m_highpt_tau);
-  declareProperty("Ztt_tau",                  m_ztt_tau);
+  declareProperty("Ztt_RNN_tau",                  m_ztt_RNN_tau);
+  declareProperty("Ztt_BDT_tau",                  m_ztt_BDT_tau);
   declareProperty("EffOffTauPtCut", 		m_effOffTauPtCut=20000.);
   declareProperty("TurnOnCurves", 		m_turnOnCurves=true);
   declareProperty("TurnOnCurvesDenom",        m_turnOnCurvesDenom="RecoID");
@@ -142,8 +143,8 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
   declareProperty("trigRNN_chains",    m_trigRNN_chains);
   declareProperty("trigBDTRNN_chains",    m_trigBDTRNN_chains);
   declareProperty("topo_support_chains",  m_topo_support_chains);
-  declareProperty("LowestSingleTau", 		m_lowest_singletau="");
-  declareProperty("LowestSingleTauMVA", 		m_lowest_singletauMVA="");
+  declareProperty("LowestSingleTauRNN", 		m_lowest_singletau_RNN="");
+  declareProperty("LowestSingleTauBDT", 		m_lowest_singletau_BDT="");
   declareProperty("L1TriggerCondition", 	m_L1StringCondition="Physics");
   declareProperty("HLTTriggerCondition",      m_HLTStringCondition="Physics");
   declareProperty("nTrkMax",			m_selection_nTrkMax=-1);
@@ -248,7 +249,12 @@ StatusCode HLTTauMonTool::init() {
   for(std::vector<std::string>::iterator it = m_highpt_tau.begin(); it != m_highpt_tau.end(); ++it) {
     m_trigItemsHighPt.push_back(*it);
   }
-  for(std::vector<std::string>::iterator it = m_ztt_tau.begin(); it != m_ztt_tau.end(); ++it) {
+  for(std::vector<std::string>::iterator it = m_ztt_RNN_tau.begin(); it != m_ztt_RNN_tau.end(); ++it) {
+    m_trigItemsZtt_RNN.push_back(*it);
+    m_trigItemsZtt.push_back(*it);
+  }
+  for(std::vector<std::string>::iterator it = m_ztt_BDT_tau.begin(); it != m_ztt_BDT_tau.end(); ++it) {
+    m_trigItemsZtt_BDT.push_back(*it);
     m_trigItemsZtt.push_back(*it);
   }
 
@@ -601,8 +607,10 @@ StatusCode HLTTauMonTool::fill() {
 
       if(m_RealZtautauEff)
 	{
-	  sc = RealZTauTauEfficiency();
-	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency()");} //return sc;}
+	  sc = RealZTauTauEfficiency("RNN");
+	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency() for RNN chains");} //return sc;}
+	  sc = RealZTauTauEfficiency("BDT");
+	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed RealZTauTauEfficiency() for BDT chains");} //return sc;}
 	}
 
       if(m_dijetFakeTausEff)
