@@ -957,14 +957,15 @@ void HLTTauMonTool::bookHistogramsAllItem(){
   //    lowest_names.push_back("lowest_mutau");
   //    lowest_names.push_back("lowest_mettau");
   //    lowest_names.push_back("cosmic_chain");
-    
+  
   for(unsigned int i=0;i<lowest_names.size();++i){
-        
     addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/L1RoI",run));
     //addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/Emulation",run));
     addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/L1VsOffline",run));
-    addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/PreselectionTau",run));
-    addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/PreselectionVsOffline",run));
+    if ( lowest_names.at(i).find("RNN")==std::string::npos ) { // not an RNN trigger
+		  addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/PreselectionTau",run));
+		  addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/PreselectionVsOffline",run));
+		}	
     addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau",run));
     //      addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/1p_nonCorrected",run));
     //      addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/mp_nonCorrected",run));
