@@ -141,20 +141,20 @@ namespace CP {
             return false;
         }
         // now we can read our six Histos
-        m_eff = ReadHistFromFile("Eff", f, time_unit);
-        m_eff_sys = ReadHistFromFile("Eff_sys", f, time_unit);
+        m_eff = ReadHistFromFile("Eff", f.get(), time_unit);
+        m_eff_sys = ReadHistFromFile("Eff_sys", f.get(), time_unit);
 
-        m_mc_eff = ReadHistFromFile("MC_Eff", f, time_unit);
-        m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f, time_unit);
+        m_mc_eff = ReadHistFromFile("MC_Eff", f.get(), time_unit);
+        m_mc_eff_sys = ReadHistFromFile("MC_Eff_sys", f.get(), time_unit);
 
-        m_sf = ReadHistFromFile("SF", f, time_unit);
-        m_sf_sys = ReadHistFromFile("SF_sys", f, time_unit);
+        m_sf = ReadHistFromFile("SF", f.get() ,time_unit);
+        m_sf_sys = ReadHistFromFile("SF_sys", f.get(), time_unit);
 
         // for high pt eff, we also load the pt dependent part
         if (m_respond_to_kineDepSyst) {
             if (m_Type != CP::MuonEfficiencyType::BadMuonVeto) {
-                m_sf_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f, time_unit)));
-                m_eff_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f, time_unit)));
+                m_sf_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("SF_PtDep_sys", f.get(), time_unit)));
+                m_eff_KineDepsys = IKinematicSystHandler_Ptr(new PtDependentSystHandler(ReadHistFromFile("Eff_PtDep_sys", f.get(), time_unit)));
             } else {
                 TDirectory* SystDir = nullptr;
                 f->GetObject(("KinematicSystHandler_" + time_unit).c_str(), SystDir);
@@ -179,9 +179,6 @@ namespace CP {
             return false;
         }
         return m_sf_sys != nullptr && m_sf != nullptr;
-    }
-    HistHandler_Ptr EfficiencyScaleFactor::ReadHistFromFile(const std::string& name, const std::unique_ptr<TFile> &f, const std::string& time_unit) {
-        return ReadHistFromFile(name,f.get(), time_unit);
     }
     HistHandler_Ptr EfficiencyScaleFactor::ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit) {
         TH1* histHolder = 0;

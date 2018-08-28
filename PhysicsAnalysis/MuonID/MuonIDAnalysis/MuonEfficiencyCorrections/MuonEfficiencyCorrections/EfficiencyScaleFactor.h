@@ -72,7 +72,6 @@ namespace CP {
 
             /// Read SF histrograms from a given input file.
             bool ReadFromFile(const std::string &file, const std::string& time_unit);
-            HistHandler_Ptr ReadHistFromFile(const std::string& name, const std::unique_ptr<TFile> &f, const std::string& time_unit);
             HistHandler_Ptr ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit);
 
             // mangle the histograms as required by the systematic being run
