@@ -120,19 +120,10 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "PixelThreeLayer":
             InDetSiSpacePointsSeedMaker.SkipIBLcut = True
          if NewTrackingCuts.mode() == "DisplacedSoftPion" :
-            InDetSiSpacePointsSeedMaker.RoISeedTrackContainer = "ResolvedPixelThreeLayerTracks"
-            InDetSiSpacePointsSeedMaker.TracksForIsolation    = "ResolvedTracks"
-            InDetSiSpacePointsSeedMaker.RoISeedRTrackD0       = 10.0 
-            InDetSiSpacePointsSeedMaker.RoISeedTrackPt        = 20000.0
-            InDetSiSpacePointsSeedMaker.RoISeedTrackSCTHits   = 0
-            InDetSiSpacePointsSeedMaker.RoISeedTrackPixHits   = 3
-            InDetSiSpacePointsSeedMaker.RoISeedTrackIso       = 0.1
-            InDetSiSpacePointsSeedMaker.IsoTrackPtThr         = 400.0
-            InDetSiSpacePointsSeedMaker.IsoTrackConeSize      = 0.4
-            InDetSiSpacePointsSeedMaker.DoRoITrackD0Sort      = True
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 50
             InDetSiSpacePointsSeedMaker.DeltaThetaRoISP       = 0.8
             InDetSiSpacePointsSeedMaker.DeltaPhiRoISP         = 0.8
-            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 50
+            InDetSiSpacePointsSeedMaker.RoISeedTool           = RoISeedTool
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
