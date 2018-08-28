@@ -164,6 +164,9 @@ namespace AtlasRoot {
 
     m_G4OverFrSh = nullptr;
 
+
+    for (int i=0;i<3;i++) for (int j=0;j<6;j++) m_h2dmat[i][j]=nullptr;
+
     m_use_new_resolution_model = false;
 
     // tools
@@ -239,6 +242,7 @@ namespace AtlasRoot {
     if ( m_G4OverAFII_resolution_unconverted )     delete m_G4OverAFII_resolution_unconverted;
     if ( m_G4OverFrSh )                 delete m_G4OverFrSh;
     if ( m_matElectronEtaBins )         delete m_matElectronEtaBins;
+    for (int i=0;i<3;i++) for (int j=0;j<6;j++) if (m_h2dmat[i][j]) delete m_h2dmat[i][j];
     delete m_pp0_elec;
     delete m_pp0_conv;
     delete m_pp0_unconv;
@@ -1158,24 +1162,24 @@ namespace AtlasRoot {
     // ... new material distortions from release 21 parameterizations
 
     if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
-      h2dmat[0][0] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigA"));
-      h2dmat[0][1] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigEpLp"));
-      h2dmat[0][2] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigFpMX"));
-      h2dmat[0][3] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigN"));
-      h2dmat[0][4] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigIBL"));
-      h2dmat[0][5] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigPP0"));
-      h2dmat[1][0] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigA"));
-      h2dmat[1][1] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigEpLp"));
-      h2dmat[1][2] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigFpMX"));
-      h2dmat[1][3] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigN"));
-      h2dmat[1][4] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigIBL"));
-      h2dmat[1][5] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigPP0"));
-      h2dmat[2][0] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigA"));
-      h2dmat[2][1] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigEpLp"));
-      h2dmat[2][2] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigFpMX"));
-      h2dmat[2][3] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigN"));
-      h2dmat[2][4] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigIBL"));
-      h2dmat[2][5] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigPP0"));
+      m_h2dmat[0][0] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigA"));m_h2dmat[0][0]->SetDirectory(0);
+      m_h2dmat[0][1] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigEpLp"));m_h2dmat[0][1]->SetDirectory(0);
+      m_h2dmat[0][2] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigFpMX"));m_h2dmat[0][2]->SetDirectory(0);
+      m_h2dmat[0][3] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigN"));m_h2dmat[0][3]->SetDirectory(0);
+      m_h2dmat[0][4] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigIBL"));m_h2dmat[0][4]->SetDirectory(0);
+      m_h2dmat[0][5] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigPP0"));m_h2dmat[0][5]->SetDirectory(0);
+      m_h2dmat[1][0] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigA"));m_h2dmat[1][0]->SetDirectory(0);
+      m_h2dmat[1][1] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigEpLp"));m_h2dmat[1][1]->SetDirectory(0);
+      m_h2dmat[1][2] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigFpMX"));m_h2dmat[1][2]->SetDirectory(0);
+      m_h2dmat[1][3] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigN"));m_h2dmat[1][3]->SetDirectory(0);
+      m_h2dmat[1][4] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigIBL"));m_h2dmat[1][4]->SetDirectory(0);
+      m_h2dmat[1][5] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigPP0"));m_h2dmat[1][5]->SetDirectory(0);
+      m_h2dmat[2][0] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigA"));m_h2dmat[2][0]->SetDirectory(0);
+      m_h2dmat[2][1] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigEpLp"));m_h2dmat[2][1]->SetDirectory(0);
+      m_h2dmat[2][2] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigFpMX"));m_h2dmat[2][2]->SetDirectory(0);
+      m_h2dmat[2][3] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigN"));m_h2dmat[2][3]->SetDirectory(0);
+      m_h2dmat[2][4] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigIBL")); m_h2dmat[2][4]->SetDirectory(0);
+      m_h2dmat[2][5] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigPP0"));m_h2dmat[2][5]->SetDirectory(0);
     }
 
        
@@ -2812,28 +2816,28 @@ double egammaEnergyCorrectionTool::getMaterialEffect(egEnergyCorr::Geometry geo,
  
    TH2D* hmat=0;
    if (ptype==PATCore::ParticleType::Electron) {
-      if (geo==egEnergyCorr::ConfigA) hmat=h2dmat[0][0];
-      if (geo==egEnergyCorr::ConfigEL) hmat=h2dmat[0][1];
-      if (geo==egEnergyCorr::ConfigFMX) hmat=h2dmat[0][2];
-      if (geo==egEnergyCorr::ConfigN) hmat=h2dmat[0][3];
-      if (geo==egEnergyCorr::ConfigIBL) hmat=h2dmat[0][4];
-      if (geo==egEnergyCorr::ConfigPP0) hmat=h2dmat[0][5];
+      if (geo==egEnergyCorr::ConfigA) hmat=m_h2dmat[0][0];
+      if (geo==egEnergyCorr::ConfigEL) hmat=m_h2dmat[0][1];
+      if (geo==egEnergyCorr::ConfigFMX) hmat=m_h2dmat[0][2];
+      if (geo==egEnergyCorr::ConfigN) hmat=m_h2dmat[0][3];
+      if (geo==egEnergyCorr::ConfigIBL) hmat=m_h2dmat[0][4];
+      if (geo==egEnergyCorr::ConfigPP0) hmat=m_h2dmat[0][5];
    }
    if (ptype==PATCore::ParticleType::UnconvertedPhoton) {
-      if (geo==egEnergyCorr::ConfigA) hmat=h2dmat[1][0];
-      if (geo==egEnergyCorr::ConfigEL) hmat=h2dmat[1][1];
-      if (geo==egEnergyCorr::ConfigFMX) hmat=h2dmat[1][2];
-      if (geo==egEnergyCorr::ConfigN) hmat=h2dmat[1][3];
-      if (geo==egEnergyCorr::ConfigIBL) hmat=h2dmat[1][4];
-      if (geo==egEnergyCorr::ConfigPP0) hmat=h2dmat[1][5];
+      if (geo==egEnergyCorr::ConfigA) hmat=m_h2dmat[1][0];
+      if (geo==egEnergyCorr::ConfigEL) hmat=m_h2dmat[1][1];
+      if (geo==egEnergyCorr::ConfigFMX) hmat=m_h2dmat[1][2];
+      if (geo==egEnergyCorr::ConfigN) hmat=m_h2dmat[1][3];
+      if (geo==egEnergyCorr::ConfigIBL) hmat=m_h2dmat[1][4];
+      if (geo==egEnergyCorr::ConfigPP0) hmat=m_h2dmat[1][5];
    }
    if (ptype==PATCore::ParticleType::ConvertedPhoton) {
-      if (geo==egEnergyCorr::ConfigA) hmat=h2dmat[2][0];
-      if (geo==egEnergyCorr::ConfigEL) hmat=h2dmat[2][1];
-      if (geo==egEnergyCorr::ConfigFMX) hmat=h2dmat[2][2];
-      if (geo==egEnergyCorr::ConfigN) hmat=h2dmat[2][3];
-      if (geo==egEnergyCorr::ConfigIBL) hmat=h2dmat[2][4];
-      if (geo==egEnergyCorr::ConfigPP0) hmat=h2dmat[2][5];
+      if (geo==egEnergyCorr::ConfigA) hmat=m_h2dmat[2][0];
+      if (geo==egEnergyCorr::ConfigEL) hmat=m_h2dmat[2][1];
+      if (geo==egEnergyCorr::ConfigFMX) hmat=m_h2dmat[2][2];
+      if (geo==egEnergyCorr::ConfigN) hmat=m_h2dmat[2][3];
+      if (geo==egEnergyCorr::ConfigIBL) hmat=m_h2dmat[2][4];
+      if (geo==egEnergyCorr::ConfigPP0) hmat=m_h2dmat[2][5];
    }
   if (!hmat) return 0;
 

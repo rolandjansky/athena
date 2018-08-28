@@ -574,7 +574,7 @@ namespace AtlasRoot {
     std::vector<TList*> m_matElectronGraphs;
 
     // 2D histograms for release 21 material systematics sensitivity parameterization
-    TH2D* h2dmat[3][6];
+    TH2D* m_h2dmat[3][6];
 
 
     // Fastsim -> Fullsim corrections
