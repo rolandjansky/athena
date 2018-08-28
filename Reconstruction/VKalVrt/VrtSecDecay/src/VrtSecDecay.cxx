@@ -22,7 +22,10 @@
 
 VKalVrtAthena::VrtSecDecay::VrtSecDecay (const std::string& name, ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
-  m_iVertexFitter ( "Trk::TrkVKalVrtFitter")
+  m_iVertexFitter                ( "Trk::TrkVKalVrtFitter"  ),
+  m_trackToVertexTool            ( "Reco::TrackToVertex"    )
+
+
 
 {
 
@@ -97,6 +100,16 @@ StatusCode VKalVrtAthena::VrtSecDecay::initialize()
    else {
     msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endreq;
   }
+
+  /* Get the TrackToVertex extrapolator tool*/
+  if ( m_trackToVertexTool.retrieve().isFailure() ) {
+    ATH_MSG_ERROR("initialize: failed to retrieve trackToVertex tool ");
+    return StatusCode::SUCCESS;
+  }
+  else {
+    ATH_MSG_INFO("initialize: Retrieved Reco::TrackToVertex Tool" << m_trackToVertexTool);
+  }
+
 
   
   // Return gracefully 
@@ -211,6 +224,10 @@ StatusCode VKalVrtAthena::VrtSecDecay::doTrackParticleMethod()
       // Vertex type
       myVertex->setVertexType(xAOD::VxType::SecVtx);
 
+      // Add in track parameters with respect to vertex
+      decorateTrkWithVertexParameters(pion,myVertex);
+      decorateTrkWithVertexParameters(tracklet,myVertex);
+
       // Links to the track particles in the vertex fit
       std::vector<ElementLink<xAOD::TrackParticleContainer>> trackLinks;
       trackLinks.push_back( ElementLink<xAOD::TrackParticleContainer>(pion, *tracks));
@@ -246,6 +263,51 @@ StatusCode VKalVrtAthena::VrtSecDecay::doTrackParticleMethod()
 
   // Return gracefully
   return StatusCode::SUCCESS;
+
+}
+
+///////////////////////////////////////////////////////////////////
+//// Vertex 
+/////////////////////////////////////////////////////////////////////
+
+void VKalVrtAthena::VrtSecDecay::decorateTrkWithVertexParameters(const xAOD::TrackParticle* trk,xAOD::Vertex* myVertex)
+{
+
+  static SG::AuxElement::Decorator< float > dec_pt_wrtSV( "pt_wrtSV" );
+  static SG::AuxElement::Decorator< float > dec_eta_wrtSV( "eta_wrtSV" );
+  static SG::AuxElement::Decorator< float > dec_phi_wrtSV( "phi_wrtSV" );
+  static SG::AuxElement::Decorator< float > dec_d0_wrtSV( "d0_wrtSV" );
+  static SG::AuxElement::Decorator< float > dec_z0_wrtSV( "z0_wrtSV" );
+  static SG::AuxElement::Decorator< float > dec_errD0_wrtSV( "errD0_wrtSV" );
+  static SG::AuxElement::Decorator< float > dec_errZ0_wrtSV( "errZ0_wrtSV" );
+  static SG::AuxElement::Decorator< float > dec_errP_wrtSV( "errP_wrtSV" );
+
+  const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, myVertex->position() );
+  if( sv_perigee ){
+    double qOverP_wrtSV    = sv_perigee->parameters() [Trk::qOverP];
+    double theta_wrtSV     = sv_perigee->parameters() [Trk::theta];
+    double p_wrtSV         = 1.0 / fabs( qOverP_wrtSV );
+    double pt_wrtSV        = p_wrtSV * sin( theta_wrtSV );
+    double eta_wrtSV       = -log( tan( theta_wrtSV/2. ) );
+    double phi_wrtSV       = sv_perigee->parameters() [Trk::phi];
+    double d0_wrtSV        = sv_perigee->parameters() [Trk::d0];
+    double z0_wrtSV        = sv_perigee->parameters() [Trk::z0];
+    double errd0_wrtSV     = (*sv_perigee->covariance())( Trk::d0, Trk::d0 );
+    double errz0_wrtSV     = (*sv_perigee->covariance())( Trk::z0, Trk::z0 );
+    double errP_wrtSV      = (*sv_perigee->covariance())( Trk::qOverP, Trk::qOverP );
+
+    dec_pt_wrtSV(*trk)    = pt_wrtSV;
+    dec_eta_wrtSV(*trk)   = eta_wrtSV;
+    dec_phi_wrtSV(*trk)   = phi_wrtSV;
+    dec_d0_wrtSV(*trk)    = d0_wrtSV;
+    dec_z0_wrtSV(*trk)    = z0_wrtSV;
+    dec_errD0_wrtSV(*trk) = errd0_wrtSV;
+    dec_errZ0_wrtSV(*trk) = errz0_wrtSV;
+    dec_errP_wrtSV(*trk)  = errP_wrtSV;
+
+  } 
+
+
 
 }
 

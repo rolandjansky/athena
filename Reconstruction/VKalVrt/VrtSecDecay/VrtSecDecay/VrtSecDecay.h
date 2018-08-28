@@ -20,6 +20,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "ITrackToVertex/ITrackToVertex.h"
+
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
@@ -103,10 +105,16 @@ namespace VKalVrtAthena {
        // Consistency check between hit pattern of the tracklet and soft track
        bool consistentHitPattern(const xAOD::TrackParticle* tracklet, const xAOD::TrackParticle* track);
 
+       //
+       void decorateTrkWithVertexParameters(const xAOD::TrackParticle* trk,xAOD::Vertex* myVertex);
+
      protected:
 
       /// Vertex fitter interface.
-      ToolHandle < Trk::TrkVKalVrtFitter > m_iVertexFitter;
+      ToolHandle < Trk::TrkVKalVrtFitter >       m_iVertexFitter;
+      ToolHandle< Reco::ITrackToVertex >         m_trackToVertexTool;
+
+
 
       static bool rank_radius(const VtxObj& a, const VtxObj& b){return a.vtx->position().perp() > b.vtx->position().perp();}
 
