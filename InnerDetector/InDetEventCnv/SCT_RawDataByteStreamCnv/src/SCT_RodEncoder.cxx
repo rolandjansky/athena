@@ -39,7 +39,6 @@ namespace {
 SCT_RodEncoder::SCT_RodEncoder
 (const std::string& type, const std::string& name,const IInterface* parent) : 
   base_class(type, name, parent),
-  m_cabling{"SCT_CablingSvc", name},
   m_sct_id{nullptr},
   m_swapModuleId{},
   m_singleCondHitNumber{0},
@@ -57,9 +56,10 @@ StatusCode SCT_RodEncoder::initialize() {
   //ATH_CHECK( AlgTool::initialize()); 
   ATH_MSG_DEBUG("SCT_RodEncoder::initialize()");
   
-  /** Retrieve cabling service */
+  /** Retrieve cabling tool */
   ATH_CHECK(m_cabling.retrieve());
-  ATH_MSG_DEBUG("Retrieved service " << m_cabling);
+  ATH_MSG_DEBUG("Retrieved tool " << m_cabling);
+
   ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
   ATH_CHECK(m_bsErrs.retrieve());
   return StatusCode::SUCCESS;

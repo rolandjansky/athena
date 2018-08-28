@@ -27,7 +27,6 @@
 //forward declarations
 class IdentifierHash;
 class SCT_ID;
-class ISCT_CablingSvc;
 class SCT_RODVetoTool_test;
 
 /**

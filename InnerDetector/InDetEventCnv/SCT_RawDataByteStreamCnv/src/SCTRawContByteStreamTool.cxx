@@ -10,7 +10,6 @@
 #include "eformat/SourceIdentifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
 #include "StoreGate/ReadCondHandle.h"
 
@@ -20,11 +19,9 @@
 SCTRawContByteStreamTool::SCTRawContByteStreamTool
 (const std::string& type, const std::string& name,const IInterface* parent):
   base_class(type, name, parent),
-  m_cabling{"SCT_CablingSvc", name},
   m_sct_idHelper{nullptr}
 {
   declareProperty("RodBlockVersion", m_RodBlockVersion=0);
-  declareProperty("CablingSvc", m_cabling);
   return;
 }
 

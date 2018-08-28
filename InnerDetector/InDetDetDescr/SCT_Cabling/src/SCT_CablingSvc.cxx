@@ -97,7 +97,8 @@ SCT_CablingSvc::initialize() {
         ATH_MSG_FATAL("Failed to retrieve the IncidentSvc");
         return StatusCode::FAILURE;
       } else { 
-        incidentSvc->addListener(this, IncidentType::BeginRun);
+        const long priority(1); // Default is 0. To be called before RegSelSvc, a value slightly higher than the default value is necessary.
+        incidentSvc->addListener(this, IncidentType::BeginRun, priority);
         incidentSvc->addListener(this, IncidentType::EndRun);
       }
     }

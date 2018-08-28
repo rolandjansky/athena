@@ -21,7 +21,8 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 
-// Include SCT calibration data map objects
+// Include SCT stuff
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/SCT_CalibDefectData.h"
 #include "SCT_ConditionsData/SCT_WaferGoodStripInfo.h"
 #include "SCT_ConditionsData/SCT_AllGoodStripInfo.h"
@@ -32,7 +33,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 // Forward declarations
-class ISCT_CablingSvc;
 class SCT_ID;
 
 /** This class contains a Tool that reads SCT calibration data and makes it available to 
@@ -93,7 +93,7 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
   
   //----------Private Attributes----------//
-  ServiceHandle<ISCT_CablingSvc>      m_cabling;     //!< Handle to SCT cabling service
+  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID*                       m_id_sct;      //!< Handle to SCT ID helper
 };
 

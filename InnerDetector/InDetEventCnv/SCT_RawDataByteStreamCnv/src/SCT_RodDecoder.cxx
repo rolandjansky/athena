@@ -8,7 +8,6 @@
 #include "ByteStreamData/RawEvent.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "StoreGate/ReadCondHandle.h"
 
 //Gaudi
@@ -30,7 +29,6 @@ SCT_RodDecoder::SCT_RodDecoder
 (const std::string& type, const std::string& name,const IInterface* parent) :
   base_class(type, name, parent),
   m_sct_id{nullptr},
-  m_cabling{"SCT_CablingSvc", name},
   m_condensedMode{false},
   m_superCondensedMode{false},
   m_singleCondHitNumber{0},
@@ -64,7 +62,6 @@ SCT_RodDecoder::SCT_RodDecoder
   m_numUnknownOfflineId{0},
   m_incidentSvc{"IncidentSvc", name}
 {
-  declareProperty("CablingSvc", m_cabling);
   declareProperty("TriggerMode", m_triggerMode=true);
 }
 
@@ -73,9 +70,9 @@ StatusCode SCT_RodDecoder::initialize() {
 
   ATH_CHECK(m_incidentSvc.retrieve());
  
-  /** Retrieve cabling service */
+  /** Retrieve cabling tool */
   ATH_CHECK(m_cabling.retrieve());
-  ATH_MSG_DEBUG("Retrieved service " << m_cabling);
+  ATH_MSG_DEBUG("Retrieved tool " << m_cabling);
 
   ATH_CHECK(detStore()->retrieve(m_sct_id,"SCT_ID"));
   m_cntx_sct = m_sct_id->wafer_context();

@@ -145,6 +145,8 @@ if DetFlags.haveRIO.pixel_on():
 # --- Load SCT Conditions Services
 #
 if DetFlags.haveRIO.SCT_on():
+    # Set up SCT cabling
+    include( 'InDetRecExample/InDetRecCabling.py' )
 
     # Load conditions summary tool
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
@@ -228,7 +230,6 @@ if DetFlags.haveRIO.SCT_on():
     sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
     sct_ByteStreamErrorsToolSetup.setConfigTool(InDetSCT_ConfigurationConditionsTool)
     sct_ByteStreamErrorsToolSetup.setup()
-    include( 'InDetRecExample/InDetRecCabling.py' )
     if (InDetFlags.doPrintConfigurables()):
         print sct_ByteStreamErrorsToolSetup.getTool()
     
