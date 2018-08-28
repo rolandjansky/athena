@@ -9,6 +9,7 @@
 #include "PyAnalysisExamples/MyObj.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "AthContainers/ConstDataVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "egammaEvent/ElectronContainer.h"
@@ -84,7 +85,7 @@ StatusCode MySelectionAlg::execute()
   const ElectronContainer *eCon;
   ATH_CHECK( evtStore()->retrieve(eCon, m_ContainerKey) );
 
-  ElectronContainer *newCon = new ElectronContainer(SG::VIEW_ELEMENTS);
+  auto newCon = std::make_unique<ConstDataVector<ElectronContainer> >(SG::VIEW_ELEMENTS);
 
   ElectronContainer::const_iterator it  = eCon->begin();
   ElectronContainer::const_iterator itE = eCon->end();
@@ -92,6 +93,6 @@ StatusCode MySelectionAlg::execute()
     if (m_cut->isAccepted(**it)) newCon->push_back(*it);
   
   ATH_MSG_DEBUG ( "record new ElectronContainer : size=" << newCon->size() );
-  ATH_CHECK( evtStore()->record(newCon, m_NewKey, false) );
+  ATH_CHECK( evtStore()->record(std::move(newCon), m_NewKey, false) );
   return StatusCode::SUCCESS;
 }
