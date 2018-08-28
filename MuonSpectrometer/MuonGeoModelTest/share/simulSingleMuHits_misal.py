@@ -100,6 +100,7 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 ## Add G4 sim framework alg sequence
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+topSeq.G4AtlasAlg.InputTruthCollection = "GEN_EVENT"
 
 #---  Output printout level ----------------------------------- 
 #output threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
