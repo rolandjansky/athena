@@ -16,8 +16,8 @@
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TauValidationPlots.h"
-//#include "TauTools/TruthHandler.h"
-//#include "TauTools/MatchingTools_depreciated.h"
+#include "TauAnalysisTools/TauTruthMatchingTool.h"
+#include "TauAnalysisTools/TauSelectionTool.h"
 #include <TLorentzVector.h>
 //Additional includes
 
@@ -114,8 +114,12 @@ class PhysValTau
     /*keeps track of matched tau jets*/    
     std::vector<size_t> m_matched_itr;
 
-    /** Object to define Truth Handler Tool*/
-    TruthHandler truthHandler;
+   // Tool used for truth-matching
+   TauAnalysisTools::TauTruthMatchingTool m_truthTool;
+   // Tool used to select "primitive" and "nominal" taus
+   TauAnalysisTools::TauSelectionTool m_primTauSel;
+   TauAnalysisTools::TauSelectionTool m_nomiTauSel;
+
 
   //Histograms
   // general tau all prongs plots
