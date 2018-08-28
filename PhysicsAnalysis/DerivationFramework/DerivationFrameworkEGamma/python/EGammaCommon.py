@@ -98,14 +98,21 @@ ToolSvc += ElectronChargeIDSelector
 #====================================================================
 from ROOT import egammaPID
 
-# Loose
 from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
+from ElectronPhotonSelectorTools.PhotonIsEMSelectorMapping import photonPIDmenu
+
+# Loose
 PhotonIsEMSelectorLoose = ConfiguredAsgPhotonIsEMSelector("PhotonIsEMSelectorLoose", egammaPID.PhotonIDLoose)
 ToolSvc += PhotonIsEMSelectorLoose
 
-# Tight
+# Tight (default == pt-dependent)
 PhotonIsEMSelectorTight = ConfiguredAsgPhotonIsEMSelector("PhotonIsEMSelectorTight", egammaPID.PhotonIDTight)
 ToolSvc += PhotonIsEMSelectorTight
+
+# Tight (pt-inclusive)
+# To be removed when pt-dependent menu above is supported with scale factors
+PhotonIsEMSelectorTightPtIncl = ConfiguredAsgPhotonIsEMSelector("PhotonIsEMSelectorTightPtIncl", egammaPID.PhotonIDTight,menu=photonPIDmenu.menuPtInclJan2018)
+ToolSvc += PhotonIsEMSelectorTightPtIncl
 
 
 #====================================================================
@@ -248,6 +255,18 @@ else:
 ToolSvc += PhotonPassIsEMTight
 print PhotonPassIsEMTight
 
+# decorate photons with the output of IsEM tight pt-inclusive menu
+# Can be removed once pt-dependent cuts are fully supported.
+# On full-sim MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
+PhotonPassIsEMTightPtIncl = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMTightPtIncl",
+                                                                         EGammaSelectionTool = PhotonIsEMSelectorTightPtIncl,
+                                                                         EGammaFudgeMCTool = (DF_ElectronPhotonShowerShapeFudgeTool if isFullSim else None),
+                                                                         CutType = "",
+                                                                         StoreGateEntryName = "DFCommonPhotonsIsEMTightPtIncl",
+                                                                         ContainerName = "Photons")
+ToolSvc += PhotonPassIsEMTightPtIncl
+print PhotonPassIsEMTightPtIncl
+
 # decorate photons with the photon cleaning flags
 # on MC, fudge the shower shapes before computing the flags
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGPhotonCleaningWrapper
@@ -267,7 +286,7 @@ print PhotonPassCleaning
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
-                       ElectronPassECIDS,PhotonPassIsEMLoose, PhotonPassIsEMTight, PhotonPassCleaning]
+                       ElectronPassECIDS,PhotonPassIsEMLoose, PhotonPassIsEMTight, PhotonPassIsEMTightPtIncl, PhotonPassCleaning]
 
 
 #==================================================
