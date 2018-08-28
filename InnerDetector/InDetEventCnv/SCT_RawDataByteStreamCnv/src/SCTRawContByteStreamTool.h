@@ -21,6 +21,7 @@
 
 ///STL
 #include <cstdint>
+#include <mutex>
 #include <string>
 
 class SrcIdMap;
@@ -54,7 +55,7 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   virtual StatusCode finalize();
 
   //! New convert method which makes use of the encoder class (as done for other detectors)
-  StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log); 
+  StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) const;
   
  private: 
   
@@ -63,8 +64,8 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   const SCT_ID* m_sct_idHelper;
   unsigned short m_RodBlockVersion;
-  FullEventAssembler<SrcIdMap> m_fea; 
-
+  mutable FullEventAssembler<SrcIdMap> m_fea; // This has to be data member.
+  mutable std::mutex m_mutex;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H
