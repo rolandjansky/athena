@@ -308,6 +308,13 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString& configName) {
       }
       SetUniformBinning(100,0,100); //Thanks Eric </sarcasm>
       Info("UsePeriodConfig","Using Run2 Period configuration, which assumes period assignment of 222222 to 999999");
+      return 0;
+   } else if(configName=="MC16") {
+     /* period configs are now assigned through the parent tool for MC16 */
+     
+     SetUniformBinning(100,0,100);
+     Info("UsePeriodConfig","Using MC16 Period configuration");
+     return 0;
    }
    Error("UsePeriodConfig","Unrecognized period config");
    return -1;

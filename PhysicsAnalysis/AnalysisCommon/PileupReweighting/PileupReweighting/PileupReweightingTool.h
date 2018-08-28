@@ -152,6 +152,8 @@ namespace CP {
       
       bool m_varyRunNumber;
       bool m_useRunDependentPrescaleWeight;
+      
+      std::vector<int> m_customPeriods;
 
       ToolHandle<IWeightTool> m_weightTool;
       ToolHandle<IGoodRunsListSelectionTool> m_grlTool;

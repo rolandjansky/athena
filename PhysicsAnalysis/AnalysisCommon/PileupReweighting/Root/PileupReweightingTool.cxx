@@ -54,6 +54,8 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.07,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
    declareProperty("VaryRandomRunNumber",m_varyRunNumber=false,"If true, then when doing systematic variations, RandomRunNumber will fluctuate as well. Off by default as believed to lead to overestimated uncertainties");
    
+   declareProperty("PeriodAssignments", m_customPeriods={284500,222222,324300,300000,324300,344495,310000,344496,999999}, "Specify period number assignments to run numbers ranges - this is usually an expert option");
+   
    declareProperty("GRLTool", m_grlTool, "If you provide a GoodRunsListSelectionTool, any information from lumicalc files will be automatically filtered" );
    declareProperty("TrigDecisionTool",m_tdt, "When using the getDataWeight method, the TDT will be used to check decisions before prescale. Alternatively do expert()->SetTriggerBit('trigger',0) to flag which triggers are not fired before prescale (assumed triggers are fired if not specified)");
 
@@ -158,21 +160,39 @@ StatusCode PileupReweightingTool::initialize() {
    //set debugging if debugging is on:
    EnableDebugging(this->msgLvl(MSG::DEBUG));
 
+   //convert custom periods vector to a vector of vectors (length 3) ...
+   std::vector<std::vector<int>> customPeriods;
+   for(auto& num : m_customPeriods) {
+    if(customPeriods.size()==0 || customPeriods.back().size()==3) customPeriods.resize(customPeriods.size()+1);
+    customPeriods.back().push_back(num);
+   }
+
+   for(auto& period : customPeriods) {
+    if(period.size()!=3) {
+      ATH_MSG_FATAL("Recevied period with " << period.size() << " numbers. Period configuration requires 3 numbers: periodNumber, startNumber, endNumber");
+      return StatusCode::FAILURE;
+    }
+    AddPeriod(period[0],period[1],period[2]);
+   }
+
    //see if we need variations 
    if(m_upVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
       m_upTool = new TPileupReweighting((name()+"_upVariation").c_str());
       m_upTool->SetParentTool(this);
       m_upTool->CopyProperties(this);
       m_upTool->SetDataScaleFactors(m_upVariation);
+      for(auto& period : customPeriods) m_upTool->AddPeriod(period[0],period[1],period[2]); //already checked sizes above
    }
    if(m_downVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
       m_downTool = new TPileupReweighting((name()+"_downVariation").c_str());
       m_downTool->SetParentTool(this);
       m_downTool->CopyProperties(this);
       m_downTool->SetDataScaleFactors(m_downVariation);
+      for(auto& period : customPeriods) m_downTool->AddPeriod(period[0],period[1],period[2]); //already checked sizes above
    }
 
    SetDefaultChannel(m_defaultChannel); //handled in GetDefaultChannel method now! if(m_upTool) m_upTool->SetDefaultChannel(m_defaultChannel); if(m_downTool) m_downTool->SetDefaultChannel(m_defaultChannel);
+
 
    //should we set the period config (file maker mode)
    if(m_prwFiles.size()+m_lumicalcFiles.size()==0) {
