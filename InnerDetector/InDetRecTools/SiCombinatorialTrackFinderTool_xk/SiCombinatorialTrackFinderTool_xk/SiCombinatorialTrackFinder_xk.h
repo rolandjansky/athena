@@ -24,6 +24,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 
 #include "SiCombinatorialTrackFinderTool_xk/SiTrajectory_xk.h"
@@ -165,6 +166,9 @@ namespace InDet{
       InDet::SiDetElementBoundaryLinks_xk m_boundaryPIX;
       SG::ReadCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_boundarySCTKey{this, "SCT_DetElementBoundaryLinks_xk",
           "SCT_DetElementBoundaryLinks_xk", "Key of InDet::SiDetElementBoundaryLinks_xk for SCT"};
+      // For P->T converter of SCT_Clusters
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey",
+          "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
       ///////////////////////////////////////////////////////////////////
       // Methods 

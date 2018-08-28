@@ -2,30 +2,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetPrepRawData/SCT_Cluster.h"
-#include "InDetEventTPCnv/InDetPrepRawData/SCT_Cluster_p3.h"
-#include "InDetEventTPCnv/SCT_ClusterContainer_p3.h"
-#include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
-
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p3.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p3.h"
-#include "AthAllocators/DataPool.h"
-
-// Gaudi
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // Athena
+#include "AthenaKernel/errorcheck.h"
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
+#include "InDetEventTPCnv/InDetPrepRawData/SCT_Cluster_p3.h"
+#include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p3.h"
+#include "InDetPrepRawData/SCT_Cluster.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
+// Gaudi
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/StatusCode.h"
 
 void SCT_ClusterContainerCnv_p3::transToPers(const InDet::SCT_ClusterContainer* transCont, InDet::SCT_ClusterContainer_p3* persCont, MsgStream &log) {
 
@@ -127,6 +122,15 @@ void  SCT_ClusterContainerCnv_p3::persToTrans(const InDet::SCT_ClusterContainer_
     // So here we loop over all collection and extract their channels
     // from the vector.
 
+    const InDetDD::SiDetectorElementCollection* elements(nullptr);
+    if (m_useDetectorElement) {
+        SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
+        elements = *sctDetEleHandle;
+        if (not sctDetEleHandle.isValid() or elements==nullptr) {
+            log << MSG::FATAL << m_SCTDetEleCollKey.fullKey() << " is not available." << endmsg;
+            return;
+        }
+    }
 
     InDet::SCT_ClusterCollection* coll = 0;
 
@@ -150,7 +154,7 @@ void  SCT_ClusterContainerCnv_p3::persToTrans(const InDet::SCT_ClusterContainer_
         coll->setIdentifier(Identifier(collID));
         unsigned int nchans           = pcoll.m_size;
         coll->resize(nchans);
-        InDetDD::SiDetectorElement * de = m_sctMgr->getDetectorElement(collIDHash);
+        const InDetDD::SiDetectorElement * de = (elements==nullptr ? nullptr : elements->getDetectorElement(collIDHash));
         // Fill with channels:
         // This is used to read the vector of errMat
         // values and lenght of the value are specified in separate vectors
@@ -231,17 +235,19 @@ StatusCode SCT_ClusterContainerCnv_p3::initialize(MsgStream &log) {
    //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endmsg;
    //   }
 
-   sc = detStore->retrieve(m_sctMgr);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get SCT_DetectorDescription" << endmsg;
-      return sc;
+   if (m_useDetectorElement) {
+     CHECK(m_SCTDetEleCollKey.initialize());
    }
 
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }
 
-// Method for test/SCT_ClusterContainerCnv_p3_test.cxx
+// Methods for test/SCT_ClusterContainerCnv_p3_test.cxx
 void SCT_ClusterContainerCnv_p3::setIdHelper(const SCT_ID* sct_id) {
   m_sctId = sct_id;
+}
+
+void SCT_ClusterContainerCnv_p3::setUseDetectorElement(const bool useDetectorElement) {
+  m_useDetectorElement = useDetectorElement;
 }

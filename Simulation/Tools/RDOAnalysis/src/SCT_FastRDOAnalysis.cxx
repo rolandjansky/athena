@@ -116,6 +116,9 @@ StatusCode SCT_FastRDOAnalysis::initialize() {
   // properly by job configuration.
   ATH_CHECK( m_inputKey.initialize() );
 
+  // Read Cond Handle Key
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   // Grab Ntuple and histogramming service for tree
   ATH_CHECK(m_thistSvc.retrieve());
 

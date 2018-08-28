@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -142,6 +142,7 @@ private:
   bool m_calibrateCharge;
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
+  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
   // Parametrization of the Pixel errors

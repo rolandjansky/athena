@@ -84,6 +84,8 @@ StatusCode SCT_PrepDataToxAOD::initialize()
   ATH_CHECK( m_xAodContainer.initialize() );
   ATH_CHECK( m_xAodOffset.initialize() );
 
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 

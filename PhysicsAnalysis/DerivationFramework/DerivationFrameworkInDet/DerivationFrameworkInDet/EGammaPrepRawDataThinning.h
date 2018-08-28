@@ -21,6 +21,7 @@
 
 // Needed for the pixel clusters
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
@@ -34,6 +35,8 @@
 #include "InDetIdentifier/PixelID.h"
 
 #include "Identifier/IdentifierHash.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Needed for RegSelSvc
 #include "GaudiKernel/ToolHandle.h"
@@ -81,6 +84,9 @@ namespace DerivationFramework {
     std::string m_pixelClusterKey;
     std::string m_sctClusterKey;
     std::string m_trtDriftCircleKey;
+
+    // For P->T converter of SCT_Clusters
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
     double m_dr;
     double m_minEtEg;
