@@ -351,6 +351,8 @@ StatusCode TileDigitsMaker::initialize() {
       m_drawerBufferHi_DigiHSTruth.push_back(pDigitSamplesHi);
       m_drawerBufferLo_DigiHSTruth.push_back(pDigitSamplesLo);
     }
+    ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize() );
+    ATH_CHECK( m_digitsContainer_DigiHSTruthKey.initialize() );
   }
 
   /* ==================================*/

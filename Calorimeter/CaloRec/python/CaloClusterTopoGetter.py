@@ -253,6 +253,8 @@ class CaloClusterTopoGetter ( Configured )  :
 
         if doDigiTruthFlag:
           TopoMoments_Truth = CaloClusterMomentsMaker_DigiHSTruth ("TopoMoments_Truth")
+          from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
+          TopoMoments_Truth.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
           TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
           TopoMoments_Truth.MaxAxisAngle = 20*deg
           TopoMoments_Truth.CaloNoiseTool = theCaloNoiseTool

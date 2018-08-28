@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # specifies Calo cell making
 # so far only handle the RawChannel->CaloCell step
 # not all possibility of CaloCellMaker_jobOptions.py integrated yet
@@ -15,30 +17,20 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
         from AthenaCommon.Logging import logging
         mlog = logging.getLogger('CaloCellGetter_DigiHSTruth::configure:')
         mlog.info ('entering')        
-        from CaloRec.CaloCellFlags import jobproperties
-        doStandardCellReconstruction = True
 
+        doStandardCellReconstruction = True
+        from CaloRec.CaloCellFlags import jobproperties
+        
         # get handle to upstream object
         # handle tile
 
         if doStandardCellReconstruction:
-            # handle LAr
-            import traceback
-            try:
-                from LArROD.LArRawChannelGetter_DigiHSTruth import LArRawChannelGetter_DigiHSTruth
-                theLArRawChannelGetter = LArRawChannelGetter_DigiHSTruth()
-            except:
-                mlog.error("could not get handle to LArRawChannel_DigiHSTruth Quit")
-                print traceback.format_exc()
-                return False
-
-            if not theLArRawChannelGetter.usable():
-                if not self.ignoreConfigError():
-                    mlog.error("LArRawChannelGetter_DigiHSTruth unusable. Quit.")
-                    return False
-                else:
-                    mlog.error("LArRawChannelGetter_DigiHSTruth unusable. Continue nevertheless")
-
+            from LArROD.LArRODFlags import larRODFlags
+            from AthenaCommon.GlobalFlags import globalflags
+        
+        # writing of thinned digits
+        if jobproperties.CaloCellFlags.doLArThinnedDigits.statusOn and jobproperties.CaloCellFlags.doLArThinnedDigits():
+            from AthenaCommon.GlobalFlags import globalflags
 
         # now configure the algorithm, part of this could be done in a separate class
         # cannot have same name
@@ -62,6 +54,9 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
             from RecExConfig.RecFlags import rec
 
             if rec.doLArg():
+                from LArCabling.LArCablingAccess import LArOnOffIdMapping
+                LArOnOffIdMapping()
+
                 try:
                     from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
                     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool("LArCellBuilder_DigiHSTruth")
@@ -72,22 +67,14 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                     return False
 
                 if jobproperties.CaloCellFlags.doLArCreateMissingCells():
-                    # bad channel tools
-                    try:
-                        from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                        theLArBadChannelTool = LArBadChanTool()
-                    except:
-                        mlog.error("could not access bad channel tool Quit")
-                        print traceback.format_exc()
-                        return False
-                    ToolSvc += theLArBadChannelTool
                     theLArCellBuilder.addDeadOTX = True
-                    theLArCellBuilder.badChannelTool = theLArBadChannelTool
 
                 # add the tool to list of tool ( should use ToolHandle eventually) 
-                ToolSvc += theLArCellBuilder
+                theCaloCellMaker += theLArCellBuilder
                 theCaloCellMaker.CaloCellMakerToolNames += [theLArCellBuilder]
+            
 
+            if rec.doTile():
 
                 from AthenaCommon.GlobalFlags import globalflags
                 try:
@@ -97,26 +84,45 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                     theTileCellBuilder.E4prContainer = "E4prContainer2_DigiHSTruth"
                     theTileCellBuilder.MBTSContainer = "MBTSContainer2_DigiHSTruth"
                     theTileCellBuilder.TileDSPRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
+
                     if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
                         from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
                         ToolSvc += TileBeamInfoProvider()
-                    ToolSvc += theTileCellBuilder
+
+                    theCaloCellMaker += theTileCellBuilder
                     theCaloCellMaker.CaloCellMakerToolNames += [theTileCellBuilder]
                 except:    
                     mlog.error("could not get handle to TileCellBuilder Quit")
                     print traceback.format_exc()
                     return False
-            
+
+
 
         #
         # CaloCellContainerFinalizerTool : closing container and setting up iterators
         #
     
         from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool     
-        theCaloCellContainerFinalizerTool=CaloCellContainerFinalizerTool()
-        ToolSvc += theCaloCellContainerFinalizerTool
+        theCaloCellContainerFinalizerTool=CaloCellContainerFinalizerTool("CaloCellContainerFinalizerTool_DigiHSTruth")
+        theCaloCellMaker += theCaloCellContainerFinalizerTool
         theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellContainerFinalizerTool ]
-        from RecExConfig.RecFlags import rec
+
+        #
+        # Mergeing of calo cellcontainer with sparse raw channel container with improved energies
+        #
+
+        doLArMerge = False
+        if doLArMerge:
+            try:
+                from LArCellRec.LArCellRecConf import LArCellMerger
+                theLArCellMerger = LArCellMerger()
+            except:
+                mlog.error("could not get handle to LArCellMerge Quit")
+                print traceback.format_exc()
+                return False
+            theLArCellMerger.RawChannelsName = larRODFlags.RawChannelFromDigitsContainerName()
+            theCaloCellMaker += theLArCellMerger
+            theCaloCellMaker.CaloCellMakerToolNames += [theLArCellMerger]
 
 
         #
@@ -157,7 +163,6 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                     mlog.error("could not access bad channel tool Quit")
                     print traceback.format_exc()
                     return False
-                theLArSporadicNoiseMasker.TheLArBadChanTool = theLArBadChannelTool
                 theLArSporadicNoiseMasker.DoMasking = True
                 theLArSporadicNoiseMasker.ProblemsToMask = ["sporadicBurstNoise"]
                 ToolSvc += theLArSporadicNoiseMasker
@@ -171,7 +176,6 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                     mlog.error("could not access bad channel tool Quit")
                     print traceback.format_exc()
                     return False
-                theLArNoiseMasker.TheLArBadChanTool = theLArBadChannelTool
                 theLArNoiseMasker.DoMasking=True
                 theLArNoiseMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
                 ToolSvc+=theLArNoiseMasker
@@ -181,9 +185,40 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
             theLArCellNoiseMaskingTool.maskSporadic = doSporadicMask
             # quality cut for sporadic noise masking
             theLArCellNoiseMaskingTool.qualityCut=4000
-            ToolSvc += theLArCellNoiseMaskingTool
+            theCaloCellMaker += theLArCellNoiseMaskingTool
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellNoiseMaskingTool]
 
+        # 
+        #  masking of Feb problems
+        #
+        doBadFebMasking = False
+        if jobproperties.CaloCellFlags.doLArBadFebMasking.statusOn and jobproperties.CaloCellFlags.doLArBadFebMasking():
+            from AthenaCommon.GlobalFlags import globalflags
+
+        if doBadFebMasking:
+            try:
+                from LArCellRec.LArCellRecConf import LArBadFebMaskingTool
+                theLArBadFebMaskingTool = LArBadFebMaskingTool()
+                if (rec.doExpressProcessing() or athenaCommonFlags.isOnline()): # In online or express processing, EventInfo::LArError is triggered if >=4 FEB with data corrupted
+                    theLArBadFebMaskingTool.minFebInError = 4
+            except:
+                mlog.error("could not get handle to LArBadFebMaskingTool Quit")
+                print traceback.format_exc()
+                return False
+            theCaloCellMaker += theLArBadFebMaskingTool
+
+            # bad channel tools
+            try:
+                from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
+                theLArBadChannelTool = LArBadChanTool()
+            except:
+                mlog.error("could not access bad channel tool Quit")
+                print traceback.format_exc()
+                return False
+            ToolSvc += theLArBadChannelTool
+
+            theLArBadFebMaskingTool.badChannelTool = theLArBadChannelTool
+            theCaloCellMaker.CaloCellMakerToolNames += [theLArBadFebMaskingTool]
 
         #
         #  emulate gain pathologies on MC
@@ -202,9 +237,11 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                 mlog.error("could not get handle to LArCellGainPatholog< Quit")
                 print traceback.format_exc()
                 return False
-            ToolSvc += theLArCellGainPathology
+            theCaloCellMaker += theLArCellGainPathology
 
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellGainPathology]
+
+
 
 
         # lar miscalibration if MC only  (should be done after finalisation)  
@@ -213,7 +250,9 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
             # the flag has not been set, so decide a reasonable default
             # this is the old global flags should use the new one as
             # soon as monitoring does 
+            from AthenaCommon.GlobalFlags import globalflags
             doLArCellEmMisCalib = True
+            mlog.info("jobproperties.CaloCellFlags.doLArMisCalib not set and Monte Carlo: apply LArCellEmMisCalibTool")          
         else:
             doLArCellEmMisCalib=jobproperties.CaloCellFlags.doLArCellEmMisCalib()
             if doLArCellEmMisCalib:
@@ -248,7 +287,7 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                 print traceback.format_exc()
                 return False
 
-            ToolSvc+=theMisCalibTool
+            theCaloCellMaker+=theMisCalibTool
             theCaloCellMaker.CaloCellMakerToolNames += [theMisCalibTool]
 
         #
@@ -257,23 +296,19 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
         doPedestalCorr = False
         if jobproperties.CaloCellFlags.doPedestalCorr.statusOn:
            from AthenaCommon.GlobalFlags import globalflags
-           if jobproperties.CaloCellFlags.doPedestalCorr() and (globalflags.DataSource() == 'data' or jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr) : 
+           if jobproperties.CaloCellFlags.doPedestalCorr() and (jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr) : 
                doPedestalCorr = True
                mlog.info("Apply cell level pedestal shift correction")
 
-        import os
-        #if doPedestalCorr and os.getenv("CMTPATH") and "AtlasTrigger" in os.getenv("CMTPATH"):
         if doPedestalCorr:
             try:
                 from CaloCellCorrection.CaloCellPedestalCorrDefault import CaloCellPedestalCorrDefault
                 theCaloCellPedestalCorr = CaloCellPedestalCorrDefault()
-                ToolSvc += theCaloCellPedestalCorr
+                theCaloCellMaker += theCaloCellPedestalCorr
                 theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellPedestalCorr]
             except:
                 mlog.error("could not get handle to CaloCellPedestalCorr")
                 print traceback.format_exc()
-
-
 
 
         #
@@ -318,7 +353,7 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                print traceback.format_exc()
                return False
 
-           ToolSvc += theMBAverageTool
+           theCaloCellMaker += theMBAverageTool
            theCaloCellMaker.CaloCellMakerToolNames += [theMBAverageTool]
 
 
@@ -339,7 +374,7 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                mlog.error("could not get handle to  CaloCellNeighborsAverageCorr  Quit")
                print traceback.format_exc()
                return False
-           ToolSvc +=  theCaloCellNeighborsAverageCorr
+           theCaloCellMaker +=  theCaloCellNeighborsAverageCorr
            theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellNeighborsAverageCorr]
 
 
@@ -362,19 +397,22 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                 mlog.error("could not get handle to LArCellDeadOTXCorr Quit")
                 print traceback.format_exc()
 
-            ToolSvc += theLArCellDeadOTXCorr
+            theCaloCellMaker += theLArCellDeadOTXCorr
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellDeadOTXCorr]
 
+        doCaloEnergyRescaler=False
+    
         
         # make lots of checks (should not be necessary eventually)
         # to print the check add:
 
         from CaloRec.CaloRecConf import CaloCellContainerCheckerTool   
         theCaloCellContainerCheckerTool = CaloCellContainerCheckerTool()     
+        # FIXME
+        # theCaloCellContainerCheckerTool.OutputLevel=DEBUG
 
-        ToolSvc += theCaloCellContainerCheckerTool
+        theCaloCellMaker += theCaloCellContainerCheckerTool
         theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellContainerCheckerTool] 
-
 
         # sets output key  
         theCaloCellMaker.CaloCellsOutputName=self.outputKey()        
@@ -382,8 +420,10 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
 
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore
-
         objKeyStore.addStreamESD(self.outputType(),self.outputKey())
+
+        # Also note that we produce it as a transient output.
+        objKeyStore.addTransient (self.outputType(),self.outputKey())
 
 
         

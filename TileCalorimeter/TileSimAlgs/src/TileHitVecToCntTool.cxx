@@ -323,6 +323,9 @@ StatusCode TileHitVecToCntTool::initialize() {
 
 
   ATH_CHECK( m_hitContainerKey.initialize() );
+  if(m_doDigiTruth){
+    ATH_CHECK( m_hitContainer_DigiHSTruthKey.initialize() );
+  }
 
   ATH_MSG_DEBUG("TileHitVecToCntTool initialization completed");
 
@@ -351,7 +354,6 @@ StatusCode TileHitVecToCntTool::createContainers() {
       lastHit = m_allHits_DigiHSTruth.end();
       for (; iHit != lastHit; ++iHit) {
           TileHit *pHit = (*iHit);
-          //ATH_MSG_WARNING("Setting hits to zero: " << pHit );
           if(pHit == nullptr) continue;
           pHit->setZero();
 
@@ -1048,7 +1050,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
                  (false, m_pileUp ? SG::VIEW_ELEMENTS : SG::OWN_ELEMENTS);
     size_t hashId_DigiHSTruth = 0;
     for (std::unique_ptr<TileHitCollection>& coll : *m_hits_DigiHSTruth ) {
-      ATH_CHECK(hits_DigiHSTruth->addCollection (coll.release(), hashId++));
+      ATH_CHECK(hits_DigiHSTruth->addCollection (coll.release(), hashId_DigiHSTruth++));
     }
 
     SG::WriteHandle<TileHitContainer> hitContainer_DigiHSTruth(m_hitContainer_DigiHSTruthKey);
