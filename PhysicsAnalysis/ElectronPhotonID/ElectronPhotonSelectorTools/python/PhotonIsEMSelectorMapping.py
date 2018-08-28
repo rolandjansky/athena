@@ -26,11 +26,11 @@ from ROOT import egammaPID
 # Should remove menuPtInclJan2018 when it is no longer supported.
 #
 class photonPIDmenu:
-    menu2011 = 0
-    menu2012 = 1
-    origMenu2012 = 2 # this is the original menu not meant for anyone to use
-    menuDC14 = 3
-    menuTrigDC14 = 4
+    # menu2011 = 0 # not used anymore
+    # menu2012 = 1 # not used anymore
+    # origMenu2012 = 2 # this is the original menu not meant for anyone to use
+    # menuDC14 = 3 # not used anymore
+    # menuTrigDC14 = 4 # not used anymore
     menuCurrentCuts = 5
     menuPtInclJan2018 = 6
 
