@@ -167,6 +167,15 @@ namespace AtlasRoot {
 
     for (int i=0;i<3;i++) for (int j=0;j<6;j++) m_h2dmat[i][j]=nullptr;
 
+    /* 
+     * All histogram vectors start empty
+     */
+    m_matElectronScale={};
+    m_matUnconvertedScale={};
+    m_matConvertedScale={};
+    m_matElectronCstTerm={};
+    m_matX0Additions={};
+
     m_use_new_resolution_model = false;
 
     // tools
@@ -243,6 +252,28 @@ namespace AtlasRoot {
     if ( m_G4OverFrSh )                 delete m_G4OverFrSh;
     if ( m_matElectronEtaBins )         delete m_matElectronEtaBins;
     for (int i=0;i<3;i++) for (int j=0;j<6;j++) if (m_h2dmat[i][j]) delete m_h2dmat[i][j];
+  
+    /*
+     * Delete for histogram 
+     * vectors
+     */ 
+    for (TH1* ptr: m_matElectronScale){
+      delete ptr;
+    } 
+    for (TH1* ptr: m_matUnconvertedScale){
+      delete ptr;
+    } 
+    for (TH1* ptr:  m_matConvertedScale){
+      delete ptr;
+    } 
+    for (TH1* ptr:  m_matElectronCstTerm){
+      delete ptr;
+    } 
+    for (TH1* ptr: m_matX0Additions){
+      delete ptr;
+    } 
+     
+    
     delete m_pp0_elec;
     delete m_pp0_conv;
     delete m_pp0_unconv;
@@ -291,16 +322,16 @@ namespace AtlasRoot {
 
     if ( m_esmodel==egEnergyCorr::es2010 ) {
       m_use_new_resolution_model = false;
-      m_aPSNom      = (TH1*) m_rootFile->Get("Scales/es2010/alphaPS_errTot");           m_aPSNom->SetDirectory(0);
-      m_aS12Nom     = (TH1*) m_rootFile->Get("Scales/es2010/alphaS12_errTot");          m_aS12Nom->SetDirectory(0);
+      m_aPSNom      = (TH1*) m_rootFile->Get("Scales/es2010/alphaPS_errTot");           m_aPSNom->SetDirectory(nullptr);
+      m_aS12Nom     = (TH1*) m_rootFile->Get("Scales/es2010/alphaS12_errTot");          m_aS12Nom->SetDirectory(nullptr);
 
-      m_zeeNom      = (TH1*) m_rootFile->Get("Scales/es2010/alphaZee_errStat");         m_zeeNom->SetDirectory(0);
-      m_zeeSyst     = (TH1*) m_rootFile->Get("Scales/es2010/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+      m_zeeNom      = (TH1*) m_rootFile->Get("Scales/es2010/alphaZee_errStat");         m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst     = (TH1*) m_rootFile->Get("Scales/es2010/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom      = (TH1*) m_rootFile->Get("Resolution/es2010/ctZee_errStat");        m_resNom->SetDirectory(0);
-      m_resSyst     = (TH1*) m_rootFile->Get("Resolution/es2010/ctZee_errSyst");        m_resSyst->SetDirectory(0);
-      m_peakResData = (TH1*) m_rootFile->Get("Resolution/es2010/resZee_Data");          m_peakResData->SetDirectory(0);
-      m_peakResMC   = (TH1*) m_rootFile->Get("Resolution/es2010/resZee_MC");            m_peakResMC->SetDirectory(0);
+      m_resNom      = (TH1*) m_rootFile->Get("Resolution/es2010/ctZee_errStat");        m_resNom->SetDirectory(nullptr);
+      m_resSyst     = (TH1*) m_rootFile->Get("Resolution/es2010/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
+      m_peakResData = (TH1*) m_rootFile->Get("Resolution/es2010/resZee_Data");          m_peakResData->SetDirectory(nullptr);
+      m_peakResMC   = (TH1*) m_rootFile->Get("Resolution/es2010/resZee_MC");            m_peakResMC->SetDirectory(nullptr);
 
       m_begRunNumber = 152166;
       m_endRunNumber = 170482;
@@ -311,16 +342,16 @@ namespace AtlasRoot {
 
     } else if ( m_esmodel==egEnergyCorr::es2011c ) {
       m_use_new_resolution_model = false;
-      m_aPSNom      = (TH1*) m_rootFile->Get("Scales/es2011c/alphaPS_errTot");          m_aPSNom->SetDirectory(0);
-      m_aS12Nom     = (TH1*) m_rootFile->Get("Scales/es2011c/alphaS12_errTot");         m_aS12Nom->SetDirectory(0);
+      m_aPSNom      = (TH1*) m_rootFile->Get("Scales/es2011c/alphaPS_errTot");          m_aPSNom->SetDirectory(nullptr);
+      m_aS12Nom     = (TH1*) m_rootFile->Get("Scales/es2011c/alphaS12_errTot");         m_aS12Nom->SetDirectory(nullptr);
 
-      m_zeeNom      = (TH1*) m_rootFile->Get("Scales/es2011c/alphaZee_errStat");        m_zeeNom->SetDirectory(0);
-      m_zeeSyst     = (TH1*) m_rootFile->Get("Scales/es2011c/alphaZee_errSyst");        m_zeeSyst->SetDirectory(0);
+      m_zeeNom      = (TH1*) m_rootFile->Get("Scales/es2011c/alphaZee_errStat");        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst     = (TH1*) m_rootFile->Get("Scales/es2011c/alphaZee_errSyst");        m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom      = (TH1*) m_rootFile->Get("Resolution/es2011c/ctZee_errStat");       m_resNom->SetDirectory(0);
-      m_resSyst     = (TH1*) m_rootFile->Get("Resolution/es2011c/ctZee_errSyst");       m_resSyst->SetDirectory(0);
-      m_peakResData = (TH1*) m_rootFile->Get("Resolution/es2011c/resZee_Data");         m_peakResData->SetDirectory(0);
-      m_peakResMC   = (TH1*) m_rootFile->Get("Resolution/es2011c/resZee_MC");           m_peakResMC->SetDirectory(0);
+      m_resNom      = (TH1*) m_rootFile->Get("Resolution/es2011c/ctZee_errStat");       m_resNom->SetDirectory(nullptr);
+      m_resSyst     = (TH1*) m_rootFile->Get("Resolution/es2011c/ctZee_errSyst");       m_resSyst->SetDirectory(nullptr);
+      m_peakResData = (TH1*) m_rootFile->Get("Resolution/es2011c/resZee_Data");         m_peakResData->SetDirectory(nullptr);
+      m_peakResMC   = (TH1*) m_rootFile->Get("Resolution/es2011c/resZee_MC");           m_peakResMC->SetDirectory(nullptr);
 
       m_begRunNumber = 177531;
       m_endRunNumber = 194382;
@@ -333,60 +364,60 @@ namespace AtlasRoot {
     } else if ( m_esmodel==egEnergyCorr::es2011d || m_esmodel==egEnergyCorr::es2011dMedium || m_esmodel==egEnergyCorr::es2011dTight ) {
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run1");
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2011d/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2011d/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2011d/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2011d/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2011d/alphaPS_uncor");                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2011d/dalphaPS_cor");                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2011d/alphaS12_uncor");                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2011d/dalphaS12_cor");                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2011d/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2011d/momentum_errSyst");              m_trkSyst->SetDirectory(nullptr);
 
       if( m_esmodel==egEnergyCorr::es2011d ) {
 
-        m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2011d/alphaZee_errStat");              m_zeeNom->SetDirectory(0);
-        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2011d/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);
-        m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2011d/ctZee_errStat");             m_resNom->SetDirectory(0);
-        m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2011d/ctZee_errSyst");             m_resSyst->SetDirectory(0);
+        m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2011d/alphaZee_errStat");              m_zeeNom->SetDirectory(nullptr);
+        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2011d/alphaZee_errSyst");              m_zeeSyst->SetDirectory(nullptr);
+        m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2011d/ctZee_errStat");             m_resNom->SetDirectory(nullptr);
+        m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2011d/ctZee_errSyst");             m_resSyst->SetDirectory(nullptr);
 
       } else if( m_esmodel==egEnergyCorr::es2011dMedium ) {
 
-        m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errStat");        m_zeeNom->SetDirectory(0);
-        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errSyst");        m_zeeSyst->SetDirectory(0);
-        m_zeePhys      = (TH1*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errPhys");        m_zeePhys->SetDirectory(0);
-        m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2011dMedium/ctZee_errStat");       m_resNom->SetDirectory(0);
-        m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2011dMedium/ctZee_errSyst");       m_resSyst->SetDirectory(0);
+        m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errStat");        m_zeeNom->SetDirectory(nullptr);
+        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errSyst");        m_zeeSyst->SetDirectory(nullptr);
+        m_zeePhys      = (TH1*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errPhys");        m_zeePhys->SetDirectory(nullptr);
+        m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2011dMedium/ctZee_errStat");       m_resNom->SetDirectory(nullptr);
+        m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2011dMedium/ctZee_errSyst");       m_resSyst->SetDirectory(nullptr);
 
       } else if( m_esmodel==egEnergyCorr::es2011dTight ) {
 
-        m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errStat");         m_zeeNom->SetDirectory(0);
-        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
-        m_zeePhys      = (TH1*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errPhys");         m_zeePhys->SetDirectory(0);
-        m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2011dTight/ctZee_errStat");        m_resNom->SetDirectory(0);
-        m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2011dTight/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+        m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errStat");         m_zeeNom->SetDirectory(nullptr);
+        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
+        m_zeePhys      = (TH1*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errPhys");         m_zeePhys->SetDirectory(nullptr);
+        m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2011dTight/ctZee_errStat");        m_resNom->SetDirectory(nullptr);
+        m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2011dTight/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
 
       }
 
-      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2011d/pedestals_l0");               m_pedestalL0->SetDirectory(0);
-      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2011d/pedestals_l1");               m_pedestalL1->SetDirectory(0);
-      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2011d/pedestals_l2");               m_pedestalL2->SetDirectory(0);
-      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2011d/pedestals_l3");               m_pedestalL3->SetDirectory(0);
+      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2011d/pedestals_l0");               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2011d/pedestals_l1");               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2011d/pedestals_l2");               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2011d/pedestals_l3");               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2011d/convRadiusMigrations");  m_convRadius->SetDirectory(0);
-      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2011d/convFakeRate");          m_convFakeRate->SetDirectory(0);
-      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2011d/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2011d/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2011d/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2011d/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 177531;
       m_endRunNumber = 194382;
@@ -403,16 +434,16 @@ namespace AtlasRoot {
 
     } else if ( m_esmodel==egEnergyCorr::es2012a ) {
       m_use_new_resolution_model = false;
-      m_aPSNom      = (TH1*) m_rootFile->Get("Scales/es2012a/alphaPS_errTot");          m_aPSNom->SetDirectory(0);
-      m_aS12Nom     = (TH1*) m_rootFile->Get("Scales/es2012a/alphaS12_errTot");         m_aS12Nom->SetDirectory(0);
+      m_aPSNom      = (TH1*) m_rootFile->Get("Scales/es2012a/alphaPS_errTot");          m_aPSNom->SetDirectory(nullptr);
+      m_aS12Nom     = (TH1*) m_rootFile->Get("Scales/es2012a/alphaS12_errTot");         m_aS12Nom->SetDirectory(nullptr);
 
-      m_zeeNom      = (TH1*) m_rootFile->Get("Scales/es2012a/alphaZee_errStat");        m_zeeNom->SetDirectory(0);
-      m_zeeSyst     = (TH1*) m_rootFile->Get("Scales/es2012a/alphaZee_errSyst");        m_zeeSyst->SetDirectory(0);
+      m_zeeNom      = (TH1*) m_rootFile->Get("Scales/es2012a/alphaZee_errStat");        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst     = (TH1*) m_rootFile->Get("Scales/es2012a/alphaZee_errSyst");        m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom      = (TH1*) m_rootFile->Get("Resolution/es2012a/ctZee_errStat");       m_resNom->SetDirectory(0);
-      m_resSyst     = (TH1*) m_rootFile->Get("Resolution/es2012a/ctZee_errSyst");       m_resSyst->SetDirectory(0);
-      m_peakResData = (TH1*) m_rootFile->Get("Resolution/es2012a/resZee_Data");         m_peakResData->SetDirectory(0);
-      m_peakResMC   = (TH1*) m_rootFile->Get("Resolution/es2012a/resZee_MC");           m_peakResMC->SetDirectory(0);
+      m_resNom      = (TH1*) m_rootFile->Get("Resolution/es2012a/ctZee_errStat");       m_resNom->SetDirectory(nullptr);
+      m_resSyst     = (TH1*) m_rootFile->Get("Resolution/es2012a/ctZee_errSyst");       m_resSyst->SetDirectory(nullptr);
+      m_peakResData = (TH1*) m_rootFile->Get("Resolution/es2012a/resZee_Data");         m_peakResData->SetDirectory(nullptr);
+      m_peakResMC   = (TH1*) m_rootFile->Get("Resolution/es2012a/resZee_MC");           m_peakResMC->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -424,41 +455,41 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run1");
 
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaZee_errStat");              m_zeeNom->SetDirectory(0);
-      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);
+      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaZee_errStat");              m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaZee_errSyst");              m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errStat");             m_resNom->SetDirectory(0);
-      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errSyst");             m_resSyst->SetDirectory(0);
+      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errStat");             m_resNom->SetDirectory(nullptr);
+      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errSyst");             m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(0);
-      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(0);
-      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(0);
-      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(0);
+      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
-      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
-      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -474,41 +505,41 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run1");
 
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat");        m_zeeNom->SetDirectory(0);
-      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);
+      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat");        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaZee_errSyst");              m_zeeSyst->SetDirectory(nullptr);
 
-      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat");       m_resNom->SetDirectory(0);
-      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errSyst");             m_resSyst->SetDirectory(0);
+      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat");       m_resNom->SetDirectory(nullptr);
+      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errSyst");             m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(0);
-      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(0);
-      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(0);
-      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(0);
+      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
-      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
-      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -525,42 +556,42 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run2_pre");
 
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat");        m_zeeNom->SetDirectory(0);
-      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);
-      m_uA2MeV_2015_first2weeks_correction = (TH1*) m_rootFile->Get("Scales/es2015PRE/histo_uA2MeV_week12"); m_uA2MeV_2015_first2weeks_correction->SetDirectory(0);
+      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat");        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errSyst");              m_zeeSyst->SetDirectory(nullptr);
+      m_uA2MeV_2015_first2weeks_correction = (TH1*) m_rootFile->Get("Scales/es2015PRE/histo_uA2MeV_week12"); m_uA2MeV_2015_first2weeks_correction->SetDirectory(nullptr);
 
-      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat");       m_resNom->SetDirectory(0);
-      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015PRE/ctZee_errSyst");             m_resSyst->SetDirectory(0);
+      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat");       m_resNom->SetDirectory(nullptr);
+      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015PRE/ctZee_errSyst");             m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(0);
-      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(0);
-      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(0);
-      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(0);
+      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
-      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
-      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -573,9 +604,9 @@ namespace AtlasRoot {
       assert(m_G4OverAFII_resolution_unconverted);
       assert(m_G4OverAFII_resolution_converted);
 
-      m_G4OverAFII_resolution_electron->SetDirectory(0);
-      m_G4OverAFII_resolution_unconverted->SetDirectory(0);
-      m_G4OverAFII_resolution_converted->SetDirectory(0);
+      m_G4OverAFII_resolution_electron->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_converted->SetDirectory(nullptr);
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
@@ -589,42 +620,42 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run2_pre");
 
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat");        m_zeeNom->SetDirectory(0);
-      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);
-      m_uA2MeV_2015_first2weeks_correction = (TH1*) m_rootFile->Get("Scales/es2015PRE/histo_uA2MeV_week12"); m_uA2MeV_2015_first2weeks_correction->SetDirectory(0);
+      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errStat");        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015PRE/alphaZee_errSyst");              m_zeeSyst->SetDirectory(nullptr);
+      m_uA2MeV_2015_first2weeks_correction = (TH1*) m_rootFile->Get("Scales/es2015PRE/histo_uA2MeV_week12"); m_uA2MeV_2015_first2weeks_correction->SetDirectory(nullptr);
 
-      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat");       m_resNom->SetDirectory(0);
-      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015PRE_res_improved/ctZee_errSyst");             m_resSyst->SetDirectory(0);
+      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015PRE/ctZee_errStat");       m_resNom->SetDirectory(nullptr);
+      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015PRE_res_improved/ctZee_errSyst");             m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(0);
-      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(0);
-      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(0);
-      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(0);
+      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
-      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
-      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -637,9 +668,9 @@ namespace AtlasRoot {
       assert(m_G4OverAFII_resolution_unconverted);
       assert(m_G4OverAFII_resolution_converted);
 
-      m_G4OverAFII_resolution_electron->SetDirectory(0);
-      m_G4OverAFII_resolution_unconverted->SetDirectory(0);
-      m_G4OverAFII_resolution_converted->SetDirectory(0);
+      m_G4OverAFII_resolution_electron->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_converted->SetDirectory(nullptr);
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
@@ -653,42 +684,42 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run2_pre");
 
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015Summer/alphaZee_errStat");        m_zeeNom->SetDirectory(0);
-      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015Summer/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);
+      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015Summer/alphaZee_errStat");        m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015Summer/alphaZee_errSyst");              m_zeeSyst->SetDirectory(nullptr);
       m_uA2MeV_2015_first2weeks_correction = nullptr;
 
-      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015Summer/ctZee_errStat");       m_resNom->SetDirectory(0);
-      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015Summer/ctZee_errSyst");       m_resSyst->SetDirectory(0);
+      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015Summer/ctZee_errStat");       m_resNom->SetDirectory(nullptr);
+      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015Summer/ctZee_errSyst");       m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(0);
-      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(0);
-      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(0);
-      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(0);
+      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
-      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
-      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -701,9 +732,9 @@ namespace AtlasRoot {
       assert(m_G4OverAFII_resolution_unconverted);
       assert(m_G4OverAFII_resolution_converted);
 
-      m_G4OverAFII_resolution_electron->SetDirectory(0);
-      m_G4OverAFII_resolution_unconverted->SetDirectory(0);
-      m_G4OverAFII_resolution_converted->SetDirectory(0);
+      m_G4OverAFII_resolution_electron->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_converted->SetDirectory(nullptr);
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
@@ -719,42 +750,42 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run2_pre");
 
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(nullptr);
 
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(nullptr);
 
-      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015Summer/alphaZee_errStat");         m_zeeNom->SetDirectory(0);
-      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015Summer/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015Summer/alphaZee_errStat");         m_zeeNom->SetDirectory(nullptr);
+      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015Summer/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
       m_uA2MeV_2015_first2weeks_correction = nullptr;
 
-      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015Summer/ctZee_errStat");        m_resNom->SetDirectory(0);
-      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015Summer/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2015Summer/ctZee_errStat");        m_resNom->SetDirectory(nullptr);
+      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015Summer/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
 
-      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(0);
-      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(0);
-      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(0);
-      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(0);
+      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(nullptr);
+      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(nullptr);
+      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(nullptr);
+      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(nullptr);
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
-      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
-      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);
+      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);
+      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -767,9 +798,9 @@ namespace AtlasRoot {
       assert(m_G4OverAFII_resolution_unconverted);
       assert(m_G4OverAFII_resolution_converted);
 
-      m_G4OverAFII_resolution_electron->SetDirectory(0);
-      m_G4OverAFII_resolution_unconverted->SetDirectory(0);
-      m_G4OverAFII_resolution_converted->SetDirectory(0);
+      m_G4OverAFII_resolution_electron->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_converted->SetDirectory(nullptr);
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
@@ -789,136 +820,136 @@ namespace AtlasRoot {
 	m_resolution_tool = new eg_resolution("run2_pre");
       
       if(m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2017_R21_v0 or m_esmodel == egEnergyCorr::es2017_R21_v1){
-	m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaPS_uncor");       m_aPSNom->SetDirectory(0); 
-	m_daPSb12      = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/dalphaPS_b12");        m_daPSb12->SetDirectory(0); 
-	m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                    m_daPSCor->SetDirectory(0);
-	m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaS12_uncor");      m_aS12Nom->SetDirectory(0); 
-	m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                   m_daS12Cor->SetDirectory(0);
+	m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaPS_uncor");       m_aPSNom->SetDirectory(nullptr); 
+	m_daPSb12      = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/dalphaPS_b12");        m_daPSb12->SetDirectory(nullptr); 
+	m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                    m_daPSCor->SetDirectory(nullptr);
+	m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaS12_uncor");      m_aS12Nom->SetDirectory(nullptr); 
+	m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                   m_daS12Cor->SetDirectory(nullptr);
       }
       else{
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2012c/alphaPS_uncor");                 m_aPSNom->SetDirectory(nullptr);
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaPS_cor");                  m_daPSCor->SetDirectory(nullptr);
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2012c/alphaS12_uncor");                m_aS12Nom->SetDirectory(nullptr);
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(nullptr);
       }
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(nullptr);
       
       if(m_esmodel == egEnergyCorr::es2017){
-      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0);
-      m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0);
+      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(nullptr);
+      m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved){
-	m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0); 
-	m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0);
+	m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(nullptr); 
+	m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer_final){ 
-        m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0);  
-        m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0); 
+        m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(nullptr);  
+        m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(nullptr); 
       }
       else if(m_esmodel == egEnergyCorr::es2015_5TeV){
-	m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015");         m_zeeNom->SetDirectory(0);   
+	m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015");         m_zeeNom->SetDirectory(nullptr);   
         //Same histogram added twice for simplicity
-        m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0);
+        m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if (m_esmodel==egEnergyCorr::es2017_R21_v0) {
-        m_zeeNom          = (TH1*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2017");  m_zeeNom->SetDirectory(0);
-        m_zeeNom_data2016 = (TH1*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2016");  m_zeeNom_data2016->SetDirectory(0);
-        m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2015");  m_zeeNom_data2015->SetDirectory(0);
+        m_zeeNom          = (TH1*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2017");  m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2016 = (TH1*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2016");  m_zeeNom_data2016->SetDirectory(nullptr);
+        m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2015");  m_zeeNom_data2015->SetDirectory(nullptr);
       }
       else if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
-        m_zeeNom          = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2017");  m_zeeNom->SetDirectory(0);
-        m_zeeNom_data2016 = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2016");  m_zeeNom_data2016->SetDirectory(0);
-        m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2015");  m_zeeNom_data2015->SetDirectory(0);
-	m_zeeFwdk          = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalk"); m_zeeFwdk->SetDirectory(0);
-	m_zeeFwdb          = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalb"); m_zeeFwdb->SetDirectory(0);
+        m_zeeNom          = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2017");  m_zeeNom->SetDirectory(nullptr);
+        m_zeeNom_data2016 = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2016");  m_zeeNom_data2016->SetDirectory(nullptr);
+        m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errStat_period_2015");  m_zeeNom_data2015->SetDirectory(nullptr);
+	m_zeeFwdk          = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalk"); m_zeeFwdk->SetDirectory(nullptr);
+	m_zeeFwdb          = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaFwd_Finalb"); m_zeeFwdb->SetDirectory(nullptr);
       }
       else{
-	m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0);  
+	m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(nullptr);  
         //SAME HISTO FOR 2015 FOR NOW
-	m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016");      m_zeeNom_data2015->SetDirectory(0);
+	m_zeeNom_data2015 = (TH1*) m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016");      m_zeeNom_data2015->SetDirectory(nullptr);
       }
       if(m_esmodel == egEnergyCorr::es2017){
-	m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+	m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer_final){
-	m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+	m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2015_5TeV){
-	m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+	m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_v0) {
-        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_summer_final/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_v1) {
-        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+        m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_R21_v1/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
       }
       else{
-	m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+	m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errSyst");         m_zeeSyst->SetDirectory(nullptr);
       }
       
       m_uA2MeV_2015_first2weeks_correction = nullptr;
       if(m_esmodel == egEnergyCorr::es2017){
-	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017/ctZee_errStat");        m_resNom->SetDirectory(0);
+	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017/ctZee_errStat");        m_resNom->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2015_5TeV){
-	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_summer/ctZee_errStat");        m_resNom->SetDirectory(0);
+	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_summer/ctZee_errStat");        m_resNom->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer_final) {
-	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errStat");        m_resNom->SetDirectory(0);}
+	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errStat");        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2017_R21_v0) {
-         m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_R21_v0/ctZee_errStat");        m_resNom->SetDirectory(0);}
+         m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_R21_v0/ctZee_errStat");        m_resNom->SetDirectory(nullptr);}
       else if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
-	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_R21_v1/ctZee_errStat");        m_resNom->SetDirectory(0);}
+	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_R21_v1/ctZee_errStat");        m_resNom->SetDirectory(nullptr);}
       else{
-	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_R21_PRE/ctZee_errStat");        m_resNom->SetDirectory(0); 
+	m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2017_R21_PRE/ctZee_errStat");        m_resNom->SetDirectory(nullptr); 
       }
       
       if(m_esmodel == egEnergyCorr::es2017){
-	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer_final){
-	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
       }
       else if(m_esmodel == egEnergyCorr::es2015_5TeV){
-	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015_5TeV/ctZee_errSyst");        m_resSyst->SetDirectory(0); 
+	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2015_5TeV/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr); 
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_v0) {
-         m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+         m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
       }
       else if (m_esmodel == egEnergyCorr::es2017_R21_v1) {
-	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_R21_v1/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_R21_v1/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
       }
       else{ 
-	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_summer/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+	m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_summer/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
       }
       //else{
-      //m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_summer_improved/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+      //m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2017_summer_improved/ctZee_errSyst");        m_resSyst->SetDirectory(nullptr);
       //}
       
-      m_pedestals_es2017 = get_object<TH1>(*m_rootFile, "Pedestals/es2017/pedestals");          m_pedestals_es2017->SetDirectory(0);
+      m_pedestals_es2017 = get_object<TH1>(*m_rootFile, "Pedestals/es2017/pedestals");          m_pedestals_es2017->SetDirectory(nullptr);
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);
       if(m_esmodel == egEnergyCorr::es2017){
-	m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
-	m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+	m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);
+	m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
       }
       else{
-	m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2017_summer/convFakeRate");          m_convFakeRate->SetDirectory(0); 
-        m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2017_summer/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+	m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2017_summer/convFakeRate");          m_convFakeRate->SetDirectory(nullptr); 
+        m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2017_summer/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);
       }
       
       // TODO: change path when moving to calibarea
@@ -931,31 +962,31 @@ namespace AtlasRoot {
       m_pp0_conv = get_object<TH2>(file_pp0, "conv");
       m_pp0_unconv = get_object<TH2>(file_pp0, "unco");
 
-      m_pp0_elec->SetDirectory(0);
-      m_pp0_unconv->SetDirectory(0);
-      m_pp0_conv->SetDirectory(0);
+      m_pp0_elec->SetDirectory(nullptr);
+      m_pp0_unconv->SetDirectory(nullptr);
+      m_pp0_conv->SetDirectory(nullptr);
 
       //similar case for wtots1
       const std::string filename_wstot = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/wstot_related_syst.root");
       
 
       TFile file_wstot(filename_wstot.c_str());
-      m_wstot_slope_A_data = (TH1*) file_wstot.Get("A_data"); m_wstot_slope_A_data->SetDirectory(0);
-      m_wstot_slope_B_MC = (TH1*) file_wstot.Get("B_mc"); m_wstot_slope_B_MC->SetDirectory(0);
-      m_wstot_40GeV_data = (TH1*) file_wstot.Get("wstot40_data"); m_wstot_40GeV_data->SetDirectory(0);
-      m_wstot_40GeV_MC = (TH1*) file_wstot.Get("wstot40_mc"); m_wstot_40GeV_MC->SetDirectory(0);
-      m_wstot_pT_data_p0_electrons = (TH1*) file_wstot.Get("wstot_pT_el_data_p0"); m_wstot_pT_data_p0_electrons->SetDirectory(0);
-      m_wstot_pT_data_p1_electrons = (TH1*) file_wstot.Get("wstot_pT_el_data_p1"); m_wstot_pT_data_p1_electrons->SetDirectory(0);
-      m_wstot_pT_data_p0_unconverted_photons = (TH1*) file_wstot.Get("wstot_pT_uc_data_p0"); m_wstot_pT_data_p0_unconverted_photons->SetDirectory(0);
-      m_wstot_pT_data_p1_unconverted_photons = (TH1*) file_wstot.Get("wstot_pT_uc_data_p1"); m_wstot_pT_data_p1_unconverted_photons->SetDirectory(0);
-      m_wstot_pT_data_p0_converted_photons = (TH1*) file_wstot.Get("wstot_pT_c_data_p0"); m_wstot_pT_data_p0_converted_photons->SetDirectory(0);
-      m_wstot_pT_data_p1_converted_photons = (TH1*) file_wstot.Get("wstot_pT_c_data_p1"); m_wstot_pT_data_p1_converted_photons->SetDirectory(0);
-      m_wstot_pT_MC_p0_electrons = (TH1*) file_wstot.Get("wstot_pT_el_mc_p0"); m_wstot_pT_MC_p0_electrons->SetDirectory(0);
-      m_wstot_pT_MC_p1_electrons = (TH1*) file_wstot.Get("wstot_pT_el_mc_p1"); m_wstot_pT_MC_p1_electrons->SetDirectory(0);
-      m_wstot_pT_MC_p0_unconverted_photons = (TH1*) file_wstot.Get("wstot_pT_ph_uc_mc_p0"); m_wstot_pT_MC_p0_unconverted_photons->SetDirectory(0);
-      m_wstot_pT_MC_p1_unconverted_photons = (TH1*) file_wstot.Get("wstot_pT_ph_uc_mc_p1"); m_wstot_pT_MC_p1_unconverted_photons->SetDirectory(0);
-      m_wstot_pT_MC_p0_converted_photons = (TH1*) file_wstot.Get("wstot_pT_ph_c_mc_p0"); m_wstot_pT_MC_p0_converted_photons->SetDirectory(0);
-      m_wstot_pT_MC_p1_converted_photons = (TH1*) file_wstot.Get("wstot_pT_ph_c_mc_p1"); m_wstot_pT_MC_p1_converted_photons->SetDirectory(0);
+      m_wstot_slope_A_data = (TH1*) file_wstot.Get("A_data"); m_wstot_slope_A_data->SetDirectory(nullptr);
+      m_wstot_slope_B_MC = (TH1*) file_wstot.Get("B_mc"); m_wstot_slope_B_MC->SetDirectory(nullptr);
+      m_wstot_40GeV_data = (TH1*) file_wstot.Get("wstot40_data"); m_wstot_40GeV_data->SetDirectory(nullptr);
+      m_wstot_40GeV_MC = (TH1*) file_wstot.Get("wstot40_mc"); m_wstot_40GeV_MC->SetDirectory(nullptr);
+      m_wstot_pT_data_p0_electrons = (TH1*) file_wstot.Get("wstot_pT_el_data_p0"); m_wstot_pT_data_p0_electrons->SetDirectory(nullptr);
+      m_wstot_pT_data_p1_electrons = (TH1*) file_wstot.Get("wstot_pT_el_data_p1"); m_wstot_pT_data_p1_electrons->SetDirectory(nullptr);
+      m_wstot_pT_data_p0_unconverted_photons = (TH1*) file_wstot.Get("wstot_pT_uc_data_p0"); m_wstot_pT_data_p0_unconverted_photons->SetDirectory(nullptr);
+      m_wstot_pT_data_p1_unconverted_photons = (TH1*) file_wstot.Get("wstot_pT_uc_data_p1"); m_wstot_pT_data_p1_unconverted_photons->SetDirectory(nullptr);
+      m_wstot_pT_data_p0_converted_photons = (TH1*) file_wstot.Get("wstot_pT_c_data_p0"); m_wstot_pT_data_p0_converted_photons->SetDirectory(nullptr);
+      m_wstot_pT_data_p1_converted_photons = (TH1*) file_wstot.Get("wstot_pT_c_data_p1"); m_wstot_pT_data_p1_converted_photons->SetDirectory(nullptr);
+      m_wstot_pT_MC_p0_electrons = (TH1*) file_wstot.Get("wstot_pT_el_mc_p0"); m_wstot_pT_MC_p0_electrons->SetDirectory(nullptr);
+      m_wstot_pT_MC_p1_electrons = (TH1*) file_wstot.Get("wstot_pT_el_mc_p1"); m_wstot_pT_MC_p1_electrons->SetDirectory(nullptr);
+      m_wstot_pT_MC_p0_unconverted_photons = (TH1*) file_wstot.Get("wstot_pT_ph_uc_mc_p0"); m_wstot_pT_MC_p0_unconverted_photons->SetDirectory(nullptr);
+      m_wstot_pT_MC_p1_unconverted_photons = (TH1*) file_wstot.Get("wstot_pT_ph_uc_mc_p1"); m_wstot_pT_MC_p1_unconverted_photons->SetDirectory(nullptr);
+      m_wstot_pT_MC_p0_converted_photons = (TH1*) file_wstot.Get("wstot_pT_ph_c_mc_p0"); m_wstot_pT_MC_p0_converted_photons->SetDirectory(nullptr);
+      m_wstot_pT_MC_p1_converted_photons = (TH1*) file_wstot.Get("wstot_pT_ph_c_mc_p1"); m_wstot_pT_MC_p1_converted_photons->SetDirectory(nullptr);
 
       m_begRunNumber = 252604;
       m_endRunNumber = 314199;
@@ -974,9 +1005,9 @@ namespace AtlasRoot {
       assert(m_G4OverAFII_resolution_unconverted);
       assert(m_G4OverAFII_resolution_converted);
 
-      m_G4OverAFII_resolution_electron->SetDirectory(0);
-      m_G4OverAFII_resolution_unconverted->SetDirectory(0);
-      m_G4OverAFII_resolution_converted->SetDirectory(0);
+      m_G4OverAFII_resolution_electron->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_resolution_converted->SetDirectory(nullptr);
 
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
@@ -1000,41 +1031,41 @@ namespace AtlasRoot {
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run2_pre");
 
-      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2015_day0/alphaPS_uncor");             m_aPSNom->SetDirectory(0);         // old one
-      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2015_day0/dalphaPS_cor");              m_daPSCor->SetDirectory(0);        // old one
-      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2015_day0/alphaS12_uncor");            m_aS12Nom->SetDirectory(0);        // old one
-      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2015_day0/dalphaS12_cor");             m_daS12Cor->SetDirectory(0);       // old one
+      m_aPSNom       = (TH1*) m_rootFile->Get("Scales/es2015_day0/alphaPS_uncor");             m_aPSNom->SetDirectory(nullptr);         // old one
+      m_daPSCor      = (TH1*) m_rootFile->Get("Scales/es2015_day0/dalphaPS_cor");              m_daPSCor->SetDirectory(nullptr);        // old one
+      m_aS12Nom      = (TH1*) m_rootFile->Get("Scales/es2015_day0/alphaS12_uncor");            m_aS12Nom->SetDirectory(nullptr);        // old one
+      m_daS12Cor     = (TH1*) m_rootFile->Get("Scales/es2015_day0/dalphaS12_cor");             m_daS12Cor->SetDirectory(nullptr);       // old one
 
-      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2015_day0/momentum_errSyst");          m_trkSyst->SetDirectory(0);        // old one
+      m_trkSyst      = (TH1*) m_rootFile->Get("Scales/es2015_day0/momentum_errSyst");          m_trkSyst->SetDirectory(nullptr);        // old one
 
-      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015_day0/alphaZee_errStat");          m_zeeNom->SetDirectory(0);         // old one
-      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015_day0/alphaZee_errSyst");          m_zeeSyst->SetDirectory(0);        // old one
+      m_zeeNom       = (TH1*) m_rootFile->Get("Scales/es2015_day0/alphaZee_errStat");          m_zeeNom->SetDirectory(nullptr);         // old one
+      m_zeeSyst      = (TH1*) m_rootFile->Get("Scales/es2015_day0/alphaZee_errSyst");          m_zeeSyst->SetDirectory(nullptr);        // old one
 
-      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errStat");             m_resNom->SetDirectory(0);         // old one
-      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errSyst");             m_resSyst->SetDirectory(0);        // old one
+      m_resNom       = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errStat");             m_resNom->SetDirectory(nullptr);         // old one
+      m_resSyst      = (TH1*) m_rootFile->Get("Resolution/es2012c/ctZee_errSyst");             m_resSyst->SetDirectory(nullptr);        // old one
 
-      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(0);     // old one
-      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(0);     // old one
-      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(0);     // old one
-      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(0);     // old one
+      m_pedestalL0   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l0");               m_pedestalL0->SetDirectory(nullptr);     // old one
+      m_pedestalL1   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l1");               m_pedestalL1->SetDirectory(nullptr);     // old one
+      m_pedestalL2   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l2");               m_pedestalL2->SetDirectory(nullptr);     // old one
+      m_pedestalL3   = (TH1*) m_rootFile->Get("Pedestals/es2012c/pedestals_l3");               m_pedestalL3->SetDirectory(nullptr);     // old one
 
-      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);      // old one
+      m_dX_ID_Nom    = (TH1*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(nullptr);      // old one
 
-      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(0);    // old one
-      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(0);    // old one
+      m_dX_IPPS_Nom  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errUncor");   m_dX_IPPS_Nom->SetDirectory(nullptr);    // old one
+      m_dX_IPPS_LAr  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPPS_NewG_errLAr");     m_dX_IPPS_LAr->SetDirectory(nullptr);    // old one
 
-      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(0);   // old one
-      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(0);   // old one
-      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(0);    // old one
-      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(0);  // old one
+      m_dX_IPAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errUncor");  m_dX_IPAcc_Nom->SetDirectory(nullptr);   // old one
+      m_dX_IPAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errLAr");    m_dX_IPAcc_LAr->SetDirectory(nullptr);   // old one
+      m_dX_IPAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errG4");     m_dX_IPAcc_G4->SetDirectory(nullptr);    // old one
+      m_dX_IPAcc_GL1  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_IPAcc_NewG_errGL1");    m_dX_IPAcc_GL1->SetDirectory(nullptr);  // old one
 
-      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(0);   // old one
-      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);   // old one
-      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);    // old one
+      m_dX_PSAcc_Nom = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errUncor");  m_dX_PSAcc_Nom->SetDirectory(nullptr);   // old one
+      m_dX_PSAcc_LAr = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(nullptr);   // old one
+      m_dX_PSAcc_G4  = (TH1*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(nullptr);    // old one
 
-      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);          // old one
-      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);        // old one
-      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);  // old one
+      m_convRadius            = (TH1*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(nullptr);          // old one
+      m_convFakeRate          = (TH1*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(nullptr);        // old one
+      m_convRecoEfficiency    = (TH1*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(nullptr);  // old one
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
@@ -1117,40 +1148,67 @@ namespace AtlasRoot {
     // ... material distortions
 
     m_matUnconvertedScale.push_back( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigA") );
+    m_matUnconvertedScale.back()->SetDirectory(nullptr);
     m_matUnconvertedScale.push_back( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigCpDp") );
+    m_matUnconvertedScale.back()->SetDirectory(nullptr);
     m_matUnconvertedScale.push_back( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigEpLp") );
+    m_matUnconvertedScale.back()->SetDirectory(nullptr);
     m_matUnconvertedScale.push_back( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigFpMX") );
+    m_matUnconvertedScale.back()->SetDirectory(nullptr);
     m_matUnconvertedScale.push_back( (TH1*) m_rootFile->Get("Material/unconvertedBiasSubtracted_ConfigGp") );
-
+    m_matUnconvertedScale.back()->SetDirectory(nullptr);
+  
     m_matConvertedScale.push_back( (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigA") );
+    m_matConvertedScale.back()->SetDirectory(nullptr);
     m_matConvertedScale.push_back( (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigCpDp") );
+    m_matConvertedScale.back()->SetDirectory(nullptr);
     m_matConvertedScale.push_back( (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigEpLp") );
+    m_matConvertedScale.back()->SetDirectory(nullptr);
     m_matConvertedScale.push_back( (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigFpMX") );
+    m_matConvertedScale.back()->SetDirectory(nullptr);
     m_matConvertedScale.push_back( (TH1*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigGp") );
-
+    m_matConvertedScale.back()->SetDirectory(nullptr);
+    
     m_matElectronCstTerm.push_back( (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigA") );
+    m_matElectronCstTerm.back()->SetDirectory(nullptr);
     m_matElectronCstTerm.push_back( (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigCpDp") );
+    m_matElectronCstTerm.back()->SetDirectory(nullptr);
     m_matElectronCstTerm.push_back( (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigEpLp") );
+    m_matElectronCstTerm.back()->SetDirectory(nullptr);
     m_matElectronCstTerm.push_back( (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigFpMX") );
+    m_matElectronCstTerm.back()->SetDirectory(nullptr);
     m_matElectronCstTerm.push_back( (TH1*) m_rootFile->Get("Material/electronCstTerm_ConfigGp") );
-
+    m_matElectronCstTerm.back()->SetDirectory(nullptr);
+    
     if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
      // update dX0 plots for distorted geometry for case A, EL, FMX and N
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigA") ); 
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigEpLp") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigFpMX") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material_rel21/DX0_ConfigN") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
     }
     else {
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigA") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigCpDp") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigEpLp") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigFpMX") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
       m_matX0Additions.push_back( (TH1*) m_rootFile->Get("Material/DX0_ConfigGp") );
+      m_matX0Additions.back()->SetDirectory(nullptr);
     }
 
+    
     m_matElectronEtaBins =         (TAxis*) m_rootFile->Get("Material/LinearityEtaBins");
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigA") );
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigCpDp") );
@@ -1158,28 +1216,27 @@ namespace AtlasRoot {
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigFpMX") );
     m_matElectronGraphs.push_back( (TList*) m_rootFile->Get("Material/Linearity_Cluster_ConfigGp") );
 
-
     // ... new material distortions from release 21 parameterizations
 
     if (m_esmodel==egEnergyCorr::es2017_R21_v1) {
-      m_h2dmat[0][0] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigA"));m_h2dmat[0][0]->SetDirectory(0);
-      m_h2dmat[0][1] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigEpLp"));m_h2dmat[0][1]->SetDirectory(0);
-      m_h2dmat[0][2] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigFpMX"));m_h2dmat[0][2]->SetDirectory(0);
-      m_h2dmat[0][3] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigN"));m_h2dmat[0][3]->SetDirectory(0);
-      m_h2dmat[0][4] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigIBL"));m_h2dmat[0][4]->SetDirectory(0);
-      m_h2dmat[0][5] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigPP0"));m_h2dmat[0][5]->SetDirectory(0);
-      m_h2dmat[1][0] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigA"));m_h2dmat[1][0]->SetDirectory(0);
-      m_h2dmat[1][1] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigEpLp"));m_h2dmat[1][1]->SetDirectory(0);
-      m_h2dmat[1][2] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigFpMX"));m_h2dmat[1][2]->SetDirectory(0);
-      m_h2dmat[1][3] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigN"));m_h2dmat[1][3]->SetDirectory(0);
-      m_h2dmat[1][4] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigIBL"));m_h2dmat[1][4]->SetDirectory(0);
-      m_h2dmat[1][5] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigPP0"));m_h2dmat[1][5]->SetDirectory(0);
-      m_h2dmat[2][0] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigA"));m_h2dmat[2][0]->SetDirectory(0);
-      m_h2dmat[2][1] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigEpLp"));m_h2dmat[2][1]->SetDirectory(0);
-      m_h2dmat[2][2] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigFpMX"));m_h2dmat[2][2]->SetDirectory(0);
-      m_h2dmat[2][3] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigN"));m_h2dmat[2][3]->SetDirectory(0);
-      m_h2dmat[2][4] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigIBL")); m_h2dmat[2][4]->SetDirectory(0);
-      m_h2dmat[2][5] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigPP0"));m_h2dmat[2][5]->SetDirectory(0);
+      m_h2dmat[0][0] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigA"));m_h2dmat[0][0]->SetDirectory(nullptr);
+      m_h2dmat[0][1] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigEpLp"));m_h2dmat[0][1]->SetDirectory(nullptr);
+      m_h2dmat[0][2] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigFpMX"));m_h2dmat[0][2]->SetDirectory(nullptr);
+      m_h2dmat[0][3] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigN"));m_h2dmat[0][3]->SetDirectory(nullptr);
+      m_h2dmat[0][4] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigIBL"));m_h2dmat[0][4]->SetDirectory(nullptr);
+      m_h2dmat[0][5] = (TH2D*)(m_rootFile->Get("Material_rel21/electronBias_ConfigPP0"));m_h2dmat[0][5]->SetDirectory(nullptr);
+      m_h2dmat[1][0] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigA"));m_h2dmat[1][0]->SetDirectory(nullptr);
+      m_h2dmat[1][1] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigEpLp"));m_h2dmat[1][1]->SetDirectory(nullptr);
+      m_h2dmat[1][2] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigFpMX"));m_h2dmat[1][2]->SetDirectory(nullptr);
+      m_h2dmat[1][3] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigN"));m_h2dmat[1][3]->SetDirectory(nullptr);
+      m_h2dmat[1][4] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigIBL"));m_h2dmat[1][4]->SetDirectory(nullptr);
+      m_h2dmat[1][5] = (TH2D*)(m_rootFile->Get("Material_rel21/unconvertedBias_ConfigPP0"));m_h2dmat[1][5]->SetDirectory(nullptr);
+      m_h2dmat[2][0] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigA"));m_h2dmat[2][0]->SetDirectory(nullptr);
+      m_h2dmat[2][1] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigEpLp"));m_h2dmat[2][1]->SetDirectory(nullptr);
+      m_h2dmat[2][2] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigFpMX"));m_h2dmat[2][2]->SetDirectory(nullptr);
+      m_h2dmat[2][3] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigN"));m_h2dmat[2][3]->SetDirectory(nullptr);
+      m_h2dmat[2][4] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigIBL")); m_h2dmat[2][4]->SetDirectory(nullptr);
+      m_h2dmat[2][5] = (TH2D*)(m_rootFile->Get("Material_rel21/convertedBias_ConfigPP0"));m_h2dmat[2][5]->SetDirectory(nullptr);
     }
 
        
@@ -1190,40 +1247,46 @@ namespace AtlasRoot {
         m_esmodel == egEnergyCorr::es2015cPRE or m_esmodel == egEnergyCorr::es2015cPRE_res_improved or
         m_esmodel == egEnergyCorr::es2015c_summer or m_esmodel == egEnergyCorr::es2016PRE) {
 
-      m_G4OverAFII_electron = (TH1*) m_rootFile->Get("FastSim/es2015/el_scale_full_fast_peak_gaussian"); m_G4OverAFII_electron->SetDirectory(0);
-      m_G4OverAFII_unconverted = (TH1*) m_rootFile->Get("FastSim/es2015/ph_unconv_scale_full_fast_peak_gaussian"); m_G4OverAFII_unconverted->SetDirectory(0);
-      m_G4OverAFII_converted = (TH1*) m_rootFile->Get("FastSim/es2015/ph_conv_scale_full_fast_peak_gaussian"); m_G4OverAFII_converted->SetDirectory(0);
+      m_G4OverAFII_electron = (TH1*) m_rootFile->Get("FastSim/es2015/el_scale_full_fast_peak_gaussian"); m_G4OverAFII_electron->SetDirectory(nullptr);
+      m_G4OverAFII_unconverted = (TH1*) m_rootFile->Get("FastSim/es2015/ph_unconv_scale_full_fast_peak_gaussian"); m_G4OverAFII_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_converted = (TH1*) m_rootFile->Get("FastSim/es2015/ph_conv_scale_full_fast_peak_gaussian"); m_G4OverAFII_converted->SetDirectory(nullptr);
     }
-    else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2017_R21_PRE or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2017_R21_v0 ) {
-      m_G4OverAFII_electron = (TH1*) m_rootFile->Get("FastSim/es2017/el_scale_full_fast_peak_gaussian"); m_G4OverAFII_electron->SetDirectory(0);
-      m_G4OverAFII_unconverted = (TH1*) m_rootFile->Get("FastSim/es2017/ph_unconv_scale_full_fast_peak_gaussian"); m_G4OverAFII_unconverted->SetDirectory(0);
-      m_G4OverAFII_converted = (TH1*) m_rootFile->Get("FastSim/es2017/ph_conv_scale_full_fast_peak_gaussian"); m_G4OverAFII_converted->SetDirectory(0);
+    else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer 
+             or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_summer_final 
+             or m_esmodel == egEnergyCorr::es2017_R21_PRE or m_esmodel == egEnergyCorr::es2015_5TeV 
+             or m_esmodel == egEnergyCorr::es2017_R21_v0 ) {
+      m_G4OverAFII_electron = (TH1*) m_rootFile->Get("FastSim/es2017/el_scale_full_fast_peak_gaussian"); m_G4OverAFII_electron->SetDirectory(nullptr);
+      m_G4OverAFII_unconverted = (TH1*) m_rootFile->Get("FastSim/es2017/ph_unconv_scale_full_fast_peak_gaussian"); m_G4OverAFII_unconverted->SetDirectory(nullptr);
+      m_G4OverAFII_converted = (TH1*) m_rootFile->Get("FastSim/es2017/ph_conv_scale_full_fast_peak_gaussian"); m_G4OverAFII_converted->SetDirectory(nullptr);
     }
     else if (m_esmodel == egEnergyCorr::es2017_R21_v1) {
-      m_G4OverAFII_electron_2D = (TH2*) m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_elec_rel21"); m_G4OverAFII_electron_2D->SetDirectory(0);
-      m_G4OverAFII_unconverted_2D = (TH2*) m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_unco_rel21"); m_G4OverAFII_unconverted_2D->SetDirectory(0);
-      m_G4OverAFII_converted_2D = (TH2*) m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_conv_rel21"); m_G4OverAFII_converted_2D->SetDirectory(0);
+      m_G4OverAFII_electron_2D = (TH2*) m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_elec_rel21"); m_G4OverAFII_electron_2D->SetDirectory(nullptr);
+      m_G4OverAFII_unconverted_2D = (TH2*) m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_unco_rel21"); m_G4OverAFII_unconverted_2D->SetDirectory(nullptr);
+      m_G4OverAFII_converted_2D = (TH2*) m_rootFile->Get("FastSim/es2017_v1/scale_Af2ToG4_conv_rel21"); m_G4OverAFII_converted_2D->SetDirectory(nullptr);
 
     }
     else { // run 1
-      m_G4OverAFII_electron = (TH1*) m_rootFile->Get("FastSim/hG4OverAF");                 m_G4OverAFII_electron->SetDirectory(0);
+      m_G4OverAFII_electron = (TH1*) m_rootFile->Get("FastSim/hG4OverAF");                 m_G4OverAFII_electron->SetDirectory(nullptr);
     }
-    m_G4OverFrSh            = (TH1*) m_rootFile->Get("FastSim/hG4OverFS");                 m_G4OverFrSh->SetDirectory(0);
+    m_G4OverFrSh            = (TH1*) m_rootFile->Get("FastSim/hG4OverFS");                 m_G4OverFrSh->SetDirectory(nullptr);
 
     // ... Leakage systematics
     
-    if(m_esmodel != egEnergyCorr::es2017_summer and m_esmodel != egEnergyCorr::es2017_summer_improved and m_esmodel != egEnergyCorr::es2017_summer_final and m_esmodel != egEnergyCorr::es2017_R21_PRE and m_esmodel != egEnergyCorr::es2015_5TeV and m_esmodel != egEnergyCorr::es2017_R21_v0 and m_esmodel != egEnergyCorr::es2017_R21_v1){
-      m_leakageConverted      = (TH1*) m_rootFile->Get("Leakage/LeakageDiffConverted");      m_leakageConverted->SetDirectory(0);
-      m_leakageUnconverted    = (TH1*) m_rootFile->Get("Leakage/LeakageDiffUnconverted");    m_leakageUnconverted->SetDirectory(0);
+    if(m_esmodel != egEnergyCorr::es2017_summer and m_esmodel != egEnergyCorr::es2017_summer_improved 
+       and m_esmodel != egEnergyCorr::es2017_summer_final and m_esmodel != egEnergyCorr::es2017_R21_PRE 
+       and m_esmodel != egEnergyCorr::es2015_5TeV and m_esmodel != egEnergyCorr::es2017_R21_v0 
+       and m_esmodel != egEnergyCorr::es2017_R21_v1){
+      m_leakageConverted      = (TH1*) m_rootFile->Get("Leakage/LeakageDiffConverted");      m_leakageConverted->SetDirectory(nullptr);
+      m_leakageUnconverted    = (TH1*) m_rootFile->Get("Leakage/LeakageDiffUnconverted");    m_leakageUnconverted->SetDirectory(nullptr);
     }
     else{
-      m_leakageConverted      = (TH1*) m_rootFile->Get("Leakage/es2017_summer/LeakageDiffConverted");      m_leakageConverted->SetDirectory(0);
-      m_leakageUnconverted    = (TH1*) m_rootFile->Get("Leakage/es2017_summer/LeakageDiffUnconverted");    m_leakageUnconverted->SetDirectory(0);
+      m_leakageConverted      = (TH1*) m_rootFile->Get("Leakage/es2017_summer/LeakageDiffConverted");      m_leakageConverted->SetDirectory(nullptr);
+      m_leakageUnconverted    = (TH1*) m_rootFile->Get("Leakage/es2017_summer/LeakageDiffUnconverted");    m_leakageUnconverted->SetDirectory(nullptr);
     }
     
     // ... Zee S2 profile (needed for gain switch syst).
 
-    m_zeeES2Profile         = (TH1*) m_rootFile->Get("ZeeEnergyProfiles/p2MC");    m_zeeES2Profile->SetDirectory(0);
+    m_zeeES2Profile         = (TH1*) m_rootFile->Get("ZeeEnergyProfiles/p2MC");    m_zeeES2Profile->SetDirectory(nullptr);
 
     // OK, now we are all initialized and everything went fine
 
