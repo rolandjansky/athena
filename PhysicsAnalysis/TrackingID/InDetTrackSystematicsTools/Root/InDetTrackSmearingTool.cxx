@@ -58,11 +58,12 @@ namespace InDet {
 
     declareProperty("Seed", m_seed);
 
-    declareProperty("calibFileD0Dead", m_calibFileD0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v17/res_diff_d0_vs_pt.hist.root");
-    declareProperty("calibFileZ0Dead", m_calibFileZ0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v17/res_diff_z0_vs_pt.hist.root");
+    declareProperty("calibFileD0Dead", m_calibFileD0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/res_diff_d0_vs_pt.hist.root");
+    declareProperty("calibFileZ0Dead", m_calibFileZ0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/res_diff_z0_vs_pt.hist.root");
 
-    declareProperty("calibFileIP_lowpt", m_calibFileIP_lowpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v17/trackIPAlign_dec2017.root");
-    declareProperty("calibFileIP_highpt", m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v17/trackIPAlignTight.root");
+    declareProperty("calibFileIP_lowpt", m_calibFileIP_lowpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlign_dec2017.root");
+    declareProperty("calibFileIP_highpt", m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlignTight.root");
+    declareProperty("MCSubcampaign", m_MCSubcampaign = "MC16a");
   }
     
 
@@ -71,6 +72,18 @@ namespace InDet {
     // Greet the user:
     ATH_MSG_INFO( "Initializing..." );
     
+    // use a different highpt smearing map depending on the MC sub-campaign
+    if (m_MCSubcampaign == "MC16a") {
+      ATH_MSG_INFO( "Using MC16a smearing map configuration" );
+      m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlignTight.root";
+    } else if (m_MCSubcampaign == "MC16c" || m_MCSubcampaign == "MC16d") {
+      ATH_MSG_INFO( "Using MC16c/d smearing map configuration" );
+      m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlignTight2017.root";
+    } else {
+      ATH_MSG_ERROR( "Unrecognized MCSubcampaign" );
+      return StatusCode::FAILURE;
+    }
+
     ATH_CHECK( initObject<TH1>(m_smearD0Dead, m_calibFileD0Dead, "res_pt_d0_0") );
     ATH_CHECK( initObject<TH1>(m_smearZ0Dead, m_calibFileZ0Dead, "res_pt_z0_0") );
 

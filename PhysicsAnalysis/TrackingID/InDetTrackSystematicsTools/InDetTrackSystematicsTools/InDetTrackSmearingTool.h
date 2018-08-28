@@ -101,6 +101,7 @@ namespace InDet {
     
     std::string m_calibFileIP_lowpt;
     std::string m_calibFileIP_highpt;
+    std::string m_MCSubcampaign;
      
   }; /// class InDetTrackSmearingTool
 
