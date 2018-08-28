@@ -87,23 +87,6 @@ StatusCode PhysValTau::initialize()
    m_nomiTauSel.msg().setLevel(MSG::DEBUG);
    CHECK(m_nomiTauSel.initialize());
    
-   // geometrical matching between Reco Tau and MC tau
-   m_DeltaRMatchCut          = 0.2;
-   m_LeadingChPiPt_Threshold = 0.0;
-   
-   //Truth Matching Cuts
-   m_visETcut                = 10.;
-   m_visEtacut               = 2.5;
-    
-   //Initialize Counters
-   m_truth_all = 0;
-   m_truth_1p = 0;
-   m_truth_3p = 0;
-   
-   m_truth_all_matched = 0;
-   m_truth_1p_matched = 0;
-   m_truth_3p_matched = 0;
-
    return StatusCode::SUCCESS;
 }
 
