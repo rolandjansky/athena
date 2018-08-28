@@ -571,7 +571,7 @@ def defineMenu():
         "L1_MBTS_1_1_EMPTY", "L1_MBTS_1_1_UNPAIRED_ISO","L1_MBTS_4_A_UNPAIRED_ISO","L1_MBTS_4_C_UNPAIRED_ISO",
         # beam splashes
         "L1_MBTS_4_A", "L1_MBTS_4_C",
-        
+
         #Overlay
 #        "L1_MBTS_1_OVERLAY","L1_TE20_OVERLAY",
         
@@ -1129,6 +1129,41 @@ def defineMenu():
         'L1_MBTS_2_UNPAIRED_ISO' : 167,
         'L1_MBTS_1_1_EMPTY' : 168,
         'L1_MBTS_1_1_UNPAIRED_ISO' : 169,
+
+
+        'L1_MBTSA0' : 179, 
+        'L1_MBTSA1' : 180, 
+        'L1_MBTSA2' : 239, 
+        'L1_MBTSA3' : 244, 
+        'L1_MBTSA4' : 265, 
+        'L1_MBTSA5' : 274, 
+        'L1_MBTSA6' : 283, 
+        'L1_MBTSA7' : 284,         
+        'L1_MBTSA8' : 287, 
+        'L1_MBTSA10' : 289, 
+        'L1_MBTSA12' : 296, 
+        'L1_MBTSA14' : 297, 
+        'L1_MBTSA9' : 298, 
+        'L1_MBTSA11' : 304,
+        'L1_MBTSA13' : 306, 
+        'L1_MBTSA15' : 307,
+        'L1_MBTSC0' : 308,
+        'L1_MBTSC1' : 310,
+        'L1_MBTSC2' : 311, 
+        'L1_MBTSC3' : 312,
+        'L1_MBTSC4' : 396, 
+        'L1_MBTSC5' : 395, 
+        'L1_MBTSC6' : 87, 
+        'L1_MBTSC7' : 375,
+        'L1_MBTSC8' : 374,
+        'L1_MBTSC10' : 370, 
+        'L1_MBTSC12' : 365,
+        'L1_MBTSC14' : 359,
+        'L1_MBTSC11' : 360, 
+        'L1_MBTSC13' : 361,
+        'L1_MBTSC9' : 362,
+        'L1_MBTSC15' : 363,
+
 
         'L1_DPHI-AJ20s2XE50' : 171,
         'L1_EM18VHI_3J20' : 172,
