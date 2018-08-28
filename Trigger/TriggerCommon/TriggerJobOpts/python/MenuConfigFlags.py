@@ -12,14 +12,14 @@ def createMenuFlags():
     flags = AthConfigFlags()
     # default electron chains
 
-    flags.addFlag('Trigger.menu.electrons', [ "LT_e3_etcut L1_EM3",        
-                                              "LT_e5_etcut L1_EM3",        
-                                              "LT_g5_etcut L1_EM3",        
-                                              "LT_e7_etcut L1_EM7"])
+    flags.addFlag('Trigger.menu.electrons', [ "HLT_e3_etcut L1_EM3",        
+                                              "HLT_e5_etcut L1_EM3",        
+                                              "HLT_e7_etcut L1_EM7"])
     # electrons w/o the ID selection
     flags.addFlag('Trigger.menu.electronsNoID', [])
 
-    flags.addFlag('Trigger.menu.photons', ['HLT_g10_etcut L1_EM7', 'HLT_g15_etcut L1_EM12'])
+    flags.addFlag('Trigger.menu.photons', ['HLT_g10_etcut L1_EM7', 
+                                           'HLT_g15_etcut L1_EM12'])
 
     flags.addFlag('Trigger.menu.muons', [])
     flags.addFlag('Trigger.menu.MSMuons', [])

@@ -440,36 +440,31 @@ class InViewReco( ComponentAccumulator ):
         if viewMaker:
             self.viewMakerAlg = viewMaker 
         else:
+            from AthenaCommon.Constants import DEBUG
             self.viewMakerAlg = EventViewCreatorAlgorithm(name+'ViewsMaker',
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI', # -||-
-                                                          InViewRoIs      = name+'RoIs', # contract with the fastCalo
+                                                          InViewRoIs      = name+'RoIs',
                                                           Views           = name+'Views',
-                                                          ViewNodeName    = name+"InView" )
-                                                          # this properties need to be set later
-                                                          #InputMakerInputDecisions  = ['FilteredElectronDecisions'], # from EMRoIsUnpackingTool
-                                                          #InputMakerOutputDecisions = [ 'Links']
+                                                          ViewNodeName    = name+"InView",
+                                                          OutputLevel=DEBUG)
+
         self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name() )
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )        
         self.addSequence( self.viewsSeq, self.mainSeq.name() )
         
     def addInputFromFilter(self, filterAlg ):
         assert len(filterAlg.Output) == 1, "Can only oprate on filter algs with one configured output, use addInput to setup specific inputs"
-        self.addInput( filterAlg.Output[0] )
+        self.addInput( filterAlg.Output[0], "Reco_"+( filterAlg.Output[0].replace("Filtered_", "") ) )
 
-    def addInput(self, key ):
+    def addInput(self, inKey, outKey ):
         """Adds input (DecisionsContainer) from which the views should be created """
-        self.viewMakerAlg.InputMakerInputDecisions += [ key ]
-        self.viewMakerAlg.InputMakerOutputDecisions += [ "Filtered"+key ] # convention
+        self.viewMakerAlg.InputMakerInputDecisions += [ inKey ]
+        self.viewMakerAlg.InputMakerOutputDecisions += [ outKey ]
 
     def addRecoAlg( self, alg ):
         """Reconstruction alg to be run per view"""
         self.addEventAlgo( alg, self.viewsSeq.name() )
-
-    # def addRecoAlg( self, acc, alg ):
-    #     """Reconstruction alg to be run per view"""
-    #     self.merge( acc )
-    #     self.addEventAlgo( alg, self.viewsSeq.name() )
 
     def sequence( self ):
         return self.mainSeq
@@ -527,20 +522,24 @@ class FilterHypoSequence(  ComponentAccumulator ):
         self.addSequence( reco.sequence(), self.mainSeq.name() )
         self.merge( reco )
 
-    def addFilter( self, chains, inKey, outKey=None ):
+    def addFilter( self, chains, inKey ):
         """ adds filter alg of type RoRSeqFilter, output key is predefined by the sequence name as: Filtered + the name"""
         from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
         self.filterAlg = RoRSeqFilter( self.name+'Filter' )
         self.filterAlg.Input       = [ inKey ]
-        self.filterAlg.Output      = [ outKey ] if outKey else [ 'Filtered'+self.name ]        
+        self.filterAlg.Output      = [ 'Filtered_'+self.name ]
         self.filterAlg.Chains      = chains
         from AthenaCommon.Constants import DEBUG
         self.filterAlg.OutputLevel = DEBUG
         self.addEventAlgo( self.filterAlg, self.mainSeq.name() )
 
+    def hypoDecisions( self ):
+        return "Decisions_"+self.name
+
     def addHypo( self, hypo ):
         self.hypoAlg = hypo
         self.hypoAlg.HypoInputDecisions = self.reco.inputMaker().InputMakerOutputDecisions[-1]
+        self.hypoAlg.HypoOutputDecisions = self.hypoDecisions()
         self.addEventAlgo( hypo, self.mainSeq.name() )
 
     def sequence( self ):

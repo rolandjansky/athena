@@ -51,20 +51,24 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
-    allChains = []
-    for stepName, stepHypos in hypos.iteritems():
+    allChains = {} # collects the last decision obj for each chain
+
+    for stepName, stepHypos in sorted( hypos.items() ):
         dcTool = DecisionCollectorTool( "DecisionCollector" + stepName )
         for hypo in stepHypos:
             dcTool.Decisions += [ hypo.HypoOutputDecisions ]
             for t in hypo.HypoTools:
-                allChains.append( t.name() )
+                allChains[t.name()] = hypo.HypoOutputDecisions
+
         mon.CollectorTools += [ dcTool ]
         __log.info( "The step monitoring decisions in " + dcTool.name() + str( dcTool.Decisions ) )
     
-    mon.FinalDecisions = mon.CollectorTools[-1].Decisions
+
+    mon.FinalDecisions = list( set( allChains.values() ) )
     __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )
 
-    mon.ChainsList = list( set( allChains + l1Decoder.ChainToCTPMapping.keys()) )
+    mon.ChainsList = list( set( allChains.keys() + l1Decoder.ChainToCTPMapping.keys()) )
+
     
     return acc, mon
 
