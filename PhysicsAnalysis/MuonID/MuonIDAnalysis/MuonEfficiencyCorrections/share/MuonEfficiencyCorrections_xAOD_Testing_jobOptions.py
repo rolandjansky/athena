@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #!/usr/bin/env python
 import sys
@@ -17,16 +17,16 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
-alg.DefaultRelease="cPreRecs"
-alg.ValidationRelease="cCaloFix"
+alg.DefaultRelease="cMoriond2018"
+alg.ValidationRelease="cSummer2018"
 
 WPs = [
          # reconstruction WPs
-        # "LowPt",
-        # "Loose", 
-        # "Medium", 
-        # "Tight", 
-        # "HighPt",
+         "LowPt",
+         "Loose", 
+         "Medium", 
+         "Tight", 
+         "HighPt",
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
@@ -37,8 +37,8 @@ WPs = [
         ]
 
 for WP in WPs: 
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "170916_Rel21PreRec")]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="CaloTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180516_HighEtaUpdate")]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "180516_HighEtaUpdate")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="Summer_2018", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Summer_2018/")]
 theJob += alg
 
 # Do some additional tweaking:
