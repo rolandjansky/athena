@@ -83,17 +83,21 @@ FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1AugmentKernel",
                                                          AugmentationTools = [FTAG1DstarVertexing]
                                                         )
 
-#Add unbiased track parameters to track particles
-#FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
-#ToolSvc += FTAG1IPETool
-#print FTAG1IPETool
+#make IPE tool for BTagTrackAugmenter
+FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
+ToolSvc += FTAG1IPETool
+print FTAG1IPETool
 
-#FTAG1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "FTAG1TrackToVertexWrapper",
-#        TrackToVertexIPEstimator = FTAG1IPETool,
-#        DecorationPrefix = "FTAG1",
-#        ContainerName = "InDetTrackParticles")
-#ToolSvc += FTAG1TrackToVertexWrapper
-#print FTAG1TrackToVertexWrapper
+#augment jets with track info
+FTAG1Seq += CfgMgr.BTagVertexAugmenter()
+for jc in ["AntiKt4EMTopoJets"]:
+    FTAG1Seq += CfgMgr.BTagTrackAugmenter(
+        "BTagTrackAugmenter_" + jc,
+        OutputLevel=INFO,
+        JetCollectionName = jc,
+        TrackToVertexIPEstimator = FTAG1IPETool,
+        SaveTrackVectors = True,
+    )
 
 #====================================================================
 # Basic Jet Collections
