@@ -163,7 +163,6 @@ namespace CP {
             }
 
         }
-        // and don't forget to close the file again!
         return true;
     }
     bool EfficiencyScaleFactor::CheckConsistency() const {
