@@ -27,6 +27,3 @@ atlas_add_component( HepMCWeightSvc
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps
    AthenaPoolUtilities IOVDbDataModel EventInfo )
-
-# Install files from the package:
-atlas_install_headers( HepMCWeightSvc )
