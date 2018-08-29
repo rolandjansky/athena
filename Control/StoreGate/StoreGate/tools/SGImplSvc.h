@@ -240,18 +240,14 @@ public:
   bool associateAux (DataHandle<DOBJ>&, bool ignoreMissing=true) const;
   template <class DOBJ>
   bool associateAux (const DataHandle<DOBJ>&, bool ignoreMissing=true) const;
-
-  /// retrieve a data object deriving from DataVectorAuxBase,
-  /// associate the data object to its matching IAuxStore.
-  /// The matching is done by name, with the IAuxStore assumed to have key
-  /// key + "Aux"
-  /// returns null if the object or its IAuxStore isn't found.
-  template <typename T, class TKEY>
-  T* retrieveAux (const TKEY& key) const;
-  template <typename T, class TKEY>
-  const T* constRetrieveAux (const TKEY& key) const;
-
-
+  template <class DOBJ>
+  bool associateAux (DOBJ*,
+                     const std::string& key,
+                     bool ignoreMissing=true) const;
+  template <class DOBJ>
+  bool associateAux (const DOBJ*,
+                     const std::string& key,
+                     bool ignoreMissing=true) const;
 
 
 
@@ -1013,6 +1009,25 @@ private:
   bool associateAux_impl(DataHandle<DOBJ>& , const SG::NoAuxStore*) const { return true; }
   template <class DOBJ>
   bool associateAux_impl(const DataHandle<DOBJ>&, const SG::NoAuxStore*) const { return true; }
+
+  template <class DOBJ, class AUXSTORE>
+  bool associateAux_impl(DOBJ* ptr,
+                         const std::string& key,
+                         const AUXSTORE*) const;
+  template <class DOBJ, class AUXSTORE>
+  bool associateAux_impl(const DOBJ* ptr,
+                         const std::string& key,
+                         const AUXSTORE*) const;
+  template <class DOBJ>
+  bool associateAux_impl(DOBJ* /*ptr*/,
+                         const std::string& /*key*/,
+                         const SG::NoAuxStore*) const
+  { return true; }
+  template <class DOBJ>
+  bool associateAux_impl(const DOBJ* /*ptr*/,
+                         const std::string& /*key*/,
+                         const SG::NoAuxStore*) const
+  { return true; }
 
   /// Add automatically-made symlinks for DP.
   void addAutoSymLinks (const std::string& key, CLID clid, SG::DataProxy* dp,
