@@ -39,7 +39,7 @@ namespace DerivationFramework {
       ATH_MSG_ERROR("No SG name provided for the output of EGSelectionToolWrapper!");
       return StatusCode::FAILURE;
     }
-    if (m_containerName!="Photons" && m_containerName!="Electrons") {
+    if (m_containerName!="Photons" && m_containerName!="Electrons" && m_containerName!="ForwardElectrons") {
       ATH_MSG_ERROR("Wrong container provided!");
       return StatusCode::FAILURE;
     }
@@ -74,7 +74,7 @@ namespace DerivationFramework {
 	  ATH_MSG_ERROR ("addBranches(): Wrong particle type (not electron nor photon) being passed to EGSelectionToolWrapper");
 	  return StatusCode::FAILURE;
       }
-      if (type==xAOD::Type::Electron && m_containerName!="Electrons") {
+      if (type==xAOD::Type::Electron && (m_containerName!="Electrons" && m_containerName!="ForwardElectrons")) {
 	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGSelectionToolWrapper");
 	  return StatusCode::FAILURE;
       }
