@@ -24,6 +24,8 @@ TrigHIEventShapeJetIteration::TrigHIEventShapeJetIteration(std::string name) : A
   declareProperty("ExcludeConstituents",m_exclude_constituents=false,"Only exclude constituents of jets");
   declareProperty("AssociationKey",m_association_key,"Name of jet attribute containing jet-cluster association");
   declareProperty("Subtractor",m_subtractor_tool);
+  declareProperty("Trigger",m_trigger=true);
+  declareProperty("OutputContainer", m_outcoll);
 }
 
 int TrigHIEventShapeJetIteration::execute() const
