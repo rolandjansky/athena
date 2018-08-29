@@ -103,6 +103,9 @@ StatusCode RCJetMC15::initialize(){
         float rho     = std::stof(original_rho);
         float m_scale = mass_scales.at(m_VarRCjets_mass_scale);
         m_massscale   = rho*m_scale*1e-3;                   // e.g., 2*m_top; in [GeV]!
+	
+	if (m_config->useRCJetSubstructure())m_useJSS=true;
+	
     }
     else{
         m_ptcut  = std::stof( configSettings->value("RCJetPt") );     // for initialize [GeV] & passSelection
@@ -111,8 +114,10 @@ StatusCode RCJetMC15::initialize(){
         m_radius = std::stof( configSettings->value("RCJetRadius") ); // for initialize    
         m_minradius = -1.0;
         m_massscale = -1.0;
-	if (m_config->useRCJetSubstructure()){
-	  m_useJSS = true;
+	if (m_config->useRCJetSubstructure())m_useJSS=true;
+    }
+    
+    if (m_useJSS){
 	  ATH_MSG_INFO("Calculating RCJet Substructure");
 
 
@@ -164,7 +169,9 @@ StatusCode RCJetMC15::initialize(){
 	  m_gECF321 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(2,3,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
 	  m_gECF311 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(1,3,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
 	}
-    }
+    
+    
+    
 
     for (auto treeName : *m_config->systAllTTreeNames()) {
         // only make a new tool if it is the nominal systematic or one that could affect small-r jets (el, mu, jet)

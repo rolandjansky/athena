@@ -82,7 +82,9 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize(){
       std::replace( original_rho.begin(), original_rho.end(), '_', '.');
       float rho     = std::stof(original_rho);
       float m_scale = mass_scales.at(m_VarRCjets_mass_scale);
-      m_massscale   = rho*m_scale*1e-3;        
+      m_massscale   = rho*m_scale*1e-3;
+      
+      if (m_config->useRCJetSubstructure())m_useJSS=true;        
     }
     else {
       m_ptcut  =  m_config->RCJetPtcut() ;     // for initialize [GeV] & passSelection
@@ -91,6 +93,8 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize(){
       m_radius =  m_config->RCJetRadius() ; // for initialize    
       m_minradius = -1.0;
       m_massscale = -1.0;
+      
+      if (m_config->useRCJetSubstructure())m_useJSS=true;
     }
     
     
@@ -111,8 +115,7 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize(){
     top::check(m_jetReclusteringTool->setProperty("VariableRMassScale", m_massscale),"Failed VarRC mass scale initialize reclustering tool");
     top::check(m_jetReclusteringTool->initialize(),"Failed to initialize reclustering tool");
     
-    if (m_config->useRCJetSubstructure()){
-      m_useJSS = true;
+    if (m_useJSS){
       ATH_MSG_INFO("Calculating PL RCJet Substructure");
       //clean up the null ptrs
       delete m_jet_def_rebuild;
