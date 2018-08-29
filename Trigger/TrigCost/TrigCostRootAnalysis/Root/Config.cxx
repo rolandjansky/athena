@@ -1265,6 +1265,7 @@ namespace TrigCostRootAnalysis {
         // expoRateScaleModifier
         ss << optarg;
         ss >> expoRateScaleModifierL1;
+        break;
 
       case '6':
         // expoRateScaleModifier
