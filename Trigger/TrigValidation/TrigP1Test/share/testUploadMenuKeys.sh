@@ -66,6 +66,10 @@ elif [ "$type" == "HLT_mcV7" ]; then
   stump="MC_pp_v7"
 elif [ "$type" == "HLT_mcV7_rerunLVL1" ]; then
   stump="MC_pp_v7"
+elif [ "$type" == "HLT_HIV5" ]; then
+  stump="Physics_HI_v5"
+elif [ "$type" == "HLT_HIV5_rerunLVL1" ]; then
+  stump="Physics_HI_v5"
 else 
   stump=""
 fi
@@ -277,13 +281,18 @@ ln -s ${ART_dir}/${l1menu}   l1.xml
 ln -s ${ART_dir}/${hltmenu1}   hlt.xml
 ls -alhtr
 
-#TODO: configure RB properly, which lumi point?
+# RB configured to ingnore errors and leave unprescaled any new chain not yet defined in RB. It won't try to copy keys to P1
 sed -i -e 's/ignoreErrors = False/ignoreErrors = True/g' runOptions.py
-./runRuleBook.py 20000
+sed -i -e 's/doUnprescaledIfUndefined = False/doUnprescaledIfUndefined = True/g' runOptions.py
+sed -i -e 's/doUseOnline = True/doUseOnline = False/g' runOptions.py
+
+./runRuleBook.py 17000
 cd ${ART_dir}
 PSdir=`find TrigMenuRulebook/scripts -name "prescales_*" -type d`
 echo "PSdir: "${PSdir}
 rm $PSdir/Set_*.xml
+rm $PSdir/*Emittance*
+rm $PSdir/*Standby*
 ls $PSdir
 
 # upload PS keys
@@ -299,9 +308,42 @@ if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then
     exit 1
 fi
 
-echo "smk=${smk}" > prescaleKeys.txt
-echo "l1psk=${l1psk2}" >> prescaleKeys.txt
-echo "hltpsk=${hltpsk2}" >> prescaleKeys.txt
+echo "smk=${smk}" > prescaleKeys_17000.txt
+echo "l1psk=${l1psk2}" >> prescaleKeys_17000.txt
+echo "hltpsk=${hltpsk2}" >> prescaleKeys_17000.txt
+echo "echo 'setting these keys: SMK ' \$smk ', L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk  " >> prescaleKeys_17000.txt
+
+rm uploadPSK_prescaled.log
+
+cd ${RB_dir}/scripts
+rm -r prescales_*
+
+./runRuleBook.py 9000
+cd ${ART_dir}
+PSdir=`find TrigMenuRulebook/scripts -name "prescales_*" -type d`
+echo "PSdir: "${PSdir}
+rm $PSdir/Set_*.xml
+rm $PSdir/*Emittance*
+rm $PSdir/*Standby*
+ls $PSdir
+
+# upload PS keys
+#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+hltpsk2=`grep 'INFO: HLT Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
+l1psk2=`grep 'INFO: Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
+if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then
+    echo "ERROR Upload of prescale key failed"
+    echo 'In ./uploadPSK_prescaled.log:'
+    grep "Can't obtain write lock" uploadPSK_prescaled.log
+    grep "SEVERE" uploadPSK_prescaled.log
+    exit 1
+fi
+
+echo "smk=${smk}" > prescaleKeys_9000.txt
+echo "l1psk=${l1psk2}" >> prescaleKeys_9000.txt
+echo "hltpsk=${hltpsk2}" >> prescaleKeys_9000.txt
+echo "echo 'setting these keys: SMK ' \$smk ', L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk  " >> prescaleKeys_9000.txt
 
 rm -rf TrigMenuRulebook
 
