@@ -104,7 +104,7 @@ StatusCode RCJetMC15::initialize(){
         float m_scale = mass_scales.at(m_VarRCjets_mass_scale);
         m_massscale   = rho*m_scale*1e-3;                   // e.g., 2*m_top; in [GeV]!
 	
-	if (m_config->useRCJetSubstructure())m_useJSS=true;
+	m_useJSS=m_config->useVarRCJetSubstructure();
 	
     }
     else{
@@ -114,7 +114,7 @@ StatusCode RCJetMC15::initialize(){
         m_radius = std::stof( configSettings->value("RCJetRadius") ); // for initialize    
         m_minradius = -1.0;
         m_massscale = -1.0;
-	if (m_config->useRCJetSubstructure())m_useJSS=true;
+	m_useJSS=m_config->useRCJetSubstructure();
     }
     
     if (m_useJSS){

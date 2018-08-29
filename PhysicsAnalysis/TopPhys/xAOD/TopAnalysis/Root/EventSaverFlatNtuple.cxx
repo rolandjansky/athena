@@ -142,6 +142,7 @@ namespace top {
 	m_makeRCJets(false),
 	m_makeVarRCJets(false),
 	m_useRCJSS(false),
+	m_useVarRCJSS(false),
 	m_met_met(0.),
         m_met_phi(0.)
     {
@@ -218,6 +219,7 @@ namespace top {
 	  boost::split(m_VarRCJetRho, config->VarRCJetRho(), boost::is_any_of(","));
 	  boost::split(m_VarRCJetMassScale, config->VarRCJetMassScale(), boost::is_any_of(","));
 
+	  m_useVarRCJSS=config->useVarRCJetSubstructure();
 	} // end make VarRC jets
 
 
@@ -816,7 +818,7 @@ namespace top {
 		  systematicTree->makeOutputVariable(m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_e"],   VarRC+"sub_"+name+"_e");
 		  systematicTree->makeOutputVariable(m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_mv2c10"], VarRC+"sub_"+name+"_mv2c10");
 		  
-		  if (m_useRCJSS){
+		  if (m_useVarRCJSS){
 		    systematicTree->makeOutputVariable(m_VarRCjetBranches["vrrcjet_"+name+"_pt"], "vrrcjet_"+name+"_pt" );
 		    systematicTree->makeOutputVariable(m_VarRCjetBranches["vrrcjet_"+name+"_eta"],"vrrcjet_"+name+"_eta");
 		    systematicTree->makeOutputVariable(m_VarRCjetBranches["vrrcjet_"+name+"_phi"],"vrrcjet_"+name+"_phi");
@@ -1259,7 +1261,7 @@ namespace top {
 	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"], VarRC+"sub_"+name+"_phi");
 	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"],   VarRC+"sub_"+name+"_e");
 	      
-	      if (m_useRCJSS){
+	      if (m_useVarRCJSS){
 		m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle["vrrcjet_"+name+"_pt"], "vrrcjet_"+name+"_pt" );
 		m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle["vrrcjet_"+name+"_eta"],"vrrcjet_"+name+"_eta");
 		m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle["vrrcjet_"+name+"_phi"],"vrrcjet_"+name+"_phi");
@@ -2505,7 +2507,7 @@ namespace top {
 	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_e"].resize(sizeOfRCjets, std::vector<float>());
 	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_mv2c10"].resize(sizeOfRCjets, std::vector<float>());
 
-	      if (m_useRCJSS){
+	      if (m_useVarRCJSS){
 		m_VarRCjetBranches["vrrcjet_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 		m_VarRCjetBranches["vrrcjet_"+name+"_eta"].resize(sizeOfRCjets,-999.);
 		m_VarRCjetBranches["vrrcjet_"+name+"_phi"].resize(sizeOfRCjets,-999.);
@@ -2557,7 +2559,7 @@ namespace top {
 		m_VarRCjetBranches[VarRC+"_"+name+"_d12"][i] = (VarRCSplit12.isAvailable(*rc_jet)) ? VarRCSplit12(*rc_jet) : -999.;
 		m_VarRCjetBranches[VarRC+"_"+name+"_d23"][i] = (VarRCSplit23.isAvailable(*rc_jet)) ? VarRCSplit23(*rc_jet) : -999.;
 
-		if (m_useRCJSS){
+		if (m_useVarRCJSS){
 		  m_VarRCjetBranches["vrrcjet_"+name+"_pt"][i]   =  (RRCJet_pt.isAvailable(*rc_jet))  ? RRCJet_pt(*rc_jet) : -999.;
 		  m_VarRCjetBranches["vrrcjet_"+name+"_eta"][i]  =  (RRCJet_eta.isAvailable(*rc_jet)) ? RRCJet_eta(*rc_jet) : -999.;
 		  m_VarRCjetBranches["vrrcjet_"+name+"_phi"][i]  =  (RRCJet_phi.isAvailable(*rc_jet)) ? RRCJet_phi(*rc_jet) : -999.;
@@ -3603,7 +3605,7 @@ namespace top {
 	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"].resize(sizeOfRCjets, std::vector<float>());
 	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"].resize(sizeOfRCjets, std::vector<float>());
 	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"].resize(sizeOfRCjets, std::vector<float>());
-	      if (m_useRCJSS){
+	      if (m_useVarRCJSS){
 		m_VarRCjetBranchesParticle["vrrcjet_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 		m_VarRCjetBranchesParticle["vrrcjet_"+name+"_eta"].resize(sizeOfRCjets,-999.);
 		m_VarRCjetBranchesParticle["vrrcjet_"+name+"_phi"].resize(sizeOfRCjets,-999.);
@@ -3654,7 +3656,7 @@ namespace top {
 		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d12"][i] = (VarRCSplit12.isAvailable(*rc_jet)) ? VarRCSplit12(*rc_jet) : -999.;
 		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d23"][i] = (VarRCSplit23.isAvailable(*rc_jet)) ? VarRCSplit23(*rc_jet) : -999.;
 
-		if (m_useRCJSS){
+		if (m_useVarRCJSS){
 		  m_VarRCjetBranchesParticle["vrrcjet_"+name+"_pt"][i]   =  (RRCJet_pt.isAvailable(*rc_jet))  ? RRCJet_pt(*rc_jet) : -999.;
 		  m_VarRCjetBranchesParticle["vrrcjet_"+name+"_eta"][i]  =  (RRCJet_eta.isAvailable(*rc_jet)) ? RRCJet_eta(*rc_jet) : -999.;
 		  m_VarRCjetBranchesParticle["vrrcjet_"+name+"_phi"][i]  =  (RRCJet_phi.isAvailable(*rc_jet)) ? RRCJet_phi(*rc_jet) : -999.;

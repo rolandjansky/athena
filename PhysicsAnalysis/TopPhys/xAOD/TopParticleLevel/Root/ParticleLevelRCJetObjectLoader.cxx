@@ -84,7 +84,7 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize(){
       float m_scale = mass_scales.at(m_VarRCjets_mass_scale);
       m_massscale   = rho*m_scale*1e-3;
       
-      if (m_config->useRCJetSubstructure())m_useJSS=true;        
+      m_useJSS=m_config->useVarRCJetSubstructure();        
     }
     else {
       m_ptcut  =  m_config->RCJetPtcut() ;     // for initialize [GeV] & passSelection
@@ -94,7 +94,7 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize(){
       m_minradius = -1.0;
       m_massscale = -1.0;
       
-      if (m_config->useRCJetSubstructure())m_useJSS=true;
+      m_useJSS=m_config->useRCJetSubstructure();
     }
     
     
