@@ -254,10 +254,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_TrkSeeded::finalize()
 // Seed a new event with a new Measurement
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_TrkSeeded::newEvent(const Trk::MeasurementBase* tp) 
+void InDet::SiSpacePointsSeedMaker_TrkSeeded::newEvent(Amg::Vector3D tp) 
 {
-
-  if( !tp ) return;
 
   //
   float irstep = 1./r_rstep;
@@ -300,20 +298,20 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newEvent(const Trk::MeasurementBas
             Require selected SP to be beyond the last measurement of
             the seed track and before the end of the SCT
           */
-          if ( (*sp)->r()<tp->globalPosition().perp() || (*sp)->r() > r_rmax ) continue;
+          if ( (*sp)->r()<tp.perp() || (*sp)->r() > r_rmax ) continue;
  
           nSeeds++;
 	    
 	  float seedTheta = atan( (*sp)->globalPosition().perp() / (*sp)->globalPosition().z()  ); 
-	  float trkTheta  = atan( tp->globalPosition().perp() / tp->globalPosition().z() );
+	  float trkTheta  = atan( tp.perp() / tp.z() );
 	  float seedPhi   = atan2( (*sp)->globalPosition().y(), (*sp)->globalPosition().x() );
-	  float trkPhi    = atan2( tp->globalPosition().y(), tp->globalPosition().x() );
+	  float trkPhi    = atan2( tp.y(), tp.x() );
 	  
 	  //
 	  if( fabs( trkTheta - seedTheta ) > m_dThetaRoITrkSP   ) continue;
 	  if( fabs( trkPhi - seedPhi     ) > m_dPhiRoITrkSP     ) continue;
 	  
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp),tp); if(!sps) continue;
+	  InDet::SiSpacePointForSeed* sps = newSpacePointSeedOrigin((*sp),tp); if(!sps) continue;
 	  nAccepted++;
 	  
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
@@ -451,7 +449,7 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newRegion
 	for(; sp != spe; ++sp) {
 
 	  float r = (*sp)->r(); if(r > r_rmax) continue;
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp),0); 
+	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
@@ -485,7 +483,7 @@ void InDet::SiSpacePointsSeedMaker_TrkSeeded::newRegion
 	for(; sp != spe; ++sp) {
 
 	  float r = (*sp)->r(); if(r > r_rmax) continue;
-	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp),0); 
+	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
@@ -1189,12 +1187,12 @@ void  InDet::SiSpacePointsSeedMaker_TrkSeeded::convertToBeamFrameWork
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_TrkSeeded::convertToTrkFrameWork
-(Trk::SpacePoint*const& sp,const Trk::MeasurementBase* trk, float* r)
+(Trk::SpacePoint*const& sp,Amg::Vector3D seedPosition, float* r)
 {
 
-  r[0] = float(sp->globalPosition().x())-float(trk->globalPosition().x());
-  r[1] = float(sp->globalPosition().y())-float(trk->globalPosition().y());
-  r[2] = float(sp->globalPosition().z())-float(trk->globalPosition().z());
+  r[0] = float(sp->globalPosition().x())-float(seedPosition.x());
+  r[1] = float(sp->globalPosition().y())-float(seedPosition.y());
+  r[2] = float(sp->globalPosition().z())-float(seedPosition.z());
 
 }
    

@@ -43,7 +43,7 @@ namespace InDet {
     // Interface method to the user
     // Algoirthm will grab all measurements 
     // from tracks and/or vertices
-    std::vector<const Trk::MeasurementBase*> getRoIs();
+    std::vector<Amg::Vector3D> getRoIs();
 
   protected:
 
@@ -52,8 +52,8 @@ namespace InDet {
     RoISeedTool(const RoISeedTool&) = delete;
     RoISeedTool &operator=(const RoISeedTool&) = delete;
 
-    void getTrkMeasSeeds(std::vector<const Trk::MeasurementBase*>& trkseeds);
-    void getVtxSeeds(std::vector<const Trk::MeasurementBase*>& vtxseeds);
+    void getTrkMeasSeeds(std::vector<Amg::Vector3D>& trkseeds);
+    void getVtxSeeds(std::vector<Amg::Vector3D>& vtxseeds);
 
     // Misc methods
     float getTrackPtCone(const TrackCollection* std_tracks,const Trk::Perigee* perigee);
@@ -85,8 +85,8 @@ namespace InDet {
 class rankD0  {
  public:
   bool operator ()
-    (const std::pair<float,const Trk::MeasurementBase*>& i1,
-     const std::pair<float,const Trk::MeasurementBase*>& i2)
+    (const std::pair<float,Amg::Vector3D>& i1,
+     const std::pair<float,Amg::Vector3D>& i2)
   {
     return fabs(i1.first) < fabs(i2.first);
   }

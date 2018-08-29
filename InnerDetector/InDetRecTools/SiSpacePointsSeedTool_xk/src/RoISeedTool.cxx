@@ -101,11 +101,11 @@ StatusCode InDet::RoISeedTool::finalize()
 // Grab the measurements that will be used to generate seeds
 /////////////////////////////////////////////////////////////////////
 
-std::vector<const Trk::MeasurementBase*> InDet::RoISeedTool::getRoIs()
+std::vector<Amg::Vector3D> InDet::RoISeedTool::getRoIs()
 {
 
   //
-  std::vector<const Trk::MeasurementBase*> ROISeeds;
+  std::vector<Amg::Vector3D> ROISeeds;
   ROISeeds.clear();
 
   /*
@@ -126,22 +126,24 @@ std::vector<const Trk::MeasurementBase*> InDet::RoISeedTool::getRoIs()
 
 }
 
-void InDet::RoISeedTool::getTrkMeasSeeds(std::vector<const Trk::MeasurementBase*>& trkseeds)
+void InDet::RoISeedTool::getTrkMeasSeeds(std::vector<Amg::Vector3D>& trkseeds)
 {
 
   // For sorting entries
-  std::vector<std::pair<float,const Trk::MeasurementBase*>> trackSeedMap;
+  std::vector<std::pair<float,Amg::Vector3D>> trackSeedMap;
   trackSeedMap.clear();
 
   const TrackCollection* tracks = 0;
   if( evtStore()->retrieve ( tracks, m_RoiSeedTracks ).isFailure() ){
     ATH_MSG_WARNING( "Could not find " << m_RoiSeedTracks << " in StoreGate!!");
+    return;
   }
   ATH_MSG_DEBUG("Starting with " << tracks->size() << "... Going to try and reduce this...");
 
   const TrackCollection* std_tracks = 0;
   if( evtStore()->retrieve ( std_tracks, m_tracksForIsolation ).isFailure() ){
     ATH_MSG_WARNING( "Could not find " << m_tracksForIsolation << " in StoreGate" );
+    return;
   }
 
   /*
@@ -207,7 +209,7 @@ void InDet::RoISeedTool::getTrkMeasSeeds(std::vector<const Trk::MeasurementBase*
       }
     }
     if( !MoT ) continue;
-    trackSeedMap.push_back( std::pair<float,const Trk::MeasurementBase*>(perigee->parameters()[Trk::d0],MoT) );
+    trackSeedMap.push_back( std::pair<float,Amg::Vector3D>(perigee->parameters()[Trk::d0],MoT->globalPosition()) );
 
   } // Lopp over RoI tracks
 
@@ -228,7 +230,7 @@ void InDet::RoISeedTool::getTrkMeasSeeds(std::vector<const Trk::MeasurementBase*
 // Get all RoI measurements from a list of vertices
 /////////////////////////////////////////////////////////////////////
 
-void InDet::RoISeedTool::getVtxSeeds(std::vector<const Trk::MeasurementBase*>& vtxseeds)
+void InDet::RoISeedTool::getVtxSeeds(std::vector<Amg::Vector3D>& vtxseeds)
 {
 
   // Undeveloped

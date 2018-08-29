@@ -267,15 +267,17 @@ namespace InDet {
     void buildFrameWork()                                       ;
     void buildBeamFrameWork()                                   ;
 
-    std::vector<const Trk::MeasurementBase*> l_trkseeds;
-    std::vector<const Trk::MeasurementBase*>::iterator i_trkseed ;
+    std::vector<Amg::Vector3D> l_trkseeds                       ;
+    std::vector<Amg::Vector3D>::iterator i_trkseed              ;
 
-    void newEvent (const Trk::MeasurementBase* tp)              ;
+    void newEvent (Amg::Vector3D)                               ;
 
     SiSpacePointForSeed* newSpacePoint
-      (Trk::SpacePoint*const&,const Trk::MeasurementBase*)      ;
+      (Trk::SpacePoint*const&)                    ;
+    SiSpacePointForSeed*newSpacePointSeedOrigin 
+      (Trk::SpacePoint*const&,Amg::Vector3D)                    ;
     void newSeed
-      (SiSpacePointForSeed*&,SiSpacePointForSeed*&,float)         ; 
+      (SiSpacePointForSeed*&,SiSpacePointForSeed*&,float)       ; 
 
     void newOneSeed
       (SiSpacePointForSeed*&,SiSpacePointForSeed*&,
@@ -307,7 +309,7 @@ namespace InDet {
     const SiSpacePointsSeed* generateNext()                     ;
     bool isZCompatible     (float&,float&,float&)               ;
     void convertToBeamFrameWork(Trk::SpacePoint*const&,float*)  ;
-    void convertToTrkFrameWork(Trk::SpacePoint*const& sp,const Trk::MeasurementBase* trk, float* r);
+    void convertToTrkFrameWork(Trk::SpacePoint*const& sp,Amg::Vector3D seedPosition, float* r);
     bool isUsed(const Trk::SpacePoint*); 
   };
 
@@ -362,15 +364,12 @@ namespace InDet {
   ///////////////////////////////////////////////////////////////////
 
   inline SiSpacePointForSeed* SiSpacePointsSeedMaker_TrkSeeded::newSpacePoint
-    (Trk::SpacePoint*const& sp,const Trk::MeasurementBase* trk) 
+    (Trk::SpacePoint*const& sp) 
   {
     SiSpacePointForSeed* sps;
 
-    // Convert to track framework here!
     float r[3]; 
-    if( trk ) convertToTrkFrameWork(sp,trk,r);
-    else      convertToBeamFrameWork(sp,r); 
-    //convertToBeamFrameWork(sp,r);
+    convertToBeamFrameWork(sp,r);
 
     if(m_checketa) {
 
@@ -390,6 +389,39 @@ namespace InDet {
       
     return sps;
   }
+
+  ///////////////////////////////////////////////////////////////////
+  // New space point for seeds, but recenter the at the seed position
+  ///////////////////////////////////////////////////////////////////
+
+
+  inline SiSpacePointForSeed* SiSpacePointsSeedMaker_TrkSeeded::newSpacePointSeedOrigin
+    (Trk::SpacePoint*const& sp,Amg::Vector3D seedPosition)
+  {
+    SiSpacePointForSeed* sps;
+
+    float r[3];
+    convertToTrkFrameWork(sp,seedPosition,r);
+
+    if(m_checketa) {
+
+      float z = (fabs(r[2])+m_zmax);
+      float x = r[0]*m_dzdrmin     ;
+      float y = r[1]*m_dzdrmin     ;
+      if((z*z )<(x*x+y*y)) return 0;
+    }
+
+    if(i_spforseed!=l_spforseed.end()) {
+      sps = (*i_spforseed++); sps->set(sp,r);
+    }
+    else                               {
+      l_spforseed.push_back((sps=new SiSpacePointForSeed(sp,r)));
+      i_spforseed = l_spforseed.end();
+    }
+
+    return sps;
+  }
+
 
   ///////////////////////////////////////////////////////////////////
   // New 2 space points seeds 
@@ -429,8 +461,8 @@ class comCurvatureLargeD0  {
 class sortD0  {
  public:
   bool operator ()
-    (const std::pair<float,const Trk::MeasurementBase*>& i1,
-     const std::pair<float,const Trk::MeasurementBase*>& i2)
+    (const std::pair<float,Amg::Vector3D>& i1,
+     const std::pair<float,Amg::Vector3D>& i2)
   {
     return fabs(i1.first) < fabs(i2.first);
   }
