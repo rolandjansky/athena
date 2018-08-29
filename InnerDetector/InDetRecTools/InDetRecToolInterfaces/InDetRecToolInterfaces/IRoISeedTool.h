@@ -13,7 +13,7 @@
 #define InDetRecToolInterfaces_IRoISeedTool_H
 
 #include "GaudiKernel/AlgTool.h"
-#include "TrkTrack/TrackCollection.h"
+#include "EventPrimitives/EventPrimitives.h" 
 
 namespace InDet
 {
@@ -40,7 +40,7 @@ namespace InDet
       Call to get all measurements
 
     */
-    virtual std::vector<const Trk::MeasurementBase*> getRoIs() = 0;
+    virtual std::vector<Amg::Vector3D> getRoIs() = 0;
 
   }; // End of IRoISeedTool class definition 
 
