@@ -232,6 +232,8 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "MET_Reference_AntiKt4LCTopo",
                                           "AntiKt4EMTopoJets",
+                                          "AntiKt4EMPFlowJets",
+                                          "AntiKt4TruthJets",
                                           "AntiKt4LCTopoJets",
                                           "BTagging_AntiKt4EMTopo",
                                           "InDetTrackParticles",
@@ -262,6 +264,6 @@ HIGG3D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG3D1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add MET to output stream
-addMETOutputs(HIGG3D1SlimmingHelper, ["AntiKt4EMPFlow", "Track"])
+addMETOutputs(HIGG3D1SlimmingHelper, ["AntiKt4EMPFlow", "Track"], ["AntiKt4EMPFlow", "AntiKt4EMTopo"])
 
 HIGG3D1SlimmingHelper.AppendContentToStream(HIGG3D1Stream)
