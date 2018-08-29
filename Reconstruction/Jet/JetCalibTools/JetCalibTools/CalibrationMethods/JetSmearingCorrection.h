@@ -26,12 +26,16 @@ class JetSmearingCorrection
         virtual ~JetSmearingCorrection();
         virtual StatusCode initializeTool(const std::string& name);
 
+        virtual StatusCode getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const;
+        virtual StatusCode getNominalResolutionMC(  const xAOD::Jet& jet, double& resolution) const;
+
     protected:
         virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
 
     private:
         // Helper methods
         StatusCode getSigmaSmear(xAOD::Jet& jet, double& sigmaSmear) const;
+        StatusCode getNominalResolution(const xAOD::Jet& jet, TH1* histo, double& resolution) const;
         StatusCode readHisto(double& returnValue, TH1* histo, double x) const;
         StatusCode readHisto(double& returnValue, TH1* histo, double x, double y) const;
         StatusCode readHisto(double& returnValue, TH1* histo, double x, double y, double z) const;

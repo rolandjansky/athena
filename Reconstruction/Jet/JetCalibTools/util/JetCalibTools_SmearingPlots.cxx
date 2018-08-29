@@ -124,7 +124,8 @@ int main (int argc, char* argv[])
     jets->push_back(new xAOD::Jet());
     xAOD::Jet* jet = jets->at(0);
     
-    
+
+
     // Make the histograms to fill
     std::vector<TH1D*> hists_pt;
     std::vector<TH1D*> hists_m;
@@ -179,6 +180,35 @@ int main (int argc, char* argv[])
             delete smearedJet;
         }
     }
+
+
+    // Get the nominal resolution
+    printf("Getting nominal resolutions\n");
+    TH1D nominalResData("NominalResData","NominalResData",1000,20,2020);
+    TH1D nominalResMC(  "NominalResMC",  "NominalResMC",  1000,20,2020);
+    for (Long64_t binX = 1; binX < nominalResData.GetNbinsX()+1; ++binX)
+    {
+        //  Set the jet four-vector
+        const float pt = nominalResData.GetXaxis()->GetBinCenter(binX);
+        xAOD::JetFourMom_t fourvec(pt,eta,phi,mass);
+        jet->setJetP4(fourvec);
+
+        // Jet kinematics set, now get the nominal resolutions
+        double resolution = 0;
+        if (calibTool->getNominalResolutionData(*jet,resolution).isFailure())
+        {
+            printf("ERROR: Failed to get nominal data resolution\n");
+            exit(1);
+        }
+        nominalResData.SetBinContent(binX,resolution);
+        if (calibTool->getNominalResolutionMC(*jet,resolution).isFailure())
+        {
+            printf("ERROR: Failed to get nominal MC resolution\n");
+            exit(1);
+        }
+        nominalResMC.SetBinContent(binX,resolution);
+    }
+
 
     // Make the plots
     // First the canvas
@@ -235,6 +265,16 @@ int main (int argc, char* argv[])
     if (outFileIsExtensible)
     {
         canvas->Print(outFile+"[");
+
+        // Nominal resolutions
+        canvas->SetLogx(true);
+        nominalResData.Draw();
+        canvas->Print(outFile);
+        nominalResMC.Draw();
+        canvas->Print(outFile);
+        canvas->SetLogx(false);
+
+        // Smearing plots
         for (size_t index = 0; index < hists_pt.size(); ++index)
         {
             hists_pt.at(index)->Draw("pe");
@@ -258,6 +298,12 @@ int main (int argc, char* argv[])
         TFile* outRootFile = new TFile(outFile,"RECREATE");
         std::cout << "Writing to output ROOT file: " << outFile << std::endl;
         outRootFile->cd();
+
+        // Nominal resolutions
+        nominalResData.Write();
+        nominalResMC.Write();
+
+        //  Smearing plots
         for (size_t index = 0; index < hists_pt.size(); ++index)
         {
             hists_pt.at(index)->Write();
@@ -268,6 +314,16 @@ int main (int argc, char* argv[])
     else
     {
         unsigned int counter = 1;
+
+        // Nominal resolutions
+        canvas->SetLogx(true);
+        nominalResData.Draw();
+        canvas->Print(Form("%u-%s",counter++,outFile.Data()));
+        nominalResMC.Draw();
+        canvas->Print(Form("%u-%s",counter++,outFile.Data()));
+        canvas->SetLogx(false);
+
+        // Smearing plots
         for (size_t index = 0; index < hists_pt.size(); ++index)
         {
             hists_pt.at(index)->Draw("pe");

@@ -558,3 +558,25 @@ StatusCode JetCalibrationTool::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetEv
   }
   return StatusCode::SUCCESS; 
 }
+
+
+StatusCode JetCalibrationTool::getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const
+{
+    if (!m_jetSmearCorr)
+    {
+        ATH_MSG_ERROR("Cannot retrieve the nominal data resolution - smearing was not configured during initialization");
+        return StatusCode::FAILURE;
+    }
+    return m_jetSmearCorr->getNominalResolutionData(jet,resolution);
+}
+
+StatusCode JetCalibrationTool::getNominalResolutionMC(const xAOD::Jet& jet, double& resolution) const
+{
+    if (!m_jetSmearCorr)
+    {
+        ATH_MSG_ERROR("Cannot retrieve the nominal MC resolution - smearing was not configured during initialization");
+        return StatusCode::FAILURE;
+    }
+    return m_jetSmearCorr->getNominalResolutionMC(jet,resolution);
+}
+
