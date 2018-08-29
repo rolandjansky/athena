@@ -798,6 +798,12 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         continue;
       }
 
+      //------------------------------------------------------------------------
+      // Set ThreadLocalContext to an invalid context
+      //------------------------------------------------------------------------
+      // We have passed the event to the scheduler and we are entering back a context-less environment
+      Gaudi::Hive::setCurrentContext( EventContext() );
+
     }
     else {
       ATH_MSG_DEBUG("No free slots or no more events to process - draining the scheduler");
@@ -1361,10 +1367,13 @@ int HltEventLoopMgr::drainScheduler()
   bool fail(false);
   for (auto& thisFinishedEvtContext : finishedEvtContexts) {
     if (!thisFinishedEvtContext) {
-      ATH_MSG_FATAL("Detected nullptr ctxt while clearing WB!");
+      ATH_MSG_FATAL("Detected nullptr EventContext while clearing WB!");
       fail = true;
       continue;
     }
+
+    // Set ThreadLocalContext to the currently processed finished context
+    Gaudi::Hive::setCurrentContext(thisFinishedEvtContext);
 
     if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
       ATH_MSG_FATAL("Failed event detected on " << thisFinishedEvtContext
@@ -1470,6 +1479,8 @@ int HltEventLoopMgr::drainScheduler()
 
     delete thisFinishedEvtContext;
 
+    // Set ThreadLocalContext to an invalid context as we entering a context-less environment
+    Gaudi::Hive::setCurrentContext( EventContext() );
   }
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
