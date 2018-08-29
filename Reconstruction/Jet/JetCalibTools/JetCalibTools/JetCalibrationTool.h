@@ -75,6 +75,10 @@ public:
   // Retrieve pTmax from in situ corrections
   virtual VecD retrieveEtaIntercalPtMax(){return m_relInsituPtMax;}
   virtual VecD retrieveAbsoluteInsituPtMax(){return m_absInsituPtMax;}
+
+  // Get the nominal resolution
+  virtual StatusCode getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const;
+  virtual StatusCode getNominalResolutionMC(  const xAOD::Jet& jet, double& resolution) const;
   
 protected:
   /// This is where the actual calibration code goes.

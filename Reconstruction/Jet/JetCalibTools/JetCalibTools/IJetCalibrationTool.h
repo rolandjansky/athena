@@ -57,6 +57,10 @@ public:
   virtual VecD retrieveEtaIntercalPtMax(){VecD tmp; return tmp;}
   virtual VecD retrieveAbsoluteInsituPtMax(){VecD tmp; return tmp;}
 
+  // Get the nominal resolution
+  virtual StatusCode getNominalResolutionData(const xAOD::Jet&, double&) const { return StatusCode::FAILURE; }
+  virtual StatusCode getNominalResolutionMC(  const xAOD::Jet&, double&) const { return StatusCode::FAILURE; }
+
 };
 
 #endif

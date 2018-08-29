@@ -295,7 +295,7 @@ std::vector<TString> GetJetDesc(const TString& jetAlgoIn)
     }
     else if (jetAlgo.Contains("EMPFlow"))
     {
-        calib = "EMPFlow";
+        calib = "PFlow+JES";
         jetAlgo.ReplaceAll("EMPFlow","");
     }
     if (calib == "")
@@ -510,6 +510,11 @@ void DrawYearLabel(const JetUncertaintiesTool* provider, const double yPos)
         type = "Data 2016";
         sqrtS = "13 TeV";
     }
+    else if (release.BeginsWith("rel21_Summer2018"))
+    {
+        type = "Data 2015-2017";
+        sqrtS = "13 TeV";
+    }
     if (type == "" || sqrtS == "")
     {
         printf("Could not parse year information from release: %s\n",release.Data());
@@ -648,7 +653,7 @@ void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInf
         sigmaMu = 1.9;
         sigmaNPV = 2.9;
     }
-    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018"))
+    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018") || release.BeginsWith("rel21_Summer2018"))
     {
         // Kate, Nov 2016 
         // via Eric Corrigan's pileup studies

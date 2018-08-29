@@ -438,38 +438,14 @@ StatusCode JetSmearingCorrection::getSigmaSmear(xAOD::Jet& jet, double& sigmaSme
         Note that data is never smeared, as blocked in JetCalibrationTool.cxx
     */
 
-    double resolutionMC   = 0;
+    double resolutionMC = 0;
+    if (getNominalResolutionMC(jet,resolutionMC).isFailure())
+        return StatusCode::FAILURE;
+
     double resolutionData = 0;
+    if (getNominalResolutionData(jet,resolutionData).isFailure())
+        return StatusCode::FAILURE;
 
-    switch (m_histType)
-    {
-        case HistType::Pt:
-            if (readHisto(resolutionMC,m_smearResolutionMC.get(),jet.pt()).isFailure())
-                return StatusCode::FAILURE;
-            if (readHisto(resolutionData,m_smearResolutionData.get(),jet.pt()).isFailure())
-                return StatusCode::FAILURE;
-            break;
-
-        case HistType::PtEta:
-            if (readHisto(resolutionMC,m_smearResolutionMC.get(),jet.pt(),jet.eta()).isFailure())
-                return StatusCode::FAILURE;
-            if (readHisto(resolutionData,m_smearResolutionData.get(),jet.pt(),jet.eta()).isFailure())
-                return StatusCode::FAILURE;
-            break;
-
-        case HistType::PtAbsEta:
-            if (readHisto(resolutionMC,m_smearResolutionMC.get(),jet.pt(),fabs(jet.eta())).isFailure())
-                return StatusCode::FAILURE;
-            if (readHisto(resolutionData,m_smearResolutionData.get(),jet.pt(),fabs(jet.eta())).isFailure())
-                return StatusCode::FAILURE;
-            break;
-
-        default:
-            // We should never reach this, it was checked during initialization
-            ATH_MSG_ERROR("Cannot get the smearing factor, the smearing histogram type was not set");
-            return StatusCode::FAILURE;
-    }
-    
     // Nominal smearing only if data resolution is larger than MC resolution
     // This is because we want to smear the MC to match the data
     // if MC is larger than data, don't make the nominal data worse, so smear is 0
@@ -480,6 +456,49 @@ StatusCode JetSmearingCorrection::getSigmaSmear(xAOD::Jet& jet, double& sigmaSme
 
     return StatusCode::SUCCESS;
 }
+
+StatusCode JetSmearingCorrection::getNominalResolution(const xAOD::Jet& jet, TH1* histo, double& resolution) const
+{
+    double localRes = 0;
+    switch (m_histType)
+    {
+        case HistType::Pt:
+            if (readHisto(localRes,histo,jet.pt()).isFailure())
+                return StatusCode::FAILURE;
+            break;
+
+        case HistType::PtEta:
+            if (readHisto(localRes,histo,jet.pt(),jet.eta()).isFailure())
+                return StatusCode::FAILURE;
+            break;
+
+        case HistType::PtAbsEta:
+            if (readHisto(localRes,histo,jet.pt(),fabs(jet.eta())).isFailure())
+                return StatusCode::FAILURE;
+            break;
+
+        default:
+            // We should never reach this, it was checked during initialization
+            ATH_MSG_ERROR("Cannot get the nominal resolution, the smearing histogram type was not set");
+            return StatusCode::FAILURE;
+    }
+
+    // If we got here, everything went well
+    // Set the resolution and return success
+    resolution = localRes;
+    return StatusCode::SUCCESS;
+}
+
+StatusCode JetSmearingCorrection::getNominalResolutionData(const xAOD::Jet& jet, double& resolution) const
+{
+    return getNominalResolution(jet,m_smearResolutionData.get(),resolution);
+}
+
+StatusCode JetSmearingCorrection::getNominalResolutionMC(const xAOD::Jet& jet, double& resolution) const
+{
+    return getNominalResolution(jet,m_smearResolutionMC.get(),resolution);
+}
+
 
 
 StatusCode JetSmearingCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const
