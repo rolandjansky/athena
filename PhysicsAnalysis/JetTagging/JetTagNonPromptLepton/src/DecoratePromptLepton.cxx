@@ -345,7 +345,6 @@ void Prompt::DecoratePromptLepton::initializeDecorators()
   //
   for(Prompt::Def::Var &var: m_floatVars) {
     SG::AuxElement::Decorator<float> floatDecorator(m_auxVarPrefix+Prompt::Def::AsStr(var));
-    std::cout << "Make decorator for variable: " << m_auxVarPrefix+Prompt::Def::AsStr(var) << std::endl;
     if(!m_floatMap.insert(floatDecoratorMap::value_type(var, floatDecorator)).second) {
       ATH_MSG_WARNING("Instantiation of Decorator class failed for float decorator map");
     }
@@ -353,7 +352,6 @@ void Prompt::DecoratePromptLepton::initializeDecorators()
 
   for(Prompt::Def::Var &var: m_floatSpecVars) {
     SG::AuxElement::Decorator<float> floatDecorator(m_auxVarPrefix+Prompt::Def::AsStr(var));
-    std::cout << "Make decorator for spectator variable: " << m_auxVarPrefix+Prompt::Def::AsStr(var) << std::endl;
     if(!m_floatMap.insert(floatDecoratorMap::value_type(var, floatDecorator)).second) {
       ATH_MSG_WARNING("Instantiation of Decorator class failed for float decorator map");
     }
