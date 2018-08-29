@@ -293,7 +293,7 @@ def getAntiKt4EMPFlowTrackParticleThinning(tool_prefix, thinning_helper, **kwarg
 def getAntiKt10LCTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault( 'name', tool_prefix + 'AntiKt10LCTopoJetTPThinningTool')
     kwargs.setdefault( 'JetKey',         'AntiKt10LCTopoJets')
-    kwargs.setdefault( 'SelectionString','(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
+    kwargs.setdefault( 'SelectionString','(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
     kwargs.setdefault( 'ApplyAnd',       False)
     return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
 
@@ -307,7 +307,7 @@ def getTCCTrackParticleThinning(tool_prefix, thinning_helper) :
                                                                   InDetTrackParticlesKey       = "InDetTrackParticles",
                                                                   CaloCalTopoClustersKey       = "CaloCalTopoClusters",
                                                                   ThinOriginCorrectedClusters  = True,
-                                                                  SelectionString              = "AntiKt10TrackCaloClusterJets.pt>100*GeV && abs(AntiKt10TrackCaloClusterJets.eta)<2.6",
+                                                                  SelectionString              = "AntiKt10TrackCaloClusterJets.pt>150*GeV && abs(AntiKt10TrackCaloClusterJets.eta)<2.6",
                                                                   OriginCaloCalTopoClustersKey = "LCOriginTopoClusters")
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
@@ -360,7 +360,7 @@ def getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs) :
 def getAntiKt10LCTopoCaloClusterThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault('name',                 tool_prefix + 'AntiKt10LCTopoCaloClusterThinningTool')
     kwargs.setdefault('SGKey',                'AntiKt10LCTopoJets')
-    kwargs.setdefault('SelectionString',      '(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
+    kwargs.setdefault('SelectionString',      '(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
     kwargs.setdefault('AdditionalClustersKey', ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"])
     return getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
 
@@ -370,7 +370,7 @@ def getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper
     thinning_tool = DerivationFramework__GenericObjectThinning( name             = tool_prefix + "LargeRJetThinningTool",
                                                                 ThinningService  = thinning_helper.ThinningSvc(),
                                                                 ContainerName    = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                SelectionString  = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                                SelectionString  = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
                                                                 ApplyAnd         = False)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
@@ -381,7 +381,7 @@ def getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinn
     thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "TCCJetThinningTool",
                                                                ThinningService  = thinning_helper.ThinningSvc(),
                                                                ContainerName    = "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-                                                               SelectionString  = "(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100*GeV && abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                               SelectionString  = "(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
                                                                ApplyAnd         = False)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool

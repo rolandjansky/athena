@@ -194,7 +194,7 @@ SkimmingToolHIGG2D4_preLep = DerivationFramework__xAODStringSkimmingTool(name = 
 ToolSvc += SkimmingToolHIGG2D4_preLep
 
 # @TODO take TCC jets into account for skimming
-# jetSel = '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
+# jetSel = '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 150.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG2
 SkimmingToolHIGG2D4 = DerivationFramework__SkimmingToolHIGG2(name                    = "SkimmingToolHIGG2D4",
                                                              FilterType              = "2L2Q", 
@@ -211,7 +211,7 @@ SkimmingToolHIGG2D4 = DerivationFramework__SkimmingToolHIGG2(name               
                                                              MergedJetEtaCut0        = 2.6, 
                                                              MergedJetContainerKey1  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                              NumberOfMergedJets1     = 1,
-                                                             MergedJetPtCut1         = 100.*Units.GeV,
+                                                             MergedJetPtCut1         = 150.*Units.GeV,
                                                              MergedJetEtaCut1        = 2.6, 
                                                              NumberOfPhotons         = 0,
                                                              ElectronQuality         = "DFCommonElectronsLHVeryLoose",
