@@ -155,7 +155,7 @@ ToolSvc += EGAMCOM_caloFillRect711
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__AsgSelectionToolWrapper
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
-
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGElectronLikelihoodToolWrapper
 # decorate electrons with the output of LH very loose
 ElectronPassLHVeryLoose = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHVeryLoose",
                                                                        EGammaSelectionTool = ElectronLHSelectorVeryLoose,
@@ -207,12 +207,14 @@ ToolSvc += ElectronPassLHTight
 print ElectronPassLHTight
 
 # decorate electrons with the output of ECIDS ----------------------------------------------------------------------
-ElectronPassECIDS = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassECIDS",
-                                                                 EGammaSelectionTool = ElectronChargeIDSelector,
-                                                                 EGammaFudgeMCTool = "",
-                                                                 CutType = "",
-                                                                 StoreGateEntryName = "DFCommonElectronsECIDS",
-                                                                 ContainerName = "Electrons")
+ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassECIDS",
+                                                                          EGammaElectronLikelihoodTool = ElectronChargeIDSelector,
+                                                                          EGammaFudgeMCTool = "",
+                                                                          CutType = "",
+                                                                          StoreGateEntryName = "DFCommonElectronsECIDS",
+         
+                                                                 ContainerName = "Electrons",
+                                                                          StoreTResult = True)
 ToolSvc += ElectronPassECIDS
 print ElectronPassECIDS
 
