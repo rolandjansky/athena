@@ -60,7 +60,7 @@ public:
   /** Initialize this class */
   int initialize();
 
-    /** The main salculate method: the actual cuts are applied here */
+  /** The main calculate method: the actual cuts are applied here */
   int calculate( const PATCore::ParticleDataType::DataType dataType,
                  const unsigned int runnumber,
                  const double cluster_eta,
