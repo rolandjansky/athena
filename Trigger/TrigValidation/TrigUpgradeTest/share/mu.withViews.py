@@ -68,7 +68,7 @@ from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
 #doL2SA=True
-doL2SA=False
+doL2SA=True
 #doL2CB=True
 doL2CB=False
 doEFSA=True
@@ -78,7 +78,8 @@ doEFIso=True
 TriggerFlags.doID=True
 
  ### muon thresholds ###
-testChains = ["HLT_mu6", "HLT_2mu6"]
+testChains = ["HLT_mu6"]
+#testChains = ["HLT_mu6", "HLT_2mu6"]
 
 
 
@@ -591,6 +592,7 @@ if TriggerFlags.doMuon:
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
     themuoncreatoralg.ClusterContainerName=""
+    themuoncreatoralg.MuonContainerLocation="Muons"
 
     #Algorithms to views
     efMuViewNode += theSegmentFinderAlg
@@ -612,7 +614,40 @@ if TriggerFlags.doMuon:
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
     muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.HypoOutputDecisions )
-    muonEFSAStep = seqAND("muonEFSAStep", [filterEFSAAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
+    muEFSASequence = seqAND("muEFSASequence", [efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo])
+    muonEFSAStep = stepSeq("muonEFSAStep", filterEFSAAlg, [muEFSASequence, muonEFSADecisionsDumper])
+
+  if doEFIso :
+    ### RoRSeqFilter step2 ###
+    filterEFIsoAlg = RoRSeqFilter("filterEFIsoAlg")
+    filterEFIsoAlg.Input = [trigMuonEFSAHypo.HypoOutputDecisions]
+    filterEFIsoAlg.Output = ["Filtered"+trigMuonEFSAHypo.HypoOutputDecisions]
+    filterEFIsoAlg.Chains = testChains
+    filterEFIsoAlg.OutputLevel = DEBUG
+
+    efIsoViewNode = AthSequencer("efIsoViewNode", Sequential=False, ModeOR=False, StopOverride=False)
+    efIsoViewsMaker = EventViewCreatorAlgorithm("efIsoViewsMaker", OutputLevel=DEBUG)
+    efIsoViewsMaker.ViewFallThrough = True
+ 
+    efIsoViewsMaker.InputMakerInputDecisions = [ filterEFIsoAlg.Output[0] ] # Output of TrigMufastHypo
+    efIsoViewsMaker.InputMakerOutputDecisions = [ filterEFIsoAlg.Output[0]+"Isolation" ] # Output of TrigMufastHypo
+    efIsoViewsMaker.RoIsLink = "roi" # -||-
+    efIsoViewsMaker.InViewRoIs = "EFIsoRoIs" # contract with the consumer
+    efIsoViewsMaker.Views = "EFIsoViewRoIs"
+    efIsoViewsMaker.ViewNodeName = efIsoViewNode.name()
+
+    from TrigMuonEF.TrigMuonEFConf import TrigMuonEFTrackIsolationAlgMT
+    efIsoAlg = TrigMuonEFTrackIsolationAlgMT("TrigEFIsoAlg")
+    efIsoAlg.MuonEFContainer = themuoncreatoralg.MuonContainerLocation
+
+    efIsoViewNode += efIsoAlg
+
+    from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFTrackIsolationHypoAlg 
+    trigMuonEFIsoHypoAlg  = TrigMuonEFTrackIsolationHypoAlg()
+
+    efIsoSequence = seqAND("efIsoSequence", [efIsoViewsMaker, efIsoViewNode, trigMuonEFIsoHypoAlg ] )
+    muEFIsoStep = stepSeq("muEFIsoStep", filterEFIsoAlg, [efIsoSequence])
+   
 
 
 # ===============================================================================================
@@ -708,23 +743,26 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     topSequence += hltTop   
 
 if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
-  if doL2SA==False and doL2CB==False and doEFSA==True and doEFIso==True:
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muonEFSAStep ] )
-    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
-    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
-
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
-    topSequence += hltTop 
+  if doL2SA==True and doEFSA==True and doL2CB==False and doEFIso==True:
+    #from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+    #summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    #summary.InputDecision = "HLTChains" 
+    #summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
+    #summary.OutputLevel = DEBUG 
+    step0 = parOR("step0", [ muFastStep ] )
+    step1 = parOR("step1", [ muonEFSAStep ] )
+    step2 = parOR("step2", [ muEFIsoStep ] )
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    step1filter = parOR("step1filter", [ filterEFSAAlg ] )
+    step2filter = parOR("step2filter", [ filterEFIsoAlg ] )
+    #HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, summary ]  )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2 ]  )
+    #mon = TriggerSummaryAlg( "TriggerMonitoringAlg" )
+    #mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
+    #mon.HLTSummary = "MonitoringSummary"
+    #mon.OutputLevel = DEBUG 
+    hltTop = seqOR( "hltTop", [ HLTsteps] )
+    topSequence += hltTop
 
    
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
