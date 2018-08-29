@@ -22,11 +22,18 @@
 #include "GaudiKernel/ToolHandle.h"
 //
 #include  "xAODTracking/TrackParticleContainer.h"
+#include  "xAODTracking/VertexFwd.h"
+#include  "TrkVertexFitterInterfaces/IVertexFitter.h"
 //
-#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+
 //
-#include "TH1D.h"
-#include "TH2D.h"
+
+
+class TH1D;
+class TH2D;
+namespace Trk{
+  class TrkVKalVrtFitter;
+}
 
 
 
@@ -79,20 +86,20 @@ namespace InDet {
 
     private:
 
-      double m_w_1;
-      TH1D* m_hb_muonPt;
-      TH1D* m_hb_massPiPi;
-      TH1D* m_hb_nvrt2;
-      TH1D* m_hb_nseltrk;
-      TH1D* m_hb_totmass;
-      TH1D* m_hb_impact;
-      TH1D* m_hb_impactR;
-      TH1D* m_hb_ntrkjet;
-      TH1D* m_hb_impactZ;
-      TH1D* m_hb_signif3D;
-      TH1D* m_hb_r2d;
-      TH1D* m_hb_r2dc;
-      long int m_iflag;
+      double m_w_1{};
+      TH1D* m_hb_muonPt{};
+      TH1D* m_hb_massPiPi{};
+      TH1D* m_hb_nvrt2{};
+      TH1D* m_hb_nseltrk{};
+      TH1D* m_hb_totmass{};
+      TH1D* m_hb_impact{};
+      TH1D* m_hb_impactR{};
+      TH1D* m_hb_ntrkjet{};
+      TH1D* m_hb_impactZ{};
+      TH1D* m_hb_signif3D{};
+      TH1D* m_hb_r2d{};
+      TH1D* m_hb_r2dc{};
+      long int m_iflag{};
 
       SimpleProperty<int>    m_Robustness;
       SimpleProperty<double> m_MassForConstraint;
@@ -100,44 +107,44 @@ namespace InDet {
 
 
 
-      long int m_CutSctHits;
-      long int m_CutPixelHits;
-      long int m_CutSiHits;
-      long int m_CutBLayHits;
-      long int m_CutSharedHits;
-      double m_CutPt;
-      double m_CutZVrt;
-      double m_CutA0;
-      double m_CutChi2;
-      double m_SecTrkChi2Cut;
-      double m_ConeForTag;
-      double m_Sel2VrtChi2Cut;
-      double m_Sel2VrtSigCut;
-      double m_TrkSigCut;
-      double m_A0TrkErrorCut;
-      double m_ZTrkErrorCut;
+      long int m_CutSctHits{};
+      long int m_CutPixelHits{};
+      long int m_CutSiHits{};
+      long int m_CutBLayHits{};
+      long int m_CutSharedHits{};
+      double m_CutPt{};
+      double m_CutZVrt{};
+      double m_CutA0{};
+      double m_CutChi2{};
+      double m_SecTrkChi2Cut{};
+      double m_ConeForTag{};
+      double m_Sel2VrtChi2Cut{};
+      double m_Sel2VrtSigCut{};
+      double m_TrkSigCut{};
+      double m_A0TrkErrorCut{};
+      double m_ZTrkErrorCut{};
 
-      bool m_FillHist;
+      bool m_FillHist{};
 
-      bool m_existIBL;
+      bool m_existIBL{};
 
-      long int m_RobustFit;
+      long int m_RobustFit{};
 
-      double m_Rbeampipe;
-      double m_RlayerB;
-      double m_Rlayer1;
-      double m_Rlayer2;
-      double m_Rlayer3;
+      double m_Rbeampipe{};
+      double m_RlayerB{};
+      double m_Rlayer1{};
+      double m_Rlayer2{};
+      double m_Rlayer3{};
 
 
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
-      Trk::TrkVKalVrtFitter*   m_fitSvc;
+      Trk::TrkVKalVrtFitter*   m_fitSvc{};
  
 
-      double m_massPi ;
-      double m_massP ;
-      double m_massE;
-      double m_massB;
+      double m_massPi {};
+      double m_massP {};
+      double m_massE{};
+      double m_massB{};
 
 //
 //   Private technical functions
