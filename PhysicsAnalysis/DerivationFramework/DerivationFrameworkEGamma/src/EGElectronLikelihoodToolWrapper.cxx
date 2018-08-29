@@ -37,7 +37,7 @@ namespace DerivationFramework {
 
   StatusCode EGElectronLikelihoodToolWrapper::initialize()
   {
-    if (m_sgName=="") {
+    if (m_sgName.empty()) {
       ATH_MSG_ERROR("No SG name provided for the output of EGElectronLikelihoodToolWrapper!");
       return StatusCode::FAILURE;
     }
@@ -46,7 +46,7 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
     CHECK(m_tool.retrieve());
-    if (m_fudgeMCTool.name()!="") CHECK(m_fudgeMCTool.retrieve());
+    if (!(m_fudgeMCTool.name().empty())) CHECK(m_fudgeMCTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -94,13 +94,13 @@ namespace DerivationFramework {
 	CP::CorrectionCode correctionCode = CP::CorrectionCode::Ok;
 	if (type==xAOD::Type::Electron) {
 	    const xAOD::Electron* eg = static_cast<const xAOD::Electron*>(*pItr);
-	    xAOD::Electron* el = 0;
+	    xAOD::Electron* el = nullptr;
 	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, el);
 	    pCopy = el;
 	}
 	else {
 	    const xAOD::Photon* eg = static_cast<const xAOD::Photon*>(*pItr);
-	    xAOD::Photon* ph = 0;
+	    xAOD::Photon* ph = nullptr;
 	    correctionCode = m_fudgeMCTool->correctedCopy(*eg, ph);
 	    pCopy = ph;
 	}
@@ -117,14 +117,14 @@ namespace DerivationFramework {
       // compute the output of the selector
       Root::TAccept theAccept(m_tool->accept(pCopy));
       unsigned int isEM = (unsigned int) theAccept.getCutResultInvertedBitSet().to_ulong(); // this should work for both the cut-based and the LH selectors
-      double result(-1.);
+      double result(0.); // initialise explicitly to avoid compilation warning. It will be overridden in the following block (result is used only if m_storeTResult is true)
       if (m_storeTResult) {
 	Root::TResult theResult(m_tool->calculate(pCopy));
 	result = double(theResult);
       }
       
       // decorate the original object
-      if(m_cut==""){
+      if(m_cut.empty()){
 	bool pass_selection = (bool) theAccept;
 	if(pass_selection) decoratorPass(**pItr) = 1;
 	else decoratorPass(**pItr) = 0;
