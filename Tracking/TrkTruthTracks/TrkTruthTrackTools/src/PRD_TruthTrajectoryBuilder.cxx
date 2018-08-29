@@ -131,7 +131,7 @@ const std::vector< Trk::PRD_TruthTrajectory >& Trk::PRD_TruthTrajectoryBuilder::
             Identifier                curIdentifier = (*prdMtCIter).first;
             // apply the min pT cut 
             double minpt = m_minPt;
-            if (m_etaDependentCutsSvc)
+            if (not m_etaDependentCutsSvc.name().empty())
               minpt = m_etaDependentCutsSvc->getMinPtAtEta(curGenP->momentum().eta());
             if ( curGenP->momentum().perp() < minpt ) continue;
             // skip geantinos if required

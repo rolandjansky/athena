@@ -264,7 +264,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of double Holes
     if (numSCTDoubleHoles>=0) {
       int maxDoubleHoles = m_maxDoubleHoles;
-      if (m_etaDependentCutsSvc) maxDoubleHoles = m_etaDependentCutsSvc->getMaxDoubleHolesAtEta(trackEta);
+      if (not m_etaDependentCutsSvc.name().empty()) maxDoubleHoles = m_etaDependentCutsSvc->getMaxDoubleHolesAtEta(trackEta);
       if (numSCTDoubleHoles > maxDoubleHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numSCTDoubleHoles <<" double holes, reject it!");
         return Trk::TrackScore(0);
@@ -273,7 +273,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of Si (Pixel+SCT) Holes
     if (numSCTHoles>=0 && numPixelHoles>=0) {
       int maxSiHoles = m_maxSiHoles;
-      if (m_etaDependentCutsSvc) maxSiHoles = m_etaDependentCutsSvc->getMaxSiHolesAtEta(trackEta);
+      if (not m_etaDependentCutsSvc.name().empty()) maxSiHoles = m_etaDependentCutsSvc->getMaxSiHolesAtEta(trackEta);
       if (numPixelHoles+numSCTHoles > maxSiHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numPixelHoles <<" Pixel and " << numSCTHoles << " SCT holes, reject it!");
         return Trk::TrackScore(0);
@@ -282,7 +282,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of Pixel Holes
     if ( numPixelHoles>=0 ) {
       int maxPixelHoles = m_maxPixelHoles;
-      if (m_etaDependentCutsSvc) maxPixelHoles = m_etaDependentCutsSvc->getMaxPixelHolesAtEta(trackEta);
+      if (not m_etaDependentCutsSvc.name().empty()) maxPixelHoles = m_etaDependentCutsSvc->getMaxPixelHolesAtEta(trackEta);
       if (numPixelHoles > maxPixelHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numPixelHoles <<" Pixel  holes, reject it!");
         return Trk::TrackScore(0);
@@ -291,7 +291,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of SCT Holes
     if ( numSCTHoles>=0 ) {
       int maxSctHoles = m_maxSctHoles;
-      if (m_etaDependentCutsSvc) maxSctHoles = m_etaDependentCutsSvc->getMaxSctHolesAtEta(trackEta);
+      if (not m_etaDependentCutsSvc.name().empty()) maxSctHoles = m_etaDependentCutsSvc->getMaxSctHolesAtEta(trackEta);
       if ( numSCTHoles > maxSctHoles ) {
         ATH_MSG_DEBUG ("Track has "<< numSCTHoles << " SCT holes, reject it!");
         return Trk::TrackScore(0);
@@ -310,7 +310,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of Si Clusters
     if ( numSCT>=0 && numPixel>=0) {
       int minSiClusters = m_minSiClusters;
-      if (m_etaDependentCutsSvc) minSiClusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
+      if (not m_etaDependentCutsSvc.name().empty()) minSiClusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
       if (numPixel+numSCT+numPixelDead+numSCTDead < minSiClusters) {
         ATH_MSG_DEBUG ("Track has " << numPixel+numSCT << " Si clusters and " << numPixelDead+numSCTDead << " dead sensors, reject it");
         return Trk::TrackScore(0);
@@ -319,7 +319,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // Number of pixel clusters
     if (numPixel>=0) {
       int minPixel = m_minPixel;
-      if (m_etaDependentCutsSvc) minPixel = m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta);
+      if (not m_etaDependentCutsSvc.name().empty()) minPixel = m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta);
       if(numPixel < minPixel) {
         ATH_MSG_DEBUG ("Track has " << numPixel << " pixel hits, reject it");
         return Trk::TrackScore(0);
@@ -342,14 +342,14 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   // cuts on parameters
   if (m_magFieldSvc->solenoidOn()) {
     double minPt = m_minPt;
-    if (m_etaDependentCutsSvc) minPt = m_etaDependentCutsSvc->getMinPtAtEta(trackEta);
+    if (not m_etaDependentCutsSvc.name().empty()) minPt = m_etaDependentCutsSvc->getMinPtAtEta(trackEta);
     if (fabs(input->pT()) < minPt) {
       ATH_MSG_DEBUG ("Track pt < "<<minPt<<", reject it");
       return Trk::TrackScore(0);
     } 
   }
   double maxEta = m_maxEta;
-  if (m_etaDependentCutsSvc) maxEta = m_etaDependentCutsSvc->getMaxEta();
+  if (not m_etaDependentCutsSvc.name().empty()) maxEta = m_etaDependentCutsSvc->getMaxEta();
   if (fabs(trackEta) > maxEta) {
     ATH_MSG_DEBUG ("Track eta > "<<maxEta<<", reject it");
     return Trk::TrackScore(0);

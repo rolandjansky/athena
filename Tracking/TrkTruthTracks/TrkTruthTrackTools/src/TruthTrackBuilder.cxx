@@ -243,7 +243,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    
    unsigned int minsihits = m_minSiHits;
    
-   if (m_etaDependentCutsSvc)
+   if (not m_etaDependentCutsSvc.name().empty())
      minsihits = m_etaDependentCutsSvc->getMinSiHitsAtEta(genPart->momentum().eta());
      
    if (/* ndof<0 */ track.measurementsOnTrack()->size()<minsihits || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {

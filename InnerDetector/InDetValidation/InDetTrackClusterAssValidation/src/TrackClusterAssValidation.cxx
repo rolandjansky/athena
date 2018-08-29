@@ -587,7 +587,7 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   std::cout<<"|               Additional cuts for truth particles are                             |"
 	   <<std::endl;
      
-  if (m_etaDependentCutsSvc) {
+  if (not m_etaDependentCutsSvc.name().empty()) {
     std::cout<<"|                    number silicon clusters >=" 
         << "eta dependent"
         <<"                        |"<<std::endl;
@@ -1558,7 +1558,7 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
 
     //     --> use the eta value and cuts_vs_eta to get the number of min clusters you are interested in
     int minclusters = m_clcut;
-    if (m_etaDependentCutsSvc) 
+    if (not m_etaDependentCutsSvc.name().empty())
       minclusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(etaExact);
     
     if     (nc                        < (unsigned int)minclusters   ) worskine.push_back(k0);
@@ -1581,7 +1581,7 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
 
   //     --> use the eta value and cuts_vs_eta to get the number of min clusters you are interested in
   int minclusters = m_clcut;
-  if (m_etaDependentCutsSvc) 
+  if (not m_etaDependentCutsSvc.name().empty())
     minclusters = m_etaDependentCutsSvc->getMinSiHitsAtEta(etaExact);
   
   if     (nc                        < (unsigned int)minclusters   ) worskine.push_back(k0);

@@ -256,7 +256,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
   int minNotShared     = m_minNotShared;
   int maxSharedModules = m_maxSharedModules;
   
-  if (m_etaDependentCutsSvc) {
+  if (not m_etaDependentCutsSvc.name().empty()) {
     double trackEta = ptrTrack->trackParameters()->front()->eta();
     // resetting accordingly to the eta value
     minHits          = m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta);
