@@ -62,7 +62,7 @@ namespace InDet {
     declareProperty("calibFileZ0Dead", m_calibFileZ0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/res_diff_z0_vs_pt.hist.root");
 
     declareProperty("calibFileIP_lowpt", m_calibFileIP_lowpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlign_dec2017.root");
-    declareProperty("calibFileIP_highpt", m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlignTight.root");
+    declareProperty("calibFileIP_highpt", m_calibFileIP_highpt = "");
     declareProperty("MCSubcampaign", m_MCSubcampaign = "MC16a");
   }
     
@@ -73,12 +73,12 @@ namespace InDet {
     ATH_MSG_INFO( "Initializing..." );
     
     // use a different highpt smearing map depending on the MC sub-campaign
-    if (m_MCSubcampaign == "MC16a") {
-      ATH_MSG_INFO( "Using MC16a smearing map configuration" );
+    if (m_MCSubcampaign == "MC16a" && m_calibFileIP_highpt == "") {
+      ATH_MSG_INFO( "Using default MC16a smearing map configuration for pT > 15 GeV" );
       m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlignTight.root";
-    } else if (m_MCSubcampaign == "MC16c" || m_MCSubcampaign == "MC16d") {
-      ATH_MSG_INFO( "Using MC16c/d smearing map configuration" );
-      m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlignTight2017.root";
+    } else if ((m_MCSubcampaign == "MC16c" || m_MCSubcampaign == "MC16d") && m_calibFileIP_highpt == "") {
+      ATH_MSG_INFO( "Using default MC16c/d smearing map configuration for pT > 15 GeV" );
+      m_calibFileIP_highpt = "InDetTrackSystematicsTools/CalibData_21.2_2018-v19/trackIPAlignTight_data2017.root";
     } else {
       ATH_MSG_ERROR( "Unrecognized MCSubcampaign" );
       return StatusCode::FAILURE;
