@@ -63,6 +63,15 @@ def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs 
 
 def MuonCombinedAlg( name="MuonCombinedAlg",**kwargs ):
     kwargs.setdefault("MuonCombinedTool",getPublicTool("MuonCombinedTool"))
+    tagmaps = []
+    # CombinedTagMaps must be in a 1-1 correspondence
+    # with MuonCombinedTagTools.
+    for h in kwargs['MuonCombinedTool'].MuonCombinedTagTools:
+        if h.getFullName().find('FitTagTool') >= 0:
+            tagmaps.append ('muidcoTagMap')
+        elif h.getFullName().find('StacoTagTool') >= 0:
+            tagmaps.append ('stacoTagMap')
+    kwargs.setdefault("CombinedTagMaps", tagmaps)
     return CfgMgr.MuonCombinedAlg(name,**kwargs)
 
 def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
