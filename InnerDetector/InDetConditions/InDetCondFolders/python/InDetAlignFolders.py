@@ -51,7 +51,7 @@ else:
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Align","/TRT/Align")
 
 # Condition algorithms for ID alignment
-if (not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on():
+if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()):
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "SCT_AlignCondAlg"):
