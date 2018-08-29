@@ -269,6 +269,10 @@ int Prompt::Def::RegisterAllVars()
   result += RegisterVar( MV2c10rnn,       "MV2c10rnn");
   result += RegisterVar( SV1,             "SV1");
   result += RegisterVar( JetF,            "JetF");
+  result += RegisterVar( JetPt,           "JetPt");
+  result += RegisterVar( JetEta,          "JetEta");
+  result += RegisterVar( JetPhi,          "JetPhi");
+  result += RegisterVar( JetM,            "JetM");
   
   return result;
 }
