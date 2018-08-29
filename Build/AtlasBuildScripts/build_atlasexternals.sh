@@ -15,7 +15,7 @@ set -o pipefail
 usage() {
     echo "Usage: build_atlasexternals.sh <-s source dir> <-b build dir> " \
         "<-i install dir> [-p project] [-r RPM dir] [-t build type] [-d (debug output)]" \
-        "[-e extra CMake arguments]"
+        "[-x extra CMake arguments]"
 }
 
 # Parse the command line arguments:
