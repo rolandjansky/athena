@@ -228,6 +228,7 @@ namespace egEnergyCorr {
     es2017_R21_PRE,         // Pre-recommendations for release 21
 
     es2017_R21_v0,          // Release 21 model with layer calibration corrections from run 2, no global scale correction
+    es2017_R21_v1,          // Release 21 model July 2018 adding forward, AFII, mc16d/reproc data, new mat syst 
     
     UNDEFINED
 
@@ -240,7 +241,10 @@ namespace egEnergyCorr {
     ConfigCD,      // 10% services scaling
     ConfigEL,      // +7.5%X0 in SCT/TRT endcap; 10%X0, radial, in cryostat
     ConfigFMX,     // +7.5%X0 on ID endplate; 5%X0, radial, between PS and Strips
-    ConfigGp       // all together
+    ConfigGp,      // all together
+    ConfigN,       // material between PS and calo in EndCap (only used for release 21)
+    ConfigIBL,     // IBL systematics in run 2 geometry
+    ConfigPP0      // PP0 systematics in run 2 geometry
   };
 
   // Measured material categories
@@ -372,7 +376,7 @@ namespace AtlasRoot {
     /// MC calibration corrections
 
 
-    double applyAFtoG4(double eta, PATCore::ParticleType::Type ptype) const;
+    double applyAFtoG4(double eta, double ptGeV, PATCore::ParticleType::Type ptype) const;
     double applyFStoG4(double eta) const;
 
     // functions for resolution uncertainty evaluation
@@ -415,6 +419,8 @@ namespace AtlasRoot {
 
     double getAlphaMaterial( double cl_eta, egEnergyCorr::MaterialCategory imat, PATCore::ParticleType::Type ptype,
 			     egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
+
+    double getMaterialEffect(egEnergyCorr::Geometry geo,PATCore::ParticleType::Type ptype,double cl_eta,double ET) const;
 
     double getMaterialNonLinearity( double cl_eta, double energy, egEnergyCorr::MaterialCategory imat, PATCore::ParticleType::Type ptype,
 				    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
@@ -470,6 +476,8 @@ namespace AtlasRoot {
     TH1*         m_zeeNom;
     TH1*         m_zeeNom_data2015;
     TH1*         m_zeeNom_data2016;
+    TH1*         m_zeeFwdk;
+    TH1*         m_zeeFwdb;
 
     TH1*         m_zeeSyst;
     TH1*         m_zeePhys;
@@ -565,11 +573,18 @@ namespace AtlasRoot {
     TAxis*              m_matElectronEtaBins;
     std::vector<TList*> m_matElectronGraphs;
 
+    // 2D histograms for release 21 material systematics sensitivity parameterization
+    TH2D* m_h2dmat[3][6];
+
+
     // Fastsim -> Fullsim corrections
 
     TH1*         m_G4OverAFII_electron;
     TH1*         m_G4OverAFII_converted;
     TH1*         m_G4OverAFII_unconverted;
+    TH2*         m_G4OverAFII_electron_2D;
+    TH2*         m_G4OverAFII_converted_2D;
+    TH2*         m_G4OverAFII_unconverted_2D;
     TH1*         m_G4OverFrSh;
 
     TH2* m_G4OverAFII_resolution_electron;
