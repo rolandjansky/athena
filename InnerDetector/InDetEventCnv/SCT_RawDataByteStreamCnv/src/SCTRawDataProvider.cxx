@@ -2,14 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <memory>
 #include "SCTRawDataProvider.h"
 
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "InDetIdentifier/SCT_ID.h"
 #include "EventContainers/IdentifiableContTemp.h"
+
+#include <memory>
+
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 /// --------------------------------------------------------------------
@@ -20,23 +21,9 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_regionSelector{"RegSelSvc", name},
   m_robDataProvider{"ROBDataProviderSvc", name},
-  m_cabling{"SCT_CablingSvc", name},
   m_sct_id{nullptr},
-  m_roiSeeded{false},
-  m_roiCollectionKey{""},
-  m_rdoContainerKey{""},
-  m_lvl1CollectionKey{""},
-  m_bcidCollectionKey{""},
   m_rdoContainerCacheKey{""}
 {
-  declareProperty("RoIs", m_roiCollectionKey = std::string{""}, "RoIs to read in");
-  declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
-  declareProperty("RDOKey", m_rdoContainerKey = std::string{"SCT_RDOs"});
-  declareProperty("LVL1IDKey", m_lvl1CollectionKey = std::string{"SCT_LVL1ID"});
-  declareProperty("BCIDKey", m_bcidCollectionKey = std::string{"SCT_BCID"});
-  declareProperty("ByteStreamErrContainer", m_bsErrContainerKey = std::string{"SCT_ByteStreamErrs"});
-  declareProperty("ByteStreamFracContainer", m_bsFracContainerKey = std::string{"SCT_ByteStreamFrac"});
-  declareProperty("CablingSvc", m_cabling);
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
 }
 
@@ -48,9 +35,10 @@ StatusCode SCTRawDataProvider::initialize() {
   ATH_CHECK(m_robDataProvider.retrieve());
   /** Get the SCT ID helper **/
   ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
-  if (m_roiSeeded) {//Don't need SCT cabling if running in RoI-seeded mode
+  if (m_roiSeeded.value()) {//Don't need SCT cabling if running in RoI-seeded mode
     ATH_CHECK(m_roiCollectionKey.initialize());
     ATH_CHECK(m_regionSelector.retrieve());
+    m_cabling.disable();
   } else {
     /** Retrieve Cabling service */ 
     ATH_CHECK(m_cabling.retrieve());
@@ -100,7 +88,7 @@ StatusCode SCTRawDataProvider::execute()
 
   /** ask ROBDataProviderSvc for the vector of ROBFragment for all SCT ROBIDs */
   std::vector<const ROBFragment*> listOfRobf;
-  if (!m_roiSeeded) {
+  if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
     m_cabling->getAllRods(rodList);
     m_robDataProvider->getROBData(rodList , listOfRobf);
@@ -108,13 +96,11 @@ StatusCode SCTRawDataProvider::execute()
     std::vector<uint32_t> listOfRobs;
     SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection{m_roiCollectionKey};
     ATH_CHECK(roiCollection.isValid());
-    TrigRoiDescriptorCollection::const_iterator roi{roiCollection->begin()};
-    TrigRoiDescriptorCollection::const_iterator roiE{roiCollection->end()};
     TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
     superRoI.setComposite(true);
     superRoI.manageConstituents(false);
-    for (; roi!=roiE; ++roi) {
-      superRoI.push_back(*roi);
+    for (TrigRoiDescriptor roi: *roiCollection) {
+      superRoI.push_back(&roi);
     }
     m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfRobs);
     m_robDataProvider->getROBData(listOfRobs, listOfRobf);
@@ -153,14 +139,14 @@ StatusCode SCTRawDataProvider::execute()
     
   }
   std::unique_ptr<DummySCTRDO> dummyrdo;
-  if(externalcacheRDO) dummyrdo = std::make_unique<DummySCTRDO>(rdoContainer.ptr());
+  if (externalcacheRDO) dummyrdo = std::make_unique<DummySCTRDO>(rdoContainer.ptr());
   ISCT_RDO_Container *rdoInterface = externalcacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
   if (m_rawDataTool->convert(listOfRobf, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
-  if(dummyrdo) dummyrdo->MergeToRealContainer(rdoContainer.ptr());
+  if (dummyrdo) dummyrdo->MergeToRealContainer(rdoContainer.ptr());
   
   return StatusCode::SUCCESS;
 }

@@ -15,7 +15,7 @@
 
 // FrameWork includes
 #include "AthenaKernel/ExtendedEventContext.h"
-
+#include "AthViews/View.h"
 namespace AthViews {
 
 /////////////////////////////////////////////////////////////////// 
@@ -96,6 +96,13 @@ StatusCode ViewDataVerifier::execute()
       ATH_MSG_INFO( "Found " << obj.key() << " in " << viewProxy->name() );
     } else {
       ATH_MSG_ERROR( "Did not find " << obj.key() << " in " << viewProxy->name() );
+      const SG::View* view = dynamic_cast<const SG::View*>( viewProxy );
+      if ( view != 0 ) {
+	ATH_MSG_ERROR( "Available content is: " << view->dump() );
+      } else {
+	ATH_MSG_ERROR( "Not a View" );
+      }
+      return StatusCode::FAILURE;
     }
   }
 

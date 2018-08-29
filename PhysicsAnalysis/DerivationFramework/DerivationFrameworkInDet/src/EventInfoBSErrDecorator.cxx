@@ -24,8 +24,7 @@ namespace DerivationFramework {
     AthAlgTool(type,name,parent),  
     m_sgName(""),
     m_containerName(""),
-    m_sctId(0),  
-    m_cabling("SCT_CablingSvc",name)
+    m_sctId(0)  
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("DecorationPrefix",       m_sgName);
@@ -51,6 +50,7 @@ namespace DerivationFramework {
     } 
 
     CHECK ( m_byteStreamErrTool.retrieve() );
+    CHECK ( m_cabling.retrieve() );
 
     return StatusCode::SUCCESS;
   }

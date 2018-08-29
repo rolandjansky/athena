@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,6 +19,7 @@ class AtlasDetectorID;
 #include "CLHEP/Geometry/Transform3D.h"
 #include "GeoModelKernel/RCBase.h"
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 namespace InDetDD {
 
@@ -44,7 +45,9 @@ namespace InDetDD {
           const HepGeom::Transform3D & solenoidFrame() const;
           void setSolenoidFrame(const HepGeom::Transform3D & transform) const; 
           void setLorentzAngleSvc(const ServiceHandle<ISiLorentzAngleSvc> & lorentzAngleSvc);
+          void setLorentzAngleTool(const ISiLorentzAngleTool* lorentzAngleTool);
           ISiLorentzAngleSvc * lorentzAngleSvc() const;
+          const ISiLorentzAngleTool * lorentzAngleTool() const;
 
           //Declaring the Message method for further use
           MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
@@ -62,6 +65,7 @@ namespace InDetDD {
           ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvcHandle;
           mutable ISiLorentzAngleSvc * m_lorentzAngleSvc;
           mutable bool m_lorentzAngleSvcInit;
+          const ISiLorentzAngleTool *m_lorentzAngleTool;
         
     };
     

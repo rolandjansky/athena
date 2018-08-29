@@ -23,7 +23,7 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
-        # --- SiLorentzAngleTool for SCT
+        # --- SiLorentzAngleTool
         if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
             from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
             sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
@@ -31,6 +31,7 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
                                                                PixelOfflineCalibSvc =  PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
+                                                               PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
                                                                SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                                                                )
 
@@ -67,7 +68,8 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         ToolSvc += FastSCT_RodDecoder(name = "FastSCT_RodDecoder",
                                       LorentzAngleTool=ToolSvc.SCTLorentzAngleTool)
 
-        ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool)
+        ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool,
+                                                                LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
         ConfiguredSCT_ClusterCacheTool = SCT_ClusterCacheTool(SCT_ClusteringTool = InDetL2TrigSCT_ClusteringTool,
                                                               FastSCT_RodDecoder = ToolSvc.FastSCT_RodDecoder
                                                               )

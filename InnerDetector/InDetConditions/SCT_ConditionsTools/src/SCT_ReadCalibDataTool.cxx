@@ -11,7 +11,6 @@
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -23,7 +22,6 @@ SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std:
   m_condDataGain{},
   m_condDataNoise{},
   m_condDataInfo{},
-  m_cabling{"SCT_CablingSvc", name},
   m_id_sct{nullptr} {
   }
 
@@ -35,7 +33,7 @@ StatusCode SCT_ReadCalibDataTool::initialize() {
   // Get SCT helper
   ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
 
-  // Retrieve SCT Cabling service
+  // Retrieve SCT Cabling tool
   ATH_CHECK(m_cabling.retrieve());
 
   // Read Cond Handle Key

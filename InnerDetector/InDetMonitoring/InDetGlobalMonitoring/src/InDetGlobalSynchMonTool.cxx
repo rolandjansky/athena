@@ -26,7 +26,6 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "CommissionEvent/ComTime.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetRawData/PixelRDORawData.h"
 #include "InDetPrepRawData/PixelCluster.h"

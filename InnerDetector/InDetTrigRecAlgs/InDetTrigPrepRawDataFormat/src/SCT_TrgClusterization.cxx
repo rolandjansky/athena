@@ -192,6 +192,11 @@ namespace InDet{
       ATH_MSG_ERROR( "Raw data provider not available" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
+
+    if (m_SCTDetEleCollKey.initialize().isFailure()) {
+      ATH_MSG_ERROR( m_SCTDetEleCollKey.fullKey() << " not available" );
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
  
     if (m_checkBadModules){
       if (m_pSummaryTool.retrieve().isFailure()){

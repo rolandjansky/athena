@@ -27,7 +27,6 @@ const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName2{"/SCT/DAQ/Confi
 SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
-  , m_cablingSvc{"SCT_CablingSvc", name}
   , m_pHelper{nullptr}
 {
 }
@@ -37,8 +36,8 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
-  // SCT cabling service
-  ATH_CHECK(m_cablingSvc.retrieve());
+  // SCT cabling tool
+  ATH_CHECK(m_cablingTool.retrieve());
 
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
 
@@ -197,7 +196,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     // Get SN and identifiers (the channel number is serial number+1 for the CoraCool folders but =serial number 
     // for Cool Vector Payload ; i.e. Run 1 and Run 2 resp.)
     const unsigned int truncatedSerialNumber{run1 ? (itr->first-1) : (itr->first)};
-    const IdentifierHash& hash{m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
     if (not hash.is_valid()) continue;
     const Identifier waferId{m_pHelper->wafer_id(hash)};
     const Identifier moduleId{m_pHelper->module_id(waferId)};
@@ -328,14 +327,14 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
     // Get SN and identifiers (the channel number is serial number+1 for the CoraCool folders but =serial number 
     //  for Cool Vector Payload ; i.e. Run 1 and Run 2 resp.)
     const unsigned int truncatedSerialNumber{run1 ? (itr->first-1) : (itr->first)};
-    const IdentifierHash& hash{m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
     ++totalNumberOfModules;
     if (not hash.is_valid()) continue;
 
     Identifier waferId{m_pHelper->wafer_id(hash)};
     ++totalNumberOfValidModules;
     IdentifierHash oppWaferHash;
-    m_pHelper->get_other_side(m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber), oppWaferHash);
+    m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber), oppWaferHash);
     const Identifier oppWaferId{m_pHelper->wafer_id(oppWaferHash)};
     const Identifier moduleId{m_pHelper->module_id(waferId)};
     // Get AttributeList from second (see http://lcgapp.cern.ch/doxygen/CORAL/CORAL_1_9_3/doxygen/html/classcoral_1_1_attribute_list.html)
@@ -404,7 +403,7 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
     const SCT_SerialNumber serialNumber{ullSerialNumber};
     if (not serialNumber.is_valid()) continue;
     // Check module hash
-    const IdentifierHash& hash{m_cablingSvc->getHashFromSerialNumber(serialNumber.to_uint())};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(serialNumber.to_uint())};
     if (not hash.is_valid()) continue;
 
     Identifier waferId{m_pHelper->wafer_id(hash)};
@@ -429,7 +428,7 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
   const Identifier invalidIdentifier; //initialiser creates invalid Id
   unsigned int strip{0};
   IdentifierHash waferHash;
-  if (not m_cablingSvc) {
+  if (not m_cablingTool) {
     ATH_MSG_FATAL("The cabling tool pointer is zero.");
     return invalidIdentifier;
   }
@@ -437,11 +436,11 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
   // returns the side 0 hash, so we use the helper for side 1
 
   if (chipNumber<6) {
-    waferHash = m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber);
+    waferHash = m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber);
     strip = chipNumber * stripsPerChip + stripNumber;
     if (waferHash.is_valid()) waferId = m_pHelper->wafer_id(waferHash);
   } else {
-    m_pHelper->get_other_side(m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber), waferHash);
+    m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber), waferHash);
     strip = (chipNumber - 6) * stripsPerChip + stripNumber;
     if (waferHash.is_valid()) waferId = m_pHelper->wafer_id(waferHash);
   }

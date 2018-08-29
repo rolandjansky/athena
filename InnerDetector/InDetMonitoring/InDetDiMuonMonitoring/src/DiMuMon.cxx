@@ -9,7 +9,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetDiMuonMonitoring/DiMuMon.h"
-//#include "muonEvent/MuonContainer.h"
+#include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -132,21 +132,7 @@ StatusCode DiMuMon::initialize(){
   m_varRanges["ptPos"] = std::make_pair(m_ptCut,ptMax);
   m_varRanges["ptNeg"] = std::make_pair(m_ptCut,ptMax);
 
-  //retrieving track isolation tool
-  //  ISvcLocator* serviceLocator = Gaudi::svcLocator();
-  // IToolSvc* toolSvc;
-  // IAlgTool* ptool;
-  //sc = serviceLocator->service("ToolSvc", toolSvc, true);
-  //if ( sc.isFailure() ) {
-  //msg(MSG::WARNING) << "Could not locate toolSvc"<<endmsg;
-  //return sc;
-  //}
-  //sc = toolSvc->retrieveTool("TrackIsolationTool", ptool);
-  //if ( sc.isFailure() ) {
-  //msg(MSG::WARNING) << "Could not retrieve track isolation tool!" << endmsg;
-  //return sc;
-  //}
-  //m_isolationTool = dynamic_cast<TrackIsolationTool*>(ptool);
+  
   m_coneSize = 0.4;
   m_isolationCut = 0.2;
 
@@ -154,12 +140,8 @@ StatusCode DiMuMon::initialize(){
 
 }
 
-//StatusCode DiMuMon::bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun )
 StatusCode DiMuMon::bookHistograms()
 {
-
-  //    MonGroup dimuMonObj_shift( this, "DiMuMon/"+m_resonName+"/" + m_triggerChainName, shift, run );
-  //   MonGroup dimuMonObj_expert( this, "DiMuMon/"+m_resonName+"/" + m_triggerChainName + "_detail", expert, run );
 
 
     MonGroup dimuMonObj_shift( this, "DiMuMon/"+m_resonName+"/" + m_triggerChainName,  run );
@@ -174,24 +156,10 @@ StatusCode DiMuMon::bookHistograms()
     }
 
 
-//    const EventInfo* thisEventInfo;
-//    sc=evtStore()->retrieve(thisEventInfo);
-//    if (sc != StatusCode::SUCCESS) {
-//      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
-//    }
-//    else {
-//      m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
-//    }
-
-//   if (isNewEventsBlock || isNewLumiBlock){
-     // do nothing
-    // }
-   //if ( newLowStatFlag() || newLumiBlockFlag() ) {  }
 
 
    if( newRunFlag() ) {
 
-     //   if( isNewRun ) {
 
      m_chi2 = new TH1F("chi2","chi2",100,0.,10.);
      RegisterHisto(dimuMonObj_expert,m_chi2);
@@ -311,9 +279,7 @@ StatusCode DiMuMon::fillHistograms()
   }
 
   //pick out the good muon tracks and store in the new container
-  //  MuonContainer::const_iterator iMuon = muons->begin();
   for(const auto* muon : *muons ) {
-    //  for (;iMuon!=muons->end();iMuon++){
 
     const xAOD::TrackParticle *idTrk = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     if (!idTrk) continue;
@@ -342,7 +308,6 @@ StatusCode DiMuMon::fillHistograms()
     if (fabs(idTrkEta)>2.5) continue;
     m_stat->Fill("eta<2.5",1);
 
-    //    goodMuons->push_back(const_cast<Analysis::Muon*>(*iMuon));
     goodMuons->push_back(const_cast<xAOD::Muon*>(muon));
   }
   sc = evtStore()->setConst( goodMuons );
@@ -355,7 +320,6 @@ StatusCode DiMuMon::fillHistograms()
   int nMuons = goodMuons->size();
 
   if (nMuons>1){
-    //    ATH_MSG_DEBUG("There are at least two good muons");
     xAOD::MuonContainer::const_iterator mu1 = goodMuons->begin();
     xAOD::MuonContainer::const_iterator muEnd = goodMuons->end();
     for (; mu1!=muEnd;mu1++){
@@ -513,11 +477,9 @@ StatusCode DiMuMon::fillHistograms()
 }
 
 
-//StatusCode DiMuMon::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
 StatusCode DiMuMon::procHistograms()
 {
 
-   //if (endOfLowStatFlag() || endOfLumiBlockFlag()){ }
 
    if(endOfRunFlag() && m_doFits) {
      std::vector<std::string> ::iterator ireg = m_regions.begin();
@@ -613,8 +575,6 @@ void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
 	data->plotOn(frame, RooFit::MarkerSize(0.9));
 	bxc.paramOn(frame,  RooFit::Format("NELU", RooFit::AutoPrecision(2)), RooFit::Layout(0.1,0.4,0.9));
 	bxc.plotOn (frame,  RooFit::LineColor(kBlue));
-	//	cb.plotOn(frame,    RooFit::LineColor(kRed));
-	//bw.plotOn(frame,    RooFit::LineStyle(kDashed)) ;
 	if (m_doSaveFits) {
 	  frame->Draw();
 	  ctemp->Print(psName);
@@ -662,7 +622,6 @@ void DiMuMon::RegisterHisto(MonGroup& mon, T* histo) {
 
 bool DiMuMon::trackQuality(const xAOD::TrackParticle *idTrk){
   int countPass = 0;
-  //  const Trk::TrackSummary *idTrkSumm = idTrk->trackSummary();
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesEPS2011
   if (idTrk) {
     uint8_t dummy(-1);

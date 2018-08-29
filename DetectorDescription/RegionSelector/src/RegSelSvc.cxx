@@ -14,6 +14,7 @@
 #include "RegionSelector/StoreGateRS_ClassDEF.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
 
 // #include "RegSelLUT/RegSelTimer.h"
 #include "RegSelLUT/RegSelRoI.h"
@@ -66,6 +67,7 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_lutCreatorToolLAR  ("LArRegionSelectorTable"),
     m_lutCreatorToolTile ("TileRegionSelectorTable"),
     m_geoModelSvc("GeoModelSvc",name),
+    m_SCTCablingSvc("SCT_CablingSvc",name),
     m_DeltaZ(168),
     m_initRPC(true),
     m_initMDT(true),
@@ -172,6 +174,9 @@ StatusCode RegSelSvc::initialize() {
 
   if ( m_initOnlyID.value() ) { 
     if ( !m_initSCT.value() )   sctflag   = "disabled"; 
+    else ATH_CHECK(m_SCTCablingSvc.retrieve()); // SCT_CablingSvc has to be retrieved now.
+    // Otherwise, SCT_RegionSelectorTable cannot use ready SCT_CablingSvc.
+
     if ( !m_initPixel.value() ) pixelflag = "disabled"; 
     if ( !m_initTRT.value() )   trtflag   = "disabled"; 
   }

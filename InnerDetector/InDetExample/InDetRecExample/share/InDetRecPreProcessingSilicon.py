@@ -25,8 +25,12 @@ if InDetFlags.doPRDFormation():
    
    if DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on():
       #
-      # --- SiLorentzAngleTool for SCT
+      # --- SiLorentzAngleTool
       #
+      if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
       if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
         from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
@@ -39,6 +43,7 @@ if InDetFlags.doPRDFormation():
                                                       PixelCalibSvc        = None,
                                                       PixelOfflineCalibSvc = None,
                                                       UsePixelCalibCondDB  = False,
+                                                      PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool,
                                                       SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
 
       if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline() or InDetFlags.doSLHC()):
@@ -69,7 +74,6 @@ if InDetFlags.doPRDFormation():
          # --- Neutral Network version ?
          #
          if InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
-
             useBeamConstraint = InDetFlags.useBeamConstraint()
             
             # --- new NN prob tool
@@ -114,7 +118,6 @@ if InDetFlags.doPRDFormation():
          # --- Neutral Network version ?
          #
          elif InDetFlags.pixelClusterSplittingType() == 'AnalogClus':      
-
             # new splitter tool
             from SiClusterizationTool.SiClusterizationToolConf import InDet__TotPixelClusterSplitter
             TotPixelClusterSplitter=InDet__TotPixelClusterSplitter (name="TotPixelClusterSplitter")

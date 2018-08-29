@@ -19,6 +19,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "iPatTrack/TrackList.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -58,6 +60,9 @@ private:
     ToolHandle<ITrackFollower>			m_trackFollower;
     ToolHandle<ITrackQuality>			m_trackQuality;
     ToolHandle<ITRT_DataSelector>		m_trtDataSelector;
+
+    // For P->T converter of SCT_Clusters
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
     // configuration
     double					m_maxSecondaryImpact;

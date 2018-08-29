@@ -20,7 +20,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
 
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 
 // Forward declarations
@@ -63,9 +63,9 @@ class SCT_ConfigurationCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::WriteCondHandleKey<SCT_ConfigurationCondData> m_writeKey{this, "WriteKey", "SCT_ConfigurationCondData", "Key of output (derived) conditions data"};
   ServiceHandle<ICondSvc> m_condSvc;
-  ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
-  const SCT_ID* m_pHelper; //!< ID helper for SCT
+  ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"}; //!< Handle on SCT cabling service
   ToolHandle<ISCT_ReadoutTool> m_readoutTool{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle on readout tool"}; //!< Handle on readout tool
+  const SCT_ID* m_pHelper; //!< ID helper for SCT
 };
 
 #endif // SCT_CONFIGURATIONCONDALG

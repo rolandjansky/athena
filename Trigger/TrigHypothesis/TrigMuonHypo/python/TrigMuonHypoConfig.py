@@ -1838,52 +1838,39 @@ class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
         tool.OutputLevel = DEBUG
         bname = nath.split('_') 
 
-        threshold=bname[1]
-        thresholds=TrigMuonEFMSonlyHypoConfig().decodeThreshold(threshold)
-        TrigMuonEFMSonlyHypoConfig().ConfigurationHypoTool( name, nath, thresholds )
+        # this needs to be correctly defined, as this is defined for test run
+        if len(bname) == 2: 
+            th = re.findall(r'[0-9]+', bname[1])           
+            threshold = str(th[0]) + 'GeV'
+            TrigMuonEFMSonlyHypoConfig().ConfigrationHypoTool( name, nath, threshold )
+        else:
+            print """ Configration ERROR: Can't configure threshold at TrigMuonEFMSonlyHypoTool """
+            return tool
+    
         # Setup MonTool for monitored variables in AthenaMonitoring package
         try:
             TriggerFlags.enableMonitoring = ["Validation"]
             if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring(name+"Monitoring_"+nath) 
+                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring() 
         except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'
     
         return tool
-
-    def decodeThreshold( self, threshold ):
-        """ decodes the thresholds of the form mu6, 2mu6, ... """
-        print "decoding ", threshold
-        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
-            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
-            return [ threshold[3:] ] * int( threshold[0] )
-        
-        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
-            return threshold.strip('mu').split('mu')
     
-        # If the form is muX(inclusive), return as 1 element list
-        return [ threshold[2:] ]    
-
-    def ConfigurationHypoTool( self, name, nath, thresholds ): 
+    def ConfigrationHypoTool( self, name, nath, threshold ): 
         
         tool = TrigMuonEFMSonlyHypoTool( nath )  
-        nt = len(thresholds)
-        print "TrigMuonEFMSonlyHypoConfig: Set ", nt, " thresholds" 
-        tool.PtBins = [ [ 0, 2.5 ] ] * nt
-        tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
-
-        for th, thvalue in enumerate(thresholds):
-            thvaluename = thvalue + 'GeV'
-            try:
-                tool.AcceptAll = False
-                values = trigMuonEFSAThresholds[thvaluename]
-                tool.PtBins[th] = values[0]
-                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
-            except LookupError:
-                if (threshold=='passthrough'):
-                    tool.PtBins[th] = [-10000.,10000.]
-                    tool.PtThresholds[th] = [ -1. * GeV ]
-                else:
-                    raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
-        return thvaluename
+    
+        try:
+            tool.AcceptAll = False
+            values = trigMuonEFSAThresholds[threshold]
+            tool.PtBins = values[0]
+            tool.PtThresholds = [ x * GeV for x in values[1] ]
+        except LookupError:
+            if (threshold=='passthrough'):
+                tool.PtBins = [-10000.,10000.]
+                tool.PtThresholds = [ -1. * GeV ]
+            else:
+                raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
+        return threshold

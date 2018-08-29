@@ -66,15 +66,15 @@ def menu( mf ):
     # here menu generation starts
 
 
-    from TrigUpgradeTest.ElectronMenuConfig import generateElectrons
-    accElectrons, steps = generateElectrons( flags ) 
+    from TrigUpgradeTest.ElectronMenuConfig import generateElectronsCfg
+    accElectrons, steps = generateElectronsCfg( flags ) 
     if len( steps ) != 0:
         menuAcc.setupSteps( steps )         
         menuAcc.merge( accElectrons )
 
 
-    from TrigUpgradeTest.PhotonMenuConfig import generatePhotons
-    accPhotons, steps = generatePhotons( flags ) 
+    from TrigUpgradeTest.PhotonMenuConfig import generatePhotonsCfg
+    accPhotons, steps = generatePhotonsCfg( flags ) 
     if len( steps ) != 0:
         menuAcc.setupSteps( steps )         
         menuAcc.merge( accPhotons )

@@ -17,19 +17,17 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
 
-///STL
-#include <set>
-
-///Gaudi
-#include "GaudiKernel/ServiceHandle.h"
-
 ///InDet
 /**needed for typedef, cannot fwd declare */
 #include "InDetRawData/SCT_RDO_Container.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
-
-///SCT
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
+
+///Gaudi
+#include "GaudiKernel/ToolHandle.h"
+
+///STL
+#include <set>
 
 class SCT_ID;
 
@@ -129,8 +127,8 @@ class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
                              ErrorWords errType, std::vector<uint16_t>& v16data);
   void addSpecificErrors(const uint32_t robid, const std::set<IdentifierHash>* errors, 
                          ErrorWords errType, std::vector<uint16_t>& v16data);
-  ServiceHandle<ISCT_CablingSvc> m_cabling;
   ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrs{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
+  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_sct_id;
   bool m_condensed;
   std::set<Identifier> m_swapModuleId;

@@ -72,8 +72,6 @@ StatusCode DerivationFramework::TauSelectionWrapper::addBranches() const
      std::vector<int>* isTauSelectionResult = new std::vector<int>;
      // Loop over taus, set decisions   
      xAOD::TauJetParameters::IsTauFlag isTauFlag = (xAOD::TauJetParameters::IsTauFlag)m_isTauFlag;
-     xAOD::TauJetContainer::const_iterator tauBegin = taus->begin();
-     xAOD::TauJetContainer::const_iterator tauEnd = taus->end();
      for (xAOD::TauJetContainer::const_iterator tauIt = taus->begin(); tauIt!=taus->end(); ++tauIt) {
 	if ( (*tauIt)->isTau(isTauFlag) ) {isTauSelectionResult->push_back(1);}
 	else {isTauSelectionResult->push_back(0);}

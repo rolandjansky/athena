@@ -5,12 +5,16 @@
 #ifndef DERIVATIONFRAMEWORK_UNASSOCIATEDHITSGETTERTOOL_H
 #define DERIVATIONFRAMEWORK_UNASSOCIATEDHITSGETTERTOOL_H
 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include <string>
-
 #include "DerivationFrameworkInDet/IUnassociatedHitsGetterTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/StoreGateSvc.h"
+
+#include "GaudiKernel/ToolHandle.h"
+
+#include <string>
 
 class MinBiasPRDAssociation;
 namespace Trk {
@@ -52,6 +56,9 @@ private:
   std::string m_pixelClusterContainer;
   std::string m_SCTClusterContainer;
   std::string m_TRTDriftCircleContainer;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /* PRD association tool **/
   ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
