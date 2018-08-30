@@ -155,8 +155,7 @@ def defineMenu():
 
         # 2 x MBTS
         'MBTS_A', 'MBTS_C', 
-
-        #TODO/NOTE: redefined according to pp_v7 menu  
+  
         # 32 x MBTSSI (all FTHR)
         # NOTE: THESE ARE OUT OF ORDER FOR A REASON! Do not change!
         # The order defines the mapping - see ATR-17870.

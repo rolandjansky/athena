@@ -139,7 +139,9 @@ class L2EFChain_MB(L2EFChainDef):
         doVetoSp=False
         if 'vetosp' in self.chainPart['extra']:
             doVetoSp=True
-
+        doVetoSpN=False
+        if 'vetosp' in self.chainPart['hypoL2Info']:
+            doVetoSpN=True
         doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
@@ -154,7 +156,7 @@ class L2EFChain_MB(L2EFChainDef):
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
-
+        doexclusivelooseN=False
         ########## L2 algos ##################
         #if "sptrk" or "sp" in self.chainPart['recoAlg']:
         if "noisesup" in self.chainPart['extra']:
@@ -171,7 +173,8 @@ class L2EFChain_MB(L2EFChainDef):
         else:
             theL2Fex  = L2MbSpFex
             if doSptrk:
-                chainSuffix = "sptrk"
+                if not doVetoSpN: chainSuffix = "sptrk"
+                else: chainSuffix = "sptrk_"+self.chainPart['hypoL2Info']
             elif doVetoSp:
                 chainSuffix = "sp_vetosp"
             else:
@@ -194,7 +197,14 @@ class L2EFChain_MB(L2EFChainDef):
             theL2Hypo = L2MbSpHypo_veto
         else:
             theL2Hypo = L2MbSpHypo
-
+        if doVetoSpN: 
+            l2hypo2 = self.chainPart['hypoL2Info']
+            l2th=l2hypo2.lstrip('vetosp')
+            theL2Hypo2 = L2MbSpHypo_veto
+            #cut on SCT space points
+            theL2Hypo2.TotalSctSp=float(l2th)
+            #disable Pixel cluster cut
+            theL2Hypo2.TotalPixelClus=-1
         ########## EF algos ##################
         #if "sptrk" in self.chainPart['recoAlg']:
         if "costr" in self.chainPart['trkInfo']:
@@ -218,6 +228,7 @@ class L2EFChain_MB(L2EFChainDef):
 
             theEFFex2 =  EFMbTrkFex
             efhypo = self.chainPart['hypoEFInfo']
+            efextra = self.chainPart['extra']
             if efhypo:
                 if "pt" in self.chainPart['hypoEFInfo']:
                     efth=efhypo.lstrip('pt')
@@ -236,7 +247,16 @@ class L2EFChain_MB(L2EFChainDef):
             elif 'exclusiveloose' in self.chainPart['extra']:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypoExclusiveLoose
-                chainSuffix = chainSuffix+"_exclusiveloose"
+                efthX=efextra.lstrip('exclusiveloose')
+                chainSuffix = chainSuffix+"_exclusiveloose"+efthX
+                
+                if efthX:
+                    doexclusivelooseN=True
+                    threshold=int(efthX)
+                    theEFHypo2 = MbTrkHypo('EFMbTrkHypo_pt1_trk%i'% threshold)
+                    theEFHypo2.Min_pt = 1.
+                    theEFHypo2.Required_ntrks = int(efthX)
+                    theEFHypo2.Max_z0 = 401.
             elif 'exclusivetight' in self.chainPart['extra']:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypoExclusiveTight
@@ -265,15 +285,25 @@ class L2EFChain_MB(L2EFChainDef):
             self.L2sequenceList += [['L2_mb_dummy',
                                      efiddataprep,
                                      'L2_mb_iddataprep']] 
-
-        self.L2sequenceList += [[['L2_mb_iddataprep'],
-                                 [theL2Fex, theL2Hypo],
-                                 'L2_mb_step1']]
-
+        if doVetoSpN:
+            self.L2sequenceList += [[['L2_mb_iddataprep'],
+                                     [theL2Fex, theL2Hypo],
+                                     'L2_mb_spveto']]
+            self.L2sequenceList += [[['L2_mb_spveto'],
+                                     [theL2Hypo2],
+                                     'L2_mb_step1']]
+        else:    
+            self.L2sequenceList += [[['L2_mb_iddataprep'],
+                                     [theL2Fex, theL2Hypo],
+                                     'L2_mb_step1']]
         if doSptrk:
             self.EFsequenceList += [[['L2_mb_step1'],
                                      theEFFex1+[theEFFex2, theEFHypo],
                                      'EF_mb_step1']]
+            if doexclusivelooseN:      
+                self.EFsequenceList += [[['EF_mb_step1'],
+                                         [theEFHypo2],
+                                         'EF_mb_step2']]                         
             if 'peb' in self.chainPart['addInfo']:
                 from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
                 ALFASubDetListWriter = TrigSubDetListWriter("ALFASubDetListWriter")
@@ -289,9 +319,13 @@ class L2EFChain_MB(L2EFChainDef):
         if doMbtsVeto:
             self.L2signatureList += [ [['L2_mb_mbtsveto']] ]
         self.L2signatureList += [ [['L2_mb_iddataprep']] ]
+        if doVetoSpN:
+                self.L2signatureList += [ [['L2_mb_spveto']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
         if doSptrk:
             self.EFsignatureList += [ [['EF_mb_step1']] ]
+            if doexclusivelooseN:
+                self.EFsignatureList += [ [['EF_mb_step2']] ]
             if 'peb' in self.chainPart['addInfo']:
                 self.EFsignatureList += [ [['EF_mb_step2']] ]
 
@@ -305,7 +339,10 @@ class L2EFChain_MB(L2EFChainDef):
 
         if 'peb' in self.chainPart['addInfo']:
             self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffix+'_peb')
-
+        if doexclusivelooseN:
+            self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffix+'_exclusivelooseN')
+        if doVetoSpN:
+            self.TErenamingDict ['L2_mb_spveto'] = mergeRemovingOverlap('L2_', chainSuffix+'_spvetoN')    
 ###########################
     def setup_mb_idperf(self):
         doHeavyIon=False
