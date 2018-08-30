@@ -57,8 +57,8 @@ minixAOD = MSMgr.NewPoolRootStream( 'AAOD_MUON',
 minixAOD.AddItem(
    [ 'xAOD::EventInfo#EventInfo',
      'xAOD::EventAuxInfo#EventInfoAux.-',
-     'xAOD::MuonContainer#AnalysisMuons_*',
-     'xAOD::AuxContainerBase#AnalysisMuons_*.eta.phi.pt' ] )
+     'xAOD::MuonContainer#AnalysisMuons_NOSYS',
+     'xAOD::AuxContainerBase#AnalysisMuons_NOSYSAux.eta.phi.pt' ] )
 
 # Reduce the printout from Athena:
 include( "AthAnalysisBaseComps/SuppressLogging.py" )

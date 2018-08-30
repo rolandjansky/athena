@@ -88,8 +88,8 @@ xaodWriter = AnaAlgorithmConfig( 'CP::xAODWriterAlg/xAODWriter' )
 xaodWriter.ItemList = \
    [ 'xAOD::EventInfo#EventInfo',
      'xAOD::EventAuxInfo#EventInfoAux.-',
-     'xAOD::MuonContainer#AnalysisMuons_%SYS%',
-     'xAOD::AuxContainerBase#AnalysisMuons_%SYS%Aux.eta.phi.pt' ]
+     'xAOD::MuonContainer#AnalysisMuons_NOSYS',
+     'xAOD::AuxContainerBase#AnalysisMuons_NOSYSAux.eta.phi.pt' ]
 xaodWriter.systematicsRegex = '.*'
 job.algsAdd( xaodWriter )
 
