@@ -36,10 +36,10 @@ class LumiBlockMuTool: public AthAlgTool, virtual public ILumiBlockMuTool {
   // ---------------- user interface -------------------
 
   // Return interactions per crossing (mu) averaged over all BCIDs in physics bunch group
-  float averageInteractionsPerCrossing() const;
+  float averageInteractionsPerCrossing();
 
   // Return interactions per crossing (mu) for this specific BCID
-  float actualInteractionsPerCrossing() const;
+  float actualInteractionsPerCrossing();
 
   // Functions
   StatusCode initialize();
