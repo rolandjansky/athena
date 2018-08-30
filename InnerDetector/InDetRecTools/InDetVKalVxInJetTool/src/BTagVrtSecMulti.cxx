@@ -174,8 +174,8 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //          newvrt.SelTrk.clear();
 //          for(i=0;i<NPTR;i++) { newvrt.SelTrk.push_back(Solution[i]-1);}//std::cout<<"Solution="<<Solution[i]<<'\n';
 //================================================== Boost version (don't forget to uncomment addEdge in Select2TrVrt()
-      const long int* weit=0; 
-      const long int* Solution=0;
+      const long int* const weit=0; //coverity 105578
+      const long int* const Solution=0; //coverity 105577
       std::vector< std::vector<int> > allCliques;
       bron_kerbosch_all_cliques(*m_compatibilityGraph, clique_visitor(allCliques));
       for(int cq=0; cq<(int)allCliques.size();cq++){
