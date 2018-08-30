@@ -1,7 +1,7 @@
 
 from TrigUpgradeTest.HLTSignatureHypoTools import TestHypoTool, MuTestHypoTool, ElTestHypoTool, MuTest2HypoTool
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoToolInc, TrigL2CaloHypoToolMult, TrigL2ElectronHypoTool, TrigL2PhotonHypoTool 
-from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoTool, TrigmuCombHypoTool
+from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoTool, TrigmuCombHypoTool, TrigMuisoHypoTool
 from AthenaCommon.Constants import VERBOSE,INFO,DEBUG
 
 
@@ -45,6 +45,12 @@ def TrigMufastHypoToolConf(name, conf):
 def TrigmuCombHypoToolConf(name, conf):
     from TrigMuonHypo.testTrigMuonHypoConfig import TrigmuCombHypoToolFromName
     hypotool= TrigmuCombHypoToolFromName(name, conf)
+    hypotool.OutputLevel = DEBUG
+    return hypotool
+
+def TrigMuisoHypoToolConf(name, conf):
+    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMuisoHypoToolFromName
+    hypotool= TrigMuisoHypoToolFromName(name, conf)
     hypotool.OutputLevel = DEBUG
     return hypotool
 

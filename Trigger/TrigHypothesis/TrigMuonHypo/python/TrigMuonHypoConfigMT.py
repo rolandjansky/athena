@@ -3,14 +3,14 @@
 from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool
 from TrigMuonHypo.TrigMuonHypoMonitoringMT import *
 from AthenaCommon.SystemOfUnits import GeV
-from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
+#from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
+#from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from AthenaCommon.AppMgr import ToolSvc
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 import re
 
-ToolSvc += MuonBackExtrapolatorForAlignedDet()
-ToolSvc += MuonBackExtrapolatorForMisalignedDet()
+#ToolSvc += MuonBackExtrapolatorForAlignedDet()
+#ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
@@ -386,34 +386,36 @@ muFastThresholdsForECWeakBRegion = {
     '60GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     }
 
+# This class is copied from MufastHypoConfig.
+class TrigMufastHypoConfig(TrigMufastHypoAlg) :
 
-def TrigMufastHypoToolFromName( toolName,  thresholdHLT ):	
+    __slots__ = []
+
+    def TrigMufastHypoToolFromName( self, name, thresholdHLT ):	
+
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigMufastHypoTool( thresholdHLT )  
+        tool.OutputLevel = DEBUG
         
-    name = "TrigMufastHypoTool"
-    config = TrigMufastHypoConfig()
-    
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bname = thresholdHLT.split('_') 
-    threshold = bname[1]
-    thresholds = config.decodeThreshold( threshold )
-    print "TrigMufastHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
+        # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+        bname = thresholdHLT.split('_') 
 
-    tool=config.ConfigurationHypoTool( toolName, thresholds )
-    
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
+        threshold = bname[1]
+        thresholds = TrigMufastHypoConfig().decodeThreshold( threshold )
+        print "TrigMufastHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
+        TrigMufastHypoConfig().ConfigurationHypoTool( name, thresholdHLT, thresholds )
+  
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        TriggerFlags.enableMonitoring = ["Validation"]
 
-    try:
+        try:
             if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
                 tool.MonTool = TrigMufastHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
+        except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'
-
-    return tool
-
-
-class TrigMufastHypoConfig():
+    
+        return tool
 
     def decodeThreshold( self, threshold ):
         """ decodes the thresholds of the form mu6, 2mu6, ... """
@@ -429,7 +431,7 @@ class TrigMufastHypoConfig():
         # If the form is muX(inclusive), return as 1 element list
         return [ threshold[2:] ]        
     
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ): 
+    def ConfigurationHypoTool( self, name, thresholdHLT, thresholds ): 
         
         tool = TrigMufastHypoTool( thresholdHLT )  
 
@@ -454,8 +456,8 @@ class TrigMufastHypoConfig():
                 values = muFastThresholds[thvaluename]
                 tool.PtBins[th] = values[0]
                 tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
-                print "TrigMufastHypoConfig: Configration of threshold[", th, "] ", tool.PtThresholds[th]
-                print "TrigMufastHypoConfig: Configration of PtBins[", th, "] ", tool.PtBins[th]
+                print "TrigMufastHypoConfig: Configuration of threshold[", th, "] ", tool.PtThresholds[th]
+                print "TrigMufastHypoConfig: Configuration of PtBins[", th, "] ", tool.PtBins[th]
                 if thvaluename in muFastThresholdsForECWeakBRegion:
                     spThres = muFastThresholdsForECWeakBRegion[thvaluename]
                     tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
@@ -480,55 +482,47 @@ class TrigMufastHypoConfig():
                 else:
                     raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % thvaluename)
 
-        return tool
-    
+        return thvaluename
 
-def TrigmuCombHypoToolFromName( toolName, thresholdHLT ):	
-        
-    name = "TrigmuCombHypoTool"
-    config = TrigmuCombHypoConfig()
-    
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bname = thresholdHLT.split('_') 
-    threshold = bname[1]
-    thresholds = config.decodeThreshold( threshold )
-    print "TrigmuCombHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
 
-    tight = False
-    tool=config.ConfigurationHypoTool( toolName, thresholds, tight )
-    
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
+# This class is copied from MucombHypoConfig.
+class TrigmuCombHypoConfig(TrigmuCombHypoAlg):
 
-    try:
+    __slots__ = []
+
+    # thresholdHLT: name threshold, for example HLT_mu6 etc
+    def TrigmuCombHypoToolFromName( self, name, thresholdHLT ):
+
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigmuCombHypoTool( thresholdHLT )  
+        tool.OutputLevel = DEBUG
+
+        # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+        bname = thresholdHLT.split('_') 
+
+        threshold = bname[1]
+        thresholds = TrigMufastHypoConfig().decodeThreshold( threshold )
+        tight = False
+
+        TrigmuCombHypoConfig().ConfigurationHypoTool( name, thresholdHLT, thresholds, tight )
+        print """ Configuration SUCCESS: Configure threshold """, threshold, """ at TrigmuCombHypoTool """
+
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        TriggerFlags.enableMonitoring = ["Validation"]
+
+        try:
             if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
                 tool.MonTool = TrigmuCombHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
+        except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'
 
-    return tool
-
-
-class TrigmuCombHypoConfig():
-
-    def decodeThreshold( self, threshold ):
-        """ decodes the thresholds of the form mu6, 2mu6, ... """
-        print "decoding ", threshold
-
-        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
-            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
-            return [ threshold[3:] ] * int( threshold[0] )
-    
-        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
-            return threshold.strip('mu').split('mu')
-    
-        # If the form is muX(inclusive), return as 1 element list
-        return [ threshold[2:] ]        
+        return tool
  
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds, tight ):
+    def ConfigurationHypoTool( self, name, thresholdHLT, thresholds, tight ):
 
         tool = TrigmuCombHypoTool( thresholdHLT )
+        print 'MucombHypoConfig configured for threshold: ',thresholds
 
         datayear = "2017"
 
@@ -563,43 +557,25 @@ class TrigmuCombHypoConfig():
                 tool.MaxPtToApplyPik      = 25.
                 tool.MaxChi2IDPik         = 3.5
 
-        return tool 
+        return thvaluename
 
+# This class is copied from MuisoHypoConfig.
+class TrigMuisoHypoConfig(TrigMuisoHypoAlg) :
 
-### for TrigMuisoHypo
-def TrigMuisoHypoToolFromName( toolName, thresholdHLT ):
+    __slots__ = []
 
-    name = "TrigMuisoHypoTool"
-    config = TrigMuisoHypoConfig()
+    def TrigMuisoHypoToolFromName( self, name, thresholdHLT ):	
 
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bnames = thresholdHLT.split('_') 
-
-    print "TrigMuisoHypoConfig: Decoded ", thresholdHLT 
-
-    tool = config.ConfigurationHypoTool( toolName, bnames )
-
-
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
-
-    try:
-        if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-            tool.MonTool = TrigMuisoHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
-        tool.MonTool = ""
-        print name, ' Monitoring Tool failed'
-
-    return tool
-
-
-class TrigMuisoHypoConfig() :
-
-
-    def ConfigurationHypoTool( self, toolName, bnames ):	
-
-        tool = TrigMuisoHypoTool( toolName )  
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigMuisoHypoTool( thresholdHLT )  
+        tool.OutputLevel = DEBUG
         
+        # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+        bnames = thresholdHLT.split('_') 
+
+        threshold = bnames[1]
+        print "TrigMuisoHypoConfig: Decoded ", thresholdHLT 
+
         # If configured with passthrough, set AcceptAll flag on
         tool.AcceptAll = False
         for bname in bnames:
@@ -607,7 +583,7 @@ class TrigMuisoHypoConfig() :
                 tool.AcceptAll = True
                 print 'MuisoHypoConfig configured in pasthrough mode'
 
-        if "FTK" in toolName: # allows us to use different working points in FTK mode
+        if "FTK" in name: # allows us to use different working points in FTK mode
             tool.IDConeSize   = 2;
             tool.MaxIDIso_1   = 0.12
             tool.MaxIDIso_2   = 0.12
@@ -620,81 +596,80 @@ class TrigMuisoHypoConfig() :
 
         print 'MuisoHypoConfig configuration done'
  
-        return tool
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        TriggerFlags.enableMonitoring = ["Validation"]
 
-
-def TrigMuonEFMSonlyHypoToolFromName( toolName, thresholdHLT ) :
-
-    name = "TrigMuonEFMSonlyHypoTool"
-    config = TrigMuonEFMSonlyHypoConfig()
-
-    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-    bname = thresholdHLT.split('_') 
-    threshold = bname[1]
-    thresholds = config.decodeThreshold( threshold )
-    print "TrigMuonEFMSonlyHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
-
-    tool = config.ConfigurationHypoTool( toolName, thresholds )
- 
-    # Setup MonTool for monitored variables in AthenaMonitoring package
-    TriggerFlags.enableMonitoring = ["Validation"]
-
-    try:
+        try:
             if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-    except AttributeError:
+                tool.MonTool = TrigMuisoHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+        except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'
     
-    return tool
+        return tool
+
+########MT EF hypo 
+class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
+
+    __slots__ = []
+
+    # nath: name threshold, for example HLT_mu6 etc
+    def TrigMuonEFMSonlyHypoToolFromName( self, name, nath ):	
+
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigMuonEFMSonlyHypoTool( nath )  
+        tool.OutputLevel = DEBUG
+        bname = nath.split('_') 
+
+        threshold=bname[1]
+        thresholds=TrigMuonEFMSonlyHypoConfig().decodeThreshold(threshold)
+        TrigMuonEFMSonlyHypoConfig().ConfigurationHypoTool( name, nath, thresholds )
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        try:
+            TriggerFlags.enableMonitoring = ["Validation"]
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring(name+"Monitoring_"+nath) 
+        except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
     
-class TrigMuonEFMSonlyHypoConfig(): 
-        
+        return tool
 
     def decodeThreshold( self, threshold ):
         """ decodes the thresholds of the form mu6, 2mu6, ... """
         print "decoding ", threshold
-
         if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
             assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
             return [ threshold[3:] ] * int( threshold[0] )
+        
         if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
             return threshold.strip('mu').split('mu')
     
         # If the form is muX(inclusive), return as 1 element list
-        return [ threshold[2:] ]        
+        return [ threshold[2:] ]    
 
-    def ConfigurationHypoTool( self, toolName, thresholds ):
-
-        tool = TrigMuonEFMSonlyHypoTool( toolName )  
-
+    def ConfigurationHypoTool( self, name, nath, thresholds ): 
+        
+        tool = TrigMuonEFMSonlyHypoTool( nath )  
         nt = len(thresholds)
         print "TrigMuonEFMSonlyHypoConfig: Set ", nt, " thresholds" 
-        print "But cann't use multi muon trigger due to not yet implemented it"
-        #tool.PtBins = [ [ 0, 2.5 ] ] * nt
-        #tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
-        # these lines are commented out because the hypo tool has not yet implemented multi muon trigger
-        # if you implement it, please remove these coment out. 
- 
+        tool.PtBins = [ [ 0, 2.5 ] ] * nt
+        tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
+
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV'
-            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
-
             try:
                 tool.AcceptAll = False
                 values = trigMuonEFSAThresholds[thvaluename]
-                tool.PtBins = values[0]
-                tool.PtThresholds = [ x * GeV for x in values[1] ]
-
+                tool.PtBins[th] = values[0]
+                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
             except LookupError:
                 if (threshold=='passthrough'):
-                    tool.PtBins = [-10000.,10000.]
-                    tool.PtThresholds = [ -1. * GeV ]
+                    tool.PtBins[th] = [-10000.,10000.]
+                    tool.PtThresholds[th] = [ -1. * GeV ]
                 else:
                     raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
+        return thvaluename  
 
-            break # because the hypo tool has not yet implemented multi muon trigger
-                  # if you implement it, please remove this line. 
 
-        return tool
 
