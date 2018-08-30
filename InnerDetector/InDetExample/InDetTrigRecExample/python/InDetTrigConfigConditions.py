@@ -300,6 +300,10 @@ class SCT_ConditionsToolsSetup:
 
   def initConfigTool(self, instanceName):
     "Init configuration conditions tool"
+
+    # Set up SCT cabling
+    from AthenaCommon.Include import include
+    include('InDetRecExample/InDetRecCabling.py')
     
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     from IOVDbSvc.CondDB import conddb
