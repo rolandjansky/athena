@@ -32,7 +32,6 @@
 #include "xAODMuon/MuonContainer.h"
 
 // Tools
-//#include "JetUncertainties/UncertaintyEnum.h"
 #include "JetCalibTools/JetCalibrationTool.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"

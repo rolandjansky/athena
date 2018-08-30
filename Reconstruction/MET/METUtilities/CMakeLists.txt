@@ -15,7 +15,7 @@ elseif( XAOD_ANALYSIS )
    set( extra_deps GaudiKernel
         Control/AthenaBaseComps
 	PhysicsAnalysis/POOLRootAccess
-        Reconstruction/Jet/JetCalibTools )
+        Reconstruction/Jet/JetUncertainties )
 elseif()
    set( extra_deps GaudiKernel
         Control/AthenaBaseComps )
@@ -94,7 +94,7 @@ if( XAOD_ANALYSIS )
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
           LINK_LIBRARIES ${ROOT_LIBRARIES} ${readLib} AsgTools xAODBase
           xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
-          JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
+          JetUncertaintiesLib METInterface PATInterfaces METUtilitiesLib )
   endforeach()
 endif()
 
