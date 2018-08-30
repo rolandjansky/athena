@@ -12,7 +12,10 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+#include "xAODMuon/MuonContainer.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
+#include "TrigMuonHypo/TrigMuonEFTrackIsolationHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
 
 class StoreGateSvc;
@@ -36,7 +39,12 @@ class TrigMuonEFTrackIsolationHypoAlg
     
   private:
  
-    TrigMuonEFTrackIsolationHypoAlg(); 
+   TrigMuonEFTrackIsolationHypoAlg(); 
+   
+   ToolHandleArray<TrigMuonEFTrackIsolationHypoTool> m_hypoTools { this, "HypoTools", {}, "Tools to perform selection" };
+
+   SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey {
+	this, "EFMuonsName", "MuonEFInfo", "Name of EF muons conatiner" };
 
 };
 
