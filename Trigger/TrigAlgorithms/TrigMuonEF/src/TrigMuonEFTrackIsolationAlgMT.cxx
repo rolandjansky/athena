@@ -9,11 +9,7 @@
 TrigMuonEFTrackIsolationAlgMT::TrigMuonEFTrackIsolationAlgMT( const std::string& name, 
                                                               ISvcLocator* pSvcLocator )
   :AthAlgorithm(name, pSvcLocator),
-   m_coneSizes(),
-   m_timerSvc("TrigTimerSvc", name),
-   m_dataPrepTime(0),
-   m_calcTime(0),
-   m_dataOutputTime(0)
+   m_coneSizes()
 {
   // cone sizes are hard-coded to ensure the correct result goes to the edm
   m_coneSizes.push_back(0.2);
@@ -33,15 +29,20 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::initialize()
   ATH_MSG_DEBUG("EFMuonParticles       : " << m_efMuonContainerKey.key());
   ATH_MSG_DEBUG("L2MuonParticles       : " << m_l2MuonContainerKey.key());
   ATH_MSG_DEBUG("requireCombinedMuon   : " << m_requireCombined);
-  ATH_MSG_DEBUG("doMyTimimg            : " << m_doMyTiming);
   ATH_MSG_DEBUG("useVarIso             : " << m_useVarIso);
   ATH_MSG_DEBUG("IsoType               : " << m_isoType);
 
   if ( m_isoType == 1 ) {
+    ATH_CHECK( m_ftkTrackParticleKey.initialize(false) );  // we don't need FTK tracks in this mode, do disable the read handle key
+    ATH_CHECK( m_l2MuonContainerKey.initialize(false) );  // we don't need L2 muons in this mode, do disable the read handle key
+    ATH_CHECK( m_l2MuonIsoContainerKey.initialize(false) );  // we don't record L2 isolation muons in this mode, do disable the write handle key
     ATH_CHECK( m_idTrackParticleKey.initialize() );
     ATH_CHECK( m_efMuonContainerKey.initialize() );
     ATH_CHECK( m_muonContainerKey.initialize() );
   } else if ( m_isoType == 2 ) {
+    ATH_CHECK( m_idTrackParticleKey.initialize(false) );  // we don't need IS tracks in this mode, do disable the read handle key
+    ATH_CHECK( m_efMuonContainerKey.initialize(false) );  // we don't need EF muons in this mode, do disable the read handle key
+    ATH_CHECK( m_muonContainerKey.initialize(false) );    // we don't record EF muons in this mode, do disable the write handle key
     ATH_CHECK( m_ftkTrackParticleKey.initialize() );
     ATH_CHECK( m_l2MuonContainerKey.initialize() );
     ATH_CHECK( m_l2MuonIsoContainerKey.initialize() );
@@ -56,8 +57,6 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::initialize()
     ATH_MSG_WARNING("Not configurate muon isolation tool");
   }
 
-  ATH_CHECK( m_timerSvc.retrieve() );
- 
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
   }
@@ -104,9 +103,6 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
   auto monitorIt = MonitoredScope::declare( m_monTool, trkptiso_cone2, trkptiso_cone3, trkdz, trkdr, 
                                             muon_selfpt, muon_removedpt, muon_combinedpt, n_trks );
 
-
-  if(m_doMyTiming && m_dataPrepTime) m_dataPrepTime->start();
-
   // get input objects
   const xAOD::TrackParticleContainer *idTrackParticles = 0;
   const xAOD::MuonContainer *efMuonContainer(0);
@@ -152,11 +148,6 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
 
   } else {
     ATH_MSG_DEBUG("No FTK / L2 Muon isolation required");
-  }
-
-  if ( m_doMyTiming ) {
-    if ( m_dataPrepTime ) m_dataPrepTime->stop();
-    if ( m_calcTime ) m_calcTime->start();
   }
 
   // start calculation
@@ -301,12 +292,6 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
     } // L2 muon loop
   } // done isoType==2
 
-
-  if ( m_doMyTiming ) {
-    if(m_calcTime) m_calcTime->stop();
-    if(m_dataOutputTime) m_dataOutputTime->start();
-  }
-
   if ( m_isoType==1 ) {
 
      ini_ntrks.push_back(idTrackParticles->size());
@@ -328,11 +313,6 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
     ATH_MSG_DEBUG("Successfully record L2 isolation muon : " << m_muonContainerKey.key() << " with size = " << noutputMuons);
 
   }
-
-  if ( m_doMyTiming && m_dataOutputTime ) {
-    m_dataOutputTime->stop();
-  }
-
 
   return StatusCode::SUCCESS;
 }

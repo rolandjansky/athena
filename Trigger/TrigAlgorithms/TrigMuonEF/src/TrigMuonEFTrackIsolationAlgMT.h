@@ -91,13 +91,6 @@ class TrigMuonEFTrackIsolationAlgMT : public AthAlgorithm
     // cone sizes to calculate the isolation
     std::vector<double> m_coneSizes; 
 
-    // Timers
-    Gaudi::Property<bool> m_doMyTiming { this, "doMyTimimg", false, "Require TimerSvc"};
-    ServiceHandle<ITrigTimerSvc> m_timerSvc;
-    TrigTimer* m_dataPrepTime;
-    TrigTimer* m_calcTime;
-    TrigTimer* m_dataOutputTime;
-
     // Monitoring tool
     ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 };
