@@ -71,7 +71,6 @@
 #include "LArHV/LArHVManager.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-#include "LArCondUtils/LArHVToolDB.h"
 ///////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/ITHistSvc.h"

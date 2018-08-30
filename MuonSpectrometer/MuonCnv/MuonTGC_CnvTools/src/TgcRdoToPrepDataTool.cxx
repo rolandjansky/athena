@@ -41,7 +41,7 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
     m_tgcHelper(0),
     m_tgcCabling(0),
     m_useBStoRdoTool(false), // true if running trigger (EF) on BS input
-    m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
+    m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool", this),
     m_nHitRDOs(0), 
     m_nHitPRDs(0), 
     m_nTrackletRDOs(0), 

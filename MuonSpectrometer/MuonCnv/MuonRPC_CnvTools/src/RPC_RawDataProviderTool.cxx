@@ -31,7 +31,7 @@ Muon::RPC_RawDataProviderTool::RPC_RawDataProviderTool(
     const std::string& n,
     const IInterface*  p) :
     AthAlgTool(t, n, p),
-    m_decoder("Muon__RpcROD_Decoder"),
+    m_decoder("Muon::RpcROD_Decoder/RpcROD_Decoder", this),
     m_AllowCreation(false),
     m_robDataProvider ("ROBDataProviderSvc",n)
 {

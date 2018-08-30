@@ -38,9 +38,6 @@ SCTRawContByteStreamTool::initialize() {
   /** Get the SCT Helper */
   ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));
 
-  // Initialize ReadCondHandleKey
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  
   return StatusCode::SUCCESS;
 }
 
@@ -59,14 +56,6 @@ SCTRawContByteStreamTool::finalize() {
 
 StatusCode
 SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) const {
-  // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
-  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
-  if (elements==nullptr) {
-    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
-    return StatusCode::FAILURE;
-  }
-
   std::lock_guard<std::mutex> lock(m_mutex);
 
   m_fea.clear();
@@ -105,15 +94,11 @@ SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, Ms
       eformat::helper::SourceIdentifier sid_rob{robid};
       eformat::helper::SourceIdentifier sid_rod{sid_rob.subdetector_id(), sid_rob.module_id()};
       uint32_t rodid{sid_rod.code()};
-      /** see if strip numbers go from 0 to 767 or vice versa for this wafer */
-      const InDetDD::SiDetectorElement* siDetElement{elements->getDetectorElement(idCollHash)};
-      bool swapPhiReadoutDirection{siDetElement->swapPhiReadoutDirection()};
       
       /** loop over RDOs in the collection;  */
       for (const RDO* theRdo: *coll) {
         /** fill ROD/ RDO map */
         rdoMap[rodid].push_back(theRdo);
-        if (swapPhiReadoutDirection) m_encoder->addSwapModuleId(idColl);
       }
     }
   }  /** End loop over collections */

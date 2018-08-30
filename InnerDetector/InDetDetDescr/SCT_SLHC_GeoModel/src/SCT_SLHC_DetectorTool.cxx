@@ -18,7 +18,7 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 using InDetDD::SCT_DetectorManager; 
