@@ -17,7 +17,6 @@
 #include <tuple>
 #include "TH2F.h"
 #include "TFile.h"
-//#include <TMatrixD.h>
 
 // FrameWork includes
 #include "AsgTools/AnaToolHandle.h"
@@ -33,7 +32,7 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 // Tool interfaces
-class IJERTool;
+class ICPJetUncertaintiesTool;
 namespace CP {
   class IMuonCalibrationAndSmearingTool;
   class IEgammaCalibrationAndSmearingTool;
@@ -107,7 +106,7 @@ namespace met {
     METSignificance();
 
     // tools
-    asg::AnaToolHandle<IJERTool> m_jerTool;
+    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>   m_muonCalibrationAndSmearingTool;
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
     asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;
@@ -193,6 +192,8 @@ namespace met {
 
     std::string m_configPrefix;
     std::string m_configJetPhiResoFile;
+    std::string m_JetResoAux;
+    std::string m_JetCollection;
   };
 
 } //> end namespace met

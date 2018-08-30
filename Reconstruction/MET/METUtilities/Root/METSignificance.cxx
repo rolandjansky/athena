@@ -32,8 +32,9 @@
 #include "xAODMuon/MuonContainer.h"
 
 // Tools
-#include "JetResolution/JERTool.h"
-#include "JetResolution/IJERTool.h"
+#include "JetUncertainties/UncertaintyEnum.h"
+#include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
+#include "JetUncertainties/JetUncertaintiesTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
@@ -84,7 +85,7 @@ namespace met {
     ////////////////
     METSignificance::METSignificance(const std::string& name) :
       AsgTool(name),
-      m_jerTool(""),
+      m_jetUncertaintiesTool(""),
       m_muonCalibrationAndSmearingTool(""),
       m_egammaCalibTool(""),
       m_tCombinedP4FromRecoTaus(""),
@@ -118,6 +119,8 @@ namespace met {
       declareProperty("ScalarBias",           m_scalarBias    = 0.0         );
       declareProperty("ConfigPrefix",         m_configPrefix  = "METUtilities/data17_13TeV/metsig_Aug15/");
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
+      declareProperty("JetResoAux",           m_JetResoAux            = "" );
+      declareProperty("JetCollection",        m_JetCollection         = "AntiKt4EMTopo" );
 
       // properties to delete eventually
       declareProperty("IsDataJet",   m_isDataJet     = false   );
@@ -152,15 +155,31 @@ namespace met {
         ATH_MSG_INFO ("Initializing " << name() << "...");
 
 
-	ATH_MSG_INFO("Set up JER tools");
+	ATH_MSG_INFO("Set up jet resolution tool");
 	std::string toolName;
-	std::string jetcoll = "AntiKt4EMTopoJets";
-	toolName = "JERTool_" + jetcoll;
+	m_jetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/jetUncertaintiesTool_"+m_JetCollection);
+	
+	if( !m_jetUncertaintiesTool.isUserConfigured() ){
 
-	m_jerTool.setTypeAndName("JERTool/STAutoConf_"+toolName);
-	ATH_CHECK(m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"));
-	ATH_CHECK(m_jerTool.setProperty("CollectionName", jetcoll));
-	ATH_CHECK(m_jerTool.retrieve());
+	  std::string config = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config";
+	  std::string calibSeq = "JetArea_Residual_EtaJES_GSC_Insitu";
+	  std::string calibArea = "00-04-81";
+	  std::string jetType = "MC16";
+	  if(m_JetCollection=="AntiKt4EMPFlow"){
+	    
+	    config = "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config";
+	    calibSeq = "JetArea_Residual_EtaJES_GSC_Insitu";
+	    calibArea = "00-04-81";	    
+	  }
+
+	  //ANA_CHECK( ASG_MAKE_ANA_TOOL(m_jetUncertaintiesTool, JetUncertaintiesTool) );
+	  ANA_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition",m_JetCollection) );
+	  ANA_CHECK( m_jetUncertaintiesTool.setProperty("MCType",jetType) );
+	  ANA_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea",calibArea) );
+	  ANA_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile",config) );
+	  //ANA_CHECK( m_jetUncertaintiesTool.setProperty("IsData",m_isDataJet) );
+	  ANA_CHECK( m_jetUncertaintiesTool.retrieve() );
+	}
 
 	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
 	toolName = "MuonCalibrationAndSmearingTool";
@@ -508,8 +527,7 @@ namespace met {
   void METSignificance::AddJet(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
     const xAOD::Jet* jet(static_cast<const xAOD::Jet*>(obj));
-    if(m_isDataJet) pt_reso = m_jerTool->getRelResolutionData(jet);
-    else            pt_reso = m_jerTool->getRelResolutionMC(jet);
+    pt_reso = m_jetUncertaintiesTool->getNominalResolutionData(*jet, jet::Topology::Pt);
     ATH_MSG_VERBOSE("jet: " << pt_reso  << " jetpT: " << jet->pt() << " " << jet->p4().Eta() << " " << jet->p4().Phi());
     //
     // Add extra uncertainty for PU jets based on JVT
@@ -526,6 +544,17 @@ namespace met {
     if(m_doPhiReso){
       double jet_phi_unc = fabs(GetPhiUnc(jet->eta(), jet->phi(),jet->pt()/m_GeV));
       phi_reso = jet->pt()*jet_phi_unc;
+    }
+    
+    //
+    // Add user defined additional resolutions. For example, b-tagged jets
+    //
+    if(m_JetResoAux!=""){
+      static SG::AuxElement::Accessor<float> acc_extra(m_JetResoAux);
+      if(acc_extra.isAvailable(*jet)){
+	float extra_pt_reso = jet->pt()*acc_extra(*jet);
+	pt_reso = sqrt(pt_reso*pt_reso + extra_pt_reso*extra_pt_reso);
+      }
     }
   }
 
