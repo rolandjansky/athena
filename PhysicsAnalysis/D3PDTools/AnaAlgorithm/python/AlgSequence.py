@@ -40,6 +40,19 @@ except ImportError:
 
             return self._name
 
+        def insert( self, index, algOrSeq ):
+            """Insert one algorithm/sequence into this sequence
+
+            This allows us to extend existing sequences with a greater
+            flexibility.
+
+            Keyword arguments:
+              index    -- The index to insert the algorithm/sequence under
+              algOrSeq -- The object to insert
+            """
+
+            return self.__iadd__( algOrSeq, index = index )
+
         def __getitem__( self, index ):
             """Return one algorithm/sequence from the sequence by index
 
@@ -75,6 +88,30 @@ except ImportError:
             raise AttributeError( 'Algorithm/sequence with name "%s" was not ' \
                                       'found' % name )
 
+        def __delattr__( self, name ):
+            """Remove one algorithm/sequence from this sequence, by name
+
+            This is to allow removing algorithms (or even sequences) from this
+            sequence in case that would be needed.
+
+            Keyword arguments:
+              name -- The name of the algorithm/sequence to delete from the
+                      sequence
+            """
+
+            # Look up the algorithm by name:
+            for algOrSeq in self._algsAndSequences:
+                if algOrSeq.name() == name:
+                    # If we found it, remove it:
+                    self._algsAndSequences.remove( algOrSeq )
+                    return
+                pass
+
+            # If no algorithm/sequence with this name was found, that's a
+            # problem:
+            raise AttributeError( 'Algorithm/sequence with name "%s" was not ' \
+                                      'found' % name )
+
         def __iter__( self ):
             """Create an iterator over all the algorithms of this sequence
 
@@ -86,7 +123,7 @@ except ImportError:
             # Create the iterator to process the internal list of algorithms:
             return AlgSequenceIterator( self._algsAndSequences )
 
-        def __iadd__( self, algOrSeq ):
+        def __iadd__( self, algOrSeq, index = None ):
             """Add one algorithm/sequence to the sequence
 
             This function is used to add one algorithm (or algorithm sequence)
@@ -111,7 +148,11 @@ except ImportError:
                 pass
 
             # Add the algorithm/sequence to the internal list:
-            self._algsAndSequences.append( algOrSeq )
+            if not index:
+                self._algsAndSequences.append( algOrSeq )
+            else:
+                self._algsAndSequences.insert( index, algOrSeq )
+                pass
 
             # Return the modified object:
             return self
@@ -291,6 +332,22 @@ except ImportError:
         def test_iteration( self ):
             algNames = [ alg.name() for alg in self.seq ]
             self.assertEqual( algNames, [ 'Algorithm1', 'Algorithm2' ] )
+            return
+
+        ## Test the insertion of one algorithm
+        def test_insertAlg( self ):
+            self.seq.insert( 1, AnaAlgorithmConfig( 'AlgType3/Algorithm3' ) )
+            self.assertEqual( len( self.seq ), 3 )
+            self.assertEqual( self.seq[ 0 ].name(), 'Algorithm1' )
+            self.assertEqual( self.seq[ 1 ].name(), 'Algorithm3' )
+            self.assertEqual( self.seq[ 2 ].name(), 'Algorithm2' )
+            return
+
+        ## Test the deletion of an algorithm
+        def test_deleteAlg( self ):
+            del self.seq.Algorithm1
+            self.assertEqual( len( self.seq ), 1 )
+            self.assertEqual( self.seq[ 0 ].name(), 'Algorithm2' )
             return
 
         pass
