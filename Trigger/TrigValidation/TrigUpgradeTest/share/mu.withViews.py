@@ -73,14 +73,11 @@ if not 'doL2CB' in dir():
   doL2CB=True
 if not 'doEFSA' in dir():
   doEFSA=True
-if not 'doEFIso' in dir():
-  doEFIso=True
 
-TriggerFlags.doID=True
+TriggerFlags.doID=False
 
  ### muon thresholds ###
-testChains = ["HLT_mu6"]
-#testChains = ["HLT_mu6", "HLT_2mu6"]
+testChains = ["HLT_mu6", "HLT_2mu6"]
 
 
 
@@ -618,37 +615,6 @@ if TriggerFlags.doMuon:
     muEFSASequence = seqAND("muEFSASequence", [efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo])
     muonEFSAStep = stepSeq("muonEFSAStep", filterEFSAAlg, [muEFSASequence, muonEFSADecisionsDumper])
 
-  if doEFIso :
-    ### RoRSeqFilter step2 ###
-    filterEFIsoAlg = RoRSeqFilter("filterEFIsoAlg")
-    filterEFIsoAlg.Input = [trigMuonEFSAHypo.HypoOutputDecisions]
-    filterEFIsoAlg.Output = ["Filtered"+trigMuonEFSAHypo.HypoOutputDecisions]
-    filterEFIsoAlg.Chains = testChains
-    filterEFIsoAlg.OutputLevel = DEBUG
-
-    efIsoViewNode = AthSequencer("efIsoViewNode", Sequential=False, ModeOR=False, StopOverride=False)
-    efIsoViewsMaker = EventViewCreatorAlgorithm("efIsoViewsMaker", OutputLevel=DEBUG)
-    efIsoViewsMaker.ViewFallThrough = True
- 
-    efIsoViewsMaker.InputMakerInputDecisions = [ filterEFIsoAlg.Output[0] ] # Output of TrigMufastHypo
-    efIsoViewsMaker.InputMakerOutputDecisions = [ filterEFIsoAlg.Output[0]+"Isolation" ] # Output of TrigMufastHypo
-    efIsoViewsMaker.RoIsLink = "roi" # -||-
-    efIsoViewsMaker.InViewRoIs = "EFIsoRoIs" # contract with the consumer
-    efIsoViewsMaker.Views = "EFIsoViewRoIs"
-    efIsoViewsMaker.ViewNodeName = efIsoViewNode.name()
-
-    from TrigMuonEF.TrigMuonEFConf import TrigMuonEFTrackIsolationAlgMT
-    efIsoAlg = TrigMuonEFTrackIsolationAlgMT("TrigEFIsoAlg")
-    efIsoAlg.MuonEFContainer = themuoncreatoralg.MuonContainerLocation
-
-    efIsoViewNode += efIsoAlg
-
-    from TrigMuonHypo.TrigMuonHypoConf import TrigMuonEFTrackIsolationHypoAlg 
-    trigMuonEFIsoHypoAlg  = TrigMuonEFTrackIsolationHypoAlg()
-
-    efIsoSequence = seqAND("efIsoSequence", [efIsoViewsMaker, efIsoViewNode, trigMuonEFIsoHypoAlg ] )
-    muEFIsoStep = stepSeq("muEFIsoStep", filterEFIsoAlg, [efIsoSequence])
-   
 
 
 # ===============================================================================================
@@ -678,7 +644,7 @@ if TriggerFlags.doMuon==True:
 
     topSequence += hltTop  
 
-  if doEFSA==True and doL2SA==False and doL2CB==False and doEFIso==False:
+  if doEFSA==True and doL2SA==False and doL2CB==False:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
@@ -766,28 +732,6 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
 
     topSequence += hltTop   
-
-if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
-  if doL2SA==True and doEFSA==True and doL2CB==False and doEFIso==True:
-    #from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    #summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    #summary.InputDecision = "HLTChains" 
-    #summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
-    #summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    step1 = parOR("step1", [ muonEFSAStep ] )
-    step2 = parOR("step2", [ muEFIsoStep ] )
-    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
-    step1filter = parOR("step1filter", [ filterEFSAAlg ] )
-    step2filter = parOR("step2filter", [ filterEFIsoAlg ] )
-    #HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, summary ]  )
-    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2 ]  )
-    #mon = TriggerSummaryAlg( "TriggerMonitoringAlg" )
-    #mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
-    #mon.HLTSummary = "MonitoringSummary"
-    #mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps] )
-    topSequence += hltTop
 
    
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
