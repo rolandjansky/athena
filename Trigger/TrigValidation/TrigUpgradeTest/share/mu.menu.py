@@ -45,34 +45,48 @@ if  TriggerFlags.doMuon==True:
     ##########################################
 
     from TrigUpgradeTest.MenuComponents import Chain, ChainStep
-    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muonEFSAStep, doL2SA, doL2CB, doEFSA
+    from TrigUpgradeTest.muMenuDefs import muFastStep, muCombStep, muonEFSAStep, muIsoStep, doL2SA, doL2CB, doEFSA, doL2ISO
 
     MenuChains  = []
 
+    # step1
     step1mufast=ChainStep("Step1_mufast", [muFastStep])
+    # step2
     step2muComb=ChainStep("Step2_muComb", [muCombStep])
+    # step3
     step3muEFSA=ChainStep("Step3_muEFSA", [muonEFSAStep])
+    step3muIso =ChainStep("Step3_muIso",  [muIsoStep])
 
     # add one chain wihtout tracking
     MenuChains += [Chain(name='HLT_mu6fast', Seed="L1_MU6",  ChainSteps=[step1mufast])]
+
     
     if TriggerFlags.doID==False:
-        if doL2SA==True  and doL2CB==False and doEFSA==False:           
+        if doL2SA==True  and doL2CB==False and doEFSA==False and doL2ISO==False:           
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast ])]
-        if doL2SA==False and doL2CB==False and doEFSA==True: 
+        if doL2SA==True  and doL2CB==False and doEFSA==True  and doL2ISO==False:           
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step3muEFSA ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step3muEFSA ])]
+
     elif TriggerFlags.doID==True:
-        #step2muComb=ChainStep("Step2_muComb", [muCombStep])
-        if doL2SA==True  and doL2CB==True  and doEFSA==False:
+        if doL2SA==True  and doL2CB==True  and doEFSA==False and doL2ISO==False:
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
-        if doL2SA==True  and doL2CB==True  and doEFSA==True:
+        if doL2SA==True  and doL2CB==True  and doEFSA==True  and doL2ISO==False:
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]
             MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]           
-    
-            
+        if doL2SA==True  and doL2CB==True  and doEFSA==False and doL2ISO==True:
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb ])]
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb ])]
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muIso ])]
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muIso ])]
+        if doL2SA==True  and doL2CB==True  and doEFSA==True and doL2ISO==True:
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muEFSA ])]           
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[step1mufast, step2muComb, step3muIso ])]
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[step1mufast, step2muComb, step3muIso ])]
+
 
     #################################
     # configure L1Decoder
