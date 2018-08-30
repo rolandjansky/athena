@@ -7,10 +7,12 @@
 #include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigOutputHandling/IHLTOutputTool.h"
+
 
 /**
  * @class An algorithm reading partial decisions and storing them in an HLTResult
@@ -40,6 +42,8 @@ class TriggerSummaryAlg : public ::AthReentrantAlgorithm {
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey { this, "HLTSummary", "HLTSummary", "Output summary" };
   //  SG::WriteHandleKey m_hltResultKey{ this, "HLTResult", "", "Output HLT Result" };
 
+  SG::ReadHandleKey<TrigTimeStamp> m_startStampKey{ this, "StartStampKey", "L1DecoderStart", 
+      "Object with the time stamp when decoding started" };
 
   typedef short ChainCounter_t;
   std::map<HLT::Identifier, ChainCounter_t> m_chainIdToChainCounter;

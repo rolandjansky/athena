@@ -19,6 +19,7 @@ StatusCode L1Decoder::initialize() {
     CHECK( m_RoIBResultKey.initialize( ) );
   
   CHECK( m_chainsKey.initialize() );
+  CHECK( m_startStampKey.initialize() );
 
   CHECK( m_ctpUnpacker.retrieve() );
   CHECK( m_roiUnpackers.retrieve() );
@@ -53,6 +54,10 @@ StatusCode L1Decoder::readConfiguration() {
 }
 
 StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
+  {
+    auto timeStampHandle = SG::makeHandle( m_startStampKey, ctx );
+    CHECK( timeStampHandle.record( std::move( std::make_unique<TrigTimeStamp>() ) ) );
+  }
   using namespace TrigCompositeUtils;
   const ROIB::RoIBResult* roib=0;
   if ( not m_RoIBResultKey.key().empty() ) {
