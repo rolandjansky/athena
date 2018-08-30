@@ -44,7 +44,7 @@ int Root::TPhotonEfficiencyCorrectionTool::initialize(){
 }
 
 int Root::TPhotonEfficiencyCorrectionTool::finalize(){
-    return Root::TElectronEfficiencyCorrectionTool::finalize();
+    return 1;
 }
 
 const Root::TResult& Root::TPhotonEfficiencyCorrectionTool::calculate( const PATCore::ParticleDataType::DataType dataType,
