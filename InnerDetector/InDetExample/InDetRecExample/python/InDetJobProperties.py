@@ -1108,6 +1108,12 @@ class doTIDE_AmbiTrackMonitoring(InDetFlagsJobProperty):
   statusOn     = True
   allowedTypes = ['bool']
   StoredValue  = False
+  
+class useEtaDependentCuts(InDetFlagsJobProperty):
+  """ Use eta dependent cuts (InDetEtaDependentCutsTool) for tracking algorithms"""
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = True
 
 class ForceCoraCool(InDetFlagsJobProperty):
   """ Use old (non CoolVectorPayload) SCT Conditions """
@@ -1256,6 +1262,10 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doSLHCVeryForward():
        self.checkThenSet(self.doSLHC            , True)
        self.checkThenSet(self.doForwardTracks   , True)
+    
+    if self.useEtaDependentCuts(): # because InDetEtaDependentCuts covers whole eta region
+       self.checkThenSet(self.doSLHCVeryForward   , False)
+       self.checkThenSet(self.doForwardTracks     , False)
 
     if (jobproperties.Beam.beamType()=="singlebeam"):
        self.checkThenSet(self.useHVForSctDCS         , True)    
@@ -1354,39 +1364,35 @@ class InDetJobProperties(JobPropertyContainer):
     # --- special case SLHC
     elif (self.doSLHC()):
        print "----> InDetJobProperties for SLHC"
-       self.checkThenSet(self.doNewTracking          , True )
-       self.checkThenSet(self.doLowPt                , False)
-       self.checkThenSet(self.doVeryLowPt            , False)
-       self.checkThenSet(self.doSLHCConversionFinding, True )
-       self.checkThenSet(self.doBeamGas              , False)
-       self.checkThenSet(self.doBeamHalo             , False)
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
-       self.checkThenSet(self.doBackTracking         , False)
-       self.checkThenSet(self.doTRTStandalone        , False)
-       self.checkThenSet(self.doForwardTracks        , False)
-       self.checkThenSet(self.doVertexFinding        , True)
-       self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding")
-       self.checkThenSet(self.primaryVertexCutSetup  , "SLHC")
-       self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
-       self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
-       self.checkThenSet(self.doV0Finder             , False)
-       self.checkThenSet(self.doSimpleV0Finder       , False)
-       self.checkThenSet(self.doConversions          , False)
-       self.checkThenSet(self.doStatistics           , False)
-       self.checkThenSet(self.doTrackSegmentsPixel   , False)
-       self.checkThenSet(self.doTrackSegmentsSCT     , False)
-       self.checkThenSet(self.doTrackSegmentsTRT     , False)
-       self.checkThenSet(self.doSlimming             , False)
-       self.checkThenSet(self.doSGDeletion           , True )
-       self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
-       # TEMPORARY FIX TO STOP SEG FAULT
-       self.checkThenSet(self.doPixelClusterSplitting, False)
-       self.checkThenSet(self.doTIDE_Ambi, False)
+       self.checkThenSet(self.doNewTracking                     , True )
+       self.checkThenSet(self.doLowPt                           , False)
+       self.checkThenSet(self.doVeryLowPt                       , False)
+       self.checkThenSet(self.doSLHCConversionFinding           , True )
+       self.checkThenSet(self.doBeamGas                         , False)
+       self.checkThenSet(self.doBeamHalo                        , False)
+       self.checkThenSet(self.doxKalman                         , False)
+       self.checkThenSet(self.doiPatRec                         , False)
+       self.checkThenSet(self.doBackTracking                    , False)
+       self.checkThenSet(self.doTRTStandalone                   , False)
+       self.checkThenSet(self.doForwardTracks                   , False)
+       self.checkThenSet(self.doVertexFinding                   , True )
+       self.checkThenSet(self.primaryVertexSetup                , "IterativeFinding")
+       self.checkThenSet(self.primaryVertexCutSetup             , "SLHC")
+       self.checkThenSet(self.secondaryVertexCutSetup           , "PileUp") 
+       self.checkThenSet(self.vertexSeedFinder                  , "SlidingWindowMultiSeedFinder")
+       self.checkThenSet(self.doV0Finder                        , False)
+       self.checkThenSet(self.doSimpleV0Finder                  , False)
+       self.checkThenSet(self.doConversions                     , False)
+       self.checkThenSet(self.doStatistics                      , False)
+       self.checkThenSet(self.doTrackSegmentsPixel              , False)
+       self.checkThenSet(self.doTrackSegmentsSCT                , False)
+       self.checkThenSet(self.doTrackSegmentsTRT                , False)
+       self.checkThenSet(self.doSlimming                        , False)
+       self.checkThenSet(self.doSGDeletion                      , True )
+       self.checkThenSet(self.doPixelClusterSplitting           , True )
+       self.checkThenSet(self.doTIDE_Ambi                       , True )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
-       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
-       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
-
+       
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
        print "----> DEPRECATED! This should now be the default settings"
@@ -2810,6 +2816,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowMuRunSetup,
                             doRobustReco,
                             doTIDE_AmbiTrackMonitoring,
+                            useEtaDependentCuts,
                             doSingleCollisionVertexReco,
                             useMBTSTimeDiff,
                             useNewSiSPSeededTF,

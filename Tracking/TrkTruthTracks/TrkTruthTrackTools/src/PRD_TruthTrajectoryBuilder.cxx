@@ -27,7 +27,8 @@ Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t
   m_idPrdProvider(""),
   m_msPrdProvider(""),
   m_minPt(400.),
-  m_geantinos(false)
+  m_geantinos(false),
+  m_etaDependentCutsSvc("", n)
 {
     declareInterface<Trk::IPRD_TruthTrajectoryBuilder>(this);
     // the PRD multi truth collections this builder works on
@@ -41,6 +42,7 @@ Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t
     declareProperty("MinimumPt",         m_minPt);
     // Track geantinos
     declareProperty("Geantinos",         m_geantinos);
+    declareProperty("InDetEtaDependentCutsSvc"   , m_etaDependentCutsSvc);
 }
 
 // Athena algtool's Hooks - initialize
@@ -67,6 +69,9 @@ StatusCode  Trk::PRD_TruthTrajectoryBuilder::initialize()
         ATH_MSG_ERROR ("Could not get configured " << m_prdTruthTrajectoryManipulators << ". Arborting ..." );
         return StatusCode::FAILURE;
     }
+    
+    if (not m_etaDependentCutsSvc.name().empty())
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
 
     return StatusCode::SUCCESS;
 }
@@ -125,7 +130,10 @@ const std::vector< Trk::PRD_TruthTrajectory >& Trk::PRD_TruthTrajectoryBuilder::
             const HepMC::GenParticle* curGenP       = (*prdMtCIter).second;
             Identifier                curIdentifier = (*prdMtCIter).first;
             // apply the min pT cut 
-            if ( curGenP->momentum().perp() < m_minPt ) continue;
+            double minpt = m_minPt;
+            if (not m_etaDependentCutsSvc.name().empty())
+              minpt = m_etaDependentCutsSvc->getMinPtAtEta(curGenP->momentum().eta());
+            if ( curGenP->momentum().perp() < minpt ) continue;
             // skip geantinos if required
             if (!m_geantinos && std::abs(curGenP->pdg_id())==999) continue;
             // get the associated PRD from the provider

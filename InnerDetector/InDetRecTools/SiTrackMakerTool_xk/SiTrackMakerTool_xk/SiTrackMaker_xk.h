@@ -159,6 +159,9 @@ namespace InDet{
       double m_etaWidth                              ;
       double m_p[9]                                  ;
       double m_xybeam[2]                             ;
+      std::vector < double >         m_etabins       ;
+      std::vector < double >         m_ptbins        ;
+      
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
@@ -183,16 +186,36 @@ namespace InDet{
       bool isHadCaloCompatible();
       bool isDBMSeeds(const Trk::SpacePoint*);
       void clusterTrackMap(Trk::Track*);
+      
+      double pTmin(double T);
+      
       void       magneticFieldInit();
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;
+      
     };
 
     MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);
     std::ostream& operator << (std::ostream&,const SiTrackMaker_xk&); 
 
+    ///////////////////////////////////////////////////////////////////
+    // min pT as function of fabs(dZ/dR) (T)
+    ///////////////////////////////////////////////////////////////////
+  
+    inline double SiTrackMaker_xk::pTmin(double T)
+    {
+      if (m_ptbins.size() == 0) return m_pTmin;
+      
+      double eta = fabs(-log(tan(0.5*T)));
+      for(int n = int(m_ptbins.size()-1); n>=0; --n) {
+        if(eta > m_etabins.at(n)) return m_ptbins.at(n);
+      }
+      
+      return m_pTmin;
+    }
+    
 } // end of name space
 
 #endif // SiTrackMaker_xk_H

@@ -47,9 +47,8 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
   m_onlyPrimaries(false),
   m_primaryBarcodeCutOff(100000),
   m_minSiHits(7),
-  m_minSiHitsForward(m_minSiHits),
-  m_forwardBoundary(2.4),
-  m_materialInteractions(true)
+  m_materialInteractions(true),
+  m_etaDependentCutsSvc("",n)
 {
     declareInterface<Trk::ITruthTrackBuilder>(this);
     // TrackFitter
@@ -61,9 +60,8 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
     declareProperty("OnlyPrimaries",                     m_onlyPrimaries); 
     declareProperty("PrimaryBarcodeCutOff",              m_primaryBarcodeCutOff);
     declareProperty("MinSiHits",                         m_minSiHits);
-    declareProperty("MinSiHitsForward",                  m_minSiHitsForward);
-    declareProperty("ForwardBoundary",                   m_forwardBoundary);
     declareProperty("MaterialInteractions",              m_materialInteractions);
+    declareProperty("InDetEtaDependentCutsSvc",          m_etaDependentCutsSvc);
 }
 
 
@@ -72,12 +70,12 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
 {
     ATH_MSG_VERBOSE("Initializing ...");
     if (m_rotcreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_rotcreator.type() << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_rotcreator.type() << endmsg;
       return StatusCode::FAILURE; 
     }
 
     if (m_rotcreatorbroad.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_rotcreatorbroad.type() << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_rotcreatorbroad.type() << endmsg;
       return StatusCode::FAILURE; 
     }
 
@@ -104,6 +102,9 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
         ATH_MSG_ERROR("Can not retrieve " << m_particlePropSvc << " . Aborting ... " );
         return StatusCode::FAILURE;
     }
+    
+    if (not m_etaDependentCutsSvc.name().empty()) 
+    ATH_CHECK(m_etaDependentCutsSvc.retrieve());
     
     // and the particle data table 
     m_particleDataTable = m_particlePropSvc->PDT();
@@ -239,7 +240,13 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    // this is the reference trajectory to be refitted  
    Trk::TrackInfo info;
    Trk::Track track(info,traj,0);
-   if (/* ndof<0 */ (track.measurementsOnTrack()->size()<m_minSiHits && fabs(genPart->momentum().eta())<=m_forwardBoundary) || (track.measurementsOnTrack()->size()<m_minSiHitsForward && fabs(genPart->momentum().eta())>m_forwardBoundary) || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
+   
+   unsigned int minsihits = m_minSiHits;
+   
+   if (not m_etaDependentCutsSvc.name().empty())
+     minsihits = m_etaDependentCutsSvc->getMinSiHitsAtEta(genPart->momentum().eta());
+     
+   if (/* ndof<0 */ track.measurementsOnTrack()->size()<minsihits || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
        ATH_MSG_VERBOSE("Track does not fulfill requirements for refitting. Skipping it.");
        return 0;
    }

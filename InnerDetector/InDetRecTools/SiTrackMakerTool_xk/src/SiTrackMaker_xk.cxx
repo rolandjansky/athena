@@ -85,6 +85,8 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("Xi2max"                  ,m_xi2max      );
   declareProperty("Xi2maxNoAdd"             ,m_xi2maxNoAdd );
   declareProperty("Xi2maxlink"              ,m_xi2maxlink  );
+  declareProperty("etaBins"                 ,m_etabins     );
+  declareProperty("pTBins"                  ,m_ptbins      );
   declareProperty("pTmin"                   ,m_pTmin       );
   declareProperty("pTminBrem"               ,m_pTminBrem   );
   declareProperty("pTminSSS"                ,m_pTminSSS    );
@@ -181,7 +183,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
       msg(MSG::INFO) << "Retrieved tool " << m_seedtrack << endreq;
     }
   }
-
+  
   m_heavyion = false;
 
   // TrackpatternRecoInfo preparation 
@@ -234,6 +236,23 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   }
   
   if(m_pTmin < 20.) m_pTmin = 20.;
+  
+  if (m_etabins.size()>0) {
+    if (m_ptbins.size() > (m_etabins.size()-1)) {
+      ATH_MSG_ERROR( "No. of cut values bigger than eta bins");
+      return StatusCode::FAILURE;
+    }
+    
+    if (m_ptbins.size() < (m_etabins.size()-1)) {
+      ATH_MSG_DEBUG( "No. of cut values smaller than eta bins. Extending size..." );
+      m_ptbins.resize(m_etabins.size()-1, m_ptbins.back());
+    }
+    
+    for (auto& pt : m_ptbins) {
+      if (pt < 20.) pt = 20.;
+    }
+  }
+   
   return StatusCode::SUCCESS;
 }
 
@@ -253,7 +272,9 @@ StatusCode InDet::SiTrackMaker_xk::finalize()
 MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint)  
+    return dumpevent(out); 
+  return dumpconditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -484,9 +505,8 @@ void InDet::SiTrackMaker_xk::endEvent()
  
   // Print event information 
   //
-  if (outputLevel()<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
-  }
+  ATH_MSG_DEBUG(*this);
+  
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -691,11 +711,19 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
       m_p[5] = 1./m_pTmin  ;
   }
   
-  if(fabs(m_p[5])*m_pTmin > 1.1) return 0;
+  double pTm = pTmin(T) ;
+  
+  if(fabs(m_p[5])*pTm > 1.1) return 0;
   m_p[4] = m_p[5]/sqrt(1.+T*T);
   m_p[6] = x0                              ;
   m_p[7] = y0                              ;
   m_p[8] = z0                              ;
+  
+  // protection against numerical accidents...
+  if (m_p[0]!=m_p[0] || m_p[1]!=m_p[1] || m_p[2]!=m_p[2] || m_p[3]!=m_p[3] || m_p[4]!=m_p[4]) {
+    ATH_MSG_WARNING("Seed parameters contain NaN elements - skipping this seed ");
+    return 0;
+  }
 
   if(sss && !isHadCaloCompatible()) return 0;
 
@@ -855,7 +883,9 @@ StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS)
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) 
+    m_fieldmode ="NoField"; 
+  magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 

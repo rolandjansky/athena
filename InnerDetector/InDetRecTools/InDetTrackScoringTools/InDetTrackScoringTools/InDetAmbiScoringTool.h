@@ -12,6 +12,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -136,6 +137,9 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   std::vector<double>   m_emZ;
 
   bool                  m_mapFilled;
+  
+  /** service to get cut values depending on different variable */
+  ServiceHandle<IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc; 
   
 };
 

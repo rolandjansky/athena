@@ -103,16 +103,22 @@ class  ConfiguredInDetValidation:
                                                                         SpacePointsPixelName   = InDetKeys.PixelSpacePoints()    ,
                                                                         SpacePointsSCTName     = InDetKeys.SCT_SpacePoints()     ,
                                                                         SpacePointsOverlapName = InDetKeys.OverlapSpacePoints()  ,
-                                                                        MomentumCut            = 2. * NewTrackingCuts.minPT()   ,
                                                                         RapidityCut            = NewTrackingCuts.maxEta()        ,
                                                                         RadiusMin              = rmin                            ,
                                                                         RadiusMax              = rmax                            ,
-                                                                        MinNumberClusters      = NewTrackingCuts.minClusters()   ,
                                                                         MinNumberClustersTRT   = 0                               ,
                                                                         MinNumberSpacePoints   = 3                               ,
                                                                         usePixel               = DetFlags.haveRIO.pixel_on()     ,
                                                                         useSCT                 = DetFlags.haveRIO.SCT_on()       ,
                                                                         useTRT                 = DetFlags.haveRIO.TRT_on()       )
+      
+      if InDetFlags.useEtaDependentCuts() and NewTrackingCuts.mode() == "SLHC":
+        InDetTrackClusterAssValidation.MomentumCut               = 2. * NewTrackingCuts.minPT()[0]
+        InDetTrackClusterAssValidation.MinNumberClusters         = NewTrackingCuts.minClusters()[0]
+        InDetTrackClusterAssValidation.InDetEtaDependentCutsSvc  = InDetEtaDependentCutsSvc
+      else:
+        InDetTrackClusterAssValidation.MomentumCut            = 2. * NewTrackingCuts.minPT()
+        InDetTrackClusterAssValidation.MinNumberClusters      = NewTrackingCuts.minClusters()
 
       if InDetFlags.doDBMstandalone() or  nameExt=="DBM" or nameExt=="PUDBM":
         InDetTrackClusterAssValidation.MomentumCut            = 0
