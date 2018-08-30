@@ -393,7 +393,7 @@ class Configuration:
       if JetCollection in self._BTaggingConfig_JetBTaggerAlgs:
           self.setupJetBTaggerAlgs(JetCollections=JetCollection)
 
-  def setupJetBTaggerAlg(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = True, AddToToolSvc = True, options={}, StripJetsSuffix = True):
+  def setupJetBTaggerAlg(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = True, options={}, StripJetsSuffix = True):
       """Convenience function which takes only a single jet collection and returns an instance instead
       of a list; see setupJetBTaggerAlgs for more info. This function is mainly here for easy calling BTagging.
 
@@ -405,7 +405,7 @@ class Configuration:
           elif Verbose:
               print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
           JetCollection = JetCollection[:-4]
-      btagger = self.setupJetBTaggerAlgs(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme)
+      btagger = self.setupJetBTaggerAlgs(ToolSvc, [JetCollection,], topSequence, Verbose, options, TaggerList, SetupScheme)
       return btagger[0]
 
   def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True):
@@ -423,7 +423,7 @@ class Configuration:
       btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme)
       return btagger[0]
 
-  def setupJetBTaggerAlgs(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = ""):
+  def setupJetBTaggerAlgs(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, options={}, TaggerList=[], SetupScheme = ""):
       """Sets up JetBTaggerAlg tools and adds them to the topSequence (one per jet collection). This function just updates
       the tool if such a tool already exists for the specified jet collections. This function should only be used for
       jet collections that one need reconstruction. Note that it is allowed to set topSequence to None,
@@ -436,7 +436,6 @@ class Configuration:
              JetCollections:   List of jet collection name (can also accept string in the case of one collection).
              topSequence:      The topSequence. (not needed when updating)
              Verbose:          Whether to print some additional information. If None then BTaggingFlags.OutputLevel will be used.
-             AddToToolSvc:     Whether to add the JetBTaggerAlg to the ToolSvc or not.
              options:          List of options to be passed to the JetBTaggerAlgs. This has the following defaults:
 
       OutputLevel:                                  default: BTaggingFlags.OutputLevel
@@ -508,9 +507,6 @@ class Configuration:
           # -- add tool to topSequence
           if not topSequence is None:
               topSequence += jetbtaggeralg
-          # -- add tool to ToolSvc
-          if AddToToolSvc:
-              ToolSvc += jetbtaggeralg
           if Verbose:
               print jetbtaggeralg
               print self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerAlg we have the following BTagTool:'
@@ -1634,14 +1630,14 @@ class Configuration:
           else:
               broker = self._BTaggingConfig_InitializedTools.get(self.getToolName('BTagCalibrationBrokerTool',track,jetcol), None)
               if broker is None:
-                  print self.BTagTag()+' - ERROR - CalibrationBroker not found; calibrations will not function!'
-                  raise ValueError
+                  print self.BTagTag()+' - WARNING - CalibrationBroker not found; If you are in reco mode the condition algorithm is used. If not calibrations will not function!'
               elif not hasattr(broker, 'taggers'):
                   print self.BTagTag()+' - ERROR - CalibrationBroker does not have "taggers" as an attribute; calibrations will not function!'
                   raise ValueError
-              for tagger in CalibrationTaggers:
-                  if not tagger in broker.taggers:
-                      broker.taggers.append(tagger)
+              else:
+                  for tagger in CalibrationTaggers:
+                      if not tagger in broker.taggers:
+                          broker.taggers.append(tagger)
       # Set up the actual tool
       try:
           exec('tool = tool'+tool_type+'(**options)')

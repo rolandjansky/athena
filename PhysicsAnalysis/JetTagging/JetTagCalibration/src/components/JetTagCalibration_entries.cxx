@@ -1,6 +1,6 @@
 #include "JetTagCalibration/CalibrationBroker.h"
-
+#include "JetTagCalibration/JetTagCalibCondAlg.h"
 using namespace Analysis ;
 
-DECLARE_COMPONENT( Analysis::CalibrationBroker )
-
+DECLARE_COMPONENT( CalibrationBroker )
+DECLARE_COMPONENT( JetTagCalibCondAlg )

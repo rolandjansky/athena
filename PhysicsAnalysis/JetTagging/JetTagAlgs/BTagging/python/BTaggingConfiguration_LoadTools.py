@@ -42,6 +42,9 @@ def Initiate(ConfInstance=None):
   from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
   from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
   from IOVDbSvc.CondDB import conddb
+  # Declare the COOL folder to the CondInputLoader
+  conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/BTagCalib/RUN12", className='CondAttrListCollection')
+  conddb.addFolder("GLOBAL_OFL", "/GLOBAL/BTagCalib/RUN12", className='CondAttrListCollection')
   btagrun1=False
   if conddb.dbdata == 'COMP200':
     btagrun1=True
@@ -69,10 +72,10 @@ def Initiate(ConfInstance=None):
   if ConfInstance._name == "Trig":
     BTaggingFlags.MV2c20=True
   
-  if ConfInstance.getTool("BTagCalibrationBrokerTool"):
-    print ConfInstance.BTagTag()+' - INFO - BTagCalibrationBrokerTool already exists prior to default initialization; assuming user set up entire initialization him/herself. Note however that if parts of the initalization were not set up, and a later tool requires them, they will be set up at that point automatically with default settings.'
-    ConfInstance._Initialized = True
-    return True
+#  if ConfInstance.getTool("BTagCalibrationBrokerTool"):
+#    print ConfInstance.BTagTag()+' - INFO - BTagCalibrationBrokerTool already exists prior to default initialization; assuming user set up entire initialization him/herself. Note however that if parts of the initalization were not set up, and a later tool requires them, they will be set up at that point automatically with default settings.'
+#    ConfInstance._Initialized = True
+#    return True
 
   print ConfInstance.BTagTag()+' - INFO - Initializing default basic tools'
 
@@ -121,6 +124,31 @@ def Initiate(ConfInstance=None):
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
 
+    #Create and add our condition algorithm to the Condition Sequencer
+
+    #IP2D
+    grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
+                  "0HitInExp", "0HitIn",
+                  "0HitNInExp", "0HitNIn",
+                  "InANDNInShared", "PixShared", "SctShared",
+                  "InANDNInSplit", "PixSplit",
+                  "Good"]
+
+    #IP3D
+    #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
+ 
+    from AthenaCommon.GlobalFlags import globalflags
+    readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
+    if globalflags.DataSource()=='data':
+      readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
+ 
+    from JetTagCalibration.JetTagCalibrationConf import Analysis__JetTagCalibCondAlg as JetTagCalibCondAlg
+    JetTagCalib = JetTagCalibCondAlg("test_jettagcalib", ReadKeyCalibPath=readkeycalibpath, taggers = ['IP2D','IP3D','SV1','JetFitterNN','SoftMu', 'MV2c10', 'MV2c100', 'MV2c10mu', 'MV2c10rnn', 'MV2cl100','RNNIP', 'JetVertexCharge', 'MultiSVbb1', 'MultiSVbb2', 'DL1', 'DL1mu', 'DL1rnn'], channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+    #JetTagCalib.OutputLevel=2
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    condSeq += JetTagCalib
+
     #
     # ========== Add tools now
     #
@@ -129,8 +157,7 @@ def Initiate(ConfInstance=None):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.Resilience import treatException,protectedInclude
     if ConfInstance._name == "":
-      protectedInclude("BTagging/BTagCalibBroker_jobOptions.py") # New file which includes the file from JetCalibration and also registers it via registerTool() so it will be recognized by the various addTool() functions.
-      BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool") # In case this variable is needed
+      print ConfInstance.BTagTag()+' - No calibration broker setup - The condition algorithm is used'
     elif ConfInstance._name == "Trig":
       protectedInclude("BTagging/BTagCalibBroker_Trig_jobOptions.py")
       BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool")
