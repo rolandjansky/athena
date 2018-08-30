@@ -62,7 +62,7 @@ thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5Small
 thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D2',HIGG5D2ThinningHelper) )
 
-#generic object thinning
+#generic jet thinning
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
 if DerivationFrameworkIsMonteCarlo :
   thinningTools.append( HIGG5Common.getTruthThinningTool('HIGG5D2',HIGG5D2ThinningHelper) )

@@ -396,6 +396,29 @@ def getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinn
     ToolSvc+= thinning_tool
     return thinning_tool
 
+def getAntiKt10TruthTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+    thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "AntiKt10TruthTrimmedPtFrac5SmallR20JetThinningTool",
+                                                               ThinningService  = thinning_helper.ThinningSvc(),
+                                                               ContainerName    = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
+                                                               SelectionString  = "(AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && abs(AntiKt10TruthTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                               ApplyAnd         = False)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc+= thinning_tool
+    return thinning_tool
+
+def getAntiKt10TruthWZTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+    thinning_tool =DerivationFramework__GenericObjectThinning( name             = tool_prefix + "AntiKt10TruthWZTrimmedPtFrac5SmallR20JetThinningTool",
+                                                               ThinningService  = thinning_helper.ThinningSvc(),
+                                                               ContainerName    = "AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets",
+                                                               SelectionString  = "(AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets.pt > 150*GeV && abs(AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets.eta)<2.6)",
+                                                               ApplyAnd         = False)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc+= thinning_tool
+    return thinning_tool
+
+
 def addTrimmedTruthWZJets(sequence, output_group) :
     from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
     addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, mods="groomed", includePreTools=False, algseq=sequence,outputGroup=output_group)
