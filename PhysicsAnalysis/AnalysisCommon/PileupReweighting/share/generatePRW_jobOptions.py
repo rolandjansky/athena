@@ -1,6 +1,9 @@
 
 theApp.EvtMax=-1                                         #says how many events to run over. Set to -1 for all events
 
+#Include error handler for safety purposes
+theApp.CreateSvc += ["AthROOTErrorHandlerSvc"]
+
 #import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POOL files (e.g. xAODs)
 import AthenaRootComps.ReadAthenaxAODHybrid
 svcMgr.EventSelector.AccessMode=1 #use class access mode ... I know it's wrong, but it should be ok just for the EventInfo information
