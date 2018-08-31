@@ -208,7 +208,7 @@ def getEBnoL1PSSeed(l1items, l1seedname):
         l1EBitems.append('L1_4J15.0ETA25')
         l1EBitems.append('L1_4J20')
         l1EBitems.append('L1_4MU4')
-        l1EBitems.append('L1_AFP_A_AND_C_SPECTOF_J75')
+#        l1EBitems.append('L1_AFP_A_AND_C_SPECTOF_J75')
         l1EBitems.append('L1_DR-EM15TAU12I-J25')
         l1EBitems.append('L1_DR-TAU20ITAU12I-J25')
         l1EBitems.append('L1_EM15VHI_2TAU12IM_4J12')
