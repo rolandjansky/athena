@@ -67,12 +67,11 @@ InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool", 
 ToolSvc += InDetClusterMakerTool
 print      InDetClusterMakerTool
 #
-# SCT_ClusteringTool (public)
+# SCT_ClusteringTool
 #
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name          = "InDetSCT_ClusteringTool",
                                                        globalPosAlg  = InDetClusterMakerTool)
-ToolSvc += InDetSCT_ClusteringTool
 print      InDetSCT_ClusteringTool
 #
 # SCT_Clusterization algorithm
