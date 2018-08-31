@@ -455,11 +455,11 @@ def setupMenu():
 	#['mb_sptrk_ion_trk15_L1ZDC_XOR_VTE200_MBTS_1',  'L1_ZDC_XOR_VTE200_MBTS_1', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	
 	#UPC: Other primary 
-	['mb_sptrk_exclusiveloose_vetosp200_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
-	['mb_sptrk_exclusivetight_vetosp200_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
-	
-	['mb_sptrk_exclusiveloose_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
-	['mb_sptrk_exclusivetight_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	['mb_sptrk_exclusiveloose_vetosp1500_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	['mb_sptrk_exclusivetight_vetosp1500_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+		
+	#['mb_sptrk_exclusiveloose_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	#['mb_sptrk_exclusivetight_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
 	
 	#['mb_sptrk_ptX_L1TE5_VZDC_AORC_VTE200',        'L1_TE5_VZDC_AORC_VTE200',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
        
