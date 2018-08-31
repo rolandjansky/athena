@@ -146,7 +146,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY15BcJpsipiSelectAndWrite = DerivationFramework__Reco_dimuTrk(
     name                   = "BPHY15BcJpsipiSelectAndWrite",
     Jpsi1PlusTrackName     = BPHY15BcJpsipi,
-    OutputVtxContainerName = "BcJpsipiCandidates",
+    OutputVtxContainerName = "BPHY15BcJpsipiCandidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "BPHY15RefittedPrimaryVertices",
     RefitPV                = True,
@@ -160,7 +160,7 @@ print      BPHY15BcJpsipiSelectAndWrite
 BPHY15_Select_Bc2Jpsipi = DerivationFramework__Select_onia2mumu(
     name                  = "BPHY15_Select_Bc2Jpsipi",
     HypothesisName        = "Bc",
-    InputVtxContainerName = "BcJpsipiCandidates",
+    InputVtxContainerName = "BPHY15BcJpsipiCandidates",
     TrkMasses             = [105.658, 105.658, 139.571],
     VtxMassHypo           = 6274.9,
     MassMin               = 5600.0,
@@ -654,7 +654,7 @@ if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY15_SelectBcJpsipiEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY15_SelectBcJpsipiEvent",
-     expression = "(count(BcJpsipiCandidates.passed_Bc > 0) + count(BcJpsiDsCascadeSV1.x > -999) + count(BcJpsiDpCascadeSV1.x > -999) + count(BcJpsiDmCascadeSV1.x > -999) + count(BcJpsiDpstCascadeSV1.x > -999) + count(BcJpsiDmstCascadeSV1.x > -999) + count(BcJpsiDps1CascadeSV1.x > -999) + count(BcJpsiDms1CascadeSV1.x > -999) ) > 0")
+     expression = "(count(BPHY15BcJpsipiCandidates.passed_Bc > 0) + count(BcJpsiDsCascadeSV1.x > -999) + count(BcJpsiDpCascadeSV1.x > -999) + count(BcJpsiDmCascadeSV1.x > -999) + count(BcJpsiDpstCascadeSV1.x > -999) + count(BcJpsiDmstCascadeSV1.x > -999) + count(BcJpsiDps1CascadeSV1.x > -999) + count(BcJpsiDms1CascadeSV1.x > -999) ) > 0")
    
    ToolSvc += BPHY15_SelectBcJpsipiEvent
    print      BPHY15_SelectBcJpsipiEvent
@@ -687,7 +687,7 @@ BPHY15_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
     name                       = "BPHY15_thinningTool_Tracks",
     ThinningService            = "BPHY15ThinningSvc",
     TrackParticleContainerName = "InDetTrackParticles",
-    VertexContainerNames       = ["BcJpsipiCandidates", "BcJpsiDsCascadeSV1", "BcJpsiDsCascadeSV2", "BcJpsiDpCascadeSV1", "BcJpsiDpCascadeSV2", "BcJpsiDmCascadeSV1","BcJpsiDmCascadeSV2", "BcJpsiDpstCascadeSV1", "BcJpsiDpstCascadeSV2", "BcJpsiDmstCascadeSV1", "BcJpsiDmstCascadeSV2", "BcJpsiDps1CascadeSV1", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV3", "BcJpsiDms1CascadeSV1", "BcJpsiDms1CascadeSV2", "BcJpsiDms1CascadeSV3"],
+    VertexContainerNames       = ["BPHY15BcJpsipiCandidates", "BcJpsiDsCascadeSV1", "BcJpsiDsCascadeSV2", "BcJpsiDpCascadeSV1", "BcJpsiDpCascadeSV2", "BcJpsiDmCascadeSV1","BcJpsiDmCascadeSV2", "BcJpsiDpstCascadeSV1", "BcJpsiDpstCascadeSV2", "BcJpsiDmstCascadeSV1", "BcJpsiDmstCascadeSV2", "BcJpsiDps1CascadeSV1", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV3", "BcJpsiDms1CascadeSV1", "BcJpsiDms1CascadeSV2", "BcJpsiDms1CascadeSV3"],
     PassFlags                  = ["passed_Bc"])
 
 ToolSvc += BPHY15_thinningTool_Tracks
@@ -697,7 +697,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY15_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
     name                 = "BPHY15_thinningTool_PV",
     ThinningService      = "BPHY15ThinningSvc",
-    CandidateCollections = ["BcJpsipiCandidates", "BcJpsiDsCascadeSV1", "BcJpsiDsCascadeSV2", "BcJpsiDpCascadeSV1", "BcJpsiDpCascadeSV2", "BcJpsiDmCascadeSV1","BcJpsiDmCascadeSV2", "BcJpsiDpstCascadeSV1", "BcJpsiDpstCascadeSV2", "BcJpsiDmstCascadeSV1", "BcJpsiDmstCascadeSV2", "BcJpsiDps1CascadeSV1", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV3", "BcJpsiDms1CascadeSV1", "BcJpsiDms1CascadeSV2", "BcJpsiDms1CascadeSV3"],
+    CandidateCollections = ["BPHY15BcJpsipiCandidates", "BcJpsiDsCascadeSV1", "BcJpsiDsCascadeSV2", "BcJpsiDpCascadeSV1", "BcJpsiDpCascadeSV2", "BcJpsiDmCascadeSV1","BcJpsiDmCascadeSV2", "BcJpsiDpstCascadeSV1", "BcJpsiDpstCascadeSV2", "BcJpsiDmstCascadeSV1", "BcJpsiDmstCascadeSV2", "BcJpsiDps1CascadeSV1", "BcJpsiDps1CascadeSV2", "BcJpsiDps1CascadeSV3", "BcJpsiDms1CascadeSV1", "BcJpsiDms1CascadeSV2", "BcJpsiDms1CascadeSV3"],
     KeepPVTracks         = True)
 
 ToolSvc += BPHY15_thinningTool_PV
