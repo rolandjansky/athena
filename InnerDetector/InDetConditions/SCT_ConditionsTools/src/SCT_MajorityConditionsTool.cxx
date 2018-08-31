@@ -4,11 +4,11 @@
 
 #include "SCT_MajorityConditionsTool.h"
 
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
+
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-
-#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 using namespace SCT_ConditionsData;
 
@@ -46,15 +46,13 @@ StatusCode SCT_MajorityConditionsTool::finalize() {
 bool SCT_MajorityConditionsTool::isGood() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
-  if (!condData) return false;
+  if (condData==nullptr) return false;
 
   if (m_overall) {
     return (condData->getMajorityState(OVERALL) and (condData->getHVFraction(OVERALL) > m_majorityFraction));
   } else {
-    return ((condData->getMajorityState(BARREL) and 
-             condData->getMajorityState(ECA)    and 
-             condData->getMajorityState(ECC))                      and
-	    (condData->getHVFraction(BARREL) > m_majorityFraction) and
+    return ((condData->getMajorityState(BARREL) and condData->getMajorityState(ECA) and condData->getMajorityState(ECC)) and
+            (condData->getHVFraction(BARREL) > m_majorityFraction) and
             (condData->getHVFraction(ECA)    > m_majorityFraction) and
             (condData->getHVFraction(ECC)    > m_majorityFraction));
   }
@@ -64,7 +62,7 @@ bool SCT_MajorityConditionsTool::isGood() const {
 bool SCT_MajorityConditionsTool::isGood(int bec) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
-  if (!condData) return false;
+  if (condData==nullptr) return false;
 
   bool result{true};
 
