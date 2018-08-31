@@ -7,6 +7,7 @@
 
 #include <cstring>
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/System.h"
 #include "AthenaKernel/StorableConversions.h"
 #include "TrigSerializeResult/StringSerializer.h"
 
@@ -28,6 +29,15 @@ StatusCode HLTResultCreatorByteStream::initialize() {
   ATH_CHECK( m_serializerSvc.retrieve() );
   ATH_CHECK( m_dictLoaderSvc.retrieve() );
 
+  System::ImageHandle handle = 0;
+  if ( System::loadDynamicLib( "xAODTrigger", &handle)  != 1 ) {
+    ATH_MSG_WARNING("Can not load the lib");
+  } else {
+    ATH_MSG_DEBUG("Could load the lib");
+  }
+
+
+
   for ( std::string typeAndKey: m_collectionsToSerialize ) {
     const std::string type = typeAndKey.substr( 0, typeAndKey.find('#') );
     const std::string key = typeAndKey.substr( typeAndKey.find('#')+1 );    
@@ -35,18 +45,16 @@ StatusCode HLTResultCreatorByteStream::initialize() {
     if ( m_clidSvc->getIDOfTypeName(type, clid).isFailure() )  {
       ATH_MSG_ERROR( "Can not find CLID for " << type << " that is needed to stream " << key );
       return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG( "Type " << type << " known to ClassID srrvice, CLID: " << clid );
-      m_toSerialize.push_back( Address{ type, clid, key } );
-    }
-    if ( not m_dictLoaderSvc->load_type( type ) ) {
-      ATH_MSG_WARNING("Can not load dictionary for: " << type );
-    }
+    } 
+
+    RootType classDesc = RootType::ByName( type );
+    // if ( ! classDesc.IsComplete() ) {
+    //   ATH_MSG_ERROR( "The type " << type <<  " is not known" );
+    //   return StatusCode::FAILURE;
+    // }
     
-    if ( not m_dictLoaderSvc->has_type( type ) ) {
-      ATH_MSG_ERROR("No type dictionary for: " << type );
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "Type " << type << " key " << key <<  " serializable" );
+    m_toSerialize.push_back( Address{ type, clid, classDesc, key } );      
   }
 
   return StatusCode::SUCCESS;
@@ -94,6 +102,7 @@ StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context 
       continue;
     }
 
+
     const void* rawptr = SG::fromStorable( dObj, address.clid, nullptr, msgLvl(MSG::DEBUG) );
     if ( rawptr == nullptr ) {
       ATH_MSG_DEBUG( "Data Object with key " << address.key <<
@@ -102,10 +111,10 @@ StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context 
     }
     ATH_MSG_DEBUG("Obtained raw pointer " << rawptr );
 
-    const RootType rt = m_dictLoaderSvc->load_type(address.type);
-    
+    // const RootType rt = m_dictLoaderSvc->load_type(address.type);
+    RootType classDesc = RootType::ByName( address.type );    
     size_t sz=0;    
-    void* mem = m_serializerSvc->serialize( rawptr, rt, sz );
+    void* mem = m_serializerSvc->serialize( rawptr, classDesc, sz );
     ATH_MSG_DEBUG( "Streamed to buffer at address " << mem << " of " << sz << " bytes" );
     
     if ( mem == nullptr and sz == 0 ) {

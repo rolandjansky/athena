@@ -39,7 +39,9 @@ class HLTResultCreatorByteStream: public extends<AthAlgTool, IHLTOutputTool>
   virtual StatusCode  finalize() override;
 
  private: 
-  Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize{this, "CollectionsToSerialize", {}, "TYPE#SG key of collections to be streamed (like in StreamAOD)" };
+  Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize { this, "CollectionsToSerialize", {}, "TYPE#SG key of collections to be streamed (like in StreamAOD)" };
+
+  //  Gaudi::Property< std::vector<std::string>> m_librariesToLoad { this, "LibrariesToLoad", {"xAODTrigger"}, "Set of libraries that need to be loaded for the type discovery to work" };
 
   SG::WriteHandleKey<HLT::HLTResult> m_hltResultKey{this, "HLTResult", "HLTResult", "Name of the HLTResult"};
   
@@ -47,6 +49,7 @@ class HLTResultCreatorByteStream: public extends<AthAlgTool, IHLTOutputTool>
   struct Address {
     std::string type;
     CLID clid;
+    RootType rt;
     std::string key;    
   };
   
