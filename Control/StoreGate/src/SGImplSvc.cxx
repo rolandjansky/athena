@@ -1247,6 +1247,7 @@ void SGImplSvc::emptyTrash() {
 bool SGImplSvc::bindHandleToProxy(const CLID& id, const string& key,
                                   IResetable* ir, DataProxy *&dp) 
 {
+  lock_t lock (m_mutex);
 
   dp = m_pStore->proxy (id, key);
   if (dp == nullptr && m_pPPS != nullptr) {
@@ -1270,6 +1271,39 @@ bool SGImplSvc::bindHandleToProxy(const CLID& id, const string& key,
   SG_MSG_DEBUG(" Bound handle " << MSG::hex << ir << " to proxy " 
                << dp << MSG::dec); 
 #endif
+  return true;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+bool SGImplSvc::bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
+                                              IResetable* ir, SG::DataProxy *&dp) 
+{
+  lock_t lock (m_mutex);
+  bool ret = bindHandleToProxy (id, key, ir, dp);
+  if (ret) {
+    StatusCode sc = getIIOVSvc()->regProxy(dp,key);
+    if (sc.isFailure()) return false;
+  }
+  return true;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+bool SGImplSvc::bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
+                                              IResetable* ir, SG::DataProxy *&dp,
+                                              const CallBackID c,
+                                              const IOVSvcCallBackFcn& fcn,
+                                              bool trigger)
+{
+  lock_t lock (m_mutex);
+  bool ret = bindHandleToProxy (id, key, ir, dp);
+  if (ret) {
+    StatusCode sc = getIIOVSvc()->regProxy(dp,key);
+    if (sc.isFailure()) return false;
+    sc = getIIOVSvc()->regFcn(dp,c,fcn,trigger);
+    if (sc.isFailure()) return false;
+  }
   return true;
 }
 
