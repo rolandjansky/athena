@@ -202,7 +202,6 @@ if InDetFlags.doPRDFormation():
          else: 
             InDetSCT_ClusteringTool.timeBins = "X1X" 
 
-      ToolSvc += InDetSCT_ClusteringTool
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ClusteringTool
             
