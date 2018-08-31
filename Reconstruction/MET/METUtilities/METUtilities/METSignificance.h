@@ -32,7 +32,7 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 // Tool interfaces
-class ICPJetUncertaintiesTool;
+class IJetCalibrationTool;
 namespace CP {
   class IMuonCalibrationAndSmearingTool;
   class IEgammaCalibrationAndSmearingTool;
@@ -106,7 +106,7 @@ namespace met {
     METSignificance();
 
     // tools
-    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
+    asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>   m_muonCalibrationAndSmearingTool;
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
     asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;

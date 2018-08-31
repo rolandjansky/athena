@@ -10,12 +10,12 @@ atlas_subdir( METUtilities )
 set( extra_deps )
 if( XAOD_STANDALONE )
    set( extra_deps Control/xAODRootAccess
-        Reconstruction/Jet/JetUncertainties )
+        Reconstruction/Jet/JetCalibTools )
 elseif( XAOD_ANALYSIS )
    set( extra_deps GaudiKernel
         Control/AthenaBaseComps
 	PhysicsAnalysis/POOLRootAccess
-        Reconstruction/Jet/JetUncertainties )
+        Reconstruction/Jet/JetCalibTools )
 elseif()
    set( extra_deps GaudiKernel
         Control/AthenaBaseComps )
@@ -41,7 +41,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCore
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
-   Reconstruction/Jet/JetUncertainties
+   Reconstruction/Jet/JetCalibTools
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
    Reconstruction/tauRecTools
@@ -58,7 +58,7 @@ atlas_add_library( METUtilitiesLib
    PUBLIC_HEADERS METUtilities
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS} 
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
-   xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetUncertaintiesLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
+   xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetCalibToolsLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
    METInterface MuonAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES EventPrimitives FourMomUtils xAODCore PathResolver )
 
@@ -66,7 +66,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( METUtilities
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel AthenaBaseComps METInterface xAODEgamma
-      xAODMuon xAODTau xAODMissingET xAODJet JetUncertaintiesLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
+      xAODMuon xAODTau xAODMissingET xAODJet JetCalibToolsLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
       ElectronPhotonSelectorToolsLib TauAnalysisToolsLib METUtilitiesLib  )
 endif()
 
@@ -94,7 +94,7 @@ if( XAOD_ANALYSIS )
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
           LINK_LIBRARIES ${ROOT_LIBRARIES} ${readLib} AsgTools xAODBase
           xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
-          JetUncertaintiesLib METInterface PATInterfaces METUtilitiesLib )
+          JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
   endforeach()
 endif()
 

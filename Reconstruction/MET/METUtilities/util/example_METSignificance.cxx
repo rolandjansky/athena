@@ -83,12 +83,22 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     }
   }
 
+  std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
+  std::string calibSeq = "JetArea_Residual_EtaJES_GSC";
+  std::string calibArea = "00-04-81";
+  if(jetType=="AntiKt4EMPFlow"){
+    config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
+    calibSeq = "JetArea_Residual_EtaJES_GSC";
+    calibArea = "00-04-81";	    
+  }
+
   asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config") );
-  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", config) );
+  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", calibSeq) );
+  ANA_CHECK( jetCalibrationTool.setProperty("CalibArea", calibArea) );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
 
@@ -115,7 +125,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( metSignif.setProperty("SoftTermParam", met::Random) );
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
-  ANA_CHECK( metSignif.setProperty("IsDataJet",     false) );
+  ANA_CHECK( metSignif.setProperty("IsDataJet",     true) );
+  ANA_CHECK( metSignif.setProperty("JetCollection", jetType) );
   if(debug) ANA_CHECK( metSignif.setProperty("OutputLevel", MSG::VERBOSE) );
   ANA_CHECK( metSignif.retrieve() );
   
@@ -164,6 +175,9 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       //Shallow copy is needed (see links below)
       if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
 	return 1;
+      //double pt_reso_dbl=0.0;
+      //jetCalibrationTool->getNominalResolutionData(*jet, pt_reso_dbl);                                                              
+      //std::cout << "pt_reso_dbl: " << pt_reso_dbl << std::endl;
       if(debug) std::cout << " jet: " << ij << " pt: " << jet->pt() << " eta: "<< jet->eta() << std::endl;
       ++ij;
     }
