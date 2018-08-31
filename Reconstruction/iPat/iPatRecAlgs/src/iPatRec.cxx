@@ -176,6 +176,11 @@ iPatRec::initialize()
         return StatusCode::FAILURE;
     }
 
+    if (m_detectorSelection->processSCT())
+    {
+        ATH_CHECK(m_SCTDetEleCollKey.initialize());
+    }
+
     // configure minPt in TrackQuality tool
     m_trackQuality->minPt(m_minPt);
   

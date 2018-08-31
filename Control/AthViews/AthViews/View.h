@@ -28,8 +28,13 @@ public:
   
   void impl ( SimpleView* impl ) { m_implementation = impl; }
   IProxyDict* impl (void ) { return m_implementation; }
-  const IProxyDict* impl (void ) const { return m_implementation; }
+  const IProxyDict* impl ( void ) const { return m_implementation; }
 
+  /**
+   * for printing the content of the view
+   * @warning - expensive call
+   **/
+  std::string dump( const std::string& delim = " " ) const;
 
   /*virtual SG::DataProxy* proxy(const CLID& id) const { 
     return m_implementation->proxy(id); 

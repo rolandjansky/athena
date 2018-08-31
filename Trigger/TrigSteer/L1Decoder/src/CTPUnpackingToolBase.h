@@ -33,6 +33,9 @@ public:
   { return StatusCode::SUCCESS; }
   
   virtual StatusCode initialize() override;
+  
+  virtual StatusCode updateConfiguration( const std::map<std::string, std::string>& ) override { return StatusCode::SUCCESS; }
+
    
 protected:
 
@@ -41,9 +44,6 @@ protected:
   IndexToIdentifiers       m_ctpToChain;
 
   ///@{ @name Properties
-  Gaudi::Property<std::map<std::string, std::string>> m_ctpToChainProperty{
-    this, "CTPToChainMapping", {}, "Mapping of the form: 'L1_X:HLT_x', 'L1_Y:HLT_y', ..., both "
-                                   "CTP item name and chain may appear many times"};
 
   Gaudi::Property<bool> m_forceEnable{
     this, "ForceEnableAllChains", false, "Enables all chains in each event, testing mode"};

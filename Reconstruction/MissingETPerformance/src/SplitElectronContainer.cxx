@@ -17,6 +17,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "FourMom/P4PtEtaPhiM.h"
+#include "AthContainers/ConstDataVector.h"
 
 SplitElectronContainer::SplitElectronContainer(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm( name, pSvcLocator ),
@@ -194,16 +195,13 @@ StatusCode SplitElectronContainer::execute()
   }
   
   // New electron container
-  egammaContainer* modEleCont = new egammaContainer(SG::VIEW_ELEMENTS);
-  sc = evtStore()->record(modEleCont, m_modEleContName);
+  auto modEleCont = std::make_unique<ConstDataVector<egammaContainer> >(SG::VIEW_ELEMENTS);
 
   // Removed electron container
-  egammaContainer* remEleCont = new egammaContainer(SG::VIEW_ELEMENTS);
-  sc = evtStore()->record(remEleCont, m_remEleContName);
+  auto remEleCont = std::make_unique<ConstDataVector<egammaContainer> >(SG::VIEW_ELEMENTS);
 
   // Selected electron container
-  egammaContainer* selEleCont = new egammaContainer(SG::VIEW_ELEMENTS);
-  sc = evtStore()->record(selEleCont, m_selEleContName);
+  auto selEleCont = std::make_unique<ConstDataVector<egammaContainer> >(SG::VIEW_ELEMENTS);
 
   // Find correspondent truth electrons
   if(m_doTruth){
@@ -298,6 +296,10 @@ StatusCode SplitElectronContainer::execute()
 
     }
   }// end loop on electrons
+
+  ATH_CHECK( evtStore()->record(std::move(modEleCont), m_modEleContName) );
+  ATH_CHECK( evtStore()->record(std::move(remEleCont), m_remEleContName) );
+  ATH_CHECK( evtStore()->record(std::move(selEleCont), m_selEleContName) );
 
   return StatusCode::SUCCESS;
 }

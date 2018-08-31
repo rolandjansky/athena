@@ -21,11 +21,22 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
 # --- SCT cabling
 #
 if DetFlags.detdescr.SCT_on() and not 'SCT_CablingSvc' in dir():
+  # SCT_CablingSvc is now used by only RegSelSvc, SiRegionSelectorTable and FTKRegionalWrapper.
+  # Those access SCT cabling during initialization
+  # and cannot use SCT_CablingTool using SCT_CablingCondAlgFromCoraCool.
   from AthenaCommon.CfgGetter import getService
   SCT_CablingSvc = getService("SCT_CablingSvc")
   ServiceMgr += SCT_CablingSvc
   if (InDetFlags.doPrintConfigurables()):
     print  SCT_CablingSvc
+
+  from AthenaCommon.AlgSequence import AthSequencer
+  condSeq = AthSequencer("AthCondSeq")
+  from AthenaCommon.CfgGetter import getAlgorithm
+  SCT_CablingCondAlgFromCoraCool = getAlgorithm("SCT_CablingCondAlgFromCoraCool")
+  condSeq += SCT_CablingCondAlgFromCoraCool
+  if (InDetFlags.doPrintConfigurables()):
+    print  SCT_CablingCondAlgFromCoraCool
   
 #
 # --- TRT cabling

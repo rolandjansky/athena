@@ -58,6 +58,9 @@ class TrigMuonEFTrackIsolation : public virtual HLT::FexAlgo,
   /// Use offline isolation variables
   bool m_useVarIso;
 
+  /// Name of output muon container
+  std::string m_muonContName;
+  
   /// flag to see if debug is enabled
   bool m_debug;
 

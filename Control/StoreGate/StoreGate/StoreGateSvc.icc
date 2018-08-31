@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file SGHiveStore.icc
- *  forwarded implementation of StoreGateSvc methods
+/** @file StoreGateSvc.icc
  */
 
 #ifndef STOREGATE_STOREGATESVC_ICC
 #define STOREGATE_STOREGATESVC_ICC
+#include "AthenaKernel/ClassName.h"
 #include <vector>
 
 /// macro to help writing the function calls.
@@ -63,15 +63,30 @@ StoreGateSvc::proxy_exact (SG::sgkey_t sgkey) const {
 
 template <typename H, typename TKEY>
 StatusCode 
-StoreGateSvc::regHandle( const DataHandle<H>& handle, const TKEY& key ) {
-  _SGXCALL( regHandle, (handle, key), StatusCode::FAILURE );
+StoreGateSvc::regHandle( const DataHandle<H>& handle, const TKEY& key )
+{
+  CLID clid = ClassID_traits<H>::ID();
+  IResetable *ir = const_cast<IResetable*> (static_cast<const IResetable*> (&handle));
+  SG::DataProxy *dp = 0;
+
+  bool ret = this->currentStore()->bindHandleToProxyAndRegister (clid, key, ir, dp);
+  if (!ret) {
+    return StatusCode::FAILURE;
+  }
+
+  return handle.setState(dp); // FIXME - should be retrieve?
 }
 
 /// non-const method - will return an error
 template <typename H, typename TKEY>
 StatusCode 
-StoreGateSvc::regHandle( DataHandle<H>& handle, const TKEY& key) {
-  _SGXCALL( regHandle, (handle, key), StatusCode::FAILURE );
+StoreGateSvc::regHandle( DataHandle<H>& handle, const TKEY& key)
+{
+  error() << "regHandle(): DataHandle must be const: "
+          << ClassName<H>::name() << "[" + key + "]"
+          << endmsg;
+
+  return StatusCode::FAILURE;
 }
 
 /// register a callback function, with handle + key
@@ -79,17 +94,37 @@ template <typename T, typename H, typename TKEY>
 StatusCode 
 StoreGateSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
                      const T* obj, const DataHandle<H>& handle, 
-                     const TKEY& key, bool trigger) {
-  _SGXCALL( regFcn, (updFcn, obj, handle, key, trigger), StatusCode::FAILURE );
+                     const TKEY& key, bool trigger)
+{
+  CLID clid = ClassID_traits<H>::ID();
+  IResetable *ir = const_cast<IResetable*> (static_cast<const IResetable*> (&handle));
+  SG::DataProxy *dp = 0;
+
+  const CallBackID c(updFcn,obj);
+  IOVSvcCallBackFcn fcn(boost::bind(updFcn,const_cast<T*>(obj),_1,_2));
+
+  bool ret = this->currentStore()->bindHandleToProxyAndRegister
+                                    (clid, key, ir, dp, c, fcn, trigger);
+
+  if (!ret) {
+    return StatusCode::FAILURE;
+  }
+
+  return handle.setState(dp); // FIXME - should be retrieve?
 }
 
 /// register a callback function, with handle + key. Non const. Error
 template <typename T, typename H, typename TKEY>
 StatusCode 
-StoreGateSvc::regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-                     const T* obj, DataHandle<H>& handle, 
-                     const TKEY& key, bool trigger) {
-  _SGXCALL( regFcn, (updFcn, obj, handle, key, trigger), StatusCode::FAILURE );
+StoreGateSvc::regFcn(StatusCode (T::* /*updFcn*/)(IOVSVC_CALLBACK_ARGS), 
+                     const T* /*obj*/, DataHandle<H>& /*handle*/, 
+                     const TKEY& key, bool /*trigger*/)
+{
+  error() << "regHandle(): DataHandle must be const: "
+          << ClassName<H>::name() << "[" + key + "]"
+          << endmsg;
+
+  return StatusCode::FAILURE;
 }
 
 
@@ -363,7 +398,15 @@ StoreGateSvc::keys(std::vector<std::string>& vkeys,
 template <typename T, typename TKEY>
 StatusCode 
 StoreGateSvc::bind(const DataHandle<T>& handle, const TKEY& key) {
-  _SGXCALL(bind, (handle, key), StatusCode::FAILURE);
+  CLID clid = ClassID_traits<T>::ID();
+  IResetable *ir = const_cast<IResetable*> (static_cast<const IResetable*> (&handle));
+  SG::DataProxy *dp = 0;
+  bool ret = this->currentStore()->bindHandleToProxy (clid, key, ir, dp);
+  if (!ret) {
+    return StatusCode::FAILURE;
+  }
+
+  return handle.setState(dp); // FIXME - should be retrieve?
 }
 
 #if __cplusplus > 201100
@@ -617,7 +660,25 @@ StoreGateSvc::retrieve(const DataHandle<T>& handle) const {
   if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "");
   }
-  _SGXCALL(retrieve, (handle), StatusCode::FAILURE);
+
+  SG::DataProxy* dp(this->proxy(ClassID_traits<T>::ID()));
+  StatusCode sc = handle.setState(dp);
+
+  if (sc.isFailure()) {
+    warning() 
+          << "retrieve(default): No valid proxy for default object \n" 
+          << " of type "  << ClassID_traits<T>::typeName() << "(CLID " 
+          << ClassID_traits<T>::ID() << ')' << endmsg;
+  }
+  else {
+    // Skip associateAux for this deprecated method.
+#ifndef NDEBUG
+    SG_MSG_DEBUG("retrieve(default): Retrieved const handle to default object \n" 
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+  }
+  return sc;
 }
 
 /// DEPRECATED: Retrieve the default object into a DataHandle
@@ -627,7 +688,27 @@ StoreGateSvc::retrieve(DataHandle<T>& handle) const {
   if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "");
   }
-  _SGXCALL(retrieve, (handle), StatusCode::FAILURE);
+
+  SG::DataProxy* dp(this->proxy(ClassID_traits<T>::ID()));
+  StatusCode sc = handle.setState(dp);
+
+  if (sc.isFailure()) {
+    warning() 
+          << "retrieve(default): No valid proxy for default object " 
+          << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
+          << ClassID_traits<T>::ID() << ")\n Try to use a const DataHandle " 
+          << endmsg;
+  }
+  else {
+    // Skip associateAux for this deprecated method.
+#ifndef NDEBUG
+    SG_MSG_DEBUG("Retrieved non-const handle to default object " 
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+  }
+
+  return sc;
 }
 
 /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
@@ -637,7 +718,29 @@ StoreGateSvc::retrieve(const DataHandle<T>& handle, const TKEY& key) const {
   if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
-  _SGXCALL(retrieve, (handle, key), StatusCode::FAILURE);
+
+#ifndef __clang__
+  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
+#endif
+
+  SG::DataProxy* dp(this->proxy(ClassID_traits<T>::ID(), (std::string)key, false));
+  StatusCode sc = handle.setState(dp);
+
+  if (sc.isFailure()) {
+    warning() 
+          << "retrieve(const): No valid proxy for object " << key  << ' ' 
+          << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
+          << ClassID_traits<T>::ID() << ')' << endmsg;
+  }
+  else {
+    // Skip associateAux for this deprecated method.
+#ifndef NDEBUG
+    SG_MSG_DEBUG( "Retrieved const handle to object " << key  << ' '
+                  << " of type "  << ClassID_traits<T>::typeName() 
+                  << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+  }
+  return sc;
 }
 
 /// DEPRECATED: Retrieve an object with "key", into a DataHandle
@@ -647,18 +750,65 @@ StoreGateSvc::retrieve(DataHandle<T>& handle, const TKEY& key) const {
   if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), key);
   }
-  _SGXCALL(retrieve, (handle, key), StatusCode::FAILURE);
+
+#ifndef __clang__
+  BOOST_CONCEPT_ASSERT( (KeyConcept<TKEY>) );
+#endif
+
+  SG::DataProxy* dp(this->proxy(ClassID_traits<T>::ID(), (std::string)key, false));
+  StatusCode sc = handle.setState(dp);
+
+  if (sc.isFailure()) {
+    SG_MSG_WARNING("retrieve(non-const): No valid proxy for object "
+                   << (std::string)key  << ' ' 
+                   << " of type "  << ClassID_traits<T>::typeName() << "(CLID "
+                   << ClassID_traits<T>::ID() 
+                   << ") \n Try to use a const DataHandle" );
+  }
+  else {
+    // Skip associateAux for this deprecated method.
+#ifndef NDEBUG
+    SG_MSG_DEBUG("Retrieved non-const handle to object " << (std::string)key  
+                 << ' ' << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+  }
+  return sc;
 }
 
 /// DEPRECATED Retrieve all objects of type T: use iterators version instead
+/// BE AWARE: Iteration over DataHandle is not thread-safe!
 template <typename T> 
 StatusCode 
-StoreGateSvc::retrieve(const DataHandle<T>& begin, 
-                       const DataHandle<T>& end) const {
+StoreGateSvc::retrieve(const DataHandle<T>& chbegin, 
+                       const DataHandle<T>& chend) const {
   if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
     rememberBadRetrieve (ClassID_traits<T>::ID(), "(iterator)");
   }
-  _SGXCALL(retrieve, (begin, end), StatusCode::FAILURE);
+
+  SG::ConstProxyIterator first;
+  SG::ConstProxyIterator end = first;
+
+  if (!(this->proxyRange(ClassID_traits<T>::ID(),first,end)).isSuccess()) {
+#ifndef NDEBUG
+    SG_MSG_DEBUG("retrieve(range): no object found " 
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+  }
+
+  (chend.setState(end, end)).ignore();
+  
+  if (!(chbegin.setState(first, end)).isSuccess()) {
+#ifndef NDEBUG
+    SG_MSG_DEBUG("retrieve(range): Can't set DataHandle for object range " 
+                 << " of type "  << ClassID_traits<T>::typeName() 
+                 << "(CLID " << ClassID_traits<T>::ID() << ')');
+#endif
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 /// DEPRECATED put a dobj pointer in a bucket as appropriate

@@ -15,7 +15,6 @@
 SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
-  , m_cablingSvc{"SCT_CablingSvc", name}
 {
   declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"}, "Key of non-xAOD EventInfo");
 }
@@ -26,8 +25,8 @@ StatusCode SCT_TdaqEnabledCondAlg::initialize()
 
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
-  // SCT cabling service
-  ATH_CHECK( m_cablingSvc.retrieve() );
+  // SCT cabling tool
+  ATH_CHECK( m_cablingTool.retrieve() );
 
   // Read Cond Handle
   ATH_CHECK( m_readKey.initialize() );
@@ -130,7 +129,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
       tmpIdVec.reserve(s_modulesPerRod);
       for(const auto & thisRod : writeCdo->getGoodRods()) {
         tmpIdVec.clear();
-        m_cablingSvc->getHashesForRod(tmpIdVec, thisRod);
+        m_cablingTool->getHashesForRod(tmpIdVec, thisRod);
         writeCdo->setGoodModules(tmpIdVec);
       }
       writeCdo->setFilled(true);

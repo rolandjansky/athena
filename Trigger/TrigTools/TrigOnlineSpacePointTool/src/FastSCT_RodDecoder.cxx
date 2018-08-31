@@ -6,6 +6,7 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "ByteStreamData/ROBData.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -61,12 +62,12 @@ StatusCode FastSCT_RodDecoder::finalize() {
 }
 
 bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid, 
-					ISCT_CablingSvc* cablingSvc,
+					ISCT_CablingTool* cablingTool,
 					std::vector<bool>& listOfIds, FastSCT_Clusterization* pClusterization) 
 {
   m_pClusterization=pClusterization;
   m_pClusterization->setLorentzAngleTool(m_lorentzAngleTool.get());
-  m_cablingSvc=cablingSvc;
+  m_cablingTool=cablingTool;
 
   // get the ROD version. It could be used to decode the data in one way or another
   /*
@@ -499,7 +500,7 @@ int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId
                                     const InDetDD::SiDetectorElementCollection* elements)
 
 {
-  const IdentifierHash hashId = m_cablingSvc->getHashFromOnlineId(onlineId) ;
+  const IdentifierHash hashId = m_cablingTool->getHashFromOnlineId(onlineId) ;
 
   if(!listOfIds[hashId]) 
     {

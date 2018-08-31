@@ -7,13 +7,16 @@
 // Athena includes
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // Constructor
 SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::string &type, const std::string &name, const IInterface *parent) :
   base_class(type, name, parent),
   m_mutex{},
   m_cache{},
+  m_cacheElements{},
   m_condData{},
+  m_detectorElements{},
   m_pHelper{nullptr},
   m_checkStripsInsideModules{true}
 { 
@@ -77,7 +80,7 @@ bool SCT_ConfigurationConditionsTool::isGood(const Identifier& elementId, InDetC
 
 // Is a wafer with this IdentifierHash good?
 bool SCT_ConfigurationConditionsTool::isGood(const IdentifierHash& hashId) const {
-  Identifier elementId{m_pHelper->wafer_id(hashId)};
+  const Identifier elementId{m_pHelper->wafer_id(hashId)};
   return isGood(elementId);
 }
 
@@ -143,7 +146,7 @@ bool SCT_ConfigurationConditionsTool::isWaferInBadModule(const Identifier& wafer
     return true;
   }
 
-  Identifier moduleId{m_pHelper->module_id(waferId)};
+  const Identifier moduleId{m_pHelper->module_id(waferId)};
   return condData->isBadModuleId(moduleId);
 }
 
@@ -192,18 +195,16 @@ void SCT_ConfigurationConditionsTool::badStrips(const Identifier& moduleId,  std
     if (condData->isBadModuleId(moduleId)) return;
   }
 
-  std::set<Identifier>::const_iterator chanItr{condData->getBadStripIds()->begin()};
-  std::set<Identifier>::const_iterator chanEnd{condData->getBadStripIds()->end()};
-  for (; chanItr != chanEnd; ++chanItr) {
+  for (const Identifier& badStripId: *(condData->getBadStripIds())) {
     if (ignoreBadChips) {
       // Ignore strips in bad chips
-      int chip{getChip(*chanItr)};
+      const int chip{getChip(badStripId)};
       if (chip!=invalidChipNumber) {
         unsigned int chipStatusWord{condData->getBadChips(moduleId)};
         if ((chipStatusWord & (1 << chip)) != 0) continue;
       }   
     }
-    if (m_pHelper->module_id(m_pHelper->wafer_id((*chanItr))) == moduleId) strips.insert(*chanItr);
+    if (m_pHelper->module_id(m_pHelper->wafer_id(badStripId)) == moduleId) strips.insert(badStripId);
   }
 }
        
@@ -267,23 +268,21 @@ SCT_ConfigurationConditionsTool::badStrips(std::set<Identifier>& strips, bool ig
     std::copy(condData->getBadStripIds()->begin(), condData->getBadStripIds()->end(), std::inserter(strips,strips.begin()));
     return;
   }
-  std::set<Identifier>::const_iterator chanItr{condData->getBadStripIds()->begin()};
-  std::set<Identifier>::const_iterator chanEnd{condData->getBadStripIds()->end()};
-  for (; chanItr != chanEnd; ++chanItr) {
-    Identifier moduleId{m_pHelper->module_id(m_pHelper->wafer_id(*chanItr))};
+  for (const Identifier& badStripId: *(condData->getBadStripIds())) {
+    const Identifier moduleId{m_pHelper->module_id(m_pHelper->wafer_id(badStripId))};
     // Ignore strips in bad modules
     if (ignoreBadModules) {
       if (condData->isBadModuleId(moduleId)) continue;
     }
     // Ignore strips in bad chips
     if (ignoreBadChips) {
-      int chip{getChip(*chanItr)};
-      if (chip !=invalidChipNumber) {
+      const int chip{getChip(badStripId)};
+      if (chip!=invalidChipNumber) {
         unsigned int chipStatusWord{condData->getBadChips(moduleId)};
         if ((chipStatusWord & (1 << chip)) != 0) continue;
       }
     }
-    strips.insert(*chanItr);
+    strips.insert(badStripId);
   }
 }
 

@@ -4,8 +4,7 @@
 #
 # Used when reading raw date file (bytestream format).
 # Adds the algorithms that convert the full muon bytestream data in RDO collections.
-# The actual conversion tools and services used by the algorithms are configured in python/MuonReadBSConfig.py
-# and python/MuonRecTools.py.
+# The actual conversion tools and services used by the algorithms are configured in python/MuonRecTools.py.
 # There is one algorithm per detector technology and a specific algorithm is added or not depending on the flags<br>
 # <code>DetFlags.readRODBS.MDT_on(), RPC_on(), TGC_on() and CSC_on()</code><br>
 

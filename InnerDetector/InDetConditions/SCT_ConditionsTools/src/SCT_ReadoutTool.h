@@ -17,12 +17,12 @@
 #include <mutex>
 
 // Gaudi
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 
 #include "SCT_ConditionsData/SCT_Chip.h"
 
@@ -88,7 +88,7 @@ class SCT_ReadoutTool : public extends<AthAlgTool, ISCT_ReadoutTool> {
 
   /** Private data*/
   const SCT_ID*                       m_sctId;               //!< ID helper for SCT
-  ServiceHandle<ISCT_CablingSvc>      m_cablingSvc;          //!< Service handle for SCT Cabling
+  ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
   std::vector<SCT_Chip*>              m_chips;               //!< Vector of actual SCT Chips for that module
   std::vector<SCT_PortMap>            m_chipMap;             //!< Vector of port mapping from the chips in an SCT module 

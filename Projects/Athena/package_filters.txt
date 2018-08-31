@@ -52,5 +52,9 @@
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 - Trigger/TrigFTK/FTKStandaloneMonitoring
 
+# Data quality packages not needed in Athena
+- DataQuality/DataQualityConfigurations
+- DataQuality/DCSCalculator2
+
 # obsolete packages to be removed in a second step
 - Tracking/TrkTools/TrkSegmentConverter

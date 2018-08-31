@@ -126,60 +126,60 @@ namespace InDet {
 
     private:
 
-      double m_w_1;
-      TH1D* m_hb_massPiPi;
-      TH1D* m_hb_massPiPi1;
-      TH1D* m_hb_massPPi;
-      TH1D* m_hb_massEE;
-      TH1D* m_hb_totmassEE;
-      TH1D* m_hb_totmass2T0;
-      TH1D* m_hb_totmass2T1;
-      TH1D* m_hb_totmass2T2;
-      TH1D* m_hb_nvrt2;
-      TH1D* m_hb_ratio;
-      TH1D* m_hb_totmass;
-      TH1D* m_hb_impact;
-      TH1D* m_hb_impactR;
-      TH2D* m_hb_impactRZ;
-      TH1D* m_hb_ntrkjet;
-      TH1D* m_hb_impactZ;
-      TH1D* m_hb_r2d;
-      TH1D* m_hb_r1dc;
-      TH1D* m_hb_r2dc;
-      TH1D* m_hb_r3dc;
-      TH1D* m_hb_rNdc;
-      TH1D* m_hb_dstToMat;
-      TH1D* m_hb_jmom;
-      TH1D* m_hb_mom;
-      TH1D* m_hb_signif3D;
-      TH1D* m_hb_impV0;
-      TH1D* m_hb_sig3DTot;
-      TH1F* m_hb_goodvrtN;
-      TH1D* m_hb_distVV;
-      TH1D* m_hb_diffPS;
-      TH1D* m_hb_sig3D1tr;
-      TH1D* m_hb_sig3D2tr;
-      TH1D* m_hb_sig3DNtr;
-      TH1D* m_hb_trkPtMax;
-      TH1D* m_hb_tr2SelVar;
-      TH1F* m_hb_blshared;
-      TH1F* m_hb_pxshared;
-      TH1F* m_hb_rawVrtN;
-      TH1F* m_hb_lifetime;
-      TH1F* m_hb_trkPErr;
-      TH1F* m_hb_deltaRSVPV;
+      double m_w_1{};
+      TH1D* m_hb_massPiPi{};
+      TH1D* m_hb_massPiPi1{};
+      TH1D* m_hb_massPPi{};
+      TH1D* m_hb_massEE{};
+      TH1D* m_hb_totmassEE{};
+      TH1D* m_hb_totmass2T0{};
+      TH1D* m_hb_totmass2T1{};
+      TH1D* m_hb_totmass2T2{};
+      TH1D* m_hb_nvrt2{};
+      TH1D* m_hb_ratio{};
+      TH1D* m_hb_totmass{};
+      TH1D* m_hb_impact{};
+      TH1D* m_hb_impactR{};
+      TH2D* m_hb_impactRZ{};
+      TH1D* m_hb_ntrkjet{};
+      TH1D* m_hb_impactZ{};
+      TH1D* m_hb_r2d{};
+      TH1D* m_hb_r1dc{};
+      TH1D* m_hb_r2dc{};
+      TH1D* m_hb_r3dc{};
+      TH1D* m_hb_rNdc{};
+      TH1D* m_hb_dstToMat{};
+      TH1D* m_hb_jmom{};
+      TH1D* m_hb_mom{};
+      TH1D* m_hb_signif3D{};
+      TH1D* m_hb_impV0{};
+      TH1D* m_hb_sig3DTot{};
+      TH1F* m_hb_goodvrtN{};
+      TH1D* m_hb_distVV{};
+      TH1D* m_hb_diffPS{};
+      TH1D* m_hb_sig3D1tr{};
+      TH1D* m_hb_sig3D2tr{};
+      TH1D* m_hb_sig3DNtr{};
+      TH1D* m_hb_trkPtMax{};
+      TH1D* m_hb_tr2SelVar{};
+      TH1F* m_hb_blshared{};
+      TH1F* m_hb_pxshared{};
+      TH1F* m_hb_rawVrtN{};
+      TH1F* m_hb_lifetime{};
+      TH1F* m_hb_trkPErr{};
+      TH1F* m_hb_deltaRSVPV{};
 //--
-      TH1D*  m_hb_massJetTrkSV;
-      TH1D*  m_hb_ratioJetTrkSV;
-      TH1D*  m_hb_DST_JetTrkSV;
-      TH1D*  m_hb_NImpJetTrkSV;
-      TH1D*  m_hb_nHImpTrkCnt;
+      TH1D*  m_hb_massJetTrkSV{};
+      TH1D*  m_hb_ratioJetTrkSV{};
+      TH1D*  m_hb_DST_JetTrkSV{};
+      TH1D*  m_hb_NImpJetTrkSV{};
+      TH1D*  m_hb_nHImpTrkCnt{};
 //--
-      TProfile * m_pr_effVrt2tr;
-      TProfile * m_pr_effVrt2trEta;
-      TProfile * m_pr_effVrt;
-      TProfile * m_pr_effVrtEta;
-      long int m_iflag;
+      TProfile * m_pr_effVrt2tr{};
+      TProfile * m_pr_effVrt2trEta{};
+      TProfile * m_pr_effVrt{};
+      TProfile * m_pr_effVrtEta{};
+      long int m_iflag{};
 
       SimpleProperty<int>    m_Robustness;
       SimpleProperty<double> m_MassForConstraint;
@@ -187,98 +187,98 @@ namespace InDet {
 
 
 
-      long int m_CutSctHits;
-      long int m_CutPixelHits;
-      long int m_CutSiHits;
-      long int m_CutBLayHits;
-      long int m_CutSharedHits;
-      double m_CutPt;
-      double m_CutZVrt;
-      double m_CutA0;
-      double m_CutChi2;
-      double m_SecTrkChi2Cut;
-      double m_ConeForTag;
-      double m_Sel2VrtChi2Cut;
-      double m_Sel2VrtSigCut;
-      double m_TrkSigCut;
-      double m_TrkSigNTrkDep;
-      double m_TrkSigSumCut;
-      double m_A0TrkErrorCut;
-      double m_ZTrkErrorCut;
-      double m_AntiPileupSigRCut;
-      double m_AntiPileupSigZCut;
-      double m_AntiFake2trVrtCut;
-      double m_JetPtFractionCut;
-      int    m_TrackInJetNumberLimit;
-      double m_pseudoSigCut;
-      double m_hadronIntPtCut;
+      long int m_CutSctHits{};
+      long int m_CutPixelHits{};
+      long int m_CutSiHits{};
+      long int m_CutBLayHits{};
+      long int m_CutSharedHits{};
+      double m_CutPt{};
+      double m_CutZVrt{};
+      double m_CutA0{};
+      double m_CutChi2{};
+      double m_SecTrkChi2Cut{};
+      double m_ConeForTag{};
+      double m_Sel2VrtChi2Cut{};
+      double m_Sel2VrtSigCut{};
+      double m_TrkSigCut{};
+      double m_TrkSigNTrkDep{};
+      double m_TrkSigSumCut{};
+      double m_A0TrkErrorCut{};
+      double m_ZTrkErrorCut{};
+      double m_AntiPileupSigRCut{};
+      double m_AntiPileupSigZCut{};
+      double m_AntiFake2trVrtCut{};
+      double m_JetPtFractionCut{};
+      int    m_TrackInJetNumberLimit{};
+      double m_pseudoSigCut{};
+      double m_hadronIntPtCut{};
 
-      bool m_FillHist;
+      bool m_FillHist{};
 
-      bool m_existIBL;
+      bool m_existIBL{};
 
-      long int m_RobustFit;
+      long int m_RobustFit{};
 
-      double m_Xbeampipe;
-      double m_Ybeampipe;
-      double m_XlayerB;
-      double m_YlayerB;
-      double m_Xlayer1;
-      double m_Ylayer1;
-      double m_Xlayer2;
-      double m_Ylayer2;
-      double m_Rbeampipe;
-      double m_RlayerB;
-      double m_Rlayer1;
-      double m_Rlayer2;
-      double m_Rlayer3;
-      double m_SVResolutionR;
+      double m_Xbeampipe{};
+      double m_Ybeampipe{};
+      double m_XlayerB{};
+      double m_YlayerB{};
+      double m_Xlayer1{};
+      double m_Ylayer1{};
+      double m_Xlayer2{};
+      double m_Ylayer2{};
+      double m_Rbeampipe{};
+      double m_RlayerB{};
+      double m_Rlayer1{};
+      double m_Rlayer2{};
+      double m_Rlayer3{};
+      double m_SVResolutionR{};
 
-      bool     m_useMaterialRejection;
-      bool     m_useVertexCleaning;
-      int      m_MassType;
-      bool     m_MultiVertex;
-      bool     m_MultiWithPrimary;
-      bool     m_getNegativeTail;
-      bool     m_getNegativeTag;
-      bool     m_MultiWithOneTrkVrt;
+      bool     m_useMaterialRejection{};
+      bool     m_useVertexCleaning{};
+      int      m_MassType{};
+      bool     m_MultiVertex{};
+      bool     m_MultiWithPrimary{};
+      bool     m_getNegativeTail{};
+      bool     m_getNegativeTag{};
+      bool     m_MultiWithOneTrkVrt{};
 
-      double    m_VertexMergeCut;
-      double    m_TrackDetachCut;
+      double    m_VertexMergeCut{};
+      double    m_TrackDetachCut{};
 
 
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
-      Trk::TrkVKalVrtFitter*   m_fitSvc;
+      Trk::TrkVKalVrtFitter*   m_fitSvc{};
  
 
-      double m_massPi ;
-      double m_massP ;
-      double m_massE;
-      double m_massK0;
-      double m_massLam;
-      double m_massB;
-      mutable int m_NRefTrk;    //Measure of track in jet multiplicity
+      double m_massPi {};
+      double m_massP {};
+      double m_massE{};
+      double m_massK0{};
+      double m_massLam{};
+      double m_massB{};
+      mutable int m_NRefTrk{};    //Measure of track in jet multiplicity
       std::string m_instanceName;
 
 
 // For multivertex version only
 
-      boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> *m_compatibilityGraph;
-      float m_chiScale[11];
-      VKalVxInJetTemp*  m_WorkArray;     
+      boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> *m_compatibilityGraph{};
+      float m_chiScale[11]{};
+      VKalVxInJetTemp*  m_WorkArray{};     
       struct WrkVrt 
-     {   bool Good;
+     {   bool Good{};
          std::deque<long int> SelTrk;
          Amg::Vector3D     vertex;
          TLorentzVector    vertexMom;
-         long int   vertexCharge;
+         long int   vertexCharge{};
          std::vector<double> vertexCov;
          std::vector<double> Chi2PerTrk;
          std::vector< std::vector<double> > TrkAtVrt;
-         double Chi2;
-         int nCloseVrt;
-         double dCloseVrt;
-	 double ProjectedVrt;
+         double Chi2{};
+         int nCloseVrt{};
+         double dCloseVrt{};
+	 double ProjectedVrt{};
          int detachedTrack=-1;
 	 };
 

@@ -29,5 +29,6 @@ atlas_add_test( JobPropertiesUnitTests SCRIPT test/test_JobPropertiesUnitTests.s
                 EXTRA_PATTERNS "^Ran .* tests in" )
 atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh
                 EXTRA_PATTERNS "^Ran .* tests in|^outFileName: " )
-atlas_add_test( CFElementsTest SCRIPT python -m AthenaCommon.CFElements ) 
+atlas_add_test( CFElementsTest SCRIPT python -m unittest -v AthenaCommon.CFElements
+		POST_EXEC_SCRIPT nopost.sh ) 
 

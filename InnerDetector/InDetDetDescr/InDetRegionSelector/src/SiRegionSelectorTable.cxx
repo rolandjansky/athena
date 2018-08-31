@@ -12,6 +12,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
 
 #include <iostream>
 #include <fstream>

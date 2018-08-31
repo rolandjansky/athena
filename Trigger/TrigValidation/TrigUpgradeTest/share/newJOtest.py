@@ -65,12 +65,22 @@ def menu( mf ):
 
     # here menu generation starts
 
-    if flags.get("Trigger.menu.electrons"): # maybe it is better if this check is done in generateElectrons 
-        from TrigUpgradeTest.ElectronMenuConfig import generateElectrons
-        accElectrons, electronSteps = generateElectrons( flags ) 
-        if len( electronSteps ) != 0:
-            menuAcc.setupSteps( electronSteps )         
-            menuAcc.merge( accElectrons )
+
+    from TrigUpgradeTest.ElectronMenuConfig import generateElectronsCfg
+    accElectrons, steps = generateElectronsCfg( flags ) 
+    if len( steps ) != 0:
+        menuAcc.setupSteps( steps )         
+        menuAcc.merge( accElectrons )
+
+
+    from TrigUpgradeTest.PhotonMenuConfig import generatePhotonsCfg
+    accPhotons, steps = generatePhotonsCfg( flags ) 
+    if len( steps ) != 0:
+        menuAcc.setupSteps( steps )         
+        menuAcc.merge( accPhotons )
+
+
+
 
     # here setting of the Summary + top level Monitoring algs should be done
     menuAcc.printConfig()    

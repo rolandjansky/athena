@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODJet/JetContainerInfo.h"
@@ -97,6 +97,20 @@ namespace xAOD {
       for( ; it!=itE; ++it) typeToNamemap[ it->second ] = it->first;      
     }
 
+  bool isValidConstitType(Type t) { 
+    const static std::unordered_set<Type> validJetContitTypes = { LCTopo, EMTopo,
+                                                                  LCTopoOrigin, EMTopoOrigin, EMTopoOriginTime,
+                                                                  LCTopoOriginSK, EMTopoOriginSK, EMTopoOriginSKTime,
+                                                                  LCTopoOriginCS, EMTopoOriginCS,
+                                                                  LCTopoOriginVor, EMTopoOriginVor,
+                                                                  LCTopoOriginCSSK, EMTopoOriginCSSK, EMTopoOriginCSSKTime,
+                                                                  LCTopoOriginVorSK, EMTopoOriginVorSK, EMTopoOriginVorSKTime,
+                                                                  EMPFlowSK, EMPFlowSKTime,
+                                                                  EMPFlowCS, EMPFlowCSSK, EMPFlowCSSKTime,
+                                                                  EMPFlowVor, EMPFlowVorSK, EMPFlowVorSKTime
+                                                                };
+    return validJetContitTypes.count(t)==1;
+  } 
 
   const std::string & typeName(Type id){
     initMap();

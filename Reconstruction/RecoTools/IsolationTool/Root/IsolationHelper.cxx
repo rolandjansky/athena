@@ -47,8 +47,8 @@ namespace CP {
 
 	bool IsolationHelper::correctionBitset(xAOD::Iso::IsolationCaloCorrectionBitset& mask, const xAOD::IParticle& par, xAOD::Iso::IsolationType type) const {
 		auto acc = xAOD::getIsolationCorrectionBitsetAccessor(xAOD::Iso::isolationFlavour(type));
-		if(acc) {
-			mask = (*acc)(par);
+		if(acc.isAvailable(par)) {
+			mask = acc(par);
 		} else {
 			return false;
 		}
@@ -65,8 +65,8 @@ namespace CP {
 			}
 		} else {
 			auto acc = (corr == xAOD::Iso::ptCorrection)? xAOD::getIsolationCorrectionAccessor(type, corr) : xAOD::getIsolationCorrectionAccessor(xAOD::Iso::isolationFlavour(type), corr, xAOD::Iso::coreEnergy);
-			if(acc) {
-				value = (*acc)(par);
+			if(acc.isAvailable(par)) {
+				value = acc(par);
 			} else {
 				return false;
 			}
@@ -130,16 +130,15 @@ namespace CP {
 				float value = 0;
 					if(!isolation(value, *par, type, corrMask)) return false;
 					auto acc = xAOD::getIsolationAccessor( type );
-					auto acc2 = xAOD::getIsolationCorrectionBitsetAccessor(xAOD::Iso::isolationFlavour(type));
-
-					if(acc && acc2){
-						(*acc2)(*par) = corrMask.to_ulong();
-						(*acc)(*par) = value;
-					} else {
-						return false;
+                    if(acc){
+                      (*acc)(*par) = value;
+                    } else {
+                      return false;
 					}
-				}
-			}
+                    auto acc2 = xAOD::getIsolationCorrectionBitsetAccessor(xAOD::Iso::isolationFlavour(type));
+                    acc2(*par) = corrMask.to_ulong();
+            }
+        }
 
 			if(recordSG) {
 			ATH_CHECK( evtStore()->record(shallowcopy.first, "IsoFixed_"+muonkey), false );
@@ -152,7 +151,7 @@ namespace CP {
 		// Get the core size
 		if(corrMask == 0){
 			auto acc = xAOD::getIsolationCorrectionBitsetAccessor(xAOD::Iso::isolationFlavour(type));
-			if(acc) corrMask = (*acc)(par);
+			if(acc.isAvailable(par)) corrMask = acc(par);
 		}
 		float areacore = 0;
 		if(corrMask.test(static_cast<unsigned int>(xAOD::Iso::core57cells))){

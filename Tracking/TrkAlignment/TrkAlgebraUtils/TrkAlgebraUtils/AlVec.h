@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALGS_ALVEC_H
@@ -25,6 +25,16 @@ class AlVec {
   AlVec(int N);
   AlVec();
   AlVec(const AlVec& v);
+  AlVec(AlVec&& v)
+     : m_size (v.m_size),
+       m_ptr_data (v.m_ptr_data),
+       m_pathbin ( std::move(v.m_pathbin) ),
+       m_pathtxt ( std::move(v.m_pathtxt) )
+  { 
+
+     v.m_size = 0;
+     v.m_ptr_data = nullptr;
+  }
 
   ~AlVec();
 
@@ -32,6 +42,20 @@ class AlVec {
   inline const double& operator[](int i) const;
 
   AlVec& operator=(const AlVec& v);
+  AlVec& operator=(AlVec&& v){
+   if (&v != this ) {  
+      m_pathbin = std::move(v.m_pathbin);
+      m_pathtxt = std::move(v.m_pathtxt);
+      m_size = v.m_size;
+      m_ptr_data = v.m_ptr_data;
+      v.m_size = 0;
+      v.m_ptr_data = nullptr;
+   }
+
+   return *this;  
+
+  }
+
   AlVec& operator=(const double& v);
   AlVec  operator+(const AlVec&) const;
   AlVec& operator+=(const AlVec&);

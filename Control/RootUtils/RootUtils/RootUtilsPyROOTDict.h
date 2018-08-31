@@ -15,7 +15,6 @@
  */
 
 #include "RootUtils/PyROOTTTreePatch.h"
-#include "RootUtils/PyROOTTypePatch.h"
 #include "RootUtils/PyLogger.h"
 #include "RootUtils/PyROOTPickle.h"
 #include "RootUtils/PyROOTTFilePythonize.h"
