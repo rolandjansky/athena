@@ -14,7 +14,7 @@ from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
                                       name = 'egammaSelectedTrackCopy' ,
                                       ExtrapolationTool = EMExtrapolationTools,
-                                      ClusterContainerName="LArClusterEM",
+                                      ClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
                                       TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
 				      minNoSiHits=4,
 				      broadDeltaEta=0.1,   # this is multiplied by 2 for the Candidate Match , so +- 0.2 in eta

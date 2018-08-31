@@ -28,7 +28,7 @@ class EMBremCollectionBuilder : public AthAlgorithm
 {
   /*Helper struct, 
    * added here mainly for
-   * scopping
+   * scoping
    */
 
   struct localCounter{

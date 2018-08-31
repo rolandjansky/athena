@@ -40,6 +40,8 @@ public:
 
 private:
 
+  /** @brief whether cluster passes selection */
+  bool passSelection(const xAOD::CaloCluster *clus) const;
 
   /** @brief broad track selection */
   bool Select(const xAOD::CaloCluster* cluster,
@@ -53,7 +55,12 @@ private:
 
   /** @brief Names of input output collections */
   SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_clusterContainerKey {this,
-    "ClusterContainerName", "LArClusterEM", "Input calo cluster for seeding"};
+    "ClusterContainerName", "egammaTopoCluster", "Input calo cluster for seeding"};
+
+  /** @brief cluster pT requirements */
+  Gaudi::Property<float> m_EtThresholdCut {this,
+      "EtThresholdCut", 1.5*CLHEP::GeV,
+      "The minimum EM Et required of SEED clusters"};
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackParticleContainerName", "InDetTrackParticles", 
