@@ -52,7 +52,6 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "StoreGate/SGIterator.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/SGWPtr.h"
 #include "SGTools/DataStore.h"
 #include "SGTools/SGVersionedKey.h"
@@ -237,10 +236,6 @@ public:
    * @param key The key to use for the lookup.
    **/
   template <class DOBJ>
-  bool associateAux (DataHandle<DOBJ>&, bool ignoreMissing=true) const;
-  template <class DOBJ>
-  bool associateAux (const DataHandle<DOBJ>&, bool ignoreMissing=true) const;
-  template <class DOBJ>
   bool associateAux (DOBJ*,
                      const std::string& key,
                      bool ignoreMissing=true) const;
@@ -262,22 +257,6 @@ public:
   ///
   template <typename T, typename TKEY> 
   bool contains(const TKEY& key) const;
-
-  /** A "once-per-job" retrieve that binds a data object to a DataHandle,
-   *  typically a data member of an Algorithm/AlgTool. 
-   *  At the end of every event, or more in general
-   *  when the data object is not valid anymore, the DataHandle is reset,
-   *  so that the next time the handle is accessed it will point to the
-   *  current version of that data object.
-   *  For example if MyAlg.h has a data member
-   *    DataHandle<Foo> m_myFoo;
-   *  after bind is called once per job, usually in MyAlg::initialize:
-   *    sc = p_store->bind(m_myFoo, "MyFoo");
-   *  m_myFoo will provide to access the current MyFoo e.g. in MyAlg::execute():
-   *    m_myFoo->useMe();
-   */
-  template <typename T, typename TKEY> 
-  StatusCode bind(const DataHandle<T>& handle, const TKEY& key);
 
   //@}
 
@@ -527,25 +506,6 @@ public:
   /////////////////////////////////////////////////////////////////////////
   /// \name IOVSvc interface
   //@{
-
-  template <typename H, typename TKEY>
-  StatusCode regHandle( const DataHandle<H>& handle, const TKEY& key );
-
-  /// non-const method - will return an error
-  template <typename H, typename TKEY>
-  StatusCode regHandle( DataHandle<H>& handle, const TKEY& key);
-
-  /// register a callback function, with handle + key
-  template <typename T, typename H, typename TKEY>
-  StatusCode regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-                    const T* obj, const DataHandle<H>& handle, 
-                    const TKEY& key, bool trigger=false);
-
-  /// register a callback function, with handle + key. Non const. Error
-  template <typename T, typename H, typename TKEY>
-  StatusCode regFcn(StatusCode (T::*updFcn)(IOVSVC_CALLBACK_ARGS), 
-                    const T* obj, DataHandle<H>& handle, 
-                    const TKEY& key, bool trigger=false);
 
   /// register a callback function(2) with an already registered function(1)
   template <typename T1, typename T2>
@@ -988,7 +948,16 @@ private:
   bool bindHandleToProxy(const CLID& id, const std::string& key,
                          IResetable* ir, SG::DataProxy*& dp);
 
-  /// remove proxy from store, unless it is reset only.         
+  /// Also do registration with IOVSvc.
+  bool bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
+                                     IResetable* ir, SG::DataProxy *&dp);
+  bool bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
+                                     IResetable* ir, SG::DataProxy *&dp,
+                                     const CallBackID c,
+                                     const IOVSvcCallBackFcn& fcn,
+                                     bool trigger);
+
+/// remove proxy from store, unless it is reset only.         
   /// provide pTrans!=0 (must match proxy...) to save time
   /// @param forceRemove remove the proxy no matter what        
   StatusCode removeProxy(SG::DataProxy* proxy, const void* pTrans, 
@@ -1000,15 +969,6 @@ private:
 
   /// callback for output level property 
   void msg_update_handler(Property& outputLevel);
-
-  template <class DOBJ, class AUXSTORE>
-  bool associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*) const;
-  template <class DOBJ, class AUXSTORE>
-  bool associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE*) const;
-  template <class DOBJ>
-  bool associateAux_impl(DataHandle<DOBJ>& , const SG::NoAuxStore*) const { return true; }
-  template <class DOBJ>
-  bool associateAux_impl(const DataHandle<DOBJ>&, const SG::NoAuxStore*) const { return true; }
 
   template <class DOBJ, class AUXSTORE>
   bool associateAux_impl(DOBJ* ptr,
@@ -1096,25 +1056,7 @@ public:
   ///////////////////////////////////////////////////////////////////////
   /// \name Obsolete and Deprecated methods 
   //@{
-  /// DEPRECATED: Retrieve the default object into a const DataHandle
-  template <typename T> 
-  StatusCode retrieve(const DataHandle<T>& handle) const;
 
-  /// DEPRECATED: Retrieve the default object into a DataHandle
-  template <typename T> 
-  StatusCode retrieve(DataHandle<T>& handle) const;
-
-  /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
-  template <typename T, typename TKEY> 
-  StatusCode retrieve(const DataHandle<T>& handle, const TKEY& key) const;
-  /// DEPRECATED: Retrieve an object with "key", into a DataHandle
-  template <typename T, typename TKEY> 
-  StatusCode retrieve(DataHandle<T>& handle, const TKEY& key) const;
-
-  /// DEPRECATED Retrieve all objects of type T: use iterators version instead
-  template <typename T> 
-  StatusCode retrieve(const DataHandle<T>& begin, 
-                      const DataHandle<T>& end) const;
   /// DEPRECATED, use version taking ref to vector
   template <typename T>
   std::vector<std::string> //FIXME inefficient. Should take ref to vector
