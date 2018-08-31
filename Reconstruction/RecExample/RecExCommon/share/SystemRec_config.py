@@ -18,6 +18,13 @@ pdr.flag_domain('calo')
 protectedInclude ("CaloRec/CaloRec_jobOptions.py")
 AODFix_postCaloRec()
 
+#make the egammaTopoClusters containers, used for seeding
+from egammaAlgs.egammaTopoClusterCopier import egammaTopoClusterCopier
+try:
+    egammaTopoClusterCopier()
+except Exception:
+    treatExeption("could not get handle to egammaTopoClusterCopier")
+
 #then run ID reco:
 
 pdr.flag_domain('id')
