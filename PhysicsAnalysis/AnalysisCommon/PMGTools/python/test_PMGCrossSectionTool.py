@@ -5,7 +5,7 @@ import ROOT
 import os
 
 
-def main(**args):  # def main(filename, **args):
+def main():
 
     tool = ROOT.PMGTools.PMGCrossSectionTool('MyXSectionTool')
 
