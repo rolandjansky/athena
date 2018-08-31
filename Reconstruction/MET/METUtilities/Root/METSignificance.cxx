@@ -119,7 +119,7 @@ namespace met {
       declareProperty("ScalarBias",           m_scalarBias    = 0.0         );
       declareProperty("ConfigPrefix",         m_configPrefix  = "METUtilities/data17_13TeV/metsig_Aug15/");
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
-      declareProperty("JetResoAux",           m_JetResoAux            = "" );
+      declareProperty("JetResoAux",           m_JetResoAux            = "" ); // relative pT resolution in addition to normal JES
       declareProperty("JetCollection",        m_JetCollection         = "AntiKt4EMTopo" );
 
       // properties to delete eventually
@@ -556,8 +556,8 @@ namespace met {
     if(m_JetResoAux!=""){
       static SG::AuxElement::Accessor<float> acc_extra(m_JetResoAux);
       if(acc_extra.isAvailable(*jet)){
-	float extra_pt_reso = jet->pt()*acc_extra(*jet);
-	pt_reso = sqrt(pt_reso*pt_reso + extra_pt_reso*extra_pt_reso);
+	float extra_relative_pt_reso = acc_extra(*jet);
+	pt_reso = sqrt(pt_reso*pt_reso + extra_relative_pt_reso*extra_relative_pt_reso);
       }
     }
   }

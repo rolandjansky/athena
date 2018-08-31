@@ -70,6 +70,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   std::string jetType = "AntiKt4EMTopo";
   TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
   size_t evtmax = 100;
+  std::string jetAux = "";
   bool debug(false);
   for (int i=0; i<argc; ++i) {
     if (std::string(argv[i]) == "-filen" && i+1<argc) {
@@ -78,6 +79,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       jetType = argv[i+1];
     } else if (std::string(argv[i]) == "-evtmax" && i+1<argc) {
       evtmax = atoi(argv[i+1]);
+    }else if (std::string(argv[i]) == "-jetaux" && i+1<argc) {
+      jetAux = argv[i+1];
     } else if (std::string(argv[i]) == "-debug") {
       debug = true;
     }
@@ -127,6 +130,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
   ANA_CHECK( metSignif.setProperty("IsDataJet",     true) );
   ANA_CHECK( metSignif.setProperty("JetCollection", jetType) );
+  if(jetAux!="")
+    ANA_CHECK( metSignif.setProperty("JetResoAux", jetAux) );
   if(debug) ANA_CHECK( metSignif.setProperty("OutputLevel", MSG::VERBOSE) );
   ANA_CHECK( metSignif.retrieve() );
   
@@ -173,8 +178,10 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     unsigned ij=0;
     for ( const auto& jet : *calibJets ) {
       //Shallow copy is needed (see links below)
-      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
+      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration	
 	return 1;
+      // setting 100% jet resolution for testing
+      if(jetAux!="") jet->auxdata<float>(jetAux) = 1.0;
       //double pt_reso_dbl=0.0;
       //jetCalibrationTool->getNominalResolutionData(*jet, pt_reso_dbl);                                                              
       //std::cout << "pt_reso_dbl: " << pt_reso_dbl << std::endl;
