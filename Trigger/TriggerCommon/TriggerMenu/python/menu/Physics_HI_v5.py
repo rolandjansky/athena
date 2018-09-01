@@ -245,7 +245,6 @@ def setupMenu():
 	#['g12_etcut_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
     ['g13_etcut_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 	['g18_etcut_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
-	['g20_etcut_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 
     #['e15_loose_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     #['e15_medium_ion',             'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -344,11 +343,11 @@ def setupMenu():
     ['mu6_j25_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j25_ion'] ]],
     ['mu6_j30_ion', 'L1_MU6',     ['L1_MU6', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j30_ion'] ]],
             
-     #UPC:Supporting TODO
-    #['hi_upc_FgapAC_mb_sptrk_exclusiveloose1_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusive_loose1'],False]],
-    #['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusive_loose2'],False]],
-    #['hi_upc_FgapAC_mb_sptrk_exclusiveloose1_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusive_loose1'],False]],
-    #['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusive_loose2'],False]],
+     #UPC:Supporting
+    ['hi_upc_FgapAC_mb_sptrk_exclusiveloose1_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose1'],False]],
+    ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
+    ['hi_upc_FgapAC_mb_sptrk_exclusiveloose1_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose1'],False]],
+    ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
        
         ]
       
@@ -456,8 +455,12 @@ def setupMenu():
 	#['mb_sptrk_ion_trk15_L1ZDC_XOR_VTE200_MBTS_1',  'L1_ZDC_XOR_VTE200_MBTS_1', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	
 	#UPC: Other primary 
-	['mb_sptrk_exclusiveloose_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
-	['mb_sptrk_exclusivetight_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	['mb_sptrk_exclusiveloose_vetosp1500_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	['mb_sptrk_exclusivetight_vetosp1500_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+		
+	#['mb_sptrk_exclusiveloose_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	#['mb_sptrk_exclusivetight_L1VTE20',        'L1_VTE20',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	
 	#['mb_sptrk_ptX_L1TE5_VZDC_AORC_VTE200',        'L1_TE5_VZDC_AORC_VTE200',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
        
 	#UPC:Supporting
@@ -637,7 +640,7 @@ def setupMenu():
 	#muon
 	['noalg_L1MU4',    'L1_MU4', [],   [HardProbesStream, 'express'], ["BW:SingleMuon", "RATE:Muon"], 1],
 	['noalg_L1MU6',    'L1_MU6', [],  [HardProbesStream, 'express'], ["BW:SingleMuon", "RATE:Muon"], 1],	
-	['noalg_L1MU11',   'L1_MU4', [],  [HardProbesStream, 'express'], ["BW:SingleMuon", "RATE:Muon"], 1],
+	['noalg_L1MU11',   'L1_MU11', [],  [HardProbesStream, 'express'], ["BW:SingleMuon", "RATE:Muon"], 1],
 	['noalg_L1MU15',   'L1_MU15', [], [HardProbesStream], ["BW:SingleMuon", "RATE:Muon"], 1],
 	['noalg_L1MU20',   'L1_MU20', [], [HardProbesStream], ["BW:SingleMuon", "RATE:Muon"], 1],
 
@@ -771,6 +774,21 @@ class Prescales:
     HLTPrescales = {
         }
 
+######################################################
+# TIGHT physics prescales
+######################################################
+from copy import deepcopy
+# enable if desired: # setting all L1 prescales to 1
+#Prescales.L1Prescales = dict([(ctpid,1) for ctpid in Prescales.L1Prescales]) 
+ 
+Prescales.L1Prescales_tight_physics_prescale  = deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_tight_physics_prescale = deepcopy(Prescales.HLTPrescales)
+
+chain_list=[
+    'timeburner',
+    ]
+Prescales.HLTPrescales_tight_physics_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
+######################################################
 
 # StreamConfig = {
 #     'HardProbes':      [ 'egamma',
