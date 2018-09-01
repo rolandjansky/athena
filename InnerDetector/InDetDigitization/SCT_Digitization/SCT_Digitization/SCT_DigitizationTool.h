@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DIGITZATION_SCT_DIGITZATIONTOOL_H
@@ -67,9 +67,7 @@ namespace CLHEP
 
 static const InterfaceID IID_ISCT_DigitizationTool ("SCT_DigitizationTool", 1, 0);
 
-class SCT_DigitizationTool :
-  virtual public IPileUpTool,
-  public PileUpToolBase
+class SCT_DigitizationTool : public extends<PileUpToolBase, IPileUpTool>
 {
 public:
   static const InterfaceID& interfaceID();
@@ -183,8 +181,6 @@ private:
   TimedHitCollection<SiHit>*                         m_thpcsi;
   SiChargedDiodeCollection*                          m_chargedDiodes;
   IntegerProperty                                    m_vetoThisBarcode;
-
-
 };
 
 inline const InterfaceID& SCT_DigitizationTool::interfaceID()

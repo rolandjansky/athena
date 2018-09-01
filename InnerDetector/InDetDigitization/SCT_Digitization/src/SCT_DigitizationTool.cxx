@@ -45,7 +45,7 @@ using InDetDD::SiCellId;
 SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
-  PileUpToolBase(type, name, parent),
+  base_class(type, name, parent),
   m_tfix{-999.},
   m_comTime{0.},
   m_enableHits{true},
@@ -168,36 +168,28 @@ namespace {
 // Initialise the surface charge generator Tool
 // ----------------------------------------------------------------------
 StatusCode SCT_DigitizationTool::initSurfaceChargesGeneratorTool() {
-  StatusCode sc{m_sct_SurfaceChargesGenerator.retrieve()};
+  ATH_CHECK(m_sct_SurfaceChargesGenerator.retrieve());
 
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR(" Can't get SCT Surface Charges Generator " << m_sct_SurfaceChargesGenerator);
-    return sc;
-  }
   m_sct_SurfaceChargesGenerator->setCosmicsRun(m_cosmicsRun);
   m_sct_SurfaceChargesGenerator->setComTimeFlag(m_useComTime);
   m_sct_SurfaceChargesGenerator->setRandomEngine(m_rndmEngine);
 
   ATH_MSG_DEBUG("Retrieved and initialised tool " << m_sct_SurfaceChargesGenerator);
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // ----------------------------------------------------------------------
 // Initialise the Front End electronics Tool
 // ----------------------------------------------------------------------
 StatusCode SCT_DigitizationTool::initFrontEndTool() {
-  StatusCode sc{m_sct_FrontEnd.retrieve()};
+  ATH_CHECK(m_sct_FrontEnd.retrieve());
 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR(" Can't get SCT FrontEnd tool: " << m_sct_FrontEnd);
-    return sc;
-  }
   m_sct_FrontEnd->setRandomEngine(m_rndmEngine);
   storeTool(&(*m_sct_FrontEnd));
 
   ATH_MSG_DEBUG("Retrieved and initialised tool " << m_sct_FrontEnd);
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // ----------------------------------------------------------------------
@@ -207,8 +199,8 @@ StatusCode SCT_DigitizationTool::initRandomEngine() {
   std::string rndmEngineName{"SCT_Digitization"};
 
   m_rndmEngine = m_rndmSvc->GetEngine(rndmEngineName);
-  if (m_rndmEngine == 0) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << rndmEngineName);
+  if (m_rndmEngine == nullptr) {
+    ATH_MSG_FATAL("Could not find RndmEngine : " << rndmEngineName);
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Get random number engine : <" << rndmEngineName << ">");
@@ -221,24 +213,13 @@ StatusCode SCT_DigitizationTool::initRandomEngine() {
 StatusCode SCT_DigitizationTool::initServices() {
   // Get SCT ID helper for hash function and Store them using methods from the
   // SiDigitization.
-  StatusCode sc = detStore()->retrieve(m_detID, "SCT_ID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to get SCT ID helper");
-    return sc;
-  }
-
-  if (not m_mergeSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Could not find PileUpMergeSvc");
-    return StatusCode::FAILURE;
-  }
-  if (not m_rndmSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Could not find given RndmSvc");
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(detStore()->retrieve(m_detID, "SCT_ID"));
   store(m_detID);
 
-  return sc;
+  ATH_CHECK(m_mergeSvc.retrieve());
+  ATH_CHECK(m_rndmSvc.retrieve());
+
+  return StatusCode::SUCCESS;
 }
 
 // ----------------------------------------------------------------------
@@ -246,18 +227,13 @@ StatusCode SCT_DigitizationTool::initServices() {
 // ----------------------------------------------------------------------
 StatusCode SCT_DigitizationTool::initDisabledCells() {
   // +++ Retrieve the SCT_RandomDisabledCellGenerator
-  StatusCode sc{m_sct_RandomDisabledCellGenerator.retrieve()};
-
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve the SCT_RandomDisabledCellGenerator tool:" << m_sct_RandomDisabledCellGenerator);
-    return sc;
-  }
+  ATH_CHECK(m_sct_RandomDisabledCellGenerator.retrieve());
 
   m_sct_RandomDisabledCellGenerator->setRandomEngine(m_rndmEngine);
   storeTool(&(*m_sct_RandomDisabledCellGenerator));
 
   ATH_MSG_INFO("Retrieved the SCT_RandomDisabledCellGenerator tool:" << m_sct_RandomDisabledCellGenerator);
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_DigitizationTool::processAllSubEvents() {
