@@ -508,13 +508,13 @@ class T2VertexBeamSpotValidationMonitoring( TrigGenericMonitoringToolConfig ):
                                              title="Vertex Yerr vs Z; Vertex Z [mm]; Vertex Yerr [mm]",
                                              xbins=500, xmin=-250.0, xmax=250.0, ybins=100, ymin=0.0, ymax=1.0) ]
 
-            # X(Y) vs Xerr(Yerr) for Bayesian Inference method
-            self.Histograms += [ defineHistogram('VertexXZoomPass, VertexXerrPass',type='TH2F',
-                                                 title="Vertex Xerr vs X-X_{nominal}; Vertex X-X_{nominal} [mm]; Vertex Xerr [mm]",
-                                                 xbins=400, xmin=-0.200, xmax=0.200, ybins=100, ymin=0.0, ymax=0.100) ]
-            self.Histograms += [ defineHistogram('VertexYZoomPass, VertexYerrPass',type='TH2F',
-                                                 title="Vertex Yerr vs Y-Y_{nominal}; Vertex Y-Y_{nominal} [mm]; Vertex Yerr [mm]",
-                                                 xbins=400, xmin=-0.200, xmax=0.200, ybins=100, ymin=0.0, ymax=0.100) ]
+        # X(Y) vs Xerr(Yerr) for Bayesian Inference method
+        self.Histograms += [ defineHistogram('VertexXZoomPass, VertexXerrPass',type='TH2F',
+                                             title="Vertex Xerr vs X-X_{nominal}; Vertex X-X_{nominal} [mm]; Vertex Xerr [mm]",
+                                             xbins=400, xmin=-0.200, xmax=0.200, ybins=100, ymin=0.0, ymax=0.100) ]
+        self.Histograms += [ defineHistogram('VertexYZoomPass, VertexYerrPass',type='TH2F',
+                                             title="Vertex Yerr vs Y-Y_{nominal}; Vertex Y-Y_{nominal} [mm]; Vertex Yerr [mm]",
+                                             xbins=400, xmin=-0.200, xmax=0.200, ybins=100, ymin=0.0, ymax=0.100) ]
 
         self.Histograms += [ defineHistogram('VertexNTrks, VertexXerr',type='TH2F',
                                              title="Vertex Xerr vs NTrks; Vertex N trks; Vertex Xerr [mm]",
