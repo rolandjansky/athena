@@ -534,6 +534,30 @@ L2MbSpHypo_veto.SctSpBarrel_max = -1. # Disable
 L2MbSpHypo_veto.SctSpEndcapA_max = -1. # Disable
 hypos["L2MbSpHypo_veto"] = L2MbSpHypo_veto
 
+class L2MbSpMhNoPixHypo_veto(MbSpHypo):
+    def __init__(self, name, threshold):
+        super(L2MbSpMhNoPixHypo_veto, self).__init__(name)
+        
+        self.AcceptAll = False
+        self.TriggerTypeAND = False # Must use OR because Pixel is disabled
+        self.Veto = True
+        self.TotalPixelClus = -1. # Disable
+        self.PixelClusRatioA = -1. # Disable
+        self.PixelClusRatioB = -1. # Disable
+        self.PixelClusEndcapC = -1. # Disable
+        self.PixelClusBarrel = -1. # Disable 
+        self.PixelClusEndcapA = -1. # Disable
+        self.PixelClusEndcapC_max = -1. # Disable
+        self.PixelClusBarrel_max = -1. # Disable 
+        self.PixelClusEndcapA_max = -1. # Disable
+        self.TotalSctSp = threshold  # here is the only one actively used setting
+        self.SctSpEndcapC = -1. # Disable
+        self.SctSpBarrel = -1. # Disable
+        self.SctSpEndcapA = -1. # Disable
+        self.SctSpEndcapC_max = -1. # Disable
+        self.SctSpBarrel_max = -1. # Disable
+        self.SctSpEndcapA_max = -1. # Disable
+
 
 
 #             Sp hypo configuratables veto large multiplicity

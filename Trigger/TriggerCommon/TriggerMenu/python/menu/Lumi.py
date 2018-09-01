@@ -178,6 +178,9 @@ def lumi(triggerPythonConfig):
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
+        elif 'tight' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tight_physics_prescale
+            HLTPrescales = Prescales.HLTPrescales_tight_physics_prescale
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales
