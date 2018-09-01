@@ -126,8 +126,8 @@ bool egammaTopoClusterCopier::passSelection (xAOD::CaloCluster *clus) const{
   // For crack clusters, also want to consider EME0, EMB0
   if(aeta>1.37 && aeta<1.63 && clusterE>0){
     double EMEnergy= clusterE*emfrac;
-    auto cell_itr = clus->cell_begin();
-    auto cell_end = clus->cell_end();   
+    auto cell_itr = clus->cell_cbegin();
+    auto cell_end = clus->cell_cend();   
 
     for (; cell_itr != cell_end; ++cell_itr) { 
       const CaloCell* cell = *cell_itr; 

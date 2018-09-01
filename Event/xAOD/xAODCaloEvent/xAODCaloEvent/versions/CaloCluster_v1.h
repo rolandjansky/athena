@@ -650,24 +650,28 @@ namespace xAOD {
       */
      size_t size() const {return getCellLinks()->size();}
 
-     ///Iterator of the underlying CaloClusterCellLink (const version)
+     ///Iterator of the underlying CaloClusterCellLink (explicitly const version)
      typedef CaloClusterCellLink::const_iterator const_cell_iterator; 
      //Fixme: Check ret-val of getCellLinks (might be NULL);
-     const_cell_iterator cell_begin() const { 
+     const_cell_iterator cell_cbegin() const { 
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) 
 	 return CaloClusterCellLink::dummyIt;
        else
 	 return links->begin();
      }
-     const_cell_iterator cell_end() const { 
+     const_cell_iterator cell_cend() const { 
        const CaloClusterCellLink* links=getCellLinks();
        if (!links) 
 	 return CaloClusterCellLink::dummyIt;
        else
 	 return getCellLinks()->end();
      } 
-     
+
+     ///Iterator of the underlying CaloClusterCellLink (const version)
+     const_cell_iterator cell_begin() const { return cell_cbegin(); } 
+     const_cell_iterator cell_end() const { return cell_cend(); }
+
      ///Iterator of the underlying CaloClusterCellLink (non-const version)
      typedef CaloClusterCellLink::iterator cell_iterator; 
      //Fixme: Check ret-val of getCellLinks (might be NULL);
@@ -677,8 +681,10 @@ namespace xAOD {
      /// STL-compatible iterators.
      typedef const_cell_iterator const_iterator;
      typedef cell_iterator iterator;
-     const_iterator begin() const { return cell_begin(); }
-     const_iterator end() const { return cell_end(); }
+     const_iterator begin() const { return cell_cbegin(); }
+     const_iterator end() const { return cell_cend(); }
+     const_iterator cbegin() const { return cell_cbegin(); }
+     const_iterator cend() const { return cell_cend(); }
      iterator begin() { return cell_begin(); }
      iterator end() { return cell_end(); }
 
