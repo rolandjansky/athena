@@ -14,7 +14,7 @@
 
 #include "TriggerMatchingTool/IMatchResult.h"
 #include "TriggerMatchingTool/IMatchConfig.h"
-#include "TrigDecisionInterfaces/Conditions.h"
+#include "TrigDecisionInterface/Conditions.h"
 
 namespace xAOD{
   class IParticle;

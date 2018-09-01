@@ -110,7 +110,7 @@ namespace Trig {
       return false;
     }
     
-    auto iparticle_feats = comb.getIParticle(clid,container_typename, m_condition);
+    auto iparticle_feats = comb.getIParticle(clid,container_typename, "", m_condition);
     result.features = iparticle_feats;
     
     
