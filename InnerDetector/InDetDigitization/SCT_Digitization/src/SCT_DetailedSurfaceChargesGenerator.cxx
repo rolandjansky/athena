@@ -71,7 +71,7 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
     m_PotentialValue{{0.}},
   m_ExValue150{{0.}},
   m_EyValue150{{0.}},
-  m_stripCharge{{{{0.}}}},
+  //m_stripCharge{{{{0.}}}},
   m_element(0),
   m_rndmEngine(0),
   m_rndmEngineName("SCT_Digitization")
@@ -1150,7 +1150,7 @@ double SCT_DetailedSurfaceChargesGenerator::inducedCharge (int & strip, double &
   double charge(0.);
   
   double dt=0.5, fx, fy, ft;
-  int ix, iy, it, iy1, it1;
+  int ix, iy, it;//, iy1, it1;
   
   if (strip < -2 || strip > 2) return charge;
   if (x < 0. || x >= 80.)      return charge;
@@ -1164,25 +1164,25 @@ double SCT_DetailedSurfaceChargesGenerator::inducedCharge (int & strip, double &
   fy = (y - 0.5*m_stripCharge_dy) / m_stripCharge_dy ;
   iy = int(fy);
   fy = fy - iy;
-  iy1 = iy + 1;
-  if (y <= 0.5*m_stripCharge_dy)      {fy = 0.; iy = 0; iy1 = 0;}
-  if (y >= 285.-0.5*m_stripCharge_dy) {fy = 1.; iy = m_stripCharge_iymax; iy1 = iy;} 
+  //iy1 = iy + 1;
+  if (y <= 0.5*m_stripCharge_dy)      {fy = 0.; iy = 0; /*iy1 = 0;*/}
+  if (y >= 285.-0.5*m_stripCharge_dy) {fy = 1.; iy = m_stripCharge_iymax; /*iy1 = iy;*/} 
 
   ft = (t - 0.25) / dt;
   it = int(ft);
   ft = ft - it;
-  it1 = it + 1;
-  if (t <= 0.25)  {ft = 0.; it= 0; it1= 0;}
-  if (t >= 24.75) {ft = 1.; it=49; it1=49;} 
+  //it1 = it + 1;
+  if (t <= 0.25)  {ft = 0.; it= 0; /*it1= 0;*/}
+  if (t >= 24.75) {ft = 1.; it=49; /*it1=49;*/} 
 
-  double p000 = m_stripCharge[strip+2][ix][iy][it];
-  double p010 = m_stripCharge[strip+2][ix][iy1][it];
-  double p100 = m_stripCharge[strip+2][ix+1][iy][it];
-  double p110 = m_stripCharge[strip+2][ix+1][iy1][it];
-  double p001 = m_stripCharge[strip+2][ix][iy][it1];
-  double p011 = m_stripCharge[strip+2][ix][iy1][it1];
-  double p101 = m_stripCharge[strip+2][ix+1][iy][it1];
-  double p111 = m_stripCharge[strip+2][ix+1][iy1][it1];
+  double p000 = 0;//m_stripCharge[strip+2][ix][iy][it];
+  double p010 = 0;//m_stripCharge[strip+2][ix][iy1][it];
+  double p100 = 0;//m_stripCharge[strip+2][ix+1][iy][it];
+  double p110 = 0;//m_stripCharge[strip+2][ix+1][iy1][it];
+  double p001 = 0;//m_stripCharge[strip+2][ix][iy][it1];
+  double p011 = 0;//m_stripCharge[strip+2][ix][iy1][it1];
+  double p101 = 0;//m_stripCharge[strip+2][ix+1][iy][it1];
+  double p111 = 0;//m_stripCharge[strip+2][ix+1][iy1][it1];
 
   double charge0 = p000*(1.-fx)*(1.-fy) + p010*(1.-fx)*fy + p100*fx*(1.-fy) + p110*fx*fy;
   double charge1 = p001*(1.-fx)*(1.-fy) + p011*(1.-fx)*fy + p101*fx*(1.-fy) + p111*fx*fy;
