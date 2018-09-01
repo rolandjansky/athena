@@ -28,8 +28,7 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
   m_jvtCutBorder(0)
   {
     declareProperty( "WorkingPoint", m_wp = "Medium"                             );
-    declareProperty( "SFFile",m_file="JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root");
-    //declareProperty( "SFFile",m_file="JetJvtEfficiency/JvtSFFile.root");
+    declareProperty( "SFFile",m_file="JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root");
     declareProperty( "ScaleFactorDecorationName", m_sf_decoration_name = "JvtSF"  );
     declareProperty( "JetJvtMomentName",   m_jetJvtMomentName   = "Jvt"           );
     declareProperty( "JetfJvtMomentName",   m_jetfJvtMomentName   = "passFJVT"    );
