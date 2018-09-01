@@ -8,7 +8,6 @@
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "PATInterfaces/SystematicsTool.h"
 #include "AsgTools/AsgTool.h"
-#include "TRandom3.h"
 
 #include <TH2.h>
 #include <string>
@@ -40,9 +39,6 @@ public:
     virtual CorrectionCode applyEfficiencyScaleFactor(const xAOD::Jet& jet);
     virtual CorrectionCode applyInefficiencyScaleFactor(const xAOD::Jet& jet);
     virtual CorrectionCode applyAllEfficiencyScaleFactor(const xAOD::IParticleContainer *jets,float& sf);
-    virtual CorrectionCode applyRandomDropping( const xAOD::Jet& jet );
-    virtual CorrectionCode applyAllRandomDropping( const xAOD::IParticleContainer *jets);
-
     virtual bool passesJvtCut(const xAOD::Jet& jet);
     virtual bool isInRange(const xAOD::Jet& jet);
 
@@ -54,7 +50,6 @@ public:
 
     float getJvtThresh() const {return m_jvtCut;}
     float getUserPtMax() const {return m_maxPtForJvt;}
-    void setRandomSeed(int seed);
     StatusCode tagTruth(const xAOD::IParticleContainer *jets,const xAOD::IParticleContainer *truthJets);
 
 private:
@@ -76,11 +71,11 @@ private:
     std::string m_drop_decoration_name;
     std::string m_isHS_decoration_name;
     float m_jvtCut;
+    float m_jvtCutBorder;
     std::string m_jetJvtMomentName;
     std::string m_jetfJvtMomentName;
     std::string m_jetEtaName;
     float m_maxPtForJvt;
-    TRandom3 m_rand;
     bool m_dofJVT;
     bool m_doTruthRequirement;
     std::string m_ORdec;
