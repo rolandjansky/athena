@@ -78,6 +78,9 @@ namespace SG {
   class TestHiveStoreSvc;
   class HiveMgrSvc; 
 }
+namespace xAODMaker {
+  class AuxStoreWrapper;
+}
 
 class DataObject;
 class IConversionSvc;
@@ -869,8 +872,9 @@ private:
                         SG::ConstProxyIterator& beg,
                         SG::ConstProxyIterator& end) const; 
 
-  ///access releaseObject
+  ///FIXME: access releaseObject
   friend class TileInfoLoader;
+  friend class xAODMaker::AuxStoreWrapper;
   /// release object held by proxy, if any. Gives up ownership 
   /// (somebody else must take charge)
   void releaseObject(const CLID& id, const std::string& key);
