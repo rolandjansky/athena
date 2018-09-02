@@ -758,7 +758,11 @@ namespace top{
     this->VarRCJetMassScale(settings->value("VarRCJetMassScale"));
     if (settings->value("UseVarRCJets") == "True" || settings->value("UseVarRCJets") == "true")
       this->m_useVarRCJets = true;
-
+    if (settings->value("UseVarRCJetSubstructure") == "True" || settings->value("UseVarRCJetSubstructure") == "true")
+      this->m_useVarRCJetSubstructure = true;
+    else
+      this->m_useVarRCJetSubstructure = false;
+    
     // for top mass analysis, per default set to 1.0!
     m_JSF  = std::stof(settings->value("JSF"));
     m_bJSF = std::stof(settings->value("bJSF"));

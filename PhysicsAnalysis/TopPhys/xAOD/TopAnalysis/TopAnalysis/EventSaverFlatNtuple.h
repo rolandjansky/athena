@@ -580,6 +580,7 @@ private:
     bool m_makeRCJets; // making re-clustered jets
     bool m_makeVarRCJets; // making VarRC jets
     bool m_useRCJSS; // write RCJSS variables
+    bool m_useVarRCJSS; // write Variable-R RCJSS variables
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
