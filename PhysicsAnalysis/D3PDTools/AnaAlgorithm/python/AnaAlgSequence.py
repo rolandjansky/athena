@@ -96,7 +96,7 @@ class AnaAlgSequence( AlgSequence ):
         if not affectingSystematics:
             affectingSystematics = {}
         elif not isinstance( affectingSystematics, dict ):
-            affectingSustematics = { "default" : affectingSystematics }
+            affectingSystematics = { "default" : affectingSystematics }
             pass
         tmpIndex = {}
         systematicsUsed = False
@@ -249,9 +249,7 @@ class AnaAlgSequence( AlgSequence ):
         """Add one analysis algorithm to the sequence
 
         This function is specifically meant for adding one of the centrally
-        provided analysis algorithms to the sequence. When users want to add
-        a "simple" algorithm to a sequence of their own, they should be using
-        the functions of 'AnaAlgorithm.AlgSequence' for doing so.
+        provided analysis algorithms to the sequence.
 
         Keyword arguments:
           alg -- The algorithm to add (an Athena configurable, or an
@@ -288,13 +286,70 @@ class AnaAlgSequence( AlgSequence ):
             self._affectingSystematics.append( affectingSystematics )
         else:
             if affectingSystematics:
-                self._affectingSystematics.append( { "default" : affectingSystematics } )
+                self._affectingSystematics.append( { "default" :
+                                                     affectingSystematics } )
             else:
                 self._affectingSystematics.append( None )
                 pass
             pass
 
-        return
+        return self
+
+    def insert( self, index, alg, inputPropName, outputPropName = None,
+                affectingSystematics = None ):
+        """Insert one analysis algorithm into the sequence
+
+        This function is specifically meant for adding one of the centrally
+        provided analysis algorithms to the sequence, in a user defined
+        location.
+
+        Keyword arguments:
+          index -- The index to insert the algorithm at
+          alg -- The algorithm to add (an Athena configurable, or an
+                 EL::AnaAlgorithmConfig instance)
+          inputPropName -- The name of the property setting the input
+                           object/container name for the algorithm
+          outputPropName -- The name of the property setting the output
+                            object/container name for the algorithm [optional]
+          affectingSystematics -- Regular expression describing which systematic
+                                  variations would affect this algorithm's
+                                  behaviour [optional]
+        """
+
+        super( AnaAlgSequence, self ).insert( index, alg )
+        if isinstance( inputPropName, dict ):
+            self._inputPropNames.insert( index, inputPropName )
+        else:
+            if inputPropName:
+                self._inputPropNames.insert( index,
+                                             { "default" : inputPropName } )
+            else:
+                self._inputPropNames.insert( index, None )
+                pass
+            pass
+        if isinstance( outputPropName, dict ):
+            self._outputPropNames.insert( index, outputPropName )
+        else:
+            if outputPropName:
+                self._outputPropNames.insert( index,
+                                              { "default" : outputPropName } )
+            else:
+                self._outputPropNames.insert( index, None )
+                pass
+            pass
+        if isinstance( affectingSystematics, dict ):
+            self._affectingSystematics.insert( index, affectingSystematics )
+        else:
+            if affectingSystematics:
+                self._affectingSystematics.insert( index,
+                                                   { "default" :
+                                                     affectingSystematics } )
+            else:
+                self._affectingSystematics.insert( index, None )
+                pass
+            pass
+
+        return self
 
     def addPublicTool( self, tool ):
         """Add a public tool to the job
@@ -319,6 +374,39 @@ class AnaAlgSequence( AlgSequence ):
             pass
         return
 
+    def __delattr__( self, name ):
+        """Remove one algorithm/sequence from this sequence, by name
+
+        This is to allow removing algorithms (or even sequences) from this
+        sequence in case that would be needed.
+
+        Keyword arguments:
+        name -- The name of the algorithm/sequence to delete from the
+        sequence
+        """
+
+        # Look up the algorithm by index:
+        algIndex = -1
+        for index in xrange( len( self ) ):
+            if self[ index ].name() == name:
+                algIndex = index
+                break
+            pass
+
+        # Check if we were successful:
+        if algIndex == -1:
+            raise AttributeError( 'Algorithm/sequence with name "%s" was not ' \
+                                  'found' % name )
+        
+        # Remove the element from the base class:
+        super( AnaAlgSequence, self ).__delattr__( name )
+
+        # Now remove the elements from the member lists of this class:
+        del self._inputPropNames[ algIndex ]
+        del self._outputPropNames[ algIndex ]
+        del self._affectingSystematics[ algIndex ]
+        pass
+
     pass
 
 #
@@ -335,15 +423,23 @@ class TestAnaAlgSeqSingleContainer( unittest.TestCase ):
         self.seq.append( alg, inputPropName = 'electrons',
                          outputPropName = 'electronsOut',
                          affectingSystematics = '(^EL_.*)' )
-        alg = createAlgorithm( 'SelectionAlg', 'Selection' )
-        self.seq.append( alg, inputPropName = 'particles',
-                         outputPropName = 'particlesOut' )
         alg = createAlgorithm( 'EfficiencyAlg', 'Efficiency' )
         self.seq.append( alg, inputPropName = 'egammas',
                          outputPropName = 'egammasOut',
                          affectingSystematics = '(^EG_.*)' )
+        alg = createAlgorithm( 'SelectionAlg', 'Selection' )
+        self.seq.insert( 1, alg, inputPropName = 'particles',
+                         outputPropName = 'particlesOut' )
+        alg = createAlgorithm( 'DummyAlgorithm', 'Dummy' )
+        self.seq.append( alg, inputPropName = None )
+        del self.seq.Dummy
         self.seq.configure( inputName = 'Electrons',
                             outputName = 'AnalysisElectrons_%SYS%' )
+        return
+
+    ## Test some very basic properties of the sequence.
+    def test_basics( self ):
+        self.assertEqual( len( self.seq ), 3 )
         return
 
     ## Test the input/output containers set up for the sequence.
