@@ -67,18 +67,19 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
+TriggerFlags.doID   = False;
+TriggerFlags.doMuon = True;
+
 ### Set muon sequence ###
 if not 'doL2SA' in dir():
-  doL2SA=True
+  doL2SA = True
 if not 'doL2CB' in dir():
-  doL2CB=True
+  doL2CB = True
+  TriggerFlags.doID = True
 if not 'doL2ISO' in dir():
   doL2ISO = True 
 if not 'doEFSA' in dir():
-  doEFSA=True
-
-TriggerFlags.doID   = False;
-TriggerFlags.doMuon = False;
+  doEFSA = True
 
 ### muon thresholds ###
 testChains = ["HLT_mu6", "HLT_2mu6"]
@@ -92,22 +93,23 @@ testChains = ["HLT_mu6", "HLT_2mu6"]
 
 ### Used the algorithms as Step2 "muComb step" ###
 
-from TrigUpgradeTest.InDetSetup import makeInDetAlgs
+if doL2CB==True:
+  from TrigUpgradeTest.InDetSetup import makeInDetAlgs
 
-(viewAlgs, eventAlgs) = makeInDetAlgs()
+  (viewAlgs, eventAlgs) = makeInDetAlgs()
+  
+  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
+  theFTF = TrigFastTrackFinder_Muon()
+  theFTF.OutputLevel = DEBUG
+  theFTF.TracksName = "TrigFastTrackFinder_MuTracks"
+  theFTF.isRoI_Seeded = True
+  viewAlgs.append(theFTF)
 
-from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
-theFTF = TrigFastTrackFinder_Muon()
-theFTF.OutputLevel = DEBUG
-theFTF.TracksName = "TrigFastTrackFinder_MuTracks"
-theFTF.isRoI_Seeded = True
-viewAlgs.append(theFTF)
-
-### A simple algorithm to confirm that data has been inherited from parent view ###
-### Required to satisfy data dependencies                                       ###
-ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuonL2SAInfo')]
-viewAlgs.append(ViewVerify)
+  ### A simple algorithm to confirm that data has been inherited from parent view ###
+  ### Required to satisfy data dependencies                                       ###
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuonL2SAInfo')]
+  viewAlgs.append(ViewVerify)
 
 
 ### Used the algorithms as Step1 "muFast step" ###
@@ -425,6 +427,7 @@ if TriggerFlags.doMuon:
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
     themuoncreatoralg.MakeClusters=False
+    themuoncreatoralg.MuonContainerLocation = "Muons"
 
     #Algorithms to views
     efMuViewNode += theSegmentFinderAlg
@@ -515,13 +518,13 @@ def muonViewsMergers( name ):
   muonViewsMerger.OutputLevel = VERBOSE
 
   if doL2SA==True:
-    muonViewsMerger.TrigCompositeContainer += [ filterL1RoIsAlg.Output, trigMufastHypo.HypoOutputDecisions ]
+    muonViewsMerger.TrigCompositeContainer += [ filterL1RoIsAlg.Output[0], trigMufastHypo.HypoOutputDecisions ]
     muonViewsMerger.L2StandAloneMuonContainerViews = [ l2MuViewsMaker.Views ]
     muonViewsMerger.L2StandAloneMuonContainerInViews = [ muFastAlg.MuonL2SAInfo ]
     muonViewsMerger.L2StandAloneMuonContainer = [ muFastAlg.MuonL2SAInfo ]
 
   if doL2CB==True:
-    muonViewsMerger.TrigCompositeContainer += [ filterL2SAAlg.Output, trigmuCombHypo.HypoOutputDecisions ]
+    muonViewsMerger.TrigCompositeContainer += [ filterL2SAAlg.Output[0], trigmuCombHypo.HypoOutputDecisions ]
     muonViewsMerger.TrackParticleContainerViews = [ l2muCombViewsMaker.Views ]
     muonViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
     muonViewsMerger.TrackParticleContainer = [ TrackParticlesName ]
@@ -531,13 +534,13 @@ def muonViewsMergers( name ):
     muonViewsMerger.L2CombinedMuonContainer = [ muCombAlg.L2CombinedMuonContainerName ]
 
   if doEFSA==True:
-    muonViewsMerger.TrigCompositeContainer += [ filterEFSAAlg.Output, trigMuonEFSAHypo.HypoOutputDecisions ]
+    muonViewsMerger.TrigCompositeContainer += [ filterEFSAAlg.Output[0], trigMuonEFSAHypo.HypoOutputDecisions ]
     muonViewsMerger.MuonContainerViews = [ efMuViewsMaker.Views ]
     muonViewsMerger.MuonContainerInViews = [ themuoncreatoralg.MuonContainerLocation ]
     muonViewsMerger.MuonContainer = [ themuoncreatoralg.MuonContainerLocation ]
 
   if doL2CB==True and doL2ISO==True: # L2CB should be also executed with L2ISO
-    muonViewsMerger.TrigCompositeContainer += [ filterL2MuisoAlg.Output, trigmuIsoHypo.HypoOutputDecisions ]
+    muonViewsMerger.TrigCompositeContainer += [ filterL2MuisoAlg.Output[0], trigmuIsoHypo.HypoOutputDecisions ]
     muonViewsMerger.L2IsoMuonContainerViews = [ l2muIsoViewsMaker.Views ]
     muonViewsMerger.L2IsoMuonContainerInViews = [ trigL2muIso.MuonL2ISInfoName ]
     muonViewsMerger.L2IsoMuonContainer = [ trigL2muIso.MuonL2ISInfoName ]
