@@ -19,48 +19,35 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CommissionEvent/ComTime.h"
 #include "HitManagement/TimedHitCollection.h"
-#include "SCT_Digitization/ISCT_FrontEnd.h"
-#include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
-#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "InDetRawData/SCT_RDO_Container.h"
-#include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "SCT_Digitization/ISCT_FrontEnd.h"
+#include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
+#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/WriteHandleKey.h"
 
 // Gaudi headers
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // STL headers
 #include <string>
 
-class InDetSimDataCollection;
-
 // Forward declarations
-class AtlasDetectorID; //FIXME should be removed
-class SCT_ID;
-
-class ISiSurfaceChargesInserter;
-
-class SiChargedDiodeCollection;
 class ISiChargedDiodesProcessorTool;
-
-namespace InDetDD
-{
-  class SiDetectorElement;
-}
+class SCT_ID;
+class SiChargedDiodeCollectioon;
 
 namespace CLHEP
 {
   class HepRandomEngine;
 }
-
-static const InterfaceID IID_ISCT_DigitizationTool ("SCT_DigitizationTool", 1, 0);
 
 class SCT_DigitizationTool : public extends<PileUpToolBase, IPileUpTool>
 {
@@ -176,6 +163,7 @@ private:
   IntegerProperty                                    m_vetoThisBarcode;
 };
 
+static const InterfaceID IID_ISCT_DigitizationTool ("SCT_DigitizationTool", 1, 0);
 inline const InterfaceID& SCT_DigitizationTool::interfaceID()
 {
   return IID_ISCT_DigitizationTool;

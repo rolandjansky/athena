@@ -4,8 +4,6 @@
 
 #include "SCT_Digitization/SCT_DigitizationTool.h"
 
-#include "PileUpTools/PileUpMergeSvc.h"
-
 // Mother Package includes
 #include "SiDigitization/SiHelper.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
@@ -27,10 +25,9 @@
 #include "StoreGate/ReadHandle.h"
 
 // C++ Standard Library
-#include <algorithm>
-#include <sstream>
-#include <string>
 #include <limits>
+#include <memory>
+#include <sstream>
 
 static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 // Barcodes at the HepMC level are int
@@ -41,11 +38,7 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
   base_class(type, name, parent),
-  m_tfix{-999.},
   m_comTime{0.},
-  m_enableHits{true},
-  m_onlyHitElements{false},
-  m_HardScatterSplittingMode{0},
   m_HardScatterSplittingSkipper{false},
   m_detID{nullptr},
   m_rndmSvc{"AtRndmGenSvc", name},
@@ -55,21 +48,22 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   m_chargedDiodes{nullptr},
   m_vetoThisBarcode{crazyParticleBarcode} {
     declareInterface<SCT_DigitizationTool>(this);
-    declareProperty("FixedTime", m_tfix, "Fixed time for Cosmics run selection");
+
+    declareProperty("FixedTime", m_tfix = -999., "Fixed time for Cosmics run selection");
     declareProperty("CosmicsRun", m_cosmicsRun = false, "Cosmics run selection");
     declareProperty("UseComTime", m_useComTime = false, "Flag to set ComTime");
-    declareProperty("EnableHits", m_enableHits, "Enable hits");
-    declareProperty("OnlyHitElements", m_onlyHitElements, "Process only elements with hits");
+    declareProperty("EnableHits", m_enableHits = true, "Enable hits");
+    declareProperty("OnlyHitElements", m_onlyHitElements = false, "Process only elements with hits");
     declareProperty("BarrelOnly", m_barrelonly = false, "Only Barrel layers");
     declareProperty("RandomDisabledCells", m_randomDisabledCells = false, "Use Random disabled cells, default no");
     declareProperty("CreateNoiseSDO", m_createNoiseSDO = false, "Set create noise SDO flag");
     declareProperty("WriteSCT1_RawData", m_WriteSCT1_RawData = false, "Write out SCT1_RawData rather than SCT3_RawData");
-
     declareProperty("InputObjectName", m_inputObjectName = "", "Input Object name");
     declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in SCT & Pixel digitization");
     declareProperty("MergeSvc", m_mergeSvc, "Merge service used in Pixel & SCT digitization");
-    declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting");
+    declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode = 0, "Control pileup & signal splitting");
     declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode = crazyParticleBarcode, "Barcode of particle to ignore");
+
     m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
   }
 
@@ -259,7 +253,7 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
   ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
 
   if (m_useComTime) {
-    SG::ReadHandle<ComTime> comTime(m_ComTimeKey);
+    SG::ReadHandle<ComTime> comTime{m_ComTimeKey};
     if (comTime.isValid()) {
       m_comTime = comTime->getTime();
       m_sct_SurfaceChargesGenerator->setComTime(m_comTime);
@@ -298,9 +292,9 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
 
   digitizeNonHits();
 
-  for (std::vector<SiHitCollection*>::iterator it{m_hitCollPtrs.begin()}; it != m_hitCollPtrs.end(); it++) {
-    (*it)->Clear();
-    delete (*it);
+  for (SiHitCollection* hit: m_hitCollPtrs) {
+    hit->Clear();
+    delete hit;
   }
   m_hitCollPtrs.clear();
 
@@ -367,7 +361,7 @@ void SCT_DigitizationTool::digitizeNonHits() {
 
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
-  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  const InDetDD::SiDetectorElementCollection* elements{sctDetEle.retrieve()};
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return;
@@ -430,18 +424,14 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
 
   // create the identifier for the collection:
   ATH_MSG_DEBUG("create ID for the hit collection");
-  Identifier id;
-  IdentifierHash waferHash;
   const TimedHitPtr<SiHit>& firstHit{*i};
-
-  int Barrel{firstHit->getBarrelEndcap()};
-
-  id = m_detID->wafer_id(Barrel,
-                       firstHit->getLayerDisk(),
-                       firstHit->getPhiModule(),
-                       firstHit->getEtaModule(),
-                       firstHit->getSide());
-  waferHash = m_detID->wafer_hash(id);
+  int barrel{firstHit->getBarrelEndcap()};
+  Identifier id{m_detID->wafer_id(barrel,
+                                  firstHit->getLayerDisk(),
+                                  firstHit->getPhiModule(),
+                                  firstHit->getEtaModule(),
+                                  firstHit->getSide())};
+  IdentifierHash waferHash{m_detID->wafer_hash(id)};
 
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
@@ -455,7 +445,7 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
   const InDetDD::SiDetectorElement* sielement{elements->getDetectorElement(waferHash)};
 
   if (sielement == nullptr) {
-    ATH_MSG_DEBUG("Barrel=" << Barrel << " layer=" << firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule() << " Phi=" << firstHit->getPhiModule() << " Side=" << firstHit->getSide());
+    ATH_MSG_DEBUG("Barrel=" << barrel << " layer=" << firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule() << " Phi=" << firstHit->getPhiModule() << " Side=" << firstHit->getSide());
     ATH_MSG_ERROR("detector manager could not find element with id = " << id);
     return false;
   }
@@ -492,8 +482,8 @@ void SCT_DigitizationTool::applyProcessorTools(SiChargedDiodeCollection* charged
   ATH_MSG_DEBUG("applyProcessorTools()");
   int processorNumber{0};
 
-  for (std::list<ISiChargedDiodesProcessorTool*>::iterator p_proc{m_diodeCollectionTools.begin()}; p_proc != m_diodeCollectionTools.end(); ++p_proc) {
-    (*p_proc)->process(*chargedDiodes);
+  for (ISiChargedDiodesProcessorTool* proc: m_diodeCollectionTools) {
+    proc->process(*chargedDiodes);
 
     processorNumber++;
     ATH_MSG_DEBUG("Applied processor # " << processorNumber);
@@ -530,14 +520,12 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
 		      m_inputObjectName << " found");
     }
 
-    TimedHitCollList::iterator iColl(hitCollList.begin());
-    TimedHitCollList::iterator endColl(hitCollList.end());
-
-    for (; iColl != endColl; iColl++) {
-      SiHitCollection *hitCollPtr = new SiHitCollection(*iColl->second);
-      PileUpTimeEventIndex timeIndex(iColl->first);
+    TimedHitCollList::iterator endColl{hitCollList.end()};
+    for (TimedHitCollList::iterator iColl{hitCollList.begin()}; iColl != endColl; iColl++) {
+      SiHitCollection *hitCollPtr{new SiHitCollection(*iColl->second)};
+      PileUpTimeEventIndex timeIndex{iColl->first};
       ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<
-		    " hits");
+                    " hits");
       ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
 		      << " index: " << timeIndex.index()
 		      << " type: " << timeIndex.type());
@@ -782,18 +770,15 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
   // create a new hits collection
   m_thpcsi = new TimedHitCollection<SiHit>{numberOfSiHits};
   // now merge all collections into one
-  TimedHitCollList::iterator iColl{hitCollList.begin()};
   TimedHitCollList::iterator endColl{hitCollList.end()};
-  while (iColl != endColl) {
+  for (TimedHitCollList::iterator iColl{hitCollList.begin()}; iColl != endColl; ++iColl) {
     // decide if this event will be processed depending on
     // HardScatterSplittingMode & bunchXing
     if (m_HardScatterSplittingMode == 2 and (not m_HardScatterSplittingSkipper)) {
       m_HardScatterSplittingSkipper = true;
-      ++iColl;
       continue;
     }
     if (m_HardScatterSplittingMode == 1 and m_HardScatterSplittingSkipper) {
-      ++iColl;
       continue;
     }
     if (m_HardScatterSplittingMode == 1 and (not m_HardScatterSplittingSkipper)) {
@@ -802,7 +787,6 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
     const SiHitCollection* p_collection{iColl->second};
     m_thpcsi->insert(iColl->first, p_collection);
     ATH_MSG_DEBUG("SiTrackerHitCollection found with" << p_collection->size() << " hits"); // loop on the hit collections
-    ++iColl;
   }
   return StatusCode::SUCCESS;
 }
