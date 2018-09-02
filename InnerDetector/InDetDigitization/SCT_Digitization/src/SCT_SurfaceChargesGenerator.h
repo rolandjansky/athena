@@ -87,7 +87,7 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
 
   virtual void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;}
   virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine)       {m_rndmEngine = rndmEngine;}
-  virtual void setDetectorElement(const InDetDD::SiDetectorElement* ele) {m_element = ele; setVariables();}
+  virtual void setDetectorElement(const InDetDD::SiDetectorElement* ele) {m_element = ele;}
 
   /** create a list of surface charges from a hit */
   virtual void process(const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter) const;
@@ -150,8 +150,6 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   TProfile* m_h_mobility_trap;
   TH1F* m_h_trap_pos;
 
-  IdentifierHash m_hashId;
-
   //ToolHandles
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
@@ -165,7 +163,6 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
 
   bool m_isOverlay; // flag for overlay
 
-  void setVariables();
   const InDetDD::SCT_ModuleSideDesign* m_design;
 };
 
