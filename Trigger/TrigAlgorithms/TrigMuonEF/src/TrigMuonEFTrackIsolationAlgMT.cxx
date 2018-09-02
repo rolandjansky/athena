@@ -104,8 +104,8 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
                                             muon_selfpt, muon_removedpt, muon_combinedpt, n_trks );
 
   // get input objects
-  const xAOD::TrackParticleContainer *idTrackParticles = 0;
-  const xAOD::MuonContainer *efMuonContainer(0);
+  const xAOD::TrackParticleContainer *idTrackParticles = nullptr;
+  const xAOD::MuonContainer *efMuonContainer = nullptr;
   if ( m_isoType == 1 ) { // isoType==1 -> ID+EF
     auto idTrackHandle = SG::makeHandle( m_idTrackParticleKey, ctx );
     if( !idTrackHandle.isValid() ) {
@@ -127,8 +127,8 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
     ATH_MSG_DEBUG("No IDTrk / EF Muon isolation required");
   }
 
-  const xAOD::TrackParticleContainer *ftkTrackParticles =0;
-  const xAOD::L2CombinedMuonContainer *l2MuonContainer(0);  
+  const xAOD::TrackParticleContainer *ftkTrackParticles = nullptr;
+  const xAOD::L2CombinedMuonContainer *l2MuonContainer = nullptr;  
   if ( m_isoType == 2 ) { // isoType==2 -> FTK+L2
     auto ftkTrackHandle = SG::makeHandle( m_ftkTrackParticleKey, ctx );
     if ( !ftkTrackHandle.isValid() ) {
@@ -194,9 +194,9 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
       ini_trkdr.insert( ini_trkdr.begin(), drvals.begin(), drvals.end());
 
       if ( selfremoval.size()==3 ) {
-        ini_selfpt.push_back(selfremoval[0]*1e-3);
-        ini_combinedpt.push_back(selfremoval[1]*1e-3);
-        ini_removedpt.push_back(selfremoval[2]*1e-3);
+        ini_selfpt.push_back(selfremoval[0]*1e-3);     // convert to GeV
+        ini_combinedpt.push_back(selfremoval[1]*1e-3); // convert to GeV
+        ini_removedpt.push_back(selfremoval[2]*1e-3);  // convert to GeV
       } else {
         ATH_MSG_WARNING("Muon pt not stored correctly - histogram have not been filled for this muon");
       }
@@ -212,8 +212,8 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
 	const float ptcone20 = isoResults[0]; 	
         const float ptcone30 = isoResults[1]; 
 
-        ini_cone2.push_back(ptcone20*1e-3);
-        ini_cone3.push_back(ptcone30*1e-3);
+        ini_cone2.push_back(ptcone20*1e-3); // convert to GeV
+        ini_cone3.push_back(ptcone30*1e-3); // convert to GeV
 
         // deep copy muon (since otherwise we risk overwriting isolation results from other algos)
         muonContainer->push_back( new xAOD::Muon(*muon) );
@@ -258,9 +258,9 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
       ini_trkdr.insert( ini_trkdr.begin(), drvalsFTK.begin(), drvalsFTK.end());
 
       if ( selfremovalFTK.size()==3 ) {
-        ini_selfpt.push_back(selfremovalFTK[0]*1e-3);
-        ini_combinedpt.push_back(selfremovalFTK[1]*1e-3);
-        ini_removedpt.push_back(selfremovalFTK[2]*1e-3);
+        ini_selfpt.push_back(selfremovalFTK[0]*1e-3);     // convert to GeV
+        ini_combinedpt.push_back(selfremovalFTK[1]*1e-3); // convert to GeV
+        ini_removedpt.push_back(selfremovalFTK[2]*1e-3);  // convert to GeV
       } else {
         ATH_MSG_WARNING("Muon pt not stored correctly - histogram have not been filled for this muon");
       }
