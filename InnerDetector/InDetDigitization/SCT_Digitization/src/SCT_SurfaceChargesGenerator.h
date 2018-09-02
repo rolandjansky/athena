@@ -85,16 +85,12 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
 
  private:
 
-  virtual void setComTime(float comTime)                                 {m_comTime = comTime;}
   virtual void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;}
-  virtual void setCosmicsRun(bool cosmicsRun)                            {m_cosmicsRun = cosmicsRun;}
-  virtual void setComTimeFlag(bool useComTime)                           {m_useComTime = useComTime;}
   virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine)       {m_rndmEngine = rndmEngine;}
   virtual void setDetectorElement(const InDetDD::SiDetectorElement* ele) {m_element = ele; setVariables();}
 
   /** create a list of surface charges from a hit */
   virtual void process(const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter) const;
-  virtual void processFromTool(const SiHit* phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId) const;
   void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID) const;
   
   // some diagnostics methods are needed here too
@@ -121,9 +117,6 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   float m_tfix;       //!< fixed time
   float m_tsubtract;  //!< subtract drift time from mid gap 
 
-  float  m_comTime;       //!< use cosmics time for timing
-  bool   m_useComTime;    //!< Flag to decide the use of cosmics time for timing
-  bool   m_cosmicsRun;    //!< Flag to set Cosmics Run
   bool   m_doDistortions; //!< Flag to set Distortions
   bool   m_useSiCondDB;   //!< Flag to change from using DB values to below ones, default True
   float  m_vdepl;         //!< depletion voltage, default 70V

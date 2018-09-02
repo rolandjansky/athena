@@ -45,9 +45,6 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
   m_distInterStrip{1.0},
   m_distHalfInterStrip{0},
   m_SurfaceDriftFlag{0},
-  m_comTime{0},
-  m_useComTime{false},
-  m_cosmicsRun{false},
   m_doDistortions{false},
   m_useSiCondDB{true},
   m_doTrapping{false},
@@ -326,19 +323,6 @@ float SCT_SurfaceChargesGenerator::surfaceDriftTime(float ysurf) const {
 }
 
 // -------------------------------------------------------------------------------------------
-// create a list of surface charges from a hit - called from
-// SCT_DigitizationTool PileUpTool
-// -------------------------------------------------------------------------------------------
-void SCT_SurfaceChargesGenerator::processFromTool(const SiHit* phit,
-                                                  const ISiSurfaceChargesInserter& inserter,
-                                                  float p_eventTime,
-                                                  unsigned short p_eventId) const {
-  ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::processFromTool starts");
-  processSiHit(*phit, inserter, p_eventTime, p_eventId);
-  return;
-}
-
-// -------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from SCT_Digitization
 // AthAlgorithm
 // -------------------------------------------------------------------------------------------
@@ -372,13 +356,6 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
   timeOfFlight -= (m_center) / CLHEP::c_light;
   // !< extract the distance to the origin of the module to Time of flight
 
-  // !< Commissioning time taken into account for the particle time of flight calculation
-  if (m_cosmicsRun and m_useComTime) {
-    timeOfFlight -= m_comTime;
-  }
-  if (m_useComTime) {
-    timeOfFlight -= m_comTime;
-  }
   // !< timing set from jo to adjust (subtract) the timing
   if (m_tsubtract > -998.) {
     timeOfFlight -= m_tsubtract;

@@ -38,7 +38,6 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
   base_class(type, name, parent),
-  m_comTime{0.},
   m_HardScatterSplittingSkipper{false},
   m_detID{nullptr},
   m_rndmSvc{"AtRndmGenSvc", name},
@@ -51,7 +50,6 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
 
     declareProperty("FixedTime", m_tfix = -999., "Fixed time for Cosmics run selection");
     declareProperty("CosmicsRun", m_cosmicsRun = false, "Cosmics run selection");
-    declareProperty("UseComTime", m_useComTime = false, "Flag to set ComTime");
     declareProperty("EnableHits", m_enableHits = true, "Enable hits");
     declareProperty("OnlyHitElements", m_onlyHitElements = false, "Process only elements with hits");
     declareProperty("BarrelOnly", m_barrelonly = false, "Only Barrel layers");
@@ -105,7 +103,6 @@ StatusCode SCT_DigitizationTool::initialize() {
   // +++ Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_simDataCollMapKey.initialize());
-  ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
 
   // Initialize ReadCondHandleKey
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
@@ -151,9 +148,12 @@ namespace {
 StatusCode SCT_DigitizationTool::initSurfaceChargesGeneratorTool() {
   ATH_CHECK(m_sct_SurfaceChargesGenerator.retrieve());
 
-  m_sct_SurfaceChargesGenerator->setCosmicsRun(m_cosmicsRun);
-  m_sct_SurfaceChargesGenerator->setComTimeFlag(m_useComTime);
   m_sct_SurfaceChargesGenerator->setRandomEngine(m_rndmEngine);
+
+  if (m_cosmicsRun and m_tfix > -998) {
+    m_sct_SurfaceChargesGenerator->setFixedTime(m_tfix);
+    ATH_MSG_INFO("Use of FixedTime = " << m_tfix << " in cosmics");
+  }
 
   ATH_MSG_DEBUG("Retrieved and initialised tool " << m_sct_SurfaceChargesGenerator);
 
@@ -251,22 +251,6 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
   // Create a map for the SDO and register it into StoreGate
   m_simDataCollMap = SG::makeHandle(m_simDataCollMapKey);
   ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
-
-  if (m_useComTime) {
-    SG::ReadHandle<ComTime> comTime{m_ComTimeKey};
-    if (comTime.isValid()) {
-      m_comTime = comTime->getTime();
-      m_sct_SurfaceChargesGenerator->setComTime(m_comTime);
-      ATH_MSG_DEBUG("Found tool for cosmic/commissioning timing: ComTime");
-    } else {
-      ATH_MSG_WARNING("Did not find tool needed for cosmic/commissioning timing: ComTime");
-    }
-  }
-
-  if (m_cosmicsRun and m_tfix > -998) {
-    m_sct_SurfaceChargesGenerator->setFixedTime(m_tfix);
-    ATH_MSG_INFO("Use of FixedTime = " << m_tfix << " in cosmics");
-  }
 
   m_processedElements.clear();
   m_processedElements.resize(m_detID->wafer_hash_max(), false);
@@ -465,7 +449,6 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
                                                                        phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
       m_sct_SurfaceChargesGenerator->setDetectorElement(sielement);
-
       m_sct_SurfaceChargesGenerator->process(phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes));
       ATH_MSG_DEBUG("charges filled!");
     }

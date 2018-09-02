@@ -72,16 +72,12 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
 
  private:
 
-  void setComTime(float comTime)                                 {m_comTime = comTime;} 
   void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;} 
-  void setCosmicsRun(bool cosmicsRun)                            {m_cosmicsRun = cosmicsRun;}
-  void setComTimeFlag(bool useComTime)                           {m_useComTime = useComTime;}      
   void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine)       {m_rndmEngine = rndmEngine;}
   void setDetectorElement(const InDetDD::SiDetectorElement *ele) {m_element = ele;} 
 
   /** create a list of surface charges from a hit */
   virtual void process(const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const;
-  virtual void processFromTool(const SiHit* phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId) const;
   void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID) const;
   
   // some diagnostics methods are needed here too
@@ -125,9 +121,6 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   float m_tfix;       //!< fixed time
   float m_tsubtract;  //!< subtract drift time from mid gap 
 
-  float m_comTime ;       //!< use cosmics time for timing
-  bool  m_useComTime ;    //!< Flag to decide the use of cosmics time for timing
-  bool  m_cosmicsRun ;    //!< Flag to set Cosmics Run
   bool  m_doDistortions ; //!< Flag to set Distortions
 
   // -- Charge Trapping -- //

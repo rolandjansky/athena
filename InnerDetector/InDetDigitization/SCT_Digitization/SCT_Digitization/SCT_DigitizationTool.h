@@ -17,7 +17,6 @@
 
 // Athena headers
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CommissionEvent/ComTime.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -117,12 +116,10 @@ private:
   void       digitizeNonHits();     //!< digitize SCT without hits
 
   float m_tfix;           //!< Use fixed timing for cosmics
-  float m_comTime;         //!< Use Commission time for timing
 
   bool m_enableHits;            //!< Flag to enable hits
   bool m_onlyHitElements;       //!<
   bool m_cosmicsRun;            //!< Select a cosmic run
-  bool m_useComTime;            //!< Flag to set the use of cosmics time for timing
   bool m_barrelonly;            //!< Only the barrel layers
   bool m_randomDisabledCells;   //!< Use Random disabled cells, default no
   bool m_createNoiseSDO;        //!< Create SDOs for strips with only noise hits (huge increase in SDO collection size)
@@ -136,8 +133,6 @@ private:
   */
 
   void SetupRdoOutputType(Property&);
-
-  SG::ReadHandleKey<ComTime> m_ComTimeKey{this, "ComTimeKey", "ComTime", "Handle to retrieve commissioning timing info from SG"};
 
   const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
   ToolHandle<ISCT_FrontEnd> m_sct_FrontEnd{this, "FrontEnd", "SCT_FrontEnd", "Handle the Front End Electronic tool"};
