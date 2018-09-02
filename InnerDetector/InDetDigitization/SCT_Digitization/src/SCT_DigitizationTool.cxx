@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <algorithm>
 #include "SCT_Digitization/SCT_DigitizationTool.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
@@ -23,16 +22,12 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
-// SCT_Digitization tools
-#include "SCT_Digitization/ISCT_FrontEnd.h"
-#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
-#include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
-
 // Data Handle
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 // C++ Standard Library
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <limits>
@@ -52,16 +47,10 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
   m_onlyHitElements{false},
   m_HardScatterSplittingMode{0},
   m_HardScatterSplittingSkipper{false},
-  m_ComTimeKey{"ComTime"},
   m_detID{nullptr},
-  m_sct_FrontEnd{"SCT_FrontEnd", this},
-  m_sct_SurfaceChargesGenerator{"SCT_SurfaceChargesGenerator", this},
-  m_sct_RandomDisabledCellGenerator{"SCT_RandomDisabledCellGenerator", this},
-  m_rdoContainerKey{""},
   m_rndmSvc{"AtRndmGenSvc", name},
   m_mergeSvc{"PileUpMergeSvc", name},
   m_rndmEngine{nullptr},
-  m_atlasID{nullptr},
   m_thpcsi{nullptr},
   m_chargedDiodes{nullptr},
   m_vetoThisBarcode{crazyParticleBarcode} {
@@ -77,12 +66,8 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
     declareProperty("WriteSCT1_RawData", m_WriteSCT1_RawData = false, "Write out SCT1_RawData rather than SCT3_RawData");
 
     declareProperty("InputObjectName", m_inputObjectName = "", "Input Object name");
-    declareProperty("OutputObjectName", m_rdoContainerKey = "SCT_RDOs", "Output Object name");
-    declareProperty("OutputSDOName", m_simDataCollMapKey = "SCT_SDO_Map", "Output SDO container name");
     declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in SCT & Pixel digitization");
     declareProperty("MergeSvc", m_mergeSvc, "Merge service used in Pixel & SCT digitization");
-    declareProperty("FrontEnd", m_sct_FrontEnd, "Choice of using a development release");
-    declareProperty("SurfaceChargesGenerator", m_sct_SurfaceChargesGenerator, "Choice of using a more detailed charge drift model");
     declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting");
     declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode = crazyParticleBarcode, "Barcode of particle to ignore");
     m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
@@ -102,23 +87,25 @@ StatusCode SCT_DigitizationTool::initialize() {
   }
 
   // +++ Init the services
-  CHECK(initServices());
+  ATH_CHECK(initServices());
 
   // +++ Get the random generator engine
-  CHECK(initRandomEngine());
+  ATH_CHECK(initRandomEngine());
 
   // +++ Get the Surface Charges Generator tool
-  CHECK(initSurfaceChargesGeneratorTool());
+  ATH_CHECK(initSurfaceChargesGeneratorTool());
 
   // +++ Get the Front End tool
-  CHECK(initFrontEndTool());
+  ATH_CHECK(initFrontEndTool());
 
   // +++ Initialise for disabled cells from the random disabled cells tool
   // +++ Default off, since disabled cells taken form configuration in
   // reconstruction stage
   if (m_randomDisabledCells) {
-    CHECK(initDisabledCells());
+    ATH_CHECK(initDisabledCells());
     ATH_MSG_INFO("Use of Random disabled cells");
+  } else {
+    m_sct_RandomDisabledCellGenerator.disable();
   }
 
   // +++ Initialize WriteHandleKey
@@ -214,7 +201,6 @@ StatusCode SCT_DigitizationTool::initServices() {
   // Get SCT ID helper for hash function and Store them using methods from the
   // SiDigitization.
   ATH_CHECK(detStore()->retrieve(m_detID, "SCT_ID"));
-  store(m_detID);
 
   ATH_CHECK(m_mergeSvc.retrieve());
   ATH_CHECK(m_rndmSvc.retrieve());
@@ -451,23 +437,12 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
 
   int Barrel{firstHit->getBarrelEndcap()};
 
-  // For testbeam
-
-  if (m_atlasID == NULL) {
-    id = 0;
-  } else {
-    const SCT_ID* sctID{dynamic_cast<const SCT_ID*>(m_atlasID)};
-    if (sctID == nullptr) {
-      ATH_MSG_ERROR("expected a SCT_ID but failed...");
-      return false;
-    }
-    id = sctID->wafer_id(Barrel,
-                         firstHit->getLayerDisk(),
-                         firstHit->getPhiModule(),
-                         firstHit->getEtaModule(),
-                         firstHit->getSide());
-    waferHash = sctID->wafer_hash(id);
-  }
+  id = m_detID->wafer_id(Barrel,
+                       firstHit->getLayerDisk(),
+                       firstHit->getPhiModule(),
+                       firstHit->getEtaModule(),
+                       firstHit->getSide());
+  waferHash = m_detID->wafer_hash(id);
 
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);

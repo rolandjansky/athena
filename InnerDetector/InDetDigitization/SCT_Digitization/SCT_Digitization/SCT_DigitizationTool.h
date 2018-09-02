@@ -19,6 +19,9 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CommissionEvent/ComTime.h"
 #include "HitManagement/TimedHitCollection.h"
+#include "SCT_Digitization/ISCT_FrontEnd.h"
+#include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
+#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -43,17 +46,12 @@ class InDetSimDataCollection;
 
 // Forward declarations
 class AtlasDetectorID; //FIXME should be removed
-class ComTime;
 class SCT_ID;
 
-class ISCT_FrontEnd;
-class ISCT_SurfaceChargesGenerator;
-class ISCT_RandomDisabledCellGenerator;
 class ISiSurfaceChargesInserter;
 
 class SiChargedDiodeCollection;
 class ISiChargedDiodesProcessorTool;
-class StoreGateService;
 
 namespace InDetDD
 {
@@ -93,7 +91,6 @@ protected:
   void       addSDO(SiChargedDiodeCollection* collection);
 
   void storeTool(ISiChargedDiodesProcessorTool* p_processor) {m_diodeCollectionTools.push_back(p_processor);}
-  void store(const AtlasDetectorID* p_helper) {m_atlasID = p_helper;}  //FIXME should be removed
 
 private:
 
@@ -156,18 +153,18 @@ private:
 
   void SetupRdoOutputType(Property&);
 
-  SG::ReadHandleKey<ComTime>        m_ComTimeKey ; //!< Handle to retrieve commissioning timing info from SG
+  SG::ReadHandleKey<ComTime> m_ComTimeKey{this, "ComTimeKey", "ComTime", "Handle to retrieve commissioning timing info from SG"};
 
   const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
-  ToolHandle<ISCT_FrontEnd>                          m_sct_FrontEnd;                      //!< Handle the Front End Electronic tool
-  ToolHandle<ISCT_SurfaceChargesGenerator>           m_sct_SurfaceChargesGenerator;       //!< Handle the surface chage generator tool
-  ToolHandle<ISCT_RandomDisabledCellGenerator>       m_sct_RandomDisabledCellGenerator;   //!< Handle the Ampilifier tool for the Front End
+  ToolHandle<ISCT_FrontEnd> m_sct_FrontEnd{this, "FrontEnd", "SCT_FrontEnd", "Handle the Front End Electronic tool"};
+  ToolHandle<ISCT_SurfaceChargesGenerator> m_sct_SurfaceChargesGenerator{this, "SurfaceChargesGenerator", "SCT_SurfaceChargesGenerator", "Choice of using a more detailed charge drift model"};
+  ToolHandle<ISCT_RandomDisabledCellGenerator> m_sct_RandomDisabledCellGenerator{this, "RandomDisabledCellGenerator", "SCT_RandomDisabledCellGenerator", ""};
 
   std::vector<SiHitCollection*> m_hitCollPtrs;
 
-  SG::WriteHandleKey<SCT_RDO_Container>              m_rdoContainerKey; //!< RDO container key
-  SG::WriteHandle<SCT_RDO_Container>                 m_rdoContainer; //!< RDO container handle
-  SG::WriteHandleKey<InDetSimDataCollection>         m_simDataCollMapKey; //!< SDO Map key
+  SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "OutputObjectName", "SCT_RDOs", "Output Object name"};
+  SG::WriteHandle<SCT_RDO_Container> m_rdoContainer; //!< RDO container handle
+  SG::WriteHandleKey<InDetSimDataCollection> m_simDataCollMapKey{this, "OutputSDOName", "SCT_SDO_Map", "Output SDO container name"};
   SG::WriteHandle<InDetSimDataCollection>            m_simDataCollMap; //!< SDO Map handle
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
@@ -176,7 +173,6 @@ private:
   ServiceHandle <PileUpMergeSvc>                     m_mergeSvc; //!
 
   CLHEP::HepRandomEngine*                            m_rndmEngine;          //! Random number engine used - not init in SiDigitization
-  const AtlasDetectorID*                             m_atlasID;  //FIXME should be replaced with m_detID usage
   std::list<ISiChargedDiodesProcessorTool*>          m_diodeCollectionTools;
   TimedHitCollection<SiHit>*                         m_thpcsi;
   SiChargedDiodeCollection*                          m_chargedDiodes;
