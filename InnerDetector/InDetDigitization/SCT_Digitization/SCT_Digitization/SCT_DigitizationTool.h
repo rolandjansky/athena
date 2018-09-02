@@ -32,14 +32,11 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODEventInfo/EventAuxInfo.h"
 
 // Gaudi headers
 #include "GaudiKernel/ToolHandle.h"
 
 // STL headers
-#include "boost/shared_ptr.hpp"
 #include <string>
 
 class InDetSimDataCollection;

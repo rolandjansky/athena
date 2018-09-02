@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_Digitization/SCT_DigitizationTool.h"
@@ -534,7 +534,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
     TimedHitCollList::iterator iColl(hitCollList.begin());
     TimedHitCollList::iterator endColl(hitCollList.end());
 
-    for( ; iColl != endColl; iColl++){
+    for( ; iColl != endColl; iColl++) {
       SiHitCollection *hitCollPtr = new SiHitCollection(*iColl->second);
       PileUpTimeEventIndex timeIndex(iColl->first);
       ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<
@@ -802,7 +802,7 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
     }
     const SiHitCollection* p_collection{iColl->second};
     m_thpcsi->insert(iColl->first, p_collection);
-    ATH_MSG_DEBUG("SiTrackerHitCollection found with" << p_collection->size() << " hits");    // loop on the hit collections
+    ATH_MSG_DEBUG("SiTrackerHitCollection found with" << p_collection->size() << " hits"); // loop on the hit collections
     ++iColl;
   }
   return StatusCode::SUCCESS;
