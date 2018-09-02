@@ -8,28 +8,39 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.DetFlags import DetFlags
 
+### Set muon sequence ###
+if not 'doL2SA' in dir():
+  doL2SA=True
+if not 'doL2CB' in dir():
+  doL2CB=True
+if not 'doL2ISO' in dir():
+  doL2ISO = True 
+if not 'doEFSA' in dir():
+  doEFSA=True
+
 ### workaround to prevent online trigger folders to be enabled ###
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
+if doL2CB or doL2ISO:
+  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+  InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
 
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
+  from InDetRecExample.InDetJobProperties import InDetFlags
+  InDetFlags.doCaloSeededBrem = False
 
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
+  from InDetRecExample.InDetJobProperties import InDetFlags
+  InDetFlags.InDet25nsec = True 
+  InDetFlags.doPrimaryVertex3DFinding = False 
+  InDetFlags.doPrintConfigurables = False
+  InDetFlags.doResolveBackTracks = True 
+  InDetFlags.doSiSPSeededTrackFinder = True
+  InDetFlags.doTRTPhaseCalculation = True
+  InDetFlags.doTRTSeededTrackFinder = True
+  InDetFlags.doTruth = False
+  InDetFlags.init()
+  
+  ### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
+  include("InDetRecExample/InDetRecConditionsAccess.py")
 
-### PixelLorentzAngleSvc and SCTLorentzAngleSvc ###
-include("InDetRecExample/InDetRecConditionsAccess.py")
-
-from InDetRecExample.InDetKeys import InDetKeys
+  from InDetRecExample.InDetKeys import InDetKeys
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -92,12 +103,12 @@ testChains = ["HLT_mu6", "HLT_2mu6"]
 ### ************* PRD data provider algorithm ************* ###
 
 ### Used the algorithms as Step2 "muComb step" ###
-
-if doL2CB==True:
+viewAlgs = []
+if doL2CB:
+  # Only do setup of ID stuff if we run combined muon finding
   from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-
   (viewAlgs, eventAlgs) = makeInDetAlgs()
-  
+
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
   theFTF = TrigFastTrackFinder_Muon()
   theFTF.OutputLevel = DEBUG

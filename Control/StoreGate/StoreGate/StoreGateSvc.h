@@ -932,10 +932,6 @@ private:
   ///throw away bad objects
   void emptyTrash();                   
   
-  ///name says it all
-  bool bindHandleToProxy(const CLID& id, const std::string& key,
-                         IResetable* ir, SG::DataProxy*& dp);
-
   /// remove proxy from store, unless it is reset only.         
   /// provide pTrans!=0 (must match proxy...) to save time
   /// @param forceRemove remove the proxy no matter what
