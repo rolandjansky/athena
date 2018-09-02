@@ -167,15 +167,6 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
 
   void setVariables();
   const InDetDD::SCT_ModuleSideDesign* m_design;
-  float m_depletionVoltage;
-  float m_biasVoltage;
-  double m_holeDriftMobility;
-  double m_holeDiffusionConstant;
-  double m_electronHolePairsPerEnergy;
-  double m_thickness;
-  double m_center;
-  double m_tanLorentz;
-  bool m_isBarrel;
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H

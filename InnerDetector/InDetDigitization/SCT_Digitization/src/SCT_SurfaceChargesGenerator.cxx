@@ -234,14 +234,31 @@ StatusCode SCT_SurfaceChargesGenerator::finalize() {
 // perpandicular Drift time calculation
 // ----------------------------------------------------------------------
 float SCT_SurfaceChargesGenerator::driftTime(float zhit) const {
-  if ((zhit < 0.0) or (zhit > m_thickness)) {
+  if (m_design==nullptr) {
+    ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << m_design);
+    return -2.0;
+  }
+
+  const double thickness{m_design->thickness()};
+
+  if ((zhit < 0.0) or (zhit > thickness)) {
     ATH_MSG_DEBUG("driftTime: hit coordinate zhit=" << zhit / CLHEP::micrometer << " out of range");
     return -2.0;
   }
 
-  const float denominator{static_cast<float>(m_depletionVoltage + m_biasVoltage - (2.0 * zhit * m_depletionVoltage / m_thickness))};
+  float depletionVoltage{0.};
+  float biasVoltage{0.};
+  if (m_useSiCondDB) {
+    depletionVoltage = m_siConditionsTool->depletionVoltage(m_hashId) * CLHEP::volt;
+    biasVoltage = m_siConditionsTool->biasVoltage(m_hashId) * CLHEP::volt;
+  } else {
+    depletionVoltage = m_vdepl * CLHEP::volt;
+    biasVoltage = m_vbias * CLHEP::volt;
+  }
+
+  const float denominator{static_cast<float>(depletionVoltage + biasVoltage - (2.0 * zhit * depletionVoltage / thickness))};
   if (denominator <= 0.0) {
-    if (m_biasVoltage >= m_depletionVoltage) { // Should not happen
+    if (biasVoltage >= depletionVoltage) { // Should not happen
       if(not m_isOverlay) {
         ATH_MSG_ERROR("driftTime: negative argument X for log(X) " << zhit);
       }
@@ -252,8 +269,8 @@ float SCT_SurfaceChargesGenerator::driftTime(float zhit) const {
     }
   }
 
-  float driftTime{log((m_depletionVoltage + m_biasVoltage) / denominator)};
-  driftTime *= m_thickness * m_thickness / (2.0 * m_holeDriftMobility * m_depletionVoltage);
+  float driftTime{log((depletionVoltage + biasVoltage) / denominator)};
+  driftTime *= thickness * thickness / (2.0 * m_siPropertiesTool->getSiProperties(m_hashId).holeDriftMobility() * depletionVoltage);
   return driftTime;
 }
 
@@ -264,7 +281,7 @@ float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit) const {
   const float t{driftTime(zhit)}; // in ns
 
   if (t > 0.0) {
-    const float diffusionSigma{static_cast<float>(sqrt(2. * m_holeDiffusionConstant * t))}; // in mm
+    const float diffusionSigma{static_cast<float>(sqrt(2. * m_siPropertiesTool->getSiProperties(m_hashId).holeDiffusionConstant() * t))}; // in mm
     return diffusionSigma;
   } else {
     return 0.0;
@@ -341,10 +358,13 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
                                                const ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
                                                unsigned short p_eventId) const {
-  if (!m_design) {
+  if (m_design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << m_design);
     return;
   }
+
+  const double thickness{m_design->thickness()};
+  const double tanLorentz{m_lorentzAngleTool->getTanLorentzAngle(m_hashId)};
 
   // ---**************************************
   //  Time of Flight Calculation - separate method?
@@ -353,7 +373,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
   float timeOfFlight{p_eventTime + hitTime(phit)};
 
   // Kondo 19/09/2007: Use the coordinate of the center of the module to calculate the time of flight
-  timeOfFlight -= (m_center) / CLHEP::c_light;
+  timeOfFlight -= (m_element->center().mag()) / CLHEP::c_light;
   // !< extract the distance to the origin of the module to Time of flight
 
   // !< timing set from jo to adjust (subtract) the timing
@@ -376,7 +396,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
   const int numberOfSteps{static_cast<int>(LargeStep / m_smallStepLength) + 1};
   const float steps{static_cast<float>(m_numberOfCharges * numberOfSteps)};
   const float e1{static_cast<float>(phit.energyLoss() / steps)};
-  const float q1{static_cast<float>(e1 * m_electronHolePairsPerEnergy)};
+  const float q1{static_cast<float>(e1 * m_siPropertiesTool->getSiProperties(m_hashId).electronHolePairsPerEnergy())};
 
   // in the following, to test the code, we will use the original coordinate
   // system of the SCTtest3SurfaceChargesGenerator x is eta y is phi z is depth
@@ -385,7 +405,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
   float zhit{xDep};
 
   if (m_doDistortions) {
-    if (m_isBarrel) {// Only apply disortions to barrel modules
+    if (m_element->isBarrel()) {// Only apply disortions to barrel modules
       Amg::Vector2D BOW;
       BOW[0] = m_distortionsTool->correctSimulation(m_hashId, xhit, yhit, cEta, cPhi, cDep)[0];
       BOW[1] = m_distortionsTool->correctSimulation(m_hashId, xhit, yhit, cEta, cPhi, cDep)[1];
@@ -415,7 +435,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
 
     // Distance between charge and readout side.
     // m_design->readoutSide() is +1 if readout side is in +ve depth axis direction and visa-versa.
-    float zReadout{static_cast<float>(0.5 * m_thickness - m_design->readoutSide() * z1)};
+    float zReadout{static_cast<float>(0.5 * thickness - m_design->readoutSide() * z1)};
     const double spess{zReadout};
 
     if (m_doHistoTrap) {
@@ -426,16 +446,16 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
     float tdrift{driftTime(zReadout)};  // !< tdrift: perpandicular drift time
     if (tdrift>-2.0000002 and tdrift<-1.9999998) {
       ATH_MSG_DEBUG("Checking for rounding errors in compression");
-      if ((fabs(z1) - 0.5 * m_thickness) < 0.000010) {
+      if ((fabs(z1) - 0.5 * thickness) < 0.000010) {
         ATH_MSG_DEBUG("Rounding error found attempting to correct it. z1 = " << std::fixed << std::setprecision(8) << z1);
         if (z1 < 0.0) {
-          z1 = 0.0000005 - 0.5 * m_thickness;
+          z1 = 0.0000005 - 0.5 * thickness;
           // set new coordinate to be 0.5nm inside wafer volume.
         } else {
-          z1 = 0.5 * m_thickness - 0.0000005;
+          z1 = 0.5 * thickness - 0.0000005;
           // set new coordinate to be 0.5nm inside wafer volume.
         }
-        zReadout = 0.5 * m_thickness - m_design->readoutSide() * z1;
+        zReadout = 0.5 * thickness - m_design->readoutSide() * z1;
         tdrift = driftTime(zReadout);
         if (tdrift>-2.0000002 and tdrift<-1.9999998) {
           ATH_MSG_WARNING("Attempt failed. Making no correction.");
@@ -449,7 +469,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
     if (tdrift > 0.0) {
       const float x1{xhit + StepX * dstep};
       float y1{yhit + StepY * dstep};
-      y1 += m_tanLorentz * zReadout; // !< Taking into account the magnetic field
+      y1 += tanLorentz * zReadout; // !< Taking into account the magnetic field
       const float sigma{diffusionSigma(zReadout)};
 
       for (int i{0}; i < m_numberOfCharges; ++i) {
@@ -469,7 +489,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
 
         // now y will be x and z will be y ....just to make sure to confuse everebody
         double y0{dstrip * stripPitch}; // mm
-        double z0{m_thickness - zReadout}; // mm
+        double z0{thickness - zReadout}; // mm
 
         // -- Charge Trapping
         if (m_doTrapping) {
@@ -496,7 +516,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
 
               // now y will be x and z will be y ....just to make sure to confuse everebody
               double yfin{dstrip * stripPitch}; // mm
-              double zfin{m_thickness - trap_pos}; // mm
+              double zfin{thickness - trap_pos}; // mm
 
               m_radDamageTool->holeTransport(y0, z0, yfin, zfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
               for (int strip{-2}; strip<=2; strip++) {
@@ -595,29 +615,5 @@ bool SCT_SurfaceChargesGenerator::chargeIsTrapped(double spess,
 void SCT_SurfaceChargesGenerator::setVariables() {
   // Get HashId
   m_hashId = m_element->identifyHash();
-
   m_design = dynamic_cast<const SCT_ModuleSideDesign*>(&(m_element->design()));
-  
-  if (m_useSiCondDB) {
-    m_depletionVoltage = m_siConditionsTool->depletionVoltage(m_hashId) * CLHEP::volt;
-    m_biasVoltage = m_siConditionsTool->biasVoltage(m_hashId) * CLHEP::volt;
-  } else {
-    m_depletionVoltage = m_vdepl * CLHEP::volt;
-    m_biasVoltage = m_vbias * CLHEP::volt;
-  }
-
-  m_holeDriftMobility = m_siPropertiesTool->getSiProperties(m_hashId).holeDriftMobility();
-  m_holeDiffusionConstant = m_siPropertiesTool->getSiProperties(m_hashId).holeDiffusionConstant();
-  m_electronHolePairsPerEnergy = m_siPropertiesTool->getSiProperties(m_hashId).electronHolePairsPerEnergy();
-
-  // get sensor thickness and tg lorentz from SiDetectorDesign
-  if(m_design) {
-    m_thickness = m_design->thickness();
-  } else {
-    m_thickness = 0.;
-  }
-
-  m_center = m_element->center().mag();
-  m_tanLorentz = m_lorentzAngleTool->getTanLorentzAngle(m_hashId);
-  m_isBarrel = m_element->isBarrel();
 }
