@@ -94,14 +94,14 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID) const;
   
   // some diagnostics methods are needed here too
-  float driftTime(float zhit) const;           //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
-  float diffusionSigma(float zhit) const;      //!< calculate diffusion sigma from a gaussian dist scattered charge
-  float surfaceDriftTime(float ysurf) const;   //!< Calculate of the surface drift time
-  float maxDriftTime() const;                  //!< max drift charge equivalent to the detector thickness
-  float maxDiffusionSigma() const;             //!< max sigma diffusion
+  float driftTime(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
+  float diffusionSigma(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate diffusion sigma from a gaussian dist scattered charge
+  float surfaceDriftTime(float ysurf) const; //!< Calculate of the surface drift time
+  float maxDriftTime(const InDetDD::SiDetectorElement* element) const; //!< max drift charge equivalent to the detector thickness
+  float maxDiffusionSigma(const InDetDD::SiDetectorElement* element) const; //!< max sigma diffusion
 
   // trap_pos and drift_time are updated based on spess.
-  bool chargeIsTrapped(double spess, double& trap_pos, double& drift_time) const;
+  bool chargeIsTrapped(double spess, const InDetDD::SiDetectorElement* element, double& trap_pos, double& drift_time) const;
 
   int m_numberOfCharges;           //!< number of charges
   float m_smallStepLength;         //!< max internal step along the larger G4 step
