@@ -227,7 +227,7 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_VERBOSE("Begin digitizeAllHits");
-  if (m_enableHits && !getNextEvent().isFailure()) {
+  if (m_enableHits and (not getNextEvent().isFailure())) {
     digitizeAllHits();
   } else {
     ATH_MSG_DEBUG("no hits found in event!");
@@ -243,7 +243,6 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
   ATH_MSG_VERBOSE("Digitize success!");
   return StatusCode::SUCCESS;
 }
-
 
 // ======================================================================
 // prepareEvent
@@ -343,7 +342,7 @@ void SCT_DigitizationTool::digitizeAllHits() {
 
     // create and store RDO and SDO
 
-    if (!m_chargedDiodes->empty()) {
+    if (not m_chargedDiodes->empty()) {
       StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
       if (sc.isSuccess()) { // error msg is given inside
         // createAndStoreRDO()
@@ -375,9 +374,9 @@ void SCT_DigitizationTool::digitizeNonHits() {
   }
 
   for (unsigned int i{0}; i < m_processedElements.size(); i++) {
-    if (!m_processedElements[i]) {
+    if (not m_processedElements[i]) {
       IdentifierHash idHash{i};
-      if (!idHash.is_valid()) {
+      if (not idHash.is_valid()) {
         ATH_MSG_ERROR("SCT Detector element id hash is invalid = " << i);
       }
 
@@ -395,7 +394,7 @@ void SCT_DigitizationTool::digitizeNonHits() {
 
         // Create and store RDO and SDO
         // Don't create empty ones.
-        if (!m_chargedDiodes->empty()) {
+        if (not m_chargedDiodes->empty()) {
           StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
           if (sc.isSuccess()) {// error msg is given inside
             // createAndStoreRDO()
@@ -414,8 +413,8 @@ void SCT_DigitizationTool::digitizeNonHits() {
 }
 
 bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiodes) {
-  if (0 == m_thpcsi) {
-    ATH_MSG_ERROR("thpcsi should not be zero!");
+  if (nullptr == m_thpcsi) {
+    ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
     return false;
   }
@@ -507,22 +506,22 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
     ATH_MSG_VERBOSE("SCT_DigitizationTool::processBunchXing() " << bunchXing);
     // decide if this event will be processed depending on
     // HardScatterSplittingMode & bunchXing
-    if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 2 and (not m_HardScatterSplittingSkipper)) {
         m_HardScatterSplittingSkipper = true;
         return StatusCode::SUCCESS;
     }
-    if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 1 and m_HardScatterSplittingSkipper) {
         return StatusCode::SUCCESS;
     }
-    if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 1 and (not m_HardScatterSplittingSkipper)) {
         m_HardScatterSplittingSkipper = true;
     }
 
     typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
     TimedHitCollList hitCollList;
 
-    if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
-					    bSubEvents, eSubEvents).isSuccess()) &&
+    if ((not (m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+                                                bSubEvents, eSubEvents).isSuccess())) and
         hitCollList.size() == 0) {
       ATH_MSG_ERROR("Could not fill TimedHitCollList");
       return StatusCode::FAILURE;
@@ -534,7 +533,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
     TimedHitCollList::iterator iColl(hitCollList.begin());
     TimedHitCollList::iterator endColl(hitCollList.end());
 
-    for( ; iColl != endColl; iColl++) {
+    for (; iColl != endColl; iColl++) {
       SiHitCollection *hitCollPtr = new SiHitCollection(*iColl->second);
       PileUpTimeEventIndex timeIndex(iColl->first);
       ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<
@@ -599,7 +598,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(SiChargedDiodeCollection* chD
   Identifier id_coll{RDOColl->identify()};
   int barrelec{m_detID->barrel_ec(id_coll)};
 
-  if (!m_barrelonly or std::abs(barrelec) <= 1) {
+  if ((not m_barrelonly) or (std::abs(barrelec) <= 1)) {
     if (m_rdoContainer->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
       ATH_MSG_FATAL("SCT RDO collection could not be added to container!");
       delete RDOColl;
@@ -788,7 +787,7 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
   while (iColl != endColl) {
     // decide if this event will be processed depending on
     // HardScatterSplittingMode & bunchXing
-    if (m_HardScatterSplittingMode == 2 and not m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 2 and (not m_HardScatterSplittingSkipper)) {
       m_HardScatterSplittingSkipper = true;
       ++iColl;
       continue;
@@ -797,7 +796,7 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
       ++iColl;
       continue;
     }
-    if (m_HardScatterSplittingMode == 1 and not m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 1 and (not m_HardScatterSplittingSkipper)) {
       m_HardScatterSplittingSkipper = true;
     }
     const SiHitCollection* p_collection{iColl->second};
@@ -831,15 +830,15 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
       if ((barcode == 0) or (barcode == m_vetoThisBarcode)) {
         continue;
       }
-      if (!real_particle_hit) {
+      if (not real_particle_hit) {
         // Types of SiCharges expected from SCT
-        // Noise:                        barcode==0 &&
+        // Noise:                        barcode==0 and
         // processType()==SiCharge::noise
-        // Delta Rays:                   barcode==0 &&
+        // Delta Rays:                   barcode==0 and
         // processType()==SiCharge::track
-        // Pile Up Tracks With No Truth: barcode!=0 &&
+        // Pile Up Tracks With No Truth: barcode!=0 and
         // processType()==SiCharge::cut_track
-        // Tracks With Truth:            barcode!=0 &&
+        // Tracks With Truth:            barcode!=0 and
         // processType()==SiCharge::track
         if (barcode != 0 and i_ListOfCharges->processType() == SiCharge::track) {
           real_particle_hit = true;
