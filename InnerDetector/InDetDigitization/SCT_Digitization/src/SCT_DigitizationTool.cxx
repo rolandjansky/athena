@@ -448,8 +448,7 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
                                                                        phit->getEtaModule(),
                                                                        phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
-      m_sct_SurfaceChargesGenerator->setDetectorElement(sielement);
-      m_sct_SurfaceChargesGenerator->process(phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes));
+      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes));
       ATH_MSG_DEBUG("charges filled!");
     }
   }

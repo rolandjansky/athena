@@ -73,7 +73,6 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
   m_h_velocity_trap{nullptr},
   m_h_mobility_trap{nullptr},
   m_h_trap_pos{nullptr},
-  m_element{nullptr},
   m_rndmEngine{nullptr},
   m_rndmEngineName{"SCT_Digitization"} {
     declareInterface<ISCT_SurfaceChargesGenerator>(this);
@@ -232,12 +231,12 @@ StatusCode SCT_SurfaceChargesGenerator::finalize() {
 // ----------------------------------------------------------------------
 // perpandicular Drift time calculation
 // ----------------------------------------------------------------------
-float SCT_SurfaceChargesGenerator::driftTime(float zhit, const InDetDD::SiDetectorElement* element) const {
+float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement* element) const {
   if (element==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process element is nullptr");
     return -2.0;
   }
-  const InDetDD::SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
+  const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
     return -2.0;
@@ -281,7 +280,7 @@ float SCT_SurfaceChargesGenerator::driftTime(float zhit, const InDetDD::SiDetect
 // ----------------------------------------------------------------------
 // Sigma diffusion calculation
 // ----------------------------------------------------------------------
-float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit, const InDetDD::SiDetectorElement* element) const {
+float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit, const SiDetectorElement* element) const {
   if (element==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::diffusionSigma element is nullptr");
     return 0.0;
@@ -300,7 +299,7 @@ float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit, const InDetDD::SiD
 // ----------------------------------------------------------------------
 // Maximum drift time
 // ----------------------------------------------------------------------
-float SCT_SurfaceChargesGenerator::maxDriftTime(const InDetDD::SiDetectorElement* element) const {
+float SCT_SurfaceChargesGenerator::maxDriftTime(const SiDetectorElement* element) const {
   if (element) {
     const float sensorThickness{static_cast<float>(element->thickness())};
     return driftTime(sensorThickness, element);
@@ -313,7 +312,7 @@ float SCT_SurfaceChargesGenerator::maxDriftTime(const InDetDD::SiDetectorElement
 // ----------------------------------------------------------------------
 // Maximum Sigma difusion
 // ----------------------------------------------------------------------
-float SCT_SurfaceChargesGenerator::maxDiffusionSigma(const InDetDD::SiDetectorElement* element) const {
+float SCT_SurfaceChargesGenerator::maxDiffusionSigma(const SiDetectorElement* element) const {
   if (element) {
     const float sensorThickness{static_cast<float>(element->thickness())};
     return diffusionSigma(sensorThickness, element);
@@ -352,10 +351,11 @@ float SCT_SurfaceChargesGenerator::surfaceDriftTime(float ysurf) const {
 // create a list of surface charges from a hit - called from SCT_Digitization
 // AthAlgorithm
 // -------------------------------------------------------------------------------------------
-void SCT_SurfaceChargesGenerator::process(const TimedHitPtr<SiHit>& phit, 
+void SCT_SurfaceChargesGenerator::process(const SiDetectorElement* element,
+                                          const TimedHitPtr<SiHit>& phit,
                                           const ISiSurfaceChargesInserter& inserter) const {
   ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::process starts");
-  processSiHit(*phit, inserter, phit.eventTime(), phit.eventId());
+  processSiHit(element, *phit, inserter, phit.eventTime(), phit.eventId());
   return;
 }
 
@@ -363,12 +363,12 @@ void SCT_SurfaceChargesGenerator::process(const TimedHitPtr<SiHit>& phit,
 // create a list of surface charges from a hit - called from both AthAlgorithm
 // and PileUpTool
 // -------------------------------------------------------------------------------------------
-void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
+void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
+                                               const SiHit& phit,
                                                const ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
                                                unsigned short p_eventId) const {
-  const InDetDD::SiDetectorElement* element{m_element};
-  const InDetDD::SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
+  const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
     return;
@@ -573,7 +573,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit& phit,
 }
 
 bool SCT_SurfaceChargesGenerator::chargeIsTrapped(double spess,
-                                                  const InDetDD::SiDetectorElement* element,
+                                                  const SiDetectorElement* element,
                                                   double& trap_pos,
                                                   double& drift_time) const {
   if (element==nullptr) {

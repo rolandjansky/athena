@@ -87,11 +87,10 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
 
   virtual void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;}
   virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine)       {m_rndmEngine = rndmEngine;}
-  virtual void setDetectorElement(const InDetDD::SiDetectorElement* ele) {m_element = ele;}
 
   /** create a list of surface charges from a hit */
-  virtual void process(const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter) const;
-  void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit>& phit, const ISiSurfaceChargesInserter& inserter) const;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float eventTime, unsigned short eventID) const;
   
   // some diagnostics methods are needed here too
   float driftTime(float zhit, const InDetDD::SiDetectorElement* element) const; //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
@@ -157,7 +156,6 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
-  const InDetDD::SiDetectorElement* m_element;
   CLHEP::HepRandomEngine*           m_rndmEngine;          //!< Random Engine
   std::string                       m_rndmEngineName;      //!< name of random engine, actual pointer in SiDigitization
 

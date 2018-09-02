@@ -74,18 +74,17 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
 
   void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;} 
   void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine)       {m_rndmEngine = rndmEngine;}
-  void setDetectorElement(const InDetDD::SiDetectorElement *ele) {m_element = ele;} 
 
   /** create a list of surface charges from a hit */
-  virtual void process(const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const;
-  void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID) const;
   
   // some diagnostics methods are needed here too
-  float DriftTime(float zhit) const;           //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
-  float DiffusionSigma(float zhit) const;      //!< calculate diffusion sigma from a gaussian dist scattered charge
+  float DriftTime(float zhit, const InDetDD::SiDetectorElement* element) const;           //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
+  float DiffusionSigma(float zhit, const InDetDD::SiDetectorElement* element) const;      //!< calculate diffusion sigma from a gaussian dist scattered charge
   float SurfaceDriftTime(float ysurf) const;   //!< Calculate of the surface drift time 
-  float MaxDriftTime() const;                  //!< max drift charge equivalent to the detector thickness
-  float MaxDiffusionSigma() const;             //!< max sigma diffusion 
+  float MaxDriftTime(const InDetDD::SiDetectorElement* element) const;                  //!< max drift charge equivalent to the detector thickness
+  float MaxDiffusionSigma(const InDetDD::SiDetectorElement* element) const;             //!< max sigma diffusion 
 
   // methods for Taka Kondos's new charge drift m
   void initTransportModel();
@@ -136,8 +135,6 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   TProfile2D *m_h_yEfield;
   TProfile2D *m_h_zEfield;
 
-  IdentifierHash m_hashId;
-
   //TK model settings
   int m_chargeDriftModel; //!< 0 default SCT model, 1 eh transport, 2 use of fixed charge map 
   int m_eFieldModel;      //!< 0 uniform E-field model, 1 flat diode model, 2 FEM solutions
@@ -187,7 +184,6 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
-  const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine
   std::string                        m_rndmEngineName;      //!< name of random engine, actual pointer in SiDigitization
 

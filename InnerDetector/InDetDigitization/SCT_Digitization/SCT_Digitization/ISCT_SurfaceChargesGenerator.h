@@ -51,8 +51,8 @@ class ISCT_SurfaceChargesGenerator : virtual public IAlgTool {
   // Destructor:
   virtual ~ISCT_SurfaceChargesGenerator() {}
 
-  virtual void setDetectorElement(const InDetDD::SiDetectorElement* ele) = 0 ;
-  virtual void process(const TimedHitPtr<SiHit>& phit,
+  virtual void process(const InDetDD::SiDetectorElement* ele,
+                       const TimedHitPtr<SiHit>& phit,
                        const ISiSurfaceChargesInserter& inserter) const =0;
   virtual void setFixedTime(float fixedTime) =0;                             
   virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine) =0;       
