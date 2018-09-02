@@ -44,7 +44,7 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
   m_tHalfwayDrift{0},
   m_distInterStrip{1.0},
   m_distHalfInterStrip{0},
-  m_SurfaceDriftFlag{0},
+  m_SurfaceDriftFlag{false},
   m_doDistortions{false},
   m_useSiCondDB{true},
   m_doTrapping{false},
@@ -197,7 +197,7 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
   m_distHalfInterStrip = m_distInterStrip * 0.5;
   if ((m_tSurfaceDrift > m_tHalfwayDrift) and (m_tHalfwayDrift >= 0.0) and
       (m_distHalfInterStrip > 0.0) and (m_distHalfInterStrip < m_distInterStrip)) {
-    m_SurfaceDriftFlag = 1;
+    m_SurfaceDriftFlag = true;
   } else {
     ATH_MSG_INFO("\tsurface drift still not on, wrong params");
   }

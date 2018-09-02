@@ -111,7 +111,7 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   float m_distInterStrip;         //!< Inter strip distance normalized to 1
   float m_distHalfInterStrip;     //!< Half way distance inter strip
 
-  char m_SurfaceDriftFlag;        //!< surface drift ON/OFF
+  bool m_SurfaceDriftFlag;        //!< surface drift ON/OFF
 
   float m_tfix;       //!< fixed time
   float m_tsubtract;  //!< subtract drift time from mid gap 
@@ -160,8 +160,6 @@ class SCT_SurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_Surfa
   std::string                       m_rndmEngineName;      //!< name of random engine, actual pointer in SiDigitization
 
   bool m_isOverlay; // flag for overlay
-
-  const InDetDD::SCT_ModuleSideDesign* m_design;
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H
