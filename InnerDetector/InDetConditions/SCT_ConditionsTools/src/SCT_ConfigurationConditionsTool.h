@@ -11,34 +11,34 @@
 #ifndef SCT_ConfigurationConditionsTool_h
 #define SCT_ConfigurationConditionsTool_h
 
-// STL includes
-#include <string>
-#include <mutex>
+// Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 
-// Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
-#include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/ReadCondHandleKey.h"
+// STL includes
+#include <mutex>
+#include <string>
 
 // Forward declarations
 class SCT_ID;
 
 /**
  * @class SCT_ConfigurationConditionsTool
- * Service which reads SCT_Configuration from the database
+ * Tool which reads SCT_Configuration from the database
  * Deals with bad modules, bad links, strips out of the readout and bad strips
 **/
 
 class SCT_ConfigurationConditionsTool: public extends<AthAlgTool, ISCT_ConfigurationConditionsTool> {
-public:
+ public:
 
   //@name Service methods
   //@{
@@ -74,7 +74,7 @@ public:
   /** Get the chip number containing a particular strip*/
   virtual int                           getChip(const Identifier& stripId) const override;
 
-private:
+ private:
   // Mutex to protect the contents.
   mutable std::mutex m_mutex;
   // Cache to store events for slots

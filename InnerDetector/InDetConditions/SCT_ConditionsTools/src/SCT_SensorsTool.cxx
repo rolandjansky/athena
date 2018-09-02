@@ -65,7 +65,7 @@ void SCT_SensorsTool::printManufacturers() const {
   const SCT_SensorsCondData* condData{getCondData(ctx)};
   if (condData==nullptr) return;
 
-  for(auto it: *condData) {
+  for (const std::pair<CondAttrListCollection::ChanNum, SCT_SensorCondData>& it: *condData) {
     ATH_MSG_ALWAYS("channel " << it.first << " manufacturer " << (it.second).getManufacturer());
   }
 }

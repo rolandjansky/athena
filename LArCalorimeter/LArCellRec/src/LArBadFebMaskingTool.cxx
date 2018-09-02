@@ -40,7 +40,7 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AthAlgTool(type, name, parent),
+  :base_class(type, name, parent),
    m_badChannelTool(""),
    m_cablingService("LArCablingService"),
    m_maskParity(true),m_maskSampleHeader(true),m_maskEVTID(true),m_maskScacStatus(true),
@@ -54,8 +54,6 @@ LArBadFebMaskingTool::LArBadFebMaskingTool(
    m_evt(0),
    m_mask(0)
 { 
-  declareInterface<ICaloCellMakerTool>(this); 
-
   declareProperty("badChannelTool",m_badChannelTool);
   declareProperty("maskParity",m_maskParity);
   declareProperty("maskSampleHeader",m_maskSampleHeader);

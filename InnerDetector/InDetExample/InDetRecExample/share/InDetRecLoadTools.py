@@ -202,7 +202,6 @@ if InDetFlags.loadRotCreator():
                                                                 CorrectionStrategy = 0,  # do correct position bias
                                                                 ErrorStrategy      = 2,  # do use phi dependent errors
                                                                 LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
-        ToolSvc += SCT_ClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
             print SCT_ClusterOnTrackTool
     else:
@@ -294,7 +293,6 @@ if InDetFlags.loadRotCreator():
                                                                      CorrectionStrategy = 0,  # do correct position bias
                                                                      ErrorStrategy      = 0,  # do use broad errors
                                                                      LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
-        ToolSvc += BroadSCT_ClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
             print BroadSCT_ClusterOnTrackTool
     else:
