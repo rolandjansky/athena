@@ -368,6 +368,10 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
   }
   else{   //running over AOD, need to use all variables
       ATH_MSG_DEBUG("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
+      // If we do not switch off the flags in general then for the second jet the
+      // isAvailable method will return true because as soon as the decorator is set for one object
+      // in the container all other objects are initialized with 0
+      m_useDecorations = false;
       // Get all of the required variables
       // Do it this way so we can gracefully handle missing variables (rather than segfaults)
       
