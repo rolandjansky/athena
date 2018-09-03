@@ -8,6 +8,8 @@
 // Framework Related Headers
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/PhysicalConstants.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // Used for retrieving the collection
 #include "xAODJet/JetContainer.h"
@@ -31,14 +33,14 @@ HTFilter::HTFilter(const std::string& name, ISvcLocator* pSvcLocator)
    , m_passed(0)
    , m_ptfailed(0)
 {
-  declareProperty("MinJetPt",m_MinJetPt = 0*CLHEP::GeV);  
+  declareProperty("MinJetPt",m_MinJetPt = 0*Gaudi::Units::GeV);  
   declareProperty("MaxJetEta",m_MaxJetEta = 10.0);
   declareProperty("TruthJetContainer", m_TruthJetContainerName = "AntiKt4TruthWZJets");
-  declareProperty("MinHT",m_MinHT = 20.*CLHEP::GeV);
-  declareProperty("MaxHT",m_MaxHT = 14000.*CLHEP::GeV);
+  declareProperty("MinHT",m_MinHT = 20.*Gaudi::Units::GeV);
+  declareProperty("MaxHT",m_MaxHT = 14000.*Gaudi::Units::GeV);
   declareProperty("UseNeutrinosFromWZTau",m_UseNu = false, "Include neutrinos from W/Z/tau decays in the calculation of HT");
   declareProperty("UseLeptonsFromWZTau",m_UseLep = false, "Include e/mu from W/Z/tau decays in the HT");
-  declareProperty("MinLeptonPt",m_MinLepPt = 0*CLHEP::GeV);
+  declareProperty("MinLeptonPt",m_MinLepPt = 0*Gaudi::Units::GeV);
   declareProperty("MaxLeptonEta",m_MaxLepEta = 10.0);
 
   m_log = new MsgStream(messageService(),name);
@@ -53,10 +55,10 @@ HTFilter::~HTFilter() {
 //---------------------------------------------------------------------------
 
 StatusCode HTFilter::filterInitialize() {
-  m_MinJetPt /= CLHEP::GeV;
-  m_MinLepPt /= CLHEP::GeV;
-  m_MinHT /= CLHEP::GeV;
-  m_MaxHT /= CLHEP::GeV;
+  m_MinJetPt /= Gaudi::Units::GeV;
+  m_MinLepPt /= Gaudi::Units::GeV;
+  m_MinHT /= Gaudi::Units::GeV;
+  m_MaxHT /= Gaudi::Units::GeV;
   if (m_MaxHT<0) m_MaxHT=9e9;
 
   ATH_MSG_INFO( "Configured with " << m_MinJetPt << "<p_T GeV and abs(eta)<" << m_MaxJetEta << " for jets in " << m_TruthJetContainerName );
@@ -98,7 +100,7 @@ StatusCode HTFilter::filterEvent() {
   double HT = -1;
   for (xAOD::JetContainer::const_iterator it_truth = (*truthjetTES).begin(); it_truth != (*truthjetTES).end() ; ++it_truth) {
     if (!(*it_truth)) continue;
-    if ( (*it_truth)->pt()>m_MinJetPt*CLHEP::GeV && fabs((*it_truth)->eta())<m_MaxJetEta ) {
+    if ( (*it_truth)->pt()>m_MinJetPt*Gaudi::Units::GeV && fabs((*it_truth)->eta())<m_MaxJetEta ) {
       ATH_MSG_VERBOSE("Adding truth jet with pt " << (*it_truth)->pt()
 		      << ", eta " << (*it_truth)->eta()
 		      << ", phi " << (*it_truth)->phi()
@@ -129,7 +131,7 @@ StatusCode HTFilter::filterEvent() {
       }
       // pick muons and electrons specifically -- isLepton selects both charged leptons and neutrinos
       if (m_UseLep && (abs(pdgid)==11 || abs(pdgid)==13) && MC::isGenStable(*iter)
-	  && (*iter)->momentum().perp()>m_MinLepPt*CLHEP::GeV && fabs((*iter)->momentum().eta())<m_MaxLepEta) {
+	  && (*iter)->momentum().perp()>m_MinLepPt*Gaudi::Units::GeV && fabs((*iter)->momentum().eta())<m_MaxLepEta) {
 	bool isFromWZ = fromWZ(*iter);
 	if( isFromWZ || fromTau(*iter) ) {
 	  ATH_MSG_VERBOSE("Adding W/Z/tau lepton with pt " << (*iter)->momentum().perp()
@@ -143,7 +145,7 @@ StatusCode HTFilter::filterEvent() {
     }
   } // End need to access MC Event
 
-  HT /= CLHEP::GeV; // Make sure we're in GeV
+  HT /= Gaudi::Units::GeV; // Make sure we're in GeV
   ATH_MSG_DEBUG( "HT: " << HT );
 
   if (HT<m_MinHT || HT>=m_MaxHT){
