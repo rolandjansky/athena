@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
@@ -380,7 +380,7 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
 
     if(!jet.isAvailable<float>("Tau21_wta")){
       double tau21wta = tau2wta / tau1wta;
-      if(isnan(tau21wta)){
+      if(std::isnan(tau21wta)){
         m_undefInput = true;
       }
       DNN_inputValues["Tau21_wta"] = tau21wta;
@@ -443,7 +443,7 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
 
     if(!jet.isAvailable<float>("Tau21_wta")){
       double tau21wta = tau2wta / tau1wta;
-      if(isnan(tau21wta)){
+      if(std::isnan(tau21wta)){
         m_undefInput = true;
       }
       DNN_inputValues["Tau21_wta"] = tau21wta;
@@ -454,7 +454,7 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
 
     if(!jet.isAvailable<float>("Tau32_wta")){
       double tau32wta = tau3wta / tau2wta;
-      if(isnan(tau32wta)){
+      if(std::isnan(tau32wta)){
         m_undefInput = true;
       }
       DNN_inputValues["Tau32_wta"] = tau32wta;
