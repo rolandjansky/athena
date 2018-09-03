@@ -23,9 +23,8 @@ TrigPixelLorentzAngleTool = getPublicTool("PixelLorentzAngleTool")
 TrigSCTLorentzAngleTool = getPublicTool("SCTLorentzAngleTool")
 # to be changed to TrigSCTLorentzAngleTool = getPrivateTool("SCTLorentzAngleTool") next
 
-if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 #
 # common ClusterMakerTool

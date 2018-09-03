@@ -431,10 +431,8 @@ class SCT_ConditionsToolsSetup:
       sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
     "Inititalize Lorentz angle Tool"
-    if not hasattr(self.toolSvc, instanceName):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-      self.toolSvc += SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-    SCTLorentzAngleTool = getattr(self.toolSvc, instanceName)
+    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
     
   def instanceName(self, toolname):
