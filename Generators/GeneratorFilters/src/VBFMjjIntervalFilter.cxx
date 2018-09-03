@@ -27,17 +27,17 @@ VBFMjjIntervalFilter::VBFMjjIntervalFilter(const std::string& name, ISvcLocator*
     m_norm(1.) //< @todo Scalefactor always set to 1.0! Remove?
 {
   declareProperty("RapidityAcceptance", m_yMax = 5.0);
-  declareProperty("MinSecondJetPT", m_pTavgMin = 15.0*CLHEP::GeV);
-  declareProperty("MinOverlapPT", m_olapPt = 15.0*CLHEP::GeV);
+  declareProperty("MinSecondJetPT", m_pTavgMin = 15.0*Gaudi::Units::GeV);
+  declareProperty("MinOverlapPT", m_olapPt = 15.0*Gaudi::Units::GeV);
   declareProperty("TruthJetContainerName", m_TruthJetContainerName = "AntiKt4TruthJets");
   //declareProperty("DoShape", m_doShape = true);
   declareProperty("NoJetProbability", m_prob0 = 0.0002);
   declareProperty("OneJetProbability", m_prob1 = 0.001);
   declareProperty("LowMjjProbability", m_prob2low = 0.005);
   declareProperty("HighMjjProbability", m_prob2high = 1.0);
-  declareProperty("LowMjj", m_mjjlow=100.0*CLHEP::GeV);
+  declareProperty("LowMjj", m_mjjlow=100.0*Gaudi::Units::GeV);
   declareProperty("TruncateAtLowMjj", m_truncatelowmjj = false);
-  declareProperty("HighMjj", m_mjjhigh=800.0*CLHEP::GeV);
+  declareProperty("HighMjj", m_mjjhigh=800.0*Gaudi::Units::GeV);
   declareProperty("TruncateAtHighMjj", m_truncatehighmjj = false);
   declareProperty("PhotonJetOverlapRemoval", m_photonjetoverlap = false);
   declareProperty("ElectronJetOverlapRemoval", m_electronjetoverlap = true);

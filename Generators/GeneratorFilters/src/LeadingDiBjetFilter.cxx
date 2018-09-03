@@ -38,11 +38,11 @@ LeadingDiBjetFilter::LeadingDiBjetFilter(const std::string& name,
 			   ISvcLocator* pSvcLocator): GenFilter(name,pSvcLocator) {
   //--------------------------------------------------------------------------    
   // Local Member Data:-
-  declareProperty("LeadJetPtMin",m_leadJet_ptMin=0*CLHEP::GeV);
-  declareProperty("LeadJetPtMax",m_leadJet_ptMax=50000*CLHEP::GeV);
-  declareProperty("BottomPtMin",m_bottomPtMin=5.0*CLHEP::GeV);
+  declareProperty("LeadJetPtMin",m_leadJet_ptMin=0*Gaudi::Units::GeV);
+  declareProperty("LeadJetPtMax",m_leadJet_ptMax=50000*Gaudi::Units::GeV);
+  declareProperty("BottomPtMin",m_bottomPtMin=5.0*Gaudi::Units::GeV);
   declareProperty("BottomEtaMax",m_bottomEtaMax=3.0);
-  declareProperty("JetPtMin",m_jetPtMin=15.0*CLHEP::GeV);
+  declareProperty("JetPtMin",m_jetPtMin=15.0*Gaudi::Units::GeV);
   declareProperty("JetEtaMax",m_jetEtaMax=2.7);
   declareProperty("DeltaRFromTruth",m_deltaRFromTruth=0.3);
   declareProperty("TruthContainerName",m_TruthJetContainerName="AntiKt4TruthJets");
