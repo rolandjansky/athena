@@ -40,9 +40,18 @@ HIGG3D1ThinningHelper.AppendToStream( HIGG3D1Stream )
 
 thinningTools=[]
 
-# MET/Jet tracks
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
+# InDetTrackParticle Thinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+# Tracks themselves
+HIGG3D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG3D1TPThinningTool",
+                                                                   ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
+                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
+                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += HIGG3D1TPThinningTool
+thinningTools.append(HIGG3D1TPThinningTool)
+
+#MET Track Thinning
+thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 HIGG3D1MetTPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG3D1MetTPThinningTool",
                                                                       ThinningService        = HIGG3D1ThinningHelper.ThinningSvc(),
                                                                       SelectionString        = thinning_expression,
@@ -51,6 +60,7 @@ HIGG3D1MetTPThinningTool = DerivationFramework__TrackParticleThinning(name      
 ToolSvc += HIGG3D1MetTPThinningTool
 thinningTools.append(HIGG3D1MetTPThinningTool)
 
+#Jet Track Thinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG3D1JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG3D1JetTPThinningTool",
                                                                 ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
@@ -78,16 +88,6 @@ HIGG3D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG3D1ElectronTPThinningTool
 thinningTools.append(HIGG3D1ElectronTPThinningTool)
-
-# Tracks themselves
-HIGG3D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG3D1TPThinningTool",
-                                                                   ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
-                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG3D1TPThinningTool
-thinningTools.append(HIGG3D1TPThinningTool)
-
-
 
 # Calo cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
@@ -297,7 +297,10 @@ HIGG3D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG3D1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add MET to output stream
-addMETOutputs(HIGG3D1SlimmingHelper, ["AntiKt4EMPFlow", "Track"], ["AntiKt4EMPFlow", "AntiKt4EMTopo"])
+addMETOutputs(HIGG3D1SlimmingHelper, ["AntiKt4EMPFlow", "Track"],
+                                     ["AntiKt4EMPFlow",
+                                      "AntiKt4EMTopo"] # smart collections list
+                                     )
 addJetOutputs(HIGG3D1SlimmingHelper, ["HIGG3D1"],
                                      [], # smart collections list
                                      ["AntiKt2PV0TrackJets",
