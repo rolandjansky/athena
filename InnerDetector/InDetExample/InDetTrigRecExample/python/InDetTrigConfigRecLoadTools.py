@@ -18,10 +18,9 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger("InDetTrigConfigRecLoadTools.py")
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup, SCT_ConditionsSetup
-from AthenaCommon.CfgGetter import getPublicTool
+from AthenaCommon.CfgGetter import getPublicTool,getPrivateTool
 TrigPixelLorentzAngleTool = getPublicTool("PixelLorentzAngleTool")
-TrigSCTLorentzAngleTool = getPublicTool("SCTLorentzAngleTool")
-# to be changed to TrigSCTLorentzAngleTool = getPrivateTool("SCTLorentzAngleTool") next
+TrigSCTLorentzAngleTool = getPrivateTool("SCTLorentzAngleTool") 
 
 from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
