@@ -42,13 +42,6 @@ thinningTools=[]
 
 # InDetTrackParticle Thinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-# Tracks themselves
-HIGG3D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG3D1TPThinningTool",
-                                                                   ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
-                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG3D1TPThinningTool
-thinningTools.append(HIGG3D1TPThinningTool)
 
 #MET Track Thinning
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
@@ -88,6 +81,14 @@ HIGG3D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG3D1ElectronTPThinningTool
 thinningTools.append(HIGG3D1ElectronTPThinningTool)
+
+# Tracks themselves
+HIGG3D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG3D1TPThinningTool",
+                                                                   ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
+                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
+                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += HIGG3D1TPThinningTool
+thinningTools.append(HIGG3D1TPThinningTool)
 
 # Calo cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
