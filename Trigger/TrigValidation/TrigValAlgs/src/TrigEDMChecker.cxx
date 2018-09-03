@@ -524,7 +524,7 @@ StatusCode TrigEDMChecker::execute() {
     ATH_MSG_DEBUG(trigCompositeSteering);
     const xAOD::EventInfo* evtInfo = nullptr;
     if (evtStore()->contains<xAOD::EventInfo>("EventInfo")) {
-      StatusCode sc = evtStore()->retrieve(evtInfo);
+      ATH_CHECK( evtStore()->retrieve(evtInfo) );
     }
     static int eventStatic = 0; // Might not always have EventInfo (early testing of Run-3 software)
     const std::string evtNumber = (evtInfo == nullptr ? std::to_string(eventStatic++) : std::to_string(evtInfo->eventNumber()));
