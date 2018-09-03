@@ -34,11 +34,6 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 
 
 if TriggerFlags.doID:
-  #workaround to prevent online trigger folders to be enabled
-  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-  InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
-
-  
   
   from InDetRecExample.InDetJobProperties import InDetFlags
   InDetFlags.doCaloSeededBrem = False
