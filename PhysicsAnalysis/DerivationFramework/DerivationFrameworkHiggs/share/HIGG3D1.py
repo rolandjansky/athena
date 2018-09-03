@@ -87,25 +87,6 @@ HIGG3D1TPThinningTool = DerivationFramework__TrackParticleThinning(name         
 ToolSvc += HIGG3D1TPThinningTool
 thinningTools.append(HIGG3D1TPThinningTool)
 
-# Truth particles
-truth_cond1 = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
-truth_cond2 = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-truth_cond3 = "(abs(TruthParticles.pdgId) == 6)"  # Top quark
-truth_cond4 = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 5*GeV))" # Photon
-
-truth_expression = truth_cond1+' || '+truth_cond2 +' || '+truth_cond3 +' || '+truth_cond4
-
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-HIGG3D1TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D1TruthThinningTool", 
-                                                                     ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                     ParticleSelectionString = truth_expression,
-                                                                     PreserveDescendants     = True,
-                                                                     PreserveAncestors      = True,
-                                                                     SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
-
-if globalflags.DataSource()=='geant4':
-    ToolSvc += HIGG3D1TruthThinningTool                                                                      
-    thinningTools.append(HIGG3D1TruthThinningTool)
 
 
 # Calo cluster thinning
@@ -145,8 +126,30 @@ thinningTools.append(HIGG3D1MuonCCThinningTool)
 
 ###############################################################
 
+
+# Truth particles
+truth_cond1 = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
+truth_cond2 = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
+truth_cond3 = "(abs(TruthParticles.pdgId) == 6)"  # Top quark
+truth_cond4 = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 5*GeV))" # Photon
+truth_cond5 = "((abs(TruthParticles.pdgId) >= 35) && (abs(TruthParticles.pdgId) <= 37))" # BSM Higgs
+
+truth_expression = truth_cond1+' || '+truth_cond2 +' || '+truth_cond3 +' || '+truth_cond4 +' || '+truth_cond5
+
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+HIGG3D1TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG3D1TruthThinningTool",
+                                                                     ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
+                                                                     ParticleSelectionString = truth_expression,
+                                                                     PreserveDescendants     = True,
+                                                                     PreserveAncestors      = True,
+                                                                     SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
+
+if globalflags.DataSource()=='geant4':
+    ToolSvc += HIGG3D1TruthThinningTool
+    thinningTools.append(HIGG3D1TruthThinningTool)
+
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 electronIDRequirements = '(Electrons.DFCommonElectronsLHVeryLoose)'
 electronRequirements = '(Electrons.pt > 7*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
