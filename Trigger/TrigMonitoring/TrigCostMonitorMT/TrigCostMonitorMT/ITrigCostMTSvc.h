@@ -6,13 +6,24 @@
 #define TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H
 
 #include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/EventContext.h"
 
-class ITrigCostMTSvc : virtual public IInterface {
+#include <string>
+
+/// Declaration of the interface ID ( interface id, major version, minor version)
+static const InterfaceID IID_ITrigCostMTSvc("ITrigCostMTSvc", 1 , 0);
+
+class ITrigCostMTSvc :  public virtual IInterface {
 public:
-  DeclareInterfaceID(ITrigCostMTSvc, 1, 0);
+  /// Retrieve interface ID
+  static const InterfaceID& interfaceID() { return(IID_ITrigCostMTSvc); }
+  virtual ~ITrigCostMTSvc() {}
 
-  virtual StatusCode beginAlg(const std::string& caller) = 0; 
-  virtual StatusCode endAlg(const std::string& caller) = 0; 
+  enum AuditType { Before, After };
+
+  virtual StatusCode processAlg(const std::string&, const EventContext& context, const AuditType type) = 0; 
+
+  virtual StatusCode endEvent(const EventContext& context) = 0; 
 
 };
 

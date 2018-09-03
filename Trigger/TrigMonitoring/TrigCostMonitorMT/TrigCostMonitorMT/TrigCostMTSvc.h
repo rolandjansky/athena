@@ -7,19 +7,55 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthService.h"
+
+#include "TrigTimeAlgs/TrigTimeStamp.h"
+
 #include "ITrigCostMTSvc.h"
+#include "TrigCostDataStore.h"
+
+#include <unordered_map> // temp
+
+// Forward declaration
+template <class TYPE> class SvcFactory;
 
 /////////////////////////////////////////////////////////////////////////////
-class TrigCostMTSvc : public virtual AthService, public ITrigCostMTSvc {
-    public:
-    TrigCostMTSvc(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TrigCostMTSvc();
+class TrigCostMTSvc : public AthService, virtual public  ITrigCostMTSvc {
+  public:
+  TrigCostMTSvc(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~TrigCostMTSvc();
 
-    StatusCode initialize() override;
-    StatusCode finalize() override;
+  /// Required of all Gaudi services: 
+  StatusCode initialize() override;
+  StatusCode finalize() override;
+  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+  inline static const InterfaceID& interfaceID() { return ITrigCostMTSvc::interfaceID(); }
 
-    StatusCode beginAlg(const std::string& caller) override; 
-    StatusCode endAlg(const std::string& caller) override; 
+  // ITrigCostMTSvc
+  StatusCode processAlg(const std::string& caller, const EventContext& context, const AuditType type) override; 
+  StatusCode endEvent(const EventContext& context) override; 
+
+  protected:
+  friend class SvcFactory<TrigCostMTSvc>;
+
+  private: 
+  /// Default constructor: 
+  TrigCostMTSvc() = delete; 
+
+
+  Gaudi::Property<bool> m_monitorAll{this, "MonitorAll", true, "Monitor every HLT event, e.g. for offline validation."};
+  Gaudi::Property<bool> m_printTimes{this, "PrintTimes", true, "Sends per-algorithm timing to MSG::INFO."};
+  Gaudi::Property<int> m_moitorFrequency{this, "MonitorFrequency", 10, "A value of 10 would monitor every 10th event."};
+
+
+  bool addViewToCaller(const std::string& caller,  const EventContext& context, std::string& output) const;
+
+  bool isMonitoredEvent(const EventContext& context) const;
+
+  StatusCode getAlgTimeFromStore(const std::string& caller, const EventContext& context, double& algTime) const;
+
+
+  TrigCostDataStore m_algStartTimes;
+  TrigCostDataStore m_algStopTimes;
 
 };
 
