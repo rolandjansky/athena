@@ -120,9 +120,8 @@ def makeInDetAlgs():
   
 
   # SCTLorentzAngleTool for ClusterMakerTool
-  if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-      from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-      sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+  from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+  sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
   
   #Pixel clusterisation
   
@@ -131,7 +130,7 @@ def makeInDetAlgs():
       PixelCalibSvc        = None,
       PixelOfflineCalibSvc = None,
       UsePixelCalibCondDB  = False,
-                                                  SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
+                                                  SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
   
   ToolSvc += InDetClusterMakerTool
   
