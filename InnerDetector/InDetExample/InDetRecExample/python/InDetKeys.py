@@ -950,7 +950,7 @@ class CaloClusterContainer(JobProperty):
     """Brem Reco: Container of EM clusters"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'LArClusterEM'
+    StoredValue  = 'egammaTopoCluster'
 
 class CaloCellContainer(JobProperty):
     """Brem Reco: Container of calo cell"""
