@@ -99,8 +99,8 @@ StatusCode SCTRawDataProvider::execute()
     TrigRoiDescriptor superRoI;//add all RoIs to a super-RoI
     superRoI.setComposite(true);
     superRoI.manageConstituents(false);
-    for (TrigRoiDescriptor roi: *roiCollection) {
-      superRoI.push_back(&roi);
+    for (const TrigRoiDescriptor* roi: *roiCollection) {
+      superRoI.push_back(roi);
     }
     m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfRobs);
     m_robDataProvider->getROBData(listOfRobs, listOfRobf);
