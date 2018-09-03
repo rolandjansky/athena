@@ -2,12 +2,16 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+// Trigger includes
 #include "TrigByteStreamInputSvc.h"
-#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
-#include "EventInfo/EventInfo.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrigKernel/HltExceptions.h"
 
+// Athena includes
+#include "AthenaKernel/EventContextClid.h"
+#include "EventInfo/EventInfo.h"
+#include "StoreGate/StoreGateSvc.h"
+
+// TDAQ includes
 #include "hltinterface/DataCollector.h"
 #include "eformat/write/FullEventFragment.h"
 
@@ -72,8 +76,14 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   std::lock_guard<std::mutex> lock( m_readerMutex ); // probably don't need a lock for InputSvc
 
-  // not a nice solution - depends on the Gaudi::currentContext being set correctly upstream
-  const EventContext context{ Gaudi::Hive::currentContext() };
+  // get event context from event store
+  EventContext* eventContext = nullptr;
+  if (m_evtStore->retrieve(eventContext).isFailure()) {
+    ATH_MSG_ERROR("Failed to retrieve EventContext from the event store, new event cannot be read");
+    return nullptr;
+  }
+
+  ATH_MSG_DEBUG("Reading new event for event context " << *eventContext);
 
   eformat::write::FullEventFragment l1r;
   hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
@@ -100,7 +110,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   RawEvent* newRawEvent = new RawEvent(buf);
 
   // find the cache corresponding to the current slot
-  EventCache* cache = m_eventsCache.get(context);
+  EventCache* cache = m_eventsCache.get(*eventContext);
 
   // free the memory allocated to the previous event processed in the current slot
   // -- if we make sure ROBDataProviderSvc does this, then TrigByteStreamInputSvc won't need a cache
@@ -109,7 +119,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   // put the new raw event into the cache
   cache->rawEvent = newRawEvent;
 
-  m_robDataProviderSvc->setNextEvent(context,newRawEvent);
+  m_robDataProviderSvc->setNextEvent(*eventContext,newRawEvent);
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return newRawEvent;
 }
@@ -128,20 +138,6 @@ const RawEvent* TrigByteStreamInputSvc::previousEvent() {
 const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
   ATH_MSG_FATAL("The method " << __FUNCTION__ << " is not implemented for online running");
   return nullptr;
-}
-
-// =============================================================================
-// Implementation of ByteStreamInputSvc::generateDataHeader
-// Unlike offline, we do not actually generate any DataHeader here. We only create and record an EventInfo address.
-// =============================================================================
-StatusCode TrigByteStreamInputSvc::generateDataHeader() {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  
-  IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
-  CHECK(m_evtStore->recordAddress("ByteStreamEventInfo",iop));
-
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
 }
 
 // =============================================================================

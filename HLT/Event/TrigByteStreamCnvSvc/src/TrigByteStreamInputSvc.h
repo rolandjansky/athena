@@ -38,7 +38,6 @@ public:
   virtual const RawEvent* nextEvent() override;
   virtual const RawEvent* previousEvent() override;
   virtual const RawEvent* currentEvent() const override;
-  virtual StatusCode generateDataHeader() override;
 
 private:
   // ------------------------- service handles ---- ----------------------------

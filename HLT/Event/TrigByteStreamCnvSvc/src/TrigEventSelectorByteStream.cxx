@@ -2,14 +2,19 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+// Trigger includes
 #include "TrigEventSelectorByteStream.h"
-
-#include "ByteStreamData/RawEvent.h"
-#include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
-#include "EventInfo/EventInfo.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrigKernel/HltExceptions.h"
 
+// Athena includes
+#include "AthenaKernel/EventContextClid.h"
+#include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "ByteStreamData/RawEvent.h"
+#include "EventInfo/EventInfo.h"
+#include "StoreGate/StoreGateSvc.h"
+
+// TDAQ includes
 #include "hltinterface/DataCollector.h"
 
 // =============================================================================
@@ -51,8 +56,8 @@ StatusCode TrigEventSelectorByteStream::initialize()
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  CHECK(m_eventSource.retrieve());
-  CHECK(m_evtStore.retrieve());
+  ATH_CHECK(m_eventSource.retrieve());
+  ATH_CHECK(m_evtStore.retrieve());
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
@@ -101,9 +106,6 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
     return StatusCode::FAILURE;
   }
 
-  // In online implementation, this creates an EventInfo address for use in event processing
-  CHECK(m_eventSource->generateDataHeader());
-
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
@@ -128,21 +130,25 @@ StatusCode TrigEventSelectorByteStream::releaseContext(IEvtSelector::Context*& /
 
 // =============================================================================
 // Implementation of IEvtSelector::createAddress(Context&,IOpaqueAddress*&)
-// Unlike offline, we do not provide a DataHeader proxy here, but an EventInfo proxy
 // =============================================================================
 StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Context& /*c*/, IOpaqueAddress*& iop) const
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  SG::DataProxy* proxy = m_evtStore->proxy(ClassID_traits<EventInfo>::ID(),"ByteStreamEventInfo");
-  if (proxy !=0) {
-    iop = proxy->address();
-    ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-    return StatusCode::SUCCESS;
-  } else {
-    iop = 0;
-    ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-    return StatusCode::FAILURE;
-  }
+
+  // Get event context from event store
+  EventContext* eventContext = nullptr;
+  ATH_CHECK(m_evtStore->retrieve(eventContext));
+
+  // Perhaps the name shouldn't be hard-coded
+  ByteStreamAddress* addr = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
+  addr->setEventContext(*eventContext);
+  iop = static_cast<IOpaqueAddress*>(addr);
+  ATH_CHECK(m_evtStore->recordAddress("ByteStreamEventInfo",iop));
+
+  ATH_MSG_DEBUG("Recorded new ByteStreamAddress for EventInfo with event context " << *eventContext);
+
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  return StatusCode::SUCCESS;
 }
 
 // =============================================================================

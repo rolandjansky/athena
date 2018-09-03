@@ -643,6 +643,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         ATH_MSG_ERROR("Failed to create event context");
         // what do we do now? we haven't requested the next event from DataCollector yet,
         // we have a failure while not processing an event
+        failedEvent(evtContext);
         continue;
       }
 
@@ -651,12 +652,33 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         ATH_MSG_ERROR("Slot " << evtContext->slot() << " could not be selected for the WhiteBoard");
         // what do we do now? we haven't requested the next event from DataCollector yet,
         // we have a failure while not processing an event
+        failedEvent(evtContext);
         continue;
       }
 
-      // Not so nice behind-the-scenes way to inform the InputSvc / ROBDataProvider about the slot for the new event
-      // to be read. This is likely also used by other services.
+      // Record EventContext in current whiteboard
+      if (m_evtStore->record(std::make_unique<EventContext> (*evtContext), "EventContext").isFailure()) {
+        ATH_MSG_ERROR("Error recording event context object");
+        // what do we do now? we haven't requested the next event from DataCollector yet,
+        // we have a failure while not processing an event
+        failedEvent(evtContext);
+        continue;
+      }
+
+      // Not so nice behind-the-scenes way to inform some services about the current context.
+      // If possible, services should use EventContext from the event store as recorded above.
       Gaudi::Hive::setCurrentContext(*evtContext);
+
+      //------------------------------------------------------------------------
+      // Create a new address for EventInfo to facilitate automatic conversion from input data
+      //------------------------------------------------------------------------
+      IOpaqueAddress* addr = nullptr;
+      if (m_evtSelector->createAddress(*m_evtSelContext, addr).isFailure()) {
+        ATH_MSG_ERROR("Could not create an IOpaqueAddress");
+        // we have not read a new event yet, should we try to create any output?
+        failedEvent(evtContext);
+        continue;
+      }
 
       //------------------------------------------------------------------------
       // Get the next event
@@ -699,16 +721,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       m_timeoutCond.notify_all();
 
       //------------------------------------------------------------------------
-      // Set up proxy and get the event info
+      // Load event proxies and get event info
       //------------------------------------------------------------------------
-      IOpaqueAddress* addr = nullptr;
-      if (m_evtSelector->createAddress(*m_evtSelContext, addr).isFailure()) {
-        ATH_MSG_ERROR("Could not create an IOpaqueAddress");
-        // we cannot get the EventInfo, so we don't know the event number
-        // should we return anything to the DataCollector?
-        failedEvent(evtContext);
-        continue;
-      }
 
       if (addr != nullptr) {
         /* do we need this???
@@ -772,15 +786,6 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 
       // update thread-local EventContext after setting EventID and conditions runNumber
       Gaudi::Hive::setCurrentContext(*evtContext);
-
-      //------------------------------------------------------------------------
-      // Record EventContext in current whiteboard
-      //------------------------------------------------------------------------
-      if (m_evtStore->record(std::make_unique<EventContext> (*evtContext), "EventContext").isFailure()) {
-        ATH_MSG_ERROR("Error recording event context object");
-        failedEvent(evtContext,eventInfo);
-        continue;
-      }
 
       //------------------------------------------------------------------------
       // Record an empty HLT Result

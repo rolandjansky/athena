@@ -34,10 +34,10 @@
 
 // Forward declarations
 class CondAttrListCollection;
+class EventContext;
 class IAlgExecStateSvc;
 class IAlgorithm;
 class IAlgResourcePool;
-// class IEventInfoCnvTool;
 class IHiveWhiteBoard;
 class IIncidentSvc;
 class IROBDataProviderSvc;
