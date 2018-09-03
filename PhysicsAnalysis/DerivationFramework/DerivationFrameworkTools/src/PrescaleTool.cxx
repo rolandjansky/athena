@@ -43,9 +43,8 @@ namespace DerivationFramework {
   {
     const xAOD::EventInfo* ei = 0;
     CHECK( evtStore()->retrieve( ei , "EventInfo" ) );
-    uint32_t eventNumber ei->eventNumber(); 
     bool accept(false);
-    if (eventNumber % m_prescale == 0) accept = true;
+    if (ei->eventNumber() % m_prescale == 0) accept = true;
     return accept;
   }  
 
