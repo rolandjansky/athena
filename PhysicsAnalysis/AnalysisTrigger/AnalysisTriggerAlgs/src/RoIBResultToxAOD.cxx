@@ -20,13 +20,13 @@
 #include "TrigT1Interfaces/RecEnergyRoI.h"
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1CaloEvent/JetInput.h"
-#include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
 
 // Trigger configuration interface includes:
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/TriggerItem.h"
+#include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfL1Data/TriggerThreshold.h"
 
 // xAOD include(s):
 #include "xAODTrigger/MuonRoIAuxContainer.h"
@@ -53,7 +53,7 @@ namespace {
 
 RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name,
                                     ISvcLocator* svcLoc )
-   : AthReentrantAlgorithm( name, svcLoc ) {
+   : AthAlgorithm( name, svcLoc ) {
 
 }
 
@@ -111,23 +111,23 @@ StatusCode RoIBResultToxAOD::initialize() {
    return StatusCode::SUCCESS;
 }
 
-StatusCode RoIBResultToxAOD::execute_r( const EventContext& ctx ) const {
+StatusCode RoIBResultToxAOD::execute() {
 
    // Tell the user what's happening.
    ATH_MSG_DEBUG( "in execute()" );
 
    // Access the input object.
-   auto roibResult = SG::makeHandle( m_roibResultKey, ctx );
+   auto roibResult = SG::makeHandle( m_roibResultKey, getContext() );
 
    // Create the muon RoIs:
    if( m_doMuon ) {
-      ATH_CHECK( createMuonRoI( *roibResult, ctx ) );
+      ATH_CHECK( createMuonRoI( *roibResult, getContext() ) );
    }
 
    // Create the calo RoIs:
    if( m_doCalo ) {
-      ATH_CHECK( createEmTauRoI( *roibResult, ctx ) );
-      ATH_CHECK( createJetEnergyRoI( *roibResult, ctx ) );
+      ATH_CHECK( createEmTauRoI( *roibResult, getContext() ) );
+      ATH_CHECK( createJetEnergyRoI( *roibResult, getContext() ) );
    }
 
    // Return gracefully.
@@ -135,7 +135,7 @@ StatusCode RoIBResultToxAOD::execute_r( const EventContext& ctx ) const {
 }
 
 StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
-                                             const EventContext& ctx ) const {
+                                             const EventContext& ctx ) {
 
    // Tell the user what's happening.
    ATH_MSG_DEBUG( "building EmTauRoI" );
@@ -248,7 +248,7 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
 
 StatusCode
 RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
-                                      const EventContext& ctx ) const {
+                                      const EventContext& ctx ) {
 
    ATH_MSG_DEBUG( "building JetEnergyRoI" );
    

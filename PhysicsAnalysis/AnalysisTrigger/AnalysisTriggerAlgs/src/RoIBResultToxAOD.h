@@ -6,7 +6,7 @@
 #define ANALYSISTRIGGERALGS_ROIBRESULTTOXAOD_H
 
 // Gaudi/Athena include(s):
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -32,23 +32,15 @@
 /**
  *  @short RoIB result to xAOD converter
  *
- *  This is a slightly adapted version of the original RoIBResultToAOD 
- *  algorithm. Going the route through the LVL1_ROI structure was 
- *  needed due to the interface of the AOD->xAOD ROI converters
- *
- *  The RoIBResultToxAOD algorithm builds the CTP_Decision and 
- *  LVL1_ROI objects from the LVL1 ROIB::RoIBResult object. 
- *  In addition the TriggerType of the CTP can be rebuild,
- *  when zero in the input object.
- *
- *  The CTP_Decision and LVL1_ROI objects are stored in ESD/AOD.
+ *  The RoIBResultToxAOD algorithm builds the xAOD analysis objects
+ *  from the LVL1 @c ROIB::RoIBResult object. 
  *
  * @author Tadashi Maeno <Tadashi.Maeno@cern.ch>
  * @author Attila Kraznahorkay Jr. <Attila.Krasznahorkay@cern.ch>
  * @author Alan Watson <Alan.Watson@cern.ch>
  * @author Wolfgang Ehrenfeld <Wolfgang.Menges@desy.de>
  */
-class RoIBResultToxAOD : public AthReentrantAlgorithm {
+class RoIBResultToxAOD : public AthAlgorithm {
 
 public:
    /// Algorithm constructor
@@ -57,21 +49,24 @@ public:
    /// @name Function(s) implementing the @c Algorithm interface
    /// @{
 
+   /// Declare that the algorithm is clonable
+   virtual bool isClonable() const override { return true; }
+
    /// Function initialising the algorithm
    virtual StatusCode initialize() override;
 
    /// Function executing the algorithm
-   virtual StatusCode execute_r( const EventContext& ctx ) const override;
+   virtual StatusCode execute() override;
 
    /// @}
 
 private:
    /// Create the EmTau RoI objects
    StatusCode createEmTauRoI( const ROIB::RoIBResult& roib,
-                              const EventContext& ctx ) const;
+                              const EventContext& ctx );
    /// Create the JetEnergy RoI object
    StatusCode createJetEnergyRoI( const ROIB::RoIBResult& roib,
-                                  const EventContext& ctx ) const;
+                                  const EventContext& ctx );
    /// Create the Muon RoI objects
    StatusCode createMuonRoI( const ROIB::RoIBResult& roib,
                              const EventContext& ctx ) const;
