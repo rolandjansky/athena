@@ -199,6 +199,8 @@ namespace top{
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoNoFitLight;
     else if (BTaggingMethod == "kVetoNoFitBoth" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoNoFitBoth;
+    else if (BTaggingMethod == "kVetoHybridNoFit" )
+      m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kVetoHybridNoFit;
     else if (BTaggingMethod == "kWorkingPoint" )
       m_bTaggingMethodKLFitterEnum = KLFitter::LikelihoodBase::BtaggingMethod::kWorkingPoint;
     else if (BTaggingMethod == "kVeto" )
