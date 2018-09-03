@@ -319,6 +319,9 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   for (unsigned int i(0); i != m_effMap.size(); ++i) {
     m_effMap[i].fill(0);
   }
+  for (unsigned int i(0); i != m_effMapFirstBCID.size(); ++i) {
+    m_effMapFirstBCID[i].fill(0);
+  }
   for (unsigned int i(0); i != m_effLumiBlock.size(); ++i) {
     m_effLumiBlock[i].fill(0);
   }
@@ -551,7 +554,7 @@ SCTHitEffMonTool::bookHistograms() {
           m_effMap[detIndex][j]->GetYaxis()->SetTitle("Index in the direction of #phi");
 
           CHECK(bookEffHisto(m_effMapFirstBCID[detIndex][j], histGroupE[isub],
-                             mapName[isub] + i + "_" + j,
+                             mapName[isub] + i + "_" + j + "_bcid",
                              "Hit efficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub] + " for first BCID",
                              n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
                              n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
@@ -910,7 +913,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {                                   
           m_effMap[detIndex][j]->GetYaxis()->SetTitle("Index in the direction of #phi");
 
           CHECK(bookEffHisto(m_effMapFirstBCID[detIndex][j], histGroupE[isub],
-                             mapName[isub] + i + "_" + j,
+                             mapName[isub] + i + "_" + j + "_bcid",
                              "Hit efficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub] + " for first BCID",
                              n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
                              n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
