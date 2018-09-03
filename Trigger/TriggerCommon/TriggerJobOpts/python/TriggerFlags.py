@@ -1054,7 +1054,7 @@ class triggerMenuSetup(JobProperty):
         'MC_PhaseII',
         ]
 
-    _default_menu='MC_pp_v7_tight_mc_prescale'
+    _default_menu='MC_pp_v7_BulkMCProd_mc_prescale'
     _default_cosmic_menu='Physics_pp_v5_cosmics_prescale'
     _default_InitialBeam_menu='MC_InitialBeam_v3_no_prescale'
     
