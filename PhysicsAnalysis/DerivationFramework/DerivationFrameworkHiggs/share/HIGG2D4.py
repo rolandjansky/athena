@@ -16,19 +16,6 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkHiggs.TruthCategories import *
 import AthenaCommon.SystemOfUnits as Units
-
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
-  scheduleTauTruthTools()
-
-
-# Add sumOfWeights metadata for LHE3 multiweights =======
-from DerivationFrameworkCore.LHE3WeightMetadata import *
-
-if DerivationFrameworkIsMonteCarlo :
-  from DerivationFrameworkHiggs.TruthCategories import *
-
-#==================================================================== 
 # SET UP STREAM 
 #==================================================================== 
 streamName = derivationFlags.WriteDAOD_HIGG2D4Stream.StreamName 
@@ -188,6 +175,7 @@ muonQualityRequirement='('+combinedMuonQualityRequirement+'||'+standaloneMuonQua
 muonPtRequirement='(Muons.pt>6.*GeV)'
 muonRequirement='('+muonQualityRequirement+'&&'+muonPtRequirement+')'
 leptonRequirement='(count('+electronRequirement+')+count('+muonRequirement+')>= 2)'
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SkimmingToolHIGG2D4_preLep = DerivationFramework__xAODStringSkimmingTool(name = "SkimmingToolHIGG2D4_preLep",
                                                                          expression = leptonRequirement)
@@ -196,23 +184,23 @@ ToolSvc += SkimmingToolHIGG2D4_preLep
 # @TODO take TCC jets into account for skimming
 # jetSel = '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 150.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG2
-SkimmingToolHIGG2D4 = DerivationFramework__SkimmingToolHIGG2(name                    = "SkimmingToolHIGG2D4",
-                                                             FilterType              = "2L2Q", 
+SkimmingToolHIGG2D4EMTopo = DerivationFramework__SkimmingToolHIGG2(name              = "SkimmingToolHIGG2D4EMTopo",
+                                                             FilterType              = "2L2Q",
                                                              NumberOfLeptons         = 2,
                                                              NumberOfElectrons       = 0,
                                                              NumberOfMuons           = 0,
                                                              JetContainerKey         = "AntiKt4EMTopoJets",
                                                              NumberOfJets            = 1,
                                                              JetPtCut                = 15.*Units.GeV,
-                                                             JetEtaCut               = 2.6, 
+                                                             JetEtaCut               = 2.6,
                                                              MergedJetContainerKey0  = "AntiKt4EMTopoJets",
                                                              NumberOfMergedJets0     = 1,
                                                              MergedJetPtCut0         = 100.*Units.GeV,
-                                                             MergedJetEtaCut0        = 2.6, 
+                                                             MergedJetEtaCut0        = 2.6,
                                                              MergedJetContainerKey1  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                              NumberOfMergedJets1     = 1,
                                                              MergedJetPtCut1         = 150.*Units.GeV,
-                                                             MergedJetEtaCut1        = 2.6, 
+                                                             MergedJetEtaCut1        = 2.6,
                                                              NumberOfPhotons         = 0,
                                                              ElectronQuality         = "DFCommonElectronsLHVeryLoose",
                                                              ElectronEtCut           = 6.*Units.GeV,
@@ -222,11 +210,42 @@ SkimmingToolHIGG2D4 = DerivationFramework__SkimmingToolHIGG2(name               
                                                              InvariantMassCut        = 5.*Units.GeV,
                                                              DRElectronJetCut        = -1.,
                                                              Trigger2L2Q             = triggerRequirement)
-ToolSvc += SkimmingToolHIGG2D4
-print SkimmingToolHIGG2D4
+ToolSvc += SkimmingToolHIGG2D4EMTopo
+
+SkimmingToolHIGG2D4PFlow = DerivationFramework__SkimmingToolHIGG2(name                  = "SkimmingToolHIGG2D4PFlow",
+                                                             FilterType                 = "2L2Q",
+                                                             NumberOfLeptons            = 2,
+                                                             NumberOfElectrons          = 0,
+                                                             NumberOfMuons              = 0,
+                                                             JetContainerKey            = "AntiKt4EMPFlowJets",
+                                                             NumberOfJets               = 1,
+                                                             JetPtCut                   = 15.*Units.GeV,
+                                                             JetEtaCut                  = 2.6,
+                                                             MergedJetContainerKey0     = "AntiKt4EMPFlowJets",
+                                                             UseDFCommonJetFourMomentum = False,
+                                                             NumberOfMergedJets0        = 0,
+                                                             MergedJetPtCut0            = 100.*Units.GeV,
+                                                             MergedJetEtaCut0           = 2.6,
+                                                             NumberOfMergedJets1        = 0,
+                                                             MergedJetPtCut1            = 150.*Units.GeV,
+                                                             MergedJetEtaCut1           = 2.6,
+                                                             NumberOfPhotons            = 0,
+                                                             ElectronQuality            = "DFCommonElectronsLHVeryLoose",
+                                                             ElectronEtCut              = 6.*Units.GeV,
+                                                             MuonQuality                = "DFCommonMuonsPreselection",
+                                                             MuonPtCut                  = 6.*Units.GeV,
+                                                             RequireTightLeptons        = False,
+                                                             InvariantMassCut           = 5.*Units.GeV,
+                                                             DRElectronJetCut           = -1.,
+                                                             Trigger2L2Q                = triggerRequirement)
+ToolSvc += SkimmingToolHIGG2D4PFlow
 
 
-
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+SkimmingToolHIGG2D4Combined = DerivationFramework__FilterCombinationOR(
+                                           name       = 'SkimmingToolHIGG2D4Combined',
+                                           FilterList = [SkimmingToolHIGG2D4EMTopo,SkimmingToolHIGG2D4PFlow])
+ToolSvc += SkimmingToolHIGG2D4Combined
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -313,7 +332,7 @@ if DerivationFrameworkIsMonteCarlo :
 # Main selection
 higg2d4Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG2D4Kernel",
-    SkimmingTools = [SkimmingToolHIGG2D4],
+    SkimmingTools = [SkimmingToolHIGG2D4Combined],
     ThinningTools = thinningTools
     )
 
