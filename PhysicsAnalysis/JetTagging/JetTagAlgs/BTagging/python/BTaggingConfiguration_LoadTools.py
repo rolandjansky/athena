@@ -43,12 +43,12 @@ def Initiate(ConfInstance=None):
   from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
   from IOVDbSvc.CondDB import conddb
   # Declare the COOL folder to the CondInputLoader
-  conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/BTagCalib/RUN12", className='CondAttrListCollection')
-  conddb.addFolder("GLOBAL_OFL", "/GLOBAL/BTagCalib/RUN12", className='CondAttrListCollection')
   btagrun1=False
   if conddb.dbdata == 'COMP200':
+    conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/BTagCalib/RUN12", className='CondAttrListCollection')
     btagrun1=True
   elif conddb.isMC:
+    conddb.addFolder("GLOBAL_OFL", "/GLOBAL/BTagCalib/RUN12", className='CondAttrListCollection')
     # The Run() parameter only exists for ATLAS-R1(...) and ATLAS-R2(...) geo tags,
     # not for ATLAS-GEO(...) and ATLAS-IBL(...) ones. Hence if Run() is undefined,
     # presence of IBL is used to switch between Run1/Run2
@@ -124,6 +124,7 @@ def Initiate(ConfInstance=None):
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
 
+
     #Create and add our condition algorithm to the Condition Sequencer
 
     #IP2D
@@ -138,12 +139,25 @@ def Initiate(ConfInstance=None):
     #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
  
     from AthenaCommon.GlobalFlags import globalflags
-    readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
-    if globalflags.DataSource()=='data':
-      readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
- 
+
+    Taggers = ['IP2D','IP3D','SV1','JetFitterNN','SoftMu', 'MV2c10', 'MV2c100', 'MV2c10mu', 'MV2c10rnn', 'MV2cl100','RNNIP', 'JetVertexCharge', 'MultiSVbb1', 'MultiSVbb2', 'DL1', 'DL1mu', 'DL1rnn']
+    connSchema = "GLOBAL_OFL"
+    if ConfInstance._name == "":
+      readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
+      if globalflags.DataSource()=='data':
+        readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
+        connSchema = "GLOBAL_ONL"
+    elif ConfInstance._name == "Trig":
+      Taggers = BTaggingFlags.TriggerTaggers
+      readkeycalibpath = "/GLOBAL/TrigBTagCalib/RUN12"
+      if globalflags.DataSource()=='data':
+        readkeycalibpath = readkeycalibpath.replace("/GLOBAL/TrigBTagCalib","/GLOBAL/Onl/TrigBTagCalib")
+        connSchema = "GLOBAL_ONL"
+
+    conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
+
     from JetTagCalibration.JetTagCalibrationConf import Analysis__JetTagCalibCondAlg as JetTagCalibCondAlg
-    JetTagCalib = JetTagCalibCondAlg("test_jettagcalib", ReadKeyCalibPath=readkeycalibpath, taggers = ['IP2D','IP3D','SV1','JetFitterNN','SoftMu', 'MV2c10', 'MV2c100', 'MV2c10mu', 'MV2c10rnn', 'MV2cl100','RNNIP', 'JetVertexCharge', 'MultiSVbb1', 'MultiSVbb2', 'DL1', 'DL1mu', 'DL1rnn'], channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+    JetTagCalib = JetTagCalibCondAlg("JetTagCalibCondAlg", ReadKeyCalibPath=readkeycalibpath, taggers = Taggers, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
     #JetTagCalib.OutputLevel=2
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
@@ -159,8 +173,7 @@ def Initiate(ConfInstance=None):
     if ConfInstance._name == "":
       print ConfInstance.BTagTag()+' - No calibration broker setup - The condition algorithm is used'
     elif ConfInstance._name == "Trig":
-      protectedInclude("BTagging/BTagCalibBroker_Trig_jobOptions.py")
-      BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool")
+      print ConfInstance.BTagTag()+' - No calibration broker setup - The condition algorithm is used'
     elif ConfInstance._name == "AODFix":
       protectedInclude("BTagging/BTagCalibBroker_AODFix_jobOptions.py")
       BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool")

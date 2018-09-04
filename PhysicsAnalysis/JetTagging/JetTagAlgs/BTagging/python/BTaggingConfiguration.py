@@ -1630,7 +1630,7 @@ class Configuration:
           else:
               broker = self._BTaggingConfig_InitializedTools.get(self.getToolName('BTagCalibrationBrokerTool',track,jetcol), None)
               if broker is None:
-                  print self.BTagTag()+' - WARNING - CalibrationBroker not found; If you are in reco mode the condition algorithm is used. If not calibrations will not function!'
+                  print self.BTagTag()+' - WARNING - CalibrationBroker not found; The tool is replaced by a condition algorithm'
               elif not hasattr(broker, 'taggers'):
                   print self.BTagTag()+' - ERROR - CalibrationBroker does not have "taggers" as an attribute; calibrations will not function!'
                   raise ValueError
