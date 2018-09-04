@@ -285,7 +285,11 @@ StatusCode xAODEventSelector::initialize()
   //ensure the MetaDataSvc is added as a provider first, if we are in hybrid mode
   if(m_readMetadataWithPool) {
     std::vector<std::string> propVal;
-    CHECK( Gaudi::Parsers::parse( propVal , dynamic_cast<IProperty*>(&*m_ppSvc)->getProperty("ProviderNames").toString() ) );
+    IProperty* prop = dynamic_cast<IProperty*>(&*m_ppSvc);
+    if (!prop) {
+      return StatusCode::FAILURE;
+    }
+    CHECK( Gaudi::Parsers::parse( propVal , prop->getProperty("ProviderNames").toString() ) );
     bool foundSvc(false);
     for(auto s : propVal) {
       if(s=="MetaDataSvc") { foundSvc=true; break; }

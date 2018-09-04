@@ -33,11 +33,10 @@ FTK_RDO_Monitor.offlineTracksName="Tracks"
 FTK_RDO_Monitor.FTK_DataProvider=theFTK_DataProviderSvc
 
 from AthenaCommon.AppMgr import ToolSvc
-if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 FTK_RDO_Monitor.PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool
-FTK_RDO_Monitor.SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
+FTK_RDO_Monitor.SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
 
 alg += FTK_RDO_Monitor
 

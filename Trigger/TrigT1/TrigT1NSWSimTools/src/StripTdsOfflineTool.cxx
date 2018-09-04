@@ -80,7 +80,6 @@ namespace NSWL1 {
 
       // reserve enough slots for the trigger sectors and fills empty vectors
       // std::vector< std::vector<StripData*> >::iterator it = m_strip_cache.begin();
-      std::vector<StripData*>::iterator it = m_strip_cache.begin();
     }
 
     StripTdsOfflineTool::~StripTdsOfflineTool() {

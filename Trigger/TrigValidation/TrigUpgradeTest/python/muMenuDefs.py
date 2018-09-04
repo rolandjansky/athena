@@ -15,9 +15,6 @@ import AthenaCommon.CfgGetter as CfgGetter
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
-### workaround to prevent online trigger folders to be enabled ###
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doCaloSeededBrem = False

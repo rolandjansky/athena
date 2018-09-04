@@ -192,11 +192,6 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
   m_smallStepLength *= CLHEP::micrometer;
   m_tSurfaceDrift *= CLHEP::ns;
 
-  // If we want charge trapping effect with Ramo potential let's fill the map only once
-  if (m_doTrapping and m_doRamo) {
-    m_radDamageTool->initPotentialValue();
-  }
-
   // Surface drift time calculation Stuff
   m_tHalfwayDrift = m_tSurfaceDrift * 0.5;
   m_distHalfInterStrip = m_distInterStrip * 0.5;
