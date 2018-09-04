@@ -33,6 +33,7 @@
 #include "LArCOOLConditions/LArRampSC.h"
 #include "LArCOOLConditions/LArShapeSC.h"
 #include "LArCOOLConditions/LArMinBiasSC.h"
+#include "LArCOOLConditions/LArMinBiasAverageSC.h"
 
 #include "CoralBase/Blob.h"
 #include <boost/crc.hpp> 
@@ -43,7 +44,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
     m_IOVSvc     ("IOVSvc", name),
     m_detStore   ("DetectorStore", name),
     m_clidSvc    ("ClassIDSvc", name),
-    m_objInfo(17),
+    m_objInfo(18),
     m_attrListClid(),
     m_initializing(true),
     m_doRegularCells(true),
@@ -79,6 +80,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   m_objInfo[14].m_classname="LArRampSC"; 
   m_objInfo[15].m_classname="LArShapeSC"; 
   m_objInfo[16].m_classname="LArMinBiasSC"; 
+  m_objInfo[17].m_classname="LArMinBiasAverageSC"; 
 
   //Interface names for SuperCell conditions
   m_objInfo[8].m_ifacename="ILArAutoCorr";
@@ -90,6 +92,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   m_objInfo[14].m_ifacename="ILArRamp"; 
   m_objInfo[15].m_ifacename="ILArShape"; 
   m_objInfo[16].m_ifacename="ILArMinBias"; 
+  m_objInfo[17].m_ifacename="ILArMinBiasAverage"; 
   
 
   //StoreGate keys for conditions objects for regular cells
@@ -112,6 +115,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   declareProperty("RampSCOutput",       m_objInfo[14].m_outputKey="LArRampSC");	    
   declareProperty("ShapeSCOutput",      m_objInfo[15].m_outputKey="LArShapeSC");	    
   declareProperty("MinBiasSCOutput",    m_objInfo[16].m_outputKey="LArMinBiasSC");	    
+  declareProperty("MinBiasAverageSCOutput",    m_objInfo[17].m_outputKey="LArMinBiasAverageSC");	    
 
 
   //Folder names for flat conditions data for regular cells
@@ -134,6 +138,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   declareProperty("RampSCInput",        m_objInfo[14].m_inputKey="/LAR/ElecCalibMCSC/Ramp");	     
   declareProperty("ShapeSCInput",       m_objInfo[15].m_inputKey="/LAR/ElecCalibMCSC/Shape");	     
   declareProperty("MinBiasSCInput",     m_objInfo[16].m_inputKey="/LAR/ElecCalibMCSC/MinBias");	     
+  declareProperty("MinBiasAverageSCInput",     m_objInfo[17].m_inputKey="/LAR/ElecCalibMCSC/MinBiasAverage");	     
 
   declareProperty("DoSuperCells", m_doSuperCells);
   declareProperty("DoRegularCells", m_doRegularCells);
@@ -396,6 +401,13 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddres
   case 16:      
     if (this->createFlatObj<LArMinBiasSC>(attrlist,tad)==0) {
       msg(MSG::ERROR) << "Problem creating LArMinBiasSC object" << endmsg;
+      return StatusCode::FAILURE; 
+    }
+    break;
+    
+  case 17:      
+    if (this->createFlatObj<LArMinBiasAverageSC>(attrlist,tad)==0) {
+      msg(MSG::ERROR) << "Problem creating LArMinBiasAverageSC object" << endmsg;
       return StatusCode::FAILURE; 
     }
     break;
