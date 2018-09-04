@@ -22,6 +22,7 @@ class TriggerType(IntEnum):
     ht         = 1 << 13
     mu_bphys   = 1 << 14
     exotics    = 1 << 15
+    afp        = 1 << 16
 
     el          = el_single | el_multi
     mu          = mu_single | mu_multi
@@ -30,7 +31,7 @@ class TriggerType(IntEnum):
     tau         = tau_single| tau_multi
     g           = g_single  | g_multi
 
-    ALL         = el | mu | j | bj | tau | g | xe | ht | mu_bphys | exotics
+    ALL         = el | mu | j | bj | tau | g | xe | ht | mu_bphys | exotics | afp
     UNDEFINED  = 0
 
 
