@@ -26,19 +26,23 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALK
 
 OutputJets["PHYSVAL"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                          "AntiKt4EMTopoLowPtJets",
                          "AntiKt4LCTopoLowPtJets",
                          "AntiKt4EMPFlowLowPtJets"]
 
 reducedJetList = [ "AntiKt10PV0TrackJets",
-                   "AntiKt4TruthWZJets",
-                   "AntiKt10TruthJets",
-                   "AntiKt10TruthWZJets",
                    "AntiKt10LCTopoJets",
                    "AntiKt2PV0TrackJets",
-                   "AntiKt4PV0TrackJets",
-                   "AntiKt4TruthJets"]
+                   "AntiKt4PV0TrackJets"]
+
+if (DerivationFrameworkIsMonteCarlo):
+   OutputJets["PHYSVAL"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
+   reducedJetList.append("AntiKt4TruthWZJets")
+   reducedJetList.append("AntiKt10TruthJets")
+   reducedJetList.append("AntiKt10TruthWZJets")
+   reducedJetList.append("AntiKt4TruthJets")  
+
+
 replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PHYSVAL")
 updateJVT_xAODColl("AntiKt4EMTopo")
 addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYSVAL")
@@ -63,8 +67,9 @@ FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Seq
 #====================================================================
 # Truth collections
 #====================================================================
-from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-addStandardTruthContents()
+if (DerivationFrameworkIsMonteCarlo):
+   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+   addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM   
