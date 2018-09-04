@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
   PUBLIC
   Control/AthLinks
   Control/AthToolSupport/AsgTools
+  PhysicsAnalysis/D3PDTools/AnaAlgorithm
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODJet
   Event/xAOD/xAODMuon
@@ -44,7 +45,7 @@ atlas_add_library( JetRecLib
   PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AsgTools
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
-  JetInterface JetCalibToolsLib
+  JetInterface JetCalibToolsLib AnaAlgorithmLib
   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} xAODBase xAODCore
   xAODEventInfo xAODTracking )
 
