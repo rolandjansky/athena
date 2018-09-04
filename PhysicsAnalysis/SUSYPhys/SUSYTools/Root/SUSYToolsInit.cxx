@@ -20,8 +20,6 @@ using namespace ST;
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
-#include "JetResolution/IJERTool.h"
-#include "JetResolution/IJERSmearingTool.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
@@ -245,35 +243,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   m_ZTaggerTool.setTypeAndName("SmoothedWZTagger/ZTagger");
   ATH_CHECK( m_ZTaggerTool.setProperty("ConfigFile",m_ZtagConfig) );
   ATH_CHECK( m_ZTaggerTool.retrieve() );
-
-  ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise jet resolution tools
-
-  if ( !m_jerTool.isUserConfigured() ) {
-    ATH_MSG_INFO("Set up JER tool...");
-
-    toolName = "JERTool_" + jetcoll;
-    m_jerTool.setTypeAndName("JERTool/"+toolName);
-
-    ATH_CHECK( m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root") );
-    //ATH_CHECK( asg::setProperty(m_jerTool, "CollectionName", jetcoll) ); //AntiKt4EMTopoJets (the default) is the only collection supported at the moment! //MT
-    ATH_CHECK( m_jerTool.retrieve() );
-  }
-
-  if ( !m_jerSmearingTool.isUserConfigured() ) {
-    ATH_MSG_INFO("Set up JERSmearing tool...");
-
-    toolName = "JERSmearingTool_" + jetcoll;
-    m_jerSmearingTool.setTypeAndName("JERSmearingTool/"+toolName);
-
-    ATH_CHECK( m_jerSmearingTool.setProperty("ApplyNominalSmearing", false) );
-    ATH_CHECK( m_jerSmearingTool.setProperty("JERTool", m_jerTool.getHandle() ) );
-    ATH_CHECK( m_jerSmearingTool.setProperty("isMC", !isData()) );
-    ATH_CHECK( m_jerSmearingTool.setProperty("SystematicMode", "Simple") );
-    ATH_CHECK( m_jerSmearingTool.retrieve() );
-
-  }
-
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet uncertainty tool
@@ -546,7 +515,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "EleSelLikelihood_" + m_eleId;
     m_elecSelLikelihood.setTypeAndName("AsgElectronLikelihoodTool/"+toolName);
 
-    if ( !check_isOption(m_eleId, el_id_support) ) { //check if supported
+    if (! m_eleConfig.empty() ){
+      ATH_MSG_INFO("Overriding specified Ele.Id working point in favour of configuration file");
+      ATH_CHECK( m_elecSelLikelihood.setProperty("ConfigFile", m_eleConfig ));
+    } else if ( !check_isOption(m_eleId, el_id_support) ) { //check if supported
       ATH_MSG_ERROR("Invalid electron ID selected: " << m_eleId);
       return StatusCode::FAILURE;
     }
@@ -555,8 +527,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING(" CAUTION: Setting " << m_eleId << " as signal electron ID");
       ATH_MSG_WARNING(" These may be used for loose electron CRs but no scale factors are provided.");
       ATH_MSG_WARNING(" ****************************************************************************");
+      ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
+    } else {
+      ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
     }
-    ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
+
     ATH_CHECK( m_elecSelLikelihood.retrieve() );
   }
 
@@ -565,11 +540,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "EleSelLikelihoodBaseline_" + m_eleIdBaseline;
     m_elecSelLikelihoodBaseline.setTypeAndName("AsgElectronLikelihoodTool/"+toolName);
 
-    if ( !check_isOption(m_eleIdBaseline, el_id_support) ) { //check if supported
+    if (! m_eleConfigBaseline.empty() ){
+      ATH_MSG_INFO("Overriding specified EleBaseline.Id working point in favour of configuration file");
+      ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("ConfigFile", m_eleConfigBaseline ));
+    } else if ( !check_isOption(m_eleIdBaseline, el_id_support) ) { //check if supported
       ATH_MSG_ERROR("Invalid electron ID selected: " << m_eleIdBaseline);
       return StatusCode::FAILURE;
+    } else {
+      ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("WorkingPoint", EG_WP(m_eleIdBaseline)) );
     }
-    ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("WorkingPoint", EG_WP(m_eleIdBaseline)) );
+
     ATH_CHECK( m_elecSelLikelihoodBaseline.retrieve() );
   }
 

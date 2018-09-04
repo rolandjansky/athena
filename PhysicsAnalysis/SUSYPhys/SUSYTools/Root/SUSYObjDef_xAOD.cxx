@@ -21,8 +21,6 @@
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
-#include "JetResolution/IJERTool.h"
-#include "JetResolution/IJERSmearingTool.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
@@ -130,6 +128,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_electronTriggerSFStringSingle(""),
     m_eleId(""),
     m_eleIdBaseline(""),
+    m_eleConfig(""),
+    m_eleConfigBaseline(""),
     m_eleIdExpert(false),
     m_muId(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
     m_muIdBaseline(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
@@ -243,8 +243,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     // set toolhandles empty by default
     m_jetCalibTool(""),
     m_jetFatCalibTool(""),
-    m_jerTool(""),
-    m_jerSmearingTool(""),
     m_jetUncertaintiesTool(""),
     m_fatjetUncertaintiesTool(""),
     m_jetCleaningTool(""),
@@ -425,8 +423,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleBaselineEta", m_eleBaselineEta);
   declareProperty( "EleEta", m_eleEta);
   declareProperty( "EleBaselineId", m_eleIdBaseline);
+  declareProperty( "EleBaselineConfig", m_eleConfigBaseline);
   declareProperty( "EleBaselineCrackVeto", m_eleBaselineCrackVeto);
   declareProperty( "EleId", m_eleId);
+  declareProperty( "EleConfig", m_eleConfig);
   declareProperty( "EleIso", m_eleIso_WP);
   declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
   declareProperty( "EleCFT", m_eleChID_WP);
@@ -512,8 +512,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //--- Tool pointers    /MT : we may want to improve the descriptions :)
   m_jetCalibTool.declarePropertyFor( this, "JetCalibTool", "The JetCalibTool" );
   m_jetFatCalibTool.declarePropertyFor( this, "FatJetCalibTool", "The JetCalibTool for large-R jets" );
-  m_jerTool.declarePropertyFor( this, "JERTool", "The JERTool" );
-  m_jerSmearingTool.declarePropertyFor( this, "JERSmearingTool", "The JERSmearingTool" );
   m_jetUncertaintiesTool.declarePropertyFor( this, "JetUncertaintiesTool", "The JetUncertaintiesTool" );
   m_fatjetUncertaintiesTool.declarePropertyFor( this, "FatJetUncertaintiesTool", "The JetUncertaintiesTool for large-R jets" );
   m_jetCleaningTool.declarePropertyFor( this, "JetCleaningTool", "The JetCleaningTool" );
@@ -1051,6 +1049,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleBaselinePt, "EleBaseline.Pt", rEnv, 10000.);
   configFromFile(m_eleBaselineEta, "EleBaseline.Eta", rEnv, 2.47);
   configFromFile(m_eleIdBaseline, "EleBaseline.Id", rEnv, "LooseAndBLayerLLH");
+  configFromFile(m_eleConfigBaseline, "EleBaseline.Config", rEnv, "None");
   configFromFile(m_eleBaselineCrackVeto, "EleBaseline.CrackVeto", rEnv, false);
   configFromFile(m_force_noElId, "Ele.ForceNoId", rEnv, false);
   //
@@ -1061,6 +1060,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FixedCutHighPtCaloOnly");
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
+  configFromFile(m_eleConfigBaseline, "Ele.Config", rEnv, "None");
   configFromFile(m_eled0sig, "Ele.d0sig", rEnv, 5.);
   configFromFile(m_elez0, "Ele.z0", rEnv, 0.5);
   configFromFile(m_elebaselined0sig, "EleBaseline.d0sig", rEnv, -99.);
@@ -1622,14 +1622,6 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured JVTEfficiency for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_jerSmearingTool.empty()) {
-    CP::SystematicCode ret = m_jerSmearingTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure JERSmearingTool for  systematic var. " << systConfig.name());
-    } else {
-      ATH_MSG_VERBOSE("Configured JERSmearing for systematic var. " << systConfig.name() );
-    }
-  }
   if (!m_muonCalibrationAndSmearingTool.empty()) {
     CP::SystematicCode ret =   m_muonCalibrationAndSmearingTool->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
@@ -1966,12 +1958,6 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   sysInfo.affectedWeights.clear();
   sysInfo.systset.insert(sys);
 
-  if (!m_jerSmearingTool.empty()) {
-    if ( m_jerSmearingTool->isAffectedBySystematic( sys ) ) {
-      sysInfo.affectsKinematics = true;
-      sysInfo.affectsType = SystObjType::Jet;
-    }
-  }
   if (!m_jetJvtEfficiencyTool.empty()) {
     if ( m_jetJvtEfficiencyTool->isAffectedBySystematic( sys ) ) {
       sysInfo.affectsWeights = true;
