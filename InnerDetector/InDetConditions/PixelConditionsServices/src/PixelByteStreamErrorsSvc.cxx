@@ -344,8 +344,6 @@ StatusCode PixelByteStreamErrorsSvc::recordData() {
     }
   }
 
-//  std::cout << "STSTST PixelByteStreamErrorsSvc OK8 " << m_checkError << " " << cont->size() << " " << m_pixel_id->wafer_hash_max() << " " << m_max_hashes << std::endl;
-
   StatusCode sc = StatusCode::SUCCESS;
   if (cont->size()==m_max_hashes) {
     m_BSErrContWrite = SG::makeHandle(m_BSErrContWriteKey);
@@ -359,29 +357,15 @@ StatusCode PixelByteStreamErrorsSvc::recordData() {
   }
   else if (cont->size()!=m_checkError) {
     m_checkError = cont->size();
-
-    std::cout << "STSTST PixelByteStreamErrorsSvc OK8.2 " << m_checkError << " " << cont->size() << " " << m_pixel_id->wafer_hash_max() << " " << m_max_hashes << std::endl;
-
     m_BSErrContWrite = SG::makeHandle(m_BSErrContWriteKey);
-
-    std::cout << "STSTST PixelByteStreamErrorsSvc OK8.4 " << m_checkError << " " << cont->size() << " " << m_pixel_id->wafer_hash_max() << " " << m_max_hashes << std::endl;
-
     sc = m_BSErrContWrite.record(std::move(cont));
-
-    std::cout << "STSTST PixelByteStreamErrorsSvc OK8.6 " << m_checkError << " " << cont->size() << " " << m_pixel_id->wafer_hash_max() << " " << m_max_hashes << std::endl;
   }
 */
-
-
-
-//  std::cout << "STSTST PixelByteStreamErrorsSvc OK9 " << m_checkError << " " << cont->size() << " " << m_pixel_id->wafer_hash_max() << " " << m_max_hashes << std::endl;
 
   if (sc.isFailure() ){
     ATH_MSG_ERROR("Failed to record/overwrite BSErrors to SG");
     return sc;
   }
-
-//  std::cout << "STSTST PixelByteStreamErrorsSvc OK10" << std::endl;
 
   return sc;
 }
