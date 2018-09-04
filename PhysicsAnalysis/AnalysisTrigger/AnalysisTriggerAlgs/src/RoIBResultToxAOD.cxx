@@ -46,9 +46,9 @@ namespace {
 } // private namespace
 
 /// Helper macro for initialising SG keys that are allowed to be missing
-#define INIT_SG_KEY(VAR)                              \
-   do {                                               \
-      ATH_CHECK( VAR.initialize( VAR.key() != "" ) ); \
+#define INIT_SG_KEY(VAR)                                    \
+   do {                                                     \
+      ATH_CHECK( VAR.initialize( ! VAR.key().empty() ) );   \
    } while( false )
 
 RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name,
@@ -58,9 +58,6 @@ RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name,
 }
 
 StatusCode RoIBResultToxAOD::initialize() {
-
-   // Greet the user.
-   ATH_MSG_INFO( "Initializing algorithm" );
 
    // Print system info.
    if( m_doCalo == false ) {
@@ -172,7 +169,7 @@ StatusCode RoIBResultToxAOD::createEmTauRoI( const ROIB::RoIBResult& result,
    // Tool to reconstruct EM/tau cluster & isolation sums
    //   - need to form tower map for RoI reconstruction
    xAOD::CPMTowerMap_t cpmtowers;
-   if( m_emTauTool.isEnabled() && ( m_cpmTowerKey.key() != "" ) ) {
+   if( m_emTauTool.isEnabled() && ( ! m_cpmTowerKey.key().empty() ) ) {
       auto cpmTower = SG::makeHandle( m_cpmTowerKey, ctx );
       m_emTauTool->mapTowers( cpmTower.cptr(), &cpmtowers );
    }
@@ -323,7 +320,7 @@ RoIBResultToxAOD::createJetEnergyRoI( const ROIB::RoIBResult& result,
    // Tool to reconstruct Jet cluster ET sums
    //   - form input map ready for analysis
    std::map< int, LVL1::JetInput* > jetInputs;
-   if( m_jetTool.isEnabled() && ( m_jetElementKey.key() != "" ) ) {
+   if( m_jetTool.isEnabled() && ( ! m_jetElementKey.key().empty() ) ) {
       auto jetElement = SG::makeHandle( m_jetElementKey, ctx );
       m_jetTool->mapJetInputs( jetElement.cptr(), &jetInputs );
    }
