@@ -10,15 +10,17 @@
  * @author Shaun Roe
  * @date 20 October, 2008
  **/
-//STL
-#include <string>
 
-//Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 //package includes
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
+
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
+
+//STL
+#include <string>
 
 class ISvcLocator;
 class StatusCode;
@@ -37,7 +39,7 @@ class SCT_TestCablingAlg:public AthAlgorithm{
     StatusCode finalize();   //!< Gaudi finaliser
     
   private:
-    ServiceHandle<ISCT_CablingSvc> m_cablingSvc;
+    ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
     const SCT_ID *  m_idHelper; //!< helper for offlineId/hash conversions
     std::string coordString(const Identifier & offlineId);
     

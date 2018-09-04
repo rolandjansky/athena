@@ -75,7 +75,7 @@ SCT_CablingSvc::initialize() {
   StatusCode sc(StatusCode::FAILURE);
   ATH_MSG_INFO("Initialize SCT cabling " << PACKAGE_VERSION);
   const std::string cablingDataSource = m_cablingDataSource.value();
-  m_usingDatabase=(cablingDataSource == coracool) or (cablingDataSource == coolVectorPayload);
+  m_usingDatabase=(cablingDataSource == coracool) or (cablingDataSource == coolVectorPayload) or (cablingDataSource == file);
   //select which service name to use
   std::string cablingFillerName=coracoolFiller; //default to coracool
   if (cablingDataSource == coolVectorPayload) cablingFillerName = coolVectorFiller;
@@ -97,7 +97,8 @@ SCT_CablingSvc::initialize() {
         ATH_MSG_FATAL("Failed to retrieve the IncidentSvc");
         return StatusCode::FAILURE;
       } else { 
-        incidentSvc->addListener(this, IncidentType::BeginRun);
+        const long priority(1); // Default is 0. To be called before RegSelSvc, a value slightly higher than the default value is necessary.
+        incidentSvc->addListener(this, IncidentType::BeginRun, priority);
         incidentSvc->addListener(this, IncidentType::EndRun);
       }
     }
@@ -188,7 +189,7 @@ SCT_CablingSvc::getSerialNumberFromHash(const IdentifierHash& hash) const {
   if (not hash.is_valid()) return invalidSn;
   //hash must be even
   IdentifierHash evenHash{even(hash)};
-  return m_data.getSerialNumberFromHash(hash);
+  return m_data.getSerialNumberFromHash(evenHash);
 }
 
 void

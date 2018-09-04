@@ -11,7 +11,7 @@
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_CondParameterData.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -29,7 +29,7 @@ class SCT_ConditionsParameterCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<CondAttrListVec> m_readKey{this, "ReadKey", "/SCT/DAQ/Configuration/Chip", "Key of input (raw) chip conditions folder"};
   SG::WriteCondHandleKey<SCT_CondParameterData> m_writeKey{this, "WriteKey", "SCT_CondParameterData", "Key of output (derived) average threshold conditions data"};
 
-  ServiceHandle<ISCT_CablingSvc> m_cablingSvc;//!< Handle on SCT cabling service
+  ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   ServiceHandle<ICondSvc> m_condSvc;
 };
 

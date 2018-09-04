@@ -15,6 +15,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
@@ -22,6 +23,7 @@
 #include "xAODTracking/TrackMeasurementValidation.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -80,6 +82,9 @@ private:
   SG::ReadHandleKey<SCT_RDO_Container>  m_rdoContainer;
   SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer>  m_xAodContainer;
   SG::WriteHandleKey<std::vector<unsigned int> >  m_xAodOffset;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   bool  m_useTruthInfo;
   bool  m_writeRDOinformation;

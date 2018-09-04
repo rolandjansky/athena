@@ -2,42 +2,35 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
-#include "InDetPrepRawData/SiClusterContainer.h"
 #include "TrigOnlineSpacePointTool/SCT_ClusterCacheTool.h"
+
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "InDetIdentifier/SCT_ID.h"
-#include "Identifier/IdentifierHash.h" 
-
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include <string>
-#include <sstream>
-
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
-#include "eformat/SourceIdentifier.h" 
-using eformat::helper::SourceIdentifier;
 #include "ByteStreamData/ROBData.h" 
-#include "SCT_Cabling/ISCT_CablingSvc.h"
-
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-
+#include "eformat/SourceIdentifier.h"
+#include "Identifier/IdentifierHash.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
-
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetPrepRawData/SCT_ClusterCollection.h"
+#include "InDetPrepRawData/SiClusterContainer.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
+
+#include <sstream>
+#include <string>
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+using eformat::helper::SourceIdentifier;
 
 SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type, 
 					    const std::string& name, 
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
     m_clusterContainer(nullptr),
-    m_cablingSvc(nullptr),
     m_indet_mgr(nullptr),
     m_sct_id(nullptr),
     m_offlineDecoder("SCT_RodDecoder",this), 
@@ -84,13 +77,9 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
   m_clusterization.initializeGeometry(m_indet_mgr);
 
   if(m_doBS) {
- 
-    sc=service("SCT_CablingSvc",m_cablingSvc);
-    if(sc.isFailure()) 
-      {
-	ATH_MSG_ERROR( name() << "failed to get CablingSvc");
-	return sc; 
-      }  
+    ATH_CHECK(m_cablingTool.retrieve());
+  } else {
+    m_cablingTool.disable();
   }
   ATH_MSG_INFO("SCT_Cluster_CacheName: " << m_containerName);
   m_clusterContainer = new InDet::SCT_ClusterContainer(m_sct_id->wafer_hash_max());
@@ -359,7 +348,7 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 	  if(!m_useOfflineDecoder)
 	    {
 	      if(m_timers) m_timer[3]->resume();	    
-	      bool processedSomething = m_decoder->fillCollections((*rob_it), rodid, m_cablingSvc, idList, &m_clusterization); 
+	      bool processedSomething = m_decoder->fillCollections((*rob_it), rodid, &*m_cablingTool, idList, &m_clusterization); 
 	      if (processedSomething) m_clusterization.finishHits();        
 	      if(m_timers) m_timer[3]->pause();
 	    }
@@ -425,7 +414,6 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 		{
 		  const InDetRawDataCollection<SCT_RDORawData>* pRdoColl = (*collIt);
 		  const InDet::SCT_ClusterCollection* pColl = m_clusteringTool->clusterize(*pRdoColl,
-											   *m_indet_mgr,
 											   *m_sct_id);
 		  if(pColl!=NULL) 
 		    {

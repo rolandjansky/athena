@@ -43,7 +43,7 @@ atlas_add_library( CaloClusterCorrectionLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES CaloCondBlobObjs CaloConditions CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel CxxUtils AthenaPoolUtilities xAODCaloEvent GaudiKernel LArIdentifier CaloRecLib StoreGateLib SGtests LArToolsLib CaloDetDescrLib CaloUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools CaloGeoHelpers DataModel Identifier EventKernel PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools CaloGeoHelpers Identifier EventKernel PathResolver )
 
 atlas_add_component( CaloClusterCorrection
                      src/components/*.cxx
@@ -54,7 +54,7 @@ atlas_add_test( interpolate_test
                 SOURCES
                 test/interpolate_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloConditions CaloEvent CaloIdentifier CaloRecLib AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests AthenaPoolUtilities xAODCaloEvent GaudiKernel LArIdentifier LArToolsLib TestTools CaloDetDescrLib CaloGeoHelpers CaloUtilsLib DataModel Identifier EventKernel PathResolver CaloClusterCorrectionLib )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloConditions CaloEvent CaloIdentifier CaloRecLib AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests AthenaPoolUtilities xAODCaloEvent GaudiKernel LArIdentifier LArToolsLib TestTools CaloDetDescrLib CaloGeoHelpers CaloUtilsLib Identifier EventKernel PathResolver CaloClusterCorrectionLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

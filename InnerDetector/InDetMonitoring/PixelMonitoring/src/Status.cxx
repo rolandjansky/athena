@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,9 +130,9 @@ StatusCode PixelMainMon::fillStatusMon(void) {
     if (pixlayer == 99) continue;
 
     // check in order of occurrence to reduce number of calls to conditions service
-    if (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true) {
+    if (m_pixelCondSummaryTool->isActive(id_hash) == true && m_pixelCondSummaryTool->isGood(id_hash) == true) {
       Index = 0;
-    } else if (m_pixelCondSummarySvc->isActive(id_hash) == false) {
+    } else if (m_pixelCondSummaryTool->isActive(id_hash) == false) {
       Index = 2;
     } else {
       Index = 1;

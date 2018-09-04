@@ -35,9 +35,9 @@ This is a base class for HLT Hypos to reduce boilerplate and enforce the common 
  private:
   
   /// input decisions, will be implicit (renounced).
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_input { this, "HypoInputDecisions", "HypoInputDecision", "Input Decision (implicit)" };
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_input { this, "HypoInputDecisions", "UNSPECIFIED_INPUT", "Input Decision (implicit)" };
   /// output decisions
-  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_output { this, "HypoOutputDecisions", "HypoOutputDecision", "Ouput Decision" };
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_output { this, "HypoOutputDecisions", "UNSPECIFIED_OUTPUT", "Ouput Decision" };
     
   // for future implementation: ToolHandleArray<ITestHypoTool> m_tools { this, "HypoTools", {}, "Hypo tools" };
 };

@@ -198,35 +198,24 @@ const TString& egammaMVACalibTool::getString(TObject* obj) const
   return objS->GetString();
 }
 
-float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
-				    const xAOD::CaloCluster* clus) const
+float egammaMVACalibTool::getEnergy(const xAOD::CaloCluster& clus, 
+                                    const xAOD::Egamma* eg) const
 {
 
-  ATH_MSG_DEBUG("calling getEnergy with cluster (" << clus << ") and eg (" << eg <<")");
-
-
-  if (!clus && eg) {
-    clus = eg->caloCluster();
-  }
-  if (!clus) {
-    ATH_MSG_FATAL("The cluster pointer must not be null!");
-    throw std::runtime_error("egammaMVACalibTool::getEnergy called with a null cluster");
-    return 0.0;
-  }
+  ATH_MSG_DEBUG("calling getEnergy with cluster index (" << clus.index());
 
   // find the bin of BDT
-
   const auto initEnergy = (m_useLayerCorrected ? 
-			   egammaMVAFunctions::compute_correctedcl_Eacc(*clus) :
-                           egammaMVAFunctions::compute_rawcl_Eacc(*clus));
+			   egammaMVAFunctions::compute_correctedcl_Eacc(clus) :
+                           egammaMVAFunctions::compute_rawcl_Eacc(clus));
   
-  const auto energyVarGeV = (initEnergy / std::cosh(clus->eta())) / CLHEP::GeV;
-  const auto etaVar = std::abs(clus->eta());
+  const auto energyVarGeV = (initEnergy / std::cosh(clus.eta())) / CLHEP::GeV;
+  const auto etaVar = std::abs(clus.eta());
 
   ATH_MSG_DEBUG("Looking at object with initEnergy = " << initEnergy 
 		<< ", energyVarGeV = " <<  energyVarGeV
 		<< ", etaVar = " << etaVar
-		<< ", clus->e() = " << clus->e());
+		<< ", clus->e() = " << clus.e());
 
   const int bin = m_hPoly->FindBin(etaVar, energyVarGeV) - 1; // poly bins are shifted by one
 
@@ -234,12 +223,12 @@ float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
 
   if (bin < 0) {
     ATH_MSG_DEBUG("The bin is under/overflow; just return the energy");
-    return clus->e();
+    return clus.e();
   }
 
   if (bin >= static_cast<int>(m_BDTs.size())) {
     ATH_MSG_WARNING("The bin is outside the range, so just return the energy");
-    return clus->e();
+    return clus.e();
   }
 
   // select the bdt and funcsions. (shifts are done later if needed)
@@ -252,7 +241,7 @@ float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
   std::vector<float> vars(sz);
 
   for (size_t i = 0; i < sz; i++) {
-    vars[i] = funcs[i](eg,clus);
+    vars[i] = funcs[i](eg,&clus);
   }
 
   // evaluate the BDT response
@@ -261,7 +250,7 @@ float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
   // what to do if the MVA response is 0;
   if (mvaOutput == 0.) {
     if (m_clusterEif0) {
-      return clus->e();
+      return clus.e();
     } else {
       return 0.;
     }
@@ -279,7 +268,7 @@ float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
   }
 
   // have to do a shift if here. It's based on the corrected Et in GeV
-  const auto etGeV = (energy / std::cosh(clus->eta())) / CLHEP::GeV;
+  const auto etGeV = (energy / std::cosh(clus.eta())) / CLHEP::GeV;
 
   // evaluate the TFormula associated with the bin
   const auto shift = m_shifts[bin].Eval(etGeV);

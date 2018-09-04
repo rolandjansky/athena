@@ -35,10 +35,6 @@ class SvcLocator;
 class StoreGateSvc;
 class SCT_NeighboursTable;
 
-namespace InDetDD{
-  class PixelDetectorManager;
-}
-
 class IInDetAlignHitQualSelTool; 
 
 namespace Trk {
@@ -107,8 +103,6 @@ namespace InDet
     ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator;
     
     
-    const InDetDD::PixelDetectorManager   *m_Pixel_Manager{};
-
 
 
     ///// Biased Residuals and Pulls

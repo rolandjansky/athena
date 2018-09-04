@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCOMBINEDINDETEXTENSIONALG_H
@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
@@ -38,6 +39,7 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm
   SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_TGC_ContainerName{this,"TGCPrepDataLocation","TGC_Measurements","TGC prep data"};
   SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_sTGC_ContainerName{this,"sTGCPrepDataLocation","sTGC_Clusters","sTGC prep data"};
   SG::ReadHandleKey<Muon::MMPrepDataContainer> m_MM_ContainerName{this,"MMPrepDataLocation","MM_Clusters","MM prep data"};
+  SG::WriteHandleKey<MuonCombined::InDetCandidateToTagMap> m_tagMap{this,"TagMap","muGirlTagMap","tag map"};
   bool m_usePRDs;
   bool m_useNSW;
 };

@@ -99,6 +99,8 @@ StatusCode InDetAlignFillSiCluster::initialize() {
   
   bookNtuple();
 
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initialize() of FillSiCluster successful" << endmsg;
   return StatusCode::SUCCESS;
 }

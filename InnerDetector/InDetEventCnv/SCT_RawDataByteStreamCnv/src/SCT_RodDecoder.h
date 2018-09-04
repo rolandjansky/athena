@@ -18,17 +18,18 @@
 #include "Identifier/IdContext.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //STL
 #include <string>
 #include <cstdint>
 
-class ISCT_CablingSvc;
 class SCT_ID;
 
 //using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
@@ -89,7 +90,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip, InDetBSErrContainer* errs);
   const SCT_ID* m_sct_id;
   IdContext m_cntx_sct;
-  ServiceHandle<ISCT_CablingSvc> m_cabling;
+  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   ToolHandle<ISCT_ConfigurationConditionsTool> m_configTool{this, "ConfigTool",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};

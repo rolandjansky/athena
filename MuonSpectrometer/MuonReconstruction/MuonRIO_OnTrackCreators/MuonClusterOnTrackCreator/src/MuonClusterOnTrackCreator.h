@@ -86,9 +86,6 @@ namespace Muon {
     // /////////////////////////////////////////////////////////////////
 
     ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
-    bool                                 m_scaleCscCov;
-    bool                                 m_scaleRpcCov;
-    bool                                 m_scaleTgcCov;
 
     bool                                 m_doCsc;
     bool                                 m_doRpc;

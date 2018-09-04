@@ -152,10 +152,15 @@ L1UnpackingSeq = parOR("L1UnpackingSeq")
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
 l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
 l1Decoder.prescaler.EventInfo=""
+l1Decoder.ChainToCTPMapping = {'HLT_mu20'     : 'L1_MU8', 
+                               'HLT_mu81step' : 'L1_MU8', 
+                               'HLT_mu8'      : 'L1_MU8', 
+                               'HLT_e20'      : 'L1_EM12', 
+                               'HLT_e8'       : 'L1_EM7', 
+                               'HLT_mu8_e8'   : 'L1_EM3_MU6'}
 l1Decoder.Chains="HLTChainsResult"
 
 ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=False , InputFilename="ctp.dat" )
-ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
 l1Decoder.ctpUnpacker = ctpUnpacker
 
 emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG, InputFilename="l1emroi.dat", OutputTrigRoIs="L1EMRoIs", Decisions="L1EM" )

@@ -42,9 +42,9 @@ CscRdoToCscPrepDataTool::CscRdoToCscPrepDataTool
   : AthAlgTool(type, name, parent),
     m_muonMgr(0),
     m_cscHelper(0),
-    m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
-    m_cscCalibTool( "CscCalibTool/CscCalibTool"),
-    m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder"),
+    m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool", this),
+    m_cscCalibTool( "CscCalibTool/CscCalibTool", this),
+    m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder", this),
     m_cabling( "CSCcablingSvc" ,name),
     m_fullEventDone(false) {
 

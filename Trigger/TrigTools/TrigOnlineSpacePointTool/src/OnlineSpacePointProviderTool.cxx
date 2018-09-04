@@ -22,7 +22,6 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 // SpacePoint creation
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"

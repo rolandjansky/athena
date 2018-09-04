@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/xAOD/xAODTracking
                           InnerDetector/InDetConditions/PixelConditionsServices
+                          InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/InDetCondServices
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier

@@ -37,7 +37,6 @@ using namespace SCT_Parameters;
 SCT_ReadoutTool::SCT_ReadoutTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
   m_sctId{nullptr},
-  m_cablingSvc{"SCT_CablingSvc", name},
   m_chips{},
   m_chipMap{},
   m_linkActive{},
@@ -53,7 +52,7 @@ SCT_ReadoutTool::SCT_ReadoutTool(const std::string& type, const std::string& nam
 StatusCode SCT_ReadoutTool::initialize() {
   ATH_MSG_DEBUG("Initialize SCT_ReadoutTool");
   // Retrieve cabling
-  ATH_CHECK(m_cablingSvc.retrieve());
+  ATH_CHECK(m_cablingTool.retrieve());
   // Retrieve SCT helper
   ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
   return StatusCode::SUCCESS;
@@ -145,7 +144,7 @@ StatusCode SCT_ReadoutTool::determineReadout(const int truncatedSerialNumber, st
   // Determine which chips are in the module readout from truncated serial number
   
   // Get moduleId
-  const IdentifierHash& hash{m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber)};
+  const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
   if (not hash.is_valid()) return StatusCode::SUCCESS;
   Identifier moduleId{m_sctId->module_id(m_sctId->wafer_id(hash))};
 

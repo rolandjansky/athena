@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iomanip>
@@ -51,6 +51,7 @@
 #include "MuonCombinedEvent/TagBase.h"
 #include "MuonCombinedEvent/CaloTag.h"
 #include "MuonCombinedEvent/SegmentTag.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 
 // offline reco tools
 #include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
@@ -204,7 +205,9 @@ void TrigMuSuperEF::clearRoiCache(){
   if(m_doOutsideIn && !m_combinerOnly){
     m_TrigMuonEF_saTrackTool->clearRoiCache();
   }
- 
+
+  for(auto tMap : m_tagMaps) delete tMap;
+  m_tagMaps.clear(); 
 }
 
 HLT::ErrorCode 
@@ -498,7 +501,8 @@ TrigMuSuperEF::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElemen
   //
   // prepare for execute
   //
-
+  for(auto tMap : m_tagMaps) delete tMap;
+  m_tagMaps.clear();
   auto muonContainerOwn = CxxUtils::make_unique<xAOD::MuonContainer>();
   m_muonContainer = muonContainerOwn.get();
   xAOD::MuonAuxContainer muonAuxContainer;
@@ -759,7 +763,9 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
   }
     
   //Do calotagging
-  m_caloTagTool->extend(inDetCandidates, caloCellContainer, caloClusterContainer);
+  MuonCombined::InDetCandidateToTagMap* caloTagMap=new MuonCombined::InDetCandidateToTagMap();
+  m_tagMaps.push_back(caloTagMap);
+  m_caloTagTool->extend(inDetCandidates, caloTagMap, caloCellContainer, caloClusterContainer);
 
   ATH_MSG_DEBUG("Finished CaloTag");
 
@@ -769,7 +775,7 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
 
   for (auto idCandidate : inDetCandidates) {
     // Get calotag and select tracks with successful tag
-    const MuonCombined::CaloTag* calotag = dynamic_cast<const MuonCombined::CaloTag*>(idCandidate->lastCombinedDataTag());
+    const MuonCombined::CaloTag* calotag = dynamic_cast<const MuonCombined::CaloTag*>(caloTagMap->getTag(idCandidate));
         
     if (calotag == nullptr) {
       ATH_MSG_DEBUG("CaloTag was not attached to InDetCandidate");
@@ -777,7 +783,13 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
     }
 
     MuonCombined::IMuonCreatorTool::OutputData output(*muonContainerOwn);
-    m_muonCreatorTool->create( *idCandidate, output);
+    std::vector<const MuonCombined::TagBase*> tags;
+    for(auto tmap : m_tagMaps){
+      const MuonCombined::TagBase* tag=tmap->getTag(idCandidate);
+      if(tag) tags.push_back(tag);
+    }
+    MuonCombined::InDetCandidateTags idCandTags(idCandidate,tags);
+    m_muonCreatorTool->create(idCandTags, output);
 
     //attach to output container
     ATH_MSG_DEBUG("Attaching TrackParticle to TE");
@@ -1031,7 +1043,9 @@ HLT::ErrorCode TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputT
       ATH_MSG_DEBUG( "Executing extend()" );
       ++m_counter_TrigMuGirl.total;
       hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_SATimers);
-      m_muGirlTool->extend(inDetCandidates);
+      MuonCombined::InDetCandidateToTagMap* mugirlTagMap=new MuonCombined::InDetCandidateToTagMap();
+      m_tagMaps.push_back(mugirlTagMap);
+      m_muGirlTool->extend(inDetCandidates,mugirlTagMap);
       ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
 
       if(m_doOutsideIn) {
@@ -1162,11 +1176,13 @@ HLT::ErrorCode TrigMuSuperEF::buildSegmentTaggedTracks(InDetCandidateCollection&
       }
     }
   }
-  m_muonSegmentTagTool->tag(inDetCandidates, segments, nullptr);
+  MuonCombined::InDetCandidateToTagMap* segmentTagMap=new MuonCombined::InDetCandidateToTagMap();
+  m_tagMaps.push_back(segmentTagMap);
+  m_muonSegmentTagTool->tag(inDetCandidates, segments, nullptr, segmentTagMap);
 
   for(auto candidate : inDetCandidates) {
-    std::vector<const MuonCombined::TagBase*> tags = candidate->combinedDataTags();
-    for(auto tag : tags) {
+    const MuonCombined::TagBase* tag=segmentTagMap->getTag(candidate);
+    if(tag){
       if( tag->type() == xAOD::Muon::SegmentTagged )
 	return HLT::OK;
     }
@@ -1180,6 +1196,11 @@ HLT::ErrorCode TrigMuSuperEF::buildCombinedTracks(const MuonCandidateCollection*
 						  TrigMuonEFCBMonVars& ,
 						  std::vector<TrigTimer*>& timers) {
 
+  MuonCombined::InDetCandidateToTagMap* muidcoTagMap=new MuonCombined::InDetCandidateToTagMap();
+  std::vector<MuonCombined::InDetCandidateToTagMap*> combinedTagMaps;
+  combinedTagMaps.push_back(muidcoTagMap);
+  m_tagMaps.push_back(muidcoTagMap);
+
   TrigTimer* trackFinderTime  = 0;
   TrigTimer* dataOutputTime = 0;
   if ( timers.size() >= 1 ) trackFinderTime = timers[0];
@@ -1190,19 +1211,11 @@ HLT::ErrorCode TrigMuSuperEF::buildCombinedTracks(const MuonCandidateCollection*
   // call the combiner
   ATH_MSG_DEBUG("Call  m_muonCombinedTool->combine, n(muon cand)=" << muonCandidates->size() << " n(ID cand)=" << inDetCandidates.size());
 
-  if(muonCandidates) m_muonCombinedTool->combine( *muonCandidates,  inDetCandidates ) ;
+  if(muonCandidates) m_muonCombinedTool->combine( *muonCandidates,  inDetCandidates, combinedTagMaps ) ;
 
   if(trackFinderTime) trackFinderTime->stop();
   if(dataOutputTime) dataOutputTime->start();
-  for(auto candidate : inDetCandidates) {
-    std::vector<const MuonCombined::TagBase*> tags = candidate->combinedDataTags();
-    for(auto tag : tags) {
-      if( tag->type() == xAOD::Muon::Combined ){
-	if(dataOutputTime) dataOutputTime->stop();
-	return HLT::OK; // found combined muon
-      }
-    }
-  }
+  if(muidcoTagMap->size()>0) return HLT::OK; //found combined muon
 
   if(dataOutputTime) dataOutputTime->stop();
   return HLT::MISSING_FEATURE; // if we got to here - no combined muon found
@@ -1333,8 +1346,16 @@ HLT::ErrorCode TrigMuSuperEF::buildMuons(const MuonCandidateCollection* muonCand
   output.extrapolatedTrackParticleContainer = extrapolatedTrackParticles;
   output.extrapolatedTrackCollection = extrapolatedTracks;
 
-  m_muonCreatorTool->create( muonCandidates, inDetCandidates, output);
-  if( m_doInsideOut ) m_stauCreatorTool->create( 0, inDetCandidates, output);
+  std::vector<const MuonCombined::InDetCandidateToTagMap*> tagMaps;
+  for(auto tmap : m_tagMaps){
+    const MuonCombined::InDetCandidateToTagMap* ctmap=new MuonCombined::InDetCandidateToTagMap(*tmap);
+    tagMaps.push_back(ctmap);
+  }
+
+  m_muonCreatorTool->create( muonCandidates, inDetCandidates, tagMaps, output);
+  if( m_doInsideOut ) m_stauCreatorTool->create( 0, inDetCandidates, tagMaps, output);
+
+  tagMaps.clear();
 
   ATH_MSG_DEBUG("N(input SA) = " << muonCandidates->size() << " N(SA from muon creator tool) = " << extrapolatedTracks->size());
 
@@ -1899,7 +1920,9 @@ HLT::ErrorCode TrigMuSuperEF::rebuildCache(const IRoiDescriptor* muonRoI, HLT::T
     ATH_MSG_DEBUG( "Executing extend()" );
     ++m_counter_TrigMuGirl.total;
     hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_SATimers);
-    m_muGirlTool->extend(*inDetCandidates);
+    MuonCombined::InDetCandidateToTagMap* mugirlTagMap=new MuonCombined::InDetCandidateToTagMap();
+    m_tagMaps.push_back(mugirlTagMap);
+    m_muGirlTool->extend(*inDetCandidates,mugirlTagMap);
     ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
 
     if(m_doOutsideIn) {
@@ -1949,7 +1972,9 @@ void TrigMuSuperEF::runMuGirl(const ElementLinkVector<xAOD::TrackParticleContain
   buildInDetCandidates(elv_xaodidtrks, inDetCandidates);
   ATH_MSG_DEBUG( "Executing extend()" );
   ++m_counter_TrigMuGirl.total;
-  m_muGirlTool->extend(*inDetCandidates);
+  MuonCombined::InDetCandidateToTagMap* mugirlTagMap=new MuonCombined::InDetCandidateToTagMap();
+  m_tagMaps.push_back(mugirlTagMap);
+  m_muGirlTool->extend(*inDetCandidates,mugirlTagMap);
   ++m_counter_TrigMuGirl.pass;//@todo fix this counter
 }
 

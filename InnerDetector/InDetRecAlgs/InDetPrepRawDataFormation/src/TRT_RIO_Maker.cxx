@@ -115,10 +115,11 @@ namespace InDet {
 		     << listOfTRTIds.size() << " det. Elements" );
 #endif   
          for(auto &id : listOfTRTIds){
-            InDet::TRT_DriftCircleContainer::IDC_WriteHandle lock = rioContainer->getWriteHandle(id);
-            if( lock.alreadyPresent() ) continue;
             const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection (rdoContainer->indexFindPtr(id));
             if (!RDO_Collection) continue;
+            InDet::TRT_DriftCircleContainer::IDC_WriteHandle lock = rioContainer->getWriteHandle(id);
+            if( lock.alreadyPresent() ) continue;
+
             // Use one of the specific clustering AlgTools to make clusters
             std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
                 RDO_Collection , m_trtBadChannels));    
@@ -133,6 +134,7 @@ namespace InDet {
          }
       }
     }
+    ATH_MSG_DEBUG("rioContainer->numberOfCollections() " <<  rioContainer->numberOfCollections());
     ATH_CHECK(rioContainer.setConst());
     return StatusCode::SUCCESS;
   }

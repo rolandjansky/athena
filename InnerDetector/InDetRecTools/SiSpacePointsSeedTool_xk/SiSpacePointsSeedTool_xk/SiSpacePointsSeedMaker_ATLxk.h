@@ -123,7 +123,7 @@ namespace InDet {
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle ;
       MagField::IMagFieldSvc*                m_fieldService{}       ;
         
-      IBeamCondSvc* p_beam                                        ;
+      IBeamCondSvc*               p_beam {}                         ;
       bool                        m_pixel{}                         ;
       bool                        m_sct{}                           ;
       bool                        m_endlist{}                       ;
@@ -210,7 +210,7 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
      
       int    m_maxsizeSP{}                                          ;                    
-      InDet::SiSpacePointForSeed** m_SP                           ;
+      InDet::SiSpacePointForSeed** m_SP{}                           ;
       float               *  m_Zo{}                                 ; 
       float               *  m_Tz{}                                 ;
       float               *  m_R{}                                  ;

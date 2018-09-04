@@ -16,7 +16,9 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "InDetTruthInterfaces/IPRD_MultiTruthBuilder.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
@@ -45,6 +47,9 @@ private:
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNamePixel;
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameSCT;
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameTRT;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   ToolHandle<InDet::IPRD_MultiTruthBuilder> m_PRDTruthTool;
 

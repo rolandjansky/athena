@@ -16,7 +16,6 @@ ATLAS Collaboration
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h" 
 
@@ -56,7 +55,6 @@ namespace InDet{
     m_selectPixels(true),
     m_selectSCTs(true),
     m_overlap(false),
-    m_managerSCT(nullptr),
     m_SpacePointContainerSCT(0),
     m_SpacePointContainerPixel(0),
     m_spOverlapColl(0),
@@ -173,12 +171,6 @@ namespace InDet{
       ATH_MSG_FATAL( "Cannot retrieve SCT ID helper!" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
-    // SCT detector manager
-    sc = detStore()->retrieve(m_managerSCT, "SCT");
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL( "Cannot retrieve SCT detector manager!" );
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    }
 
     // register the IdentifiableContainer into StoreGate
     // ------------------------------------------------------
@@ -443,9 +435,6 @@ namespace InDet{
       if (elements==nullptr) {
         ATH_MSG_FATAL("Pointer of SiDetectorElementCollection (" << m_SCTDetEleCollKey.fullKey() << ") could not be retrieved");
         return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-      }
-      if (m_useDetectorManager) {
-        elements = m_managerSCT->getDetectorElementCollection();
       }
       SG::ReadCondHandle<SiElementPropertiesTable> sctProperties(m_SCTPropertiesKey);
       const SiElementPropertiesTable* properties(sctProperties.retrieve());

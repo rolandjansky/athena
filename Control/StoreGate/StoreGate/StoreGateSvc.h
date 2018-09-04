@@ -932,10 +932,6 @@ private:
   ///throw away bad objects
   void emptyTrash();                   
   
-  ///name says it all
-  bool bindHandleToProxy(const CLID& id, const std::string& key,
-                         IResetable* ir, SG::DataProxy*& dp);
-
   /// remove proxy from store, unless it is reset only.         
   /// provide pTrans!=0 (must match proxy...) to save time
   /// @param forceRemove remove the proxy no matter what
@@ -964,10 +960,6 @@ private:
 
   bool m_DumpStore; ///<  property Dump: triggers dump() at EndEvent 
   bool m_ActivateHistory; ///< property: activate the history service
-
-  ///get the IOVSvc "just in time" (breaks recursion at initialize)
-  IIOVSvc* getIIOVSvc();
-  IIOVSvc* m_pIOVSvc;
 
   /// Cache store type in the facade class.
   StoreID::type m_storeID;

@@ -4,6 +4,8 @@
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaMonitoring/MonitoredScope.h"
+#include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfL1Data/TriggerItem.h"
 #include "CTPUnpackingTool.h"
 
 using namespace HLT;
@@ -12,22 +14,42 @@ using namespace HLT;
 CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
                                     const std::string& name, 
                                     const IInterface* parent ) 
-  : CTPUnpackingToolBase(type, name, parent) 
-{
+  : CTPUnpackingToolBase(type, name, parent),
+    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ) {
 }
 
 
 StatusCode CTPUnpackingTool::initialize() 
 {   
+  CHECK( m_configSvc.retrieve() );
+
   CHECK( CTPUnpackingToolBase::initialize() );
-  CHECK( decodeCTPToChainMapping() ); 
-  if ( m_ctpToChain.empty() ) {
-    ATH_MSG_WARNING( "Empty CTP to chains mapping: " << m_ctpToChainProperty );
-  } 
-  for ( auto m: m_ctpToChain ) {
-    ATH_MSG_INFO( "Mapping of CTP bit: " << m.first << " to chains " << m.second );
-  }
+  
   return StatusCode::SUCCESS;
+}
+
+
+StatusCode CTPUnpackingTool::updateConfiguration( const std::map<std::string, std::string>& seeding )  {
+  ATH_MSG_DEBUG( "Updating CTP configuration with " << seeding.size() << " seeding mapping");
+  // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
+  std::map<std::string, size_t> toCTPID;
+  for ( const TrigConf::TriggerItem* item:   m_configSvc->ctpConfig()->menu().itemVector() ) {
+    toCTPID[item->name()] = item->ctpId();
+  }
+  
+  for ( auto seedingHLTtoL1: seeding ) {
+    ATH_MSG_DEBUG( "Seeding " << seedingHLTtoL1.first << " " << seedingHLTtoL1.second );
+    CHECK( toCTPID.find( seedingHLTtoL1.second ) != toCTPID.end() ); 
+    size_t l1ItemID = toCTPID [ seedingHLTtoL1.second ];
+    m_ctpToChain[ l1ItemID ].push_back( HLT::Identifier( seedingHLTtoL1.first ) ); 
+  }
+  for ( auto ctpIDtoChain: m_ctpToChain ) {
+    for ( auto chain: ctpIDtoChain.second ) {
+      ATH_MSG_DEBUG( "CTP seed of " << ctpIDtoChain.first << " enables chains " << chain );
+    }
+  }
+    
+  return StatusCode::SUCCESS;  
 }
 
 
@@ -47,7 +69,8 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
       if ( decision == true or m_forceEnable ) {
 	if ( decision ) {
 	  nTAVItems = nTAVItems + 1;	  
-	  ATH_MSG_DEBUG( "L1 item " << ctpIndex << " active, enabling chains");
+	  ATH_MSG_DEBUG( "L1 item " << ctpIndex << " active, enabling chains " 
+			 << (m_forceEnable ? " due to the forceEnable flag" : " due to the seed"));
 	}
 
 	auto itr = m_ctpToChain.find( ctpIndex );

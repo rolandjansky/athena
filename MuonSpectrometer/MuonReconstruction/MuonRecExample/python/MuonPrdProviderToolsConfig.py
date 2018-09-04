@@ -45,7 +45,7 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
   
   # If we run trigger from BS, then the RDO to PRD tools need to automatically run BS to RDO tools
   kwargs.setdefault("useBStoRdoTool", DetFlags.readRDOBS.MDT_on() and recAlgs.doTrigger())
-  kwargs.setdefault("RawDataProviderTool", "MdtRawDataProviderTool")
+  #kwargs.setdefault("RawDataProviderTool", "MdtRawDataProviderTool")
 ### TODO: in C++ do not retrieve tool if useBStoRdoTool==False
 ##  if not kwargs["useBStoRdoTool"]:
 ##    kwargs["RawDataProviderTool"] = None # empty tool
@@ -63,7 +63,7 @@ def TgcPrepDataProviderTool(name="TgcPrepDataProviderTool", **kwargs):
 
   # If we run trigger from BS, then the RDO to PRD tools need to automatically run BS to RDO tools
   kwargs.setdefault("useBStoRdoTool", DetFlags.readRDOBS.TGC_on() and recAlgs.doTrigger())
-  kwargs.setdefault("RawDataProviderTool", "TgcRawDataProviderTool")
+  #kwargs.setdefault("RawDataProviderTool", "TgcRawDataProviderTool")
 ### TODO: in C++ do not retrieve tool if useBStoRdoTool==False
 ##  if not kwargs["useBStoRdoTool"]:
 ##    kwargs["RawDataProviderTool"] = None # empty tool
@@ -78,7 +78,7 @@ def CscPrepDataProviderTool(name="CscPrepDataProviderTool", **kwargs):
 
   # If we run trigger from BS, then the RDO to PRD tools need to automatically run BS to RDO tools
   kwargs.setdefault("useBStoRdoTool", DetFlags.readRDOBS.CSC_on() and recAlgs.doTrigger())
-  kwargs.setdefault("RawDataProviderTool", "CscRawDataProviderTool")
+  #kwargs.setdefault("RawDataProviderTool", "CscRawDataProviderTool")
 ### TODO: in C++ do not retrieve tool if useBStoRdoTool==False
 ##  if not kwargs["useBStoRdoTool"]:
 ##    kwargs["RawDataProviderTool"] = None # empty tool
@@ -94,7 +94,7 @@ def CscPrepDataProviderTool(name="CscPrepDataProviderTool", **kwargs):
 
 def CscRdoToCscPrepData(name="CscRdoToCscPrepData", **kwargs):
   # TODO: in C++ change default tool to the one set below. Then this whole function can be removed
-  kwargs.setdefault("CscRdoToCscPrepDataTool", "CscPrepDataProviderTool")
+  # kwargs.setdefault("CscRdoToCscPrepDataTool", "CscPrepDataProviderTool")
 
   from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData as Muon__CscRdoToCscPrepData
   return Muon__CscRdoToCscPrepData(name, **kwargs)
@@ -105,14 +105,14 @@ def CscRdoToCscPrepData(name="CscRdoToCscPrepData", **kwargs):
 ### TODO: remove following backwards compat as soon as all clients have migrated to using CfgGetter
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
 
-if DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on():
-  CscRdoToPrepDataTool = getPublicTool("CscPrepDataProviderTool")
+#if DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on():
+#  CscRdoToPrepDataTool = getPublicTool("CscPrepDataProviderTool")
 
-if DetFlags.haveRDO.MDT_on() or DetFlags.digitize.MDT_on():
-  MdtRdoToPrepDataTool = getPublicTool("MdtPrepDataProviderTool")
+#if DetFlags.haveRDO.MDT_on() or DetFlags.digitize.MDT_on():
+#  MdtRdoToPrepDataTool = getPublicTool("MdtPrepDataProviderTool")
 
-if DetFlags.haveRDO.RPC_on() or DetFlags.digitize.RPC_on():
-  RpcRdoToPrepDataTool = getPublicTool("RpcPrepDataProviderTool")
+#if DetFlags.haveRDO.RPC_on() or DetFlags.digitize.RPC_on():
+#  RpcRdoToPrepDataTool = getPublicTool("RpcPrepDataProviderTool")
 
-if DetFlags.haveRDO.TGC_on() or DetFlags.digitize.TGC_on():
-  TgcRdoToPrepDataTool = getPublicTool("TgcPrepDataProviderTool")
+#if DetFlags.haveRDO.TGC_on() or DetFlags.digitize.TGC_on():
+#  TgcRdoToPrepDataTool = getPublicTool("TgcPrepDataProviderTool")

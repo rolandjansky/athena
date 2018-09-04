@@ -48,7 +48,9 @@ class ComponentAccumulator(object):
     def __del__(self):
         if not self._wasMerged and not self.empty():
             #raise ConfigurationError("This componentAccumulator was never merged!")
-            print "ERROR, this componentAccumulator was never merged!"
+            log = logging.getLogger("ComponentAccumulator")
+            log.error("The ComponentAccumulator listed below was never merged!")
+            self.printConfig()
         pass
     
 
@@ -494,7 +496,8 @@ class ComponentAccumulator(object):
             for alg in algoList:
                 self.appendConfigurable( alg )
                 evtalgseq.append( alg.getFullName() )
-                
+
+
         for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
             self._jocat[seqName]["Members"]=str( [alg.getFullName() for alg in algoList] )
 
@@ -559,110 +562,159 @@ def CAtoGlobalWrapper(cfgmethod,flags):
 
 
 # self test            
-if __name__ == "__main__":
+import unittest
+
+class TestComponentAccumulator( unittest.TestCase ):
+    def setUp(self):
     
-    Configurable.configurableRun3Behavior+=1
-    # trivial case without any nested sequences
-    from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
-    from AthenaCommon.CFElements import seqAND, seqOR, parOR
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
+        Configurable.configurableRun3Behavior+=1
+        # trivial case without any nested sequences
+        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
+        from AthenaCommon.CFElements import seqAND, parOR
+        from AthenaCommon.Logging import log
+        from AthenaCommon.Constants import DEBUG
 
-    log.setLevel(DEBUG)
+        log.setLevel(DEBUG)
+        
+        dummyCfgFlags=AthConfigFlags()
+        dummyCfgFlags.lock()
+        
+        class Algo(ConfigurablePyAlgorithm):
+            def __init__(self, name):
+                super( ConfigurablePyAlgorithm, self ).__init__( name )
 
-    dummyCfgFlags=AthConfigFlags()
-    dummyCfgFlags.lock()
+        def AlgsConf1(flags):
+            acc = ComponentAccumulator()
+            a1=Algo("Algo1")
+            a2=Algo("Algo2")
+            return acc,[a1,a2]
 
-    class Algo(ConfigurablePyAlgorithm):
-        def __init__(self, name):
-            super( ConfigurablePyAlgorithm, self ).__init__( name )
 
-    def AlgsConf1(flags):
+        def AlgsConf2(flags):
+            acc = ComponentAccumulator()
+            result,algs=AlgsConf1( flags )
+            acc.merge(result)
+            algs.append(Algo("Algo3"))
+            return acc,algs
+
         acc = ComponentAccumulator()
-        a1=Algo("Algo1")
-        a2=Algo("Algo2")
-        return acc,[a1,a2]
+    
+        # top level algs
+        acc1,algs=AlgsConf2(dummyCfgFlags)
+        acc.merge(acc1)
+        acc.addEventAlgo(algs)
 
-    def AlgsConf2(flags):
+        def AlgsConf3(flags):
+            acc = ComponentAccumulator()
+            na1=Algo("NestedAlgo1") 
+            return acc,na1
+
+        def AlgsConf4(flags):
+            acc,na1= AlgsConf3( flags )
+            NestedAlgo2 = Algo("NestedAlgo2")
+            NestedAlgo2.OutputLevel=7
+            return acc,na1,NestedAlgo2
+
+        acc.addSequence( seqAND("Nest") )
+        acc.addSequence( seqAND("subSequence1"), parentName="Nest" )
+        acc.addSequence( parOR("subSequence2"), parentName="Nest" )
+
+        acc.addSequence( seqAND("sub2Sequence1"), parentName="subSequence1")
+        acc.addSequence( seqAND("sub3Sequence1"), parentName="subSequence1")
+        acc.addSequence( seqAND("sub4Sequence1"), parentName="subSequence1")
+
+        accNA1=AlgsConf4(dummyCfgFlags)
+        acc.merge(accNA1[0])
+        acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
+        acc.store(open("testFile.pkl", "w"))
+        self.acc = acc 
+
+
+    def test_algorihmsAreAdded( self ):
+        self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo1", 1).name(), "Algo1", "Algorithm not added to a top sequence" )
+        self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo2", 1).name(),  "Algo2", "Algorithm not added to a top sequence" )
+        self.assertEqual( findAlgorithm( self.acc.getSequence(), "Algo3", 1).name(), "Algo3", "Algorithm not added to a top sequence" )
+
+    def test_sequencesAreAdded( self ):    
+        self.assertIsNotNone( self.acc.getSequence("subSequence1" ), "Adding sub-sequence failed" )
+        self.assertIsNotNone( self.acc.getSequence("subSequence2" ), "Adding sub-sequence failed" )
+        self.assertIsNotNone( self.acc.getSequence("sub2Sequence1"), "Adding sub-sequence failed" )
+        self.assertIsNotNone( findSubSequence( self.acc.getSequence("subSequence1"), "sub2Sequence1"), "Adding sub-sequence done in a wrong place" )
+
+    def test_algorithmsInNestedSequences( self ):
+        self.assertIsNotNone( findAlgorithm( self.acc.getSequence(), "NestedAlgo1" ), "Algorithm added to nested sequence" )
+        self.assertIsNotNone( findAlgorithm( self.acc.getSequence(), "NestedAlgo1", 1 ) is None, "Algorithm mistakenly in top sequence" )
+        self.assertIsNotNone( findAlgorithm( findSubSequence( self.acc.getSequence(), "sub2Sequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence" )
+
+
+    def test_readBackConfiguration( self ):
+        import pickle
+        with open( "testFile.pkl" ) as f:
+            s = pickle.load( f )
+            self.assertIsNotNone( s, "The pickle has no content")
+
+class TestHLTCF( unittest.TestCase ):
+    def runTest( self ):
+        # replicate HLT issue, it occured because the sequnces were recorded in the order of storing in the dict and thus the 
+        # some of them (in this case hltSteps) did not have properties recorded 
+        from AthenaCommon.CFElements import seqAND, seqOR, parOR
+        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
+        Configurable.configurableRun3Behavior=1
         acc = ComponentAccumulator()
-        result,algs=AlgsConf1( flags )
-        acc.merge(result)
-        algs.append(Algo("Algo3"))
-        return acc,algs
+        acc.addSequence( seqOR("hltTop") )
+        algos2 = ConfigurablePyAlgorithm( "RecoAlgInTop" )
+        acc.addEventAlgo( algos2, sequenceName="hltTop" ) # some algo
+        acc.addSequence( seqAND("hltSteps"), parentName="hltTop" )
+        acc.addSequence( parOR("hltStep_1"), parentName="hltSteps" )
+        acc.addSequence( seqAND("L2CaloEgammaSeq"), "hltStep_1" )
+        acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
+        acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
+        
+        acc.store(open("testFile2.pkl", "w"))
+        import pickle
+        f = open("testFile2.pkl")
+        s = pickle.load(f)
+        f.close()
+        self.assertNotEqual( s['hltSteps']['Members'], '[]', "Empty set of members in hltSteps, Sequences recording order metters" )
 
-    acc = ComponentAccumulator()
-    
-    # top level algs
-    acc1,algs=AlgsConf2(dummyCfgFlags)
-    acc.merge(acc1)
-    acc.addEventAlgo(algs)
-    # checks
-    assert findAlgorithm(acc.getSequence(), "Algo1", 1), "Algorithm not added to a top sequence"
-    assert findAlgorithm(acc.getSequence(), "Algo2", 1), "Algorithm not added to a top sequence"
-    assert findAlgorithm(acc.getSequence(), "Algo3", 1), "Algorithm not added to a top sequence"
-    print( "Simple Configuration construction OK ")
 
-    def AlgsConf3(flags):
-        acc = ComponentAccumulator()
-        na1=Algo("NestedAlgo1") 
-        return acc,na1
+class MultipleParrentsInSequences( unittest.TestCase ):
+    def runTest( self ):
+       # test if an algorithm (or sequence) can be controlled by more than one sequence
+        Configurable.configurableRun3Behavior=1
+        from AthenaCommon.CFElements import seqAND
+        from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
+        accTop = ComponentAccumulator()
+                
+        recoSeq = seqAND("seqReco")
+        recoAlg = ConfigurablePyAlgorithm( "recoAlg" )
+        recoSeq += recoAlg
+        
+        acc1 = ComponentAccumulator()
+        acc1.addSequence( seqAND("seq1") )
+        acc1.addSequence( recoSeq, parentName="seq1" )
+        
+        acc2 = ComponentAccumulator()
+        acc2.addSequence( seqAND("seq2") )
+        acc2.addSequence( recoSeq, parentName="seq2" )
+        
+        accTop.merge( acc1 )
+        accTop.merge( acc2 )
+                
+        accTop.printConfig()
 
-    def AlgsConf4(flags):
-        acc,na1= AlgsConf3( flags )
-        NestedAlgo2 = Algo("NestedAlgo2")
-        NestedAlgo2.OutputLevel=7
-        return acc,na1,NestedAlgo2
+        self.assertIsNotNone( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), "Algorithm missing in the first sequence" )
+        self.assertIsNotNone( findAlgorithm( accTop.getSequence( "seq2" ), "recoAlg" ), "Algorithm missing in the second sequence" )
+        s = accTop.getSequence( "seqReco" )
+        self.assertEqual( len( s.getChildren() ), 1, "Wrong number of algorithms in reco seq: %d " % len( s.getChildren() ) )
+        self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), findAlgorithm( accTop.getSequence( "seq2" ), "recoAlg" ), "Algorithms are cloned" )
+        self.assertIs( findAlgorithm( accTop.getSequence( "seq1" ), "recoAlg" ), recoAlg, "Clone of the original inserted in sequence" )
 
-    acc.addSequence( seqAND("Nest") )
-    acc.addSequence( seqAND("subSequence1"), parentName="Nest" )
-    acc.addSequence( parOR("subSequence2"), parentName="Nest" )
-
-    
-    assert acc.getSequence("subSequence1" ), "Adding sub-sequence failed"
-    assert acc.getSequence("subSequence2" ), "Adding sub-sequence failed"
-
-    acc.addSequence( seqAND("sub2Sequence1"), parentName="subSequence1")
-    acc.addSequence( seqAND("sub3Sequence1"), parentName="subSequence1")
-    acc.addSequence( seqAND("sub4Sequence1"), parentName="subSequence1")
-    assert acc.getSequence("sub2Sequence1"), "Adding sub-sequence failed"
-    assert findSubSequence(acc.getSequence("subSequence1"), "sub2Sequence1"), "Adding sub-sequence done in a wrong place"
-
-    accNA1=AlgsConf4(dummyCfgFlags)
-    acc.merge(accNA1[0])
-    acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
-
-    assert findAlgorithm(acc.getSequence(), "NestedAlgo1" ), "Algorithm added to nested sequence"
-    assert findAlgorithm(acc.getSequence(), "NestedAlgo1", 1 ) is None, "Algorithm mistakenly in top sequence"
-    assert findAlgorithm( findSubSequence(acc.getSequence(), "sub2Sequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence"
-    print( "Complex sequences construction also OK ")
-
-    #acc.printConfig(True)
-    acc.printConfig()
-
-    # try recording
-    acc.store(open("testFile.pkl", "w"))
-    f = open("testFile.pkl")
-    import pickle
-
-    # replicate HLT issue, it occured because the sequnces were recorded in the order of storing in the dict and thus the 
-    # some of them (in this case hltSteps) did not have properties recorded 
-    acc = ComponentAccumulator()
-    acc.addSequence( seqOR("hltTop") )
-    acc2,algos2=AlgsConf2(dummyCfgFlags)
-    acc.merge(acc2)
-    acc.addEventAlgo(algos2,sequenceName="hltTop") # some algo
-    acc.addSequence( seqAND("hltSteps"), parentName="hltTop" )
-    acc.addSequence( parOR("hltStep_1"), parentName="hltSteps" )
-    acc.addSequence( seqAND("L2CaloEgammaSeq"), "hltStep_1" )
-    acc.addSequence( parOR("hltStep_2"), parentName="hltSteps" )
-    acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
-    acc.printConfig()
-    
-    acc.store(open("testFile2.pkl", "w"))
-    f = open("testFile2.pkl")
-    s = pickle.load(f)
-    f.close()
-    assert s['hltSteps']['Members'] != '[]', "Empty set of members in hltSteps, Sequences recording order metters"
-    
-    print( "\nAll OK" )
-
+        accTop.store( open("dummy.pkl", "w") )
+        import pickle
+        # check if the recording did not harm the sequences
+        with open("dummy.pkl") as f:
+            s = pickle.load( f )
+            self.assertEquals( s['seq1']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq1 " + s['seq1']["Members"])
+            self.assertEquals( s['seq2']["Members"], "['AthSequencer/seqReco']", "After pickling recoSeq missing in seq2 " + s['seq2']["Members"])
+            self.assertEquals( s['seqReco']["Members"], "['ConfigurablePyAlgorithm/recoAlg']", "After pickling seqReco is corrupt " + s['seqReco']["Members"] )

@@ -59,7 +59,7 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_rpcHelper(nullptr),
     m_rpcCabling(nullptr),
     //m_padHashIdHelper(0),
-    m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder"),
+    m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder", this),
     m_rSummarySvc("RPCCondSummarySvc", name),
     m_fullEventDone(false)
 {

@@ -1445,8 +1445,6 @@ StatusCode SiSmearedDigitizationTool::digitize()
                                                      hitPlanarDetElement,
                                                      clusterErr);
 
-          Planar_detElement_RIO_map::iterator it_map = m_planarClusterMap->find(waferID);
-
           m_planarClusterMap->insert(std::pair<IdentifierHash, const iFatras::PlanarCluster* >(waferID, planarCluster));
 
           if (FillTruthMap(m_planarPrdTruth, planarCluster, hit).isFailure()) {
@@ -1626,8 +1624,6 @@ StatusCode SiSmearedDigitizationTool::digitize()
                                                      siWidth,
                                                      hitPlanarDetElement,
                                                      clusterErr);
-
-          Planar_detElement_RIO_map::iterator it_map = m_planarClusterMap->find(waferID);
 
           m_planarClusterMap->insert(std::pair<IdentifierHash, const iFatras::PlanarCluster* >(waferID, planarCluster));
 
