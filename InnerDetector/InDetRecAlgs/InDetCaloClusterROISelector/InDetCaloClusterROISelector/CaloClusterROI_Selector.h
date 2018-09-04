@@ -86,6 +86,9 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   double               m_RetaCut;
   double               m_ClusterEtCut;
 
+  /** @brief Cut on cluster EM Et */
+  double               m_ClusterEMEtCut;
+
   // statistics mutex protected
   mutable std::mutex   m_statMutex;
   mutable unsigned int m_allClusters;

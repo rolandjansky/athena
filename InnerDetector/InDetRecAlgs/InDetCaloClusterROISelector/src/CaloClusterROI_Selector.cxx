@@ -85,6 +85,7 @@ InDet::CaloClusterROI_Selector::CaloClusterROI_Selector(const std::string& name,
     declareProperty("HadRatioCut",                            m_HadRatioCut  =0.12,    " Cut on Hadronic Leakage");
     declareProperty("RetaCut",                                m_RetaCut      =0.65,   " Cut on Reta");
     declareProperty("ClusterEtCut",                           m_ClusterEtCut = 0000,  " Cut On Cluster Et");
+    declareProperty("ClusterEMEtCut",                         m_ClusterEMEtCut = 0000,  " Cut On Cluster EM Et");
 
 
 }
@@ -238,6 +239,21 @@ bool InDet::CaloClusterROI_Selector::PassClusterSelection(const xAOD::CaloCluste
 
     if ( et < m_ClusterEtCut ){
         ATH_MSG_DEBUG("Cluster failed Energy Cut: dont make ROI");
+        return false;
+    }
+
+    static const  SG::AuxElement::ConstAccessor<float> acc("EMFraction");
+
+    double emFrac(0.);
+    if (acc.isAvailable(*cluster)) {
+      emFrac = acc(*cluster);
+    } else if (!cluster->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
+      throw std::runtime_error("No EM fraction momement stored");
+    }
+
+    // use cluster->et() instead of et to follow egamma
+    if ( cluster->et()*emFrac< m_ClusterEMEtCut ){
+        ATH_MSG_DEBUG("Cluster failed EM Energy Cut: dont make ROI");
         return false;
     }
 

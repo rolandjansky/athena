@@ -53,11 +53,12 @@ if (InDetFlags.doPrintConfigurables()):
 #
 from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__CaloClusterROI_Selector
 InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector (name                         = "InDetCaloClusterROISelector",
-                                                              InputClusterContainerName    = InDetKeys.CaloClusterContainer(),    # "LArClusterEM"
+                                                              InputClusterContainerName    = InDetKeys.CaloClusterContainer(),    # "egammaCaloCluster"
                                                               CellsName                    = InDetKeys.CaloCellContainer(),       # "AllCalo"
                                                               OutputClusterContainerName   = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs"
                                                               HadRatioCut                  = 0.1,
                                                               RetaCut                      = 0.65,
+                                                              ClusterEMEtCut               = 1000,
                                                               CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
                                                               egammaCheckEnergyDepositTool = InDetROICheckEnergyDepositTool,          
                                                               egammaMiddleShapeTool        = getEgammaMiddleShapeTool(),              # set to empty string to not check Reta
