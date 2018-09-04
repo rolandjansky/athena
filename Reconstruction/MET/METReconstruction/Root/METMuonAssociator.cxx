@@ -277,8 +277,7 @@ namespace met {
                                               TLorentzVector& HR,
                                               std::vector<double>& vPhiRnd) const
   {
-    //std::cout << "METMuonAssociator::hadrecoil_PFO " << std::endl;
-     // 1. Summing all PFOs
+    // 1. Summing all PFOs
     for(const auto& pfo_itr : *constits.pfoCont) {
       if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
         continue;
@@ -286,8 +285,7 @@ namespace met {
       pfo_tmp.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
       HR += pfo_tmp;
     }
-    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e()          : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
-
+    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e(): " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
     // 2. Subtracting PFOs mathed to electrons from HR 
     std::vector<const xAOD::Muon*> mu;
@@ -296,7 +294,6 @@ namespace met {
         continue;
       mu.push_back( static_cast<const xAOD::Muon*>(obj_i) );
     }
-    //std::cout << "mu.size()  = " << mu.size() << std::endl;
 
     std::vector<const TrackParticle*> idtrack_orig;  
     for(const auto& mu_i : mu){
@@ -314,7 +311,6 @@ namespace met {
     }
     //std::cout << "idtrack.size()  = " << idtrack.size() << std::endl;
 
-
     std::vector<const CaloCluster*> muclus_orig;
     for(const auto& mu_i : mu){
       if( mu_i->cluster() )
@@ -330,8 +326,7 @@ namespace met {
     }
     //std::cout << "muclus.size()  = " << muclus.size() << std::endl;
 
-
-   for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
+    for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
       if( pfo_i->pt() < 0 || pfo_i->e() < 0 ) // sanity check
         continue;
   
@@ -356,9 +351,8 @@ namespace met {
         } // over muon muclus
       } // neutral PFOs       
     } // over all PFOs
-    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() corrected: " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;    
 
-
+    
     // 3. Get random phi based on muclus
     unsigned int seed;
     TRandom3 hole;
@@ -366,7 +360,6 @@ namespace met {
     for(const auto& muclus_i : muclus) {
       seed = floor( muclus_i.Pt() * 1.e3 );      
       hole.SetSeed(seed);
-      //std::cout << "seed = " << seed << std::endl;
     }
   
     for(const auto& muclus_i : muclus) {
@@ -392,7 +385,6 @@ namespace met {
             isNextToPart = true;
         } // muclus_j
       } // while isNextToPart, isNextToHR
-      //std::cout << "aaa pushback random : " << Rnd << std::endl;
       vPhiRnd.push_back(Rnd);
     } // muclus_i 
   

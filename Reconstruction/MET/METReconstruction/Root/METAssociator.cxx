@@ -285,9 +285,8 @@ namespace met {
     }
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
 
-    // artur
-    //std::cout<<std::endl<<std::endl;
-    //std::cout<<"------------------- begin HR and random Phi calculation --------------------------"<<std::endl;
+
+    // HR and random Phi calculation, also have properties of PFOs as decorations to leptons
     TLorentzVector HR;
     float UEcorr_Pt = 0.;
     unsigned int lept_count = 0;
@@ -339,10 +338,8 @@ namespace met {
     float SumChsPFOsAllInEvent_Phi_chargedPFOsOnly = 0.;
     float SumChsPFOsAllInEvent_E_chargedPFOsOnly   = 0.;    
     
-    //std::cout<<"------------------- end HR and random Phi calculation --------------------------"<<std::endl;
 
-    //std::cout<<"------------------- begin loop over leptins --------------------------"<<std::endl;
-
+    // Loop over leptons in the event
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
       constlist.clear();
@@ -353,8 +350,8 @@ namespace met {
           return StatusCode::FAILURE;
         }else{
           std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
+          // HR part:
           if(m_recoil){
-            //std::cout<<"METAssociator::fillAssocMap: m_recoil = true, GetPFOWana "<<std::endl;
             UEcorr_Pt = 0.;
             
             ATH_CHECK( this->GetPFOWana(obj,constlist,constits,momentumOverride, vPhiRnd, lept_count, UEcorr_Pt) );
@@ -438,14 +435,7 @@ namespace met {
             dec_SumOfChsPFOsInMap_Eta_neutral(*obj) = SumOfChsPFOsInMap_Eta_neutralPFOsOnly;
             dec_SumOfChsPFOsInMap_Phi_neutral(*obj) = SumOfChsPFOsInMap_Phi_neutralPFOsOnly;
             dec_SumOfChsPFOsInMap_E_neutral(*obj) = SumOfChsPFOsInMap_E_neutralPFOsOnly;            
-            /*
-            std::cout<<"!!!!! N_chsPFOsInMaps       = "<<N_chsPFOsInMaps<<std::endl;
-            std::cout<<"!!!!! SumOfChsPFOsInMap_Pt  = "<<SumOfChsPFOsInMap_Pt<<std::endl;
-            std::cout<<"!!!!! SumOfChsPFOsInMap_Eta = "<<SumOfChsPFOsInMap_Eta<<std::endl;
-            std::cout<<"!!!!! SumOfChsPFOsInMap_Phi = "<<SumOfChsPFOsInMap_Phi<<std::endl;
-            std::cout<<"!!!!! SumOfChsPFOsInMap_E   = "<<SumOfChsPFOsInMap_E<<std::endl;
-            */
-            
+
             // Save numbeer of chsPFOs and all components of 4-vector of the vetro sum of chsPFOs (all chsPFOs in the cevents -> will be the same for each lepton)
             N_chsPFOsAllInEvent      = 0; 
             SumChsPFOsAllInEvent_Pt  = 0.;
@@ -528,24 +518,11 @@ namespace met {
             dec_SumChsPFOsAllInEvent_Eta_neutral(*obj) = SumChsPFOsAllInEvent_Eta_neutralPFOsOnly;
             dec_SumChsPFOsAllInEvent_Phi_neutral(*obj) = SumChsPFOsAllInEvent_Phi_neutralPFOsOnly;
             dec_SumChsPFOsAllInEvent_E_neutral(*obj)   = SumChsPFOsAllInEvent_E_neutralPFOsOnly;
-            /*
-            std::cout<<"!!!!! N_chsPFOsAllInEvent       = "<<N_chsPFOsAllInEvent<<std::endl;
-            std::cout<<"!!!!! SumChsPFOsAllInEvent_Pt   = "<<SumChsPFOsAllInEvent_Pt<<std::endl;
-            std::cout<<"!!!!! SumChsPFOsAllInEvent_Eta  = "<<SumChsPFOsAllInEvent_Eta<<std::endl;
-            std::cout<<"!!!!! SumChsPFOsAllInEvent_Phi  = "<<SumChsPFOsAllInEvent_Phi<<std::endl;
-            std::cout<<"!!!!! SumChsPFOsAllInEvent_E    = "<<SumChsPFOsAllInEvent_E<<std::endl;            
-            std::cout<<"----------------------------------"<<std::endl;
-            */
-
-            //std::cout<<"UEcorr_Pt = "<<UEcorr_Pt<<std::endl;
-            //std::cout<<"lept_count after = "<<lept_count<<std::endl;
           }
           else{
-            //std::cout<<"METAssociator::fillAssocMap: m_recoil = false, extractPFO "<<std::endl;
             ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
           }
-          MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
-          
+          MissingETComposition::insert(metMap,obj,constlist,momentumOverride);          
         }
       } 
       else {

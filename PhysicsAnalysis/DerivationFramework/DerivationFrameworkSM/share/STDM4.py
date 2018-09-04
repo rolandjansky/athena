@@ -271,34 +271,8 @@ applyPFOAugmentation(STDM4Sequence)
 #=======================================
 # SCHEDULE MET RECONSTRUCTION
 #=======================================
-'''
-# add map with standard association method and make MET:
-addMETAssocMap(STDM4Sequence,jettype='PFlowJet',assocname='AntiKt4EMPFlow',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=False,algname='METAssociation')
-MakeMET(STDM4Sequence, assocname='AntiKt4EMPFlow', jetcoll='AntiKt4EMPFlowJets', setjetminptToinf=False)
-
-#addMETAssocMap(STDM4Sequence,jettype='myPFlowJet',assocname='myAntiKt4EMPFlow',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=False,algname='METAssociation')
-#MakeMET(STDM4Sequence, assocname='myAntiKt4EMPFlow', jetcoll='AntiKt4EMPFlowJets', setjetminptToinf=False)
-STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_myAntiKt4EMPFlow')
-STDM4Stream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_myAntiKt4EMPFlowAux.')
-STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_myAntiKt4EMPFlow')
-STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_myAntiKt4EMPFlowAux.')
-STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_myAntiKt4EMPFlow')
-STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_myAntiKt4EMPFlowAux.-ConstitObjectLinks.-ConstitObjectWeights')
-
-
 # add map with modified association method and make MET:
-addMETAssocMap(STDM4Sequence,jettype='PFlowJetRecoil',assocname='NewAntiKt4EMPFlowHR',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=True,algname='METAssociation')
-MakeMET(STDM4Sequence, assocname='NewAntiKt4EMPFlowHR', jetcoll='AntiKt4EMPFlowJets', setjetminptToinf=True)
-STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_NewAntiKt4EMPFlowHR')
-STDM4Stream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_NewAntiKt4EMPFlowHRAux.')
-STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_NewAntiKt4EMPFlowHR')
-STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_NewAntiKt4EMPFlowHRAux.')
-STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_NewAntiKt4EMPFlowHR')
-STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_NewAntiKt4EMPFlowHRAux.-ConstitObjectLinks.-ConstitObjectWeights')
-'''
- 
-# add map with modified association method and make MET:
-
+# naming myPFlowJet and PFlowJetRecoil will be changed for more intuitive names...
 addMETAssocMap(STDM4Sequence,jettype='PFlowJetRecoil',assocname='NewAntiKt4EMPFlowHR',jetcoll='AntiKt4EMPFlowCHSJets',doPflow=True,dorecoil=True,algname='METAssociation')
 MakeMET(STDM4Sequence, assocname='NewAntiKt4EMPFlowHR', jetcoll='AntiKt4EMPFlowCHSJets', setjetminptToinf=True)
 STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_NewAntiKt4EMPFlowHR')
@@ -317,18 +291,6 @@ STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_myAntiKt4EMPFlow')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_myAntiKt4EMPFlowAux.')
 STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_myAntiKt4EMPFlow')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_myAntiKt4EMPFlowAux.-ConstitObjectLinks.-ConstitObjectWeights')
-
-
-#STDM4Stream.AddItem("xAOD::PFOContainer#*ParticleFlowObjects*")
-#STDM4Stream.AddItem("xAOD::PFOAuxContainer#*ParticleFlowObjects*")
-#STDM4Stream.AddItem("xAOD::ShallowAuxContainer#*ParticleFlowObjects*")
-
-
-#STDM4Stream.AddItem("xAOD::PFOContainer#CHSParticleFlowObjects")
-#STDM4Stream.AddItem("xAOD::PFOAuxContainer#CHSParticleFlowObjectsAux.")
-#STDM4Stream.AddItem("xAOD::ShallowAuxContainer#CHSParticleFlowObjectsAux.")
-#STDM4Stream.AddItem("xAOD::PFOAuxContainer#CHSParticleFlowObjectsAux.pt.eta.phi.m")
-
 
 ##############
 
@@ -373,11 +335,8 @@ STDM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMPFlow",   
-                                        "AntiKt4EMPFlowJets",
-                                        #"AntiKt4EMPFlowCHSJets",  # artur added tmp             
-                                        "BTagging_AntiKt4EMPFlow",        
-                                        #"MET_Reference_myAntiKt4EMPFlow",    # artur tmp added
-                                        #"MET_Reference_NewAntiKt4EMPFlowHR", # artur tmp added
+                                        "AntiKt4EMPFlowJets",            
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -386,7 +345,7 @@ STDM4SlimmingHelper.IncludeMuonTriggerContent = True
 
 # removed end of line ot build in rel21
 STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
-  "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt",
+  "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt.DFCommonPFlow_z0.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",
   "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.mEM",
   "AntiKt4EMTopoJets.SumPtTrkPt1000.SumPtTrkPt500.NumTrkPt500.NumTrkPt1000",
   "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
@@ -415,7 +374,6 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
   "Muons.NumOfChsPFOsInMaps_chargedPFOsOnly",     "Muons.SumOfChsPFOsInMap_Pt_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_Eta_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_Phi_chargedPFOsOnly",    "Muons.SumOfChsPFOsInMap_E_chargedPFOsOnly",
   "Muons.NumOfChsPFOsAllInEvent_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Pt_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Eta_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_Phi_chargedPFOsOnly", "Muons.SumChsPFOsAllInEvent_E_chargedPFOsOnly"
 ]
-
 
 
 

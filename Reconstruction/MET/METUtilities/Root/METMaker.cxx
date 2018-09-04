@@ -172,7 +172,14 @@ namespace met {
       m_FwdJetPtCut = m_customFwdJetPtCut;
       m_JvtCut = m_customJvtCut;
       m_JvtPtMax = m_customJvtPtMax; 
-    }
+    }  
+    else if (m_jetSelection == "HRecoil")  { 
+      ATH_MSG_INFO("Jet selection for hadronic recoil calculation is configured.");
+      m_CenJetPtCut = 9999e3;
+      m_FwdJetPtCut = 9999e3;
+      //m_JvtCut   = m_customJvtCut;    // currently skip
+      //m_JvtPtMax = m_customJvtPtMax;  // currently skip
+    }   
     else { 
       if (m_jetSelection == "Default") ATH_MSG_WARNING( "WARNING:  Default is now deprecated" ); 
       ATH_MSG_ERROR( "Error: No available jet selection found! Please update JetSelection in METMaker. Choose one: Loose, Tight, PFlow, Expert" ); 

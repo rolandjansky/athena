@@ -162,8 +162,6 @@ namespace met {
     // will do so for now...
     const xAOD::IParticle* swclus = eg->caloCluster();
 
-    //std::cout<<"!!!!!!!!!! METEgammaAssociator::extractPFO: electrons  --- standard method"<<std::endl;
-
     // Preselect PFOs based on proximity: dR<0.4
     std::vector<const xAOD::PFO*> nearbyPFO;
     nearbyPFO.reserve(20);
@@ -242,10 +240,6 @@ namespace met {
                unsigned int& lept_count,
                float& UEcorr) const
   {
-    //std::cout<<"!!!!!!!!!! METEgammaAssociator::GetPFOWana: electrons --- new method"<<std::endl;
-    //std::cout<<"!!!!!!!!!! METEgammaAssociator::GetPFOWana: m_Drcone = "<<m_Drcone<<std::endl;
-    
-
     // Step 1. Cnstructing association electron-PFO map
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
     const xAOD::IParticle* swclus = eg->caloCluster();
@@ -292,18 +286,14 @@ namespace met {
       eta_rndphi.second = vPhiRnd[lept_count];
       lept_count++;
   
-      //std::cout<<"start looping over PFO to calculate correction"<<std::endl;
       for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
         if( pfo_itr->e() < 0)
           continue;
-        //std::cout<<"passed basic cut pfo_itr->e() < 0 "<<std::endl;
         TLorentzVector tv_pfo;
         tv_pfo.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
         float dR = 0.;
         deltaR( tv_pfo.Eta(), tv_pfo.Phi(), eta_rndphi.first,  eta_rndphi.second, dR);
-        //std::cout<<"dR < m_Drcone requirement:"<<std::endl;
         if( dR < m_Drcone ){
-          //std::cout<<"passed"<<std::endl;
           float angle;
           METEgammaAssociator::deltaPhi(tv_swclus.Phi(), tv_pfo.Phi(), angle);
           if( tv_swclus.Phi() <  tv_pfo.Phi() )
@@ -313,7 +303,7 @@ namespace met {
         } // m_Drcone requirement   
       } // loop over PFOs
       UEcorr = tv_UEcorr.Pt();  // Pt of UE correction
-  } // swclus existance requirement
+    } // swclus existance requirement
 
     return StatusCode::SUCCESS;
   }
@@ -323,8 +313,6 @@ namespace met {
                                                 TLorentzVector& HR,
                                                 std::vector<double>& vPhiRnd) const
   {
-    //std::cout << "METEgammaAssociator::hadrecoil_PFO " << std::endl;
-
     // 1. Summing all PFOs
     for(const auto& pfo_itr : *constits.pfoCont) {
       if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
@@ -333,8 +321,7 @@ namespace met {
       pfo_tmp.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
       HR += pfo_tmp;
     }
-    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e()          : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
-
+    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
     // 2. Subtracting PFOs mathed to electrons from HR 
     // std::vector<const xAOD::Egamma*> eg = static_cast<std::vector<const xAOD::Egamma*>>(hardObjs);
@@ -344,15 +331,11 @@ namespace met {
         continue;
       eg.push_back( static_cast<const xAOD::Egamma*>(obj_i) );
     }
-    //std::cout << "eg.size()  = " << eg.size() << std::endl;
-
  
     std::vector<const xAOD::IParticle*> swclus_orig;
     for(const auto& eg_i : eg)
       if( eg_i->caloCluster() )
         swclus_orig.push_back( eg_i->caloCluster() );
-    //std::cout << "swclus_orig.size()  = " << swclus_orig.size() << std::endl;
-
 
     std::vector<TLorentzVector> swclus;
     for(const auto& swclus_orig_i : swclus_orig){
@@ -361,17 +344,6 @@ namespace met {
       swclus.push_back(sw_curr);
     }
     //std::cout << "swclus.size()  = " << swclus.size() << std::endl;
-
-
-    /*
-    std::cout << "METEgammaAssociator::hadrecoil_PFO debugging : "<< std::endl;
-
-    for(const auto& eg_i : eg)
-      std::cout << "eg_i->pt() = " << eg_i->pt() << std::endl;  
-
-    for(const auto& swclus_i : swclus)
-      std::cout << "swclus_i.pt() = " << swclus_i.Pt() << std::endl;
-    */  
 
     for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
       //std::cout << "in the pfoCont loop" << std::endl;
@@ -392,23 +364,18 @@ namespace met {
     //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() corrected: " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
     // 3. Get random phi
-    //std::vector<double> vPhiRnd;
     unsigned int seed;
     TRandom3 hole;
 
-
-    //std::cout << "before swclus loop" << std::endl;
     for(const auto& swclus_i : swclus) {
       seed = floor( swclus_i.Pt() * 1.e3 );      
       hole.SetSeed(seed);
-      //std::cout << "seed = " << seed << std::endl;
     }
   
     for(const auto& swclus_i : swclus) {
       bool isNextToPart(true);
       bool isNextToHR(true);
       double Rnd;
-      //std::cout<<"in the lepton loop"<<std::endl;
   
       while(isNextToPart || isNextToHR ){
         isNextToPart = false; 
@@ -429,7 +396,6 @@ namespace met {
         } // swclus_j
       } // while isNextToPart, isNextToHR
       //std::cout << "pushback random : " << Rnd << std::endl;
-
       vPhiRnd.push_back(Rnd);
     } // swclus_i
 

@@ -5,73 +5,6 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # MET
 ##########################################################################################
 
-'''
-METLists = {}
-
-#simplelist = ['EMTopo','LocHadTopo','Truth','Track','EMTopoRegions','LocHadTopoRegions','TruthRegions',
-#          'Core_AntiKt4EMPFlow', 'Core_AntiKt4EMTopo', 'Core_AntiKt4LCTopo',
-#          'Reference_AntiKt4EMPFlow', 'Reference_AntiKt4EMTopo', 'Reference_AntiKt4LCTopo',]
-xaodlist = ['Calo', 'EMTopo', 'EMTopoRegions', 'LocHadTopo', 'LocHadTopoRegions', 'Track', 'Truth', 'TruthRegions']
-#xaodmaps     = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow','NewAntiKt4EMPFlowHR']
-#maplist      = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow','NewAntiKt4EMPFlowHR']
-xaodmaps     = ['NewAntiKt4EMPFlowHR', 'AntiKt4EMPFlow']
-maplist      = ['NewAntiKt4EMPFlowHR', 'AntiKt4EMPFlow']
-truthmaplist = ['Truth_AntiKt4LCTopo','Truth_AntiKt4EMTopo','Truth_AntiKt4EMPFlow']
-METLists['Diagnostic'] = ['Calo','EMTopo','EMTopoRegions','LocHadTopo','LocHadTopoRegions','TruthRegions']
-METLists['Assocs'] = [m for m in maplist]
-METLists['TruthAssocs'] = truthmaplist
-
-# similar as in METCommon
-def addMETOutputsSTDM(slimhelper, contentlist=[], slimlist=[]):
-	#print 'addMETOutputsSTDM: '
-	#print 'slimhelper = ', slimhelper
-	#print 'contentlist = ', contentlist
-	#print 'slimlist = ', slimlist
-
-	suffixlist = []
-	for content in contentlist:
-		if content in METLists.keys():
-			suffixlist += METLists[content]
-		else:
-			suffixlist.append(content)
-	
-	for suffix in sorted(set(suffixlist)):
-		if suffix in maplist:
-			print "DFMissingET -- Add containers for METAssoc_"+suffix+" to output"
-			if suffix in slimlist:				
-				slimhelper.SmartCollections.append("MET_Reference_"+suffix)
-			elif suffix in xaodmaps:
-				slimhelper.AllVariables.append("METAssoc_"+suffix)
-				slimhelper.AllVariables.append("MET_Core_"+suffix)
-				slimhelper.AllVariables.append("MET_Reference_"+suffix)
-			else:
-				slimhelper.StaticContent.append("xAOD::MissingETAssociationMap#METAssoc_"+suffix)
-				slimhelper.StaticContent.append("xAOD::MissingETAuxAssociationMap#METAssoc_"+suffix+"Aux.")
-				slimhelper.StaticContent.append("xAOD::MissingETContainer#MET_Core_"+suffix)
-				slimhelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_Core_"+suffix+"Aux.")
-		elif suffix in truthmaplist:
-			print "DFMissingET -- Add containers for METAssoc_"+suffix+" to output"
-			slimhelper.StaticContent.append("xAOD::MissingETAssociationMap#METAssoc_"+suffix)
-			slimhelper.StaticContent.append("xAOD::MissingETAuxAssociationMap#METAssoc_"+suffix+"Aux.")
-			slimhelper.StaticContent.append("xAOD::MissingETContainer#MET_Core_"+suffix)
-			slimhelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_Core_"+suffix+"Aux.")
-		elif suffix in xaodlist:
-			print "DFMissingET -- Add containers for MET_"+suffix+" to output"
-			if suffix in slimlist:
-				slimhelper.SmartCollections.append("MET_"+suffix)
-			else:
-				slimhelper.AllVariables.append("MET_"+suffix)
-		else:
-			print "DFMissingET -- Add containers for MET_"+suffix+" to output"
-			slimhelper.StaticContent.append("xAOD::MissingETContainer#MET_"+suffix)
-			slimhelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_"+suffix+"Aux.")
-
-'''
-
-##########################################################################################
-# MET
-##########################################################################################
-
 def addMETAssocMap(sequence=DerivationFrameworkJob, 
 	        	jettype='PFlowJet',
 	        	assocname='AntiKt4EMPFlow',
@@ -144,11 +77,6 @@ def MakeMET(sequence=DerivationFrameworkJob,
 	sequence += makerAlg
 
 
-
-
-
-
-
 def applyPFOAugmentation(sequence=DerivationFrameworkJob):
 
     print 'In applyPFOAugmentation...'
@@ -168,7 +96,7 @@ def applyPFOAugmentation(sequence=DerivationFrameworkJob):
         if hasattr(ToolSvc,"PFlowAugmentationTool"):
             pfoaugtool = getattr(ToolSvc,"PFlowAugmentationTool")
         else:
-            weightpfotool = CfgMgr.CP__WeightPFOTool("PFAugmentationWeightTool",DoEoverPWeight=False)
+            weightpfotool = CfgMgr.CP__WeightPFOTool("PFAugmentationWeightTool",DoEoverPWeight=True)
             ToolSvc += weightpfotool
             pfoaugtool = CfgMgr.DerivationFramework__PFlowAugmentationTool("PFlowAugmentationTool",
                                                                            WeightPFOTool=weightpfotool)
