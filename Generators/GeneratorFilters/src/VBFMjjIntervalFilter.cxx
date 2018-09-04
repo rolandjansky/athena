@@ -10,7 +10,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "EventInfo/EventInfo.h"        // For setting the weight
 #include "EventInfo/EventType.h"        // From event info - the real holder of the event weight
-
+#include "GaudiKernel/PhysicalConstants.h"
 
 // Pt  High --> Low
 class High2LowByJetClassPt {
@@ -81,7 +81,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   // Find overlap objects
   std::vector<HepMC::GenParticle*> MCTruthPhotonList;
   std::vector<HepMC::GenParticle*> MCTruthElectronList;
-  std::vector<CLHEP::HepLorentzVector*> MCTruthTauList;
+  std::vector<TLorentzVector*> MCTruthTauList;
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
@@ -116,12 +116,12 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
 	  }
 	  
 	  if (leptonic == 0) {
-	    CLHEP::HepLorentzVector nutau = sumDaughterNeutrinos( tau );
-	    CLHEP::HepLorentzVector *tauvis = new CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
-									  tau->momentum().py()-nutau.py(),
-									  tau->momentum().pz()-nutau.pz(),
-									  tau->momentum().e()-nutau.e());
-	    if (tauvis->vect().perp() >= m_olapPt && fabs(tauvis->vect().pseudoRapidity()) <= m_yMax) {
+	    TLorentzVector nutau = sumDaughterNeutrinos( tau );
+	    TLorentzVector *tauvis = new TLorentzVector(tau->momentum().px()-nutau.Px(),
+							tau->momentum().py()-nutau.Py(),
+							tau->momentum().pz()-nutau.Pz(),
+							tau->momentum().e()-nutau.E());
+	    if (tauvis->Vect().Perp() >= m_olapPt && fabs(tauvis->Vect().PseudoRapidity()) <= m_yMax) {
 	      MCTruthTauList.push_back(tauvis);
 	    } else {
 	      delete tauvis;
@@ -210,13 +210,13 @@ bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<HepM
 
 
 
-bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<CLHEP::HepLorentzVector*> list) {
+bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<TLorentzVector*> list) {
   for (size_t i = 0; i < list.size(); ++i) {
-    double pt = list[i]->vect().perp();
+    double pt = list[i]->Vect().Perp();
     if (pt > m_olapPt) {
       /// @todo Provide a helper function for this (and similar)
-      double dphi = phi-list[i]->phi();
-      double deta = eta-list[i]->vect().pseudoRapidity();
+      double dphi = phi-list[i]->Phi();
+      double deta = eta-list[i]->Vect().PseudoRapidity();
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
       double dr = sqrt(deta*deta+dphi*dphi);
@@ -262,14 +262,14 @@ double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
 }
 
 
-CLHEP::HepLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
-  CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
+TLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
+  TLorentzVector nu( 0, 0, 0, 0);
 
   if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
-    nu.setPx(part->momentum().px());
-    nu.setPy(part->momentum().py());
-    nu.setPz(part->momentum().pz());
-    nu.setE(part->momentum().e());
+    nu.SetPx(part->momentum().px());
+    nu.SetPy(part->momentum().py());
+    nu.SetPz(part->momentum().pz());
+    nu.SetE(part->momentum().e());
     return nu;
   }
 

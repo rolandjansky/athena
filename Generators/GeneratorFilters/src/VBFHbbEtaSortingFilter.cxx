@@ -15,6 +15,7 @@
 #include "GeneratorFilters/VBFHbbEtaSortingFilter.h"
 
 // Other classes used by this class:-
+#include "GaudiKernel/PhysicalConstants.h"
 #include <math.h>
 #include <TLorentzVector.h>
 #include <TMath.h>
