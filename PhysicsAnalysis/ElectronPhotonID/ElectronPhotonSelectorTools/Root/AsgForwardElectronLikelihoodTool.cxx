@@ -126,8 +126,8 @@ StatusCode AsgForwardElectronLikelihoodTool::initialize()
 
     m_rootForwardTool->VariableNames = env.GetValue("VariableNames","");
     m_rootForwardTool->CutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
-    m_rootForwardTool->CutLikelihoodPileupCorrectionA = AsgConfigHelper::HelperDouble("DiscCutSlopeForPileupTransform",env);
-    m_rootForwardTool->CutLikelihoodPileupCorrectionB = AsgConfigHelper::HelperDouble("DiscCutForPileupTransform",env);
+    m_rootForwardTool->CutLikelihoodPileupCorrectionA = AsgConfigHelper::HelperDouble("DiscCutSlopeForPileupCorrection",env);
+    m_rootForwardTool->CutLikelihoodPileupCorrectionB = AsgConfigHelper::HelperDouble("DiscCutForPileupCorrection",env);
     m_rootForwardTool->doPileupCorrection = env.GetValue("doPileupCorrection", false);
 	
   } else{  //Error if it cant find the conf
