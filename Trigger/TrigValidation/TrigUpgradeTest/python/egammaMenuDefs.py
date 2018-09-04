@@ -8,11 +8,6 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 import AthenaCommon.CfgMgr as CfgMgr
 
 
-#workaround to prevent online trigger folders to be enabled
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
-
-
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doCaloSeededBrem = False
 InDetFlags.InDet25nsec = True 

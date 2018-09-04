@@ -119,19 +119,16 @@ def makeInDetAlgs():
     viewAlgs.append(InDetTRTRawDataProvider)
   
 
-  # SCTLorentzAngleTool for ClusterMakerTool
-  if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-      from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-      sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
-  
   #Pixel clusterisation
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
   
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
-      PixelCalibSvc        = None,
-      PixelOfflineCalibSvc = None,
-      UsePixelCalibCondDB  = False,
-                                                  SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
+                                                  PixelCalibSvc        = None,
+                                                  PixelOfflineCalibSvc = None,
+                                                  UsePixelCalibCondDB  = False,
+                                                  SCTLorentzAngleTool = TrigSCTLorentzAngleTool,
+                                                  PixelLorentzAngleTool = TrigPixelLorentzAngleTool)
   
   ToolSvc += InDetClusterMakerTool
   
@@ -164,10 +161,11 @@ def makeInDetAlgs():
 
   viewAlgs.append(InDetPixelClusterization)
 
-  from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
-  sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
-  sct_FlaggedConditionToolSetup.setup()
-  InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
+  # TODO - it should work in principle but generates run time errors for the moment 
+  # from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
+  # sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
+  # sct_FlaggedConditionToolSetup.setup()
+  # InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
   
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
   sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
@@ -177,8 +175,9 @@ def makeInDetAlgs():
   condTools = []
   for condToolHandle in InDetSCT_ConditionsSummaryTool.ConditionsTools:
     condTool = condToolHandle.typeAndName
+    print condTool
     if condTool not in condTools:
-      if condTool != InDetSCT_FlaggedConditionTool.getFullName():
+      if condTool != "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool":
         condTools.append(condTool)
   sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
   sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName("InDetSCT_ConditionsSummaryToolWithoutFlagged")

@@ -61,9 +61,6 @@ elif ( DetFlags.detdescr.ID_on() ):
                 sctSLHCTool = SCT_SLHC_DetectorTool()
                 sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
             GeoModelSvc.DetectorTools += [ sctSLHCTool ]
-            if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-                from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-                sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         else:
             # Current atlas specific code
             from AthenaCommon import CfgGetter

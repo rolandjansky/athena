@@ -71,11 +71,10 @@ class ConfiguredTrigFTKTool(TrigFTKClusterConverterTool):
     def __init__(self, name = "ConfiguredTrigFTKClusterConverterTool"):
         TrigFTKClusterConverterTool.__init__(self, name) 
         from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         TrigFTKClusterConverterTool.PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool
-        TrigFTKClusterConverterTool.SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
+        TrigFTKClusterConverterTool.SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
                                                             
 
 

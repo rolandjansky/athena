@@ -413,7 +413,8 @@ uint32_t MurmurHashAligned2 ( const void * key, int len, uint32_t seed )
     {
       switch(len)
       {
-      case 3: d |= data[2] << 16;
+      // len cannot be 3, because align is at most 3.
+      //case 3: d |= data[2] << 16;
       // FALLTHROUGH
       case 2: d |= data[1] << 8;
       // FALLTHROUGH
