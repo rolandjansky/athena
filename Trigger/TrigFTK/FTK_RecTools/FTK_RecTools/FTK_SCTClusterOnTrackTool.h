@@ -91,7 +91,7 @@ public:
   ///////////////////////////////////////////////////////////////////
 
    ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool;
-   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
    SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_sctErrorScalingKey
       {this,"SCTErrorScalingKey", "" /* "/Indet/TrkErrorScalingSCT" */, "Key for SCT error scaling conditions data. No error scaling if empty."};
 
