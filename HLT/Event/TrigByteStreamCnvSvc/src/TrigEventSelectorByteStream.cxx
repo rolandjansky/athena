@@ -91,18 +91,22 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
   try {
     ptrRawEvent = m_eventSource->nextEvent();
   }
-  catch (hltonl::Exception::NoMoreEvents e) {
+  catch (const hltonl::Exception::NoMoreEvents& e) {
     ATH_MSG_INFO(e.what());
     throw; // rethrow NoMoreEvents
   }
-  catch (...) { // what can we actually catch here?
-    ATH_MSG_ERROR("Failed to get next event from the event source");
+  catch (const std::exception& e) {
+    ATH_MSG_ERROR("Failed to get next event from the event source, std::exception caught: " << e.what());
+    return StatusCode::FAILURE;
+  }
+  catch (...) {
+    ATH_MSG_ERROR("Failed to get next event from the event source, unhandled exception caught");
     return StatusCode::FAILURE;
   }
 
   // Check if something was returned
   if (ptrRawEvent == nullptr) {
-    ATH_MSG_ERROR("Event source failed to read next event");
+    ATH_MSG_ERROR("Failed to get next event from the event source, nullptr returned");
     return StatusCode::FAILURE;
   }
 

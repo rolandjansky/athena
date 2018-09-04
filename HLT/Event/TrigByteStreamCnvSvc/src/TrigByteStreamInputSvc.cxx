@@ -85,15 +85,23 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   ATH_MSG_DEBUG("Reading new event for event context " << *eventContext);
 
   eformat::write::FullEventFragment l1r;
-  hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
-  if (status == hltinterface::DataCollector::Status::STOP) {
+  using DCStatus = hltinterface::DataCollector::Status;
+  auto status = DCStatus::NO_EVENT;
+  do {
+    status = hltinterface::DataCollector::instance()->getNext(l1r);
+    if (status == DCStatus::NO_EVENT)
+      ATH_MSG_ERROR("Failed to read new event, DataCollector::getNext returned Status::NO_EVENT. Trying again.");
+  } while (status == DCStatus::NO_EVENT);
+
+  if (status == DCStatus::STOP) {
     ATH_MSG_DEBUG("No more events available");
     throw hltonl::Exception::NoMoreEvents();
   }
-  else if (status != hltinterface::DataCollector::Status::OK) {
+  else if (status != DCStatus::OK) {
     ATH_MSG_ERROR("Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext");
     return nullptr;
   }
+  ATH_MSG_VERBOSE("DataCollector::getNext returned Status::OK");
 
   // convert write::FullEventFragment to read::FullEventFragment (RawEvent)
   const eformat::write::node_t* top = l1r.bind();

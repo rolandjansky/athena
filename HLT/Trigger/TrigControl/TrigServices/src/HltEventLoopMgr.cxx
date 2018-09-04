@@ -687,7 +687,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       try {
         sc = m_evtSelector->next(*m_evtSelContext);
       }
-      catch (hltonl::Exception::NoMoreEvents e) {
+      catch (const hltonl::Exception::NoMoreEvents& e) {
         sc = StatusCode::SUCCESS;
         events_available = false;
         sc = clearWBSlot(evtContext->slot());
