@@ -91,6 +91,8 @@ protected :
 	float m_dphiTT;
 	/** clear up container from bad BC */
 	bool m_useProvenance;
+	/** name of the input SCell container */
+	std::string m_inputCellsName;
 
 };
 

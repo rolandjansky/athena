@@ -7,6 +7,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 //#include "xAODEventInfo/EventID.h"
@@ -25,6 +26,7 @@ CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type,
     m_caloIdMgr(nullptr),
     m_calocell_id(nullptr),
     m_isMC(false),
+    m_isSC(false),
     m_keyShape("LArShape"), m_keyMinBiasAverage("LArPileupAverage"),m_keyOFC("LArOFC"),
     m_bcidMax(3564),
     m_ncell(0),
@@ -40,6 +42,7 @@ CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type,
   declareProperty("LumiTool",m_lumiTool,"Tool handle for Luminosity");
   declareProperty("BunchCrossingTool",m_bunchCrossingTool,"Tool handle for bunch crossing tool");
   declareProperty("isMC",m_isMC);
+  declareProperty("isSC",m_isSC);
   declareProperty("keyShape",m_keyShape);
   declareProperty("keyMinBiasAverge",m_keyMinBiasAverage);
   declareProperty("keyOFC",m_keyOFC);
@@ -111,7 +114,8 @@ StatusCode CaloLumiBCIDTool::geoInit(IOVSVC_CALLBACK_ARGS) {
 
 // callback for Shape
 
-  StatusCode sc=detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
+  StatusCode sc;
+   sc=detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
 				   dynamic_cast<ICaloLumiBCIDTool*>(this),
 				   m_dd_shape,m_keyShape,true);
   if(sc.isSuccess()){
@@ -124,6 +128,7 @@ StatusCode CaloLumiBCIDTool::geoInit(IOVSVC_CALLBACK_ARGS) {
   }
 
 // callback for MinBiasAverage
+//
 
   sc=detStore()->regFcn(&ICaloLumiBCIDTool::LoadCalibration,
 			dynamic_cast<ICaloLumiBCIDTool*>(this),
@@ -135,12 +140,41 @@ StatusCode CaloLumiBCIDTool::geoInit(IOVSVC_CALLBACK_ARGS) {
     msg(MSG::ERROR) << "Cannot register callback function for key "
 		    << m_keyMinBiasAverage << endreq;
     return sc;
-  }
+  } 
 
-  sc=m_cablingService.retrieve();
-  if (sc.isFailure()){
-    msg(MSG::ERROR) << "Unable to get CablingService" << endreq;
-    return sc;
+   if ( !m_isSC ) {
+     const LArOnlineID* laron;
+     sc = detStore()->retrieve(laron,"LArOnlineID");
+     if (sc.isFailure()) {
+       ATH_MSG_ERROR("Unable to retrieve  LArOnlineID from DetectorStore");
+       return StatusCode::FAILURE;
+     } else m_lar_on_id = (LArOnlineID_Base*) laron;
+     
+     ToolHandle<LArCablingService> larcab("LArCablingService");
+     if(larcab.retrieve().isFailure()){
+       ATH_MSG_ERROR("Unable to get CablingService");
+       return StatusCode::FAILURE;
+     } else m_cablingService = (LArCablingBase*) &(*larcab);
+     
+     //ATH_CHECK( m_larmcsym.retrieve( DisableTool{ !m_MCSym } ));
+ 
+    } else { // isSC
+ 
+    //m_larmcsym.disable();    
+ 
+    const LArOnline_SuperCellID* laron;
+    sc = detStore()->retrieve(laron,"LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Unable to retrieve  LArOnlineID from DetectorStore");
+      return StatusCode::FAILURE;
+    } else m_lar_on_id = (LArOnlineID_Base*) laron;
+    
+    ToolHandle<LArSuperCellCablingTool> larcab("LArSuperCellCablingTool");
+    if(larcab.retrieve().isFailure()){
+      ATH_MSG_ERROR("Unable to get CablingService");
+      return StatusCode::FAILURE;
+    } else m_cablingService = (LArCablingBase*) &(*larcab);
+     
   }
 
 
@@ -204,6 +238,7 @@ StatusCode CaloLumiBCIDTool::geoInit(IOVSVC_CALLBACK_ARGS) {
   }
 
  //
+ if (!m_isSC ){
  sc = m_larmcsym.retrieve();
  if (sc.isFailure()) {
    msg(MSG::ERROR) << "Unable to retrieve LArMCSym tool " << endreq;
@@ -212,18 +247,16 @@ StatusCode CaloLumiBCIDTool::geoInit(IOVSVC_CALLBACK_ARGS) {
   else {
     ATH_MSG_DEBUG(" -- LArMCSmy tool retrieved ");
   }
+  }
 
- sc = detStore()->retrieve(m_lar_on_id,"LArOnlineID");
- if (sc.isFailure()) {
-   msg(MSG::ERROR) << "Cannot retrieve LArOnlineID from detector store " << endreq;
-   return sc;
- }
-  
   sc = detStore()->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr in  " << endreq;
     return StatusCode::FAILURE;
   }
+  if (m_isSC )
+  m_calocell_id = m_caloIdMgr->getCaloCell_SuperCell_ID();
+  else
   m_calocell_id = m_caloIdMgr->getCaloCell_ID();
 
   return StatusCode::SUCCESS;
@@ -234,10 +267,12 @@ StatusCode CaloLumiBCIDTool::geoInit(IOVSVC_CALLBACK_ARGS) {
 void CaloLumiBCIDTool::getListOfCells()
 {
   m_ncell = m_calocell_id->calo_cell_hash_max();
+  int size_for_cache=2000;
+  if ( m_isSC ) size_for_cache=m_ncell+1;
 
   m_symCellIndex.resize(m_ncell,-1);
-  m_hwid_sym.reserve(2000);
-  m_eshift_sym.reserve(2000);
+  m_hwid_sym.reserve(size_for_cache);
+  m_eshift_sym.reserve(size_for_cache);
   std::vector<int> doneCell;
   doneCell.resize(m_ncell,-1);
 
@@ -246,9 +281,17 @@ void CaloLumiBCIDTool::getListOfCells()
      IdentifierHash idHash=i;
      Identifier id=m_calocell_id->cell_id(idHash);
      if (m_calocell_id->is_tile(id)) continue;
+     Identifier id2;
+     HWIdentifier hwid2;
+     if (!m_isSC) {
      // convert cell id to symetric identifier
-     HWIdentifier hwid2=m_larmcsym->symOnline(id);
-     Identifier id2 = m_cablingService->cnvToIdentifier(hwid2);
+     hwid2=m_larmcsym->symOnline(id);
+     id2 = m_cablingService->cnvToIdentifier(hwid2);
+     }
+     else {
+	hwid2 = m_cablingService->createSignalChannelID(id);
+	id2 = id;
+     }
      int i2 = (int) (m_calocell_id->calo_cell_hash(id2));
      // we have already processed this hash => just need to associate cell i to the same symetric cell
      if (doneCell[i2]>=0) {
@@ -273,18 +316,18 @@ void CaloLumiBCIDTool::getListOfCells()
   //}
 
 
-  m_minBias.reserve(2000);
+  m_minBias.reserve(size_for_cache);
   m_minBias.clear();
-  m_minBias.assign(2000,0.0);
-  m_first.reserve(2000);
+  m_minBias.assign(size_for_cache,0.0);
+  m_first.reserve(size_for_cache);
   m_first.clear();
-  m_first.assign(2000,0.0);
-  m_isOnl.reserve(2000);
+  m_first.assign(size_for_cache,0.0);
+  m_isOnl.reserve(size_for_cache);
   m_isOnl.clear();
-  m_isOnl.assign(2000,0.0);
+  m_isOnl.assign(size_for_cache,0.0);
 
-  m_shape.reserve(2000);
-  m_OFC.reserve(2000);
+  m_shape.reserve(size_for_cache);
+  m_OFC.reserve(size_for_cache);
 
   m_shape.clear();
   m_OFC.clear();
@@ -299,9 +342,11 @@ void CaloLumiBCIDTool::getListOfCells()
   unsigned int nsofc = 32;
   for(;it!=it_end;++it) {
     const HWIdentifier id  = *it;
+/*
     m_minBias.push_back(0);
     m_first.push_back(0);
     m_isOnl.push_back(0);
+*/
     if(m_cablingService->isOnlineConnected(id)) {
           //  get MinBiasAverage
           float MinBiasAverage = m_dd_minbiasAverage->minBiasAverage(id);
@@ -394,7 +439,6 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
     const xAOD::EventInfo* eventInfo;
     if (! evtStore()->retrieve(eventInfo).isSuccess() ) {
       msg(MSG::WARNING) << " Event info not found in event store . Pileup offsets computed for bcid=1 " << endreq;
-      std::cout << " Event info not found in event store . Pileup offsets computed for bcid=1 " << std::endl;
        bcid=1;
      }
      else {

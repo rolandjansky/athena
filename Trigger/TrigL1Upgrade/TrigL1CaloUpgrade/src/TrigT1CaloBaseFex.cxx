@@ -20,8 +20,9 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-TrigT1CaloBaseFex::TrigT1CaloBaseFex( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator), m_deta(0.08), m_dphi(0.11), m_detaTT(0.125), m_dphiTT(0.15)  {
+TrigT1CaloBaseFex::TrigT1CaloBaseFex( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator), m_deta(0.08), m_dphi(0.11), m_detaTT(0.125), m_dphiTT(0.15), m_inputCellsName("SCell")  {
 	declareProperty("CleanCellContainer", m_useProvenance=false);
+	declareProperty("SuperCellContainer", m_inputCellsName);
 }
 
 StatusCode TrigT1CaloBaseFex::initialize(){
@@ -45,7 +46,7 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 	
 	MsgStream msg(msgSvc(), name());
         const CaloCellContainer* scells_from_sg;
-	if ( evtStore()->retrieve(scells_from_sg,"SCell").isFailure() ){
+	if ( evtStore()->retrieve(scells_from_sg,m_inputCellsName).isFailure() ){
 		msg << MSG::WARNING << "did not find cell container" << endreq;
 		return StatusCode::SUCCESS;
 	}
