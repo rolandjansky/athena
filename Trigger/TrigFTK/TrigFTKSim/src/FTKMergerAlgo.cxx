@@ -2298,17 +2298,17 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
         merged_tracks->addTrackI_pre_hw(newtrack);
       } // end intermediate track loop
 
-      // for (unsigned int itrI=0;itrI!=ntracks_pattern;++itrI) { // intermediate track loop (tracks with patterns)
-      //   // get the track from the bank
-      //   FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_pattern(itrI));
-      //   merged_tracks->addTrack_pattern(newtrack);
-      // } // end intermediate track loop
+      for (unsigned int itrI=0;itrI!=ntracks_pattern;++itrI) { // intermediate track loop (tracks with patterns)
+        // get the track from the bank
+        FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_pattern(itrI));
+        merged_tracks->addTrack_pattern(newtrack);
+      } // end intermediate track loop
 
-      // for (unsigned int itrI=0;itrI!=ntracks_hits;++itrI) { // intermediate track loop (tracks that pass hits requirements)
-      //   // get the track from the bank
-      //   FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_hits(itrI));
-      //   merged_tracks->addTrack_hits(newtrack);
-      // } // end intermediate track loop
+      for (unsigned int itrI=0;itrI!=ntracks_hits;++itrI) { // intermediate track loop (tracks that pass hits requirements)
+        // get the track from the bank
+        FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_hits(itrI));
+        merged_tracks->addTrack_hits(newtrack);
+      } // end intermediate track loop
 
     } // end subregion loop
   } // end bank loop

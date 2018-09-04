@@ -353,15 +353,15 @@ void TrackFitter::processor_end(int ibank)
       m_trackoutput->addTrack_pre_hw(ibank,*itrack2);
     }
 
-    itrack2 = m_tracks_hits.begin();
-    for (;itrack2!=m_tracks_hits.end();itrack2 = m_tracks_hits.erase(itrack2)) {
-      m_trackoutput->addTrack_hits(ibank,*itrack2);
-    }
+    // itrack2 = m_tracks_hits.begin();
+    // for (;itrack2!=m_tracks_hits.end();itrack2 = m_tracks_hits.erase(itrack2)) {
+    //   m_trackoutput->addTrack_hits(ibank,*itrack2);
+    // }
 
-    itrack2 = m_tracks_pattern.begin();
-    for (;itrack2!=m_tracks_pattern.end();itrack2 = m_tracks_pattern.erase(itrack2)) {
-      m_trackoutput->addTrack_pattern(ibank,*itrack2);
-    }
+    // itrack2 = m_tracks_pattern.begin();
+    // for (;itrack2!=m_tracks_pattern.end();itrack2 = m_tracks_pattern.erase(itrack2)) {
+    //   m_trackoutput->addTrack_pattern(ibank,*itrack2);
+    // }
   }
 
   // itrack2 = m_tracks_pre_hw.begin();
