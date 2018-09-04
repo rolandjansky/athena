@@ -7,6 +7,7 @@
 
 #include "GeneratorModules/GenFilter.h"
 #include "xAODJet/JetContainer.h"
+#include "TLorentzVector.h"
 
 class IAtRndmGenSvc;
 
@@ -48,8 +49,8 @@ private:
   double m_alpha;
 
   bool checkOverlap(double, double, std::vector<HepMC::GenParticle*>);
-  bool checkOverlap(double, double, std::vector<CLHEP::HepLorentzVector*>);
-  CLHEP::HepLorentzVector sumDaughterNeutrinos( HepMC::GenParticle* );
+  bool checkOverlap(double, double, std::vector<TLorentzVector*>);
+  TLorentzVector sumDaughterNeutrinos( HepMC::GenParticle* );
 
 public:
 
