@@ -10,8 +10,6 @@
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 
-#include <mutex>
-
 // Forward declarations
 class StoreGateSvc;
 
@@ -45,8 +43,6 @@ private:
   ServiceHandle<StoreGateSvc> m_evtStore;
 
   // ------------------------- private data members ----------------------------
-  std::mutex m_readerMutex;
-
   struct EventCache {
     ~EventCache();
     RawEvent* rawEvent = 0; //!< current event

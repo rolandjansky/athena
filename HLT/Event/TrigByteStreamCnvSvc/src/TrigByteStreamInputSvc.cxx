@@ -74,7 +74,6 @@ StatusCode TrigByteStreamInputSvc::finalize() {
 // =============================================================================
 const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  std::lock_guard<std::mutex> lock( m_readerMutex ); // probably don't need a lock for InputSvc
 
   // get event context from event store
   EventContext* eventContext = nullptr;
