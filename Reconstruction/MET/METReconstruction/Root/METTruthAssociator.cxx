@@ -113,7 +113,7 @@ namespace met {
     SG::ReadHandle<xAOD::ElectronContainer> electronCont(m_recoElKey);
     if (!electronCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input electron container " << m_recoEl);
-      return StatusCode::SUCCESS;
+      return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Successfully retrieved electron collection");
@@ -240,7 +240,7 @@ namespace met {
     SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
     if (!truthEventCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEvent);
-      return StatusCode::SUCCESS;
+      return StatusCode::FAILURE;
     }
 
     // First truth event is the hard scatter

@@ -6,7 +6,7 @@ from AthenaCommon import CfgMgr
 from RecExConfig.RecFlags import rec
 
 from glob import glob
-filelist = ["/r03/atlas/sarahw/Rel21AODs/mc16_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.merge.AOD.e3601_s2997_r8903_r8906/AOD.10226642._001388.pool.root.1"]
+filelist = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1"]
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = filelist
