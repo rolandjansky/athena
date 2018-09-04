@@ -205,7 +205,7 @@ namespace InDet {
      std::string m_thresholdIndicator;
 
     ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool;
-    ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
+    ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
     ServiceHandle<IPixelCalibSvc> m_calibSvc;
     
 
