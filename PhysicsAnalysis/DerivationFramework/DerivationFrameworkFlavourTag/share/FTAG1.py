@@ -83,17 +83,21 @@ FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1AugmentKernel",
                                                          AugmentationTools = [FTAG1DstarVertexing]
                                                         )
 
-#Add unbiased track parameters to track particles
-#FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
-#ToolSvc += FTAG1IPETool
-#print FTAG1IPETool
+#make IPE tool for BTagTrackAugmenter
+FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
+ToolSvc += FTAG1IPETool
+print FTAG1IPETool
 
-#FTAG1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "FTAG1TrackToVertexWrapper",
-#        TrackToVertexIPEstimator = FTAG1IPETool,
-#        DecorationPrefix = "FTAG1",
-#        ContainerName = "InDetTrackParticles")
-#ToolSvc += FTAG1TrackToVertexWrapper
-#print FTAG1TrackToVertexWrapper
+#augment jets with track info
+FTAG1Seq += CfgMgr.BTagVertexAugmenter()
+for jc in ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets"]:
+    FTAG1Seq += CfgMgr.BTagTrackAugmenter(
+        "BTagTrackAugmenter_" + jc,
+        OutputLevel=INFO,
+        JetCollectionName = jc,
+        TrackToVertexIPEstimator = FTAG1IPETool,
+        SaveTrackVectors = True,
+    )
 
 #====================================================================
 # Basic Jet Collections
@@ -105,6 +109,7 @@ OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets",
                        "AntiKt4EMTopoJets",
+                       "AntiKt4EMPFlowJets"
                        ]
 
 
@@ -144,8 +149,12 @@ addExKtDoubleTaggerRCJets(FTAG1Seq, ToolSvc)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 addVRJets(FTAG1Seq)
-# Also add Hbb Tagger
+# Also add Hbb Tagger(s)
 addHbbTagger(FTAG1Seq, ToolSvc)
+addHbbTagger(
+    FTAG1Seq, ToolSvc,
+    nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
+    nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -154,7 +163,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG1Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets', 'AntiKt4EMPFlowJets'],Sequencer = FTAG1Seq)
 
 #====================================================================
 # Add sequence (with all kernels needed) to DerivationFrameworkJob
@@ -184,6 +193,8 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
                                         "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt8EMTopoJets",
                                         "AntiKt8EMTopoExKt2SubJets",
                                         "AntiKt8EMTopoExKt3SubJets",
@@ -192,6 +203,8 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                          ]
 
 FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
+                                    "BTagging_AntiKt4EMPFlow",
+                                    "BTagging_AntiKt4EMPFlowJFVtx",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub",
@@ -240,6 +253,7 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubSecVtx.-vxTrackAtVertex",
@@ -262,6 +276,10 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   FTAG1DstarAug+"Aux"                              :   "xAOD::VertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer",
+  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
+  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,

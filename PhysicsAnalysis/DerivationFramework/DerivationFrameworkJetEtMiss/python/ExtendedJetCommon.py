@@ -201,6 +201,7 @@ def getJetCleaningTool(cleaningLevel):
         jetcleaningtool = getattr(ToolSvc,jetcleaningtoolname)
     else:
         jetcleaningtool = CfgMgr.JetCleaningTool(jetcleaningtoolname,CutLevel=cleaningLevel)
+        jetcleaningtool.UseDecorations = False
         ToolSvc += jetcleaningtool
 
     return jetcleaningtool

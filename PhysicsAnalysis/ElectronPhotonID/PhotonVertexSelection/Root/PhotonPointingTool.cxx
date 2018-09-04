@@ -222,8 +222,8 @@ namespace CP {
     float phis2    = cluster->phiBE(2);
 
     const xAOD::Vertex *conv = photon->vertex();
-    if (cluster == nullptr) {
-      ATH_MSG_WARNING("Couldn't retrieve conversion Vertex from Photon, photons won't be decorated.");
+    if (conv == nullptr) {
+      ATH_MSG_WARNING("Couldn't retrieve conversion vertex from Photon, photons won't be decorated.");
       return std::make_pair(0, 0);
     }
 

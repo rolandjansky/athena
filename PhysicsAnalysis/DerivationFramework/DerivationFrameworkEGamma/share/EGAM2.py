@@ -173,7 +173,8 @@ EGAM2_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta,
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EGAM2ThinningHelper = ThinningHelper( "EGAM2ThinningHelper" )
-EGAM2ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))'
+EGAM2ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Jpsiee.*'
+
 EGAM2ThinningHelper.AppendToStream( EGAM2Stream, ExtraContainersTrigger )
 
 
@@ -346,6 +347,7 @@ for tool in EGAM2_ClusterEnergyPerLayerDecorators:
 # Add detailed shower shape variables
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 EGAM2SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+EGAM2SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 EGAM2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 

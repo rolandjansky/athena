@@ -467,16 +467,13 @@ bool ImportData::getPeriodBoundaries(const std::string& period, std::pair<unsign
 		auto itrMax = m_dataPeriods.find(kwMax);
 		if(itrMin!=m_dataPeriods.end() && itrMax!=m_dataPeriods.end())
 		{
-			boundaries.first = std::min(itrMin->second.first, itrMax->second.first);
-			boundaries.second = std::max(itrMin->second.second, itrMax->second.second);
+			boundaries = std::minmax({itrMin->second.first, itrMax->second.first, itrMin->second.second, itrMax->second.second});
 			return true;
 		}
 		// Third possibility: a range of run numbers
 		try
 		{
-			boundaries.first = std::stoi(kwMin);
-			boundaries.second = std::stoi(kwMax);
-			if(boundaries.first>boundaries.second) std::swap(boundaries.first,boundaries.second);
+			boundaries = std::minmax(std::stoi(kwMin), std::stoi(kwMax));
 			return true;
 		}
 		catch(...) {}

@@ -44,7 +44,7 @@ namespace Trig {
   }
 
 
-  StatusCode DecisionUnpackerEventInfo::unpackItems(const std::vector<uint32_t>& level1TriggerInfo, std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
+  StatusCode DecisionUnpackerEventInfo::unpackItems(const std::vector<uint32_t>& level1TriggerInfo, std::map<unsigned, LVL1CTP::Lvl1Item*>& itemsCache, std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName) {
     
     uint32_t L1SIZE = level1TriggerInfo.size()/3;
     std::vector<uint32_t>::const_iterator begin, end;
@@ -61,9 +61,9 @@ namespace Trig {
     begin = end;
     std::advance(end,L1SIZE);
     std::vector<uint32_t> tav(begin,end);
-    
-    std::map<unsigned, LVL1CTP::Lvl1Item*>::iterator cacheIt;
-    for ( cacheIt = itemsCache.begin(); cacheIt != itemsCache.end(); ++cacheIt ) {    
+
+    itemsByName.reserve( itemsByName.size() + itemsCache.size() );
+    for ( auto cacheIt = itemsCache.begin(); cacheIt != itemsCache.end(); ++cacheIt ) {
       unsigned int ctpid = cacheIt->first;
       LVL1CTP::Lvl1Item* item = cacheIt->second;
       ATH_MSG_VERBOSE("Unpacking bits for item: " << ctpid << " " << item->name());
@@ -78,7 +78,8 @@ namespace Trig {
 
   StatusCode DecisionUnpackerEventInfo::unpackChains(const std::vector<uint32_t>& chainTriggerInfo,
 						     std::map<unsigned, HLT::Chain*>& cache,
-						     std::map<std::string, const HLT::Chain*>& output) {
+						     std::unordered_map<std::string, const HLT::Chain*>& output) {
+    output.reserve( output.size() + cache.size() );
     for( auto& cntr_chain : cache){
       auto cntr = cntr_chain.first;      
       auto chain = cntr_chain.second;
@@ -112,11 +113,11 @@ namespace Trig {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode DecisionUnpackerEventInfo::unpackDecision(std::map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
+  StatusCode DecisionUnpackerEventInfo::unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>& itemsByName,
 						    std::map<CTPID, LVL1CTP::Lvl1Item*>& itemsCache,
-						    std::map<std::string, const HLT::Chain*>& l2chainsByName,
+						    std::unordered_map<std::string, const HLT::Chain*>& l2chainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& l2chainsCache,
-						    std::map<std::string, const HLT::Chain*>& efchainsByName,
+						    std::unordered_map<std::string, const HLT::Chain*>& efchainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& efchainsCache,
                                                     char& /*bgCode*/,
 						    bool unpackHLT

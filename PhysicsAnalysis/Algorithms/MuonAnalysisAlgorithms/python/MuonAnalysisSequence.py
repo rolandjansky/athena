@@ -4,11 +4,14 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeMuonAnalysisSequence( dataType ):
+def makeMuonAnalysisSequence( dataType, deepCopyOutput = False ):
     """Create a muon analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
+      deepCopyOutput -- If set to 'True', the output containers will be
+                        standalone, deep copies (slower, but needed for xAOD
+                        output writing)
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -34,6 +37,14 @@ def makeMuonAnalysisSequence( dataType ):
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut' )
 
+    # Set up the track selection algorithm:
+    alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
+                           'MuonTrackSelectionAlg' )
+    alg.selectionDecoration = "trackSelection"
+    alg.maxD0Significance = 3
+    alg.maxDeltaZ0SinTheta = 0.5
+    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut' )
+
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonSelectionAlg' )
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionDecoration = 'good_muon'
@@ -49,15 +60,15 @@ def makeMuonAnalysisSequence( dataType ):
     # Set up an algorithm used for debugging the muon selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' )
     alg.histPattern = 'muon_cflow_%SYS%'
-    alg.selection = [ 'kin_select', 'good_muon', 'isolated_muon' ]
-    alg.selectionNCuts = [ 2, 4, 1 ]
+    alg.selection = [ 'kin_select', 'trackSelection', 'good_muon', 'isolated_muon' ]
+    alg.selectionNCuts = [ 2, 2, 4, 1 ]
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'MuonViewFromSelectionAlg' )
-    alg.selection = [ 'kin_select', 'good_muon', 'isolated_muon' ]
+    alg.selection = [ 'kin_select', 'trackSelection', 'good_muon', 'isolated_muon' ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the efficiency scale factor calculation algorithm:
@@ -81,6 +92,14 @@ def makeMuonAnalysisSequence( dataType ):
     alg = createAlgorithm( 'CP::KinematicHistAlg', 'MuonKinematicDumperAlg' )
     alg.histPattern = 'muon_%VAR%_%SYS%'
     seq.append( alg, inputPropName = 'input' )
+
+    # Set up a final deep copy making algorithm if requested:
+    if deepCopyOutput:
+        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+                               'MuonDeepCopyMaker' )
+        alg.deepCopy = True
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
+        pass
 
     # Return the sequence:
     return seq

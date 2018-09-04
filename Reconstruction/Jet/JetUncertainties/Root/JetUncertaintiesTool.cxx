@@ -7,6 +7,7 @@
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
 #include "JetUncertainties/ConfigHelper.h"
+#include "JetUncertainties/ResolutionHelper.h"
 #include "JetUncertainties/CorrelationMatrix.h"
 
 // UncertaintyHistogram types
@@ -45,7 +46,6 @@
 #include "TROOT.h"
 #include "TEnv.h"
 #include "TH2D.h"
-#include "TRandom3.h"
 
 // C++ includes
 #include <unordered_set>
@@ -67,7 +67,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
-    , m_calibArea("CalibArea-03")
+    , m_calibArea("CalibArea-05")
     , m_path("")
     , m_analysisFile("")
     , m_analysisHistPattern("")
@@ -91,8 +91,9 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(0)
-    , m_rand(new TRandom3())
-    , m_massSmearPar(0.66)
+    , m_rand()
+    , m_isData(true)
+    , m_resHelper(NULL)
     , m_namePrefix("JET_")
 {
     declareProperty("JetDefinition",m_jetDef);
@@ -103,6 +104,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     declareProperty("AnalysisFile",m_analysisFile);
     declareProperty("AnalysisHistPattern",m_analysisHistPattern);
     declareProperty("VariablesToShift",m_systFilters);
+    declareProperty("IsData",m_isData);
 
     ATH_MSG_DEBUG("Creating JetUncertaintiesTool named "<<m_name);
 
@@ -145,8 +147,9 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(toCopy.m_userSeed)
-    , m_rand(toCopy.m_rand ? new TRandom3(*toCopy.m_rand) : NULL)
-    , m_massSmearPar(toCopy.m_massSmearPar)
+    , m_rand(toCopy.m_rand)
+    , m_isData(toCopy.m_isData)
+    , m_resHelper(new ResolutionHelper(*toCopy.m_resHelper))
     , m_namePrefix(toCopy.m_namePrefix)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
@@ -181,7 +184,7 @@ JetUncertaintiesTool::~JetUncertaintiesTool()
         JESUNC_SAFE_DELETE(iter->second);
     m_systSetMap.clear();
 
-    JESUNC_SAFE_DELETE(m_rand);
+    JESUNC_SAFE_DELETE(m_resHelper);
 }
 
 StatusCode JetUncertaintiesTool::setScaleToMeV()
@@ -245,6 +248,7 @@ StatusCode JetUncertaintiesTool::initialize()
     ATH_MSG_INFO(Form("  Initializing the JetUncertaintiesTool named %s",m_name.c_str()));
     ATH_MSG_INFO(Form("  Path is: \"%s\"",m_path.c_str()));
     ATH_MSG_INFO(Form("  CalibArea is: \"%s\"",m_calibArea.c_str()));
+    ATH_MSG_INFO(Form("  IsData is: \"%s\"",m_isData ? "true" : "false"));
     ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_configFile.c_str()));
     ATH_MSG_INFO(Form("    Location: %s",configFilePath.Data()));
     
@@ -393,8 +397,8 @@ StatusCode JetUncertaintiesTool::initialize()
     const TString TAMassWeight   = TString(settings.GetValue("CombMassWeightTAHist",""));
     if (caloMassWeight != "" && TAMassWeight != "")
     {
-        m_caloMassWeight = new UncertaintyHistogram(caloMassWeight+"_"+m_jetDef.c_str(),true);
-        m_TAMassWeight = new UncertaintyHistogram(TAMassWeight+"_"+m_jetDef.c_str(),true);
+        m_caloMassWeight = new UncertaintyHistogram(caloMassWeight+"_"+m_jetDef.c_str(),Interpolate::Full);
+        m_TAMassWeight = new UncertaintyHistogram(TAMassWeight+"_"+m_jetDef.c_str(),Interpolate::Full);
 
         if (m_caloMassWeight->initialize(histFile).isFailure())
             return StatusCode::FAILURE;
@@ -458,7 +462,7 @@ StatusCode JetUncertaintiesTool::initialize()
             m_refNPV = utils::getTypeObjFromString<float>(refNPV);
         else
         {
-            m_refNPVHist = new UncertaintyHistogram(refNPV+"_"+m_jetDef,false);
+            m_refNPVHist = new UncertaintyHistogram(refNPV+"_"+m_jetDef,Interpolate::None);
             if (m_refNPVHist->initialize(histFile).isFailure())
                 return StatusCode::FAILURE;
         }
@@ -467,7 +471,7 @@ StatusCode JetUncertaintiesTool::initialize()
             m_refMu = utils::getTypeObjFromString<float>(refMu);
         else
         {
-            m_refMuHist = new UncertaintyHistogram(refMu+"_"+m_jetDef,false);
+            m_refMuHist = new UncertaintyHistogram(refMu+"_"+m_jetDef,Interpolate::None);
             if (m_refMuHist->initialize(histFile).isFailure())
                 return StatusCode::FAILURE;
         }
@@ -491,6 +495,12 @@ StatusCode JetUncertaintiesTool::initialize()
         }
         ATH_MSG_INFO(Form("  VariablesToShift: %s",varString.c_str()));
     }
+
+    // Attempt to read in nominal resolution information
+    // There may be no such information - this is perfectly normal
+    m_resHelper = new ResolutionHelper(m_name+"_RH",m_jetDef);
+    if(m_resHelper->initialize(settings,histFile).isFailure())
+        return StatusCode::FAILURE;
 
     // Prepare for reading components and groups
     // Components can be a group by themself (single component groups) if "Group" == 0
@@ -642,114 +652,6 @@ StatusCode JetUncertaintiesTool::initialize()
     }
 
 
-    /*
-    // Deal with subgroups
-    // Have to do this carefully to ensure we can have multiple levels of subgroups (groups of groups of groups of ...)
-
-    // First split into complex groups and basic groups (groups which include subgroups and groups which do not include subgroups)
-    // Also get the full list of subgroup requests to ensure there are no duplicates
-    std::vector<size_t> complexGroupIndices;
-    std::vector<size_t> basicGroupIndices;
-    std::set<int> subgroupsRequested;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-    {
-        const std::vector<int> subgroupNums = m_groups.at(iGroup)->getSubgroupNums();
-        if (subgroupNums.size())
-        {
-            for (size_t iSubgroup = 0; iSubgroup < subgroupNums.size(); ++iSubgroup)
-            {
-                const int subgroupNum = subgroupNums.at(iSubgroup);
-                if (subgroupNum == 0)
-                {
-                    ATH_MSG_ERROR("Requested group number 0 as a subgroup, which is forbidden (0 is a simple group)");
-                    return StatusCode::FAILURE;
-                }
-                else if (subgroupsRequested.count(subgroupNum))
-                {
-                    ATH_MSG_ERROR(Form("Requested group number %d as a subgroup of multiple complex groups",subgroupNum));
-                    return StatusCode::FAILURE;
-                }
-                else
-                    subgroupsRequested.insert(subgroupNum);
-            }
-            complexGroupIndices.push_back(iGroup);
-        }
-        else
-            basicGroupIndices.push_back(iGroup);
-    }
-
-    // Match indices to each of the requested subgroups
-    std::vector< std::pair<int,size_t> > subgroupPairs;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-    {
-        const int groupNum = m_groups.at(iGroup)->getGroupNum();
-        if (groupNum == 0) continue;
-        
-        for (std::set<int>::const_iterator iter = subgroupsRequested.begin(); iter != subgroupsRequested.end(); ++iter)
-        {
-            if ( (*iter) == groupNum )
-            {
-                subgroupPairs.push_back(std::make_pair(groupNum,iGroup));
-                break;
-            }
-        }
-    }
-
-    // We now have the map of (group-->index)
-    // Combine all of the groups as applicable
-    // Leave all of the groups in the class member vector for now until we have completed the merger
-    for (size_t iCompGroup = 0; iCompGroup < complexGroupIndices.size(); ++iCompGroup)
-    {
-        const size_t compGroupIndex = complexGroupIndices.at(iCompGroup);
-        const std::vector<int> subgroupNums = m_groups.at(compGroupIndex)->getSubgroupNums();
-        for (size_t iSubgroupPair = 0; iSubgroupPair < subgroupPairs.size(); ++iSubgroupPair)
-        {
-            for (size_t iSubgroup = 0; iSubgroup < subgroupNums.size(); ++iSubgroup)
-            {
-                // Ensure we're not adding a cyclic group
-                if (m_groups.at(compGroupIndex)->getGroupNum() == subgroupNums.at(iSubgroup))
-                {
-                    ATH_MSG_ERROR(Form("Blocking the request to add group number %d as a subgroup of itself",subgroupNums.at(iSubgroup)));
-                    return StatusCode::FAILURE;
-                }
-
-                // Now add the subgroup to the complex group
-                if (subgroupNums.at(iSubgroup) == subgroupPairs.at(iSubgroupPair).first)
-                {
-                    if (m_groups.at(compGroupIndex)->addSubgroup(m_groups.at(subgroupPairs.at(iSubgroupPair).second)).isFailure())
-                    {
-                        ATH_MSG_ERROR(Form("Failed to add subgroup \"%s\" to complex group \"%s\"",m_groups.at(subgroupPairs.at(iSubgroupPair).second)->getName().Data(),m_groups.at(compGroupIndex)->getName().Data()));
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    // Clean up all of the subgroups, leaving only the outermost complex groups and independent groups in the class member variable
-    // Faster to do it this way rather than deleting individual entries of the vector
-    std::vector<UncertaintyGroup*> localGroupVec;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-        localGroupVec.push_back(m_groups.at(iGroup));
-    m_groups.clear();
-    for (size_t iGroup = 0; iGroup < localGroupVec.size(); ++iGroup)
-    {
-        // Check if this group should be retained
-        bool retainGroup = true;
-        for (size_t iSubgroupPair = 0; iSubgroupPair < subgroupPairs.size(); ++iSubgroupPair)
-        {
-            if (subgroupPairs.at(iSubgroupPair).second == iGroup)
-            {
-                retainGroup = false;
-                break;
-            }
-        }
-        // Keep the group if applicable
-        if (retainGroup)
-            m_groups.push_back(localGroupVec.at(iGroup));
-    }
-    */
-
     
     // Initialize all of the groups (and thus all of the components)
     // Also ensure that there are no empty groups
@@ -776,6 +678,26 @@ StatusCode JetUncertaintiesTool::initialize()
         if (addAffectingSystematic(systVar,isRecommended) != CP::SystematicCode::Ok)
             return StatusCode::FAILURE;
     }
+
+    // Ensure that we have nominal resolutions for any requested resolution uncertainties
+    // Do this at initialization, even if it is also checked in execution
+    // Also ensure that it was specified whether this is data or MC if resolutions are specified
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    {
+        std::set<CompScaleVar::TypeEnum> scaleVars = m_groups.at(iGroup)->getScaleVars();
+        for (CompScaleVar::TypeEnum var : scaleVars)
+        {
+            if (CompScaleVar::isResolutionType(var))
+            {
+                if (!m_resHelper->hasRelevantInfo(var,m_groups.at(iGroup)->getTopology()))
+                {
+                    ATH_MSG_ERROR("Config file requests a resolution uncertainty without specifying the corresponding nominal resolution: " << CompScaleVar::enumToString(var).Data());
+                    return StatusCode::FAILURE;
+                }
+            }
+        }
+    }
+
 
     // Ensure that the filters are sane (they are all associated to at least one group)
     for (size_t iFilter = 0; iFilter < m_systFilters.size(); ++iFilter)
@@ -1631,6 +1553,16 @@ bool JetUncertaintiesTool::getComponentScalesMultiple(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return m_groups.at(index)->getScaleVars().size() > 1;
 }
+std::set<CompScaleVar::TypeEnum> JetUncertaintiesTool::getComponentScaleVars(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return std::set<CompScaleVar::TypeEnum>();
+    return m_groups.at(index)->getScaleVars();
+}
+JetTopology::TypeEnum JetUncertaintiesTool::getComponentTopology(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return JetTopology::UNKNOWN;
+    return m_groups.at(index)->getTopology();
+}
 
 
 bool JetUncertaintiesTool::getValidity(size_t index, const xAOD::Jet& jet) const
@@ -1787,43 +1719,95 @@ bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const 
 }
 
 
+double JetUncertaintiesTool::getNominalResolutionMC(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology) const
+{
+    return getNominalResolution(jet,smearType,topology,true);
+}
+
+double JetUncertaintiesTool::getNominalResolutionData(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology) const
+{
+    return getNominalResolution(jet,smearType,topology,false);
+}
+
+double JetUncertaintiesTool::getNominalResolution(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology, const bool readMC) const
+{
+    if (!m_isInit)
+    {
+        ATH_MSG_FATAL("Tool must be initialized before calling getNominalResolution");
+        return JESUNC_ERROR_CODE;
+    }
+    if (!m_resHelper)
+    {
+        ATH_MSG_ERROR("The ResolutionHelper class was not created");
+        return JESUNC_ERROR_CODE;
+    }
+
+    // Get the nominal histogram, parametrization, and mass def (if relevant) from the helper
+    std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum> resolution = m_resHelper->getNominalResolution(smearType,topology,readMC);
+
+    // Check that we retrieved them successfully
+    if (!std::get<0>(resolution) || std::get<1>(resolution) == CompParametrization::UNKNOWN)
+        return JESUNC_ERROR_CODE;
+    if (CompParametrization::includesMass(std::get<1>(resolution)) && std::get<2>(resolution) == CompMassDef::UNKNOWN)
+    {
+        // We should never reach this, as it was also checked during initialization
+        ATH_MSG_ERROR("Parametrization involves mass but mass def is unknown");
+        return JESUNC_ERROR_CODE;
+    }
+
+    // Now read the uncertainty from the histogram
+    return readHistoFromParam(jet,*std::get<0>(resolution),std::get<1>(resolution),std::get<2>(resolution));
+}
+
+
+double JetUncertaintiesTool::readHistoFromParam(const xAOD::Jet& jet, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param, const jet::CompMassDef::TypeEnum massDef) const
+{
+    // Simple case (no mass dependence)
+    if (!CompParametrization::includesMass(param))
+        return readHistoFromParam(jet.jetP4(),histo,param);
+    
+    // Complex case (need to check the mass type to use)
+    JetFourMomAccessor massScaleAccessor(CompMassDef::getJetScaleString(massDef).Data());
+    return readHistoFromParam(massScaleAccessor(jet),histo,param);
+}
+
 double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
 {
-    double resolution = 0;
+    double value = 0;
     switch (param)
     {
         case CompParametrization::Pt:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale);
+            value = histo.getValue(jet4vec.Pt()*m_energyScale);
             break;
         case CompParametrization::PtEta:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
             break;
         case CompParametrization::PtAbsEta:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
             break;
         case CompParametrization::PtMass:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
             break;
         case CompParametrization::PtMassEta:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
             break;
         case CompParametrization::PtMassAbsEta:
-            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),fabs(jet4vec.Eta()));
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),fabs(jet4vec.Eta()));
             break;
         case CompParametrization::eLOGmOe:
-            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()));
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()));
             break;
         case CompParametrization::eLOGmOeEta:
-            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),jet4vec.Eta());
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),jet4vec.Eta());
             break;
         case CompParametrization::eLOGmOeAbsEta:
-            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),fabs(jet4vec.Eta()));
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),fabs(jet4vec.Eta()));
             break;
         default:
             ATH_MSG_ERROR("Failed to read histogram due to unknown parametrization type in " << getName());
             break;
     }
-    return resolution == 0 ? 0 : 1./(resolution*resolution);
+    return value;
 }
 
 
@@ -1834,14 +1818,13 @@ double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) c
     static JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
     static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
-
     const double caloRes = m_caloMassWeight ? readHistoFromParam(caloScale(jet),*m_caloMassWeight,m_combMassParam) : 0;
     const double TARes   = m_TAMassWeight ? readHistoFromParam(TAScale(jet),*m_TAMassWeight,m_combMassParam) : 0;
 
     if (caloRes == 0 || TARes == 0) return 0;
 
-    const double caloFactor = 1./(caloRes*caloRes);
-    const double TAFactor   = 1./(TARes*TARes);
+    const double caloFactor = (caloRes == 0) ? 0 : 1./(caloRes*caloRes);
+    const double TAFactor   = ( TARes  == 0) ? 0 : 1./(TARes*TARes);
     
     if (caloFactor + TAFactor == 0) return 0;
 
@@ -2035,16 +2018,59 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
     if (!allValid)
         return CP::CorrectionCode::OutOfValidityRange;
     
+    // Ensure that we don't mix relative and absolute resolution uncertainties of the same type
+    // Such situations violate the current code structure
+    std::vector<CompScaleVar::TypeEnum> scaleVars = m_currentUncSet->getScaleVars();
+    bool hasMassRes = false;
+    bool hasPtRes   = false;
+    bool hasFvRes   = false;
+    for (CompScaleVar::TypeEnum var : scaleVars)
+    {
+        if (var == CompScaleVar::MassRes || var == CompScaleVar::MassResAbs)
+        {
+            if (hasMassRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative mass resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasMassRes = true;
+        }
+        else if (var == CompScaleVar::PtRes || var == CompScaleVar::PtResAbs)
+        {
+            if (hasPtRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative pT resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasPtRes = true;
+        }
+        else if (var == CompScaleVar::FourVecRes || var == CompScaleVar::FourVecResAbs)
+        {
+            if (hasFvRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative four-vector resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasFvRes = true;
+        }
+    }
+
+
     // Handle each case as needed
     for (size_t iVar = 0; iVar < uncSet.size(); ++iVar)
     {
         const CompScaleVar::TypeEnum scaleVar = uncSet.at(iVar).first;
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
+        const double smear = uncSet.at(iVar).second;
         
 
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
+        double smearingFactor = 1;
         switch (scaleVar)
         {
             case CompScaleVar::FourVec:
@@ -2093,7 +2119,32 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
-                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),getMassSmearingFactor(jet,shift,m_massSmearPar)*jet.m()));
+            case CompScaleVar::MassResAbs:
+                if (m_currentUncSet->getTopology() == JetTopology::UNKNOWN)
+                {
+                    // The JMR requires that there is a topology specified
+                    // (JMR uncertainties are topology-specific)
+                    ATH_MSG_ERROR("Smearing the mass without specifying the topology is not supported");
+                    return CP::CorrectionCode::Error;
+                }
+                if (m_currentUncSet->getTopology() == JetTopology::MIXED)
+                {
+                    // We can't handle multi-topology JMR uncertainties
+                    ATH_MSG_ERROR("Smearing the mass using multiple topology definitions is not supported");
+                    return CP::CorrectionCode::Error;
+                }
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),smearingFactor*jet.m()));
+                break;
+            case CompScaleVar::PtRes:
+            case CompScaleVar::PtResAbs:
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(smearingFactor*jet.pt(),jet.eta(),jet.phi(),jet.m()));
+                break;
+            case CompScaleVar::FourVecRes:
+            case CompScaleVar::FourVecResAbs:
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(smearingFactor*jet.pt(),jet.eta(),jet.phi(),smearingFactor*jet.m()));
                 break;
             default:
                 ATH_MSG_ERROR("Asked to scale an UNKNOWN variable for set: " << m_currentUncSet->getName());
@@ -2210,35 +2261,148 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
 
 
 
-// Courtest of Francesco Spano
-float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const
+
+double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const double variation) const
 {
-    //----input discussion---
-    // input should the standard deviation of mass response, sigma(M_smear/M_nominal), recover that deviation
-    // even if it is the fractional deviation of the mass response, it is fine as long as the mass is calibrated
-    // sigma(M_smear/M_nominal)/<M_smear/M_nominal>~ sigma(M_smear/M_nominal) as   <M_smear/M_nominal> ~ 1
-    //----
+    /*
+        Below follows discussion between B Malaescu, C Young, and S Schramm on 14/08/2018
 
-    // the input shift is the fractional resolution + 1--> recover the nominal fractional resolution
-    // we should have the resolution of the mass response, but
-    double frac_sigma_nominal = fabs(shift-1);
+        sigma_smear^2 = (sigma_nominal + |n*x + m*y + ...|)^2 - (sigma_nominal)^2
+            sigma_smear: width of the Gaussian to smear with
+            sigma_nominal: the nominal resolution in either (pseudo-)data OR mc (see below)
+            n: #sigma variation for NP1
+            m: #sigma variation for NP2
+            x: uncertainty from NP1
+            y: uncertainty from NP2
+        Note that n,m,x,y all are signed quantities
+            n,m are + for upward variations and - for downward variations
+            x,y are + or - to differentiate regions of anticorrelations within a given NP
 
-    // Set the seed; same procedure as in JERSmearingTool::getSmearingFactor(const xAOD::Jet* jet, double sigma)
-    long long int seed = m_userSeed;
-    if(seed == 0) seed = 1.e+5*std::abs(jet.phi());  
-    m_rand->SetSeed(seed);
+        The source of sigma_nominal depends on what is being smeared
+            (nx+my+...) > 0  -->  smear MC, so use sigma_nominal^MC
+            (nx+my+...) < 0  -->  smear (pseudo-)data, so use sigma_nominal^data
+            (nx+my+...) = 0  -->  no smearing is required
+
+        In some cases, it is not desireable to smear (pseudo-)data
+        Result: two correlation smearing options, "full" and "simple"
+            Full = full correlations preserved, smear both (peudo-)data and MC
+            Simple = simplified correlations (= loss of correlations), smear only MC
+
+        In "simple" case, we are smearing MC even if we should ideally smear (pseudo-)data
+            sign(nx+my+...)  -->  no longer matters, always use sigma_nominal^MC
+        Furthermore, take the absolute value as we are forcing an upward variation
+            sigma_smear^2 = (sigma_nom^MC + |n*x + m*y + ...|)^2 - (sigma_nom^MC)^2
+            In the case of 1 NP, analysis gets same result if n is positive or negative
+            Analysis must symmetrize uncertainties themselves to get downward variations
+
+        The above is all for absolute resolution uncertainties
+            In the case of relative resolution uncertainties, not much changes
+            n*x --> n*sigma_nominal*x
+                n: unchanged from before, #sigma variation for NP1
+                x: now this is a fractional uncertainty, but it is still the value of NP1
+                sigma_nominal: uncertainty measurement varies (sign unaffected by nominal)
+            In other words, all of the above is directly extended
+
+        This all relies on the fact that absolute and relative resolutions are not mixed
+            This is enforced by the tool enums, which are one or the other
+            Asking for both relative and absolute smearing is two separate scale variables
+            The tool checks for such cases and explicitly blocks them
+
+        There is one exception to the above: a "data-MC difference" smearing
+            If MC is below data, then we smear MC to match data (nominal smearing)
+                Occurs if (sigma_nom^MC - sigma_nom^data) < 0, or equivalently (sigma_nom^data - sigma_nom^MC) > 0
+            If data is below MC, we don't want to degrade the resolution of data to match MC
+                Occurs if (sigma_nom^MC - sigma_nom^data) > 0, or equivalently (sigma_nom^data - sigma_nom^MC) < 0
+            We also can't anti-smear MC (at least not with Gaussian smearing)
+        Instead, smear by sigma_smear^2 = (sigma_nom + |Nsigma*[sigma_nom^data - sigma_nom^MC]|)^2 - (sigma_nom)^2
+            This uses the second form of the above inequalities to stick with convention
+            This way, we signify that we are smearing data (uncertainty < 0 if Nsigma > 0)
+        This should be smearing of data (sigma_nom = sigma_nom^data)
+            However, in the simple scenario, we still only smear MC
+                Apply the uncertainty as-is, with sigma_nom = sigma_nom^MC
+                This is actually "conservative" (in magnitude, not necessarily in correlations)
+                    |Nsigma*(sigma_nom^data - sigma_nom^MC)| is a fixed value independent of choice, call it X
+                    sigma_smear^2 = (sigma_nom + X)^2 - (sigma_nom)^2
+                    sigma_smear^2 = sigma_nom^2 [ (1 + X/sigma_nom)^2 - 1 ]
+                    Taylor expand: sigma_smear^2 ~ sigma_nom^2 ( 1 + 2*X/sigma_nom - 1 )
+                    sigma_smear^2 ~ sigma_nom^2 * 2 X / sigma_nom
+                    sigma_smear^2 ~ sigma_nom * 2 X
+                    Therefore, larger sigma_nom --> larger sigma_smear
+                    In this case, we know that sigma_nom^MC > sigma_nom^data (motivation for uncertainty)
+                    As such, sigma_nom = sigma_nom^MC is conservative
+        This does not need to be handled any different than other uncertainties in the code
+            However, the inputs will need to be made carefully to do the correct thing
+            In particular, smear data occurs if sign(unc) < 0
+            That is why it is written above as (sigma_nom^data - sigma_nom^MC) < 0
+            In other words, the histogram must be created to be <= 0
+            It should be <0 when data is below MC, and =0 when data is above MC
+            This *could* be calculated on-the-fly from the two nominal histograms
+                This requires substantial code development, as now this one NP is different from all others
+                In the interest of time and code re-use, instead demand an extra histogram input
+
+        In the end, smear by a Gaussian of mean 1 and width sigma_smear
+
+        ----------
+        
+        Given this, the arguments to the function are:
+            jet: jet to smear, needed for the kinematic dependence of nominal resolutions
+            smearType: the resolution type to select the relevant nominal resolutions
+            variation: the signed value of n*x + m*y + ... (for both relative and absolute)
+
+        Dedicated class member variables used by this function are:
+            m_isData: needed to control whether or not to smear the jet
+            m_resHelper: contains lots of global resolution information
+                - Whether to smear MC and data, or only MC
+                - Nominal resolution histograms for data
+                - Nominal resolution histograms for MC
+                - Parametrizations of nominal resolution histograms
+            m_rand: the random number generator
+            m_userSeed: the optional user-specified seed to use for the random generator
+
+        Technical detail on relative uncertainties:
+            The input value of "variation" is always n*x + m*y + ...
+            This is trivially correct for absolute uncertainties, but not relative
+            However, for relative uncertainties, all NPs are with respect to same nominal
+            As such, it factors out, and we can take variation*sigma_nominal^data
+            Furthermore, as it factors out, the nominal doesn't matter to determine the sign
+            This is important as the sign sets whether data or MC is the nominal
+    */
+
+    // Check if we need to do anything at all
+    if (variation == 0)
+        return 1; // No smearing if the variation is 0
+    else if (m_isData)
+    {
+        if (m_resHelper->smearOnlyMC())
+            return 1; // No smearing if this is data and we are in the simple scenario
+        if (variation > 0)
+            return 1; // No smearing if this is data and the sign says to smear MC
+    }
+    else if (variation < 0 && !m_resHelper->smearOnlyMC())
+        return 1; // No smearing if this is MC and the sign says to smear data and this is not the simple scenario
     
-    //  get the Gaussian random number associated to the relative resolution
-    // 1st way : a la JetRes use a relative standard deviation
-    //double smearingFact1=m_rand->Gaus(1.,0.66*frac_sigma_nominal);
-    double smearingFact1=m_rand->Gaus(1.,massSmearPar*frac_sigma_nominal);
+    // Figure out which resolution is nominal (MC or data)
+    const bool nominalIsMC = (m_resHelper->smearOnlyMC() || variation > 0);
 
-    // 2nd alternative way : use the relative standard deviation 
-    //  const double GaussZeroOne = m_rand->Gaus(0.,1.); 
-    //  double smearingFact2=1+0.66*GaussZeroOne*frac_sigma_nominal;
-    double smearingFact=smearingFact1;
+    // Get the relevant nominal resolution
+    const double sigmaNom = getNominalResolution(jet,smearType,m_currentUncSet->getTopology(),nominalIsMC);
 
-    return smearingFact;
+    // If this is a relative uncertainty, get the relevant nominal data histogram
+    // This is used to scale the input relative variation to get the absolute impact
+    const double relativeFactor = CompScaleVar::isRelResolutionType(smearType) ? sigmaNom : 1;
+
+    // We now have the required information, so let's calculate the smearing factor
+    // Note that relativeFactor is 1 if this is an absolute uncertainty
+    const double sigmaSmear = sqrt(pow(sigmaNom + fabs(variation)*relativeFactor,2) - pow(sigmaNom,2));
+
+    // We have the smearing factor, so prepare to smear
+    // If the user specified a seed, then use it
+    // If not, then use the jet's phi times 10^5
+    const long long int seed = m_userSeed != 0 ? m_userSeed : 1.e+5*fabs(jet.phi());
+    m_rand.SetSeed(seed);
+
+    // Calculate and return the smearing factor
+    return m_rand.Gaus(1.,sigmaSmear);
 }
 
 

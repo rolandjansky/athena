@@ -103,6 +103,9 @@ StatusCode RCJetMC15::initialize(){
         float rho     = std::stof(original_rho);
         float m_scale = mass_scales.at(m_VarRCjets_mass_scale);
         m_massscale   = rho*m_scale*1e-3;                   // e.g., 2*m_top; in [GeV]!
+	
+	m_useJSS=m_config->useVarRCJetSubstructure();
+	
     }
     else{
         m_ptcut  = std::stof( configSettings->value("RCJetPt") );     // for initialize [GeV] & passSelection
@@ -111,8 +114,10 @@ StatusCode RCJetMC15::initialize(){
         m_radius = std::stof( configSettings->value("RCJetRadius") ); // for initialize    
         m_minradius = -1.0;
         m_massscale = -1.0;
-	if (m_config->useRCJetSubstructure()){
-	  m_useJSS = true;
+	m_useJSS=m_config->useRCJetSubstructure();
+    }
+    
+    if (m_useJSS){
 	  ATH_MSG_INFO("Calculating RCJet Substructure");
 
 
@@ -164,7 +169,9 @@ StatusCode RCJetMC15::initialize(){
 	  m_gECF321 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(2,3,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
 	  m_gECF311 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(1,3,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
 	}
-    }
+    
+    
+    
 
     for (auto treeName : *m_config->systAllTTreeNames()) {
         // only make a new tool if it is the nominal systematic or one that could affect small-r jets (el, mu, jet)
@@ -289,14 +296,16 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	   for (auto rcjet : *myJets){
 	   
 	     std::vector<fastjet::PseudoJet> clusters;
-	     // //  //EMTOPO CLUSTERS
-	     getEMTopoClusters(clusters,rcjet);
-	     //	//  // LCTOPO CLUSTERS
-	     //getLCTopoClusters(clusters,rcjet);
-		
+	     
+	     
+	     if(m_config->sgKeyJetsTDS(hash_factor*m_config->nominalHashValue(),false).find("AntiKt4EMTopoJets")!=std::string::npos)getEMTopoClusters(clusters,rcjet); // //  // use subjet constituents
+	     else getLCTopoClusters(clusters,rcjet); //	//  // use LCTOPO CLUSTERS matched to subjet
+	     top::check(!clusters.empty(),"RCJetMC15::execute(const top::Event& event): Failed to get vector of clusters! Unable to calculate RC jets substructure variables!\n Aborting!");
+	     
 	     // Now rebuild the large jet from the small jet constituents aka the original clusters
 	     fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
 	     std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
+	     
      
 	     fastjet::PseudoJet correctedJet;
 	     correctedJet = my_pjets[0];

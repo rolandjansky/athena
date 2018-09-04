@@ -3,6 +3,7 @@
 # Import(s):
 import ROOT
 import unittest
+import copy
 
 class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
     """Standalone Analysis Algorithm Configuration
@@ -53,7 +54,7 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         # Set the properties on the object:
         for key, value in kwargs.iteritems():
             self.setPropertyFromString( key, stringPropValue( value ) )
-            self._props[ key ] = value
+            self._props[ key ] = copy.deepcopy( value )
             pass
 
         pass
@@ -118,7 +119,7 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         # Set the property, and remember its value:
         super( AnaAlgorithmConfig,
                self ).setPropertyFromString( key, stringPropValue( value ) )
-        self._props[ key ] = value
+        self._props[ key ] = copy.deepcopy( value )
         pass
 
     def __eq__( self, other ):
@@ -160,7 +161,12 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         result = AnaAlgorithmConfig._printHeader( name )
         result += '\n'
         for key, value in sorted( self._props.iteritems() ):
-            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
+            if isinstance( value, str ):
+                printedValue = "'%s'" % value
+            else:
+                printedValue = value
+                pass
+            result += "|- %s: %s\n" % ( key, indentBy( printedValue, "| " ) )
             pass
         result += AnaAlgorithmConfig._printFooter( name )
         return result
@@ -310,7 +316,7 @@ class PrivateToolConfig( object ):
         # Set the property, and remember its value:
         self._algorithm.setPropertyFromString( fullName,
                                                stringPropValue( value ) )
-        self._props[ key ] = value
+        self._props[ key ] = copy.deepcopy( value )
         pass
 
     def __str__( self ):
@@ -325,7 +331,12 @@ class PrivateToolConfig( object ):
         result += AnaAlgorithmConfig._printHeader( name )
         result += '\n'
         for key, value in sorted( self._props.iteritems() ):
-            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
+            if isinstance( value, str ):
+                printedValue = "'%s'" % value
+            else:
+                printedValue = value
+                pass
+            result += "|- %s: %s\n" % ( key, indentBy( printedValue, "| " ) )
             pass
         result += AnaAlgorithmConfig._printFooter( name )
         return result

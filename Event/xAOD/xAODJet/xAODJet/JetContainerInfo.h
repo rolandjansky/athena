@@ -17,6 +17,7 @@
 /// ///////////////////////////////
 
 #include <string>
+#include <unordered_set>
 
 namespace xAOD {
 
@@ -82,10 +83,21 @@ namespace xAOD {
       EMPFlowVor,
       EMPFlowCSSK,
       EMPFlowVorSK,
+      HI,
       TruthCharged, // Truth jets with only charged particles
+      EMTopoOriginTime,
+      EMTopoOriginSKTime,
+      EMTopoOriginCSSKTime,
+      EMTopoOriginVorSKTime,
+      EMPFlowTime,
+      EMPFlowSKTime,
+      EMPFlowCSSKTime,
+      EMPFlowVorSKTime,
       Other = 100,
       Uncategorized= 1000
     };
+
+    bool isValidConstitType(Type t);
     
     const std::string& typeName(Type t);
 
@@ -107,7 +119,7 @@ namespace xAOD {
     /// Convert jet transformation enum to string.
     std::string name(Type t);
     /// Convert string to jet transformation enum.
-    Type type(std::string name);
+    Type type(const std::string& name);
   }
 
 }

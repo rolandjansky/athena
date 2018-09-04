@@ -306,9 +306,7 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString& configName) {
       Info("UsePeriodConfig","Using Run2 Period configuration, which assumes period assignment of 222222 to 999999");
       return 0;
    } else if(configName=="MC16") {
-     AddPeriod(284500,222222,324300); //MC16a: 2015 + 2016
-     AddPeriod(300000,324300,999999); //MC16c: 2017+  ... will need to update this when we know end of 2017 
-     //AddPeriod(310000,xxxxxx,999999); //MC16d: 2018+ .. to be added at end of 2017
+     /* period configs are now assigned through the parent tool for MC16 */
      
      SetUniformBinning(100,0,100);
      Info("UsePeriodConfig","Using MC16 Period configuration");
@@ -1006,6 +1004,8 @@ Int_t CP::TPileupReweighting::Initialize() {
 
    //find all channels that have too much unrepresented data (more than tolerance). We will remove these channels entirely 
 
+   std::map<int,std::map<int,bool>> trackWarnings; //map used to avoid reprinting warnings as loop over histogram bins
+
    double totalData(0);
    //count up the unrepresented data, indexed by channel 
    for(auto& run : m_runs) {
@@ -1022,17 +1022,27 @@ Int_t CP::TPileupReweighting::Initialize() {
             std::map<Int_t, bool> doneChannels;
             for(auto& period : m_periods) {
                if(period.first != period.second->id) continue; //skip remappings
+	       if(period.first == -1) continue; //don't look at the global period when calculating unrepresented data
                if(!period.second->contains(run.first)) continue;
-               for(auto& inHist : period.second->inputHists) {
+               for(auto& inHist : m_periods[-1]->inputHists) { //use global period to iterate over channels
                   if(inHist.first<0) continue; //skips any data hists (shouldn't happen really)
-                  if((inHist.second)->GetBinContent(bin)==0) { 
-                     period.second->unrepData[inHist.first] += value;  //store unrep data by period too, because will use in GetUnrepresentedFraction 
-                     if(!isUnrep) {isUnrep=true; unrepDataByChannel[-1] += value;}    //store total unrep data... must be sure not to double count across the channels (if multiple channels have same unrep data
-                  }
-                  if(doneChannels[inHist.first]) continue; //dont doublecount the data if the channel was to blame across multiple periods
-                  if((inHist.second)->GetBinContent(bin)==0) {unrepDataByChannel[inHist.first] += value;doneChannels[inHist.first]=true;  }
+		  if(doneChannels[inHist.first]) continue; //dont doublecount the data if the channel was to blame across multiple period
+		  if(period.second->inputHists.find(inHist.first)==period.second->inputHists.end()) {
+		    //all the data is missing ..
+		    isUnrep=true;doneChannels[inHist.first]=true;
+		    unrepDataByChannel[inHist.first] += value; 
+		    if(!trackWarnings[inHist.first][period.first]) {
+		      trackWarnings[inHist.first][period.first]=true;
+		      Warning("Initialize","Channel %d has no configuration for period %d -- this is symptomatic of you trying to reweight an MC campaign to data not intended for that campaign (e.g. MC16a with 2017 data)",inHist.first,period.first);
+		    }
+		  } else if(period.second->inputHists[inHist.first]->GetBinContent(bin)==0) {
+		    //hist for this channel in this period exists, but this bin is empty 
+		    isUnrep=true;doneChannels[inHist.first]=true;
+		    unrepDataByChannel[inHist.first] += value; 
+		  }
                }
             }
+	    if(isUnrep) unrepDataByChannel[-1] += value; //store total unrep data
          }
       }
    }

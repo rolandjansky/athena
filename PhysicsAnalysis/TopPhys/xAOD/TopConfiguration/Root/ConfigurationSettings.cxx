@@ -130,6 +130,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("VarRCJetRho",       "Reclustered Jet (variable-R) list of rho values (). Default 2.",   "2");
     registerParameter("VarRCJetMassScale", "Reclustered Jet (variable-R) list of mass scale values (m_w,m_z,m_h,m_t). By default use all.",   "m_w,m_z,m_h,m_t");
     registerParameter("UseVarRCJets",      "Use Reclustered Jets (Variable-R Jets). Default False.", "False");
+    registerParameter("UseVarRCJetSubstructure", "Calculate Variable-R Reclustered Jet Substructure Variables. Default False",   "False");
 
     registerParameter("TauPt",
 		      "Pt cut applied to both tight and loose taus (in MeV)."

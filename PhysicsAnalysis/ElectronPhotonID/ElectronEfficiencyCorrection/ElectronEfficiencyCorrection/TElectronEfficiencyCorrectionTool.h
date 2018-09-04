@@ -11,9 +11,9 @@
   @brief Calculate the egamma scale factors 
   Implementation class for the e/gamma Efficiency Scale Factors. This code implements
   the underlying logic of accessign the ROOT files containing the recommendations.
-
-  @author Kristin Lohwasser, Karsten Koeneke, Felix Buehrer
+  @authors Kristin Lohwasser, Karsten Koeneke, Felix Buehrer
   @date   January 2013
+  @updated by Christos Anastopoulos 2017-2018
   */
 
 // STL includes
@@ -60,10 +60,7 @@ public:
   /** Initialize this class */
   int initialize();
 
-  /** Finalize this class; everything that should be done after the event loop should go here */
-  inline int finalize() { return 1; }
-
-  /** The main salculate method: the actual cuts are applied here */
+  /** The main calculate method: the actual cuts are applied here */
   int calculate( const PATCore::ParticleDataType::DataType dataType,
                  const unsigned int runnumber,
                  const double cluster_eta,
@@ -91,12 +88,7 @@ public:
   inline int getNSyst() const {
     return m_nSysMax;
   }
-  ///Detail Level
-  enum detailLevel{simple,medium,detailed,detailLevelEnd};
-  /// Set the detail level 
-  inline void setDetailLevel (const int input_detailLevel ) { 
-    m_detailLevel = input_detailLevel; 
-  }
+  
   ///Set the Random Seed
   inline void setSeed( const unsigned long int seed) { 
     m_seed = seed; 
@@ -114,11 +106,7 @@ private:
                           std::vector<TObjArray>& sysObjs,
                           std::vector< std::vector<TObjArray>>& uncorrToyMCSyst);
 
-  void calcDetailLevels(const TH1 *eig,
-                        std::array<int,detailLevelEnd>& sLevel,
-                        int& nSys) const ;
-
-  std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, 
+   std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, 
                                           const TObjArray &eig, 
                                           const TObjArray& stat, 
                                           const TObjArray& uncorr, 
@@ -128,14 +116,12 @@ private:
                                      const TH2* stat, 
                                      const TH2* uncorr, 
                                      const TObjArray& corr,
-                                     const std::array<int,detailLevelEnd> sLevel,
                                      int& randomCounter);
 
   TH2* buildSingleCombToyMC(const TH2 *sf, 
                             const TH2* stat, 
                             const TH2* uncorr, 
                             const TObjArray& corr,
-                            const std::array<int,detailLevelEnd> sLevel,
                             const int nSys,
                             int& randomCounter);
 
@@ -152,22 +138,16 @@ private:
              const int runNumEnd) const ;
 
 private :
-  ///Private data members
+  ///Flag to control Toys
   bool m_doToyMC;
   bool m_doCombToyMC;
-  //// The detail level
-  int m_detailLevel;
-  //The number of toys
+  ///The number of toys
   int m_nToyMC;
   /// The Random seed
   unsigned long int m_seed;
   ///Maximum number of systematics
   int m_nSysMax;
-  // The positions of the efficiency scale factor correlated sustematic uncertainties in the result
-  std::vector<int> m_position_corrSys; 
-  /// The positions of the toy MC scale factors
-  std::vector<int> m_position_uncorrToyMCSF; ///Uncorrelated toy systematics
-  ///The representation of the prepared toy SF tables
+  //The representation of the prepared toy SF tables
   std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
   std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
   /// The list of file name(s)
@@ -180,9 +160,7 @@ private :
   std::vector< unsigned int > m_begRunNumberListFastSim;
   /// List of run numbers where histograms stop being valid for fast simulation
   std::vector< unsigned int > m_endRunNumberListFastSim;    
-  //The vector holding the keys
-  std::vector<int> m_keys;
-  /// List of histograms for full Geant4 simulation
+ /// List of histograms for full Geant4 simulation
   std::unordered_map<int, std::vector< TObjArray > > m_histList;
   std::vector< std::vector< TObjArray > > m_sysList;
   /// List of histograms for fast simulation
@@ -191,7 +169,6 @@ private :
   //The Random generator class   
   TRandom3 m_Rndm;
 }; // End: class definition
-
 } // End: namespace Root
 
 #endif

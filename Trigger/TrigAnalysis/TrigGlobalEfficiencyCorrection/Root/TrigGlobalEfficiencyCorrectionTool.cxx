@@ -22,6 +22,7 @@
 #include <iterator>
 #include <type_traits>
 #include <limits>
+#include <regex>
 
 using CheckConfig = TrigGlobEffCorr::CheckConfig;
 using Calculator = TrigGlobEffCorr::Calculator;
@@ -115,11 +116,11 @@ StatusCode TrigGlobalEfficiencyCorrectionTool::initialize()
 
 	ATH_MSG_DEBUG("Enumerating tools");
 	flat_set<std::size_t> collectedElectronTags, collectedMuonTags, collectedPhotonTags;
-	if(!enumerateTools(m_suppliedElectronEfficiencyTools, m_electronEffTools, collectedElectronTags)
-		|| !enumerateTools(m_suppliedElectronScaleFactorTools, m_electronSfTools, collectedElectronTags)
-		|| !enumerateTools(m_suppliedMuonTools, m_muonTools, collectedMuonTags)
-		|| !enumerateTools(m_suppliedPhotonEfficiencyTools, m_photonEffTools, collectedPhotonTags)
-		|| !enumerateTools(m_suppliedPhotonScaleFactorTools, m_photonSfTools, collectedPhotonTags))
+	if(!enumerateTools(data, m_suppliedElectronEfficiencyTools, m_electronEffToolIndex, collectedElectronTags)
+		|| !enumerateTools(data, m_suppliedElectronScaleFactorTools, m_electronSfToolIndex, collectedElectronTags)
+		|| !enumerateTools(data, m_suppliedMuonTools, m_muonToolIndex, collectedMuonTags)
+		|| !enumerateTools(data, m_suppliedPhotonEfficiencyTools, m_photonEffToolIndex, collectedPhotonTags)
+		|| !enumerateTools(data, m_suppliedPhotonScaleFactorTools, m_photonSfToolIndex, collectedPhotonTags))
 	{
 		return StatusCode::FAILURE;
 	}
@@ -182,30 +183,31 @@ bool TrigGlobalEfficiencyCorrectionTool::parseTagString(const std::string& tagst
 }
 
 template<class CPTool>
-bool TrigGlobalEfficiencyCorrectionTool::enumerateTools(ToolHandleArray<CPTool>& suppliedTools, 
-	std::map<std::size_t, ToolHandle<CPTool>* >& indexedTools, flat_set<std::size_t>& collectedTags)
+bool TrigGlobalEfficiencyCorrectionTool::enumerateTools(ImportData& data, ToolHandleArray<CPTool>& suppliedTools, 
+	std::map<ToolKey, std::size_t>& toolIndex, flat_set<std::size_t>& collectedTags)
 {
 	bool success = true;
-	for(auto& handle : suppliedTools)
+	for(unsigned index=0;index<suppliedTools.size();++index)
 	{
+		auto& handle = suppliedTools[index];
 		const std::string& name = handle.name(), altname = handle->name(); // athena: not always the same
-		flat_set<std::size_t> listOfLegs;
+		flat_set<ToolKey> listOfLegs;
 		/// Find the legs associated to this tool ("ListOfLegsPerTool" property)
 		if(suppliedTools.size()!=1 || m_legsPerTool.size()!=0)
 		{
 			auto itrLegs = m_legsPerTool.find(name);
-			if(itrLegs == m_legsPerTool.end())  itrLegs = m_legsPerTool.find(altname);
+			if(itrLegs == m_legsPerTool.end()) itrLegs = m_legsPerTool.find(altname);
 			if(itrLegs != m_legsPerTool.end())
 			{
-				listOfLegs = listNonOrderedCSValues(itrLegs->second,success);
+				listOfLegs = parseListOfLegs(data, itrLegs->second, success);
 				if(!success)
 				{
 					ATH_MSG_ERROR("The 'ListOfLegsPerTool' property has an invalid entry for the tool'" << name << "'");
 					continue;
 				}
 			}
-			else if(std::is_same<CPTool,IAsgElectronEfficiencyCorrectionTool>::value 
-				|| std::is_same<CPTool,IAsgPhotonEfficiencyCorrectionTool>::value)
+			else if(!std::is_same<CPTool,CP::IMuonTriggerScaleFactors>::value 
+				&& !std::is_same<CPTool,IAsgPhotonEfficiencyCorrectionTool>::value)
 			{
 				ATH_MSG_ERROR("Property 'ListOfLegsPerTool' empty for tool '" << name << "'");
 				success = false;
@@ -213,34 +215,29 @@ bool TrigGlobalEfficiencyCorrectionTool::enumerateTools(ToolHandleArray<CPTool>&
 			}
 			else
 			{
-				listOfLegs.insert(0);
+				listOfLegs.emplace();
 			}
 		}
-		else listOfLegs.insert(0);
+		else listOfLegs.emplace();
 		/// Find the tags associated to this tool ("ListOfTagsPerTool" property)
 		flat_set<std::size_t> tags;
 		auto itrTags = m_tagsPerTool.find(name);
 		if(itrTags == m_tagsPerTool.end()) itrTags = m_tagsPerTool.find(altname);
 		if(itrTags != m_tagsPerTool.end())
 		{
-			success = success && parseTagString(itrTags->second,tags);
-			collectedTags.insert(tags.begin(),tags.end());
+			success = success && parseTagString(itrTags->second, tags);
+			collectedTags.insert(tags.begin(), tags.end());
 		}
 		else tags.emplace(0);
 
 		/// Store
 		unsigned short nUncheckedLegs = 0;
-		for(std::size_t leg : listOfLegs)
+		for(auto& key : listOfLegs)
 		{
-			if(leg && (m_thresholds.find(leg) == m_thresholds.end()))
-			{
-				ATH_MSG_ERROR("Unknown trigger leg '" << m_dictionary[leg] << "' found in 'ListOfLegsPerTool' for tool " << name);
-				success = false;
-				continue;
-			}
+			std::size_t leg = key.hash;
 			for(std::size_t tag : tags)
 			{
-				if(!indexedTools.emplace(leg ^ tag, &handle).second)
+				if(!toolIndex.emplace(ToolKey(leg, tag, key.boundaries), index).second)
 				{
 					if(leg && tag) ATH_MSG_ERROR("Multiple tools associated to the selection tag '" <<  m_dictionary[tag] << "' for the trigger leg '" << m_dictionary[leg] << "'");
 					else if(leg) ATH_MSG_ERROR("Multiple tools associated to the trigger leg '" <<  m_dictionary[leg] << "'");
@@ -258,6 +255,49 @@ bool TrigGlobalEfficiencyCorrectionTool::enumerateTools(ToolHandleArray<CPTool>&
 		}
 	}
 	return success;
+}
+
+auto TrigGlobalEfficiencyCorrectionTool::parseListOfLegs(ImportData& data, const std::string& inputList, bool& success) -> flat_set<ToolKey> 
+{
+	if(!inputList.length()) return {};
+	std::regex rx("\\s*([[:alnum:]_]+)\\s*(?:\\[\\s*([^,\\[\\]]+)\\s*\\]\\s*)?(?:,|$)");
+	flat_set<ToolKey> keys;
+	std::smatch sm;
+	auto itr=inputList.cbegin();
+	do
+	{
+		if(sm.ready()) itr += sm.length();
+		if(!std::regex_search(itr, inputList.cend(), sm ,rx) || sm.prefix().length())
+		{
+			ATH_MSG_ERROR("Invalid format for the property \"ListOfLegsPerTool\"");
+			success = false;
+			break;
+		}
+		std::size_t leg = m_hasher(sm[1].str());
+		if(m_thresholds.find(leg) == m_thresholds.end())
+		{
+			ATH_MSG_ERROR("Unknown trigger leg '" << sm[1].str() << "' found in 'ListOfLegsPerTool'");
+			success = false;
+			continue;
+		}
+		ToolKey key(leg, 0);
+		if(sm.length(2))
+		{
+			if(!data.getPeriodBoundaries(sm[2].str(), key.boundaries))
+			{
+				ATH_MSG_ERROR("Invalid period \"" << sm[2].str() << "\"found in the property \"ListOfLegsPerTool\"");
+				success = false;
+				continue;
+			}
+		}
+		if(!keys.emplace(key).second)
+		{
+			ATH_MSG_ERROR("Trigger leg '" << sm[1].str() << "' mentioned several times with overlapping time periods in the property 'ListOfLegsPerTool'");
+			success = false;
+			continue;
+		}
+	} while(sm.suffix().length());
+	return keys;
 }
 
 bool TrigGlobalEfficiencyCorrectionTool::loadTriggerCombination(ImportData& data, bool useDefaultElectronTools, bool useDefaultPhotonTools)
@@ -298,29 +338,30 @@ bool TrigGlobalEfficiencyCorrectionTool::loadTriggerCombination(ImportData& data
 	}
 	if(!success) return false;
 	
-	if(useDefaultElectronTools && allUniqueElectronLegs.size())
-	{
-		decltype(m_electronSfTools) remappedEffTools, remappedSfTools;
-		for(std::size_t leg : allUniqueElectronLegs)
+	auto remapTools = [](auto& toolIndex, auto& allUniqueLegs) {
+		typename std::remove_reference<decltype(toolIndex)>::type remappedToolIndex;
+		for(std::size_t leg : allUniqueLegs)
 		{
 			if(!leg) continue;
-			for(auto& kv : m_electronSfTools) remappedSfTools.emplace(kv.first^leg, kv.second);
-			for(auto& kv : m_electronEffTools) remappedEffTools.emplace(kv.first^leg, kv.second);
+			for(auto& kv : toolIndex)
+			{
+				/// tools have not been associated with legs so far so the key hash is only the tag
+				const ToolKey& key = kv.first;
+				remappedToolIndex.emplace(ToolKey(leg, key.hash, key.boundaries), kv.second);
+			}
 		}
-		m_electronSfTools.swap(remappedSfTools);
-		m_electronEffTools.swap(remappedEffTools);
+		toolIndex.swap(remappedToolIndex);
+	};
+	
+	if(useDefaultElectronTools && allUniqueElectronLegs.size())
+	{
+		remapTools(m_electronSfToolIndex, allUniqueElectronLegs);
+		remapTools(m_electronEffToolIndex, allUniqueElectronLegs);
 	}
 	if(useDefaultPhotonTools && allUniquePhotonLegs.size())
 	{
-		decltype(m_photonSfTools) remappedEffTools, remappedSfTools;
-		for(std::size_t leg : allUniquePhotonLegs)
-		{
-			if(!leg) continue;
-			for(auto& kv : m_photonSfTools) remappedSfTools.emplace(kv.first^leg, kv.second);
-			for(auto& kv : m_photonEffTools) remappedEffTools.emplace(kv.first^leg, kv.second);
-		}
-		m_photonSfTools.swap(remappedSfTools);
-		m_photonEffTools.swap(remappedEffTools);
+		remapTools(m_photonSfToolIndex, allUniquePhotonLegs);
+		remapTools(m_photonEffToolIndex, allUniquePhotonLegs);
 	}
 	return success;
 }
@@ -456,19 +497,19 @@ bool TrigGlobalEfficiencyCorrectionTool::loadListOfLegsPerTag(const flat_set<std
 		for(std::size_t leg : listOfLegs)
 		{
 			auto type = ImportData::associatedLeptonFlavour(m_dictionary[leg], success);
-			if(type==xAOD::Type::Electron && m_electronSfTools.find(leg^tag)==m_electronSfTools.end())
+			if(type==xAOD::Type::Electron && m_electronSfToolIndex.find(ToolKey(leg, tag))==m_electronSfToolIndex.end())
 			{
 				ATH_MSG_ERROR("No electron tool has been provided for trigger leg '" << m_dictionary[leg] << "' and selection tag " << kv.first
 					<< " mentioned in the property 'ListOfLegsPerTag'");
 				success = false;
 			}
-			else if(type==xAOD::Type::Muon && m_muonTools.find(tag)==m_muonTools.end())
+			else if(type==xAOD::Type::Muon && m_muonToolIndex.find(ToolKey(0, tag))==m_muonToolIndex.end())
 			{
-				ATH_MSG_ERROR("No muon tool has been provided for trigger leg '" << m_dictionary[leg] << "' and selection tag " << kv.first
+				ATH_MSG_ERROR("No muon tool has been provided for selection tag " << kv.first
 					<< " mentioned in the property 'ListOfLegsPerTag'");
 				success = false;
 			}
-			else if(type==xAOD::Type::Photon && m_photonSfTools.find(leg^tag)==m_photonSfTools.end())
+			else if(type==xAOD::Type::Photon && m_photonSfToolIndex.find(ToolKey(leg, tag))==m_photonSfToolIndex.end())
 			{
 				ATH_MSG_ERROR("No photon tool has been provided for trigger leg '" << m_dictionary[leg] << "' and selection tag " << kv.first
 					<< " mentioned in the property 'ListOfLegsPerTag'");
@@ -532,44 +573,54 @@ auto TrigGlobalEfficiencyCorrectionTool::listNonOrderedCSValues(const std::strin
 	return hashes;
 }
 
-bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::Electron* p, std::size_t leg, std::size_t tag, Efficiencies& efficiencies)
+template<class ParticleType>
+bool TrigGlobalEfficiencyCorrectionTool::getEgammaTriggerLegEfficiencies(const ParticleType* p, unsigned runNumber, std::size_t leg, std::size_t tag, Efficiencies& efficiencies)
 {
+	/// Common implementation for electrons and photons
+	auto ptype = []() { return std::is_same<ParticleType, xAOD::Electron>::value? "electron" : std::is_same<ParticleType, xAOD::Photon>::value? "photon" : "<unknown type>"; };
 	auto pp = reinterpret_cast<const xAOD::IParticle*>(p);
-	ATH_MSG_DEBUG("Retrieving efficiencies for electron " <<p << " (pt=" << pp->pt() << ",eta=" << pp->eta() 
-		<< ",tag='" << m_dictionary[tag] << "') for trigger leg " << m_dictionary[leg]);
-	auto itrSf = m_electronSfTools.find(leg^tag);
-	auto itrEff = m_electronEffTools.find(leg^tag);
-	if(itrSf==m_electronSfTools.end() || itrEff==m_electronEffTools.end())
+	ATH_MSG_DEBUG("Retrieving efficiencies for " << ptype() << ' ' << p << " (pt=" << pp->pt() << ", eta=" << pp->eta() 
+		<< ", tag='" << m_dictionary[tag] << "') for trigger leg " << m_dictionary[leg]);
+	auto itrSf = GetScaleFactorToolIndex(p).find(ToolKey(leg, tag, runNumber));
+	auto itrEff = GetEfficiencyToolIndex(p).find(ToolKey(leg, tag, runNumber));
+	if(itrSf==GetScaleFactorToolIndex(p).end() || itrEff==GetEfficiencyToolIndex(p).end())
 	{
-		if(!tag) ATH_MSG_ERROR("Unable to find electron tools needed for trigger leg " << m_dictionary[leg]);
-		else ATH_MSG_ERROR("Unable to find electron tools needed for trigger leg " << m_dictionary[leg] << " and selection tag "<<m_dictionary[tag]);
-		m_cpCode = CP::CorrectionCode::Error;
+		if(!tag) ATH_MSG_ERROR("Unable to find " << ptype() << " tools needed for trigger leg " << m_dictionary[leg] << " (run number = " << runNumber << ")");
+		else ATH_MSG_ERROR("Unable to find " << ptype() << " tools needed for trigger leg " << m_dictionary[leg] << " and selection tag " << m_dictionary[tag] 
+			<< " (run number = " << runNumber << ")");
 		return false;
 	}
-	auto& sfTool = *(itrSf->second);
-	auto& mcTool = *(itrEff->second);
 	double sf;
-	bool success = checkAndRecord(sfTool->getEfficiencyScaleFactor(*p, sf));
-	success = success && checkAndRecord(mcTool->getEfficiencyScaleFactor(*p, efficiencies.mc()));
+	bool success = checkAndRecord(GetScaleFactorTool(p, itrSf->second).getEfficiencyScaleFactor(*p, sf))
+		&& checkAndRecord(GetEfficiencyTool(p, itrEff->second).getEfficiencyScaleFactor(*p, efficiencies.mc()));
 	efficiencies.data() = sf * efficiencies.mc();
-	ATH_MSG_DEBUG("found for that electron eff(data) = " << efficiencies.data()<<" and eff(MC) = "<<efficiencies.mc());
+	ATH_MSG_DEBUG("found for that " << ptype() << " eff(data) = " << efficiencies.data()<<" and eff(MC) = "<<efficiencies.mc());
 	return success;
+}
+
+bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::Electron* p, unsigned runNumber, std::size_t leg, std::size_t tag, Efficiencies& efficiencies)
+{
+	return getEgammaTriggerLegEfficiencies(p, runNumber, leg, tag, efficiencies);
+}
+
+bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::Photon* p, unsigned runNumber, std::size_t leg, std::size_t tag, Efficiencies& efficiencies)
+{
+	return getEgammaTriggerLegEfficiencies(p, runNumber, leg, tag, efficiencies);
 }
 
 bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::Muon* p, std::size_t leg, std::size_t tag, Efficiencies& efficiencies)
 {
-	ATH_MSG_DEBUG("Retrieving efficiencies for muon " <<p << " (pt=" << p->pt() << ",eta=" << p->eta() 
-		<< ",tag='" << m_dictionary[tag] << "') for trigger leg " << m_dictionary[leg]);
-	auto itr = m_muonTools.find(tag);
-	if(itr==m_muonTools.end())
+	ATH_MSG_DEBUG("Retrieving efficiencies for muon " <<p << " (pt=" << p->pt() << ", eta=" << p->eta() 
+		<< ", tag='" << m_dictionary[tag] << "') for trigger leg " << m_dictionary[leg]);
+	auto itr = m_muonToolIndex.find(ToolKey(0, tag, 0));
+	if(itr==m_muonToolIndex.end())
 	{
 		if(!tag) ATH_MSG_ERROR("Unable to find muon tool");
 		else ATH_MSG_ERROR("Unable to find muon tool needed for selection tag " << m_dictionary[tag]);
 		m_cpCode = CP::CorrectionCode::Error;
 		return false;
 	}
-	auto& tool = *(itr->second);
-	bool success = true;
+	auto& tool = *m_suppliedMuonTools[itr->second];
 	auto& hltTrig = m_dictionary[leg ^ 0xB0DDD56fF8E3250D];
 	if(!hltTrig.size())
 	{
@@ -581,33 +632,9 @@ bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::M
 			hltTrig.insert(i+4, "HLT_", 4);
 		}
 	}
-	success = success && checkAndRecord(tool->getTriggerEfficiency(*p, efficiencies.mc(), hltTrig, kFALSE));
-	success = success && checkAndRecord(tool->getTriggerEfficiency(*p, efficiencies.data(), hltTrig, kTRUE));
+	bool success = checkAndRecord(tool.getTriggerEfficiency(*p, efficiencies.mc(), hltTrig, kFALSE))
+		&& checkAndRecord(tool.getTriggerEfficiency(*p, efficiencies.data(), hltTrig, kTRUE));
 	ATH_MSG_DEBUG("found for that muon eff(data) = " << efficiencies.data()<<" and eff(MC) = "<<efficiencies.mc());
-	return success;
-}
-
-bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::Photon* p, std::size_t leg, std::size_t tag, Efficiencies& efficiencies)
-{
-	auto pp = reinterpret_cast<const xAOD::IParticle*>(p);
-	ATH_MSG_DEBUG("Retrieving efficiencies for photon " <<p << " (pt=" << pp->pt() << ",eta=" << pp->eta() 
-		<< ",tag='" << m_dictionary[tag] << "') for trigger leg " << m_dictionary[leg]);
-	auto itrSf = m_photonSfTools.find(leg^tag);
-	auto itrEff = m_photonEffTools.find(leg^tag);
-	if(itrSf==m_photonSfTools.end() || itrEff==m_photonEffTools.end())
-	{
-		if(!tag) ATH_MSG_ERROR("Unable to find photon tools needed for trigger leg " << m_dictionary[leg]);
-		else ATH_MSG_ERROR("Unable to find photon tools needed for trigger leg " << m_dictionary[leg] << " and selection tag "<<m_dictionary[tag]);
-		m_cpCode = CP::CorrectionCode::Error;
-		return false;
-	}
-	auto& sfTool = *(itrSf->second);
-	auto& mcTool = *(itrEff->second);
-	double sf;
-	bool success = checkAndRecord(sfTool->getEfficiencyScaleFactor(*p, sf));
-	success = success && checkAndRecord(mcTool->getEfficiencyScaleFactor(*p, efficiencies.mc()));
-	efficiencies.data() = sf * efficiencies.mc();
-	ATH_MSG_DEBUG("found for that photon eff(data) = " << efficiencies.data()<<" and eff(MC) = "<<efficiencies.mc());
 	return success;
 }
 
@@ -772,7 +799,7 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 	efficiencyData = 0.;
 	efficiencyMc = 0.;
 	
-	ATH_MSG_DEBUG("Computing global trigger efficiency for this event with  " << leptons.size() << " lepton(s) as input");
+	ATH_MSG_DEBUG("Computing global trigger efficiency for this event with  " << leptons.size() << " lepton(s) as input; run number = " << runNumber);
 	
 	if(runNumber<266904 || runNumber>341649)
 	{

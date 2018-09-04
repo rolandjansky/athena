@@ -117,6 +117,8 @@ addExKtDoubleTaggerRCJets(FTAG2Seq, ToolSvc)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 addVRJets(FTAG2Seq)
+addVRJets(FTAG2Seq, do_ghost=True)
+
 # Also add Hbb Tagger
 addHbbTagger(FTAG2Seq, ToolSvc)
 
@@ -165,6 +167,8 @@ FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "AntiKt8EMTopoExKt3SubJets",
                                         "BTagging_AntiKt8EMTopoExKt2Sub",
                                         "BTagging_AntiKt8EMTopoExKt3Sub",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
+
                                         ]
 
 FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
