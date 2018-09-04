@@ -88,6 +88,7 @@ private:
   float m_SSF_TR_max_eta;
 
   bool m_save_1stStageTrks;
+  bool m_save_StepByStepTrks;
 
   //output
   bool m_doTrackFile;
