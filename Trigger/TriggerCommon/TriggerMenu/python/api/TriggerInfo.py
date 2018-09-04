@@ -99,6 +99,7 @@ class TriggerLeg:
     bjetpattern    = re.compile('bmv|btight|bmedium|bloose')
     bphyspattern   = re.compile('b[A-Z]')
     exoticspattern = re.compile('llp|LLP|muvtx|hiptrt|LATE|NOMATCH')
+    afppattern     = re.compile('afp|AFP')
 
     def __init__(self,legname, chainseed, chainname):
         self.legname = legname
@@ -142,11 +143,15 @@ class TriggerLeg:
                     self.legtype = TriggerType.mu_bphys
                 if self.exoticspattern.search(token):
                     self.legtype = TriggerType.exotics
+                if self.afppattern.search(token):
+                    self.legtype = TriggerType.afp
                 self.details.append(token)
 
         for l1seed in blocks[1:]:
             if self.exoticspattern.search(l1seed):
                 self.legtype = TriggerType.exotics
+            if self.afppattern.search(l1seed):
+                self.legtype = TriggerType.afp
             if l1seed == chainseed: continue
             else: 
                 assert self.l1seed=="", (self.l1seed, chainseed, chainname, blocks[1:])
@@ -358,10 +363,14 @@ class TriggerChain:
                 mtype &= ~(TriggerType.mu_single | TriggerType.mu_multi)
             elif l.legtype & TriggerType.exotics:
                 mtype |=  TriggerType.exotics
+            elif l.legtype & TriggerType.afp:
+                mtype  =  TriggerType.afp #on purpose not OR-ed
             else:
                 mtype |= l.legtype
 
         l1seed= l1seed.replace("L1_","")
+        if mtype & TriggerType.exotics or mtype & TriggerType.afp:
+            return mtype
         for token in l1seed.split("_"):
             m = self.l1pattern.match(token)
             if m:
