@@ -61,14 +61,11 @@ private:
     std::string m_wp;
     std::string m_file;
     std::unique_ptr<SG::AuxElement::Decorator< float > > m_sfDec;
-    std::unique_ptr<SG::AuxElement::Decorator< char > > m_dropDec;
     std::unique_ptr<SG::AuxElement::Decorator< char > > m_isHSDec;
-    std::unique_ptr<SG::AuxElement::ConstAccessor< char > > m_dropAcc;
     std::unique_ptr<SG::AuxElement::ConstAccessor< char > > m_isHSAcc;
     std::unique_ptr<TH2> h_JvtHist;
     std::unique_ptr<TH2> h_EffHist;
     std::string m_sf_decoration_name;
-    std::string m_drop_decoration_name;
     std::string m_isHS_decoration_name;
     float m_jvtCut;
     float m_jvtCutBorder;

@@ -18,9 +18,7 @@ static SG::AuxElement::Decorator<char>  isPUDec("isJvtPU");
 JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name ),
   m_appliedSystEnum(NONE),
   m_sfDec(nullptr),
-  m_dropDec(nullptr),
   m_isHSDec(nullptr),
-  m_dropAcc(nullptr),
   m_isHSAcc(nullptr),
   h_JvtHist(nullptr),
   h_EffHist(nullptr),
@@ -42,8 +40,6 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
 
 StatusCode JetJvtEfficiency::initialize(){
   m_sfDec.reset(new SG::AuxElement::Decorator< float>(m_sf_decoration_name));
-  m_dropDec.reset(new SG::AuxElement::Decorator<char>(m_drop_decoration_name));
-  m_dropAcc.reset(new SG::AuxElement::ConstAccessor<char>(m_drop_decoration_name));
   m_isHSDec.reset(new SG::AuxElement::Decorator<char>(m_isHS_decoration_name));
   m_isHSAcc.reset(new SG::AuxElement::ConstAccessor<char>(m_isHS_decoration_name));
   m_dofJVT = (m_file.find("fJvt") != std::string::npos);
@@ -212,10 +208,7 @@ CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IPart
 
 
 
-
-
 bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) {
-  if (jet.isAvailable<char>(m_drop_decoration_name) && (*m_dropAcc)(jet)) return false;
   if (!isInRange(jet)) return true;
   if (fabs(jet.getAttribute<float>(m_jetEtaName))>2.4 && fabs(jet.getAttribute<float>(m_jetEtaName))<2.5) return jet.getAttribute<float>(m_jetJvtMomentName)>m_jvtCutBorder;
   return jet.getAttribute<float>(m_jetJvtMomentName)>m_jvtCut;
