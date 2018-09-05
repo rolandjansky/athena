@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaCommon/python/AthApi.py
 # @purpose API for driving athena
@@ -18,7 +18,7 @@ __all__ = [
     ]
 
 import sys, os
-if not '' in sys.path:
+if '' not in sys.path:
     sys.path.insert(0, '')
     
 from . import ExitCodes
@@ -196,8 +196,6 @@ class AthApp(object):
         from . import ResourceLimits
         ResourceLimits.SetMaxLimits()
 
-        try: import cPickle as pickle
-        except ImportError: import pickle
         import PyUtils.dbsqlite as dbs
         db = dbs.open(cfg_name, 'r')
 
@@ -463,8 +461,6 @@ class AthApp(object):
 ##         return optionstr  
 
 ## --- helper functions for configuration storage -----------------------------
-try:     import cPickle as pickle
-except ImportError: import pickle
 import PyUtils.dbsqlite as dbs
 from collections import defaultdict
 def store_configuration(cfg_fname=None):
@@ -537,9 +533,7 @@ def store_configuration(cfg_fname=None):
     cfg['jobopts'] = jobo_cfg
 
     pycomps = []
-    import sys
-    from .AppMgr import ServiceMgr as svcMgr
-        
+
     # all other pycomps
     from .Configurable import Configurable as C
     for c in C.allConfigurables.itervalues():
@@ -608,7 +602,7 @@ def enter_interactive_loop(banner=None, app=None, options=None):
         except NameError:
             pass
     # this will import .pythonrc.py as a side effect
-    import user
+    import user  # noqa: 401
 
     # use of shell escapes
     from . import ShellEscapes as SE
@@ -621,7 +615,7 @@ def enter_interactive_loop(banner=None, app=None, options=None):
     shell = AthenaInteractiveConsole(locals=namespace)
     shell.interact(banner=banner)
 
-from PyUtils.Decorators import forking
+#from PyUtils.Decorators import forking
 #@forking
 def _app_configure(cfg, ascii_cfg_name, extra_options=None):
     cfg << """

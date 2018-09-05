@@ -1,14 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/PropertyProxy.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
-import os, sys, weakref, copy
-try:
-   from GaudiKernel.GaudiHandles import *
-except ImportError:
-   from GaudiPython.GaudiHandles import *
+import os, weakref, copy, types
+from GaudiKernel.GaudiHandles import GaudiHandle, GaudiHandleArray
 
 # dictionary with configurable class : python module entries
 import ConfigurableDb
@@ -145,7 +142,7 @@ class PropertyProxy( object ):
          proptype = type( self.history[ obj ][ 0 ] )
 
     # check if type known; allow special initializer for typed instances
-      if proptype and proptype != type(None):
+      if proptype and not isinstance(proptype, types.NoneType):
         # check value itself
           value = _isCompatible( proptype, value )
 
@@ -163,9 +160,9 @@ class PropertyProxy( object ):
 
     # allow a property to be set if we're in non-default mode, or if it
     # simply hasn't been set before
-      if not obj._isInSetDefaults() or not obj in self.history:
+      if not obj._isInSetDefaults() or obj not in self.history:
        # by convention, 'None' for default is used to designate objects setting
-         if hasattr( self, 'default' ) and self.default == None:
+         if hasattr( self, 'default' ) and self.default is None:
             obj.__iadd__( value, self.descr )     # to establish hierarchy
          else:
             self.descr.__set__( obj, value )
@@ -251,7 +248,7 @@ class GaudiHandlePropertyProxyBase(PropertyProxy):
 
     # allow a property to be set if we're in non-default mode, or if it
     # simply hasn't been set before
-      if not obj._isInSetDefaults() or not obj in self.history:
+      if not obj._isInSetDefaults() or obj not in self.history:
          value = self.convertValueToBeSet( obj, value )
          # assign the value
          self.descr.__set__( obj, value )

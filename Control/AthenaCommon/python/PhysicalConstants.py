@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/PhysicalConstants.py
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
@@ -41,7 +41,7 @@
 #          and pressure; also added Gas threshold.
 # -----
 
-from SystemOfUnits import *
+from SystemOfUnits import henry, eplus, MeV, joule, s, m, kelvin, atmosphere, g, mg, cm3, mole
 
 #
 #
