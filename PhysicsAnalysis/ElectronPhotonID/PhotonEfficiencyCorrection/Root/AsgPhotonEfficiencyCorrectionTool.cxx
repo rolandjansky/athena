@@ -40,7 +40,7 @@
 #define MIN_ET_Trig_SF 10000.0
 #define MAX_ET_OF_SF 1499999.99
 #define MAX_ET_Iso_SF 999999.99
-#define MAX_ET_Trig_SF 999999.99
+#define MAX_ET_Trig_SF 99999.99
 
 
 // =============================================================================
@@ -59,7 +59,7 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
   m_rootTool_con = new Root::TPhotonEfficiencyCorrectionTool();
 
   // Declare the needed properties
-  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v2/map2.txt" ,
+  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v2/map3.txt" ,
                   "Full path to the map file");  
 				  
   declareProperty( "ForceDataType", m_dataTypeOverwrite=-1,
@@ -132,9 +132,10 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   }
    
   // Set prefix for sustematics if this is ISO, Trigger or ID SF
+  if( m_corrFileNameList[0].find(file_prefix_Trig) != std::string::npos) m_sysSubstring="TRIGGER_";
   if( m_corrFileNameList[0].find(file_prefix_ID) != std::string::npos) m_sysSubstring="ID_";
   if( m_corrFileNameList[0].find(file_prefix_ISO) != std::string::npos) m_sysSubstring="ISO_";
-  if( m_corrFileNameList[0].find(file_prefix_Trig) != std::string::npos) m_sysSubstring="TRIGGER_";
+  if( m_corrFileNameList[0].find(file_prefix_TrigEff) != std::string::npos) m_sysSubstring="TRIGGER_";
   if(m_sysSubstring == "") {ATH_MSG_ERROR ( "Invalid input file" ); return StatusCode::FAILURE;}
 
   // Configure the underlying Root tool
