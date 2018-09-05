@@ -19,7 +19,8 @@ def setupMenu():
     MinBiasStream="MinBias"
     UPCStream="UPC"
     UCCStream="UCC"
-    #PCStream="PC"
+    PCStream="PC"
+    CCStream="CC"
 
     # Disable Calo offset correction for HI menus (ATR-13323)
     from CaloTools.CaloNoiseFlags import jobproperties
@@ -425,6 +426,11 @@ def setupMenu():
  	    ['hi_gg_upc_L1TE4_VTE100',        'L1_TE4_VTE100',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_L1TE5_VTE50',        'L1_TE5_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_L1TE4_VTE50',        'L1_TE4_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+ 	    
+ 	    #PC
+ 	    ['hi_hipeb_L1TE50_VTE600',      'L1_TE50_VTE600.0ETA49', [], [PCStream], ["BW:MinBias", "RATE:MinBias"], 1],
+		#CC
+		['hi_hipeb_L1TE600',      'L1_TE600.0ETA49', [], [CCStream], ["BW:MinBias", "RATE:MinBias"], 1],
  	    	    
 	    #['hi_gg_upc_L1All',               '',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	# validation trigger
@@ -449,6 +455,9 @@ def setupMenu():
         ['mb_perf_L1RD1_FILLED',    'L1_RD1_FILLED',   [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_perf_L1RD1_EMPTY',    'L1_RD1_EMPTY',   [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 
+	#PC
+	['mb_sptrk_hipeb_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCStream],["BW:MinBias", "RATE:MinBias"], 1],
+	
 	#MB UPC:
 	['mb_sptrk_L1ZDC_XOR_VTE200',  'L1_ZDC_XOR_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_L1ZDC_XOR_VTE200_MBTS_1',  'L1_ZDC_XOR_VTE200_MBTS_1', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
@@ -595,9 +604,9 @@ def setupMenu():
 	['noalg_mb_L1TE10000',      'L1_TE10000', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE12000',      'L1_TE12000', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	#['noalg_mb_L1TE14000',      'L1_TE14000', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-
+    
 	#TE restricted calo
-        ['noalg_mb_L1TE500.0ETA49',      'L1_TE500.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+        ['noalg_mb_L1TE600.0ETA49',      'L1_TE600.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE1500.0ETA49',      'L1_TE1500.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE3000.0ETA49',      'L1_TE3000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE3500.0ETA49',      'L1_TE3500.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
@@ -670,7 +679,7 @@ def setupMenu():
 	['noalg_L1TE50_OVERLAY',   'L1_TE50_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
 	
 	#TE restricted calo in |eta|<4.9   
-        ['noalg_mb_L1TE500.0ETA49_OVERLAY',       'L1_TE500.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['noalg_mb_L1TE600.0ETA49_OVERLAY',       'L1_TE600.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
         ['noalg_mb_L1TE1500.0ETA49_OVERLAY',      'L1_TE1500.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
         ['noalg_mb_L1TE3000.0ETA49_OVERLAY',      'L1_TE3000.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
         ['noalg_mb_L1TE3500.0ETA49_OVERLAY',      'L1_TE3500.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],

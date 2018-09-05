@@ -53,7 +53,6 @@ def defineMenu():
         # SLOT 7 / CON 2,3 (TAU1,2)
         #--------------------------
 		
-		#TODO TAU trigger behaving like EM items, lowere thresholds
         # 16 x TAU
         'HA2', 'HA3','HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 
 
@@ -62,7 +61,6 @@ def defineMenu():
         #----------------------
         # 10 x 3-bit JET (can have multiplicity 4 or more)
 
-        #TODO shall we start at higher pT to reduce overflows?
         # 8 x JETs and central jets
         'J12', 'J12.0ETA23', 'J15', 'J15.0ETA25','J20', 'J25','J25.0ETA23','J30',
         
@@ -110,7 +108,7 @@ def defineMenu():
         #'RXE35', 'RXE40', 'RXE45', 'RXE50', 'RXE55', 'RXE60', 'RXE70', 'RXE80', # FTHR
 
         # 8 x restricted eta range in |eta|<4.9
-        'TE500.0ETA49', 'TE1500.0ETA49', 'TE3000.0ETA49', 'TE3500.0ETA49',
+        'TE600.0ETA49', 'TE1500.0ETA49', 'TE3000.0ETA49', 'TE3500.0ETA49',
         'TE5000.0ETA49', 'TE6500.0ETA49', 'TE8000.0ETA49', 'TE9000.0ETA49',    
         
         #------------------------       
@@ -457,7 +455,7 @@ def defineMenu():
 		       'L1_TE4_VTE100',
 		       'L1_TE4_VTE50',
 		       # restricted TE
-		       'L1_TE500.0ETA49',
+		       'L1_TE600.0ETA49',
                        'L1_TE1500.0ETA49',
                        'L1_TE3000.0ETA49',
                        'L1_TE3500.0ETA49',
@@ -465,8 +463,9 @@ def defineMenu():
                        'L1_TE6500.0ETA49',
                        'L1_TE8000.0ETA49',
                        'L1_TE9000.0ETA49',
+		       'L1_TE50_VTE600.0ETA49',
 		       # restricted TE for overlay
-                       'L1_TE500.0ETA49_OVERLAY',
+                       'L1_TE600.0ETA49_OVERLAY',
                        'L1_TE1500.0ETA49_OVERLAY',
                        'L1_TE3000.0ETA49_OVERLAY',
                        'L1_TE3500.0ETA49_OVERLAY',
@@ -1017,7 +1016,7 @@ def defineMenu():
         'L1_EM15HI_TAU40_2TAU15': 325,
         
 	# restricted TE
-        'L1_TE500.0ETA49': 326,
+        'L1_TE600.0ETA49': 326,
         'L1_TE1500.0ETA49': 327,
         'L1_TE3000.0ETA49': 328,
         'L1_TE3500.0ETA49': 329,
@@ -1034,8 +1033,9 @@ def defineMenu():
 	'L1_TE4_VTE100': 349,
 	'L1_TE4_VTE50': 350,
 
+        'L1_TE50_VTE600.0ETA49': 334,
         # restricted TE for overlay
-        'L1_TE500.0ETA49_OVERLAY': 336,
+        'L1_TE600.0ETA49_OVERLAY': 336,
         'L1_TE1500.0ETA49_OVERLAY': 337,
         'L1_TE3000.0ETA49_OVERLAY': 338,
         'L1_TE3500.0ETA49_OVERLAY': 339,
