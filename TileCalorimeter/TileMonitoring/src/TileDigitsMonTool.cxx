@@ -54,16 +54,6 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
   , m_cispar(0)
   , m_nEvents(0)
   , m_nSamples(0)
-  , m_sumPed1{}
-  , m_sumPed2{}
-  , m_sumRms1{}
-  , m_sumRms2{}
-  , m_meanAmp{}
-  , m_meanAmp_ij{}
-  , m_nEvents_i{}
-  , m_nEvents_ij{}
-  , m_cov_ratio{}
-  , m_stuck_probs{}
   , m_allHistsFilled(false)
   //, hp(-1)
   //, hb(-1)
@@ -103,15 +93,16 @@ StatusCode TileDigitsMonTool::initialize()
 
   m_nEvents = 0;
   m_allHistsFilled = false;
-  memset(m_sumPed1, 0, sizeof(m_sumPed1));
-  memset(m_sumPed2, 0, sizeof(m_sumPed2));
-  memset(m_sumRms1, 0, sizeof(m_sumRms1));
-  memset(m_sumRms2, 0, sizeof(m_sumRms2));
-  memset(m_meanAmp, 0, sizeof(m_meanAmp));
-  memset(m_meanAmp_ij, 0, sizeof(m_meanAmp_ij));
-  memset(m_nEvents_i, 0, sizeof(m_nEvents_i));
-  memset(m_nEvents_ij, 0, sizeof(m_nEvents_ij));
-  memset(m_stuck_probs, 0, sizeof(m_stuck_probs));
+  m_data = std::make_unique<Data>();
+  memset(m_data->m_sumPed1, 0, sizeof(m_data->m_sumPed1));
+  memset(m_data->m_sumPed2, 0, sizeof(m_data->m_sumPed2));
+  memset(m_data->m_sumRms1, 0, sizeof(m_data->m_sumRms1));
+  memset(m_data->m_sumRms2, 0, sizeof(m_data->m_sumRms2));
+  memset(m_data->m_meanAmp, 0, sizeof(m_data->m_meanAmp));
+  memset(m_data->m_meanAmp_ij, 0, sizeof(m_data->m_meanAmp_ij));
+  memset(m_data->m_nEvents_i, 0, sizeof(m_data->m_nEvents_i));
+  memset(m_data->m_nEvents_ij, 0, sizeof(m_data->m_nEvents_ij));
+  memset(m_data->m_stuck_probs, 0, sizeof(m_data->m_stuck_probs));
 
   //For test stuck_bits_maker
   //hp = 1;
@@ -138,7 +129,7 @@ StatusCode TileDigitsMonTool::bookHists()
     }
   }
 
-  m_outInHighGain.push_back(book1D("Summary", "OverFlowInHighGain", "Injected charge with overflow in high gain", 10010, -0.5, 1000.5));
+  m_data->m_outInHighGain.push_back(book1D("Summary", "OverFlowInHighGain", "Injected charge with overflow in high gain", 10010, -0.5, 1000.5));
 
   //SetBookStatus(true);
 
@@ -189,7 +180,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
     sStr << moduleName << " DMU Header " << gain[3 + gn] << " errors";
     histTitle = sStr.str();
 
-    m_hist2[ros][drawer][adc].push_back(book2F(subDir, histName, histTitle, 16, 0., 16., 8, -0.5, 7.5));
+    m_data->m_hist2[ros][drawer][adc].push_back(book2F(subDir, histName, histTitle, 16, 0., 16., 8, -0.5, 7.5));
   }
 
   for (int ch = 0; ch < 48; ++ch) {
@@ -213,7 +204,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " sample[0]";
       histTitle = sStr.str();
 
-      m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 151, -0.5, 150.5));
+      m_data->m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 151, -0.5, 150.5));
 
       // RMS over samples in event
       sStr.str("");
@@ -224,7 +215,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " mean RMS in event";
       histTitle = sStr.str();
 
-      m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 101, -0.05, 10.05));
+      m_data->m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 101, -0.05, 10.05));
 
       //all samples to find stuck bits
       sStr.str("");
@@ -235,7 +226,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " all samples";
       histTitle = sStr.str();
 
-      m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 1024, -0.5, 1023.5));
+      m_data->m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 1024, -0.5, 1023.5));
 
       // average profile for a given channel/gain
       sStr.str("");
@@ -246,7 +237,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " average profile";
       histTitle = sStr.str();
 
-      m_histP[ros][drawer][ch][adc].push_back(bookProfile(subDir, histName, histTitle, m_nSamples, 0.0, m_nSamples * 1.0, -0.5, 1023.5));
+      m_data->m_histP[ros][drawer][ch][adc].push_back(bookProfile(subDir, histName, histTitle, m_nSamples, 0.0, m_nSamples * 1.0, -0.5, 1023.5));
 
       // shifted samples histograms
 
@@ -262,7 +253,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " all samples shifted";
       histTitle = sStr.str();
 
-      m_shifted_hist[ros][drawer][ch][adc] = book1S(subDir, histName, histTitle, shiftnbins, shiftxmin, shiftxmax);
+      m_data->m_shifted_hist[ros][drawer][ch][adc] = book1S(subDir, histName, histTitle, shiftnbins, shiftxmin, shiftxmax);
 
       if (ch < 16) { // use first 16 channels to store BCID/CRC errors (one per TileDMU)
 
@@ -278,7 +269,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
         sStr << moduleName << " DMU0 " << ch << gain[3 + gn] << " BCID";
         histTitle = sStr.str();
 
-        m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 100, 2050.5, 2150.5));
+        m_data->m_hist1[ros][drawer][ch][adc].push_back(book1S(subDir, histName, histTitle, 100, 2050.5, 2150.5));
 
         sStr.str("");
         sStr << moduleName << "_dmu_" << sDmu << gain[gn] << "_BCID_err";
@@ -288,7 +279,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
         sStr << moduleName << " DMU0 " << ch << gain[3 + gn] << " BCID errors";
         histTitle = sStr.str();
 
-        m_hist_DMUerr[ros][drawer][ch][adc].push_back(book1I(subDir, histName, histTitle, 3, -0.5, 2.5));
+        m_data->m_hist_DMUerr[ros][drawer][ch][adc].push_back(book1I(subDir, histName, histTitle, 3, -0.5, 2.5));
 
         if (adc) continue; // don't book CRC for high gain
 
@@ -300,7 +291,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
         sStr << moduleName << " DMU0 " << ch << " CRC errors";
         histTitle = sStr.str();
 
-        m_hist_DMUerr[ros][drawer][ch][0].push_back(book1I(subDir, histName, histTitle, 5, -0.5, 4.5));
+        m_data->m_hist_DMUerr[ros][drawer][ch][0].push_back(book1I(subDir, histName, histTitle, 5, -0.5, 4.5));
       }
     }
   }
@@ -316,7 +307,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
   sStr << moduleName << " global CRC errors";
   histTitle = sStr.str();
 
-  m_hist0[ros][drawer].push_back(book1S("Summary", histName, histTitle, 3, -0.5, 2.5));
+  m_data->m_hist0[ros][drawer].push_back(book1S("Summary", histName, histTitle, 3, -0.5, 2.5));
 
 }
 
@@ -347,7 +338,7 @@ StatusCode TileDigitsMonTool::fillHists()
     int ros = m_tileHWID->ros(adc_id);
     int drawer = m_tileHWID->drawer(adc_id);
 
-    if (m_hist1[ros][drawer][0][0].size() == 0) {
+    if (m_data->m_hist1[ros][drawer][0][0].size() == 0) {
       m_bigain = true;
       m_nSamples = digitsCollection->front()->NtimeSamples();
       if (!m_bookAll) bookHists(ros, drawer);
@@ -362,10 +353,10 @@ StatusCode TileDigitsMonTool::fillHists()
         bin = 7.;
       }
       for (int dmu = 0; dmu < 16; dmu++) {
-        m_corrup[ros][drawer][0][dmu] = true;
-        m_corrup[ros][drawer][1][dmu] = true;
-        m_hist2[ros][drawer][0][0]->Fill(dmu + 0.5, bin, 1.);
-        m_hist2[ros][drawer][1][0]->Fill(dmu + 0.5, bin, 1.);
+        m_data->m_corrup[ros][drawer][0][dmu] = true;
+        m_data->m_corrup[ros][drawer][1][dmu] = true;
+        m_data->m_hist2[ros][drawer][0][0]->Fill(dmu + 0.5, bin, 1.);
+        m_data->m_hist2[ros][drawer][1][0]->Fill(dmu + 0.5, bin, 1.);
       }
       continue;
     }
@@ -379,13 +370,13 @@ StatusCode TileDigitsMonTool::fillHists()
     }
     
     for (int dmu = 0; dmu < headsize; dmu++) {
-      m_corrup[ros][drawer][0][dmu] = DMUheaderCheck(&headerVec, ros, drawer, 0, dmu); //tests and fills
-      m_corrup[ros][drawer][1][dmu] = DMUheaderCheck(&headerVec, ros, drawer, 1, dmu);
+      m_data->m_corrup[ros][drawer][0][dmu] = DMUheaderCheck(&headerVec, ros, drawer, 0, dmu); //tests and fills
+      m_data->m_corrup[ros][drawer][1][dmu] = DMUheaderCheck(&headerVec, ros, drawer, 1, dmu);
     }
   
     for (int dmu = headsize; dmu < 16; dmu++) {
-      m_corrup[ros][drawer][0][dmu] = false;
-      m_corrup[ros][drawer][1][dmu] = false;
+      m_data->m_corrup[ros][drawer][0][dmu] = false;
+      m_data->m_corrup[ros][drawer][1][dmu] = false;
     }
   }
 
@@ -397,7 +388,7 @@ StatusCode TileDigitsMonTool::fillHists()
     int ros = m_tileHWID->ros(adc_id);
     int drawer = m_tileHWID->drawer(adc_id);
 
-    if (m_hist1[ros][drawer][0][0].size() == 0) {
+    if (m_data->m_hist1[ros][drawer][0][0].size() == 0) {
       //m_bigain = (m_beamInfo->calibMode() == 1); // true if bi-gain run
       // For the time being, we fill both high and low gain plots, as it was requiered by Tomas
       m_bigain = true;
@@ -440,36 +431,36 @@ StatusCode TileDigitsMonTool::fillHists()
         rmssamp += dig * dig;
         mean_tmp[chan][gain][i] = dig;
         
-        if (!m_corrup[ros][drawer][gain][chan / 3]) {
+        if (!m_data->m_corrup[ros][drawer][gain][chan / 3]) {
           if (m_runType != CisRun) {
-            m_histP[ros][drawer][chan][gain][0]->Fill(i + 0.1, dig, 1.0);
-            m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
+            m_data->m_histP[ros][drawer][chan][gain][0]->Fill(i + 0.1, dig, 1.0);
+            m_data->m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
           } else if (m_cispar[6] > 0. && (dig > 0 || gain < 1 || charge < 12.)) { //LF If CIS run, Protection to avoid zero amplitudes due to 0 injected charge
-            m_histP[ros][drawer][chan][gain][0]->Fill(i + 0.1, dig, 1.0);
-            m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
+            m_data->m_histP[ros][drawer][chan][gain][0]->Fill(i + 0.1, dig, 1.0);
+            m_data->m_hist1[ros][drawer][chan][gain][2]->Fill(dig, 1.0);
           }
           
           if (gain == 1 && dig > 1022.5) // overflow in high gain, find charge is it
-            m_outInHighGain[0]->Fill(charge);
+            m_data->m_outInHighGain[0]->Fill(charge);
         }
       }
 
-      if (dsize > 0 && !m_corrup[ros][drawer][gain][chan / 3]) {
+      if (dsize > 0 && !m_data->m_corrup[ros][drawer][gain][chan / 3]) {
         double ped = vdigits[0];
-        m_hist1[ros][drawer][chan][gain][0]->Fill(ped, 1.0);
-        m_sumPed1[ros][drawer][chan][gain] += ped;
-        m_sumPed2[ros][drawer][chan][gain] += ped * ped;
+        m_data->m_hist1[ros][drawer][chan][gain][0]->Fill(ped, 1.0);
+        m_data->m_sumPed1[ros][drawer][chan][gain] += ped;
+        m_data->m_sumPed2[ros][drawer][chan][gain] += ped * ped;
         //if ( (chan==23)&&(ros==1)&&(drawer==18)&&(gain==0)) {
-        //std::cout << "ped=" << ped << "\tm_sumPed1=" << m_sumPed1[ros][drawer][chan][gain] << "\n";
-        //std::cout << "ped^2=" << ped*ped << "\tm_sumPed2=" << m_sumPed2[ros][drawer][chan][gain] << "\n";
+        //std::cout << "ped=" << ped << "\tm_sumPed1=" << m_data->m_sumPed1[ros][drawer][chan][gain] << "\n";
+        //std::cout << "ped^2=" << ped*ped << "\tm_sumPed2=" << m_data->m_sumPed2[ros][drawer][chan][gain] << "\n";
         //}
         if (dsize > 1) {
           meansamp /= dsize;
           rmssamp = rmssamp / dsize - meansamp * meansamp;
           rmssamp = (rmssamp > 0.0) ? sqrt(rmssamp * dsize / (dsize - 1)) : 0.0;
-          m_hist1[ros][drawer][chan][gain][1]->Fill(rmssamp, 1.0);
-          m_sumRms1[ros][drawer][chan][gain] += rmssamp;
-          m_sumRms2[ros][drawer][chan][gain] += rmssamp * rmssamp;
+          m_data->m_hist1[ros][drawer][chan][gain][1]->Fill(rmssamp, 1.0);
+          m_data->m_sumRms1[ros][drawer][chan][gain] += rmssamp;
+          m_data->m_sumRms2[ros][drawer][chan][gain] += rmssamp * rmssamp;
         }
       }
     } // digits
@@ -478,13 +469,13 @@ StatusCode TileDigitsMonTool::fillHists()
     for (int sample = 0; sample < m_nSamples; ++sample) {
       for (int gain = 0; gain < 2; ++gain) {
         for (int ch_i = 0; ch_i < 48; ++ch_i)
-	  if (!m_corrup[ros][drawer][gain][ch_i / 3]) {
-	    m_nEvents_i[ros][drawer][gain][ch_i]++;
-	    m_meanAmp[ros][drawer][gain][ch_i] += mean_tmp[ch_i][gain][sample];
+	  if (!m_data->m_corrup[ros][drawer][gain][ch_i / 3]) {
+	    m_data->m_nEvents_i[ros][drawer][gain][ch_i]++;
+	    m_data->m_meanAmp[ros][drawer][gain][ch_i] += mean_tmp[ch_i][gain][sample];
 	    for (int ch_j = 0; ch_j < 48; ++ch_j)
-	      if (!m_corrup[ros][drawer][gain][ch_j / 3]) {
-		m_nEvents_ij[ros][drawer][gain][ch_i][ch_j]++;
-		m_meanAmp_ij[ros][drawer][gain][ch_i][ch_j] += mean_tmp[ch_i][gain][sample] * mean_tmp[ch_j][gain][sample];
+	      if (!m_data->m_corrup[ros][drawer][gain][ch_j / 3]) {
+		m_data->m_nEvents_ij[ros][drawer][gain][ch_i][ch_j]++;
+		m_data->m_meanAmp_ij[ros][drawer][gain][ch_i][ch_j] += mean_tmp[ch_i][gain][sample] * mean_tmp[ch_j][gain][sample];
 	      }
 	  }
       }
@@ -495,17 +486,17 @@ StatusCode TileDigitsMonTool::fillHists()
     
     for (int ch = 0; ch < headsize; ++ch) {
       uint32_t bcid_ch = (headerVec[ch] & 0xFFF);
-      m_hist1[ros][drawer][ch][0][3]->Fill(bcid_ch, 1.0);
+      m_data->m_hist1[ros][drawer][ch][0][3]->Fill(bcid_ch, 1.0);
       if ((bcid_ch == bcid) || (bcid_ch == bcid - 1)) 	// Conservative condition to be consistent with both run before Feb07 and
-        m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0, 1.0);  	// runs after Feb07. Introducing a RunNum variable it could be more strict.
+        m_data->m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0, 1.0);  	// runs after Feb07. Introducing a RunNum variable it could be more strict.
       else if ((bcid == 0) && ((bcid_ch == 3563) || (bcid_ch == 3564)))	// if bcid==0 then bcid_ch should be 3563 (0xDEB)
-        m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
+        m_data->m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
       //        if (bcid_ch == bcid) 				// Now allow only exact bcid: ROD BCID = DMU BCID+1
-      //          m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0,1.0);  	// 	Apr 2013
+      //          m_data->m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0,1.0);  	// 	Apr 2013
       //        else if (bcid_ch == 0)
-      //          m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(0.0,1.0);
+      //          m_data->m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(0.0,1.0);
       //        else 
-      //          m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(2.0,1.0);
+      //          m_data->m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(2.0,1.0);
     }
     
     //DMUheaderCheck(&headerVec,headsize,ros,drawer,0); 
@@ -522,17 +513,17 @@ StatusCode TileDigitsMonTool::fillHists()
     // if monogain run with m_bigain==1, we fill the BCID plots we the same info
     for (int ch = 0; ch < headsize; ++ch) {
       uint32_t bcid_ch = (headerVec[ch] & 0xFFF);
-      m_hist1[ros][drawer][ch][1][3]->Fill(bcid_ch, 1.0);
+      m_data->m_hist1[ros][drawer][ch][1][3]->Fill(bcid_ch, 1.0);
       if ((bcid_ch == bcid) || (bcid_ch == bcid - 1))  		// BCID from TileDMU should match BCID from ROD header or
-        m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(1.0, 1.0);        		// bcid-1 for runs after Feb07.
+        m_data->m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(1.0, 1.0);        		// bcid-1 for runs after Feb07.
       else if ((bcid == 0) && ((bcid_ch == 3563) || (bcid_ch == 3564)))	// if bcid==0 then bcid_ch should be 3563 (0xDEB)
-        m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
+        m_data->m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(1.0, 1.0);			// but sometimes 3564 (0xDEC) is observed.
       //        if (bcid_ch == bcid) 				// Now allow only exact bcid
-      //          m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0,1.0);  	// 	Apr 2013
+      //          m_data->m_hist_DMUerr[ros][drawer][ch][0][0]->Fill(1.0,1.0);  	// 	Apr 2013
       //	  else if (bcid_ch == 0)
-      //	    m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(0.0,1.0);
+      //	    m_data->m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(0.0,1.0);
       //	  else
-      //	    m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(2.0,1.0);
+      //	    m_data->m_hist_DMUerr[ros][drawer][ch][1][0]->Fill(2.0,1.0);
     }
     
     //DMUheaderCheck(&headerVec,headsize,ros,drawer,1);
@@ -582,7 +573,7 @@ StatusCode TileDigitsMonTool::finalHists()
 
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER ; ++drawer) {
-      if (m_hist1[ros][drawer][0][0].size() != 0) {
+      if (m_data->m_hist1[ros][drawer][0][0].size() != 0) {
         unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
         std::ostringstream sStr;
@@ -601,7 +592,7 @@ StatusCode TileDigitsMonTool::finalHists()
             sStr.str("");
             sStr << moduleName << gain[3 + gn] << HistName[4 + type];
             histTitle = sStr.str();
-            m_final_hist1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 48, 0.0, 48.0));
+             m_data->m_final_hist1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 48, 0.0, 48.0));
           }
 
           // stuck bits and saturations / 0s
@@ -611,13 +602,13 @@ StatusCode TileDigitsMonTool::finalHists()
           sStr.str("");
           sStr << moduleName << gain[3 + gn] << " Stuck bits and saturation";
           histTitle = sStr.str();
-          m_final_hist_stucks[ros][drawer][adc] = book2C(subDir, histName, histTitle, 48, 0.0, 48.0, 6, 0., 6.);
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(1, "SB 0");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(2, "SB 1,2");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(3, "SB 3,4");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(4, "SB 5-9");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(5, "zeros");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(6, "saturation");
+          m_data->m_final_hist_stucks[ros][drawer][adc] = book2C(subDir, histName, histTitle, 48, 0.0, 48.0, 6, 0., 6.);
+          m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(1, "SB 0");
+          m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(2, "SB 1,2");
+          m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(3, "SB 3,4");
+          m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(4, "SB 5-9");
+          m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(5, "zeros");
+          m_data->m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(6, "saturation");
 
           for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 
@@ -625,7 +616,7 @@ StatusCode TileDigitsMonTool::finalHists()
 
             double Ped = 0.0, PedRMS = 0.0, RMSHi = 0.0;
 
-            int nevents = int(m_hist1[ros][drawer][channel][adc][0]->GetEntries()); //ROOT GetEntries return a Double_t.
+            int nevents = int(m_data->m_hist1[ros][drawer][channel][adc][0]->GetEntries()); //ROOT GetEntries return a Double_t.
             bool fillPedAndRms = (nevents > 0);
 
             if ((nevents != 0) && (nevents != m_nEvents)) {
@@ -641,7 +632,7 @@ StatusCode TileDigitsMonTool::finalHists()
               /// I use the latter for calculation porpouse. I could even use
               /// the histogram mean and RMS, but it is not necessary and I
               /// avoid problems in case of overflows.
-              ATH_MSG_VERBOSE( "Number of entries in histo " << m_hist1[ros][drawer][channel][adc][0]->GetTitle()
+              ATH_MSG_VERBOSE( "Number of entries in histo " << m_data->m_hist1[ros][drawer][channel][adc][0]->GetTitle()
                               << " doesnt match n. of events! Using the first one in mean and RMS calculation" );
 
               ATH_MSG_VERBOSE( "Number of entries in histo =" << nevents << "\tNumber of events= " << m_nEvents );
@@ -653,11 +644,11 @@ StatusCode TileDigitsMonTool::finalHists()
             if (fillPedAndRms) {
 
               if (nevents > 0) {
-                Ped = m_sumPed1[ros][drawer][channel][adc] / nevents;
-                RMSHi = m_sumRms1[ros][drawer][channel][adc] / nevents;
+                Ped = m_data->m_sumPed1[ros][drawer][channel][adc] / nevents;
+                RMSHi = m_data->m_sumRms1[ros][drawer][channel][adc] / nevents;
                 
                 if (nevents > 1) {
-                  PedRMS = m_sumPed2[ros][drawer][channel][adc] / nevents - Ped * Ped;
+                  PedRMS = m_data->m_sumPed2[ros][drawer][channel][adc] / nevents - Ped * Ped;
                   PedRMS = (PedRMS > 0.0) ? sqrt(PedRMS * nevents / (nevents - 1)) : 0.0;
                 }
               }
@@ -665,7 +656,7 @@ StatusCode TileDigitsMonTool::finalHists()
               //	    if ( (pmt==24)&&(ros==1)&&(drawer==18)&&(adc==0)) {
               //std::cout << "Evt = " << m_nEvents << "\t channel=" << channel << "  pmt=" << pmt << "\n";
               //std::cout << "Ped = " << Ped << "\n";
-              //std::cout << "E(x^2) = " << m_sumPed2[ros][drawer][channel][adc] << "\n";
+              //std::cout << "E(x^2) = " << m_data->m_sumPed2[ros][drawer][channel][adc] << "\n";
               //std::cout << "PedRMS = " << PedRMS << "\n";
               
               //}
@@ -673,24 +664,24 @@ StatusCode TileDigitsMonTool::finalHists()
               if (m_fillPedestalDifference) {
 
                 if (!isDisconnected(ros, drawer, channel)) {
-                  m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped - m_tileToolNoiseSample->getPed(drawerIdx, channel, adc));
-                  m_final_hist1[ros][drawer][adc][0]->SetBinError(channel + 1, PedRMS);
+                  m_data->m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped - m_tileToolNoiseSample->getPed(drawerIdx, channel, adc));
+                  m_data->m_final_hist1[ros][drawer][adc][0]->SetBinError(channel + 1, PedRMS);
                 }
 
               } else {
-                m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped);
-                m_final_hist1[ros][drawer][adc][0]->SetBinError(channel + 1, PedRMS);
+                m_data->m_final_hist1[ros][drawer][adc][0]->SetBinContent(channel + 1, Ped);
+                m_data->m_final_hist1[ros][drawer][adc][0]->SetBinError(channel + 1, PedRMS);
               }
               
-              m_final_hist1[ros][drawer][adc][1]->SetBinContent(channel + 1, PedRMS);
-              m_final_hist1[ros][drawer][adc][2]->SetBinContent(channel + 1, RMSHi);
+              m_data->m_final_hist1[ros][drawer][adc][1]->SetBinContent(channel + 1, PedRMS);
+              m_data->m_final_hist1[ros][drawer][adc][2]->SetBinContent(channel + 1, RMSHi);
               
             }
 
             // For tests
-            //stuckBits_maker(m_hist1[ros][drawer][channel][adc][2]);
+            //stuckBits_maker(m_data->m_hist1[ros][drawer][channel][adc][2]);
 
-            TH1S * hist = m_hist1[ros][drawer][channel][adc][2];
+            TH1S * hist = m_data->m_hist1[ros][drawer][channel][adc][2];
             double weight = 0.0;
             for (int i = 2; i < 1025; ++i) { // first bin is excluded
               weight += hist->GetBinContent(i);
@@ -708,8 +699,8 @@ StatusCode TileDigitsMonTool::finalHists()
                 weight += 1.0; // some stuck bits
               }
             }
-            m_final_hist1[ros][drawer][adc][3]->SetBinContent(channel + 1, weight);
-            stuckBits_Amp2(hist, adc, m_final_hist_stucks[ros][drawer][adc], channel, m_stuck_probs[ros][drawer][channel][adc]);
+            m_data->m_final_hist1[ros][drawer][adc][3]->SetBinContent(channel + 1, weight);
+            stuckBits_Amp2(hist, adc, m_data->m_final_hist_stucks[ros][drawer][adc], channel, m_data->m_stuck_probs[ros][drawer][channel][adc]);
           } // end of loop over channels
 
           // BCID
@@ -719,7 +710,7 @@ StatusCode TileDigitsMonTool::finalHists()
           sStr.str("");
           sStr << moduleName << gain[3 + gn] << ErrName[2];
           histTitle = sStr.str();
-          m_final_hist1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 16, 0.0, 16.0));
+          m_data->m_final_hist1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 16, 0.0, 16.0));
 
           // CRC only for one gain
           if (adc == 0) {
@@ -729,7 +720,7 @@ StatusCode TileDigitsMonTool::finalHists()
             sStr.str("");
             sStr << moduleName << ErrName[3];
             histTitle = sStr.str();
-            m_final_hist1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 16, 0.0, 16.0));
+            m_data->m_final_hist1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 16, 0.0, 16.0));
           }
 
           for (int ch = 0; ch < 16; ++ch) {
@@ -738,12 +729,12 @@ StatusCode TileDigitsMonTool::finalHists()
 
             // BCID and CRC errors
             for (int id = 0; id < 2; ++id) {
-              int bin0 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(0));
-              int bin1 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(1));
-              int bin2 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(2));
-              int bin3 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(3));
-              int bin4 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(4));
-              int bin5 = lround(m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(5));
+              int bin0 = lround(m_data->m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(0));
+              int bin1 = lround(m_data->m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(1));
+              int bin2 = lround(m_data->m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(2));
+              int bin3 = lround(m_data->m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(3));
+              int bin4 = lround(m_data->m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(4));
+              int bin5 = lround(m_data->m_hist_DMUerr[ros][drawer][ch][adc][id]->GetBinContent(5));
               double weight = -1.0;
 
               if (bin0 + bin3 + bin4 + bin5 > 0) {
@@ -765,7 +756,7 @@ StatusCode TileDigitsMonTool::finalHists()
                   if (weight > 0.8) weight = 0.8; // to see clearly even one event with zeros
                 }
               }
-              m_final_hist1[ros][drawer][adc][id + 4]->SetBinContent(dmu, weight);
+              m_data->m_final_hist1[ros][drawer][adc][id + 4]->SetBinContent(dmu, weight);
 
               if (adc) break; // no CRC histogram in high gain
             }
@@ -781,17 +772,17 @@ StatusCode TileDigitsMonTool::finalHists()
               sStr.str("");
               sStr << moduleName << gain[3 + gn] << HistName2[2 + type];
               histTitle = sStr.str();
-              m_final_hist2[ros][drawer][adc].push_back(book2F(subDir, histName, histTitle, 48, 0.0, 48.0, 48, 0.0, 48.0));
+              m_data->m_final_hist2[ros][drawer][adc].push_back(book2F(subDir, histName, histTitle, 48, 0.0, 48.0, 48, 0.0, 48.0));
             }
 
             if (m_nEvents * m_nSamples > 0) {
 
               for (int ch_i = 0; ch_i < 48; ++ch_i) {
-		if (m_nEvents_i[ros][drawer][adc][ch_i] > 0)
-		  m_meanAmp[ros][drawer][adc][ch_i] /= m_nEvents_i[ros][drawer][adc][ch_i];
+		if (m_data->m_nEvents_i[ros][drawer][adc][ch_i] > 0)
+		  m_data->m_meanAmp[ros][drawer][adc][ch_i] /= m_data->m_nEvents_i[ros][drawer][adc][ch_i];
                 for (int ch_j = 0; ch_j < 48; ++ch_j)
-		  if (m_nEvents_ij[ros][drawer][adc][ch_i][ch_j] > 0)
-		    m_meanAmp_ij[ros][drawer][adc][ch_i][ch_j] /= m_nEvents_ij[ros][drawer][adc][ch_i][ch_j];
+		  if (m_data->m_nEvents_ij[ros][drawer][adc][ch_i][ch_j] > 0)
+		    m_data->m_meanAmp_ij[ros][drawer][adc][ch_i][ch_j] /= m_data->m_nEvents_ij[ros][drawer][adc][ch_i][ch_j];
               }
 
               double covar[48][48];
@@ -804,7 +795,7 @@ StatusCode TileDigitsMonTool::finalHists()
                 //                int pmt_i = abs(m_cabling->channel2hole(ros,ch_i))-1;
                 for (int ch_j = 0; ch_j < 48; ++ch_j) {
                   //                  int pmt_j = abs(m_cabling->channel2hole(ros,ch_j))-1;
-                  covar[ch_i][ch_j] = m_meanAmp_ij[ros][drawer][adc][ch_i][ch_j] - m_meanAmp[ros][drawer][adc][ch_i] * m_meanAmp[ros][drawer][adc][ch_j];
+                  covar[ch_i][ch_j] = m_data->m_meanAmp_ij[ros][drawer][adc][ch_i][ch_j] - m_data->m_meanAmp[ros][drawer][adc][ch_i] * m_data->m_meanAmp[ros][drawer][adc][ch_j];
 
                   if (ch_j < ch_i) {
                     mean_cov_ij += covar[ch_i][ch_j]; //LF: we take C_ij with its sign
@@ -820,11 +811,11 @@ StatusCode TileDigitsMonTool::finalHists()
               }
 
               if (mean_cov_ii != 0.) {
-                m_cov_ratio[ros][drawer][adc] = (2. * mean_cov_ij) / (mean_cov_ii * 47.); //(2*cov_ij/(48*47))/(cov_ii/48)
+                m_data->m_cov_ratio[ros][drawer][adc] = (2. * mean_cov_ij) / (mean_cov_ii * 47.); //(2*cov_ij/(48*47))/(cov_ii/48)
               } else {
-                m_cov_ratio[ros][drawer][adc] = 0.;
+                m_data->m_cov_ratio[ros][drawer][adc] = 0.;
               }
-              //	      std::cout << "m_cov_ratio["<<adc<<"]= " <<  m_cov_ratio[ros][drawer][adc] << "\n";
+              //	      std::cout << "m_cov_ratio["<<adc<<"]= " <<  m_data->m_cov_ratio[ros][drawer][adc] << "\n";
 
               for (int i = 0; i < 48; ++i) {
                 for (int j = 0; j < 48; ++j) {
@@ -833,8 +824,8 @@ StatusCode TileDigitsMonTool::finalHists()
                   } else {
                     corr[i][j] = covar[i][j] / mean_rms[i] / mean_rms[j];
                   }
-                  m_final_hist2[ros][drawer][adc][0]->SetBinContent(i + 1, j + 1, covar[i][j]);
-                  m_final_hist2[ros][drawer][adc][1]->SetBinContent(i + 1, j + 1, corr[i][j]);
+                  m_data->m_final_hist2[ros][drawer][adc][0]->SetBinContent(i + 1, j + 1, covar[i][j]);
+                  m_data->m_final_hist2[ros][drawer][adc][1]->SetBinContent(i + 1, j + 1, corr[i][j]);
                 }
               }
             } // end if m_nEvents > 0
@@ -849,7 +840,7 @@ StatusCode TileDigitsMonTool::finalHists()
 
           for (int gn = mingain; gn < maxgain; ++gn) {
             for (int i = 0; i < 48; ++i) {
-              TH1S *h = (TH1S*) m_hist1[ros][drawer][i][gn][2]->Clone("temphist");
+              TH1S *h = (TH1S*) m_data->m_hist1[ros][drawer][i][gn][2]->Clone("temphist");
               h->SetDirectory(0);
               shiftHisto(h, ros, drawer, i, gn);
               delete h;
@@ -871,7 +862,7 @@ StatusCode TileDigitsMonTool::finalHists()
             s << moduleName << gain[3 + gn] << " all samples reference";
             std::string histTitle = s.str();
 
-            m_shifted_hist[ros][drawer][48][gn] = book1S(subDir, histName, histTitle, shiftnbins, shiftxmin, shiftxmax);
+            m_data->m_shifted_hist[ros][drawer][48][gn] = book1S(subDir, histName, histTitle, shiftnbins, shiftxmin, shiftxmax);
 
             statTestHistos(ros, drawer, gn);
           } // if runTYpe==CisRun
@@ -889,7 +880,7 @@ StatusCode TileDigitsMonTool::finalHists()
 const uint8_t * TileDigitsMonTool::stuckBitProb (int ros, int module, int channel, int gain) const
 /*---------------------------------------------------------*/
 {
-  return m_stuck_probs[ros][module][channel][gain];
+  return m_data->m_stuck_probs[ros][module][channel][gain];
 }
 
 
@@ -1014,17 +1005,17 @@ void TileDigitsMonTool::drawHists(int ros, int drawer, std::string moduleName)
       }
       int ind = type * 2 + gain;
 
-      if (m_final_hist1[ros][drawer][gain][type]->GetMaximum() < 0.9 * maxy[ind]) //if maximum is below reasonable limit use a default scale
-      m_final_hist1[ros][drawer][gain][type]->SetMaximum(maxy[ind]);
-      if (m_final_hist1[ros][drawer][gain][type]->GetMinimum() > (miny[ind] + 0.1 * TMath::Abs(miny[ind]))) // if minimum is above reasonable limit
-        m_final_hist1[ros][drawer][gain][type]->SetMinimum(miny[ind]);		              // use a default scale
+      if (m_data->m_final_hist1[ros][drawer][gain][type]->GetMaximum() < 0.9 * maxy[ind]) //if maximum is below reasonable limit use a default scale
+      m_data->m_final_hist1[ros][drawer][gain][type]->SetMaximum(maxy[ind]);
+      if (m_data->m_final_hist1[ros][drawer][gain][type]->GetMinimum() > (miny[ind] + 0.1 * TMath::Abs(miny[ind]))) // if minimum is above reasonable limit
+        m_data->m_final_hist1[ros][drawer][gain][type]->SetMinimum(miny[ind]);		              // use a default scale
 
-      m_final_hist1[ros][drawer][gain][type]->SetMarkerStyle(21);
-      m_final_hist1[ros][drawer][gain][type]->SetMarkerSize(ms);
-      m_final_hist1[ros][drawer][gain][type]->SetLabelSize(0.08, "X");
-      m_final_hist1[ros][drawer][gain][type]->SetLabelSize(0.08, "Y");
+      m_data->m_final_hist1[ros][drawer][gain][type]->SetMarkerStyle(21);
+      m_data->m_final_hist1[ros][drawer][gain][type]->SetMarkerSize(ms);
+      m_data->m_final_hist1[ros][drawer][gain][type]->SetLabelSize(0.08, "X");
+      m_data->m_final_hist1[ros][drawer][gain][type]->SetLabelSize(0.08, "Y");
       if (do_plots) {
-        m_final_hist1[ros][drawer][gain][type]->Draw("P0");
+        m_data->m_final_hist1[ros][drawer][gain][type]->Draw("P0");
         if (type > 0) maxline[gain]->Draw();
       }
     }
@@ -1061,47 +1052,47 @@ void TileDigitsMonTool::drawHists(int ros, int drawer, std::string moduleName)
       if (type == 5 && gain == 1) {
         if (do_plots) pad->SetLogy();
 
-        m_hist0[ros][drawer][0]->SetStats(kFALSE);
+        m_data->m_hist0[ros][drawer][0]->SetStats(kFALSE);
         gStyle->SetStatFontSize(0.1);
-        m_hist0[ros][drawer][0]->SetStats(kTRUE);
-        m_hist0[ros][drawer][0]->SetLabelSize(0.08, "X");
-        m_hist0[ros][drawer][0]->SetLabelSize(0.08, "Y");
-        if (do_plots) m_hist0[ros][drawer][0]->Draw(); // global CRC in bottom right corner
+        m_data->m_hist0[ros][drawer][0]->SetStats(kTRUE);
+        m_data->m_hist0[ros][drawer][0]->SetLabelSize(0.08, "X");
+        m_data->m_hist0[ros][drawer][0]->SetLabelSize(0.08, "Y");
+        if (do_plots) m_data->m_hist0[ros][drawer][0]->Draw(); // global CRC in bottom right corner
 
       } else {
         if (do_plots) pad->SetGridx();
 
-        if (m_final_hist1[ros][drawer][gain][type]->GetMaximum() < 0.9 * maxy[ind]) //if maximum is below reasonable limit use a default scale
-        m_final_hist1[ros][drawer][gain][type]->SetMaximum(maxy[ind]);
-        if (m_final_hist1[ros][drawer][gain][type]->GetMinimum() > (miny[ind] + 0.1 * TMath::Abs(miny[ind]))) // if minimum is above reasonable limit
-          m_final_hist1[ros][drawer][gain][type]->SetMinimum(miny[ind]);                           // use a default scale
+        if (m_data->m_final_hist1[ros][drawer][gain][type]->GetMaximum() < 0.9 * maxy[ind]) //if maximum is below reasonable limit use a default scale
+        m_data->m_final_hist1[ros][drawer][gain][type]->SetMaximum(maxy[ind]);
+        if (m_data->m_final_hist1[ros][drawer][gain][type]->GetMinimum() > (miny[ind] + 0.1 * TMath::Abs(miny[ind]))) // if minimum is above reasonable limit
+          m_data->m_final_hist1[ros][drawer][gain][type]->SetMinimum(miny[ind]);                           // use a default scale
 
-        m_final_hist1[ros][drawer][gain][type]->SetMarkerStyle(21);
-        m_final_hist1[ros][drawer][gain][type]->SetMarkerSize(ms);
-        m_final_hist1[ros][drawer][gain][type]->SetStats(kFALSE);
-        m_final_hist1[ros][drawer][gain][type]->SetLabelSize(0.08, "X");
-        m_final_hist1[ros][drawer][gain][type]->SetLabelSize(0.08, "Y");
+        m_data->m_final_hist1[ros][drawer][gain][type]->SetMarkerStyle(21);
+        m_data->m_final_hist1[ros][drawer][gain][type]->SetMarkerSize(ms);
+        m_data->m_final_hist1[ros][drawer][gain][type]->SetStats(kFALSE);
+        m_data->m_final_hist1[ros][drawer][gain][type]->SetLabelSize(0.08, "X");
+        m_data->m_final_hist1[ros][drawer][gain][type]->SetLabelSize(0.08, "Y");
         if (type != 3) {
-          if (do_plots) m_final_hist1[ros][drawer][gain][type]->Draw("P0");
+          if (do_plots) m_data->m_final_hist1[ros][drawer][gain][type]->Draw("P0");
         } else {
-          m_final_hist_stucks[ros][drawer][gain]->SetStats(kFALSE);
-          m_final_hist_stucks[ros][drawer][gain]->SetMarkerSize(3.);
-          m_final_hist_stucks[ros][drawer][gain]->SetMarkerColor(4);
-          m_final_hist_stucks[ros][drawer][gain]->SetLabelSize(0.08, "X");
-          m_final_hist_stucks[ros][drawer][gain]->SetLabelSize(0.1, "Y");
+          m_data->m_final_hist_stucks[ros][drawer][gain]->SetStats(kFALSE);
+          m_data->m_final_hist_stucks[ros][drawer][gain]->SetMarkerSize(3.);
+          m_data->m_final_hist_stucks[ros][drawer][gain]->SetMarkerColor(4);
+          m_data->m_final_hist_stucks[ros][drawer][gain]->SetLabelSize(0.08, "X");
+          m_data->m_final_hist_stucks[ros][drawer][gain]->SetLabelSize(0.1, "Y");
           gStyle->SetNumberContours(m_NCont);
           if (do_plots) {
-            m_final_hist_stucks[ros][drawer][gain]->Draw("textzcol");
+            m_data->m_final_hist_stucks[ros][drawer][gain]->Draw("textzcol");
             ex_pal52->Draw();
-            m_final_hist_stucks[ros][drawer][gain]->Draw("textcolzsame");
+            m_data->m_final_hist_stucks[ros][drawer][gain]->Draw("textcolzsame");
             pad->Update();
-            TPaletteAxis *palette = (TPaletteAxis*) m_final_hist_stucks[ros][drawer][gain]->GetListOfFunctions()->FindObject("palette");
+            TPaletteAxis *palette = (TPaletteAxis*) m_data->m_final_hist_stucks[ros][drawer][gain]->GetListOfFunctions()->FindObject("palette");
             if (palette != NULL) palette->SetLabelSize(0.07);
             pad->Modified();
           }
         }
         if (type == 4 || (type == 5 && gain == 0)) {
-          m_final_hist1[ros][drawer][gain][type]->GetYaxis()->SetLabelOffset(-0.85);	// do not draw default lables
+          m_data->m_final_hist1[ros][drawer][gain][type]->GetYaxis()->SetLabelOffset(-0.85);	// do not draw default lables
           if (do_plots) {
             t->DrawText(-0.2, 1., "all OK");
             t->DrawText(-0.2, .0, "wrong");
@@ -1127,28 +1118,28 @@ void TileDigitsMonTool::drawHists(int ros, int drawer, std::string moduleName)
       pad->SetTopMargin(0.15);
       pad->SetGridx();
     }
-    m_hist2[ros][drawer][gain][0]->SetMarkerSize(3.);
-    m_hist2[ros][drawer][gain][0]->SetMarkerColor(2);
-    m_hist2[ros][drawer][gain][0]->SetLabelSize(0.11, "Y");
-    m_hist2[ros][drawer][gain][0]->SetLabelSize(0.08, "X");
-    m_hist2[ros][drawer][gain][0]->SetStats(kFALSE);
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(1, "OK ");
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(2, "Format");
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(3, "Parity");
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(4, "Memory");
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(5, "SingleStr");
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(6, "DbleStr");
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(7, "DummyFrag");
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(8, "NoDataFrag");
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetTickLength(0.01);
-    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetLabelOffset(0.001);
+    m_data->m_hist2[ros][drawer][gain][0]->SetMarkerSize(3.);
+    m_data->m_hist2[ros][drawer][gain][0]->SetMarkerColor(2);
+    m_data->m_hist2[ros][drawer][gain][0]->SetLabelSize(0.11, "Y");
+    m_data->m_hist2[ros][drawer][gain][0]->SetLabelSize(0.08, "X");
+    m_data->m_hist2[ros][drawer][gain][0]->SetStats(kFALSE);
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(1, "OK ");
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(2, "Format");
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(3, "Parity");
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(4, "Memory");
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(5, "SingleStr");
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(6, "DbleStr");
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(7, "DummyFrag");
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(8, "NoDataFrag");
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetTickLength(0.01);
+    m_data->m_hist2[ros][drawer][gain][0]->GetYaxis()->SetLabelOffset(0.001);
     if (do_plots) {
       gStyle->SetNumberContours(m_NCont);
-      m_hist2[ros][drawer][gain][0]->Draw("textzcol");
+      m_data->m_hist2[ros][drawer][gain][0]->Draw("textzcol");
       ex_pal51->Draw();
-      m_hist2[ros][drawer][gain][0]->Draw("textzcolsame");
+      m_data->m_hist2[ros][drawer][gain][0]->Draw("textzcolsame");
       pad->Update();
-      TPaletteAxis *palette = (TPaletteAxis*) m_hist2[ros][drawer][gain][0]->GetListOfFunctions()->FindObject("palette");
+      TPaletteAxis *palette = (TPaletteAxis*) m_data->m_hist2[ros][drawer][gain][0]->GetListOfFunctions()->FindObject("palette");
       if (palette != NULL) palette->SetLabelSize(0.07);
       pad->Modified();
     }
@@ -1192,13 +1183,13 @@ void TileDigitsMonTool::drawHists(int ros, int drawer, std::string moduleName)
           TVirtualPad * pad = Can->cd(type * maxgain + gain + 1);
           pad->SetTopMargin(0.15);
         }
-        m_final_hist2[ros][drawer][gain][type]->SetLabelSize(0.06, "X");
-        m_final_hist2[ros][drawer][gain][type]->SetLabelSize(0.06, "Y");
+        m_data->m_final_hist2[ros][drawer][gain][type]->SetLabelSize(0.06, "X");
+        m_data->m_final_hist2[ros][drawer][gain][type]->SetLabelSize(0.06, "Y");
         if (do_plots) {
-          m_final_hist2[ros][drawer][gain][type]->Draw("COLZ");
+          m_data->m_final_hist2[ros][drawer][gain][type]->Draw("COLZ");
           if (type == 0) {
             std::ostringstream label_text;
-            label_text << "<C_ij>/<C_ii>= " << std::setprecision(4) << m_cov_ratio[ros][drawer][gain] << std::setprecision(4);
+            label_text << "<C_ij>/<C_ii>= " << std::setprecision(4) << m_data->m_cov_ratio[ros][drawer][gain] << std::setprecision(4);
             covar_label[gain].SetLabel(label_text.str().c_str());
             covar_label[gain].SetTextSize(0.4);
             covar_label[gain].Draw();
@@ -1542,7 +1533,7 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
   //! are the result of the CRC check in the ROD (0xFFFF means all OK).
 
   // protection against non-exisitng histograms
-  if (m_hist0[ros][drawer].size() == 0) return;
+  if (m_data->m_hist0[ros][drawer].size() == 0) return;
 
   //LF CRC check
   //std::string ros_name[2] = {"LBA","LBC"};
@@ -1558,11 +1549,11 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
   uint32_t crc0 = crc32 & 0xFFFF;
   uint32_t crc1 = crc32 >> 16;
   if (crc32 == 0)
-    m_hist0[ros][drawer][0]->Fill(0.0, 1.0);
+    m_data->m_hist0[ros][drawer][0]->Fill(0.0, 1.0);
   else if (crc0 == crc1) // two half-words should match
-    m_hist0[ros][drawer][0]->Fill(1.0, 1.0);
+    m_data->m_hist0[ros][drawer][0]->Fill(1.0, 1.0);
   else
-    m_hist0[ros][drawer][0]->Fill(2.0, 1.0);
+    m_data->m_hist0[ros][drawer][0]->Fill(2.0, 1.0);
 
   // CRC per TileDMU.For mono gain we have it from ROD and FE. 
   // In bi gain, it is just a placeholder with global CRC information.
@@ -1573,11 +1564,11 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
   if (m_beamInfo->calibMode() == 1) { //!bigain: dummy information
     for (int ch = 0; ch < headsize; ++ch) {
       if (crc32 == 0)
-        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(0.0, 1.0);
+        m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(0.0, 1.0);
       else if (crc0 == crc1)
-        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
+        m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
       else
-        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(2.0, 1.0);
+        m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(2.0, 1.0);
 
     }
   } else { //! monogain: meaningful information.
@@ -1588,11 +1579,11 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
            //! Fill 4 is FE and ROD crc is 0
     if (crc32 == 0) {  //std::cout << "Global crc is zero\n";
       for (int ch = 0; ch < headsize; ++ch) {
-        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(0.0, 1.0);
+        m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(0.0, 1.0);
       }
     } else if (crcMask == 0xFFFFFFFF) {
       for (int ch = 0; ch < headsize; ++ch) {
-        m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
+        m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
       }
     } else {
       uint32_t fe_crc = crcMask & 0xFFFF;
@@ -1617,16 +1608,16 @@ void TileDigitsMonTool::CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize,
 
         switch (flag) {
           case 0: //TileDMU is fine
-            m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
+            m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(1.0, 1.0);
             break;
           case 1: //fe error only
-            m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(2.0, 1.0);
+            m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(2.0, 1.0);
             break;
           case 2: // rod errors
-            m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(3.0, 1.0);
+            m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(3.0, 1.0);
             break;
           default: // fe+rod errors
-            m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(4.0, 1.0);
+            m_data->m_hist_DMUerr[ros][drawer][ch][0][1]->Fill(4.0, 1.0);
         } // end switch case
 
       } // end loop on chips
@@ -1664,31 +1655,31 @@ bool TileDigitsMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec, int ros
   bool err = false;
 
   if (DMUheaderFormatCheck((*headerVec)[dmu])) {
-    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 1., 1.);
+    m_data->m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 1., 1.);
     err = true;
     return err;
   }
   if (DMUheaderParityCheck((*headerVec)[dmu])) {
-    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 2., 1.);
+    m_data->m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 2., 1.);
     err = true;
     return err;
   }
   if (((*headerVec)[dmu] >> 25) & 0x1) {
     //Memory Parity Error
-    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 3., 1.);
+    m_data->m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 3., 1.);
     err = true;
   }
   if (((*headerVec)[dmu] >> 24) & 0x1) {
     //Single Strobe Error
-    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 4., 1.);
+    m_data->m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 4., 1.);
     err = true;
   }
   if (((*headerVec)[dmu] >> 23) & 0x1) {
     //Double Strobe Error
-    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 5., 1.);
+    m_data->m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 5., 1.);
     err = true;
   }
-  if (!err) m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 0., 1.);
+  if (!err) m_data->m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 0., 1.);
   return err;
 }
 
@@ -1750,7 +1741,7 @@ void TileDigitsMonTool::shiftHisto(TH1S *hist, int ros, int drawer, int ch, int 
     int xmin = std::max(1, shift + 50);
     for (int bin = xmin; bin < xmax; ++bin) {
       double c = hist->GetBinContent(bin);
-      if (c > 0) m_shifted_hist[ros][drawer][ch][gain]->SetBinContent(bin - shift - 50, c);
+      if (c > 0) m_data->m_shifted_hist[ros][drawer][ch][gain]->SetBinContent(bin - shift - 50, c);
     }
   }
 }
@@ -1769,7 +1760,7 @@ void TileDigitsMonTool::statTestHistos(int ros, int drawer, int gain)
 
   for (int i = 0; i < 48; i++) {
 
-    TH1S *h = m_shifted_hist[ros][drawer][i][gain];
+    TH1S *h = m_data->m_shifted_hist[ros][drawer][i][gain];
     float integ = h->Integral(200, 600);
     if (integ > 0) {
       refbld.push_back(h);
@@ -1806,9 +1797,9 @@ void TileDigitsMonTool::statTestHistos(int ros, int drawer, int gain)
   //  newrefbld->Add(ref1);      
 
   if (ent > 6)
-    m_shifted_hist[ros][drawer][48][gain]->Add(ref1, 1.);
+    m_data->m_shifted_hist[ros][drawer][48][gain]->Add(ref1, 1.);
   else
-    m_shifted_hist[ros][drawer][48][gain]->Add(ref, 1.);
+    m_data->m_shifted_hist[ros][drawer][48][gain]->Add(ref, 1.);
 
   delete ref;
   delete ref1;
@@ -1818,5 +1809,5 @@ void TileDigitsMonTool::statTestHistos(int ros, int drawer, int gain)
 
 void TileDigitsMonTool::saveStuckBitsProbabilities(TTree* tree) {
 
-  tree->Branch("StuckBitsProb", m_stuck_probs, "StuckBitsProb[5][64][48][2][10]/b");
+  tree->Branch("StuckBitsProb", m_data->m_stuck_probs, "StuckBitsProb[5][64][48][2][10]/b");
 }

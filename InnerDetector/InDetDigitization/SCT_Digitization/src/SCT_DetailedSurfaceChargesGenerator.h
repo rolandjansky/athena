@@ -172,7 +172,12 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   double m_EyValue150[17][115];
 
   //------TK parameters for charge map, uses file storage of map.... 
-  double m_stripCharge[5][81][285][50];
+  // This member makes the class very large --- large enough that it fails
+  // ubsan's sanity checks and produces a false positive.  However, it is not
+  // actually used, so comment it out.  If it is ever actually needed,
+  // then it should be allocated dynamically rather than being allocated
+  // inline to the class.
+  //double m_stripCharge[5][81][285][50];
   int    m_stripCharge_ixmax;
   int    m_stripCharge_iymax;
   double m_stripCharge_dx;
