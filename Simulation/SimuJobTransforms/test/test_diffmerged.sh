@@ -25,10 +25,10 @@ AtlasG4_tf.py \
 
 echo  "art-result: $? simulation"
 
-INPUTFILE=mu_E200_eta0-25_${GEOMETRY}.hits.pool.root
+INPUTFILE=mu_E200_eta0-25_${GEOMETRY}.HITS.pool.root
 FILENAME=`basename ${INPUTFILE}`
-FILEBASE=${FILENAME%.hits.pool.root}
-INPUTFILE2=${FILEBASE}.2.hits.pool.root
+FILEBASE=${FILENAME%.HITS.pool.root}
+INPUTFILE2=${FILEBASE}.2.HITS.pool.root
 RDOFILE1=${FILEBASE}.unmerged.RDO.pool.root
 RDOFILE2=${FILEBASE}.merged.RDO.pool.root
 # Copy the file.  We can't use cp here, since we need the copy to get
@@ -39,7 +39,7 @@ mergePOOL -o $INPUTFILE2 -i $INPUTFILE
 echo  "art-result: $? copyHITS"
 
 INPUTLIST=$INPUTFILE,$INPUTFILE2
-MERGEHITSFILE=${FILEBASE}.merged.hits.pool.root
+MERGEHITSFILE=${FILEBASE}.merged.HITS.pool.root
 echo $INPUTLIST
 
 ## TODO: Temporary hack until log files are found!
@@ -48,23 +48,37 @@ INPUTLOGLIST=log.AtlasG4Tf,log.AtlasG4Tf2
 
 HITSMerge_tf.py \
 --inputHITSFile "$INPUTLIST" \
- --inputLogsFile "$INPUTLOGLIST" \
- --outputHITS_MRGFile $MERGEHITSFILE \
- --maxEvents 20 \
- --skipEvents 0 \
- --geometryVersion ${GEOMETRY}
+--inputLogsFile "$INPUTLOGLIST" \
+--outputHITS_MRGFile $MERGEHITSFILE \
+--maxEvents 20 \
+--skipEvents 0 \
+--geometryVersion ${GEOMETRY}
 
 echo  "art-result: $? mergeHITS"
 
-Digi_tf.py --inputHITSFile $MERGEHITSFILE --outputRDOFile $RDOFILE2 --maxEvents 2 --skipEvents 11 --geometryVersion ${GEOMETRY} --conditionsTag 'OFLCOND-RUN12-SDR-30' --DataRunNumber 222525
+Digi_tf.py \
+--inputHITSFile $MERGEHITSFILE \
+--outputRDOFile $RDOFILE2 \
+--maxEvents 2 \
+--skipEvents 6 \
+--geometryVersion ${GEOMETRY} \
+--conditionsTag 'OFLCOND-RUN12-SDR-30' \
+--DataRunNumber 222525
 
 echo  "art-result: $? mergeDigi"
 
-Digi_tf.py --inputHITSFile "$INPUTLIST" --outputRDOFile $RDOFILE1 --maxEvents 2 --skipEvents 11 --geometryVersion ${GEOMETRY} --conditionsTag 'OFLCOND-RUN12-SDR-30' --DataRunNumber 222525
+Digi_tf.py \
+--inputHITSFile "$INPUTLIST" \
+--outputRDOFile $RDOFILE1 \
+--maxEvents 2 \
+--skipEvents 6 \
+--geometryVersion ${GEOMETRY} \
+--conditionsTag 'OFLCOND-RUN12-SDR-30' \
+--DataRunNumber 222525
 
 echo  "art-result: $? unmergeDigi"
 
-diffPoolFiles.py mu_E50_eta0-25_${GEOMETRY}.merged.rdo.pool.root mu_E50_eta0-25_${GEOMETRY}.unmerged.rdo.pool.root | \
+diffPoolFiles.py $RDOFILE2 $RDOFILE1 | \
     sed 's/\[ERR\]\(.*\)POOLContainer_DataHeaderForm$/\[WARN\]\1POOLContainer_DataHeaderForm/g' | \
     sed 's/## Comparison : \[ERR\]/## Comparison : \[WARN\]/g'
 

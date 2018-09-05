@@ -11,21 +11,18 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorManager.h"
 
 #include "TrigFTKSim/ftk_dcap.h"
 
 
 #include "TrkSurfaces/Surface.h"
-
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -59,16 +56,16 @@ FTK_RDO_MonitorAlgo::FTK_RDO_MonitorAlgo(const std::string& name, ISvcLocator* p
   m_maxphi(10.),
   m_minMatches(6),
   m_reverseIBLlocx(false),
-  m_max_tower(64),
   m_Nlayers(12),
   m_getHashFromTrack(true),
   m_getHashFromConstants(false),
-  m_towerID(0),
   m_getRawTracks(true),
   m_getTracks(true),
-  m_getRefitTracks(true)
+  m_getRefitTracks(true),
+  m_HashIDTool("IFTK_HashIDTool/TrigFTK_HashIDTool")
 
 {
+  declareProperty("HashIDTool",m_HashIDTool);
   declareProperty("RDO_CollectionName",m_ftk_raw_trackcollection_Name, "Collection name of RDO");
   declareProperty("offlineTracksName",m_offlineTracksName," offline tracks collection name");
   declareProperty("FTK_DataProvider", m_DataProviderSvc);
@@ -81,13 +78,9 @@ FTK_RDO_MonitorAlgo::FTK_RDO_MonitorAlgo(const std::string& name, ISvcLocator* p
   declareProperty("maxphi", m_maxphi,"Maximum phi for offline track");
   declareProperty("minMatches", m_minMatches,"Minimum number of matched hits");
   declareProperty("reverseIBLlocx",m_reverseIBLlocx,"reverse direction of IBL locx from FTK");
-  declareProperty("ConstantsDir",m_ConstantsDir="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK","directory for constants");
-  declareProperty("PatternsVersion",m_PatternsVersion="ftk.64tower.2016.mc16.v2","Patterns Version");
-  declareProperty("Ntowers",m_max_tower,"No. FTK Towers");
   declareProperty("Nlayers",m_Nlayers,"No. FTK layers in the SectorsFile");
   declareProperty("GetHashFromTrack",m_getHashFromTrack," Get HashID From Track");
   declareProperty("GetHashFromConstants",m_getHashFromConstants," Get HashID From Constants");
-  declareProperty("TowerID",m_towerID,"if non-zero TowerID overrides value in BS");
   declareProperty("getRawTracks",m_getRawTracks,"get Raw FTK tracks");
   declareProperty("getTracks",m_getTracks,"get FTK tracks");
   declareProperty("getRefitTracks",m_getRefitTracks,"get Refit FTK tracks");
@@ -114,7 +107,9 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   /// Get Histogram Service ///
   ATH_CHECK(service("THistSvc", rootHistSvc));
 
-  
+  if (m_getHashFromConstants) {
+    ATH_CHECK(m_HashIDTool.retrieve());
+  }
 
   ///Tree
   std::string trackRootPath;
@@ -163,9 +158,6 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   if ( m_reverseIBLlocx ) 
     ATH_MSG_INFO("reversing direction of IBL locx");
 
-  ATH_MSG_INFO("ConstantsDir: "<<m_ConstantsDir);
-  ATH_MSG_INFO("PatternsVersion: "<<m_PatternsVersion);
-  ATH_MSG_INFO("Ntowers= " << m_max_tower);
   ATH_MSG_INFO("Nlayers= "<<m_Nlayers);
 
   if (m_getHashFromTrack && m_getHashFromConstants) {
@@ -180,23 +172,7 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   }
     
 
-  StatusCode ret=StatusCode::SUCCESS;
-  if (m_getHashFromConstants) {
-    m_moduleFromSector.resize(m_max_tower);
-    for (unsigned int itower=0; itower<m_max_tower; itower++) {
-            
-      m_moduleFromSector[itower] = new sectormap();
-      unsigned int returnCode = (this)->readModuleIds(itower, *(m_moduleFromSector[itower]));
-
-      if (returnCode) {
-	ATH_MSG_WARNING("Error " << returnCode << " loading constants for tower " << itower);
-	ret=StatusCode::FAILURE;
-	break;
-      } 
-
-    }
-  }
-  return ret; 
+  return StatusCode::SUCCESS; 
 }
 
 
@@ -219,17 +195,9 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
   }
   
   // get FTK tracks
-  const FTK_RawTrackContainer *rawTracks ( nullptr );
-  
-  if ( evtStore()->contains<FTK_RawTrackContainer> ( m_ftk_raw_trackcollection_Name) ) {
-    if ( evtStore()->retrieve ( rawTracks, m_ftk_raw_trackcollection_Name  ).isFailure() ) {
-      ATH_MSG_DEBUG("Could not retrieve FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate.");
-    }
-  } else {
-    ATH_MSG_DEBUG("Could not find FTK_RawTrackContainer " <<  m_ftk_raw_trackcollection_Name << " in StoreGate.");
-    
-  }
-  
+  const FTK_RawTrackContainer *rawTracks = m_DataProviderSvc->getRawTracks();
+  ATH_MSG_DEBUG("rawTracks at " << std::hex << rawTracks << std::dec);
+
   if (rawTracks == nullptr) {
     ATH_MSG_DEBUG("No FTK tracks");
     return StatusCode::SUCCESS;
@@ -238,7 +206,23 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
   
   ATH_MSG_DEBUG(" Got FTK_RawTrackContainer with " << rawTracks->size() << " tracks");
   h_FTK_RawTrack_n->Fill(rawTracks->size());
+
+  if (rawTracks->size()==0) {
+    ATH_MSG_DEBUG("No FTK tracks");
+    return StatusCode::SUCCESS;
+  }
   
+  // Trigger conversion of FTK tracks - needed later when we get the cached tracks
+  if (m_getTracks) {
+    TrackCollection* ftkTracks=m_DataProviderSvc->getTracks(false);
+    ATH_MSG_DEBUG("Got " << ftkTracks->size() << " Converted Tracks");
+    delete(ftkTracks);
+  }
+  if (m_getRefitTracks) {
+    TrackCollection* ftkRefitTracks=m_DataProviderSvc->getTracks(true);
+    ATH_MSG_DEBUG("Got " << ftkRefitTracks->size() << " Refitted Tracks");
+    delete(ftkRefitTracks);
+  }
 
   unsigned int pixMaxHash = m_pixelId->wafer_hash_max();
   unsigned int sctMaxHash = m_sctId->wafer_hash_max();
@@ -323,23 +307,16 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
       if (ftkTrackMatch.second > m_minMatches) { 
 	nMatched+=1;
 	const FTK_RawTrack* ftkRawTrack = rawTracks->at(ftkTrackMatch.first);
+
 	float ftkTrkTheta = std::atan2(1.0,(ftkRawTrack)->getCotTh());
 	float ftkTrkEta = -std::log(std::tan(ftkTrkTheta/2.));
 	float ftkTrkPt=1.e10;
 	if (fabs((ftkRawTrack)->getInvPt()) >= 1e-10) ftkTrkPt=1./(ftkRawTrack)->getInvPt();
-	
 	ATH_MSG_VERBOSE(" FTK     Track " << ftkTrackMatch.first << " pT " << ftkTrkPt << " eta " << ftkTrkEta << 
-			" phi0 " << (ftkRawTrack)->getPhi() << " d0 " << (ftkRawTrack)->getD0() << " z0 " << (ftkRawTrack)->getZ0());
-	
+		    " phi0 " << (ftkRawTrack)->getPhi() << " d0 " << (ftkRawTrack)->getD0() << " z0 " << (ftkRawTrack)->getZ0());
+    
 	//	ATH_MSG_VERBOSE( " nPix: " << (ftkRawTrack)->getPixelClusters().size() << " nSCT: "<< (ftkRawTrack)->getSCTClusters().size()<< " barCode: "<<(ftkRawTrack)->getBarcode()  );
-	  //    ATH_MSG_VERBOSE( "     SectorID " << (ftkRawTrack)->getSectorID()   <<   "  RoadID "  << (ftkRawTrack)->getRoadID() << " LayerMap " << (ftkRawTrack)->getLayerMap());
-	
-	
-	h_FTK_pt->Fill(ftkTrkPt);
-	h_FTK_eta->Fill(ftkTrkEta);
-	h_FTK_phi->Fill((ftkRawTrack)->getPhi());
-	h_FTK_d0->Fill((ftkRawTrack)->getD0());
-	h_FTK_z0->Fill((ftkRawTrack)->getZ0());
+	//    ATH_MSG_VERBOSE( "     SectorID " << (ftkRawTrack)->getSectorID()   <<   "  RoadID "  << (ftkRawTrack)->getRoadID() << " LayerMap " << (ftkRawTrack)->getLayerMap());
 	
 	if (eta> m_mineta && eta<m_maxeta && phi0> m_minphi && phi0<m_maxphi) {
 	  
@@ -400,11 +377,6 @@ StatusCode FTK_RDO_MonitorAlgo::finalize() {
   MsgStream athlog(msgSvc(), name());
   ATH_MSG_INFO("finalize()" );
   
-  if (m_getHashFromConstants) {
-    for (unsigned int it=0; it<m_max_tower; it++) {
-      delete(m_moduleFromSector[it]);
-    }
-  }
   return StatusCode::SUCCESS;
 
 }
@@ -424,7 +396,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
   h_FTK_RawTrack_n    = new TH1D("h_FTKMoni_RawTrack_n",    ";FTK Raw Track multiplicity;No. Tracks",      25,  0.,    25.);
   histograms->push_back(h_FTK_RawTrack_n);
 
-  h_offline_n    = new TH1D("h_FTKMoni_offline_n",    ";Offline Track multiplicity;No. Tracks",      50,  0.,    200.);
+  h_offline_n    = new TH1D("h_FTKMoni_offline_n",    ";Offline Track multiplicity;No. Tracks",      100,  0.,    1000.);
   histograms->push_back(h_offline_n);
 
   h_offline_nAcc   = new TH1D("h_FTKMoni_offline_nAcc",    ";No. Offline Tracks accepted;No. Tracks",      50,  0.,    50.);
@@ -794,15 +766,25 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
   FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
   FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
   for ( int itr=0; pTrack!= pLastTrack; pTrack++, itr++) {
+
+    const FTK_RawTrack* ftkRawTrack = *pTrack;
+
+    float ftkTrkTheta = std::atan2(1.0,(ftkRawTrack)->getCotTh());
+    float ftkTrkEta = -std::log(std::tan(ftkTrkTheta/2.));
+    float ftkTrkPt=1.e10;
+    if (fabs((ftkRawTrack)->getInvPt()) >= 1e-10) ftkTrkPt=1./(ftkRawTrack)->getInvPt();
+       
+    
+    h_FTK_pt->Fill(ftkTrkPt);
+    h_FTK_eta->Fill(ftkTrkEta);
+    h_FTK_phi->Fill((ftkRawTrack)->getPhi());
+    h_FTK_d0->Fill((ftkRawTrack)->getD0());
+    h_FTK_z0->Fill((ftkRawTrack)->getZ0());
+
     
     unsigned int tower = (*pTrack)->getTower();
     unsigned int sector = (*pTrack)->getSectorID();
 
-    if (m_towerID!=0) {
-      ATH_MSG_VERBOSE( " Tower ID read from track " << tower << " set to " <<  m_towerID );
-      tower=m_towerID;
-    }
-      
     ATH_MSG_VERBOSE( itr << std::hex <<
 		     ": Tower 0x" << tower << "     SectorID 0x" << (*pTrack)->getSectorID()   <<   
 		     "  RoadID 0x"  << (*pTrack)->getRoadID() << " LayerMap 0x" << (*pTrack)->getLayerMap() << std::dec <<
@@ -839,7 +821,7 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
       }
       
       if (m_getHashFromConstants) {
-	hashfromConstants = this->getHash(tower, sector, iPlane);
+	hashfromConstants = m_HashIDTool->getHash(tower, sector, iPlane);
 	if (hashfromConstants < pixMaxHash) {
 	  constHashValid=true;
 	  ATH_MSG_VERBOSE(" pixel HashID from constants 0x" << std::hex << hashfromConstants << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
@@ -916,18 +898,18 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
 
       if (m_getHashFromTrack) {
 	hashfromTrack = (*pTrack)->getSCTClusters()[isct].getModuleID();
-	if (hashfromConstants < sctMaxHash) {
+	if (hashfromTrack < sctMaxHash) {
 	  trackHashValid=true;
-	  ATH_MSG_WARNING(" SCT HashID from track 0x" << std::hex << hashfromTrack << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	  ATH_MSG_VERBOSE(" SCT HashID from track 0x" << std::hex << hashfromTrack << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
 	} else {
 	  ATH_MSG_WARNING(" invalid SCT HashID from track 0x" << std::hex << hashfromTrack << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
       
 	}
       }
       if (m_getHashFromConstants) {
-        hashfromConstants = this->getHash(tower, sector, iPlane);
+        hashfromConstants = m_HashIDTool->getHash(tower, sector, iPlane);
 	if (hashfromConstants < sctMaxHash) {
-	  ATH_MSG_WARNING(" SCT HashID from constants 0x" << std::hex << hashfromConstants << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	  ATH_MSG_VERBOSE(" SCT HashID from constants 0x" << std::hex << hashfromConstants << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
 	  constHashValid=true;
 	} else {
 	  ATH_MSG_WARNING(" invalid SCT HashID from constants 0x" << std::hex << hashfromConstants << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
@@ -1059,12 +1041,12 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
       
       //      ATH_MSG_DEBUG(" getting  locX locY");
       const float locX = (float)measurement->localParameters()[Trk::locX];
-      const float locY = (float)measurement->localParameters()[Trk::locY];
 
 
       
       if (m_id_helper->is_pixel(hitId)) {
-	
+
+	const float locY = (float)measurement->localParameters()[Trk::locY];
 
 	if (hash < pixMaxHash) {
 	  const std::pair<double, double>  locXlocY(locX,locY);
@@ -1401,9 +1383,9 @@ void FTK_RDO_MonitorAlgo::compareTracks(const Trk::Track* ftkTrack,
       
       //      ATH_MSG_DEBUG(" getting  locX locY");
       const float locX = (float)measurement->localParameters()[Trk::locX];
-      const float locY = (float)measurement->localParameters()[Trk::locY];
 
       if (m_id_helper->is_pixel(hitId)) {
+	const float locY = (float)measurement->localParameters()[Trk::locY];
 
 	Identifier wafer_id = m_pixelId->wafer_id(hash); 
 	unsigned int layer = m_pixelId->layer_disk(wafer_id);
@@ -1588,136 +1570,3 @@ double FTK_RDO_MonitorAlgo::getSctLocX(const IdentifierHash hash, const float ra
   return xloc;
 }
   
-
-bool FTK_RDO_MonitorAlgo::findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane) {
-  int i = (int) hash;
-  sector=tower=plane=0xffffffff;
-  bool found=false;
-
-  //  for (unsigned int itower = 0; itower < m_moduleFromSector.size(); itower++) {
-  sectormap* map = m_moduleFromSector[tower];
-  if (map) {   
-    //      for ( unsigned int isector=0; isector < map->size();isector++) {
-    if ((*map)[sector].size() > 0) {
-      auto first= (*map)[sector].begin();
-      if (isSCT) first+=4;
-      auto last = (*map)[sector].end();
-      if (!isSCT) last -=8;
-
-      auto p = std::find(first, last, i);
-      if ( p!= last ) {
-	plane = std::distance(first, p);
-
-      }
-    }
-  }
-
-  return found;
-}
-	
-unsigned int FTK_RDO_MonitorAlgo::getHash(unsigned int tower, unsigned int sector,  unsigned int plane) {
-  unsigned int hash =  0xffffffff;
-  if (plane >= 12) {
-    ATH_MSG_ERROR("getHash: Invalid plane " << plane);
-    return hash;
-  }
-  if (m_moduleFromSector[tower]==nullptr) return hash;
-  if ((*m_moduleFromSector[tower]).size() <= sector) return hash;
-  if (plane >=(*m_moduleFromSector[tower])[sector].size()) return hash;
-  return (unsigned int)(*m_moduleFromSector[tower])[sector][plane];
-}
-
-
-int FTK_RDO_MonitorAlgo::readModuleIds(unsigned int itower, sectormap& hashID) {
-   int nSector8L,nPlane8L;
-   // define which 8L plane goes to which 12L plane
-   vector<int> const remapPlanes={1,2,3, 4,6,8,9,10, 0,5,7,11};
-   enum {
-      ERROR_PATTFILE=1,
-      ERROR_CONNFILE=2
-   };
-
-
-   std::stringstream ssPat, ssCon;
-   ssPat << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_8L_reg"<<itower<<".patt.bz2";
-   
-   std::string pattfilename=ssPat.str();
-   ATH_MSG_DEBUG("Sectors file: "<<pattfilename);
-   const char * cpattfilename = pattfilename.c_str();
-   ftk_dcap::istream *patt_8L=ftk_dcap::open_for_read(cpattfilename);
-   if(!patt_8L) {
-     ATH_MSG_WARNING("readSectorDefinition failed to open file "<<cpattfilename
-		     <<" for reading, skipping");
-     return ERROR_PATTFILE;
-   }
-   ssCon << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_8L_reg"<<itower<<".conn";
-   std::string connfilename=ssCon.str();
-   ATH_MSG_DEBUG("Connections file: "<<connfilename);
-   const char * charconnfilename = connfilename.c_str();
-   ifstream conn(charconnfilename);
-   if (!conn) {
-     ATH_MSG_WARNING("readSectorDefinition failed to open file "<<charconnfilename
-		     <<" for reading, skipping");
-
-     delete(patt_8L);
-     return ERROR_CONNFILE;
-   }
-
-   (*patt_8L)>>nSector8L>>nPlane8L;
-   // check errors here
-   //   (*patt_8L).fail(), nSector8L>0, 0<nPlane8L<remapPlanes.size()
-   int lastSector8=-1;
-   int lastSector12=-1;
-   int error=0;
-   while(!((*patt_8L).eof()||conn.eof())) {
-      int iSectorPatt,iSectorConn;
-      (*patt_8L)>>iSectorPatt;
-      conn>>iSectorConn;
-      if((*patt_8L).fail()||conn.fail()) {
-         // end
-         break;
-      }
-      if((iSectorPatt!=lastSector8+1)||
-         (iSectorPatt!=iSectorConn)||
-         (iSectorPatt<0)||(iSectorPatt>=nSector8L)) {
-         error=ERROR_PATTFILE;
-         // file is corrupted
-         break;
-      }
-      vector<int> moduleData(remapPlanes.size());
-      // read 8L module IDs
-      for(int k=0;k<nPlane8L;k++) {
-         (*patt_8L)>>moduleData[remapPlanes[k]];
-      }
-      int dummy;
-      // skip dummy entries
-      (*patt_8L)>>dummy;
-      (*patt_8L)>>dummy;
-      // read connection data and store 12L module data
-
-      int n12;
-      conn>>n12;
-      for(int i=0;i<n12;i++) {
-         int sector12;
-         conn>>dummy>>sector12;
-         if(lastSector12+1!=sector12) {
-            error=ERROR_CONNFILE;
-            break;
-         }
-         for(unsigned int k=nPlane8L;k<remapPlanes.size();k++) {
-            conn>>moduleData[remapPlanes[k]];
-         }
-         hashID.push_back(moduleData);
-         lastSector12=sector12;
-      }
-      if(error) break;
-
-      lastSector8=iSectorPatt;
-   }
-
-     
-
-   delete(patt_8L);
-
-   return error;
-}
