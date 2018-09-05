@@ -1,3 +1,12 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# @file AthenaCommon.AthArgumentParser
+# @purpose the central module to allow users to add additional command line arguments to athena
+# @date September 2018
+
+
+
+
 """Helper scripts for passing command line arguments into athena
 
   Command line arguments for job options should follow a single '-' character
