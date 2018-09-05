@@ -155,7 +155,7 @@ namespace CP {
                 if (not triggerKey->IsFolder()) continue;
                 TDirectory* triggerDirectory = periodDirectory->GetDirectory(triggerKey->GetName());
                 std::string triggerName = std::string(triggerKey->GetName());
-		if(!std::set<std::string>{"HLT_mu26_ivarmedium", "HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu5"}.count(triggerName) && m_binning == "coarse"){
+		if(!std::set<std::string>{"HLT_mu26_ivarmedium", "HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50"}.count(triggerName) && m_binning == "coarse"){
 		  ATH_MSG_DEBUG("Coarse binning not supported for di-muon trigger legs at the moment");
 		  continue;
 		}
