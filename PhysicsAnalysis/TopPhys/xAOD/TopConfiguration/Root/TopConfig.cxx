@@ -169,6 +169,7 @@ namespace top{
     m_electronIsoSFs(true),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
+    m_useElectronChargeIDSelection(false),
 
     // Muon configuration
     m_muonPtcut(25000.),
@@ -666,6 +667,7 @@ namespace top{
     if (this->electronIsolation() == "FixedCutHighPtCaloOnly" || this->electronIsolationLoose() == "FixedCutHighPtCaloOnly"){
       std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
     }
+    this->useElectronChargeIDSelection(settings->value("UseElectronChargeIDSelection"));
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
 
@@ -2377,6 +2379,7 @@ namespace top{
     out->m_electronIDLoose = m_electronIDLoose;
     out->m_electronIsolation = m_electronIsolation;
     out->m_electronIsolationLoose = m_electronIsolationLoose;
+    out->m_useElectronChargeIDSelection = m_useElectronChargeIDSelection;
 
     out->m_muon_trigger_SF = m_muon_trigger_SF;
     out->m_muonQuality = m_muonQuality;
@@ -2506,6 +2509,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_electronIDLoose = settings->m_electronIDLoose;
     m_electronIsolation = settings->m_electronIsolation;
     m_electronIsolationLoose = settings->m_electronIsolationLoose;
+    m_useElectronChargeIDSelection = settings->m_useElectronChargeIDSelection;
 
     m_muon_trigger_SF = settings->m_muon_trigger_SF;
     m_muonQuality = settings->m_muonQuality;
