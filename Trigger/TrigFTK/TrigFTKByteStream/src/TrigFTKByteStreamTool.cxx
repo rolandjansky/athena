@@ -25,7 +25,7 @@ FTK::TrigFTKByteStreamTool::TrigFTKByteStreamTool( const std::string& type, cons
      m_decoder("FTK::FTKByteStreamDecoderEncoderTool"),
      m_decoderAux("FTK::FTKByteStreamDecoderEncoderAuxTool"),
      m_AuxFormat(0x0001),
-     m_decodeAux(false)
+     m_decodeAux(true)
 {
   declareInterface< FTK::TrigFTKByteStreamTool  >( this );
   declareProperty("AuxDataFormatID", m_AuxFormat);
@@ -160,7 +160,7 @@ StatusCode FTK::TrigFTKByteStreamTool::convert(IROBDataProviderSvc& dataProvider
     uint16_t rodMinorVersion= ver.minor_version();
 
     if (rodMinorVersion==m_AuxFormat) {
-      ATH_MSG_DEBUG("Unpacking Data in AUX Format with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec);
+      ATH_MSG_DEBUG("Unpacking Data in AUX Format with rodMinorVersion 0x" << std::hex << rodMinorVersion << std::dec<<" no. data words " << nData);
       if (m_decodeAux) {
 	StatusCode scdca = m_decoderAux->decode(nData, rodData, result);    
 	if (scdca.isFailure()){

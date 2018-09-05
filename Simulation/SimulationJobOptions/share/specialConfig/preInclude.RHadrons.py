@@ -463,6 +463,9 @@ if usePythia8:
           genSeq = dummyClass()
           genSeq.Pythia8 = dummyClass()
           genSeq.Pythia8.Commands = []
+          # Set up a fake TestHepMC
+          testSeq = dummyClass()
+          testSeq.TestHepMC = dummyClass()
           # Block includes that we don't want running
           include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
           include.block('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')

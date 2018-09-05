@@ -13,7 +13,7 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
 
         from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK,  \
-        TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK
+        TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK,TrigFTK_HashIDTool
         
         self.TrackCollectionName= "FTK_TrackCollection"
         self.TrackParticleContainerName= "FTK_TrackParticleContainer"
@@ -31,7 +31,8 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.TrackSummaryTool=InDetTrigTrackSummaryToolFTK
         self.TrackParticleCreatorTool=InDetTrigTrackParticleCreatorToolFTK
         self.RawVertexFinderTool=TrigFTK_RawVertexFinderTool
-        self.ROTcreatorTool= InDetTrigRotCreatorFTK 
+        self.ROTcreatorTool= InDetTrigRotCreatorFTK
+        self.HashIDTool=TrigFTK_HashIDTool
 
         from AthenaCommon.BeamFlags import jobproperties
         print "JTB: beamtype is " , jobproperties.Beam.beamType()
