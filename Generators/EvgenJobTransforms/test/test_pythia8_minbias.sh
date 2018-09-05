@@ -1,6 +1,8 @@
 #!/bin/bash
 # art-description: Generation test Pythia8 min_bias 
 # art-include: 21.6/AthGeneration
+# art-output *.root
+# art-output log.generate
 
 #get_files -jo MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.py
 

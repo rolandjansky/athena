@@ -1,6 +1,8 @@
 #!/bin/bash
 # art-description: Generation test Pythia8 min_bias inelastic high
 # art-include: 21.6/AthGeneration
+# art-output *.root
+# art-output log.generate
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
