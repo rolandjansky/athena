@@ -15,17 +15,14 @@ if not conddb.isMC and not conddb.isOnline:
 
     from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg
     hvmapalg = LArHVIdMappingAlg(ReadKey="/LAR/IdentifierOfl/HVLineToElectrodeMap",WriteKey="LArHVIdMap")
-    hvmapalg.OutputLevel=DEBUG
     condseq += hvmapalg
 
     from LArRecUtils.LArRecUtilsConf import LArHVPathologyDbCondAlg
     hvpath = LArHVPathologyDbCondAlg(PathologyFolder="/LAR/HVPathologiesOfl/Pathologies",HVMappingKey="LArHVIdMap", HVPAthologyKey="LArHVPathology")
-    hvpath.OutputLevel=DEBUG
     condseq += hvpath
 
     from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
     hvcond = LArHVCondAlg(HVPathologies="LArHVPathology")
-    hvcond.OutputLevel=DEBUG
     condseq += hvcond
 
 if conddb.isMC:
