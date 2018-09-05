@@ -262,7 +262,7 @@ import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
 
 # add decoration
-SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
 SeqSUSY5 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 #====================================================================
@@ -306,7 +306,7 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 
 # Saves BDT and input variables for light lepton algorithms. 
 # Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument. 
-SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 
