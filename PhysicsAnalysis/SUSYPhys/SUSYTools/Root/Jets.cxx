@@ -13,8 +13,6 @@
 
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetInterface/IJetSelector.h"
-#include "JetResolution/IJERTool.h"
-#include "JetResolution/IJERSmearingTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
@@ -354,8 +352,6 @@ namespace ST {
   
     ATH_MSG_VERBOSE(  " jet (pt,eta,phi) after JES correction " << input.pt() << " " << input.eta() << " " << input.phi() );
 
-    if ( m_jerSmearingTool->applyCorrection(input) != CP::CorrectionCode::Ok) ATH_MSG_ERROR("Failed to apply JER smearing ");
-
     dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
     dec_baseline(input) = ( input.pt() > m_jetPt ) || ( input.pt() > 20e3 ); // Allows for setting m_jetPt < 20e3
     dec_bad(input) = false;
@@ -387,15 +383,6 @@ namespace ST {
       ATH_MSG_INFO( "JET CE: " << input.jetP4(xAOD::JetConstitScaleMomentum).e() );
       ATH_MSG_INFO( "JET Cm: " << input.jetP4(xAOD::JetConstitScaleMomentum).M() ); // fix-me M
 
-      // TEST JER:
-      // Get the MC resolution
-      double mcRes = m_jerTool->getRelResolutionMC(&input);
-      // Get the resolution uncertainty
-      double uncert = m_jerTool->getUncertainty(&input);
-
-      // Print the resolution information
-      ATH_MSG_INFO( "  MC resolution = " << mcRes );
-      ATH_MSG_INFO( "  Res uncertainty = " << uncert );
     }
 
     return StatusCode::SUCCESS;

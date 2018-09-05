@@ -511,6 +511,8 @@ namespace ST {
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
+    std::string m_eleConfig;
+    std::string m_eleConfigBaseline;
     bool        m_eleIdExpert;
     int         m_muId;
     int         m_muIdBaseline;
@@ -648,8 +650,6 @@ namespace ST {
 
     asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
-    asg::AnaToolHandle<IJERTool> m_jerTool;
-    asg::AnaToolHandle<IJERSmearingTool> m_jerSmearingTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_fatjetUncertaintiesTool;
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool;

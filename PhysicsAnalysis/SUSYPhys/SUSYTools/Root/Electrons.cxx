@@ -54,7 +54,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<float> acc_d0sig("d0sig");
 
   const static SG::AuxElement::ConstAccessor<float> acc_topoetcone20("topoetcone20");
-  const static SG::AuxElement::ConstAccessor<float> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
+  const static SG::AuxElement::ConstAccessor<char> acc_passECIDS("DFCommonElectronsECIDS"); // Loose 97% WP
 
 StatusCode SUSYObjDef_xAOD::GetElectrons(xAOD::ElectronContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, bool recordSG, const std::string& elekey, const xAOD::ElectronContainer* containerToBeCopied)
 {
