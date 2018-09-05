@@ -88,7 +88,13 @@ class TriggerPeriodData:
         'D':(350310,352107,20422),
         'E':(352123,352137,18296),
         'F':(352274,352514,19938),
-        'G':(354107,354494,17012),
+        'G' :(354107,354494,17012),
+        'G1':(354107,354174,4676 ),
+        'G2':(354176,354311,61.2 ),
+        'G3':(354309,354359,17012),
+        'G4':(354396,354396,11098),
+        'G5':(354476,354494,8.73 ),
+
         'H':(354826,355224,43.4 ),
         'I':(355261,355273,17318),
         'J':(355331,355468,18781),
@@ -101,6 +107,7 @@ class TriggerPeriodData:
     y2016grlpath = grlbase+"data16_13TeV/20180129/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
     y2015grlpath = grlbase+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
     y2017lowmugrlpath = grlbase+"data17_13TeV/20180117/data17_13TeV.periodN_DetStatus-v98-pro21-16_Unknown_PHYS_StandardGRL_All_Good_25ns_ignore_GLOBAL_LOWMU.xml"
+    y2018lowmugrlpath = grlbase+"data18_13TeV/20180830/data18_13TeV.periodG4J_MERGED_PHYS_StandardGRL_All_Good_25ns_ignore_GLOBAL_LOWMU.xml"
     def __init__(self, period, customGRL=None):
         if customGRL:
             self.loadGRL(customGRL)
@@ -114,6 +121,8 @@ class TriggerPeriodData:
             self.loadGRL(self.y2017lowmugrlpath)
         elif period & TriggerPeriod.y2017: 
             self.loadGRL(self.y2017grlpath)
+        elif period & TriggerPeriod.y2018lowmu: 
+            self.loadGRL(self.y2018lowmugrlpath)
         elif period & TriggerPeriod.y2018: 
             self.loadGRL(self.y2018grlpath)
         self.skimPeriod(period)
@@ -185,10 +194,13 @@ class TriggerPeriodData:
                 ranges.append( self.periodMap2018['E'] )
             if period & TriggerPeriod.y2018periodFI    :
                 ranges.append( self.periodMap2018['F'] )
-                ranges.append( self.periodMap2018['G'] )
+                ranges.append( self.periodMap2018['G1'] )
+                ranges.append( self.periodMap2018['G2'] )
+                ranges.append( self.periodMap2018['G3'] )
                 ranges.append( self.periodMap2018['H'] )
                 ranges.append( self.periodMap2018['I'] )
             if period & TriggerPeriod.y2018lowmu       :
+                ranges.append( self.periodMap2018['G4'] )
                 ranges.append( self.periodMap2018['J'] )
             #if period & TriggerPeriod.y2018periodK    :
             #    ranges.append( self.periodMap2018['K'] )
