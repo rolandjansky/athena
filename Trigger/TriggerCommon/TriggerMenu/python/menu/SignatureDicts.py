@@ -573,7 +573,7 @@ MinBiasChainParts = {
                         'pt2', 'pt4', 'pt6', 'pt8', ],
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
-    'addInfo'        : ['peb'],
+    'addInfo'        : ['peb','hipeb'],
     }
 # ---- MinBiasDictinary of default Values ----
 MinBiasChainParts_Default = {
@@ -618,7 +618,7 @@ HeavyIonChainParts = {
     'hypoEFInfo'     : [],
     'hypoEFsumEtInfo': ['fcalet3000', 'fcalet3306', 'fcalet3391', 'fcalet3516',],
     'recoAlg'        : ['ucc', 'upc'],
-    'addInfo'        : [ ],
+    'addInfo'        : ['hipeb'],
     'gap'            : [ 'FgapA', 'FgapC', 'FgapAC',   'L2FgapA', 'L2FgapC', 'L2FgapAC',   'EFFgapA', 'EFFgapC', 'EFFgapAC' ],
     }
 

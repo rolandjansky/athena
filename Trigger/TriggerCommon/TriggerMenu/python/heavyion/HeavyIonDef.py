@@ -69,6 +69,8 @@ class L2EFChain_HI(L2EFChainDef):
             self.setup_hi_ultracentral()
         elif "upc" in self.chainPart['recoAlg']:
             self.setup_hi_ultraperipheral()
+        elif "hipeb" in self.chainPart['addInfo']:
+            self.setup_hi_PEB()    
         
         L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter, self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
 
@@ -404,7 +406,16 @@ class L2EFChain_HI(L2EFChainDef):
             'L2_hi_mbtsveto': mergeRemovingOverlap('EF_hi_mbtsveto_', chainSuffix),
             'L2_hi_iddataprep': mergeRemovingOverlap('EF_hi_iddataprep_', chainSuffix),
             'L2_hi_pixel': mergeRemovingOverlap('EF_hi_pixel_', chainSuffix),
-            }        
+            }
+    def setup_hi_PEB(self):
+        from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+        HISubDetListWriter = TrigSubDetListWriter("HISubDetListWriter")
+        HISubDetListWriter.SubdetId = ['TDAQ_CTP','InnerDetector','FCal','FORWARD_ZDC'] 
+        HISubDetListWriter.MaxRoIsPerEvent=1
+ 
+        self.robWriter = [HISubDetListWriter]            
+        self.L2sequenceList += [['', self.robWriter, 'L2_hipeb']]     
+        self.L2signatureList += [[['L2_hipeb']]]                    
 #####################################################################
     
 #if __name__ == '__main__':

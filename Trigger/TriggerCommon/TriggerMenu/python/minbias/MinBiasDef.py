@@ -200,7 +200,6 @@ class L2EFChain_MB(L2EFChainDef):
         if doVetoSpN: 
             l2hypo2 = self.chainPart['hypoL2Info']
             l2th=l2hypo2.lstrip('vetosp')
-            theL2Hypo2 = L2MbSpHypo_veto
             theL2Hypo2 = L2MbSpMhNoPixHypo_veto("L2MbSpMhNoPixHypo_veto_"+l2th,float(l2th))
             #chainSuffix = chainSuffix+'_vetosp'+l2th
         ########## EF algos ##################
@@ -303,14 +302,22 @@ class L2EFChain_MB(L2EFChainDef):
                 self.EFsequenceList += [[['EF_mb_step1'],
                                          [theEFHypo2],
                                          'EF_mb_step2']]                         
-            if 'peb' in self.chainPart['addInfo']:
+            if 'hipeb' in self.chainPart['addInfo']:
+                from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+                HISubDetListWriter = TrigSubDetListWriter("HISubDetListWriter")
+                HISubDetListWriter.SubdetId = ['TDAQ_CTP','InnerDetector','FCal','FORWARD_ZDC']
+                HISubDetListWriter.MaxRoIsPerEvent=1
+                self.EFsequenceList += [[['EF_mb_step1'],
+                                         [ HISubDetListWriter ],
+                                         'EF_mb_step2']]
+            elif 'peb' in self.chainPart['addInfo']:
                 from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
                 ALFASubDetListWriter = TrigSubDetListWriter("ALFASubDetListWriter")
                 ALFASubDetListWriter.SubdetId = ['TDAQ_HLT','TDAQ_CTP','InnerDetector','DBM','FORWARD_ALPHA','FORWARD_LUCID','FORWARD_ZDC','FORWARD_BCM']
                 ALFASubDetListWriter.MaxRoIsPerEvent=1
                 self.EFsequenceList += [[['EF_mb_step1'],
                                          [ ALFASubDetListWriter ],
-                                         'EF_mb_step2']]
+                                         'EF_mb_step2']]                             
 
         ########### Signatures ###########
         
@@ -325,7 +332,7 @@ class L2EFChain_MB(L2EFChainDef):
             self.EFsignatureList += [ [['EF_mb_step1']] ]
             if doexclusivelooseN:
                 self.EFsignatureList += [ [['EF_mb_step2']] ]
-            if 'peb' in self.chainPart['addInfo']:
+            if 'peb' in self.chainPart['addInfo'] or 'hipeb' in self.chainPart['addInfo']:
                 self.EFsignatureList += [ [['EF_mb_step2']] ]
 
         self.TErenamingDict = {
@@ -338,7 +345,7 @@ class L2EFChain_MB(L2EFChainDef):
 
         if doVetoSpN:
             self.TErenamingDict ['L2_mb_spveto'] = mergeRemovingOverlap('L2_', chainSuffix + '_vetosp')
-        if 'peb' in self.chainPart['addInfo']:
+        if 'peb' in self.chainPart['addInfo'] or 'hipeb' in self.chainPart['addInfo']:
             self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffixEF+'_peb')
         if doexclusivelooseN:
             self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffixEF+efthX)    
