@@ -48,7 +48,7 @@ namespace CP {
                 m_efficiencyMap(),
                 m_efficiencyMapReplicaArray(),
                 m_muonquality("Medium"),
-                m_calibration_version("180312_TriggerUpdate"),
+                m_calibration_version("180905_TriggerUpdate"),
                 m_custom_dir(),
                 m_binning("fine"),
 		m_eventInfoContName("EventInfo"),
