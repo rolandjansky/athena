@@ -36,7 +36,8 @@ echo 'hltpsk' ${hltpsk} | tee ${JOB_LOG}
 
 echo "Reading release from SMK" | tee ${JOB_LOG} 
 get_files releaseFromSMK.py
-python releaseFromSMK.py TRIGGERDBART ${smk} | tee ${JOB_LOG}
+python releaseFromSMK.py TRIGGERDBART ${smk} > releaseFromSMK.log
+cat releaseFromSMK.log  | tee ${JOB_LOG}
 eval "$( grep 'export release=' releaseFromSMK.log)" 
 if [ -z ${release} ]; then
    echo "Release not found" | tee ${JOB_LOG} 
@@ -53,7 +54,7 @@ Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TR
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
 
-exec_art_trigp1test_post.sh
+#exec_art_trigp1test_post.sh
 
 
 #echo 'ART Grid test with Physics_pp_v7 PSed menu'
