@@ -211,8 +211,7 @@ if TriggerFlags.doMuon:
     if muonRecFlags.doTGCs():
       from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
       L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(OutputLevel         = DEBUG,
-                                                            TgcPrepDataProvider = viewAlgs_MuL2SA[5],
-                                                            TGC_RawDataProvider = viewAlgs_MuL2SA[6])
+                                                            TgcPrepDataProvider = viewAlgs_MuL2SA[5])
       ToolSvc += L2TgcDataPreparator
        
       muFastAlg.DataPreparator.TGCDataPreparator = L2TgcDataPreparator
