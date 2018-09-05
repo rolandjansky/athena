@@ -277,10 +277,6 @@ namespace CP {
             ATH_MSG_WARNING("What you are trying to do is not correct. For di-muon triggers you should get the efficiency with getTriggerEfficiency and compute the SF by yourself.");
         }
 	else if (trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos) {
-	  // if(!m_useRel207){
-	  //   ATH_MSG_ERROR("You try to retrieve scale factors for di-muon triggers which have not been measured in release 21, yet. If you want to use the SFs measured in release 20.7, please set m_useRel207. This will be updated soon, for now giving up.");
-	  //   return CorrectionCode::Error;
-	  // }
 	  CorrectionCode cc = GetTriggerSF_dimu(triggersf, configuration, mucont, trigger);
 	  return cc;
         } else {
