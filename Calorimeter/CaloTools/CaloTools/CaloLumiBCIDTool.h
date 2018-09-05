@@ -16,7 +16,7 @@
 class Identifier; 
 class StoreGateSvc; 
 class CaloIdManager;
-class CaloCell_ID;
+class CaloCell_Base_ID;
 class CaloDetDescrElement;
 
 #include "LArElecCalib/ILArShape.h"
@@ -25,7 +25,10 @@ class CaloDetDescrElement;
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
+#include "LArCabling/LArCablingBase.h"
 #include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
@@ -49,18 +52,19 @@ private:
   const DataHandle<ILArShape> m_dd_shape;
   const DataHandle<ILArMinBiasAverage> m_dd_minbiasAverage; 
   const DataHandle<ILArOFC> m_dd_ofc;
-  ToolHandle<LArCablingService> m_cablingService;
+  LArCablingBase* m_cablingService;
   ToolHandle<ILArMCSymTool>  m_larmcsym;
   ToolHandle<ILArOFCTool> m_OFCTool;
   ToolHandle<ILuminosityTool> m_lumiTool;
   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
-  const LArOnlineID*        m_lar_on_id;
+  const LArOnlineID_Base* m_lar_on_id;
   const CaloIdManager* m_caloIdMgr;
-  const CaloCell_ID* m_calocell_id;
+  const CaloCell_Base_ID* m_calocell_id;
 
 
   bool m_isMC;
+  bool m_isSC;
   std::string m_keyShape, m_keyMinBiasAverage, m_keyOFC;
 
   unsigned int m_bcidMax;
