@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaCommon/python/ConfigurationShelve.py
 # @author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -34,7 +34,6 @@ __all__ = [ 'ConfigurationShelve', 'ConfigurationJar',
             'saveToAscii',  'loadFromAscii',
             'saveToPickle', 'loadFromPickle',
             'cmpConfigs',
-            'loadFromTriggerDb',
             ]
 
 ### FIXME: --- hack to workaround bug #34752
@@ -97,7 +96,6 @@ class ConfigurationJar( object ):
    def __init__( self, name ):
       self.name = name
 
-      from AlgSequence import AlgSequence
       from AppMgr import theApp, ServiceMgr
       from JobProperties import jobproperties
 
@@ -220,7 +218,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
             props.append( (k,v) )
       _fillCfg( evLoopName, props )
 
-   except AttributeError, a:
+   except AttributeError:
       pass    # no properties defined for EventLoop type
 
  # get the values for all other components (these may contain duplicates of
@@ -291,7 +289,7 @@ def loadJobOptionsCatalogue( cfg_fname ):
    from AppMgr import theApp
    theApp.JobOptionsSvcType = kw[ 'JobOptionsSvcType' ]
    theApp.MessageSvcType    = kw[ 'MessageSvcType' ]
-   handle = theApp.getHandle( kw )
+   theApp.getHandle( kw )
    del jocfg[ 'ApplicationMgr' ]
 
  # no longer want to call setup(), since there are no Configurables to
@@ -390,185 +388,6 @@ def loadFromPickle(fileName, cfgName=None):
    jar = shelve.retrieve( cfgName )
    return jar
 
-def __loadFromTriggerPickle(fileName):
-   """Helper function to retrieve a configuration from a pickle file produced by
-   querying the trigger-db.
-   Return the dictionary    { 'algs'     : [...],
-                              'services' : [...],
-                              'tools'    : [...],
-                              'auditors' : [...] }
-   """
-   
-   import os, shelve
-   from Logging import logging
-   msg = logging.getLogger('TriggerDbCfgLoader')
-
-   try: _f = open(fileName,'r');_f.close(); del _f
-   except Exception,err:
-      msg.error(err)
-      raise
-
-   msg.info('opening trigger-db shelve [%s]...', fileName)
-   hlt_config_db = shelve.open(fileName)['config']
-   msg.info('found [%i] configurables', len(hlt_config_db))
-
-   import GaudiKernel.GaudiHandles as GaudiHandles
-   import CfgMgr
-   from AlgSequence import AlgSequence
-   from Configurable import (Configurable,
-                             ConfigurableAlgorithm,
-                             ConfigurableService,
-                             ConfigurableAlgTool,
-                             ConfigurableAuditor)
-   _allConfigurables = Configurable.allConfigurables
-   # load configurable db and create tool svc (if not already there)
-   toolSvc = CfgMgr.ToolSvc()
-
-   from ConfigurableDb import getConfigurable,cfgDb
-   from AppMgr import ToolSvc,ServiceMgr,theApp
-   bag = { 'algs'     : [],
-           'services' : [],
-           'tools'    : [],
-           'auditors' : [] }
-
-   def synthetize_cfg(name, hlt_config_db,
-                      globals=globals(), locals=locals()):
-      """Helper function to synthetize a configurable from the data stored
-      into the trigger-db pickle file
-      """
-      c = hlt_config_db[name]
-      cfg_name = name
-      cfg_type = c['type']
-      cfg_parent = None
-      if name.count('.') > 0:
-         cfg_type = cfg_type.split('.')[-1]
-         root = cfg_name.split('.')[0]
-         try:
-         ## get the top-level parent and recursively get its child attr
-            cfg_parent = reduce(lambda x,y: getattr(x,y),
-                                [_allConfigurables.get(root)] + \
-                                cfg_name.split('.')[1:-1])
-         except AttributeError,err:
-            ## probably some missing link in the hierarchy...
-            msg.error(err)
-            pass
-         if cfg_parent is None:
-            msg.error("Could not get parent configurable for [%s]",cfg_name)
-         cfg_name   = cfg_name.split('.')[-1]
-      cfg_class = getConfigurable(cfg_type, assumeCxxClass=True)
-      if not cfg_class:
-         return
-
-      ## collect properties and their value
-      properties = []
-      for n,v in c['properties'].items():
-         try:
-            dflt_value = cfg_class.__slots__[n]
-         except KeyError,err:
-            msg.error('Configurable [%s] has no such property [%s] !!',
-                      cfg_class.__name__, n)
-            continue
-
-         p = '%s = %s'
-         if isinstance(dflt_value, (str, GaudiHandles.GaudiHandle)):
-            p = '%s = "%s"'
-         properties += [ p%(n,v) ]
-         pass
-
-      ## create the instance
-      stmt = 'cfg = CfgMgr.%(cfg_class)s("%(cfg_name)s", %(properties)s)'%{
-         'cfg_class'  : cfg_class.__name__,
-         'cfg_name'   : cfg_name,
-         'properties' : ', '.join(properties)
-         }
-      exec stmt in globals,locals
-      cfg = locals['cfg']
-      if cfg_parent:
-         cfg_parent += cfg
-         cfg = getattr(cfg_parent, cfg.getName())
-      else:
-         if isinstance(cfg,ConfigurableService):
-            from AppMgr import ServiceMgr
-            ServiceMgr += cfg
-      return cfg
-   
-   ## first take care of all configurables except ApplicationMgr,
-   ## sorted by 'nested-ness'
-   names = sorted((name for name in hlt_config_db
-                   if name != 'ApplicationMgr'),
-                  cmp=lambda x,y:x.count('.') - y.count('.'))
-   for n in names:
-      cfg = synthetize_cfg(n, hlt_config_db)
-      if cfg is None:
-         msg.error('Could not synthetize [%s] from trigger-db !', n)
-      elif isinstance(cfg, ConfigurableAlgorithm): bag['algs'].append    (cfg)
-      elif isinstance(cfg, ConfigurableService):   bag['services'].append(cfg)
-      elif isinstance(cfg, ConfigurableAlgTool):   bag['tools'].append   (cfg)
-      elif isinstance(cfg, ConfigurableAuditor):   bag['auditors'].append(cfg)
-      else:
-         msg.error('not nested and not algorithm ! what is this ?')
-         msg.error('(%s)',type(cfg))
-         pass
-      pass
-   
-   ## then, take care of ApplicationMgr
-   hlt_app = hlt_config_db['ApplicationMgr']
-   for n,v in hlt_app['properties'].items():
-      if n == 'TopAlg':
-         # special case we'll deal with later on...
-         continue
-      stmt = 'theApp.%s = %s'
-      dflt_value = theApp.__slots__[n]
-      if v == dflt_value:
-         continue
-      if isinstance(dflt_value,str): stmt = 'theApp.%s = "%s"'
-      stmt = stmt % (n,v)
-      try:
-         exec stmt in globals(), locals()
-      except Exception,err:
-         msg.error("theApp setup: %s", err)
-         msg.error(" prop-name:  %s", n)
-         msg.error(" prop-value: %s", v)
-         msg.error(" prop-stmt:  %s", stmt)
-         pass
-      pass # loop over theApp properties
-
-   ## finally, populate the sequence of algorithms
-   job = AlgSequence()
-   stmt = "hlt_top_algs = %s" % hlt_app['properties'].get('TopAlg',[])
-   exec stmt in globals(), locals()
-   for n in hlt_top_algs:
-      alg = _allConfigurables.get(n.split('/')[-1], None)
-      if alg is None:
-         msg.error("Could not find algorithm [%s]", n)
-         msg.error("Can't add [%s] to topSequence", n)
-         continue
-      job += alg
-      pass
-   return bag
-
-def loadFromTriggerDb(fileName=None, **kw):
-   """
-   Helper function to retrieve a configuration from a pickle file produced by
-   querying the trigger-db (if fileName is a valid filename or not None).
-   Otherwise, it will use the keyword arguments to spawn a process querying the
-   db and build that pickle file.
-   """
-   if isinstance(fileName,file): fileName = fileName.name
-   if isinstance(fileName, str):
-      try: _f = open(fileName,'r');_f.close(); del _f
-      except Exception,err:
-         msg.error(err)
-         raise
-      return __loadFromTriggerPickle(fileName)
-   
-   if fileName is None:
-      import commands
-      raise NotImplementedError(
-         "Sorry, automatic query from trigger-db is not implemented")
-   
-   return
-
 def cmpConfigs (ref, chk, refName=None, chkName=None):
    """
    Helper function to compare 2 configurations.
@@ -654,9 +473,8 @@ def cmpConfigs (ref, chk, refName=None, chkName=None):
             if not isinstance(v, Configurable):
                all_cfgs[name][k] = _get_value(cfg,k,v)
             else:
-               n = '.'.join([name,k])
                all_cfgs[name][k] = v.getJobOptName()
-               if not v in cfg.getAllChildren():
+               if v not in cfg.getAllChildren():
                   values.extend (_visit_cfg(v))
 
          if hasattr(cfg, 'getAllChildren'):
