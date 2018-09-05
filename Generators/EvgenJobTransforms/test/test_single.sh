@@ -2,8 +2,8 @@
 # art-description: MC Generators test single particle production
 # art-type: grid
 # art-include: 21.6/AthGeneration
-
-get_files -jo MC14.999999.ParticleGun_single_nu.py
+# art-output *.root
+# art-output log.generate
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
@@ -12,7 +12,6 @@ Generate_tf.py --ecmEnergy=8000 --runNumber=999999 --maxEvents=10 \
     --outputEVNTFile=test_single_nu.EVNT.pool.root \
     $@
 $@ echo "art-result: $? generate"
-rm -fr MC14.999999.ParticleGun_single_nu.py
 
 
 
