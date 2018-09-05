@@ -49,9 +49,6 @@ def addMyArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('Archiver', 'Options')
     parser.defineArgGroup('Unarchiver', 'Options')
-    parser.defineArgGroup('Tar archiver', 'Options')
-    parser.add_argument('--exe', group='Archiver',
-                        help='Archiving command, default is zip', choices=['zip', 'tar'])
     parser.add_argument('--inputDataFile', '--inputFile', nargs='+',
                         type=trfArgClasses.argFactory(trfArgClasses.argFile, io='input', type='misc'),
                         help='Input file(s)', group='Archiver')
@@ -63,9 +60,6 @@ def addMyArgs(parser):
     parser.add_argument('--outputArchFile', '--outputFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFile, io='output', type='misc'),
                         help='Output archive file', group='Archiver')
-    parser.add_argument('--compressionType', group='Tar archiver',
-                        help='Underlying compression type of tar. The default is none', choices=['gzip', 'bzip2', 'none'],
-                        default='none')
 
 if __name__ == '__main__':
     main()
