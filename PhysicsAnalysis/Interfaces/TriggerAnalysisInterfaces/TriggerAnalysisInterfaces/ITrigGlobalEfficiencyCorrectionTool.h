@@ -94,7 +94,7 @@ auto ITrigGlobalEfficiencyCorrectionTool::getEfficiency(Args&... args)
 {
 	std::vector<const xAOD::IParticle*> particles;
 	double* eff[] = { nullptr, handleArg(args, particles)... };
-	return getEfficiencyScaleFactor(particles, *eff[sizeof...(Args)-1], *eff[sizeof...(Args)]);
+	return getEfficiency(particles, *eff[sizeof...(Args)-1], *eff[sizeof...(Args)]);
 }
 
 template<typename... Args>
