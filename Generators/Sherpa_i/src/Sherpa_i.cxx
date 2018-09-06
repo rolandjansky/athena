@@ -181,6 +181,13 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
   // allow to overwrite all parameters from JO file
   params.insert(params.begin()+params.size(), m_params.begin(), m_params.end());
 
+  // create Run.dat file if runcard explicitely given
+  if (m_runcard != "") {
+    FILE *file = fopen("Run.dat","w");
+    fputs(m_runcard.c_str(),file);
+    fclose(file);
+  }
+
   /***
       Convert into Sherpas argc/argv arguments
   ***/
