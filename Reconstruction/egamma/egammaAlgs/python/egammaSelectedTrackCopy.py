@@ -10,6 +10,7 @@ from egammaRec import egammaKeys
 from InDetRecExample.InDetKeys import InDetKeys
 
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
+from egammaTools.egammaToolsFactories import egammaCheckEnergyDepositTool
 
 egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
                                       name = 'egammaSelectedTrackCopy' ,
@@ -24,5 +25,9 @@ egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
 				      narrowDeltaPhi=0.05,   
 				      narrowDeltaPhiBrem=0.20, #Dominated by the needs of assymetric conversions
 				      narrowDeltaPhiRescale=0.05,  
-				      narrowDeltaPhiRescaleBrem=0.1
+				      narrowDeltaPhiRescaleBrem=0.1,
+                                      egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
+                                      ClusterLateralCut=0.9,
+                                      ClusterEMFCut=0.5,
+                                      ClusterEMEtCut=1500
 				      )

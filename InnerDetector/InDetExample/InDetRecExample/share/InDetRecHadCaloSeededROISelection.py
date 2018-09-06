@@ -4,20 +4,6 @@
 #
 # ------------------------------------------------------------
 
-
-#
-# --- load the tool to check the energy deposits
-#
-from egammaTools.egammaToolsConf import egammaCheckEnergyDepositTool
-InDetHadROICheckEnergyDepositTool = egammaCheckEnergyDepositTool(name       = "InDetHadROICheckEnergyDepositTool",
-                                                              UseThrFmax = True,
-                                                              ThrF0max   = 0.9,
-                                                              ThrF1max   = 0.8,
-                                                              ThrF2max   = 0.98,
-                                                              ThrF3max   = 0.8)
-if (InDetFlags.doPrintConfigurables()):
-    print InDetHadROICheckEnergyDepositTool
-
 #
 # --- get the builder tool
 #
@@ -35,8 +21,7 @@ InDetHadCaloClusterROISelector = InDet__CaloClusterROI_Selector (name           
                                                               InputClusterContainerName    = InDetKeys.HadCaloClusterContainer(),    # "LArClusterEM"
                                                               OutputClusterContainerName   = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs"
                                                               ClusterEtCut                 = 25000,
-                                                              CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
-                                                              egammaCheckEnergyDepositTool = InDetHadROICheckEnergyDepositTool)
+                                                              CaloClusterROIBuilder        = InDetCaloClusterROIBuilder)
 
 topSequence += InDetHadCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):

@@ -60,17 +60,16 @@ private:
     "ClusterContainerName", "egammaTopoCluster", "Input calo cluster for seeding"};
 
   /** @brief cluster pT requirements */
-  Gaudi::Property<float> m_EtThresholdCut {this,
-      "EtThresholdCut", 1.5*CLHEP::GeV,
+  Gaudi::Property<float> m_ClusterEMEtCut {this,
+      "ClusterEMEtCut", 1.5*CLHEP::GeV,
       "The minimum EM Et required of SEED clusters"};
 
   Gaudi::Property<double>  m_ClusterEMFCut {this,
       "ClusterEMFCut", 0.0, "Cut on cluster EM fraction"};
 
-  // loose forward electron cuts on 900-3900
-  Gaudi::Property<double>  m_ClusterR2Cut {this,
-      "ClusterR2Cut", 1e10,
-      "Cut on cluster r_2, i.e., the second transverse moment"};
+  Gaudi::Property<double>  m_ClusterLateralCut {this,
+      "ClusterLateralCut", 1.0,
+      "Cut on cluster LATERAL, i.e., the second transverse moment normalized"};
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackParticleContainerName", "InDetTrackParticles", 

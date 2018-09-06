@@ -7,16 +7,7 @@
 #
 # --- load the tool to check the energy deposits
 #
-from egammaTools.egammaToolsConf import egammaCheckEnergyDepositTool
-InDetROICheckEnergyDepositTool = egammaCheckEnergyDepositTool(name       = "InDetROICheckEnergyDepositTool",
-                                                              UseThrFmax = True,
-                                                              ThrF0max   = 0.9,
-                                                              ThrF1max   = 0.8,
-                                                              ThrF2max   = 0.98,
-                                                              ThrF3max   = 0.8)
-if (InDetFlags.doPrintConfigurables()):
-    print InDetROICheckEnergyDepositTool
-
+from egammaTools.egammaToolsFactories import egammaCheckEnergyDepositTool
 #
 # --- get the builder tool
 #
@@ -33,10 +24,10 @@ from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__C
 InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector (name                         = "InDetCaloClusterROISelector",
                                                               InputClusterContainerName    = InDetKeys.CaloClusterContainer(),    # "egammaCaloCluster"
                                                               OutputClusterContainerName   = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs"
-                                                              ClusterR2Cut                 = 8000,
+                                                              ClusterLateralCut            = 0.9,
                                                               ClusterEMEtCut               = 1000,
                                                               CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
-                                                              egammaCheckEnergyDepositTool = InDetROICheckEnergyDepositTool)
+                                                              egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool())
 topSequence += InDetCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
     print InDetCaloClusterROISelector

@@ -163,13 +163,13 @@ bool InDet::CaloClusterROI_Selector::PassClusterSelection(const xAOD::CaloCluste
     }
 
 
-    double r2(0.);
-    if (!cluster->retrieveMoment(xAOD::CaloCluster::SECOND_R, r2)){
-      throw std::runtime_error("No SECOND_R momement stored");
+    double lateral(0.);
+    if (!cluster->retrieveMoment(xAOD::CaloCluster::LATERAL, lateral)){
+      throw std::runtime_error("No LATERAL momement stored");
     }
 
-    if ( r2 >  m_ClusterR2Cut ){
-      ATH_MSG_DEBUG("Cluster failed SECOND_R cut: dont make ROI");
+    if ( lateral >  m_ClusterLateralCut ){
+      ATH_MSG_DEBUG("Cluster failed LATERAL cut: dont make ROI");
       return false;
     }
 

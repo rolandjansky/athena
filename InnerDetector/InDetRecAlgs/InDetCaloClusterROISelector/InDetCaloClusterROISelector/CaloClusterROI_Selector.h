@@ -75,10 +75,9 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   Gaudi::Property<double>  m_ClusterEMFCut {this,
       "ClusterEMFCut", 0.0, "Cut on cluster EM fraction"};
 
-  // loose forward electron cuts on 900-3900
-  Gaudi::Property<double>  m_ClusterR2Cut {this,
-      "ClusterR2Cut", 1e10,
-      "Cut on cluster r_2, i.e., the second transverse moment"};
+  Gaudi::Property<double>  m_ClusterLateralCut {this,
+      "ClusterLateralCut", 1.0,
+      "Cut on cluster LATERAL, i.e., the second transverse moment normalized"};
 
   Gaudi::Property<double>  m_ClusterEMEtCut {this,
       "ClusterEMEtCut", 0.0, "Cut on cluster Et"};
