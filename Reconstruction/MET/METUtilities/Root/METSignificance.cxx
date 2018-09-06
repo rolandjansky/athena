@@ -301,7 +301,7 @@ namespace met {
 	    // make sure the container name matches
 	    if(met->name()!=jetTermName) continue;
 
-	    AddJet(obj, pt_reso, phi_reso);
+	    ATH_CHECK(AddJet(obj, pt_reso, phi_reso));
 	    metTerm=1;
 	  }else if(obj->type()==xAOD::Type::Electron){
 	    AddElectron(obj, pt_reso, phi_reso);
@@ -522,13 +522,13 @@ namespace met {
   //
   // Jet propagation of resolution. returns the relative pT and phi resolution.
   //
-  void METSignificance::AddJet(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
+  StatusCode METSignificance::AddJet(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
     const xAOD::Jet* jet(static_cast<const xAOD::Jet*>(obj));
     double pt_reso_dbl_data=0.0, pt_reso_dbl_mc=0.0, pt_reso_dbl_max=0.0;
 
-    m_jetCalibTool->getNominalResolutionData(*jet, pt_reso_dbl_data);
-    m_jetCalibTool->getNominalResolutionMC(*jet, pt_reso_dbl_mc);
+    ATH_CHECK(m_jetCalibTool->getNominalResolutionData(*jet, pt_reso_dbl_data));
+    ATH_CHECK(m_jetCalibTool->getNominalResolutionMC(*jet, pt_reso_dbl_mc));
     pt_reso_dbl_max = std::max(pt_reso_dbl_data,pt_reso_dbl_mc);
     pt_reso = pt_reso_dbl_max; 
 
@@ -560,6 +560,8 @@ namespace met {
 	pt_reso = sqrt(pt_reso*pt_reso + extra_relative_pt_reso*extra_relative_pt_reso);
       }
     }
+
+    return StatusCode::SUCCESS;
   }
 
   //

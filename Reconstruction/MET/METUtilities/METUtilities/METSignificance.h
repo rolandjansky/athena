@@ -114,7 +114,7 @@ namespace met {
     StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddPhoton  (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
-    void AddJet     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    StatusCode AddJet(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddTau     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
     void AddSoftTerm(const xAOD::MissingET* soft,  const TVector3 &met_vect, double (&particle_sum)[2][2]);
 
