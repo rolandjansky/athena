@@ -452,7 +452,7 @@ class TopConfig final {
   inline virtual bool electronIsoSFs() const {return m_electronIsoSFs;}
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
-  inline const bool& useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
+  inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
 
   // Photon configuration
   inline virtual void photonPtcut(const float pt)             {if(!m_configFixed){m_photon_configuration.pt = pt;}}
