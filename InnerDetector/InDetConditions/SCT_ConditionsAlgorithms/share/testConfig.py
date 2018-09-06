@@ -58,9 +58,9 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+# Set up SCT cabling
+from AthenaCommon.Include import include
+include('InDetRecExample/InDetRecCabling.py')
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

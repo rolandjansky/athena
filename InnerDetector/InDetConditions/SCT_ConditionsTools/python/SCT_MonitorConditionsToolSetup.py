@@ -51,15 +51,13 @@ class SCT_MonitorConditionsToolSetup:
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_MonitorConditionsTool
             if self.outputLevel is None:
-                ToolSvc += SCT_MonitorConditionsTool(name = self.toolName)
+                self.tool = SCT_MonitorConditionsTool(name = self.toolName)
             else:
-                ToolSvc += SCT_MonitorConditionsTool(name = self.toolName,
-                                                     OutputLevel = self.outputLevel)
-        self.tool = getattr(ToolSvc, self.toolName)
+                self.tool = SCT_MonitorConditionsTool(name = self.toolName,
+                                                      OutputLevel = self.outputLevel)
 
     def getTool(self):
         return self.tool

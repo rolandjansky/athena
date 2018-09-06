@@ -107,7 +107,11 @@ if DetFlags.haveRIO.pixel_on():
 
   
 if DetFlags.haveRIO.SCT_on():
-  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool      = ToolSvc.InDetSCT_ConditionsSummaryTool
+  from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+  sct_ConditionsSummaryToolSetup.setup()
+  InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
+  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetSCT_ConditionsSummaryTool
 
 # check configuration
 #print ToolSvc.CombinedMuonIDHoleSearch

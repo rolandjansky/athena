@@ -72,10 +72,6 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-
 from IOVSvc.IOVSvcConf import CondSvc 
 ServiceMgr += CondSvc()
 from AthenaCommon.AlgSequence import AthSequencer 
@@ -84,6 +80,10 @@ condSeq = AthSequencer("AthCondSeq")
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 condSeq+=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
+from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
+sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
+sct_TdaqEnabledToolSetup.setup()
+
 #--------------------------------------------------------------
 # Load DCSConditions Alg and Service
 #--------------------------------------------------------------
@@ -91,7 +91,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_TdaqEnabledTestAlg
-topSequence+= SCT_TdaqEnabledTestAlg()
+topSequence+= SCT_TdaqEnabledTestAlg(SCT_TdaqEnabledTool=sct_TdaqEnabledToolSetup.getTool())
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector
@@ -123,7 +123,3 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
-
-from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
-sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
-sct_TdaqEnabledToolSetup.setup()
