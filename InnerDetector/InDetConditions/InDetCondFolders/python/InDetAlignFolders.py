@@ -56,16 +56,8 @@ if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.S
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "SCT_AlignCondAlg"):
         from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-        if athenaCommonFlags.isOnline():
-            condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
-                                        UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders(),
-                                        ReadKeyStatic = "/Indet/Onl/Align",
-                                        ReadKeyDynamicL1 = "/Indet/Onl/AlignL1/ID",
-                                        ReadKeyDynamicL2 = "/Indet/Onl/AlignL2/SCT",
-                                        ReadKeyDynamicL3 = "/Indet/Onl/AlignL3")
-        else:
-            condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
-                                        UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
-            if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
-                from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
-                condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
+        condSeq += SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
+                                    UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
+        if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
+            condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
