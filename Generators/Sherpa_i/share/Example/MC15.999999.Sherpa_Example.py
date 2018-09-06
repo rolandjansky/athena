@@ -1,4 +1,4 @@
-include("MC15JobOptions/Sherpa_2.2.2_NNPDF30NNLO_Common.py")
+include("MC15JobOptions/Sherpa_2.2.5_NNPDF30NNLO_Common.py")
 
 evgenConfig.description = "Sherpa 2.2.x example JO, Z+0,1-jet production."
 evgenConfig.keywords = [ "2lepton" ]
