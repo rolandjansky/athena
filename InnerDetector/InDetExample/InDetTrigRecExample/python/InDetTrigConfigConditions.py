@@ -257,8 +257,7 @@ class SCT_ConditionsToolsSetup:
   def initSummaryTool(self, instanceName):
     "Init summary conditions tool"
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetup.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetup.setup()
     summaryTool = sct_ConditionsSummaryToolSetup.getTool()
     if self._print:  print summaryTool
@@ -267,8 +266,7 @@ class SCT_ConditionsToolsSetup:
   def initSummaryToolWithoutFlagged(self, instanceName):
     "Init summary conditions tool without flaggedConditionTool"
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
     summaryToolWoFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
     condTools = []

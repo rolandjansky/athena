@@ -168,8 +168,7 @@ def makeInDetAlgs():
   # InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
   
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-  sct_ConditionsSummaryToolSetup.setToolName("InDetSCT_ConditionsSummaryTool")
+  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool")
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
   condTools = []
@@ -179,8 +178,7 @@ def makeInDetAlgs():
     if condTool not in condTools:
       if condTool != "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool":
         condTools.append(condTool)
-  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-  sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
