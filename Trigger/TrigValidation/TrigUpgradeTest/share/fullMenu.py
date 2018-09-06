@@ -10,9 +10,12 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 ##########################################
 # menu
+###########################################
+# note : L1 Seeds must be declared in CTP file: for example
+# nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
 ##########################################
-from TrigUpgradeTest.MenuComponents import Chain, ChainStep
 
+from TrigUpgradeTest.MenuComponents import Chain, ChainStep
 
 EnabledElChains = []
 EnabledMuChains = []
@@ -51,8 +54,8 @@ if TriggerFlags.doID==True:
 
 # combo chains
 comboChains= []
-comboStep=ChainStep("Step1_mufast_et", [muFastStep,fastCaloStep])
-comboChains +=  [Chain(name='HLT_mu6_e3_etcut', Seed="L1_MU6_EM3",  ChainSteps=[comboStep ])]
+comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep])
+comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
 
 
 # sum all
