@@ -17,9 +17,7 @@ namespace TrigGlobEffCorr
 {
 	
 class CheckConfig : public asg::AsgMessaging
-{
-	template<typename Key> using flat_set = boost::container::flat_set<Key>;
-	
+{	
 public:
 	CheckConfig(TrigGlobalEfficiencyCorrectionTool& parent);
 	
