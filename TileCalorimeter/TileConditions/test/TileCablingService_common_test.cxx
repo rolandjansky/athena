@@ -34,7 +34,7 @@
 class TileCablingSvc {
  public:
   static void init_idhelpers (IdDictParser& parser,
-                              std::string idDictFile = "IdDictTileCalorimeter.xml", 
+                              std::string idDictFile = "IdDictTileCalorimeter.xml",
                               TileCablingService::TileCablingType cablingType = TileCablingService::RUN2aCabling)
   {
 
@@ -63,6 +63,10 @@ class TileCablingSvc {
      svc->setCablingType(cablingType);
   }
 
+  static void set_cabling_type(TileCablingService::TileCablingType cablingType) {
+   TileCablingService* svc = TileCablingService::getInstance();
+   svc->setCablingType(cablingType);
+  }
 };
 
 

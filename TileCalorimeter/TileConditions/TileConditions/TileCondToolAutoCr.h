@@ -5,39 +5,36 @@
 #ifndef TILECONDITIONS_TILECONDTOOLAUTOCR_H
 #define TILECONDITIONS_TILECONDTOOLAUTOCR_H
 
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
+// Tile inlcudes
+#include "TileConditions/TileCalibData.h"
 
 // Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"\
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-// Tile inlcudes
-#include "TileIdentifier/TileRawChannelUnit.h"
-#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
-//#include "TileConditions/ITileCondToolAutoCr.h"
-#include "TileConditions/ITileCondProxy.h"
 
 #include <vector>
 
-class TileCondToolAutoCr: public AthAlgTool
-//, 		public ITileCondToolAutoCr
-{
+class TileCondToolAutoCr: public AthAlgTool {
   public:
 
     static const InterfaceID& interfaceID();
     TileCondToolAutoCr(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~TileCondToolAutoCr();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     void getAutoCorr(unsigned int drawerIdx, unsigned int channel, unsigned int adc,
-        std::vector<float>& vec) const;
+                       std::vector<float>& vec) const;
 
   private:
 
-    //=== TileCondProxies
-    ToolHandle<ITileCondProxy<TileCalibDrawerFlt> > m_pryNoiseAutoCr;
+    //=== TileCalibData
+    SG::ReadCondHandleKey<TileCalibDataFlt> m_calibAutorCorrelationKey{this,
+        "TileAutoCorrelation", "TileAutoCorrelation",
+        "Input Tile auto correlation calibration constants"};
+
 };
 
 #endif

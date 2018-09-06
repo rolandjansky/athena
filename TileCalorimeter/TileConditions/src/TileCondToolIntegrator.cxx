@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena includes
-#include "AthenaKernel/errorcheck.h"
-
 // Tile includes
 #include "TileConditions/TileCondToolIntegrator.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
-#include "TileCalibBlobObjs/Exception.h"
+#include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
+
+// Athena includes
+#include "AthenaKernel/errorcheck.h"
+#include "StoreGate/ReadCondHandle.h"
 
 //
 //____________________________________________________________________
@@ -23,10 +23,8 @@ const InterfaceID& TileCondToolIntegrator::interfaceID() {
 TileCondToolIntegrator::TileCondToolIntegrator(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_pryIntegrator("TileCondProxyFile_TileCalibDrawerFlt_/TileCondProxyDefault_Integrator", this)
 {
   declareInterface<TileCondToolIntegrator>(this);
-  declareProperty("ProxyIntegrator", m_pryIntegrator);
 }
 
 //
@@ -39,8 +37,8 @@ TileCondToolIntegrator::~TileCondToolIntegrator() {
 StatusCode TileCondToolIntegrator::initialize() {
   ATH_MSG_DEBUG( "In initialize()" );
 
-  //=== Retrieve proxy
-  CHECK( m_pryIntegrator.retrieve() );
+  //=== Initialize integrator conditions data key
+  ATH_CHECK( m_calibIntegratorKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -56,55 +54,71 @@ StatusCode TileCondToolIntegrator::finalize() {
 //____________________________________________________________________
 float TileCondToolIntegrator::getGain(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  return m_pryIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibIntegrator(m_calibIntegratorKey);
+  return calibIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 0);
+
 }
 
 //
 //____________________________________________________________________
 float TileCondToolIntegrator::getGainError(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  return m_pryIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 1);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibIntegrator(m_calibIntegratorKey);
+  return calibIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 1);
+
 }
 
 //
 //____________________________________________________________________
 float TileCondToolIntegrator::getChi2(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  return m_pryIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 2);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibIntegrator(m_calibIntegratorKey);
+  return calibIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 2);
+
 }
 
 //
 //____________________________________________________________________
 float TileCondToolIntegrator::getPedestal(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  return m_pryIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 3);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibIntegrator(m_calibIntegratorKey);
+  return calibIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 3);
+
 }
 
 //
 //____________________________________________________________________
 float TileCondToolIntegrator::getDACForPed(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  return m_pryIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 4);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibIntegrator(m_calibIntegratorKey);
+  return calibIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 4);
+
 }
 
 //
 //____________________________________________________________________
 float TileCondToolIntegrator::getSigmaOfPed(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  return m_pryIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 5);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibIntegrator(m_calibIntegratorKey);
+  return calibIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 5);
+
 }
 
 //
 //____________________________________________________________________
 float TileCondToolIntegrator::getRMSOfPed(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  return m_pryIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 6);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibIntegrator(m_calibIntegratorKey);
+  return calibIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 6);
+
 }
 
 //
 //____________________________________________________________________
 float TileCondToolIntegrator::getSigmaOfRMS(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const {
 
-  return m_pryIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 7);
+  SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibIntegrator(m_calibIntegratorKey);
+  return calibIntegrator->getCalibDrawer(drawerIdx)->getData(channel, adc, 7);
+
 }
 

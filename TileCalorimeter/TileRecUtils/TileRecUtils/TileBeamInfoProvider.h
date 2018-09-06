@@ -19,7 +19,7 @@
  *  Output: contents of cispar fragment, header, status and trigType
  *  Parameters:
  *    TileBeamElemContainer - Name of input container
- *   
+ *
  ********************************************************************/
 
 // Tile includes
@@ -28,6 +28,7 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileTriggerContainer.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileConditions/ITileDCSTool.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -60,7 +61,7 @@ namespace CLHEP {
 
 /**
 @class coincBoard
-@brief Small class holding the information for a cosmic trigger coincidence board 
+@brief Small class holding the information for a cosmic trigger coincidence board
 */
 class coincBoard {
 public:
@@ -78,7 +79,7 @@ public:
 *			- BCID Mismatch
 *		 	- Header Format
 *		 	- Header Parity
-*		 	- Sample Format 
+*		 	- Sample Format
 *		 	- Sample Parity
 *		 	- Single Strobe
 *		 	- Double Strobe
@@ -99,7 +100,7 @@ class TileDQstatus {
   inline bool   isBiGain        ()              const           { return m_isBiGain; }
   /** @brief returns True if there are any errors in event */
   inline bool   nonZeroCounter  ()              const           { return m_counter;  }
-  /** @brief returns status of single ADC 
+  /** @brief returns status of single ADC
   			 returns False if there are any errors*/
   bool          isAdcDQgood     (int partition, int drawer, int ch, int gain) const;
   /** @brief returns status of single channel (if bigain, returns AND of ADCs' status*/
@@ -110,7 +111,7 @@ class TileDQstatus {
   inline int checkEmptyEvent(int partition, int drawer, int dmu) const {
 	return (m_EmptyEventArray[partition][drawer][dmu][0]+((m_EmptyEventArray[partition][drawer][dmu][1]) << 1));
   }
-  
+
   /** @brief returns 1 if adc channel has any global error */
   inline int checkGlobalErr(int partition, int drawer, int gain) const {
     return m_GlobalCRCErrArray[partition][drawer][gain];
@@ -125,19 +126,19 @@ class TileDQstatus {
   }
 /** @brief returns 1 if DMU has CRC error originating in FE electronics */
   inline int checkFE_CRCErr(int partition, int drawer, int dmu, int gain) const {
-      return (1 - ((m_FE_DMUmaskArray[partition][drawer][gain] >> dmu) & 1)); 
+      return (1 - ((m_FE_DMUmaskArray[partition][drawer][gain] >> dmu) & 1));
   }
-  /** @brief returns 1 if DMU has BCID mismatch between DMU and ROD  
-  * Since BCID errors in the DQ fragment are determined by comparison of each DMU to DMU1, 
-  * if DMU1 is bad and DMUX is also bad, we must compare the individual DMU's BCID to the 
-  * actual (ROD) BCID. This is due to the fact that DMU1 is checked against the ROD, while 
-  * the others DMUs are checked against DMU1.  This requires access to the digits in the 
-  * function checkBCIDErrDetail.  If this behavior is undesired set m_checkDigi to false in 
-  * TileBeamInfoProvider.  Setting m_checkDigi=false would cause any BCID errors 
+  /** @brief returns 1 if DMU has BCID mismatch between DMU and ROD
+  * Since BCID errors in the DQ fragment are determined by comparison of each DMU to DMU1,
+  * if DMU1 is bad and DMUX is also bad, we must compare the individual DMU's BCID to the
+  * actual (ROD) BCID. This is due to the fact that DMU1 is checked against the ROD, while
+  * the others DMUs are checked against DMU1.  This requires access to the digits in the
+  * function checkBCIDErrDetail.  If this behavior is undesired set m_checkDigi to false in
+  * TileBeamInfoProvider.  Setting m_checkDigi=false would cause any BCID errors
   * simultaneous with DMU1 to be flagged as BAD (conservative approach)
   */
   inline int checkBCIDErr(int partition, int drawer, int dmu, int gain) const {
-      return ((m_BCIDErrArray[partition][drawer][gain] & 0x2) && m_checkDigi) 
+      return ((m_BCIDErrArray[partition][drawer][gain] & 0x2) && m_checkDigi)
           ? this->checkBCIDErrDetail(partition,drawer,dmu,gain) :
           ((m_BCIDErrArray[partition][drawer][gain] >> dmu) & 1);
   }
@@ -176,7 +177,7 @@ class TileDQstatus {
   inline int checkDoubleStrobeErr(int partition, int drawer, int dmu, int gain) const {
     return (m_DoubleStrobeErrArray[partition][drawer][gain] >> dmu) & 1;
   }
- 
+
  protected:
 
   /** @brief sets flag that DQ status instance has been filled for this event */
@@ -194,8 +195,8 @@ class TileDQstatus {
     m_EmptyEventArray[partition][drawer][dmu][gain]=isEmpty;
     m_counter+=isEmpty;
   }
-  /** @brief sets TileBeamInfoProvider instance to argument 
-   *  @param[in] TBIP Pointer to a TileBeamInfoProvider instance 
+  /** @brief sets TileBeamInfoProvider instance to argument
+   *  @param[in] TBIP Pointer to a TileBeamInfoProvider instance
    */
   void setTBIP(TileBeamInfoProvider* TBIP) {m_TBIP=TBIP;}
   /** @brief parses DQ fragments and fill error arrays for event*/
@@ -263,16 +264,16 @@ class TileBeamInfoProvider: public AthAlgTool
 
   virtual StatusCode initialize();  //!< intialize method
   virtual StatusCode finalize();    //!< finalize method
-  
-  virtual void handle(const Incident&) ;   //!< Callback for Incident service 
+
+  virtual void handle(const Incident&) ;   //!< Callback for Incident service
 
   static const InterfaceID& interfaceID( ) ; //!< AlgTool InterfaceID
-  
+
   const TileDQstatus* getDQstatus(); //<! Creates TileDQstatus object and fills arrays from DQ fragment
 
-  bool          isChanDCSgood   (int partition, int drawer, int channel) const; 
+  bool          isChanDCSgood   (int partition, int drawer, int channel) const;
 
-  inline uint32_t   eventCounter(void)  const { return m_evt; }  
+  inline uint32_t   eventCounter(void)  const { return m_evt; }
   inline uint32_t      calibMode(void)  const { return m_calibMode; }
   inline int            trigType(void)  const { return m_trigType; }
   inline uint32_t      laserFlag(void)  const { return m_laserFlag; }
@@ -297,29 +298,29 @@ class TileBeamInfoProvider: public AthAlgTool
   bool m_checkDQ;   //!< if false, skip DQ checks (set to false if container is not found in first event)
   bool m_checkDigi; //!< if false, skip reading of TileDigitsContainer ( /-/-/-/ )
   bool m_checkBeam; //!< if false, skip reading of TileBeamContainer   ( /-/-/-/ )
-  bool m_checkDCS;  //!< if false, do not use TileDCSSvc at all
+  bool m_checkDCS;  //!< if false, do not use Tile DCS at all
   bool m_simulateTrips;  //! if true simulate drawer trips
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo",
                                                     "EventInfo", "Input Event info key"};
 
-  SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey{this, "TileBeamElemContainer", 
+  SG::ReadHandleKey<TileBeamElemContainer> m_beamElemContainerKey{this, "TileBeamElemContainer",
                                                                   "", "Input Tile beam elements container key"};
 
-  SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this, "TileDigitsContainer", 
+  SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this, "TileDigitsContainer",
                                                               "", "Input Tile digits container key"};
 
-  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this, "TileRawChannelContainer", 
+  SG::ReadHandleKey<TileRawChannelContainer> m_rawChannelContainerKey{this, "TileRawChannelContainer",
                                                                       "", "Input Tile raw channel container key"};
 
-  SG::WriteHandleKey<TileTriggerContainer> m_triggerContainerKey{this, "TileTriggerContainer", 
+  SG::WriteHandleKey<TileTriggerContainer> m_triggerContainerKey{this, "TileTriggerContainer",
                                                                  "", "Output Tile trigger container key"};
 
-  SG::WriteHandleKey<TileLaserObject> m_laserObjectKey{this, "TileLaserObject", 
+  SG::WriteHandleKey<TileLaserObject> m_laserObjectKey{this, "TileLaserObject",
                                                        "", "Output Tile laser object key"};
-  
 
-  ServiceHandle<TileDCSSvc>   m_tileDCSSvc; //!< Pointer to TileDCSSvc
+
+  ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use
   ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tool which provides trips probabilities also
 
@@ -345,7 +346,7 @@ class TileBeamInfoProvider: public AthAlgTool
   const TileDigitsContainer *     m_digitsCnt;
   const TileRawChannelContainer * m_rcCnt;
   const TileBeamElemContainer *   m_beamElemCnt;
-  
+
   CLHEP::HepRandomEngine* m_pHRengine;    //!< Random number generator engine to use
   double* m_rndmVec;
 
@@ -355,23 +356,23 @@ class TileBeamInfoProvider: public AthAlgTool
 
 };
 
-// if PMT does not exist, returns 1 
+// if PMT does not exist, returns 1
 // if DMU does not exist, returns 2
 __attribute__((always_inline)) inline
 int TileDQstatus::isChEmpty(int partition, int drawer, int ch) {
-  
+
   switch (partition) {
     case 1:
       return s_ch2dmuLB[ch];
     case 2:
-      return s_ch2dmuLB[ch];    
+      return s_ch2dmuLB[ch];
     case 3:
       return (drawer != 14) ? s_ch2dmuEB[ch] : s_ch2dmuEBspecial[ch];
     case 4:
       return (drawer != 17) ? s_ch2dmuEB[ch] : s_ch2dmuEBspecial[ch];
     default:
       return 0;
-  }  
+  }
 }
 
 #endif

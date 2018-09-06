@@ -5,18 +5,18 @@
 #ifndef TILECONDITIONS_TILEEXPERTTOOLEMSCALE_H
 #define TILECONDITIONS_TILEEXPERTTOOLEMSCALE_H
 
-/** 
- @brief (For experts only) Calibration of TileCal channels and access to calibration factors.
- @author Lukas Pribyl <lukas.pribyl@cern.ch>
-
- @details This tool has the same functionality as the standard production TileCondToolEmscale
- tool. For the description of TileExpertToolEmscale methods please consult the file
- TileCondToolEmscale. The TileExpertToolEmscale tool is in addition able to switch on/off
- individual calibration corrections. This is set via TileIdentifier/TileEmscaleCalibOptions
- bitmap. If the calibration correction is switched on, the tool behaves exactly as TileCondToolEmscale,
- from which it inherits most of the methods. If the calibration correction is switched of (the
- relevant bit in m_emOptions bitmap is false), the relevant calibration method returns the input amplitude
- without any change. The value of the bitmap m_emOptions is set only once at the constructor.
+/**
+ * @brief (For experts only) Calibration of TileCal channels and access to calibration factors.
+ * @author Lukas Pribyl <lukas.pribyl@cern.ch>
+ *
+ * @details This tool has the same functionality as the standard production TileCondToolEmscale
+ * tool. For the description of TileExpertToolEmscale methods please consult the file
+ * TileCondToolEmscale. The TileExpertToolEmscale tool is in addition able to switch on/off
+ * individual calibration corrections. This is set via TileIdentifier/TileEmscaleCalibOptions
+ * bitmap. If the calibration correction is switched on, the tool behaves exactly as TileCondToolEmscale,
+ * from which it inherits most of the methods. If the calibration correction is switched of (the
+ * relevant bit in m_emOptions bitmap is false), the relevant calibration method returns the input amplitude
+ * without any change. The value of the bitmap m_emOptions is set only once at the constructor.
  */
 
 // Tile includes
