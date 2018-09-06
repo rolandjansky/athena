@@ -26,6 +26,8 @@ ContainersOnTheFly = [
 			["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJetsAux","xAOD::JetAuxContainer"],
 			["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets","xAOD::JetContainer"],
 			["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJetsAux","xAOD::JetAuxContainer"],
+			["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets","xAOD::JetContainer"],
+			["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4TruthJets","xAOD::JetContainer"],
                         ["AntiKt4TruthJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4TruthWZJets","xAOD::JetContainer"],
@@ -52,6 +54,8 @@ ContainersOnTheFly = [
                         ["BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubAux","xAOD::BTaggingAuxContainer"],
                         ["BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub","xAOD::BTaggingContainer"],
                         ["BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubAux","xAOD::BTaggingAuxContainer"],
+                        ["BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub","xAOD::BTaggingContainer"],
+                        ["BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux","xAOD::BTaggingAuxContainer"],
                         ["BTagging_AntiKt4EMPFlow","xAOD::BTaggingContainer"],
                         ["BTagging_AntiKt4EMPFlowAux","xAOD::BTaggingAuxContainer"],
 ]

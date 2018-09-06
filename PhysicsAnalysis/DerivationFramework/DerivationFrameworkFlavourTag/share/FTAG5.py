@@ -126,7 +126,8 @@ FTAG5BTaggedJets = [
     "AntiKtVR30Rmax4Rmin02TrackJets",
     "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets"]
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
 OutputJets["FTAG5"] = FTAG5BTaggedJets[:]
 
 # I don't understand why we need some of these. We don't use
@@ -160,9 +161,11 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
 addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, False)
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False, subjetAlgName = "CoM")
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
 
 #==================================================================
@@ -222,6 +225,7 @@ FTAG5SlimmingHelper.SmartCollections = [
     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub_expert",   
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub_expert",
     fatJetCollection]
 
 jssVariables = ['.'.join([fatJetCollection] + JSSHighLevelVariables) ]
@@ -240,7 +244,8 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks"
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks"
 ]
 
 # add the extra variables that come from the BTagJetAugmenterAlg
