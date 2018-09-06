@@ -10,7 +10,7 @@ import GaudiKernel.GaudiHandles as GaudiHandles
 import ast
 import collections
 
-from UnifyProperties import unifyProperty
+from UnifyProperties import unifyProperty, unifySet
 
 
 class DeduplicationFailed(RuntimeError):
@@ -23,9 +23,9 @@ _servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader'))
 
 class ComponentAccumulator(object): 
 
-    def __init__(self):        
+    def __init__(self,sequenceName='AthAlgSeq'):        
         self._msg=logging.getLogger('ComponentAccumulator')
-        self._sequence=AthSequencer('AthAlgSeq')    #(Nested) sequence of event processing algorithms per sequence + their private tools 
+        self._sequence=AthSequencer(sequenceName)    #(Nested) sequence of event processing algorithms per sequence + their private tools 
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools 
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
         self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
@@ -301,11 +301,14 @@ class ComponentAccumulator(object):
         pass
 
 
-    def setAppProperty(self,key,value):
-        if key in self._theAppProps and self._theAppProps[key]!=value:
-            #Not sure if we should allow that ...
-            self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
-        self._theAppProps[key]=value
+    def setAppProperty(self,key,value,overwrite=False):
+        if (overwrite):
+            self._theAppProps[key]=value
+        else:
+            if key in self._theAppProps and isinstance(self._theAppProps[key],collections.Sequence):
+                value=unifySet(self._theAppProps[key],value) 
+                self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
+            self._theAppProps[key]=value
         pass
 
 
@@ -368,12 +371,16 @@ class ComponentAccumulator(object):
                         if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
                             raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )           
                     else: # absent, adding
-                        self._msg.debug("  Merging algorithm %s to a sequnece %s", c.name(), dest.name() )
+                        self._msg.debug("  Merging algorithm %s to a sequence %s", c.name(), dest.name() )
                         dest += c
                         
 
         #Merge sequences:
-        mergeSequences(self._sequence,other._sequence)
+        #if (self._sequence.getName()==other._sequence.getName()):
+        destTopSeq=findSubSequence(self._sequence,other._sequence.name()) or self._sequence
+        mergeSequences(destTopSeq,other._sequence)
+            
+
 
         #self._conditionsAlgs+=other._conditionsAlgs
         for condAlg in other._conditionsAlgs:
@@ -547,6 +554,111 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
 
+    def run(self,maxEvents=None):
+        log = logging.getLogger("ComponentAccumulator")
+        self._wasMerged=True
+        from Gaudi.Main import BootstrapHelper
+        bsh=BootstrapHelper()
+        app=bsh.createApplicationMgr()
+   
+        for (k,v) in self._theAppProps.iteritems():
+            app.setProperty(k,str(v))
+
+        #Assemble createSvc property:
+        svcToCreate=[]
+        extSvc=[]
+        for svc in self._services:
+            extSvc+=svc.getFullName()
+            if svc.getJobOptName() in _servicesToCreate:
+                svcToCreate+=svc.getFullName()
+    
+        app.setProperty("ExtSvc",str(extSvc))
+        app.setProperty("CreateSvc",str(svcToCreate))
+    
+        app.configure()
+
+        #Feed the jobO service with the remaining options
+        jos=app.getService("JobOptionsSvc")
+    
+        def addCompToJos(comp):
+            name=comp.getJobOptName()
+            for k, v in comp.getValuedProperties().items():
+                if isinstance(v,Configurable):
+                    log.debug("Adding "+name+"."+k+" = "+v.getFullName())
+                    bsh.addPropertyToCatalogue(jos,name,k,v.getFullName())
+                    addCompToJos(v)
+                else:
+                    if not isSequence(comp) and k!="Members": #This property his handled separatly
+                        log.debug("Adding"+name+"."+k+" = "+str(v))
+                        bsh.addPropertyToCatalogue(jos,name,k,str(v))
+                    pass
+                pass
+            for ch in comp.getAllChildren():
+                addCompToJos(ch)
+            return
+
+
+        #Add tree of algorithm sequences: 
+        for seqName, algoList in flatSequencers( self._sequence ).iteritems():
+            log.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
+            bsh.addPropertyToCatalogue(jos,seqName,"Members",str( [alg.getFullName() for alg in algoList]))
+            for alg in algoList:
+                addCompToJos(alg)
+                pass
+            pass
+
+
+        condalgseq=[]
+        for alg in self._conditionsAlgs:
+            addCompToJos(alg)
+            condalgseq.append(alg.getFullName())
+            bsh.addPropertyToCatalogue(jos,"AthCondSeq","Members",str(condalgseq))
+            pass
+
+    
+        for svc in self._services:
+            addCompToJos(svc)
+            pass
+     #Public Tools:
+        for pt in self._publicTools:
+            addCompToJos(pt)
+            pass
+
+        #Determine maxEvents
+        if maxEvents is None:
+            if "EvtMax" in self._theAppProps:
+                maxEvents=self._theAppProps["EvtMax"]
+            else:
+                maxEvents=-1
+
+
+
+        sc = app.initialize()
+        if not sc.isSuccess(): 
+            log.error("Failed to initialize AppMgr")
+            return sc
+            
+        app.printAlgsSequences() #could be removed later ....
+
+        sc = app.start()
+        if not sc.isSuccess(): 
+            log.error("Failed to start AppMgr")
+            return sc
+
+        sc = app.run(maxEvents)
+        if not sc.isSuccess(): 
+            log.error("Failure running application")
+            return sc
+
+        app.stop().ignore()
+        
+        app.finalize().ignore()
+
+        sc1 = app.terminate()
+        return sc1
+
+
+
 def CAtoGlobalWrapper(cfgmethod,flags):
      Configurable.configurableRun3Behavior+=1
      result=cfgmethod(flags)
@@ -554,10 +666,6 @@ def CAtoGlobalWrapper(cfgmethod,flags):
 
      result.appendToGlobals()
      return
-
-
-
-
 
 
 
