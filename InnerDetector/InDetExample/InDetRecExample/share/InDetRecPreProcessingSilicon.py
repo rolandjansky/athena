@@ -31,9 +31,8 @@ if InDetFlags.doPRDFormation():
         from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
-      if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+      from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+      sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
       #
       # --- ClusterMakerTool (public), needed by Pixel and SCT Clusterization
@@ -44,7 +43,7 @@ if InDetFlags.doPRDFormation():
                                                       PixelOfflineCalibSvc = None,
                                                       UsePixelCalibCondDB  = False,
                                                       PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool,
-                                                      SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
+                                                      SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
       if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline() or InDetFlags.doSLHC()):
          InDetClusterMakerTool.PixelCalibSvc        = InDetPixelCalibSvc

@@ -8,6 +8,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 from AthenaCommon.DetFlags import DetFlags
 
+
 ### Set muon sequence ###
 if not 'doL2SA' in dir():
   doL2SA=True
@@ -20,13 +21,8 @@ if not 'doEFSA' in dir():
 
 ### workaround to prevent online trigger folders to be enabled ###
 if doL2CB or doL2ISO:
-  from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-  InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
-
   from InDetRecExample.InDetJobProperties import InDetFlags
   InDetFlags.doCaloSeededBrem = False
-
-  from InDetRecExample.InDetJobProperties import InDetFlags
   InDetFlags.InDet25nsec = True 
   InDetFlags.doPrimaryVertex3DFinding = False 
   InDetFlags.doPrintConfigurables = False

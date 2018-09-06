@@ -664,17 +664,16 @@ class TrigMuonEFMSonlyHypoConfig():
         # If the form is muX(inclusive), return as 1 element list
         return [ threshold[2:] ]        
 
-    def ConfigurationHypoTool( self, toolName, thresholds ):
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
 
-        tool = TrigMuonEFMSonlyHypoTool( toolName )  
+        tool = TrigMuonEFMSonlyHypoTool( thresholdHLT )  
 
         nt = len(thresholds)
         print "TrigMuonEFMSonlyHypoConfig: Set ", nt, " thresholds" 
         print "But cann't use multi muon trigger due to not yet implemented it"
-        #tool.PtBins = [ [ 0, 2.5 ] ] * nt
-        #tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
-        # these lines are commented out because the hypo tool has not yet implemented multi muon trigger
-        # if you implement it, please remove these coment out. 
+        tool.PtBins = [ [ 0, 2.5 ] ] * nt
+        tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
+
  
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV'
@@ -683,18 +682,15 @@ class TrigMuonEFMSonlyHypoConfig():
             try:
                 tool.AcceptAll = False
                 values = trigMuonEFSAThresholds[thvaluename]
-                tool.PtBins = values[0]
-                tool.PtThresholds = [ x * GeV for x in values[1] ]
+                tool.PtBins[th] = values[0]
+                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
 
             except LookupError:
                 if (threshold=='passthrough'):
-                    tool.PtBins = [-10000.,10000.]
-                    tool.PtThresholds = [ -1. * GeV ]
+                    tool.PtBins[th] = [-10000.,10000.]
+                    tool.PtThresholds[th] = [ -1. * GeV ]
                 else:
                     raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
-
-            break # because the hypo tool has not yet implemented multi muon trigger
-                  # if you implement it, please remove this line. 
 
         return tool
 

@@ -36,7 +36,6 @@ class ISCT_ChargeTrappingTool: virtual public IAlgTool
 
   virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, double pos) const =0;
   virtual void getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const =0;
-  virtual void getInitPotentialValue()=0;
 
 };
 

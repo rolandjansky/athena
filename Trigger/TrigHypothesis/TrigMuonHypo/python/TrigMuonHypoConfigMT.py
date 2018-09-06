@@ -610,17 +610,13 @@ class TrigMuisoHypoConfig(TrigMuisoHypoAlg) :
 
 ########MT EF hypo 
 class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
-
     __slots__ = []
-
     # nath: name threshold, for example HLT_mu6 etc
     def TrigMuonEFMSonlyHypoToolFromName( self, name, nath ):	
-
         from AthenaCommon.Constants import DEBUG
         tool = TrigMuonEFMSonlyHypoTool( nath )  
         tool.OutputLevel = DEBUG
         bname = nath.split('_') 
-
         threshold=bname[1]
         thresholds=TrigMuonEFMSonlyHypoConfig().decodeThreshold(threshold)
         TrigMuonEFMSonlyHypoConfig().ConfigurationHypoTool( name, nath, thresholds )
@@ -634,7 +630,6 @@ class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
             print name, ' Monitoring Tool failed'
     
         return tool
-
     def decodeThreshold( self, threshold ):
         """ decodes the thresholds of the form mu6, 2mu6, ... """
         print "decoding ", threshold
@@ -647,7 +642,6 @@ class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
     
         # If the form is muX(inclusive), return as 1 element list
         return [ threshold[2:] ]    
-
     def ConfigurationHypoTool( self, name, nath, thresholds ): 
         
         tool = TrigMuonEFMSonlyHypoTool( nath )  
@@ -655,7 +649,6 @@ class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
         print "TrigMuonEFMSonlyHypoConfig: Set ", nt, " thresholds" 
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
-
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV'
             try:
