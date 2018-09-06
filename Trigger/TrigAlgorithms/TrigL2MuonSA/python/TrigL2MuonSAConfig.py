@@ -27,7 +27,7 @@ mdtDataPreparator.DecodeBS = DetFlags.readRDOBS.MDT_on()
 ToolSvc += mdtDataPreparator
 
 theDataPreparator.MDTDataPreparator = mdtDataPreparator
-print "suesuesuesuesue"
+
 ToolSvc += theDataPreparator
 ToolSvc += thePatternFinder
 ToolSvc += theStationFitter
