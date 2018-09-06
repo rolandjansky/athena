@@ -24,6 +24,8 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "AthContainers/ConstDataVector.h"
 
+#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
+
 #include <atomic>
 
 class CaloCluster;
@@ -62,6 +64,14 @@ private:
       "EtThresholdCut", 1.5*CLHEP::GeV,
       "The minimum EM Et required of SEED clusters"};
 
+  Gaudi::Property<double>  m_ClusterEMFCut {this,
+      "ClusterEMFCut", 0.0, "Cut on cluster EM fraction"};
+
+  // loose forward electron cuts on 900-3900
+  Gaudi::Property<double>  m_ClusterR2Cut {this,
+      "ClusterR2Cut", 1e10,
+      "Cut on cluster r_2, i.e., the second transverse moment"};
+
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackParticleContainerName", "InDetTrackParticles", 
     "Input TrackParticles to select from"};
@@ -97,6 +107,11 @@ private:
 
   Gaudi::Property<double> m_narrowRescaleBrem {this, "narrowDeltaPhiRescaleBrem", 0.1,
     "Value of the narrow cut for delta phi Rescale Brem"};
+
+  // tools used by passSelection (if not empty)
+  ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this, 
+      "egammaCheckEnergyDepositTool", "",
+      "Optional tool that performs basic checks of viability of cluster"};
 
   /* counters. For now use mutable atomic
    * the methods will increment a local variable

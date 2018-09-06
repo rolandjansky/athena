@@ -50,6 +50,12 @@ StatusCode egammaSelectedTrackCopy::initialize() {
     return StatusCode::FAILURE;
   }
 
+  if (!m_egammaCheckEnergyDepositTool.empty()) {
+    ATH_CHECK( m_egammaCheckEnergyDepositTool.retrieve() );
+  } else {
+    m_egammaCheckEnergyDepositTool.disable();
+  }
+
   return StatusCode::SUCCESS;
 }  
 
@@ -299,6 +305,27 @@ bool egammaSelectedTrackCopy::passSelection(const xAOD::CaloCluster *clus) const
   } else if (!clus->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emFrac)){
     throw std::runtime_error("No EM fraction momement stored");    
   }
-  return (clus->et()*emFrac > m_EtThresholdCut);
+  if ( emFrac< m_ClusterEMFCut ){
+    ATH_MSG_DEBUG("Cluster failed EM Fraction cuT");
+    return false;
+  }
+
+  if ( clus->et()*emFrac< m_EtThresholdCut ){
+    ATH_MSG_DEBUG("Cluster failed EM Energy cut");
+    return false;
+  }
+
+  
+  double r2(0.);
+  if (!clus->retrieveMoment(xAOD::CaloCluster::SECOND_R, r2)){
+    throw std::runtime_error("No SECOND_R momement stored");
+  }
+  
+  if ( r2 >  m_ClusterR2Cut ){
+    ATH_MSG_DEBUG("Cluster failed SECOND_R cut");
+    return false;
+  }
+
+  return true;
 }
 

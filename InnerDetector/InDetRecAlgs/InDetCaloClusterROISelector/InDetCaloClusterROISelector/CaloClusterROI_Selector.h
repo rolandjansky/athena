@@ -12,23 +12,17 @@
 
 // INCLUDE HEADER FILES:
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
-class IEMShowerBuilder;
-class IegammaCheckEnergyDepositTool;
-class IegammaIso;
-class IegammaMiddleShape;
-
+#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
+#include "InDetRecToolInterfaces/ICaloClusterROI_Builder.h"
 
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include <vector>
 
-class CaloCellContainer;
+#include <atomic>
 
 namespace InDet {
 
@@ -53,46 +47,45 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   StatusCode execute_r(const EventContext& ctx) const;
 
  private:
-  bool PassClusterSelection(const xAOD::CaloCluster* cluster ,  const CaloCellContainer* cellcoll) const;
+  bool PassClusterSelection(const xAOD::CaloCluster* cluster) const;
+
   /** @brief Name of the cluster intput collection*/
-  SG::ReadHandleKey<xAOD::CaloClusterContainer>   m_inputClusterContainerName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer>   m_inputClusterContainerName {this,
+      "InputClusterContainerName", "egammaTopoCluster",
+      "Input cluster for egamma objects"};
+
   /** @brief Name of the cluster output collection*/
-  SG::WriteHandleKey<CaloClusterROI_Collection>  m_outputClusterContainerName;
-  /** @brief Name of the cells container*/
-  SG::ReadHandleKey<CaloCellContainer>   m_cellsName;
+  SG::WriteHandleKey<CaloClusterROI_Collection>  m_outputClusterContainerName {this,
+      "OutputClusterContainerName", "CaloClusterROIs", "Output cluster for egamma objects"};
 
   //
   // The tools
   //
-  // subalgorithm pointers cached in initialize:
-  /** @brief isolation tool for Ethad1 / Ethad*/
-  ToolHandle<IegammaIso>                       m_emCaloIsolationTool;
   /** @brief Pointer to the egammaCheckEnergyDepositTool*/
-  ToolHandle<IegammaCheckEnergyDepositTool>    m_egammaCheckEnergyDepositTool;
-  /** @brief Middle shape Tool*/
-  ToolHandle<IegammaMiddleShape>               m_egammaMiddleShape;
+  ToolHandle<IegammaCheckEnergyDepositTool> m_egammaCheckEnergyDepositTool {this, 
+      "egammaCheckEnergyDepositTool", "",
+      "Optional tool that performs basic checks of viability of cluster"};
   /** @brief Tool to build ROI*/
-  ToolHandle<InDet::ICaloClusterROI_Builder>   m_caloClusterROI_Builder;
-  //
-  // All booleans
-  //
-  bool                              m_CheckHadronicEnergy{};
-  bool                              m_CheckReta{};
-  //
-  // Other properties.
-  //
-  /** @brief Cut on hadronic leakage*/
-  double               m_HadRatioCut;
-  double               m_RetaCut;
-  double               m_ClusterEtCut;
+  ToolHandle<InDet::ICaloClusterROI_Builder>   m_caloClusterROI_Builder {this,
+      "CaloClusterROIBuilder", "","Handle of the CaloClusterROI_Builder Tool"};
 
-  /** @brief Cut on cluster EM Et */
-  double               m_ClusterEMEtCut;
+  Gaudi::Property<double>  m_ClusterEtCut {this,
+      "ClusterEtCut", 0.0, "Cut on cluster EM Et"};
 
-  // statistics mutex protected
-  mutable std::mutex   m_statMutex;
-  mutable unsigned int m_allClusters;
-  mutable unsigned int m_selectedClusters;
+  Gaudi::Property<double>  m_ClusterEMFCut {this,
+      "ClusterEMFCut", 0.0, "Cut on cluster EM fraction"};
+
+  // loose forward electron cuts on 900-3900
+  Gaudi::Property<double>  m_ClusterR2Cut {this,
+      "ClusterR2Cut", 1e10,
+      "Cut on cluster r_2, i.e., the second transverse moment"};
+
+  Gaudi::Property<double>  m_ClusterEMEtCut {this,
+      "ClusterEMEtCut", 0.0, "Cut on cluster Et"};
+
+  // use atomics
+  mutable std::atomic_uint m_allClusters{0};
+  mutable std::atomic_uint m_selectedClusters{0};
 
   // others:
   IChronoStatSvc* m_timingProfile;
