@@ -41,7 +41,7 @@ bool PMGCrossSectionTool::readInfosFromFiles(std::vector<std::string> InputFiles
 
     std::ifstream currentFile(currentFileName);
     if (not currentFile.is_open()) {
-      ATH_MSG_ERROR("cannot open file " << currentFileName);
+      ATH_MSG_WARNING("cannot open file " << currentFileName);
       continue;
     }
 
@@ -71,6 +71,11 @@ bool PMGCrossSectionTool::readInfosFromFiles(std::vector<std::string> InputFiles
     }
 
     if (nfound == 0) { ATH_MSG_WARNING("no sample read from file " << currentFileName); }
+  }
+
+  if (fStoreSampleInfo.empty()) {
+    ATH_MSG_ERROR("list of sample is empty");
+    return false;
   }
 
   return true;
