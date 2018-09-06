@@ -30,7 +30,7 @@ GlobalSequentialCorrection::GlobalSequentialCorrection()
   : JetCalibrationToolBase::JetCalibrationToolBase("GlobalSequentialCorrection::GlobalSequentialCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
-    m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),
+    m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
     m_punchThroughMinPt(50)
    
 { }
@@ -39,7 +39,7 @@ GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name)
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false),
     m_binSize(0.1), m_depth(0), 
-    m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),
+    m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
     m_punchThroughMinPt(50)
    
 { }
@@ -48,7 +48,7 @@ GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, 
   : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev),
     m_binSize(0.1), m_depth(0),
-    m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27),
+    m_trackWIDTHMaxEtaBin(25), m_nTrkMaxEtaBin(25), m_Tile0MaxEtaBin(17), m_EM3MaxEtaBin(35), m_chargedFractionMaxEtaBin(27), m_caloWIDTHMaxEtaBin(35), m_N90ConstituentsMaxEtaBin(35),
     m_punchThroughMinPt(50)
 { }
 
@@ -63,6 +63,10 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   // Set m_PFlow
   if( m_jetAlgo == "AntiKt4EMPFlow" ) m_PFlow = true;
   else{m_PFlow=false;}
+  
+  // Set m_caloBased
+  if( m_jetAlgo == "AntiKt4EMTopoTrig" && !m_PFlow ) {m_caloBased = true; ATH_MSG_INFO("Using calo based GSC");}
+  else{m_caloBased = false;}
 
   m_jetStartScale = m_config->GetValue("GSCStartingScale","JetEtaJESScaleMomentum");
   m_turnOffTrackCorrections = m_config->GetValue("TurnOffTrackCorrections", false);
@@ -99,7 +103,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   }
 
   TString depthString = m_config->GetValue("GSCDepth","Full");
-  if ( !depthString.Contains("ChargedFraction") && !depthString.Contains("Tile0") && !depthString.Contains("EM3") && !depthString.Contains("nTrk") && !depthString.Contains("trackWIDTH") && !depthString.Contains("PunchThrough") && !depthString.Contains("Full") ) {
+  if ( !depthString.Contains("ChargedFraction") && !depthString.Contains("Tile0") && !depthString.Contains("EM3") && !depthString.Contains("nTrk") && !depthString.Contains("trackWIDTH") && !depthString.Contains("PunchThrough") && !depthString.Contains("N90Constituents") && !depthString.Contains("N90Constituents") && !depthString.Contains("caloWIDTH") && !depthString.Contains("Full") ) {
     ATH_MSG_FATAL("depthString flag not properly set, please check your config file.");
     return StatusCode::FAILURE;
   }
@@ -118,7 +122,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   }
 
   //set the depth private variable, used to determine which parts of the GS calibration are applied
-  if( !m_PFlow ){
+  if( !m_PFlow  && !m_caloBased ){
     if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) m_depth = ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH | ApplyPunchThrough;
     else if ( depthString.Contains("trackWIDTH") ) m_depth = ApplyTile0 | ApplyEM3 | ApplynTrk | ApplytrackWIDTH;
     else if ( depthString.Contains("nTrk") ) m_depth = ApplyTile0 | ApplyEM3 | ApplynTrk;
@@ -126,7 +130,15 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     else if ( depthString.Contains("Tile0") ) m_depth = ApplyTile0;
     else { ATH_MSG_FATAL("depthString flag not properly set, please check your config file."); return StatusCode::FAILURE; }
   } 
-  else{
+  else if (m_caloBased){
+    if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) m_depth = ApplyTile0 | ApplyEM3 | ApplyN90Constituents | ApplycaloWIDTH;
+    else if ( depthString.Contains("caloWIDTH") ) m_depth = ApplyTile0 | ApplyEM3 | ApplyN90Constituents | ApplycaloWIDTH;
+    else if ( depthString.Contains("N90Constituents") ) m_depth = ApplyTile0 | ApplyEM3 | ApplyN90Constituents;
+    else if ( depthString.Contains("EM3") ) m_depth = ApplyTile0 | ApplyEM3;
+    else if ( depthString.Contains("Tile0") ) m_depth = ApplyTile0;
+    else { ATH_MSG_FATAL("depthString flag for calo based GSC not properly set, please check your config file."); return StatusCode::FAILURE; }
+  }
+  else { // PFlow
     if(!m_nTrkwTrk_4PFlow){
       if ( depthString.Contains("PunchThrough") || depthString.Contains("Full") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3 | ApplyPunchThrough;
       else if ( depthString.Contains("EM3") ) m_depth = ApplyChargedFraction | ApplyTile0 | ApplyEM3;
@@ -168,15 +180,19 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       m_respFactorstrackWIDTH.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
     else if ( histoNames[ihisto].Contains("PunchThrough") ) 
       m_respFactorsPunchThrough.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+    else if ( histoNames[ihisto].Contains("N90Constituents") && m_respFactorsN90Constituents.size() < m_N90ConstituentsMaxEtaBin)
+      m_respFactorsN90Constituents.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );
+    else if ( histoNames[ihisto].Contains("caloWIDTH") && m_respFactorscaloWIDTH.size() < m_caloWIDTHMaxEtaBin)
+      m_respFactorscaloWIDTH.push_back( (TH2F*)JetCalibUtils::GetHisto2(inputFile,histoNames[ihisto]) );  
   }
 
   //Make sure we put something in the vectors of TH2Fs
-  if( !m_PFlow ){
+  if( !m_PFlow && !m_caloBased ){
     if ( (m_depth & ApplyEM3) && m_respFactorsEM3.size() < 3 ) {
       ATH_MSG_FATAL("Vector of EM3 histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
-    else if ( (m_depth & ApplynTrk) &&m_respFactorsnTrk.size() < 3 ) {
+    else if ( (m_depth & ApplynTrk) && m_respFactorsnTrk.size() < 3 ) {
       ATH_MSG_FATAL("Vector of nTrk histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
@@ -193,6 +209,25 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       return StatusCode::FAILURE;
     }
     else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName);
+  }
+  else if (m_caloBased) {
+    if ( (m_depth & ApplyEM3) && m_respFactorsEM3.size() < 3 ) {
+      ATH_MSG_FATAL("Vector of EM3 histograms may be empty. Please check your GSCFactors file: " << GSCFile);
+      return StatusCode::FAILURE;
+    }
+    else if ( (m_depth & ApplyN90Constituents) && m_respFactorsN90Constituents.size() < 3 ) {
+      ATH_MSG_FATAL("Vector of N90Constituents histograms may be empty. Please check your GSCFactors file: " << GSCFile);
+      return StatusCode::FAILURE;
+    }
+    else if ( (m_depth & ApplyTile0) && m_respFactorsTile0.size() < 3 ) {
+      ATH_MSG_FATAL("Vector of Tile0 histograms may be empty. Please check your GSCFactors file: " << GSCFile);
+      return StatusCode::FAILURE;
+    }
+    else if ( (m_depth & ApplycaloWIDTH) && m_respFactorscaloWIDTH.size() < 3 ) {
+      ATH_MSG_FATAL("Vector of caloWIDTH histograms may be empty. Please check your GSCFactors file: " << GSCFile);
+      return StatusCode::FAILURE;
+    }
+    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName << "\n");
   }
   else{
     if ( (m_depth & ApplyChargedFraction) && m_respFactorsChargedFraction.size() < 3 ) {
@@ -318,13 +353,27 @@ double GlobalSequentialCorrection::getPunchThroughResponse(double E, double eta_
   return PunchThroughResponse;
 }
 
+double GlobalSequentialCorrection::getCaloWIDTHResponse(double pT, uint etabin, double caloWIDTH) const {
+  if (caloWIDTH<=0) return 1;
+  if ( etabin >= m_respFactorscaloWIDTH.size() ) return 1.;
+  double caloWIDTHResponse = readPtJetPropertyHisto(pT, caloWIDTH, m_respFactorscaloWIDTH[etabin]);
+  return caloWIDTHResponse;
+}
+
+double GlobalSequentialCorrection::getN90ConstituentsResponse(double pT, uint etabin, double N90Constituents) const {
+  if (N90Constituents<=0) return 1; // N90Constituents < 0 is unphysical, N90Constituents = 0 is a special case, so return 1 for N90Constituents <= 0
+  if ( etabin >= m_respFactorsN90Constituents.size() ) return 1.;
+  double N90ConstituentsResponse = readPtJetPropertyHisto(pT, N90Constituents, m_respFactorsN90Constituents[etabin]);
+  return N90ConstituentsResponse;
+}
+
 double GlobalSequentialCorrection::getGSCCorrection(xAOD::JetFourMom_t jetP4, double eta, 
-				                    double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments, double ChargedFraction) const {
+				                    double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments, double ChargedFraction, double caloWIDTH, double N90Constituents) const {
   //eta bins have size m_binSize=0.1 and are numbered sequentially from 0, so |eta|=2.4 is in eta bin #24
   int etabin = eta/m_binSize;
   double Corr=1;
   //Using bit sequence check to determine which GS corrections to apply.
-  if( !m_PFlow ){
+  if( !m_PFlow && !m_caloBased ){
     if (m_depth & ApplyTile0)      Corr*=1./getTile0Response(jetP4.pt()/m_GeV, etabin, Tile0);
     if (m_depth & ApplyEM3)        Corr*=1./getEM3Response(jetP4.pt()/m_GeV*Corr, etabin, EM3);
     if (m_depth & ApplynTrk)       Corr*=1./getNTrkResponse(jetP4.pt()/m_GeV*Corr, etabin, nTrk);
@@ -336,7 +385,13 @@ double GlobalSequentialCorrection::getGSCCorrection(xAOD::JetFourMom_t jetP4, do
       Corr*=1/getPunchThroughResponse(jetP4.e()/m_GeV,eta,Nsegments);
     }
   }
-  else{
+  else if (m_caloBased){
+    if (m_depth & ApplyTile0)              Corr*=1./getTile0Response(jetP4.pt()/m_GeV*Corr, etabin, Tile0);
+    if (m_depth & ApplyEM3)                Corr*=1./getEM3Response(jetP4.pt()/m_GeV*Corr, etabin, EM3);
+    if (m_depth & ApplyN90Constituents)    Corr*=1/getN90ConstituentsResponse(jetP4.pt()/m_GeV*Corr, etabin, N90Constituents);
+    if (m_depth & ApplycaloWIDTH)          Corr*=1/getCaloWIDTHResponse(jetP4.pt()/m_GeV*Corr,etabin,caloWIDTH);
+  }
+  else{ // PFlow
     if (m_depth & ApplyChargedFraction)                     Corr*=1./getChargedFractionResponse(jetP4.pt()/m_GeV, etabin, ChargedFraction);
     if (m_depth & ApplyTile0)                               Corr*=1./getTile0Response(jetP4.pt()/m_GeV*Corr, etabin, Tile0);
     if (m_depth & ApplyEM3)                                 Corr*=1./getEM3Response(jetP4.pt()/m_GeV*Corr, etabin, EM3);
@@ -448,7 +503,19 @@ StatusCode GlobalSequentialCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInf
   float EM3 = (samplingFrac[3]+samplingFrac[7])/jetE_constitscale;
   float Tile0 = (samplingFrac[12]+samplingFrac[18])/jetE_constitscale;
 
-  xAOD::JetFourMom_t calibP4 = jetStartP4*getGSCCorrection( jetStartP4, fabs(detectorEta), trackWIDTHPV0, nTrkPV0, Tile0, EM3, Nsegments, ChargedFraction );
+  double N90Constituents = 0;
+  double caloWIDTH = 0;
+  if (m_caloBased) {
+    if (m_depth & ApplyN90Constituents) {
+      //numConstituents = jet.numConstituents();
+      N90Constituents = jet.getAttribute<float>("N90Constituents");
+    }
+    if (m_depth & ApplycaloWIDTH) {
+      caloWIDTH = jet.getAttribute<double>("Width");
+    }
+  }
+  
+  xAOD::JetFourMom_t calibP4 = jetStartP4*getGSCCorrection( jetStartP4, fabs(detectorEta), trackWIDTHPV0, nTrkPV0, Tile0, EM3, Nsegments, ChargedFraction, caloWIDTH, N90Constituents);
 
   //Transfer calibrated jet properties to the Jet object
   jet.setAttribute<xAOD::JetFourMom_t>("JetGSCScaleMomentum",calibP4);
