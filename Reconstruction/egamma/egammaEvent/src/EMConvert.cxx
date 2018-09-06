@@ -22,7 +22,7 @@ UPDATED:  Jul 30, 2010 (JM) Add ambiguity result
 #include "egammaEvent/EMConvert.h"
 
 #include "GaudiKernel/GaudiException.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "VxVertex/VxCandidate.h"
@@ -30,7 +30,7 @@ UPDATED:  Jul 30, 2010 (JM) Add ambiguity result
 #include "VxVertex/VxTrackAtVertex.h"
 #include "VxVertex/RecVertex.h"
 #include "TrkParameters/TrackParameters.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 using CLHEP::Hep3Vector;

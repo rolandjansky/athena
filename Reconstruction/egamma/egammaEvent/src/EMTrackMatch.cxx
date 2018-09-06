@@ -39,8 +39,8 @@ Updated:  Jan, 2004 (FD+AK)
 // INCLUDE HEADER FILES:
 #include <math.h>
 #include "egammaEvent/EMTrackMatch.h"
-#include "SGTools/BaseInfo.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/ClassName.h"
 #include "GaudiKernel/GaudiException.h"
 
 //  END OF HEADER FILES INCLUDE
