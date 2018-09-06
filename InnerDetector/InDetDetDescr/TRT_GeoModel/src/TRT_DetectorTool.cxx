@@ -18,7 +18,7 @@
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "TRT_ConditionsData/StrawDxContainer.h" 
 
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

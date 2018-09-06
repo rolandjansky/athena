@@ -51,34 +51,32 @@ def triggerMonitoringCfg(flags, hypos, l1Decoder):
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
-    allChains = []
-    for stepName, stepHypos in hypos.iteritems():
+    allChains = {} # collects the last decision obj for each chain
+
+    for stepName, stepHypos in sorted( hypos.items() ):
         dcTool = DecisionCollectorTool( "DecisionCollector" + stepName )
         for hypo in stepHypos:
             dcTool.Decisions += [ hypo.HypoOutputDecisions ]
             for t in hypo.HypoTools:
-                allChains.append( t.name() )
+                allChains[t.name()] = hypo.HypoOutputDecisions
+
         mon.CollectorTools += [ dcTool ]
         __log.info( "The step monitoring decisions in " + dcTool.name() + str( dcTool.Decisions ) )
     
-    mon.FinalDecisions = mon.CollectorTools[-1].Decisions
+
+    mon.FinalDecisions = list( set( allChains.values() ) )
     __log.info( "Final decisions to be monitored are "+ str( mon.FinalDecisions ) )
 
-    mon.ChainsList = list( set( allChains + l1Decoder.ctpUnpacker.CTPToChainMapping.keys()) )
+    mon.ChainsList = list( set( allChains.keys() + l1Decoder.ChainToCTPMapping.keys()) )
+
     
     return acc, mon
 
 def setupL1DecoderFromMenu( flags, l1Decoder ):
     """ Post setup of the L1Decoder, once approved, it should be moved to L1DecoderCfg function """
-    l1Decoder.ctpUnpacker.CTPToChainMapping = {} 
-    from TriggerJobOpts.MenuConfigFlags import MenuUtils
-    l1Decoder.ctpUnpacker.CTPToChainMapping.update( MenuUtils.toCTPSeedingDict( flags ) )
 
-    # this will go away once full L1 config info will be used by L1 Decoder
-    for c in flags.get( "Trigger.menu.electrons" ) + flags.get( "Trigger.menu.photons" ) :
-        chain, l1item = c.split()[:2]
-        threshold = l1item.split("_")[1] 
-        l1Decoder.roiUnpackers["EMRoIsUnpackingTool"].ThresholdToChainMapping += [ "%s : %s" % (threshold, chain) ]
+    from TriggerJobOpts.MenuConfigFlags import MenuUtils
+    l1Decoder.ChainToCTPMapping = MenuUtils.toCTPSeedingDict( flags )
 
 
 def triggerRunCfg(flags, menu=None):

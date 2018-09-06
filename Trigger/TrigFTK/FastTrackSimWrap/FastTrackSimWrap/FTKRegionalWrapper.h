@@ -58,7 +58,7 @@ private:
   ToolHandle<ITrigFTKClusterConverterTool>  m_clusterConverterTool; /** Tool to convert FTKHits to IDClusters */
 
   ServiceHandle<IPixelCablingSvc> m_pix_cabling_svc; 
-  ServiceHandle<ISCT_CablingSvc> m_sct_cabling_svc;
+  ServiceHandle<ISCT_CablingSvc> m_sct_cabling_svc; // Although SCT_CablingSvc migrated to SCT_CablingTool, this class accesses SCT cabling during initialization.
 
   // Needed to retrieve m_pixelId in order to get the barrel_ec, phi/eta_modules etc.
 

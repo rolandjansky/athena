@@ -47,7 +47,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   int overflowToT     = 256;
 
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
-  int nSmallHitsRD53 = 0;
+  //int nSmallHitsRD53 = 0; unused
   std::vector<int> row, col;
   const int maxRow = p_design->rowsPerCircuit();
   const int maxCol = p_design->columnsPerCircuit();

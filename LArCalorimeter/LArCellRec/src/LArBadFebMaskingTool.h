@@ -20,11 +20,13 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "xAODEventInfo/EventInfo.h"
+#include <atomic>
 
 class LArCablingService;
 class StoreGateSvc;
@@ -32,11 +34,9 @@ class CaloCell_ID;
 class LArOnlineID;
 class LArFebErrorSummary;
 
-class LArBadFebMaskingTool: public AthAlgTool,
-	             virtual public ICaloCellMakerTool 
-
+class LArBadFebMaskingTool
+  : public extends<AthAlgTool, ICaloCellMakerTool>
 {
- 
 public:    
   
   LArBadFebMaskingTool(const std::string& type, 
@@ -46,15 +46,15 @@ public:
 
   /** initialize the tool
   */
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
 
   /** finalize   the tool
   */
-  virtual StatusCode finalize() ; 
+  virtual StatusCode finalize() override;
 
   /** update theCellContainer, masking Feb with errors
   */
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
 
  private:
 
@@ -101,12 +101,11 @@ public:
 
   /** Number of events processed
   */
-  int m_evt;
+  mutable std::atomic<int> m_evt;
 
   /** Number of Feb masked
   */
-  int m_mask;
-
+  mutable std::atomic<int> m_mask;
 };
 
 #endif

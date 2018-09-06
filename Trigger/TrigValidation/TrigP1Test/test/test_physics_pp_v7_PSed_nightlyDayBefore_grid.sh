@@ -20,30 +20,35 @@
 export NAME="athenaHLT_prescaled_PhysicsV7"
 export JOB_LOG="${NAME}.log"
 
-source /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/prescaleKeys_17000.txt
+#source /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/prescaleKeys_17000.txt | tee ${JOB_LOG} 
 #for testing:
-#source /eos/atlas/atlascerngroupdisk/data-art/grid-input/TrigP1Test/exportMenuKeys.sh
+#source /eos/atlas/atlascerngroupdisk/data-art/grid-input/TrigP1Test/prescaleKeys_17000.txt | tee ${JOB_LOG}
+eval "export $( grep 'smk=' /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/prescaleKeys_17000.txt)"
+eval "export $( grep 'l1psk=' /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/prescaleKeys_17000.txt)"
+eval "export $( grep 'hltpsk=' /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/prescaleKeys_17000.txt)"
+
 #smk=5218
 #l1psk=120
 #hltpsk=420
-echo 'smk' ${smk}
-echo 'l1psk' ${l1psk}
-echo 'hltpsk' ${hltpsk}
+echo 'smk' ${smk} | tee ${JOB_LOG} 
+echo 'l1psk' ${l1psk} | tee ${JOB_LOG} 
+echo 'hltpsk' ${hltpsk} | tee ${JOB_LOG} 
 
-echo "Reading release from SMK"
-python releaseFromSMK.py TRIGGERDBART ${smk} &> releaseFromSMK.log
+echo "Reading release from SMK" | tee ${JOB_LOG} 
+get_files releaseFromSMK.py
+python releaseFromSMK.py TRIGGERDBART ${smk} | tee ${JOB_LOG}
 eval "$( grep 'export release=' releaseFromSMK.log)" 
 if [ -z ${release} ]; then
-   echo "Release not found"
+   echo "Release not found" | tee ${JOB_LOG} 
 else
-   asetup AthenaP1,21.1,${release}
+   asetup AthenaP1,21.1,${release} | tee ${JOB_LOG} 
 fi
 
 #athenaHLT.py -M -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_eb_zmm_egz.merged.RAW.selected._0001.data -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBATN" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" -c 'rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True'
 
-athenaHLT.py -n 100000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" | tee ${JOB_LOG} 
+athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" | tee ${JOB_LOG} 
 
-Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root
+Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root | tee ${JOB_LOG} 
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"

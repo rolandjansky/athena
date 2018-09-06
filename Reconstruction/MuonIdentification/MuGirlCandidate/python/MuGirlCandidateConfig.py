@@ -4,6 +4,7 @@ from MuGirlCandidate.MuGirlCandidateConf import MuGirlNS__CandidateTool
 from AthenaCommon.Configurable import *
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 from MuonRecExample import MuonRecTools
+from MuonRecExample.MuonPrdProviderToolsConfig import RpcPrepDataProviderTool, MdtPrepDataProviderTool, TgcPrepDataProviderTool, CscPrepDataProviderTool
 
 class MuGirlNS__CandidateToolConfig(MuGirlNS__CandidateTool):
     __slots__ = {}
@@ -45,19 +46,19 @@ class MuGirlNS__CandidateToolConfig(MuGirlNS__CandidateTool):
         from AthenaCommon.DetFlags import DetFlags
 
         if DetFlags.haveRDO.MDT_on():
-             self.MdtRdoToPrepDataTool = ToolSvc.MdtPrepDataProviderTool
+             self.MdtRdoToPrepDataTool = MdtPrepDataProviderTool()
         else:
              self.MdtRdoToPrepDataTool = None
         if DetFlags.haveRDO.RPC_on():
-             self.RpcRdoToPrepDataTool = ToolSvc.RpcPrepDataProviderTool
+             self.RpcRdoToPrepDataTool = RpcPrepDataProviderTool()
         else:
              self.RpcRdoToPrepDataTool = None
         if DetFlags.haveRDO.TGC_on():
-             self.TgcRdoToPrepDataTool = ToolSvc.TgcPrepDataProviderTool
+             self.TgcRdoToPrepDataTool = TgcPrepDataProviderTool()
         else:
              self.TgcRdoToPrepDataTool = None
         if DetFlags.haveRDO.CSC_on():
-             self.CscRdoToPrepDataTool = ToolSvc.CscPrepDataProviderTool
+             self.CscRdoToPrepDataTool = CscPrepDataProviderTool()
         else:
              self.CscRdoToPrepDataTool = None
 

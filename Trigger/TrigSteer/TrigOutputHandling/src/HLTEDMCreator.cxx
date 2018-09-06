@@ -179,7 +179,7 @@ StatusCode HLTEDMCreator::fixLinks( const ConstHandlesGroup< xAOD::TrigComposite
 
       // Store the remapped TCs
       SG::WriteHandle<xAOD::TrigCompositeContainer> writeHandle( writeHandleKey.key() + "_remap" );
-      output.record( writeHandle );
+      CHECK(output.record( writeHandle ));
     }
   }
 

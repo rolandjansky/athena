@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetConstitFourMomTool.cxx
@@ -93,8 +93,7 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
     // if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
     if(!m_altColls_keys[iScale].key().empty()) { // retrieve alternate constituent collections
       const xAOD::Jet& leadjet = *jets.front();
-      if(leadjet.getInputType()==xAOD::JetInput::LCTopo || leadjet.getInputType()==xAOD::JetInput::EMTopo
-	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOrigin || leadjet.getInputType()==xAOD::JetInput::EMTopoOrigin) {
+      if(isValidConstitType(leadjet.getInputType())) {
 
         auto handle = SG::makeHandle(m_altColls_keys[iScale]);
         if(!handle.isValid()){

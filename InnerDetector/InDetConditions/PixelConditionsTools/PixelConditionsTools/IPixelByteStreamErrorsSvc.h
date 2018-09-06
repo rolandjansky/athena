@@ -32,9 +32,6 @@ namespace InDetDD{
   class PixelDetectorManager; 
 }
 
-// STSTST  const InterfaceID IID_IPixelByteStreamErrorsSvc("IPixelByteStreamErrorsSvc",1,0);
-
-
 /**
  * @class PixelByteStreamErrorsSvc
  * Service that keeps track of modules that give rise to errors in the bytestram.

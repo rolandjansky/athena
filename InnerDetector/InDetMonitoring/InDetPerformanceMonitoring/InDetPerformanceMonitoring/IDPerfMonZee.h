@@ -191,7 +191,7 @@ public:
   std::string m_electronIDLevel;
   bool m_doIDCuts{};
   //Likelihood tool:
-  AsgElectronLikelihoodTool* m_LHTool2015; //!
+  AsgElectronLikelihoodTool* m_LHTool2015{}; //!
 };
 
 #endif

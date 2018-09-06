@@ -140,10 +140,9 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
 
     # SiLorentzAngleTool for SCT_FastDigitizationTool
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
-    kwargs.setdefault("LorentzAngleTool", ToolSvc.SCTLorentzAngleTool)
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+    kwargs.setdefault("LorentzAngleTool", sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
     from AthenaCommon import CfgMgr
     return CfgMgr.SCT_FastDigitizationTool(name,**kwargs)

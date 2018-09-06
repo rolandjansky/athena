@@ -25,33 +25,20 @@ StatusCode CTPUnpackingTool::initialize()
 
   CHECK( CTPUnpackingToolBase::initialize() );
   
-  ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "CTPSimulation");
-  CHECK(incidentSvc.retrieve());
-  incidentSvc->addListener(this,"BeginRun", 200);
-  incidentSvc.release().ignore();
   return StatusCode::SUCCESS;
 }
 
-void CTPUnpackingTool::handle(const Incident& incident) {
-  
-  if (incident.type()!="BeginRun") return;
-  ATH_MSG_DEBUG( "In CTPUnpackingTool BeginRun incident");
-  
-  if( decodeCTPToChainMapping().isFailure() ) {
-    ATH_MSG_ERROR( "ERROR in CTPUnpackingTool configuration");
-  }
-}
 
-
-StatusCode CTPUnpackingTool::decodeCTPToChainMapping() {
+StatusCode CTPUnpackingTool::updateConfiguration( const std::map<std::string, std::string>& seeding )  {
+  ATH_MSG_DEBUG( "Updating CTP configuration with " << seeding.size() << " seeding mapping");
   // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
   std::map<std::string, size_t> toCTPID;
   for ( const TrigConf::TriggerItem* item:   m_configSvc->ctpConfig()->menu().itemVector() ) {
     toCTPID[item->name()] = item->ctpId();
-
   }
   
-  for ( auto seedingHLTtoL1: m_ctpToChainProperty ) {
+  for ( auto seedingHLTtoL1: seeding ) {
+    ATH_MSG_DEBUG( "Seeding " << seedingHLTtoL1.first << " " << seedingHLTtoL1.second );
     CHECK( toCTPID.find( seedingHLTtoL1.second ) != toCTPID.end() ); 
     size_t l1ItemID = toCTPID [ seedingHLTtoL1.second ];
     m_ctpToChain[ l1ItemID ].push_back( HLT::Identifier( seedingHLTtoL1.first ) ); 
@@ -62,8 +49,9 @@ StatusCode CTPUnpackingTool::decodeCTPToChainMapping() {
     }
   }
     
-  return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;  
 }
+
 
 StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains ) const {
   using namespace Monitored;

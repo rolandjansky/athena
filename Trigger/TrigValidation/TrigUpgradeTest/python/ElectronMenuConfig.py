@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
 
 
-def CaloLUMIBCIDTool( flags, name='CaloLumiBCIDToolDefault' ):
+def CaloLUMIBCIDToolCfg( flags, name='CaloLumiBCIDToolDefault' ):
     acc = ComponentAccumulator()
     from CaloTools.CaloToolsConf import CaloLumiBCIDTool
     from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -44,7 +44,7 @@ def CaloLUMIBCIDTool( flags, name='CaloLumiBCIDToolDefault' ):
     
     return acc
             
-def TileCond( flags ):
+def TileCondCfg( flags ):
 
     acc = ComponentAccumulator()
 
@@ -129,11 +129,11 @@ def TileCond( flags ):
 
     return acc
 
-def TrigCaloDataAccessConfig(flags):
+def TrigCaloDataAccessCfg(flags):
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc                      = ComponentAccumulator()
-    acc.merge(CaloLUMIBCIDTool(flags))
+    acc.merge(CaloLUMIBCIDToolCfg(flags))
     from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigDataAccess
     da                       = TrigDataAccess()
     # ??? so we do not need the tools (quick hack)
@@ -147,7 +147,7 @@ def TrigCaloDataAccessConfig(flags):
                                        '/CALO/Identifier/CaloTTPpmRxIdMapAtlas'], 'CALO'))
     # ??? should be moved to tile domain
     
-    acc.merge(TileCond(flags ))
+    acc.merge( TileCondCfg( flags ) )
 
     acc.addPublicTool( da )
 
@@ -158,7 +158,7 @@ def TrigCaloDataAccessConfig(flags):
 
 
 
-def l2CaloAlg( flags, roisKey="EMCaloRoIs" ):
+def l2CaloAlgCfg( flags, roisKey="EMCaloRoIs" ):
 
     #from AthenaCommon.CFElements import parOR, seqOR, seqAND
 
@@ -176,8 +176,7 @@ def l2CaloAlg( flags, roisKey="EMCaloRoIs" ):
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     acc.merge( addFolders(flags, ['/LAR/Identifier/FebRodMap'], 'LAR' ))
 
-    acc.merge(TrigCaloDataAccessConfig(flags ))
-
+    acc.merge(TrigCaloDataAccessCfg(flags ))
 
 
     from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerFexConfig
@@ -204,17 +203,11 @@ def l2CaloAlg( flags, roisKey="EMCaloRoIs" ):
     acc.addPublicTool( ring )
 
     __fex_tools = [ samp2, samp1, sampe, samph, ring ]
-
-    #acc.addSequence( seqAND( inViewAlgsSeqName ),  parentName='L2CaloEgamma' )
-#    inViewSeq=seqAND( inViewAlgsSeqName )
-#    mainSeq+=inViewSeq
-
     
-
     from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo
     fastCalo                         = T2CaloEgammaFastAlgo( 'FastEMCaloAlgo' )
     fastCalo.OutputLevel             = DEBUG
-    fastCalo.ClustersName            = 'L2CaloClusters'
+    fastCalo.ClustersName            = 'L2CaloEMClusters'
     fastCalo.RoIs                    = roisKey
     fastCalo.EtaWidth                = 0.2
     fastCalo.PhiWidth                = 0.2
@@ -252,17 +245,17 @@ def l2CaloAlg( flags, roisKey="EMCaloRoIs" ):
 
     return acc, fastCalo
 
-def l2CaloReco( flags ):
+def l2CaloRecoCfg( flags ):
     from TrigUpgradeTest.MenuComponents import InViewReco
 
     reco = InViewReco("FastCaloEMReco")
-    algAcc, alg = l2CaloAlg( flags, roisKey = reco.name+'RoIs' )
+    algAcc, alg = l2CaloAlgCfg( flags, roisKey = reco.name+'RoIs' )
     reco.addRecoAlg( alg )
     reco.merge( algAcc )
 
     return reco
 
-def l2ElectronCaloStep( flags, chains ):
+def l2ElectronCaloStepCfg( flags, chains ):
 
     from AthenaCommon.Constants import DEBUG
     acc = ComponentAccumulator()
@@ -271,17 +264,16 @@ def l2ElectronCaloStep( flags, chains ):
     #acc.addSequence( seqAND('L2CaloEgamma'), parentName=parentSeq )
     from TrigUpgradeTest.MenuComponents import FilterHypoSequence
     fhSeq = FilterHypoSequence( 'ElectronFastCalo' )
-    fhSeq.addFilter( chains, inKey = 'EMRoIDecisions', outKey='FilteredElectronRoIDecisions' )
+    fhSeq.addFilter( chains, inKey = 'EMRoIDecisions' ) # out key named after sequence
 
     from TrigUpgradeTest.MenuComponents import RecoFragmentsPool 
 
     # obtain the reconstruction CF fragment
-    fhSeq.addReco( RecoFragmentsPool.retrieve( l2CaloReco, flags ) )
+    fhSeq.addReco( RecoFragmentsPool.retrieve( l2CaloRecoCfg, flags ) )
 
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
     hypo                     = TrigL2CaloHypoAlgMT( 'L2ElectronCaloHypo' )
-    hypo.CaloClusters        = 'L2CaloClusters'
-    hypo.HypoOutputDecisions = 'ElectronFastCaloDecisions'
+    hypo.CaloClusters        = 'L2CaloEMClusters'
     hypo.OutputLevel = DEBUG
 
     from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName    
@@ -295,7 +287,7 @@ def l2ElectronCaloStep( flags, chains ):
 
 
 
-def generateElectrons( flags ):
+def generateElectronsCfg( flags ):
     acc = ComponentAccumulator()
 
     electronChains = [ f.split()[0] for f in flags.get("Trigger.menu.electrons") + flags.get("Trigger.menu.electronsNoID") ]    
@@ -303,7 +295,7 @@ def generateElectrons( flags ):
         return None,None
 
     # L2 calo
-    l2CaloSequence = l2ElectronCaloStep( flags, electronChains )
+    l2CaloSequence = l2ElectronCaloStepCfg( flags, electronChains )
     acc.merge( l2CaloSequence ) 
     
 
@@ -338,7 +330,7 @@ if __name__ == '__main__':
     for n in range(10):
         acc.addSequence( parOR("HLTStep_%d"%n ) )
 
-    elAcc, elSeq = generateElectrons( ConfigFlags )
+    elAcc, elSeq = generateElectronsCfg( ConfigFlags )
     for n,s in enumerate( elSeq, 1 ):
         stepName = "HLTStep_%d"%n 
         acc.addSequence( s.sequence(), stepName )    

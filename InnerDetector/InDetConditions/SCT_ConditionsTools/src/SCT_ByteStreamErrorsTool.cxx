@@ -13,11 +13,7 @@
 
 ///Athena includes
 #include "InDetIdentifier/SCT_ID.h"
-
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-///Read Handle
 #include "StoreGate/ReadHandle.h"
 
 /** Constructor */
@@ -309,7 +305,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
   SG::ReadHandle<InDetBSErrContainer> errCont{m_bsErrContainerName};
 
   /** When running over ESD files without BSErr container stored, don't 
-   * want to flood the user with error messages.  Should just have a bunch
+   * want to flood the user with error messages. Should just have a bunch
    * of empty sets, and keep quiet.
    */
   if (not errCont.isValid()) {
@@ -366,7 +362,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
  */
 
 void 
-SCT_ByteStreamErrorsTool::addError(IdentifierHash id, int errorType, const EventContext& ctx) const {
+SCT_ByteStreamErrorsTool::addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const {
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
     m_bsErrors[errorType][ctx.slot()].insert(id);
   }

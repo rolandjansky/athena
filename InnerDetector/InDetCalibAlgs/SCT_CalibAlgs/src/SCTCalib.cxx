@@ -18,7 +18,6 @@
 * @author Peter Rosendahl, peter.lundgaard.rosendahl@cern.ch
 **/
 
-#include <limits>
 #include "SCT_CalibAlgs/SCTCalib.h"
 #include "SCT_CalibAlgs/SCT_LorentzAngleFunc.h"
 #include "SCT_CalibUtilities.h"
@@ -28,12 +27,21 @@
 #include "SCT_CalibEventInfo.h"
 #include "SCT_CalibHitmapSvc.h"
 
-
 #include "XmlHeader.h"
 #include "XmlStreamer.h"
 
-//STL, boost
-#include <boost/lexical_cast.hpp>
+//InnerDetector
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+
+//infrastructure
+#include "EventInfo/EventInfo.h"
+
+//coral/cool
+#include "CoralBase/TimeStamp.h"
+
+//Gaudi
+#include "GaudiKernel/IEventProcessor.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 //root
 #include "TFileCollection.h"
@@ -48,16 +56,9 @@
 #include "TMath.h"
 #include "Math/ProbFuncMathCore.h"
 
-//infrastructure
-#include "EventInfo/EventInfo.h"
-#include "GaudiKernel/IEventProcessor.h"
-#include "GaudiKernel/ITHistSvc.h"
-
-//coral/cool
-#include "CoralBase/TimeStamp.h"
-
-//InnerDetector
-#include "InDetReadoutGeometry/SiDetectorElement.h"
+//STL, boost
+#include <limits>
+#include <boost/lexical_cast.hpp>
 
 using namespace SCT_CalibAlgs;
 using namespace std;
@@ -161,7 +162,6 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
     m_thistSvc(0),
     m_pSCTHelper(0),
     m_pCalibWriteSvc            ("SCTCalibWriteSvc",name),
-    m_CablingSvc                ("SCT_CablingSvc",name),
     m_calibHitmapSvc            ("SCT_CalibHitmapSvc",name),
     m_calibBsErrSvc             ("SCT_CalibBsErrorSvc",name),
     m_calibLbSvc                ("SCT_CalibLbSvc",name),
@@ -347,7 +347,7 @@ StatusCode SCTCalib::initialize() {
     }
     if ( not retrievedService(m_calibLbSvc) ) return StatusCode::FAILURE;
 
-    if ( not retrievedService(m_CablingSvc)) return StatusCode::FAILURE;
+    ATH_CHECK(m_CablingTool.retrieve());
 
     //--- LB range
     try {
@@ -600,7 +600,7 @@ StatusCode SCTCalib::finalize() {
 ///////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::doHVPrintXML(const std::pair<int, int> & timeInterval, const std::pair<int,int> & lbRange, Identifier waferId) {
     const IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-    const SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+    const SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
 
     XmlStreamer mod("module", m_gofile);
     {
@@ -1346,7 +1346,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                     meanNO_ECC[iDisk][iEta]+=occupancy;
                     //outFile << outFile << xmlChannelNoiseOccDataString(waferId, occupancy)<<endl;
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                     //--- DB output
                     if ( m_writeToCool ) {
@@ -1372,7 +1372,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                     //--- For calculating average Noise Occupancy
                     meanNO_Barrel[iLayer]+=occupancy;
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                     //--- DB output
                     if ( m_writeToCool ) {
@@ -1397,7 +1397,7 @@ StatusCode SCTCalib::getNoiseOccupancy()
                     //--- For calculating average Noise Occupancy
                     meanNO_ECA[iDisk][iEta]+=occupancy;
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     outFile << xmlChannelNoiseOccDataString(waferId, occupancy, sn)<<endl;
                     //--- DB output
                     if ( m_writeToCool ) {
@@ -1703,7 +1703,7 @@ StatusCode SCTCalib::getEfficiency() {
                         else if( stemItr->second==ENDCAP_A ) meanEff_ECA[iDisk][iEta]+=(double)eff;
                         //--- For Efficiency _not_ averaged over modules
                         IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                        SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                        SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                         outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
                         //--- DB writing
                         if( m_writeToCool ) {
@@ -1732,7 +1732,7 @@ StatusCode SCTCalib::getEfficiency() {
                     meanEff_Barrel[iLayer]+=(double)eff;
                     //--- For Efficiency _not_ averaged over modules
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
                     //--- DB writing
                     if( m_writeToCool ) {
@@ -1890,7 +1890,7 @@ StatusCode SCTCalib::getBSErrors() {
                         ostringstream osProbList;
                         Identifier waferId = m_pSCTHelper->wafer_id( thisBec, iDisk, iPhi, iEta, iSide );
                         IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                        SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                        SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
 
                         if( thisBec==ENDCAP_C )
                             nErrLink_ECC_module_serial[iDisk][iSide][iEta][iPhi]=sn.str();
@@ -1977,7 +1977,7 @@ StatusCode SCTCalib::getBSErrors() {
                     ostringstream osProbList;
                     Identifier waferId = m_pSCTHelper->wafer_id( BARREL, iLayer, iPhi, iEta-6, iSide );
                     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-                    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+                    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
                     nErrLink_Barrel_module_serial[iLayer][iSide][iEta][iPhi] = sn.str();
                     IntStringMap::iterator errItr=ErrMap.begin();
                     for ( int iType = 0; iType < n_BSErrorType; ++iType ) {
@@ -2653,7 +2653,7 @@ StatusCode SCTCalib::addToSummaryStr( std::ostringstream& list, const Identifier
     if( len_chip  > 0 ) chipList  = tmpchip.substr( 1, len_chip-2 );
     //--- Identifier/SN
     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-    SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+    SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
     cout<<"sn.str()"<<endl;
     cout<<sn.str()<<endl;
     //--- Preparing linkList
@@ -2952,7 +2952,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
         Identifier       waferId   = *waferItr;
         Identifier       moduleId  = m_pSCTHelper->module_id( waferId );
         IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-        SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+        SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
 
         //--- Initialization for a module
         if ( m_pSCTHelper->side( waferId ) == 0 ) {
@@ -3150,7 +3150,7 @@ StatusCode SCTCalib::noisyStripsToSummaryXml( const std::map< Identifier, std::s
 //   //   Identifier       waferId   = *waferItr;
 //   //   Identifier       moduleId  = m_pSCTHelper->module_id( waferId );
 //   //   IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-//   //   SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
+//   //   SCT_SerialNumber sn        = m_CablingTool->getSerialNumberFromHash( waferHash );
 
 //   //   //--- Initialization for a module
 //   //   if ( m_pSCTHelper->side( waferId ) == 0 ) {

@@ -228,6 +228,15 @@ SCT_CablingCondAlgFromCoraCool::finalize() {
 //
 StatusCode
 SCT_CablingCondAlgFromCoraCool::execute() {
+  // Write Cond Handle
+  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
+  if (writeHandle.isValid()) {
+    ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
+                  << ". In theory this should not be called, but may happen"
+                  << " if multiple concurrent events are being processed out of order.");
+    return StatusCode::SUCCESS;
+  }
+
   const SCT_ID* idHelper{nullptr};
   if (detStore()->retrieve(idHelper,"SCT_ID").isFailure()) {
     ATH_MSG_ERROR("SCT mgr failed to retrieve");
@@ -506,8 +515,6 @@ SCT_CablingCondAlgFromCoraCool::execute() {
     }
   }
 
-  // Write Cond Handle
-  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_CablingData " << writeHandle.key() 
                   << " with EventRange " << rangeW
