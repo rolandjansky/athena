@@ -187,7 +187,7 @@ double PMGCrossSectionTool::getSampleXsection(const int dsid) const
 std::vector<int> PMGCrossSectionTool::getLoadedDSIDs() const {
   std::vector<int> dsids;
   dsids.reserve(fStoreSampleInfo.size());
-  for (const auto& key_info : fStoreSampleInfo) {
+  for (const std::pair<unsigned, AllSampleInfo>& key_info : fStoreSampleInfo) {
     dsids.push_back(key_info.second.dsid);
   }
   return dsids;
