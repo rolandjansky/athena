@@ -20,8 +20,6 @@
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetSelectorTools/JetCleaningTool.h"
-#include "JetResolution/JERTool.h"
-#include "JetResolution/JERSmearingTool.h"
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
 #include "JetSelectorTools/EventCleaningTool.h"
 
@@ -77,9 +75,6 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
   declareProperty( "JetEventCleaningToolLooseBad" , m_jetEventCleaningToolLooseBad );
   declareProperty( "JetEventCleaningToolTightBad" , m_jetEventCleaningToolTightBad );
 
-  //declareProperty( "JetJERTool" , m_jetJERTool );
-  //declareProperty( "JetJERSmearingTool" , m_jetJERSmearingTool );
-  declareProperty( "JETJERUncertaintiesTool", m_jetJERUncertaintiesTool),
   declareProperty( "JetUpdateJvtTool" , m_jetUpdateJvtTool );
 
   declareProperty( "JES_data2016_data2015_Recommendation_Dec2016.config", m_jetAntiKt4_MCFS_ConfigFile);
@@ -433,17 +428,17 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
 
   m_jetUncertaintiesToolLargeR_strong
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Strong",
-                                jetCalibrationNameLargeR, MC_type,
+                                jetCalibrationNameLargeR, MC_type, false,
                                 configDir+"/"+conference
                                 + "/R10_"+largeRJES_config+"_strong.config",variables,"",calibArea);
   m_jetUncertaintiesToolLargeR_medium
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Medium",
-                                jetCalibrationNameLargeR, MC_type,
+                                jetCalibrationNameLargeR, MC_type, false,
                                 configDir+"/"+conference
                                 + "/R10_"+largeRJES_config+"_medium.config",variables,"",calibArea);
   m_jetUncertaintiesToolLargeR_weak
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Weak",
-                                jetCalibrationNameLargeR, MC_type,
+                                jetCalibrationNameLargeR, MC_type, false,
                                 configDir+"/"+conference
                                 + "/R10_"+largeRJES_config+"_weak.config",variables,"",calibArea);
 
@@ -534,7 +529,7 @@ ICPJetUncertaintiesTool*
 JetMETCPTools::setupJetUncertaintiesTool(const std::string& name,
 					 const std::string& jet_def,
 					 const std::string& mc_type,
-					 const bool& isData,
+					 const bool& isMC,
 					 const std::string& config_file,
 					 std::vector<std::string>* variables,
 					 const std::string& analysis_file,
@@ -549,7 +544,7 @@ JetMETCPTools::setupJetUncertaintiesTool(const std::string& name,
                 "Failed to set JetDefinition for " + name);
     top::check(asg::setProperty(tool, "MCType", mc_type),
                 "Failed to set MCType for " + name);
-    top::check(asg::setProperty(tool, "IsData", isData),
+    top::check(asg::setProperty(tool, "IsData", !isMC),
 	       "Failed to set IsData (for JER only)");
     top::check(asg::setProperty(tool, "ConfigFile", config_file),
                 "Failed to set ConfigFile for " + name);

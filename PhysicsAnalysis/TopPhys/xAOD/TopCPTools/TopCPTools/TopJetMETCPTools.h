@@ -105,7 +105,7 @@ class JetMETCPTools final : public asg::AsgTool {
     setupJetUncertaintiesTool(const std::string& name,
                               const std::string& jet_def,
                               const std::string& mc_type,
-			      const bool& isData,
+			      const bool& isMC,
                               const std::string& config_file,
                               std::vector<std::string>* variables,
                               const std::string& analysis_file = "",
