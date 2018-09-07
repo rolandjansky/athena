@@ -37,8 +37,31 @@ class AnaAlgSequence( AlgSequence ):
         self._inputPropNames = []
         self._outputPropNames = []
         self._affectingSystematics = []
+        self._outputAffectingSystematics = None
 
         return
+
+    def affectingSystematics( self, label = "default" ):
+        """Get the systematic variations for (one of) the output container(s)
+
+        In order to more easily chain together analysis algorithm sequences,
+        where one sequence's output would be used as the input for another one,
+        this function can be used to get the systematic variation regular
+        expression that should be fed to the sequence takig the output of this
+        one as input.
+
+        Keyword arguments:
+           label -- The output container label, for sequences with multiple
+                    outputs
+        """
+
+        # A security check:
+        if not self._outputAffectingSystematics:
+           raise RuntimeError( 'You have to call configure(...) before calling '
+                               'affectingSystematics(...)' )
+
+        # Return the requested value:
+        return self._outputAffectingSystematics[ label ]
 
     def configure( self, inputName, outputName, affectingSystematics = None,
                    hiddenLayerPrefix = "" ):
@@ -241,6 +264,9 @@ class AnaAlgSequence( AlgSequence ):
                 pass
 
             pass
+
+        # Store the affecting systematics for further queries:
+        self._outputAffectingSystematics = affectingSystematics
 
         return
 
@@ -460,6 +486,20 @@ class TestAnaAlgSeqSingleContainer( unittest.TestCase ):
         self.assertEqual( self.seq.Efficiency.systematicsRegex, '(^EG_.*)' )
         return
 
+    ## Test that the correct value is returned for the users for the affecting
+    ## systematics.
+    def test_affectingSystematics( self ):
+        self.assertEqual( self.seq.affectingSystematics(),
+                          '(^$)|(^EL_.*)|(^EG_.*)' )
+        with self.assertRaises( KeyError ):
+            self.seq.affectingSystematics( 'invalidLabel' )
+            pass
+        emptySeq = AnaAlgSequence( 'EmptySequence' )
+        with self.assertRaises( RuntimeError ):
+            emptySeq.affectingSystematics()
+            pass
+        return
+
     pass
 
 ## Test case for a sequence receiving multiple containers, and producing just
@@ -523,6 +563,13 @@ class TestAnaAlgSeqMultiInputContainer( unittest.TestCase ):
                           '(^$)|(^MU_.*)|(^EL_.*)|(^EG_.*)' )
         return
 
+    ## Test that the correct value is returned for the users for the affecting
+    ## systematics.
+    def test_affectingSystematics( self ):
+        self.assertEqual( self.seq.affectingSystematics(),
+                          '(^$)|(^MU_.*)|(^EL_.*)|(^EG_.*)' )
+        return
+
 ## Test case for a sequence starting from a single container, producing
 ## multiple ones.
 class TestAnaAlgSeqMultiOutputContainer( unittest.TestCase ):
@@ -572,6 +619,15 @@ class TestAnaAlgSeqMultiOutputContainer( unittest.TestCase ):
                           '(^$)|(^EL_.*)|(^BAR_.*)' )
         return
 
+    ## Test that the correct value is returned for the users for the affecting
+    ## systematics.
+    def test_affectingSystematics( self ):
+        self.assertEqual( self.seq.affectingSystematics( 'goodObjects' ),
+                          '(^$)|(^EL_.*)|(^FOO_.*)' )
+        self.assertEqual( self.seq.affectingSystematics( 'badObjects' ),
+                          '(^$)|(^EL_.*)|(^BAR_.*)' )
+        return
+
 ## Test case for a sequence starting from multiple containers, and producing
 ## multiple new ones.
 class TestAnaAlgSeqMultiInputOutputContainer( unittest.TestCase ):
@@ -618,4 +674,13 @@ class TestAnaAlgSeqMultiInputOutputContainer( unittest.TestCase ):
         self.assertEqual( self.seq.OverlapRemoval.electronsRegex,
                           '(^$)|(^EL_.*)' )
         self.assertEqual( self.seq.OverlapRemoval.muonsRegex, '(^$)|(^MU_.*)' )
+        return
+
+    ## Test that the correct value is returned for the users for the affecting
+    ## systematics.
+    def test_affectingSystematics( self ):
+        self.assertEqual( self.seq.affectingSystematics( 'electrons' ),
+                          '(^$)|(^EL_.*)|(^MU_.*)' )
+        self.assertEqual( self.seq.affectingSystematics( 'muons' ),
+                          '(^$)|(^MU_.*)|(^EL_.*)' )
         return
