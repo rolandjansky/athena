@@ -1,8 +1,9 @@
 #!/bin/bash
 # art-description: Generation test MG+Py8 Z->mumu
+# art-type: build
 # art-include: 21.6/AthGeneration
-# art-output *.root
-# art-output log.generate
+# art-output: *.root
+# art-output: log.generate
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
