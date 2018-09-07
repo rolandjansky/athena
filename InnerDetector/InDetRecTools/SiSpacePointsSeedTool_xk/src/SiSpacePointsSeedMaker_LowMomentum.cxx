@@ -184,10 +184,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::initialize()
   //
   if( m_useassoTool ) {
     if( m_assoTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endreq; 
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endmsg; 
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
   }
 
@@ -199,7 +199,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return sc;
 }
@@ -220,7 +220,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::finalize()
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent (int)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return; 
+  erase();
   i_spforseed   = l_spforseed.begin();
   buildBeamFrameWork();
 
@@ -302,7 +303,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
   m_trigger = false;
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return; 
+  erase();
   i_spforseed = l_spforseed.begin();
   buildBeamFrameWork();
 
@@ -420,7 +422,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find2Sp(const std::list<Trk::Ver
   i_seed  = l_seeds.begin();
   
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -449,7 +451,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const std::list<Trk::Ver
   i_seed  = l_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -484,7 +486,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp (const std::list<Trk::Ve
   i_seed  = l_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -494,7 +496,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp (const std::list<Trk::Ve
 
 MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dump( MsgStream& out ) const
 {
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  
+    return dumpEvent(out); 
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -939,7 +943,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists()
   
   for(int i=0; i!= r_size;  ++i) {
 
-    if(!r_map[i]) continue; r = r_Sorted[i].begin();
+    if(!r_map[i]) continue; 
+    r = r_Sorted[i].begin();
 
     while(r!=r_Sorted[i].end()) {
       
@@ -1106,7 +1111,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
 	float dx = X-(*r)->x();
 	float dy = Y-(*r)->y();
 	float dZ = Z-(*r)->z();
-	m_Tz[Nb] = dZ/sqrt(dx*dx+dy*dy); if(m_Tz[Nb]<m_dzdrmin || m_Tz[Nb]>m_dzdrmax) continue;
+	m_Tz[Nb] = dZ/sqrt(dx*dx+dy*dy); 
+  if(m_Tz[Nb]<m_dzdrmin || m_Tz[Nb]>m_dzdrmax) continue;
 	m_Zo[Nb] = Z-R*m_Tz[Nb];	          
 
 	// Comparison with vertices Z coordinates
@@ -1116,7 +1122,8 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
       }
     }
   breakb:
-    if(!Nb || Nb==m_maxsizeSP) continue;  int Nt = Nb;
+    if(!Nb || Nb==m_maxsizeSP) continue;  
+    int Nt = Nb;
     
     // Top   links production
     //
