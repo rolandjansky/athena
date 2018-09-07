@@ -600,20 +600,21 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 	  }//retrieve te2 
 	  m_tracks = m_ttracks.asDataVector();
 	  std::vector<const xAOD::TrackParticle*> TracksVec(m_tracks->begin(), m_tracks->end());
-	  ATH_MSG_INFO( "num of tracks in datavector: " << TracksVec.size() );
+	  ATH_MSG_DEBUG( "num of tracks in datavector: " << TracksVec.size() );
 	  for (const xAOD::TrackParticle* trk : TracksVec){
-	    ATH_MSG_INFO("tracks " << trk->pt() << "," << trk->eta() << ","<<trk->phi() );
+	    ATH_MSG_DEBUG("tracks " << trk->pt() << "," << trk->eta() << ","<<trk->phi() );
 	  }
 	  
-	  ATH_MSG_INFO( "size of track container" << m_tracks->size()); 
+	  ATH_MSG_DEBUG( "size of track container" << m_tracks->size()); 
 	  for (const auto& te_in : tes_in.at(3) ) {
 	    HLT::ErrorCode status_vtx = getFeature(  te_in , m_vertices );
 	    if(status_vtx!=HLT::OK || !m_vertices) {
 	      ATH_MSG_ERROR( "Failed to get vertices" ); return HLT::NAV_ERROR;
 	    } else {
-		ATH_MSG_INFO( "size of vertex container " << m_vertices->size() );
+	      if (true){//msgLvl(MSG::DEBUG) ) {
+		ATH_MSG_DEBUG( "size of vertex container " << m_vertices->size() );
 		for (auto& ivtx : *m_vertices)
-		  ATH_MSG_INFO( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
+		  ATH_MSG_DEBUG( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
 				 << ivtx->nTrackParticles() );
 	    }//retrieve vertex container
 	  }//retrieve te3 
