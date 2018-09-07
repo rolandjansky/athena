@@ -151,6 +151,10 @@ StatusCode EventSelectorAthenaPool::initialize() {
       ATH_MSG_FATAL("Cannot get " << m_incidentSvc.typeAndName() << ".");
       return(StatusCode::FAILURE);
    }
+   // Listen to the Event Processing incidents
+   m_incidentSvc->addListener(this,IncidentType::BeginProcessing,0);
+   m_incidentSvc->addListener(this,IncidentType::EndProcessing,0);
+
    // Get AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get " << m_athenaPoolCnvSvc.typeAndName() << ".");
@@ -570,13 +574,10 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
          // Assume that the end of collection file indicates the end of payload file.
 	 fireEndFileIncidents(false,true);
-         if (m_guid != Guid::null()) {
-            // Explicitly disconnect file corresponding to old m_guid to avoid holding on to large blocks of memory
-            if (!m_keepInputFilesOpen.value()) {
-               m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + m_guid.toString(), IPoolSvc::kInputStream).ignore();
-            }
-            m_guid = Guid::null();
-         }
+         // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
+         auto old_guid = m_guid;
+         m_guid = Guid::null();
+         disconnectIfFinished( old_guid.toString() );
          // Open next file from inputCollections list.
          m_inputCollectionsIterator++;
          // Create PoolCollectionConverter for input file
@@ -612,10 +613,10 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          //NOTE: to self (wb): we should only get here if we are processing a collection file (files containing dataheaders which reference other files!)
          if (m_guid != Guid::null()) {
 	   fireEndFileIncidents(false,false/*does not fire EndTagFile when switching files within a collection file*/);
-            // Explicitly disconnect file corresponding to old m_guid to avoid holding on to large blocks of memory
-            if (!m_keepInputFilesOpen.value()) {
-               m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + m_guid.toString(), IPoolSvc::kInputStream).ignore();
-            }
+           // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
+           auto old_guid = m_guid;
+           m_guid = Guid::null();
+           disconnectIfFinished( old_guid.toString() );
          }
          m_guid = guid;
          // Fire BeginInputFile incident if current InputCollection is a payload file;
@@ -1131,4 +1132,55 @@ StatusCode EventSelectorAthenaPool::io_finalize() {
       delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
    }
    return(StatusCode::SUCCESS);
+}
+
+//__________________________________________________________________________
+/* Listen to IncidentType::BeginProcessing and EndProcessing
+   Maintain counters of how many events from a given file are being processed.
+   Files are identified by SG::SourceID (string GUID).
+   When there are no more events from a file, see if it can be closed.
+*/
+void EventSelectorAthenaPool::handle(const Incident& inc)
+{
+   SG::SourceID fid;
+   Atlas::ExtendedEventContext *eec = inc.context().getExtension<Atlas::ExtendedEventContext>();
+   if( eec ) {
+      fid = eec->proxy()->sourceID();
+   }
+   if( fid.empty() ) {
+      ATH_MSG_WARNING("could not read event source ID from incident event context");
+      return;
+   }
+
+   ATH_MSG_DEBUG("**  MN Incident handler " << inc.type() << " Event source ID=" << fid );
+   if( inc.type() == IncidentType::BeginProcessing ) {
+      // increment the events-per-file counter for FID
+      m_activeEventsPerSource[fid]++;
+   } else if( inc.type() == IncidentType::EndProcessing ) {
+      m_activeEventsPerSource[fid]--;
+      disconnectIfFinished( fid );
+   }
+   if( msgLvl(MSG::DEBUG) ) {
+      for( auto& source: m_activeEventsPerSource )
+         msg(MSG::DEBUG) << "SourceID: " << source.first << " active events: " << source.second << endmsg;
+   }
+}
+
+//__________________________________________________________________________
+/* Disconnect APR Database identifieed by a SG::SourceID when it is no longer in use:
+   m_guid is not pointing to it and there are no events from it being processed
+   (if the EventLoopMgr was not firing Begin/End incidents, this will just close the DB)
+*/
+bool EventSelectorAthenaPool::disconnectIfFinished( SG::SourceID fid ) const
+{
+   if( m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
+      // Explicitly disconnect file corresponding to old FID to release memory
+      if( !m_keepInputFilesOpen.value() ) {
+         ATH_MSG_INFO("Disconnecting input sourceID: " << fid );
+         m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + fid, IPoolSvc::kInputStream).ignore();
+         m_activeEventsPerSource.erase( fid );
+         return true;
+      }
+   }
+   return false;
 }

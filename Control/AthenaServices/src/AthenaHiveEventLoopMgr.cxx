@@ -1243,7 +1243,6 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       continue;
     }
     
-
     EventID::number_type n_run(0);
     EventID::number_type n_evt(0);
 
@@ -1268,7 +1267,7 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
 
     // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
     // 					 *thisFinishedEvtContext ));
-
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, *thisFinishedEvtContext ));
 
     debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
             << " (event " << thisFinishedEvtContext->evt()
@@ -1313,14 +1312,8 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
 
     debug() << "drainScheduler thisFinishedEvtContext: " << thisFinishedEvtContext
 	    << endmsg;
-    
-    
-    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, 
-					 *thisFinishedEvtContext ));    
 
     delete thisFinishedEvtContext;
-
-    
   }
 
   return (  fail ? -1 : 1 );
