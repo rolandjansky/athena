@@ -134,6 +134,9 @@ class PowhegControl(object):
             logger.info("Preparing to parallelise: running with {} jobs".format(self.process.cores))
             self.process.prepare_to_parallelise(self.process.cores)
 
+        # Validate any parameters which need validation/processing
+        self.process.validate_parameters()
+
         # Construct sorted list of configurable parameters for users - including those from external processes
         parameters_unsorted = list(self.process.parameters)
         for external in self.process.externals.values():
@@ -141,23 +144,21 @@ class PowhegControl(object):
         parameters_sorted = [x[1] for x in sorted(dict((p.name.lower(), p) for p in parameters_unsorted).items(), key=lambda x: x[0])]
 
         # Print sorted list of configurable parameters
-        logger.info("===================================================================================================")
-        logger.info("|                          User configurable parameters for this process                          |")
-        logger.info("===================================================================================================")
-        logger.info("|     Option name     |    ATLAS default    |                     Description                     |")
-        logger.info("===================================================================================================")
+        logger.info("=========================================================================================================")
+        logger.info("|                             User configurable parameters for this process                             |")
+        logger.info("=========================================================================================================")
+        logger.info("|        Option name        |    ATLAS default    |                     Description                     |")
+        logger.info("=========================================================================================================")
         for parameter in [p for p in parameters_sorted if p.is_visible]:
-            logger.info("| {:<19} | {:>19} | {}".format(parameter.name, str(parameter.default_value), parameter.description))
-        logger.info("==================================================================================================")
+            _default_value = "default" if (parameter.default_value is None or parameter.default_value == "") else str(parameter.default_value)
+            logger.info("| {:<25} | {:>19} | {}".format(parameter.name, _default_value, parameter.description))
+        logger.info("========================================================================================================")
 
         # Print list of parameters that have been changed by the user
         parameters_changed = [p for p in parameters_sorted if p.value != p.default_value]
         logger.info("In these jobOptions {} parameter(s) have been changed from their default value:".format(len(parameters_changed)))
         for idx, parameter in enumerate(parameters_changed):
             logger.info("  {:<3} {:<19} {:>15} => {}".format("{})".format(idx + 1), "{}:".format(parameter.name), str(parameter.default_value), parameter.value))
-
-        # Validate any parameters which need validation/processing
-        self.process.validate_parameters()
 
         # Check for parameters which can result in non-equal event weights being used
         event_weight_options = []
