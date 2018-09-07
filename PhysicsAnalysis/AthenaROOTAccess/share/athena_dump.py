@@ -97,6 +97,13 @@ class Dumper (PyAthena.Alg):
         dh = self.sg.retrieve ("DataHeader")
         dhes = []
         for dhe in dh.elements():
+            # Skip _v1 types for HIEventShapeContainer.
+            # Persistency of these was fubar.
+            tok = dhe.getToken().toString()
+            if (tok.find ('FA2C3CB2-71A6-11E4-BB30-02163E010E29') >= 0 or
+                tok.find ('06FA81A6-71A7-11E4-9A9D-02163E010E29') >= 0):
+                continue
+
             tname = self.cs.typename(dhe.getPrimaryClassID())
             if tname:
                 dhes.append ((dhe.getKey(), tname))
