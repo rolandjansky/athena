@@ -385,12 +385,14 @@ class AnaAlgSequence( AlgSequence ):
         sequence
         """
 
-        # Look up the algorithm by index:
+        # Figure out the algorithm's index:
         algIndex = -1
-        for index in xrange( len( self ) ):
-            if self[ index ].name() == name:
+        index = 0
+        for alg in self:
+            if alg.name() == name:
                 algIndex = index
                 break
+            index += 1
             pass
 
         # Check if we were successful:
