@@ -29,7 +29,7 @@ Updated: moved to egammaEvent (SR)
 // INCLUDE HEADER FILES:
 
 #include "AthContainers/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "egammaEvent/egamma.h"
 
 #include "NavFourMom/IParticleContainer.h"
@@ -46,14 +46,6 @@ class egammaContainer : public DataVector<egamma>
   egammaContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) ;
 
   void print();
-
-  /** wether it owns or not the cel SG::OWN_ELEMENTS or VIEW_ELEMENTS */
-  SG::OwnershipPolicy  m_ownPolicy ;
-
-  /** reimplementation of push_back (temporary)*/
-  void push_back(const egamma *);
-
-  void push_back(egamma *);
 
 };
 

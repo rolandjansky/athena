@@ -22,7 +22,7 @@ PACKAGE:  offline/Reconstruction/egammaEvent
 // INCLUDE HEADER FILES:
 
 #include "AthContainers/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "egammaEvent/Electron.h"
 #include "egammaEvent/egammaContainer.h"
 
@@ -36,14 +36,6 @@ class ElectronContainer : public DataVector<Analysis::Electron>
 
   /** @brief Main constructor */
   ElectronContainer(SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS ) ;
-
-  /** @brief wether it owns or not the el SG::OWN_ELEMENTS or VIEW_ELEMENTS */
-  SG::OwnershipPolicy  m_ownPolicy ;
-
-  /** reimplementation of push_back (temporary)*/
-  void push_back(const Analysis::Electron*);
-
-  void push_back(Analysis::Electron*);
 
   void print();
 };

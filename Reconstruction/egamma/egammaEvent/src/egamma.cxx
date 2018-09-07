@@ -11,7 +11,7 @@
 #include "CaloEvent/CaloCluster.h"
 #include "egammaEvent/EMErrorDetail.h"
 #include "egammaEvent/egammaPIDdefsObs.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include <iomanip>
 #include <iostream>
