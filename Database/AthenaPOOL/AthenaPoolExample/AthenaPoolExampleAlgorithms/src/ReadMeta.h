@@ -45,6 +45,15 @@ public:
    /// Function called when the tool should write out its metadata
    virtual StatusCode metaDataStop() {return StatusCode::SUCCESS;}
 
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode beginInputFile(const SG::SourceID&) {return beginInputFile();}
+
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode endInputFile(const SG::SourceID&) {return endInputFile();}
+
+   /// Function writing the collected metadata to the output
+   virtual StatusCode metaDataStop(const SG::SourceID&) {return metaDataStop();}
+
    /// Incident service handle listening for BeginInputFile and EndInputFile.
    void handle(const Incident& incident);
 
