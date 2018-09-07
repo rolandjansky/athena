@@ -616,6 +616,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 		for (auto& ivtx : *m_vertices)
 		  ATH_MSG_DEBUG( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
 				 << ivtx->nTrackParticles() );
+        }
 	    }//retrieve vertex container
 	  }//retrieve te3 
 	}//more than 3 tes (0-3)
