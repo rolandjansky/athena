@@ -495,12 +495,9 @@ StatusCode HLTTauMonTool::fill() {
 	if(pt_Tau<m_effOffTauPtCut) continue;
 	int ntrack_TAU = (*offlinetau)->nTracks();
 	if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
-	// THIS WILL HAVE TO BE ADAPTED FOR RNN ID
-	//bool good_tau = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
 	bool good_tau_BDT = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
 	bool good_tau_RNN = (*offlinetau)->isTau(xAOD::TauJetParameters::JetRNNSigMedium);
 	if(!Selection(*offlinetau)) continue;
-	//m_taus.push_back( *offlinetau );
 	if( !(good_tau_BDT || good_tau_BDT) ) continue;
 	if (good_tau_BDT) m_taus_BDT.push_back( *offlinetau );
 	if (good_tau_RNN) m_taus_RNN.push_back( *offlinetau );
@@ -713,22 +710,14 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       if (monBDT) {
 	sc = fillEFTau(*CI, trigItem, "1p_NonCorr", monRNN, monBDT);
 	sc = fillEFTau(*CI, trigItem, "mp_NonCorr", monRNN, monBDT);
-	//sc = fillEFTau(*CI, trigItem, "1p_muCorr");
-	//sc = fillEFTau(*CI, trigItem, "mp_muCorr");
       }
       if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
       if(monRNN) {
-	    //ATH_MSG_WARNING("In fillEFTau. monRNN.");
 	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_1P", monRNN, monBDT);
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_1P is OK.");
 	sc = fillEFTau(*CI, trigItem, "RNN_inScalar_3P", monRNN, monBDT);
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_3P is OK.");
 	sc = fillEFTau(*CI, trigItem, "RNN_inTrack", monRNN, monBDT);
-//	ATH_MSG_WARNING("In fillEFTau. RNN_inTrack is OK.");
 	sc = fillEFTau(*CI, trigItem, "RNN_inCluster", monRNN, monBDT);
-//	ATH_MSG_WARNING("In fillEFTau. RNN_inCluster is OK.");
 	sc = fillEFTau(*CI, trigItem, "RNN_out", monRNN, monBDT);
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_out is OK.");
 	if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
       }
       sc = fillEFTauVsOffline(*CI, trigItem, "basicVars", goodTauRefType);
@@ -936,22 +925,14 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
 	      if (monBDT) {
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_NonCorr", monRNN, monBDT);
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_NonCorr", monRNN, monBDT);
-		//if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_muCorr");
-		//if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
 	      }
 	      if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
 	      if(monRNN) {
-	    //ATH_MSG_WARNING("In fillEFTau. monRNN.");
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P", monRNN, monBDT);
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_1P is OK.");
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P", monRNN, monBDT);
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_inScalar_3P is OK.");
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack", monRNN, monBDT);
-//		ATH_MSG_WARNING("In fillEFTau. RNN_inTrack is OK.");
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster", monRNN, monBDT);
-//		ATH_MSG_WARNING("In fillEFTau. RNN_inCluster is OK.");
 		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out", monRNN, monBDT);
-	    //ATH_MSG_WARNING("In fillEFTau. RNN_out is OK.");
 		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
 	      }
 	      if(m_truth) if(*tauItr) sc = fillEFTauVsTruth(*tauItr, trigItem);
@@ -1431,7 +1412,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
     {
       // RNN Input Variables
       // Scalars
-	    //ATH_MSG_WARNING("In fillEFTau. In RNN_inScalar_1P. Init.");
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar1p");
       if(is1P)
 	{
@@ -1481,8 +1461,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
     } 
   else if(BDTinput_type == "RNN_inScalar_3P")
     {
-	    //ATH_MSG_WARNING("In fillEFTau. In RNN_inScalar_3P. Init.");
-
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar3p");
       if(isMP) {
 	float RNN_scalar_centFrac(-999.);
@@ -1536,10 +1514,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
     } 
   else if( (BDTinput_type == "RNN_inTrack") && monRNN)
     {
-      // can't retrieve tau tracks in data due to broken links
-      //if(m_isData) return StatusCode::SUCCESS;
-    //ATH_MSG_WARNING("In fillEFTau. In RNN_inTrack. Init.");
-
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack");
       // Tracks
       float RNN_tracks_pt_log(-999.);
@@ -1601,10 +1575,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
     }
   else if( (BDTinput_type == "RNN_inCluster") && monRNN)
     {
-      // can't retrieve tau clusters in data due to broken links
-      //if(m_isData) return StatusCode::SUCCESS;
-    //ATH_MSG_WARNING("In fillEFTau. In RNN_inCluster. Init.");
-
       // Cluster 
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster");
       float RNN_clusters_et_log(-999.);
@@ -1647,8 +1617,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	}
   else if(BDTinput_type == "RNN_out")
     {
-      //ATH_MSG_WARNING("In fillEFTau. In RNN_out. Init.");
-
       // RNN Output Variables
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/Output");
       float RNNJetScore(-999.);

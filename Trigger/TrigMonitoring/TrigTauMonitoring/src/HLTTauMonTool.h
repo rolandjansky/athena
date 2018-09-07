@@ -68,7 +68,6 @@ class HLTTauMonTool : public IHLTMonTool {
 //#endif
 
   /// Method fills the histograms for one tau trigger item.
-  //StatusCode fillHistogramsForItem(const std::string & trigItem);
   StatusCode fillHistogramsForItem(const std::string & trigItem, const bool & monRNN, const bool & monBDT, const std::string & goodTauRefType); 
  private:
 
@@ -84,7 +83,6 @@ class HLTTauMonTool : public IHLTMonTool {
 
   /// Method filling the EF tau histograms
   StatusCode fillPreselTau(const xAOD::TauJet *aEFTau);
-  //StatusCode fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type);
   StatusCode fillEFTau(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const bool & monRNN, const bool & monBDT);
   /// Method filling the EF vs Offline tau histograms
   StatusCode fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const std::string & trigItem, const std::string & BDTinput_type, const std::string & goodTauRefType);
@@ -167,7 +165,6 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doTopoValidation;
   bool m_doL1JetPlots;
   bool m_doEFTProfiles;
-  //bool m_doFailTrackFilterBitMonitoring;
   bool m_domuCut40; 
   bool m_doEfficiencyRatioPlots;
   bool m_doL1TopoLeptonsMonitoringWarnings;
@@ -176,7 +173,6 @@ class HLTTauMonTool : public IHLTMonTool {
 
   std::vector<TLorentzVector> m_true_taus;
   std::vector<int> m_true_taus_nprong;
-  //std::vector<const xAOD::TauJet *> m_taus;
   std::vector<const xAOD::TauJet *> m_taus_BDT;
   std::vector<const xAOD::TauJet *> m_taus_RNN;
   const xAOD::TauJetContainer* m_tauCont;
