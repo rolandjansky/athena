@@ -326,6 +326,19 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
       this->addMoment(xAOD::CaloCluster::AVG_TILE_Q,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::ISOLATION,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION,cluster, thisEflowObject);
 
+      this->addMoment(xAOD::CaloCluster::ENERGY_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ENERGY_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::PHI_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_PHI_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::ETA_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ETA_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::SECOND_R_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_R_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::CENTER_LAMBDA_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_CENTER_LAMBDA_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::ENG_BAD_CELLS_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_BAD_CELLS_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::N_BAD_CELLS_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_N_BAD_CELLS_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::BADLARQ_FRAC_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_BADLARQ_FRAC_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::ENG_POS_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ENG_POS_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::AVG_LAR_Q_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::AVG_TILE_Q_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q_DigiHSTruth,cluster, thisEflowObject);
+      this->addMoment(xAOD::CaloCluster::ISOLATION_DigiHSTruth,xAOD::PFODetails::PFOAttributes::eflowRec_ISOLATION_DigiHSTruth,cluster, thisEflowObject);
+
       if (false == m_useAODReductionMomentList){
 	 this->addMoment(xAOD::CaloCluster::LATERAL,xAOD::PFODetails::PFOAttributes::eflowRec_LATERAL,cluster, thisEflowObject);
 	 this->addMoment(xAOD::CaloCluster::LONGITUDINAL,xAOD::PFODetails::PFOAttributes::eflowRec_LONGITUDINAL,cluster, thisEflowObject);

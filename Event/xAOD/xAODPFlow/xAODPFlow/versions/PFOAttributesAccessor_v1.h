@@ -136,6 +136,22 @@ namespace xAOD{
 	DEFINE_PFO_ACCESSOR(tauShots_signalScore); 
 	DEFINE_PFO_ACCESSOR(tauShots_nPhotons); 
 	DEFINE_PFO_ACCESSOR(tauShots_seedHash);
+  DEFINE_PFO_ACCESSOR(eflowRec_ENERGY_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_ETA_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_PHI_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_FIRST_ENG_DENS_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_CENTER_LAMBDA_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_SECOND_R_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_SECOND_LAMBDA_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_ISOLATION_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_ENG_FRAC_MAX_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_ENG_BAD_CELLS_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_N_BAD_CELLS_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_BADLARQ_FRAC_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_ENG_POS_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_SIGNIFICANCE_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_AVG_LAR_Q_DigiHSTruth);
+  DEFINE_PFO_ACCESSOR(eflowRec_AVG_TILE_Q_DigiHSTruth);
 	default:
 	  std::cerr << "xAOD::PFO_v1 ERROR Unknown float/double variable (" << static_cast<int>(variable) << ") requested" << std::endl;
 	  return 0;

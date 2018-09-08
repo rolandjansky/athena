@@ -363,6 +363,21 @@ namespace xAOD {
     case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL1:
     case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL2:
     case PFODetails::PFOAttributes::eflowRec_LAYERENERGY_MINIFCAL3:
+    case PFODetails::PFOAttributes::eflowRec_ENERGY_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_ETA_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_PHI_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_SECOND_R_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_CENTER_LAMBDA_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_FIRST_ENG_DENS_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_ENG_FRAC_MAX_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_ISOLATION_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_ENG_BAD_CELLS_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_N_BAD_CELLS_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_BADLARQ_FRAC_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_ENG_POS_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_SIGNIFICANCE_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_AVG_LAR_Q_DigiHSTruth:
+    case PFODetails::PFOAttributes::eflowRec_AVG_TILE_Q_DigiHSTruth:
       return true;
     default:
       return false;
@@ -513,6 +528,81 @@ namespace xAOD {
       myAttribute = xAOD::PFODetails::eflowRec_EM_PROBABILITY;
       return true;
     }    
+
+
+    else if (momentType ==  xAOD::CaloCluster::ENERGY_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_ENERGY_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::PHI_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_PHI_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::ETA_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_ETA_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::FIRST_ENG_DENS_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_FIRST_ENG_DENS_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::CENTER_LAMBDA_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_CENTER_LAMBDA_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::SECOND_R_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_SECOND_R_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::SECOND_LAMBDA_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_SECOND_LAMBDA_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::ISOLATION_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_ISOLATION_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::ENG_FRAC_MAX_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_ENG_FRAC_MAX_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::ENG_BAD_CELLS_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_ENG_BAD_CELLS_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::N_BAD_CELLS_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_N_BAD_CELLS_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::BADLARQ_FRAC_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_BADLARQ_FRAC_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::ENG_POS_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_ENG_POS_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::SIGNIFICANCE_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_SIGNIFICANCE_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::CELL_SIGNIFICANCE_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_CELL_SIGNIFICANCE_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::CELL_SIG_SAMPLING_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_CELL_SIG_SAMPLING_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::AVG_LAR_Q_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_AVG_LAR_Q_DigiHSTruth;
+      return true;
+    }
+    else if (momentType ==  xAOD::CaloCluster::AVG_TILE_Q_DigiHSTruth) {
+      myAttribute = xAOD::PFODetails::eflowRec_AVG_TILE_Q_DigiHSTruth;
+      return true;
+    }
+
     else return false;
 
   }

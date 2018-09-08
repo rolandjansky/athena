@@ -34,6 +34,32 @@ def setup_eflowObjectBuilder(Configured, nameModifier,mlog):
         print traceback.format_exc()
         return False
 
+
+
+
+
+    ## DigiTruth tests
+    try:
+        from eflowRec.eflowMomentCalculatorToolDefault_DigiHSTruth import eflowMomentCalculatorToolDefault_DigiHSTruth
+        MomentCalculatorTool_DigiHSTruth = eflowMomentCalculatorToolDefault_DigiHSTruth("eflowMomentCalculatorTool_DigiHSTruth_"+nameModifier)
+    except:
+        mlog.error("could not import eflowRec.eflowMomentCalculatorTool")
+        print traceback.format_exc()
+        return False
+
+    if nameModifier == "LC":
+        MomentCalculatorTool_DigiHSTruth.LCMode = True
+
+    ObjectBuilder.PrivateToolList += [MomentCalculatorTool_DigiHSTruth]
+
+
+
+
+
+
+
+
+
     if nameModifier == "LC":
         MomentCalculatorTool.LCMode = True
 
