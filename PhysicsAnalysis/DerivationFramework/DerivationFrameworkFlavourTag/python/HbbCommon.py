@@ -14,7 +14,7 @@ from JetRec.JetRecConf import JetAlgorithm
 #===================================================================
 
 # make exkt subjet finding tool
-def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"], min_subjet_pt_mev = 0):
+def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doGhostAssoc, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"], min_subjet_pt_mev = 0):
     #
     # a full list of ExGhostLabels = ["GhostBHadronsFinal", "GhostBHadronsInitial", "GhostBQuarksFinal", "GhostCHadronsFinal", "GhostCHadronsInitial",
     # "GhostCQuarksFinal", "GhostHBosons", "GhostPartons", "GhostTQuarksFinal", "GhostTausFinal", "GhostTruth", "GhostTrack"]
@@ -34,9 +34,17 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
       #           "FastJetPlugin" for EECambridge plugin
       algj = "ee_kt"
 
+    if doTrackSubJet:
+      subjet_mode += "Track"
+    talabel = ""
+    if doGhostAssoc:
+      talabel = "GA"
+    subjetlabel = "Ex%s%i%sSubJets" % (subjet_mode, nsubjet, talabel)
+
     if globalflags.DataSource()=='data': ExGhostLabels = []
-    SubjetContainerName = "%sEx%s%iSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet)
-    ExKtbbTagToolName = str( "Ex%sbbTagTool%i_%s" % (subjet_mode, nsubjet, JetCollectionName) )
+    SubjetContainerName = "%sEx%s%i%sSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet, talabel)
+    ExKtbbTagToolName = str( "Ex%s%sbbTagTool%i_%s" % (subjet_mode, talabel, nsubjet, JetCollectionName) )
+
     if hasattr(jtm, ExKtbbTagToolName):
         ExKtbbTagToolInstance = jtm[ ExKtbbTagToolName ]
         print " ExKtbbTagTool ", ExKtbbTagToolName, "is alredy in jtm.tools"
@@ -46,7 +54,7 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
         from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetFinderTool
         from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetRecorderTool
 
-        subjetrecorder = SubjetRecorderTool("subjetrecorder_%s%i_%s" % (subjet_mode, nsubjet, JetCollectionName))
+        subjetrecorder = SubjetRecorderTool("subjetrecorder_%s%i%s_%s" % (subjet_mode, nsubjet, talabel, JetCollectionName))
         ToolSvc += subjetrecorder
         subjetrecorder.SubjetLabel = subjetlabel
         subjetrecorder.SubjetContainerName = SubjetContainerName
@@ -84,14 +92,14 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 #===================================================================
 # Build ExKt or CoM Subjets, default is ExKt
 #===================================================================
-def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev = 0, subjetAlgName = "Kt"):
+def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, doGhostAssoc=False, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal","GhostTrack"], min_subjet_pt_mev = 0, subjetAlgName = "Kt"):
     if(subjetAlgName != "Kt" and subjetAlgName != "CoM"):
       print "WARNING:  Subjet type must be Kt or CoM.  Using Kt as default!"
       subjetAlgName = "Kt"
     from JetRec.JetRecStandard import jtm
     ExCoMJetCollection__SubJet = []
     
-    (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, subjetAlgName, nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
+    (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, subjetAlgName, nSubjets, doGhostAssoc, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
 
     ExCoMJetCollection__SubJet += [SubjetContainerName]
 
@@ -147,6 +155,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, E
                                   },
                          SetupScheme = "",
                          TaggerList = BTaggingFlags.StandardTaggers,
+                         TrackAssociatorName="GhostTrack" if doGhostAssoc else "MatchedTracks"
                          )
             # running association + b-tagging on subjets now
             from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc, defaultTrackAssoc, defaultMuonAssoc

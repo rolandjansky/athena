@@ -127,6 +127,8 @@ FTAG5BTaggedJets = [
     "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASubJets",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASubJets"]
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
 OutputJets["FTAG5"] = FTAG5BTaggedJets[:]
 
@@ -159,14 +161,20 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # ExKt subjets for each trimmed large-R jet
 #===================================================================
 ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
-addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
-addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, False)
+
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doGhostAssoc=True, doTrackSubJet=False)
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, doGhostAssoc=True, doTrackSubJet=False)
+
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackSubJet=False)
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, doTrackSubJet=False)
+
 addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False, subjetAlgName = "CoM")
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
-
 
 #==================================================================
 # Augment tracks and jets with additional information
@@ -224,7 +232,9 @@ FTAG5SlimmingHelper.SmartCollections = [
     "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert",
-    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub_expert",   
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub_expert", 
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub_expert",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub_expert",   
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub_expert",
     fatJetCollection]
 
@@ -245,6 +255,8 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks",
+    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks"
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.JetFitter_JFvertices.SV1_vertices.IP2D_nTrks.IP3D_nTrks"
 ]
 
