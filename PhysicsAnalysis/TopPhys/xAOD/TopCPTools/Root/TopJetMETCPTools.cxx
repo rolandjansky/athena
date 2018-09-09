@@ -258,16 +258,18 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   if (JERSmearModel == "Full_PseudoData") {
     if (JERisMC) JERisMC = false;
     JERSmearModel = "Full";
+    ATH_MSG_INFO("JER PseudoData option provided - Treating MC as if it is data for JER uncertainty");
   }
   if (JERSmearModel == "All_PseudoData") {
     if (JERisMC) JERisMC = false;
     JERSmearModel = "All";
+    ATH_MSG_INFO("JER PseudoData option provided - Treating MC as if it is data for JER uncertainty");
   }
   
-  // Strings need to be defined clearly
-  if(JERSmearModel == "All") JERSmearModel = "_AllJERNP";
-  else if(JERSmearModel == "Full") JERSmearModel = "_FullJER";
-  else if (JERSmearModel == "Simple") JERSmearModel = "_SimpleJER";
+  // Strings need to be defined clearly for jet tool
+  if(      JERSmearModel == "All")    JERSmearModel = "_AllJERNP";
+  else if( JERSmearModel == "Full")   JERSmearModel = "_FullJER";
+  else if( JERSmearModel == "Simple") JERSmearModel = "_SimpleJER";
   else {
     ATH_MSG_ERROR("Incorrect JER option: All, All_PseudoData, Full, Full_PseudoData, Simple");
     return StatusCode::FAILURE;
