@@ -57,8 +57,6 @@ Trk::Navigator::Navigator(const std::string &t, const std::string &n, const IInt
   m_validationTreeName("NavigatorValidation"),
   m_validationTreeDescription("Boundary Surface hits"),
   m_validationTreeFolder("/val/NavigationValidation"),
-  m_validationMutex{},
-  m_validationLock(m_validationMutex,std::defer_lock),
   m_validationTree(0),
   m_boundariesCounter(0),
   m_boundaries{},
@@ -230,7 +228,6 @@ Trk::Navigator::nextBoundarySurface(const Trk::IPropagator &prop,
 
       // ----------------- record if in validation mode ----------------------
       if (m_validationMode) {
-        m_validationLock.lock();
         if(m_boundariesCounter < TRKEXTOOLS_MAXNAVSTEPS) {
           const Amg::Vector3D &posOnBoundary = trackPar->position();
           m_boundaryHitX[m_boundariesCounter] = posOnBoundary.x();
@@ -351,7 +348,6 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
       // ----------------- record if in validation mode ----------------------
       if (m_validationMode)  {
-        m_validationLock.lock();
         if(m_boundariesCounter < TRKEXTOOLS_MAXNAVSTEPS){
           const Amg::Vector3D &posOnBoundary = trackPar->position();
           m_boundaryHitX[m_boundariesCounter] = posOnBoundary.x();
@@ -669,7 +665,6 @@ Trk::Navigator::validationAction() const {
       // then reset
     }
     m_boundariesCounter = 0;
-    m_validationLock.unlock(); 
   }
 }
 

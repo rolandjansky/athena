@@ -150,16 +150,7 @@ namespace Trk {
       std::string                               m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out                                       
       /* 
        * Is this really needed? 
-       * The solution for now is to basically step-lock the accesses to validation sections
-       * as the pattern of accumulating appears only for validation (not production).
-       * Assume one instance (different ones get different Locks) running in many threads. 
-       * The trhead that sees 1st m_validationMode=true will lock the unique_lock. 
-       * It will be unlocked by the ValidationAction...
-       * Again it is assumed that this is not running in any production mode and the "validators"
-       * will be carefull. 
        */ 
-      mutable std::mutex                        m_validationMutex;          
-      mutable std::unique_lock<std::mutex>      m_validationLock;           // !< This will serialize all accesses to the validation section
       TTree*                                    m_validationTree;            //!< Root Validation Tree                                             
       mutable int                               m_boundariesCounter;         //!< counter for boundary surfaces hit                                                   
       mutable int                               m_boundaries;                           //!< associated Ntuple variable
@@ -167,7 +158,6 @@ namespace Trk {
       mutable float                             m_boundaryHitY[TRKEXTOOLS_MAXNAVSTEPS]; //!< y Position of interseciton with BoundarySurface
       mutable float                             m_boundaryHitR[TRKEXTOOLS_MAXNAVSTEPS]; //!< Radius of interseciton with BoundarySurface
       mutable float                             m_boundaryHitZ[TRKEXTOOLS_MAXNAVSTEPS]; //!< z Position of interseciton with BoundarySurface
-
       // ------ PERFORMANCE STATISTICS -------------------------------- //
 
       /* All performance stat counters are atomic (the simplest solution perhaps not the most performant one)*/
