@@ -50,12 +50,6 @@ public:
     //Returns the jvt scale factors as decorations on the input jets and fills in the combined scale factor into sf
     virtual CorrectionCode applyAllEfficiencyScaleFactor(const xAOD::IParticleContainer *jets,float& sf) = 0;
 
-    //Adds a random dropping decoration to single jet.
-    virtual CorrectionCode applyRandomDropping( const xAOD::Jet& jet ) = 0;
-
-    //Adds a random dropping decoration to every jet.
-    virtual CorrectionCode applyAllRandomDropping( const xAOD::IParticleContainer *jets) = 0;
-
     //Checks if the jet passes the jvt cut threshold. 
     //Uses maximum validity range by default, but there is a configurable parameter
     //to lower the max pt value (if one only wants to use jvt up to 50 GeV, for example.
@@ -70,9 +64,6 @@ public:
 
     //returns user-defined max pt if applicable (by default is the same as the max pt range of the histograms)
     virtual float getUserPtMax() const = 0;
-
-    //Sets random seed for random generator, for debugging
-    virtual void setRandomSeed(int seed) = 0;
 
     //Applies truth matching decoration to determine appropriate scale factor type -- call before extracting SFs
     virtual StatusCode tagTruth(const xAOD::IParticleContainer *jets,const xAOD::IParticleContainer *truthJets) = 0;
