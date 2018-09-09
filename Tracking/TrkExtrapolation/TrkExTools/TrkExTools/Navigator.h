@@ -22,6 +22,8 @@
 // STD
 #include <cstring>
 #include <exception>
+#include <atomic>
+#include <mutex>
 
 #define TRKEXTOOLS_MAXNAVSTEPS 100
 
@@ -145,13 +147,21 @@ namespace Trk {
       bool                                      m_validationMode;            //!< boolean to switch to validation mode
       std::string                               m_validationTreeName;        //!< validation tree name - to be acessed by this from root
       std::string                               m_validationTreeDescription; //!< validation tree description - second argument in TTree
-      std::string                               m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out
-                                                
-                                                
-      TTree*                                    m_validationTree;            //!< Root Validation Tree
-                                                
-      mutable int                               m_boundariesCounter;         //!< counter for boundary surfaces hit   
-                                                
+      std::string                               m_validationTreeFolder;      //!< stream/folder to for the TTree to be written out                                       
+      /* 
+       * Is this really needed? 
+       * The solution for now is to basically step-lock the accesses to validation sections
+       * as the pattern of accumulating appears only for validation (not production).
+       * Assume one instance (different ones get different Locks) running in many threads. 
+       * The trhead that sees 1st m_validationMode=true will lock the unique_lock. 
+       * It will be unlocked by the ValidationAction...
+       * Again it is assumed that this is not running in any production mode and the "validators"
+       * will be carefull. 
+       */ 
+      mutable std::mutex                        m_validationMutex;          
+      mutable std::unique_lock<std::mutex>      m_validationLock;           // !< This will serialize all accesses to the validation section
+      TTree*                                    m_validationTree;            //!< Root Validation Tree                                             
+      mutable int                               m_boundariesCounter;         //!< counter for boundary surfaces hit                                                   
       mutable int                               m_boundaries;                           //!< associated Ntuple variable
       mutable float                             m_boundaryHitX[TRKEXTOOLS_MAXNAVSTEPS]; //!< x Position of interseciton with BoundarySurface
       mutable float                             m_boundaryHitY[TRKEXTOOLS_MAXNAVSTEPS]; //!< y Position of interseciton with BoundarySurface
@@ -160,21 +170,20 @@ namespace Trk {
 
       // ------ PERFORMANCE STATISTICS -------------------------------- //
 
-      mutable int                               m_forwardCalls;              //!< couter for forward nextBounday calls
-      mutable int                               m_forwardFirstBoundSwitch;   //!< couter for failed first forward nextBounday calls
-      mutable int                               m_forwardSecondBoundSwitch;  //!< couter for failed second forward nextBounday calls
-      mutable int                               m_forwardThirdBoundSwitch;   //!< couter for failed third forward nextBounday calls
+      /* All performance stat counters are atomic (the simplest solution perhaps not the most performant one)*/
+      mutable std::atomic<int>                               m_forwardCalls;              //!< couter for forward nextBounday calls
+      mutable std::atomic<int>                               m_forwardFirstBoundSwitch;   //!< couter for failed first forward nextBounday calls
+      mutable std::atomic<int>                               m_forwardSecondBoundSwitch;  //!< couter for failed second forward nextBounday calls
+      mutable std::atomic<int>                               m_forwardThirdBoundSwitch;   //!< couter for failed third forward nextBounday calls
                                                 
-      mutable int                               m_backwardCalls;             //!< couter for backward nextBounday calls
-      mutable int                               m_backwardFirstBoundSwitch;  //!< couter for failed first backward nextBounday calls
-      mutable int                               m_backwardSecondBoundSwitch; //!< couter for failed second backward nextBounday calls
-      mutable int                               m_backwardThirdBoundSwitch;  //!< couter for failed third backward nextBounday calls
+      mutable std::atomic<int>                               m_backwardCalls;             //!< couter for backward nextBounday calls
+      mutable std::atomic<int>                               m_backwardFirstBoundSwitch;  //!< couter for failed first backward nextBounday calls
+      mutable std::atomic<int>                               m_backwardSecondBoundSwitch; //!< couter for failed second backward nextBounday calls
+      mutable std::atomic<int>                               m_backwardThirdBoundSwitch;  //!< couter for failed third backward nextBounday calls
                                                 
-      mutable int                               m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
-      mutable int                               m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc 
+      mutable std::atomic<int>                               m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
+      mutable std::atomic<int>                               m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc 
 
-      /** static magnetic field properties (empty to fake straight line intersects) */
-      static Trk::MagneticFieldProperties       s_zeroMagneticField;        //!< no magnetic field there
       
       //------------ Magnetic field properties
       bool                                      m_fastField;
