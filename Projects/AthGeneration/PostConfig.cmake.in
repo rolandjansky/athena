@@ -19,6 +19,13 @@ add_definitions( -DGENERATIONBASE )
 set( GENERATIONBASE TRUE CACHE BOOL
     "Flag specifying that this is a generation release build" )
 
+add_definition( -DGENERATIONBASEENV )
+set( GENERATIONENVIRONMENT_ENVIRONMENT 
+     FORCESET GENERATIONBASEENV TRUE )
+
+#set( GENERATIONENVIRONMENT_FOUND TRUE )
+
+
 # Load all the files from the externals/ subdirectory:
 get_filename_component( _thisdir ${CMAKE_CURRENT_LIST_FILE} PATH )
 file( GLOB _externals "${_thisdir}/externals/*.cmake" )
