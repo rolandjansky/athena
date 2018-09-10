@@ -4,8 +4,8 @@
 
 
 //Local includes
-#include "PadOfflineData.h"
-#include "sTGCenumeration.h"
+#include "TrigT1NSWSimTools/PadOfflineData.h"
+#include "TrigT1NSWSimTools/sTGCenumeration.h"
 
 #include "TVector3.h"
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MMT_Finder.h"
+#include "TrigT1NSWSimTools/MMT_Finder.h"
 
 MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads, int outputLevel){
 
