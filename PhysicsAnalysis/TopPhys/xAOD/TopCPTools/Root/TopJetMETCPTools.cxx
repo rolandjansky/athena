@@ -531,7 +531,7 @@ ICPJetUncertaintiesTool*
 JetMETCPTools::setupJetUncertaintiesTool(const std::string& name,
 					 const std::string& jet_def,
 					 const std::string& mc_type,
-					 const bool& isMC,
+					 bool  isMC,
 					 const std::string& config_file,
 					 std::vector<std::string>* variables,
 					 const std::string& analysis_file,
