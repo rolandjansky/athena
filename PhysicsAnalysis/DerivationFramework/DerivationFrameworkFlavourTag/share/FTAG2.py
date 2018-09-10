@@ -38,7 +38,7 @@ FTAG2Seq = CfgMgr.AthSequencer("FTAG2Sequence");
 # Create skimming tool, and create + add kernel to sequence
 #====================================================================
 FTAG2StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FTAG2StringSkimmingTool",
-                          expression = 'count( (Muons.pt > 18*GeV) && (Muons.DFCommonGoodMuon) ) + count(( Electrons.pt > 18*GeV) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))) >= 2 ')
+                          expression = 'count( (Muons.pt > 18*GeV) && (0 == Muons.muonType || 1 == Muons.muonType || 4 == Muons.muonType) ) + count(( Electrons.pt > 18*GeV) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))) >= 2 ')
 
 ToolSvc += FTAG2StringSkimmingTool
 print FTAG2StringSkimmingTool
@@ -157,7 +157,6 @@ FTAG2SlimmingHelper = SlimmingHelper("FTAG2SlimmingHelper")
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
-                                        "InDetTrackParticles",
                                         "AntiKt4EMTopoJets","BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMPFlowJets",
@@ -168,7 +167,6 @@ FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "BTagging_AntiKt8EMTopoExKt2Sub",
                                         "BTagging_AntiKt8EMTopoExKt3Sub",
                                         "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
-
                                         ]
 
 FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
@@ -191,16 +189,16 @@ for FT2_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
     FTAG2SlimmingHelper.AllVariables.append(FT2_bjetTriggerVtx)
 
 FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
-                                       "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
-                                       "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
-                                       "InDetTrackParticles.hitPattern.radiusOfFirstHit",
+                                       #"InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
+                                       #"InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
+                                       #"InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
+                                       #"InDetTrackParticles.hitPattern.radiusOfFirstHit",
                                        #"InDetTrackParticles.FTAG2_unbiased_d0.FTAG2_unbiased_z0.FTAG2_unbiased_d0Sigma.FTAG2_unbiased_z0Sigma",
-                                       "CombinedMuonTrackParticles.vx.vy.vz",
-                                       "ExtrapolatedMuonTrackParticles.vx.vy.vz",
-                                       "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
-                                       "MuonSpectrometerTrackParticles.vx.vy.vz",
-                                       "InDetForwardTrackParticles.phi.qOverP.theta",
+                                       #"CombinedMuonTrackParticles.vx.vy.vz",
+                                       #"ExtrapolatedMuonTrackParticles.vx.vy.vz",
+                                       #"MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
+                                       #"MuonSpectrometerTrackParticles.vx.vy.vz",
+                                       #"InDetForwardTrackParticles.phi.qOverP.theta",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
@@ -217,6 +215,10 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG2SlimmingHelper.AppendToDictionary = {
+  "TruthHFWithDecayParticles"                      :  "xAOD::TruthParticleContainer",
+  "TruthHFWithDecayParticlesAux"                   :  "xAOD::TruthParticleAuxContainer",
+  "TruthHFWithDecayVertices"                       :  "xAOD::TruthVertexContainer",
+  "TruthHFWithDecayVerticesAux"                    :  "xAOD::TruthVertexAuxContainer",  
   "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer",
   "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
