@@ -34,8 +34,6 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doGh
       #           "FastJetPlugin" for EECambridge plugin
       algj = "ee_kt"
 
-    if doTrackSubJet:
-      subjet_mode += "Track"
     talabel = ""
     if doGhostAssoc:
       talabel = "GA"
