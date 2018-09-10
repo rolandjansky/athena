@@ -1,57 +1,15 @@
 <?xml version="1.0"?>
 <atn>
-
-   <TEST name="test_thinning" type="script" suite="Core">
-      <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
-      <options_atn>chappy.py AthExThinning/test_thinning.py</options_atn>
-      <timelimit>10</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <successMessage>All tests completed</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
-   <TEST name="test_pythinning" type="script" suite="Core">
-      <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
-      <options_atn>chappy.py AthExThinning/test_pythinning.py</options_atn>
-      <timelimit>10</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <successMessage>All tests completed</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
-   <TEST name="test_slimming" type="script" suite="Core">
-      <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
-      <options_atn>chappy.py AthExThinning/test_slimming.py</options_atn>
-      <timelimit>10</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <successMessage>All tests completed</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
-<!-- disable, since it has not worked for a long time
-   <TEST name="test_pyslimming" type="script" suite="Core">
-      <package_atn>Control/AthenaExamples/AthExThinning</package_atn>
-      <options_atn>chappy.py AthExThinning/test_pyslimming.py</options_atn>
-      <timelimit>10</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <successMessage>All tests completed</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
--->
+    <TEST name="AthExThinningTest" type="makecheck" suite="Examples">
+       <package>Control/AthenaExamples/AthExThinning</package>
+       <author> scott snyder </author>
+       <mailto> snyder@bnl.gov </mailto>
+       <expectations>
+          <errorMessage>Athena exited abnormally</errorMessage>
+          <errorMessage>differ</errorMessage>
+          <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+          <successMessage>check ok</successMessage>
+          <returnValue>0</returnValue>
+       </expectations>
+    </TEST>
 </atn>
