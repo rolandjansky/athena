@@ -128,7 +128,7 @@ FTAG5BTaggedJets = [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2GASubJets",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASubJets"]
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3GASubJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
 OutputJets["FTAG5"] = FTAG5BTaggedJets[:]
 
@@ -168,7 +168,7 @@ addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, doGhostAssoc=True, d
 addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackSubJet=False)
 addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, doTrackSubJet=False)
 
-addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False, subjetAlgName = "CoM")
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackSubJet=False, subjetAlgName = "CoM")
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
