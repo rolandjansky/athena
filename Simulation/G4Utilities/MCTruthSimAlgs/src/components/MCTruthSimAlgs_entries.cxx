@@ -1,7 +1,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../MergeMcEventCollection.h"
 #include "../MergeMcEventCollTool.h"
-#include "../MC16MergeMcEventCollTool.h"
+#include "../NewMergeMcEventCollTool.h"
 #include "../SimpleMergeMcEventCollTool.h"
 #include "../MergeTrackRecordCollection.h"
 #include "../MergeTrackRecordCollTool.h"
@@ -24,7 +24,7 @@ DECLARE_ALGORITHM_FACTORY( MergeTruthJets )
 DECLARE_ALGORITHM_FACTORY( MergeRecoTimingObj )
 DECLARE_ALGORITHM_FACTORY( MergeGenericMuonSimHitColl )
 DECLARE_TOOL_FACTORY( MergeMcEventCollTool )
-DECLARE_TOOL_FACTORY( MC16MergeMcEventCollTool )
+DECLARE_TOOL_FACTORY( NewMergeMcEventCollTool )
 DECLARE_TOOL_FACTORY( SimpleMergeMcEventCollTool )
 DECLARE_TOOL_FACTORY( MergeTrackRecordCollTool )
 DECLARE_TOOL_FACTORY( MergeCalibHitsTool )

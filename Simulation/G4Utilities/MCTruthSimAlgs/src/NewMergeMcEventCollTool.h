@@ -20,16 +20,16 @@ namespace HepMC {
   class GenParticle;
   class GenVertex;
 }
-/** @class MC16MergeMcEventCollTool
+/** @class NewMergeMcEventCollTool
  *  @brief a PileUpTool to merge MC truth collection in the overlay store
  *
  *  $Id:
  *  @author jchapman@cern.ch
  *
  */
-class MC16MergeMcEventCollTool : public PileUpToolBase {
+class NewMergeMcEventCollTool : public PileUpToolBase {
 public:
-  MC16MergeMcEventCollTool(const std::string& type,
+  NewMergeMcEventCollTool(const std::string& type,
                  const std::string& name,
                  const IInterface* parent);
   virtual StatusCode initialize() override final;

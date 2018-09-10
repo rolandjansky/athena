@@ -18,7 +18,7 @@ def genericMergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
             kwargs.setdefault("ExpectLowPtMinBiasBackgroundCollection", True)
         if digitizationFlags.doHighPtMinBias:
             kwargs.setdefault("ExpectHighPtMinBiasBackgroundCollection", True)
-        return CfgMgr.MC16MergeMcEventCollTool(name, **kwargs)
+        return CfgMgr.NewMergeMcEventCollTool(name, **kwargs)
     else:
         kwargs.setdefault("LowTimeToKeep", -50.5)
         kwargs.setdefault("HighTimeToKeep", 50.5)
@@ -130,16 +130,16 @@ def MergeTrackRecordCollTool(name="MergeTrackRecordCollTool", **kwargs):
     return CfgMgr.MergeTrackRecordCollTool(name, **kwargs)
 
 def MergeCaloEntryLayerTool(name="MergeCaloEntryLayerTool", **kwargs):
-      kwargs.setdefault("TrackRecordCollKey", "CaloEntryLayer" )
-      return MergeTrackRecordCollTool(name, **kwargs)
+    kwargs.setdefault("TrackRecordCollKey", "CaloEntryLayer" )
+    return MergeTrackRecordCollTool(name, **kwargs)
 
 def MergeMuonEntryLayerTool(name="MergeMuonEntryLayerTool", **kwargs):
-      kwargs.setdefault("TrackRecordCollKey", "MuonEntryLayer" )
-      return MergeTrackRecordCollTool(name, **kwargs)
+    kwargs.setdefault("TrackRecordCollKey", "MuonEntryLayer" )
+    return MergeTrackRecordCollTool(name, **kwargs)
 
 def MergeMuonExitLayerTool(name="MergeMuonExitLayerTool", **kwargs):
-      kwargs.setdefault("TrackRecordCollKey", "MuonExitLayer" )
-      return MergeTrackRecordCollTool(name, **kwargs)
+    kwargs.setdefault("TrackRecordCollKey", "MuonExitLayer" )
+    return MergeTrackRecordCollTool(name, **kwargs)
 
 
 ############################################################################

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MC16MergeMcEventCollTool.h"
+#include "NewMergeMcEventCollTool.h"
 #include "GeneratorObjects/McEventCollectionHelper.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/PileUpTimeEventIndex.h"
@@ -11,7 +11,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include <fstream>
 
-MC16MergeMcEventCollTool::MC16MergeMcEventCollTool(const std::string& type,
+NewMergeMcEventCollTool::NewMergeMcEventCollTool(const std::string& type,
                                                    const std::string& name,
                                                    const IInterface *parent) :
   PileUpToolBase(type, name, parent),
@@ -30,7 +30,7 @@ MC16MergeMcEventCollTool::MC16MergeMcEventCollTool(const std::string& type,
   declareProperty("ExpectHighPtMinBiasBackgroundCollection", m_expectHighPtMinBiasBackgroundCollection);
 }
 
-StatusCode MC16MergeMcEventCollTool::initialize()
+StatusCode NewMergeMcEventCollTool::initialize()
 {
   if(!m_pMergeSvc.empty())
     {
@@ -40,7 +40,7 @@ StatusCode MC16MergeMcEventCollTool::initialize()
 }
 
 /// PileUpTools Approach
-StatusCode MC16MergeMcEventCollTool::prepareEvent(unsigned int nInputEvents)
+StatusCode NewMergeMcEventCollTool::prepareEvent(unsigned int nInputEvents)
 {
   ATH_MSG_VERBOSE( this->name()<<"::prepareEvent()" );
   m_newevent=true;
@@ -62,7 +62,7 @@ StatusCode MC16MergeMcEventCollTool::prepareEvent(unsigned int nInputEvents)
   return StatusCode::SUCCESS;
 }
 
-StatusCode MC16MergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
+StatusCode NewMergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
                                                       SubEventIterator bSubEvents,
                                                       SubEventIterator eSubEvents)
 {
@@ -90,7 +90,7 @@ StatusCode MC16MergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
   return StatusCode::SUCCESS;
 }
 
-StatusCode MC16MergeMcEventCollTool::mergeEvent()
+StatusCode NewMergeMcEventCollTool::mergeEvent()
 {
   ATH_MSG_VERBOSE(  this->name()<<"::mergeEvent()" );
   if(m_nBkgEventsReadSoFar+1<m_nInputMcEventColls)
@@ -103,7 +103,7 @@ StatusCode MC16MergeMcEventCollTool::mergeEvent()
 }
 
 /// Algorithm Approach
-StatusCode MC16MergeMcEventCollTool::processAllSubEvents()
+StatusCode NewMergeMcEventCollTool::processAllSubEvents()
 {
   ATH_MSG_VERBOSE ( this->name()<<"::processAllSubEvents()" );
 
@@ -143,7 +143,7 @@ StatusCode MC16MergeMcEventCollTool::processAllSubEvents()
 
 /// Common methods
 
-StatusCode MC16MergeMcEventCollTool::prepareOutputMcEventCollections(const int pileUpType)
+StatusCode NewMergeMcEventCollTool::prepareOutputMcEventCollections(const int pileUpType)
 {
   ATH_MSG_VERBOSE(  this->name()<<"::prepareOutputMcEventCollections(" << pileUpType << ")" );
 
@@ -156,7 +156,7 @@ StatusCode MC16MergeMcEventCollTool::prepareOutputMcEventCollections(const int p
   return StatusCode::SUCCESS;
 }
 
-StatusCode MC16MergeMcEventCollTool::processEvent(const McEventCollection *pMcEvtColl, const int& pileUpType, PileUpTimeEventIndex::time_type timeOffset)
+StatusCode NewMergeMcEventCollTool::processEvent(const McEventCollection *pMcEvtColl, const int& pileUpType, PileUpTimeEventIndex::time_type timeOffset)
 {
   ATH_MSG_VERBOSE(  this->name()<<"::processEvent()" );
   if (!pMcEvtColl->empty())
@@ -179,12 +179,12 @@ StatusCode MC16MergeMcEventCollTool::processEvent(const McEventCollection *pMcEv
           //GenEvt is there
           HepMC::GenEvent& currentBackgroundEvent(**(newMCcoll->begin()));
           m_outputMcEventCollectionMap.at(pileUpType)->push_back(new HepMC::GenEvent(currentBackgroundEvent));
-          ATH_MSG_VERBOSE("MC16MergeMcEventCollTool::processEvent - added GenEvent to McEventCollection for pileUpType = "<<pileUpType);
+          ATH_MSG_VERBOSE("NewMergeMcEventCollTool::processEvent - added GenEvent to McEventCollection for pileUpType = "<<pileUpType);
         }
       else
         {
           m_outputMcEventCollectionMap.emplace(pileUpType, new McEventCollection(*newMCcoll));
-          ATH_MSG_WARNING("MC16MergeMcEventCollTool::processEvent - added McEventCollection for unexpected pileUpType("<<pileUpType<<")!!");
+          ATH_MSG_WARNING("NewMergeMcEventCollTool::processEvent - added McEventCollection for unexpected pileUpType("<<pileUpType<<")!!");
         }
     }
   if(!m_newevent) ++m_nBkgEventsReadSoFar;
@@ -192,7 +192,7 @@ StatusCode MC16MergeMcEventCollTool::processEvent(const McEventCollection *pMcEv
   return StatusCode::SUCCESS;
 }
 
-void MC16MergeMcEventCollTool::printDetailsOfMergedMcEventCollection() const
+void NewMergeMcEventCollTool::printDetailsOfMergedMcEventCollection() const
 {
   if (m_outputMcEventCollectionMap.empty()) { return; }
   for(const auto& outputMapEntry : m_outputMcEventCollectionMap)
