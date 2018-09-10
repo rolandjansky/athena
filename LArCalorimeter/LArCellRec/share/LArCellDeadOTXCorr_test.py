@@ -8,10 +8,6 @@
 #
 
 
-import os
-os.environ['FRONTIER_SERVER'] = ''
-
-
 import ROOT
 ROOT.TH1F
 
