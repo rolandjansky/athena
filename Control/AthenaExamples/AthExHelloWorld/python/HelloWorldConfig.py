@@ -68,8 +68,22 @@ def HelloWorldCfg():
 
 
 if __name__=="__main__":
-    cfg=HelloWorldCfg()
-    f=open("HelloWorld.pkl","w")
-    cfg.store(f)
-    f.close()
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+
+    from AthenaCommon.Logging import log
+    from AthenaCommon.Constants import DEBUG
+    #log.setLevel(DEBUG)
+
+    
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    cfg=MainServicesSerialCfg()
+    cfg.merge(HelloWorldCfg())
+    cfg.setAppProperty("EvtMax",10)
+    cfg.run()
+
+    #f=open("HelloWorld.pkl","w")
+    #cfg.store(f)
+    #f.close()
 

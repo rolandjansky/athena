@@ -19,7 +19,7 @@ Muon::MDT_RawDataProviderTool::MDT_RawDataProviderTool(const std::string& t,
   AthAlgTool(t,n,p),
   //m_rdoContainer(0),
   //m_lastLvl1ID(0),
-  m_decoder("MdtROD_Decoder"),
+  m_decoder("MdtROD_Decoder/MdtROD_Decoder", this),
   m_muonMgr(0),
   m_mdtCabling(0),
   m_robDataProvider ("ROBDataProviderSvc",n)

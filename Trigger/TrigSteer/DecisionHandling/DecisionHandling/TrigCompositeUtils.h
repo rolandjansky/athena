@@ -36,8 +36,11 @@ namespace TrigCompositeUtils {
    * instead of:
    * auto d = new Decision; 
    * output->push_back(d);    
+   * a version with the name assigns the name to the TC object
    **/  
   Decision* newDecisionIn (DecisionContainer* dc);
+  Decision* newDecisionIn (DecisionContainer* dc, const std::string& name);
+
 
   /**
    * @brief Appends the decision (given as ID) to the decision object
@@ -166,6 +169,13 @@ namespace TrigCompositeUtils {
       return LinkInfo<T>(); // invalid link
     return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
   }
+
+  /**
+   * Prints the TC including the linked seeds
+   * @warnign expensive call
+   **/  
+  std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
+
 }
 
 

@@ -1,7 +1,7 @@
 // this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_JETALGORITHMTYPE_H
@@ -17,6 +17,7 @@
 /// ///////////////////////////////
 
 #include <string>
+#include <unordered_set>
 
 namespace xAOD {
 
@@ -66,9 +67,37 @@ namespace xAOD {
       LCTopoOrigin,
       EMTopoOrigin,
       TrackCaloCluster,
+      TruthDressedWZ, // Truth jets without prompt e/mu (or dressed photons) or prompt gammas
+      EMTopoOriginSK,
+      EMTopoOriginCS,
+      EMTopoOriginVor,
+      EMTopoOriginCSSK,
+      EMTopoOriginVorSK,
+      LCTopoOriginSK,
+      LCTopoOriginCS,
+      LCTopoOriginVor,
+      LCTopoOriginCSSK,
+      LCTopoOriginVorSK,
+      EMPFlowSK,
+      EMPFlowCS,
+      EMPFlowVor,
+      EMPFlowCSSK,
+      EMPFlowVorSK,
+      TruthCharged, // Truth jets with only charged particles
+      EMTopoOriginTime,
+      EMTopoOriginSKTime,
+      EMTopoOriginCSSKTime,
+      EMTopoOriginVorSKTime,
+      EMPFlowTime,
+      EMPFlowSKTime,
+      EMPFlowCSSKTime,
+      EMPFlowVorSKTime,
+      HI,
       Other = 100,
       Uncategorized= 1000
     };
+
+    bool isValidConstitType(Type t);
     
     const std::string& typeName(Type t);
 

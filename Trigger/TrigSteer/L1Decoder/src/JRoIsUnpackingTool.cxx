@@ -26,7 +26,7 @@ StatusCode JRoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JRoIsUnpackingTool::updateConfiguration() {
+StatusCode JRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
   using namespace TrigConf;
 
   m_jetThresholds.clear();
@@ -50,7 +50,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
 
   // Additional FS RoI tagged with the decisions of all chains
   auto trigFSRoIs = std::make_unique< TrigRoiDescriptorCollection >();
-  trigFSRoIs->push_back( new TrigRoiDescriptor() ); // the argument-less c'tor is crating the FS RoI
+  trigFSRoIs->push_back( new TrigRoiDescriptor( true ) ); // the c'tor for the FS RoI
   auto fsDecisionOutput = std::make_unique<DecisionContainer>();
   auto fsDecisionAux    = std::make_unique<DecisionAuxContainer>();
   fsDecisionOutput->setStore( fsDecisionAux.get() );  

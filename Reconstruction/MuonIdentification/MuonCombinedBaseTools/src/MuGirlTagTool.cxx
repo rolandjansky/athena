@@ -50,17 +50,18 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuGirlTagTool::extend( const InDetCandidateCollection& inDetCandidates ) {
+  void MuGirlTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap ) {
+    if(!tagMap) ATH_MSG_DEBUG("We don't run this tool any more anyway");
     if (m_pMuGirlReconstruction->MuGirlReco(inDetCandidates).isFailure()) {
       ATH_MSG_ERROR("MuGirl reconstruction failed!");
     }
   }
 
-  void MuGirlTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs,
-				      const Muon::RpcPrepDataContainer* rpcPRDs, const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs,
-				      const Muon::MMPrepDataContainer* mmPRDs ) {
+  void MuGirlTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, 
+				      const Muon::MdtPrepDataContainer* mdtPRDs, const Muon::CscPrepDataContainer* cscPRDs, const Muon::RpcPrepDataContainer* rpcPRDs, 
+				      const Muon::TgcPrepDataContainer *tgcPRDs, const Muon::sTgcPrepDataContainer* stgcPRDs, const Muon::MMPrepDataContainer* mmPRDs ) {
     //This is just a placeholder to ensure compilation until this tool is removed from the release: it is already deprecated
-    if(mdtPRDs && cscPRDs && rpcPRDs && tgcPRDs && stgcPRDs && mmPRDs){
+    if(mdtPRDs && cscPRDs && rpcPRDs && tgcPRDs && stgcPRDs && mmPRDs && tagMap){
       if (m_pMuGirlReconstruction->MuGirlReco(inDetCandidates).isFailure()) {
 	ATH_MSG_ERROR("MuGirl reconstruction failed!");
       }

@@ -30,6 +30,8 @@ extern CLID PyCLID;
 #include "TClassEdit.h"
 #include "TClassRef.h"
 #include "TROOT.h"
+#include "TMethod.h"
+#include "TMethodCall.h"
 
 // PyROOT includes
 #include "AthenaPyRoot.h"
@@ -329,6 +331,18 @@ namespace SG {
       ::cxx_replace(tname, "basic_string<char> >", "string>");
       ::cxx_replace(tname, "basic_string<char>",   "string");
       m_clidMap[id] = tname;
+
+      // Try to make sure the BIB is initialized.
+      std::string bibname = "SG::BaseInfo<" + tname + ">";
+      TClass* bibcl = gROOT->GetClass (bibname.c_str());
+      if (bibcl) {
+        TMethod* m = bibcl->GetMethodAny ("baseinfo");
+        if (m) {
+          TMethodCall call (m);
+          call.Execute();
+        }
+      }
+
       return m_clidMap[id].c_str();
     }
 

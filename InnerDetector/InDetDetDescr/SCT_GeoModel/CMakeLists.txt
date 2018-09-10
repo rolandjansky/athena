@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           PRIVATE
-                          Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities

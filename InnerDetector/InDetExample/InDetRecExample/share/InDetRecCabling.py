@@ -20,52 +20,15 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
 #
 # --- SCT cabling
 #
-if DetFlags.detdescr.SCT_on() and not 'SCT_CablingSvc' in dir():
-  SCTCablingDataSource='CORACOOL'
-  SCTConfigurationFolderPath='/SCT/DAQ/Config/'
-  #if its COMP200, use old folders...
-  if (conddb.dbdata == "COMP200"):
-      SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-  #...but now check if we want to override that decision with explicit flag (if there is one)
-  try:
-      if InDetFlags.ForceCoraCool():
-          SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-  except:
-      pass
-
-  try:
-    if InDetFlags.ForceCoolVectorPayload():
-      SCTConfigurationFolderPath='/SCT/DAQ/Config/'
-  except:
-    pass
-       
-  try:
-    if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
-      print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
-      SCTConfigurationFolderPath=''
-  except:
-    pass
-        
-  #to read SCT cabling from db 
-  from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
-  SCT_CablingSvc = SCT_CablingSvc(DataSource = "CORACOOL") 
-
-  ServiceMgr += SCT_CablingSvc
-  if (InDetFlags.doPrintConfigurables()):
-    print  SCT_CablingSvc
-  SCTRodConfigPath=SCTConfigurationFolderPath+'ROD'
-  SCTMurConfigPath=SCTConfigurationFolderPath+'MUR'
-  SCTRodMurConfigPath=SCTConfigurationFolderPath+'RODMUR'
-  SCTGeogConfigPath=SCTConfigurationFolderPath+'Geog'
-  #
-  if not conddb.folderRequested(SCTRodConfigPath):
-    conddb.addFolderSplitMC("SCT",SCTRodConfigPath,SCTRodConfigPath)
-  if not conddb.folderRequested(SCTMurConfigPath):
-    conddb.addFolderSplitMC("SCT", SCTMurConfigPath, SCTMurConfigPath, className="CondAttrListVec")
-  if not conddb.folderRequested(SCTRodMurConfigPath):
-    conddb.addFolderSplitMC("SCT",SCTRodMurConfigPath,SCTRodMurConfigPath)
-  if not conddb.folderRequested(SCTGeogConfigPath):
-    conddb.addFolderSplitMC("SCT",SCTGeogConfigPath,SCTGeogConfigPath)
+if DetFlags.detdescr.SCT_on():
+  from AthenaCommon.AlgSequence import AthSequencer
+  condSeq = AthSequencer("AthCondSeq")
+  if not hasattr(condSeq, "SCT_CablingCondAlgFromCoraCool"):
+    from AthenaCommon.CfgGetter import getAlgorithm
+    SCT_CablingCondAlgFromCoraCool = getAlgorithm("SCT_CablingCondAlgFromCoraCool")
+    condSeq += SCT_CablingCondAlgFromCoraCool
+    if (InDetFlags.doPrintConfigurables()):
+      print  SCT_CablingCondAlgFromCoraCool
   
 #
 # --- TRT cabling

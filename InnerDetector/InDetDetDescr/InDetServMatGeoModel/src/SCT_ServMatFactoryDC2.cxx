@@ -25,7 +25,7 @@
 
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/Bootstrap.h"
-
+#include <stdexcept>
 #define TRTELEMENTSINEL 9
 #define SCTELEMENTSINEL 8
 
@@ -56,8 +56,11 @@ void SCT_ServMatFactoryDC2::create(GeoPhysVol *mother)
 
   // Get the material manager:  
   StatusCode sc = m_detStore->retrieve(m_materialManager, std::string("MATERIALS"));
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
- 
+  if (sc.isFailure() or not m_materialManager){
+    msg(MSG::FATAL) << "Could not locate Material Manager" << endmsg;
+    throw std::runtime_error("SCT_ServMatFactoryDC2::create() cannot retrieve the material manager and must abort");
+  }
+  
   double epsilon = 0.002;
 
 

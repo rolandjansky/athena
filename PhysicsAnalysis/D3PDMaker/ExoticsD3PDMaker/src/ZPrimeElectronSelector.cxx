@@ -27,6 +27,7 @@
 #include "Particle/TrackParticle.h"
 #include "CaloEvent/CaloCluster.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "AthContainers/ConstDataVector.h"
 
 namespace D3PD {
 
@@ -84,21 +85,18 @@ StatusCode ZPrimeElectronSelector::execute()
   // increase the event counter
   m_nEventsProcessed+=1;
 
-  //  StatusCode
-  StatusCode sc = StatusCode::SUCCESS ;
-
   // Retrieve the input container
   const ElectronContainer* elContainer;
-  sc = evtStore()->retrieve( elContainer, m_inCollKey );
+  StatusCode sc = evtStore()->retrieve( elContainer, m_inCollKey );
   if( sc.isFailure()  ||  !elContainer ) {
     ATH_MSG_WARNING( "fail to retrieve ElectronContainer: " << m_inCollKey);
     return StatusCode::SUCCESS;
   }
 
   // Create the output container
-  ElectronContainer*newElContainer=0;
+  std::unique_ptr<ConstDataVector<ElectronContainer> > newElContainer;
   if(m_outCollKey!=""){
-    newElContainer=new ElectronContainer(SG::VIEW_ELEMENTS);
+    newElContainer = std::make_unique<ConstDataVector<ElectronContainer> >(SG::VIEW_ELEMENTS);
     if ( newElContainer == NULL ){
       REPORT_MESSAGE (MSG::ERROR) << "fail to create new ElectronContainer";
       return StatusCode::FAILURE;
@@ -108,11 +106,6 @@ StatusCode ZPrimeElectronSelector::execute()
     // This way, the vector gets doubled at most once while
     // the memory stays smaller when no doubling is needed.
     newElContainer->reserve( (int)ceil( elContainer->size()/2.0 ) );
-    sc = evtStore()->record ( newElContainer, m_outCollKey );
-    if ( sc.isFailure() || !newElContainer ){
-      REPORT_MESSAGE (MSG::ERROR) <<  "fail to record ElectronContainer: " << m_outCollKey;
-      return StatusCode::FAILURE;
-    }
   }
 
   // loop over electron container
@@ -164,11 +157,7 @@ StatusCode ZPrimeElectronSelector::execute()
 
   //set new electron container
   if ( m_outCollKey != "" ){
-    sc = evtStore()->setConst( newElContainer );
-    if ( sc.isFailure() || !newElContainer ){
-      REPORT_MESSAGE (MSG::ERROR) << "fail to set ElectronContainer: " << m_outCollKey;
-      return sc;
-    }
+    ATH_CHECK( evtStore()->record ( std::move(newElContainer), m_outCollKey ) );
   }
 
 

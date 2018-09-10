@@ -35,11 +35,6 @@ SCT_ChargeTrappingCondData SCT_RadDamageSummaryTool::getCondData(const Identifie
   return m_chargeTrappingTool->getCondData(elementHash, zpos);
 }
 
-void SCT_RadDamageSummaryTool::initPotentialValue() {
-  m_chargeTrappingTool->getInitPotentialValue();
-  return;
-}
-
 void SCT_RadDamageSummaryTool::holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const {
   m_chargeTrappingTool->getHoleTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
   return;

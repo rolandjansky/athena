@@ -12,7 +12,6 @@
 
 // Include Athena stuff
 #include "Identifier/IdentifierHash.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 // Include Gaudi stuff
@@ -29,7 +28,6 @@ SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvc
   m_moduleId{0},
   m_waferId{0},
   m_stripId{0},
-  m_cabling{"SCT_CablingSvc", name},
   m_doTestmyConditionsSummary{false},
   m_doTestmyDefectIsGood{false},
   m_doTestmyDefectType{false},

@@ -57,11 +57,8 @@ class SCTLorentzAngleToolSetup:
             sctSiLorentzAngleCondAlg.useSctDefaults = False
 
         # Set up SCTLorentzAngleTool
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-            ToolSvc += SiLorentzAngleTool(name="SCTLorentzAngleTool", DetectorName="SCT")
-        sctLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
+        from AthenaCommon.CfgGetter import getPrivateTool
+        sctLorentzAngleTool = getPrivateTool("SCTLorentzAngleTool")
         # Pass the silicon conditions tool to the Lorentz angle tool
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
         # if loaded first.

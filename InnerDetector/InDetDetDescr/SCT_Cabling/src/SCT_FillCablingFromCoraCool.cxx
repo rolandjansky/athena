@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -13,30 +13,23 @@
 
 //package includes
 #include "SCT_FillCablingFromCoraCool.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_CablingUtilities.h"
 
-//indet includes
-#include "InDetIdentifier/SCT_ID.h"
-
 //Athena includes
-#include "PathResolver/PathResolver.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-
-//DB utilities
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "SCT_Cabling/SCT_CablingData.h"
 
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //STL
-#include <set>
-#include <utility>
 #include <algorithm>
 #include <iostream>
+#include <set>
+#include <utility>
 
 //Constants at file scope
 //Run1: folder names in COMP200 database
@@ -176,8 +169,9 @@ namespace{
 }//end of anonymous namespace
 
 // Constructor
-SCT_FillCablingFromCoraCool::SCT_FillCablingFromCoraCool(const std::string& name, ISvcLocator* pSvcLocator):
-  AthService(name,pSvcLocator), m_filled{false}, m_detStore{"DetectorStore", name} {
+SCT_FillCablingFromCoraCool::SCT_FillCablingFromCoraCool(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent),
+  m_filled{false} {
   //nop
 }
 
@@ -190,19 +184,6 @@ SCT_FillCablingFromCoraCool::initialize() {
 //
 StatusCode 
 SCT_FillCablingFromCoraCool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-//
-StatusCode 
-SCT_FillCablingFromCoraCool::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_FillCabling::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<ISCT_FillCabling*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }
 
@@ -228,22 +209,23 @@ SCT_FillCablingFromCoraCool::filled() const {
 }
 
 //
-StatusCode 
-SCT_FillCablingFromCoraCool::fillMaps(ISCT_CablingSvc* cabling) const {
+SCT_CablingData
+SCT_FillCablingFromCoraCool::getMaps() const {
+  SCT_CablingData data;
   m_filled=false;
-  if (readDataFromDb(cabling).isFailure()) {
+  if (readDataFromDb(data).isFailure()) {
     ATH_MSG_FATAL("Could not read cabling from database");
-    return StatusCode::FAILURE;
+    return data;
   }
   m_filled=true;
-  return StatusCode::SUCCESS;
+  return data;
 }
 
 //
 StatusCode
-SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) const {
+SCT_FillCablingFromCoraCool::readDataFromDb(SCT_CablingData& data) const {
   const SCT_ID* idHelper{nullptr};
-  if (m_detStore->retrieve(idHelper,"SCT_ID").isFailure()) {
+  if (detStore()->retrieve(idHelper,"SCT_ID").isFailure()) {
     ATH_MSG_ERROR("SCT mgr failed to retrieve");
     return StatusCode::FAILURE;
   }
@@ -471,7 +453,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) const {
         ATH_MSG_INFO("MUR, position "<<mur<<", "<<harnessPosition);
       } 
       IdentifierHash offlineIdHash{idHelper->wafer_hash(offlineId)};
-      cabling->insert(offlineIdHash, onlineId, SCT_SerialNumber(sn));
+      insert(offlineIdHash, onlineId, SCT_SerialNumber(sn), data);
       numEntries++;
     }
   }
@@ -493,11 +475,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) const {
 }
 
 bool  SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const DataHandle<CondAttrListVec>& pDataVec, const std::string& folderName) const {
-  if (!m_detStore) {
-    ATH_MSG_FATAL("The detector store pointer is NULL");
-    return false;
-  }
-  if (m_detStore->retrieve(pDataVec, folderName).isFailure()) {
+  if (detStore()->retrieve(pDataVec, folderName).isFailure()) {
     ATH_MSG_FATAL("Could not retrieve AttrListVec for "<<folderName);
     return false;
   }
@@ -510,8 +488,8 @@ bool  SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const DataHandle<Con
 
 std::string SCT_FillCablingFromCoraCool::determineFolder(const std::string& option1, const std::string& option2) const {
   std::string result{""};
-  const bool option1Exists{m_detStore->contains<CondAttrListVec>(option1)};
-  const bool option2Exists{m_detStore->contains<CondAttrListVec>(option2)};
+  const bool option1Exists{detStore()->contains<CondAttrListVec>(option1)};
+  const bool option2Exists{detStore()->contains<CondAttrListVec>(option2)};
   //its only sensible if either of these exists (but not both)
   const bool nonsense{option1Exists == option2Exists};
   if (nonsense) {
@@ -522,4 +500,27 @@ std::string SCT_FillCablingFromCoraCool::determineFolder(const std::string& opti
     ATH_MSG_INFO("SCT_FillCablingFromCoraCool will use the folder "<<result);
   }
   return result;
+}
+
+bool
+SCT_FillCablingFromCoraCool::insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData& data) const {
+  if (not sn.isWellFormed()) {
+    ATH_MSG_FATAL("Serial number is not in correct format");
+    return false;
+  }
+  if (not hash.is_valid()) {
+    ATH_MSG_FATAL("Invalid hash: "<<hash);
+    return false;
+  }
+
+  if (not data.setHashForOnlineId(hash, onlineId)) return false;
+  if (not data.setOnlineIdForHash(onlineId, hash)) return false;
+
+  bool successfulInsert{data.setHashForSerialNumber(hash, sn)};
+  successfulInsert &= data.setSerialNumberForHash(sn, hash);
+  // in this form, the data->getHashEntries() will be half the number of hashes
+  if (successfulInsert) {
+    data.setRod(onlineId.rod()); //move this here so insertion only happens for valid onlineId, hash
+  }
+  return true;
 }

@@ -140,7 +140,12 @@ InDet::PixelClusterContainer* InDet::PixelClusterContainerCnv_p1::createTransien
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
       log << MSG::FATAL << "Could not initialize PixelClusterContainerCnv_p1 " << endmsg;
+      return nullptr;
      } 
+    }
+    if (not m_pixId) {
+      log << MSG::FATAL << "PixelID helper is null in  PixelClusterContainerCnv_p1::createTransient" << endmsg;
+      return nullptr;
     }
     std::auto_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);

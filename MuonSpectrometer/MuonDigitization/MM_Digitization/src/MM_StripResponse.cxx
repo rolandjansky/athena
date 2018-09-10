@@ -44,8 +44,6 @@ void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 				stripVal = m_stripID + int( (Electron->getX()+m_stripPitch/2)/m_stripPitch ) - 1 ;
 		}
 		else stripVal = m_stripID;
-//    int stripVal = Electron->getX() < 0 ? m_stripID + Electron->getX()/m_stripPitch : m_stripID + Electron->getX()/m_stripPitch;
-//    int stripVal = Electron->getX() < 0 ? m_stripID + Electron->getX()/m_stripPitch - 1 : m_stripID + Electron->getX()/m_stripPitch;
 
 		if (stripVal < 0 || stripVal > m_maxstripID) stripVal = -1;
 		(m_stripCharges[timeBin])[stripVal] += Electron->getCharge();
@@ -87,7 +85,6 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 void MM_StripResponse::calculateSummaries(float chargeThreshold) {
 
 	for (auto& Electron : m_Electrons) {
-//    int stripVal      = Electron->getX() < 0 ? m_stripID + Electron->getX()/m_stripPitch - 1 : m_stripID + Electron->getX()/m_stripPitch;
 		int stripVal = 0;
 		if(fabs(Electron->getX())>m_stripPitch/2){
 			if(Electron->getX()>0.0)

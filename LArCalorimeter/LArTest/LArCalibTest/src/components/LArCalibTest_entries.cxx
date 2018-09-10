@@ -3,6 +3,7 @@
 #include "LArCalibTest/LArReadHadDMCoeffFile.h"
 #include "LArCalibTest/LArReadHadDMCoeffFile2.h"
 #include "LArCalibTest/DumpCaloBadChannels.h"
+#include "LArCalibTest/LArHVTest.h"
 
 
 
@@ -11,4 +12,5 @@ DECLARE_COMPONENT( LArReadHadDMCoeffFile )
 DECLARE_COMPONENT( LArReadHadDMCoeffFile2 )
 DECLARE_COMPONENT( LArFakeCellFactor )
 DECLARE_COMPONENT( DumpCaloBadChannels )
+DECLARE_COMPONENT( LArHVTest )
 

@@ -4,10 +4,12 @@
 
 // Header include
 #include "InDetSVWithMuonTool/InDetSVWithMuonTool.h"
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "xAODBTagging/SecVtxHelper.h"
 //-------------------------------------------------
 #include  "AnalysisUtils/AnalysisMisc.h"
 #include  "TMath.h"
+#include "TH1D.h"
 //
 #include<iostream>
 
@@ -288,7 +290,8 @@ namespace InDet{
              VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
 //---
 	     vDist=FitVertex-PrimVrt.position();
-             MuonVrtDir = Muon->p4().Px()*vDist.x() + Muon->p4().Py()*vDist.y() + Muon->p4().Pz()*vDist.z();
+	     //coverity 118600 : The following assigned value is never used, before overwritten in next iteration
+       //MuonVrtDir = Muon->p4().Px()*vDist.x() + Muon->p4().Py()*vDist.y() + Muon->p4().Pz()*vDist.z();
 	     double vPos=(vDist.x()*Momentum.Px()+vDist.y()*Momentum.Py()+vDist.z()*Momentum.Pz())/Momentum.Rho();
 	     if(vPos<0.) continue;                                              /*  Vertex is too far behind primary one*/
              if(m_FillHist){

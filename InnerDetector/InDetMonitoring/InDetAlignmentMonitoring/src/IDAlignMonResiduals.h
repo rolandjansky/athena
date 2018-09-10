@@ -59,9 +59,7 @@ namespace Trk {
 }
 
 class IInDetAlignHitQualSelTool; 
-//namespace InDet {
-//  class IInDetTrackSelectionTool;
-//}
+
 
 
 class IDAlignMonResiduals : public ManagedMonitorToolBase
@@ -150,54 +148,54 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::string m_TRT_Manager{};
   
   //Layer/Disk/Ring Gap for modified module histograms
-  int m_gap_pix;
-  int m_gap_sct;
-  int m_NLumiBlocksMon;
+  int m_gap_pix{};
+  int m_gap_sct{};
+  int m_NLumiBlocksMon{};
 
-  float m_minTRTResWindow;
-  float m_maxTRTResWindow;
-  float m_minSiResMeanWindow;
-  float m_maxSiResMeanWindow;
-  float m_minSiResWidthWindow;
-  float m_maxSiResWidthWindow;
-  float m_minSiPullWidthWindow;
-  float m_maxSiPullWidthWindow;
-  float m_minSiResFillRange;
-  float m_maxSiResFillRange;
-  float m_maxSCTResFillRange;
-  float m_minSCTResFillRange;
-  float m_maxPIXResXFillRange;
-  float m_minPIXResXFillRange;  
-  float m_maxPIXResYFillRange;
-  float m_minPIXResYFillRange;  
-  float m_RangeOfPullHistos;
-  float m_PtRange;
-  float m_ClusterSizeRange;
-  float m_PixelBarrelXSize;
-  float m_PixelBarrelYSize;
-  float m_SCTBarrelXSize;
-  float m_SCTBarrelYSize;
-  float m_IncidentThetaRange;
-  float m_IncidentPhiRange;
-  int m_nBinsPtRange;
-  int m_histosBooked;
-  int m_checkrate;
-  int m_events;
-  int m_mapSplit;
-  int m_NPixLayers;
-  bool m_doPulls;
-  bool m_doHitQuality;
-  bool m_do3DOverlapHistos;
-  bool m_doClusterSizeHistos;
-  bool m_extendedPlots;
-  bool m_changedlumiblock;
-  int  m_oldlumiblock;
-  int m_FinerBinningFactor;
-  float m_LBGranularity;
+  float m_minTRTResWindow{};
+  float m_maxTRTResWindow{};
+  float m_minSiResMeanWindow{};
+  float m_maxSiResMeanWindow{};
+  float m_minSiResWidthWindow{};
+  float m_maxSiResWidthWindow{};
+  float m_minSiPullWidthWindow{};
+  float m_maxSiPullWidthWindow{};
+  float m_minSiResFillRange{};
+  float m_maxSiResFillRange{};
+  float m_maxSCTResFillRange{};
+  float m_minSCTResFillRange{};
+  float m_maxPIXResXFillRange{};
+  float m_minPIXResXFillRange{};  
+  float m_maxPIXResYFillRange{};
+  float m_minPIXResYFillRange{};  
+  float m_RangeOfPullHistos{};
+  float m_PtRange{};
+  float m_ClusterSizeRange{};
+  float m_PixelBarrelXSize{};
+  float m_PixelBarrelYSize{};
+  float m_SCTBarrelXSize{};
+  float m_SCTBarrelYSize{};
+  float m_IncidentThetaRange{};
+  float m_IncidentPhiRange{};
+  int m_nBinsPtRange{};
+  int m_histosBooked{};
+  int m_checkrate{};
+  int m_events{};
+  int m_mapSplit{};
+  int m_NPixLayers{};
+  bool m_doPulls{};
+  bool m_doHitQuality{};
+  bool m_do3DOverlapHistos{};
+  bool m_doClusterSizeHistos{};
+  bool m_extendedPlots{};
+  bool m_changedlumiblock{};
+  int  m_oldlumiblock{};
+  int m_FinerBinningFactor{};
+  float m_LBGranularity{};
   std::vector<TString> m_siliconBarrelLayersLabels; 
   std::vector<TString> m_siliconEndcapLayersLabels;
-  bool m_useGausFit;
-  float m_maxPtEC; // threshold for low-pt EC distributions
+  bool m_useGausFit{};
+  float m_maxPtEC{}; // threshold for low-pt EC distributions
   
   //tools
   const AtlasDetectorID*                m_idHelper{};
@@ -215,8 +213,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   //histograms
   
-  TH1F* m_totalEvents;
-  TH1F* m_sirescalcfailure;
+  TH1F* m_totalEvents{};
+  TH1F* m_sirescalcfailure{};
   std::vector<TH3F*> m_sct_b_Oxresxvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_b_Oyresxvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_b_xresvsmodetaphi_3ds;
@@ -269,10 +267,10 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   
   //Pix Eca unbiased residuals maps
 
-  TH3F* m_pix_eca_xresvsmodphidisk_3d;
-  TH3F* m_pix_ecc_xresvsmodphidisk_3d;
-  TH3F* m_pix_eca_yresvsmodphidisk_3d;
-  TH3F* m_pix_ecc_yresvsmodphidisk_3d;
+  TH3F* m_pix_eca_xresvsmodphidisk_3d{};
+  TH3F* m_pix_ecc_xresvsmodphidisk_3d{};
+  TH3F* m_pix_eca_yresvsmodphidisk_3d{};
+  TH3F* m_pix_ecc_yresvsmodphidisk_3d{};
 
 
   //PixCluster Size
@@ -344,7 +342,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_dbm_pullsx_pt;
   std::vector<TH1F*> m_dbm_xoverlapresidualsx;
   
-  TH2F* m_dbm_xresvsmodphi_2d;
+  TH2F* m_dbm_xresvsmodphi_2d{};
   
   //SctCluster Size 
 
@@ -421,15 +419,15 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
 
   TH1F* m_mu_perEvent{};
-  float  m_mu;
-  bool m_hasBeenCalledThisEvent;
-  int m_nBinsMuRange;
-  float m_muRangeMin;
-  float m_muRangeMax;
-  int m_nBinsLB;
-  float m_LBRangeMin;
-  float m_LBRangeMax;
-  int m_nIBLHitsPerLB;
+  float  m_mu{};
+  bool m_hasBeenCalledThisEvent{};
+  int m_nBinsMuRange{};
+  float m_muRangeMin{};
+  float m_muRangeMax{};
+  int m_nBinsLB{};
+  float m_LBRangeMin{};
+  float m_LBRangeMax{};
+  int m_nIBLHitsPerLB{};
   
   
   int m_lumiblock{};
@@ -883,7 +881,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   TH2F*  m_etapTWeight{};
   std::string m_hWeightHistName{};
 
-  //I don't like an itialisation here.
+  //I don't like an initialisation here.
   float m_z_axis[20] = {-322.8975, -301.7925, -280.6875,-259.5825,-228.2775,-186.7725,-145.2675,-103.7625,-62.2575,-20.7525,20.7525,62.2575,103.7625,145.2675,186.7725,228.2775,259.5825,280.6875,301.7925,322.8975};
   float m_z_fix{};
   int m_minIBLhits{};

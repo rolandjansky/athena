@@ -4,6 +4,7 @@
 #include "MURoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaMonitoring/MonitoredScope.h"
+#include "TrigConfL1Data/CTPConfig.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -34,8 +35,13 @@ StatusCode MURoIsUnpackingTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MURoIsUnpackingTool::updateConfiguration() {
+StatusCode MURoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& seeding ) {
   using namespace TrigConf;
+
+  ATH_CHECK( decodeMapping( [](const TriggerThreshold* th){ return th->ttype() == L1DataDef::MUON; }, 
+			    m_configSvc->ctpConfig()->menu().itemVector(),
+			    seeding ) );
+
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
   for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::MUON ) ) {
     if ( th != nullptr ) {

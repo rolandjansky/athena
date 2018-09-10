@@ -11,6 +11,8 @@
 #include "TrigMuonHypo/TrigMufastHypoTool.h"
 #include "TrigMuonHypo/TrigmuCombHypoAlg.h"
 #include "TrigMuonHypo/TrigmuCombHypoTool.h"
+#include "TrigMuonHypo/TrigMuisoHypoAlg.h"
+#include "TrigMuonHypo/TrigMuisoHypoTool.h"
 #include "TrigMuonHypo/TrigMooreHypo.h"
 #include "TrigMuonHypo/TrigMuonEFSegmentFinderHypo.h"
 #include "TrigMuonHypo/TrigMuonEFTrackBuilderHypo.h"
@@ -52,6 +54,8 @@ DECLARE_COMPONENT( TrigMufastHypoAlg )
 DECLARE_COMPONENT( TrigMufastHypoTool )
 DECLARE_COMPONENT( TrigmuCombHypoAlg )
 DECLARE_COMPONENT( TrigmuCombHypoTool )
+DECLARE_COMPONENT( TrigMuisoHypoAlg )
+DECLARE_COMPONENT( TrigMuisoHypoTool )
 DECLARE_COMPONENT( TrigMooreHypo )
 DECLARE_COMPONENT( TrigMuonEFSegmentFinderHypo )
 DECLARE_COMPONENT( TrigMuonEFTrackBuilderHypo )

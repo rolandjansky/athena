@@ -20,7 +20,6 @@
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
 
 class SCTEventFlagWriter : public AthAlgorithm
 {
@@ -44,8 +43,7 @@ class SCTEventFlagWriter : public AthAlgorithm
 
   ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrTool{this, "ErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_xevtInfoKey;
-  SG::ReadHandleKey<EventInfo> m_evtInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_xevtInfoKey{this, "xAODEventInfoKey", "EventInfo", "xAOD event info key"};
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTEVENTFLAGWRITER_H

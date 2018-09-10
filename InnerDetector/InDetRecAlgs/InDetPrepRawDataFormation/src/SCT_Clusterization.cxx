@@ -218,7 +218,7 @@ namespace InDet{
     
     // Set container to const
     ATH_CHECK(clusterContainer.setConst());
-    
+    ATH_MSG_DEBUG("clusterContainer->numberOfCollections() " <<  clusterContainer->numberOfCollections());
     return StatusCode::SUCCESS;
   }
 

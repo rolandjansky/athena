@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGlobalErrorMonTool_H
@@ -12,6 +12,7 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
@@ -60,7 +61,7 @@ private:
     const InDetDD::PixelDetectorManager * m_pixManager;
     const SCT_ID * m_sctID;
     
-    ServiceHandle<IInDetConditionsSvc> m_pixCond;
+    ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
     ToolHandle<ISCT_ConfigurationConditionsTool> m_ConfigurationTool{this, "conditionsTool",
         "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
     ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};

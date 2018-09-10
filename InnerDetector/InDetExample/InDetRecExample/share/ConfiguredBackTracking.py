@@ -113,19 +113,13 @@ class ConfiguredBackTracking:
                useDynamicAlignFolders = False
                try:
                   from InDetRecExample.InDetJobProperties import InDetFlags
+                  from IOVDbSvc.CondDB import conddb
                   if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
                      useDynamicAlignFolders = True
                except ImportError:
                   pass
-               from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-               if athenaCommonFlags.isOnline():
-                  condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                                UseDynamicAlignFolders = useDynamicAlignFolders,
-                                                                IBLDistFolderKey = "/Indet/Onl/IBLDist",
-                                                                PixelL2FolderKey = "/Indet/Onl/AlignL2/PIX")
-               else:
-                  condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                                UseDynamicAlignFolders = useDynamicAlignFolders)
+               condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
+                                                             UseDynamicAlignFolders = useDynamicAlignFolders)
       
          ToolSvc += InDetTRT_SeededSiRoadMaker
          if (InDetFlags.doPrintConfigurables()):

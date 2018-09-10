@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODJet/JetContainerInfo.h"
@@ -74,28 +74,64 @@ namespace xAOD {
       static bool inited = false;
       if(inited) return;
       // name in the atlas convention
-      nameToTypemap["LCTopo"] =             LCTopo;            
-      nameToTypemap["EMTopo"] =             EMTopo;            
-      nameToTypemap["LCTopoOrigin"] =       LCTopoOrigin;
-      nameToTypemap["EMTopoOrigin"] =       EMTopoOrigin;
-      nameToTypemap["TopoTower"] =          TopoTower;         
-      nameToTypemap["Tower"] =              Tower;             
-      nameToTypemap["Truth"] =              Truth;             
-      nameToTypemap["TruthWZ"] =            TruthWZ;             
-      nameToTypemap["Track"] =              Track;             
-      nameToTypemap["PFlow"] =              PFlow;             
-      nameToTypemap["LCPFlow"] =            LCPFlow;             
-      nameToTypemap["EMPFlow"] =            EMPFlow;             
-      nameToTypemap["EMCPFlow"] =           EMCPFlow;   
-      nameToTypemap["TrackCaloCluster"] =   TrackCaloCluster;         
-      nameToTypemap[c_unCategorized] = Uncategorized;
-
+      nameToTypemap["LCTopo"] =                LCTopo;
+      nameToTypemap["EMTopo"] =                EMTopo;
+      nameToTypemap["LCTopoOrigin"] =          LCTopoOrigin;
+      nameToTypemap["EMTopoOrigin"] =          EMTopoOrigin;
+      nameToTypemap["TopoTower"] =             TopoTower;
+      nameToTypemap["Tower"] =                 Tower;
+      nameToTypemap["Truth"] =                 Truth;
+      nameToTypemap["TruthWZ"] =               TruthWZ;
+      nameToTypemap["TruthDressedWZ"] =        TruthDressedWZ;
+      nameToTypemap["TruthCharged"] =          TruthCharged;
+      nameToTypemap["Track"] =                 Track;
+      nameToTypemap["PFlow"] =                 PFlow;
+      nameToTypemap["LCPFlow"] =               LCPFlow;
+      nameToTypemap["EMPFlow"] =               EMPFlow;
+      nameToTypemap["EMCPFlow"] =              EMCPFlow;
+      nameToTypemap["TrackCaloCluster"] =      TrackCaloCluster;
+      nameToTypemap["EMTopoOriginSK"] =        EMTopoOriginSK;
+      nameToTypemap["EMTopoOriginCS"] =        EMTopoOriginCS;
+      nameToTypemap["EMTopoOriginCSSK"] =      EMTopoOriginCSSK;
+      nameToTypemap["EMTopoOriginVorSK"] =     EMTopoOriginVorSK;
+      nameToTypemap["EMTopoOriginTime"] =      EMTopoOriginTime;
+      nameToTypemap["EMTopoOriginSKTime"] =    EMTopoOriginSKTime;
+      nameToTypemap["EMTopoOriginCSSKTime"] =  EMTopoOriginCSSKTime;
+      nameToTypemap["EMTopoOriginVorSKTime"] = EMTopoOriginVorSKTime;
+      nameToTypemap["LCTopoOriginSK"] =        LCTopoOriginSK;
+      nameToTypemap["LCTopoOriginCS"] =        LCTopoOriginCS;
+      nameToTypemap["LCTopoOriginCSSK"] =      LCTopoOriginCSSK;
+      nameToTypemap["LCTopoOriginVorSK"] =     LCTopoOriginVorSK;
+      nameToTypemap["EMPFlowSK"] =             EMPFlowSK;
+      nameToTypemap["EMPFlowCS"] =             EMPFlowCS;
+      nameToTypemap["EMPFlowCSSK"] =           EMPFlowCSSK;
+      nameToTypemap["EMPFlowVorSK"] =          EMPFlowVorSK;
+      nameToTypemap["EMPFlowTime"] =           EMPFlowTime;
+      nameToTypemap["EMPFlowSKTime"] =         EMPFlowSKTime;
+      nameToTypemap["EMPFlowCSSKTime"] =       EMPFlowCSSKTime;
+      nameToTypemap["EMPFlowVorSKTime"] =      EMPFlowVorSKTime;
+      nameToTypemap["HI"] =                    HI;
+      nameToTypemap[c_unCategorized] =         Uncategorized;
 
       std::map<std::string, Type>::iterator it = nameToTypemap.begin();
       std::map<std::string, Type>::iterator itE = nameToTypemap.end();
       for( ; it!=itE; ++it) typeToNamemap[ it->second ] = it->first;      
     }
 
+  bool isValidConstitType(Type t) { 
+    const static std::unordered_set<Type> validJetContitTypes = { LCTopo, EMTopo,
+                                                                  LCTopoOrigin, EMTopoOrigin, EMTopoOriginTime,
+                                                                  LCTopoOriginSK, EMTopoOriginSK, EMTopoOriginSKTime,
+                                                                  LCTopoOriginCS, EMTopoOriginCS,
+                                                                  LCTopoOriginVor, EMTopoOriginVor,
+                                                                  LCTopoOriginCSSK, EMTopoOriginCSSK, EMTopoOriginCSSKTime,
+                                                                  LCTopoOriginVorSK, EMTopoOriginVorSK, EMTopoOriginVorSKTime,
+                                                                  EMPFlowSK, EMPFlowSKTime,
+                                                                  EMPFlowCS, EMPFlowCSSK, EMPFlowCSSKTime,
+                                                                  EMPFlowVor, EMPFlowVorSK, EMPFlowVorSKTime
+                                                                };
+    return validJetContitTypes.count(t)==1;
+  } 
 
   const std::string & typeName(Type id){
     initMap();

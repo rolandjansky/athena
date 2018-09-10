@@ -69,7 +69,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
 
   /*get the CaloExtension object*/
-  const Trk::CaloExtension* extension = nullptr;
+  std::unique_ptr<Trk::CaloExtension> extension = nullptr;
   if (m_theTrackExtrapolatorTool->caloExtension(*track, extension)) {
 
     /*extract the CurvilinearParameters*/

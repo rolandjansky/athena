@@ -5,7 +5,7 @@
 #include "egammaEvent/EMErrorDetail.h"
 #include "GaudiKernel/GaudiException.h"
 #include "egammaEvent/EMShower.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 #include "AthLinks/ElementLink.h"
 #include "TrkTrack/Track.h" 
 #include "TrkParametersBase/ParametersBase.h"
@@ -15,7 +15,7 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "VxVertex/VxCandidate.h"
 #include "egammaConditions/EMClusterErrorsParametrizations.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include <cmath>
 

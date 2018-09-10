@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@ namespace InDet
       m_errorStrategy(1),
       m_acceptDiagonalClusters(1),
       m_splitClusters(0),
-      m_summaryTool("PixelConditionsSummaryTool", this),
       m_useModuleMap(true),
       m_usePixelMap(true)
   {
@@ -36,7 +35,6 @@ namespace InDet
     declareProperty("splitClusters", m_splitClusters);
     declareProperty("UsePixelModuleMap",m_useModuleMap,"Use bad modules map");
     declareProperty("UseSpecialPixelMap",m_usePixelMap,"Use bad pixel map");
-    declareProperty("PixelConditionsSummaryTool",m_summaryTool);
   }
 
   StatusCode PixelClusteringToolBase::initialize()

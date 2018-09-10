@@ -140,6 +140,9 @@ def createTriggerFlags():
 
     # muons
     flags.addFlag('Trigger.muon.doEFRoIDrivenAccess', False)
+
+    from TriggerJobOpts.MenuConfigFlags import createMenuFlags
+    flags.join( createMenuFlags() )
                 
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:

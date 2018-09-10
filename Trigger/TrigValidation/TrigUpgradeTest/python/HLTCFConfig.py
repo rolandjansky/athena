@@ -167,14 +167,14 @@ def makeHLTTree(HLTChains):
     flatDecisions=[]
     for step in finalDecisions: flatDecisions.extend (step)
     summary= makeSummary("TriggerSummaryFinal", flatDecisions)
-    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
-    edmCreator = HLTEDMCreator()
-    
-    edmCreator.TrigCompositeContainer = flatDecisions
-    summary.OutputTools= [ edmCreator ]
-    hltTop += summary
-    hltTop += makeMonitor("TriggerMonitorFinal", finalDecisions, EnabledChainNames)
-    hltTop += makeStreamESD("StreamESD", flatDecisions)
+    #from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+    #edmCreator = HLTEDMCreator()
+    #
+    #edmCreator.TrigCompositeContainer = flatDecisions
+    #summary.OutputTools= [ edmCreator ]
+    #hltTop += summary
+    #hltTop += makeMonitor("TriggerMonitorFinal", finalDecisions, EnabledChainNames)
+    #hltTop += makeStreamESD("StreamESD", flatDecisions)
    
     
     from AthenaCommon.AlgSequence import AlgSequence

@@ -13,7 +13,9 @@
 #ifdef _XOPEN_SOURCE
 # undef _XOPEN_SOURCE
 #endif
+#define register
 #include <Python.h>
+#undef register
 
 #include <CoolKernel/ChannelSelection.h>
 #include <CoolKernel/IObject.h>

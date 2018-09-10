@@ -9,7 +9,6 @@ atlas_subdir( PileUpTools )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
                           Control/AthLinks
                           Control/SGTools
                           Control/StoreGate

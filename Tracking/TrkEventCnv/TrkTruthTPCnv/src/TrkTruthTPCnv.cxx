@@ -5,9 +5,16 @@
 // generate the T/P converter entries
 #include "AthenaKernel/TPCnvFactory.h"
 
+#include "TrkTruthTPCnv/DetailedTrackTruthCollectionCnv_p2.h"
+#include "TrkTruthTPCnv/DetailedTrackTruthCollection_p2.h"
 #include "TrkTruthTPCnv/DetailedTrackTruthCollectionCnv_p3.h"
 #include "TrkTruthTPCnv/DetailedTrackTruthCollection_p3.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
+
+DECLARE_TPCNV_FACTORY (DetailedTrackTruthCollectionCnv_p2,
+                       DetailedTrackTruthCollection,
+                       Trk::DetailedTrackTruthCollection_p2,
+                       Athena::TPCnvVers::Old)
 
 DECLARE_TPCNV_FACTORY (DetailedTrackTruthCollectionCnv_p3,
                        DetailedTrackTruthCollection,

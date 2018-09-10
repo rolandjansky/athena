@@ -9,7 +9,10 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h"
+//the following needed because the return type of getDetectorManager() is not 
+//the same as the method return type as specified in the baseclass
 #include "InDetServMatGeoModel/InDetServMatManager.h"
+
 
 class StoreGateSvc;
 class IRDBAccessSvc;

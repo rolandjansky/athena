@@ -182,7 +182,12 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   double m_EyValue150[17][115];
 
   //------TK parameters for charge map, uses file storage of map.... 
-  double m_stripCharge[5][81][285][50];
+  // This member makes the class very large --- large enough that it fails
+  // ubsan's sanity checks and produces a false positive.  However, it is not
+  // actually used, so comment it out.  If it is ever actually needed,
+  // then it should be allocated dynamically rather than being allocated
+  // inline to the class.
+  //double m_stripCharge[5][81][285][50];
   int    m_stripCharge_ixmax;
   int    m_stripCharge_iymax;
   double m_stripCharge_dx;
@@ -192,7 +197,7 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
-  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine

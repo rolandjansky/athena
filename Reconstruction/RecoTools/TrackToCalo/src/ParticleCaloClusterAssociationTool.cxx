@@ -108,7 +108,7 @@ namespace Rec {
     ParticleClusterAssociation::Data clusters;
     associateClusters(container,*caloExtension,dr,clusters,particle);    
     
-    association = new ParticleClusterAssociation( *caloExtension, std::move(clusters), dr, container );
+    association = new ParticleClusterAssociation( caloExtension, std::move(clusters), dr, container );
 
     // now add particle and CaloExtension to the container
     IParticleToCaloExtensionMap * caloExtensionMap = 0;

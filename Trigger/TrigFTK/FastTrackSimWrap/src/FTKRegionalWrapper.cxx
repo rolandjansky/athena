@@ -12,7 +12,6 @@
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 
 #include "PixelCabling/IPixelCablingSvc.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 
@@ -47,7 +46,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_hitInputTool("FTK_SGHitInput/FTK_SGHitInput"),
   m_clusterConverterTool("TrigFTKClusterConverterTool"),
   m_pix_cabling_svc("PixelCablingSvc", name),
-  m_sct_cabling_svc("SCT_CablingSvc", name),
+  m_sct_cablingToolCB("SCT_CablingToolCB"),
   m_storeGate(0),
   m_detStore( 0 ),
   m_evtStore(0 ),
@@ -147,7 +146,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   declareProperty("FixEndcapL0", m_fixEndcapL0);
   declareProperty("ITkMode",m_ITkMode);
   declareProperty("PixelCablingSvc", m_pix_cabling_svc);
-  declareProperty("ISCT_CablingSvc",m_sct_cabling_svc);
+  declareProperty("SCT_CablingTool",m_sct_cablingToolCB);
 
   // hit type options
   declareProperty("SaveRawHits",m_SaveRawHits);
@@ -262,11 +261,11 @@ StatusCode FTKRegionalWrapper::initialize()
       log << MSG::FATAL << "SCT_Cabling not initialized so m_DumpTestVectors and m_EmulateDF must both be set to false!" << endmsg;
       return StatusCode::FAILURE;
     }
-  } else if (m_sct_cabling_svc.retrieve().isFailure()) {
-    log << MSG::FATAL << "Failed to retrieve tool " << m_sct_cabling_svc << endmsg;
+  } else if (m_sct_cablingToolCB.retrieve().isFailure()) {
+    log << MSG::FATAL << "Failed to retrieve tool " << m_sct_cablingToolCB << endmsg;
     return StatusCode::FAILURE;
   } else {
-    log << MSG::INFO << "Retrieved tool " << m_sct_cabling_svc << endmsg;
+    log << MSG::INFO << "Retrieved tool " << m_sct_cablingToolCB << endmsg;
   }
 
   if (!m_SaveRawHits && !m_SaveHits) {
@@ -391,14 +390,14 @@ StatusCode FTKRegionalWrapper::initialize()
       //uint id = mit->first;
       ATH_MSG_DEBUG("Pixel offline map hashID to RobId "<<MSG::dec<<mit->first<<" "<<MSG::hex<<mit->second<<MSG::dec);
     }
-    ATH_MSG_DEBUG("Printing full SCT map  via m_sct_cabling_svc->getAllRods()");
+    ATH_MSG_DEBUG("Printing full SCT map  via m_sct_cablingToolCB->getAllRods()");
     std::vector<uint32_t>  sctVector;
-    m_sct_cabling_svc->getAllRods(sctVector);
-    ATH_MSG_DEBUG("Printing full SCT map  via m_sct_cabling_svc->getAllRods() "<<sctVector.size()<<" rods ");
+    m_sct_cablingToolCB->getAllRods(sctVector);
+    ATH_MSG_DEBUG("Printing full SCT map  via m_sct_cablingToolCB->getAllRods() "<<sctVector.size()<<" rods ");
     
     for(auto mit = sctVector.begin(); mit != sctVector.end(); mit++){
 	// Retrive hashlist
-	m_sct_cabling_svc->getHashesForRod(m_identifierHashList,*mit );	
+	m_sct_cablingToolCB->getHashesForRod(m_identifierHashList,*mit );
 	ATH_MSG_DEBUG("Retrieved  "<<m_identifierHashList.size()<<" hashes ");
 
 	for (auto mhit = m_identifierHashList.begin(); mhit != m_identifierHashList.end(); mhit++)
@@ -642,7 +641,7 @@ StatusCode FTKRegionalWrapper::execute()
      	//SCT
 	
 	//then get the corresponding RobId
-	uint32_t robid = m_sct_cabling_svc->getRobIdFromHash(modHash);
+	uint32_t robid = m_sct_cablingToolCB->getRobIdFromHash(modHash);
 	
 	if (dumpedSCT == false){
 	  ATH_MSG_VERBOSE("Dumping SCT Rod List ");
@@ -1071,7 +1070,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 // The getAllRods returns all of the rods in the StoreGateSvc
     hitTyp = 0;
     vector<uint32_t> sctrods;
-    m_sct_cabling_svc->getAllRods(sctrods);
+    m_sct_cablingToolCB->getAllRods(sctrods);
     id = 0;
 
     for (uint32_t rod : sctrods) {
@@ -1087,7 +1086,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
       if (myfile.is_open() ) {
 
 	// Retrive hashlist
-	 m_sct_cabling_svc->getHashesForRod(m_identifierHashList,rod );
+	 m_sct_cablingToolCB->getHashesForRod(m_identifierHashList,rod );
 
 	 // Some dumping variables
 	 vector<IdentifierHash>::const_iterator hashit = m_identifierHashList.begin();
@@ -1097,7 +1096,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 	 for (; hashit != hashit_e; ++hashit){  // TODO: Check for invalid onlineId && hashId numbers (?)
 
 	    // Retrieve OnlineId
-	      sct_onlineId = m_sct_cabling_svc->getOnlineIdFromHash( *hashit );
+	      sct_onlineId = m_sct_cablingToolCB->getOnlineIdFromHash( *hashit );
 	      if (sct_onlineId.rod()  == rod){ // Check for correct rodId
 
 		myfile.setf(ios::right | ios::showbase);

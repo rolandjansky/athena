@@ -50,6 +50,8 @@
 // Public Methods
 // *********************************************************************
 
+
+
 IDPerfMonKshort::IDPerfMonKshort( const std::string & type, const std::string & name, const IInterface* parent )
 	     :ManagedMonitorToolBase( type, name, parent ),
 	      m_triggerChainName("NoTriggerSelection")
@@ -60,8 +62,7 @@ IDPerfMonKshort::IDPerfMonKshort( const std::string & type, const std::string & 
   declareProperty("triggerChainName",m_triggerChainName);
   declareProperty("VxContainerName",m_VxContainerName="V0UnconstrVertices");
   declareProperty("VxPrimContainerName",m_VxPrimContainerName="PrimaryVertices");
-  //  declareProperty("MakeNtuple",m_Ntuple = false);
-
+  
 }
 
 IDPerfMonKshort::~IDPerfMonKshort() { }
@@ -73,11 +74,7 @@ StatusCode IDPerfMonKshort::initialize()
 
    m_histosBooked = 0;
 
-//   // Get StoreGate
-//   if ( service("StoreGateSvc",m_storeGate).isFailure() ) {
-//     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to get pointer to StoreGateSvc" << endmsg;
-//     return StatusCode::FAILURE;
-//   }
+
 
   if (m_tracksName.empty())     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << " no track collection given"<<endmsg;
 
@@ -86,11 +83,6 @@ StatusCode IDPerfMonKshort::initialize()
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort initialize() finished"<< endmsg;
   if(!sc.isSuccess()) return StatusCode::SUCCESS;
 
-//   if (m_Ntuple) {
-//     if (!NtupleMaker.initializeTools()) {
-//       m_Ntuple=false;
-//     }
-//  }
 
   return StatusCode::SUCCESS;
 }
@@ -104,13 +96,10 @@ StatusCode IDPerfMonKshort::bookHistograms()
 
   MonGroup al_kshort_mon ( this, "IDPerfMon/Kshort/" + m_triggerChainName, run);
 
-  //"" is for chain, "weightedAverage" is for merge, run is stored in interval
-  //MonGroup al_kshort_mon_average ( this, "IDPerfMon/Kshort/" + m_triggerChainName,  run, "", "weightedAverage" );
-
+ 
   //ASK CONFIRMATION for ATTRIB_MANAGED
   MonGroup al_kshort_mon_average(this, "IDPerfMon/Kshort/" + m_triggerChainName,run,ATTRIB_MANAGED,"","weightedAverage");
 
-  //  MonGroup al_kshort_debug ( this, "IDPerfMon/Kshort/" + m_triggerChainName,  debug, run);
 
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -162,8 +151,6 @@ StatusCode IDPerfMonKshort::bookHistograms()
     m_massVsPhi = new TH2F("ks_massVsPhi", "Invariant mass - world average of K^{0}_{S} candidate", 10, (-1.0* myPi), myPi, 50, -.5, .5);
     m_massVsPhi->SetXTitle("#phi");
     m_massVsPhi->SetYTitle("Mass (Gev / c^{2}) - World Average [MeV]");
-    //    m_massVsPhi->SetMarkerStyle(20);
-    //    m_massVsPhi->SetMinimum(0.);
     RegisterHisto(al_kshort_mon,m_massVsPhi) ;
 
 
@@ -241,8 +228,6 @@ StatusCode IDPerfMonKshort::bookHistograms()
     m_phi->SetXTitle("#phi");
     m_phi->SetMarkerStyle(20);
     RegisterHisto(al_kshort_mon,m_phi) ;
-//     TH1F* tempHisto[m_nBinsPt];
-//     m_massVPtBinHistos = tempHisto;
     for(int quickInit=0;quickInit<m_nBinsPt;quickInit++) {
       TString tempName = "MassVptBin";
       TString tempTitle = "Mass, p_{T} = ";
@@ -363,13 +348,7 @@ StatusCode IDPerfMonKshort::bookHistograms()
 
   }
 
-//   if (m_Ntuple) {
-//   StatusCode sc = al_kshort_mon.regTree(NtupleMaker.makeTree());
-//   if (sc.isFailure()){
-//    msg(MSG::WARNING) << "Cannot book TTree" << endmsg;
-//    m_Ntuple=false;
-//   }
-//   }
+
 
   return StatusCode::SUCCESS;
 }
@@ -449,16 +428,12 @@ const xAOD::VertexContainer* SecVxContainer(0);
  m_Nevents->Fill(0.);
 
 
- // ToolHandle <Trk::V0Tools> myV0Tools("Trk::V0Tools");
- // = new Trk::V0Tools("V0Tools","myV0Tools",m_parent);
- //const xAOD::Vertex* theVxCandidate;
- // double piMass = 139.57018;
+
   double ksMassPDG = 497.648;
   ATH_MSG_DEBUG("@todo : masspdf" <<ksMassPDG );
   ATH_MSG_DEBUG("@todo Looping over SecVxContainer name : "<< m_VxContainerName);
   ATH_MSG_DEBUG("@todo >> V0UnconstrVerices container size >> " << SecVxContainer->size());
-  //    const xAOD::VertexContainer::const_iterator* secVx_elem = SecVxContainer->begin();
-  //    for ( *secVx_elem=SecVxContainer->begin(); *secVx_elem!=SecVxContainer->end(); ++(*secVx_elem) ) {
+ 
   for (const auto* secVx_elem : *SecVxContainer) {
    ATH_MSG_DEBUG("Looping over SecVxContainer name : "<< m_VxContainerName);
    double ksMass = secVx_elem->auxdata< float >("Kshort_mass");
@@ -484,27 +459,20 @@ const xAOD::VertexContainer* SecVxContainer(0);
      Amg::Vector3D mom(ksPx,ksPy,ksPz);
      double dxy = (mom.x()*dx + mom.y()*dy)/mom.perp();
      transverseFlightDistance =dxy;
-     //     transverseFlightDistance = myV0Tools->lxy(theVxCandidate,primaryVertex);
      Amg::Vector3D vertex(secVx_elem->position().x(),secVx_elem->position().y(),secVx_elem->position().z());
      totalFlightDistance = (vertex-primaryVertex->position()).mag();
-     //     totalFlightDistance = (myV0Tools->vtx(theVxCandidate)-primaryVertex->position()).mag();
      flightVector = vertex-primaryVertex->position();
-     //     flightVector = myV0Tools->vtx(theVxCandidate)-primaryVertex->position();
      ATH_MSG_DEBUG("dx : "<<dx<<" dy: "<<dy<<" dxy: "<<dxy<< "flight distance (total): "<<totalFlightDistance);
    }
    else {
      transverseFlightDistance = secVx_elem->position().perp();
-     //transverseFlightDistance = myV0Tools->rxy(theVxCandidate);
      Amg::Vector3D vertex(secVx_elem->position().x(),secVx_elem->position().y(),secVx_elem->position().z());
      totalFlightDistance = vertex.mag();
-     //     totalFlightDistance = (myV0Tools->vtx(theVxCandidate)).mag();
      flightVector = vertex;
-     //     flightVector = myV0Tools->vtx(theVxCandidate);
    }
    double properDecayTime = 1./Gaudi::Units::c_light*ksMassPDG/ksMomentum*totalFlightDistance;
 
-   //   double ksPx = ksMomentumVector.x();
-   //   double ksPy = ksMomentumVector.y();
+
    double flightX = flightVector.x();
    double flightY = flightVector.y();
    double cosThetaPointing = (ksPx*flightX+ksPy*flightY)/sqrt(ksPx*ksPx+ksPy*ksPy)/sqrt(flightX*flightX+flightY*flightY);
@@ -524,8 +492,6 @@ const xAOD::VertexContainer* SecVxContainer(0);
      auto tpLinks = secVx_elem->trackParticleLinks();
      for (auto link: tpLinks){
        Info("execute()", "V0: TP link = %d %s ", link.isValid(), link.dataID().c_str() );
-       //const xAOD::TrackParticle* TP = *link;
-       //if (TP) Info("execute()", "V0: TP pt = %f ", TP->pt());
        if(ntrk == 2){
 	 ATH_MSG_DEBUG("Exactly two track particles!");
 	 if( (*link)->charge() > 0. ) {
@@ -550,8 +516,6 @@ const xAOD::VertexContainer* SecVxContainer(0);
 
     std::cout <<"@todo : check (2) " << std::endl;
 
-    //   const xAOD::TrackParticle* trackNeg = myV0Tools->negativeOrigTrack(secVx_elem);
-    //      const xAOD::TrackParticle* trackNeg = myV0Tools->negativeOrigTrack(theVxCandidate);
     if(trackNeg!=0) {
       uint8_t dummy(-1);
       trackNeg_nSVTHits = trackNeg->summaryValue(  dummy , xAOD::numberOfSCTHits  )? dummy :-1;
@@ -563,14 +527,12 @@ const xAOD::VertexContainer* SecVxContainer(0);
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksTau = " << properDecayTime << " Lxy = " <<transverseFlightDistance<< " cosTheta = " << cosThetaPointing <<endmsg;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trackPos nSVThits = " << trackPos_nSVTHits << " trackNeg nSVThits = " << trackNeg_nSVTHits <<endmsg;
-    // if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained << endmsg;
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksPt = " << ksPt <<endmsg;
 
 
     double secVertex_radius = secVx_elem->auxdata< float >("Rxy");
     ATH_MSG_DEBUG("secondary vertex radius : " << secVertex_radius);
-    //    if(secVertex_radius > 20. && abs(secVx_elem->position().z()) < 300.){
       m_radius_secVertices->Fill(secVertex_radius);
       m_radiusVsZ_secVertex->Fill(secVx_elem->position().z(),secVertex_radius);
       m_YVsX_secVertex->Fill(secVx_elem->position().x(),secVx_elem->position().y());
@@ -615,23 +577,13 @@ const xAOD::VertexContainer* SecVxContainer(0);
     m_mass->Fill(ksMass/1000.);
 
 
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained <<endmsg;
 
-    //   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksPt = " << ksPt <<endmsg;
     double ksEta = ksMomentumVector.pseudoRapidity();
-    //    double ksEta = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).PseudoRapidity();
     double ksPhi = ksMomentumVector.phi();
-    //    double ksPhi = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).Phi();
     std::cout <<"@todo : check (4) " << std::endl;
     double piPlusPt = trackPos->p4().Perp();
     std::cout <<"@todo : check (5) " << std::endl;
-    //    double piPlusPt = myV0Tools->positiveTrack4Momentum(theVxCandidate,piMass).Perp();
-    //    double piPlusEta = myV0Tools->positiveTrack4Momentum((const Trk::ExtendedVxCandidate*)theVxCandidate,piMass).pseudoRapidity();
-    //    double piPlusPhi = myV0Tools->positiveTrack4Momentum((const Trk::ExtendedVxCandidate*)myV0Hypothesis,piMass).phi();
     double piMinusPt = trackNeg->p4().Perp();
-    //    double piMinusPt = myV0Tools->negativeTrack4Momentum(theVxCandidate,piMass).Perp();
-    //    double piMinusEta = myV0Tools->negativeTrack4Momentum((const Trk::ExtendedVxCandidate*)theVxCandidate,piMass).pseudoRapidity();
-    //    double piMinusPhi = myV0Tools->negativeTrack4Momentum((const Trk::ExtendedVxCandidate*)myV0Hypothesis,piMass).phi();
     std::cout <<"@todo : check (6) " << std::endl;
 
 
@@ -640,9 +592,7 @@ const xAOD::VertexContainer* SecVxContainer(0);
     m_eta->Fill(ksEta);
     m_phi->Fill(ksPhi);
 
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "piEta = " << piEta <<endmsg;
     Float_t curvatureDiff = (1./(piPlusPt)) - (1./(piMinusPt));
-    //    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "curvatureDiff = " << curvatureDiff <<endmsg;
 
     if( curvatureDiff <= -0.0008) m_massVCurvatureDiffBinHistos[0]->Fill(ksMass/1000.);
     if( curvatureDiff >  -0.0008 && curvatureDiff <= -0.0004) m_massVCurvatureDiffBinHistos[1]->Fill(ksMass/1000.);
@@ -681,15 +631,10 @@ const xAOD::VertexContainer* SecVxContainer(0);
     if (ksPt > 5000) ksPt = 5000;
     if(ksPt < 500) ksPt = 500;
     Int_t quickBin = (Int_t)ksPt;
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endmsg;
     quickBin -= quickBin%100;
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endmsg;
     quickBin -= 500;
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endmsg;
     quickBin /= 100;
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endmsg;
     m_massVPtBinHistos[quickBin]->Fill(ksMass/1000.);
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "histo[" << quickBin << "]->GetEntries() = " << m_massVPtBinHistos[quickBin]->GetEntries() << endmsg;
 
     double radius = secVx_elem->auxdata< float >("Rxy");
 
@@ -708,44 +653,10 @@ const xAOD::VertexContainer* SecVxContainer(0);
     radiusTemp -= radiusTemp%10;
     m_massVRadiusBinHistos[(Int_t)radiusTemp/10]->Fill(ksMass/1000.);
 
-//     const std::vector<Trk::VxTrackAtVertex*>& trackAtVertexVec = *(myV0Hypothesis->vxTrackAtVertex());
-//     for (unsigned int i = 0; i < trackAtVertexVec.size(); i++) {
-//       Trk::LinkToTrackParticleBase* newLinkToTrackPB = new Trk::LinkToTrackParticleBase();
-//       if(charge1 > 0.) {
-// 	if(i == 0) newLinkToTrackPB->setElement((*tpIt1));
-// 	if(i == 1) newLinkToTrackPB->setElement((*tpIt2));
-//       } else {
-// 	if(i == 0) newLinkToTrackPB->setElement((*tpIt2));
-// 	if(i == 1) newLinkToTrackPB->setElement((*tpIt1));
-//       }
-//       newLinkToTrackPB->setStorableObject(*TPC);
-//       trackAtVertexVec[i]->setOrigTrack(newLinkToTrackPB);
-//     }
+
   }
 
-  //******************
-  //NtupleMaker
-  //******************
-//   if (m_Ntuple)
-//     {
-//       int evtNum=0;
-//       int runNum=0;
-//       int LBNum=0;
-//       const EventInfo* eventInfo; // EventInfo
-//       StatusCode sc = evtStore()->retrieve(eventInfo);
-//       if (sc.isSuccess()) {
-// 	EventID* eventID = eventInfo->event_ID(); // Get EventInfo
-// 	evtNum = eventID->event_number();
-// 	runNum = eventID->run_number();
-// 	LBNum = eventID->lumi_block();
-//       }
-//       NtupleMaker.setPrimaryVertex(primaryVertex);
-//       NtupleMaker.setTrackMass(piMass);
-//       NtupleMaker.setResonancePDGMass(ksMassPDG);
-//       NtupleMaker.fill(evtNum,runNum,LBNum,theVxContainer);
-//       //tmp fix after switching to secVtxFinder
-//       NtupleMaker.calculateError(false);
-//     }
+ 
 
   return StatusCode::SUCCESS;
 }
@@ -762,12 +673,7 @@ StatusCode IDPerfMonKshort::procHistograms()
     MonGroup al_kshort_mon ( this, "IDPerfMon/Kshort/" + m_triggerChainName, run);
     //CHECK ATTRIB MANAGED
     MonGroup al_kshort_mon_average ( this, "IDPerfMon/Kshort/" + m_triggerChainName, run, ATTRIB_MANAGED, "", "weightedAverage" );
-    //    TF1 *func1 = new TF1("func1","gaus",0.450,0.550);
-    //    TF1 *func3 = new TF1("func3","gaus",405,595);
-    //    TF1 *func2 = new TF1("func2","expo",0.450,0.550);
     TF1 *func = new TF1("func","gaus(0)+expo(3)",0.450,0.550);
-    //    TF1 *func = new TF1("func","func1+func2",0.450,0.550);
-    //    TF1 *doubleGauss = new TF1("doubleGauss","func1+func3",405,595);
 
     func->SetLineColor(4);
     func->SetParameters(10.,0.500,0.010,2.,-.001);
@@ -778,50 +684,11 @@ StatusCode IDPerfMonKshort::procHistograms()
     func->SetParLimits(4,-1000.,0.);
     func->SetParNames("Constant","Mean","Width","Constant","Slope");
 
-//     doubleGauss->SetParameters(50.,497.,0.,8.,496.,0.);
-//     doubleGauss->SetParLimits(0,0.,10000.);
-//     doubleGauss->SetParLimits(1,450.,550.);
-//     doubleGauss->SetParLimits(2,0.,50.);
-//     doubleGauss->SetParLimits(3,0.,1000.);
-//     doubleGauss->SetParLimits(4,450.,550.);
-//     doubleGauss->SetParLimits(5,0.,50.);
-//     doubleGauss->SetParNames("C_{core}","#mu_{core}","#sigma_{core}","C_{tail}","#mu_{tail}","#sigma_{tail}");
-
-//     Int_t BinCounter=0;
-//     Double_t ptBins[m_nBinsPt], ptBinsErrors[m_nBinsPt], massBins[m_nBinsPt], massErrorBins[m_nBinsPt];
-//     for(int binFill=0;binFill<m_nBinsPt;binFill++) {
-//       ptBins[BinCounter] = (binFill*100)+500;
-//       m_massVPtBinFittedHistos[BinCounter] = (TH1F*)m_massVPtBinHistos[binFill]->Clone();
-//       while(m_massVPtBinFittedHistos[BinCounter]->GetEntries()<50) {
-// 	binFill++;
-// 	if(binFill==m_nBinsPt) break;
-// 	m_massVPtBinFittedHistos[BinCounter]->Add(m_massVPtBinHistos[binFill]);
-//       }
-//       if(binFill==m_nBinsPt) {
-// 	ptBinsErrors[BinCounter] = (5000 - ptBins[BinCounter])/2;
-// 	ptBins[BinCounter] = (ptBins[BinCounter]+5000)/2;
-//       } else {
-// 	ptBinsErrors[BinCounter] = (((binFill+1)*100)+500 - ptBins[BinCounter])/2;
-// 	ptBins[BinCounter] = (ptBins[BinCounter]+((binFill+1)*100)+500)/2;
-//       }
-//       ptBinsErrors[BinCounter] /= 1000.;
-//       ptBins[BinCounter] /= 1000.;
-//       m_massVPtBinFittedHistos[BinCounter]->Fit(func,"lmhq");
-//       massBins[BinCounter] = func->GetParameter(1);
-//       massErrorBins[BinCounter] = func->GetParError(1);
-//       //      cout<<binFill<<" "<<ptBins[BinCounter]<<" "<<massBins[BinCounter]<<" "<<massErrorBins[BinCounter]<<endl;
-//       BinCounter++;
-//     }
-    // int MinStat=100;
-    //    if (m_mass->GetEntries()>=MinStat) m_mass->Fit(func,"lhqn");
 
     Double_t massBins[m_nFittedBinsPt], massErrorBins[m_nFittedBinsPt], widthBins[m_nFittedBinsPt], widthErrorBins[m_nFittedBinsPt];
     const Int_t nPtBinsHisto = m_nFittedBinsPt+1;
     Double_t ptBins[nPtBinsHisto] = {0.5,1.6,2.1,2.8,3.9,5.1};
-    //    Double_t ptBins[m_nFittedBinsPt] = {1.05,1.85,2.45,3.35,4.5};
-    //    Double_t ptBinsErrors[m_nFittedBinsPt] = {0.55,0.25,0.35,0.55,0.6};
     for(int binFill=0;binFill<m_nFittedBinsPt;binFill++) {
-      //   if (m_massVPtBinFittedHistos[binFill]->GetEntries()>=MinStat) m_massVPtBinFittedHistos[binFill]->Fit(func,"lmhqn");
       massBins[binFill] = func->GetParameter(1);
       massErrorBins[binFill] = func->GetParError(1);
       widthBins[binFill] = func->GetParameter(2);
@@ -829,17 +696,14 @@ StatusCode IDPerfMonKshort::procHistograms()
     }
 
     const Double_t* ptBinsFinal = ptBins;
-    //    const Double_t* ptBinsErrorsFinal = ptBinsErrors;
     const Double_t* massBinsFinal = massBins;
     const Double_t* massErrorBinsFinal = massErrorBins;
     const Double_t* widthBinsFinal = widthBins;
     const Double_t* widthErrorBinsFinal = widthErrorBins;
 
     if(m_nFittedBinsPt) {
-      //      m_massVersusPt = new TGraphErrors(m_nFittedBinsPt,ptBinsFinal,massBinsFinal,ptBinsErrorsFinal,massErrorBinsFinal);
       m_massVersusPt = new TH1F("KsMassVersusPt","",m_nFittedBinsPt,ptBinsFinal);
       RegisterHisto(al_kshort_mon_average,m_massVersusPt);
-      //      m_massVersusPt->SetErrorOption("s");
       m_massVersusPt->SetXTitle("p_{T} (Gev / c)");
       m_massVersusPt->SetYTitle("Mass (Gev / c^{2})");
       m_massVersusPt->SetMarkerStyle(20);
@@ -850,7 +714,6 @@ StatusCode IDPerfMonKshort::procHistograms()
 	m_massVersusPt->SetBinError(binFill+1,binError);
       }
 
-      //      m_widthVersusPt = new TGraphErrors(m_nFittedBinsPt,ptBinsFinal,widthBinsFinal,ptBinsErrorsFinal,widthErrorBinsFinal);
       m_widthVersusPt = new TH1F("KsWidthVersusPt","",m_nFittedBinsPt,ptBinsFinal);
       RegisterHisto(al_kshort_mon_average,m_widthVersusPt);
       //      m_widthVersusPt->SetErrorOption("s");
@@ -864,17 +727,13 @@ StatusCode IDPerfMonKshort::procHistograms()
 	m_widthVersusPt->SetBinError(binFill+1,binError);
       }
 
-//       RegisterHisto(al_kshort_mon_average,m_massVersusPt);
-//       RegisterHisto(al_kshort_mon_average,m_widthVersusPt);
     }
 
     Double_t massVradiusBins[m_nFittedBinsRadius], massVradiusErrorBins[m_nFittedBinsRadius], widthVradiusBins[m_nFittedBinsRadius], widthVradiusErrorBins[m_nFittedBinsRadius];
     const Int_t nRadiusBinsHisto = m_nFittedBinsRadius+1;
     Double_t radiusBins[nRadiusBinsHisto] = {0.,30.,40.,60.,80.,100.,140.,230};
-    //    Double_t radiusBins[m_nFittedBinsRadius] = {15.,35.,50.,70.,90.,120.,185.};
-    //    Double_t radiusBinsErrors[m_nFittedBinsRadius] = {15.,5.,10.,10.,10.,20.,45.};
+
     for(int binFill=0;binFill<m_nFittedBinsRadius;binFill++) {
-      //  if (m_massVRadiusBinFittedHistos[binFill]->GetEntries()>=MinStat) m_massVRadiusBinFittedHistos[binFill]->Fit(func,"lmhqn");
       massVradiusBins[binFill] = func->GetParameter(1);
       massVradiusErrorBins[binFill] = func->GetParError(1);
       widthVradiusBins[binFill] = func->GetParameter(2);
@@ -882,17 +741,14 @@ StatusCode IDPerfMonKshort::procHistograms()
     }
 
     const Double_t* radiusBinsFinal = radiusBins;
-    //    const Double_t* radiusBinsErrorsFinal = radiusBinsErrors;
     const Double_t* massVradiusBinsFinal = massVradiusBins;
     const Double_t* massVradiusErrorBinsFinal = massVradiusErrorBins;
     const Double_t* widthVradiusBinsFinal = widthVradiusBins;
     const Double_t* widthVradiusErrorBinsFinal = widthVradiusErrorBins;
 
     if(m_nFittedBinsRadius) {
-      //      m_massVersusRadius = new TGraphErrors(m_nFittedBinsRadius,radiusBinsFinal,massVradiusBinsFinal,radiusBinsErrorsFinal,massVradiusErrorBinsFinal);
       m_massVersusRadius = new TH1F("KsMassVersusRadius","",m_nFittedBinsRadius,radiusBinsFinal);
       RegisterHisto(al_kshort_mon_average,m_massVersusRadius);
-      //      m_massVersusRadius->SetErrorOption("s");
       m_massVersusRadius->SetXTitle("Decay Radius (mm)");
       m_massVersusRadius->SetYTitle("Mass (Gev / c^{2})");
       m_massVersusRadius->SetMarkerStyle(20);
@@ -902,10 +758,8 @@ StatusCode IDPerfMonKshort::procHistograms()
 	m_massVersusRadius->SetBinContent(binFill+1,binContent);
 	m_massVersusRadius->SetBinError(binFill+1,binError);
       }
-      //      m_widthVersusRadius = new TGraphErrors(m_nFittedBinsRadius,radiusBinsFinal,widthVradiusBinsFinal,radiusBinsErrorsFinal,widthVradiusErrorBinsFinal);
       m_widthVersusRadius = new TH1F("KsWidthVersusRadius","",m_nFittedBinsRadius,radiusBinsFinal);
       RegisterHisto(al_kshort_mon_average,m_widthVersusRadius);
-      //      m_widthVersusRadius->SetErrorOption("s");
       m_widthVersusRadius->SetXTitle("Decay Radius (mm)");
       m_widthVersusRadius->SetYTitle("Width (Gev / c^{2})");
       m_widthVersusRadius->SetMarkerStyle(20);
@@ -916,16 +770,13 @@ StatusCode IDPerfMonKshort::procHistograms()
 	m_widthVersusRadius->SetBinError(binFill+1,binError);
       }
 
-//       RegisterHisto(al_kshort_mon_average,m_massVersusRadius);
-//       RegisterHisto(al_kshort_mon_average,m_widthVersusRadius);
+
     }
 
     Double_t etaBins[11] = {-2.5,-2.0,-1.5,-1.0,-0.5,0.0,0.5,1.0,1.5,2.0,2.5};
-    //    Double_t etaBins[10] = {-2.25,-1.75,-1.25,-0.75,-0.25,0.25,0.75,1.25,1.75,2.25};
-    //    Double_t etaErrorBins[10] = {0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25};
+
     Double_t massVetaBins[10], massVetaErrorBins[10], widthVetaBins[10], widthVetaErrorBins[10];
     for(int binFill=0;binFill<10;binFill++) {
-      // if (m_massVEtaBinHistos[binFill]->GetEntries()>=MinStat) m_massVEtaBinHistos[binFill]->Fit(func,"lmhqn");
       massVetaBins[binFill] = func->GetParameter(1);
       massVetaErrorBins[binFill] = func->GetParError(1);
       widthVetaBins[binFill] = func->GetParameter(2);
@@ -933,7 +784,6 @@ StatusCode IDPerfMonKshort::procHistograms()
     }
     m_massVersusEta = new TH1F("KsMassVersusEta","",10,etaBins);
     RegisterHisto(al_kshort_mon_average,m_massVersusEta);
-    //    m_massVersusEta->SetErrorOption("s");
     m_massVersusEta->SetXTitle("#eta");
     m_massVersusEta->SetYTitle("Mass (Gev / c^{2})");
     m_massVersusEta->SetMarkerStyle(20);
@@ -955,10 +805,7 @@ StatusCode IDPerfMonKshort::procHistograms()
       m_widthVersusEta->SetBinContent(binFill+1,binContent);
       m_widthVersusEta->SetBinError(binFill+1,binError);
     }
-    //    m_widthVersusEta = new TGraphErrors(10,etaBins,widthVetaBins,etaErrorBins,widthVetaErrorBins);
-
-//     RegisterHisto(al_kshort_mon_average,m_massVersusEta);
-//     RegisterHisto(al_kshort_mon_average,m_widthVersusEta);
+   
 
     Double_t phiBins[11] = { (-5.0*myPi / 5) ,
 			     (-4.0*myPi / 5) ,
@@ -971,26 +818,7 @@ StatusCode IDPerfMonKshort::procHistograms()
 			     (3.0*myPi / 5) ,
 			     (4.0*myPi / 5) ,
 			     (5.0*myPi / 5) };
-//     Double_t phiBins[10] = { (-4.5*myPi / 5) ,
-// 			     (-3.5*myPi / 5) ,
-// 			     (-2.5*myPi / 5) ,
-// 			     (-1.5*myPi / 5) ,
-// 			     (-0.5*myPi / 5) ,
-// 			     (0.5*myPi / 5) ,
-// 			     (1.5*myPi / 5) ,
-// 			     (2.5*myPi / 5) ,
-// 			     (3.5*myPi / 5) ,
-// 			     (4.5*myPi / 5) };
-//     Double_t phiErrorBins[10] = {0.5*myPi/5,
-// 				 0.5*myPi/5,
-// 				 0.5*myPi/5,
-// 				 0.5*myPi/5,
-// 				 0.5*myPi/5,
-// 				 0.5*myPi/5,
-// 				 0.5*myPi/5,
-// 				 0.5*myPi/5,
-// 				 0.5*myPi/5,
-// 				 0.5*myPi/5 };
+
     Double_t massVphiBins[10], massVphiErrorBins[10], widthVphiBins[10], widthVphiErrorBins[10];
     for(int binFill=0;binFill<10;binFill++) {
       // if (m_massVPhiBinHistos[binFill]->GetEntries()>=MinStat) m_massVPhiBinHistos[binFill]->Fit(func,"lmhqn");
@@ -1011,10 +839,8 @@ StatusCode IDPerfMonKshort::procHistograms()
       m_massVersusPhi->SetBinContent(binFill+1,binContent);
       m_massVersusPhi->SetBinError(binFill+1,binError);
     }
-    //    m_massVersusPhi = new TGraphErrors(10,phiBins,massVphiBins,phiErrorBins,massVphiErrorBins);
     m_widthVersusPhi = new TH1F("KsWidthVersusPhi","",10,phiBins);
     RegisterHisto(al_kshort_mon_average,m_widthVersusPhi);
-    //    m_widthVersusPhi->SetErrorOption("s");
     m_widthVersusPhi->SetXTitle("#phi");
     m_widthVersusPhi->SetYTitle("Width (Gev / c^{2})");
     m_widthVersusPhi->SetMarkerStyle(20);
@@ -1025,13 +851,10 @@ StatusCode IDPerfMonKshort::procHistograms()
       m_widthVersusPhi->SetBinError(binFill+1,binError);
     }
 
-//     RegisterHisto(al_kshort_mon_average,m_massVersusPhi);
-//     RegisterHisto(al_kshort_mon_average,m_widthVersusPhi);
 
     Double_t curvatureDiffBins[7] = {-0.0012,-0.0008,-0.0004,0.0000,0.0004,0.0008,0.0012};
     Double_t massVcurvatureDiffBins[6], massVcurvatureDiffErrorBins[6], widthVcurvatureDiffBins[6], widthVcurvatureDiffErrorBins[6];
     for(int binFill=0;binFill<6;binFill++) {
-      // if (m_massVCurvatureDiffBinHistos[binFill]->GetEntries()>=MinStat) m_massVCurvatureDiffBinHistos[binFill]->Fit(func,"lmhqn");
       massVcurvatureDiffBins[binFill] = func->GetParameter(1);
       massVcurvatureDiffErrorBins[binFill] = func->GetParError(1);
       widthVcurvatureDiffBins[binFill] = func->GetParameter(2);
@@ -1039,7 +862,6 @@ StatusCode IDPerfMonKshort::procHistograms()
     }
     m_massVersusCurvatureDiff = new TH1F("KsMassVersusCurvatureDiff","",6,curvatureDiffBins);
     RegisterHisto(al_kshort_mon_average,m_massVersusCurvatureDiff);
-    //    m_massVersusCurvatureDiff->SetErrorOption("s");
     m_massVersusCurvatureDiff->SetXTitle("1/p_{T}(#pi^{+}) - 1/p_{T}(#pi^{-}) [GeV^{-1}]");
     m_massVersusCurvatureDiff->SetYTitle("Mass (Gev / c^{2})");
     m_massVersusCurvatureDiff->SetMarkerStyle(20);
@@ -1051,7 +873,6 @@ StatusCode IDPerfMonKshort::procHistograms()
     }
     m_widthVersusCurvatureDiff = new TH1F("KsWidthVersusCurvatureDiff","",6,curvatureDiffBins);
     RegisterHisto(al_kshort_mon_average,m_widthVersusCurvatureDiff);
-    //    m_widthVersusCurvatureDiff->SetErrorOption("s");
     m_widthVersusCurvatureDiff->SetXTitle("1/p_{T}(#pi^{+}) - 1/p_{T}(#pi^{-}) [GeV^{-1}]");
     m_widthVersusCurvatureDiff->SetYTitle("Width (Gev / c^{2})");
     m_widthVersusCurvatureDiff->SetMarkerStyle(20);
@@ -1061,7 +882,6 @@ StatusCode IDPerfMonKshort::procHistograms()
       m_widthVersusCurvatureDiff->SetBinContent(binFill+1,binContent);
       m_widthVersusCurvatureDiff->SetBinError(binFill+1,binError);
     }
-    //    m_widthVersusCurvatureDiff = new TGraphErrors(10,curvatureDiffBins,widthVcurvatureDiffBins,curvatureDiffErrorBins,widthVcurvatureDiffErrorBins);
   }
 
   return StatusCode::SUCCESS;

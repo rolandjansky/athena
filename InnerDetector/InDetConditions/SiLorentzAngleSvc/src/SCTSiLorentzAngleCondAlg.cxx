@@ -150,7 +150,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     
     // Combined the validity ranges of temp and HV
     rangeSCT = EventIDRange::intersect(rangeTemp, rangeHV);
-    if (rangeSCT.start()>rangeSCT.stop()) {
+    if (rangeSCT.stop().isValid() and rangeSCT.start()>rangeSCT.stop()) {
       ATH_MSG_FATAL("Invalid intersection rangeSCT: " << rangeSCT);
       return StatusCode::FAILURE;
     }
@@ -174,7 +174,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
 
       // Set the validity ranges of sensor
       rangeBField = rangeBFieldSensor;
-      if (rangeBField.start()>rangeBField.stop()) {
+      if (rangeBField.stop().isValid() and rangeBField.start()>rangeBField.stop()) {
         ATH_MSG_FATAL("Invalid intersection rangeBField: " << rangeBField);
         return StatusCode::FAILURE;
       }
@@ -183,7 +183,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
 
   // Combined the validity ranges of temp and HV
   EventIDRange rangeW{EventIDRange::intersect(rangeSCT, rangeBField)};
-  if (rangeW.start()>rangeW.stop()) {
+  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);
     return StatusCode::FAILURE;
   }
