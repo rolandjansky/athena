@@ -17,7 +17,7 @@ if len(svcMgr.EventSelector.InputCollections)==0:
    
 
 #instantiate a tool without a config file, so that it's in config file making mode ...
-ToolSvc += CfgMgr.CP__PileupReweightingTool("auto",ConfigFiles=[],LumiCalcFiles=[],DataScaleFactor=1.0,DataScaleFactorUP=0.,DataScaleFactorDOWN=0.)
+ToolSvc += CfgMgr.CP__PileupReweightingTool("auto",ConfigFiles=[],LumiCalcFiles=[],DataScaleFactor=1.0,DataScaleFactorUP=0.,DataScaleFactorDOWN=0.,PeriodAssignments=[])
 
 #need to configure the weighttool to use TruthEvents, because of ATLASSIM-2989 bug in 20.7
 ToolSvc += CfgMgr.McEventWeight("MyWeights",UseTruthEvents=True)
