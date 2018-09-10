@@ -7,7 +7,7 @@
 #ifndef NSW_VECTOR_UTILS_H
 #define NSW_VECTOR_UTILS_H
 
-#include "tdr_typedefs.h"
+#include "TriggerTypes.h"
 
 #include <vector>
 
@@ -17,9 +17,9 @@
    @author davide.gerbaudo@gmail.com
    @date 2013
  */
-namespace nsw {
-std::string vec2str(const nsw::vsize_t &vec);
-std::string vec2str(const nsw::vpads_t &vec);
+namespace NSWL1 {
+std::string vec2str(const std::vector< size_t > &vec);
+std::string vec2str(const std::vector<PadWithHits> &vec);
 
 /// given a vector, return something like range(len(vec))
 template <typename Container>
