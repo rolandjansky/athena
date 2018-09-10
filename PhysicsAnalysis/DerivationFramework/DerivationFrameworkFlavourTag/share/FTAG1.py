@@ -127,9 +127,9 @@ addDefaultTrimmedJets(FTAG1Seq,"FTAG1",dotruth=True)
 # Adding ExKt and ExCoM sub-jets for each trimmed large-R jet
 #
 ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
-ExKtJetCollection__SubJet = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
-ExKtJetCollection__SubJet3 = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 3, False)
-ExCoMJetCollection__SubJet = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False, subjetAlgName = "CoM")
+ExKtJetCollection__SubJet = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=False)
+ExKtJetCollection__SubJet3 = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=False)
+ExCoMJetCollection__SubJet = addExKtCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=False, subjetAlgName = "CoM")
 
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
