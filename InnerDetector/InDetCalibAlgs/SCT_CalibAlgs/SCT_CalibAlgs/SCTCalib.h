@@ -54,8 +54,6 @@
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h" //member
 #include "GaudiKernel/ToolHandle.h" //member
-#include "GaudiKernel/IIncidentSvc.h" //template parameter, so not fwd declared
-#include "GaudiKernel/IIncidentListener.h" //baseclass
 
 #include "TH1.h"
 
@@ -85,7 +83,6 @@ class StatusCode;
 class EventInfo;
 class SCT_PlanePosition;
 class Identifier;
-class Incident;
 
 
 class SCTCalib : public AthAlgorithm {
@@ -98,7 +95,6 @@ class SCTCalib : public AthAlgorithm {
         StatusCode execute();
         StatusCode endRun();
         StatusCode finalize();
-        //void handle( const Incident& );
 
     private:
         ServiceHandle<StoreGateSvc>                     p_sgSvc;
