@@ -17,10 +17,7 @@
 // #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "PATInterfaces/SystematicSet.h"
 
-namespace CP{
-  // class IElectronChargeEfficiencyCorrectionTool;
-  class IEfficiencyScaleFactorTool;
-}
+class IAsgElectronEfficiencyCorrectionTool;
 
 class EleChargeAlg: public ::AthAlgorithm {
  public:
@@ -38,7 +35,7 @@ class EleChargeAlg: public ::AthAlgorithm {
   CP::SystematicSet m_syst;
 
   /// The handle to the charge-misid scale-factor tool
-  ToolHandle<CP::IEfficiencyScaleFactorTool> m_eccTool;
+  ToolHandle<IAsgElectronEfficiencyCorrectionTool> m_eccTool;
 
   /// The name of the input electron container
   StringProperty m_eleContName;
