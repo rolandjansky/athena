@@ -202,7 +202,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00184169_Egamma_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=True;'"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=True;DQMonFlags.doCTPMon=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
