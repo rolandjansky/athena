@@ -53,8 +53,6 @@ class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       virtual void setBunchCrossing(const int bc);
       virtual void setCounter(const int counterVal);
       virtual void incrementCounter();
-      virtual void incrementUOFO();
-      virtual void resetUOFO();
 
       virtual void getTimeStamps(int & begin, int & end) const;
       virtual void getTimeStamps(std::string & begin, std::string & end) const;
@@ -63,7 +61,6 @@ class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       virtual int lumiBlock() const;
       virtual int runNumber() const;
       virtual int counter() const;
-      virtual int UOFO() const;
       virtual int numLumiBlocks() const;
       //@}
 
@@ -81,8 +78,6 @@ class SCT_CalibEventInfo: virtual public ISCT_CalibEvtInfo,  public AthService {
       int  m_LBBegin;
       int  m_LBEnd;
       int  m_numLB;
-      int  m_numUOFO;
-      int  m_numUOFOth;
       std::string m_source;
 
       //

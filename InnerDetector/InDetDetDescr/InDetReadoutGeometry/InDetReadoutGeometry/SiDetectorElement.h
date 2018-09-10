@@ -944,6 +944,7 @@ namespace InDetDD {
     
     inline bool SiDetectorElement::swapPhiReadoutDirection() const
     {
+      if (m_firstTime) updateCache(); // In order to set m_phiDirection
       // equivalent to (m_design->swapHitPhiReadoutDirection() xor !m_phiDirection)
       return ((!m_design->swapHitPhiReadoutDirection() && !m_phiDirection)
     	  || (m_design->swapHitPhiReadoutDirection() && m_phiDirection));
@@ -951,6 +952,7 @@ namespace InDetDD {
     
     inline bool SiDetectorElement::swapEtaReadoutDirection() const
     {
+      if (m_firstTime) updateCache(); // In order to set m_etaDirection
       // equivalent to (m_design->swapHitEtaReadoutDirection() xor !m_etaDirection)
       return ((!m_design->swapHitEtaReadoutDirection() && !m_etaDirection)
     	  || (m_design->swapHitEtaReadoutDirection() && m_etaDirection));

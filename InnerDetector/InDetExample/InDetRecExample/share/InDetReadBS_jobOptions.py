@@ -33,8 +33,7 @@ if DetFlags.readRDOBS.pixel_on():
 
 if DetFlags.readRDOBS.SCT_on():
   from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-  InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
-                                      TriggerMode = False)
+  InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder")
   if (InDetFlags.doPrintConfigurables()):
     print      InDetSCTRodDecoder
   #InDetSCTRodDecoder.OutputLevel = VERBOSE
