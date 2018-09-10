@@ -508,9 +508,6 @@ class Configuration:
           # -- add tool to topSequence
           if not topSequence is None:
               topSequence += jetbtaggeralg
-          # -- add tool to ToolSvc
-          if AddToToolSvc:
-              ToolSvc += jetbtaggeralg
           if Verbose:
               print jetbtaggeralg
               print self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerAlg we have the following BTagTool:'
