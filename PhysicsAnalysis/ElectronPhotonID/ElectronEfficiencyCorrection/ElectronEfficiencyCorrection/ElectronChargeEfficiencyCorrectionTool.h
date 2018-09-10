@@ -7,7 +7,7 @@
 
 #include "AsgTools/AsgTool.h"
 //#include "ElectronChargeEfficiencyCorrectionTool/IElectronChargeEfficiencyCorrectionTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "TH2.h"
 // #include "xAODTruth/TruthParticle.h"
@@ -28,10 +28,10 @@ namespace xAOD {
 namespace CP {
 
   class ElectronChargeEfficiencyCorrectionTool
-    : virtual public IAsgElectronEfficiencyCorrectionTool,
+    : virtual public CP::IEfficiencyScaleFactorTool,
     public asg::AsgTool
   {
-    ASG_TOOL_CLASS(ElectronChargeEfficiencyCorrectionTool, IAsgElectronEfficiencyCorrectionTool)
+    ASG_TOOL_CLASS2(ElectronChargeEfficiencyCorrectionTool, CP::IEfficiencyScaleFactorTool, CP:: ISystematicsTool)
 
   public:
 
@@ -57,13 +57,10 @@ namespace CP {
     virtual StatusCode finalize();
 
     /// Retrieve the Scale factor
-    virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Electron& part, double& sf) const;
+    virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::IParticle& part, double& sf) const;
 
     /// Decorate the electron
-    virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::Electron& part) const;
-
-    /// The following method is not implemented properly in this tool
-    virtual int systUncorrVariationIndex( const xAOD::Electron &inputObject) const;
+    virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::IParticle& part) const;
 
     /// Systematics
     //  void applySysVariation();
@@ -93,7 +90,7 @@ namespace CP {
   private:
 
     /// Get the charge flip rate rate given pt, eta, histogram
-    float getChargeFlipRate( double eta, double pt, TH2D *hrates, double& flipRate) const;
+    float getChargeFlipRate( double eta, double pt, TH2 *hrates, double& flipRate) const;
 
     /// Get the charge of the original electron
     CP::CorrectionCode getEleTruthCharge( const xAOD::Electron& ele, int& truthcharge) const;
@@ -109,8 +106,8 @@ namespace CP {
     std::string m_eventInfoCollectionName;
 
     /// Histogram that holds the correction rates for Monte Carlo
-    std::map<std::string, std::vector<TH2D*> > m_SF_SS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
-    std::map<std::string, std::vector<TH2D*> > m_SF_OS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
+    std::map<std::string, std::vector<TH2*> > m_SF_SS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
+    std::map<std::string, std::vector<TH2*> > m_SF_OS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
 
     //cuts // further variables to bin in
     std::vector<unsigned int> m_RunNumbers;
@@ -155,8 +152,8 @@ namespace CP {
     CP::SystematicSet m_mySysConf;
     CP::SystematicSet m_affectingSys;
 
- /// Currently applied systematics
-   CP::SystematicSet* m_appliedSystematics;
+    /// Currently applied systematics
+    CP::SystematicSet* m_appliedSystematics;
  
     /// Decorator
     std::string m_sf_decoration_name;
