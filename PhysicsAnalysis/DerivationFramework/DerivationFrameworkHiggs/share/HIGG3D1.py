@@ -44,10 +44,10 @@ thinningTools=[]
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 #MET Track Thinning
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
+MET_track_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 HIGG3D1MetTPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG3D1MetTPThinningTool",
                                                                       ThinningService        = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                      SelectionString        = thinning_expression,
+                                                                      SelectionString        = MET_track_thinning_expression,
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
                                                                       ApplyAnd               = True)
 ToolSvc += HIGG3D1MetTPThinningTool
@@ -83,9 +83,10 @@ ToolSvc += HIGG3D1ElectronTPThinningTool
 thinningTools.append(HIGG3D1ElectronTPThinningTool)
 
 # Tracks themselves
+inclusive_track_thinning_expression = "(InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 1.5*mm && InDetTrackParticles.pt > 10.*GeV)"
 HIGG3D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG3D1TPThinningTool",
                                                                    ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
+                                                                   SelectionString         = inclusive_track_thinning_expression,
                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG3D1TPThinningTool
 thinningTools.append(HIGG3D1TPThinningTool)
