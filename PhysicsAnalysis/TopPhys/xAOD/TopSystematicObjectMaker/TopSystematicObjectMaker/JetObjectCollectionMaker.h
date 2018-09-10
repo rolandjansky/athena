@@ -42,7 +42,6 @@
 // CP Tool include(s):
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
-#include "JetResolution/IJERSmearingTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 
 #include "TopJetSubstructure/TopJetSubstructure.h"
@@ -87,14 +86,12 @@ namespace top{
       
     protected:
       // specify Systematic
-      virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<ICPJetUncertaintiesTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , const std::string& modName , bool isLargeR = false); 
-      virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<IJERSmearingTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map );      
+      virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<ICPJetUncertaintiesTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , const std::string& modName , bool isLargeR = false);       
       
       StatusCode execute( const bool isLargeR, bool executeNominal );
       
       StatusCode calibrate( const bool isLargeR );
       virtual StatusCode applySystematic( ToolHandle<ICPJetUncertaintiesTool>& tool, const std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , bool isLargeR = false);
-      virtual StatusCode applySystematic( ToolHandle<IJERSmearingTool>& tool, const std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map );
       
       StatusCode printout( const bool isLargeR );
 
@@ -137,7 +134,6 @@ namespace top{
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR_medium;
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR_weak;
      
-      ToolHandle<IJERSmearingTool> m_jetJERSmearingTool;
       ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
       ToolHandle<IJetModifier> m_fjvtTool;
       
@@ -154,7 +150,7 @@ namespace top{
       systMap m_systMap_LargeR_strong;
       systMap m_systMap_LargeR_medium;
       systMap m_systMap_LargeR_weak;
-      systMap m_systMap_JER;
+
       typedef std::unordered_map<CP::SystematicSet,CP::SystematicSet>::const_iterator Itr;
 
       StatusCode decorateBJets(xAOD::Jet& jet);
