@@ -35,8 +35,6 @@ SCT_CalibEventInfo::SCT_CalibEventInfo(const std::string &name, ISvcLocator * sv
    m_LBBegin(INTMAX),
    m_LBEnd(INTMIN),
    m_numLB(0),
-   m_numUOFO(0),
-   m_numUOFOth(10),
    m_source("UNKNOWN"),
    m_runNumber(0),
    m_eventNumber(0),
@@ -52,10 +50,7 @@ SCT_CalibEventInfo::initialize() {
    msg( MSG::INFO)<<"Initialize of evtInfo in "<<PACKAGE_VERSION<<endmsg;
    ATH_CHECK(m_eventInfoKey.initialize());
    const int pri(500);
-   m_incidentSvc->addListener( this, "BeginRun",         pri, true, true );
-   m_incidentSvc->addListener( this, "UnknownOfflineId", pri, true );
    m_incidentSvc->addListener( this, "BeginEvent",       pri, true );
-   m_incidentSvc->addListener( this, "EndEvent",         pri, true );
    return StatusCode::SUCCESS;
 }
 
@@ -80,39 +75,13 @@ int SCT_CalibEventInfo::lumiBlock() const {
 }
 
 void
-SCT_CalibEventInfo::handle(const Incident &inc) {
+SCT_CalibEventInfo::handle(const Incident&) {
 
    if ( m_source == "BS" ) {
       SG::ReadHandle<EventInfo> evt(m_eventInfoKey);
       if (not evt.isValid()) {
          msg(MSG:: ERROR) << "Unable to get the EventInfo" << endmsg;
          return;
-      }
-
-      //listening for the Unknown offlineId for OfflineId..." error.
-      //count number of instances/event
-      if (inc.type() == "UnknownOfflineId") {
-         incrementUOFO();
-      }
-
-      //at the beginning of each run do a print put
-      if (inc.type() == "BeginRun") {
-         msg(MSG:: INFO) << "BeginRun is HERE" << endmsg;
-      }
-
-      //at the beginning of each event set the counter to 0
-      if (inc.type() == "BeginEvent") {
-         resetUOFO();
-      }
-
-      //at the end end of each event, if there are more than m_numUOFOth instances
-      //(default is 10) of the error, skip the event
-      if (inc.type() == "EndEvent") {
-         int nUOFO = UOFO();
-         if (nUOFO > m_numUOFOth) {
-            msg ( MSG::DEBUG ) << " More than " << m_numUOFOth <<" Id ROD failures, skipping event" << endmsg;
-            m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
-         }
       }
 
       const EventInfo* evt_ptr = &(*evt);
@@ -212,22 +181,6 @@ void
 SCT_CalibEventInfo::incrementCounter() {
    ++m_counter;
 }
-
-int
-SCT_CalibEventInfo::UOFO() const {
-   return m_numUOFO;
-}
-
-void
-SCT_CalibEventInfo::incrementUOFO() {
-   ++m_numUOFO;
-}
-
-void
-SCT_CalibEventInfo::resetUOFO() {
-   m_numUOFO=0;
-}
-
 
 void
 SCT_CalibEventInfo::setCounter(const int counterVal) {
