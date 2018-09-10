@@ -115,6 +115,7 @@ objects = [
 'xAOD::TrigEMClusterAuxContainer_v2',
 'xAOD::TrigRingerRingsAuxContainer_v2',
 'xAOD::TrigRNNOutputAuxContainer_v2',
+#'TrigMuonEFIsolation_p2',
 ]
 
 from collections import defaultdict
