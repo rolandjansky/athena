@@ -66,7 +66,6 @@ def getTransform():
                 substep='FTKTwr{0:02d}'.format(thistower),
                 inData=['NTUP_FTKIP', 'TXT_FTKIP'],
                 inputEventTest = False,disableMP=True,
-                #outData=['NTUP_FTKTMP_{0:02d}'.format(thistower)],
                 outData=['NTUP_FTKTMP'],
                 extraRunargs={
                     'bankregion': [thistower],
@@ -96,9 +95,6 @@ def getTransform():
             substep = "FTKFinal",
             inputEventTest = False,disableMP=True,
             inData=['NTUP_FTKTMP', 'TXT_FTKIP'],
-            #inData=[tuple([
-            #    'NTUP_FTKTMP_{0:02d}'.format(thistower)
-            #    for tower in [thistower]]) + ('NTUP_FTKIP',)],
             outData=['NTUP_FTK'],
             runtimeRunargs={
                 'inputNTUP_FTKTMPFile': "['tmp.NTUP_FTKTMP']",
@@ -111,52 +107,6 @@ def getTransform():
                 'UnmergedRoadFormatName': "'FTKRoadsStream22.'",
                 'UnmergedFormatName': "'FTKTracksStream22.'",
                 'SaveTruthTree': '1'}))
-#
-
-    ### from SINGLE TOWER config
-###     for subregion in range(subregions):
-###         executorSet.add(athenaExecutor(name = 'FTKFullSimulationBank{0}'.format(subregion),
-###                                        skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py',
-###                                        inData = ['NTUP_FTKIP','TXT_FTKIP'], outData = ['NTUP_FTKTMP'],
-###                                        extraRunargs = {'banksubregion': [subregion],
-###                                                        'outputNTUP_FTKTMPFile': 'tmp.NTUP_FTKTMP'},
-###                                        # Need to ensure that the correct subregion is used
-###                                        runtimeRunargs = {'patternbankpath': 'runArgs.patternbank{0}path'.format(subregion),
-###                                                          'outputNTUP_FTKTMPFile': 'runArgs.outputNTUP_FTKFile',
-###                                                          'cachedbankpath': 'runArgs.cachedbank{0}path'.format(subregion),
-###                                                          'CachePath': 'runArgs.CachePath{0}'.format(subregion)   }))
-### 
-###     # NOTE: WE DON'T DO MERGING HERE BECAUSE IT'S ONE SUBREGION! ONLY FINAL MERGE
-###     # add final merge for all the tower, generating a NTUP_FTK file
-###     executorSet.add(
-###         athenaExecutor(name="FTKSimulationMergeFinal",
-###                        skeletonFile='TrigFTKSim/skeleton.FTKStandaloneMerge.py',
-###                        substep = "FTKFinal",
-###                        inputEventTest = False,disableMP=True,
-###                        #            inData=[tuple([
-###                        #               'NTUP_FTKTMP_{0:02d}'.format(tower)
-###                        #                for tower in range(ntowers)]) + ('NTUP_FTKIP',)],
-###                        #inData=[tuple([
-###                        #    'NTUP_FTKTMP_{0:02d}'.format(tower)
-###                        #    for tower in [mytower]]) + ('NTUP_FTKIP',)],
-###                        inData=['NTUP_FTKTMP'],
-###                        outData=['NTUP_FTK'],
-###                        #extraRunargs = {'inputNTUP_FTKTMPFile': [ 'tmp.NTUP_FTKTMP_{0}'.format(mytower) ]},
-###                        #extraRunargs = {},
-###                        runtimeRunargs={
-###                            'inputNTUP_FTKTMPFile': "'tmp.NTUP_FTKTMP'",
-###                            'outputNTUP_FTKFile': "'OUT.NTUP_FTK.root'",
-###                            'MergeFromTowers': True,
-###                            'FirstRegion': 0,
-###                            'NBanks': 1,
-###                            'TruthTrackTreeName': "'truthtracks'",
-###                            'EvtInfoTreeName': "'evtinfo'",
-###                            'UnmergedRoadFormatName': "'FTKRoadsStream22.'",
-###                            'UnmergedFormatName': "'FTKTracksStream22.'",
-###                            'SaveTruthTree': '1'}))
-### 
-
-
 
     executorSet.add(
         athenaExecutor(
@@ -230,15 +180,6 @@ def addFTKSimulationArgs(parser):
         help='FTK NTUP input file from tower {0}'.format(thistower),
         group='TrigFTKSim')
 
-#    parser.add_argument(
-#        '--inputNTUP_FTKTMPFile',
-#        type=trfArgClasses.argFactory(
-#            trfArgClasses.argNTUPFile, runarg=True,
-#            io='input', type='ntup_ftkiptmp',
-#            treeNames='ftkdata'),
-#        help='FTK NTUP input files',
-#        group='TrigFTKMerge')
-#
     # File handling
     parser.add_argument(
         '--inputRDOFile', nargs='+',
