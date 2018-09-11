@@ -29,7 +29,7 @@ void mm_readoutHandler::ElementHandle()
     MM->roParameters.driftThickness        = getAttributeAsDouble    ("driftThickness", ret);
     if (! ret) std::cout << "WARNING: driftThickness is missing" << std::endl;
 
-    MM->roParameters.stereoAngel           = getAttributeAsVector    ("stereoAngle", ret);
+    MM->roParameters.stereoAngle           = getAttributeAsVector    ("stereoAngle", ret);
     if (! ret) std::cout << "WARNING: stereoAngle is missing" << std::endl;
 
     MM->roParameters.readoutSide           = getAttributeAsIntVector ("readoutSide", ret);

@@ -18,7 +18,7 @@ struct MMReadoutParameters {
     double gasThickness;
     double pcbThickness;
     double driftThickness;
-    std::vector<double> stereoAngel;
+    std::vector<double> stereoAngle;
     std::vector<int> readoutSide;
     double zpos;
     double distanceFromZAxis;

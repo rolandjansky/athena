@@ -199,8 +199,8 @@ namespace MuonGM {
       m_etaDesign[il].inputWidth = pitch;
       m_etaDesign[il].thickness = roParam.gasThickness;
 
-      if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
-      else if (m_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
+      if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
+      else if (m_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
       else reLog()<<MSG::WARNING
 	          <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
       
