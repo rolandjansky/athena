@@ -28,7 +28,7 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
 						       const IInterface*  p) :
   AthAlgTool(t, n, p),
   m_muonMgr(0),
-  m_decoder("Muon__TGC_RodDecoderReadout"),
+  m_decoder("Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout", this),
   //m_rdoContainer(0),
   m_activeStore(0),
   m_cabling(0),

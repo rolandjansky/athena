@@ -70,13 +70,11 @@ class SCT_SiliconConditionsToolSetup:
         self.tempAlg = getattr(condSeq, self.tempAlgName)
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_SiliconConditionsTool
-            ToolSvc += SCT_SiliconConditionsTool(name = self.toolName,
-                                                 UseDB = self.useDB,
-                                                 ForceUseGeoModel = self.forceUseGeoModel)
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SCT_SiliconConditionsTool(name = self.toolName,
+                                                  UseDB = self.useDB,
+                                                  ForceUseGeoModel = self.forceUseGeoModel)
 
     def setUseDB(self, useDB):
         self.useDB = useDB

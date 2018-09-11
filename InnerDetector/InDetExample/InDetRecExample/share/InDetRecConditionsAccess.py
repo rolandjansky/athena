@@ -290,8 +290,7 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ConditionsSummaryTool
 
     # Conditions summary tool without InDetSCT_FlaggedConditionTool
-    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
     sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
     InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()    
     condTools = []

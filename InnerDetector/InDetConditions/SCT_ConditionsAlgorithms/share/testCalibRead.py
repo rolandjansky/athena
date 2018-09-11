@@ -80,9 +80,12 @@ DetFlags.readRIOBS.all_setOff()
 DetFlags.readRIOPool.all_setOff()
 DetFlags.writeRIOPool.all_setOff()
 
-
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
+
+# Set up SCT cabling
+from AthenaCommon.Include import include
+include('InDetRecExample/InDetRecCabling.py')
 
 #--------------------------------------------------------------
 # Load ReadCalibData Alg and Service
@@ -107,7 +110,7 @@ SCT_ReadCalibDataCondAlg = sct_ReadCalibDataToolSetup.getAlg()
 SCT_ReadCalibDataTool = sct_ReadCalibDataToolSetup.getTool()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibDataTestAlg
-topSequence+= SCT_ReadCalibDataTestAlg()
+topSequence+= SCT_ReadCalibDataTestAlg(SCT_ReadCalibDataTool=SCT_ReadCalibDataTool)
 
 # <-999 setting ignores the defect, otherwise it will be checked against the set value
 SCT_ReadCalibDataCondAlg.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]

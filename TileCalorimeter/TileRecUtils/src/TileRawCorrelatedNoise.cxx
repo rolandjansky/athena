@@ -60,6 +60,8 @@ StatusCode TileRawCorrelatedNoise::initialize() {
   30, 36, 35, 34, 44, 38, 37, 43,
   42, 41, 45, 39, 40, 48, 47, 46 };
 
+  m_alphaMatrix = std::make_unique<AlphaMatrix>();
+
   // read alpha matrix
   FILE* AlphaMatrixFile[4][64];
   char Rosstr[10];
@@ -130,7 +132,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
                 chcolumn = PmtToChannelExtendedBarrel[column] - 1;
               }
             }
-            m_alphaMatrix[Ros - 1][Drawer][chline][chcolumn] = pippo;
+            m_alphaMatrix->m[Ros - 1][Drawer][chline][chcolumn] = pippo;
           }
         }
       }
@@ -367,7 +369,7 @@ StatusCode TileRawCorrelatedNoise::execute() {
                 for (int Sample = 0; Sample < nSamples; ++Sample)
                   NewSamples[Ros - 1][Drawer][Channel][Sample] =
                       NewSamples[Ros - 1][Drawer][Channel][Sample]
-                          - m_alphaMatrix[Ros - 1][Drawer][Channel][jCh]
+                           - m_alphaMatrix->m[Ros - 1][Drawer][Channel][jCh]
                               * (((OriginalDigits[Ros - 1][Drawer][jCh])->samples())[Sample]
                                   - m_meanSamples[Ros - 1][Drawer][jCh][Sample]);
               }

@@ -11,6 +11,7 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "ICTPUnpackingTool.h"
 #include "IRoIsUnpackingTool.h"
 #include "IPrescalingTool.h"
@@ -48,6 +49,9 @@ private:
 
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_chainsKey{this, "Chains", "HLTChains", 
       "Chains status after L1 and prescaling"};
+
+  SG::WriteHandleKey<TrigTimeStamp> m_startStampKey{ this, "StartStampKey", "L1DecoderStart", 
+      "Object with the time stamp when decoding started" };
 
   ToolHandle<ICTPUnpackingTool> m_ctpUnpacker{this, "ctpUnpacker", "CTPUnpackingTool/CTPUnpackingTool",
       "Tool used to unpack the CTP info"};

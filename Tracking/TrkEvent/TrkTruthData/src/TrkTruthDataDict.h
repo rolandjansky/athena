@@ -19,7 +19,7 @@
  
 namespace 
 {
-  struct temp
+  struct temp_TrkTruthData
   {
     std::pair<Trk::TrackTruthKey,TrackTruth> m_2;
     std::pair<Trk::TrackTruthKey, DetailedTrackTruth > m_4;    

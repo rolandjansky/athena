@@ -15,8 +15,8 @@
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include <memory>
 
-#include <iostream>
 
 using namespace std;
 
@@ -328,7 +328,7 @@ StatusCode PixelByteStreamErrorsSvc::readData() {
 // record the data to Storegate: for one event, one entry per module with errors
 StatusCode PixelByteStreamErrorsSvc::recordData() {
 
-  InDetBSErrContainer* cont = new InDetBSErrContainer();
+  std::unique_ptr<InDetBSErrContainer> cont = std::make_unique<InDetBSErrContainer>();
   for (unsigned int i=0; i<m_max_hashes; i++) {
     if (m_module_errors[i] != 0){
       std::pair<IdentifierHash, int>* err = new std::pair<IdentifierHash, int>(std::make_pair((IdentifierHash)i, m_module_errors[i]));
@@ -345,14 +345,23 @@ StatusCode PixelByteStreamErrorsSvc::recordData() {
   }
 
   StatusCode sc = StatusCode::SUCCESS;
+  if (cont->size()==m_max_hashes) {
+    m_BSErrContWrite = SG::makeHandle(m_BSErrContWriteKey);
+    sc = m_BSErrContWrite.record(std::move(cont));
+  }
+
+
+/*
   if (cont->size()==m_pixel_id->wafer_hash_max()) {
     m_checkError = -1;
   }
   else if (cont->size()!=m_checkError) {
     m_checkError = cont->size();
     m_BSErrContWrite = SG::makeHandle(m_BSErrContWriteKey);
-    sc = m_BSErrContWrite.record(std::unique_ptr<InDetBSErrContainer>(cont));
+    sc = m_BSErrContWrite.record(std::move(cont));
   }
+*/
+
   if (sc.isFailure() ){
     ATH_MSG_ERROR("Failed to record/overwrite BSErrors to SG");
     return sc;

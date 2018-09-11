@@ -54,8 +54,16 @@ public:
     inline float& z() {return m_z;}
     inline float r() {
       if(m_useXYZ) return sqrt(m_eta_x*m_eta_x + m_phi_y*m_phi_y);
-      else return m_z/asinh(m_eta_x);
+      else return m_z/sinh(m_eta_x);
     }
+    inline float& center_r(){return m_center_r;}
+    inline float& center_z(){return m_center_z;}
+    inline float& center_eta(){return m_center_eta;}
+    inline float& center_phi(){return m_center_phi;}
+    inline void setCenter_r(float r){m_center_r=r;}
+    inline void setCenter_z(float z){m_center_z=z;}
+    inline void setCenter_eta(float eta){m_center_eta=eta;}
+    inline void setCenter_phi(float phi){m_center_phi=phi;}
 
     private:
     float m_eta_x; // eta for barrel and end-cap, x for FCal
@@ -63,6 +71,11 @@ public:
     float m_z;
     float m_E;
     bool m_useXYZ;
+    // Variables used to store extrapolated position
+    float m_center_r;
+    float m_center_z;
+    float m_center_eta;
+    float m_center_phi;
     
   };
 

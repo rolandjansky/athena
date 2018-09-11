@@ -20,7 +20,8 @@ class PixelConditionsServicesSetup:
     self.svcMgr = ServiceMgr
     from AthenaCommon.AppMgr import ToolSvc
     self.toolSvc = ToolSvc
-
+    self.summaryTool = None
+    
     self.isData = False
     from AthenaCommon.GlobalFlags import globalflags
     if globalflags.DataSource() == 'data':
@@ -70,11 +71,14 @@ class PixelConditionsServicesSetup:
       conddb.addFolder(PixelDBInstance, PixelHVFolder, className="CondAttrListCollection")
     if not conddb.folderRequested(PixelTempFolder):
       conddb.addFolder(PixelDBInstance, PixelTempFolder, className="CondAttrListCollection")
-    if (self.isData):
+      
+    if not self.onlineMode:   #this is only for testing in offline like setup 
       if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
         conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
       if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
         conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+      condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
@@ -85,9 +89,6 @@ class PixelConditionsServicesSetup:
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
     condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder)
 
-    if (self.isData):
-      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
-      condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
     TrigPixelDCSConditionsTool = PixelDCSConditionsTool(name="PixelDCSConditionsTool", UseDB=self.useDCS, IsDATA=self.isData)
@@ -109,9 +110,7 @@ class PixelConditionsServicesSetup:
       TrigPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING' ]
 
     ToolSvc += TrigPixelConditionsSummaryTool
-
-    print "STSTST"
-    print TrigPixelConditionsSummaryTool
+    self.summaryTool = TrigPixelConditionsSummaryTool
 
     if self._print: print TrigPixelConditionsSummaryTool
    
@@ -258,8 +257,7 @@ class SCT_ConditionsToolsSetup:
   def initSummaryTool(self, instanceName):
     "Init summary conditions tool"
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetup.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetup.setup()
     summaryTool = sct_ConditionsSummaryToolSetup.getTool()
     if self._print:  print summaryTool
@@ -268,8 +266,7 @@ class SCT_ConditionsToolsSetup:
   def initSummaryToolWithoutFlagged(self, instanceName):
     "Init summary conditions tool without flaggedConditionTool"
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
     summaryToolWoFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
     condTools = []
@@ -300,6 +297,10 @@ class SCT_ConditionsToolsSetup:
 
   def initConfigTool(self, instanceName):
     "Init configuration conditions tool"
+
+    # Set up SCT cabling
+    from AthenaCommon.Include import include
+    include('InDetRecExample/InDetRecCabling.py')
     
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     from IOVDbSvc.CondDB import conddb
@@ -428,10 +429,8 @@ class SCT_ConditionsToolsSetup:
       sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
     "Inititalize Lorentz angle Tool"
-    if not hasattr(self.toolSvc, instanceName):
-      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-      self.toolSvc += SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-    SCTLorentzAngleTool = getattr(self.toolSvc, instanceName)
+    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+    SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
     
   def instanceName(self, toolname):

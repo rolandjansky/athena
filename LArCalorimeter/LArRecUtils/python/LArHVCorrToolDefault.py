@@ -27,11 +27,6 @@ def LArHVCorrToolDefault (name="LArHVCorrToolDefault", **kw):
     # do the configuration
     if globalflags.DataSource()=='data':
         from LArConditionsCommon import LArHVDB
-        #schedule tho conditions algo
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg
-        condSequence+=LArHVIdMappingAlg(ReadKey="/LAR/IdentifierOfl/HVLineToElectrodeMap")
 
         from LArCondUtils.LArCondUtilsConf import LArHVToolDB
         theLArHVToolDB = LArHVToolDB("LArHVToolDB")

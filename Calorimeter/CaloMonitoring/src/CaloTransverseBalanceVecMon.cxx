@@ -30,7 +30,7 @@
 #define PI 3.14159265
 #define GeV 1000
 
-void CaloTransverseBalanceVecMon::findLeadingPhoton(PhotonContainer* userPhotonContainer,PhotonContainer::const_iterator& leadingPhPr){
+void CaloTransverseBalanceVecMon::findLeadingPhoton(const PhotonContainer* userPhotonContainer,PhotonContainer::const_iterator& leadingPhPr){
   PhotonContainer::const_iterator photonItr;
   float ptmax=-1;
   for(photonItr=userPhotonContainer->begin();photonItr<userPhotonContainer->end();photonItr++){
@@ -301,7 +301,7 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
   //  ATH_MSG_INFO( "*****************   trigger: " <<m_TriggerCut );
   if(!m_TriggerCut) return StatusCode::SUCCESS;
 
-  m_userPhotonContainer = new PhotonContainer(SG::VIEW_ELEMENTS);
+  m_userPhotonContainer = new ConstDataVector<PhotonContainer>(SG::VIEW_ELEMENTS);
   std::vector<const Jet*> userJetContainer;
   PhotonContainer::const_iterator photonItrB  = photonTES->begin();
   PhotonContainer::const_iterator photonItrE = photonTES->end();
@@ -332,7 +332,7 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
   //find leading photon
   PhotonContainer::const_iterator leadingPhPr;
   if(m_userPhotonContainer->size()>1){
-    findLeadingPhoton(m_userPhotonContainer,leadingPhPr);
+    findLeadingPhoton(m_userPhotonContainer->asDataVector(),leadingPhPr);
   }
   else leadingPhPr=m_userPhotonContainer->begin();
 

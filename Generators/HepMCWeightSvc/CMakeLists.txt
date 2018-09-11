@@ -17,7 +17,7 @@ atlas_depends_on_subdirs(
    Event/EventInfo
    Generators/GenInterfaces )
 
-find_package( Boost COMPONENTS algorithm )
+find_package( Boost )
 find_package( CORAL COMPONENTS CoralBase )
 
 # Component(s) in the package:

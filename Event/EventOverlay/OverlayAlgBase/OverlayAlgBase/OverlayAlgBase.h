@@ -42,9 +42,9 @@ public:
   virtual StatusCode finalize();
 
   //----------------
-  virtual StatusCode overlayInitialize() = 0;
-  virtual StatusCode overlayExecute() = 0;
-  virtual StatusCode overlayFinalize() = 0;
+  virtual StatusCode overlayInitialize();
+  virtual StatusCode overlayExecute();
+  virtual StatusCode overlayFinalize();
 
 protected:
   // ----------------------------------------------------------------

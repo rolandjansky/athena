@@ -11,36 +11,32 @@
 #ifndef SCT_ByteStreamErrorsTool_h
 #define SCT_ByteStreamErrorsTool_h
 
-///STL includes
-#include <set>
-#include <map>
-#include <list>
-#include <mutex>
-
-///Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
 ///Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
-#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "Identifier/IdContext.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-
-/** Read (Cond)Handle Key */
-#include "StoreGate/ReadHandleKey.h"
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
+#include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
+
+///Gaudi includes
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+///STL includes
+#include <map>
+#include <mutex>
+#include <vector>
 
 /** forward declarations */
-class ISvcLocator;
 class SCT_ID;
 
 /**
@@ -105,7 +101,7 @@ private:
 
   StatusCode fillData(const EventContext& ctx) const;
 
-  void addError(IdentifierHash id, int errorType, const EventContext& ctx) const;
+  void addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const;
   void resetSets(const EventContext& ctx) const;
 
   bool isGoodChip(const Identifier& stripId) const;

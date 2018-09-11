@@ -32,7 +32,6 @@ class SCT_RadDamageSummaryTool: public extends<AthAlgTool, ISCT_RadDamageSummary
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
  
-  virtual void initPotentialValue() override;
   virtual void holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const override;
   virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, const double& zpos) const override;
 

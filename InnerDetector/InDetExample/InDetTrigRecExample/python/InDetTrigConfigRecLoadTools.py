@@ -17,11 +17,13 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetTrigConfigRecLoadTools.py")
 
-from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
+from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup, SCT_ConditionsSetup
+from AthenaCommon.CfgGetter import getPublicTool,getPrivateTool
+TrigPixelLorentzAngleTool = getPublicTool("PixelLorentzAngleTool")
+TrigSCTLorentzAngleTool = getPrivateTool("SCTLorentzAngleTool") 
 
-if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 #
 # common ClusterMakerTool
@@ -34,8 +36,8 @@ InDetTrigClusterMakerTool = \
                              PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                              #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
                              #UseLorentzAngleCorrections = False
-                             PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
-                             SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
+                             PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
+                             SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigClusterMakerTool
@@ -62,11 +64,7 @@ ToolSvc +=  SCT_TrigSpacePointTool
 #
 # ----------- control loading of ROT_creator
 #
-
 if InDetTrigFlags.loadRotCreator():
-  if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
   #4 clusterOnTrack Tools
   #
@@ -74,7 +72,7 @@ if InDetTrigFlags.loadRotCreator():
   SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("SCT_ClusterOnTrackTool",
                                                           CorrectionStrategy = 0,  # do correct position bias
                                                           ErrorStrategy      = 2,  # do use phi dependent errors
-                                                          LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
+                                                          LorentzAngleTool   = TrigSCTLorentzAngleTool)
 
   ToolSvc += SCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
@@ -96,7 +94,7 @@ if InDetTrigFlags.loadRotCreator():
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
       TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
-                                                                    PixelLorentzAngleTool= ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                                    PixelLorentzAngleTool= TrigPixelLorentzAngleTool,
                                                                     NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                     doRunI = True,
                                                                     useToT = False,
@@ -108,7 +106,7 @@ if InDetTrigFlags.loadRotCreator():
                                                                     LoadWithTrackNetwork = True)
     else:
         TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
-                                                                      PixelLorentzAngleTool= ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                                      PixelLorentzAngleTool= TrigPixelLorentzAngleTool,
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       LoadNoTrackNetwork   = True,
                                                                       useToT = InDetTrigFlags.doNNToTCalibration(),
@@ -132,7 +130,7 @@ if InDetTrigFlags.loadRotCreator():
   InDetTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackTool",
                                                                     PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                     ErrorStrategy = 2,
-                                                                    LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                                    LorentzAngleTool = TrigPixelLorentzAngleTool,
                                                                     NnClusterizationFactory= TrigNnClusterizationFactory,
   )
 
@@ -146,7 +144,7 @@ if InDetTrigFlags.loadRotCreator():
   InDetTrigBroadSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetTrigBroadSCT_ClusterOnTrackTool",
                                          CorrectionStrategy = 0,  # do correct position bias
                                          ErrorStrategy      = 0,  # do use broad errors
-                                         LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
+                                         LorentzAngleTool   = TrigSCTLorentzAngleTool)
   ToolSvc += InDetTrigBroadSCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigBroadSCT_ClusterOnTrackTool
@@ -156,7 +154,7 @@ if InDetTrigFlags.loadRotCreator():
   InDetTrigBroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackTool",
                                                                          PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                          ErrorStrategy = 0,
-                                                                         LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                                         LorentzAngleTool = TrigPixelLorentzAngleTool,
                                                                          NnClusterizationFactory= TrigNnClusterizationFactory
   )
   ToolSvc += InDetTrigBroadPixelClusterOnTrackTool
@@ -632,10 +630,8 @@ if InDetTrigFlags.loadFitter():
     print      InDetTrigTrackFitterTRT
 
 
-if DetFlags.haveRIO.pixel_on():
-  InDetTrigPixelConditionsSummaryTool = ToolSvc.InDetTrigPixelConditionsSummaryTool
-else:
-  InDetTrigPixelConditionsSummaryTool = None
+
+InDetTrigPixelConditionsSummaryTool = PixelConditionsSetup.summaryTool
 
 if DetFlags.haveRIO.SCT_on():
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
@@ -919,13 +915,18 @@ if InDetTrigFlags.doNewTracking():
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
-      IBLDistFolderKey = "/Indet/IBLDist"
-      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-      if athenaCommonFlags.isOnline():
-        IBLDistFolderKey = "/Indet/Onl/IBLDist"
       from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
+      # Copied from InDetAlignFolders.py
+      useDynamicAlignFolders = False
+      try:
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        from IOVDbSvc.CondDB import conddb
+        if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
+          useDynamicAlignFolders = True
+      except ImportError:
+        pass
       condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                    IBLDistFolderKey = IBLDistFolderKey)
+                                                    UseDynamicAlignFolders = useDynamicAlignFolders)
 
   # Local combinatorial track finding using space point seed and detector element road
   #
