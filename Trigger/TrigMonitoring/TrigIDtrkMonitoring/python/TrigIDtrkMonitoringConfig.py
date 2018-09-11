@@ -68,7 +68,8 @@ def TrigIDtrkMonitoringTool():
                 tidaegamma.ntupleChainNames += [
                         "Offline",
                         "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
-                        "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF"
+                        "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF",
+                        "HLT_e.*_gsf_idperf:GSFTrigTrackParticles"
                         ]
                 ToolSvc += tidaegamma
                 list += [ "TrigTestBase/IDEgammaTool" ]

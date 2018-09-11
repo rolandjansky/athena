@@ -18,11 +18,11 @@ athenaCommonFlags.PoolRDOOutput="PileUpDigiTest.root"
 #--------------------------------------------------------------
 from Digitization.DigitizationFlags import digitizationFlags
 digitizationFlags.IOVDbGlobalTag='OFLCOND-MC16-SDR-16'
+digitizationFlags.simRunNumber=284500
 digitizationFlags.dataRunNumber=284500
 #inputs
 digitizationFlags.overrideMetadata=['ALL'] #True
-digitizationFlags.doHighPtMinBias=True
-digitizationFlags.numberOfHighPtMinBias=0.0
+digitizationFlags.doHighPtMinBias=False
 digitizationFlags.doLowPtMinBias=True
 digitizationFlags.numberOfLowPtMinBias=2.3
 digitizationFlags.LowPtMinBiasInputCols=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/HITS.10501925._000003.pool.root.1",
@@ -30,11 +30,11 @@ digitizationFlags.LowPtMinBiasInputCols=["/cvmfs/atlas-nightlies.cern.ch/repo/da
 
 #time structure
 #for now use old flags...
-digitizationFlags.bunchSpacing=25 # This now sets the bunch slot length.
+digitizationFlags.bunchSpacing = 25
+digitizationFlags.BeamIntensityPattern.createConstBunchSpacingPattern(75) #FIXME This runArg should probably in
 digitizationFlags.initialBunchCrossing=-5
 digitizationFlags.finalBunchCrossing=3
 digitizationFlags.doXingByXingPileUp=True
-digitizationFlags.BeamIntensityPattern=[0.0,1.0,0.0] #mimic 75ns bunch spacing (using smallest repeatable unit)
 #digitizationFlags.FixedT0BunchCrossing=0 # redundant as only position 0 is non-zero
 
 from AthenaCommon.BeamFlags import jobproperties
@@ -82,7 +82,6 @@ if digitizationFlags.doXingByXingPileUp():
     #xing times in ns
     puAlg.PileUpTools["TestPileUpTool"].FirstXing=-300
     puAlg.PileUpTools["TestPileUpTool"].LastXing=+300
-
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
