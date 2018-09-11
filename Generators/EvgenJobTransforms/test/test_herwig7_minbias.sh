@@ -9,6 +9,8 @@ export TRF_ECHO=True;
 Generate_tf.py --ecmEnergy=13000 --runNumber=429700 --maxEvents=10 \
     --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID429xxx/MC15.429700.Herwig7_MinBias.py  \
     --outputEVNTFile=test_herwig7_minbias_inelastic.EVNT.pool.root \
+
+test_herwig7_minbias.sh
    
 echo "art-result: $? generate"
 

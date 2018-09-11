@@ -10,6 +10,8 @@ export TRF_ECHO=True;
 Generate_tf.py --ecmEnergy=13000 --runNumber=429697 --maxEvents=10 \
     --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID429xxx/MC15.429697.Pythia8EvtGen_A14NNPDF23LO_DYtautau_120M180.py  \
     --outputEVNTFile=test_DYZtautau.EVNT.pool.root \
+
+rm -fr _joproxy15
     
 echo "art-result: $? generate"
 

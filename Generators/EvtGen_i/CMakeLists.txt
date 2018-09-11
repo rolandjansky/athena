@@ -65,5 +65,5 @@ atlas_add_component( EvtGen_i
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.DEC share/*.table share/*.dec share/*.pdt )
+atlas_install_runtime( share/*.DEC share/*.table share/*.dec share/*.pdt share/*.dat )
 

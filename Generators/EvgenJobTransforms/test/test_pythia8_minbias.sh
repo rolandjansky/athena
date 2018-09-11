@@ -1,4 +1,4 @@
-#!/bin/bash
+99999#!/bin/bash
 # art-description: Generation test Pythia8 min_bias 
 # art-include: 21.6/AthGeneration
 # art-type: build
@@ -12,6 +12,8 @@ export TRF_ECHO=True;
 Generate_tf.py --ecmEnergy=13000 --runNumber=361033 --maxEvents=10 \
     --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID361xxx/MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.py \
     --outputEVNTFile=test_minbias_inelastic.EVNT.pool.root \
+
+rm -fr _joproxy15
    
 echo "art-result: $? generate"
 #rm -fr MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.py
