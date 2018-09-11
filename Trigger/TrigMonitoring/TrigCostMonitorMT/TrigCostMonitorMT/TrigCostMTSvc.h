@@ -13,8 +13,6 @@
 #include "ITrigCostMTSvc.h"
 #include "TrigCostDataStore.h"
 
-#include <unordered_map> // temp
-
 // Forward declaration
 template <class TYPE> class SvcFactory;
 
@@ -41,13 +39,9 @@ class TrigCostMTSvc : public AthService, virtual public  ITrigCostMTSvc {
   /// Default constructor: 
   TrigCostMTSvc() = delete; 
 
-
   Gaudi::Property<bool> m_monitorAll{this, "MonitorAll", true, "Monitor every HLT event, e.g. for offline validation."};
   Gaudi::Property<bool> m_printTimes{this, "PrintTimes", true, "Sends per-algorithm timing to MSG::INFO."};
-  Gaudi::Property<int> m_moitorFrequency{this, "MonitorFrequency", 10, "A value of 10 would monitor every 10th event."};
-
-
-  bool addViewToCaller(const std::string& caller,  const EventContext& context, std::string& output) const;
+  Gaudi::Property<int>  m_moitorFrequency{this, "MonitorFrequency", 10, "A value of 10 would monitor every 10th event. > 0."};
 
   bool isMonitoredEvent(const EventContext& context) const;
 
