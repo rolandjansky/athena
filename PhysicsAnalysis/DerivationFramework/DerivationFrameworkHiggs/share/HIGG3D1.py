@@ -44,10 +44,10 @@ thinningTools=[]
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 #MET Track Thinning
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
+MET_track_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
 HIGG3D1MetTPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG3D1MetTPThinningTool",
                                                                       ThinningService        = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                      SelectionString        = thinning_expression,
+                                                                      SelectionString        = MET_track_thinning_expression,
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
                                                                       ApplyAnd               = True)
 ToolSvc += HIGG3D1MetTPThinningTool
@@ -83,9 +83,10 @@ ToolSvc += HIGG3D1ElectronTPThinningTool
 thinningTools.append(HIGG3D1ElectronTPThinningTool)
 
 # Tracks themselves
+inclusive_track_thinning_expression = "(InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 1.5*mm && InDetTrackParticles.pt > 10.*GeV)"
 HIGG3D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG3D1TPThinningTool",
                                                                    ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(),
-                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
+                                                                   SelectionString         = inclusive_track_thinning_expression,
                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG3D1TPThinningTool
 thinningTools.append(HIGG3D1TPThinningTool)
@@ -150,8 +151,12 @@ if globalflags.DataSource()=='geant4':
     thinningTools.append(HIGG3D1TruthThinningTool)
 
 #====================================================================
-# SKIMMING TOOL
+# SKIMMING TOOLS
 #====================================================================
+
+skimmingTools=[]
+
+# preselection
 electronIDRequirements = '(Electrons.DFCommonElectronsLHVeryLoose)'
 electronRequirements = '(Electrons.pt > 7*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
 leadElectron = electronRequirements + ' && (Electrons.pt > 17*GeV)'
@@ -163,12 +168,22 @@ mmSelection = '((count('+muonsRequirements+') >= 2) && (count('+leadMuon+') >= 1
 
 emSelection = '(((count('+electronRequirements+') >= 1) && (count('+muonsRequirements+') >= 1)) && ((count('+leadElectron+') >= 1) || (count('+leadMuon+') >= 1)))'
 
-expression = eeSelection+' || '+mmSelection+' || '+emSelection
+preselection_expression = eeSelection+' || '+mmSelection+' || '+emSelection
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-HIGG3D1SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG3D1SkimmingTool1",
-                                                                    expression = expression)
-ToolSvc += HIGG3D1SkimmingTool
+HIGG3D1PreselectionSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG3D1PreselectionSkimmingTool",
+                                                                               expression = preselection_expression)
+ToolSvc += HIGG3D1PreselectionSkimmingTool
+skimmingTools.append(HIGG3D1PreselectionSkimmingTool)
+
+# trigger skimming
+from DerivationFrameworkHiggs.HIGG3D1TriggerList import SingleLepton_Combined,Dilepton_Combined
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+triglist = SingleLepton_Combined+Dilepton_Combined
+HIGG3D1InclusiveTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "HIGG3D1InclusiveTriggerSkimmingTool",TriggerListOR = triglist)
+
+ToolSvc += HIGG3D1InclusiveTriggerSkimmingTool
+skimmingTools.append(HIGG3D1InclusiveTriggerSkimmingTool)
 
 higg3d1Seq = CfgMgr.AthSequencer("HIGG3d1Sequence")
 higg3d1PreSeq = CfgMgr.AthSequencer("HIGG3d1PreSelectionSequence")
@@ -223,12 +238,12 @@ import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM
-#=======================================
+#========================================
+# CREATE THE DERIVATION KERNEL ALGORITHMS
+#========================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 higg3d1PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_skimming",
-                                                           SkimmingTools = [HIGG3D1SkimmingTool],
+                                                           SkimmingTools = skimmingTools
                                                            )
 
 
@@ -254,10 +269,8 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
-                                          "MET_Reference_AntiKt4LCTopo",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",
-                                          "AntiKt4LCTopoJets",
                                           "BTagging_AntiKt4EMTopo",
                                           "BTagging_AntiKt4EMPFlow",
                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
