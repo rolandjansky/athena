@@ -191,7 +191,6 @@ public:
   StatusCode record(T* p2BRegistered, const TKEY& key, 
                     bool allowMods, bool resetOnly=true, bool noHist=false);
 
-#if __cplusplus > 201100
   /// Record an object with a key, take ownership of the unique_ptr obj
   template <typename T, typename TKEY> 
   StatusCode record(std::unique_ptr<T> pUnique, const TKEY& key);
@@ -205,7 +204,6 @@ public:
   template <typename T, typename TKEY> 
   StatusCode record(std::unique_ptr<T> pUnique, const TKEY& key, 
                     bool allowMods, bool resetOnly=true, bool noHist=false);
-#endif
 
   //@}
 
@@ -302,7 +300,6 @@ public:
   template <typename T, typename TKEY> 
   StatusCode overwrite(std::auto_ptr<T> p2BRegistered, const TKEY& key);
 
-#if __cplusplus > 201100
   /// Record an object with a key, overwriting any existing object with same key
   template <typename T, typename TKEY> 
   StatusCode overwrite(std::unique_ptr<T> pUnique, const TKEY& key, 
@@ -311,7 +308,6 @@ public:
   /// Record an object with a key, overwriting any existing object with same key, take ownership of the unique_ptr obj
   template <typename T, typename TKEY> 
   StatusCode overwrite(std::unique_ptr<T> pUnique, const TKEY& key);
-#endif
 
   /// Create a proxy object using an IOpaqueAddress and a transient key
   StatusCode recordAddress(const std::string& skey,
@@ -329,7 +325,7 @@ public:
 
   /// make a soft link to the object pointed by id/key
   template <typename TKEY> 
-  StatusCode symLink (const CLID& id, const TKEY& key, const CLID& linkid);
+  StatusCode symLink (const CLID id, const TKEY& key, const CLID linkid);
 
   /// make an alias to a DataObject (provide data type and old key)
   template <typename T, typename TKEY, typename AKEY>
@@ -915,6 +911,16 @@ private:
                                  bool noHist=false,
                                  const std::type_info* tinfo=0);
 
+  // Helper for record.
+  template <typename T, typename TKEY> 
+  StatusCode record1(DataObject* obj, T* pObject, const TKEY& key, 
+                     bool allowMods, bool resetOnly=true, bool noHist=false);
+
+  // Helper for overwrite.
+  template <typename T, typename TKEY> 
+  StatusCode overwrite1(DataObject* obj, T* pObject, const TKEY& key, 
+                        bool allowMods, bool noHist=false);
+
   bool isSymLinked(const CLID& linkID, SG::DataProxy* dp);
 
   StatusCode addSymLink(const CLID& linkid, SG::DataProxy* dp);
@@ -1030,6 +1036,29 @@ private:
                      const std::string& what) const;
 
 
+  /**
+   * @brief try to associate a data object to its auxiliary store
+   *        if ignoreMissing=false @returns false if the aux store is not found.
+   * @param key The key to use for the lookup.
+   **/
+  template <class DOBJ>
+  bool associateAux (DOBJ*,
+                     const std::string& key,
+                     bool ignoreMissing=true) const;
+  template <class DOBJ>
+  bool associateAux (const DOBJ*,
+                     const std::string& key,
+                     bool ignoreMissing=true) const;
+
+  template <class DOBJ, class AUXSTORE>
+  bool associateAux_impl(DOBJ* ptr,
+                         const std::string& key,
+                         const AUXSTORE*) const;
+  template <class DOBJ>
+  bool associateAux_impl(DOBJ* /*ptr*/,
+                         const std::string& /*key*/,
+                         const SG::NoAuxStore*) const;
+  
 
 public:
   ///////////////////////////////////////////////////////////////////////

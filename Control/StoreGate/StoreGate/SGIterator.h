@@ -17,6 +17,7 @@
 #include "SGTools/ProxyMap.h"
 #include "AthenaKernel/IProxyDict.h"
 #include <boost/iterator/iterator_facade.hpp>
+class SGImplSvc;
 
 
 namespace SG {
@@ -34,6 +35,9 @@ class IteratorBase {
 protected:
   // Required for boost iterator adapter.
   friend class boost::iterator_core_access;
+
+  // To access setState.
+  friend class ::SGImplSvc;
 
 
   /**
