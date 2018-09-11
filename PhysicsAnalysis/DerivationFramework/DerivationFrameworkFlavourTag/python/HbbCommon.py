@@ -321,18 +321,21 @@ def buildVRJets(sequence, do_ghost, logger):
         )
     return VRJetName, VRGhostLabel
 
-def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel):
+def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel,
+                           baseGetterMap='lctopo',
+                           baseLargeRJets='AntiKt10LCTopo',
+                           modifiers="lctopo_ungroomed"):
     from JetRec.JetRecStandard import jtm
     pjgettername = VRGhostLabel.lower()
     #==========================================================
     # Re-cluster large-R jet with VR ghost associated on it
     # AntiKt10LCTopo hard-coded for now
     #==========================================================
-    LargeRJetAlg     = "jfind_akt10lctopo_%s" %(VRJetName.lower())
-    LargeRJets       = "AKt10LCTopo_%sJets"   %(VRJetName)
-    LargeRJetPrefix  = "AKt10LCTopo_%s"       %(VRJetName)
-    newLCTopo        = "lctopo_%s"            %(VRJetName.lower())
-    LinkTransferAlg  = "LinkTransfer_%s"     %(VRJetName)
+    LargeRJetAlg     = "jfind_%s_%s" %(baseLargeRJets.lower(), VRJetName.lower())
+    LargeRJets       = "%s_%sJets"   %(baseLargeRJets, VRJetName)
+    LargeRJetPrefix  = "%s_%s"       %(baseLargeRJets, VRJetName)
+    newLCTopo        = "%s_%s"            %(baseGetterMap, VRJetName.lower())
+    LinkTransferAlg  = "LinkTransfer_%s_%s"     %(baseLargeRJets, VRJetName)
 
     if LargeRJetAlg in DFJetAlgs:
         print "  Found ", LargeRJetAlg," in DFJetAlgs in", sequence
@@ -348,9 +351,9 @@ def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel):
         else:
             print "  Create new ", LargeRJets,"in", sequence
             OutputJets.setdefault("CustomJets" , [] ).append(LargeRJets)
-            jtm.gettersMap[newLCTopo] = list(jtm.gettersMap["lctopo"])
+            jtm.gettersMap[newLCTopo] = list(jtm.gettersMap[baseGetterMap])
             jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ]
-            jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , "lctopo_ungroomed",
+            jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , modifiers,
                              ghostArea = 0 , ptmin = 40000, ptminFilter = 50000,
                              calibOpt = "none")
 
@@ -365,8 +368,8 @@ def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel):
     # Solution: decouple the following part with parts above
     #==========================================================
 
-    jetassoctool = getJetExternalAssocTool('AntiKt10LCTopo', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
-    applyJetAugmentation('AntiKt10LCTopo', LinkTransferAlg, sequence, jetassoctool)
+    jetassoctool = getJetExternalAssocTool(baseLargeRJets, LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
+    applyJetAugmentation(baseLargeRJets, LinkTransferAlg, sequence, jetassoctool)
 
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10TCCjet with ghost VR and copy ghost link to AntiKt10TCC - Copy and pasting this defintion is an ugly temporary solution. We need to properly rewrite this for a more general use and remove the hardcoded jet collection.
