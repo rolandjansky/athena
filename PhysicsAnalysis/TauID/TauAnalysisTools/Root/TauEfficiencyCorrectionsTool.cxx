@@ -508,7 +508,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2018_summer()
     else if (iEfficiencyCorrectionType == SFEleOLRElectron)
     {
       // only set vars if they differ from "", which means they have been configured by the user
-      if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_2017-moriond.root";
+      if (m_sInputFilePathEleOLRElectron.empty()) m_sInputFilePathEleOLRElectron = sDirectory+"EleOLR_TrueElectron_2018-summer.root";
       if (m_sVarNameEleOLRElectron.length() == 0) m_sVarNameEleOLRElectron = "TauScaleFactorEleOLRElectron";
 
       asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("TauAnalysisTools::CommonEfficiencyTool/EleOLRElectronTool", this);
