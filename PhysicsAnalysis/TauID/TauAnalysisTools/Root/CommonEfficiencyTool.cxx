@@ -559,7 +559,7 @@ void CommonEfficiencyTool::generateSystematicSets()
 
     // test if NP starts with a capital letter indicating that this should be recommended
     bool bIsRecommended = false;
-    if (isupper(sNP.at(0)))
+    if (isupper(sNP.at(0)) || isupper(sNP.at(1)))
       bIsRecommended = true;
 
     // make sNP uppercase and build final NP entry name
