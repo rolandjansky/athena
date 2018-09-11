@@ -345,7 +345,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
            Amg::MatrixX* covN = new Amg::MatrixX(1,1);
            covN->setIdentity();
            (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-           if(nmerge<=1) (*covN)(0,0) = covX;
+           if(nmerge<=1 || stripDifference==1) (*covN)(0,0) = covX;
            ATH_MSG_VERBOSE(" make merged prepData at strip " << m_stgcIdHelper->channel(sTgcprds[j].identify())  << " channelType " << channelType << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
  
            sTgcPrepData* prdN = new sTgcPrepData(sTgcprds[j].identify(), hash, sTgcprds[j].localPosition(), rdoList, covN, sTgcprds[j].detectorElement(), sTgcprds[j].getBcBitMap());
