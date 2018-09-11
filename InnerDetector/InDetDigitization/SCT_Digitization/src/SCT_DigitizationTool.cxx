@@ -65,6 +65,16 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
     m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
   }
 
+SCT_DigitizationTool::~SCT_DigitizationTool() {
+  delete m_chargedDiodes;
+  delete m_thpcsi;
+  for (SiHitCollection* hit: m_hitCollPtrs) {
+    hit->Clear();
+    delete hit;
+  }
+  m_hitCollPtrs.clear();
+}
+
 // ----------------------------------------------------------------------
 // Initialize method:
 // ----------------------------------------------------------------------

@@ -55,6 +55,7 @@ public:
   SCT_DigitizationTool(const std::string& type,
                        const std::string& name,
                        const IInterface* parent);
+  virtual ~SCT_DigitizationTool();
   /**
      @brief Called before processing physics events
   */
