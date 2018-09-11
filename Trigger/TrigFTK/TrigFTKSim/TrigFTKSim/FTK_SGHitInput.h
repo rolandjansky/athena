@@ -33,6 +33,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -85,6 +86,7 @@ private:
   ToolHandle<Trk::ITruthToTrack>            m_truthToTrack; //!< tool to create track parameters from a gen particle
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator;
+  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
   ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
 
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};

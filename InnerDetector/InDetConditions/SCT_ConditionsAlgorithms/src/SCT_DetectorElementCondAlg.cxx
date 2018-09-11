@@ -92,7 +92,6 @@ StatusCode SCT_DetectorElementCondAlg::execute()
       const InDetDD::SiCommonItems* oldCommonItems{oldEl->getCommonItems()};
       m_commonItems = new InDetDD::SiCommonItems(oldCommonItems->getIdHelper());
       m_commonItems->setSolenoidFrame(oldCommonItems->solenoidFrame());
-      // SiLorentzAngleSvc is not set.
     }
 
     *newEl = new InDetDD::SiDetectorElement(oldEl->identify(),
