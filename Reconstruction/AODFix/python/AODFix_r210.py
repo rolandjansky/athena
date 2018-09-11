@@ -137,7 +137,7 @@ class AODFix_r210(AODFix_base):
             try:
                 btagger = BTagConf.setupJetBTaggerTool(ToolSvc, JetCollection=jet[:-4],
                                                        AddToToolSvc=True, SetupScheme="Retag",
-                                                       TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'])
+                                                       TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2r', 'MV2rmu', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rmu', 'DL1r', 'RNNIP'])
                 SAbtagger = StandAloneJetBTaggerAlg(name=SA + AuthorSubString[i].lower(),
                                           JetBTaggerTool=btagger,
                                           JetCollectionName = jet,

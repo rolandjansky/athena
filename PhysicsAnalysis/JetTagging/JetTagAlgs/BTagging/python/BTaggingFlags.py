@@ -5,8 +5,8 @@ class _BTaggingFlags:
 # default is analysis
     StandardTaggers = \
       [ 'IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN',
-        'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge',
-        'MV2c100', 'MV2cl100', 'MVb', 'DL1', 'DL1rnn', 'DL1mu',  'RNNIP' ]
+        'SoftMu', 'MV2c10', 'MV2r', 'MV2rmu', 'JetVertexCharge',
+        'MV2c100', 'MV2cl100', 'MVb', 'DL1', 'DL1rmu', 'DL1r',  'RNNIP' ]
 
     ExpertTaggers = \
       StandardTaggers + \
@@ -42,11 +42,11 @@ class _BTaggingFlags:
               'TrackCounting', 'TrackCountingFlip',
               'QGTag',
               'MV1', 'MV1c', 'MV2', 'MV2c10', 'MV2c20', 'MV2c00', 'MV2c10hp', 'MV2m',
-              'MV2c10mu','MV2c10rnn','MV2c100','MV2cl100',
+              'MV2r','MV2rmu','MV2c100','MV2cl100',
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
               'MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip',
               'RNNIP', 'RNNIPNeg', 'RNNIPFlip',
-              'DL1', 'DL1Flip','DL1mu', 'DL1muFlip','DL1rnn', 'DL1rnnFlip',
+              'DL1', 'DL1Flip','DL1r', 'DL1muFlip','DL1rmu', 'DL1rnnFlip',
               'TagNtupleDumper',
               'JetVertexCharge']
 
@@ -163,10 +163,10 @@ class _BTaggingFlags:
       self.DL1 = True
       self.DL1Flip = False
 
-      self.DL1mu = True
+      self.DL1r = True
       self.DL1muFlip = False
 
-      self.DL1rnn = True
+      self.DL1rmu = True
       self.DL1rnnFlip = False
 
       self.TagNtupleDumper = False
@@ -300,13 +300,13 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'MV2c10':
           setattr(self, attr, True)
-        if attr == 'MV2c10rnn':
+        if attr == 'MV2rmu':
           setattr(self, attr, True)
         if attr == 'MV2c20':
           setattr(self, attr, False)
         if attr == 'MV2c100':
           setattr(self, attr, True)
-        if attr == 'MV2c10mu':
+        if attr == 'MV2r':
           setattr(self, attr, True)
         if attr == 'MV2cl100':
           setattr(self, attr, True)
@@ -348,7 +348,7 @@ class _BTaggingFlags:
           setattr(self, attr, 'MV1')
 
       for attr in self._HighPriorityTaggers:
-        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV2c10','MV2c10mu','MV2c100','MV2c10rnn','MV2cl100', 'IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip','JetVertexCharge', 'DL1', 'DL1Flip','DL1mu', 'DL1muFlip','DL1rnn', 'DL1rnnFlip', 'SoftMu'])
+        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV2c10','MV2r','MV2c100','MV2rmu','MV2cl100', 'IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip','JetVertexCharge', 'DL1', 'DL1Flip','DL1r', 'DL1muFlip','DL1rmu', 'DL1rnnFlip', 'SoftMu'])
       for attr in self._MediumPriorityTaggers:
         setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftEl','SoftMuChi2','MV2','MV2Flip'])
       for attr in self._LowPriorityTaggers:
@@ -471,8 +471,7 @@ class _BTaggingFlags:
                               "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt3Track->AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt2Track->AntiKt2Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
-                              "AntiKt4HI->AntiKt4HI,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"])
+                              "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"])
 
       for attr in self._CalibrationSingleFolder:
         setattr(self, attr, True)

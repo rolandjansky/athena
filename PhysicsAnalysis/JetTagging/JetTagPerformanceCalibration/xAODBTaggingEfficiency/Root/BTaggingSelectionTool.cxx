@@ -69,33 +69,39 @@ StatusCode BTaggingSelectionTool::initialize() {
   m_useVeto = false;
   if( m_OP.find("Veto") != string::npos ){
     m_useVeto = true;
-    //op string should follow the format nominal_WP_Veto_vetotagger_vetoWP
-    //for example, FixedCutBEff_77_Veto_DL1_CTag_Loose
+    //op string should follow the format nominal_WP-vetotagger-vetoWP
+    //for example, FixedCutBEff_77-DL1-CTag_Loose
     TString vetotaggerstring = m_OP;
-    TObjArray* wptokens = vetotaggerstring.Tokenize("_");
-    if( wptokens->GetEntries() != 6 ){
+    TObjArray* wptokens = vetotaggerstring.Tokenize("-");
+    if( wptokens->GetEntries() != 4 ){
         ATH_MSG_ERROR( "BTaggingSelectionTool improperly formatted WP defintion: "+m_OP );
         return StatusCode::FAILURE;
     }
     m_OP = (std::string)(((TObjString *)(wptokens->At(0)))->String());
-    m_OP = m_OP+"_"+(std::string)(((TObjString *)(wptokens->At(1)))->String());
-
-    m_taggerName_Veto = (std::string)(((TObjString *)(wptokens->At(3)))->String());
-    m_OP_Veto = (std::string)(((TObjString *)(wptokens->At(4)))->String());
-    m_OP_Veto = m_OP_Veto+"_"+(std::string)(((TObjString *)(wptokens->At(5)))->String());
+    m_taggerName_Veto = (std::string)(((TObjString *)(wptokens->At(2)))->String());
+    m_OP_Veto = (std::string)(((TObjString *)(wptokens->At(3)))->String());
   }
 
   // The tool supports only these taggers and jet collections:
+  // fdibello hack to get things working
+  if("MV2r" == m_taggerName  || "MV2rmu" == m_taggerName )  m_taggerName = "MV2c10";
+  if("DL1r" == m_taggerName  || "DL1rmu" == m_taggerName )  m_taggerName = "DL1";
   if ("DL1"!=m_taggerName&&
         "DL1mu"!=m_taggerName&&
         "DL1rnn"!=m_taggerName&&
         "MV2c10"!=m_taggerName&&
         "MV2c10mu"!=m_taggerName&&
         "MV2c10rnn"!=m_taggerName&&
+        "MV2r"!=m_taggerName&&
+        "MV2rmu"!=m_taggerName&&
         "MV2cl100_MV2c100"!=m_taggerName){
-    ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support tagger: "+m_taggerName );
+    ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support tagger: "+m_taggerName+"-" );
     return StatusCode::FAILURE;
   }
+
+
+
+
   if ("AntiKt4EMTopoJets"  != m_jetAuthor &&
       "AntiKt4EMPFlowJets" != m_jetAuthor &&
       "AntiKt2PV0TrackJets"!= m_jetAuthor &&
@@ -117,6 +123,8 @@ StatusCode BTaggingSelectionTool::initialize() {
     TString cutname = m_OP;
 
   if ("Continuous"==cutname(0,10)){  // For continuous tagging load all flat-cut WPs
+    // fdibello hack to get things working
+    if("MV2r" == m_taggerName  || "MV2rmu" == m_taggerName )  m_taggerName = "MV2c10";
     //100% efficiency => MVXWP=-infinity
     m_continuouscuts[0] = -1.e4;
 
@@ -142,14 +150,10 @@ StatusCode BTaggingSelectionTool::initialize() {
 
     //0% efficiency => MVXWP=+infinity
     m_continuouscuts[5]= +1.e4;
-
-    if(m_taggerName.find("DL1") != string::npos){
-      //this call will extract the c-fraction value and set it in m_tagger
-      //which is needed in case the user calls getTaggerWeight to compute the DL1 score
-      ExtractTaggerProperties(m_tagger,m_taggerName , "FixedCutBEff_60");
-    }
   }
   else {  // Else load only one WP
+  // fdibello hack to get things working
+  if("MV2r" == m_taggerName  || "MV2rmu" == m_taggerName )  m_taggerName = "MV2c10";
     ExtractTaggerProperties(m_tagger,m_taggerName , m_OP);
     if(m_useVeto){ExtractTaggerProperties(m_vetoTagger,m_taggerName_Veto , m_OP_Veto);}
   }
@@ -165,17 +169,25 @@ StatusCode BTaggingSelectionTool::initialize() {
 void BTaggingSelectionTool::ExtractTaggerProperties(taggerproperties &tagger, std::string taggerName, std::string OP){
 
   TString cutname = OP;
+  // fdibello hack to get things working
+  if("MV2r" == taggerName )  taggerName = "MV2c10";
+  if("MV2rmu" == taggerName )  taggerName = "MV2c10";
+  if("DL1r" == taggerName )  taggerName = "DL1";
+  if("DL1rmu" == taggerName )  taggerName = "DL1";
+
+   std::cout<<"fdibello - changing name"<<std::endl;
+
 
   if ("FlatBEff"==cutname(0,8) || "HybBEff"==cutname(0,7) ){
     cutname = taggerName+"/"+m_jetAuthor+"/"+OP+"/cutprofile";
     tagger.spline = (TSpline3*) m_inf->Get(cutname);
-    if (tagger.spline == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
+    if (tagger.spline == nullptr){ ATH_MSG_ERROR( "Invalid operating point "+cutname);   }
     tagger.constcut = nullptr;
   }
   else {
     cutname = taggerName+"/"+m_jetAuthor+"/"+OP+"/cutvalue";
     tagger.constcut = (TVector*) m_inf->Get(cutname);
-    if (tagger.constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
+    if (tagger.constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point "+cutname );
     tagger.spline = nullptr;
   }
 
@@ -293,6 +305,9 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, dou
   taggerproperties localtagger;
   std::string taggerName;
   std::string OP;
+
+
+
 
   if(useVetoWP && m_useVeto){
     localtagger = m_vetoTagger;
@@ -425,7 +440,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
   }
 
     //if we got here the tagger name is not configured properly
-    ATH_MSG_ERROR("BTaggingSelectionTool doesn't support tagger: "+m_taggerName);
+    ATH_MSG_ERROR("BTaggingSelectionTool doesn't support tagger second: "+m_taggerName);
     return m_accept;
 
 }
