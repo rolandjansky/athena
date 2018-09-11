@@ -43,13 +43,11 @@ public:
   virtual bool caloExtension( const xAOD::IParticle& particle, 
                               std::unique_ptr<Trk::CaloExtension>& extension ) const override final;
 
-  virtual bool caloExtension( const xAOD::IParticle& particle, 
-                              const Trk::CaloExtension* extension, 
-                              IParticleCaloExtensionTool::Cache& cache ) const override final;
+  virtual const Trk::CaloExtension*  caloExtension( const xAOD::IParticle& particle, 
+                                                    IParticleCaloExtensionTool::Cache& cache ) const override final;
 
-  virtual bool caloExtension( const xAOD::IParticle& particle,
-                              const Trk::CaloExtension* extension, 
-                              const CaloExtensionCollection& cache ) const override final;
+  virtual  const Trk::CaloExtension* caloExtension( const xAOD::IParticle& particle,
+                                                    const CaloExtensionCollection& cache ) const override final;
 
   virtual StatusCode  caloExtensionCollection( const xAOD::IParticleContainer& particles, 
                                                const std::vector<bool>& mask,
@@ -67,7 +65,7 @@ private:
   std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::NeutralParticle& particle ) const;
   std::unique_ptr<Trk::CaloExtension>  caloExtension( const xAOD::TrackParticle& particle ) const;
 
-  PublicToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"}; 
+  PublicToolHandle<Trk::IExtrapolator> m_extrapolator {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
   Gaudi::Property<std::string>  m_particleTypeName{this,"ParticleType","muon","The particle type : muon, pion, nonInteracting"};
   Gaudi::Property<bool>  m_startFromPerigee{this,"StartFromPerigee",false, "Start from Perigee"};
 
