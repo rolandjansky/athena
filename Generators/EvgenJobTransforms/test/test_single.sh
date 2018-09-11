@@ -12,6 +12,8 @@ Generate_tf.py --ecmEnergy=8000 --runNumber=999999 --maxEvents=10 \
     --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.999999.ParticleGun_single_nu.py \
     --outputEVNTFile=test_single_nu.EVNT.pool.root \
 
+rm -fr _joproxy15
+
 echo "art-result: $? generate"
 
 

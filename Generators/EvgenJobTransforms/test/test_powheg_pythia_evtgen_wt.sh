@@ -11,6 +11,8 @@ Generate_tf.py --ecmEnergy=13000 --runNumber=410013 --maxEvents=10 \
     --jobConfig=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID410xxx/MC15.410013.PowhegPythiaEvtGen_P2012_Wt_inclusive_top.py  --steering=afterburn \
     --outputEVNTFile=test_powheg_wt_inelastic.EVNT.pool.root \
 
+rm -fr _joproxy15
+
 echo "art-result: $? generate"
 
 

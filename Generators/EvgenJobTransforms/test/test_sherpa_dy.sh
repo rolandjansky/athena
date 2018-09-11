@@ -11,5 +11,7 @@ Generate_tf.py --ecmEnergy=13000 --runNumber=191919 --maxEvents=10 \
     --jobConfig=/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/share/tests/MC14.191919.Sherpa_NNPDF30NNLO_DrellYan.py  \
     --outputEVNTFile=test_sherpa_dy_inelastic.EVNT.pool.root \
 
+rm -fr _joproxy14
+
 echo "art-result: $? generate"
 
