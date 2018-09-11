@@ -41,7 +41,7 @@
 // Forward declarations
 class ISiChargedDiodesProcessorTool;
 class SCT_ID;
-class SiChargedDiodeCollectioon;
+class SiChargedDiodeCollection;
 
 namespace CLHEP
 {
