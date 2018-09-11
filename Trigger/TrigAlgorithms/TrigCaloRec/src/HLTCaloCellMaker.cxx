@@ -74,12 +74,12 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
 	auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
-	m_dataAccessSvc->loadFullCollections( context, *c );
+	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
 	cellContainerV->push_back( c.release()->asDataVector() );
 		
       } else {
 	LArTT_Selector<LArCellCont> sel;
-	m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel );
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
 	auto c = std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
 	int cc(0);
 	for( const auto cell : sel ) {c->push_back( cell ); cc++;}
