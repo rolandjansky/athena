@@ -194,7 +194,6 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo
 ##################################################################
 def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
-    from JetRec.JetRecStandard import jtm
     from AthenaCommon import Logging
 
     if logger is None:
@@ -206,6 +205,12 @@ def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
     # there are no issues with train safety.
     if opts or pos_opts:
         logger.error('Options specified for VR jets, they will be ignored')
+
+    VRName, ghostLab = buildVRJets(sequence, do_ghost, logger)
+    linkVRJetsToLargeRJets(sequence, VRName, ghostLab)
+
+def buildVRJets(sequence, do_ghost, logger):
+    from JetRec.JetRecStandard import jtm
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track"
     VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
@@ -314,7 +319,11 @@ def addVRJets(sequence, do_ghost=False, logger=None, *pos_opts, **opts):
           SkipNegativeEnergy = True,
           GhostScale = 1.e-20,                                                   # this makes the PseudoJet Ghosts, and thus the reco flow will treat them as such
         )
+    return VRJetName, VRGhostLabel
 
+def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel):
+    from JetRec.JetRecStandard import jtm
+    pjgettername = VRGhostLabel.lower()
     #==========================================================
     # Re-cluster large-R jet with VR ghost associated on it
     # AntiKt10LCTopo hard-coded for now
