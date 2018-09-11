@@ -23,6 +23,11 @@ struct MMReadoutParameters {
     double zpos;
     double distanceFromZAxis;
     double roLength;
+    double sStripWidth;
+    double lStripWidth;
+    double activeH;
+    double minYPhi;
+    double maxYPhi;
 };
 
 class MMDetectorDescription: public AGDDDetector {
