@@ -2240,12 +2240,10 @@ namespace Trk {
     if (m_MMCorrectionStatus==0) {
       for (itSet = rots.begin(); itSet != itSetEnd; ++itSet) {
         if ((*itSet)) {
-          if(&(*itSet)->associatedSurface()) {
-            if((*itSet)->associatedSurface().associatedDetectorElementIdentifier().is_valid()) {
-              if (m_DetID->is_mm((*itSet)->associatedSurface().associatedDetectorElementIdentifier())) {
-                m_MMCorrectionStatus = 1;
-                break;
-              }
+	  if((*itSet)->associatedSurface().associatedDetectorElementIdentifier().is_valid()) {
+	    if (m_DetID->is_mm((*itSet)->associatedSurface().associatedDetectorElementIdentifier())) {
+	      m_MMCorrectionStatus = 1;
+	      break;
             }
           } 
         }
