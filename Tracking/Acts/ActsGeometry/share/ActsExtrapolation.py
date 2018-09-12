@@ -13,7 +13,11 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+from AthenaCommon.Logging import log as msg
 nThreads = jp.ConcurrencyFlags.NumThreads()
+if (nThreads < 1) :
+    msg.fatal('numThreads must be >0. Did you set the --threads=N option?')
+    sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
 
 # Just the pixel and SCT
 DetFlags.ID_setOn()
