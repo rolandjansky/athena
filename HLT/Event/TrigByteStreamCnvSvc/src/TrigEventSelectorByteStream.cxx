@@ -21,7 +21,7 @@
 // Standard constructor
 // =============================================================================
 TrigEventSelectorByteStream::TrigEventSelectorByteStream(const std::string& name, ISvcLocator* svcLoc)
-: AthService(name, svcLoc),
+: base_class(name, svcLoc),
   m_eventSource("ByteStreamInputSvc", name),
   m_evtStore("StoreGateSvc", name) {
   declareProperty("ByteStreamInputSvc", m_eventSource);
@@ -31,23 +31,6 @@ TrigEventSelectorByteStream::TrigEventSelectorByteStream(const std::string& name
 // Standard destructor
 // =============================================================================
 TrigEventSelectorByteStream::~TrigEventSelectorByteStream() {}
-
-// =============================================================================
-// Implementation of IInterface::queryInterface
-// =============================================================================
-StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-
-  if(IEvtSelector::interfaceID().versionMatch(riid))
-    *ppvInterface = static_cast<IEvtSelector*>(this);
-  else
-    return AthService::queryInterface(riid, ppvInterface);
-
-  addRef();
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
-}
 
 // =============================================================================
 // Implementation of Service::initialize

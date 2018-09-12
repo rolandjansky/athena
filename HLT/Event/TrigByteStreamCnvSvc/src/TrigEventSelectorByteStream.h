@@ -17,8 +17,7 @@ class StoreGateSvc;
  * @brief  online implementation of IEvtSelector for ByteStream
  */
 
-class TrigEventSelectorByteStream : public AthService,
-                                    virtual public IEvtSelector {
+class TrigEventSelectorByteStream : public extends<AthService, IEvtSelector> {
 public:
   /**
    * @class TrigEventSelectorByteStream::Context
@@ -43,9 +42,6 @@ public:
   TrigEventSelectorByteStream(const std::string& name, ISvcLocator* svcLoc);
   /// Standard destructor
   virtual ~TrigEventSelectorByteStream();
-
-  // ------------------------- IInterface methods -----------------------------
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
   // ------------------------- Service methods --------------------------------
   virtual StatusCode initialize() override;
