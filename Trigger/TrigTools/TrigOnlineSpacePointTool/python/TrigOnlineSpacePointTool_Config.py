@@ -26,16 +26,11 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         # --- SiLorentzAngleTool
         from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
-        from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup, SCT_ConditionsSetup
-        from AthenaCommon.CfgGetter import getPublicTool,getPrivateTool
-        TrigPixelLorentzAngleTool = getPublicTool("PixelLorentzAngleTool")
-        TrigSCTLorentzAngleTool = getPrivateTool("SCTLorentzAngleTool")
-
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
                                                                PixelOfflineCalibSvc =  PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
-                                                               PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
+                                                               PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
                                                                SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
                                                                )
 
@@ -72,7 +67,7 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
                                       LorentzAngleTool=sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
         ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool,
-                                                                LorentzAngleTool = TrigPixelLorentzAngleTool)
+                                                                LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
         ConfiguredSCT_ClusterCacheTool = SCT_ClusterCacheTool(SCT_ClusteringTool = InDetL2TrigSCT_ClusteringTool,
                                                               FastSCT_RodDecoder = ToolSvc.FastSCT_RodDecoder
                                                               )
