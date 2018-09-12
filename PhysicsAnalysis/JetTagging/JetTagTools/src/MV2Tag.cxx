@@ -284,7 +284,6 @@ namespace Analysis {
 	return;
       }
       ATH_MSG_VERBOSE("#BTAG# MV2 m_useEgammaMethodMV2= "<<m_useEgammaMethodMV2 );
-      std::cout<<"#BTAG# MV2 m_useEgammaMethodMV2= "<<m_useEgammaMethodMV2 ;
 
       if (!m_useEgammaMethodMV2) {
 	// now configure the TMVAReaders:
@@ -357,8 +356,6 @@ namespace Analysis {
 
   SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,*m_inputPointers);
 
-  std::cout<<"#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
-                      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<m_inputPointers->size()<<std::endl;
 
 
   ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
@@ -444,9 +441,7 @@ namespace Analysis {
       }
     }
 
-    if (m_taggerNameBase.find("MV2c")!=std::string::npos) std::cout<<"#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author<<std::endl;
-    if (m_taggerNameBase.find("MV2c")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
-    else if (m_taggerNameBase.find("MV2r")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
+    if (m_taggerNameBase.find("MV2c")!=std::string::npos || m_taggerNameBase.find("MV2r")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
     else ATH_MSG_DEBUG("#BTAG# MV2 pb, pu, pc= " << mv2m_pb<<"\t"<<mv2m_pu<<"\t"<<mv2m_pc<<", "<<alias<<", "<<author);
 
     // #4: Fill MVA output variable(s) into xAOD
