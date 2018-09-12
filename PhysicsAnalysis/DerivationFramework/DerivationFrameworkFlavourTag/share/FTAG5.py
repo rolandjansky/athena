@@ -19,9 +19,9 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
 
 # JetEtMiss
 from DerivationFrameworkJetEtMiss.JetCommon import (
-    OutputJets, addJetOutputs)
+    OutputJets, addJetOutputs, addSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
-    addDefaultTrimmedJets, replaceAODReducedJets)
+    addDefaultTrimmedJets, replaceAODReducedJets, addConstModJets)
 from JetRec.JetRecStandard import jtm
 
 # tracking
@@ -158,6 +158,24 @@ addVRJets(FTAG5Seq, logger=ftag5_log, do_ghost=True)
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 #===================================================================
+# Add SoftDrop Jets
+#===================================================================
+
+# this is a nasty hack: we add the ghost label pseudojetgetter
+# (defined in addVRJets above) to all subsequent LCTopo jet
+# collections.
+VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
+jtm.gettersMap["LCTopo".lower()].append(VRGhostLabel.lower())
+
+# from here on things are a bit more standard
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], FTAG5Seq, "FTAG5",
+                ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1,
+                algseq=FTAG5Seq, outputGroup="FTAG5",
+                writeUngroomed=True, mods="lctopo_groomed",
+                constmods=["CS", "SK"])
+
+#===================================================================
 # ExKt subjets for each trimmed large-R jet
 #===================================================================
 ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
@@ -278,6 +296,21 @@ ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
 ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
 FTAG5SlimmingHelper.ExtraVariables.append(
     '.'.join(['AntiKt10LCTopoJets'] + ghost_counts + ghost_pts))
+
+# Also add in some SoftDrip things
+#
+# NOTE: replace with smart collections and CollecitonsOnTheFly
+#
+FTAG5SlimmingHelper.AppendToDictionary = {
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets":"xAOD::JetContainer",
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":"xAOD::JetAuxContainer",
+    "AntiKt10LCTopoCSSKJets":"xAOD::JetContainer",
+    "AntiKt10LCTopoCSSKJetsAux":"xAOD::JetAuxContainer",
+}
+FTAG5SlimmingHelper.AllVariables  += [
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
+    "AntiKt10LCTopoCSSKJets"]
+
 
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
