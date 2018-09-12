@@ -18,6 +18,10 @@ StatusCode TrigMuonEFCombinerHypoTool::initialize(){
   if(m_acceptAll) {
     ATH_MSG_INFO("Accepting all the events with not cut!");
   } else {
+    if(m_ptBins.size()<=0){ 
+      ATH_MSG_ERROR("Trying to configure hypo with no pT bins. This is probably a configuration mistake.");
+      return StatusCode::FAILURE;
+    }
     m_bins.resize(m_ptBins.size());
     for(size_t j=0; j<m_ptBins.size(); j++){
       m_bins[j] = m_ptBins[j].size() - 1;

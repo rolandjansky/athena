@@ -694,6 +694,30 @@ class TrigMuonEFMSonlyHypoConfig():
 
         return tool
 
+def TrigMuonEFCombinerHypoToolFromName( toolName, thresholdHLT ) :
+
+    name = "TrigMuonEFCombinerHypoTool"
+    config = TrigMuonEFCombinerHypoConfig()
+
+    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+    bname = thresholdHLT.split('_') 
+    threshold = bname[1]
+    thresholds = config.decodeThreshold( threshold )
+    print "TrigMuonEFCombinerHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
+
+    tool = config.ConfigurationHypoTool( toolName, thresholds )
+ 
+    # Setup MonTool for monitored variables in AthenaMonitoring package
+    TriggerFlags.enableMonitoring = ["Validation"]
+
+    try:
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigMuonEFCombinerHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+    except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+    
+    return tool
 
 class TrigMuonEFCombinerHypoConfig(): 
         

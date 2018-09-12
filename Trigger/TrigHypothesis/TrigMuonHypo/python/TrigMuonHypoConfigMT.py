@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool
+from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg, TrigMufastHypoTool, TrigmuCombHypoAlg, TrigmuCombHypoTool, TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool, TrigMuisoHypoAlg, TrigMuisoHypoTool,  TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool
 from TrigMuonHypo.TrigMuonHypoMonitoringMT import *
 from AthenaCommon.SystemOfUnits import GeV
 #from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags

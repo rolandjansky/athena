@@ -38,6 +38,8 @@
 #include "TrigMuonHypo/TrigMuonEFCombinerDiMuonMassPtImpactsHypo.h"
 #include "TrigMuonHypo/TrigMuonEFMSonlyHypoAlg.h"
 #include "TrigMuonHypo/TrigMuonEFMSonlyHypoTool.h"
+#include "TrigMuonHypo/TrigMuonEFCombinerHypoAlg.h"
+#include "TrigMuonHypo/TrigMuonEFCombinerHypoTool.h"
 #include "TrigMuonHypo/TrigMuonCaloTagHypo.h"
 #include "TrigMuonHypo/TrigMuonIDTrackMultiHypo.h"
 
@@ -81,6 +83,8 @@ DECLARE_COMPONENT( TrigMuonEFCombinerDiMuonMassHypo )
 DECLARE_COMPONENT( TrigMuonEFCombinerDiMuonMassPtImpactsHypo )
 DECLARE_COMPONENT( TrigMuonEFMSonlyHypoAlg )
 DECLARE_COMPONENT( TrigMuonEFMSonlyHypoTool )
+DECLARE_COMPONENT( TrigMuonEFCombinerHypoAlg )
+DECLARE_COMPONENT( TrigMuonEFCombinerHypoTool )
 DECLARE_COMPONENT( TrigMuonCaloTagHypo )
 DECLARE_COMPONENT( TrigMuonIDTrackMultiHypo )
 
