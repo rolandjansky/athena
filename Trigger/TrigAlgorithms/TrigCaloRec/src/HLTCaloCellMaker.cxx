@@ -55,11 +55,11 @@ StatusCode HLTCaloCellMaker::execute_r( const EventContext& context ) const {
     auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {
-	m_dataAccessSvc->loadFullCollections( context, *cdv );
+        ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *cdv ));
 
       } else {
 	LArTT_Selector<LArCellCont> sel;
-	m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel );
+	ATH_CHECK(m_dataAccessSvc->loadCollections( context, *roiDescriptor, TTEM, 2, sel ));
 	for( const auto cell : sel ) {cdv->push_back( cell ); }
       }
       auto ss = cellContainer.record( std::move(cdv) );
