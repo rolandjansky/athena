@@ -11,5 +11,6 @@
 
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+#include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 
 #endif // not MUONMOMENTUMCORRECTIONS_MUONMOMENTUMCORRECTIONSDICT_H

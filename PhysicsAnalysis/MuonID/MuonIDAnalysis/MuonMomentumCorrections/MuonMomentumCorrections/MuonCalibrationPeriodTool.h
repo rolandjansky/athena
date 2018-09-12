@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MCAST_MMCPeriodTool_H
-#define MCAST_MMCPeriodTool_H
+#ifndef MCAST_MuonCalibrationPeriodTool_H
+#define MCAST_MuonCalibrationPeriodTool_H
 
 // Framework include(s):
 #include <AsgTools/AsgMetadataTool.h>
@@ -16,10 +16,10 @@
 namespace CP {
 
 
-class MMCPeriodTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgMetadataTool {
+class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool, public virtual ISystematicsTool, public asg::AsgMetadataTool {
 
   // Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( MMCPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
+  ASG_TOOL_CLASS2( MuonCalibrationPeriodTool, CP::IMuonCalibrationAndSmearingTool, CP::ISystematicsTool )
 
   public:
      /// Apply the correction on a modifyable object
@@ -44,10 +44,10 @@ class MMCPeriodTool : public virtual IMuonCalibrationAndSmearingTool, public vir
     virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
     
     // Constructor
-    MMCPeriodTool( const std::string& name );
+    MuonCalibrationPeriodTool( const std::string& name );
 
     // Destructor
-    virtual ~MMCPeriodTool();
+    virtual ~MuonCalibrationPeriodTool();
 
     virtual StatusCode initialize();
 
