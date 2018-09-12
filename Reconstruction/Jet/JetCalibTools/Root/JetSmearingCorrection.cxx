@@ -516,7 +516,7 @@ StatusCode JetSmearingCorrection::cacheProjections(TH1* fullHistogram, std::vect
             for (Long64_t binY = 0; binY < localHist->GetNbinsY()+1; ++binY)
             {
                 // Single bin of Y, interpolate across X
-                cacheLocation.push_back(std::unique_ptr<TH1>(localHist->ProjectionX(Form("projx_%s_%lld",type.c_str(),binY),binY,binY)));
+                cacheLocation.emplace_back(localHist->ProjectionX(Form("projx_%s_%lld",type.c_str(),binY),binY,binY));
             }
         }
         else if (m_interpType == InterpType::OnlyY)
@@ -539,6 +539,12 @@ StatusCode JetSmearingCorrection::cacheProjections(TH1* fullHistogram, std::vect
         // We shouldn't make it here due to earlier checks
         ATH_MSG_FATAL("Unexpected dimensionality: " << fullHistogram->GetDimension());
         return StatusCode::FAILURE;
+    }
+
+    // Ensure that ROOT doesn't try to take posession
+    for (auto& hist : cacheLocation)
+    {
+        hist->SetDirectory(nullptr);
     }
 
     // All done
