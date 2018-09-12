@@ -56,7 +56,7 @@ def getHIGG5CommonTruth() :
         "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType",
         'AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
         'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
-        'AntiKt10LCTopoJetsJets.PartonTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
+        'AntiKt10LCTopoJetsJets.PartonTruthLabelID',
         'AntiKt10TrackCaloClusterJets.PartonTruthLabelID'
     ]
 
