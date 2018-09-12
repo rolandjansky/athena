@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -217,7 +217,7 @@ DumpSp::initialize()
   //   ATH_MSG_FATAL("Failed to retrieve tool " << m_holeSearchTool);
   //   return StatusCode::FAILURE;
   // }
-  
+
   if( service("DetectorStore",m_detStore).isFailure() ) {
     ATH_MSG_FATAL("DetectorStore service not found");
     return StatusCode::FAILURE;
@@ -318,6 +318,9 @@ DumpSp::initialize()
   } else {
     ATH_MSG_INFO("Retrieved service " << m_beamCondSvc);
   }
+
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
+  ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -826,7 +829,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
         const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement );
-        const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
+        Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
+        localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
+        const InDetDD::SiLocalPosition localPos(localPos2D);
         const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
         const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
         // update map between pixel identifier and event-unique hit index. 
@@ -939,7 +944,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           Identifier rdoId = (*iRDO)->identify();
           // get the det element from the det element collection
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-          const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
+          Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
+          localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
+          const InDetDD::SiLocalPosition localPos(localPos2D);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
           (*m_oflraw) << "# S\t" 
@@ -1272,7 +1279,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         // FlagAA: THIS CODE IS NOT BACKWARD COMPATIBLE! Commited on Sep 18th, 2013
         // now stores the local position in millimiters without Lorentz Correction
         // before it was storing a floating point coordinate in units of pixels
-        localx = (*iCluster)->localPosition()[Trk::distPhi] - sielement->getLorentzCorrection();
+        localx = (*iCluster)->localPosition()[Trk::distPhi] - m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         localy = (*iCluster)->localPosition()[Trk::distEta];
       }
 
@@ -1380,7 +1387,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
       {
         const InDetDD::SiLocalPosition localCentroid( (*iCluster)->localPosition() );
         const InDetDD::SiCellId cellIdCentroid( sielement->cellIdOfPosition( localCentroid ) );
-        const Amg::Vector2D localCellCentroid( sielement->localPositionOfCell( cellIdCentroid ) );
+        Amg::Vector2D localCellCentroid( sielement->rawLocalPositionOfCell( cellIdCentroid ) );
+        localCellCentroid[Trk::distPhi] += m_sctLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         float deltaphi = (*iCluster)->localPosition()[Trk::distPhi] - localCellCentroid[Trk::distPhi];
         float deltaxphi = deltaphi / sielement->phiPitch();
         // do not add 0.5 to center in middle of strip; match SCT leading spatial edge convention

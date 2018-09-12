@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef JETRECTOOLS_CONSTITTIMECUTTOOL_H
 #define JETRECTOOLS_CONSTITTIMECUTTOOL_H
 
@@ -25,7 +29,7 @@ class ConstitTimeCutTool : public JetConstituentModifierBase{
 
   private:
   StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
-  StatusCode applyTimingCut(xAOD::IParticle* part, float time) const; 
+  StatusCode applyTimingCut(xAOD::IParticle* part, const float& time, const float& quality, const float& lambda_center) const; 
 
   // Properties.
   float m_lambdaCalDivide; 
@@ -34,6 +38,7 @@ class ConstitTimeCutTool : public JetConstituentModifierBase{
   float m_timeCutSmallQ; 
   float m_etaMax;
 		
+  bool m_ignoreChargedPFOs;
 };
 
 

@@ -30,7 +30,7 @@ class LUCID_DetectorManager: public GeoVDetectorManager {
 }; 
 
 #ifndef GAUDI_NEUTRAL
-#include "CLIDSvc/CLASS_DEF.h" 
+#include "AthenaKernel/CLASS_DEF.h" 
 CLASS_DEF(LUCID_DetectorManager, 115078776, 1)
 #endif
 

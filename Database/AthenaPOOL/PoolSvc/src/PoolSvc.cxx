@@ -203,14 +203,6 @@ StatusCode PoolSvc::setupPersistencySvc() {
       ATH_MSG_FATAL("Failed to enable thread safety in ROOT via PersistencySvc.");
       return(StatusCode::FAILURE);
    }
-   // Switiching on ROOT implicit multi threading for AthenaMT
-   if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
-
-      if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<bool>("ENABLE_IMPLICITMT", true)) {
-         ATH_MSG_FATAL("Failed to enable implicit multithreading in ROOT via PersistencySvc.");
-         return(StatusCode::FAILURE);
-      }
-   }
    m_contextMaxFile.insert(std::pair<unsigned int, int>(IPoolSvc::kInputStream, m_dbAgeLimit));
    if (!connect(pool::ITransaction::READ).isSuccess()) {
       ATH_MSG_FATAL("Failed to connect Input PersistencySvc.");
@@ -225,6 +217,19 @@ StatusCode PoolSvc::setupPersistencySvc() {
       policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::UPDATE);
    }
    m_persistencySvcVec[IPoolSvc::kOutputStream]->session().setDefaultConnectionPolicy(policy);
+   return(StatusCode::SUCCESS);
+}
+//__________________________________________________________________________
+StatusCode PoolSvc::start() {
+   // Switiching on ROOT implicit multi threading for AthenaMT
+   if (Gaudi::Concurrency::ConcurrencyFlags::numThreads() > 1) {
+
+      if (!m_persistencySvcVec[IPoolSvc::kInputStream]->session().technologySpecificAttributes(pool::ROOT_StorageType.type()).setAttribute<int>("ENABLE_IMPLICITMT", Gaudi::Concurrency::ConcurrencyFlags::numThreads() - 1)) {
+         ATH_MSG_FATAL("Failed to enable implicit multithreading in ROOT via PersistencySvc.");
+         return(StatusCode::FAILURE);
+      }
+      ATH_MSG_INFO("Enabled implicit multithreading in ROOT via PersistencySvc to: " << Gaudi::Concurrency::ConcurrencyFlags::numThreads() - 1);
+   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

@@ -11,9 +11,8 @@
 Muon::RpcRawDataProvider::RpcRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rawDataTool     ("RpcRawDataProviderTool"),
+  m_rawDataTool     ("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool", this),
   m_regionSelector  ("RegSelSvc",name) 
-  //m_cablingSvc       ("IRPCcablingSvc", name) 
 {
   declareProperty ("ProviderTool", m_rawDataTool);
   declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");

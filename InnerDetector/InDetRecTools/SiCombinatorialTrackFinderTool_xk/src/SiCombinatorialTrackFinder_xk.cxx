@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -125,8 +125,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   Trk::IPRD_AssociationTool* assoTool = 0;
   if( !m_assoTool.retrieve().isFailure()) assoTool = &(*m_assoTool);
 
-  // Get PixelConditionsSummarySvc
-  //
   IInDetConditionsTool* pixcond = 0; 
   if(m_usePIX ) {  
     if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
@@ -211,6 +209,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
   ATH_CHECK( m_pixcontainerkey.initialize() );
   ATH_CHECK( m_sctcontainerkey.initialize() );
   ATH_CHECK( m_boundarySCTKey.initialize() );
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
 
   return sc;
 }

@@ -120,7 +120,7 @@ namespace InDet {
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle ;
       MagField::IMagFieldSvc*                m_fieldService {}      ;
 
-      IBeamCondSvc* p_beam                                        ;
+      IBeamCondSvc* p_beam{}                                        ;
       bool                        m_pixel  {}                       ;
       bool                        m_sct    {}                       ;
       bool                        m_endlist {}                      ;

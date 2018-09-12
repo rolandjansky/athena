@@ -22,7 +22,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/WriteHandle.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/IdentifierSet.h"
 
 // Forward declarations
@@ -39,7 +39,7 @@ class SCT_RODVetoCondAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ServiceHandle<ISCT_CablingSvc> m_cabling;
+  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_pHelper;
   SG::WriteHandle<IdentifierSet> m_badIds;
   std::vector<unsigned int> m_badRODElementsInput;

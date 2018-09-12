@@ -19,6 +19,7 @@
 #include "egammaInterfaces/IegammaSwTool.h" 
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "CaloRec/CaloClusterProcessor.h"
+#include "GaudiKernel/EventContext.h"
 
 class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
 {
@@ -38,13 +39,13 @@ class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
   /** @brief finalize method*/
   StatusCode finalize();
   /** @brief execute method*/
-  StatusCode execute(xAOD::CaloCluster* cluster);
-  StatusCode execute(xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) ;
+  StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster);
+  StatusCode execute(const EventContext& ctx, xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) ;
 
  private:
   
   StatusCode populateTools(ToolHandleArray<CaloClusterProcessor>& tools);
-  StatusCode processTools(ToolHandleArray<CaloClusterProcessor>& tools, xAOD::CaloCluster* cluster) const;
+  StatusCode processTools(const EventContext& ctx, ToolHandleArray<CaloClusterProcessor>& tools, xAOD::CaloCluster* cluster) const;
 
   /**
    * @brief a list of names for tools to correct clusters

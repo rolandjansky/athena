@@ -74,6 +74,7 @@ StatusCode PixelClusterCacheTool::initialize()  {
 
   m_clusterization.setPixelID(m_pixel_id);
   m_clusterization.initializeGeometry(mgr);
+  m_clusterization.setLorentzAngleTool(m_lorentzAngleTool.get());
   m_cntx_pix = m_pixel_id->wafer_context();
 
   IToolSvc* toolSvc;

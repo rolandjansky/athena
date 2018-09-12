@@ -11,7 +11,7 @@
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 
-class CTPUnpackingTool : public CTPUnpackingToolBase, public IIncidentListener {
+class CTPUnpackingTool : public CTPUnpackingToolBase {
 public:
   
   CTPUnpackingTool( const std::string& type,
@@ -21,10 +21,10 @@ public:
   virtual StatusCode decode(const ROIB::RoIBResult& roib, HLT::IDVec& enabledChains) const override;
 
   virtual StatusCode initialize() override;
-  virtual void handle(const Incident& incident) override;
+  
+  virtual StatusCode updateConfiguration( const std::map<std::string, std::string>& seeding ) override;
 
 private:
-  StatusCode decodeCTPToChainMapping();
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 }; 
 

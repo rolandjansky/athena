@@ -285,7 +285,7 @@ StatusCode MuGirlRecoTool::MuGirlReco(const InDetCandidateCollection& InDetSeeds
         /**
            get the extrapolation to the MS entry
         */
-        const Trk::CaloExtension* extension = 0;
+        std::unique_ptr<Trk::CaloExtension> extension = nullptr;
 
 	if (m_caloExtensionTool.empty()) continue;
 	if (!m_caloExtensionTool->caloExtension(tp_id, extension)) continue;
@@ -481,7 +481,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
                         lowbetatag->setStauSummary(stauSummary.release());
                         lowbetatag->setStauExtras(stauExtras.release());
 
-                        pParticle->pInDetCandidate->addTag(*lowbetatag);
+                        //pParticle->pInDetCandidate->addTag(*lowbetatag);
 
                     } else {
                         ATH_MSG_DEBUG("stauRefittedTrack is NULL");
@@ -514,7 +514,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
                         MuonCombined::MuGirlLowBetaTag* lowbetatag
                                 = new MuonCombined::MuGirlLowBetaTag(pTrackParticle->track(), std::vector<const Muon::MuonSegment*>());
                         lowbetatag->setRHExtras(rhExtras.release());
-                        pParticle->pInDetCandidate->addTag(*lowbetatag);
+                        //pParticle->pInDetCandidate->addTag(*lowbetatag);
                     }
                     ATH_MSG_DEBUG("RunFromID: doRH == true - done");
                 }
@@ -539,7 +539,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
 	    }
             else tag = new MuonCombined::MuGirlTag(summary->pTrkRefitted, muonSegmentList);
 	    tag->setUpdatedExtrapolatedTrack(std::move(summary->pTrkMSRefitted));
-            pParticle->pInDetCandidate->addTag(*tag);
+            //pParticle->pInDetCandidate->addTag(*tag);
             //set the segment into SegmentManager undeletable 
             m_pSegmentManager->setInStore(muonSegmentList, true);
             summary->saveStau = 0;
@@ -555,7 +555,7 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
             std::vector<const Muon::MuonSegment*> muonSegmentList = summary->muonSegmentList;
             MuonCombined::MuGirlTag* tag = new MuonCombined::MuGirlTag(summary->pTrkLowBeta, muonSegmentList);
 	    tag->setUpdatedExtrapolatedTrack(nullptr);
-            pParticle->pInDetCandidate->addTag(*tag);
+            //pParticle->pInDetCandidate->addTag(*tag);
             //set the segment into SegmentManager undeletable 
             m_pSegmentManager->setInStore(muonSegmentList, true);
 

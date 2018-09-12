@@ -1581,13 +1581,6 @@ if rec.doWriteBS():
     StreamBSFileOutput.ItemList += ["LUCID_DigitContainer#Lucid_Digits"]
 
 
-    # special SCT CABLING (ONLY FOR OLD FDR DATA)
-    #from InDetCabling.InDetCablingConf import SCT_CablingSelector
-    #SCT_CablingSelector = SCT_CablingSelector(Method = "MANUAL", Layout = "FromTextFile", Filename = "SCT_MC_FullCabling.dat")
-    #ToolSvc            += SCT_CablingSelector
-
-
-
     # LAr
     #        StreamBS.ItemList +=["LArRawChannels#*"]
     StreamBSFileOutput.ItemList +=["2721#*"]

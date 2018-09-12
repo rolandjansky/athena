@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //Local
@@ -24,7 +24,6 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
   m_pixID( 0 ),
   m_pixManager( 0 ),
   m_sctID( 0 ),
-  m_pixCond("PixelConditionsSummarySvc", name),
   m_ErrorSvc("PixelByteStreamErrorsSvc",name),
   m_errorGeoPixel(),
   m_disabledGeoPixel(),
@@ -59,15 +58,12 @@ StatusCode InDetGlobalErrorMonTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_pixCond.retrieve().isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve Pixel conditions service!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
 
   ATH_CHECK(m_ConfigurationTool.retrieve());
   ATH_CHECK(m_byteStreamErrTool.retrieve());
 
-  ATH_CHECK(m_sctDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   return ManagedMonitorToolBase::initialize();
 }
@@ -259,10 +255,10 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   
   m_errorGeoSCT.clear();
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_ERROR(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncErrorSCT()");
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncErrorSCT()");
     return false;
   }
   
@@ -311,7 +307,7 @@ bool InDetGlobalErrorMonTool::SyncPixel()
       IdentifierHash waferHash = m_pixID->wafer_hash((*fit));
       
       // Inactive module, flagging time!
-      if ( m_pixCond->isActive( waferHash ) == false )
+      if ( m_pixelCondSummaryTool->isActive( waferHash ) == false )
 	{
 	  moduleGeo_t moduleGeo;
 	  
@@ -325,7 +321,7 @@ bool InDetGlobalErrorMonTool::SyncPixel()
 	  
 	}
       // Bad module, flagging time!
-      if ( m_pixCond->isActive( waferHash ) == true && m_pixCond->isGood( waferHash ) == false )
+      if ( m_pixelCondSummaryTool->isActive( waferHash ) == true && m_pixelCondSummaryTool->isGood( waferHash ) == false )
 	{
 	  moduleGeo_t moduleGeo;
 	  
@@ -350,10 +346,10 @@ bool InDetGlobalErrorMonTool::SyncDisabledSCT()
   
   m_disabledGeoSCT.clear();
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_ERROR(m_sctDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
+    ATH_MSG_ERROR(m_SCTDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledSCT()");
     return false;
   }
 

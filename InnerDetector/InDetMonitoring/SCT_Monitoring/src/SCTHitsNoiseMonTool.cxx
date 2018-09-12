@@ -356,6 +356,8 @@ StatusCode SCTHitsNoiseMonTool::initialize() {
   ATH_CHECK(m_clusContainerKey.initialize());
   ATH_CHECK(m_tracksName.initialize());
 
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 

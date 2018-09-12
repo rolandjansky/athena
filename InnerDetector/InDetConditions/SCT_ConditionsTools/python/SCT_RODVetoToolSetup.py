@@ -23,11 +23,9 @@ class SCT_RODVetoToolSetup:
         return self.alg
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RODVetoTool
-            ToolSvc += SCT_RODVetoTool(name = self.toolName)
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SCT_RODVetoTool(name = self.toolName)
 
     def getTool(self):
         return self.tool

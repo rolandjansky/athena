@@ -52,10 +52,6 @@ class SpacePointOverlapCollection;
 class IRegSelSvc;
 class TrigTimer;
 
-namespace InDetDD {
-  class SCT_DetectorManager;
-}
-
 namespace InDet{
 
   class SiSpacePointMakerTool;
@@ -89,7 +85,6 @@ namespace InDet{
     //    int m_numberOfEvents;
     //    const InDetDD::PixelDetectorManager *m_managerPixel; 
     //    const PixelID* m_idHelperPixel;
-    const InDetDD::SCT_DetectorManager* m_managerSCT;
     IdentifierHash m_maxKey;
     
     const SCT_ClusterContainer *m_sctClusterContainer{};
@@ -99,7 +94,6 @@ namespace InDet{
 
     SpacePointOverlapCollection*    m_spOverlapColl;     
 
-    BooleanProperty m_useDetectorManager{this, "UseDetectorManager", true/*false*/, "Switch to use SiDetectorElementCollection from SCT_DetectorManager for debugging"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     SG::ReadCondHandleKey<InDet::SiElementPropertiesTable> m_SCTPropertiesKey{this, "SCTPropertiesKey",
         "SCT_ElementPropertiesTable", "Key of input SiElementPropertiesTable for SCT"};

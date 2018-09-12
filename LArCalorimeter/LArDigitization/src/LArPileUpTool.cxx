@@ -47,10 +47,10 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_hitmap(nullptr),
   m_hitmap_DigiHSTruth(nullptr),
   m_DigitContainer(nullptr),
-  m_adc2mevTool("LArADC2MeVTool"),
+  m_adc2mevKey("LArADC2MeV"),
   m_autoCorrNoiseTool("LArAutoCorrNoiseTool"),
-  m_maskingTool("LArBadChannelMaskingTool"),
-  m_badChannelTool("LArBadChanTool"),
+  m_maskingTool(this,"LArBadChannelMaskingTool"),
+  m_badFebKey("LArBadFeb"),
   m_triggerTimeTool("CosmicTriggerTimeTool"),
   m_larem_id(nullptr),
   m_larhec_id(nullptr),
@@ -170,10 +170,10 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   declareProperty("UsePhase",m_usePhase,"use 1ns binned pulse shape (default=false)");
   declareProperty("RndmSvc",m_rndmSvc,"Random number service for LAr digitization");
   declareProperty("UseRndmEvtRun",m_rndmEvtRun,"Use Run and Event number to seed rndm number (default=false)");
-  declareProperty("ADC2MeVTool",m_adc2mevTool,"Tool handle for ADC2MeV");
+  declareProperty("ADC2MeVKey",m_adc2mevKey,"SG Key of ADC2MeV conditions object");
   declareProperty("AutoCorrNoiseTool",m_autoCorrNoiseTool,"Tool handle for electronic noise covariance");
   declareProperty("MaskingTool",m_maskingTool,"Tool handle for dead channel masking");
-  declareProperty("BadChannelTool",m_badChannelTool,"Tool handle for bad channel access");
+  declareProperty("BadFebKey",m_badFebKey,"Key of BadFeb object in ConditionsStore");
   declareProperty("RndmEvtOverlay",m_RndmEvtOverlay,"Pileup and/or noise added by overlaying random events (default=false)");
   declareProperty("isMcOverlay",m_isMcOverlay,"Is input Overlay from MC or data (default=false, from data)");
   declareProperty("RandomDigitContainer",m_RandomDigitContainer,"Name of random digit container");
@@ -374,12 +374,7 @@ StatusCode LArPileUpTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  // retrieve ADC2MeVTool  (if using new classes)
-  if (m_adc2mevTool.retrieve().isFailure()) {
-      ATH_MSG_ERROR(" Unable to find tool LArADC2MEVTool");
-      return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO(" retrieved LArADC2MeVTool");
+  ATH_CHECK(m_adc2mevKey.initialize());
 
   // retrieve tool to compute sqrt of time correlation matrix
   if ( !m_RndmEvtOverlay  &&  m_NoiseOnOff) {
@@ -398,10 +393,7 @@ StatusCode LArPileUpTool::initialize()
       m_useBad=false;
   }
 
-  if (m_badChannelTool.retrieve().isFailure()) {
-      ATH_MSG_INFO(" No tool for bad channel ");
-      m_useBad=false;
-  }
+  ATH_CHECK(m_badFebKey.initialize());
 
   if (m_useTriggerTime) {
      if (m_triggerTimeTool.retrieve().isFailure()) {
@@ -914,6 +906,8 @@ StatusCode LArPileUpTool::processAllSubEvents()
 
 StatusCode LArPileUpTool::mergeEvent()
 {
+   SG::ReadCondHandle<LArBadFebCont> badFebHdl(m_badFebKey);
+   const LArBadFebCont* badFebs=*badFebHdl;
 
    int it,it_end;
    it =  0;
@@ -942,11 +936,8 @@ StatusCode LArPileUpTool::mergeEvent()
           if (TimeE->size() > 0 || m_NoiseOnOff || m_RndmEvtOverlay) {
             cellID = hitlist->getIdentifier();
             HWIdentifier ch_id = hitlist->getOnlineIdentifier();
-            bool missing=false;
-            if (m_useBad) {
-               HWIdentifier febId = m_laronline_id->feb_Id(ch_id);
-               missing = m_badChannelTool->febMissing(febId);
-            }
+	    HWIdentifier febId = m_laronline_id->feb_Id(ch_id);
+            bool missing=!(badFebs->status(febId).good());
             if (!missing) {
                const LArDigit * digit = 0 ;
                if(m_RndmEvtOverlay) digit = m_hitmap->GetDigit(it);
@@ -1976,6 +1967,10 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
   float SigmaNoise;
   std::vector<float> rndm_energy_samples(m_NSamples) ;
 
+
+  SG::ReadCondHandle<LArADC2MeV> adc2mevHdl(m_adc2mevKey);
+  const LArADC2MeV* adc2MeVs=*adc2mevHdl;
+
   LArDigit *Digit;
   LArDigit *Digit_DigiHSTruth;
 
@@ -2044,7 +2039,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
  if(m_RndmEvtOverlay && rndmEvtDigit ) // no overlay if missing random digit
  {
   rndmGain= rndmEvtDigit->gain();
-  const std::vector<float>* polynom_adc2mev =&(m_adc2mevTool->ADC2MEV(cellId,rndmEvtDigit->gain()) );
+  const std::vector<float>* polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,rndmEvtDigit->gain()) );
   if (polynom_adc2mev->size() > 1) {
      float adc2energy = SF * ((*polynom_adc2mev)[1]);
      const std::vector<short> & rndm_digit_samples = rndmEvtDigit->samples() ;
@@ -2113,7 +2108,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
    ATH_MSG_DEBUG(" Pedestal not found for medium gain ,cellID " << cellId <<  " assume 1000 ");
    Pedestal=1000.;
   }
-  const std::vector<float>* polynom_adc2mev =&(m_adc2mevTool->ADC2MEV(cellId,CaloGain::LARMEDIUMGAIN));
+  const std::vector<float>* polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,CaloGain::LARMEDIUMGAIN));
   if ( polynom_adc2mev->size() < 2) {
     ATH_MSG_WARNING(" No medium gain ramp found for cell " << m_larem_id->show_to_string(cellId) << " no digit produced...");
     return StatusCode::SUCCESS;
@@ -2202,7 +2197,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
      ATH_MSG_WARNING(" pedestal not found for cellId " << cellId << " assume 1000" );
      Pedestal=1000.;
   }
-  polynom_adc2mev =&(m_adc2mevTool->ADC2MEV(cellId,igain));
+  polynom_adc2mev =&(adc2MeVs->ADC2MEV(cellId,igain));
   if (polynom_adc2mev->size() < 2) {
     ATH_MSG_WARNING(" No ramp found for requested gain " << igain << " for cell " << m_larem_id->show_to_string(cellId) << " no digit made...");
     return StatusCode::SUCCESS;

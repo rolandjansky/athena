@@ -56,6 +56,10 @@ condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
 larCondDBFolders += [("AthenaAttributeList","/LAR/BadChannels/MissingFEBs")]
 condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
+condSeq+=LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey="",WriteKey="LArKnownBadFEBs")
+condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey="",WriteKey="LArKnownMNBFEBs")
+
+
 ## these may be conditional. 
 if larCondFlags.hasMphys() :
   larCondDBFolders += [("LArMphysOverMcalMC","/LAR/ElecCalibMC/MphysOverMcal")]

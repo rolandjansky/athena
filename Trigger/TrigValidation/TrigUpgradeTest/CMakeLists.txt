@@ -63,10 +63,6 @@ atlas_add_test( IDRunData SCRIPT test/test_id_run_data.sh
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_IDRunData
               )
 
-#atlas_add_test( caloRunData SCRIPT test/test_calo_run_data.sh
-#                PROPERTIES TIMEOUT 500
-#              )
-# replaced by complete egamma test
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaRunData )
 atlas_add_test( egammaRunData
 		SCRIPT test/test_egamma_run_data.sh
@@ -116,19 +112,24 @@ atlas_add_test( idCaloRunData
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_idCaloRunData
               )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_l1_decoding )
 atlas_add_test( EmuL1Decoding
 		SCRIPT test/test_emu_l1_decoding.sh
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_l1_decoding
 		)
 
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_step_processing )
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
 		EXTRA_PATTERNS "-s TriggerMonitorFinal"
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_emu_step_processing
 )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
 atlas_add_test( NewJO
 		SCRIPT test/test_newJO.sh
+		EXTRA_PATTERNS "-s .*ERROR.*|.*newJOtest.pkl.*|TrigSignatureMoniMT .*DEBUG.*"
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
 		)

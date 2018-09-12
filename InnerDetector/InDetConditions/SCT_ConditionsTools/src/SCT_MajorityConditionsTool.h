@@ -11,23 +11,22 @@
 #ifndef SCT_MajorityConditionsTool_h
 #define SCT_MajorityConditionsTool_h
 
-// STL includes
-#include <string>
-#include <list>
-#include <mutex>
-
-// Gaudi includes
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h"
-#include "SCT_ConditionsData/SCT_MajorityCondData.h"
 
-// Read Handle Key
+#include "SCT_ConditionsData/SCT_MajorityCondData.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/EventContext.h"
+
+// STL includes
+#include <list>
+#include <mutex>
+#include <string>
 
 /**
  * @class SCT_MajorityConditionsTool

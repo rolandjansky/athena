@@ -11,25 +11,23 @@
 #ifndef SCT_ChargeTrappingTool_h
 #define SCT_ChargeTrappingTool_h
 
+// Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ChargeTrappingTool.h"
+
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+// Gaudi includes
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // STL includes
 #include <string>
 #include <vector>
-
-// Gaudi includes
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
-
-// Athena includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
-
-/** Read CondHandle Key */
-#include "StoreGate/ReadCondHandleKey.h"
 
 //forward declarations
 class IdentifierHash;
@@ -50,14 +48,12 @@ class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, const double& pos) const override;
+  virtual SCT_ChargeTrappingCondData getCondData(const IdentifierHash& elementHash, double pos) const override;
   virtual void getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const override;
-  virtual void getInitPotentialValue() override;
   
  private:
-  SCT_ChargeTrappingCondData calculate(const IdentifierHash& elementHash, const double& pos) const;
-  void initPotentialValue();
-  double induced(const int istrip, const double x, const double y) const;
+  SCT_ChargeTrappingCondData calculate(const IdentifierHash& elementHash, double pos) const;
+  double induced(int istrip, double x, double y) const;
   double getPotentialValue(int& ix, int& iy);
   void holeTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const;
 

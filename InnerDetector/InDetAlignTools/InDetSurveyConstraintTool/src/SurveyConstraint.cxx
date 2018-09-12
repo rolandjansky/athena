@@ -12,7 +12,6 @@
 
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
-// CLHEP includes
 
 // Geometry Stuff 
 #include "Identifier/Identifier.h"
@@ -26,11 +25,10 @@
 
 // Alignment DB StuffStuff
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
-//#include "InDetAlignTools/IInDetAlignDBTool.h"
-
+#include "GaudiKernel/IRndmGenSvc.h"
+#include "GaudiKernel/RndmGenerators.h"
 // CLHEP includes
 
-////namespace InDetSurveyConstraintTool {
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -550,8 +548,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
         //m_survey_IDAlignDBTool->tweakTrans(SCT_ModuleID,3,SurveyTransRand);
         Amg::Vector3D currentPoint = CurrentTrans * temp;
         // Transform the local (survey and current) constraint points into the global coordinate system
-        Amg::VectorX globalSurveyPoint  = (*iter)->globalPosition( surveyPoint );	  
-        Amg::VectorX globalCurrentPoint = (*iter)->globalPosition( currentPoint);
+        Amg::VectorX globalSurveyPoint  = element->globalPosition( surveyPoint );	  
+        Amg::VectorX globalCurrentPoint = element->globalPosition( currentPoint);
 
         SurveyConstraintPoint newCPoint( globalSurveyPoint, globalCurrentPoint );            
         newSCT_Module->addModuleConstraintPoint(newCPoint);	

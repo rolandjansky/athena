@@ -8,11 +8,9 @@ class SCT_StripVetoToolSetup:
         self.tool = None
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_StripVetoTool
-            ToolSvc += SCT_StripVetoTool(name = self.toolName)
-        self.tool = getattr(ToolSvc, self.toolName)
+            self.tool = SCT_StripVetoTool(name = self.toolName)
 
     def getTool(self):
         return self.tool

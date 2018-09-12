@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "RoIsUnpackingToolBase.h"
-
+#include "TrigConfL1Data/TriggerItem.h"
 
 RoIsUnpackingToolBase::RoIsUnpackingToolBase(const std::string& type, 
                                              const std::string& name, 
@@ -19,34 +19,30 @@ StatusCode RoIsUnpackingToolBase::initialize()
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
   CHECK( m_decisionsKey.initialize() );
 
-  if ( decodeMapping().isFailure() ) {
-    ATH_MSG_ERROR( "Failed to decode threshold to chains mapping, is the format th : chain?" );
-    return StatusCode::FAILURE;
-  }
-  if ( m_thresholdToChainMapping.empty() ) {
-    ATH_MSG_WARNING( "No chains configured in ThresholdToChainMapping: " << m_thresholdToChainProperty );
-  }
-  for ( auto el: m_thresholdToChainMapping ) {
-    ATH_MSG_DEBUG( "Threshold " << el.first << " mapped to chains " << el.second );
-  }
 
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode RoIsUnpackingToolBase::decodeMapping() {
-  std::istringstream input;
-  for ( auto entry: m_thresholdToChainProperty ) {
-    input.clear();
-    input.str(entry);
-    std::string thresholdName;
-    char delim;
-    std::string chainName;
-    input >> thresholdName >> delim >> chainName;
-    if ( delim != ':' ) {
-      return StatusCode::FAILURE;
+StatusCode RoIsUnpackingToolBase::decodeMapping( std::function< bool(const TrigConf::TriggerThreshold*)> filter, const TrigConf::ItemContainer& l1Items, const IRoIsUnpackingTool::SeedingMap& seeding ) {
+  for ( auto chainItemPair: seeding) {
+    std::string chainName = chainItemPair.first;
+    std::string itemName = chainItemPair.second;
+    auto itemsIterator = l1Items.get<TrigConf::tag_name_hash>().find(itemName);
+    
+    if ( itemsIterator != l1Items.get<TrigConf::tag_name_hash>().end() ) {
+      const TrigConf::TriggerItem* item = *itemsIterator;
+      const TrigConf::TriggerItemNode* node = item->topNode();
+      std::vector<TrigConf::TriggerThreshold*> itemThresholds;
+      node->getAllThresholds(itemThresholds);
+      for ( const TrigConf::TriggerThreshold* th: itemThresholds ) {
+	if ( filter(th) ) {
+	  m_thresholdToChainMapping[HLT::Identifier(th->name())].push_back( HLT::Identifier(chainName) );
+	}
+      }
+    } else {
+      // we may wish to change that to ERROR at some point
+      ATH_MSG_WARNING( "Could not find item: " << itemName << " that is used in seeding");
     }
-    m_thresholdToChainMapping[HLT::Identifier(thresholdName)].push_back(HLT::Identifier(chainName));
   }
   return StatusCode::SUCCESS;
 }
@@ -56,11 +52,14 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
                                                  const HLT::IDSet& activeChains ) const {
   auto chains = m_thresholdToChainMapping.find( thresholdId );
   if ( chains == m_thresholdToChainMapping.end() ) {
+    ATH_MSG_DEBUG("Threshold not known " << thresholdId);
     return;
   }
   for ( auto chainId: chains->second ) {
-    if ( activeChains.find(chainId) != activeChains.end() )
+    if ( activeChains.find(chainId) != activeChains.end() ) {
       TrigCompositeUtils::addDecisionID( chainId.numeric(), d );
+      ATH_MSG_DEBUG( "Added chain to the RoI/threshold decision " << chainId );
+    }
   }
 }
 

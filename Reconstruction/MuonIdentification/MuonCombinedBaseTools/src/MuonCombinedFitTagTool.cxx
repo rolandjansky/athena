@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,7 @@
 #include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
 
 #include "MuonCombinedEvent/InDetCandidate.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/CombinedFitTag.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
@@ -79,60 +80,60 @@ namespace MuonCombined {
   MuonCombinedFitTagTool::~MuonCombinedFitTagTool()
   {}
 
-    //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
+  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
+  
+  StatusCode MuonCombinedFitTagTool::initialize() {
+    ATH_MSG_INFO( "Initializing MuonCombinedFitTagTool - package version " << PACKAGE_VERSION );
+    
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_tagTool.retrieve());
+    ATH_CHECK(m_trackBuilder.retrieve());
+    if(! m_outwardsBuilder.empty() ) ATH_CHECK(m_outwardsBuilder.retrieve());
+    ATH_CHECK(m_trackQuery.retrieve());
+    ATH_CHECK(m_momentumBalanceTool.retrieve());
+    if(! m_muonRecovery.empty() ) ATH_CHECK(m_muonRecovery.retrieve());
+    ATH_CHECK(m_matchQuality.retrieve());
+    ATH_CHECK(m_trackScoringTool.retrieve());
+    ATH_CHECK(m_magFieldSvc.retrieve());
 
-    StatusCode MuonCombinedFitTagTool::initialize() {
-      ATH_MSG_INFO( "Initializing MuonCombinedFitTagTool - package version " << PACKAGE_VERSION );
-
-      ATH_CHECK(m_printer.retrieve());
-      ATH_CHECK(m_tagTool.retrieve());
-      ATH_CHECK(m_trackBuilder.retrieve());
-      if(! m_outwardsBuilder.empty() ) ATH_CHECK(m_outwardsBuilder.retrieve());
-      ATH_CHECK(m_trackQuery.retrieve());
-      ATH_CHECK(m_momentumBalanceTool.retrieve());
-      if(! m_muonRecovery.empty() ) ATH_CHECK(m_muonRecovery.retrieve());
-      ATH_CHECK(m_matchQuality.retrieve());
-      ATH_CHECK(m_trackScoringTool.retrieve());
-      ATH_CHECK(m_magFieldSvc.retrieve());
-
-      if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
-        ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
-        return StatusCode::FAILURE;
-      }
-
-      ATH_CHECK( m_vertexKey.initialize() );
-
-      return StatusCode::SUCCESS;
+    if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
+      ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
+      return StatusCode::FAILURE;
     }
+    
+    ATH_CHECK( m_vertexKey.initialize() );
+    
+    return StatusCode::SUCCESS;
+  }
+  
+  StatusCode MuonCombinedFitTagTool::finalize() {
+    return StatusCode::SUCCESS;
+  }
 
-    StatusCode MuonCombinedFitTagTool::finalize() {
-      return StatusCode::SUCCESS;
+  void MuonCombinedFitTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap) const {  
+
+    ATH_MSG_DEBUG("muon candidate: "<<muonCandidate.toString());
+
+    CombinedFitTag* bestTag=0;
+    const InDetCandidate* bestCandidate=0;
+    std::multimap<double,const InDetCandidate*> sortedInDetCandidates; //map of ID candidates by max probability of match (based on match chi2 at IP and MS entrance)
+    float probCut=.00001; //cut on max probability: below this cut, we don't attempt to form a combined track unless no combined track has yet been successfully created
+
+    // loop over ID candidates
+    for( const auto& idTP : indetCandidates ){
+      double outerMatchProb = m_matchQuality->outerMatchProbability(*idTP->indetTrackParticle().track(), muonCandidate.muonSpectrometerTrack());
+      double innerMatchProb=-1;
+      if(muonCandidate.extrapolatedTrack()) innerMatchProb = m_matchQuality->innerMatchProbability(*idTP->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack());
+      double maxProb=outerMatchProb; if(innerMatchProb>maxProb) maxProb=innerMatchProb;
+      sortedInDetCandidates.insert(std::pair<double,const InDetCandidate*>(maxProb,idTP));
     }
-
-    void MuonCombinedFitTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const {  
-
-      ATH_MSG_DEBUG("muon candidate: "<<muonCandidate.toString());
-
-      CombinedFitTag* bestTag=0;
-      InDetCandidate* bestCandidate=0;
-      std::multimap<double,InDetCandidate*> sortedInDetCandidates; //map of ID candidates by max probability of match (based on match chi2 at IP and MS entrance)
-      float probCut=.00001; //cut on max probability: below this cut, we don't attempt to form a combined track unless no combined track has yet been successfully created
-
-      // loop over ID candidates
-      for( auto& idTP : indetCandidates ){
-        double outerMatchProb = m_matchQuality->outerMatchProbability(*idTP->indetTrackParticle().track(), muonCandidate.muonSpectrometerTrack());
-        double innerMatchProb=-1;
-        if(muonCandidate.extrapolatedTrack()) innerMatchProb = m_matchQuality->innerMatchProbability(*idTP->indetTrackParticle().track(), *muonCandidate.extrapolatedTrack());
-        double maxProb=outerMatchProb; if(innerMatchProb>maxProb) maxProb=innerMatchProb;
-        sortedInDetCandidates.insert(std::pair<double,InDetCandidate*>(maxProb,idTP));
-      }
-
-      bool fitBadMatches=false;
-
-      std::multimap<double,InDetCandidate*>::reverse_iterator rit;
-
-      //for(auto& sidTP : sortedInDetCandidates){
-      for(rit=sortedInDetCandidates.rbegin();rit!=sortedInDetCandidates.rend();++rit){ //multimap sorts from lowest to highest, so need to go through it in reverse order, sadly I don't think auto can do that yet
+    
+    bool fitBadMatches=false;
+      
+    std::multimap<double,const InDetCandidate*>::reverse_iterator rit;
+    
+    //for(auto& sidTP : sortedInDetCandidates){
+    for(rit=sortedInDetCandidates.rbegin();rit!=sortedInDetCandidates.rend();++rit){ //multimap sorts from lowest to highest, so need to go through it in reverse order
 
       ATH_MSG_DEBUG("in det candidate prob: "<<(*rit).first);
 
@@ -147,7 +148,7 @@ namespace MuonCombined {
       if(msgLevel() >= MSG::VERBOSE) {
         ATH_MSG_VERBOSE("Doing combined fit with ID track "<<*((*rit).second->indetTrackParticle().track()));
         ATH_MSG_VERBOSE("Doing combined fit with MS track "<<muonCandidate.muonSpectrometerTrack());
-      }      
+      }
 
       // fit the combined ID-MS track
       const Trk::Track* combinedTrack = buildCombinedTrack (*((*rit).second->indetTrackParticle().track()),
@@ -237,9 +238,11 @@ namespace MuonCombined {
         }
 
       }
+      ATH_MSG_DEBUG("Final combined muon: "<<m_printer->print(bestTag->combinedTrack()));
+      ATH_MSG_DEBUG(m_printer->printStations(bestTag->combinedTrack()));
       ATH_MSG_DEBUG("Combined Muon with ID " << m_printer->print(bestCandidate->indetTrackParticle().perigeeParameters())
         << " match chi2 " << bestTag->matchChi2() << " outer match " << outerMatchChi2 );
-      bestCandidate->addTag(*bestTag);
+      tagMap.addEntry(bestCandidate,bestTag);
     }   
   }
 

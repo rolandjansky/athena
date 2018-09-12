@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,7 @@
 namespace MuonCombined {
   class InDetCandidate;
   class MuonCandidate;
+  class InDetCandidateToTagMap;
 
   static const InterfaceID IID_IMuonCombinedTagTool("MuonCombined::IMuonCombinedTagTool", 1, 0);
 
@@ -30,7 +31,7 @@ namespace MuonCombined {
 
 
     /**IMuonCombinedTagTool interface: build combined  muons from a muon and a vector of indet candidates */    
-    virtual void combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const = 0;
+    virtual void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap ) const = 0;
 
   };
 

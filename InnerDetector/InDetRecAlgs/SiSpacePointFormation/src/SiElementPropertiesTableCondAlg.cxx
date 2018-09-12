@@ -5,7 +5,6 @@
 #include "SiElementPropertiesTableCondAlg.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include <memory>
@@ -16,7 +15,6 @@ namespace InDet {
     : ::AthAlgorithm(name, pSvcLocator)
     , m_condSvc{"CondSvc", name}
     , m_idHelper{nullptr}
-    , m_detManager{nullptr}
 {
 }
 
@@ -34,7 +32,6 @@ namespace InDet {
     // Register write handle
     ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
 
-    ATH_CHECK(detStore()->retrieve(m_detManager, "SCT"));
     ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
 
     return StatusCode::SUCCESS;
@@ -68,10 +65,6 @@ namespace InDet {
     if (not readHandle.range(rangeW)) {
       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
-    }
-
-    if (m_useDetectorManager) { // For debugging: use SiDetectorElementCollection from SCT_DetectorManager
-      readCdo = m_detManager->getDetectorElementCollection();
     }
 
     // ____________ Construct new Write Cond Object ____________

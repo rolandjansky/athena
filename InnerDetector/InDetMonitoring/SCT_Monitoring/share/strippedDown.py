@@ -67,12 +67,11 @@ InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool", 
 ToolSvc += InDetClusterMakerTool
 print      InDetClusterMakerTool
 #
-# SCT_ClusteringTool (public)
+# SCT_ClusteringTool
 #
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name          = "InDetSCT_ClusteringTool",
                                                        globalPosAlg  = InDetClusterMakerTool)
-ToolSvc += InDetSCT_ClusteringTool
 print      InDetSCT_ClusteringTool
 #
 # SCT_Clusterization algorithm
@@ -81,7 +80,6 @@ from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_C
 InDetSCT_Clusterization = InDet__SCT_Clusterization(name                = "InDetSCT_Clusterization",
                                                           clusteringTool      = InDetSCT_ClusteringTool,
                                                           #ChannelStatus       = InDetSCT_ChannelStatusAlg,
-                                                          DetectorManagerName = "SCT_Manager", 
                                                           DataObjectName      = "SCT_RDOs",
                                                           ClustersName        = "SCT_Clusters")
 topSequence += InDetSCT_Clusterization

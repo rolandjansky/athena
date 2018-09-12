@@ -10,9 +10,12 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 ##########################################
 # menu
+###########################################
+# note : L1 Seeds must be declared in CTP file: for example
+# nightly/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/XML/TriggerMenuXML/LVL1config_Physics_pp_v7.xml
 ##########################################
-from TrigUpgradeTest.MenuComponents import Chain, ChainStep
 
+from TrigUpgradeTest.MenuComponents import Chain, ChainStep
 
 EnabledElChains = []
 EnabledMuChains = []
@@ -51,8 +54,8 @@ if TriggerFlags.doID==True:
 
 # combo chains
 comboChains= []
-comboStep=ChainStep("Step1_mufast_et", [muFastStep,fastCaloStep])
-comboChains +=  [Chain(name='HLT_mu6_e3_etcut', Seed="L1_MU6_EM3",  ChainSteps=[comboStep ])]
+comboStep=ChainStep("Step1_mufast_et", [fastCaloStep,muFastStep])
+comboChains +=  [Chain(name='HLT_e3_etcut_mu6', Seed="L1_EM8I_MU10",  ChainSteps=[comboStep ])]
 
 
 # sum all
@@ -91,19 +94,19 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
 
 # this is a temporary hack to include new test chains
 EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
-topSequence.L1DecoderTest.ctpUnpacker.CTPToChainMapping = EnabledChainNamesToCTP
+topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
 
-EnabledElChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in egammaChains]
-EnabledMuChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in MuonChains]
-for c in comboChains:
-        seeds=c.seed.split("_")
-        seeds.pop(0) #remove first L1 string
-        for s in seeds:
-            if "MU" in s: EnabledMuComboChains.append(s +" : "+ c.name)
-            if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name)
+# EnabledElChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in egammaChains]
+# EnabledMuChains= [c.seed.strip().split("_")[1] +" : "+ c.name for c in MuonChains]
+# for c in comboChains:
+#         seeds=c.seed.split("_")
+#         seeds.pop(0) #remove first L1 string
+#         for s in seeds:
+#             if "MU" in s: EnabledMuComboChains.append(s +" : "+ c.name)
+#             if "EM" in s: EnabledElComboChains.append(s +" : "+ c.name)
 
-muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
-emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
+# muUnpacker.ThresholdToChainMapping = EnabledMuChains + EnabledMuComboChains
+# emUnpacker.ThresholdToChainMapping = EnabledElChains + EnabledElComboChains
 #topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
 

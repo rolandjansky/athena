@@ -20,6 +20,7 @@
 // Forward declaration
 class CaloCellContainer;
 class LArNoisyROSummary;
+class HWIdentifier;
 
 static const InterfaceID IID_ILArNoisyROTool("ILArNoisyROTool", 1, 0);
 
@@ -34,7 +35,7 @@ class ILArNoisyROTool
   static const InterfaceID& interfaceID();
 
   virtual 
-  std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*) const =0;
+  std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*, const std::set<unsigned int>* knownBadFebs, const std::vector<HWIdentifier>* knownMNBFebs ) const =0;
 
 }; 
 

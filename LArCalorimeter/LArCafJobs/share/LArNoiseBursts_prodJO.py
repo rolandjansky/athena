@@ -64,7 +64,6 @@ ToolSvc += theBCTool
 # --- SCTClusteringTool configuration ---
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool()
-ToolSvc += InDetSCT_ClusteringTool
 
 
 include ( "ParticleBuilderOptions/ESD_PoolCnv_jobOptions.py" )

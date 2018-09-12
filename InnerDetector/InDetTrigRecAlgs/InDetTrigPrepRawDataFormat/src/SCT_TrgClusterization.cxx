@@ -21,7 +21,6 @@
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
@@ -54,12 +53,10 @@ namespace InDet{
     HLT::FexAlgo(name, pSvcLocator),
     m_rawDataProvider("InDet::TrigSCTRawDataProvider"),
     m_clusteringTool("InDet::SCT_ClusteringTool"),
-    m_managerName("SCT"),
     m_clustersName("SCT_TrigClusters"),
     m_flaggedCondDataName("SCT_FlaggedCondData_TRIG"),
     m_idHelper(0),
     m_clusterContainer(nullptr),
-    m_manager(nullptr),
     m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
@@ -75,7 +72,6 @@ namespace InDet{
     m_timerDecoder(0)
   {  
     // Get parameter values from jobOptions file
-    declareProperty("DetectorManagerName", m_managerName);
     declareProperty("SCT_RDOContainerName",m_sctRDOContainerName);
     declareProperty("clusteringTool",      m_clusteringTool);
     declareProperty("ClustersName",        m_clustersName);
@@ -136,16 +132,6 @@ namespace InDet{
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     
-    
-    StatusCode sc = detStore()->retrieve(m_manager,m_managerName);
-    if (sc.isFailure()){
-      ATH_MSG_FATAL( "Cannot retrieve detector manager!" );
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } 
-    else{
-      ATH_MSG_VERBOSE( "Detector manager found !" );
-    }
-    
     const SCT_ID * IdHelper(0);
     if (detStore()->retrieve(IdHelper, "SCT_ID").isFailure()) {
       ATH_MSG_FATAL( "Could not get SCT ID helper" );
@@ -171,7 +157,7 @@ namespace InDet{
       }
     }
     else {    
-      sc = store()->retrieve(m_clusterContainer, m_clustersName);
+      StatusCode sc = store()->retrieve(m_clusterContainer, m_clustersName);
 
       if (sc.isFailure()) {
 	ATH_MSG_ERROR( "Failed to get Cluster Container" );
@@ -185,7 +171,7 @@ namespace InDet{
 
     //symlink the collection
     const SiClusterContainer* symSiContainer(0);
-    sc = store()->symLink(m_clusterContainer, symSiContainer);
+    StatusCode sc = store()->symLink(m_clusterContainer, symSiContainer);
     if (sc.isFailure()) {
       ATH_MSG_WARNING( "SCT clusters could not be symlinked in StoreGate !" );
     } 
@@ -204,6 +190,11 @@ namespace InDet{
     //decoding tool
     if (m_rawDataProvider.retrieve().isFailure()){
       ATH_MSG_ERROR( "Raw data provider not available" );
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+
+    if (m_SCTDetEleCollKey.initialize().isFailure()) {
+      ATH_MSG_ERROR( m_SCTDetEleCollKey.fullKey() << " not available" );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
  
@@ -450,7 +441,6 @@ namespace InDet{
 	  // Use one of the specific clustering AlgTools to make clusters
 	  
 	  m_clusterCollection =  m_clusteringTool->clusterize(*RDO_Collection,
-							      *m_manager,
 							      *m_idHelper);
 	  
 	  // -me- fix test
@@ -525,7 +515,6 @@ namespace InDet{
 	if (rdosize>0 && goodModule){
 	  // Use one of the specific clustering AlgTools to make clusters
 	  m_clusterCollection = m_clusteringTool->clusterize(*rd,
-							     *m_manager,
 							     *m_idHelper);
 
 

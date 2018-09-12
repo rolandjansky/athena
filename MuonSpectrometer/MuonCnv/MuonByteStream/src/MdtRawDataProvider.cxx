@@ -11,7 +11,7 @@
 Muon::MdtRawDataProvider::MdtRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rawDataTool     ("MdtRawDataProviderTool")
+  m_rawDataTool     ("Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool", this)
 {
   declareProperty ("ProviderTool", m_rawDataTool);
 }

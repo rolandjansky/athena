@@ -5,3 +5,4 @@
 from AthenaCommon.CfgGetter import addTool
 
 addTool("SiLorentzAngleSvc.SiLorentzAngleSvcConfig.getSCTLorentzAngleTool", "SCTLorentzAngleTool")
+addTool("SiLorentzAngleSvc.SiLorentzAngleSvcConfig.getPixelLorentzAngleTool", "PixelLorentzAngleTool")

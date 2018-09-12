@@ -122,35 +122,40 @@ class TileDigitsMonTool: public TilePaterMonTool
     bool m_bigain;
     int m_nEvents;
     int m_nSamples;
-    double m_sumPed1[5][64][48][2];
-    double m_sumPed2[5][64][48][2];
-    double m_sumRms1[5][64][48][2];
-    double m_sumRms2[5][64][48][2];
-    double m_meanAmp[5][64][2][48];
-    double m_meanAmp_ij[5][64][2][48][48];
-    int m_nEvents_i[5][64][2][48];
-    int m_nEvents_ij[5][64][2][48][48];
-    double m_cov_ratio[5][64][2]; //covariance ratio printed in covariance plots
-    uint8_t m_stuck_probs[5][64][48][2][10];
+    // Factor these out to avoid triggering the ubsan sanity checks.
+    struct Data {
+      double m_sumPed1[5][64][48][2];
+      double m_sumPed2[5][64][48][2];
+      double m_sumRms1[5][64][48][2];
+      double m_sumRms2[5][64][48][2];
+      double m_meanAmp[5][64][2][48];
+      double m_meanAmp_ij[5][64][2][48][48];
+      int m_nEvents_i[5][64][2][48];
+      int m_nEvents_ij[5][64][2][48][48];
+      double m_cov_ratio[5][64][2]; //covariance ratio printed in covariance plots
+      uint8_t m_stuck_probs[5][64][48][2][10];
+
+      //vector to hold data corruption information
+      // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)
+      bool m_corrup[5][64][2][16]; //ros, drawer, gain, DMU
+
+      //Pointers to Histograms
+      std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
+      std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
+      std::vector<TH1I *> m_hist_DMUerr[5][64][48][2]; // ros,drawer,channel,gain for DMU BCID/CRC errors
+      std::vector<TH2F *> m_hist2[5][64][2];
+      std::vector<TProfile *> m_histP[5][64][48][2];
+      std::vector<TH1F *> m_final_hist1[5][64][2]; // ros, drawer, gain
+      std::vector<TH2F *> m_final_hist2[5][64][2];
+      TH2C* m_final_hist_stucks[5][64][2]; // stuck bits, saturation: ros, drawer. gain
+      std::vector<TH1D *> m_outInHighGain;
+
+      //shifted histos for DQMF
+      TH1S * m_shifted_hist[5][64][49][2]; // one extra histo for reference!
+
+    };
+    std::unique_ptr<Data> m_data;
     bool m_allHistsFilled;
-
-    //vector to hold data corruption information
-    // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)
-    bool m_corrup[5][64][2][16]; //ros, drawer, gain, DMU
-
-    //Pointers to Histograms
-    std::vector<TH1S *> m_hist0[5][64]; // ros,drawer
-    std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
-    std::vector<TH1I *> m_hist_DMUerr[5][64][48][2]; // ros,drawer,channel,gain for DMU BCID/CRC errors
-    std::vector<TH2F *> m_hist2[5][64][2];
-    std::vector<TProfile *> m_histP[5][64][48][2];
-    std::vector<TH1F *> m_final_hist1[5][64][2]; // ros, drawer, gain
-    std::vector<TH2F *> m_final_hist2[5][64][2];
-    TH2C* m_final_hist_stucks[5][64][2]; // stuck bits, saturation: ros, drawer. gain
-    std::vector<TH1D *> m_outInHighGain;
-
-    //shifted histos for DQMF
-    TH1S * m_shifted_hist[5][64][49][2]; // one extra histo for reference!
 
     //For test
     //int hp;

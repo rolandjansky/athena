@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
@@ -13,21 +13,17 @@
 
 //package includes
 #include "SCT_FillCablingFromText.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_CablingUtilities.h"
 
-//indet includes
-#include "InDetIdentifier/SCT_ID.h"
-
 //Athena includes
-#include "PathResolver/PathResolver.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "PathResolver/PathResolver.h"
+#include "SCT_Cabling/SCT_CablingData.h"
 
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 //STL includes
 #include <iostream>
@@ -60,8 +56,9 @@ namespace{
 }//end of anonymous namespace
 
 // Constructor
-SCT_FillCablingFromText::SCT_FillCablingFromText(const std::string& name, ISvcLocator* pSvcLocator):
-  AthService(name,pSvcLocator), m_filled{false} {
+SCT_FillCablingFromText::SCT_FillCablingFromText(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent),
+  m_filled{false} {
   //nop
 }
 
@@ -74,19 +71,6 @@ SCT_FillCablingFromText::initialize() {
 //
 StatusCode 
 SCT_FillCablingFromText::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-//
-StatusCode 
-SCT_FillCablingFromText::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_FillCabling::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<ISCT_FillCabling*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }
 
@@ -115,26 +99,22 @@ SCT_FillCablingFromText::filled() const {
 }
 
 //
-StatusCode
-SCT_FillCablingFromText::fillMaps(ISCT_CablingSvc* cabling) const {
-  if (readDataFromFile(cabling).isFailure()) {
+SCT_CablingData
+SCT_FillCablingFromText::getMaps() const {
+  SCT_CablingData data;
+  if (readDataFromFile(data).isFailure()) {
     ATH_MSG_FATAL("Could not read cabling from file");
-    return StatusCode::FAILURE;
+    return data;
   }
   m_filled=true;
-  return StatusCode::SUCCESS;
+  return data;
 }
 
 //
 StatusCode
-SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) const {
-  ServiceHandle<StoreGateSvc> detStore{"DetectorStore", name()};
-  if (detStore.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Detector service  not found !");
-    return StatusCode::FAILURE;
-  }
+SCT_FillCablingFromText::readDataFromFile(SCT_CablingData& data) const {
   const SCT_ID* idHelper{nullptr};
-  if (detStore->retrieve(idHelper, "SCT_ID").isFailure()) {
+  if (detStore()->retrieve(idHelper, "SCT_ID").isFailure()) {
     ATH_MSG_ERROR("SCT mgr failed to retrieve");
     return StatusCode::FAILURE;
   }
@@ -200,7 +180,7 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) const {
       robid = robidFromfile;
       onlineId = (robid & 0xFFFFFF) | (link<<24);
       //std::cout<<" "<<offlineIdHash<<" "<<std::hex<<onlineId<<" "<<std::dec<<sn<<std::endl;
-      bool success{cabling->insert(offlineIdHash, onlineId, SCT_SerialNumber(sn))};
+      bool success{insert(offlineIdHash, onlineId, SCT_SerialNumber(sn), data)};
       if (not success) {
         ATH_MSG_ERROR("Insertion of fibre failed, "<<offlineIdHash<<", "<<std::hex<<onlineId<<std::dec<<" "<<sn);
       } else {
@@ -226,7 +206,7 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) const {
       //find the hash for the other side: if its odd, subtract 1; if its even, add 1.
       IdentifierHash otherIdHash{offlineIdHash + (s ? -1 : 1)};
       //and its online id
-      onlineId=cabling->getOnlineIdFromHash(otherIdHash);
+      onlineId=data.getOnlineIdFromHash(otherIdHash);
       int link{static_cast<int>((onlineId>>24) & 0x7F)};
       bool cableSwapped{(link % 2)!=os}; //if its odd and side is zero, or its even and side is 1.
       //now find the newlink by incrementing or decrementing the link number from the other side, according to whether we are on
@@ -236,8 +216,8 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) const {
       int newOnlineId{static_cast<int>((onlineId & 0xFFFFFF)|(newlink << 24))};
       ATH_MSG_DEBUG("new: "<<std::hex<<newOnlineId);
       //start entering for the disabled fibre:
-      SCT_SerialNumber sn{cabling->getSerialNumberFromHash(offlineIdHash)};
-      bool success{cabling->insert(offlineIdHash, newOnlineId, sn)};
+      SCT_SerialNumber sn{data.getSerialNumberFromHash(offlineIdHash)};
+      bool success{insert(offlineIdHash, newOnlineId, sn, data)};
       if (not success) {
         ATH_MSG_ERROR("Insertion of disabled fibre failed, "<<offlineIdHash<<", "<<std::hex<<newOnlineId<<std::dec<<" "<<sn.str());
       } else {
@@ -248,4 +228,27 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) const {
   ATH_MSG_INFO(numEntries<<" entries were made to the identifier map.");
   m_filled=(numEntries not_eq 0);
   return (numEntries==0) ? (StatusCode::FAILURE) : (StatusCode::SUCCESS);
+}
+
+bool
+SCT_FillCablingFromText::insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData& data) const {
+  if (not sn.isWellFormed()) {
+    ATH_MSG_FATAL("Serial number is not in correct format");
+    return false;
+  }
+  if (not hash.is_valid()) {
+    ATH_MSG_FATAL("Invalid hash: "<<hash);
+    return false;
+  }
+
+  if (not data.setHashForOnlineId(hash, onlineId)) return false;
+  if (not data.setOnlineIdForHash(onlineId, hash)) return false;
+
+  bool successfulInsert{data.setHashForSerialNumber(hash, sn)};
+  successfulInsert &= data.setSerialNumberForHash(sn, hash);
+  // in this form, the data->getHashEntries() will be half the number of hashes
+  if (successfulInsert) {
+    data.setRod(onlineId.rod()); //move this here so insertion only happens for valid onlineId, hash
+  }
+  return true;
 }

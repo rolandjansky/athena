@@ -108,7 +108,7 @@ sct_ReadCalibChipDataToolSetup.setup()
 SCT_ReadCalibChipDataTool=sct_ReadCalibChipDataToolSetup.getTool()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipDataTestAlg
-topSequence+= SCT_ReadCalibChipDataTestAlg()
+topSequence+= SCT_ReadCalibChipDataTestAlg(SCT_ReadCalibChipDataTool=SCT_ReadCalibChipDataTool)
 
 ##Modules to test:
 ##136523776, strips 0-255 BAD_OPE=good

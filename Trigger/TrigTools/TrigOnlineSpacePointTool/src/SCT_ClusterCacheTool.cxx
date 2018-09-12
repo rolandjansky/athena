@@ -15,7 +15,6 @@
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
@@ -32,7 +31,6 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
     m_clusterContainer(nullptr),
-    m_cablingSvc(nullptr),
     m_indet_mgr(nullptr),
     m_sct_id(nullptr),
     m_offlineDecoder("SCT_RodDecoder",this), 
@@ -79,13 +77,9 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
   m_clusterization.initializeGeometry(m_indet_mgr);
 
   if(m_doBS) {
- 
-    sc=service("SCT_CablingSvc",m_cablingSvc);
-    if(sc.isFailure()) 
-      {
-	ATH_MSG_ERROR( name() << "failed to get CablingSvc");
-	return sc; 
-      }  
+    ATH_CHECK(m_cablingTool.retrieve());
+  } else {
+    m_cablingTool.disable();
   }
   ATH_MSG_INFO("SCT_Cluster_CacheName: " << m_containerName);
   m_clusterContainer = new InDet::SCT_ClusterContainer(m_sct_id->wafer_hash_max());
@@ -354,7 +348,7 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 	  if(!m_useOfflineDecoder)
 	    {
 	      if(m_timers) m_timer[3]->resume();	    
-	      bool processedSomething = m_decoder->fillCollections((*rob_it), rodid, m_cablingSvc, idList, &m_clusterization); 
+	      bool processedSomething = m_decoder->fillCollections((*rob_it), rodid, &*m_cablingTool, idList, &m_clusterization); 
 	      if (processedSomething) m_clusterization.finishHits();        
 	      if(m_timers) m_timer[3]->pause();
 	    }
@@ -420,7 +414,6 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 		{
 		  const InDetRawDataCollection<SCT_RDORawData>* pRdoColl = (*collIt);
 		  const InDet::SCT_ClusterCollection* pColl = m_clusteringTool->clusterize(*pRdoColl,
-											   *m_indet_mgr,
 											   *m_sct_id);
 		  if(pColl!=NULL) 
 		    {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -35,7 +35,6 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include <cmath>
 #include <cassert>
 #include <limits>
@@ -61,12 +60,8 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_prevInPhi(0),
   m_otherSide(0),
   m_cacheValid(false),
-  m_conditionsCacheValid(false),
   m_firstTime(true),
   m_isStereo(false),
-  m_tanLorentzAnglePhi(0),
-  m_tanLorentzAngleEta(0),
-  m_lorentzCorrection(0),
   m_surface(0),
   m_geoAlignStore(geoAlignStore)
 {
@@ -368,28 +363,6 @@ SiDetectorElement::updateCache() const
 }
 
 
-void 
-SiDetectorElement::updateConditionsCache() const
-{
-  m_conditionsCacheValid = true;
-
-  // 
-  // Lorentz Angle related stuff
-  // 
-
-  if (isPixel() and m_commonItems->lorentzAngleSvc()) {
-    m_tanLorentzAnglePhi = m_commonItems->lorentzAngleSvc()->getTanLorentzAngle(m_idHash);
-    m_tanLorentzAngleEta = m_commonItems->lorentzAngleSvc()->getTanLorentzAngleEta(m_idHash);
-    m_lorentzCorrection = m_commonItems->lorentzAngleSvc()->getLorentzShift(m_idHash);
-  } else {
-    // Set to zero
-    m_tanLorentzAnglePhi = 0.;
-    m_tanLorentzAngleEta = 0.;
-    m_lorentzCorrection =  0.;
-  }
-}
-
-
 const HepGeom::Transform3D &
 SiDetectorElement::transformHit() const
 {
@@ -640,14 +613,6 @@ bool SiDetectorElement::isNextToInnermostPixelLayer() const
     return false;
   }
 }  
-
-
-  Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const
-{
-  Amg::Vector2D correctedPosition(position);
-  correctedPosition[distPhi] += getLorentzCorrection();
-  return correctedPosition;
-}
 
 // compute sin(tilt angle) at center:
 double SiDetectorElement::sinTilt() const
@@ -1066,22 +1031,6 @@ SiDetectorElement::nearBondGap(HepGeom::Point3D<double> globalPosition, double e
 {
   return m_design->nearBondGap(localPosition(globalPosition), etaTol);
 }  
-
-
-  Amg::Vector2D
-SiDetectorElement::localPositionOfCell(const SiCellId &cellId) const
-{
-  Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
-  return correctLocalPosition(pos);
-}
-
-Amg::Vector2D
-SiDetectorElement::localPositionOfCell(const Identifier & id) const
-{
-  SiCellId cellId = cellIdFromIdentifier(id);
-  Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
-  return correctLocalPosition(pos);
-}
 
 Amg::Vector2D
 SiDetectorElement::rawLocalPositionOfCell(const SiCellId &cellId) const
