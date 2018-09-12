@@ -36,7 +36,7 @@ def getHIGG5Common() :
         "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity",
         "TrackCaloClustersCombinedAndNeutral.pt.eta.phi.m.taste.trackParticleLink.caloClusterLinks"
         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.ExCoM2SubJets",
-        "AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsExCoM2SubJets.pt.eta.phi.m",
+        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.pt.eta.phi.m",
         ("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.btaggingLink.m_persKey.m_persIndex.Parent"
              ".GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt"
              ".GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt"),
@@ -53,8 +53,12 @@ def getHIGG5CommonTruth() :
         "TruthEvents.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.weights.crossSection.crossSectionError.truthParticleLinks",
         #"TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
         "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
-        "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType"
-        ]
+        "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType",
+        'AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
+        'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
+        'AntiKt10LCTopoJetsJets.PartonTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
+        'AntiKt10TrackCaloClusterJets.PartonTruthLabelID'
+    ]
 
 def getHIGG5CommonTruthDictionExtionson() :
     return {
