@@ -8,6 +8,10 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex as _EgammaEmEnFe
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaHadEnFex as _EgammaHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex as _RingerFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaAllFex as _EgammaAllFex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp1Fex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp2Fex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo, T2CaloEgammaReFastAlgo
 
@@ -67,7 +71,7 @@ class EgammaSamp2FexConfig (EgammaSamp2Fex):
        self.MaxDetaHotCell=0.15
        self.MaxDphiHotCell=0.15
 
-class EgammaSamp2FexNoTimerConfig (EgammaSamp2Fex):
+class EgammaSamp2FexNoTimerConfig (EgammaReSamp2Fex):
    __slots__ = []
    def __init__ (self, name="EgammaSamp2FexNoTimerConfig"):
        super(EgammaSamp2FexNoTimerConfig, self).__init__(name)
@@ -75,19 +79,19 @@ class EgammaSamp2FexNoTimerConfig (EgammaSamp2Fex):
        self.MaxDphiHotCell=0.15
        self.TrigTimerSvc=""
 
-class EgammaSamp1FexNoTimerConfig (EgammaSamp1Fex):
+class EgammaSamp1FexNoTimerConfig (EgammaReSamp1Fex):
    __slots__ = []
    def __init__ (self, name="EgammaSamp1Fex"):
        super(EgammaSamp1FexNoTimerConfig, self).__init__(name)
        self.TrigTimerSvc=""
 
-class EgammaEmEnFexNoTimerConfig (EgammaEmEnFex):
+class EgammaEmEnFexNoTimerConfig (EgammaReEmEnFex):
    __slots__ = []
    def __init__ (self, name="EgammaEmEnFex"):
        super(EgammaEmEnFexNoTimerConfig, self).__init__(name)
        self.TrigTimerSvc=""
 
-class EgammaHadEnFexNoTimerConfig (EgammaHadEnFex):
+class EgammaHadEnFexNoTimerConfig (EgammaReHadEnFex):
    __slots__ = []
    def __init__ (self, name="EgammaHadEnFex"):
        super(EgammaHadEnFexNoTimerConfig, self).__init__(name)
@@ -491,28 +495,24 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        svcMgr += TrigCaloDataAccessSvc()
        samp2 = EgammaSamp2FexNoTimerConfig(name="ReFaAlgoSamp2FexConfig")
        samp2.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-       samp2.trigDataAccess=""
        ToolSvc+=samp2
        samp1 = EgammaSamp1FexNoTimerConfig("ReFaAlgoSamp1FexConfig")
        samp1.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-       samp1.trigDataAccess=""
        ToolSvc+=samp1
        sampe = EgammaEmEnFexNoTimerConfig("ReFaAlgoEmEnFexConfig")
        sampe.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-       sampe.trigDataAccess=""
        ToolSvc+=sampe
        samph = EgammaHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig")
        samph.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-       samph.trigDataAccess=""
        ToolSvc+=samph
        #ToolSvc+=RingerFexConfig("RingsMaker") 
        #ToolSvc.RingsMaker.OutputLevel=DEBUG
        #ToolSvc.RingsMaker.RingsKey="CaloRings"
-       self.IAlgToolList = [ samp2 ]
-       self.IAlgToolList+= [ samp1 ]
-       self.IAlgToolList+= [ sampe ]
-       self.IAlgToolList+= [ samph ]
-       #self.IAlgToolList+= [ ToolSvc.RingsMaker ] 
+       self.IReAlgToolList = [ samp2 ]
+       self.IReAlgToolList+= [ samp1 ]
+       self.IReAlgToolList+= [ sampe ]
+       self.IReAlgToolList+= [ samph ]
+       #self.IReAlgToolList+= [ ToolSvc.RingsMaker ] 
 
        self.EtaWidth = 0.2
        self.PhiWidth = 0.2
