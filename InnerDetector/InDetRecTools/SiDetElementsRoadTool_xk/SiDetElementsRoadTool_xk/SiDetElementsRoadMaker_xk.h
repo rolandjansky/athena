@@ -113,11 +113,14 @@ namespace InDet{
       Trk::CylinderBounds                  m_bounds   ;  //  
       int                                  m_map  [3] ;
       std::vector<SiDetElementsLayer_xk>   m_layer[3] ;  // Layers
+
       std::string                          m_pix      ;  // PIX manager   location
       std::string                          m_sct      ;  // SCT manager   location
       std::string                          m_fieldmode;  // Mode of magnetic field
-      std::string                     m_callbackString;
+      std::string                          m_callbackString;
       Trk::MagneticFieldProperties         m_fieldprop;  // Magnetic field properties
+
+      bool                                 m_ITkGeometry;
 
       ///////////////////////////////////////////////////////////////////
       // Methods

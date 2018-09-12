@@ -40,6 +40,7 @@ InDet::SiDetElementsRoadMaker_xk::SiDetElementsRoadMaker_xk
   m_width       = 20.                        ;
   m_step        = 40.                        ;
   m_fieldmode   = "MapSolenoid"              ;
+  m_ITkGeometry = false                      ;
 
   declareInterface<ISiDetElementsRoadMaker>(this);
   declareProperty("SCTManagerLocation"   ,m_sct        );
@@ -50,7 +51,8 @@ InDet::SiDetElementsRoadMaker_xk::SiDetElementsRoadMaker_xk
   declareProperty("MagneticFieldMode"    ,m_fieldmode  );
   declareProperty("usePixel"             ,m_usePIX     );
   declareProperty("useSCT"               ,m_useSCT     );
-  declareProperty("MagFieldSvc"        , m_fieldServiceHandle);
+  declareProperty("MagFieldSvc"          ,m_fieldServiceHandle);
+  declareProperty("ITkGeometry"          ,m_ITkGeometry);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -70,7 +72,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   StatusCode sc = AlgTool::initialize(); 
   
   if (!m_usePIX && !m_useSCT) {
-    msg(MSG::FATAL) << "Please don't call this tool if usePixel and useSCT are false" << endreq;
+    msg(MSG::FATAL) << "Please don't call this tool if usePixel and useSCT are false" << endmsg;
     return StatusCode::SUCCESS;
   }
  
@@ -89,15 +91,17 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   // Get propagator tool
   //
   if ( m_proptool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
   }
 
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
+
+  //m_lDE.reserve(300);
 
   // Map of detector elements production
   //
@@ -109,10 +113,10 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   std::string tagInfoKey = "";
 
   if(tagInfoKeys.size()==0)
-    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endreq;
+    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endmsg;
    else {
      if(tagInfoKeys.size() > 1) {
-       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endreq;
+       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endmsg;
      }
      tagInfoKey = tagInfoKeys[0];
    }
@@ -127,9 +131,9 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 			  this,tagInfoH,m_callbackString);
 
   if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback for geometry " << name() << endreq;
+      msg(MSG::INFO) << "Registered callback for geometry " << name() << endmsg;
    } else {
-      msg(MSG::ERROR) << "Could not book callback for geometry " << name () << endreq;
+      msg(MSG::ERROR) << "Could not book callback for geometry " << name () << endmsg;
       return StatusCode::FAILURE;
   }
 
@@ -142,9 +146,9 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
 			   this,currentHandle,folder);
    
    if(sc==StatusCode::SUCCESS) {
-     msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
+     msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
    } else {
-     msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
+     msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
      return StatusCode::FAILURE;
    }
  }
@@ -173,7 +177,8 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::finalize()
 MsgStream& InDet::SiDetElementsRoadMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -444,13 +449,19 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     if(Pn[3]>Po[3]) {
       for(; n1<m_map[1]; ++n1) {
 	if(Pn[3] < m_layer[1][n1].r()) break;
-	m_layer[1][n1].getBarrelDetElements(Po,A,lDE);
+  if(m_ITkGeometry)
+    m_layer[1][n1].getITkBarrelDetElements(Po,A,lDE);
+  else 
+    m_layer[1][n1].getBarrelDetElements(Po,A,lDE);
       }
     }
     else     {
       for(--n1; n1>=0; --n1) {
 	if(Pn[3] > m_layer[1][n1].r()+dr) break; 
-	m_layer[1][n1].getBarrelDetElements(Po,A,lDE);
+  if(m_ITkGeometry)
+    m_layer[1][n1].getITkBarrelDetElements(Po,A,lDE);
+  else 
+    m_layer[1][n1].getBarrelDetElements(Po,A,lDE);
      }
       ++n1;
     }
@@ -461,13 +472,19 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
       for(; n2<m_map[2]; ++n2) {
 	if(Pn[2] < m_layer[2][n2].z()) break; 
-	m_layer[2][n2].getEndcapDetElements(Po,A,lDE);
+  if(m_ITkGeometry)
+    m_layer[2][n2].getITkEndcapDetElements(Po,A,lDE);
+  else 
+    m_layer[2][n2].getEndcapDetElements(Po,A,lDE);
       }
     }
     else     {
       for(--n2; n2>=0; --n2) {
 	if(Pn[2] > m_layer[2][n2].z()) break; 
-	m_layer[2][n2].getEndcapDetElements(Po,A,lDE);
+  if(m_ITkGeometry)
+    m_layer[2][n2].getITkEndcapDetElements(Po,A,lDE);
+  else 
+    m_layer[2][n2].getEndcapDetElements(Po,A,lDE);
       }
       ++n2;
     }
@@ -478,14 +495,20 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
       for(; n0<m_map[0]; ++n0) {
 	if(Pn[2] > m_layer[0][n0].z()) break; 
-	m_layer[0][n0].getEndcapDetElements(Po,A,lDE);
+  if(m_ITkGeometry)
+    m_layer[0][n0].getITkEndcapDetElements(Po,A,lDE);
+  else 
+    m_layer[0][n0].getEndcapDetElements(Po,A,lDE);
       }
     }
     else   {
       for(--n0; n0>=0; --n0) {
 	if(Pn[2] < m_layer[0][n0].z()) break; 
-	m_layer[0][n0].getEndcapDetElements(Po,A,lDE);
-      } 
+  if(m_ITkGeometry)
+    m_layer[0][n0].getITkEndcapDetElements(Po,A,lDE);
+  else 
+    m_layer[0][n0].getEndcapDetElements(Po,A,lDE);
+     } 
       ++n0;
     }
 
@@ -523,6 +546,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
     (*l)->clearUsed();
   }
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -578,7 +602,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   if(m_usePIX) {
     sc = detStore()->retrieve(pixmgr,m_pix);
     if (sc.isFailure() || !pixmgr) {
-      msg(MSG::INFO)<<"Could not get PixelDetectorManager  !"<<endreq; 
+      msg(MSG::INFO)<<"Could not get PixelDetectorManager  !"<<endmsg; 
       return;
     }
   }
@@ -589,7 +613,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   if(m_useSCT) {
     sc = detStore()->retrieve(sctmgr,m_sct);
     if (sc.isFailure() || !sctmgr) {
-      msg(MSG::INFO)<<"Could not get SCT_DetectorManager !"<<endreq; 
+      msg(MSG::INFO)<<"Could not get SCT_DetectorManager !"<<endmsg; 
       return;
     }
   }
@@ -600,11 +624,11 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
   const SCT_ID*  IDs = 0; 
 
   if (m_usePIX &&  detStore()->retrieve(IDp, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
   }
   
   if(m_useSCT && detStore()->retrieve(IDs, "SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
   }
 
 
@@ -656,7 +680,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
  
   for(int N=0; N!=3; ++N) {
 
-    double P[40];
+    double P[41];
     int im    = int(pW[N].size()-1); 
     int If    = 0      ;
     double z0 = 0.     ;
@@ -715,7 +739,7 @@ void InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsProduction()
 	      if(df1>dfm) dfm = df1;
 	      if(df2>dfm) dfm = df2;
 	      
-	      InDet::SiDetElementLink_xk link(pE[j],P);
+	      InDet::SiDetElementLink_xk link(pE[j],P,m_ITkGeometry);
 	      layer.add(link);
 	    }
 	  }
@@ -796,9 +820,9 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::mapDetectorElementsUpdate
 
       for(d=m_layer[N][l].elements().begin(); d!=de; ++d) {
 
-	double P[40]; detElementInformation(*(*d).detElement(),P); 
-	(*d).set(P);
-
+	double P[41]; detElementInformation(*(*d).detElement(),P); 
+	(*d).set(P, m_ITkGeometry);
+    
 	if( P[ 9] < mrmin[N]  ) mrmin[N] = P[ 9]; 
 	if( P[10] > mrmax[N]  ) mrmax[N] = P[10]; 
 	if( P[11] < mzmin[N]  ) mzmin[N] = P[11]; 
@@ -920,9 +944,12 @@ void InDet::SiDetElementsRoadMaker_xk::detElementInformation
     double r = sqrt(x[i]*x[i]+y[i]*y[i]);
     double f = atan2(y[i],x[i])-P[2]; if(f<-pi) f+=pi2; else if(f>pi) f-=pi2;
     double zf= z[i];
-    if(r <rmin) rmin= r; if(r >rmax) rmax= r;
-    if(zf<zmin) zmin=zf; if(zf>zmax) zmax=zf;
-    if(f <fmin) fmin= f; if(f >fmax) fmax= f;
+    if(r <rmin) rmin= r;
+    if(r >rmax) rmax= r;
+    if(zf<zmin) zmin=zf;
+    if(zf>zmax) zmax=zf;
+    if(f <fmin) fmin= f;
+    if(f >fmax) fmax= f;
   }
   P[ 9]    = rmin;
   P[10]    = rmax;
@@ -971,7 +998,9 @@ void InDet::SiDetElementsRoadMaker_xk::detElementInformation
   P[30] = P[8]*(AF.x()*P[6]+AF.y()*P[5])-P[7]*AF.z();
   P[31] = AE.y()*P[6]-AE.x()*P[5];                
   P[32] = P[8]*(AE.x()*P[6]+AE.y()*P[5])-P[7]*AE.z();
-}
+  P[40] = m_width; 
+}  
+
 
 ///////////////////////////////////////////////////////////////////
 // Distance to detector element according stright line model
@@ -994,7 +1023,8 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_A
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
+  magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 

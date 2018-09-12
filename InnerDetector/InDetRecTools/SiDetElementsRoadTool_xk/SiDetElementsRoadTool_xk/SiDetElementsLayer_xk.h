@@ -50,7 +50,7 @@ namespace InDet{
       const float                    & z       () const {return m_z       ;}
       const float                    & dz      () const {return m_dz      ;}
       const float                    & dfe     () const {return m_dfe     ;}
-      std::vector<SiDetElementLink_xk>& elements()       {return m_elements;}
+      std::vector<SiDetElementLink_xk>& elements()      {return m_elements;}
 
       void  set(double,double,double,double,double);
       void  add(const SiDetElementLink_xk&);
@@ -58,6 +58,10 @@ namespace InDet{
       void getBarrelDetElements
 	(float*,float*,std::vector<InDet::SiDetElementLink_xk*>&);
       void getEndcapDetElements
+	(float*,float*,std::vector<InDet::SiDetElementLink_xk*>&);
+      void getITkBarrelDetElements
+	(float*,float*,std::vector<InDet::SiDetElementLink_xk*>&);
+      void getITkEndcapDetElements
 	(float*,float*,std::vector<InDet::SiDetElementLink_xk*>&);
       void sortDetectorElements();
 

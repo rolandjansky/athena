@@ -167,6 +167,10 @@ class  ConfiguredNewTrackingSiPattern:
                                                                         SCTManagerLocation = InDetKeys.SCT_Manager(),         
                                                                         RoadWidth          = NewTrackingCuts.RoadWidth())
          #InDetSiDetElementsRoadMaker.OutputLevel = VERBOSE
+         
+         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
+            InDetSiDetElementsRoadMaker.ITkGeometry = True 
+         
          ToolSvc += InDetSiDetElementsRoadMaker
          if (InDetFlags.doPrintConfigurables()):
             print      InDetSiDetElementsRoadMaker
