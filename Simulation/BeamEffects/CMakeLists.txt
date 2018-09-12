@@ -43,7 +43,6 @@ atlas_add_component( BeamEffects
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils StoreGateLib EventInfo GeneratorObjects AtlasCLHEP_RandomGenerators )
 
 # Install files from the package:
-atlas_install_headers( BeamEffects )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
