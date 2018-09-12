@@ -53,7 +53,7 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
 
     
 
-    virtual StatusCode beginInputFile();
+    virtual StatusCode beginEvent();
     
     private:
         // Have three tool instances for each Monte Carlo campaign

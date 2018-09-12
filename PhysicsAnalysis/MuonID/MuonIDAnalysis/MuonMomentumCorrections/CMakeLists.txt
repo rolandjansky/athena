@@ -25,7 +25,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODMetaData   
    Tools/PathResolver
    ${extra_deps} )
 
@@ -37,7 +36,7 @@ atlas_add_library( MuonMomentumCorrectionsLib
    MuonMomentumCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonMomentumCorrections
    INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon xAODMetaData MuonAnalysisInterfacesLib
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib
    PATInterfaces
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 

@@ -7,14 +7,12 @@
 
 // Local include(s):
 #include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
-#include <xAODMetaData/FileMetaData.h>
-
 #include <cmath>
 
 namespace CP {
     
     
-    StatusCode MuonCalibrationPeriodTool::beginInputFile() {
+    StatusCode MuonCalibrationPeriodTool::beginEvent() {
         static const unsigned int mc16a_period_number = 284500;
         static const unsigned int mc16d_period_number = 300000;
         static const unsigned int mc16e_period_number = 320000;
@@ -24,16 +22,11 @@ namespace CP {
         static const unsigned int last_run_17  = 350000;
         static const unsigned int last_run_18  = 500000;
       
+        const xAOD::EventInfo* info = nullptr;
+        ATH_CHECK(evtStore()->retrieve(info, "EventInfo"));
         // Let's try the FileMetaData
-        unsigned int run = -1;
-        bool isData = false;
-        if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
-            const xAOD::FileMetaData* metaData = nullptr;
-            ATH_CHECK(inputMetaStore()->retrieve(metaData, "FileMetaData"));
-            std::string data_type;
-            metaData->value(xAOD::FileMetaData::dataType, data_type);
-            std::cout<<data_type<<std::endl;
-        }
+        unsigned int run = info->runNumber();
+        bool isData = info->eventType(xAOD::EventInfo::IS_SIMULATION);
         
         if ( (isData  && run <= last_run_16) || (!isData && run == mc16a_period_number) ) m_activeTool = m_calibTool_1516.operator->();
         else if ( (isData  && run <= last_run_17) || (!isData && run == mc16d_period_number) ) m_activeTool = m_calibTool_17.operator->();
