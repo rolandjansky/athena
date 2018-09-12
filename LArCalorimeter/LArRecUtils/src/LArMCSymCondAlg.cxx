@@ -81,7 +81,9 @@ StatusCode LArMCSymCondAlg::execute() {
 
   std::vector<HWIdentifier> oflHashtoSymOnl(larHashMax);
   std::vector<HWIdentifier> onlHashtoSymOnl(onlHashMax);
-  
+ 
+  std::set<HWIdentifier> symIds;
+ 
   ATH_MSG_DEBUG("Start looping over EM calo cells");
   for ( unsigned int idhash=0; idhash<ncellem;idhash++){
     const Identifier id=lar_em_id->channel_id (idhash);
@@ -98,6 +100,7 @@ StatusCode LArMCSymCondAlg::execute() {
     const IdentifierHash idHash = lar_em_id->channel_hash(id);
     oflHashtoSymOnl[idHash] = symOnId;
     onlHashtoSymOnl[hwid_hash]= symOnId;
+    symIds.insert(symOnId);
   }
 
   ATH_MSG_DEBUG("start loop over HEC calo");
@@ -148,9 +151,11 @@ StatusCode LArMCSymCondAlg::execute() {
   }
 
 
+  std::vector<HWIdentifier> symIdVec(symIds.begin(),symIds,end());
   std::unique_ptr<LArMCSym> mcSym=std::make_unique<LArMCSym>(larOnlineID,caloCellID,
 							     std::move(oflHashtoSymOnl),
-							     std::move(onlHashtoSymOnl));
+							     std::move(onlHashtoSymOnl)
+							     std::move(symIdVec));
 
 
   

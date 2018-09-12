@@ -21,7 +21,8 @@ class LArMCSym {
   LArMCSym(const LArOnlineID* onlId, 
 	   const CaloCell_ID* caloId,
 	   std::vector<HWIdentifier>&& oflHashtoSymOnl,
-	   std::vector<HWIdentifier>&& onlHashtoSymOnl
+	   std::vector<HWIdentifier>&& onlHashtoSymOnl,
+	   std::vector<HWIdentifier>&& symIds
 	   ); 
    
   HWIdentifier ZPhiSymOfl(const Identifier notSymOffId) const {
@@ -45,11 +46,16 @@ class LArMCSym {
     return m_onlHashtoSymOnl[notSymOnlHash];
   }
 
+  const std::vector<HWIdentifier>& symIds() const {
+    return m_symIds;
+  }
+
  private:
   const LArOnlineID* m_onlineID;
   const CaloCell_ID* m_caloCellID;
   const std::vector<HWIdentifier> m_oflHashtoSymOnl;
   const std::vector<HWIdentifier> m_onlHashtoSymOnl;
+  const std::vector<HWIdentifier> m_symIds;
 
 };
 

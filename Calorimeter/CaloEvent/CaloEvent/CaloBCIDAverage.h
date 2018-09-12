@@ -1,23 +1,27 @@
 #ifndef CALOEVENT_CALOBCIDAVERAGE_H
 #define CALOEVENT_CALOBCIDAVERAGE_H
 
-#include <vector>
+#include <unordered_map>
 #include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
+#include "Identifier/HWIdentifier.h"
+
+#include "LArRawConditions/LArMCSym.h"
 
 class CaloBCIDAverage {
 
  public:
   CaloBCIDAverage() = delete;
-  CaloBCIDAverage(std::vector<float>&& data);
+  CaloBCIDAverage(const LArMCSym* mcSym, std::unorderd_map<HWIdentifier, float>&& data);
   
-  float average(const IdentifierHash h) const {
-    return m_avg[h];
+  float average(const Identifier id) const {
+    const HWIdentifier hwid=m_mcSym->ZPhiSymOfl(id);
+    return m_avg[hwid];
   }
 
  private:
-  std::vector<float> m_avg;
- 
+  const LArMCSym* m_mcSym;
+  std::unordered_map<Identifier,float> m_avg;
+
 };
 
 
