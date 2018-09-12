@@ -172,7 +172,7 @@ MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')'
 
 if not DerivationFrameworkIsMonteCarlo:
   JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+')'
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+')'
 else :
   LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')' 
 
