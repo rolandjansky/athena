@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -20,14 +20,14 @@ namespace CP {
         // https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/SUSYPhys/SUSYTools/Root/SUSYObjDef_xAOD.cxx#L2438
         static const unsigned int last_run_16  = 320000;
         static const unsigned int last_run_17  = 350000;
+        // Not the appropiate value but okay we can fix it afterwards
         static const unsigned int last_run_18  = 500000;
-      
+              
         const xAOD::EventInfo* info = nullptr;
         ATH_CHECK(evtStore()->retrieve(info, "EventInfo"));
-        // Let's try the FileMetaData
+     
         unsigned int run = info->runNumber();
-        bool isData = info->eventType(xAOD::EventInfo::IS_SIMULATION);
-        
+        bool isData = info->eventType(xAOD::EventInfo::IS_SIMULATION);        
         if ( (isData  && run <= last_run_16) || (!isData && run == mc16a_period_number) ) m_activeTool = m_calibTool_1516.operator->();
         else if ( (isData  && run <= last_run_17) || (!isData && run == mc16d_period_number) ) m_activeTool = m_calibTool_17.operator->();
         else if ( (isData  && run <= last_run_18) || (!isData && run == mc16e_period_number) ) m_activeTool = m_calibTool_18.operator->();
