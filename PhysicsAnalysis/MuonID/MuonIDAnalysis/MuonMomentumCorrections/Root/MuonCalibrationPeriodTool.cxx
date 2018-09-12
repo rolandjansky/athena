@@ -46,7 +46,7 @@ namespace CP {
             ATH_CHECK(m_calibTool_1516.setProperty("Year", "Data16"));
             ATH_CHECK(m_calibTool_1516.setProperty("Release", m_release));
             ATH_CHECK(m_calibTool_1516.setProperty("SagittaRelease", m_sagittaRelease1516));
-            ATH_CHECK(m_calibTool_1516.setProperty("StatComb", true));
+            ATH_CHECK(m_calibTool_1516.setProperty("StatComb", false));
             ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorr", true));
             ATH_CHECK(m_calibTool_1516.setProperty("doSagittaMCDistortion", false));
             ATH_CHECK(m_calibTool_1516.setProperty("SagittaCorrPhaseSpace", true));
@@ -58,7 +58,7 @@ namespace CP {
             ATH_CHECK(m_calibTool_17.setProperty("Release", m_release));
             ATH_CHECK(m_calibTool_17.setProperty("SagittaRelease", m_sagittaRelease17));
             ATH_CHECK(m_calibTool_17.setProperty("StatComb", false));
-            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorr", false));
+            ATH_CHECK(m_calibTool_17.setProperty("SagittaCorr", true));
             ATH_CHECK(m_calibTool_17.setProperty("doSagittaMCDistortion", false));
             ATH_CHECK(m_calibTool_17.setProperty("SagittaCorrPhaseSpace", true));
         }
@@ -68,8 +68,8 @@ namespace CP {
             ATH_CHECK(m_calibTool_18.setProperty("Year", "Data17"));
             ATH_CHECK(m_calibTool_18.setProperty("Release", m_release));
             ATH_CHECK(m_calibTool_18.setProperty("SagittaRelease", m_sagittaRelease18));
-            ATH_CHECK(m_calibTool_18.setProperty("StatComb", true));
-            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorr", true));
+            ATH_CHECK(m_calibTool_18.setProperty("StatComb", false));
+            ATH_CHECK(m_calibTool_18.setProperty("SagittaCorr", false));
             ATH_CHECK(m_calibTool_18.setProperty("doSagittaMCDistortion", true));
             ATH_CHECK(m_calibTool_18.setProperty("SagittaCorrPhaseSpace", true));
         }        
