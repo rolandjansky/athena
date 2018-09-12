@@ -97,7 +97,10 @@ int main (int argc, char* argv[])
  
 //  	    IdDictDictionary::bits32 b = dictionary->pack32 (id, 0, 6); 
 	Identifier packedB((Identifier::value_type)0);
-	dictionary->pack32 (id, 0, 6, packedB); 
+	if (dictionary->pack32 (id, 0, 6, packedB) != 0) {
+          std::cout << "error from pack32\n";
+          return 1;
+        }
  
         std::cout << "b=[" << packedB << "]" << std::endl; 
  
