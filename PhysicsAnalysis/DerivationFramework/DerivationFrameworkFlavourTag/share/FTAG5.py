@@ -164,7 +164,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # this is a nasty hack: we add the ghost label pseudojetgetter
 # (defined in addVRJets above) to all subsequent LCTopo jet
 # collections.
-VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
+VRGhostLabel="GhostVR30Rmax4Rmin02TrackJetGhostTag"
 jtm.gettersMap["LCTopo".lower()].append(VRGhostLabel.lower())
 
 # from here on things are a bit more standard
@@ -298,15 +298,6 @@ FTAG5SlimmingHelper.ExtraVariables.append(
     '.'.join(['AntiKt10LCTopoJets'] + ghost_counts + ghost_pts))
 
 # Also add in some SoftDrip things
-#
-# NOTE: replace with smart collections and CollecitonsOnTheFly
-#
-FTAG5SlimmingHelper.AppendToDictionary = {
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets":"xAOD::JetContainer",
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":"xAOD::JetAuxContainer",
-    "AntiKt10LCTopoCSSKJets":"xAOD::JetContainer",
-    "AntiKt10LCTopoCSSKJetsAux":"xAOD::JetAuxContainer",
-}
 FTAG5SlimmingHelper.AllVariables  += [
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
     "AntiKt10LCTopoCSSKJets"]
