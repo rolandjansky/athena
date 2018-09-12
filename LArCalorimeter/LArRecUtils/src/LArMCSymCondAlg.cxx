@@ -151,10 +151,10 @@ StatusCode LArMCSymCondAlg::execute() {
   }
 
 
-  std::vector<HWIdentifier> symIdVec(symIds.begin(),symIds,end());
+  std::vector<HWIdentifier> symIdVec(symIds.begin(),symIds.end());
   std::unique_ptr<LArMCSym> mcSym=std::make_unique<LArMCSym>(larOnlineID,caloCellID,
 							     std::move(oflHashtoSymOnl),
-							     std::move(onlHashtoSymOnl)
+							     std::move(onlHashtoSymOnl),
 							     std::move(symIdVec));
 
 

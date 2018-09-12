@@ -24,15 +24,12 @@ class CaloBCIDAvgAlg : public AthReentrantAlgorithm {
 public:
 
   // constructor 
-  CaloBCIDAvgAlg(const std::string& type, const std::string& name,
-		 const IInterface* parent);
-  // destructor 
-  virtual ~CaloBCIDAvgAlg() override;
-  
-  // Algorithm virtual methods 
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute_r(const EventContext& ctx) const;
+  CaloBCIDAvgAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
+  // Algorithm virtual methods 
+  StatusCode initialize();
+  StatusCode execute_r(const EventContext& ctx) const;
+  StatusCode finalize();
 
 private:
   //Event input: Only the BCID from Event Info
@@ -43,7 +40,7 @@ private:
 
   //ConditionsInput
   SG::ReadCondHandleKey<ILArOFC> m_ofcKey{this,"OFCKey","LArOFC","SG Key of OFC conditions object"};
-  SG::ReadCondHandleKey<ILArShape> m_shapeKey{this,"ShapeKey","LArShape","SG Key of Shape conditions object"};
+  SG::ReadCondHandleKey<ILArShape> m_shapeKey{this,"ShapeKey","LArShape32","SG Key of Shape conditions object"};
   SG::ReadCondHandleKey<ILArMinBiasAverage> m_minBiasAvgKey{this,"MinBiasAvgKey","LArMinBiasAverage","SGKey of LArMinBiasAverage object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArMCSym> m_mcSym{this,"MCSym","LArMCSym","SG Key of LArMCSym object"};
@@ -54,11 +51,11 @@ private:
   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
   //Other Properties
-  Gaudi::Property<bool> isMC{this,"isMC",false,"Real data or MC"};
-  //Gaudi::Property<unsigned> m_firstSampleEMB{this,"firstSampleEMB",0,"First sample EMB in 4 samples mode");
-  //Gaudi::Property<unsigned> m_firstSampleEMEC{this,"firstSampleEMEC",0,"First sample EMEC in 4 samples mode");
-  Gaudi::Property<unsigned> m_firstSampleHEC{this,"firstSampleHEC",1,"First sample HEC in 4 samples mode");
-  //Gaudi::Property<unsigned> m_firstSampleFCAL{this,"firstSampleFCAL",0,"First sample FCAL in 4 samples mode");
+  Gaudi::Property<bool> m_isMC{this,"isMC",false,"Real data or MC"};
+  //Gaudi::Property<unsigned> m_firstSampleEMB{this,"firstSampleEMB",0,"First sample EMB in 4 samples mode"};
+  //Gaudi::Property<unsigned> m_firstSampleEMEC{this,"firstSampleEMEC",0,"First sample EMEC in 4 samples mode"};
+  Gaudi::Property<unsigned> m_firstSampleHEC{this,"firstSampleHEC",1,"First sample HEC in 4 samples mode"};
+  //Gaudi::Property<unsigned> m_firstSampleFCAL{this,"firstSampleFCAL",0,"First sample FCAL in 4 samples mode"};
 
 
   const LArOnlineID* m_lar_on_id=nullptr;
@@ -67,8 +64,7 @@ private:
   const unsigned m_bcidMax=3564;
 
   //private methods: 
-  std::vector<float> CaloBCIDAvgAlg::accumulateLumi(const unsigned int bcid, const float xlumiMC) const;
-
+  std::vector<float> accumulateLumi(const unsigned int bcid, const float xlumiMC) const;
 
 };
 

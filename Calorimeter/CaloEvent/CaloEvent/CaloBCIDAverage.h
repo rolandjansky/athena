@@ -7,20 +7,23 @@
 
 #include "LArRawConditions/LArMCSym.h"
 
-class CaloBCIDAverage {
 
+class CaloBCIDAverage {
  public:
   CaloBCIDAverage() = delete;
-  CaloBCIDAverage(const LArMCSym* mcSym, std::unorderd_map<HWIdentifier, float>&& data);
+  CaloBCIDAverage(const LArMCSym* mcSym, std::unordered_map<unsigned, float>&& data);
   
   float average(const Identifier id) const {
     const HWIdentifier hwid=m_mcSym->ZPhiSymOfl(id);
-    return m_avg[hwid];
+    const unsigned id32=hwid.get_identifier32().get_compact();
+    const auto it=m_avg.find(id32);
+    if (it==m_avg.end()) std::abort();
+    return it->second;
   }
 
  private:
   const LArMCSym* m_mcSym;
-  std::unordered_map<Identifier,float> m_avg;
+  std::unordered_map<unsigned,float> m_avg;
 
 };
 

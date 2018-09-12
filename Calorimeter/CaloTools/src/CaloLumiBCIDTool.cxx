@@ -419,7 +419,7 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
   } // end of the check bcid boundary
 
 #ifdef DONTDO // some debug code, please, ignore
-  std::cout << "corrections for BCID : " << bcid << std::endl;
+  std::cout << "BCIDTool: corrections for BCID : " << bcid << std::endl;
   for(int index1=0 ; index1<total; index1++) {
 	if ( fabsf(1e9*(m_eshift_sym[index1]) ) > 0.001 ){
 	std::cout << "cell [" << index1 <<"] = " <<(double)(m_eshift_sym[index1]) 

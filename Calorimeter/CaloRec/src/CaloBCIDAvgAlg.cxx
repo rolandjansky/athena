@@ -2,29 +2,16 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloRec/CaloBCIDAvgAlg.h" 
-#include "xAODEventInfo/EventID.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "CaloBCIDAvgAlg.h" 
 
-
-CaloBCIDAvgAlg::CaloBCIDAvgAlg (const std::string& type, 
-				const std::string& name, 
-				const IInterface* parent) :
-  AthReentrantAlgorithms(type, name, parent),
-  m_bunchCrossingTool("BunchCrossingTool"),
+CaloBCIDAvgAlg::CaloBCIDAvgAlg(const std::string& name, ISvcLocator* pSvcLocator):
+  AthReentrantAlgorithm(name,pSvcLocator),
+  m_bunchCrossingTool("BunchCrossingTool") {
   declareProperty("LumiTool",m_lumiTool,"Tool handle for Luminosity");
   declareProperty("BunchCrossingTool",m_bunchCrossingTool,"Tool handle for bunch crossing tool");
 }
                                                                                 
-//-----------------------------------------------------------------
-
-CaloBCIDAvgAlg::~CaloBCIDAvgAlg() {}
-
-
-//-------------------------------------------------------------------
-
 StatusCode CaloBCIDAvgAlg::initialize() {
-
   ATH_MSG_INFO( " initialize "  );
 
 // get LumiTool
@@ -51,6 +38,9 @@ StatusCode CaloBCIDAvgAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode  CaloBCIDAvgAlg::finalize() {
+  return StatusCode::SUCCESS;
+}
 
 //----------------------------------------------------------------------------------------
 
@@ -65,11 +55,15 @@ StatusCode CaloBCIDAvgAlg::execute_r(const EventContext& ctx) const {
   const ILArShape* shapes=*shapeHdl;
 
   SG::ReadCondHandle<ILArMinBiasAverage> minBiasHdl(m_minBiasAvgKey,ctx);
-  const ILArMinBiadAverage* minBiasAvg=*minBiasHdl;
+  const ILArMinBiasAverage* minBiasAvg=*minBiasHdl;
 
-  std::unordered_map<Identifier,float> avgEShift;
 
-  const int bcid = eventInfo->bcid();
+  SG::ReadCondHandle<LArMCSym> mcSymHdl(m_mcSym,ctx);
+  const LArMCSym* mcSym=*mcSymHdl;
+
+  std::unordered_map<unsigned,float> avgEshift;
+
+  const uint32_t bcid = ei->bcid();
 
   // convert from mu/bunch to lumi in 10**30 units per bunch (for MC only)
   // 25ns*Nbcid*71mb*10**30 = 25e-9*3564*71e-27*1e30 = 6.31 Use 1/6.31 = 0.158478605
@@ -88,19 +82,19 @@ StatusCode CaloBCIDAvgAlg::execute_r(const EventContext& ctx) const {
     for (const HWIdentifier hwid : mcSym->symIds()) {
 
       float eOFC=0.; 
-      //  get MinBiasAverage
-      float MinBiasAverage = minBiasAvg(hwid);
 
+      //  get MinBiasAverage
+      float MinBiasAverage = minBiasAvg->minBiasAverage(hwid);
       if (MinBiasAverage<0.) MinBiasAverage=0.;
 
-      const auto& ofc = ofcs->ofca(hwid,0);
-      const auto& samp = shape->Shape(hwid,0);
+      const auto& ofc = ofcs->OFC_a(hwid,0);
+      const auto& samp = shapes->Shape(hwid,0);
       const unsigned int nsamples = ofc.size();
 
       // choise of first sample : i.e sample on the pulse shape to which first OFC sample is applied
       unsigned int ifirst= 0;
       if (nsamples==4) {
-	if (m_lar_on_id->isHECChannel(hwid))
+	if (m_lar_on_id->isHECchannel(hwid))
 	  ifirst=m_firstSampleHEC;
       }
 
@@ -126,26 +120,26 @@ StatusCode CaloBCIDAvgAlg::execute_r(const EventContext& ctx) const {
       eOFC = eOFC * MinBiasAverage;
    
       //std::cout << " index, eOFC " << index << " " << eOFC << std::endl;
-      avgEshift[hwid]=eOFC;
+      avgEshift[hwid.get_identifier32().get_compact()]=eOFC;
     }      // loop over cells
   } else { // I am close to the boundary
 
     for (const HWIdentifier hwid : mcSym->symIds()) {
 
       float eOFC=0.; 
-      //  get MinBiasAverage
-      float MinBiasAverage = minBiasAvg(hwid);
 
+      //  get MinBiasAverage
+      float MinBiasAverage = minBiasAvg->minBiasAverage(hwid);
       if (MinBiasAverage<0.) MinBiasAverage=0.;
 
-      const auto& ofc = ofcs->ofca(id,0);
-      const auto& samp = shape->Shape(id,0);
+      const auto& ofc = ofcs->OFC_a(hwid,0);
+      const auto& samp = shapes->Shape(hwid,0);
       const unsigned int nsamples = ofc.size();
       
       // choise of first sample : i.e sample on the pulse shape to which first OFC sample is applied
       unsigned int ifirst= 0;
       if (nsamples==4) {
-	if (m_lar_on_id->isHECChannel(hwid))
+	if (m_lar_on_id->isHECchannel(hwid))
 	  ifirst=m_firstSampleHEC;
       }
 
@@ -170,7 +164,7 @@ StatusCode CaloBCIDAvgAlg::execute_r(const EventContext& ctx) const {
       }
       //std::cout << std::endl;
       eOFC = eOFC * MinBiasAverage;
-      avgEshift[hwid]=eOFC;
+      avgEshift[hwid.get_identifier32().get_compact()]=eOFC;
     }      // loop over cells
   } // end of the check bcid boundary
 
@@ -186,14 +180,14 @@ StatusCode CaloBCIDAvgAlg::execute_r(const EventContext& ctx) const {
 
   std::unique_ptr<CaloBCIDAverage> result=std::make_unique<CaloBCIDAverage>(mcSym,std::move(avgEshift));
   SG::WriteHandle<CaloBCIDAverage> writeHdl(m_bcidAvgKey,ctx);
-  ATH_CHECK(writeHdl.record(result));
+  ATH_CHECK(writeHdl.record(std::move(result)));
 
   return StatusCode::SUCCESS;
 }
 
 std::vector<float> CaloBCIDAvgAlg::accumulateLumi(const unsigned int bcid, const float xlumiMC) const {
 
-  std::vector<float> lumiVec(m_bcidmax,0.0);
+  std::vector<float> lumiVec(m_bcidMax,0.0);
 
   unsigned int keep_samples=32;
   unsigned int keep_ofcsamples=32;
