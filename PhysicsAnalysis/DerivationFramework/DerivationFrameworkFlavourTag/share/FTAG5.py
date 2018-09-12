@@ -21,7 +21,8 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
 from DerivationFrameworkJetEtMiss.JetCommon import (
     OutputJets, addJetOutputs, addSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
-    addDefaultTrimmedJets, replaceAODReducedJets, addConstModJets)
+    addDefaultTrimmedJets, replaceAODReducedJets, addConstModJets,
+    addCSSKSoftDropJets)
 from JetRec.JetRecStandard import jtm
 
 # tracking
@@ -168,12 +169,7 @@ VRGhostLabel="GhostVR30Rmax4Rmin02TrackJetGhostTag"
 jtm.gettersMap["LCTopo".lower()].append(VRGhostLabel.lower())
 
 # from here on things are a bit more standard
-addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], FTAG5Seq, "FTAG5",
-                ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1,
-                algseq=FTAG5Seq, outputGroup="FTAG5",
-                writeUngroomed=True, mods="lctopo_groomed",
-                constmods=["CS", "SK"])
+addCSSKSoftDropJets(FTAG5Seq, "FTAG5")
 
 #===================================================================
 # ExKt subjets for each trimmed large-R jet

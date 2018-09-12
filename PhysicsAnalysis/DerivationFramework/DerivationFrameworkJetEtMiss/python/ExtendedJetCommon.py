@@ -485,6 +485,14 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
 
     addStandardJets(**jetfindargs)
 
+def addCSSKSoftDropJets(sequence, seq_name):
+    addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], sequence, seq_name,
+                    ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+    addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1,
+                    algseq=sequence, outputGroup=seq_name,
+                    writeUngroomed=True, mods="lctopo_groomed",
+                    constmods=["CS", "SK"])
+
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
