@@ -161,6 +161,8 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
             from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc, defaultTrackAssoc, defaultMuonAssoc
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_excom]
             if(subjetAlgName=="CoM"): mods = [comTrackAssoc, comMuonAssoc, btag_excom]
+            if globalflags.DataSource()!='data':
+                mods.append(jtm.jetdrlabeler)
 
             jetrec_btagging = JetRecTool( name = excomJetRecBTagToolName,
                                       InputContainer  = SubjetContainerName,
