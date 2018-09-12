@@ -338,8 +338,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      
      from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
      
-     l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSubDetListWriter")
-     l2_RPCSubDetListWriter.extraROBs += [0x610080, 0x620080]
+     l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSecondaryListWriter")
+     l2_RPCSubDetListWriter.extraROBs = [0x610080, 0x620080]
 
      l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
      
@@ -348,7 +348,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      
      self.L2signatureList += [[['L2_']]]
      self.TErenamingDict = {
-       'L2_':     'L2_l1RPCcalib',
+       'L2_':     'L2_l1RPCsecondarycalib',
        }
   
    ###########################################################################
