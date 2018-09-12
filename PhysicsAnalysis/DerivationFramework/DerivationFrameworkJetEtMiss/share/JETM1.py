@@ -149,7 +149,7 @@ addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",
 #=======================================
 
 if DerivationFrameworkIsMonteCarlo:
-    addAntiKt4LowPtJets(jetm1Seq,"JETM1")
+    addAntiKt4NoCutJets(jetm1Seq,"JETM1")
     ## Add GhostTruthAssociation information ##
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4LCTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")

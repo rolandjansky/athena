@@ -157,15 +157,27 @@ def replaceAODReducedJets(jetlist,sequence,outputlist, extendedFlag = 0):
 # Jet helpers for adding low-pt jets needed for calibration
 ##################################################################
 
-
+# 2 GeV cut after pileup suppression for in-situ Z
 def addAntiKt4LowPtJets(sequence,outputlist):
-    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="LowPt", ptmin=0, ptminFilter=0,
+    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                    mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
+    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                    mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
+    # Commented for now because of problems with underlying PFlow collections
+    addCHSPFlowObjects()
+    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                    mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar:pflow")
+
+
+# 1 MeV cut at constituent level for MCJES
+def addAntiKt4NoCutJets(sequence,outputlist):
+    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="NoCut", ptmin=0, ptminFilter=1,
                     mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
-    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="LowPt", ptmin=0, ptminFilter=0,
+    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="NoCut", ptmin=0, ptminFilter=1,
                     mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
     # Commented for now because of problems with underlying PFlow collections
     addCHSPFlowObjects()
-    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=0, ptminFilter=0,
+    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="NoCut", ptmin=0, ptminFilter=1,
                     mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
 
 ##################################################################
