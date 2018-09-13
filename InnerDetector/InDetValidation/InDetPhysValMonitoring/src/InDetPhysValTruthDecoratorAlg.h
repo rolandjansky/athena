@@ -22,6 +22,7 @@
 #include "AthContainers/AuxElement.h"
 #include "GaudiKernel/EventContext.h"
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
+#include "InDetPhysValMonitoring/CutFlow.h"
 #include <utility>
 #include <vector>
 
@@ -51,6 +52,9 @@ private:
 
   PublicToolHandle<IAthSelectionTool>         m_truthSelectionTool
      {this,"TruthSelectionTool","",""};
+
+  mutable std::mutex m_mutex;
+  mutable CutFlow m_cutFlow;
 
   ///TruthParticle container's name needed to create decorators
   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleName
