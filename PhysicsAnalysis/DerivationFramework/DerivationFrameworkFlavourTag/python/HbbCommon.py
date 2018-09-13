@@ -4,6 +4,12 @@
 # import Common Algs
 from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
 
+# I wish we didn't need this
+from BTagging.BTaggingConfiguration import getConfiguration
+ConfInst=getConfiguration()
+
+from GaudiKernel.Configurable import WARNING
+
 # Import star stuff (it was like that when I got here)
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
@@ -368,6 +374,8 @@ def linkVRJetsToLargeRJets(sequence, VRJetName, VRGhostLabel,
     # Solution: decouple the following part with parts above
     #==========================================================
 
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+        getJetExternalAssocTool, applyJetAugmentation)
     jetassoctool = getJetExternalAssocTool(baseLargeRJets, LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
     applyJetAugmentation(baseLargeRJets, LinkTransferAlg, sequence, jetassoctool)
 
@@ -485,7 +493,8 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
     # Issue here: If addVRJets() is called more than once for different VR, only link to first VR would be transferred
     # Solution: decouple the following part with parts above
     #==========================================================
-
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
+        getJetExternalAssocTool, applyJetAugmentation)
     jetassoctool = getJetExternalAssocTool('AntiKt10TrackCaloCluster', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
     applyJetAugmentation('AntiKt10TrackCaloCluster', LinkTransferAlg, sequence, jetassoctool)
 

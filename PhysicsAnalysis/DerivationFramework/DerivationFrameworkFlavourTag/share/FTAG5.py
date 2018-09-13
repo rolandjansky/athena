@@ -162,13 +162,6 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Add SoftDrop Jets
 #===================================================================
 
-# this is a nasty hack: we add the ghost label pseudojetgetter
-# (defined in addVRJets above) to all subsequent LCTopo jet
-# collections.
-VRGhostLabel="GhostVR30Rmax4Rmin02TrackJetGhostTag"
-jtm.gettersMap["LCTopo".lower()].append(VRGhostLabel.lower())
-
-# from here on things are a bit more standard
 addCSSKSoftDropJets(FTAG5Seq, "FTAG5")
 
 #===================================================================
