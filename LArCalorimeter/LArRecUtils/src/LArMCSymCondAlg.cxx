@@ -121,6 +121,7 @@ StatusCode LArMCSymCondAlg::execute() {
     const IdentifierHash idHash=lar_hec_id->channel_hash(id);
     oflHashtoSymOnl[ncellem+idHash] = symOnId;
     onlHashtoSymOnl[hwid_hash]= symOnId;
+    symIds.insert(symOnId);
   }
 
   ATH_MSG_DEBUG("start loop over FCAL calo");
@@ -148,6 +149,7 @@ StatusCode LArMCSymCondAlg::execute() {
     IdentifierHash idHash=lar_fcal_id->channel_hash(id);
     oflHashtoSymOnl[ncellem+ncellhec+idHash] = symOnId;
     onlHashtoSymOnl[hwid_hash]= symOnId;
+    symIds.insert(symOnId);
   }
 
 
