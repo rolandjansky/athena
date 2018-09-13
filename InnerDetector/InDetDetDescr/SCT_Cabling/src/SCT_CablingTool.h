@@ -19,8 +19,14 @@
 #include "SCT_Cabling/SCT_CablingData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+// Gaudi includes
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/EventContext.h"
+
 //STL includes
+#include <mutex>
 #include <string>
+#include <vector>
 
 //fwd declarations
 class StatusCode;
@@ -86,6 +92,13 @@ class SCT_CablingTool: public extends<AthAlgTool, ISCT_CablingTool> {
   StringProperty m_cablingDataSource; //!< the name of the data source
   const SCT_ID* m_idHelper; //!< helper for offlineId/hash conversions
   bool m_usingDatabase;
+
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cache;
+  // Pointer of SCT_CablingData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_CablingData> m_condData;
 
   const SCT_CablingData* getData() const;
 };
