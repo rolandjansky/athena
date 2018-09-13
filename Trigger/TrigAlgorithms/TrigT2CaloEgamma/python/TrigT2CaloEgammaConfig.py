@@ -32,37 +32,31 @@ class EgammaAllFex (_EgammaAllFex):
    __slots__ = []
    def __init__ (self, name="EgammaAllFex"):
        super(EgammaAllFex, self).__init__(name)
-       self.trigDataAccessMT=""
 
 class EgammaSamp2Fex (_EgammaSamp2Fex):
    __slots__ = []
    def __init__ (self, name="EgammaSamp2Fex"):
        super(EgammaSamp2Fex, self).__init__(name)
-       self.trigDataAccessMT=""
 
 class EgammaSamp1Fex (_EgammaSamp1Fex):
    __slots__ = []
    def __init__ (self, name="EgammaSamp1Fex"):
        super(EgammaSamp1Fex, self).__init__(name)
-       self.trigDataAccessMT=""
 
 class EgammaEmEnFex (_EgammaEmEnFex):
    __slots__ = []
    def __init__ (self, name="EgammaEmEnFex"):
        super(EgammaEmEnFex, self).__init__(name)
-       self.trigDataAccessMT=""
 
 class EgammaHadEnFex (_EgammaHadEnFex):
    __slots__ = []
    def __init__ (self, name="EgammaHadEnFex"):
        super(EgammaHadEnFex, self).__init__(name)
-       self.trigDataAccessMT=""
 
 class RingerFex (_RingerFex):
    __slots__ = []
    def __init__ (self, name="RingerFex"):
        super(RingerFex, self).__init__(name)
-       self.trigDataAccessMT=""
 
 class EgammaSamp2FexConfig (EgammaSamp2Fex):
    __slots__ = []
