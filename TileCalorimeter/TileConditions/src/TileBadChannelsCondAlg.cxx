@@ -24,6 +24,11 @@ TileBadChannelsCondAlg::TileBadChannelsCondAlg(const std::string& name, ISvcLoca
 
 
 TileBadChannelsCondAlg::~TileBadChannelsCondAlg() {
+
+  for (const TileBchDecoder* tileBchDecoder : m_tileBchDecoder) {
+    delete tileBchDecoder;
+  }
+
 }
 
 
@@ -45,6 +50,7 @@ StatusCode TileBadChannelsCondAlg::initialize() {
     ATH_MSG_DEBUG( "Creating TileBchDecoder(" << i << ")" );
     m_tileBchDecoder[i] = new TileBchDecoder(static_cast<TileBchDecoder::BitPatVer>(i));
   }
+
 
   //=== TileCondIdTransforms
   CHECK( m_tileIdTrans.retrieve() );
