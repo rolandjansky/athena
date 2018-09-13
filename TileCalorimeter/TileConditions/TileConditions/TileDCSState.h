@@ -7,7 +7,10 @@
 #ifndef TILECONDITIONS_TILEDCSSTATE_H
 #define TILECONDITIONS_TILEDCSSTATE_H
 
+#include "TileConditions/Exception.h"
+
 #include <vector>
+#include <string>
 
 /**
  * @class TileDCSState
@@ -195,6 +198,10 @@ class TileDCSState {
       NUMBER_OF_DRAWERS = 64 //!< Number of Tile drawers in one ROS
     };
 
+    void checkDrawer(std::string description, unsigned int ros, unsigned int drawer) const;
+    void checkChannel(std::string description, unsigned int ros, unsigned int drawer,
+                     unsigned int channel, unsigned int maxChannel) const;
+
     int m_states[NUMBER_OF_ROSES][NUMBER_OF_DRAWERS];
     float m_hv[NUMBER_OF_ROSES][NUMBER_OF_DRAWERS][NUMBER_OF_HV_CHANNELS];
     float m_hvSet[NUMBER_OF_ROSES][NUMBER_OF_DRAWERS][NUMBER_OF_HVSET_CHANNELS];
@@ -218,31 +225,49 @@ CONDCONT_DEF(TileDCSState, 38603143);
 
 inline
 float TileDCSState::getChannelHV(unsigned int ros,  unsigned int drawer,  unsigned int channel) const {
+
+  checkChannel("TileDCSState::getChannelHV()", ros, drawer, channel, NUMBER_OF_HV_CHANNELS);
+
   return m_hv[ros - 1][drawer][channel];
 }
 
 inline
 void TileDCSState::setChannelHV(unsigned int ros,  unsigned int drawer,  unsigned int channel, float hv) {
+
+  checkChannel("TileDCSState::setChannelHV()", ros, drawer, channel, NUMBER_OF_HV_CHANNELS);
+
   m_hv[ros - 1][drawer][channel] = hv;
 }
 
 inline
 float TileDCSState::getChannelHVSet(unsigned int ros,  unsigned int drawer,  unsigned int channel) const {
+
+  checkChannel("TileDCSState::getChannelHVSet()", ros, drawer, channel, NUMBER_OF_HVSET_CHANNELS);
+
   return m_hvSet[ros - 1][drawer][channel];  // Return the HVSET
 }
 
 inline
 void TileDCSState::setChannelHVSet(unsigned int ros,  unsigned int drawer,  unsigned int channel, float hvSet) {
+
+  checkChannel("TileDCSState::setChannelHVSet()", ros, drawer, channel, NUMBER_OF_HVSET_CHANNELS);
+
   m_hvSet[ros - 1][drawer][channel] = hvSet;  // Set the HVSET
 }
 
 inline
 int TileDCSState::getDrawerStates(unsigned int ros,  unsigned int drawer) const {
+
+  checkDrawer("TileDCSState::getDrawerStates()", ros, drawer);
+
   return m_states[ros - 1][drawer];
 }
 
 inline
 void TileDCSState::setDrawerStates(unsigned int ros,  unsigned int drawer, int states) {
+
+  checkDrawer("TileDCSState::setDrawerStates()", ros, drawer);
+
   m_states[ros - 1][drawer] = states;  // Set the drawer state
 }
 
@@ -250,12 +275,18 @@ inline
 TileDCSState::TileDCSStatus TileDCSState::getDCSHVStatus(unsigned int ros,
                                                          unsigned int drawer,
                                                          unsigned int channel) const {
+
+  checkChannel("TileDCSState::getDCSHVStatus()", ros, drawer, channel, NUMBER_OF_CHANNELS);
+
   return m_hvStatus[ros - 1][drawer][channel];
 }
 
 inline
 void TileDCSState::setDCSHVStatus(unsigned int ros, unsigned int drawer, unsigned int channel,
                                   TileDCSState::TileDCSStatus status) {
+
+  checkChannel("TileDCSState::setDCSHVStatus()", ros, drawer, channel, NUMBER_OF_CHANNELS);
+
   m_hvStatus[ros - 1][drawer][channel] = status;
 }
 
@@ -263,6 +294,9 @@ inline
 TileDCSState::TileDCSStatus TileDCSState::getDCSStatus(unsigned int ros,
                                                        unsigned int drawer,
                                                        unsigned int channel) const {
+
+  checkChannel("TileDCSState::getDCSStatus()", ros, drawer, channel, NUMBER_OF_CHANNELS);
+
   return m_status[ros - 1][drawer][channel]; // final status - the worst of 2 statuses above
 }
 
@@ -271,6 +305,9 @@ TileDCSState::TileDCSStatus TileDCSState::setDCSStatus(unsigned int ros,
                                                        unsigned int drawer,
                                                        unsigned int channel,
                                                        TileDCSState::TileDCSStatus status) {
+
+  checkChannel("TileDCSState::setDCSStatus()", ros, drawer, channel, NUMBER_OF_CHANNELS);
+
   return m_status[ros - 1][drawer][channel] = status; // final status - the worst of 2 statuses above
 }
 
@@ -286,6 +323,9 @@ bool TileDCSState::isStatusBad (unsigned int ros, unsigned int drawer) const {
 
 inline
 bool TileDCSState::isStatusBad(unsigned int ros, unsigned int drawer, unsigned int channel) const {
+
+  checkChannel("TileDCSState::isStatusBad()", ros, drawer, channel, NUMBER_OF_CHANNELS);
+
   return m_status[ros - 1][drawer][channel] > WARNING;
 }
 
@@ -297,5 +337,32 @@ void TileDCSState::setWarningDrawer(const std::vector<int>& warningDrawer) {
   m_warningDrawer = warningDrawer;
 }
 
+inline
+void TileDCSState::checkDrawer(std::string description,
+                               unsigned int ros, unsigned int drawer) const {
+
+  if (ros > NUMBER_OF_ROSES) {
+    throw TileCalib::IndexOutOfRange(description, ros, NUMBER_OF_ROSES);
+  }
+
+  if (drawer >= NUMBER_OF_DRAWERS) {
+    throw TileCalib::IndexOutOfRange(description, drawer, NUMBER_OF_DRAWERS);
+  }
+
+}
+
+
+inline
+void TileDCSState::checkChannel(std::string description,
+                                unsigned int ros, unsigned int drawer,
+                                unsigned int channel, unsigned int maxChannel) const {
+
+  checkDrawer(description, ros, drawer);
+
+  if (channel >= maxChannel) {
+    throw TileCalib::IndexOutOfRange(description, channel, maxChannel);
+  }
+
+}
 
 #endif // TILECONDITIONS_TILEDCSSTATE_H
