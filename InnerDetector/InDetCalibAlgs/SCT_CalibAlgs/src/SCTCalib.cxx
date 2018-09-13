@@ -35,6 +35,7 @@
 
 //infrastructure
 #include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 //coral/cool
 #include "CoralBase/TimeStamp.h"
@@ -157,10 +158,10 @@ normalizeList( const std::string& strList ) {
 
 SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
     AthAlgorithm( name, pSvcLocator ),
-
     p_sgSvc                     ("StoreGateSvc",name),
     m_thistSvc(0),
     m_pSCTHelper(0),
+    m_eventInfoKey(std::string("ByteStreamEventInfo")),
     m_pCalibWriteSvc            ("SCTCalibWriteSvc",name),
     m_calibHitmapSvc            ("SCT_CalibHitmapSvc",name),
     m_calibBsErrSvc             ("SCT_CalibBsErrorSvc",name),
@@ -372,6 +373,7 @@ StatusCode SCTCalib::initialize() {
     if ( m_readBS ) {
         ATH_MSG_INFO( "------------> Reading from ByteStream <-------------");
         m_calibEvtInfoSvc->setSource("BS");
+        ATH_CHECK(m_eventInfoKey.initialize());
     }
 
 
@@ -476,6 +478,28 @@ StatusCode SCTCalib::beginRun() {
 //////////////////////////////////////////////////////////////////////////////////
 
 StatusCode SCTCalib::execute() {
+    if ( m_readBS ) {
+        SG::ReadHandle<EventInfo> evt(m_eventInfoKey);
+        if (not evt.isValid()) {
+            ATH_MSG_FATAL("Unable to get the EventInfo");
+            return StatusCode::FAILURE;
+        }
+        const EventInfo* evt_ptr = &(*evt);
+        ATH_MSG_VERBOSE(SCT_CalibAlgs::eventInfoAsString(evt_ptr));
+      //--- TimeStamp/LB range analyzed
+      const int timeStamp = evt->event_ID()->time_stamp();
+      const int lumiBlock = evt->event_ID()->lumi_block();
+      int timeStampBeginOld;
+      int timeStampEndOld;
+      m_calibEvtInfoSvc->getTimeStamps(timeStampBeginOld, timeStampEndOld);
+      m_calibEvtInfoSvc->setTimeStamp(std::min(timeStamp, timeStampBeginOld), std::max(timeStamp, timeStampEndOld));
+      int lbBeginOld;
+      int lbEndOld;
+      m_calibEvtInfoSvc->getLumiBlock(lbBeginOld, lbEndOld);
+      m_calibEvtInfoSvc->setLumiBlock(std::min(lumiBlock, lbBeginOld), std::max(lumiBlock, lbEndOld));
+      m_calibEvtInfoSvc->setLumiBlock(lumiBlock);
+      m_calibEvtInfoSvc->setTimeStamp(timeStamp);
+    }
 
     const bool majorityIsGoodOrUnused=( m_useMajority and m_MajorityConditionsTool->isGood() ) or !m_useMajority;
     //--- Fill histograms for (1) Number of events and (2) Hitmaps
