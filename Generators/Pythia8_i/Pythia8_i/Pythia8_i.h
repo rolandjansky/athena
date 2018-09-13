@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef GENERATOR_PYTHIA8_H
 #define GENERATOR_PYTHIA8_H
 
@@ -9,19 +13,18 @@
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include <stdexcept>
 
 using std::string;
 
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 /**
  *  Author: James Monk (jmonk@cern.ch)
 */
 
 class IAtRndmGenSvc;
+class IPythia8Custom;
 
 namespace Pythia8{
   class Sigma2Process;
@@ -72,12 +75,9 @@ public:
   virtual StatusCode genFinalize();
 
   double pythiaVersion()const;
-
+  
   static std::string    pythia_stream;
-
-  // Function for getting xmldoc path
-  static std::string xmlpath();
-
+    
 protected:
   
   // make these protected so that Pythia8B can access them
@@ -85,6 +85,8 @@ protected:
   HepMC::Pythia8ToHepMC m_pythiaToHepMC;
 
 private:
+  
+  static std::string xmlpath();
   
   // Add the pythia.process, which is the LHE record for external ME events, to the
   // HepMC record
@@ -96,7 +98,7 @@ private:
   
   std::vector<std::string> m_commands;
   
-  enum PDGID {PROTON=2212, ANTIPROTON=-2212, NEUTRON=2112, ANTINEUTRON=-2112, MUON=13, ANTIMUON=-13, ELECTRON=11, POSITRON=-11, INVALID=0};
+  enum PDGID {PROTON=2212, ANTIPROTON=-2212, LEAD=1000822080, NEUTRON=2112, ANTINEUTRON=-2112, MUON=13, ANTIMUON=-13, ELECTRON=11, POSITRON=-11, INVALID=0};
   
   double m_collisionEnergy;
   bool m_useRndmGenSvc;
@@ -144,6 +146,8 @@ private:
   bool m_doLHE3Weights;
   std::vector<std::string> m_weightCommands;
   std::vector<std::string> m_showerWeightNames;
+  
+  ToolHandle<IPythia8Custom>    m_athenaTool;
   
 };
 

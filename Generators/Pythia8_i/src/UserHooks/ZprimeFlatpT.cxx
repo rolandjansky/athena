@@ -1,9 +1,10 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "Pythia8_i/UserHooksFactory.h"
 #include "Pythia8/PhaseSpace.h"
+
+#include "UserSetting.h"
 
 namespace Pythia8{
   class ZprimeFlatpT;
@@ -42,7 +43,7 @@ namespace Pythia8 {
       double mRes = particleDataPtr->m0(idRes);
 
       double wRes = particleDataPtr->mWidth(idRes);
-      std::cout<<" mWidth="<<wRes<<std::endl;
+      //std::cout<<" mWidth="<<wRes<<std::endl;
       double m2Res   = mRes*mRes;
       double GamMRat = wRes/mRes;
       double sHat = phaseSpacePtr->sHat();
@@ -52,12 +53,32 @@ namespace Pythia8 {
 
       double par[2]={-8.95719e+00,1.62584e-03};
       weightpT=exp(par[0]+par[1]*rH);
-      if(rH>=3000){ weightpT=0; }
+      if(rH>=m_maxSHat(settingsPtr)){ weightpT=0; }
  
-      long  double weight = weightBW*(weightpT);
+      double weightDecay = 1.;
+      
+      if(rH < m_doDecayWeightBelow(settingsPtr)){
+        double p0 = -0.000527117;
+        double p1 =  2.64665e-06;
+        
+        weightDecay = 0.008/(p0+(p1*rH));
+      }
+      
+      long  double weight = weightBW * weightpT * weightDecay;
       return weight;
 
     }
+    
+    private:
+    
+    // This sets the \sqrt{\hat{s}} above which no events will be generated
+    // It is 3000. GeV by default for consistency with the first incarnation of this hook
+    Pythia8_UserHooks::UserSetting<double> m_maxSHat = Pythia8_UserHooks::UserSetting<double>("ZprimeFlatpT:MaxSHat", 3000.);
+    
+    // This sets the \sqrt{\hat{s}} below which an additional decay weight will be added
+    // It is zero by default, since this feature did not exist inthe earlier incarnation of this hook
+    Pythia8_UserHooks::UserSetting<double> m_doDecayWeightBelow = Pythia8_UserHooks::UserSetting<double>("ZprimeFlatpT:DoDecayWeightBelow", 0.);
+    
     
   };  
 
