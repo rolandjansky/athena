@@ -3,18 +3,18 @@
 */
 
 #include "DecisionHandling/Combinators.h"
-#include "TrigMuonHypo/TrigMuonEFMSonlyHypoTool.h"
+#include "TrigMuonHypo/TrigMuonEFCombinerHypoTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/MonitoredScope.h"
 class ISvcLocator;
-TrigMuonEFMSonlyHypoTool::TrigMuonEFMSonlyHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
+TrigMuonEFCombinerHypoTool::TrigMuonEFCombinerHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
   AthAlgTool(type, name, parent),
   m_decisionId(HLT::Identifier::fromToolName(name)){
 }
-TrigMuonEFMSonlyHypoTool::~TrigMuonEFMSonlyHypoTool(){
+TrigMuonEFCombinerHypoTool::~TrigMuonEFCombinerHypoTool(){
 }
-StatusCode TrigMuonEFMSonlyHypoTool::initialize(){
+StatusCode TrigMuonEFCombinerHypoTool::initialize(){
   if(m_acceptAll) {
     ATH_MSG_INFO("Accepting all the events with not cut!");
   } else {
@@ -41,7 +41,7 @@ StatusCode TrigMuonEFMSonlyHypoTool::initialize(){
   ATH_MSG_INFO("Initialization completed successfully");
   return StatusCode::SUCCESS;
 }
-bool TrigMuonEFMSonlyHypoTool::decideOnSingleObject(TrigMuonEFMSonlyHypoTool::MuonEFInfo& input, size_t cutIndex) const{
+bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool::MuonEFInfo& input, size_t cutIndex) const{
   ATH_MSG_DEBUG( "deciding...");
   using namespace Monitored;
   //Monitored Variables
@@ -68,11 +68,11 @@ bool TrigMuonEFMSonlyHypoTool::decideOnSingleObject(TrigMuonEFMSonlyHypoTool::Mu
     return false;
   }
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
-    const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+    const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
     if (!tr) {
-      ATH_MSG_DEBUG("No ExtrapolatedMuonSpectrometerTrackParticle found.");
+      ATH_MSG_DEBUG("No CombinedTrackParticle found.");
     } else {
-      ATH_MSG_DEBUG("Retrieved ExtrapolatedMuonSpectrometerTrack track with abs pt "<< (*tr).pt()/CLHEP::GeV << " GeV ");
+      ATH_MSG_DEBUG("Retrieved CombinedTrack track with abs pt "<< (*tr).pt()/CLHEP::GeV << " GeV ");
       //fill monitored variables
       fexPt.push_back(tr->pt()/CLHEP::GeV);
       fexEta.push_back(tr->eta());
@@ -98,7 +98,7 @@ bool TrigMuonEFMSonlyHypoTool::decideOnSingleObject(TrigMuonEFMSonlyHypoTool::Mu
   return result;	
 }
   
-StatusCode TrigMuonEFMSonlyHypoTool::decide(std::vector<MuonEFInfo>& toolInput) const {
+StatusCode TrigMuonEFCombinerHypoTool::decide(std::vector<MuonEFInfo>& toolInput) const {
   size_t numTrigger = m_ptBins.size();
   size_t numMuon=toolInput.size();
   if(numTrigger==1){
@@ -114,7 +114,7 @@ StatusCode TrigMuonEFMSonlyHypoTool::decide(std::vector<MuonEFInfo>& toolInput) 
   }
   return StatusCode::SUCCESS;
 }
-StatusCode TrigMuonEFMSonlyHypoTool::inclusiveSelection(std::vector<MuonEFInfo>& toolInput) const{
+StatusCode TrigMuonEFCombinerHypoTool::inclusiveSelection(std::vector<MuonEFInfo>& toolInput) const{
   for (auto& tool : toolInput){
     if(TrigCompositeUtils::passed(m_decisionId.numeric(), tool.previousDecisionIDs)){
       if(decideOnSingleObject(tool, 0)==true){
@@ -126,7 +126,7 @@ StatusCode TrigMuonEFMSonlyHypoTool::inclusiveSelection(std::vector<MuonEFInfo>&
   }
   return StatusCode::SUCCESS;
 }
-StatusCode TrigMuonEFMSonlyHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& toolInput) const{
+StatusCode TrigMuonEFCombinerHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& toolInput) const{
   HLT::Index2DVec passingSelection(toolInput.size());
   for(size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex) {
     size_t elementIndex{0};
