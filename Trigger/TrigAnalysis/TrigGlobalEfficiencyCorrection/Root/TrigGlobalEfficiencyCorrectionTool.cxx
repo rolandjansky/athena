@@ -647,14 +647,23 @@ bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::M
 
 bool TrigGlobalEfficiencyCorrectionTool::retrieveRunNumber(unsigned& runNumber)
 {
+	runNumber = 0;
 	auto eventInfo = evtStore()->retrieve<const xAOD::EventInfo>("EventInfo");
-	if(!eventInfo || !m_runNumberDecorator.isAvailable(*eventInfo))
+	if(!eventInfo)
 	{
-		ATH_MSG_ERROR("Can't retrieve run number from evtStore()");
-		runNumber = 0;
+		ATH_MSG_ERROR("Can't retrieve 'EventInfo' from evtStore()");
 		return false;
 	}
-	runNumber = m_runNumberDecorator(*eventInfo);
+	if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION))
+	{
+		if(!m_runNumberDecorator.isAvailable(*eventInfo))
+		{
+			ATH_MSG_ERROR("Can't retrieve 'RandomRunNumber' from EventInfo");
+			return false;
+		}
+		runNumber = m_runNumberDecorator(*eventInfo);
+	}
+	else runNumber = eventInfo->runNumber();
 	return true;
 }
 
@@ -803,6 +812,17 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool
 	LeptonList leptons;
 	updateLeptonList(leptons, particles);
 	return m_calculator->checkTriggerMatching(*this, matched, leptons, runNumber)? CP::CorrectionCode::Ok : CP::CorrectionCode::Error;
+}
+
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getRelevantTriggers(std::vector<std::string>& triggers)
+{
+	unsigned runNumber;
+	if(!retrieveRunNumber(runNumber))
+	{
+		ATH_MSG_ERROR("Unable to retrieve run number, aborting getRelevantTriggers()");
+		return CP::CorrectionCode::Error;
+	}
+	return m_calculator->getRelevantTriggersForUser(*this, triggers, runNumber)? CP::CorrectionCode::Ok : CP::CorrectionCode::Error;
 }
 
 bool TrigGlobalEfficiencyCorrectionTool::aboveThreshold(const Lepton& lepton, std::size_t leg) const

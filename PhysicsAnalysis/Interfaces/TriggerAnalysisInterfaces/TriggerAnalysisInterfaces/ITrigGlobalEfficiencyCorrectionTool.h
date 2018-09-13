@@ -41,6 +41,9 @@ public:
 	template<typename... Args>
 	auto checkTriggerMatching(bool& matched, Args&... args) -> std::enable_if_t<validArgs<Args...>(0), CP::CorrectionCode>;
 	
+	/// This will fill the 'triggers' argument with the names of the triggers relevant for the current run number, among those specified in the tool configuration
+	virtual CP::CorrectionCode getRelevantTriggers(std::vector<std::string>& triggers) = 0;
+	
 	/// These should in principle not be used (except by unit tests), as the CP tools require the EventInfo decoration "RandomRunNumber" to be present 
 	virtual CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) = 0;
 	virtual CP::CorrectionCode getEfficiency(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyData, double& efficiencyMc) = 0;	

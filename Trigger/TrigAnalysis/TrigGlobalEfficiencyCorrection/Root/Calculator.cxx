@@ -66,12 +66,15 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 	}
 	if(success)
 	{
-		if(m_parent->m_validTrigMatchTool)
+		if(data.adaptTriggerListForTriggerMatching(triggers))
 		{
-			if(!data.adaptTriggerListForTriggerMatching(triggers)) return false;
 			m_periods.emplace_back(boundaries, std::move(helper.m_formula), std::move(triggers));
 		}
-		else m_periods.emplace_back(boundaries, std::move(helper.m_formula));
+		else
+		{
+			if(m_parent->m_validTrigMatchTool) return false;
+			m_periods.emplace_back(boundaries, std::move(helper.m_formula));
+		}
 	}
 	else
 	{
@@ -199,6 +202,33 @@ bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent
 		}
 	}
 	return true;
+}
+
+bool Calculator::getRelevantTriggersForUser(TrigGlobalEfficiencyCorrectionTool& parent, std::vector<std::string>& triggers, unsigned runNumber)
+{
+	triggers.clear();
+	m_parent = &parent;
+	auto period = getPeriod(runNumber);
+	if(!period) return false;
+	if(!period->m_triggers.size())
+	{
+		ATH_MSG_ERROR("Empty list of triggers for run number " << runNumber << " (was there a configuration issue? please check for warnings during initialization)");
+		return false;
+	}
+	bool success = true;
+	auto notfound = parent.m_dictionary.end();
+	for(auto& trig : period->m_triggers)
+	{
+		auto itr = parent.m_dictionary.find(trig.name);
+		if(itr == notfound)
+		{
+			ATH_MSG_ERROR("can't retrieve name of trigger with hash " << trig.name << " (shouldn't happen; contact tool developers!)");
+			success = false;
+		}
+		else triggers.push_back(itr->second);
+	}
+	if(!success) triggers.clear();
+	return success;
 }
 
 Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned runNumber, std::size_t leg, bool& success)

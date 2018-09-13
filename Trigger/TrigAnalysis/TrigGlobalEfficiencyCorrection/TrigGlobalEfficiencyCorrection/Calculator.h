@@ -34,6 +34,7 @@ public:
 			bool useToys, std::size_t& uniqueElectronLeg, std::size_t& uniquePhotonLeg);
 	bool compute(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber, Efficiencies& efficiencies);
 	bool checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent, bool& matched, const LeptonList& leptons, unsigned runNumber);
+	bool getRelevantTriggersForUser(TrigGlobalEfficiencyCorrectionTool& parent, std::vector<std::string>& triggers, unsigned runNumber);
 	
 	struct Period
 	{
