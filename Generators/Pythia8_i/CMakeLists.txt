@@ -45,6 +45,7 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/PoWHEGVetoedShower.cxx
                    src/UserHooks/GravFlat.cxx
                    src/UserHooks/JetMatchingMadGraphHook.cxx
+                   src/UserHooks/JetMergingaMCatNLO.cxx
                    src/UserHooks/SuppressMPI.cxx
                    src/UserHooks/EnhanceMPI.cxx
                    src/UserHooks/ISRVetoedShower.cxx
@@ -52,6 +53,7 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/WprimeFlat.cxx
                    src/UserHooks/ZprimeFlatpT.cxx
                    src/UserHooks/WprimeWZFlat.cxx
+		   src/UserHooks/WZPolarization.cxx
                    src/UserHooks/mHatReweight.cxx
                    src/UserHooks/main31.cxx
                    src/UserResonances/ResonanceExcitedCI.cxx

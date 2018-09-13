@@ -11,6 +11,11 @@ if( ATLAS_RELEASE_MODE )
    return()
 endif()
 
+#set( PYTHIA8_VERSION 230 )
+#set( PYTHIA8_ROOT    
+# /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
+
+
 # Find Pythia8:
 find_package( Pythia8 )
 
