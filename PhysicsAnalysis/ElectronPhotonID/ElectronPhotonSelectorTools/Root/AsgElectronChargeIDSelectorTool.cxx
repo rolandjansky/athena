@@ -322,7 +322,7 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
       SCT += temp_NSCTHits;
       charge += temp_NSCTHits*eg->trackParticle(TPit)->charge();
     }
-    avgCharge_SCTw= eg->charge()*charge/SCT;
+    avgCharge_SCTw= SCT!=0 ? eg->charge()*charge/SCT : 0;
         
     const std::vector<float>&cov= t->definingParametersCovMatrixVec();
     trackqoverpsig= cov[14];
