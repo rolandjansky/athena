@@ -324,6 +324,8 @@ StatusCode LArCellBuilderFromLArHitTool::initialize()
   else {
     ATH_MSG_VERBOSE (" Internal map will not be used ");
   }
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -604,12 +606,7 @@ StatusCode LArCellBuilderFromLArHitTool::process( CaloCellContainer * theCellCon
   }
 
   //specify that a given calorimeter has been filled
-  if (theCellContainer->hasCalo(m_caloNum) )
-  {
-    ATH_MSG_WARNING ("CaloCellContainer has already been filled with calo " 
-                     << m_caloNum);
-  }
-      
+  theCellContainer->resetLookUpTable();
   theCellContainer->setHasCalo(m_caloNum);
   
   
@@ -632,7 +629,7 @@ LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer * & cellcoll,
 				      const double & q,
 				      const CaloGain::CaloGain & g)
 {
-  cellcoll->push_back(new LArCell(caloDDE,e,t,q,g));
+  cellcoll->push_back_fast(new LArCell(caloDDE,e,t,q,g));
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -650,7 +647,7 @@ void LArCellBuilderFromLArHitTool::MakeTheCell(CaloCellContainer* & cellcoll,
   const CaloGain::CaloGain g=
     m_noisetool->estimatedGain(caloDDE,e,ICaloNoiseToolStep::RAWCHANNELS);  
   
-  cellcoll->push_back (new LArCell(caloDDE,e,t,q,g));
+  cellcoll->push_back_fast (new LArCell(caloDDE,e,t,q,g));
 
 }
 
