@@ -125,9 +125,12 @@ namespace InDet {
       void setVBTrk(std::vector<const xAOD::TrackParticle*> * BTrk) const { m_dbgVBTrk=BTrk; };
   private:
       int isBTrk(const xAOD::TrackParticle* prt) const
-        { if(!m_dbgVBTrk) return 0; if(std::find((*m_dbgVBTrk).begin(),(*m_dbgVBTrk).end(), prt) != (*m_dbgVBTrk).end()) return 1; return 0; }
+        { if(!m_dbgVBTrk) return 0;
+          if(std::find((*m_dbgVBTrk).begin(),(*m_dbgVBTrk).end(), prt) != (*m_dbgVBTrk).end()) return 1;
+          return 0;
+        }
       int isBTrk(const Rec::TrackParticle*) const { return 0; }
-      mutable std::vector<const xAOD::TrackParticle*> *m_dbgVBTrk=0;
+      mutable std::vector<const xAOD::TrackParticle*> *m_dbgVBTrk=nullptr;
 //------------------------------------------------------------------------------------------------------------------
 // Private data and functions
 //
