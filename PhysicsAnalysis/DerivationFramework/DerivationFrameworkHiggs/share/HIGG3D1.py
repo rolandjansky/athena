@@ -280,6 +280,8 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
 HIGG3D1SlimmingHelper.ExtraVariables = list(HIGG3D1ExtraVariables)
 HIGG3D1SlimmingHelper.AllVariables = list(HIGG3D1ExtraContainers)
 HIGG3D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+HIGG3D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 HIGG3D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
                                             'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
                                             'AntiKtVR30Rmax4Rmin02Track':'xAOD::JetContainer',
