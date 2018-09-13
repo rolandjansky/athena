@@ -60,6 +60,14 @@ from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInCo
 CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
                                      CaloClusterLocation = "CaloCalTopoClusters")
 
+# tool to extrapolate to the calo
+import AthenaCommon.CfgMgr as CfgMgr
+#this is just regular extrapolator, but in ToolFactory form
+from egammaTools.InDetTools import egammaExtrapolator
+CaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,
+                                  Extrapolator = egammaExtrapolator)
+
+
 # configuration for ED computation
 # For the time being, it uses all pflow objects (neutral@EM + charged) for pflow
 def configureEDCorrection(tool):
@@ -172,13 +180,14 @@ CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationToo
                                 CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
                                 ClustersInConeTool              = CaloClustersInConeTool,
                                 PFlowObjectsInConeTool          = PFlowObjectsInConeTool,
+                                ParticleCaloExtensionTool       = CaloExtensionTool,
                                 IsoLeakCorrectionTool           = IsoCorrectionTool,
                                 EMCaloNums                      = [SUBCALO.LAREM],
                                 HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
                                 UseEMScale                      = True)
 
 TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrackIsolationTool')
-from AthenaCommon import CfgMgr
+#from AthenaCommon import CfgMgr
 tit = CfgMgr.xAOD__TrackIsolationTool('TrackIsolationTool')
 tit.TrackSelectionTool.maxZ0SinTheta = 3
 tit.TrackSelectionTool.minPt         = 1000
