@@ -13,17 +13,16 @@
 
 #ifndef SCT_RODVetoCondAlg_H
 #define SCT_RODVetoCondAlg_H 
-// STL
-#include <string>
-#include <vector>
-#include <set>
 
 // Athena
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "Identifier/Identifier.h"
 #include "StoreGate/WriteHandle.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/IdentifierSet.h"
+
+// STL
+#include <string>
+#include <vector>
 
 // Forward declarations
 class SCT_ID;

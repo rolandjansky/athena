@@ -48,7 +48,6 @@ class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm
   StatusCode processProperties();             //!< Process jobOpt properties
   
   //----------Private Attributes----------//
-  StatusCode                          m_sc;            //!< To check return codes
   const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
   SG::ReadHandleKey<xAOD::EventInfo>  m_currentEventKey;  //!< Current event
   Identifier                          m_moduleId;      //!< Module identifier
