@@ -719,6 +719,12 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     Identifier chId;
     IdContext otCont = m_idHelperTool->stgcIdHelper().module_context();
     m_idHelperTool->stgcIdHelper().get_id(*ith, chId, &otCont);
+
+    if(!chId.is_valid()) {
+      ATH_MSG_VERBOSE("invalid chId for stgc data " << *ith );
+      continue;
+    } 
+
     chId = m_idHelperTool->chamberId(chId);
 
     const MuonGM::sTgcReadoutElement* detEl = m_detMgr->getsTgcReadoutElement(chId);
@@ -763,6 +769,12 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     Identifier chId;
     IdContext otCont = m_idHelperTool->mmIdHelper().module_context();
     m_idHelperTool->mmIdHelper().get_id(*ith, chId, &otCont);
+
+    if(!chId.is_valid()) {
+      ATH_MSG_VERBOSE("invalid chId for mm data " << *ith );
+      continue;
+    } 
+
     chId = m_idHelperTool->chamberId(chId);
 
     const MuonGM::MMReadoutElement* detEl = m_detMgr->getMMReadoutElement(chId);
