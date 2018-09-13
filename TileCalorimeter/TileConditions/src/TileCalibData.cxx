@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TileConditions/TileCalibData.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileCalibBlobObjs/Exception.h"
@@ -22,8 +26,8 @@ template<class T>
 const T* TileCalibData<T>::getCalibDrawer(unsigned int drawerIdx) const {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    
-    throw TileCalib::IndexOutOfRange("TileCalibData::getCalibDrawer()", 
+
+    throw TileCalib::IndexOutOfRange("TileCalibData::getCalibDrawer()",
                                      drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
 
@@ -34,8 +38,8 @@ template<class T>
 void TileCalibData<T>::setCalibDrawer(unsigned int drawerIdx, const T* calibDrawer) {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
-    
-    throw TileCalib::IndexOutOfRange("TileCalibData::setCalibDrawer()", 
+
+    throw TileCalib::IndexOutOfRange("TileCalibData::setCalibDrawer()",
                                      drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
   }
 

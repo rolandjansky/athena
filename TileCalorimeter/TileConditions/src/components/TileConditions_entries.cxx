@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TileConditions/TileInfoLoader.h"
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCondIdTransforms.h"
