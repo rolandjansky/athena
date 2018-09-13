@@ -247,7 +247,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___SCT_DigitizationTool_properties(self):
         tested_configurable_name = 'ToolSvc.SCT_DigitizationTool'
-        expected_property_list = ['BarrelOnly', 'DetStore', 'EnableHits', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEnd', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'RndmSvc', 'SurfaceChargesGenerator']
+        expected_property_list = ['BarrelOnly', 'DetStore', 'EnableHits', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'FrontEnd', 'HardScatterSplittingMode', 'InputObjectName', 'LastXing', 'MergeSvc', 'OutputObjectName', 'OutputSDOName', 'RandomDisabledCellGenerator', 'RndmSvc', 'SurfaceChargesGenerator']
         expected_nonstring_properties = {'LastXing': '25', 'FirstXing': '-50'}
         expected_string_properties = {'InputObjectName': 'SCT_Hits', 'OutputObjectName': 'SCT_RDOs', 'OutputSDOName': 'SCT_SDO_Map'}
         self._detailed_ConfigurablePropertiesCheck(
