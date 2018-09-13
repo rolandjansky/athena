@@ -28,7 +28,9 @@ if( NOT IS_DIRECTORY ${herwig_datadir} )
    message( WARNING "Can't access directory ${herwig_datadir}" )
    return()
 endif()
+
 atlas_install_generic( ${herwig_datadir}/*.rpo ${herwig_datadir}/*.in
-   ${herwig_datadir}/MSSM.model
+   ${herwig_datadir}/MSSM.model 
    DESTINATION share
    TYPENAME HerwigData )
+
