@@ -30,9 +30,13 @@ atlas_add_component( Herwig7_i
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HERWIG3_INCLUDE_DIRS}
    ${THEPEG_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS}
    PRIVATE_DEFINITIONS -DHWVERSION=\"${HERWIG7_VERSION}\"
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${HERWIG7_LIBRARIES} ${THEPEG_LIBRARIES} ${GSL_LIBRARIES}
+   LINK_LIBRARIES ${HERWIG3_ROOT}/lib/Herwig/libHerwigAPI.so  ${Boost_LIBRARIES} ${HERWIG7_LIBRARIES} ${THEPEG_LIBRARIES} ${GSL_LIBRARIES}
    GeneratorModulesLib EventInfo GaudiKernel PathResolver )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
+set( Herwig7Environment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of HerwigppEnvironment.cmake" )
+find_package( Herwig7Environment )

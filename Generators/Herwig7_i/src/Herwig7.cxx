@@ -1,10 +1,5 @@
 // -*- C++ -*-
 
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-
 /*! \file Herwig7.cxx
  *  \brief Implementation of the Herwig 7 Athena interface.
  *  \author Daniel Rauch (daniel.rauch@desy.de)
@@ -27,9 +22,13 @@
 #include "ThePEG/PDF/PartonExtractor.h"
 #include "ThePEG/PDF/PDF.h"
 
+#include "Herwig/API/HerwigAPI.h"
+
 #include "PathResolver/PathResolver.h"
 
-#include <boost/algorithm/string.hpp>
+#include "boost/thread/thread.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/algorithm/string.hpp"
 #include "boost/foreach.hpp"
 #define foreach BOOST_FOREACH
 
@@ -62,13 +61,23 @@ using namespace std;
 // Constructor
 Herwig7::Herwig7(const string& name, ISvcLocator* pSvcLocator) :
   GenModule(name, pSvcLocator),
-  m_pdfname_me("UNKNOWN"),
-  m_pdfname_mpi("UNKNOWN")
+  m_use_seed_from_generatetf(false),
+  m_seed_from_generatetf(0),
+  m_pdfname_me("UNKNOWN"), m_pdfname_mpi("UNKNOWN") // m_pdfname_ps("UNKONWN"),
 {
-  declareProperty("Commands", m_herwigCommandVector);
-  declareProperty("RunName", m_runname="Atlas");
-  declareProperty("InFileDump", m_infiledump="herwigInfileDump.in");
+  declareProperty("RunFile", m_runfile="Herwig7");
+  declareProperty("SetupFile", m_setupfile="");
+
+  declareProperty("UseRandomSeedFromGeneratetf", m_use_seed_from_generatetf);
+  declareProperty("RandomSeedFromGeneratetf", m_seed_from_generatetf);
+
+  declareProperty("PDFNameME", m_pdfname_me);
+  // declareProperty("PDFNamePS", m_pdfname_ps);
+  declareProperty("PDFNameMPI", m_pdfname_mpi);
+
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
+
+  declareProperty("CleanupHerwigScratch", m_cleanup_herwig_scratch);
 }
 
 
@@ -93,7 +102,14 @@ StatusCode Herwig7::genInitialize() {
   // Represent the combined seed as a string, so the config system can parse it back to a long ;)
   ostringstream ss_seed;
   ss_seed << combined_seed;
-  string atlseed = ss_seed.str();
+  // Configure the API and print the seed to the log
+  if (m_use_seed_from_generatetf){
+    ATH_MSG_INFO("Using the random number seed " + to_string(m_seed_from_generatetf) + " provided via Generate_tf.py");
+    m_api.seed(m_seed_from_generatetf);
+  } else {
+    ATH_MSG_INFO("Using the random number seed " + ss_seed.str() + " provided by athena");
+    m_api.seed(combined_seed);
+  }
 
   // Change repo log level and make sure that config errors result in a program exit
   //ThePEG::Debug::level = 10000;
@@ -142,108 +158,16 @@ StatusCode Herwig7::genInitialize() {
   const string repopath = PathResolver::find_file_from_list("HerwigDefaults.rpo", reposearchpaths);
   ATH_MSG_DEBUG("Loading Herwig default repo from " << repopath);
   ThePEG::Repository::load(repopath);
-  ATH_MSG_DEBUG("Loaded Herwig default repository");
+  ATH_MSG_DEBUG("Successfully loaded Herwig default repository");
 
+  ATH_MSG_INFO("Setting runfile name '"+m_runfile+"'");
+  m_api.inputfile(m_runfile);
 
-  // Prepend the defaults to the command vector, so that *everything* gets dumped
-  ATH_MSG_DEBUG("Defining default params");
-  CommandVector defaultcmds;
-  defaultcmds.push_back("cd /Herwig/Generators");
-  defaultcmds.push_back("set /Herwig/Generators/LHCGenerator:RandomNumberGenerator:Seed " + atlseed);
-  defaultcmds.push_back("set /Herwig/Generators/LHCGenerator:DebugLevel 1");
-  defaultcmds.push_back("set /Herwig/Generators/LHCGenerator:PrintEvent 0");
-  defaultcmds.push_back("set /Herwig/Generators/LHCGenerator:MaxErrors 1000000");
-  defaultcmds.push_back("set /Herwig/Generators/LHCGenerator:NumberOfEvents 1000000000");
-  defaultcmds.push_back("set /Herwig/Generators/LHCGenerator:UseStdout Yes");
+  ATH_MSG_INFO("starting to prepare the run from runfile '"+m_runfile+"'...");
 
-  // Append config directives from job options to the defaults
-  CommandVector cmds = defaultcmds;
-  cmds.insert(cmds.begin()+cmds.size(), m_herwigCommandVector.begin(), m_herwigCommandVector.end());
-
-  // Apply the config commands
-  ATH_MSG_DEBUG("Processing default and job option commands");
-  string commands = "";
-  foreach (const string& cmd, cmds) {
-    commands += "\n" + cmd;
-    const size_t iNonSpace = cmd.find_first_not_of(" ");
-    // Only run the command if it's not just whitespace or a comment
-    if (iNonSpace != string::npos && cmd.data()[iNonSpace] != '#') {
-      ATH_MSG_DEBUG("Herwig7 command: " << cmd);
-      const string reply = ThePEG::Repository::exec(cmd, std::cout);
-      if (!reply.empty()) {
-        if (reply.find("Error") != string::npos) {
-          ATH_MSG_ERROR("Herwig7 error: " + reply);
-          return StatusCode::FAILURE;
-        } else {
-          ATH_MSG_INFO("Herwig7 info: " + reply);
-        }
-      }
-    }
-  }
-  ATH_MSG_DEBUG("Updating repository");
-  ThePEG::Repository::update();
-
-  // Dump out the config commands, with an extra saverun to make life easier
-  ostringstream ss_cmds;
-  ss_cmds << commands << "\n\n"
-          << "# Extra saverun for standalone convenience: Athena doesn't execute this\n"
-          << "saverun " << m_runname << " /Herwig/Generators/LHCGenerator\n";
-  const string dumpcommands = ss_cmds.str();
-  ATH_MSG_DEBUG("All job option commands:\n" << dumpcommands);
-  if (m_infiledump.length() > 0) {
-    ofstream f(m_infiledump.c_str());
-    f << dumpcommands;
-    f.close();
-  }
-
-  // PDF settings checks
-  //cout << ThePEG::Repository::exec("get /Herwig/Particles/p+:PDF", std::cout) << endl;
-  //cout << ThePEG::Repository::exec("get /Herwig/Particles/p+:PDF:PDFName", std::cout) << endl;
-
-  // Make a "run" object from the config repository.
-  ATH_MSG_DEBUG("Getting generator from ThePEG.");
-  ThePEG::EGPtr tmpEG = ThePEG::BaseRepository::GetObject<ThePEG::EGPtr>("/Herwig/Generators/LHCGenerator");
-  try {
-    ATH_MSG_DEBUG("Reducing repository to single LHC generator run");
-    m_hw = ThePEG::Repository::makeRun(tmpEG, m_runname);
-  } catch (ThePEG::Exception& e) {
-    ATH_MSG_ERROR("Exception in ThePEG: " << e.what());
-    throw;
-  } catch (std::exception& e) {
-    ATH_MSG_ERROR("STL exception: " << e.what());
-    throw;
-  }
-
-  // Write out some run parameters
-  const string repo_energy = ThePEG::Repository::exec("get /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy", std::cout);
-  ATH_MSG_INFO("Run energy: " + repo_energy + " GeV");
-  const string repo_seed = ThePEG::Repository::exec("get /Herwig/Generators/LHCGenerator:RandomNumberGenerator:Seed", std::cout);
-  ATH_MSG_INFO("Random seed: " + repo_seed);
-  // MPI parameters
-  const string repo_intrkt = ThePEG::Repository::exec("get /Herwig/Shower/Evolver:IntrinsicPtGaussian", std::cout);
-  ATH_MSG_INFO("Intrinsic kT: " + repo_intrkt + " GeV/c");
-  const string repo_ptmatch = ThePEG::Repository::exec("get /Herwig/UnderlyingEvent/MPIHandler:pTmin0", std::cout);
-  ATH_MSG_INFO("MPI matching pT0: " + repo_ptmatch + " GeV/c");
-  const string repo_invrad = ThePEG::Repository::exec("get /Herwig/UnderlyingEvent/MPIHandler:InvRadius", std::cout);
-  ATH_MSG_INFO("Inverse hadron radius: " + repo_invrad + " GeV**2");
-  // Kinematic efficiency cuts
-  const string repo_jetminkt = ThePEG::Repository::exec("get /Herwig/Cuts/JetKtCut:MinKT", std::cout);
-  ATH_MSG_INFO("Minimum jet kT: " + repo_jetminkt + " GeV/c");
-  const string repo_lepminkt = ThePEG::Repository::exec("get /Herwig/Cuts/LeptonKtCut:MinKT", std::cout);
-  ATH_MSG_INFO("Minimum lepton kT: " + repo_lepminkt + " GeV/c");
-  const string repo_photonminkt = ThePEG::Repository::exec("get /Herwig/Cuts/PhotonKtCut:MinKT", std::cout);
-  ATH_MSG_INFO("Minimum photon kT: " + repo_photonminkt + " GeV/c");
-  // PDFs
-  const string me_pdf = ThePEG::Repository::exec("get /Herwig/Particles/p+:PDF:PDFName", std::cout);
-  m_pdfname_me = (me_pdf.find("***") == string::npos) ? me_pdf : "UNKNOWN";
-  ATH_MSG_INFO("Matrix element PDF: " + m_pdfname_me);
-  const string mpi_pdf = ThePEG::Repository::exec("get /Herwig/Shower/ShowerHandler:PDFA:PDFName", std::cout);
-  m_pdfname_mpi = (mpi_pdf.find("***") == string::npos && mpi_pdf.find("Error:") == string::npos) ? mpi_pdf : m_pdfname_me;
-  ATH_MSG_INFO("MPI PDF: " + m_pdfname_mpi);
-
-  // Initialise the run
-  ATH_MSG_DEBUG("Calling Herwig7 initialize()");
-  m_hw->initialize();
+  // read in a Herwig runfile and obtain the event generator
+  m_gen = Herwig::API::prepareRun(m_api);
+  ATH_MSG_DEBUG("preparing the run...");
 
   return StatusCode::SUCCESS;
 }
@@ -254,9 +178,9 @@ StatusCode Herwig7::genInitialize() {
  *  Run the generator for one event and store the event internally.
  */
 StatusCode Herwig7::callGenerator() {
-  ATH_MSG_DEBUG("Herwig7 generating");
-  assert(m_hw);
-  m_event = m_hw->shoot();
+  ATH_MSG_DEBUG("Herwig7 generating an event");
+  assert(m_gen);
+  m_event = m_gen->shoot();
   return StatusCode::SUCCESS;
 }
 
@@ -328,12 +252,31 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
  */
 StatusCode Herwig7::genFinalize() {
   ATH_MSG_INFO("Herwig7 finalizing.");
-  assert(m_hw);
+  assert(m_gen);
   cout << "MetaData: generator = Herwig7 " << HWVERSION << endl;
-  cout << std::scientific << std::setprecision(5) << "MetaData: cross-section (nb) = " << m_hw->eventHandler()->integratedXSec()*m_xsscale/ThePEG::nanobarn << endl;
+  cout << std::scientific << std::setprecision(5) << "MetaData: cross-section (nb) = " << m_gen->eventHandler()->integratedXSec()*m_xsscale/ThePEG::nanobarn << endl;
+  // cout << "MetaData: PDF = " << m_pdfname_me << " (ME); " << m_pdfname_ps << " (shower); " << m_pdfname_mpi << " (MPI)" << endl;
   cout << "MetaData: PDF = " << m_pdfname_me << " (ME); " << m_pdfname_mpi << " (shower/MPI)" << endl;
-  m_hw->finalize();
+  m_gen->finalize();
   ThePEG::Repository::cleanup();
+
+  // possibly tidy up working directory
+  if (m_cleanup_herwig_scratch && boost::filesystem::is_directory("Herwig-scratch")){
+
+    ATH_MSG_INFO("removing Herwig-scratch folder from "+boost::filesystem::current_path().string());
+
+    // sleep for some time to allow all access to terminate
+    boost::this_thread::sleep(boost::posix_time::seconds(5)); /// \todo Think of other way to wait for all access to terminate
+
+    // in case the folder can't be deleted continue with warning
+    try {
+      boost::filesystem::remove_all("Herwig-scratch");
+    } catch (const exception& e) {
+      ATH_MSG_WARNING("Failed to delete the folder 'Herwig-scratch': "+string(e.what()));
+    }
+
+  }
+
   return StatusCode::SUCCESS;
 }
 
