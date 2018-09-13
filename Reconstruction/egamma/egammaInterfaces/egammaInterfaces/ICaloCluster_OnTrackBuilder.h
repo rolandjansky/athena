@@ -22,8 +22,8 @@ class ICaloCluster_OnTrackBuilder : virtual public IAlgTool
 
 	~ICaloCluster_OnTrackBuilder() {}; 
 
-	virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::Egamma* eg, int charge=0 ) = 0 ;
-	virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::CaloCluster* cl, int charge=0 ) = 0;
+	virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::Egamma* eg, int charge=0 ) const = 0 ;
+	virtual Trk::CaloCluster_OnTrack* buildClusterOnTrack( const xAOD::CaloCluster* cl, int charge=0 ) const = 0;
   
 };
 

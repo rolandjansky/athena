@@ -62,67 +62,49 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   ~egammaTrkRefitterTool();
   
   /** @brief AlgTool initialise method */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** @brief AlgTool finalise method */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
   
-  /** @brief AlgTool finalise method */
-  StatusCode execute();
-    
+  typedef IegammaTrkRefitterTool::Result Result;
   /** @brief Refit the track associated with an egamma object*/
-  virtual StatusCode  refitElectronTrack(const xAOD::Electron*);
+  virtual StatusCode  refitElectronTrack(const xAOD::Electron*, Result& result) const override;
   
   /** @brief Refit a track assoicated to a TrackParticle*/  
-  virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, const xAOD::Electron* eg = 0);  
+  virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Result& result) const override;  
   
   /** @brief Refit a track*/
-  StatusCode  refitTrack(const Trk::Track*, const xAOD::Electron* eg = 0);
+  virtual StatusCode  refitTrack(const Trk::Track*, Result& result) const override;
 
-  /** @brief Returns the refitted track.  -- NOTE  a  new track has been created to ensure 
-      that no memory leaks occur the USER must delete the Trk::Track pointed to by this function*/
-  virtual Trk::Track* refittedTrack();
-  
-  /** @brief Returns the perigee of the refitted track */
-  virtual const Trk::Perigee* refittedTrackPerigee();
-  
-  /** @brief Returns the original track perigee*/
-  virtual const Trk::Track* originalTrack();
-  
-  /** @brief Returns the original track perigee*/
-  virtual const Trk::Perigee* originalTrackPerigee();
-  
-  /** @brief Returns the refitted track end point parameters*/
-  virtual const Trk::TrackParameters* refittedEndParameters();  
-  
-  /** @brief Returns the original tracks final measurement parameters*/
-  virtual const Trk::TrackParameters* originalEndParameters();  
-  
-  /** @brief Resets all of the pointers -- may cause memory leak if you have not take care of the newly created*/
-  virtual void resetRefitter();
-
-  /** @brief Returns the amount of material transversed by the refitted track (using X0)*/
-  double getMaterial();
   
  private:
- 
-  std::vector<const Trk::MeasurementBase*> getIDHits(const Trk::Track* track) ;
+  
+  /** @brief Get the hits from the Inner Detector*/
+  std::vector<const Trk::MeasurementBase*> getIDHits(const Trk::Track* track) const;
 
-  /** @brief Pointer to the refitted track*/  
-  Trk::Track                  *m_refittedTrack; 
+  /** @brief Returns the final track parameters (ie track parameters furthest from the perigee)  */
+  const Trk::TrackParameters* lastTrackParameters(const Trk::Track* track) const ;
+
+  /** @brief Returns the amount of material transversed by the track (using X0)*/
+  double getMaterialTraversed(Trk::Track* track) const;
+
+  struct MeasurementsAndTrash{
+        std::vector<const Trk::MeasurementBase*>  m_measurements;
+        std::vector<size_t>  m_trash;
+  };
+  /** @brief Adds a beam spot to the Measurements passed to the track refitter*/  
+  MeasurementsAndTrash addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg = 0 ) const; 
   
-  /** @brief Pointer to the original track*/  
-  const Trk::Track            *m_originalTrack; 
-  
-  /** @brief Pointer to the original E/gamma object*/   
-  const xAOD::Electron        *m_egammaObject;
-  
-  /** @brief Pointer to the original Perigee*/    
-  const Trk::Perigee          *m_oMeasPer;
-  
-  /** @brief Pointer to the refitted MeasuredPerigee*/   
-  const Trk::Perigee          *m_rMeasPer;
-  
+  const Trk::VertexOnTrack*  provideVotFromBeamspot(const Trk::Track* track) const;
+
+  void trashSink(const Trk::MeasurementBase* trashed) const {
+    if(trashed!=nullptr){
+      delete trashed;
+    }  
+
+  }
+ 
   /** @brief Refit the track using RIO on Track. This option is not suggested and can not run on ESD or AOD*/
   Gaudi::Property<bool> m_fitRIO_OnTrack {this, 
       "Fit_RIO_OnTrack", false, 
@@ -147,24 +129,12 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
       "Minimum number of silicon hits on track before it is allowed to be refitted"};
   
   /** @brief Particle Hypothesis*/
-  Trk::ParticleHypothesis     m_ParticleHypothesis; 
+  Trk::ParticleHypothesis m_ParticleHypothesis; 
 
   /** @brief The track refitter */
   ToolHandle<Trk::ITrackFitter> m_ITrackFitter {this,  
       "FitterTool", "TrkKalmanFitter/AtlasKalmanFitter",
       "ToolHandle for track fitter implementation"};
-
-  /** @brief Returns the final track parameters (ie track parameters furthest from the perigee)  */
-  const Trk::TrackParameters* lastTrackParameters(const Trk::Track* track);
-
-  /** @brief Returns the amount of material transversed by the track (using X0)*/
-  double getMaterialTraversed(Trk::Track* track);
-
-  /** @brief Adds a beam spot to the Measurements passed to the track refitter*/  
-  std::vector<const Trk::MeasurementBase*> addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg = 0 ); 
-  
-  const Trk::VertexOnTrack*   provideVotFromBeamspot(const Trk::Track* track) const;
-  const xAOD::TrackParticle*  getTrackParticle(Trk::VxTrackAtVertex*) const;
 
   /** @brief track extrapolator */
   ToolHandle<Trk::IExtrapolator> m_extrapolator {this, 
@@ -193,7 +163,6 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
 
   const AtlasDetectorID*  m_idHelper  ;
 
-  std::vector<const Trk::MeasurementBase*>  m_trash;
 };
   
 #endif
