@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTER_ONTRACKBUILER_H
@@ -60,7 +60,6 @@ class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluste
   double electronPhiResoA(double eta) const;
   double electronPhiResoB(double eta) const;
 
-  bool   FindPosition(const xAOD::CaloCluster* cluster) const;
   double CalculatePhis(const xAOD::CaloCluster* cluster) const;
 
 
@@ -72,19 +71,12 @@ class CaloCluster_OnTrackBuilder : public AthAlgTool, virtual public ICaloCluste
   Gaudi::Property<bool> m_useClusterPhi{this, "UseClusterPhi", true};
   Gaudi::Property<bool> m_useClusterEta{this, "UseClusterEta", true};
 
-
   SG::ReadHandleKey<CaloCellContainer> m_caloCellContainerKey {this,
       "InputCellContainerName", "AODCellContainer"};
 
   /** @brief (deta,dphi) granularity*/
-  mutable double m_deta;
-  mutable double m_dphi;
-  // Calo variables
   const CaloDetDescrManager* m_calo_dd;
   const LArEM_ID* m_emid;
-  /** @brief CaloSample */
-  mutable CaloSampling::CaloSample m_sam;
-  mutable CaloCell_ID::SUBCALO m_subcalo;
   
 };
 

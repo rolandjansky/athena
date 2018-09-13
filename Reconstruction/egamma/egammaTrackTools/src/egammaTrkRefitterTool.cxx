@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -54,18 +54,13 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
   m_beamCondSvc("BeamCondSvc",name),
   m_idHelper(0) 
 {
-  // declare interface
   declareInterface< IegammaTrkRefitterTool >(this) ;
 }
 
-  
 egammaTrkRefitterTool::~egammaTrkRefitterTool()
 {
 }
 
-/////////////////////////////////////////////////////////////////
-
-// INITIALIZE METHOD:
      
 StatusCode egammaTrkRefitterTool::initialize()
 {
@@ -228,7 +223,7 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Result& r
     egammaTrkRefitterTool::MeasurementsAndTrash  collect= addPointsToTrack(result.originalTrack,result.electron);
     if(collect.m_measurements.size()>4)
       result.refittedTrack.reset(
-                                 m_ITrackFitter->fit(collect.m_measurements,* result.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
+                                 m_ITrackFitter->fit(collect.m_measurements,*result.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
                                 );
     else {
       ATH_MSG_WARNING("Could **NOT** add BeamSpot information into Vector refitting without BS");
@@ -236,12 +231,8 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Result& r
                                  m_ITrackFitter->fit(*result.originalTrack,m_runOutlier,m_ParticleHypothesis)
                                 );
     }
-    /*
-     * Cleanup the trash here pass then to a sink.
-     */
-    for (size_t i : collect.m_trash){
-        trashSink(collect.m_measurements[i]);  
-    }   
+    /*Cleanup the trash here */    
+    trashSink(collect);    
   } else {
     std::vector<const Trk::MeasurementBase*>  measurements = getIDHits(result.originalTrack);  
     if(measurements.size()>4){
@@ -314,7 +305,6 @@ const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(const Trk
   return 0;
 }
 
-
 // ======================================================================
 double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) const {
   ATH_MSG_DEBUG("Calculating Material Traversed by the Track");  
@@ -330,12 +320,10 @@ double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) const {
     if (materialEffects)
       material += materialEffects->thicknessInX0();
   }
-  
   if (material<=0){
     ATH_MSG_DEBUG(" Material Traversed by the Track >=0");   
     return 0.;
-  }
-  
+  } 
   return material;
 }
 
@@ -349,7 +337,7 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     // fill the beamSpot if you have it
     if (vot){
       collect.m_measurements.push_back(vot);
-      collect.m_trash.push_back(collect.m_measurements.size()-1);
+      collect.m_trash.push_back(vot);
     }
     std::vector<const Trk::MeasurementBase*> vecIDHits  = getIDHits(track);   
     std::vector<const Trk::MeasurementBase*>::const_iterator it    = vecIDHits.begin();
@@ -368,7 +356,7 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     const Trk::CaloCluster_OnTrack* ccot = m_CCOTBuilder->buildClusterOnTrack(eg,charge);
     if (ccot){
       collect.m_measurements.push_back(ccot);
-      collect.m_trash.push_back(collect.m_measurements.size()-1);
+      collect.m_trash.push_back(ccot);
     }
   }
   return collect; 

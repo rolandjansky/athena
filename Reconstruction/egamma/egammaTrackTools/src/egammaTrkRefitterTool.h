@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMATRACKTOOLS_EGAMMATRKREFITTERTOOL_H
@@ -91,18 +91,20 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
 
   struct MeasurementsAndTrash{
         std::vector<const Trk::MeasurementBase*>  m_measurements;
-        std::vector<size_t>  m_trash;
+        std::vector<const Trk::MeasurementBase*>  m_trash;
   };
   /** @brief Adds a beam spot to the Measurements passed to the track refitter*/  
   MeasurementsAndTrash addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg = 0 ) const; 
   
   const Trk::VertexOnTrack*  provideVotFromBeamspot(const Trk::Track* track) const;
 
-  void trashSink(const Trk::MeasurementBase* trashed) const {
-    if(trashed!=nullptr){
-      delete trashed;
-    }  
+  void trashSink(MeasurementsAndTrash& collect ) const {
 
+    for( size_t i=0; i< collect.m_trash.size(); ++i){
+      if(collect.m_trash[i]!=nullptr){
+        delete collect.m_trash[i];
+      }  
+    }
   }
  
   /** @brief Refit the track using RIO on Track. This option is not suggested and can not run on ESD or AOD*/
