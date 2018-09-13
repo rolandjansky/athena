@@ -4,6 +4,8 @@
 
 #include "CaloBCIDAvgAlg.h" 
 
+//#define DONTDO
+
 CaloBCIDAvgAlg::CaloBCIDAvgAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm(name,pSvcLocator),
   m_bunchCrossingTool("BunchCrossingTool") {
@@ -169,11 +171,12 @@ StatusCode CaloBCIDAvgAlg::execute_r(const EventContext& ctx) const {
   } // end of the check bcid boundary
 
 #ifdef DONTDO // some debug code, please, ignore
-  std::cout << "corrections for BCID : " << bcid << std::endl;
+  std::cout << "BCIDAlg corrections for BCID : " << bcid << std::endl;
   for (const HWIdentifier hwid : mcSym->symIds()) {
-    if ( fabsf(1e9*(avgEshift[hwid])) > 0.001 ){
-      std::cout << "cell [" << index1 <<"] = " <<(double)(avgEshift[hwid]) 
-		<< std::endl;
+    unsigned id32=hwid.get_identifier32().get_compact();
+    float eshift=avgEshift[id32];
+    if ( fabsf(1e9*(eshift)) > 0.001 ){
+      std::cout << "Alg BCID " << bcid << ", cell [" << id32 <<"] = " <<(double)eshift << std::endl;
     }
   }
 #endif
