@@ -754,6 +754,11 @@ namespace top{
       this->m_useRCJetSubstructure = true;
     else
       this->m_useRCJetSubstructure = false;
+      
+    if (settings->value("UseRCJetAdditionalSubstructure") == "True" || settings->value("UseRCJetAdditionalSubstructure") == "true")
+      this->m_useRCJetAdditionalSubstructure = true;
+    else
+      this->m_useRCJetAdditionalSubstructure = false;
    
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")) );
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")) );
@@ -767,6 +772,10 @@ namespace top{
       this->m_useVarRCJetSubstructure = true;
     else
       this->m_useVarRCJetSubstructure = false;
+    if (settings->value("UseVarRCJetAdditionalSubstructure") == "True" || settings->value("UseVarRCJetAdditionalSubstructure") == "true")
+      this->m_useVarRCJetAdditionalSubstructure = true;
+    else
+      this->m_useVarRCJetAdditionalSubstructure = false;
     
     // for top mass analysis, per default set to 1.0!
     m_JSF  = std::stof(settings->value("JSF"));

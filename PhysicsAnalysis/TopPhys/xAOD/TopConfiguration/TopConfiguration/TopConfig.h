@@ -512,12 +512,14 @@ class TopConfig final {
   inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
   inline virtual float RCJetRadius() const {return m_RCJetRadius;}
   inline virtual bool  useRCJetSubstructure() const {return m_useRCJetSubstructure;}
+  inline virtual bool  useRCJetAdditionalSubstructure() const {return m_useRCJetAdditionalSubstructure;}
  
   inline virtual void RCJetPtcut(const float pt)      {if(!m_configFixed){m_RCJetPtcut = pt;}}
   inline virtual void RCJetEtacut(const float eta)    {if(!m_configFixed){m_RCJetEtacut = eta;}}
   inline virtual void RCJetTrimcut(const float trim)  {if(!m_configFixed){m_RCJetTrimcut = trim;}}
   inline virtual void RCJetRadius(const float radius) {if(!m_configFixed){m_RCJetRadius = radius;}}
   inline virtual void useRCJetSubstructure(const bool use) {if (!m_configFixed){m_useRCJetSubstructure = use;}}
+  inline virtual void useRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useRCJetAdditionalSubstructure = use;}}
   
   inline virtual float VarRCJetPtcut() const{return m_VarRCJetPtcut;}
   inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
@@ -526,6 +528,7 @@ class TopConfig final {
   inline virtual const std::string& VarRCJetRho() const {return m_VarRCJetRho;}
   inline virtual const std::string& VarRCJetMassScale() const {return m_VarRCJetMassScale;}
   inline virtual bool  useVarRCJetSubstructure() const {return m_useVarRCJetSubstructure;}
+  inline virtual bool  useVarRCJetAdditionalSubstructure() const {return m_useVarRCJetAdditionalSubstructure;}
 
   inline virtual void VarRCJetPtcut(const float pt)      {if(!m_configFixed){m_VarRCJetPtcut = pt;}}
   inline virtual void VarRCJetEtacut(const float eta)    {if(!m_configFixed){m_VarRCJetEtacut = eta;}}
@@ -534,6 +537,7 @@ class TopConfig final {
   inline virtual void VarRCJetRho(const std::string& rho) {if(!m_configFixed){m_VarRCJetRho = rho;}}
   inline virtual void VarRCJetMassScale(const std::string& mass_scale) {if(!m_configFixed){m_VarRCJetMassScale = mass_scale;}}
   inline virtual void useVarRCJetSubstructure(const bool use) {if (!m_configFixed){m_useVarRCJetSubstructure = use;}}
+  inline virtual void useVarRCJetAdditionalSubstructure(const bool use) {if (!m_configFixed){m_useVarRCJetAdditionalSubstructure = use;}}
 
   inline virtual void jetUncertainties_BunchSpacing( const std::string& s ){if(!m_configFixed){m_jetUncertainties_BunchSpacing = s;}}
   inline virtual const std::string& jetUncertainties_BunchSpacing() const {return m_jetUncertainties_BunchSpacing;}
@@ -1161,6 +1165,7 @@ class TopConfig final {
   float m_RCJetTrimcut;
   float m_RCJetRadius;
   bool  m_useRCJetSubstructure;
+  bool  m_useRCJetAdditionalSubstructure;
   
   // Jet configuration for variable large-R jets
   float m_VarRCJetPtcut;
@@ -1170,6 +1175,7 @@ class TopConfig final {
   std::string m_VarRCJetRho;
   std::string m_VarRCJetMassScale;
   bool  m_useVarRCJetSubstructure;
+  bool  m_useVarRCJetAdditionalSubstructure;
 
   // these are needed for the top mass analysis, per default should be 1.0
   float m_JSF;
