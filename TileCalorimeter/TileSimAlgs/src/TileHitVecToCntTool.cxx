@@ -564,7 +564,7 @@ void TileHitVecToCntTool::processHitVectorForPileUp(const TileHitVector* inputHi
   return;
 }
 
-void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &m_hitCont) {
+void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitNonConstContainer* &hitCont) {
 
   TileHitVecConstIterator inpItr = inputHits->begin();
   TileHitVecConstIterator end = inputHits->end();
@@ -582,7 +582,7 @@ void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inp
         eHitTot += cinp->energy(); // not really correct if TileHit contains vector of energies
         // but eHitTot is needed for debug purposes only
         TileHit * pHit = new TileHit(*cinp);
-        m_hitCont->push_back(pHit);
+        hitCont->push_back(pHit);
         ++nHit;
 
         if (msgLvl(MSG::VERBOSE)) {
@@ -631,7 +631,7 @@ void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inp
         Identifier pmID = cinp->pmt_ID();
         TileHit * pHit = new TileHit(pmID, eHit, 0.);
 
-        m_hitCont->push_back(pHit);
+        hitCont->push_back(pHit);
         ++nHit;
 
         if (msgLvl(MSG::VERBOSE)) {
@@ -720,7 +720,7 @@ void TileHitVecToCntTool::processHitVectorWithoutPileUp(const TileHitVector* inp
           eHitTot += cinp->energy(i);
         }
 
-        m_hitCont->push_back(pHit);
+        hitCont->push_back(pHit);
         ++nHit;
 
         if (msgLvl(MSG::VERBOSE)) {
@@ -1158,7 +1158,7 @@ double TileHitVecToCntTool::applyPhotoStatistics(double energy, Identifier pmt_i
 }
 
 
-void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &m_hitCont) {
+void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont) {
   int module = frag_id & 0x3F;
 
   TileHitCollection::iterator hitIt = coll->begin();
@@ -1185,7 +1185,7 @@ void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, T
       int side = m_tileID->side((*fromHitIt)->pmt_ID());
       Identifier to_pmt_id = m_tileID->pmt_id(TileID::GAPDET, side, module, E1_TOWER, TileID::SAMP_E, 0);
       toHit = new TileHit(to_pmt_id);
-      m_hitCont->push_back(toHit);
+      hitCont->push_back(toHit);
       ATH_MSG_VERBOSE("New TileHit (E1 cell) for merging added Id: " << m_tileID->to_string(toHit->pmt_ID(), -1) );
     } else {
       ATH_MSG_VERBOSE("Found TileHit (E1 cell) for merging Id: " << m_tileID->to_string(toHit->pmt_ID(), -1) );
@@ -1211,7 +1211,7 @@ void TileHitVecToCntTool::findAndMergeE1(TileHitCollection* coll, int frag_id, T
 }
 
 
-void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &m_hitCont) {
+void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id, TileHitNonConstContainer* &hitCont) {
   int module = frag_id & 0x3F;
 
   TileHitCollection::iterator hitIt = coll->begin();
@@ -1239,7 +1239,7 @@ void TileHitVecToCntTool::findAndMergeMBTS(TileHitCollection* coll, int frag_id,
       int phi = m_tileTBID->phi((*fromHitIt)->pmt_ID()) - 1;
       Identifier to_pmt_id = m_tileTBID->channel_id(side, phi, 1);
       toHit = new TileHit(to_pmt_id);
-      m_hitCont->push_back(toHit);
+      hitCont->push_back(toHit);
       ATH_MSG_VERBOSE("New TileHit (MBTS) for merging added Id: " << m_tileTBID->to_string(toHit->pmt_ID(), 0) );
     } else {
       ATH_MSG_VERBOSE("Found TileHit (MBTS) for merging Id: " << m_tileTBID->to_string(toHit->pmt_ID(), 0) );
