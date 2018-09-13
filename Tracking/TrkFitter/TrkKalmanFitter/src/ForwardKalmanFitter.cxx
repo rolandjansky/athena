@@ -589,10 +589,11 @@ Trk::FitterStatusCode Trk::ForwardKalmanFitter::buildAndAnalyseTrajectory
              || (fabs(testRadius-testPred)>0.5))) {
       ATH_MSG_DEBUG ("Starting driftcircle L/R solving, observed at state " 
                      << predictedState->positionOnTrajectory() << " err="<<testPredErr);
-      FitterStatusCode dafStatus = 
-        m_internalDAF->filterTrajectoryPiece(T, predictedState, updatedPar, predPar, 12,
-                                             controlledMatEffects.particleType());
+
+      m_internalDAF->filterTrajectoryPiece(T, predictedState, updatedPar, predPar, 12, 
+      					   controlledMatEffects.particleType());
     }
+
   }
 
   return Trk::FitterStatusCode::Success;
