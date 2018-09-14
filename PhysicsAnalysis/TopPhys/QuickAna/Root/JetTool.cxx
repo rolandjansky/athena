@@ -287,7 +287,9 @@ namespace ana
 
     // We only clean, by default, jets that might've passed our JVT selection.
     // This is too hard-coded, ugly.
-    bool is_clean = ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
+    bool is_clean = jet.isAvailable<char>("DFCommonJets_jetClean_LooseBad") ?
+                    static_cast<bool>(jet.auxdata<char>("DFCommonJets_jetClean_LooseBad")) :
+                    ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
                    m_cleaning_tool->keep(jet) );
     cut_cleaning_tool.setPassedIf ( is_clean );
 
