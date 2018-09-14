@@ -1,5 +1,4 @@
-# $Id: CMakeLists.txt 753795 2016-06-08 23:37:56Z ssnyder $
-################################################################################
+###############################################################################
 # Package: AthenaServices
 ################################################################################
 
@@ -30,16 +29,38 @@ atlas_depends_on_subdirs(
 find_package( Boost COMPONENTS thread )
 find_package( CLHEP )
 find_package( PythonLibs )
-find_package( yampl )
+find_package( yampl QUIET )
+
+# Environment specific dependencies:
+set( extra_inc )
+set( extra_libs )
+set( extra_defs )
+if( NOT XAOD_ANALYSIS )
+   list( APPEND extra_libs PerfMonEvent )
+endif()
+if( YAMPL_FOUND )
+   list( APPEND extra_inc ${YAMPL_INCLUDE_DIRS} )
+   list( APPEND extra_libs ${YAMPL_LIBRARIES} )
+   set( extra_defs DEFINITIONS -DHAVE_YAMPL )
+endif()
+
+# Select what sources to build:
+set( sources src/*.h src/*.cxx src/components/*.cxx )
+if( NOT YAMPL_FOUND )
+   file( GLOB sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+      src/*.h src/*.cxx src/components/*.cxx )
+   list( REMOVE_ITEM sources src/AthenaYamplTool.h src/AthenaYamplTool.cxx )
+endif()
 
 # Component(s) in the package:
-atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
+atlas_add_component( AthenaServices ${sources}
+   ${extra_defs}
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
-   ${YAMPL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${YAMPL_LIBRARIES}
+   ${CLHEP_INCLUDE_DIRS} ${extra_inc}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} 
    ${CLHEP_LIBRARIES} z TestTools AthenaBaseComps AthenaKernel CxxUtils
-   DataModel DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
-   StoreGateLib SGtests PersistentDataModel EventInfo GaudiKernel )
+   DataModel DataModelRoot Navigation PerfMonKernel SGTools
+   StoreGateLib SGtests PersistentDataModel EventInfo GaudiKernel ${extra_libs} )
 
 # Test library checking the ability to build T/P converters:
 atlas_add_tpcnv_library( AthenaServicesTest src/test/*.cxx
