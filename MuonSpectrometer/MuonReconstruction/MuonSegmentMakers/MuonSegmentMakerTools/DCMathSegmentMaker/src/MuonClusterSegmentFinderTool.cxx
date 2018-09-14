@@ -749,7 +749,7 @@ namespace Muon {
       unsigned int idir = 1;  
       if(iml==2) istart = orderedClusters.size()-1;
       if(iml==2) idir = -1;
-      for(unsigned int i=istart; i<orderedClusters.size()&&i>=0; i = i+idir) {
+      for(unsigned int i=istart; i<orderedClusters.size(); i = i+idir) {
         if(m_idHelperTool->stgcIdHelper().multilayer(orderedClusters[i].front()->identify()) != iml) continue;
         std::vector<const Muon::MuonClusterOnTrack*> hits;
         double distance = 1000.;
