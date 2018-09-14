@@ -44,9 +44,6 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ListItem.h"
 
-
-
-
 egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
@@ -337,7 +334,7 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     // fill the beamSpot if you have it
     if (vot.get()!=nullptr){
       collect.m_trash.push_back(std::move(vot));
-      collect.m_measurements.push_back(collect.m_trash.end()->get());
+      collect.m_measurements.push_back(collect.m_trash.back().get());
     }
     std::vector<const Trk::MeasurementBase*> vecIDHits  = getIDHits(track);   
     std::vector<const Trk::MeasurementBase*>::const_iterator it    = vecIDHits.begin();
@@ -356,7 +353,7 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     std::unique_ptr<const Trk::CaloCluster_OnTrack> ccot (m_CCOTBuilder->buildClusterOnTrack(eg,charge));
     if (ccot.get()!=nullptr){
       collect.m_trash.push_back(std::move(ccot));
-      collect.m_measurements.push_back(collect.m_trash.end()->get());
+      collect.m_measurements.push_back(collect.m_trash.back().get());
     }
   }
   return collect; 
