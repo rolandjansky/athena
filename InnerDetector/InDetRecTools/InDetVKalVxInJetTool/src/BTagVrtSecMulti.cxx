@@ -149,8 +149,10 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 
 //================================================ PGRAPH version
 //      int iRet=0;
-//      long int* weit     = new long int[m_WorkArray->m_Incomp.size()];
-//      long int* Solution = new long int[NTracks];
+//      //long int* weit     = new long int[m_WorkArray->m_Incomp.size()];
+//      //long int* Solution = new long int[NTracks];
+//      std::unique_ptr<long int[]> weit     = std::unique_ptr<long int[]>(new long int[m_WorkArray->m_Incomp.size()])
+//      std::unique_ptr<long int[]> Solution = std::unique_ptr<long int[]>(new long int[NTracks])
 //      for(i=0; i<(int)m_WorkArray->m_Incomp.size(); i++) *(weit+i)=(long int) (m_WorkArray->m_Incomp[i]+1); /* +1 is needed for PGRAPH*/
 //      long int edges = m_WorkArray->m_Incomp.size()/2; 
 //      while(true) {
@@ -161,8 +163,6 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 //          newvrt.SelTrk.clear();
 //          for(i=0;i<NPTR;i++) { newvrt.SelTrk.push_back(Solution[i]-1);}//std::cout<<"Solution="<<Solution[i]<<'\n';
 //================================================== Boost version (don't forget to uncomment addEdge in Select2TrVrt()
-      const long int* const weit=0; //coverity 105578
-      const long int* const Solution=0; //coverity 105577
       std::vector< std::vector<int> > allCliques;
       bron_kerbosch_all_cliques(*m_compatibilityGraph, clique_visitor(allCliques));
       for(int cq=0; cq<(int)allCliques.size();cq++){
@@ -614,7 +614,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
        }
     }
     if(nGoodVertices == 0 || (n2trVrt+nNtrVrt)==0){  // No good vertices at all
-      delete WrkVrtSet;  delete TrkInVrt; if(weit)delete[] weit; if(Solution)delete[] Solution;
+      delete WrkVrtSet;  delete TrkInVrt;
       return finalVertices;
     }
 //
@@ -788,7 +788,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
                    m_hb_goodvrtN->Fill( n1trVrt+15., m_w_1);}
     if(nGoodVertices == 0){
       delete WrkVrtSet;
-      delete TrkInVrt; if(weit)delete[] weit; if(Solution)delete[] Solution;
+      delete TrkInVrt;
       return finalVertices;
     }
 
@@ -812,7 +812,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       if(m_fillHist){m_hb_nvrt2->Fill( Results[2], m_w_1); }
       if(m_fillHist){m_hb_mom->Fill( MomentumJet.Perp(), m_w_1);} 
 
-      delete WrkVrtSet; delete TrkInVrt; if(weit)delete[] weit; if(Solution)delete[] Solution;
+      delete WrkVrtSet; delete TrkInVrt;
 
       return finalVertices;
 
