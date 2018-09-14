@@ -754,7 +754,8 @@ def setupMenu():
         #ATR-18734 VBF H->bb + photon
         ['noalg_l1topo_L1EM18VHI_MJJ-300',   'L1_EM18VHI_MJJ-300',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         #ATR-18734
-        ["noalg_l1topo_L1HT150-J20.ETA31",                    "L1_HT150-J20.ETA31",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Ot     her"], -1 ],
+        #["noalg_l1topo_L1HT150-J20s5.ETA31",                  "L1_HT150-J20s5.ETA31",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+        ["noalg_l1topo_L1HT150-J20s5.ETA31_MJJ-400-CF",                    "L1_HT150-J20s5.ETA31_MJJ-400-CF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Ot     her"], -1 ],
 
         #ATR-18734 g + tau for excl Higgs decays
         ["noalg_l1topo_L130M-EM20ITAU12",                     "L1_30M-EM20ITAU12",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
