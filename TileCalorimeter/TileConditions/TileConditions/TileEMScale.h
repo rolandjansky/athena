@@ -425,6 +425,7 @@ class TileEMScale {
     unsigned int m_maxGains;
     unsigned int m_drawerCacheSize;
 
+    const float m_epsilon = 1.e-5;
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

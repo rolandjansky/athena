@@ -452,11 +452,11 @@ void TileEMScale::setCalibOnlEms(std::unique_ptr<TileCalibDataFlt> calibData) {
 bool TileEMScale::checkIfOflLaserLinearCalibrationUsed() const {
 
   const float defval = 1.0;
-  const float epsilon = 1.e-5;
+  const float epsilon = defval * m_epsilon;
   float val(defval);
   for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++drawerIdx) {
     for (unsigned int chn = 0; chn < TileCalibUtils::MAX_CHAN; ++chn) {
-      val = m_calibOflLasLin->getCalibDrawer(drawerIdx)->getCalib(chn, 0, val);
+      val = m_calibOflLasLin->getCalibDrawer(drawerIdx)->getCalib(chn, 0, defval);
       if (fabs(val - defval) > epsilon) {
         return true;
       }
@@ -469,12 +469,12 @@ bool TileEMScale::checkIfOflLaserLinearCalibrationUsed() const {
 bool TileEMScale::checkIfOflLaserNonLinearCalibrationUsed() const {
 
   const float defval = 100.0;
-  const float epsilon = 1.e-3;
+  const float epsilon = defval * m_epsilon;
   float val(defval);
 
   for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++drawerIdx) {
     for (unsigned int chn = 0; chn < TileCalibUtils::MAX_CHAN; ++chn) {
-      val = m_calibOflLasNln->getCalibDrawer(drawerIdx)->getCalib(chn, 0, val);
+      val = m_calibOflLasNln->getCalibDrawer(drawerIdx)->getCalib(chn, 0, defval);
       if (fabs(val - defval) > epsilon) {
         return true;
       }

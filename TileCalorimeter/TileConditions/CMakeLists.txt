@@ -59,11 +59,6 @@ atlas_add_dictionary( TileConditionsDict
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel TileCalibBlobObjs TileIdentifier CaloDetDescrLib TileDetDescr PathResolver TileConditionsLib )
 
 # Test(s) in the package:
-atlas_add_test( TileCondToolOfcCool_test
-                SOURCES test/TileCondToolOfcCool_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
-
 atlas_add_test( TileCondToolTMDB_test
                 SOURCES test/TileCondToolTMDB_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES}
@@ -77,24 +72,9 @@ atlas_add_test( TileCablingService_UpgradeABC_test
                 SOURCES test/TileCablingService_UpgradeABC_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileIdentifier StoreGateLib IdDictParser TestTools CxxUtils )
 
-atlas_add_test( TileCondProxy_test
-                SOURCES test/TileCondProxy_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
-
-atlas_add_test( TileCalibCondAlg_test
-                SOURCES test/TileCalibCondAlg_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
-
 atlas_add_test( TileConditionTools_test
                 SOURCES test/TileConditionTools_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel TestTools ${CORAL_LIBRARIES}
-                POST_EXEC_SCRIPT nopost.sh)
-
-atlas_add_test( TileBadChannelsComponents_test
-                SOURCES test/TileBadChannelsComponents_test.cxx
-                LINK_LIBRARIES TileConditionsLib TileIdentifier TileCalibBlobObjs AthenaBaseComps StoreGateLib GaudiKernel IdDictParser TestTools
                 POST_EXEC_SCRIPT nopost.sh)
 
 atlas_add_test( TileEMScaleComponents_test
