@@ -50,6 +50,7 @@ def _configure():
     svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr" #this really should be the default for this property :-(
     svcMgr.PoolSvc.OutputLevel = ERROR
     svcMgr.EventSelector.ReadMetaDataWithPool=True
+    svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ] #this is needed for metadata retrieves to work at initialize step
     #default the input collections to the FilesInput from AthenaCommonFlags
     #this is so that the eventselector picks up input files in grid jobs
     svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() 
