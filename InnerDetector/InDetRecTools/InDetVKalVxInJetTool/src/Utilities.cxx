@@ -11,6 +11,7 @@
 //-------------------------------------------------
 // Other stuff
 #include <cmath>
+#include<iostream>
 
 
 namespace InDet{  
@@ -69,7 +70,28 @@ namespace InDet{
   }
 
   void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *, const std::string ) const {
-
+/*  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name) const {
+    int nGoodV=0;
+    for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
+      std::cout<<name
+      <<"= "<<(*WrkVrtSet)[iv].vertex[0]
+      <<", "<<(*WrkVrtSet)[iv].vertex[1]
+      <<", "<<(*WrkVrtSet)[iv].vertex[2]
+      <<" NTrk="<<(*WrkVrtSet)[iv].SelTrk.size()
+      <<" is good="<<std::boolalpha<<(*WrkVrtSet)[iv].Good<<std::noboolalpha
+      <<"  Chi2="<<(*WrkVrtSet)[iv].Chi2
+      <<"  Mass="<<(*WrkVrtSet)[iv].vertexMom.M()
+      <<"  detached="<<(*WrkVrtSet)[iv].detachedTrack
+      <<"  proj.dist="<<(*WrkVrtSet)[iv].ProjectedVrt
+      <<" trk=";
+      for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
+                std::cout<<", "<<(*WrkVrtSet)[iv].SelTrk[kk];}
+      //for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
+      //          std::cout<<", "<<MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[kk]).Perp();}
+      std::cout<<'\n';
+      if((*WrkVrtSet)[iv].Good)nGoodV++;
+    }
+    std::cout<<name<<" N="<<nGoodV<<'\n';*/
   }
 
                /*  Technicalities */
