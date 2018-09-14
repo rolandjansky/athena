@@ -149,23 +149,23 @@ StatusCode IDPerfMuonRefitter::execute()
       defaultMuonTrk = new Trk::Track(*idTP->track());
       //save tracks to storegrate	/
       muonTrks->push_back(defaultMuonTrk);
-      IegammaTrkRefitterTool::Result result1{}; 
-      result1.electron=eg; 
-      fitStatus = m_TrackRefitter1->refitTrack( idTP->track(), result1 );
+      IegammaTrkRefitterTool::Cache cache1{}; 
+      cache1.electron=eg; 
+      fitStatus = m_TrackRefitter1->refitTrack( idTP->track(), cache1 );
       ++m_N_MuonsRefit;
       if (fitStatus == StatusCode::SUCCESS) {
-        refit1MuonTrk = result1.refittedTrack.release();
+        refit1MuonTrk = cache1.refittedTrack.release();
         muonTrksRefit1->push_back(refit1MuonTrk);
       } else {
          ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Muon");
          ++m_N_MuonRefitFailures;
          continue;
       }
-      IegammaTrkRefitterTool::Result result2{}; 
-      result2.electron=eg; 
-      fitStatus = m_TrackRefitter2->refitTrack( idTP->track(), result2 );
+      IegammaTrkRefitterTool::Cache cache2{}; 
+      cache2.electron=eg; 
+      fitStatus = m_TrackRefitter2->refitTrack( idTP->track(), cache2 );
       if (fitStatus == StatusCode::SUCCESS) {
-        refit2MuonTrk = result2.refittedTrack.release();
+        refit2MuonTrk = cache2.refittedTrack.release();
         muonTrksRefit2->push_back(refit2MuonTrk);
       } else {
         ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Muon");

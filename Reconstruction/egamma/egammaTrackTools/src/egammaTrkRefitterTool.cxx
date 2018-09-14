@@ -130,7 +130,7 @@ StatusCode egammaTrkRefitterTool::finalize()
 }
 
 // =====================================================================
-StatusCode  egammaTrkRefitterTool::refitElectronTrack(const xAOD::Electron* eg,Result& result)  const
+StatusCode  egammaTrkRefitterTool::refitElectronTrack(const xAOD::Electron* eg,Cache& cache)  const
 {
   ATH_MSG_DEBUG("Refitting a track associated  with a egamma object");
 
@@ -138,17 +138,17 @@ StatusCode  egammaTrkRefitterTool::refitElectronTrack(const xAOD::Electron* eg,R
   if (eg==0) return StatusCode::SUCCESS;
 
   // Set the pointer to the egamma object. 
-  result.electron = eg;
+  cache.electron = eg;
 
   const xAOD::TrackParticle *trackParticle = eg->trackParticle();
  
-  StatusCode sc = refitTrackParticle( trackParticle,result);
+  StatusCode sc = refitTrackParticle( trackParticle,cache);
   
   return sc;
 }
 
 // =======================================================================
-StatusCode egammaTrkRefitterTool::refitTrackParticle(const xAOD::TrackParticle* trackParticle, Result& result) const
+StatusCode egammaTrkRefitterTool::refitTrackParticle(const xAOD::TrackParticle* trackParticle, Cache& cache) const
 {
   ATH_MSG_DEBUG("Refitting a track associated  with a TrackParticle");
 
@@ -174,7 +174,7 @@ StatusCode egammaTrkRefitterTool::refitTrackParticle(const xAOD::TrackParticle* 
   
   if ( trackParticle->trackLink().isValid() ) {      
     // retrieve and refit original track
-    StatusCode sc  = refitTrack( trackParticle->track() , result);
+    StatusCode sc  = refitTrack( trackParticle->track() , cache);
     
     if (sc == StatusCode::FAILURE) return StatusCode::FAILURE;
     
@@ -187,31 +187,31 @@ StatusCode egammaTrkRefitterTool::refitTrackParticle(const xAOD::TrackParticle* 
 }
 
 // =====================================================================
-StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Result& result)  const
+StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& cache)  const
 {
   //
   // Refit the track associated with an egamma object
   //
   
-  result.refittedTrack=nullptr;
-  result.refittedTrackPerigee=nullptr;
-  result.originalTrack=nullptr;
-  result.originalTrackPerigee=nullptr;
+  cache.refittedTrack=nullptr;
+  cache.refittedTrackPerigee=nullptr;
+  cache.originalTrack=nullptr;
+  cache.originalTrackPerigee=nullptr;
   if (!track) {
     return StatusCode::FAILURE;
   }
   //Set the pointer to the track
-  result.originalTrack=track;
+  cache.originalTrack=track;
   
   //Set pointer to the original perigee
-  result.originalTrackPerigee=dynamic_cast<const Trk::Perigee*>( result.originalTrack->perigeeParameters() );
+  cache.originalTrackPerigee=dynamic_cast<const Trk::Perigee*>( cache.originalTrack->perigeeParameters() );
   
-  if (result.originalTrackPerigee!=nullptr){
-      double od0 = result.originalTrackPerigee->parameters()[Trk::d0];
-      double oz0 = result.originalTrackPerigee->parameters()[Trk::z0];
-      double ophi0 = result.originalTrackPerigee->parameters()[Trk::phi0];
-      double otheta = result.originalTrackPerigee->parameters()[Trk::theta];
-      double oqOverP = result.originalTrackPerigee->parameters()[Trk::qOverP];         
+  if (cache.originalTrackPerigee!=nullptr){
+      double od0 = cache.originalTrackPerigee->parameters()[Trk::d0];
+      double oz0 = cache.originalTrackPerigee->parameters()[Trk::z0];
+      double ophi0 = cache.originalTrackPerigee->parameters()[Trk::phi0];
+      double otheta = cache.originalTrackPerigee->parameters()[Trk::theta];
+      double oqOverP = cache.originalTrackPerigee->parameters()[Trk::qOverP];         
       ATH_MSG_DEBUG("Original parameters " << od0  << " " 
         << oz0  << " " << ophi0 << " " << otheta << " " << oqOverP << " " << 1/oqOverP) ;
   } else {
@@ -220,42 +220,42 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Result& r
   
   // Refit the track with the beam spot if desired otherwise just refit the original track
   if (m_useBeamSpot || m_useClusterPosition){
-    egammaTrkRefitterTool::MeasurementsAndTrash  collect= addPointsToTrack(result.originalTrack,result.electron);
+    egammaTrkRefitterTool::MeasurementsAndTrash  collect= addPointsToTrack(cache.originalTrack,cache.electron);
     if(collect.m_measurements.size()>4)
-      result.refittedTrack.reset(
-                                 m_ITrackFitter->fit(collect.m_measurements,*result.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
+      cache.refittedTrack.reset(
+                                 m_ITrackFitter->fit(collect.m_measurements,*cache.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
                                 );
     else {
       ATH_MSG_WARNING("Could **NOT** add BeamSpot information into Vector refitting without BS");
-      result.refittedTrack.reset(
-                                 m_ITrackFitter->fit(*result.originalTrack,m_runOutlier,m_ParticleHypothesis)
+      cache.refittedTrack.reset(
+                                 m_ITrackFitter->fit(*cache.originalTrack,m_runOutlier,m_ParticleHypothesis)
                                 );
     }
     /*Cleanup the trash here */    
     trashSink(collect);    
   } else {
-    std::vector<const Trk::MeasurementBase*>  measurements = getIDHits(result.originalTrack);  
+    std::vector<const Trk::MeasurementBase*>  measurements = getIDHits(cache.originalTrack);  
     if(measurements.size()>4){
       ATH_MSG_DEBUG("Could not remove TRT hits !!!");
-      result.refittedTrack.reset(
-                                 m_ITrackFitter->fit(measurements,*result.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
+      cache.refittedTrack.reset(
+                                 m_ITrackFitter->fit(measurements,*cache.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
                                 );
     } else {
       ATH_MSG_DEBUG("Not enough measurements on track remove TRT hits?");
-      result.refittedTrack=nullptr; 
+      cache.refittedTrack=nullptr; 
     }
   }
 
   // Store refitted perigee pointers
-  if (result.refittedTrack) {
-    result.refittedTrackPerigee=dynamic_cast<const Trk::Perigee*>(result.refittedTrack->perigeeParameters() );
+  if (cache.refittedTrack) {
+    cache.refittedTrackPerigee=dynamic_cast<const Trk::Perigee*>(cache.refittedTrack->perigeeParameters() );
     
-    if (result.refittedTrackPerigee!=nullptr){
-        double d0 = result.refittedTrackPerigee->parameters()[Trk::d0];
-        double z0 = result.refittedTrackPerigee->parameters()[Trk::z0];
-        double phi0 = result.refittedTrackPerigee->parameters()[Trk::phi0];
-        double theta = result.refittedTrackPerigee->parameters()[Trk::theta];
-        double qOverP = result.refittedTrackPerigee->parameters()[Trk::qOverP];
+    if (cache.refittedTrackPerigee!=nullptr){
+        double d0 = cache.refittedTrackPerigee->parameters()[Trk::d0];
+        double z0 = cache.refittedTrackPerigee->parameters()[Trk::z0];
+        double phi0 = cache.refittedTrackPerigee->parameters()[Trk::phi0];
+        double theta = cache.refittedTrackPerigee->parameters()[Trk::theta];
+        double qOverP = cache.refittedTrackPerigee->parameters()[Trk::qOverP];
         ATH_MSG_DEBUG("Refitted parameters " << d0  << " " << z0  << " " << phi0 << " " << theta << " " << qOverP << "  " << 1/qOverP);
     } else {
       ATH_MSG_WARNING("Could not get refitted Trk::Perigee");     

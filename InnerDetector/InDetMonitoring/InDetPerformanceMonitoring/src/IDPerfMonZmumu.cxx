@@ -441,9 +441,9 @@ StatusCode IDPerfMonZmumu::execute()
   //save default and refit track parameters
   if( p1_comb->track() ) {
     defaultMuonTrk1 = new Trk::Track(*p1_comb->track());
-    IegammaTrkRefitterTool::Result result1{}; 
-    result1.electron=egam;
-    fitStatus = m_TrackRefitter1->refitTrack( p1_comb->track(),result1 );
+    IegammaTrkRefitterTool::Cache cache1{}; 
+    cache1.electron=egam;
+    fitStatus = m_TrackRefitter1->refitTrack( p1_comb->track(),cache1 );
     if (fitStatus.isFailure()) {
        ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");
        delete muonTrks;
@@ -451,14 +451,14 @@ StatusCode IDPerfMonZmumu::execute()
        delete muonTrksRefit2;
        return StatusCode::SUCCESS;
     } else {
-      refit1MuonTrk1 = result1.refittedTrack.release();
+      refit1MuonTrk1 = cache1.refittedTrack.release();
       muonTrksRefit1->push_back(refit1MuonTrk1);
       ATH_MSG_DEBUG("Successfully refitted (1) track");
     }
 
-    IegammaTrkRefitterTool::Result result2{}; 
-    result2.electron=egam; 
-    fitStatus = m_TrackRefitter2->refitTrack( p1_comb->track(),result2 );
+    IegammaTrkRefitterTool::Cache cache2{}; 
+    cache2.electron=egam; 
+    fitStatus = m_TrackRefitter2->refitTrack( p1_comb->track(),cache2 );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
       delete muonTrks;
@@ -466,7 +466,7 @@ StatusCode IDPerfMonZmumu::execute()
       delete muonTrksRefit2;
       return StatusCode::SUCCESS;
     } else {
-      refit2MuonTrk1 =result2.refittedTrack.release();
+      refit2MuonTrk1 =cache2.refittedTrack.release();
       muonTrksRefit2->push_back(refit2MuonTrk1);
       ATH_MSG_DEBUG("Successfully refitted (2) track");
     }
@@ -474,27 +474,27 @@ StatusCode IDPerfMonZmumu::execute()
   }
 
   if( p2_comb->track() ) {
-    IegammaTrkRefitterTool::Result result1{}; 
-    result1.electron=egam; 
+    IegammaTrkRefitterTool::Cache cache1{}; 
+    cache1.electron=egam; 
     defaultMuonTrk2 = new Trk::Track(*p2_comb->track());
-    fitStatus = m_TrackRefitter1->refitTrack( p2_comb->track(),result1 );
+    fitStatus = m_TrackRefitter1->refitTrack( p2_comb->track(),cache1 );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit1 Failed. Skipping Event");      
       return StatusCode::SUCCESS;
     } else {
-      refit1MuonTrk2 = result1.refittedTrack.release();
+      refit1MuonTrk2 = cache1.refittedTrack.release();
       muonTrksRefit1->push_back(refit1MuonTrk2);
       ATH_MSG_DEBUG("Successfully refitted (1) track");
     }
 
-    IegammaTrkRefitterTool::Result result2{}; 
-    result2.electron=egam;  
-    fitStatus = m_TrackRefitter2->refitTrack( p2_comb->track(),result2 );
+    IegammaTrkRefitterTool::Cache cache2{}; 
+    cache2.electron=egam;  
+    fitStatus = m_TrackRefitter2->refitTrack( p2_comb->track(),cache2 );
     if (fitStatus.isFailure()) {
       ATH_MSG_DEBUG("Track Refit2 Failed. Skipping Event");
       return StatusCode::SUCCESS;
     } else {
-      refit2MuonTrk2 = result2.refittedTrack.release();
+      refit2MuonTrk2 = cache2.refittedTrack.release();
       muonTrksRefit2->push_back(refit2MuonTrk2);
       ATH_MSG_DEBUG("Successfully refitted (2) track");
     }

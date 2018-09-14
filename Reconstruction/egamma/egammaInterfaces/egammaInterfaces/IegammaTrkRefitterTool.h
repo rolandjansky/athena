@@ -40,7 +40,7 @@ class IegammaTrkRefitterTool : virtual public IAlgTool
   
     /** Struct Holding the result to return and intermediate objects
      *  Things are owned by the EDM or the unique_ptr*/
-    struct Result {
+    struct Cache {
       /** @brief Pointer to the refitted track*/  
       std::unique_ptr<Trk::Track>   refittedTrack; 
       /** @brief Pointer to the refitted MeasuredPerigee*/    
@@ -51,7 +51,7 @@ class IegammaTrkRefitterTool : virtual public IAlgTool
       const Trk::Perigee*  originalTrackPerigee;
      /** @brief pointer to the Electron input*/
       const xAOD::Electron* electron; 
-      Result():refittedTrack(nullptr),
+      Cache():refittedTrack(nullptr),
       refittedTrackPerigee(nullptr),
       originalTrack(nullptr),
       originalTrackPerigee(nullptr),
@@ -60,13 +60,13 @@ class IegammaTrkRefitterTool : virtual public IAlgTool
     };
 
     /** Refit the track associated with an xAODEgamma object*/
-    virtual StatusCode  refitElectronTrack(const xAOD::Electron* eg ,Result& result) const = 0;
+    virtual StatusCode  refitElectronTrack(const xAOD::Electron* eg ,Cache& result) const = 0;
     
     /** Refit the track associated with a track particle  object*/
-    virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Result& result) const = 0;
+    virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Cache& result) const = 0;
     
     /** Refit the track*/
-		virtual StatusCode  refitTrack(const Trk::Track*, Result& result) const = 0;
+		virtual StatusCode  refitTrack(const Trk::Track*, Cache& result) const = 0;
 
 };
 #endif

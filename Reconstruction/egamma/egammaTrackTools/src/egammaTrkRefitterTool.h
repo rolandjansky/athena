@@ -67,15 +67,15 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   /** @brief AlgTool finalise method */
   virtual StatusCode finalize() override;
   
-  typedef IegammaTrkRefitterTool::Result Result;
+  typedef IegammaTrkRefitterTool::Cache Cache;
   /** @brief Refit the track associated with an egamma object*/
-  virtual StatusCode  refitElectronTrack(const xAOD::Electron*, Result& result) const override;
+  virtual StatusCode  refitElectronTrack(const xAOD::Electron*, Cache& cache) const override;
   
   /** @brief Refit a track assoicated to a TrackParticle*/  
-  virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Result& result) const override;  
+  virtual StatusCode  refitTrackParticle(const xAOD::TrackParticle*, Cache& cache) const override;  
   
   /** @brief Refit a track*/
-  virtual StatusCode  refitTrack(const Trk::Track*, Result& result) const override;
+  virtual StatusCode  refitTrack(const Trk::Track*, Cache& cache) const override;
 
   
  private:

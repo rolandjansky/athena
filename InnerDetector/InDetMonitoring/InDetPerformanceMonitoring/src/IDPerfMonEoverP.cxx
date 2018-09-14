@@ -71,7 +71,7 @@ IDPerfMonEoverP::IDPerfMonEoverP(const std::string& name,
   m_fillDetailedTree(false),
   m_primaryVertexFirstCandidate{},
   m_validationTreeName("EGrefitter"),
-  m_validationTreeDescription("egamma track refitter results"),
+  m_validationTreeDescription("egamma track refitter caches"),
   m_validationTreeFolder("/eoverpValidation/efitterValidation"),
   m_validationTree(0),
   m_runNumber{},
@@ -604,12 +604,12 @@ StatusCode IDPerfMonEoverP::execute()
       // First Refitter................
 
       ATH_MSG_DEBUG(  "Refitting the track" );
-      IegammaTrkRefitterTool::Result result1{};
-      StatusCode sc = m_TrackRefitter->refitElectronTrack( (*iter),result1);
+      IegammaTrkRefitterTool::Cache cache1{};
+      StatusCode sc = m_TrackRefitter->refitElectronTrack( (*iter),cache1);
       if (sc == StatusCode::SUCCESS){
-        Trk::Track* trkTrack= result1.refittedTrack.release();
+        Trk::Track* trkTrack= cache1.refittedTrack.release();
         m_refittedTracks_no1->push_back(trkTrack);
-        addToValidationNtuple( result1.refittedTrackPerigee ,(*iter)->caloCluster(), 1 );
+        addToValidationNtuple( cache1.refittedTrackPerigee ,(*iter)->caloCluster(), 1 );
         fillLastMeasurement(trkTrack, 1 );
       } else {
         ATH_MSG_DEBUG(  "Track Refit Failed" );
@@ -621,15 +621,15 @@ StatusCode IDPerfMonEoverP::execute()
       //******************************************************//
       ATH_MSG_DEBUG(  "Refitting the track again" );
 
-      IegammaTrkRefitterTool::Result result2{};
-      sc = m_TrackRefitter_no2->refitElectronTrack( (*iter),result2 );
+      IegammaTrkRefitterTool::Cache cache2{};
+      sc = m_TrackRefitter_no2->refitElectronTrack( (*iter),cache2 );
 
       if (sc == StatusCode::SUCCESS){
-        Trk::Track* trkTrack= result2.refittedTrack.release();
+        Trk::Track* trkTrack= cache2.refittedTrack.release();
         //Add the refitted track to the TrackCollection
         m_refittedTracks_no2->push_back( trkTrack );
         //Add data to the trkRefitterNtuple
-        addToValidationNtuple( result2.refittedTrackPerigee ,(*iter)->caloCluster(), 2 );
+        addToValidationNtuple( cache2.refittedTrackPerigee ,(*iter)->caloCluster(), 2 );
         fillLastMeasurement( trkTrack, 2 );
       } else {
         ATH_MSG_DEBUG( "Track Refit Failed" );
@@ -653,10 +653,10 @@ StatusCode IDPerfMonEoverP::execute()
   TrackCollection* selectedElectrons = new TrackCollection;
 
   for( unsigned int i(0); i < goodElectrons.size(); ++i){
-    IegammaTrkRefitterTool::Result result{}; 
-    StatusCode sc = m_TrackRefitter->refitElectronTrack( (*ElectronInput_container)[goodElectrons[i]],result );
+    IegammaTrkRefitterTool::Cache cache{}; 
+    StatusCode sc = m_TrackRefitter->refitElectronTrack( (*ElectronInput_container)[goodElectrons[i]],cache );
     if (sc == StatusCode::SUCCESS){
-      Trk::Track* trkTrack= result.refittedTrack.release(); 
+      Trk::Track* trkTrack= cache.refittedTrack.release(); 
       selectedElectrons->push_back(trkTrack);
     }
 	}
