@@ -521,11 +521,16 @@ def TrigIDtrkMonitoringTool():
                                          histoPathBase = "/Trigger/HLT")
                 tidaftkfs_purity.AnalysisConfig = "Tier0"
                 tidaftkfs_purity.SliceTag = "HLT/TRIDT/FTKPurity/Expert"
+                tidaftkfs_purity.RunPurity = True
 
-#               tidaftkfs_purity.pixHitsOffline    = 4
-#               tidaftkfs_purity.sctHitsOffline    = 6
-#               tidaftkfs_purity.blayerHitsOffline = 1
-#               tidaftkfs_purity.pixHolesOffline   = 1
+                tidaftkfs_purity.pTCutOffline      = 500
+
+                tidaftkfs_purity.pixHitsOffline    = -1
+                tidaftkfs_purity.sctHitsOffline    =  4
+#               tidaftkfs_purity.blayerHitsOffline = -1
+#               tidaftkfs_purity.pixHolesOffline   = 20
+		tidaftkfs_purity.siHitsOffline     = 6
+		tidaftkfs_purity.siHolesOffline    = 20
 
                 tidaftkfs_purity.ntupleChainNames += [
                         "Offline",
