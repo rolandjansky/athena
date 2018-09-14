@@ -355,7 +355,10 @@ def sct_conf_defects(d, i, runNumber):
         if not histogram: 
             return None
         for bin in mapping:
-            if histogram.GetBinContent(bin) > 40:
+            threshold = 40
+            if mapping[bin] == 'SCT_MOD_OUT_GT40':
+                threshold = 80
+            if histogram.GetBinContent(bin) > threshold:
                 rv.append(defect_val(mapping[bin], '%.1d modules affected' % histogram.GetBinContent(bin), False))
         return rv
 

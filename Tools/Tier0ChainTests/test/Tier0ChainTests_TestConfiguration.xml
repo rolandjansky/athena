@@ -202,7 +202,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00184169_Egamma_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=True;DQMonFlags.doCTPMon=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1018,6 +1018,38 @@
                                     <arg>
                                         <argname>outputFile</argname>
                                         <argvalue>Reco_wDO_background_IDNCB.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
+                        </chainElement>
+
+                        <!-- Reconstruction job running DRAW_RPVLL to DAOD_RPVLL -->
+                        <chainElement>
+                            <jobTransform userJobId="Reco_DRAW_to_DAOD_RPVLL">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>Reco_DRAW_to_DAOD_RPVLL</jobTransformJobName>
+                                <jobTransformCmd>
+				  Reco_tf.py --AMI=r10786 --maxEvents=25 --ignoreErrors=False --inputBSFile='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00334678.physics_Main.recon.DRAW_RPVLL.r10203/DRAW_RPVLL.12882891._007592.pool.root.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00334678.physics_Main.recon.DRAW_RPVLL.r10203/DRAW_RPVLL.12882891._004274.pool.root.1' --outputAODFile=myDAOD_RPVLL.pool.root --imf=False
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>long</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Reco_DRAW_to_DAOD_RPVLL.summary.txt</argvalue>
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>

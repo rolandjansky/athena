@@ -36,6 +36,7 @@ TrigEgammaIsolationSelectorTool( const std::string& myname )
   declareProperty("UseClusETforCaloIso"        , m_useClusETforCaloIso = true   );
   declareProperty("UseClusETforTrackIso"       , m_useClusETforTrackIso = true  );
   declareProperty("TrackIsolationTool",       m_trackIsolationTool,   "Handle of the track IsolationTool");  
+  declareProperty("UseTrackIsolationTool",       m_useTrackIsolationTool= false,   "If false, use track isolation in xAOD. If True will compute track isolation with TrackIsolationTool");  
   
 }
 //**********************************************************************
@@ -148,7 +149,7 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
   //}
 
   // Declare vectors of isolation variables for different cone sizes
-  std::vector<float>  EtCone, PtCone, _m_PtCone, _m_PtVarCone, PtCone_recalculated; //, PtCone_recalculated_fixed;
+  std::vector<float>  EtCone, PtCone_xAOD, PtCone, _m_PtCone, _m_PtVarCone, PtCone_recalculated; //, PtCone_recalculated_fixed;
   float val=-99;
   el->isolationValue(val,xAOD::Iso::etcone20);
   //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::etcone20) = " << val);
@@ -161,24 +162,24 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
   EtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptcone20);
   //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone20) = " << val);
-  PtCone.push_back(val);
+  PtCone_xAOD.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptcone30);
   //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone30) = " << val);
-  PtCone.push_back(val);
+  PtCone_xAOD.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptcone40);
   //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone40) = " << val);
-  PtCone.push_back(val);
+  PtCone_xAOD.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptvarcone20);
   //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvarcone20) = " << val);
-  PtCone.push_back(val);
+  PtCone_xAOD.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptvarcone30);
   //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvatcone30) = " << val);
-  PtCone.push_back(val);
+  PtCone_xAOD.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptvarcone40);
   //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvarcone40) = " << val);
-  PtCone.push_back(val);
+  PtCone_xAOD.push_back(val);
 
-  // OK, now we have the ptcone values in PtCone. Lets compute the same, but by using the TrackIsolationTool:
+  // OK, now we have the ptcone values in PtCone_xAOD. Lets compute the same, but by using the TrackIsolationTool:
   // Using code as here:
   //  https://gitlab.cern.ch:8443/atlas/athena/blob/21.0/Reconstruction/RecoTools/IsolationTool/util/test_isolaitonTool.cxx
   vector<xAOD::Iso::IsolationType> isoTypes;
@@ -247,11 +248,21 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
   PtCone_recalculated.push_back( _m_PtVarCone[1] );
   PtCone_recalculated.push_back( _m_PtVarCone[0] );
 
+  if (m_useTrackIsolationTool){
+      // If we decide to use rRackIsolation Tool then instead of stored ptCone we will use this recalculated
+      ATH_MSG_DEBUG("Using Track Isolation Tool. Cutting on Recalculated track isolation");
+      PtCone = PtCone_recalculated;
+  } else {
+      ATH_MSG_DEBUG("Not Using Track Isolation Tool. Cutting on xAOD track isolation");
+      PtCone = PtCone_xAOD;
+  }
+
   // Lets try a hack... if the recomputed ptcone is larger than the sum of pt of exclude tracks, then, remove them
   float pt_tracks_to_exclude=0.;
   for (auto trk: tracksToExclude){
       pt_tracks_to_exclude+= trk->pt();
   }
+
 
   // for (std::size_t iConeSize=0; iConeSize<PtCone_recalculated.size(); iConeSize++){
   //     // In this hack, if for some reason the isolation computation didn't work, the ptcone computes ptcone *including* tracks that should have been excluded
@@ -264,13 +275,10 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
 
 
   // Lets cut on PtCone_recalculated_fixed Isntead, and show the difference betweenPtCone_recalculated (from tool) and PtCone(from xAOD):
-  //for(std::size_t iConeSize = 0; iConeSize < PtCone_recalculated.size(); iConeSize++) {
   std::size_t iConeSize = 3;
-  ATH_MSG_DEBUG("TrackIsolationTool vs xAOD value at " << iConeSize << "  PtCone_recalculated = " << PtCone_recalculated[iConeSize] << /*" PtCone_recalculated_fixed = " << PtCone_recalculated_fixed[iConeSize] <<*/ "  PtCone = " << PtCone[iConeSize] << "  TiT/xAOD = "  << PtCone_recalculated[iConeSize]/PtCone[iConeSize] << " and el_trk_pt = " << el->trackParticle()->pt());
+  ATH_MSG_DEBUG("TrackIsolationTool vs xAOD value at " << iConeSize << "  PtCone_recalculated = " << PtCone_recalculated[iConeSize] << /*" PtCone_recalculated_fixed = " << PtCone_recalculated_fixed[iConeSize] <<*/ "  PtCone_xAOD = " << PtCone_xAOD[iConeSize] << "  TiT/xAOD = "  << PtCone_recalculated[iConeSize]/PtCone_xAOD[iConeSize] << " and el_trk_pt = " << el->trackParticle()->pt());
 
 
-  //    ATH_MSG_DEBUG("PtCone_recalculated = " << PtCone_recalculated[iConeSize] << " TrkPt =  " <<  el->trackParticle()->pt() << "  PtCone = " << PtCone[iConeSize] << "  PtCone_recalculated/TrkPt = "  << (PtCone_recalculated[iConeSize]/el->trackParticle()->pt()) << " (PtCone_recalculated-TrkPt)/PtCone = "  << (PtCone_recalculated[iConeSize] - el->trackParticle()->pt())/PtCone[iConeSize]);
-  //}
 
 
 
