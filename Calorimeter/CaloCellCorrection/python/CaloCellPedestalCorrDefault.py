@@ -49,10 +49,11 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
       theCaloCellPedestalCorr.LumiFolderName = lumiFolder
 
    if jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr() and (not athenaCommonFlags.isOnline()):
-       from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
-       theCaloLumiBCIDTool = CaloLumiBCIDToolDefault()
-       ToolSvc += theCaloLumiBCIDTool
-       theCaloCellPedestalCorr.LumiBCIDTool = theCaloLumiBCIDTool
-   
+      from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
+      CaloBCIDAvgAlgDefault()
+      theCaloCellPedestalCorr.CaloBCIDAverageKey="CaloBCIDAverage"
+   else:
+      theCaloCellPedestalCorr.CaloBCIDAverageKey=""
+
 
    return thePedestalTool

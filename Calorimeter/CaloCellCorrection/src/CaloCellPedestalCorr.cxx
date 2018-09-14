@@ -33,9 +33,9 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
 			     const std::string& name, 
 			     const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
-    m_caloCoolIdTool("CaloCoolIdTool"),
+    m_caloCoolIdTool("CaloCoolIdTool",this),
     m_cellId(nullptr),
-    m_caloLumiBCIDTool(""),
+    //m_caloLumiBCIDTool(""),
     m_isMC(false)
 {
  declareInterface<CaloCellCorrection>(this);
@@ -43,7 +43,7 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
  declareProperty("CaloCoolIdTool",m_caloCoolIdTool,"Tool for Calo cool Id");
  declareProperty("FolderName",m_folderName="/CALO/Pedestal/CellPedestal");
  declareProperty("LumiFolderName",m_lumiFolderName="/TRIGGER/LUMI/LBLESTONL");
- declareProperty("LumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction");
+ //declareProperty("LumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction");
  declareProperty("isMC",m_isMC,"Data/MC flag");
 }
 
@@ -74,9 +74,14 @@ StatusCode CaloCellPedestalCorr::initialize()
     ATH_CHECK(m_caloCoolIdTool.retrieve());
   }
 
-  if (!m_caloLumiBCIDTool.empty() ) {
-    ATH_CHECK(m_caloLumiBCIDTool.retrieve());
+  //if (!m_caloLumiBCIDTool.empty() ) {
+  //  ATH_CHECK(m_caloLumiBCIDTool.retrieve());
+  //}
+
+  if (!m_caloBCIDAvg.key().empty()) {
+    ATH_CHECK(m_caloBCIDAvg.initialize());
   }
+  
   
   ATH_MSG_INFO( "CaloCellPedestalCorr initialize() end"  );
 
@@ -161,9 +166,10 @@ StatusCode CaloCellPedestalCorr::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
 // ============================================================================
 
 void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
-                                           const EventContext& /*ctx*/) const
-{
+                                           const EventContext& ctx) const {
 
+
+  
   float pedestal=0.;
 
   if (!m_isMC) {
@@ -180,8 +186,9 @@ void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
     pedestal = flt->getCalib(subHash, dbGain, m_lumi0);
   }
 
-  if (!m_caloLumiBCIDTool.empty() ) {
-    pedestal = pedestal + m_caloLumiBCIDTool->average(theCell,0);
+  if (!(m_caloBCIDAvg.key().empty())) {
+    SG::ReadHandle<CaloBCIDAverage> bcidavgshift(m_caloBCIDAvg,ctx);
+    pedestal = pedestal + bcidavgshift->average(theCell->ID());
   }
 
   theCell->addEnergy(-pedestal);

@@ -1,5 +1,6 @@
+//Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCELLCORRECTION_CALOCELLPEDESTALCORR_H
@@ -14,6 +15,9 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <unordered_map>
+
+#include "StoreGate/ReadHandle.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 
 class CaloCondBlobFlt;
 class CaloCell;
@@ -54,8 +58,9 @@ private:
 
   const CaloCell_ID* m_cellId;
 
-  ToolHandle<ICaloLumiBCIDTool> m_caloLumiBCIDTool;
- 
+  //ToolHandle<ICaloLumiBCIDTool> m_caloLumiBCIDTool;
+  SG::ReadHandleKey<CaloBCIDAverage> m_caloBCIDAvg{this,"CaloBCIDAverageKey","","SG Key of CaloBCIDAverage object"};
+
   bool m_isMC;
 };
 
