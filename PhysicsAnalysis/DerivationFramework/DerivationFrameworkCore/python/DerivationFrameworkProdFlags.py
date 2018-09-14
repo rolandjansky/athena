@@ -2027,6 +2027,32 @@ class WriteDAOD_BPHY16Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY16Stream)
 listAODtoDPD.append(WriteDAOD_BPHY16Stream.StreamName)
 
+class WriteDAOD_BPHY17Stream (JobProperty):
+     """BPHY17: Ds + pi+/-"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_BPHY17'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkBPhys/BPHY17.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY17Stream)
+listAODtoDPD.append(WriteDAOD_BPHY17Stream.StreamName)
+
+class WriteDAOD_BPHY18Stream (JobProperty):
+     """BPHY18: Kstar +2Electrons"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_BPHY18'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkBPhys/BPHY18.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY18Stream)
+listAODtoDPD.append(WriteDAOD_BPHY18Stream.StreamName)
+
 ######################################
 # Defined by the MCP group
 ######################################
