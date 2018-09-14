@@ -123,13 +123,11 @@ StatusCode egammaTrkRefitterTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-// ===============================================================
 StatusCode egammaTrkRefitterTool::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
-// =====================================================================
 StatusCode  egammaTrkRefitterTool::refitElectronTrack(const xAOD::Electron* eg,Cache& cache)  const
 {
   ATH_MSG_DEBUG("Refitting a track associated  with a egamma object");
@@ -147,7 +145,6 @@ StatusCode  egammaTrkRefitterTool::refitElectronTrack(const xAOD::Electron* eg,C
   return sc;
 }
 
-// =======================================================================
 StatusCode egammaTrkRefitterTool::refitTrackParticle(const xAOD::TrackParticle* trackParticle, Cache& cache) const
 {
   ATH_MSG_DEBUG("Refitting a track associated  with a TrackParticle");
@@ -186,7 +183,6 @@ StatusCode egammaTrkRefitterTool::refitTrackParticle(const xAOD::TrackParticle* 
   return StatusCode::SUCCESS;
 }
 
-// =====================================================================
 StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& cache)  const
 {
   //
@@ -220,7 +216,9 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& ca
   
   // Refit the track with the beam spot if desired otherwise just refit the original track
   if (m_useBeamSpot || m_useClusterPosition){
+  
     egammaTrkRefitterTool::MeasurementsAndTrash  collect= addPointsToTrack(cache.originalTrack,cache.electron);
+  
     if(collect.m_measurements.size()>4)
       cache.refittedTrack.reset(
                                  m_ITrackFitter->fit(collect.m_measurements,*cache.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
@@ -231,8 +229,6 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& ca
                                  m_ITrackFitter->fit(*cache.originalTrack,m_runOutlier,m_ParticleHypothesis)
                                 );
     }
-    /*Cleanup the trash here */    
-    trashSink(collect);    
   } else {
     std::vector<const Trk::MeasurementBase*>  measurements = getIDHits(cache.originalTrack);  
     if(measurements.size()>4){
@@ -268,7 +264,6 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& ca
   }
 }
 
-// ======================================================================
 const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(const Trk::Track* track) const
 { 
   ATH_MSG_DEBUG("Getting the final track parameters"); 
@@ -305,7 +300,6 @@ const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(const Trk
   return 0;
 }
 
-// ======================================================================
 double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) const {
   ATH_MSG_DEBUG("Calculating Material Traversed by the Track");  
   
@@ -327,17 +321,23 @@ double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) const {
   return material;
 }
 
-// =========================================================================
+
+
 egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg) const {
   ATH_MSG_DEBUG("Adding a Point to the Track");  
-  //  Object to return
+
+
   egammaTrkRefitterTool::MeasurementsAndTrash collect {};
+   /* The issue here is that some of the returned measurements are owned by storegate
+    * some not. For the ones that are not put them in a vector of unique_ptr which
+    * we will also return to the caller*/
+
   if (track && track->trackParameters() && track->trackParameters()->size() > 0) {
-    const Trk::VertexOnTrack* vot = provideVotFromBeamspot( track );
+    std::unique_ptr<const Trk::VertexOnTrack> vot (provideVotFromBeamspot( track ));
     // fill the beamSpot if you have it
-    if (vot){
-      collect.m_measurements.push_back(vot);
-      collect.m_trash.push_back(vot);
+    if (vot.get()!=nullptr){
+      collect.m_trash.push_back(std::move(vot));
+      collect.m_measurements.push_back(collect.m_trash.end()->get());
     }
     std::vector<const Trk::MeasurementBase*> vecIDHits  = getIDHits(track);   
     std::vector<const Trk::MeasurementBase*>::const_iterator it    = vecIDHits.begin();
@@ -353,10 +353,10 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
   if (m_useClusterPosition && eg){
     int charge(0);
     if( track->perigeeParameters() ) charge  = (int)track->perigeeParameters()->charge(); 
-    const Trk::CaloCluster_OnTrack* ccot = m_CCOTBuilder->buildClusterOnTrack(eg,charge);
-    if (ccot){
-      collect.m_measurements.push_back(ccot);
-      collect.m_trash.push_back(ccot);
+    std::unique_ptr<const Trk::CaloCluster_OnTrack> ccot (m_CCOTBuilder->buildClusterOnTrack(eg,charge));
+    if (ccot.get()!=nullptr){
+      collect.m_trash.push_back(std::move(ccot));
+      collect.m_measurements.push_back(collect.m_trash.end()->get());
     }
   }
   return collect; 

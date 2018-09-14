@@ -44,7 +44,7 @@ class AtlasDetectorID ;
 #include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "egammaInterfaces/ICaloCluster_OnTrackBuilder.h"
-
+#include <memory>
 namespace Trk{
   class VxTrackAtVertex;
   class VertexOnTrack;
@@ -90,24 +90,20 @@ class egammaTrkRefitterTool : virtual public IegammaTrkRefitterTool, public AthA
   double getMaterialTraversed(Trk::Track* track) const;
 
   struct MeasurementsAndTrash{
+        /* 
+         * we need to take care of returning all the relevant measurements
+         * while at the same time keeping proper ownership only for the ones
+         * not handled by the EDM
+         */
         std::vector<const Trk::MeasurementBase*>  m_measurements;
-        std::vector<const Trk::MeasurementBase*>  m_trash;
+        std::vector<std::unique_ptr<const Trk::MeasurementBase>>  m_trash;
   };
   /** @brief Adds a beam spot to the Measurements passed to the track refitter*/  
   MeasurementsAndTrash addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg = 0 ) const; 
   
   const Trk::VertexOnTrack*  provideVotFromBeamspot(const Trk::Track* track) const;
 
-  void trashSink(MeasurementsAndTrash& collect ) const {
-
-    for( size_t i=0; i< collect.m_trash.size(); ++i){
-      if(collect.m_trash[i]!=nullptr){
-        delete collect.m_trash[i];
-      }  
-    }
-  }
- 
-  /** @brief Refit the track using RIO on Track. This option is not suggested and can not run on ESD or AOD*/
+   /** @brief Refit the track using RIO on Track. This option is not suggested and can not run on ESD or AOD*/
   Gaudi::Property<bool> m_fitRIO_OnTrack {this, 
       "Fit_RIO_OnTrack", false, 
       "Switch if refit should be made on PRD or ROT level"};
