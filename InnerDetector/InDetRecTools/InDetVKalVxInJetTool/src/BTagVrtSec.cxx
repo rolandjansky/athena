@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -15,7 +15,7 @@
 #include "TH2D.h"
 #include  "TMath.h"
 //
-#include<iostream>
+//#include<iostream>
 
 //----------------------------------------------------------------------------------------
 //  GetVrtSec resurns the vector Results with the following

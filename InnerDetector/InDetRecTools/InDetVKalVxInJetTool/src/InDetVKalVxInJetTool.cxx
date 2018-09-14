@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -18,7 +18,7 @@
 //
 //-------------------------------------------------
 // Other stuff
-#include<iostream>
+//#include<iostream>
 
 //extern "C" {
 //  float chisin_(const float & prob, const long int& ndf);             
