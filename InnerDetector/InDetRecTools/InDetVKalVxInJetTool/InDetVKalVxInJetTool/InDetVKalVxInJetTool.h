@@ -138,6 +138,7 @@ namespace InDet {
     private:
 
       double m_w_1{};
+      TTree* m_tuple{};
       TH1D* m_hb_massPiPi{};
       TH1D* m_hb_massPiPi1{};
       TH1D* m_hb_massPPi{};
@@ -152,6 +153,7 @@ namespace InDet {
       TH1D* m_hb_impact{};
       TH1D* m_hb_impactR{};
       TH2D* m_hb_impactRZ{};
+      TH1D* m_hb_trkD0{};
       TH1D* m_hb_ntrkjet{};
       TH1D* m_hb_impactZ{};
       TH1D* m_hb_r2d{};
@@ -172,7 +174,6 @@ namespace InDet {
       TH1D* m_hb_sig3D2tr{};
       TH1D* m_hb_sig3DNtr{};
       TH1D* m_hb_trkPtMax{};
-      TH1D* m_hb_tr2SelVar{};
       TH1F* m_hb_blshared{};
       TH1F* m_hb_pxshared{};
       TH1F* m_hb_rawVrtN{};
@@ -180,12 +181,7 @@ namespace InDet {
       TH1F* m_hb_trkPErr{};
       TH1F* m_hb_deltaRSVPV{};
 //--
-      TH1D*  m_hb_massJetTrkSV{};
-      TH1D*  m_hb_ratioJetTrkSV{};
-      TH1D*  m_hb_DST_JetTrkSV{};
-      TH1D*  m_hb_NImpJetTrkSV{};
-      TH1D*  m_hb_nHImpTrkCnt{};
-//--
+      TProfile * m_pr_NSelTrkMean{};
       TProfile * m_pr_effVrt2tr{};
       TProfile * m_pr_effVrt2trEta{};
       TProfile * m_pr_effVrt{};
@@ -198,64 +194,54 @@ namespace InDet {
 
 
 
-      long int m_CutSctHits{};
-      long int m_CutPixelHits{};
-      long int m_CutSiHits{};
-      long int m_CutBLayHits{};
-      long int m_CutSharedHits{};
-      double m_CutPt{};
-      double m_CutZVrt{};
-      double m_CutA0{};
-      double m_CutChi2{};
-      double m_SecTrkChi2Cut{};
-      double m_ConeForTag{};
-      double m_Sel2VrtChi2Cut{};
-      double m_Sel2VrtSigCut{};
-      double m_TrkSigCut{};
-      double m_TrkSigNTrkDep{};
-      double m_TrkSigSumCut{};
-      double m_A0TrkErrorCut{};
-      double m_ZTrkErrorCut{};
-      double m_AntiPileupSigRCut{};
-      double m_AntiPileupSigZCut{};
-      double m_AntiFake2trVrtCut{};
-      double m_JetPtFractionCut{};
-      int    m_TrackInJetNumberLimit{};
-      double m_pseudoSigCut{};
-      double m_hadronIntPtCut{};
+      long int m_cutSctHits{};
+      long int m_cutPixelHits{};
+      long int m_cutSiHits{};
+      long int m_cutBLayHits{};
+      long int m_cutSharedHits{};
+      double m_cutPt{};
+      double m_cutZVrt{};
+      double m_cutA0{};
+      double m_cutChi2{};
+      double m_secTrkChi2Cut{};
+      double m_coneForTag{};
+      double m_sel2VrtChi2Cut{};
+      double m_sel2VrtSigCut{};
+      double m_trkSigCut{};
+      double m_a0TrkErrorCut{};
+      double m_zTrkErrorCut{};
+      double m_cutHFClass{};
+      double m_antiGarbageCut{};
 
-      bool m_FillHist{};
+      bool m_fillHist{};
 
       bool m_existIBL{};
 
       long int m_RobustFit{};
 
-      double m_Xbeampipe{};
-      double m_Ybeampipe{};
-      double m_XlayerB{};
-      double m_YlayerB{};
-      double m_Xlayer1{};
-      double m_Ylayer1{};
-      double m_Xlayer2{};
-      double m_Ylayer2{};
-      double m_Rbeampipe{};
-      double m_RlayerB{};
-      double m_Rlayer1{};
-      double m_Rlayer2{};
-      double m_Rlayer3{};
-      double m_SVResolutionR{};
+      double m_beampipeX{};
+      double m_beampipeY{};
+      double m_xLayerB{};
+      double m_yLayerB{};
+      double m_xLayer1{};
+      double m_yLayer1{};
+      double m_xLayer2{};
+      double m_yLayer2{};
+      double m_beampipeR{};
+      double m_rLayerB{};
+      double m_rLayer1{};
+      double m_rLayer2{};
+      double m_rLayer3{};
 
-      bool     m_useMaterialRejection{};
       bool     m_useVertexCleaning{};
-      int      m_MassType{};
-      bool     m_MultiVertex{};
-      bool     m_MultiWithPrimary{};
+      bool     m_multiVertex{};
+      bool     m_multiWithPrimary{};
       bool     m_getNegativeTail{};
       bool     m_getNegativeTag{};
-      bool     m_MultiWithOneTrkVrt{};
+      bool     m_multiWithOneTrkVrt{};
 
-      double    m_VertexMergeCut{};
-      double    m_TrackDetachCut{};
+      double    m_vertexMergeCut{};
+      double    m_trackDetachCut{};
 
 
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
@@ -269,7 +255,7 @@ namespace InDet {
       double m_massK0{};
       double m_massLam{};
       double m_massB{};
-      mutable int m_NRefTrk{};    //Measure of track in jet multiplicity
+      mutable int m_NRefPVTrk{};    //Measure of track in jet multiplicity
       std::string m_instanceName;
 
 //-------------------------------------------
