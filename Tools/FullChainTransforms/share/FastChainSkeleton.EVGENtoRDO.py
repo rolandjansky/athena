@@ -8,6 +8,134 @@
 
 
 
+from AthenaCommon.DetFlags import DetFlags
+
+from G4AtlasApps.SimFlags import simFlags
+#Trial block: Set off tasks at start    
+## Switch off tasks
+#    DetFlags.pileup.all_setOff()
+#    DetFlags.simulateLVL1.all_setOff()
+#    DetFlags.digitize.all_setOff()
+#if not simFlags.IsEventOverlayInputSim():
+#DetFlags.overlay.all_setOff()
+
+#    DetFlags.readRDOPool.all_setOff()
+#    DetFlags.makeRIO.all_setOff()
+#    DetFlags.writeBS.all_setOff()
+#    DetFlags.readRDOBS.all_setOff()
+#    DetFlags.readRIOBS.all_setOff()
+#    DetFlags.readRIOPool.all_setOff()
+#    DetFlags.writeRIOPool.all_setOff()
+#    DetFlags.writeRDOPool.all_setOff()
+
+
+#set flags ON:
+
+#Tasks we want switched ON (write RDOPool) - want this for all detectors that we want ON: 
+#DetFlags.writeRDOPool.all_setOn()
+        
+
+#### this flag turns all the detectors ON that we want for simulation.
+try:
+    from ISF_Config import FlagSetters
+    FlagSetters.configureFlagsBase()
+## Check for any simulator-specific configuration
+    configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
+    if configureFlags is not None:
+        configureFlags()
+    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+    for subdet in possibleSubDetectors:
+        simattr = "simulate."+subdet+"_on"
+        simcheck = getattr(DetFlags, simattr, None)
+        if simcheck is not None and simcheck():
+            attrname = subdet+"_setOn"
+            checkfn = getattr(DetFlags, attrname, None)
+            if checkfn is not None:
+                checkfn()
+
+except:
+    ## Select detectors
+    if 'DetFlags' not in dir():
+        # from AthenaCommon.DetFlags import DetFlags
+        ## If you configure one det flag, you're responsible for configuring them all!
+        DetFlags.all_setOn()
+
+
+#DetFlags.all_setOn()
+DetFlags.LVL1_setOff()
+DetFlags.Truth_setOn()
+DetFlags.Forward_setOff() # Forward dets are off by default
+DetFlags.Micromegas_setOff()
+DetFlags.sTGC_setOff()
+DetFlags.FTK_setOff()
+checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+if checkHGTDOff is not None:
+    checkHGTDOff() #Default for now
+
+# from AthenaCommon.DetFlags import DetFlags
+
+# from AthenaCommon.DetFlags import DetFlags
+    ## Tidy up DBM DetFlags: temporary measure
+DetFlags.DBM_setOff()
+
+
+
+if hasattr(simFlags, 'SimulateNewSmallWheel'):
+    if simFlags.SimulateNewSmallWheel():
+        DetFlags.sTGC_setOn()
+        DetFlags.Micromegas_setOn()
+
+from G4AtlasApps.SimFlags import simFlags
+#if simFlags.ForwardDetectors.statusOn:
+#    if DetFlags.geometry.FwdRegion_on():
+#        from AthenaCommon.CfgGetter import getPublicTool
+#        from AthenaCommon.AppMgr import ToolSvc
+#        ToolSvc += getPublicTool("ForwardRegionProperties")
+
+
+
+### Set digitize all except forward detectors
+DetFlags.digitize.all_setOn()
+DetFlags.digitize.LVL1_setOff()
+DetFlags.digitize.ZDC_setOff()
+DetFlags.digitize.Micromegas_setOff()
+DetFlags.digitize.sTGC_setOff()
+DetFlags.digitize.Forward_setOff()
+DetFlags.digitize.Lucid_setOff()
+DetFlags.digitize.AFP_setOff()
+DetFlags.digitize.ALFA_setOff()
+
+#set all detdescr on except fwd.
+#DetFlags.detdescr.all_setOn()
+#DetFlags.detdescr.LVL1_setOff()
+#DetFlags.detdescr.ZDC_setOff()
+#DetFlags.detdescr.Micromegas_setOff()
+#DetFlags.detdescr.sTGC_setOff()
+#DetFlags.detdescr.Forward_setOff()
+#DetFlags.detdescr.Lucid_setOff()
+#DetFlags.detdescr.AFP_setOff()
+#DetFlags.detdescr.ALFA_setOff()
+
+
+
+
+logDigitization_flags = logging.getLogger( 'Digitization' )
+#--------------------------------------------------------------
+# Set Detector flags for this run
+#--------------------------------------------------------------
+if 'DetFlags' in dir():
+
+    DetFlags.Print()
+    DetFlags.overlay.all_setOff()
+
+#DetFlags.simulate.all_setOff()
+DetFlags.makeRIO.all_setOff()
+DetFlags.writeBS.all_setOff()
+DetFlags.readRDOBS.all_setOff()
+DetFlags.readRIOBS.all_setOff()
+DetFlags.readRIOPool.all_setOff()
+DetFlags.writeRIOPool.all_setOff()
+
 
 
 
@@ -86,7 +214,9 @@ if hasattr(runArgs, "jobNumber"):
         raise ValueError('jobNumber must be a postive integer. %s lies outside this range', str(runArgs.jobNumber))
 
 
+
 from G4AtlasApps.SimFlags import simFlags
+
 if hasattr(runArgs, "inputTXT_EVENTIDFile"):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     overlayFlags.EventIDTextFile = runArgs.inputTXT_EVENTIDFile[0]
@@ -238,40 +368,7 @@ if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
     TrkDetFlags.TRT_BuildStrawLayers=True
     fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
 
-try:
-    from ISF_Config import FlagSetters
-    FlagSetters.configureFlagsBase()
-## Check for any simulator-specific configuration
-    configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
-    if configureFlags is not None:
-        configureFlags()
-    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
-    for subdet in possibleSubDetectors:
-        simattr = "simulate."+subdet+"_on"
-        simcheck = getattr(DetFlags, simattr, None)
-        if simcheck is not None and simcheck():
-            attrname = subdet+"_setOn"
-            checkfn = getattr(DetFlags, attrname, None)
-            if checkfn is not None:
-                checkfn()
-except:
-    ## Select detectors
-    if 'DetFlags' not in dir():
-        from AthenaCommon.DetFlags import DetFlags
-        ## If you configure one det flag, you're responsible for configuring them all!
-        DetFlags.all_setOn()
-    DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
-    DetFlags.Truth_setOn()
 
-DetFlags.Forward_setOff() # Forward dets are off by default
-DetFlags.Micromegas_setOff()
-DetFlags.sTGC_setOff()
-DetFlags.FTK_setOff()
-checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-if checkHGTDOff is not None:
-    checkHGTDOff() #Default for now
-
-from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()
 
 # removed configuration of forward detectors from standard simulation config
@@ -293,6 +390,7 @@ simFlags.SeedsG4.set_Off()
 ## The looper killer is on by default. Disable it if this is requested.
 if hasattr(runArgs, "enableLooperKiller") and not runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.removeAction('G4UA::LooperKillerTool', ['Step'])
+
     fast_chain_log.warning("The looper killer will NOT be run in this job.")
 
 
@@ -345,7 +443,7 @@ Common configurations for ISF
 KG Tan, 17/06/2012
 """
 
-include.block('ISF_Config/ISF_ConfigJobInclude.py')
+#include.block('ISF_Config/ISF_ConfigJobInclude.py')
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
         getService,getServiceClone,getAlgorithm,getAlgorithmClone
 
@@ -407,6 +505,7 @@ theApp.EvtMax = athenaCommonFlags.EvtMax()
 
 # all det description
 include('ISF_Config/AllDet_detDescr.py')
+
 DetFlags.Print()
 
 if len(globalflags.ConditionsTag()):
@@ -434,32 +533,9 @@ if ISF_Flags.UsingGeant4():
     if jobproperties.Beam.beamType() == "cosmics" and "cosmics_flags" not in simFlags.extra_flags:
         simFlags.load_cosmics_flags()
 
-    from AthenaCommon.DetFlags import DetFlags
-    ## Tidy up DBM DetFlags: temporary measure
-    DetFlags.DBM_setOff()
 
-    ## Tidy up NSW DetFlags: temporary measure
-    DetFlags.sTGC_setOff()
-    DetFlags.Micromegas_setOff()
-    if hasattr(simFlags, 'SimulateNewSmallWheel'):
-        if simFlags.SimulateNewSmallWheel():
-            DetFlags.sTGC_setOn()
-            DetFlags.Micromegas_setOn()
 
-    ## Switch off tasks
-#    DetFlags.pileup.all_setOff()
-#    DetFlags.simulateLVL1.all_setOff()
-#    DetFlags.digitize.all_setOff()
-    if not simFlags.IsEventOverlayInputSim():
-        DetFlags.overlay.all_setOff()
-#    DetFlags.readRDOPool.all_setOff()
-#    DetFlags.makeRIO.all_setOff()
-#    DetFlags.writeBS.all_setOff()
-#    DetFlags.readRDOBS.all_setOff()
-#    DetFlags.readRIOBS.all_setOff()
-#    DetFlags.readRIOPool.all_setOff()
-#    DetFlags.writeRIOPool.all_setOff()
-#    DetFlags.writeRDOPool.all_setOff()
+
 
     ## Global flags needed by externals
     from AthenaCommon.GlobalFlags import globalflags
@@ -495,7 +571,10 @@ if ISF_Flags.UsingGeant4():
         checkForSpecialConfigurationMetadata()
 
     from AthenaCommon.JobProperties import jobproperties
+
     DetFlags.Print()
+
+
     jobproperties.print_JobProperties('tree&value')
 
     # Lock the job properties if not running ISF.
@@ -518,12 +597,14 @@ if ISF_Flags.UsingGeant4():
     from AtlasGeoModel import SetGeometryVersion
 
     ## Forward Region Twiss files - needed before geometry setup!
+
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.ForwardDetectors.statusOn:
         if DetFlags.geometry.FwdRegion_on():
             from AthenaCommon.CfgGetter import getPublicTool
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += getPublicTool("ForwardRegionProperties")
+
 
     from AtlasGeoModel import GeoModelInit
     from AtlasGeoModel import SimEnvelopes
@@ -595,7 +676,11 @@ if ISF_Flags.UsingGeant4():
             """ HITS POOL file persistency
             """
             from G4AtlasApps.SimFlags import simFlags
+
+            # from AthenaCommon.DetFlags import DetFlags
+
             from AthenaCommon.DetFlags import DetFlags
+
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
@@ -780,7 +865,11 @@ if ISF_Flags.UsingGeant4():
         if will_write_output_files():
             ## Write hits in POOL
             ## The following used to be in G4AtlasApps/HitAthenaPoolWriteOptions
+
+            # from AthenaCommon.DetFlags import DetFlags
+
             from AthenaCommon.DetFlags import DetFlags
+
             from AthenaCommon.Configurable import Configurable
             from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
@@ -1105,6 +1194,8 @@ if hasattr(runArgs,"preDigiInclude"):
 #--------------------------------------------------------------
 
 from Digitization.DigitizationFlags import digitizationFlags
+
+
 PileUpConfigOverride=False
 import math
 
@@ -1163,6 +1254,7 @@ if hasattr(runArgs,"digiSteeringConf"):
 if PileUpConfigOverride:
     fast_chain_log.info( "NB Some pile-up (re-)configuration was done on the command-line.")
 del PileUpConfigOverride
+
 
 #--------------------------------------------------------------
 # Get the flags
@@ -1323,6 +1415,7 @@ if digitizationFlags.beamGasInputCols.statusOn:
 else:
     digitizationFlags.doBeamGas = False
 
+
 #--------------------------------------------------------------
 # Other configuration: LVL1, turn off sub detectors, calo noise
 #--------------------------------------------------------------
@@ -1369,19 +1462,6 @@ if hasattr(runArgs,"DataRunNumber"):
         digitizationFlags.dataRunNumber=runArgs.DataRunNumber
 
 print "lvl1: -14... " + str(DetFlags.digitize.LVL1_on())
-
-### Set digitize all except forward detectors
-DetFlags.digitize.all_setOn()
-DetFlags.digitize.LVL1_setOff()
-DetFlags.digitize.ZDC_setOff()
-DetFlags.digitize.Micromegas_setOff()
-DetFlags.digitize.sTGC_setOff()
-DetFlags.digitize.Forward_setOff()
-DetFlags.digitize.Lucid_setOff()
-DetFlags.digitize.AFP_setOff()
-DetFlags.digitize.ALFA_setOff()
-
-
 
 
 
@@ -1434,6 +1514,7 @@ if jobproperties.Beam.beamType == "cosmics" :
 globalflags.DataSource = 'geant4'
 globalflags.InputFormat = 'pool'
 
+
 #--------------------------------------------------------------
 # Set Detector flags for this run
 #--------------------------------------------------------------
@@ -1457,23 +1538,18 @@ else :
     DetFlags.Truth_setOn()
     DetFlags.LVL1_setOn()
 
-checkOverlay = getattr(DetFlags, 'overlay', None)
-if checkOverlay is not None:
-    DetFlags.overlay.all_setOff()
-else:
-    logDigitization_flags.warning( 'DetFlags.overlay is not supported in this release' )
-DetFlags.simulate.all_setOff()
-DetFlags.makeRIO.all_setOff()
-DetFlags.writeBS.all_setOff()
-DetFlags.readRDOBS.all_setOff()
-DetFlags.readRIOBS.all_setOff()
-DetFlags.readRIOPool.all_setOff()
-DetFlags.writeRIOPool.all_setOff()
+
 
 #-------------------------------------------
 # Print Job Configuration
 #-------------------------------------------
+
+
 DetFlags.Print()
+
+
+
+
 logDigitization_flags.info("Global jobProperties values:")
 globalflags.print_JobProperties()
 logDigitization_flags.info("Digitization jobProperties values:")
@@ -1497,7 +1573,214 @@ else :
 #--------------------------------------------------------------
 # Configure the job using jobproperties
 #--------------------------------------------------------------
-include("Digitization/ConfigDigitization.py")
+
+#include("Digitization/ConfigDigitization.py")
+
+####### Digitization/ConfigDigitization.py
+
+from AthenaCommon.Logging import logging
+logConfigDigitization = logging.getLogger( 'ConfigDigitization' )
+
+
+#check job configuration
+from Digitization.DigiConfigCheckers import checkDetFlagConfiguration
+checkDetFlagConfiguration()
+
+#Pool input
+from AthenaCommon.AppMgr import ServiceMgr
+if not hasattr(ServiceMgr, 'EventSelector'):
+    import AthenaPoolCnvSvc.ReadAthenaPool
+if hasattr(ServiceMgr, 'PoolSvc'):
+    ServiceMgr.PoolSvc.MaxFilesOpen = 0 # Never close Input Files
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+if not athenaCommonFlags.DoFullChain:
+    ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
+#Settings the following attributes reduces the job size slightly
+#ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [  "TREE_BRANCH_OFFSETTAB_LEN ='100'" ]
+#ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '2048'" ]
+
+#--------------------------------------------------------------
+# Conditions Tag
+#--------------------------------------------------------------
+from Digitization.DigitizationFlags import digitizationFlags
+if (digitizationFlags.IOVDbGlobalTag.statusOn and digitizationFlags.IOVDbGlobalTag.get_Value()!='default'):
+    IOVDbSvc=theApp.service('IOVDbSvc')
+    IOVDbSvc.GlobalTag=digitizationFlags.IOVDbGlobalTag.get_Value()
+#--------------------------------------------------------------
+# GeoModel
+#--------------------------------------------------------------
+from AtlasGeoModel import SetGeometryVersion
+from AtlasGeoModel import GeoModelInit
+from AtlasGeoModel import SetupRecoGeometry
+
+#--------------------------------------------------------------
+# Magnetic field service
+#--------------------------------------------------------------
+try:
+    import MagFieldServices.SetupField
+except:
+    #fall-back for 19.0.X releases.
+    include( "BFieldAth/BFieldAth_jobOptions.py" )
+
+#--------------------------------------------------------------
+# Pileup configuration
+#--------------------------------------------------------------
+from Digitization.DigiConfigCheckers import syncDetFlagsAndDigitizationJobProperties
+syncDetFlagsAndDigitizationJobProperties()
+
+#--------------------------------------------------------------
+# Configure Run and Lumi Block and Pile-Up Lumi overriding
+# (if required)
+#--------------------------------------------------------------
+if digitizationFlags.RunAndLumiOverrideList.statusOn:
+    if not(DetFlags.pileup.any_on()):
+        AthError( "This job will try to override pile-up luminosity configuration, but no pile-up will be set up!" )
+    include("Digitization/LumiBlockOverrides.py")
+    if digitizationFlags.dataRunNumber.statusOn:
+        logDigitization_flags.warning('digitizationFlags.RunAndLumiOverrideList has been set! digitizationFlags.dataRunNumber (set to %s) will be ignored. ', digitizationFlags.dataRunNumber.get_Value() )
+else:
+    include("Digitization/RunNumberOverride.py")
+
+#-----------------------------------------------------------
+# Check Beam and Digitization jobproperties are synchronised
+#-----------------------------------------------------------
+from Digitization.DigiConfigCheckers import syncBeamAndDigitizationJobProperties
+syncBeamAndDigitizationJobProperties()
+
+digitizationFlags.lockMostFlags()
+#--------------------------------------------------------------
+# More Pileup configuration
+#--------------------------------------------------------------
+if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp():
+    # protection for SteppingCache usage - currently incompatible with PileUpTools
+    if digitizationFlags.SignalPatternForSteppingCache.statusOn and digitizationFlags.doXingByXingPileUp():
+        raise RuntimeError("SteppingCache is incompatible with PileUpTools. Please switch off either digitizationFlags.SignalPatternForSteppingCache or digitizationFlags.doXingByXingPileUp.")
+    include( "Digitization/ConfigPileUpEventLoopMgr.py" )
+if DetFlags.pileup.any_on():
+    logConfigDigitization.info("PILEUP CONFIGURATION:")
+    logConfigDigitization.info(" -----> Luminosity = %s cm^-2 s^-1", jobproperties.Beam.estimatedLuminosity())
+    logConfigDigitization.info(" -----> Bunch Spacing = %s ns", digitizationFlags.bunchSpacing.get_Value())
+
+# in any case we need the PileUpMergeSvc for the digitize algos
+if not hasattr(ServiceMgr, 'PileUpMergeSvc'):
+    from AthenaCommon import CfgGetter
+    ServiceMgr += CfgGetter.getService("PileUpMergeSvc")
+
+
+#--------------------------------------------------------------
+# Subdetector-specific configuration
+#--------------------------------------------------------------
+#include( "Digitization/DetectorDigitization.py" )
+#########Digitization/DetectorDigitization.py
+
+##############################################################
+#
+# Job options file to configure:
+#        Digitization
+#        LVL1 Simulation
+#        ByteStream conversion
+#
+# Author: Davide Costanzo
+# Contacts:
+#      Inner Detector:   Davide Costanzo
+#      LArCalorimeter:   Guillaume Unal
+#      TileCalorimter:   Sasha Solodkov
+#      MuonSpectrometer: Daniela Rebuzzi, Ketevi Assamagam
+#      LVL1 Simulation:  Tadashi Maeno
+#      ByteStream:       Hong Ma
+#
+#==============================================================
+#
+
+# Set up PileupMergeSvc used by subdetectors
+#from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon import CfgGetter
+
+# Set up ComTimeRec for cosmics digitization
+from AthenaCommon.BeamFlags import jobproperties
+if jobproperties.Beam.beamType == "cosmics" :
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    from CommissionRec.CommissionRecConf import ComTimeRec
+    comTimeRec = ComTimeRec("ComTimeRec")
+    topSequence += comTimeRec
+
+from AthenaCommon.AlgSequence import AlgSequence
+job = AlgSequence()
+from Digitization.DigitizationFlags import digitizationFlags
+job += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
+if 'doFastPixelDigi' in digitizationFlags.experimentalDigi() or 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() or 'doFastTRT_Digi' in digitizationFlags.experimentalDigi():
+    print "WARNING  Setting doFastPixelDigi ,doFastSCT_Digi or doFastTRT_Digi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf."
+elif 'doSplitDigi' in digitizationFlags.experimentalDigi():
+    print "WARNING  Setting doSplitDigi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf. Use --digiSteeringConf 'Split' on the command-line instead."
+
+
+# MC Truth info
+#if DetFlags.Truth_on():
+#    include( "Digitization/TruthDigitization.py" )
+
+# Forward Detectors
+#if DetFlags.Forward_on():
+#    include( "Digitization/FwdDetDigitization.py" )
+
+# Inner Detector
+if DetFlags.ID_on():
+    include( "Digitization/InDetDigitization.py" )
+
+# Calorimeters
+if DetFlags.Calo_on():
+    include( "Digitization/CaloDigitization.py" )
+
+# Muon Digitization
+if DetFlags.Muon_on():
+    include( "Digitization/MuonDigitization.py" )
+
+# LVL1 trigger simulation
+#if DetFlags.digitize.LVL1_on():
+include( "Digitization/LVL1Digitization.py" )
+
+
+
+
+
+########## back to Digitization/ConfigDigitization.py
+
+#--------------------------------------------------------------
+# Random Number Engine and Seeds
+#--------------------------------------------------------------
+# attach digi and pileup seeds to random number service configurable and print them out
+from AthenaCommon.ConfigurableDb import getConfigurable
+ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
+digitizationFlags.rndmSeedList.addtoService()
+digitizationFlags.rndmSeedList.printSeeds()
+rndmSvc = getConfigurable(digitizationFlags.rndmSvc.get_Value())()
+rndmSvc.OutputLevel = WARNING
+if digitizationFlags.readSeedsFromFile.get_Value():
+    rndmSvc.Seeds=[]
+    rndmSvc.ReadFromFile=True
+    rndmSvc.FileToRead=digitizationFlags.rndmSeedInputFile.get_Value()
+    logConfigDigitization.info("Random seeds for Digitization will be read from the file %s",digitizationFlags.rndmSeedInputFile.get_Value())
+
+# write out a summary of the time spent
+from AthenaCommon.AppMgr import theAuditorSvc
+from GaudiAud.GaudiAudConf import ChronoAuditor, MemStatAuditor
+if not 'ChronoAuditor/ChronoAuditor' in theAuditorSvc.Auditors:
+    theAuditorSvc += ChronoAuditor()
+if not 'MemStatAuditor/MemStatAuditor' in theAuditorSvc.Auditors:
+    theAuditorSvc += MemStatAuditor()
+
+# LSFTimeLimi. Temporary disable
+# include( "LSFTimeKeeper/LSFTimeKeeperOptions.py" )
+
+# LSFTimeKeeperSvc = Service( "LSFTimeKeeperSvc" )
+# LSFTimeKeeperSvc.OutputLevel=2; # remaining CPU at each event
+
+#### BACK TO Digitization.py ###########
+
+#
+
+#include("Digitization/ConfigDigitization.py")
+
 logDigitization_flags.info("Digitization Configured Successfully.")
 
 #--------------------------------------------------------------
