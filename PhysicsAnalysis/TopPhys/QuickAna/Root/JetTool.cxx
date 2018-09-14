@@ -291,8 +291,6 @@ namespace ana
                     static_cast<bool>(jet.auxdata<char>("DFCommonJets_jetClean_LooseBad")) :
                     ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
                    m_cleaning_tool->keep(jet) );
-    //bool is_clean = ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
-    //               m_cleaning_tool->keep(jet) );
     cut_cleaning_tool.setPassedIf ( is_clean );
 
     // Also decorate the jet with the information, so that
