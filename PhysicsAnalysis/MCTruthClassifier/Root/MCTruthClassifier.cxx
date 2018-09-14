@@ -21,36 +21,6 @@ Updated:
 
 //
 #include "MCTruthClassifier/MCTruthClassifier.h"
-//
-
-// xAOD EDM includes
-#include "xAODTruth/TruthVertex.h"
-#include "xAODTruth/TruthParticleContainer.h"
-
-#ifndef GENERATIONBASE 
-#include "xAODTracking/TrackParticle.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/Photon.h"
-#include "xAODMuon/Muon.h"
-#include "xAODJet/Jet.h"
-#endif
-
-#ifndef XAOD_ANALYSIS
-//Athena only includes 
-#include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "HepMC/GenParticle.h"
-#endif
-
-#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
-#include "TrkEventPrimitives/PropDirection.h"
-#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#endif
-
-//std includes
-#include <cmath>
 
 using namespace MCTruthPartClassifier;
 using std::abs;
@@ -94,7 +64,7 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type) :
   m_cnvPhtPartType{},
   m_cnvPhtPartOrig{},
   m_deltaRMatchCut{0.1},
-  m_deltaPhiMatchCut{0.1}
+  m_deltaPhiMatchCut{0.1},
   m_NumOfSiHitsCut{0}, 
   m_jetPartDRMatch{0.4}
 #endif
@@ -107,7 +77,7 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type) :
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*When no Athena Reconstruction packages expected*/
   ,
   m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-  m_truthInConeTool ("xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool")
+  m_truthInConeTool ("xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool"),
   m_FwdElectronTruthExtrEtaCut{0.},
   m_FwdElectronTruthExtrEtaWindowCut{0.},
   m_partExtrConeEta{0.},
@@ -153,8 +123,6 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type) :
   declareProperty("useCaching",      m_useCaching=true);
   declareProperty("phtdRtoTrCut"     , m_phtdRtoTrCut     = 0.1);
   declareProperty("fwrdEledRtoTrCut" , m_fwrdEledRtoTrCut  = 0.15);
-  declareProperty("inclEgammaFwrdEle" , m_inclEgammaFwrdEle  = true);
-  declareProperty("inclEgammaPhoton"  , m_inclEgammaPhoton   = true);
   declareProperty("pTChargePartCut"  , m_pTChargePartCut  = 1.0);
   declareProperty("pTNeutralPartCut" , m_pTNeutralPartCut = 0.);
   declareProperty("inclG4part"       , m_inclG4part       = false);

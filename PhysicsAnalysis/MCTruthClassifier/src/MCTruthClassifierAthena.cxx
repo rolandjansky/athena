@@ -7,29 +7,10 @@
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
 //
 #include "MCTruthClassifier/MCTruthClassifier.h"
-//
-// xAOD EDM includes
-#include "xAODTracking/TrackParticle.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODTruth/TruthParticle.h"
-//
-//Athena only includes 
-#include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "HepMC/GenParticle.h"
-#include "TrkEventPrimitives/PropDirection.h"
-#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#include "AthenaKernel/Units.h"
-//
-//std includes
-#include <cmath>
 
 using Athena::Units::GeV;
 using namespace MCTruthPartClassifier;
 using std::abs;
-
 
 //Methods using directly the extrapolator usable only from Athena
 //-----------------------------------------------------------------------------------------

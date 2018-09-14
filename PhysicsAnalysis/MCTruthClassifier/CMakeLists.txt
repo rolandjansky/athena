@@ -47,7 +47,7 @@ else()
 		Event/xAOD/xAODJet
 		Event/xAOD/xAODMuon
 		Event/xAOD/xAODTracking  
-		Reconstruction/RecoTools/ParticlesInConeTool
+		Reconstruction/RecoTools/ParticlesInConeTools
 		PRIVATE
 		Generators/GeneratorObjects
 		Reconstruction/RecoTools/RecoToolInterfaces
