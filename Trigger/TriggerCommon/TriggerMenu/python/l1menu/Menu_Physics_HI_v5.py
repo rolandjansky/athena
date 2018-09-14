@@ -44,7 +44,7 @@ def defineMenu():
         #-------------------------
         
         # 16 x EM
-        'EM7', 'EM8', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM14', 'EM15', 'EM15HI', 'EM16', 'EM18', 'EM20', 'EM20VH', 'EM20VHI', 'EM22',
+        'EM7', 'EM8', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM14', 'EM15', 'EM15HI', 'EM16', 'EM18', 'EM20', 'EM20VH', 'EM20VHI', 'EM22','EM18VHI',
         
         # 1 x ZB
         'ZB_J75', # TODO double check if 'ZB_EM15' should be used for Run-2 (need to be changed also in ItemDef).
@@ -54,7 +54,7 @@ def defineMenu():
         #--------------------------
 		
         # 16 x TAU
-        'HA2', 'HA3','HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 
+        'HA2', 'HA3','HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 'HA60', 
 
         #----------------------
         # SLOT 8 / CON 0 (JET1)
@@ -91,7 +91,7 @@ def defineMenu():
         'TE4', 'TE5', 'TE20', 'TE50', 'TE100', 'TE200', 'TE10000', 'TE12000',
         
         # 8 x XE
-        'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
+        'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80', 'XE30',
         
         'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24', 'XE80.0ETA24',
 
@@ -353,8 +353,49 @@ def defineMenu():
         ]
 
     Lvl1Flags.items = [
+          #ATR-18734
+          'L1_HT190-J15s5.ETA21',
+          #B->K*ee:',
+          'L1_BPH-0M9-EM7-EM5_2MU4',
+          'L1_BPH-0M9-EM7-EM5_MU6',
+          'L1_BPH-0DR3-EM7J15_2MU4',
+          'L1_BPH-0DR3-EM7J15_MU6',
+          #Jpsi->ee T&P:',
+          'L1_JPSI-1M5-EM7',
+          'L1_JPSI-1M5-EM12',
+          #VBF inclusive:',
+          'L1_MJJ-500-NFF',
+          'L1_MJJ-700',
+          #VBF H->bb + photon:',
+          'L1_EM18VHI_MJJ-300',
+          #VBF H->bb:',
+          'L1_HT150-J20s5.ETA31_MJJ-400-CF',
+          #g + tau for excl Higgs decays:',
+          'L1_30M-EM20ITAU12',
+          #Exotics LLP cal-ratio:',
+          'L1_LLP-RO',
+          'L1_LLP-NOMATCH',
+          #SUSY Higgsino:',
+          'L1_2MU4_J20_XE30_DPHI-J20s2XE30',
+          'L1_MU4_J30_XE40_DPHI-J20s2XE30',
+          'L1_MU4_J50_XE50_DPHI-J20s2XE30',
+          'L1_J40_XE50_DPHI-J20s2XE50',
+          #Axion search:',
+          'L1_DPHI-2EM3',
+          #LAr:',
+          #'L1_LAR-J',
+          #'L1_LAR-EM',
+          'L1_LAR-ZEE',
+          'L1_LAR-ZEE_LAR-EM',
+          #Tau:',
+          'L1_DR-EM15TAU12I-J25',
+          'L1_DR-TAU20ITAU12I-J25',
+          'L1_TAU60_DR-TAU20ITAU12I',
+          #TLA:',
+          'L1_J50_DETA20-J50J',
+
                        'L1_EM7',
-		       'L1_EM8',
+                   'L1_EM8',
                        'L1_EM10',
                        'L1_EM12',
                        'L1_EM14',
