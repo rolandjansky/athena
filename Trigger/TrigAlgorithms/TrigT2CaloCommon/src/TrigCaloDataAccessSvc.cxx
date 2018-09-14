@@ -183,7 +183,6 @@ StatusCode TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext&
   Monitored::MonitoredScope::declare( m_monTool, lockTime, detidMon );
   // collection prepared
   cache->lastFSEvent = context.evt();
-  std::cout << "WEIRD CODE " << status << std::endl;
   if ( status ) return StatusCode::FAILURE;
   else return StatusCode::SUCCESS;
   //return StatusCode(static_cast<Status>(status));
@@ -381,8 +380,7 @@ StatusCode TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_F
     }
   }
   ATH_MSG_DEBUG( "finished decoding" );
-  if ( status ) return StatusCode::FAILURE;
-  else return StatusCode::SUCCESS;
+  return StatusCode(static_cast<Status>(status));
 }
 
 void TrigCaloDataAccessSvc::missingROBs( const std::vector<uint32_t>& request,
