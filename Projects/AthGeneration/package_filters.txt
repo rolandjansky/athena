@@ -225,6 +225,7 @@
 #+ Tracking/TrkExtrapolation/TrkExInterfaces
 #+ Tracking/TrkExtrapolation/TrkExUtils
 #+ Tracking/TrkTools/TrkToolInterfaces
++ PhysicsAnalysis/MCTruthClassifier
 # Ignore everything else
 - .*
 
