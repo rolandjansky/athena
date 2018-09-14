@@ -80,6 +80,7 @@ def configureEDCorrection(tool):
   OutputLevel = min(getPropertyValue(tool, 'OutputLevel'), INFO)
   try:
     from AthenaCommon.AppMgr import ToolSvc
+    from JetRec.JetRecStandard import jtm
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
