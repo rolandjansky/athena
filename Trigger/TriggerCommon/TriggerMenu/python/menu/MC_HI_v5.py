@@ -74,7 +74,17 @@ Prescales = physics_menu.Prescales
 # # DEFAULT MC prescales
 # ######################################################
 Prescales.L1Prescales = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
-Prescales.HLTPrescales.update({})
+ps_exclusion_list=[
+    'mb_sptrk_L1ZDC_XOR_TE5_VTE200',
+    'mb_sptrk_L1ZDC_XOR_VTE200',
+    'mb_sptrk_L1ZDC_XOR_VTE200_MBTS_1',
+    'mb_idperf_ion_L1MBTS_1_1',
+    'mb_perf_L1RD1_FILLED',
+    'mb_sptrk_L1MBTS_1_1_VTE50',
+    'timeburner',
+]    
+chain_list=ps_exclusion_list
+Prescales.HLTPrescales.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0, -1] ])))
 # ######################################################
 
 # ######################################################
