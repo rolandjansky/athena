@@ -464,7 +464,7 @@ def setupMenu():
 	#PCpeb
 	['mb_sptrk_hipeb_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50_PEB', [], [PCpebStream],["BW:MinBias", "RATE:MinBias"], 1],
 	#PC
-	['mb_sptrk_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCpebStream],["BW:MinBias", "RATE:MinBias"], 1],
+	['mb_sptrk_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCStream],["BW:MinBias", "RATE:MinBias"], 1],
 	
 	
 	#MB UPC:
