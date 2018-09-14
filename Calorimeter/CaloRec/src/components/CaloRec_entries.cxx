@@ -27,7 +27,7 @@
 #include "../CaloTowerxAODFromCells.h"
 #include "../CaloTowerxAODFromClusters.h"
 #include "../CaloClusterSnapshot.h"
-
+#include "../CaloBCIDAvgAlg.h"
 
 
 DECLARE_COMPONENT( CaloTowerMonitor )
@@ -63,3 +63,4 @@ DECLARE_COMPONENT( Blob2ToolConstants )
 DECLARE_COMPONENT( CaloCellFastCopyTool )
 DECLARE_COMPONENT( CaloClusterSnapshot )
 
+DECLARE_COMPONENT( CaloBCIDAvgAlg )
