@@ -194,9 +194,9 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Result& r
   //
   
   result.refittedTrack=nullptr;
+  result.refittedTrackPerigee=nullptr;
   result.originalTrack=nullptr;
-  result.oMeasPer=nullptr;
-  result.rMeasPer=nullptr;
+  result.originalTrackPerigee=nullptr;
   if (!track) {
     return StatusCode::FAILURE;
   }
@@ -204,14 +204,14 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Result& r
   result.originalTrack=track;
   
   //Set pointer to the original perigee
-  result.oMeasPer=dynamic_cast<const Trk::Perigee*>( result.originalTrack->perigeeParameters() );
+  result.originalTrackPerigee=dynamic_cast<const Trk::Perigee*>( result.originalTrack->perigeeParameters() );
   
-  if (result.oMeasPer!=0){
-      double od0 = result.oMeasPer->parameters()[Trk::d0];
-      double oz0 = result.oMeasPer->parameters()[Trk::z0];
-      double ophi0 = result.oMeasPer->parameters()[Trk::phi0];
-      double otheta = result.oMeasPer->parameters()[Trk::theta];
-      double oqOverP = result.oMeasPer->parameters()[Trk::qOverP];         
+  if (result.originalTrackPerigee!=nullptr){
+      double od0 = result.originalTrackPerigee->parameters()[Trk::d0];
+      double oz0 = result.originalTrackPerigee->parameters()[Trk::z0];
+      double ophi0 = result.originalTrackPerigee->parameters()[Trk::phi0];
+      double otheta = result.originalTrackPerigee->parameters()[Trk::theta];
+      double oqOverP = result.originalTrackPerigee->parameters()[Trk::qOverP];         
       ATH_MSG_DEBUG("Original parameters " << od0  << " " 
         << oz0  << " " << ophi0 << " " << otheta << " " << oqOverP << " " << 1/oqOverP) ;
   } else {
@@ -248,14 +248,14 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Result& r
 
   // Store refitted perigee pointers
   if (result.refittedTrack) {
-    result.rMeasPer=dynamic_cast<const Trk::Perigee*>(result.refittedTrack->perigeeParameters() );
+    result.refittedTrackPerigee=dynamic_cast<const Trk::Perigee*>(result.refittedTrack->perigeeParameters() );
     
-    if (result.rMeasPer!=0){
-        double d0 = result.rMeasPer->parameters()[Trk::d0];
-        double z0 = result.rMeasPer->parameters()[Trk::z0];
-        double phi0 = result.rMeasPer->parameters()[Trk::phi0];
-        double theta = result.rMeasPer->parameters()[Trk::theta];
-        double qOverP = result.rMeasPer->parameters()[Trk::qOverP];
+    if (result.refittedTrackPerigee!=nullptr){
+        double d0 = result.refittedTrackPerigee->parameters()[Trk::d0];
+        double z0 = result.refittedTrackPerigee->parameters()[Trk::z0];
+        double phi0 = result.refittedTrackPerigee->parameters()[Trk::phi0];
+        double theta = result.refittedTrackPerigee->parameters()[Trk::theta];
+        double qOverP = result.refittedTrackPerigee->parameters()[Trk::qOverP];
         ATH_MSG_DEBUG("Refitted parameters " << d0  << " " << z0  << " " << phi0 << " " << theta << " " << qOverP << "  " << 1/qOverP);
     } else {
       ATH_MSG_WARNING("Could not get refitted Trk::Perigee");     

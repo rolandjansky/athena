@@ -42,19 +42,20 @@ class IegammaTrkRefitterTool : virtual public IAlgTool
      *  Things are owned by the EDM or the unique_ptr*/
     struct Result {
       /** @brief Pointer to the refitted track*/  
-      std::unique_ptr<Trk::Track>         refittedTrack; 
+      std::unique_ptr<Trk::Track>   refittedTrack; 
+      /** @brief Pointer to the refitted MeasuredPerigee*/    
+      const Trk::Perigee* refittedTrackPerigee;
       /** @brief Pointer to the original track*/  
       const Trk::Track*    originalTrack; 
       /** @brief Pointer to the original Perigee*/    
-      const Trk::Perigee*  oMeasPer;
-      /** @brief Pointer to the refitted MeasuredPerigee*/    
-      const Trk::Perigee* rMeasPer;
-      /** @brief pointer to the Electron input*/
+      const Trk::Perigee*  originalTrackPerigee;
+     /** @brief pointer to the Electron input*/
       const xAOD::Electron* electron; 
       Result():refittedTrack(nullptr),
+      refittedTrackPerigee(nullptr),
       originalTrack(nullptr),
-      oMeasPer(nullptr),
-      rMeasPer (nullptr){
+      originalTrackPerigee(nullptr),
+      electron(nullptr){
       }
     };
 
