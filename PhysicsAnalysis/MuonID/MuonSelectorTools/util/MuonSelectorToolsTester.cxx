@@ -130,15 +130,15 @@ int main( int argc, char* argv[] ) {
    std::string typeNames[Ntype];
    for (int type = 0; type < Ntype; type++) {
      
-     if(type == xAOD::Muon_v1::Combined)
+     if(type == xAOD::Muon::Combined)
        typeNames[type] = "combined";
-     else if(type == xAOD::Muon_v1::MuonStandAlone)
+     else if(type == xAOD::Muon::MuonStandAlone)
        typeNames[type] = "stand-alone";
-     else if(type == xAOD::Muon_v1::SegmentTagged)
+     else if(type == xAOD::Muon::SegmentTagged)
        typeNames[type] = "segment-tagged";
-     else if(type == xAOD::Muon_v1::CaloTagged)
+     else if(type == xAOD::Muon::CaloTagged)
        typeNames[type] = "calo-tagged";
-     else if(type == xAOD::Muon_v1::SiliconAssociatedForwardMuon)
+     else if(type == xAOD::Muon::SiliconAssociatedForwardMuon)
        typeNames[type] = "forward";
      else
        typeNames[type] = "unknown";
