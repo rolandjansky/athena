@@ -221,6 +221,8 @@ FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "MET_Truth",
                                     "MET_TruthRegions",
                                     "TruthParticles",
+                                    "TruthHFWithDecayParticles",
+                                    "TruthHFWithDecayVertices",
                                     "TruthVertices",
                                     "CaloCalTopoClusters",
                                     "HLT_xAOD__BTaggingContainer_HLTBjetFex",
@@ -272,6 +274,10 @@ for FT1_bjetTriggerTracks in FTExtraVars_bjetTriggerTracks:
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG1SlimmingHelper.AppendToDictionary = {
+  "TruthHFWithDecayParticles"                  :   "xAOD::TruthParticleContainer",
+  "TruthHFWithDecayParticlesAux"               :   "xAOD::TruthParticleAuxContainer",
+  "TruthHFWithDecayVertices"                   :   "xAOD::TruthVertexContainer",
+  "TruthHFWithDecayVerticesAux"                :   "xAOD::TruthVertexAuxContainer",
   FTAG1DstarAug                                    :   "xAOD::VertexContainer",
   FTAG1DstarAug+"Aux"                              :   "xAOD::VertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,

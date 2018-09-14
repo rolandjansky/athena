@@ -438,6 +438,7 @@ class TopConfig final {
   inline virtual void electronIsolationLoose(const std::string& iso) {if(!m_configFixed){m_electronIsolationLoose = iso;}}
   void electronIsolationSF(std::string const & iso) {if(!m_configFixed){m_electronIsolationSF = iso;}}
   void electronIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_electronIsolationSFLoose = iso;}}
+  inline virtual void useElectronChargeIDSelection(const std::string& s){if(!m_configFixed){ m_useElectronChargeIDSelection = (s=="True" || s=="true");}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
   inline virtual const std::string& electronID()     const {return m_electronID;   }
@@ -451,6 +452,7 @@ class TopConfig final {
   inline virtual bool electronIsoSFs() const {return m_electronIsoSFs;}
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
+  inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
 
   // Photon configuration
   inline virtual void photonPtcut(const float pt)             {if(!m_configFixed){m_photon_configuration.pt = pt;}}
@@ -1112,6 +1114,7 @@ class TopConfig final {
 
   std::string m_electronIDDecoration;
   std::string m_electronIDLooseDecoration;
+  bool m_useElectronChargeIDSelection;
 
   // Muon configuration
   float m_muonPtcut; // muon object selection pT cut

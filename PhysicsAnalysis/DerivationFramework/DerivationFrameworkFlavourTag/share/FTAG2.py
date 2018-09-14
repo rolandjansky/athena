@@ -182,6 +182,8 @@ FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "TruthEvents",
                                     "TruthParticles",
                                     "TruthVertices",
+                                    "TruthHFWithDecayParticles",
+                                    "TruthHFWithDecayVertices",
                                     "MET_Truth",
                                     "MET_TruthRegions"]
 
@@ -215,10 +217,10 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG2SlimmingHelper.AppendToDictionary = {
-  "TruthHFWithDecayParticles"                      :  "xAOD::TruthParticleContainer",
-  "TruthHFWithDecayParticlesAux"                   :  "xAOD::TruthParticleAuxContainer",
-  "TruthHFWithDecayVertices"                       :  "xAOD::TruthVertexContainer",
-  "TruthHFWithDecayVerticesAux"                    :  "xAOD::TruthVertexAuxContainer",  
+  "TruthHFWithDecayParticles"                      :   "xAOD::TruthParticleContainer",
+  "TruthHFWithDecayParticlesAux"                   :   "xAOD::TruthParticleAuxContainer",
+  "TruthHFWithDecayVertices"                       :   "xAOD::TruthVertexContainer",
+  "TruthHFWithDecayVerticesAux"                    :   "xAOD::TruthVertexAuxContainer",  
   "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer",
   "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
