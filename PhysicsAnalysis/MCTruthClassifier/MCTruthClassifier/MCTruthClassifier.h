@@ -16,15 +16,13 @@ CREATED:  Sep 2007
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 // EDM includes
-#include "xAODTruth/TruthParticleContainerFwd.h"
-#include "xAODTruth/TruthVertexFwd.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthVertex.h"
 
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
-namespace HepMC {
-class GenParticle;
-}
+#include "HepMC/GenParticle.h"
 #endif
 
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
@@ -32,11 +30,34 @@ class GenParticle;
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #endif
 
+#ifndef GENERATIONBASE
+//EDM includes
+#include "xAODTruth/TruthVertex.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODMuon/Muon.h"
+#include "xAODJet/Jet.h"
+#endif
+
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
+#include "TrkEventPrimitives/PropDirection.h"
+#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+ #include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
+#include "AthenaKernel/Units.h"
+#endif
+
+//std includes
+#include <cmath>
+#include <utility>
 class MCTruthClassifier
   : virtual public IMCTruthClassifier
   , public asg::AsgTool
 {
-
   ASG_TOOL_CLASS(MCTruthClassifier, IMCTruthClassifier)
 public:
   // constructor
@@ -189,7 +210,7 @@ private:
     "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
   };
   ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool{
-    this,
+this,
     "TruthInConeTool",
     "xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool"
   };

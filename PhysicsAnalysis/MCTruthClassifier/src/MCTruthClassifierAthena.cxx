@@ -4,7 +4,8 @@
 
 //File Including the Athena only methods of the MCTruthClassifier Class
 
-#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
+#ifndef XAOD_ANALYSIS
+
 //
 #include "MCTruthClassifier/MCTruthClassifier.h"
 //
@@ -30,7 +31,6 @@ using Athena::Units::GeV;
 using namespace MCTruthPartClassifier;
 using std::abs;
 
-<<<<<<< HEAD
 namespace{
 
 bool EtaPhiCaloHelper(const Trk::CaloExtension* caloExtension, 
@@ -123,8 +123,6 @@ bool MCTruthClassifier::compareTruthParticles(const HepMC::GenParticle *genPart,
 }
 //End of old EDM just for Athena
 
-=======
->>>>>>> d5aacfbed9d... AGENE-1573 1st try
 
 //Methods using directly the extrapolator usable only from Athena
 //-----------------------------------------------------------------------------------------
@@ -140,18 +138,10 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   const xAOD::TruthParticle* theMatchPart=0;
 
   //retrieve collection and get a pointer
-<<<<<<< HEAD
   SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
 
   if (!truthParticleContainerReadHandle.isValid()){
     ATH_MSG_WARNING(" Invalid ReadHandle for xAOD::TruthParticleContainer with key: " << truthParticleContainerReadHandle.key());
-=======
-
-  const xAOD::TruthParticleContainer  * xTruthParticleContainer;
-  StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
-  if (sc.isFailure()||!xTruthParticleContainer){
-    ATH_MSG_WARNING( "No  xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" ); 
->>>>>>> d5aacfbed9d... AGENE-1573 1st try
     return theMatchPart;
   }
 
@@ -209,7 +199,6 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
 
     theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),thePart->barcode()%m_barcodeShift);
 
-<<<<<<< HEAD
     if (info) {
       info->egPartPtr.push_back(thePart);
       info->egPartdR.push_back(dR);
@@ -235,33 +224,6 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
       if(!isNCone&&dR<BestPartdR)   { 
         theBestPartOutCone = thePart; 
         BestPartdR = dR; };
-=======
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
-    m_egPartClas.push_back(particleTruthClassifier(theMatchPart));
-    if(!isFwrdEle){
-      // the leading photon  inside narrow eleptical cone  m_partExtrConePhi X m_partExtrConeEta 
-      if((iParticlePDG==22||abs(iParticlePDG)==11) 
-         &&isNCone&&pt>LeadingPhtPT)   { 
-        theEgamma = thePart; 
-        LeadingPhtPT=pt; 
-        LeadingPhtdR=dR;}
-      // leading particle (excluding photon) inside narrow eleptic cone m_partExtrConePhi X m_partExtrConeEta 
-      if((iParticlePDG!=22&&abs(iParticlePDG)!=11)&&isNCone&&pt>LeadingPartPT)  { 
-        theLeadingPartInCone = thePart; 
-        LeadingPartPT = pt; 
-        LeadingPartdR = dR;};
-      // the best dR matched particle outside  narrow eleptic cone m_partExtrConePhi X m_partExtrConeEta 
-      if(!isNCone&&dR<BestPartdR){ 
-        theBestPartOutCone = thePart; 
-        BestPartdR = dR; 
-      }
-    }
-    else{
-      if(dR<BestPartdR) { 
-        theBestPartdR = thePart; 
-        BestPartdR = dR; 
-      }
->>>>>>> d5aacfbed9d... AGENE-1573 1st try
     }
     else {
       if(dR<BestPartdR){ 
@@ -283,7 +245,6 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     if (info)
       info->deltaRMatch=BestPartdR;
   } else if(isFwrdEle&&theBestPartdR!=0) {
-<<<<<<< HEAD
     theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theBestPartdR->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=BestPartdR;
@@ -293,12 +254,6 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   if(isFwrdEle||theMatchPart!=0||!m_inclG4part)   {
     return theMatchPart;
   }
-=======
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartdR->barcode()%m_barcodeShift); m_deltaRMatch=BestPartdR;
-  } else theMatchPart = 0;
-
-  if(isFwrdEle||theMatchPart!=0||!m_inclG4part)   {return theMatchPart;}
->>>>>>> d5aacfbed9d... AGENE-1573 1st try
 
 
   // additional loop over G4 particles, 
@@ -327,7 +282,6 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     bool isExt = genPartToCalo(clus, thePart,isFwrdEle, dR, isNCone, info->extrapolationCache);
     if(!isExt) continue;
 
-<<<<<<< HEAD
     theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),thePart->barcode()%m_barcodeShift);
 
     if (info) {
@@ -354,31 +308,6 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
       theBestPartOutCone = thePart; 
       BestPartdR = dR; };
   } // end cycle for G4 particle
-=======
-    m_egPartPtr.push_back(thePart);
-    m_egPartdR.push_back(dR);
-
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
-    m_egPartClas.push_back(particleTruthClassifier(theMatchPart));
-
-    // the leading photon  inside narrow eleptical cone  m_partExtrConePhi X m_partExtrConeEta 
-    if((iParticlePDG==22||abs(iParticlePDG)==11) 
-       &&isNCone&&pt>LeadingPhtPT)   { 
-      theEgamma = thePart; 
-      LeadingPhtPT=pt; 
-      LeadingPhtdR=dR;}
-    // leading particle (excluding photon) inside narrow eleptic cone m_partExtrConePhi X m_partExtrConeEta 
-    if((iParticlePDG!=22&&abs(iParticlePDG)!=11)&&isNCone&&pt>LeadingPartPT)  { 
-      theLeadingPartInCone = thePart; 
-      LeadingPartPT = pt; 
-      LeadingPartdR = dR;};
-    // the best dR matched particle outside  narrow eleptic cone m_partExtrConePhi X m_partExtrConeEta 
-    if(!isNCone&&dR<BestPartdR){ 
-      theBestPartOutCone = thePart; 
-      BestPartdR = dR; 
-    }
-  }// end cycle for G4 particle
->>>>>>> d5aacfbed9d... AGENE-1573 1st try
 
   if( theEgamma!=0){
     theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theEgamma->barcode()%m_barcodeShift);
@@ -406,31 +335,13 @@ bool MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
                                       const xAOD::TruthParticle* thePart,
                                       bool isFwrdEle, 
                                       double& dRmatch,
-<<<<<<< HEAD
                                       bool& isNarrowCone,
                                       Cache  *cache) const {
-=======
-                                      bool  & isNarrowCone)  {
->>>>>>> d5aacfbed9d... AGENE-1573 1st try
   dRmatch      = -999.;
   isNarrowCone = false;
 
   if ( thePart == 0 ) return false ;
 
-<<<<<<< HEAD
-=======
-  const Trk::CaloExtension* caloExtension = 0;
-  if( !m_caloExtensionTool->caloExtension(*thePart,caloExtension,m_useCaching) || caloExtension->caloLayerIntersections().empty() ){
-    ATH_MSG_WARNING("extrapolation of Truth Particle with eta  " << thePart->eta() 
-                    <<" and Pt " << thePart->pt() << " to calo failed");
-    return false;
-  }
-
-  Trk::TrackParametersIdHelper parsIdHelper;
-  double etaCalo= -99;
-  double phiCalo= -99; 
-
->>>>>>> d5aacfbed9d... AGENE-1573 1st try
   // define calo sample
   CaloSampling::CaloSample sample= CaloSampling::EMB2;
   if ( (clus->inBarrel()  && !clus->inEndcap()) ||
@@ -450,7 +361,6 @@ bool MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
 
   } else return false ;
 
-<<<<<<< HEAD
   double etaCalo= -99;
   double phiCalo= -99;  
   bool extensionOK=false;
@@ -465,22 +375,6 @@ bool MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
     ATH_MSG_WARNING("extrapolation of Truth Particle with eta  " << thePart->eta() 
                     <<" and Pt " << thePart->pt() << " to calo failed");
     return false;
-=======
-  // loop over calo layers
-  for( auto cur = caloExtension->caloLayerIntersections().begin(); cur != caloExtension->caloLayerIntersections().end() ; ++cur ){
-
-    // only use entry layer
-    if( !parsIdHelper.isEntryToVolume((*cur)->cIdentifier()) ) continue;
-
-    CaloSampling::CaloSample sampleEx = parsIdHelper.caloSample((*cur)->cIdentifier());
-    if( sampleEx != CaloSampling::EMB2 && sampleEx != CaloSampling::EME2 && sampleEx != CaloSampling::FCAL2 ) continue;
-
-    if( sampleEx == sample || etaCalo == -99 ){
-      etaCalo = (*cur)->position().eta();
-      phiCalo = (*cur)->position().phi();
-      if( sampleEx == sample ) break;
-    }
->>>>>>> d5aacfbed9d... AGENE-1573 1st try
   }
 
   double phiClus = clus->phiBE(2);

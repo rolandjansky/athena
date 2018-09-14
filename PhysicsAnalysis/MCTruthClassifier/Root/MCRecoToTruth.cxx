@@ -3,6 +3,9 @@
 */
 
 #ifndef GENERATIONBASE
+#include "MCTruthClassifier/MCTruthClassifier.h"
+using namespace MCTruthPartClassifier;
+using std::abs;
 
 //-----------------------------------------------------------------------------------------
 std::pair<ParticleType,ParticleOrigin>
