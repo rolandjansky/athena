@@ -14,6 +14,7 @@
 
 #include "TriggerMatchingTool/IMatchResult.h"
 #include "TriggerMatchingTool/IMatchConfig.h"
+#include "TrigDecisionInterface/Conditions.h"
 
 namespace xAOD{
   class IParticle;
@@ -40,6 +41,8 @@ public:
   
   ///multi-object trigger matching returning a match result object
   virtual std::unique_ptr<IMatchResult> match_result(const std::vector<const xAOD::IParticle*>& recoObjects, const std::string& chain, const IMatchConfig* mc = nullptr) = 0;
+
+  virtual void setCondition(unsigned int condition=TrigDefs::Physics)=0;
 
 protected:
   virtual MatchingImplementation* impl() = 0;

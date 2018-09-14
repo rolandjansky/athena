@@ -10,6 +10,7 @@ namespace Trig{
     {xAOD::Type::Electron, 0.1},
     {xAOD::Type::Photon, 0.1},
     {xAOD::Type::Tau, 0.1},
+    {xAOD::Type::Jet, 0.3},
   } {
   }
 
