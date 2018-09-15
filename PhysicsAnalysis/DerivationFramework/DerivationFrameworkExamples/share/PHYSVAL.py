@@ -133,7 +133,8 @@ PHYSVALSlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopoSecVtx.-vxTrackA
                                          "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
                                          "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",
                                          ]
-
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import GSFTracksCPDetailedContent
+PHYSVALSlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 
 # Trigger content
 PHYSVALSlimmingHelper.IncludeJetTriggerContent = True

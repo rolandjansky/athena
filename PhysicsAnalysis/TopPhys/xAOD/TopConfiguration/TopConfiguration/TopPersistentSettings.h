@@ -57,6 +57,7 @@ namespace top{
       std::string m_electronIDLoose;
       std::string m_electronIsolation;
       std::string m_electronIsolationLoose;
+      bool m_useElectronChargeIDSelection;
 
       std::string m_muon_trigger_SF;
       std::string m_muonQuality;
