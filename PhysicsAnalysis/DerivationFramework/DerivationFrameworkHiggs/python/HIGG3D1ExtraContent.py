@@ -31,4 +31,5 @@ HIGG3D1ExtraTruthContainers = [ "TruthEvents",
                                 "TruthMuons",
                                 "TruthPhotons",
                                 "TruthNeutrinos",
+                                "TruthBSM",
                                 "MuonTruthParticles" ]
