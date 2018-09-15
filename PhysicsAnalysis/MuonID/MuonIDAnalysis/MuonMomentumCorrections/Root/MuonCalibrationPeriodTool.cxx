@@ -15,7 +15,7 @@ namespace CP {
     StatusCode MuonCalibrationPeriodTool::beginEvent() {
         static const unsigned int mc16a_period_number = 284500;
         static const unsigned int mc16d_period_number = 300000;
-        static const unsigned int mc16e_period_number = 320000;
+        static const unsigned int mc16e_period_number = 310000;
         // I've copied the run number ranges from SUSYTools
         // https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/SUSYPhys/SUSYTools/Root/SUSYObjDef_xAOD.cxx#L2438
         static const unsigned int last_run_16  = 320000;

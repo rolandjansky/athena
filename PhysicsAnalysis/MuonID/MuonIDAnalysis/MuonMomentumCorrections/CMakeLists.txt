@@ -44,7 +44,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonMomentumCorrections
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore  MuonAnalysisInterfacesLib
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore MuonAnalysisInterfacesLib
       xAODBase GaudiKernel MuonSelectorToolsLib MuonMomentumCorrectionsLib )
 endif()
 
