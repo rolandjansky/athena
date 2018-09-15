@@ -473,7 +473,15 @@ def addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(sequence) :
     #  doTrackJet = False
     from AthenaCommon.AppMgr import ToolSvc
     from DerivationFrameworkFlavourTag.HbbCommon import addExKtCoM
-    ExCoMJetCollection__SubJet = addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, 2, False, ["GhostBHadronsFinal","GhostCHadronsFinal"], 0, "CoM")
+    ExCoMJetCollection__SubJet = addExKtCoM(sequence,
+                                            ToolSvc,
+                                            ExKtJetCollection__FatJet,
+                                            2,
+                                            doTrackSubJet=False,
+                                            doGhostAssoc=False,
+                                            ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"],
+                                            min_subjet_pt_mev=0,
+                                            subjetAlgName="CoM")
 
     from BTagging.BTaggingFlags import BTaggingFlags
     BTaggingFlags.CalibrationChannelAliases += [
