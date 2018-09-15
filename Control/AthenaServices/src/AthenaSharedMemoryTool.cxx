@@ -14,6 +14,7 @@
 #include <boost/interprocess/mapped_region.hpp>
 
 #include <sstream>
+
 const std::size_t maxTokenLength = 1024;
 
 struct ShareEventHeader {
@@ -32,7 +33,7 @@ struct ShareEventHeader {
 AthenaSharedMemoryTool::AthenaSharedMemoryTool(const std::string& type,
 	const std::string& name,
 	const IInterface* parent) : AthAlgTool(type, name, parent),
-		m_maxSize(32 * 1024 * 1024),
+		m_maxSize(64 * 1024 * 1024),
 		m_maxDataClients(256),
 		m_num(-1),
 		m_dataClients(),

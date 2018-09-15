@@ -30,6 +30,7 @@
 // SGTools
 #include "SGTools/BuiltinsClids.h"  // to put ints,... in evtstore
 #include "SGTools/StlVectorClids.h" // to put std::vectors... in evtstore
+#include "xAODEventInfo/EventInfo.h"
 
 namespace Athena {
 
@@ -129,13 +130,34 @@ StatusCode RootAsciiDumperAlg::execute()
     return StatusCode::RECOVERABLE;
   }
 
+  xAOD::EventInfo* ei = nullptr;
+  if (!evtStore()->retrieve(ei, "EventInfo").isSuccess()) {
+    ATH_MSG_WARNING("could not retrieve [el_n] from store");
+    return StatusCode::RECOVERABLE;
+  }
+  static const SG::AuxElement::Accessor<std::string> tupleName ("tupleName");
+  static const SG::AuxElement::Accessor<std::string> collectionName ("collectionName");
+  std::string collName = collectionName(*ei);
+  std::string::size_type pos = collName.rfind ("/");
+  if (pos != std::string::npos) {
+    collName.erase (0, pos+1);
+  }
+
   {
     char* buf = 0;
     int buf_sz = asprintf
       (&buf,
+       "%03" PRId64 ".%s = %s\n"
+       "%03" PRId64 ".%s = %s\n"
        "%03" PRId64 ".%s = %u\n"
        "%03" PRId64 ".%s = %u\n"
        "%03" PRId64 ".%s = %i\n",
+       nevts,
+       "collectionName",
+       collName.c_str(),
+       nevts,
+       "tupleName",
+       tupleName(*ei).c_str(),
        nevts,
        "RunNumber",
        *m_runnbr,

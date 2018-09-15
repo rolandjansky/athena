@@ -258,8 +258,12 @@ def parse(chk_tcmalloc=True):
             opts.command = string.strip(arg)
 
         elif opt in ("-h", "--help"):
-            from AthenaCommon.ExitCodes import ALL_OK
-            _help_and_exit(ALL_OK)
+            if len(scripts)>0:
+                opts.msg_lvl = "WARNING"
+                opts.user_opts += ["-h"]
+            else:
+                from AthenaCommon.ExitCodes import ALL_OK
+                _help_and_exit(ALL_OK)
 
         elif opt in ("-l", "--loglevel"):
             opts.msg_lvl = string.upper(arg)

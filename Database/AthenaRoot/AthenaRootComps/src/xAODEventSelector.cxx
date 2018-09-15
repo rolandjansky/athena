@@ -72,6 +72,10 @@
 #include <map>
 
 
+#include "xAODCore/tools/ReadStats.h"
+#include "xAODCore/tools/PerfStats.h"
+#include "xAODCore/tools/IOStats.h"
+
 namespace Athena {
 
 /** @class xAODEventContext 
@@ -130,6 +134,8 @@ xAODEventSelector::xAODEventSelector( const std::string& name,
    declareProperty( "AccessMode", m_accessMode = -1, "-1 = use TEvent Default; 0 = BranchAccess; 1 = ClassAccess; 2 = AthenaAccess" );
 
    declareProperty( "FillEventInfo", m_fillEventInfo=false,"If True, will fill old EDM EventInfo with xAOD::EventInfo content, necessary for database reading (IOVDbSvc)");
+
+   declareProperty( "PrintPerfStats", m_printPerfStats=false,"If True, at end of job will print the xAOD perf stats");
 
 //Expert Properties:
   declareProperty( "EvtStore", m_dataStore,       "Store where to publish data");
@@ -193,6 +199,20 @@ StatusCode xAODEventSelector::initialize()
    m_tevent = new xAOD::xAODTEvent(xAOD::TEvent::EAuxMode(m_accessMode)); //our special class inheriting from xAOD::TEvent
   } else {
    m_tevent = new xAOD::xAODTEvent(); //our special class inheriting from xAOD::TEvent
+  }
+
+  //use the first file to decide if reading metadata with POOL is ok 
+  if(m_readMetadataWithPool) {
+    std::unique_ptr<TFile> f( TFile::Open( m_inputCollectionsName.value()[0].c_str() ) );
+    if(!f) {
+      ATH_MSG_ERROR("Failed to open first input file: " << m_inputCollectionsName.value()[0]);
+      return StatusCode::FAILURE;
+    }
+    if(!f->Get("##Shapes")) {
+      ATH_MSG_INFO("First file is not POOL file (e.g. is CxAOD), so reading metadata with xAOD::TEvent instead");
+      m_readMetadataWithPool = false;
+    }
+    f->Close();
   }
 
 
@@ -272,7 +292,6 @@ StatusCode xAODEventSelector::initialize()
     CHECK( epSvc->setProperty("CnvServices", Gaudi::Utils::toString( propVal ) ));
   }
 
-
   //we should also add ourself as a proxy provider
   CHECK( m_ppSvc.retrieve() );
 
@@ -288,6 +307,11 @@ StatusCode xAODEventSelector::initialize()
       propVal.push_back("MetaDataSvc");
       CHECK( dynamic_cast<IProperty*>(&*m_ppSvc)->setProperty("ProviderNames", Gaudi::Utils::toString( propVal ) ));
     }
+  } else {
+    //ensure no MetaDataContainer is specified in the MetaDataSvc. If it is, then we get some ERROR printout from MetaDataSvc
+    ServiceHandle<IProperty> mdSvc("MetaDataSvc",name());
+    CHECK( mdSvc->setProperty("MetaDataContainer","''") );
+    CHECK( mdSvc.release() );
   }
 
   //now we add ourself as a provider
@@ -308,6 +332,11 @@ StatusCode xAODEventSelector::initialize()
   //checked above that there's at least one file
   CHECK( setFile(m_inputCollectionsName.value()[0]) );
 
+  //first FirstInputFile incident so that input metadata store is populated by MetaDataSvc
+  m_incsvc->fireIncident(FileIncident(name(), "FirstInputFile", m_inputCollectionsName.value()[0])); 
+
+  if(m_printPerfStats) xAOD::PerfStats::instance().start();
+
 
   return StatusCode::SUCCESS;
 }
@@ -318,6 +347,13 @@ StatusCode xAODEventSelector::finalize()
   // FIXME: this should be tweaked/updated if/when a selection function
   //        or filtering predicate is applied (one day?)
   ATH_MSG_INFO ("Total events read: " << (m_nbrEvts - m_skipEvts));
+
+  if(m_printPerfStats) {
+    xAOD::PerfStats::instance().stop();
+    xAOD::IOStats::instance().stats().Print();
+  }
+  
+
   return StatusCode::SUCCESS;
 }
 
@@ -359,24 +395,35 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
   xAODEventContext* rctx = dynamic_cast<xAODEventContext*>(&ctx);
   if ( 0 == rctx ) {
     ATH_MSG_ERROR ("Could not dyn-cast to xAODEventContext !!");
-    throw "xAODEventSelector: Unable to get xAODEventContext";
+    throw GaudiException("xAODEventSelector::next() - Unable to get xAODEventContext","xAODEventSelector",StatusCode::FAILURE);
   }
   
 
   TFile *file = rctx->file();
+  if(file && m_nbrEvts==0) {
+    //fire the BeginInputFile incident for the first file
+    m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", file->GetName())); 
+  }
+
   if (!file) { //must be starting another file ...
     auto& fnames = rctx->files();
     //std::size_t fidx = rctx->fileIndex();
-    CHECK( rctx->setFile("") );
+    if( rctx->setFile("").isFailure() ) {
+      throw GaudiException("xAODEventSelector::next() - Fatal error when trying to setFile('')","xAODEventSelector",StatusCode::FAILURE);
+    }
 
     while( m_tevent_entries == 0 ) { //iterate through files until we have one with entries
       if (m_collIdx < int(rctx->files().size())) {
          const std::string& fname = fnames[m_collIdx];
-         CHECK( rctx->setFile( fname ) );
+         if( rctx->setFile( fname ).isFailure() ) {
+	   throw GaudiException("xAODEventSelector::next() - Fatal error when trying to setFile('" + fname + "')","xAODEventSelector",StatusCode::FAILURE);
+	 }
          ATH_MSG_DEBUG("TEvent entries = " << m_tevent_entries);
+	 //fire incident for this file ..
+	 m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", rctx->file()->GetName())); 
       } else {
          // end of collections
-         return StatusCode::FAILURE;
+	return StatusCode::FAILURE; //this is a valid failure ... athena will interpret as 'finished looping'
       }
       if( m_tevent_entries==0) m_collIdx++;
       
@@ -407,6 +454,7 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
     // Load the event:
     if( m_tevent->getEntry( entry ) < 0 ) {
          ATH_MSG_ERROR( "Failed to load entry " << static_cast< int >( entry ) );
+	 throw GaudiException("xAODEventSelector::next() - xAOD::TEvent::getEntry returned less than 0 bytes","xAODEventSelector",StatusCode::FAILURE);
     }
 
     ++m_nbrEvts;
@@ -419,7 +467,8 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
     const xAOD::EventInfo* xaodEventInfo = 0;
     if(m_fillEventInfo) {
       if(m_tevent->retrieve( xaodEventInfo , "EventInfo").isFailure()) {
-	ATH_MSG_ERROR("Could not find xAOD::EventInfo");return StatusCode::FAILURE;
+	ATH_MSG_ERROR("Could not find xAOD::EventInfo");
+	throw GaudiException("xAODEventSelector::next() - Could not find xAOD::EventInfo","xAODEventSelector",StatusCode::FAILURE);
       }
     }
     EventType* evtType = new EventType;
@@ -429,7 +478,7 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
     if ( !m_dataStore->record( evtInfo, "EventInfo" ).isSuccess() ) {
       ATH_MSG_ERROR ("Could not record EventInfo !");
       delete evtInfo; evtInfo = 0;
-      return StatusCode::FAILURE;
+      throw GaudiException("xAODEventSelector::next() - Could not record EventInfo","xAODEventSelector",StatusCode::FAILURE);
     }
 
     return StatusCode::SUCCESS;
@@ -525,6 +574,7 @@ xAODEventSelector::createAddress( const Context& /*refCtx*/,
 StatusCode
 xAODEventSelector::releaseContext( Context*& refCtxt ) const
 {
+  if(refCtxt==0) return StatusCode::SUCCESS; //added to avoid warning from MetaDataSvc, which passes an empty context
   xAODEventContext *ctx  = dynamic_cast<xAODEventContext*>(refCtxt);
   if ( ctx )   {
     delete ctx; ctx = 0;
@@ -860,6 +910,12 @@ xAODEventSelector::createMetaDataRootBranchAddresses() const
       const void* value_ptr = m_tevent;
       const std::string type_name = leaf->GetTypeName();
       const std::string br_name = branch->GetName();
+      // Skip if type_name does contain xAOD, ie. is not an xAOD container
+      const std::string toCheck = "xAOD::";
+      if (type_name.find(toCheck) == std::string::npos) {
+	ATH_MSG_DEBUG("** Skip type-name = " << type_name << ", br_name = " << br_name );
+	continue;
+      }
       const std::string sg_key = br_name;//m_tupleName.value()+"/"+br_name;
       TClass *cls = TClass::GetClass(type_name.c_str());
       const std::type_info *ti = 0;
@@ -889,12 +945,7 @@ xAODEventSelector::createMetaDataRootBranchAddresses() const
 	  continue;
 	}
 
-	// Skip if type_name does contain xAOD, ie. is not an xAOD container
-	const std::string toCheck = "xAOD::";
-	if (type_name.find(toCheck) == std::string::npos) {
-	  ATH_MSG_DEBUG("** Skip type-name = " << type_name << ", br_name = " << br_name );
-	  continue;
-	}
+	
 
 	ATH_MSG_DEBUG("id = " << id << ", m_metadataName.value() = " << m_metadataName.value() << ", br_name = " << br_name << ", value_ptr = " << value_ptr);
 	Athena::xAODBranchAddress* addr = new Athena::xAODBranchAddress
@@ -959,8 +1010,8 @@ StatusCode xAODEventSelector::setFile(const std::string& fname) {
 
   if(m_tfile && m_tfile != newFile) {
     const std::string currFile = m_tfile->GetName();
-    //disconnect pool if necessary
-    if(m_readMetadataWithPool) m_poolSvc->disconnectDb("PFN:"+currFile).ignore();
+    //disconnect pool if necessary ... always fire this, hopefully it is safe even if not needed
+    m_poolSvc->disconnectDb("PFN:"+currFile).ignore();
     //close existing file
     m_tfile->Close();
     //we should also cleanup after pool, in case it has left open files dangling
@@ -996,8 +1047,7 @@ StatusCode xAODEventSelector::setFile(const std::string& fname) {
       }
    }
 
-  //must trigger a beginInputFile event here
-  m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", m_tfile->GetName())); 
+  
 
   return StatusCode::SUCCESS;
 

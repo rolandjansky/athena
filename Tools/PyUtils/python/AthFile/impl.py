@@ -29,7 +29,7 @@ except:
     pass
 
 ### globals -------------------------------------------------------------------
-DEFAULT_AF_RUN = os.environ.get('DEFAULT_AF_RUN', True)
+DEFAULT_AF_RUN = os.environ.get('DEFAULT_AF_RUN', False)
 '''Revert to old file peeking via Athena sub-process if True.'''
 
 DEFAULT_AF_CACHE_FNAME = os.environ.get('DEFAULT_AF_CACHE_FNAME',
@@ -400,7 +400,7 @@ class AthFileServer(object):
         # speed-up by tampering LD_LIBRARY_PATH to not load reflex-dicts
         import re, os
         restrictedProjects = ['AtlasCore']
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
+        if "AthAnalysis_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             with H.ShutUp(filters=[
                 re.compile(
@@ -1012,7 +1012,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
+        if "AthAnalysis_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             import re
@@ -1053,7 +1053,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
+        if "AthAnalysis_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1120,7 +1120,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
+        if "AthAnalysis_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1143,7 +1143,7 @@ class FilePeeker(object):
      
     def _process_call(self, fname, evtmax, projects=['AtlasCore']):
         import os
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: projects=[] #special cases
+        if "AthAnalysis_DIR" in os.environ or "AthSimulation_DIR" in os.environ: projects=[] #special cases
         msg = self.msg()
         import PyUtils.Helpers as H
         f = _create_file_infos()

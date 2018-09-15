@@ -25,9 +25,13 @@ if not isinstance(FNAMES, (list,tuple)):
     FNAMES = [FNAMES]
     pass
 
+if not 'TUPLENAME' in dir():
+    TUPLENAME = 'egamma'
+
 import AthenaRootComps.ReadAthenaRoot
 svcMgr.EventSelector.InputCollections = FNAMES
-svcMgr.EventSelector.TupleName = "egamma"
+svcMgr.EventSelector.TupleName = TUPLENAME
+svcMgr.EventSelector.CreateEventInfo=True
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
