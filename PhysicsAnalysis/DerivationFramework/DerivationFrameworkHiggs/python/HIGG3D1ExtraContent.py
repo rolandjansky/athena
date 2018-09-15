@@ -25,6 +25,10 @@ HIGG3D1ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLin
 HIGG3D1ExtraContainers = [ ]
 
 HIGG3D1ExtraTruthContainers = [ "TruthEvents",
-                                "TruthParticles",
                                 "TruthVertices",
+                                "TruthParticles",
+                                "TruthElectrons",
+                                "TruthMuons",
+                                "TruthPhotons",
+                                "TruthNeutrinos",
                                 "MuonTruthParticles" ]

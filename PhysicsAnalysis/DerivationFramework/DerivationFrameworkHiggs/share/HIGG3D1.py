@@ -297,14 +297,12 @@ if globalflags.DataSource()=='geant4':
     # Add special truth containers
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
-    HIGG3D1SlimmingHelper.StaticContent = [ "xAOD::TruthParticleContainer#TruthMuons",
-                                            "xAOD::TruthParticleAuxContainer#TruthMuonsAux.",
-                                            "xAOD::TruthParticleContainer#TruthElectrons",
-                                            "xAOD::TruthParticleAuxContainer#TruthElectronsAux.",
-                                            "xAOD::TruthParticleContainer#TruthPhotons",
-                                            "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
-                                            "xAOD::TruthParticleContainer#TruthNeutrinos",
-                                            "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." ]
+    HIGG3D1SlimmingHelper.AppendToDictionary = {
+                                                'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
+                                                'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
+                                               }
     HIGG3D1SlimmingHelper.AllVariables += list(HIGG3D1ExtraTruthContainers)
     HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
 
