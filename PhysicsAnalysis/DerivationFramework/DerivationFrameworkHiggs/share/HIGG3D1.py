@@ -31,7 +31,11 @@ HIGG3D1Stream.AcceptAlgs(["HIGG3D1Kernel_skimming"])
 ## Prepare thinning service and add trigger chains for TrigNavigation thinning
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 HIGG3D1ThinningHelper = ThinningHelper( "HIGG3D1ThinningHelper" )
-HIGG3D1ThinningHelper.TriggerChains = "HLT_mu.* | HLT_e.* | HLT_2e.* | HLT_2mu.*"
+
+## Use the trigger lists in order to thin away all other trigger information
+from DerivationFrameworkHiggs.HIGG3D1TriggerList import triggersNavThin
+HIGG3D1ThinningHelper.TriggerChains = ' | '.join(triggersNavThin)
+
 HIGG3D1ThinningHelper.AppendToStream( HIGG3D1Stream )
 
 #====================================================================
