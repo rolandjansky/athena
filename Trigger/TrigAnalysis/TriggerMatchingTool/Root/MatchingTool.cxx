@@ -95,17 +95,18 @@ bool MatchingTool::matchSingleType(const std::vector<const xAOD::IParticle*>& re
   HLT::class_id_type clid = 0;
   std::string container_typename("");
 
+  // This hack is to make Offline electrons to be matched to online HLT CaloClusters if HLT chain is _etcut type
+  if (recoType == xAOD::Type::Electron && chain.find("etcut") != std::string::npos && chain.find("trkcut") == std::string::npos){
+     ATH_MSG_DEBUG("Electron offline and matching electron etcut chain. Try to match to cluster instead!: " );
+     recoType=xAOD::Type::CaloCluster;
+  }
+
   if(m_typeMap.isKnown(recoType)){
     
     auto clid_container = m_typeMap.get(recoType);
 
     clid = clid_container.first;
     container_typename = clid_container.second;
-    if (recoType == xAOD::Type::Electron && chain.find("etcut") != std::string::npos && chain.find("trkcut") == std::string::npos){
-       ATH_MSG_DEBUG("Electron offline and matching electron etcut chain. Try to match to cluster instead!: " );
-       container_typename = "xAOD::CaloClusterContainer";
-       clid = 1219821989;
-    }
     ATH_MSG_DEBUG("getting trigger features (clid: " << clid << " and type: " << container_typename << ")");
   }
   else{
