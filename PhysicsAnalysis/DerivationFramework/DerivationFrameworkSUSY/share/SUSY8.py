@@ -240,7 +240,7 @@ SUSY8SlimmingHelper.ExtraVariables = [
   "Muons.CaloLRLikelihood.CaloMuonIDTag.charge.InnerDetectorPt.MuonSpectrometerPt.ptcone20.ptcone30.quality",
   "Photons.author.Loose.Tight",
   "AntiKt4EMTopoJets.NumTrkPt500.NumTrkPt1000.TrackWidthPt1000",
-  "InDetTrackParticles.numberOfIBLOverflowsdEdx.numberOfPixelSplitHits.numberOfUsedHitsdEdx.pixeldEdx.SUSY8_CaloCelldEta.SUSY8_CaloCelldPhi.SUSY8_CaloCelldR.SUSY8_CaloCelldX.SUSY8_CaloCelldY.SUSY8_CaloCelldZ.SUSY8_CaloCellE.SUSY8_CaloCellEta.SUSY8_CaloCellGain.SUSY8_CaloCellID.SUSY8_CaloCellPhi.SUSY8_CaloCellProvenance.SUSY8_CaloCellQuality.SUSY8_CaloCellR.SUSY8_CaloCellSampling.SUSY8_CaloCellTime.SUSY8_CaloCellX.SUSY8_CaloCellY.SUSY8_CaloCellZ.TRTdEdx.TRTdEdxUsedHits".truthOrigin.truthType",
+  "InDetTrackParticles.numberOfIBLOverflowsdEdx.numberOfPixelSplitHits.numberOfUsedHitsdEdx.pixeldEdx.SUSY8_CaloCelldEta.SUSY8_CaloCelldPhi.SUSY8_CaloCelldR.SUSY8_CaloCelldX.SUSY8_CaloCelldY.SUSY8_CaloCelldZ.SUSY8_CaloCellE.SUSY8_CaloCellEta.SUSY8_CaloCellGain.SUSY8_CaloCellID.SUSY8_CaloCellPhi.SUSY8_CaloCellProvenance.SUSY8_CaloCellQuality.SUSY8_CaloCellR.SUSY8_CaloCellSampling.SUSY8_CaloCellTime.SUSY8_CaloCellX.SUSY8_CaloCellY.SUSY8_CaloCellZ.TRTdEdx.TRTdEdxUsedHits.truthOrigin.truthType",
   # "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
   "TauJets.pt.eta.phi.m.IsTruthMatched.pt_vis.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
