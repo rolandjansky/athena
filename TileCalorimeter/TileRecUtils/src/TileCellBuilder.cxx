@@ -172,7 +172,7 @@ TileCellBuilder::~TileCellBuilder(){
  * Initializer
  */
 StatusCode TileCellBuilder::initialize() {
-  
+
   // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
   if (m_MBTSContainerKey.key().empty()) {
     m_mbtsMgr = nullptr;
@@ -310,7 +310,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
 
   } else {
     
-    ATH_MSG_DEBUG( "Container " << m_rawChannelContainerKey.key() << " with TileRawChannles found ");
+    ATH_MSG_DEBUG( "Container " << m_rawChannelContainerKey.key() << " with TileRawChannels found ");
 
     m_RChType = rawChannelContainer->get_type();
     m_RChUnit = rawChannelContainer->get_unit();
@@ -402,7 +402,7 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
           dspTimeCut = 63.9375; // 64-1/16 ns is hard limit in DSP
           dspCorrectAmplitude = ((dspFlags & 0x3000000) == 0);
           dspCorrectTime = ((dspFlags & 0x3000000) != 0);
-        } else { // dsp container contains resluts of offline reco
+        } else { // dsp container contains results of offline reco
           dspTimeCut = ((dspFlags >> 27) & 1) ? 100.0 : 75.0; // 100 or 75 ns is the limit for 9 or 7 samples
         }
 
@@ -1140,7 +1140,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
 
     if (index == -3) { // E4' cells
 
-      if (m_E4prCells) { // do something with them only if contaier existst
+      if (m_E4prCells) { // do something with them only if container exists
         ++nE4pr;
 
         // convert ADC counts to MeV. like for normal cells
