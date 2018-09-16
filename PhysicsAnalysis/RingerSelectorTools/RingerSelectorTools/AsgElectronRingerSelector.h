@@ -320,7 +320,8 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
  * @class RingerConfStruct
  * @brief Configuration structure for parameters in file
  **/
-struct RingerConfStruct {
+class RingerConfStruct {
+public:
   bool useTrackPat;
   bool useRawTrackPat;
   //bool useCalStdPat;

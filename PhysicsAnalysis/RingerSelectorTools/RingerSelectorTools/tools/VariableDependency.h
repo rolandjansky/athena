@@ -34,7 +34,8 @@ namespace Ringer {
  *
  * Holds dependent variables values.
  **/
-struct DepVarStruct {
+class DepVarStruct {
+public:
   /// Holds particle transverse energy
   const float et;
   /// Holds eta position
