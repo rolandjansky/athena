@@ -54,6 +54,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
+    registerParameter("UseElectronChargeIDSelection", "True/False. Switch on/off electron charge ID selection (Default False).", "False");
 
     registerParameter("PhotonPt", "Photon pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("PhotonEta", "Absolute Photon eta cut for object selection. Default 2.5.", "2.5");
@@ -92,7 +93,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("LargeRSmallRCorrelations",
                       "Do large-small R jet correlation systematics - True or False (default)",
                       "False");
-    registerParameter("JetJERSmearingModel","Full (inc data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (1NP, MC only - default)","Simple");
+    registerParameter("JetJERSmearingModel","All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)","Simple");
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
     

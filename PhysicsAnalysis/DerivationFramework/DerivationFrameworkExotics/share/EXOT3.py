@@ -351,7 +351,7 @@ addTCCTrimmedJets(exot3Seq,"EXOT3")
 #
 ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 #  doTrackJet = False
-ExCoMJetCollection__SubJet = addExKtCoM(exot3Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False, ["GhostBHadronsFinal","GhostCHadronsFinal"], 0, "CoM")
+ExCoMJetCollection__SubJet = addExKtCoM(exot3Seq, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=False, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev=0, subjetAlgName="CoM")
 
 
 BTaggingFlags.CalibrationChannelAliases += [

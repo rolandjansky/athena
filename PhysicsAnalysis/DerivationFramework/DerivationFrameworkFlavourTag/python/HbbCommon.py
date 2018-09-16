@@ -14,7 +14,7 @@ from JetRec.JetRecConf import JetAlgorithm
 #===================================================================
 
 # make exkt subjet finding tool
-def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doGhostAssoc, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"], min_subjet_pt_mev = 0):
+def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doGhostAssoc, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal", "GhostTrack"], min_subjet_pt_mev = 0):
     #
     # a full list of ExGhostLabels = ["GhostBHadronsFinal", "GhostBHadronsInitial", "GhostBQuarksFinal", "GhostCHadronsFinal", "GhostCHadronsInitial",
     # "GhostCQuarksFinal", "GhostHBosons", "GhostPartons", "GhostTQuarksFinal", "GhostTausFinal", "GhostTruth", "GhostTrack"]
@@ -34,14 +34,14 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doGh
       #           "FastJetPlugin" for EECambridge plugin
       algj = "ee_kt"
 
-    if doTrackSubJet:
-      subjet_mode += "Track"
     talabel = ""
     if doGhostAssoc:
       talabel = "GA"
     subjetlabel = "Ex%s%i%sSubJets" % (subjet_mode, nsubjet, talabel)
 
-    if globalflags.DataSource()=='data': ExGhostLabels = []
+    # removing truth labels if runining on data
+    if globalflags.DataSource()=='data': ExGhostLabels = ["GhostTrack"]
+
     SubjetContainerName = "%sEx%s%i%sSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet, talabel)
     ExKtbbTagToolName = str( "Ex%s%sbbTagTool%i_%s" % (subjet_mode, talabel, nsubjet, JetCollectionName) )
 
@@ -161,6 +161,8 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
             from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc, defaultTrackAssoc, defaultMuonAssoc
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_excom]
             if(subjetAlgName=="CoM"): mods = [comTrackAssoc, comMuonAssoc, btag_excom]
+            if globalflags.DataSource()!='data':
+                mods.append(jtm.jetdrlabeler)
 
             jetrec_btagging = JetRecTool( name = excomJetRecBTagToolName,
                                       InputContainer  = SubjetContainerName,
