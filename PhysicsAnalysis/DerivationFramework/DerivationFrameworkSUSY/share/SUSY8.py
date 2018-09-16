@@ -11,6 +11,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
@@ -201,6 +202,7 @@ SUSY8SlimmingHelper = SlimmingHelper("SUSY8SlimmingHelper")
 SUSY8SlimmingHelper.SmartCollections = [
   "AntiKt4EMTopoJets",
   "Muons",
+  "InDetTrackParticles",
   "Photons",
   "MET_Reference_AntiKt4EMTopo",
   "PrimaryVertices"
@@ -213,7 +215,7 @@ SUSY8SlimmingHelper.AllVariables = [
   # "GSFTrackParticles",
   # "InDetTrackParticlesAssociatedClusters",
   # "InDetTrackParticlesClusterAssociations",
-  "InDetTrackParticles",
+  # "InDetTrackParticles",
   "METAssoc_AntiKt4EMTopo",
   "MET_Calo",
   "MET_Core_AntiKt4EMTopo",
@@ -227,7 +229,7 @@ SUSY8SlimmingHelper.AllVariables = [
   "MSonlyTracklets",
   "MuonSegments",
   "MuonSpectrometerTrackParticles",
-  "Muons",
+  # "Muons",
   "SlowMuons",
   "Staus",
   "TruthEvents",
@@ -235,15 +237,15 @@ SUSY8SlimmingHelper.AllVariables = [
   "TruthVertices"
 ]
 SUSY8SlimmingHelper.ExtraVariables = [
-  # "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
+  "Muons.CaloLRLikelihood.CaloMuonIDTag.charge.InnerDetectorPt.MuonSpectrometerPt.ptcone20.ptcone30.quality",
   "Photons.author.Loose.Tight",
-  "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500",
-  # "InDetTrackParticles.truthOrigin.truthType",
+  "AntiKt4EMTopoJets.NumTrkPt500.NumTrkPt1000.TrackWidthPt1000",
+  "InDetTrackParticles.numberOfIBLOverflowsdEdx.numberOfPixelSplitHits.numberOfUsedHitsdEdx.pixeldEdx.SUSY8_CaloCelldEta.SUSY8_CaloCelldPhi.SUSY8_CaloCelldR.SUSY8_CaloCelldX.SUSY8_CaloCelldY.SUSY8_CaloCelldZ.SUSY8_CaloCellE.SUSY8_CaloCellEta.SUSY8_CaloCellGain.SUSY8_CaloCellID.SUSY8_CaloCellPhi.SUSY8_CaloCellProvenance.SUSY8_CaloCellQuality.SUSY8_CaloCellR.SUSY8_CaloCellSampling.SUSY8_CaloCellTime.SUSY8_CaloCellX.SUSY8_CaloCellY.SUSY8_CaloCellZ.TRTdEdx.TRTdEdxUsedHits.truthOrigin.truthType",
   # "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-  "TauJets.pt.eta.phi.m.IsTruthMatched.TruthPtVis.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
+  "TauJets.pt.eta.phi.m.IsTruthMatched.pt_vis.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
   "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
-  "AntiKt4TruthJets.pt.eta.phi.m.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID"
+  "AntiKt4TruthJets.pt.eta.phi.m.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID"
 ]
 SUSY8SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY8SlimmingHelper.IncludeJetTriggerContent = True

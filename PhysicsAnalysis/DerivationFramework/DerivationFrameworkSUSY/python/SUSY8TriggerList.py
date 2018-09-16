@@ -30,7 +30,9 @@ SUSY8METTriggers = [
   'HLT_xe60.*',
   'HLT_xe70.*',
   'HLT_xe80.*',
+  'HLT_xe90.*',
   'HLT_xe100.*',
+  'HLT_xe110.*',
   'HLT_xe120.*'
 ]
 
