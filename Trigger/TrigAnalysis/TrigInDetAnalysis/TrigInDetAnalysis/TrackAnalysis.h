@@ -23,6 +23,7 @@
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+#include "TrigInDetAnalysis/TrigObjectMatcher.h"
 #include "TrigInDetAnalysis/TIDAFeatureStore.h"
 
 #include "TH1.h"
@@ -46,10 +47,19 @@ public:
     
   /// standard operation interface 
   virtual void initialise() = 0;
- 
+
   virtual void execute( const std::vector<TIDA::Track*>& tracks1,
 			const std::vector<TIDA::Track*>& tracks2,
-			TrackAssociator* matcher ) = 0;
+			TrackAssociator*   matcher ) = 0;
+  
+  virtual void execute( const std::vector<TIDA::Track*>& tracks1,
+			const std::vector<TIDA::Track*>& tracks2,
+			TrackAssociator*   matcher, 
+			TrigObjectMatcher* /* objects */ ) {
+    execute( tracks1, tracks2, matcher );
+  };
+  
+
 
   //  virtual void execute( const std::vector<TIDA::Track*>& ,
   //			const std::vector<TIDA::Track*>& ,

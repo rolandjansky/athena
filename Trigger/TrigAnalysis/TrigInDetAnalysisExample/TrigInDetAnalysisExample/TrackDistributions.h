@@ -20,6 +20,10 @@
 #include "TH1D.h"
 
 class TrackDistributions : public TrackAnalysis { 
+   
+public:
+  
+  using TrackAnalysis::execute;
   
 public:
   

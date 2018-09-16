@@ -282,7 +282,7 @@ void duff(const std::string& label="") {
 
 void PurityAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 			     const std::vector<TIDA::Track*>& testtracks,
-			     TrackAssociator* matcher ) 
+			     TrackAssociator*   matcher )
 {
   if ( m_print ) std::cout << "PurityAnalysis::execute() \t " << name() 
 			   << "\tref "  <<  reftracks.size() 

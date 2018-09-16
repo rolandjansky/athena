@@ -21,6 +21,7 @@
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysis/Efficiency.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+#include "TrigInDetAnalysis/TrigObjectMatcher.h"
 
 #include "TrigInDetAnalysisExample/ChainString.h"
 
@@ -77,7 +78,14 @@ public:
 
   virtual void execute(const std::vector<TIDA::Track*>& reftracks,
                        const std::vector<TIDA::Track*>& testtracks,
-                       TrackAssociator* matcher );
+                       TrackAssociator* matcher, 
+		       TrigObjectMatcher* objects );
+
+  virtual void execute(const std::vector<TIDA::Track*>& reftracks,
+                       const std::vector<TIDA::Track*>& testtracks,
+                       TrackAssociator* matcher ) { 
+    execute( reftracks, testtracks, matcher, 0 );
+  }
 
 #if 0
   virtual void execute(const std::vector<TIDA::Track*>& reftracks,
@@ -148,7 +156,6 @@ private:
   Efficiency* purity_z0;
   Efficiency* purity_d0;
   Efficiency* purity_a0;
-
 
 #if 0
   TH2F* h2;
@@ -303,6 +310,13 @@ private:
   Resplot* rRoi_deta_vs_eta;
   Resplot* rRoi_dphi_vs_eta;
   Resplot* rRoi_dzed_vs_eta;
+
+  /// electron specific ET/PT related stuff
+  TH1F*       m_etovpt;
+  Efficiency* m_eff_vs_etovpt;
+
+  TH1F*       m_et;
+
 
   /// flag to print out the matched tracks etc
   bool m_print;

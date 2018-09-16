@@ -12,6 +12,10 @@
 
 
 class Analysis_Efficiency : public TrackAnalysis { 
+
+ public:
+
+  using TrackAnalysis::execute;
   
  public:
   

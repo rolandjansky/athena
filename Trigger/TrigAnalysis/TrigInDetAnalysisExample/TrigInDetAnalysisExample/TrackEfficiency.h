@@ -25,6 +25,10 @@
 class TrackEfficiency : public TrackAnalysis { 
   
 public:
+
+  using TrackAnalysis::execute;
+
+public:
   
   TrackEfficiency( const std::string& name ) : 
     TrackAnalysis( name )

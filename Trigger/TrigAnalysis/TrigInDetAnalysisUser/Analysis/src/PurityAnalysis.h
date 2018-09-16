@@ -20,6 +20,7 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysis/Efficiency.h"
+
 // #include "TrigInDetAnalysis/Efficiency2D.h"
 
 #include "Resplot.h"
@@ -31,9 +32,10 @@
 
 
 class PurityAnalysis : public TrackAnalysis { 
-  
-  //  private:
-  //     typedef std::map<std::string, TH1F*> maptype; 
+
+public:
+
+  using TrackAnalysis::execute;
 
 public:
   

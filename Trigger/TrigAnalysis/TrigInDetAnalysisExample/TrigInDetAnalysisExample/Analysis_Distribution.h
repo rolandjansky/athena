@@ -14,6 +14,10 @@
 class Analysis_Distribution : public TrackAnalysis { 
   
  public:
+
+  using TrackAnalysis::execute;
+
+ public:
   
   Analysis_Distribution(const std::string& name);
   //Analysis_Distribution(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut);  

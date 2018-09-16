@@ -26,9 +26,10 @@
 
 
 class SigAnalysis : public TrackAnalysis { 
-  
-  //  private:
-  //     typedef std::map<std::string, TH1F*> maptype; 
+   
+public:
+
+  using TrackAnalysis::execute;
 
 public:
   

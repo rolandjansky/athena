@@ -23,8 +23,12 @@
 #include "TrigInDetAnalysisExample/VtxAnalysis.h"
 
 class Analysis_Tier0 : public TrackAnalysis { 
+
+public:
+
+  using TrackAnalysis::execute;
   
- public:
+public:
   
   Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut);
   
