@@ -195,7 +195,12 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 BPHY9ThinningHelper = ThinningHelper( 'BPHY9ThinningHelper' )
 
 # Trigger Thinning Tool
-BPHY9ThinningHelper.TriggerChains = 'HLT_e.*|HLT_mu.*'
+elTrig = '^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*lhloose.*'\
+       +'|^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*lhmedium.*'\
+       +'|^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*lhtight.*'\
+       +'|^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*lhvloose.*'
+muTrig = '^(?!.*_[0-9]*(e|j|xe|tau|ht|xs|te))(?!HLT_mu.*_[0-9]*mu.*)HLT_mu.*'
+BPHY9ThinningHelper.TriggerChains = elTrig + '|' + muTrig
 BPHY9ThinningHelper.AppendToStream( BPHY9Stream )
 
 # Jet tracks
