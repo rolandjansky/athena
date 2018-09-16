@@ -205,7 +205,6 @@ namespace InDet{
             if (clusterCollection && !clusterCollection->empty()){
               ATH_MSG_VERBOSE( "REGTEST: SCT : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
-              const IdentifierHash hash(clusterCollection->identifyHash());
               ATH_CHECK(lock.addOrDelete( std::move(clusterCollection) ));
           }else{
               ATH_MSG_DEBUG("No SCTClusterCollection to write");
