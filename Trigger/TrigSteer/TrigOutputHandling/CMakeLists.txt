@@ -28,7 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigOutputHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigOutputHandling
-                   LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResult
+                   LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResultLib
                    xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon )                 
 
 atlas_add_component( TrigOutputHandling
