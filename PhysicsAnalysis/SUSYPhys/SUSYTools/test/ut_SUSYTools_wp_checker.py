@@ -150,10 +150,6 @@ MET.DoCaloSyst: 0
 #
 METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
 #
-#METSig.SoftTermParam: met::Random
-METSig.TreatPUJets: true
-METSig.DoPhiReso: true
-#
 PRW.MuUncertainty: 0.2
 #
 # Trigger SFs configuration
