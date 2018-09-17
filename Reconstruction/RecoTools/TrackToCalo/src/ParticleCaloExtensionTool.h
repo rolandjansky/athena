@@ -40,8 +40,7 @@ public:
   /* 
    * Implement the IParticleCaloExtension methods
    */
-  virtual bool caloExtension( const xAOD::IParticle& particle, 
-                              std::unique_ptr<Trk::CaloExtension>& extension ) const override final;
+  virtual std::unique_ptr<Trk::CaloExtension> caloExtension(const xAOD::IParticle& particle) const override final;
 
   virtual const Trk::CaloExtension*  caloExtension( const xAOD::IParticle& particle, 
                                                     IParticleCaloExtensionTool::Cache& cache ) const override final;
