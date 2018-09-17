@@ -38,6 +38,7 @@ LArADC2MeVCondAlg::LArADC2MeVCondAlg(const std::string& name, ISvcLocator* pSvcL
 
   //declareProperty("LArOnlineIDKey",m_larOnlineIDKey,"SG key of LArOnlineID helper obj for regular cells");
   //declareProperty("LArSCOnlineIDKey",m_larSCOnlineIDKey,"SG key of LArOnlineID helper obj for SuperCells");
+  declareProperty("LArOnOffIdMappingKey",m_cablingKey,"SG key of LArOnOffIdMapping object");
   declareProperty("LAruA2MeVKey",m_lAruA2MeVKey,"SG key of uA2MeV object");
   declareProperty("LArDAC2uAKey",m_lArDAC2uAKey,"SG key of DAC2uA object");
   declareProperty("LArRampKey",m_lArRampKey,"SG key of Ramp object");
