@@ -27,15 +27,6 @@ StatusCode HLTResultCreatorByteStream::initialize() {
   
   ATH_CHECK( m_hltResultKey.initialize() );
   ATH_CHECK( m_serializerSvc.retrieve() );
-  ATH_CHECK( m_dictLoaderSvc.retrieve() );
-
-  // System::ImageHandle handle = 0;
-  // if ( System::loadDynamicLib( "xAODTrigger", &handle)  != 1 ) {
-  //   ATH_MSG_WARNING("Can not load the lib");
-  // } else {
-  //   ATH_MSG_DEBUG("Could load the lib");
-  // }
-
 
 
   for ( std::string typeAndKey: m_collectionsToSerialize ) {
@@ -62,7 +53,6 @@ StatusCode HLTResultCreatorByteStream::initialize() {
     ATH_MSG_DEBUG( "Type " << type << " key " << key <<  " serializable" );
     m_toSerialize.push_back( Address{ type, clid, classDesc, key } );      
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -77,8 +67,6 @@ void HLTResultCreatorByteStream::makeHeader(const Address& address, std::vector<
   buffer.push_back( serializedLabel.size() );
   buffer.insert( buffer.end(), serializedLabel.begin(), serializedLabel.end() ); // plain SG key
 }
-
-
 
 void HLTResultCreatorByteStream::fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const {
   buffer.push_back( sz ); // size in bytes
@@ -117,15 +105,15 @@ StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context 
     }
     ATH_MSG_DEBUG("Obtained raw pointer " << rawptr );
 
-    // const RootType rt = m_dictLoaderSvc->load_type(address.type);
+
     RootType classDesc = RootType::ByName( address.type );    
     size_t sz=0;    
     void* mem = m_serializerSvc->serialize( rawptr, classDesc, sz );
     ATH_MSG_DEBUG( "Streamed to buffer at address " << mem << " of " << sz << " bytes" );
     
-    if ( mem == nullptr and sz == 0 ) {
-      ATH_MSG_WARNING( "Serialisation of " << address.type <<"#" << address.key << " unsuccessful" );
-      continue;
+    if ( mem == nullptr or sz == 0 ) {
+      ATH_MSG_ERROR( "Serialisation of " << address.type <<"#" << address.key << " unsuccessful" );
+      return StatusCode::FAILURE;
     }
         
     // prepare fragment
@@ -140,9 +128,9 @@ StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context 
     if ( mem ) delete [] static_cast<const char*>( mem );
     ATH_MSG_DEBUG( "Navigation size after inserting " << address.type << "#" << address.key << " " << place.size()*sizeof(uint32_t) << " bytes" );
   }
-  
+
   auto resultHandle = SG::makeHandle( m_hltResultKey, context );
-  ATH_CHECK( resultHandle.record( std::move(result) ) );
+  ATH_CHECK( resultHandle.record( std::move( result ) ) );
   
   return StatusCode::SUCCESS;
 }
