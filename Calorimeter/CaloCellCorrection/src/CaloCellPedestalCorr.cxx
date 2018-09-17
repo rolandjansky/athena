@@ -42,7 +42,7 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
  declareProperty("Luminosity",m_lumi0=0,"Luminosity in 10**33 units");
  declareProperty("CaloCoolIdTool",m_caloCoolIdTool,"Tool for Calo cool Id");
  declareProperty("FolderName",m_folderName="/CALO/Pedestal/CellPedestal");
- declareProperty("LumiFolderName",m_lumiFolderName="/TRIGGER/LUMI/LBLESTONL");
+ //declareProperty("LumiFolderName",m_lumiFolderName="/TRIGGER/LUMI/LBLESTONL");
  //declareProperty("LumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction");
  declareProperty("isMC",m_isMC,"Data/MC flag");
 }
@@ -56,16 +56,9 @@ StatusCode CaloCellPedestalCorr::initialize()
 
   ATH_CHECK(detStore()->retrieve(m_cellId, "CaloCell_ID"));
 
-  if (m_lumi0<0) {
-    if (detStore()->contains<CondAttrListCollection>(m_lumiFolderName)) {
-      const DataHandle<CondAttrListCollection> lumiData;
-      ATH_CHECK( detStore()->regFcn(&CaloCellPedestalCorr::updateLumi, this , lumiData, m_lumiFolderName, true) );
-      ATH_MSG_INFO( " Registered a callback for " << m_lumiFolderName << " Cool folder "  );
-    }
-    m_lumi0=0;
+  if (m_lumi0<0 && !m_isMC) {
+    ATH_CHECK(m_lumiFolderName.initialize());
   }
-
-
   if (!m_isMC) {
     //=== Register callback for this data handle
     ATH_CHECK( detStore()->regFcn(&CaloCellPedestalCorr::updateMap, this, m_noiseAttrListColl, m_folderName) );
@@ -89,6 +82,7 @@ StatusCode CaloCellPedestalCorr::initialize()
 
 }
 
+/*
 //______________________________________________________________________________________
 StatusCode
 CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
@@ -124,7 +118,7 @@ CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
   ATH_MSG_INFO( " Luminosity " << m_lumi0  );
   return StatusCode::SUCCESS;
 }
-
+*/
 
 
 // ===============================================================================
@@ -173,6 +167,19 @@ void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
   float pedestal=0.;
 
   if (!m_isMC) {
+    float lumi=m_lumi0;
+    if (lumi<0) {
+      SG::ReadCondHandle<CondAttrListCollection> lumiHdl(m_lumiFolderName,ctx);
+      const CondAttrListCollection* attrListColl=(*lumiHdl);
+      const coral::AttributeList& attrList=attrListColl->attributeList(0); //Get channel number 0
+      if (attrList["LBAvInstLumi"].isNull()) {
+	ATH_MSG_WARNING("No valid luminosity information in folder " << m_lumiFolderName.key() << ", attribute LBAvInstLumi");
+	lumi=0;
+      }
+      else {
+	lumi=attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
+      }
+    }
     const unsigned int cellHash=theCell->caloDDE()->calo_hash();
     unsigned int subHash;
     const unsigned int iCool = m_caloCoolIdTool->getCoolChannelId(cellHash,subHash);
@@ -183,7 +190,7 @@ void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
     //2. subHash < flt->getNChans()
     const CaloCondBlobFlt* const flt = it->second;
     const unsigned int dbGain = CaloCondUtils::getDbCaloGain(theCell->gain());
-    pedestal = flt->getCalib(subHash, dbGain, m_lumi0);
+    pedestal = flt->getCalib(subHash, dbGain, lumi);
   }
 
   if (!(m_caloBCIDAvg.key().empty())) {

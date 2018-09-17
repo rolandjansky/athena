@@ -43,7 +43,7 @@ public:
 private:
 
   //=== callback function for luminosity storate
-  virtual StatusCode updateLumi(IOVSVC_CALLBACK_ARGS);
+  //virtual StatusCode updateLumi(IOVSVC_CALLBACK_ARGS);
 
   virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
   //=== blob storage
@@ -53,9 +53,10 @@ private:
 
   ToolHandle<ICaloCoolIdTool> m_caloCoolIdTool;
   float m_lumi0;
+  
   std::string m_folderName;
-  std::string m_lumiFolderName;
-
+  //std::string m_lumiFolderName;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_lumiFolderName{this,"LumiFolderName","/TRIGGER/LUMI/LBLESTONL","SG Key of Attr list for Luminosity estimate"};
   const CaloCell_ID* m_cellId;
 
   //ToolHandle<ICaloLumiBCIDTool> m_caloLumiBCIDTool;

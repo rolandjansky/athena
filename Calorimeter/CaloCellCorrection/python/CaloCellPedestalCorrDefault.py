@@ -44,7 +44,7 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
    from CaloRec.CaloCellFlags import jobproperties
    if globalflags.DataSource()=='data' and (not jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr()) and (not athenaCommonFlags.isOnline()):
       lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
-      conddb.addFolder('TRIGGER_ONL',lumiFolder);
+      conddb.addFolder('TRIGGER_ONL',lumiFolder,className="CondAttrListCollection");
       theCaloCellPedestalCorr.Luminosity = -1
       theCaloCellPedestalCorr.LumiFolderName = lumiFolder
 
