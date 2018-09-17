@@ -363,7 +363,7 @@ class ThresholdDef:
 
         # RXE (restriced range ET miss)
         etamax = 24
-        for thrV in [35, 40, 45, 50, 55, 60, 70, 80]:
+        for thrV in [30, 35, 40, 45, 50, 55, 60, 70, 80]:
             tc.registerThr('XE%i.0ETA%i'    % (thrV, etamax), 'XE').addThrValue(EtMissOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
 
 	 # Restricted range TE |eta|<4.9
