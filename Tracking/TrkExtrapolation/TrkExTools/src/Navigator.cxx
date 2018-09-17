@@ -296,6 +296,15 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
   // loop over boundary surfaces
   int tryBoundary = 0;
+
+  /* local counted to increment in the loop*/ 
+  int forwardFirstBoundSwitch{0};
+  int forwardSecondBoundSwitch{0};
+  int forwardThirdBoundSwitch{0};
+  int backwardFirstBoundSwitch{0};
+  int backwardSecondBoundSwitch{0};
+  int backwardThirdBoundSwitch{0};
+
   for (surfAcc.begin(); surfAcc.end(); surfAcc.operator ++ ()) {
     ++tryBoundary;
     // get the boundary surface associated to the surfaceAccessor
@@ -363,24 +372,31 @@ Trk::Navigator::nextTrackingVolume(const Trk::IPropagator &prop,
 
     // ---------------------------------------------------
     if (!first && searchDir == Trk::alongMomentum) {
-      ++m_forwardFirstBoundSwitch;
+      ++forwardFirstBoundSwitch;
       first = true;
     }else if (!second && searchDir == Trk::alongMomentum) {
-      ++m_forwardSecondBoundSwitch;
+      ++forwardSecondBoundSwitch;
       second = true;
     }else if (searchDir == Trk::alongMomentum) {
-      ++m_forwardThirdBoundSwitch;
+      ++forwardThirdBoundSwitch;
     }else if (!first && searchDir == Trk::oppositeMomentum) {
-      ++m_backwardFirstBoundSwitch;
+      ++backwardFirstBoundSwitch;
       first = true;
     }else if (!second && searchDir == Trk::oppositeMomentum) {
-      ++m_backwardSecondBoundSwitch;
+      ++backwardSecondBoundSwitch;
       second = true;
     }else if (searchDir == Trk::oppositeMomentum) {
-      ++m_backwardThirdBoundSwitch;
+      ++backwardThirdBoundSwitch;
     }
     // ---------------------------------------------------
   }
+  /* update the object level atomic ones*/
+  m_forwardFirstBoundSwitch+=forwardFirstBoundSwitch;
+  m_forwardSecondBoundSwitch+=forwardSecondBoundSwitch;
+  m_forwardThirdBoundSwitch+=forwardThirdBoundSwitch;
+  m_backwardFirstBoundSwitch+=backwardFirstBoundSwitch;
+  m_backwardSecondBoundSwitch+=backwardSecondBoundSwitch;
+  m_backwardThirdBoundSwitch+=backwardThirdBoundSwitch;
 
   // return what you have : no idea
   return Trk::NavigationCell(0, 0);
