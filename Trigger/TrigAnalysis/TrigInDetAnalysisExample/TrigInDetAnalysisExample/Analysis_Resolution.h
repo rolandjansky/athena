@@ -13,6 +13,10 @@
 
 
 class Analysis_Resolution : public TrackAnalysis { 
+
+ public:
+
+  using TrackAnalysis::execute;
   
  public:
   

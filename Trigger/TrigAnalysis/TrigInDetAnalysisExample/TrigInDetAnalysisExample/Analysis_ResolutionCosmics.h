@@ -12,6 +12,10 @@
 
 
 class Analysis_ResolutionCosmics : public TrackAnalysis { 
+
+ public:
+  
+  using TrackAnalysis::execute;
   
  public:
   

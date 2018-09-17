@@ -9,10 +9,10 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "TrigInDetAnalysis/TrackFilter.h"
 #include "TrigInDetAnalysis/Track.h"
-
 
 
 class TrackSelector {
@@ -38,13 +38,13 @@ public:
   }
 
   virtual void addTracks(std::vector<TIDA::Track*>& t, bool (*f)(const TIDA::Track*)=0 ) {
-    for ( unsigned i=0 ; i<t.size() ; i++ ){ addTrack( t[i], f ); /*std::cout << "addtrack() no filter called " << t[i] << " " << size() << std::endl;*/}
+    for ( unsigned i=0 ; i<t.size() ; i++ ) addTrack( t[i], f ); 
   }  
   
   // get the selected tracks   
   const std::vector<TIDA::Track*>& tracks() const { return mtracks; }
   
-  std::vector<TIDA::Track*> tracks(  /*TrigInDetAnalysis::*/TrackFilter* selector ) const {
+  std::vector<TIDA::Track*> tracks( TrackFilter* selector ) const {
     if ( selector==0 ) return mtracks; 
     std::vector<TIDA::Track*> t;
     for ( int i=mtracks.size() ; i-- ; ) if ( selector->select(mtracks[i]) ) t.push_back(mtracks[i]);
@@ -57,6 +57,10 @@ public:
   // clear tracks for this roi/event etc 
   //  void clear() { for ( int i=mtracks.size() ; i-- ; ) delete mtracks[i]; mtracks.clear(); } 
   virtual void clear() { mtracks.clear(); } 
+
+  void delete_track( TIDA::Track* t ) { 
+    mtracks.erase( std::remove( mtracks.begin(), mtracks.end(), t ), mtracks.end() );
+  }
   
 protected:
 
@@ -70,8 +74,7 @@ protected:
   std::vector<TIDA::Track*> mtracks;
  
   // selection function
-  // static bool (*mselector)(const /*TrigInDetAnalysis::*/Track*);
-  /*TrigInDetAnalysis::*/TrackFilter*  mselector;
+  TrackFilter*  mselector;
  
 };
 

@@ -15,6 +15,10 @@
 class Analysis_Missed : public TrackAnalysis { 
   
  public:
+
+  using TrackAnalysis::execute;
+
+ public:
   
   Analysis_Missed(const std::string& name);  
   
