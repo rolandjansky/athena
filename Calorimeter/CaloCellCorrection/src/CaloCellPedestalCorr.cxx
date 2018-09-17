@@ -41,7 +41,7 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
  declareInterface<CaloCellCorrection>(this);
  declareProperty("Luminosity",m_lumi0=0,"Luminosity in 10**33 units");
  declareProperty("CaloCoolIdTool",m_caloCoolIdTool,"Tool for Calo cool Id");
- declareProperty("FolderName",m_folderName="/CALO/Pedestal/CellPedestal");
+ //declareProperty("FolderName",m_folderName="/CALO/Pedestal/CellPedestal");
  //declareProperty("LumiFolderName",m_lumiFolderName="/TRIGGER/LUMI/LBLESTONL");
  //declareProperty("LumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction");
  declareProperty("isMC",m_isMC,"Data/MC flag");
@@ -61,9 +61,10 @@ StatusCode CaloCellPedestalCorr::initialize()
   }
   if (!m_isMC) {
     //=== Register callback for this data handle
-    ATH_CHECK( detStore()->regFcn(&CaloCellPedestalCorr::updateMap, this, m_noiseAttrListColl, m_folderName) );
-    ATH_MSG_INFO( " registered a callback for " << m_folderName << " folder "  );
+    //ATH_CHECK( detStore()->regFcn(&CaloCellPedestalCorr::updateMap, this, m_noiseAttrListColl, m_folderName) );
+    //ATH_MSG_INFO( " registered a callback for " << m_folderName << " folder "  );
 
+    ATH_CHECK(m_pedShiftFolder.initialize());
     ATH_CHECK(m_caloCoolIdTool.retrieve());
   }
 
@@ -118,7 +119,7 @@ CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
   ATH_MSG_INFO( " Luminosity " << m_lumi0  );
   return StatusCode::SUCCESS;
 }
-*/
+
 
 
 // ===============================================================================
@@ -158,6 +159,8 @@ StatusCode CaloCellPedestalCorr::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
 }
 
 // ============================================================================
+*/
+
 
 void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
                                            const EventContext& ctx) const {
@@ -168,6 +171,8 @@ void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
 
   if (!m_isMC) {
     float lumi=m_lumi0;
+
+    // Get Luminosity estimate
     if (lumi<0) {
       SG::ReadCondHandle<CondAttrListCollection> lumiHdl(m_lumiFolderName,ctx);
       const CondAttrListCollection* attrListColl=(*lumiHdl);
@@ -180,15 +185,17 @@ void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
 	lumi=attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
       }
     }
+
+    //Get Pedestal shifts
+    SG::ReadCondHandle<CondAttrListCollection> pedShiftHdl(m_pedShiftFolder,ctx);
+    const CondAttrListCollection* attrListColl=(*pedShiftHdl);   
+    
     const unsigned int cellHash=theCell->caloDDE()->calo_hash();
     unsigned int subHash;
     const unsigned int iCool = m_caloCoolIdTool->getCoolChannelId(cellHash,subHash);
-    //std::cout << "Got iCool=" << iCool << " subhash=" << subHash << std::endl;
-    NoiseBlobMap_t::const_iterator it = m_noiseBlobMap.find (iCool);
-    //The following checks would make sense but were omitted to speed up execution:
-    //1. it!=m_noiseBlobMap.end() eg, if iCool exists
-    //2. subHash < flt->getNChans()
-    const CaloCondBlobFlt* const flt = it->second;
+    const coral::AttributeList& attrList=attrListColl->attributeList(iCool);
+    const coral::Blob& blob = attrList["CaloCondBlob16M"].data<coral::Blob>();
+    std::unique_ptr<const CaloCondBlobFlt> flt(CaloCondBlobFlt::getInstance(blob));
     const unsigned int dbGain = CaloCondUtils::getDbCaloGain(theCell->gain());
     pedestal = flt->getCalib(subHash, dbGain, lumi);
   }

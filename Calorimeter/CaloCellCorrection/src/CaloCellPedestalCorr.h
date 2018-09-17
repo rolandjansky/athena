@@ -45,7 +45,7 @@ private:
   //=== callback function for luminosity storate
   //virtual StatusCode updateLumi(IOVSVC_CALLBACK_ARGS);
 
-  virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
+  //virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
   //=== blob storage
   const DataHandle<CondAttrListCollection> m_noiseAttrListColl;
   typedef std::unordered_map<unsigned int, const CaloCondBlobFlt*> NoiseBlobMap_t;
@@ -56,10 +56,11 @@ private:
   
   std::string m_folderName;
   //std::string m_lumiFolderName;
+
+  SG::ReadCondHandleKey<CondAttrListCollection> m_pedShiftFolder{this,"PedestalShiftFolder","/CALO/Pedestal/CellPedestal","SG Key of Attr list containing pedestal shifts"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_lumiFolderName{this,"LumiFolderName","/TRIGGER/LUMI/LBLESTONL","SG Key of Attr list for Luminosity estimate"};
   const CaloCell_ID* m_cellId;
 
-  //ToolHandle<ICaloLumiBCIDTool> m_caloLumiBCIDTool;
   SG::ReadHandleKey<CaloBCIDAverage> m_caloBCIDAvg{this,"CaloBCIDAverageKey","","SG Key of CaloBCIDAverage object"};
 
   bool m_isMC;

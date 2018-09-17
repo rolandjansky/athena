@@ -7,6 +7,7 @@ from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
+import traceback
 
 class CaloCellGetter (Configured)  :
     _outputType = "CaloCellContainer"

@@ -31,11 +31,11 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
        from IOVDbSvc.CondDB import conddb
        if conddb.isOnline:
            folder  = '/CALO/Pedestal/CellPedestal'
-           conddb.addFolder('CALO_ONL',folder)
+           conddb.addFolder('CALO_ONL',folder,className="CondAttrListCollection")
        else:
            folder= '/CALO/Ofl/Pedestal/CellPedestal'
-           conddb.addFolder('CALO_OFL',folder)
-       theCaloCellPedestalCorr.FolderName = folder
+           conddb.addFolder('CALO_OFL',folder,className="CondAttrListCollection")
+       theCaloCellPedestalCorr.PedestalShiftFolder = folder
        theCaloCellPedestalCorr.isMC=False
    else:
        theCaloCellPedestalCorr.isMC=True
