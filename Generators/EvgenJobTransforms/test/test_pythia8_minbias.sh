@@ -1,4 +1,4 @@
-99999#!/bin/bash
+#!/bin/bash
 # art-description: Generation test Pythia8 min_bias 
 # art-include: 21.6/AthGeneration
 # art-type: build
