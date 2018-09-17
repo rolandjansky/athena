@@ -38,7 +38,8 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauxAODHelpers.h"
 #include "xAODMuon/MuonContainer.h"
-#include "xAODJet/JetAttributes.h"
+#include "xAODJet/JetAttributes.h"
+
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
@@ -173,7 +174,6 @@ namespace met {
     SG::ReadHandleKey<xAOD::VertexContainer>        m_PVKey;
     // WriteHandleKey(s)
     SG::WriteHandleKey<xAOD::MissingETContainer>    m_OutMETKey;
-    SG::WriteHandleKey<xAOD::MissingETAuxContainer> m_OutMETAuxKey;
 
     std::string m_eleColl;
     std::string m_gammaColl;

@@ -244,9 +244,6 @@ namespace met {
     // WriteHandleKey(s)
     ATH_CHECK( m_OutMETKey.assign(m_outMETCont) );
     ATH_CHECK( m_OutMETKey.initialize() );
-    ATH_CHECK( m_OutMETAuxKey.assign(m_outMETCont+"Aux") );
-    ATH_CHECK( m_OutMETAuxKey.initialize() );
-
 
     return StatusCode::SUCCESS;
   }
@@ -276,29 +273,10 @@ namespace met {
     }
 
     // Create a MissingETContainer with its aux store
-    std::unique_ptr<MissingETContainer> outCont = std::make_unique<xAOD::MissingETContainer>();
     SG::WriteHandle<xAOD::MissingETContainer> OutMET(m_OutMETKey);
-
-    StatusCode sc = OutMET.record(std::make_unique<xAOD::MissingETContainer>(*outCont));
-
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("Unable to record MissingETContainer: " << OutMET.key());
-      return StatusCode::SUCCESS;
-
-    }
-
-    MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
-    SG::WriteHandle<xAOD::MissingETAuxContainer> OutMETAux(m_OutMETAuxKey);
-    sc = OutMETAux.record(std::make_unique<xAOD::MissingETAuxContainer>(*metAuxCont));
-    if (sc.isFailure()) {
-
-      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << OutMETAux.key());
-
-      return StatusCode::SUCCESS;
-
-    }
-
-    outCont->setStore(metAuxCont);
+    std::unique_ptr<MissingETContainer> outCont = std::make_unique<xAOD::MissingETContainer>();
+    std::unique_ptr<MissingETAuxContainer> metAuxCont = std::make_unique<xAOD::MissingETAuxContainer>();
+    ATH_CHECK( OutMET.record(std::move(outCont),std::move(metAuxCont) ) );
 
     if(m_doEle) {
       if(m_rebuildEle) {
@@ -307,9 +285,9 @@ namespace met {
           ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << Electrons.key());
           return StatusCode::SUCCESS;
         }
-        ATH_CHECK( rebuildMET(m_eleTerm, &*outCont, &*Electrons, &*METMap, m_doTracks) );
+        ATH_CHECK( rebuildMET(m_eleTerm, outCont.get(), Electrons.get(), METMap.get(), m_doTracks) );
       } else {
-        ATH_CHECK( copyMET(m_eleTerm,&*outCont,&*METMap) );
+        ATH_CHECK( copyMET(m_eleTerm,outCont.get(),METMap.get()) );
       }
     }
 
@@ -320,9 +298,9 @@ namespace met {
           ATH_MSG_WARNING("Unable to retrieve GammaContainer: " << Gamma.key());
           return StatusCode::FAILURE;
         }
-        ATH_CHECK( rebuildMET(m_gammaTerm, &*outCont, &*Gamma, &*METMap, m_doTracks) );
+        ATH_CHECK( rebuildMET(m_gammaTerm, outCont.get(), Gamma.get(), METMap.get(), m_doTracks) );
       } else {
-        ATH_CHECK( copyMET(m_gammaTerm,&*outCont,&*METMap) );
+        ATH_CHECK( copyMET(m_gammaTerm,outCont.get(),METMap.get()) );
       }
     }
 
@@ -333,9 +311,9 @@ namespace met {
           ATH_MSG_WARNING("Unable to retrieve TauJetContainer: " << TauJets.key());
           return StatusCode::FAILURE;
         }
-        ATH_CHECK( rebuildMET(m_tauTerm, &*outCont, &*TauJets, &*METMap, m_doTracks) );
+        ATH_CHECK( rebuildMET(m_tauTerm, outCont.get(), TauJets.get(), METMap.get(), m_doTracks) );
       } else {
-        ATH_CHECK( copyMET(m_tauTerm,&*outCont,&*METMap) );
+        ATH_CHECK( copyMET(m_tauTerm,outCont.get(),METMap.get()) );
       }
     }
 
@@ -349,9 +327,9 @@ namespace met {
           ATH_MSG_WARNING("Unable to retrieve MuonContainer: "  << Muons.key());
           return StatusCode::FAILURE;
         }
-        ATH_CHECK( rebuildMET(m_muonTerm, &*outCont, &*Muons, &*METMap, m_doTracks) );
+        ATH_CHECK( rebuildMET(m_muonTerm, outCont.get(), Muons.get(), METMap.get(), m_doTracks) );
       } else {
-        ATH_CHECK( copyMET(m_muonTerm,&*outCont,&*METMap) );
+        ATH_CHECK( copyMET(m_muonTerm,outCont.get(),METMap.get()) );
       }
     }
 
@@ -363,8 +341,8 @@ namespace met {
       ATH_MSG_WARNING("Unable to retrieve JetContainer: " << Jets.key());
       return StatusCode::FAILURE;
     }
-    ATH_CHECK( rebuildJetMET(m_jetTerm, m_softTerm, &*outCont, &*Jets, &*METMap, m_doTracks) );
-    ATH_CHECK( buildMETSum(m_outMETTerm, &*outCont) );
+    ATH_CHECK( rebuildJetMET(m_jetTerm, m_softTerm, outCont.get(), Jets.get(), METMap.get(), m_doTracks) );
+    ATH_CHECK( buildMETSum(m_outMETTerm, outCont.get()) );
 
     return StatusCode::SUCCESS;
   }

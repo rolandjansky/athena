@@ -39,7 +39,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from GaudiSequencer.PyComps import PyEvtFilter
-filterseq = CfgMgr.AthSequencer("AthFilterSeq")
+#filterseq = CfgMgr.AthSequencer("AthFilterSeq")
 #the following lines are examples, pick one...
 # filterseq += PyEvtFilter("PVSoftTrkTail", evt_list=[
 #         # 106239409,
@@ -59,7 +59,7 @@ filterseq = CfgMgr.AthSequencer("AthFilterSeq")
 #         # 7747623,
 #         # 9713934,
 #         ])
-topSequence += filterseq
+#topSequence += filterseq
 
 ############################################################################
 # Set up an extra associator for testing
@@ -117,17 +117,17 @@ from METReconstruction.METAssocConfig import getMETAssocAlg
 # Get the configuration directly from METRecoFlags
 # Can also provide a dict of configurations or list of RecoTools or both
 metAlg = getMETAssocAlg('METAssociation')
-filterseq += metAlg
+topSequence += metAlg
 
 from METUtilities.METMakerConfig import getMETMakerAlg
 makerAlgEM = getMETMakerAlg("NewAntiKt4EMTopo",jetColl="AntiKt4EMTopoJets")
 ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel=VERBOSE
 ToolSvc.METMaker_NewAntiKt4EMTopo.DoRemoveElecTrks=False
-filterseq += makerAlgEM
+topSequence += makerAlgEM
 makerAlgPF = getMETMakerAlg("NewAntiKt4EMPFlow",jetColl="AntiKt4EMPFlowJets")
 ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
 ToolSvc.METMaker_NewAntiKt4EMPFlow.DoRemoveElecTrks=False
-filterseq += makerAlgPF
+topSequence += makerAlgPF
 
 # filterseq += CfgMgr.met__METAssocTestAlg("TestMETAssocEMTopo",
 #                                          OutputLevel=VERBOSE,
