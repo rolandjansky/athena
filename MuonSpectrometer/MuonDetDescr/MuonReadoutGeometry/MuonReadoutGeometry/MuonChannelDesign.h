@@ -116,15 +116,20 @@ namespace MuonGM {
 
     Amg::Vector2D chPos;
     if (!channelPosition( chNum, chPos) ) return -10000.;
-
-    double sA = stereoAngle(chNum);
+    // For MM Stereo strips, we rotated the geometry so the main axis is along the stereo angle
+    // As such,our calculations are in 1D and do not require the use of the angle
+    // We are commenting out instead of removing while we come to a permanent solution
+    // Alexandre Laurier September 12 2018
+    //double sA = stereoAngle(chNum);
  
-    Amg::Vector2D chLoc( (pos.x()-chPos.x())*cos(sA)-(pos.y()-chPos.y())*sin(sA),
-			      + (pos.x()-chPos.x())*sin(sA)+(pos.y()-chPos.y())*cos(sA) );
+    //Amg::Vector2D chLoc( (pos.x()-chPos.x())*cos(sA)-(pos.y()-chPos.y())*sin(sA),
+	//		      + (pos.x()-chPos.x())*sin(sA)+(pos.y()-chPos.y())*cos(sA) );
+	Amg::Vector2D chLoc( pos.x()-chPos.x() , pos.y()-chPos.y());
 
     if ( validMode && fabs(chLoc.x()) > 0.5*channelWidth( pos) ) {
+
       std::cout << "problem in identification of the channel: distance to nearest channel, channel width:"
-		<<chLoc.x()<<","<< channelWidth(pos) << std::endl;  
+		<<chLoc.x()<<","<< channelWidth(pos) << std::endl;
     }
    
     return chLoc.x();
@@ -149,7 +154,11 @@ namespace MuonGM {
 //        xMid = pos.x() - pos.y()*tan(sAngle);
 // For all MM planes the local position is already rotated
         xMid = pos.x();
-        chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+1.5 );
+        // This line is to deal with strips in the deadzone. For now, return strip #1 until we figure out best fix
+        // Alexandre Laurier 12 Sept 2018
+        if (xMid > -xSize/2 && xMid < firstPos+inputPitch/2) return 1; // 
+        chNum = int( (xMid - xMfirst)/inputPitch+1.5 );
+        //chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+1.5 );
       }
       if (chNum<1) return -1;
       if (chNum>nch) return -1;     // used also for calculation of the number of strips
@@ -250,7 +259,7 @@ namespace MuonGM {
 
     } else if ( type==MuonChannelDesign::etaStrip ) {
 
-      if (sAngle==0.||inputPitch<1.0) {
+      if (sAngle==0.) {
 
 // MM == inputPitch<1.0 always use same code to calculate strip position for layers with and without stereo angle
 
@@ -268,6 +277,10 @@ namespace MuonGM {
           pos[0] = x;
           pos[1] = 0;
         }
+        else if (inputPitch <1.0) {
+	      pos[0] = firstPos + inputPitch*(st-1);
+	      pos[1] = 0;
+        }
         else { // default
 	  pos[0] = x;
 	  pos[1] = 0;
@@ -275,6 +288,13 @@ namespace MuonGM {
 	return true;
 
       }
+      else if (inputPitch <1.0) {
+	    pos[0] = firstPos + inputPitch*(st-1);
+	    pos[1] = 0;
+	    return true;
+      }
+
+
 
       // strip central position
       double xMid = firstPos + (st-1)*inputPitch/cos(sAngle);
