@@ -312,6 +312,7 @@ private:
   Resplot* rRoi_dzed_vs_eta;
 
   /// electron specific ET/PT related stuff
+  TH1F*       m_etovpt_raw;
   TH1F*       m_etovpt;
   Efficiency* m_eff_vs_etovpt;
 

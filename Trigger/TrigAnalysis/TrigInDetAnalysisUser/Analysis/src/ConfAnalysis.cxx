@@ -758,7 +758,16 @@ void ConfAnalysis::initialiseInternal() {
 
   /// electron specific histograms
 
-  m_etovpt        = new TH1F("etovpt", "ET / pT", 100, 0, 10 );
+  double etovpt_bins[39] = {
+    0,        0.1,      0.2,     0.3,     0.4,      0.5,       0.6,      0.7,      0.8,      0.9, 
+    1,        1.08571,  1.17877, 1.2798,  1.3895,   1.50859,   1.63789,  1.77828,  1.9307,   2.09618, 
+    2.27585,  2.47091,  2.6827,  2.91263, 3.16228,  3.43332,  3.72759,  4.04709,  4.39397,  4.77058,  
+    5.17947,  5.62341,  6.1054,  6.6287,  7.19686,  7.81371,  8.48343,  9.21055,  10
+  }; 
+
+  m_etovpt_raw    = new TH1F("etovpt_raw", "ET / pT", 100, 0, 10 );
+
+  m_etovpt        = new TH1F("etovpt", "ET / pT", 38, etovpt_bins );
   m_eff_vs_etovpt = new Efficiency( m_etovpt, "eff_vs_etovpt");
 
 
@@ -1113,7 +1122,6 @@ void ConfAnalysis::finalise() {
   store().find( vtxanal, "rvtx" );
   if ( vtxanal ) vtxanal->finalise();
 
-
   mdir->pop();
 
 }
@@ -1378,6 +1386,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 	/// object ET (massless pt really) is not 
 	etovpt_val = std::fabs( tobj->pt()/reftracks[i]->pT() );
 	m_etovpt->Fill( etovpt_val );
+	m_etovpt_raw->Fill( etovpt_val );
 	m_et->Fill( tobj->pt()*0.001 );
       }
     }
