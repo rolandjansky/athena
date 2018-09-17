@@ -23,23 +23,23 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
 
   public:
      /// Apply the correction on a modifyable object
-    virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const;
+    virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const override;
     /// Create a corrected copy from a constant muon
-    virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const;
+    virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const override;
     /// Get the expected pT resolution
-    virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const;
+    virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const override;
     /// Get the expected pT resolution - int argument is more efficient
-    virtual double expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const;
+    virtual double expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const override;
     /// Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
-    virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType) const;
+    virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType) const override;
     
     
     // Interface - Is the tool affected by a specific systematic?
-    virtual bool isAffectedBySystematic( const SystematicVariation& systematic ) const;
+    virtual bool isAffectedBySystematic( const SystematicVariation& systematic ) const override;
     // Interface - Which systematics have an effect on the tool's behaviour?
-    virtual SystematicSet affectingSystematics() const;
+    virtual SystematicSet affectingSystematics() const override;
     // Interface - Systematics to be used for physics analysis
-    virtual SystematicSet recommendedSystematics() const;
+    virtual SystematicSet recommendedSystematics() const override;
     // Interface - Use specific systematic
     virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
     
@@ -49,11 +49,10 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
     // Destructor
     virtual ~MuonCalibrationPeriodTool();
 
-    virtual StatusCode initialize();
-
-    
-
-    virtual StatusCode beginEvent();
+    // Initializing the subtools
+    virtual StatusCode initialize() override;
+    // Retrieve the runNumber of the event and assign the correct tool 
+    virtual StatusCode beginEvent() override;
     
     private:
         // Have three tool instances for each Monte Carlo campaign
