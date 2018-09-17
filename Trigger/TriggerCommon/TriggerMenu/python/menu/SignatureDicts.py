@@ -700,7 +700,7 @@ StreamingChainParts = {
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
                         'hltpassthrough', 'jettauetmiss', 'larcells', 
-                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon','zb', 'l1calo', 'l1topo','ftk'],
+                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon','zb', 'l1calo', 'l1topo','ftk','cc','pc'],
     'trigType'       : 'streamer', 
     'extra'          : '',
     'streamType'        : AllowedStreamingChainIdentifiers,

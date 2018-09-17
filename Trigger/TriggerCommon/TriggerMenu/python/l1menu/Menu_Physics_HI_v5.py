@@ -411,7 +411,7 @@ def defineMenu():
 		       'L1_EM20',
 	               'L1_EM22',
                        'L1_2EM10',
-                       #'L1_2EM5',
+                       'L1_2EM16',
 		       'L1_2EM7',
                        # tau beam items
                        #'L1_TAU8',
@@ -503,6 +503,7 @@ def defineMenu():
 		       'L1_TE4_VTE100',
 		       'L1_TE4_VTE50',
 		       # restricted TE
+		       'L1_TE600.0ETA49_PEB',
 		       'L1_TE600.0ETA49',
                        'L1_TE1500.0ETA49',
                        'L1_TE3000.0ETA49',
@@ -512,6 +513,7 @@ def defineMenu():
                        'L1_TE8000.0ETA49',
                        'L1_TE9000.0ETA49',
 		       'L1_TE50_VTE600.0ETA49',
+		       'L1_TE50_VTE600.0ETA49_PEB',
 		       # restricted TE for overlay
                        'L1_TE600.0ETA49_OVERLAY',
                        'L1_TE1500.0ETA49_OVERLAY',
@@ -533,6 +535,7 @@ def defineMenu():
 		       'L1_ZDC_A_C_VTE50_OVERLAY',
 		       'L1_TE50_OVERLAY',
                        'L1_ZDC_A_C_VTE50',
+                       'L1_ZDC_A_C_VTE50_PEB',
                        'L1_ZDC_A_C_TE50',
                        'L1_BCM_Wide',
                        'L1_BCM_HT_BGRP0','L1_BCM_Wide_BGRP0','L1_BCM_AC_CA_BGRP0',
@@ -551,6 +554,7 @@ def defineMenu():
 	           'L1_ZDC_XOR_TE20_VTE200',
                'L1_ZDC_XOR_TRT_VTE200',
                'L1_ZDC_XOR_VTE200_MBTS_1',
+		       'L1_VZDC_A_C_VTE50',
 		       'L1_VZDC_A_C_TE5_VTE200',
 	           'L1_VZDC_A_C_TE20_VTE200',
 	           'L1_VZDC_AORC_TE5_VTE200',
@@ -757,9 +761,8 @@ def defineMenu():
         'L1_2MU4_EMPTY' : 6,
         'L1_RD0_UNPAIRED_NONISO' : 7,
         'L1_BCM_AC_CA_UNPAIRED_NONISO': 8,
-        #'L1_FJ10_UNPAIRED_NONISO' :  9,
+        'L1_2EM16' : 9,
         'L1_2EM10' : 10,
-        #'L1_2EM5' : 11,
         #'L1_MU0_VTE20' : 12,
         'L1_LAR-EM' : 11,
         'L1_LAR-J' : 12,
@@ -774,7 +777,8 @@ def defineMenu():
 
         'L1_ZDC_AND_VTE50' : 27,
         #'L1_EM3_VTE20': 28,
-                
+        
+        'L1_ZDC_A_C_VTE50_PEB' : 34,        
         'L1_2MU4_VTE50' : 35,
         'L1_ZDC_A_C_VTE50' : 36,
         'L1_ZDC_A_C_UNPAIRED_NONISO' : 37,
@@ -1064,6 +1068,7 @@ def defineMenu():
         'L1_EM15HI_TAU40_2TAU15': 325,
         
 	# restricted TE
+        'L1_TE600.0ETA49_PEB': 306,
         'L1_TE600.0ETA49': 326,
         'L1_TE1500.0ETA49': 327,
         'L1_TE3000.0ETA49': 328,
@@ -1081,6 +1086,7 @@ def defineMenu():
 	'L1_TE4_VTE100': 349,
 	'L1_TE4_VTE50': 350,
 
+        'L1_TE50_VTE600.0ETA49_PEB': 305,
         'L1_TE50_VTE600.0ETA49': 334,
         # restricted TE for overlay
         'L1_TE600.0ETA49_OVERLAY': 336,
@@ -1103,7 +1109,7 @@ def defineMenu():
     'L1_2TAU2_VTE200' : 355,
     'L1_2TAU3_VTE200' : 356,    
 	
-
+    'L1_VZDC_A_C_VTE50' : 480,
     'L1_ZDC_XOR_TE20_VTE200' : 481,
 	'L1_TRT_FILLED' : 482,
 	'L1_TRT_EMPTY'  : 483,

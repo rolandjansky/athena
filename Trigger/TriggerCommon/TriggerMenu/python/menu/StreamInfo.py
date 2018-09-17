@@ -32,6 +32,8 @@ physicsStreams = ['Main',
                   'Mistimed',
                   'ExoDelayed',
                   'FTK',
+                  'PC',
+                  'CC',
                   ]
 
 calibStreams = [
@@ -60,8 +62,8 @@ calibStreams = [
                 'IDprescaledL1',
                 'LArPEB',
                 'L1TopoMismatches',
-                'PC',
-                'CC',
+                'PCPEB',
+                'CCPEB',
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 

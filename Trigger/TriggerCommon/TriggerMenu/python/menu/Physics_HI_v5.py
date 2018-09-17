@@ -21,6 +21,8 @@ def setupMenu():
     UCCStream="UCC"
     PCStream="PC"
     CCStream="CC"
+    PCpebStream="PCPEB"
+    CCpebStream="CCPEB"
 
     # Disable Calo offset correction for HI menus (ATR-13323)
     from CaloTools.CaloNoiseFlags import jobproperties
@@ -270,6 +272,9 @@ def setupMenu():
     ['e20_lhloose_ion',            'L1_EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
     ['e20_lhmedium_ion',            'L1_EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	
+	#monitoring
+	['2e20_loose_ion',            'L1_2EM16', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	
 	#idperf
 	['e15_loose_ion_idperf',       'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
 	['e18_loose_ion_idperf',       'L1_EM14', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
@@ -349,8 +354,10 @@ def setupMenu():
     ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1ZDC_XOR_VTE50',        'L1_ZDC_XOR_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
     ['hi_upc_FgapAC_mb_sptrk_exclusiveloose1_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose1'],False]],
     ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1MU4_VTE50',        'L1_MU4_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
-      
-    ]
+    ['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1ZDC_A_C_VTE50',        'L1_ZDC_A_C_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
+ 	['hi_upc_FgapAC_mb_sptrk_exclusiveloose2_L1VZDC_A_C_VTE50',        'L1_VZDC_A_C_VTE50',   ['', ''], [UPCStream],["BW:UPC", "RATE:UPC"], 1, ['serial', -1, ['hi_upc_FgapAC','mb_sptrk_exclusiveloose2'],False]],
+ 	       
+        ]
       
     TriggerFlags.HeavyIonSlice.signatures = [
 	#event shape triggers
@@ -410,9 +417,7 @@ def setupMenu():
  	    ['hi_gg_upc_FgapAC_L1TE4_VTE100',        'L1_TE4_VTE100',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_FgapAC_L1TE5_VTE50',        'L1_TE5_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_FgapAC_L1TE4_VTE50',        'L1_TE4_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
- 	    
- 	    ['hi_upc_FgapAC_L1TE4_VTE50',        'L1_TE4_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
- 	    
+ 	     	    
  	    ['hi_gg_upc_FgapAC_L12TAU2_VTE200',        'L1_2TAU2_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_FgapAC_L12TAU3_VTE200',        'L1_2TAU3_VTE200',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_FgapAC_L12TAU2_VTE100',        'L1_2TAU2_VTE100',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
@@ -427,10 +432,10 @@ def setupMenu():
  	    ['hi_gg_upc_L1TE5_VTE50',        'L1_TE5_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    ['hi_gg_upc_L1TE4_VTE50',        'L1_TE4_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
  	    
- 	    #PC
- 	    ['hi_hipeb_L1TE50_VTE600',      'L1_TE50_VTE600.0ETA49', [], [PCStream], ["BW:MinBias", "RATE:MinBias"], 1],
-		#CC
-		['hi_hipeb_L1TE600',      'L1_TE600.0ETA49', [], [CCStream], ["BW:MinBias", "RATE:MinBias"], 1],
+ 	    #PCpeb
+ 	    ['hi_hipeb_L1TE50_VTE600',      'L1_TE50_VTE600.0ETA49_PEB', [], [PCpebStream], ["BW:MinBias", "RATE:MinBias"], 1],
+		#CCpeb
+		['hi_hipeb_L1TE600',      'L1_TE600.0ETA49_PEB', [], [CCpebStream], ["BW:MinBias", "RATE:MinBias"], 1],
  	    	    
 	    #['hi_gg_upc_L1All',               '',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	# validation trigger
@@ -447,7 +452,7 @@ def setupMenu():
 	#sptrk
         ['mb_vetospmbts2in_L1TE5_VTE200',  'L1_TE5_VTE200', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sp',  'L1_RD0_FILLED', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
-        ['mb_sptrk_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk',  'L1_ZDC_A_C_VTE50', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_L1MBTS_1_1_VTE50', 'L1_MBTS_1_1_VTE50', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_idperf_ion_L1MBTS_1', 'L1_MBTS_1', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_idperf_ion_L1MBTS_1_1', 'L1_MBTS_1_1', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
@@ -455,12 +460,22 @@ def setupMenu():
         ['mb_perf_L1RD1_FILLED',    'L1_RD1_FILLED',   [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_perf_L1RD1_EMPTY',    'L1_RD1_EMPTY',   [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
 
+	#PCpeb
+	['mb_sptrk_hipeb_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50_PEB', [], [PCpebStream],["BW:MinBias", "RATE:MinBias"], 1],
 	#PC
-	['mb_sptrk_hipeb_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCStream],["BW:MinBias", "RATE:MinBias"], 1],
+	['mb_sptrk_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [PCStream],["BW:MinBias", "RATE:MinBias"], 1],
+	
 	
 	#MB UPC:
 	['mb_sptrk_L1ZDC_XOR_VTE200',  'L1_ZDC_XOR_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	['mb_sptrk_L1ZDC_XOR_VTE200_MBTS_1',  'L1_ZDC_XOR_VTE200_MBTS_1', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	
+	['mb_sptrk_exclusiveloose2_L12TAU2_VTE50',  'L1_2TAU2_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['mb_sptrk_exclusiveloose2_L12TAU2_VTE100',  'L1_2TAU2_VTE100', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['mb_sptrk_exclusiveloose2_L12TAU2_VTE200',  'L1_2TAU2_VTE100', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE50',  'L1_2TAU2_VTE50', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE100',  'L1_2TAU2_VTE100', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['mb_sptrk_vetombts2in_exclusiveloose2_L12TAU2_VTE200',  'L1_2TAU2_VTE200', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	#['mb_sptrk_ion_trk15_L1ZDC_XOR_VTE200_MBTS_1',  'L1_ZDC_XOR_VTE200_MBTS_1', [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
 	
 	#UPC: Other primary 
@@ -614,7 +629,12 @@ def setupMenu():
 	['noalg_mb_L1TE6500.0ETA49',      'L1_TE6500.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE8000.0ETA49',      'L1_TE8000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE9000.0ETA49',      'L1_TE9000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-
+    
+    #PC
+ 	['noalg_pc_L1TE50_VTE600',      'L1_TE50_VTE600.0ETA49', [], [PCStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	#CC
+	['noalg_cc_L1TE600',      'L1_TE600.0ETA49', [], [CCStream], ["BW:MinBias", "RATE:MinBias"], 1],
+    
 	#min bias
         ['noalg_mb_L1MBTS_2',    'L1_MBTS_2', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
         ['noalg_mb_L1MBTS_1_1',  'L1_MBTS_1_1', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
