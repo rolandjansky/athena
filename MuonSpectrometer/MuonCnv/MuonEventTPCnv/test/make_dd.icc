@@ -235,7 +235,7 @@ const MuonGM::MuonDetectorManager& make_dd()
   spos3->ID.detectorAddress = "dum3.1.1....3A";
 
   ddmdet.Register();
-  ddmdet.roParameters.stereoAngel.push_back(0);
+  ddmdet.roParameters.stereoAngle.push_back(0);
 
   AGDDDetectorPositioner* mpos2 = new AGDDDetectorPositioner ("pmdum2", xform);
   deleter.add (mpos2);
