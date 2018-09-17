@@ -13,7 +13,7 @@
 // Forward declarations
 class StoreGateSvc;
 
-/** @class ByteStreamEventStorageInputSvc
+/** @class TrigByteStreamInputSvc
  *  @brief A ByteStreamInputSvc implementation for online use, reading events from hltinterface::DataCollector
  *
  *  The layout and implementation are based on ByteStreamEventStorageInputSvc

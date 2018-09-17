@@ -90,6 +90,13 @@ svcMgr += evtSel
 theApp.EvtSel = "EventSelector"
 
 # ==============================================================================
+# Output conversion service
+# ==============================================================================
+from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamCnvSvc
+outputCnvSvc = TrigByteStreamCnvSvc("TrigByteStreamCnvSvc")
+svcMgr += outputCnvSvc
+
+# ==============================================================================
 # Some extra services
 # ==============================================================================
 ## basic Gaudi services from AtlasUnixStandardJob.py
@@ -155,6 +162,7 @@ HltEventLoopMgr = svcMgr.HltEventLoopMgr
 HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
 HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
 HltEventLoopMgr.EvtSel = evtSel
+HltEventLoopMgr.OutputCnvSvc = outputCnvSvc
 
 
 # configure here Level-1 CTP ROB identifier which is used in HLT

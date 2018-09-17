@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
     Control/AthenaBaseComps
     Event/ByteStreamData
   PRIVATE
+    Event/ByteStreamCnvSvcBase
     Event/ByteStreamCnvSvc
     Event/EventInfo
     HLT/Trigger/TrigControl/TrigKernel
@@ -33,6 +34,7 @@ atlas_add_library(
     ${TDAQ-COMMON_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES
     ${TDAQ-COMMON_LIBRARIES}
+    ByteStreamCnvSvcBase
     ByteStreamCnvSvc
     EventInfo
     TrigKernel

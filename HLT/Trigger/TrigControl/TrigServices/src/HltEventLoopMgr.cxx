@@ -26,6 +26,7 @@
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/IAlgResourcePool.h"
+#include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -48,61 +49,6 @@ using namespace boost::property_tree;
 using SOR = TrigSORFromPtreeHelper::SOR;
 
 // =============================================================================
-// Implementation-specific constants and helpers that are not part of the class. These values and functions are
-// accessed multiple times per event, so may be important for performance.
-// =============================================================================
-namespace {
-  constexpr std::array<uint32_t, 12> L1R_SKIP_ROB_CHECK
-  {{
-    0x7300a8, 0x7300a9, 0x7300aa, 0x7300ab, // TDAQ_CALO_CLUSTER_PROC_ROI ROBs
-    0x7500ac, 0x7500ad,                     // TDAQ_CALO_JET_PROC_ROI ROBs
-    0x760001,                               // TDAQ_MUON_CTP_INTERFACE ROB
-    0x770001,                               // TDAQ_CTP ROB
-    0x910081, 0x910091, 0x910082, 0x910092  // TDAQ_CALO_TOPO_PROC ROBs
-  }}; //concrete IDs still unknown for TDAQ_FTK and TDAQ_CALO_FEAT_EXTRACT_ROI
-
-  //============================================================================
-  constexpr std::array<eformat::SubDetector, 7> L1R_SKIP_SD_CHECK
-  {{
-    eformat::TDAQ_CALO_CLUSTER_PROC_ROI,
-    eformat::TDAQ_CALO_JET_PROC_ROI,
-    eformat::TDAQ_HLT,
-    eformat::TDAQ_FTK,
-    eformat::TDAQ_CALO_TOPO_PROC,
-    eformat::TDAQ_CALO_DIGITAL_PROC,
-    eformat::TDAQ_CALO_FEAT_EXTRACT_ROI
-  }};
-
-  //============================================================================
-  constexpr bool skipEnabledCheck(uint32_t robid)
-  {
-    // Skip check for HLT Result ROBs (for DataScouting)
-    if (static_cast<eformat::SubDetector>((robid >> 16) & 0xff) == eformat::TDAQ_HLT) return true;
-
-    // Skip check for certain L1 input ROBs
-    for (size_t i=0; i<=L1R_SKIP_ROB_CHECK.size(); ++i) {
-      if (robid == L1R_SKIP_ROB_CHECK[i]) return true;
-    }
-
-    return false;
-  }
-
-  //============================================================================
-  constexpr bool skipEnabledCheck(eformat::SubDetector sd)
-  {
-    // Skip check for HLT Result ROBs (for DataScouting)
-    if (sd == eformat::TDAQ_HLT) return true;
-
-    // Skip check for certain L1 input ROBs
-    for (size_t i=0; i<=L1R_SKIP_SD_CHECK.size(); ++i) {
-      if (sd == L1R_SKIP_SD_CHECK[i]) return true;
-    }
-
-    return false;
-  }
-}
-
-// =============================================================================
 // Standard constructor
 // =============================================================================
 HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
@@ -114,6 +60,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_THistSvc("THistSvc", name),
   m_evtSelector("EvtSel", name),
+  m_outputCnvSvc("OutputCnvSvc", name),
   m_coolHelper("TrigCOOLUpdateHelper", this),
   m_eventInfoCnvTool("xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
@@ -131,6 +78,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("enabledROBs",              m_enabledROBs);
   declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
   declareProperty("EvtSel",                   m_evtSelector);
+  declareProperty("OutputCnvSvc",             m_outputCnvSvc);
   declareProperty("CoolUpdateTool",           m_coolHelper);
   declareProperty("EventInfoCnvTool",         m_eventInfoCnvTool);
   declareProperty("HltResultName",            m_HltResultName="HLTResult_HLT");
@@ -323,6 +271,11 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_evtSelector->createContext(m_evtSelContext));
 
   //----------------------------------------------------------------------------
+  // Setup the Output Conversion Service
+  //----------------------------------------------------------------------------
+  ATH_CHECK(m_outputCnvSvc.retrieve());
+
+  //----------------------------------------------------------------------------
   // Setup the COOL helper
   //----------------------------------------------------------------------------
   ATH_CHECK(m_coolHelper.retrieve());
@@ -430,6 +383,10 @@ StatusCode HltEventLoopMgr::finalize()
     ATH_MSG_WARNING("Failed to release service " << m_inputMetaDataStore.typeAndName());
   if (m_THistSvc.release().isFailure())
     ATH_MSG_WARNING("Failed to release service " << m_THistSvc.typeAndName());
+  if (m_evtSelector.release().isFailure())
+    ATH_MSG_WARNING("Failed to release service " << m_evtSelector.typeAndName());
+  if (m_outputCnvSvc.release().isFailure())
+    ATH_MSG_WARNING("Failed to release service " << m_outputCnvSvc.typeAndName());
 
   // Release tool handles
   if (m_coolHelper.release().isFailure())
@@ -1156,136 +1113,15 @@ void HltEventLoopMgr::failedEvent(EventContext* eventContext,
 std::unique_ptr<uint32_t[]> HltEventLoopMgr::fullHltResult(const xAOD::EventInfo* eventInfo,
                                                            HLT::HLTResult* hltResult) const
 {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  ATH_MSG_DEBUG("Creating an HLT result for event " << *eventInfo);
-  auto hltrFragment = std::make_unique<eformat::write::FullEventFragment>();
-
-  // need to handle eventInfo==nullptr here?
-
-  //----------------------------------------------------------------------------
-  // Fill header data from EventInfo
-  //----------------------------------------------------------------------------
-  hltrFragment->global_id(eventInfo->eventNumber());
-  hltrFragment->bc_time_seconds(eventInfo->timeStamp());
-  hltrFragment->bc_time_nanoseconds(eventInfo->timeStampNSOffset());
-  hltrFragment->run_no(eventInfo->runNumber());
-  hltrFragment->bc_id(eventInfo->bcid());
-  hltrFragment->lvl1_id(eventInfo->extendedLevel1ID());
-  hltrFragment->lvl1_trigger_type(eventInfo->level1TriggerType());
-  /* not available in xAOD::EventInfo
-  hltrFragment->lvl1_trigger_info(eventInfo->trigger_info()->level1TriggerInfo().size(),
-                                  eventInfo->trigger_info()->level1TriggerInfo().data());
-  */
-
-  // need to handle hltResult==nullptr here?
-
-  ATH_MSG_DEBUG("Event " << eventInfo->eventNumber() << " is "
-                << (hltResult->accepted() ? "accepted" : "rejected"));
-
-
-  if (hltResult->accepted() && eventInfo->streamTags().empty()) {
-    ATH_MSG_ERROR("HLTResult accepted bit is true, but EventInfo has no stream tags");
-    // what do we do now?
-  }
-
-  //----------------------------------------------------------------------------
-  // Fill stream tags
-  //----------------------------------------------------------------------------
-  std::vector<eformat::helper::StreamTag> streamTags;
-  for(const auto& st : eventInfo->streamTags()) {
-    // Filter ROBs
-    std::set<uint32_t> robs;
-    if (m_enabledROBs.empty()) {
-      // Skip the enabled robs check
-      robs = st.robs();
-    }
-    else {
-      for (const auto& robid : st.robs()) {
-        if (skipEnabledCheck(robid))
-          robs.insert(robid);
-        else if (std::find(m_enabledROBs.value().cbegin(),
-                           m_enabledROBs.value().cend(),
-                           robid) != m_enabledROBs.value().cend())
-          robs.insert(robid);
-        else
-          ATH_MSG_DEBUG("---> ROB ID 0x" << MSG::hex << robid << MSG::dec
-                        << " will not be retrieved because it is not on the list of enabled ROBs");
-      }
-    }
-
-    // Filter SubDetectors
-    std::set<eformat::SubDetector> dets;
-    if (m_enabledSubDetectors.empty()) {
-      // Skip the enabled subdetectors check
-      // Need to cast from set<uint32_t> to set<eformat::SubDetector>
-      for (const auto& detid : st.dets())
-        dets.insert(static_cast<eformat::SubDetector>(detid));
-    }
-    else {
-      for (const auto& detid : st.dets()) {
-        const eformat::SubDetector edetid = static_cast<eformat::SubDetector>(detid);
-        if (skipEnabledCheck(edetid))
-          dets.insert(edetid);
-        else if (std::find(m_enabledSubDetectors.value().cbegin(),
-                           m_enabledSubDetectors.value().cend(),
-                           detid) != m_enabledSubDetectors.value().cend())
-          dets.insert(edetid);
-        else
-          ATH_MSG_DEBUG("---> SubDetector ID 0x" << MSG::hex << detid << MSG::dec
-                        << " will not be retrieved because it is not on the list of enabled SubDetectors");
-      }
-    }
-
-    // Create an eformat::helper::StreamTag
-    streamTags.emplace_back(st.name(), st.type(), st.obeysLumiblock(), robs, dets);
-  }
-
-  // Can remove the below printout when the code is verified to work correctly
-  if (msgLevel() <= MSG::VERBOSE) {
-    ATH_MSG_VERBOSE("Event " << eventInfo->eventNumber() << " has " << eventInfo->streamTags().size()
-                    << " stream tags in event info and " << streamTags.size()
-                    << " of them were converted to eformat::helper::StreamTag");
-    for (const auto& st : eventInfo->streamTags()) {
-      ATH_MSG_VERBOSE("Stream tag [name/type/obeys_lumiblock] = [" << st.name() << "/" << st.type() << "/"
-                      << st.obeysLumiblock() << "]");
-      for (const auto& robid : st.robs())
-        ATH_MSG_VERBOSE("---> ROB 0x" << MSG::hex << robid << MSG::dec);
-      for (const auto& detid : st.dets())
-        ATH_MSG_VERBOSE("---> SubDetector 0x" << MSG::hex << (uint32_t)detid << MSG::dec);
-    }
-  }
-
-  // Memory allocated to streamTagData has to be freed after making a copy of bound FullEventFragment.
-  // This is ensured by the use of std::unique_ptr.
-  uint32_t nStreamTagWords = 0;
-  auto streamTagData = std::make_unique<uint32_t[]>({});
-  eformat::helper::encode(streamTags,nStreamTagWords,streamTagData.get());
-  hltrFragment->stream_tag(nStreamTagWords, streamTagData.get());
-
-  //----------------------------------------------------------------------------
-  // Serialise the HLT result FullEventFragment
-  //----------------------------------------------------------------------------
-  const eformat::write::node_t* top = hltrFragment->bind();
-  auto hltrFragmentSize = hltrFragment->size_word();
-  auto hltrPtr = std::make_unique<uint32_t[]>(hltrFragmentSize);
-  auto copiedSize = eformat::write::copy(*top,hltrPtr.get(),hltrFragmentSize);
-  if(copiedSize!=hltrFragmentSize){
-    ATH_MSG_ERROR("HLT result FullEventFragment serialization failed");
-    // missing error handling
-  }
-
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return hltrPtr;
+  // method to be removed
+  return nullptr;
 }
 
 // ==============================================================================
 // This method is now trivial and could be removed
 void HltEventLoopMgr::eventDone(std::unique_ptr<uint32_t[]> hltResult) const
 {
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  ATH_MSG_DEBUG("Sending the HLT result to DataCollector");
-  hltinterface::DataCollector::instance()->eventDone(std::move(hltResult));
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+  // method to be removed
 }
 
 // ==============================================================================
@@ -1391,8 +1227,11 @@ int HltEventLoopMgr::drainScheduler()
     // EventID::number_type n_run(0);
     // EventID::number_type n_evt(0);
 
+    //-------------------------------------------
+    // Call the new ResultBuilder here to produce HLTResult ???
+    //-------------------------------------------
+
     const xAOD::EventInfo* eventInfo = nullptr;
-    HLT::HLTResult* hltResult = nullptr;
     if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
       if (m_evtStore->retrieve(eventInfo).isFailure()) {
         ATH_MSG_ERROR(__FUNCTION__ << ": Failed to retrieve EventInfo");
@@ -1402,9 +1241,6 @@ int HltEventLoopMgr::drainScheduler()
       } else {
         // n_run = eventInfo->runNumber();
         // n_evt = eventInfo->eventNumber();
-        if (m_evtStore->retrieve(hltResult,m_HltResultName).isFailure()) {
-          ATH_MSG_ERROR(__FUNCTION__ << ": Failed to retrieve HltResult");
-        }
       }
     } else {
       ATH_MSG_ERROR("DrainSched: unable to select store " << thisFinishedEvtContext->slot());
@@ -1416,16 +1252,39 @@ int HltEventLoopMgr::drainScheduler()
     // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
     // 					 *thisFinishedEvtContext ));
 
-    if (!hltResult) {
-      failedEvent(thisFinishedEvtContext,eventInfo);
-      continue;
-    }
 
-    // create HLT result FullEventFragment
-    std::unique_ptr<uint32_t[]> hltr = fullHltResult(eventInfo,hltResult);
-    // serialize and send the result
-    eventDone(std::move(hltr));
-    // should we delete hltrFragment now?
+    // if (!hltResult) {
+    //   failedEvent(thisFinishedEvtContext,eventInfo);
+    //   continue;
+    // }
+
+    //-------------------------------------------
+    // HLT output handling goes here
+    // Call the conversion svc etc.
+    // Handle any possible errors
+    //-------------------------------------------
+    // Connect output (create the output container) - the argument is currently not used
+    if (m_outputCnvSvc->connectOutput("").isFailure()) {
+      ATH_MSG_ERROR("Conversion service failed to connectOutput");
+      // what now?
+    }
+    IOpaqueAddress* addr = nullptr;
+    // is this the best way? also maybe should be retrieved in initialize and stored?
+    auto hltResultCLID = ClassID_traits<HLT::HLTResult>::ID();
+    DataObject* hltResultDO = m_evtStore->accessData(hltResultCLID,m_HltResultName);
+    if (!hltResultDO) {
+      ATH_MSG_ERROR("Failed to retrieve the HLTResult DataObject");
+      // what now?
+    }
+    if (m_outputCnvSvc->createRep(hltResultDO,addr).isFailure()) {
+      ATH_MSG_ERROR("Conversion service failed to convert HLTResult");
+      // what now?
+    }
+    // Commit output (write/send the output data) - the arguments are currently not used
+    if (m_outputCnvSvc->commitOutput("",true).isFailure()) {
+      ATH_MSG_ERROR("Conversion service failed to commitOutput");
+      // what now?
+    }
 
     { // flag idle slot to the timeout thread and reset the timer
       std::unique_lock<std::mutex> lock(m_timeoutMutex);

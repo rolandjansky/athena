@@ -38,6 +38,7 @@ class EventContext;
 class IAlgExecStateSvc;
 class IAlgorithm;
 class IAlgResourcePool;
+class IConversionSvc;
 class IHiveWhiteBoard;
 class IIncidentSvc;
 class IROBDataProviderSvc;
@@ -166,6 +167,7 @@ private:
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
   ServiceHandle<ITHistSvc>           m_THistSvc;
   ServiceHandle<IEvtSelector>        m_evtSelector;
+  ServiceHandle<IConversionSvc>      m_outputCnvSvc;
 
   /// Reference to the Whiteboard interface
   SmartIF<IHiveWhiteBoard> m_whiteboard;
