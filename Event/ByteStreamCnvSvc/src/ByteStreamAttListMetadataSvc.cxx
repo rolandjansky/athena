@@ -7,10 +7,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "ByteStreamData/ByteStreamUserMetadata.h"
-//#include "GaudiKernel/ToolHandle.h"
-//#include "TBufferFile.h"
-//#include "TClass.h"
-//#include "TROOT.h"
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -40,61 +36,25 @@ StatusCode ByteStreamAttListMetadataSvc::readInit(const std::vector<std::string>
    std::vector<std::string>::const_iterator it = keys.begin();
    while (it != keys.end()) {
       AthenaAttributeList* attlist;
-      sc = mdStore->retrieve(attlist,*it );
-      if (sc.isFailure()) {
-         coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
-         attlist = new AthenaAttributeList(*spec);
-         StatusCode sc2 = mdStore->record(attlist, *it );
-         if (sc2.isFailure()) {
-            msg() << MSG::WARNING 
-                  << "Unable to store AthenaAttributeList for " << *it << endmsg;
-            allok = StatusCode::FAILURE;
-         }
-      }
-      else {
+      if (mdStore->contains<AthenaAttributeList>(*it)) {
           msg() << MSG::DEBUG << *it << " already present in " 
                 << m_outputStoreName.toString() << endmsg;
-       }
-       ++it;
+      }
+      else {
+          coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
+          attlist = new AthenaAttributeList(*spec);
+          StatusCode sc2 = mdStore->record(attlist, *it );
+          if (sc2.isFailure()) {
+              msg() << MSG::WARNING
+                    << "Unable to store AthenaAttributeList for " << *it << endmsg;
+              allok = StatusCode::FAILURE;
+          }
+      }
+      ++it;
    }
    return allok;
 }
 
-/*
-// Fails due to no default constructor for coral::Attribute
-StatusCode ByteStreamAttListMetadataSvc::serialize(const std::vector<std::string>& keys)
-{
-
-   // Retrieve serializer 
-   if (!m_serial.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get serial.");
-      return(StatusCode::FAILURE);
-   }
-   msg() << MSG::INFO << "ByteStreamAttListMetadataSvc::serialize" << endmsg;
-
-   m_serial->reset();
-
-   const AthenaAttributeList* attList;
-   StoreGateSvc* inStore;
-   StatusCode sc = service(m_inputStoreName.toString(),inStore);
-   if (sc.isFailure()) return StatusCode::FAILURE;
-   std::vector<std::string>::const_iterator it = keys.begin();
-   while (it != keys.end()) {
-      sc = inStore->retrieve( attList, *it );
-      if (sc.isSuccess()) {
-         msg() << MSG::INFO << "Found " << *it << " in " << m_inputStoreName.toString() << endmsg;
-         ByteStream::FreeMetadata* metacont = new ByteStream::FreeMetadata();
-         std::string cl = "AthenaAttributeList";
-         std::string cnvname;
-         void *pObj = (void *)&(*attList);
-         std::vector<uint32_t> out;
-         m_serial->serialize(cl,pObj,out);
-      }
-      ++it;
-   }
-   return StatusCode::SUCCESS;
-}
-*/
 
 StatusCode ByteStreamAttListMetadataSvc::toBSMetadata(const std::vector<std::string>& keys)
 {
