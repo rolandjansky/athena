@@ -22,6 +22,7 @@ if not 'InDetTrigFlags' in dir():
    #InDetTrigFlags.primaryVertexSetup = "DefaultFastFinding"
    InDetTrigFlags.doiPatRec = False
    InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)
+   InDetTrigFlags.doPixelClusterSplitting = False
    InDetTrigFlags.doPrintConfigurables = False    #
    #InDetTrigFlags.doPrintConfigurables = True    #
 

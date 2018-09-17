@@ -22,7 +22,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetRawData/SCT3_RawData.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "AthenaKernel/errorcheck.h"
 #include "SCT_Monitoring/SCT_ClusterStruct.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -228,7 +227,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_dataObjectName(std::string("SCT_RDOs")),
   m_eventInfoKey(std::string("EventInfo")),
   m_pSCTHelper(nullptr),
-  m_sctmgr(nullptr),
   m_checkBadModules(true),
   m_ignore_RDO_cut_online(true) {
   /** sroe 3 Sept 2015:

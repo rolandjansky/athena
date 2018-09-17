@@ -5,7 +5,10 @@
 // Header include
 #include "InDetSVWithMuonTool/InDetSVWithMuonTool.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TMath.h"
+#include "TH1D.h"
+#include "TH2D.h"
 //
 //-------------------------------------------------
 // Other stuff

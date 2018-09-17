@@ -12,7 +12,6 @@
 #include "SCT_CalibHvSvc.h"
 #include "SCT_CalibUtilities.h"
 #include "SCT_CalibNumbers.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"  //template parameter
 
 
 #include "EventInfo/EventInfo.h"
@@ -40,7 +39,6 @@ SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):
   AthService(name,svc),
   m_detStore("DetectorStore", name),
   m_evtStore("StoreGateSvc", name),
-  m_cablingSvc( "SCT_CablingSvc", name ),
   m_pSCTHelper(0),
   m_sct_waferHash(0),  
   m_sct_numHitsInWafer(0),
@@ -203,7 +201,6 @@ if (newbin) {
   for( ; waferItr not_eq waferItrE; ++waferItr ) {
     Identifier       waferId   = *waferItr;
     IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
-//    SCT_SerialNumber sn        = m_cablingSvc->getSerialNumberFromHash( waferHash );
     if (m_phvtripHasItTripped_prev[waferHash]>0) {
       pair<int,int> wp;
       wp.first = (m_phvtripPrevTime - 3*maxtbins);

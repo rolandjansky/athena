@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RD53SimTool.h"
@@ -43,11 +43,11 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
   if (abs(barrel_ec)!=m_BarrelEC) { return; }
 
-  int maxRD53SmallHit = 0;
+  //int maxRD53SmallHit = 0; unused
   int overflowToT     = 256;
 
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
-  int nSmallHitsRD53 = 0;
+  //int nSmallHitsRD53 = 0; unused
   std::vector<int> row, col;
   const int maxRow = p_design->rowsPerCircuit();
   const int maxCol = p_design->columnsPerCircuit();
@@ -110,7 +110,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
     if (SiHelper::isDisabled((*i_chargedDiode).second)) { continue; } 
 
-    if (!m_pixelConditionsSvc->isActive(moduleHash,diodeID)) {
+    if (!m_pixelConditionsTool->isActive(moduleHash,diodeID)) {
       SiHelper::disabled((*i_chargedDiode).second,true,true);
       continue;
     }
@@ -128,21 +128,31 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     // Front-End simulation
     if (bunch>=0 && bunch<m_timeBCN) {
       Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch,0,bunch);
-      if (nToT>maxRD53SmallHit) {
+      //see commented code below for clarification why this is always executed
+      rdoCollection.push_back(p_rdo);
+      RD53Map[iirow][iicol] = 2; //Flag for "big hits"
+      //
+      //
+      /**
+      if (nToT>maxRD53SmallHit) { //this must be true, since maxRD53SmallHit is zero, and 
+                                  // nToT is at least 1
         rdoCollection.push_back(p_rdo);
         RD53Map[iirow][iicol] = 2; //Flag for "big hits"
       }
-      else {
+      //So the following code is never reached; I leave it here assuming the developer will
+      //revisit it.
+         else {
         p_rdo_small_fei4.push_back(p_rdo);
         row.push_back(iirow);
         col.push_back(iicol);
         RD53Map[iirow][iicol] = 1; //Flag for low hits
         nSmallHitsRD53++;
-      }
+      } **/
     }
   }
-
+  // again, the following code is never reached but left here for the developer to comment
   // Copy mechanism for IBL small hits:
+  /**
   if (nSmallHitsRD53>0) {
     bool recorded = false;
 
@@ -175,7 +185,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
       }
     }
   }
-
+  **/
   return;
 }
 

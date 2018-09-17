@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 
 #include <cmath>
 #include <iomanip>
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "iPatGeometry/SiliconRing.h"
 #include "iPatGeometry/SiliconTrapezoid.h"
 #include "iPatTrackFollower/LayerPrediction.h"
@@ -25,7 +24,6 @@ SiliconLayerAssociator::SiliconLayerAssociator(const std::string&	type,
 					       const std::string&	name,
 					       const IInterface*	parent)
     :   AthAlgTool		(type, name, parent),
-	m_pixelConditions	("PixelConditionsSummarySvc",name),
 	m_clusterMap		(nullptr),
 	m_cosPhi		(0.),
 	m_cosStereo		(0.),
@@ -37,7 +35,6 @@ SiliconLayerAssociator::SiliconLayerAssociator(const std::string&	type,
 	m_sinStereo		(0.)
 {
     declareInterface<ISiliconLayerAssociator>(this);
-    declareProperty("PixelConditionsSvc",	m_pixelConditions);
 }
 
 SiliconLayerAssociator::~SiliconLayerAssociator()
@@ -50,20 +47,9 @@ SiliconLayerAssociator::initialize()
 {
     ATH_MSG_INFO( "SiliconLayerAssociator::initialize() - package version " << PACKAGE_VERSION );
 
-    if (! m_pixelConditions.empty())
-    {
-	// Get PixelConditionsSummarySvc
-	if (m_pixelConditions.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve service " << m_pixelConditions );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_INFO( "Retrieved service " << m_pixelConditions );
-	}
-    }
-    
+    ATH_CHECK(m_pixelConditions.retrieve());
+    ATH_CHECK(m_sctConditions.retrieve());
+
     // sufficient for most module overlap cases (only exceeded when high pixel occupancy)
     m_associations.reserve(8);
 

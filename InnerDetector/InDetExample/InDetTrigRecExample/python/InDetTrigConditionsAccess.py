@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file  InDetTrigConfConditionsAccess.py
@@ -17,9 +17,8 @@ if InDetTrigFlags.useConditionsClasses():
   from InDetTrigRecExample.InDetTrigConfigConditions import PixelConditionsSetup
   PixelConditionsSetup.config(useDCS=_useDCS,onlineMode=_onlineMode,prefix=_prefix)
   PixelConditionsSetup.lock()
-  PixelConditionsSetup.createSvc()
+  PixelConditionsSetup.createTool()
 
-  
   from InDetTrigRecExample.InDetTrigConfigConditions import SCT_ConditionsSetup
   SCT_ConditionsSetup.config(useDCS=_useDCS, onlineMode=_onlineMode, prefix=_prefix)
   SCT_ConditionsSetup.lock()

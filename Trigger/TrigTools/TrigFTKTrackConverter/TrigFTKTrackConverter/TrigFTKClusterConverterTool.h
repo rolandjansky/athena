@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //implementation
@@ -7,17 +7,24 @@
 #ifndef TRIGFTKTRACKCONVERTER_TRIGFTKCLUSTERCONVERTERTOOL_H
 #define TRIGFTKTRACKCONVERTER_TRIGFTKCLUSTERCONVERTERTOOL_H
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigFTKSim/FTKTrack.h"
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 
+#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrigFTKSim/FTKTrack.h"
 #include "TrkFitterInterfaces/ITrackFitter.h" 
 #include "TrkFitterUtils/FitterTypes.h" 
-#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
+
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include <mutex>
+#include <vector>
 
 class StoreGateSvc;
 
@@ -29,7 +36,6 @@ class IdentifierHash;
 
 namespace InDetDD {
   class PixelDetectorManager;
-  class SCT_DetectorManager;
 }
 
 namespace InDet {
@@ -73,10 +79,13 @@ private:
   const SCT_ID* m_sctId;
   
   const InDetDD::PixelDetectorManager* m_pixelManager;
-  const InDetDD::SCT_DetectorManager* m_SCT_Manager;
 
-  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
+  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
   bool m_doFit;
   bool m_doTruth;
   std::string m_ftkPixelTruthName;
@@ -87,6 +96,15 @@ private:
   PRD_MultiTruthCollection* m_ftkSctTruth;
   const AtlasDetectorID* m_idHelper;
   bool m_collectionsReady;
+
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheSCTElements;
+  // Pointer of InDetDD::SiDetectorElementCollection
+  mutable Gaudi::Hive::ContextSpecificPtr<const InDetDD::SiDetectorElementCollection> m_SCTDetectorElements;
+
+  const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash hash) const;
 };
 
 #endif

@@ -9,8 +9,8 @@
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "CLIDSvc/tools/ClassID_traits.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/StorableConversions.h"
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>

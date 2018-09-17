@@ -99,7 +99,6 @@ public:
    ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool;
    ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
    //! flag storing if errors need scaling or should be kept nominal
-   bool                               m_scaleSctCov;
 
    //! job options
    bool                               m_option_make2dimBarrelClusters;

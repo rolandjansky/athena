@@ -96,6 +96,18 @@ atlas_add_test( AthTPCnvSvc
    PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|^Py:Athena +INFO executing ROOT6Setup|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO" )
 
+
+atlas_add_test( SimplePOSIXTimeKeeperSvc
+   SCRIPT test/SimplePOSIXTimeKeeperSvc.sh
+   PROPERTIES TIMEOUT 300
+   EXTRA_PATTERNS "allocated job time|average time" )
+
+
+atlas_add_test( AthDictLoaderSvc
+   SCRIPT test/AthDictLoaderSvc.sh
+   PROPERTIES TIMEOUT 300 )
+
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/AthTPCnvSvc_test.py

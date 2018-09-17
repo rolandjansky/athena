@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -97,7 +97,7 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
    auto xatBeam		= MonitoredScalar::declare("XatBe", -9999.);
    auto zatBeam		= MonitoredScalar::declare("ZatBe", -9999.);
 
-   auto monitorIt	= MonitoredScope::declare(m_monTool, fexPt, fexEta, fexPhi,fexPtFL, 
+   auto monitorIt	= MonitoredScope::declare(m_monTool, fexPt, fexEta, fexPhi, fexPtFL,
    					          xatStation, yatStation, zatStation, 
 					          xatBeam, zatBeam);
 

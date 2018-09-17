@@ -15,10 +15,8 @@
 //#include "TrkEventPrimitives/GlobalPosition.h"
 //#include "TrkEventPrimitives/LocalPosition.h"
 //#include "TrkEventPrimitives/ErrorMatrix.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
 //#include "InDetTrackValidation/SCT_ClusterStruct.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h" 
@@ -50,7 +48,6 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
         m_dataObjectName(std::string("SCT_RDOs")),
 	m_spacePointContainerName(std::string("SCT_SpacePoints")),
 	m_inputTrackCollection(std::string("CombinedInDetTracks")),
-        m_cabling("SCT_CablingSvc",name),
         m_ntupleFileName("/NTUPLES/FILE1"), 
         m_ntupleDirName("FitterValidation"),
         m_ntupleTreeName("RIOs"),
@@ -138,16 +135,17 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
         ATH_MSG_ERROR("Failed to retrieve tool " << m_byteStreamErrTool);
         return StatusCode::FAILURE;
       } else {
-        ATH_MSG_INFO("Retrieved service " << m_byteStreamErrTool);
+        ATH_MSG_INFO("Retrieved tool " << m_byteStreamErrTool);
       }
       if (m_cabling.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Failed to retrieve service " << m_cabling);
+        ATH_MSG_ERROR("Failed to retrieve tool " << m_cabling);
         return StatusCode::FAILURE;
       } else {
-        ATH_MSG_INFO("Retrieved service " << m_cabling);
+        ATH_MSG_INFO("Retrieved tool " << m_cabling);
       }
     } else {
       m_byteStreamErrTool.disable();
+      m_cabling.disable();
     }
 
 
@@ -286,6 +284,11 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
     ATH_CHECK( m_dataObjectName.initialize(m_fillRDO) );
     ATH_CHECK( m_spacePointContainerName.initialize(m_fillSpacePoint) );
     ATH_CHECK( m_inputTrackCollection.initialize(m_fillRDO and m_doHitsOnTracks) );
+
+    // Read Cond Handle Key
+    if (m_fillCluster) {
+      ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+    }
 
     return sc;
 }

@@ -15,10 +15,12 @@ DumpLArRawChannels::DumpLArRawChannels(const std::string& name, ISvcLocator* pSv
     m_chan(0),
     m_onlineHelper(0),
     m_larCablingSvc(0),
-    m_emId(0)
+    m_emId(0),
+    m_thistSvc ("THistSvc",     name) 
 {m_count=0;
  declareProperty("LArRawChannelContainerName",m_key=""); 
  declareProperty("OutputFileName",m_FileName="LArRawChannels.txt");
+ declareProperty("NtupStream",m_ntup);
 }
 
 DumpLArRawChannels::~DumpLArRawChannels() 
@@ -47,6 +49,21 @@ StatusCode DumpLArRawChannels::initialize()
 
   m_outfile.open(m_FileName.c_str(),std::ios::out);
 
+  if (m_ntup.size()) {
+    m_tree= new TTree("RC","LArRawChannels");
+    const std::string ntupStream="/"+m_ntup+"/LArRawChanenls";
+    ATH_CHECK(m_thistSvc->regTree(ntupStream,m_tree));
+
+    m_tree->Branch("evt",&m_evt,"evt/I");
+    m_tree->Branch("e",&m_e,"e/F");
+    m_tree->Branch("t",&m_t,"t/F");
+    m_tree->Branch("Q",&m_Q,"q/F");
+    m_tree->Branch("gain",&m_gain,"gain/I");
+    m_tree->Branch("HWID",&m_id,"hwid/I");
+      
+  }
+
+
   ATH_MSG_INFO ( "======== test-stuff initialize successfully ========" );
   return StatusCode::SUCCESS;
 }
@@ -62,7 +79,8 @@ StatusCode DumpLArRawChannels::execute()
    ATH_MSG_WARNING ( "No EventInfo object found!" );
  else
    {
-   std::cout << "*** Event #" << std::dec << thisEventInfo->runNumber() << "/" << thisEventInfo->eventNumber() << std::endl;
+     std::cout << "*** Event #" << std::dec << thisEventInfo->runNumber() << "/" << thisEventInfo->eventNumber() << std::endl;
+     m_evt=thisEventInfo->eventNumber();
    }
 
  const DataHandle < LArRawChannelContainer > channel_cont;
@@ -142,6 +160,14 @@ StatusCode DumpLArRawChannels::execute()
     m_outfile << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x"
 	      << std::hex << (*vec_it)->provenance() << std::dec << " G=" << (*vec_it)->gain() << std::endl;
 
+    if (m_tree) {
+      m_e=(*vec_it)->energy();
+      m_t=(*vec_it)->time();
+      m_Q=(*vec_it)->quality();
+      m_gain=(*vec_it)->gain();
+      m_id=chid.get_identifier32().get_compact();
+      m_tree->Fill();
+    }
    }
  //std::cout << "Collection #" << ++nColl << " contains " << chan_coll->size() << " elementes." << std::endl;
  std::cout << "Event " << m_count << " contains " << m_chan << " (" <<channelVector.size() <<")  channels\n";

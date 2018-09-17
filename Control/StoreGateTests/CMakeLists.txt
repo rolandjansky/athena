@@ -38,3 +38,17 @@ atlas_install_headers( StoreGateTests )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py share/tests/*.py )
 
+atlas_add_test( PyClidsTestWriter
+                SCRIPT test/PyClidsTestWriter.sh
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "running|XMLCatalog" )
+
+atlas_add_test( SgProducerConsumer
+                SCRIPT test/SgProducerConsumer.sh
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "running|XMLCatalog" )
+
+atlas_add_test( SgProducerConsumerDataPool
+                SCRIPT test/SgProducerConsumerDataPool.sh
+                PROPERTIES TIMEOUT 300
+                EXTRA_PATTERNS "running|XMLCatalog" )

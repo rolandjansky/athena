@@ -4,15 +4,18 @@
 
 #include "SCT_ConfigurationCondAlg.h"
 
-// STL include
-#include <memory>
-
 // Athena include
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "SCT_Cabling/SCT_SerialNumber.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "SCT_Cabling/SCT_SerialNumber.h"
 #include "SCT_ConditionsData/SCT_Chip.h"
+
+// Gaudi includes
+#include "GaudiKernel/EventIDRange.h"
+
+// STL include
+#include <memory>
 
 // Static folder names 
 const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName{"/SCT/DAQ/Configuration/Chip"};
@@ -27,7 +30,6 @@ const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName2{"/SCT/DAQ/Confi
 SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_condSvc{"CondSvc", name}
-  , m_cablingSvc{"SCT_CablingSvc", name}
   , m_pHelper{nullptr}
 {
 }
@@ -37,8 +39,8 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
 
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
-  // SCT cabling service
-  ATH_CHECK(m_cablingSvc.retrieve());
+  // SCT cabling tool
+  ATH_CHECK(m_cablingTool.retrieve());
 
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
 
@@ -60,7 +62,7 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
   ATH_CHECK(m_readKeyChannel.initialize());
   ATH_CHECK(m_readKeyModule.initialize());
   ATH_CHECK(m_readKeyMur.initialize());
-  ATH_CHECK(m_sctDetEleCollKey.initialize());
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
@@ -94,20 +96,24 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
   writeCdo->clear();
 
   // Fill module data
-  if (fillModuleData(writeCdo.get()).isFailure()) {
+  EventIDRange rangeModule;
+  if (fillModuleData(writeCdo.get(), rangeModule).isFailure()) {
     return StatusCode::FAILURE;
   }
 
   // Fill strip, chip and link info if Chip or MUR folders change
-  if (fillChannelData(writeCdo.get()).isFailure()) {
+  EventIDRange rangeChannel;
+  EventIDRange rangeMur;
+  EventIDRange rangeDetEle;
+  if (fillChannelData(writeCdo.get(), rangeChannel, rangeMur, rangeDetEle).isFailure()) {
     return StatusCode::FAILURE;
   }
 
   // Define validity of the output cond obbject and record it
-  // m_rangeDetEle is run-lumi. Others are time.
-  EventIDRange rangeW{EventIDRange::intersect(m_rangeChannel, m_rangeModule, m_rangeMur/*, m_rangeDetEle*/)};
+  // rangeDetEle is run-lumi. Others are time.
+  EventIDRange rangeW{EventIDRange::intersect(rangeChannel, rangeModule, rangeMur/*, rangeDetEle*/)};
   if(rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << m_rangeChannel << " " << m_rangeModule << " " << m_rangeMur/* << " " << m_rangeDetEle*/);
+    ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << rangeChannel << " " << rangeModule << " " << rangeMur/* << " " << rangeDetEle*/);
     return StatusCode::FAILURE;
   }
   if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
@@ -122,7 +128,7 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
 }
 
 // Fill bad strip, chip and link info
-StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* writeCdo) {
+StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeChannel, EventIDRange& rangeMur, EventIDRange& rangeDetEle) {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -159,7 +165,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   writeCdo->clearBadStripIds();
   writeCdo->clearBadChips();
   // Fill link status
-  if (fillLinkStatus(writeCdo).isFailure()) return StatusCode::FAILURE;
+  if (fillLinkStatus(writeCdo, rangeMur).isFailure()) return StatusCode::FAILURE;
 
   // Get channel folder for link info 
   SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyChannel};
@@ -171,20 +177,20 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   ATH_MSG_INFO("Size of " << m_readKeyChannel.key() << " folder is " << readCdo->size());
 
   // Get EventIDRange
-  if (not readHandle.range(m_rangeChannel)) {
+  if (not readHandle.range(rangeChannel)) {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
 
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_sctDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
-    ATH_MSG_FATAL(m_sctDetEleCollKey.fullKey() << " could not be retrieved");
+    ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
   }
   // Get EventIDRange
-  if (not sctDetEle.range(m_rangeDetEle)) {
+  if (not sctDetEle.range(rangeDetEle)) {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << sctDetEle.key());
     return StatusCode::FAILURE;
   }
@@ -197,7 +203,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
     // Get SN and identifiers (the channel number is serial number+1 for the CoraCool folders but =serial number 
     // for Cool Vector Payload ; i.e. Run 1 and Run 2 resp.)
     const unsigned int truncatedSerialNumber{run1 ? (itr->first-1) : (itr->first)};
-    const IdentifierHash& hash{m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
     if (not hash.is_valid()) continue;
     const Identifier waferId{m_pHelper->wafer_id(hash)};
     const Identifier moduleId{m_pHelper->module_id(waferId)};
@@ -285,7 +291,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
 }
 
 // Fill bad module info
-StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* writeCdo) {
+StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeModule) {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -311,7 +317,7 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
   ATH_MSG_INFO("Size of " << m_readKeyModule.key() << " is " << readCdo->size());
 
   // Get EventIDRange
-  if (not readHandle.range(m_rangeModule)) {
+  if (not readHandle.range(rangeModule)) {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
@@ -328,14 +334,14 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
     // Get SN and identifiers (the channel number is serial number+1 for the CoraCool folders but =serial number 
     //  for Cool Vector Payload ; i.e. Run 1 and Run 2 resp.)
     const unsigned int truncatedSerialNumber{run1 ? (itr->first-1) : (itr->first)};
-    const IdentifierHash& hash{m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber)};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber)};
     ++totalNumberOfModules;
     if (not hash.is_valid()) continue;
 
     Identifier waferId{m_pHelper->wafer_id(hash)};
     ++totalNumberOfValidModules;
     IdentifierHash oppWaferHash;
-    m_pHelper->get_other_side(m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber), oppWaferHash);
+    m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber), oppWaferHash);
     const Identifier oppWaferId{m_pHelper->wafer_id(oppWaferHash)};
     const Identifier moduleId{m_pHelper->module_id(waferId)};
     // Get AttributeList from second (see http://lcgapp.cern.ch/doxygen/CORAL/CORAL_1_9_3/doxygen/html/classcoral_1_1_attribute_list.html)
@@ -358,7 +364,7 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* w
 }
 
 // Fill link info
-StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* writeCdo) {
+StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeMur) {
   // Check if the pointer of derived conditions object is valid.
   if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
@@ -381,7 +387,7 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
   ATH_MSG_INFO("Size of " << m_readKeyMur.key() << " is " << readCdo->size());
 
   // Get EventIDRange
-  if (not readHandle.range(m_rangeMur)) {
+  if (not readHandle.range(rangeMur)) {
     ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
     return StatusCode::FAILURE;
   }
@@ -404,7 +410,7 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* w
     const SCT_SerialNumber serialNumber{ullSerialNumber};
     if (not serialNumber.is_valid()) continue;
     // Check module hash
-    const IdentifierHash& hash{m_cablingSvc->getHashFromSerialNumber(serialNumber.to_uint())};
+    const IdentifierHash& hash{m_cablingTool->getHashFromSerialNumber(serialNumber.to_uint())};
     if (not hash.is_valid()) continue;
 
     Identifier waferId{m_pHelper->wafer_id(hash)};
@@ -429,7 +435,7 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
   const Identifier invalidIdentifier; //initialiser creates invalid Id
   unsigned int strip{0};
   IdentifierHash waferHash;
-  if (not m_cablingSvc) {
+  if (not m_cablingTool) {
     ATH_MSG_FATAL("The cabling tool pointer is zero.");
     return invalidIdentifier;
   }
@@ -437,11 +443,11 @@ SCT_ConfigurationCondAlg::getStripId(const unsigned int truncatedSerialNumber, c
   // returns the side 0 hash, so we use the helper for side 1
 
   if (chipNumber<6) {
-    waferHash = m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber);
+    waferHash = m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber);
     strip = chipNumber * stripsPerChip + stripNumber;
     if (waferHash.is_valid()) waferId = m_pHelper->wafer_id(waferHash);
   } else {
-    m_pHelper->get_other_side(m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber), waferHash);
+    m_pHelper->get_other_side(m_cablingTool->getHashFromSerialNumber(truncatedSerialNumber), waferHash);
     strip = (chipNumber - 6) * stripsPerChip + stripNumber;
     if (waferHash.is_valid()) waferId = m_pHelper->wafer_id(waferHash);
   }

@@ -11,7 +11,6 @@
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -23,7 +22,6 @@ SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std:
   m_condDataGain{},
   m_condDataNoise{},
   m_condDataInfo{},
-  m_cabling{"SCT_CablingSvc", name},
   m_id_sct{nullptr} {
   }
 
@@ -35,7 +33,7 @@ StatusCode SCT_ReadCalibDataTool::initialize() {
   // Get SCT helper
   ATH_CHECK(detStore()->retrieve(m_id_sct, "SCT_ID"));
 
-  // Retrieve SCT Cabling service
+  // Retrieve SCT Cabling tool
   ATH_CHECK(m_cabling.retrieve());
 
   // Read Cond Handle Key
@@ -120,7 +118,7 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions:
 
 //----------------------------------------------------------------------
 // Returns a defect summary of a defect strip, scan, type and value
-SCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const Identifier& stripId, InDetConditions::Hierarchy h) {
+SCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const Identifier& stripId, InDetConditions::Hierarchy h) const {
   // Print where you are
   ATH_MSG_DEBUG("in defectType()");
 
@@ -232,7 +230,7 @@ SCT_ReadCalibDataTool::CalibDefectType SCT_ReadCalibDataTool::defectType(const I
 
 //----------------------------------------------------------------------
 // Returns a summary of all defects on a module for a given scan
-SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataTool::defectsSummary(const Identifier& moduleId, const std::string& scan) {
+SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataTool::defectsSummary(const Identifier& moduleId, const std::string& scan) const {
   // Create pointer to the CalibDataDefect object 
   SCT_CalibDefectData::CalibModuleDefects wantedDefects;
 
@@ -263,7 +261,7 @@ SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataTool::defectsSummary(co
 //---------------------------------------------------------------------- 
 //----------------------------------------------------------------------
 // Returns a list of all strips with a certain defects
-std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defect) {
+std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defect) const {
   std::list<Identifier> defectList;
 
   // Retrieve defect data

@@ -256,7 +256,7 @@ CaloNoiseToolDB::updateCache()
   // update once.  It will likely fail in a MT job if conditions change
   // during a run.  What's here is probably sufficient for running on MC,
   // but this tool needs a rewrite to properly handle running on real
-  // data in MC.
+  // data in MT.
   lock_t lock (m_mutex);
   if (m_cacheValid) return;
 

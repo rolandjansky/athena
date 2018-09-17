@@ -13,7 +13,6 @@
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 #include "InDetIdentifier/SCT_ID.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
@@ -37,7 +36,6 @@ namespace InDet{
     m_clusterContainerKey("SCT_Clusters"),
     m_clusterContainerLinkKey("SCT_Clusters"),
     m_flaggedCondDataKey("SCT_FlaggedCondData"),
-    m_manager(nullptr),
     m_maxRDOs(384), //(77),
     m_checkBadModules(true),
     m_flaggedModules(),
@@ -46,7 +44,6 @@ namespace InDet{
   {  
   // Get parameter values from jobOptions file    
     declareProperty("DataObjectName", m_rdoContainerKey, "SCT RDOs" );
-    declareProperty("DetectorManagerName",m_managerName);
     declareProperty("clusteringTool",m_clusteringTool);    //inconsistent nomenclature!
     declareProperty("RoIs", m_roiCollectionKey, "RoIs to read in");
     declareProperty("isRoI_Seeded", m_roiSeeded, "Use RoI");
@@ -83,9 +80,6 @@ namespace InDet{
 
     // Get the clustering tool
     ATH_CHECK (m_clusteringTool.retrieve());
-
-    // Get the SCT manager
-    ATH_CHECK (detStore()->retrieve(m_manager,"SCT"));
 
     // Get the SCT ID helper
     ATH_CHECK (detStore()->retrieve(m_idHelper,"SCT_ID"));
@@ -169,7 +163,7 @@ namespace InDet{
               continue;
             }
             // Use one of the specific clustering AlgTools to make clusters    
-            std::unique_ptr<SCT_ClusterCollection> clusterCollection ( m_clusteringTool->clusterize(*rd,*m_manager,*m_idHelper));
+            std::unique_ptr<SCT_ClusterCollection> clusterCollection ( m_clusteringTool->clusterize(*rd,*m_idHelper));
             if (clusterCollection) { 
               if (not clusterCollection->empty()) {
                 const IdentifierHash hash(clusterCollection->identifyHash());
@@ -207,7 +201,7 @@ namespace InDet{
               continue;
             }
           // Use one of the specific clustering AlgTools to make clusters
-            std::unique_ptr<SCT_ClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
+            std::unique_ptr<SCT_ClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper));
             if (clusterCollection && !clusterCollection->empty()){
               ATH_MSG_VERBOSE( "REGTEST: SCT : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
@@ -224,7 +218,7 @@ namespace InDet{
     
     // Set container to const
     ATH_CHECK(clusterContainer.setConst());
-    
+    ATH_MSG_DEBUG("clusterContainer->numberOfCollections() " <<  clusterContainer->numberOfCollections());
     return StatusCode::SUCCESS;
   }
 

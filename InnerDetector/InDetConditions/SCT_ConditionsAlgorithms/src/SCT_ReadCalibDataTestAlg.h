@@ -17,7 +17,9 @@
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
+
+// Include Gaudi stuff
 #include "GaudiKernel/ToolHandle.h"
 
 // Include STL stuff
@@ -26,7 +28,6 @@
 // Forward declarations
 class ISvcLocator;
 class SCT_ID;
-class ISCT_CablingSvc;
 
 /** This class acts as a test/sample client to the SCT_ReadSCalibDataSvc class.*/
 class SCT_ReadCalibDataTestAlg:public AthAlgorithm 
@@ -47,7 +48,6 @@ class SCT_ReadCalibDataTestAlg:public AthAlgorithm
   StatusCode processProperties();             //!< Process jobOpt properties
   
   //----------Private Attributes----------//
-  StatusCode                          m_sc;            //!< To check return codes
   const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
   Identifier                          m_moduleId;      //!< Module identifier
   Identifier                          m_waferId;       //!< Wafer identifier
@@ -55,8 +55,7 @@ class SCT_ReadCalibDataTestAlg:public AthAlgorithm
  
   // Get Tool Handle
   ToolHandle<ISCT_ReadCalibDataTool> m_ReadCalibDataTool{this, "SCT_ReadCalibDataTool", "SCT_ReadCalibDataTool", "Tool to retrieve calibration information"};
-  // Get Service Handle
-  ServiceHandle<ISCT_CablingSvc>       m_cabling;           //!< Handle to SCT cabling service
+  ToolHandle<ISCT_CablingTool>       m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
   BooleanProperty                  m_doTestmyConditionsSummary;   //!< Test return bool conditions summary?
   BooleanProperty                  m_doTestmyDefectIsGood;        //!< Test isGood for all strips?

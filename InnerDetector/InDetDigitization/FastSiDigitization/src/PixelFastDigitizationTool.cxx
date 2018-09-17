@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -240,6 +240,8 @@ StatusCode PixelFastDigitizationTool::initialize()
   } else {
     ATH_MSG_DEBUG ( m_gangedAmbiguitiesFinder.propertyName() << ": Retrieved tool " << m_gangedAmbiguitiesFinder.type() );
   }
+
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -596,7 +598,6 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       InDetDD::SiCellId entryCellId = hitSiDetElement->cellIdFromIdentifier(entryId);
       InDetDD::SiCellId exitCellId = hitSiDetElement->cellIdFromIdentifier(exitId);
-
 
       double halfthickness = hitSiDetElement->thickness()/2.;
 
@@ -1018,7 +1019,8 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
 
   //bool m_useLorentzAngle = (hitSiDetElement->getLorentzCorrection() == 0.);
   bool useLorentzAngle = true;
-  float lorentzAngle   = useLorentzAngle ? hitSiDetElement->hitDepthDirection()*hitSiDetElement->hitPhiDirection()*std::atan(hitSiDetElement->getTanLorentzAngle()) : 0.;
+  const IdentifierHash detElHash = hitSiDetElement->identifyHash();
+  float lorentzAngle   = useLorentzAngle ? hitSiDetElement->hitDepthDirection()*hitSiDetElement->hitPhiDirection()*std::atan(m_lorentzAngleTool->getTanLorentzAngle(detElHash)) : 0.;
 
   // added for degugging
 

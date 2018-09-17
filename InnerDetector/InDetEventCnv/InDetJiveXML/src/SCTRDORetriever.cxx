@@ -6,10 +6,10 @@
 #include "InDetRawData/SCT_RDO_Collection.h"
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT3_RawData.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/SCT_ID.h"
 //#include "TrkEventPrimitives/LocalPosition.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "JiveXML/DataType.h"
@@ -52,6 +52,14 @@ namespace JiveXML {
       return StatusCode::RECOVERABLE;
     }
 
+    // Get SCT_DetectorElementCollection
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+    if (elements==nullptr) {
+      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+
     // Now find out how much space we need in total
     unsigned long NSCTRDO = 0;
     //Loop over SCTRDO containers 
@@ -85,6 +93,7 @@ namespace JiveXML {
 
       //Get the collection of SCT raw hits
       const SCT_RDO_Collection* SCTRDORawCollection = (*SCTRDOContItr);
+      const IdentifierHash waferHash = SCTRDORawCollection->identifyHash();
       
       //Loop over raw hit collection
       SCT_RDO_Collection::const_iterator SCTRDORawCollItr = SCTRDORawCollection->begin();
@@ -97,7 +106,7 @@ namespace JiveXML {
         Identifier id = rdoData->identify();
 
         //Get the hit detector element
-        const InDetDD::SiDetectorElement *element = m_geo->SCTGeoManager()->getDetectorElement(id);
+        const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
         //Make sure we got the detector element
         if (element == NULL){
           msg(MSG::WARNING) << "Unable to obtain detector element for SCT_RDO hit with id " << id << endmsg;
@@ -105,8 +114,9 @@ namespace JiveXML {
         }
 
         //Get the local position and store it
-	Amg::Vector2D localPos = element->localPositionOfCell(id);
-        const std::pair<Amg::Vector3D, Amg::Vector3D > endsOfStrip = element->endsOfStrip(localPos);
+        Amg::Vector2D localPos = element->rawLocalPositionOfCell(id);
+        localPos[Trk::distPhi] += m_lorentzAngleTool->getLorentzShift(waferHash);
+        const std::pair<Amg::Vector3D, Amg::Vector3D> endsOfStrip = element->endsOfStrip(localPos);
         ident.push_back(DataType( id.get_compact() ));
         x0.push_back(DataType( endsOfStrip.first.x()*CLHEP::mm/CLHEP::cm));
         y0.push_back(DataType( endsOfStrip.first.y()*CLHEP::mm/CLHEP::cm));
@@ -169,6 +179,10 @@ namespace JiveXML {
   StatusCode SCTRDORetriever::initialize() {
     // Read Handle Key
     ATH_CHECK( m_SCTRDOContainerName.initialize() );
+    // Read Cond Handle Key
+    ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+
+    ATH_CHECK( m_lorentzAngleTool.retrieve() );
 
     return m_geo.retrieve();
   }

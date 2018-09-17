@@ -47,15 +47,13 @@
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class TrigTimer;
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
-
-
-namespace InDetDD {
-  class SiDetectorManager;
-}
 
 namespace InDet {
     
@@ -105,13 +103,11 @@ namespace InDet {
     
     ToolHandle<ITrigRawDataProviderTool>    m_rawDataProvider;
     ToolHandle<ISCT_ClusteringTool> m_clusteringTool; //!<  clustering algorithm
-    std::string             m_managerName; //!< detector manager name in StoreGate
     std::string             m_clustersName; 
     std::string             m_flaggedCondDataName;
     const SCT_ID*           m_idHelper;
     
     SCT_ClusterContainer*   m_clusterContainer;
-    const InDetDD::SiDetectorManager* m_manager;
     
     // !<  Trigger part
     ServiceHandle<IRegSelSvc>    m_regionSelector; //!<  region selector service
@@ -129,7 +125,8 @@ namespace InDet {
     std::set<IdentifierHash>                 m_flaggedModules;
     bool                   m_doTimeOutChecks;   //check global timer
 
-
+    // For P->T converter of SCT_Clusters
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     
     // Timing
     TrigTimer*  m_timerSGate;      

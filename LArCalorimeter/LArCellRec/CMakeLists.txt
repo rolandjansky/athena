@@ -53,3 +53,20 @@ atlas_add_component( LArCellRec
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+
+atlas_add_test( LArBadFebMaskingTool_test
+  SCRIPT test/LArBadFebMaskingTool_test.sh
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore" )
+
+
+atlas_add_test( LArCellDeadOTXCorr_test
+  SCRIPT test/LArCellDeadOTXCorr_test.sh
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore" )
+
+
+atlas_add_test( LArCellBuilderFromLArHitTool_test
+  SCRIPT test/LArCellBuilderFromLArHitTool_test.sh
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "LArDetectorToolNV|is still valid|no data retrieved|Database being retired|Reading file|Unable to locate catalog|Resolved path|DigitizationFlags|^Domain|created CondCont|no dictionary for class|^ +[+]|Reading LArPedestalMC|IOV callback|^DetectorStore" )

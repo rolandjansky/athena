@@ -129,6 +129,9 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 
   ATH_CHECK( m_tracklocation.initialize());
 
+  // Read Cond Handle Key
+  ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
   if (msgLvl(MSG::DEBUG)) {
     dumptools(msg(),MSG::DEBUG);
     msg() << endmsg;

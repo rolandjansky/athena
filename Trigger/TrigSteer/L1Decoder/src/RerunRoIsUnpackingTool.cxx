@@ -30,7 +30,7 @@ StatusCode RerunRoIsUnpackingTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RerunRoIsUnpackingTool::updateConfiguration() {
+StatusCode RerunRoIsUnpackingTool::updateConfiguration( const IRoIsUnpackingTool::SeedingMap& ) {
   return StatusCode::SUCCESS;
 }
 

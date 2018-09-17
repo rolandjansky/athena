@@ -11,6 +11,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
+#include "MuonCombinedEvent/InDetCandidateToTagMap.h"
 
 namespace MuonCombined {
 
@@ -30,8 +31,9 @@ namespace MuonCombined {
 
 
     /**IMuonSegmentTagTool interface: build muons from ID and MuonSegments */    
-    virtual void tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments ) const = 0;
-    virtual void tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, SegmentMap* segmentToxAODSegmentMap ) const = 0;
+    virtual void tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& segments, InDetCandidateToTagMap* tagMap ) const = 0;
+    virtual void tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, 
+		      SegmentMap* segmentToxAODSegmentMap, InDetCandidateToTagMap* tagMap ) const = 0;
 
   };
 

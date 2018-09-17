@@ -4,7 +4,6 @@ from AthenaCommon import CfgMgr
 
 def getSCT_DetectorTool(name="SCT_DetectorTool", **kwargs):
     kwargs.setdefault("DetectorName",     "SCT");
-    kwargs.setdefault("InitialLayout",    False);
     kwargs.setdefault("Alignable",        True);
     kwargs.setdefault("RDBAccessSvc",     "RDBAccessSvc");
     kwargs.setdefault("GeometryDBSvc",    "InDetGeometryDBSvc");

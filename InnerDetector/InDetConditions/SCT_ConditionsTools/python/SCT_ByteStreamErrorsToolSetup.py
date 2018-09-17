@@ -9,15 +9,13 @@ class SCT_ByteStreamErrorsToolSetup:
         self.tool = None
 
     def setTool(self):
-        from AthenaCommon.AppMgr import ToolSvc
-        if not hasattr(ToolSvc, self.toolName):
+        if self.tool is None:
             from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ByteStreamErrorsTool
             if self.configTool is None:
-                ToolSvc += SCT_ByteStreamErrorsTool(name = self.toolName)
+                self.tool = SCT_ByteStreamErrorsTool(name = self.toolName)
             else:
-                ToolSvc += SCT_ByteStreamErrorsTool(name = self.toolName,
-                                                    ConfigTool = self.configTool)
-        self.tool = getattr(ToolSvc, self.toolName)
+                self.tool = SCT_ByteStreamErrorsTool(name = self.toolName,
+                                                     ConfigTool = self.configTool)
 
     def getTool(self):
         return self.tool

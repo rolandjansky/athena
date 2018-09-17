@@ -36,7 +36,6 @@ SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
   m_overlapLimitEtaMax(3.0),   // high overlap limit for eta-neighbours.
   m_spacePointsOverlapName("OverlapSpacePoints"),
   m_SiSpacePointMakerToolName("InDet::SiSpacePointMakerTool"),
-  m_manager(0),
   m_idHelper(0),
   m_Sct_clcontainer{nullptr},
   m_SiSpacePointMakerTool(0),
@@ -79,7 +78,6 @@ SCT_TrigSpacePointTool::~SCT_TrigSpacePointTool()
 //--------------------------------------------------------------------------
 StatusCode SCT_TrigSpacePointTool::initialize()  {
   ATH_CHECK( AthAlgTool::initialize() );
-  ATH_CHECK( detStore()->retrieve(m_manager,"SCT") );
   ATH_CHECK( detStore()->retrieve(m_idHelper, "SCT_ID") );
 
   // Make a table of neighbours and widths of side 1 SCT wafers

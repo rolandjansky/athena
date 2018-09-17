@@ -9,6 +9,19 @@
  * @date 20 October, 2008
  **/
  
+//Package
+#include "SCT_TestCablingAlg.h"
+
+#include "SCT_CablingUtilities.h"
+#include "SCT_CablingXmlTags.h"
+
+//Athena
+#include "Identifier/IdentifierHash.h"
+#include "InDetIdentifier/SCT_ID.h"
+
+//Gaudi
+#include "GaudiKernel/StatusCode.h"
+
 //STL
 #include <set>
 #include <cstdint>
@@ -20,25 +33,10 @@
 #include <algorithm>
 #include <map>
 
-
-//Gaudi
-#include "GaudiKernel/StatusCode.h"
-
-//Athena
-#include "Identifier/IdentifierHash.h"
-#include "InDetIdentifier/SCT_ID.h"
-//Package
-#include "SCT_TestCablingAlg.h"
-#include "SCT_CablingUtilities.h"
-#include "SCT_CablingXmlTags.h"
-
-
-
 using namespace std;
 using namespace SCT_Cabling;
  
 SCT_TestCablingAlg::SCT_TestCablingAlg (const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator),
-  m_cablingSvc("SCT_CablingSvc",name),
   m_idHelper(0){
   //nop
 }
@@ -50,7 +48,7 @@ SCT_TestCablingAlg::~SCT_TestCablingAlg(){
 StatusCode
 SCT_TestCablingAlg::initialize(){
   ATH_CHECK(detStore()->retrieve(m_idHelper,"SCT_ID"));
-  ATH_CHECK(m_cablingSvc.retrieve());
+  ATH_CHECK(m_cablingTool.retrieve());
   ATH_MSG_INFO("Test algorithm for SCT_Cabling");
   return StatusCode::SUCCESS;
 }
@@ -75,36 +73,36 @@ SCT_TestCablingAlg::execute(){
   ofstream opFile1(filename.c_str(),ios::out);
   msg(MSG::INFO)<<"Executing..."<<endmsg;
   msg(MSG::INFO)<<"hash, offline Id, online Id(hex), serial number"<<endmsg;
-  const unsigned int nHashesInCabling(2*m_cablingSvc->size());
+  const unsigned int nHashesInCabling(2*m_cablingTool->size());
   for (unsigned int i(0);i!=nHashesInCabling;++i){
     IdentifierHash hash(i);
     Identifier offlineId(m_idHelper->wafer_id(hash));
-    SCT_OnlineId onlineId(m_cablingSvc->getOnlineIdFromHash(hash));
-    SCT_SerialNumber sn(m_cablingSvc->getSerialNumberFromHash(hash));
+    SCT_OnlineId onlineId(m_cablingTool->getOnlineIdFromHash(hash));
+    SCT_SerialNumber sn(m_cablingTool->getSerialNumberFromHash(hash));
     msg(MSG::INFO)<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<endmsg;
     opFile1<<i<<" "<<offlineId<<" "<<hex<<onlineId<<dec<<" "<<sn<<" "<<coordString(offlineId)<<std::endl;
-    if (m_cablingSvc->getHashFromOnlineId(onlineId) != hash){
-      msg(MSG::ERROR)<<"?? "<<m_cablingSvc->getHashFromOnlineId(onlineId)<<endmsg;
+    if (m_cablingTool->getHashFromOnlineId(onlineId) != hash){
+      msg(MSG::ERROR)<<"?? "<<m_cablingTool->getHashFromOnlineId(onlineId)<<endmsg;
     }
   }
   opFile1.close();
-  msg(MSG::INFO)<<"Size: "<<m_cablingSvc->size()<<endmsg;
+  msg(MSG::INFO)<<"Size: "<<m_cablingTool->size()<<endmsg;
   std::vector<unsigned int> rods;
-  m_cablingSvc->getAllRods(rods);
+  m_cablingTool->getAllRods(rods);
   msg(MSG::INFO)<<"Num. of rods= "<<rods.size()<<endmsg;
   msg(MSG::INFO)<<"First rod id "<<std::hex<<rods[0]<<std::dec<<endmsg;
   string sn("20220130000299");
-  msg(MSG::INFO)<<"Hash from serial number "<<m_cablingSvc->getHashFromSerialNumber(sn)<<endmsg;
+  msg(MSG::INFO)<<"Hash from serial number "<<m_cablingTool->getHashFromSerialNumber(sn)<<endmsg;
   int tsn(130000299);
-  msg(MSG::INFO)<<"Hash from truncated serial number "<<m_cablingSvc->getHashFromSerialNumber(tsn)<<endmsg;
+  msg(MSG::INFO)<<"Hash from truncated serial number "<<m_cablingTool->getHashFromSerialNumber(tsn)<<endmsg;
   unsigned long long snll(20220130000299LL);
-  msg(MSG::INFO)<<"Hash from truncated serial number "<<m_cablingSvc->getHashFromSerialNumber(snll)<<endmsg;
-  msg(MSG::INFO)<<"Hash from onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d230006)<<endmsg;
-  msg(MSG::INFO)<<"Hash from invalid onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d250006)<<endmsg;
-  msg(MSG::INFO)<<"Hash from textfile onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d220010)<<endmsg;
-  msg(MSG::INFO)<<"Hash from db onlineid "<<m_cablingSvc->getHashFromOnlineId(0x3d220105)<<endmsg;
+  msg(MSG::INFO)<<"Hash from truncated serial number "<<m_cablingTool->getHashFromSerialNumber(snll)<<endmsg;
+  msg(MSG::INFO)<<"Hash from onlineid "<<m_cablingTool->getHashFromOnlineId(0x3d230006)<<endmsg;
+  msg(MSG::INFO)<<"Hash from invalid onlineid "<<m_cablingTool->getHashFromOnlineId(0x3d250006)<<endmsg;
+  msg(MSG::INFO)<<"Hash from textfile onlineid "<<m_cablingTool->getHashFromOnlineId(0x3d220010)<<endmsg;
+  msg(MSG::INFO)<<"Hash from db onlineid "<<m_cablingTool->getHashFromOnlineId(0x3d220105)<<endmsg;
   std::vector<IdentifierHash> hashVec;
-  m_cablingSvc->getHashesForRod(hashVec, 0x220005);
+  m_cablingTool->getHashesForRod(hashVec, 0x220005);
   msg(MSG::INFO)<<"number of hashes for rod 0x220005: "<<hashVec.size()<<endmsg;
   //new section December 2014
   
@@ -129,8 +127,8 @@ SCT_TestCablingAlg::execute(){
    for (unsigned int i(0);i!=nHashesInCabling;++i){
     IdentifierHash hash(i);
     Identifier offlineId(m_idHelper->wafer_id(hash));
-    SCT_OnlineId onlineId(m_cablingSvc->getOnlineIdFromHash(hash));
-    SCT_SerialNumber sn(m_cablingSvc->getSerialNumberFromHash(hash));
+    SCT_OnlineId onlineId(m_cablingTool->getOnlineIdFromHash(hash));
+    SCT_SerialNumber sn(m_cablingTool->getSerialNumberFromHash(hash));
     //rod, fibre, bec, layerDisk, eta,  phi, side,  robId, sn
     const int bec(m_idHelper->barrel_ec(offlineId));
     const int layer(m_idHelper->layer_disk(offlineId));

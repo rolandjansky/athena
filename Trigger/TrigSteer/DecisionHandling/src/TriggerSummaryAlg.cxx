@@ -33,6 +33,8 @@ StatusCode TriggerSummaryAlg::initialize()
 
   CHECK( m_summaryKey.initialize() );
 
+  CHECK( m_startStampKey.initialize() );
+
   CHECK( m_outputTools.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -85,6 +87,9 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   for ( auto& tool: m_outputTools ) {
     CHECK( tool->createOutput( context ) );
   }
+
+  auto timeStampHandle = SG::makeHandle( m_startStampKey, context );
+  ATH_MSG_DEBUG( "Time since the start of L1 decoding " << timeStampHandle.cptr()->millisecondsSince()  << " ms" );
 
   return StatusCode::SUCCESS;
 }

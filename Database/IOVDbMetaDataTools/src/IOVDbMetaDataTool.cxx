@@ -513,13 +513,10 @@ IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileName)
             return sc;
         }
 
-        std::list<SG::ObjectWithVersion<IOVMetaDataContainer> >::const_iterator versIt  = allVersions.begin(); 
-        std::list<SG::ObjectWithVersion<IOVMetaDataContainer> >::const_iterator versEnd = allVersions.end(); 
-        for (; versIt != versEnd; ++versIt) {
+        for (SG::ObjectWithVersion<IOVMetaDataContainer>& obj : allVersions) {
+            const IOVPayloadContainer*  payload = obj.dataObject->payloadContainer();
 
-            const IOVPayloadContainer*  payload = versIt->dataObject->payloadContainer();
-
-            ATH_MSG_DEBUG("New container: payload size " << payload->size() << " version key " << versIt->versionedKey);
+            ATH_MSG_DEBUG("New container: payload size " << payload->size() << " version key " << obj.versionedKey);
 
             // detailed printout before merge
             if (msgLvl(MSG::VERBOSE)) {
@@ -551,10 +548,8 @@ IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileName)
         //
         // Loop over CondAttrListCollections and do merge
         //
-        versIt  = allVersions.begin(); 
-        versEnd = allVersions.end(); 
-        for (; versIt != versEnd; ++versIt) {
-            const IOVPayloadContainer*  payload = versIt->dataObject->payloadContainer();
+        for (SG::ObjectWithVersion<IOVMetaDataContainer>& obj : allVersions) {
+            const IOVPayloadContainer*  payload = obj.dataObject->payloadContainer();
             IOVPayloadContainer::const_iterator itColl    = payload->begin();
             IOVPayloadContainer::const_iterator itCollEnd = payload->end();
             for (; itColl != itCollEnd; ++itColl) {

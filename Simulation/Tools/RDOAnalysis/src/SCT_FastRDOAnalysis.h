@@ -9,9 +9,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include <string>
@@ -35,6 +37,9 @@ private:
   SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_inputKey;
   // SCT_Cluster
   std::vector<uint16_t>* m_hitsTimeBin3;
+
+  // For P->T converter of SCT_Clusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // SiCluster - SiWidth + SiDetectorElement
   std::vector<float>* m_siCol;

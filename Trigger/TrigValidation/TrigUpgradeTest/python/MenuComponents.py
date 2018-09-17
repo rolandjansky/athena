@@ -193,9 +193,10 @@ class ComboMaker(AlgNode):
     def addChain(self, chain):
         if log.isEnabledFor(logging.DEBUG):
             log.debug("ComboMaker %s adding chain %s"%(self.algname,chain))
-        seeds=chain.strip().split("_")
-        seeds.pop(0)
-        for seed in seeds:
+        from MenuChains import getConfFromChainName
+        confs=getConfFromChainName(chain)
+        for conf in confs:
+            seed=conf.replace("HLT_", "")
             integers = map(int, re.findall(r'^\d+', seed))
             multi=0
             if len(integers)== 0:
@@ -263,7 +264,6 @@ class MenuSequence():
         filter_output = sfilter.getOutputList()
         inputs=[filter_output[i] for i,fseed in enumerate (sfilter.seeds) if self.seed in fseed  ]
         if log.isEnabledFor(logging.DEBUG):
-#            log.debug("MenuSequence %s: filter out=%s, seeds=%s, seq.seeds=%s",self.name, filter_output, sfilter.seeds, self.seed)        
             log.debug("connectToFilter: found %d inputs to sequence::%s from Filter::%s (from seed %s)",
                           len(inputs), self.name, sfilter.algname, self.seed)
             for i in inputs: log.debug("- "+i)
@@ -411,11 +411,193 @@ class ChainStep:
         self.combo = ComboMaker("ComboHypo_%s"%self.name)
         for sequence in Sequences:
             new_sequence=copy.deepcopy(sequence)
-            new_sequence.name=("Combo_%s"%sequence.name)
+            new_sequence.name=("%s_Combo"%sequence.name)
             oldhypo=sequence.hypo.Alg
-            new_hypoAlg=oldhypo.clone("Combo_%s"%oldhypo.name())
+            new_hypoAlg=oldhypo.clone("%s_Combo"%oldhypo.name())
             new_sequence.replaceHypoForCombo(new_hypoAlg)
             self.sequences.append(new_sequence)
 
     def __str__(self):
         return "--- ChainStep %s ---\n + isCombo: %d \n +  %s \n "%(self.name, self.isCombo, ' '.join(map(str, self.sequences) ))
+
+
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+class InEventReco( ComponentAccumulator ):
+    """ Class to handle in-event reco """
+    pass
+
+
+class InViewReco( ComponentAccumulator ):
+    """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
+    def __init__(self, name, viewMaker=None):
+        super( InViewReco, self ).__init__()
+        self.name = name
+        from AthenaCommon.CFElements import parOR, seqAND
+        self.mainSeq = seqAND( name )
+        self.addSequence( self.mainSeq )
+
+        from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+        if viewMaker:
+            self.viewMakerAlg = viewMaker 
+        else:
+            from AthenaCommon.Constants import DEBUG
+            self.viewMakerAlg = EventViewCreatorAlgorithm(name+'ViewsMaker',
+                                                          ViewFallThrough = True,
+                                                          RoIsLink        = 'initialRoI', # -||-
+                                                          InViewRoIs      = name+'RoIs',
+                                                          Views           = name+'Views',
+                                                          ViewNodeName    = name+"InView",
+                                                          OutputLevel=DEBUG)
+
+        self.addEventAlgo( self.viewMakerAlg, self.mainSeq.name() )
+        self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )        
+        self.addSequence( self.viewsSeq, self.mainSeq.name() )
+        
+    def addInputFromFilter(self, filterAlg ):
+        assert len(filterAlg.Output) == 1, "Can only oprate on filter algs with one configured output, use addInput to setup specific inputs"
+        self.addInput( filterAlg.Output[0], "Reco_"+( filterAlg.Output[0].replace("Filtered_", "") ) )
+
+    def addInput(self, inKey, outKey ):
+        """Adds input (DecisionsContainer) from which the views should be created """
+        self.viewMakerAlg.InputMakerInputDecisions += [ inKey ]
+        self.viewMakerAlg.InputMakerOutputDecisions += [ outKey ]
+
+    def addRecoAlg( self, alg ):
+        """Reconstruction alg to be run per view"""
+        self.addEventAlgo( alg, self.viewsSeq.name() )
+
+    def sequence( self ):
+        return self.mainSeq
+
+    def inputMaker( self ):
+        return self.viewMakerAlg 
+
+
+class RecoFragmentsPool:
+    """ Class to host all the reco fragments that need to be reused """
+    fragments = {}
+    @classmethod
+    def retrieve( cls,  creator, flags, **kwargs ):
+        """ create, or return created earlier reco fragment
+
+        Reco fragment is uniquelly identified by the function and set og **kwargs. 
+        The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
+        """
+        
+        from AthenaCommon.Logging import logging
+        requestHash = hash( ( creator, tuple(kwargs.keys()), tuple(kwargs.values()) ) ) 
+        if requestHash not in cls.fragments:
+            recoFragment = creator( flags, **kwargs )
+            cls.fragments[requestHash] = recoFragment
+            log.debug( "created reconstruction fragment" )
+            return recoFragment
+        else:
+            log.debug( "reconstruction fragment from the cache" )
+            return cls.fragments[requestHash]
+
+    # @classmethod
+    # def mergeTo( cls, acc ):
+    #     """ Adds algorithms in the reco fragments and all related services to the accumulator """
+    #     for frag in cls.fragments.values():
+    #         acc.merge( frag )
+
+    
+
+class FilterHypoSequence(  ComponentAccumulator ):    
+    def __init__( self, name ):
+        super( FilterHypoSequence, self ).__init__()
+        from AthenaCommon.CFElements import seqAND
+        self.name = name
+        self.mainSeq = seqAND( name )
+        self.addSequence( self.mainSeq )
+        self.filterAlg =  None
+        self.reco = None
+        self.hypoAlg = None
+
+    def addReco( self, reco ):
+        """ Adds reconstruction sequence, has to be one of InViewReco or InEventReco objects """
+        assert self.filterAlg, "The filter alg has to be setup first"
+        self.reco = reco
+        reco.addInputFromFilter( self.filterAlg )
+        self.addSequence( reco.sequence(), self.mainSeq.name() )
+        self.merge( reco )
+
+    def addFilter( self, chains, inKey ):
+        """ adds filter alg of type RoRSeqFilter, output key is predefined by the sequence name as: Filtered + the name"""
+        from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+        self.filterAlg = RoRSeqFilter( self.name+'Filter' )
+        self.filterAlg.Input       = [ inKey ]
+        self.filterAlg.Output      = [ 'Filtered_'+self.name ]
+        self.filterAlg.Chains      = chains
+        from AthenaCommon.Constants import DEBUG
+        self.filterAlg.OutputLevel = DEBUG
+        self.addEventAlgo( self.filterAlg, self.mainSeq.name() )
+
+    def hypoDecisions( self ):
+        return "Decisions_"+self.name
+
+    def addHypo( self, hypo ):
+        self.hypoAlg = hypo
+        self.hypoAlg.HypoInputDecisions = self.reco.inputMaker().InputMakerOutputDecisions[-1]
+        self.hypoAlg.HypoOutputDecisions = self.hypoDecisions()
+        self.addEventAlgo( hypo, self.mainSeq.name() )
+
+    def sequence( self ):
+        return self.mainSeq
+
+    def filter( self ):
+        return self.filterAlg
+
+    def check( self ):
+        assert self.filterAlg, "Filter not configured"
+        assert self.hypoAlg, "Hypo alg is not configured"
+
+
+class HLTMenuAccumulator( ComponentAccumulator ):
+    def __init__( self ):
+        super( HLTMenuAccumulator, self ).__init__()
+        from AthenaCommon.CFElements import seqAND
+        HLTSteps =  seqAND( "HLTSteps" )
+        self.addSequence( HLTSteps )
+
+    def __getOrMakeStepSequence(self, step, isFilter = False ):
+       """ Constructs sequence for the step, the filtering step or, reco step will be created depending on isFilter flags
+       
+       The function assures that all previous steps are aready in place i.e. HLTStep_1_filter, HLTStep_1 ... until HLTStep_N-1 are in place.
+       Therefore the steps can be added in any order (not yet sure if that will but better assure robustness now)
+       """
+       from AthenaCommon.CFElements import parOR
+       name = "HLTStep_%d%s" % (step, "_filters" if isFilter else "" )
+        
+       s  = self.getSequence( name )
+       if s:
+           return s
+       # make sure that sequences for previous steps are in place
+       for p in range( 1, step ):
+           self.__getOrMakeStepSequence( p, isFilter = True )
+           self.__getOrMakeStepSequence( p, isFilter = False )
+       # make sure that filtering steps is placed before reco steps
+       if not isFilter:
+           self.__getOrMakeStepSequence( step, isFilter = True )
+       s = parOR( name )
+       self.addSequence( s, parentName="HLTSteps")
+       return s
+
+
+    def setupSteps( self, steps ):        
+        """ The main menu function, it is responsible for crateion of step sequences and placing slice specific sequencers there.
+                
+        It would rely on the MenuSeq object API in two aspects, to obtain filter alg and to obtain the reco sequence
+        The MenuSeq should already contain all the chains that are needed for the menu setup (chains info can be accessed via flags passed when steps were created)
+        """
+        for stepNo, fhSeq in enumerate( steps, 1 ):
+            filterStep = self.__getOrMakeStepSequence( stepNo, isFilter = True )
+            filterStep += fhSeq.filter() # FilterHypoSequence API
+
+            recoStep = self.__getOrMakeStepSequence( stepNo, isFilter = False )            
+            self.addSequence( fhSeq.sequence(), recoStep.name() )
+
+    
+    def steps( self ):
+        """ returns step seqeuncers """
+        return self.getSequence("HLTSteps")

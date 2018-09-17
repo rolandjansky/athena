@@ -1356,12 +1356,12 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD("LArClusterEM7_11Nocorr")
 
             from egammaRec.egammaRecFlags import jobproperties
-            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4  :
+            if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
 
             from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-            if rec.readESD() or muonCombinedRecFlags.doMuonClusters():
+            if ( rec.readESD() or muonCombinedRecFlags.doMuonClusters() ) and rec.doMuon:
                 addClusterToCaloCellAOD("MuonClusterCollection")
 
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
@@ -1579,13 +1579,6 @@ if rec.doWriteBS():
 
     #Lucid
     StreamBSFileOutput.ItemList += ["LUCID_DigitContainer#Lucid_Digits"]
-
-
-    # special SCT CABLING (ONLY FOR OLD FDR DATA)
-    #from InDetCabling.InDetCablingConf import SCT_CablingSelector
-    #SCT_CablingSelector = SCT_CablingSelector(Method = "MANUAL", Layout = "FromTextFile", Filename = "SCT_MC_FullCabling.dat")
-    #ToolSvc            += SCT_CablingSelector
-
 
 
     # LAr

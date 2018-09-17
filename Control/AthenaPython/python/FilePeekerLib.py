@@ -17,6 +17,7 @@ StatusCode = PyAthena.StatusCode
 from PyCool import coral
 _attribute_methods = dir(coral.Attribute)
 _methnames = ['data<std::__cxx11::basic_string<char> >',
+              'data<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >',
               'data<std::basic_string<char> >',
               'data<std::string>']
 for _m in _methnames:

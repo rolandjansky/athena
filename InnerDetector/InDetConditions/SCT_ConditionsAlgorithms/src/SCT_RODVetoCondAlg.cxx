@@ -21,7 +21,6 @@
 SCT_RODVetoCondAlg::SCT_RODVetoCondAlg(const std::string& name, 
                                        ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_cabling("SCT_CablingSvc", name),
   m_pHelper{nullptr},
   m_badIds{"BadSCTModuleIds_RODVeto"},
   m_badRODElementsInput{}

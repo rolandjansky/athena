@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXMAINMON_H_
@@ -24,6 +24,7 @@
 #include "EventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 class PixelMonModules1D;
 class PixelMonModulesProf;
@@ -60,7 +61,6 @@ class ITrackHoleSearchTool;
 class IPixelCablingSvc;
 class SpacePointContainer;
 class IPixelByteStreamErrorsSvc;
-class IInDetConditionsSvc;
 class PixelRDORawData;
 
 typedef InDet::PixelCluster PixelCluster;
@@ -171,7 +171,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   StatusCode procPixelDCSMon(void);
 
  private:
-  ServiceHandle<IInDetConditionsSvc> m_pixelCondSummarySvc;
+  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
   ServiceHandle<IPixelByteStreamErrorsSvc> m_ErrorSvc;
   ServiceHandle<IPixelCablingSvc> m_pixelCableSvc;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;

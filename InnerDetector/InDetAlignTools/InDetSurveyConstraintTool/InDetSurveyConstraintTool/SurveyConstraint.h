@@ -6,20 +6,20 @@
 #define SURVEYCONSTRAINTTOOLS_SURVEYCONSTRAINT_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "StoreGate/DataHandle.h"
 #include "InDetSurveyConstraintTool/ISurveyConstraint.h"
-#include "GaudiKernel/IRndmGenSvc.h"
-#include "GaudiKernel/RndmGenerators.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include <vector>
+#include <map>
 
+class IRndmGenSvc;
 class AtlasDetectorID;
 class IToolSvc;
-//class StoreGateSvc;
 class IInDetAlignDBTool;
 class PixelID;
 class SCT_ID;
 
 namespace InDetDD{
-  class SCT_DetectorManager;
   class PixelDetectorManager;
 }
 
@@ -67,7 +67,6 @@ class SurveyConstraint : virtual public ISurveyConstraint, public AthAlgTool{
   
  private :
   const InDetDD::PixelDetectorManager*   m_pixelManager;
-  const InDetDD::SCT_DetectorManager*    m_SCT_Manager;
   const AtlasDetectorID*                 m_idHelper;
   const PixelID*                         m_pixid;
   const SCT_ID*                          m_sctid;
@@ -77,7 +76,8 @@ class SurveyConstraint : virtual public ISurveyConstraint, public AthAlgTool{
   IInDetAlignDBTool*                     m_current_IDAlignDBTool;
   IInDetAlignDBTool*                     m_survey_IDAlignDBTool;
   IRndmGenSvc*                           m_randsvc;
-  //ServiceHandle<IRndmGenSvc>             randsvc;
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // dictionary of module constrain objects, indexed by moduleID
   std::map<Identifier, SurveyConstraintModule*, std::less<Identifier> >  m_ModuleMap;        //!< Map of Wafer objects

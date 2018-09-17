@@ -33,7 +33,8 @@ class ILArMinBiasAverage {
 
   enum {ERRORCODE = LArElecCalib::ERRORCODE};  
 } ;
-
+#include "AthenaKernel/CondCont.h"
 CLASS_DEF( ILArMinBiasAverage, 112216056 ,1) 
+CLASS_DEF( CondCont<ILArMinBiasAverage>,56829592 , 1 )
 
 #endif 

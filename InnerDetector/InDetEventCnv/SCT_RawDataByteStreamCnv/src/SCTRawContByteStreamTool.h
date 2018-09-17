@@ -7,24 +7,22 @@
 
 ///Base classes 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h"
 
 ///other athena
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "StoreGate/ReadCondHandleKey.h"
 
 ///Gaudi
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 ///STL
 #include <cstdint>
+#include <mutex>
 #include <string>
 
 class SrcIdMap;
 class ISCT_RodEncoder;
-class ISCT_CablingSvc;
 class SCT_ID;
 
 /** An AthAlgTool class to provide conversion from SCT RDO container
@@ -54,17 +52,16 @@ class SCTRawContByteStreamTool: public extends<AthAlgTool, ISCTRawContByteStream
   virtual StatusCode finalize();
 
   //! New convert method which makes use of the encoder class (as done for other detectors)
-  StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log); 
+  StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) const;
   
  private: 
   
   ToolHandle<ISCT_RodEncoder> m_encoder{this, "Encoder", "SCT_RodEncoder", "SCT ROD Encoder for RDO to BS conversion"};
-  ServiceHandle<ISCT_CablingSvc> m_cabling;
-  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
   const SCT_ID* m_sct_idHelper;
   unsigned short m_RodBlockVersion;
-  FullEventAssembler<SrcIdMap> m_fea; 
-
+  mutable FullEventAssembler<SrcIdMap> m_fea; // This has to be data member.
+  mutable std::mutex m_mutex;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H

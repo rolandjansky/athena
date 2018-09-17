@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <algorithm>
 #include "SCT_Digitization/SCT_DigitizationTool.h"
-
-#include "PileUpTools/PileUpMergeSvc.h"
 
 // Mother Package includes
 #include "SiDigitization/SiHelper.h"
@@ -23,19 +20,14 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
-// SCT_Digitization tools
-#include "SCT_Digitization/ISCT_FrontEnd.h"
-#include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
-#include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
-
 // Data Handle
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 
 // C++ Standard Library
-#include <sstream>
-#include <string>
 #include <limits>
+#include <memory>
+#include <sstream>
 
 static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 // Barcodes at the HepMC level are int
@@ -45,48 +37,43 @@ using InDetDD::SiCellId;
 SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
-  PileUpToolBase(type, name, parent),
-  m_tfix{-999.},
-  m_comTime{0.},
-  m_enableHits{true},
-  m_onlyHitElements{false},
-  m_HardScatterSplittingMode{0},
+  base_class(type, name, parent),
   m_HardScatterSplittingSkipper{false},
-  m_ComTimeKey{"ComTime"},
   m_detID{nullptr},
-  m_sct_FrontEnd{"SCT_FrontEnd", this},
-  m_sct_SurfaceChargesGenerator{"SCT_SurfaceChargesGenerator", this},
-  m_sct_RandomDisabledCellGenerator{"SCT_RandomDisabledCellGenerator", this},
-  m_rdoContainerKey{""},
   m_rndmSvc{"AtRndmGenSvc", name},
   m_mergeSvc{"PileUpMergeSvc", name},
   m_rndmEngine{nullptr},
-  m_atlasID{nullptr},
   m_thpcsi{nullptr},
   m_chargedDiodes{nullptr},
   m_vetoThisBarcode{crazyParticleBarcode} {
     declareInterface<SCT_DigitizationTool>(this);
-    declareProperty("FixedTime", m_tfix, "Fixed time for Cosmics run selection");
+
+    declareProperty("FixedTime", m_tfix = -999., "Fixed time for Cosmics run selection");
     declareProperty("CosmicsRun", m_cosmicsRun = false, "Cosmics run selection");
-    declareProperty("UseComTime", m_useComTime = false, "Flag to set ComTime");
-    declareProperty("EnableHits", m_enableHits, "Enable hits");
-    declareProperty("OnlyHitElements", m_onlyHitElements, "Process only elements with hits");
+    declareProperty("EnableHits", m_enableHits = true, "Enable hits");
+    declareProperty("OnlyHitElements", m_onlyHitElements = false, "Process only elements with hits");
     declareProperty("BarrelOnly", m_barrelonly = false, "Only Barrel layers");
     declareProperty("RandomDisabledCells", m_randomDisabledCells = false, "Use Random disabled cells, default no");
     declareProperty("CreateNoiseSDO", m_createNoiseSDO = false, "Set create noise SDO flag");
     declareProperty("WriteSCT1_RawData", m_WriteSCT1_RawData = false, "Write out SCT1_RawData rather than SCT3_RawData");
-
     declareProperty("InputObjectName", m_inputObjectName = "", "Input Object name");
-    declareProperty("OutputObjectName", m_rdoContainerKey = "SCT_RDOs", "Output Object name");
-    declareProperty("OutputSDOName", m_simDataCollMapKey = "SCT_SDO_Map", "Output SDO container name");
     declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in SCT & Pixel digitization");
     declareProperty("MergeSvc", m_mergeSvc, "Merge service used in Pixel & SCT digitization");
-    declareProperty("FrontEnd", m_sct_FrontEnd, "Choice of using a development release");
-    declareProperty("SurfaceChargesGenerator", m_sct_SurfaceChargesGenerator, "Choice of using a more detailed charge drift model");
-    declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting");
+    declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode = 0, "Control pileup & signal splitting");
     declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode = crazyParticleBarcode, "Barcode of particle to ignore");
+
     m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
   }
+
+SCT_DigitizationTool::~SCT_DigitizationTool() {
+  delete m_chargedDiodes;
+  delete m_thpcsi;
+  for (SiHitCollection* hit: m_hitCollPtrs) {
+    hit->Clear();
+    delete hit;
+  }
+  m_hitCollPtrs.clear();
+}
 
 // ----------------------------------------------------------------------
 // Initialize method:
@@ -102,29 +89,30 @@ StatusCode SCT_DigitizationTool::initialize() {
   }
 
   // +++ Init the services
-  CHECK(initServices());
+  ATH_CHECK(initServices());
 
   // +++ Get the random generator engine
-  CHECK(initRandomEngine());
+  ATH_CHECK(initRandomEngine());
 
   // +++ Get the Surface Charges Generator tool
-  CHECK(initSurfaceChargesGeneratorTool());
+  ATH_CHECK(initSurfaceChargesGeneratorTool());
 
   // +++ Get the Front End tool
-  CHECK(initFrontEndTool());
+  ATH_CHECK(initFrontEndTool());
 
   // +++ Initialise for disabled cells from the random disabled cells tool
   // +++ Default off, since disabled cells taken form configuration in
   // reconstruction stage
   if (m_randomDisabledCells) {
-    CHECK(initDisabledCells());
+    ATH_CHECK(initDisabledCells());
     ATH_MSG_INFO("Use of Random disabled cells");
+  } else {
+    m_sct_RandomDisabledCellGenerator.disable();
   }
 
   // +++ Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_simDataCollMapKey.initialize());
-  ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
 
   // Initialize ReadCondHandleKey
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
@@ -168,36 +156,31 @@ namespace {
 // Initialise the surface charge generator Tool
 // ----------------------------------------------------------------------
 StatusCode SCT_DigitizationTool::initSurfaceChargesGeneratorTool() {
-  StatusCode sc{m_sct_SurfaceChargesGenerator.retrieve()};
+  ATH_CHECK(m_sct_SurfaceChargesGenerator.retrieve());
 
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR(" Can't get SCT Surface Charges Generator " << m_sct_SurfaceChargesGenerator);
-    return sc;
-  }
-  m_sct_SurfaceChargesGenerator->setCosmicsRun(m_cosmicsRun);
-  m_sct_SurfaceChargesGenerator->setComTimeFlag(m_useComTime);
   m_sct_SurfaceChargesGenerator->setRandomEngine(m_rndmEngine);
+
+  if (m_cosmicsRun and m_tfix > -998) {
+    m_sct_SurfaceChargesGenerator->setFixedTime(m_tfix);
+    ATH_MSG_INFO("Use of FixedTime = " << m_tfix << " in cosmics");
+  }
 
   ATH_MSG_DEBUG("Retrieved and initialised tool " << m_sct_SurfaceChargesGenerator);
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // ----------------------------------------------------------------------
 // Initialise the Front End electronics Tool
 // ----------------------------------------------------------------------
 StatusCode SCT_DigitizationTool::initFrontEndTool() {
-  StatusCode sc{m_sct_FrontEnd.retrieve()};
+  ATH_CHECK(m_sct_FrontEnd.retrieve());
 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR(" Can't get SCT FrontEnd tool: " << m_sct_FrontEnd);
-    return sc;
-  }
   m_sct_FrontEnd->setRandomEngine(m_rndmEngine);
   storeTool(&(*m_sct_FrontEnd));
 
   ATH_MSG_DEBUG("Retrieved and initialised tool " << m_sct_FrontEnd);
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // ----------------------------------------------------------------------
@@ -207,8 +190,8 @@ StatusCode SCT_DigitizationTool::initRandomEngine() {
   std::string rndmEngineName{"SCT_Digitization"};
 
   m_rndmEngine = m_rndmSvc->GetEngine(rndmEngineName);
-  if (m_rndmEngine == 0) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << rndmEngineName);
+  if (m_rndmEngine == nullptr) {
+    ATH_MSG_FATAL("Could not find RndmEngine : " << rndmEngineName);
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Get random number engine : <" << rndmEngineName << ">");
@@ -221,24 +204,12 @@ StatusCode SCT_DigitizationTool::initRandomEngine() {
 StatusCode SCT_DigitizationTool::initServices() {
   // Get SCT ID helper for hash function and Store them using methods from the
   // SiDigitization.
-  StatusCode sc = detStore()->retrieve(m_detID, "SCT_ID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to get SCT ID helper");
-    return sc;
-  }
+  ATH_CHECK(detStore()->retrieve(m_detID, "SCT_ID"));
 
-  if (not m_mergeSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Could not find PileUpMergeSvc");
-    return StatusCode::FAILURE;
-  }
-  if (not m_rndmSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Could not find given RndmSvc");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_mergeSvc.retrieve());
+  ATH_CHECK(m_rndmSvc.retrieve());
 
-  store(m_detID);
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // ----------------------------------------------------------------------
@@ -246,18 +217,13 @@ StatusCode SCT_DigitizationTool::initServices() {
 // ----------------------------------------------------------------------
 StatusCode SCT_DigitizationTool::initDisabledCells() {
   // +++ Retrieve the SCT_RandomDisabledCellGenerator
-  StatusCode sc{m_sct_RandomDisabledCellGenerator.retrieve()};
-
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve the SCT_RandomDisabledCellGenerator tool:" << m_sct_RandomDisabledCellGenerator);
-    return sc;
-  }
+  ATH_CHECK(m_sct_RandomDisabledCellGenerator.retrieve());
 
   m_sct_RandomDisabledCellGenerator->setRandomEngine(m_rndmEngine);
   storeTool(&(*m_sct_RandomDisabledCellGenerator));
 
   ATH_MSG_INFO("Retrieved the SCT_RandomDisabledCellGenerator tool:" << m_sct_RandomDisabledCellGenerator);
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_DigitizationTool::processAllSubEvents() {
@@ -265,7 +231,7 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
     return StatusCode::FAILURE;
   }
   ATH_MSG_VERBOSE("Begin digitizeAllHits");
-  if (m_enableHits && !getNextEvent().isFailure()) {
+  if (m_enableHits and (not getNextEvent().isFailure())) {
     digitizeAllHits();
   } else {
     ATH_MSG_DEBUG("no hits found in event!");
@@ -282,7 +248,6 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
   return StatusCode::SUCCESS;
 }
 
-
 // ======================================================================
 // prepareEvent
 // ======================================================================
@@ -296,22 +261,6 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
   // Create a map for the SDO and register it into StoreGate
   m_simDataCollMap = SG::makeHandle(m_simDataCollMapKey);
   ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
-
-  if (m_useComTime) {
-    SG::ReadHandle<ComTime> comTime(m_ComTimeKey);
-    if (comTime.isValid()) {
-      m_comTime = comTime->getTime();
-      m_sct_SurfaceChargesGenerator->setComTime(m_comTime);
-      ATH_MSG_DEBUG("Found tool for cosmic/commissioning timing: ComTime");
-    } else {
-      ATH_MSG_WARNING("Did not find tool needed for cosmic/commissioning timing: ComTime");
-    }
-  }
-
-  if (m_cosmicsRun and m_tfix > -998) {
-    m_sct_SurfaceChargesGenerator->setFixedTime(m_tfix);
-    ATH_MSG_INFO("Use of FixedTime = " << m_tfix << " in cosmics");
-  }
 
   m_processedElements.clear();
   m_processedElements.resize(m_detID->wafer_hash_max(), false);
@@ -337,9 +286,9 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
 
   digitizeNonHits();
 
-  for (std::vector<SiHitCollection*>::iterator it{m_hitCollPtrs.begin()}; it != m_hitCollPtrs.end(); it++) {
-    (*it)->Clear();
-    delete (*it);
+  for (SiHitCollection* hit: m_hitCollPtrs) {
+    hit->Clear();
+    delete hit;
   }
   m_hitCollPtrs.clear();
 
@@ -381,7 +330,7 @@ void SCT_DigitizationTool::digitizeAllHits() {
 
     // create and store RDO and SDO
 
-    if (!m_chargedDiodes->empty()) {
+    if (not m_chargedDiodes->empty()) {
       StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
       if (sc.isSuccess()) { // error msg is given inside
         // createAndStoreRDO()
@@ -406,16 +355,16 @@ void SCT_DigitizationTool::digitizeNonHits() {
 
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
-  const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
+  const InDetDD::SiDetectorElementCollection* elements{sctDetEle.retrieve()};
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return;
   }
 
   for (unsigned int i{0}; i < m_processedElements.size(); i++) {
-    if (!m_processedElements[i]) {
+    if (not m_processedElements[i]) {
       IdentifierHash idHash{i};
-      if (!idHash.is_valid()) {
+      if (not idHash.is_valid()) {
         ATH_MSG_ERROR("SCT Detector element id hash is invalid = " << i);
       }
 
@@ -433,7 +382,7 @@ void SCT_DigitizationTool::digitizeNonHits() {
 
         // Create and store RDO and SDO
         // Don't create empty ones.
-        if (!m_chargedDiodes->empty()) {
+        if (not m_chargedDiodes->empty()) {
           StatusCode sc{createAndStoreRDO(m_chargedDiodes)};
           if (sc.isSuccess()) {// error msg is given inside
             // createAndStoreRDO()
@@ -452,8 +401,8 @@ void SCT_DigitizationTool::digitizeNonHits() {
 }
 
 bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiodes) {
-  if (0 == m_thpcsi) {
-    ATH_MSG_ERROR("thpcsi should not be zero!");
+  if (nullptr == m_thpcsi) {
+    ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
     return false;
   }
@@ -469,29 +418,14 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
 
   // create the identifier for the collection:
   ATH_MSG_DEBUG("create ID for the hit collection");
-  Identifier id;
-  IdentifierHash waferHash;
   const TimedHitPtr<SiHit>& firstHit{*i};
-
-  int Barrel{firstHit->getBarrelEndcap()};
-
-  // For testbeam
-
-  if (m_atlasID == NULL) {
-    id = 0;
-  } else {
-    const SCT_ID* sctID{dynamic_cast<const SCT_ID*>(m_atlasID)};
-    if (sctID == nullptr) {
-      ATH_MSG_ERROR("expected a SCT_ID but failed...");
-      return false;
-    }
-    id = sctID->wafer_id(Barrel,
-                         firstHit->getLayerDisk(),
-                         firstHit->getPhiModule(),
-                         firstHit->getEtaModule(),
-                         firstHit->getSide());
-    waferHash = sctID->wafer_hash(id);
-  }
+  int barrel{firstHit->getBarrelEndcap()};
+  Identifier id{m_detID->wafer_id(barrel,
+                                  firstHit->getLayerDisk(),
+                                  firstHit->getPhiModule(),
+                                  firstHit->getEtaModule(),
+                                  firstHit->getSide())};
+  IdentifierHash waferHash{m_detID->wafer_hash(id)};
 
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
@@ -505,7 +439,7 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
   const InDetDD::SiDetectorElement* sielement{elements->getDetectorElement(waferHash)};
 
   if (sielement == nullptr) {
-    ATH_MSG_DEBUG("Barrel=" << Barrel << " layer=" << firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule() << " Phi=" << firstHit->getPhiModule() << " Side=" << firstHit->getSide());
+    ATH_MSG_DEBUG("Barrel=" << barrel << " layer=" << firstHit->getLayerDisk() << " Eta=" << firstHit->getEtaModule() << " Phi=" << firstHit->getPhiModule() << " Side=" << firstHit->getSide());
     ATH_MSG_ERROR("detector manager could not find element with id = " << id);
     return false;
   }
@@ -524,9 +458,7 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
                                                                        phit->getEtaModule(),
                                                                        phit->getSide())));
       ATH_MSG_DEBUG("calling process() for all methods");
-      m_sct_SurfaceChargesGenerator->setDetectorElement(sielement);
-
-      m_sct_SurfaceChargesGenerator->process(phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes));
+      m_sct_SurfaceChargesGenerator->process(sielement, phit, SiDigitizationSurfaceChargeInserter(sielement, chargedDiodes));
       ATH_MSG_DEBUG("charges filled!");
     }
   }
@@ -542,8 +474,8 @@ void SCT_DigitizationTool::applyProcessorTools(SiChargedDiodeCollection* charged
   ATH_MSG_DEBUG("applyProcessorTools()");
   int processorNumber{0};
 
-  for (std::list<ISiChargedDiodesProcessorTool*>::iterator p_proc{m_diodeCollectionTools.begin()}; p_proc != m_diodeCollectionTools.end(); ++p_proc) {
-    (*p_proc)->process(*chargedDiodes);
+  for (ISiChargedDiodesProcessorTool* proc: m_diodeCollectionTools) {
+    proc->process(*chargedDiodes);
 
     processorNumber++;
     ATH_MSG_DEBUG("Applied processor # " << processorNumber);
@@ -556,22 +488,22 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
     ATH_MSG_VERBOSE("SCT_DigitizationTool::processBunchXing() " << bunchXing);
     // decide if this event will be processed depending on
     // HardScatterSplittingMode & bunchXing
-    if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 2 and (not m_HardScatterSplittingSkipper)) {
         m_HardScatterSplittingSkipper = true;
         return StatusCode::SUCCESS;
     }
-    if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 1 and m_HardScatterSplittingSkipper) {
         return StatusCode::SUCCESS;
     }
-    if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 1 and (not m_HardScatterSplittingSkipper)) {
         m_HardScatterSplittingSkipper = true;
     }
 
     typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
     TimedHitCollList hitCollList;
 
-    if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
-					    bSubEvents, eSubEvents).isSuccess()) &&
+    if ((not (m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+                                                bSubEvents, eSubEvents).isSuccess())) and
         hitCollList.size() == 0) {
       ATH_MSG_ERROR("Could not fill TimedHitCollList");
       return StatusCode::FAILURE;
@@ -580,14 +512,12 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
 		      m_inputObjectName << " found");
     }
 
-    TimedHitCollList::iterator iColl(hitCollList.begin());
-    TimedHitCollList::iterator endColl(hitCollList.end());
-
-    for( ; iColl != endColl; iColl++){
-      SiHitCollection *hitCollPtr = new SiHitCollection(*iColl->second);
-      PileUpTimeEventIndex timeIndex(iColl->first);
+    TimedHitCollList::iterator endColl{hitCollList.end()};
+    for (TimedHitCollList::iterator iColl{hitCollList.begin()}; iColl != endColl; iColl++) {
+      SiHitCollection *hitCollPtr{new SiHitCollection(*iColl->second)};
+      PileUpTimeEventIndex timeIndex{iColl->first};
       ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<
-		    " hits");
+                    " hits");
       ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
 		      << " index: " << timeIndex.index()
 		      << " type: " << timeIndex.type());
@@ -648,7 +578,7 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(SiChargedDiodeCollection* chD
   Identifier id_coll{RDOColl->identify()};
   int barrelec{m_detID->barrel_ec(id_coll)};
 
-  if (!m_barrelonly or std::abs(barrelec) <= 1) {
+  if ((not m_barrelonly) or (std::abs(barrelec) <= 1)) {
     if (m_rdoContainer->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
       ATH_MSG_FATAL("SCT RDO collection could not be added to container!");
       delete RDOColl;
@@ -832,27 +762,23 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
   // create a new hits collection
   m_thpcsi = new TimedHitCollection<SiHit>{numberOfSiHits};
   // now merge all collections into one
-  TimedHitCollList::iterator iColl{hitCollList.begin()};
   TimedHitCollList::iterator endColl{hitCollList.end()};
-  while (iColl != endColl) {
+  for (TimedHitCollList::iterator iColl{hitCollList.begin()}; iColl != endColl; ++iColl) {
     // decide if this event will be processed depending on
     // HardScatterSplittingMode & bunchXing
-    if (m_HardScatterSplittingMode == 2 and not m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 2 and (not m_HardScatterSplittingSkipper)) {
       m_HardScatterSplittingSkipper = true;
-      ++iColl;
       continue;
     }
     if (m_HardScatterSplittingMode == 1 and m_HardScatterSplittingSkipper) {
-      ++iColl;
       continue;
     }
-    if (m_HardScatterSplittingMode == 1 and not m_HardScatterSplittingSkipper) {
+    if (m_HardScatterSplittingMode == 1 and (not m_HardScatterSplittingSkipper)) {
       m_HardScatterSplittingSkipper = true;
     }
     const SiHitCollection* p_collection{iColl->second};
     m_thpcsi->insert(iColl->first, p_collection);
-    ATH_MSG_DEBUG("SiTrackerHitCollection found with" << p_collection->size() << " hits");    // loop on the hit collections
-    ++iColl;
+    ATH_MSG_DEBUG("SiTrackerHitCollection found with" << p_collection->size() << " hits"); // loop on the hit collections
   }
   return StatusCode::SUCCESS;
 }
@@ -880,15 +806,15 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
       if ((barcode == 0) or (barcode == m_vetoThisBarcode)) {
         continue;
       }
-      if (!real_particle_hit) {
+      if (not real_particle_hit) {
         // Types of SiCharges expected from SCT
-        // Noise:                        barcode==0 &&
+        // Noise:                        barcode==0 and
         // processType()==SiCharge::noise
-        // Delta Rays:                   barcode==0 &&
+        // Delta Rays:                   barcode==0 and
         // processType()==SiCharge::track
-        // Pile Up Tracks With No Truth: barcode!=0 &&
+        // Pile Up Tracks With No Truth: barcode!=0 and
         // processType()==SiCharge::cut_track
-        // Tracks With Truth:            barcode!=0 &&
+        // Tracks With Truth:            barcode!=0 and
         // processType()==SiCharge::track
         if (barcode != 0 and i_ListOfCharges->processType() == SiCharge::track) {
           real_particle_hit = true;

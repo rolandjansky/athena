@@ -17,6 +17,7 @@
 #include "SGTools/ProxyMap.h"
 #include "AthenaKernel/IProxyDict.h"
 #include <boost/iterator/iterator_facade.hpp>
+class SGImplSvc;
 
 
 namespace SG {
@@ -34,6 +35,9 @@ class IteratorBase {
 protected:
   // Required for boost iterator adapter.
   friend class boost::iterator_core_access;
+
+  // To access setState.
+  friend class ::SGImplSvc;
 
 
   /**
@@ -102,12 +106,6 @@ protected:
 
 
   /**
-   * @brief The proxy pointed at by this iterator.
-   */
-  DataProxy* proxy() const;
-
-
-  /**
    * @brief Const check: throw an exception if we're pointing at a const proxy.
    *
    * Called when dereferencing a non-const iterator.
@@ -116,6 +114,12 @@ protected:
 
 
 public:
+  /**
+   * @brief The proxy pointed at by this iterator.
+   */
+  DataProxy* proxy() const;
+
+
   /**
    * @brief Get the key string with which the current object was stored.
    */

@@ -142,6 +142,40 @@ namespace xAOD {
       ElementLinkVector< CONTAINER >
       objectCollectionLinks( const std::string& collectionName ) const;
 
+      /// @}
+
+      /// @name Functions for accessing links to component objects and object collections
+      /// @{
+
+      /// Copy one named link from another object.
+      /// Will not overwrite an existing link
+      /// @param other TrigComposite object to copy the link from
+      /// @param name Name of link to copy
+      /// @param newName Optional parameter to rename the link during the copy
+      /// @return True on successful copy
+      bool copyLinkFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName = "");
+      bool copyLinkFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName = "");
+
+      /// Copy one named link collection from another object.
+      /// Will not overwrite or append to an existing collection of links
+      /// @param other TrigComposite object to copy the link collection from
+      /// @param name Name of link collection
+      /// @param newName Optional parameter to rename the link collection during the copy
+      /// @return True on successful copy
+      bool copyLinkCollectionFrom(const xAOD::TrigComposite_v1& other, const std::string& name, std::string newName = "");
+      bool copyLinkCollectionFrom(const xAOD::TrigComposite_v1* other, const std::string& name, std::string newName = "");
+
+      /// Copy all single links and collections of links from another object.
+      /// Will not overwrite existing links, or link collections, or append to existing link collections.
+      /// @param other TrigComposite object to copy all links and link collections from, which do not already exist.
+      /// @return True on successful copy of at least one link
+      bool copyAllLinksFrom(const xAOD::TrigComposite_v1& other);
+      bool copyAllLinksFrom(const xAOD::TrigComposite_v1* other);
+
+      /// @}
+
+      /// @name Functions for accessing raw data used to construct ElementLinks
+      /// @{
 
       /// Raw access to the persistent link names
       const std::vector< std::string >& linkColNames() const;
@@ -154,6 +188,9 @@ namespace xAOD {
 
       /// @}
 
+      /// For use in validation, when copying element links from one object to another
+      static bool s_throwOnCopyError;
+
    private:
       /// Raw access to the persistent link names (non-const)
       std::vector< std::string >& linkColNamesNC();
@@ -163,6 +200,9 @@ namespace xAOD {
       std::vector< uint16_t >& linkColIndicesNC();
       /// Raw access to the persistent link CLIDs (non-const)
       std::vector< uint32_t >& linkColClidsNC();
+
+      /// Helper function, copy one link into this object
+      void copyLinkInternal(const xAOD::TrigComposite_v1& other, const size_t index, const std::string& newName);
 
       static const std::string s_collectionSuffix;
 

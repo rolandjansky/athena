@@ -21,8 +21,8 @@ PURPOSE:  object containing information about Bremstrahlung fit
 #include <iostream>
 #include "egammaEvent/EMBremFit.h"
 #include "GaudiKernel/GaudiException.h"
-#include "SGTools/ClassName.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/ClassName.h"
+#include "AthenaKernel/BaseInfo.h"
 
 //  END OF HEADER FILES INCLUDE
 

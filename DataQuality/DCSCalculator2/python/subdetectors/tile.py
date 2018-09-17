@@ -7,7 +7,7 @@ from .lib import (DCSC_DefectTranslate_Subdetector, DCSC_Variable,
 WHITE, BLACK, GREY, RED, YELLOW, GREEN = None, -1, 0, 1, 2, 3
 
 TILBA, TILBC, TIEBA, TIEBC = 232, 233, 234, 235
-N_CHANNELS_PER_MODULE = 90
+N_CHANNELS_PER_MODULE = [90]*148+[64]*14+[60]+[64]*66+[60]+[64]*46
 
 from itertools import product
 
@@ -101,14 +101,15 @@ class Tile_NoHighVoltage(DCSC_Variable_With_Mapping):
         def too_many_nohv(iov):
             """
             Read the TileCalib blob to determine what problems are present.
-            If all channels appear to have (2002, No HV), then count this module
-            (containing 90 channels) as being OUT OF CONFIG.
+            If all ADCs appear to have (2002, No HV), then count this module
+            as being OUT OF CONFIG. Number of ADCs is 45*2 for LBA/LBC partitions
+            32*2 for most of the modules in EBA/EBC partitions and 30*2 for EBA15 and EBC18
             """
             if not iov.TileCalibBlob: return False
             nbad, ngood, naffected, problems = iov.TileCalibBlob
             if problems:
                 log.debug("Tile problems %i %r", iov.channel, problems)
-            return problems.get((2002, 'No HV'), 0) >= N_CHANNELS_PER_MODULE
+            return problems.get((2002, 'No HV'), 0) >= N_CHANNELS_PER_MODULE[iov.channel]
         
         iovs = iovs.empty(iov for iov in iovs if too_many_nohv(iov))
         

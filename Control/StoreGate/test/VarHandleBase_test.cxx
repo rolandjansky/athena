@@ -719,6 +719,39 @@ void test12()
 }
 
 
+// ctor from proxy
+void test13()
+{
+  std::cout << "test13\n";
+
+  auto obj = std::make_unique<MyObj>();
+  MyObj* objptr = obj.get();
+  SG::TransientAddress taddr (293847295, "foo13");
+  SG::DataProxy* proxy = new SG::DataProxy (SG::asStorable (std::move(obj)),
+                                            std::move (taddr));
+  proxy->addRef();
+  assert (proxy->refCount() == 1);
+
+  SGTest::TestStore testStore;
+  proxy->setStore (&testStore);
+
+  {
+    TestHandle h1 (proxy, Gaudi::DataHandle::Reader);
+    assert (h1.clid() == 293847295);
+    assert (h1.key() == "foo13");
+    assert (h1.storeHandle().name() == "TestStore");
+    assert (h1.mode() == Gaudi::DataHandle::Reader);
+    assert (h1.m_store == &testStore);
+    assert (h1.typeless_cptr() == objptr);
+    assert (h1.m_proxy == proxy);
+    assert (proxy->refCount() == 2);
+    assert (testStore.m_boundHandles == std::vector<IResetable*>{&h1});
+  }
+  assert (proxy->refCount() == 1);
+  assert (testStore.m_boundHandles == std::vector<IResetable*>{});
+}
+
+
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
@@ -740,6 +773,7 @@ int main()
   test10();
   test11();
   test12();
+  test13();
   return 0;
 }
 

@@ -29,6 +29,8 @@
 
 #include "IdDictDetDescr/IdDictManager.h"
 
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+
 #include "TrkTruthData/TrackTruth.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
@@ -3514,8 +3516,8 @@ void IDStandardPerformance::MakeDataPlots(const DataVector<Trk::Track>* trks) { 
     if (trkphi<0) trkphi+=2*m_Pi;
 
     float chi2oDoF = -1;
-    if (fitQual!=0) {
-      float chisquared = (fitQual) ? fitQual->chiSquared() : -1.;
+    if (fitQual) {
+      float chisquared = fitQual->chiSquared();
       int DoF = fitQual->numberDoF();
       if(DoF>0) chi2oDoF = chisquared/(float)DoF;
     }
@@ -4027,7 +4029,6 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		  const InDet::SiCluster* sc = dynamic_cast<const InDet::SiCluster*>(prd);
 		  if (sc)
 		    element = sc->detectorElement();
-		  //element = m_SCT_Mgr->getDetectorElement(surfaceID);
 		}
 	      if (!element) msg(MSG::DEBUG) << "No element for track incidence angles!" << endmsg;
 	      float PixTrkAngle = -1000;

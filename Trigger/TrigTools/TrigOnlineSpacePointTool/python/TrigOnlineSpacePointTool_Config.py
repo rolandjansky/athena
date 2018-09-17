@@ -23,15 +23,15 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
-        # --- SiLorentzAngleTool for SCT
-        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        # --- SiLorentzAngleTool
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
                                                                PixelOfflineCalibSvc =  PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
-                                                               SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
+                                                               PixelLorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool,
+                                                               SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
                                                                )
 
         ToolSvc += InDetL2TrigClusterMakerTool
@@ -59,15 +59,15 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         ToolSvc += InDetL2TrigSCT_ClusteringTool
 
         # SiLorentzAngleTool for FastSCT_RodDecoder
-        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
-            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup() 
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup() 
 
         # FastSCT_RodDecoder
         ToolSvc += FastSCT_RodDecoder(name = "FastSCT_RodDecoder",
-                                      LorentzAngleTool=ToolSvc.SCTLorentzAngleTool)
+                                      LorentzAngleTool=sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 
-        ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool)
+        ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool,
+                                                                LorentzAngleTool = ToolSvc.InDetTrigPixelLorentzAngleTool)
         ConfiguredSCT_ClusterCacheTool = SCT_ClusterCacheTool(SCT_ClusteringTool = InDetL2TrigSCT_ClusteringTool,
                                                               FastSCT_RodDecoder = ToolSvc.FastSCT_RodDecoder
                                                               )

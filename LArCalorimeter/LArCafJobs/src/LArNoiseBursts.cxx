@@ -71,7 +71,6 @@
 #include "LArHV/LArHVManager.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-#include "LArCondUtils/LArHVToolDB.h"
 ///////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -123,8 +122,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
   : AthAlgorithm(name, pSvcLocator),
     m_thistSvc(0),
     m_tree(0),
-    m_LArCablingService("LArCablingService"),
-    m_LArHVCablingTool("LArHVCablingTool"),
     m_calo_noise_tool("CaloNoiseTool/CaloNoiseToolDefault"),
     m_bc_tool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool"),
     m_badchan_tool("LArBadChanTool"),
@@ -226,8 +223,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_nt_cellpartlayerindex(0),
     m_nt_cellIdentifier(0),
     m_nt_noisycellpart(0),
-    m_nt_nominalhv(0),
-    m_nt_maximalhv(0),
     m_nt_noisycellHVphi(0),
     m_nt_noisycellHVeta(0),
     m_nt_samples(0),
@@ -252,9 +247,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
    // Trigger
    declareProperty( "TrigDecisionTool", m_trigDec );
    
-   /** switches to control the analysis through job options */
-   declareProperty("LArCablingService", m_LArCablingService);
-   declareProperty("LArHVCablingTool",  m_LArHVCablingTool);
    
    // NEW
    declareProperty( "ICaloNoiseTool", m_calo_noise_tool );
@@ -316,7 +308,7 @@ StatusCode LArNoiseBursts::initialize() {
     }
    }
   
-  ATH_CHECK( m_LArCablingService.retrieve() );
+  ATH_CHECK( m_cablingKey.initialize() );
 
   // Retrieve online ID helper
   const DataHandle<LArOnlineID> LArOnlineIDHelper;
@@ -499,9 +491,6 @@ StatusCode LArNoiseBursts::initialize() {
   m_tree->Branch("SatCellIsBad", &m_nt_isbadcell_sat);
   m_tree->Branch("SatCellOnlineIdentifier",&m_nt_cellIdentifier_sat);
 
-  //HV information
-  m_tree->Branch("HV_Nominal", &m_nt_nominalhv); //Not yet filled
-  m_tree->Branch("HV_Maximal",&m_nt_maximalhv);  // Not yet filled
 
   ATH_MSG_DEBUG ( "End of Initializing LArNoiseBursts" );
  
@@ -635,8 +624,6 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_gain.clear();
 
   ///HV branches
-  m_nt_nominalhv.clear();
-  m_nt_maximalhv.clear();
   m_nt_noisycellHVphi.clear();
   m_nt_noisycellHVeta.clear();
 
@@ -672,6 +659,7 @@ StatusCode LArNoiseBursts::clear() {
 
 StatusCode LArNoiseBursts::execute() {
   ATH_MSG_DEBUG ( "in execute()" );
+
   StatusCode sc = clear();
   if(sc.isFailure()) {
     ATH_MSG_WARNING ( "The method clear() failed" );
@@ -1000,6 +988,12 @@ StatusCode LArNoiseBursts::doEventProperties(){
 StatusCode LArNoiseBursts::doLArNoiseBursts(){
   ATH_MSG_DEBUG ( "in doLarCellInfo " );
 
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  const LArOnOffIdMapping* cabling=*larCablingHdl;
+  if(!cabling) {
+     ATH_MSG_WARNING("Do not have cabling info, not storing LarCellInfo ");
+     return StatusCode::SUCCESS;
+  }
 
  // Retrieve LAr calocells container
  // or LArRawChannel container, whatsever available...
@@ -1042,20 +1036,20 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
        const CaloDetDescrElement* caloDDE = (*caloItr)->caloDDE();
        if (caloDDE->is_tile())continue;
        HWIdentifier onlID;
-       try {onlID = m_LArCablingService->createSignalChannelID((*caloItr)->ID());}
+       try {onlID = cabling->createSignalChannelID((*caloItr)->ID());}
        catch(LArID_Exception& except) {
          ATH_MSG_ERROR  ( "LArID_Exception " << m_LArEM_IDHelper->show_to_string((*caloItr)->ID()) << " " << (std::string) except );
          ATH_MSG_ERROR  ( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string((*caloItr)->ID()) );
          ATH_MSG_ERROR  ( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string((*caloItr)->ID()) );
          continue;
        }
-       bool connected = m_LArCablingService->isOnlineConnected(onlID);
+       bool connected = cabling->isOnlineConnected(onlID);
        if(!connected) continue;
        eCalo = (*caloItr)->energy();
        qfactor = (*caloItr)->quality();
        gain = (*caloItr)->gain();
        //if(qfactor > 0. || (*caloItr)->ID() == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG((*caloItr)->ID()<<" : "<<eCalo<<" "<<qfactor<<" "<<gain<<" prov.: "<<(*caloItr)->provenance());
-       ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain));
+       ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling));
      }//loop over cells
      ATH_MSG_DEBUG("Done cells "<<nlarcell);
   } else {
@@ -1064,13 +1058,13 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
        LArRawChannelContainer::const_iterator caloItr;
        for(caloItr=LArTES_dig->begin();caloItr!=LArTES_dig->end();caloItr++){
          HWIdentifier onlID=caloItr->identify();
-         bool connected = m_LArCablingService->isOnlineConnected(onlID);
+         bool connected = cabling->isOnlineConnected(onlID);
          if(!connected) continue;
          eCalo = caloItr->energy();
          qfactor = caloItr->quality();
          gain = caloItr->gain();
-         //if(qfactor>0 || m_LArCablingService->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(m_LArCablingService->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
-         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain));
+         //if(qfactor>0 || cabling->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(cabling->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
+         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling));
          chdone.push_back(onlID);
        }//loop over raw channels
      }  
@@ -1081,13 +1075,13 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
        for(caloItr=LArTES->begin();caloItr!=LArTES->end();caloItr++){
          HWIdentifier onlID=caloItr->identify();
          if(std::find(chdone.begin(), chdone.end(), onlID) != chdone.end()) continue;
-         bool connected = m_LArCablingService->isOnlineConnected(onlID);
+         bool connected = cabling->isOnlineConnected(onlID);
          if(!connected) continue;
          eCalo = caloItr->energy();
          qfactor = caloItr->quality();
          gain = caloItr->gain();
-         //if(qfactor>0 || m_LArCablingService->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000)  ) ATH_MSG_DEBUG(m_LArCablingService->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
-         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain));
+         //if(qfactor>0 || cabling->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000)  ) ATH_MSG_DEBUG(cabling->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
+         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain, cabling));
        }//loop over raw channels
      }  
      ATH_MSG_DEBUG("Done raw chan. "<<nlarcell);
@@ -1212,8 +1206,8 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   
 }
 
-StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain){
-    const Identifier idd = m_LArCablingService->cnvToIdentifier(onlID);
+StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain, const LArOnOffIdMapping* cabling){
+    const Identifier idd = cabling->cnvToIdentifier(onlID);
     nlarcell++;
     IdentifierHash channelHash = m_LArOnlineIDHelper->channel_Hash(onlID);
     const CaloDetDescrElement *caloDDE = m_calodetdescrmgr->get_element(idd);
@@ -1273,7 +1267,7 @@ StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfact
        m_nb_sat = m_nb_sat +1;
        m_nt_partition_sat.push_back(partition);
        m_nt_energy_sat.push_back(eCalo);
-       m_nt_cellIdentifier_sat.push_back((m_LArCablingService->cnvToIdentifier(onlID)).get_identifier32().get_compact());
+       m_nt_cellIdentifier_sat.push_back((cabling->cnvToIdentifier(onlID)).get_identifier32().get_compact());
        if(!m_keepOnlyCellID){
          m_nt_barrelec_sat.push_back(m_LArOnlineIDHelper->barrel_ec(onlID));
          m_nt_posneg_sat.push_back(m_LArOnlineIDHelper->pos_neg(onlID));
@@ -1308,11 +1302,11 @@ StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfact
       v_isbadcell.push_back(badcell);
       v_partition.push_back(partition);
       v_IdHash.push_back(channelHash);
-      v_cellIdentifier.push_back(m_LArCablingService->cnvToIdentifier(onlID));
+      v_cellIdentifier.push_back(cabling->cnvToIdentifier(onlID));
     // ...but count only cells in positive 3 sigma tails!
       if (significance > m_sigmacut){
 	m_noisycell++;
-        ATH_MSG_DEBUG ("Noisy cell: "<<m_noisycell<<" "<<m_LArCablingService->cnvToIdentifier(onlID)<<" q: "<<qfactor<<" sign.: "<<significance<<" noise: "<<noise);
+        ATH_MSG_DEBUG ("Noisy cell: "<<m_noisycell<<" "<<cabling->cnvToIdentifier(onlID)<<" q: "<<qfactor<<" sign.: "<<significance<<" noise: "<<noise);
 	for(unsigned int k=0;k<8;k++){
 	  if(partition==k){
 	    n_noisy_cell_part[k]++;
@@ -1321,23 +1315,9 @@ StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfact
       }
       int caloindex = GetPartitionLayerIndex(idd);
       v_cellpartlayerindex.push_back(caloindex);
-      //store HV information
-      /*std::vector<int> * hvid = new std::vector<int>;
-      hvid.clear();
-      //hvid = GetHVLines(idd);
-      std::vector<std::pair<LArHVCellID, int> > hv_vector;
-      hv_vector.clear();
-      m_LArHVCablingTool->getLArHVCellID(idd,hv_vector);
-      if(hv_vector.size()>0){
-        for(unsigned int i=0;i<hv_vector.size();i++){
-	  int nominal_HV =  m_LArHVCablingTool->getNominalHV(hv_vector[i].first);//fill the branch but produces lots of warnings. 
-	  int maximal_HV =  m_LArHVCablingTool->getMaximalHV(hv_vector[i].first);//fill the branch but produces lots of warnings.
-	    m_nt_nominalhv.push_back(nominal_HV);
-            m_nt_maximalhv.push_back(maximal_HV);
-	}
-	}*/
       v_noisycellHVphi.push_back(m_LArElectrodeIDHelper->hv_phi(onlID));
       v_noisycellHVeta.push_back(m_LArElectrodeIDHelper->hv_eta(onlID));
+
       
     }   
     return StatusCode::SUCCESS;
