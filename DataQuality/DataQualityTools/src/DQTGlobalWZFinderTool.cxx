@@ -28,9 +28,14 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthEvent.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthVertex.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
@@ -299,6 +304,11 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
 
      if (thisEventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
        failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_mcmatch = TH1F_LW::create("m_mcatch", "Muon matching to truth in acceptance", 2, -0.5, 1.5), lumiBlock).isFailure();
+       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_fiducialSumWeights_el = TH1F_LW::create("m_fiducialSumWeights_el", "Sum of MC event weights within fiducial region Zee", 60, 0, 60), 
+       lumiBlock).isFailure();
+       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_fiducialSumWeights_mu = TH1F_LW::create("m_fiducialSumWeights_mu", "Sum of MC event weights within fiducial region Z#mu#mu", 60, 0, 60)	   ,lumiBlock).isFailure();
+       failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_totalSumWeights = TH1F_LW::create("m_totalSumWeights", "Sum of MC event weights", 60, 0, 60),lumiBlock).isFailure();
+
      }
      
      //Resonance particle rate monitoring
@@ -655,6 +665,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      bool isJPsimumu = (goodmuonsJPsi.size() > 1);
      ATH_MSG_DEBUG("Evaluated Event"); 
 
+
      if (isZee){ 
        ATH_MSG_DEBUG("Zee found");
        TLorentzVector Zee = (leadingEle->p4() + subleadingEle->p4());
@@ -711,6 +722,8 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 	  }
 	}
      }   
+
+     loadBosonTruth();
 
      //JPsi and Upsilon counter
      if (isJPsimumu && trigChainsArePassed(m_Jpsi_mm_trigger)) {
@@ -940,11 +953,11 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
 
       // even if the probe is a bad electron, we still require it to not be in the gap
       // the no gap is built into the good criterion anyway so don't need it for good electrons
-      bool leading_probe_nogap = ((leadingAllEle)->caloCluster()->etaBE(2) > 1.37) &&
-         	    		 ((leadingAllEle)->caloCluster()->etaBE(2) < 1.52); 
+      bool leading_probe_nogap = fabs((leadingAllEle)->caloCluster()->etaBE(2) > 1.37) &&
+         	    		 fabs((leadingAllEle)->caloCluster()->etaBE(2) < 1.52); 
 
-      bool subleading_probe_nogap = ((subleadingAllEle)->caloCluster()->etaBE(2) > 1.37) &&
-                                    ((subleadingAllEle)->caloCluster()->etaBE(2) < 1.52);
+      bool subleading_probe_nogap = fabs((subleadingAllEle)->caloCluster()->etaBE(2) > 1.37) &&
+                                    fabs((subleadingAllEle)->caloCluster()->etaBE(2) < 1.52);
 
       // do trigger matching
       bool leading_trig = false;
@@ -1008,13 +1021,124 @@ DQTGlobalWZFinderTool::doEleTP(const xAOD::Electron* leadingAllEle,
 }// end doEleTP
 
 
+void DQTGlobalWZFinderTool::loadBosonTruth()
+{
+
+  m_totalSumWeights->Fill(m_this_lb, m_evtWeight);
+  TLorentzVector BosonFourVector;
+  int BosonPdgId;
+  std::vector<TLorentzVector> bornLeptonFourVectors;
+  std::vector<int> bornLeptonPdgId;
+
+  bornLeptonFourVectors.clear();
+  bornLeptonPdgId.clear();
+  BosonPdgId = 0;
+  BosonFourVector.SetXYZT(0., 0., 0., 0.);
+  
+  std::cout << "loadBosonTruth is Running" << std::endl;
+
+  TLorentzVector tmp;
+
+  const xAOD::TruthParticleContainer* xTruthParticleContainer;
+  if (!evtStore()->retrieve(xTruthParticleContainer, "TruthParticles").isSuccess()) {
+    Error("execute()", "Failed to retrieve TruthParticle collection");
+    return;
+  }
+   
+  for(const auto& particle : *xTruthParticleContainer){
+    int pdgId = particle->pdgId();
+
+    bool isBoson = pdgId == 25 || pdgId == 23 || abs(pdgId) == 24 || pdgId == 32 || pdgId == 5100039;
+    if (!isBoson) {
+      continue;
+    }
+    
+
+    const xAOD::TruthVertex* decvtx = particle->decayVtx();
+    if (!decvtx) continue;
+    bool takevtx = false;
+    for (unsigned int part=0; part<decvtx->nOutgoingParticles(); part++) {
+      const xAOD::TruthParticle *decpart = decvtx->outgoingParticle(part);
+      if (decpart) {
+	bool isLepton = abs(decpart->pdgId()) > 10 && abs(decpart->pdgId()) <= 17;
+	if(isLepton){
+	  takevtx = true;
+	  break;
+        }
+      }
+    }
+    if (!takevtx) continue;
+    
+    BosonFourVector.SetPxPyPzE(particle->px()/GeV, particle->py()/GeV, particle->pz()/GeV, particle->e()/GeV);
+
+    BosonPdgId = pdgId;
+    Info("loadBosonTruth() ", "Boson\t\t%i\t\t%i\t%i\t%f\t%f\t%f\t%f ", 
+	 particle->barcode(), particle->status(), pdgId,
+	 BosonFourVector.Pt(),
+	 BosonFourVector.Eta(),
+	 BosonFourVector.Phi(),
+	 BosonFourVector.M()
+	 );
+
+    bool hasStatus3 = false;  // Born for Photos
+    for (unsigned int part = 0; part < decvtx->nOutgoingParticles(); part++) {
+      const xAOD::TruthParticle *decpart = decvtx->outgoingParticle(part);
+      if (!decpart) continue;
+      if (decpart->status() == 3) {
+	hasStatus3 = true;
+	break;
+      }
+    }
+
+    for (unsigned int part = 0; part < decvtx->nOutgoingParticles(); part++) {
+      const xAOD::TruthParticle *decpart = decvtx->outgoingParticle(part);
+      if (!decpart) continue;
+      pdgId = decpart->pdgId();
+      tmp.SetPxPyPzE(decpart->px()/GeV, decpart->py()/GeV, decpart->pz()/GeV, decpart->e()/GeV);
+      Info("loadTruth() ", "bosondec\t%i\t\t%i\t%i\t%f\t%f\t%f\t%f ", 
+	   decpart->barcode(), decpart->status(), pdgId,
+	   tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M()
+	   );
+      bool isLepton = abs(decpart->pdgId()) > 10 && abs(decpart->pdgId()) <= 17;
+      if (isLepton && ( (hasStatus3 && decpart->status() == 3) || (!hasStatus3 && decpart->status() == 1))){
+	bornLeptonFourVectors.push_back(tmp);
+	bornLeptonPdgId.push_back(pdgId);
+	Info("loadTruth() ", "   is born lepton");
+      }
+    }
+  }
+
+  if (fabs(BosonPdgId) != 23) return;
+  if (bornLeptonPdgId.size() !=2) return;
+  if (fabs(bornLeptonFourVectors[0].Pt()) < m_muonPtCut  || fabs(bornLeptonFourVectors[1].Pt()) < m_muonPtCut) return;
+  if (fabs(bornLeptonFourVectors[0].Eta()) > m_muonMaxEta  || fabs(bornLeptonFourVectors[1].Eta()) > m_muonMaxEta) return;
+
+  if (fabs(bornLeptonPdgId[0]) == 11 || fabs(bornLeptonPdgId[1]) == 11){
+    bool electron1Gap = fabs(bornLeptonFourVectors[0].Eta()) > 1.37 && fabs(bornLeptonFourVectors[0].Eta()) < 1.52;
+    bool electron2Gap = fabs(bornLeptonFourVectors[1].Eta()) > 1.37 && fabs(bornLeptonFourVectors[1].Eta()) < 1.52;
+    if(!electron1Gap && !electron2Gap){
+      m_fiducialSumWeights_el->Fill(m_this_lb, m_evtWeight);
+      return;
+    }
+  }
+
+  if (fabs(bornLeptonPdgId[0]) == 13 || fabs(bornLeptonPdgId[1]) == 13){
+    m_fiducialSumWeights_mu->Fill(m_this_lb, m_evtWeight);
+    return;
+  }
+
+  return;
+}
+
 bool DQTGlobalWZFinderTool::goodElectrons(const xAOD::EventInfo* thisEventInfo, 
     		   		          const xAOD::Electron* electron_itr, 
 		  			  const xAOD::Vertex* pVtx, 
 		   			  bool isBad){
   bool isGood = false;
 
-  Float_t m_electronEtCut = 25; 
+  // for now just use muon pt cut for electrons as they should be the same
+  //Float_t m_electronEtCut = 25; 
+
   bool passSel = false;
   if (!((electron_itr)->passSelection(passSel, "LHMedium"))) ATH_MSG_WARNING("Electron ID WP Not Defined");
   auto elTrk = (electron_itr)->trackParticle();
@@ -1035,17 +1159,18 @@ bool DQTGlobalWZFinderTool::goodElectrons(const xAOD::EventInfo* thisEventInfo,
     }
   }
 
-  if ( ((electron_itr)->pt() > m_electronEtCut*GeV) &&
-       ((electron_itr)->caloCluster()->etaBE(2) < 2.4) &&
+  // using muon pt cut for electrons
+  if ( ((electron_itr)->pt() > m_muonPtCut*GeV) &&
+       fabs((electron_itr)->caloCluster()->etaBE(2) < 2.4) &&
        passSel &&
-       // m_isolationSelectionTool->accept(**electron_itr) &&
+       m_isolationSelectionTool->accept(*electron_itr) &&
        fabs(d0sig) < 5 &&
        pVtx &&
        fabs((elTrk->z0()+elTrk->vz()-pVtx->z())*std::sin(elTrk->theta())) < 0.5*mm &&
        !isBad
      ){    // electron dead zone
-    if ( ((electron_itr)->caloCluster()->etaBE(2) > 1.37) &&
-         ((electron_itr)->caloCluster()->etaBE(2) < 1.52) ){
+    if ( fabs((electron_itr)->caloCluster()->etaBE(2) > 1.37) &&
+         fabs((electron_itr)->caloCluster()->etaBE(2) < 1.52) ){
       isGood = false;
     } else{
       isGood = true;
