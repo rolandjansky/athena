@@ -739,7 +739,7 @@ def setupMenu():
 	    ["noalg_l1topo_L1LAR-J",          			"L1_LAR-J",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
 
         #ATR-18734 b-jet+HT
-        ["noalg_l1topo_L1HT190-J15s5.ETA21",                  "L1_HT190-J15s5.ETA21",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:     Other"], -1 ],
+        ["noalg_l1topo_L1HT190-J15s5.ETA21",                  "L1_HT190-J15s5.ETA21",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         #ATR-18734 B->K*ee
         ["noalg_l1topo_L1BPH-0M9-EM7-EM5_2MU4",          "L1_BPH-0M9-EM7-EM5_2MU4",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         ["noalg_l1topo_L1BPH-0M9-EM7-EM5_MU6",          "L1_BPH-0M9-EM7-EM5_MU6",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
@@ -752,10 +752,11 @@ def setupMenu():
         ["noalg_l1topo_L1MJJ-500-NFF",                  "L1_MJJ-500-NFF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1      ],
         ["noalg_l1topo_L1MJJ-700",                  "L1_MJJ-500-NFF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1      ],
         #ATR-18734 VBF H->bb + photon
-        ['noalg_l1topo_L1EM18VHI_MJJ-300',   'L1_EM18VHI_MJJ-300',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
+        #['noalg_l1topo_L1EM18VHI_MJJ-300',   'L1_EM18VHI_MJJ-300',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
+        ['noalg_l1topo_L1EM18VH_MJJ-300',   'L1_EM18VH_MJJ-300',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         #ATR-18734
         #["noalg_l1topo_L1HT150-J20s5.ETA31",                  "L1_HT150-J20s5.ETA31",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
-        ["noalg_l1topo_L1HT150-J20s5.ETA31_MJJ-400-CF",                    "L1_HT150-J20s5.ETA31_MJJ-400-CF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Ot     her"], -1 ],
+        ["noalg_l1topo_L1HT150-J20s5.ETA31_MJJ-400-CF",                    "L1_HT150-J20s5.ETA31_MJJ-400-CF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
 
         #ATR-18734 g + tau for excl Higgs decays
         ["noalg_l1topo_L130M-EM20ITAU12",                     "L1_30M-EM20ITAU12",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
@@ -770,8 +771,8 @@ def setupMenu():
         #ATR-18734 Axion search
         ["noalg_l1topo_L1DPHI-2EM3",                    "L1_DPHI-2EM3",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         #ATR-18734 LAr
-        ["noalg_l1topo_L1LAR-J",                        "L1_LAR-J",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
-        ["noalg_l1topo_L1LAR-EM",                       "L1_LAR-EM",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+        #["noalg_l1topo_L1LAR-J",                        "L1_LAR-J",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+        #["noalg_l1topo_L1LAR-EM",                       "L1_LAR-EM",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         ['noalg_l1topo_L1LAR-ZEE',                              'L1_LAR-ZEE',          [], ['L1Topo'],     ["RATE:L1TopoStreamers", "BW:Other"], -1],     
         ['noalg_l1topo_L1LAR-ZEE_LAR-EM',                       'L1_LAR-ZEE_LAR-EM',   [], ['L1Topo'],     ["RATE:L1TopoStreamers", "BW:Other"], -1],
 
@@ -782,7 +783,7 @@ def setupMenu():
         #ATR-18734 Jets
         ["noalg_l1topo_L1SC111-CJ15",                   "L1_SC111-CJ15",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         #ATR-18734 TLA
-        ["noalg_l1topo_L1J50_DETA20-J50J",                    "L1_J50_DETA20-J50J",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Ot     her"], -1 ],
+        ["noalg_l1topo_L1J50_DETA20-J50J",                    "L1_J50_DETA20-J50J",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         
 
 

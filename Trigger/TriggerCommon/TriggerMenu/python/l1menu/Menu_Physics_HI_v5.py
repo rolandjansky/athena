@@ -44,8 +44,9 @@ def defineMenu():
         #-------------------------
         
         # 16 x EM
-        'EM7', 'EM8', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM14', 'EM15', 'EM15HI', 'EM16', 'EM18', 'EM20', 'EM20VH', 'EM20VHI', 'EM22','EM18VHI',
-        
+        #'EM7', 'EM8', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM14', 'EM15', 'EM15HI', 'EM16', 'EM18', 'EM20', 'EM20VH', 'EM20VHI', 'EM22',
+        'EM7', 'EM8', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM14', 'EM15',  'EM15HI', 'EM16', 'EM18', 'EM18VH', 'EM20', 'EM20VH', 'EM20VHI', 'EM22',
+
         # 1 x ZB
         'ZB_J75', # TODO double check if 'ZB_EM15' should be used for Run-2 (need to be changed also in ItemDef).
 
@@ -54,7 +55,9 @@ def defineMenu():
         #--------------------------
 		
         # 16 x TAU
-        'HA2', 'HA3','HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 'HA60', 
+        #'HA2', 'HA3','HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 
+        #'HA2', 'HA3','HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40',  
+        'HA2', 'HA3','HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT', 'HA25IT', 'HA30', 'HA40', 'HA60', 
 
         #----------------------
         # SLOT 8 / CON 0 (JET1)
@@ -91,9 +94,11 @@ def defineMenu():
         'TE4', 'TE5', 'TE20', 'TE50', 'TE100', 'TE200', 'TE10000', 'TE12000',
         
         # 8 x XE
-        'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80', 'XE30',
+        #'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
+        'XE30', 'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70',
         
-        'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24', 'XE80.0ETA24',
+        #'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24', 'XE80.0ETA24',
+        'XE30.0ETA24', 'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24',
 
         # 8 x XS
         'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65', 
@@ -367,7 +372,7 @@ def defineMenu():
           'L1_MJJ-500-NFF',
           'L1_MJJ-700',
           #VBF H->bb + photon:',
-          'L1_EM18VHI_MJJ-300',
+          'L1_EM18VH_MJJ-300',
           #VBF H->bb:',
           'L1_HT150-J20s5.ETA31_MJJ-400-CF',
           #g + tau for excl Higgs decays:',
