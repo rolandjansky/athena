@@ -90,11 +90,16 @@ namespace InDet{
 	 std::vector<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
 	 bool);
-   
+
+      double pTseed(const Trk::TrackParameters&,const std::list<const Trk::SpacePoint*>&);
+  
       virtual void newEvent();
       virtual void newEvent(Trk::TrackInfo,const TrackQualityCuts&);
 
       virtual void endEvent();
+
+      void getTrackQualityCuts(const TrackQualityCuts&);
+      void statistic(int*);
      
 
       ///////////////////////////////////////////////////////////////////
@@ -120,6 +125,8 @@ namespace InDet{
 
       bool                           m_usePIX        ;
       bool                           m_useSCT        ;
+      bool                           m_ITkGeometry   ;
+      int                            m_statistic[6]  ;
       int                            m_outputlevel   ;
       int                            m_nprint        ;  // Kind output information
       int                            m_inputseeds    ;  // Number input seeds
@@ -130,8 +137,6 @@ namespace InDet{
       int                            m_cosmicTrack   ;  // Is it cosmic track (0 or 1)
       SiTrajectory_xk                m_trajectory    ;  // Track trajector
       std::string                    m_fieldmode     ;  // Mode of magnetic field
-//      std::string                    m_pixelname     ;  // Name container with pixels 
-//      std::string                    m_sctname       ;  // Name container with scts
       std::string                    m_pixm          ;  // PIX manager   location
       std::string                    m_sctm          ;  // SCT manager   location
       std::string                    m_callbackString;
@@ -153,11 +158,19 @@ namespace InDet{
       double                         m_pTmin         ; // min pT
       double                         m_pTminBrem     ; // min pT for brem noise model
       double                         m_qualityCut    ; // Simple track quality cut
+      double                         m_xi2maxOLD     ;
+      double                         m_xi2maxNoAddOLD;
+      double                         m_xi2maxlinkOLD ;
+      double                         m_xi2mOLD       ;
+
       int                            m_nholesmax     ; // Max number holes
       int                            m_dholesmax     ; // Max holes gap
       int                            m_nclusmin      ; // Min number clusters
       int                            m_nclusminb     ; // Min number clusters
       int                            m_nwclusmin     ; // Min number weighted clusters
+      int                            m_nholesmaxOLD  ;
+      int                            m_dholesmaxOLD  ;
+
       std::list<Trk::Track*>         m_tracks        ; // List found tracks
       std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundaryPIX;
       std::vector<InDet::SiDetElementBoundaryLink_xk> m_boundarySCT;
@@ -168,14 +181,13 @@ namespace InDet{
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
-      bool findTrack
+      int findTrack
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::vector<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&);
 
-      void getTrackQualityCuts(const TrackQualityCuts&);
 
       Trk::Track* convertToTrack();
       Trk::Track* convertToNextTrack();
@@ -188,8 +200,13 @@ namespace InDet{
 	(const std::list<const Trk::SpacePoint*>&,
 	 std::vector<const InDet::SiCluster*>     &); 
 
+      bool spacePointsToClusters
+	(const std::list<const Trk::SpacePoint*>&,
+	 std::vector<const InDet::SiCluster*>   &,
+	 std::vector<const InDetDD::SiDetectorElement*>&);
+
       void detectorElementLinks
-	(const std::vector<const InDetDD::SiDetectorElement*>  &,
+	(const std::vector<const InDetDD::SiDetectorElement*>&,
 	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;

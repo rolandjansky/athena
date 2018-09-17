@@ -21,9 +21,11 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
-( const InDetDD::SiDetectorElement*& Si)
+( const InDetDD::SiDetectorElement*& Si, bool isITk)
 {
+  m_ITkGeometry = isITk;
   m_detelement = 0;
+  m_dR = 0.;
   const Trk::PlaneSurface* pla = dynamic_cast<const Trk::PlaneSurface*>(& Si->surface());
   if(!pla) return;
   m_detelement = Si;
@@ -56,15 +58,16 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
   x[3]     =-AF.x()*Swmax+AE.x()*Sl;
   y[3]     =-AF.y()*Swmax+AE.y()*Sl;
   z[3]     =-AF.z()*Swmax+AE.z()*Sl;
+  
+const Trk::AnnulusBounds* B = dynamic_cast<const Trk::AnnulusBounds*>(&Si->design().bounds()); 
 
+if (not B) {
+  
   for(int i=0; i!=4; ++i) {
-
     int    k1    = i;
     int    k2    = i+1; if(k2>3) k2=0;
-
     double x1     =  x[k1]*Ax[0]+y[k1]*Ax[1]+z[k1]*Ax[2]; 
     double y1     =  x[k1]*Ay[0]+y[k1]*Ay[1]+z[k1]*Ay[2]; 
-
     double x2     =  x[k2]*Ax[0]+y[k2]*Ax[1]+z[k2]*Ax[2]; 
     double y2     =  x[k2]*Ay[0]+y[k2]*Ay[1]+z[k2]*Ay[2]; 
     double d      = (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1);
@@ -73,9 +76,82 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
     m_bound[i][2] = sqrt(ax*ax+ay*ay);
     m_bound[i][1] = ay/m_bound[i][2];
     m_bound[i][0] = ax/m_bound[i][2];
+    m_bound00[i]  = m_bound[i][0]*m_bound[i][0]*100.;
+    m_bound01[i]  = m_bound[i][0]*m_bound[i][1]*200.;
+    m_bound11[i]  = m_bound[i][1]*m_bound[i][1]*100.;
   }
-  m_dR = 0.;
-  const Trk::AnnulusBounds* B = dynamic_cast<const Trk::AnnulusBounds*>(&Si->design().bounds()); if(B) m_dR = B->R();
+  
+  return;    
+
+} else {
+  
+  m_dR = B->R();
+  
+  Sl*=0.8;
+  
+  std::pair<Amg::Vector3D,Amg::Vector3D> strip0(Si->endsOfStrip(InDetDD::SiLocalPosition( Sl+m_dR, Swmax-1.,0))); 
+  Amg::Vector3D a0(strip0.first ); 
+  Amg::Vector3D b0(strip0.second);  
+  double x0 = a0[0]*Ax[0]+a0[1]*Ax[1];
+  double y0 = a0[0]*Ay[0]+a0[1]*Ay[1];
+  double x1 = b0[0]*Ax[0]+b0[1]*Ax[1];
+  double y1 = b0[0]*Ay[0]+b0[1]*Ay[1];
+  if(y1 > y0) {x[0] = x1; y[0] = y1;} else  {x[0] = x0; y[0] = y0;}
+  
+  std::pair<Amg::Vector3D,Amg::Vector3D> strip1(Si->endsOfStrip(InDetDD::SiLocalPosition(-Sl+m_dR, Swmin-1.,0))); 
+  Amg::Vector3D a1(strip1.first ); 
+  Amg::Vector3D b1(strip1.second);  
+  x0        = a1[0]*Ax[0]+a1[1]*Ax[1];
+  y0        = a1[0]*Ay[0]+a1[1]*Ay[1];
+  x1        = b1[0]*Ax[0]+b1[1]*Ax[1];
+  y1        = b1[0]*Ay[0]+b1[1]*Ay[1];
+  if(y1 < y0) {x[1] = x1; y[1] = y1;} else  {x[1] = x0; y[1] = y0;}
+  
+  std::pair<Amg::Vector3D,Amg::Vector3D> strip2(Si->endsOfStrip(InDetDD::SiLocalPosition(-Sl+m_dR,-Swmin-1.,0))); 
+  Amg::Vector3D a2(strip2.first ); 
+  Amg::Vector3D b2(strip2.second);  
+  x0        = a2[0]*Ax[0]+a2[1]*Ax[1];
+  y0        = a2[0]*Ay[0]+a2[1]*Ay[1];
+  x1        = b2[0]*Ax[0]+b2[1]*Ax[1];
+  y1        = b2[0]*Ay[0]+b2[1]*Ay[1];
+  if(y1 < y0) {x[2] = x1; y[2] = y1;} else  {x[2] = x0; y[2] = y0;}
+  
+  std::pair<Amg::Vector3D,Amg::Vector3D> strip3(Si->endsOfStrip(InDetDD::SiLocalPosition( Sl+m_dR,-Swmax+2.,0))); 
+  Amg::Vector3D a3(strip3.first ); 
+  Amg::Vector3D b3(strip3.second);  
+  x0        = a3[0]*Ax[0]+a3[1]*Ax[1];
+  y0        = a3[0]*Ay[0]+a3[1]*Ay[1];
+  x1        = b3[0]*Ax[0]+b3[1]*Ax[1];
+  y1        = b3[0]*Ay[0]+b3[1]*Ay[1];
+  if(y1 > y0) {x[3] = x1; y[3] = y1;} else  {x[3] = x0; y[3] = y0;}
+  
+  y[0]-=m_dR;
+  y[1]-=m_dR;
+  y[2]-=m_dR;
+  y[3]-=m_dR;
+  
+  for(int i=0; i!=4; ++i) {
+    
+    int    k1     = i  ;
+    int    k2     = i+1; if(k2>3) k2=0;
+    double x1     =  x[k1];
+    double y1     =  y[k1];
+    double x2     =  x[k2];
+    double y2     =  y[k2];
+    double d      = (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1);
+    double ax     =-(y2-y1)*(y1*x2-x1*y2)/d;
+    double ay     = (x2-x1)*(y1*x2-x1*y2)/d;
+    m_bound[i][2] = sqrt(ax*ax+ay*ay);
+    m_bound[i][1] = ay/m_bound[i][2];
+    m_bound[i][0] = ax/m_bound[i][2];
+    m_bound00[i]  = m_bound[i][0]*m_bound[i][0]*100.;
+    m_bound01[i]  = m_bound[i][0]*m_bound[i][1]*200.;
+    m_bound11[i]  = m_bound[i][1]*m_bound[i][1]*100.;
+  }
+  return;
+}
+return;
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -87,22 +163,38 @@ int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParamet
   double x = Tp.par()[0];
   double y = Tp.par()[1]-m_dR;
 
-  int    n  = 0;
-  a         = m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2]; 
-  double a2 = m_bound[1][0]*x+m_bound[1][1]*y-m_bound[1][2]; if(a2>a) {a=a2; n=1;}
-  double a3 = m_bound[2][0]*x+m_bound[2][1]*y-m_bound[2][2]; if(a3>a) {a=a3; n=2;}
-  double a4 = m_bound[3][0]*x+m_bound[3][1]*y-m_bound[3][2]; if(a4>a) {a=a4; n=3;}
+  double b[4] = {m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2], 
+		 m_bound[1][0]*x+m_bound[1][1]*y-m_bound[1][2], 
+		 m_bound[2][0]*x+m_bound[2][1]*y-m_bound[2][2], 
+		 m_bound[3][0]*x+m_bound[3][1]*y-m_bound[3][2]};
+ 
+  int n; b[1] > b[0] ? n = 1 : n = 0; 
+  int m; b[3] > b[2] ? m = 3 : m = 2;
+  if(b[m] > b[n]) n = m;
 
-  if(a > 20. ) return 1;
-  double D  = (m_bound[n][0]*m_bound[n][0]* Tp.cov()[0]+
-	       m_bound[n][1]*m_bound[n][1]* Tp.cov()[2]+
-	       m_bound[n][0]*m_bound[n][1]*(Tp.cov()[1]*2.))*100.;
+  a  = b[n];
+      
+  if (not m_ITkGeometry) {
+    if(a > 20. ) return 1;
+    double D  = m_bound00[n]*Tp.cov()[0]+m_bound11[n]*Tp.cov()[2]+m_bound01[n]*Tp.cov()[1];
 
-  if((a*a) <= D) return 0;
+    if((a*a) <= D) return 0;
 
-  if(a >  2.) return 1;
-  if(a < -2.) {
-    if(!m_detelement->nearBondGap(Tp.localPosition(), 3.*sqrt(Tp.cov()[2]))) return -1;
+    if(a >  2.) return 1;
+    if(a < -2.) {
+      if(!m_detelement->nearBondGap(Tp.localPosition(), 3.*sqrt(Tp.cov()[2]))) return -1;
+    }
+    return 0;
+
+  } else {
+    if(     a > 20. ) return 1;
+    if(fabs(a) <=3. ) return 0;
+
+    double D  = m_bound00[n]*Tp.cov()[0]+m_bound11[n]*Tp.cov()[2]+m_bound01[n]*Tp.cov()[1];
+
+    if     ((a*a) <= D) return  0;
+    else if(   a >  0.) return  1;
+    else                return -1; 
   }
   return 0;
 }
