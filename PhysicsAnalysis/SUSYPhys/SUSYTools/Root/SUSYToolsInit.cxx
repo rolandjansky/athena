@@ -1069,6 +1069,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_btagSelTool_trkJet.setTypeAndName("BTaggingSelectionTool/"+toolName);
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("TaggerName",     m_BtagTagger_trkJet ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("OperatingPoint", m_BtagWP_trkJet  ) );
+    ATH_CHECK( m_btagSelTool_trkJet.setProperty("MinPt",          m_BtagMinPt_trkJet  ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("JetAuthor",      trkjetcoll   ) );
     ATH_CHECK( m_btagSelTool_trkJet.setProperty("FlvTagCutDefinitionsFileName",  m_bTaggingCalibrationFilePath) );
     ATH_CHECK( m_btagSelTool_trkJet.retrieve() );
