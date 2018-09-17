@@ -1,7 +1,7 @@
-Mon Sep 17 18:42:57 CEST 2018
+Mon Sep 17 18:58:30 CEST 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [CondInputLoaderVerbosity/c419e60554] -- built on [2018-09-17T1633]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [CondInputLoaderVerbosity/13ccce32ae] -- built on [2018-09-17T1657]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
@@ -12,8 +12,6 @@ Py:ConfigurableDb    INFO Read module info for 5521 configurables from 6 genConf
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.1
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
-error [frontier.c:246]: no servers configured
-error [frontier.c:246]: no servers configured
 Py:Athena            INFO including file "CaloIdCnv/CaloIdCnv_joboptions.py"
 Py:Athena            INFO including file "CaloConditions/CaloConditions_jobOptions.py"
 Py:Athena            INFO including file "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py"
@@ -31,7 +29,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
-                                          running on pc-tbed-pub-31.cern.ch on Mon Sep 17 18:43:16 2018
+                                          running on pc-tbed-pub-31.cern.ch on Mon Sep 17 18:58:47 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -47,8 +45,9 @@ AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version Athena
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
 DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-16T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 8 servers found for host pc-tbed-pub-31.cern.ch [ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ]
+DBReplicaSvc         INFO Total of 10 servers found for host pc-tbed-pub-31.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
@@ -59,6 +58,7 @@ DbSession            INFO     Open     DbSession
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
 IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
 IOVDbSvc             INFO Global tag: OFLCOND-RUN12-SDR-35 set from joboptions
 IOVDbSvc             INFO Folder /LAR/Identifier/OnOffIdMap, adding new key tag with value LARIdentifierOnOffIdMap-012
 IOVDbSvc             INFO Folder /LAR/Identifier/CalibIdMap, adding new key tag with value LARIdentifierCalibIdMap-012
@@ -187,7 +187,7 @@ EndcapDMConstru...   INFO Start building EC electronics geometry
   multi-layered version of absorbers activated, mlabs == 1
 ================================================
 EndcapDMConstru...   INFO Start building EC electronics geometry
-GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 20100Kb 	 Time = 1.05S
+GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 22964Kb 	 Time = 0.85S
 ClassIDSvc           INFO  getRegistryEntries: read 213 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
@@ -310,7 +310,7 @@ ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for 
 ClassIDSvc           INFO  getRegistryEntries: read 3862 CLIDRegistry entries for module ALL
 ToolSvc.tool1        INFO  bit mask for errors to mask 16381
 ClassIDSvc           INFO  getRegistryEntries: read 64 CLIDRegistry entries for module ALL
-IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCablingService[0x3fa8ea00]+7fe0fb19c650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
+IOVSvcTool           INFO Still in initialize phase, not tiggering callback for LArCablingService[0x2f612a00]+7f01f9ec2650 bound to AthenaAttributeList[/LAR/Identifier/OnOffIdMap]
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/OnOffIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/CalibIdMap
 ToolSvc.LArCabl...   INFO Successfully installed callback on folder/LAR/Identifier/FebRodMap
@@ -443,11 +443,11 @@ ClassIDSvc           INFO  getRegistryEntries: read 2269 CLIDRegistry entries fo
 ClassIDSvc           INFO  getRegistryEntries: read 37 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
 /cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 180A4AF2-F47E-DB11-9E8F-000E0C4DEA2D
+/cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] EACFEBD4-9BD2-E211-848A-02163E006B20
 /cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
-/cvmfs/atlas-co...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 180A4AF2-F47E-DB11-9E8F-000E0C4DEA2D
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
 LArCalibLineMap...WARNING Found valid write handle
@@ -473,9 +473,6 @@ LArCalibLineMap...WARNING Found valid write handle
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 6 events processed so far  <<<===
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
-/cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] F4885664-6C4D-DF11-A94A-00304867340C
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
@@ -483,7 +480,10 @@ Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 445FAD9
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
 /cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
+/cvmfs/atlas-co...   INFO Database being retired...
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
@@ -492,33 +492,33 @@ testalg1             INFO Finalizing testalg1...
 IncidentProcAlg2     INFO Finalize
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 IdDictDetDescrCnv    INFO in finalize
-IOVDbSvc             INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.16 ))s
-IOVDbSvc             INFO Folder /LAR/BadChannels/BadChannels (AttrListColl) db-read 1/1 objs/chan/bytes 0/8/0 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/BadChannels/MissingFEBs (AttrList) db-read 1/1 objs/chan/bytes 1/1/16 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/CalibIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/1520148 ((     0.08 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/FebRodMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/6100 ((     0.03 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/780292 ((     0.05 ))s
+IOVDbSvc             INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.71 ))s
+IOVDbSvc             INFO Folder /LAR/BadChannels/BadChannels (AttrListColl) db-read 1/1 objs/chan/bytes 0/8/0 ((     0.58 ))s
+IOVDbSvc             INFO Folder /LAR/BadChannels/MissingFEBs (AttrList) db-read 1/1 objs/chan/bytes 1/1/16 ((     0.40 ))s
+IOVDbSvc             INFO Folder /LAR/Identifier/CalibIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/1520148 ((     0.36 ))s
+IOVDbSvc             INFO Folder /LAR/Identifier/FebRodMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/6100 ((     0.04 ))s
+IOVDbSvc             INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/2 objs/chan/bytes 1/1/780292 ((     0.22 ))s
 IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
 IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
 IOVDbSvc             INFO Folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/AutoCorr (PoolColl) db-read 1/1 objs/chan/bytes 3/3/486 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/DAC2uA (PoolColl) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/HVScaleCorr (PoolColl) db-read 1/1 objs/chan/bytes 12/12/1980 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBias (PoolColl) db-read 1/1 objs/chan/bytes 1/1/174 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBiasAverage (PoolColl) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MphysOverMcal (PoolColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Noise (PoolColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Pedestal (PoolRef) db-read 1/1 objs/chan/bytes 1/1/167 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Ramp (PoolColl) db-read 1/1 objs/chan/bytes 3/3/489 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Shape (PoolColl) db-read 1/1 objs/chan/bytes 3/3/477 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/0 objs/chan/bytes 1/1/173 ((     0.04 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/AutoCorr (PoolColl) db-read 1/1 objs/chan/bytes 3/3/486 ((     0.61 ))s
+IOVDbSvc             INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.41 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/DAC2uA (PoolColl) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.90 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/HVScaleCorr (PoolColl) db-read 1/1 objs/chan/bytes 12/12/1980 ((     0.57 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBias (PoolColl) db-read 1/1 objs/chan/bytes 1/1/174 ((     0.46 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MinBiasAverage (PoolColl) db-read 1/1 objs/chan/bytes 1/1/181 ((     0.46 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/MphysOverMcal (PoolColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.41 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Noise (PoolColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.48 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Pedestal (PoolRef) db-read 1/1 objs/chan/bytes 1/1/167 ((     0.43 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Ramp (PoolColl) db-read 1/1 objs/chan/bytes 3/3/489 ((     0.51 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/Shape (PoolColl) db-read 1/1 objs/chan/bytes 3/3/477 ((     0.51 ))s
+IOVDbSvc             INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/0 objs/chan/bytes 1/1/173 ((     0.42 ))s
 IOVDbSvc          WARNING Folder /LAR/Identifier/LArTTCellMapAtlas is requested but no data retrieved
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/fSampl (PoolColl) db-read 1/1 objs/chan/bytes 1/1/194 ((     0.04 ))s
-IOVDbSvc             INFO Folder /LAR/ElecCalibMC/uA2MeV (PoolColl) db-read 1/1 objs/chan/bytes 1/1/165 ((     0.04 ))s
-IOVDbSvc             INFO Total payload read from COOL: 2312609 bytes in ((      0.96 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/fSampl (PoolColl) db-read 1/1 objs/chan/bytes 1/1/194 ((     0.47 ))s
+IOVDbSvc             INFO Folder /LAR/ElecCalibMC/uA2MeV (PoolColl) db-read 1/1 objs/chan/bytes 1/1/165 ((     0.63 ))s
+IOVDbSvc             INFO Total payload read from COOL: 2312609 bytes in ((      9.56 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 20 ReadTime: ((     0.96 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 20 ReadTime: ((     9.56 ))s
 IOVDbSvc             INFO Connection COOLOFL_CALO/OFLP200 : nConnect: 1 nFolders: 3 ReadTime: ((     0.00 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
@@ -537,9 +537,9 @@ ToolSvc.tool1        INFO    Number of masked Feb per event 0.333333
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=  440 [ms] Ave/Min/Max= 12.6(+- 51.1)/    0/  300 [ms] #= 35
-cObj_ALL             INFO Time User   : Tot= 0.72  [s] Ave/Min/Max=0.036(+-0.083)/    0/ 0.34  [s] #= 20
-ChronoStatSvc        INFO Time User   : Tot= 59.6  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=  440 [ms] Ave/Min/Max= 12.6(+- 49.1)/    0/  290 [ms] #= 35
+cObj_ALL             INFO Time User   : Tot= 0.64  [s] Ave/Min/Max=0.032(+-0.0745)/    0/ 0.31  [s] #= 20
+ChronoStatSvc        INFO Time User   : Tot= 56.2  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

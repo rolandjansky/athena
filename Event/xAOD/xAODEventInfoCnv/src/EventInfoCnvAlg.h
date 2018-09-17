@@ -61,6 +61,9 @@ namespace xAODMaker {
       /// Handle to the converter tool
       ToolHandle< IEventInfoCnvTool > m_cnvTool;
 
+      /// Do BeginRun processing?
+      bool m_doBeginRun;
+
    }; // class EventInfoCnvAlg
 
 } // namespace xAODMaker

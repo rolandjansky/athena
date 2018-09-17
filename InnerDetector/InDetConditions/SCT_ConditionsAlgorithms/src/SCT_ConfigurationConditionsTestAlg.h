@@ -13,7 +13,6 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "Identifier/Identifier.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 
 // C++ includes
