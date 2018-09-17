@@ -6,7 +6,7 @@ def createTriggerFlags():
 
     flags = AthConfigFlags()
     # enables L1 simulation
-    flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.get('global.isMC'))
+    flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.Input.isMC)
 
     # enables L1 topological trigger simulation
     flags.addFlag('Trigger.doL1Topo', True )
@@ -172,6 +172,6 @@ import unittest
 class __YearDependentFlagTest(unittest.TestCase):    
     def runTest(self):
         flags = createTriggerFlags()
-        flags.set('Trigger.run2Config', '2017')
+        flags.Trigger.run2Config='2017'
         self.assertEqual(flags.Trigger.egamma.clusterCorrectionVersion, "v12phiflip_noecorrnogap", " dependent flag setting does not work")
         flags.dump()
