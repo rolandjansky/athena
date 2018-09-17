@@ -18,12 +18,6 @@
 
 class MM_Electron {
 
-  TVector2 m_initialPosition;
-  TVector2 m_offsetPosition;
-
-  float m_time;
-  float m_charge;
-
  public:
 
   MM_Electron();
@@ -43,6 +37,14 @@ class MM_Electron {
   float getY() const;
   float getInitialX() const;
   float getInitialY() const;
+
+ private:
+
+  TVector2 m_initialPosition;
+  TVector2 m_offsetPosition;
+
+  float m_time;
+  float m_charge;
 
 
 };

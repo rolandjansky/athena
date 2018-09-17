@@ -142,8 +142,8 @@ private:
   bool m_calibrateCharge;
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
-  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
-  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
+  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
   // Parametrization of the Pixel errors
   // now moved in PixelConditionsData, except for CTB parametrization

@@ -97,9 +97,13 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    
    ATH_CHECK( m_storeGateSvc.retrieve() );
 
-   ATH_CHECK( m_mdtRawDataProvider.retrieve() );
-   ATH_MSG_DEBUG("Retrieved tool " << m_mdtRawDataProvider);
-
+   ATH_MSG_DEBUG("Decode BS set to" << m_decodeBS );
+   if ( m_mdtRawDataProvider.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
+     ATH_MSG_ERROR("Failed to retrieve " << m_mdtRawDataProvider );
+     return StatusCode::FAILURE;
+   } else {
+     ATH_MSG_DEBUG("Retrieved tool " << m_mdtRawDataProvider);
+   }
    //
    std::string serviceName;
 
@@ -422,12 +426,14 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
 						      const std::vector<IdentifierHash>& v_idHash,
 						      std::vector<const MdtCsm*>& v_mdtCsms)
 {
-  if( m_mdtRawDataProvider->convert(v_robFragments, v_idHash).isFailure() ) {
-    ATH_MSG_WARNING("Failed to convert MDT CSM hash Ids: ");
-    for(unsigned int i=0; i < v_idHash.size(); i++) {
-      ATH_MSG_WARNING(" " << v_idHash[i]);
+  if ( m_decodeBS ) {
+    if( m_mdtRawDataProvider->convert(v_robFragments, v_idHash).isFailure() ) {
+      ATH_MSG_WARNING("Failed to convert MDT CSM hash Ids: ");
+      for(unsigned int i=0; i < v_idHash.size(); i++) {
+        ATH_MSG_WARNING(" " << v_idHash[i]);
+      }
+      return StatusCode::FAILURE;
     }
-    return StatusCode::FAILURE;
   }
  
   std::vector<uint32_t> v_robIds;

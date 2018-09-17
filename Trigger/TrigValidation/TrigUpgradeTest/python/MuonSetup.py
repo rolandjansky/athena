@@ -208,4 +208,7 @@ def makeMuonPrepDataAlgs( doL2SA, doEFSA ):
       viewAlgs_MuEFSA.append( MuonClusterAlg )
 
 
-  return ( eventAlgs_Muon, viewAlgs_MuL2SA, viewAlgs_MuEFSA ) 
+  return ( eventAlgs_Muon, viewAlgs_MuL2SA, viewAlgs_MuEFSA )
+
+
+

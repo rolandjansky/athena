@@ -29,29 +29,35 @@ StatusCode HLTResultCreatorByteStream::initialize() {
   ATH_CHECK( m_serializerSvc.retrieve() );
   ATH_CHECK( m_dictLoaderSvc.retrieve() );
 
-  System::ImageHandle handle = 0;
-  if ( System::loadDynamicLib( "xAODTrigger", &handle)  != 1 ) {
-    ATH_MSG_WARNING("Can not load the lib");
-  } else {
-    ATH_MSG_DEBUG("Could load the lib");
-  }
+  // System::ImageHandle handle = 0;
+  // if ( System::loadDynamicLib( "xAODTrigger", &handle)  != 1 ) {
+  //   ATH_MSG_WARNING("Can not load the lib");
+  // } else {
+  //   ATH_MSG_DEBUG("Could load the lib");
+  // }
 
 
 
   for ( std::string typeAndKey: m_collectionsToSerialize ) {
     const std::string type = typeAndKey.substr( 0, typeAndKey.find('#') );
+    if ( type.find('_') == std::string::npos ) {
+      ATH_MSG_ERROR( "Unversion object to be recorded " << typeAndKey );
+      return StatusCode::FAILURE;
+    }
+    const std::string transientType = typeAndKey.substr( 0, typeAndKey.find('_') );
+
     const std::string key = typeAndKey.substr( typeAndKey.find('#')+1 );    
     CLID clid;
-    if ( m_clidSvc->getIDOfTypeName(type, clid).isFailure() )  {
-      ATH_MSG_ERROR( "Can not find CLID for " << type << " that is needed to stream " << key );
+    if ( m_clidSvc->getIDOfTypeName(transientType, clid).isFailure() )  {
+      ATH_MSG_ERROR( "Can not find CLID for " << transientType << " that is needed to stream " << key );
       return StatusCode::FAILURE;
     } 
 
     RootType classDesc = RootType::ByName( type );
-    // if ( ! classDesc.IsComplete() ) {
-    //   ATH_MSG_ERROR( "The type " << type <<  " is not known" );
-    //   return StatusCode::FAILURE;
-    // }
+    if ( ! classDesc.IsComplete() ) {
+      ATH_MSG_ERROR( "The type " << type <<  " is not known" );
+      return StatusCode::FAILURE;
+    }
     
     ATH_MSG_DEBUG( "Type " << type << " key " << key <<  " serializable" );
     m_toSerialize.push_back( Address{ type, clid, classDesc, key } );      

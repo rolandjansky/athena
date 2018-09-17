@@ -74,6 +74,20 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
+TriggerFlags.doID   = False;
+TriggerFlags.doMuon = True;
+
+### Set muon sequence ###
+if not 'doL2SA' in dir():
+  doL2SA = True
+if not 'doL2CB' in dir():
+  doL2CB = True
+  TriggerFlags.doID = True
+if not 'doL2ISO' in dir():
+  doL2ISO = True 
+if not 'doEFSA' in dir():
+  doEFSA = True
+
 ### muon thresholds ###
 testChains = ["HLT_mu6", "HLT_2mu6"]
 
@@ -89,9 +103,7 @@ viewAlgs = []
 if doL2CB:
   # Only do setup of ID stuff if we run combined muon finding
   from TrigUpgradeTest.InDetSetup import makeInDetAlgs
-
   (viewAlgs, eventAlgs) = makeInDetAlgs()
-
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
   theFTF = TrigFastTrackFinder_Muon()
@@ -100,11 +112,11 @@ if doL2CB:
   theFTF.isRoI_Seeded = True
   viewAlgs.append(theFTF)
 
-### A simple algorithm to confirm that data has been inherited from parent view ###
-### Required to satisfy data dependencies                                       ###
-ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuonL2SAInfo')]
-viewAlgs.append(ViewVerify)
+  ### A simple algorithm to confirm that data has been inherited from parent view ###
+  ### Required to satisfy data dependencies                                       ###
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuonL2SAInfo')]
+  viewAlgs.append(ViewVerify)
 
 
 ### Used the algorithms as Step1 "muFast step" ###
@@ -422,6 +434,7 @@ if TriggerFlags.doMuon:
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
     themuoncreatoralg.MakeClusters=False
+    themuoncreatoralg.MuonContainerLocation = "Muons"
 
     #Algorithms to views
     efMuViewNode += theSegmentFinderAlg
@@ -494,173 +507,360 @@ if TriggerFlags.doMuon:
 #               Setup CF(Control Flow)
 # ===============================================================================================
 
-  ### CF construction ###
+### CF construction ###
+def summarySteps ( name, decisions ):
+  from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+  summarySteps = TriggerSummaryAlg( "TriggerSummary"+name )
+  summarySteps.InputDecision = "HLTChains"
+  summarySteps.HLTSummary = "MonitoringSummary"+name
+  summarySteps.OutputLevel = DEBUG
+  summarySteps.FinalDecisions = decisions
+  return summarySteps
+
+
+def muonViewsMergers( name ):
+  from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+  muonViewsMerger = HLTEDMCreator("muonViewsMerger_" + name )
+  muonViewsMerger.TrigCompositeContainer = [ "MURoIDecisions", "HLTChainsResult", "MonitoringSummaryStep1", "MonitoringSummaryStep2", "MonitoringSummaryStep3"]
+  muonViewsMerger.OutputLevel = VERBOSE
+
+  if doL2SA==True:
+    muonViewsMerger.TrigCompositeContainer += [ filterL1RoIsAlg.Output[0], trigMufastHypo.HypoOutputDecisions ]
+    muonViewsMerger.L2StandAloneMuonContainerViews = [ l2MuViewsMaker.Views ]
+    muonViewsMerger.L2StandAloneMuonContainerInViews = [ muFastAlg.MuonL2SAInfo ]
+    muonViewsMerger.L2StandAloneMuonContainer = [ muFastAlg.MuonL2SAInfo ]
+
+  if doL2CB==True:
+    muonViewsMerger.TrigCompositeContainer += [ filterL2SAAlg.Output[0], trigmuCombHypo.HypoOutputDecisions ]
+    muonViewsMerger.TrackParticleContainerViews = [ l2muCombViewsMaker.Views ]
+    muonViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
+    muonViewsMerger.TrackParticleContainer = [ TrackParticlesName ]
+
+    muonViewsMerger.L2CombinedMuonContainerViews = [ l2muCombViewsMaker.Views ]
+    muonViewsMerger.L2CombinedMuonContainerInViews = [ muCombAlg.L2CombinedMuonContainerName ]
+    muonViewsMerger.L2CombinedMuonContainer = [ muCombAlg.L2CombinedMuonContainerName ]
+
+  if doEFSA==True:
+    muonViewsMerger.TrigCompositeContainer += [ filterEFSAAlg.Output[0], trigMuonEFSAHypo.HypoOutputDecisions ]
+    muonViewsMerger.MuonContainerViews = [ efMuViewsMaker.Views ]
+    muonViewsMerger.MuonContainerInViews = [ themuoncreatoralg.MuonContainerLocation ]
+    muonViewsMerger.MuonContainer = [ themuoncreatoralg.MuonContainerLocation ]
+
+  if doL2CB==True and doL2ISO==True: # L2CB should be also executed with L2ISO
+    muonViewsMerger.TrigCompositeContainer += [ filterL2MuisoAlg.Output[0], trigmuIsoHypo.HypoOutputDecisions ]
+    muonViewsMerger.L2IsoMuonContainerViews = [ l2muIsoViewsMaker.Views ]
+    muonViewsMerger.L2IsoMuonContainerInViews = [ trigL2muIso.MuonL2ISInfoName ]
+    muonViewsMerger.L2IsoMuonContainer = [ trigL2muIso.MuonL2ISInfoName ]
+
+
+  return muonViewsMerger
+
+
+def muonStreamESD( muonViewsMerger ):
+  import AthenaPoolCnvSvc.WriteAthenaPool
+  from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+  StreamESD=createOutputStream("StreamESD","myMuonESD.pool.root",True)
+  topSequence.remove( StreamESD )
+
+  def addTC(name):
+     StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
+
+  for tc in muonViewsMerger.TrigCompositeContainer:
+     addTC( tc + "_remap" )
+
+  addTC("HLTSummary")
+
+  StreamESD.ItemList += [ "EventInfo#ByteStreamEventInfo" ]
+
+  StreamESD.ItemList += [ "TrigRoiDescriptorCollection#EMRoIs" ]
+  StreamESD.ItemList += [ "TrigRoiDescriptorCollection#JRoIs" ]
+  StreamESD.ItemList += [ "TrigRoiDescriptorCollection#METRoI" ]
+  StreamESD.ItemList += [ "TrigRoiDescriptorCollection#MURoIs" ]
+  StreamESD.ItemList += [ "TrigRoiDescriptorCollection#TAURoIs" ]
+
+  StreamESD.ItemList += [ "ROIB::RoIBResult#*" ]
+
+  if doL2SA==True:
+    StreamESD.ItemList += [ "xAOD::L2StandAloneMuonContainer#"+muFastAlg.MuonL2SAInfo ]
+    StreamESD.ItemList += [ "xAOD::L2StandAloneMuonAuxContainer#"+muFastAlg.MuonL2SAInfo+"Aux." ]
+
+  if doL2CB==True:
+    StreamESD.ItemList += [ "xAOD::TrackParticleContainer#"+TrackParticlesName,
+                            "xAOD::L2CombinedMuonContainer#"+muCombAlg.L2CombinedMuonContainerName ]
+    StreamESD.ItemList += [ "xAOD::TrackParticleAuxContainer#"+TrackParticlesName+"Aux.",
+                            "xAOD::L2CombinedMuonAuxContainer#"+muCombAlg.L2CombinedMuonContainerName+"Aux." ]
+
+  if doEFSA==True:
+    StreamESD.ItemList += [ "xAOD::MuonContainer#"+themuoncreatoralg.MuonContainerLocation ]
+    StreamESD.ItemList += [ "xAOD::MuonAuxContainer#"+themuoncreatoralg.MuonContainerLocation+"Aux." ]
+
+  if doL2CB==True and doL2ISO==True:
+    StreamESD.ItemList += [ "xAOD::L2IsoMuonContainer#"+trigL2muIso.MuonL2ISInfoName ]
+    StreamESD.ItemList += [ "xAOD::L2IsoMuonAuxContainer#"+trigL2muIso.MuonL2ISInfoName+"Aux." ]
+
+  print "ESD file content "
+  num = 0;
+  for Item in StreamESD.ItemList:
+    print " Contents["+str(num)+"] : "+Item
+    num+=1
+
+  return StreamESD
+
+
+
 
 ### NO Trackinhg ###
-
-if TriggerFlags.doMuon==True:    
+if TriggerFlags.doMuon==True and TriggerFlags.doID==False:    
   from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
   if doL2SA==True and doL2CB==False and doEFSA==False and doL2ISO==False:
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG
+    summary0 = summarySteps("Step1", ["L2MuonFastDecisions"] )
+    step0 = parOR("step0", [ muFastStep, summary0 ] )
+    step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0 ]  )
 
-#    step = seqAND("firstStep", [parOR("FilterStep1",[filterL1RoIsAlg]), muFastStep])
+    muonViewsMerger = muonViewsMergers("onlyL2SA")
 
-    step0 = parOR("step0", [ muFastStep ] )
-    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
-    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
+    ### final summary
+    summary = summarySteps("FinalAlg", ["L2MuonFastDecisions"] )
+    summary.OutputTools = [ muonViewsMerger ]
 
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions, "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+    ### final monitor algorithm
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    mon.FinalDecisions = [ "L2MuonFastDecisions", "WhateverElse" ]
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
 
-    topSequence += hltTop  
+    step1Collector = DecisionCollectorTool("Step1Collector")
+    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
+    mon.CollectorTools = [ step1Collector ]
+
+    StreamESD = muonStreamESD(muonViewsMerger)
+
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    topSequence += hltTop   
+
 
   if doL2SA==False and doL2CB==False and doEFSA==True and doL2ISO==False:
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muonEFSAStep ] )
-    stepfilter = parOR("stepfilter", [ filterL1RoIsAlg ] )
-    HLTsteps = seqAND("HLTsteps", [ stepfilter, step0, summary ]  ) 
+    summary0 = summarySteps("Step1", ["EFMuonSADecisions"] )
+    step0 = parOR("step0", [ muonEFSAStep, summary0 ] )
+    step0filter = parOR("step0filter", [ filterEFSAAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0 ]  )
 
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
-    topSequence += hltTop 
+    muonViewsMerger = muonViewsMergers("onlyEFSA")
 
-  if doL2SA==True and doEFSA==True and doL2CB==False:
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    step1 = parOR("step1", [ muonEFSAStep ] )
+    ### final summary
+    summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
+    summary.OutputTools = [ muonViewsMerger ]
 
+    ### final monitor algorithm
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
+
+    step1Collector = DecisionCollectorTool("Step1Collector")
+    step1Collector.Decisions = [ "EFMuonSADecisions"]
+    mon.CollectorTools = [ step1Collector ]
+
+    StreamESD = muonStreamESD(muonViewsMerger)
+
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
+    topSequence += hltTop   
+
+
+  if doL2SA==True and doEFSA==True and doL2CB==False and doL2ISO==False:
+    summary0 = summarySteps("Step1", ["L2MuonFastDecisions"] )
+    step0 = parOR("step0", [ muFastStep, summary0 ] )
+    summary1 = summarySteps("Step2", ["EFMuonSADecisions"] )
+    step1 = parOR("step1", [ muonEFSAStep, summary1 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterEFSAAlg ] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1 ]  )
 
-    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, summary ]  ) 
+    muonViewsMerger = muonViewsMergers("MSonly")
 
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+    ### final summary
+    summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
+    summary.OutputTools = [ muonViewsMerger ]
 
+    ### final monitor algorithm
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
+
+    step1Collector = DecisionCollectorTool("Step1Collector")
+    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
+    step2Collector = DecisionCollectorTool("Step2Collector")
+    step2Collector.Decisions = [ "EFMuonSADecisions"]
+    mon.CollectorTools = [ step1Collector, step2Collector ]
+
+    StreamESD = muonStreamESD(muonViewsMerger)
+
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
     topSequence += hltTop   
 
 
 ### Use Tracking ###
 if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
   if doL2SA==True and doL2CB==True and doEFSA==False and doL2ISO==False:
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigmuCombHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    step1 = parOR("step1", [ muCombStep ] )
+    summary0 = summarySteps("Step1", ["L2MuonFastDecisions"] )
+    step0 = parOR("step0", [ muFastStep, summary0 ] )
+    summary1 = summarySteps("Step2", ["MuonL2CBDecisions"] )
+    step1 = parOR("step1", [ muCombStep, summary1 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterL2SAAlg ] )
-    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, summary ]  ) 
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1 ]  )
 
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigmuCombHypo.HypoOutputDecisions, "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+    muonViewsMerger = muonViewsMergers("L2SAandL2CB")
 
+    ### final summary
+    summary = summarySteps("FinalAlg", ["MuonL2CBDecisions"] )
+    summary.OutputTools = [ muonViewsMerger ]
+
+    ### final monitor algorithm
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    mon.FinalDecisions = [ "MuonL2CBDecisions", "WhateverElse" ]
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
+
+    step1Collector = DecisionCollectorTool("Step1Collector")
+    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
+    step2Collector = DecisionCollectorTool("Step2Collector")
+    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
+    mon.CollectorTools = [ step1Collector, step2Collector ]
+
+    StreamESD = muonStreamESD(muonViewsMerger)
+
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
     topSequence += hltTop   
 
-if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
+
   if doL2SA==True and doL2CB==True and doEFSA==True and doL2ISO==False:
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    step1 = parOR("step1", [ muCombStep ] )
-    step2 = parOR("step2", [ muonEFSAStep ] )
-
+    summary0 = summarySteps("Step1", ["L2MuonFastDecisions"] )
+    step0 = parOR("step0", [ muFastStep, summary0 ] )
+    summary1 = summarySteps("Step2", ["MuonL2CBDecisions"] )
+    step1 = parOR("step1", [ muCombStep, summary1 ] )
+    summary2 = summarySteps("Step3", ["EFMuonSADecisions"] )
+    step2 = parOR("step2", [ muonEFSAStep, summary2 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterL2SAAlg ] )
-    step2filter = parOR("step2filter", [ filterEFSAAlg ] )
+    step2filter = parOR("step2filter", [ filterEFSAAlg] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2 ]  )
 
-    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, summary ]  ) 
+    muonViewsMerger = muonViewsMergers("L2SAandL2CBandEFSA")
 
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+    ### final summary
+    summary = summarySteps("FinalAlg", ["EFMuonSADecisions"] )
+    summary.OutputTools = [ muonViewsMerger ]
 
+    ### final monitor algorithm
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
+
+    step1Collector = DecisionCollectorTool("Step1Collector")
+    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
+    step2Collector = DecisionCollectorTool("Step2Collector")
+    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
+    step3Collector = DecisionCollectorTool("Step3Collector")
+    step3Collector.Decisions = [ "EFMuonSADecisions"]
+    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
+
+    StreamESD = muonStreamESD(muonViewsMerger)
+
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
     topSequence += hltTop   
 
-if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
+
   if doL2SA==True and doL2CB==True and doEFSA==False and doL2ISO==True:
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigmuCombHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    step1 = parOR("step1", [ muCombStep ] )
-    step1 = parOR("step2", [ muIsoStep ] )
-
+    summary0 = summarySteps("Step1", ["L2MuonFastDecisions"] )
+    step0 = parOR("step0", [ muFastStep, summary0 ] )
+    summary1 = summarySteps("Step2", ["MuonL2CBDecisions"] )
+    step1 = parOR("step1", [ muCombStep, summary1 ] )
+    summary2 = summarySteps("Step3", ["MuonL2IsoDecisions"] )
+    step2 = parOR("step2", [ muIsoStep, summary2 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterL2SAAlg ] )
-    step2filter = parOR("step2filter", [ filterL2MuisoAlg ] )
+    step2filter = parOR("step2filter", [ filterL2MuisoAlg] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2 ]  )
 
-    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, summary ]  ) 
+    muonViewsMerger = muonViewsMergers("L2SAandL2CBandL2Iso")
 
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigmuCombHypo.HypoOutputDecisions, "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+    ### final summary
+    summary = summarySteps("FinalAlg", ["MuonL2IsoDecisions"] )
+    summary.OutputTools = [ muonViewsMerger ]
 
+    ### final monitor algorithm
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    mon.FinalDecisions = [ "MuonL2IsoDecisions", "WhateverElse" ]
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
+
+    step1Collector = DecisionCollectorTool("Step1Collector")
+    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
+    step2Collector = DecisionCollectorTool("Step2Collector")
+    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
+    step3Collector = DecisionCollectorTool("Step3Collector")
+    step3Collector.Decisions = [ "MuonL2IsoDecisions"]
+    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
+
+    StreamESD = muonStreamESD(muonViewsMerger)
+
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
     topSequence += hltTop   
 
-if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
+ 
   if doL2SA==True and doL2CB==True and doEFSA==True and doL2ISO==True:
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
-    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, trigmuIsoHypo.HypoOutputDecisions ]
-    summary.OutputLevel = DEBUG 
-    step0 = parOR("step0", [ muFastStep ] )
-    step1 = parOR("step1", [ muCombStep ] )
-    step2 = parOR("step2", [ muonEFSAStep, muIsoStep ] )
-
+    summary0 = summarySteps("Step1", ["L2MuonFastDecisions"] )
+    step0 = parOR("step0", [ muFastStep, summary0 ] )
+    summary1 = summarySteps("Step2", ["MuonL2CBDecisions"] )
+    step1 = parOR("step1", [ muCombStep, summary1 ] )
+    summary2 = summarySteps("Step3", ["EFMuonSADecisions", "MuonL2IsoDecisions"] )
+    step2 = parOR("step2", [ muonEFSAStep, muIsoStep, summary2 ] )
     step0filter = parOR("step0filter", [ filterL1RoIsAlg ] )
     step1filter = parOR("step1filter", [ filterL2SAAlg ] )
-    step2filter = parOR("step2filter", [ filterEFSAAlg, filterL2MuisoAlg ] )
+    step2filter = parOR("step2filter", [ filterEFSAAlg, filterL2MuisoAlg] )
+    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2 ]  )
 
-    HLTsteps = seqAND("HLTsteps", [ step0filter, step0, step1filter, step1, step2filter, step2, summary ]  ) 
+    muonViewsMerger = muonViewsMergers("all")
 
-    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMuonEFSAHypo.HypoOutputDecisions, trigmuIsoHypo.HypoOutputDecisions, "WhateverElse" ] 
-    mon.HLTSummary = "MonitoringSummary" 
-    mon.OutputLevel = DEBUG 
-    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+    ### final summary
+    summary = summarySteps("FinalAlg", ["EFMuonSADecisions", "MuonL2IsoDecisions"] )
+    summary.OutputTools = [ muonViewsMerger ]
 
+    ### final monitor algorithm
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
+    mon = TrigSignatureMoniMT()
+    mon.FinalDecisions = [ "EFMuonSADecisions", "WhateverElse" ]
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = list( set( MenuTest.CTPToChainMapping.keys() ) )
+    mon.OutputLevel = DEBUG
+
+    step1Collector = DecisionCollectorTool("Step1Collector")
+    step1Collector.Decisions = [ "L2MuonFastDecisions" ]
+    step2Collector = DecisionCollectorTool("Step2Collector")
+    step2Collector.Decisions = [ "MuonL2CBDecisions" ]
+    step3Collector = DecisionCollectorTool("Step3Collector")
+    step3Collector.Decisions = [ "EFMuonSADecisions", "MuonL2IsoDecisions"]
+    mon.CollectorTools = [ step1Collector, step2Collector, step3Collector ]
+
+    StreamESD = muonStreamESD(muonViewsMerger)
+
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon, summary, StreamESD ] )
     topSequence += hltTop   
 
    

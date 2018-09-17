@@ -232,7 +232,9 @@ svcMgr.StoreGateSvc.OutputLevel = INFO
 
 streamnigTool = HLTResultCreatorByteStream(OutputLevel=VERBOSE)
 
-streamnigTool.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer#EgammaCaloDecisions", "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
+
+
+streamnigTool.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer_v1#EgammaCaloDecisions" ] #, "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
 summary.OutputTools = [ egammaViewsMerger, streamnigTool ]
 
 

@@ -104,7 +104,7 @@ StatusCode PixelSiLorentzAngleCondAlg::execute() {
 
   // Combined the validity ranges of temp and HV
   rangePIX = EventIDRange::intersect(rangeTemp, rangeHV);
-  if (rangePIX.start()>rangePIX.stop()) {
+  if (rangePIX.stop().isValid() and rangePIX.start()>rangePIX.stop()) {
     ATH_MSG_FATAL("Invalid intersection rangePIX: " << rangePIX);
     return StatusCode::FAILURE;
   }
@@ -127,16 +127,20 @@ StatusCode PixelSiLorentzAngleCondAlg::execute() {
 
       // Set the validity ranges of sensor
       rangeBField = rangeBFieldSensor;
-      if (rangeBField.start()>rangeBField.stop()) {
+      if (rangeBField.stop().isValid() and rangeBField.start()>rangeBField.stop()) {
         ATH_MSG_FATAL("Invalid intersection rangeBField: " << rangeBField);
         return StatusCode::FAILURE;
       }
     }
   }
 
-  // Combined the validity ranges of temp and HV
-  EventIDRange rangeW{EventIDRange::intersect(rangePIX, rangeBField)};
-  if (rangeW.start()>rangeW.stop()) {
+  // Combined the validity ranges of Pixel and BField if types are the same.
+  EventIDRange rangeW{rangePIX};
+  if (rangePIX.start().isTimeStamp()==rangeBField.start().isTimeStamp() and
+      rangePIX.start().isRunLumi()==rangeBField.start().isRunLumi()) {
+    rangeW = EventIDRange::intersect(rangePIX, rangeBField);
+  }
+  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);
     return StatusCode::FAILURE;
   }

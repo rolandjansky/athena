@@ -3,7 +3,7 @@
 */
 
 #include "egammaEvent/Electron.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 namespace Analysis {

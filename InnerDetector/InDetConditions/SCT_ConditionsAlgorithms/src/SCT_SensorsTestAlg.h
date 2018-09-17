@@ -13,7 +13,6 @@
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "Identifier/Identifier.h"
 #include "SCT_ConditionsTools/ISCT_SensorsTool.h"
 
 // Include STL stuff

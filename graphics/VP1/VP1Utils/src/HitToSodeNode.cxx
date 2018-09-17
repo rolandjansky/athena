@@ -515,7 +515,9 @@ void HitToSoNode::fillSiValues(Identifier& id, const Trk::TrkDetElementBase* bas
         return;
     }
 
-    localposStrip = new Amg::Vector2D(detEl->localPositionOfCell( id ));
+    localposStrip = new Amg::Vector2D(detEl->rawLocalPositionOfCell( id ));
+    //    (*localPosStrip)[Trk::distPhi] += (idhelper->is_pixel(id) ? m_pixelLorentzAngleTool : m_sctLorentzAngleTool)->getLorentzShift(detEl->identifyHash());
+    // SiLorentzAngleTool cannot be used here because HitToSoNode is not a tool nor algorithm
 
     striplength    = detEl->etaPitch() ;
     stripWidth     = detEl->phiPitch( *localposStrip );

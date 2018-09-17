@@ -62,9 +62,9 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   //@}
   
   // Methods to return calibration defect type and summary
-  virtual SCT_ReadCalibDataTool::CalibDefectType defectType(const Identifier& stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT); //!<Return summary of defect type and values for a strip
-  virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier& moduleId, const std::string& scan); //!<Returns module summary of defect  
-  virtual std::list<Identifier> defectList(const std::string& defect); //!<Returns module summary of defect  
+  virtual SCT_ReadCalibDataTool::CalibDefectType defectType(const Identifier& stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const; //!<Return summary of defect type and values for a strip
+  virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier& moduleId, const std::string& scan) const; //!<Returns module summary of defect
+  virtual std::list<Identifier> defectList(const std::string& defect) const; //!<Returns module summary of defect
 
  private:
   // Mutex to protect the contents.

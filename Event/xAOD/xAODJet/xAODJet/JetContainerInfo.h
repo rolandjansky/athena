@@ -92,6 +92,7 @@ namespace xAOD {
       EMPFlowSKTime,
       EMPFlowCSSKTime,
       EMPFlowVorSKTime,
+      HI,
       Other = 100,
       Uncategorized= 1000
     };

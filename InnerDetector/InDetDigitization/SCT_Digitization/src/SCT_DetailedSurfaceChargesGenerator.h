@@ -72,24 +72,19 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
 
  private:
 
-  void setComTime(float comTime)                                 {m_comTime = comTime;} 
   void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;} 
-  void setCosmicsRun(bool cosmicsRun)                            {m_cosmicsRun = cosmicsRun;}
-  void setComTimeFlag(bool useComTime)                           {m_useComTime = useComTime;}      
   void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine)       {m_rndmEngine = rndmEngine;}
-  void setDetectorElement(const InDetDD::SiDetectorElement *ele) {m_element = ele;} 
 
   /** create a list of surface charges from a hit */
-  virtual void process(const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const;
-  virtual void processFromTool(const SiHit* phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId) const;
-  void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID) const;
+  virtual void process(const InDetDD::SiDetectorElement* element, const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const;
+  void processSiHit(const InDetDD::SiDetectorElement* element, const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID) const;
   
   // some diagnostics methods are needed here too
-  float DriftTime(float zhit) const;           //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
-  float DiffusionSigma(float zhit) const;      //!< calculate diffusion sigma from a gaussian dist scattered charge
+  float DriftTime(float zhit, const InDetDD::SiDetectorElement* element) const;           //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
+  float DiffusionSigma(float zhit, const InDetDD::SiDetectorElement* element) const;      //!< calculate diffusion sigma from a gaussian dist scattered charge
   float SurfaceDriftTime(float ysurf) const;   //!< Calculate of the surface drift time 
-  float MaxDriftTime() const;                  //!< max drift charge equivalent to the detector thickness
-  float MaxDiffusionSigma() const;             //!< max sigma diffusion 
+  float MaxDriftTime(const InDetDD::SiDetectorElement* element) const;                  //!< max drift charge equivalent to the detector thickness
+  float MaxDiffusionSigma(const InDetDD::SiDetectorElement* element) const;             //!< max sigma diffusion 
 
   // methods for Taka Kondos's new charge drift m
   void initTransportModel();
@@ -125,9 +120,6 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   float m_tfix;       //!< fixed time
   float m_tsubtract;  //!< subtract drift time from mid gap 
 
-  float m_comTime ;       //!< use cosmics time for timing
-  bool  m_useComTime ;    //!< Flag to decide the use of cosmics time for timing
-  bool  m_cosmicsRun ;    //!< Flag to set Cosmics Run
   bool  m_doDistortions ; //!< Flag to set Distortions
 
   // -- Charge Trapping -- //
@@ -142,8 +134,6 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   TProfile2D *m_h_yzEfield;
   TProfile2D *m_h_yEfield;
   TProfile2D *m_h_zEfield;
-
-  IdentifierHash m_hashId;
 
   //TK model settings
   int m_chargeDriftModel; //!< 0 default SCT model, 1 eh transport, 2 use of fixed charge map 
@@ -197,9 +187,8 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
-  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
-  const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine
   std::string                        m_rndmEngineName;      //!< name of random engine, actual pointer in SiDigitization
 

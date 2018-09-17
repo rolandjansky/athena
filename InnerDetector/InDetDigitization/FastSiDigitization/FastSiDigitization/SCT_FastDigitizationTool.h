@@ -130,7 +130,7 @@ private:
   TimedHitCollection<SiHit>* m_thpcsi;
 
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;
-  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
   bool m_sctUseClusterMaker;       //!< use the pixel cluster maker or not
   IntegerProperty  m_vetoThisBarcode;
 

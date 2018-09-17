@@ -79,6 +79,8 @@ StatusCode SensorSimPlanarTool::initialize() {
   CHECK(m_radDamageUtil.retrieve());
   ATH_MSG_DEBUG ( "RadDamageUtil tool retrieved successfully");
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
+
   //Calculate trapping times based on fluence (already includes check for fluence=0)
   if(m_doRadDamage){
 
@@ -335,7 +337,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
   double collectionDist = 0.2*CLHEP::mm;//kept for consistency with previosu version of digi. Does someone know where this number comes from?
   double smearScale = 1. + 0.35*smearRand;//ditto...
-  double tanLorentz = Module.getTanLorentzAnglePhi();
+  double tanLorentz = m_lorentzAngleTool->getTanLorentzAngle(Module.identifyHash());
   double coLorentz=sqrt(1+pow(tanLorentz,2));
   
   //**************************************//

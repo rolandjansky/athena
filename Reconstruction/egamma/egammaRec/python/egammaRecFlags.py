@@ -52,7 +52,7 @@ class doTopoCaloSeeded (JobProperty):
     StoredValue=True
 
 class doBremFinding (egammaRecFlagsJobProperty):
-    """ switch for whether to do the brem binding
+    """ switch for whether to do the brem finding
     """
     statusOn=True
     allowedTypes=['bool']

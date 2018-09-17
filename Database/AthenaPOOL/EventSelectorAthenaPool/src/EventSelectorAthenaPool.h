@@ -12,6 +12,7 @@
 
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponent.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "PersistentDataModel/Guid.h"
@@ -45,7 +46,9 @@ class EventSelectorAthenaPool :
 	virtual public IEvtSelector,
 	virtual public IEvtSelectorSeek,
 	virtual public IEventShare,
-	virtual public IIoComponent {
+        virtual public IIoComponent,
+        virtual public IIncidentListener
+{
 
 public: // Constructor and Destructor
    /// Standard Service Constructor
@@ -125,6 +128,9 @@ public: // Constructor and Destructor
    /// Callback method to finalize the internal state of the component for I/O purposes (e.g. before @c fork(2))
    virtual StatusCode io_finalize() override;
 
+   /// Incident service handle listening for BeginProcessing and EndProcessing
+   void handle(const Incident& incident);
+
 private: // internal member functions
    /// Return pointer to active event SG
    StoreGateSvc* eventStore() const;
@@ -140,6 +146,9 @@ private: // internal member functions
    /// Fires the EndInputFile incident (if there is an open file), EndTagFile incident, and LastInputFile incidents at end of selector
    void fireEndFileIncidents(bool isLastFile, bool fireEndTagIncident) const;
 
+   // Disconnect DB if all events from the source FID were processed and the Selector moved to another file
+   bool disconnectIfFinished( SG::SourceID fid ) const;
+
 private: // data
    mutable EventContextAthenaPool*      m_beginIter;
    EventContextAthenaPool*      m_endIter;
@@ -150,6 +159,7 @@ private: // data
    mutable PoolCollectionConverter* m_poolCollectionConverter;
    mutable pool::ICollectionCursor* m_headerIterator;
    mutable Guid m_guid;
+   mutable std::map<SG::SourceID, int> m_activeEventsPerSource;
 
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
    ServiceHandle<IIncidentSvc> m_incidentSvc;

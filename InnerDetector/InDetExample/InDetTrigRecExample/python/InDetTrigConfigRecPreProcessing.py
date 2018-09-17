@@ -116,8 +116,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       InDetTrigBSErrorTool = SCT_ByteStreamErrorsTool(name=SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsTool"))
 
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-      InDetTrigSCTRodDecoder = SCT_RodDecoder(name = "InDetTrigSCTRodDecoder",
-                                              TriggerMode = True)
+      InDetTrigSCTRodDecoder = SCT_RodDecoder(name = "InDetTrigSCTRodDecoder")
       ToolSvc += InDetTrigSCTRodDecoder
       if (InDetTrigFlags.doPrintConfigurables()):
         print      InDetTrigSCTRodDecoder

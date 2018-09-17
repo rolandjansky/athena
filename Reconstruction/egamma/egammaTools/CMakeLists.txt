@@ -46,7 +46,10 @@ atlas_add_component( egammaTools
 	src/*.cxx
 	src/components/*.cxx
 	INCLUDE_DIRS
-	LINK_LIBRARIES CaloConditions CaloEvent  CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel AthContainers SGTools StoreGateLib SGtests Identifier EventKernel EventPrimitives FourMom FourMomUtils  xAODCaloEvent  xAODEgamma xAODTracking xAODTruth GaudiKernel LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib ElectronPhotonFourMomentumCorrectionLib egammaRecEvent egammaUtils TrkEventPrimitives )
+	LINK_LIBRARIES CaloConditions CaloEvent  CaloIdentifier CaloRecLib CaloUtilsLib AthenaBaseComps AthenaKernel 
+	AthContainers SGTools StoreGateLib  Identifier EventKernel EventPrimitives FourMom FourMomUtils  xAODCaloEvent  
+	xAODEgamma xAODTracking xAODTruth GaudiKernel LArRecConditions LArCablingLib LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib 
+	ElectronPhotonFourMomentumCorrectionLib egammaRecEvent egammaUtils TrkEventPrimitives )
 
 # Install files from the package:
 atlas_install_headers( egammaTools )

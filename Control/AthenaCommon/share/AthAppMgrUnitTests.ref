@@ -1,19 +1,21 @@
-Mon Mar  5 12:38:02 EST 2018
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Wed Sep 12 13:56:37 CEST 2018
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-slc6-gcc62-opt] [2.0.10/22f26cd] -- built on [2018-08-27T2029]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaCommon/AthAppMgrUnitTests.py"
 test1NamedSingleton (__main__.BasicAthAppMgrTestCase)
-Test that instances w/ same name are the same ... Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Test that instances w/ same name are the same ... Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-slc6-gcc62-opt] [2.0.10/22f26cd] -- built on [2018-08-27T2029]
 ok
 test2CppAppMgr (__main__.BasicAthAppMgrTestCase)
-Test communication b/w Py-proxy and C++ app mgr ... Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Test communication b/w Py-proxy and C++ app mgr ... Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-slc6-gcc62-opt] [2.0.10/22f26cd] -- built on [2018-08-27T2029]
 ok
+test3ToolSvc (__main__.BasicAthAppMgrTestCase)
+Test ToolSvc __iadd__ ... ok
 
 ----------------------------------------------------------------------
-Ran 2 tests in 5.315s
+Ran 3 tests in 7.230s
 
 OK

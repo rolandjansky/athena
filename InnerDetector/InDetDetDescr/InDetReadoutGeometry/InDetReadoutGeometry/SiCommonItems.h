@@ -18,7 +18,6 @@ class AtlasDetectorID;
 #include "GaudiKernel/ServiceHandle.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "GeoModelKernel/RCBase.h"
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "InDetCondServices/ISiLorentzAngleTool.h"
 
 namespace InDetDD {
@@ -44,9 +43,7 @@ namespace InDetDD {
           const AtlasDetectorID* getIdHelper() const;
           const HepGeom::Transform3D & solenoidFrame() const;
           void setSolenoidFrame(const HepGeom::Transform3D & transform) const; 
-          void setLorentzAngleSvc(const ServiceHandle<ISiLorentzAngleSvc> & lorentzAngleSvc);
           void setLorentzAngleTool(const ISiLorentzAngleTool* lorentzAngleTool);
-          ISiLorentzAngleSvc * lorentzAngleSvc() const;
           const ISiLorentzAngleTool * lorentzAngleTool() const;
 
           //Declaring the Message method for further use
@@ -62,9 +59,6 @@ namespace InDetDD {
           
           const AtlasDetectorID* m_idHelper; 
           mutable HepGeom::Transform3D m_solenoidFrame;
-          ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvcHandle;
-          mutable ISiLorentzAngleSvc * m_lorentzAngleSvc;
-          mutable bool m_lorentzAngleSvcInit;
           const ISiLorentzAngleTool *m_lorentzAngleTool;
         
     };

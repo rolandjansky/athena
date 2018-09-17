@@ -127,6 +127,12 @@ atlas_add_test( test_interactive_athena
    PROPERTIES TIMEOUT 300
    EXTRA_PATTERNS "^Py:ConfigurableDb +(WARNING|INFO|ERROR)|Py:Athena +INFO including file |Warning in .TEnvRec::ChangeValue.: duplicate entry|calling initialize_|ToolSvc.finalize.. +INFO| [A-Z]+ 2[0-9][0-9][0-9]$$|^Py:Athena +INFO|[Rr]oo[Ff]it|NIKHEF|DeprecationWarning: object.__new__|^  newobj =|^\*+$$|drop-and-reload|^ *$$|we will keep the configuration around|ApplicationMgr +INFO|Start StoreGateSvc|already in TClassTable" )
 
+atlas_add_test( test_cfgItemList
+                SCRIPT test/test_cfgItemList.sh )
+
+atlas_add_test( test_keyStore
+                SCRIPT test/test_keyStore.sh )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGateTestCommon.txt share/*.py )

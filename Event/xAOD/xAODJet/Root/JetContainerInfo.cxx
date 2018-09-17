@@ -105,11 +105,12 @@ namespace xAOD {
       nameToTypemap["EMPFlowSK"] =             EMPFlowSK;
       nameToTypemap["EMPFlowCS"] =             EMPFlowCS;
       nameToTypemap["EMPFlowCSSK"] =           EMPFlowCSSK;
-      nameToTypemap["EMPFlowVorSK"] =          EMPFlowVorSK;     
+      nameToTypemap["EMPFlowVorSK"] =          EMPFlowVorSK;
       nameToTypemap["EMPFlowTime"] =           EMPFlowTime;
       nameToTypemap["EMPFlowSKTime"] =         EMPFlowSKTime;
       nameToTypemap["EMPFlowCSSKTime"] =       EMPFlowCSSKTime;
       nameToTypemap["EMPFlowVorSKTime"] =      EMPFlowVorSKTime;
+      nameToTypemap["HI"] =                    HI;
       nameToTypemap[c_unCategorized] =         Uncategorized;
 
       std::map<std::string, Type>::iterator it = nameToTypemap.begin();

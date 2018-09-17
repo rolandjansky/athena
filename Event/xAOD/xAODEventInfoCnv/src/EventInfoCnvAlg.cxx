@@ -33,6 +33,7 @@ namespace xAODMaker {
       declareProperty( "xAODKey", m_xaodKey = "EventInfo" );
       declareProperty( "PileupKey", m_pileupKey = "" );
       declareProperty( "CnvTool", m_cnvTool );
+      declareProperty( "DoBeginRun", m_doBeginRun = true );
    }
 
    StatusCode EventInfoCnvAlg::initialize() {
@@ -152,7 +153,7 @@ namespace xAODMaker {
 
    StatusCode EventInfoCnvAlg::beginRun() {
 
-     if(!Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
+     if(m_doBeginRun && !Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
        // Let the user know what's happening:
        ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
        
