@@ -396,6 +396,8 @@ def defineMenu():
           'L1_DR-EM15TAU12I-J25',
           'L1_DR-TAU20ITAU12I-J25',
           'L1_TAU60_DR-TAU20ITAU12I',
+          #Jet:
+          'L1_SC111-CJ15',
           #TLA:',
           'L1_J50_DETA20-J50J',
 

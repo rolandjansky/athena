@@ -765,8 +765,8 @@ def setupMenu():
         ["noalg_l1topo_L1LLP-NOMATCH",                  "L1_LLP-NOMATCH",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         #ATR-18734 SUSY Higgsino
         ['noalg_l1topo_L12MU4_J20_XE30_DPHI-J20s2XE30',   'L1_2MU4_J20_XE30_DPHI-J20s2XE30',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
-        ['noalg_l1topo_L1MU4_J30_XE30_DPHI-J20s2XE30',   'L1_MU4_J30_XE30_DPHI-J20s2XE30',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
-        ['noalg_l1topo_L1MU4_J50_XE30_DPHI-J20s2XE30',   'L1_MU4_J50_XE30_DPHI-J20s2XE30',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
+        ['noalg_l1topo_L1MU4_J30_XE40_DPHI-J20s2XE30',   'L1_MU4_J30_XE40_DPHI-J20s2XE30',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
+        ['noalg_l1topo_L1MU4_J50_XE50_DPHI-J20s2XE30',   'L1_MU4_J50_XE50_DPHI-J20s2XE30',    [], ['L1Topo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         ["noalg_l1topo_L1J40_XE50_DPHI-J20s2XE50",                 "L1_J40_XE50_DPHI-J20s2XE50",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
         #ATR-18734 Axion search
         ["noalg_l1topo_L1DPHI-2EM3",                    "L1_DPHI-2EM3",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
