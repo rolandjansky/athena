@@ -27,7 +27,7 @@ class Scheduler(object):
     ordered_event_generators = ["singlecore", "multicore", "merge output", "output validation"]
 
     ## Postprocessing evaluation order
-    ordered_postprocessors = ["quark colour fixer", "reweighter", "NNLO reweighter", "MadSpin", "PHOTOS",
+    ordered_postprocessors = ["quark colour fixer", "PHOTOS", "reweighter", "NNLO reweighter", "MadSpin",
                               "integration grid tester", "cross section calculator", "output file renamer",
                               "output tarball preparer", "integration gridpack creator", "directory cleaner"]
 
@@ -55,7 +55,7 @@ class Scheduler(object):
         "NNLO reweighter": partial(postprocessors.NNLO_reweighter, powheg_LHE_output=powheg_LHE_output),
         "output file renamer": partial(postprocessors.output_file_renamer, powheg_LHE_output=powheg_LHE_output),
         "output tarball preparer": postprocessors.output_tarball_preparer,
-        "PHOTOS": postprocessors.PHOTOS,
+        "PHOTOS": partial(postprocessors.PHOTOS, powheg_LHE_output=powheg_LHE_output),
         "reweighter": partial(postprocessors.reweighter, powheg_LHE_output=powheg_LHE_output),
         "quark colour fixer": partial(postprocessors.quark_colour_fixer, powheg_LHE_output=powheg_LHE_output)
     }
