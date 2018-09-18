@@ -148,6 +148,7 @@ class W_EW(PowhegV2):
         self.add_keyword("rwl_format_rwgt")
         self.add_keyword("rwl_group_events")
         self.add_keyword("scheme")
+        self.add_keyword("SI_inputfile")
         self.add_keyword("SI_kt2minqed")
         self.add_keyword("SI_maxshowerevents")
         self.add_keyword("SI_no_tworadevents")

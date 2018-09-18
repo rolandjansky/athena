@@ -55,7 +55,7 @@ class Scheduler(object):
         "NNLO reweighter": partial(postprocessors.NNLO_reweighter, powheg_LHE_output=powheg_LHE_output),
         "output file renamer": partial(postprocessors.output_file_renamer, powheg_LHE_output=powheg_LHE_output),
         "output tarball preparer": postprocessors.output_tarball_preparer,
-        "PHOTOS": postprocessors.PHOTOS,
+        "PHOTOS": partial(postprocessors.PHOTOS, powheg_LHE_output=powheg_LHE_output),
         "reweighter": partial(postprocessors.reweighter, powheg_LHE_output=powheg_LHE_output),
         "quark colour fixer": partial(postprocessors.quark_colour_fixer, powheg_LHE_output=powheg_LHE_output)
     }

@@ -11,7 +11,7 @@ logger = Logging.logging.getLogger("PowhegControl")
 
 
 @timed("PHOTOS post-processing")
-def PHOTOS(process):
+def PHOTOS(process, powheg_LHE_output):
     """! Run PHOTOS over pre-generated Powheg events.
 
     @param process            External PHOTOS process.
@@ -27,8 +27,7 @@ def PHOTOS(process):
         pass
 
     # Get file names
-    process.expose()
-    input_LHE_events = process.PHOTOS_input_LHE
+    input_LHE_events = powheg_LHE_output
     photos_output = "pwgevents_photos.lhe"
 
     # Rename output file
