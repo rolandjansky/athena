@@ -87,6 +87,7 @@ ROBDataProviderSvc::ROBDataProviderSvc(const std::string& name, ISvcLocator* svc
    declareProperty("filterRobWithStatus", m_filterRobWithStatus);
    declareProperty("filterSubDetWithStatus", m_filterSubDetWithStatus);
    declareProperty("filterEmptyROB", m_filterEmptyROB = false);
+   declareProperty("maskGoodROB",m_maskGoodROB = false); 
 }
 
 // Destructor.
@@ -256,7 +257,7 @@ void ROBDataProviderSvc::setNextEvent(const RawEvent* re) {
 	         << " removed for L1 Id = " << m_currentLvl1ID);
           delete rob;
       } else if (filterRobWithStatus(rob)) {
-         if (rob->nstatus() > 0) {
+         if (rob->nstatus() > 0 || m_maskGoodROB) {
             const uint32_t* it_status;
             rob->status(it_status);
             eformat::helper::Status tmpstatus(*it_status);
