@@ -61,7 +61,7 @@ def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag = 0):
         from AthenaCommon.AppMgr import ToolSvc
         from BTagging.BTaggingFlags import BTaggingFlags
 
-        if(extendedFlag == 0) : 
+        if(extendedFlag == 0) :
            Full_TaggerList = BTaggingFlags.StandardTaggers
         if(extendedFlag == 1) :
            Full_TaggerList = BTaggingFlags.ExpertTaggers
@@ -92,7 +92,7 @@ def addAntiKt4PV0TrackJets(sequence, outputlist, extendedFlag = 0):
            Full_TaggerList = BTaggingFlags.StandardTaggers
         if(extendedFlag == 1) :
            Full_TaggerList = BTaggingFlags.ExpertTaggers
- 
+
         btag_akt4trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4Track", AddToToolSvc=True,
                                                     Verbose=True,
                                                     options={"name"         : "btagging_antikt4track",
@@ -170,14 +170,14 @@ def addAntiKt4LowPtJets(sequence,outputlist):
 
 
 # 1 MeV cut at constituent level for MCJES
-def addAntiKt4NoCutJets(sequence,outputlist):
-    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="NoCut", ptmin=0, ptminFilter=1,
+def addAntiKt4NoPtCutJets(sequence,outputlist):
+    addStandardJets("AntiKt", 0.4, "EMTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
                     mods="emtopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
-    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="NoCut", ptmin=0, ptminFilter=1,
+    addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
                     mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
     # Commented for now because of problems with underlying PFlow collections
     addCHSPFlowObjects()
-    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="NoCut", ptmin=0, ptminFilter=1,
+    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="NoPtCut", ptmin=0, ptminFilter=1,
                     mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="none")
 
 ##################################################################
@@ -269,7 +269,7 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
         if isMC:
             isAF2 = 'ATLFASTII' in inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour'].upper()
         if isMC and isAF2:
-            configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015_rel21.config', 
+            configdict['AntiKt4EMTopo'] = ('JES_MC15Prerecommendation_AFII_June2015_rel21.config',
                                            'JetArea_Residual_EtaJES_GSC')
 
         config,calibseq = configdict[jetalg]
@@ -391,7 +391,7 @@ def applyOverlapRemoval(sequence=DerivationFrameworkJob):
     from AssociationUtils.config import recommended_tools
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
-    bJetLabel = '' #default 
+    bJetLabel = '' #default
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
     algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
 			    OverlapLabel=outputLabel,
@@ -484,7 +484,7 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
     getters = [pjg]+list(jtm.gettersMap[getterbase])[1:]
 
     # Pass the configuration to addStandardJets
-    # The modifiers will be taken from the 
+    # The modifiers will be taken from the
     jetfindargs = {"jetalg":        jetalg,
                    "rsize":         radius,
                    "inputtype":     inputtype,
