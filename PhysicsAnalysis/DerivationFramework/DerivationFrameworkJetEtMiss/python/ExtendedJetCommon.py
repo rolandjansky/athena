@@ -11,7 +11,8 @@ import DerivationFrameworkEGamma.EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon
 import DerivationFrameworkTau.TauCommon
 from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
-from DerivationFrameworkFlavourTag.HbbCommon import buildVRJets
+from DerivationFrameworkFlavourTag.HbbCommon import (
+    buildVRJets, linkVRJetsToLargeRJets)
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
@@ -491,6 +492,9 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
 def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
     vrJetName, vrGhostLabel = buildVRJets(
         sequence, do_ghost=True, logger=logger)
+
+    linkVRJetsToLargeRJets(sequence, vrJetName, vrGhostLabel)
+
     addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], sequence, seq_name,
                     ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed",
                     addGetters=[vrGhostLabel.lower()])
