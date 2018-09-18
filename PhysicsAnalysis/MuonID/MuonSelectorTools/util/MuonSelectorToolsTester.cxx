@@ -80,7 +80,7 @@ int main( int argc, char* argv[] ) {
    
    // Create a set of selector tools configured for each of the available working points
 
-   std::vector<CP::MuonSelectionTool*> selectorTools;
+   std::vector<std::unique_ptr<CP::MuonSelectionTool> > selectorTools;
    selectorTools.clear();
 
    const int Nwp = 6; // number of working points (tool instances)
@@ -100,7 +100,7 @@ int main( int argc, char* argv[] ) {
      CHECK (muonSelection->setProperty( "TurnOffMomCorr", true ));
      CHECK (muonSelection->initialize());
 
-     selectorTools.push_back(muonSelection);
+     selectorTools.emplace_back(muonSelection);
    }
 
    //done setting up selector tools
@@ -388,10 +388,6 @@ int main( int argc, char* argv[] ) {
    // Needed for Smart Slimming
    xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 
-   // clean up the selector tools
-   for (int wp = 0; wp < Nwp; wp++)
-     delete selectorTools[wp];
-  
    // Return gracefully:
    return 0;
 }
