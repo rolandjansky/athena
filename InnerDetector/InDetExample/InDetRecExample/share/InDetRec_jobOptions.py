@@ -762,6 +762,56 @@ else:
                                                                  TrackCollectionTruthKeys,
                                                                  False)
 
+
+    # ------------------------------------------------------------
+    #
+    # --- Displaced Soft-Pion Tracking
+    #
+    # ------------------------------------------------------------
+    if InDetFlags.doDisplacedSoftPion():
+
+      #
+      # --- Run Si pattern
+      #
+      if InDetFlags.doDVRetracking():
+        # Cuts already defined in the mode, no need to re-load them
+        InDetNewTrackingCutsDisplacedSoftPion = InDetNewTrackingCuts
+      if (not 'InDetNewTrackingCutsDisplacedSoftPion' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsDisplacedSoftPion not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsDisplacedSoftPion = ConfiguredNewTrackingCuts("DisplacedSoftPion")
+      InDetNewTrackingCutsDisplacedSoftPion.printInfo()
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      # ----- Include (in the case of ESD processing) the standard tracks
+      #       in order to use the PRD association tool and use only unused hits
+      if InDetFlags.useExistingTracksAsInput():
+          InputCombinedInDetTracks += [ InDetKeys.ProcessedESDTracks() ]
+      InDetDisplacedSoftPionSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                                       InDetKeys.ResolvedLargeD0Tracks(),
+                                                                       InDetKeys.SiSpSeededLargeD0Tracks(),
+                                                                       InDetNewTrackingCutsDisplacedSoftPion,
+                                                                       TrackCollectionKeys,
+                                                                       TrackCollectionTruthKeys)    
+      #
+      # --- do the TRT pattern
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+      InDetDisplacedSoftPionTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsDisplacedSoftPion,
+                                                                             InDetDisplacedSoftPionSiPattern.SiTrackCollection(),
+                                                                             InDetKeys.ExtendedLargeD0Tracks(),
+                                                                             InDetKeys.ExtendedTracksMapLargeD0(),
+                                                                             TrackCollectionKeys,
+                                                                             TrackCollectionTruthKeys,
+                                                                             False)
+
+      # --- remove the standard tracks included some lines before (in the ESD
+      #     processing case, those tracks are not part of the re-tracking procedure)
+      if InDetFlags.useExistingTracksAsInput():
+        _dummy = InputCombinedInDetTracks.pop()
+      # --- add into list for combination
+      InputCombinedInDetTracks += [ InDetDisplacedSoftPionTRTExtension.ForwardTrackCollection()]
+
+
     # ------------------------------------------------------------
     #
     # --- Beam Gas option (runs after NewT + LowPt)
@@ -1058,6 +1108,13 @@ else:
             InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
                                                          InDetKeys.UnslimmedDetailedTracksTruth(),
                                                          InDetKeys.UnslimmedTracksTruth())
+
+            if InDetFlags.doStoreTrackSeeds():
+              include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+              InDetTracksTruthSegemnts = ConfiguredInDetTrackTruth(InDetKeys.SiSPSeedSegments(),
+                                                                   InDetKeys.SiSPSeedSegments()+'DetailedTruth',
+                                                                   InDetKeys.SiSPSeedSegments()+'TruthCollection')
+
           #
           # add final output for statistics
           #
