@@ -13,17 +13,17 @@
  *   @date 20/08/2018
  */
 
-//STL includes
-#include <string>
+//Athena includes
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "SCT_Cabling/SCT_CablingData.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 //Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ICondSvc.h"
 
-//Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "SCT_Cabling/SCT_CablingData.h"
-#include "StoreGate/WriteCondHandleKey.h"
+//STL includes
+#include <string>
 
 /**
  *    @class SCT_CablingCondAlgFromText
