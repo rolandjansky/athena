@@ -32,9 +32,6 @@ globalflags.DataSource='geant4'
 # Select the geometry version. 
 globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
 
-# print "HERE"
-# print globalflags.DetDescrVersion
-
 # Initialize geometry
 # THIS ACTUALLY DOES STUFF!!
 from AtlasGeoModel import GeoModelInit
@@ -94,8 +91,7 @@ svcMgr.EventSelector.EventsPerLB = 100
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-# Load algorithms
-# include("GeneratorUtils/StdEvgenSetup.py")
+
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()
 athenaCommonFlags.EvtMax = 1
@@ -104,6 +100,7 @@ from ActsGeometry.ActsGeometryConf import ActsExtrapolation
 
 alg = ActsExtrapolation()
 alg.OutputLevel = INFO
+# these options will move to the ExtrapolationTool at some point
 alg.SearchMode = 1
 alg.CollectSensitive = True
 alg.CollectPassive = True
@@ -141,18 +138,7 @@ if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
 if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
     ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
 
-
-# alg.OutputLevel = VERBOSE
 job += alg
 
 
-# job.ActsExtrapolation.OutputLevel = INFO
-
-
-# To set global output level use 
-# athena -l DEBUG
-
-# Number of events to be processed (default is 10)
 theApp.EvtMax = 1234
-
-###############################################################

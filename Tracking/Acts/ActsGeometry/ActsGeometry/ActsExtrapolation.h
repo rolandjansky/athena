@@ -30,12 +30,10 @@
 #include <memory>
 #include <vector>
 
-/////////////////////////////////////////////////////////////////////////////
 
 namespace Acts {
   class TrackingGeometry;
   class ITrackingGeometrySvc;
-  //class IExtrapolationTool;
   
   class IMaterialTrackWriterSvc;
   
@@ -45,8 +43,6 @@ namespace Acts {
 
 template<typename>
 class RootExCellWriter;
-
-class ParticleGun;
 
 class EventContext;
 
@@ -59,9 +55,6 @@ public:
   StatusCode execute_r(const EventContext& ctx) const override;
   StatusCode finalize() override;
   
-  //bool isClonable() const override { return true; }
-  //unsigned int cardinality() const override { return m_cardinality; }
-
 private:
   bool m_firstEvent;
   
@@ -70,15 +63,10 @@ private:
   ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
 
-  std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
-
   ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "Acts__ExtrapolationTool"};
-
-  std::unique_ptr<ParticleGun> m_particleGun;
 
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>> m_exCells;
   std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;
-
   
   Gaudi::Property<int> m_searchMode{this, "SearchMode", 1, ""};
   Gaudi::Property<bool> m_collectSensitive{this, "CollectSensitive", true, ""};
@@ -88,6 +76,10 @@ private:
   Gaudi::Property<bool> m_stopAtBoundary{this, "StopAtBoundary", true, ""};
   Gaudi::Property<bool> m_FATRAS{this, "FATRAS", true, ""};
   Gaudi::Property<size_t> m_nParticles{this, "nParticles", 1, ""};
+
+  // poor-mans Particle Gun is included here right now
+  Gaudi::Property<std::vector<double>> m_etaRange{this, "EtaRange", {-3, 3}, ""};
+  Gaudi::Property<std::vector<double>> m_ptRange{this, "PtRange", {0.1, 1000}, ""};
 
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
   ServiceHandle<Acts::IMaterialTrackWriterSvc> m_materialTrackWriterSvc;
