@@ -12,11 +12,9 @@
 
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
+#include "StoreGate/ReadHandle.h"
 
 // Include Gaudi stuff
-
-// Include Read Handle
-#include "StoreGate/ReadHandle.h"
 
 // Include STL stuff
 #include <vector>
@@ -107,7 +105,7 @@ StatusCode SCT_ReadCalibChipDataTestAlg::execute() {
   // Get the current event
   SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};
   if (not currentEvent.isValid()) {
-    ATH_MSG_ERROR("Could not get event info");
+    ATH_MSG_FATAL("Could not get event info");
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Current Run.Event,Time: "

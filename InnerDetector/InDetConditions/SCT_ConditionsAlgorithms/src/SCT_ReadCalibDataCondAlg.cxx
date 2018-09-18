@@ -96,7 +96,7 @@ StatusCode SCT_ReadCalibDataCondAlg::initialize() {
     }
   }
   ATH_CHECK(m_writeKeyInfo.initialize());
-  if(m_condSvc->regHandle(this, m_writeKeyInfo).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKeyInfo).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKeyInfo.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -194,7 +194,7 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
 
   // Set range of output
   EventIDRange rangeW{EventIDRange::intersect(rangeR[GAIN], rangeR[NOISE], rangeDetEle)};
-  if(rangeW.start()>rangeW.stop()) {
+  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
     return StatusCode::FAILURE;
   }

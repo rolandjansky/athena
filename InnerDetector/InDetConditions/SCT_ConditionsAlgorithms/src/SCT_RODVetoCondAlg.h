@@ -16,9 +16,10 @@
 
 // Athena
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/WriteHandle.h"
+
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/IdentifierSet.h"
+#include "StoreGate/WriteHandle.h"
 
 // STL
 #include <string>
