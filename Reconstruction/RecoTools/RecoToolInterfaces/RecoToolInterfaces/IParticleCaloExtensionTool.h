@@ -13,7 +13,7 @@
  *
  * There are 3 different usage patterns.
  *
- * 1. No-cachhing
+ * 1. No-caching
  * std::unique_ptr<Trk::CaloExtension> caloExtension( const xAOD::IParticle& particle) const
  * will provide back a Trk:: CaloExtention wrapped in a unique_ptr.
  * The memory lifetime is determined by the unique_ptr
@@ -30,7 +30,7 @@
  * is just the last element added to that cache.
  * The cache owns the elements.
  *
- * 3. Among algorithms/domain caching.
+ * 3. Inter-algorithm caching.
  * In this case an central algorithm A 
  * creates a CaloExtensionCollection in SG
  * via the proper WriteHandle mechanism.
@@ -119,7 +119,7 @@ public:
    *
    * @param particles The input collection
    * @param mask      contains true for the elements for which to permorm an extension, false otherwise          
-   * @* @param caloextension Output to be filled,
+   * @return caloextension Output to be filled,
    * will contain unfilled CaloExtension where the mask was false, otherwise it contains the relevant
    * result. 
    */  
