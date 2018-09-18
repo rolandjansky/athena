@@ -10,11 +10,11 @@
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
 #include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ICondSvc.h"

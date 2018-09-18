@@ -42,17 +42,12 @@ StatusCode SCT_ConditionsParameterTestAlg::initialize() {
   // Get the messaging service, print where you are
   ATH_MSG_INFO("in initialize()");
   //
-  StatusCode sc{StatusCode::SUCCESS};
-  sc = m_conditionsParameterTool.retrieve();
-  if (StatusCode::SUCCESS not_eq sc) {
-    ATH_MSG_ERROR("Unable to get the parameter conditions service");
-    return sc;
-  }
+  ATH_CHECK(m_conditionsParameterTool.retrieve());
 
   // Read Handle
   ATH_CHECK(m_currentEventKey.initialize());
   
-  return sc;
+  return StatusCode::SUCCESS;
 } // SCT_ConditionsParameterTestAlg::execute()
 
 //----------------------------------------------------------------------
@@ -111,9 +106,9 @@ StatusCode SCT_ConditionsParameterTestAlg::execute() {
   for (float i: values) {
     fill(histo, i);
   }
-  m_histoString = asXmlString(histo);
+  std::string histoString = asXmlString(histo);
 
-  ATH_MSG_INFO(m_histoString);
+  ATH_MSG_INFO(histoString);
 
   if (not paramFilled) sc = StatusCode::FAILURE;
 
@@ -132,13 +127,11 @@ StatusCode SCT_ConditionsParameterTestAlg::finalize() {
   string filename{"./thresholds.xml"};
   ATH_MSG_INFO("Filename: " << filename);
 
-  ATH_MSG_INFO(m_histoString);
   ATH_MSG_INFO("------------");
 
   ofstream opFile{filename.c_str(), ios::out};
   opFile << xmlHeader();
   opFile << stylesheet(stylePath);
-  opFile << m_histoString << endl;
 
   return StatusCode::SUCCESS;
 } // SCT_ConditionsParameterTestAlg::finalize()
