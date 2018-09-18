@@ -42,7 +42,7 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
    else:
       kwargs.setdefault("DoQballCharge", False)
 
-   if 'MC16Merge' in jobproperties.Digitization.experimentalDigi():
+   if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
        kwargs.setdefault("UseMcEventCollectionHelper",True)
    else:
        kwargs.setdefault("UseMcEventCollectionHelper",False)

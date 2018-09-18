@@ -90,7 +90,7 @@ def commonPixelFastDigitizationConfig(name,**kwargs):
         kwargs.setdefault("LastXing",  FastPixel_LastXing() )
 
     #If needed we'll adjust the output McEventCollections (for pileup mainly) names
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
@@ -131,7 +131,7 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
         kwargs.setdefault("LastXing",  FastSCT_LastXing() )
 
     #If needed we'll adjust the output McEventCollections (for pileup mainly) names
-    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+    if 'NewMerge' in digitizationFlags.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
