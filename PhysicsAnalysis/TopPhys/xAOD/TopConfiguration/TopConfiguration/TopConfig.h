@@ -602,10 +602,6 @@ class TopConfig final {
     if(!m_configFixed)
       m_tau_configuration_loose.fileName = s;
   }
-  // Applying new tau energy calibration
-  inline virtual void applyTauMVATES(bool apply) {
-    m_applyTauMVATES = apply;
-  }
 
   // Tau configuration getters
   inline virtual float tauPtcut() const {
@@ -637,7 +633,7 @@ class TopConfig final {
   }
   // Applying new tau energy calibration
   inline bool applyTauMVATES() {
-    return m_applyTauMVATES;
+    return true;
   }
 
   // photon getters
@@ -1197,9 +1193,6 @@ class TopConfig final {
     // pT cut on taus
     float pt = 20000;
   } m_tau_configuration, m_tau_configuration_loose;
-
-  // Applying new tau energy calibration
-  bool m_applyTauMVATES = false;
 
   // photon configuration
   struct {

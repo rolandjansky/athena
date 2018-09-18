@@ -176,8 +176,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 		      "config file rather than other options.",
 		      "Default");
     registerParameter("ApplyTauMVATES",
-                      "Apply new Tau energy calibration based on substructure information and regression, True or False (default).",
-                      "False");
+                      "Apply new Tau energy calibration based on substructure information and regression. Must be True. Deprecated.",
+                      "True");
     
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) " , "Nominal");
 

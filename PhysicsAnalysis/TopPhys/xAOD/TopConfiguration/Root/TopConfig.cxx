@@ -13,6 +13,7 @@
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/logic/tribool.hpp>
 
 #include "TopConfiguration/Tokenize.h"
 
@@ -214,8 +215,6 @@ namespace top{
     m_tauVetoLArCrack(false),
     m_tauPtcut(20000.),
     **/
-    // Applying new tau energy calibration
-    m_applyTauMVATES(false),
 
     // [[[-----------------------------------------------
     // Particle Level / Truth Configuration
@@ -719,7 +718,8 @@ namespace top{
     this->tauEleOLRLoose((settings->value("TauEleOLRLoose") == "True"));
     this->tauJetConfigFile(settings->value("TauJetConfigFile"));
     this->tauJetConfigFileLoose(settings->value("TauJetConfigFileLoose"));
-    this->applyTauMVATES((settings->value("ApplyTauMVATES") == "True"));
+    if (settings->value("ApplyTauMVATES") != "True")
+      throw std::runtime_error{"TopConfig: ApplyTauMVATES must be True"};
 
     // Jet configuration
     this->jetPtcut( std::stof(settings->value("JetPt")) );
