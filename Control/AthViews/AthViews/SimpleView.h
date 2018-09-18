@@ -37,6 +37,7 @@ class SimpleView : public IProxyDict
 		SimpleView();
 		SimpleView( std::string Name, bool AllowFallThrough = true );
 		SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName );
+		SimpleView( const SimpleView* );
 		virtual ~SimpleView();
 
 		/// get default proxy with given id. Returns 0 to flag failure
