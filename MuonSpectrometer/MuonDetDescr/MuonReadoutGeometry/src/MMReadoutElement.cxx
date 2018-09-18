@@ -175,13 +175,19 @@ namespace MuonGM {
       // identifier of the first channel to retrieve max number of strips
       Identifier id = manager()->mmIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, il+1, 1);
       int chMax =  manager()->mmIdHelper()->channelMax(id);
-      if ( chMax < 0 ) chMax = 2500;
-      
+      if ( chMax < 0 ) {
+        chMax = 2500;
+        reLog()<<MSG::WARNING<<"MMReadoutElement -- Max number of strips not a real value"<<endmsg;
+      }
       char side = getStationEta() < 0 ? 'C' : 'A';
       char sector_l = getStationName().substr(2,1)=="L" ? 'L' : 'S';
       MMDetectorHelper aHelper;
       MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(getStationEta()), getStationPhi(), m_ml, side);
       MMReadoutParameters roParam = mm->GetReadoutParameters();
+
+      m_halfX = roParam.activeH/2;
+      m_minHalfY = roParam.sStripWidth/2;
+      m_maxHalfY = roParam.lStripWidth/2;
 
       m_etaDesign[il].type=0;
 
@@ -193,53 +199,55 @@ namespace MuonGM {
       m_etaDesign[il].deadI = 0.;
       m_etaDesign[il].deadS = 0.;
 
-      double pitch =  getStationName().substr(2,1)=="L" ? roParam.stripPitch : roParam.stripPitch; 
+      double pitch =  roParam.stripPitch;
       m_etaDesign[il].inputPitch = pitch;
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
       m_etaDesign[il].inputWidth = pitch;
       m_etaDesign[il].thickness = roParam.gasThickness;
 
-      if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
-      else if (m_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
+      if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
+      else if (m_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
       else reLog()<<MSG::WARNING
 	          <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
       
       if (m_etaDesign[il].sAngle == 0.) {    // stereo angle 0.
 	
-	m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*pitch;
-	m_etaDesign[il].signY  = 1 ;
+	    m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*pitch;
+	    m_etaDesign[il].signY  = 1 ;
 	
-	m_etaDesign[il].nch = (int) (m_etaDesign[il].xSize/pitch) + 1;
+	    m_etaDesign[il].nch = (int) (m_etaDesign[il].xSize/pitch) + 1;
 
-	if (m_etaDesign[il].nch > chMax) {    // fix with help of dead zone
+	    if (m_etaDesign[il].nch > chMax) {    // fix with help of dead zone
 
-	  double dead = 0.5*(m_etaDesign[il].xSize - chMax*pitch);
-	  m_etaDesign[il].deadO = dead;
-	  m_etaDesign[il].deadI = dead;
-	  m_etaDesign[il].firstPos += dead;
-	  m_etaDesign[il].nch = chMax;      
-	}
+	      double dead = 0.5*(m_etaDesign[il].xSize - chMax*pitch);
+	      m_etaDesign[il].deadO = dead;
+	      m_etaDesign[il].deadI = dead;
+	      m_etaDesign[il].firstPos += dead;
+	      m_etaDesign[il].nch = chMax;
+	    }
 	
       } else {
 	
-	m_etaDesign[il].signY  = il==2? 1 : -1 ;
+	    m_etaDesign[il].signY  = il==2? 1 : -1 ;
         // firstPos in the position of the centre of the 1st strip on locX axis
-	m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize         // lower module boundary 
-	  +0.5*pitch/cos(m_etaDesign[il].sAngle)   // half of the strip size in x projection
-	  -0.5*m_etaDesign[il].minYSize*tan(fabs(m_etaDesign[il].sAngle));   // offset needed to fill the corner  
-        // the position of the centre of the last strip on locX axis (in order to cover the module)
-        double lastPos =  0.5*m_etaDesign[il].xSize         // upper module boundary 
-	  -0.5*pitch/cos(m_etaDesign[il].sAngle)   // half of the strip size in x projection
-	  +0.5*m_etaDesign[il].maxYSize*tan(fabs(m_etaDesign[il].sAngle));   // offset needed to fill the corner  
+        // Alexandre Laurier 12 Sept 2018
+        // The MM planes were rotated previously so now the local axis follows the stereo Angle of the strips
+        // This means all the local coordinates calculations are to be done without x-y projections
+        // This change was implemented due to tracking constraints and conventions
+
+        // first strip is at bottom of ga + empty strip volume + half strip
+	    m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*pitch + roParam.minYPhi;
+
+        double lastPos =  0.5*m_etaDesign[il].xSize-0.5*pitch-roParam.maxYPhi;
         // number of channels needed to cover the module
-        m_etaDesign[il].nch = int((lastPos -m_etaDesign[il].firstPos)/(pitch*cos(m_etaDesign[il].sAngle)))+1 ;
+        m_etaDesign[il].nch = int((lastPos -m_etaDesign[il].firstPos)/(pitch*cos(m_etaDesign[il].sAngle)))+1;
 
-	if (m_etaDesign[il].nch > chMax) {    // dead zone does not help here - just limit number of channels
+	    if (m_etaDesign[il].nch > chMax) {    // dead zone does not help here - just limit number of channels
 
-	  std::cerr<<"number of strips exceeds the maximum, adjusted:"<<m_etaDesign[il].nch<<"->"<<chMax << std::endl;
-	  m_etaDesign[il].nch = chMax;      
+	      std::cerr<<"number of strips exceeds the maximum, adjusted:"<<m_etaDesign[il].nch<<"->"<<chMax << std::endl;
+	      m_etaDesign[il].nch = chMax;
 
-	}
+	    }
 
       }       
       
