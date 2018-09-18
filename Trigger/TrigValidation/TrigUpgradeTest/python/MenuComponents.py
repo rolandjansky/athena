@@ -98,8 +98,8 @@ class AlgNode(Node):
 
 class HypoToolConf():
     """ Class to group info on hypotools"""
-    def __init__(self, HypoToolClassName):
-        self.className =HypoToolClassName
+    def __init__(self, hypoToolGen):
+        self.hypoToolGen = hypoToolGen
         self.name=''
         self.conf=''
 
@@ -108,6 +108,10 @@ class HypoToolConf():
 
     def setConf(self, conf):
         self.conf=conf
+
+    def create(self):
+        """creates instance of the hypo tool"""
+        return self.hypoToolGen( self.name, self.conf )
 
         
 class HypoAlgNode(AlgNode):
@@ -119,14 +123,17 @@ class HypoAlgNode(AlgNode):
         self.tools = []
         self.previous=[]
 
-    def addHypoTool (self, HypoToolConf):
-        from TrigUpgradeTest.MenuHypoTools import createHypoTool        
-        tools = self.Alg.HypoTools
-        if HypoToolConf.name not in self.tools:
+    def addHypoTool (self, hypoToolConf):
+        
+        if hypoToolConf.name not in self.tools:
             ## HypoTools are private, so need to be created when added to the Alg
-            self.Alg.HypoTools = tools+[createHypoTool(HypoToolConf.className, HypoToolConf.name, HypoToolConf.conf)]
-        self.tools.append(HypoToolConf.name)            
-        return True
+            ## this incantation may seem strange, however it is the only one which works
+            ## trying tool = hypoToolConf.create() and then assignement does not work! will be no problem in run3 config
+            tools = self.Alg.HypoTools
+            self.Alg.HypoTools = tools+[hypoToolConf.create()]
+            self.tools.append( hypoToolConf.name )
+        else:
+            raise RuntimeError("The hypo tool of name "+ hypoToolConf.name +" already present")
            
 
     def setPreviousDecision(self,prev):        
@@ -243,19 +250,19 @@ def isFilterAlg(alg):
         
 class MenuSequence():
     """ Class to group reco sequences with the Hypo"""
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolClassName):
+    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen ):
         from AthenaCommon.AlgSequence import AthSequencer
         self.name = "S_%s"%(Hypo.name()) # sequence name is based on hypo name
         self.sequence     = Node( Alg=Sequence)
-        self.maker        = InputMakerNode( Alg=Maker)
-        self.hypoToolConf = HypoToolConf(HypoToolClassName)
-        self.hypo         = HypoAlgNode( Alg=Hypo)
+        self.maker        = InputMakerNode( Alg = Maker )
+        self.hypoToolConf = HypoToolConf( HypoToolGen )
+        self.hypo         = HypoAlgNode( Alg = Hypo )
         self.inputs=[]
         self.outputs=[]
         self.seed=''
         self.reuse = False # flag to draw dot diagrmas
 
-    def replaceHypoForCombo(self,HypoAlg):
+    def replaceHypoForCombo(self, HypoAlg):
         if log.isEnabledFor(logging.DEBUG):
             log.debug("set new Hypo %s for combo sequence %s "%(HypoAlg.name(), self.name))
         self.hypo= HypoAlgNode( Alg=HypoAlg)
@@ -421,6 +428,10 @@ class ChainStep:
         return "--- ChainStep %s ---\n + isCombo: %d \n +  %s \n "%(self.name, self.isCombo, ' '.join(map(str, self.sequences) ))
 
 
+
+# this is fragment for New JO
+
+    
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 class InEventReco( ComponentAccumulator ):
     """ Class to handle in-event reco """
@@ -495,17 +506,10 @@ class RecoFragmentsPool:
             log.debug( "reconstruction fragment from the cache" )
             return cls.fragments[requestHash]
 
-    # @classmethod
-    # def mergeTo( cls, acc ):
-    #     """ Adds algorithms in the reco fragments and all related services to the accumulator """
-    #     for frag in cls.fragments.values():
-    #         acc.merge( frag )
-
-    
-
-class FilterHypoSequence(  ComponentAccumulator ):    
+           
+class NJMenuSequence( ComponentAccumulator ):
     def __init__( self, name ):
-        super( FilterHypoSequence, self ).__init__()
+        super( NJMenuSequence, self ).__init__()
         from AthenaCommon.CFElements import seqAND
         self.name = name
         self.mainSeq = seqAND( name )
