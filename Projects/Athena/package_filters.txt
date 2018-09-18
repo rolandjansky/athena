@@ -28,6 +28,9 @@
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
 
+# Suspend building of Qat
+- graphics/Qat/.*
+
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
 - PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
