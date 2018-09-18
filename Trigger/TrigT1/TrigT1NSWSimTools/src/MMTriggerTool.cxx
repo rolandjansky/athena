@@ -10,7 +10,7 @@
 
 
 // local includes
-#include "MMTriggerTool.h"
+#include "TrigT1NSWSimTools/MMTriggerTool.h"
 
 //Event info includes
 #include "EventInfo/EventInfo.h"

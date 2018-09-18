@@ -3,7 +3,7 @@
 */
 
 // local includes
-#include "MMLoadVariables.h"
+#include "TrigT1NSWSimTools/MMLoadVariables.h"
 
 // //Event info includes
 #include "EventInfo/EventInfo.h"

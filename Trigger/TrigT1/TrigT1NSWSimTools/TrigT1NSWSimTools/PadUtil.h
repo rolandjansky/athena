@@ -6,7 +6,7 @@
 #ifndef PADUTIL_H
 #define PADUTIL_H
 
-#include "GeoPrimitives/GeoPrimitives.h" // cannot easily fwd declare typedef Amg::Vector3D
+#include "GeoPrimitives/GeoPrimitives.h"
 
 // forward declarations
 class MsgStream;

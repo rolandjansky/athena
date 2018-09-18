@@ -8,7 +8,10 @@
 #ifndef NSW_SINGLEPADWEDGETRIGGER_H
 #define NSW_SINGLEPADWEDGETRIGGER_H
 
-#include "EtaPhiRectangle.h"
+#include "TrigT1NSWSimTools/PadWithHits.h"
+#include "TrigT1NSWSimTools/GeoUtils.h"
+#include "TrigT1NSWSimTools/TriggerTypes.h"
+
 
 #include "TVector3.h"
 
@@ -22,14 +25,9 @@ A trigger with coincident hits in at least 3 out of 4 layers within a wedge.
 davide.gerbaudo@gmail.com, April 2013
 */
 
-namespace nsw {
-  class PadWithHits;
-}
-
-namespace nsw {
+namespace NSWL1 {
   class SingleWedgePadTrigger {
-  public:
-    typedef std::vector< nsw::PadWithHits >   vpads_t;
+
   public:
     struct EtaPhi{  // just to have better naming than std::pair
       int ieta, iphi;
@@ -52,18 +50,11 @@ namespace nsw {
                                         bool verbose=false);
     static EtaPhiHalf bandIndices(const EtaPhiHalf &inner, const EtaPhiHalf &outer);
     //! area that is overlapping between the pads that cause the trigger (pads are staggered)
-    static nsw::EtaPhiRectangle padOverlap(const vpads_t &pads);
-    //! direction of this trigger wrt. the origin
-    /*!
-      Direction defined by the origin of the detector and the center of
-      the quarter-pad area (corresponding to the overlap with the
-      other pads) on the first pad
-    */
-    static TVector3 direction(const nsw::PadWithHits &firstPad,
-                              const nsw::EtaPhiRectangle &overlap);
+    static Polygon padOverlap3(const std::vector<PadWithHits> & pads);
+    
   public:
     SingleWedgePadTrigger(const std::string &pattern,
-                          const vpads_t &pads,
+                          const std::vector<PadWithHits> &pads,
                           const std::vector<size_t> &padIndices);
     const std::string& pattern() const {return m_pattern;}
     const std::vector<size_t> padIndices() const {return m_padIndices;}
@@ -82,13 +73,13 @@ namespace nsw {
     SingleWedgePadTrigger& setCombined() { m_alreadyCombined=true; return *this;}
     bool alreadyCombined() const { return m_alreadyCombined; }
     std::string pickle() const; //!< simple dict-like representation
-    const vpads_t& pads() const {return m_pads;}
+    const std::vector<PadWithHits>& pads() const {return m_pads;}
     TVector3 direction() const;
   private:
     std::string m_pattern;
     EtaPhiHalf m_halfPadIndices;
     std::vector<size_t> m_padIndices;
-    vpads_t m_pads;
+    std::vector<PadWithHits> m_pads;
     bool m_alreadyCombined; //!< flag to keep track of whether this has already been combined w/ another wedge
   }; // end class SingleWedgePadTrigger
 
