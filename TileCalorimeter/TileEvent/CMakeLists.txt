@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileIdentifier
                           TileCalorimeter/TileSimEvent
                           PRIVATE
+                          TileCalorimeter/TileCalib/TileCalibBlobObjs
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloIdentifier
                           Control/SGTools )
@@ -31,7 +32,7 @@ atlas_add_library( TileEvent
                    PUBLIC_HEADERS TileEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES CaloEvent AthContainers Identifier GaudiKernel TileIdentifier TileSimEvent StoreGateLib SGtests TileConditionsLib CaloDetDescrLib EventContainers
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier SGTools )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier SGTools TileCalibBlobObjs )
 
 atlas_add_dictionary( TileEventDict
                       TileEvent/TileEventDict.h

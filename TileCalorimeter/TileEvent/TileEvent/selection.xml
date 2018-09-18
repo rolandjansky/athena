@@ -172,4 +172,6 @@
     <field name="m_vect" transient="true" />
   </class>
 
+  <class name="TileDQstatus"/>
+
 </lcgdict>
