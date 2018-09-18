@@ -1,5 +1,9 @@
-#ifndef ACTS_GEOMODELPLUGIN_GEOMODELLAYERBUILDER_H
-#define ACTS_GEOMODELPLUGIN_GEOMODELLAYERBUILDER_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_GEOMODELLAYERBUILDER_H
+#define ACTSGEOMETRY_GEOMODELLAYERBUILDER_H
 
 // PACKAGE
 #include "ActsGeometry/GeoModelDetectorElement.hpp"
@@ -24,10 +28,11 @@
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
+class ActsTrackingGeomtrySvc;
+
 namespace Acts {
 
 class Surface;
-class TrackingGeomtrySvc;
 
 /// @class GeoModelLayerBuilder
 class GeoModelLayerBuilder : public ILayerBuilder
@@ -61,7 +66,7 @@ public:
     std::pair<size_t, size_t> endcapMaterialBins = {20, 5};
     std::pair<size_t, size_t> barrelMaterialBins = {10, 10};
 
-    const Acts::TrackingGeometrySvc* trackingGeometrySvc = nullptr;
+    const ActsTrackingGeometrySvc* trackingGeometrySvc = nullptr;
   };
 
   /// Constructor

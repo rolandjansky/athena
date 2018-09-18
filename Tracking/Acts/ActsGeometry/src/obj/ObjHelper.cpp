@@ -81,7 +81,7 @@ ObjHelper::writePlanarFace(std::ofstream& stream,
   // lets create the normal vector first
   Acts::Vector3D sideOne = vertices[1] - vertices[0];
   Acts::Vector3D sideTwo = vertices[2] - vertices[1];
-  Acts::Vector3D nvector(sideTwo.cross(sideOne).unit());
+  Acts::Vector3D nvector(sideTwo.cross(sideOne).normalized());
   // write the normal vector
   writeVTN(stream, vtnCounter, scalor, nvector, "n");
   // thickness or not thickness

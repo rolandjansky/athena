@@ -2,33 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "ActsGeometry/GeomShiftCondAlg.h"
-#include "ActsGeometry/ShiftCondObj.h"
 
+// ATHENA
 #include "StoreGate/WriteCondHandle.h"
-
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
-
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoNodeAction.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
 
+// ACTS
 #include "Acts/Utilities/Definitions.hpp"
 
+// STL
 #include <thread>
 #include <chrono>
 #include <memory>

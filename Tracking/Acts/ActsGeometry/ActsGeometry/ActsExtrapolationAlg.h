@@ -1,5 +1,9 @@
-#ifndef ActsGeometry_ActsExtrapolation_h
-#define ActsGeometry_ActsExtrapolation_h
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_ACTSEXTRAPOLATIONALG_H
+#define ACTSGEOMETRY_ACTSEXTRAPOLATIONALG_H
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -16,10 +20,10 @@
 #include "Acts/Utilities/BFieldMapUtils.hpp"
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
 #include "Acts/Utilities/GeometryID.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialStep.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialStep.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 
 // PACKAGE
 #include "ActsGeometry/ObjWriterTool.h"
@@ -33,7 +37,6 @@
 
 namespace Acts {
   class TrackingGeometry;
-  class ITrackingGeometrySvc;
   
   class IMaterialTrackWriterSvc;
   
@@ -46,20 +49,14 @@ class RootExCellWriter;
 
 class EventContext;
 
-
-
-class ActsExtrapolation : public AthReentrantAlgorithm {
+class ActsExtrapolationAlg : public AthReentrantAlgorithm {
 public:
-  ActsExtrapolation (const std::string& name, ISvcLocator* pSvcLocator);
+  ActsExtrapolationAlg (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize() override;
   StatusCode execute_r(const EventContext& ctx) const override;
   StatusCode finalize() override;
   
 private:
-  bool m_firstEvent;
-  
-
-  ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
   ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
 

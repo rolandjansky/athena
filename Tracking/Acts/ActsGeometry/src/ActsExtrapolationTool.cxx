@@ -1,6 +1,20 @@
-#include "GaudiKernel/IInterface.h"
-#include "GeoPrimitives/GeoPrimitives.h" // Get athena matrix plugin before ACTS'
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
+#include "ActsGeometry/ActsExtrapolationTool.h"
+
+// ATHENA
+#include "GaudiKernel/IInterface.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
+// PACKAGE
+#include "ActsGeometry/IExtrapolationTool.h"
+#include "ActsGeometry/ActsTrackingGeometrySvc.h"
+#include "ActsGeometry/ATLASMagneticFieldWrapper.hpp"
+#include "ActsInterop/Logger.h"
+
+// ACTS
 #include "Acts/Extrapolation/ExtrapolationCell.hpp" // for excell and ecode
 #include "Acts/Extrapolation/IExtrapolationEngine.hpp" // for the parameters
 #include "Acts/Extrapolation/ExtrapolationEngine.hpp"
@@ -11,26 +25,20 @@
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Surfaces/BoundaryCheck.hpp"
 
-#include "ActsGeometry/IExtrapolationTool.h"
-#include "ActsGeometry/ExtrapolationTool.h"
-#include "ActsGeometry/ITrackingGeometrySvc.h"
-#include "ActsGeometry/TrackingGeometrySvc.h"
-#include "ActsGeometry/ATLASMagneticFieldWrapper.hpp"
-#include "ActsInterop/Logger.h"
-
+// STL
 #include <iostream>
 #include <memory>
 
-Acts::ExtrapolationTool::ExtrapolationTool(const std::string& type, const std::string& name,
+ActsExtrapolationTool::ActsExtrapolationTool(const std::string& type, const std::string& name,
     const IInterface* parent) 
-  : IExtrapolationTool(type, name, parent),
+  : Acts::IExtrapolationTool(type, name, parent),
     m_fieldServiceHandle("AtlasFieldSvc", name)
 {
 
 }
   
 StatusCode 
-Acts::ExtrapolationTool::initialize()
+ActsExtrapolationTool::initialize()
 {
   using namespace std::literals::string_literals;
 
@@ -38,7 +46,7 @@ Acts::ExtrapolationTool::initialize()
   ATH_MSG_INFO("Initializing ACTS extrapolation");
 
   // (a) RungeKuttaPropagator
-  std::shared_ptr<const IPropagationEngine> propEngine;
+  std::shared_ptr<const Acts::IPropagationEngine> propEngine;
   if (m_fieldMode == "ATLAS"s) {
     // we need the field service
     ATH_CHECK( m_fieldServiceHandle.retrieve() );
@@ -110,9 +118,9 @@ Acts::ExtrapolationTool::initialize()
 }
 
 Acts::ExtrapolationCode
-Acts::ExtrapolationTool::extrapolate(Acts::ExCellCharged&       ecCharged,
-              const Surface*       sf,
-              const BoundaryCheck& bcheck) const 
+ActsExtrapolationTool::extrapolate(Acts::ExCellCharged&       ecCharged,
+              const Acts::Surface*       sf,
+              const Acts::BoundaryCheck& bcheck) const 
 {
   return m_exEngine->extrapolate(ecCharged, sf, bcheck);
 }
@@ -120,15 +128,15 @@ Acts::ExtrapolationTool::extrapolate(Acts::ExCellCharged&       ecCharged,
 
 
 Acts::ExtrapolationCode
-Acts::ExtrapolationTool::extrapolate(Acts::ExCellNeutral&       ecNeutral,
-              const Surface*       sf,
-              const BoundaryCheck& bcheck) const 
+ActsExtrapolationTool::extrapolate(Acts::ExCellNeutral&       ecNeutral,
+              const Acts::Surface*       sf,
+              const Acts::BoundaryCheck& bcheck) const 
 {
   return m_exEngine->extrapolate(ecNeutral, sf, bcheck);
 }
 
 std::shared_ptr<Acts::IExtrapolationEngine>
-Acts::ExtrapolationTool::extrapolationEngine() const 
+ActsExtrapolationTool::extrapolationEngine() const 
 {
   return std::dynamic_pointer_cast<Acts::IExtrapolationEngine>(m_exEngine);
 }

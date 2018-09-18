@@ -1,22 +1,23 @@
-#ifndef GEOMACTS_TRACKINGGEOMETRY_SERVICE
-#define GEOMACTS_TRACKINGGEOMETRY_SERVICE
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
+#ifndef ACTSGEOMETRY_ACTSTRACKINGEOMETRYSVC_H
+#define ACTSGEOMETRY_ACTSTRACKINGEOMETRYSVC_H
+
+// ATHENA
 #include "AthenaBaseComps/AthService.h"
-//#include "GaudiKernel/ToolHandle.h"
-//#include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/EventContext.h"
-
-#include "ActsGeometry/ITrackingGeometrySvc.h"
-
-#include "ActsGeometry/ShiftCondObj.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadCondHandle.h"
 
+// PACKAGE
+#include "ActsGeometry/IActsTrackingGeometrySvc.h"
 
+// STL
 #include <map>
-#include <boost/thread/shared_mutex.hpp>
 
 namespace InDetDD {
   class InDetDetectorManager;
@@ -37,16 +38,17 @@ class GeoModelDetectorElement;
 class GeometryID;
 class BinnedSurfaceMaterial;
 
+}
 
-class TrackingGeometrySvc : public extends<AthService, ITrackingGeometrySvc> {
+
+class ActsTrackingGeometrySvc : public extends<AthService, IActsTrackingGeometrySvc> {
 public:
 
-  virtual StatusCode initialize() override;
+  StatusCode initialize() override;
   //virtual StatusCode finalize() override;
     
-  TrackingGeometrySvc( const std::string& name, ISvcLocator* pSvcLocator );
+  ActsTrackingGeometrySvc( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() override;
   
@@ -82,7 +84,6 @@ private:
 
 };
 
-}
 
 
 #endif 

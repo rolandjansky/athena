@@ -9,12 +9,16 @@
 #include <ios>
 #include <stdexcept>
 #include <forward_list>
+#include "Acts/Utilities/Helpers.hpp"
 
 template <class T>
 void
 RootExCellWriter<T>::write(
     const Acts::ExtrapolationCell<T>& eCell, int eventNum)
 {
+  using Acts::VectorHelpers::eta;
+  using Acts::VectorHelpers::phi;
+  using Acts::VectorHelpers::perp;
 
   // exclusive access to the tree
   std::lock_guard<std::mutex> lock(m_writeMutex);
@@ -22,8 +26,8 @@ RootExCellWriter<T>::write(
   // loop over all the extrapolation cells
   // the event paramters
   auto sMomentum = eCell.startParameters->momentum();
-  m_eta          = sMomentum.eta();
-  m_phi          = sMomentum.phi();
+  m_eta          = eta(sMomentum);
+  m_phi          = phi(sMomentum);
   m_materialX0   = eCell.materialX0;
   m_materialL0   = eCell.materialL0;
 
@@ -120,7 +124,7 @@ RootExCellWriter<T>::write(
         m_s_positionX.push_back(pars.position().x());
         m_s_positionY.push_back(pars.position().y());
         m_s_positionZ.push_back(pars.position().z());
-        m_s_positionR.push_back(pars.position().perp());
+        m_s_positionR.push_back(perp(pars.position()));
 
         /// local position information - only makes sense for sensitive really
         if (m_cfg.writeSensitive) {

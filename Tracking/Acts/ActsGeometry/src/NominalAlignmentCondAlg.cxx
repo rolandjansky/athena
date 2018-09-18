@@ -2,32 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "ActsGeometry/NominalAlignmentCondAlg.h"
-#include "ActsGeometry/ShiftCondObj.h"
+// ATHENA
 
 #include "StoreGate/WriteCondHandle.h"
-
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
-
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoNodeAction.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
 
+// PACKAGE
+#include "ActsGeometry/NominalAlignmentCondAlg.h"
 #include "ActsGeometry/GeoModelDetectorElement.hpp"
+
+// ACTS
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Detector/TrackingGeometry.hpp"
 #include "Acts/Detector/TrackingVolume.hpp"
@@ -41,22 +38,18 @@ NominalAlignmentCondAlg::NominalAlignmentCondAlg( const std::string& name,
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_cs("CondSvc",name),
-  m_trackingGeometrySvc("TrackingGeometrySvc", name)
+  m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
 {
 }
 
 NominalAlignmentCondAlg::~NominalAlignmentCondAlg() {}
 
 StatusCode NominalAlignmentCondAlg::initialize() {
-  ATH_MSG_DEBUG("initialize " << name());
-
-  ATH_CHECK( m_evt.initialize() );
+  ATH_MSG_DEBUG(name() << "::" << __FUNCTION__);
 
   if (m_cs.retrieve().isFailure()) {
     ATH_MSG_ERROR("unable to retrieve CondSvc");
   }
-
-  //m_wchk.setDbKey(m_dbKey);
 
   if (m_wchk.initialize().isFailure()) {
     ATH_MSG_ERROR("unable to initialize WriteCondHandle with key" << m_wchk.key() );
@@ -73,18 +66,12 @@ StatusCode NominalAlignmentCondAlg::initialize() {
 }
 
 StatusCode NominalAlignmentCondAlg::finalize() {
-  ATH_MSG_DEBUG("finalize " << name());
+  ATH_MSG_DEBUG(name() << "::" << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
 
 StatusCode NominalAlignmentCondAlg::execute() {
-  ATH_MSG_DEBUG("execute " << name());
-
-  SG::ReadHandle<EventInfo> evt( m_evt );
-  if (!evt.isValid()) {
-    ATH_MSG_ERROR ("Could not retrieve EventInfo");
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG(name() << "::" << __FUNCTION__);
 
   SG::WriteCondHandle<GeoAlignmentStore> wch(m_wchk);
 
@@ -118,15 +105,17 @@ StatusCode NominalAlignmentCondAlg::execute() {
     auto trkGeom = m_trackingGeometrySvc->trackingGeometry();
     const Acts::TrackingVolume* trkVol = trkGeom->highestTrackingVolume();
 
-    ATH_MSG_DEBUG("Populating GeoAlignmentStore for IOV for " 
-        << trkVol->detectorElements().size() << " detector elements");
-    for (const auto& de : trkVol->detectorElements()) {
+    
+    ATH_MSG_DEBUG("Populating GeoAlignmentStore for IOV");
+    size_t nElems = 0;
+    trkVol->visitDetectorElements(
+      [alignmentStore, &nElems](const Acts::DetectorElementBase* detElem) {
       using GMDE = Acts::GeoModelDetectorElement;
-      GMDE* mutableGMDetElem
-        = const_cast<GMDE*>(dynamic_cast<const GMDE*>(de.second));
-      mutableGMDetElem->storeTransform(alignmentStore);
-    }
-    ATH_MSG_DEBUG("GeoAlignmentStore populated");
+      const GMDE* gmde = dynamic_cast<const GMDE*>(detElem);
+      gmde->storeTransform(alignmentStore);
+      nElems++;
+    });
+    ATH_MSG_DEBUG("GeoAlignmentStore populated for " << nElems << " detector elements");
 
 
     if (wch.record(r, alignmentStore).isFailure()) {
@@ -141,3 +130,4 @@ StatusCode NominalAlignmentCondAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
+      // loop over the layers

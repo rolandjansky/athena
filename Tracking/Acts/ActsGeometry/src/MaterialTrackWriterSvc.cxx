@@ -4,8 +4,11 @@
 #include "TTree.h"
 #include "TFile.h"
 
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 #include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Utilities/Helpers.hpp"
+
+using namespace Acts::VectorHelpers;
 
 
 #include <vector>
@@ -201,8 +204,8 @@ Acts::MaterialTrackWriterSvc::doWrite(const Acts::MaterialTrack& mTrack)
     m_treeStepPosX.push_back(pos.x());
     m_treeStepPosY.push_back(pos.y());
     m_treeStepPosZ.push_back(pos.z());
-    m_treeStepPosR.push_back(pos.perp());
-    m_treeStepPosPhi.push_back(pos.phi());
+    m_treeStepPosR.push_back(perp(pos));
+    m_treeStepPosPhi.push_back(phi(pos));
 
     m_treeStepX0.push_back(mat.X0());
     m_treeStepL0.push_back(mat.L0());

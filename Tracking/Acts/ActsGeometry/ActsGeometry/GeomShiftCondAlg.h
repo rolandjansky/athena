@@ -8,8 +8,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-#include "ActsGeometry/ShiftCondObj.h"
-
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
 

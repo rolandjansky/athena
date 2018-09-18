@@ -20,7 +20,7 @@ atlas_add_library( ActsInteropLib
                      src/*.cxx
                      src/components/*.cxx
                      PUBLIC_HEADERS ActsInterop
-                     LINK_LIBRARIES AthenaBaseComps Identifier InDetIdentifier InDetReadoutGeometry Acts::Core)
+                     LINK_LIBRARIES AthenaBaseComps Identifier InDetIdentifier InDetReadoutGeometry ActsCore)
 
 # Install files from the package:
 atlas_install_headers( ActsInterop )

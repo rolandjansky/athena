@@ -4,23 +4,27 @@
 
 #pragma once
 
+// ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
-
-#include "ActsGeometry/ShiftCondObj.h"
-#include "ActsGeometry/ITrackingGeometrySvc.h"
-
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 
+// PACKAGE
+#include "ActsGeometry/IActsTrackingGeometrySvc.h"
+
+// STL
 #include <string>
 
 
-
+/// @class NominalAlignmentCondAlg
+/// Conditions algorithm which produces an (effectively)
+/// infinitely valid GeoAlignmentStore which has
+/// nominal alignments (= identity deltas)
+///
 class NominalAlignmentCondAlg  :  public AthAlgorithm {
   
 public:
@@ -36,12 +40,10 @@ public:
 
 private:
   
-  SG::ReadHandleKey<EventInfo> m_evt {this,"EvtInfo", "McEventInfo", "EventInfo name"};
-
   SG::WriteCondHandleKey<GeoAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
 
   ServiceHandle<ICondSvc> m_cs;
-  ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
+  ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
 };
 

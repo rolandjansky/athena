@@ -1,47 +1,52 @@
-#ifndef GEOMACTS_ACTS_EXTRAPOLATIONTOOL_H
-#define GEOMACTS_ACTS_EXTRAPOLATIONTOOL_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
+#ifndef ACTSGEOMETRY_ACTSEXTRAPOLATIONTOOL_H
+#define ACTSGEOMETRY_ACTSEXTRAPOLATIONTOOL_H
+
+// ATHENA
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GaudiKernel/Property.h"
-
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
+// PACKAGE
+#include "ActsGeometry/IExtrapolationTool.h"
+#include "ActsGeometry/ActsTrackingGeometryTool.h"
+
+// ACTS
 #include "Acts/Extrapolation/ExtrapolationCell.hpp"
 #include "Acts/Extrapolation/IExtrapolationEngine.hpp"
 
-#include "ActsGeometry/IExtrapolationTool.h"
-#include "ActsGeometry/TrackingGeometryTool.h"
-
 namespace Acts {
-
 class ExtrapolationCode;
 class Surface;
 class BoundaryCheck;
 class ExtrapolationEngine;
-class ITrackingGeometrySvc;
+}
 
-class ExtrapolationTool : public IExtrapolationTool
+class ActsExtrapolationTool : public Acts::IExtrapolationTool
 {
 
 public:
   virtual StatusCode initialize() override;
 
-  ExtrapolationTool(const std::string& type, const std::string& name,
+  ActsExtrapolationTool(const std::string& type, const std::string& name,
 	           const IInterface* parent);
 
-  virtual ExtrapolationCode
-  extrapolate(ExCellCharged&       ecCharged,
-              const Surface*       sf,
-              const BoundaryCheck& bcheck) const;
+  virtual Acts::ExtrapolationCode
+  extrapolate(Acts::ExCellCharged&       ecCharged,
+              const Acts::Surface*       sf,
+              const Acts::BoundaryCheck& bcheck) const;
 
-  virtual ExtrapolationCode
-  extrapolate(ExCellNeutral&       ecNeutral,
-              const Surface*       sf,
-              const BoundaryCheck& bcheck) const;
+  virtual Acts::ExtrapolationCode
+  extrapolate(Acts::ExCellNeutral&       ecNeutral,
+              const Acts::Surface*       sf,
+              const Acts::BoundaryCheck& bcheck) const;
 
   virtual
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine() const;
@@ -52,7 +57,7 @@ public:
 private:
 
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
-  ToolHandle<Acts::TrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "Acts__TrackingGeometryTool"};
+  ToolHandle<ActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
   std::shared_ptr<Acts::ExtrapolationEngine> m_exEngine;
 
@@ -62,14 +67,12 @@ private:
 
 };
 
-}
 
 inline
 void
-Acts::ExtrapolationTool::prepareAlignment() const 
+ActsExtrapolationTool::prepareAlignment() const 
 {
   m_trackingGeometryTool->prepareAlignment();
 }
-
 
 #endif

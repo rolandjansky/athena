@@ -1,45 +1,40 @@
-// This file is part of the ACTS project.
-//
-// Copyright (C) 2016 ACTS project team
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
-#include <boost/variant.hpp>
-#include <boost/variant/get.hpp>
-
-#include <mutex>
-
+// ATHENA
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
-
 #include "GeoModelKernel/GeoVFullPhysVol.h"
-
-#include "ActsGeometry/GeoModelDetectorElement.hpp"
-#include "ActsGeometry/TrackingGeometrySvc.h"
 #include "ActsInterop/IdentityHelper.h"
-
-#include "Acts/Surfaces/StrawSurface.hpp"
-#include "Acts/Surfaces/LineBounds.hpp"
-
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "StoreGate/ReadCondHandle.h"
-
-
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-
 #include "GaudiKernel/ContextSpecificPtr.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 
+// PACKAGE
+#include "ActsGeometry/GeoModelDetectorElement.hpp"
+#include "ActsGeometry/ActsTrackingGeometrySvc.h"
+
+// ACTS
+#include "Acts/Surfaces/StrawSurface.hpp"
+#include "Acts/Surfaces/LineBounds.hpp"
+
+// STL
+#include <mutex>
+
+// BOOST
+#include <boost/variant.hpp>
+#include <boost/variant/get.hpp>
 
 
 
 Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     const InDetDD::SiDetectorElement* detElem,
-    const Acts::TrackingGeometrySvc* trkSvc)
+    const ActsTrackingGeometrySvc* trkSvc)
   : m_trackingGeometrySvc(trkSvc)
 {
   m_detElement = detElem;
@@ -67,7 +62,7 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     m_bounds = rectangleBounds;
 
     m_surface
-      = std::make_shared<const PlaneSurface>(rectangleBounds, *this, id);
+      = std::make_shared<const PlaneSurface>(rectangleBounds, *this);
 
   } else if (boundsType == Trk::SurfaceBounds::Trapezoid) {
 
@@ -86,7 +81,7 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     m_bounds = trapezoidBounds;
 
     m_surface
-      = std::make_shared<const PlaneSurface>(trapezoidBounds, *this, id);
+      = std::make_shared<const PlaneSurface>(trapezoidBounds, *this);
 
   } else {
     throw std::domain_error("GeoModelDetectorElement does not support this surface type");
@@ -97,7 +92,7 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     std::shared_ptr<const Transform3D> trf,
     const InDetDD::TRT_BaseElement* detElem,
     const Identifier& id,
-    const Acts::TrackingGeometrySvc* trkSvc)
+    const ActsTrackingGeometrySvc* trkSvc)
   : m_trackingGeometrySvc(trkSvc)
 {
   m_detElement = detElem;
@@ -121,7 +116,7 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
   auto lineBounds = std::make_shared<const Acts::LineBounds>(innerTubeRadius, length);
   m_bounds = lineBounds;
 
-  auto straw = std::make_shared<const Acts::StrawSurface>(lineBounds, *this, m_explicitIdentifier);
+  auto straw = std::make_shared<const Acts::StrawSurface>(lineBounds, *this);
   m_surface = straw;
 }
 
@@ -136,15 +131,8 @@ Acts::GeoModelDetectorElement::identityHelper() const
   }
 }
   
-void
-Acts::GeoModelDetectorElement::assignIdentifier(const Identifier& /*identifier*/)
-{
-  throw std::domain_error(
-      "Unable to assign Identifier in Acts::GeoModelDetectorElement");
-}
-
 const Acts::Transform3D&
-Acts::GeoModelDetectorElement::transform(const Identifier&) const
+Acts::GeoModelDetectorElement::transform() const
 {
 
 
@@ -243,7 +231,7 @@ Acts::GeoModelDetectorElement::getDefaultTransformMutexed() const
 }
 
 const Acts::Surface&
-Acts::GeoModelDetectorElement::surface(const Identifier&) const
+Acts::GeoModelDetectorElement::surface() const
 {
   return (*m_surface);
 }

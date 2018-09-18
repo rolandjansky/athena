@@ -1,29 +1,9 @@
-#include "ActsGeometry/TrackingGeometrySvc.h"
+#include "ActsGeometry/ActsTrackingGeometrySvc.h"
 
-// Athena
+// ATHENA
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
-
-// ACTS
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Tools/ITrackingVolumeBuilder.hpp"
-#include "Acts/Tools/LayerArrayCreator.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
-#include "Acts/Tools/CylinderVolumeHelper.hpp"
-#include "Acts/Tools/TrackingGeometryBuilder.hpp"
-#include "Acts/Tools/CylinderVolumeBuilder.hpp"
-
-#include "Acts/Plugins/ProtobufPlugin/ProtobufMaterialMapReader.hpp"
-
-// PACKAGE
-#include "ActsGeometry/GeoModelLayerBuilder.hpp"
-#include "ActsGeometry/GeoModelStrawLayerBuilder.hpp"
-#include "ActsGeometry/GeoModelDetectorElement.hpp"
-#include "ActsInterop/IdentityHelper.h"
-#include "ActsInterop/Logger.h"
-
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -35,10 +15,25 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/TRT_ID.h"
 
-#include <boost/thread/shared_mutex.hpp>
+// ACTS
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Tools/ITrackingVolumeBuilder.hpp"
+#include "Acts/Tools/LayerArrayCreator.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Tools/CylinderVolumeHelper.hpp"
+#include "Acts/Tools/TrackingGeometryBuilder.hpp"
+#include "Acts/Tools/CylinderVolumeBuilder.hpp"
+
+// PACKAGE
+#include "ActsGeometry/GeoModelLayerBuilder.hpp"
+#include "ActsGeometry/GeoModelStrawLayerBuilder.hpp"
+#include "ActsGeometry/GeoModelDetectorElement.hpp"
+#include "ActsInterop/IdentityHelper.h"
+#include "ActsInterop/Logger.h"
 
 
-Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
+ActsTrackingGeometrySvc::ActsTrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
    : base_class(name,svc),
    m_detStore("StoreGateSvc/DetectorStore", name)
 {
@@ -46,7 +41,7 @@ Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLoca
 }
 
 StatusCode
-Acts::TrackingGeometrySvc::initialize()
+ActsTrackingGeometrySvc::initialize()
 {
   ATH_MSG_INFO(name() << " is initializing");
   
@@ -97,17 +92,6 @@ Acts::TrackingGeometrySvc::initialize()
   tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
   tgbConfig.trackingVolumeBuilders = volumeBuilders;
 
-  if(m_useMaterialMap) {
-    ATH_MSG_INFO("Configured to use material map from " << std::string(m_materialMapInputFile));
-    Acts::ProtobufMaterialMapReader::Config cfg;
-    cfg.infile = m_materialMapInputFile;
-    Acts::ProtobufMaterialMapReader reader(std::move(cfg));
-
-    tgbConfig.inputMaterialMap = reader.read();
-  }
-
-
-
   auto trackingGeometryBuilder
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig,
           Acts::makeAthenaLogger(this, "TrkGeomBldr", "ActsTGSvc"));
@@ -123,14 +107,14 @@ Acts::TrackingGeometrySvc::initialize()
 }
 
 std::shared_ptr<const Acts::TrackingGeometry>
-Acts::TrackingGeometrySvc::trackingGeometry() {
+ActsTrackingGeometrySvc::trackingGeometry() {
 
   ATH_MSG_VERBOSE("Retrieving tracking geometry");
   return m_trackingGeometry;
 }
 
 std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
-Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline)
+ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline)
 {
   std::string managerName = manager->getName();
 
@@ -268,7 +252,6 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
   cvbConfig.trackingVolumeHelper = cvh;
   cvbConfig.volumeSignature      = 0;
   cvbConfig.volumeName           = managerName;
-  //cvbConfig.volumeMaterial       = volumeMaterial;
   cvbConfig.layerBuilder         = gmLayerBuilder;
   cvbConfig.buildToRadiusZero = toBeamline;
 
@@ -281,14 +264,14 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
 }
 
 void
-Acts::TrackingGeometrySvc::setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) 
+ActsTrackingGeometrySvc::setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) 
 {
   std::lock_guard<std::mutex> lock(m_gasMapMutex);
   m_gasMap[ctx.slot()] = gas;
 }
 
 const GeoAlignmentStore*
-Acts::TrackingGeometrySvc::getGeoAlignmentStore(const EventContext& ctx) const
+ActsTrackingGeometrySvc::getGeoAlignmentStore(const EventContext& ctx) const
 {
   std::lock_guard<std::mutex> lock(m_gasMapMutex);
   if (m_gasMap.find(ctx.slot()) == m_gasMap.end()) return nullptr;

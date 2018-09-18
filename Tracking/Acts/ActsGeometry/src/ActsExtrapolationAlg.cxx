@@ -1,7 +1,8 @@
-// @todo: re-check this
-#define ACTS_CORE_IDENTIFIER_PLUGIN "Identifier/Identifier.h"
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
-#include "ActsGeometry/ActsExtrapolation.h"
+#include "ActsGeometry/ActsExtrapolationAlg.h"
 
 // ATHENA
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -10,46 +11,37 @@
 #include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
-
 // ACTS
-#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Plugins/MaterialMapping/MaterialTrack.hpp"
 
 // PACKAGE
-#include "ActsGeometry/ITrackingGeometrySvc.h"
 #include "ActsGeometry/IExtrapolationTool.h"
 #include "ActsGeometry/IExCellWriterSvc.h"
 #include "ActsInterop/Logger.h"
 #include "ActsGeometry/IMaterialTrackWriterSvc.h"
 
+// OTHER
+#include "CLHEP/Random/RandomEngine.h"
+
 // STL
 #include <string>
 
-namespace {
-const Amg::Vector3D origin(0., 0., 0.);
-}
 
-
-ActsExtrapolation::ActsExtrapolation(const std::string& name,
+ActsExtrapolationAlg::ActsExtrapolationAlg(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
-      m_firstEvent(true),
-      m_trackingGeometrySvc("TrackingGeometrySvc", name),
       m_exCellWriterSvc("ExCellWriterSvc", name),
       m_rndmGenSvc("AthRNGSvc", name),
       m_materialTrackWriterSvc("MaterialTrackWriterSvc", name)
 {
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+StatusCode ActsExtrapolationAlg::initialize() {
 
-StatusCode ActsExtrapolation::initialize() {
+  ATH_MSG_DEBUG(name() << "::" << __FUNCTION__);
 
-  ATH_MSG_INFO("ACTS Demo Algorithm is initializing");
-
-  ATH_CHECK( m_trackingGeometrySvc.retrieve() );
   ATH_CHECK( m_exCellWriterSvc.retrieve() );
   ATH_CHECK( m_rndmGenSvc.retrieve() );
-  
   ATH_CHECK( m_extrapolationTool.retrieve() );
 
   if (m_writeMaterialTracks) {
@@ -59,10 +51,7 @@ StatusCode ActsExtrapolation::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
-
-
-StatusCode ActsExtrapolation::execute_r(const EventContext& ctx) const 
+StatusCode ActsExtrapolationAlg::execute_r(const EventContext& ctx) const 
 {
 
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__);
@@ -100,13 +89,11 @@ StatusCode ActsExtrapolation::execute_r(const EventContext& ctx) const
     
   Acts::PerigeeSurface surface(Acts::Vector3D(0, 0, 0));
 
-
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>> ecells;
 
   Acts::ActsVectorD<5> pars;
   pars << d0, z0, phi, theta, qop;
   std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
-
 
   if(charge != 0.) {
       // charged extrapolation - with hit recording
@@ -163,7 +150,7 @@ StatusCode ActsExtrapolation::execute_r(const EventContext& ctx) const
   return StatusCode::SUCCESS;
 }
 
-StatusCode ActsExtrapolation::finalize() {
+StatusCode ActsExtrapolationAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 

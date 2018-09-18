@@ -54,9 +54,9 @@ condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
 
 
 from AthenaCommon.AppMgr import ServiceMgr
-from ActsGeometry.ActsGeometryConfig import TrackingGeometrySvc
+from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometrySvc
 
-trkGeomSvc = TrackingGeometrySvc()
+trkGeomSvc = ActsTrackingGeometrySvc()
 
 # skip material map input on CI job
 matMapFile = "MaterialMaps.pb"
@@ -96,9 +96,9 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()
 athenaCommonFlags.EvtMax = 1
 
-from ActsGeometry.ActsGeometryConf import ActsExtrapolation
+from ActsGeometry.ActsGeometryConf import ActsExtrapolationAlg
 
-alg = ActsExtrapolation()
+alg = ActsExtrapolationAlg()
 alg.OutputLevel = INFO
 # these options will move to the ExtrapolationTool at some point
 alg.SearchMode = 1
@@ -118,15 +118,12 @@ mTrackWriterSvc.OutputLevel = DEBUG
 mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
 ServiceMgr += mTrackWriterSvc
 
-
-exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
+exTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
 exTool.OutputLevel = INFO
-exTool.FieldMode = "Constant"
-exTool.ConstantFieldVector = [0, 0, 0]
+exTool.FieldMode = "ATLAS"
 exTool.MatEngineDoELossCorrection = False
 
-
-trkGeomTool = CfgMgr.Acts__TrackingGeometryTool("TrackingGeometryTool")
+trkGeomTool = CfgMgr.ActsTrackingGeometryTool("ActsTrackingGeometryTool")
 trkGeomTool.OutputLevel = INFO;
 exTool.TrackingGeometryTool = trkGeomTool
 

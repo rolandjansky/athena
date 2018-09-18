@@ -1,6 +1,6 @@
-// @todo: re-check this
-#define ACTS_CORE_IDENTIFIER_PLUGIN "Identifier/Identifier.h"
-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "ActsGeometry/ActsWriteTrackingGeometry.h"
 
 // ATHENA
@@ -8,11 +8,10 @@
 #include "Acts/Utilities/Logger.hpp"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
-
 #include "ActsInterop/Logger.h"
 
 // PACKAGE
-#include "ActsGeometry/ITrackingGeometrySvc.h"
+#include "ActsGeometry/IActsTrackingGeometrySvc.h"
 #include "ActsGeometry/IExCellWriterSvc.h"
 
 // STL
@@ -21,7 +20,7 @@
 ActsWriteTrackingGeometry::ActsWriteTrackingGeometry(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
-      m_trackingGeometrySvc("TrackingGeometrySvc", name)
+      m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
 {
 }
 

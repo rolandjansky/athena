@@ -1,5 +1,9 @@
-#ifndef ActsGeometry_ActsWriteTrackingGeometry_h
-#define ActsGeometry_ActsWriteTrackingGeometry_h
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef ACTSGEOMETRY_ACTSWRITETRACKINGGEOMETRY_H
+#define ACTSGEOMETRY_ACTSWRITETRACKINGGEOMETRY_H
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -18,12 +22,11 @@
 #include <memory>
 #include <vector>
 
-/////////////////////////////////////////////////////////////////////////////
-
 namespace Acts {
   class TrackingGeometry;
-  class ITrackingGeometrySvc;
 }
+
+class IActsTrackingGeometrySvc;
 
 class ActsWriteTrackingGeometry : public AthAlgorithm {
 public:
@@ -33,7 +36,7 @@ public:
   StatusCode finalize() override;
 
 private:
-  ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
+  ServiceHandle<IActsTrackingGeometrySvc> m_trackingGeometrySvc;
 
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
 
@@ -41,4 +44,4 @@ private:
 
 };
 
-#endif // ActsGeometry_ActsWriteTrackingGeometry_h
+#endif

@@ -4,6 +4,7 @@
 
 #pragma once
 
+// ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -11,24 +12,21 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 
-#include "ActsGeometry/ShiftCondObj.h"
+// PACKAGE
 #include "ActsGeometry/IExCellWriterSvc.h"
 #include "ActsGeometry/IExtrapolationTool.h"
 
-
+// STL
 #include <string>
 
 namespace Acts {
   class TrackingGeometry;
-  class ITrackingGeometrySvc;
-  
-  //class IMaterialTrackWriterSvc;
   
   template<typename>
   class ExtrapolationCell;
 
 }
-
+  
 class ParticleGun;
 
 class ActsAlignedExtrapAlg  :  public AthAlgorithm {
@@ -49,15 +47,10 @@ private:
   
   SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 
-  ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
   ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc;
   
-  std::unique_ptr<ParticleGun> m_particleGun;
-
-  std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
-
-  ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "Acts__ExtrapolationTool"};
+  ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
 
 };
 

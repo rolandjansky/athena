@@ -5,5 +5,5 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import GlobalFlags
 from AthenaCommon import CfgMgr
 
-def TrackingGeometrySvc(name="TrackingGeometrySvc", **kwargs):
-     return CfgMgr.Acts__TrackingGeometrySvc(name, **kwargs)
+def ActsTrackingGeometrySvc(name="ActsTrackingGeometrySvc", **kwargs):
+     return CfgMgr.ActsTrackingGeometrySvc(name, **kwargs)

@@ -1,18 +1,9 @@
-// This file is part of the ACTS project.
-//
-// Copyright (C) 2016 ACTS project team
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
-
-#ifndef ACTS_GEOMODELPLUGIN_GEOMODELDETECTORELEMENT_H
-#define ACTS_GEOMODELPLUGIN_GEOMODELDETECTORELEMENT_H
-
-#include <iostream>
-
-#include <boost/variant.hpp>
+#ifndef ACTSGEOMETRY_GEOMODELDETECTORELEMENT_H
+#define ACTSGEOMETRY_GEOMODELDETECTORELEMENT_H
 
 // ATHENA INCLUDES
 #include "InDetIdentifier/PixelID.h"
@@ -24,7 +15,6 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 
-#define ACTS_CORE_IDENTIFIER_PLUGIN "Identifier/Identifier.h"
 // ACTS
 #include "Acts/Detector/DetectorElementBase.hpp"
 #include "Acts/Surfaces/PlaneSurface.hpp"
@@ -34,17 +24,19 @@
 #include "GaudiKernel/ContextSpecificPtr.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 
+// STL
 #include <mutex>
+#include <iostream>
+
+// BOOST
+#include <boost/variant.hpp>
 
 
+class ActsTrackingGeometrySvc;
 
 namespace Acts {
 
 class IdentityHelper;
-
-class DigitizationModule;
-
-class TrackingGeometrySvc;
 
 /// @class GeoModelDetectorElement
 ///
@@ -55,50 +47,33 @@ public:
   enum class Subdetector { Pixel, SCT, TRT };
 
   GeoModelDetectorElement(const InDetDD::SiDetectorElement* detElem,
-                          const TrackingGeometrySvc* trkSvc);
+                          const ActsTrackingGeometrySvc* trkSvc);
 
   /// Constructor for a straw surface.
   /// @param transform Transform to the straw system
   GeoModelDetectorElement(std::shared_ptr<const Transform3D> trf, 
                           const InDetDD::TRT_BaseElement* detElem,
                           const Identifier& id, // we need explicit ID here b/c of straws
-                          const TrackingGeometrySvc* trkSvc);
+                          const ActsTrackingGeometrySvc* trkSvc);
 
   ///  Destructor
   virtual ~GeoModelDetectorElement() {}
 
   /// Identifier
-  virtual Identifier
-  identify() const final override;
+  Identifier
+  identify() const;
 
   /// Return local to global transform associated with this identifier
   virtual const Transform3D&
-  transform(const Identifier& identifier = Identifier()) const final override;
+  transform() const final override;
   
   void
   storeTransform(GeoAlignmentStore* gas) const;
 
 
-  /// Set the identifier after construction (sometimes needed)
-  virtual void
-  assignIdentifier(const Identifier& identifier) final override;
-
   /// Return surface associated with this identifier, which should come from the
   virtual const Surface&
-  surface(const Identifier& identifier = Identifier()) const final override;
-
-  /// Returns the full list of all detection surfaces associated
-  /// to this detector element
-  virtual const std::vector<std::shared_ptr<const Surface>>&
-  surfaces() const final override;
-
-  /// Return the DigitizationModule
-  /// @return optionally the DigitizationModule
-  virtual std::shared_ptr<const DigitizationModule>
-  digitizationModule() const override
-  {
-    return DetectorElementBase::digitizationModule();
-  }
+  surface() const final override;
 
   /// Returns the thickness of the module
   virtual double
@@ -149,7 +124,7 @@ private:
   mutable std::mutex m_cacheMutex;
   mutable std::shared_ptr<const Transform3D> m_defTransform;
 
-  const TrackingGeometrySvc* m_trackingGeometrySvc;
+  const ActsTrackingGeometrySvc* m_trackingGeometrySvc;
   
   Identifier m_explicitIdentifier;
 
@@ -158,13 +133,6 @@ private:
 
 
 };
-
-// this is entirely useless
-inline const std::vector<std::shared_ptr<const Surface>>&
-GeoModelDetectorElement::surfaces() const
-{
-  return (m_surfaces);
-}
 
 }
 
