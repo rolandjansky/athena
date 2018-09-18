@@ -8,6 +8,7 @@
 #include "TrigKernel/HltExceptions.h"
 #include "TrigSORFromPtreeHelper.h"
 #include "TrigSteeringEvent/HLTResult.h"
+#include "TrigSteeringEvent/HLTResultMT.h"
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
@@ -747,8 +748,8 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       //------------------------------------------------------------------------
       // Record an empty HLT Result
       //------------------------------------------------------------------------
-      auto hltResult = new HLT::HLTResult;
-      hltResult->getExtraData().appName = m_applicationName.value();
+      auto hltResult = new HLT::HLTResultMT;
+      // hltResult->getExtraData().appName = m_applicationName.value();
       m_evtStore->record(hltResult, m_HltResultName, /*allowMods=*/ true);
 
       //------------------------------------------------------------------------
@@ -1270,7 +1271,7 @@ int HltEventLoopMgr::drainScheduler()
     }
     IOpaqueAddress* addr = nullptr;
     // is this the best way? also maybe should be retrieved in initialize and stored?
-    auto hltResultCLID = ClassID_traits<HLT::HLTResult>::ID();
+    auto hltResultCLID = ClassID_traits<HLT::HLTResultMT>::ID();
     DataObject* hltResultDO = m_evtStore->accessData(hltResultCLID,m_HltResultName);
     if (!hltResultDO) {
       ATH_MSG_ERROR("Failed to retrieve the HLTResult DataObject");
