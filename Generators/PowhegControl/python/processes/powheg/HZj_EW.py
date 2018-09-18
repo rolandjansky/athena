@@ -106,12 +106,12 @@ class HZj_EW(PowhegRES):
         self.add_keyword("minlo", 1)
         self.add_keyword("mint_density_map")
         self.add_keyword("mintupbratlim", 1000)
-        self.add_keyword("ncall1", 25000)
+        self.add_keyword("ncall1", 40000)
         self.add_keyword("ncall1btl")
         self.add_keyword("ncall1btlbrn")
         self.add_keyword("ncall1reg")
         self.add_keyword("ncall1rm")
-        self.add_keyword("ncall2", 200000)
+        self.add_keyword("ncall2", 500000)
         self.add_keyword("ncall2btl")
         self.add_keyword("ncall2btlbrn")
         self.add_keyword("ncall2reg")
@@ -121,7 +121,7 @@ class HZj_EW(PowhegRES):
         self.add_keyword("nohad")
         self.add_keyword("nores")
         self.add_keyword("novirtual")
-        self.add_keyword("nubound", 40000)
+        self.add_keyword("nubound", 200000)
         self.add_keyword("olpreset")
         self.add_keyword("olverbose")
         self.add_keyword("onshellhiggs")
@@ -190,3 +190,86 @@ class HZj_EW(PowhegRES):
                                "ve ve~": 4, "vm vm~": 5, "vt vt~": 6,
                                "j j": 0, "l l~": 11, "v v~": 12, "all": 10}
         self.parameters_by_keyword("vdecaymode")[0].value = __decay_mode_lookup[self.decay_mode.split("> ")[1]]
+
+
+#        self.add_keyword("icsimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 25000)
+#        self.add_keyword("ncall2", 200000)
+#        self.add_keyword("nubound", 40000)
+#  Cross-section test : 0.16% PASSED
+#  Neg. weight test   : 1.02% FAILED
+#  Upper bound test   : 3.14% FAILED
+#    > cross-section  : 3.14%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 10.61 hours [0.144Hz]
+#  ... time taken for integration:   10.07 hours
+#  ... est. generation of 5k events: 0.49 hours
+
+#        self.add_keyword("icsimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 30000)
+#        self.add_keyword("ncall2", 250000)
+#        self.add_keyword("nubound", 80000)
+#  Cross-section test : 0.15% PASSED
+#  Neg. weight test   : 1.06% FAILED
+#  Upper bound test   : 3.51% FAILED
+#    > cross-section  : 3.51%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 15.62 hours [0.098Hz]
+#  ... time taken for integration:   15.30 hours
+#  ... est. generation of 5k events: 0.29 hours
+
+#        self.add_keyword("icsimax", 2)
+#        self.add_keyword("iymax", 2)
+#        self.add_keyword("ncall1", 35000)
+#        self.add_keyword("ncall2", 250000)
+#        self.add_keyword("nubound", 80000)
+#  Cross-section test : 0.15% PASSED
+#  Neg. weight test   : 0.97% PASSED
+#  Upper bound test   : 3.71% FAILED
+#    > cross-section  : 3.71%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 14.01 hours [0.109Hz]
+#  ... time taken for integration:   13.73 hours
+#  ... est. generation of 5k events: 0.25 hours
+
+#        self.add_keyword("icsimax", 2)
+#        self.add_keyword("iymax", 2)
+#        self.add_keyword("ncall1", 35000)
+#        self.add_keyword("ncall2", 400000)
+#        self.add_keyword("nubound", 150000)
+#  Cross-section test : 0.11% PASSED
+#  Neg. weight test   : 0.99% PASSED
+#  Upper bound test   : 3.02% FAILED
+#    > cross-section  : 3.02%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 25.09 hours [0.061Hz]
+#  ... time taken for integration:   24.74 hours
+#  ... est. generation of 5k events: 0.31 hours
+
+#        self.add_keyword("icsimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 35000)
+#        self.add_keyword("ncall2", 420000)
+#        self.add_keyword("nubound", 150000)
+#  Cross-section test : 0.11% PASSED
+#  Neg. weight test   : 0.99% PASSED
+#  Upper bound test   : 2.87% FAILED
+#    > cross-section  : 2.87%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 26.72 hours [0.057Hz]
+#  ... time taken for integration:   26.43 hours
+#  ... est. generation of 5k events: 0.26 hours
+
+#        self.add_keyword("icsimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 40000)
+#        self.add_keyword("ncall2", 500000)
+#        self.add_keyword("nubound", 200000)
+

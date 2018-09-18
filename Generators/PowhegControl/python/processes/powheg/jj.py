@@ -87,7 +87,7 @@ class jj(PowhegV2):
         self.add_keyword("ncallfrominput")
         self.add_keyword("noevents")
         self.add_keyword("novirtual")
-        self.add_keyword("nubound", 500000)
+        self.add_keyword("nubound", 600000)
         self.add_keyword("olddij")
         self.add_keyword("par_2gsupp", 4)
         self.add_keyword("par_diexp", 4)

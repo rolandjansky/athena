@@ -178,6 +178,11 @@ class Z_EW(PowhegV2):
             logger.error("This would require any later PHOTOS generation to run in vetoed mode.")
             logger.error("Please change 'PHOTOS_enabled' and/or 'no_ew' in your jobOptions.")
             raise ValueError("Incompatible options. Please change 'PHOTOS_enabled' and/or 'no_ew' in your jobOptions.")
+        # Check that PHOTOS executable exists
+        if not os.path.isfile(self.externals["PHOTOS"].executable):
+            logger.error("Attempting to configure native PHOTOS but executable not found at {0}".format(self.externals["PHOTOS"].executable))
+            logger.error("Please consider changing 'PHOTOS_enabled' in your jobOptions")
+            raise IOError("Could not find PHOTOS executable: {0}".format(self.externals["PHOTOS"].executable))
         self.expose()  # convenience call to simplify syntax
         self.check_decay_mode(self.decay_mode, self.allowed_decay_modes)
         # Calculate appropriate decay mode numbers

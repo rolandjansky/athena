@@ -53,9 +53,9 @@ class bbH(PowhegV2):
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedgrid")
         self.add_keyword("flg_debug")
-        self.add_keyword("foldcsi", 2)
-        self.add_keyword("foldphi", 2)
-        self.add_keyword("foldy", 2)
+        self.add_keyword("foldcsi", 1)
+        self.add_keyword("foldphi", 1)
+        self.add_keyword("foldy", 1)
         self.add_keyword("fullrwgt")
         self.add_keyword("fullrwgtmode")
         self.add_keyword("hdamp")
@@ -68,7 +68,7 @@ class bbH(PowhegV2):
         self.add_keyword("ih2")
         self.add_keyword("itmx1", 8)
         self.add_keyword("itmx1rm")
-        self.add_keyword("itmx2", 4)
+        self.add_keyword("itmx2", 8)
         self.add_keyword("itmx2rm")
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
@@ -88,14 +88,14 @@ class bbH(PowhegV2):
         self.add_keyword("mintupbratlim")
         self.add_keyword("mintupbxless")
         self.add_keyword("msbar")
-        self.add_keyword("ncall1", 2000000)
+        self.add_keyword("ncall1", 3000000)
         self.add_keyword("ncall1rm")
-        self.add_keyword("ncall2", 400000)
+        self.add_keyword("ncall2", 3000000)
         self.add_keyword("ncall2rm")
         self.add_keyword("ncallfrominput")
         self.add_keyword("noevents")
         self.add_keyword("novirtual")
-        self.add_keyword("nubound", 10000)
+        self.add_keyword("nubound", 50000)
         self.add_keyword("olddij")
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
@@ -131,3 +131,282 @@ class bbH(PowhegV2):
         self.add_keyword("withsubtr")
         self.add_keyword("xgriditeration")
         self.add_keyword("xupbound", 2)
+
+# grep -A10 "suspicious" processes/bbH/default/log.generate
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: check_stat_consistency:
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: The program has detected inconsistent results
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: among different runs. The runs:
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: 6
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: look suspicious.
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Inspect your runs at stage 2
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: The fraction of inconsistent file is < 10%
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: We discard the following files:
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: 6
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: and reload the others
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0001.dat
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0002.dat
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0003.dat
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0004.dat
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0005.dat
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0007.dat
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0008.dat
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0009.dat
+# 01:57:12 Py:PowhegControl     INFO     | Process #9: Opened pwggrid-0010.dat
+
+
+#   self.add_keyword("foldcsi", 2)
+#   self.add_keyword("foldphi", 2)
+#   self.add_keyword("foldy", 2)
+#   self.add_keyword("itmx1", 8)
+#   self.add_keyword("itmx2", 4)
+#   self.add_keyword("ncall1", 2000000)
+#   self.add_keyword("ncall2", 400000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+#   Cross-section test : 75.33% FAILED
+#   Neg. weight test   : 89.74% FAILED
+#   Upper bound test   : 62.36% FAILED
+#     > cross-section  : 62.36%
+#     > radiation      : 0.00%
+#   Output EVNT files  : 0     FAILED
+#   Multi-core generation of 550 events took 9.76 hours [0.016Hz]
+#   ... time taken for integration:   9.36 hours
+#   ... est. generation of 5k events: 3.59 hours
+
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 2)
+#   self.add_keyword("itmx2", 1)
+#   self.add_keyword("ncall1", 500000)
+#   self.add_keyword("ncall2", 50000)
+#   self.add_keyword("nubound", 10000)
+#   self.add_keyword("xupbound", 2)
+#   Cross-section test : 70.89% FAILED
+#   Neg. weight test   : 0.31% PASSED
+#   Upper bound test   : 15.64% FAILED
+#     > cross-section  : 15.64%
+#     > radiation      : 0.00%
+#   Output EVNT files  : 0     FAILED
+#   Multi-core generation of 550 events took 0.89 hours [0.171Hz]
+#   ... time taken for integration:   0.89 hours
+#   ... est. generation of 5k events: 0.04 hours
+
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 4)
+#   self.add_keyword("itmx2", 1)
+#   self.add_keyword("ncall1", 2000000)
+#   self.add_keyword("ncall2", 200000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+#   Cross-section test : 12.39% FAILED
+#   Neg. weight test   : 21.75% FAILED
+#   Upper bound test   : 19.45% FAILED
+#     > cross-section  : 19.45%
+#     > radiation      : 0.00%
+#   Output EVNT files  : 0     FAILED
+#   Multi-core generation of 550 events took 4.59 hours [0.033Hz]
+#   ... time taken for integration:   4.58 hours
+#   ... est. generation of 5k events: 0.05 hours
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 6)
+#   self.add_keyword("itmx2", 2)
+#   self.add_keyword("ncall1", 3000000)
+#   self.add_keyword("ncall2", 2000000)
+#   self.add_keyword("nubound", 500000)
+#   self.add_keyword("xupbound", 2)
+#   Cross-section test : 43.45% FAILED
+#   Neg. weight test   : 56.32% FAILED
+#   Upper bound test   : 60.73% FAILED
+#     > cross-section  : 60.73%
+#     > radiation      : 0.00%
+#   Output EVNT files  : 0     FAILED
+#   Multi-core generation of 550 events took 7.86 hours [0.019Hz]
+#   ... time taken for integration:   7.76 hours
+#   ... est. generation of 5k events: 0.95 hours
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 6)
+#   self.add_keyword("itmx2", 2)
+#   self.add_keyword("ncall1", 4000000)
+#   self.add_keyword("ncall2", 3000000)
+#   self.add_keyword("nubound", 1000000)
+#   self.add_keyword("xupbound", 2)
+# 2 files failed
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 6)
+#   self.add_keyword("itmx2", 4)
+#   self.add_keyword("ncall1", 4000000)
+#   self.add_keyword("ncall2", 3000000)
+#   self.add_keyword("nubound", 1000000)
+#   self.add_keyword("xupbound", 2)
+# 2 files failed
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 6)
+#   self.add_keyword("itmx2", 6)
+#   self.add_keyword("ncall1", 5000000)
+#   self.add_keyword("ncall2", 5000000)
+#   self.add_keyword("nubound", 1000000)
+#   self.add_keyword("xupbound", 2)
+# 4 files failed
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 8)
+#   self.add_keyword("itmx2", 8)
+#   self.add_keyword("ncall1", 2000000)
+#   self.add_keyword("ncall2", 200000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+# 2 files failed
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 8)
+#   self.add_keyword("itmx2", 8)
+#   self.add_keyword("ncall1", 500000)
+#   self.add_keyword("ncall2", 2000000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+#  Cross-section test : 59.92% FAILED
+#  Neg. weight test   : 53.04% FAILED
+#  Upper bound test   : 67.60% FAILED
+#    > cross-section  : 67.60%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 9.97 hours [0.153Hz]
+#  ... time taken for integration:   9.47 hours
+#  ... est. generation of 5k events: 0.45 hours
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 10)
+#   self.add_keyword("itmx2", 10)
+#   self.add_keyword("ncall1", 500000)
+#   self.add_keyword("ncall2", 2000000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+#  Cross-section test : 49.32% FAILED
+#  Neg. weight test   : 82.42% FAILED
+#  Upper bound test   : 53.85% FAILED
+#    > cross-section  : 53.85%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 12.85 hours [0.119Hz]
+#  ... time taken for integration:   11.09 hours
+#  ... est. generation of 5k events: 1.60 hours
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 10)
+#   self.add_keyword("itmx2", 10)
+#   self.add_keyword("ncall1", 2000000)
+#   self.add_keyword("ncall2", 2000000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+# timed out
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 10)
+#   self.add_keyword("itmx2", 10)
+#   self.add_keyword("ncall1", 1000000)
+#   self.add_keyword("ncall2", 2000000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+#  Cross-section test : 44.07% FAILED
+#  Neg. weight test   : 19.87% FAILED
+#  Upper bound test   : 57.85% FAILED
+#    > cross-section  : 57.85%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 20.33 hours [0.075Hz]
+#  ... time taken for integration:   16.25 hours
+#  ... est. generation of 5k events: 3.70 hours
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 10)
+#   self.add_keyword("itmx2", 10)
+#   self.add_keyword("ncall1", 1500000)
+#   self.add_keyword("ncall2", 1500000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+#  Cross-section test : 58.72% FAILED
+#  Neg. weight test   : 21.39% FAILED
+#  Upper bound test   : 54.45% FAILED
+#    > cross-section  : 54.45%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 25.26 hours [0.060Hz]
+#  ... time taken for integration:   15.61 hours
+#  ... est. generation of 5k events: 8.77 hours
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 10)
+#   self.add_keyword("itmx2", 10)
+#   self.add_keyword("ncall1", 1700000)
+#   self.add_keyword("ncall2", 1700000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+#  Cross-section test : 78.82% FAILED
+#  Neg. weight test   : 7.72% FAILED
+#  Upper bound test   : 70.93% FAILED
+#    > cross-section  : 70.93%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 12.77 hours [0.120Hz]
+#  ... time taken for integration:   11.97 hours
+#  ... est. generation of 5k events: 0.73 hours
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 8)
+#   self.add_keyword("itmx2", 8)
+#   self.add_keyword("ncall1", 2000000)
+#   self.add_keyword("ncall2", 2000000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)
+#  Cross-section test : 47.67% FAILED
+#  Neg. weight test   : 75.76% FAILED
+#  Upper bound test   : 60.25% FAILED
+#    > cross-section  : 60.25%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 14.34 hours [0.107Hz]
+#  ... time taken for integration:   12.72 hours
+#  ... est. generation of 5k events: 1.47 hours
+
+#   self.add_keyword("foldcsi", 1)
+#   self.add_keyword("foldphi", 1)
+#   self.add_keyword("foldy", 1)
+#   self.add_keyword("itmx1", 8)
+#   self.add_keyword("itmx2", 8)
+#   self.add_keyword("ncall1", 3000000)
+#   self.add_keyword("ncall2", 3000000)
+#   self.add_keyword("nubound", 50000)
+#   self.add_keyword("xupbound", 2)

@@ -160,10 +160,10 @@ class t_tch_4FS(PowhegV2):
             self.externals["MadSpin"].parameters_by_keyword("powheg_top_decays_enabled")[0].value = False
         # Calculate appropriate decay mode numbers
         self.parameters_by_keyword("ttype")[0].value = [+1, -1][self.decay_mode.startswith("t~")]
-
-        # Set MadSpin default process appropriately if it has not been set by the user
-        if self.externals["MadSpin"].parameters_by_keyword("MadSpin_process")[0].value is None:
+        # Set MadSpin default process appropriately if it has not been set by the user (this tests for both None and "")
+        if not self.externals["MadSpin"].parameters_by_keyword("MadSpin_process")[0].value:
             if self.decay_mode.startswith("t~"):
                 self.externals["MadSpin"].parameters_by_keyword("MadSpin_process")[0].value = "generate p p > t~ b j $$ w+ w- [QCD]"
             else:
                 self.externals["MadSpin"].parameters_by_keyword("MadSpin_process")[0].value = "generate p p > t b~ j $$ w+ w- [QCD]"
+

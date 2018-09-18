@@ -66,16 +66,16 @@ class ggF_HH(PowhegV2):
         self.add_keyword("hdecaymode")
         self.add_keyword("hfact")
         self.add_keyword("hmass")
-        self.add_keyword("icsimax", 3)
+        self.add_keyword("icsimax", 2)
         self.add_keyword("ih1")
         self.add_keyword("ih2")
-        self.add_keyword("itmx1", 5)
+        self.add_keyword("itmx1", 2)
         self.add_keyword("itmx1rm")
-        self.add_keyword("itmx2", 5)
+        self.add_keyword("itmx2", 4)
         self.add_keyword("itmx2rm")
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
-        self.add_keyword("iymax", 3)
+        self.add_keyword("iymax", 2)
         self.add_keyword("lhans1")
         self.add_keyword("lhans2")
         self.add_keyword("lhapdf6maxsets")
@@ -93,7 +93,7 @@ class ggF_HH(PowhegV2):
         self.add_keyword("mtdep", 3)
         self.add_keyword("ncall1", 10000)
         self.add_keyword("ncall1rm")
-        self.add_keyword("ncall2", 10000)
+        self.add_keyword("ncall2", 15000)
         self.add_keyword("ncall2rm")
         self.add_keyword("ncallfrominput")
         self.add_keyword("noevents")
@@ -141,3 +141,89 @@ class ggF_HH(PowhegV2):
         self.add_keyword("zerowidth")
         self.add_keyword("Zmass")
         self.add_keyword("Zwidth")
+
+#         self.add_keyword("foldcsi", 2)
+#         self.add_keyword("foldphi", 2)
+#         self.add_keyword("foldy", 5)
+#         self.add_keyword("icsimax", 3)
+#         self.add_keyword("itmx1", 5)
+#         self.add_keyword("itmx2", 5)
+#         self.add_keyword("iymax", 3)
+#         self.add_keyword("mtdep", 3)
+#         self.add_keyword("ncall1", 10000)
+#         self.add_keyword("ncall2", 10000)
+#         self.add_keyword("nubound", 20000)
+#   Cross-section test : 0.19% PASSED
+#   Neg. weight test   : 0.43% PASSED
+#   Upper bound test   : 2.01% FAILED
+#     > cross-section  : 2.01%
+#     > radiation      : 0.00%
+#   Output EVNT files  : 0     FAILED
+#   Multi-core generation of 550 events took 5.94 hours [0.026Hz]
+#   ... time taken for integration:   5.83 hours
+#   ... est. generation of 5k events: 1.08 hours
+
+#         self.add_keyword("foldcsi", 2)
+#         self.add_keyword("foldphi", 2)
+#         self.add_keyword("foldy", 5)
+#         self.add_keyword("icsimax", 3)
+#         self.add_keyword("itmx1", 3)
+#         self.add_keyword("itmx2", 6)
+#         self.add_keyword("iymax", 3)
+#         self.add_keyword("mtdep", 3)
+#         self.add_keyword("ncall1", 10000)
+#         self.add_keyword("ncall2", 15000)
+#         self.add_keyword("nubound", 20000)
+#   Cross-section test : 0.20% PASSED
+#   Neg. weight test   : 0.61% PASSED
+#   Upper bound test   : 0.18% PASSED
+#     > cross-section  : 0.18%
+#     > radiation      : 0.00%
+#   Output EVNT files  : 0     FAILED
+#   Multi-core generation of 550 events took 9.87 hours [0.015Hz]
+#   ... time taken for integration:   9.70 hours
+#   ... est. generation of 5k events: 1.51 hours
+
+#         self.add_keyword("foldcsi", 2)
+#         self.add_keyword("foldphi", 2)
+#         self.add_keyword("foldy", 5)
+#         self.add_keyword("icsimax", 2)
+#         self.add_keyword("itmx1", 2)
+#         self.add_keyword("itmx2", 4)
+#         self.add_keyword("iymax", 2)
+#         self.add_keyword("mtdep", 3)
+#         self.add_keyword("ncall1", 10000)
+#         self.add_keyword("ncall2", 15000)
+#         self.add_keyword("nubound", 20000)
+#  Cross-section test : 0.12% PASSED
+#  Neg. weight test   : 0.91% PASSED
+#  Upper bound test   : 0.91% PASSED
+#    > cross-section  : 0.91%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 550 events took 7.51 hours [0.020Hz]
+#  ... time taken for integration:   7.36 hours
+#  ... est. generation of 5k events: 1.38 hours
+
+#         self.add_keyword("foldcsi", 2)
+#         self.add_keyword("foldphi", 2)
+#         self.add_keyword("foldy", 5)
+#         self.add_keyword("icsimax", 2)
+#         self.add_keyword("itmx1", 1)
+#         self.add_keyword("itmx2", 4)
+#         self.add_keyword("iymax", 2)
+#         self.add_keyword("mtdep", 3)
+#         self.add_keyword("ncall1", 10000)
+#         self.add_keyword("ncall2", 15000)
+#         self.add_keyword("nubound", 20000)
+#  Cross-section test : 0.23% PASSED
+#  Neg. weight test   : 1.44% FAILED
+#  Upper bound test   : 0.91% PASSED
+#    > cross-section  : 0.91%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 550 events took 6.39 hours [0.024Hz]
+#  ... time taken for integration:   6.24 hours
+#  ... est. generation of 5k events: 1.32 hours
+
+

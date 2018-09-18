@@ -62,23 +62,23 @@ class Wbbj(PowhegV2):
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedgrid")
         self.add_keyword("flg_debug")
-        self.add_keyword("foldcsi")
-        self.add_keyword("foldphi")
+        self.add_keyword("foldcsi", 2)
+        self.add_keyword("foldphi", 2)
         self.add_keyword("foldy")
         self.add_keyword("fullrwgt")
         self.add_keyword("hdamp", 175)
         self.add_keyword("hfact")
-        self.add_keyword("icsimax")
+        self.add_keyword("icsimax", 3)
         self.add_keyword("idvecbos", hidden=True)
         self.add_keyword("ih1")
         self.add_keyword("ih2")
         self.add_keyword("itmx1", 3)
         self.add_keyword("itmx1rm")
-        self.add_keyword("itmx2", 10)#, 7)
+        self.add_keyword("itmx2", 10)
         self.add_keyword("itmx2rm")
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
-        self.add_keyword("iymax")
+        self.add_keyword("iymax", 3)
         self.add_keyword("lhans1", self.default_PDFs)
         self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhapdf6maxsets")
@@ -98,13 +98,13 @@ class Wbbj(PowhegV2):
         self.add_keyword("mintupbratlim")
         self.add_keyword("mintupbxless")
         self.add_keyword("MSbarscheme")
-        self.add_keyword("ncall1", 60000)#, 70000)
+        self.add_keyword("ncall1", 150000)
         self.add_keyword("ncall1rm")
-        self.add_keyword("ncall2", 500000)#, 400000)
+        self.add_keyword("ncall2", 650000)
         self.add_keyword("ncall2rm")
         self.add_keyword("noevents")
         self.add_keyword("novirtual")
-        self.add_keyword("nubound", 300000)#, 200000)
+        self.add_keyword("nubound", 450000)
         self.add_keyword("olddij")
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
@@ -144,7 +144,7 @@ class Wbbj(PowhegV2):
         self.add_keyword("withnegweights")
         self.add_keyword("withsubtr")
         self.add_keyword("xgriditeration")
-        self.add_keyword("xupbound", 6)#4
+        self.add_keyword("xupbound", 6)
 
     def validate_decays(self):
         """! Validate idvecbos and vdecaymode keywords."""
@@ -154,3 +154,121 @@ class Wbbj(PowhegV2):
         self.parameters_by_keyword("idvecbos")[0].value = 24 * [-1, +1][self.decay_mode.startswith("w+")]
         __decay_mode_lookup = {"e- ve~": 1, "mu- vm~": 2, "tau- vt~": 3, "e+ ve": 1, "mu+ vm": 2, "tau+ vt": 3}
         self.parameters_by_keyword("vdecaymode")[0].value = __decay_mode_lookup[self.decay_mode.split("> ")[1]]
+
+#        self.add_keyword("icimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 60000)
+#        self.add_keyword("ncall2", 500000)
+#        self.add_keyword("nubound", 300000)
+#  Cross-section test : 0.48% PASSED
+#  Neg. weight test   : 18.46% FAILED
+#  Upper bound test   : 1.11% FAILED
+#    > cross-section  : 1.11%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 9.15 hours [0.167Hz]
+#  ... time taken for integration:   8.79 hours
+#  ... est. generation of 5k events: 0.32 hours
+
+#        self.add_keyword("icimax", 1)
+#        self.add_keyword("iymax", 1)
+#        self.add_keyword("ncall1", 100000)
+#        self.add_keyword("ncall2", 550000)
+#        self.add_keyword("nubound", 350000)
+#  Cross-section test : 0.36% PASSED
+#  Neg. weight test   : 18.39% FAILED
+#  Upper bound test   : 1.16% FAILED
+#    > cross-section  : 1.16%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 7.77 hours [0.197Hz]
+#  ... time taken for integration:   7.41 hours
+#  ... est. generation of 5k events: 0.33 hours
+
+
+#        self.add_keyword("icimax", 2)
+#        self.add_keyword("iymax", 2)
+#        self.add_keyword("ncall1", 100000)
+#        self.add_keyword("ncall2", 550000)
+#        self.add_keyword("nubound", 350000)
+#  Cross-section test : 0.36% PASSED
+#  Neg. weight test   : 18.39% FAILED
+#  Upper bound test   : 1.09% FAILED
+#    > cross-section  : 1.09%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 8.78 hours [0.174Hz]
+#  ... time taken for integration:   8.35 hours
+#  ... est. generation of 5k events: 0.39 hours
+
+#        self.add_keyword("icimax", 3)
+#        self.add_keyword("iymax", 3)
+#        self.add_keyword("ncall1", 110000)
+#        self.add_keyword("ncall2", 560000)
+#        self.add_keyword("nubound", 360000)
+#  Cross-section test : 0.75% PASSED
+#  Neg. weight test   : 18.76% FAILED
+#  Upper bound test   : 1.05% FAILED
+#    > cross-section  : 1.05%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 7.87 hours [0.194Hz]
+#  ... time taken for integration:   6.97 hours
+#  ... est. generation of 5k events: 0.82 hours
+
+#        self.add_keyword("icimax", 3)
+#        self.add_keyword("iymax", 3)
+#        self.add_keyword("ncall1", 110000)
+#        self.add_keyword("ncall2", 600000)
+#        self.add_keyword("nubound", 400000)
+#  Cross-section test : 0.70% PASSED
+#  Neg. weight test   : 18.76% FAILED
+#  Upper bound test   : 1.04% FAILED
+#    > cross-section  : 1.04%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 6.78 hours [0.225Hz]
+#  ... time taken for integration:   6.43 hours
+#  ... est. generation of 5k events: 0.32 hours
+
+#        self.add_keyword("icimax", 3)
+#        self.add_keyword("iymax", 3)
+#        self.add_keyword("ncall1", 150000)
+#        self.add_keyword("ncall2", 650000)
+#        self.add_keyword("nubound", 450000)
+#  Cross-section test : 0.38% PASSED
+#  Neg. weight test   : 18.59% FAILED
+#  Upper bound test   : 1.00% PASSED
+#    > cross-section  : 1.00%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 6.37 hours [0.240Hz]
+#  ... time taken for integration:   6.03 hours
+#  ... est. generation of 5k events: 0.30 hours
+
+#        self.add_keyword("foldcsi", 2)
+#        self.add_keyword("foldphi", 1)
+#        self.add_keyword("foldy", 1)
+#        self.add_keyword("icimax", 3)
+#        self.add_keyword("iymax", 3)
+#        self.add_keyword("ncall1", 150000)
+#        self.add_keyword("ncall2", 650000)
+#        self.add_keyword("nubound", 450000)
+#  Cross-section test : 0.96% PASSED
+#  Neg. weight test   : 15.65% FAILED
+#  Upper bound test   : 0.89% PASSED
+#    > cross-section  : 0.89%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 7.08 hours [0.216Hz]
+#  ... time taken for integration:   6.76 hours
+#  ... est. generation of 5k events: 0.29 hours
+
+#        self.add_keyword("foldcsi", 2)
+#        self.add_keyword("foldphi", 2)
+#        self.add_keyword("foldy", 1)
+#        self.add_keyword("icimax", 3)
+#        self.add_keyword("iymax", 3)
+#        self.add_keyword("ncall1", 150000)
+#        self.add_keyword("ncall2", 650000)
+#        self.add_keyword("nubound", 450000)

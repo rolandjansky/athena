@@ -39,14 +39,14 @@ class VBF_Z(PowhegV1):
         self.add_keyword("fakevirt")
         self.add_keyword("flg_debug")
         self.add_keyword("foldcsi")
-        self.add_keyword("foldphi", 2)
+        self.add_keyword("foldphi")
         self.add_keyword("foldy")
         self.add_keyword("hdamp")
         self.add_keyword("hfact")
         self.add_keyword("icsimax")
         self.add_keyword("ih1")
         self.add_keyword("ih2")
-        self.add_keyword("itmx1", 5)
+        self.add_keyword("itmx1", 3)
         self.add_keyword("itmx2", 15)
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
@@ -55,7 +55,7 @@ class VBF_Z(PowhegV1):
         self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("manyseeds")
         self.add_keyword("mll_gencut", 20)
-        self.add_keyword("ncall1", 1200000)
+        self.add_keyword("ncall1", 1000000)
         self.add_keyword("ncall2", 3000000)
         self.add_keyword("nubound", 1500000)
         self.add_keyword("par_2gsupp")
@@ -82,3 +82,32 @@ class VBF_Z(PowhegV1):
         self.add_keyword("withnegweights")
         self.add_keyword("withsubtr")
         self.add_keyword("xupbound", 2)
+        
+#        self.add_keyword("foldcsi", 1)
+#        self.add_keyword("foldphi", 2)
+#        self.add_keyword("foldy", 1)
+#        self.add_keyword("itmx1", 5)
+#        self.add_keyword("itmx2", 15)
+#        self.add_keyword("ncall1", 1200000)
+#        self.add_keyword("ncall2", 3000000)
+#        self.add_keyword("nubound", 1500000)
+#        self.add_keyword("xupbound", 2)
+#  Cross-section test : 0.47% PASSED
+#  Neg. weight test   : 3.80% FAILED
+#  Upper bound test   : 1.25% FAILED
+#    > cross-section  : 1.25%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Multi-core generation of 5500 events took 26.57 hours [0.058Hz]
+#  ... time taken for integration:   26.12 hours
+#  ... est. generation of 5k events: 0.41 hours
+
+#        self.add_keyword("foldcsi", 1)
+#        self.add_keyword("foldphi", 1)
+#        self.add_keyword("foldy", 1)
+#        self.add_keyword("itmx1", 3)
+#        self.add_keyword("itmx2", 15)
+#        self.add_keyword("ncall1", 1000000)
+#        self.add_keyword("ncall2", 3000000)
+#        self.add_keyword("nubound", 1500000)
+#        self.add_keyword("xupbound", 2)

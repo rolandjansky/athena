@@ -84,7 +84,7 @@ class ttj(PowhegV1):
         self.add_keyword("masswindow_high")
         self.add_keyword("masswindow_low")
         self.add_keyword("ncall1", 50000)
-        self.add_keyword("ncall2", 80000)
+        self.add_keyword("ncall2", 100000)
         self.add_keyword("nubound", 10000)
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
@@ -143,3 +143,49 @@ class ttj(PowhegV1):
         self.parameters_by_keyword("topdecaymode")[0].value = __decay_mode_lookup[self.decay_mode]
         if self.decay_mode == "semileptonic":
             self.parameters_by_keyword("semileptonic")[0].value = 1
+
+#        self.add_keyword("ncall1", 50000)
+#        self.add_keyword("ncall2", 80000)
+#        self.add_keyword("nubound", 10000)
+#  Cross-section test : 1.14% FAILED
+#  Neg. weight test   : 35.86% FAILED
+#  Upper bound test   : 2.11% FAILED
+#    > cross-section  : 2.11%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Single-core generation of 5500 events took 22.53 hours [0.068Hz]
+#  ... time taken for integration:   17.57 hours
+#  ... est. generation of 5k events: 4.51 hours
+
+
+#        self.add_keyword("ncall1", 60000)
+#        self.add_keyword("ncall2", 100000)
+#        self.add_keyword("nubound", 10000)
+#  Cross-section test : 0.79% PASSED
+#  Neg. weight test   : 36.13% FAILED
+#  Upper bound test   : 1.85% FAILED
+#    > cross-section  : 1.85%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Single-core generation of 5500 events took 25.62 hours [0.060Hz]
+#  ... time taken for integration:   18.90 hours
+#  ... est. generation of 5k events: 6.11 hours
+# failed
+
+#        self.add_keyword("ncall1", 50000)
+#        self.add_keyword("ncall2", 90000)
+#        self.add_keyword("nubound", 10000)
+#  Cross-section test : 1.02% FAILED
+#  Neg. weight test   : 35.79% FAILED
+#  Upper bound test   : 1.56% FAILED
+#    > cross-section  : 1.56%
+#    > radiation      : 0.00%
+#  Output EVNT files  : 0     FAILED
+#  Single-core generation of 5500 events took 24.20 hours [0.063Hz]
+#  ... time taken for integration:   19.97 hours
+#  ... est. generation of 5k events: 3.84 hours
+
+#        self.add_keyword("ncall1", 50000)
+#        self.add_keyword("ncall2", 100000)
+#        self.add_keyword("nubound", 10000)
+
