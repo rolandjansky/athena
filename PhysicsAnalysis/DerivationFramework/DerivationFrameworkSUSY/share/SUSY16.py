@@ -118,6 +118,42 @@ SUSY16MuonCCThinningTool = DerivationFramework__CaloClusterThinning(
 ToolSvc += SUSY16MuonCCThinningTool
 thinningTools.append(SUSY16MuonCCThinningTool)
 
+# TrackParticle thinning
+from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__NearbyTrackParticleThinning
+
+# TrackParticles nearby electrons
+SUSY16ElectronNearbyTPThinningTool = DerivationFramework__NearbyTrackParticleThinning(
+    name                    = 'SUSY16ElectronNearbyTPThinningTool',
+    ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
+    SGKey                   = 'Electrons',
+    TPSGKey                 = 'InDetTrackParticles',
+    SelectionString         = "Electrons.pt > 3.5*GeV",
+    ConeSize                = 0.4)
+ToolSvc += SUSY16ElectronNearbyTPThinningTool
+thinningTools.append(SUSY16ElectronNearbyTPThinningTool)
+
+# Keep clusters nearby photons
+#SUSY16PhotonNearbyTPThinningTool = DerivationFramework__NearbyTrackParticleThinning(
+#    name                    = 'SUSY16PhotonNearbyTPThinningTool',
+#    ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
+#    SGKey                   = 'Photons',
+#    TPSGKey                 = 'InDetTrackParticles',
+#    ConeSize                = 0.4)
+#ToolSvc += SUSY16PhotonNearbyTPThinningTool
+#thinningTools.append(SUSY16PhotonNearbyTPThinningTool)
+
+
+# TrackParticles nearby Muons
+SUSY16MuonNearbyTPThinningTool = DerivationFramework__NearbyTrackParticleThinning( 
+    name                    = "SUSY16MuonNearbyTPThinningTool",
+    ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
+    SGKey                   = "Muons",
+    TPSGKey                 = 'InDetTrackParticles',
+    SelectionString         = "Muons.pt > 2.5*GeV",
+    ConeSize                = 0.4)
+ToolSvc += SUSY16MuonTPThinningTool
+thinningTools.append(SUSY16MuonTPThinningTool)
+
 
 #====================================================================
 # TRUTH THINNING
