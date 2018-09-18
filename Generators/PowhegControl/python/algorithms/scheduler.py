@@ -27,7 +27,7 @@ class Scheduler(object):
     ordered_event_generators = ["singlecore", "multicore", "merge output", "output validation"]
 
     ## Postprocessing evaluation order
-    ordered_postprocessors = ["quark colour fixer", "reweighter", "NNLO reweighter", "MadSpin", "PHOTOS",
+    ordered_postprocessors = ["quark colour fixer", "PHOTOS", "reweighter", "NNLO reweighter", "MadSpin",
                               "integration grid tester", "cross section calculator", "output file renamer",
                               "output tarball preparer", "integration gridpack creator", "directory cleaner"]
 

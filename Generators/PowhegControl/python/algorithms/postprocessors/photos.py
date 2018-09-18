@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import os
+import shutil
 from AthenaCommon import Logging
 from ...decorators import timed
 from ...utility import ProcessManager, SingleProcessThread
@@ -24,3 +25,14 @@ def PHOTOS(process):
     manager = ProcessManager(processes)
     while manager.monitor():
         pass
+
+    # Get file names
+    process.expose()
+    input_LHE_events = process.PHOTOS_input_LHE
+    photos_output = "pwgevents_photos.lhe"
+
+    # Rename output file
+    if os.path.isfile(input_LHE_events):
+        shutil.move(input_LHE_events, "{}.undecayed_ready_for_photos".format(input_LHE_events))
+    shutil.move(photos_output, input_LHE_events)
+    logger.info("Moved {} to {}".format(photos_output, input_LHE_events))

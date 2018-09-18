@@ -22,6 +22,7 @@ class ExternalPHOTOS(ExternalBase):
 
         # Add parameters used by PHOTOS
         self.add_keyword("PHOTOS_enabled")
+        self.add_keyword("SI_inputfile")
 
     def needs_scheduling(self, process):
         """! Report whether the PHOTOS process should be scheduled.

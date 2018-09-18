@@ -68,6 +68,7 @@ class W_EW(PowhegV2):
         self.add_keyword("compress_upb")
         self.add_keyword("compute_rwgt")
         self.add_keyword("doublefsr")
+        self.add_keyword("emalpharunnning") # this is a typo in PowhegBox -- the parameter exposed to the user is "emalpharunning"
         self.add_keyword("evenmaxrat")
         self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fastbtlbound")
@@ -104,6 +105,7 @@ class W_EW(PowhegV2):
         self.add_keyword("lhrwgt_id")
         self.add_keyword("LOevents")
         self.add_keyword("manyseeds")
+        self.add_keyword("mass_high", 2.0 * self.parameters_by_name("beam_energy")[0].value)
         self.add_keyword("mass_low", 2.5)
         self.add_keyword("masswindow_high", 30, description="mass window above W-mass peak in units of width_W.")
         self.add_keyword("masswindow_low", 30, description="mass window below W-mass peak in units of width_W.")
@@ -118,6 +120,7 @@ class W_EW(PowhegV2):
         self.add_keyword("ncall2rm")
         self.add_keyword("ncallfrominput")
         self.add_keyword("new_damp")
+        self.add_keyword("nnlops")
         self.add_keyword("no_ew")
         self.add_keyword("no_strong")
         self.add_keyword("noevents")
@@ -145,6 +148,9 @@ class W_EW(PowhegV2):
         self.add_keyword("rwl_format_rwgt")
         self.add_keyword("rwl_group_events")
         self.add_keyword("scheme")
+        self.add_keyword("SI_kt2minqed")
+        self.add_keyword("SI_maxshowerevents")
+        self.add_keyword("SI_no_tworadevents")
         self.add_keyword("skipextratests")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
@@ -178,6 +184,11 @@ class W_EW(PowhegV2):
             logger.error("This would require any later PHOTOS generation to run in vetoed mode.")
             logger.error("Please change 'PHOTOS_enabled' and/or 'no_ew' in your jobOptions.")
             raise ValueError("Incompatible options. Please change 'PHOTOS_enabled' and/or 'no_ew' in your jobOptions.")
+        # Check that PHOTOS executable exists
+        if not os.path.isfile(self.externals["PHOTOS"].executable):
+            logger.error("Attempting to configure native PHOTOS but executable not found at {0}".format(self.externals["PHOTOS"].executable))
+            logger.error("Please consider changing 'PHOTOS_enabled' in your jobOptions")
+            raise IOError("Could not find PHOTOS executable: {0}".format(self.externals["PHOTOS"].executable))
         self.expose()  # convenience call to simplify syntax
         self.check_decay_mode(self.decay_mode, self.allowed_decay_modes)
         # Calculate appropriate decay mode numbers
