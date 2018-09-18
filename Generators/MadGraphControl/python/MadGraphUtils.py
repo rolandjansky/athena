@@ -43,7 +43,6 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     if is_gen_from_gridpack(grid_pack):
         return grid_pack
 
-
     if '\n' in card_loc:
         # Actually just sent the process card contents - let's make a card
         mglog.info('Writing process card')
@@ -52,6 +51,7 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
         a_card.close()
         return new_process()
 
+    import os
     madpath=os.environ['MADPATH']
     # Just in case
     setup_path_protection()
@@ -105,6 +105,51 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
 
     if not os.access('%s/SubProcesses/subproc.mg'%thedir,os.R_OK):
         raise RuntimeError('No diagrams for this process in dir='+str(thedir))
+
+    # Special catch related to path setting and using afs
+    import os
+    needed_options = ['ninja','collier','fastjet','lhapdf','syscalc_path']
+    in_config = open(os.environ['MADPATH']+'/input/mg5_configuration.txt','r')
+    option_paths = {}
+    for l in in_config.readlines():
+        for o in needed_options:
+            if o+' =' in l.split('#')[0]:
+                old_path = l.split('#')[0].split('=')[1].strip().split('MCGenerators')[1]
+                old_path = old_path[ old_path.find('/') : ]
+                if o =='lhapdf' and 'LHAPATH' in os.environ:
+                    # Patch for LHAPDF version
+                    version = os.environ['LHAPATH'].split('lhapdf/')[1].split('/')[0]
+                    old_version = old_path.split('lhapdf/')[1].split('/')[0]
+                    old_path = old_path.replace(old_version,version)
+                if o=='ninja':
+                    # Patch for stupid naming problem
+                    old_path.replace('gosam_contrib','gosam-contrib')
+                option_paths[o] = os.environ['MADPATH'].split('madgraph5amc')[0]+old_path
+    in_config.close()
+    for o in needed_options:
+        if not o in option_paths: mglog.warning('Path for option '+o+' not found in original config')
+
+    mglog.info('Modifying config paths to avoid use of afs:')
+    mglog.info(option_paths)
+
+    # Get the original configuration information
+    if not is_NLO_run(proc_dir=thedir):
+        config_card=thedir+'/Cards/me5_configuration.txt'
+    else:
+        config_card=thedir+'/Cards/amcatnlo_configuration.txt'
+    with file(config_card, 'r') as original: data = original.readlines()
+    with file(config_card, 'w') as modified:
+        for l in data:
+            written = False
+            for o in needed_options:
+                if o+' =' in l.split('#')[0]:
+                    modified.write( o +' = '+option_paths[o]+'\n' )
+                    written = True
+                    break
+            if not written:
+                modified.write(l)
+    # Done modifying paths
+
     return thedir
 
 
@@ -141,8 +186,7 @@ def get_default_runcard(proc_dir='PROC_mssm_0'):
             raise RuntimeError('Cannot find default run_card.dat or run_card_default.dat! I was looking here: %s'%run_card_loc)
 
 
-
-def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,cluster_temp_path=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,gridpack_dir=None,nevents=None,random_seed=None,reweight_card_loc=None,bias_module=None):
+def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,cluster_nb_retry=None,cluster_temp_path=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,gridpack_dir=None,nevents=None,random_seed=None,reweight_card_loc=None,bias_module=None):
     try:
         from __main__ import opts
         if opts.config_only:
@@ -153,6 +197,9 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
     # Just in case
     setup_path_protection()
+
+    # check that mode chosen and number of jobs requested are consistent
+    mode_njobs_consistency_check(mode,njobs,cluster_type)
 
     if is_gen_from_gridpack(grid_pack):
         if gridpack_dir and nevents and random_seed:
@@ -223,8 +270,8 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             req_acc=required_accuracy
             for line in oldcard:
                 if ' = nevents ' in line:
-                    newcard.write(' 1 = nevents    ! Number of unweighted events requested \n')
-                    mglog.info('Setting nevents = 1.')
+                    newcard.write(' 1000 = nevents    ! Number of unweighted events requested \n')
+                    mglog.info('Setting nevents = 1000.')
                 elif ' = req_acc ' in line:
                     newcard.write(' %f = req_acc    ! Required accuracy (-1=auto determined from nevents)\n'%(req_acc))
                     mglog.info('Setting req_acc = %f'%(req_acc))
@@ -265,6 +312,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         mglog.info('Running reweighting module. Moving card (%s) into place.'%(reweight_card_loc))
         shutil.copyfile(reweight_card_loc,proc_dir+'/Cards/reweight_card.dat')
 
+
     # Ensure that things are set up normally
     if not os.access(run_card_loc,os.R_OK):
         mglog.error('No run card found at '+run_card_loc)
@@ -297,12 +345,13 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         return 1
 
     allow_links = True
-    if cluster_type is not None and cluster_queue is not None:
+    if cluster_type is not None:
         if 'condor' in cluster_type.lower():
             mglog.warning('Condor clusters do not allow links.  Will do more copying rather than linking')
             allow_links = False
 
     (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=proc_dir, extlhapath=extlhapath, allow_links=allow_links)
+
 
     mglog.info('For your information, the libraries available are (should include LHAPDF):')
     mglog.info( sorted( os.listdir( proc_dir+'/lib/' ) ) )
@@ -310,6 +359,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
     setupFastjet(isNLO, proc_dir=proc_dir)
     if bias_module!=None:
         setup_bias_module(bias_module,run_card_loc,proc_dir,grid_pack)
+
 
     mglog.info('Now I will hack the make files a bit.  Apologies, but there seems to be no good way around this.')
     shutil.copyfile(proc_dir+'/Source/make_opts',proc_dir+'/Source/make_opts_old')
@@ -339,9 +389,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         mglog.info('Lucky you - you are running on a full node queue.  Will re-configure for '+str(njobs)+' jobs.')
         mode = 2
         athenaMP = True
-
-    if njobs>1 and mode==0: mglog.warning('Inconsistent configuration between mode '+str(mode)+' and number of jobs '+str(njobs))
-    if njobs>1 and not isNLO:
+    if mode!=0 and not isNLO:
 
         if not grid_pack and not athenaMP:
             mglog.warning('Running parallel generation.  This should not happen for a grid job, to be a good citizen.')
@@ -349,7 +397,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             mglog.info('Running parallel gridpack generation.  We already told you to not do this in a grid job...')
 
 
-        if cluster_type is not None and cluster_queue is not None:
+        if mode==1:
             mglog.info('Setting up parallel running system settings')
 
             setNCores(process_dir=os.getcwd(), Ncores=njobs)
@@ -359,12 +407,10 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             newcard = open(config_card+'.tmp','w')
 
             for line in oldcard:
-                if 'cluster_type = ' in line:
+                if cluster_type!=None and 'cluster_type = ' in line:
                     newcard.write('cluster_type = %s \n'%(cluster_type))
                     mglog.info('Setting cluster type = %s in %s'%(cluster_type,config_card))
-                elif 'cluster_queue = ' in line:
-                    if not cluster_queue:
-                        cluster_queue='None'
+                elif cluster_queue!=None and 'cluster_queue = ' in line:
                     newcard.write('cluster_queue = %s \n'%(cluster_queue))
                     mglog.info('Setting cluster queue = %s in %s'%(cluster_queue,config_card))
                 else:
@@ -407,6 +453,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         clqueue_set=False
         nbcore_set=False
         tmppath_set=False
+        cluster_nb_retry_set=False
 
         for line in oldcard:
             if 'run_mode =' in line:
@@ -419,16 +466,21 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                     mglog.info('Setting automatic_html_opening = %s'%('False'))
                     newcard.write('automatic_html_opening = %s \n'%('False'))
                     auto_html_set=True
-            elif 'cluster_type = ' in line and mode == 1:
+            elif 'cluster_type = ' in line and mode == 1 and cluster_type:
                 if not cltype_set:
                     mglog.info('Setting cluster type = %s in %s'%(cluster_type,config_card_loc))
                     newcard.write('cluster_type = %s \n'%(cluster_type))
                     cltype_set=True
-            elif 'cluster_queue = ' in line and mode == 1:
+            elif 'cluster_queue = ' in line and mode == 1 and cluster_queue:
                 if not clqueue_set:
                     mglog.info('Setting cluster queue = %s in %s'%(cluster_queue,config_card_loc))
                     newcard.write('cluster_queue = %s \n'%(cluster_queue))
                     clqueue_set=True
+            elif 'cluster_nb_retry = ' in line and mode == 1 and cluster_nb_retry:
+                if not cluster_nb_retry_set:
+                    mglog.info('Setting cluster no. retries = %i in %s'%(cluster_nb_retry,config_card_loc))
+                    newcard.write('cluster_nb_retry = %i \n'%(cluster_nb_retry))
+                    cluster_nb_retry_set=True
             elif 'cluster_temp_path = ' in line and mode == 1 and cluster_temp_path:
                 if not tmppath_set:
                     mglog.info('Setting cluster temp path = %s in %s'%(cluster_temp_path,config_card_loc))
@@ -511,14 +563,15 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
             ### NLO RUN ###
 
-            # In case a MadSpin card was specified setup MadSpin
-            if madspin_card_loc:
-                # modify run card for nevents 250
-                modify_run_card(settings={'nevents': 250})
-                # Generate some events -> trigger MadSpin code generation, compilation and setup (overweight estimation)
-                run = subprocess.Popen(['./bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+str(run_name)], stdin=subprocess.PIPE)
-                run.communicate()
-                # The folders with the generated events and decayed events are removed when running from the gridpack
+            # Should not be needed any more - run with 1000 events during integration step instead...
+            ## In case a MadSpin card was specified setup MadSpin
+            #if madspin_card_loc:
+            #    # modify run card for nevents 250
+            #    modify_run_card(settings={'nevents': 250})
+            #    # Generate some events -> trigger MadSpin code generation, compilation and setup (overweight estimation)
+            #    run = subprocess.Popen(['./bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+str(run_name)], stdin=subprocess.PIPE)
+            #    run.communicate()
+            #    # The folders with the generated events and decayed events are removed when running from the gridpack
 
 
             gridpack_name=(run_name+'_gridpack.tar.gz')
@@ -530,6 +583,9 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             tar = subprocess.Popen(['tar','czf',gridpack_name,gridpack_dir,'--exclude=lib/PDFsets'])
             tar.wait()
             os.rename(gridpack_dir,proc_dir)
+
+
+
 
         raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
 
@@ -590,7 +646,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
 
     if reweight_card is not None:
         if os.path.exists(reweight_card):
-            shutil.copy( reweight_card , gridpack_dir+'/Cards' )
+            shutil.copy( reweight_card , gridpack_dir+'/Cards/reweight_card.dat' )
             mglog.info( 'Moved reweight card into place: '+str(reweight_card) )
         else:
             mglog.info( 'Did not find reweight card '+str(reweight_card)+', using the one provided by gridpack' )
@@ -641,21 +697,39 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             oldscript = open(runscript,'r')
             newscript = open(runscript+'.tmp','w')
             added_rwgt=False
-            gridrun_line='./bin/gridrun $num_events $seed'
-            reweight_line='./bin/madevent reweight GridRun_${seed} -f\n'
+            # in older MG versions the gridpack is run with the command below
+            gridrun_line_old='./bin/gridrun $num_events $seed'
+            reweight_line_old='./bin/madevent reweight GridRun_${seed} -f\n'
+            # in new versions it is run like this
+            gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
+            reweight_line_new='${DIR}/bin/madevent reweight GridRun_${seed} -f\n'
+
             for line in oldscript:
-                if not added_rwgt and gridrun_line in line:
+                if not added_rwgt and gridrun_line_old in line:
                     if madspin_card:
                         # renaming madspin card deactivates madspin -- madspin should be run after reweighting
                         newscript.write('mv Cards/madspin_card.dat Cards/madspin_card_backup.dat\n')
                     newscript.write(line)
                     # reweight
-                    newscript.write(reweight_line)
+                    newscript.write(reweight_line_old)
                     if madspin_card:
                         # move madspin card back in place and run madspin
                         newscript.write('mv Cards/madspin_card_backup.dat Cards/madspin_card.dat\n')
                         newscript.write('./bin/madevent decay_events GridRun_${seed} -f\n')
                     added_rwgt=True
+                elif not added_rwgt and gridrun_line_new in line:
+                    if madspin_card:
+                        # renaming madspin card deactivates madspin -- madspin should be run after reweighting
+                        newscript.write('mv $DIR/Cards/madspin_card.dat $DIR/Cards/madspin_card_backup.dat\n')
+                    newscript.write(line)
+                    # reweight
+                    newscript.write(reweight_line_new)
+                    if madspin_card:
+                        # move madspin card back in place and run madspin
+                        newscript.write('mv $DIR/Cards/madspin_card_backup.dat $DIR/Cards/madspin_card.dat\n')
+                        newscript.write('$DIR/bin/madevent decay_events GridRun_${seed} -f\n')
+                    added_rwgt=True
+
                 else:
                     newscript.write(line)
             oldscript.close()
@@ -755,6 +829,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info('For your information, ls of '+gridpack_dir+'/Events/:')
         mglog.info( sorted( os.listdir( gridpack_dir+'/Events/' ) ) )
 
+
         if not gridpack_compile:
             mglog.info('Copying make_opts from Template')
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',gridpack_dir+'/Source/')
@@ -792,9 +867,15 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
                 mglog.error('MadSpin was run but can\'t find output folder %s.'%NLOdir)
                 raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%NLOdir)
 
+
+
     else:
+
         if not os.path.exists(gridpack_dir+'Events/GridRun_%i/'%random_seed):
             shutil.copy(gridpack_dir+'/Events/'+run_name+'/events.lhe.gz','events.lhe.gz')
+
+
+
 
     mglog.info('For your information, ls of '+currdir+':')
     mglog.info( sorted( os.listdir( currdir ) ) )
@@ -972,11 +1053,13 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
             mglog.info('copying '+atlasLHADATAPATH+'/lhapdf.conf -->'+newMGCLHA+'lhapdf.conf')
             shutil.copy2(atlasLHADATAPATH+'/lhapdf.conf',newMGCLHA+'lhapdf.conf')
 
+
         LHADATAPATH=os.getcwd()+'/MGC_LHAPDF'
 
     else:
         mglog.info('Not using LHAPDF')
         return (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH)
+
 
     if isNLO:
         os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
@@ -1295,6 +1378,7 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
         orig_input = proc_dir+'/Events/'+run_name+'/events.lhe'
         mod_output = open(os.getcwd()+'/events.lhe','w')
 
+
     #Removing empty lines in LHE
     nEmpty=0
     # Try to do this in a way that uses less memory...
@@ -1555,34 +1639,37 @@ output -f
 
 def get_variations( gentype , masses , syst_mod , xqcut = None ):
     if xqcut is None:
-        xqcut=500 # default
+        my_mass=2000 # default
         if 'Scharm'==gentype:
-            if masses['1000004']<xqcut*4.: xqcut = masses['1000004']*0.25
+            my_mass = min([masses[x] for x in ['1000004','2000004'] if x in masses ])
         elif 'N2N3'==gentype:
-            if masses['1000025']<xqcut*4.: xqcut = masses['1000025']*0.25
+            my_mass = min([masses[x] for x in ['1000023','1000025'] if x in masses ])
         elif 'N1N1'==gentype:
-            if masses['1000022']<xqcut*4.: xqcut = masses['1000022']*0.22
+            my_mass = min([masses[x] for x in ['1000022'] if x in masses ])
         elif 'C1N2'==gentype:
-            if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
+            my_mass = min([masses[x] for x in ['1000023','1000024'] if x in masses ])
         elif 'Stau'==gentype:
-            if masses['1000015']<xqcut*4.: xqcut = masses['1000015']*0.25
+            my_mass = min([masses[x] for x in ['1000015','2000015'] if x in masses ])
+        elif 'StauStau'==gentype:
+            my_mass = min([masses[x] for x in ['1000015','2000015'] if x in masses ])
         elif 'SlepSlep'==gentype:
-            if masses['1000011']<xqcut*4.: xqcut = masses['1000011']*0.25
+            my_mass = min([masses[x] for x in ['1000011','1000013','1000015','2000011','2000013','2000015'] if x in masses ])
         elif 'T2' in gentype:
-            if masses['2000006']<xqcut*4.: xqcut = masses['2000006']*0.25
+            my_mass = min([masses[x] for x in ['2000006'] if x in masses ])
         else:
             if 'G' in gentype or 'ALL' in gentype:
-                if masses['1000021']<xqcut*4.: xqcut = masses['1000021']*0.25
+                my_mass = masses['1000021']
             if 'S' in gentype or 'ALL' in gentype:
-                if masses['1000002']<xqcut*4.: xqcut = masses['1000002']*0.25
+                my_mass = min([masses[x] for x in ['1000001','1000002','1000003','1000004','2000001','2000002','2000003','2000004'] if x in masses])
             if 'T' in gentype:
-                if masses['1000006']<xqcut*4.: xqcut = masses['1000006']*0.25
+                my_mass = masses['1000006']
             if 'B' in gentype:
-                if masses['1000005']<xqcut*4.: xqcut = masses['1000005']*0.25
+                my_mass = masses['1000005']
             if 'C' in gentype:
-                if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
+                my_mass = masses['1000024']
             if 'D' in gentype:
-                if masses['2000001']<xqcut*4.: xqcut = masses['2000001']*0.25
+                my_mass = masses['2000001']
+        xqcut = min(my_mass*0.25,500)
         if syst_mod is not None and 'qup' in syst_mod.lower(): xqcut = xqcut*2.
         elif syst_mod is not None and 'qdown' in syst_mod.lower(): xqcut = xqcut*0.5
     mglog.info('For matching, will use xqcut of '+str(xqcut))
@@ -1597,7 +1684,7 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
     if syst_mod is not None and 'scalefactup' in syst_mod.lower(): scalefact = 2.0
     elif syst_mod is not None and 'scalefactdown' in syst_mod.lower(): scalefact = 0.5
 
-    return xqcut , alpsfact , scalefact
+    return abs(xqcut) , alpsfact , scalefact
 
 
 def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',masses=None,\
@@ -1710,7 +1797,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
 def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direct',masses=None,\
                        nevts=None, syst_mod=None,xqcut=None, SLHAonly=False, keepOutput=False, SLHAexactCopy=False,\
                        writeGridpack=False,gridpackDirName=None,MSSMCalc=False,pdlabel="'cteq6l1'",lhaid=10042,\
-                       madspin_card=None,decays={},extras=None):
+                       madspin_card=None,decays={},extras=None,paramCardPrefix='param_card.SM'):
     # Set beam energy
     beamEnergy = 6500.
     if hasattr(runArgs,'ecmEnergy'): beamEnergy = runArgs.ecmEnergy * 0.5
@@ -1732,6 +1819,7 @@ def SUSY_SM_Generation(runArgs = None, process='', gentype='SS',decaytype='direc
 
     xqcut , alpsfact , scalefact = get_variations( gentype , masses , syst_mod , xqcut=xqcut )
 
+    thedir = gridpackDirName
     if not SLHAonly and (writeGridpack or gridpackDirName is None):
         # Generate the new process!
         if 'import model' in process:
@@ -1783,7 +1871,7 @@ output -f
             if not os.access(str_param_card,os.R_OK):
                 mglog.info('Could not get param card '+str_param_card)
         else:
-            build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='param_card.dat',masses=masses,decays=decays)
+            build_param_card(param_card_old='%s.%s.%s.dat'%(paramCardPrefix,gentype,decaytype),param_card_new='param_card.dat',masses=masses,decays=decays)
     # Ensure that the param card is compatible with the model that's being used
     shutil.move('param_card.dat','original_param_card.dat')
     update_param_card_blocks( process_dir=thedir , from_param_card='original_param_card.dat' , to_param_card='param_card.dat' )
@@ -2195,11 +2283,11 @@ def modify_run_card(run_card='Cards/run_card.dat',
                 setting = command.split('=')[-1] #.strip()
                 stripped_setting = setting.strip()
                 oldValue = command.split('=')[0] #.strip()
-            if stripped_setting in settings:
-                line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting]))+'='+setting
-                if comment != '': line += '  !' + comment
-                mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting])+'.')
-                used_settings += [ stripped_setting ]
+                if stripped_setting in settings:
+                    line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting]))+'='+setting
+                    if comment != '': line += '  !' + comment
+                    mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting])+'.')
+                    used_settings += [ stripped_setting ]
         newCard.write(line)
 
     # Clean up unused options
@@ -2399,6 +2487,27 @@ def run_card_consistency_check(isNLO=False,path='.'):
 
     mglog.info('Finished checking run card - All OK!')
     return
+
+def mode_njobs_consistency_check(mode,njobs,cluster_type):
+    if cluster_type!=None and mode!=1:
+        raise RuntimeError('Set a non-None cluster type (cluster_type='+str(cluster_type)+') but did not set run mode to 1 but to '+str(mode))
+    elif njobs<1:
+        raise RuntimeError('Requested nonsensical number of jobs: njobs='+str(njobs))
+
+    if mode==0:
+        if njobs==1:
+            return True
+        else:
+            raise RuntimeError('Requested mode 0 (single core) but more than 1 job: njobs='+str(njobs))
+    elif mode==1:
+        return True
+    elif mode==2:
+        if int(njobs)>1:
+            return True
+        else:
+            raise RuntimeError('Requested mode 2 (multi core) but only 1 job: njobs='+str(njobs))
+    else:
+        raise RuntimeError('MadGraph run mode has to be 0, 1, or 2 (= single-core, cluster, multi-core mode)')
 
 
 def SUSY_model():

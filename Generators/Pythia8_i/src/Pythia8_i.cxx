@@ -1,11 +1,11 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "Pythia8_i/Pythia8_i.h"
 #include "Pythia8_i/UserProcessFactory.h"
 #include "Pythia8_i/UserHooksFactory.h"
 #include "Pythia8_i/UserResonanceFactory.h"
+#include "Pythia8_i/IPythia8Custom.h"
 
 #include "PathResolver/PathResolver.h"
 #include "GeneratorObjects/McEventCollection.h"
@@ -42,7 +42,8 @@ m_sigmaTotal(0.),
 m_failureCount(0),
 m_procPtr(0),
 m_userHooksPtrs(std::vector<Pythia8::UserHooks*>()),
-m_doLHE3Weights(false)
+m_doLHE3Weights(false),
+m_athenaTool("IPythia8Custom")
 {
   declareProperty("Commands", m_commands);
   declareProperty("CollisionEnergy", m_collisionEnergy = 14000.0);
@@ -61,6 +62,8 @@ m_doLHE3Weights(false)
   declareProperty("ParticleData", m_particleDataFile="");
   declareProperty("OutputParticleData",m_outputParticleDataFile="ParticleData.local.xml");
   declareProperty("ShowerWeightNames",m_showerWeightNames);
+  declareProperty("CustomInterface",m_athenaTool);
+
   
   m_particleIDs["PROTON"]      = PROTON;
   m_particleIDs["ANTIPROTON"]  = ANTIPROTON;
@@ -70,6 +73,7 @@ m_doLHE3Weights(false)
   m_particleIDs["ANTINEUTRON"] = ANTINEUTRON;
   m_particleIDs["MUON"]        = MUON;
   m_particleIDs["ANTIMUON"]    = ANTIMUON;
+  m_particleIDs["LEAD"]        = LEAD;
 
   ATH_MSG_INFO("XML Path is " + xmlpath());
   
@@ -143,6 +147,18 @@ StatusCode Pythia8_i::genInitialize() {
   for(const std::pair<std::string, std::string> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<std::string>()){
     m_pythia.settings.addWord(param.first, param.second);
   }
+  
+  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+    if(m_athenaTool.retrieve().isFailure()){
+      ATH_MSG_ERROR("Unable to retrieve Athena Tool for custom Pythia processing");
+      return StatusCode::FAILURE;
+    }
+    else {
+      StatusCode status = m_athenaTool->InitializePythiaInfo(m_pythia);
+      if(status != StatusCode::SUCCESS) return status;
+    }
+  }
+  
   
   // Now apply the settings from the JO
   foreach(const string &cmd, m_commands){
@@ -276,7 +292,9 @@ StatusCode Pythia8_i::genInitialize() {
   }
   
   StatusCode returnCode = SUCCESS;
-  
+  bool doGuess = m_pythia.settings.word("Merging:process") == "guess";
+  if (doGuess) m_pythia.settings.word("Merging:process","pp>e+e-"); 
+
   if(canInit){
     canInit = m_pythia.init();
   }
@@ -285,6 +303,8 @@ StatusCode Pythia8_i::genInitialize() {
     returnCode = StatusCode::FAILURE;
     ATH_MSG_ERROR(" *** Unable to initialise Pythia !! ***");
   }
+
+  if (doGuess) m_pythia.settings.word("Merging:process","guess"); 
   
   m_pythia.particleData.listXML(m_outputParticleDataFile);
   
@@ -327,6 +347,10 @@ StatusCode Pythia8_i::callGenerator(){
     }
   }
 
+  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+    returnCode = returnCode && m_athenaTool->ModifyPythiaEvent(m_pythia);
+  }
+  
   m_failureCount = 0;
   
   m_nAccepted += 1.;
@@ -457,6 +481,12 @@ StatusCode Pythia8_i::genFinalize(){
     std::cout << "Using FxFx cross section recipe: xs = "<< m_sigmaTotal << " / " << 1e9*info.nTried() << std::endl;
   }
 
+  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+    double xsmod = m_athenaTool->CrossSectionScaleFactor();
+    ATH_MSG_DEBUG("Multiplying cross-section by Pythia Modifier tool factor " << xsmod );
+    xs *= xsmod;
+  }
+  
   xs *= 1000. * 1000.;//convert to nb
 
   std::cout << "MetaData: cross-section (nb)= " << xs <<std::endl;

@@ -8,6 +8,7 @@
 #ifndef XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_V1_H
 #define XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_V1_H
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
@@ -42,5 +43,6 @@ public:
                              MsgStream& log );
 
 }; // class xAODJetTrigAuxContainerCnv_v1
+#endif // ifndef GENERATIONBASE
 #endif // ifndef SIMULATIONBASE
 #endif // XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_V1_H

@@ -8,6 +8,7 @@
 #ifndef XAODJET_VERSIONS_JETTRIGAUXCONTAINER_V1_H
 #define XAODJET_VERSIONS_JETTRIGAUXCONTAINER_V1_H
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 
 // System include(s):
 #include <vector>
@@ -61,6 +62,7 @@ namespace xAOD {
 // Declare the inheritance of the class:
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::JetTrigAuxContainer_v1, xAOD::ByteStreamAuxContainer_v1 );
-#endif
+#endif //  GENERATIONBASE
+#endif //  SIMULATIONBASE
 
 #endif // XAODJET_VERSIONS_JETAUXCONTAINER_V1_H

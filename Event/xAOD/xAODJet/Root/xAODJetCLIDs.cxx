@@ -6,5 +6,7 @@
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODJet/JetContainer.h"
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 #include "xAODJet/JetTrigAuxContainer.h"
+#endif //GENERATIONBASE
 #endif //SIMULATIONBASE

@@ -5,7 +5,7 @@
 // $Id: xAODJetAuxContainerCnv.cxx 588765 2014-03-21 13:30:28Z delsart $
 
 #ifndef SIMULATIONBASE
-
+#ifndef GENERATIONBASE
 // System include(s):
 #include <exception>
 
@@ -74,4 +74,5 @@ xAOD::JetTrigAuxContainer* xAODJetTrigAuxContainerCnv::createTransient() {
                              "xAOD::JetTrigAuxContainer found" );
    return 0;
 }
+#endif // GENERATIONBASE
 #endif // SIMULATIONBASE

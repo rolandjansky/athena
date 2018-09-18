@@ -45,6 +45,7 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/PoWHEGVetoedShower.cxx
                    src/UserHooks/GravFlat.cxx
                    src/UserHooks/JetMatchingMadGraphHook.cxx
+                   src/UserHooks/JetMergingaMCatNLO.cxx
                    src/UserHooks/SuppressMPI.cxx
                    src/UserHooks/EnhanceMPI.cxx
                    src/UserHooks/ISRVetoedShower.cxx
@@ -52,10 +53,14 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/WprimeFlat.cxx
                    src/UserHooks/ZprimeFlatpT.cxx
                    src/UserHooks/WprimeWZFlat.cxx
+		   src/UserHooks/WZPolarization.cxx
                    src/UserHooks/mHatReweight.cxx
                    src/UserHooks/main31.cxx
                    src/UserResonances/ResonanceExcitedCI.cxx
                    src/UserResonances/ResonanceLQ.cxx
+		   src/Pythia8Custom/CheckForFinalPartons.cxx
+                   src/Pythia8Custom/HllgamRepeatTimeShower.cxx
+                   src/Pythia8Custom/UserPhotonFlux.cxx
                    PUBLIC_HEADERS Pythia8_i
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
