@@ -57,7 +57,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 SUSY16MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY16MuonTPThinningTool",
                                                                           ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
                                                                           MuonKey                 = "Muons",
-                                                                          ConeSize               = 0.4,
+                                                                          ConeSize                = 0.4,
                                                                           SelectionString         = muonsRequirements,
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY16MuonTPThinningTool
@@ -65,23 +65,23 @@ thinningTools.append(SUSY16MuonTPThinningTool)
 
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-SUSY16ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    	= "SUSY16ElectronTPThinningTool",
-                                                                                ThinningService        = SUSY16ThinningHelper.ThinningSvc(),
+SUSY16ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "SUSY16ElectronTPThinningTool",
+                                                                                ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
                                                                                 SGKey             	= "Electrons",
-                                                                                ConeSize               = 0.4,
+                                                                                ConeSize                = 0.4,
                                                                                 SelectionString         = electronsRequirements,
-                                                                                InDetTrackParticlesKey = "InDetTrackParticles")
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY16ElectronTPThinningTool
 thinningTools.append(SUSY16ElectronTPThinningTool)
 
 # TrackParticles associated with photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 SUSY16PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name			 = "SUSY16PhotonTPThinningTool",
-                                                                              ThinningService	 = SUSY16ThinningHelper.ThinningSvc(),
+                                                                              ThinningService	         = SUSY16ThinningHelper.ThinningSvc(),
                                                                               SGKey			 = "Photons",
-                                                                              ConeSize               = 0.4,
-                                                                              SelectionString         = photonsRequirements,
-                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                              ConeSize                   = 0.4,
+                                                                              SelectionString            = photonsRequirements,
+                                                                              InDetTrackParticlesKey     = "InDetTrackParticles")
 ToolSvc += SUSY16PhotonTPThinningTool
 thinningTools.append(SUSY16PhotonTPThinningTool)
 
