@@ -70,9 +70,9 @@ public:
 
 protected:
 
-  bool       digitizeElement(SiChargedDiodeCollection* chargedDiodes); //!
-  void       applyProcessorTools(SiChargedDiodeCollection* chargedDiodes); //!
-  void       addSDO(SiChargedDiodeCollection* collection);
+  bool       digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi) const ; //!
+  void       applyProcessorTools(SiChargedDiodeCollection* chargedDiodes) const; //!
+  void       addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const;
 
   void storeTool(ISiChargedDiodesProcessorTool* p_processor) {m_diodeCollectionTools.push_back(p_processor);}
 
@@ -104,17 +104,16 @@ private:
      @brief Create RDOs from the SiChargedDiodeCollection for the current wafer and save to StoreGate
      @param chDiodeCollection       list of the SiChargedDiodes on the current wafer
   */
-  StatusCode createAndStoreRDO(SiChargedDiodeCollection* chDiodeCollection);
+  StatusCode createAndStoreRDO(SiChargedDiodeCollection* chDiodeCollection, SG::WriteHandle<SCT_RDO_Container>* rdoContainer) const;
   /**
      @brief Create RDOs from the SiChargedDiodeCollection for the current wafer
      @param chDiodeCollection       list of the SiChargedDiodes on the current wafer
   */
-
-  SCT_RDO_Collection* createRDO(SiChargedDiodeCollection* collection);
+  SCT_RDO_Collection* createRDO(SiChargedDiodeCollection* collection) const;
 
   StatusCode getNextEvent();
-  void       digitizeAllHits();     //!< digitize all hits
-  void       digitizeNonHits();     //!< digitize SCT without hits
+  void       digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi) const; //!< digitize all hits
+  void       digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements) const;     //!< digitize SCT without hits
 
   float m_tfix;           //!< Use fixed timing for cosmics
 
@@ -155,7 +154,6 @@ private:
   CLHEP::HepRandomEngine*                            m_rndmEngine;          //! Random number engine used - not init in SiDigitization
   std::list<ISiChargedDiodesProcessorTool*>          m_diodeCollectionTools;
   TimedHitCollection<SiHit>*                         m_thpcsi;
-  SiChargedDiodeCollection*                          m_chargedDiodes;
   IntegerProperty                                    m_vetoThisBarcode;
 };
 
