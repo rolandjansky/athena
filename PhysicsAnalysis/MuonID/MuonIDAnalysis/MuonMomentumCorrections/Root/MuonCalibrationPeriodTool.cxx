@@ -28,9 +28,9 @@ namespace CP {
      
         unsigned int run = info->runNumber();
         bool isData = !info->eventType(xAOD::EventInfo::IS_SIMULATION);        
-        if ( (isData  && run <= last_run_16) || (!isData && run == mc16a_period_number) ) m_activeTool = m_calibTool_1516.operator->();
-        else if ( (isData  && run <= last_run_17) || (!isData && run == mc16d_period_number) ) m_activeTool = m_calibTool_17.operator->();
-        else if ( (isData  && run <= last_run_18) || (!isData && run == mc16e_period_number) ) m_activeTool = m_calibTool_18.operator->();
+        if ( (isData  && run <= last_run_16) || (!isData && run == mc16a_period_number) ) m_activeTool = m_calibTool_1516.get();
+        else if ( (isData  && run <= last_run_17) || (!isData && run == mc16d_period_number) ) m_activeTool = m_calibTool_17.get();
+        else if ( (isData  && run <= last_run_18) || (!isData && run == mc16e_period_number) ) m_activeTool = m_calibTool_18.get();
         else {
             ATH_MSG_FATAL("Could not determine on which year we are running");
             return StatusCode::FAILURE;
