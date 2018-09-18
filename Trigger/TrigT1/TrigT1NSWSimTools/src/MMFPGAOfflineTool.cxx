@@ -7,9 +7,9 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 // local includes
-#include "MMFPGAOfflineTool.h"
-#include "MMStripOfflineData.h"
-#include "MMCandidateOfflineData.h"
+#include "TrigT1NSWSimTools/MMFPGAOfflineTool.h"
+#include "TrigT1NSWSimTools/MMStripOfflineData.h"
+#include "TrigT1NSWSimTools/MMCandidateOfflineData.h"
 
 //Event info includes
 #include "EventInfo/EventInfo.h"

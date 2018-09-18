@@ -62,7 +62,7 @@ namespace NSWL1 {
     virtual ~StripSegmentTool();
     virtual StatusCode initialize();
     virtual void handle (const Incident& inc);
-    StatusCode find_segments(std::vector< StripClusterData * >& clusters);
+    StatusCode find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters);
 
   private:
     // methods implementing the internal data processing
@@ -94,6 +94,7 @@ namespace NSWL1 {
     std::vector<float> *m_seg_phi;
     std::vector<int> *m_seg_bandId;
     std::vector<float> *m_seg_global_r;
+    std::vector<float> *m_seg_global_x;
     std::vector<float> *m_seg_global_y;
     std::vector<float> *m_seg_global_z;
     std::vector<float> *m_seg_dir_r;
