@@ -74,12 +74,14 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu )
 atlas_add_test( photonMenu
  		SCRIPT test/test_photon_menu.sh
                  PROPERTIES TIMEOUT 500
+		EXTRA_PATTERNS 	"-s TriggerSummaryStep.*HLT_.*|TrigSignatureMoniMT.*"
  		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_photonMenu   )
 
 #		EXTRA_PATTERNS "TriggerSummary"
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu )
 atlas_add_test( egammaMenu
 		SCRIPT test/test_egamma_menu.sh
+		EXTRA_PATTERNS 	"-s TriggerSummaryStep.*HLT_.*|TrigSignatureMoniMT.*"
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu
               )
@@ -94,6 +96,7 @@ atlas_add_test( muRunData
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu )
 atlas_add_test( muMenu
 		SCRIPT test/test_mu_menu.sh
+		EXTRA_PATTERNS 	"-s TriggerSummaryStep.*HLT_.*|TrigSignatureMoniMT.*"
 		PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
               )
@@ -101,6 +104,7 @@ atlas_add_test( muMenu
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu )
 atlas_add_test( fullMenu
 		SCRIPT test/test_full_menu.sh
+		EXTRA_PATTERNS 	"-s TriggerSummaryStep.*HLT_.*|TrigSignatureMoniMT.*"
                 PROPERTIES TIMEOUT 500
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_fullMenu
               )
