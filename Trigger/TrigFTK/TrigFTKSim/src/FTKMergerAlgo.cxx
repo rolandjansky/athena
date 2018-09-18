@@ -2195,6 +2195,7 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       if(!reg_tracks[ireg][isub]) continue;
       
       unsigned int ntracks = reg_tracks[ireg][isub]->getNTracks();
+      unsigned int ntracks_pre_hw = reg_tracks[ireg][isub]->getNTracks_pre_hw();
 
       merged_tracks->addNExtrapolatedTracks(reg_tracks[ireg][isub]->getNExtrapolatedTracks());
       merged_tracks->addNConnections(reg_tracks[ireg][isub]->getNConn());
@@ -2212,6 +2213,7 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
 
 
       unsigned int ntracksI = reg_tracks[ireg][isub]->getNTracksI();
+      unsigned int ntracksI_pre_hw = reg_tracks[ireg][isub]->getNTracksI_pre_hw();
       merged_tracks->addNCombsI(reg_tracks[ireg][isub]->getNCombsI());
       merged_tracks->addNFitsI(reg_tracks[ireg][isub]->getNFitsI());
       merged_tracks->addNFitsMajorityI(reg_tracks[ireg][isub]->getNFitsMajorityI());
@@ -2223,6 +2225,9 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       merged_tracks->addNFitsHWRejectedI(reg_tracks[ireg][isub]->getNFitsHWRejectedI());
       merged_tracks->addNFitsBadMajorityI(reg_tracks[ireg][isub]->getNFitsBadMajorityI());
       merged_tracks->addNFitsHWRejectedMajorityI(reg_tracks[ireg][isub]->getNFitsHWRejectedMajorityI());
+
+      unsigned int ntracks_pattern = reg_tracks[ireg][isub]->getNTracks_pattern();
+      unsigned int ntracks_hits = reg_tracks[ireg][isub]->getNTracks_hits();
       
       for (unsigned int itr=0;itr!=ntracks;++itr) { // track loop
 
@@ -2274,14 +2279,35 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
 	}
       } // end track loop
 
+  for (unsigned int itr=0;itr!=ntracks_pre_hw;++itr) { // track loop (before Hit Warrior)
+    // get the track from the bank
+    FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_pre_hw(itr));
+    merged_tracks->addTrack_pre_hw(newtrack);    
+  } // end loop over tracks of this bank (before Hit Warrior)
 
+  for (unsigned int itrI=0;itrI!=ntracksI;++itrI) { // intermediate track loop
+	  // get the track from the bank
+    FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrackI(itrI));
+        // the intermediate tracks are not filtered by HW
+        merged_tracks->addTrackI(newtrack);
+      } // end intermediate track loop
 
-      for (unsigned int itrI=0;itrI!=ntracksI;++itrI) { // intermediate track loop
-	// get the track from the bank
-	FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrackI(itrI));
-	
-	// the intermediate tracks are not filtered by HW
-	merged_tracks->addTrackI(newtrack);
+      for (unsigned int itrI=0;itrI!=ntracksI_pre_hw;++itrI) { // intermediate track loop (before Hit Warrior)
+        // get the track from the bank
+        FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrackI_pre_hw(itrI));
+        merged_tracks->addTrackI_pre_hw(newtrack);
+      } // end intermediate track loop
+
+      for (unsigned int itrI=0;itrI!=ntracks_pattern;++itrI) { // intermediate track loop (tracks with patterns)
+        // get the track from the bank
+        FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_pattern(itrI));
+        merged_tracks->addTrack_pattern(newtrack);
+      } // end intermediate track loop
+
+      for (unsigned int itrI=0;itrI!=ntracks_hits;++itrI) { // intermediate track loop (tracks that pass hits requirements)
+        // get the track from the bank
+        FTKTrack &newtrack = *(reg_tracks[ireg][isub]->getTrack_hits(itrI));
+        merged_tracks->addTrack_hits(newtrack);
       } // end intermediate track loop
 
     } // end subregion loop

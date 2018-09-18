@@ -58,6 +58,7 @@ class FTKTrackFileOutput : public FTKObjectOutput<FTKTrackStream>, public FTKTra
   { FTKObjectOutput<FTKTrackStream>::setEventNumber(v1,v2); }
 
   void addTrack(int, const FTKTrack&);
+  void addTrack_pre_hw(int, const FTKTrack&);
 
   void addNCombs(int ib, int v)
     { m_data[ib]->addNCombs(v); }
@@ -87,6 +88,8 @@ class FTKTrackFileOutput : public FTKObjectOutput<FTKTrackStream>, public FTKTra
     { m_data[ib]->addNExtrapolatedTracks(v); }
 
   void addTrackI(int, const FTKTrack&);
+  void addTrackI_pre_hw(int, const FTKTrack&);
+
   void addNCombsI(int ib, int v)
     { m_data[ib]->addNCombsI(v); }
   void addNFitsI(int ib, int v)
@@ -109,6 +112,9 @@ class FTKTrackFileOutput : public FTKObjectOutput<FTKTrackStream>, public FTKTra
     { m_data[ib]->addNFitsBadMajorityI(v); }
   void addNFitsHWRejectedMajorityI(int ib, int v)
     { m_data[ib]->addNFitsHWRejectedMajorityI(v); }
+
+  void addTrack_pattern(int, const FTKTrack&);
+  void addTrack_hits(int, const FTKTrack&);
 
 };
 
