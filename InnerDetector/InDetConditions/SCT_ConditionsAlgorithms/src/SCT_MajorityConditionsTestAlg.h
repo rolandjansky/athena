@@ -13,20 +13,21 @@
 
 #ifndef SCT_MajorityConditionsTestAlg_H
 #define SCT_MajorityConditionsTestAlg_H 
-//STL
-#include <string>
-
-//Gaudi
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 
 //Athena
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h"
+
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
+
+//STL
+#include <string>
 
 ///Example class to show calling the SCT_MajorityConditionsSvc
 class SCT_MajorityConditionsTestAlg : public AthAlgorithm {
  public:
-  SCT_MajorityConditionsTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
+  SCT_MajorityConditionsTestAlg(const std::string& name,ISvcLocator* pSvcLocator);
   virtual ~SCT_MajorityConditionsTestAlg() = default;
 
   StatusCode initialize() override;
@@ -34,7 +35,7 @@ class SCT_MajorityConditionsTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ToolHandle<ISCT_DetectorLevelConditionsTool> m_majorityTool{this, "MajorityTool", "SCT_MajorityConditionTool", "Tool to retrieve the majority detector status"};
+  ToolHandle<ISCT_DetectorLevelConditionsTool> m_majorityTool{this, "MajorityTool", "InDetSCT_MajorityConditionsTool", "Tool to retrieve the majority detector status"};
 }; 
 
 #endif // SCT_MajorityConditionsTestAlg_H

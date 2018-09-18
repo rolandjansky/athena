@@ -29,17 +29,23 @@ atlas_depends_on_subdirs( PRIVATE
                           Reconstruction/egamma/egammaInDetUtils
                           Reconstruction/egamma/egammaMVACalib
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
+			  Reconstruction/RecoTools/RecoToolInterfaces
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackLink
-			  Tracking/TrkTools/TrkToolInterfaces )
+			  Tracking/TrkTools/TrkToolInterfaces 
+			  Tracking/TrkEvent/TrkCaloExtension)
+ 
 
 
 atlas_add_component( egammaAlgs
 		     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS 
-                     LINK_LIBRARIES AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel  StoreGateLib SGtests xAODTracking EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils  TrkToolInterfaces InDetRecToolInterfaces FourMomUtils TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib )
-
+		     LINK_LIBRARIES AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel 
+		     MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel  StoreGateLib xAODTracking 
+		     EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils  TrkToolInterfaces InDetRecToolInterfaces 
+		     FourMomUtils RecoToolInterfaces TrkTrack TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib TrkCaloExtension)            
+	     
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 

@@ -128,6 +128,8 @@ StatusCode FTK_SGHitInput::initialize(){
     m_log << MSG::INFO << m_extrapolator << " retrieved" << endmsg;
   }
 
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
+
   if( m_beamSpotSvc.retrieve().isFailure() ) {
     m_log << MSG::FATAL << m_beamSpotSvc << " beam spot service not found" << endmsg;
     return StatusCode::FAILURE;
@@ -315,7 +317,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
         const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-        const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
+        Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
+        localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
+        const InDetDD::SiLocalPosition localPos(localPos2D);
         const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
         const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
         // update map between pixel identifier and event-unique hit index.
@@ -465,7 +469,9 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           Identifier rdoId = (*iRDO)->identify();
           // get the det element from the det element collection
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-          const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
+          Amg::Vector2D localPos2D = sielement->rawLocalPositionOfCell(rdoId);
+          localPos2D[Trk::distPhi] += m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
+          const InDetDD::SiLocalPosition localPos(localPos2D);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
           if(m_dooutFileRawHits){

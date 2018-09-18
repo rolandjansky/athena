@@ -164,6 +164,8 @@ namespace Trk {
         Units: [MeV]
         */
       double dEdXBetheBloch(const MaterialProperties& mat,
+                            double& transKaz,
+                            double& transTmax,
                             double gamma,
                             double beta,
                             ParticleHypothesis particle=pion) const;
@@ -184,27 +186,12 @@ namespace Trk {
       bool                    m_useTrkUtils;               //!< use eloss parametrisation from TrkUtils MaterialInterAction.h
       bool                    m_gaussianVavilovTheory;     //!< include energy loss straggling or not
       bool                    m_useBetheBlochForElectrons; //!< use adopted bethe bloch for electrons 
-      mutable double          m_transKaz;                  //!< transport kaz for straggling 
-      mutable double          m_transTmax;                 //!< transport Tmax for straggling
       double                  m_stragglingErrorScale;      //!< stragglingErrorScale
       double                  m_mpvScale;                  //!< a scalor that can be introduced for the MPV
       bool                    m_mpvSigmaParametric;        //!< take the (crude) parametric mpv sigma 
       bool                    m_detailedEloss;             //!< provide extended EnergyLoss info 
       bool                    m_optimalRadiation;          //!< use calorimeter more optimal for radiation detection
-
-      static double           s_ka_BetheBloch;          //!< KOverA factor in Bethe-Bloch equation [MeV*cm2/gram]
-      static double           s_eulerConstant;          //!< the euler constant for mip calculations
-
-      static double           s_fwhmToSigma;            //!< 1./[2.*sart(2.*ln(2.))] for fwhm -> sigma
-
-      static double           s_mpv_p0;                 //! variable obtained from a fit to landau distribution for sigma(landau)
-      static double           s_mpv_p1;                 //! variable obtained from a fit to landau distribution for sigma(landau)
-      static double           s_mpv_p2;                 //! variable obtained from a fit to landau distribution for sigma(landau)
-
-      static ParticleMasses   s_particleMasses;         //!< struct of Particle masses                                                        
-                                                      
   };
-
 
 } // end of namespace
 

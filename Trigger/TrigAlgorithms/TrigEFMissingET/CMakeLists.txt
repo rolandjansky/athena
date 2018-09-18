@@ -69,5 +69,5 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( METFexes
                 SCRIPT test/test_met_fexes.sh
-                PROPERTIES TIMEOUT 500
+                PROPERTIES TIMEOUT 1000
                 )

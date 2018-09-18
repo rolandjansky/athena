@@ -56,6 +56,9 @@ SCT_ChargeTrappingTool::initialize()
     ATH_MSG_FATAL("Invalid detector name: " << m_detectorName  << ". Must be SCT.");
     return StatusCode::FAILURE;
   }
+
+  std::lock_guard<std::mutex> lock{m_mutex};
+
   m_isSCT = (m_detectorName=="SCT");
   
   // Get conditions summary tool

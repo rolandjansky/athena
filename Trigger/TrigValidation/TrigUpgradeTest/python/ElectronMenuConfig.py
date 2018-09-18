@@ -11,13 +11,13 @@ def CaloLUMIBCIDToolCfg( flags, name='CaloLumiBCIDToolDefault' ):
     from CaloTools.CaloToolsConf import CaloLumiBCIDTool
     from IOVDbSvc.IOVDbSvcConfig import addFolders
 
-    if flags.get('global.isMC') == False:
+    if flags.Input.isMC == False:
       from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
       theLumiTool = LuminosityToolDefault()
       acc.addPublicTool( theLumiTool )
 
           
-      if flags.get('global.isOnline'):
+      if flags.Common.isOnline:
           acc.merge(addFolders(flags, ['/LAR/LArPileup/LArPileupShape<key>LArShape32</key>', 
                                        '/LAR/LArPileup/LArPileupAverage'], 'LAR_ONL'))
       else:
@@ -290,7 +290,7 @@ def l2ElectronCaloStepCfg( flags, chains ):
 def generateElectronsCfg( flags ):
     acc = ComponentAccumulator()
 
-    electronChains = [ f.split()[0] for f in flags.get("Trigger.menu.electrons") + flags.get("Trigger.menu.electronsNoID") ]    
+    electronChains = [ f.split()[0] for f in flags.Trigger.menu.electrons + flags.Trigger.menu.electronsNoID ]    
     if not electronChains:
         return None,None
 
@@ -321,9 +321,8 @@ if __name__ == '__main__':
     Configurable.configurableRun3Behavior=1
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    ConfigFlags.set( "global.InputFiles",
-                     ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] )
-    ConfigFlags.set( "Trigger.menu.electrons", ["HLT_e5_etcut L1_EM3", "HLT_e10_etcut L1_EM3"] )
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+    ConfigFlags.Trigger.menu.electrons = ["HLT_e5_etcut L1_EM3", "HLT_e10_etcut L1_EM3"]
     ConfigFlags.lock()
 
     acc = ComponentAccumulator()

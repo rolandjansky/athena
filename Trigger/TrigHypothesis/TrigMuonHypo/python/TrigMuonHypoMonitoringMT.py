@@ -69,3 +69,22 @@ class TrigMuonEFMSonlyHypoMonitoring(GenericMonitoringTool):
                                             xbins=100, xmin=-3.2, xmax=3.2) ]
         self.Histograms += [ defineHistogram('Phi_sel', type='TH1F', title="Selected Phi reconstruction from #TrigMuonEFMSonlyHypo; Phi",
                                     xbins=100, xmin=-3.15, xmax=3.15) ]
+
+class TrigMuonEFCombinerHypoMonitoring(GenericMonitoringTool):
+
+    def __init__ (self, name="TrigMuonEFCombinerHypoMonitoring"):
+        super(TrigMuonEFMSonlyHypoMonitoring, self).__init__(name)
+        self.HistPath = name  
+
+        self.Histograms = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #TrigMuonEFCombinerHypo; P_{T} (MeV)",
+                                            xbins=200, xmin=-100, xmax=100) ]
+        self.Histograms += [ defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #TrigMuonEFCombinerHypo; Eta",
+                                            xbins=100, xmin=-3.2, xmax=3.2) ]
+        self.Histograms += [ defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #TrigMuonEFCombinerHypo; Phi",
+                                    xbins=100, xmin=-3.15, xmax=3.15) ]
+        self.Histograms += [ defineHistogram('Pt_sel', type='TH1F', title="Selected P_{T} reconstruction from #TrigMuonEFCombinerHypo; P_{T} (MeV)",
+                                            xbins=200, xmin=-100, xmax=100) ]
+        self.Histograms += [ defineHistogram('Eta_sel', type='TH1F', title="Selected Eta reconstruction from #TrigMuonEFCombinerHypo; Eta",
+                                            xbins=100, xmin=-3.2, xmax=3.2) ]
+        self.Histograms += [ defineHistogram('Phi_sel', type='TH1F', title="Selected Phi reconstruction from #TrigMuonEFCombinerHypo; Phi",
+                                    xbins=100, xmin=-3.15, xmax=3.15) ]

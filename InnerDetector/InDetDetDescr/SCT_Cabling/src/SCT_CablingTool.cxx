@@ -42,8 +42,12 @@ namespace {
 // Constructor
 SCT_CablingTool::SCT_CablingTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_idHelper(nullptr),
-  m_usingDatabase(true) {
+  m_idHelper{nullptr},
+  m_usingDatabase{true},
+  m_mutex{},
+  m_cache{},
+  m_condData{}
+{
   declareProperty("DataSource", m_cablingDataSource=defaultSource);
 }
 
@@ -181,10 +185,21 @@ SCT_CablingTool::getHashesForRod(std::vector<IdentifierHash>& usersVector, const
 
 const SCT_CablingData*
 SCT_CablingTool::getData() const {
-  SG::ReadCondHandle<SCT_CablingData> data{m_data};
-  if (not data.isValid()) {
-    ATH_MSG_ERROR("Failed to get " << m_data.key());
-    return nullptr;
+  static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  const EventContext::ContextID_t slot{ctx.slot()};
+  const EventContext::ContextEvt_t evt{ctx.evt()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  if (slot>=m_cache.size()) {
+    m_cache.resize(slot+1, invalidValue); // Store invalid values in order to go to the next IF statement.
   }
-  return *data;
+  if (m_cache[slot]!=evt) {
+    SG::ReadCondHandle<SCT_CablingData> condData{m_data};
+    if (not condData.isValid()) {
+      ATH_MSG_ERROR("Failed to get " << m_data.key());
+    }
+    m_condData.set(*condData);
+    m_cache[slot] = evt;
+  }
+  return m_condData.get();
 }

@@ -22,6 +22,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include "SensorSimTool.h"
 #include "RadDamageUtil.h"
@@ -66,6 +67,7 @@ class SensorSimPlanarTool : public SensorSimTool {
     std::map<std::pair<int, int>, double> m_fluence_layersMaps;
     double m_trappingTimeElectrons;
     double m_trappingTimeHoles;
+    ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
 };
 
 }

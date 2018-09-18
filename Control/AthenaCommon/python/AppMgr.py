@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/AppMgr.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -68,14 +68,19 @@ def release_metadata():
 
 ### associator for public tools ----------------------------------------------
 def iadd( self, tool ):
- # only add once (allow silently)
-   if tool in self.getChildren():
-      return self
 
- # this is only allowed for new-style AlgTools
-   if not not isinstance( tool, Configurable.ConfigurableService ):
-      raise TypeError( '"%s" is not an AlgTool' %\
-         (hasattr(tool,'name') and tool.name() or str(value) ) )
+   if not type(tool) in (list,tuple):
+      tool = (tool,)
+
+ # only add once (allow silently)
+   tool = [t for t in tool if t not in self.getChildren()]
+   if len(tool)==0: return self
+
+ # this is only allowed for new-style AlgTool
+   for t in tool:
+      if not isinstance( t, Configurable.ConfigurableAlgTool ):
+         raise TypeError( '"%s" is not an AlgTool' %
+                          (hasattr(t,'name') and t.name() or "This configurable" ) )
 
    super( GaudiSvcConf.ToolSvc, self ).__iadd__( tool )
 

@@ -13,12 +13,13 @@
 #ifndef SCT_StripVetoTestAlg_H
 #define SCT_StripVetoTestAlg_H 
 
-//Gaudi
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-
 //Athena
+#include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
+
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
 
 class SCT_StripVetoTestAlg : public AthAlgorithm {
  public:

@@ -6,10 +6,12 @@
 #define SCT_SENSORSCONDALG
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadCondHandleKey.h"
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_SensorsCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
+
 #include "GaudiKernel/ICondSvc.h"
 
 class SCT_SensorsCondAlg : public AthAlgorithm 
