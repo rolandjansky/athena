@@ -77,7 +77,7 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
 
   // Combined the validity ranges of temp and HV
   EventIDRange rangeW = EventIDRange::intersect(rangeTemp, rangeHV);
-  if (rangeW.start()>rangeW.stop()) {
+  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
     return StatusCode::FAILURE;
   }
