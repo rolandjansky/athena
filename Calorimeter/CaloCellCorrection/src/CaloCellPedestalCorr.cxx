@@ -97,6 +97,13 @@ StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer, 
     pedShiftColl=(*pedShiftHdl);   
   }
 
+  const CaloBCIDAverage* bcidavgshift=nullptr;
+  if (!(m_caloBCIDAvg.key().empty())) {
+    SG::ReadHandle<CaloBCIDAverage> bcidavgshiftHdl(m_caloBCIDAvg,ctx);
+    bcidavgshift=&(*bcidavgshiftHdl);
+  }
+
+  std::pair<unsigned,const CaloCondBlobFlt*> blobCache{999999,nullptr};
 
   for (CaloCell* theCell : *theCellContainer) {
     float pedestal=0;
@@ -104,15 +111,20 @@ StatusCode CaloCellPedestalCorr::process( CaloCellContainer * theCellContainer, 
       const unsigned int cellHash=theCell->caloDDE()->calo_hash();
       unsigned int subHash;
       const unsigned int iCool = m_caloCoolIdTool->getCoolChannelId(cellHash,subHash);
-      const coral::AttributeList& attrList=pedShiftColl->attributeList(iCool);
-      const coral::Blob& blob = attrList["CaloCondBlob16M"].data<coral::Blob>();
-      std::unique_ptr<const CaloCondBlobFlt> flt(CaloCondBlobFlt::getInstance(blob));
+      if (iCool!=blobCache.first) {
+	const coral::AttributeList& attrList=pedShiftColl->attributeList(iCool);
+	const coral::Blob& blob = attrList["CaloCondBlob16M"].data<coral::Blob>();
+	//std::unique_ptr<const CaloCondBlobFlt> flt(CaloCondBlobFlt::getInstance(blob));
+	blobCache.first=iCool;
+	delete blobCache.second;
+	blobCache.second=CaloCondBlobFlt::getInstance(blob);
+      }
+
       const unsigned int dbGain = CaloCondUtils::getDbCaloGain(theCell->gain());
-      pedestal = flt->getCalib(subHash, dbGain, lumi);
+      pedestal = blobCache.second->getCalib(subHash, dbGain, lumi);
     }
 
-    if (!(m_caloBCIDAvg.key().empty())) {
-      SG::ReadHandle<CaloBCIDAverage> bcidavgshift(m_caloBCIDAvg,ctx);
+    if (bcidavgshift) {
       pedestal = pedestal + bcidavgshift->average(theCell->ID());
     }
 
