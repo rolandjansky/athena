@@ -27,7 +27,6 @@ egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
 				      narrowDeltaPhiRescale=0.05,  
 				      narrowDeltaPhiRescaleBrem=0.1,
                                       egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
-                                      #egammaCheckEnergyDepositTool = None,
                                       ClusterLateralCut=1.0,
                                       ClusterEMFCut=0.0,
                                       ClusterEMEtCut=1500

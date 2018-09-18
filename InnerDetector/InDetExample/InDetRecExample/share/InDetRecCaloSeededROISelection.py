@@ -24,12 +24,11 @@ from InDetCaloClusterROISelector.InDetCaloClusterROISelectorConf import InDet__C
 InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector (name                         = "InDetCaloClusterROISelector",
                                                               InputClusterContainerName    = InDetKeys.CaloClusterContainer(),    # "egammaCaloCluster"
                                                               OutputClusterContainerName   = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs"
-                                                              ClusterLateralCut            = 0.95,
+                                                              ClusterLateralCut            = 0.8,
                                                               ClusterEMEtCut               = 1500,
-                                                              ClusterEMFCut                = 0.6,
+                                                              ClusterEMFCut                = 0.7,
                                                               CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
                                                               egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool()
-                                                              #egammaCheckEnergyDepositTool = None
                                                           )
 topSequence += InDetCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
