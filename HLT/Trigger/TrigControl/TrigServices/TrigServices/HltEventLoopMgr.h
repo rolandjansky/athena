@@ -9,6 +9,7 @@
 #include "TrigKernel/IHltTHistSvc.h"
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
+#include "TrigSteering/ResultBuilderMT.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
@@ -180,6 +181,9 @@ private:
 
   /// Helper tool for COOL updates
   ToolHandle<TrigCOOLUpdateHelper> m_coolHelper;
+
+  /// Tool to create HLTResult
+  ToolHandle<HLT::ResultBuilderMT> m_hltResultBuilder;
 
   /// EventInfo -> xAOD::EventInfo conversion tool
   ToolHandle<xAODMaker::IEventInfoCnvTool> m_eventInfoCnvTool;

@@ -63,6 +63,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_evtSelector("EvtSel", name),
   m_outputCnvSvc("OutputCnvSvc", name),
   m_coolHelper("TrigCOOLUpdateHelper", this),
+  m_hltResultBuilder("HLT::ResultBuilderMT/ResultBuilder", this),
   m_eventInfoCnvTool("xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_nevt(0),
@@ -81,8 +82,9 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("EvtSel",                   m_evtSelector);
   declareProperty("OutputCnvSvc",             m_outputCnvSvc);
   declareProperty("CoolUpdateTool",           m_coolHelper);
+  declareProperty("ResultBuilder",            m_hltResultBuilder);
   declareProperty("EventInfoCnvTool",         m_eventInfoCnvTool);
-  declareProperty("HltResultName",            m_HltResultName="HLTResult_HLT");
+  declareProperty("HltResultName",            m_HltResultName="HLTResult");
   declareProperty("SchedulerSvc",             m_schedulerName="AvalancheSchedulerSvc",
                   "Name of the scheduler to be used");
   declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
@@ -282,6 +284,11 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_coolHelper.retrieve());
 
   //----------------------------------------------------------------------------
+  // Setup the HLT result builder
+  //----------------------------------------------------------------------------
+  ATH_CHECK(m_hltResultBuilder.retrieve());
+
+  //----------------------------------------------------------------------------
   // Setup the EventInfo conversion tool and WriteHandleKey
   //----------------------------------------------------------------------------
   ATH_CHECK(m_eventInfoCnvTool.retrieve());
@@ -391,9 +398,11 @@ StatusCode HltEventLoopMgr::finalize()
 
   // Release tool handles
   if (m_coolHelper.release().isFailure())
-    ATH_MSG_WARNING("Failed to release service " << m_coolHelper.typeAndName());
+    ATH_MSG_WARNING("Failed to release tool " << m_coolHelper.typeAndName());
+  if (m_hltResultBuilder.release().isFailure())
+    ATH_MSG_WARNING("Failed to release tool " << m_hltResultBuilder.typeAndName());
   if (m_eventInfoCnvTool.release().isFailure())
-    ATH_MSG_WARNING("Failed to release service " << m_eventInfoCnvTool.typeAndName());
+    ATH_MSG_WARNING("Failed to release tool " << m_eventInfoCnvTool.typeAndName());
 
   // Release SmartIFs
   m_whiteboard.reset();
@@ -748,9 +757,9 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       //------------------------------------------------------------------------
       // Record an empty HLT Result
       //------------------------------------------------------------------------
-      auto hltResult = new HLT::HLTResultMT;
+      // auto hltResult = new HLT::HLTResultMT;
       // hltResult->getExtraData().appName = m_applicationName.value();
-      m_evtStore->record(hltResult, m_HltResultName, /*allowMods=*/ true);
+      // m_evtStore->record(hltResult, m_HltResultName, /*allowMods=*/ true);
 
       //------------------------------------------------------------------------
       // Process the event
@@ -1229,7 +1238,7 @@ int HltEventLoopMgr::drainScheduler()
     // EventID::number_type n_evt(0);
 
     //-------------------------------------------
-    // Call the new ResultBuilder here to produce HLTResult ???
+    // Do we need the event info here ???
     //-------------------------------------------
 
     const xAOD::EventInfo* eventInfo = nullptr;
@@ -1264,6 +1273,11 @@ int HltEventLoopMgr::drainScheduler()
     // Call the conversion svc etc.
     // Handle any possible errors
     //-------------------------------------------
+    // Call the result builder to record HLTResultMT in SG
+    if (m_hltResultBuilder->buildResult(*thisFinishedEvtContext).isFailure()) {
+      ATH_MSG_ERROR("Failed to create the HLT result object");
+      // what now?
+    }
     // Connect output (create the output container) - the argument is currently not used
     if (m_outputCnvSvc->connectOutput("").isFailure()) {
       ATH_MSG_ERROR("Conversion service failed to connectOutput");
