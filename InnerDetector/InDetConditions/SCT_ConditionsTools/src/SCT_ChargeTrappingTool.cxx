@@ -56,6 +56,9 @@ SCT_ChargeTrappingTool::initialize()
     ATH_MSG_FATAL("Invalid detector name: " << m_detectorName  << ". Must be SCT.");
     return StatusCode::FAILURE;
   }
+
+  std::lock_guard<std::mutex> lock{m_mutex};
+
   m_isSCT = (m_detectorName=="SCT");
   
   // Get conditions summary tool
@@ -70,7 +73,14 @@ SCT_ChargeTrappingTool::initialize()
 
   // Read CondHandle Key
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  
+
+  // initialize PotentialValue
+  for (int ix{0}; ix<81; ix++) {
+    for (int iy{0}; iy<115; iy++) {
+      m_PotentialValue[ix][iy] = getPotentialValue(ix, iy);
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -87,11 +97,6 @@ SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::getCondData(const IdentifierH
 void SCT_ChargeTrappingTool::getHoleTransport(double& x0, double& y0, double& xfin, double& yfin, double& Q_m2, double& Q_m1, double& Q_00, double& Q_p1, double& Q_p2) const
 {
   holeTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
-}
-
-void SCT_ChargeTrappingTool::getInitPotentialValue()
-{
-  initPotentialValue();
 }
 
 SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHash& elementHash, double pos) const
@@ -249,19 +254,6 @@ SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHas
 //-------------------------------------------------------------------------------------------------------------------
 //    RAMO POTENTIAL 
 //-------------------------------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------
-//   initialize PotentialValue
-//--------------------------------------------------------------
-void SCT_ChargeTrappingTool::initPotentialValue() {
-  for (int ix{0}; ix<81; ix++) {
-    for (int iy{0}; iy<115; iy++) {
-      m_PotentialValue[ix][iy] = getPotentialValue(ix, iy);
-    }
-  }
-}
-
 
 //-------------------------------------------------------------------
 //    calculation of induced charge using Weighting (Ramo) function

@@ -4,7 +4,7 @@
 
 #include "egammaEvent/egDetail.h"
 #include "egammaEvent/egammaParamDefs.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 
 egDetail::egDetail() 
 { }

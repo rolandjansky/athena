@@ -114,8 +114,9 @@ namespace JiveXML {
         }
 
         //Get the local position and store it
-	Amg::Vector2D localPos = element->localPositionOfCell(id);
-        const std::pair<Amg::Vector3D, Amg::Vector3D > endsOfStrip = element->endsOfStrip(localPos);
+        Amg::Vector2D localPos = element->rawLocalPositionOfCell(id);
+        localPos[Trk::distPhi] += m_lorentzAngleTool->getLorentzShift(waferHash);
+        const std::pair<Amg::Vector3D, Amg::Vector3D> endsOfStrip = element->endsOfStrip(localPos);
         ident.push_back(DataType( id.get_compact() ));
         x0.push_back(DataType( endsOfStrip.first.x()*CLHEP::mm/CLHEP::cm));
         y0.push_back(DataType( endsOfStrip.first.y()*CLHEP::mm/CLHEP::cm));
@@ -180,6 +181,8 @@ namespace JiveXML {
     ATH_CHECK( m_SCTRDOContainerName.initialize() );
     // Read Cond Handle Key
     ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+
+    ATH_CHECK( m_lorentzAngleTool.retrieve() );
 
     return m_geo.retrieve();
   }

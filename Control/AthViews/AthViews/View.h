@@ -22,6 +22,7 @@ class View : public IProxyDict {
 public:
   View (const std::string& name, bool AllowFallThrough = true);
   View (const std::string& name, bool AllowFallThrough, std::string const& storeName);
+  View (const View*);
   virtual ~View ();
   View (const View&) = delete;
   View& operator= (const View&) = delete;

@@ -109,7 +109,11 @@ PileUpMergeSvc::initialize()    {
 
 const PileUpEventInfo* PileUpMergeSvc::getPileUpEvent() const {
   const PileUpEventInfo* p(0);
-  if (p_overStore->contains<PileUpEventInfo>("OverlayEvent")) p_overStore->retrieve(p);
+  if (p_overStore->contains<PileUpEventInfo>("OverlayEvent")) {
+    if (p_overStore->retrieve(p).isFailure()) {
+      ATH_MSG_FATAL("Cannot retrieve OverlayEvent from " << p_overStore->name());
+    }
+  }
   return p;
 }
 

@@ -49,8 +49,7 @@ if not conddb.folderRequested(SCTConfigurationFolderPath+"MUR"):
 
 # Load condtions tool
 from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-sct_ConditionsSummaryToolSetup.setToolName("SCT_MonConditionsSummaryTool")
+sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("SCT_MonConditionsSummaryTool")
 sct_ConditionsSummaryToolSetup.setup()
 SCT_MonConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
 

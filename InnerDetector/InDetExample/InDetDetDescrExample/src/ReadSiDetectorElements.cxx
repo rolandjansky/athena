@@ -589,8 +589,6 @@ ReadSiDetectorElements::testElement(const Identifier & id,
       
       InDetDD::SiLocalPosition localPosRaw1 = element->rawLocalPositionOfCell(cellId);
       InDetDD::SiLocalPosition localPosRaw2 = element->rawLocalPositionOfCell(fullCellId);
-      InDetDD::SiLocalPosition localPos1 = element->localPositionOfCell(cellId);
-      InDetDD::SiLocalPosition localPos2 = element->localPositionOfCell(fullCellId);
       ATH_MSG_ALWAYS(" raw localPosition (using cell id) (xPhi,xEta) = " 
                      << localPosRaw1.xPhi() << ", " << localPosRaw1.xEta());
       ATH_MSG_ALWAYS(" raw localPosition (using full id) (xPhi,xEta) = " 
@@ -598,13 +596,6 @@ ReadSiDetectorElements::testElement(const Identifier & id,
       SiCellId cellIdRaw(element->cellIdOfPosition(localPosRaw1));
       ATH_MSG_ALWAYS(" corresponding cell (phiIndex,etaIndex) = " 
                      << cellIdRaw); 
-      ATH_MSG_ALWAYS(" lorentz corrected localPosition (using cell id) (xPhi,xEta) = " 
-                     << localPos1.xPhi() << ", " << localPos1.xEta());
-      ATH_MSG_ALWAYS(" lorentz corrected localPosition (using cell id) (xPhi,xEta) = " 
-                     << localPos2.xPhi() << ", " << localPos2.xEta());
-      SiCellId cellIdNew(element->cellIdOfPosition(localPos1));
-      ATH_MSG_ALWAYS(" corresponding cell (phiIndex,etaIndex) = " 
-                     << cellIdNew); 
       ATH_MSG_ALWAYS(" Number of connected cells (2 means ganged): " 
                      << element->numberOfConnectedCells(cellId));
       msg(MSG::ALWAYS) << " Connected cells";

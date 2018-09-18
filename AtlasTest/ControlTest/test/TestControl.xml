@@ -13,44 +13,4 @@
          <returnValue>0</returnValue>
       </expectations>
    </TEST>
-
-   <TEST name="test_cfgItemList" type="script" suite="Core">
-      <package>AtlasTest/ControlTest</package>
-      <options_atn>python -c'import ControlTest.test_cfgItemList'</options_atn>
-      <timelimit>10</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <successMessage>test SUCCESSFULL</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
-   <TEST name="test_keyStore" type="script" suite="Core">
-      <package>AtlasTest/ControlTest</package>
-      <options_atn>python -c'import ControlTest.test_keyStore'</options_atn>
-      <timelimit>10</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <successMessage>test SUCCESSFULL</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
-   <TEST name="test_interactive_athena" type="script" suite="Core">
-      <package>AtlasTest/ControlTest</package>
-      <options_atn>athena.py -i ControlTest/test_interactive_athena.py</options_atn>
-      <timelimit>10</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <successMessage>test [OK]</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
 </atn>

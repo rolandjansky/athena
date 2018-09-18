@@ -56,17 +56,14 @@ DetFlags.readRIOBS.all_setOff()
 DetFlags.readRIOPool.all_setOff()
 DetFlags.writeRIOPool.all_setOff()
 
-
-
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-# Disable SiLorentzAngleSvc to remove
-# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+# Set up SCT cabling
+from AthenaCommon.Include import include
+include('InDetRecExample/InDetRecCabling.py')
 
 from AthenaCommon.AlgSequence import AlgSequence
-
 job = AlgSequence()
 
 #--------------------------------------------------------------
@@ -88,11 +85,11 @@ sct_RODVetoToolSetup.setup()
 sct_RODVetoToolSetup.getAlg().BadRODIds = [0x240100, 0x240030]
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_RODVetoTestAlg
-job+= SCT_RODVetoTestAlg()
+job+= SCT_RODVetoTestAlg(SCT_RODVetoTool=sct_RODVetoToolSetup.getTool())
 
 
 import AthenaCommon.AtlasUnixGeneratorJob
-ToolSvc.SCT_RODVetoTool.OutputLevel=VERBOSE
+sct_RODVetoToolSetup.getTool().OutputLevel=VERBOSE
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000
 ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
 theApp.EvtMax = 1

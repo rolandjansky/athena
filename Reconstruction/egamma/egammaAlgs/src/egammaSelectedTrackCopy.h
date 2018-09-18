@@ -39,10 +39,14 @@ public:
   virtual StatusCode execute() override final;
 
 private:
+
+
   /** @brief broad track selection */
   bool Select(const xAOD::CaloCluster* cluster,
-              bool trkTRT,
-              const xAOD::TrackParticle* track) const;
+              const xAOD::TrackParticle* track,
+              IEMExtrapolationTools::Cache& cache,
+              bool trkTRT) const;
+ 
   /** @brief Tool for extrapolation */
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
     "ExtrapolationTool", "EMExtrapolationTools", "Extrapolation tool"};

@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
- */
+*/
 
 #include "ParticleCaloExtensionTool.h"
 #include "TrkSurfaces/PerigeeSurface.h"
@@ -85,41 +85,30 @@ bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
   return extension.get()!=nullptr;
 }
 
-bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
-                                               const Trk::CaloExtension*  extension, 
-                                               IParticleCaloExtensionTool::Cache& cache ) const{
-  extension=nullptr;
+const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
+                                                                    IParticleCaloExtensionTool::Cache& cache ) const{
   auto findExtension= cache.find(particle.index());
   if (findExtension!=cache.end()){
     ATH_MSG_DEBUG(" Found cached caloExtension for index: " << particle.index());
-    extension=findExtension->second.get();
-  }
+    return findExtension->second.get();
+  }   
   std::unique_ptr<Trk::CaloExtension> tmpExtension;
   if(caloExtension(particle,tmpExtension)){
     ATH_MSG_DEBUG(" Adding  caloExtension to cahce for index: " << particle.index());
     auto insertedExtension=cache.emplace(std::make_pair(size_t(particle.index()),std::move(tmpExtension)));
-    extension=insertedExtension.first->second.get();
+    return insertedExtension.first->second.get();
   }
-  return extension!=nullptr;
+  return nullptr;
 }
 
-
-bool ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle,
-                                               const Trk::CaloExtension* extension, 
-                                               const CaloExtensionCollection& cache ) const{
+const Trk::CaloExtension* ParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
+                                                                    const CaloExtensionCollection& cache ) const{
   size_t index=particle.index();
-  /*
-   * Protect against no proper usage
-   */
   if(index < cache.size()){ 
-    extension=cache[index];
-  }else{
-    ATH_MSG_WARNING("cache size smaller than particle index");
-    extension=nullptr;
-    return false; 
-  }
-  /* If the CaloExtension has been properly created, then it will have intersections*/
-  return (extension->caloLayerIntersections().size()>0);
+    return cache[index];
+  } 
+  ATH_MSG_WARNING("cache size smaller than particle index"); 
+  return nullptr;
 }
 
 StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IParticleContainer& particles, 
@@ -130,7 +119,7 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
     ATH_MSG_ERROR("mask does not have the same size as in input collection");
     return StatusCode::FAILURE;
   }
- 
+
   /* Either create a proper CaloExtension or otherwise a dummy one
    * i.e one with no intersections
    */
@@ -199,7 +188,9 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   //Determine if the track was fit electron hypothesis -- so extrapolate as if the particles is non interacting
   ParticleHypothesis particleType = m_particleType;
   /* 
-   * Electrons done separately here
+   * Electrons done separately here.
+   * In principle they are always done as muon
+   * approximating non-interacting
    */
   if( particle.particleHypothesis() ==  xAOD::electron ){  
     ATH_MSG_DEBUG("Fitting using electron hypothesis");
@@ -212,9 +203,13 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
         return caloExtension(particle.curvilinearParameters(index),alongMomentum,particleType);
       }
     }
+    return caloExtension(particle.perigeeParameters(),alongMomentum,particleType);
   }
 
-  /* This is more muon system oriented part */
+  /* 
+   * This is a bit more muon oriented part
+   */
+
   if(m_startFromPerigee || !particle.track()){
     bool idExit = true;
     // Muon Entry is around z 6783 and r  4255 
@@ -253,10 +248,9 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
 }
 
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( 
-                                                                             const TrackParameters& startPars, 
-                                                                             PropDirection propDir, 
-                                                                             ParticleHypothesis particleType ) const {
+std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars, 
+                                                                              PropDirection propDir, 
+                                                                              ParticleHypothesis particleType ) const {
 
   ATH_MSG_DEBUG("looking up calo states: r " << startPars.position().perp() << " z " << startPars.position().z()
                 << " momentum " << startPars.momentum().mag() );

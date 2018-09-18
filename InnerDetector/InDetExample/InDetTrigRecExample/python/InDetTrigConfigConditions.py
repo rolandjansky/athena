@@ -82,12 +82,14 @@ class PixelConditionsServicesSetup:
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-        
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
-    condSeq += PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder)
 
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
-    condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder)
+    if not hasattr(condSeq, 'PixelDCSCondHVAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
+      condSeq += PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder)
+
+    if not hasattr(condSeq, 'PixelDCSCondTempAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
+      condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder)
 
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
@@ -174,20 +176,22 @@ class PixelConditionsServicesSetup:
     #######################
     # Lorentz Angle Setup #
     #######################
-    from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
-    condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg", PixelDCSConditionsTool=TrigPixelDCSConditionsTool)
+    if not hasattr(condSeq, 'PixelSiPropertiesCondAlg'):
+      from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
+      condSeq += PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg", PixelDCSConditionsTool=TrigPixelDCSConditionsTool)
 
     from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
     TrigSiPropertiesTool = SiPropertiesTool(name="PixelSiPropertiesTool", DetectorName="Pixel", ReadKey="PixelSiliconPropertiesVector")
 
     ToolSvc += TrigSiPropertiesTool
 
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
-    condSeq += PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg", 
-                                          PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
-                                          SiPropertiesTool=TrigSiPropertiesTool,
-                                          UseMagFieldSvc = True,
-                                          UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
+    if not hasattr(condSeq, 'PixelSiLorentzAngleCondAlg'):
+      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+      condSeq += PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg", 
+                                            PixelDCSConditionsTool=TrigPixelDCSConditionsTool, 
+                                            SiPropertiesTool=TrigSiPropertiesTool,
+                                            UseMagFieldSvc = True,
+                                            UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
 
     from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
     TrigPixelLorentzAngleTool = SiLorentzAngleTool(name=self.instanceName('PixelLorentzAngleTool'), DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
@@ -257,8 +261,7 @@ class SCT_ConditionsToolsSetup:
   def initSummaryTool(self, instanceName):
     "Init summary conditions tool"
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetup.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetup.setup()
     summaryTool = sct_ConditionsSummaryToolSetup.getTool()
     if self._print:  print summaryTool
@@ -267,8 +270,7 @@ class SCT_ConditionsToolsSetup:
   def initSummaryToolWithoutFlagged(self, instanceName):
     "Init summary conditions tool without flaggedConditionTool"
     from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
-    sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup(instanceName)
     sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
     summaryToolWoFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
     condTools = []

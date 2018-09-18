@@ -9,6 +9,7 @@ TypeMap::TypeMap(){
   m_typemap[xAOD::Type::Electron] = std::make_pair(1087532415, "xAOD::ElectronContainer"); 
   m_typemap[xAOD::Type::Photon] = std::make_pair(1105575213, "xAOD::PhotonContainer");
   m_typemap[xAOD::Type::Tau] = std::make_pair(1177172564, "xAOD::TauJetContainer");
+  m_typemap[xAOD::Type::Jet] = std::make_pair(1244316195, "xAOD::JetContainer");
 }
 
 bool TypeMap::isKnown(const xAOD::Type::ObjectType& recoType){

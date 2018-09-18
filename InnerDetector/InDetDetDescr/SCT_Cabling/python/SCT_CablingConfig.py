@@ -50,12 +50,6 @@ def setSCT_CablingDataBase():
 
     return SCTConfigurationFolderPath
 
-def getSCT_CablingSvc(name="SCT_CablingSvc", **kwargs):
-    setSCT_CablingDataBase()
-    kwargs.setdefault("DataSource", "CORACOOL")
-    from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
-    return CfgMgr.SCT_CablingSvc(name, **kwargs)
-
 def getSCT_CablingTool(name="SCT_CablingTool", **kwargs):
     from SCT_Cabling.SCT_CablingConf import SCT_CablingTool
     return CfgMgr.SCT_CablingTool(name, **kwargs)
@@ -68,3 +62,12 @@ def getSCT_CablingCondAlgFromCoraCool(name="SCT_CablingCondAlgFromCoraCool", **k
     kwargs.setdefault("ReadKeyGeo", folderPath+"Geog")
     from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromCoraCool
     return CfgMgr.SCT_CablingCondAlgFromCoraCool(name, **kwargs)
+
+def getSCT_CablingToolCB(name="SCT_CablingToolCB", **kwargs):
+    from SCT_Cabling.SCT_CablingConf import SCT_CablingToolCB
+    return CfgMgr.SCT_CablingToolCB(name, **kwargs)
+
+def getSCT_FillCablingFromCoraCool(name="SCT_FillCablingFromCoraCool", **kwargs):
+    from SCT_Cabling.SCT_CablingConf import SCT_FillCablingFromCoraCool
+    return CfgMgr.SCT_FillCablingFromCoraCool(name, **kwargs)
+

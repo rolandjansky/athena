@@ -15,6 +15,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthViews/View.h"
+#include "AthViews/ViewReadHandle.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxStoreInternal.h"
@@ -286,14 +287,15 @@ namespace ViewHelper
    * @return nullptr if object of type T is missing in the view
    */
   template< typename T >
-  const T* getFromView( SG::View* view, const std::string& key) {
+  const T* getFromView( SG::View* view, const SG::ReadHandleKey<T>& key) {
 
-    SG::ReadHandle<T> handle(key);
+    SG::ViewReadHandle<T> handle(key, view);
+    return handle.cptr();
+  }
+  template< typename T >
+  const T* getFromView( const SG::View* view, const SG::ReadHandleKey<T>& key) {
 
-    if ( handle.setProxyDict(view).isFailure() ) {
-      return nullptr;
-    }
-
+    SG::ViewReadHandle<T> handle(key, view);
     return handle.cptr();
   }
 
@@ -305,14 +307,7 @@ namespace ViewHelper
 
   template<typename T>
   SG::ReadHandle<T> makeHandle( const SG::View* view , const SG::ReadHandleKey<T>& rhKey, const EventContext& context ) {
-   
-    SG::View* nview = const_cast<SG::View*>(view);  // we need it until reading from const IProxyDict is not supported
-
-    auto handle = SG::makeHandle( rhKey, context );    
-    if ( handle.setProxyDict( nview ).isFailure() ) { // we ignore it besause the handle will be invalid anyways if this call is unsuccesfull
-      throw std::runtime_error("Can't make ReadHandle of key " + rhKey.key() + " type " + ClassID_traits<T>::typeName() + " in view " + view->name() );
-    }
-    return handle;
+    return SG::ViewReadHandle<T>( rhKey, context, view );
   }
 
   
@@ -323,6 +318,10 @@ namespace ViewHelper
 
   template<typename T>
   ElementLink<T> makeLink(const SG::View* view, const SG::ReadHandle<T>& handle, size_t index ) {
+    return ElementLink<T>( view->name()+"_"+handle.key(), index );
+  }
+  template<typename T>
+  ElementLink<T> makeLink(const SG::View* view, const SG::ReadHandleKey<T>& handle, size_t index ) {
     return ElementLink<T>( view->name()+"_"+handle.key(), index );
   }
 

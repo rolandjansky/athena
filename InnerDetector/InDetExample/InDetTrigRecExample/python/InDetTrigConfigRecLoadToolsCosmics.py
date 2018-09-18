@@ -89,13 +89,18 @@ if DetFlags.haveRIO.SCT_on():
   from AthenaCommon.AlgSequence import AthSequencer
   condSeq = AthSequencer("AthCondSeq")
   if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
-    IBLDistFolderKey = "/Indet/IBLDist"
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline():
-      IBLDistFolderKey = "/Indet/Onl/IBLDist"
     from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
+    # Copied from InDetAlignFolders.py
+    useDynamicAlignFolders = False
+    try:
+      from InDetRecExample.InDetJobProperties import InDetFlags
+      from IOVDbSvc.CondDB import conddb
+      if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
+        useDynamicAlignFolders = True
+    except ImportError:
+      pass
     condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                  IBLDistFolderKey = IBLDistFolderKey)
+                                                  UseDynamicAlignFolders = useDynamicAlignFolders)
 
 #SP formation
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool

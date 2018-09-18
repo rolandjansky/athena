@@ -32,7 +32,7 @@ UPDATE : 25/06/2018
 #include <memory>
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name, 
-                                         ISvcLocator* pSvcLocator):
+                                                 ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator)
 {
 }
@@ -94,7 +94,9 @@ StatusCode egammaSelectedTrackCopy::execute()
   unsigned int selectedTracks(0);
   unsigned int selectedTRTTracks(0); 
   unsigned int selectedSiTracks(0);  
- 
+
+  //Extrapolation Cache
+  IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
     ATH_MSG_DEBUG ("Check Track with Eta "<< track->eta()<< " Phi " << track->phi()<<" Pt " <<track->pt());
     bool isTRT=false;
@@ -116,16 +118,14 @@ StatusCode egammaSelectedTrackCopy::execute()
     }
     for(const xAOD::CaloCluster* cluster : *clusterTES ){
       /*
-        check if it the track is selected due to this cluster.
-        If not continue to next cluster
-      */
-      if(!Select(cluster, isTRT,track )){
+         check if it the track is selected due to this cluster.
+         If not continue to next cluster
+         */
+      if(!Select(cluster,track,cache,isTRT)){
         ATH_MSG_DEBUG ("Track did not match cluster");
         continue;
       }
-      //Track is selected/matched
       ATH_MSG_DEBUG ("Track Matched");
-     //Push back the selected to the view container
       viewCopy->push_back(track); 
       ++selectedTracks;
       if(isTRT) {
@@ -162,10 +162,10 @@ StatusCode egammaSelectedTrackCopy::execute()
 }
 
 
-
-bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster*   cluster,
-                                 bool                       trkTRT,
-                                 const xAOD::TrackParticle* track) const
+bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster* cluster,
+                                     const xAOD::TrackParticle* track,
+                                     IEMExtrapolationTools::Cache& cache,
+                                     bool trkTRT) const
 {
 
   ATH_MSG_DEBUG("egammaSelectedTrackCopy::Select()" );
@@ -185,7 +185,6 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster*   cluster,
   if(trkTRT){
     Et = cluster->et();
   }
-
   // a few sanity checks
   if (fabs(clusterEta) > 10.0 || fabs(trkEta) > 10.0 || Et <= 0.0) {
     ATH_MSG_DEBUG("FAILS sanity checks :  Track Eta : " << trkEta 
@@ -197,13 +196,19 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster*   cluster,
   double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
   double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
   double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
-
   //Calcualate deltaPhis 
   double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
   double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
   double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
   double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
   double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
+
+  /* 
+   * First we will see if it fails the quick match 
+   * Then if it passed it will get 2 chances to be selected
+   * One if it matches from last measurement
+   * The second if it matched from Perigee rescales
+   */
 
   if ((!trkTRT)&& fabs(cluster->etaBE(2) - trkEta) > 2*m_broadDeltaEta && 
       fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta){
@@ -218,9 +223,7 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster*   cluster,
                   << trkPhi << ", " << phiRot<< ", "<<phiRotTrack<< ", " << cluster->phiBE(2) << ")" );
     return false;
   }
-
   //Extrapolate from last measurement, since this is before brem fit last measurement is better.
-  IEMExtrapolationTools::TrkExtrapDef extrapFrom = IEMExtrapolationTools::fromLastMeasurement;
   std::vector<double>  eta(4, -999.0);
   std::vector<double>  phi(4, -999.0);
   std::vector<double>  deltaEta(4, -999.0);
@@ -233,20 +236,22 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster*   cluster,
                                            phi,
                                            deltaEta, 
                                            deltaPhi, 
-                                           extrapFrom).isFailure()) {return false;}  
+                                           IEMExtrapolationTools::fromLastMeasurement,
+                                           &cache).isFailure()) {
+    return false;
+  }  
 
   // Selection in narrow eta/phi window
   if(( trkTRT || fabs(deltaEta[2]) < m_narrowDeltaEta ) && 
      deltaPhi[2] < m_narrowDeltaPhi && 
      deltaPhi[2] > -m_narrowDeltaPhiBrem) {
-    ATH_MSG_DEBUG("Standard Match success " << deltaPhi[2] );
+    ATH_MSG_DEBUG("Match from Last measurement is successful :  " << deltaPhi[2] );
     return true;
   }
   else if(!trkTRT && fabs(deltaEta[2]) < m_narrowDeltaEta ){ 
-    ATH_MSG_DEBUG("Normal matched Failed deltaPhi/deltaEta " 
+    ATH_MSG_DEBUG("Failed from Last measurement with deltaPhi/deltaEta " 
                   << deltaPhi[2] <<" / "<< deltaEta[2]<<", Trying Rescale" );
     //Extrapolate from Perigee Rescaled 
-    IEMExtrapolationTools::TrkExtrapDef extrapFrom1 = IEMExtrapolationTools::fromPerigeeRescaled;
     std::vector<double>  eta1(4, -999.0);
     std::vector<double>  phi1(4, -999.0);
     std::vector<double>  deltaEta1(4, -999.0);
@@ -259,7 +264,7 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster*   cluster,
                                              phi1,
                                              deltaEta1, 
                                              deltaPhi1, 
-                                             extrapFrom1).isFailure()) return false;
+                                             IEMExtrapolationTools::fromPerigeeRescaled).isFailure()) return false;
     if( fabs(deltaEta1[2]) < m_narrowDeltaEta 
         && deltaPhi1[2] < m_narrowRescale
         && deltaPhi1[2] > -m_narrowRescaleBrem) {
@@ -271,7 +276,7 @@ bool egammaSelectedTrackCopy::Select(const xAOD::CaloCluster*   cluster,
                     << deltaPhi1[2] <<" / "<< deltaEta1[2] );
       return false;
     }
-  } 
+  }
   ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);
   return false;
 }

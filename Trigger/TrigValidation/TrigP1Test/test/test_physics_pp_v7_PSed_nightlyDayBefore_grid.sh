@@ -36,7 +36,8 @@ echo 'hltpsk' ${hltpsk} | tee ${JOB_LOG}
 
 echo "Reading release from SMK" | tee ${JOB_LOG} 
 get_files releaseFromSMK.py
-python releaseFromSMK.py TRIGGERDBART ${smk} | tee ${JOB_LOG}
+python releaseFromSMK.py TRIGGERDBART ${smk} > releaseFromSMK.log
+cat releaseFromSMK.log  | tee ${JOB_LOG}
 eval "$( grep 'export release=' releaseFromSMK.log)" 
 if [ -z ${release} ]; then
    echo "Release not found" | tee ${JOB_LOG} 
@@ -46,14 +47,14 @@ fi
 
 #athenaHLT.py -M -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_eb_zmm_egz.merged.RAW.selected._0001.data -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBATN" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" -c 'rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True'
 
-athenaHLT.py -n 100000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" | tee ${JOB_LOG} 
+athenaHLT.py -n 5000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" | tee ${JOB_LOG} 
 
 Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root | tee ${JOB_LOG} 
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
 
-exec_art_trigp1test_post.sh
+#exec_art_trigp1test_post.sh
 
 
 #echo 'ART Grid test with Physics_pp_v7 PSed menu'

@@ -22,6 +22,8 @@ namespace Trig {
   {
     declareProperty( "TrigDecisionTool", m_trigDecTool);
 
+    m_condition = TrigDefs::Physics;
+
 #ifndef XAOD_STANDALONE
     auto props = getProperties();
     for( Property* prop : props ) {
@@ -108,7 +110,7 @@ namespace Trig {
       return false;
     }
     
-    auto iparticle_feats = comb.getIParticle(clid,container_typename);
+    auto iparticle_feats = comb.getIParticle(clid,container_typename, "", m_condition);
     result.features = iparticle_feats;
     
     
@@ -217,6 +219,10 @@ namespace Trig {
     
     match_result->m_matched = result;
     return std::move(match_result);
+  }
+
+  void MatchingTool::setCondition(unsigned int condition) {
+    m_condition = condition;
   }
 
   Trig::MatchingImplementation* MatchingTool::impl(){

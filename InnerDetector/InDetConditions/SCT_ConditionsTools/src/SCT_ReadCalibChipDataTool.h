@@ -11,20 +11,20 @@
 #define SCT_READ_CALIB_CHIP_DATA_TOOL
 
 // Include interface class
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ReadCalibChipDataTool.h"
 
-// Include STL
-#include <mutex>
+// Include Athena stuff
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_GainCalibData.h"
+#include "SCT_ConditionsData/SCT_NoiseCalibData.h"
 
 // Include Gaudi classes
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 
-// Include Athena stuff 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
-#include "SCT_ConditionsData/SCT_GainCalibData.h"
-#include "SCT_ConditionsData/SCT_NoiseCalibData.h"
+// Include STL
+#include <mutex>
 
 // Forward declarations
 class SCT_ID;
@@ -40,11 +40,11 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   // Structors
   SCT_ReadCalibChipDataTool(const std::string& type, const std::string& name, const IInterface* parent); //!< Constructor
   virtual ~SCT_ReadCalibChipDataTool() = default; //!< Destructor
-  
+
   // Standard Gaudi functions
   virtual StatusCode initialize() override; //!< Gaudi initialiser
   virtual StatusCode finalize() override; //!< Gaudi finaliser
-  
+
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
   virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;

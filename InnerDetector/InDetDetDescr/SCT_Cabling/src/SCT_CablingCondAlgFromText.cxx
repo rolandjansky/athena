@@ -35,7 +35,7 @@ static const std::string atlasTableSignature{"Rod Fibre Bec LayerDisk Eta Phi Si
 static const int disabledFibre{255};
 
 //utility functions in file scope
-namespace{
+namespace {
   //report if string s1 contains s2
   bool 
     contains(const std::string& s1, const std::string& s2) {
@@ -68,7 +68,7 @@ SCT_CablingCondAlgFromText::SCT_CablingCondAlgFromText(const std::string& name, 
 StatusCode
 SCT_CablingCondAlgFromText::initialize() {
   ATH_MSG_INFO("The SCT data file for cabling, " << m_source << ", will be searched.");
-  m_source=PathResolver::find_file(m_source, "DATAPATH");
+  m_source = PathResolver::find_file(m_source, "DATAPATH");
   if (m_source.empty()) {
     ATH_MSG_FATAL("The SCT data file for cabling, " << m_source << ", was not found.");
     return StatusCode::FAILURE;
@@ -119,7 +119,7 @@ SCT_CablingCondAlgFromText::execute() {
   int robid{0};
   std::ifstream fromDataFile{m_source.c_str()};
   if (not fromDataFile) {
-    ATH_MSG_FATAL("The cable mapping file could not be opened: "<<m_source);
+    ATH_MSG_FATAL("The cable mapping file could not be opened: " << m_source);
     return StatusCode::FAILURE;
   }
   std::string inString;
@@ -148,15 +148,15 @@ SCT_CablingCondAlgFromText::execute() {
         offlineId = idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
         offlineIdHash = idHelper->wafer_hash(offlineId);
       } catch (const std::ios_base::failure&) {
-        ATH_MSG_ERROR("An error occurred while reading the cabling file "<<m_source
-                      <<", it may be badly formatted in the following line: \n"<<inString);
+        ATH_MSG_ERROR("An error occurred while reading the cabling file " << m_source
+                      << ", it may be badly formatted in the following line: \n" << inString);
         continue;
       } 
       // Check Link variable looks OK
       // The maximum value of an int is 2147483647 in decimal and 0x7fffffff in hexadecimal.
       if (Link.size()==0 or Link.size()>10) {
-        ATH_MSG_ERROR("An error occurred while reading the cabling file "<<m_source
-                      <<", Link ("<<Link<<") cannot be converted to an integer");
+        ATH_MSG_ERROR("An error occurred while reading the cabling file " << m_source
+                      << ", Link (" << Link << ") cannot be converted to an integer");
         continue;
       }
       // Let's Get the Online Id From the link and the ROD
@@ -166,18 +166,18 @@ SCT_CablingCondAlgFromText::execute() {
         continue;
       }
       if (link==disabledFibre) {
-        ATH_MSG_DEBUG(sn<<": Disabled fibre encountered in text file. Will attempt to place identifier using the other fibre.");
+        ATH_MSG_DEBUG(sn << ": Disabled fibre encountered in text file. Will attempt to place identifier using the other fibre.");
         offlineId = idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
         offlineIdHash = idHelper->wafer_hash(offlineId);
         disabledFibres.push_back(offlineIdHash);
         continue;
       }
       robid = robidFromfile;
-      onlineId = (robid & 0xFFFFFF) | (link<<24);
-      //std::cout<<" "<<offlineIdHash<<" "<<std::hex<<onlineId<<" "<<std::dec<<sn<<std::endl;
+      onlineId = (robid & 0xFFFFFF) | (link << 24);
+      //std::cout << " " << offlineIdHash << " " << std::hex << onlineId << " " << std::dec << sn << std::endl;
       bool success{insert(offlineIdHash, onlineId, SCT_SerialNumber(sn), writeCdo.get())};
       if (not success) {
-        ATH_MSG_ERROR("Insertion of fibre failed, "<<offlineIdHash<<", "<<std::hex<<onlineId<<std::dec<<" "<<sn);
+        ATH_MSG_ERROR("Insertion of fibre failed, " << offlineIdHash << ", " << std::hex << onlineId << std::dec << " " << sn);
       } else {
         numEntries++;
       }
@@ -189,7 +189,7 @@ SCT_CablingCondAlgFromText::execute() {
   // For the disabled fibres 
   //************************************************************************************
   std::string plural{(disabledFibres.size()==1) ? " was" : "s were"};
-  ATH_MSG_INFO(disabledFibres.size()<<" disabled fibre"<<plural<<" found.");
+  ATH_MSG_INFO(disabledFibres.size() << " disabled fibre" << plural << " found.");
   if (not disabledFibres.empty()) {
     int s,os;
     std::vector<IdentifierHash>::const_iterator it{disabledFibres.begin()};
@@ -209,18 +209,18 @@ SCT_CablingCondAlgFromText::execute() {
       int newlink{(s == 0) ? (link - 1) : (link +1)}; //assumes normal unswapped ordering
       if (cableSwapped) newlink = (s == 0) ? (link+1) : (link-1); //assumes swapped ordering
       int newOnlineId{static_cast<int>((onlineId & 0xFFFFFF)|(newlink << 24))};
-      ATH_MSG_DEBUG("new: "<<std::hex<<newOnlineId);
+      ATH_MSG_DEBUG("new: " << std::hex << newOnlineId);
       //start entering for the disabled fibre:
       SCT_SerialNumber sn{writeCdo->getSerialNumberFromHash(offlineIdHash)};
       bool success{insert(offlineIdHash, newOnlineId, sn, writeCdo.get())};
       if (not success) {
-        ATH_MSG_ERROR("Insertion of disabled fibre failed, "<<offlineIdHash<<", "<<std::hex<<newOnlineId<<std::dec<<" "<<sn.str());
+        ATH_MSG_ERROR("Insertion of disabled fibre failed, " << offlineIdHash << ", " << std::hex << newOnlineId << std::dec << " " << sn.str());
       } else {
         numEntries++;
       }
     }
   }
-  ATH_MSG_INFO(numEntries<<" entries were made to the identifier map.");
+  ATH_MSG_INFO(numEntries << " entries were made to the identifier map.");
 
   // Define validity of the output cond obbject and record it
   const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT, 0, 0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
@@ -245,7 +245,7 @@ SCT_CablingCondAlgFromText::insert(const IdentifierHash& hash, const SCT_OnlineI
     return false;
   }
   if (not hash.is_valid()) {
-    ATH_MSG_FATAL("Invalid hash: "<<hash);
+    ATH_MSG_FATAL("Invalid hash: " << hash);
     return false;
   }
   // Check if the pointer of derived conditions object is valid.

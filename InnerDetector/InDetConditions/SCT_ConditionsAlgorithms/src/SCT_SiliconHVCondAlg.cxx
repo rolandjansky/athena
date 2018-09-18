@@ -4,12 +4,12 @@
 
 #include "SCT_SiliconHVCondAlg.h"
 
-#include <memory>
-
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "GaudiKernel/EventIDRange.h"
+
+#include <memory>
 
 SCT_SiliconHVCondAlg::SCT_SiliconHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
@@ -37,7 +37,7 @@ StatusCode SCT_SiliconHVCondAlg::initialize() {
   ATH_CHECK(m_readKeyHV.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
-  if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -91,7 +91,7 @@ StatusCode SCT_SiliconHVCondAlg::execute() {
 
     // Combined the validity ranges of state and range
     rangeW = EventIDRange::intersect(rangeState, rangeHV);
-    if(rangeW.start()>rangeW.stop()) {
+    if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
       ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
       return StatusCode::FAILURE;
     }

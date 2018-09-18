@@ -114,13 +114,6 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 	//	need to check if this View has parent views? can we have more than one parent views?
       }
       else{
-
-      // this is added for EVCreator explicitally, differently from InputMaker:
-      //   if ( previousRoI == roiDescriptor ) {
-	// TODO here code supporting the case wnen we have many decisions associated to a single RoI
-	// continue;
-      //}
-	//      previousRoI = roiDescriptor;
 	
 	ATH_MSG_DEBUG( "Positive decisions on RoI, preparing view" );
 	// fill the RoI output collection
@@ -193,6 +186,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
   ATH_MSG_DEBUG("Produced "<<validOutput<<" decisions containers");
   if(validInput != validOutput) {
     ATH_MSG_ERROR("Found "<<validInput<<" inputs and "<<validOutput<<" outputs");
+    return StatusCode::FAILURE;
   }
   
   for ( auto outHandle: outputHandles ) {

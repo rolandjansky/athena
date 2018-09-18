@@ -8,10 +8,6 @@
 #
 
 
-import os
-os.environ['FRONTIER_SERVER'] = ''
-
-
 from AthenaCommon.DetFlags      import DetFlags
 DetFlags.detdescr.LAr_setOn()
 
@@ -100,12 +96,13 @@ from AthenaPython.PyAthenaComps import Alg, StatusCode
 class TestAlg (Alg):
     def __init__ (self, name):
         Alg.__init__ (self, name)
+        return
+    def initialize (self):
         ROOT.ICaloCellMakerTool
         self.tool1 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArBadFebMaskingTool/tool1')
         self.tool2 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArBadFebMaskingTool/tool2')
         self.tool3 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArBadFebMaskingTool/tool3')
-        return
-    def initialize (self):
+
         self.ccc = make_calo_cells (self.detStore)
         self.onlineID = self.detStore['LArOnlineID']
         self.offlineID  = self.detStore['CaloCell_ID']
