@@ -13,19 +13,7 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
    except:
        mlog.error("could not get handle to CaloCellPedestalCorr Quit")
        print traceback.format_exc()
-   ToolSvc += theCaloCellPedestalCorr
-
-   try:
-       from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
-       from CaloIdentifier import SUBCALO
-       thePedestalTool = CaloCellContainerCorrectorTool("PedestalTool",
-                   CaloNums = [ SUBCALO.NSUBCALO],
-                   CellCorrectionToolNames = [theCaloCellPedestalCorr] )
-   except:
-        mlog.error("could not get handle to CaloCellContainerCorrectorTool Quit")
-        print traceback.format_exc()
-        return False
-
+   #ToolSvc += theCaloCellPedestalCorr
 
    if globalflags.DataSource()=='data' :
        from IOVDbSvc.CondDB import conddb
@@ -56,4 +44,4 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
       theCaloCellPedestalCorr.CaloBCIDAverageKey=""
 
 
-   return thePedestalTool
+   return theCaloCellPedestalCorr
