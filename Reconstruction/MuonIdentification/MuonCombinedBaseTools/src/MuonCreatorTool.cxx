@@ -1677,8 +1677,8 @@ namespace MuonCombined {
     // get ParticleCellAssociation
     ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );
 
-    std::unique_ptr<Trk::CaloExtension> caloExtension = nullptr;
-    if(!m_caloExtTool->caloExtension(*tp,caloExtension)){
+    std::unique_ptr<Trk::CaloExtension> caloExtension =m_caloExtTool->caloExtension(*tp);
+    if(!caloExtension){
       ATH_MSG_WARNING("Can not get caloExtension.");
       return;
     };

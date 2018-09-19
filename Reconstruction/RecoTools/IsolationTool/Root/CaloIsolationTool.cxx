@@ -521,8 +521,8 @@ namespace xAOD {
 #ifndef XAOD_ANALYSIS
     /// try the extention in athena if it's not obtained from muon yet.
     ATH_MSG_DEBUG("Geting calo extension caloExtension tool.");
-    std::unique_ptr<Trk::CaloExtension> caloExtension = nullptr;
-    if(!m_caloExtTool->caloExtension(*tp,caloExtension)){
+    std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*tp);
+    if(!caloExtension){
       ATH_MSG_WARNING("Can not get caloExtension.");
       return false;
     };

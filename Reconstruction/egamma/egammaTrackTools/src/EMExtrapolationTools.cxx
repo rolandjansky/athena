@@ -233,8 +233,8 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
       }
     } 
     else{
-      std::unique_ptr<Trk::CaloExtension> extension = nullptr;
-      didExtension=m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,extension);
+      std::unique_ptr<Trk::CaloExtension> extension = m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB);
+      didExtension=extension!=nullptr;
       if(didExtension){
         intersections=getIntersections(*extension,cluster); 
       }
@@ -261,8 +261,8 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
       }
     } 
     else{
-      std::unique_ptr<Trk::CaloExtension> extension = nullptr;
-      didExtension=m_lastParticleCaloExtensionTool->caloExtension(*trkPB,extension);
+      std::unique_ptr<Trk::CaloExtension> extension = m_lastParticleCaloExtensionTool->caloExtension(*trkPB);
+      didExtension=extension!=nullptr;
       if(didExtension){
         intersections=getIntersections(*extension,cluster); 
       }
