@@ -1,17 +1,10 @@
-// This file is part of the ACTS project.
-//
-// Copyright (C) 2017 ACTS project team
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
-///////////////////////////////////////////////////////////////////
-// RootIndexedMaterialWriter.h
-///////////////////////////////////////////////////////////////////
+// This file was largely imported from the Acts testing framework
 
-#ifndef ACTFW_PLUGINS_ROOT_INDEXEDMATERIALWRITER_H
-#define ACTFW_PLUGINS_ROOT_INDEXEDMATERIALWRITER_H
+#pragma once
 
 #include <mutex>
 #include "Acts/Material/SurfaceMaterial.hpp"
@@ -101,4 +94,3 @@ namespace Acts {
 
 }  // namespace Acts
 
-#endif  // ACTFW_PLUGINS_ROOT_INDEXEDMATERIALWRITER_H

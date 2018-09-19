@@ -10,9 +10,9 @@
 // ACTS
 #include "Acts/Detector/TrackingGeometry.hpp"
 
-// Package
-#include "ActsGeometry/obj/ObjSurfaceWriter.hpp"
-#include "ActsGeometry/obj/ObjTrackingGeometryWriter.hpp"
+// PRIVATE
+#include "util/ObjSurfaceWriter.h"
+#include "util/ObjTrackingGeometryWriter.h"
 
 
 Acts::ObjWriterTool::ObjWriterTool(const std::string& type, const std::string& name,

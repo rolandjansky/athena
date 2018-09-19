@@ -32,9 +32,7 @@ endif()
 
 atlas_add_library( ActsGeometryLib
                    src/*.cxx
-                   src/*.cpp
-                   src/obj/*.cpp
-                   src/Extrapolation/*.cpp
+                   src/util/*.cxx
                    PUBLIC_HEADERS ActsGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces TrkGeometry GeoModelUtilities EventInfo ActsInteropLib ActsCore ActsLegacy ActsMaterialMappingPlugin)

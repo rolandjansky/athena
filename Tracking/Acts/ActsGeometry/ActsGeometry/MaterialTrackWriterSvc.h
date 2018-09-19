@@ -7,8 +7,6 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
-#include "ActsGeometry/Extrapolation/RootExCellWriter.hpp"
-
 #include "Acts/EventData/TrackParameters.hpp"
 
 #include <vector>
@@ -17,13 +15,12 @@
 #include <thread>
 #include <atomic>
 
-
-class TFile;
+#include "TTree.h"
+#include "TFile.h"
 
 namespace Acts {
 
   class MaterialTrack;
-
 
 class MaterialTrackWriterSvc : public extends<AthService, IMaterialTrackWriterSvc> {
 public:

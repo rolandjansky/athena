@@ -10,6 +10,8 @@
 #include <mutex>
 #include <thread>
 
+#include "util/RootExCellWriter.h"
+
 Acts::ExCellWriterSvc::ExCellWriterSvc( const std::string& name, ISvcLocator* svc )
 : base_class(name, svc) {
 }

@@ -6,7 +6,6 @@
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
 #include "ActsGeometry/IExCellWriterSvc.h"
-#include "ActsGeometry/Extrapolation/RootExCellWriter.hpp"
 
 #include "Acts/EventData/TrackParameters.hpp"
 
@@ -15,6 +14,9 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+
+template <typename T>
+class RootExCellWriter;
 
 
 namespace Acts {

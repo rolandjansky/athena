@@ -1,5 +1,10 @@
-#ifndef ACTFW_PLUGINS_ROOTEXCELLWRITER_H
-#define ACTFW_PLUGINS_ROOTEXCELLWRITER_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+// This file was largely imported from the Acts testing framework
+
+#pragma once
 
 #include <TFile.h>
 #include <TTree.h>
@@ -99,6 +104,5 @@ class TFile;
   };
 
 
-#include "RootExCellWriter.ipp"
+#include "RootExCellWriter.icc"
 
-#endif  // ACTFW_PLUGINS_ROOTEXCELLWRITER_H
