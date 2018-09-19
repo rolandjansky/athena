@@ -24,7 +24,7 @@ def makeMuonAnalysisSequence( dataType, deepCopyOutput = False ):
     alg = createAlgorithm( 'CP::MuonCalibrationAndSmearingAlg',
                            'MuonCalibrationAndSmearingAlg' )
     addPrivateTool( alg, 'calibrationAndSmearingTool',
-                    'CP::MuonCalibrationAndSmearingTool' )
+                    'CP::MuonCalibrationPeriodTool' )
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                 affectingSystematics = '(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)' )
 
