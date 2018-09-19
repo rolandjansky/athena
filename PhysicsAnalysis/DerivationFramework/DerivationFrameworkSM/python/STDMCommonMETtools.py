@@ -45,6 +45,7 @@ def addMETAssocMap(sequence=DerivationFrameworkJob,
              	   AssocConfig('Muon'),
             	   AssocConfig('Ele'),
             	   AssocConfig('Gamma'),
+            	   AssocConfig('Tau'),
             	   AssocConfig('Soft')]
 
 	cfg = METAssocConfig(assocname,

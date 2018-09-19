@@ -282,7 +282,7 @@ STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_NewAntiKt4EMPFlowHRAux
 STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_NewAntiKt4EMPFlowHR')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_NewAntiKt4EMPFlowHRAux.-ConstitObjectLinks.-ConstitObjectWeights')
 
-
+'''
 addMETAssocMap(STDM4Sequence,jettype='myPFlowJet',assocname='myAntiKt4EMPFlow',jetcoll='AntiKt4EMPFlowCHSJets',doPflow=True,dorecoil=False,algname='METAssociation')
 MakeMET(STDM4Sequence, assocname='myAntiKt4EMPFlow', jetcoll='AntiKt4EMPFlowCHSJets', setjetminptToinf=False)
 STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_myAntiKt4EMPFlow')
@@ -291,7 +291,7 @@ STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_myAntiKt4EMPFlow')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_myAntiKt4EMPFlowAux.')
 STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_myAntiKt4EMPFlow')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_myAntiKt4EMPFlowAux.-ConstitObjectLinks.-ConstitObjectWeights')
-
+'''
 ##############
 
 

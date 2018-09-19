@@ -291,10 +291,12 @@ namespace met {
     float UEcorr_Pt = 0.;
     unsigned int lept_count = 0;
     std::vector<double> vPhiRnd;
+   
     if (m_pflow && m_useTracks && m_recoil) {
       constlist.clear();
       ATH_CHECK( this->hadrecoil_PFO(hardObjs_tmp, constits, HR, vPhiRnd) );
     }
+    
 
     // all pfos in the maps
     int   N_chsPFOsInMaps = 0;
@@ -353,7 +355,7 @@ namespace met {
           // HR part:
           if(m_recoil){
             UEcorr_Pt = 0.;
-            
+
             ATH_CHECK( this->GetPFOWana(obj,constlist,constits,momentumOverride, vPhiRnd, lept_count, UEcorr_Pt) );
             dec_UEcorr(*obj) = UEcorr_Pt;            
 

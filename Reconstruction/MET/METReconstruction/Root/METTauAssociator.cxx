@@ -170,4 +170,74 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
+
+
+  // extractPFO modified for W measurements
+  StatusCode METTauAssociator::GetPFOWana(const xAOD::IParticle* obj,
+               std::vector<const xAOD::IParticle*>& pfolist,
+               const met::METAssociator::ConstitHolder& constits,
+               std::map<const IParticle*,MissingETBase::Types::constvec_t> & /*momenta*/,
+               std::vector<double>& vPhiRnd,
+               unsigned int& lept_count,
+               float& UEcorr) const
+  {
+
+    const TauJet* tau = static_cast<const TauJet*>(obj);
+    const Jet* seedjet = *tau->jetLink();
+    TLorentzVector momentum;
+    for(const auto& pfo : *constits.pfoCont) {
+      bool match = false;
+      if (fabs(pfo->charge())<FLT_MIN) {
+  if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->eEM()>0) {
+    ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4EM()));
+    match = true;
+  }
+      }
+      else {
+        const TrackParticle* pfotrk = pfo->track(0);
+        for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
+          const TrackParticle* tautrk = ttrk->track();
+          if(tautrk==pfotrk) {
+      ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
+      // We set a small -ve pt for cPFOs that were rejected
+      // by the ChargedHadronSubtractionTool
+      const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV"); 
+      if(PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
+          }
+        }
+      }
+      if(match) {
+  pfolist.push_back(pfo);
+      }
+    }
+
+    //std::cout << "!!!!!!!!!!!!!!!!!!!!!! METTauAssociator::GetPFOWana !!! " << std::endl;
+
+    return StatusCode::SUCCESS;
+
+
+  }
+
+
+
+/*
+  StatusCode METTauAssociator::hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
+                                                const met::METAssociator::ConstitHolder& constits, 
+                                                TLorentzVector& HR,
+                                                std::vector<double>& vPhiRnd) const
+  {
+
+    //std::cout << "!!!!!!!!!!!!!!!!!!!!!! METTauAssociator::hadrecoil_PFO !!! " << std::endl;
+
+
+    return StatusCode::SUCCESS;
+
+  }
+*/
+
+
+
+
 }
+
+
