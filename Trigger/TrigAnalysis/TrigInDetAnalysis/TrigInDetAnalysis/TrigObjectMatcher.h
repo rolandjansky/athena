@@ -5,7 +5,7 @@
 //
 //   $Id: TrigObjectMatcher.h, v0.0   Fri 14 Sep 2018 15:55:41 CEST sutt $
 //
-//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #ifndef  TRIGOBJECTMATCHER_H
 #define  TRIGOBJECTMATCHER_H
