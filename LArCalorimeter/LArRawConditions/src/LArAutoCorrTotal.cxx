@@ -5,7 +5,7 @@
 
 LArAutoCorrTotal::LArAutoCorrTotal(const LArOnlineID_Base *onlineID, const LArOnOffIdMapping *cabling,
                                    const size_t nGains)
-    : m_onlineID(onlineID), m_cabling(cabling), m_nGains(nGains) {
+    : m_onlineID(onlineID), m_cabling(cabling) {
 
   assert(m_onlineID);
   assert(CaloGain::LARNGAIN <= 3 && nGains > 0);
@@ -65,7 +65,7 @@ const std::vector<double> LArAutoCorrTotal::autoCorrTotal(const HWIdentifier &hw
 }
 
 const std::vector<double> LArAutoCorrTotal::autoCorrTotal(const Identifier &offid, int gain, float Nminbias) const {
-   const Identifier hwid = m_cabling->createSignalChannelID(offid); 
+   const HWIdentifier hwid = m_cabling->createSignalChannelID(offid); 
    return this->autoCorrTotal(hwid, gain, Nminbias);
 }
 
@@ -99,6 +99,6 @@ const std::vector<double> LArAutoCorrTotal::samplRMS(const HWIdentifier &hwid,
 const std::vector<double> LArAutoCorrTotal::samplRMS(const Identifier &offid,
                                                      int gain,
                                                      float Nminbias) const {
-  const Identifier hwid = m_cabling->createSignalChannelID(offid); 
+  const HWIdentifier hwid = m_cabling->createSignalChannelID(offid); 
   return this->samplRMS(hwid, gain, Nminbias);
 }
