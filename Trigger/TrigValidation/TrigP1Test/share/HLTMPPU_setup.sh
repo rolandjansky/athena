@@ -9,7 +9,7 @@ CORAL_AUTH_PATH_GOOD="$(printenv CORAL_AUTH_PATH)"
 CORAL_DBLOOKUP_PATH_GOOD="$(printenv CORAL_DBLOOKUP_PATH)"
 
 # Gives priority to local installation.
-source /eos/atlas/atlascerngroupdisk/data-art/grid-input/TrigP1Test/HLTMPPU/installed/setup.sh 
+source /eos/atlas/atlascerngroupdisk/trig-daq/ART_HLTMPPU/installed/setup.sh 
 
 # Overwrites new paths with correct paths
 export CORAL_AUTH_PATH="${CORAL_AUTH_PATH_GOOD}"
