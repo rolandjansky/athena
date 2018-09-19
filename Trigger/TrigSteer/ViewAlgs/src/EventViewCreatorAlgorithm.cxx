@@ -60,22 +60,30 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
     auto decAux = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
     outputDecisions->setStore( decAux.get() );
 
-
-    size_t inputCounter = 0;
+    const TrigRoiDescriptor* prevRoIDescriptor = nullptr;
+    int inputCounter = -1;
     for ( auto inputDecision: *inputHandle ) {
-      //make one TC decision output per input and connect to previous
-      auto newDecision = TrigCompositeUtils::newDecisionIn( outputDecisions.get(), name() );
-      TrigCompositeUtils::linkToPrevious( newDecision, inputKey.key(), inputCounter );
-      insertDecisions( inputDecision, newDecision );
-      
+      inputCounter++;      
       // pull RoI descriptor
       TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(inputDecision, m_roisLink );
       ATH_CHECK( roiELInfo.isValid() );
       // associate this RoI to output decisions
       auto roiDescriptor = *roiELInfo.link;
       ATH_MSG_DEBUG( "Placing TrigRoiDescriptor " << *roiDescriptor );
-      newDecision->setObjectLink( "initialRoI", roiELInfo.link );
 
+      TrigCompositeUtils::Decision* newDecision = nullptr;      
+      if ( prevRoIDescriptor != roiDescriptor ) {
+	//make one TC decision output per input and connect to previous
+	newDecision = TrigCompositeUtils::newDecisionIn( outputDecisions.get(), name() );
+	TrigCompositeUtils::linkToPrevious( newDecision, inputKey.key(), inputCounter );
+	insertDecisions( inputDecision, newDecision );
+	newDecision->setObjectLink( "initialRoI", roiELInfo.link );
+	prevRoIDescriptor = roiDescriptor;
+      } else {
+	newDecision = outputDecisions.get()->back();
+	newDecision->setObjectLink( "seedEnd", ElementLink<TrigCompositeUtils::DecisionContainer>( inputHandle.key(), inputCounter ) );
+	insertDecisions( inputDecision, newDecision );
+      }
       
       // search for existing view
       itViewMap = viewMap.find(roiDescriptor);
@@ -105,9 +113,8 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 	ATH_CHECK( placeRoIInView( roiDescriptor, viewVector->back(), contexts.back() ) );
 	
       }
-      inputCounter++;      
     }
-
+    
     ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<< outputDecisions->size()  <<" at index "<< outputIndex);
     ATH_CHECK( outputHandles[outputIndex].record( std::move( outputDecisions ), std::move( decAux ) ) );
   }
