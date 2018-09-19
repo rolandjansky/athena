@@ -82,6 +82,10 @@ namespace met {
     ///////////////////////////////////////////////////////////////////
     protected:
 
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
+    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
+    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
+
     std::string m_input_data_key;
     std::string m_pvcoll;
     std::string m_trkcoll;
@@ -95,8 +99,6 @@ namespace met {
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_forcollKey;
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey;
 
-
-
     bool m_pflow;
     bool m_useTracks;
     bool m_useRapidity;
@@ -105,9 +107,6 @@ namespace met {
     bool m_weight_charged_pfo;
     bool m_cleanChargedPFO;
 
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
-    ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
-    ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;
     bool m_skipconst;
     std::string m_forcoll;
     double m_foreta;
