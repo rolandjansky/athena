@@ -317,6 +317,7 @@ private:
   Efficiency* m_eff_vs_etovpt;
 
   TH1F*       m_et;
+  Efficiency* m_eff_vs_et;
 
 
   /// flag to print out the matched tracks etc

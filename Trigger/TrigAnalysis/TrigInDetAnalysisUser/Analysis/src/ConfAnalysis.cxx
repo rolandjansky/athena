@@ -772,6 +772,7 @@ void ConfAnalysis::initialiseInternal() {
 
 
   m_et          = new TH1F("ET", "ET; E_{T} [GeV]", ptnbins, ptbinlims );
+  m_eff_vs_et   = new Efficiency( m_et, "eff_vs_ET" );
 
 
   //  std::cout << "initialize() Directory " << gDirectory->GetName() << " on leaving" << std::endl;
@@ -934,6 +935,8 @@ void ConfAnalysis::finalise() {
   eff_vs_mu->finalise();
 
   m_eff_vs_etovpt->finalise();
+
+  m_eff_vs_et->finalise();
 
   const unsigned Npurity = 6;
   Efficiency* hpurity[Npurity] = {
@@ -1417,7 +1420,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
       eff_vs_lb->Fill( gevent->lumi_block() );
 
-      if ( tobj ) m_eff_vs_etovpt->Fill(etovpt_val);    
+      if ( tobj ) { 
+	m_eff_vs_etovpt->Fill(etovpt_val);    
+	m_eff_vs_et->Fill( std::fabs(tobj->pt()*0.001) );    
+      }
 
       Nmatched++;
 
@@ -1829,8 +1835,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
       eff_vs_mu->FillDenom(mu_val);
 
-      if ( tobj ) m_eff_vs_etovpt->FillDenom(etovpt_val);    
-
+      if ( tobj ) { 
+	m_eff_vs_etovpt->FillDenom(etovpt_val);    
+	m_eff_vs_et->FillDenom( std::fabs(tobj->pt()*0.001) );    
+      }
 
       if ( dumpflag ) {
 	std::ostream& dumpstream = dumpfile; 
