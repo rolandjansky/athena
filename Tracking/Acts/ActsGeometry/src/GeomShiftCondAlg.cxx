@@ -53,60 +53,6 @@ StatusCode GeomShiftCondAlg::initialize() {
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
 
-  struct AlignableTransformFindAction : public GeoNodeAction {
-
-    const GeoAlignableTransform* highestTransform = nullptr;
-
-    //void 
-    //handlePhysVol (const GeoPhysVol *vol) {
-      //std::cout << "VOLUME(" << vol->getLogVol()->getName() <<")" << std::endl;
-    //}
-    
-    //void 
-    //handleFullPhysVol (const GeoPhysVol *vol) {
-      //std::cout << "VOLUME(" << vol->getLogVol()->getName() <<")" << std::endl;
-    //}
-    //void
-    //handleNameTag (const GeoNameTag *nameTag)
-    //{
-      //std::cout << "NAMETAG: " << nameTag->getName() << "+";
-    //}
-
-    //void 
-    //handleIdentifierTag (const GeoIdentifierTag *idTag) {
-      //std::cout << "NAME: " << idTag->getIdentifier() << "+";
-    //}
-
-    void
-    handleTransform(const GeoTransform* xf) {
-      if (highestTransform != nullptr) return;
-      auto alignableTransform = dynamic_cast<const GeoAlignableTransform*>(xf);
-      if (alignableTransform != nullptr) {
-        //std::cout << __FUNCTION__ << ": " << xf << std::endl;
-        highestTransform = alignableTransform;
-      }
-    }
-
-  };
-
-
-  // let's only do pixel for now
-  //size_t numTreeTops = p_pixelManager->getNumTreeTops();
-
-  //std::vector<const GeoAlignableTransform*> topAligns(numTreeTops);
-
-  //for(size_t i=0;i<numTreeTops;i++) {
-    //AlignableTransformFindAction alignableTransformFindAction;
-    //PVConstLink pixelTreeTop = p_pixelManager->getTreeTop(i);
-    //pixelTreeTop->exec(&alignableTransformFindAction);
-    //m_topAligns.push_back(alignableTransformFindAction.highestTransform);
-  //}
-
-
-  //if (m_cds.retrieve().isFailure()) {
-    //ATH_MSG_ERROR("unable to retrieve ASCIICondDbSvc");
-  //}
-
   m_wchk.setDbKey(m_dbKey);
 
   if (m_wchk.initialize().isFailure()) {
@@ -178,11 +124,6 @@ StatusCode GeomShiftCondAlg::execute() {
 
     EventIDRange r(start, end);
 
-    //Transform3D shift;
-    //shift
-
-    //ShiftCondObj* cdo = new ShiftCondObj( val );
-    
     GeoAlignmentStore* alignStore = new GeoAlignmentStore();
     
     const InDetDD::PixelDetectorManager* pixMgr 
@@ -198,14 +139,14 @@ StatusCode GeomShiftCondAlg::execute() {
     for(const auto& eat_item : atMatL1) {
       const Identifier &id = eat_item.first;
 
-      std::cout << "Identifier: (bec, d, phim, etam, phiidx, etaidx): ";
-      std::cout << idHelper.barrel_ec(id) << " ";
-      std::cout << idHelper.layer_disk(id) << " ";
-      std::cout << idHelper.phi_module(id) << " ";
-      std::cout << idHelper.eta_module(id) << " ";
-      std::cout << idHelper.phi_index(id) << " ";
-      std::cout << idHelper.eta_index(id) << " ";
-      std::cout << std::endl;
+      //std::cout << "Identifier: (bec, d, phim, etam, phiidx, etaidx): ";
+      //std::cout << idHelper.barrel_ec(id) << " ";
+      //std::cout << idHelper.layer_disk(id) << " ";
+      //std::cout << idHelper.phi_module(id) << " ";
+      //std::cout << idHelper.eta_module(id) << " ";
+      //std::cout << idHelper.phi_index(id) << " ";
+      //std::cout << idHelper.eta_index(id) << " ";
+      //std::cout << std::endl;
     
 
       InDetDD::ExtendedAlignableTransform* eat = eat_item.second;
@@ -215,12 +156,6 @@ StatusCode GeomShiftCondAlg::execute() {
       ATH_MSG_DEBUG("add delta: " << alTrf << " -> (z=" << val << ")");
       alignStore->setDelta(alTrf, Amg::EigenTransformToCLHEP(delta));
     }
-
-    //for (const GeoAlignableTransform* alignableTrf : m_topAligns) {
-      //Acts::Transform3D delta;
-      //delta = Acts::Translation3D(Acts::Vector3D::UnitZ()*val);
-      //alignStore->setDelta(alignableTrf, Amg::EigenTransformToCLHEP(delta));
-    //}
 
 
     if (wch.record(r, alignStore).isFailure()) {
