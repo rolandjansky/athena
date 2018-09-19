@@ -86,7 +86,6 @@ int main( int argc, char* argv[] ) {
    const int Nwp = 6; // number of working points (tool instances)
 
    std::vector<std::string> WPnames = {"Tight", "Medium", "Loose", "VeryLoose", "HighPt", "LowPt"};
-   std::vector<std::string> padding = {"    ", "   ", "    ", "", "   ", "    "};
 
    for (int wp = 0; wp < Nwp; wp++) {
 
@@ -104,6 +103,24 @@ int main( int argc, char* argv[] ) {
    }
 
    //done setting up selector tools
+
+   //Create "padding" strings to facilitate easy table view of results
+   std::vector<std::string> padding;
+   padding.clear();
+
+   unsigned int maxNameLength = 0;
+   for (int wp = 0; wp < Nwp; wp++)
+     if (WPnames[wp].size() > maxNameLength)
+       maxNameLength = WPnames[wp].size();
+
+   for (int wp = 0; wp < Nwp; wp++) {
+
+     std::string pad = "";
+     for (unsigned int i = 0; i < maxNameLength - WPnames[wp].size(); i++)
+       pad += " ";
+
+     padding.push_back(pad);
+   }
 
    //string with names of working points for selection results display
    std::string namesString = "                           ";
