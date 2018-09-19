@@ -12,11 +12,13 @@
  * The pattern when it is useful: 
  * AlgA tags the beginning of the time period
  * AlgA::execute() { 
- *  timeStampHandle.record( std::move( std::make_unique<TrigTimeStamp>() ) ); }
+ *   timeStampHandle.record( std::move( std::make_unique<TrigTimeStamp>() ) ); 
+ * }
  *
  * AlgB obtains the duration since the start tagged in AlgA:
  * AlgB::execute() { 
- *  double duration = timeStampHandle.cptr().milisecondsSince();  }
+ *   double duration = timeStampHandle.cptr().milisecondsSince();
+ * }
  **/
 class TrigTimeStamp {
 public:
@@ -25,7 +27,7 @@ public:
   /**
    * Default constructor, sets to now
    **/
-  TrigTimeStamp() { set(); }
+  TrigTimeStamp();
 
   /**
    * Automatic copy assignemnt operator
@@ -38,33 +40,38 @@ public:
   TrigTimeStamp(const TrigTimeStamp&) = default;  
 
   /**
-   * time duration between now and when the time stamp was created
+   * @return The time duration between now and when the time stamp was created
    **/
   double millisecondsSince() const; 
 
   /**
-   * time duration between when this and another time stamp were created, or last set
-   * @param other Time stamp to compare this one to
+   * @return The time duration between when this and another time stamp were created, or last set
+   * @param[in] other Time stamp to compare this one to
    **/
   double millisecondsDifference(const TrigTimeStamp& other) const; 
 
   /**
    * Obtain the stamp value.
    **/
-  stamp_type get() const { return m_stamp; }
+  stamp_type get() const;
 
   /**
    * Update the stamp value.
-   * @param time Time to set. Default is now.
+   * @param[in] time Time to set. Default is now.
    **/
-  inline void set(stamp_type time = std::chrono::high_resolution_clock::now()) {
-    m_stamp = time;
-  }
+  void set(stamp_type time = std::chrono::high_resolution_clock::now());
 
 private:
   stamp_type m_stamp;
+
 };
 
 CLASS_DEF( TrigTimeStamp , 262409323 , 1 )
+
+inline TrigTimeStamp::TrigTimeStamp() { set(); }
+
+inline TrigTimeStamp::stamp_type TrigTimeStamp::get() const { return m_stamp; }
+
+inline void TrigTimeStamp::set(TrigTimeStamp::stamp_type time) { m_stamp = time; }
 
 #endif  // TrigTimeAlgs_TrigTimeStamp_h
