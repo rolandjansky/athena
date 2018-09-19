@@ -294,6 +294,36 @@ print StreamESD.ItemList
 hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
 topSequence += hltTop
 
+###### Begin Cost Monitoring block
+## TODO: Express this as a ComponentAccumulator
+
+from AthenaCommon.AppMgr import ServiceMgr
+from GaudiSvc.GaudiSvcConf import AuditorSvc
+from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
+
+# This collects and summarises all cost data from all threads
+trigCostService = TrigCostMTSvc()
+trigCostService.MonitorAll = True # During testing only
+trigCostService.PrintTimes = True # During testing only
+ServiceMgr += trigCostService
+
+# This causes Gaudi to ping the trigCostService before & after all algorithms  
+trigCostAuditor = TrigCostMTAuditor()
+theAuditorSvc = ServiceMgr.AuditorSvc
+theAuditorSvc += trigCostAuditor
+theApp.AuditAlgorithms=True
+ServiceMgr += AuditorSvc()
+
+# This triggers the L1 decoder to signal the start of processing, 
+# and the HLT summary alg to signal end of processing and handle the writing of data.
+topSequence.L1DecoderTest.EnableCostMonitoring = True
+summary.EnableCostMonitoring = True
+
+# Write out the data at the end
+addTC("TrigCostContainer")
+
+###### End Cost Monitoring block
+
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
 
