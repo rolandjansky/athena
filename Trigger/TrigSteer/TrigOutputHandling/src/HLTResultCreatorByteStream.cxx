@@ -22,8 +22,6 @@ HLTResultCreatorByteStream::HLTResultCreatorByteStream( const std::string& type,
 HLTResultCreatorByteStream::~HLTResultCreatorByteStream() {}
 
 StatusCode HLTResultCreatorByteStream::initialize() {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-
   
   ATH_CHECK( m_hltResultKey.initialize() );
   ATH_CHECK( m_serializerSvc.retrieve() );
@@ -32,7 +30,7 @@ StatusCode HLTResultCreatorByteStream::initialize() {
   for ( std::string typeAndKey: m_collectionsToSerialize ) {
     const std::string type = typeAndKey.substr( 0, typeAndKey.find('#') );
     if ( type.find('_') == std::string::npos ) {
-      ATH_MSG_ERROR( "Unversion object to be recorded " << typeAndKey );
+      ATH_MSG_ERROR( "Unversioned object to be recorded " << typeAndKey );
       return StatusCode::FAILURE;
     }
     const std::string transientType = typeAndKey.substr( 0, typeAndKey.find('_') );
@@ -57,7 +55,7 @@ StatusCode HLTResultCreatorByteStream::initialize() {
 }
 
 
-void HLTResultCreatorByteStream::makeHeader(const Address& address, std::vector<uint32_t>& buffer  ) const {
+StatusCode HLTResultCreatorByteStream::makeHeader(const Address& address, std::vector<uint32_t>& buffer  ) const {
   buffer.push_back(0); // fragment size placeholder
   buffer.push_back( address.clid ); // type info via CLID
   
@@ -66,9 +64,13 @@ void HLTResultCreatorByteStream::makeHeader(const Address& address, std::vector<
   ss.serialize( address.key, serializedLabel );
   buffer.push_back( serializedLabel.size() );
   buffer.insert( buffer.end(), serializedLabel.begin(), serializedLabel.end() ); // plain SG key
+  return StatusCode::SUCCESS;
 }
 
-void HLTResultCreatorByteStream::fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const {
+StatusCode HLTResultCreatorByteStream::fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const {
+  ATH_CHECK( sz != 0 );
+  ATH_CHECK( data != nullptr );
+    
   buffer.push_back( sz ); // size in bytes
   const size_t neededSize = sz/sizeof(uint32_t) + (sz%sizeof(uint32_t) ? 1 : 0);
   // ideally we could use the vector<uint32_t> right away
@@ -78,6 +80,7 @@ void HLTResultCreatorByteStream::fillPayload( void* data, size_t sz, std::vector
     
   // copy to buffer
   buffer.insert( buffer.end(), intTempBuffer.get(), intTempBuffer.get()+neededSize  );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -91,7 +94,7 @@ StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context 
     ATH_MSG_DEBUG( "Streaming " << address.type << "#" << address.key  );
     // obtain object
     DataObject* dObj = evtStore()->accessData( address.clid, address.key );
-    if ( dObj == 0 ) {
+    if ( dObj == nullptr ) {
       ATH_MSG_DEBUG("Data Object with key " << address.key << " is missing");
       continue;
     }
@@ -118,8 +121,8 @@ StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context 
         
     // prepare fragment
     std::vector<uint32_t> fragment;
-    makeHeader( address, fragment );
-    fillPayload( mem, sz, fragment );
+    ATH_CHECK( makeHeader( address, fragment ) );
+    ATH_CHECK( fillPayload( mem, sz, fragment ) );
     fragment[0] = fragment.size();
     
     std::vector<uint32_t>& place = result->getNavigationResult();
@@ -134,10 +137,4 @@ StatusCode HLTResultCreatorByteStream::createOutput(const EventContext& context 
   
   return StatusCode::SUCCESS;
 }
-
-StatusCode HLTResultCreatorByteStream::finalize() {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-  return StatusCode::SUCCESS;
-}
-
 

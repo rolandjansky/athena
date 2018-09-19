@@ -19,8 +19,7 @@
 #include "AthenaKernel/IDictLoaderSvc.h"
 
 /**
- * @class $(klass)s
- * @brief 
+ * @class HLTResultCreatorByteStream is tool responsible for creation of HLT Result filled with streamed EDM collections
  **/
 
 class HLTResultCreatorByteStream: public extends<AthAlgTool, IHLTOutputTool>
@@ -36,12 +35,9 @@ class HLTResultCreatorByteStream: public extends<AthAlgTool, IHLTOutputTool>
   virtual StatusCode createOutput(const EventContext& context) const override;
 
   virtual StatusCode  initialize() override;
-  virtual StatusCode  finalize() override;
 
  private: 
-  Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize { this, "CollectionsToSerialize", {}, "TYPE#SG key of collections to be streamed (like in StreamAOD)" };
-
-  //  Gaudi::Property< std::vector<std::string>> m_librariesToLoad { this, "LibrariesToLoad", {"xAODTrigger"}, "Set of libraries that need to be loaded for the type discovery to work" };
+  Gaudi::Property<std::vector<std::string>> m_collectionsToSerialize { this, "CollectionsToSerialize", {}, "TYPE#SG key of collections to be streamed (like in StreamAOD), the type has to be an exact type i.e. with _vN not the alias type" };
 
   SG::WriteHandleKey<HLT::HLTResult> m_hltResultKey{this, "HLTResult", "HLTResult", "Name of the HLTResult"};
   
@@ -62,14 +58,14 @@ class HLTResultCreatorByteStream: public extends<AthAlgTool, IHLTOutputTool>
   /**
    * Given the ID if the collection (in address arg) insert basic streaming info into the buffer.
    */
-  void makeHeader( const HLTResultCreatorByteStream::Address& address, std::vector<uint32_t>& buffer  ) const;
+  StatusCode makeHeader( const HLTResultCreatorByteStream::Address& address, std::vector<uint32_t>& buffer  ) const;
 
   /**
    * For copy bytest from the memory into the buffer converting from char[] to uint32_t[]
    * This function is candidate to be made global function at some point
    * and we will need also readPayload function
    */  
-  void fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const ;
+  StatusCode fillPayload( void* data, size_t sz, std::vector<uint32_t>& buffer ) const ;
 
   
 }; 
