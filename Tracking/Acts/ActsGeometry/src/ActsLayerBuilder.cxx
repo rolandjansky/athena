@@ -60,22 +60,16 @@ ActsLayerBuilder::getDetectorElements() const
   
   std::vector<std::shared_ptr<const ActsDetectorElement>> elements;
 
-  //if (siDetMng) {
-    InDetDD::SiDetectorElementCollection::const_iterator iter;
-    for (iter = siDetMng->getDetectorElementBegin();
+  InDetDD::SiDetectorElementCollection::const_iterator iter;
+  for (iter = siDetMng->getDetectorElementBegin();
       iter != siDetMng->getDetectorElementEnd();
       ++iter) {
-      const InDetDD::SiDetectorElement* siDetElement = *iter;
-      //elements.emplace_back(siDetElement, m_cfg.trackingGeometrySvc);
-      elements.push_back(
-          std::make_shared<const ActsDetectorElement>(
-            siDetElement, m_cfg.trackingGeometrySvc));
-    }
-  //}
-  //else {
-    //throw std::domain_error("ActsLayerBuilder does not know how "
-                            //"to operate on this type of Detector Manager");
-  //}
+    const InDetDD::SiDetectorElement* siDetElement = *iter;
+    //elements.emplace_back(siDetElement, m_cfg.trackingGeometrySvc);
+    elements.push_back(
+        std::make_shared<const ActsDetectorElement>(
+          siDetElement, m_cfg.trackingGeometrySvc));
+  }
 
   return elements;
 }
@@ -123,25 +117,11 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
     if (layers.count(layerKey) == 0) {
       // layer not set yet
       layers.insert(std::make_pair(layerKey, std::vector<const Surface*>()));
-      // layers.at(elementLayer) = std::vector<const Surface*>();
     }
 
     // push into correct layer
     layers.at(layerKey).push_back(&element->surface());
 
-    // layer_disk_max appears to be broken, determine empirically
-    // int elementLayer = static_cast<inz>(element->layer_disk());
-    // nLayers             = std::max(nLayers, elementLayer + 1);
-
-    // sort surface into corresponding layer vector
-    // resize layer surface vector if necessary
-    // if (layers.size() < elementLayer + 1) {
-    // layers.resize(elementLayer + 1);
-    //}
-
-    // std::vector<const Surface*>& layerElements
-    //= layers.at(elementLayer);
-    // layerElements.push_back(&element->surface());
   }
 
   // @TODO: Maybe exclude BLM (BCM?)
@@ -180,10 +160,6 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       pl.envR    = {0, 0};
       pl.envZ    = {20, 20};
         
-      // Copied from layercreator
-      //double layerThickness
-        //= std::abs(pl.minZ - pl.maxZ) + pl.envZ.first + pl.envZ.second;
-  
       double binPosZ   = 0.5 * (pl.minZ + pl.maxZ);
       double envZShift = 0.5 * (-pl.envZ.first + pl.envZ.second);
       double layerZ    = binPosZ + envZShift;
@@ -223,8 +199,6 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       ACTS_VERBOSE(" - central: R=" << (pl.minR + pl.maxR)/2.);
       ACTS_VERBOSE(" - outer:   R=" << pl.maxR);
 
-
-
       // set material on inner
       // @TODO: make this configurable somehow
       innerBoundary->setAssociatedMaterial(materialProxy);
@@ -247,7 +221,6 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       Acts::ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
       pl.envZ    = {30, 30};
-
 
       // copied from layercreator
       double layerZ

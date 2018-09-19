@@ -106,13 +106,6 @@ ActsStrawLayerBuilder::centralLayers()
                                                     code.getStrawLayerIndex(), 
                                                     istraw);
 
-            //ACTS_VERBOSE((code.isPosZ() == 1 ? 1 : -1) << " " <<
-                         //code.getPhiIndex() << " " <<
-                         //code.getModuleIndex() << " " <<
-                         //code.getStrawLayerIndex() << " " <<
-                         //istraw);
-            //ACTS_VERBOSE("BRL: " << straw_id);
-
             auto elem = std::make_shared<const ActsDetectorElement>(
                 trf, brlElem, straw_id, m_cfg.trackingGeometrySvc);
 
@@ -205,12 +198,6 @@ ActsStrawLayerBuilder::endcapLayers(int side)
                                                   code.getStrawLayerIndex(), 
                                                   istraw);
 
-          //ACTS_VERBOSE((code.isPosZ() == 1 ? 2 : -2) << " " <<
-                       //code.getPhiIndex() << " " << 
-                       //code.getWheelIndex() << " " <<
-                       //code.getStrawLayerIndex() << " " <<
-                       //istraw);
-          //ACTS_VERBOSE("EC:" << straw_id);
 
           auto elem = std::make_shared<const ActsDetectorElement>(
               trf, ecElem, straw_id, m_cfg.trackingGeometrySvc);
@@ -238,9 +225,6 @@ ActsStrawLayerBuilder::endcapLayers(int side)
       ACTS_VERBOSE("  - Collected " << wheelSurfaces.size() << " straws");
     }
     
-
-    
-
   }
   
   ACTS_VERBOSE(" - Built " << layers.size() << " straw endcap layers");

@@ -42,16 +42,11 @@ ActsDetectorElement::ActsDetectorElement(
 {
   m_detElement = detElem;
 
-  //InDetDD::DetectorShape shape = detElem->design().shape();
-
   //auto center     = detElem->center();
   auto boundsType = detElem->bounds().type();
 
   // thickness
   m_thickness = detElem->thickness();
-
-  auto id = detElem->identify();
-
 
   if (boundsType == Trk::SurfaceBounds::Rectangle) {
 

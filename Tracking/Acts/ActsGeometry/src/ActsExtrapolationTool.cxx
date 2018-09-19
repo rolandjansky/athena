@@ -57,7 +57,7 @@ ActsExtrapolationTool::initialize()
     typename RKEngine::Config propConfig;
     propConfig.fieldService = bField;
     auto propEngine_ = std::make_shared<RKEngine>(propConfig);
-    propEngine_->setLogger(Acts::makeAthenaLogger(this, "RKEngine", "ActsExTool"));
+    propEngine_->setLogger(makeActsAthenaLogger(this, "RKEngine", "ActsExTool"));
     propEngine = propEngine_;
   }
   else if (m_fieldMode == "Constant") {
@@ -73,7 +73,7 @@ ActsExtrapolationTool::initialize()
     typename RKEngine::Config propConfig;
     propConfig.fieldService = bField;
     auto propEngine_ = std::make_shared<RKEngine>(propConfig);
-    propEngine_->setLogger(Acts::makeAthenaLogger(this, "RKEngine", "ActsExTool"));
+    propEngine_->setLogger(makeActsAthenaLogger(this, "RKEngine", "ActsExTool"));
     propEngine = propEngine_;
   }
 
@@ -87,21 +87,21 @@ ActsExtrapolationTool::initialize()
   auto                                materialEngine
     = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
   materialEngine->setLogger(
-      Acts::makeAthenaLogger(this, "MatFXEngine", "ActsExTool"));
+      makeActsAthenaLogger(this, "MatFXEngine", "ActsExTool"));
   // (c) StaticNavigationEngine
   Acts::StaticNavigationEngine::Config navConfig;
   navConfig.propagationEngine     = propEngine;
   navConfig.materialEffectsEngine = materialEngine;
   navConfig.trackingGeometry      = trackingGeometry;
   auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
-  navEngine->setLogger(Acts::makeAthenaLogger(this, "NavEngine", "ActsExTool"));
+  navEngine->setLogger(makeActsAthenaLogger(this, "NavEngine", "ActsExTool"));
   // (d) the StaticEngine
   Acts::StaticEngine::Config statConfig;
   statConfig.propagationEngine     = propEngine;
   statConfig.navigationEngine      = navEngine;
   statConfig.materialEffectsEngine = materialEngine;
   auto statEngine = std::make_shared<Acts::StaticEngine>(statConfig);
-  statEngine->setLogger(Acts::makeAthenaLogger(this, "StaticEngine", "ActsExTool"));
+  statEngine->setLogger(makeActsAthenaLogger(this, "StaticEngine", "ActsExTool"));
   // (e) the material engine
   Acts::ExtrapolationEngine::Config exEngineConfig;
   exEngineConfig.trackingGeometry     = trackingGeometry;
@@ -110,7 +110,7 @@ ActsExtrapolationTool::initialize()
   exEngineConfig.extrapolationEngines = {statEngine};
 
   m_exEngine = std::make_shared<Acts::ExtrapolationEngine>(exEngineConfig);
-  m_exEngine->setLogger(Acts::makeAthenaLogger(this, "ExEngine", "ActsExTool"));
+  m_exEngine->setLogger(makeActsAthenaLogger(this, "ExEngine", "ActsExTool"));
 
   ATH_MSG_INFO("ACTS extrapolation successfully initialized");
   return StatusCode::SUCCESS;

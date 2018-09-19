@@ -13,24 +13,22 @@
 
 #include <boost/optional.hpp>
 
-namespace Acts {
-
-class AthenaPrintPolicy final : public Logging::OutputPrintPolicy
+class ActsAthenaPrintPolicy final : public Acts::Logging::OutputPrintPolicy
 {
 public:
 
-  AthenaPrintPolicy(std::shared_ptr<MsgStream> msg) : m_msg(msg) {}
+  ActsAthenaPrintPolicy(std::shared_ptr<MsgStream> msg) : m_msg(msg) {}
 
   void
-  flush(const Logging::Level& lvl, const std::ostringstream& input);
+  flush(const Acts::Logging::Level& lvl, const std::ostringstream& input);
 
 private:
   std::shared_ptr<MsgStream> m_msg;
 };
 
-class AthenaFilterPolicy final : public Logging::OutputFilterPolicy {
+class ActsAthenaFilterPolicy final : public Acts::Logging::OutputFilterPolicy {
 public:
-  AthenaFilterPolicy(std::shared_ptr<MsgStream> msg) : m_msg(msg) {}
+  ActsAthenaFilterPolicy(std::shared_ptr<MsgStream> msg) : m_msg(msg) {}
 
   //~AthenaFilterPolicy() = default;
 
@@ -42,17 +40,16 @@ private:
 };
 
 
-std::unique_ptr<const Logger>
-makeAthenaLogger(IMessageSvc *svc, const std::string& name, int level, boost::optional<std::string> parent_name);
+std::unique_ptr<const Acts::Logger>
+makeActsAthenaLogger(IMessageSvc *svc, const std::string& name, int level, boost::optional<std::string> parent_name);
 
-std::unique_ptr<const Logger>
-makeAthenaLogger(CommonMessagingBase* parent, const std::string& name);
+std::unique_ptr<const Acts::Logger>
+makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name);
 
-std::unique_ptr<const Logger>
-makeAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<std::string> parent_name);
+std::unique_ptr<const Acts::Logger>
+makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<std::string> parent_name);
 
 // problem: string literal does not play well with boost::optional
-std::unique_ptr<const Logger>
-makeAthenaLogger(CommonMessagingBase* parent, const std::string& name, const std::string& parent_name); 
+std::unique_ptr<const Acts::Logger>
+makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, const std::string& parent_name); 
 
-}  // end of namespace Acts

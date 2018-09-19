@@ -18,7 +18,7 @@
 #include <string>
 
 void
-Acts::AthenaPrintPolicy::flush(const Logging::Level& lvl, const std::ostringstream& input)
+ActsAthenaPrintPolicy::flush(const Acts::Logging::Level& lvl, const std::ostringstream& input)
 {
   const std::vector<MSG::Level> athLevelVector{
     MSG::VERBOSE, 
@@ -35,7 +35,7 @@ Acts::AthenaPrintPolicy::flush(const Logging::Level& lvl, const std::ostringstre
   
 
 bool
-Acts::AthenaFilterPolicy::doPrint(const Acts::Logging::Level& lvl) const 
+ActsAthenaFilterPolicy::doPrint(const Acts::Logging::Level& lvl) const 
 {
   const std::array<MSG::Level, 6> athLevelVector{
     MSG::VERBOSE, 
@@ -52,9 +52,9 @@ Acts::AthenaFilterPolicy::doPrint(const Acts::Logging::Level& lvl) const
 
 
 std::unique_ptr<const Acts::Logger>
-Acts::makeAthenaLogger(IMessageSvc *svc, const std::string& name, int level, boost::optional<std::string> parent_name)
+makeActsAthenaLogger(IMessageSvc *svc, const std::string& name, int level, boost::optional<std::string> parent_name)
 {
-  using namespace Logging;
+  using namespace Acts::Logging;
 
   std::string full_name = name;
   if (parent_name) {
@@ -63,13 +63,13 @@ Acts::makeAthenaLogger(IMessageSvc *svc, const std::string& name, int level, boo
 
   auto msg = std::make_shared<MsgStream>(svc, full_name);
   msg->setLevel(level);
-  auto filter = std::make_unique<AthenaFilterPolicy>(msg);
-  auto print = std::make_unique<AthenaPrintPolicy>(msg);
-  return std::make_unique<const Logger>(std::move(print), std::move(filter));
+  auto filter = std::make_unique<ActsAthenaFilterPolicy>(msg);
+  auto print = std::make_unique<ActsAthenaPrintPolicy>(msg);
+  return std::make_unique<const Acts::Logger>(std::move(print), std::move(filter));
 }
 
 std::unique_ptr<const Acts::Logger>
-Acts::makeAthenaLogger(CommonMessagingBase* parent, const std::string& name)
+makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name)
 {
   // no explicit name, get from component
   INamedInterface *inamed = dynamic_cast<INamedInterface*>(parent);
@@ -79,23 +79,23 @@ Acts::makeAthenaLogger(CommonMessagingBase* parent, const std::string& name)
     throw std::invalid_argument("parent needs to be INamedInterface");
   }
   parent_name = inamed->name();
-  return Acts::makeAthenaLogger(parent, name, parent_name);
+  return makeActsAthenaLogger(parent, name, parent_name);
 }
 
 std::unique_ptr<const Acts::Logger>
-Acts::makeAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<std::string> parent_name)
+makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<std::string> parent_name)
 {
   int level = 0;
   INamedInterface *inamed = dynamic_cast<INamedInterface*>(parent);
   if (inamed != nullptr) {
     level = parent->msgSvc()->outputLevel(inamed->name());
   }
-  return Acts::makeAthenaLogger(parent->msgSvc().get(), name, level, parent_name);
+  return makeActsAthenaLogger(parent->msgSvc().get(), name, level, parent_name);
 }
 
 std::unique_ptr<const Acts::Logger>
-Acts::makeAthenaLogger(CommonMessagingBase* parent, const std::string& name, const std::string& parent_name)
+makeActsAthenaLogger(CommonMessagingBase* parent, const std::string& name, const std::string& parent_name)
 {
   
-  return Acts::makeAthenaLogger(parent, name, boost::optional<std::string>(parent_name));
+  return makeActsAthenaLogger(parent, name, boost::optional<std::string>(parent_name));
 }

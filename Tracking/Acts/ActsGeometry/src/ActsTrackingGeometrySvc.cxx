@@ -57,11 +57,11 @@ ActsTrackingGeometrySvc::initialize()
   std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
   auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
-      Acts::makeAthenaLogger(this, "LayArrCrtr", "ActsTGSvc"));
+      makeActsAthenaLogger(this, "LayArrCrtr", "ActsTGSvc"));
 
   auto trackingVolumeArrayCreator
       = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
-          Acts::makeAthenaLogger(this, "TrkVolArrCrtr", "ActsTGSvc"));
+          makeActsAthenaLogger(this, "TrkVolArrCrtr", "ActsTGSvc"));
 
   Acts::CylinderVolumeHelper::Config cvhConfig;
   cvhConfig.layerArrayCreator          = layerArrayCreator;
@@ -69,7 +69,7 @@ ActsTrackingGeometrySvc::initialize()
 
   auto cylinderVolumeHelper
     = std::make_shared<const Acts::CylinderVolumeHelper>(
-        cvhConfig, Acts::makeAthenaLogger(this, "CylVolHlpr", "ActsTGSvc"));
+        cvhConfig, makeActsAthenaLogger(this, "CylVolHlpr", "ActsTGSvc"));
 
   try {
     // PIXEL
@@ -95,7 +95,7 @@ ActsTrackingGeometrySvc::initialize()
 
   auto trackingGeometryBuilder
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig,
-          Acts::makeAthenaLogger(this, "TrkGeomBldr", "ActsTGSvc"));
+          makeActsAthenaLogger(this, "TrkGeomBldr", "ActsTGSvc"));
   
   m_trackingGeometry = trackingGeometryBuilder->trackingGeometry();
   
@@ -134,11 +134,11 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 
     auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
         sacCfg,
-        Acts::makeAthenaLogger(this, "SrfArrCrtr", "ActsTGSvc"));
+        makeActsAthenaLogger(this, "SrfArrCrtr", "ActsTGSvc"));
     Acts::LayerCreator::Config lcCfg;
     lcCfg.surfaceArrayCreator = surfaceArrayCreator;
     auto layerCreator = std::make_shared<Acts::LayerCreator>(
-        lcCfg, Acts::makeAthenaLogger(this, "LayCrtr", "ActsTGSvc"));
+        lcCfg, makeActsAthenaLogger(this, "LayCrtr", "ActsTGSvc"));
 
     ActsStrawLayerBuilder::Config cfg;
     cfg.mng = static_cast<const InDetDD::TRT_DetectorManager*>(manager);
@@ -147,7 +147,7 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     cfg.trackingGeometrySvc = this;
     cfg.idHelper = m_TRT_idHelper;
     gmLayerBuilder = std::make_shared<const ActsStrawLayerBuilder>(cfg,
-      Acts::makeAthenaLogger(this, "GMSLayBldr", "ActsTGSvc"));
+      makeActsAthenaLogger(this, "GMSLayBldr", "ActsTGSvc"));
 
     //gmLayerBuilder->centralLayers();
     //gmLayerBuilder->negativeLayers();
@@ -198,11 +198,11 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
 
     auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
         sacCfg,
-        Acts::makeAthenaLogger(this, "SrfArrCrtr", "ActsTGSvc"));
+        makeActsAthenaLogger(this, "SrfArrCrtr", "ActsTGSvc"));
     Acts::LayerCreator::Config lcCfg;
     lcCfg.surfaceArrayCreator = surfaceArrayCreator;
     auto layerCreator = std::make_shared<Acts::LayerCreator>(
-        lcCfg, Acts::makeAthenaLogger(this, "LayCrtr", "ActsTGSvc"));
+        lcCfg, makeActsAthenaLogger(this, "LayCrtr", "ActsTGSvc"));
 
 
 
@@ -237,7 +237,7 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
     cfg.trackingGeometrySvc = this;
 
     gmLayerBuilder = std::make_shared<const ActsLayerBuilder>(cfg,
-      Acts::makeAthenaLogger(this, "GMLayBldr", "ActsTGSvc"));
+      makeActsAthenaLogger(this, "GMLayBldr", "ActsTGSvc"));
   }
 
 
@@ -254,7 +254,7 @@ ActsTrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager* 
   auto cylinderVolumeBuilder
     = std::make_shared<const Acts::CylinderVolumeBuilder>(
         cvbConfig,
-        Acts::makeAthenaLogger(this, "CylVolBldr", "ActsTGSvc"));
+        makeActsAthenaLogger(this, "CylVolBldr", "ActsTGSvc"));
 
   return cylinderVolumeBuilder;
 }
