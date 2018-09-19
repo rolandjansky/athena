@@ -23,7 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigT1/TrigT1Result
 			  Trigger/TrigSteer/DecisionHandling
-			  Trigger/TrigTools/TrigTimeAlgs )
+			  Trigger/TrigTools/TrigTimeAlgs
+        Trigger/TrigMonitoring/TrigCostMonitorMT )
 
 find_package( CLHEP )
 

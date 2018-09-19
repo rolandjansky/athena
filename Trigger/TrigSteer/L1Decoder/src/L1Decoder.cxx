@@ -3,6 +3,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
+#include "TrigConfHLTData/HLTUtils.h"
 #include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
@@ -30,6 +31,10 @@ StatusCode L1Decoder::initialize() {
   CHECK(incidentSvc.retrieve());
   incidentSvc->addListener(this,"BeginRun", 200);
   incidentSvc.release().ignore();
+
+  if (m_enableCostMonitoring) {
+    CHECK( m_trigCostSvcHandle.retrieve() );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -91,6 +96,14 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
 		       std::back_inserter(rerunChains) );
 
   CHECK( saveChainsInfo( rerunChains, chainsInfo.get(), "rerun" ) );
+
+  // Do cost monitoring, this utilises the HLT_costmonitor chain
+  if (m_enableCostMonitoring) {
+    const static HLT::Identifier costMonitorChain("HLT_costmonitor");
+    const auto activeCostMonIt = std::find(activeChains.begin(), activeChains.end(), costMonitorChain);
+    const bool doCostMonitoring = (activeCostMonIt != activeChains.end());
+    ATH_CHECK(m_trigCostSvcHandle->startEvent(ctx, doCostMonitoring));
+  }
 
   ATH_MSG_DEBUG( "Unpacking RoIs" );  
   HLT::IDSet activeChainSet( activeChains.begin(), activeChains.end() );
